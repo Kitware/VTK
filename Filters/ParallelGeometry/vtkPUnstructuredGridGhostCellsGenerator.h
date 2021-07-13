@@ -84,6 +84,7 @@
 
 class vtkMultiProcessController;
 
+VTK_DEPRECATED_IN_9_1_0("Use vtkGhostCellsGenerator instead")
 class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUnstructuredGridGhostCellsGenerator
   : public vtkUnstructuredGridGhostCellsGenerator
 {

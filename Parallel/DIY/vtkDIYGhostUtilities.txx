@@ -264,7 +264,6 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
   const int size = static_cast<int>(inputs.size());
-
   if (size != static_cast<int>(outputs.size()))
   {
     vtkLog(ERROR, "inputs and outputs have different sizes for " << inputs[0]->GetClassName());

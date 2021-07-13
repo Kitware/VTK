@@ -47,6 +47,7 @@ vtkCxxSetObjectMacro(vtkGhostCellsGenerator, Controller, vtkMultiProcessControll
 vtkGhostCellsGenerator::vtkGhostCellsGenerator()
   : Controller(nullptr)
   , NumberOfGhostLayers(1)
+  , BuildIfRequired(true)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
@@ -54,6 +55,14 @@ vtkGhostCellsGenerator::vtkGhostCellsGenerator()
 //----------------------------------------------------------------------------
 vtkGhostCellsGenerator::~vtkGhostCellsGenerator()
 {
+  this->SetController(nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkGhostCellsGenerator::Initialize()
+{
+  this->NumberOfGhostLayers = 1;
+  this->BuildIfRequired = true;
   this->SetController(nullptr);
 }
 
@@ -72,8 +81,21 @@ int vtkGhostCellsGenerator::RequestData(
   vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
   vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
 
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   bool error = false;
   int retVal = 1;
+
+  int reqGhostLayers =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  int numberOfGhostLayersToCompute =
+    this->BuildIfRequired ? reqGhostLayers : std::max(reqGhostLayers, this->NumberOfGhostLayers);
+
+  if (numberOfGhostLayersToCompute < 1)
+  {
+    outputDO->ShallowCopy(inputDO);
+    return 1;
+  }
 
   std::vector<vtkDataObject*> inputPDSs, outputPDSs;
 
@@ -110,7 +132,14 @@ int vtkGhostCellsGenerator::RequestData(
         for (auto inIt = inputs.begin(), outIt = outputs.begin(); inIt != inputs.end();
              ++inIt, ++outIt)
         {
-          *outIt = vtkSmartPointer<vtkDataObject>::Take(inIt->NewInstance());
+          if (*inIt)
+          {
+            *outIt = vtkSmartPointer<vtkDataObject>::Take(inIt->NewInstance());
+          }
+          else
+          {
+            *outIt = nullptr;
+          }
         }
       }
       else
@@ -190,7 +219,7 @@ int vtkGhostCellsGenerator::RequestData(
       vtkDIYGhostUtilities::GenerateGhostCells(
         inputsSG, outputsSG, this->NumberOfGhostLayers, this->Controller) &&
       vtkDIYGhostUtilities::GenerateGhostCells(
-        inputsUGWithoutGhosts, outputsUG, this->NumberOfGhostLayers, this->Controller);
+        inputsUGWithoutGhosts, outputsUG, numberOfGhostLayersToCompute, this->Controller);
   }
 
   return retVal && !error;
@@ -198,10 +227,12 @@ int vtkGhostCellsGenerator::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkGhostCellsGenerator::RequestUpdateExtent(
-  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
-  outputVector->GetInformationObject(0)->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), this->NumberOfGhostLayers);
+  // we can't trust any ghost levels coming in so we notify all filters before
+  // this that we don't need ghosts
+  inputVector[0]->GetInformationObject(0)->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
   return 1;
 }
 

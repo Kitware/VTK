@@ -437,29 +437,62 @@ void AddGhostLayerOfGridPoints(int vtkNotUsed(extentIdx),
 /**
  * This function is only used for grid inputs. It updates the extents of the output of current block
  * to account for an adjacency with a block at index `idx` inside the extent.
- * `outputExtentShift` is the accumulation of every needed shift to account for new ghost layers
- * over passes with all connected / adjacent neighboring blocks.
- * `neighborExtentWithNewGhosts` is the extent of the adjacent block to be updated with this new
- * ghost layer.
+ * We store this extent information inside ExtentGhostThickness, which describes the ghost layer
+ * thickness in each direction that we should add in the output.
+ * It also updates the extent of the neighbor block so we know its extent when ghosts are added.
  */
-// void AddGhostLayerToGrid(int idx, int outputGhostLevels, const ExtentType& extent,
-//    ExtentType& outputExtentShift, ExtentType& neighborExtentWithNewGhosts)
 template <class BlockT>
 void AddGhostLayerToGrid(int idx, int outputGhostLevels,
   typename BlockT::BlockStructureType& blockStructure,
   typename BlockT::InformationType& blockInformation)
 {
-  const ExtentType& extent = blockStructure.Extent;
+  const ExtentType& extent = blockStructure.ShiftedExtent;
+  ExtentType& shiftedExtentWithNewGhosts = blockStructure.ShiftedExtentWithNewGhosts;
+
   bool upperBound = idx % 2;
   int oppositeIdx = upperBound ? idx - 1 : idx + 1;
   int localOutputGhostLevels =
     std::min(outputGhostLevels, std::abs(extent[idx] - extent[oppositeIdx]));
   blockInformation.ExtentGhostThickness[idx] =
     std::max(blockInformation.ExtentGhostThickness[idx], localOutputGhostLevels);
-  blockStructure.ExtentWithNewGhosts[oppositeIdx] +=
-    (upperBound ? -1.0 : 1.0) * localOutputGhostLevels;
+
+  shiftedExtentWithNewGhosts[oppositeIdx] += (upperBound ? -1.0 : 1.0) * localOutputGhostLevels;
 
   AddGhostLayerOfGridPoints(idx, blockInformation, blockStructure);
+}
+
+//----------------------------------------------------------------------------
+/**
+ * This function looks at the situation when shared dimensions with our neighbor
+ * are such that we extend further that our neighbor. If so, we need to extend the new extent of
+ * our neighbor as well because we have data that they will need.
+ * We look a that in the 2 remaining dimensions.
+ */
+template<class BlockT>
+void ExtendSharedInterfaceIfNeeded(int idx, int outputGhostLevels,
+    typename BlockT::BlockStructureType& blockStructure,
+    typename BlockT::InformationType& blockInformation)
+{
+  const ExtentType& extent = blockStructure.ShiftedExtent;
+  const ExtentType& localExtent = blockInformation.Extent;
+  ExtentType& shiftedExtentWithNewGhosts = blockStructure.ShiftedExtentWithNewGhosts;
+
+  if (extent[idx] > localExtent[idx])
+  {
+    shiftedExtentWithNewGhosts[idx] -= outputGhostLevels;
+    if (shiftedExtentWithNewGhosts[idx] < localExtent[idx])
+    {
+      shiftedExtentWithNewGhosts[idx] = localExtent[idx];
+    }
+  }
+  if (extent[idx + 1] < localExtent[idx + 1])
+  {
+    shiftedExtentWithNewGhosts[idx + 1] += outputGhostLevels;
+    if (shiftedExtentWithNewGhosts[idx + 1] > localExtent[idx + 1])
+    {
+      shiftedExtentWithNewGhosts[idx + 1] = localExtent[idx + 1];
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -468,13 +501,20 @@ void AddGhostLayerToGrid(int idx, int outputGhostLevels,
  * At given position inside `blockStructures` pointed by iterator `it`, and given a computed
  * `adjacencyMask` and `overlapMask` and input ghost levels, this function updates the accumulated
  * extent shift (`outputExtentShift`) for the output grid, as well as the extent of the current
- * block's neighbor `neighborExtentWithNewGhosts`.
+ * block's neighbor `neighborShiftedExtentWithNewGhosts`.
  */
 template <class BlockT, class IteratorT>
 void LinkGrid(BlockMapType<typename BlockT::BlockStructureType>& blockStructures, IteratorT& it,
   typename BlockT::InformationType& blockInformation, Links& localLinks,
   unsigned char adjacencyMask, unsigned char overlapMask, int outputGhostLevels, int dim)
 {
+  // If there is no adjacency or overlap, then blocks are not connected
+  if (adjacencyMask == 0 && overlapMask == 0)
+  {
+    it = blockStructures.erase(it);
+    return;
+  }
+
   int gid = it->first;
   auto& blockStructure = it->second;
 
@@ -519,7 +559,7 @@ void LinkGrid(BlockMapType<typename BlockT::BlockStructureType>& blockStructures
         it = blockStructures.erase(it);
         if (dim != 1)
         {
-          vtkLog(ERROR, "Wrong adjacency mask for 1D grid inputs");
+          vtkLog(ERROR, "Wrong adjacency mask for 1D grid inputs ");
         }
         return;
     }
@@ -671,7 +711,7 @@ void LinkGrid(BlockMapType<typename BlockT::BlockStructureType>& blockStructures
         it = blockStructures.erase(it);
         if (dim != 3)
         {
-          vtkLog(ERROR, "Wrong adjacency mask for 3D grid inputs");
+          vtkLog(ERROR, "Wrong adjacency mask for 3D grid inputs ");
         }
         return;
     }
@@ -679,6 +719,46 @@ void LinkGrid(BlockMapType<typename BlockT::BlockStructureType>& blockStructures
     AddGhostLayerToGrid<BlockT>(idx1, outputGhostLevels, blockStructure, blockInformation);
     AddGhostLayerToGrid<BlockT>(idx2, outputGhostLevels, blockStructure, blockInformation);
     AddGhostLayerToGrid<BlockT>(idx3, outputGhostLevels, blockStructure, blockInformation);
+  }
+
+  if (overlapMask)
+  {
+    int idx1 = -1, idx2 = -1;
+    switch(overlapMask)
+    {
+      case Overlap::X:
+        idx1 = 0;
+        break;
+      case Overlap::Y:
+        idx1 = 2;
+        break;
+      case Overlap::Z:
+        idx1 = 4;
+        break;
+      case Overlap::XY:
+        idx1 = 0;
+        idx2 = 2;
+        break;
+      case Overlap::YZ:
+        idx1 = 2;
+        idx2 = 4;
+        break;
+      case Overlap::XZ:
+        idx1 = 0;
+        idx2 = 4;
+        break;
+      default:
+        vtkLog(ERROR, "This line should never be reached. overlapMask likely equals Overlap::XYZ,"
+            " which is impossible.");
+    }
+
+    ExtendSharedInterfaceIfNeeded<BlockT>(idx1, outputGhostLevels, blockStructure,
+        blockInformation);
+    if (idx2 != -1)
+    {
+      ExtendSharedInterfaceIfNeeded<BlockT>(idx2, outputGhostLevels, blockStructure,
+          blockInformation);
+    }
   }
 
   // If we reach this point, then the current neighboring block is indeed adjacent to us.
@@ -721,7 +801,7 @@ void ComputeAdjacencyAndOverlapMasks(const ExtentType& localExtent, const Extent
  * This function will return true if 2 input block structures are adjacent, false otherwise.
  */
 bool SynchronizeGridExtents(const ImageDataBlockStructure& localBlockStructure,
-  const ImageDataBlockStructure& blockStructure, ExtentType& shiftedExtent)
+  ImageDataBlockStructure& blockStructure)
 {
   // Images are spatially defined by origin, spacing, dimension, and orientation.
   // We make sure that they all connect well using those values.
@@ -731,6 +811,7 @@ bool SynchronizeGridExtents(const ImageDataBlockStructure& localBlockStructure,
   int localDim = localBlockStructure.DataDimension;
 
   const ExtentType& extent = blockStructure.Extent;
+  ExtentType& shiftedExtent = blockStructure.ShiftedExtent;
   const QuaternionType& q = blockStructure.OrientationQuaternion;
   const VectorType& spacing = blockStructure.Spacing;
   int dim = blockStructure.DataDimension;
@@ -754,9 +835,13 @@ bool SynchronizeGridExtents(const ImageDataBlockStructure& localBlockStructure,
     static_cast<int>(std::lround((origin[1] - localOrigin[1]) / spacing[1])),
     static_cast<int>(std::lround((origin[2] - localOrigin[2]) / spacing[2])) };
 
-  shiftedExtent =
-    ExtentType{ extent[0] - originDiff[0], extent[1] - originDiff[0], extent[2] - originDiff[1],
-      extent[3] - originDiff[1], extent[4] - originDiff[2], extent[5] - originDiff[2] };
+  shiftedExtent[0] = extent[0] + originDiff[0];
+  shiftedExtent[1] = extent[1] + originDiff[0];
+  shiftedExtent[2] = extent[2] + originDiff[1];
+  shiftedExtent[3] = extent[3] + originDiff[1];
+  shiftedExtent[4] = extent[4] + originDiff[2];
+  shiftedExtent[5] = extent[5] + originDiff[2];
+
   return true;
 }
 
@@ -874,7 +959,7 @@ struct RectilinearGridFittingWorker
  * This function will return true if 2 input block structures are adjacent, false otherwise.
  */
 bool SynchronizeGridExtents(const RectilinearGridBlockStructure& localBlockStructure,
-  const RectilinearGridBlockStructure& blockStructure, ExtentType& shiftedExtent)
+  RectilinearGridBlockStructure& blockStructure)
 {
   const ExtentType& extent = blockStructure.Extent;
   if (localBlockStructure.DataDimension != blockStructure.DataDimension ||
@@ -912,9 +997,9 @@ bool SynchronizeGridExtents(const RectilinearGridBlockStructure& localBlockStruc
     extent[2] + yWorker.MinId - localExtent[2] - yWorker.LocalMinId,
     extent[4] + zWorker.MinId - localExtent[4] - zWorker.LocalMinId };
 
-  shiftedExtent =
-    ExtentType{ extent[0] - originDiff[0], extent[1] - originDiff[0], extent[2] - originDiff[1],
-      extent[3] - originDiff[1], extent[4] - originDiff[2], extent[5] - originDiff[2] };
+  blockStructure.ShiftedExtent =
+    ExtentType{ extent[0] + originDiff[0], extent[1] + originDiff[0], extent[2] + originDiff[1],
+      extent[3] + originDiff[1], extent[4] + originDiff[2], extent[5] + originDiff[2] };
   return true;
 }
 
@@ -926,11 +1011,12 @@ struct StructuredGridFittingWorker
    */
   StructuredGridFittingWorker(const vtkSmartPointer<vtkPoints> points[6],
       vtkNew<vtkStaticPointLocator> locator[6],
-      const ExtentType& extent, StructuredGridBlockStructure::Grid2D& grid)
+      const ExtentType& extent, StructuredGridBlockStructure::Grid2D& grid, int dimension)
     : Points{ points[0]->GetData(), points[1]->GetData(), points[2]->GetData(), points[3]->GetData(),
         points[4]->GetData(), points[5]->GetData() }
     , Locator{ locator[0], locator[1], locator[2], locator[3], locator[4], locator[5] }
     , Grid(grid)
+    , Dimension(dimension)
   {
     // We compute the extent of each external face of the neighbor block.
     for (int i = 0; i < 6; ++i)
@@ -966,47 +1052,53 @@ struct StructuredGridFittingWorker
   template<class ArrayT>
   void operator()(ArrayT* localPoints)
   {
-    for (int sideId = 0; sideId < 6; ++sideId)
+    for (int dim = 0; dim < 3; ++dim)
     {
-      ArrayT* points = vtkArrayDownCast<ArrayT>(this->Points[sideId]);
-      if (this->GridsFit(localPoints, this->LocalExtent, this->LocalExtentIndex,
-            points, this->Locator[sideId], this->Extent[sideId], sideId))
-      {
-        this->Connected = true;
-      }
-      else if (this->GridsFit(points, this->Extent[sideId], sideId,
-            localPoints, this->LocalLocator, this->LocalExtent, this->LocalExtentIndex))
-      {
-        this->Connected = true;
-        std::swap(this->Grid, this->LocalGrid);
-      }
-      else
+      if (this->Extent[2 * dim] == this->Extent[2 * dim + 1])
       {
         continue;
       }
 
-      // Now, we flip the grids so the local grid uses canonical coordinates (x increasing, y
-      // increasing)
-      if (this->LocalGrid.StartX > this->LocalGrid.EndX)
+      for (int sideId = 2 * dim; sideId <= 2 * dim + 1; ++sideId)
       {
-        std::swap(this->LocalGrid.StartX, this->LocalGrid.EndX);
-        this->LocalGrid.XOrientation *= -1;
-        std::swap(this->Grid.StartX, this->Grid.EndX);
-        this->Grid.XOrientation *= -1;
-      }
-      if (this->LocalGrid.StartY > this->LocalGrid.EndY)
-      {
-        std::swap(this->LocalGrid.StartY, this->LocalGrid.EndY);
-        this->LocalGrid.YOrientation *= -1;
-        std::swap(this->Grid.StartY, this->Grid.EndY);
-        this->Grid.YOrientation *= -1;
-      }
+        ArrayT* points = vtkArrayDownCast<ArrayT>(this->Points[sideId]);
+        if (this->GridsFit(localPoints, this->LocalExtent, this->LocalExtentIndex,
+              points, this->Locator[sideId], this->Extent[sideId], sideId))
+        {
+          this->Connected = true;
+        }
+        else if (this->GridsFit(points, this->Extent[sideId], sideId,
+              localPoints, this->LocalLocator, this->LocalExtent, this->LocalExtentIndex))
+        {
+          this->Connected = true;
+          std::swap(this->Grid, this->LocalGrid);
+        }
+        else
+        {
+          continue;
+        }
 
-      // We have a 2D grid, we succeeded for sure
-      if ((this->Grid.EndX - this->Grid.StartX) && (this->Grid.EndY - this->Grid.StartY))
-      {
-        this->BestConnectionFound = true;
-        return;
+        // Now, we flip the grids so the local grid uses canonical coordinates (x increasing, y
+        // increasing)
+        if (this->LocalGrid.StartX > this->LocalGrid.EndX)
+        {
+          std::swap(this->LocalGrid.StartX, this->LocalGrid.EndX);
+          this->LocalGrid.XOrientation *= -1;
+          std::swap(this->Grid.StartX, this->Grid.EndX);
+          this->Grid.XOrientation *= -1;
+        }
+        if (this->LocalGrid.StartY > this->LocalGrid.EndY)
+        {
+          std::swap(this->LocalGrid.StartY, this->LocalGrid.EndY);
+          this->LocalGrid.YOrientation *= -1;
+          std::swap(this->Grid.StartY, this->Grid.EndY);
+          this->Grid.YOrientation *= -1;
+        }
+
+        if (this->BestConnectionFound)
+        {
+          return;
+        }
       }
     }
   }
@@ -1038,12 +1130,15 @@ struct StructuredGridFittingWorker
 
     int xCorners[2] = { queryExtent[queryXDim], queryExtent[queryXDim + 1] };
     int yCorners[2] = { queryExtent[queryYDim], queryExtent[queryYDim + 1] };
+    int xNumberOfCorners = xCorners[0] == xCorners[1] ? 1 : 2;
+    int yNumberOfCorners = yCorners[0] == yCorners[1] ? 1 : 2;
+
     constexpr int sweepDirection[2] = { 1, -1 };
 
-    for (int xCornerId = 0; xCornerId < 2; ++xCornerId)
+    for (int xCornerId = 0; xCornerId < xNumberOfCorners; ++xCornerId)
     {
       queryijk[queryXDim / 2] = xCorners[xCornerId];
-      for (int yCornerId = 0; yCornerId < 2; ++yCornerId)
+      for (int yCornerId = 0; yCornerId < yNumberOfCorners; ++yCornerId)
       {
         queryijk[queryYDim / 2] = yCorners[yCornerId];
         vtkIdType queryPointId = vtkStructuredData::ComputePointIdForExtent(
@@ -1101,19 +1196,21 @@ struct StructuredGridFittingWorker
 
     int xCorners[2] = { extent[xdim], extent[xdim + 1] };
     int yCorners[2] = { extent[ydim], extent[ydim + 1] };
+    int xNumberOfCorners = xCorners[0] == xCorners[1] ? 1 : 2;
+    int yNumberOfCorners = yCorners[0] == yCorners[1] ? 1 : 2;
 
     int xBegin = ijk[xdim / 2];
     int yBegin = ijk[ydim / 2];
 
-    for (int xCornerId = 0; xCornerId < 2; ++xCornerId)
+    for (int xCornerId = 0; xCornerId < xNumberOfCorners; ++xCornerId)
     {
-      for (int yCornerId = 0; yCornerId < 2; ++yCornerId)
+      for (int yCornerId = 0; yCornerId < yNumberOfCorners; ++yCornerId)
       {
         bool gridsAreFitting = true;
         int queryX, queryY = queryYBegin, x, y = yBegin;
 
         for (queryX = queryXBegin, x = xBegin;
-            gridsAreFitting && queryX != queryXEnd + directionX &&
+            queryX != queryXEnd + directionX &&
             x != xCorners[(xCornerId + 1) % 2] + sweepDirection[xCornerId];
             queryX += directionX, x += sweepDirection[xCornerId])
         {
@@ -1142,6 +1239,7 @@ struct StructuredGridFittingWorker
                 !Comparator<IsInteger>::Equals(point[2], queryPoint[2]))
             {
               gridsAreFitting = false;
+              break;
             }
           }
         }
@@ -1152,8 +1250,12 @@ struct StructuredGridFittingWorker
         // We save grid characteristics if the new grid is larger than the previous selected one.
         // This can happen when an edge is caught, but a whole face should be caught instead
         if (gridsAreFitting &&
-            (std::abs(this->LocalGrid.EndX - this->LocalGrid.StartX) <= std::abs(queryX - queryXBegin) ||
-             std::abs(this->LocalGrid.EndY - this->LocalGrid.StartY) <= std::abs(queryY - queryYBegin)))
+            ((this->LocalGrid.EndX == this->LocalGrid.StartX && queryX != queryXBegin) ||
+              (this->LocalGrid.EndY == this->LocalGrid.StartY && queryY != queryYBegin) ||
+              (std::abs(this->LocalGrid.EndX - this->LocalGrid.StartX) <=
+               std::abs(queryX - queryXBegin) &&
+              std::abs(this->LocalGrid.EndY - this->LocalGrid.StartY) <=
+              std::abs(queryY - queryYBegin))))
         {
           this->LocalGrid.StartX = queryXBegin;
           this->LocalGrid.StartY = queryYBegin;
@@ -1169,7 +1271,18 @@ struct StructuredGridFittingWorker
           this->Grid.EndY = y;
           this->Grid.XOrientation = sweepDirection[xCornerId];
           this->Grid.YOrientation = sweepDirection[yCornerId];
-          this->Grid.ExtentId = queryExtentId;
+          this->Grid.ExtentId = extentId;
+
+          if ((this->Dimension == 3 && 
+                this->Grid.StartX != this->Grid.EndX && this->Grid.StartY != this->Grid.EndY) ||
+              (this->Dimension == 2 && (this->Grid.StartX != this->Grid.EndX ||
+                                        this->Grid.StartY != this->Grid.EndY)) ||
+               this->Dimension == 1)
+          {
+            // In these instances, we know that we found the best connection.
+            this->BestConnectionFound = true;
+            return true;
+          }
 
           retVal = true;
         }
@@ -1188,6 +1301,7 @@ struct StructuredGridFittingWorker
   bool BestConnectionFound = false;
   StructuredGridBlockStructure::Grid2D& Grid;
   StructuredGridBlockStructure::Grid2D LocalGrid;
+  int Dimension;
 };
 
 //----------------------------------------------------------------------------
@@ -1196,11 +1310,10 @@ struct StructuredGridFittingWorker
  * This function will return true if 2 input block structures are adjacent, false otherwise.
  */
 bool SynchronizeGridExtents(StructuredGridBlockStructure& localBlockStructure,
-    StructuredGridBlockStructure& blockStructure, ExtentType& shiftedExtent)
+    StructuredGridBlockStructure& blockStructure)
 {
   const ExtentType& extent = blockStructure.Extent;
-  shiftedExtent = extent;
-  
+
   if (localBlockStructure.DataDimension != blockStructure.DataDimension ||
       extent[0] > extent[1] || extent[2] > extent[3] || extent[4] > extent[5])
   {
@@ -1225,40 +1338,54 @@ bool SynchronizeGridExtents(StructuredGridBlockStructure& localBlockStructure,
     locator[id]->BuildLocator();
   }
 
+  int dimension = (localExtent[0] != localExtent[1]) + (localExtent[2] != localExtent[3]) +
+    (localExtent[4] != localExtent[5]);
+
   using Dispatcher = vtkArrayDispatch::Dispatch;
-  StructuredGridFittingWorker worker(points, locator, extent, gridInterface);
+  StructuredGridFittingWorker worker(points, locator, extent, gridInterface, dimension);
 
   // We look for a connection until either we tried them all, or if we found the best connection,
   // i.e. a full 2D grid has been found.
   // We iterate on each face of the local block.
-  for (worker.LocalExtentIndex = 0;
-      !worker.BestConnectionFound && worker.LocalExtentIndex < 6; ++worker.LocalExtentIndex)
+  for (int dim = 0; dim < 3 && !worker.BestConnectionFound; ++dim)
   {
-    vtkNew<vtkStaticPointLocator> localLocator;
-    vtkNew<vtkPointSet> ps;
+    if (localExtent[2 * dim] == localExtent[2 * dim + 1])
+    {
+      continue;
+    }
 
-    ps->SetPoints(localPoints[worker.LocalExtentIndex]);
-    localLocator->SetDataSet(ps);
-    localLocator->BuildLocator();
+    for (worker.LocalExtentIndex = 2 * dim;
+        !worker.BestConnectionFound && worker.LocalExtentIndex <= 2 * dim + 1;
+        ++worker.LocalExtentIndex)
+    {
+      vtkNew<vtkStaticPointLocator> localLocator;
+      vtkNew<vtkPointSet> ps;
 
-    worker.LocalLocator = localLocator;
-    worker.LocalExtent = localExtent;
-    worker.LocalExtent[worker.LocalExtentIndex + (worker.LocalExtentIndex % 2 ? -1 : 1)] =
-      localExtent[worker.LocalExtentIndex];
+      ps->SetPoints(localPoints[worker.LocalExtentIndex]);
+      localLocator->SetDataSet(ps);
+      localLocator->BuildLocator();
 
-    Dispatcher::Execute(localPoints[worker.LocalExtentIndex]->GetData(), worker);
+      worker.LocalLocator = localLocator;
+      worker.LocalExtent = localExtent;
+      worker.LocalExtent[worker.LocalExtentIndex + (worker.LocalExtentIndex % 2 ? -1 : 1)] =
+        localExtent[worker.LocalExtentIndex];
+
+      Dispatcher::Execute(localPoints[worker.LocalExtentIndex]->GetData(), worker);
+    }
   }
 
   if (!worker.Connected)
   {
     return false;
   }
-  
+
   const auto& localGrid = worker.LocalGrid;
   int xdim = (localGrid.ExtentId + 2) % 6;
   xdim -= xdim % 2;
   int ydim = (localGrid.ExtentId + 4) % 6;
   ydim -= ydim % 2;
+
+  ExtentType& shiftedExtent = blockStructure.ShiftedExtent;
 
   // We match extents to local extents.
   // We know the intersection already, so we ca just use the local grid interface extent.
@@ -1268,13 +1395,74 @@ bool SynchronizeGridExtents(StructuredGridBlockStructure& localBlockStructure,
   shiftedExtent[ydim + 1] = localGrid.EndY;
 
   const auto& grid = worker.Grid;
+
   // Concerning the dimension orthogonal to the interface grid, we just copy the corresponding value
   // from the local extent, and we add the "depth" of the neighbor grid by looking at what is in
   // `extent`.
   int oppositeExtentId = grid.ExtentId + (grid.ExtentId % 2 ? -1 : 1);
-  int deltaExtent = (localGrid.ExtentId % 2 ? -1 : 1) * std::abs(extent[grid.ExtentId] - extent[oppositeExtentId]);
-  shiftedExtent[localGrid.ExtentId + (localGrid.ExtentId % 2 ? -1 : 1)] = shiftedExtent[localGrid.ExtentId] + deltaExtent;
-  shiftedExtent[localGrid.ExtentId] = localExtent[localGrid.ExtentId];
+  int deltaExtent = (localGrid.ExtentId % 2 ? 1 : -1) *
+    std::abs(extent[grid.ExtentId] - extent[oppositeExtentId]);
+  shiftedExtent[localGrid.ExtentId + (localGrid.ExtentId % 2 ? -1 : 1)] =
+    localExtent[localGrid.ExtentId];
+  shiftedExtent[localGrid.ExtentId] = localExtent[localGrid.ExtentId] + deltaExtent;
+
+  int xxdim = (grid.ExtentId + 2) % 6;
+  xxdim -= xxdim % 2;
+  int yydim = (grid.ExtentId + 4) % 6;
+  yydim -= yydim % 2;
+
+  // We want to match 2 adjacent grids that could have dimension x of local grid map dimension z of
+  // neighboring grid. For each dimension, 2 cases are to be taken into account:
+  // - grids touch on the corner (case A)
+  //   In this case, when warping neighbors extent into our referential, one of the neighbor's
+  //   extent matches one of ours, and the other is shifted by the width of the neighbor
+  // - grids actually overlap (case B)
+  //   In this case, we can use the difference between respective StartX of each grid and reposition
+  //   it w.r.t. local extent.
+
+  // Dim X
+  // case A
+  if (localGrid.StartX == localGrid.EndX)
+  {
+    if (localGrid.StartX == localExtent[xdim])
+    {
+      shiftedExtent[xdim + 1] = localExtent[xdim];
+      shiftedExtent[xdim] = shiftedExtent[xdim + 1] - (extent[xxdim + 1] - extent[xxdim]);
+    }
+    else
+    {
+      shiftedExtent[xdim] = localExtent[xdim + 1];
+      shiftedExtent[xdim + 1] = shiftedExtent[xdim + 1] + (extent[xxdim + 1] - extent[xxdim]);
+    }
+  }
+  // case B
+  else
+  {
+    shiftedExtent[xdim] = localGrid.StartX - grid.StartX + extent[xdim];
+    shiftedExtent[xdim + 1] = shiftedExtent[xdim] + extent[xxdim + 1] - extent[xxdim];
+  }
+
+  // Dim Y
+  // case A
+  if (localGrid.StartY == localGrid.EndY)
+  {
+    if (localGrid.StartY == localExtent[ydim])
+    {
+      shiftedExtent[ydim + 1] = localExtent[ydim];
+      shiftedExtent[ydim] = shiftedExtent[ydim + 1] - (extent[yydim + 1] - extent[yydim]);
+    }
+    else
+    {
+      shiftedExtent[ydim] = localExtent[ydim + 1];
+      shiftedExtent[ydim + 1] = shiftedExtent[ydim + 1] + (extent[yydim + 1] - extent[yydim]);
+    }
+  }
+  // case B
+  else
+  {
+    shiftedExtent[ydim] = localGrid.StartY - grid.StartY + extent[ydim];
+    shiftedExtent[ydim + 1] = shiftedExtent[ydim] + extent[yydim + 1] - extent[yydim];
+  }
 
   return true;
 }
@@ -1318,8 +1506,7 @@ LinkMap ComputeLinkMapForStructuredData(const diy::Master& master,
 
       // We synchronize extents, i.e. we shift the extent of current block neighbor
       // so it is described relative to current block.
-      ExtentType shiftedExtent;
-      if (!SynchronizeGridExtents(localBlockStructure, blockStructure, shiftedExtent))
+      if (!SynchronizeGridExtents(localBlockStructure, blockStructure))
       {
         // We end up here if extents cannot be fitted together
         it = blockStructures.erase(it);
@@ -1330,10 +1517,11 @@ LinkMap ComputeLinkMapForStructuredData(const diy::Master& master,
       unsigned char overlapMask;
 
       // We compute the adjacency mask and the extent.
-      ComputeAdjacencyAndOverlapMasks(localExtent, shiftedExtent, adjacencyMask, overlapMask);
+      ComputeAdjacencyAndOverlapMasks(localExtent, blockStructure.ShiftedExtent,
+          adjacencyMask, overlapMask);
 
-      ExtentType& neighborExtentWithNewGhosts = blockStructure.ExtentWithNewGhosts;
-      neighborExtentWithNewGhosts = blockStructure.Extent;
+      ExtentType& neighborShiftedExtentWithNewGhosts = blockStructure.ShiftedExtentWithNewGhosts;
+      neighborShiftedExtentWithNewGhosts = blockStructure.ShiftedExtent;
 
       // We compute the adjacency mask and the extent.
       // We update our neighbor's block extent with ghost layers given spatial adjacency.
@@ -1376,7 +1564,7 @@ void SetupBlockSelfInformationForPointSets(diy::Master& master,
 
     vtkPointSet* surface = vtkPointSet::SafeDownCast(surfaceFilter->GetOutputDataObject(0));
 
-    information.SurfacePoints = surface->GetPoints()->GetData();
+    information.SurfacePoints = surface->GetPoints() ? surface->GetPoints()->GetData() : nullptr;
     information.SurfacePointIds = vtkArrayDownCast<vtkIdTypeArray>(
         surface->GetPointData()->GetAbstractArray(LOCAL_POINT_IDS_ARRAY_NAME));
     information.SurfaceGlobalPointIds = vtkArrayDownCast<vtkIdTypeArray>(
@@ -1840,6 +2028,12 @@ LinkMap ComputeLinkMapForPointSets(const diy::Master& master,
     BlockMapType<BlockStructureType>& blockStructures = block->BlockStructures;
     BlockInformationType& info = block->Information;
 
+    if (!info.SurfacePoints)
+    {
+      blockStructures.clear();
+      continue;
+    }
+
     PointSetT* input = inputs[localId];
     vtkIdTypeArray* globalPointIds = info.SurfaceGlobalPointIds;
 
@@ -2000,7 +2194,7 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIdsForStructuredData(
   using BlockStructureType = typename BlockType::BlockStructureType;
 
   const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
-  const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
+  const ExtentType& extent = blockStructure.ShiftedExtentWithNewGhosts;
   const ExtentType& localExtent = block->Information.Extent;
 
   return ComputeInterfaceCellIdsForStructuredData(localExtent, extent, grid);
@@ -2015,7 +2209,7 @@ template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForStructuredData(
   typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType::BlockStructureType& blockStructure, GridDataSetT* grid)
 {
-  const ExtentType& extent = blockStructure.Extent;
+  const ExtentType& extent = blockStructure.ShiftedExtent;
   int* gridExtent = grid->GetExtent();
   ExtentType localExtent{
     gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
@@ -2093,7 +2287,7 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIdsForStructuredData(
 
   const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
   const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
-  const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
+  const ExtentType& extent = blockStructure.ShiftedExtentWithNewGhosts;
   const ExtentType& localExtent = block->Information.Extent;
 
   return ComputeInterfacePointIdsForStructuredData(adjacencyMask, localExtent, extent, grid);
@@ -2109,7 +2303,7 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForStructuredData(
   typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType::BlockStructureType& blockStructure, GridDataSetT* grid)
 {
   const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
-  const ExtentType& extent = blockStructure.Extent;
+  const ExtentType& extent = blockStructure.ShiftedExtent;
   int* gridExtent = grid->GetExtent();
   ExtentType localExtent
     { gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
@@ -2836,6 +3030,11 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(const diy::Master& maste
     BlockMapType<BlockStructureType>& blockStructures = block->BlockStructures;
     BlockInformation& info = block->Information;
 
+    if (!info.SurfacePoints)
+    {
+      continue;
+    }
+
     vtkIdType pointIdOffset = inputs[localId]->GetNumberOfPoints();
 
     // This pointIdRedirection is used to redirect duplicate points that have been sent by multiple
@@ -2903,7 +3102,7 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(const diy::Master& maste
 
       vtkNew<vtkIncrementalOctreePointLocator> pointLocator;
       vtkNew<vtkPoints> points;
-      points->SetDataType(block->Information.SurfacePoints->GetDataType());
+      points->SetDataType(info.SurfacePoints->GetDataType());
       constexpr double inf = std::numeric_limits<double>::infinity();
       double bounds[6] = { inf, -inf, inf, -inf, inf, -inf };
 
@@ -2974,6 +3173,13 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(const diy::Master& maste
     vtkUnstructuredGrid* output = outputs[localId];
 
     BlockType* block = master.block<BlockType>(localId);
+
+    if (!block->Information.SurfacePoints)
+    {
+      output->ShallowCopy(input);
+      continue;
+    }
+
     vtkIdType numberOfPoints = input->GetNumberOfPoints();
     vtkIdType numberOfCells = input->GetNumberOfCells();
     vtkIdType connectivitySize =

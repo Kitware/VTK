@@ -278,6 +278,7 @@ bool TestMixedTypes(int myrank)
   // If mixed types are mishandled, this will crash.
   vtkNew<vtkGhostCellsGenerator> generator;
   generator->SetInputData(pds);
+  generator->BuildIfRequiredOff();
   generator->Update();
 
   return true;
@@ -334,6 +335,7 @@ bool Test1DGrids(int myrank, int numberOfGhostLayers)
     pds->SetPartition(0, point2cell->GetOutputDataObject(0));
 
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -362,6 +364,7 @@ bool Test1DGrids(int myrank, int numberOfGhostLayers)
     pds->SetPartition(0, image);
 
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -406,6 +409,7 @@ bool Test1DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost points for 1D vtkRectilinearGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -446,6 +450,7 @@ bool Test1DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost cells for 1D vtkRectilinearGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -473,6 +478,7 @@ bool Test1DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost points for 1D vtkStructuredGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -513,6 +519,7 @@ bool Test1DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost cells for 1D vtkStructuredGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -603,6 +610,7 @@ bool Test2DGrids(int myrank, int numberOfGhostLayers)
     pds->SetPartition(1, point2cell1->GetOutputDataObject(0));
 
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -633,6 +641,7 @@ bool Test2DGrids(int myrank, int numberOfGhostLayers)
     pds->SetPartition(1, image1);
 
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -689,6 +698,7 @@ bool Test2DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost points for 2D vtkRectilinearGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -737,6 +747,7 @@ bool Test2DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost cells for 2D vtkRectilinearGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -770,6 +781,7 @@ bool Test2DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost points for 2D vtkStructuredGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -817,6 +829,7 @@ bool Test2DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost cells for 2D vtkStructuredGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -910,6 +923,7 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
     // This preGenerator is testing if the peeling ghosts layers from input is done correctly
     // for grid data sets
     vtkNew<vtkGhostCellsGenerator> preGenerator;
+    preGenerator->BuildIfRequiredOff();
     preGenerator->SetInputDataObject(image0);
     preGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
 
@@ -938,6 +952,7 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
     pds->SetPartition(3, point2cell3->GetOutputDataObject(0));
 
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -972,6 +987,7 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
     pds->SetPartition(3, image3);
 
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1052,6 +1068,7 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost points for 3D vtkRectilinearGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1114,6 +1131,7 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost cells for 3D vtkRectilinearGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1159,6 +1177,7 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost points for 3D vtkStructuredGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1220,6 +1239,7 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
 
     vtkLog(INFO, "Testing ghost cells for 3D vtkStructuredGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1637,6 +1657,7 @@ bool TestUnstructuredGrid(
   // We will use the output of this generator for the next more complex generation,
   // and ensure that when ghosts are present in the input, everything works fine.
   vtkNew<vtkGhostCellsGenerator> preGenerator;
+  preGenerator->BuildIfRequiredOff();
   preGenerator->SetInputDataObject(prePds);
   preGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
   preGenerator->Update();
@@ -1680,6 +1701,7 @@ bool TestUnstructuredGrid(
 
   // On this pass, we test point data when using the cells generator.
   vtkNew<vtkGhostCellsGenerator> generator;
+  generator->BuildIfRequiredOff();
   generator->SetInputDataObject(pds);
   generator->SetNumberOfGhostLayers(numberOfGhostLayers);
   generator->Update();
@@ -1699,6 +1721,7 @@ bool TestUnstructuredGrid(
 
   // On this pass, we test cell data when using the cells generator.
   vtkNew<vtkGhostCellsGenerator> cellGenerator;
+  generator->BuildIfRequiredOff();
   cellGenerator->SetInputDataObject(pdsPointToCell);
   cellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
   cellGenerator->Update();
@@ -1918,6 +1941,7 @@ bool TestPartitionedDataSetCollection(int myrank, int numberOfGhostLayers)
   vtkLog(INFO, "Testing ghost points for vtkPartitionedDataSetCollection in rank " << myrank);
 
   vtkNew<vtkGhostCellsGenerator> generator;
+  generator->BuildIfRequiredOff();
   generator->SetInputDataObject(pdsc);
   generator->SetNumberOfGhostLayers(numberOfGhostLayers);
   generator->Update();

@@ -24,6 +24,12 @@
  * data set. In other words, ghost are not computed between 2 `vtkDataSet` belonging to 2 different
  * `vtkPartitionedDataSet`, even if they are adjacent.
  *
+ * If `BuildIfRequired` is set to true (which is by default), then the filter will compute ghost
+ * based on the value being returned by
+ * `vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()` in the downstream streaming
+ * pipeline. If not (i.e. `BuildIfRequired` is off), then the max between this latter value and
+ * `NumberOfGhostLayers` is being used.
+ *
  * If the input is composed of some data sets already owning ghosts, those ghosts are removed from
  * the output and are recomputed. Ghosts in the input are as if they didn't exist.
  * A ghost cell is to be peeled off if it holds the `CELLDUPLICATE` flag in its ghost bit mask.
@@ -66,8 +72,36 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
+  ///@{
+  /**
+   * Resets parameter.
+   */
+  ///@}
+  virtual void Initialize();
+
+  ///@{
+  /**
+   * Specify if the filter must generate the ghost cells only if required by
+   * the pipeline.
+   * If false, ghost cells are computed even if they are not required.
+   * Default is TRUE.
+   */
+  vtkSetMacro(BuildIfRequired, bool);
+  vtkGetMacro(BuildIfRequired, bool);
+  vtkBooleanMacro(BuildIfRequired, bool);
+  ///@}
+
+  ///@{
+  /**
+   * When BuildIfRequired is `false`, this can be used to set the number
+   * of ghost layers to generate. Note, if the downstream pipeline requests more
+   * ghost levels than the number specified here, then the filter will generate
+   * those extra ghost levels as needed. Accepted values are in the interval
+   * [1, VTK_INT_MAX].
+   */
   vtkGetMacro(NumberOfGhostLayers, int);
-  vtkSetMacro(NumberOfGhostLayers, int);
+  vtkSetClampMacro(NumberOfGhostLayers, int, 1, VTK_INT_MAX);
+  ///@}
 
 protected:
   vtkGhostCellsGenerator();
@@ -84,6 +118,7 @@ protected:
   vtkMultiProcessController* Controller;
 
   int NumberOfGhostLayers;
+  bool BuildIfRequired;
 
 private:
   vtkGhostCellsGenerator(const vtkGhostCellsGenerator&) = delete;

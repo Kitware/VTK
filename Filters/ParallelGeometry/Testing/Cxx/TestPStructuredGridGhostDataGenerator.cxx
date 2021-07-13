@@ -28,13 +28,13 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkImageToStructuredGrid.h"
 #include "vtkInformation.h"
 #include "vtkMPIController.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
-#include "vtkPStructuredGridGhostDataGenerator.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
@@ -78,6 +78,7 @@ void WriteDistributedDataSet(const std::string& prefix, vtkMultiBlockDataSet* da
   vtkXMLPMultiBlockDataWriter* writer = vtkXMLPMultiBlockDataWriter::New();
   std::ostringstream oss;
   oss << prefix << "." << writer->GetDefaultFileExtension();
+
   writer->SetFileName(oss.str().c_str());
   writer->SetInputData(dataset);
   if (Controller->GetLocalProcessId() == 0)
@@ -431,16 +432,15 @@ int Test2D(const bool hasNodeData, const bool hasCellData, const int factor, con
   }
   WriteDistributedDataSet("P2DInitial", mbds);
 
-  vtkPStructuredGridGhostDataGenerator* ghostGenerator =
-    vtkPStructuredGridGhostDataGenerator::New();
+  vtkGhostCellsGenerator* ghostGenerator = vtkGhostCellsGenerator::New();
 
   ghostGenerator->SetInputData(mbds);
   ghostGenerator->SetNumberOfGhostLayers(NG);
   ghostGenerator->SetController(Controller);
-  ghostGenerator->Initialize();
   ghostGenerator->Update();
 
-  vtkMultiBlockDataSet* ghostedDataSet = ghostGenerator->GetOutput();
+  vtkMultiBlockDataSet* ghostedDataSet =
+    vtkMultiBlockDataSet::SafeDownCast(ghostGenerator->GetOutputDataObject(0));
   WriteDistributedDataSet("GHOSTED2D", ghostedDataSet);
 
   rc = CheckFields(ghostedDataSet, hasNodeData, hasCellData);
@@ -497,16 +497,15 @@ int Test3D(const bool hasNodeData, const bool hasCellData, const int factor, con
   }
   WriteDistributedDataSet("P3DInitial", mbds);
 
-  vtkPStructuredGridGhostDataGenerator* ghostGenerator =
-    vtkPStructuredGridGhostDataGenerator::New();
+  vtkGhostCellsGenerator* ghostGenerator = vtkGhostCellsGenerator::New();
 
   ghostGenerator->SetInputData(mbds);
   ghostGenerator->SetNumberOfGhostLayers(NG);
   ghostGenerator->SetController(Controller);
-  ghostGenerator->Initialize();
   ghostGenerator->Update();
 
-  vtkMultiBlockDataSet* ghostedDataSet = ghostGenerator->GetOutput();
+  vtkMultiBlockDataSet* ghostedDataSet =
+    vtkMultiBlockDataSet::SafeDownCast(ghostGenerator->GetOutputDataObject(0));
   WriteDistributedDataSet("GHOSTED3D", ghostedDataSet);
 
   rc = CheckFields(ghostedDataSet, hasNodeData, hasCellData);
@@ -520,6 +519,7 @@ int Test3D(const bool hasNodeData, const bool hasCellData, const int factor, con
 //------------------------------------------------------------------------------
 int TestPStructuredGridGhostDataGenerator(int argc, char* argv[])
 {
+
   int rc = 0;
   Controller = vtkMPIController::New();
   Controller->Initialize(&argc, &argv, 0);
