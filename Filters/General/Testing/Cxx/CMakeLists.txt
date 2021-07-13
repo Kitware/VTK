@@ -33,6 +33,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestIntersectionPolyDataFilter4.cxx,NO_VALID
   TestLoopBooleanPolyDataFilter.cxx
   TestMergeCells.cxx,NO_VALID
+  TestMergeTimeFilter.cxx,NO_VALID
   TestMergeVectorComponents.cxx,NO_VALID
   TestPassArrays.cxx,NO_VALID
   TestPassSelectedArrays.cxx,NO_VALID

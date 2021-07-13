@@ -23,8 +23,10 @@ TEST_DEPENDS
   VTK::FiltersExtraction
   VTK::FiltersFlowPaths
   VTK::FiltersGeometry
+  VTK::FiltersHybrid
   VTK::FiltersModeling
   VTK::FiltersSources
+  VTK::IOExodus
   VTK::IOGeometry
   VTK::IOImage
   VTK::IOLegacy
