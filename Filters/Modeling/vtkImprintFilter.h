@@ -145,7 +145,7 @@ public:
     IMPRINTED_CELLS = 1,
     PROJECTED_IMPRINT = 2,
     IMPRINTED_REGION = 3,
-    MERGED_IMPRINT = 4
+    MERGED_IMPRINT = 5
   };
 
   ///@{
@@ -156,10 +156,11 @@ public:
    * imprint mesh; IMPRINTED_CELLS - output the target's imprinted cells
    * after intersection and triangulation with the imprint mesh;
    * PROJECTED_IMPRINT - project the imprint mesh onto the target mesh,
-   * modififying the imprint mesh point coordinates to lie on the target mesh;
-   * IMPRINTED_REGION - extract just the area of contact between the target
-   * and imprint; and MERGED_IMPRINT - merge the target and imprint mesh
-   * after the imprint operation. By default, MERGED_IMPRINT is produced.
+   * modififying the imprint mesh point coordinates to lie on the target
+   * mesh; IMPRINTED_REGION - extract just the area of contact between the
+   * target and imprint; and MERGED_IMPRINT - merge the target and imprint
+   * mesh after the imprint operation. By default, MERGED_IMPRINT is
+   * produced.
    */
   vtkSetClampMacro(OutputType, int, TARGET_CELLS, MERGED_IMPRINT);
   vtkGetMacro(OutputType, int);
@@ -168,6 +169,19 @@ public:
   void SetOutputTypeToProjectedImprint() { this->SetOutputType(PROJECTED_IMPRINT); }
   void SetOutputTypeToImprintedRegion() { this->SetOutputType(IMPRINTED_REGION); }
   void SetOutputTypeToMergedImprint() { this->SetOutputType(MERGED_IMPRINT); }
+  ///@}
+
+  ///@{
+  /**
+   * Indicate whether to insert just the boundary edges of the imprint mesh
+   * (i.e., do not insert the interior edges). (Boundary edges are mesh edges
+   * used by exactly one cell.) If inserting boundary edges, the imprint
+   * operation is similar to a cookie cutter operation. By default, boundary
+   * edge insertion is off.
+   */
+  vtkSetMacro(BoundaryEdgeInsertion, bool);
+  vtkGetMacro(BoundaryEdgeInsertion, bool);
+  vtkBooleanMacro(BoundaryEdgeInsertion, bool);
   ///@}
 
   enum DebugOutput
@@ -196,7 +210,7 @@ public:
    * produced and the second output of this filter is empty. If TRIANGULATION_INPUT
    * is set, then the input points and edges contained by the target DebugCellId are
    * output to the second output to this filter.  If TRIANGULATION_OUTPUT is
-   * set, then the output triangulation for the specified DebugCellId is
+   * set, then the output triangulation for the specified target cellId is
    * placed in a second output to this filter.
    */
   vtkSetClampMacro(DebugOutputType, int, NO_DEBUG_OUTPUT, TRIANGULATION_OUTPUT);
@@ -222,6 +236,7 @@ protected:
 
   double Tolerance;
   int OutputType;
+  bool BoundaryEdgeInsertion;
   bool TriangulateOutput;
 
   int DebugOutputType;
