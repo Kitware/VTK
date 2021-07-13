@@ -32,6 +32,7 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
@@ -77,6 +78,13 @@ template <>
 struct vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<vtkUnstructuredGrid>
 {
   typedef UnstructuredGridBlock BlockType;
+};
+
+//============================================================================
+template <>
+struct vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<vtkPolyData>
+{
+  typedef PolyDataBlock BlockType;
 };
 
 //----------------------------------------------------------------------------
@@ -258,7 +266,8 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   static_assert((std::is_base_of<vtkImageData, DataSetT>::value ||
                   std::is_base_of<vtkRectilinearGrid, DataSetT>::value ||
                   std::is_base_of<vtkStructuredGrid, DataSetT>::value ||
-                  std::is_base_of<vtkUnstructuredGrid, DataSetT>::value),
+                  std::is_base_of<vtkUnstructuredGrid, DataSetT>::value ||
+                  std::is_base_of<vtkPolyData, DataSetT>::value),
     "Input data set type is not supported.");
 
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
