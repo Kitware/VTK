@@ -314,7 +314,6 @@ public:
   void ClearProperties();
   ///@}
 
-  ///@}
   enum EntityType
   {
     NODEBLOCK,
