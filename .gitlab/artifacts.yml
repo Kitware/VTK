@@ -67,11 +67,25 @@
             # Virtual environment
             - build/ci-venv/
 
+.cmake_junit_artifacts:
+    artifacts:
+        expire_in: 1d
+        # Tests failing should still upload the artifact for further testing.
+        when: always
+        reports:
+            junit:
+                - build/junit.xml
+        paths:
+            - compile_output.log
+
 .cmake_test_artifacts:
     artifacts:
         expire_in: 1d
         # Tests failing should still upload the artifact for further testing.
         when: always
+        reports:
+            junit:
+                - build/junit.xml
         paths:
             # Install tree (if any)
             - build/install/
