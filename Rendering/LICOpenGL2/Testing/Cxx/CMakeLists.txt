@@ -14,7 +14,7 @@ vtk_add_test_cxx(vtkRenderingLICOpenGL2CxxTests tests
 # avoid vtk_add_test_cxx and add exec
 # and it's test cases manually
 list(APPEND tests
-  TestSurfaceLIC
+  TestSurfaceLIC.cxx
   )
 vtk_test_cxx_executable(vtkRenderingLICOpenGL2CxxTests tests
   RENDERING_FACTORY
