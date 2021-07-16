@@ -98,6 +98,7 @@ int vtkStreamSurface::AdvectIterative(
 
     if (StreamTracer->GetOutput()->GetNumberOfPoints() == 0)
     {
+      this->StreamTracer->SetInputData(nullptr);
       return 1;
     }
 
@@ -272,10 +273,13 @@ int vtkStreamSurface::AdvectIterative(
     }
     if (currentSeeds == nullptr)
     {
+      this->StreamTracer->SetInputData(nullptr);
       vtkErrorMacro("Circle is empty, output may not be correct.");
       return 0;
     }
   }
+
+  this->StreamTracer->SetInputData(nullptr);
   return 1;
 }
 
