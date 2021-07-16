@@ -36,9 +36,6 @@ vtkStreamSurface::vtkStreamSurface()
 {
   // this prevents that vtkPStreamTracer is called, which is necessary to prevent deadlocks
   vtkObjectFactory::SetAllEnableFlags(false, "vtkStreamTracer"); // this will need to be discussed
-  this->StreamTracer = vtkNew<vtkStreamTracer>();
-  this->AppendSurfaces = vtkNew<vtkAppendPolyData>();
-  this->RuledSurface = vtkNew<vtkRuledSurfaceFilter>();
   this->RuledSurface->SetInputConnection(this->StreamTracer->GetOutputPort());
   this->RuledSurface->SetRuledModeToResample();
 }
