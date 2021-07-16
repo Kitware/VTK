@@ -698,6 +698,9 @@ void vtkEDLShading::Render(const vtkRenderState* s)
       this->EDLBlurLow(s2, renWin);
       annotate("End vtkEDLShading::BlurLow");
     }
+    // Low-res processing reduces the viewport dimensions.
+    // Reset the viewport after to ensure that following passes get the right viewport size.
+    renWin->GetState()->vtkglViewport(this->Origin[0], this->Origin[1], this->Width, this->Height);
 #endif // EDL_LOW_RESOLUTION_ON
 
     //////////////////////////////////////////////////////
