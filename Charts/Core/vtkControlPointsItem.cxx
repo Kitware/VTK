@@ -1722,9 +1722,9 @@ bool vtkControlPointsItem::IsPointRemovable(vtkIdType pointId)
 }
 
 //------------------------------------------------------------------------------
-vtkStdString vtkControlPointsItem::GetControlPointLabel(vtkIdType pointId)
+std::string vtkControlPointsItem::GetControlPointLabel(vtkIdType pointId)
 {
-  vtkStdString result;
+  std::string result;
   if (this->LabelFormat)
   {
     result.resize(1024);
