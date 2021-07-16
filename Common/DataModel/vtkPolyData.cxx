@@ -149,6 +149,16 @@ void vtkPolyData::CopyStructure(vtkDataSet* ds)
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkPolyData::GetCellIdRelativeToCellArray(vtkIdType cellId)
+{
+  if (!this->Cells)
+  {
+    this->BuildCells();
+  }
+  return this->Cells->GetTag(cellId).GetCellId();
+}
+
+//------------------------------------------------------------------------------
 vtkCell* vtkPolyData::GetCell(vtkIdType cellId)
 {
   if (!this->Cells)
@@ -1751,8 +1761,7 @@ void vtkPolyData::RemoveGhostCells()
   this->CellData->ShallowCopy(newCellData);
   newCellData->Delete();
 
-  for (vtkIdType id = 0; id < n; ++id)
-    this->PointData->ShallowCopy(newPointData);
+  this->PointData->ShallowCopy(newPointData);
   newPointData->Delete();
 
   types->Delete();

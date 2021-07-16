@@ -175,6 +175,13 @@ public:
   int GetMaxCellSize() override;
 
   /**
+   * Maps the cell at position `cellId` inside the `vtkPolyData` to its location in the
+   * corresponding cell array. For instance, if cell `cellId` is a line, then this method returns
+   * the position of this cell in the `Lines` cell array.
+   */
+  vtkIdType GetCellIdRelativeToCellArray(vtkIdType cellId);
+
+  /**
    * Set the cell array defining vertices.
    */
   void SetVerts(vtkCellArray* v);
