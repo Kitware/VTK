@@ -28,6 +28,8 @@ set(classes
   vtkButtonRepresentation
   vtkButtonWidget
   vtkCameraHandleSource
+  vtkCameraOrientationWidget
+  vtkCameraOrientationRepresentation
   vtkCameraPathRepresentation
   vtkCameraPathWidget
   vtkCameraRepresentation
