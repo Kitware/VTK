@@ -58,8 +58,6 @@ public:
 
   void SetVideoSource(vtkFFMPEGVideoSource* val);
 
-  void Reset();
-
 protected:
   vtkOpenGLMovieSphere();
   ~vtkOpenGLMovieSphere() override;
@@ -87,8 +85,6 @@ protected:
   int Width;
   int UVHeight;
   int UVWidth;
-
-  bool Initialized;
 
 private:
   vtkOpenGLMovieSphere(const vtkOpenGLMovieSphere&) = delete;

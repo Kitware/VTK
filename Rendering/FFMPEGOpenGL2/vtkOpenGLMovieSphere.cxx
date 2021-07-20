@@ -131,11 +131,6 @@ void vtkOpenGLMovieSphere::VideoCallback(vtkFFMPEGVideoSourceVideoCallbackData c
   this->HaveData = 1;
 }
 
-void vtkOpenGLMovieSphere::Reset()
-{
-  this->Initialized = false;
-}
-
 // Actual Skybox render method.
 void vtkOpenGLMovieSphere::Render(vtkRenderer* ren, vtkMapper* mapper)
 {
@@ -220,14 +215,10 @@ void vtkOpenGLMovieSphere::Render(vtkRenderer* ren, vtkMapper* mapper)
     this->LastProjection = this->Projection;
   }
 
-  if (true || !this->Initialized)
-  {
-    double* pos = ren->GetActiveCamera()->GetPosition();
-    this->LastCameraPosition[0] = pos[0];
-    this->LastCameraPosition[1] = pos[1];
-    this->LastCameraPosition[2] = pos[2];
-    this->Initialized = true;
-  }
+  double* pos = ren->GetActiveCamera()->GetPosition();
+  this->LastCameraPosition[0] = pos[0];
+  this->LastCameraPosition[1] = pos[1];
+  this->LastCameraPosition[2] = pos[2];
 
   this->CurrentRenderer = ren;
 
