@@ -36,6 +36,8 @@ Do_not_include_vtkOStreamWrapper_directly_vtkSystemIncludes_includes_it;
 class vtkIndent;
 class vtkObjectBase;
 class vtkLargeInteger;
+template <typename T>
+class vtkSmartPointer;
 class vtkSmartPointerBase;
 class vtkStdString;
 
@@ -113,6 +115,14 @@ public:
   vtkOStreamWrapper& operator<<(const S<char, std::char_traits<char>, std::allocator<char>>& s)
   {
     return *this << reinterpret_cast<std_string const&>(s);
+  }
+
+  // Accept vtkSmartPointer for output.
+  template <typename T>
+  vtkOStreamWrapper& operator<<(const vtkSmartPointer<T>& ptr)
+  {
+    this->ostr << (static_cast<T*>(ptr));
+    return *this;
   }
 
   /**
