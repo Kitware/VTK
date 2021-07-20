@@ -70,6 +70,7 @@ set(vtk_cmake_module_files
   Finddouble-conversion.cmake
   FindEigen3.cmake
   FindEXPAT.cmake
+  FindExprTk.cmake
   FindFFMPEG.cmake
   FindFontConfig.cmake
   FindFreetype.cmake
