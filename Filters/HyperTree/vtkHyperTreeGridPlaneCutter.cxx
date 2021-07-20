@@ -34,6 +34,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <cassert>
+#include <cmath>
 
 namespace
 {
@@ -424,6 +425,8 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal(
     }
   }
 
+  const double SQRT_DBL_EPSILON = std::sqrt(VTK_DBL_EPSILON);
+
   // Check cell-plane intersection
   double functEval[8];
   if (this->CheckIntersection(cellCoords, functEval))
@@ -441,7 +444,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal(
       for (int i = 0; i < 8; ++i)
       {
         // Check all cell edges
-        if (functEval[i] == 0.0)
+        if (std::abs(functEval[i]) < SQRT_DBL_EPSILON)
         {
           // If current vertex is intersected then save it
           memcpy(points[n], cellCoords[i], 3 * sizeof(double));
@@ -450,17 +453,17 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal(
         else
         {
           // Check every edge of the current vertex.
-          if (!(i & 1) && functEval[i] * functEval[i + 1] <= 0)
+          if (!(i & 1) && functEval[i] * functEval[i + 1] < 0)
           {
             // Edge in X
             this->PlaneCut(i, i + 1, cellCoords, n, points);
           }
-          if (!(i & 2) && functEval[i] * functEval[i + 2] <= 0)
+          if (!(i & 2) && functEval[i] * functEval[i + 2] < 0)
           {
             // Edge in Y
             this->PlaneCut(i, i + 2, cellCoords, n, points);
           }
-          if (!(i & 4) && functEval[i] * functEval[i + 4] <= 0)
+          if (!(i & 4) && functEval[i] * functEval[i + 4] < 0)
           {
             // Edge in Z
             this->PlaneCut(i, i + 4, cellCoords, n, points);
