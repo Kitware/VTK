@@ -79,6 +79,7 @@ int TestProjectSphereFilter(int vtkNotUsed(argc), char*[])
   calculator->SetAttributeTypeToPointData();
   calculator->AddCoordinateScalarVariable("coordsX", 0);
   calculator->AddCoordinateScalarVariable("coordsY", 1);
+  calculator->ReplaceInvalidValuesOn();
 
   vtkNew<vtkProjectSphereFilter> projectSphere;
   projectSphere->SetCenter(0, 0, 0);
