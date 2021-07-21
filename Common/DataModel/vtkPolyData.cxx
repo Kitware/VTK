@@ -149,6 +149,16 @@ void vtkPolyData::CopyStructure(vtkDataSet* ds)
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkPolyData::GetCellIdRelativeToCellArray(vtkIdType cellId)
+{
+  if (!this->Cells)
+  {
+    this->BuildCells();
+  }
+  return this->Cells->GetTag(cellId).GetCellId();
+}
+
+//------------------------------------------------------------------------------
 vtkCell* vtkPolyData::GetCell(vtkIdType cellId)
 {
   if (!this->Cells)
@@ -1564,6 +1574,15 @@ void vtkPolyData::RemoveGhostCells()
   unsigned char* cellGhosts = temp->GetPointer(0);
 
   vtkIdType numCells = this->GetNumberOfCells();
+  vtkIdType numPoints = this->GetNumberOfPoints();
+
+  vtkNew<vtkPoints> newPoints;
+  newPoints->SetDataType(this->GetPoints()->GetDataType());
+  newPoints->Allocate(numPoints);
+
+  vtkNew<vtkIdList> pointMap;
+  pointMap->SetNumberOfIds(numPoints);
+  vtkSMPTools::Fill(pointMap->begin(), pointMap->end(), -1);
 
   vtkIntArray* types = vtkIntArray::New();
   types->SetNumberOfValues(numCells);
@@ -1614,10 +1633,17 @@ void vtkPolyData::RemoveGhostCells()
   newCellData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
   newCellData->CopyAllocate(this->CellData, numCells);
 
+  vtkPointData* newPointData = vtkPointData::New();
+  // ensure that all attributes are copied over, including global ids.
+  newPointData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  newPointData->CopyAllocate(this->PointData, numCells);
+
   const vtkIdType* pts;
+  double* x;
   vtkIdType n;
 
   vtkIdType cellId;
+  vtkNew<vtkIdList> newCellPoints;
 
   for (vtkIdType i = 0; i < numCells; i++)
   {
@@ -1630,8 +1656,23 @@ void vtkPolyData::RemoveGhostCells()
       if (!(cellGhosts[i] &
             (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
       {
-        cellId = this->InsertNextCell(type, n, pts);
+        for (vtkIdType id = 0; id < n; ++id)
+        {
+          vtkIdType ptId = pts[id];
+          vtkIdType newId;
+          if ((newId = pointMap->GetId(ptId)) == -1)
+          {
+            x = this->GetPoint(ptId);
+            newId = newPoints->InsertNextPoint(x);
+            pointMap->SetId(ptId, newId);
+            newPointData->CopyData(this->PointData, ptId, newId);
+          }
+          newCellPoints->InsertId(id, newId);
+        }
+
+        cellId = this->InsertNextCell(type, newCellPoints);
         newCellData->CopyData(this->CellData, i, cellId);
+        newCellPoints->Reset();
       }
     }
     else if (type == VTK_LINE || type == VTK_POLY_LINE)
@@ -1641,8 +1682,23 @@ void vtkPolyData::RemoveGhostCells()
       if (!(cellGhosts[i] &
             (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
       {
-        cellId = this->InsertNextCell(type, n, pts);
+        for (vtkIdType id = 0; id < n; ++id)
+        {
+          vtkIdType newId;
+          vtkIdType ptId = pts[id];
+          if ((newId = pointMap->GetId(ptId)) == -1)
+          {
+            x = this->GetPoint(ptId);
+            newId = newPoints->InsertNextPoint(x);
+            pointMap->SetId(ptId, newId);
+            newPointData->CopyData(this->PointData, ptId, newId);
+          }
+          newCellPoints->InsertId(id, newId);
+        }
+
+        cellId = this->InsertNextCell(type, newCellPoints);
         newCellData->CopyData(this->CellData, i, cellId);
+        newCellPoints->Reset();
       }
     }
     else if (type == VTK_POLYGON || type == VTK_TRIANGLE || type == VTK_QUAD)
@@ -1652,8 +1708,23 @@ void vtkPolyData::RemoveGhostCells()
       if (!(cellGhosts[i] &
             (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
       {
-        cellId = this->InsertNextCell(type, n, pts);
+        for (vtkIdType id = 0; id < n; ++id)
+        {
+          vtkIdType ptId = pts[id];
+          vtkIdType newId;
+          if ((newId = pointMap->GetId(ptId)) == -1)
+          {
+            x = this->GetPoint(ptId);
+            newId = newPoints->InsertNextPoint(x);
+            pointMap->SetId(ptId, newId);
+            newPointData->CopyData(this->PointData, ptId, newId);
+          }
+          newCellPoints->InsertId(id, newId);
+        }
+
+        cellId = this->InsertNextCell(type, newCellPoints);
         newCellData->CopyData(this->CellData, i, cellId);
+        newCellPoints->Reset();
       }
     }
     else if (type == VTK_TRIANGLE_STRIP)
@@ -1663,21 +1734,43 @@ void vtkPolyData::RemoveGhostCells()
       if (!(cellGhosts[i] &
             (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
       {
-        cellId = this->InsertNextCell(type, n, pts);
+        for (vtkIdType id = 0; id < n; ++id)
+        {
+          vtkIdType ptId = pts[id];
+          vtkIdType newId;
+          if ((newId = pointMap->GetId(ptId)) == -1)
+          {
+            x = this->GetPoint(ptId);
+            newId = newPoints->InsertNextPoint(x);
+            pointMap->SetId(ptId, newId);
+            newPointData->CopyData(this->PointData, ptId, newId);
+          }
+          newCellPoints->InsertId(id, newId);
+        }
+
+        cellId = this->InsertNextCell(type, newCellPoints);
         newCellData->CopyData(this->CellData, i, cellId);
+        newCellPoints->Reset();
       }
     }
   }
 
   newCellData->Squeeze();
+  newPointData->Squeeze();
 
   this->CellData->ShallowCopy(newCellData);
   newCellData->Delete();
+
+  this->PointData->ShallowCopy(newPointData);
+  newPointData->Delete();
 
   types->Delete();
 
   // If there are no more ghost levels, then remove all arrays.
   this->CellData->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+  this->PointData->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+
+  this->SetPoints(newPoints);
 
   this->Squeeze();
 }

@@ -73,6 +73,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
 #include "vtkStaticCellLinks.h"
 #include "vtkTetra.h"
 #include "vtkTriQuadraticHexahedron.h"
@@ -2305,10 +2306,7 @@ void vtkUnstructuredGrid::RemoveGhostCells()
 
   pointMap = vtkIdList::New(); // maps old point ids into new
   pointMap->SetNumberOfIds(numPts);
-  for (i = 0; i < numPts; i++)
-  {
-    pointMap->SetId(i, -1);
-  }
+  pointMap->Fill(-1);
 
   newCellPts = vtkIdList::New();
 

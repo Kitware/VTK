@@ -117,6 +117,18 @@ public:
 
   ///@{
   /**
+   * Turn on/off passing input lines. If this flag is on, then all cells living inside the `Lines`
+   * cell array of the input are copied into the output.
+   *
+   * @note Input poly lines are split into separate lines in the output.
+   */
+  vtkSetMacro(PassLines, bool);
+  vtkGetMacro(PassLines, bool);
+  vtkBooleanMacro(PassLines, bool);
+  ///@}
+
+  ///@{
+  /**
    * Turn on/off the coloring of edges by type.
    */
   vtkSetMacro(Coloring, bool);
@@ -166,7 +178,9 @@ protected:
   bool FeatureEdges;
   bool NonManifoldEdges;
   bool ManifoldEdges;
+  bool PassLines;
   bool Coloring;
+  bool PassGlobalIds;
   int OutputPointsPrecision;
   vtkIncrementalPointLocator* Locator;
 
