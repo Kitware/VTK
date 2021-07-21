@@ -35,6 +35,7 @@ vtk_add_test_cxx(vtkFiltersParallelDIY2CxxTests non_mpi_tests
   TestExtractSubsetWithSeed.cxx
   TestOverlappingCellsDetector.cxx,NO_VALID
   TestGenerateGlobalIds.cxx,NO_VALID
+  TestGenerateGlobalIdsSphere.cxx,NO_VALID
   TestRedistributeDataSetFilter.cxx,NO_VALID
   TestRedistributeDataSetFilterOnIoss.cxx,NO_VALID
   TestRedistributeDataSetFilterWithPolyData.cxx)

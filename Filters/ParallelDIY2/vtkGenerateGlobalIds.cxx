@@ -137,6 +137,8 @@ public:
 template <typename ElementBlockT>
 static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool cell_centers)
 {
+  const double tolerance = self->GetTolerance();
+
   self->UpdateProgress(0.0);
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(self->GetController());
 
@@ -192,9 +194,9 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
 
   vtkLogStartScope(TRACE, "merge-points");
   // iterate over all local blocks to give them unique ids.
-  master.foreach ([](ElementBlockT* b,                         // local block
+  master.foreach ([&tolerance](ElementBlockT* b,               // local block
                     const diy::Master::ProxyWithLink&) -> void // communication proxy
-    { b->MergeElements(); });
+    { b->MergeElements(tolerance); });
   vtkLogEndScope("merge-points");
   self->UpdateProgress(0.75);
 
@@ -321,7 +323,8 @@ struct PointTT
     });
   }
 
-  static std::vector<vtkIdType> GenerateMergeMap(const std::vector<PointTT>& points)
+  static std::vector<vtkIdType> GenerateMergeMap(
+    const std::vector<PointTT>& points, double tolerance)
   {
     std::vector<vtkIdType> mergemap(points.size(), -1);
     if (points.empty())
@@ -345,8 +348,9 @@ struct PointTT
 
     vtkNew<vtkStaticPointLocator> locator;
     locator->SetDataSet(grid);
+    locator->SetTolerance(tolerance);
     locator->BuildLocator();
-    locator->MergePoints(0.0, &mergemap[0]);
+    locator->MergePoints(tolerance, &mergemap[0]);
     return mergemap;
   }
 };
@@ -411,7 +415,8 @@ struct CellTT
     });
   }
 
-  static std::vector<vtkIdType> GenerateMergeMap(const std::vector<CellTT>& cells)
+  static std::vector<vtkIdType> GenerateMergeMap(
+    const std::vector<CellTT>& cells, double vtkNotUsed(tolerance))
   {
     std::vector<vtkIdType> mergemap(cells.size(), -1);
     if (cells.empty())
@@ -491,11 +496,11 @@ public:
     }
   }
 
-  void MergeElements()
+  void MergeElements(double tolerance)
   {
     // sort to make elements on lower gid's the primary elements
     ElementT::Sort(this->Elements);
-    this->MergeMap = ElementT::GenerateMergeMap(this->Elements);
+    this->MergeMap = ElementT::GenerateMergeMap(this->Elements, tolerance);
 
     std::vector<char> needs_replies(this->MergeMap.size());
     for (size_t cc = 0, max = this->MergeMap.size(); cc < max; ++cc)
@@ -690,6 +695,7 @@ vtkCxxSetObjectMacro(vtkGenerateGlobalIds, Controller, vtkMultiProcessController
 //------------------------------------------------------------------------------
 vtkGenerateGlobalIds::vtkGenerateGlobalIds()
   : Controller(nullptr)
+  , Tolerance(0)
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
@@ -741,4 +747,5 @@ void vtkGenerateGlobalIds::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
+  os << indent << "Tolerance: " << this->Tolerance << endl;
 }
