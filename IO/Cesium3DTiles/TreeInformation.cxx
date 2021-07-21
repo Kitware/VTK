@@ -396,9 +396,6 @@ Json::Value TreeInformation::GenerateCesium3DTiles(vtkIncrementalOctreeNode* nod
   }
   tree["boundingVolume"]["region"] = v;
   tree["geometricError"] = this->GeometricError[node->GetID()];
-  ostr.str("");
-  ostr << node->GetID() << "/" << node->GetID() << ".b3dm";
-  tree["content"]["uri"] = ostr.str();
   if (node == this->Root)
   {
     tree["refine"] = "REPLACE";
@@ -423,6 +420,15 @@ Json::Value TreeInformation::GenerateCesium3DTiles(vtkIncrementalOctreeNode* nod
         v[j++] = this->GenerateCesium3DTiles(node->GetChild(i));
       }
       tree["children"] = v;
+    }
+  }
+  else
+  {
+    if (!this->EmptyNode[node->GetID()])
+    {
+      ostr.str("");
+      ostr << node->GetID() << "/" << node->GetID() << ".b3dm";
+      tree["content"]["uri"] = ostr.str();
     }
   }
   return tree;
