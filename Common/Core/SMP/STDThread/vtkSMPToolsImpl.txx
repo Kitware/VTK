@@ -134,6 +134,14 @@ void vtkSMPToolsImpl<BackendType::STDThread>::Sort(
   std::sort(begin, end, comp);
 }
 
+//--------------------------------------------------------------------------------
+template <>
+void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int);
+
+//--------------------------------------------------------------------------------
+template <>
+int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads();
+
 } // namespace smp
 } // namespace detail
 } // namespace vtk
