@@ -411,7 +411,6 @@ protected:
 
   vtkTypeBool ComputeShepardSum;
   vtkStdString ShepardSumArrayName;
-  vtkFloatArray* ShepardSumArray;
 
   vtkTypeBool PromoteOutputArrays;
 
