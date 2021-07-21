@@ -120,6 +120,14 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Sort(
   std::sort(begin, end, comp);
 }
 
+//--------------------------------------------------------------------------------
+template <>
+void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int);
+
+//--------------------------------------------------------------------------------
+template <>
+int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedNumberOfThreads();
+
 } // namespace smp
 } // namespace detail
 } // namespace vtk

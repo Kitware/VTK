@@ -87,11 +87,6 @@ public:
   void Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp);
 };
 
-template <>
-void vtkSMPToolsImpl<DefaultBackend>::Initialize(int);
-template <>
-int vtkSMPToolsImpl<DefaultBackend>::GetEstimatedNumberOfThreads();
-
 using ExecuteFunctorPtrType = void (*)(void*, vtkIdType, vtkIdType, vtkIdType);
 
 } // namespace smp
