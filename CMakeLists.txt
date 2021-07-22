@@ -344,6 +344,14 @@ list(APPEND headers
 
 vtk_module_find_package(PACKAGE Threads)
 
+# This header gets flattened in the install. In order to support the same path
+# as the install tree, copy it down to the same directory level, but in the
+# build tree.
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/init/Ionit_Initializer.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/Ionit_Initializer.h"
+  COPYONLY)
+
 vtk_module_add_module(VTK::ioss
   SOURCES ${sources}
   PRIVATE_HEADERS ${headers})
@@ -355,8 +363,8 @@ vtk_module_link(VTK::ioss
   PRIVATE
     Threads::Threads)
 vtk_module_include(VTK::ioss
-    PRIVATE
-      "${CMAKE_CURRENT_SOURCE_DIR}/private_copy_fmt")
+  PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/private_copy_fmt")
 
 # for GetProcessMemoryInfo
 if (MINGW)
