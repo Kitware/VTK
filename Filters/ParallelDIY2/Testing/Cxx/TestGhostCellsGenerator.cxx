@@ -2391,8 +2391,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
   vtkNew<vtkPartitionedDataSet> pds;
   pds->SetNumberOfPartitions(3);
 
-  // pds->SetPartition(0, outPrePds->GetPartition(0));
-  pds->SetPartition(0, pd0);
+  pds->SetPartition(0, outPrePds->GetPartition(0));
   pds->SetPartition(1, pd1);
   pds->SetPartition(2, vtkNew<vtkPolyData>()); // testing empty input
 
@@ -2668,12 +2667,12 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers))
+  if (!TestPolyData(contr, myrank, numberOfGhostLayers))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestPolyData(contr, myrank, numberOfGhostLayers))
+  if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers))
   {
     retVal = EXIT_FAILURE;
   }

@@ -32,14 +32,14 @@
  *   dimension (1D / 2D / 3D), and if they have same orientation matrix and same spacing.
  * - `vtkRectilinearGrid`: Blocks connect if the x, y, and z coordinate arrays match at their
  *   interfaces.
- * - `vtkStructuredGrid`: Blocks connect if external faces of the grids are mangled, regardless of
- *   relative inner orientation. In other words, if grid 1 is spanned by (i1, j1, k1) indexing, and
- *   grid 2 is spanned by (i2, j2, k2) indexing, if on one face, (j1, k1) connects with (-i2, -j2),
- *   those 2 grids are connected and will exchange ghosts. Two grids partially fitting are
- *   discarded. In order for 2 grids to fit, one corner from one face of one grid needs to be an
- *   existing point in one face of the second grid. Additionally, every points from this corner on
- *   both grids need to match until the opposite corner (opposite w.r.t. each dimension) is reached,
- *   and this opposite corner of the grid junction needs to be a corner of either grid.
+ * - `vtkStructuredGrid`: Blocks connect if external faces of the grids are mangled together,
+ *   regardless of relative inner orientation. In other words, if grid 1 is spanned by (i1, j1, k1)
+ *   indexing, and grid 2 is spanned by (i2, j2, k2) indexing, if on one face, (j1, k1) connects
+ *   with (-i2, -j2), those 2 grids are connected and will exchange ghosts. Two grids partially
+ *   fitting are discarded. In order for 2 grids to fit, one corner from one face of one grid needs
+ *   to be an existing point in one face of the second grid. Additionally, every points from this
+ *   corner on both grids need to match until the opposite corner (opposite w.r.t. each dimension)
+ *   is reached, and this opposite corner of the grid junction needs to be a corner of either grid.
  * - `vtkUnstructuredGrid`: Blocks connect if the external surface of neighboring grids match.
  *   To do so, only points are looked at. If at least one point matches a point in a neighboring
  *   grid, then they are connected. If there are no point global ids in the input, the 3D position
@@ -47,6 +47,10 @@
  *   coordinates. Note that integer coordinates can be used with this pipeline. If global ids are
  *   present in the input point data, then the pipeline will only look at matching global ids, and
  *   ignore point positions.
+ * - `vtkPolyData`: Blocks connect if the boundary edges of neighboring poly data match. The filter
+ *   behaves the same way it does with `vtkUnstructuredGrid`. Point positions are used to match
+ *   points if point global ids are not present, and point global ids are used instead if they are
+ *   present.
  *
  * @note Currently, only `vtkImageData`, `vtkRectilinearGrid`, `vtkStructuredGrid` and
  * `vtkUnstructuredGrid` are
@@ -381,6 +385,18 @@ protected:
     vtkBoundingBox BoundingBox;
 
     /**
+     * When the input has ghosts, this map is being used to copy input cells / cell data into
+     * the output (with input ghosts peeled off).
+     */
+    vtkSmartPointer<vtkIdList> InputToOutputCellIdRedirectionMap = nullptr;
+
+    /**
+     * When the input has ghosts, this map is being used to copy input points / point data into
+     * the output (with input ghosts peeled off).
+     */
+    vtkSmartPointer<vtkIdList> InputToOutputPointIdRedirectionMap = nullptr;
+
+    /**
      * Filter that is being used to extract the surface of the input.
      * The surface is used to check how the interface of the input matches the ones of its
      * neighboring blocks.
@@ -413,9 +429,29 @@ protected:
     vtkIdType CurrentMaxPointId;
     vtkIdType CurrentMaxCellId;
     ///@}
+
+    ///@{
+    /**
+     * Number of input points / cell in the input when ghosts are removed.
+     */
+    vtkIdType NumberOfInputPoints;
+    vtkIdType NumberOfInputCells;
+    ///@}
+
+    /**
+     * This lists ids from 1 to the number of input points (with potential input ghost points
+     * peeled off).
+     */
+    vtkNew<vtkIdList> PointIota;
+
+    /**
+     * This lists ids from 1 to the number of input cells (with potential input ghost cells
+     * peeled off).
+     */
+    vtkNew<vtkIdList> CellIota;
   };
 
-  struct UnstructuredDataBlckStructure : public DataSetBlockStructure
+  struct UnstructuredDataBlockStructure : public DataSetBlockStructure
   {
     /**
      * This lists the matching point ids to the interfacing points that are exchanged with current
@@ -499,9 +535,19 @@ protected:
     vtkIdTypeArray* FaceLocations = nullptr;
 
     vtkUnstructuredGrid* Input;
+
+    /**
+     * Cell connectivity array size of the input if the ghost cells are removed.
+     */
+    vtkIdType InputConnectivitySize;
+
+    /**
+     * Faces array size of the input if the ghost cells are removed.
+     */
+    vtkIdType InputFacesSize = 0;
   };
 
-  struct UnstructuredGridBlockStructure : public UnstructuredDataBlckStructure
+  struct UnstructuredGridBlockStructure : public UnstructuredDataBlockStructure
   {
     /**
      * Topology information for cells to be exchanged.
@@ -549,9 +595,40 @@ protected:
     vtkIdType CurrentMaxStripId = 0;
     vtkIdType CurrentMaxLineId = 0;
     ///@}
+
+    ///@{
+    /**
+     * Number of cells of respective type when the input has its ghost cells removed
+     */
+    vtkIdType NumberOfInputVerts;
+    vtkIdType NumberOfInputPolys;
+    vtkIdType NumberOfInputStrips;
+    vtkIdType NumberOfInputLines;
+    ///@}
+
+    ///@{
+    /**
+     * Cell connectivity array size of the input if ghost cells are removed.
+     */
+    vtkIdType InputVertConnectivitySize;
+    vtkIdType InputPolyConnectivitySize;
+    vtkIdType InputStripConnectivitySize;
+    vtkIdType InputLineConnectivitySize;
+    ///@{
+
+    ///@{
+    /**
+     * In the event that the input has ghost cells, this maps the output cells (with input ghosts
+     * removed) to the input cells.
+     */
+    vtkNew<vtkIdList> InputToOutputVertCellIdRedirectionMap;
+    vtkNew<vtkIdList> InputToOutputLineCellIdRedirectionMap;
+    vtkNew<vtkIdList> InputToOutputPolyCellIdRedirectionMap;
+    vtkNew<vtkIdList> InputToOutputStripCellIdRedirectionMap;
+    ///@}
   };
 
-  struct PolyDataBlockStructure : public UnstructuredDataBlckStructure
+  struct PolyDataBlockStructure : public UnstructuredDataBlockStructure
   {
     ///@{
     /**
@@ -638,7 +715,7 @@ public:
   using ImageDataBlock = Block<ImageDataBlockStructure, GridInformation>;
   using RectilinearGridBlock = Block<RectilinearGridBlockStructure, RectilinearGridInformation>;
   using StructuredGridBlock = Block<StructuredGridBlockStructure, StructuredGridInformation>;
-  using UnstructuredDataBlock = Block<UnstructuredDataBlckStructure, UnstructuredDataInformation>;
+  using UnstructuredDataBlock = Block<UnstructuredDataBlockStructure, UnstructuredDataInformation>;
   using UnstructuredGridBlock = Block<UnstructuredGridBlockStructure, UnstructuredGridInformation>;
   using PolyDataBlock = Block<PolyDataBlockStructure, PolyDataInformation>;
   //@}
