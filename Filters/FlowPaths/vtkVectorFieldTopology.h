@@ -105,6 +105,54 @@ public:
   vtkGetMacro(ExcludeBoundary, bool);
   ///@}
 
+  //@{
+  /**
+   * Specify/see whether to use boundary switch points/lines points as seeds or not
+   */
+  vtkSetMacro(UseBoundarySwitchPoints, bool);
+  vtkGetMacro(UseBoundarySwitchPoints, bool);
+  //@}
+
+  //@{
+  /**
+   * Specify the VectorAngleThreshold to remove noisy boundary switch points/lines
+   * When computing boundary switch point, if the vecotrs of the two points within a cell are almost
+   * parallel, the boundary switch point computed is considered as a noise point. Let v0 and v1 be
+   * the vectors of the two points, and their norm equal to 1. The dot product between them
+   * Dot(v0,v1) = cos(theta), where theta is the angle between v0 and v1. When v0 and v1 are almost
+   * parallel, abs(Dot(v0,v1)) is close to 1. The range of this threshold is [0,1]. For any
+   * abs(Dot(v0,v1)) > VectorAngleThreshold, the boundary switch point computed is a noise point.
+   */
+  vtkSetMacro(VectorAngleThreshold, double);
+  vtkGetMacro(VectorAngleThreshold, double);
+  //@}
+
+  //@{
+  /**
+   * Specify the OffsetAwayFromBoundary to shift seeds for computing separating lines/surfaces
+   */
+  vtkSetMacro(OffsetAwayFromBoundary, double);
+  vtkGetMacro(OffsetAwayFromBoundary, double);
+  //@}
+
+  /**
+   * Set the type of the velocity field interpolator to determine whether
+   * vtkInterpolatedVelocityField (INTERPOLATOR_WITH_DATASET_POINT_LOCATOR) or
+   * vtkCellLocatorInterpolatedVelocityField (INTERPOLATOR_WITH_CELL_LOCATOR) is employed for
+   * locating cells during streamline integration.
+   */
+  void SetInterpolatorType(int interpType);
+
+  /**
+   * Set the velocity field interpolator type to the one involving a cell locator.
+   */
+  void SetInterpolatorTypeToCellLocator();
+
+  /**
+   * Set the velocity field interpolator type to the one involving a dataset point locator.
+   */
+  void SetInterpolatorTypeToDataSetPointLocator();
+
 protected:
   vtkVectorFieldTopology();
   ~vtkVectorFieldTopology() override;
@@ -116,6 +164,11 @@ protected:
 private:
   vtkVectorFieldTopology(const vtkVectorFieldTopology&) = delete;
   void operator=(const vtkVectorFieldTopology&) = delete;
+
+  /**
+   * This function checks the values of flags, such as UseBoundarySwitchPoints and ExcludeBoundary
+   */
+  int Validate();
 
   /**
    * main function if input is vtkImageData
@@ -163,11 +216,53 @@ private:
     vtkSmartPointer<vtkPolyData> criticalPoints, vtkSmartPointer<vtkUnstructuredGrid> tridataset);
 
   /**
-   * we classify the critical points based on the eigenvalues of the jacobian
-   * for the saddles, we seed in an offset of dist and integrate
-   * @param criticalPoints: list of the locations where the vf is zero
-   * @param separatrices: inegration lines starting at saddles
-   * @param surfaces: inegration surfaces starting at saddles
+   * Given 1D position x0 <= x <= x1, and two 3-vectors v0 and v1, this functions interpolates a
+   * 3-vector at x.
+   * @param x0: minimum 1D position
+   * @param x1: maximum 1D position
+   * @param x: target 1D position
+   * @param v0: 3-vector at x0
+   * @param v1: 3-vector at x1
+   * @param v: output 3-vector at x
+   */
+  static void InterpolateVector(
+    double x0, double x1, double x, const double v0[3], const double v1[3], double v[3]);
+
+  /**
+   * This functions compute boundary switch points from boundaries that are lines.
+   * @param boundarySwitchPoints: list of the locations of the boundary switch points
+   * @param tridataset: input vector field after triangulation
+   * @return 1 if successful, 0 if not
+   */
+  int ComputeBoundarySwitchPoints(
+    vtkPolyData* boundarySwitchPoints, vtkUnstructuredGrid* tridataset);
+
+  /**
+   * This function computes separatrix lines using boundary switch points, by using the
+   * vtkStreamTracer filter
+   * @param boundarySwitchPoints: list of the locations of boundaries where the directions of the
+   * flow change
+   * @param separatrices: inegration lines
+   * @param dataset: input vector field
+   * @param interestPoints: a set of points that includes both critical points and boundary switch
+   * points
+   * @param integrationStepUnit: whether the sizes are expresed in coordinate scale or cell scale
+   * @param dist: size of the offset of the seeding
+   * @param stepSize: stepsize of the integrator
+   * @param maxNumSteps: maximal number of integration steps
+   * @return 1 if successfully terminated
+   */
+  int ComputeSeparatricesBoundarySwitchPoints(vtkPolyData* boundarySwitchPoints,
+    vtkPolyData* separatrices, vtkDataSet* dataset, vtkPoints* interestPoints,
+    int integrationStepUnit, double dist, double stepSize, int maxNumSteps);
+
+  /**
+   * This function computes boundary switch lines from boundaries that surfaces.
+   * It then computes separatrix surfaces using boundary switch lines, by using the
+   * vtkStreamSurfaces filter.
+   * @param boundarySwitchLines: list of the locations of boundaries where the directions of the
+   * flow change
+   * @param separatrices: inegration surfaces
    * @param dataset: input vector field
    * @param integrationStepUnit: whether the sizes are expresed in coordinate scale or cell scale
    * @param dist: size of the offset of the seeding
@@ -178,10 +273,31 @@ private:
    * either good or fast
    * @return 1 if successfully terminated
    */
-  int ComputeSeparatrices(vtkSmartPointer<vtkPolyData> criticalPoints,
-    vtkSmartPointer<vtkPolyData> separatrices, vtkSmartPointer<vtkPolyData> surfaces,
-    vtkSmartPointer<vtkDataSet> dataset, int integrationStepUnit, double dist, double stepSize,
-    int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
+  int ComputeSeparatricesBoundarySwitchLines(vtkPolyData* boundarySwitchLines,
+    vtkPolyData* separatrices, vtkDataSet* dataset, int integrationStepUnit, double dist,
+    double stepSize, int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
+
+  /**
+   * we classify the critical points based on the eigenvalues of the jacobian
+   * for the saddles, we seed in an offset of dist and integrate
+   * @param criticalPoints: list of the locations where the vf is zero
+   * @param separatrices: inegration lines starting at saddles
+   * @param surfaces: inegration surfaces starting at saddles
+   * @param dataset: input vector field
+   * @param interestPoints: a set of points that includes both critical points and boundary switch
+   * points
+   * @param integrationStepUnit: whether the sizes are expresed in coordinate scale or cell scale
+   * @param dist: size of the offset of the seeding
+   * @param stepSize: stepsize of the integrator
+   * @param maxNumSteps: maximal number of integration steps
+   * @param computeSurfaces: depending on this boolen the separatring surfaces are computed or not
+   * @param useIterativeSeeding: depending on this boolen the separatring surfaces  are computed
+   * either good or fast
+   * @return 1 if successfully terminated
+   */
+  int ComputeSeparatrices(vtkPolyData* criticalPoints, vtkPolyData* separatrices,
+    vtkPolyData* surfaces, vtkDataSet* dataset, vtkPoints* interestPoints, int integrationStepUnit,
+    double dist, double stepSize, int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
 
   /**
    * this method computes streamsurfaces
@@ -200,9 +316,8 @@ private:
    * @return 1 if successful, 0 if empty
    */
   int ComputeSurface(int numberOfSeparatingSurfaces, bool isBackward, double normal[3],
-    double zeroPos[3], vtkSmartPointer<vtkPolyData> streamSurfaces,
-    vtkSmartPointer<vtkDataSet> dataset, int integrationStepUnit, double dist, double stepSize,
-    int maxNumSteps, bool useIterativeSeeding);
+    double zeroPos[3], vtkPolyData* streamSurfaces, vtkDataSet* dataset, int integrationStepUnit,
+    double dist, double stepSize, int maxNumSteps, bool useIterativeSeeding);
 
   /**
    * simple type that corresponds to the number of positive eigenvalues
@@ -302,6 +417,7 @@ private:
    * REPELLING_FOCUS_3D 7, CENTER_DETAILED_3D 8
    */
   static int ClassifyDetailed3D(int countComplex, int countPos, int countNeg);
+
   /**
    * number of iterations in this class and in vtkStreamTracer
    */
@@ -336,7 +452,7 @@ private:
    * depending on this boolen the cells touching the boundary of the input dataset are treated or
    * not this prevents detection of the whole boundary in no slip boundary settings
    */
-  bool ExcludeBoundary = true;
+  bool ExcludeBoundary = false;
 
   /**
    * dimension of the input data: 2 or 3
@@ -352,7 +468,39 @@ private:
    */
   int IntegrationStepUnit = vtkStreamTracer::CELL_LENGTH_UNIT;
 
+  /**
+   * Use boundary switch points/lines as seeds to compute seperatrix.
+   * For 2D data, seeds are boundary switch points
+   * For 3D data, seeds are boundary switch lines instead of points.
+   * The default is to use critical points only.
+   */
+  bool UseBoundarySwitchPoints = false;
+
+  /**
+   *  It is either vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR or
+   * vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR
+   */
+  int InterpolatorType = vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR;
+
+  /**
+   * When computing boundary switch point, if the vecotrs of the two points within a cell are almost
+   * parallel, the boundary switch point computed is considered as a noise point. Let v0 and v1 be
+   * the vectors of the two points, and their norm equal to 1. The dot product between them
+   * Dot(v0,v1) = cos(theta), where theta is the angle between v0 and v1. When v0 and v1 are almost
+   * parallel, abs(Dot(v0,v1)) is close to 1. The range of this threshold is [0,1]. For any
+   * abs(Dot(v0,v1)) > VectorAngleThreshold, the boundary switch point computed is a noise point.
+   */
+  double VectorAngleThreshold = 1;
+
+  /**
+   * When computing the separatrix, seeds are used. Seeds need to be inside the boundary.
+   * This ratio is used to computed the amount of shift that shifts seeds a little bit inward.
+   * It is multiplied with the variable SeparatrixDistance.
+   * If users choose integrationStepUnit == vtkStreamTracer::CELL_LENGTH_UNIT, which is default, it
+   * is equivalent to OffsetAwayFromBoundary * cell length
+   */
+  double OffsetAwayFromBoundary = 1e-3;
+
   vtkNew<vtkStreamSurface> StreamSurface;
-  vtkNew<vtkGradientFilter> GradientFilter;
 };
 #endif
