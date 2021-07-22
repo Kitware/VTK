@@ -259,6 +259,80 @@ bool TestExtent(const int* extent1, const int* extent2)
 }
 
 //----------------------------------------------------------------------------
+bool TestGhostPointsTagging(
+  vtkMultiProcessController* controller, vtkPartitionedDataSet* pds, vtkIdType numberOfPoints)
+{
+  vtkIdType numberOfNonGhostPoints = 0;
+  for (unsigned int partitionId = 0; partitionId < pds->GetNumberOfPartitions(); ++partitionId)
+  {
+    vtkDataSet* ps = vtkDataSet::SafeDownCast(pds->GetPartition(partitionId));
+    int foo;
+    vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
+      ps->GetPointData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName(), foo));
+    for (vtkIdType pointId = 0; pointId < ps->GetNumberOfPoints(); ++pointId)
+    {
+      if (!ghosts->GetValue(pointId))
+      {
+        ++numberOfNonGhostPoints;
+      }
+    }
+  }
+
+  vtkIdType globalNumberOfNonGhostPoints;
+
+  controller->AllReduce(
+    &numberOfNonGhostPoints, &globalNumberOfNonGhostPoints, 1, vtkCommunicator::SUM_OP);
+
+  if (globalNumberOfNonGhostPoints != numberOfPoints)
+  {
+    vtkLog(ERROR,
+      "Ghost point tagging failed. We have "
+        << globalNumberOfNonGhostPoints
+        << " points that are tagged as non ghost, but we should have " << numberOfPoints);
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestGhostCellsTagging(
+  vtkMultiProcessController* controller, vtkPartitionedDataSet* pds, vtkIdType numberOfCells)
+{
+  vtkIdType numberOfNonGhostCells = 0;
+  for (unsigned int partitionId = 0; partitionId < pds->GetNumberOfPartitions(); ++partitionId)
+  {
+    vtkDataSet* ps = vtkDataSet::SafeDownCast(pds->GetPartition(partitionId));
+    int foo;
+    vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
+      ps->GetCellData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName(), foo));
+    for (vtkIdType cellId = 0; cellId < ps->GetNumberOfCells(); ++cellId)
+    {
+      if (!ghosts->GetValue(cellId))
+      {
+        ++numberOfNonGhostCells;
+      }
+    }
+  }
+
+  vtkIdType globalNumberOfNonGhostCells;
+
+  controller->AllReduce(
+    &numberOfNonGhostCells, &globalNumberOfNonGhostCells, 1, vtkCommunicator::SUM_OP);
+
+  if (globalNumberOfNonGhostCells != numberOfCells)
+  {
+    vtkLog(ERROR,
+      "Ghost cell tagging failed. We have "
+        << globalNumberOfNonGhostCells << " cells that are tagged as non ghost, but we should have "
+        << numberOfCells);
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool TestMixedTypes(int myrank)
 {
   vtkLog(INFO, "Testing mixed types");
@@ -286,7 +360,7 @@ bool TestMixedTypes(int myrank)
 }
 
 //----------------------------------------------------------------------------
-bool Test1DGrids(int myrank, int numberOfGhostLayers)
+bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
 {
   bool retVal = true;
 
@@ -379,6 +453,21 @@ bool Test1DGrids(int myrank, int numberOfGhostLayers)
       vtkLog(ERROR, "Failed to create ghost points on a 1D vtkImageData in rank " << myrank);
       retVal = false;
     }
+
+    vtkIdType pointsLength = 2 * MaxExtent + 1;
+    vtkIdType numberOfPoints = pointsLength;
+    vtkIdType cellsLength = 2 * MaxExtent;
+    vtkIdType numberOfCells = cellsLength;
+
+    if (!TestGhostPointsTagging(controller, outPDS, numberOfPoints))
+    {
+      retVal = false;
+    }
+
+    if (!TestGhostCellsTagging(controller, outPDS, numberOfCells))
+    {
+      retVal = false;
+    }
   }
 
   vtkNew<vtkRectilinearGrid> refGrid;
@@ -435,6 +524,21 @@ bool Test1DGrids(int myrank, int numberOfGhostLayers)
     {
       vtkLog(ERROR,
         "Ghost point positions were wrongly sent on a 1D vtkRectilinearGrid in rank " << myrank);
+      retVal = false;
+    }
+
+    vtkIdType pointsLength = 2 * MaxExtent + 1;
+    vtkIdType numberOfPoints = pointsLength;
+    vtkIdType cellsLength = 2 * MaxExtent;
+    vtkIdType numberOfCells = cellsLength;
+
+    if (!TestGhostPointsTagging(controller, outPDS, numberOfPoints))
+    {
+      retVal = false;
+    }
+
+    if (!TestGhostCellsTagging(controller, outPDS, numberOfCells))
+    {
       retVal = false;
     }
   }
@@ -543,13 +647,28 @@ bool Test1DGrids(int myrank, int numberOfGhostLayers)
       vtkLog(ERROR, "Failed to create ghost cells on a 1D vtkStructuredGrid in rank " << myrank);
       retVal = false;
     }
+
+    vtkIdType pointsLength = 2 * MaxExtent + 1;
+    vtkIdType numberOfPoints = pointsLength;
+    vtkIdType cellsLength = 2 * MaxExtent;
+    vtkIdType numberOfCells = cellsLength;
+
+    if (!TestGhostPointsTagging(controller, outPDS, numberOfPoints))
+    {
+      retVal = false;
+    }
+
+    if (!TestGhostCellsTagging(controller, outPDS, numberOfCells))
+    {
+      retVal = false;
+    }
   }
 
   return retVal;
 }
 
 //----------------------------------------------------------------------------
-bool Test2DGrids(int myrank, int numberOfGhostLayers)
+bool Test2DGrids(vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
 {
   bool retVal = true;
 
@@ -654,6 +773,21 @@ bool Test2DGrids(int myrank, int numberOfGhostLayers)
     if (!TestImagePointData<vtkImageData>(outPDS, refImage))
     {
       vtkLog(ERROR, "Failed to create ghost points on a 2D vtkImageData in rank " << myrank);
+      retVal = false;
+    }
+
+    vtkIdType pointsLength = 2 * MaxExtent + 1;
+    vtkIdType numberOfPoints = pointsLength * pointsLength;
+    vtkIdType cellsLength = 2 * MaxExtent;
+    vtkIdType numberOfCells = cellsLength * cellsLength;
+
+    if (!TestGhostPointsTagging(controller, outPDS, numberOfPoints))
+    {
+      retVal = false;
+    }
+
+    if (!TestGhostCellsTagging(controller, outPDS, numberOfCells))
+    {
       retVal = false;
     }
   }
@@ -761,6 +895,21 @@ bool Test2DGrids(int myrank, int numberOfGhostLayers)
       vtkLog(ERROR, "Failed to create ghost cells on a 2D vtkRectilinearGrid in rank " << myrank);
       retVal = false;
     }
+
+    vtkIdType pointsLength = 2 * MaxExtent + 1;
+    vtkIdType numberOfPoints = pointsLength * pointsLength;
+    vtkIdType cellsLength = 2 * MaxExtent;
+    vtkIdType numberOfCells = cellsLength * cellsLength;
+
+    if (!TestGhostPointsTagging(controller, outPDS, numberOfPoints))
+    {
+      retVal = false;
+    }
+
+    if (!TestGhostCellsTagging(controller, outPDS, numberOfCells))
+    {
+      retVal = false;
+    }
   }
 
   vtkNew<vtkStructuredGrid> sgImage0;
@@ -853,13 +1002,28 @@ bool Test2DGrids(int myrank, int numberOfGhostLayers)
       vtkLog(ERROR, "Failed to create ghost cells on a 2D vtkStructuredGrid in rank " << myrank);
       retVal = false;
     }
+
+    vtkIdType pointsLength = 2 * MaxExtent + 1;
+    vtkIdType numberOfPoints = pointsLength * pointsLength;
+    vtkIdType cellsLength = 2 * MaxExtent;
+    vtkIdType numberOfCells = cellsLength * cellsLength;
+
+    if (!TestGhostPointsTagging(controller, outPDS, numberOfPoints))
+    {
+      retVal = false;
+    }
+
+    if (!TestGhostCellsTagging(controller, outPDS, numberOfCells))
+    {
+      retVal = false;
+    }
   }
 
   return retVal;
 }
 
 //----------------------------------------------------------------------------
-bool Test3DGrids(int myrank, int numberOfGhostLayers)
+bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
 {
   bool retVal = true;
   int zmin, zmax;
@@ -1002,6 +1166,21 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
       vtkLog(ERROR, "Failed to create ghost points on a 3D vtkImageData in rank " << myrank);
       retVal = false;
     }
+
+    vtkIdType pointsLength = 2 * MaxExtent + 1;
+    vtkIdType numberOfPoints = pointsLength * pointsLength * pointsLength;
+    vtkIdType cellsLength = 2 * MaxExtent;
+    vtkIdType numberOfCells = cellsLength * cellsLength * cellsLength;
+
+    if (!TestGhostPointsTagging(controller, outPDS, numberOfPoints))
+    {
+      retVal = false;
+    }
+
+    if (!TestGhostCellsTagging(controller, outPDS, numberOfCells))
+    {
+      retVal = false;
+    }
   }
 
   vtkNew<vtkRectilinearGrid> refGrid;
@@ -1101,6 +1280,21 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
     {
       vtkLog(ERROR,
         "Ghost point positions were wrongly sent on a 3D vtkRectilinearGrid in rank " << myrank);
+      retVal = false;
+    }
+
+    vtkIdType pointsLength = 2 * MaxExtent + 1;
+    vtkIdType numberOfPoints = pointsLength * pointsLength * pointsLength;
+    vtkIdType cellsLength = 2 * MaxExtent;
+    vtkIdType numberOfCells = cellsLength * cellsLength * cellsLength;
+
+    if (!TestGhostPointsTagging(controller, outPDS, numberOfPoints))
+    {
+      retVal = false;
+    }
+
+    if (!TestGhostCellsTagging(controller, outPDS, numberOfCells))
+    {
       retVal = false;
     }
   }
@@ -1261,6 +1455,21 @@ bool Test3DGrids(int myrank, int numberOfGhostLayers)
           outPDS, vtkStructuredGrid::SafeDownCast(sgRefImagePointToCell->GetOutputDataObject(0))))
     {
       vtkLog(ERROR, "Failed to create ghost cells on a 3D vtkStructuredGrid in rank " << myrank);
+      retVal = false;
+    }
+
+    vtkIdType pointsLength = 2 * MaxExtent + 1;
+    vtkIdType numberOfPoints = pointsLength * pointsLength * pointsLength;
+    vtkIdType cellsLength = 2 * MaxExtent;
+    vtkIdType numberOfCells = cellsLength * cellsLength * cellsLength;
+
+    if (!TestGhostPointsTagging(controller, outPDS, numberOfPoints))
+    {
+      retVal = false;
+    }
+
+    if (!TestGhostCellsTagging(controller, outPDS, numberOfCells))
+    {
       retVal = false;
     }
   }
@@ -1628,80 +1837,6 @@ bool TestQueryReferenceToGenerated(vtkPointSet* ref, vtkAbstractPointLocator* re
     {
       vtkLog(ERROR, "Something's off with cell geometry in the generated output.");
     }
-    return false;
-  }
-
-  return true;
-}
-
-//----------------------------------------------------------------------------
-bool TestGhostPointsTagging(
-  vtkMultiProcessController* controller, vtkPartitionedDataSet* pds, vtkIdType numberOfPoints)
-{
-  vtkIdType numberOfNonGhostPoints = 0;
-  for (unsigned int partitionId = 0; partitionId < pds->GetNumberOfPartitions(); ++partitionId)
-  {
-    vtkPointSet* ps = vtkPointSet::SafeDownCast(pds->GetPartition(partitionId));
-    int foo;
-    vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
-      ps->GetPointData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName(), foo));
-    for (vtkIdType pointId = 0; pointId < ps->GetNumberOfPoints(); ++pointId)
-    {
-      if (!ghosts->GetValue(pointId))
-      {
-        ++numberOfNonGhostPoints;
-      }
-    }
-  }
-
-  vtkIdType globalNumberOfNonGhostPoints;
-
-  controller->AllReduce(
-    &numberOfNonGhostPoints, &globalNumberOfNonGhostPoints, 1, vtkCommunicator::SUM_OP);
-
-  if (globalNumberOfNonGhostPoints != numberOfPoints)
-  {
-    vtkLog(ERROR,
-      "Ghost point tagging failed. We have "
-        << globalNumberOfNonGhostPoints
-        << " points that are tagged as non ghost, but we should have " << numberOfPoints);
-    return false;
-  }
-
-  return true;
-}
-
-//----------------------------------------------------------------------------
-bool TestGhostCellsTagging(
-  vtkMultiProcessController* controller, vtkPartitionedDataSet* pds, vtkIdType numberOfCells)
-{
-  vtkIdType numberOfNonGhostCells = 0;
-  for (unsigned int partitionId = 0; partitionId < pds->GetNumberOfPartitions(); ++partitionId)
-  {
-    vtkPointSet* ps = vtkPointSet::SafeDownCast(pds->GetPartition(partitionId));
-    int foo;
-    vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
-      ps->GetCellData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName(), foo));
-    for (vtkIdType cellId = 0; cellId < ps->GetNumberOfCells(); ++cellId)
-    {
-      if (!ghosts->GetValue(cellId))
-      {
-        ++numberOfNonGhostCells;
-      }
-    }
-  }
-
-  vtkIdType globalNumberOfNonGhostCells;
-
-  controller->AllReduce(
-    &numberOfNonGhostCells, &globalNumberOfNonGhostCells, 1, vtkCommunicator::SUM_OP);
-
-  if (globalNumberOfNonGhostCells != numberOfCells)
-  {
-    vtkLog(ERROR,
-      "Ghost cell tagging failed. We have "
-        << globalNumberOfNonGhostCells << " cells that are tagged as non ghost, but we should have "
-        << numberOfCells);
     return false;
   }
 
@@ -2508,17 +2643,17 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     retVal = EXIT_FAILURE;
   }
 
-  if (!Test1DGrids(myrank, numberOfGhostLayers))
+  if (!Test1DGrids(contr, myrank, numberOfGhostLayers))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!Test2DGrids(myrank, numberOfGhostLayers))
+  if (!Test2DGrids(contr, myrank, numberOfGhostLayers))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!Test3DGrids(myrank, numberOfGhostLayers))
+  if (!Test3DGrids(contr, myrank, numberOfGhostLayers))
   {
     retVal = EXIT_FAILURE;
   }
