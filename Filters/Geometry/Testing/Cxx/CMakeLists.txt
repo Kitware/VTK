@@ -10,16 +10,13 @@ vtk_add_test_cxx(vtkFiltersGeometryCxxTests tests
   TestProjectSphereFilter.cxx,NO_VALID
   TestRegularGridDataSetSurfaceFilter.cxx
   TestStructuredAMRNeighbor.cxx,NO_VALID
-  TestUniformGridGhostDataGenerator.cxx,NO_VALID
   TestUnstructuredGridGeometryFilter.cxx
-  TestUnstructuredGridGeometryFilterGhostCells.cxx,NO_VALID
   )
 vtk_add_test_cxx(vtkFiltersGeometryCxxTests no_data_tests
   NO_DATA NO_VALID NO_OUTPUT
   TestGeometryFilterCellData.cxx
   TestStructuredAMRGridConnectivity.cxx
   TestStructuredGridConnectivity.cxx
-  TestStructuredGridGhostDataGenerator.cxx
   UnitTestDataSetSurfaceFilter.cxx
   UnitTestProjectSphereFilter.cxx
   )
