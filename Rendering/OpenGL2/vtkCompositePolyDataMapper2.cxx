@@ -511,6 +511,29 @@ vtkCompositeMapperHelperData* vtkCompositeMapperHelper2::AddData(
 }
 
 //------------------------------------------------------------------------------
+bool vtkCompositeMapperHelper2::GetNeedToRebuildBufferObjects(
+  vtkRenderer* vtkNotUsed(ren), vtkActor* act)
+{
+  // Same as vtkOpenGLPolyDataMapper::GetNeedToRebuildBufferObjects(), but
+  // we need to check all inputs, not just this->CurrentInput
+  this->TempState.Clear();
+  this->TempState.Append(act->GetProperty()->GetMTime(), "actor mtime");
+  for (dataIter iter = this->Data.begin(); iter != this->Data.end(); ++iter)
+  {
+    this->TempState.Append(iter->first ? iter->first->GetMTime() : 0, "input mtime");
+  }
+  this->TempState.Append(act->GetTexture() ? act->GetTexture()->GetMTime() : 0, "texture mtime");
+
+  if (this->VBOBuildState != this->TempState || this->VBOBuildTime < this->GetMTime())
+  {
+    this->VBOBuildState = this->TempState;
+    return true;
+  }
+
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
   // render using the composite data attributes
