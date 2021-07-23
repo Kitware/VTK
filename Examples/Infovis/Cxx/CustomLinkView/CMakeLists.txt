@@ -24,12 +24,8 @@ add_executable(CustomLinkView MACOSX_BUNDLE
   ${Srcs} ${Hdrs} ${UIs} ${Rcs})
 target_link_libraries(CustomLinkView
   PRIVATE
-    ${vtk_modules}
-    VTK::GUISupportQt
-    VTK::ViewsQt
+    ${VTK_LIBRARIES}
     Qt5::Widgets)
 vtk_module_autoinit(
   TARGETS CustomLinkView
-  MODULES ${vtk_modules}
-          VTK::GUISupportQt
-          VTK::ViewsQt)
+  MODULES ${VTK_LIBRARIES})

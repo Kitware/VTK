@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
 project(Infovis)
 
-set(vtk_modules
 find_package(VTK
   COMPONENTS
     FiltersSources
@@ -11,7 +10,7 @@ find_package(VTK
     InteractionStyle
     RenderingCore
     RenderingLabel
-    RenderingOpenGL2)
+    RenderingOpenGL2
   OPTIONAL_COMPONENTS
     FiltersStatistics
     GUISupportQt
@@ -27,48 +26,43 @@ add_executable(TreeLayout
   TreeLayout.cxx)
 target_link_libraries(TreeLayout
   PRIVATE
-    ${vtk_modules})
+    ${VTK_LIBRARIES})
 
 vtk_module_autoinit(
   TARGETS TreeLayout
-  MODULES ${vtk_modules})
+  MODULES ${VTK_LIBRARIES})
 
 if (TARGET VTK::ViewsInfovis)
   add_executable(HelloWorld
     HelloWorld.cxx)
   target_link_libraries(HelloWorld
     PRIVATE
-      ${vtk_modules}
-      vtkViewsInfovis)
+      ${VTK_LIBRARIES})
 
   add_executable(Theme
     Theme.cxx)
   target_link_libraries(Theme
     PRIVATE
-      ${vtk_modules}
-      vtkViewsInfovis)
+      ${VTK_LIBRARIES})
 
   add_executable(CreateTree
     CreateTree.cxx)
   target_link_libraries(CreateTree
     PRIVATE
-      ${vtk_modules}
-      vtkViewsInfovis)
+      ${VTK_LIBRARIES})
 
   add_executable(MultiView
     MultiView.cxx)
   target_link_libraries(MultiView
     PRIVATE
-      ${vtk_modules}
-      vtkViewsInfovis)
+      ${VTK_LIBRARIES})
 
   vtk_module_autoinit(
     TARGETS HelloWorld
             Theme
             CreateTree
             MultiView
-    MODULES ${vtk_modules}
-            vtkViewsInfovis)
+    MODULES ${VTK_LIBRARIES})
 endif ()
 
 # If Qt is enabled include the Qt based examples
