@@ -21,6 +21,10 @@
  * There are several back-end implementations of parallel functionality
  * (currently Sequential, TBB, OpenMP and STDThread) that actual execution is
  * delegated to.
+ *
+ * @sa
+ * vtkSMPThreadLocal
+ * vtkSMPThreadLocalObject
  */
 
 #ifndef vtkSMPTools_h
