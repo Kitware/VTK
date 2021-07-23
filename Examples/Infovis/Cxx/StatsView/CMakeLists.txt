@@ -24,15 +24,7 @@ add_executable(StatsView MACOSX_BUNDLE
   ${Srcs} ${Hdrs} ${UIs} ${Rcs})
 target_link_libraries(StatsView
   PRIVATE
-    ${vtk_modules}
-    VTK::FiltersStatistics
-    VTK::GUISupportQt
-    VTK::ViewsQt
-    VTK::IOSQL)
+    ${VTK_LIBRARIES})
 vtk_module_autoinit(
   TARGETS StatsView
-  MODULES ${vtk_modules}
-          VTK::FiltersStatistics
-          VTK::GUISupportQt
-          VTK::ViewsQt
-          VTK::IOSQL)
+  MODULES ${VTK_LIBRARIES})
