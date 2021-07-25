@@ -38,6 +38,7 @@
 
 vtkStandardNewMacro(vtkImageReader2Factory);
 
+//----------------------------------------------------------------------------
 class vtkImageReader2FactoryCleanup
 {
 public:
@@ -53,8 +54,10 @@ public:
 };
 static vtkImageReader2FactoryCleanup vtkImageReader2FactoryCleanupGlobal;
 
+//----------------------------------------------------------------------------
 vtkImageReader2Collection* vtkImageReader2Factory::AvailableReaders;
 
+//----------------------------------------------------------------------------
 void vtkImageReader2Factory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -69,16 +72,14 @@ void vtkImageReader2Factory::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-vtkImageReader2Factory::vtkImageReader2Factory() = default;
-
-vtkImageReader2Factory::~vtkImageReader2Factory() = default;
-
+//----------------------------------------------------------------------------
 void vtkImageReader2Factory::RegisterReader(vtkImageReader2* r)
 {
   vtkImageReader2Factory::InitializeReaders();
   AvailableReaders->AddItem(r);
 }
 
+//----------------------------------------------------------------------------
 vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
 {
   vtkImageReader2Factory::InitializeReaders();
@@ -114,6 +115,7 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
   return nullptr;
 }
 
+//----------------------------------------------------------------------------
 vtkImageReader2* vtkImageReader2Factory::CreateImageReader2FromExtension(const char* extension)
 {
   vtkImageReader2Factory::InitializeReaders();
@@ -153,6 +155,7 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2FromExtension(const c
   return nullptr;
 }
 
+//----------------------------------------------------------------------------
 bool vtkImageReader2Factory::CheckExtensionIsInExtensions(
   const char* extension, const char* extensions)
 {
@@ -169,6 +172,7 @@ bool vtkImageReader2Factory::CheckExtensionIsInExtensions(
   return false;
 }
 
+//----------------------------------------------------------------------------
 void vtkImageReader2Factory::InitializeReaders()
 {
   if (vtkImageReader2Factory::AvailableReaders)
@@ -201,6 +205,7 @@ void vtkImageReader2Factory::InitializeReaders()
   reader->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkImageReader2Factory::GetRegisteredReaders(vtkImageReader2Collection* collection)
 {
   vtkImageReader2Factory::InitializeReaders();

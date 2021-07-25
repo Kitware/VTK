@@ -86,8 +86,8 @@ public:
   static bool CheckExtensionIsInExtensions(const char* extension, const char* extensions);
 
 protected:
-  vtkImageReader2Factory();
-  ~vtkImageReader2Factory() override;
+  vtkImageReader2Factory() = default;
+  ~vtkImageReader2Factory() override = default;
 
   static void InitializeReaders();
 
