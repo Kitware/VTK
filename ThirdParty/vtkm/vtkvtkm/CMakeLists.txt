@@ -4,15 +4,18 @@ if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vtk-m/CMakeLists.txt")
     "'git submodule update --init --recursive' in the source directory.")
 endif ()
 
-if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "OpenMP")
+get_property(vtk_smp_backends GLOBAL
+  PROPERTY _vtk_smp_backends)
+
+if ("OpenMP" IN_LIST vtk_smp_backends)
   set(VTKm_ENABLE_OPENMP ON)
 endif ()
 
-if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB")
+if ("TBB" IN_LIST vtk_smp_backends)
   set(VTKm_ENABLE_TBB ON)
 endif ()
 
-set(VTKm_ENABLE_CUDA ${VTK_USE_CUDA})
+set(VTKm_ENABLE_CUDA "${VTK_USE_CUDA}")
 
 set(VTKm_INSTALL_LIB_DIR "${_vtk_build_LIBRARY_DESTINATION}")
 set(VTKm_INSTALL_INCLUDE_DIR "${_vtk_build_HEADERS_DESTINATION}/vtkvtkm/vtk-m")
