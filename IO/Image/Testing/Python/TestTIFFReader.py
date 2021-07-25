@@ -5,7 +5,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Image pipeline
 createReader = vtk.vtkImageReader2Factory()
-reader = createReader.CreateImageReader2("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
+reader = createReader.CreateImageReader2FromExtension("tif")
 reader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/beach.tif")
 # "beach.tif" image contains ORIENTATION tag which is
 # ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF

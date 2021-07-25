@@ -57,17 +57,33 @@ public:
 
   /**
    * open the image file, it is the callers responsibility to call
-   * Delete on the returned object.   If no reader is found, null
+   * Delete on the returned object. If no reader is found, nullptr
    * is returned.
    */
   VTK_NEWINSTANCE
   static vtkImageReader2* CreateImageReader2(const char* path);
 
   /**
+   * Create a vtkImageReader2 from a (dotted or not) file extension.
+   * If mulitple readers support the same extension, only one reader
+   * will be returned.
+   * It is the callers responsibility to call Delete on the returned object.
+   * If no reader is found, nullptr is returned.
+   */
+  VTK_NEWINSTANCE
+  static vtkImageReader2* CreateImageReader2FromExtension(const char* extension);
+
+  /**
    * The caller must allocate the vtkImageReader2Collection and pass in the
    * pointer to this method.
    */
   static void GetRegisteredReaders(vtkImageReader2Collection*);
+
+  /*
+   * An utility method to check if a (dotted or not) file extension is present
+   * in a list a whitespace separated list of dotted file extensions
+   */
+  static bool CheckExtensionIsInExtensions(const char* extension, const char* extensions);
 
 protected:
   vtkImageReader2Factory();

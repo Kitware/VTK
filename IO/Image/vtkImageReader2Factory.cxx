@@ -34,6 +34,8 @@
 // until after the AvailableReaders singleton has been destroyed.
 #include "vtkFilteringInformationKeyManager.h"
 
+#include <sstream>
+
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkImageReader2FactoryCleanup
@@ -110,6 +112,61 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
     }
   }
   return nullptr;
+}
+
+vtkImageReader2* vtkImageReader2Factory::CreateImageReader2FromExtension(const char* extension)
+{
+  vtkImageReader2Factory::InitializeReaders();
+  vtkImageReader2* ret;
+  vtkCollection* collection = vtkCollection::New();
+  vtkObjectFactory::CreateAllInstance("vtkImageReaderObject", collection);
+  vtkObject* object;
+  // first try the current registered object factories to see
+  // if one of them can
+  for (collection->InitTraversal(); (object = collection->GetNextItemAsObject());)
+  {
+    if (object)
+    {
+      ret = vtkImageReader2::SafeDownCast(object);
+      if (ret)
+      {
+        const char* extensions = ret->GetFileExtensions();
+        if (vtkImageReader2Factory::CheckExtensionIsInExtensions(extension, extensions))
+        {
+          return ret;
+        }
+      }
+    }
+  }
+  // get rid of the collection
+  collection->Delete();
+  vtkCollectionSimpleIterator sit;
+  for (vtkImageReader2Factory::AvailableReaders->InitTraversal(sit);
+       (ret = vtkImageReader2Factory::AvailableReaders->GetNextImageReader2(sit));)
+  {
+    const char* extensions = ret->GetFileExtensions();
+    if (vtkImageReader2Factory::CheckExtensionIsInExtensions(extension, extensions))
+    {
+      return ret->NewInstance();
+    }
+  }
+  return nullptr;
+}
+
+bool vtkImageReader2Factory::CheckExtensionIsInExtensions(
+  const char* extension, const char* extensions)
+{
+
+  auto iss = std::istringstream{ extensions };
+  std::string localExtension;
+  while (iss >> localExtension)
+  {
+    if (localExtension == std::string(extension) || localExtension == "." + std::string(extension))
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 void vtkImageReader2Factory::InitializeReaders()
