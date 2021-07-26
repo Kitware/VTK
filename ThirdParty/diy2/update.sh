@@ -22,8 +22,8 @@ README.kitware.md
 extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
-    mv include/diy include/vtkdiy2
-    mv CMakeLists.vtk.txt CMakeLists.txt
+    mv -v include/diy include/vtkdiy2
+    mv -v CMakeLists.vtk.txt CMakeLists.txt
     popd
 }
 

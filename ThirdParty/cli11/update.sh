@@ -21,7 +21,7 @@ extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
     mv -v include/* .
-    mv CMakeLists.vtk.txt CMakeLists.txt
+    mv -v CMakeLists.vtk.txt CMakeLists.txt
     popd
 }
 

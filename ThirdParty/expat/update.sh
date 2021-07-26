@@ -24,7 +24,7 @@ expat/lib/*.h
 extract_source () {
     git_archive
     # Everything is under an extra expat/ directory; remove it.
-    mv "$extractdir/$name-reduced/expat/"* "$extractdir/$name-reduced/"
+    mv -v "$extractdir/$name-reduced/expat/"* "$extractdir/$name-reduced/"
     rmdir "$extractdir/$name-reduced/expat"
 }
 

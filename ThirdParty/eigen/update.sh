@@ -58,7 +58,7 @@ cmake/FindStandardMathLibrary.cmake
 extract_source () {
     git_archive
     pushd "$extractdir"
-    mv "$name-reduced/Eigen" "$name-reduced/eigen"
+    mv -v "$name-reduced/Eigen" "$name-reduced/eigen"
     popd
 }
 
