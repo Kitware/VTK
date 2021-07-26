@@ -245,18 +245,7 @@ public:
     typename vtk::detail::smp::vtkSMPTools_Lookup_For<Functor>::type fi(f);
     fi.For(first, last, grain);
   }
-  ///@}
 
-  ///@{
-  /**
-   * Execute a for operation in parallel. First and last
-   * define the range over which to operate (which is defined
-   * by the operator). The operation executed is defined by
-   * operator() of the functor object. The grain gives the parallel
-   * engine a hint about the coarseness over which to parallelize
-   * the function (as defined by last-first of each execution of
-   * operator() ).
-   */
   template <typename Functor>
   static void For(vtkIdType first, vtkIdType last, vtkIdType grain, Functor const& f)
   {
@@ -265,6 +254,7 @@ public:
   }
   ///@}
 
+  ///@{
   /**
    * Execute a for operation in parallel. First and last
    * define the range over which to operate (which is defined
@@ -280,20 +270,12 @@ public:
     vtkSMPTools::For(first, last, 0, f);
   }
 
-  /**
-   * Execute a for operation in parallel. First and last
-   * define the range over which to operate (which is defined
-   * by the operator). The operation executed is defined by
-   * operator() of the functor object. The grain gives the parallel
-   * engine a hint about the coarseness over which to parallelize
-   * the function (as defined by last-first of each execution of
-   * operator() ). Uses a default value for the grain.
-   */
   template <typename Functor>
   static void For(vtkIdType first, vtkIdType last, Functor const& f)
   {
     vtkSMPTools::For(first, last, 0, f);
   }
+  ///@}
 
   ///@{
   /**
