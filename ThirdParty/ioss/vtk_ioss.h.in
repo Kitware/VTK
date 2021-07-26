@@ -15,6 +15,13 @@
 #ifndef vtk_ioss_h
 #define vtk_ioss_h
 
-#define VTK_IOSS(x) <vtkioss/x>
+/* Use the ioss library configured for VTK.  */
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkioss
+
+#if VTK_MODULE_USE_EXTERNAL_vtkioss
+# define VTK_IOSS(x) <x>
+#else
+# define VTK_IOSS(x) <vtkioss/x>
+#endif
 
 #endif
