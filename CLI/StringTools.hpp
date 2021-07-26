@@ -6,6 +6,7 @@
 
 #pragma once
 
+// [CLI11:public_includes:set]
 #include <algorithm>
 #include <iomanip>
 #include <locale>
@@ -14,8 +15,11 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+// [CLI11:public_includes:end]
 
 namespace CLI {
+
+// [CLI11:string_tools_hpp:verbatim]
 
 /// Include the items in this namespace to get free conversion of enums to/from streams.
 /// (This is available inside CLI as well, so CLI11 will use this without a using statement).
@@ -76,10 +80,14 @@ std::string join(const T &v, Callable func, std::string delim = ",") {
     std::ostringstream s;
     auto beg = std::begin(v);
     auto end = std::end(v);
-    if(beg != end)
-        s << func(*beg++);
+    auto loc = s.tellp();
     while(beg != end) {
-        s << delim << func(*beg++);
+        auto nloc = s.tellp();
+        if(nloc > loc) {
+            s << delim;
+            loc = nloc;
+        }
+        s << func(*beg++);
     }
     return s.str();
 }
@@ -155,7 +163,7 @@ inline std::string trim_copy(const std::string &str, const std::string &filter) 
     return trim(s, filter);
 }
 /// Print a two part "help" string
-inline std::ostream &format_help(std::ostream &out, std::string name, std::string description, std::size_t wid) {
+inline std::ostream &format_help(std::ostream &out, std::string name, const std::string &description, std::size_t wid) {
     name = "  " + name;
     out << std::setw(static_cast<int>(wid)) << std::left << name;
     if(!description.empty()) {
@@ -169,6 +177,24 @@ inline std::ostream &format_help(std::ostream &out, std::string name, std::strin
         }
     }
     out << "\n";
+    return out;
+}
+
+/// Print subcommand aliases
+inline std::ostream &format_aliases(std::ostream &out, const std::vector<std::string> &aliases, std::size_t wid) {
+    if(!aliases.empty()) {
+        out << std::setw(static_cast<int>(wid)) << "     aliases: ";
+        bool front = true;
+        for(const auto &alias : aliases) {
+            if(!front) {
+                out << ", ";
+            } else {
+                front = false;
+            }
+            out << alias;
+        }
+        out << "\n";
+    }
     return out;
 }
 
@@ -188,6 +214,12 @@ inline bool valid_name_string(const std::string &str) {
         if(!valid_later_char(c))
             return false;
     return true;
+}
+
+/// check if a string is a container segment separator (empty or "%%")
+inline bool is_separator(const std::string &str) {
+    static const std::string sep("%%");
+    return (str.empty() || str == sep);
 }
 
 /// Verify that str consists of letters only
@@ -304,7 +336,12 @@ inline std::vector<std::string> split_up(std::string str, char delimiter = '\0')
             }
             if(end != std::string::npos) {
                 output.push_back(str.substr(1, end - 1));
-                str = str.substr(end + 1);
+                if(end + 2 < str.size()) {
+                    str = str.substr(end + 2);
+                } else {
+                    str.clear();
+                }
+
             } else {
                 output.push_back(str.substr(1));
                 str = "";
@@ -375,5 +412,7 @@ inline std::string &add_quotes_if_needed(std::string &str) {
 }
 
 }  // namespace detail
+
+// [CLI11:string_tools_hpp:end]
 
 }  // namespace CLI

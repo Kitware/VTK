@@ -6,16 +6,19 @@
 
 #pragma once
 
+// [CLI11:public_includes:set]
 #include <exception>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
+// [CLI11:public_includes:end]
 
 // CLI library includes
 #include "StringTools.hpp"
 
 namespace CLI {
+// [CLI11:error_hpp:verbatim]
 
 // Use one of these on all error classes.
 // These are temporary and are undef'd at the end of this file.
@@ -157,19 +160,26 @@ class Success : public ParseError {
 };
 
 /// -h or --help on command line
-class CallForHelp : public ParseError {
-    CLI11_ERROR_DEF(ParseError, CallForHelp)
+class CallForHelp : public Success {
+    CLI11_ERROR_DEF(Success, CallForHelp)
     CallForHelp() : CallForHelp("This should be caught in your main function, see examples", ExitCodes::Success) {}
 };
 
 /// Usually something like --help-all on command line
-class CallForAllHelp : public ParseError {
-    CLI11_ERROR_DEF(ParseError, CallForAllHelp)
+class CallForAllHelp : public Success {
+    CLI11_ERROR_DEF(Success, CallForAllHelp)
     CallForAllHelp()
         : CallForAllHelp("This should be caught in your main function, see examples", ExitCodes::Success) {}
 };
 
-/// Does not output a diagnostic in CLI11_PARSE, but allows to return from main() with a specific error code.
+/// -v or --version on command line
+class CallForVersion : public Success {
+    CLI11_ERROR_DEF(Success, CallForVersion)
+    CallForVersion()
+        : CallForVersion("This should be caught in your main function, see examples", ExitCodes::Success) {}
+};
+
+/// Does not output a diagnostic in CLI11_PARSE, but allows main() to return with a specific error code.
 class RuntimeError : public ParseError {
     CLI11_ERROR_DEF(ParseError, RuntimeError)
     explicit RuntimeError(int exit_code = 1) : RuntimeError("Runtime error", exit_code) {}
@@ -337,4 +347,5 @@ class OptionNotFound : public Error {
 
 /// @}
 
+// [CLI11:error_hpp:end]
 }  // namespace CLI

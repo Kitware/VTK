@@ -6,24 +6,26 @@
 
 #pragma once
 
+// [CLI11:public_includes:set]
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
+// [CLI11:public_includes:set]
 
 #include "App.hpp"
 #include "ConfigFwd.hpp"
 #include "StringTools.hpp"
 
 namespace CLI {
-
+// [CLI11:config_hpp:verbatim]
 namespace detail {
 
-inline std::string convert_arg_for_ini(const std::string &arg) {
+inline std::string convert_arg_for_ini(const std::string &arg, char stringQuote = '"', char characterQuote = '\'') {
     if(arg.empty()) {
-        return std::string(2, '"');
+        return std::string(2, stringQuote);
     }
     // some specifically supported strings
     if(arg == "true" || arg == "false" || arg == "nan" || arg == "inf") {
@@ -38,7 +40,7 @@ inline std::string convert_arg_for_ini(const std::string &arg) {
     }
     // just quote a single non numeric character
     if(arg.size() == 1) {
-        return std::string("'") + arg + '\'';
+        return std::string(1, characterQuote) + arg + characterQuote;
     }
     // handle hex, binary or octal arguments
     if(arg.front() == '0') {
@@ -58,16 +60,20 @@ inline std::string convert_arg_for_ini(const std::string &arg) {
             }
         }
     }
-    if(arg.find_first_of('"') == std::string::npos) {
-        return std::string("\"") + arg + '"';
+    if(arg.find_first_of(stringQuote) == std::string::npos) {
+        return std::string(1, stringQuote) + arg + stringQuote;
     } else {
-        return std::string("'") + arg + '\'';
+        return characterQuote + arg + characterQuote;
     }
 }
 
 /// Comma separated join, adds quotes if needed
-inline std::string
-ini_join(const std::vector<std::string> &args, char sepChar = ',', char arrayStart = '[', char arrayEnd = ']') {
+inline std::string ini_join(const std::vector<std::string> &args,
+                            char sepChar = ',',
+                            char arrayStart = '[',
+                            char arrayEnd = ']',
+                            char stringQuote = '"',
+                            char characterQuote = '\'') {
     std::string joined;
     if(args.size() > 1 && arrayStart != '\0') {
         joined.push_back(arrayStart);
@@ -80,7 +86,7 @@ ini_join(const std::vector<std::string> &args, char sepChar = ',', char arraySta
                 joined.push_back(' ');
             }
         }
-        joined.append(convert_arg_for_ini(arg));
+        joined.append(convert_arg_for_ini(arg, stringQuote, characterQuote));
     }
     if(args.size() > 1 && arrayEnd != '\0') {
         joined.push_back(arrayEnd);
@@ -167,10 +173,11 @@ inline std::vector<ConfigItem> ConfigBase::from_config(std::istream &input) cons
     std::string section = "default";
 
     std::vector<ConfigItem> output;
-    bool defaultArray = (arrayStart == '\0' || arrayStart == ' ') && arrayStart == arrayEnd;
-    char aStart = (defaultArray) ? '[' : arrayStart;
-    char aEnd = (defaultArray) ? ']' : arrayEnd;
-    char aSep = (defaultArray && arraySeparator == ' ') ? ',' : arraySeparator;
+    bool isDefaultArray = (arrayStart == '[' && arrayEnd == ']' && arraySeparator == ',');
+    bool isINIArray = (arrayStart == '\0' || arrayStart == ' ') && arrayStart == arrayEnd;
+    char aStart = (isINIArray) ? '[' : arrayStart;
+    char aEnd = (isINIArray) ? ']' : arrayEnd;
+    char aSep = (isINIArray && arraySeparator == ' ') ? ',' : arraySeparator;
 
     while(getline(input, line)) {
         std::vector<std::string> items_buffer;
@@ -210,11 +217,15 @@ inline std::vector<ConfigItem> ConfigBase::from_config(std::istream &input) cons
         if(pos != std::string::npos) {
             name = detail::trim_copy(line.substr(0, pos));
             std::string item = detail::trim_copy(line.substr(pos + 1));
-            if(item.size() > 1 && item.front() == aStart && item.back() == aEnd) {
+            if(item.size() > 1 && item.front() == aStart) {
+                for(std::string multiline; item.back() != aEnd && std::getline(input, multiline);) {
+                    detail::trim(multiline);
+                    item += multiline;
+                }
                 items_buffer = detail::split_up(item.substr(1, item.length() - 2), aSep);
-            } else if(defaultArray && item.find_first_of(aSep) != std::string::npos) {
+            } else if((isDefaultArray || isINIArray) && item.find_first_of(aSep) != std::string::npos) {
                 items_buffer = detail::split_up(item, aSep);
-            } else if(defaultArray && item.find_first_of(' ') != std::string::npos) {
+            } else if((isDefaultArray || isINIArray) && item.find_first_of(' ') != std::string::npos) {
                 items_buffer = detail::split_up(item);
             } else {
                 items_buffer = {item};
@@ -266,8 +277,8 @@ ConfigBase::to_config(const App *app, bool default_also, bool write_description,
     std::vector<std::string> groups = app->get_groups();
     bool defaultUsed = false;
     groups.insert(groups.begin(), std::string("Options"));
-    if(write_description) {
-        out << commentLead << app->get_description() << '\n';
+    if(write_description && (app->get_configurable() || app->get_parent() == nullptr || app->get_name().empty())) {
+        out << commentLead << detail::fix_newlines(commentLead, app->get_description()) << '\n';
     }
     for(auto &group : groups) {
         if(group == "Options" || group.empty()) {
@@ -281,21 +292,24 @@ ConfigBase::to_config(const App *app, bool default_also, bool write_description,
         }
         for(const Option *opt : app->get_options({})) {
 
-            // Only process option with a long-name and configurable
-            if(!opt->get_lnames().empty() && opt->get_configurable()) {
+            // Only process options that are configurable
+            if(opt->get_configurable()) {
                 if(opt->get_group() != group) {
                     if(!(group == "Options" && opt->get_group().empty())) {
                         continue;
                     }
                 }
-                std::string name = prefix + opt->get_lnames()[0];
-                std::string value = detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd);
+                std::string name = prefix + opt->get_single_name();
+                std::string value = detail::ini_join(
+                    opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, characterQuote);
 
                 if(value.empty() && default_also) {
                     if(!opt->get_default_str().empty()) {
-                        value = detail::convert_arg_for_ini(opt->get_default_str());
+                        value = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote);
                     } else if(opt->get_expected_min() == 0) {
                         value = "false";
+                    } else if(opt->get_run_callback_for_default()) {
+                        value = "\"\"";  // empty string default value
                     }
                 }
 
@@ -343,4 +357,5 @@ ConfigBase::to_config(const App *app, bool default_also, bool write_description,
     return out.str();
 }
 
+// [CLI11:config_hpp:end]
 }  // namespace CLI

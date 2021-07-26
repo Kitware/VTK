@@ -6,6 +6,7 @@
 
 #pragma once
 
+// [CLI11:public_includes:set]
 #include <algorithm>
 #include <functional>
 #include <memory>
@@ -14,6 +15,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+// [CLI11:public_includes:end]
 
 #include "Error.hpp"
 #include "Macros.hpp"
@@ -22,6 +24,7 @@
 #include "Validators.hpp"
 
 namespace CLI {
+// [CLI11:option_hpp:verbatim]
 
 using results_t = std::vector<std::string>;
 /// callback function definition
@@ -264,6 +267,9 @@ class Option : public OptionBase<Option> {
     /// A human readable default value, either manually set, captured, or captured by default
     std::string default_str_{};
 
+    /// If given, replace the text that describes the option type and usage in the help text
+    std::string option_text_{};
+
     /// A human readable type value, set when App creates this
     ///
     /// This is a lambda function so "types" can be dynamic, such as when a set prints its contents.
@@ -300,7 +306,7 @@ class Option : public OptionBase<Option> {
     /// @name Other
     ///@{
 
-    /// Remember the parent app
+    /// link back up to the parent App for fallthrough
     App *parent_{nullptr};
 
     /// Options store a callback to do all the work
@@ -315,7 +321,7 @@ class Option : public OptionBase<Option> {
     /// results after reduction
     results_t proc_results_{};
     /// enumeration for the option state machine
-    enum class option_state {
+    enum class option_state : char {
         parsing = 0,       //!< The option is currently collecting parsed results
         validated = 2,     //!< the results have been validated
         reduced = 4,       //!< a subset of results has been generated
@@ -329,6 +335,8 @@ class Option : public OptionBase<Option> {
     bool flag_like_{false};
     /// Control option to run the callback to set the default
     bool run_callback_for_default_{false};
+    /// flag indicating a separator needs to be injected after each argument call
+    bool inject_separator_{false};
     ///@}
 
     /// Making an option by hand is not defined, it must be made by the App class
@@ -658,6 +666,9 @@ class Option : public OptionBase<Option> {
     /// The maximum number of arguments the option expects
     int get_type_size_max() const { return type_size_max_; }
 
+    /// The number of arguments the option expects
+    int get_inject_separator() const { return inject_separator_; }
+
     /// The environment variable associated to this value
     std::string get_envname() const { return envname_; }
 
@@ -681,7 +692,19 @@ class Option : public OptionBase<Option> {
 
     /// Get the flag names with specified default values
     const std::vector<std::string> &get_fnames() const { return fnames_; }
-
+    /// Get a single name for the option, first of lname, pname, sname, envname
+    const std::string &get_single_name() const {
+        if(!lnames_.empty()) {
+            return lnames_[0];
+        }
+        if(!pname_.empty()) {
+            return pname_;
+        }
+        if(!snames_.empty()) {
+            return snames_[0];
+        }
+        return envname_;
+    }
     /// The number of times the option expects to be included
     int get_expected() const { return expected_min_; }
 
@@ -718,6 +741,13 @@ class Option : public OptionBase<Option> {
         description_ = std::move(option_description);
         return this;
     }
+
+    Option *option_text(std::string text) {
+        option_text_ = std::move(text);
+        return this;
+    }
+
+    const std::string &get_option_text() const { return option_text_; }
 
     ///@}
     /// @name Help tools
@@ -836,23 +866,33 @@ class Option : public OptionBase<Option> {
     bool operator==(const Option &other) const { return !matching_name(other).empty(); }
 
     /// Check a name. Requires "-" or "--" for short / long, supports positional name
-    bool check_name(std::string name) const {
+    bool check_name(const std::string &name) const {
 
         if(name.length() > 2 && name[0] == '-' && name[1] == '-')
             return check_lname(name.substr(2));
         if(name.length() > 1 && name.front() == '-')
             return check_sname(name.substr(1));
+        if(!pname_.empty()) {
+            std::string local_pname = pname_;
+            std::string local_name = name;
+            if(ignore_underscore_) {
+                local_pname = detail::remove_underscore(local_pname);
+                local_name = detail::remove_underscore(local_name);
+            }
+            if(ignore_case_) {
+                local_pname = detail::to_lower(local_pname);
+                local_name = detail::to_lower(local_name);
+            }
+            if(local_name == local_pname) {
+                return true;
+            }
+        }
 
-        std::string local_pname = pname_;
-        if(ignore_underscore_) {
-            local_pname = detail::remove_underscore(local_pname);
-            name = detail::remove_underscore(name);
+        if(!envname_.empty()) {
+            // this needs to be the original since envname_ shouldn't match on case insensitivity
+            return (name == envname_);
         }
-        if(ignore_case_) {
-            local_pname = detail::to_lower(local_pname);
-            name = detail::to_lower(name);
-        }
-        return name == local_pname;
+        return false;
     }
 
     /// Requires "-" to be removed from string
@@ -941,8 +981,8 @@ class Option : public OptionBase<Option> {
         return this;
     }
 
-    /// Get a copy of the results
-    results_t results() const { return results_; }
+    /// Get the current complete results set
+    const results_t &results() const { return results_; }
 
     /// Get a copy of the results
     results_t reduced_results() const {
@@ -964,8 +1004,7 @@ class Option : public OptionBase<Option> {
     }
 
     /// Get the results as a specified type
-    template <typename T, enable_if_t<!std::is_const<T>::value, detail::enabler> = detail::dummy>
-    void results(T &output) const {
+    template <typename T> void results(T &output) const {
         bool retval;
         if(current_option_state_ >= option_state::reduced || (results_.size() == 1 && validators_.empty())) {
             const results_t &res = (proc_results_.empty()) ? results_ : proc_results_;
@@ -1032,6 +1071,8 @@ class Option : public OptionBase<Option> {
             type_size_max_ = option_type_size;
             if(type_size_max_ < detail::expected_max_vector_size) {
                 type_size_min_ = option_type_size;
+            } else {
+                inject_separator_ = true;
             }
             if(type_size_max_ == 0)
                 required_ = false;
@@ -1057,8 +1098,14 @@ class Option : public OptionBase<Option> {
         if(type_size_max_ == 0) {
             required_ = false;
         }
+        if(type_size_max_ >= detail::expected_max_vector_size) {
+            inject_separator_ = true;
+        }
         return this;
     }
+
+    /// Set the value of the separator injection flag
+    void inject_separator(bool value = true) { inject_separator_ = value; }
 
     /// Set a capture function for the default. Mostly used by App.
     Option *default_function(const std::function<std::string()> &func) {
@@ -1135,7 +1182,7 @@ class Option : public OptionBase<Option> {
                 }
 
                 for(std::string &result : res) {
-                    if(result.empty() && type_size_max_ != type_size_min_ && index >= 0) {
+                    if(detail::is_separator(result) && type_size_max_ != type_size_min_ && index >= 0) {
                         index = 0;  // reset index for variable size chunks
                         continue;
                     }
@@ -1272,4 +1319,5 @@ class Option : public OptionBase<Option> {
     }
 };  // namespace CLI
 
+// [CLI11:option_hpp:end]
 }  // namespace CLI
