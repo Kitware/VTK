@@ -21,6 +21,7 @@
 #include "vtkImageReader2Collection.h"
 #include "vtkJPEGReader.h"
 #include "vtkMetaImageReader.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkObjectFactoryCollection.h"
 #include "vtkPNGReader.h"
@@ -84,24 +85,20 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
 {
   vtkImageReader2Factory::InitializeReaders();
   vtkImageReader2* ret;
-  vtkCollection* collection = vtkCollection::New();
+  vtkNew<vtkCollection> collection;
   vtkObjectFactory::CreateAllInstance("vtkImageReaderObject", collection);
-  vtkObject* o;
   // first try the current registered object factories to see
   // if one of them can
-  for (collection->InitTraversal(); (o = collection->GetNextItemAsObject());)
+  for (collection->InitTraversal(); vtkObject* object = collection->GetNextItemAsObject();)
   {
-    if (o)
+    ret = vtkImageReader2::SafeDownCast(object);
+    if (ret && ret->CanReadFile(path))
     {
-      ret = vtkImageReader2::SafeDownCast(o);
-      if (ret && ret->CanReadFile(path))
-      {
-        return ret;
-      }
+      return ret;
     }
   }
-  // get rid of the collection
-  collection->Delete();
+
+  // Then try all available readers
   vtkCollectionSimpleIterator sit;
   for (vtkImageReader2Factory::AvailableReaders->InitTraversal(sit);
        (ret = vtkImageReader2Factory::AvailableReaders->GetNextImageReader2(sit));)
@@ -120,28 +117,25 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2FromExtension(const c
 {
   vtkImageReader2Factory::InitializeReaders();
   vtkImageReader2* ret;
-  vtkCollection* collection = vtkCollection::New();
+  vtkNew<vtkCollection> collection;
   vtkObjectFactory::CreateAllInstance("vtkImageReaderObject", collection);
-  vtkObject* object;
+
   // first try the current registered object factories to see
   // if one of them can
-  for (collection->InitTraversal(); (object = collection->GetNextItemAsObject());)
+  for (collection->InitTraversal(); vtkObject* object = collection->GetNextItemAsObject();)
   {
-    if (object)
+    ret = vtkImageReader2::SafeDownCast(object);
+    if (ret)
     {
-      ret = vtkImageReader2::SafeDownCast(object);
-      if (ret)
+      const char* extensions = ret->GetFileExtensions();
+      if (vtkImageReader2Factory::CheckExtensionIsInExtensions(extension, extensions))
       {
-        const char* extensions = ret->GetFileExtensions();
-        if (vtkImageReader2Factory::CheckExtensionIsInExtensions(extension, extensions))
-        {
-          return ret;
-        }
+        return ret;
       }
     }
   }
-  // get rid of the collection
-  collection->Delete();
+
+  // Then try all available readers
   vtkCollectionSimpleIterator sit;
   for (vtkImageReader2Factory::AvailableReaders->InitTraversal(sit);
        (ret = vtkImageReader2Factory::AvailableReaders->GetNextImageReader2(sit));)
