@@ -15,6 +15,8 @@
 #ifndef vtkDataArrayPrivate_txx
 #define vtkDataArrayPrivate_txx
 
+#ifndef VTK_GDA_TEMPLATE_EXTERN
+
 #include "vtkAssume.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
@@ -574,5 +576,6 @@ bool DoComputeVectorRange(ArrayT* array, RangeValueType range[2], FiniteValues)
 }
 
 } // end namespace vtkDataArrayPrivate
+#endif // VTK_GDA_TEMPLATE_EXTERN
 #endif
 // VTK-HeaderTest-Exclude: vtkDataArrayPrivate.txx
