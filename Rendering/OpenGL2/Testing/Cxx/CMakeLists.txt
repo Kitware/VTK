@@ -52,6 +52,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestMultiBlockPartialArrayFieldData.cxx
   TestMultiBlockPartialArrayPointData.cxx
   TestMultiTexturing.cxx
+  TestMultiTexturingInterpolateScalars.cxx
   TestNormalMapping.cxx
   TestOffscreenRenderingResize.cxx
   TestOutlineGlowPass.cxx
