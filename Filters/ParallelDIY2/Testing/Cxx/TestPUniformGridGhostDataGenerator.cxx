@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestPUniformGridGhostDataGenerator.cxx
+  Module:    TestGhostCellsGenerator.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME TestPUniformGridGhostDataGenerator.cxx -- Tests ghost data generation
+// .NAME TestGhostCellsGenerator.cxx -- Tests ghost data generation
 //
 // .SECTION Description
 // Parallel test that exercises the parallel uniform grid ghost data generator
@@ -27,12 +27,12 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkInformation.h"
 #include "vtkMPIController.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
-#include "vtkPUniformGridGhostDataGenerator.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
@@ -410,15 +410,15 @@ int Test2D(const bool hasNodeData, const bool hasCellData, const int factor, con
   }
   WriteDistributedDataSet("P2DInitial", mbds);
 
-  vtkPUniformGridGhostDataGenerator* ghostGenerator = vtkPUniformGridGhostDataGenerator::New();
+  vtkGhostCellsGenerator* ghostGenerator = vtkGhostCellsGenerator::New();
 
   ghostGenerator->SetInputData(mbds);
   ghostGenerator->SetNumberOfGhostLayers(NG);
   ghostGenerator->SetController(Controller);
-  ghostGenerator->Initialize();
   ghostGenerator->Update();
 
-  vtkMultiBlockDataSet* ghostedDataSet = ghostGenerator->GetOutput();
+  vtkMultiBlockDataSet* ghostedDataSet =
+    vtkMultiBlockDataSet::SafeDownCast(ghostGenerator->GetOutputDataObject(0));
   WriteDistributedDataSet("GHOSTED2D", ghostedDataSet);
 
   rc = CheckFields(ghostedDataSet, hasNodeData, hasCellData);
@@ -475,7 +475,7 @@ int Test3D(const bool hasNodeData, const bool hasCellData, const int factor, con
   }
   WriteDistributedDataSet("P3DInitial", mbds);
 
-  vtkPUniformGridGhostDataGenerator* ghostGenerator = vtkPUniformGridGhostDataGenerator::New();
+  vtkGhostCellsGenerator* ghostGenerator = vtkGhostCellsGenerator::New();
 
   ghostGenerator->SetInputData(mbds);
   ghostGenerator->SetNumberOfGhostLayers(NG);
@@ -483,7 +483,8 @@ int Test3D(const bool hasNodeData, const bool hasCellData, const int factor, con
   ghostGenerator->Initialize();
   ghostGenerator->Update();
 
-  vtkMultiBlockDataSet* ghostedDataSet = ghostGenerator->GetOutput();
+  vtkMultiBlockDataSet* ghostedDataSet =
+    vtkMultiBlockDataSet::SafeDownCast(ghostGenerator->GetOutputDataObject(0));
   WriteDistributedDataSet("GHOSTED3D", ghostedDataSet);
 
   rc = CheckFields(ghostedDataSet, hasNodeData, hasCellData);
