@@ -2581,10 +2581,14 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForStructuredData(
 /**
  * Given 2 input extents `localExtent` and `extent`, this function returns the list of ids in `grid`
  * such that the points lie in the intersection of the 2 input extents.
+ *
+ * If restrictToInterfaceOwnership is ON, the returned ids are the points that are adjacent between
+ * the 2 input blocks.
  */
 template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForStructuredData(unsigned char adjacencyMask,
-  const ExtentType& localExtent, const ExtentType& extent, GridDataSetT* grid)
+  const ExtentType& localExtent, const ExtentType& extent, GridDataSetT* grid,
+  bool restrictToInterfaceOwnership = false)
 {
   int imin, imax, jmin, jmax, kmin, kmax;
   imin = std::max(extent[0], localExtent[0]);
@@ -2594,20 +2598,64 @@ vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForStructuredData(unsigned ch
   kmin = std::max(extent[4], localExtent[4]);
   kmax = std::min(extent[5], localExtent[5]);
 
-  // We give ownership of the non ghost version of a point to the most right / back / top grid.
-  // We do that by removing the most right / back / top layer of points of the intersection between
-  // the 2 input extents.
-  if (adjacencyMask & Adjacency::Right)
+  constexpr unsigned char LR = Adjacency::Right | Adjacency::Left;
+  constexpr unsigned char BF = Adjacency::Back | Adjacency::Front;
+  constexpr unsigned char TB = Adjacency::Top | Adjacency::Bottom;
+
+  // Points on the interface do not need to be exchanged, so we shrink the extent at those
+  // interfaces.
+  // Since input mask can have had a bitwise not operator performed, we weed out couples 11
+  // (they should not exist anyway: you cannot be adjacent to Right and Left at the same time, for
+  // instance).
+  //
+  // When restrictToInterfaceOwnership is ON, we just want to return the points that are in the
+  // interfaces between the 2 blocks: the points that are in both input blocks.
+  // This is used for ghost point tagging. We give ownership to the block at the most top - right -
+  // back.
+  if ((adjacencyMask & LR) != LR)
   {
-    --imax;
+    if (adjacencyMask & Adjacency::Right)
+    {
+      --imax;
+      if (restrictToInterfaceOwnership)
+      {
+        imin = imax;
+      }
+    }
+    if (adjacencyMask & Adjacency::Left && !restrictToInterfaceOwnership)
+    {
+      ++imin;
+    }
   }
-  if (adjacencyMask & Adjacency::Back)
+  if ((adjacencyMask & BF) != BF)
   {
-    --jmax;
+    if (adjacencyMask & Adjacency::Back)
+    {
+      --jmax;
+      if (restrictToInterfaceOwnership)
+      {
+        jmin = jmax;
+      }
+    }
+    if (adjacencyMask & Adjacency::Front && !restrictToInterfaceOwnership)
+    {
+      ++jmin;
+    }
   }
-  if (adjacencyMask & Adjacency::Top)
+  if ((adjacencyMask & TB) != TB)
   {
-    --kmax;
+    if (adjacencyMask & Adjacency::Top)
+    {
+      --kmax;
+      if (restrictToInterfaceOwnership)
+      {
+        kmin = kmax;
+      }
+    }
+    if (adjacencyMask & Adjacency::Bottom && !restrictToInterfaceOwnership)
+    {
+      ++kmin;
+    }
   }
 
   const int* gridExtent = grid->GetExtent();
@@ -2660,7 +2708,8 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIdsForStructuredData(
  */
 template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForStructuredData(
-  typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType::BlockStructureType& blockStructure, GridDataSetT* grid)
+  typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType::BlockStructureType& blockStructure,
+  GridDataSetT* grid, bool restrictToInterfaceOwnership = false)
 {
   const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
   const ExtentType& extent = blockStructure.ShiftedExtent;
@@ -2668,9 +2717,11 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForStructuredData(
   ExtentType localExtent
     { gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
 
-  // We do a bit shift on adjacencyMask to have the same adjacency mask as in the Input version of
-  // this function. It produces an axial symmetry on each dimension having an adjacency.
-  return ComputeInterfacePointIdsForStructuredData(adjacencyMask << 1, localExtent, extent, grid);
+  // We apply a bitwise NOT opeartion on adjacencyMask to have the same adjacency mask as
+  // in the Input version of this function. It produces an axial symmetry on each dimension
+  // having an adjacency.
+  return ComputeInterfacePointIdsForStructuredData(~adjacencyMask, localExtent, extent,
+      grid, restrictToInterfaceOwnership);
 }
 
 //----------------------------------------------------------------------------
@@ -4118,6 +4169,11 @@ void FillReceivedGhosts(ImageDataBlock* block, int vtkNotUsed(myGid), int vtkNot
   FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
       output->GetPointData(), pointIds);
 
+  vtkSmartPointer<vtkIdList> pointOwnershipIds =
+    ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output,
+        true /* restrictToInterfaceOwnership */);
+  FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointOwnershipIds);
+
   vtkSmartPointer<vtkIdList> cellIds =
     ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
   FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
@@ -4134,6 +4190,11 @@ void FillReceivedGhosts(RectilinearGridBlock* block, int vtkNotUsed(myGid), int 
   FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
   FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
       output->GetPointData(), pointIds);
+
+  vtkSmartPointer<vtkIdList> pointOwnershipIds =
+    ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output,
+        true /* restrictToInterfaceOwnership */);
+  FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointOwnershipIds);
 
   vtkSmartPointer<vtkIdList> cellIds =
     ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
@@ -4153,6 +4214,11 @@ void FillReceivedGhosts(StructuredGridBlock* block, int vtkNotUsed(myGid), int v
       output->GetPointData(), pointIds);
   FillReceivedGhostPointsForStructuredData(blockStructure.GhostPoints, output->GetPoints(),
       pointIds);
+
+  vtkSmartPointer<vtkIdList> pointOwnershipIds =
+    ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output,
+        true /* restrictToInterfaceOwnership */);
+  FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointOwnershipIds);
 
   vtkSmartPointer<vtkIdList> cellIds =
     ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
