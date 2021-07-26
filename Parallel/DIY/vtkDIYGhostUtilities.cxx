@@ -44,7 +44,9 @@
 
 #include <algorithm>
 #include <numeric>
+#include <set>
 #include <unordered_map>
+#include <vector>
 
 // clang-format off
 #include "vtk_diy2.h"
@@ -1735,12 +1737,15 @@ struct MatchingPointExtractor
       return;
     }
 
-    std::set<vtkIdType> inverseMap;
+    std::vector<vtkIdType> inverseMap;
     auto sourcePointIdsRange = vtk::DataArrayValueRange<1>(this->SourcePointIds);
 
     if (globalPointIds)
     {
       auto gidRange = vtk::DataArrayValueRange<1>(globalPointIds);
+
+      inverseMap.reserve(gidRange.size());
+
       using ConstRef = typename decltype(gidRange)::ConstReferenceType;
 
       for (ConstRef gid : gidRange)
@@ -1750,7 +1755,7 @@ struct MatchingPointExtractor
         {
           vtkIdType& matchingPointId = it->second;
           this->MatchingSourcePointIds->InsertNextValue(sourcePointIdsRange[matchingPointId]);
-          inverseMap.insert(matchingPointId);
+          inverseMap.push_back(matchingPointId);
         }
       }
     }
@@ -1760,6 +1765,8 @@ struct MatchingPointExtractor
 
       auto pointsRange = vtk::DataArrayTupleRange<3>(points);
       auto surfacePointsRange = vtk::DataArrayTupleRange<3>(surfacePoints);
+
+      inverseMap.reserve(pointsRange.size());
 
       using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
       using ValueType = typename PointArrayT::ValueType;
@@ -1775,12 +1782,13 @@ struct MatchingPointExtractor
             Comparator<IsInteger>::Equals(point[2], closestPoint[2]))
         {
           this->MatchingSourcePointIds->InsertNextValue(sourcePointIdsRange[closestPointId]);
-          inverseMap.insert(closestPointId);
+          inverseMap.push_back(closestPointId);
         }
       }
     }
 
     this->MatchingReceivedPointIdsSortedLikeTarget->Allocate(inverseMap.size());
+    std::sort(inverseMap.begin(), inverseMap.end());
 
     for (const vtkIdType& id : inverseMap)
     {
@@ -3726,9 +3734,16 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredData(const diy::Master& maste
 
     vtkIdType pointIdOffset = inputs[localId]->GetNumberOfPoints();
 
+    vtkIdType numberOfReceivedSharedPoints = 0;
+    for (auto& pair : blockStructures)
+    {
+      numberOfReceivedSharedPoints += pair.second.ReceivedSharedPointIds->GetNumberOfValues();
+    }
+
     // This pointIdRedirection is used to redirect duplicate points that have been sent by multiple
     // blocks to their location in our local output points.
-    std::unordered_map<vtkIdType, vtkIdType> pointIdRedirection;
+    std::vector<vtkIdType> pointIdRedirection;
+    pointIdRedirection.reserve(numberOfReceivedSharedPoints);
 
     // We look at tagged duplicate points sent by our neighbors and see if they match previously
     // added points.
@@ -3764,7 +3779,7 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredData(const diy::Master& maste
           if (pointIdLocator.empty())
           {
             pointIdLocator.insert({ globalId, 0 });
-            pointIdRedirection.insert({ 0, pointIdOffset + pointId });
+            pointIdRedirection.push_back(pointIdOffset + pointId);
             continue;
           }
 
@@ -3773,12 +3788,11 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredData(const diy::Master& maste
           {
             ++numberOfMatchingPoints;
             redirectionMapForDuplicatePointIds.insert({ pointId,
-                pointIdRedirection.at(it->second) });
+                pointIdRedirection[it->second] });
           }
           else
           {
-            pointIdRedirection.insert({ pointIdLocator.size(),
-                pointIdOffset + pointId - numberOfMatchingPoints });
+            pointIdRedirection.push_back(pointIdOffset + pointId - numberOfMatchingPoints);
             pointIdLocator.insert({ globalId, pointIdLocator.size() });
           }
         }
@@ -3827,7 +3841,7 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredData(const diy::Master& maste
           if (!points->GetNumberOfPoints())
           {
             pointLocator->InsertNextPoint(p);
-            pointIdRedirection.insert({ 0, pointIdOffset + pointId });
+            pointIdRedirection.push_back(pointIdOffset + pointId);
             continue;
           }
 
@@ -3841,12 +3855,11 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredData(const diy::Master& maste
           {
             ++numberOfMatchingPoints;
             redirectionMapForDuplicatePointIds.insert(
-                { pointId, pointIdRedirection.at(matchingPointWorker.TargetPointId) });
+                { pointId, pointIdRedirection[matchingPointWorker.TargetPointId] });
           }
           else
           {
-            pointIdRedirection.insert({ points->GetNumberOfPoints(),
-                pointIdOffset + pointId - numberOfMatchingPoints });
+            pointIdRedirection.push_back(pointIdOffset + pointId - numberOfMatchingPoints);
             pointLocator->InsertNextPoint(p);
           }
         }
