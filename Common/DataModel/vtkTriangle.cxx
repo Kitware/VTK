@@ -530,10 +530,14 @@ vtkCell* vtkTriangle::GetEdge(int edgeId)
 int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
   double x[3], double pcoords[3], int& subId)
 {
-  double pt1[3], pt2[3], pt3[3], n[3];
+  double pt1[3] = { 0., 0., 0. };
+  double pt2[3] = { 0., 0., 0. };
+  double pt3[3] = { 0., 0., 0. };
+  double n[3] = { 0., 0., 0. };
+  double closestPoint[3] = { 0., 0., 0. };
+  double weights[3] = { 0., 0., 0. };
+  double dist2{};
   double tol2 = tol * tol;
-  double closestPoint[3];
-  double dist2, weights[3];
 
   subId = 0;
   pcoords[2] = 0.0;
@@ -545,14 +549,73 @@ int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], doubl
   this->Points->GetPoint(0, pt3);
 
   vtkTriangle::ComputeNormal(pt1, pt2, pt3, n);
+
   if (n[0] != 0 || n[1] != 0 || n[2] != 0)
   {
     // Intersect plane of triangle with line
     //
     if (!vtkPlane::IntersectWithLine(p1, p2, n, pt1, t, x))
     {
-      pcoords[0] = pcoords[1] = 0.0;
-      return 0;
+      // If the line and the triangle are not parallel or not coplanar
+      if (t != VTK_DOUBLE_MAX || (vtkMath::Dot(n, pt1) - vtkMath::Dot(n, p1)) != 0.0)
+      {
+        pcoords[0] = pcoords[1] = 0.0;
+        return 0;
+      }
+
+      // When the line is coplanar with the triangle, the intersection point is chosen to be the
+      // closest to p1.
+
+      // If p1 is inside the triangle
+      if (this->EvaluatePosition(p1, closestPoint, subId, pcoords, dist2, weights) == 1)
+      {
+        t = 0.0;
+        x[0] = p1[0];
+        x[1] = p1[1];
+        x[2] = p1[2];
+        return 1;
+      }
+
+      // If p1 is outside of the triangle
+      bool intersection = false;
+      double closestDistance = VTK_DOUBLE_MAX;
+      double closestX[3] = { 0., 0., 0. };
+      double closestPCoords[3] = { 0., 0., 0. };
+
+      for (vtkIdType i = 0; i < this->GetNumberOfEdges(); i++)
+      {
+        if (this->GetEdge(i)->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) != 0)
+        {
+          intersection = true;
+          if (t < closestDistance)
+          {
+            closestDistance = t;
+            // Obtain parametric coordinates
+            this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+            for (int i = 0; i < 3; i++)
+            {
+              closestX[i] = x[i];
+              closestPCoords[i] = pcoords[i];
+            }
+          }
+        }
+      }
+
+      if (!intersection)
+      {
+        pcoords[0] = pcoords[1] = 0.0;
+        return 0;
+      }
+      else
+      {
+        t = closestDistance;
+        for (int i = 0; i < 3; i++)
+        {
+          x[i] = closestX[i];
+          pcoords[i] = closestPCoords[i];
+        }
+        return 1;
+      }
     }
 
     // Evaluate position
@@ -593,9 +656,9 @@ int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], doubl
   if (this->Line->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
   {
     // Compute r and s manually, using dot and norm.
-    double pt3Pt1[3];
-    double pt3Pt2[3];
-    double pt3X[3];
+    double pt3Pt1[3] = { 0., 0., 0. };
+    double pt3Pt2[3] = { 0., 0., 0. };
+    double pt3X[3] = { 0., 0., 0. };
     for (int i = 0; i < 3; i++)
     {
       pt3Pt1[i] = pt1[i] - pt3[i];
