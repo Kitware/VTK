@@ -19,6 +19,9 @@ else ()
   set(vtk_has_vtkm OFF)
 endif ()
 
+get_property(vtk_smp_backends GLOBAL
+  PROPERTY _vtk_smp_backends)
+
 _vtk_module_write_import_prefix("${vtk_cmake_build_dir}/vtk-prefix.cmake" "${vtk_cmake_destination}")
 
 set(vtk_python_version "")

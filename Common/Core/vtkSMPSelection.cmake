@@ -36,11 +36,14 @@ endif()
 set(vtk_smp_defines)
 set(vtk_smp_use_default_atomics ON)
 
+set(vtk_smp_backends)
+
 if (VTK_SMP_ENABLE_TBB)
   vtk_module_find_package(PACKAGE TBB)
   list(APPEND vtk_smp_libraries
     TBB::tbb)
   set(vtk_smp_enable_tbb 1)
+  list(APPEND vtk_smp_backends "TBB")
 
   set(vtk_smp_use_default_atomics OFF)
   set(vtk_smp_implementation_dir SMP/TBB)
@@ -57,6 +60,7 @@ if (VTK_SMP_ENABLE_OPENMP)
   list(APPEND vtk_smp_libraries
     OpenMP::OpenMP_CXX)
   set(vtk_smp_enable_openmp 1)
+  list(APPEND vtk_smp_backends "OpenMP")
 
   set(vtk_smp_implementation_dir SMP/OpenMP)
   list(APPEND vtk_smp_sources
@@ -80,6 +84,7 @@ endif()
 if (VTK_SMP_ENABLE_STDTHREAD)
   set(vtk_smp_enable_stdthread 1)
   set(vtk_smp_implementation_dir SMP/STDThread)
+  list(APPEND vtk_smp_backends "STDThread")
 
   list(APPEND vtk_smp_sources
     "${vtk_smp_implementation_dir}/vtkSMPToolsImpl.cxx"
@@ -96,6 +101,7 @@ endif()
 if (VTK_SMP_ENABLE_SEQUENTIAL)
   set(vtk_smp_enable_sequential 1)
   set(vtk_smp_implementation_dir SMP/Sequential)
+  list(APPEND vtk_smp_backends "Sequential")
 
   list(APPEND vtk_smp_sources
     "${vtk_smp_implementation_dir}/vtkSMPToolsImpl.cxx")
@@ -104,6 +110,10 @@ if (VTK_SMP_ENABLE_SEQUENTIAL)
   list(APPEND vtk_smp_templates
     "${vtk_smp_implementation_dir}/vtkSMPToolsImpl.txx")
 endif()
+
+set_property(GLOBAL
+  PROPERTY
+    _vtk_smp_backends "${vtk_smp_backends}")
 
 if (vtk_smp_use_default_atomics)
   include(CheckSymbolExists)
