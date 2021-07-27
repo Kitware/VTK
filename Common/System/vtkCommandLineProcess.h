@@ -36,8 +36,8 @@ public:
   vtkTypeMacro(vtkCommandLineProcess, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkCommandLineProcess();
-  virtual ~vtkCommandLineProcess();
+  vtkCommandLineProcess() = default;
+  virtual ~vtkCommandLineProcess() = default;
 
   /**
    * Execute the command currently set if any.
@@ -71,16 +71,16 @@ public:
   /**
    * Set/Get command to execute. An empty command will do nothing.
    */
-  vtkGetStringMacro(Command);
-  vtkSetStringMacro(Command);
+  vtkGetCharFromStdStringMacro(Command);
+  vtkSetStdStringFromCharMacro(Command);
   //@}
 
   //@{
   /**
    * Get output of the previously run command.
    */
-  vtkGetStringMacro(StdOut);
-  vtkGetStringMacro(StdErr);
+  vtkGetCharFromStdStringMacro(StdOut);
+  vtkGetCharFromStdStringMacro(StdErr);
   //@}
 
   /**
@@ -91,8 +91,8 @@ public:
   vtkGetMacro(ReturnValue, int);
 
 protected:
-  vtkSetStringMacro(StdOut);
-  vtkSetStringMacro(StdErr);
+  vtkSetMacro(StdOut, std::string);
+  vtkSetMacro(StdErr, std::string);
 
   int ExitProcess(vtksysProcess* process);
 
@@ -102,11 +102,11 @@ private:
 
   bool RightTrimResult = true;
   double Timeout = 5;
-  char* Command = nullptr;
+  std::string Command;
   int ReturnValue = -1;
 
-  char* StdOut = nullptr;
-  char* StdErr = nullptr;
+  std::string StdOut;
+  std::string StdErr;
 };
 
 #endif // vtkCommandLineProcess_h

@@ -43,19 +43,17 @@ static inline void trim(std::string& s)
 
 std::vector<std::string> ParseCommand(std::string command)
 {
-  details::trim(command);
   std::vector<std::string> res;
 
   // Extract program name using regex
   // regex recognize pattern such as `exec`, `./exec`, `/d1/d_2/exec`, `/d1/d\ 2/exec`, or `"/d1/d
   // 2/exec"`. There is only one capturing group and that is the executable without the "
   // characters, when this technique is used to escape the spaces.
-  std::regex programRegex =
-    std::regex(R"~(^\.?(?:\/?(?:\w+(?:\\ )?)+)+|^"(\.?(?:\/?(?:\w+ ?)+)+)")~");
+  std::regex programRegex = std::regex(R"~(^\.?(?:\/?(?:[^\s\\"]+(?:\\ )*)+)+|^"([^"]+)")~");
   std::smatch match;
   if (std::regex_search(command, match, programRegex))
   {
-    // If escape group for '"/../..."' matched
+    // If escape group with '"' matched
     if (match[1].matched)
     {
       res.emplace_back(match[1].str());
@@ -68,17 +66,17 @@ std::vector<std::string> ParseCommand(std::string command)
   }
 
   // Extract arguments. Split by space except if surrounded by the '"' character.
-  std::regex argRegex = std::regex(R"~([^\s"]+|"([^"]*)")~");
+  std::regex argRegex = std::regex(R"~(\s*([^\s"]+|"([^"]*)"))~");
   while (std::regex_search(command, match, argRegex))
   {
-    // If escape group for argumeetns with '"' has matched
-    if (match[1].matched)
+    // If escape group for arguments with '"' matched
+    if (match[2].matched)
+    {
+      res.emplace_back(match[2].str());
+    }
+    else if (match[1].matched)
     {
       res.emplace_back(match[1].str());
-    }
-    else
-    {
-      res.emplace_back(match[0].str());
     }
     command = command.substr(match[0].length(), command.length());
   }
@@ -91,25 +89,13 @@ std::vector<std::string> ParseCommand(std::string command)
 vtkStandardNewMacro(vtkCommandLineProcess);
 
 //------------------------------------------------------------------------------
-vtkCommandLineProcess::vtkCommandLineProcess()
-{
-  this->SetStdErr("");
-  this->SetStdOut("");
-}
-
-//------------------------------------------------------------------------------
-vtkCommandLineProcess::~vtkCommandLineProcess()
-{
-  this->SetStdErr(nullptr);
-  this->SetStdOut(nullptr);
-}
-
-//------------------------------------------------------------------------------
 void vtkCommandLineProcess::Execute()
 {
-  if (this->Command && strlen(this->Command))
+  std::string command = this->Command;
+  details::ltrim(command);
+  if (!command.empty())
   {
-    std::vector<std::string> parsed = details::ParseCommand(this->Command);
+    std::vector<std::string> parsed = details::ParseCommand(command);
 
     // get a vector of C string for vtksys
     const auto size = parsed.size();
@@ -161,8 +147,8 @@ void vtkCommandLineProcess::Execute()
       details::rtrim(out);
       details::rtrim(err);
     }
-    this->SetStdOut(out.c_str());
-    this->SetStdErr(err.c_str());
+    this->SetStdOut(out);
+    this->SetStdErr(err);
   }
 }
 
@@ -191,7 +177,7 @@ int vtkCommandLineProcess::ExitProcess(vtksysProcess* process)
       break;
     case vtksysProcess_State_Exited:
       code = vtksysProcess_GetExitValue(process);
-      vtkDebugMacro("Childs process returned with value: " << code);
+      vtkDebugMacro("Child process returned with value: " << code);
       if (code)
       {
         vtkWarningMacro("Child process exited with error code: " << code);

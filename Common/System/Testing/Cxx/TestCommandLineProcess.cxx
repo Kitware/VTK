@@ -9,7 +9,11 @@
 int TestCommandLineProcess(int, char*[])
 {
   vtkNew<vtkCommandLineProcess> process;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+  process->SetCommand("cmd.exe /c \"echo Hello World\"");
+#else
   process->SetCommand("echo \"Hello World\"");
+#endif
   process->Execute();
   std::string out = process->GetStdOut();
   std::string err = process->GetStdErr();
