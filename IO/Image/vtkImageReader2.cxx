@@ -73,7 +73,6 @@ vtkImageReader2::vtkImageReader2()
 
   // Left over from short reader
   this->SwapBytes = 0;
-  this->SwapRBComps = 0;
   this->FileLowerLeft = 0;
   this->FileDimensionality = 2;
   this->SetNumberOfInputPorts(0);
@@ -738,14 +737,6 @@ void vtkImageReader2Update(vtkImageReader2* self, vtkImageData* data, OT* outPtr
       if (self->GetSwapBytes() && sizeof(OT) > 1)
       {
         vtkByteSwap::SwapVoidRange(outPtr1, pixelRead * nComponents, sizeof(OT));
-      }
-      // handle swapping
-      if (self->GetSwapRBComps() && nComponents >= 3)
-      {
-        for (int i = 0; i < pixelRead * nComponents; i += nComponents)
-        {
-          std::swap(outPtr1[i], outPtr1[i + 2]);
-        }
       }
       outPtr1 += outIncr[1];
     }
