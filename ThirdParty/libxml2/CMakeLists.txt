@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtklibxml2/Copyright"
-    VERSION       "2.9.10"
+    VERSION       "2.9.12"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LibXml2

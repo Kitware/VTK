@@ -9,3 +9,4 @@ The following third party library updates have been made:
   - freetype 2.11.0
   - glew 2.2.0
   - jpeg 2.1.0
+  - libxml2 2.9.12
