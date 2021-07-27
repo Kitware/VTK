@@ -10,3 +10,4 @@ The following third party library updates have been made:
   - glew 2.2.0
   - jpeg 2.1.0
   - libxml2 2.9.12
+  - lz4 1.9.3
