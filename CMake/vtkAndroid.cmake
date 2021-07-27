@@ -27,7 +27,7 @@ set(ANDROID_NDK ${_ANDROID_NDK_DEFAULT} CACHE PATH
 if (NOT EXISTS "${ANDROID_NDK}/platforms")
   message(FATAL_ERROR "Please set a valid ANDROID_NDK path")
 endif()
-set(ANDROID_NATIVE_API_LEVEL "21" CACHE STRING "Android Native API Level")
+set(ANDROID_NATIVE_API_LEVEL "27" CACHE STRING "Android Native API Level")
 set(ANDROID_ARCH_ABI "armeabi" CACHE STRING "Target Android architecture/abi")
 
 # find android

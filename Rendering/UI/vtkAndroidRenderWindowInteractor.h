@@ -44,12 +44,12 @@ public:
   static vtkAndroidRenderWindowInteractor* New();
 
   vtkTypeMacro(vtkAndroidRenderWindowInteractor, vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the event handler
    */
-  virtual void Initialize();
+  void Initialize() override;
 
   ///@{
   /**
@@ -61,8 +61,8 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  virtual void Enable();
-  virtual void Disable();
+  void Enable() override;
+  void Disable() override;
   ///@}
 
   /**
@@ -70,7 +70,7 @@ public:
    * calls PostQuitMessage(0) to terminate the application. An application can Specify
    * ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
    */
-  void TerminateApp(void);
+  void TerminateApp(void) override;
 
   ///@{
   /**
@@ -87,7 +87,7 @@ public:
    * These methods correspond to the Exit, User and Pick
    * callbacks. They allow for the Style to invoke them.
    */
-  virtual void ExitCallback();
+  void ExitCallback() override;
 
   virtual void SetAndroidApplication(struct android_app* app) { this->AndroidApplication = app; }
 
@@ -109,6 +109,14 @@ public:
 
   void HandleCommand(int32_t cmd);
   int32_t HandleInput(AInputEvent* event);
+
+  ///@{
+  /**
+   * Returns true if the window is owned by VTK.
+   */
+  vtkSetMacro(OwnWindow, bool);
+  vtkGetMacro(OwnWindow, bool);
+  ///@}
 
 protected:
   vtkAndroidRenderWindowInteractor();
@@ -138,8 +146,8 @@ protected:
    * Win32-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
-  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
-  virtual int InternalDestroyTimer(int platformTimerId);
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
+  int InternalDestroyTimer(int platformTimerId) override;
   ///@}
 
   /**
@@ -147,7 +155,9 @@ protected:
    * call this method it will loop processing events until the
    * application is exited.
    */
-  virtual void StartEventLoop();
+  void StartEventLoop() override;
+
+  vtkTypeBool OwnWindow;
 
 private:
   vtkAndroidRenderWindowInteractor(const vtkAndroidRenderWindowInteractor&) = delete;
