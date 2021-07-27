@@ -11,3 +11,4 @@ The following third party library updates have been made:
   - jpeg 2.1.0
   - libxml2 2.9.12
   - lz4 1.9.3
+  - lzma 5.2.5
