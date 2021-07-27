@@ -13,3 +13,4 @@ The following third party library updates have been made:
   - lz4 1.9.3
   - lzma 5.2.5
   - mpi4py 3.0.3
+  - ogg 1.3.5
