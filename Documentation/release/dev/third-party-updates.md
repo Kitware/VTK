@@ -12,3 +12,4 @@ The following third party library updates have been made:
   - libxml2 2.9.12
   - lz4 1.9.3
   - lzma 5.2.5
+  - mpi4py 3.0.3
