@@ -61,6 +61,8 @@
 #include VTKXDMF3_HEADER(XdmfTopologyType.hpp)
 // clang-format on
 
+#include <array>
+
 //==============================================================================
 bool vtkXdmf3DataSet_ReadIfNeeded(XdmfArray* array, bool dbg = false)
 {
@@ -2364,7 +2366,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,
     unsigned int d = xmfAttribute->getElementDegree();
 
     // Prepare space for normal vectors
-    std::vector<double[3]> normal(number_points_per_new_cell);
+    std::vector<std::array<double, 3>> normal(number_points_per_new_cell);
 
     // Determine number of components after embedding
     // the scalar/vector/tesor into 3D world
