@@ -92,6 +92,8 @@ struct vtkInterpolationMath
 #define VTK_INTERPOLATE_64BIT_FLOOR
 #elif defined __ppc64__ || defined __x86_64__ || defined _M_X64
 #define VTK_INTERPOLATE_64BIT_FLOOR
+#elif defined __arm64__ || defined __aarch64__
+#define VTK_INTERPOLATE_64BIT_FLOOR
 #elif defined __ppc__ || defined sparc || defined mips
 #define VTK_INTERPOLATE_32BIT_FLOOR
 #elif defined i386 || defined _M_IX86
