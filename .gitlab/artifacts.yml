@@ -60,6 +60,7 @@
             - build/ExternalData/
             - build/Testing/
             - build/Testing/Temporary/
+            - build/ThirdParty/freetype/vtkfreetype/include/
 
             # CDash files.
             - build/DartConfiguration.tcl
