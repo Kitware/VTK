@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
-    LICENSE_FILES "vtkpugixml/LICENSE"
-    VERSION       "1.10"
+    LICENSE_FILES "vtkpugixml/LICENSE.md"
+    VERSION       "1.11.4"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE pugixml

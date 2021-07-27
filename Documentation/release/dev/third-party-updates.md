@@ -14,3 +14,4 @@ The following third party library updates have been made:
   - lzma 5.2.5
   - mpi4py 3.0.3
   - ogg 1.3.5
+  - pugixml 1.11.4
