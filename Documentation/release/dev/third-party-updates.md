@@ -8,6 +8,7 @@ The following third party library updates have been made:
   - expat 2.4.1
   - freetype 2.11.0
   - glew 2.2.0
+  - hdf5 1.12.1
   - jpeg 2.1.0
   - libxml2 2.9.12
   - lz4 1.9.3

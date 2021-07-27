@@ -8,20 +8,19 @@ readonly name="hdf5"
 readonly ownership="HDF Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/hdf5.git"
-readonly tag="for/vtk-20210428-1.10.7"
+readonly tag="for/vtk-20210822-1.12.1"
 readonly paths="
 CMakeFilters.cmake
 CMakeInstallation.cmake
 CMakeLists.txt
+CMakePlugins.cmake
 UserMacros.cmake
 
 src/
 hl/CMakeLists.txt
-hl/COPYING
 hl/src/
 
 config/lt_vers.am
-config/COPYING
 config/clang-warnings
 config/gnu-warnings
 config/intel-warnings
@@ -29,6 +28,7 @@ config/cmake/ConfigureChecks.cmake
 config/cmake/ConversionTests.c
 config/cmake/H5pubconf.h.in
 config/cmake/HDF5Macros.cmake
+config/cmake/HDF5PluginMacros.cmake
 config/cmake/HDFCompilerFlags.cmake
 config/cmake/libhdf5.settings.cmake.in
 
