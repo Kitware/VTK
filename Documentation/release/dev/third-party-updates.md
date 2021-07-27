@@ -15,3 +15,4 @@ The following third party library updates have been made:
   - mpi4py 3.0.3
   - ogg 1.3.5
   - pugixml 1.11.4
+  - sqlite 3.36.0
