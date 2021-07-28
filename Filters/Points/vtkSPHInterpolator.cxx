@@ -325,6 +325,7 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
 
   // Set up the interpolation process
   vtkIdType numPts = input->GetNumberOfPoints();
+  vtkPointData* inputPD = input->GetPointData();
   vtkPointData* sourcePD = source->GetPointData();
   vtkPointData* outPD = output->GetPointData();
 
@@ -359,7 +360,7 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
   // Initialize the SPH kernel
   if (this->Kernel->GetRequiresInitialization())
   {
-    this->Kernel->SetCutoffArray(sourcePD->GetArray(this->CutoffArrayName));
+    this->Kernel->SetCutoffArray(inputPD->GetArray(this->CutoffArrayName));
     this->Kernel->SetDensityArray(sourcePD->GetArray(this->DensityArrayName));
     this->Kernel->SetMassArray(sourcePD->GetArray(this->MassArrayName));
     this->Kernel->Initialize(this->Locator, source, sourcePD);

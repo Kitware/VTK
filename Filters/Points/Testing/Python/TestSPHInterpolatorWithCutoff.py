@@ -32,12 +32,8 @@ output = reader.GetOutput()
 scalarRange = output.GetPointData().GetArray("Rho").GetRange()
 
 output2 = dsa.WrapDataObject(output)
-# the constant value in the Cutoff array below is equal to
-# the spatialStep (0.1) set below, and the CutoffFactor (3) of the QuinticKernel
-Cutoff = np.ones(output.GetNumberOfPoints()) * 3.0/10.0;
 Mass = np.ones(output.GetNumberOfPoints()) * 1.0;
 output2.PointData.append(Mass, "Mass")
-output2.PointData.append(Cutoff, "Cutoff")
 
 # Something to sample with
 center = output.GetCenter()
@@ -53,6 +49,15 @@ plane.SetCenter(center)
 plane.SetNormal(0,0,1)
 plane.Push(1.15)
 plane.Update()
+planeOutput = plane.GetOutput()
+planeOutput2 = dsa.WrapDataObject(planeOutput)
+
+# The constant value in the Cutoff array below is equal to
+# the spatialStep (0.1) set below, and the CutoffFactor (3) of the QuinticKernel.
+# Note that the cutoff array should be associated with the input
+# sampling points.
+Cutoff = np.ones(planeOutput.GetNumberOfPoints()) * 3.0/10.0;
+planeOutput2.PointData.append(Cutoff, "Cutoff")
 
 # SPH kernel------------------------------------------------
 
