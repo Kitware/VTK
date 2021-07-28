@@ -118,6 +118,17 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
     list(APPEND instantiation_sources
       "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx")
   endif ()
+
+  # see comments in vtkGenericDataArray.h for explanation
+  if (INSTANTIATION_VALUE_TYPE MATCHES "(^| )long( |$)")
+    set(_prefix "vtkGenericDataArrayValueRangeInstantiate")
+    configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
+      @ONLY)
+    list(APPEND instantiation_sources
+      "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx")
+  endif ()
 endforeach ()
 
 set(classes

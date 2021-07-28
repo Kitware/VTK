@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGenericDataArray.cxx
+  Module:    vtkGenericDataArrayValueRangeInstantiate.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,17 +13,24 @@
 
 =========================================================================*/
 
-// We can't include vtkDataArrayPrivate.txx from a header, since it pulls in
-// windows.h and creates a bunch of name collisions. So we compile the range
-// lookup functions into this translation unit where we can encapsulate the
-// header.
+// We only compile the 64-bit integer range compulation for value types
+// of long, unsigned long, long long, and unsigned long log.  All others
+// reuse the double-precision vtkDataArray::GetRange version, since they
+// won't lose precision.
 
 #define VTK_GDA_VALUERANGE_INSTANTIATING
 #include "vtkGenericDataArray.h"
 
 #include "vtkDataArrayPrivate.txx"
 
+#include "vtkAOSDataArrayTemplate.h"
+#include "vtkSOADataArrayTemplate.h"
+
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+#include "vtkScaledSOADataArrayTemplate.h"
+#endif
+
 namespace vtkDataArrayPrivate
 {
-VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkDataArray, double)
-} // namespace vtkDataArrayPrivate
+VTK_INSTANTIATE_VALUERANGE_VALUETYPE(@INSTANTIATION_VALUE_TYPE@)
+}

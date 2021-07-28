@@ -548,11 +548,13 @@ bool DoComputeVectorRange(A*, R[2], FiniteValues);
 
 namespace vtkDataArrayPrivate
 {
-// These are instantiated in vtkGenericDataArray.cxx
+// These are instantiated in vtkGenericDataArrayValueRange${i}.cxx
 VTK_DECLARE_VALUERANGE_VALUETYPE(long)
 VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long)
 VTK_DECLARE_VALUERANGE_VALUETYPE(long long)
 VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long long)
+
+// This is instantiated in vtkGenericDataArray.cxx
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkDataArray, double)
 
 // These are instantiated in vtkFloatArray.cxx, vtkDoubleArray.cxx, etc
