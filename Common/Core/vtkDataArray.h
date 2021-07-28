@@ -76,6 +76,12 @@ public:
   int GetElementComponentSize() const override { return this->GetDataTypeSize(); }
 
   // Reimplemented virtuals (doc strings are inherited from superclass):
+  ///@{
+  /**
+   * See documentation from parent class.
+   * This method assumes that the `source` inherits from `vtkDataArray`, but its value type doesn't
+   * have to match the type of the current instance.
+   */
   void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray* source) override;
   vtkIdType InsertNextTuple(vtkIdType srcTupleIdx, vtkAbstractArray* source) override;
   void InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source) override;
@@ -83,6 +89,8 @@ public:
     vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source) override;
   void InsertTuplesStartingAt(
     vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override;
+  void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray* source) override;
+  ///@}
   void GetTuples(vtkIdList* tupleIds, vtkAbstractArray* output) override;
   void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray* output) override;
   void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList* ptIndices, vtkAbstractArray* source,
@@ -124,8 +132,6 @@ public:
   double* GetTuple9(vtkIdType tupleIdx) VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
     VTK_SIZEHINT(9);
   ///@}
-
-  void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray* source) override;
 
   ///@{
   /**
