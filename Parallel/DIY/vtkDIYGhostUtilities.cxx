@@ -45,6 +45,7 @@
 #include <algorithm>
 #include <numeric>
 #include <set>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -891,13 +892,30 @@ struct Comparator<true>
 template <>
 struct Comparator<false>
 {
-  template <class ValueT>
-  static bool Equals(const ValueT& val1, const ValueT& val2)
+  template <class ValueT, bool IsFloatingPointT = std::is_floating_point<ValueT>::value>
+  struct ValueToScalar;
+
+  template<class ValueT>
+  struct ValueToScalar<ValueT, true>
   {
+    using Type = ValueT;
+  };
+
+  template <class ValueT>
+  struct ValueToScalar<ValueT, false>
+  {
+    using Type = typename ValueT::value_type;
+  };
+
+  template <class ValueT1, class ValueT2>
+  static bool Equals(const ValueT1& val1, const ValueT2& val2)
+  {
+    using Scalar = typename ValueToScalar<ValueT1>::Type;
+
     return std::fabs(val1 - val2) <
-      std::max(std::numeric_limits<ValueT>::epsilon() *
+      std::max<Scalar>(std::numeric_limits<Scalar>::epsilon() *
             std::max(std::fabs(val1), std::fabs(val2)),
-        std::numeric_limits<ValueT>::min());
+        std::numeric_limits<Scalar>::min());
   }
 };
 
@@ -3589,10 +3607,10 @@ struct PolyhedronsInserter
  */
 struct MatchingPointWorker
 {
-  template<class ArrayT>
-  void operator()(ArrayT* source, ArrayT* target)
+  template<class SourceArrayT, class TargetArrayT>
+  void operator()(SourceArrayT* source, TargetArrayT* target)
   {
-    using ValueType = typename ArrayT::ValueType;
+    using ValueType = typename SourceArrayT::ValueType;
     constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
 
     ValueType p[3], q[3];
