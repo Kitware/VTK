@@ -261,7 +261,12 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate);
 // from instantiating these on their own.
 #ifdef VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
 #define VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(T)                                                 \
+  namespace vtkDataArrayPrivate                                                                    \
+  {                                                                                                \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<T>, double);                        \
+  }                                                                                                \
   template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate<T>
+
 #elif defined(VTK_USE_EXTERN_TEMPLATE)
 #ifndef VTK_SOA_DATA_ARRAY_TEMPLATE_EXTERN
 #define VTK_SOA_DATA_ARRAY_TEMPLATE_EXTERN

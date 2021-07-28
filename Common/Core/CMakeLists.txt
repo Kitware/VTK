@@ -89,6 +89,37 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
   @ONLY)
 
+# create a list of source files for explicit array type instantiations
+set(instantiation_sources)
+
+# steal the list of array types from vtkCreateArrayDispatchArrayList.cmake
+foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
+  # only instantiate fundamental types, not typedefs
+  if (INSTANTIATION_VALUE_TYPE STREQUAL "vtkIdType")
+    continue()
+  endif ()
+  # create a file suffix from the type
+  string(REPLACE " " "_" _suffix "${INSTANTIATION_VALUE_TYPE}")
+
+  set(_prefix "vtkSOADataArrayTemplateInstantiate")
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
+    @ONLY)
+  list(APPEND instantiation_sources
+    "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx")
+
+  if (VTK_BUILD_SCALED_SOA_ARRAYS)
+    set(_prefix "vtkScaledSOADataArrayTemplateInstantiate")
+    configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
+      @ONLY)
+    list(APPEND instantiation_sources
+      "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx")
+  endif ()
+endforeach ()
+
 set(classes
   vtkAbstractArray
   vtkAnimationCue
@@ -230,12 +261,11 @@ set(template_classes
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
-  vtkSOADataArrayTemplateInstantiate.cxx
+  ${instantiation_sources}
   ${vtk_smp_sources})
 
 if (VTK_BUILD_SCALED_SOA_ARRAYS)
   list (APPEND template_classes vtkScaledSOADataArrayTemplate)
-  list (APPEND sources  vtkScaledSOADataArrayTemplateInstantiate.cxx)
   set(VTK_USE_SCALED_SOA_ARRAYS 1)
 endif ()
 configure_file(

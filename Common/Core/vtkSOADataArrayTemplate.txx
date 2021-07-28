@@ -16,6 +16,12 @@
 #ifndef vtkSOADataArrayTemplate_txx
 #define vtkSOADataArrayTemplate_txx
 
+#ifdef VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#define VTK_GDA_VALUERANGE_INSTANTIATING
+#include "vtkDataArrayPrivate.txx"
+#undef VTK_GDA_VALUERANGE_INSTANTIATING
+#endif
+
 #include "vtkSOADataArrayTemplate.h"
 
 #include "vtkArrayIteratorTemplate.h"
