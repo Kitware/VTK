@@ -16,8 +16,10 @@ from vtkmodules.web.render_window_serializer import (
     initializeSerializers,
 )
 
-# import Twisted reactor for later callback
-from twisted.internet import reactor
+try:
+    from wslink import schedule_callback
+except:
+    from twisted.internet.reactor import callLater as schedule_callback
 
 from wslink import register as exportRpc
 from wslink.websocket import LinkProtocol
@@ -340,7 +342,7 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
             self.lastStaleTime = time.time()
             if self.staleHandlerCount == 0:
                 self.staleHandlerCount += 1
-                reactor.callLater(
+                schedule_callback(
                     self.deltaStaleTimeBeforeRender, lambda: self.renderStaleImage(vId)
                 )
         else:
@@ -355,7 +357,7 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
                 self.pushRender(vId)
             else:
                 self.staleHandlerCount += 1
-                reactor.callLater(
+                schedule_callback(
                     self.deltaStaleTimeBeforeRender - delta + 0.001,
                     lambda: self.renderStaleImage(vId),
                 )
@@ -378,11 +380,11 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
                 self.targetFrameRate = 1
             if self.targetFrameRate > self.minFrameRate:
                 self.targetFrameRate -= 1.0
-            reactor.callLater(0.001, lambda: self.animate())
+            schedule_callback(0.001, lambda: self.animate())
         else:
             if self.targetFrameRate < self.maxFrameRate and nextAnimateTime > 0.005:
                 self.targetFrameRate += 1.0
-            reactor.callLater(nextAnimateTime, lambda: self.animate())
+            schedule_callback(nextAnimateTime, lambda: self.animate())
 
     @exportRpc("viewport.image.animation.fps.max")
     def setMaxFrameRate(self, fps=30):
