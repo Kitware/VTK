@@ -16,8 +16,8 @@
 #include "vtkObjectFactory.h"
 
 #include <algorithm>
+#include <cctype>
 #include <regex>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -176,14 +176,15 @@ int vtkCommandLineProcess::ExitProcess(vtksysProcess* process)
   switch (state)
   {
     case vtksysProcess_State_Error:
-      vtkErrorMacro("Error administrating the child process");
+      vtkErrorMacro(
+        "Child process administration error: " << vtksysProcess_GetErrorString(process));
       break;
     case vtksysProcess_State_Exception:
       vtkErrorMacro(
         "Child process exited abnormally: " << vtksysProcess_GetExceptionString(process));
       break;
     case vtksysProcess_State_Expired:
-      vtkErrorMacro("Child process's timeout expired");
+      vtkErrorMacro("Child process's timeout expired.");
       break;
     case vtksysProcess_State_Killed:
       vtkErrorMacro("Child process terminated by Kill method.");
