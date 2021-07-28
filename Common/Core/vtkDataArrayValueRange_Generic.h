@@ -242,6 +242,8 @@ private:
   using APIType = GetAPIType<ArrayType>;
 
 public:
+  using value_type = APIType;
+
   VTK_ITER_INLINE
   ConstValueReference() noexcept
     : Array{ nullptr }
