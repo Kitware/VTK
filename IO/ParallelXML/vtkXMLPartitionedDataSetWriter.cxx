@@ -129,7 +129,11 @@ int vtkXMLPartitionedDataSetWriter::RequestData(
   std::vector<std::string> allFilenames = vtkXMLWriter2::Gather(controller, localFilenames, 0);
 
   // Now write the summary XML on the root node.
-  bool success = this->WriteSummaryXML(inputPDS, allFilenames);
+  bool success = true;
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    success = this->WriteSummaryXML(inputPDS, allFilenames);
+  }
   if (controller != nullptr && controller->GetNumberOfProcesses() > 1)
   {
     int message[2] = { success ? 1 : 0, static_cast<int>(this->GetErrorCode()) };
