@@ -776,7 +776,8 @@ int ex__id_lkup(int exoid, ex_entity_type id_type, ex_entity_id num)
   char *   id_dim;
   char *   stat_table;
   int      varid, dimid;
-  size_t   dim_len, i, j;
+  size_t   dim_len, j;
+  int64_t  i;
   int64_t *id_vals   = NULL;
   int *    stat_vals = NULL;
 
