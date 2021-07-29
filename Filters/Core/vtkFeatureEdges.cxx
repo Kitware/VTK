@@ -354,6 +354,14 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
       cellId = stripIdToCellIdMap->GetId(it->second);
     }
 
+    if (ghosts && ghosts[cellId] & CELL_NOT_VISIBLE)
+    {
+      continue;
+    }
+
+    // Used with non manifold edges when there are ghost cells in the input
+    vtkNew<vtkIdList> edgesRemapping;
+
     for (i = 0; i < npts; i++)
     {
       p1 = pts[i];
@@ -362,47 +370,71 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
       Mesh->GetCellEdgeNeighbors(newCellId, p1, p2, neighbors);
       numNei = neighbors->GetNumberOfIds();
 
-      if (this->BoundaryEdges && numNei < 1)
+      vtkIdType numNeiWithoutGhosts = numNei;
+      vtkIdType firstNeighbor = 0;
+      if (ghosts)
       {
-        if (ghosts && ghosts[cellId] & CELL_NOT_VISIBLE)
+        for (j = 0; j < numNei; ++j)
         {
-          continue;
-        }
-        else
-        {
-          numBEdges++;
-          scalar = 0.0;
+          vtkIdType neiId = neighbors->GetId(j);
+          vtkIdType neighborCellIdInInput;
+          if (numPolys == numCells)
+          {
+            neighborCellIdInInput = neiId;
+          }
+          else if (neiId < numPolys)
+          {
+            neighborCellIdInInput = polyIdToCellIdMap->GetId(neiId);
+          }
+          else
+          {
+            auto it = decomposedStripIdToStripIdMap.lower_bound(neiId + 1);
+            neighborCellIdInInput = stripIdToCellIdMap->GetId(it->second);
+          }
+          if (ghosts[neighborCellIdInInput] & CELL_NOT_VISIBLE)
+          {
+            if (this->NonManifoldEdges)
+            {
+              edgesRemapping->InsertNextId(j);
+            }
+            if (j == firstNeighbor)
+            {
+              ++firstNeighbor;
+            }
+            --numNeiWithoutGhosts;
+          }
         }
       }
 
-      else if (this->NonManifoldEdges && numNei > 1)
+      if (this->BoundaryEdges && numNeiWithoutGhosts < 1)
+      {
+        numBEdges++;
+        scalar = 0.0;
+      }
+
+      else if (this->NonManifoldEdges && numNeiWithoutGhosts > 1)
       {
         // check to make sure that this edge hasn't been created before
-        for (j = 0; j < numNei; j++)
+        for (j = 0; j < (ghosts ? edgesRemapping->GetNumberOfIds() : numNei); j++)
         {
-          if (neighbors->GetId(j) < newCellId)
+          if (neighbors->GetId(ghosts ? edgesRemapping->GetId(j) : j) < newCellId)
           {
             break;
           }
         }
-        if (j >= numNei)
+        edgesRemapping->Reset();
+        if (j >= numNeiWithoutGhosts)
         {
-          if (ghosts && ghosts[cellId] & CELL_NOT_VISIBLE)
-          {
-            continue;
-          }
-          else
-          {
-            numNonManifoldEdges++;
-            scalar = 0.222222;
-          }
+          numNonManifoldEdges++;
+          scalar = 0.222222;
         }
         else
         {
           continue;
         }
       }
-      else if (this->FeatureEdges && numNei == 1 && (nei = neighbors->GetId(0)) > newCellId)
+      else if (this->FeatureEdges && numNeiWithoutGhosts == 1 &&
+        (nei = neighbors->GetId(firstNeighbor)) > newCellId)
       {
         double neiTuple[3];
         double cellTuple[3];
@@ -410,32 +442,19 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
         polyNormals->GetTuple(newCellId, cellTuple);
         if (vtkMath::Dot(neiTuple, cellTuple) <= cosAngle)
         {
-          if (ghosts && ghosts[cellId] & CELL_NOT_VISIBLE)
-          {
-            continue;
-          }
-          else
-          {
-            numFedges++;
-            scalar = 0.444444;
-          }
+          numFedges++;
+          scalar = 0.444444;
         }
         else
         {
           continue;
         }
       }
-      else if (this->ManifoldEdges && numNei == 1 && neighbors->GetId(0) > newCellId)
+      else if (this->ManifoldEdges && numNeiWithoutGhosts == 1 &&
+        neighbors->GetId(firstNeighbor) > newCellId)
       {
-        if (ghosts && ghosts[cellId] & CELL_NOT_VISIBLE)
-        {
-          continue;
-        }
-        else
-        {
-          numManifoldEdges++;
-          scalar = 0.666667;
-        }
+        numManifoldEdges++;
+        scalar = 0.666667;
       }
       else
       {
