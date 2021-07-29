@@ -345,71 +345,49 @@ def getArrayDescription(array, context):
 def extractRequiredFields(
     extractedFields, parent, dataset, context, requestedFields=["Normals", "TCoords"]
 ):
-    # FIXME should evolve and support funky mapper which leverage many arrays
-    if parent.IsA("vtkMapper"):
-        mapper = parent
-        scalarVisibility = mapper.GetScalarVisibility()
-        arrayAccessMode = mapper.GetArrayAccessMode()
-        colorArrayName = (
-            mapper.GetArrayName() if arrayAccessMode == 1 else mapper.GetArrayId()
+    arrays_to_export = set()
+    export_all = '*' in requestedFields
+    # Identify arrays to export
+    if not export_all:
+        # FIXME should evolve and support funky mapper which leverage many arrays
+        if parent and parent.IsA("vtkMapper"):
+            mapper = parent
+            scalarVisibility = mapper.GetScalarVisibility()
+            arrayAccessMode = mapper.GetArrayAccessMode()
+            colorArrayName = (
+                mapper.GetArrayName() if arrayAccessMode == 1 else mapper.GetArrayId()
+            )
+            colorMode = mapper.GetColorMode()
+            scalarMode = mapper.GetScalarMode()
+            if scalarVisibility and scalarMode in (1, 3):
+                array_to_export = dataset.GetPointData().GetArray(colorArrayName)
+                if array_to_export is None:
+                    array_to_export = dataset.GetPointData().GetScalars()
+                arrays_to_export.add(array_to_export)
+            if scalarVisibility and scalarMode in (2, 4):
+                array_to_export = dataset.GetCellData().GetArray(colorArrayName)
+                if array_to_export is None:
+                    array_to_export = dataset.GetCellData().GetScalars()
+                arrays_to_export.add(array_to_export)
+
+        if parent and parent.IsA("vtkTexture") and dataset.GetPointData().GetScalars():
+            arrays_to_export.add(dataset.GetPointData().GetScalars())
+
+        arrays_to_export.update(
+            [getattr(dataset.GetPointData(), "Get" + requestedField, lambda : None) for requestedField in requestedFields]
         )
-        colorMode = mapper.GetColorMode()
-        scalarMode = mapper.GetScalarMode()
-        if scalarVisibility and scalarMode in (1, 3):
-            arrayMeta = getArrayDescription(
-                dataset.GetPointData().GetArray(colorArrayName), context
-            )
-            if arrayMeta:
-                arrayMeta["location"] = "pointData"
-                extractedFields.append(arrayMeta)
-            elif dataset.GetPointData().GetScalars():
-                arrayMeta = getArrayDescription(
-                    dataset.GetPointData().GetScalars(), context
-                )
-                arrayMeta["location"] = "pointData"
-                arrayMeta["registration"] = "setScalars"
-                extractedFields.append(arrayMeta)
-        if scalarVisibility and scalarMode in (2, 4):
-            arrayMeta = getArrayDescription(
-                dataset.GetCellData().GetArray(colorArrayName), context
-            )
-            if arrayMeta:
-                arrayMeta["location"] = "cellData"
-                extractedFields.append(arrayMeta)
-            elif dataset.GetCellData().GetScalars():
-                arrayMeta = getArrayDescription(
-                    dataset.GetCellData().GetScalars(), context
-                )
-                arrayMeta["location"] = "cellData"
-                arrayMeta["registration"] = "setScalars"
-                extractedFields.append(arrayMeta)
 
-    if parent.IsA("vtkTexture") and dataset.GetPointData().GetScalars():
-        arrayMeta = getArrayDescription(dataset.GetPointData().GetScalars(), context)
-        arrayMeta["location"] = "pointData"
-        arrayMeta["registration"] = "setScalars"
-        extractedFields.append(arrayMeta)
-
-    # Normal handling
-    if "Normals" in requestedFields:
-        normals = dataset.GetPointData().GetNormals()
-        if normals:
-            arrayMeta = getArrayDescription(normals, context)
-            if arrayMeta:
-                arrayMeta["location"] = "pointData"
-                arrayMeta["registration"] = "setNormals"
-                extractedFields.append(arrayMeta)
-
-    # TCoord handling
-    if "TCoords" in requestedFields:
-        tcoords = dataset.GetPointData().GetTCoords()
-        if tcoords:
-            arrayMeta = getArrayDescription(tcoords, context)
-            if arrayMeta:
-                arrayMeta["location"] = "pointData"
-                arrayMeta["registration"] = "setTCoords"
-                extractedFields.append(arrayMeta)
-
+    # Browse all arrays
+    for location, field_data in [('pointData', dataset.GetPointData()), ('cellData', dataset.GetCellData())]:
+        for array_index in range(field_data.GetNumberOfArrays()):
+            array = field_data.GetArray(array_index)
+            if export_all or array in arrays_to_export:
+                arrayMeta = getArrayDescription(array, context)
+                if arrayMeta:
+                    arrayMeta["location"] = location
+                    attribute = field_data.IsArrayAnAttribute(array_index)
+                    arrayMeta["registration"] = "set" + field_data.GetAttributeTypeAsString(attribute) if attribute >= 0 else 'addArray'
+                    extractedFields.append(arrayMeta)
 
 # -----------------------------------------------------------------------------
 # Concrete instance serializers
@@ -768,7 +746,7 @@ def imagedataSerializer(parent, dataset, datasetId, context, depth):
 # -----------------------------------------------------------------------------
 
 
-def polydataSerializer(parent, dataset, datasetId, context, depth):
+def polydataSerializer(parent, dataset, datasetId, context, depth, requested_fields = ["Normals", "TCoords"]):
     if dataset and dataset.GetPoints():
         properties = {}
 
@@ -806,7 +784,7 @@ def polydataSerializer(parent, dataset, datasetId, context, depth):
 
         # Fields
         properties["fields"] = []
-        extractRequiredFields(properties["fields"], parent, dataset, context)
+        extractRequiredFields(properties["fields"], parent, dataset, context, requested_fields)
 
         return {
             "parent": getReferenceId(parent),
