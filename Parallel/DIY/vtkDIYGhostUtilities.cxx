@@ -1658,7 +1658,8 @@ void InitializeCurrentMaxIdsForUnstructuredData(vtkUnstructuredGrid* input,
   info.CurrentMaxPointId = input->GetNumberOfPoints();
   info.CurrentMaxCellId = input->GetNumberOfCells();
 
-  info.CurrentConnectivitySize = input->GetCells()->GetConnectivityArray()->GetNumberOfTuples();
+  vtkCellArray* cells = input->GetCells();
+  info.CurrentConnectivitySize = cells ? cells->GetConnectivityArray()->GetNumberOfTuples() : 0;
   info.CurrentFacesSize = input->GetFaces() ? input->GetFaces()->GetNumberOfValues() : 0;
 }
 
@@ -1701,7 +1702,9 @@ void SetupBlockSelfInformationForUnstructuredData(diy::Master& master,
 
     vtkPointSet* surface = vtkPointSet::SafeDownCast(interfaceFilter->GetOutputDataObject(0));
 
-    information.InterfacePoints = surface->GetPoints() ? surface->GetPoints()->GetData() : nullptr;
+    information.InterfacePoints = surface->GetNumberOfPoints()
+      ? surface->GetPoints()->GetData()
+      : nullptr;
     information.InterfacePointIds = vtkArrayDownCast<vtkIdTypeArray>(
         surface->GetPointData()->GetAbstractArray(LOCAL_POINT_IDS_ARRAY_NAME));
     information.InterfaceGlobalPointIds = vtkArrayDownCast<vtkIdTypeArray>(
@@ -3341,6 +3344,12 @@ void DeepCopyInputsAndAllocateGhostsForStructuredData(const diy::Master& master,
   {
     GridDataSetT* input = inputs[localId];
     GridDataSetT* output = outputs[localId];
+
+    if (!IsExtentValid(input->GetExtent()))
+    {
+      output->ShallowCopy(input);
+      continue;
+    }
 
     BlockInformationType& info = master.block<BlockType>(localId)->Information;
     UpdateOutputGridStructure(output, info);

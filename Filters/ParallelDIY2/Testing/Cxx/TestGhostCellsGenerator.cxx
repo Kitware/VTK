@@ -135,11 +135,13 @@ void SetCoordinates(vtkDataArray* array, int min, int max, const double* coordin
 
 //----------------------------------------------------------------------------
 template <class GridDataSetT1, class GridDataSetT2>
-bool TestImageCellData(vtkPartitionedDataSet* pds, GridDataSetT2* refImage)
+bool TestImageCellData(
+  vtkPartitionedDataSet* pds, GridDataSetT2* refImage, bool skipLastPartition = false)
 {
   const int* refExtent = refImage->GetExtent();
   vtkDataArray* refArray = refImage->GetCellData()->GetArray(GridArrayName);
-  for (unsigned int partitionId = 0; partitionId < pds->GetNumberOfPartitions(); ++partitionId)
+  for (unsigned int partitionId = 0; partitionId < pds->GetNumberOfPartitions() - skipLastPartition;
+       ++partitionId)
   {
     GridDataSetT1* part = GridDataSetT1::SafeDownCast(pds->GetPartition(partitionId));
     if (!part)
@@ -1109,12 +1111,13 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     point2cell3->Update();
 
     vtkNew<vtkPartitionedDataSet> pds;
-    pds->SetNumberOfPartitions(4);
+    pds->SetNumberOfPartitions(5);
 
     pds->SetPartition(0, point2cell0->GetOutputDataObject(0));
     pds->SetPartition(1, point2cell1->GetOutputDataObject(0));
     pds->SetPartition(2, point2cell2->GetOutputDataObject(0));
     pds->SetPartition(3, point2cell3->GetOutputDataObject(0));
+    pds->SetPartition(4, vtkNew<vtkImageData>()); // testing empty input
 
     vtkNew<vtkGhostCellsGenerator> generator;
     generator->BuildIfRequiredOff();
@@ -1126,7 +1129,8 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
       vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
 
     vtkLog(INFO, "Testing ghost cells for 3D vtkImageData in rank " << myrank);
-    if (!TestImageCellData<vtkImageData>(outPDS, refImagePointToCellDO))
+    if (!TestImageCellData<vtkImageData>(
+          outPDS, refImagePointToCellDO, true /* skipLastPartition */))
     {
       vtkLog(ERROR, "Failed to create ghost cells on a 3D vtkImageData in rank " << myrank);
       retVal = false;
@@ -1317,12 +1321,13 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     point2cell3->Update();
 
     vtkNew<vtkPartitionedDataSet> pds;
-    pds->SetNumberOfPartitions(4);
+    pds->SetNumberOfPartitions(5);
 
     pds->SetPartition(0, point2cell0->GetOutputDataObject(0));
     pds->SetPartition(1, point2cell1->GetOutputDataObject(0));
     pds->SetPartition(2, point2cell2->GetOutputDataObject(0));
     pds->SetPartition(3, point2cell3->GetOutputDataObject(0));
+    pds->SetPartition(4, vtkNew<vtkRectilinearGrid>()); // testing empty input
 
     vtkLog(INFO, "Testing ghost cells for 3D vtkRectilinearGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
@@ -1334,7 +1339,8 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     vtkPartitionedDataSet* outPDS =
       vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
 
-    if (!TestImageCellData<vtkRectilinearGrid>(outPDS, refImagePointToCellDO))
+    if (!TestImageCellData<vtkRectilinearGrid>(
+          outPDS, refImagePointToCellDO, true /* skipLastPartition */))
     {
       vtkLog(ERROR, "Failed to create ghost cells on a 3D vtkRectilinearGrid in rank" << myrank);
       retVal = false;
@@ -1425,12 +1431,13 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     point2cell3->Update();
 
     vtkNew<vtkPartitionedDataSet> pds;
-    pds->SetNumberOfPartitions(4);
+    pds->SetNumberOfPartitions(5);
 
     pds->SetPartition(0, point2cell0->GetOutputDataObject(0));
     pds->SetPartition(1, point2cell1->GetOutputDataObject(0));
     pds->SetPartition(2, point2cell2->GetOutputDataObject(0));
     pds->SetPartition(3, point2cell3->GetOutputDataObject(0));
+    pds->SetPartition(4, vtkNew<vtkStructuredGrid>()); // testing empty input
 
     vtkLog(INFO, "Testing ghost cells for 3D vtkStructuredGrid in rank " << myrank);
     vtkNew<vtkGhostCellsGenerator> generator;
@@ -1451,8 +1458,9 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     vtkPartitionedDataSet* outPDS =
       vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
 
-    if (!TestImageCellData<vtkStructuredGrid>(
-          outPDS, vtkStructuredGrid::SafeDownCast(sgRefImagePointToCell->GetOutputDataObject(0))))
+    if (!TestImageCellData<vtkStructuredGrid>(outPDS,
+          vtkStructuredGrid::SafeDownCast(sgRefImagePointToCell->GetOutputDataObject(0)),
+          true /* skipLastPartition */))
     {
       vtkLog(ERROR, "Failed to create ghost cells on a 3D vtkStructuredGrid in rank " << myrank);
       retVal = false;
@@ -1964,12 +1972,13 @@ bool TestUnstructuredGrid(
   }
 
   vtkNew<vtkPartitionedDataSet> pds;
-  pds->SetNumberOfPartitions(4);
+  pds->SetNumberOfPartitions(5);
 
   pds->SetPartition(0, outPrePds->GetPartition(0));
   pds->SetPartition(1, ug1);
   pds->SetPartition(2, ug2);
   pds->SetPartition(3, ug3);
+  pds->SetPartition(4, vtkNew<vtkUnstructuredGrid>()); // testing empty input
 
   // On this pass, we test point data when using the cells generator.
   vtkNew<vtkGhostCellsGenerator> generator;
@@ -2380,11 +2389,12 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
   }
 
   vtkNew<vtkPartitionedDataSet> pds;
-  pds->SetNumberOfPartitions(2);
+  pds->SetNumberOfPartitions(3);
 
   // pds->SetPartition(0, outPrePds->GetPartition(0));
   pds->SetPartition(0, pd0);
   pds->SetPartition(1, pd1);
+  pds->SetPartition(2, vtkNew<vtkPolyData>()); // testing empty input
 
   // On this pass, we test point data when using the cells generator.
   vtkNew<vtkGhostCellsGenerator> generator;
@@ -2433,7 +2443,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
     {
       vtkLog(ERROR,
         "Wrong number of output cells when generating ghost cells with "
-          << "unstructured grid: " << pd->GetNumberOfCells() << " != " << numberOfCells);
+          << "poly data: " << pd->GetNumberOfCells() << " != " << numberOfCells);
       retVal = false;
     }
     vtkIdType numberOfPoints =
@@ -2442,7 +2452,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
     {
       vtkLog(ERROR,
         "Wrong number of output points when generating ghost cells with "
-          << "unstructured grid: " << pd->GetNumberOfPoints() << " != " << numberOfPoints);
+          << "poly data: " << pd->GetNumberOfPoints() << " != " << numberOfPoints);
       retVal = false;
     }
 
