@@ -756,7 +756,7 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
 //----------------------------------------------------------------------------
 int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
   vtkPolyData* boundarySwitchPoints, vtkPolyData* separatrices, vtkDataSet* dataset,
-  vtkPoints* interestPoints, int integrationStepUnit, double dist, double stepSize, int maxNumSteps)
+  vtkPoints* interestPoints, int integrationStepUnit, double dist, int maxNumSteps)
 {
   double offsetAwayFromBoundary = this->OffsetAwayFromBoundary;
   if (integrationStepUnit == vtkStreamTracer::CELL_LENGTH_UNIT)
@@ -946,7 +946,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
 
 int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* boundarySwitchLines,
   vtkPolyData* separatrices, vtkDataSet* dataset, int integrationStepUnit, double dist,
-  double stepSize, int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding)
+  int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding)
 {
   double offsetAwayFromBoundary = this->OffsetAwayFromBoundary;
   if (integrationStepUnit == vtkStreamTracer::CELL_LENGTH_UNIT)
@@ -1206,7 +1206,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
 
     vtkMath::Subtract(p1, p0, tangent);
 
-    double surfaceNormal[3], lineNormal[3], lineNormal1[3];
+    double surfaceNormal[3], lineNormal[3], lineNormalNormalized[3];
 
     surfaceNormals->GetTuple(i, surfaceNormal);
 
@@ -1216,15 +1216,11 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
 
     if (cellIDCenter != -1)
     {
-      double surfaceNormal[3];
-      surface->GetOutput()->GetCellData()->GetArray("Normals")->GetTuple(
-        cellIDCenter, surfaceNormal);
-
       vtkMath::Cross(tangent, surfaceNormal, lineNormal);
       vtkMath::MultiplyScalar(lineNormal, 1 / vtkMath::Norm(lineNormal));
 
       lineNormals->SetTuple(i, lineNormal);
-      vtkMath::Assign(lineNormal, lineNormal1);
+      vtkMath::Assign(lineNormal, lineNormalNormalized);
 
       double left[3], right[3];
       vtkMath::MultiplyScalar(lineNormal, dist);
@@ -1239,7 +1235,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
       double v[3];
       probe->GetOutput()->GetPointData()->GetArray(vectors->GetName())->GetTuple(centerID, v);
 
-      double lineNormalSign = vtkMath::Dot(lineNormal1, v);
+      double lineNormalSign = vtkMath::Dot(lineNormalNormalized, v);
       if (lineNormalSign > 0)
         lineNormalSign = 1;
       else
@@ -1931,7 +1927,7 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
 
       ComputeSeparatricesBoundarySwitchPoints(boundarySwitchPoints, boundarySwitchSeparatrix,
         tridataset, interestPoints, this->IntegrationStepUnit, this->SeparatrixDistance,
-        this->IntegrationStepSize, this->MaxNumSteps);
+        this->MaxNumSteps);
     }
   }
   else if (this->Dimension == 3)
@@ -1953,8 +1949,8 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->UseBoundarySwitchPoints && this->Dimension == 3)
   {
     ComputeSeparatricesBoundarySwitchLines(boundarySwitchPoints, boundarySwitchSeparatrix,
-      tridataset, this->IntegrationStepUnit, this->SeparatrixDistance, this->IntegrationStepUnit,
-      this->MaxNumSteps, this->ComputeSurfaces, this->UseIterativeSeeding);
+      tridataset, this->IntegrationStepUnit, this->SeparatrixDistance, this->MaxNumSteps,
+      this->ComputeSurfaces, this->UseIterativeSeeding);
   }
 
   return success;

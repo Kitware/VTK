@@ -254,7 +254,7 @@ private:
    */
   int ComputeSeparatricesBoundarySwitchPoints(vtkPolyData* boundarySwitchPoints,
     vtkPolyData* separatrices, vtkDataSet* dataset, vtkPoints* interestPoints,
-    int integrationStepUnit, double dist, double stepSize, int maxNumSteps);
+    int integrationStepUnit, double dist, int maxNumSteps);
 
   /**
    * This function computes boundary switch lines from boundaries that surfaces.
@@ -275,7 +275,7 @@ private:
    */
   int ComputeSeparatricesBoundarySwitchLines(vtkPolyData* boundarySwitchLines,
     vtkPolyData* separatrices, vtkDataSet* dataset, int integrationStepUnit, double dist,
-    double stepSize, int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
+    int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
 
   /**
    * we classify the critical points based on the eigenvalues of the jacobian
