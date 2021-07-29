@@ -50,8 +50,10 @@ int TestVectorFieldTopology(int argc, char* argv[])
   topology->SetSeparatrixDistance(1);
   topology->SetIntegrationStepSize(1);
   topology->SetMaxNumSteps(1000);
-  topology->SetComputeSurfaces(true);
-  topology->SetUseIterativeSeeding(true);
+  topology->SetComputeSurfaces(1);
+  topology->SetUseBoundarySwitchPoints(1);
+  topology->SetUseIterativeSeeding(1);
+  topology->Update();
 
   // the bounding box
   vtkNew<vtkDataSetMapper> waveletMapper;
@@ -92,11 +94,32 @@ int TestVectorFieldTopology(int argc, char* argv[])
   surfaceActor->GetProperty()->SetColor(0.1, 0.1, 0.1);
   surfaceActor->GetProperty()->SetRepresentationToWireframe();
 
+  // the boundary switch lines
+  vtkNew<vtkDataSetMapper> lineMapper2;
+  lineMapper2->SetInputConnection(topology->GetOutputPort(3));
+
+  vtkNew<vtkActor> lineActor2;
+  lineActor2->SetMapper(lineMapper2);
+  lineActor2->GetProperty()->SetColor(0.2, 0.2, 0.2);
+  lineActor2->GetProperty()->SetLineWidth(10.);
+  lineActor2->GetProperty()->SetRenderLinesAsTubes(1);
+
+  // the boundary switch surfaces
+  vtkNew<vtkDataSetMapper> surfaceMapper2;
+  surfaceMapper2->SetInputConnection(topology->GetOutputPort(4));
+
+  vtkNew<vtkActor> surfaceActor2;
+  surfaceActor2->SetMapper(surfaceMapper2);
+  surfaceActor2->GetProperty()->SetColor(0.1, 0.1, 0.1);
+  surfaceActor2->GetProperty()->SetRepresentationToWireframe();
+
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(waveletActor);
   renderer->AddActor(pointActor);
   renderer->AddActor(lineActor);
   renderer->AddActor(surfaceActor);
+  renderer->AddActor(lineActor2);
+  renderer->AddActor(surfaceActor2);
   renderer->ResetCamera();
   renderer->SetBackground(1., 1., 1.);
 
