@@ -1409,6 +1409,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
   }
 
   vtkUnsignedCharArray* ghosts = input->GetPointGhostArray();
+  vtkUnsignedCharArray* ghostCells = input->GetCellGhostArray();
   vtkCellArray* newVerts;
   vtkCellArray* newLines;
   vtkCellArray* newPolys;
@@ -1535,6 +1536,14 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
        cellIter->GoToNextCell())
   {
     vtkIdType cellId = cellIter->GetCellId();
+
+    // We skip cells marked as hidden
+    if (ghostCells &&
+      (ghostCells->GetValue(cellId) & vtkDataSetAttributes::CellGhostTypes::HIDDENCELL))
+    {
+      continue;
+    }
+
     // Progress and abort method support
     if (progressCount >= progressInterval)
     {
@@ -1546,6 +1555,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
     progressCount++;
 
     cellType = cellIter->GetCellType();
+
     switch (cellType)
     {
       case VTK_VERTEX:
@@ -1888,6 +1898,14 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
        cellIter->GoToNextCell())
   {
     vtkIdType cellId = cellIter->GetCellId();
+
+    // We skip cells marked as hidden
+    if (ghostCells &&
+      (ghostCells->GetValue(cellId) & vtkDataSetAttributes::CellGhostTypes::HIDDENCELL))
+    {
+      continue;
+    }
+
     cellType = cellIter->GetCellType();
     numCellPts = cellIter->GetNumberOfPoints();
 
