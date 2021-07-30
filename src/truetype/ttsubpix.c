@@ -4,7 +4,7 @@
  *
  *   TrueType Subpixel Hinting.
  *
- * Copyright (C) 2010-2020 by
+ * Copyright (C) 2010-2021 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -15,14 +15,13 @@
  *
  */
 
-#include <ft2build.h>
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_CALC_H
-#include FT_INTERNAL_STREAM_H
-#include FT_INTERNAL_SFNT_H
-#include FT_TRUETYPE_TAGS_H
-#include FT_OUTLINE_H
-#include FT_DRIVER_H
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftcalc.h>
+#include <freetype/internal/ftstream.h>
+#include <freetype/internal/sfnt.h>
+#include <freetype/tttags.h>
+#include <freetype/ftoutln.h>
+#include <freetype/ftdriver.h>
 
 #include "ttsubpix.h"
 
@@ -892,12 +891,12 @@
 #define TWEAK_RULES( x )                                       \
   if ( sph_test_tweak( face, family, ppem, style, glyph_index, \
                        x##_Rules, x##_RULES_SIZE ) )           \
-    loader->exec->sph_tweak_flags |= SPH_TWEAK_##x;
+    loader->exec->sph_tweak_flags |= SPH_TWEAK_##x
 
 #define TWEAK_RULES_EXCEPTIONS( x )                                        \
   if ( sph_test_tweak( face, family, ppem, style, glyph_index,             \
                        x##_Rules_Exceptions, x##_RULES_EXCEPTIONS_SIZE ) ) \
-    loader->exec->sph_tweak_flags &= ~SPH_TWEAK_##x;
+    loader->exec->sph_tweak_flags &= ~SPH_TWEAK_##x
 
 
   FT_LOCAL_DEF( void )

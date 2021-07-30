@@ -4,7 +4,7 @@
  *
  *   The FreeType memory management macros (specification).
  *
- * Copyright (C) 1996-2020 by
+ * Copyright (C) 1996-2021 by
  * David Turner, Robert Wilhelm, and Werner Lemberg
  *
  * This file is part of the FreeType project, and may only be used,
@@ -22,8 +22,9 @@
 
 #include <ft2build.h>
 #include FT_CONFIG_CONFIG_H
-#include FT_TYPES_H
+#include <freetype/fttypes.h>
 
+#include "compiler-macros.h"
 
 FT_BEGIN_HEADER
 
@@ -388,8 +389,6 @@ extern "C++"
 
 #define FT_STRCPYN( dst, src, size )                                         \
           ft_mem_strcpyn( (char*)dst, (const char*)(src), (FT_ULong)(size) )
-
- /* */
 
 
 FT_END_HEADER

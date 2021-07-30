@@ -4,7 +4,7 @@
  *
  *   PostScript CFF (Type 2) decoding routines (body).
  *
- * Copyright (C) 2017-2020 by
+ * Copyright (C) 2017-2021 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -16,11 +16,10 @@
  */
 
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_SERVICE_H
-#include FT_SERVICE_CFF_TABLE_LOAD_H
+#include <freetype/freetype.h>
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftserv.h>
+#include <freetype/internal/services/svcfftl.h>
 
 #include "cffdecode.h"
 #include "psobjs.h"
@@ -2154,7 +2153,7 @@
                                       decoder->locals_bias );
 
 
-            FT_TRACE4(( " callsubr (idx %d, entering level %d)\n",
+            FT_TRACE4(( " callsubr (idx %d, entering level %ld)\n",
                         idx,
                         zone - decoder->zones + 1 ));
 
@@ -2198,7 +2197,7 @@
                                       decoder->globals_bias );
 
 
-            FT_TRACE4(( " callgsubr (idx %d, entering level %d)\n",
+            FT_TRACE4(( " callgsubr (idx %d, entering level %ld)\n",
                         idx,
                         zone - decoder->zones + 1 ));
 
@@ -2237,7 +2236,7 @@
           break;
 
         case cff_op_return:
-          FT_TRACE4(( " return (leaving level %d)\n",
+          FT_TRACE4(( " return (leaving level %ld)\n",
                       decoder->zone - decoder->zones ));
 
           if ( decoder->zone <= decoder->zones )
@@ -2272,7 +2271,8 @@
 
     } /* while ip < limit */
 
-    FT_TRACE4(( "..end..\n\n" ));
+    FT_TRACE4(( "..end..\n" ));
+    FT_TRACE4(( "\n" ));
 
   Fail:
     return error;

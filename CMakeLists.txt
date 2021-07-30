@@ -17,6 +17,10 @@ set(sources
   src/pshinter/pshinter.c
   src/psnames/psmodule.c
   src/raster/raster.c
+  src/sdf/ftbsdf.c
+  src/sdf/ftsdf.c
+  src/sdf/ftsdfcommon.c
+  src/sdf/ftsdfrend.c
   src/sfnt/sfnt.c
   src/smooth/smooth.c
   src/truetype/truetype.c
@@ -39,7 +43,7 @@ if (UNIX)
   check_include_file("fcntl.h" HAVE_FCNTL_H)
   check_include_file("unistd.h" HAVE_UNISTD_H)
   configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/builds/unix/ftconfig.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/builds/unix/ftconfig.h.in"
     "${CMAKE_CURRENT_BINARY_DIR}/include/freetype/config/ftconfig.h")
 else ()
   list(APPEND sources
@@ -52,9 +56,14 @@ target_compile_definitions(freetype
   PRIVATE
     FT2_BUILD_LIBRARY)
 target_include_directories(freetype
-  PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    "${CMAKE_CURRENT_BINARY_DIR}/include")
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkfreetype/include>")
+if (UNIX)
+  target_include_directories(freetype
+    PUBLIC
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>")
+endif ()
 
 if (WIN32)
   target_compile_definitions(
@@ -86,8 +95,11 @@ vtk_module_install_headers(
           "include/freetype/ftbzip2.h"
           "include/freetype/ftcache.h"
           "include/freetype/ftcid.h"
+          "include/freetype/ftcolor.h"
+          "include/freetype/ftdriver.h"
           "include/freetype/fterrdef.h"
           "include/freetype/fterrors.h"
+          "include/freetype/ftfntfmt.h"
           "include/freetype/ftgasp.h"
           "include/freetype/ftglyph.h"
           "include/freetype/ftgxval.h"
@@ -96,6 +108,7 @@ vtk_module_install_headers(
           "include/freetype/ftincrem.h"
           "include/freetype/ftlcdfil.h"
           "include/freetype/ftlist.h"
+          "include/freetype/ftlogging.h"
           "include/freetype/ftlzw.h"
           "include/freetype/ftmac.h"
           "include/freetype/ftmm.h"
@@ -103,6 +116,7 @@ vtk_module_install_headers(
           "include/freetype/ftmoderr.h"
           "include/freetype/ftotval.h"
           "include/freetype/ftoutln.h"
+          "include/freetype/ftparams.h"
           "include/freetype/ftpfr.h"
           "include/freetype/ftrender.h"
           "include/freetype/ftsizes.h"
@@ -123,4 +137,7 @@ vtk_module_install_headers(
           "include/freetype/config/ftheader.h"
           "include/freetype/config/ftmodule.h"
           "include/freetype/config/ftoption.h"
-          "include/freetype/config/ftstdlib.h")
+          "include/freetype/config/ftstdlib.h"
+          "include/freetype/config/integer-types.h"
+          "include/freetype/config/mac-support.h"
+          "include/freetype/config/public-macros.h")
