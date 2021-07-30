@@ -1825,11 +1825,11 @@ bool TestQueryReferenceToGenerated(vtkPointSet* ref, vtkAbstractPointLocator* re
     {
       if (!centers)
       {
-        vtkLog(ERROR, "Generated output for unstructured grid failed to copy point data.");
+        vtkLog(ERROR, "Generated output for unstructured data failed to copy point data.");
       }
       else
       {
-        vtkLog(ERROR, "Generated output for unstructured grid failed to copy cell data.");
+        vtkLog(ERROR, "Generated output for unstructured data failed to copy cell data.");
       }
       return false;
     }
@@ -1992,17 +1992,23 @@ bool TestUnstructuredGrid(
 
   vtkLog(INFO, "Testing ghost points for vtkUnstructuredGrid in rank " << myrank);
 
+  vtkNew<vtkGhostCellsGenerator> preCellGenerator;
+  preCellGenerator->SetInputConnection(point2cell0->GetOutputPort());
+  preCellGenerator->BuildIfRequiredOff();
+  preCellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  preCellGenerator->Update();
+
   vtkNew<vtkPartitionedDataSet> pdsPointToCell;
   pdsPointToCell->SetNumberOfPartitions(4);
 
-  pdsPointToCell->SetPartition(0, point2cell0->GetOutputDataObject(0));
+  pdsPointToCell->SetPartition(0, preCellGenerator->GetOutputDataObject(0));
   pdsPointToCell->SetPartition(1, point2cell1->GetOutputDataObject(0));
   pdsPointToCell->SetPartition(2, point2cell2->GetOutputDataObject(0));
   pdsPointToCell->SetPartition(3, point2cell3->GetOutputDataObject(0));
 
   // On this pass, we test cell data when using the cells generator.
   vtkNew<vtkGhostCellsGenerator> cellGenerator;
-  generator->BuildIfRequiredOff();
+  cellGenerator->BuildIfRequiredOff();
   cellGenerator->SetInputDataObject(pdsPointToCell);
   cellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
   cellGenerator->Update();
@@ -2389,7 +2395,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
   }
 
   vtkNew<vtkPartitionedDataSet> pds;
-  pds->SetNumberOfPartitions(3);
+  pds->SetNumberOfPartitions(2);
 
   pds->SetPartition(0, outPrePds->GetPartition(0));
   pds->SetPartition(1, pd1);
@@ -2407,15 +2413,21 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
 
   vtkLog(INFO, "Testing ghost points for vtkPolyData in rank " << myrank);
 
+  vtkNew<vtkGhostCellsGenerator> preCellGenerator;
+  preCellGenerator->BuildIfRequiredOff();
+  preCellGenerator->SetInputConnection(point2cell0->GetOutputPort());
+  preCellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  preCellGenerator->Update();
+
   vtkNew<vtkPartitionedDataSet> pdsPointToCell;
   pdsPointToCell->SetNumberOfPartitions(2);
 
-  pdsPointToCell->SetPartition(0, point2cell0->GetOutputDataObject(0));
+  pdsPointToCell->SetPartition(0, preCellGenerator->GetOutputDataObject(0));
   pdsPointToCell->SetPartition(1, point2cell1->GetOutputDataObject(0));
 
   // On this pass, we test cell data when using the cells generator.
   vtkNew<vtkGhostCellsGenerator> cellGenerator;
-  generator->BuildIfRequiredOff();
+  cellGenerator->BuildIfRequiredOff();
   cellGenerator->SetInputDataObject(pdsPointToCell);
   cellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
   cellGenerator->Update();
