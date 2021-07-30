@@ -315,7 +315,7 @@ template <class GridDataSetT>
 ExtentType PeelOffGhostLayers(GridDataSetT* grid)
 {
   ExtentType extent;
-  vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(grid->GetCellGhostArray());
+  vtkUnsignedCharArray* ghosts = grid->GetCellGhostArray();
   if (!ghosts)
   {
     grid->GetExtent(extent.data());
@@ -2151,7 +2151,7 @@ void InitializeInformationIdsForUnstructuredData(vtkUnstructuredGrid* input,
   info.CurrentMaxPointId = info.NumberOfInputPoints;
   info.CurrentMaxCellId = info.NumberOfInputCells;
 
-  if (vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(input->GetCellGhostArray()))
+  if (vtkUnsignedCharArray* ghosts = input->GetCellGhostArray())
   {
     using ArrayType32 = vtkCellArray::ArrayType32;
     using ArrayType64 = vtkCellArray::ArrayType64;
@@ -2190,7 +2190,7 @@ void InitializeInformationIdsForUnstructuredData(vtkUnstructuredGrid* input,
 
 //----------------------------------------------------------------------------
 template<class PointSetT>
-void SetupBlockSelfInformationForUnstructuredData(diy::Master& master,
+void InitializeBlocksForUnstructuredData(diy::Master& master,
     std::vector<PointSetT*>& inputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<PointSetT>::BlockType;
@@ -2890,8 +2890,7 @@ void BuildTopologyBufferToSend(vtkIdTypeArray* seedPointIds,
   pointIdsToSendAtLastLevel.insert(pointIdsToSend.cbegin(), pointIdsToSend.cend());
   input->BuildLinks();
 
-  vtkUnsignedCharArray* ghostCellArray = vtkArrayDownCast<vtkUnsignedCharArray>(
-      input->GetCellGhostArray());
+  vtkUnsignedCharArray* ghostCellArray = input->GetCellGhostArray();
 
   // At each level, we look at the last chunk of point its that we added (starting with
   // seed points that are on the interface between us and the neighboring block).
@@ -5409,21 +5408,21 @@ vtkDIYGhostUtilities::StructuredGridBlockStructure::StructuredGridBlockStructure
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& vtkNotUsed(master),
+void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& vtkNotUsed(master),
     std::vector<vtkImageData*>& vtkNotUsed(inputs))
 {
   // Do nothing, there is no extra information needed from input for vtkImageData.
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& vtkNotUsed(master),
+void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& vtkNotUsed(master),
     std::vector<vtkRectilinearGrid*>& vtkNotUsed(inputs))
 {
   // Do nothing, there is no extra information needed from input for vtkRectilinearGrid.
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
+void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master,
     std::vector<vtkStructuredGrid*>& inputs)
 {
   using BlockType = StructuredGridBlock;
@@ -5437,10 +5436,10 @@ void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
+void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master,
     std::vector<vtkUnstructuredGrid*>& inputs)
 {
-  SetupBlockSelfInformationForUnstructuredData(master, inputs);
+  InitializeBlocksForUnstructuredData(master, inputs);
 
   using BlockType = UnstructuredGridBlock;
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
@@ -5455,10 +5454,10 @@ void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
+void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master,
     std::vector<vtkPolyData*>& inputs)
 {
-  SetupBlockSelfInformationForUnstructuredData(master, inputs);
+  InitializeBlocksForUnstructuredData(master, inputs);
 }
 
 //----------------------------------------------------------------------------
