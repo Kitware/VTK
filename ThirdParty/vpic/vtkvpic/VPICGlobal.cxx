@@ -365,7 +365,7 @@ void VPICGlobal::buildFileNames()
    vtksys::Directory * dir = new vtksys::Directory();
    unsigned long numFiles = 0;
 
-   if (dir->Load(this->directoryName[0].c_str()) != false) {
+   if (dir->Load(this->directoryName[0].c_str()).IsSuccess()) {
      numFiles = dir->GetNumberOfFiles();
      for(unsigned long i = 0; i < numFiles; i++) {
          string fileName = dir->GetFile(i);
@@ -396,7 +396,7 @@ void VPICGlobal::buildFileNames()
    tempStr << this->directoryName[0] << this->dumpName[0];
    dirName = tempStr.str();
 
-   if (dir->Load(dirName.c_str()) != false) {
+   if (dir->Load(dirName.c_str()).IsSuccess()) {
      numFiles = dir->GetNumberOfFiles();
      for(unsigned long i = 0; i < numFiles; i++) {
        string fileName = dir->GetFile(i);
@@ -547,7 +547,7 @@ void VPICGlobal::addNewTimeSteps()
    unsigned long numFiles = 0;
 
    vector<int> newTime;
-   if (dir->Load(this->directoryName[0].c_str()) != false) {
+   if (dir->Load(this->directoryName[0].c_str()).IsSuccess()) {
      numFiles = dir->GetNumberOfFiles();
      for(unsigned long i = 0; i < numFiles; i++) {
          string fileName = dir->GetFile(i);
