@@ -101,34 +101,24 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtkArrayDispatch_all_types)
   # create a file suffix from the type
   string(REPLACE " " "_" _suffix "${INSTANTIATION_VALUE_TYPE}")
 
-  set(_prefix "vtkSOADataArrayTemplateInstantiate")
-  configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
-    @ONLY)
-  list(APPEND instantiation_sources
-    "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx")
-
+  set(_list "vtkSOADataArrayTemplateInstantiate")
   if (VTK_BUILD_SCALED_SOA_ARRAYS)
-    set(_prefix "vtkScaledSOADataArrayTemplateInstantiate")
-    configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
-      @ONLY)
-    list(APPEND instantiation_sources
-      "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx")
+    list(APPEND _list "vtkScaledSOADataArrayTemplateInstantiate")
   endif ()
-
   # see comments in vtkGenericDataArray.h for explanation
   if (INSTANTIATION_VALUE_TYPE MATCHES "(^| )long( |$)")
-    set(_prefix "vtkGenericDataArrayValueRangeInstantiate")
+    list(APPEND _list "vtkGenericDataArrayValueRangeInstantiate")
+  endif ()
+
+  # generate cxx file to instantiate template with this type
+  foreach (_prefix IN LISTS _list)
     configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
+      "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
       @ONLY)
     list(APPEND instantiation_sources
       "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx")
-  endif ()
+  endforeach ()
 endforeach ()
 
 set(classes
