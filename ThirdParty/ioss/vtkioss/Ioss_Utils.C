@@ -1075,7 +1075,7 @@ bool Ioss::Utils::substr_equal(const std::string &prefix, const std::string &str
 
 std::string Ioss::Utils::uppercase(std::string name)
 {
-  std::transform(name.begin(), name.end(), name.begin(), [](char c) { return std::toupper(c); });
+  std::transform(name.begin(), name.end(), name.begin(), [](char c) { return static_cast<char>(std::toupper(c)); });
   return name;
 }
 
