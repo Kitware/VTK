@@ -4,7 +4,7 @@
  *
  *   Memory debugger (body).
  *
- * Copyright (C) 2001-2020 by
+ * Copyright (C) 2001-2021 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -18,11 +18,11 @@
 
 #include <ft2build.h>
 #include FT_CONFIG_CONFIG_H
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_MEMORY_H
-#include FT_SYSTEM_H
-#include FT_ERRORS_H
-#include FT_TYPES_H
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftmemory.h>
+#include <freetype/ftsystem.h>
+#include <freetype/fterrors.h>
+#include <freetype/fttypes.h>
 
 
 #ifdef FT_DEBUG_MEMORY
