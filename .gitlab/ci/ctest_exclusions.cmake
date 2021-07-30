@@ -162,20 +162,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread") # They failed also on OpenM
   list(APPEND test_exclusions
     # Theses tests fail for stdthread + openmp builds they may be link to a bad use of ThreadLocal
     # Need investigations https://gitlab.kitware.com/vtk/vtk/-/issues/18222
-    "^VTK::FiltersCoreCxx-TestProbeFilterImageInput$"
-    "^VTK::FiltersCoreCxx-TestResampleWithDataSet$"
-    "^VTK::FiltersCorePython-TestProbeFilterImageInput$"
     "^VTK::FiltersExtractionCxx-TestExtractSelectionUsingDataAssembly$"
-    "^VTK::FiltersExtractionPython-ExtractTensors$"
     "^VTK::FiltersGeneralCxx-TestAnimateModes$"
-    "^VTK::FiltersParallelCxx-MPI-ParallelResampling$"
     "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIoss$"
-    "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
     "^VTK::IOIossCxx-TestIossExodus$"
     "^VTK::IOIossCxx-TestIossSuperelements$"
-    "^VTK::ImagingHybridPython-TestCheckerboardSplatter$"
-    "^VTK::InteractionWidgetsCxx-TestSplineWidget$"
-    "^VTK::ParallelMPICxx-MPI-TestPProbe$")
+    "^VTK::ImagingHybridPython-TestCheckerboardSplatter$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")

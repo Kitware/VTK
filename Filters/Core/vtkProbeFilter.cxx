@@ -758,14 +758,6 @@ namespace
 // Thread local storage
 struct ProbeImageDataPointsThreadLocal
 {
-  ProbeImageDataPointsThreadLocal()
-  {
-    // BaseThread will be set 'true' for the thread that gets the first piece
-    this->BaseThread = false;
-    this->PointIds = vtkSmartPointer<vtkIdList>::New();
-    this->PointIds->SetNumberOfIds(8);
-  }
-
   bool BaseThread;
   vtkSmartPointer<vtkIdList> PointIds;
 };
@@ -787,6 +779,15 @@ public:
   {
   }
 
+  void Initialize()
+  {
+    // BaseThread will be set 'true' for the thread that gets the first piece
+    ProbeImageDataPointsThreadLocal& DataPoint = this->Thread.Local();
+    DataPoint.BaseThread = false;
+    DataPoint.PointIds = vtkSmartPointer<vtkIdList>::New();
+    DataPoint.PointIds->SetNumberOfIds(8);
+  }
+
   void operator()(vtkIdType startId, vtkIdType endId)
   {
     if (startId == 0)
@@ -797,6 +798,8 @@ public:
       this->OutPointData, this->MaskArray, this->Thread.Local().PointIds.GetPointer(), startId,
       endId, this->Thread.Local().BaseThread);
   }
+
+  void Reduce() {}
 
 private:
   vtkProbeFilter* ProbeFilter;
