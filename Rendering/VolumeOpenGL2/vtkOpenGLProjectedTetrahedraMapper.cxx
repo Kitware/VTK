@@ -93,11 +93,19 @@ static int tet_edges[6][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 0, 3 }, { 1, 3 },
 const int SqrtTableSize = 2048;
 
 //------------------------------------------------------------------------------
+class vtkOpenGLProjectedTetrahedraMapper::vtkInternals
+{
+public:
+  bool IntermixedGeometryWarningIssued = false;
+};
+
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLProjectedTetrahedraMapper);
 
 //------------------------------------------------------------------------------
 vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
 {
+  this->Internals = new vtkInternals();
   this->TransformedPoints = vtkFloatArray::New();
   this->Colors = vtkUnsignedCharArray::New();
   this->LastProperty = nullptr;
@@ -125,6 +133,8 @@ vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
   delete[] this->SqrtTable;
   this->VBO->Delete();
   this->Framebuffer->Delete();
+  delete this->Internals;
+  this->Internals = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -315,10 +325,14 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer* renderer, vtkVolume
   vtkInformation* volumeKeys = volume->GetPropertyKeys();
   if (volumeKeys && volumeKeys->Has(vtkOpenGLActor::GLDepthMaskOverride()))
   {
-    vtkWarningMacro(
-      "Intermixing translucent polygonal data with unstructured grid volumes is not supported!"
-      "\nEither set opacity to 1.0 for polydata in the view or resample the unstructured "
-      "grid to image data and use the ray cast mapper.");
+    if (!this->Internals->IntermixedGeometryWarningIssued)
+    {
+      vtkWarningMacro(
+        "Intermixing translucent polygonal data with unstructured grid volumes is not supported!"
+        "\nEither set opacity to 1.0 for polydata in the view or resample the unstructured "
+        "grid to image data and use the ray cast mapper.");
+      this->Internals->IntermixedGeometryWarningIssued = true;
+    }
   }
 
   vtkUnstructuredGridBase* input = this->GetInput();
