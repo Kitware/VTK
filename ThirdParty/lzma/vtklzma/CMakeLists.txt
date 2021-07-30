@@ -3,7 +3,7 @@
 # Thanks to Lasse Collin for integration help
 
 if (FALSE) # XXX(kitware): hide subprojects.
-project(LZMA VERSION 5.2.3 LANGUAGES C)
+project(LZMA VERSION 5.2.5 LANGUAGES C)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "LZMA compression library")
 endif ()
 
