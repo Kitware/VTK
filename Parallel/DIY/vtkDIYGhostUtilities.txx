@@ -317,7 +317,7 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   // At this step, we gather data from the inputs and store it inside the local blocks
   // so we don't have to carry extra parameters later.
   vtkLogStartScope(TRACE, "Setup block self information.");
-  vtkDIYGhostUtilities::SetupBlockSelfInformation(master, inputs);
+  vtkDIYGhostUtilities::InitializeBlocks(master, inputs);
   vtkLogEndScope("Setup block self information.");
 
   vtkLogStartScope(TRACE, "Exchanging bounding boxes");
