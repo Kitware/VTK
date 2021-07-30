@@ -3822,14 +3822,22 @@ void ClonePolyData(vtkPolyData* pd, vtkPolyData* clone, PolyDataInformation& inf
     iotaStrip->SetNumberOfIds(info.NumberOfInputStrips);
     std::iota(iotaStrip->begin(), iotaStrip->end(), cloneStripsOffset);
 
+    vtkNew<vtkIdList> iotaCell;
+    iotaCell->SetNumberOfIds(info.NumberOfInputCells);
+    std::iota(iotaCell->begin(), iotaCell->begin() + info.NumberOfInputVerts, 0);
+    std::iota(iotaCell->begin() + pdLinesOffset,
+        iotaCell->begin() + pdLinesOffset + info.NumberOfInputLines, cloneLinesOffset);
+    std::iota(iotaCell->begin() + pdPolysOffset,
+        iotaCell->begin() + pdPolysOffset + info.NumberOfInputPolys, clonePolysOffset);
+    std::iota(iotaCell->begin() + pdStripsOffset,
+        iotaCell->begin() + pdStripsOffset + info.NumberOfInputStrips, cloneStripsOffset);
+
+    vtkIdList* cellIds = info.InputToOutputCellIdRedirectionMap;
+
     for (int arrayId = 0; arrayId < pdCellData->GetNumberOfArrays(); ++arrayId)
     {
       vtkAbstractArray* sourceArray = pdCellData->GetAbstractArray(arrayId);
-
-      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(iotaVert, vertIds, sourceArray);
-      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(iotaLine, lineIds, sourceArray);
-      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(iotaPoly, polyIds, sourceArray);
-      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(iotaStrip, stripIds, sourceArray);
+      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(iotaCell, cellIds, sourceArray);
     }
   }
   else
@@ -4957,7 +4965,8 @@ void FillDuplicateCellGhostArrayForUnstructureData(vtkUnsignedCharArray* ghostAr
 
 //----------------------------------------------------------------------------
 void FillReceivedGhostFieldData(vtkFieldData* sourceFD,
-    vtkFieldData* destFD, vtkIdType currentNumberOfElements, vtkIdType numberOfAddedElements)
+    vtkFieldData* destFD, vtkIdType currentNumberOfElements, vtkIdType numberOfAddedElements,
+    vtkIdType sourceOffset = 0)
 {
   if (!sourceFD)
   {
@@ -4972,7 +4981,8 @@ void FillReceivedGhostFieldData(vtkFieldData* sourceFD,
       vtkAbstractArray* destArray = destFD->GetAbstractArray(sourceArray->GetName());
       if (destArray)
       {
-        destArray->InsertTuples(currentNumberOfElements, numberOfAddedElements, 0, sourceArray);
+        destArray->InsertTuples(currentNumberOfElements, numberOfAddedElements, sourceOffset,
+            sourceArray);
       }
     }
   }
@@ -5252,14 +5262,16 @@ void FillReceivedGhosts(PolyDataBlock* block, int myGid,
     FillDuplicateCellGhostArrayForUnstructureData(block->GhostCellArray,
         polyOffset + info.CurrentMaxPolyId, numberOfAddedPolys);
     FillReceivedGhostFieldData(blockStructure.GhostCellData,
-        output->GetCellData(), polyOffset + info.CurrentMaxPolyId, numberOfAddedPolys);
+        output->GetCellData(), polyOffset + info.CurrentMaxPolyId, numberOfAddedPolys,
+        numberOfAddedLines);
   }
   if (output->GetNumberOfStrips())
   {
     FillDuplicateCellGhostArrayForUnstructureData(block->GhostCellArray,
         stripOffset + info.CurrentMaxStripId, numberOfAddedStrips);
     FillReceivedGhostFieldData(blockStructure.GhostCellData,
-        output->GetCellData(), stripOffset + info.CurrentMaxStripId, numberOfAddedStrips);
+        output->GetCellData(), stripOffset + info.CurrentMaxStripId, numberOfAddedStrips,
+        numberOfAddedLines + numberOfAddedPolys);
   }
 
   info.CurrentMaxPointId += numberOfAddedPoints;
