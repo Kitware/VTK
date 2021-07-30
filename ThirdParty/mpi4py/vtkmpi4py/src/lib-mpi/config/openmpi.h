@@ -142,8 +142,8 @@
 #endif
 
 #if OMPI_NUMVERSION >= 40000
-#undef  PyMPI_HAVE_MPI_LB
-#undef  PyMPI_HAVE_MPI_UB
+#undef PyMPI_HAVE_MPI_LB
+#undef PyMPI_HAVE_MPI_UB
 #endif /* OMPI >= 4.0.0 */
 
 #endif /* !PyMPI_CONFIG_OPENMPI_H */

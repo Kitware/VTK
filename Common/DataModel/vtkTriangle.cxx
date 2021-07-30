@@ -592,10 +592,10 @@ int vtkTriangle::IntersectWithLine(const double p1[3], const double p2[3], doubl
             closestDistance = t;
             // Obtain parametric coordinates
             this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
-            for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
             {
-              closestX[i] = x[i];
-              closestPCoords[i] = pcoords[i];
+              closestX[j] = x[j];
+              closestPCoords[j] = pcoords[j];
             }
           }
         }

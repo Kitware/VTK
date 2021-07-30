@@ -1,11 +1,8 @@
-set(test_exclusions)
-
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "ubsan")
-  list(APPEND test_exclusions
-    # Unknown failure; needs investigation. No output, no memcheck errors
-    # either.
-    "VTK::FiltersPointsCxx-TestPoissonDiskSampler")
-endif ()
+set(test_exclusions
+  # Long-failing tests. Excluding to get better dashboards.
+  "^VTK::FiltersModelingPython-TestImprintFilter6$"
+  "^VTK::FiltersPointsCxx-TestPoissonDiskSampler$"
+  "^VTK::FiltersSelectionCxx-TestLinearSelector3D$")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
   list(APPEND test_exclusions

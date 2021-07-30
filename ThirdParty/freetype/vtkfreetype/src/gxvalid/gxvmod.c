@@ -4,7 +4,7 @@
  *
  *   FreeType's TrueTypeGX/AAT validation module implementation (body).
  *
- * Copyright (C) 2004-2020 by
+ * Copyright (C) 2004-2021 by
  * suzuki toshiya, Masatake YAMATO, Red Hat K.K.,
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
@@ -25,12 +25,11 @@
  */
 
 
-#include <ft2build.h>
-#include FT_TRUETYPE_TABLES_H
-#include FT_TRUETYPE_TAGS_H
-#include FT_GX_VALIDATE_H
-#include FT_INTERNAL_OBJECTS_H
-#include FT_SERVICE_GX_VALIDATE_H
+#include <freetype/tttables.h>
+#include <freetype/tttags.h>
+#include <freetype/ftgxval.h>
+#include <freetype/internal/ftobjs.h>
+#include <freetype/internal/services/svgxval.h>
 
 #include "gxvmod.h"
 #include "gxvalid.h"
@@ -63,7 +62,7 @@
     if ( error )
       goto Exit;
 
-    if ( FT_ALLOC( *table, *table_len ) )
+    if ( FT_QALLOC( *table, *table_len ) )
       goto Exit;
 
     error = FT_Load_Sfnt_Table( face, tag, 0, *table, table_len );

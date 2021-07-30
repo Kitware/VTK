@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkeigen/COPYING.BSD"
-    VERSION       "3.3.7"
+    VERSION       "3.3.9"
     HEADER_ONLY
     STANDARD_INCLUDE_DIRS
   EXTERNAL

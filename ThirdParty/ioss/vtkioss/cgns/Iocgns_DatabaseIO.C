@@ -2125,24 +2125,24 @@ namespace Iocgns {
           size_t eb_offset_plus_one = eb->get_offset() + 1;
           if (field.get_type() == Ioss::Field::INT64) {
             auto *idata = static_cast<int64_t *>(data);
-            std::iota(idata, idata + my_element_count, eb_offset_plus_one);
+            std::iota(idata, idata + my_element_count, static_cast<int64_t>(eb_offset_plus_one));
           }
           else {
             SMART_ASSERT(field.get_type() == Ioss::Field::INT32);
             int *idata = static_cast<int *>(data);
-            std::iota(idata, idata + my_element_count, eb_offset_plus_one);
+            std::iota(idata, idata + my_element_count, static_cast<int>(eb_offset_plus_one));
           }
         }
         else if (field.get_name() == "implicit_ids") {
           size_t eb_offset_plus_one = eb->get_offset() + 1;
           if (field.get_type() == Ioss::Field::INT64) {
             auto *idata = static_cast<int64_t *>(data);
-            std::iota(idata, idata + my_element_count, eb_offset_plus_one);
+            std::iota(idata, idata + my_element_count, static_cast<int64_t>(eb_offset_plus_one));
           }
           else {
             SMART_ASSERT(field.get_type() == Ioss::Field::INT32);
             int *idata = static_cast<int *>(data);
-            std::iota(idata, idata + my_element_count, eb_offset_plus_one);
+            std::iota(idata, idata + my_element_count, static_cast<int>(eb_offset_plus_one));
           }
         }
         else {

@@ -80,7 +80,7 @@ namespace {
     std::vector<INT> elem_ids;
     if (local_ids) {
       elem_ids.resize(eb->entity_count());
-      std::iota(elem_ids.begin(), elem_ids.end(), eb->get_offset() + 1);
+      std::iota(elem_ids.begin(), elem_ids.end(), static_cast<INT>(eb->get_offset() + 1));
     }
     else {
       eb->get_field_data("ids", elem_ids);

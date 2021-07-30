@@ -50,7 +50,7 @@ vtkVector2d GetRange(vtkDataObject* dobj)
 }
 }
 
-int TestGenerateGlobalIdsSphere(int argc, char* argv[])
+int TestGenerateGlobalIdsSphere(int /*argc*/, char* /*argv*/[])
 {
   vtkNew<vtkPartitionedDataSet> pd;
   pd->SetPartition(0, GetHemisphere(0, 2));

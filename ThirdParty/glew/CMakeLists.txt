@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkglew/LICENSE.txt"
-    VERSION       "2.1.0"
+    VERSION       "2.2.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE GLEW

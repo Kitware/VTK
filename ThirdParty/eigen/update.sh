@@ -8,7 +8,7 @@ readonly name="eigen"
 readonly ownership="Eigen Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/eigen.git"
-readonly tag="for/vtk-20200721-3.3.7"
+readonly tag="for/vtk-20210726-3.3.9"
 readonly paths="
 Eigen/Cholesky
 Eigen/CholmodSupport
@@ -58,7 +58,7 @@ cmake/FindStandardMathLibrary.cmake
 extract_source () {
     git_archive
     pushd "$extractdir"
-    mv "$name-reduced/Eigen" "$name-reduced/eigen"
+    mv -v "$name-reduced/Eigen" "$name-reduced/eigen"
     popd
 }
 

@@ -1,146 +1,254 @@
 if (FALSE) # XXX(kitware): VTK handles minimum CMake versions.
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.4)
 endif ()
+project(pugixml VERSION 1.11 LANGUAGES CXX)
 
-project(pugixml VERSION 1.10)
+include(CMakePackageConfigHelpers)
+include(CMakeDependentOption)
+include(GNUInstallDirs)
+include(CTest)
+
 
 set(vtkpugixml_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
 
 if (FALSE) # XXX(kitware): Hardcode settings.
-option(BUILD_SHARED_AND_STATIC_LIBS "Build both shared and static libraries" OFF)
-option(BUILD_SHARED_LIBS "Build shared instead of static library" OFF)
-option(BUILD_TESTS "Build tests" OFF)
-option(USE_VERSIONED_LIBDIR "Use a private subdirectory to install the headers and libs" OFF)
-option(USE_POSTFIX "Use separate postfix for each configuration to make sure you can install multiple build outputs" OFF)
+cmake_dependent_option(USE_VERSIONED_LIBDIR
+  "Use a private subdirectory to install the headers and libraries" OFF
+  "CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR" OFF)
 
-set(BUILD_DEFINES "" CACHE STRING "Build defines")
+cmake_dependent_option(USE_POSTFIX
+  "Use separate postfix for each configuration to make sure you can install multiple build outputs" OFF
+  "CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR" OFF)
+
+cmake_dependent_option(STATIC_CRT
+  "Use static MSVC RT libraries" OFF
+  "MSVC" OFF)
+
+cmake_dependent_option(BUILD_TESTS
+  "Build pugixml tests" OFF
+  "BUILD_TESTING;CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR" OFF)
+
+option(BUILD_SHARED_AND_STATIC_LIBS "Build both shared and static libraries" OFF)
+ # Technically not needed for this file. This is builtin.
+option(BUILD_SHARED_LIBS "Build shared instead of static library" OFF) 
+
+set(BUILD_DEFINES CACHE STRING "Build defines")
 else ()
-set(BUILD_SHARED_AND_STATIC_LIBS OFF)
+set(USE_VERSIONED_LIBDIR OFF)
+set(USE_POSTFIX OFF)
+set(STATIC_CRT OFF)
 set(BUILD_TESTS OFF)
-set(BUILD_PKGCONFIG OFF)
+set(BUILD_SHARED_AND_STATIC_LIBS OFF)
+set(BUILD_DEFINES "")
 endif ()
 
-if(MSVC)
-	if (FALSE) # XXX(kitware): Hardcode settings.
-	option(STATIC_CRT "Use static CRT libraries" OFF)
-	else ()
-	set(STATIC_CRT OFF)
-	endif ()
-
-	# Rewrite command line flags to use /MT if necessary
-	if(STATIC_CRT)
-		foreach(flag_var
-				CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-				CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-			if(${flag_var} MATCHES "/MD")
-				string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-			endif(${flag_var} MATCHES "/MD")
-		endforeach(flag_var)
-	endif()
+# This is used to backport a CMake 3.15 feature, but is also forwards compatible
+if (NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY
+    MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<NOT:$<BOOL:${STATIC_CRT}>>:DLL>)
 endif()
 
-if (FALSE) # XXX(kitware): VTK handles installation.
-# Pre-defines standard install locations on *nix systems.
-include(GNUInstallDirs)
-mark_as_advanced(CLEAR CMAKE_INSTALL_LIBDIR CMAKE_INSTALL_INCLUDEDIR)
-endif ()
+if (NOT DEFINED CMAKE_CXX_STANDARD_REQUIRED)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
 
+if (NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 11)
+endif()
+
+if (USE_POSTFIX)
+  set(CMAKE_RELWITHDEBINFO_POSTFIX _r)
+  set(CMAKE_MINSIZEREL_POSTFIX _m)
+  set(CMAKE_DEBUG_POSTFIX _d)
+endif()
+
+if (CMAKE_VERSION VERSION_LESS 3.15)
+  set(msvc-rt $<TARGET_PROPERTY:MSVC_RUNTIME_LIBRARY>)
+
+  set(msvc-rt-mtd-shared $<STREQUAL:${msvc-rt},MultiThreadedDebugDLL>)
+  set(msvc-rt-mtd-static $<STREQUAL:${msvc-rt},MultiThreadedDebug>)
+  set(msvc-rt-mt-shared $<STREQUAL:${msvc-rt},MultiThreadedDLL>)
+  set(msvc-rt-mt-static $<STREQUAL:${msvc-rt},MultiThreaded>)
+  unset(msvc-rt)
+
+  set(msvc-rt-mtd-shared $<${msvc-rt-mtd-shared}:-MDd>)
+  set(msvc-rt-mtd-static $<${msvc-rt-mtd-static}:-MTd>)
+  set(msvc-rt-mt-shared $<${msvc-rt-mt-shared}:-MD>)
+  set(msvc-rt-mt-static $<${msvc-rt-mt-static}:-MT>)
+endif()
+
+set(versioned-dir $<$<BOOL:${USE_VERSIONED_LIBDIR}>:/pugixml-${PROJECT_VERSION}>)
+
+set(libs)
+
+if (FALSE) # XXX(kitware): Use the VTK module system.
+if (BUILD_SHARED_LIBS OR BUILD_SHARED_AND_STATIC_LIBS)
+  add_library(pugixml-shared SHARED
+    ${PROJECT_SOURCE_DIR}/scripts/pugixml_dll.rc
+    ${PROJECT_SOURCE_DIR}/src/pugixml.cpp)
+  add_library(pugixml::shared ALIAS pugixml-shared)
+  list(APPEND libs pugixml-shared)
+
+  set_property(TARGET pugixml-shared PROPERTY EXPORT_NAME shared)
+  target_include_directories(pugixml-shared
+    PUBLIC
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>)
+  target_compile_definitions(pugixml-shared
+    PRIVATE
+      $<$<CXX_COMPILER_ID:MSVC>:PUGIXML_API=__declspec\(dllexport\)>)
+  target_compile_options(pugixml-shared
+    PRIVATE
+      ${msvc-rt-mtd-shared}
+      ${msvc-rt-mtd-static}
+      ${msvc-rt-mt-shared}
+      ${msvc-rt-mt-static})
+endif()
+
+if (NOT BUILD_SHARED_LIBS OR BUILD_SHARED_AND_STATIC_LIBS)
+  add_library(pugixml-static STATIC
+    ${PROJECT_SOURCE_DIR}/src/pugixml.cpp)
+  add_library(pugixml::static ALIAS pugixml-static)
+  list(APPEND libs pugixml-static)
+
+  set_property(TARGET pugixml-static PROPERTY EXPORT_NAME static)
+  target_include_directories(pugixml-static
+    PUBLIC
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>)
+  target_compile_options(pugixml-static
+    PRIVATE
+      ${msvc-rt-mtd-shared}
+      ${msvc-rt-mtd-static}
+      ${msvc-rt-mt-shared}
+      ${msvc-rt-mt-static})
+endif()
+
+if (BUILD_SHARED_LIBS)
+  set(pugixml-alias pugixml-shared)
+else()
+  set(pugixml-alias pugixml-static)
+endif()
+add_library(pugixml INTERFACE)
+target_link_libraries(pugixml INTERFACE ${pugixml-alias})
+add_library(pugixml::pugixml ALIAS pugixml)
+
+set_target_properties(${libs}
+  PROPERTIES
+    MSVC_RUNTIME_LIBRARY ${CMAKE_MSVC_RUNTIME_LIBRARY}
+    EXCLUDE_FROM_ALL ON
+    POSITION_INDEPENDENT_CODE ON
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+    VERSION ${PROJECT_VERSION}
+    OUTPUT_NAME pugixml)
+
+set_target_properties(${libs}
+  PROPERTIES
+    EXCLUDE_FROM_ALL OFF)
+set(install-targets pugixml ${libs})
+
+configure_package_config_file(
+  "${PROJECT_SOURCE_DIR}/scripts/pugixml-config.cmake.in"
+  "${PROJECT_BINARY_DIR}/pugixml-config.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO
+  NO_SET_AND_CHECK_MACRO)
+
+write_basic_package_version_file(
+  "${PROJECT_BINARY_DIR}/pugixml-config-version.cmake"
+  COMPATIBILITY SameMajorVersion)
+
+if (USE_POSTFIX)
+  if(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
+    set(LIB_POSTFIX ${CMAKE_RELWITHDEBINFO_POSTFIX})
+  elseif(CMAKE_BUILD_TYPE MATCHES MinSizeRel)
+    set(LIB_POSTFIX ${CMAKE_MINSIZEREL_POSTFIX})
+  elseif(CMAKE_BUILD_TYPE MATCHES Debug)
+    set(LIB_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+  endif()
+endif()
+
+configure_file(scripts/pugixml.pc.in pugixml.pc @ONLY)
+
+if (NOT DEFINED PUGIXML_RUNTIME_COMPONENT)
+  set(PUGIXML_RUNTIME_COMPONENT Runtime)
+endif()
+
+if (NOT DEFINED PUGIXML_LIBRARY_COMPONENT)
+  set(PUGIXML_LIBRARY_COMPONENT Library)
+endif()
+
+if (NOT DEFINED PUGIXML_DEVELOPMENT_COMPONENT)
+  set(PUGIXML_DEVELOPMENT_COMPONENT Development)
+endif()
+
+set(namelink-component)
+if (NOT CMAKE_VERSION VERSION_LESS 3.12)
+  set(namelink-component NAMELINK_COMPONENT ${PUGIXML_DEVELOPMENT_COMPONENT})
+endif()
+install(TARGETS ${install-targets}
+  EXPORT pugixml-targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${PUGIXML_RUNTIME_COMPONENT}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${PUGIXML_LIBRARY_COMPONENT} ${namelink-component}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${PUGIXML_DEVELOPMENT_COMPONENT}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}${versioned-dir})
+
+install(EXPORT pugixml-targets
+  NAMESPACE pugixml::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pugixml COMPONENT ${PUGIXML_DEVELOPMENT_COMPONENT})
+
+export(EXPORT pugixml-targets
+  NAMESPACE pugixml::)
+
+install(FILES
+  "${PROJECT_BINARY_DIR}/pugixml-config-version.cmake"
+  "${PROJECT_BINARY_DIR}/pugixml-config.cmake"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pugixml COMPONENT ${PUGIXML_DEVELOPMENT_COMPONENT})
+
+install(FILES ${PROJECT_BINARY_DIR}/pugixml.pc
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig COMPONENT ${PUGIXML_DEVELOPMENT_COMPONENT})
+
+install(
+  FILES
+    "${PROJECT_SOURCE_DIR}/src/pugiconfig.hpp"
+    "${PROJECT_SOURCE_DIR}/src/pugixml.hpp"
+  DESTINATION
+    ${CMAKE_INSTALL_INCLUDEDIR}${versioned-dir} COMPONENT ${PUGIXML_DEVELOPMENT_COMPONENT})
+else ()
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/src/pugiconfig.hpp.in"
   "${CMAKE_CURRENT_BINARY_DIR}/pugiconfig.hpp"
   @ONLY)
 
-set(HEADERS src/pugixml.hpp "${CMAKE_CURRENT_BINARY_DIR}/pugiconfig.hpp" src/vtk_pugixml_mangle.h)
-set(SOURCES src/pugixml.cpp)
-
-if(DEFINED BUILD_DEFINES)
-	foreach(DEFINE ${BUILD_DEFINES})
-		add_definitions("-D" ${DEFINE})
-	endforeach()
-endif()
-
-if (FALSE) # XXX(kitware): Use the VTK module system.
-if(BUILD_SHARED_AND_STATIC_LIBS)
-	set(LIBRARY pugixml-static pugixml-shared)
-else()
-	set(LIBRARY pugixml)
-endif()
-
-if(BUILD_SHARED_AND_STATIC_LIBS)
-    add_library(pugixml-static STATIC ${HEADERS} ${SOURCES})
-    add_library(pugixml-shared SHARED ${HEADERS} ${SOURCES})
-else()
-  if(BUILD_SHARED_LIBS)
-    add_library(pugixml SHARED ${HEADERS} ${SOURCES})
-  else()
-    add_library(pugixml STATIC ${HEADERS} ${SOURCES})
-  endif()
-endif()
-
-# Export symbols for shared library builds
-if(BUILD_SHARED_AND_STATIC_LIBS AND MSVC)
-	target_compile_definitions(pugixml-shared PRIVATE "PUGIXML_API=__declspec(dllexport)")
-endif()
-
-if(BUILD_SHARED_LIBS AND MSVC)
-	target_compile_definitions(pugixml PRIVATE "PUGIXML_API=__declspec(dllexport)")
-endif()
-
-if(USE_VERSIONED_LIBDIR)
-	# Install library into its own directory under LIBDIR
-	set(INSTALL_SUFFIX /pugixml-${pugixml_VERSION})
-endif()
-
-else ()
 vtk_module_add_module(VTK::pugixml
-  SOURCES ${SOURCES}
-  HEADERS ${HEADERS}
+  SOURCES src/pugixml.cpp
+  HEADERS src/pugixml.hpp
+          "${CMAKE_CURRENT_BINARY_DIR}/pugiconfig.hpp"
+          src/vtk_pugixml_mangle.h
   HEADERS_SUBDIR "vtkpugixml/src")
 target_compile_features(pugixml
   PUBLIC
     cxx_std_11)
 endif ()
 
-if (FALSE) # XXX(kitware): VTK handles installation.
-foreach(TARGET ${LIBRARY})
-	# Enable C++11 long long for compilers that are capable of it
-	if(NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} STRLESS 3.1 AND ";${CMAKE_CXX_COMPILE_FEATURES};" MATCHES ";cxx_long_long_type;")
-	  target_compile_features(${TARGET} PUBLIC cxx_long_long_type)
-	endif()
+if (BUILD_TESTS)
+  set(fuzz-pattern "tests/fuzz_*.cpp")
+  set(test-pattern "tests/*.cpp")
+  if (CMAKE_VERSION VERSION_GREATER 3.11)
+    list(INSERT fuzz-pattern 0 CONFIGURE_DEPENDS)
+    list(INSERT test-pattern 0 CONFIGURE_DEPENDS)
+  endif()
+  file(GLOB test-sources ${test-pattern})
+  file(GLOB fuzz-sources ${fuzz-pattern})
+  list(REMOVE_ITEM test-sources ${fuzz-sources})
 
-	set_target_properties(${TARGET} PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
+  add_custom_target(check
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 
-	target_include_directories(${TARGET} PUBLIC
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}${INSTALL_SUFFIX}>)
-
-	if(USE_POSTFIX)
-		set_target_properties(${TARGET} PROPERTIES DEBUG_POSTFIX "_d" MINSIZEREL_POSTFIX "_m" RELWITHDEBINFO_POSTFIX "_r")
-	endif()
-endforeach()
-
-install(TARGETS ${LIBRARY} EXPORT pugixml-config
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}${INSTALL_SUFFIX}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}${INSTALL_SUFFIX}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-install(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}${INSTALL_SUFFIX})
-install(EXPORT pugixml-config DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pugixml)
-
-configure_file(scripts/pugixml.pc.in ${PROJECT_BINARY_DIR}/pugixml.pc @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/pugixml.pc DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig)
-
-if(BUILD_TESTS)
-	file(GLOB TEST_SOURCES tests/*.cpp)
-	file(GLOB FUZZ_SOURCES tests/fuzz_*.cpp)
-	list(REMOVE_ITEM TEST_SOURCES ${FUZZ_SOURCES})
-
-	add_executable(check ${TEST_SOURCES})
-	if(BUILD_SHARED_AND_STATIC_LIBS)
-		target_link_libraries(check pugixml-static)
-	else()
-		target_link_libraries(check pugixml)
-	endif()
-	add_custom_command(TARGET check POST_BUILD COMMAND check WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  add_executable(pugixml-check ${test-sources})
+  add_test(NAME pugixml::test
+    COMMAND pugixml-check
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_dependencies(check pugixml-check)
+  target_link_libraries(pugixml-check
+    PRIVATE
+      pugixml::pugixml)
 endif()
-endif ()

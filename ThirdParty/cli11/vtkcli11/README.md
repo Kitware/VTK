@@ -83,7 +83,7 @@ An acceptable CLI parser library should be all of the following:
 -   Easy to execute, with help, parse errors, etc. providing correct exit and details.
 -   Easy to extend as part of a framework that provides "applications" to users.
 -   Usable subcommand syntax, with support for multiple subcommands, nested subcommands, option groups, and optional fallthrough (explained later).
--   Ability to add a configuration file (`ini` or `TOML`🆕 format), and produce it as well.
+-   Ability to add a configuration file (`TOML`, `INI`, or custom format), and produce it as well.
 -   Produce real values that can be used directly in code, not something you have pay compute time to look up, for HPC applications.
 -   Work with standard types, simple custom types, and extensible to exotic types.
 -   Permissively licensed.
@@ -133,11 +133,25 @@ There are some other possible "features" that are intentionally not supported by
 
 ## Install
 
-To use, there are two methods:
+To use, there are several methods:
 
-1.  Copy `CLI11.hpp` from the [most recent release][github releases] into your include directory, and you are set. This is combined from the source files  for every release. This includes the entire command parser library, but does not include separate utilities (like `Timer`, `AutoTimer`). The utilities are completely self contained and can be copied separately.
-2.  Use `CLI/*.hpp` files. You could check out the repository as a submodule, for example. You can use the `CLI11::CLI11` interface target when linking from `add_subdirectory`.
-    You can also configure and optionally install the project, and then use `find_package(CLI11 CONFIG)` to get the `CLI11::CLI11` target. You can also use [Conan.io][conan-link] or [Hunter][].
+1.  All-in-one local header: Copy `CLI11.hpp` from the [most recent release][github releases] into your include directory, and you are set. This is combined from the source files  for every release. This includes the entire command parser library, but does not include separate utilities (like `Timer`, `AutoTimer`). The utilities are completely self contained and can be copied separately.
+2.  All-in-one global header: Like above, but copying the file to a shared folder location like `/opt/CLI11`. Then, the C++ include path has to be extended to point at this folder. With CMake, use `include_directories(/opt/CLI11)`
+3.  Local headers and target: Use `CLI/*.hpp` files. You could check out the repository as a git submodule, for example. With CMake, you can use `add_subdirectory` and the `CLI11::CLI11` interface target when linking. If not using a submodule, you must ensure that the copied files are located inside the same tree directory than your current project, to prevent an error with CMake and `add_subdirectory`.
+4.  Global headers: Use `CLI/*.hpp` files stored in a shared folder. You could check out the git repository in a system-wide folder, for example `/opt/`. With CMake, you could add to the include path via:
+```bash
+if(NOT DEFINED CLI11_DIR)
+set (CLI11_DIR "/opt/CLI11" CACHE STRING "CLI11 git repository")
+endif()
+include_directories(${CLI11_DIR}/include)
+```
+And then in the source code (adding several headers might be needed to prevent linker errors):
+```cpp
+#include "CLI/App.hpp"
+#include "CLI/Formatter.hpp"
+#include "CLI/Config.hpp"
+```
+5.  Global headers and target: configuring and installing the project is required for linking CLI11 to your project in the same way as you would do with any other external library. With CMake, this step allows using `find_package(CLI11 CONFIG REQUIRED)` and then using the `CLI11::CLI11` target when linking. If `CMAKE_INSTALL_PREFIX` was changed during install to a specific folder like `/opt/CLI11`, then you have to pass `-DCLI11_DIR=/opt/CLI11` when building your current project. You can also use [Conan.io][conan-link] or [Hunter][].
     (These are just conveniences to allow you to use your favorite method of managing packages; it's just header only so including the correct path and
     using C++11 is all you really need.)
 
@@ -210,15 +224,16 @@ While all options internally are the same type, there are several ways to add an
 app.add_option(option_name, help_str="")
 
 app.add_option(option_name,
-               variable_to_bind_to, // bool, int, float, vector, enum, or string-like, or anything with a defined conversion from a string or that takes an int 🆕, double 🆕, or string in a constructor. Also allowed are tuples 🆕, std::array 🆕 or std::pair 🆕.
+               variable_to_bind_to, // bool, char(see note)🆕, int, float, vector, enum, std::atomic 🆕, or string-like, or anything with a defined conversion from a string or that takes an int, double, or string in a constructor. Also allowed are tuples, std::array or std::pair. Also supported are complex numbers🆕, wrapper types🆕, and containers besides vector🆕 of any other supported type.
                help_string="")
 
 app.add_option_function<type>(option_name,
                function <void(const type &value)>, // type can be any type supported by add_option
                help_string="")
 
-app.add_complex(... // Special case: support for complex numbers
-// 🆕 There is a template overload which takes two template parameters the first is the type of object to assign the value to, the second is the conversion type.  The conversion type should have a known way to convert from a string, such as any of the types that work in the non-template version.  If XC is a std::pair and T is some non pair type.  Then a two argument constructor for T is called to assign the value.  For tuples or other multi element types, XC must be a single type or a tuple like object of the same size as the assignment type
+// char as an option type is supported before 2.0 but in 2.0 it defaulted to allowing single non numerical characters in addition to the numeric values.
+
+// There is a template overload which takes two template parameters the first is the type of object to assign the value to, the second is the conversion type.  The conversion type should have a known way to convert from a string, such as any of the types that work in the non-template version.  If XC is a std::pair and T is some non pair type.  Then a two argument constructor for T is called to assign the value.  For tuples or other multi element types, XC must be a single type or a tuple like object of the same size as the assignment type
 app.add_option<typename T, typename XC>(option_name,
                T &output, // output must be assignable or constructible from a value of type XC
                help_string="")
@@ -228,7 +243,7 @@ app.add_flag(option_name,
              help_string="")
 
 app.add_flag(option_name,
-             variable_to_bind_to, // bool, int, float, vector, enum, or string-like, or any singular object with a defined conversion from a string like add_option
+             variable_to_bind_to, // bool, int, float, complex, containers, enum, std::atomic 🆕, or string-like, or any singular object with a defined conversion from a string like add_option
              help_string="")
 
 app.add_flag_function(option_name,
@@ -247,7 +262,7 @@ An option name must start with a alphabetic character, underscore, a number, '?'
 
 The `add_option_function<type>(...` function will typically require the template parameter be given unless a `std::function` object with an exact match is passed.  The type can be any type supported by the `add_option` function. The function should throw an error (`CLI::ConversionError` or `CLI::ValidationError` possibly) if the value is not valid.
 
-🆕 The two parameter template overload can be used in cases where you want to restrict the input such as
+The two parameter template overload can be used in cases where you want to restrict the input such as
 ```
 double val
 app.add_option<double,unsigned int>("-v",val);
@@ -260,9 +275,9 @@ app.add_option<vtype,std:string>("--vs",v1);
 app.add_option<vtype,int>("--vi",v1);
 app.add_option<vtype,double>("--vf",v1);
 ```
-otherwise the output would default to a string.  The `add_option` can be used with any integral or floating point types, enumerations, or strings.  Or any type that takes an int, double, or std::string in an assignment operator or constructor.  If an object can take multiple varieties of those, std::string takes precedence, then double then int.    To better control which one is used or to use another type for the underlying conversions use the two parameter template to directly specify the conversion type.
+otherwise the output would default to a string.  The `add_option` can be used with any integral or floating point types, enumerations, or strings.  Or any type that takes an int, double, or std\::string in an assignment operator or constructor.  If an object can take multiple varieties of those, std::string takes precedence, then double then int.    To better control which one is used or to use another type for the underlying conversions use the two parameter template to directly specify the conversion type.
 
-Types such as (std or boost) `optional<int>`, `optional<double>`, and `optional<string>` are supported directly, other optional types can be added using the two parameter template.  See [CLI11 Advanced Topics/Custom Converters][] for information on how this could be done and how you can add your own converters for additional types.
+Types such as (std or boost) `optional<int>`, `optional<double>`, and `optional<string>` and any other wrapper types are supported directly. For purposes of CLI11 wrapper types are those which `value_type` definition.  See [CLI11 Advanced Topics/Custom Converters][] for information on how you can add your own converters for additional types.
 
 Vector types can also be used in the two parameter template overload
 ```
@@ -321,9 +336,10 @@ Before parsing, you can set the following options:
 -   `->ignore_case()`: Ignore the case on the command line (also works on subcommands, does not affect arguments).
 -   `->ignore_underscore()`: Ignore any underscores in the options names (also works on subcommands, does not affect arguments). For example "option_one" will match with "optionone".  This does not apply to short form options since they only have one character
 -   `->disable_flag_override()`: From the command line long form flag options can be assigned a value on the command line using the `=` notation `--flag=value`. If this behavior is not desired, the `disable_flag_override()` disables it and will generate an exception if it is done on the command line.  The `=` does not work with short form flag options.
+-   `->allow_extra_args(true/false)`: 🆕 If set to true the option will take an unlimited number of arguments like a vector, if false it will limit the number of arguments to the size of the type used in the option.  Default value depends on the nature of the type use, containers default to true, others default to false.
 -   `->delimiter(char)`: Allows specification of a custom delimiter for separating single arguments into vector arguments, for example specifying `->delimiter(',')` on an option would result in `--opt=1,2,3` producing 3 elements of a vector and the equivalent of --opt 1 2 3 assuming opt is a vector value.
 -   `->description(str)`: Set/change the description.
--   `->multi_option_policy(CLI::MultiOptionPolicy::Throw)`: Set the multi-option policy. Shortcuts available: `->take_last()`, `->take_first()`, and `->join()`. This will only affect options expecting 1 argument or bool flags (which do not inherit their default but always start with a specific policy).
+-   `->multi_option_policy(CLI::MultiOptionPolicy::Throw)`: Set the multi-option policy. Shortcuts available: `->take_last()`, `->take_first()`,`->take_all()`, and `->join()`. This will only affect options expecting 1 argument or bool flags (which do not inherit their default but always start with a specific policy).
 -   `->check(std::string(const std::string &), validator_name="",validator_description="")`: Define a check function.  The function should return a non empty string with the error message if the check fails
 -   `->check(Validator)`: Use a Validator object to do the check see [Validators](#validators) for a description of available Validators and how to create new ones.
 -   `->transform(std::string(std::string &), validator_name="",validator_description=")`: Converts the input string into the output string, in-place in the parsed options.
@@ -333,8 +349,9 @@ Before parsing, you can set the following options:
     `->capture_default_str()`: Store the current value attached and display it in the help string.
 -   `->default_function(std::string())`: Advanced: Change the function that `capture_default_str()` uses.
 -   `->always_capture_default()`: Always run `capture_default_str()` when creating new options. Only useful on an App's `option_defaults`.
--   `default_str(string)`:  Set the default string directly.  This string will also be used as a default value if no arguments are passed and the value is requested.
--   `default_val(value)`: 🆕 Generate the default string from a value and validate that the value is also valid.  For options that assign directly to a value type the value in that type is also updated.  Value must be convertible to a string(one of known types or a stream operator).
+-   `->default_str(string)`:  Set the default string directly.  This string will also be used as a default value if no arguments are passed and the value is requested.
+-   `->default_val(value)`: Generate the default string from a value and validate that the value is also valid.  For options that assign directly to a value type the value in that type is also updated.  Value must be convertible to a string(one of known types or have a stream operator).
+-   `->option_text(string)`: Sets the text between the option name and description.
 
 
 These options return the `Option` pointer, so you can chain them together, and even skip storing the pointer entirely. The `each` function takes any function that has the signature `void(const std::string&)`; it should throw a `ValidationError` when validation fails. The help message will have the name of the parent option prepended. Since `each`, `check` and `transform` use the same underlying mechanism, you can chain as many as you want, and they will be executed in order. Operations added through `transform` are executed first in reverse order of addition, and `check` and `each` are run following the transform functions in order of addition. If you just want to see the unconverted values, use `.results()` to get the `std::vector<std::string>` of results.
@@ -390,6 +407,7 @@ CLI11 has several Validators built-in that perform some common checks
 -   `CLI::NonNegativeNumber`: Requires the number be greater or equal to 0
 -   `CLI::Number`: Requires the input be a number.
 -   `CLI::ValidIPV4`: Requires that the option be a valid IPv4 string e.g. `'255.255.255.255'`, `'10.1.1.7'`.
+-   `CLI::TypeValidator<TYPE>`:🆕 Requires that the option be convertible to the specified type e.g.  `CLI::TypeValidator<unsigned int>()` would require that the input be convertible to an `unsigned int` regardless of the end conversion.
 
 These Validators can be used by simply passing the name into the `check` or `transform` methods on an option
 
@@ -442,7 +460,7 @@ NOTES:  If the container used in `IsMember`, `Transformer`, or `CheckedTransform
 Validators are copyable and have a few operations that can be performed on them to alter settings.  Most of the built in Validators have a default description that is displayed in the help.  This can be altered via `.description(validator_description)`.
 The name of a Validator, which is useful for later reference from the `get_validator(name)` method of an `Option` can be set via `.name(validator_name)`
 The operation function of a Validator can be set via
-`.operation(std::function<std::string(std::string &>)`.  The `.active()` function can activate or deactivate a Validator from the operation.  A validator can be set to apply only to a specific element of the output.  For example in a pair option `std::pair<int, std::string>` the first element may need to be a positive integer while the second may need to be a valid file.  The `.application_index(int)` 🆕 function can specify this.  It is zero based and negative indices apply to all values.
+`.operation(std::function<std::string(std::string &>)`.  The `.active()` function can activate or deactivate a Validator from the operation.  A validator can be set to apply only to a specific element of the output.  For example in a pair option `std::pair<int, std::string>` the first element may need to be a positive integer while the second may need to be a valid file.  The `.application_index(int)` function can specify this.  It is zero based and negative indices apply to all values.
 ```cpp
 opt->check(CLI::Validator(CLI::PositiveNumber).application_index(0));
 opt->check(CLI::Validator(CLI::ExistingFile).application_index(1));
@@ -487,7 +505,7 @@ opt->get_validator(name);
 
 This will retrieve a Validator with the given name or throw a `CLI::OptionNotFound` error.  If no name is given or name is empty the first unnamed Validator will be returned or the first Validator if there is only one.
 
-or 🆕
+or
 
 ```cpp
 opt->get_validator(index);
@@ -498,7 +516,7 @@ Validators have a few functions to query the current values
 -   `get_description()`: Will return a description string
 -   `get_name()`: Will return the Validator name
 -   `get_active()`: Will return the current active state, true if the Validator is active.
--   `get_application_index()`: 🆕 Will return the current application index.
+-   `get_application_index()`: Will return the current application index.
 -   `get_modifying()`: Will return true if the Validator is allowed to modify the input, this can be controlled via the `non_modifying()` method, though it is recommended to let `check` and `transform` option methods manipulate it if needed.
 
 #### Getting results
@@ -536,13 +554,14 @@ There are several options that are supported on the main app and subcommands and
 -   `.ignore_underscore()`: Ignore any underscores in the subcommand name. Inherited by added subcommands, so is usually used on the main `App`.
 -   `.allow_windows_style_options()`: Allow command line options to be parsed in the form of `/s /long /file:file_name.ext`  This option does not change how options are specified in the `add_option` calls or the ability to process options in the form of `-s --long --file=file_name.ext`.
 -   `.fallthrough()`: Allow extra unmatched options and positionals to "fall through" and be matched on a parent option. Subcommands always are allowed to "fall through" as in they will first attempt to match on the current subcommand and if they fail will progressively check parents for matching subcommands.
--   `.configurable()`: 🆕 Allow the subcommand to be triggered from a configuration file. By default subcommand options in a configuration file do not trigger a subcommand but will just update default values.
+-   `.configurable()`: Allow the subcommand to be triggered from a configuration file. By default subcommand options in a configuration file do not trigger a subcommand but will just update default values.
 -   `.disable()`: Specify that the subcommand is disabled, if given with a bool value it will enable or disable the subcommand or option group.
 -   `.disabled_by_default()`: Specify that at the start of parsing the subcommand/option_group should be disabled. This is useful for allowing some Subcommands to trigger others.
 -   `.enabled_by_default()`: Specify that at the start of each parse the subcommand/option_group should be enabled.  This is useful for allowing some Subcommands to disable others.
+-   `.silent()`: 🆕 Specify that the subcommand is silent meaning that if used it won't show up in the subcommand list.  This allows the use of subcommands as modifiers
 -   `.validate_positionals()`: Specify that positionals should pass validation before matching.  Validation is specified through `transform`, `check`, and `each` for an option.  If an argument fails validation it is not an error and matching proceeds to the next available positional or extra arguments.
 -   `.excludes(option_or_subcommand)`: If given an option pointer or pointer to another subcommand, these subcommands cannot be given together.  In the case of options, if the option is passed the subcommand cannot be used and will generate an error.
--   `.needs(option_or_subcommand)`: 🆕 If given an option pointer or pointer to another subcommand, the subcommands will require the given option to have been given before this subcommand is validated which occurs prior to execution of any callback or after parsing is completed.
+-   `.needs(option_or_subcommand)`: If given an option pointer or pointer to another subcommand, the subcommands will require the given option to have been given before this subcommand is validated which occurs prior to execution of any callback or after parsing is completed.
 -   `.require_option()`: Require 1 or more options or option groups be used.
 -   `.require_option(N)`: Require `N` options or option groups, if `N>0`, or up to `N` if `N<0`. `N=0` resets to the default to 0 or more.
 -   `.require_option(min, max)`: Explicitly set min and max allowed options or option groups. Setting `max` to 0 implies unlimited options.
@@ -563,23 +582,24 @@ There are several options that are supported on the main app and subcommands and
 -   `.formatter(fmt)`: Set a formatter, with signature `std::string(const App*, std::string, AppFormatMode)`. See Formatting for more details.
 -   `.description(str)`: Set/change the description.
 -   `.get_description()`: Access the description.
--   `.alias(str)`: 🆕 set an alias for the subcommand, this allows subcommands to be called by more than one name.
+-   `.alias(str)`: set an alias for the subcommand, this allows subcommands to be called by more than one name.
 -   `.parsed()`: True if this subcommand was given on the command line.
 -   `.count()`: Returns the number of times the subcommand was called.
 -   `.count(option_name)`: Returns the number of times a particular option was called.
 -   `.count_all()`: Returns the total number of arguments a particular subcommand processed, on the master App it returns the total number of processed commands.
 -   `.name(name)`: Add or change the name.
--   `.callback(void() function)`: Set the callback for an app. 🆕 either sets the pre_parse_callback or the final_callback depending on the value of `immediate_callback`. See [Subcommand callbacks](#callbacks) for some additional details.
--   `.parse_complete_callback(void() function)`: 🆕 Set the callback that runs at the completion of parsing. for subcommands this is executed at the completion of the single subcommand and can be executed multiple times. See [Subcommand callbacks](#callbacks) for some additional details.
--   `.final_callback(void() function)`: 🆕 Set the callback that runs at the end of all processing. This is the last thing that is executed before returning. See [Subcommand callbacks](#callbacks) for some additional details.
--   `.immediate_callback()`: Specifies whether the callback for a subcommand should be run as a `parse_complete_callback`(true) or `final_callback`(false). When used on the main app 🆕 it will execute the main app callback prior to the callbacks for a subcommand if they do not also have the `immediate_callback` flag set. 🆕 It is preferable to use the `parse_complete_callback` or `final_callback` directly instead of the `callback` and `immediate_callback` if one wishes to control the ordering and timing of callback.  Though `immediate_callback` can be used to swap them if that is needed.
+-   `.callback(void() function)`: Set the callback for an app. Either sets the `pre_parse_callback` or the `final_callback` depending on the value of `immediate_callback`. See [Subcommand callbacks](#callbacks) for some additional details.
+-   `.parse_complete_callback(void() function)`: Set the callback that runs at the completion of parsing. For subcommands this is executed at the completion of the single subcommand and can be executed multiple times. See [Subcommand callbacks](#callbacks) for some additional details.
+-   `.final_callback(void() function)`: Set the callback that runs at the end of all processing. This is the last thing that is executed before returning. See [Subcommand callbacks](#callbacks) for some additional details.
+-   `.immediate_callback()`: Specifies whether the callback for a subcommand should be run as a `parse_complete_callback`(true) or `final_callback`(false). When used on the main app it will execute the main app callback prior to the callbacks for a subcommand if they do not also have the `immediate_callback` flag set. It is preferable to use the `parse_complete_callback` or `final_callback` directly instead of the `callback` and `immediate_callback` if one wishes to control the ordering and timing of callback.  Though `immediate_callback` can be used to swap them if that is needed.
 -   `.pre_parse_callback(void(std::size_t) function)`: Set a callback that executes after the first argument of an application is processed.  See [Subcommand callbacks](#callbacks) for some additional details.
 -   `.allow_extras()`: Do not throw an error if extra arguments are left over.
 -   `.positionals_at_end()`: Specify that positional arguments occur as the last arguments and throw an error if an unexpected positional is encountered.
 -   `.prefix_command()`: Like `allow_extras`, but stop immediately on the first unrecognized item. It is ideal for allowing your app or subcommand to be a "prefix" to calling another app.
 -   `.footer(message)`: Set text to appear at the bottom of the help string.
--   `.footer(std::string())`: 🆕 Set a callback to generate a string that will appear at the end of the help string.
+-   `.footer(std::string())`: Set a callback to generate a string that will appear at the end of the help string.
 -   `.set_help_flag(name, message)`: Set the help flag name and message, returns a pointer to the created option.
+-   `.set_version_flag(name, versionString or callback, help_message)`: Set the version flag name and version string or callback and optional help message, returns a pointer to the created option.
 -   `.set_help_all_flag(name, message)`: Set the help all flag name and message, returns a pointer to the created option. Expands subcommands.
 -   `.failure_message(func)`: Set the failure message function. Two provided: `CLI::FailureMessage::help` and `CLI::FailureMessage::simple` (the default).
 -   `.group(name)`: Set a group name, defaults to `"Subcommands"`. Setting `""` will be hide the subcommand.
@@ -590,7 +610,7 @@ There are several options that are supported on the main app and subcommands and
 
 #### Callbacks
 A subcommand has three optional callbacks that are executed at different stages of processing.  The `preparse_callback` is executed once after the first argument of a subcommand or application is processed and gives an argument for the number of remaining arguments to process.  For the main app the first argument is considered the program name,  for subcommands the first argument is the subcommand name.  For Option groups and nameless subcommands the first argument is after the first argument or subcommand is processed from that group.
-The second callback is executed after parsing.  This is known as the `parse_complete_callback`. For subcommands this is executed immediately after parsing and can be executed multiple times if a subcommand is called multiple times.    On the main app this callback is executed after all the `parse_complete_callback`s for the subcommands are executed but prior to any `final_callback` calls in the subcommand or option groups. If the main app or subcommand has a config file, no data from the config file will be reflected in `parse_complete_callback` on named subcommands 🆕.  For `option_group`s the `parse_complete_callback` is executed prior to the `parse_complete_callback` on the main app but after the `config_file` is loaded (if specified).  The 🆕 `final_callback` is executed after all processing is complete.  After the `parse_complete_callback` is executed on the main app, the used subcommand `final_callback` are executed followed by the "final callback" for option groups.  The last thing to execute is the `final_callback` for the `main_app`.
+The second callback is executed after parsing.  This is known as the `parse_complete_callback`. For subcommands this is executed immediately after parsing and can be executed multiple times if a subcommand is called multiple times.    On the main app this callback is executed after all the `parse_complete_callback`s for the subcommands are executed but prior to any `final_callback` calls in the subcommand or option groups. If the main app or subcommand has a config file, no data from the config file will be reflected in `parse_complete_callback` on named subcommands.  For `option_group`s the `parse_complete_callback` is executed prior to the `parse_complete_callback` on the main app but after the `config_file` is loaded (if specified).  The `final_callback` is executed after all processing is complete.  After the `parse_complete_callback` is executed on the main app, the used subcommand `final_callback` are executed followed by the "final callback" for option groups.  The last thing to execute is the `final_callback` for the `main_app`.
 For example say an application was set up like
 
 ```cpp
@@ -665,7 +685,7 @@ CLI::TriggerOff(group2_pointer, disabled_group);
 
 These functions make use of `preparse_callback`, `enabled_by_default()` and `disabled_by_default`.  The triggered group may be a vector of group pointers.  These methods should only be used once per group and will override any previous use of the underlying functions.  More complex arrangements can be accomplished using similar methodology with a custom `preparse_callback` function that does more.
 
-Additional helper functions `deprecate_option` 🆕 and `retire_option` 🆕 are available to deprecate or retire options
+Additional helper functions `deprecate_option` and `retire_option` are available to deprecate or retire options
 ```cpp
 CLI::deprecate_option(option *, replacement_name="");
 CLI::deprecate_option(App,option_name,replacement_name="");
@@ -694,23 +714,8 @@ app.set_config(option_name="",
                required=false)
 ```
 
-If this is called with no arguments, it will remove the configuration file option (like `set_help_flag`). Setting a configuration option is special. If it is present, it will be read along with the normal command line arguments. The file will be read if it exists, and does not throw an error unless `required` is `true`. Configuration files are in `ini` format by default,  The reader can also accept many files in [TOML] format 🆕.  (other formats can be added by an adept user, some variations are available through customization points in the default formatter). An example of a file:
+If this is called with no arguments, it will remove the configuration file option (like `set_help_flag`). Setting a configuration option is special. If it is present, it will be read along with the normal command line arguments. The file will be read if it exists, and does not throw an error unless `required` is `true`. Configuration files are in [TOML] format by default 🆕, though the default reader can also accept files in INI format as well. It should be noted that CLI11 does not contain a full TOML parser but can read strings from most TOML file and run them through the CLI11 parser. Other formats can be added by an adept user, some variations are available through customization points in the default formatter. An example of a TOML file:
 
-```ini
-; Comments are supported, using a ;
-; The default section is [default], case insensitive
-
-value = 1
-str = "A string"
-vector = 1 2 3
-str_vector = "one" "two" "and three"
-
-; Sections map to subcommands
-[subcommand]
-in_subcommand = Wow
-sub.subcommand = true
-```
- or equivalently in TOML 🆕
 ```toml
 # Comments are supported, using a #
 # The default section is [default], case insensitive
@@ -725,11 +730,34 @@ str_vector = ["one","two","and three"]
 in_subcommand = Wow
 sub.subcommand = true
 ```
+or equivalently in INI format
+```ini
+; Comments are supported, using a ;
+; The default section is [default], case insensitive
 
-Spaces before and after the name and argument are ignored. Multiple arguments are separated by spaces. One set of quotes will be removed, preserving spaces (the same way the command line works). Boolean options can be `true`, `on`, `1`, `yes`, `enable`; or `false`, `off`, `0`, `no`, `disable` (case insensitive). Sections (and `.` separated names) are treated as subcommands (note: this does not necessarily mean that subcommand was passed, it just sets the "defaults"). You cannot set positional-only arguments.  🆕 Subcommands can be triggered from config files if the `configurable` flag was set on the subcommand.  Then use `[subcommand]` notation will trigger a subcommand and cause it to act as if it were on the command line.
+value = 1
+str = "A string"
+vector = 1 2 3
+str_vector = "one" "two" "and three"
+
+; Sections map to subcommands
+[subcommand]
+in_subcommand = Wow
+sub.subcommand = true
+```
+
+Spaces before and after the name and argument are ignored. Multiple arguments are separated by spaces. One set of quotes will be removed, preserving spaces (the same way the command line works). Boolean options can be `true`, `on`, `1`, `yes`, `enable`; or `false`, `off`, `0`, `no`, `disable` (case insensitive). Sections (and `.` separated names) are treated as subcommands (note: this does not necessarily mean that subcommand was passed, it just sets the "defaults"). You cannot set positional-only arguments.  Subcommands can be triggered from configuration files if the `configurable` flag was set on the subcommand.  Then the use of `[subcommand]` notation will trigger a subcommand and cause it to act as if it were on the command line.
 
 To print a configuration file from the passed
-arguments, use `.config_to_str(default_also=false, prefix="", write_description=false)`, where `default_also` will also show any defaulted arguments, `prefix` will add a prefix, and `write_description` will include option descriptions.  See [Config files](https://cliutils.github.io/CLI11/book/chapters/config.html) for some additional details.
+arguments, use `.config_to_str(default_also=false, write_description=false)`, where `default_also` will also show any defaulted arguments, and `write_description` will include the app and option descriptions.  See [Config files](https://cliutils.github.io/CLI11/book/chapters/config.html) for some additional details.
+
+If it is desired that multiple configuration be allowed.  Use
+
+```cpp
+app.set_config("--config")->expected(1, X);
+```
+
+Where X is some positive number and will allow up to `X` configuration files to be specified by separate `--config` arguments.  Value strings with quote characters in it will be printed with a single quote.🆕  All other arguments will use double quote.  Empty strings will use a double quoted argument.🆕  Numerical or boolean values are not quoted. 🆕
 
 ### Inheriting defaults
 
@@ -759,8 +787,8 @@ The App class was designed allow toolkits to subclass it, to provide preset defa
 but before run behavior, while
 still giving the user freedom to `callback` on the main app.
 
-The most important parse function is `parse(std::vector<std::string>)`, which takes a reversed list of arguments (so that `pop_back` processes the args in the correct order). `get_help_ptr` and `get_config_ptr` give you access to the help/config option pointers. The standard `parse` manually sets the name from the first argument, so it should not be in this vector. You can also use `parse(string, bool)` to split up and parse a string; the optional bool should be set to true if you are
-including the program name in the string, and false otherwise.
+The most important parse function is `parse(std::vector<std::string>)`, which takes a reversed list of arguments (so that `pop_back` processes the args in the correct order). `get_help_ptr` and `get_config_ptr` give you access to the help/config option pointers. The standard `parse` manually sets the name from the first argument, so it should not be in this vector. You can also use `parse(string, bool)` to split up and parse a single string; the optional boolean should be set to true if you are
+including the program name in the string, and false otherwise.  The program name can contain spaces if it is an existing file,  otherwise can be enclosed in quotes(single quote, double quote or backtick).  Embedded quote characters can be escaped with `\`.
 
 Also, in a related note, the `App` you get a pointer to is stored in the parent `App` in a `shared_ptr`s (similar to `Option`s) and are deleted when the main `App` goes out of scope unless the object has another owner.
 
@@ -771,7 +799,7 @@ Every `add_` option you have seen so far depends on one method that takes a lamb
 
 Other values can be added as long as they support `operator>>` (and defaults can be printed if they support `operator<<`). To add a new type, for example, provide a custom `operator>>` with an `istream` (inside the CLI namespace is fine if you don't want to interfere with an existing `operator>>`).
 
-If you wanted to extend this to support a completely new type, use a lambda or add a specialization of the `lexical_cast` function template in the namespace `CLI::detail` with the type you need to convert to. Some examples of some new parsers for `complex<double>` that support all of the features of a standard `add_options` call are in [one of the tests](./tests/NewParseTest.cpp). A simpler example is shown below:
+If you wanted to extend this to support a completely new type, use a lambda or add a specialization of the `lexical_cast` function template in the namespace of the type you need to convert to. Some examples of some new parsers for `complex<double>` that support all of the features of a standard `add_options` call are in [one of the tests](./tests/NewParseTest.cpp). A simpler example is shown below:
 
 #### Example
 
@@ -843,6 +871,7 @@ The API is [documented here][api-docs]. Also see the [CLI11 tutorial GitBook][gi
 Several short examples of different features are included in the repository. A brief description of each is included here
 
  - [callback_passthrough](https://github.com/CLIUtils/CLI11/blob/master/examples/callback_passthrough.cpp): Example of directly passing remaining arguments through to a callback function which generates a CLI11 application based on existing arguments.
+ - [custom_parse](https://github.com/CLIUtils/CLI11/blob/master/examples/custom_parse.cpp):  Based on [Issue #566](https://github.com/CLIUtils/CLI11/issues/566), example of custom parser
  - [digit_args](https://github.com/CLIUtils/CLI11/blob/master/examples/digit_args.cpp):  Based on [Issue #123](https://github.com/CLIUtils/CLI11/issues/123), uses digit flags to pass a value
  - [enum](https://github.com/CLIUtils/CLI11/blob/master/examples/enum.cpp):  Using enumerations in an option, and the use of [CheckedTransformer](#transforming-validators)
  - [enum_ostream](https://github.com/CLIUtils/CLI11/blob/master/examples/enum_ostream.cpp):  In addition to the contents of example enum.cpp, this example shows how a custom ostream operator overrides CLI11's enum streaming.
@@ -927,6 +956,21 @@ This project was created by [Henry Schreiner](https://github.com/henryiii) and m
     <td align="center"><a href="https://github.com/geir-t"><img src="https://avatars3.githubusercontent.com/u/35292136?v=4" width="100px;" alt=""/><br /><sub><b>geir-t</b></sub></a><br /><a href="#platform-geir-t" title="Packaging/porting to new platform">📦</a></td>
     <td align="center"><a href="https://ondrejcertik.com/"><img src="https://avatars3.githubusercontent.com/u/20568?v=4" width="100px;" alt=""/><br /><sub><b>Ondřej Čertík</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/issues?q=author%3Acertik" title="Bug reports">🐛</a></td>
     <td align="center"><a href="http://sam.hocevar.net/"><img src="https://avatars2.githubusercontent.com/u/245089?v=4" width="100px;" alt=""/><br /><sub><b>Sam Hocevar</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=samhocevar" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.ratml.org/"><img src="https://avatars0.githubusercontent.com/u/1845039?v=4" width="100px;" alt=""/><br /><sub><b>Ryan Curtin</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=rcurtin" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://mbh.sh"><img src="https://avatars3.githubusercontent.com/u/20403931?v=4" width="100px;" alt=""/><br /><sub><b>Michael Hall</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=mbhall88" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/ferdymercury"><img src="https://avatars3.githubusercontent.com/u/10653970?v=4" width="100px;" alt=""/><br /><sub><b>ferdymercury</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=ferdymercury" title="Documentation">📖</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/jakoblover"><img src="https://avatars0.githubusercontent.com/u/14160441?v=4" width="100px;" alt=""/><br /><sub><b>Jakob Lover</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=jakoblover" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/ZeeD26"><img src="https://avatars2.githubusercontent.com/u/2487468?v=4" width="100px;" alt=""/><br /><sub><b>Dominik Steinberger</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=ZeeD26" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/dfleury2"><img src="https://avatars1.githubusercontent.com/u/4805384?v=4" width="100px;" alt=""/><br /><sub><b>D. Fleury</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=dfleury2" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/dbarowy"><img src="https://avatars3.githubusercontent.com/u/573142?v=4" width="100px;" alt=""/><br /><sub><b>Dan Barowy</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=dbarowy" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/paddy-hack"><img src="https://avatars.githubusercontent.com/u/6804372?v=4" width="100px;" alt=""/><br /><sub><b>Olaf Meeuwissen</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=paddy-hack" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/dryleev"><img src="https://avatars.githubusercontent.com/u/83670813?v=4" width="100px;" alt=""/><br /><sub><b>dryleev</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=dryleev" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/AnticliMaxtic"><img src="https://avatars.githubusercontent.com/u/43995389?v=4" width="100px;" alt=""/><br /><sub><b>Max</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=AnticliMaxtic" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://profiles.sussex.ac.uk/p281168-alex-dewar/publications"><img src="https://avatars.githubusercontent.com/u/23149834?v=4" width="100px;" alt=""/><br /><sub><b>Alex Dewar</b></sub></a><br /><a href="https://github.com/CLIUtils/CLI11/commits?author=alexdewar" title="Code">💻</a></td>
   </tr>
 </table>
 
