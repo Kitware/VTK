@@ -16,9 +16,11 @@
 #include "vtkChartMatrix.h"
 
 #include "vtkAxis.h"
+#include "vtkBoundingBox.h"
 #include "vtkChartXY.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -30,17 +32,14 @@
 class vtkChartMatrix::PIMPL
 {
 public:
-  PIMPL()
-    : Geometry(0, 0)
-  {
-  }
-  ~PIMPL() = default;
+  // Iterator helpers.
+  vtkVector2f Increment, Start, Offset;
+  vtkVector2i Index;
 
-  // Container for the vtkChart objects that make up the matrix.
-  std::vector<vtkSmartPointer<vtkChart>> Charts;
+  // Container for the vtkChart/vtkChartmatrix objects that make up the matrix.
+  std::vector<vtkSmartPointer<vtkAbstractContextItem>> ChartElements;
   // Spans of the charts in the matrix, default is 1x1.
   std::vector<vtkVector2i> Spans;
-  vtkVector2i Geometry;
 
   // Every linked chart observes every other chart for UpdateRange event.
   std::vector<std::unordered_map<std::size_t, int>> XAxisRangeObserverTags, YAxisRangeObserverTags;
@@ -81,80 +80,51 @@ void vtkChartMatrix::Update() {}
 //------------------------------------------------------------------------------
 bool vtkChartMatrix::Paint(vtkContext2D* painter)
 {
-  if (this->LayoutIsDirty || this->GetScene()->GetSceneWidth() != this->Private->Geometry.GetX() ||
-    this->GetScene()->GetSceneHeight() != this->Private->Geometry.GetY())
+  const bool isRoot = (this->Parent == nullptr);
+  const bool isEmpty = this->Size.GetX() <= 0 && this->Size.GetY() <= 0;
+  bool needRecompute = this->LayoutIsDirty;
+  if (isRoot && (this->FillStrategy == StretchType::SCENE))
   {
-    // Update the chart element positions
-    this->Private->Geometry.Set(
-      this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight());
-    if (this->Size.GetX() > 0 && this->Size.GetY() > 0)
-    {
-      // Calculate the increments without the gutters/borders that must be left
-      vtkVector2f gutters(0.f, 0.f), borders(0.f, 0.f), increments(0.f, 0.f);
-      for (int dim = 0; dim < 2; ++dim)
-      {
-        gutters[dim] = this->Gutter[dim] * (this->Size[dim] - 1);
-        borders[dim] = this->Borders[dim] + this->Borders[dim + 2];
-        increments[dim] = this->Private->Geometry[dim] - gutters[dim] - borders[dim];
-        increments[dim] /= this->Size[dim];
-      }
-
-      float x = this->Borders[vtkAxis::LEFT];
-      float y = this->Borders[vtkAxis::BOTTOM];
-      for (int i = 0; i < this->Size.GetX(); ++i)
-      {
-        if (i > 0)
-        {
-          x += increments.GetX() + this->Gutter.GetX();
-        }
-        for (int j = 0; j < this->Size.GetY(); ++j)
-        {
-          if (j > 0)
-          {
-            y += increments.GetY() + this->Gutter.GetY();
-          }
-          else
-          {
-            y = this->Borders[vtkAxis::BOTTOM];
-          }
-          vtkVector2f resize(0., 0.);
-          vtkVector2i key(i, j);
-          if (this->SpecificResize.find(key) != this->SpecificResize.end())
-          {
-            resize = this->SpecificResize[key];
-          }
-          size_t index = this->GetFlatIndex({ i, j });
-          x += this->Gutter.GetX() * this->Private->GutterCompensation[index][vtkAxis::LEFT];
-          y += this->Gutter.GetX() * this->Private->GutterCompensation[index][vtkAxis::BOTTOM];
-          if (this->Private->Charts[index])
-          {
-            vtkChart* chart = this->Private->Charts[index];
-            vtkVector2i& span = this->Private->Spans[index];
-            vtkRectf chartRect(x + resize.GetX(), y + resize.GetY(),
-              increments.GetX() * span.GetX() - resize.GetX() +
-                (span.GetX() - 1 + this->Private->GutterCompensation[index][vtkAxis::RIGHT]) *
-                  this->Gutter.GetX(),
-              increments.GetY() * span.GetY() - resize.GetY() +
-                (span.GetY() - 1 + this->Private->GutterCompensation[index][vtkAxis::TOP]) *
-                  this->Gutter.GetY());
-            // ensure that the size is valid.If not, make the rect an empty rect.
-            if (chartRect.GetWidth() < 0)
-            {
-              chartRect.SetWidth(0);
-            }
-            if (chartRect.GetHeight() < 0)
-            {
-              chartRect.SetHeight(0);
-            }
-            chart->SetSize(chartRect);
-          }
-          x -= this->Gutter.GetX() * this->Private->GutterCompensation[index][vtkAxis::LEFT];
-          y -= this->Gutter.GetX() * this->Private->GutterCompensation[index][vtkAxis::BOTTOM];
-        }
-      }
-    }
-    this->LayoutIsDirty = false;
+    needRecompute |= this->GetScene()->GetSceneWidth() != this->Rect.GetWidth();
+    needRecompute |= this->GetScene()->GetSceneHeight() != this->Rect.GetHeight();
   }
+
+  if (isEmpty || !needRecompute)
+  {
+    return Superclass::Paint(painter);
+  }
+
+  // Update the chart element positions
+  if (isRoot && (this->FillStrategy == StretchType::SCENE))
+  {
+    this->Rect.SetX(0);
+    this->Rect.SetY(0);
+    this->Rect.SetWidth(this->GetScene()->GetSceneWidth());
+    this->Rect.SetHeight(this->GetScene()->GetSceneHeight());
+  }
+
+  vtkVector2i index;
+  vtkVector2f offset, increment;
+  for (this->InitLayoutTraversal(index, offset, increment); !this->IsDoneWithTraversal();
+       this->GoToNextElement(index, offset))
+  {
+    const vtkRectf& rect = this->ComputeCurrentElementSceneRect(index, offset, increment);
+    const std::size_t flatIndex = this->GetFlatIndex(this->Private->Index);
+    vtkAbstractContextItem* child = this->Private->ChartElements[flatIndex];
+    vtkChart* chart = vtkChart::SafeDownCast(child);
+    vtkChartMatrix* cMatrix = vtkChartMatrix::SafeDownCast(child);
+
+    if (chart != nullptr)
+    {
+      chart->SetSize(rect);
+    }
+    else if (cMatrix != nullptr)
+    {
+      cMatrix->SetRect(vtkRecti(rect.Cast<int>().GetData()));
+    }
+  }
+
+  this->LayoutIsDirty = false;
   return Superclass::Paint(painter);
 }
 
@@ -164,16 +134,16 @@ void vtkChartMatrix::SetSize(const vtkVector2i& size)
   if (this->Size.GetX() != size.GetX() || this->Size.GetY() != size.GetY())
   {
     this->Size = size;
-    if (size.GetX() * size.GetY() < static_cast<int>(this->Private->Charts.size()))
+    if (size.GetX() * size.GetY() < static_cast<int>(this->Private->ChartElements.size()))
     {
-      for (int i = static_cast<int>(this->Private->Charts.size() - 1);
+      for (int i = static_cast<int>(this->Private->ChartElements.size() - 1);
            i >= size.GetX() * size.GetY(); --i)
       {
-        this->RemoveItem(this->Private->Charts[i]);
+        this->RemoveItem(this->Private->ChartElements[i]);
       }
     }
     const std::size_t numCharts = static_cast<std::size_t>(size.GetX()) * size.GetY();
-    this->Private->Charts.resize(numCharts);
+    this->Private->ChartElements.resize(numCharts);
     this->Private->Spans.resize(numCharts, vtkVector2i(1, 1));
     this->Private->XAxisRangeObserverTags.resize(numCharts);
     this->Private->YAxisRangeObserverTags.resize(numCharts);
@@ -182,6 +152,127 @@ void vtkChartMatrix::SetSize(const vtkVector2i& size)
       numCharts, std::array<float, 4>({ 0.0f, 0.0f, 0.0f, 0.0f }));
     this->LayoutIsDirty = true;
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkChartMatrix::SetRect(vtkRecti rect)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting Rect"
+                   " to "
+                << rect);
+  if (this->Rect != rect)
+  {
+    this->Rect = rect;
+    this->Modified();
+    this->LayoutIsDirty = true;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkRectf vtkChartMatrix::ComputeCurrentElementSceneRect(
+  const vtkVector2i& index, const vtkVector2f& offset, const vtkVector2f& increment)
+{
+  const std::size_t flatIndex = this->GetFlatIndex(index);
+  vtkVector2f resize(0., 0.);
+
+  if (this->SpecificResize.find(index) != this->SpecificResize.end())
+  {
+    resize = this->SpecificResize[index];
+  }
+
+  const float x =
+    offset[0] + this->Gutter.GetX() * this->Private->GutterCompensation[flatIndex][vtkAxis::LEFT];
+  const float y =
+    offset[1] + this->Gutter.GetX() * this->Private->GutterCompensation[flatIndex][vtkAxis::BOTTOM];
+
+  vtkVector2i& span = this->Private->Spans[flatIndex];
+  float left = x + resize.GetX();
+  float bottom = y + resize.GetY();
+  float width = increment.GetX() * span.GetX() - resize.GetX() +
+    this->Gutter.GetX() *
+      (span.GetX() - 1 + this->Private->GutterCompensation[flatIndex][vtkAxis::RIGHT]);
+  float height = increment.GetY() * span.GetY() - resize.GetY() +
+    this->Gutter.GetY() *
+      (span.GetY() - 1 + this->Private->GutterCompensation[flatIndex][vtkAxis::TOP]);
+
+  width = vtkMath::ClampValue(width, 0.f, VTK_FLOAT_MAX);
+  height = vtkMath::ClampValue(height, 0.f, VTK_FLOAT_MAX);
+
+  return { left, bottom, width, height };
+}
+
+//------------------------------------------------------------------------------
+void vtkChartMatrix::InitLayoutTraversal(
+  vtkVector2i& index, vtkVector2f& offset, vtkVector2f& increment)
+{ // Calculate the increment without the gutters/borders that must be left
+  vtkVector2f gutters(0.f, 0.f), borders(0.f, 0.f);
+
+  for (int dim = 0; dim < 2; ++dim)
+  {
+    gutters[dim] = this->Gutter[dim] * (this->Size[dim] - 1);
+    borders[dim] = this->Borders[dim] + this->Borders[dim + 2];
+    this->Private->Start[dim] = this->Rect[dim] + this->Borders[dim];
+    this->Private->Increment[dim] = this->Rect[dim + 2] - gutters[dim] - borders[dim];
+    this->Private->Increment[dim] /= this->Size[dim];
+  }
+
+  this->Private->Offset = this->Private->Start;
+  this->Private->Index = { 0, 0 };
+
+  increment = this->Private->Increment;
+  index = this->Private->Index;
+  offset = this->Private->Offset;
+}
+
+//------------------------------------------------------------------------------
+void vtkChartMatrix::GoToNextElement(vtkVector2i& index, vtkVector2f& offset)
+{
+  const int& numRows = this->Size.GetY();
+  int& i = this->Private->Index[0];
+  int& j = this->Private->Index[1];
+  const int FIRST = 0;
+
+  // increment j
+  ++j;
+  // reset j, increment i if necessary
+  if (!(j % numRows))
+  {
+    j = 0;
+    ++i;
+    // Compute next column's x offset
+    switch (i)
+    {
+      case FIRST:
+        break;
+      default:
+        this->Private->Offset[0] += this->Private->Increment[0] + this->Gutter[0];
+        break;
+    }
+  }
+
+  // Compute next row's y offset
+  switch (j)
+  {
+    case FIRST:
+      this->Private->Offset[1] = this->Private->Start[1];
+      break;
+    default:
+      this->Private->Offset[1] += this->Private->Increment[1] + this->Gutter[1];
+      break;
+  }
+
+  index = this->Private->Index;
+  offset = this->Private->Offset;
+}
+
+//------------------------------------------------------------------------------
+bool vtkChartMatrix::IsDoneWithTraversal()
+{
+  const int& numCols = this->Size.GetX();
+  const int& i = this->Private->Index[0];
+  const int& j = this->Private->Index[1];
+  return i == numCols && !j;
 }
 
 //------------------------------------------------------------------------------
@@ -271,16 +362,56 @@ void vtkChartMatrix::Allocate()
 }
 
 //------------------------------------------------------------------------------
+bool vtkChartMatrix::SetChartMatrix(const vtkVector2i& position, vtkChartMatrix* chartMatrix)
+{
+  if (position.GetX() < this->Size.GetX() && position.GetY() < this->Size.GetY())
+  {
+    std::size_t index = position.GetY() * this->Size.GetX() + position.GetX();
+    if (this->Private->ChartElements[index])
+    {
+      this->RemoveItem(this->Private->ChartElements[index]);
+    }
+    this->Private->ChartElements[index] = chartMatrix;
+    this->AddItem(chartMatrix);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkChartMatrix* vtkChartMatrix::GetChartMatrix(const vtkVector2i& position)
+{
+  if (position.GetX() < this->Size.GetX() && position.GetY() < this->Size.GetY())
+  {
+    std::size_t index = position.GetY() * this->Size.GetX() + position.GetX();
+    if (this->Private->ChartElements[index] == nullptr)
+    {
+      vtkNew<vtkChartMatrix> chartMatrix;
+      this->Private->ChartElements[index] = chartMatrix;
+      this->AddItem(chartMatrix);
+    }
+    return vtkChartMatrix::SafeDownCast(this->Private->ChartElements[index]);
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
+//------------------------------------------------------------------------------
 bool vtkChartMatrix::SetChart(const vtkVector2i& position, vtkChart* chart)
 {
   if (position.GetX() < this->Size.GetX() && position.GetY() < this->Size.GetY())
   {
-    size_t index = position.GetY() * this->Size.GetX() + position.GetX();
-    if (this->Private->Charts[index])
+    std::size_t index = position.GetY() * this->Size.GetX() + position.GetX();
+    if (this->Private->ChartElements[index])
     {
-      this->RemoveItem(this->Private->Charts[index]);
+      this->RemoveItem(this->Private->ChartElements[index]);
     }
-    this->Private->Charts[index] = chart;
+    this->Private->ChartElements[index] = chart;
     this->AddItem(chart);
     chart->SetLayoutStrategy(vtkChart::AXES_TO_RECT);
     return true;
@@ -296,15 +427,15 @@ vtkChart* vtkChartMatrix::GetChart(const vtkVector2i& position)
 {
   if (position.GetX() < this->Size.GetX() && position.GetY() < this->Size.GetY())
   {
-    size_t index = position.GetY() * this->Size.GetX() + position.GetX();
-    if (this->Private->Charts[index] == nullptr)
+    std::size_t index = position.GetY() * this->Size.GetX() + position.GetX();
+    if (this->Private->ChartElements[index] == nullptr)
     {
       vtkNew<vtkChartXY> chart;
-      this->Private->Charts[index] = chart;
+      this->Private->ChartElements[index] = chart;
       this->AddItem(chart);
       chart->SetLayoutStrategy(vtkChart::AXES_TO_RECT);
     }
-    return this->Private->Charts[index];
+    return vtkChart::SafeDownCast(this->Private->ChartElements[index]);
   }
   else
   {
@@ -345,66 +476,24 @@ vtkVector2i vtkChartMatrix::GetChartSpan(const vtkVector2i& position)
 //------------------------------------------------------------------------------
 vtkVector2i vtkChartMatrix::GetChartIndex(const vtkVector2f& position)
 {
-  if (this->Size.GetX() > 0 && this->Size.GetY() > 0)
+  const bool isEmpty = this->Size.GetX() <= 0 && this->Size.GetY() <= 0;
+  if (isEmpty)
   {
-    // Calculate the increments without the gutters/borders that must be left
-    vtkVector2f gutters(0.f, 0.f), borders(0.f, 0.f), increments(0.f, 0.f);
-    for (int dim = 0; dim < 2; ++dim)
-    {
-      gutters[dim] = this->Gutter[dim] * (this->Size[dim] - 1);
-      borders[dim] = this->Borders[dim] + this->Borders[dim + 2];
-      increments[dim] = this->Private->Geometry[dim] - gutters[dim] - borders[dim];
-      increments[dim] /= this->Size[dim];
-    }
+    return { -1, -1 };
+  }
 
-    float x = this->Borders[vtkAxis::LEFT];
-    float y = this->Borders[vtkAxis::BOTTOM];
-    for (int i = 0; i < this->Size.GetX(); ++i)
+  vtkVector2i index;
+  vtkVector2f offset, increment;
+
+  for (this->InitLayoutTraversal(index, offset, increment); !this->IsDoneWithTraversal();
+       this->GoToNextElement(index, offset))
+  {
+    const vtkRectf& rect = this->ComputeCurrentElementSceneRect(index, offset, increment);
+    vtkBoundingBox bbox(rect.GetLeft(), rect.GetRight(), rect.GetBottom(), rect.GetTop(),
+      VTK_DOUBLE_MIN, VTK_DOUBLE_MAX);
+    if (bbox.ContainsPoint(position))
     {
-      if (i > 0)
-      {
-        x += increments.GetX() + this->Gutter.GetX();
-      }
-      for (int j = 0; j < this->Size.GetY(); ++j)
-      {
-        if (j > 0)
-        {
-          y += increments.GetY() + this->Gutter.GetY();
-        }
-        else
-        {
-          y = this->Borders[vtkAxis::BOTTOM];
-        }
-        vtkVector2f resize(0., 0.);
-        vtkVector2i key(i, j);
-        if (this->SpecificResize.find(key) != this->SpecificResize.end())
-        {
-          resize = this->SpecificResize[key];
-        }
-        std::size_t index = this->GetFlatIndex({ i, j });
-        x += this->Gutter.GetX() * this->Private->GutterCompensation[index][vtkAxis::LEFT];
-        y += this->Gutter.GetX() * this->Private->GutterCompensation[index][vtkAxis::BOTTOM];
-        if (this->Private->Charts[index])
-        {
-          vtkVector2i& span = this->Private->Spans[index];
-          // Check if the supplied location is within this charts area.
-          float x2 = x + resize.GetX();
-          float y2 = y + resize.GetY();
-          if (position.GetX() > x2 &&
-            position.GetX() <
-              (x2 + increments.GetX() * span.GetX() - resize.GetY() +
-                (span.GetX() - 1 + this->Private->GutterCompensation[index][vtkAxis::RIGHT]) *
-                  this->Gutter.GetX()) &&
-            position.GetY() > y2 &&
-            position.GetY() <
-              (y2 + increments.GetY() * span.GetY() - resize.GetY() +
-                (span.GetY() - 1 + this->Private->GutterCompensation[index][vtkAxis::TOP]) *
-                  this->Gutter.GetY()))
-            return vtkVector2i(i, j);
-        }
-        x -= this->Gutter.GetX() * this->Private->GutterCompensation[index][vtkAxis::LEFT];
-        y -= this->Gutter.GetX() * this->Private->GutterCompensation[index][vtkAxis::BOTTOM];
-      }
+      return this->Private->Index;
     }
   }
   return vtkVector2i(-1, -1);
@@ -419,7 +508,7 @@ std::size_t vtkChartMatrix::GetFlatIndex(const vtkVector2i& index)
 //------------------------------------------------------------------------------
 std::size_t vtkChartMatrix::GetNumberOfCharts()
 {
-  return this->Private->Charts.size();
+  return this->Private->ChartElements.size();
 }
 
 //------------------------------------------------------------------------------
@@ -454,61 +543,72 @@ void vtkChartMatrix::LabelOuter(const vtkVector2i& leftBottomIdx, const vtkVecto
     for (int j = bottom; j <= top; ++j)
     {
       const auto cid = this->GetFlatIndex({ i, j });
+      vtkChart* chart = vtkChart::SafeDownCast(this->Private->ChartElements[cid]);
+      if (chart == nullptr)
+      {
+        continue;
+      }
+
       chartIds.push_back(cid);
-      if (i > left && shareY)
+
+      const bool leftDecorationsVisible = i == left;
+      const bool rightDecorationsVisible = i == right;
+      const bool topDecorationsVisible = j == top;
+      const bool bottomDecorationsVisible = j == bottom;
+
+      chart->GetAxis(vtkAxis::LEFT)->SetLabelsVisible(leftDecorationsVisible);
+      chart->GetAxis(vtkAxis::LEFT)->SetTitleVisible(leftDecorationsVisible);
+      chart->GetAxis(vtkAxis::RIGHT)->SetLabelsVisible(rightDecorationsVisible);
+      chart->GetAxis(vtkAxis::RIGHT)->SetTitleVisible(rightDecorationsVisible);
+      chart->GetAxis(vtkAxis::TOP)->SetLabelsVisible(topDecorationsVisible);
+      chart->GetAxis(vtkAxis::TOP)->SetTitleVisible(topDecorationsVisible);
+      chart->GetAxis(vtkAxis::BOTTOM)->SetLabelsVisible(bottomDecorationsVisible);
+      chart->GetAxis(vtkAxis::BOTTOM)->SetTitleVisible(bottomDecorationsVisible);
+
+      if (i > left)
       {
         this->Private->GutterCompensation[cid][vtkAxis::LEFT] = -0.5;
-        this->Private->Charts[cid]->GetAxis(vtkAxis::LEFT)->SetLabelsVisible(false);
-        this->Private->Charts[cid]->GetAxis(vtkAxis::LEFT)->SetTitleVisible(false);
       }
-      if (i < right && shareY)
+      if (i < right)
       {
         this->Private->GutterCompensation[cid][vtkAxis::RIGHT] = 1.f;
-        this->Private->Charts[cid]->GetAxis(vtkAxis::RIGHT)->SetLabelsVisible(false);
-        this->Private->Charts[cid]->GetAxis(vtkAxis::RIGHT)->SetTitleVisible(false);
       }
-      if (j > bottom && shareX)
+      if (j > bottom)
       {
         this->Private->GutterCompensation[cid][vtkAxis::BOTTOM] = -0.5f;
-        this->Private->Charts[cid]->GetAxis(vtkAxis::BOTTOM)->SetLabelsVisible(false);
-        this->Private->Charts[cid]->GetAxis(vtkAxis::BOTTOM)->SetTitleVisible(false);
       }
-      if (j < top && shareX)
+      if (j < top)
       {
         this->Private->GutterCompensation[cid][vtkAxis::TOP] = 1.f;
-        this->Private->Charts[cid]->GetAxis(vtkAxis::TOP)->SetLabelsVisible(false);
-        this->Private->Charts[cid]->GetAxis(vtkAxis::TOP)->SetTitleVisible(false);
       }
-      if (i == left && shareY)
+
+      if (i == left)
       {
         this->Private->GutterCompensation[cid][vtkAxis::LEFT] = 0.f;
         this->Private->GutterCompensation[cid][vtkAxis::RIGHT] = 0.5f;
-        this->Private->Charts[cid]->GetAxis(vtkAxis::LEFT)->SetLabelsVisible(true);
-        this->Private->Charts[cid]->GetAxis(vtkAxis::LEFT)->SetTitleVisible(true);
       }
-      if (i == right && shareY)
+      if (i == right)
       {
         this->Private->GutterCompensation[cid][vtkAxis::RIGHT] = 0.5f;
-        this->Private->Charts[cid]->GetAxis(vtkAxis::RIGHT)->SetLabelsVisible(true);
-        this->Private->Charts[cid]->GetAxis(vtkAxis::RIGHT)->SetTitleVisible(true);
       }
-      if (j == bottom && shareX)
+      if (j == bottom)
       {
         this->Private->GutterCompensation[cid][vtkAxis::BOTTOM] = 0.f;
         this->Private->GutterCompensation[cid][vtkAxis::TOP] = 0.5f;
-        this->Private->Charts[cid]->GetAxis(vtkAxis::BOTTOM)->SetLabelsVisible(true);
-        this->Private->Charts[cid]->GetAxis(vtkAxis::BOTTOM)->SetTitleVisible(true);
       }
-      if (j == top && shareX)
+      if (j == top)
       {
         this->Private->GutterCompensation[cid][vtkAxis::TOP] = 0.5f;
-        this->Private->Charts[cid]->GetAxis(vtkAxis::TOP)->SetLabelsVisible(true);
-        this->Private->Charts[cid]->GetAxis(vtkAxis::TOP)->SetTitleVisible(true);
       }
     }
   }
-  auto chartIt = chartIds.cbegin();
-  for (; chartIt != std::prev(chartIds.end());)
+
+  if (chartIds.empty())
+  {
+    return;
+  }
+  chartIds.push_back(chartIds.front()); // cycle
+  for (auto chartIt = chartIds.cbegin(); chartIt != std::prev(chartIds.end());)
   {
     const auto& c1id = *chartIt++;
     const auto& c2id = *chartIt;
@@ -522,16 +622,6 @@ void vtkChartMatrix::LabelOuter(const vtkVector2i& leftBottomIdx, const vtkVecto
       this->Link(c1id, c2id, vtkAxis::BOTTOM);
       this->Link(c2id, c1id, vtkAxis::BOTTOM);
     }
-  }
-  if (shareY)
-  {
-    this->Link(chartIds.front(), chartIds.back(), vtkAxis::LEFT);
-    this->Link(chartIds.back(), chartIds.front(), vtkAxis::LEFT);
-  }
-  if (shareX)
-  {
-    this->Link(chartIds.front(), chartIds.back(), vtkAxis::BOTTOM);
-    this->Link(chartIds.back(), chartIds.front(), vtkAxis::BOTTOM);
   }
   this->LayoutIsDirty = true;
 }
@@ -551,16 +641,22 @@ void vtkChartMatrix::Link(const size_t& flatIndex1, const size_t& flatIndex2, in
   {
     return;
   }
-  const auto& chart1 = this->Private->Charts[flatIndex1];
+
+  vtkChart* chart = vtkChart::SafeDownCast(this->Private->ChartElements[flatIndex1]);
+  if (chart == nullptr)
+  {
+    return;
+  }
+
   if (axis % 2) // bottom, top
   {
     this->Private->XAxisRangeObserverTags[flatIndex1].insert({ flatIndex2,
-      chart1->AddObserver(vtkChart::UpdateRange, this, &vtkChartMatrix::SynchronizeAxisRanges) });
+      chart->AddObserver(vtkChart::UpdateRange, this, &vtkChartMatrix::SynchronizeAxisRanges) });
   }
   else // left, right
   {
     this->Private->YAxisRangeObserverTags[flatIndex1].insert({ flatIndex2,
-      chart1->AddObserver(vtkChart::UpdateRange, this, &vtkChartMatrix::SynchronizeAxisRanges) });
+      chart->AddObserver(vtkChart::UpdateRange, this, &vtkChartMatrix::SynchronizeAxisRanges) });
   }
   this->LayoutIsDirty = true;
 }
@@ -574,7 +670,7 @@ void vtkChartMatrix::LinkAll(const vtkVector2i& index, int axis /*=1*/)
 //------------------------------------------------------------------------------
 void vtkChartMatrix::LinkAll(const size_t& flatIndex, int axis /*=1*/)
 {
-  for (std::size_t i = 0; i < this->Private->Charts.size(); ++i)
+  for (std::size_t i = 0; i < this->Private->ChartElements.size(); ++i)
   {
     if (i != flatIndex)
     {
@@ -597,13 +693,19 @@ void vtkChartMatrix::Unlink(const size_t& flatIndex1, const size_t& flatIndex2, 
   {
     return;
   }
-  const auto& chart1 = this->Private->Charts[flatIndex1];
+
+  vtkChart* chart = vtkChart::SafeDownCast(this->Private->ChartElements[flatIndex1]);
+  if (chart == nullptr)
+  {
+    return;
+  }
+
   if (axis % 2) // bottom, top
   {
     if (this->Private->XAxisRangeObserverTags[flatIndex1].find(flatIndex2) !=
       this->Private->XAxisRangeObserverTags[flatIndex1].end())
     {
-      chart1->RemoveObserver(this->Private->XAxisRangeObserverTags[flatIndex1][flatIndex2]);
+      chart->RemoveObserver(this->Private->XAxisRangeObserverTags[flatIndex1][flatIndex2]);
       this->Private->XAxisRangeObserverTags[flatIndex1].erase(flatIndex2);
     }
   }
@@ -612,7 +714,7 @@ void vtkChartMatrix::Unlink(const size_t& flatIndex1, const size_t& flatIndex2, 
     if (this->Private->YAxisRangeObserverTags[flatIndex1].find(flatIndex2) !=
       this->Private->YAxisRangeObserverTags[flatIndex1].end())
     {
-      chart1->RemoveObserver(this->Private->YAxisRangeObserverTags[flatIndex1][flatIndex2]);
+      chart->RemoveObserver(this->Private->YAxisRangeObserverTags[flatIndex1][flatIndex2]);
       this->Private->YAxisRangeObserverTags[flatIndex1].erase(flatIndex2);
     }
   }
@@ -628,7 +730,7 @@ void vtkChartMatrix::UnlinkAll(const vtkVector2i& index, int axis /*=1*/)
 //------------------------------------------------------------------------------
 void vtkChartMatrix::UnlinkAll(const size_t& flatIndex, int axis /*=1*/)
 {
-  for (std::size_t i = 0; i < this->Private->Charts.size(); ++i)
+  for (std::size_t i = 0; i < this->Private->ChartElements.size(); ++i)
   {
     if (i != flatIndex)
     {
@@ -641,7 +743,7 @@ void vtkChartMatrix::UnlinkAll(const size_t& flatIndex, int axis /*=1*/)
 //------------------------------------------------------------------------------
 void vtkChartMatrix::ResetLinks(int axis /*=1*/)
 {
-  for (std::size_t cid = 0; cid < this->Private->Charts.size(); ++cid)
+  for (std::size_t cid = 0; cid < this->Private->ChartElements.size(); ++cid)
   {
     this->UnlinkAll(cid, axis);
   }
@@ -665,16 +767,23 @@ void vtkChartMatrix::ResetLinks(int axis /*=1*/)
 //------------------------------------------------------------------------------
 void vtkChartMatrix::ResetLinkedLayout()
 {
-  for (std::size_t cid = 0; cid < this->Private->Charts.size(); ++cid)
+  for (std::size_t cid = 0; cid < this->Private->ChartElements.size(); ++cid)
   {
     for (int axId = 0; axId < 4; ++axId)
     {
       this->Private->GutterCompensation[cid][axId] = 0.0f;
     }
-    this->Private->Charts[cid]->GetAxis(vtkAxis::BOTTOM)->SetLabelsVisible(true);
-    this->Private->Charts[cid]->GetAxis(vtkAxis::BOTTOM)->SetTitleVisible(true);
-    this->Private->Charts[cid]->GetAxis(vtkAxis::LEFT)->SetLabelsVisible(true);
-    this->Private->Charts[cid]->GetAxis(vtkAxis::LEFT)->SetTitleVisible(true);
+
+    vtkChart* chart = vtkChart::SafeDownCast(this->Private->ChartElements[cid]);
+    if (chart == nullptr)
+    {
+      continue;
+    }
+
+    chart->GetAxis(vtkAxis::BOTTOM)->SetLabelsVisible(true);
+    chart->GetAxis(vtkAxis::BOTTOM)->SetTitleVisible(true);
+    chart->GetAxis(vtkAxis::LEFT)->SetLabelsVisible(true);
+    chart->GetAxis(vtkAxis::LEFT)->SetTitleVisible(true);
   }
   for (int axId = 0; axId < 4; ++axId)
   {
@@ -689,31 +798,40 @@ void vtkChartMatrix::SynchronizeAxisRanges(vtkObject* caller, unsigned long even
   {
     return;
   }
-  auto source = vtkChart::SafeDownCast(caller); // the source chart of UpdateRange event.
+  auto source =
+    vtkAbstractContextItem::SafeDownCast(caller); // the source chart of UpdateRange event.
   if (!source)
   {
     return;
   }
   const auto sourceAt =
-    std::find(this->Private->Charts.begin(), this->Private->Charts.end(), source);
-  auto sourceIdx = std::distance(this->Private->Charts.begin(), sourceAt);
+    std::find(this->Private->ChartElements.begin(), this->Private->ChartElements.end(), source);
+  auto sourceIdx = std::distance(this->Private->ChartElements.begin(), sourceAt);
   if (!this->Private->OngoingRangeUpdates[sourceIdx])
   {
-    // Block all events into rootIdx chart
+    // Block all events into sourceIdx chart
     this->Private->BlockUpdateRangeEvents(sourceIdx);
     // Synchronize.
     double* fullAxisRange = reinterpret_cast<double*>(calldata);
     for (const auto& observerInfo : this->Private->XAxisRangeObserverTags[sourceIdx])
     {
-      const auto& observerChart = this->Private->Charts[observerInfo.first];
-      observerChart->GetAxis(vtkAxis::BOTTOM)->SetRange(&fullAxisRange[vtkAxis::BOTTOM * 2]);
-      observerChart->GetAxis(vtkAxis::TOP)->SetRange(&fullAxisRange[vtkAxis::TOP * 2]);
+      vtkChart* observerChart =
+        vtkChart::SafeDownCast(this->Private->ChartElements[observerInfo.first]);
+      if (observerChart)
+      {
+        observerChart->GetAxis(vtkAxis::BOTTOM)->SetRange(&fullAxisRange[vtkAxis::BOTTOM * 2]);
+        observerChart->GetAxis(vtkAxis::TOP)->SetRange(&fullAxisRange[vtkAxis::TOP * 2]);
+      }
     }
     for (const auto& observerInfo : this->Private->YAxisRangeObserverTags[sourceIdx])
     {
-      const auto& observerChart = this->Private->Charts[observerInfo.first];
-      observerChart->GetAxis(vtkAxis::LEFT)->SetRange(&fullAxisRange[vtkAxis::LEFT * 2]);
-      observerChart->GetAxis(vtkAxis::RIGHT)->SetRange(&fullAxisRange[vtkAxis::RIGHT * 2]);
+      vtkChart* observerChart =
+        vtkChart::SafeDownCast(this->Private->ChartElements[observerInfo.first]);
+      if (observerChart != nullptr)
+      {
+        observerChart->GetAxis(vtkAxis::LEFT)->SetRange(&fullAxisRange[vtkAxis::LEFT * 2]);
+        observerChart->GetAxis(vtkAxis::RIGHT)->SetRange(&fullAxisRange[vtkAxis::RIGHT * 2]);
+      }
     }
     // Unblock.
     this->Private->UnblockUpdateRangeEvents(sourceIdx);

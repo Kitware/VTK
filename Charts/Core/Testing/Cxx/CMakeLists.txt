@@ -59,6 +59,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestChartDoubleColorsOpaque.cxx
   TestChartMatrix.cxx
   TestChartMatrix2.cxx
+  TestChartMatrix3.cxx
   TestChartPicking.cxx,NO_DATA,NO_VALID
   TestChartTileScaling.cxx
   TestChartUnicode.cxx
