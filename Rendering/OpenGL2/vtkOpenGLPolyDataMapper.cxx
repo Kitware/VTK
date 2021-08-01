@@ -1708,7 +1708,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     if (textures[i].second == "albedoTex" || textures[i].second == "normalTex" ||
       textures[i].second == "materialTex" || textures[i].second == "brdfTex" ||
       textures[i].second == "emissiveTex" || textures[i].second == "anisotropyTex" ||
-      textures[i].second == "coatNormalTex")
+      textures[i].second == "coatNormalTex" || textures[i].second == "colortexture")
     {
       continue;
     }
@@ -1810,7 +1810,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     ss << "; // Update color based on texture nbr of components \n";
 
     // Define final color based on texture blending
-    if (i == 0)
+    if (nbTex2d == 1)
     {
       ss << "vec4 tcolor = tcolor_" << i << "; // BLENDING: None (first texture) \n\n";
     }
