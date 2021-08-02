@@ -27,33 +27,37 @@
  * Scott Wagner (wagner@itek.com), Itek Graphix, Rochester, NY USA
  */
 
-/*
-  CreateFileA/CreateFileW return type 'HANDLE'.
-
-  thandle_t is declared like
-
-    DECLARE_HANDLE(thandle_t);
-
-  in tiffio.h.
-
-  Windows (from winnt.h) DECLARE_HANDLE logic looks like
-
-  #ifdef STRICT
-    typedef void *HANDLE;
-  #define DECLARE_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
-  #else
-    typedef PVOID HANDLE;
-  #define DECLARE_HANDLE(name) typedef HANDLE name
-  #endif
-
-  See http://bugzilla.maptools.org/show_bug.cgi?id=1941 for problems in WIN64
-  builds resulting from this.  Unfortunately, the proposed patch was lost.
-
-*/
-  
 #include "tiffiop.h"
 
 #include <windows.h>
+
+/*
+  CreateFileA/CreateFileW return type 'HANDLE' while TIFFFdOpen() takes 'int',
+  which is formally incompatible and can even seemingly be of different size:
+  HANDLE is 64 bit under Win64, while int is still 32 bits there.
+
+  However, only the lower 32 bits of a HANDLE are significant under Win64 as,
+  for interoperability reasons, they must have the same values in 32- and
+  64-bit programs running on the same system, see
+
+  https://docs.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication
+
+  Because of this, it is safe to define the following trivial functions for
+  casting between ints and HANDLEs, which are only really needed to avoid
+  compiler warnings (and, perhaps, to make the code slightly more clear).
+  Note that using the intermediate cast to "intptr_t" is crucial for warning
+  avoidance, as this integer type has the same size as HANDLE in all builds.
+*/
+
+static inline thandle_t thandle_from_int(int ifd)
+{
+    return (thandle_t)(intptr_t)ifd;
+}
+
+static inline int thandle_to_int(thandle_t fd)
+{
+    return (int)(intptr_t)fd;
+}
 
 static tmsize_t
 _tiffReadProc(thandle_t fd, void* buf, tmsize_t size)
@@ -61,18 +65,18 @@ _tiffReadProc(thandle_t fd, void* buf, tmsize_t size)
 	/* tmsize_t is 64bit on 64bit systems, but the WinAPI ReadFile takes
 	 * 32bit sizes, so we loop through the data in suitable 32bit sized
 	 * chunks */
-	uint8* ma;
-	uint64 mb;
+	uint8_t* ma;
+	uint64_t mb;
 	DWORD n;
 	DWORD o;
 	tmsize_t p;
-	ma=(uint8*)buf;
+	ma=(uint8_t*)buf;
 	mb=size;
 	p=0;
 	while (mb>0)
 	{
 		n=0x80000000UL;
-		if ((uint64)n>mb)
+		if ((uint64_t)n>mb)
 			n=(DWORD)mb;
 		if (!ReadFile(fd,(LPVOID)ma,n,&o,NULL))
 			return(0);
@@ -91,18 +95,18 @@ _tiffWriteProc(thandle_t fd, void* buf, tmsize_t size)
 	/* tmsize_t is 64bit on 64bit systems, but the WinAPI WriteFile takes
 	 * 32bit sizes, so we loop through the data in suitable 32bit sized
 	 * chunks */
-	uint8* ma;
-	uint64 mb;
+	uint8_t* ma;
+	uint64_t mb;
 	DWORD n;
 	DWORD o;
 	tmsize_t p;
-	ma=(uint8*)buf;
+	ma=(uint8_t*)buf;
 	mb=size;
 	p=0;
 	while (mb>0)
 	{
 		n=0x80000000UL;
-		if ((uint64)n>mb)
+		if ((uint64_t)n>mb)
 			n=(DWORD)mb;
 		if (!WriteFile(fd,(LPVOID)ma,n,&o,NULL))
 			return(0);
@@ -115,8 +119,8 @@ _tiffWriteProc(thandle_t fd, void* buf, tmsize_t size)
 	return(p);
 }
 
-static uint64
-_tiffSeekProc(thandle_t fd, uint64 off, int whence)
+static uint64_t
+_tiffSeekProc(thandle_t fd, uint64_t off, int whence)
 {
 	LARGE_INTEGER offli;
 	DWORD dwMoveMethod;
@@ -148,12 +152,14 @@ _tiffCloseProc(thandle_t fd)
 	return (CloseHandle(fd) ? 0 : -1);
 }
 
-static uint64
+static uint64_t
 _tiffSizeProc(thandle_t fd)
 {
-	ULARGE_INTEGER m;
-	m.LowPart=GetFileSize(fd,&m.HighPart);
-	return(m.QuadPart);
+	LARGE_INTEGER m;
+	if (GetFileSizeEx(fd,&m))
+		return(m.QuadPart);
+	else
+		return(0);
 }
 
 static int
@@ -179,13 +185,13 @@ _tiffDummyMapProc(thandle_t fd, void** pbase, toff_t* psize)
 static int
 _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
 {
-	uint64 size;
+	uint64_t size;
 	tmsize_t sizem;
 	HANDLE hMapFile;
 
 	size = _tiffSizeProc(fd);
 	sizem = (tmsize_t)size;
-	if ((uint64)sizem!=size)
+	if (!size || (uint64_t)sizem!=size)
 		return (0);
 
 	/* By passing in 0 for the maximum file size, it specifies that we
@@ -237,7 +243,7 @@ TIFFFdOpen(int ifd, const char* name, const char* mode)
 			break;
 		}
 	}
-	tif = TIFFClientOpen(name, mode, (thandle_t)ifd, /* FIXME: WIN64 cast to pointer warning */
+	tif = TIFFClientOpen(name, mode, thandle_from_int(ifd),
 			_tiffReadProc, _tiffWriteProc,
 			_tiffSeekProc, _tiffCloseProc, _tiffSizeProc,
 			fSuppressMap ? _tiffDummyMapProc : _tiffMapProc,
@@ -282,7 +288,7 @@ TIFFOpen(const char* name, const char* mode)
 		return ((TIFF *)0);
 	}
 
-	tif = TIFFFdOpen((int)fd, name, mode);   /* FIXME: WIN64 cast from pointer to int warning */
+	tif = TIFFFdOpen(thandle_to_int(fd), name, mode);
 	if(!tif)
 		CloseHandle(fd);
 	return tif;
@@ -337,7 +343,7 @@ TIFFOpenW(const wchar_t* name, const char* mode)
 				    NULL, NULL);
 	}
 
-	tif = TIFFFdOpen((int)fd,    /* FIXME: WIN64 cast from pointer to int warning */
+	tif = TIFFFdOpen(thandle_to_int(fd),
 			 (mbname != NULL) ? mbname : "<unknown>", mode);
 	if(!tif)
 		CloseHandle(fd);
@@ -397,10 +403,6 @@ _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c)
 }
 
 #ifndef _WIN32_WCE
-
-#if (_MSC_VER < 1500)
-#  define vsnprintf _vsnprintf
-#endif
 
 static void
 Win32WarningHandler(const char* module, const char* fmt, va_list ap)

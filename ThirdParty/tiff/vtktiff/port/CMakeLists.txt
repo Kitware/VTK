@@ -22,50 +22,31 @@
 # LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
 # OF THIS SOFTWARE.
 
-set(port_HEADERS libport.h)
-set(port_SOURCES dummy.c)
-set(port_optional_SOURCES
-  getopt.c
-  lfind.c
-  strcasecmp.c
-  strtol.c
-  strtoll.c
-  strtoul.c
-  strtoull.c)
+# Generate headers
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libport_config.h.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/libport_config.h
+        @ONLY)
 
-set(port_USED_FILES ${port_SOURCES} ${port_HEADERS})
+set(port_HEADERS libport.h)
 
 # XXX(kitware): Some are only required for tools, so skip them.
-if(NOT HAVE_GETOPT AND FALSE)
-  list(APPEND port_USED_FILES getopt.c)
-endif()
-if(NOT HAVE_LFIND AND FALSE)
-  list(APPEND port_USED_FILES lfind.c)
-endif ()
-if(MSVC AND NOT HAVE_SNPRINTF)
-  list(APPEND port_USED_FILES snprintf.c)
-endif()
-if(NOT HAVE_STRCASECMP AND FALSE)
-  list(APPEND port_USED_FILES strcasecmp.c)
-endif()
-if(NOT HAVE_STRTOL AND FALSE)
-  list(APPEND port_USED_FILES strtol.c)
-endif()
-if(NOT HAVE_STRTOLL AND FALSE)
-  list(APPEND port_USED_FILES strtoll.c)
-endif()
-if(NOT HAVE_STRTOUL AND FALSE)
-  list(APPEND port_USED_FILES strtoul.c)
-endif()
-if(NOT HAVE_STRTOULL AND FALSE)
-  list(APPEND port_USED_FILES strtoull.c)
-endif()
+# Only build if any needed features are missing
+if(NOT HAVE_GETOPT)
+  add_library(port STATIC)
 
-if (FALSE) # XXX(kitware): Not building tools for VTK; skip the library.
-add_library(port STATIC ${port_USED_FILES})
-endif ()
+  # Add getopt if missing
+  if(NOT HAVE_GETOPT)
+    target_sources(port PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/getopt.c)
+  endif()
 
-foreach(file ${port_USED_FILES})
-  list(APPEND tiff_port_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
-endforeach()
-set(tiff_port_SOURCES ${tiff_port_SOURCES} PARENT_SCOPE)
+  target_include_directories(port PUBLIC
+          ${CMAKE_CURRENT_BINARY_DIR}
+          ${CMAKE_CURRENT_SOURCE_DIR})
+else()
+  # Dummy interface library
+  add_library(port INTERFACE)
+  target_include_directories(port INTERFACE
+          ${CMAKE_CURRENT_BINARY_DIR}
+          ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
