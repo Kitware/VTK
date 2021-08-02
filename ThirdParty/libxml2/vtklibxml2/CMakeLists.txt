@@ -1,4 +1,6 @@
+if (FALSE) # XXX(kitware): use VTK's module system
 cmake_minimum_required(VERSION 3.15)
+endif ()
 
 project(libxml2 VERSION 2.9.10 LANGUAGES C)
 
