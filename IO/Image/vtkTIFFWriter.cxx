@@ -127,7 +127,7 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
   data->GetDimensions(dims);
   int scomponents = scalarArray->GetNumberOfComponents();
   int stype = scalarArray->GetDataType();
-  uint32 rowsperstrip = (uint32)-1;
+  uint32_t rowsperstrip = (uint32_t)-1;
 
   int bps;
   switch (stype)
@@ -186,8 +186,8 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
     return;
   }
 
-  uint32 w = this->Width;
-  uint32 h = this->Height;
+  uint32_t w = this->Width;
+  uint32_t h = this->Height;
   TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, w);
   TIFFSetField(tif, TIFFTAG_IMAGELENGTH, h);
   TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
@@ -203,8 +203,8 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
   {
     // if number of scalar components is greater than 3, that means we assume
     // there is alpha.
-    uint16 extra_samples = scomponents - 3;
-    std::vector<uint16> sample_info(scomponents - 3);
+    uint16_t extra_samples = scomponents - 3;
+    std::vector<uint16_t> sample_info(scomponents - 3);
     sample_info[0] = EXTRASAMPLE_ASSOCALPHA;
     int cc;
     for (cc = 1; cc < scomponents - 3; cc++)
@@ -234,7 +234,7 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
   }
   // compression = COMPRESSION_JPEG;
   TIFFSetField(tif, TIFFTAG_COMPRESSION, compression); // Fix for compression
-  uint16 photometric = (scomponents == 1 ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_RGB);
+  uint16_t photometric = (scomponents == 1 ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_RGB);
   if (compression == COMPRESSION_JPEG)
   {
     TIFFSetField(tif, TIFFTAG_JPEGQUALITY, 75); // Parameter
@@ -339,8 +339,8 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
   int height = this->Height;
   int pages = this->Pages;
 
-  uint32 w = width;
-  uint32 h = height;
+  uint32_t w = width;
+  uint32_t h = height;
   int bitsPerSample = sizeof(T) * 8;
 
   for (int page = 0; page < pages; ++page)
@@ -390,7 +390,7 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
     }
 
     TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
-    uint32 rowsperstrip = (uint32)-1;
+    uint32_t rowsperstrip = (uint32_t)-1;
     TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, rowsperstrip));
     if (this->XResolution > 0.0 && this->YResolution > 0.0)
     {

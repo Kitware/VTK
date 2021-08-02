@@ -1247,18 +1247,18 @@ void vtkTIFFReader::ReadImageInternal(T* outPtr)
   if (!this->InternalImage->CanRead())
   {
     // Why do we read the image for the ! CanRead case?
-    uint32* tempImage = reinterpret_cast<uint32*>(outPtr);
+    uint32_t* tempImage = reinterpret_cast<uint32_t*>(outPtr);
 
     if (this->OutputExtent[0] != 0 || this->OutputExtent[1] != width - 1 ||
       this->OutputExtent[2] != 0 || this->OutputExtent[3] != height - 1)
     {
-      tempImage = new uint32[width * height];
+      tempImage = new uint32_t[width * height];
     }
     // This should really be fixed to read only the rows necessary.
     if (!TIFFReadRGBAImage(this->InternalImage->Image, width, height, tempImage, 0))
     {
       vtkErrorMacro("Problem reading RGB image");
-      if (tempImage != reinterpret_cast<uint32*>(outPtr))
+      if (tempImage != reinterpret_cast<uint32_t*>(outPtr))
       {
         delete[] tempImage;
       }
@@ -1268,7 +1268,7 @@ void vtkTIFFReader::ReadImageInternal(T* outPtr)
     T* fimage = outPtr;
     for (int yy = 0; yy < height; ++yy)
     {
-      uint32* ssimage = flip ? (tempImage + yy * width) : (tempImage + (height - yy - 1) * width);
+      uint32_t* ssimage = flip ? (tempImage + yy * width) : (tempImage + (height - yy - 1) * width);
       for (int xx = 0; xx < width; ++xx)
       {
         if (xx >= this->OutputExtent[0] && xx <= this->OutputExtent[1] &&
@@ -1284,7 +1284,7 @@ void vtkTIFFReader::ReadImageInternal(T* outPtr)
       }
     }
 
-    if (tempImage != reinterpret_cast<uint32*>(outPtr))
+    if (tempImage != reinterpret_cast<uint32_t*>(outPtr))
     {
       delete[] tempImage;
     }
