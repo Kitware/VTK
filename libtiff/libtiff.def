@@ -12,6 +12,7 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFCreateCustomDirectory
 	vtktiff_TIFFCreateDirectory
 	vtktiff_TIFFCreateEXIFDirectory
+	vtktiff_TIFFCreateGPSDirectory
 	vtktiff_TIFFCurrentDirOffset
 	vtktiff_TIFFCurrentDirectory
 	vtktiff_TIFFCurrentRow
@@ -86,6 +87,7 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFReadCustomDirectory
 	vtktiff_TIFFReadDirectory
 	vtktiff_TIFFReadEXIFDirectory
+	vtktiff_TIFFReadGPSDirectory
 	vtktiff_TIFFReadEncodedStrip
 	vtktiff_TIFFReadEncodedTile
 	vtktiff_TIFFReadFromUserBuffer
@@ -171,5 +173,7 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff__TIFFmemcpy
 	vtktiff__TIFFmemset
 	vtktiff__TIFFrealloc
-        vtktiff__TIFFMultiply32
-        vtktiff__TIFFMultiply64
+	vtktiff__TIFFMultiply32
+	vtktiff__TIFFMultiply64
+	vtktiff__TIFFGetExifFields
+	vtktiff__TIFFGetGpsFields

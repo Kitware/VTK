@@ -7,6 +7,12 @@
 #ifndef _TIFFCONF_
 #define _TIFFCONF_
 
+
+#include <stddef.h>
+#include <stdint.h>
+#include <inttypes.h>
+
+
 /* Signed 16-bit type */
 #define TIFF_INT16_T @TIFF_INT16_T@
 
@@ -31,18 +37,12 @@
 /* Unsigned 8-bit type */
 #define TIFF_UINT8_T @TIFF_UINT8_T@
 
-/* Unsigned size type */
-#define TIFF_SIZE_T @TIFF_SIZE_T@
-
 /* Signed size type */
 #define TIFF_SSIZE_T @TIFF_SSIZE_T@
 
-/* Pointer difference type */
-#define TIFF_PTRDIFF_T @TIFF_PTRDIFF_T@
-
 /* Compatibility stuff. */
 
-/* Define as 0 or 1 according to the floating point format suported by the
+/* Define as 0 or 1 according to the floating point format supported by the
    machine */
 #cmakedefine HAVE_IEEEFP 1
 
@@ -61,6 +61,9 @@
 
 /* Support JBIG compression (requires JBIG-KIT library) */
 #cmakedefine JBIG_SUPPORT
+
+/* Support LERC compression */
+#cmakedefine LERC_SUPPORT 1
 
 /* Support LogLuv high dynamic range encoding */
 #cmakedefine LOGLUV_SUPPORT 1
@@ -87,8 +90,11 @@
 /* Support Deflate compression */
 #cmakedefine ZIP_SUPPORT 1
 
+/* Support libdeflate enhanced compression */
+#cmakedefine LIBDEFLATE_SUPPORT 1
+
 /* Support strip chopping (whether or not to convert single-strip uncompressed
-   images to mutiple strips of ~8Kb to reduce memory usage) */
+   images to multiple strips of ~8Kb to reduce memory usage) */
 #cmakedefine STRIPCHOP_DEFAULT 1
 
 /* Enable SubIFD tag (330) support */

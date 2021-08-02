@@ -24,44 +24,20 @@
 #ifndef _LIBPORT_
 #define	_LIBPORT_
 
+#include <libport_config.h>
+
+#if HAVE_GETOPT
+#  if HAVE_UNISTD_H
+#    include <unistd.h>
+#  endif
+#else
+
 int getopt(int argc, char * const argv[], const char *optstring);
 extern   char *optarg;
 extern   int opterr;
 extern   int optind;
 extern   int optopt;
 
-int strcasecmp(const char *s1, const char *s2);
-
-#ifndef HAVE_GETOPT
-#  define HAVE_GETOPT 1
-#endif
-
-#if HAVE_STRTOL
-long strtol(const char *nptr, char **endptr, int base);
-#endif
-#if HAVE_STRTOLL
-long long strtoll(const char *nptr, char **endptr, int base);
-#endif
-#if HAVE_STRTOUL
-unsigned long strtoul(const char *nptr, char **endptr, int base);
-#endif
-#if HAVE_STRTOULL
-unsigned long long strtoull(const char *nptr, char **endptr, int base);
-#endif
-
-#if 0
-void *
-lfind(const void *key, const void *base, size_t *nmemb, size_t size,
-      int(*compar)(const void *, const void *));
-#endif
-
-#if !defined(HAVE_SNPRINTF)
-#undef vsnprintf
-#define vsnprintf _TIFF_vsnprintf_f
-
-#undef snprintf
-#define snprintf _TIFF_snprintf_f
-int snprintf(char* str, size_t size, const char* format, ...);
 #endif
 
 #endif /* ndef _LIBPORT_ */
