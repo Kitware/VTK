@@ -60,8 +60,8 @@ namespace
 {
 const char* CELL_OWNERSHIP_ARRAYNAME = "__RDSF_CELL_OWNERSHIP__";
 const char* GHOST_CELL_ARRAYNAME = "__RDSF_GHOST_CELLS__";
-const double BOUNDING_BOX_LENGTH_TOLERANCE = 0.01;
-const double BOUNDING_BOX_INFLATION_RATIO = 0.01;
+constexpr double BOUNDING_BOX_LENGTH_TOLERANCE = 0.01;
+constexpr double BOUNDING_BOX_INFLATION_RATIO = 0.01;
 }
 
 namespace detail
