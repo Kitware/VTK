@@ -65,6 +65,15 @@ typedef ptrdiff_t GLsizeiptr;
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 
+/*
+ * Work-around to get forward declarations of C typedef of anonymous
+ * structs working. We do not want to include XUtil.h in the header as
+ * it populates the global namespace.
+ */
+struct vtkXVisualInfo : public XVisualInfo
+{
+};
+
 #define GLX_CONTEXT_MAJOR_VERSION_ARB 0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB 0x2092
 typedef GLXContext (*glXCreateContextAttribsARBProc)(
@@ -224,7 +233,7 @@ int XEventTypeEquals(Display*, XEvent* event, XPointer)
   return event->type == EventType;
 }
 
-XVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
+vtkXVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 {
   XVisualInfo* v = nullptr;
 
@@ -258,7 +267,7 @@ XVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
       vtkErrorMacro(<< "Could not find a decent visual\n");
     }
   }
-  return (v);
+  return reinterpret_cast<vtkXVisualInfo*>(v);
 }
 
 vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
