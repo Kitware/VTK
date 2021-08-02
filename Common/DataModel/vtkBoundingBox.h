@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkBoundingBox_h
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
+#include <atomic> // For threaded bounding box computation
 
 class vtkPoints;
 
@@ -74,14 +75,16 @@ public:
 
   ///@{
   /**
-   * Compute the bounding box from an array of vtkPoints. It uses a fast path
-   * when possible. The second signature (with point uses) only considers
-   * points with ptUses[i] != 0 in the bounds calculation. The non-static
-   * ComputeBounds() methods update the current bounds of an instance of this
-   * class.
+   * Compute the bounding box from an array of vtkPoints. It uses a fast
+   * (i.e., threaded) path when possible. The second signature (with point
+   * uses) only considers points with ptUses[i] != 0 in the bounds
+   * calculation. The non-static ComputeBounds() methods update the current
+   * bounds of an instance of this class.
    */
   static void ComputeBounds(vtkPoints* pts, double bounds[6]);
   static void ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, double bounds[6]);
+  static void ComputeBounds(
+    vtkPoints* pts, const std::atomic<unsigned char>* ptUses, double bounds[6]);
   void ComputeBounds(vtkPoints* pts) { this->ComputeBounds(pts, (unsigned char*)nullptr); }
   void ComputeBounds(vtkPoints* pts, unsigned char* ptUses)
   {
