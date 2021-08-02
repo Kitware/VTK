@@ -17,7 +17,6 @@
 #include "vtkAbstractParticleWriter.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCharArray.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
@@ -34,6 +33,7 @@
 #include "vtkRungeKutta2.h"
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
+#include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemporalInterpolatedVelocityField.h"
@@ -762,7 +762,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   vtkDebugMacro(<< "About to allocate point arrays ");
   this->ParticleAge = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleIds = vtkSmartPointer<vtkIntArray>::New();
-  this->ParticleSourceIds = vtkSmartPointer<vtkCharArray>::New();
+  this->ParticleSourceIds = vtkSmartPointer<vtkSignedCharArray>::New();
   this->InjectedPointIds = vtkSmartPointer<vtkIntArray>::New();
   this->InjectedStepIds = vtkSmartPointer<vtkIntArray>::New();
   this->ErrorCodeArray = vtkSmartPointer<vtkIntArray>::New();
@@ -1655,9 +1655,9 @@ vtkIntArray* vtkParticleTracerBase::GetParticleIds(vtkPointData* pd)
 }
 
 //------------------------------------------------------------------------------
-vtkCharArray* vtkParticleTracerBase::GetParticleSourceIds(vtkPointData* pd)
+vtkSignedCharArray* vtkParticleTracerBase::GetParticleSourceIds(vtkPointData* pd)
 {
-  return vtkArrayDownCast<vtkCharArray>(pd->GetArray("ParticleSourceId"));
+  return vtkArrayDownCast<vtkSignedCharArray>(pd->GetArray("ParticleSourceId"));
 }
 
 //------------------------------------------------------------------------------

@@ -38,7 +38,6 @@
 class vtkAbstractInterpolatedVelocityField;
 class vtkAbstractParticleWriter;
 class vtkCellArray;
-class vtkCharArray;
 class vtkCompositeDataSet;
 class vtkDataArray;
 class vtkDataSet;
@@ -52,6 +51,7 @@ class vtkMultiProcessController;
 class vtkPointData;
 class vtkPoints;
 class vtkPolyData;
+class vtkSignedCharArray;
 class vtkTemporalInterpolatedVelocityField;
 
 namespace vtkParticleTracerBaseNamespace
@@ -418,7 +418,7 @@ protected:
 
   vtkFloatArray* GetParticleAge(vtkPointData*);
   vtkIntArray* GetParticleIds(vtkPointData*);
-  vtkCharArray* GetParticleSourceIds(vtkPointData*);
+  vtkSignedCharArray* GetParticleSourceIds(vtkPointData*);
   vtkIntArray* GetInjectedPointIds(vtkPointData*);
   vtkIntArray* GetInjectedStepIds(vtkPointData*);
   vtkIntArray* GetErrorCodeArr(vtkPointData*);
@@ -550,7 +550,7 @@ private:
   vtkSmartPointer<vtkPoints> OutputCoordinates;
   vtkSmartPointer<vtkFloatArray> ParticleAge;
   vtkSmartPointer<vtkIntArray> ParticleIds;
-  vtkSmartPointer<vtkCharArray> ParticleSourceIds;
+  vtkSmartPointer<vtkSignedCharArray> ParticleSourceIds;
   vtkSmartPointer<vtkIntArray> InjectedPointIds;
   vtkSmartPointer<vtkIntArray> InjectedStepIds;
   vtkSmartPointer<vtkIntArray> ErrorCodeArray;

@@ -53,7 +53,7 @@ class vtkCellArray;
 class vtkDoubleArray;
 class vtkFloatArray;
 class vtkIntArray;
-class vtkCharArray;
+class vtkSignedCharArray;
 class vtkAbstractParticleWriter;
 
 namespace vtkTemporalStreamTracerNamespace
@@ -417,7 +417,7 @@ protected:
   //
   vtkSmartPointer<vtkFloatArray> ParticleAge;
   vtkSmartPointer<vtkIntArray> ParticleIds;
-  vtkSmartPointer<vtkCharArray> ParticleSourceIds;
+  vtkSmartPointer<vtkSignedCharArray> ParticleSourceIds;
   vtkSmartPointer<vtkIntArray> InjectedPointIds;
   vtkSmartPointer<vtkIntArray> InjectedStepIds;
   vtkSmartPointer<vtkIntArray> ErrorCodeArray;
