@@ -142,7 +142,11 @@ int vtkXMLPartitionedDataSetCollectionWriter::RequestData(
   }
 
   // Now write the summary XML on the root node.
-  bool success = this->WriteSummaryXML(inputPDC, allFilenames);
+  bool success = true;
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    success = this->WriteSummaryXML(inputPDC, allFilenames);
+  }
   if (controller != nullptr && controller->GetNumberOfProcesses() > 1)
   {
     int message[2] = { success ? 1 : 0, static_cast<int>(this->GetErrorCode()) };

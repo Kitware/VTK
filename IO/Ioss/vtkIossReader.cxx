@@ -50,7 +50,7 @@
 // Ioss includes
 #include <vtk_ioss.h>
 // clang-format off
-#include VTK_IOSS(init/Ionit_Initializer.h)
+#include VTK_IOSS(Ionit_Initializer.h)
 #include VTK_IOSS(Ioss_Assembly.h)
 #include VTK_IOSS(Ioss_DatabaseIO.h)
 #include VTK_IOSS(Ioss_EdgeBlock.h)

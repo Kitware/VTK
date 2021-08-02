@@ -8,9 +8,9 @@ readonly name="lzma"
 readonly ownership="$name Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/xz.git"
-readonly tag="for/vtk-20181129-5.2.4"
+readonly tag="for/vtk-20210728-5.2.5"
 readonly paths="
-CMakeLists.txt
+CMakeLists.vtk.txt
 COPYING
 config.h.in
 src/liblzma/api/vtk_lzma_mangle.h
@@ -158,6 +158,9 @@ src/liblzma/simple/simple_private.h
 
 extract_source () {
     git_archive
+    pushd "$extractdir/$name-reduced"
+    mv -v CMakeLists.vtk.txt CMakeLists.txt
+    popd
 }
 
 . "${BASH_SOURCE%/*}/../update-common.sh"

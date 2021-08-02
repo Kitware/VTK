@@ -20,6 +20,7 @@
 #ifndef vtkImageInterpolatorInternals_h
 #define vtkImageInterpolatorInternals_h
 
+#include "vtkEndian.h"
 #include "vtkMath.h"
 
 // The interpolator info struct
@@ -76,48 +77,60 @@ struct vtkInterpolationMath
 };
 
 //--------------------------------------------------------------------------
-// The 'floor' function is slow, so we want to do an integer
-// cast but keep the "floor" behavior of always rounding down,
-// rather than truncating, i.e. we want -0.6 to become -1.
-// The easiest way to do this is to add a large value in
-// order to make the value "unsigned", then cast to int, and
-// then subtract off the large value.
+// The 'floor' function is slow, so we want a faster replacement.
+// The goal is to cast double to integer, but round down instead of
+// rounding towards zero. In other words, we want -0.1 to become -1.
 
-// On the old i386 architecture even a cast to int is very
-// expensive because it requires changing the rounding mode
-// on the FPU.  So we use a bit-trick similar to the one
-// described at http://www.stereopsis.com/FPU.html
+// The easiest way to do this is to add a large value (a bias)
+// to the input of our 'fast floor' in order to ensure that the
+// double that we cast to integer is positive. This ensures the
+// cast will round the value down. After the cast, we can subtract
+// the bias from the integer result.
 
-#if defined ia64 || defined __ia64__ || defined _M_IA64
-#define VTK_INTERPOLATE_64BIT_FLOOR
-#elif defined __ppc64__ || defined __x86_64__ || defined _M_X64
-#define VTK_INTERPOLATE_64BIT_FLOOR
-#elif defined __ppc__ || defined sparc || defined mips
-#define VTK_INTERPOLATE_32BIT_FLOOR
-#elif defined i386 || defined _M_IX86
-#define VTK_INTERPOLATE_I386_FLOOR
-#endif
+// We choose a bias of 103079215104 because it has a special property
+// with respect to ieee-754 double-precision floats.  It uses 37 bits
+// of the 53 significant bits available, leaving 16 bits of precision
+// after the radix.  And the same is true for any number in the range
+// [-34359738368,34359738367] when added to this bias.  This is a
+// very large range, 16 times the range of a 32-bit int.  Essentially,
+// this bias allows us to use the mantissa of a 'double' as a 52-bit
+// (36.16) fixed-point value.  Hence, we can use our floating-point
+// hardware for fixed-point math, with float-to-fixed and vice-versa
+// conversions achieved by simply by adding or subtracting the bias.
+// See http://www.stereopsis.com/FPU.html for further explanation.
 
-// We add a tolerance of 2^-17 (around 7.6e-6) so that float
-// values that are just less than the closest integer are
-// rounded up.  This adds robustness against rounding errors.
+// The advantage of fixed (absolute) precision over float (relative)
+// precision is that when we do math on a coordinate (x,y,z) in the
+// image, the available precision will be the same regardless of
+// whether x, y, z are close to (0,0,0) or whether they are far away.
+// This protects against a common problem in computer graphics where
+// there is lots of available precision near the origin, but less
+// precision far from the origin.  Instead of relying on relative
+// precision, we have enforced the use of fixed precision.  As a
+// trade-off, we are limited to the range [-34359738368,34359738367].
+
+// The value 2^-17 (around 7.6e-6) is exactly half the value of the
+// 16th bit past the decimal, so it is a useful tolerance to apply in
+// our calculations.  For our 'fast floor', floating-point values
+// that are within this tolerance from the closest integer will always
+// be rounded to the integer, even when the value is less than the
+// integer.  Values further than this tolerance from an integer will
+// always be rounded down.
 
 #define VTK_INTERPOLATE_FLOOR_TOL 7.62939453125e-06
 
+// A fast replacement for 'floor' that provides fixed precision:
 template <class F>
 inline int vtkInterpolationMath::Floor(double x, F& f)
 {
-#if defined VTK_INTERPOLATE_64BIT_FLOOR
+#if VTK_SIZEOF_VOID_P >= 8
+  // add the bias and then subtract it to achieve the desired result
   x += (103079215104.0 + VTK_INTERPOLATE_FLOOR_TOL);
   long long i = static_cast<long long>(x);
   f = static_cast<F>(x - i);
   return static_cast<int>(i - 103079215104LL);
-#elif defined VTK_INTERPOLATE_32BIT_FLOOR
-  x += (2147483648.0 + VTK_INTERPOLATE_FLOOR_TOL);
-  unsigned int i = static_cast<unsigned int>(x);
-  f = x - i;
-  return static_cast<int>(i - 2147483648U);
-#elif defined VTK_INTERPOLATE_I386_FLOOR
+#elif !defined VTK_WORDS_BIGENDIAN
+  // same as above, but avoid doing any 64-bit integer arithmetic
   union {
     double d;
     unsigned short s[4];
@@ -127,24 +140,27 @@ inline int vtkInterpolationMath::Floor(double x, F& f)
   f = dual.s[0] * 0.0000152587890625; // 2**(-16)
   return static_cast<int>((dual.i[1] << 16) | ((dual.i[0]) >> 16));
 #else
-  x += VTK_INTERPOLATE_FLOOR_TOL;
-  int i = vtkMath::Floor(x);
-  f = x - i;
-  return i;
+  // and again for big-endian architectures
+  union {
+    double d;
+    unsigned short s[4];
+    unsigned int i[2];
+  } dual;
+  dual.d = x + 103079215104.0;        // (2**(52-16))*1.5
+  f = dual.s[3] * 0.0000152587890625; // 2**(-16)
+  return static_cast<int>((dual.i[0] << 16) | ((dual.i[1]) >> 16));
 #endif
 }
 
 inline int vtkInterpolationMath::Round(double x)
 {
-#if defined VTK_INTERPOLATE_64BIT_FLOOR
+#if VTK_SIZEOF_VOID_P >= 8
+  // add the bias and then subtract it to achieve the desired result
   x += (103079215104.5 + VTK_INTERPOLATE_FLOOR_TOL);
   long long i = static_cast<long long>(x);
   return static_cast<int>(i - 103079215104LL);
-#elif defined VTK_INTERPOLATE_32BIT_FLOOR
-  x += (2147483648.5 + VTK_INTERPOLATE_FLOOR_TOL);
-  unsigned int i = static_cast<unsigned int>(x);
-  return static_cast<int>(i - 2147483648U);
-#elif defined VTK_INTERPOLATE_I386_FLOOR
+#elif !defined VTK_WORDS_BIGENDIAN
+  // same as above, but avoid doing any 64-bit integer arithmetic
   union {
     double d;
     unsigned int i[2];
@@ -152,7 +168,13 @@ inline int vtkInterpolationMath::Round(double x)
   dual.d = x + 103079215104.5; // (2**(52-16))*1.5
   return static_cast<int>((dual.i[1] << 16) | ((dual.i[0]) >> 16));
 #else
-  return vtkMath::Floor(x + (0.5 + VTK_INTERPOLATE_FLOOR_TOL));
+  // and again for big-endian architectures
+  union {
+    double d;
+    unsigned int i[2];
+  } dual;
+  dual.d = x + 103079215104.5; // (2**(52-16))*1.5
+  return static_cast<int>((dual.i[0] << 16) | ((dual.i[1]) >> 16));
 #endif
 }
 

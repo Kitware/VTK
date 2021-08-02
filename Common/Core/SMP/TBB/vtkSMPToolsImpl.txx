@@ -166,6 +166,14 @@ void vtkSMPToolsImpl<BackendType::TBB>::Sort(
   tbb::parallel_sort(begin, end, comp);
 }
 
+//--------------------------------------------------------------------------------
+template <>
+void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int);
+
+//--------------------------------------------------------------------------------
+template <>
+int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedNumberOfThreads();
+
 } // namespace smp
 } // namespace detail
 } // namespace vtk

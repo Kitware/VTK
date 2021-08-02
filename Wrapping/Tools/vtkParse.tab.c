@@ -236,32 +236,30 @@ parse_access_t access_level = VTK_ACCESS_PUBLIC;
 void print_parser_error(const char* text, const char* cp, size_t n);
 
 /* helper functions */
-const char* type_class(unsigned int type, const char* classname);
-void start_class(const char* classname, int is_struct_or_union);
-void end_class(void);
-void add_base_class(ClassInfo* cls, const char* name, int access_lev, unsigned int extra);
-void output_friend_function(void);
-void output_function(void);
-void reject_function(void);
-void set_return(
+static const char* type_class(unsigned int type, const char* classname);
+static void start_class(const char* classname, int is_struct_or_union);
+static void end_class(void);
+static void add_base_class(ClassInfo* cls, const char* name, int access_lev, unsigned int extra);
+static void output_friend_function(void);
+static void output_function(void);
+static void reject_function(void);
+static void set_return(
   FunctionInfo* func, unsigned int attributes, unsigned int type, const char* typeclass, int count);
-void add_template_parameter(unsigned int datatype, unsigned int extra, const char* funcSig);
-void add_using(const char* name, int is_namespace);
-void start_enum(const char* name, int is_scoped, unsigned int type, const char* basename);
-void add_enum(const char* name, const char* value);
-void end_enum(void);
-unsigned int guess_constant_type(const char* valstring);
-void add_constant(const char* name, const char* value, unsigned int attributes, unsigned int type,
-  const char* typeclass, int flag);
-void prepend_scope(char* cp, const char* arg);
-unsigned int guess_id_type(const char* cp);
-unsigned int add_indirection(unsigned int type1, unsigned int type2);
-unsigned int add_indirection_to_array(unsigned int type);
-void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigned int datatype,
+static void add_template_parameter(unsigned int datatype, unsigned int extra, const char* funcSig);
+static void add_using(const char* name, int is_namespace);
+static void start_enum(const char* name, int is_scoped, unsigned int type, const char* basename);
+static void add_enum(const char* name, const char* value);
+static void end_enum(void);
+static unsigned int guess_constant_type(const char* valstring);
+static void add_constant(const char* name, const char* value, unsigned int attributes,
+  unsigned int type, const char* typeclass, int flag);
+static unsigned int guess_id_type(const char* cp);
+static unsigned int add_indirection(unsigned int type1, unsigned int type2);
+static unsigned int add_indirection_to_array(unsigned int type);
+static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigned int datatype,
   unsigned int extra, const char* funcSig);
-void handle_function_type(ValueInfo* param, const char* name, const char* funcSig);
-void handle_attribute(const char* att, int pack);
-void add_legacy_parameter(FunctionInfo* func, ValueInfo* param);
+static void handle_attribute(const char* att, int pack);
+static void add_legacy_parameter(FunctionInfo* func, ValueInfo* param);
 
 /*----------------------------------------------------------------
  * String utility methods
@@ -389,27 +387,44 @@ struct DoxygenCommandInfo
 };
 
 /* List of doxygen commands (@cond is not handled yet) */
-struct DoxygenCommandInfo doxygenCommands[] = { { "def", 3, DOX_COMMAND_DEF },
-  { "category", 8, DOX_COMMAND_CATEGORY }, { "interface", 9, DOX_COMMAND_INTERFACE },
-  { "protocol", 8, DOX_COMMAND_PROTOCOL }, { "class", 5, DOX_COMMAND_CLASS },
-  { "enum", 4, DOX_COMMAND_ENUM }, { "struct", 6, DOX_COMMAND_STRUCT },
-  { "union", 5, DOX_COMMAND_UNION }, { "namespace", 9, DOX_COMMAND_NAMESPACE },
-  { "typedef", 7, DOX_COMMAND_TYPEDEF }, { "fn", 2, DOX_COMMAND_FN },
-  { "property", 8, DOX_COMMAND_PROPERTY }, { "var", 3, DOX_COMMAND_VAR },
-  { "name", 4, DOX_COMMAND_NAME }, { "defgroup", 8, DOX_COMMAND_DEFGROUP },
-  { "addtogroup", 10, DOX_COMMAND_ADDTOGROUP }, { "weakgroup", 9, DOX_COMMAND_WEAKGROUP },
-  { "example", 7, DOX_COMMAND_EXAMPLE }, { "file", 4, DOX_COMMAND_FILE },
-  { "dir", 3, DOX_COMMAND_DIR }, { "mainpage", 8, DOX_COMMAND_MAINPAGE },
-  { "page", 4, DOX_COMMAND_PAGE }, { "subpage", 7, DOX_COMMAND_SUBPAGE },
-  { "internal", 8, DOX_COMMAND_INTERNAL }, { "package", 7, DOX_COMMAND_PACKAGE },
+/* clang-format off */
+struct DoxygenCommandInfo doxygenCommands[] = {
+  { "def", 3, DOX_COMMAND_DEF },
+  { "category", 8, DOX_COMMAND_CATEGORY },
+  { "interface", 9, DOX_COMMAND_INTERFACE },
+  { "protocol", 8, DOX_COMMAND_PROTOCOL },
+  { "class", 5, DOX_COMMAND_CLASS },
+  { "enum", 4, DOX_COMMAND_ENUM },
+  { "struct", 6, DOX_COMMAND_STRUCT },
+  { "union", 5, DOX_COMMAND_UNION },
+  { "namespace", 9, DOX_COMMAND_NAMESPACE },
+  { "typedef", 7, DOX_COMMAND_TYPEDEF },
+  { "fn", 2, DOX_COMMAND_FN },
+  { "property", 8, DOX_COMMAND_PROPERTY },
+  { "var", 3, DOX_COMMAND_VAR },
+  { "name", 4, DOX_COMMAND_NAME },
+  { "defgroup", 8, DOX_COMMAND_DEFGROUP },
+  { "addtogroup", 10, DOX_COMMAND_ADDTOGROUP },
+  { "weakgroup", 9, DOX_COMMAND_WEAKGROUP },
+  { "example", 7, DOX_COMMAND_EXAMPLE },
+  { "file", 4, DOX_COMMAND_FILE },
+  { "dir", 3, DOX_COMMAND_DIR },
+  { "mainpage", 8, DOX_COMMAND_MAINPAGE },
+  { "page", 4, DOX_COMMAND_PAGE },
+  { "subpage", 7, DOX_COMMAND_SUBPAGE },
+  { "internal", 8, DOX_COMMAND_INTERNAL },
+  { "package", 7, DOX_COMMAND_PACKAGE },
   { "privatesection", 14, DOX_COMMAND_PRIVATESECTION },
   { "protectedsection", 16, DOX_COMMAND_PROTECTEDSECTION },
-  { "publicsection", 13, DOX_COMMAND_PUBLICSECTION }, { NULL, 0, DOX_COMMAND_OTHER } };
+  { "publicsection", 13, DOX_COMMAND_PUBLICSECTION },
+  { NULL, 0, DOX_COMMAND_OTHER }
+};
+/* clang-format on */
 
 void closeComment(void);
 
 /* Clear the comment buffer */
-void clearComment()
+void clearComment(void)
 {
   commentLength = 0;
   if (commentText)
@@ -438,7 +453,7 @@ void setCommentState(int state)
 }
 
 /* Get the text from the comment buffer */
-const char* getComment()
+static const char* getComment(void)
 {
   const char* text = commentText;
   const char* cp = commentText;
@@ -473,7 +488,7 @@ const char* getComment()
 }
 
 /* Check for doxygen commands that mark unwanted comments */
-parse_dox_t checkDoxygenCommand(const char* text, size_t n)
+static parse_dox_t checkDoxygenCommand(const char* text, size_t n)
 {
   struct DoxygenCommandInfo* info;
   for (info = doxygenCommands; info->name; info++)
@@ -596,7 +611,7 @@ void addCommentLine(const char* line, size_t n, int type)
 }
 
 /* Store a doxygen comment */
-void storeComment()
+static void storeComment(void)
 {
   CommentInfo* info = (CommentInfo*)malloc(sizeof(CommentInfo));
   vtkParse_InitComment(info);
@@ -624,7 +639,7 @@ void storeComment()
 }
 
 /* Apply a doxygen trailing comment to the previous item */
-void applyComment(ClassInfo* cls)
+static void applyComment(ClassInfo* cls)
 {
   int i;
   ItemInfo* item;
@@ -736,7 +751,7 @@ void closeComment(void)
 }
 
 /* This is called when a blank line occurs in the header file */
-void commentBreak()
+void commentBreak(void)
 {
   if (!commentMemberGroup && commentState == StickyComment)
   {
@@ -882,7 +897,7 @@ const char* macroName = NULL;
 int macroUsed = 0;
 int macroEnded = 0;
 
-const char* getMacro()
+static const char* getMacro(void)
 {
   if (macroUsed == 0)
   {
@@ -903,7 +918,7 @@ NamespaceInfo* namespaceStack[10];
 int namespaceDepth = 0;
 
 /* enter a namespace */
-void pushNamespace(const char* name)
+static void pushNamespace(const char* name)
 {
   int i;
   NamespaceInfo* oldNamespace = currentNamespace;
@@ -930,7 +945,7 @@ void pushNamespace(const char* name)
 }
 
 /* leave the namespace */
-void popNamespace()
+static void popNamespace(void)
 {
   currentNamespace = namespaceStack[--namespaceDepth];
 }
@@ -947,14 +962,14 @@ parse_access_t classAccessStack[10];
 int classDepth = 0;
 
 /* start an internal class definition */
-void pushClass()
+static void pushClass(void)
 {
   classAccessStack[classDepth] = access_level;
   classStack[classDepth++] = currentClass;
 }
 
 /* leave the internal class */
-void popClass()
+static void popClass(void)
 {
   currentClass = classStack[--classDepth];
   access_level = classAccessStack[classDepth];
@@ -971,14 +986,14 @@ TemplateInfo* templateStack[10];
 int templateDepth = 0;
 
 /* begin a template */
-void startTemplate()
+static void startTemplate(void)
 {
   currentTemplate = (TemplateInfo*)malloc(sizeof(TemplateInfo));
   vtkParse_InitTemplate(currentTemplate);
 }
 
 /* clear a template, if set */
-void clearTemplate()
+static void clearTemplate(void)
 {
   if (currentTemplate)
   {
@@ -988,14 +1003,14 @@ void clearTemplate()
 }
 
 /* push the template onto the stack, and start a new one */
-void pushTemplate()
+static void pushTemplate(void)
 {
   templateStack[templateDepth++] = currentTemplate;
   startTemplate();
 }
 
 /* pop a template off the stack */
-void popTemplate()
+static void popTemplate(void)
 {
   currentTemplate = templateStack[--templateDepth];
 }
@@ -1015,7 +1030,7 @@ int sigMarkDepth = 0;
 char* signature = NULL;
 
 /* start a new signature */
-void startSig()
+static void startSig(void)
 {
   signature = NULL;
   sigLength = 0;
@@ -1026,28 +1041,19 @@ void startSig()
 }
 
 /* get the signature */
-const char* getSig()
+static const char* getSig(void)
 {
   return signature;
 }
 
 /* get the signature length */
-size_t getSigLength()
+static size_t getSigLength(void)
 {
   return sigLength;
 }
 
-/* reset the sig to the specified length */
-void resetSig(size_t n)
-{
-  if (n < sigLength)
-  {
-    sigLength = n;
-  }
-}
-
 /* reallocate Signature if n chars cannot be appended */
-void checkSigSize(size_t n)
+static void checkSigSize(size_t n)
 {
   const char* ccp;
 
@@ -1069,36 +1075,19 @@ void checkSigSize(size_t n)
 }
 
 /* close the signature, i.e. allow no more additions to it */
-void closeSig()
+static void closeSig(void)
 {
   sigClosed = 1;
 }
 
 /* re-open the signature */
-void openSig()
+static void openSig(void)
 {
   sigClosed = 0;
 }
 
-/* insert text at the beginning of the signature */
-void preSig(const char* arg)
-{
-  if (!sigClosed)
-  {
-    size_t n = strlen(arg);
-    checkSigSize(n);
-    if (n > 0)
-    {
-      memmove(&signature[n], signature, sigLength);
-      memmove(signature, arg, n);
-      sigLength += n;
-    }
-    signature[sigLength] = '\0';
-  }
-}
-
 /* append text to the end of the signature */
-void postSig(const char* arg)
+static void postSig(const char* arg)
 {
   if (!sigClosed)
   {
@@ -1113,7 +1102,7 @@ void postSig(const char* arg)
 }
 
 /* set a mark in the signature for later operations */
-void markSig()
+static void markSig(void)
 {
   sigMark[sigMarkDepth] = 0;
   if (signature)
@@ -1124,7 +1113,7 @@ void markSig()
 }
 
 /* get the contents of the sig from the mark, and clear the mark */
-const char* copySig()
+static const char* copySig(void)
 {
   const char* cp = NULL;
   if (sigMarkDepth > 0)
@@ -1139,7 +1128,7 @@ const char* copySig()
 }
 
 /* cut the sig from the mark to the current location, and clear the mark */
-const char* cutSig()
+static const char* cutSig(void)
 {
   const char* cp = NULL;
   if (sigMarkDepth > 0)
@@ -1155,47 +1144,8 @@ const char* cutSig()
   return cp;
 }
 
-/* swap the signature text using the mark as the radix */
-void swapSig()
-{
-  if (sigMarkDepth > 0)
-  {
-    sigMarkDepth--;
-  }
-  if (signature && sigMark[sigMarkDepth] > 0)
-  {
-    size_t i, m, n, nn;
-    char c;
-    char* cp;
-    cp = signature;
-    n = sigLength;
-    m = sigMark[sigMarkDepth];
-    nn = m / 2;
-    for (i = 0; i < nn; i++)
-    {
-      c = cp[i];
-      cp[i] = cp[m - i - 1];
-      cp[m - i - 1] = c;
-    }
-    nn = (n - m) / 2;
-    for (i = 0; i < nn; i++)
-    {
-      c = cp[i + m];
-      cp[i + m] = cp[n - i - 1];
-      cp[n - i - 1] = c;
-    }
-    nn = n / 2;
-    for (i = 0; i < nn; i++)
-    {
-      c = cp[i];
-      cp[i] = cp[n - i - 1];
-      cp[n - i - 1] = c;
-    }
-  }
-}
-
 /* chop the last space from the signature */
-void chopSig()
+static void chopSig(void)
 {
   if (signature)
   {
@@ -1210,7 +1160,7 @@ void chopSig()
 
 /* chop the last space from the signature unless the preceding token
    is an operator (used to remove spaces before argument lists) */
-void postSigLeftBracket(const char* s)
+static void postSigLeftBracket(const char* s)
 {
   if (signature)
   {
@@ -1238,7 +1188,7 @@ void postSigLeftBracket(const char* s)
 }
 
 /* chop trailing space and add a right bracket */
-void postSigRightBracket(const char* s)
+static void postSigRightBracket(const char* s)
 {
   chopSig();
   postSig(s);
@@ -1256,41 +1206,41 @@ unsigned int attributeStack[10];
 int typeDepth = 0;
 
 /* save the type on the stack */
-void pushType()
+static void pushType(void)
 {
   attributeStack[typeDepth] = declAttributes;
   typeStack[typeDepth++] = storedType;
 }
 
 /* pop the type stack */
-void popType()
+static void popType(void)
 {
   storedType = typeStack[--typeDepth];
   declAttributes = attributeStack[typeDepth];
 }
 
 /* clear the storage type */
-void clearType()
+static void clearType(void)
 {
   storedType = 0;
   declAttributes = 0;
 }
 
 /* save the type */
-void setTypeBase(unsigned int base)
+static void setTypeBase(unsigned int base)
 {
   storedType &= ~(unsigned int)(VTK_PARSE_BASE_TYPE);
   storedType |= base;
 }
 
 /* set a type modifier bit */
-void setTypeMod(unsigned int mod)
+static void setTypeMod(unsigned int mod)
 {
   storedType |= mod;
 }
 
 /* modify the indirection (pointers, refs) in the storage type */
-void setTypePtr(unsigned int ind)
+static void setTypePtr(unsigned int ind)
 {
   storedType &= ~(unsigned int)(VTK_PARSE_INDIRECT | VTK_PARSE_RVALUE);
   ind &= (VTK_PARSE_INDIRECT | VTK_PARSE_RVALUE);
@@ -1298,13 +1248,13 @@ void setTypePtr(unsigned int ind)
 }
 
 /* retrieve the storage type */
-unsigned int getType()
+static unsigned int getType(void)
 {
   return storedType;
 }
 
 /* combine two primitive type parts, e.g. "long int" */
-unsigned int buildTypeBase(unsigned int a, unsigned int b)
+static unsigned int buildTypeBase(unsigned int a, unsigned int b)
 {
   unsigned int base = (a & VTK_PARSE_BASE_TYPE);
   unsigned int basemod = (b & VTK_PARSE_BASE_TYPE);
@@ -1384,13 +1334,13 @@ unsigned int buildTypeBase(unsigned int a, unsigned int b)
 }
 
 /* add an attribute specifier to the current declaration */
-void addAttribute(unsigned int flags)
+static void addAttribute(unsigned int flags)
 {
   declAttributes |= flags;
 }
 
 /* check if an attribute is set for the current declaration */
-int getAttributes()
+static int getAttributes(void)
 {
   return declAttributes;
 }
@@ -1404,20 +1354,20 @@ int numberOfDimensions = 0;
 const char** arrayDimensions = NULL;
 
 /* clear the array counter */
-void clearArray(void)
+static void clearArray(void)
 {
   numberOfDimensions = 0;
   arrayDimensions = NULL;
 }
 
 /* add another dimension */
-void pushArraySize(const char* size)
+static void pushArraySize(const char* size)
 {
   vtkParse_AddStringToArray(&arrayDimensions, &numberOfDimensions, size);
 }
 
 /* add another dimension to the front */
-void pushArrayFront(const char* size)
+static void pushArrayFront(const char* size)
 {
   int i;
 
@@ -1432,13 +1382,13 @@ void pushArrayFront(const char* size)
 }
 
 /* get the number of dimensions */
-int getArrayNDims()
+static int getArrayNDims(void)
 {
   return numberOfDimensions;
 }
 
 /* get the whole array */
-const char** getArray()
+static const char** getArray(void)
 {
   if (numberOfDimensions > 0)
   {
@@ -1457,19 +1407,19 @@ const char* currentVarValue = 0;
 const char* currentId = 0;
 
 /* clear the var Id */
-void clearVarName(void)
+static void clearVarName(void)
 {
   currentVarName = NULL;
 }
 
 /* set the var Id */
-void setVarName(const char* text)
+static void setVarName(const char* text)
 {
   currentVarName = text;
 }
 
 /* return the var id */
-const char* getVarName()
+static const char* getVarName(void)
 {
   return currentVarName;
 }
@@ -1477,19 +1427,19 @@ const char* getVarName()
 /* variable value -------------- */
 
 /* clear the var value */
-void clearVarValue(void)
+static void clearVarValue(void)
 {
   currentVarValue = NULL;
 }
 
 /* set the var value */
-void setVarValue(const char* text)
+static void setVarValue(const char* text)
 {
   currentVarValue = text;
 }
 
 /* return the var value */
-const char* getVarValue()
+static const char* getVarValue(void)
 {
   return currentVarValue;
 }
@@ -1497,13 +1447,13 @@ const char* getVarValue()
 /* variable type -------------- */
 
 /* clear the current Id */
-void clearTypeId(void)
+static void clearTypeId(void)
 {
   currentId = NULL;
 }
 
 /* set the current Id, it is sticky until cleared */
-void setTypeId(const char* text)
+static void setTypeId(const char* text)
 {
   if (currentId == NULL)
   {
@@ -1512,7 +1462,7 @@ void setTypeId(const char* text)
 }
 
 /* set the signature and type together */
-void typeSig(const char* text)
+static void typeSig(const char* text)
 {
   postSig(text);
   postSig(" ");
@@ -1524,7 +1474,7 @@ void typeSig(const char* text)
 }
 
 /* return the current Id */
-const char* getTypeId()
+static const char* getTypeId(void)
 {
   return currentId;
 }
@@ -1538,7 +1488,7 @@ const char* pointerScopeStack[10];
 int pointerScopeDepth = 0;
 
 /* save the scope for scoped method pointers */
-void scopeSig(const char* scope)
+static void scopeSig(const char* scope)
 {
   if (scope && scope[0] != '\0')
   {
@@ -1552,7 +1502,7 @@ void scopeSig(const char* scope)
 }
 
 /* get the scope back */
-const char* getScope()
+static const char* getScope(void)
 {
   return pointerScopeStack[--pointerScopeDepth];
 }
@@ -1569,7 +1519,7 @@ const char* functionVarNameStack[10];
 const char* functionTypeIdStack[10];
 int functionDepth = 0;
 
-void pushFunction()
+static void pushFunction(void)
 {
   functionStack[functionDepth] = currentFunction;
   currentFunction = (FunctionInfo*)malloc(sizeof(FunctionInfo));
@@ -1588,7 +1538,7 @@ void pushFunction()
   functionStack[functionDepth] = 0;
 }
 
-void popFunction()
+static void popFunction(void)
 {
   FunctionInfo* newFunction = currentFunction;
 
@@ -1609,7 +1559,7 @@ void popFunction()
   functionStack[functionDepth + 1] = newFunction;
 }
 
-FunctionInfo* getFunction()
+static FunctionInfo* getFunction(void)
 {
   return functionStack[functionDepth + 1];
 }
@@ -1622,31 +1572,31 @@ int attributeRole = 0;
 const char* attributePrefix = NULL;
 
 /* Set kind of attributes to collect in attribute_specifier_seq */
-void setAttributeRole(int x)
+static void setAttributeRole(int x)
 {
   attributeRole = x;
 }
 
 /* Get the current kind of attribute */
-int getAttributeRole()
+static int getAttributeRole(void)
 {
   return attributeRole;
 }
 
 /* Ignore attributes until further notice */
-void clearAttributeRole()
+static void clearAttributeRole(void)
 {
   attributeRole = 0;
 }
 
 /* Set the "using" prefix for attributes */
-void setAttributePrefix(const char* x)
+static void setAttributePrefix(const char* x)
 {
   attributePrefix = x;
 }
 
 /* Get the "using" prefix for attributes */
-const char* getAttributePrefix()
+static const char* getAttributePrefix(void)
 {
   return attributePrefix;
 }
@@ -1655,54 +1605,8 @@ const char* getAttributePrefix()
  * Utility methods
  */
 
-/* prepend a scope:: to a name */
-void prepend_scope(char* cp, const char* arg)
-{
-  size_t i, j, m, n;
-  int depth;
-
-  m = strlen(cp);
-  n = strlen(arg);
-  i = m;
-  while (i > 0 && (vtkParse_CharType(cp[i - 1], CPRE_XID) || cp[i - 1] == ':' || cp[i - 1] == '>'))
-  {
-    i--;
-    if (cp[i] == '>')
-    {
-      depth = 1;
-      while (i > 0)
-      {
-        i--;
-        if (cp[i] == '<')
-        {
-          if (--depth == 0)
-          {
-            break;
-          }
-        }
-        if (cp[i] == '>')
-        {
-          depth++;
-        }
-      }
-    }
-  }
-
-  for (j = m; j > i; j--)
-  {
-    cp[j + n + 1] = cp[j - 1];
-  }
-  for (j = 0; j < n; j++)
-  {
-    cp[j + i] = arg[j];
-  }
-  cp[n + i] = ':';
-  cp[n + i + 1] = ':';
-  cp[m + n + 2] = '\0';
-}
-
 /* expand a type by including pointers from another */
-unsigned int add_indirection(unsigned int type1, unsigned int type2)
+static unsigned int add_indirection(unsigned int type1, unsigned int type2)
 {
   unsigned int ptr1 = (type1 & VTK_PARSE_POINTER_MASK);
   unsigned int ptr2 = (type2 & VTK_PARSE_POINTER_MASK);
@@ -1742,7 +1646,7 @@ unsigned int add_indirection(unsigned int type1, unsigned int type2)
 }
 
 /* There is only one array, so add any parenthetical indirection to it */
-unsigned int add_indirection_to_array(unsigned int type)
+static unsigned int add_indirection_to_array(unsigned int type)
 {
   unsigned int ptrs = (type & VTK_PARSE_POINTER_MASK);
   unsigned int result = (type & ~VTK_PARSE_POINTER_MASK);
@@ -8955,7 +8859,7 @@ static void yypdumpstack(yyGLRStack* yystackp)
 #include <string.h>
 
 /* fill in the type name if none given */
-const char* type_class(unsigned int type, const char* classname)
+static const char* type_class(unsigned int type, const char* classname)
 {
   if (classname)
   {
@@ -9037,7 +8941,7 @@ const char* type_class(unsigned int type, const char* classname)
 }
 
 /* check whether this is the class we are looking for */
-void start_class(const char* classname, int is_struct_or_union)
+static void start_class(const char* classname, int is_struct_or_union)
 {
   ClassInfo* outerClass = currentClass;
   pushClass();
@@ -9110,7 +9014,7 @@ void start_class(const char* classname, int is_struct_or_union)
 }
 
 /* reached the end of a class definition */
-void end_class(void)
+static void end_class(void)
 {
   /* add default constructors */
   vtkParse_AddDefaultConstructors(currentClass, data->Strings);
@@ -9119,7 +9023,7 @@ void end_class(void)
 }
 
 /* add a base class to the specified class */
-void add_base_class(ClassInfo* cls, const char* name, int access_lev, unsigned int extra)
+static void add_base_class(ClassInfo* cls, const char* name, int access_lev, unsigned int extra)
 {
   /* "extra" can contain VTK_PARSE_VIRTUAL and VTK_PARSE_PACK */
   if (cls && access_lev == VTK_ACCESS_PUBLIC && (extra & VTK_PARSE_VIRTUAL) == 0 &&
@@ -9130,7 +9034,7 @@ void add_base_class(ClassInfo* cls, const char* name, int access_lev, unsigned i
 }
 
 /* add a using declaration or directive */
-void add_using(const char* name, int is_namespace)
+static void add_using(const char* name, int is_namespace)
 {
   size_t i;
   UsingInfo* item;
@@ -9169,7 +9073,7 @@ void add_using(const char* name, int is_namespace)
 }
 
 /* start a new enum */
-void start_enum(const char* name, int is_scoped, unsigned int type, const char* basename)
+static void start_enum(const char* name, int is_scoped, unsigned int type, const char* basename)
 {
   EnumInfo* item;
 
@@ -9227,7 +9131,7 @@ void start_enum(const char* name, int is_scoped, unsigned int type, const char* 
 }
 
 /* finish the enum */
-void end_enum(void)
+static void end_enum(void)
 {
   if (currentClass && currentClass->ItemType == VTK_ENUM_INFO)
   {
@@ -9239,7 +9143,7 @@ void end_enum(void)
 }
 
 /* add a constant to the enum */
-void add_enum(const char* name, const char* value)
+static void add_enum(const char* name, const char* value)
 {
   static char text[2048];
   unsigned int attribs = getAttributes();
@@ -9286,7 +9190,7 @@ void add_enum(const char* name, const char* value)
 }
 
 /* for a macro constant, guess the constant type, doesn't do any math */
-unsigned int guess_constant_type(const char* valstring)
+static unsigned int guess_constant_type(const char* valstring)
 {
   unsigned int valtype = 0;
   size_t k;
@@ -9486,8 +9390,8 @@ unsigned int guess_constant_type(const char* valstring)
 }
 
 /* add a constant to the current class or namespace */
-void add_constant(const char* name, const char* value, unsigned int attributes, unsigned int type,
-  const char* typeclass, int flag)
+static void add_constant(const char* name, const char* value, unsigned int attributes,
+  unsigned int type, const char* typeclass, int flag)
 {
   ValueInfo* con = (ValueInfo*)malloc(sizeof(ValueInfo));
   vtkParse_InitValue(con);
@@ -9547,7 +9451,7 @@ void add_constant(const char* name, const char* value, unsigned int attributes, 
 }
 
 /* guess the type from the ID */
-unsigned int guess_id_type(const char* cp)
+static unsigned int guess_id_type(const char* cp)
 {
   unsigned int t = 0;
 
@@ -9589,7 +9493,7 @@ unsigned int guess_id_type(const char* cp)
 }
 
 /* add a template parameter to the current template */
-void add_template_parameter(unsigned int datatype, unsigned int extra, const char* funcSig)
+static void add_template_parameter(unsigned int datatype, unsigned int extra, const char* funcSig)
 {
   ValueInfo* param = (ValueInfo*)malloc(sizeof(ValueInfo));
   vtkParse_InitValue(param);
@@ -9599,7 +9503,7 @@ void add_template_parameter(unsigned int datatype, unsigned int extra, const cha
 }
 
 /* set the return type for the current function */
-void set_return(
+static void set_return(
   FunctionInfo* func, unsigned int attributes, unsigned int type, const char* typeclass, int count)
 {
   char text[64];
@@ -9627,7 +9531,7 @@ void set_return(
 #endif
 }
 
-int count_from_dimensions(ValueInfo* val)
+static int count_from_dimensions(ValueInfo* val)
 {
   int count, i, n;
   const char* cp;
@@ -9664,7 +9568,7 @@ int count_from_dimensions(ValueInfo* val)
 }
 
 /* deal with types that include function pointers or arrays */
-void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigned int datatype,
+static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigned int datatype,
   unsigned int extra, const char* funcSig)
 {
   FunctionInfo* func = 0;
@@ -9772,7 +9676,7 @@ void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigned int d
 }
 
 /* handle [[attributes]] */
-void handle_attribute(const char* att, int pack)
+static void handle_attribute(const char* att, int pack)
 {
   /* the role means "this is what the attribute applies to" */
   int role = getAttributeRole();
@@ -9948,7 +9852,7 @@ void handle_attribute(const char* att, int pack)
 }
 
 /* add a parameter to the legacy part of the FunctionInfo struct */
-void add_legacy_parameter(FunctionInfo* func, ValueInfo* param)
+static void add_legacy_parameter(FunctionInfo* func, ValueInfo* param)
 {
 #ifndef VTK_PARSE_LEGACY_REMOVE
   int i = func->NumberOfArguments;
@@ -9981,7 +9885,7 @@ void add_legacy_parameter(FunctionInfo* func, ValueInfo* param)
 }
 
 /* reject the function, do not output it */
-void reject_function()
+static void reject_function(void)
 {
   vtkParse_FreeFunction(currentFunction);
   currentFunction = (FunctionInfo*)malloc(sizeof(FunctionInfo));
@@ -9991,7 +9895,7 @@ void reject_function()
 }
 
 /* a simple routine that updates a few variables */
-void output_function()
+static void output_function(void)
 {
   size_t n;
   int i, j;
@@ -10218,7 +10122,7 @@ void output_function()
 }
 
 /* output a function that is not a method of the current class */
-void output_friend_function()
+static void output_friend_function(void)
 {
   ClassInfo* tmpc = currentClass;
   currentClass = NULL;
@@ -10227,7 +10131,7 @@ void output_friend_function()
 }
 
 /* dump predefined macros to the specified file. */
-void dump_macros(const char* filename)
+static void dump_macros(const char* filename)
 {
   MacroInfo* macro = NULL;
   FILE* ofile = stdout;

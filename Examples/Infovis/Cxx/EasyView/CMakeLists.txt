@@ -32,12 +32,8 @@ add_executable(EasyView
   MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UIs} ${Rcs})
 target_link_libraries(EasyView
   PRIVATE
-    ${vtk_modules}
-    VTK::GUISupportQt
-    VTK::ViewsQt
+    ${VTK_LIBRARIES}
     Qt5::Widgets)
 vtk_module_autoinit(
   TARGETS EasyView
-  MODULES ${vtk_modules}
-          VTK::GUISupportQt
-          VTK::ViewsQt)
+  MODULES ${VTK_LIBRARIES})

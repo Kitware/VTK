@@ -16,9 +16,10 @@
 #include "SMP/Common/vtkSMPToolsAPI.h"
 #include "vtkSetGet.h" // For vtkWarningMacro
 
-#include <cstdlib>  // For std::getenv
-#include <iostream> // For std::cerr
-#include <string>   // For std::string
+#include <algorithm> // For std::toupper
+#include <cstdlib>   // For std::getenv
+#include <iostream>  // For std::cerr
+#include <string>    // For std::string
 
 namespace vtk
 {
@@ -92,18 +93,23 @@ const char* vtkSMPToolsAPI::GetBackend()
 //------------------------------------------------------------------------------
 bool vtkSMPToolsAPI::SetBackend(const char* type)
 {
-  const std::string backend(type);
-  if (backend == "Sequential" && this->SequentialBackend)
+  std::string backend(type);
+  std::transform(backend.cbegin(), backend.cend(), backend.begin(), ::toupper);
+  if (backend == "SEQUENTIAL" && this->SequentialBackend)
     this->ActivatedBackend = BackendType::Sequential;
-  else if (backend == "STDThread" && this->STDThreadBackend)
+  else if (backend == "STDTHREAD" && this->STDThreadBackend)
     this->ActivatedBackend = BackendType::STDThread;
   else if (backend == "TBB" && this->TBBBackend)
     this->ActivatedBackend = BackendType::TBB;
-  else if (backend == "OpenMP" && this->OpenMPBackend)
+  else if (backend == "OPENMP" && this->OpenMPBackend)
     this->ActivatedBackend = BackendType::OpenMP;
   else
   {
-    std::cerr << "WARNING: tried to use a non implemented SMPTools backend " << backend << "!\n";
+    std::cerr << "WARNING: tried to use a non implemented SMPTools backend \"" << type << "\"!\n";
+    std::cerr << "The available backends are:" << (this->SequentialBackend ? " \"Sequential\"" : "")
+              << (this->STDThreadBackend ? " \"STDThread\"" : "")
+              << (this->TBBBackend ? " \"TBB\"" : "") << (this->OpenMPBackend ? " \"OpenMP\"" : "")
+              << "\n";
     std::cerr << "Using " << this->GetBackend() << " instead." << std::endl;
     return false;
   }

@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtklzma/COPYING"
-    VERSION       "5.2.4"
+    VERSION       "5.2.5"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LZMA

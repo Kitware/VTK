@@ -629,7 +629,7 @@ int vtkPointsProjectedHull::RectangleOutside(
 
   // a representative point inside the polygon
 
-  double* insidePt = new double[2];
+  double insidePt[2];
 
   insidePt[0] = this->CCWHull[dir][0];
   insidePt[1] = this->CCWHull[dir][1];
@@ -660,12 +660,9 @@ int vtkPointsProjectedHull::RectangleOutside(
     if (OutsideLine(hmin, hmax, vmin, vmax, this->CCWHull[dir] + 2 * i,
           this->CCWHull[dir] + 2 * i + 2, insidePt))
     {
-      delete[] insidePt;
       return 1;
     }
   }
-
-  delete[] insidePt;
 
   // KDM: The test above is sufficient for the polygon to be outside the box,
   // but not necessary.  Consider the following bounding box and triangle.

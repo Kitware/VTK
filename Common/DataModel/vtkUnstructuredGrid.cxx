@@ -73,6 +73,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
 #include "vtkStaticCellLinks.h"
 #include "vtkTetra.h"
 #include "vtkTriQuadraticHexahedron.h"
@@ -122,6 +123,7 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkIdTypeArr
   this->SetCells(cellTypes, cells, faceLocations, faces);
 }
 
+//------------------------------------------------------------------------------
 vtkUnstructuredGrid::vtkUnstructuredGrid()
 {
   this->Vertex = nullptr;
@@ -1966,182 +1968,96 @@ bool vtkUnstructuredGrid::AllocateExact(vtkIdType numCells, vtkIdType connectivi
 }
 
 //----------------------------------------------------------------------------
-// Supporting functions for IsCellBoundary() and GetCellNeighbors(). There
-// are two ways to approach these algorithms. 1) Intersect the cell links
-// lists to determine which cells (if any) are used by all boundary entity
-// points; or 2) find the shortest cell links list of a point, and then see if
-// any cells in that list use all the other points defining the boundary
-// entity. While 2) is faster (for tets - it's data dependent however) - it
-// is not thread-safe in the case when the type of vtkUnstructuredGrid's
-// (vtkCellArray) connectivity array is not the same as vtkIdType. (When
-// shareable is true, the types are the same.) Hence both algorithms are
-// implemented in the following.
-//
+// Supporting implementation functions for IsCellBoundary() and
+// GetCellNeighbors().  Basically these methods are an intersection of N sets
+// (e.g., each set is a list of cells using each point, the cell links). To
+// perform this intersection, the cell links associated with each point are
+// combined and then sorted. This will produce contiguous runs, the length
+// of which indicates how many times n a cell is represented in the N sets.
+// If n == N, then the cell is present in each of the cell links, and if
+// the cell != cellId, then this boundary defined by pts[] is an interior
+// face.
 namespace
 { // anonymous
-// Determine whether the points provides form a boundary entity
+
+// Determine whether the points provided define a boundary entity (i.e., used
+// by only one cell), or whether the points define an interior entity (used
+// by more than one cell).
 template <class TLinks>
-inline bool IsCellBoundaryImp(vtkUnstructuredGrid* self, TLinks* links, bool shareable,
-  vtkIdType cellId, vtkIdType npts, const vtkIdType* pts)
+inline bool IsCellBoundaryImp(TLinks* links, vtkIdType cellId, vtkIdType npts, const vtkIdType* pts)
 {
-  if (!shareable)
+  std::vector<vtkIdType> cellSet;
+  cellSet.reserve(256); // avoid reallocs if possible
+
+  // Combine all of the cell lists, and then sort them.
+  for (auto i = 0; i < npts; ++i)
   {
-    // Cell faces are currently no greater than 6 in size.
-    // We want to make calls to the links methods only once.
-    npts = (npts > 6 ? 6 : npts);
-    vtkIdType numCells[6];
-    vtkIdType* cells[6];
+    vtkIdType numCells = links->GetNcells(pts[i]);
+    const vtkIdType* cells = links->GetCells(pts[i]);
+    cellSet.insert(cellSet.end(), cells, cells + numCells);
+  }
+  std::sort(cellSet.begin(), cellSet.end());
 
-    // Find the shortest cell links list.
-    int i, j, minList = 0;
-    vtkIdType minNumCells = VTK_INT_MAX;
-    for (i = 0; i < npts; ++i)
-    {
-      numCells[i] = links->GetNcells(pts[i]);
-      cells[i] = links->GetCells(pts[i]);
-      if (numCells[i] < minNumCells)
-      {
-        minList = i;
-        minNumCells = numCells[i];
-      }
-    }
-
-    vtkIdType ncells0 = numCells[minList], *c0 = cells[minList];
-    vtkIdType ncells, *c;
-    for (i = 0; i < ncells0; ++i) // for all cells in the shortest list
-    {
-      vtkIdType candidateCellId = c0[i];
-      if (candidateCellId != cellId)
-      {
-        // check all other lists for inclusion
-        bool inAllLists = true;
-        for (auto linkArray = 0; inAllLists == true && linkArray < npts; ++linkArray)
-        {
-          if (linkArray == minList)
-          {
-            continue; // don't process this list
-          }
-          ncells = numCells[linkArray];
-          c = cells[linkArray];
-          for (j = 0; j < ncells; ++j) // check the next cell list
-          {
-            if (c[j] == candidateCellId)
-            {
-              break; // match found, in cell list
-            }
-          }
-          if (j >= ncells) // cell not found in this list
-          {
-            inAllLists = false;
-            break;
-          }
-        } // intersects
-        if (inAllLists)
-        {
-          return false; // i.e., not a boundary entity
-        }
-      } // if candidate cell != cellId
-    }   // for all potential cell neighbors
-
-    return true;
-  }    // if not shareable
-  else // shareable
+  // Sorting will have grouped the cells into contiguous runs. Determine the
+  // length of the runs - if equal to npts, then a cell is present in all
+  // sets, and if this cell is not the user-provided cellId, then there is a
+  // cell common to all sets, hence this is not a boundary cell.
+  auto itr = cellSet.begin();
+  while (itr != cellSet.end())
   {
-    // Find the shortest linked list
-    vtkIdType ptId, numCells, minPtId = 0, minNumCells = VTK_INT_MAX;
-    const vtkIdType* minCells;
-    for (auto i = 0; i < npts; ++i)
-    {
-      ptId = pts[i];
-      numCells = links->GetNcells(ptId);
-      if (numCells < minNumCells)
-      {
-        minNumCells = numCells;
-        minPtId = ptId;
-      }
-    }
-    minCells = links->GetCells(minPtId);
+    auto start = itr;
+    vtkIdType currentCell = *itr;
+    while (itr != cellSet.end() && *itr == currentCell)
+      ++itr; // advance across this contiguous run
 
-    // Now for each cell, see if it contains all the points
-    // in the ptIds list. If so, then this is not a boundary entity.
-    bool match;
-    for (auto i = 0; i < minNumCells; ++i)
+    // What is the size of the contiguous run? If equal to
+    // the number of sets, then this is an interior boundary.
+    if (((itr - start) >= npts) && (currentCell != cellId))
     {
-      if (minCells[i] != cellId) // don't include current cell
-      {
-        const vtkIdType* cellPts;
-        vtkIdType numPts;
-        // GetCellPoints() is not thread safe when vtkIdType is not the same
-        // as the vtkUnstructuredGrid's connectivity array.
-        self->GetCellPoints(minCells[i], numPts, cellPts);
-        match = true;
-        for (auto j = 0; j < npts && match; ++j) // for all pts in input boundary entity
-        {
-          if (pts[j] != minPtId) // of course minPtId is contained by cell
-          {
-            match = false;
-            for (auto k = 0; k < numPts; ++k) // for all points in candidate cell
-            {
-              if (pts[j] == cellPts[k])
-              {
-                match = true; // a match was found
-                break;
-              }
-            } // for all points in current cell
-          }   // if not guaranteed match
-        }     // for all points in input cell
-        if (match)
-        {
-          return false;
-        }
-      } // if not the reference cell
-    }   // for each cell in minimum linked list
-    return true;
-  } // vtkCellArray not shareable
+      return false;
+    }
+  } // while over the cell set
+
+  return true;
 }
 
 // Identify the neighbors to the specified cell, where the neighbors
 // use all the points in the points list (pts).
 template <class TLinks>
-inline void GetCellNeighborsImp(TLinks* links, bool vtkNotUsed(shareable), vtkIdType cellId,
-  vtkIdType npts, const vtkIdType* pts, vtkIdList* cellIds)
+inline void GetCellNeighborsImp(
+  TLinks* links, vtkIdType cellId, vtkIdType npts, const vtkIdType* pts, vtkIdList* cellIds)
 {
-  // Intersect the cell links lists to determine which cells exist in all
-  // lists. If any cell is contained in all cell lists, then this is a
-  // neighboring cell and added to the list of neighbors.
-  int i, j;
-  vtkIdType ncells0 = links->GetNcells(pts[0]), *c0 = links->GetCells(pts[0]);
-  vtkIdType ncells, *c;
-  for (i = 0; i < ncells0; ++i) // for all cells in first cell list
+  std::vector<vtkIdType> cellSet;
+  cellSet.reserve(256); // avoid reallocs if possible
+
+  // Combine all of the cell lists, and then sort them.
+  for (auto i = 0; i < npts; ++i)
   {
-    vtkIdType candidateCellId = c0[i];
-    if (candidateCellId != cellId)
+    vtkIdType numCells = links->GetNcells(pts[i]);
+    const vtkIdType* cells = links->GetCells(pts[i]);
+    cellSet.insert(cellSet.end(), cells, cells + numCells);
+  }
+  std::sort(cellSet.begin(), cellSet.end());
+
+  // Sorting will have grouped the cells into contiguous runs. Determine the
+  // length of the runs - if equal to npts, then a cell is present in all
+  // sets, and if this cell is not the user-provided cellId, then this is a
+  // cell common to all sets, hence it is a neighboring cell.
+  auto itr = cellSet.begin();
+  while (itr != cellSet.end())
+  {
+    auto start = itr;
+    vtkIdType currentCell = *itr;
+    while (itr != cellSet.end() && *itr == currentCell)
+      ++itr; // advance across this contiguous run
+
+    // What is the size of the contiguous run? If equal to
+    // the number of sets, then this is a neighboring cell.
+    if (((itr - start) >= npts) && (currentCell != cellId))
     {
-      // check all other lists for inclusion
-      bool inAllLists = true;
-      for (auto linkArray = 1; inAllLists == true && linkArray < npts; ++linkArray)
-      {
-        ncells = links->GetNcells(pts[linkArray]);
-        c = links->GetCells(pts[linkArray]);
-        for (j = 0; j < ncells; ++j) // check the next cell list
-        {
-          if (c[j] == candidateCellId)
-          {
-            break; // match found, in cell list
-          }
-        }
-        if (j >= ncells) // cell not found in this list
-        {
-          inAllLists = false;
-          break;
-        }
-      } // intersects
-      if (inAllLists)
-      {
-        cellIds->InsertNextId(candidateCellId);
-      }
-    } // if candidate cell != cellId
-  }   // for all potential cell neighbors
+      cellIds->InsertNextId(currentCell);
+    }
+  } // while over the cell set
 }
 
 } // end anonymous namespace
@@ -2161,21 +2077,17 @@ bool vtkUnstructuredGrid::IsCellBoundary(vtkIdType cellId, vtkIdType npts, const
     this->BuildLinks();
   }
 
-  // See if vtkCellArray storage is shareable. This will inform the
-  // GetCellNeighbors() algorithm.
-  bool shareable = this->Connectivity->IsStorageShareable();
-
   // Get the links (cells that use each point) depending on the editable
   // state of this object.
   if (!this->Editable)
   {
     vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
-    return IsCellBoundaryImp<vtkStaticCellLinks>(this, links, shareable, cellId, npts, pts);
+    return IsCellBoundaryImp<vtkStaticCellLinks>(links, cellId, npts, pts);
   }
   else
   {
     vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
-    return IsCellBoundaryImp<vtkCellLinks>(this, links, shareable, cellId, npts, pts);
+    return IsCellBoundaryImp<vtkCellLinks>(links, cellId, npts, pts);
   }
 }
 
@@ -2201,20 +2113,16 @@ void vtkUnstructuredGrid::GetCellNeighbors(
     this->BuildLinks();
   }
 
-  // See if vtkCellArray storage is shareable. This will inform the
-  // GetCellNeighbors() algorithm.
-  bool shareable = this->Connectivity->IsStorageShareable();
-
   // Get the cell links based on the current state.
   if (!this->Editable)
   {
     vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
-    return GetCellNeighborsImp<vtkStaticCellLinks>(links, shareable, cellId, npts, pts, cellIds);
+    return GetCellNeighborsImp<vtkStaticCellLinks>(links, cellId, npts, pts, cellIds);
   }
   else
   {
     vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
-    return GetCellNeighborsImp<vtkCellLinks>(links, shareable, cellId, npts, pts, cellIds);
+    return GetCellNeighborsImp<vtkCellLinks>(links, cellId, npts, pts, cellIds);
   }
 }
 
@@ -2305,10 +2213,7 @@ void vtkUnstructuredGrid::RemoveGhostCells()
 
   pointMap = vtkIdList::New(); // maps old point ids into new
   pointMap->SetNumberOfIds(numPts);
-  for (i = 0; i < numPts; i++)
-  {
-    pointMap->SetId(i, -1);
-  }
+  pointMap->Fill(-1);
 
   newCellPts = vtkIdList::New();
 

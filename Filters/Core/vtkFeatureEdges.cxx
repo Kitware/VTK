@@ -22,6 +22,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMergePoints.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -30,7 +31,15 @@
 #include "vtkTriangleStrip.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <map>
+
 vtkStandardNewMacro(vtkFeatureEdges);
+
+namespace
+{
+constexpr unsigned char CELL_NOT_VISIBLE =
+  vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::DUPLICATECELL;
+} // anonymous namespace
 
 //------------------------------------------------------------------------------
 // Construct object with feature angle = 30; all types of edges, except
@@ -42,6 +51,7 @@ vtkFeatureEdges::vtkFeatureEdges()
   this->FeatureEdges = true;
   this->NonManifoldEdges = true;
   this->ManifoldEdges = false;
+  this->PassLines = false;
   this->Coloring = true;
   this->Locator = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
@@ -56,6 +66,8 @@ vtkFeatureEdges::~vtkFeatureEdges()
     this->Locator = nullptr;
   }
 }
+
+#include "vtkLogger.h"
 
 //------------------------------------------------------------------------------
 // Generate feature edges for mesh
@@ -76,7 +88,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellArray* newLines;
   vtkPolyData* Mesh;
   int i;
-  vtkIdType j, numNei, cellId;
+  vtkIdType j, numNei;
   vtkIdType numBEdges, numNonManifoldEdges, numFedges, numManifoldEdges;
   double scalar, n[3], x1[3], x2[3];
   double cosAngle = 0;
@@ -85,11 +97,15 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   const vtkIdType* pts = nullptr;
   vtkCellArray *inPolys, *inStrips, *newPolys;
   vtkFloatArray* polyNormals = nullptr;
-  vtkIdType numPts, numCells, numPolys, numStrips, nei;
+  vtkIdType numPts, numCells, numPolys, numStrips, numLines, nei;
   vtkIdList* neighbors;
   vtkIdType p1, p2, newId;
   vtkPointData *pd = input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData *cd = input->GetCellData(), *outCD = output->GetCellData();
+
+  outPD->CopyGlobalIdsOn();
+  outCD->CopyGlobalIdsOn();
+
   unsigned char* ghosts = nullptr;
   vtkDebugMacro(<< "Executing feature edges");
 
@@ -113,7 +129,9 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   numCells = input->GetNumberOfCells();
   numPolys = input->GetNumberOfPolys();
   numStrips = input->GetNumberOfStrips();
-  if ((numPts = input->GetNumberOfPoints()) < 1 || !inPts || (numPolys < 1 && numStrips < 1))
+  numLines = this->PassLines ? input->GetNumberOfLines() : 0;
+  if ((numPts = input->GetNumberOfPoints()) < 1 || !inPts ||
+    (numPolys < 1 && numStrips < 1 && numLines < 1))
   {
     vtkDebugMacro(<< "No input data!");
     return 1;
@@ -129,6 +147,49 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   Mesh = vtkPolyData::New();
   Mesh->SetPoints(inPts);
   inPolys = input->GetPolys();
+  vtkIdType numberOfNewPolys = numPolys;
+
+  vtkNew<vtkIdList> polyIdToCellIdMap;
+  vtkNew<vtkIdList> stripIdToCellIdMap;
+  vtkNew<vtkIdList> lineIdToCellIdMap;
+  std::map<vtkIdType, vtkIdType> decomposedStripIdToStripIdMap;
+
+  // We need to remap cells if there are other cell arrays than polys
+  if (numPolys != numCells)
+  {
+    polyIdToCellIdMap->SetNumberOfIds(numPolys);
+    stripIdToCellIdMap->SetNumberOfIds(numStrips);
+    lineIdToCellIdMap->SetNumberOfIds(numLines);
+    for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
+    {
+      switch (input->GetCellType(cellId))
+      {
+        case VTK_EMPTY_CELL:
+        case VTK_VERTEX:
+        case VTK_POLY_VERTEX:
+          break;
+        case VTK_TRIANGLE:
+        case VTK_QUAD:
+        case VTK_POLYGON:
+          polyIdToCellIdMap->SetId(input->GetCellIdRelativeToCellArray(cellId), cellId);
+          break;
+        case VTK_TRIANGLE_STRIP:
+          stripIdToCellIdMap->SetId(input->GetCellIdRelativeToCellArray(cellId), cellId);
+          break;
+        case VTK_LINE:
+        case VTK_POLY_LINE:
+          if (this->PassLines)
+          {
+            lineIdToCellIdMap->SetId(input->GetCellIdRelativeToCellArray(cellId), cellId);
+          }
+          break;
+        default:
+          vtkErrorMacro(<< "Wrong cell type in poly data input.");
+          break;
+      }
+    }
+  }
+
   if (numStrips > 0)
   {
     newPolys = vtkCellArray::New();
@@ -141,10 +202,14 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
       newPolys->AllocateEstimate(numStrips, 5);
     }
     inStrips = input->GetStrips();
+    vtkIdType stripId = -1;
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts);)
     {
+      numberOfNewPolys += npts - 2;
+      decomposedStripIdToStripIdMap.insert({ numberOfNewPolys, ++stripId });
       vtkTriangleStrip::DecomposeStrip(npts, pts, newPolys);
     }
+
     Mesh->SetPolys(newPolys);
     newPolys->Delete();
   }
@@ -175,7 +240,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
 
   newPts->Allocate(numPts / 10, numPts);
   newLines = vtkCellArray::New();
-  newLines->AllocateEstimate(numPts / 20, 2);
+  newLines->AllocateEstimate(numLines + numPts / 20, 2 * (numLines + numPts / 20));
   if (this->Coloring)
   {
     newScalars = vtkFloatArray::New();
@@ -203,6 +268,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
     polyNormals->SetNumberOfComponents(3);
     polyNormals->Allocate(3 * newPolys->GetNumberOfCells());
 
+    vtkIdType cellId;
     for (cellId = 0, newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts); cellId++)
     {
       vtkPolygon::ComputeNormal(inPts, npts, pts, n);
@@ -216,99 +282,179 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   neighbors->Allocate(VTK_CELL_SIZE);
 
   int abort = 0;
-  vtkIdType progressInterval = numCells / 20 + 1;
+  vtkIdType progressInterval = newPolys->GetNumberOfCells() / 20 + 1;
 
   numBEdges = numNonManifoldEdges = numFedges = numManifoldEdges = 0;
-  for (cellId = 0, newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts) && !abort; cellId++)
+  vtkIdType newCellId, cellId;
+
+  // When filling output cells, to respect the same order as in vtkPolyData,
+  // we need to fill lines, then polys, then strips.
+  vtkIdType numOutLines = 0;
+  if (numLines)
   {
-    if (!(cellId % progressInterval)) // manage progress / early abort
+    vtkCellArray* lines = input->GetLines();
+    vtkIdType lineId = 0;
+    for (lines->InitTraversal(); lines->GetNextCell(npts, pts); ++lineId)
     {
-      this->UpdateProgress(static_cast<double>(cellId) / numCells);
+      cellId = lineIdToCellIdMap->GetId(lineId);
+      if (ghosts && ghosts[cellId] & CELL_NOT_VISIBLE)
+      {
+        continue;
+      }
+
+      for (vtkIdType pointId = 0; pointId < npts - 1; ++pointId)
+      {
+        p1 = pts[pointId];
+        p2 = pts[pointId + 1];
+
+        Mesh->GetPoint(p1, x1);
+        Mesh->GetPoint(p2, x2);
+
+        if (this->Locator->InsertUniquePoint(x1, lineIds[0]))
+        {
+          outPD->CopyData(pd, p1, lineIds[0]);
+        }
+
+        if (this->Locator->InsertUniquePoint(x2, lineIds[1]))
+        {
+          outPD->CopyData(pd, p2, lineIds[1]);
+        }
+
+        newId = newLines->InsertNextCell(2, lineIds);
+        outCD->CopyData(cd, cellId, newId);
+        if (this->Coloring)
+        {
+          newScalars->InsertTuple1(newId, 0.888889);
+        }
+        ++numOutLines;
+      }
+    }
+  }
+
+  for (newCellId = 0, newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts) && !abort;
+       newCellId++)
+  {
+    if (!(newCellId % progressInterval)) // manage progress / early abort
+    {
+      this->UpdateProgress(static_cast<double>(newCellId) / numCells);
       abort = this->GetAbortExecute();
     }
+
+    if (numPolys == numCells) // Input only has Polys
+    {
+      cellId = newCellId;
+    }
+    else if (newCellId < numPolys) // Input has mixed types, and we currently are on a Poly
+    {
+      cellId = polyIdToCellIdMap->GetId(newCellId);
+    }
+    else // Input has mixed types and we are dealing with triangle strips
+    {
+      auto it = decomposedStripIdToStripIdMap.lower_bound(newCellId + 1);
+      cellId = stripIdToCellIdMap->GetId(it->second);
+    }
+
+    if (ghosts && ghosts[cellId] & CELL_NOT_VISIBLE)
+    {
+      continue;
+    }
+
+    // Used with non manifold edges when there are ghost cells in the input
+    vtkNew<vtkIdList> edgesRemapping;
 
     for (i = 0; i < npts; i++)
     {
       p1 = pts[i];
       p2 = pts[(i + 1) % npts];
 
-      Mesh->GetCellEdgeNeighbors(cellId, p1, p2, neighbors);
+      Mesh->GetCellEdgeNeighbors(newCellId, p1, p2, neighbors);
       numNei = neighbors->GetNumberOfIds();
 
-      if (this->BoundaryEdges && numNei < 1)
+      vtkIdType numNeiWithoutGhosts = numNei;
+      vtkIdType firstNeighbor = 0;
+      if (ghosts)
       {
-        if (ghosts && ghosts[cellId] & vtkDataSetAttributes::DUPLICATECELL)
+        for (j = 0; j < numNei; ++j)
         {
-          continue;
-        }
-        else
-        {
-          numBEdges++;
-          scalar = 0.0;
+          vtkIdType neiId = neighbors->GetId(j);
+          vtkIdType neighborCellIdInInput;
+          if (numPolys == numCells)
+          {
+            neighborCellIdInInput = neiId;
+          }
+          else if (neiId < numPolys)
+          {
+            neighborCellIdInInput = polyIdToCellIdMap->GetId(neiId);
+          }
+          else
+          {
+            auto it = decomposedStripIdToStripIdMap.lower_bound(neiId + 1);
+            neighborCellIdInInput = stripIdToCellIdMap->GetId(it->second);
+          }
+          if (ghosts[neighborCellIdInInput] & CELL_NOT_VISIBLE)
+          {
+            if (this->NonManifoldEdges)
+            {
+              edgesRemapping->InsertNextId(j);
+            }
+            if (j == firstNeighbor)
+            {
+              ++firstNeighbor;
+            }
+            --numNeiWithoutGhosts;
+          }
         }
       }
 
-      else if (this->NonManifoldEdges && numNei > 1)
+      if (this->BoundaryEdges && numNeiWithoutGhosts < 1)
+      {
+        numBEdges++;
+        scalar = 0.0;
+      }
+
+      else if (this->NonManifoldEdges && numNeiWithoutGhosts > 1)
       {
         // check to make sure that this edge hasn't been created before
-        for (j = 0; j < numNei; j++)
+        for (j = 0; j < (ghosts ? edgesRemapping->GetNumberOfIds() : numNei); j++)
         {
-          if (neighbors->GetId(j) < cellId)
+          if (neighbors->GetId(ghosts ? edgesRemapping->GetId(j) : j) < newCellId)
           {
             break;
           }
         }
-        if (j >= numNei)
+        edgesRemapping->Reset();
+        if (j >= numNeiWithoutGhosts)
         {
-          if (ghosts && ghosts[cellId] & vtkDataSetAttributes::DUPLICATECELL)
-          {
-            continue;
-          }
-          else
-          {
-            numNonManifoldEdges++;
-            scalar = 0.222222;
-          }
+          numNonManifoldEdges++;
+          scalar = 0.222222;
         }
         else
         {
           continue;
         }
       }
-      else if (this->FeatureEdges && numNei == 1 && (nei = neighbors->GetId(0)) > cellId)
+      else if (this->FeatureEdges && numNeiWithoutGhosts == 1 &&
+        (nei = neighbors->GetId(firstNeighbor)) > newCellId)
       {
         double neiTuple[3];
         double cellTuple[3];
         polyNormals->GetTuple(nei, neiTuple);
-        polyNormals->GetTuple(cellId, cellTuple);
+        polyNormals->GetTuple(newCellId, cellTuple);
         if (vtkMath::Dot(neiTuple, cellTuple) <= cosAngle)
         {
-          if (ghosts && ghosts[cellId] & vtkDataSetAttributes::DUPLICATECELL)
-          {
-            continue;
-          }
-          else
-          {
-            numFedges++;
-            scalar = 0.444444;
-          }
+          numFedges++;
+          scalar = 0.444444;
         }
         else
         {
           continue;
         }
       }
-      else if (this->ManifoldEdges && numNei == 1 && neighbors->GetId(0) > cellId)
+      else if (this->ManifoldEdges && numNeiWithoutGhosts == 1 &&
+        neighbors->GetId(firstNeighbor) > newCellId)
       {
-        if (ghosts && ghosts[cellId] & vtkDataSetAttributes::DUPLICATECELL)
-        {
-          continue;
-        }
-        else
-        {
-          numManifoldEdges++;
-          scalar = 0.666667;
-        }
+        numManifoldEdges++;
+        scalar = 0.666667;
       }
       else
       {
@@ -340,7 +486,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkDebugMacro(<< "Created " << numBEdges << " boundary edges, " << numNonManifoldEdges
                 << " non-manifold edges, " << numFedges << " feature edges, " << numManifoldEdges
-                << " manifold edges");
+                << " manifold edges," << numOutLines << " lines.");
 
   //  Update ourselves.
   //
@@ -441,6 +587,7 @@ void vtkFeatureEdges::ExtractAllEdgeTypesOn()
   this->FeatureEdgesOn();
   this->NonManifoldEdgesOn();
   this->ManifoldEdgesOn();
+  this->PassLinesOn();
 }
 
 //------------------------------------------------------------------------------
@@ -450,6 +597,7 @@ void vtkFeatureEdges::ExtractAllEdgeTypesOff()
   this->FeatureEdgesOff();
   this->NonManifoldEdgesOff();
   this->ManifoldEdgesOff();
+  this->PassLinesOff();
 }
 
 //------------------------------------------------------------------------------
@@ -462,6 +610,7 @@ void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Feature Edges: " << (this->FeatureEdges ? "On\n" : "Off\n");
   os << indent << "Non-Manifold Edges: " << (this->NonManifoldEdges ? "On\n" : "Off\n");
   os << indent << "Manifold Edges: " << (this->ManifoldEdges ? "On\n" : "Off\n");
+  os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");
   os << indent << "Coloring: " << (this->Coloring ? "On\n" : "Off\n");
 
   if (this->Locator)

@@ -198,14 +198,14 @@ public:
    */
   void SetFileName(const char* fname);
 
-  //@{
+  ///@{
   /**
    * Get/Set the IOSS database name to use for reading the file. If not
    * specified (default), the reader will determine based on the file extension.
    */
   vtkSetStringMacro(DatabaseTypeOverride);
   vtkGetStringMacro(DatabaseTypeOverride);
-  //@}
+  ///@}
 
   ///@{
   /**
@@ -314,7 +314,6 @@ public:
   void ClearProperties();
   ///@}
 
-  ///@}
   enum EntityType
   {
     NODEBLOCK,
@@ -388,7 +387,7 @@ public:
     this->RemoveAllFieldSelections();
   }
 
-  //@{
+  ///@{
   /**
    * Assemblies provide yet another way of selection blocks/sets to load, if
    * available in the dataset. If a block (or set) is enabled either in the
@@ -401,7 +400,7 @@ public:
    * If the file has no assemblies, this will return nullptr.
    */
   vtkDataAssembly* GetAssembly();
-  //@}
+  ///@}
 
   /**
    * Whenever the assembly is changed, this tag gets changed. Note, users should
@@ -412,7 +411,7 @@ public:
    */
   vtkGetMacro(AssemblyTag, int);
 
-  //@{
+  ///@{
   /**
    * API to specify selectors that indicate which branches on the assembly are
    * chosen.
@@ -420,7 +419,7 @@ public:
   bool AddSelector(const char* selector);
   void ClearSelectors();
   void SetSelector(const char* selector);
-  //@}
+  ///@}
 
   ///@{
   /**

@@ -54,7 +54,7 @@ public:
 };
 
 //===================================================================
-// We define a helper class that is a subclass of vtkOpenGLPolyDataMapper
+/// Helper class for vtkCompositePolyDataMapper2 that is a subclass of vtkOpenGLPolyDataMapper
 class VTKRENDERINGOPENGL2_EXPORT vtkCompositeMapperHelper2 : public vtkOpenGLPolyDataMapper
 {
 public:
@@ -71,12 +71,14 @@ public:
    */
   void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
 
-  // keep track of what data is being used as the multiblock
-  // can change
+  ///@{
+  /// keep track of what data is being used as the multiblock
+  /// can change
   void ClearMark();
   void RemoveUnused();
   bool GetMarked() { return this->Marked; }
   void SetMarked(bool v) { this->Marked = v; }
+  ///@}
 
   /**
    * Accessor to the ordered list of PolyData that we last drew.
@@ -99,7 +101,7 @@ protected:
 
   bool Marked;
 
-  // handle updating shift scale based on pose changes
+  /// handle updating shift scale based on pose changes
   void UpdateCameraShiftScale(vtkRenderer* ren, vtkActor* actor) override;
 
   vtkCompositeMapperHelper2() { this->Parent = nullptr; };
@@ -123,6 +125,11 @@ protected:
    */
   void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
+
+  /**
+   * Does the VBO/IBO need to be rebuilt
+   */
+  bool GetNeedToRebuildBufferObjects(vtkRenderer* ren, vtkActor* act) override;
 
   /**
    * Build the VBO/IBO, called by UpdateBufferObjects
@@ -157,7 +164,7 @@ protected:
 
   vtkHardwareSelector* CurrentSelector;
 
-  // used by the hardware selector
+  /// used by the hardware selector
   std::vector<std::vector<unsigned int>> PickPixels;
 
   std::map<vtkAbstractArray*, vtkDataArray*> ColorArrayMap;

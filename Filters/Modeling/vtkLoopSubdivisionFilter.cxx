@@ -41,7 +41,6 @@ static const double LoopWeights[4] = { .375, .375, .125, .125 };
 int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints(
   vtkPolyData* inputDS, vtkIntArray* edgeData, vtkPoints* outputPts, vtkPointData* outputPD)
 {
-  double* weights;
   const vtkIdType* pts = nullptr;
   vtkIdType numPts, cellId, newId;
   int edgeId;
@@ -54,7 +53,7 @@ int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints(
   vtkPoints* inputPts = inputDS->GetPoints();
   vtkPointData* inputPD = inputDS->GetPointData();
 
-  weights = new double[256];
+  double weights[256];
 
   // Create an edge table to keep track of which edges we've processed
   edgeTable->InitEdgeInsertion(inputDS->GetNumberOfPoints());
@@ -70,7 +69,6 @@ int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints(
     }
     else
     {
-      delete[] weights;
       return 0;
     }
   }
@@ -104,7 +102,6 @@ int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints(
         }
         else
         {
-          delete[] weights;
           vtkErrorMacro("Dataset is non-manifold and cannot be subdivided. Edge shared by "
             << cellIds->GetNumberOfIds() << " cells");
           return 0;
@@ -125,8 +122,6 @@ int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints(
     } // each interior edge
   }   // each cell
 
-  // cleanup
-  delete[] weights;
   return 1;
 }
 

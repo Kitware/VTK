@@ -19,11 +19,11 @@ v2_0/source/
 extract_source () {
     git_archive
     # Everything is under an v2_0 directory; remove it.
-    mv "$extractdir/$name-reduced/v2_0/"* "$extractdir/$name-reduced/"
-    rmdir "$extractdir/$name-reduced/v2_0"
+    mv -v "$extractdir/$name-reduced/v2_0/"* "$extractdir/$name-reduced/"
+    rmdir -v "$extractdir/$name-reduced/v2_0"
     # The project has an extra source subdirectory; remove it.
-    mv "$extractdir/$name-reduced/source/"* "$extractdir/$name-reduced/"
-    rmdir "$extractdir/$name-reduced/source"
+    mv -v "$extractdir/$name-reduced/source/"* "$extractdir/$name-reduced/"
+    rmdir -v "$extractdir/$name-reduced/source"
 }
 
 . "${BASH_SOURCE%/*}/../update-common.sh"

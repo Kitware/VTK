@@ -32,6 +32,7 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
@@ -77,6 +78,13 @@ template <>
 struct vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<vtkUnstructuredGrid>
 {
   typedef UnstructuredGridBlock BlockType;
+};
+
+//============================================================================
+template <>
+struct vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<vtkPolyData>
+{
+  typedef PolyDataBlock BlockType;
 };
 
 //----------------------------------------------------------------------------
@@ -258,13 +266,13 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   static_assert((std::is_base_of<vtkImageData, DataSetT>::value ||
                   std::is_base_of<vtkRectilinearGrid, DataSetT>::value ||
                   std::is_base_of<vtkStructuredGrid, DataSetT>::value ||
-                  std::is_base_of<vtkUnstructuredGrid, DataSetT>::value),
+                  std::is_base_of<vtkUnstructuredGrid, DataSetT>::value ||
+                  std::is_base_of<vtkPolyData, DataSetT>::value),
     "Input data set type is not supported.");
 
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
   const int size = static_cast<int>(inputs.size());
-
   if (size != static_cast<int>(outputs.size()))
   {
     vtkLog(ERROR, "inputs and outputs have different sizes for " << inputs[0]->GetClassName());
@@ -309,7 +317,7 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   // At this step, we gather data from the inputs and store it inside the local blocks
   // so we don't have to carry extra parameters later.
   vtkLogStartScope(TRACE, "Setup block self information.");
-  vtkDIYGhostUtilities::SetupBlockSelfInformation(master, inputs);
+  vtkDIYGhostUtilities::InitializeBlocks(master, inputs);
   vtkLogEndScope("Setup block self information.");
 
   vtkLogStartScope(TRACE, "Exchanging bounding boxes");

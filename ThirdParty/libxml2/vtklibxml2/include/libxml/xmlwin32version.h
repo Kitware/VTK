@@ -1,6 +1,6 @@
 /*
- * Summary: compile-time version informations on Windows
- * Description: compile-time version informations for the XML library
+ * Summary: compile-time version information on Windows
+ * Description: compile-time version information for the XML library
  *              when compiled on the Windows platform
  *
  * Copy: See Copyright for the status of this software.

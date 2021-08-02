@@ -32,14 +32,14 @@
  *   dimension (1D / 2D / 3D), and if they have same orientation matrix and same spacing.
  * - `vtkRectilinearGrid`: Blocks connect if the x, y, and z coordinate arrays match at their
  *   interfaces.
- * - `vtkStructuredGrid`: Blocks connect if external faces of the grids are mangled, regardless of
- *   relative inner orientation. In other words, if grid 1 is spanned by (i1, j1, k1) indexing, and
- *   grid 2 is spanned by (i2, j2, k2) indexing, if on one face, (j1, k1) connects with (-i2, -j2),
- *   those 2 grids are connected and will exchange ghosts. Two grids partially fitting are
- *   discarded. In order for 2 grids to fit, one corner from one face of one grid needs to be an
- *   existing point in one face of the second grid. Additionally, every points from this corner on
- *   both grids need to match until the opposite corner (opposite w.r.t. each dimension) is reached,
- *   and this opposite corner of the grid junction needs to be a corner of either grid.
+ * - `vtkStructuredGrid`: Blocks connect if external faces of the grids are mangled together,
+ *   regardless of relative inner orientation. In other words, if grid 1 is spanned by (i1, j1, k1)
+ *   indexing, and grid 2 is spanned by (i2, j2, k2) indexing, if on one face, (j1, k1) connects
+ *   with (-i2, -j2), those 2 grids are connected and will exchange ghosts. Two grids partially
+ *   fitting are discarded. In order for 2 grids to fit, one corner from one face of one grid needs
+ *   to be an existing point in one face of the second grid. Additionally, every points from this
+ *   corner on both grids need to match until the opposite corner (opposite w.r.t. each dimension)
+ *   is reached, and this opposite corner of the grid junction needs to be a corner of either grid.
  * - `vtkUnstructuredGrid`: Blocks connect if the external surface of neighboring grids match.
  *   To do so, only points are looked at. If at least one point matches a point in a neighboring
  *   grid, then they are connected. If there are no point global ids in the input, the 3D position
@@ -47,6 +47,10 @@
  *   coordinates. Note that integer coordinates can be used with this pipeline. If global ids are
  *   present in the input point data, then the pipeline will only look at matching global ids, and
  *   ignore point positions.
+ * - `vtkPolyData`: Blocks connect if the boundary edges of neighboring poly data match. The filter
+ *   behaves the same way it does with `vtkUnstructuredGrid`. Point positions are used to match
+ *   points if point global ids are not present, and point global ids are used instead if they are
+ *   present.
  *
  * @note Currently, only `vtkImageData`, `vtkRectilinearGrid`, `vtkStructuredGrid` and
  * `vtkUnstructuredGrid` are
@@ -75,10 +79,10 @@
 // clang-format on
 
 class vtkAbstractPointLocator;
+class vtkAlgorithm;
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataSet;
-class vtkDataSetSurfaceFilter;
 class vtkFieldData;
 class vtkIdList;
 class vtkIdTypeArray;
@@ -86,6 +90,7 @@ class vtkImageData;
 class vtkMatrix3x3;
 class vtkMultiProcessController;
 class vtkPoints;
+class vtkPolyData;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnsignedCharArray;
@@ -143,9 +148,15 @@ protected:
     ExtentType Extent;
 
     /**
-     * Extent of neighboring block that include ghost layers.
+     * Extent of neighboring block that include ghost layers, shifted to match our mapping of the
+     * extent in the 3D world.
      */
-    ExtentType ExtentWithNewGhosts;
+    ExtentType ShiftedExtentWithNewGhosts;
+
+    /**
+     * Extent of the neighboring block, shifted to match our mapping of the extent in the 3D world.
+     */
+    ExtentType ShiftedExtent;
 
     /**
      * Binary mask encoding the adjacency of the neighboring block w.r.t. current block.
@@ -366,7 +377,7 @@ protected:
     vtkNew<vtkPoints> GhostPoints;
   };
 
-  struct PointSetInformation
+  struct UnstructuredDataInformation
   {
     /**
      * Bounding box of input.
@@ -374,31 +385,73 @@ protected:
     vtkBoundingBox BoundingBox;
 
     /**
+     * When the input has ghosts, this map is being used to copy input cells / cell data into
+     * the output (with input ghosts peeled off).
+     */
+    vtkSmartPointer<vtkIdList> InputToOutputCellIdRedirectionMap = nullptr;
+
+    /**
+     * When the input has ghosts, this map is being used to copy input points / point data into
+     * the output (with input ghosts peeled off).
+     */
+    vtkSmartPointer<vtkIdList> InputToOutputPointIdRedirectionMap = nullptr;
+
+    /**
      * Filter that is being used to extract the surface of the input.
      * The surface is used to check how the interface of the input matches the ones of its
      * neighboring blocks.
      */
-    vtkNew<vtkDataSetSurfaceFilter> SurfaceFilter;
+    vtkSmartPointer<vtkAlgorithm> InterfaceExtractor;
 
     /**
      * Handle to the local point ids of the surface of the input.
      * Those point ids are being used to rapidly match points of the surface to their original
      * location in the input.
      */
-    vtkIdTypeArray* SurfacePointIds;
+    vtkIdTypeArray* InterfacePointIds;
 
     /**
      * Handle to the points of the surface of the input.
      */
-    vtkDataArray* SurfacePoints;
+    vtkDataArray* InterfacePoints;
 
     /**
      * Handle to the point ids of the input surface, if present.
      */
-    vtkIdTypeArray* SurfaceGlobalPointIds;
+    vtkIdTypeArray* InterfaceGlobalPointIds;
+
+    ///@{
+    /*
+     * This is a cursor telling the amount of points / cells information,
+     * that has
+     * already been added to the output. This variable is used at the very end of the pipeline.
+     */
+    vtkIdType CurrentMaxPointId;
+    vtkIdType CurrentMaxCellId;
+    ///@}
+
+    ///@{
+    /**
+     * Number of input points / cell in the input when ghosts are removed.
+     */
+    vtkIdType NumberOfInputPoints;
+    vtkIdType NumberOfInputCells;
+    ///@}
+
+    /**
+     * This lists ids from 1 to the number of input points (with potential input ghost points
+     * peeled off).
+     */
+    vtkNew<vtkIdList> PointIota;
+
+    /**
+     * This lists ids from 1 to the number of input cells (with potential input ghost cells
+     * peeled off).
+     */
+    vtkNew<vtkIdList> CellIota;
   };
 
-  struct PointSetBlockStructure : public DataSetBlockStructure
+  struct UnstructuredDataBlockStructure : public DataSetBlockStructure
   {
     /**
      * This lists the matching point ids to the interfacing points that are exchanged with current
@@ -414,7 +467,7 @@ protected:
 
     /**
      * These are the interfacing points sent by the current neighboring block. They should match
-     * a subset of the output of the surface filter which is in `PointSetInformation`.
+     * a subset of the output of the surface filter which is in `UnstructuredDataInformation`.
      */
     vtkNew<vtkPoints> InterfacingPoints;
 
@@ -456,29 +509,50 @@ protected:
      * already been added in the output points, to their location in the output point array.
      */
     std::map<vtkIdType, vtkIdType> RedirectionMapForDuplicatePointIds;
+
+    /**
+     * This lists the ids of the cells that we own and need to send to the current neighboring
+     * block.
+     */
+    vtkNew<vtkIdList> CellIdsToSend;
   };
 
-  struct UnstructuredGridInformation : public PointSetInformation
+  struct UnstructuredGridInformation : public UnstructuredDataInformation
   {
-    ///@{
     /**
-     * This is a cursor telling the amount of points / cells / connectivity / faces information,
-     * that has
+     * This is a cursor telling the amount of faces information, that has
      * already been added to the output. This variable is used at the very end of the pipeline.
      */
-    vtkIdType CurrentMaxPointId;
-    vtkIdType CurrentMaxCellId;
-    vtkIdType CurrentConnectivitySize;
     vtkIdType CurrentFacesSize;
-    ///@}
+
+    /**
+     * This is a cursor telling how much the output connectivity array is filled.
+     * This is used at the very end of the pipeline.
+     */
+    vtkIdType CurrentConnectivitySize;
+
+    vtkIdTypeArray* Faces = nullptr;
+    vtkIdTypeArray* FaceLocations = nullptr;
+
+    vtkUnstructuredGrid* Input;
+
+    /**
+     * Cell connectivity array size of the input if the ghost cells are removed.
+     */
+    vtkIdType InputConnectivitySize;
+
+    /**
+     * Faces array size of the input if the ghost cells are removed.
+     */
+    vtkIdType InputFacesSize = 0;
   };
 
-  struct UnstructuredGridBlockStructure : public PointSetBlockStructure
+  struct UnstructuredGridBlockStructure : public UnstructuredDataBlockStructure
   {
     /**
      * Topology information for cells to be exchanged.
      */
-    struct GeometryBufferType
+    struct TopologyBufferType
     {
       vtkSmartPointer<vtkUnsignedCharArray> Types = nullptr;
       vtkSmartPointer<vtkIdTypeArray> Faces = nullptr;
@@ -486,14 +560,113 @@ protected:
       vtkNew<vtkCellArray> CellArray;
     };
 
+    TopologyBufferType SendBuffer;
+    TopologyBufferType ReceiveBuffer;
+
+    ///@{
+    /**
+     * Handle to the faces / connectivity size that we have to send to the neighboring block.
+     */
+    vtkIdType FacesSize = 0;
+    vtkIdType ConnectivitySize = 0;
+    ///@}
+  };
+
+  struct PolyDataInformation : public UnstructuredDataInformation
+  {
+    vtkPolyData* Input;
+
+    ///@{
+    /**
+     * This is a cursor telling how much the corresponding output connectivity array is filled.
+     * This is used at the very end of the pipeline.
+     */
+    vtkIdType CurrentPolyConnectivitySize;
+    vtkIdType CurrentStripConnectivitySize;
+    vtkIdType CurrentLineConnectivitySize;
+    ///@}
+
+    ///@{
+    /**
+     * This is a cursor telling how many cells of corresponding types have been added so far.
+     * This is used at the very end of the pipeline.
+     */
+    vtkIdType CurrentMaxPolyId = 0;
+    vtkIdType CurrentMaxStripId = 0;
+    vtkIdType CurrentMaxLineId = 0;
+    ///@}
+
+    ///@{
+    /**
+     * Number of cells of respective type when the input has its ghost cells removed
+     */
+    vtkIdType NumberOfInputVerts;
+    vtkIdType NumberOfInputPolys;
+    vtkIdType NumberOfInputStrips;
+    vtkIdType NumberOfInputLines;
+    ///@}
+
+    ///@{
+    /**
+     * Cell connectivity array size of the input if ghost cells are removed.
+     */
+    vtkIdType InputVertConnectivitySize;
+    vtkIdType InputPolyConnectivitySize;
+    vtkIdType InputStripConnectivitySize;
+    vtkIdType InputLineConnectivitySize;
+    ///@{
+
+    ///@{
+    /**
+     * In the event that the input has ghost cells, this maps the output cells (with input ghosts
+     * removed) to the input cells.
+     */
+    vtkNew<vtkIdList> InputToOutputVertCellIdRedirectionMap;
+    vtkNew<vtkIdList> InputToOutputLineCellIdRedirectionMap;
+    vtkNew<vtkIdList> InputToOutputPolyCellIdRedirectionMap;
+    vtkNew<vtkIdList> InputToOutputStripCellIdRedirectionMap;
+    ///@}
+  };
+
+  struct PolyDataBlockStructure : public UnstructuredDataBlockStructure
+  {
+    ///@{
     /**
      * This lists the ids of the cells that we own and need to send to the current neighboring
      * block.
      */
-    vtkNew<vtkIdList> CellIdsToSend;
+    vtkNew<vtkIdList> PolyIdsToSend;
+    vtkNew<vtkIdList> StripIdsToSend;
+    vtkNew<vtkIdList> LineIdsToSend;
+    ///@}
 
-    GeometryBufferType SendBuffer;
-    GeometryBufferType ReceiveBuffer;
+    struct TopologyBufferType
+    {
+      vtkNew<vtkCellArray> Polys;
+      vtkNew<vtkCellArray> Strips;
+      vtkNew<vtkCellArray> Lines;
+    };
+
+    TopologyBufferType SendBuffer;
+    TopologyBufferType ReceiveBuffer;
+
+    ///@{
+    /**
+     * Handle on the number of cells to send of the corresponding type.
+     */
+    vtkIdType NumberOfPolysToSend = 0;
+    vtkIdType NumberOfStripsToSend = 0;
+    vtkIdType NumberOfLinesToSend = 0;
+    ///@}
+
+    ///@{
+    /**
+     * Handle on the number of cells of corresponding type to be sent to the neighbor block.
+     */
+    vtkIdType PolyConnectivitySize = 0;
+    vtkIdType StripConnectivitySize = 0;
+    vtkIdType LineConnectivitySize = 0;
+    ///@}
   };
 
 public:
@@ -542,7 +715,9 @@ public:
   using ImageDataBlock = Block<ImageDataBlockStructure, GridInformation>;
   using RectilinearGridBlock = Block<RectilinearGridBlockStructure, RectilinearGridInformation>;
   using StructuredGridBlock = Block<StructuredGridBlockStructure, StructuredGridInformation>;
+  using UnstructuredDataBlock = Block<UnstructuredDataBlockStructure, UnstructuredDataInformation>;
   using UnstructuredGridBlock = Block<UnstructuredGridBlockStructure, UnstructuredGridInformation>;
+  using PolyDataBlock = Block<PolyDataBlockStructure, PolyDataInformation>;
   //@}
 
   /**
@@ -589,6 +764,8 @@ protected:
     std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs);
   static void CloneGeometricStructures(
     std::vector<vtkUnstructuredGrid*>& inputs, std::vector<vtkUnstructuredGrid*>& outputs);
+  static void CloneGeometricStructures(
+    std::vector<vtkPolyData*>& inputs, std::vector<vtkPolyData*>& outputs);
   ///@}
 
   ///@{
@@ -598,13 +775,11 @@ protected:
    * `BlockType::InformationType` is filled with all information needed from the input to create the
    * output.
    */
-  static void SetupBlockSelfInformation(diy::Master& master, std::vector<vtkImageData*>& inputs);
-  static void SetupBlockSelfInformation(
-    diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs);
-  static void SetupBlockSelfInformation(
-    diy::Master& master, std::vector<vtkStructuredGrid*>& inputs);
-  static void SetupBlockSelfInformation(
-    diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs);
+  static void InitializeBlocks(diy::Master& master, std::vector<vtkImageData*>& inputs);
+  static void InitializeBlocks(diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs);
+  static void InitializeBlocks(diy::Master& master, std::vector<vtkStructuredGrid*>& inputs);
+  static void InitializeBlocks(diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs);
+  static void InitializeBlocks(diy::Master& master, std::vector<vtkPolyData*>& inputs);
   ///@}
 
   /**
@@ -630,6 +805,7 @@ protected:
   static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkStructuredGrid*>& inputs);
   static void ExchangeBlockStructures(
     diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs);
+  static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkPolyData*>& inputs);
   ///@}
 
   ///@{
@@ -646,6 +822,8 @@ protected:
     const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs, int outputGhostLevels);
   static LinkMap ComputeLinkMap(
     const diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs, int outputGhostLevels);
+  static LinkMap ComputeLinkMap(
+    const diy::Master& master, std::vector<vtkPolyData*>& inputs, int outputGhostLevels);
   ///@}
 
   ///@{
@@ -661,6 +839,8 @@ protected:
     vtkStructuredGrid* input, StructuredGridBlock* block);
   static void EnqueueGhosts(const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId,
     vtkUnstructuredGrid* input, UnstructuredGridBlock* block);
+  static void EnqueueGhosts(const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId,
+    vtkPolyData* input, PolyDataBlock* block);
   ///@}
 
   ///@{
@@ -677,6 +857,8 @@ protected:
     const diy::Master::ProxyWithLink& cp, int gid, StructuredGridBlockStructure& blockStructure);
   static void DequeueGhosts(
     const diy::Master::ProxyWithLink& cp, int gid, UnstructuredGridBlockStructure& blockStructure);
+  static void DequeueGhosts(
+    const diy::Master::ProxyWithLink& cp, int gid, PolyDataBlockStructure& blockStructure);
   ///@}
 
   ///@{
@@ -693,6 +875,8 @@ protected:
     std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs);
   static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
     std::vector<vtkUnstructuredGrid*>& inputs, std::vector<vtkUnstructuredGrid*>& outputs);
+  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkPolyData*>& inputs, std::vector<vtkPolyData*>& outputs);
   ///@}
 
   /**
@@ -723,6 +907,7 @@ protected:
   static void FillGhostArrays(const diy::Master& master, std::vector<vtkStructuredGrid*>& outputs);
   static void FillGhostArrays(
     const diy::Master& master, std::vector<vtkUnstructuredGrid*>& outputs);
+  static void FillGhostArrays(const diy::Master& master, std::vector<vtkPolyData*>& outputs);
   ///@}
 
 private:

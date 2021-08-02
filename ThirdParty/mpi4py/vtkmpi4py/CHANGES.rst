@@ -6,6 +6,26 @@ CHANGES: MPI for Python
 :Contact: dalcinl@gmail.com
 
 
+Release 3.0.3 [2019-11-04]
+==========================
+
+* Regenerate Cython wrappers to support Python 3.8.
+
+
+Release 3.0.2 [2019-06-11]
+==========================
+
+* Bug fixes:
+
+  + Fix handling of readonly buffers in support for Python 2 legacy
+    buffer interface. The issue triggers only when using a buffer-like
+    object that is readonly and does not export the new Python 3
+    buffer interface.
+  + Fix build issues with Open MPI 4.0.x series related to removal of
+    many MPI-1 symbols deprecated in MPI-2 and removed in MPI-3.
+  + Minor documentation fixes.
+
+
 Release 3.0.1 [2019-02-15]
 ==========================
 

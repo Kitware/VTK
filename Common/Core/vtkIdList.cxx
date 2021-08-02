@@ -256,6 +256,16 @@ void vtkIdList::Sort()
 }
 
 //------------------------------------------------------------------------------
+void vtkIdList::Fill(vtkIdType value)
+{
+  if (this->Ids == nullptr || this->NumberOfIds < 1)
+  {
+    return;
+  }
+  vtkSMPTools::Fill(this->Ids, this->Ids + this->NumberOfIds, value);
+}
+
+//------------------------------------------------------------------------------
 void vtkIdList::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

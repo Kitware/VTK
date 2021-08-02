@@ -33,12 +33,13 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestDepthPeelingPassViewport.cxx
   TestEDLPass.cxx
   TestEquirectangularToCubeMap.cxx
+  TestFXAAFilter.cxx
+  TestFXAAPass.cxx
+  TestFXAAWithEDLPass.cxx
   TestFloor.cxx
   TestFluidMapper.cxx
   TestFramebufferHDR.cxx
   TestFramebufferPass.cxx
-  TestFXAAFilter.cxx
-  TestFXAAPass.cxx
   TestGaussianBlurPass.cxx
   TestGlyph3DMapperCellPicking.cxx
   TestGlyph3DMapperCulling.cxx
@@ -51,6 +52,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestMultiBlockPartialArrayFieldData.cxx
   TestMultiBlockPartialArrayPointData.cxx
   TestMultiTexturing.cxx
+  TestMultiTexturingInterpolateScalars.cxx
   TestNormalMapping.cxx
   TestOffscreenRenderingResize.cxx
   TestOutlineGlowPass.cxx

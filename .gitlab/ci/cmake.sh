@@ -2,20 +2,18 @@
 
 set -e
 
-readonly version="3.19.7"
+readonly version="3.21.1"
 
 case "$( uname -s )" in
     Linux)
         shatool="sha256sum"
-        sha256sum="ba4a5f46aab500e0d8d952ee735dcfb0c870d326e851addc037c99eb1ea4b66c"
-        platform="Linux"
-        arch="x86_64"
+        sha256sum="bf496ce869d0aa8c1f57e4d1a2e50c8f2fb12a6cd7ccb37ad743bb88f6b76a1e"
+        platform="linux-x86_64"
         ;;
     Darwin)
         shatool="shasum -a 256"
-        sha256sum="52036f8450fabb69bedc3c3eccc58202ae9eefe8358fa383978c7b142f931fa5"
-        platform="macos"
-        arch="universal"
+        sha256sum="9dc2978c4d94a44f71336fa88c15bb0eee47cf44b6ece51b10d1dfae95f82279"
+        platform="macos-universal"
         ;;
     *)
         echo "Unrecognized platform $( uname -s )"
@@ -25,9 +23,8 @@ esac
 readonly shatool
 readonly sha256sum
 readonly platform
-readonly arch
 
-readonly filename="cmake-$version-$platform-$arch"
+readonly filename="cmake-$version-$platform"
 readonly tarball="$filename.tar.gz"
 
 cd .gitlab

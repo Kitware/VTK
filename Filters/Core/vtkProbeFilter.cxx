@@ -31,6 +31,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkSMPThreadLocal.h"
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -650,67 +651,6 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkCell* cell, vtkIdType cellId, vtk
 }
 
 //------------------------------------------------------------------------------
-namespace
-{
-
-class CellStorage
-{
-public:
-  CellStorage() { this->Initialize(); }
-
-  ~CellStorage() { this->Clear(); }
-
-  // Copying does not make sense for this class but vtkSMPThreadLocal needs
-  // these functions to compile. Just initialize the object.
-  CellStorage(const CellStorage&) { this->Initialize(); }
-
-  CellStorage& operator=(const CellStorage& other)
-  {
-    if (this == &other)
-    {
-      return *this;
-    }
-
-    this->Clear();
-    this->Initialize();
-    return *this;
-  }
-
-  vtkCell* GetCell(vtkDataSet* dataset, vtkIdType cellId)
-  {
-    int celltype = dataset->GetCellType(cellId);
-    vtkGenericCell*& gc = this->Cells[celltype];
-    if (!gc)
-    {
-      gc = vtkGenericCell::New();
-    }
-    dataset->GetCell(cellId, gc);
-    return gc->GetRepresentativeCell();
-  }
-
-private:
-  void Initialize()
-  {
-    vtkGenericCell* null = nullptr;
-    std::fill(this->Cells, this->Cells + VTK_NUMBER_OF_CELL_TYPES, null);
-  }
-
-  void Clear()
-  {
-    for (int i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
-    {
-      if (this->Cells[i])
-      {
-        this->Cells[i]->Delete();
-      }
-    }
-  }
-
-  vtkGenericCell* Cells[VTK_NUMBER_OF_CELL_TYPES];
-};
-
-} // anonymous namespace
-
 class vtkProbeFilter::ProbeImageDataWorklet
 {
 public:
@@ -727,6 +667,9 @@ public:
     , MaskArray(maskArray)
     , MaxCellSize(maxCellSize)
   {
+    // make source API threadsafe by calling it once in a single thread.
+    source->GetCellType(0);
+    source->GetCell(0, this->GenericCell.Local());
   }
 
   void operator()(vtkIdType cellBegin, vtkIdType cellEnd)
@@ -747,7 +690,7 @@ public:
     auto sourceGhostFlags = vtkUnsignedCharArray::SafeDownCast(
       this->Source->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
 
-    CellStorage& cs = this->Cells.Local();
+    auto& cell = this->GenericCell.Local();
     for (vtkIdType cellId = cellBegin; cellId < cellEnd; ++cellId)
     {
       if (IsBlankedCell(sourceGhostFlags, cellId))
@@ -755,7 +698,7 @@ public:
         continue;
       }
 
-      vtkCell* cell = cs.GetCell(this->Source, cellId);
+      this->Source->GetCell(cellId, cell);
       this->ProbeFilter->ProbeImagePointsInCell(cell, cellId, this->Source, this->SrcBlockId,
         this->Start, this->Spacing, this->Dim, this->OutPointData, this->MaskArray, weights);
     }
@@ -773,7 +716,7 @@ private:
   int MaxCellSize;
 
   vtkSMPThreadLocal<std::vector<double>> WeightsBuffer;
-  vtkSMPThreadLocal<CellStorage> Cells;
+  vtkSMPThreadLocalObject<vtkGenericCell> GenericCell;
 };
 
 //------------------------------------------------------------------------------
@@ -800,8 +743,6 @@ void vtkProbeFilter::ProbePointsImageData(
 
   if (numSrcCells > 0)
   {
-    // dummy call required before multithreaded calls
-    static_cast<void>(source->GetCellType(0));
     ProbeImageDataWorklet worklet(
       this, source, srcIdx, start, spacing, dim, outPD, maskArray, source->GetMaxCellSize());
     vtkSMPTools::For(0, numSrcCells, worklet);
@@ -817,14 +758,6 @@ namespace
 // Thread local storage
 struct ProbeImageDataPointsThreadLocal
 {
-  ProbeImageDataPointsThreadLocal()
-  {
-    // BaseThread will be set 'true' for the thread that gets the first piece
-    this->BaseThread = false;
-    this->PointIds = vtkSmartPointer<vtkIdList>::New();
-    this->PointIds->SetNumberOfIds(8);
-  }
-
   bool BaseThread;
   vtkSmartPointer<vtkIdList> PointIds;
 };
@@ -846,6 +779,15 @@ public:
   {
   }
 
+  void Initialize()
+  {
+    // BaseThread will be set 'true' for the thread that gets the first piece
+    ProbeImageDataPointsThreadLocal& DataPoint = this->Thread.Local();
+    DataPoint.BaseThread = false;
+    DataPoint.PointIds = vtkSmartPointer<vtkIdList>::New();
+    DataPoint.PointIds->SetNumberOfIds(8);
+  }
+
   void operator()(vtkIdType startId, vtkIdType endId)
   {
     if (startId == 0)
@@ -856,6 +798,8 @@ public:
       this->OutPointData, this->MaskArray, this->Thread.Local().PointIds.GetPointer(), startId,
       endId, this->Thread.Local().BaseThread);
   }
+
+  void Reduce() {}
 
 private:
   vtkProbeFilter* ProbeFilter;

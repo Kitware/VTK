@@ -19,6 +19,9 @@ else ()
   set(vtk_has_vtkm OFF)
 endif ()
 
+get_property(vtk_smp_backends GLOBAL
+  PROPERTY _vtk_smp_backends)
+
 _vtk_module_write_import_prefix("${vtk_cmake_build_dir}/vtk-prefix.cmake" "${vtk_cmake_destination}")
 
 set(vtk_python_version "")
@@ -70,6 +73,7 @@ set(vtk_cmake_module_files
   Finddouble-conversion.cmake
   FindEigen3.cmake
   FindEXPAT.cmake
+  FindExprTk.cmake
   FindFFMPEG.cmake
   FindFontConfig.cmake
   FindFreetype.cmake
@@ -134,7 +138,7 @@ set(vtk_cmake_patch_files
   patches/3.19/FindSQLite3.cmake
   patches/3.19/FindX11.cmake
   patches/3.20/FindGDAL.cmake
-  patches/3.21/FindHDF5.cmake
+  patches/99/FindHDF5.cmake
   patches/99/FindOpenGL.cmake)
 
 set(vtk_cmake_files_to_install)

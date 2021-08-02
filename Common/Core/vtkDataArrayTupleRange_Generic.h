@@ -72,6 +72,8 @@ private:
   using APIType = GetAPIType<ArrayType>;
 
 public:
+  using value_type = APIType;
+
   VTK_ITER_INLINE
   ConstComponentReference() noexcept
     : Array{ nullptr }
@@ -163,6 +165,8 @@ private:
   using APIType = GetAPIType<ArrayType>;
 
 public:
+  using value_type = APIType;
+
   VTK_ITER_INLINE
   ComponentReference() noexcept
     : Array{ nullptr }

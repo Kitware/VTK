@@ -31,11 +31,11 @@
  * name of the source's density and mass arrays can optionally be provided;
  * however if not provided then the local volume is computed from the
  * kernel's spatial step. Finally, a cutoff distance array can optionally be
- * provided when the local neighborhood around each point varies. The cutoff
- * distance defines a local neighborhood in which the points in that
- * neighborhood are used to interpolate values. If not provided, then the
- * cutoff distance is computed from the spatial step size times the cutoff
- * factor (see vtkSPHKernel).
+ * provided (as part of the input P point data) when the local neighborhood
+ * around each sample point varies. The cutoff distance defines a local
+ * neighborhood in which the points in that neighborhood are used to
+ * interpolate values. If not provided, then the cutoff distance is computed
+ * from the spatial step size times the cutoff factor (see vtkSPHKernel).
  *
  * Other options to the filter include specifying which data attributes to
  * interpolate from the source. By default, all data attributes contained in
@@ -411,7 +411,6 @@ protected:
 
   vtkTypeBool ComputeShepardSum;
   vtkStdString ShepardSumArrayName;
-  vtkFloatArray* ShepardSumArray;
 
   vtkTypeBool PromoteOutputArrays;
 

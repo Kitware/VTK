@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkImplicitPlaneWidget2.h"
+
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
@@ -296,8 +297,7 @@ void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget* w)
 
   if (self->ManagesCursor && self->WidgetState != vtkImplicitPlaneWidget2::Active)
   {
-    int oldInteractionState =
-      reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->GetInteractionState();
+    int oldInteractionState = self->WidgetRep->GetInteractionState();
 
     reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)
       ->SetInteractionState(vtkImplicitPlaneRepresentation::Moving);

@@ -48,7 +48,6 @@ int TestMovieSphere(int argc, char* argv[])
 
   actor->SetVideoSource(video);
   actor->SetProjectionToSphere();
-  actor->Reset();
 
   video->Record();
 

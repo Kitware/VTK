@@ -98,7 +98,7 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->Cutter->SetCutFunction(this->Plane);
   this->PlaneSource = vtkPlaneSource::New();
   this->PlaneSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-  this->PlaneSource->SetResolution(128, 128);
+  this->PlaneSource->SetResolution(1, 1);
   this->CutMapper = vtkPolyDataMapper::New();
   this->CutMapper->SetInputConnection(this->Cutter->GetOutputPort());
   this->CutActor = vtkActor::New();
@@ -119,7 +119,7 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->EdgesActor->SetMapper(this->EdgesMapper);
   this->Tubing = 1; // control whether tubing is on
 
-  // Create the + plane normal
+  // Create the +- plane normal
   this->LineSource = vtkLineSource::New();
   this->LineSource->SetResolution(1);
   this->LineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
@@ -136,15 +136,6 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->ConeMapper->SetInputConnection(this->ConeSource->GetOutputPort());
   this->ConeActor = vtkActor::New();
   this->ConeActor->SetMapper(this->ConeMapper);
-
-  // Create the - plane normal
-  this->LineSource2 = vtkLineSource::New();
-  this->LineSource2->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-  this->LineSource2->SetResolution(1);
-  this->LineMapper2 = vtkPolyDataMapper::New();
-  this->LineMapper2->SetInputConnection(this->LineSource2->GetOutputPort());
-  this->LineActor2 = vtkActor::New();
-  this->LineActor2->SetMapper(this->LineMapper2);
 
   this->ConeSource2 = vtkConeSource::New();
   this->ConeSource2->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
@@ -185,7 +176,6 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->Picker->AddPickList(this->CutActor);
   this->Picker->AddPickList(this->LineActor);
   this->Picker->AddPickList(this->ConeActor);
-  this->Picker->AddPickList(this->LineActor2);
   this->Picker->AddPickList(this->ConeActor2);
   this->Picker->AddPickList(this->SphereActor);
   this->Picker->AddPickList(this->OutlineActor);
@@ -197,7 +187,6 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   // Pass the initial properties to the actors.
   this->LineActor->SetProperty(this->NormalProperty);
   this->ConeActor->SetProperty(this->NormalProperty);
-  this->LineActor2->SetProperty(this->NormalProperty);
   this->ConeActor2->SetProperty(this->NormalProperty);
   this->SphereActor->SetProperty(this->NormalProperty);
   this->CutActor->SetProperty(this->PlaneProperty);
@@ -239,10 +228,6 @@ vtkImplicitPlaneRepresentation::~vtkImplicitPlaneRepresentation()
   this->ConeMapper->Delete();
   this->ConeActor->Delete();
 
-  this->LineSource2->Delete();
-  this->LineMapper2->Delete();
-  this->LineActor2->Delete();
-
   this->ConeSource2->Delete();
   this->ConeMapper2->Delete();
   this->ConeActor2->Delete();
@@ -279,7 +264,6 @@ void vtkImplicitPlaneRepresentation::SetLockNormalToCamera(vtkTypeBool lock)
   {
     this->Picker->DeletePickList(this->LineActor);
     this->Picker->DeletePickList(this->ConeActor);
-    this->Picker->DeletePickList(this->LineActor2);
     this->Picker->DeletePickList(this->ConeActor2);
     this->Picker->DeletePickList(this->SphereActor);
 
@@ -289,7 +273,6 @@ void vtkImplicitPlaneRepresentation::SetLockNormalToCamera(vtkTypeBool lock)
   {
     this->Picker->AddPickList(this->LineActor);
     this->Picker->AddPickList(this->ConeActor);
-    this->Picker->AddPickList(this->LineActor2);
     this->Picker->AddPickList(this->ConeActor2);
     this->Picker->AddPickList(this->SphereActor);
   }
@@ -341,8 +324,7 @@ int vtkImplicitPlaneRepresentation::ComputeInteractionState(int X, int Y, int vt
   if (this->InteractionState == vtkImplicitPlaneRepresentation::Moving)
   {
     vtkProp* prop = path->GetFirstNode()->GetViewProp();
-    if (prop == this->ConeActor || prop == this->LineActor || prop == this->ConeActor2 ||
-      prop == this->LineActor2)
+    if (prop == this->ConeActor || prop == this->LineActor || prop == this->ConeActor2)
     {
       this->InteractionState = vtkImplicitPlaneRepresentation::Rotating;
       this->SetRepresentationState(vtkImplicitPlaneRepresentation::Rotating);
@@ -428,8 +410,7 @@ int vtkImplicitPlaneRepresentation::ComputeComplexInteractionState(
     if (this->InteractionState == vtkImplicitPlaneRepresentation::Moving)
     {
       vtkProp* prop = path->GetFirstNode()->GetViewProp();
-      if (prop == this->ConeActor || prop == this->LineActor || prop == this->ConeActor2 ||
-        prop == this->LineActor2)
+      if (prop == this->ConeActor || prop == this->LineActor || prop == this->ConeActor2)
       {
         this->InteractionState = vtkImplicitPlaneRepresentation::Rotating;
         this->SetRepresentationState(vtkImplicitPlaneRepresentation::Rotating);
@@ -692,7 +673,6 @@ double* vtkImplicitPlaneRepresentation::GetBounds()
   this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
   this->BoundingBox->AddBounds(this->LineActor->GetBounds());
   this->BoundingBox->AddBounds(this->ConeActor2->GetBounds());
-  this->BoundingBox->AddBounds(this->LineActor2->GetBounds());
   this->BoundingBox->AddBounds(this->SphereActor->GetBounds());
 
   return this->BoundingBox->GetBounds();
@@ -709,7 +689,6 @@ void vtkImplicitPlaneRepresentation::GetActors(vtkPropCollection* pc)
     this->ConeActor->GetActors(pc);
     this->LineActor->GetActors(pc);
     this->ConeActor2->GetActors(pc);
-    this->LineActor2->GetActors(pc);
     this->SphereActor->GetActors(pc);
   }
 }
@@ -723,7 +702,6 @@ void vtkImplicitPlaneRepresentation::ReleaseGraphicsResources(vtkWindow* w)
   this->ConeActor->ReleaseGraphicsResources(w);
   this->LineActor->ReleaseGraphicsResources(w);
   this->ConeActor2->ReleaseGraphicsResources(w);
-  this->LineActor2->ReleaseGraphicsResources(w);
   this->SphereActor->ReleaseGraphicsResources(w);
 }
 
@@ -742,7 +720,6 @@ int vtkImplicitPlaneRepresentation::RenderOpaqueGeometry(vtkViewport* v)
     count += this->ConeActor->RenderOpaqueGeometry(v);
     count += this->LineActor->RenderOpaqueGeometry(v);
     count += this->ConeActor2->RenderOpaqueGeometry(v);
-    count += this->LineActor2->RenderOpaqueGeometry(v);
     count += this->SphereActor->RenderOpaqueGeometry(v);
   }
   if (this->DrawPlane)
@@ -768,7 +745,6 @@ int vtkImplicitPlaneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewpo
     count += this->ConeActor->RenderTranslucentPolygonalGeometry(v);
     count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
     count += this->ConeActor2->RenderTranslucentPolygonalGeometry(v);
-    count += this->LineActor2->RenderTranslucentPolygonalGeometry(v);
     count += this->SphereActor->RenderTranslucentPolygonalGeometry(v);
   }
   if (this->DrawPlane)
@@ -793,7 +769,6 @@ vtkTypeBool vtkImplicitPlaneRepresentation::HasTranslucentPolygonalGeometry()
     result |= this->ConeActor->HasTranslucentPolygonalGeometry();
     result |= this->LineActor->HasTranslucentPolygonalGeometry();
     result |= this->ConeActor2->HasTranslucentPolygonalGeometry();
-    result |= this->LineActor2->HasTranslucentPolygonalGeometry();
     result |= this->SphereActor->HasTranslucentPolygonalGeometry();
   }
   if (this->DrawPlane)
@@ -930,7 +905,6 @@ void vtkImplicitPlaneRepresentation::HighlightNormal(int highlight)
   {
     this->LineActor->SetProperty(this->SelectedNormalProperty);
     this->ConeActor->SetProperty(this->SelectedNormalProperty);
-    this->LineActor2->SetProperty(this->SelectedNormalProperty);
     this->ConeActor2->SetProperty(this->SelectedNormalProperty);
     this->SphereActor->SetProperty(this->SelectedNormalProperty);
   }
@@ -938,7 +912,6 @@ void vtkImplicitPlaneRepresentation::HighlightNormal(int highlight)
   {
     this->LineActor->SetProperty(this->NormalProperty);
     this->ConeActor->SetProperty(this->NormalProperty);
-    this->LineActor2->SetProperty(this->NormalProperty);
     this->ConeActor2->SetProperty(this->NormalProperty);
     this->SphereActor->SetProperty(this->NormalProperty);
   }
@@ -1608,7 +1581,7 @@ void vtkImplicitPlaneRepresentation::UpdatePlacement()
 {
   this->Outline->Update();
   this->Cutter->Update();
-  this->Edges->Update();
+  // this->Edges->Update();
   this->BuildRepresentation();
 }
 
@@ -1644,11 +1617,9 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
   this->ConeActor->SetPropertyKeys(info);
   this->LineActor->SetPropertyKeys(info);
   this->ConeActor2->SetPropertyKeys(info);
-  this->LineActor2->SetPropertyKeys(info);
   this->SphereActor->SetPropertyKeys(info);
 
-  if (this->GetMTime() > this->BuildTime || this->Plane->GetMTime() > this->BuildTime ||
-    this->Renderer->GetRenderWindow()->GetMTime() > this->BuildTime)
+  if (this->GetMTime() > this->BuildTime || this->Plane->GetMTime() > this->BuildTime)
   {
     double* origin = this->Plane->GetOrigin();
     double* normal = this->Plane->GetNormal();
@@ -1734,8 +1705,7 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
     p2[1] = origin[1] + 0.30 * d * normal[1];
     p2[2] = origin[2] + 0.30 * d * normal[2];
 
-    this->LineSource->SetPoint1(origin);
-    this->LineSource->SetPoint2(p2);
+    this->LineSource->SetPoint1(p2);
     this->ConeSource->SetCenter(p2);
     this->ConeSource->SetDirection(normal);
 
@@ -1743,8 +1713,7 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
     p2[1] = origin[1] - 0.30 * d * normal[1];
     p2[2] = origin[2] - 0.30 * d * normal[2];
 
-    this->LineSource2->SetPoint1(origin[0], origin[1], origin[2]);
-    this->LineSource2->SetPoint2(p2);
+    this->LineSource->SetPoint2(p2);
     this->ConeSource2->SetCenter(p2);
     this->ConeSource2->SetDirection(normal[0], normal[1], normal[2]);
 
@@ -1760,7 +1729,12 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
     {
       this->EdgesMapper->SetInputConnection(this->Edges->GetOutputPort());
     }
+  }
 
+  // we resize handles when rebuilt and when renderwindow changes
+  if (this->GetMTime() > this->BuildTime || this->Plane->GetMTime() > this->BuildTime ||
+    this->Renderer->GetRenderWindow()->GetMTime() > this->BuildTime)
+  {
     this->SizeHandles();
     this->BuildTime.Modified();
   }

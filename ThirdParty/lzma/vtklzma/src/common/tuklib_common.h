@@ -17,6 +17,8 @@
 // It should include at least stddef.h, inttypes.h, and limits.h.
 #include "tuklib_config.h"
 
+#include "vtk_lzma_mangle.h"
+
 // TUKLIB_SYMBOL_PREFIX is prefixed to all symbols exported by
 // the tuklib modules. If you use a tuklib module in a library,
 // you should use TUKLIB_SYMBOL_PREFIX to make sure that there

@@ -1,0 +1,49 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtk_freetype.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/**
+ * When using 'fmt' in VTK, this header enables use to use either the fmt
+ * version provided by VTK or an externally built version based on compile time
+ * flags.
+ *
+ * When using 'fmt' include this header and then include any fmt header you need
+ * as follows:
+ *
+ * ```c++
+ *
+ *  #include <vtk_fmt.>
+ *
+ *  // clang-format off
+ *  #include VTK_FMT(fmt/core.h)
+ *  // clang-format on
+ *
+ * ```
+ *
+ * Note the clang-format sentinels are need avoid incorrect formatting the
+ * VTK_FMT macro call when using clang-format to format the code.
+ */
+
+#ifndef vtk_fmt_h
+#define vtk_fmt_h
+
+/* Use the fmt library configured for VTK.  */
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_VTK_fmt
+
+#if VTK_MODULE_USE_EXTERNAL_VTK_fmt
+# define VTK_FMT(header) <header>
+#else
+# define VTK_FMT(header) <vtk##header>
+#endif
+
+#endif // #ifndef vtk_fmt_h

@@ -599,12 +599,48 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
         16, 17, 18
       };
       // clang-format on
+      break;
 
     case VTK_LAGRANGE_WEDGE: // wedge-21
       // here, the ordering is consistent with IOSS!
       // so don't do anything.
       break;
 
+    case VTK_QUADRATIC_HEXAHEDRON: // hex-20
+      // clang-format off
+      ordering_transform = std::vector<int>{
+        /* 8 corners */
+        1, 2, 3, 4,
+        5, 6, 7, 8,
+
+        /* 12 mid-edge nodes */
+        9, 10, 11, 12,
+        17, 18, 19, 20,
+        13, 14, 15, 16
+      };
+      // clang-format on
+      break;
+
+    case VTK_TRIQUADRATIC_HEXAHEDRON: // hex-27
+      // clang-format off
+      ordering_transform = std::vector<int>{
+        /* 8 corners */
+        1, 2, 3, 4,
+        5, 6, 7, 8,
+
+        /* 12 mid-edge nodes */
+        9, 10, 11, 12,
+        17, 18, 19, 20,
+        13, 14, 15, 16,
+
+        /* 6 mid-face nodes */
+        24, 25, 26, 27, 22, 23,
+
+        /* mid-volume node*/
+        21
+      };
+      // clang-format on
+      break;
     default:
       break;
   }

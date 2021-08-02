@@ -23,6 +23,7 @@
 #include "SMP/Common/vtkSMPThreadLocalImplAbstract.h"
 #include "SMP/Common/vtkSMPToolsAPI.h" // For GetBackendType(), DefaultBackend
 #include "vtkSystemIncludes.h"
+
 #if VTK_SMP_ENABLE_SEQUENTIAL
 #include "SMP/Sequential/vtkSMPThreadLocalImpl.h"
 #endif

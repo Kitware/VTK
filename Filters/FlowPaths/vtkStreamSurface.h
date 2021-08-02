@@ -87,8 +87,8 @@ private:
    */
   bool UseIterativeSeeding = false;
 
-  vtkSmartPointer<vtkRuledSurfaceFilter> RuledSurface;
-  vtkSmartPointer<vtkStreamTracer> StreamTracer;
-  vtkSmartPointer<vtkAppendPolyData> AppendSurfaces;
+  vtkNew<vtkRuledSurfaceFilter> RuledSurface;
+  vtkNew<vtkStreamTracer> StreamTracer;
+  vtkNew<vtkAppendPolyData> AppendSurfaces;
 };
 #endif

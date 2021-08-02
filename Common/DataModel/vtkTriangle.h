@@ -107,8 +107,10 @@ public:
   const vtkIdType* GetEdgeArray(vtkIdType edgeId);
 
   /**
-   * Plane intersection plus in/out test on triangle. The in/out test is
-   * performed using tol as the tolerance.
+   * Given a line defined by two points p1 and p2, determine whether it intersects the triangle.
+   * The tolerance tol is used to verify whether the intersection is inside or outside of the
+   * triangle. If the line and triangle are coplanar and there is intersection, the intersecting
+   * point is chosen as the point closest to p1 that is inside the triangle.
    */
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId) override;

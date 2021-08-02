@@ -25,6 +25,7 @@
 #define vtkSMPThreadPool_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkSystemIncludes.h"
 
 #include <condition_variable> // For std::condition_variable
 #include <functional>         // For std::function

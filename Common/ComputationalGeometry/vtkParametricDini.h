@@ -20,9 +20,8 @@
  * Dini's surface is a surface that possesses constant negative
  * Gaussian curvature
  *
- * For further information about this surface, please consult the
- * technical description "Parametric surfaces" in http://www.vtk.org/publications
- * in the "VTK Technical Documents" section in the VTk.org web pages.
+ * For further information about this surface, please consult
+ * https://en.wikipedia.org/wiki/Dini%27s_surface
  *
  * @par Thanks:
  * Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the

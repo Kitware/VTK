@@ -327,7 +327,11 @@ void MapIndependentComponents(
     for (i = 0; i < num_scalars; i++)
     {
       ScalarType s = 0.0;
-      if (vectorMode == vtkScalarsToColors::COMPONENT)
+      if (scalars->GetNumberOfComponents() == 1)
+      {
+        s = scalars->GetValue(i);
+      }
+      else if (vectorMode == vtkScalarsToColors::COMPONENT)
       {
         s = scalars->GetTypedComponent(i, vectorComponent);
       }

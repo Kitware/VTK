@@ -878,7 +878,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingShaderParameters(
     {
       double* aColor = light->GetAmbientColor();
       double* dColor = light->GetDiffuseColor();
-      double* sColor = light->GetDiffuseColor();
+      double* sColor = light->GetSpecularColor();
       double intensity = light->GetIntensity();
       lightAmbientColor[numberOfLights][0] = aColor[0] * intensity;
       lightAmbientColor[numberOfLights][1] = aColor[1] * intensity;

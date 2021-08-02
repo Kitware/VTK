@@ -24,6 +24,8 @@
 #include "vtkDIYGhostUtilities.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataObjectTreeRange.h"
+#include "vtkExplicitStructuredGrid.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -32,6 +34,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkPolyData.h"
 #include "vtkRange.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -47,6 +50,7 @@ vtkCxxSetObjectMacro(vtkGhostCellsGenerator, Controller, vtkMultiProcessControll
 vtkGhostCellsGenerator::vtkGhostCellsGenerator()
   : Controller(nullptr)
   , NumberOfGhostLayers(1)
+  , BuildIfRequired(true)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
@@ -54,6 +58,14 @@ vtkGhostCellsGenerator::vtkGhostCellsGenerator()
 //----------------------------------------------------------------------------
 vtkGhostCellsGenerator::~vtkGhostCellsGenerator()
 {
+  this->SetController(nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkGhostCellsGenerator::Initialize()
+{
+  this->NumberOfGhostLayers = 1;
+  this->BuildIfRequired = true;
   this->SetController(nullptr);
 }
 
@@ -72,8 +84,21 @@ int vtkGhostCellsGenerator::RequestData(
   vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
   vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
 
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   bool error = false;
   int retVal = 1;
+
+  int reqGhostLayers =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  int numberOfGhostLayersToCompute =
+    this->BuildIfRequired ? reqGhostLayers : std::max(reqGhostLayers, this->NumberOfGhostLayers);
+
+  if (numberOfGhostLayersToCompute < 1)
+  {
+    outputDO->ShallowCopy(inputDO);
+    return 1;
+  }
 
   std::vector<vtkDataObject*> inputPDSs, outputPDSs;
 
@@ -110,7 +135,14 @@ int vtkGhostCellsGenerator::RequestData(
         for (auto inIt = inputs.begin(), outIt = outputs.begin(); inIt != inputs.end();
              ++inIt, ++outIt)
         {
-          *outIt = vtkSmartPointer<vtkDataObject>::Take(inIt->NewInstance());
+          if (*inIt)
+          {
+            *outIt = vtkSmartPointer<vtkDataObject>::Take(inIt->NewInstance());
+          }
+          else
+          {
+            *outIt = nullptr;
+          }
         }
       }
       else
@@ -124,9 +156,17 @@ int vtkGhostCellsGenerator::RequestData(
       error = true;
     }
 
+    if (vtkHyperTreeGrid::SafeDownCast(inputPartition) ||
+      vtkExplicitStructuredGrid::SafeDownCast(inputPartition))
+    {
+      error = true;
+      vtkErrorMacro(<< "Input data set type " << inputPartition->GetClassName()
+                    << " not supported. The input will be shallow copied into the output.");
+    }
+
     if (error)
     {
-      vtkErrorMacro(<< "Could not generate output.");
+      vtkErrorMacro(<< "Could not generate ghosts in output.");
       outputPartition->ShallowCopy(inputPartition);
       continue;
     }
@@ -151,31 +191,10 @@ int vtkGhostCellsGenerator::RequestData(
     std::vector<vtkUnstructuredGrid*> outputsUG =
       vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(outputPartition);
 
-    std::vector<vtkUnstructuredGrid*> inputsUGWithoutGhosts(inputsUG.size());
-    std::vector<vtkSmartPointer<vtkUnstructuredGrid>> inputsUGWithoutGhostsCleaner(inputsUG.size());
-
-    // FIXME
-    // We do a deep copy for unstructured grids removing ghost cells.
-    // Ideally, we should avoid doing such a thing and skip ghost cells in the input
-    // by remapping the input to the output while ignoring the input ghosts.
-    for (int localId = 0; localId < static_cast<vtkIdType>(inputsUG.size()); ++localId)
-    {
-      vtkUnstructuredGrid* input = inputsUG[localId];
-      if (input->GetGhostArray(vtkDataObject::FIELD_ASSOCIATION_CELLS))
-      {
-        inputsUGWithoutGhostsCleaner[localId] = vtkSmartPointer<vtkUnstructuredGrid>::New();
-        vtkUnstructuredGrid* cleanInput = inputsUGWithoutGhostsCleaner[localId];
-        cleanInput->DeepCopy(input);
-        cleanInput->RemoveGhostCells();
-        cleanInput->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-        cleanInput->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-        inputsUGWithoutGhosts[localId] = cleanInput;
-      }
-      else
-      {
-        inputsUGWithoutGhosts[localId] = input;
-      }
-    }
+    std::vector<vtkPolyData*> inputsPD =
+      vtkCompositeDataSet::GetDataSets<vtkPolyData>(inputPartition);
+    std::vector<vtkPolyData*> outputsPD =
+      vtkCompositeDataSet::GetDataSets<vtkPolyData>(outputPartition);
 
     if (!inputsID.empty() && !inputsRG.empty() && !inputsSG.empty() && !inputsUG.empty())
     {
@@ -184,13 +203,15 @@ int vtkGhostCellsGenerator::RequestData(
     }
 
     retVal &= vtkDIYGhostUtilities::GenerateGhostCells(
-                inputsID, outputsID, this->NumberOfGhostLayers, this->Controller) &&
+                inputsID, outputsID, numberOfGhostLayersToCompute, this->Controller) &&
       vtkDIYGhostUtilities::GenerateGhostCells(
-        inputsRG, outputsRG, this->NumberOfGhostLayers, this->Controller) &&
+        inputsRG, outputsRG, numberOfGhostLayersToCompute, this->Controller) &&
       vtkDIYGhostUtilities::GenerateGhostCells(
-        inputsSG, outputsSG, this->NumberOfGhostLayers, this->Controller) &&
+        inputsSG, outputsSG, numberOfGhostLayersToCompute, this->Controller) &&
       vtkDIYGhostUtilities::GenerateGhostCells(
-        inputsUGWithoutGhosts, outputsUG, this->NumberOfGhostLayers, this->Controller);
+        inputsUG, outputsUG, numberOfGhostLayersToCompute, this->Controller) &&
+      vtkDIYGhostUtilities::GenerateGhostCells(
+        inputsPD, outputsPD, numberOfGhostLayersToCompute, this->Controller);
   }
 
   return retVal && !error;
@@ -198,10 +219,12 @@ int vtkGhostCellsGenerator::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkGhostCellsGenerator::RequestUpdateExtent(
-  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
-  outputVector->GetInformationObject(0)->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), this->NumberOfGhostLayers);
+  // we can't trust any ghost levels coming in so we notify all filters before
+  // this that we don't need ghosts
+  inputVector[0]->GetInformationObject(0)->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
   return 1;
 }
 

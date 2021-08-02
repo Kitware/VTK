@@ -42,24 +42,24 @@
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
-class vtkPolyDataMapper;
+class vtkBox;
 class vtkCellPicker;
 class vtkConeSource;
+class vtkCutter;
+class vtkFeatureEdges;
+class vtkImageData;
 class vtkLineSource;
-class vtkSphereSource;
-class vtkTubeFilter;
+class vtkLookupTable;
+class vtkOutlineFilter;
 class vtkPlane;
 class vtkPlaneSource;
-class vtkCutter;
-class vtkProperty;
-class vtkImageData;
-class vtkOutlineFilter;
-class vtkFeatureEdges;
 class vtkPolyData;
 class vtkPolyDataAlgorithm;
+class vtkPolyDataMapper;
+class vtkProperty;
+class vtkSphereSource;
 class vtkTransform;
-class vtkBox;
-class vtkLookupTable;
+class vtkTubeFilter;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitPlaneRepresentation : public vtkWidgetRepresentation
 {
@@ -503,7 +503,7 @@ protected:
   vtkActor* ConeActor;
   void HighlightNormal(int highlight);
 
-  // The + normal line
+  // The normal line
   vtkLineSource* LineSource;
   vtkPolyDataMapper* LineMapper;
   vtkActor* LineActor;
@@ -512,11 +512,6 @@ protected:
   vtkConeSource* ConeSource2;
   vtkPolyDataMapper* ConeMapper2;
   vtkActor* ConeActor2;
-
-  // The - normal line
-  vtkLineSource* LineSource2;
-  vtkPolyDataMapper* LineMapper2;
-  vtkActor* LineActor2;
 
   // The origin positioning handle
   vtkSphereSource* Sphere;

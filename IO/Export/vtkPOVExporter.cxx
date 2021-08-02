@@ -97,41 +97,31 @@ class vtkPOVInternals
 public:
   vtkPOVInternals()
   {
-    this->CountFormat = new char[100]; //"\t\t%d,\n"
     strcpy(this->CountFormat, "\t\t");
     strcat(this->CountFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
     strcat(this->CountFormat, ",\n");
 
-    char* triFormat = new char[100]; //"%d, %d, %d"
+    char triFormat[100]; //"%d, %d, %d"
     strcpy(triFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
     strcat(triFormat, ", ");
     strcat(triFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
     strcat(triFormat, ", ");
     strcat(triFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
 
-    this->TriangleFormat1 = new char[100]; //"\t\t<%d, %d, %d>,"
     strcpy(this->TriangleFormat1, "\t\t<");
     strcat(this->TriangleFormat1, triFormat);
     strcat(this->TriangleFormat1, ">,");
 
-    this->TriangleFormat2 = new char[100]; //" %d, %d, %d,\n"
     strcpy(this->TriangleFormat2, " ");
     strcat(this->TriangleFormat2, triFormat);
     strcat(this->TriangleFormat2, ",\n");
-
-    delete[] triFormat;
   }
 
-  ~vtkPOVInternals()
-  {
-    delete[] this->CountFormat;
-    delete[] this->TriangleFormat1;
-    delete[] this->TriangleFormat2;
-  }
+  ~vtkPOVInternals() = default;
 
-  char* CountFormat;
-  char* TriangleFormat1;
-  char* TriangleFormat2;
+  char CountFormat[100];
+  char TriangleFormat1[100];
+  char TriangleFormat2[100];
 };
 
 #define VTKPOV_CNTFMT this->Internals->CountFormat

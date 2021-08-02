@@ -8,7 +8,7 @@ readonly name="ogg"
 readonly ownership="ogg Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/ogg.git"
-readonly tag="for/vtk-20191230-1.3.4"
+readonly tag="for/vtk-20210727-1.3.5"
 readonly paths="
 .gitattributes
 COPYING

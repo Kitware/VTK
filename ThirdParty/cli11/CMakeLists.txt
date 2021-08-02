@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkcli11/LICENSE"
-    VERSION       "1.9.1"
+    VERSION       "2.0.0"
     HEADER_ONLY
     STANDARD_INCLUDE_DIRS
   EXTERNAL

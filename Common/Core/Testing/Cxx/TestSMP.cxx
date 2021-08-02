@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <deque>
 #include <functional>
+#include <numeric>
 #include <set>
 #include <vector>
 
@@ -41,6 +42,26 @@ public:
   {
     for (int i = begin; i < end; i++)
       this->Counter.Local()++;
+  }
+};
+
+template <typename Iterator>
+class ForRangeFunctor
+{
+public:
+  vtkSMPThreadLocal<double> Counter;
+
+  ForRangeFunctor()
+    : Counter(0)
+  {
+  }
+
+  void operator()(Iterator begin, Iterator end)
+  {
+    for (auto it = begin; it != end; ++it)
+    {
+      this->Counter.Local() += *it;
+    }
   }
 };
 
@@ -132,6 +153,29 @@ int doTestSMP()
   if (total != newTarget)
   {
     cerr << "Error: InitializableRangeFunctor did not generate " << newTarget << endl;
+    return EXIT_FAILURE;
+  }
+
+  // Test For with range
+  std::set<double> forData0;
+  for (int i = 0; i < 1000; ++i)
+  {
+    forData0.emplace(i * 2);
+  }
+  ForRangeFunctor<std::set<double>::const_reverse_iterator> functor3;
+  vtkSMPTools::For(forData0.crbegin(), forData0.crend(), functor3);
+  total = 0;
+  int sumTarget = std::accumulate(forData0.begin(), forData0.end(), 0);
+  for (const auto& el : functor3.Counter)
+  {
+    total += el;
+  }
+
+  if (total != sumTarget)
+  {
+    cerr << "Error: Invalid output for vtkSMPTools::For with iterators applied "
+            "on std::set!"
+         << endl;
     return EXIT_FAILURE;
   }
 
@@ -244,7 +288,7 @@ int doTestSMP()
   vtkSMPTools::Transform(
     transformRange4.cbegin(), transformRange4.cend(), transformRange5.begin(), computeMag);
   auto it5 = transformRange5.begin();
-  for (const auto& it4 : transformRange4)
+  for (const auto it4 : transformRange4)
   {
     ValueType result = 0;
     for (const auto& comp : it4)

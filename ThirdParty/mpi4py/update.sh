@@ -15,7 +15,7 @@ readonly name="mpi4py"
 readonly ownership="mpi4py Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/mpi4py.git"
-readonly tag="for/vtk-20191127-3.0.1"
+readonly tag="for/vtk-20191127-3.0.3"
 readonly paths="
 .gitattributes
 CMakeLists.txt
@@ -36,7 +36,7 @@ src/mpi4py/MPI.pxd
 
 extract_source () {
     # Run cython
-    python2 setup.py build_src
+    python3 setup.py build_src
     # Copy over the files from Git
     git_archive
     # Copy over the files cython produced

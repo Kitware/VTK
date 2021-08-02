@@ -23,6 +23,7 @@
 #include "SMP/OpenMP/vtkSMPToolsImpl.txx"
 
 #include <iterator>
+#include <utility> // For std::move
 
 namespace vtk
 {
@@ -48,7 +49,7 @@ public:
   {
   }
 
-  virtual ~vtkSMPThreadLocalImpl()
+  ~vtkSMPThreadLocalImpl() override
   {
     OpenMP::ThreadSpecificStorageIterator it;
     it.SetThreadSpecificStorage(Backend);
@@ -100,7 +101,9 @@ public:
     auto it = std::unique_ptr<ItImpl>(new ItImpl());
     it->Impl.SetThreadSpecificStorage(this->Backend);
     it->Impl.SetToBegin();
-    return it;
+    // XXX(c++14): remove std::move and cast variable
+    std::unique_ptr<ItImplAbstract> abstractIt(std::move(it));
+    return abstractIt;
   }
 
   std::unique_ptr<ItImplAbstract> end() override
@@ -109,7 +112,9 @@ public:
     auto it = std::unique_ptr<ItImpl>(new ItImpl());
     it->Impl.SetThreadSpecificStorage(this->Backend);
     it->Impl.SetToEnd();
-    return it;
+    // XXX(c++14): remove std::move and cast variable
+    std::unique_ptr<ItImplAbstract> abstractIt(std::move(it));
+    return abstractIt;
   }
 
 private:

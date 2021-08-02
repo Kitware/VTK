@@ -86,8 +86,8 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 //------------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   : UsingScalarColoring(false)
-  , TimerQuery(new vtkOpenGLRenderTimer)
   , PauseShiftScale(false)
+  , TimerQuery(new vtkOpenGLRenderTimer)
 {
   this->InternalColorTexture = nullptr;
   this->PopulateSelectionSettings = 1;
@@ -1708,7 +1708,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     if (textures[i].second == "albedoTex" || textures[i].second == "normalTex" ||
       textures[i].second == "materialTex" || textures[i].second == "brdfTex" ||
       textures[i].second == "emissiveTex" || textures[i].second == "anisotropyTex" ||
-      textures[i].second == "coatNormalTex")
+      textures[i].second == "coatNormalTex" || textures[i].second == "colortexture")
     {
       continue;
     }
@@ -1810,7 +1810,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     ss << "; // Update color based on texture nbr of components \n";
 
     // Define final color based on texture blending
-    if (i == 0)
+    if (nbTex2d == 1)
     {
       ss << "vec4 tcolor = tcolor_" << i << "; // BLENDING: None (first texture) \n\n";
     }
@@ -1853,9 +1853,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     tCoordImpFS += ss.str();
   }
 
-  // do texture mapping except for scalar coloring case which is
-  // handled in the scalar coloring code
-  if (nbTex2d > 0 && (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates))
+  if (nbTex2d > 0)
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
       tCoordImpFS +

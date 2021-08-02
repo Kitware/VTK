@@ -21,6 +21,10 @@
  * There are several back-end implementations of parallel functionality
  * (currently Sequential, TBB, OpenMP and STDThread) that actual execution is
  * delegated to.
+ *
+ * @sa
+ * vtkSMPThreadLocal
+ * vtkSMPThreadLocalObject
  */
 
 #ifndef vtkSMPTools_h
@@ -32,7 +36,9 @@
 #include "SMP/Common/vtkSMPToolsAPI.h"
 #include "vtkSMPThreadLocal.h" // For Initialized
 
-#include <functional> // For std::function
+#include <functional>  // For std::function
+#include <iterator>    // For std::iterator
+#include <type_traits> // For std:::enable_if
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef __VTK_WRAP__
@@ -148,6 +154,72 @@ class vtkSMPTools_Lookup_For<Functor const>
 public:
   typedef vtkSMPTools_FunctorInternal<Functor const, init> type;
 };
+
+template <typename Iterator, typename Functor, bool Init>
+struct vtkSMPTools_RangeFunctor;
+
+template <typename Iterator, typename Functor>
+struct vtkSMPTools_RangeFunctor<Iterator, Functor, false>
+{
+  Functor& F;
+  Iterator& Begin;
+  vtkSMPTools_RangeFunctor(Iterator& begin, Functor& f)
+    : F(f)
+    , Begin(begin)
+  {
+  }
+  void operator()(vtkIdType first, vtkIdType last)
+  {
+    Iterator itFirst(Begin);
+    std::advance(itFirst, first);
+    Iterator itLast(itFirst);
+    std::advance(itLast, last - first);
+    this->F(itFirst, itLast);
+  }
+};
+
+template <typename Iterator, typename Functor>
+struct vtkSMPTools_RangeFunctor<Iterator, Functor, true>
+{
+  Functor& F;
+  Iterator& Begin;
+  vtkSMPTools_RangeFunctor(Iterator& begin, Functor& f)
+    : F(f)
+    , Begin(begin)
+  {
+  }
+  void Initialize() { this->F.Initialize(); }
+  void operator()(vtkIdType first, vtkIdType last)
+  {
+    Iterator itFirst(Begin);
+    std::advance(itFirst, first);
+    Iterator itLast(itFirst);
+    std::advance(itLast, last - first);
+    this->F(itFirst, itLast);
+  }
+  void Reduce() { this->F.Reduce(); }
+};
+
+template <typename Iterator, typename Functor>
+class vtkSMPTools_Lookup_RangeFor
+{
+  static bool const init = vtkSMPTools_Has_Initialize<Functor>::value;
+
+public:
+  typedef vtkSMPTools_RangeFunctor<Iterator, Functor, init> type;
+};
+
+template <typename Iterator, typename Functor>
+class vtkSMPTools_Lookup_RangeFor<Iterator, Functor const>
+{
+  static bool const init = vtkSMPTools_Has_Initialize_const<Functor>::value;
+
+public:
+  typedef vtkSMPTools_RangeFunctor<Iterator, Functor const, init> type;
+};
+
+template <typename T>
+using resolvedNotInt = typename std::enable_if<!std::is_integral<T>::value, void>::type;
 } // namespace smp
 } // namespace detail
 } // namespace vtk
@@ -173,18 +245,7 @@ public:
     typename vtk::detail::smp::vtkSMPTools_Lookup_For<Functor>::type fi(f);
     fi.For(first, last, grain);
   }
-  ///@}
 
-  ///@{
-  /**
-   * Execute a for operation in parallel. First and last
-   * define the range over which to operate (which is defined
-   * by the operator). The operation executed is defined by
-   * operator() of the functor object. The grain gives the parallel
-   * engine a hint about the coarseness over which to parallelize
-   * the function (as defined by last-first of each execution of
-   * operator() ).
-   */
   template <typename Functor>
   static void For(vtkIdType first, vtkIdType last, vtkIdType grain, Functor const& f)
   {
@@ -193,6 +254,7 @@ public:
   }
   ///@}
 
+  ///@{
   /**
    * Execute a for operation in parallel. First and last
    * define the range over which to operate (which is defined
@@ -208,20 +270,114 @@ public:
     vtkSMPTools::For(first, last, 0, f);
   }
 
-  /**
-   * Execute a for operation in parallel. First and last
-   * define the range over which to operate (which is defined
-   * by the operator). The operation executed is defined by
-   * operator() of the functor object. The grain gives the parallel
-   * engine a hint about the coarseness over which to parallelize
-   * the function (as defined by last-first of each execution of
-   * operator() ). Uses a default value for the grain.
-   */
   template <typename Functor>
   static void For(vtkIdType first, vtkIdType last, Functor const& f)
   {
     vtkSMPTools::For(first, last, 0, f);
   }
+  ///@}
+
+  ///@{
+  /**
+   * Execute a for operation in parallel. Begin and end iterators
+   * define the range over which to operate (which is defined
+   * by the operator). The operation executed is defined by
+   * operator() of the functor object. The grain gives the parallel
+   * engine a hint about the coarseness over which to parallelize
+   * the function (as defined by last-first of each execution of
+   * operator() ).
+   *
+   * Usage example:
+   * \code
+   * template<class IteratorT>
+   * class ExampleFunctor
+   * {
+   *   void operator()(IteratorT begin, IteratorT end)
+   *   {
+   *     for (IteratorT it = begin; it != end; ++it)
+   *     {
+   *       // Do stuff
+   *     }
+   *   }
+   * };
+   * ExampleFunctor<std::set<int>::iterator> worker;
+   * vtkSMPTools::For(container.begin(), container.end(), 5, worker);
+   * \endcode
+   *
+   * Lambda are also supported through Functor const&
+   * function overload:
+   * \code
+   * vtkSMPTools::For(container.begin(), container.end(), 5,
+   *    [](std::set<int>::iterator begin, std::set<int>::iterator end) {
+   *      // Do stuff
+   *    });
+   * \endcode
+   */
+  template <typename Iter, typename Functor>
+  static vtk::detail::smp::resolvedNotInt<Iter> For(
+    Iter begin, Iter end, vtkIdType grain, Functor& f)
+  {
+    vtkIdType size = std::distance(begin, end);
+    typename vtk::detail::smp::vtkSMPTools_Lookup_RangeFor<Iter, Functor>::type fi(begin, f);
+    vtkSMPTools::For(0, size, grain, fi);
+  }
+
+  template <typename Iter, typename Functor>
+  static vtk::detail::smp::resolvedNotInt<Iter> For(
+    Iter begin, Iter end, vtkIdType grain, Functor const& f)
+  {
+    vtkIdType size = std::distance(begin, end);
+    typename vtk::detail::smp::vtkSMPTools_Lookup_RangeFor<Iter, Functor const>::type fi(begin, f);
+    vtkSMPTools::For(0, size, grain, fi);
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Execute a for operation in parallel. Begin and end iterators
+   * define the range over which to operate (which is defined
+   * by the operator). The operation executed is defined by
+   * operator() of the functor object. Uses a default value
+   * for the grain.
+   *
+   * Usage example:
+   * \code
+   * template<class IteratorT>
+   * class ExampleFunctor
+   * {
+   *   void operator()(IteratorT begin, IteratorT end)
+   *   {
+   *     for (IteratorT it = begin; it != end; ++it)
+   *     {
+   *       // Do stuff
+   *     }
+   *   }
+   * };
+   * ExampleFunctor<std::set<int>::iterator> worker;
+   * vtkSMPTools::For(container.begin(), container.end(), worker);
+   * \endcode
+   *
+   * Lambda are also supported through Functor const&
+   * function overload:
+   * \code
+   * vtkSMPTools::For(container.begin(), container.end(),
+   *    [](std::set<int>::iterator begin, std::set<int>::iterator end) {
+   *      // Do stuff
+   *    });
+   * \endcode
+   */
+  template <typename Iter, typename Functor>
+  static vtk::detail::smp::resolvedNotInt<Iter> For(Iter begin, Iter end, Functor& f)
+  {
+    vtkSMPTools::For(begin, end, 0, f);
+  }
+
+  template <typename Iter, typename Functor>
+  static vtk::detail::smp::resolvedNotInt<Iter> For(Iter begin, Iter end, Functor const& f)
+  {
+    vtkSMPTools::For(begin, end, 0, f);
+  }
+  ///@}
 
   /**
    * Get the backend in use.

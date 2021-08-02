@@ -8,9 +8,14 @@ if (TARGET VTK::mpi)
     TestPResampleToImage.cxx
     TestPResampleWithDataSet2.cxx
     TestPResampleWithDataSet.cxx
+    TestPUniformGridGhostDataGenerator.cxx,NO_VALID
+    TestPUnstructuredGridGhostCellsGenerator.cxx,NO_VALID
     TestProbeLineFilter.cxx
     TestRedistributeDataSetFilter.cxx
-    TestRedistributeDataSetFilterOnIoss.cxx,NO_VALID)
+    TestRedistributeDataSetFilterOnIoss.cxx,NO_VALID
+    TestStructuredGridGhostDataGenerator.cxx,NO_VALID
+    TestUniformGridGhostDataGenerator.cxx,NO_VALID
+    TestUnstructuredGridGeometryFilterGhostCells.cxx,NO_VALID)
 
 # We want 4 processes to test the vtkAggregateDataSetFilter
 # properly.
@@ -35,6 +40,7 @@ vtk_add_test_cxx(vtkFiltersParallelDIY2CxxTests non_mpi_tests
   TestExtractSubsetWithSeed.cxx
   TestOverlappingCellsDetector.cxx,NO_VALID
   TestGenerateGlobalIds.cxx,NO_VALID
+  TestGenerateGlobalIdsSphere.cxx,NO_VALID
   TestRedistributeDataSetFilter.cxx,NO_VALID
   TestRedistributeDataSetFilterOnIoss.cxx,NO_VALID
   TestRedistributeDataSetFilterWithPolyData.cxx)

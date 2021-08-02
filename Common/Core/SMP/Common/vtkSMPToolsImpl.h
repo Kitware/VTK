@@ -41,6 +41,16 @@ enum class BackendType
   OpenMP = VTK_SMP_BACKEND_OPENMP
 };
 
+#if VTK_SMP_DEFAULT_IMPLEMENTATION_SEQUENTIAL
+const BackendType DefaultBackend = BackendType::Sequential;
+#elif VTK_SMP_DEFAULT_IMPLEMENTATION_STDTHREAD
+const BackendType DefaultBackend = BackendType::STDThread;
+#elif VTK_SMP_DEFAULT_IMPLEMENTATION_TBB
+const BackendType DefaultBackend = BackendType::TBB;
+#elif VTK_SMP_DEFAULT_IMPLEMENTATION_OPENMP
+const BackendType DefaultBackend = BackendType::OpenMP;
+#endif
+
 template <BackendType Backend>
 class VTKCOMMONCORE_EXPORT vtkSMPToolsImpl
 {

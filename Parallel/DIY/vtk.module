@@ -11,6 +11,7 @@ GROUPS
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
+  VTK::CommonSystem
   VTK::ParallelCore
   VTK::diy2
 OPTIONAL_DEPENDS

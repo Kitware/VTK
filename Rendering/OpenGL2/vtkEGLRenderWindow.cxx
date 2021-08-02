@@ -31,8 +31,9 @@
 #include <cassert>
 #include <sstream>
 
-#ifdef ANDROID
+#if defined(__ANDROID__) || defined(ANDROID)
 #include <android/native_window.h>
+#include <vtkAndroidRenderWindowInteractor.h>
 #endif
 
 namespace
@@ -139,7 +140,7 @@ struct vtkEGLRenderWindow::vtkInternals
 vtkEGLRenderWindow::vtkEGLRenderWindow()
 {
   this->Internals = new vtkInternals();
-  this->OwnWindow = 1;
+  this->OwnWindow = true;
   this->ScreenSize[0] = 1920;
   this->ScreenSize[1] = 1080;
 
@@ -338,7 +339,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
    */
   EGLint surfaceType, clientAPI;
   const EGLint* contextAttribs;
-#ifdef ANDROID
+#if defined(__ANDROID__) || defined(ANDROID)
   surfaceType = EGL_WINDOW_BIT;
   clientAPI = EGL_OPENGL_ES2_BIT;
   const EGLint contextES2[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
@@ -354,7 +355,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
     EGL_RED_SIZE, 8, EGL_ALPHA_SIZE, 8, EGL_DEPTH_SIZE, 8, EGL_RENDERABLE_TYPE, clientAPI,
     EGL_NONE };
 
-#if !defined(ANDROID)
+#if !defined(__ANDROID__) && !defined(ANDROID)
   const EGLint surface_attribs[] = { EGL_WIDTH, width, EGL_HEIGHT, height, EGL_NONE };
 #endif
 
@@ -375,7 +376,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
 
     EGLint major = 0, minor = 0;
     vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor);
-#if !defined(ANDROID)
+#if !defined(__ANDROID__) && !defined(ANDROID)
     if (major <= 1 && minor < 4)
     {
       vtkErrorMacro("Only EGL 1.4 and greater allows OpenGL as client API. "
@@ -396,7 +397,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
     return;
   }
 
-#ifdef ANDROID
+#if defined(__ANDROID__) || defined(ANDROID)
   EGLint format = 0;
   /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
    * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
@@ -417,13 +418,22 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
     eglDestroySurface(impl->Display, impl->Surface);
   }
 
-#ifdef ANDROID
+#if defined(__ANDROID__) || defined(ANDROID)
   impl->Surface = eglCreateWindowSurface(impl->Display, config, impl->Window, nullptr);
 #else
   impl->Surface = eglCreatePbufferSurface(impl->Display, config, surface_attribs);
 #endif
   this->Mapped = this->ShowWindow;
-  this->OwnWindow = 1;
+  this->OwnWindow = true;
+
+#if defined(__ANDROID__) || defined(ANDROID)
+  vtkAndroidRenderWindowInteractor* interactor =
+    vtkAndroidRenderWindowInteractor::SafeDownCast(this->Interactor);
+  if (interactor)
+  {
+    interactor->SetOwnWindow(this->OwnWindow);
+  }
+#endif
 
   this->MakeCurrent();
 
@@ -485,8 +495,17 @@ void vtkEGLRenderWindow::WindowInitialize(void)
   this->OpenGLInit();
 
   // for offscreen EGL always turn on point sprites
-#if !defined(ANDROID) && defined(GL_POINT_SPRITE)
+#if !defined(__ANDROID__) && !defined(ANDROID) && defined(GL_POINT_SPRITE)
   glEnable(GL_POINT_SPRITE);
+#endif
+
+#if defined(__ANDROID__) || defined(ANDROID)
+  vtkAndroidRenderWindowInteractor* interactor =
+    vtkAndroidRenderWindowInteractor::SafeDownCast(this->Interactor);
+  if (interactor)
+  {
+    interactor->SetOwnWindow(this->OwnWindow);
+  }
 #endif
 }
 
@@ -608,8 +627,17 @@ void vtkEGLRenderWindow::SetPosition(int x, int y)
 // Set this RenderWindow to a pre-existing window.
 void vtkEGLRenderWindow::SetWindowInfo(const char*)
 {
-  this->OwnWindow = 0;
   this->Mapped = 1;
+  this->OwnWindow = false;
+
+#if defined(__ANDROID__) || defined(ANDROID)
+  vtkAndroidRenderWindowInteractor* interactor =
+    vtkAndroidRenderWindowInteractor::SafeDownCast(this->Interactor);
+  if (interactor)
+  {
+    interactor->SetOwnWindow(this->OwnWindow);
+  }
+#endif
 }
 
 void vtkEGLRenderWindow::SetWindowName(const char* name)

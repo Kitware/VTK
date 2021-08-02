@@ -62,7 +62,7 @@ test-ext:vtk:fedora33-mpi-renderless:
         - .fedora33_mpi_renderless_ext_vtk
         - .cmake_test_external_linux
         - .linux_builder_tags
-        - .cmake_tidy_artifacts
+        - .cmake_junit_artifacts
         - .run_automatically
     dependencies:
         - test:fedora33-mpi-renderless
@@ -94,7 +94,7 @@ test-ext:vtk:fedora33-mpi-offscreen-osmesa-python:
         - .fedora33_mpi_offscreen_osmesa_python_ext_vtk
         - .cmake_test_external_linux
         - .linux_qt_builder_tags
-        - .cmake_tidy_artifacts
+        - .cmake_junit_artifacts
         - .run_automatically
     dependencies:
         - test:fedora33-mpi-offscreen-osmesa-python
@@ -149,7 +149,7 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
         - .fedora33_mpi_python_qt_tbb_ext_vtk
         - .cmake_test_external_linux
         - .linux_qt_tester_tags
-        - .cmake_tidy_artifacts
+        - .cmake_junit_artifacts
         - .run_automatically
     dependencies:
         - test:fedora33-mpi-python-qt-tbb
@@ -542,7 +542,7 @@ test:macos-x86_64-python-qt-stdthread:
 #         - .macos_x86_64_kits_python_qt_ext_vtk
 #         - .cmake_test_external_macos
 #         - .macos_ext_builder_tags
-#         - .cmake_tidy_artifacts
+#         - .cmake_junit_artifacts
 #         - .run_automatically
 #     dependencies:
 #         - test:macos-x86_64-kits-python-qt
@@ -706,7 +706,7 @@ test:windows-vs2019-mpi-python-qt-stdthread:
 #         - .windows_vs2019_kits_mpi_python_qt_ext_vtk
 #         - .cmake_test_external_windows
 #         - .windows_ext_builder_tags
-#         - .cmake_tidy_artifacts
+#         - .cmake_junit_artifacts
 #         - .run_automatically
 #     dependencies:
 #         - test:windows-vs2019-kits-mpi-python-qt

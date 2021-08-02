@@ -186,7 +186,7 @@ int TestQQuickVTKRenderItemWidget(int argc, char* argv[])
   vtktesting->AddArguments(argc, argv);
   if (vtktesting->IsInteractiveModeSpecified())
   {
-    return app.exec();
+    return QApplication::exec();
   }
 
   // Capture a screenshot of the item

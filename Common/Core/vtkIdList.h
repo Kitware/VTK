@@ -115,6 +115,12 @@ public:
   void Sort();
 
   /**
+   * Fill the ids with the input value. This method uses
+   * vtkSMPTools::Fill() so it can be sped up if built properly.
+   */
+  void Fill(vtkIdType value);
+
+  /**
    * Get a pointer to a particular data index.
    */
   vtkIdType* GetPointer(const vtkIdType i) { return this->Ids + i; }

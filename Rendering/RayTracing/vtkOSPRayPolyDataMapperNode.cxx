@@ -788,8 +788,8 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
     {
       ospSetVec3f(oMaterial, "kd", diffusef[0], diffusef[1], diffusef[2]);
     }
-    ospSetVec3f(oMaterial, "Ks", specularf[0], specularf[1], specularf[2]);
-    ospSetFloat(oMaterial, "Ns", specPower);
+    ospSetVec3f(oMaterial, "ks", specularf[0], specularf[1], specularf[2]);
+    ospSetFloat(oMaterial, "ns", specPower);
     ospSetFloat(oMaterial, "d", static_cast<float>(opacity));
   }
 

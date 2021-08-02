@@ -8,7 +8,7 @@ readonly name="sqlite"
 readonly ownership="sqlite Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/sqlite.git"
-readonly tag="for/vtk-20201111-3.33.0"
+readonly tag="for/vtk-20210727-3.36.0"
 readonly paths="
 .gitattributes
 CMakeLists.txt
