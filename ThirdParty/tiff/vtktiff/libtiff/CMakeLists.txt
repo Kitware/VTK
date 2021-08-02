@@ -37,99 +37,119 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tiffconf.h.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/tiffconf.h
                @ONLY)
 
-extra_dist(
-  SConstruct
-  tif_config.h-vms
-  tif_config.vc.h
-  tif_config.wince.h
-  tiffconf.vc.h
-  tiffconf.wince.h
-  libtiff.def
-  libtiff.map
-  libtiffxx.map)
+set(tiff_public_HEADERS
+        tiff.h
+        tiffio.h
+        tiffvers.h
+        vtk_tiff_mangle.h
+        ${CMAKE_CURRENT_BINARY_DIR}/tiffconf.h)
 
-set(tiff_HEADERS
-  tiff.h
-  tiffio.h
-  tiffvers.h
-  vtk_tiff_mangle.h)
+set(tiff_private_HEADERS
+        t4.h
+        tif_dir.h
+        tif_predict.h
+        tiffiop.h
+        uvcode.h
+        ${CMAKE_CURRENT_BINARY_DIR}/tif_config.h)
 
-set(tiff_noinst_HEADERS
-  t4.h
-  tif_dir.h
-  tif_predict.h
-  tiffiop.h
-  uvcode.h)
 
-set(nodist_tiff_HEADERS
-  ${CMAKE_CURRENT_BINARY_DIR}/tiffconf.h)
+if (FALSE) # XXX(kitware): Use VTK's module system.
+add_library(tiff libtiff.def)
+endif ()
 
+#target_sources(tiff PRIVATE
+#        ${tiff_public_HEADERS}
+#        ${tiff_private_HEADERS}
 set(tiff_SOURCES
-  tif_aux.c
-  tif_close.c
-  tif_codec.c
-  tif_color.c
-  tif_compress.c
-  tif_dir.c
-  tif_dirinfo.c
-  tif_dirread.c
-  tif_dirwrite.c
-  tif_dumpmode.c
-  tif_error.c
-  tif_extension.c
-  tif_fax3.c
-  tif_fax3sm.c
-  tif_flush.c
-  tif_getimage.c
-  tif_jbig.c
-  tif_jpeg.c
-  tif_jpeg_12.c
-  tif_luv.c
-  tif_lzma.c
-  tif_lzw.c
-  tif_next.c
-  tif_ojpeg.c
-  tif_open.c
-  tif_packbits.c
-  tif_pixarlog.c
-  tif_predict.c
-  tif_print.c
-  tif_read.c
-  tif_strip.c
-  tif_swab.c
-  tif_thunder.c
-  tif_tile.c
-  tif_version.c
-  tif_warning.c
-  tif_webp.c
-  tif_write.c
-  tif_zip.c
-  tif_zstd.c)
-
-set(tiffxx_HEADERS
-  tiffio.hxx)
-
-set(tiffxx_SOURCES
-  tif_stream.cxx)
+        tif_aux.c
+        tif_close.c
+        tif_codec.c
+        tif_color.c
+        tif_compress.c
+        tif_dir.c
+        tif_dirinfo.c
+        tif_dirread.c
+        tif_dirwrite.c
+        tif_dumpmode.c
+        tif_error.c
+        tif_extension.c
+        tif_fax3.c
+        tif_fax3sm.c
+        tif_flush.c
+        tif_getimage.c
+        tif_jbig.c
+        tif_jpeg.c
+        tif_jpeg_12.c
+        tif_lerc.c
+        tif_luv.c
+        tif_lzma.c
+        tif_lzw.c
+        tif_next.c
+        tif_ojpeg.c
+        tif_open.c
+        tif_packbits.c
+        tif_pixarlog.c
+        tif_predict.c
+        tif_print.c
+        tif_read.c
+        tif_strip.c
+        tif_swab.c
+        tif_thunder.c
+        tif_tile.c
+        tif_version.c
+        tif_warning.c
+        tif_webp.c
+        tif_write.c
+        tif_zip.c
+        tif_zstd.c)
 
 if(USE_WIN32_FILEIO)
-  extra_dist(tif_unix.c)
+  #target_sources(tiff PRIVATE tif_win32.c)
   list(APPEND tiff_SOURCES tif_win32.c)
 else()
-  extra_dist(tif_win32.c)
+  #target_sources(tiff PRIVATE tif_unix.c)
   list(APPEND tiff_SOURCES tif_unix.c)
 endif()
 
 if (FALSE) # XXX(kitware): Use VTK's module system.
-add_library(tiff ${tiff_SOURCES} ${tiff_HEADERS} ${nodist_tiff_HEADERS}
-            ${tiff_port_SOURCES} libtiff.def)
 target_include_directories(tiff
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    PRIVATE
         ${TIFF_INCLUDES}
 )
-target_link_libraries(tiff ${TIFF_LIBRARY_DEPS})
+
+if(ZIP_SUPPORT)
+  target_link_libraries(tiff PRIVATE ZLIB::ZLIB)
+endif()
+if(ZIP_SUPPORT AND LIBDEFLATE_SUPPORT)
+  target_link_libraries(tiff PRIVATE Deflate::Deflate)
+endif()
+if(JPEG_SUPPORT)
+  target_link_libraries(tiff PRIVATE JPEG::JPEG)
+  if(JPEG_DUAL_MODE_8_12)
+    target_include_directories(tiff PRIVATE ${JPEG12_INCLUDE_DIR})
+    target_link_libraries(tiff PRIVATE ${JPEG12_LIBRARIES})
+  endif()
+endif()
+if(JBIG_SUPPORT)
+  target_link_libraries(tiff PRIVATE JBIG::JBIG)
+endif()
+if(LERC_SUPPORT)
+    target_link_libraries(tiff PRIVATE LERC::LERC)
+endif()
+if(LZMA_SUPPORT)
+    target_link_libraries(tiff PRIVATE LibLZMA::LibLZMA)
+endif()
+if(ZSTD_SUPPORT)
+  target_link_libraries(tiff PRIVATE ZSTD::ZSTD)
+endif()
+if(WEBP_SUPPORT)
+  target_link_libraries(tiff PRIVATE WebP::WebP)
+endif()
+target_link_libraries(tiff PRIVATE CMath::CMath)
+
 set_target_properties(tiff PROPERTIES SOVERSION ${SO_COMPATVERSION})
 if(NOT CYGWIN)
     # This property causes shared libraries on Linux to have the full version
@@ -141,11 +161,10 @@ endif()
 else ()
 vtk_module_add_module(VTK::tiff
   SOURCES ${tiff_SOURCES}
-          ${tiff_port_SOURCES}
-          ${tiff_DEFS}
-  HEADERS ${tiff_HEADERS}
+          libtiff.def
+  HEADERS ${tiff_public_HEADERS}
   HEADERS_SUBDIR "vtktiff/libtiff"
-  PRIVATE_HEADERS ${nodist_tiff_HEADERS})
+  PRIVATE_HEADERS ${tiff_private_HEADERS})
 endif ()
 if(HAVE_LD_VERSION_SCRIPT)
   set_target_properties(tiff PROPERTIES LINK_FLAGS
@@ -158,12 +177,18 @@ install(TARGETS tiff
         LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
 
-install(FILES ${tiff_HEADERS} ${nodist_tiff_HEADERS}
+install(FILES ${tiff_public_HEADERS}
         DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 endif ()
 
 if(CXX_SUPPORT)
-  add_library(tiffxx ${tiffxx_SOURCES} ${tiffxx_HEADERS})
+  set(tiffxx_HEADERS
+          tiffio.hxx)
+
+  add_library(tiffxx)
+  target_sources(tiffxx PRIVATE
+          ${tiffxx_HEADERS}
+          tif_stream.cxx)
   target_link_libraries(tiffxx tiff)
   set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})
   if(NOT CYGWIN)
@@ -187,3 +212,15 @@ if(CXX_SUPPORT)
           DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 
 endif()
+
+if (FALSE) # XXX(kitware): VTK doesn't need extra tools
+add_executable(mkg3states)
+target_sources(mkg3states PRIVATE mkg3states.c tif_fax3.h)
+target_link_libraries(mkg3states tiff port)
+
+add_custom_target(faxtable
+        DEPENDS mkg3states
+        COMMAND ${CMAKE_COMMAND} -E rm "tif_fax3sm.c"
+        COMMAND mkg3states -b -c const "tif_fax3sm.c"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+endif ()

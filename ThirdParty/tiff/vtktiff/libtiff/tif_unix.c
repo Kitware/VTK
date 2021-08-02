@@ -120,18 +120,18 @@ _tiffWriteProc(thandle_t fd, void* buf, tmsize_t size)
 	/* return ((tmsize_t) write(fdh.fd, buf, bytes_total)); */
 }
 
-static uint64
-_tiffSeekProc(thandle_t fd, uint64 off, int whence)
+static uint64_t
+_tiffSeekProc(thandle_t fd, uint64_t off, int whence)
 {
 	fd_as_handle_union_t fdh;
 	_TIFF_off_t off_io = (_TIFF_off_t) off;
-	if ((uint64) off_io != off)
+	if ((uint64_t) off_io != off)
 	{
 		errno=EINVAL;
-		return (uint64) -1; /* this is really gross */
+		return (uint64_t) -1; /* this is really gross */
 	}
 	fdh.h = fd;
-	return((uint64)_TIFF_lseek_f(fdh.fd,off_io,whence));
+	return((uint64_t)_TIFF_lseek_f(fdh.fd, off_io, whence));
 }
 
 static int
@@ -142,7 +142,7 @@ _tiffCloseProc(thandle_t fd)
 	return(close(fdh.fd));
 }
 
-static uint64
+static uint64_t
 _tiffSizeProc(thandle_t fd)
 {
 	_TIFF_stat_s sb;
@@ -151,7 +151,7 @@ _tiffSizeProc(thandle_t fd)
 	if (_TIFF_fstat_f(fdh.fd,&sb)<0)
 		return(0);
 	else
-		return((uint64)sb.st_size);
+		return((uint64_t)sb.st_size);
 }
 
 #ifdef HAVE_MMAP
@@ -160,9 +160,9 @@ _tiffSizeProc(thandle_t fd)
 static int
 _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
 {
-	uint64 size64 = _tiffSizeProc(fd);
+	uint64_t size64 = _tiffSizeProc(fd);
 	tmsize_t sizem = (tmsize_t)size64;
-	if ((uint64)sizem==size64) {
+	if (size64 && (uint64_t)sizem == size64) {
 		fd_as_handle_union_t fdh;
 		fdh.h = fd;
 		*pbase = (void*)
