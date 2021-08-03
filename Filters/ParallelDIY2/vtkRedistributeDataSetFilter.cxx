@@ -60,6 +60,8 @@ namespace
 {
 const char* CELL_OWNERSHIP_ARRAYNAME = "__RDSF_CELL_OWNERSHIP__";
 const char* GHOST_CELL_ARRAYNAME = "__RDSF_GHOST_CELLS__";
+constexpr double BOUNDING_BOX_LENGTH_TOLERANCE = 0.01;
+constexpr double BOUNDING_BOX_INFLATION_RATIO = 0.01;
 }
 
 namespace detail
@@ -556,9 +558,15 @@ bool vtkRedistributeDataSetFilter::InitializeCuts(vtkDataObjectTree* input)
   if (this->UseExplicitCuts && this->ExpandExplicitCuts && gbounds.IsValid())
   {
     auto bbox = gbounds;
-    double xInflate = bbox.GetLength(0) == 0 ? 0.01 : 0.01 * bbox.GetLength(0);
-    double yInflate = bbox.GetLength(1) == 0 ? 0.01 : 0.01 * bbox.GetLength(1);
-    double zInflate = bbox.GetLength(2) == 0 ? 0.01 : 0.01 * bbox.GetLength(2);
+    double xInflate = bbox.GetLength(0) < ::BOUNDING_BOX_LENGTH_TOLERANCE
+      ? ::BOUNDING_BOX_LENGTH_TOLERANCE
+      : ::BOUNDING_BOX_INFLATION_RATIO * bbox.GetLength(0);
+    double yInflate = bbox.GetLength(1) < ::BOUNDING_BOX_LENGTH_TOLERANCE
+      ? ::BOUNDING_BOX_LENGTH_TOLERANCE
+      : ::BOUNDING_BOX_INFLATION_RATIO * bbox.GetLength(1);
+    double zInflate = bbox.GetLength(2) < ::BOUNDING_BOX_LENGTH_TOLERANCE
+      ? ::BOUNDING_BOX_LENGTH_TOLERANCE
+      : ::BOUNDING_BOX_INFLATION_RATIO * bbox.GetLength(2);
     bbox.Inflate(xInflate, yInflate, zInflate);
 
     this->Cuts = vtkRedistributeDataSetFilter::ExpandCuts(this->ExplicitCuts, bbox);
@@ -583,10 +591,19 @@ std::vector<vtkBoundingBox> vtkRedistributeDataSetFilter::GenerateCuts(vtkDataOb
     : this->GetNumberOfPartitions();
   auto bbox = vtkDIYUtilities::GetLocalBounds(dobj);
 
-  double xInflate = bbox.GetLength(0) == 0 ? 0.01 : 0.01 * bbox.GetLength(0);
-  double yInflate = bbox.GetLength(1) == 0 ? 0.01 : 0.01 * bbox.GetLength(1);
-  double zInflate = bbox.GetLength(2) == 0 ? 0.01 : 0.01 * bbox.GetLength(2);
-  bbox.Inflate(xInflate, yInflate, zInflate);
+  if (bbox.IsValid())
+  {
+    double xInflate = bbox.GetLength(0) < ::BOUNDING_BOX_LENGTH_TOLERANCE
+      ? ::BOUNDING_BOX_LENGTH_TOLERANCE
+      : ::BOUNDING_BOX_INFLATION_RATIO * bbox.GetLength(0);
+    double yInflate = bbox.GetLength(1) < ::BOUNDING_BOX_LENGTH_TOLERANCE
+      ? ::BOUNDING_BOX_LENGTH_TOLERANCE
+      : ::BOUNDING_BOX_INFLATION_RATIO * bbox.GetLength(1);
+    double zInflate = bbox.GetLength(2) < ::BOUNDING_BOX_LENGTH_TOLERANCE
+      ? ::BOUNDING_BOX_LENGTH_TOLERANCE
+      : ::BOUNDING_BOX_INFLATION_RATIO * bbox.GetLength(2);
+    bbox.Inflate(xInflate, yInflate, zInflate);
+  }
 
   double bds[6];
   bbox.GetBounds(bds);
