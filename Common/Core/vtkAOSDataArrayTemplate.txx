@@ -15,6 +15,12 @@
 #ifndef vtkAOSDataArrayTemplate_txx
 #define vtkAOSDataArrayTemplate_txx
 
+#ifdef VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#define VTK_GDA_VALUERANGE_INSTANTIATING
+#include "vtkDataArrayPrivate.txx"
+#undef VTK_GDA_VALUERANGE_INSTANTIATING
+#endif
+
 #include "vtkAOSDataArrayTemplate.h"
 
 #include "vtkArrayIteratorTemplate.h"

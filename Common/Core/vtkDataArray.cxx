@@ -38,6 +38,7 @@
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
 #include "vtkScaledSOADataArrayTemplate.h" // For fast paths
 #endif
+#include "vtkSMPTools.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkTypeTraits.h"

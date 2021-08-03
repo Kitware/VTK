@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGenericDataArray.cxx
+  Module:    vtkScaledSOADataArrayTemplateInstantiate.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,17 +13,11 @@
 
 =========================================================================*/
 
-// We can't include vtkDataArrayPrivate.txx from a header, since it pulls in
-// windows.h and creates a bunch of name collisions. So we compile the range
-// lookup functions into this translation unit where we can encapsulate the
-// header.
+// This file generates an instantiation of vtkScaledSOADataArrayTemplate.
+// For AoS arrays, this is done in the more derived classes, for example
+// compiling vtkFloatArray.cxx instantiates vtkAOSDataArrayTemplate<float>.
 
-#define VTK_GDA_VALUERANGE_INSTANTIATING
-#include "vtkGenericDataArray.h"
+#define VTK_SCALED_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#include "vtkScaledSOADataArrayTemplate.txx"
 
-#include "vtkDataArrayPrivate.txx"
-
-namespace vtkDataArrayPrivate
-{
-VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkDataArray, double)
-} // namespace vtkDataArrayPrivate
+VTK_SCALED_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(@INSTANTIATION_VALUE_TYPE@);

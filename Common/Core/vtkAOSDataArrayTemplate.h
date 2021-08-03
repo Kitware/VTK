@@ -337,7 +337,12 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate);
 // from instantiating these on their own.
 #ifdef VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
 #define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(T)                                                 \
+  namespace vtkDataArrayPrivate                                                                    \
+  {                                                                                                \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<T>, double);                        \
+  }                                                                                                \
   template class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate<T>
+
 #elif defined(VTK_USE_EXTERN_TEMPLATE)
 #ifndef VTK_AOS_DATA_ARRAY_TEMPLATE_EXTERN
 #define VTK_AOS_DATA_ARRAY_TEMPLATE_EXTERN
