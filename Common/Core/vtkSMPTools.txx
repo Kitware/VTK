@@ -17,10 +17,12 @@
 
 //------------------------------------------------------------------------------
 template <typename T>
-void vtkSMPTools::ScopeWithMaxThread(int numThreads, T&& lambda)
+void vtkSMPTools::LocalScope(Config const& config, T&& lambda)
 {
   const int oldThreadNumber = vtkSMPTools::GetEstimatedNumberOfThreads();
-  vtkSMPTools::Initialize(numThreads);
+  vtkSMPTools::Initialize(config.MaxNumberOfThreads);
+  const char* oldBackend = vtk::detail::smp::vtkSMPToolsAPI::GetInstance().GetBackend();
+  vtkSMPTools::SetBackend(config.Backend.c_str());
   try
   {
     lambda();
@@ -28,14 +30,9 @@ void vtkSMPTools::ScopeWithMaxThread(int numThreads, T&& lambda)
   catch (...)
   {
     vtkSMPTools::Initialize(oldThreadNumber);
+    vtkSMPTools::SetBackend(oldBackend);
     throw;
   }
   vtkSMPTools::Initialize(oldThreadNumber);
-}
-
-//------------------------------------------------------------------------------
-template <typename T>
-void vtkSMPTools::ScopeWithMaxThread(T&& lambda)
-{
-  vtkSMPTools::ScopeWithMaxThread(0, lambda);
+  vtkSMPTools::SetBackend(oldBackend);
 }

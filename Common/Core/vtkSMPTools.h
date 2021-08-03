@@ -421,31 +421,42 @@ public:
   static int GetEstimatedNumberOfThreads();
 
   /**
-   * Change the number of threads locally within this scope and call a functor which
-   * should contains a vtkSMPTools method.
-   *
-   * Usage example:
-   * \code
-   * vtkSMPTools::ScopeWithMaxThread(4, [&]() { vtkSMPTools::For(0, size, worker); });
-   * \endcode
+   * Structure used to specify configuration for LocalScope() method.
+   * Configuration parameters are MaxNumberOfThreads and Backend.
    */
-  template <typename T>
-  static void ScopeWithMaxThread(int numThreads, T&& lambda);
+  struct Config
+  {
+    int MaxNumberOfThreads = 0;
+    std::string Backend = vtk::detail::smp::vtkSMPToolsAPI::GetInstance().GetBackend();
+
+    Config() {}
+    Config(int maxNumberOfThreads)
+      : MaxNumberOfThreads(maxNumberOfThreads)
+    {
+    }
+    Config(std::string backend)
+      : Backend(backend)
+    {
+    }
+    Config(int maxNumberOfThreads, std::string backend)
+      : MaxNumberOfThreads(maxNumberOfThreads)
+      , Backend(backend)
+    {
+    }
+  };
 
   /**
    * Change the number of threads locally within this scope and call a functor which
    * should contains a vtkSMPTools method.
    *
-   * This version of Scope doesn't take a number of threads as parameter and will
-   * uses the VTK_SMP_MAX_THREADS env variable.
-   *
    * Usage example:
    * \code
-   * vtkSMPTools::ScopeWithMaxThread([&]() { vtkSMPTools::For(0, size, worker); });
+   * vtkSMPTools::LocalScope(
+   *   vtkSMPTools::Config{ 4, "Sequential" }, [&]() { vtkSMPTools::For(0, size, worker); });
    * \endcode
    */
   template <typename T>
-  static void ScopeWithMaxThread(T&& lambda);
+  static void LocalScope(Config const& config, T&& lambda);
 
   /**
    * A convenience method for transforming data. It is a drop in replacement for
