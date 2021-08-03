@@ -1,6 +1,7 @@
 set(classes
   vtkContourValues
   vtkErrorCode
+  vtkExprTkFunctionParser
   vtkFunctionParser
   vtkHeap
   vtkPolygonBuilder

@@ -75,7 +75,7 @@ class CellTestBase:
             calcFilter.AddVectorArrayName('grad')
             calcFilter.AddVectorArrayName('Normals')
             calcFilter.SetResultArrayName('dir')
-            calcFilter.SetFunction('grad.Normals')
+            calcFilter.SetFunction('dot(grad,Normals)')
             calcFilter.Update()
 
             out = vtk.vtkUnstructuredGrid()

@@ -166,8 +166,8 @@ int TestNamedComponents(int, char*[])
   calc->SetAttributeTypeToPointData();
   // Add coordinate scalar and vector variables
   calc->AddCoordinateScalarVariable("coordsX", 0);
-  calc->AddScalarVariable("point coords_YLOC", "point coords", 1);
-  calc->SetFunction("coordsX + point coords_YLOC");
+  calc->AddScalarVariable("\"point coords_YLOC\"", "point coords", 1);
+  calc->SetFunction("coordsX + \"point coords_YLOC\"");
   calc->SetResultArrayName("Result");
   calc->Update();
 

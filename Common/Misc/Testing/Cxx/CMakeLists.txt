@@ -6,6 +6,7 @@ vtk_add_test_cxx(vtkCommonMiscCxxTests tests
   TestPolygonBuilder4.cxx
   TestResourceFileLocator.cxx
   TestPolygonBuilder5.cxx
+  UnitTestExprTkFunctionParser.cxx
   UnitTestFunctionParser.cxx
   )
 vtk_test_cxx_executable(vtkCommonMiscCxxTests tests)
