@@ -19,6 +19,19 @@
  * vtkCharArray is an array of values of type char.  It provides
  * methods for insertion and retrieval of values and will
  * automatically resize itself to hold new data.
+ *
+ * @warning
+ * This class should be avoided in favor of either
+ * vtkSignedCharArray or vtkUnsignedCharArray. On some systems
+ * the underlying data will be stored as unsigned chars and others
+ * it will be stored as signed chars. Additionally, saving this
+ * array out and then reading it back in it could be transformed to
+ * a vtkSignedCharArray or vtkUnsignedCharArray and if that happens
+ * the result of a vtkCharArray::SafeDownCast() of that pointer will be
+ * a null pointer.
+ *
+ * @sa
+ * vtkSignedCharArray vtkUnsignedCharArray
  */
 
 #ifndef vtkCharArray_h
