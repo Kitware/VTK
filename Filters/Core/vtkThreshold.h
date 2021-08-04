@@ -37,6 +37,7 @@
 #ifndef vtkThreshold_h
 #define vtkThreshold_h
 
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
@@ -60,25 +61,54 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Possible values for the threshold function:
+   * - THRESHOLD_BETWEEN - Keep values between the lower and upper thresholds.
+   * - THRESHOLD_LOWER - Keep values below the lower threshold.
+   * - THRESHOLD_UPPER - Keep values above the upper threshold.
+   */
+  enum ThresholdType
+  {
+    THRESHOLD_BETWEEN = 0,
+    THRESHOLD_LOWER,
+    THRESHOLD_UPPER
+  };
+
+  ///@{
+  /**
+   * Get/Set the threshold method, defining which threshold bounds to use. The default method is
+   * vtkThreshold::Between.
+   */
+  void SetThresholdFunction(int function);
+  int GetThresholdFunction();
+  ///@}
+
+  /**
    * Criterion is cells whose scalars are less or equal to lower threshold.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use 'SetLowerThreshold' and 'SetThresholdFunction' instead.")
   void ThresholdByLower(double lower);
 
   /**
    * Criterion is cells whose scalars are greater or equal to upper threshold.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use 'SetUpperThreshold' and 'SetThresholdFunction' instead.")
   void ThresholdByUpper(double upper);
 
   /**
    * Criterion is cells whose scalars are between lower and upper thresholds
    * (inclusive of the end values).
    */
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use 'SetLowerThreshold', 'SetUpperThreshold' and 'SetThresholdFunction' instead.")
   void ThresholdBetween(double lower, double upper);
 
   ///@{
   /**
-   * Get the Upper and Lower thresholds.
+   * Set/get the upper and lower thresholds. The default values are set to +infinity and -infinity,
+   * respectively.
    */
+  vtkSetMacro(UpperThreshold, double);
+  vtkSetMacro(LowerThreshold, double);
   vtkGetMacro(UpperThreshold, double);
   vtkGetMacro(LowerThreshold, double);
   ///@}
@@ -191,18 +221,17 @@ public:
 
   ///@{
   /**
-   * Methods used for thresholding. vtkThreshold::Lower returns true if s is lower than threshold,
-   * vtkThreshold::Upper returns true if s is upper than treshold, and vtkThreshold::Between returns
-   * true if s is between two threshold.
+   * Methods used for thresholding. vtkThreshold::Lower returns true if s is lower than the lower
+   * threshold, vtkThreshold::Upper returns true if s is larger than the upper threshold, and
+   * vtkThreshold::Between returns true if s is between the lower and upper thresholds.
    *
-   * @warning vtkThreshold::Lower and vtkThreshold::Upper use different thresholds which are set
-   * using the methods vtkThreshold::ThresholdByLower and vtkThreshold::ThresholdByUpper
-   * respectively. vtkThreshold::ThresholdBetween sets both thresholds. Do not use those methods
-   * without priorly setting the corresponding threshold.
+   * @warning These methods use threshold values that can be set with
+   * vtkThreshold::SetLowerThreshold and vtkThreshold::SetUpperThreshold. The threshold
+   * method can be set using vtkThreshold::SetThresholdFunction.
    *
-   * @note They are not protected member for inheritance purposes. The addresses of those methods is
-   * stored in one of this class attributes to figure out which version of the threshold to apply,
-   * which are inaccessible if protected.
+   * @note They are not protected members for inheritance purposes. The addresses of those methods
+   * are stored in one of this class attributes to figure out which version of the threshold to
+   * apply, which are inaccessible if protected.
    */
   int Lower(double s) const;
   int Upper(double s) const;
