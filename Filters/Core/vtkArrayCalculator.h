@@ -246,7 +246,7 @@ public:
   const std::vector<std::string>& GetVectorVariableNames() { return this->VectorVariableNames; }
   std::string GetVectorVariableName(int i);
   const std::vector<int>& GetSelectedScalarComponents() { return this->SelectedScalarComponents; }
-  const int GetSelectedScalarComponent(int i);
+  int GetSelectedScalarComponent(int i);
   const std::vector<vtkTuple<int, 3>>& GetSelectedVectorComponents()
   {
     return this->SelectedVectorComponents;

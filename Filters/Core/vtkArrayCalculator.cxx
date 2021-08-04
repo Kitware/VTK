@@ -1068,7 +1068,7 @@ std::string vtkArrayCalculator::GetVectorVariableName(int i)
   return std::string();
 }
 
-const int vtkArrayCalculator::GetSelectedScalarComponent(int i)
+int vtkArrayCalculator::GetSelectedScalarComponent(int i)
 {
   if (i < static_cast<int>(this->ScalarArrayNames.size()))
   {
