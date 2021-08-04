@@ -6,12 +6,7 @@ wslink related classes for the purposes of vtkWeb.
 from __future__ import absolute_import, division, print_function
 
 # import inspect, types, string, random, logging, six, json, re, base64
-import json, base64, time
-
-from twisted.python import log
-from twisted.internet import reactor
-
-from autobahn.twisted.websocket import WebSocketServerProtocol
+import json, base64, logging, time
 
 from wslink import websocket
 from wslink import register as exportRpc
@@ -40,7 +35,7 @@ class ServerProtocol(websocket.ServerProtocol):
     """
 
     def __init__(self):
-        log.msg("Creating SP")
+        logging.info("Creating SP")
         self.setSharedObject("app", self.initApplication())
         websocket.ServerProtocol.__init__(self)
 
