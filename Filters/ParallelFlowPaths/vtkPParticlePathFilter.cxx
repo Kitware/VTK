@@ -15,7 +15,6 @@
 #include "vtkPParticlePathFilter.h"
 
 #include "vtkCellArray.h"
-#include "vtkCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -24,6 +23,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSignedCharArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <cassert>
 

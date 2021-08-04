@@ -53,7 +53,6 @@ class vtkCellArray;
 class vtkDoubleArray;
 class vtkFloatArray;
 class vtkIntArray;
-class vtkCharArray;
 class vtkAbstractParticleWriter;
 
 VTK_DEPRECATED_IN_9_0_0("Use one of vtkParticleTracerBase, vtkParticleTracer, "

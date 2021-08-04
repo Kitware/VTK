@@ -21,7 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAbstractParticleWriter.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCharArray.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSetAttributes.h"
@@ -44,6 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta2.h"
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
+#include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkTemporalInterpolatedVelocityField.h"
 #include <cassert>
@@ -828,7 +828,7 @@ int vtkTemporalStreamTracer::GenerateOutput(
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   this->ParticleAge = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleIds = vtkSmartPointer<vtkIntArray>::New();
-  this->ParticleSourceIds = vtkSmartPointer<vtkCharArray>::New();
+  this->ParticleSourceIds = vtkSmartPointer<vtkSignedCharArray>::New();
   this->InjectedPointIds = vtkSmartPointer<vtkIntArray>::New();
   this->InjectedStepIds = vtkSmartPointer<vtkIntArray>::New();
   this->ErrorCodeArray = vtkSmartPointer<vtkIntArray>::New();
