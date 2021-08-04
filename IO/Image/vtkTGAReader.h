@@ -57,6 +57,7 @@ protected:
   ~vtkTGAReader() override = default;
 
   void ExecuteInformation() override;
+  void ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo) override;
 
 private:
   vtkTGAReader(const vtkTGAReader&) = delete;
