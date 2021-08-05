@@ -77,7 +77,7 @@ public:
    * would cause endless node sub-division. Thus this threshold is broken, but
    * only in case of such situations.
    */
-  vtkSetClampMacro(MaxPointsPerLeaf, int, 16, 256);
+  vtkSetMacro(MaxPointsPerLeaf, int);
   vtkGetMacro(MaxPointsPerLeaf, int);
   ///@}
 
