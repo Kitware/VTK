@@ -142,9 +142,9 @@ int TestArrayCalculator(int argc, char* argv[])
     calc6->SetInputConnection(reader2->GetOutputPort());
     calc6->SetFunctionParserType(i);
     calc6->SetAttributeTypeToPointData();
-    for (int i = 0; i < reader2->GetNumberOfPointArrays(); i++)
+    for (int j = 0; j < reader2->GetNumberOfPointArrays(); j++)
     {
-      calc6->AddScalarArrayName(reader2->GetPointArrayName(i));
+      calc6->AddScalarArrayName(reader2->GetPointArrayName(j));
     }
     calc6->SetFunction("Result224");
     calc6->SetResultArrayName("Result");

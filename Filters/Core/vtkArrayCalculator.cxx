@@ -185,8 +185,6 @@ public:
     functionParser->SetReplaceInvalidValues(this->ReplaceInvalidValues);
     functionParser->SetReplacementValue(this->ReplacementValue);
 
-    vtkIdType numTuples = this->InFD->GetNumberOfTuples();
-
     // Tell the parser about scalar arrays
     vtkDataArray* currentArray;
     double tempTuple[100];
@@ -329,12 +327,14 @@ public:
         }
         for (size_t j = 0; j < this->CoordinateScalarVariableNames.size(); j++)
         {
-          functionParser->SetScalarVariableValue(j + this->ScalarArrayNames.size(),
+          functionParser->SetScalarVariableValue(
+            static_cast<int>(j + this->ScalarArrayNames.size()),
             tempTuple[this->SelectedCoordinateScalarComponents[j]]);
         }
         for (size_t j = 0; j < this->CoordinateVectorVariableNames.size(); j++)
         {
-          functionParser->SetVectorVariableValue(j + this->VectorArrayNames.size(),
+          functionParser->SetVectorVariableValue(
+            static_cast<int>(j + this->VectorArrayNames.size()),
             tempTuple[this->SelectedCoordinateVectorComponents[j][0]],
             tempTuple[this->SelectedCoordinateVectorComponents[j][1]],
             tempTuple[this->SelectedCoordinateVectorComponents[j][2]]);

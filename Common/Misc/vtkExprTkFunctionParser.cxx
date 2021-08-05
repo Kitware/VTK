@@ -25,6 +25,7 @@
 #define exprtk_disable_rtl_io_file
 #define exprtk_disable_caseinsensitivity
 #include "vtk_exprtk.h"
+#include "vtksys/SystemTools.hxx"
 
 using ResultType = exprtk::results_context<double>::type_store_t::store_type;
 
@@ -223,6 +224,8 @@ public:
   }
 };
 
+namespace
+{
 // compile-time declaration of needed function/variables/vectors/packages
 // these are useful to minimize the construction cost, especially when
 // multiple instances of this class are instantiated
@@ -234,6 +237,41 @@ mag<double> magnitude;
 crossX<double> crossXProduct;
 crossY<double> crossYProduct;
 crossZ<double> crossZProduct;
+
+//------------------------------------------------------------------------------
+std::string RemoveSpacesFrom(const char* string)
+{
+  std::string str = string;
+  str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
+  return str;
+}
+
+//------------------------------------------------------------------------------
+std::string GenerateRandomAlphabeticString(unsigned int len)
+{
+  static constexpr auto chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                "abcdefghijklmnopqrstuvwxyz";
+  thread_local auto rng = std::default_random_engine(std::random_device{}());
+  auto dist = std::uniform_int_distribution<int>(0, static_cast<int>(std::strlen(chars) - 1));
+  auto result = std::string(len, '\0');
+  std::generate_n(begin(result), len, [&]() { return chars[dist(rng)]; });
+
+  return result;
+}
+
+//------------------------------------------------------------------------------
+std::string GenerateUniqueVariableName(
+  const std::vector<std::string>& variableNames, const char* variableName)
+{
+  std::string sanitizedName = vtkExprTkFunctionParser::SanitizeName(variableName);
+  while (
+    std::find(variableNames.begin(), variableNames.end(), sanitizedName) != variableNames.end())
+  {
+    sanitizedName += "1";
+  }
+  return sanitizedName;
+}
+}
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, VTK_PARSER_ERROR_RESULT,
   VTK_PARSER_ERROR_RESULT };
@@ -340,22 +378,22 @@ int vtkExprTkFunctionParser::Parse(int mode)
     {
       if (this->OriginalScalarVariableNames[i] != this->UsedScalarVariableNames[i])
       {
-        vtkExprTkFunctionParser::GlobalReplaceSubstring(this->OriginalScalarVariableNames[i],
-          this->UsedScalarVariableNames[i], this->FunctionWithUsedVariableNames);
+        vtksys::SystemTools::ReplaceString(this->FunctionWithUsedVariableNames,
+          this->OriginalScalarVariableNames[i], this->UsedScalarVariableNames[i]);
       }
     }
     for (int i = 0; i < this->GetNumberOfVectorVariables(); ++i)
     {
       if (this->OriginalVectorVariableNames[i] != this->UsedVectorVariableNames[i])
       {
-        vtkExprTkFunctionParser::GlobalReplaceSubstring(this->OriginalVectorVariableNames[i],
-          this->UsedVectorVariableNames[i], this->FunctionWithUsedVariableNames);
+        vtksys::SystemTools::ReplaceString(this->FunctionWithUsedVariableNames,
+          this->OriginalVectorVariableNames[i], this->UsedVectorVariableNames[i]);
       }
     }
 
     // remove spaces to perform replacement for norm and cross
     this->FunctionWithUsedVariableNames =
-      vtkExprTkFunctionParser::RemoveSpacesFrom(this->FunctionWithUsedVariableNames.c_str());
+      RemoveSpacesFrom(this->FunctionWithUsedVariableNames.c_str());
 
     // check if cross(v1,v2) operation exist in the function,
     // and replace with (iHat*crossX(v1, v2)+jHat*crossY(v1, v2)+kHat*crossZ(v1, v2))
@@ -373,8 +411,8 @@ int vtkExprTkFunctionParser::Parse(int mode)
         std::string replacement = "(iHat*crossX(" + sm[1].str() + "," + sm[2].str() + ")" +
           "+jHat*crossY(" + sm[1].str() + "," + sm[2].str() + ")" + "+kHat*crossZ(" + sm[1].str() +
           "," + sm[2].str() + "))";
-        vtkExprTkFunctionParser::GlobalReplaceSubstring(
-          substring, replacement, this->FunctionWithUsedVariableNames);
+        vtksys::SystemTools::ReplaceString(
+          this->FunctionWithUsedVariableNames, substring, replacement);
       }
       temp = sm.suffix().str();
     }
@@ -392,8 +430,8 @@ int vtkExprTkFunctionParser::Parse(int mode)
       {
         std::string substring = "norm(" + sm[1].str() + ")";
         std::string replacement = "(" + sm[1].str() + "/mag(" + sm[1].str() + "))";
-        vtkExprTkFunctionParser::GlobalReplaceSubstring(
-          substring, replacement, this->FunctionWithUsedVariableNames);
+        vtksys::SystemTools::ReplaceString(
+          this->FunctionWithUsedVariableNames, substring, replacement);
       }
       temp = sm.suffix().str();
     }
@@ -423,7 +461,7 @@ int vtkExprTkFunctionParser::Parse(int mode)
     else
     {
       // Since we know now the return type, we can assign the result to a result vector
-      std::string resultArray = vtkExprTkFunctionParser::GenerateRandomAlphabeticString(10);
+      std::string resultArray = GenerateRandomAlphabeticString(10);
       this->ExprTkTools->SymbolTable.add_vector(
         resultArray, this->Result.GetData(), this->Result.GetSize());
 
@@ -431,7 +469,7 @@ int vtkExprTkFunctionParser::Parse(int mode)
         resultArray + " := [" + sm[3].str() + "];";
     }
     this->ExpressionString = this->FunctionWithUsedVariableNames;
-    vtkExprTkFunctionParser::GlobalReplaceSubstring(substring, replacement, this->ExpressionString);
+    vtksys::SystemTools::ReplaceString(this->ExpressionString, substring, replacement);
   }
   else
   {
@@ -443,7 +481,8 @@ int vtkExprTkFunctionParser::Parse(int mode)
     }
     else
     {
-      std::string resultArray = vtkExprTkFunctionParser::GenerateRandomAlphabeticString(10);
+      // Since we know now the return type, we can assign the result to a result vector
+      std::string resultArray = GenerateRandomAlphabeticString(10);
       this->ExprTkTools->SymbolTable.add_vector(
         resultArray, this->Result.GetData(), this->Result.GetSize());
       // Since we know now the return type, we can assign the result to a result vector
@@ -464,9 +503,8 @@ int vtkExprTkFunctionParser::Parse(int mode)
       for (std::size_t i = 0; i < this->ExprTkTools->Parser.error_count(); ++i)
       {
         auto error = this->ExprTkTools->Parser.get_error(i);
-        parsingErrorStream << "Err: " << static_cast<unsigned int>(i)
-                           << " Pos: " << static_cast<unsigned int>(error.token.position)
-                           << " Type: [" << exprtk::parser_error::to_str(error.mode)
+        parsingErrorStream << "Err: " << i << " Pos: " << error.token.position << " Type: ["
+                           << exprtk::parser_error::to_str(error.mode)
                            << "] Msg: " << error.diagnostic << "\tExpression: " << this->Function
                            << "\n";
       }
@@ -657,7 +695,7 @@ void vtkExprTkFunctionParser::SetScalarVariableValue(const char* inVariableName,
   std::string variableName = vtkExprTkFunctionParser::SanitizeName(inVariableName);
   if (variableName != inVariableName)
   {
-    variableName = vtkExprTkFunctionParser::GenerateRandomAlphabeticString(10);
+    variableName = GenerateUniqueVariableName(this->UsedScalarVariableNames, inVariableName);
   }
   this->ExprTkTools->SymbolTable.add_variable(
     variableName, *this->ScalarVariableValues[this->ScalarVariableValues.size() - 1]);
@@ -748,7 +786,7 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
   std::string variableName = vtkExprTkFunctionParser::SanitizeName(inVariableName);
   if (variableName != inVariableName)
   {
-    variableName = vtkExprTkFunctionParser::GenerateRandomAlphabeticString(10);
+    variableName = GenerateUniqueVariableName(this->UsedVectorVariableNames, inVariableName);
   }
   this->ExprTkTools->SymbolTable.add_vector(variableName,
     this->VectorVariableValues[this->VectorVariableValues.size() - 1]->GetData(),
@@ -776,14 +814,6 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
     this->VariableMTime.Modified();
     this->Modified();
   }
-}
-
-//------------------------------------------------------------------------------
-std::string vtkExprTkFunctionParser::RemoveSpacesFrom(const char* string)
-{
-  std::string str = string;
-  str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
-  return str;
 }
 
 //------------------------------------------------------------------------------
@@ -1008,55 +1038,13 @@ std::string vtkExprTkFunctionParser::SanitizeName(const char* name)
 }
 
 //------------------------------------------------------------------------------
-int vtkExprTkFunctionParser::GlobalReplaceSubstring(
-  const std::string& substring, const std::string& replacement, std::string& string)
-{
-  if (string.empty() || substring.empty())
-    return 0;
-  std::string tmp;
-  int num_replacements = 0;
-  int pos = 0;
-  for (int match_pos = string.find(substring.data(), pos, substring.length());
-       match_pos != std::string::npos; pos = match_pos + substring.length(),
-           match_pos = string.find(substring.data(), pos, substring.length()))
-  {
-    ++num_replacements;
-    // Append the original content before the match.
-    tmp.append(string, pos, match_pos - pos);
-    // Append the replacement for the match.
-    tmp.append(replacement.begin(), replacement.end());
-  }
-  // Append the content after the last match. If no replacements were made, the
-  // original string is left untouched.
-  if (num_replacements > 0)
-  {
-    tmp.append(string, pos, string.length() - pos);
-    string.swap(tmp);
-  }
-  return num_replacements;
-}
-
-//------------------------------------------------------------------------------
-std::string vtkExprTkFunctionParser::GenerateRandomAlphabeticString(unsigned int len)
-{
-  static constexpr auto chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                "abcdefghijklmnopqrstuvwxyz";
-  thread_local auto rng = std::default_random_engine(std::random_device{}());
-  auto dist = std::uniform_int_distribution<int>(0, std::strlen(chars) - 1);
-  auto result = std::string(len, '\0');
-  std::generate_n(begin(result), len, [&]() { return chars[dist(rng)]; });
-
-  return result;
-}
-
-//------------------------------------------------------------------------------
 int vtkExprTkFunctionParser::GetScalarVariableIndex(const char* inVariableName)
 {
   for (size_t i = 0; i < this->OriginalScalarVariableNames.size(); ++i)
   {
     if (this->OriginalScalarVariableNames[i] == inVariableName)
     {
-      return i;
+      return static_cast<int>(i);
     }
   }
   return -1;

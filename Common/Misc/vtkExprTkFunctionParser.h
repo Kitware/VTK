@@ -104,8 +104,9 @@ public:
    * already a variable with this name, variableName will be added to the
    * list of variables, and its value will be set to the new value. If the
    * variable name is not sanitized, it should be provided in quotes, and
-   * a valid randomly generated string will be used as a replacement
-   * by the parser.
+   * a valid unique string will be used as a replacement by the parser.
+   *
+   * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void SetScalarVariableValue(const char* variableName, double value);
   void SetScalarVariableValue(int i, double value);
@@ -126,8 +127,9 @@ public:
    * already a variable with this name, variableName will be added to the
    * list of variables, and its value will be set to the new value. If the
    * variable name is not sanitized, it should be provided in quotes, and
-   * a valid randomly generated string will be used as a replacement
-   * by the parser.
+   * a valid unique string will be used as a replacement by the parser.
+   *
+   * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void SetVectorVariableValue(
     const char* variableName, double xValue, double yValue, double zValue);
@@ -255,7 +257,10 @@ public:
   void InvalidateFunction();
 
   /**
-   * Sanitize a label/name to be remove spaces, delimiters etc.
+   * Sanitize a label/name to remove spaces, delimiters etc.
+   * Once the label/name is sanitized is can be accepted by the
+   * following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
+   *
    * @note taken from vtkSMCoreUtilities
    */
   static std::string SanitizeName(const char* name);
@@ -287,32 +292,12 @@ protected:
 
   vtkSetStringMacro(ParseError);
 
-  /**
-   * Removes Spaces from a string.
-   */
-  static std::string RemoveSpacesFrom(const char* string);
-
-  /**
-   * Replaces all instances of a substring in a string.  Does nothing
-   * if 'substring' is empty.  Returns the number of replacements.
-   *
-   * @note The string pieces must not overlap s.
-   * @note taken from strutils
-   */
-  static int GlobalReplaceSubstring(
-    const std::string& substring, const std::string& replacement, std::string& string);
-
-  /**
-   * Generate a random alphabetic string with a specified length
-   */
-  static std::string GenerateRandomAlphabeticString(unsigned int len);
-
   char* Function;
   std::string FunctionWithUsedVariableNames;
   std::string ExpressionString;
 
   // original and used variables names are the same, except if the original
-  // ones are not sanitized.
+  // ones are not valid.
   std::vector<std::string> OriginalScalarVariableNames;
   std::vector<std::string> UsedScalarVariableNames;
   std::vector<std::string> OriginalVectorVariableNames;
