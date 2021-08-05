@@ -20,6 +20,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkFindCellStrategy.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -116,6 +117,16 @@ int vtkCompositeDataProbeFilter::RequestData(
       if (sourceDS->GetNumberOfPoints() == 0)
       {
         continue;
+      }
+
+      auto strategyIt = this->StrategyMap.find(sourceDS);
+      if (strategyIt != this->StrategyMap.end())
+      {
+        this->SetFindCellStrategy(strategyIt->second);
+      }
+      else
+      {
+        this->SetFindCellStrategy(nullptr);
       }
 
       this->DoProbing(input, idx, sourceDS, output);
@@ -230,6 +241,22 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
     }
   }
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkCompositeDataProbeFilter::SetFindCellStrategyMap(
+  const std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>>& map)
+{
+  for (const auto& keyVal : map)
+  {
+    auto it = this->StrategyMap.find(keyVal.first);
+    if (it == this->StrategyMap.end() || it->second.GetPointer() != keyVal.second.GetPointer())
+    {
+      this->StrategyMap = map;
+      this->Modified();
+      return;
+    }
+  }
 }
 
 //------------------------------------------------------------------------------

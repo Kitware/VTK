@@ -284,6 +284,7 @@ int vtkProbeLineFilter::RequestData(
   prober->SetComputeTolerance(false);
   prober->SetTolerance(0.0);
   prober->SetSourceData(input);
+  prober->SetFindCellStrategyMap(this->Internal->Strategies);
   prober->SetInputData(sampledLine);
   prober->Update();
 
