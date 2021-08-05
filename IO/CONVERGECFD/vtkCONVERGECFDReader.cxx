@@ -1330,6 +1330,8 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
     }
   }
 
+  std::sort(times.begin(), times.end());
+
   if (!times.empty())
   {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
