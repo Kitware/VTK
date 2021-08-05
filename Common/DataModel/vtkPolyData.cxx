@@ -477,8 +477,8 @@ void vtkPolyData::ComputeCellsBounds()
   {
     // If there are no cells, uninitialize the bounds.
     vtkIdType numPts = this->GetNumberOfPoints();
-    vtkIdType numCells = this->GetNumberOfCells();
-    if (numCells <= 0)
+    vtkIdType numCells, numPDCells = this->GetNumberOfCells();
+    if (numPDCells <= 0)
     {
       vtkMath::UninitializeBounds(this->CellsBounds);
       return;
@@ -497,9 +497,6 @@ void vtkPolyData::ComputeCellsBounds()
     // With cells available, loop over the cells of the polydata.
     // Mark points that are used by one or more cells. Unmarked
     // points do not contribute.
-    unsigned char* ptUses = new unsigned char[numPts];
-    std::fill_n(ptUses, numPts, 0); // initially unvisited
-
     vtkCellArray* cellA[4];
     cellA[0] = this->GetVerts();
     cellA[1] = this->GetLines();
@@ -509,10 +506,14 @@ void vtkPolyData::ComputeCellsBounds()
     // Process each cell array separately. Note that threading is only used
     // if the model is big enough (since there is a cost to spinning up the
     // thread pool).
-    for (auto ca = 0; ca < 4; ca++)
+    static constexpr int VTK_SMP_THRESHOLD = 250000;
+    if (numPDCells > VTK_SMP_THRESHOLD)
     {
-      if ((numCells = cellA[ca]->GetNumberOfCells()) > 250000)
+      // Create uses array initialized to 0 and supporting threaded access
+      std::atomic<unsigned char>* ptUses = new std::atomic<unsigned char>[numPts]();
+      for (auto ca = 0; ca < 4; ca++)
       {
+        numCells = cellA[ca]->GetNumberOfCells();
         // Lambda to threaded compute bounds
         vtkSMPTools::For(0, numCells, [&](vtkIdType cellId, vtkIdType endCellId) {
           vtkIdType npts, ptIdx;
@@ -528,8 +529,16 @@ void vtkPolyData::ComputeCellsBounds()
           }
         }); // end lambda
       }
-      else if (numCells > 0) // serial
+      vtkBoundingBox::ComputeBounds(this->Points, ptUses, this->CellsBounds);
+      delete[] ptUses;
+    }                        // threaded
+    else if (numPDCells > 0) // falls through to serial
+    {
+      // Create point uses array initialized to 0
+      unsigned char* ptUses = new unsigned char[numPts]();
+      for (auto ca = 0; ca < 4; ca++)
       {
+        numCells = cellA[ca]->GetNumberOfCells();
         vtkIdType npts, ptIdx;
         const vtkIdType* pts;
         for (auto cellId = 0; cellId < numCells; ++cellId)
@@ -540,13 +549,11 @@ void vtkPolyData::ComputeCellsBounds()
             ptUses[pts[ptIdx]] = 1;
           }
         }
-      }
-    } // for all cell arrays
-
-    // Perform the bounding box computation
-    vtkBoundingBox::ComputeBounds(this->Points, ptUses, this->CellsBounds);
-    delete[] ptUses;
-  }
+      } // for all cell arrays
+      vtkBoundingBox::ComputeBounds(this->Points, ptUses, this->CellsBounds);
+      delete[] ptUses;
+    } // serial
+  }   // if modified mesh
 }
 
 //------------------------------------------------------------------------------

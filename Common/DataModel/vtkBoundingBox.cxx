@@ -738,18 +738,76 @@ int vtkBoundingBox::ComputeInnerDimension() const
 namespace
 {
 
-template <typename PointsT>
+template <typename PointsT, typename UsedT>
 struct FastBounds
 {
   PointsT* Points;
-  const unsigned char* PointUses;
+  const UsedT* PointUses;
   double* Bounds;
   vtkSMPThreadLocal<std::array<double, 6>> LocalBounds;
 
-  FastBounds(PointsT* pts, const unsigned char* ptUses, double* bds)
+  FastBounds(PointsT* pts, const UsedT* ptUses, double* bds)
     : Points(pts)
     , PointUses(ptUses)
     , Bounds(bds)
+  {
+  }
+};
+
+template <typename PointsT, typename UsedT>
+struct SerialBounds : public FastBounds<PointsT, UsedT>
+{
+  SerialBounds(PointsT* pts, const UsedT* ptUses, double* bds)
+    : FastBounds<PointsT, UsedT>(pts, ptUses, bds)
+  {
+  }
+
+  void operator()(vtkIdType numPts)
+  {
+    double* bds = this->Bounds;
+    bds[0] = VTK_DOUBLE_MAX;
+    bds[2] = VTK_DOUBLE_MAX;
+    bds[4] = VTK_DOUBLE_MAX;
+    bds[1] = VTK_DOUBLE_MIN;
+    bds[3] = VTK_DOUBLE_MIN;
+    bds[5] = VTK_DOUBLE_MIN;
+
+    const auto tuples = vtk::DataArrayTupleRange<3>(this->Points, 0, numPts);
+    UsedT usedConst[1];
+    usedConst[0] = 1;
+    const UsedT* used =
+      (this->PointUses != nullptr ? static_cast<const UsedT*>(this->PointUses) : usedConst);
+
+    for (const auto tuple : tuples)
+    {
+      if (*used)
+      {
+        double x = static_cast<double>(tuple[0]);
+        double y = static_cast<double>(tuple[1]);
+        double z = static_cast<double>(tuple[2]);
+
+        bds[0] = std::min(bds[0], x);
+        bds[1] = std::max(bds[1], x);
+        bds[2] = std::min(bds[2], y);
+        bds[3] = std::max(bds[3], y);
+        bds[4] = std::min(bds[4], z);
+        bds[5] = std::max(bds[5], z);
+      }
+      if (this->PointUses != nullptr)
+      {
+        ++used;
+      }
+    }
+  }
+};
+
+template <typename PointsT, typename UsedT>
+struct ThreadedBounds : public FastBounds<PointsT, UsedT>
+{
+  vtkSMPThreadLocal<std::array<double, 6>> LocalBounds;
+
+  ThreadedBounds(PointsT* pts, const UsedT* ptUses, double* bds)
+    : FastBounds<PointsT, UsedT>(pts, ptUses, bds)
   {
   }
 
@@ -770,9 +828,11 @@ struct FastBounds
   {
     std::array<double, 6>& localBds = this->LocalBounds.Local();
     const auto tuples = vtk::DataArrayTupleRange<3>(this->Points, beginPtId, endPtId);
-    const unsigned char usedConst[1] = { 1 };
-    const unsigned char* used =
-      (this->PointUses != nullptr ? this->PointUses + beginPtId : usedConst);
+    UsedT usedConst[1];
+    usedConst[0] = 1;
+    const UsedT* used =
+      (this->PointUses != nullptr ? static_cast<const UsedT*>(this->PointUses + beginPtId)
+                                  : usedConst);
 
     for (const auto tuple : tuples)
     {
@@ -828,28 +888,31 @@ struct FastBounds
 // Hooks into dispatcher vtkArrayDispatch by providing a callable generic
 struct BoundsWorker
 {
-  template <typename PointsT>
-  void operator()(PointsT* pts, const unsigned char* ptUses, double* bds)
+  template <typename PointsT, typename UsedT>
+  void operator()(PointsT* pts, const UsedT* ptUses, double* bds)
   {
     vtkIdType numPts = pts->GetNumberOfTuples();
-    FastBounds<PointsT> fastBds(pts, ptUses, bds);
-    vtkSMPTools::For(0, numPts, fastBds);
+
+    // Use serial bounds if data size is small, it's faster
+    static constexpr int VTK_SMP_THRESHOLD = 750000;
+    if (numPts < VTK_SMP_THRESHOLD)
+    {
+      SerialBounds<PointsT, UsedT> serialBds(pts, ptUses, bds);
+      serialBds(numPts);
+    }
+    else
+    {
+      ThreadedBounds<PointsT, UsedT> threadedBds(pts, ptUses, bds);
+      vtkSMPTools::For(0, numPts, threadedBds);
+    }
   }
 };
-
-} // anonymous namespace
-
-//------------------------------------------------------------------------------
-// Fast computing of bounding box from vtkPoints.
-void vtkBoundingBox::ComputeBounds(vtkPoints* pts, double bounds[6])
-{
-  return vtkBoundingBox::ComputeBounds(pts, nullptr, bounds);
-}
 
 //------------------------------------------------------------------------------
 // Fast computing of bounding box from vtkPoints and optional array that marks
 // points that should be used in the computation.
-void vtkBoundingBox::ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, double bounds[6])
+template <typename T>
+void ComputeBoundsImpl(vtkPoints* pts, const T* ptUses, double bounds[6])
 {
   // Check for valid
   vtkIdType numPts;
@@ -869,6 +932,31 @@ void vtkBoundingBox::ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, 
   { // Fallback to slowpath for other point types
     worker(pts->GetData(), ptUses, bounds);
   }
+}
+
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+// Method specialized on unsigned char ptUses.
+void vtkBoundingBox::ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, double bounds[6])
+{
+  return ComputeBoundsImpl(pts, ptUses, bounds);
+}
+
+//------------------------------------------------------------------------------
+// Method specialized on std::atomic<unsigned char> ptUses - supports threaded
+// ComputeBounds().
+void vtkBoundingBox::ComputeBounds(
+  vtkPoints* pts, const std::atomic<unsigned char>* ptUses, double bounds[6])
+{
+  return ComputeBoundsImpl(pts, ptUses, bounds);
+}
+
+//------------------------------------------------------------------------------
+// Fast computing of bounding box from vtkPoints.
+void vtkBoundingBox::ComputeBounds(vtkPoints* pts, double bounds[6])
+{
+  return vtkBoundingBox::ComputeBounds(pts, static_cast<unsigned char*>(nullptr), bounds);
 }
 
 // ---------------------------------------------------------------------------
