@@ -247,7 +247,7 @@ int vtkPartitionedDataSetSource::RequestData(
   std::vector<int> allocs(numRanks, defaultAlloc);
   for (auto& kv : this->Allocations)
   {
-    if (kv.first < allocs.size())
+    if (kv.first < static_cast<int>(allocs.size()))
     {
       allocs[kv.first] = kv.second;
     }
