@@ -293,16 +293,6 @@ protected:
   static std::string RemoveSpacesFrom(const char* string);
 
   /**
-   * Replaces all instances of a substring in a string.  Does nothing
-   * if 'substring' is empty.  Returns the number of replacements.
-   *
-   * @note The string pieces must not overlap s.
-   * @note taken from strutils
-   */
-  static int GlobalReplaceSubstring(
-    const std::string& substring, const std::string& replacement, std::string& string);
-
-  /**
    * Generate a random alphabetic string with a specified length
    */
   static std::string GenerateRandomAlphabeticString(unsigned int len);
