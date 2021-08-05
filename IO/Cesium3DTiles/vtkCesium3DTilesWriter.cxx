@@ -168,8 +168,11 @@ void AddTextures(const std::string& path,
         normals->Update();
         auto surfaceWithNormals = vtkPolyData::SafeDownCast(normals->GetOutputDataObject(0));
         auto normalArray = surfaceWithNormals->GetPointData()->GetNormals();
-        normalArray->SetName("NORMAL");
-        mapper->SetInputDataObject(surfaceWithNormals);
+        if (normalArray)
+        {
+          normalArray->SetName("NORMAL");
+          mapper->SetInputDataObject(surfaceWithNormals);
+        }
       }
       renderer->AddActor(actor);
     }
