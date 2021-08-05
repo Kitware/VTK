@@ -719,7 +719,7 @@ def propertySerializer(parent, propObj, propObjId, context, depth):
 # -----------------------------------------------------------------------------
 
 
-def imagedataSerializer(parent, dataset, datasetId, context, depth):
+def imagedataSerializer(parent, dataset, datasetId, context, depth, requested_fields = ["Normals", "TCoords"]):
     if hasattr(dataset, "GetDirectionMatrix"):
         direction = [dataset.GetDirectionMatrix().GetElement(0, i) for i in range(9)]
     else:
@@ -727,7 +727,7 @@ def imagedataSerializer(parent, dataset, datasetId, context, depth):
 
     # Extract dataset fields
     fields = []
-    extractRequiredFields(fields, parent, dataset, context)
+    extractRequiredFields(fields, parent, dataset, context, requested_fields)
 
     return {
         "parent": getReferenceId(parent),
@@ -801,7 +801,7 @@ def polydataSerializer(parent, dataset, datasetId, context, depth, requested_fie
 # -----------------------------------------------------------------------------
 
 
-def mergeToPolydataSerializer(parent, dataObject, dataObjectId, context, depth):
+def mergeToPolydataSerializer(parent, dataObject, dataObjectId, context, depth, requested_fields=["Normals", "TCoords"]):
     dataset = None
 
     if dataObject.IsA("vtkCompositeDataSet"):
@@ -817,7 +817,7 @@ def mergeToPolydataSerializer(parent, dataObject, dataObjectId, context, depth):
     else:
         dataset = mapper.GetInput()
 
-    return polydataSerializer(parent, dataset, dataObjectId, context, depth)
+    return polydataSerializer(parent, dataset, dataObjectId, context, depth, requested_fields)
 
 
 # -----------------------------------------------------------------------------
