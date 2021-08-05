@@ -44,7 +44,8 @@
  * cosh
  * exp
  * floor
- * log
+ * ln (only by vtkFunctionParser)
+ * log (only by vtkExprTkFunctionParser)
  * mag
  * min
  * max
@@ -105,6 +106,8 @@ public:
    * sanitized, the variable name will be the array name enclosed in quotes.
    * Use AddScalarVariable or AddVectorVariable to use a user defined
    * variable name.
+   *
+   * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void AddScalarArrayName(const char* arrayName, int component = 0);
   void AddVectorArrayName(
@@ -115,6 +118,8 @@ public:
   /**
    * Add a variable name, a corresponding array name, and which components of
    * the array to use. The variable name should be sanitized or in quotes.
+   *
+   * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void AddScalarVariable(const char* variableName, const char* arrayName, int component = 0);
   void AddVectorVariable(const char* variableName, const char* arrayName, int component0 = 0,
@@ -125,6 +130,8 @@ public:
   /**
    * Add a variable name, a corresponding array name, and which components of
    * the array to use. The variable name should be sanitized or in quotes.
+   *
+   * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void AddCoordinateScalarVariable(const char* variableName, int component = 0);
   void AddCoordinateVectorVariable(
@@ -323,6 +330,8 @@ protected:
    * A variable name is valid if it's sanitized or enclosed in quotes.
    * 1) if it's valid, return itself.
    * 2) if it's not valid, return itself enclosed in quotes,
+   *
+   * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   static std::string CheckValidVariableName(const char* variableName);
 
