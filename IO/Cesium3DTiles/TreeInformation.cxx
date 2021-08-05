@@ -282,6 +282,7 @@ void TreeInformation::SaveGLTF(vtkIncrementalOctreeNode* node)
     vtkDirectory::MakeDirectory(ostr.str().c_str());
     vtkNew<vtkGLTFExporter> exporter;
     exporter->SetRenderWindow(this->RenderWindow);
+    exporter->SaveNormalOn();
     ostr << "/" << node->GetID() << ".gltf";
     exporter->SetFileName(ostr.str().c_str());
     exporter->Write();

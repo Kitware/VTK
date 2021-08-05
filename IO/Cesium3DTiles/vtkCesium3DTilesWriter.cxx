@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
@@ -158,6 +159,17 @@ void AddTextures(const std::string& path,
         vtkNew<vtkTexture> texture;
         texture->SetInputConnection(textureReader->GetOutputPort());
         actor->SetTexture(texture);
+      }
+      else
+      {
+        // generate normals - these are needed in Cesium if there are no textures
+        vtkNew<vtkPolyDataNormals> normals;
+        normals->SetInputDataObject(surface);
+        normals->Update();
+        auto surfaceWithNormals = vtkPolyData::SafeDownCast(normals->GetOutputDataObject(0));
+        auto normalArray = surfaceWithNormals->GetPointData()->GetNormals();
+        normalArray->SetName("NORMAL");
+        mapper->SetInputDataObject(surfaceWithNormals);
       }
       renderer->AddActor(actor);
     }
