@@ -40,9 +40,6 @@
 #include <string>     // needed for string.
 #include <vector>     // needed for vector
 
-// the value that is returned as a result if there is an error
-#define VTK_PARSER_ERROR_RESULT VTK_FLOAT_MAX
-
 // forward declarations for ExprTk tools
 struct vtkExprTkTools;
 
@@ -63,7 +60,7 @@ public:
    * Set/Get input string to evaluate.
    */
   void SetFunction(const char* function);
-  vtkGetStringMacro(Function);
+  const char* GetFunction() { return this->Function.c_str(); }
   ///@}
 
   /**
@@ -80,12 +77,18 @@ public:
 
   /**
    * Get a scalar result from evaluating the input function.
+   *
+   * If ReplaceInvalidValues is not set, then the error value
+   * that will be return is NaN.
    */
   double GetScalarResult();
 
   ///@{
   /**
    * Get a vector result from evaluating the input function.
+   *
+   * If ReplaceInvalidValues is not set, then the error value
+   * that will be return is [NaN, NaN, NaN].
    */
   double* GetVectorResult() VTK_SIZEHINT(3);
   void GetVectorResult(double result[3])
@@ -108,7 +111,7 @@ public:
    *
    * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
-  void SetScalarVariableValue(const char* variableName, double value);
+  void SetScalarVariableValue(const std::string& variableName, double value);
   void SetScalarVariableValue(int i, double value);
   ///@}
 
@@ -116,7 +119,7 @@ public:
   /**
    * Get the value of a scalar variable.
    */
-  double GetScalarVariableValue(const char* variableName);
+  double GetScalarVariableValue(const std::string& variableName);
   double GetScalarVariableValue(int i);
   ///@}
 
@@ -132,13 +135,13 @@ public:
    * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void SetVectorVariableValue(
-    const char* variableName, double xValue, double yValue, double zValue);
-  void SetVectorVariableValue(const char* variableName, const double values[3])
+    const std::string& variableName, double xValue, double yValue, double zValue);
+  void SetVectorVariableValue(const std::string& variableName, double values[3])
   {
     this->SetVectorVariableValue(variableName, values[0], values[1], values[2]);
   }
   void SetVectorVariableValue(int i, double xValue, double yValue, double zValue);
-  void SetVectorVariableValue(int i, const double values[3])
+  void SetVectorVariableValue(int i, double values[3])
   {
     this->SetVectorVariableValue(i, values[0], values[1], values[2]);
   }
@@ -148,8 +151,8 @@ public:
   /**
    * Get the value of a vector variable.
    */
-  double* GetVectorVariableValue(const char* variableName) VTK_SIZEHINT(3);
-  void GetVectorVariableValue(const char* variableName, double value[3])
+  double* GetVectorVariableValue(const std::string& variableName) VTK_SIZEHINT(3);
+  void GetVectorVariableValue(const std::string& variableName, double value[3])
   {
     double* r = this->GetVectorVariableValue(variableName);
     value[0] = r[0];
@@ -195,12 +198,12 @@ public:
   /**
    * Get the ith scalar variable name.
    */
-  const char* GetScalarVariableName(int i);
+  std::string GetScalarVariableName(int i);
 
   /**
    * Get the ith vector variable name.
    */
-  const char* GetVectorVariableName(int i);
+  std::string GetVectorVariableName(int i);
 
   ///@{
   /**
@@ -270,14 +273,23 @@ protected:
   ~vtkExprTkFunctionParser() override;
 
   /**
-   * Parses the given function, returning true on success, false on failure.
-   * It has 2 modes (0, 1). The first mode parses the function and uses a return statement
+   * The first mode parses the function and uses a return statement
    * to identify the ReturnType. The second mode parses the function and uses a result
-   * vector to store the results of the function knowing its return type. Both modes
-   * need to be utilized to extract results of a function. The second mode is used because
-   * it's a lot faster than the first.
+   * vector to store the results of the function knowing its return type. The second mode
+   * is used because it's a lot faster than the first.
    */
-  int Parse(int mode);
+  enum ParseMode
+  {
+    DetectReturnType,
+    SaveResultInVariable
+  };
+
+  /**
+   * Parses the given function, returning true on success, false on failure.
+   * It has 2 modes (see ParseMode). Both modes need to be utilized to extract
+   * results of a function.
+   */
+  int Parse(ParseMode mode);
 
   /**
    * Evaluate the function, returning true on success, false on failure.
@@ -290,9 +302,7 @@ protected:
    */
   void UpdateNeededVariables();
 
-  vtkSetStringMacro(ParseError);
-
-  char* Function;
+  std::string Function;
   std::string FunctionWithUsedVariableNames;
   std::string ExpressionString;
 
@@ -304,7 +314,8 @@ protected:
   std::vector<std::string> UsedVectorVariableNames;
   // pointers for scalar and vector variables are used to enforce
   // that their memory address will not change due to a possible
-  // resizing of their container (std::vector)
+  // resizing of their container (std::vector), ExprTk requires the
+  // memory address of the given variable to remain the same.
   std::vector<double*> ScalarVariableValues;
   std::vector<vtkTuple<double, 3>*> VectorVariableValues;
   std::vector<bool> ScalarVariableNeeded;
@@ -317,8 +328,6 @@ protected:
 
   vtkTypeBool ReplaceInvalidValues;
   double ReplacementValue;
-
-  char* ParseError;
 
   vtkExprTkTools* ExprTkTools;
 
