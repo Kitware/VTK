@@ -1356,14 +1356,12 @@ std::string SymbolProperties::Demangle(const char* symbol) const
   std::string result = safes(symbol);
 #  if defined(KWSYS_SYSTEMINFORMATION_HAS_CPP_DEMANGLE)
   int status = 0;
-  size_t bufferLen = 1024;
-  char* buffer = (char*)malloc(1024);
   char* demangledSymbol =
-    abi::__cxa_demangle(symbol, buffer, &bufferLen, &status);
+    abi::__cxa_demangle(symbol, nullptr, nullptr, &status);
   if (!status) {
     result = demangledSymbol;
   }
-  free(buffer);
+  free(demangledSymbol);
 #  else
   (void)symbol;
 #  endif
@@ -1383,7 +1381,7 @@ void SymbolProperties::Initialize(void* address)
   }
 #  else
 // second fallback use builtin backtrace_symbols
-// to decode the bactrace.
+// to decode the backtrace.
 #  endif
 }
 #endif // don't define this class if we're not using it
@@ -3472,6 +3470,10 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
   // We want to record the total number of cores in this->NumberOfPhysicalCPU
   // (checking only the first proc)
   std::string Cores = this->ExtractValueFromCpuInfoFile(buffer, "cpu cores");
+  if (Cores.empty()) {
+    // Linux Sparc is different
+    Cores = this->ExtractValueFromCpuInfoFile(buffer, "ncpus probed");
+  }
   auto NumberOfCoresPerSocket = (unsigned int)atoi(Cores.c_str());
   NumberOfCoresPerSocket = std::max(NumberOfCoresPerSocket, 1u);
   this->NumberOfPhysicalCPU =
@@ -3490,6 +3492,9 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
   if (this->NumberOfPhysicalCPU <= 0) {
     this->NumberOfPhysicalCPU = 1;
   }
+  if (this->NumberOfLogicalCPU == 0) {
+    this->NumberOfLogicalCPU = this->NumberOfPhysicalCPU;
+  }
   // LogicalProcessorsPerPhysical>1 => SMT.
   this->Features.ExtendedFeatures.LogicalProcessorsPerPhysical =
     this->NumberOfLogicalCPU / this->NumberOfPhysicalCPU;
@@ -3503,8 +3508,18 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
   else {
     // Linux Sparc: CPU speed is in Hz and encoded in hexadecimal
     CPUSpeed = this->ExtractValueFromCpuInfoFile(buffer, "Cpu0ClkTck");
-    this->CPUSpeedInMHz =
-      static_cast<float>(strtoull(CPUSpeed.c_str(), nullptr, 16)) / 1000000.0f;
+    if (!CPUSpeed.empty()) {
+      this->CPUSpeedInMHz =
+        static_cast<float>(strtoull(CPUSpeed.c_str(), nullptr, 16)) /
+        1000000.0f;
+    } else {
+      // if the kernel is build as Sparc32 it's in decimal, note the different
+      // case
+      CPUSpeed = this->ExtractValueFromCpuInfoFile(buffer, "CPU0ClkTck");
+      this->CPUSpeedInMHz =
+        static_cast<float>(strtoull(CPUSpeed.c_str(), nullptr, 10)) /
+        1000000.0f;
+    }
   }
 #endif
 

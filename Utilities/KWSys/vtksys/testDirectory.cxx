@@ -88,7 +88,7 @@ int _nonExistentDirectoryTest()
 
   errorMessage = "foo";
   // Increment res failure if directory lists
-  res += testdir.Load(testdirpath, &errorMessage);
+  res += testdir.Load(testdirpath, &errorMessage) ? 1 : 0;
 #if !defined(_WIN32) || defined(__CYGWIN__)
   // Increment res failure if errorMessage is unmodified
   res += (errorMessage == "foo");
@@ -120,9 +120,9 @@ int _copyDirectoryTest()
     std::cerr << destination << " shouldn't exist before test" << std::endl;
     return 2;
   }
-  const bool copysuccess = SystemTools::CopyADirectory(source, destination);
+  const Status copysuccess = SystemTools::CopyADirectory(source, destination);
   const bool destinationexists = SystemTools::PathExists(destination);
-  if (copysuccess) {
+  if (copysuccess.IsSuccess()) {
     std::cerr << "CopyADirectory should have returned false" << std::endl;
     SystemTools::RemoveADirectory(destination);
     return 3;
