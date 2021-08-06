@@ -16,16 +16,11 @@
 
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
-#include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkUniformHyperTreeGrid.h"
-#include "vtkUnstructuredGrid.h"
-
 #include "vtkHyperTreeGridNonOrientedCursor.h"
+#include "vtkInformation.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridDepthLimiter);
 
@@ -35,7 +30,7 @@ vtkHyperTreeGridDepthLimiter::vtkHyperTreeGridDepthLimiter()
   // Require root-level depth by default
   this->Depth = 0;
 
-  // Default mask is emplty
+  // Default mask is empty
   this->OutMask = nullptr;
 
   // Output indices begin at 0
@@ -44,7 +39,13 @@ vtkHyperTreeGridDepthLimiter::vtkHyperTreeGridDepthLimiter()
   // By default, just create a new mask
   this->JustCreateNewMask = true;
 
-  // JB Pour sortir un maillage de meme type que celui en entree, si create
+  // The AppropriateOutput attribute is only used when setting JustCreateNewMask.
+  // The AppropriateOutput attribute is inherited from the parent class
+  // vtkHyperTreeGridAlgorithm. If its value is true, on output an HTG of the
+  // same type as the one on input will be constructed.
+  // Note that there are two HTG representations: vtkHyperTreeGrid (it manages
+  // pad of different sizes on the same level) and vtkUniformHyperTreeGrid (it
+  // manages quads/cubes of same size on the same level).
   this->AppropriateOutput = true;
 }
 
@@ -110,9 +111,6 @@ int vtkHyperTreeGridDepthLimiter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
   this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
-  // Output indices begin at 0
-  this->CurrentId = 0;
-
   // Create material mask bit array if one is present on input
   if (!this->OutMask && input->HasMask())
   {
@@ -138,7 +136,7 @@ int vtkHyperTreeGridDepthLimiter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
 
     // Limit depth recursively
     this->RecursivelyProcessTree(inCursor, outCursor);
-  } // it
+  }
 
   // Squeeze and set output material mask if necessary
   if (this->OutMask)
@@ -167,18 +165,8 @@ void vtkHyperTreeGridDepthLimiter::RecursivelyProcessTree(
   // Update material mask if relevant
   if (this->InMask)
   {
-    // Check whether non-leaf at maximum depth is reached
-    if (inCursor->GetLevel() == this->Depth && !inCursor->IsLeaf())
-    {
-      // If yes, then it becomes an output leaf that must be visible
-      this->OutMask->InsertValue(outId, false);
-    }
-    else
-    {
-      // Otherwise, use input mask value
-      this->OutMask->InsertValue(outId, this->InMask->GetValue(inId));
-    }
-  } // if ( this->InMask )
+    this->OutMask->InsertValue(outId, this->InMask->GetValue(inId));
+  }
 
   // Copy output cell data from that of input cell
   this->OutData->CopyData(this->InData, inId, outId);
@@ -201,6 +189,6 @@ void vtkHyperTreeGridDepthLimiter::RecursivelyProcessTree(
       // Return to parent in output grid
       inCursor->ToParent();
       outCursor->ToParent();
-    } // child
-  }   // if ( ! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth )
+    }
+  }
 }

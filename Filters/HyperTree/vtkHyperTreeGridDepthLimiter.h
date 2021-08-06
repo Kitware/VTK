@@ -17,23 +17,19 @@
  * @brief   Hyper tree grid level extraction
  *
  *
- * Extract all levels down to a specified depth from a hyper tree grid.
+ * Extracts all levels down to a specified depth from a HyperTreeGrid
+ * representation.
  * If the required depth is greater or equal to the maximum level of the
  * input grid, then the output is identical.
- * Note that when a material mask is present, the geometry extent of the
- * output grid is guaranteed to contain that of the input tree, but the
- * former might be strictly larger than the latter. This is not a bug
- * but an expected behavior of which the user should be aware.
  *
  * @sa
- * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
+ * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm vtkUniformHyperTreeGrid
  *
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was modified by Philippe Pebay, 2016
- * This class was modified by Jacques-Bernard Lekien, 2018
- * This class was optimized by Jacques-Bernard Lekien, 2019,
- * by DepthLimiter directly manadged by HyperTreeGrid and (super)cursors.
+ * This class was modified, 2018, and optimized, 2019, by Jacques-Bernard Lekien,
+ * by DepthLimiter directly managed by HyperTreeGrid and (super)cursors.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
  */
@@ -57,7 +53,11 @@ public:
 
   ///@{
   /**
-   * Set/Get True, create a new mask ; false, create a new HTG.
+   * Set/Get True, create a new mask ; False, create a new vtkHyperTreeGrid (HTG)
+   * Actually, setting to true no longer creates a new mask
+   * but sets an attribute of the HTG that is used in the HTG and sliders.
+   * The name of this option is historical and being kept for retro-compatibility reasons.
+   * Default is true.
    */
   vtkSetMacro(JustCreateNewMask, bool);
   vtkGetMacro(JustCreateNewMask, bool);
@@ -66,6 +66,7 @@ public:
   ///@{
   /**
    * Set/Get maximum depth to which output grid should be limited
+   * Default is 0.
    */
   vtkSetMacro(Depth, unsigned int);
   vtkGetMacro(Depth, unsigned int);
@@ -76,7 +77,8 @@ protected:
   ~vtkHyperTreeGridDepthLimiter() override;
 
   /**
-   * For this algorithm the output is a vtkHyperTreeGrid instance
+   * For this algorithm the output is a vtkHyperTreeGrid or
+   * vtkUniformHyperTreeGrid instance
    */
   int FillOutputPortInformation(int, vtkInformation*) override;
 
