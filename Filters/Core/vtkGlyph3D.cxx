@@ -519,9 +519,10 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
     }
 
     // Check ghost points.
-    // If we are processing a piece, we do not want to duplicate
-    // glyphs on the borders.
-    if (inGhostLevels && inGhostLevels[inPtId] & vtkDataSetAttributes::DUPLICATEPOINT)
+    // If we are processing a piece, we do not want to duplicate glyphs on the borders.
+    if (inGhostLevels &&
+      inGhostLevels[inPtId] &
+        (vtkDataSetAttributes::DUPLICATEPOINT | vtkDataSetAttributes::HIDDENPOINT))
     {
       continue;
     }
