@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCommandLineProcess.h
+  Module:    vtkExecutableRunner.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef vtkCommandLineProcess_h
-#define vtkCommandLineProcess_h
+#ifndef vtkExecutableRunner_h
+#define vtkExecutableRunner_h
 
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"
@@ -23,21 +23,21 @@
 #include <string> // fot class std::string
 
 /**
- * @class   vtkCommandLineProcess
+ * @class   vtkExecutableRunner
  * @brief   Launch a process on the current machine and get its output
  *
  * Launch a process on the current machine and get its standard output and
  * standard error output.
  */
-class VTKCOMMONSYSTEM_EXPORT vtkCommandLineProcess : public vtkObject
+class VTKCOMMONSYSTEM_EXPORT vtkExecutableRunner : public vtkObject
 {
 public:
-  static vtkCommandLineProcess* New();
-  vtkTypeMacro(vtkCommandLineProcess, vtkObject);
+  static vtkExecutableRunner* New();
+  vtkTypeMacro(vtkExecutableRunner, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkCommandLineProcess() = default;
-  virtual ~vtkCommandLineProcess() = default;
+  vtkExecutableRunner() = default;
+  virtual ~vtkExecutableRunner() = default;
 
   /**
    * Execute the command currently set if any.
@@ -97,8 +97,8 @@ protected:
   int ExitProcess(vtksysProcess* process);
 
 private:
-  vtkCommandLineProcess(const vtkCommandLineProcess&) = delete;
-  void operator=(const vtkCommandLineProcess&) = delete;
+  vtkExecutableRunner(const vtkExecutableRunner&) = delete;
+  void operator=(const vtkExecutableRunner&) = delete;
 
   bool RightTrimResult = true;
   double Timeout = 5;
@@ -109,4 +109,4 @@ private:
   std::string StdErr;
 };
 
-#endif // vtkCommandLineProcess_h
+#endif // vtkExecutableRunner_h

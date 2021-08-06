@@ -3,8 +3,8 @@ vtk_module_find_package(
 
 set(classes
   vtkClientSocket
-  vtkCommandLineProcess
   vtkDirectory
+  vtkExecutableRunner
   vtkServerSocket
   vtkSocket
   vtkSocketCollection

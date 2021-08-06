@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCommandLineProcess.cxx
+  Module:    vtkExecutableRunner.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkCommandLineProcess.h"
+#include "vtkExecutableRunner.h"
 #include "vtkObjectFactory.h"
 
 #include <algorithm>
@@ -86,10 +86,10 @@ std::vector<std::string> ParseCommand(std::string command)
 }
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkCommandLineProcess);
+vtkStandardNewMacro(vtkExecutableRunner);
 
 //------------------------------------------------------------------------------
-void vtkCommandLineProcess::Execute()
+void vtkExecutableRunner::Execute()
 {
   std::string command = this->Command;
   details::ltrim(command);
@@ -153,7 +153,7 @@ void vtkCommandLineProcess::Execute()
 }
 
 //------------------------------------------------------------------------------
-int vtkCommandLineProcess::ExitProcess(vtksysProcess* process)
+int vtkExecutableRunner::ExitProcess(vtksysProcess* process)
 {
   vtksysProcess_WaitForExit(process, &this->Timeout);
 
@@ -192,7 +192,7 @@ int vtkCommandLineProcess::ExitProcess(vtksysProcess* process)
 }
 
 //------------------------------------------------------------------------------
-void vtkCommandLineProcess::PrintSelf(ostream& os, vtkIndent indent)
+void vtkExecutableRunner::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Command: " << this->GetCommand() << std::endl;
