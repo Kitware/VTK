@@ -618,10 +618,7 @@ public:
    * @param[in] sendBuffer - data object to send from local process. Can be null if
    * not sending any data from the current process.
    * @param[out] recvBuffer - vector of data objects to receive data on the receiving
-   * rank (identified by \c destProcessId). This may be
-   * empty or filled with data object instances. If empty,
-   * data objects will be created as needed. If not empty,
-   * existing data object will be used.
+   * rank (identified by \c destProcessId).
    * @param[in] destProcessId - process id to gather on.
    * @return - 1 on success, 0 on failure.
    */
@@ -989,6 +986,18 @@ public:
     return this->Communicator->AllGather(sendBuffer, recvBuffer);
   }
   ///@}
+
+  /**
+   * Gathers vtkDataObject (\c sendBuffer) from all ranks to all raks.
+   * @param[in] sendBuffer - data object to send from local process. Can be null if
+   * not sending any data from the current process.
+   * @param[out] recvBuffer - vector of data objects to receive data.
+   * @return - 1 on success, 0 on failure.
+   */
+  int AllGather(vtkDataObject* sendBuffer, std::vector<vtkSmartPointer<vtkDataObject>>& recvBuffer)
+  {
+    return this->Communicator->AllGather(sendBuffer, recvBuffer);
+  }
 
   /**
    * Gathers vtkMultiProcessStream (\c sendBuffer) from all ranks to the \c

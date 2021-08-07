@@ -974,11 +974,13 @@ int vtkCommunicator::Gather(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, 
 int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
   std::vector<vtkSmartPointer<vtkDataObject>>& recvBuffer, int destProcessId)
 {
+  int status = 1;
   vtkNew<vtkCharArray> sendArray;
   if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray) == 0)
   {
     vtkErrorMacro("Marshalling failed! Cannot 'Gather' successfully!");
     sendArray->Initialize();
+    status = 0;
   }
 
   vtkNew<vtkCharArray> fullRecvArray;
@@ -1003,7 +1005,7 @@ int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
         recvBuffer[cc] = dobj;
       }
     }
-    return 1;
+    return status;
   }
   return 0;
 }
@@ -1068,6 +1070,40 @@ int vtkCommunicator::AllGather(
         array->GetPointer(0), static_cast<unsigned int>(array->GetNumberOfValues()));
     }
     return 1;
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+int vtkCommunicator::AllGather(
+  vtkDataObject* sendBuffer, std::vector<vtkSmartPointer<vtkDataObject>>& recvBuffer)
+{
+  int status = 1;
+  vtkNew<vtkCharArray> sendArray;
+  if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray) == 0)
+  {
+    vtkErrorMacro("Marshalling failed! Cannot 'AllGather' successfully!");
+    sendArray->Initialize();
+    status = 0;
+  }
+
+  vtkNew<vtkCharArray> fullRecvArray;
+  std::vector<vtkSmartPointer<vtkDataArray>> recvArrays(this->NumberOfProcesses);
+  recvBuffer.resize(this->NumberOfProcesses);
+  for (int cc = 0; cc < this->NumberOfProcesses; ++cc)
+  {
+    recvArrays[cc] = vtkSmartPointer<vtkCharArray>::New();
+  }
+
+  if (this->AllGatherV(sendArray, fullRecvArray, &recvArrays[0]))
+  {
+    for (int cc = 0; cc < this->NumberOfProcesses; ++cc)
+    {
+      vtkSmartPointer<vtkDataObject> dobj =
+        vtkCommunicator::UnMarshalDataObject(vtkArrayDownCast<vtkCharArray>(recvArrays[cc]));
+      recvBuffer[cc] = dobj;
+    }
+    return status;
   }
   return 0;
 }

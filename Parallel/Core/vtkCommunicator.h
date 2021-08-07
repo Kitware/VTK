@@ -821,6 +821,18 @@ public:
     const vtkMultiProcessStream& sendBuffer, std::vector<vtkMultiProcessStream>& recvBuffer);
   ///@}
 
+  /**
+   * Gathers vtkDataObject (\c sendBuffer) from all ranks to all raks.
+   * @param[in] sendBuffer - data object to send from local process. Can be null if
+   * not sending any data from the current process.
+   * @param[out] recvBuffer - vector of data objects to receive data.
+   * This may be empty or filled with data object instances. If empty,
+   * data objects will be created as needed. If not empty,
+   * existing data object will be used.
+   * @return - 1 on success, 0 on failure.
+   */
+  int AllGather(vtkDataObject* sendBuffer, std::vector<vtkSmartPointer<vtkDataObject>>& recvBuffer);
+
   ///@{
   /**
    * Same as GatherV except that the result is placed in all processes.

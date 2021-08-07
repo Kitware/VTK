@@ -12,13 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#include <vtk_mpi.h>
-
+#include "ExerciseMultiProcessController.h"
+#include "vtkLogger.h"
 #include "vtkMPIController.h"
 #include "vtkProcessGroup.h"
-
-#include "ExerciseMultiProcessController.h"
+#include <vtk_mpi.h>
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -151,11 +149,12 @@ int MPIController(int argc, char* argv[])
   // the others are done, causing apparent memory leaks for any objects
   // created before MPI_Init().
   MPI_Init(&argc, &argv);
+  vtkLogger::Init(argc, argv);
 
   VTK_CREATE(vtkMPIController, controller);
-
   controller->Initialize(&argc, &argv, 1);
 
+  vtkLogger::SetThreadName("rank: " + std::to_string(controller->GetLocalProcessId()));
   int retval = ExerciseMultiProcessController(controller);
 
   retval = retval | ExerciseNoBlockCommunications(controller);
