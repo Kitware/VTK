@@ -1024,7 +1024,7 @@ bool vtkIossReader::vtkInternals::UpdateAssembly(vtkIossReader* self, int* tag)
 
     this->Assembly = vtk::TakeSmartPointer(vtkDataAssembly::New());
     this->Assembly->SetRootNodeName("Assemblies");
-    const auto status = this->BuildAssembly(region, this->Assembly, 0, /*add_leaves=*/false);
+    const auto status = this->BuildAssembly(region, this->Assembly, 0, /*add_leaves=*/true);
     *tag = status ? static_cast<int>(this->AssemblyMTime.GetMTime()) : 0;
     if (numRanks > 1)
     {
@@ -1122,7 +1122,7 @@ bool vtkIossReader::vtkInternals::ReadAssemblies(
   }
 
   const auto node_assemblies = assembly->AddNode("assemblies");
-  if (!this->BuildAssembly(region, assembly, node_assemblies, false))
+  if (!this->BuildAssembly(region, assembly, node_assemblies, /*add_leaves=*/true))
   {
     assembly->RemoveNode(node_assemblies);
   }
