@@ -327,10 +327,10 @@ namespace Ioss {
 
       struct stat st;
       if (stat(path_root.c_str(), &st) != 0) {
+        const int mode = 0777; // Users umask will be applied to this.
 #ifdef _WIN32
         if (mkdir(path_root.c_str()) != 0 && errno != EEXIST) {
 #else
-        const int mode = 0777; // Users umask will be applied to this.
         if (mkdir(path_root.c_str(), mode) != 0 && errno != EEXIST) {
 #endif
           errmsg << "ERROR: Cannot create directory '" << path_root << "': " << std::strerror(errno)
