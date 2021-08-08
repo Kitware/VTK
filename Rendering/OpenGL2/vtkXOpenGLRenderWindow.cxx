@@ -13,8 +13,11 @@
 
 =========================================================================*/
 
-#include "vtkXOpenGLRenderWindow.h"
+// Must be included first to avoid conflicts with X11's `Status` define.
+#include "vtksys/SystemTools.hxx"
+
 #include "vtkOpenGLRenderer.h"
+#include "vtkXOpenGLRenderWindow.h"
 
 #include "vtk_glew.h"
 // Define GLX_GLXEXT_LEGACY to prevent glx.h from including the glxext.h
@@ -58,7 +61,6 @@ typedef ptrdiff_t GLsizeiptr;
 #include "vtkRendererCollection.h"
 #include "vtkStringOutputWindow.h"
 #include "vtkToolkits.h"
-#include "vtksys/SystemTools.hxx"
 
 #include <sstream>
 

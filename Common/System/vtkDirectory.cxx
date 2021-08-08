@@ -180,7 +180,7 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf, unsigned int len
 //------------------------------------------------------------------------------
 int vtkDirectory::MakeDirectory(const char* dir)
 {
-  return vtksys::SystemTools::MakeDirectory(dir);
+  return vtksys::SystemTools::MakeDirectory(dir).IsSuccess();
 }
 
 const char* vtkDirectory::GetFile(vtkIdType index)
@@ -292,7 +292,7 @@ int vtkDirectory::FileIsDirectory(const char* name)
 
 int vtkDirectory::DeleteDirectory(const char* dir)
 {
-  return vtksys::SystemTools::RemoveADirectory(dir);
+  return vtksys::SystemTools::RemoveADirectory(dir).IsSuccess();
 }
 
 int vtkDirectory::Rename(const char* oldname, const char* newname)

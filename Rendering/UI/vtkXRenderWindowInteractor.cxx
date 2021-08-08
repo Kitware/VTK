@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Must be included first to avoid conflicts with X11's `Status` define.
+#include <vtksys/SystemTools.hxx>
+
 #include "vtkXRenderWindowInteractor.h"
 
 #include <algorithm>
@@ -27,8 +31,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkStringArray.h"
-
-#include <vtksys/SystemTools.hxx>
 
 #include <X11/X.h>
 #include <X11/Xatom.h>
