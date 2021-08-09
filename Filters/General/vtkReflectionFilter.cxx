@@ -270,9 +270,10 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
       {
         vtkWarningMacro("Cell may be inverted");
       }
-      for (int j = numCellPts - 1; j >= 0; j--)
+      for (int j = 0; j != numCellPts; j++)
       {
-        newCellPts[numCellPts - 1 - j] = cellPts->GetId(j);
+        // Indexing in this way ensures proper reflection of quad triangulation
+        newCellPts[(numCellPts - j) % numCellPts] = cellPts->GetId(j);
       }
     }
   } // end switch

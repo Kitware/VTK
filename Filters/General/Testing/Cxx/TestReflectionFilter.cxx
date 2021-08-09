@@ -24,13 +24,12 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <cassert>
 #include <iostream>
 
-#define AssertMacro(b)                                                                             \
+#define AssertMacro(b, cell)                                                                       \
   if (!(b))                                                                                        \
   {                                                                                                \
-    std::cerr << "Failed to reflect pyramid" << std::endl;                                         \
+    std::cerr << "Failed to reflect " << cell << std::endl;                                        \
     return EXIT_FAILURE;                                                                           \
   }
 
@@ -107,27 +106,73 @@ int TestReflectionFilter(int, char*[])
     vtkNew<vtkIdList> cellIds;
     if (i == 0)
     {
-      AssertMacro(pyramid1->GetNumberOfCells() == 1);
-      AssertMacro(pyramid1->GetPointData()->GetTensors()->GetComponent(0, 2) == -7);
+      AssertMacro(pyramid1->GetNumberOfCells() == 1, "pyramid");
+      AssertMacro(pyramid1->GetPointData()->GetTensors()->GetComponent(0, 2) == -7, "pyramid");
     }
     else
     {
-      AssertMacro(pyramid1->GetNumberOfCells() == 2);
-      AssertMacro(pyramid1->GetPointData()->GetArray(0)->GetComponent(5, 2) == -13);
-      AssertMacro(pyramid1->GetCellData()->GetArray(0)->GetComponent(1, 4) == -17);
-      AssertMacro(pyramid1->GetPointData()->GetTensors()->GetComponent(5, 2) == -7);
+      AssertMacro(pyramid1->GetNumberOfCells() == 2, "pyramid");
+      AssertMacro(pyramid1->GetPointData()->GetArray(0)->GetComponent(5, 2) == -13, "pyramid");
+      AssertMacro(pyramid1->GetCellData()->GetArray(0)->GetComponent(1, 4) == -17, "pyramid");
+      AssertMacro(pyramid1->GetPointData()->GetTensors()->GetComponent(5, 2) == -7, "pyramid");
     }
     pyramid1->GetCellPoints(i, cellIds.GetPointer());
     int apex = cellIds->GetId(4);
     int offset = i == 0 ? 0 : 5;
-    AssertMacro(apex == 4 + offset);
+    AssertMacro(apex == 4 + offset, "pyramid");
     for (int j = 0; j < 4; j++)
     {
       int next = cellIds->GetId((j + 1) % 4);
       int nextExpected = (cellIds->GetId(j) - offset + 3) % 4 + offset;
-      AssertMacro(next == nextExpected);
+      AssertMacro(next == nextExpected, "pyramid");
     }
   }
+
+  // Testing reflection of a quad and its triangulation
+  vtkNew<vtkUnstructuredGrid> quad;
+  vtkNew<vtkPoints> quadPoints;
+  quadPoints->InsertNextPoint(0.0, 0.0, 0.0);
+  quadPoints->InsertNextPoint(1.0, 0.0, 0.0);
+  quadPoints->InsertNextPoint(0.0, 1.0, 0.0);
+  quadPoints->InsertNextPoint(1.0, 1.0, 0.0);
+  quad->SetPoints(quadPoints);
+
+  vtkNew<vtkIdList> quadVerts;
+  quadVerts->InsertNextId(0);
+  quadVerts->InsertNextId(1);
+  quadVerts->InsertNextId(2);
+  quadVerts->InsertNextId(3);
+
+  quad->InsertNextCell(VTK_QUAD, quadVerts.GetPointer());
+
+  vtkNew<vtkReflectionFilter> quadReflectionFilter;
+  quadReflectionFilter->SetInputData(quad.GetPointer());
+  quadReflectionFilter->CopyInputOff();
+  quadReflectionFilter->FlipAllInputArraysOn();
+  quadReflectionFilter->SetPlaneToXMin();
+  quadReflectionFilter->Update();
+
+  vtkUnstructuredGrid* reflectedQuad =
+    vtkUnstructuredGrid::SafeDownCast(quadReflectionFilter->GetOutput());
+
+  // Verify positions of reflected vertices
+  vtkPoints* reflectedQuadPts = reflectedQuad->GetPoints();
+  double pt[3] = { 0.0, 0.0, 0.0 };
+  reflectedQuadPts->GetPoint(0, pt);
+  AssertMacro(pt[0] == 0.0 && pt[1] == 0.0 && pt[2] == 0.0, "quad");
+  reflectedQuadPts->GetPoint(1, pt);
+  AssertMacro(pt[0] == -1.0 && pt[1] == 0.0 && pt[2] == 0.0, "quad");
+  reflectedQuadPts->GetPoint(2, pt);
+  AssertMacro(pt[0] == 0.0 && pt[1] == 1.0 && pt[2] == 0.0, "quad");
+  reflectedQuadPts->GetPoint(3, pt);
+  AssertMacro(pt[0] == -1.0 && pt[1] == 1.0 && pt[2] == 0.0, "quad");
+
+  // Verify cell points IDs
+  vtkNew<vtkIdList> cellPtIds;
+  reflectedQuad->GetCellPoints(0, cellPtIds);
+  AssertMacro(cellPtIds->GetId(0) == 0 && cellPtIds->GetId(1) == 3 && cellPtIds->GetId(2) == 2 &&
+      cellPtIds->GetId(3) == 1,
+    "quad");
 
   return EXIT_SUCCESS;
 }
