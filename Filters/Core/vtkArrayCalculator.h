@@ -305,10 +305,12 @@ public:
   void SetFunctionParserTypeToFunctionParser()
   {
     this->FunctionParserType = FunctionParserTypes::FunctionParser;
+    this->Modified();
   }
   void SetFunctionParserTypeToExprTkFunctionParser()
   {
     this->FunctionParserType = FunctionParserTypes::ExprTkFunctionParser;
+    this->Modified();
   }
   vtkGetEnumMacro(FunctionParserType, FunctionParserTypes);
   ///@}

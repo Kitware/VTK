@@ -241,7 +241,7 @@ namespace
 /**
  * Implementation of sign function.
  */
-inline double sign(const double v)
+inline double sign(double v)
 {
   if (v > double(0))
   {
@@ -734,7 +734,7 @@ void vtkExprTkFunctionParser::SetScalarVariableValue(
   else
   {
     delete scalarValue;
-    vtkErrorMacro("Scalar variable name is a reserved keyword");
+    vtkErrorMacro("Scalar variable `" << inVariableName << "` is a reserved keyword");
   }
 }
 
@@ -844,7 +844,7 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
   else
   {
     delete vector;
-    vtkErrorMacro("Vector variable name is a reserved keyword");
+    vtkErrorMacro("Vector variable `" << inVariableName << "` is a reserved keyword");
   }
 }
 
