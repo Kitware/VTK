@@ -243,17 +243,17 @@ namespace
  */
 inline double sign(double v)
 {
-  if (v > double(0))
+  if (v == 0.)
   {
-    return double(+1);
+    return 0.;
   }
-  else if (v < double(0))
+  else if (std::signbit(v))
   {
-    return double(-1);
+    return -1.;
   }
   else
   {
-    return double(0);
+    return 1.;
   }
 }
 
