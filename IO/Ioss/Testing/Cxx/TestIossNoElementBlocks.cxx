@@ -59,8 +59,8 @@ int TestIossNoElementBlocks(int argc, char* argv[])
 
   auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(reader0->GetOutputDataObject(0));
   VERIFY((pdc != nullptr), "expected vtkPartitionedDataSetCollection");
-  VERIFY((pdc->GetNumberOfPartitionedDataSets() == 3), "expected 3 partitioned-datasets");
-  auto pd = pdc ? pdc->GetPartitionedDataSet(0) : nullptr;
+  VERIFY((pdc->GetNumberOfPartitionedDataSets() == 7), "expected 7 partitioned-datasets");
+  auto pd = pdc ? pdc->GetPartitionedDataSet(4) : nullptr;
   auto ds = pd ? pd->GetPartition(0) : nullptr;
   VERIFY((ds != nullptr), "expected block");
   VERIFY((ds->GetNumberOfPoints() == 1), "expected 1 points");
