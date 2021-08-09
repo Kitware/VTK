@@ -65,6 +65,41 @@ public:
   }
 };
 
+template <typename Iterator>
+class NestedFunctor
+{
+public:
+  vtkSMPThreadLocal<int> Counter;
+  const int Factor;
+
+  NestedFunctor()
+    : Counter(0)
+    , Factor(100)
+  {
+  }
+
+  void operator()(Iterator begin, Iterator end)
+  {
+    for (auto it = begin; it != end; ++it)
+    {
+      for (int i = 0; i < *it; ++i)
+      {
+        vtkSMPThreadLocal<int> nestedCounter(0);
+        vtkSMPTools::For(0, this->Factor, [&](vtkIdType start, vtkIdType stop) {
+          for (vtkIdType j = start; j < stop; ++j)
+          {
+            nestedCounter.Local()++;
+          }
+        });
+        for (const auto& el : nestedCounter)
+        {
+          this->Counter.Local() += el;
+        }
+      }
+    }
+  }
+};
+
 class MyVTKClass : public vtkObject
 {
   int Value;
@@ -112,7 +147,6 @@ bool myComp(double a, double b)
 int doTestSMP()
 {
   std::cout << "Testing SMP Tools with " << vtkSMPTools::GetBackend() << " backend." << std::endl;
-  // vtkSMPTools::Initialize(8);
 
   ARangeFunctor functor1;
 
@@ -179,15 +213,71 @@ int doTestSMP()
     return EXIT_FAILURE;
   }
 
+  // Test IsParallelScope
+  if (std::string(vtkSMPTools::GetBackend()) != "Sequential")
+  {
+    vtkSMPThreadLocal<int> isParallel(0);
+    int target = 20;
+    vtkSMPTools::For(0, target, 1, [&](vtkIdType start, vtkIdType end) {
+      for (vtkIdType i = start; i < end; ++i)
+      {
+        isParallel.Local() += static_cast<int>(vtkSMPTools::IsParallelScope());
+      }
+    });
+    total = 0;
+    for (const auto& it : isParallel)
+    {
+      total += it;
+    }
+    if (target != total)
+    {
+      cerr << "Error: on vtkSMPTools::IsParallelScope got " << total << " instead of " << target
+           << endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  // Test nested parallelism
+  for (const bool enabled : { true, false })
+  {
+    std::vector<int> nestedData0 = { 5, 3, 8, 1, 10 };
+    NestedFunctor<std::vector<int>::const_iterator> functor4;
+    vtkSMPTools::LocalScope(vtkSMPTools::Config{ enabled },
+      [&]() { vtkSMPTools::For(nestedData0.cbegin(), nestedData0.cend(), functor4); });
+
+    sumTarget = functor4.Factor * std::accumulate(nestedData0.begin(), nestedData0.end(), 0);
+    total = 0;
+    for (const auto& el : functor4.Counter)
+    {
+      total += el;
+    }
+    if (sumTarget != total)
+    {
+      cerr << "Error: on nested parallelism got " << total << " instead of " << sumTarget << endl;
+      return EXIT_FAILURE;
+    }
+  }
+
   // Test LocalScope
   const int targetThreadNb = 2;
   int scopeThreadNb = 0;
 
-  auto lambda = [&]() { scopeThreadNb = vtkSMPTools::GetEstimatedNumberOfThreads(); };
-  vtkSMPTools::LocalScope(vtkSMPTools::Config{ targetThreadNb }, lambda);
+  auto lambdaScope0 = [&]() { scopeThreadNb = vtkSMPTools::GetEstimatedNumberOfThreads(); };
+  vtkSMPTools::LocalScope(vtkSMPTools::Config{ targetThreadNb }, lambdaScope0);
   if (scopeThreadNb <= 0 || scopeThreadNb > targetThreadNb)
   {
     cerr << "Error: on vtkSMPTools::LocalScope bad number of threads!" << endl;
+    return EXIT_FAILURE;
+  }
+
+  const bool isNestedTarget = true;
+  bool isNested = false;
+
+  auto lambdaScope1 = [&]() { isNested = vtkSMPTools::GetNestedParallelism(); };
+  vtkSMPTools::LocalScope(vtkSMPTools::Config{ isNestedTarget }, lambdaScope1);
+  if (isNested != isNestedTarget)
+  {
+    cerr << "Error: on vtkSMPTools::LocalScope bad nested initialisation!" << endl;
     return EXIT_FAILURE;
   }
 

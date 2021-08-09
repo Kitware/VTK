@@ -55,7 +55,7 @@ void vtkSMPToolsImpl<BackendType::STDThread>::For(
     return;
   }
 
-  if (grain >= n)
+  if (grain >= n || (this->IsParallel && !this->NestedActivated))
   {
     fi.Execute(first, last);
   }
@@ -69,13 +69,22 @@ void vtkSMPToolsImpl<BackendType::STDThread>::For(
       grain = (estimateGrain > 0) ? estimateGrain : 1;
     }
 
-    vtkSMPThreadPool pool(threadNumber);
+    // this->IsParallel may have threads conficts but it will be always between true and true,
+    // it is set to false only in sequential code.
+    // /!\ This behaviour should be changed if we want more control on nested
+    // (e.g only the 2 first nested For are in parallel)
+    bool fromParallelCode = this->IsParallel;
+    this->IsParallel = true;
 
+    vtkSMPThreadPool pool(threadNumber);
     for (vtkIdType from = first; from < last; from += grain)
     {
       auto job = std::bind(ExecuteFunctorSTDThread<FunctorInternal>, &fi, from, grain, last);
       pool.DoJob(job);
     }
+    pool.Join();
+
+    this->IsParallel &= fromParallelCode;
   }
 }
 

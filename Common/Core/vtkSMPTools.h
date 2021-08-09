@@ -385,6 +385,7 @@ public:
   static const char* GetBackend();
 
   /**
+   * /!\ This method is not thread safe.
    * Change the backend in use.
    * The options can be: "Sequential", "STDThread", "TBB" or "OpenMP"
    *
@@ -397,6 +398,7 @@ public:
   static bool SetBackend(const char* backend);
 
   /**
+   * /!\ This method is not thread safe.
    * Initialize the underlying libraries for execution. This is
    * not required as it is automatically defined by the libaries.
    * However, it can be used to control the maximum number of thread used.
@@ -421,15 +423,40 @@ public:
   static int GetEstimatedNumberOfThreads();
 
   /**
+   * /!\ This method is not thread safe.
+   * If true enable nested parallelism for underlying backends.
+   * When enabled the comportement is different for each backend:
+   *    - TBB support nested parallelism by default.
+   *    - For OpenMP, we set `omp_set_nested` to true so that it is supported.
+   *    - STDThread support nested parallelism by creating new threads pools.
+   *    - For Sequential nothing changes.
+   *
+   * Default to true
+   */
+  static void SetNestedParallelism(bool isNested);
+
+  /**
+   * Get true if the nested parallelism is enabled.
+   */
+  static bool GetNestedParallelism();
+
+  /**
+   * Return true if it is called from a parallel scope.
+   */
+  static bool IsParallelScope();
+
+  /**
    * Structure used to specify configuration for LocalScope() method.
    * Several parameters can be configured:
    *    - MaxNumberOfThreads set the maximum number of threads.
    *    - Backend set a specific SMPTools backend.
+   *    - NestedParallelism, if true enable nested parallelism.
    */
   struct Config
   {
     int MaxNumberOfThreads = 0;
     std::string Backend = vtk::detail::smp::vtkSMPToolsAPI::GetInstance().GetBackend();
+    bool NestedParallelism = true;
 
     Config() {}
     Config(int maxNumberOfThreads)
@@ -440,28 +467,35 @@ public:
       : Backend(backend)
     {
     }
-    Config(int maxNumberOfThreads, std::string backend)
+    Config(bool nestedParallelism)
+      : NestedParallelism(nestedParallelism)
+    {
+    }
+    Config(int maxNumberOfThreads, std::string backend, bool nestedParallelism)
       : MaxNumberOfThreads(maxNumberOfThreads)
       , Backend(backend)
+      , NestedParallelism(nestedParallelism)
     {
     }
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     Config(vtk::detail::smp::vtkSMPToolsAPI& API)
       : MaxNumberOfThreads(API.GetInternalDesiredNumberOfThread())
       , Backend(API.GetBackend())
+      , NestedParallelism(API.GetNestedParallelism())
     {
     }
 #endif // DOXYGEN_SHOULD_SKIP_THIS
   };
 
   /**
+   * /!\ This method is not thread safe.
    * Change the number of threads locally within this scope and call a functor which
    * should contains a vtkSMPTools method.
    *
    * Usage example:
    * \code
    * vtkSMPTools::LocalScope(
-   *   vtkSMPTools::Config{ 4, "OpenMP" }, [&]() { vtkSMPTools::For(0, size, worker); });
+   *   vtkSMPTools::Config{ 4, "OpenMP", false }, [&]() { vtkSMPTools::For(0, size, worker); });
    * \endcode
    */
   template <typename T>

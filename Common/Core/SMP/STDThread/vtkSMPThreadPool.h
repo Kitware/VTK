@@ -44,8 +44,8 @@ class VTKCOMMONCORE_EXPORT vtkSMPThreadPool
 {
 public:
   explicit vtkSMPThreadPool(int ThreadNumber);
-  virtual ~vtkSMPThreadPool();
 
+  void Join();
   void DoJob(std::function<void(void)> job);
 
 private:

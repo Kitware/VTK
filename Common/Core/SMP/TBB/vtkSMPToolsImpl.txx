@@ -109,7 +109,21 @@ template <typename FunctorInternal>
 void vtkSMPToolsImpl<BackendType::TBB>::For(
   vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
 {
-  vtkSMPToolsImplForTBB(first, last, grain, ExecuteFunctorTBB<FunctorInternal>, &fi);
+  if (this->IsParallel && !this->NestedActivated)
+  {
+    fi.Execute(first, last);
+  }
+  else
+  {
+    // this->IsParallel may have threads conficts but it will be always between true and true,
+    // it is set to false only in sequential code.
+    // /!\ This behaviour should be changed if we want more control on nested
+    // (e.g only the 2 first nested For are in parallel)
+    bool fromParallelCode = this->IsParallel;
+    this->IsParallel = true;
+    vtkSMPToolsImplForTBB(first, last, grain, ExecuteFunctorTBB<FunctorInternal>, &fi);
+    this->IsParallel &= fromParallelCode;
+  }
 }
 
 //--------------------------------------------------------------------------------

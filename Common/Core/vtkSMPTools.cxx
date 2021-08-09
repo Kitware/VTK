@@ -44,3 +44,24 @@ int vtkSMPTools::GetEstimatedNumberOfThreads()
   auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
   return SMPToolsAPI.GetEstimatedNumberOfThreads();
 }
+
+//------------------------------------------------------------------------------
+void vtkSMPTools::SetNestedParallelism(bool isNested)
+{
+  auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+  return SMPToolsAPI.SetNestedParallelism(isNested);
+}
+
+//------------------------------------------------------------------------------
+bool vtkSMPTools::GetNestedParallelism()
+{
+  auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+  return SMPToolsAPI.GetNestedParallelism();
+}
+
+//------------------------------------------------------------------------------
+bool vtkSMPTools::IsParallelScope()
+{
+  auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+  return SMPToolsAPI.IsParallelScope();
+}
