@@ -301,15 +301,15 @@ void vtkCesium3DTilesWriter::WriteData()
   vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
   treeInformation.Generate3DTiles(std::string(this->DirectoryName) + "/tileset.json");
   // debug - save poly data for each level of the tree.
-  int numberOfLevels = octree->GetNumberOfLevels();
-  for (int level = 0; level < numberOfLevels; ++level)
-  {
-    vtkNew<vtkPolyData> octreePoly;
-    octree->GenerateRepresentation(
-      level, octreePoly, &TreeInformation::GetNodeBounds, &treeInformation);
-    treeInformation.AddGeometricError(octreePoly);
-    ::SaveLevel(this->DirectoryName, level, octreePoly);
-  }
+  // int numberOfLevels = octree->GetNumberOfLevels();
+  // for (int level = 0; level < numberOfLevels; ++level)
+  // {
+  //   vtkNew<vtkPolyData> octreePoly;
+  //   octree->GenerateRepresentation(
+  //     level, octreePoly, &TreeInformation::GetNodeBounds, &treeInformation);
+  //   treeInformation.AddGeometricError(octreePoly);
+  //   // ::SaveLevel(this->DirectoryName, level, octreePoly);
+  // }
   renderWindow->Render();
   if (this->SaveGLTF)
   {
