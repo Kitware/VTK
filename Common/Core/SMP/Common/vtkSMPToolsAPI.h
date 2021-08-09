@@ -67,6 +67,27 @@ public:
   int GetEstimatedNumberOfThreads();
 
   //--------------------------------------------------------------------------------
+  int GetInternalDesiredNumberOfThread() { return this->DesiredNumberOfThread; }
+
+  //------------------------------------------------------------------------------
+  template <typename Config, typename T>
+  void LocalScope(Config const& config, T&& lambda)
+  {
+    const Config oldConfig(*this);
+    *this << config;
+    try
+    {
+      lambda();
+    }
+    catch (...)
+    {
+      *this << oldConfig;
+      throw;
+    }
+    *this << oldConfig;
+  }
+
+  //--------------------------------------------------------------------------------
   template <typename FunctorInternal>
   void For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
   {
@@ -203,6 +224,17 @@ private:
 
   //--------------------------------------------------------------------------------
   void RefreshNumberOfThread();
+
+  //--------------------------------------------------------------------------------
+  // This operator overload is used to unpack Config parameters and set them
+  // in vtkSMPToolsAPI (e.g `*this << config;`)
+  template <typename Config>
+  vtkSMPToolsAPI& operator<<(Config const& config)
+  {
+    this->Initialize(config.MaxNumberOfThreads);
+    this->SetBackend(config.Backend.c_str());
+    return *this;
+  }
 
   /**
    * Indicate which backend to use.

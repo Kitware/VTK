@@ -422,7 +422,9 @@ public:
 
   /**
    * Structure used to specify configuration for LocalScope() method.
-   * Configuration parameters are MaxNumberOfThreads and Backend.
+   * Several parameters can be configured:
+   *    - MaxNumberOfThreads set the maximum number of threads.
+   *    - Backend set a specific SMPTools backend.
    */
   struct Config
   {
@@ -443,6 +445,13 @@ public:
       , Backend(backend)
     {
     }
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    Config(vtk::detail::smp::vtkSMPToolsAPI& API)
+      : MaxNumberOfThreads(API.GetInternalDesiredNumberOfThread())
+      , Backend(API.GetBackend())
+    {
+    }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
   };
 
   /**
@@ -452,11 +461,15 @@ public:
    * Usage example:
    * \code
    * vtkSMPTools::LocalScope(
-   *   vtkSMPTools::Config{ 4, "Sequential" }, [&]() { vtkSMPTools::For(0, size, worker); });
+   *   vtkSMPTools::Config{ 4, "OpenMP" }, [&]() { vtkSMPTools::For(0, size, worker); });
    * \endcode
    */
   template <typename T>
-  static void LocalScope(Config const& config, T&& lambda);
+  static void LocalScope(Config const& config, T&& lambda)
+  {
+    auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+    SMPToolsAPI.LocalScope<vtkSMPTools::Config>(config, lambda);
+  }
 
   /**
    * A convenience method for transforming data. It is a drop in replacement for
@@ -550,8 +563,6 @@ public:
     SMPToolsAPI.Sort(begin, end, comp);
   }
 };
-
-#include "vtkSMPTools.txx"
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPTools.h
