@@ -1,4 +1,4 @@
-#include "vtkCommandLineProcess.h"
+#include "vtkExecutableRunner.h"
 #include "vtkNew.h"
 
 #include "vtkLogger.h"
@@ -6,10 +6,14 @@
 #include <iostream>
 #include <string>
 
-int TestCommandLineProcess(int, char*[])
+int TestExecutableRunner(int, char*[])
 {
-  vtkNew<vtkCommandLineProcess> process;
+  vtkNew<vtkExecutableRunner> process;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+  process->SetCommand("cmd.exe /c \"echo Hello World\"");
+#else
   process->SetCommand("echo \"Hello World\"");
+#endif
   process->Execute();
   std::string out = process->GetStdOut();
   std::string err = process->GetStdErr();
