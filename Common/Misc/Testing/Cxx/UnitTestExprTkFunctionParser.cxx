@@ -26,6 +26,9 @@
 #include <string>
 #include <vector>
 
+constexpr bool STATUS_SUCCESS = true;
+constexpr bool STATUS_FAILURE = false;
+
 #define SCALAR_FUNC(proc, function, math)                                                          \
   static bool proc(double low, double hi)                                                          \
   {                                                                                                \
@@ -45,17 +48,15 @@
       if (!vtkMathUtilities::FuzzyCompare(                                                         \
             result, expected, std::numeric_limits<double>::epsilon() * 1.0))                       \
       {                                                                                            \
-        std::cout << "\n"                                                                          \
-                  << #function " Expected " << expected << " but got " << result                   \
-                  << " difference is " << result - expected << " "                                 \
-                  << "eps ratio is: "                                                              \
+        std::cout << "\n" #function " Expected " << expected << " but got " << result              \
+                  << " difference is " << result - expected << " eps ratio is: "                   \
                   << (result - expected) / std::numeric_limits<double>::epsilon() << std::endl;    \
-        return EXIT_FAILURE;                                                                       \
+        return STATUS_FAILURE;                                                                     \
       }                                                                                            \
     }                                                                                              \
                                                                                                    \
     std::cout << "PASSED\n";                                                                       \
-    return EXIT_SUCCESS;                                                                           \
+    return STATUS_SUCCESS;                                                                         \
   }
 
 SCALAR_FUNC(TestAbs, abs, std::abs);
@@ -67,7 +68,7 @@ SCALAR_FUNC(TestCos, cos, std::cos);
 SCALAR_FUNC(TestCosh, cosh, std::cosh);
 SCALAR_FUNC(TestExp, exp, std::exp);
 SCALAR_FUNC(TestFloor, floor, std::floor);
-SCALAR_FUNC(TestLn, log, std::log);
+SCALAR_FUNC(TestLn, ln, std::log);
 SCALAR_FUNC(TestLog10, log10, std::log10);
 SCALAR_FUNC(TestSin, sin, std::sin);
 SCALAR_FUNC(TestSinh, sinh, std::sinh);
@@ -88,38 +89,38 @@ static bool TestErrors();
 
 int UnitTestExprTkFunctionParser(int, char*[])
 {
-  bool status = 0;
+  bool status = STATUS_SUCCESS;
 
-  status |= TestAbs(-1000.0, 1000);
-  status |= TestAcos(-1.0, 1.0);
-  status |= TestAsin(-1.0, 1.0);
-  status |= TestAtan(-1.0, 1.0);
-  status |= TestCeil(-1000.0, 1000.0);
-  status |= TestCos(-1000.0, 1000.0);
-  status |= TestCosh(-1.0, 1.0);
-  status |= TestExp(0, 2.0);
-  status |= TestFloor(-1000.0, 1000.0);
-  status |= TestLn(0.0, 1000.0);
-  status |= TestLog10(0.0, 1000.0);
-  status |= TestSin(-1000.0, 1000.0);
-  status |= TestSinh(-1.0, 1.0);
-  status |= TestSqrt(.1, 1000.0);
-  status |= TestTan(-1000.0, 1000.0);
-  status |= TestTanh(-1.0, 1.0);
+  status &= TestAbs(-1000.0, 1000);
+  status &= TestAcos(-1.0, 1.0);
+  status &= TestAsin(-1.0, 1.0);
+  status &= TestAtan(-1.0, 1.0);
+  status &= TestCeil(-1000.0, 1000.0);
+  status &= TestCos(-1000.0, 1000.0);
+  status &= TestCosh(-1.0, 1.0);
+  status &= TestExp(0, 2.0);
+  status &= TestFloor(-1000.0, 1000.0);
+  status &= TestLn(0.0, 1000.0);
+  status &= TestLog10(0.0, 1000.0);
+  status &= TestSin(-1000.0, 1000.0);
+  status &= TestSinh(-1.0, 1.0);
+  status &= TestSqrt(.1, 1000.0);
+  status &= TestTan(-1000.0, 1000.0);
+  status &= TestTanh(-1.0, 1.0);
 
-  status |= TestScalars();
-  status |= TestVariableNames();
-  status |= TestSpacing();
-  status |= TestUnaryOperations();
-  status |= TestScientificNotation();
-  status |= TestVectors();
-  status |= TestMinMax();
-  status |= TestScalarLogic();
-  status |= TestVectorLogic();
+  status &= TestScalars();
+  status &= TestVariableNames();
+  status &= TestSpacing();
+  status &= TestUnaryOperations();
+  status &= TestScientificNotation();
+  status &= TestVectors();
+  status &= TestMinMax();
+  status &= TestScalarLogic();
+  status &= TestVectorLogic();
 
-  status |= TestMiscFunctions();
-  status |= TestErrors();
-  if (status != 0)
+  status &= TestMiscFunctions();
+  status &= TestErrors();
+  if (status == STATUS_FAILURE)
   {
     return EXIT_FAILURE;
   }
@@ -150,7 +151,7 @@ bool TestUnaryOperations()
           result, expected[i], std::numeric_limits<double>::epsilon() * 1.0))
     {
       std::cout << "FAILED\n";
-      return 1;
+      return STATUS_FAILURE;
     }
   }
 
@@ -161,7 +162,7 @@ bool TestUnaryOperations()
   if (result != 9)
   {
     std::cout << "FAILED\n";
-    return 1;
+    return STATUS_FAILURE;
   }
 
   parser->SetFunction("(-x)");
@@ -169,11 +170,11 @@ bool TestUnaryOperations()
   if (result != -3)
   {
     std::cout << "FAILED\n";
-    return 1;
+    return STATUS_FAILURE;
   }
 
   std::cout << "PASSED\n";
-  return 0;
+  return STATUS_SUCCESS;
 }
 
 bool TestScalars()
@@ -188,12 +189,12 @@ bool TestScalars()
   if (result != -1.0)
   {
     std::cout << "FAILED\n";
-    return 1;
+    return STATUS_FAILURE;
   }
   else
   {
     std::cout << "PASSED\n";
-    return 0;
+    return STATUS_SUCCESS;
   }
 }
 
@@ -209,12 +210,12 @@ bool TestVariableNames()
   if (result != -1.0)
   {
     std::cout << "FAILED\n";
-    return 1;
+    return STATUS_FAILURE;
   }
   else
   {
     std::cout << "PASSED\n";
-    return 0;
+    return STATUS_SUCCESS;
   }
 }
 
@@ -229,19 +230,19 @@ bool TestSpacing()
   if (result != 1.0)
   {
     std::cout << "FAILED\n";
-    return 1;
+    return STATUS_FAILURE;
   }
   parser->SetFunction("abs  (x)");
   result = parser->GetScalarResult();
   if (result != 1.0)
   {
     std::cout << "FAILED\n";
-    return 1;
+    return STATUS_FAILURE;
   }
   else
   {
     std::cout << "PASSED\n";
-    return 0;
+    return STATUS_SUCCESS;
   }
 }
 
@@ -260,12 +261,12 @@ bool TestScientificNotation()
     std::cout << "eps ratio is: " << (result - expected) / std::numeric_limits<double>::epsilon()
               << std::endl;
     std::cout << "FAILED\n";
-    return 1;
+    return STATUS_FAILURE;
   }
   else
   {
     std::cout << "PASSED\n";
-    return 0;
+    return STATUS_SUCCESS;
   }
 }
 
@@ -275,11 +276,11 @@ bool TestVectors()
             << "...";
   auto parser = vtkSmartPointer<vtkExprTkFunctionParser>::New();
 
-  bool status1 = 0;
-  bool status2 = 0;
-  bool status3 = 0;
-  bool status4 = 0;
-  bool status5 = 0;
+  bool status1 = STATUS_SUCCESS;
+  bool status2 = STATUS_SUCCESS;
+  bool status3 = STATUS_SUCCESS;
+  bool status4 = STATUS_SUCCESS;
+  bool status5 = STATUS_SUCCESS;
 
   auto rand = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   // Cross
@@ -321,11 +322,11 @@ bool TestVectors()
         std::cout << " Cross expected " << minusBxa[j] << " but got " << axb[j];
         std::cout << "eps ratio is: "
                   << (axb[j] - minusBxa[j]) / std::numeric_limits<double>::epsilon() << std::endl;
-        status1 = 1;
+        status1 = STATUS_FAILURE;
       }
     }
   }
-  if (status1 == 0)
+  if (status1 == STATUS_SUCCESS)
   {
     std::cout << "PASSED\n";
   }
@@ -374,7 +375,7 @@ bool TestVectors()
         std::cout << " Cross expected " << a[j] << " but got " << b[j];
         std::cout << "eps ratio is: " << (a[j] - b[j]) / std::numeric_limits<double>::epsilon()
                   << std::endl;
-        status2 = 1;
+        status2 = STATUS_FAILURE;
       }
     }
     // Test Dot / Mag / Norm
@@ -386,7 +387,7 @@ bool TestVectors()
       std::cout << " Dot " << 0.0 << " but got " << dot;
       std::cout << "eps ratio is: " << (dot - 0.0) / std::numeric_limits<double>::epsilon()
                 << std::endl;
-      status3 = 1;
+      status3 = STATUS_FAILURE;
     }
 
     // Test Mag and Norm
@@ -398,7 +399,7 @@ bool TestVectors()
       std::cout << " Mag expected" << 1.0 << " but got " << mag;
       std::cout << " eps ratio is: " << (mag - 1.0) / std::numeric_limits<double>::epsilon()
                 << std::endl;
-      status4 = 1;
+      status4 = STATUS_FAILURE;
     }
   }
 
@@ -414,7 +415,7 @@ bool TestVectors()
     std::cout << "x*iHat + y*jHat + z*kHat expected "
               << "(" << 1.0 << "," << 2.0 << "," << 3.0 << ") but got "
               << "(" << xyz[0] << "," << xyz[1] << "," << xyz[2] << ")" << std::endl;
-    status5 = 1;
+    status5 = STATUS_FAILURE;
   }
 
   // Test printing of an initialized parser
@@ -426,7 +427,7 @@ bool TestVectors()
   if (parser->GetNumberOfScalarVariables() != 0 || parser->GetNumberOfVectorVariables() != 0)
   {
     std::cout << "RemoveAllVariables failed" << std::endl;
-    status1 = 1;
+    status1 = STATUS_FAILURE;
   }
 
   // Invalidate function should change the function's mtime
@@ -437,11 +438,11 @@ bool TestVectors()
   if (before >= after)
   {
     std::cout << "InvalidateFunction() failed. MTime should have been modified" << std::endl;
-    status5 = 1;
+    status5 = STATUS_FAILURE;
   }
 
-  bool statusAll = status1 || status2 || status3 || status4 || status5;
-  if (statusAll == 0)
+  bool statusAll = status1 && status2 && status3 & status4 && status5;
+  if (statusAll == STATUS_SUCCESS)
   {
     std::cout << "PASSED\n";
   }
@@ -457,7 +458,7 @@ bool TestMinMax()
   parser->SetFunction("min(x,y)");
 
   auto rand = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
-  bool status = 0;
+  bool status = STATUS_SUCCESS;
   for (unsigned int i = 0; i < 1000; ++i)
   {
     double value = rand->GetRangeValue(-1000.0, 1000.0);
@@ -474,7 +475,7 @@ bool TestMinMax()
                 << result - expected << " ";
       std::cout << "eps ratio is: " << (result - expected) / std::numeric_limits<double>::epsilon()
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
@@ -496,11 +497,11 @@ bool TestMinMax()
                 << result - expected << " ";
       std::cout << "eps ratio is: " << (result - expected) / std::numeric_limits<double>::epsilon()
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
-  if (status == 0)
+  if (status == STATUS_SUCCESS)
   {
     std::cout << "PASSED\n";
   }
@@ -509,7 +510,7 @@ bool TestMinMax()
 
 bool TestScalarLogic()
 {
-  bool status = 0;
+  bool status = STATUS_SUCCESS;
   auto rand = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
 
   std::cout << "Testing Scalar Logic"
@@ -531,7 +532,7 @@ bool TestScalarLogic()
       std::cout << "\n";
       std::cout << x << " < " << y << " Expected " << expected << " but got " << result
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
@@ -550,7 +551,7 @@ bool TestScalarLogic()
       std::cout << "\n";
       std::cout << x << " > " << y << " Expected " << expected << " but got " << result
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
@@ -569,7 +570,7 @@ bool TestScalarLogic()
       std::cout << "\n";
       std::cout << x << " == " << y << " Expected " << expected << " but got " << result
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
@@ -587,7 +588,7 @@ bool TestScalarLogic()
     if (result != expectedOr[i])
     {
       std::cout << "i | j expected " << expectedOr[i] << " but got " << result << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
@@ -600,11 +601,11 @@ bool TestScalarLogic()
     if (result != expectedAnd[i])
     {
       std::cout << "i | j expected " << expectedAnd[i] << " but got " << result << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
-  if (status == 0)
+  if (status == STATUS_SUCCESS)
   {
     std::cout << "PASSED\n";
   }
@@ -617,7 +618,7 @@ bool TestScalarLogic()
 
 bool TestVectorLogic()
 {
-  bool status = 0;
+  bool status = STATUS_SUCCESS;
   auto rand = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
 
   std::cout << "Testing Vector Logic"
@@ -648,7 +649,7 @@ bool TestVectorLogic()
       std::cout << "\n";
       std::cout << x << " < " << y << " Expected " << expected << " but got " << result
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
@@ -676,7 +677,7 @@ bool TestVectorLogic()
       std::cout << "\n";
       std::cout << x << " > " << y << " Expected " << expected << " but got " << result
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
@@ -705,11 +706,11 @@ bool TestVectorLogic()
       std::cout << "\n";
       std::cout << x << " == " << y << " Expected " << expected << " but got " << result
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
-  if (status == 0)
+  if (status == STATUS_SUCCESS)
   {
     std::cout << "PASSED\n";
   }
@@ -723,17 +724,17 @@ bool TestVectorLogic()
 
 bool TestMiscFunctions()
 {
-  bool statusAll = 0;
+  bool statusAll = STATUS_SUCCESS;
   auto rand = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
 
   std::cout << "Testing Sign"
             << "...";
   auto parser = vtkSmartPointer<vtkExprTkFunctionParser>::New();
-  parser->SetFunction("sgn(x)");
+  parser->SetFunction("sign(x)");
   double values[3] = { -100.0, 0.0, 100.0 };
   double expecteds[3] = { -1.0, 0.0, 1.0 };
 
-  bool status = 0;
+  bool status = STATUS_SUCCESS;
   for (unsigned int i = 0; i < 3; ++i)
   {
     parser->SetScalarVariableValue("x", values[i]);
@@ -741,23 +742,23 @@ bool TestMiscFunctions()
     if (result != expecteds[i])
     {
       std::cout << "Sign expected " << expecteds[i] << " but got " << result << ". ";
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
 
-  if (status == 0)
+  if (status == STATUS_SUCCESS)
   {
     std::cout << "PASSED\n";
   }
   else
   {
-    statusAll = 1;
+    statusAll = STATUS_FAILURE;
     std::cout << "FAILED\n";
   }
 
   std::cout << "Testing Pow"
             << "...";
-  status = 0;
+  status = STATUS_SUCCESS;
   for (unsigned int i = 0; i < 1000; ++i)
   {
     double x = rand->GetRangeValue(0.0, 10.0);
@@ -775,22 +776,22 @@ bool TestMiscFunctions()
                 << result - expected << " ";
       std::cout << "eps ratio is: " << (result - expected) / std::numeric_limits<double>::epsilon()
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
-  if (status == 0)
+  if (status == STATUS_SUCCESS)
   {
     std::cout << "PASSED\n";
   }
   else
   {
-    statusAll = 1;
+    statusAll = STATUS_FAILURE;
     std::cout << "FAILED\n";
   }
 
   std::cout << "Testing Scalar divide"
             << "...";
-  status = 0;
+  status = STATUS_SUCCESS;
   for (unsigned int i = 0; i < 1000; ++i)
   {
     double x = rand->GetRangeValue(-10.0, 10.0);
@@ -808,16 +809,16 @@ bool TestMiscFunctions()
                 << result - expected << " ";
       std::cout << "eps ratio is: " << (result - expected) / std::numeric_limits<double>::epsilon()
                 << std::endl;
-      status = 1;
+      status = STATUS_FAILURE;
     }
   }
-  if (status == 0)
+  if (status == STATUS_SUCCESS)
   {
     std::cout << "PASSED\n";
   }
   else
   {
-    statusAll = 1;
+    statusAll = STATUS_FAILURE;
     std::cout << "FAILED\n";
   }
 
@@ -826,7 +827,7 @@ bool TestMiscFunctions()
   parser->SetScalarVariableValue(parser->GetScalarVariableName(0), 123.456);
   if (parser->GetScalarVariableValue(parser->GetScalarVariableName(0)) != 123.456)
   {
-    statusAll = 1;
+    statusAll = STATUS_FAILURE;
     std::cout << "FAILED\n";
   }
   else
@@ -867,7 +868,7 @@ bool TestMiscFunctions()
       std::cout << testFuncs[f]
                 << " failed to return a replacement value when ReplaceInvaliValues was On"
                 << std::endl;
-      statusAll = 1;
+      statusAll = STATUS_FAILURE;
     }
   }
   parser->GetScalarResult();
@@ -876,7 +877,7 @@ bool TestMiscFunctions()
 
 bool TestErrors()
 {
-  bool status = 0;
+  bool status = STATUS_SUCCESS;
   std::cout << "Testing Errors"
             << "...";
 
@@ -889,7 +890,7 @@ bool TestErrors()
   parser->SetFunction("cos(a)");
   parser->SetFunction(nullptr);
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage("Parse: no function has been set");
+  status &= !errorObserver->CheckErrorMessage("Parse: no function has been set");
 
   double s = -2.0;
   double v[3] = { 1.0, 2.0, 3.0 };
@@ -902,119 +903,119 @@ bool TestErrors()
   // can't apply cross to scalars
   parser->SetFunction("cross(s,w)");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage(
+  status &= !errorObserver->CheckErrorMessage(
     "Invalid input parameter sequence for call to generic function: cross");
 
   // dot product does not operate on scalars
   parser->SetFunction("dot(s, v)");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage("Failed parameter type check for function 'dot'");
+  status &= !errorObserver->CheckErrorMessage("Failed parameter type check for function 'dot'");
 
   // magnitude expects a vector, but got a scalar
   parser->SetFunction("mag(s)");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage("Failed parameter type check for function 'mag'");
+  status &= !errorObserver->CheckErrorMessage("Failed parameter type check for function 'mag'");
 
   // normalize expects a vector, but got a scalar
   parser->SetFunction("norm(s)");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage("Failed parameter type check for function 'mag'");
+  status &= !errorObserver->CheckErrorMessage("Failed parameter type check for function 'mag'");
 
   // Trying to take a natural logarithm of a non-positive value
   parser->SetFunction("ln(s)");
   parser->IsScalarResult();
-  status |=
-    errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
+  status &=
+    !errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
 
   // Trying to take a log10 of a non-positive value
   parser->SetFunction("log10(s)");
   parser->IsScalarResult();
-  status |=
-    errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
+  status &=
+    !errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
 
   // Trying to take a square root of a negative value
   parser->SetFunction("sqrt(s)");
   parser->IsScalarResult();
-  status |=
-    errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
+  status &=
+    !errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
 
   // Trying to take asin of a value < -1 or > 1
   parser->SetFunction("asin(s)");
   parser->IsScalarResult();
-  status |=
-    errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
+  status &=
+    !errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
 
   // Trying to take acos of a value < -1 or > 1
   parser->SetFunction("acos(s)");
   parser->IsScalarResult();
-  status |=
-    errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
+  status &=
+    !errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
 
   // Trying to divide by zero<
   parser->SetFunction("s/zero");
   parser->IsScalarResult();
-  status |=
-    errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
+  status &=
+    !errorObserver->CheckErrorMessage("Invalid result because of mathematically wrong input.");
 
   // GetScalarResult: no valid scalar result
   parser->SetFunction("cross(v,w)");
   parser->GetScalarResult();
-  status |= errorObserver->CheckErrorMessage("GetScalarResult: no valid scalar result");
+  status &= !errorObserver->CheckErrorMessage("GetScalarResult: no valid scalar result");
 
   // GetVectorResult: no valid vector result
   parser->SetFunction("dot(v, w)");
   parser->GetVectorResult();
-  status |= errorObserver->CheckErrorMessage("GetVectorResult: no valid vector result");
+  status &= !errorObserver->CheckErrorMessage("GetVectorResult: no valid vector result");
 
   // GetScalarVariableValue: scalar variable name ... does not exist
   parser->GetScalarVariableValue("xyz");
-  status |= errorObserver->CheckErrorMessage("GetScalarVariableValue: scalar variable name");
+  status &= !errorObserver->CheckErrorMessage("GetScalarVariableValue: scalar variable name");
 
   // GetScalarVariableValue: scalar variable number ... does not exist
   parser->GetScalarVariableValue(128);
-  status |= errorObserver->CheckErrorMessage("GetScalarVariableValue: scalar variable number");
+  status &= !errorObserver->CheckErrorMessage("GetScalarVariableValue: scalar variable number");
 
   // GetVectorVariableValue: vector variable name ... does not exist
   parser->GetVectorVariableValue("xyz");
-  status |= errorObserver->CheckErrorMessage("GetVectorVariableValue: vector variable name");
+  status &= !errorObserver->CheckErrorMessage("GetVectorVariableValue: vector variable name");
 
   // GetVectorVariableValue: vector variable number ... does not exist
   parser->GetVectorVariableValue(128);
-  status |= errorObserver->CheckErrorMessage("GetVectorVariableValue: vector variable number");
+  status &= !errorObserver->CheckErrorMessage("GetVectorVariableValue: vector variable number");
 
   // Syntax error: expecting a variable name
   parser->SetFunction("acos()");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage(
+  status &= !errorObserver->CheckErrorMessage(
     "Expected at least one input parameter for function call 'acos'");
 
   // Parse errors
   parser->SetFunction("-");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage("Invalid token sequence: '-'");
+  status &= !errorObserver->CheckErrorMessage("Invalid token sequence: '-'");
 
   parser->SetFunction("s *");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage("Invalid token sequence: '*'");
+  status &= !errorObserver->CheckErrorMessage("Invalid token sequence: '*'");
 
   parser->SetFunction("if(v,s)");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage(
+  status &= !errorObserver->CheckErrorMessage(
     "Expected ',' between if-statement consequent and alternative");
 
   parser->SetFunction("s * (v + w");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage("Mismatched brackets: ')'");
+  status &= !errorObserver->CheckErrorMessage("Mismatched brackets: ')'");
 
   parser->SetFunction("v + w)*s");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage("Mismatched brackets: ']'");
+  status &= !errorObserver->CheckErrorMessage("Mismatched brackets: ']'");
 
   parser->SetFunction("s*()");
   parser->IsScalarResult();
-  status |= errorObserver->CheckErrorMessage("Premature end of expression");
+  status &= !errorObserver->CheckErrorMessage("Premature end of expression");
 
-  if (status == 0)
+  if (status == STATUS_SUCCESS)
   {
     std::cout << "PASSED\n";
   }
