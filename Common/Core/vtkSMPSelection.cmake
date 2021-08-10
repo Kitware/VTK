@@ -135,8 +135,6 @@ list(APPEND vtk_smp_nowrap_headers
 
 list(APPEND vtk_smp_sources
   vtkSMPTools.cxx)
-list(APPEND vtk_smp_templates
-  vtkSMPTools.txx)
 list(APPEND vtk_smp_headers
   vtkSMPTools.h
   vtkSMPThreadLocal.h

@@ -179,15 +179,15 @@ int doTestSMP()
     return EXIT_FAILURE;
   }
 
-  // Test Scope
+  // Test LocalScope
   const int targetThreadNb = 2;
   int scopeThreadNb = 0;
 
   auto lambda = [&]() { scopeThreadNb = vtkSMPTools::GetEstimatedNumberOfThreads(); };
-  vtkSMPTools::ScopeWithMaxThread(targetThreadNb, lambda);
+  vtkSMPTools::LocalScope(vtkSMPTools::Config{ targetThreadNb }, lambda);
   if (scopeThreadNb <= 0 || scopeThreadNb > targetThreadNb)
   {
-    cerr << "Error: on vtkSMPTools::Scope bad number of threads!" << endl;
+    cerr << "Error: on vtkSMPTools::LocalScope bad number of threads!" << endl;
     return EXIT_FAILURE;
   }
 

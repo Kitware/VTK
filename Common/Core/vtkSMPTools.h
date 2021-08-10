@@ -421,31 +421,55 @@ public:
   static int GetEstimatedNumberOfThreads();
 
   /**
-   * Change the number of threads locally within this scope and call a functor which
-   * should contains a vtkSMPTools method.
-   *
-   * Usage example:
-   * \code
-   * vtkSMPTools::ScopeWithMaxThread(4, [&]() { vtkSMPTools::For(0, size, worker); });
-   * \endcode
+   * Structure used to specify configuration for LocalScope() method.
+   * Several parameters can be configured:
+   *    - MaxNumberOfThreads set the maximum number of threads.
+   *    - Backend set a specific SMPTools backend.
    */
-  template <typename T>
-  static void ScopeWithMaxThread(int numThreads, T&& lambda);
+  struct Config
+  {
+    int MaxNumberOfThreads = 0;
+    std::string Backend = vtk::detail::smp::vtkSMPToolsAPI::GetInstance().GetBackend();
+
+    Config() {}
+    Config(int maxNumberOfThreads)
+      : MaxNumberOfThreads(maxNumberOfThreads)
+    {
+    }
+    Config(std::string backend)
+      : Backend(backend)
+    {
+    }
+    Config(int maxNumberOfThreads, std::string backend)
+      : MaxNumberOfThreads(maxNumberOfThreads)
+      , Backend(backend)
+    {
+    }
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    Config(vtk::detail::smp::vtkSMPToolsAPI& API)
+      : MaxNumberOfThreads(API.GetInternalDesiredNumberOfThread())
+      , Backend(API.GetBackend())
+    {
+    }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+  };
 
   /**
    * Change the number of threads locally within this scope and call a functor which
    * should contains a vtkSMPTools method.
    *
-   * This version of Scope doesn't take a number of threads as parameter and will
-   * uses the VTK_SMP_MAX_THREADS env variable.
-   *
    * Usage example:
    * \code
-   * vtkSMPTools::ScopeWithMaxThread([&]() { vtkSMPTools::For(0, size, worker); });
+   * vtkSMPTools::LocalScope(
+   *   vtkSMPTools::Config{ 4, "OpenMP" }, [&]() { vtkSMPTools::For(0, size, worker); });
    * \endcode
    */
   template <typename T>
-  static void ScopeWithMaxThread(T&& lambda);
+  static void LocalScope(Config const& config, T&& lambda)
+  {
+    auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+    SMPToolsAPI.LocalScope<vtkSMPTools::Config>(config, lambda);
+  }
 
   /**
    * A convenience method for transforming data. It is a drop in replacement for
@@ -539,8 +563,6 @@ public:
     SMPToolsAPI.Sort(begin, end, comp);
   }
 };
-
-#include "vtkSMPTools.txx"
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPTools.h
