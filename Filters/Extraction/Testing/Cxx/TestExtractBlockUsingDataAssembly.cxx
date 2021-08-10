@@ -13,7 +13,9 @@
 
 =========================================================================*/
 #include <vtkDataAssembly.h>
+#include <vtkDoubleArray.h>
 #include <vtkExtractBlockUsingDataAssembly.h>
+#include <vtkFieldData.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkPartitionedDataSet.h>
@@ -29,6 +31,10 @@ int TestExtractBlockUsingDataAssembly(int, char*[])
     vtkNew<vtkPartitionedDataSet> pd;
     pdc->SetPartitionedDataSet(cc, pd);
   }
+
+  vtkNew<vtkDoubleArray> da;
+  da->SetName("SomeArray");
+  pdc->GetFieldData()->AddArray(da);
 
   vtkNew<vtkDataAssembly> assembly;
   const auto base = assembly->AddNodes({ "blocks", "faces" });
@@ -61,6 +67,12 @@ int TestExtractBlockUsingDataAssembly(int, char*[])
     output->GetPartitionedDataSet(3) != pdc->GetPartitionedDataSet(5))
   {
     vtkLogF(ERROR, "Incorrect blocks extracted!");
+    return EXIT_FAILURE;
+  }
+
+  if (!output->GetFieldData()->GetArray("SomeArray"))
+  {
+    vtkLogF(ERROR, "Missing field data arrays!");
     return EXIT_FAILURE;
   }
 
