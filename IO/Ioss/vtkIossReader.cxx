@@ -742,6 +742,7 @@ bool vtkIossReader::vtkInternals::UpdateTimeInformation(vtkIossReader* self)
     return true;
   }
 
+  vtkLogScopeF(TRACE, "UpdateTimeInformation");
   auto controller = self->GetController();
   const auto rank = controller ? controller->GetLocalProcessId() : 0;
   const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
@@ -814,6 +815,7 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
     return true;
   }
 
+  vtkLogScopeF(TRACE, "UpdateEntityAndFieldSelections");
   auto controller = self->GetController();
   const auto rank = controller ? controller->GetLocalProcessId() : 0;
   const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
@@ -825,9 +827,21 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
   std::array<std::set<std::string>, vtkIossReader::NUMBER_OF_ENTITY_TYPES> field_names;
   std::set<vtkIossUtilities::EntityNameType> bc_names;
 
+  // When each rank is reading multiple files, reading all those files for
+  // gathering meta-data can be slow. However, with CGNS, that is required
+  // since the file doesn't have information about all blocks in all files.
+  // see paraview/paraview#20873.
+  const bool readAllFilesForMetaData = (this->Format == vtkIossUtilities::DatabaseFormatType::CGNS);
+
   for (const auto& pair : this->DatabaseNames)
   {
-    const auto fileids = this->GetFileIds(pair.first, rank, numRanks);
+    auto fileids = this->GetFileIds(pair.first, rank, numRanks);
+    if (!readAllFilesForMetaData && fileids.size() > 1)
+    {
+      // reading 1 file is adequate, and that too on rank 0 alone.
+      fileids.resize(rank == 0 ? 1 : 0);
+    }
+
     for (const auto& fileid : fileids)
     {
       if (auto region = this->GetRegion(pair.first, fileid))
@@ -892,6 +906,12 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
     //// sync selections across all ranks.
     ::Synchronize(controller, entity_names, entity_names);
     ::Synchronize(controller, field_names, field_names);
+
+    // Sync format. Needed since all ranks may not have read entity information
+    // thus may not have format setup correctly.
+    int iFormat = static_cast<int>(this->Format);
+    controller->Broadcast(&iFormat, 1, 0);
+    this->Format = static_cast<vtkIossUtilities::DatabaseFormatType>(iFormat);
   }
 
   // update known block/set names.
@@ -1009,6 +1029,7 @@ bool vtkIossReader::vtkInternals::UpdateAssembly(vtkIossReader* self, int* tag)
     return true;
   }
 
+  vtkLogScopeF(TRACE, "UpdateAssembly");
   this->AssemblyMTime.Modified();
 
   auto controller = self->GetController();
@@ -1024,7 +1045,7 @@ bool vtkIossReader::vtkInternals::UpdateAssembly(vtkIossReader* self, int* tag)
 
     this->Assembly = vtk::TakeSmartPointer(vtkDataAssembly::New());
     this->Assembly->SetRootNodeName("Assemblies");
-    const auto status = this->BuildAssembly(region, this->Assembly, 0, /*add_leaves=*/false);
+    const auto status = this->BuildAssembly(region, this->Assembly, 0, /*add_leaves=*/true);
     *tag = status ? static_cast<int>(this->AssemblyMTime.GetMTime()) : 0;
     if (numRanks > 1)
     {
@@ -1122,7 +1143,7 @@ bool vtkIossReader::vtkInternals::ReadAssemblies(
   }
 
   const auto node_assemblies = assembly->AddNode("assemblies");
-  if (!this->BuildAssembly(region, assembly, node_assemblies, false))
+  if (!this->BuildAssembly(region, assembly, node_assemblies, /*add_leaves=*/true))
   {
     assembly->RemoveNode(node_assemblies);
   }
@@ -1156,6 +1177,11 @@ Ioss::Region* vtkIossReader::vtkInternals::GetRegion(const std::string& dbasenam
     // configurable since our vtkDataArraySelection object would need to purged
     // and refilled.
     properties.add(Ioss::Property("FIELD_SUFFIX_SEPARATOR", ""));
+
+    // tell the reader to read all blocks, even if empty. necessary to avoid
+    // having to read all files to gather metadata, if possible
+    // see paraview/paraview#20873.
+    properties.add(Ioss::Property("RETAIN_EMPTY_BLOCKS", "on"));
 
     // Fillup with user-specified properties.
     Ioss::NameList names;
@@ -1292,6 +1318,8 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetDataSet
       }
 
     default:
+      vtkLogF(
+        ERROR, "Format not setup correctly or unknown format (%d)", static_cast<int>(this->Format));
       return {};
   }
 }
@@ -1545,7 +1573,7 @@ bool vtkIossReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
 bool vtkIossReader::vtkInternals::GetMesh(vtkStructuredGrid* grid, const std::string& blockname,
   vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle)
 {
-  vtkLogScopeF(INFO, "GetMesh(%s)", blockname.c_str());
+  vtkLogScopeF(TRACE, "GetMesh(%s)", blockname.c_str());
   assert(
     vtk_entity_type == vtkIossReader::STRUCTUREDBLOCK || vtk_entity_type == vtkIossReader::SIDESET);
 
@@ -1602,7 +1630,7 @@ bool vtkIossReader::vtkInternals::GetMesh(vtkStructuredGrid* grid, const std::st
 
   double bds[6];
   grid->GetBounds(bds);
-  vtkLogF(INFO, "bds=%f, %f, %f, %f, %f, %f", bds[0], bds[1], bds[2], bds[3], bds[4], bds[5]);
+  vtkLogF(TRACE, "bds=%f, %f, %f, %f, %f, %f", bds[0], bds[1], bds[2], bds[3], bds[4], bds[5]);
   return true;
 }
 
@@ -2286,6 +2314,7 @@ int vtkIossReader::GetNumberOfFileNames() const
 //----------------------------------------------------------------------------
 int vtkIossReader::ReadMetaData(vtkInformation* metadata)
 {
+  vtkLogScopeF(TRACE, "ReadMetaData");
   auto& internals = (*this->Internals);
   if (!internals.UpdateDatabaseNames(this))
   {
