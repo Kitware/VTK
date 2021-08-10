@@ -770,7 +770,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
   streamTracer->SetIntegratorTypeToRungeKutta4();
   streamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
   streamTracer->SetInitialIntegrationStep(this->IntegrationStepSize);
-  streamTracer->SetComputeVorticity(0);
+  streamTracer->SetComputeVorticity(false);
   streamTracer->SetMaximumNumberOfSteps(maxNumSteps);
   streamTracer->SetMaximumPropagation(dist * maxNumSteps);
   streamTracer->SetTerminalSpeed(epsilon);
@@ -1185,7 +1185,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
   streamSurface->SetIntegratorTypeToRungeKutta4();
   streamSurface->SetIntegrationStepUnit(IntegrationStepUnit);
   streamSurface->SetInitialIntegrationStep(IntegrationStepSize);
-  streamSurface->SetComputeVorticity(0);
+  streamSurface->SetComputeVorticity(false);
   streamSurface->SetMaximumNumberOfSteps(maxNumSteps);
   streamSurface->SetMaximumPropagation(dist * maxNumSteps);
   streamSurface->SetTerminalSpeed(epsilon);
@@ -1809,10 +1809,10 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (!vectors)
   {
-    if (this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME()) != NULL &&
+    if (this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME()) != nullptr &&
       dataset->GetPointData()->GetArray(
         std::string(this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME())).c_str()) ==
-        NULL)
+        nullptr)
       vtkWarningMacro("The array chosen via GetInputArrayToProcess was not found. The algorithm "
                       "tries to use vectors instead.");
 

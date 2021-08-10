@@ -50,9 +50,9 @@ int TestVectorFieldTopology(int argc, char* argv[])
   topology->SetSeparatrixDistance(1);
   topology->SetIntegrationStepSize(1);
   topology->SetMaxNumSteps(1000);
-  topology->SetComputeSurfaces(1);
-  topology->SetUseBoundarySwitchPoints(1);
-  topology->SetUseIterativeSeeding(1);
+  topology->SetComputeSurfaces(true);
+  topology->SetUseBoundarySwitchPoints(true);
+  topology->SetUseIterativeSeeding(true);
   topology->Update();
 
   // the bounding box
@@ -102,7 +102,7 @@ int TestVectorFieldTopology(int argc, char* argv[])
   lineActor2->SetMapper(lineMapper2);
   lineActor2->GetProperty()->SetColor(0.2, 0.2, 0.2);
   lineActor2->GetProperty()->SetLineWidth(10.);
-  lineActor2->GetProperty()->SetRenderLinesAsTubes(1);
+  lineActor2->GetProperty()->SetRenderLinesAsTubes(true);
 
   // the boundary switch surfaces
   vtkNew<vtkDataSetMapper> surfaceMapper2;
