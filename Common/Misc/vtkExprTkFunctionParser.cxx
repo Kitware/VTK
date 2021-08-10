@@ -336,10 +336,7 @@ void vtkExprTkFunctionParser::SetFunction(const char* function)
     return;
   }
 
-  if (this->Function)
-  {
-    delete[] this->Function;
-  }
+  delete[] this->Function;
 
   if (function)
   {
