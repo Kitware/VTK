@@ -33,6 +33,7 @@
 
 #include <vtksys/RegularExpression.hxx>
 
+#include <algorithm>
 #include <array>
 #include <map>
 #include <set>
@@ -43,45 +44,6 @@
 
 vtkStandardNewMacro(vtkCONVERGECFDReader);
 
-//----------------------------------------------------------------------------
-class vtkCONVERGECFDReader::vtkInternal
-{
-public:
-  std::vector<std::string> CellDataScalarVariables;
-  std::vector<std::string> CellDataVectorVariables;
-  std::vector<std::string> ParcelDataScalarVariables;
-  std::vector<std::string> ParcelDataVectorVariables;
-};
-
-//----------------------------------------------------------------------------
-vtkCONVERGECFDReader::vtkCONVERGECFDReader()
-  : FileName(nullptr)
-  , Internal(new vtkCONVERGECFDReader::vtkInternal())
-{
-  this->SetNumberOfInputPorts(0);
-  this->SetNumberOfOutputPorts(1);
-
-  this->CellDataArraySelection->AddObserver(
-    vtkCommand::ModifiedEvent, this, &vtkCONVERGECFDReader::Modified);
-  this->ParcelDataArraySelection->AddObserver(
-    vtkCommand::ModifiedEvent, this, &vtkCONVERGECFDReader::Modified);
-}
-
-//----------------------------------------------------------------------------
-vtkCONVERGECFDReader::~vtkCONVERGECFDReader()
-{
-  delete[] this->FileName;
-  this->FileName = nullptr;
-  delete this->Internal;
-}
-
-//----------------------------------------------------------------------------
-void vtkCONVERGECFDReader::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
 namespace
 {
 
@@ -141,6 +103,16 @@ bool ArrayExists(hid_t fileId, const char* pathName)
 
 //----------------------------------------------------------------------------
 /**
+ *  Check existence of array defined by groupName relative to fileId.
+ */
+bool GroupExists(hid_t fileId, const char* groupName)
+{
+  // Same implementation as ArrayExists, but that's okay.
+  return (H5Lexists(fileId, groupName, H5P_DEFAULT) > 0);
+}
+
+//----------------------------------------------------------------------------
+/**
  *  Get length of array defined by pathName relative to fileId.
  */
 hsize_t GetDataLength(hid_t fileId, const char* pathName)
@@ -184,7 +156,6 @@ bool ReadArray(hid_t fileId, const char* pathName, T* data, hsize_t n)
   ScopedH5DHandle arrayId = H5Dopen(fileId, pathName);
   if (arrayId < 0)
   {
-    vtkGenericWarningMacro("No array named " << pathName << " available");
     return false;
   }
 
@@ -313,6 +284,191 @@ void SplitScalarAndVectorVariables(
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
+class vtkCONVERGECFDReader::vtkInternal
+{
+public:
+  vtkCONVERGECFDReader* Self;
+  std::vector<std::string> CellDataScalarVariables;
+  std::vector<std::string> CellDataVectorVariables;
+  std::vector<std::string> ParcelDataTypes;
+  std::vector<std::string> ParcelDataScalarVariables;
+  std::vector<std::string> ParcelDataVectorVariables;
+
+  // Clears out variable info
+  void Reset()
+  {
+    this->CellDataScalarVariables.clear();
+    this->CellDataVectorVariables.clear();
+    this->ParcelDataTypes.clear();
+  }
+
+  // Get a parcel dataset at a given path
+  vtkSmartPointer<vtkPolyData> ReadParcelDataSet(hid_t streamId, const std::string& path)
+  {
+    vtkSmartPointer<vtkPolyData> parcels = vtkSmartPointer<vtkPolyData>::New();
+
+    // Build PARCEL_X address string from path name
+    std::string parcelXPath = path + "/PARCEL_X";
+
+    // Read parcel point locations
+    hsize_t parcelLength = GetDataLength(streamId, parcelXPath.c_str());
+
+    vtkNew<vtkFloatArray> parcelPointArray;
+    parcelPointArray->SetNumberOfComponents(3);
+    parcelPointArray->SetNumberOfTuples(parcelLength);
+
+    vtkNew<vtkBuffer<float>> floatBuffer;
+    floatBuffer->Allocate(parcelLength);
+
+    std::array<char, 3> dimensionNames = { 'X', 'Y', 'Z' };
+    for (size_t c = 0; c < dimensionNames.size(); ++c)
+    {
+      std::stringstream name;
+      name << path << "/PARCEL_" << dimensionNames[c];
+      if (!ReadArray(streamId, name.str().c_str(), floatBuffer->GetBuffer(), parcelLength))
+      {
+        vtkGenericWarningMacro(
+          "No parcel coordinate array " << name.str() << " dataset available in " << name.str());
+        return 0;
+      }
+
+      for (hsize_t j = 0; j < parcelLength; ++j)
+      {
+        parcelPointArray->SetTypedComponent(j, static_cast<int>(c), floatBuffer->GetBuffer()[j]);
+      }
+    }
+
+    vtkNew<vtkPoints> parcelPoints;
+    parcelPoints->SetData(parcelPointArray);
+
+    parcels->SetPoints(parcelPoints);
+
+    // Create a vertex for each parcel point
+    vtkNew<vtkCellArray> parcelCells;
+    parcelCells->AllocateExact(parcelLength, 1);
+    for (vtkIdType id = 0; id < static_cast<vtkIdType>(parcelLength); ++id)
+    {
+      parcelCells->InsertNextCell(1, &id);
+    }
+    parcels->SetVerts(parcelCells);
+
+    // Read parcel data arrays
+    for (int i = 0; i < this->Self->ParcelDataArraySelection->GetNumberOfArrays(); ++i)
+    {
+      std::string varName(this->Self->ParcelDataArraySelection->GetArrayName(i));
+      if (varName == "PARCEL_X" || varName == "PARCEL_Y" || varName == "PARCEL_Z" ||
+        this->Self->ParcelDataArraySelection->ArrayIsEnabled(varName.c_str()) == 0)
+      {
+        continue;
+      }
+
+      auto begin = this->ParcelDataVectorVariables.begin();
+      auto end = this->ParcelDataVectorVariables.end();
+      bool isVector = std::find(begin, end, varName) != end;
+
+      // This would be a lot simpler using a vtkSOADataArrayTemplate<float>, but
+      // until GetVoidPointer() is removed from more of the VTK code base, we
+      // will use a vtkFloatArray.
+      vtkNew<vtkFloatArray> dataArray;
+      bool success = true;
+      if (isVector)
+      {
+        std::string pathX = path + "/" + varName + "_X";
+        std::string pathY = path + "/" + varName + "_Y";
+        std::string pathZ = path + "/" + varName + "_Z";
+
+        if (!ArrayExists(streamId, pathX.c_str()))
+        {
+          // This array just doesn't exist in this stream, skip it.
+          continue;
+        }
+
+        // hsize_t length = GetDataLength(streamId, pathX.c_str());
+        dataArray->SetNumberOfComponents(3);
+        dataArray->SetNumberOfTuples(parcelLength);
+        dataArray->SetName(varName.c_str());
+
+        if (static_cast<hsize_t>(floatBuffer->GetSize()) != parcelLength)
+        {
+          floatBuffer->Allocate(parcelLength);
+        }
+        success =
+          success && ReadArray(streamId, pathX.c_str(), floatBuffer->GetBuffer(), parcelLength);
+        for (hsize_t j = 0; j < parcelLength; ++j)
+        {
+          dataArray->SetTypedComponent(j, 0, floatBuffer->GetBuffer()[j]);
+        }
+        success =
+          success && ReadArray(streamId, pathY.c_str(), floatBuffer->GetBuffer(), parcelLength);
+        for (hsize_t j = 0; j < parcelLength; ++j)
+        {
+          dataArray->SetTypedComponent(j, 1, floatBuffer->GetBuffer()[j]);
+        }
+        success =
+          success && ReadArray(streamId, pathZ.c_str(), floatBuffer->GetBuffer(), parcelLength);
+        for (hsize_t j = 0; j < parcelLength; ++j)
+        {
+          dataArray->SetTypedComponent(j, 2, floatBuffer->GetBuffer()[j]);
+        }
+      }
+      else // !is_vector
+      {
+        std::string varPath(path);
+        varPath += "/" + varName;
+
+        if (!ArrayExists(streamId, varPath.c_str()))
+        {
+          // This array just doesn't exist in this stream, skip it.
+          continue;
+        }
+
+        dataArray->SetNumberOfComponents(1);
+        dataArray->SetNumberOfTuples(parcelLength);
+        dataArray->SetName(varName.c_str());
+        success =
+          success && ReadArray(streamId, varPath.c_str(), dataArray->GetPointer(0), parcelLength);
+      }
+
+      if (success)
+      {
+        parcels->GetPointData()->AddArray(dataArray);
+      }
+    }
+
+    return parcels;
+  }
+};
+
+//----------------------------------------------------------------------------
+vtkCONVERGECFDReader::vtkCONVERGECFDReader()
+  : FileName(nullptr)
+  , Internal(new vtkCONVERGECFDReader::vtkInternal())
+{
+  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
+  this->Internal->Self = this;
+
+  this->CellDataArraySelection->AddObserver(
+    vtkCommand::ModifiedEvent, this, &vtkCONVERGECFDReader::Modified);
+  this->ParcelDataArraySelection->AddObserver(
+    vtkCommand::ModifiedEvent, this, &vtkCONVERGECFDReader::Modified);
+}
+
+//----------------------------------------------------------------------------
+vtkCONVERGECFDReader::~vtkCONVERGECFDReader()
+{
+  delete[] this->FileName;
+  this->FileName = nullptr;
+  delete this->Internal;
+}
+
+//----------------------------------------------------------------------------
+void vtkCONVERGECFDReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
 int vtkCONVERGECFDReader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outInfos)
 {
@@ -321,6 +477,9 @@ int vtkCONVERGECFDReader::RequestInformation(
     return 1;
   }
 
+  // Reset internal information
+  this->Internal->Reset();
+
   ScopedH5FHandle fileId = H5Fopen(this->FileName, H5F_ACC_RDONLY, H5P_DEFAULT);
   if (fileId < 0)
   {
@@ -328,22 +487,137 @@ int vtkCONVERGECFDReader::RequestInformation(
     return 0;
   }
 
-  // Assume that the variables are the same in all streams
-  ScopedH5GHandle streamId = H5Gopen(fileId, "/STREAM_00");
-  if (streamId < 0)
+  // Iterate over all streams to find available cell data arrays and parcel data arrays
+  std::set<std::string> cellVariables;
+  std::set<std::string> parcelVariables;
+  int streamCount = 0;
+  do
   {
-    vtkErrorMacro("Cannot open group /STREAM_00");
-    return 0;
-  }
+    herr_t status = 0;
+    std::ostringstream streamName;
+    streamName << "/STREAM_" << std::setw(2) << std::setfill('0') << streamCount;
+    H5Eset_auto(nullptr, nullptr);
+    status = H5Gget_objinfo(fileId, streamName.str().c_str(), false, nullptr);
+    if (status < 0)
+    {
+      break;
+    }
 
-  if (!ReadStrings(
-        streamId, "VARIABLE_NAMES/CELL_VARIABLES", this->Internal->CellDataScalarVariables))
+    // Open the group
+    ScopedH5GHandle streamId = H5Gopen(fileId, streamName.str().c_str());
+    if (streamId < 0)
+    {
+      // Group exists, but could not be opened
+      vtkErrorMacro("Could not open stream " << streamName.str());
+      break;
+    }
+
+    std::vector<std::string> cellDataVariables;
+    if (!ReadStrings(streamId, "VARIABLE_NAMES/CELL_VARIABLES", cellDataVariables))
+    {
+      vtkErrorMacro("Could not read cell variable names");
+      return 0;
+    }
+
+    // Insert variables into set to ensure uniqueness
+    for (auto& cellVariableName : cellDataVariables)
+    {
+      cellVariables.insert(cellVariableName);
+    }
+
+    // Pre- 3.1 format
+    std::vector<std::string> parcelDataScalarVariables;
+    if (ArrayExists(streamId, "VARIABLE_NAMES/PARCEL_VARIABLES"))
+    {
+      if (!ReadStrings(streamId, "VARIABLE_NAMES/PARCEL_VARIABLES", parcelDataScalarVariables))
+      {
+        vtkErrorMacro("Could not read parcel variable names");
+        return 0;
+      }
+
+      // Copy to set of names to ensure uniqueness
+      for (auto& parcelDataArrayName : parcelDataScalarVariables)
+      {
+        parcelVariables.insert(parcelDataArrayName);
+      }
+    }
+    else
+    {
+      // 3.1 and later format
+      ScopedH5GHandle varNamesHandle = H5Gopen(streamId, "VARIABLE_NAMES");
+      if (varNamesHandle < 0)
+      {
+        vtkErrorMacro("Cannot open /" << streamId << "/VARIABLE_NAMES");
+        return 0;
+      }
+
+      // Iterate over parcel variable names
+      hsize_t numVariableTypes = 0;
+      herr_t err = H5Gget_num_objs(varNamesHandle, &numVariableTypes);
+      if (err < 0)
+      {
+        vtkErrorMacro("Cannot get number of groups from file");
+        return 0;
+      }
+
+      for (hsize_t i = 0; i < numVariableTypes; ++i)
+      {
+        status = 0;
+        char groupName[256];
+        status = H5Lget_name_by_idx(streamId, "VARIABLE_NAMES/", H5_INDEX_NAME, H5_ITER_NATIVE, i,
+          groupName, 256, H5P_DEFAULT);
+        if (status < 0)
+        {
+          vtkErrorMacro(<< "error reading parcel variable names");
+          break;
+        }
+
+        std::string groupNameString(groupName);
+        if (groupNameString == "CELL_VARIABLES")
+        {
+          continue;
+        }
+
+        auto const underscorePos = groupNameString.find_last_of('_');
+        std::string parcelTypePrefix = groupNameString.substr(0, underscorePos);
+
+        std::string parcelVariablesGroupName = parcelTypePrefix + "_VARIABLES";
+        std::string parcelVariableTypeName = parcelTypePrefix + "_DATA";
+
+        // Read parcel array names
+        std::string parcelDataGroup("VARIABLE_NAMES/");
+        parcelDataGroup += parcelVariablesGroupName;
+        if (ArrayExists(streamId, parcelDataGroup.c_str()))
+        {
+          std::vector<std::string> parcelScalarVariables;
+          if (!ReadStrings(streamId, parcelDataGroup.c_str(), parcelScalarVariables))
+          {
+            vtkErrorMacro("Could not read parcel variable names");
+            return 0;
+          }
+
+          // Insert variable name into set to ensure uniqueness
+          for (auto& var : parcelScalarVariables)
+          {
+            parcelVariables.insert(var);
+          }
+        }
+      }
+    }
+
+    streamCount++;
+  } while (true); // end iterating over streams
+
+  constexpr bool defaultEnabledState = true;
+
+  // Set up cell data array selection
+  this->Internal->CellDataScalarVariables.clear();
+  this->Internal->CellDataVectorVariables.clear();
+
+  for (auto& cellArrayName : cellVariables)
   {
-    vtkErrorMacro("Could not read cell variable names");
-    return 0;
+    this->Internal->CellDataScalarVariables.emplace_back(cellArrayName);
   }
-
-  bool defaultEnabledState = true;
 
   // Split cell variables into scalar and vector arrays
   SplitScalarAndVectorVariables(
@@ -365,39 +639,39 @@ int vtkCONVERGECFDReader::RequestInformation(
     }
   }
 
-  if (ArrayExists(streamId, "VARIABLE_NAMES/PARCEL_VARIABLES"))
+  // Set up parcel data array selection
+  this->Internal->ParcelDataScalarVariables.clear();
+  this->Internal->ParcelDataVectorVariables.clear();
+
+  for (auto& parcelArrayName : parcelVariables)
   {
-    if (!ReadStrings(
-          streamId, "VARIABLE_NAMES/PARCEL_VARIABLES", this->Internal->ParcelDataScalarVariables))
+    this->Internal->ParcelDataScalarVariables.emplace_back(parcelArrayName);
+  }
+
+  // Split parcel arrays into scalar and vector variables
+  SplitScalarAndVectorVariables(
+    this->Internal->ParcelDataScalarVariables, this->Internal->ParcelDataVectorVariables);
+
+  // Set up data array status
+  for (const auto& varName : this->Internal->ParcelDataScalarVariables)
+  {
+    if (!this->ParcelDataArraySelection->ArrayExists(varName.c_str()))
     {
-      vtkErrorMacro("Could not read parcel variable names");
-      return 0;
+      this->ParcelDataArraySelection->AddArray(varName.c_str(), defaultEnabledState);
+    }
+  }
+
+  for (const auto& varName : this->Internal->ParcelDataVectorVariables)
+  {
+    // Skip X, Y, Z points
+    if (varName == "PARCEL")
+    {
+      continue;
     }
 
-    // Split parcel arrays into scalar and vector variables
-    SplitScalarAndVectorVariables(
-      this->Internal->ParcelDataScalarVariables, this->Internal->ParcelDataVectorVariables);
-
-    for (const auto& varName : this->Internal->ParcelDataScalarVariables)
+    if (!this->ParcelDataArraySelection->ArrayExists(varName.c_str()))
     {
-      if (!this->ParcelDataArraySelection->ArrayExists(varName.c_str()))
-      {
-        this->ParcelDataArraySelection->AddArray(varName.c_str(), defaultEnabledState);
-      }
-    }
-
-    for (const auto& varName : this->Internal->ParcelDataVectorVariables)
-    {
-      // Skip X, Y, Z points
-      if (varName == "PARCEL")
-      {
-        continue;
-      }
-
-      if (!this->ParcelDataArraySelection->ArrayExists(varName.c_str()))
-      {
-        this->ParcelDataArraySelection->AddArray(varName.c_str(), defaultEnabledState);
-      }
+      this->ParcelDataArraySelection->AddArray(varName.c_str(), defaultEnabledState);
     }
   }
 
@@ -758,6 +1032,12 @@ int vtkCONVERGECFDReader::RequestData(
         std::string pathY = rootPath + "_Y";
         std::string pathZ = rootPath + "_Z";
 
+        if (!ArrayExists(streamId, pathX.c_str()))
+        {
+          // This array just doesn't exist in this stream, skip it.
+          continue;
+        }
+
         hsize_t length = GetDataLength(streamId, pathX.c_str());
         dataArray->SetNumberOfComponents(3);
         dataArray->SetNumberOfTuples(length);
@@ -788,6 +1068,12 @@ int vtkCONVERGECFDReader::RequestData(
       {
         std::string path("CELL_CENTER_DATA/");
         path += varName;
+
+        if (!ArrayExists(streamId, path.c_str()))
+        {
+          // This array just doesn't exist in this stream, skip it.
+          continue;
+        }
 
         hsize_t length = GetDataLength(streamId, path.c_str());
         dataArray->SetNumberOfComponents(1);
@@ -848,126 +1134,110 @@ int vtkCONVERGECFDReader::RequestData(
     streamMB->GetMetaData(1u)->Set(vtkCompositeDataSet::NAME(), "Surface");
 
     // ++++ PARCEL DATA ++++
-    bool parcelExists = ArrayExists(streamId, "PARCEL_DATA/PARCEL_X");
+    bool parcelExists = GroupExists(streamId, "PARCEL_DATA");
     if (parcelExists)
     {
-      // Read parcel point locations
-      hsize_t parcelLength = GetDataLength(streamId, "PARCEL_DATA/PARCEL_X");
+      std::string parcelDataRoot;
 
-      vtkNew<vtkFloatArray> parcelPointArray;
-      parcelPointArray->SetNumberOfComponents(3);
-      parcelPointArray->SetNumberOfTuples(parcelLength);
-
-      floatBuffer->Allocate(parcelLength);
-
-      for (size_t c = 0; c < dimensionNames.size(); ++c)
+      // Branch between pre-3.1 and post-3.1 file formats
+      H5O_info_t objectInfo;
+      err = H5Oget_info_by_idx(
+        streamId, "PARCEL_DATA", H5_INDEX_NAME, H5_ITER_NATIVE, 0, &objectInfo, 0);
+      if (err < 0 || objectInfo.type == H5O_TYPE_GROUP)
       {
-        std::stringstream name;
-        name << "PARCEL_DATA/PARCEL_" << dimensionNames[c];
-        if (!ReadArray(streamId, name.str().c_str(), floatBuffer->GetBuffer(), parcelLength))
+        // Handle 3.1 or above version
+
+        // Get parcel data type names
+        ScopedH5GHandle parcelDataTypesHandle = H5Gopen(streamId, "PARCEL_DATA");
+        // We already checked that the group exists, so no need to check again.
+
+        hsize_t numParcelDataTypes = 0;
+        err = H5Gget_num_objs(parcelDataTypesHandle, &numParcelDataTypes);
+        if (err < 0)
         {
-          vtkErrorMacro("No parcel coordinate array " << name.str() << " dataset available in "
-                                                      << streamName.str());
+          vtkErrorMacro("Cannot get number of parcel data types from file");
           return 0;
         }
 
-        for (hsize_t j = 0; j < parcelLength; ++j)
+        // Create a multiblock dataset to hold the separate parcel datasets
+        vtkNew<vtkMultiBlockDataSet> multiDataSetTypes;
+        // multiDataSetTypes->SetNumberOfBlocks(static_cast<unsigned
+        // int>(this->Internal->ParcelDataTypes.size()));
+        multiDataSetTypes->SetNumberOfBlocks(static_cast<unsigned int>(numParcelDataTypes));
+
+        // Iterate over the parcel data types/data sets
+        unsigned int parcelDataTypeCount = 0;
+        // for (const auto dataType : this->Internal->ParcelDataTypes)
+        for (hsize_t parcelDataTypeIndex = 0; parcelDataTypeIndex < numParcelDataTypes;
+             ++parcelDataTypeIndex)
         {
-          parcelPointArray->SetTypedComponent(j, static_cast<int>(c), floatBuffer->GetBuffer()[j]);
+          status = 0;
+          char groupName[256];
+          status = H5Lget_name_by_idx(streamId, "PARCEL_DATA", H5_INDEX_NAME, H5_ITER_NATIVE,
+            parcelDataTypeIndex, groupName, 256, H5P_DEFAULT);
+          if (status < 0)
+          {
+            vtkErrorMacro(<< "error reading parcel variable names");
+            break;
+          }
+
+          std::string dataType(groupName);
+          std::string dataTypeGroupName("PARCEL_DATA/");
+          dataTypeGroupName += dataType;
+          ScopedH5GHandle dataTypeHandle = H5Gopen(streamId, dataTypeGroupName.c_str());
+          if (dataTypeHandle < 0)
+          {
+            vtkErrorMacro("Cannot open group " << dataTypeGroupName);
+            return 0;
+          }
+
+          // Handle the datasets in each datatype
+          H5G_info_t groupInfo;
+          err = H5Gget_info(dataTypeHandle, &groupInfo);
+          if (err < 0)
+          {
+            vtkErrorMacro("Cannot get number of datasets from group " << dataTypeGroupName);
+            return 0;
+          }
+          hsize_t numDataSets = groupInfo.nlinks;
+
+          vtkNew<vtkMultiBlockDataSet> multiParcels;
+          multiParcels->SetNumberOfBlocks(static_cast<unsigned int>(numDataSets));
+          multiDataSetTypes->SetBlock(parcelDataTypeCount, multiParcels);
+          multiDataSetTypes->GetMetaData(parcelDataTypeCount)
+            ->Set(vtkCompositeDataSet::NAME(), dataType.c_str());
+          parcelDataTypeCount++;
+
+          // Iterate over the datasets in the dataset type group
+          for (hsize_t i = 0; i < numDataSets; ++i)
+          {
+            char dataSetGroupName[256];
+            status = H5Lget_name_by_idx(dataTypeHandle, ".", H5_INDEX_NAME, H5_ITER_NATIVE, i,
+              dataSetGroupName, 256, H5P_DEFAULT);
+            if (status < 0)
+            {
+              continue;
+            }
+
+            vtkSmartPointer<vtkPolyData> parcels =
+              this->Internal->ReadParcelDataSet(dataTypeHandle, dataSetGroupName);
+            multiParcels->SetBlock(i, parcels);
+            multiParcels->GetMetaData(static_cast<unsigned int>(i))
+              ->Set(vtkCompositeDataSet::NAME(), dataSetGroupName);
+          }
         }
+        streamMB->SetNumberOfBlocks(3);
+        streamMB->SetBlock(2, multiDataSetTypes);
+        streamMB->GetMetaData(2u)->Set(vtkCompositeDataSet::NAME(), "Parcels");
       }
-
-      vtkNew<vtkPoints> parcelPoints;
-      parcelPoints->SetData(parcelPointArray);
-
-      vtkNew<vtkPolyData> parcels;
-      parcels->SetPoints(parcelPoints);
-
-      // Create a vertex for each parcel point
-      vtkNew<vtkCellArray> parcelCells;
-      parcelCells->AllocateExact(parcelLength, 1);
-      for (vtkIdType id = 0; id < static_cast<vtkIdType>(parcelLength); ++id)
+      else
       {
-        parcelCells->InsertNextCell(1, &id);
+        vtkSmartPointer<vtkPolyData> parcels =
+          this->Internal->ReadParcelDataSet(streamId, "PARCEL_DATA");
+        streamMB->SetNumberOfBlocks(3);
+        streamMB->SetBlock(2, parcels);
+        streamMB->GetMetaData(2u)->Set(vtkCompositeDataSet::NAME(), "Parcels");
       }
-      parcels->SetVerts(parcelCells);
-
-      // Read parcel data arrays
-      for (int i = 0; i < this->ParcelDataArraySelection->GetNumberOfArrays(); ++i)
-      {
-        std::string varName(this->ParcelDataArraySelection->GetArrayName(i));
-        if (varName == "PARCEL_X" || varName == "PARCEL_Y" || varName == "PARCEL_Z" ||
-          this->ParcelDataArraySelection->ArrayIsEnabled(varName.c_str()) == 0)
-        {
-          continue;
-        }
-
-        auto begin = this->Internal->ParcelDataVectorVariables.begin();
-        auto end = this->Internal->ParcelDataVectorVariables.end();
-        bool isVector = std::find(begin, end, varName) != end;
-
-        // This would be a lot simpler using a vtkSOADataArrayTemplate<float>, but
-        // until GetVoidPointer() is removed from more of the VTK code base, we
-        // will use a vtkFloatArray.
-        vtkNew<vtkFloatArray> dataArray;
-        bool success = true;
-        if (isVector)
-        {
-          std::string rootPath("PARCEL_DATA/");
-          rootPath += varName;
-          std::string pathX = rootPath + "_X";
-          std::string pathY = rootPath + "_Y";
-          std::string pathZ = rootPath + "_Z";
-
-          // hsize_t length = GetDataLength(streamId, pathX.c_str());
-          dataArray->SetNumberOfComponents(3);
-          dataArray->SetNumberOfTuples(parcelLength);
-          dataArray->SetName(varName.c_str());
-
-          if (static_cast<hsize_t>(floatBuffer->GetSize()) != parcelLength)
-          {
-            floatBuffer->Allocate(parcelLength);
-          }
-          success =
-            success && ReadArray(streamId, pathX.c_str(), floatBuffer->GetBuffer(), parcelLength);
-          for (hsize_t j = 0; j < parcelLength; ++j)
-          {
-            dataArray->SetTypedComponent(j, 0, floatBuffer->GetBuffer()[j]);
-          }
-          success =
-            success && ReadArray(streamId, pathY.c_str(), floatBuffer->GetBuffer(), parcelLength);
-          for (hsize_t j = 0; j < parcelLength; ++j)
-          {
-            dataArray->SetTypedComponent(j, 1, floatBuffer->GetBuffer()[j]);
-          }
-          success =
-            success && ReadArray(streamId, pathZ.c_str(), floatBuffer->GetBuffer(), parcelLength);
-          for (hsize_t j = 0; j < parcelLength; ++j)
-          {
-            dataArray->SetTypedComponent(j, 2, floatBuffer->GetBuffer()[j]);
-          }
-        }
-        else
-        {
-          std::string path("PARCEL_DATA/");
-          path += varName;
-
-          dataArray->SetNumberOfComponents(1);
-          dataArray->SetNumberOfTuples(parcelLength);
-          dataArray->SetName(varName.c_str());
-          success =
-            success && ReadArray(streamId, path.c_str(), dataArray->GetPointer(0), parcelLength);
-        }
-
-        if (success)
-        {
-          parcels->GetPointData()->AddArray(dataArray);
-        }
-      }
-
-      streamMB->SetNumberOfBlocks(3);
-      streamMB->SetBlock(2, parcels);
-      streamMB->GetMetaData(2u)->Set(vtkCompositeDataSet::NAME(), "Parcels");
     }
 
     std::stringstream streamss;
@@ -1059,6 +1329,8 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
       times.emplace_back(time);
     }
   }
+
+  std::sort(times.begin(), times.end());
 
   if (!times.empty())
   {
