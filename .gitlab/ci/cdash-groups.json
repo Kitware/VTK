@@ -73,7 +73,7 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[macos_x86_64_python_qt_stdthread]"
+            "buildname": "[macos_x86_64_kits_python_qt_stdthread]"
         },
         {
             "group": "master",

@@ -78,12 +78,11 @@
         CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt
         VTK_INSTALL: 1
 
-.macos_x86_64_python_qt_stdthread:
+.macos_x86_64_kits_python_qt_stdthread:
     extends: .macos_build
 
     variables:
-        CMAKE_CONFIGURATION: macos_x86_64_python_qt_stdthread
-        VTK_INSTALL: 1
+        CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt_stdthread
 
 .macos_x86_64_kits_python_qt_ext_vtk:
     extends: .macos
