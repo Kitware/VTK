@@ -5,7 +5,6 @@
 #define NCBYTES_H 1
 
 #include "vtk_netcdf_mangle.h"
-#include "ncexternl.h"
 
 typedef struct NCbytes {
   int nonextendible; /* 1 => fail if an attempt is made to extend this buffer*/
@@ -13,6 +12,8 @@ typedef struct NCbytes {
   unsigned long length;
   char* content;
 } NCbytes;
+
+#include "ncexternl.h"
 
 #if defined(_CPLUSPLUS_) || defined(__CPLUSPLUS__) || defined(__CPLUSPLUS)
 extern "C" {

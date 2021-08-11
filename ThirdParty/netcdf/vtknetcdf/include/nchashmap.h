@@ -37,10 +37,16 @@ e.g. crc64 or such.  Needs some thought.
   1. It is critical that |uintptr_t| == |void*|
 */
 
+/** The type and # bits in a hashkey */
+#ifndef nchashkey_t
+#define nchashkey_t unsigned
+#define NCHASHKEYBITS (sizeof(nchashkey_t)*8)
+#endif
+
 typedef struct NC_hentry {
     int flags;
     uintptr_t data;
-    unsigned int hashkey; /* Hash id */
+    nchashkey_t hashkey; /* Hash id (crc)*/
     size_t keysize;
     char* key; /* copy of the key string; kept as unsigned char */
 } NC_hentry;
@@ -85,14 +91,23 @@ extern int NC_hashmapget(NC_hashmap*, const char* key, size_t keysize, uintptr_t
 */
 extern int NC_hashmapsetdata(NC_hashmap*, const char* key, size_t keylen, uintptr_t newdata);
 
-/** Returns the number of saved elements. */
+/** Returns the number of active elements. */
 extern size_t NC_hashmapcount(NC_hashmap*);
 
 /** Reclaims the hashmap structure. */
 extern int NC_hashmapfree(NC_hashmap*);
 
 /* Return the hash key for specified key; takes key+size*/
-extern unsigned int NC_hashmapkey(const char* key, size_t size);
+extern nchashkey_t NC_hashmapkey(const char* key, size_t size);
+
+/* Return the ith entry info:
+@param map
+@param i
+@param entryp contains 0 if not active, otherwise the data
+@param keyp contains null if not active, otherwise the key
+@return NC_EINVAL if no more entries
+*/
+extern int NC_hashmapith(NC_hashmap* map, size_t i, uintptr_t* datap, const char** keyp);
 
 #endif /*NCHASHMAP_H*/
 

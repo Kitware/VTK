@@ -12,7 +12,7 @@ See LICENSE.txt for license information.
 #include <stdint.h>
 #endif
 #include "ncdispatch.h"
-
+#include "nccrc.h"
 #include "nchashmap.h"
 #include "nc3internal.h"
 
@@ -32,9 +32,6 @@ entry. Since we also keep the hashkey, the probability is high that
 we will only do string comparisons when they will match.
 */
 
-/* Prototype for the crc32 function */
-extern unsigned int NC_crc32(unsigned int crc, const unsigned char* buf, unsigned int len);
-
 #undef SMALLTABLE
 
 #ifdef ASSERTIONS
@@ -52,7 +49,7 @@ extern unsigned int NC_crc32(unsigned int crc, const unsigned char* buf, unsigne
 #define SEED 37
 
 /* See lookup3.c */
-extern unsigned int hash_fast(const char*, size_t length);
+extern nchashkey_t hash_fast(const char*, size_t length);
 
 /* this should be prime */
 #ifdef SMALLTABLE
@@ -111,7 +108,7 @@ rehash(NC_hashmap* hm)
    return invariant: return == 0 || *indexp is defined
  */
 static int
-locate(NC_hashmap* hash, unsigned int hashkey, const char* key, size_t keysize, size_t* indexp, int deletedok)
+locate(NC_hashmap* hash, nchashkey_t hashkey, const char* key, size_t keysize, size_t* indexp, int deletedok)
 {
     size_t i;
     size_t index;
@@ -155,11 +152,11 @@ locate(NC_hashmap* hash, unsigned int hashkey, const char* key, size_t keysize, 
 }
 
 /* Return the hash key for specified key; takes key+size*/
-/* Wrapper for crc32 */
-unsigned int
+/* Wrapper for crc64*/
+nchashkey_t
 NC_hashmapkey(const char* key, size_t size)
 {
-    return NC_crc32(0,(unsigned char*)key,(unsigned int)size);
+    return NC_crc64(0,(void*)key,(unsigned int)size);
 }
 
 NC_hashmap*
@@ -188,13 +185,13 @@ int
 NC_hashmapadd(NC_hashmap* hash, uintptr_t data, const char* key, size_t keysize)
 {
   NC_hentry* entry;
-  unsigned int hashkey;
+  nchashkey_t hashkey;
 
     Trace("NC_hashmapadd");
 
     if(key == NULL || keysize == 0)
       return 0;
-    hashkey = NC_crc32(0,(unsigned char*)key,(unsigned int)keysize);
+    hashkey = NC_hashmapkey(key,keysize);
 
     if(hash->alloc*3/4 <= hash->active)
 	rehash(hash);
@@ -229,7 +226,7 @@ NC_hashmapadd(NC_hashmap* hash, uintptr_t data, const char* key, size_t keysize)
 int
 NC_hashmapremove(NC_hashmap* hash, const char* key, size_t keysize, uintptr_t* datap)
 {
-    unsigned int hashkey;
+    nchashkey_t hashkey;
     size_t index;
     NC_hentry* h;
 
@@ -238,7 +235,7 @@ NC_hashmapremove(NC_hashmap* hash, const char* key, size_t keysize, uintptr_t* d
     if(key == NULL || keysize == 0)
 	return 0;
 
-    hashkey = NC_crc32(0,(unsigned char*)key,(unsigned int)keysize);
+    hashkey = NC_hashmapkey(key,keysize);
     if(!locate(hash,hashkey,key,keysize,&index,0))
 	return 0; /* not present */
     h = &hash->table[index];
@@ -257,13 +254,13 @@ NC_hashmapremove(NC_hashmap* hash, const char* key, size_t keysize, uintptr_t* d
 int
 NC_hashmapget(NC_hashmap* hash, const char* key, size_t keysize, uintptr_t* datap)
 {
-    unsigned int hashkey;
+    nchashkey_t hashkey;
 
     Trace("NC_hashmapget");
 
     if(key == NULL || keysize == 0)
 	return 0;
-    hashkey = NC_crc32(0,(unsigned char*)key,(unsigned int)keysize);
+    hashkey = NC_hashmapkey(key,keysize);
     if(hash->active) {
       size_t index;
       NC_hentry* h;
@@ -271,7 +268,7 @@ NC_hashmapget(NC_hashmap* hash, const char* key, size_t keysize, uintptr_t* data
 	    return 0; /* not present */
       h = &hash->table[index];
 	if(h->flags & ACTIVE) {
-      if(datap) *datap = h->data;
+	  if(datap) *datap = h->data;
 	    return 1;
         } else /* Not found */
 	    return 0;
@@ -287,13 +284,13 @@ NC_hashmapsetdata(NC_hashmap* hash, const char* key, size_t keysize, uintptr_t n
 {
     size_t index;
     NC_hentry* h;
-    unsigned int hashkey;
+    nchashkey_t hashkey;
 
     Trace("NC_hashmapsetdata");
 
     if(key == NULL || keysize == 0)
 	return 0;
-    hashkey = NC_crc32(0,(unsigned char*)key,(unsigned int)keysize);
+    hashkey = NC_hashmapkey(key,keysize);
     if(hash == NULL || hash->active == 0)
 	return 0; /* no such entry */
     if(!locate(hash,hashkey,key,keysize,&index,0))
@@ -309,6 +306,22 @@ NC_hashmapcount(NC_hashmap* hash)
 {
     Trace("NC_hashmapcount");
     return hash->active;
+}
+
+int
+NC_hashmapith(NC_hashmap* map, size_t i, uintptr_t* datap, const char** keyp)
+{
+    NC_hentry* h = NULL;
+    if(map == NULL || i >= map->alloc) return NC_EINVAL;
+    h = &map->table[i];
+    if(h && (h->flags & ACTIVE)) {
+	if(datap) *datap = h->data;
+	if(keyp) *((char**)keyp) = h->key;
+    } else {
+	if(datap) *datap = 0;
+	if(keyp) *((char**)keyp) = NULL;
+    }    
+    return NC_NOERR;
 }
 
 int

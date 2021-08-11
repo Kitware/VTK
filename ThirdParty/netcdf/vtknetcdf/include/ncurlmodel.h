@@ -9,20 +9,12 @@
 #ifndef NCURLMODEL_H
 #define NCURLMODEL_H
 
-/* Define the io handler to be used to do lowest level
-   access. This is above the libcurl level.
-   Note that cases (DAP2,DAP4) where the implementation is 1-1
-   with the iosp are not included.
-*/
-#define NC_IOSP_ZARR (1)
-
 /* Track the information from a URL that will help us
    infer how to access the data pointed to by that URL.
 */
 typedef struct NCmode {
     int format; /* NC_FORMAT_XXX value */
     int implementation; /* NC_FORMATX_XXX value */
-    int iosp; /* NC_IOSP_XXX value (above) */
 } NCmode;
 
 /* return 1 if path looks like a url; 0 otherwise */

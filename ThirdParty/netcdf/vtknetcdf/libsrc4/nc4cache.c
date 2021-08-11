@@ -11,7 +11,7 @@
  */
 
 #include "config.h"
-#include "hdf5internal.h"
+#include "nc4internal.h"
 
 /* These are the default chunk cache sizes for HDF5 files created or
  * opened with netCDF-4. */
@@ -80,8 +80,10 @@ nc_set_chunk_cache(size_t size, size_t nelems, float preemption)
 }
 
 /**
- * Get current chunk cache settings. These settings may be changed
- * with nc_set_chunk_cache().
+ * Get current netCDF chunk cache settings. These settings may be
+ * changed with nc_set_chunk_cache(). This function does not get the
+ * settings from HDF5, it simply reports the current netCDF chunk
+ * cache settings.
  *
  * @param sizep Pointer that gets size in bytes to set cache. Ignored
  * if NULL.

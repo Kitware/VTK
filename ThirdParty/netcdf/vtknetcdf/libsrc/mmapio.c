@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 #include "nc3internal.h"
-#include "ncwinpath.h"
+#include "ncpathmgr.h"
 
 #undef DEBUG
 

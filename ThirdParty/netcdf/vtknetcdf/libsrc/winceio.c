@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "ncpathmgr.h"
 #include "ncio.h"
 #include "fbits.h"
 #include "rnd.h"
@@ -508,9 +509,9 @@ ncio_create(const char *path, int ioflags,
 	    /* Since we do not have use of the O_EXCL flag,
                we need to fake it */
 #ifdef WINCE
-	    f = fopen(path,"rb");
+	    f = NCfopen(path,"rb");
 #else
-	    f = fopen(path,"r");
+	    f = NCfopen(path,"r");
 #endif
 	    if(f != NULL) { /* do not overwrite */
 		(void)fclose(f);
@@ -518,7 +519,7 @@ ncio_create(const char *path, int ioflags,
 	    }
 	}
 
-	f = fopen(path, oflags);
+	f = NCfopen(path, oflags);
 	if(f == NULL)
 	{
 		status = errno;
@@ -602,7 +603,7 @@ ncio_open(const char *path,
 	if(nciop == NULL)
 		return ENOMEM;
 
-	f = fopen(path, oflags);
+	f = NCfopen(path, oflags);
 
 	if(f == NULL)
 	{

@@ -29,6 +29,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
+#ifndef DLL_EXPORT
+#define DLL_EXPORT
+#endif
+
 #include "XGetopt.h"
 
 
@@ -144,9 +148,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-TCHAR	*optarg;		// global argument pointer
-int		optind = 0; 	// global argv index
+GTOPT_EXTRA TCHAR	*optarg;		// global argument pointer
+GTOPT_EXTRA int		optind = 0; 	// global argv index
+GTOPT_EXTRA int		opterr;		// print error
 
+GTOPT_EXTRA
 int getopt(int argc, TCHAR *argv[], TCHAR *optstring)
 {
 	static TCHAR *next = NULL;

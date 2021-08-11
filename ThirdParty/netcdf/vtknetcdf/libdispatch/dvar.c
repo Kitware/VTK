@@ -317,12 +317,16 @@ nc_def_var_fill(int ncid, int varid, int no_fill, const void *fill_value)
 }
 
 /**
-   Set the zlib compression settings for a netCDF-4/HDF5 variable.
+   Set the zlib compression and shuffle settings for a variable in an
+   netCDF/HDF5 file.
 
    This function must be called after nc_def_var and before nc_enddef
    or any functions which writes data to the file.
 
-   Deflation and shuffline require chunked data. If this function is
+   Deflation and shuffle are only available for HDF5 files. Attempting
+   to set them on non-HDF5 files will return ::NC_ENOTNC4.
+
+   Deflation and shuffle require chunked data. If this function is
    called on a variable with contiguous data, then the data is changed
    to chunked data, with default chunksizes. Use nc_def_var_chunking()
    to tune performance with user-defined chunksizes.
@@ -330,8 +334,9 @@ nc_def_var_fill(int ncid, int varid, int no_fill, const void *fill_value)
    If this function is called on a scalar variable, ::NC_EINVAL is
    returned. Only chunked variables may use filters.
 
-   If this function is called on a variable which already has szip
-   compression turned on, ::NC_EINVAL is returned.
+   Zlib compression cannot be used with szip compression. If this
+   function is called on a variable which already has szip compression
+   turned on, ::NC_EINVAL is returned.
 
    @note Parallel I/O reads work with compressed data. Parallel I/O
    writes work with compressed data in netcdf-c-4.7.4 and later
@@ -340,6 +345,38 @@ nc_def_var_fill(int ncid, int varid, int no_fill, const void *fill_value)
    used with the variable. Turning on deflate and/or shuffle for a
    variable in a file opened for parallel I/O will automatically
    switch the access for that variable to collective access.
+
+   @note The HDF5 manual has this to say about shuffle:
+   
+      The shuffle filter de-interlaces a block of data by reordering
+      the bytes. All the bytes from one consistent byte position of
+      each data element are placed together in one block; all bytes
+      from a second consistent byte position of each data element are
+      placed together a second block; etc. For example, given three
+      data elements of a 4-byte datatype stored as 012301230123,
+      shuffling will re-order data as 000111222333. This can be a
+      valuable step in an effective compression algorithm because the
+      bytes in each byte position are often closely related to each
+      other and putting them together can increase the compression
+      ratio.
+
+      As implied above, the primary value of the shuffle filter lies
+      in its coordinated use with a compression filter; it does not
+      provide data compression when used alone. When the shuffle
+      filter is applied to a dataset immediately prior to the use of a
+      compression filter, the compression ratio achieved is often
+      superior to that achieved by the use of a compression filter
+      without the shuffle filter.
+
+  @note The shuffle and deflate flags are ambiguous.
+
+	In most cases, if the shuffle or deflate flag is zero, then it is interpreted
+	to mean that shuffle or deflate should not be set. However, if the variable
+	already has shuffle or deflate turned on, then it is unclear if a flag
+	value of zero means leave the state as it is, or if it means
+	that it should be turned off. Since currently no other filters can be
+	disabled, it is assumed here that a zero value means to leave the
+	state as it is.
 
    @param ncid NetCDF or group ID, from a previous call to nc_open(),
    nc_create(), nc_def_grp(), or associated inquiry functions such as

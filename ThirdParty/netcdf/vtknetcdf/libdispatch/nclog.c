@@ -13,29 +13,42 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <errno.h>
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
-
-extern FILE* fdopen(int fd, const char *mode);
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
  
+#ifdef HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
+
+#include "netcdf.h"
 #include "nclog.h"
 
 #define PREFIXLEN 8
 #define MAXTAGS 256
 #define NCTAGDFALT "Log";
 
+#define NC_MAX_FRAMES 256
 
 static int nclogginginitialized = 0;
 
 static struct NCLOGGLOBAL {
     int nclogging;
-    int ncsystemfile; /* 1 => we are logging to file we did not open */
-    char* nclogfile;
+    int tracelevel;
     FILE* nclogstream;
-} nclog_global = {0,0,NULL,NULL};
+    int depth;
+    struct Frame {
+	const char* fcn;
+	int level;
+	int depth;
+    } frames[NC_MAX_FRAMES];
+} nclog_global = {0,-1,NULL};
 
-static const char* nctagset[] = {"Warning","Error","Note","Debug"};
+static const char* nctagset[] = {"Note","Warning","Error","Debug"};
 static const int nctagsize = sizeof(nctagset)/sizeof(char*);
 
 /* Forward */
@@ -50,21 +63,23 @@ static const char* nctagname(int tag);
 void
 ncloginit(void)
 {
-    const char* file;
+    const char* envv = NULL;
     if(nclogginginitialized)
 	return;
     nclogginginitialized = 1;
     memset(&nclog_global,0,sizeof(nclog_global));
+    nclog_global.tracelevel = -1;    
     ncsetlogging(0);
-    nclog_global.nclogfile = NULL;
-    nclog_global.nclogstream = NULL;
+    nclog_global.nclogstream = stderr;
     /* Use environment variables to preset nclogging state*/
     /* I hope this is portable*/
-    file = getenv(NCENVFLAG);
-    if(file != NULL && strlen(file) > 0) {
-        if(nclogopen(file)) {
-	    ncsetlogging(1);
-	}
+    envv = getenv(NCENVLOGGING);
+    if(envv != NULL) {
+	ncsetlogging(1);
+    }
+    envv = getenv(NCENVTRACING);
+    if(envv != NULL) {
+	nctracelevel(atoi(envv));
     }
 }
 
@@ -83,71 +98,17 @@ ncsetlogging(int tf)
     if(!nclogginginitialized) ncloginit();
     was = nclog_global.nclogging;
     nclog_global.nclogging = tf;
+    if(nclog_global.nclogstream == NULL) nclogopen(NULL);
     return was;
 }
 
-/*!
-Specify a file into which to place logging output.
-
-\param[in] file The name of the file into which to place logging output.
-If the file has the value NULL, then send logging output to
-stderr.
-
-\return zero if the open failed, one otherwise.
-*/
-
 int
-nclogopen(const char* file)
+nclogopen(FILE* stream)
 {
     if(!nclogginginitialized) ncloginit();
-    nclogclose();
-    if(file == NULL || strlen(file) == 0) {
-	/* use stderr*/
-	nclog_global.nclogstream = stderr;
-	nclog_global.nclogfile = NULL;
-	nclog_global.ncsystemfile = 1;
-    } else if(strcmp(file,"stdout") == 0) {
-	/* use stdout*/
-	nclog_global.nclogstream = stdout;
-	nclog_global.nclogfile = NULL;
-	nclog_global.ncsystemfile = 1;
-    } else if(strcmp(file,"stderr") == 0) {
-	/* use stderr*/
-	nclog_global.nclogstream = stderr;
-	nclog_global.nclogfile = NULL;
-	nclog_global.ncsystemfile = 1;
-    } else {
-	int fd;
-	nclog_global.nclogfile = strdup(file);
-	nclog_global.nclogstream = NULL;
-	/* We need to deal with this file carefully
-	   to avoid unauthorized access*/
-	fd = open(nclog_global.nclogfile,O_WRONLY|O_APPEND|O_CREAT,0600);
-	if(fd >= 0) {
-	    nclog_global.nclogstream = fdopen(fd,"a");
-	} else {
-	    free(nclog_global.nclogfile);
-	    nclog_global.nclogfile = NULL;
-	    nclog_global.nclogstream = NULL;
-	    ncsetlogging(0);
-	    return 0;
-	}
-	nclog_global.ncsystemfile = 0;
-    }
+    if(stream == NULL) stream = stderr;
+    nclog_global.nclogstream = stream;
     return 1;
-}
-
-void
-nclogclose(void)
-{
-    if(!nclogginginitialized) ncloginit();
-    if(nclog_global.nclogstream != NULL && !nclog_global.ncsystemfile) {
-	fclose(nclog_global.nclogstream);
-    }
-    if(nclog_global.nclogfile != NULL) free(nclog_global.nclogfile);
-    nclog_global.nclogstream = NULL;
-    nclog_global.nclogfile = NULL;
-    nclog_global.ncsystemfile = 0;
 }
 
 /*!
@@ -162,42 +123,31 @@ printf function.
 void
 nclog(int tag, const char* fmt, ...)
 {
-    va_list args;
-    const char* prefix;
-
-    if(!nclogginginitialized) ncloginit();
-
-    if(!nclog_global.nclogging || nclog_global.nclogstream == NULL) return;
-
-    prefix = nctagname(tag);
-    fprintf(nclog_global.nclogstream,"%s:",prefix);
-
     if(fmt != NULL) {
+      va_list args;
       va_start(args, fmt);
-      vfprintf(nclog_global.nclogstream, fmt, args);
-      va_end( args );
+      ncvlog(tag,fmt,args);
+      va_end(args);
     }
-    fprintf(nclog_global.nclogstream, "\n" );
-    fflush(nclog_global.nclogstream);
 }
 
-void
+int
 ncvlog(int tag, const char* fmt, va_list ap)
 {
     const char* prefix;
+    int was = -1;
 
     if(!nclogginginitialized) ncloginit();
-
-    if(!nclog_global.nclogging || nclog_global.nclogstream == NULL) return;
-
+    if(tag == NCLOGERR) was = ncsetlogging(1);
+    if(!nclog_global.nclogging || nclog_global.nclogstream == NULL) return was;
     prefix = nctagname(tag);
     fprintf(nclog_global.nclogstream,"%s:",prefix);
-
     if(fmt != NULL) {
       vfprintf(nclog_global.nclogstream, fmt, ap);
     }
     fprintf(nclog_global.nclogstream, "\n" );
     fflush(nclog_global.nclogstream);
+    return was;
 }
 
 void
@@ -229,5 +179,136 @@ nctagname(int tag)
 	return "unknown";
     return nctagset[tag];
 }
+
+/*!
+Send trace messages.
+\param[in] level Indicate the level of trace
+\param[in] format Format specification as with printf.
+*/
+
+int
+nctracelevel(int level)
+{
+    int oldlevel;
+    if(!nclogginginitialized) ncloginit();
+    oldlevel = nclog_global.tracelevel;
+    if(level < 0) {
+      nclog_global.tracelevel = level;
+      ncsetlogging(0);
+    } else { /*(level >= 0)*/
+        nclog_global.tracelevel = level;
+        ncsetlogging(1);
+	nclogopen(NULL); /* use stderr */    
+    }
+    return oldlevel;
+}
+
+void
+nctrace(int level, const char* fcn, const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    ncvtrace(level,fcn,fmt,args);
+    va_end(args);
+}
+
+void
+nctracemore(int level, const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    ncvtrace(level,NULL,fmt,args);
+    va_end(args);
+}
+
+void
+ncvtrace(int level, const char* fcn, const char* fmt, va_list ap)
+{
+    struct Frame* frame;
+    if(!nclogginginitialized) ncloginit();
+    if(nclog_global.tracelevel < 0) ncsetlogging(0);
+    if(fcn != NULL) {
+        frame = &nclog_global.frames[nclog_global.depth];
+        frame->fcn = fcn;
+        frame->level = level;
+        frame->depth = nclog_global.depth;
+    }
+    if(level <= nclog_global.tracelevel) {
+	if(fcn != NULL)
+            fprintf(nclog_global.nclogstream,"%s: (%d): %s:","Enter",level,fcn);
+        if(fmt != NULL)
+            vfprintf(nclog_global.nclogstream, fmt, ap);
+        fprintf(nclog_global.nclogstream, "\n" );
+        fflush(nclog_global.nclogstream);
+    }
+    if(fcn != NULL) nclog_global.depth++;
+}
+
+int
+ncuntrace(const char* fcn, int err, const char* fmt, ...)
+{
+    va_list args;
+    struct Frame* frame;
+    va_start(args, fmt);
+    if(nclog_global.depth == 0) {
+	fprintf(nclog_global.nclogstream,"*** Unmatched untrace: %s: depth==0\n",fcn);
+	goto done;
+    }
+    nclog_global.depth--;
+    frame = &nclog_global.frames[nclog_global.depth];
+    if(frame->depth != nclog_global.depth || strcmp(frame->fcn,fcn) != 0) {
+	fprintf(nclog_global.nclogstream,"*** Unmatched untrace: fcn=%s expected=%s\n",frame->fcn,fcn);
+	goto done;
+    }
+    if(frame->level <= nclog_global.tracelevel) {
+        fprintf(nclog_global.nclogstream,"%s: (%d): %s: ","Exit",frame->level,frame->fcn);
+	if(err)
+	    fprintf(nclog_global.nclogstream,"err=(%d) '%s':",err,nc_strerror(err));
+        if(fmt != NULL)
+            vfprintf(nclog_global.nclogstream, fmt, args);
+        fprintf(nclog_global.nclogstream, "\n" );
+        fflush(nclog_global.nclogstream);
+#ifdef HAVE_EXECINFO_H
+        if(err != 0)
+            ncbacktrace();
+#endif
+    }
+done:
+    va_end(args);
+    if(err != 0)
+        return ncbreakpoint(err);
+    else
+	return err;
+}
+
+int
+ncbreakpoint(int err)
+{
+    return err;
+}
+
+#ifdef HAVE_EXECINFO_H
+#define MAXSTACKDEPTH 100
+void
+ncbacktrace(void)
+{
+    int j, nptrs;
+    void* buffer[MAXSTACKDEPTH];
+    char **strings;
+
+    if(getenv("NCBACKTRACE") == NULL) return;
+    nptrs = backtrace(buffer, MAXSTACKDEPTH);
+    strings = backtrace_symbols(buffer, nptrs);
+    if (strings == NULL) {
+        perror("backtrace_symbols");
+        errno = 0;
+	return;
+    }
+    fprintf(stderr,"Backtrace:\n");
+    for(j = 0; j < nptrs; j++)
+	fprintf(stderr,"%s\n", strings[j]);
+    free(strings);
+}
+#endif
 
 /**@}*/

@@ -33,6 +33,9 @@ typedef SSIZE_T ssize_t;
 #endif
 #endif
 
+#include "config.h"
+#include "vtk_netcdf_mangle.h"
+
 /*Warning: Cygwin with -ansi does not define these functions
   in its headers.*/
 #ifndef _WIN32
@@ -42,7 +45,7 @@ typedef SSIZE_T ssize_t;
 #ifndef strdup
 extern char* strdup(const char*);
 #endif
-#ifndef strlcat
+#ifndef HAVE_STRLCAT
 extern size_t strlcat(char*,const char*,size_t);
 #endif
 #ifndef snprintf
@@ -104,6 +107,27 @@ typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
 
+#ifndef HAVE_UINT64
+typedef unsigned long long uint64;
+#endif
+
+#ifndef HAVE_UINT64_T
+typedef unsigned long long uint64_t;
+#endif
+
+#ifndef _WIN32
+#ifndef HAVE_UINTPTR_T
+#if SIZEOF_VOIDP == 8
+#define uintptr_t unsigned long
+#else
+#define uintptr_t unsigned int
+#endif
+#endif
+#endif
+
+#ifndef HAVE_SIZE64_T
+typedef unsigned long long size64_t;
+#endif
 
 /* Provide a fixed size alternative to off_t or off64_t */
 typedef long long fileoffset_t;

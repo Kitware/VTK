@@ -255,8 +255,18 @@ nc_inq_varnatts(int ncid, int varid, int *nattsp)
 		     nattsp);
 }
 
-/** \ingroup variables
-Learn the storage and deflate settings for a variable.
+/** 
+\ingroup variables 
+
+Learn the shuffle and deflate settings for a variable.
+
+Deflation is compression with the zlib library. Shuffle re-orders the
+data bytes to provide better compression (see nc_def_var_deflate()).
+
+Deflation is only available for HDF5 files. For classic and other
+files, this function will return setting that indicate that deflation
+is not in use, and that the shuffle filter is not in use. That is:
+shuffle off, deflate off, and a deflate level of 0.
 
 \param ncid NetCDF or group ID, from a previous call to nc_open(),
 nc_create(), nc_def_grp(), or associated inquiry functions such as
@@ -277,7 +287,6 @@ use, and deflate_levelp is provided, it will get a zero. (This
 behavior is expected by the Fortran APIs). \ref ignored_if_null.
 
 \returns ::NC_NOERR No error.
-\returns ::NC_ENOTNC4 Not a netCDF-4 file.
 \returns ::NC_EBADID Bad ncid.
 \returns ::NC_ENOTVAR Invalid variable ID.
 \author Ed Hartnett, Dennis Heimbigner
@@ -289,8 +298,9 @@ nc_inq_var_deflate(int ncid, int varid, int *shufflep, int *deflatep, int *defla
    size_t nparams;
    unsigned int params[4];
    int deflating = 0;
-
-   int stat = NC_check_id(ncid,&ncp);
+   int stat;
+   
+   stat = NC_check_id(ncid,&ncp);
    if(stat != NC_NOERR) return stat;
    TRACE(nc_inq_var_deflate);
 
@@ -299,6 +309,18 @@ nc_inq_var_deflate(int ncid, int varid, int *shufflep, int *deflatep, int *defla
    switch (stat) {
    case NC_ENOFILTER: deflating = 0; stat = NC_NOERR; break;
    case NC_NOERR: deflating = 1; break;
+   case NC_ENOTNC4:
+       /* As a special case, to support behavior already coded into user
+	* applications, handle classic format files by reporting no
+	* deflation. */
+       if (shufflep)
+	   *shufflep = 0;
+       if (deflatep)
+	   *deflatep = 0;
+       if (deflate_levelp)
+	   *deflate_levelp = 0;
+       return NC_NOERR;
+       break;
    default: return stat;
    }
    if(deflatep) *deflatep = deflating;
@@ -637,15 +659,19 @@ Learn the szip settings of a variable.
 
 This function returns the szip settings for a variable. To turn on
 szip compression, use nc_def_var_szip(). Szip compression is only
-available if HDF5 was built with szip support. The nc_def_var_filter
-function may also be used to set szip compression.
+available for netCDF/HDF5 files, and only if HDF5 was built with szip
+support. 
 
-If a variable is not using szip, then a zero will be passed back
-for both options_maskp and pixels_per_blockp.
+If a variable is not using szip, or if this function is called on a
+file that is not a HDF5 file, then a zero will be passed back for both
+options_maskp and pixels_per_blockp.
 
 For more information on HDF5 and szip see
 https://support.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetSzip
 and https://support.hdfgroup.org/doc_resource/SZIP/index.html.
+
+The nc_def_var_filter function may also be used to set szip
+compression.
 
 \param ncid NetCDF or group ID, from a previous call to nc_open(),
 nc_create(), nc_def_grp(), or associated inquiry functions such as
@@ -667,12 +693,10 @@ szip is not in use for this variable. \ref ignored_if_null.
 
 \returns ::NC_NOERR No error.
 \returns ::NC_EBADID Bad ncid.
-\returns ::NC_ENOTNC4 Not a netCDF-4 file.
 \returns ::NC_ENOTVAR Invalid variable ID.
 \returns ::NC_EFILTER Filter error.
 
 \author Ed Hartnett, Dennis Heimbigner
-
 */
 int
 nc_inq_var_szip(int ncid, int varid, int *options_maskp, int *pixels_per_blockp)
@@ -693,7 +717,9 @@ nc_inq_var_szip(int ncid, int varid, int *options_maskp, int *pixels_per_blockp)
 	    return NC_EFILTER; /* bad # params */
 	break;
    case NC_ENOFILTER:
-       /* If the szip filter is not in use, return 0 for both  parameters. */
+   case NC_ENOTNC4:
+       /* If the szip filter is not in use, or if this is not a HDF5
+	* file, return 0 for both parameters. */
        params[0] = 0;
        params[1] = 0;
        stat = NC_NOERR;
@@ -708,77 +734,5 @@ nc_inq_var_szip(int ncid, int varid, int *options_maskp, int *pixels_per_blockp)
    if(pixels_per_blockp) *pixels_per_blockp = (int)params[1];
    return stat;
 }
-
-/*!
-Learn all about a variable.
-
-@param[in] ncid ncid for file.
-@param[in] varid varid for variable in question.
-@param[out] name Pointer to memory to contain the name of the
-variable.
-@param[out] xtypep Pointer to memory to contain the type of the
-variable.
-@param[out] ndimsp Pointer to memory to store the number of associated
-dimensions for the variable.
-@param[out] dimidsp Pointer to memory to store the dimids associated
-with the variable.
-@param[out] nattsp Pointer to memory to store the number of attributes
-associated with the variable.
-@param[out] shufflep Pointer to memory to store shuffle information
-associated with the variable.
-@param[out] deflatep Pointer to memory to store compression type
-associated with the variable.
-@param[out] deflate_levelp Pointer to memory to store compression
-level associated with the variable.
-@param[out] fletcher32p Pointer to memory to store compression
-information associated with the variable.
-@param[out] contiguousp Pointer to memory to store contiguous-data
-information associated with the variable.
-@param[out] chunksizesp Pointer to memory to store chunksize
-information associated with the variable.
-@param[out] no_fill Pointer to memory to store whether or not there is
-a fill value associated with the variable.
-@param[out] fill_valuep Pointer to memory to store the fill value (if
-one exists) for the variable.
-@param[out] endiannessp Pointer to memory to store endianness
-value. One of ::NC_ENDIAN_BIG ::NC_ENDIAN_LITTLE ::NC_ENDIAN_NATIVE
-@param[out] idp Pointer to memory to store filter id.
-@param[out] nparamsp Pointer to memory to store filter parameter count.
-@param[out] params Pointer to vector of unsigned integers into which
-to store filter parameters.
-\note Expose access to nc_inq_var_all().
-
-\returns ::NC_NOERR No error.
-\returns ::NC_EBADID Bad ncid.
-\returns ::NC_ENOTVAR Bad varid.
-\returns ::NC_ENOMEM Out of memory.
-\returns ::NC_EINVAL Invalid input.
-\author Ed Hartnett, Dennis Heimbigner
-\internal
-\ingroup variables
-*/
-#if 0
-int
-NC_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
-               int *ndimsp, int *dimidsp, int *nattsp,
-               int *shufflep, int *deflatep, int *deflate_levelp,
-               int *fletcher32p, int *contiguousp, size_t *chunksizesp,
-               int *no_fill, void *fill_valuep, int *endiannessp,
-	       unsigned int* unused1, size_t* unused2, unsigned int* unused3
-               )
-{
-   NC* ncp;
-   int stat = NC_check_id(ncid,&ncp);
-   if(stat != NC_NOERR) return stat;
-   return ncp->dispatch->inq_var_all(
-      ncid, varid, name, xtypep,
-      ndimsp, dimidsp, nattsp,
-      shufflep, deflatep, deflate_levelp, fletcher32p,
-      contiguousp, chunksizesp,
-      no_fill, fill_valuep,
-      endiannessp,
-      NULL, NULL, NULL);
-}
-#endif
 
 /*! \} */  /* End of named group ...*/

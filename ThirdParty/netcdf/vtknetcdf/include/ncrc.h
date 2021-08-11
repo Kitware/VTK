@@ -55,8 +55,6 @@ extern NCTriple* NC_rcfile_ith(NCRCinfo*,size_t);
 /* From dutil.c (Might later move to e.g. nc.h */
 extern int NC__testurl(const char* path, char** basenamep);
 extern int NC_isLittleEndian(void);
-extern char* NC_backslashEscape(const char* s);
-extern char* NC_backslashUnescape(const char* esc);
 extern char* NC_entityescape(const char* s);
 extern int NC_readfile(const char* filename, NCbytes* content);
 extern int NC_writefile(const char* filename, size_t size, void* content);

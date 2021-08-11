@@ -47,6 +47,7 @@
 #define SEEK_END 2
 #endif
 
+#include "ncpathmgr.h"
 #include "ncio.h"
 #include "fbits.h"
 #include "rnd.h"
@@ -1622,10 +1623,10 @@ posixio_create(const char *path, int ioflags,
 	fSet(oflags, O_BINARY);
 #endif
 #ifdef vms
-	fd = open(path, oflags, NC_DEFAULT_CREAT_MODE, "ctx=stm");
+	fd = NCopen3(path, oflags, NC_DEFAULT_CREAT_MODE, "ctx=stm");
 #else
 	/* Should we mess with the mode based on NC_SHARE ?? */
-	fd = open(path, oflags, NC_DEFAULT_CREAT_MODE);
+	fd = NCopen3(path, oflags, NC_DEFAULT_CREAT_MODE);
 #endif
 #if 0
 	(void) fprintf(stderr, "ncio_create(): path=\"%s\"\n", path);
@@ -1760,9 +1761,9 @@ posixio_open(const char *path,
 #endif
 
 #ifdef vms
-	fd = open(path, oflags, 0, "ctx=stm");
+	fd = NCopen3(path, oflags, 0, "ctx=stm");
 #else
-	fd = open(path, oflags, 0);
+	fd = NCopen3(path, oflags, 0);
 #endif
 	if(fd < 0)
 	{
