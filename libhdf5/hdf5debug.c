@@ -15,7 +15,9 @@
 
 #define STSIZE 1000
 
+#if !defined _WIN32 && !defined __CYGWIN__
 static void* stacktrace[STSIZE];
+#endif
 
 int
 nch5breakpoint(int err)

@@ -120,6 +120,8 @@ extern "C" {
    currently unused:
         0x0002
    and the whole upper 16 bits
+   Note: nc4internal also defines flags in this space even tho it should not.
+   so check there around #define NC_CREAT.
 */
 
 #define NC_NOWRITE       0x0000 /**< Set read-only access for nc_open(). */
@@ -127,7 +129,6 @@ extern "C" {
 
 #define NC_CLOBBER       0x0000 /**< Destroy existing file. Mode flag for nc_create(). */
 #define NC_NOCLOBBER     0x0004 /**< Don't destroy existing file. Mode flag for nc_create(). */
-
 #define NC_DISKLESS      0x0008  /**< Use diskless file. Mode flag for nc_open() or nc_create(). */
 #define NC_MMAP          0x0010  /**< \deprecated Use diskless file with mmap. Mode flag for nc_open() or nc_create()*/
 
@@ -218,7 +219,7 @@ Use this in mode flags for both nc_create() and nc_open(). */
 #define NC_FORMATX_DAP4      (6)
 #define NC_FORMATX_UDF0      (8)
 #define NC_FORMATX_UDF1      (9)
-#define NC_FORMATX_ZARR      (10)
+#define NC_FORMATX_NCZARR    (10)
 #define NC_FORMATX_UNDEFINED (0)
 
   /* To avoid breaking compatibility (such as in the python library),
@@ -478,8 +479,12 @@ by the desired type. */
 #define NC_ENULLPAD      (-134)    /**< Header Bytes not Null-Byte padded */
 #define NC_EINMEMORY     (-135)    /**< In-memory file error */
 #define NC_ENOFILTER     (-136)    /**< Filter not defined on variable. */
+#define NC_ENCZARR       (-137)    /**< Error at NCZarr layer. */
+#define NC_ES3           (-138)    /**< Generic S3 error */
+#define NC_EEMPTY        (-139)    /**< Attempt to read empty NCZarr map key */
+#define NC_EFOUND        (-140)    /**< Some object exists when it should not */
 
-#define NC4_LAST_ERROR   (-137)    /**< @internal All netCDF errors > this. */
+#define NC4_LAST_ERROR   (-140)    /**< @internal All netCDF errors > this. */
 
 /* Errors for all remote access methods(e.g. DAP and CDMREMOTE)*/
 #define NC_EURL         (NC_EDAPURL)   /**< Malformed URL */

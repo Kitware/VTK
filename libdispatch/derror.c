@@ -7,6 +7,7 @@ Copyright 2018 University Corporation for Atmospheric
 Research/Unidata. See COPYRIGHT file for more info.
 */
 
+#include "config.h"
 #include "ncdispatch.h"
 #ifdef USE_PNETCDF
 #include <pnetcdf.h>  /* for ncmpi_strerror() */
@@ -171,7 +172,7 @@ const char *nc_strerror(int ncerr1)
       case NC_EIO:
 	 return "NetCDF: I/O failure";
       case NC_ENODATA:
-	 return "NetCDF: Variable has no data in DAP request";
+	 return "NetCDF: Variable has no data";
       case NC_EDAPSVC:
 	 return "NetCDF: DAP server error";
       case NC_EDAS:
@@ -270,6 +271,14 @@ const char *nc_strerror(int ncerr1)
        return "NetCDF: File fails strict Null-Byte Header check.";
      case NC_EINMEMORY:
        return "NetCDF: In-memory File operation failed.";
+      case NC_ENCZARR:
+	 return "NetCDF: NCZarr error";
+      case NC_ES3:
+	 return "NetCDF: AWS S3 error";
+      case NC_EEMPTY:
+	 return "NetCDF: Attempt to read empty NCZarr map key";
+      case NC_EFOUND:
+	 return "NetCDF: Some object exists when it should not";
      default:
 #ifdef USE_PNETCDF
         /* The behavior of ncmpi_strerror here is to return

@@ -22,6 +22,7 @@
  *
  * @return NC_NOERR No error.
  * @author Dennis Heimbigner, Ed Hartnett
+ * [Candidate for moving to libsrc4]
  */
 static int
 getattlist(NC_GRP_INFO_T *grp, int varid, NC_VAR_INFO_T **varp,
@@ -229,7 +230,6 @@ NC4_HDF5_rename_att(int ncid, int varid, const char *name, const char *newname)
     if(att->hdr.name) free(att->hdr.name);
     if (!(att->hdr.name = strdup(norm_newname)))
         return NC_ENOMEM;
-    att->hdr.hashkey = NC_hashmapkey(att->hdr.name,strlen(att->hdr.name)); /* Fix hash key */
 
     att->dirty = NC_TRUE;
 
@@ -325,6 +325,7 @@ NC4_HDF5_del_att(int ncid, int varid, const char *name)
     deletedid = att->hdr.id;
 
     /* Remove this attribute in this list */
+    if((retval=nc4_HDF5_close_att(att))) return retval;
     if ((retval = nc4_att_list_del(attlist, att)))
         return retval;
 
@@ -523,7 +524,6 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
         if (!(att->format_att_info = calloc(1, sizeof(NC_HDF5_ATT_INFO_T))))
             BAIL(NC_ENOMEM);
     }
-
     /* Now fill in the metadata. */
     att->dirty = NC_TRUE;
     att->nc_typeid = file_type;
@@ -559,16 +559,16 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
         if (att->nc_typeid != var->type_info->hdr.id)
             return NC_EBADTYPE;
         if (att->len != 1)
-            return NC_EINVAL;
+            BAIL(NC_EINVAL);
 
         /* If we already wrote to the dataset, then return an error. */
         if (var->written_to)
-            return NC_ELATEFILL;
+           BAIL(NC_ELATEFILL);
 
         /* Get the length of the veriable data type. */
         if ((retval = nc4_get_typelen_mem(grp->nc4_info, var->type_info->hdr.id,
                                           &type_size)))
-            return retval;
+            BAIL(retval);
 
         /* Already set a fill value? Now I'll have to free the old
          * one. Make up your damn mind, would you? */
@@ -577,7 +577,7 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
             if (var->type_info->nc_type_class == NC_VLEN)
             {
                 if ((retval = nc_free_vlen(var->fill_value)))
-                    return retval;
+                    BAIL(retval);
             }
             else if (var->type_info->nc_type_class == NC_STRING)
             {
@@ -597,7 +597,7 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
 
         /* Allocate space for the fill value. */
         if (!(var->fill_value = calloc(1, size)))
-            return NC_ENOMEM;
+            BAIL(NC_ENOMEM);
 
         /* Copy the fill_value. */
         LOG((4, "Copying fill value into metadata for variable %s", var->hdr.name));
@@ -610,11 +610,11 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
             /* get the basetype and its size */
             basetype = var->type_info;
             if ((retval = nc4_get_typelen_mem(grp->nc4_info, basetype->hdr.id, &basetypesize)))
-                return retval;
+                BAIL(retval);
             /* shallow clone the content of the vlen; shallow because it has only a temporary existence */
             fv_vlen->len = in_vlen->len;
             if (!(fv_vlen->p = malloc(basetypesize * in_vlen->len)))
-                return NC_ENOMEM;
+                BAIL(NC_ENOMEM);
             memcpy(fv_vlen->p, in_vlen->p, in_vlen->len * basetypesize);
         }
         else if (var->type_info->nc_type_class == NC_STRING)
@@ -622,7 +622,7 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
             if (*(char **)data)
             {
                 if (!(*(char **)(var->fill_value) = malloc(strlen(*(char **)data) + 1)))
-                    return NC_ENOMEM;
+                    BAIL(NC_ENOMEM);
                 strcpy(*(char **)var->fill_value, *(char **)data);
             }
             else
@@ -645,7 +645,7 @@ nc4_put_att(NC_GRP_INFO_T* grp, int varid, const char *name, nc_type file_type,
 
         /* Get class for this type. */
         if ((retval = nc4_get_typeclass(h5, file_type, &type_class)))
-            return retval;
+            BAIL(retval);
 
         assert(data);
         if (type_class == NC_VLEN)

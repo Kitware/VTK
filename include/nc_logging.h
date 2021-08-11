@@ -20,16 +20,17 @@
 
 /* To log something... */
 void nc_log(int severity, const char *fmt, ...);
-void nc_log_hdf5(void);
 
 #define LOG(e) nc_log e
 
-/* To log based on error code, and set retval. */
-#define BAIL2(e) \
+/* BAIL2 was moved to libhdf5/hdf5err.h+hdf5internal.c
+   because of the call to nc_log_hdf5 */
+
+/* Define a replacement for BAIL2 that is not HDF5 dependent */
+#define BAILLOG(e) \
    do { \
       retval = e; \
       LOG((0, "file %s, line %d.\n%s", __FILE__, __LINE__, nc_strerror(e))); \
-      nc_log_hdf5(); \
    } while (0) 
 
 /* To set retval and jump to exit, without logging error message. */
@@ -44,14 +45,14 @@ void nc_log_hdf5(void);
 /* These definitions will be used unless LOGGING is defined. */
 #define LOG(e)
 
-#define BAIL2(e) \
+#define BAILLOG(e) \
    do { \
       retval = e; \
    } while (0)
 
 #define BAIL_QUIET BAIL
 
-#ifdef USE_NETCDF_4
+#ifdef USE_NETCDF4
 #ifndef ENABLE_SET_LOG_LEVEL
 /* Define away any calls to nc_set_log_level(), if its not enabled. */
 #define nc_set_log_level(e)
@@ -63,7 +64,7 @@ void nc_log_hdf5(void);
 /* To log an error message (if 'LOGGING' is defined), set retval, and jump to exit. */
 #define BAIL(e) \
    do { \
-      BAIL2(e); \
+      BAILLOG(e); \
       goto exit; \
    } while (0) 
 

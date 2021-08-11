@@ -68,12 +68,4 @@ nc_log(int severity, const char *fmt, ...)
     fflush(stderr);
 }
 
-void
-nc_log_hdf5(void)
-{
-#ifdef USE_HDF5
-    H5Eprint(NULL);
-#endif /* USE_HDF5 */
-}
-
 #endif /* ifdef LOGGING */

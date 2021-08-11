@@ -5,6 +5,8 @@
  *
  * These functions in this file rename and delete attributes.
 */
+
+#include "config.h"
 #include "ncdispatch.h"
 
 /**

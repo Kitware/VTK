@@ -35,11 +35,11 @@ static const NC_Dispatch HDF5_dispatcher = {
     NC4_inq,
     NC4_inq_type,
 
-    NC4_def_dim,
+    HDF5_def_dim,
     NC4_inq_dimid,
-    NC4_inq_dim,
+    HDF5_inq_dim,
     NC4_inq_unlimdim,
-    NC4_rename_dim,
+    HDF5_rename_dim,
 
     NC4_HDF5_inq_att,
     NC4_HDF5_inq_attid,
@@ -99,11 +99,12 @@ static const NC_Dispatch HDF5_dispatcher = {
     NC4_def_var_fletcher32,
     NC4_def_var_chunking,
     NC4_def_var_endian,
-    NC4_def_var_filter,
+    NC4_hdf5_def_var_filter,
     NC4_HDF5_set_var_chunk_cache,
     NC4_get_var_chunk_cache,
 
-    NC4_filter_actions,    
+    NC4_hdf5_inq_var_filter_ids,
+    NC4_hdf5_inq_var_filter_info,
 };
 
 const NC_Dispatch* HDF5_dispatch_table = NULL; /* moved here from ddispatch.c */

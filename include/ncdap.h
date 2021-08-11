@@ -36,11 +36,14 @@ typedef unsigned int NCFLAGS;
 #define NCF_PREFETCH_ALL    (0x0800) /* Prefetch all variables */
 /* Allow _FillValue/Variable type mismatch */
 #define NCF_FILLMISMATCH    (0x1000)
+/* Hack to control URL encoding */
+#define NCF_ENCODE_PATH     (0x2000) 
+#define NCF_ENCODE_QUERY    (0x4000) 
 /*COLUMBIA_HACK*/
 #define NCF_COLUMBIA        (0x80000000) /* Hack for columbia server */
 
 /* Define all the default on flags */
-#define DFALT_ON_FLAGS (NCF_CACHE|NCF_PREFETCH)
+#define DFALT_ON_FLAGS (NCF_CACHE|NCF_PREFETCH|NCF_FILLMISMATCH)
 
 typedef struct NCCONTROLS {
     NCFLAGS  flags;

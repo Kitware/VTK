@@ -3,9 +3,7 @@
  *	See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "config.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,6 +15,9 @@
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
+#ifdef HAVE_DIRENT_H
+#include <dirent.h>
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #include <winbase.h>
@@ -26,7 +27,7 @@
 #include "ncdispatch.h"
 #include "nc3internal.h"
 #include "netcdf_mem.h"
-#include "ncwinpath.h"
+#include "ncpathmgr.h"
 
 #undef DEBUG
 

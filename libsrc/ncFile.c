@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "ncpathmgr.h"
+
 /*
 Implement the ncstdio.h interface using unix stdio.h
 */
@@ -84,9 +86,9 @@ ncFile_open(const char *path, int ioflags, ncstdio** filepp)
     File* f;
 
     if(fIsSet(ioflags,NC_NOCLOBBER))
-        f = fopen(path,"r");
+        f = NCfopen(path,"r");
     else
-        f = fopen(path,"w+");
+        f = NCfopen(path,"w+");
     if(f == NULL)
 	return errno;
 
