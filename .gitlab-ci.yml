@@ -159,6 +159,7 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
 test:fedora33-mpi-python-qt-stdthread:
     variables:
         VTK_SMP_BACKEND_IN_USE: 'STDThread'
+        CTEST_NEW_CDASH_SUBMISSION: 'True'
     extends:
         - .fedora33_mpi_python_qt_stdthread
         - .cmake_test_linux
@@ -504,6 +505,7 @@ test:macos-x86_64-kits-python-qt:
 test:macos-x86_64-kits-python-qt-stdthread:
     variables:
         VTK_SMP_BACKEND_IN_USE: 'STDThread'
+        CTEST_NEW_CDASH_SUBMISSION: 'True'
     extends:
         - .macos_x86_64_kits_python_qt_stdthread
         - .cmake_test_macos
@@ -662,6 +664,7 @@ test:windows-vs2019-kits-mpi-python-qt:
 test:windows-vs2019-kits-mpi-python-qt-stdthread:
     variables:
         VTK_SMP_BACKEND_IN_USE: 'STDThread'
+        CTEST_NEW_CDASH_SUBMISSION: 'True'
     extends:
         - .windows_vs2019_kits_mpi_python_qt_stdthread
         - .cmake_test_windows
