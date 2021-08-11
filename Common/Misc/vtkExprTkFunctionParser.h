@@ -292,6 +292,31 @@ protected:
   int Parse(ParseMode mode);
 
   /**
+   * Enum that defines the vector returning functions that are not supported by ExprTk.
+   */
+  enum VectorReturningFunction
+  {
+    Cross,
+    Norm
+  };
+
+  /**
+   * ExprTk does not support functions which return a vector.
+   *
+   * All the cross(v1,v2) occurrences will be replaced with
+   * (iHat*crossX(v1,v2)+jHat*crossY(v1,v2)+kHat*crossZ(v1,v2)).
+   *
+   * All the norm(v) occurrences will be replaced with ((v)/mag(v)).
+   */
+  std::string FixVectorReturningFunctionOccurrences(
+    VectorReturningFunction vectorReturningFunction);
+
+  /**
+   *  Check possible usage of old format of dot product, e.g. v1.v2
+   */
+  bool CheckOldFormatOfDotProductUsage();
+
+  /**
    * Evaluate the function, returning true on success, false on failure.
    */
   bool Evaluate();

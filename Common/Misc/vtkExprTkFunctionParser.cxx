@@ -282,6 +282,19 @@ std::string RemoveSpacesFrom(std::string str)
 }
 
 //------------------------------------------------------------------------------
+bool HasEnding(const std::string& fullString, const std::string& ending)
+{
+  if (fullString.size() >= ending.size())
+  {
+    return (fullString.compare(fullString.size() - ending.size(), ending.size(), ending) == 0);
+  }
+  else
+  {
+    return false;
+  }
+}
+
+//------------------------------------------------------------------------------
 std::string GenerateRandomAlphabeticString(unsigned int len)
 {
   static constexpr auto chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -412,50 +425,32 @@ int vtkExprTkFunctionParser::Parse(ParseMode mode)
     // remove spaces to perform replacement for norm and cross
     this->FunctionWithUsedVariableNames = RemoveSpacesFrom(this->FunctionWithUsedVariableNames);
 
-    // check if cross(v1,v2) operation exist in the function,
-    // and replace with (iHat*crossX(v1, v2)+jHat*crossY(v1, v2)+kHat*crossZ(v1, v2))
-    // @note this regex works ONLY if v1, and v2 are just variables,
-    // not sub-expressions which include parenthesis and commas
-    std::string temp = this->FunctionWithUsedVariableNames;
-    std::regex crossProductRegex = std::regex("cross\\(([^)]+),([^)]+)\\)");
-    std::smatch sm;
-    while (std::regex_search(temp, sm, crossProductRegex))
+    // check for usage of old dot format product, e.g. (v1.v2) instead of dot(v1,v2)
+    if (this->CheckOldFormatOfDotProductUsage())
     {
-      // if cross product has been extracted and the 2 vectors variables were identified
-      if (sm.size() == 3)
-      {
-        std::string substring = "cross(" + sm[1].str() + "," + sm[2].str() + ")";
-        std::string replacement = "(iHat*crossX(" + sm[1].str() + "," + sm[2].str() + ")" +
-          "+jHat*crossY(" + sm[1].str() + "," + sm[2].str() + ")" + "+kHat*crossZ(" + sm[1].str() +
-          "," + sm[2].str() + "))";
-        vtksys::SystemTools::ReplaceString(
-          this->FunctionWithUsedVariableNames, substring, replacement);
-      }
-      temp = sm.suffix().str();
+      std::string oldDotUsageError =
+        "Warn: 0000 Type: [Old Usage] Msg: "
+        "Possible usage of old format of dot product v1.v2. Please use dot(v1,v2)."
+        "\tExpression: " +
+        this->Function + '\n';
+      vtkWarningMacro(<< oldDotUsageError);
     }
 
-    // check if norm(v) operation exist in the function,
-    // and replace with (v/mag(v))
-    // @note this regex works ONLY if v is just a variable,
-    // not a sub-expression which includes parenthesis and commas
-    temp = this->FunctionWithUsedVariableNames;
-    std::regex normRegex = std::regex("norm\\(([^)]+)\\)");
-    while (std::regex_search(temp, sm, normRegex))
-    {
-      // if norm has been extracted and the vector variable was identified
-      if (sm.size() == 2)
-      {
-        std::string substring = "norm(" + sm[1].str() + ")";
-        std::string replacement = "(" + sm[1].str() + "/mag(" + sm[1].str() + "))";
-        vtksys::SystemTools::ReplaceString(
-          this->FunctionWithUsedVariableNames, substring, replacement);
-      }
-      temp = sm.suffix().str();
-    }
+    // fix cross occurrences with something that ExprTk can understand
+    this->FunctionWithUsedVariableNames =
+      FixVectorReturningFunctionOccurrences(VectorReturningFunction::Cross);
+
+    // fix norm occurrences with something that ExprTk can understand
+    this->FunctionWithUsedVariableNames =
+      FixVectorReturningFunctionOccurrences(VectorReturningFunction::Norm);
   }
 
+  // ExprTk is supposed to support scalars and vector in the format:
+  // if(statement, true-val, false-val)
+  // but there is a bug for the vectors, which will soon be fixed.
+  // Once fixed the following code for the if replacement will be removed.
+  //
   // check if "if-statement exists in the function and replace it with branches to support vectors
-  // ExprTk only supports scalars in the if statement format: if(statement, true-val, false-val)
   // @note this regex works ONLY if statement, true-val, false-val are just variables,
   // not a sub-expression which includes parenthesis,and commas
   std::string temp = this->FunctionWithUsedVariableNames;
@@ -520,8 +515,7 @@ int vtkExprTkFunctionParser::Parse(ParseMode mode)
       for (std::size_t i = 0; i < this->ExprTkTools->Parser.error_count(); ++i)
       {
         auto error = this->ExprTkTools->Parser.get_error(i);
-        parsingErrorStream << "Err: " << i << " Pos: " << error.token.position << " Type: ["
-                           << exprtk::parser_error::to_str(error.mode)
+        parsingErrorStream << "Err: " << i << " Type: [" << exprtk::parser_error::to_str(error.mode)
                            << "] Msg: " << error.diagnostic << "\tExpression: " << this->Function
                            << "\n";
       }
@@ -539,6 +533,218 @@ int vtkExprTkFunctionParser::Parse(ParseMode mode)
   }
   this->ParseMTime.Modified();
   return 1;
+}
+
+std::string vtkExprTkFunctionParser::FixVectorReturningFunctionOccurrences(
+  VectorReturningFunction vectorReturningFunction)
+{
+  std::string desiredFunction;
+  std::string functionWithoutParenthesis;
+  if (vectorReturningFunction == VectorReturningFunction::Cross)
+  {
+    desiredFunction = "cross(";
+    functionWithoutParenthesis = "cross";
+  }
+  else
+  {
+    desiredFunction = "norm(";
+    functionWithoutParenthesis = "norm";
+  }
+
+  // collect all the variables that end with the desired function, e.g. mycross, m1cross
+  std::vector<std::string> variableNamesContainingFunction;
+  for (const auto& scalarVariable : this->UsedScalarVariableNames)
+  {
+    if (HasEnding(scalarVariable, functionWithoutParenthesis))
+    {
+      variableNamesContainingFunction.push_back(scalarVariable);
+    }
+  }
+  for (const auto& vectorVariable : this->UsedVectorVariableNames)
+  {
+    if (HasEnding(vectorVariable, functionWithoutParenthesis))
+    {
+      variableNamesContainingFunction.push_back(vectorVariable);
+    }
+  }
+  // sort vector by size to ensure that the largest variables names will be checked first
+  std::sort(variableNamesContainingFunction.begin(), variableNamesContainingFunction.end(),
+    [](const std::string& s1, const std::string& s2) -> bool { return s1.size() > s2.size(); });
+
+  static const std::string allowedChars = "01234565789.,()+-*/%^|&=<>!";
+  std::string::size_type pos = 0;
+  std::string function = this->FunctionWithUsedVariableNames;
+  while ((pos = function.find(desiredFunction, pos)) != std::string::npos)
+  {
+    // if we are not in the beginning
+    if (pos - 1 != -1)
+    {
+      // check the found occurrence if it's part of a variable
+      // this check is required because the previous character could be a number
+      // and that is part of a variable name which includes cross, such m1cross
+      bool foundVariableOccurrence = false;
+      for (const auto& variable : variableNamesContainingFunction)
+      {
+        const size_t sizeDifference = variable.size() - functionWithoutParenthesis.size();
+        // check pos to not exceed the beginning
+        if (pos - sizeDifference >= 0)
+        {
+          // check if occurrence match variable
+          if (function.substr(pos - sizeDifference, variable.size()) == variable)
+          {
+            foundVariableOccurrence = true;
+            break;
+          }
+        }
+      }
+      // skip the found occurrence if it's part of a variable
+      if (foundVariableOccurrence)
+      {
+        pos += desiredFunction.size();
+        continue;
+      }
+
+      // check if a character that is allowed is found
+      bool allowedCharFound = false;
+      for (char allowedChar : allowedChars)
+      {
+        if (function[pos - 1] == allowedChar)
+        {
+          allowedCharFound = true;
+          break;
+        }
+      }
+
+      // skip the found occurrence if no allowed character has been found
+      if (!allowedCharFound)
+      {
+        pos += desiredFunction.size();
+        continue;
+      }
+    }
+
+    pos += desiredFunction.size();
+
+    // match the number of parenthesis
+    int leftParenthesis = 1; // 1 because we have already detected one
+    int rightParenthesis = 0;
+    std::stringstream interior;
+    for (size_t i = pos; i < function.size(); ++i)
+    {
+      if (function[i] == ')')
+      {
+        ++rightParenthesis;
+      }
+      if (function[i] == '(')
+      {
+        ++leftParenthesis;
+      }
+
+      if (leftParenthesis == rightParenthesis)
+      {
+        break;
+      }
+      else
+      {
+        interior << function[i];
+      }
+    }
+    // if the number of left and right parenthesis is equal, then replace appropriately
+    if (rightParenthesis == leftParenthesis)
+    {
+      // go back to replace
+      pos -= desiredFunction.size();
+
+      std::string replacement;
+      if (vectorReturningFunction == VectorReturningFunction::Cross)
+      {
+        // (iHat*crossX(v1,v2)+jHat*crossY(v1,v2)+kHat*crossZ(v1,v2))
+        replacement = "(iHat*crossX(" + interior.str() + ")" + "+jHat*crossY(" + interior.str() +
+          ")" + "+kHat*crossZ(" + interior.str() + "))";
+      }
+      else
+      {
+        // ((v)/mag(v))
+        replacement = "((" + interior.str() + ")/mag(" + interior.str() + "))";
+      }
+
+      // perform replacement, +1 is for the right parenthesis
+      function.replace(pos, desiredFunction.size() + interior.str().size() + 1, replacement);
+    }
+    else
+    {
+      // ExprTk will catch it the parenthesis mismatch
+      // ExprTk will also catch all the cases that the interior is not valid
+      break;
+    }
+  }
+  return function;
+}
+
+//------------------------------------------------------------------------------
+bool vtkExprTkFunctionParser::CheckOldFormatOfDotProductUsage()
+{
+  const std::string function = this->FunctionWithUsedVariableNames;
+  std::string::size_type pos = 0;
+  while ((pos = function.find('.', pos)) != std::string::npos)
+  {
+    // if we are not in the beginning
+    if (pos - 1 != -1)
+    {
+      // check if left character is digit
+      bool leftCharacterIsDigit = false;
+      if (std::isdigit(function[pos - 1]))
+      {
+        leftCharacterIsDigit = true;
+      }
+
+      // check if right character is digit
+      bool rightCharacterIsDigit = false;
+      // before that check, check if you can look at the right character
+      if (pos + 1 < function.size())
+      {
+        if (std::isdigit(function[pos + 1]))
+        {
+          rightCharacterIsDigit = true;
+        }
+      }
+
+      // both left character and right character are not digits
+      // then this is a possible product usage
+      if (!leftCharacterIsDigit && !rightCharacterIsDigit)
+      {
+        return true;
+      }
+      else
+      {
+        ++pos;
+      }
+    }
+    else
+    {
+      // check if right character is number
+      bool rightCharacterIsNumber = false;
+      // before that check, check if you can look at the right character
+      if (pos + 1 < function.size())
+      {
+        if (std::isdigit(function[pos + 1]))
+        {
+          rightCharacterIsNumber = true;
+        }
+      }
+      // right character is not a number
+      // then this is a possible product usage
+      if (!rightCharacterIsNumber)
+      {
+        return true;
+      }
+      else
+      {
+        ++pos;
+      }
+    }
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
