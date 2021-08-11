@@ -156,25 +156,19 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
     needs:
         - test:fedora33-mpi-python-qt-tbb
 
-build:fedora33-mpi-python-qt-shared-stdthread:
+test:fedora33-mpi-python-qt-stdthread:
+    variables:
+        VTK_SMP_BACKEND_IN_USE: 'STDThread'
     extends:
-        - .fedora33_mpi_python_qt_shared_stdthread
-        - .cmake_build_linux
-        - .linux_qt_builder_tags
-        - .cmake_build_artifacts
-        - .run_manually
-
-test:fedora33-mpi-python-qt-shared-stdthread:
-    extends:
-        - .fedora33_mpi_python_qt_shared_stdthread
+        - .fedora33_mpi_python_qt_stdthread
         - .cmake_test_linux
         - .linux_qt_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - build:fedora33-mpi-python-qt-shared-stdthread
+        - build:fedora33-mpi-python-qt-tbb
     needs:
-        - build:fedora33-mpi-python-qt-shared-stdthread
+        - build:fedora33-mpi-python-qt-tbb
 
 
 ## Python wheel builds

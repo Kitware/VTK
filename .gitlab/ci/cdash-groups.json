@@ -38,7 +38,7 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_python_qt_shared_stdthread]"
+            "buildname": "[fedora33_mpi_python_qt_stdthread]"
         },
         {
             "group": "master",
