@@ -148,7 +148,7 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[windows_vs2019_mpi_python_qt_stdthread]"
+            "buildname": "[windows_vs2019_kits_mpi_python_qt_stdthread]"
         },
         {
             "group": "master",

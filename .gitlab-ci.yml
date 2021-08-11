@@ -659,25 +659,19 @@ test:windows-vs2019-kits-mpi-python-qt:
     needs:
         - build:windows-vs2019-kits-mpi-python-qt
 
-build:windows-vs2019-mpi-python-qt-stdthread:
+test:windows-vs2019-kits-mpi-python-qt-stdthread:
+    variables:
+        VTK_SMP_BACKEND_IN_USE: 'STDThread'
     extends:
-        - .windows_vs2019_mpi_python_qt_stdthread
-        - .cmake_build_windows
-        - .windows_builder_tags
-        - .cmake_build_artifacts
-        - .run_manually
-
-test:windows-vs2019-mpi-python-qt-stdthread:
-    extends:
-        - .windows_vs2019_mpi_python_qt_stdthread
+        - .windows_vs2019_kits_mpi_python_qt_stdthread
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - build:windows-vs2019-mpi-python-qt-stdthread
+        - build:windows-vs2019-kits-mpi-python-qt
     needs:
-        - build:windows-vs2019-mpi-python-qt-stdthread
+        - build:windows-vs2019-kits-mpi-python-qt
 
 # This is disabled because VTK-m doesn't make a relocatable installation of its
 # imported targets (cf. `vtkm::tbb` since it embeds the build-time locations
