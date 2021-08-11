@@ -44,16 +44,14 @@
  * cosh
  * exp
  * floor
- * ln (only by vtkFunctionParser)
- * log (only by vtkExprTkFunctionParser)
+ * ln
  * mag
  * min
  * max
  * norm
  * dot (only by vtkExprTkFunctionParser)
  * cross
- * sign (only by vtkFunctionParser)
- * sgn (only by vtkExprTkFunctionParser)
+ * sign
  * sin
  * sinh
  * sqrt
@@ -268,7 +266,7 @@ public:
    * When ReplaceInvalidValues is on, all invalid values (such as
    * sqrt(-2), note that function parser does not handle complex
    * numbers) will be replaced by ReplacementValue. Otherwise an
-   * error will be reported
+   * error will be reported.
    */
   vtkSetMacro(ReplaceInvalidValues, vtkTypeBool);
   vtkGetMacro(ReplaceInvalidValues, vtkTypeBool);
@@ -300,11 +298,21 @@ public:
 
   ///@{
   /**
-   * This option defines which FunctionParser type will be used.
+   * Set/Get the FunctionParser type that will be used.
    * vtkFunctionParser = 0, vtkExprTkFunctionParser = 1. Default is 1.
    */
-  vtkSetMacro(FunctionParserType, int);
-  vtkGetMacro(FunctionParserType, int);
+  vtkSetEnumMacro(FunctionParserType, FunctionParserTypes);
+  void SetFunctionParserTypeToFunctionParser()
+  {
+    this->FunctionParserType = FunctionParserTypes::FunctionParser;
+    this->Modified();
+  }
+  void SetFunctionParserTypeToExprTkFunctionParser()
+  {
+    this->FunctionParserType = FunctionParserTypes::ExprTkFunctionParser;
+    this->Modified();
+  }
+  vtkGetEnumMacro(FunctionParserType, FunctionParserTypes);
   ///@}
 
   /**
@@ -335,7 +343,7 @@ protected:
    */
   static std::string CheckValidVariableName(const char* variableName);
 
-  int FunctionParserType;
+  FunctionParserTypes FunctionParserType;
 
   char* Function;
   char* ResultArrayName;

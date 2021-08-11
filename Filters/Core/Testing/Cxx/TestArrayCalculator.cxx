@@ -27,6 +27,7 @@ int TestArrayCalculator(int argc, char* argv[])
 {
   for (int i = 0; i < vtkArrayCalculator::NumberOfFunctionParserTypes; ++i)
   {
+    auto parserType = static_cast<vtkArrayCalculator::FunctionParserTypes>(i);
     char* filename =
       vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/disk_out_ref_surface.vtp");
 
@@ -39,7 +40,7 @@ int TestArrayCalculator(int argc, char* argv[])
     // with a function
     vtkNew<vtkArrayCalculator> calc;
     calc->SetInputConnection(reader->GetOutputPort());
-    calc->SetFunctionParserType(i);
+    calc->SetFunctionParserType(parserType);
     calc->SetAttributeTypeToPointData();
     calc->AddScalarArrayName("Pres");
     calc->AddScalarArrayName("Temp");
@@ -50,7 +51,7 @@ int TestArrayCalculator(int argc, char* argv[])
     // now generate a vector with the second calculator
     vtkNew<vtkArrayCalculator> calc2;
     calc2->SetInputConnection(calc->GetOutputPort());
-    calc2->SetFunctionParserType(i);
+    calc2->SetFunctionParserType(parserType);
     calc2->SetAttributeTypeToPointData();
     calc2->AddScalarArrayName("Pres");
     calc2->AddScalarArrayName("Temp");
@@ -63,7 +64,7 @@ int TestArrayCalculator(int argc, char* argv[])
     // confirm that we don't use "Pres" array, but the "PresVector"
     vtkNew<vtkArrayCalculator> calc3;
     calc3->SetInputConnection(calc2->GetOutputPort());
-    calc3->SetFunctionParserType(i);
+    calc3->SetFunctionParserType(parserType);
     calc3->SetAttributeTypeToPointData();
     calc3->AddScalarArrayName("Pres");
     calc3->AddVectorArrayName("PresVector");
@@ -82,7 +83,7 @@ int TestArrayCalculator(int argc, char* argv[])
     // Test IgnoreMissingArrays option
     vtkNew<vtkArrayCalculator> calc4;
     calc4->SetInputConnection(calc2->GetOutputPort());
-    calc4->SetFunctionParserType(i);
+    calc4->SetFunctionParserType(parserType);
     calc4->SetAttributeTypeToPointData();
     calc4->IgnoreMissingArraysOn();
     calc4->AddScalarArrayName("NonExistant");
@@ -101,7 +102,7 @@ int TestArrayCalculator(int argc, char* argv[])
     // Ensure that multiple variable names can be defined for the same array
     vtkNew<vtkArrayCalculator> calc5;
     calc5->SetInputConnection(calc2->GetOutputPort());
-    calc5->SetFunctionParserType(i);
+    calc5->SetFunctionParserType(parserType);
     calc5->SetAttributeTypeToPointData();
     calc5->AddScalarVariable("Pres", "Pres");
     calc5->AddScalarVariable("\"Pres\"", "Pres");
@@ -140,7 +141,7 @@ int TestArrayCalculator(int argc, char* argv[])
     // finally, check that a dataset with a lot of arrays is supported
     vtkNew<vtkArrayCalculator> calc6;
     calc6->SetInputConnection(reader2->GetOutputPort());
-    calc6->SetFunctionParserType(i);
+    calc6->SetFunctionParserType(parserType);
     calc6->SetAttributeTypeToPointData();
     for (int j = 0; j < reader2->GetNumberOfPointArrays(); j++)
     {

@@ -187,7 +187,6 @@ public:
 
     // Tell the parser about scalar arrays
     vtkDataArray* currentArray;
-    double tempTuple[100];
     for (size_t i = 0; i < this->ScalarArrayNames.size(); i++)
     {
       currentArray = this->InFD->GetArray(this->ScalarArrayNames[i].c_str());
@@ -195,9 +194,8 @@ public:
       {
         if (currentArray->GetNumberOfComponents() > this->SelectedScalarComponents[i])
         {
-          currentArray->GetTuple(0, tempTuple);
-          functionParser->SetScalarVariableValue(
-            this->ScalarVariableNames[i].c_str(), tempTuple[this->SelectedScalarComponents[i]]);
+          functionParser->SetScalarVariableValue(this->ScalarVariableNames[i].c_str(),
+            currentArray->GetComponent(0, this->SelectedScalarComponents[i]));
         }
         else
         {
@@ -227,11 +225,10 @@ public:
           (currentArray->GetNumberOfComponents() > this->SelectedVectorComponents[i][1]) &&
           (currentArray->GetNumberOfComponents() > this->SelectedVectorComponents[i][2]))
         {
-          currentArray->GetTuple(0, tempTuple);
           functionParser->SetVectorVariableValue(this->VectorVariableNames[i].c_str(),
-            tempTuple[this->SelectedVectorComponents[i][0]],
-            tempTuple[this->SelectedVectorComponents[i][1]],
-            tempTuple[this->SelectedVectorComponents[i][2]]);
+            currentArray->GetComponent(0, this->SelectedVectorComponents[i][0]),
+            currentArray->GetComponent(0, this->SelectedVectorComponents[i][1]),
+            currentArray->GetComponent(0, this->SelectedVectorComponents[i][2]));
         }
         else
         {
@@ -254,34 +251,35 @@ public:
     // Tell the parser about the coordinate arrays
     if (this->AttributeType == vtkDataObject::POINT || AttributeType == vtkDataObject::VERTEX)
     {
+      double pt[3];
       for (size_t i = 0; i < this->CoordinateScalarVariableNames.size(); i++)
       {
         if (this->DsInput)
         {
-          this->DsInput->GetPoint(0, tempTuple);
+          this->DsInput->GetPoint(0, pt);
         }
         else
         {
-          this->GraphInput->GetPoint(0, tempTuple);
+          this->GraphInput->GetPoint(0, pt);
         }
         functionParser->SetScalarVariableValue(this->CoordinateScalarVariableNames[i].c_str(),
-          tempTuple[this->SelectedCoordinateScalarComponents[i]]);
+          pt[this->SelectedCoordinateScalarComponents[i]]);
       }
 
       for (size_t i = 0; i < this->CoordinateVectorVariableNames.size(); i++)
       {
         if (this->DsInput)
         {
-          this->DsInput->GetPoint(0, tempTuple);
+          this->DsInput->GetPoint(0, pt);
         }
         else
         {
-          this->GraphInput->GetPoint(0, tempTuple);
+          this->GraphInput->GetPoint(0, pt);
         }
         functionParser->SetVectorVariableValue(this->CoordinateVectorVariableNames[i].c_str(),
-          tempTuple[this->SelectedCoordinateVectorComponents[i][0]],
-          tempTuple[this->SelectedCoordinateVectorComponents[i][1]],
-          tempTuple[this->SelectedCoordinateVectorComponents[i][2]]);
+          pt[this->SelectedCoordinateVectorComponents[i][0]],
+          pt[this->SelectedCoordinateVectorComponents[i][1]],
+          pt[this->SelectedCoordinateVectorComponents[i][2]]);
       }
     }
   }
@@ -291,53 +289,51 @@ public:
     auto& functionParser = FunctionParser.Local();
     vtkDataArray* currentArray;
 
-    double tempTuple[100];
     for (vtkIdType i = begin; i < end; i++)
     {
       for (size_t j = 0; j < this->ScalarArrayNames.size(); j++)
       {
         if ((currentArray = this->ScalarArrays[j]))
         {
-          currentArray->GetTuple(i, tempTuple);
-          functionParser->SetScalarVariableValue(
-            this->ScalarArrayIndices[j], tempTuple[this->SelectedScalarComponents[j]]);
+          functionParser->SetScalarVariableValue(this->ScalarArrayIndices[j],
+            currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
         }
       }
       for (size_t j = 0; j < this->VectorArrayNames.size(); j++)
       {
         if ((currentArray = this->VectorArrays[j]))
         {
-          currentArray->GetTuple(i, tempTuple);
           functionParser->SetVectorVariableValue(this->VectorArrayIndices[j],
-            tempTuple[this->SelectedVectorComponents[j][0]],
-            tempTuple[this->SelectedVectorComponents[j][1]],
-            tempTuple[this->SelectedVectorComponents[j][2]]);
+            currentArray->GetComponent(i, this->SelectedVectorComponents[j][0]),
+            currentArray->GetComponent(i, this->SelectedVectorComponents[j][1]),
+            currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
         }
       }
       if (this->AttributeType == vtkDataObject::POINT ||
         this->AttributeType == vtkDataObject::VERTEX)
       {
+        double pt[3];
         if (this->DsInput)
         {
-          this->DsInput->GetPoint(i, tempTuple);
+          this->DsInput->GetPoint(i, pt);
         }
         else
         {
-          this->GraphInput->GetPoint(i, tempTuple);
+          this->GraphInput->GetPoint(i, pt);
         }
         for (size_t j = 0; j < this->CoordinateScalarVariableNames.size(); j++)
         {
           functionParser->SetScalarVariableValue(
             static_cast<int>(j + this->ScalarArrayNames.size()),
-            tempTuple[this->SelectedCoordinateScalarComponents[j]]);
+            pt[this->SelectedCoordinateScalarComponents[j]]);
         }
         for (size_t j = 0; j < this->CoordinateVectorVariableNames.size(); j++)
         {
           functionParser->SetVectorVariableValue(
             static_cast<int>(j + this->VectorArrayNames.size()),
-            tempTuple[this->SelectedCoordinateVectorComponents[j][0]],
-            tempTuple[this->SelectedCoordinateVectorComponents[j][1]],
-            tempTuple[this->SelectedCoordinateVectorComponents[j][2]]);
+            pt[this->SelectedCoordinateVectorComponents[j][0]],
+            pt[this->SelectedCoordinateVectorComponents[j][1]],
+            pt[this->SelectedCoordinateVectorComponents[j][2]]);
         }
       }
       if (resultType == SCALAR_RESULT)
@@ -382,7 +378,6 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
   vtkDataArray* currentArray;
 
   // Tell the parser about scalar arrays
-  double tempTuple[100];
   for (size_t i = 0; i < this->ScalarArrayNames.size(); i++)
   {
     currentArray = inFD->GetArray(this->ScalarArrayNames[i].c_str());
@@ -390,9 +385,8 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
     {
       if (currentArray->GetNumberOfComponents() > this->SelectedScalarComponents[i])
       {
-        currentArray->GetTuple(0, tempTuple);
-        functionParser->SetScalarVariableValue(
-          this->ScalarVariableNames[i].c_str(), tempTuple[this->SelectedScalarComponents[i]]);
+        functionParser->SetScalarVariableValue(this->ScalarVariableNames[i].c_str(),
+          currentArray->GetComponent(0, this->SelectedScalarComponents[i]));
       }
       else
       {
@@ -425,11 +419,10 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
         (currentArray->GetNumberOfComponents() > this->SelectedVectorComponents[i][1]) &&
         (currentArray->GetNumberOfComponents() > this->SelectedVectorComponents[i][2]))
       {
-        currentArray->GetTuple(0, tempTuple);
         functionParser->SetVectorVariableValue(this->VectorVariableNames[i].c_str(),
-          tempTuple[this->SelectedVectorComponents[i][0]],
-          tempTuple[this->SelectedVectorComponents[i][1]],
-          tempTuple[this->SelectedVectorComponents[i][2]]);
+          currentArray->GetComponent(0, this->SelectedVectorComponents[i][0]),
+          currentArray->GetComponent(0, this->SelectedVectorComponents[i][1]),
+          currentArray->GetComponent(0, this->SelectedVectorComponents[i][2]));
       }
       else
       {
@@ -455,34 +448,36 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
   // Tell the parser about the coordinate arrays
   if (attributeType == vtkDataObject::POINT || attributeType == vtkDataObject::VERTEX)
   {
+    double pt[3];
     for (size_t i = 0; i < this->CoordinateScalarVariableNames.size(); i++)
     {
       if (dsInput)
       {
-        dsInput->GetPoint(0, tempTuple);
+        dsInput->GetPoint(0, pt);
       }
       else
       {
-        graphInput->GetPoint(0, tempTuple);
+        graphInput->GetPoint(0, pt);
       }
       functionParser->SetScalarVariableValue(this->CoordinateScalarVariableNames[i].c_str(),
-        tempTuple[this->SelectedCoordinateScalarComponents[i]]);
+        pt[this->SelectedCoordinateScalarComponents[i]]);
     }
 
     for (size_t i = 0; i < this->CoordinateVectorVariableNames.size(); i++)
     {
+      double pt[3];
       if (dsInput)
       {
-        dsInput->GetPoint(0, tempTuple);
+        dsInput->GetPoint(0, pt);
       }
       else
       {
-        graphInput->GetPoint(0, tempTuple);
+        graphInput->GetPoint(0, pt);
       }
       functionParser->SetVectorVariableValue(this->CoordinateVectorVariableNames[i].c_str(),
-        tempTuple[this->SelectedCoordinateVectorComponents[i][0]],
-        tempTuple[this->SelectedCoordinateVectorComponents[i][1]],
-        tempTuple[this->SelectedCoordinateVectorComponents[i][2]]);
+        pt[this->SelectedCoordinateVectorComponents[i][0]],
+        pt[this->SelectedCoordinateVectorComponents[i][1]],
+        pt[this->SelectedCoordinateVectorComponents[i][2]]);
     }
   }
 
