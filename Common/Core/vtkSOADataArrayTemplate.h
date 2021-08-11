@@ -184,22 +184,7 @@ public:
    * or a more derived type, and performs a static_cast to return
    * source as a vtkDataArray pointer. Otherwise, nullptr is returned.
    */
-  static vtkSOADataArrayTemplate<ValueType>* FastDownCast(vtkAbstractArray* source)
-  {
-    if (source)
-    {
-      switch (source->GetArrayType())
-      {
-        case vtkAbstractArray::SoADataArrayTemplate:
-          if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-          {
-            return static_cast<vtkSOADataArrayTemplate<ValueType>*>(source);
-          }
-          break;
-      }
-    }
-    return nullptr;
-  }
+  static vtkSOADataArrayTemplate<ValueType>* FastDownCast(vtkAbstractArray* source);
   ///@}
 #endif
 

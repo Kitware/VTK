@@ -46,11 +46,8 @@
 #define VTK_COMPILER_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
-/** extern template declarations for C++11. Only MinGW32 doesn't support this
- */
-#if !defined(__MINGW32__)
+/** extern template declarations for C++11. */
 #define VTK_USE_EXTERN_TEMPLATE
-#endif
 
 #endif
 
