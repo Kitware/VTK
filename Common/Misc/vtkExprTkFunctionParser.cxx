@@ -1179,15 +1179,17 @@ void vtkExprTkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
   for (size_t i = 0; i < this->OriginalScalarVariableNames.size(); i++)
   {
     os << indent << "  " << this->OriginalScalarVariableNames[i] << " / "
-       << this->GetScalarVariableName(i) << ": " << this->GetScalarVariableValue(i) << endl;
+       << this->GetScalarVariableName(static_cast<int>(i)) << ": "
+       << this->GetScalarVariableValue(static_cast<int>(i)) << endl;
   }
 
   for (size_t i = 0; i < this->OriginalVectorVariableNames.size(); i++)
   {
     os << indent << "  " << this->OriginalVectorVariableNames[i] << " / "
-       << this->GetVectorVariableName(i) << ": (" << this->GetVectorVariableValue(i)[0] << ", "
-       << this->GetVectorVariableValue(i)[1] << ", " << this->GetVectorVariableValue(i)[2] << ")"
-       << endl;
+       << this->GetVectorVariableName(static_cast<int>(i)) << ": ("
+       << this->GetVectorVariableValue(static_cast<int>(i))[0] << ", "
+       << this->GetVectorVariableValue(static_cast<int>(i))[1] << ", "
+       << this->GetVectorVariableValue(static_cast<int>(i))[2] << ")" << endl;
   }
 
   if (this->EvaluateMTime.GetMTime() > this->FunctionMTime.GetMTime() &&

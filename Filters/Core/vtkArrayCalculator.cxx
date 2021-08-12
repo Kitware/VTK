@@ -465,7 +465,6 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
 
     for (size_t i = 0; i < this->CoordinateVectorVariableNames.size(); i++)
     {
-      double pt[3];
       if (dsInput)
       {
         dsInput->GetPoint(0, pt);
