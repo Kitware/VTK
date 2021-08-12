@@ -51,6 +51,19 @@ class vtkWebProtocol(LinkProtocol):
         """
         return self.getApplication().GetObjectIdMap().GetGlobalId(obj)
 
+    def freeObject(self, obj):
+        """
+        Delete the given vtkObject from the objectIdMap. Returns true if delete succeeded.
+        """
+        return self.getApplication().GetObjectIdMap().FreeObject(obj)
+
+    def freeObjectById(self, id):
+        """
+        Delete the vtkObject corresponding to the given objectId from the objectIdMap.
+        Returns true if delete succeeded.
+        """
+        return self.getApplication().GetObjectIdMap().FreeObjectById(id)
+
     def getView(self, vid):
         """
         Returns the view for a given view ID, if vid is None then return the

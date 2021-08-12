@@ -107,12 +107,27 @@ vtkObject* vtkObjectIdMap::GetActiveObject(const char* objectType)
 }
 
 //------------------------------------------------------------------------------
-void vtkObjectIdMap::FreeObject(vtkObject* obj)
+bool vtkObjectIdMap::FreeObject(vtkObject* obj)
 {
   auto iter = this->Internals->GlobalId.find(obj);
-  if (iter != this->Internals->GlobalId.end())
+  auto found = iter != this->Internals->GlobalId.end();
+  if (found)
   {
-    this->Internals->GlobalId.erase(obj);
     this->Internals->Object.erase(iter->second);
+    this->Internals->GlobalId.erase(iter);
   }
+  return found;
+}
+
+//------------------------------------------------------------------------------
+bool vtkObjectIdMap::FreeObjectById(vtkTypeUInt32 id)
+{
+  auto iter = this->Internals->Object.find(id);
+  auto found = iter != this->Internals->Object.end();
+  if (found)
+  {
+    this->Internals->GlobalId.erase(iter->second);
+    this->Internals->Object.erase(iter);
+  }
+  return found;
 }
