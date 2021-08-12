@@ -83,6 +83,7 @@
 #include <hdf5_hl.h>
 
 #include "nc4internal.h"
+#include "hdf5internal.h"
 
 #ifndef HDrealloc
 #define HDrealloc(x,y) realloc(x,y)
@@ -806,10 +807,10 @@ NC4_image_init(NC_FILE_INFO_T* h5)
 
     /* Assign file image in FAPL to the core file driver */
     if(create) {
-        if ((file_id = H5Fcreate(file_name, file_open_flags, H5P_DEFAULT, fapl)) < 0)
+        if ((file_id = nc4_H5Fcreate(file_name, file_open_flags, H5P_DEFAULT, fapl)) < 0)
             goto out;
     } else {
-        if ((file_id = H5Fopen(file_name, file_open_flags, fapl)) < 0)
+        if ((file_id = nc4_H5Fopen(file_name, file_open_flags, fapl)) < 0)
             goto out;
     }
 

@@ -5,9 +5,9 @@ set(NC_VERSION_NOTE "")
 set(netCDF_VERSION ${NC_VERSION_MAJOR}.${NC_VERSION_MINOR}.${NC_VERSION_PATCH}${NC_VERSION_NOTE})
 set(VERSION ${netCDF_VERSION})
 set(NC_VERSION ${netCDF_VERSION})
+set(NC_DISPATCH_VERSION 3)
 
 set(sources
-  libdispatch/crc32.c
   libdispatch/datt.c
   libdispatch/dattget.c
   libdispatch/dattinq.c
@@ -16,6 +16,8 @@ set(sources
   libdispatch/daux.c
   libdispatch/dcompound.c
   libdispatch/dcopy.c
+  libdispatch/dcrc32.c
+  libdispatch/dcrc64.c
   libdispatch/ddim.c
   libdispatch/ddispatch.c
   libdispatch/denum.c
@@ -30,6 +32,7 @@ set(sources
   libdispatch/doffsets.c
   libdispatch/dopaque.c
   libdispatch/dparallel.c
+  libdispatch/dpathmgr.c
   libdispatch/drc.c
   libdispatch/dreadonly.c
   libdispatch/dstring.c
@@ -41,16 +44,18 @@ set(sources
   libdispatch/dvarinq.c
   libdispatch/dvarput.c
   libdispatch/dvlen.c
-  libdispatch/dwinpath.c
-  libdispatch/ncbytes.c
   libdispatch/nc.c
+  libdispatch/ncbytes.c
+  libdispatch/ncexhash.c
   libdispatch/nchashmap.c
   libdispatch/nclist.c
   libdispatch/nclistmgr.c
   libdispatch/nclog.c
   libdispatch/nctime.c
   libdispatch/ncuri.c
+  libdispatch/ncxcache.c
   libdispatch/utf8proc.c
+  libdispatch/utf8proc.h
 
   liblib/nc_initialize.c
 
@@ -69,11 +74,11 @@ set(sources
 
   libsrc4/error4.c
   libsrc4/nc4attr.c
+  libsrc4/nc4cache.c
   libsrc4/nc4dim.c
   libsrc4/nc4dispatch.c
   libsrc4/nc4grp.c
   libsrc4/nc4internal.c
-  libsrc4/nc4printer.c
   libsrc4/nc4type.c
   libsrc4/nc4var.c
   libsrc4/ncfunc.c
@@ -94,7 +99,6 @@ set(sources
   libhdf5/hdf5var.c
   libhdf5/nc4mem.c
   libhdf5/nc4memcb.c
-  libhdf5/hdf5cache.c
   libhdf5/hdf5dispatch.c
   )
 
@@ -232,6 +236,7 @@ check_type_size("unsigned char" SIZEOF_UNSIGNED_CHAR)
 check_type_size("unsigned int" SIZEOF_UNSIGNED_INT)
 check_type_size("unsigned long long" SIZEOF_UNSIGNED_LONG_LONG)
 check_type_size("unsigned short int" SIZEOF_UNSIGNED_SHORT_INT)
+check_type_size("uint64_t" HAVE_UINT64_T)
 
 set(SIZEOF_UCHAR ${HAVE_UCHAR})
 set(SIZEOF_UINT ${HAVE_UINT})
@@ -249,6 +254,10 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/include/netcdf_meta.h"
   @ONLY)
 configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/netcdf_dispatch.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/netcdf_dispatch.h"
+  @ONLY)
+configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_netcdf_config.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_netcdf_config.h"
   @ONLY)
@@ -260,6 +269,7 @@ configure_file(
 set(headers
   include/netcdf.h
   include/vtk_netcdf_mangle.h
+  "${CMAKE_CURRENT_BINARY_DIR}/include/netcdf_dispatch.h"
   "${CMAKE_CURRENT_BINARY_DIR}/include/netcdf_meta.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_netcdf_config.h")
 

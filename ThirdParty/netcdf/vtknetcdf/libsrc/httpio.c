@@ -21,6 +21,8 @@
 #include <unistd.h>
 #endif
 #include "nc3internal.h"
+#include "nclist.h"
+#include "ncbytes.h"
 
 #undef DEBUG
 
@@ -41,8 +43,8 @@
 /* Private data */
 
 typedef struct NCHTTP {
-    CURL* curl; /* curl handle */
-    long long size; /* of the S3 object */
+    NC_HTTP_STATE* state;
+    size64_t size; /* of the S3 object */
     NCbytes* region;
 } NCHTTP;
 
@@ -164,9 +166,8 @@ httpio_open(const char* path,
 
     /* Create private data */
     if((status = httpio_new(path, ioflags, &nciop, &http))) goto done;
-
     /* Open the path and get curl handle and object size */
-    if((status = nc_http_open(path,&http->curl,&http->size))) goto done;
+    if((status = nc_http_open(path,&http->state,&http->size))) goto done;
 
     sizehint = pagesize;
 
@@ -226,7 +227,7 @@ httpio_close(ncio* nciop, int doUnlink)
     http = (NCHTTP*)nciop->pvt;
     assert(http != NULL);
 
-    status = nc_http_close(http->curl);
+    status = nc_http_close(http->state);
 
     /* do cleanup  */
     if(http != NULL) {
@@ -254,7 +255,7 @@ httpio_get(ncio* const nciop, off_t offset, size_t extent, int rflags, void** co
     assert(http->region == NULL);
     http->region = ncbytesnew();
     ncbytessetalloc(http->region,(unsigned long)extent);
-    if((status = nc_http_read(http->curl,nciop->path,offset,extent,http->region)))
+    if((status = nc_http_read(http->state,nciop->path,offset,extent,http->region)))
 	goto done;
     assert(ncbyteslength(http->region) == extent);
     if(vpp) *vpp = ncbytescontents(http->region);

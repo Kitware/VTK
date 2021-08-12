@@ -60,4 +60,7 @@
 #define NC_RELAX_COORD_BOUND 1 /*!< RELAX_COORD_BOUND */
 #define NC_DISPATCH_VERSION @NC_DISPATCH_VERSION@ /*!< Dispatch table version */
 #define NC_HAS_PAR_FILTERS @NC_HAS_PAR_FILTERS@ /* Parallel I/O with filter support. */
+#define NC_HAS_NCZARR      @NC_HAS_NCZARR@
+#define NC_HAS_MULTIFILTERS   @NC_HAS_MULTIFILTERS@
+
 #endif

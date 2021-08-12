@@ -13,6 +13,7 @@ The following third party library updates have been made:
   - lz4 1.9.3
   - lzma 5.2.5
   - mpi4py 3.0.3
+  - netcdf 4.8.0
   - ogg 1.3.5
   - pugixml 1.11.4
   - sqlite 3.36.0

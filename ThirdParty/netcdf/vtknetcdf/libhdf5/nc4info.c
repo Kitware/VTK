@@ -56,7 +56,6 @@ NC4_provenance_init(void)
     unsigned major,minor,release;
     NCbytes* buffer = NULL; /* for constructing the global _NCProperties */
     char printbuf[1024];
-    const char* p = NULL;
 
     if(globalpropinitialized)
         return stat;
@@ -91,11 +90,14 @@ NC4_provenance_init(void)
     ncbytescat(buffer,printbuf);
 
 #ifdef NCPROPERTIES_EXTRA
+    if(NCPROPERTIES_EXTRA != NULL && strlen(NCPROPERTIES_EXTRA) > 0)
+    { const char* p;
     /* Add any extra fields */
     p = NCPROPERTIES_EXTRA;
     if(p[0] == NCPROPSSEP2) p++; /* If leading separator */
     ncbytesappend(buffer,NCPROPSSEP2);
     ncbytescat(buffer,p);
+    }
 #endif
     ncbytesnull(buffer);
     globalprovenance.ncproperties = ncbytesextract(buffer);
@@ -257,7 +259,7 @@ NC4_read_ncproperties(NC_FILE_INFO_T* h5, char** propstring)
     }
 
     /* NCPROPS Attribute exists, make sure it is legitimate */
-    attid = H5Aopen_name(hdf5grpid, NCPROPS);
+    attid = H5Aopen_by_name(hdf5grpid, ".", NCPROPS, H5P_DEFAULT, H5P_DEFAULT);
     assert(attid > 0);
     aspace = H5Aget_space(attid);
     atype = H5Aget_type(attid);

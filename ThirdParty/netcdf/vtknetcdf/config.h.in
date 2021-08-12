@@ -17,6 +17,9 @@
 /* default file chunk cache size in bytes. */
 #cmakedefine CHUNK_CACHE_SIZE @CHUNK_CACHE_SIZE@
 
+/* default nczarr chunk cache size. */
+#undef CHUNK_CACHE_SIZE_NCZARR
+
 /* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
    systems. This function is required for `alloca.c' support on those systems.
    */
@@ -46,6 +49,24 @@
 /* if true, do remote tests */
 #cmakedefine ENABLE_DAP_REMOTE_TESTS
 
+/* if true, support byte-range using hdf5 virtual file driver. */
+#undef ENABLE_HDF5_ROS3
+
+/* if true, build NCZarr Client */
+#undef ENABLE_NCZARR
+
+/* if true, build libnczarr with S3 support enabled */
+#undef ENABLE_NCZARR_S3
+
+/* if true, build libnczarr with S3 tests enabled */
+#undef ENABLE_NCZARR_S3_TESTS
+
+/* If true, then libzip found */
+#undef ENABLE_NCZARR_ZIP
+
+/* If true, then S3 sdk was found */
+#undef ENABLE_S3_SDK
+
 /* If true, define nc_set_log_level. */
 #cmakedefine ENABLE_SET_LOG_LEVEL
 
@@ -55,12 +76,18 @@
 /* use HDF5 1.6 API */
 #cmakedefine H5_USE_16_API
 
+/* if true, multi-filter support enabled */
+#undef HAS_MULTIFILTERS
+
 /* Define to 1 if you have `alloca', as a function or macro. */
 #cmakedefine HAVE_ALLOCA
 
 /* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
    */
 #cmakedefine HAVE_ALLOCA_H
+
+/* Define to 1 if you have the `clock_gettime' function. */
+#undef HAVE_CLOCK_GETTIME
 
 /* Is CURLINFO_RESPONSE_CODE defined */
 #cmakedefine HAVE_CURLINFO_RESPONSE_CODE
@@ -92,8 +119,14 @@
    */
 #cmakedefine HAVE_DECL_ISNAN
 
+/* Define to 1 if you have the <dirent.h> header file. */
+#undef HAVE_DIRENT_H
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the <execinfo.h> header file. */
+#undef HAVE_EXECINFO_H
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H
@@ -125,11 +158,11 @@
 /* Define to 1 if you have the `H5allocate_memory' function. */
 #cmakedefine HAVE_H5ALLOCATE_MEMORY
 
-/* Define to 1 if you have the `H5Dread_chunk' function. */
-#undef HAVE_H5DREAD_CHUNK
-
 /* Define to 1 if you have the `H5free_memory' function. */
 #undef HAVE_H5FREE_MEMORY
+
+/* Define to 1 if you have the `H5Literate' function. */
+#undef HAVE_H5LITERATE
 
 /* Define to 1 if you have the `H5Pget_fapl_mpio' function. */
 #undef HAVE_H5PGET_FAPL_MPIO
@@ -139,9 +172,6 @@
 
 /* Define to 1 if you have the `H5Pset_deflate' function. */
 #undef HAVE_H5PSET_DEFLATE
-
-/* Define to 1 if you have the `H5Pset_libver_bounds' function. */
-#undef HAVE_H5PSET_LIBVER_BOUNDS
 
 /* Define to 1 if you have the `H5resize_memory' function. */
 #undef HAVE_H5RESIZE_MEMORY
@@ -157,6 +187,9 @@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H
+
+/* Is libcurl version 7.66 or later */
+#undef HAVE_LIBCURL_766
 
 /* Define to 1 if you have the `df' library (-ldf). */
 #cmakedefine HAVE_LIBDF
@@ -182,7 +215,7 @@
 /* Define to 1 if the system has the type `longlong'. */
 #cmakedefine HAVE_LONGLONG
 
-/* Define to 1 if the system has the type `long long int'. */
+/* Define to 1 if the system has the type 'long long int'. */
 #cmakedefine HAVE_LONG_LONG_INT
 
 /* Define to 1 if you have the <malloc.h> header file. */
@@ -221,11 +254,17 @@
 /* Define to 1 if the system has the type `schar'. */
 #undef HAVE_SCHAR
 
+/* Define to 1 if the system has the type `size64_t'. */
+#undef HAVE_SIZE64_T
+
 /* Define to 1 if the system has the type `size_t'. */
 #undef HAVE_SIZE_T
 
 /* Define to 1 if you have the `snprintf' function. */
 #cmakedefine HAVE_SNPRINTF
+
+/* Define to 1 if the system has the type `ssize64_t'. */
+#undef HAVE_SSIZE64_T
 
 /* Define to 1 if the system has the type `ssize_t'. */
 #cmakedefine HAVE_SSIZE_T
@@ -260,6 +299,9 @@
 /* Define to 1 if you have the `strndup' function. */
 #cmakedefine HAVE_STRNDUP
 
+/* Define to 1 if you have the `strncasecmp' function. */
+#undef HAVE_STRNCASECMP
+
 /* Define to 1 if you have the `strtoll' function. */
 #cmakedefine HAVE_STRTOLL
 
@@ -268,6 +310,9 @@
 
 /* Define to 1 if `st_blksize' is a member of `struct stat'. */
 #cmakedefine HAVE_STRUCT_STAT_ST_BLKSIZE
+
+/* Define to 1 if the system has the type `struct timespec'. */
+#undef HAVE_STRUCT_TIMESPEC
 
 /* Define to 1 if your `struct stat' has `st_blksize'. Deprecated, use
    `HAVE_STRUCT_STAT_ST_BLKSIZE' instead. */
@@ -291,6 +336,9 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #cmakedefine HAVE_SYS_TYPES_H
 
+/* Define to 1 if you have the <time.h> header file. */
+#undef HAVE_TIME_H
+
 /* Define to 1 if the system has the type `uchar'. */
 #cmakedefine HAVE_UCHAR
 
@@ -300,17 +348,23 @@
 /* Define to 1 if the system has the type `uint64'. */
 #undef HAVE_UINT64
 
+/* Define to 1 if the system has the type `uint64_t'. */
+#cmakedefine HAVE_UINT64_T
+
 /* Define to 1 if the system has the type `uintptr_t'. */
 #cmakedefine HAVE_UINTPTR_T
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H
 
-/* Define to 1 if the system has the type `unsigned long long int'. */
+/* Define to 1 if the system has the type 'unsigned long long int'. */
 #undef HAVE_UNSIGNED_LONG_LONG_INT
 
 /* Define to 1 if the system has the type `ushort'. */
 #cmakedefine HAVE_USHORT
+
+/* Define to 1 if the system has the type `_off64_t'. */
+#undef HAVE__OFF64_T
 
 /* if true, use collective metadata ops in parallel netCDF-4 */
 #cmakedefine HDF5_HAS_COLL_METADATA_OPS
@@ -322,7 +376,10 @@
    */
 #undef HDF5_SUPPORTS_PAR_FILTERS
 
-/* if true, include JNA bug fix */
+/* if true, HDF5 paths can be utf-8 */
+#cmakedefine HDF5_UTF8_PATHS
+
+/* if true, include jna bug workaround code */
 #cmakedefine JNA
 
 /* do large file tests */
@@ -342,6 +399,9 @@
 
 /* Extra pairs for _NCProperties */
 #cmakedefine NCPROPERTIES_EXTRA
+
+/* Dispatch table version. */
+/* #undef NC_DISPATCH_VERSION */
 
 /* no IEEE float on this platform */
 #cmakedefine NO_IEEE_FLOAT
@@ -552,9 +612,10 @@
    pointer, if such a type exists, and if the system does not define it. */
 #cmakedefine uintptr_t
 
-/* Define strcasecmp, snprintf on Win32 systems. */
+/* Define strcasecmp, strncasecmp, snprintf on Win32 systems. */
 #ifdef _WIN32
 	#define strcasecmp _stricmp
+	#define strncasecmp _strnicmp
 #ifndef HAVE_SNPRINTF
 	#define snprintf _snprintf
 #endif

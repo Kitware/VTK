@@ -18,6 +18,9 @@
 #endif
 #include <math.h>
 
+/** @internal Default size for unlimited dim chunksize. */
+#define DEFAULT_1D_UNLIM_SIZE (4096)
+
 /**
  * @internal This is called by nc_get_var_chunk_cache(). Get chunk
  * cache size for a variable.
@@ -211,22 +214,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
 	return NC_EFILTER;
 
     if (idp) {
-#if 0
-        NC* nc = h5->controller;
-	NC_FILTER_ACTION action;
-	action.action = NCFILTER_INQ_FILTER;
-	action.format = NC_FORMATX_NC_HDF5;
-	action.id =  (idp)?*idp:0;
-	action.nelems = (nparamsp)?*nparamsp:0;
-	action.elems = params;
-	if((retval = nc->dispatch->filter_actions(ncid,varid,&action)) == NC_NOERR) {
-	    if(idp) *idp = action.id;
-	    if(nparamsp) *nparamsp = action.nelems;
-	}
-	return retval;
-#else
 	return NC_EFILTER;
-#endif
     }
 
     /* Fill value stuff. */
@@ -263,7 +251,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
                 if (!(*(char **)fill_valuep = calloc(1, sizeof(char *))))
                     return NC_ENOMEM;
 
-                if ((retval = nc4_get_default_fill_value(var->type_info, (char **)fill_valuep)))
+                if ((retval = nc4_get_default_fill_value(var->type_info->hdr.id, (char **)fill_valuep)))
                 {
                     free(*(char **)fill_valuep);
                     return retval;
@@ -271,7 +259,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
             }
             else
             {
-                if ((retval = nc4_get_default_fill_value(var->type_info, fill_valuep)))
+                if ((retval = nc4_get_default_fill_value(var->type_info->hdr.id, fill_valuep)))
                     return retval;
             }
         }
@@ -279,7 +267,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
 
     /* Does the user want the endianness of this variable? */
     if (endiannessp)
-        *endiannessp = var->type_info->endianness;
+        *endiannessp = var->endianness;
 
     return NC_NOERR;
 }
@@ -439,7 +427,7 @@ NC4_var_par_access(int ncid, int varid, int par_access)
     /* If zlib, shuffle, or fletcher32 filters are in use, then access
      * must be collective. Fail an attempt to set such a variable to
      * independent access. */
-    if ((nclistlength(var->filters) > 0 || var->shuffle || var->fletcher32) &&
+    if ((nclistlength((NClist*)var->filters) > 0 || var->shuffle || var->fletcher32) &&
         par_access == NC_INDEPENDENT)
         return NC_EINVAL;
 
@@ -1262,6 +1250,87 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
 }
 
 /**
+ * @internal What fill value should be used for a variable?
+ *
+ * @param h5 Pointer to HDF5 file info struct.
+ * @param var Pointer to variable info struct.
+ * @param fillp Pointer that gets pointer to fill value.
+ *
+ * @returns NC_NOERR No error.
+ * @returns NC_ENOMEM Out of memory.
+ * @author Ed Hartnett
+ */
+int
+nc4_get_fill_value(NC_FILE_INFO_T *h5, NC_VAR_INFO_T *var, void **fillp)
+{
+    size_t size;
+    int retval;
+
+    /* Find out how much space we need for this type's fill value. */
+    if (var->type_info->nc_type_class == NC_VLEN)
+        size = sizeof(nc_vlen_t);
+    else if (var->type_info->nc_type_class == NC_STRING)
+        size = sizeof(char *);
+    else
+    {
+        if ((retval = nc4_get_typelen_mem(h5, var->type_info->hdr.id, &size)))
+            return retval;
+    }
+    assert(size);
+
+    /* Allocate the space. */
+    if (!((*fillp) = calloc(1, size)))
+        return NC_ENOMEM;
+
+    /* If the user has set a fill_value for this var, use, otherwise
+     * find the default fill value. */
+    if (var->fill_value)
+    {
+        LOG((4, "Found a fill value for var %s", var->hdr.name));
+        if (var->type_info->nc_type_class == NC_VLEN)
+        {
+            nc_vlen_t *in_vlen = (nc_vlen_t *)(var->fill_value), *fv_vlen = (nc_vlen_t *)(*fillp);
+            size_t basetypesize = 0;
+
+            if((retval=nc4_get_typelen_mem(h5, var->type_info->u.v.base_nc_typeid, &basetypesize)))
+                return retval;
+
+            fv_vlen->len = in_vlen->len;
+            if (!(fv_vlen->p = malloc(basetypesize * in_vlen->len)))
+            {
+                free(*fillp);
+                *fillp = NULL;
+                return NC_ENOMEM;
+            }
+            memcpy(fv_vlen->p, in_vlen->p, in_vlen->len * basetypesize);
+        }
+        else if (var->type_info->nc_type_class == NC_STRING)
+        {
+            if (*(char **)var->fill_value)
+                if (!(**(char ***)fillp = strdup(*(char **)var->fill_value)))
+                {
+                    free(*fillp);
+                    *fillp = NULL;
+                    return NC_ENOMEM;
+                }
+        }
+        else
+            memcpy((*fillp), var->fill_value, size);
+    }
+    else
+    {
+        if (nc4_get_default_fill_value(var->type_info->hdr.id, *fillp))
+        {
+            /* Note: release memory, but don't return error on failure */
+            free(*fillp);
+            *fillp = NULL;
+        }
+    }
+
+    return NC_NOERR;
+}
+
+/**
  * @internal Get the default fill value for an atomic type. Memory for
  * fill_value must already be allocated, or you are DOOMED!
  *
@@ -1273,9 +1342,9 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
  * @author Ed Hartnett
  */
 int
-nc4_get_default_fill_value(const NC_TYPE_INFO_T *type_info, void *fill_value)
+nc4_get_default_fill_value(nc_type typecode, void *fill_value)
 {
-    switch (type_info->hdr.id)
+    switch (typecode)
     {
     case NC_CHAR:
         *(char *)fill_value = NC_FILL_CHAR;
@@ -1394,6 +1463,172 @@ nc4_get_typelen_mem(NC_FILE_INFO_T *h5, nc_type xtype, size_t *len)
     *len = type->size;
 
     LOG((5, "type->size: %d", type->size));
+
+    return NC_NOERR;
+}
+
+
+/**
+ * @internal Check a set of chunksizes to see if they specify a chunk
+ * that is too big.
+ *
+ * @param grp Pointer to the group info.
+ * @param var Pointer to the var info.
+ * @param chunksizes Array of chunksizes to check.
+ *
+ * @returns ::NC_NOERR No error.
+ * @returns ::NC_EBADID Bad ncid.
+ * @returns ::NC_ENOTVAR Invalid variable ID.
+ * @returns ::NC_EBADCHUNK Bad chunksize.
+ */
+int
+nc4_check_chunksizes(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, const size_t *chunksizes)
+{
+    double dprod;
+    size_t type_len;
+    int d;
+    int retval;
+
+    if ((retval = nc4_get_typelen_mem(grp->nc4_info, var->type_info->hdr.id, &type_len)))
+        return retval;
+    if (var->type_info->nc_type_class == NC_VLEN)
+        dprod = (double)sizeof(nc_vlen_t);
+    else
+        dprod = (double)type_len;
+    for (d = 0; d < var->ndims; d++)
+        dprod *= (double)chunksizes[d];
+
+    if (dprod > (double) NC_MAX_UINT)
+        return NC_EBADCHUNK;
+
+    return NC_NOERR;
+}
+
+/**
+ * @internal Determine some default chunksizes for a variable.
+ *
+ * @param grp Pointer to the group info.
+ * @param var Pointer to the var info.
+ *
+ * @returns ::NC_NOERR for success
+ * @returns ::NC_EBADID Bad ncid.
+ * @returns ::NC_ENOTVAR Invalid variable ID.
+ * @author Ed Hartnett, Dennis Heimbigner
+ */
+int
+nc4_find_default_chunksizes2(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var)
+{
+    int d;
+    size_t type_size;
+    float num_values = 1, num_unlim = 0;
+    int retval;
+    size_t suggested_size;
+#ifdef LOGGING
+    double total_chunk_size;
+#endif
+
+    if (var->type_info->nc_type_class == NC_STRING)
+        type_size = sizeof(char *);
+    else
+        type_size = var->type_info->size;
+
+#ifdef LOGGING
+    /* Later this will become the total number of bytes in the default
+     * chunk. */
+    total_chunk_size = (double) type_size;
+#endif
+
+    if(var->chunksizes == NULL) {
+        if((var->chunksizes = calloc(1,sizeof(size_t)*var->ndims)) == NULL)
+            return NC_ENOMEM;
+    }
+
+    /* How many values in the variable (or one record, if there are
+     * unlimited dimensions). */
+    for (d = 0; d < var->ndims; d++)
+    {
+        assert(var->dim[d]);
+        if (! var->dim[d]->unlimited)
+            num_values *= (float)var->dim[d]->len;
+        else {
+            num_unlim++;
+            var->chunksizes[d] = 1; /* overwritten below, if all dims are unlimited */
+        }
+    }
+    /* Special case to avoid 1D vars with unlim dim taking huge amount
+       of space (DEFAULT_CHUNK_SIZE bytes). Instead we limit to about
+       4KB */
+    if (var->ndims == 1 && num_unlim == 1) {
+        if (DEFAULT_CHUNK_SIZE / type_size <= 0)
+            suggested_size = 1;
+        else if (DEFAULT_CHUNK_SIZE / type_size > DEFAULT_1D_UNLIM_SIZE)
+            suggested_size = DEFAULT_1D_UNLIM_SIZE;
+        else
+            suggested_size = DEFAULT_CHUNK_SIZE / type_size;
+        var->chunksizes[0] = suggested_size / type_size;
+        LOG((4, "%s: name %s dim %d DEFAULT_CHUNK_SIZE %d num_values %f type_size %d "
+             "chunksize %ld", __func__, var->hdr.name, d, DEFAULT_CHUNK_SIZE, num_values, type_size, var->chunksizes[0]));
+    }
+    if (var->ndims > 1 && var->ndims == num_unlim) { /* all dims unlimited */
+        suggested_size = pow((double)DEFAULT_CHUNK_SIZE/type_size, 1.0/(double)(var->ndims));
+        for (d = 0; d < var->ndims; d++)
+        {
+            var->chunksizes[d] = suggested_size ? suggested_size : 1;
+            LOG((4, "%s: name %s dim %d DEFAULT_CHUNK_SIZE %d num_values %f type_size %d "
+                 "chunksize %ld", __func__, var->hdr.name, d, DEFAULT_CHUNK_SIZE, num_values, type_size, var->chunksizes[d]));
+        }
+    }
+
+    /* Pick a chunk length for each dimension, if one has not already
+     * been picked above. */
+    for (d = 0; d < var->ndims; d++)
+        if (!var->chunksizes[d])
+        {
+            suggested_size = (pow((double)DEFAULT_CHUNK_SIZE/(num_values * type_size),
+                                  1.0/(double)(var->ndims - num_unlim)) * var->dim[d]->len - .5);
+            if (suggested_size > var->dim[d]->len)
+                suggested_size = var->dim[d]->len;
+            var->chunksizes[d] = suggested_size ? suggested_size : 1;
+            LOG((4, "%s: name %s dim %d DEFAULT_CHUNK_SIZE %d num_values %f type_size %d "
+                 "chunksize %ld", __func__, var->hdr.name, d, DEFAULT_CHUNK_SIZE, num_values, type_size, var->chunksizes[d]));
+        }
+
+#ifdef LOGGING
+    /* Find total chunk size. */
+    for (d = 0; d < var->ndims; d++)
+        total_chunk_size *= (double) var->chunksizes[d];
+    LOG((4, "total_chunk_size %f", total_chunk_size));
+#endif
+
+    /* But did this result in a chunk that is too big? */
+    retval = nc4_check_chunksizes(grp, var, var->chunksizes);
+    if (retval)
+    {
+        /* Other error? */
+        if (retval != NC_EBADCHUNK)
+            return retval;
+
+        /* Chunk is too big! Reduce each dimension by half and try again. */
+        for ( ; retval == NC_EBADCHUNK; retval = nc4_check_chunksizes(grp, var, var->chunksizes))
+            for (d = 0; d < var->ndims; d++)
+                var->chunksizes[d] = var->chunksizes[d]/2 ? var->chunksizes[d]/2 : 1;
+    }
+
+    /* Do we have any big data overhangs? They can be dangerous to
+     * babies, the elderly, or confused campers who have had too much
+     * beer. */
+    for (d = 0; d < var->ndims; d++)
+    {
+        size_t num_chunks;
+        size_t overhang;
+        assert(var->chunksizes[d] > 0);
+        num_chunks = (var->dim[d]->len + var->chunksizes[d] - 1) / var->chunksizes[d];
+        if(num_chunks > 0) {
+            overhang = (num_chunks * var->chunksizes[d]) - var->dim[d]->len;
+            var->chunksizes[d] -= overhang / num_chunks;
+        }
+    }
+
 
     return NC_NOERR;
 }

@@ -20,21 +20,21 @@
 #include <stdio.h>
 #include <tchar.h>
 
-#if defined(DLL_NETCDF)
-# if defined(DLL_EXPORT)
+#if 0
+#ifdef _MSC_VER
+# ifdef DLL_EXPORT
 #  define GTOPT_EXTRA __declspec(dllexport)
 # else
 #  define GTOPT_EXTRA __declspec(dllimport)
 # endif
-
-GTOPT_EXTRA extern int optind, opterr;
 #else
-extern int optind, opterr;
+#  define GTOP_EXTRA
+#endif
 #endif
 
-
-extern TCHAR *optarg;
-
-int getopt(int argc, TCHAR *argv[], TCHAR *optstring);
+#define GTOPT_EXTRA
+GTOPT_EXTRA extern int optind, opterr;
+GTOPT_EXTRA extern TCHAR* optarg;
+GTOPT_EXTRA extern int getopt(int argc, TCHAR *argv[], TCHAR *optstring);
 
 #endif //XGETOPT_H

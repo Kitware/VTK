@@ -65,12 +65,12 @@ UCAR
   first call get_crc_table() to initialize the tables before allowing more than
   one thread to use crc32().
 
-  DYNAMIC_CRC_TABLE and MAKECRCH can be #defined to write out crc32.h.
+  DYNAMIC_CRC_TABLE and MAKECRCH can be #defined to write out dcrc32.h.
  */
 
-/* Prototype for the crc32 function
-extern unsigned int NC_crc32(unsigned int crc, const unsigned char* buf, unsigned int len);
-*/
+#include "vtk_netcdf_mangle.h"
+
+/* Prototype for the crc32 function is defined in include/nccrc.h */
 
 /* Define some of the macros used here */
 #define FAR
@@ -94,7 +94,7 @@ extern unsigned int NC_crc32(unsigned int crc, const unsigned char* buf, unsigne
 #  endif /* !DYNAMIC_CRC_TABLE */
 #endif /* MAKECRCH */
 
-#include "vtk_netcdf_mangle.h"
+#include "ncexternl.h"
 
 /* Definitions for doing the crc four data bytes at a time. */
 #if !defined(NOBYFOUR) && defined(Z_U4)
@@ -109,6 +109,8 @@ extern unsigned int NC_crc32(unsigned int crc, const unsigned char* buf, unsigne
 #else
 #  define TBLS 1
 #endif /* BYFOUR */
+
+local const z_crc_t FAR crc_table[TBLS][256];
 
 #ifdef DYNAMIC_CRC_TABLE
 
@@ -195,14 +197,14 @@ local void make_crc_table()
     }
 
 #ifdef MAKECRCH
-    /* write out CRC tables to crc32.h */
+    /* write out CRC tables to dcrc32.h */
     {
         FILE *out;
 
-        out = fopen("crc32.h", "w");
+        out = fopen("dcrc32.h", "w");
         if (out == NULL) return;
-        fprintf(out, "/* crc32.h -- tables for rapid CRC calculation\n");
-        fprintf(out, " * Generated automatically by crc32.c\n */\n\n");
+        fprintf(out, "/* dcrc32.h -- tables for rapid CRC calculation\n");
+        fprintf(out, " * Generated automatically by dcrc32.c\n */\n\n");
         fprintf(out, "local const z_crc_t FAR ");
         fprintf(out, "crc_table[TBLS][256] =\n{\n  {\n");
         write_table(out, crc_table[0]);
@@ -238,7 +240,7 @@ local void write_table(out, table)
 /* ========================================================================
  * Tables of CRC-32s of all single-byte values, made by make_crc_table().
  */
-#include "crc32.h"
+#include "dcrc32.h"
 #endif /* DYNAMIC_CRC_TABLE */
 
 /* =========================================================================
@@ -295,10 +297,12 @@ local unsigned long ZEXPORT crc32_z(crc, buf, len)
 }
 
 /* ========================================================================= */
-unsigned int ZEXPORT NC_crc32(unsigned int crc, const unsigned char* buf, unsigned int len)
+EXTERNL unsigned int ZEXPORT
+NC_crc32(unsigned int crc, const void* buf, unsigned int len)
 {
     unsigned long value = (unsigned long)crc;
-    value = crc32_z(value, buf, len);
+    unsigned char* cbuf = (unsigned char*)buf;
+    value = crc32_z(value, cbuf, len);
     return (unsigned int)(value & 0xFFFFFFFF); /* in case |long| is 64 bits */
 }
 

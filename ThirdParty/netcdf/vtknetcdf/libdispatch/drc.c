@@ -18,7 +18,7 @@ See COPYRIGHT for license information.
 #include "ncuri.h"
 #include "ncrc.h"
 #include "nclog.h"
-#include "ncwinpath.h"
+#include "ncpathmgr.h"
 
 #define RCFILEENV "DAPRCFILE"
 
@@ -103,7 +103,7 @@ NC_rcload(void)
     NCRCglobalstate* globalstate = ncrc_getglobalstate();
 
     if(globalstate->rcinfo.ignore) {
-        nclog(NCLOGDBG,"No runtime configuration file specified; continuing");
+        nclog(NCLOGDBG,"No .daprc|.dodsrc runtime configuration file specified; continuing");
 	return (NC_NOERR);
     }
     if(globalstate->rcinfo.loaded) return (NC_NOERR);
@@ -132,7 +132,7 @@ NC_rcload(void)
 	}
     }
     if(path == NULL) {
-        nclog(NCLOGDBG,"Cannot find runtime configuration file; continuing");
+        nclog(NCLOGDBG,"No .daprc|.dodsrc runtime configuration file specified; continuing");
     } else {
 #ifdef D4DEBUG
         fprintf(stderr, "RC file: %s\n", path);
@@ -429,11 +429,9 @@ rcsearch(const char* prefix, const char* rcname, char** pathp)
     size_t pathlen = plen+rclen+1; /*+1 for '/' */
     path = (char*)malloc(pathlen+1); /* +1 for nul*/
     if(path == NULL) {ret = NC_ENOMEM;	goto done;}
-    strncpy(path,prefix,pathlen);
-    strncat(path,"/",pathlen);
-    strncat(path,rcname,pathlen);
+    snprintf(path, pathlen, "%s/%s", prefix, rcname);
     /* see if file is readable */
-    f = fopen(path,"r");
+    f = NCfopen(path,"r");
     if(f != NULL)
         nclog(NCLOGDBG, "Found rc file=%s",path);
 done:

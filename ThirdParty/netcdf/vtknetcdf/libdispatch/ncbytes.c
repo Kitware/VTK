@@ -52,7 +52,7 @@ ncbytessetalloc(NCbytes* bb, unsigned long sz)
   if(bb->alloc >= sz) return TRUE;
   if(bb->nonextendible) return ncbytesfail();
   newcontent=(char*)calloc(sz,sizeof(char));
-  if(newcontent == NULL) return FALSE;
+  if(newcontent == NULL) ncbytesfail();
   if(bb->alloc > 0 && bb->length > 0 && bb->content != NULL) {
     memcpy((void*)newcontent,(void*)bb->content,sizeof(char)*bb->length);
   }
@@ -62,7 +62,7 @@ ncbytessetalloc(NCbytes* bb, unsigned long sz)
   return TRUE;
 }
 
-void
+EXTERNL void
 ncbytesfree(NCbytes* bb)
 {
   if(bb == NULL) return;
@@ -110,12 +110,11 @@ ncbytesset(NCbytes* bb, unsigned long index, char elem)
 int
 ncbytesappend(NCbytes* bb, char elem)
 {
+  char s[2];
   if(bb == NULL) return ncbytesfail();
-  /* We need space for the char + null */
-  ncbytessetalloc(bb,bb->length+2);
-  bb->content[bb->length] = (char)(elem & 0xFF);
-  bb->length++;
-  bb->content[bb->length] = '\0';
+  s[0] = elem;
+  s[1] = '\0';
+  ncbytesappendn(bb,s,1);
   return TRUE;
 }
 
@@ -138,9 +137,7 @@ ncbytesappendn(NCbytes* bb, const void* elem, unsigned long n)
 {
   if(bb == NULL || elem == NULL) return ncbytesfail();
   if(n == 0) {n = strlen((char*)elem);}
-  while(!ncbytesavail(bb,n+1)) {
-    if(!ncbytessetalloc(bb,0)) return ncbytesfail();
-  }
+  ncbytessetalloc(bb,bb->length+n+1);
   memcpy((void*)&bb->content[bb->length],(void*)elem,n);
   bb->length += n;
   bb->content[bb->length] = '\0';

@@ -11,11 +11,19 @@
 
 #include "config.h"
 #include "hdf5internal.h"
+#include "hdf5err.h"
 #include "ncrc.h"
+#include "ncauth.h"
 #include "ncmodel.h"
+#include "ncfilter.h"
+#include "ncpathmgr.h"
 
 #ifdef ENABLE_BYTERANGE
 #include "H5FDhttp.h"
+#endif
+
+#ifdef ENABLE_HDF5_ROS3
+#include <H5FDros3.h>
 #endif
 
 /*Nemonic */
@@ -61,6 +69,12 @@ extern int NC4_open_image_file(NC_FILE_INFO_T* h5);
 /* Defined later in this file. */
 static int rec_read_metadata(NC_GRP_INFO_T *grp);
 
+#ifdef ENABLE_BYTERANGE
+#ifdef ENABLE_HDF5_ROS3
+static int ros3info(NCauth** auth, NCURI* uri, char** hostportp, char** regionp);
+#endif
+#endif
+
 /**
  * @internal Struct to track HDF5 object info, for
  * rec_read_metadata(). We get this info for every object in the
@@ -69,7 +83,11 @@ typedef struct hdf5_obj_info
 {
     hid_t oid;                          /* HDF5 object ID */
     char oname[NC_MAX_NAME + 1];        /* Name of object */
-    H5G_stat_t statbuf;                 /* Information about the object */
+#if H5_VERSION_GE(1,12,0)
+    H5O_info2_t statbuf;
+#else
+    H5G_stat_t statbuf;                /* Information about the object */
+#endif
     struct hdf5_obj_info *next; /* Pointer to next node in list */
 } hdf5_obj_info_t;
 
@@ -287,7 +305,8 @@ read_coord_dimids(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var)
     /* There is a hidden attribute telling us the ids of the
      * dimensions that apply to this multi-dimensional coordinate
      * variable. Read it. */
-    if ((coord_attid = H5Aopen_name(hdf5_var->hdf_datasetid, COORDINATES)) < 0)
+    if ((coord_attid = H5Aopen_by_name(hdf5_var->hdf_datasetid, ".", COORDINATES, 
+                                       H5P_DEFAULT, H5P_DEFAULT)) < 0)
         BAIL(NC_EATTMETA);
 
     if ((coord_att_typeid = H5Aget_type(coord_attid)) < 0)
@@ -343,11 +362,22 @@ static herr_t
 dimscale_visitor(hid_t did, unsigned dim, hid_t dsid,
                  void *dimscale_hdf5_objids)
 {
-    H5G_stat_t statbuf;
 
     LOG((4, "%s", __func__));
 
     /* Get more info on the dimscale object.*/
+#if H5_VERSION_GE(1,12,0)
+    H5O_info2_t statbuf;
+
+    if (H5Oget_info3(dsid, &statbuf, H5O_INFO_BASIC) < 0)
+        return -1;
+
+    /* Pass this information back to caller. */
+    (*(HDF5_OBJID_T *)dimscale_hdf5_objids).fileno = statbuf.fileno;
+    (*(HDF5_OBJID_T *)dimscale_hdf5_objids).token = statbuf.token;
+#else
+    H5G_stat_t statbuf;
+
     if (H5Gget_objinfo(dsid, ".", 1, &statbuf) < 0)
         return -1;
 
@@ -356,6 +386,7 @@ dimscale_visitor(hid_t did, unsigned dim, hid_t dsid,
     (*(HDF5_OBJID_T *)dimscale_hdf5_objids).fileno[1] = statbuf.fileno[1];
     (*(HDF5_OBJID_T *)dimscale_hdf5_objids).objno[0] = statbuf.objno[0];
     (*(HDF5_OBJID_T *)dimscale_hdf5_objids).objno[1] = statbuf.objno[1];
+#endif
     return 0;
 }
 
@@ -529,7 +560,7 @@ rec_match_dimscales(NC_GRP_INFO_T *grp)
         }
 
         /* Skip dimension scale variables */
-        if (var->dimscale)
+        if (hdf5_var->dimscale)
             continue;
 
         /* If we have already read hidden coordinates att, then we don't
@@ -538,7 +569,7 @@ rec_match_dimscales(NC_GRP_INFO_T *grp)
             continue;
 
         /* Skip dimension scale variables */
-        if (!var->dimscale)
+        if (!hdf5_var->dimscale)
         {
             int d;
             int j;
@@ -573,10 +604,20 @@ rec_match_dimscales(NC_GRP_INFO_T *grp)
 
                             /* Check for exact match of fileno/objid arrays
                              * to find identical objects in HDF5 file. */
+#if H5_VERSION_GE(1,12,0)
+                            int token_cmp;
+                            if (H5Otoken_cmp(hdf5_var->hdf_datasetid,
+                                             &hdf5_var->dimscale_hdf5_objids[d].token,
+                                             &hdf5_dim->hdf5_objid.token, &token_cmp) < 0)
+                                return NC_EHDFERR;
+                            if (hdf5_var->dimscale_hdf5_objids[d].fileno == hdf5_dim->hdf5_objid.fileno &&
+                                token_cmp == 0)
+#else
                             if (hdf5_var->dimscale_hdf5_objids[d].fileno[0] == hdf5_dim->hdf5_objid.fileno[0] &&
                                 hdf5_var->dimscale_hdf5_objids[d].objno[0] == hdf5_dim->hdf5_objid.objno[0] &&
                                 hdf5_var->dimscale_hdf5_objids[d].fileno[1] == hdf5_dim->hdf5_objid.fileno[1] &&
                                 hdf5_var->dimscale_hdf5_objids[d].objno[1] == hdf5_dim->hdf5_objid.objno[1])
+#endif
                             {
                                 LOG((4, "%s: for dimension %d, found dim %s", __func__,
                                      d, dim->hdr.name));
@@ -719,7 +760,7 @@ nc4_open_file(const char *path, int mode, void* parameters, int ncid)
         BAIL(NC_EINTERNAL);
 
 #ifdef USE_PARALLEL4
-    mpiinfo = (NC_MPI_INFO*)parameters; /* assume, may be changed if inmemory is true */
+    mpiinfo = (NC_MPI_INFO *)parameters; /* assume, may be changed if inmemory is true */
 #endif /* !USE_PARALLEL4 */
 
     /* Need this access plist to control how HDF5 handles open objects
@@ -734,20 +775,19 @@ nc4_open_file(const char *path, int mode, void* parameters, int ncid)
 #ifdef USE_PARALLEL4
     if (!(mode & (NC_INMEMORY | NC_DISKLESS)) && mpiinfo != NULL) {
         /* If this is a parallel file create, set up the file creation
-         * property list.
-         */
+         * property list. */
         nc4_info->parallel = NC_TRUE;
         LOG((4, "opening parallel file with MPI/IO"));
         if (H5Pset_fapl_mpio(fapl_id, mpiinfo->comm, mpiinfo->info) < 0)
             BAIL(NC_EPARINIT);
 
         /* Keep copies of the MPI Comm & Info objects */
-        if (MPI_SUCCESS != MPI_Comm_dup(mpiinfo->comm, &nc4_info->comm))
+        if (MPI_Comm_dup(mpiinfo->comm, &nc4_info->comm) != MPI_SUCCESS)
             BAIL(NC_EMPI);
         comm_duped++;
-        if (MPI_INFO_NULL != mpiinfo->info)
+        if (mpiinfo->info != MPI_INFO_NULL)
         {
-            if (MPI_SUCCESS != MPI_Info_dup(mpiinfo->info, &nc4_info->info))
+            if (MPI_Info_dup(mpiinfo->info, &nc4_info->info) != MPI_SUCCESS)
                 BAIL(NC_EMPI);
             info_duped++;
         }
@@ -759,18 +799,23 @@ nc4_open_file(const char *path, int mode, void* parameters, int ncid)
     }
 
 #ifdef HDF5_HAS_COLL_METADATA_OPS
+    /* If collective metadata operations are available in HDF5, turn
+     * them on. */
     if (H5Pset_all_coll_metadata_ops(fapl_id, 1) < 0)
         BAIL(NC_EPARINIT);
-#endif
-
-#else /* only set cache for non-parallel. */
-    if (H5Pset_cache(fapl_id, 0, nc4_chunk_cache_nelems, nc4_chunk_cache_size,
-                     nc4_chunk_cache_preemption) < 0)
-        BAIL(NC_EHDFERR);
-    LOG((4, "%s: set HDF raw chunk cache to size %d nelems %d preemption %f",
-         __func__, nc4_chunk_cache_size, nc4_chunk_cache_nelems,
-         nc4_chunk_cache_preemption));
+#endif /* HDF5_HAS_COLL_METADATA_OPS */
 #endif /* USE_PARALLEL4 */
+
+    /* Only set cache for non-parallel opens. */
+    if (!nc4_info->parallel)
+    {
+	if (H5Pset_cache(fapl_id, 0, nc4_chunk_cache_nelems, nc4_chunk_cache_size,
+			 nc4_chunk_cache_preemption) < 0)
+	    BAIL(NC_EHDFERR);
+	LOG((4, "%s: set HDF raw chunk cache to size %d nelems %d preemption %f",
+	     __func__, nc4_chunk_cache_size, nc4_chunk_cache_nelems,
+	     nc4_chunk_cache_preemption));
+    }
 
     /* Process  NC_INMEMORY */
     if(nc4_info->mem.inmemory) {
@@ -802,24 +847,55 @@ nc4_open_file(const char *path, int mode, void* parameters, int ncid)
             if (H5Pset_fapl_core(fapl_id, min_incr, (nc4_info->mem.persist?1:0)) < 0)
                 BAIL(NC_EHDFERR);
             /* Open the HDF5 file. */
-            if ((h5->hdfid = H5Fopen(path, flags, fapl_id)) < 0)
+            if ((h5->hdfid = nc4_H5Fopen(path, flags, fapl_id)) < 0)
                 BAIL(NC_EHDFERR);
         }
 #ifdef ENABLE_BYTERANGE
         else
             if(h5->http.iosp) {   /* Arrange to use the byte-range driver */
-                /* Configure FAPL to use the byte-range file driver */
+#ifdef ENABLE_HDF5_ROS3
+		NCURI* uri = NULL;
+		H5FD_ros3_fapl_t fa;
+		char* hostport = NULL;
+		char* region = NULL;
+		ncuriparse(path,&uri);
+		if(uri == NULL)
+		    BAIL(NC_EINVAL);		
+		if((ros3info(&h5->http.auth,uri,&hostport,&region)))
+		    BAIL(NC_EINVAL);
+		ncurifree(uri); uri = NULL;
+                fa.version = 1;
+		fa.aws_region[0] = '\0';
+	        fa.secret_id[0] = '\0';
+		fa.secret_key[0] = '\0';
+		if(h5->http.auth->s3creds.accessid == NULL || h5->http.auth->s3creds.secretkey == NULL) {
+	  	    /* default, non-authenticating, "anonymous" fapl configuration */
+		    fa.authenticate = (hbool_t)0;
+		} else {
+		    fa.authenticate = (hbool_t)1;
+		    strlcat(fa.aws_region,region,H5FD_ROS3_MAX_REGION_LEN);
+		    strlcat(fa.secret_id, h5->http.auth->s3creds.accessid, H5FD_ROS3_MAX_SECRET_ID_LEN);
+                    strlcat(fa.secret_key, h5->http.auth->s3creds.secretkey, H5FD_ROS3_MAX_SECRET_KEY_LEN);
+		}
+	        nullfree(region);
+		nullfree(hostport);
+                /* create and set fapl entry */
+                if(H5Pset_fapl_ros3(fapl_id, &fa) < 0)
+                    BAIL(NC_EHDFERR);
+#else
+                /* Configure FAPL to use our byte-range file driver */
                 if (H5Pset_fapl_http(fapl_id) < 0)
                     BAIL(NC_EHDFERR);
+#endif
                 /* Open the HDF5 file. */
-                if ((h5->hdfid = H5Fopen(path, flags, fapl_id)) < 0)
+                if ((h5->hdfid = nc4_H5Fopen(path, flags, fapl_id)) < 0)
                     BAIL(NC_EHDFERR);
             }
 #endif
             else
             {
                 /* Open the HDF5 file. */
-                if ((h5->hdfid = H5Fopen(path, flags, fapl_id)) < 0)
+                if ((h5->hdfid = nc4_H5Fopen(path, flags, fapl_id)) < 0)
                     BAIL(NC_EHDFERR);
             }
 
@@ -933,21 +1009,25 @@ static int get_filter_info(hid_t propid, NC_VAR_INFO_T *var)
 {
     H5Z_filter_t filter;
     int num_filters;
-    unsigned int cd_values_zip[CD_NELEMS_ZLIB];
-    size_t cd_nelems = CD_NELEMS_ZLIB;
+    unsigned int* cd_values = NULL;
+    size_t cd_nelems;
     int f;
     int stat = NC_NOERR;
 
     assert(var);
 
     if ((num_filters = H5Pget_nfilters(propid)) < 0)
-        return NC_EHDFERR;
+	{stat = NC_EHDFERR; goto done;}
 
     for (f = 0; f < num_filters; f++)
     {
-        if ((filter = H5Pget_filter2(propid, f, NULL, &cd_nelems, cd_values_zip,
-                                     0, NULL, NULL)) < 0)
-            return NC_EHDFERR;
+	cd_nelems = 0;
+        if ((filter = H5Pget_filter2(propid, f, NULL, &cd_nelems, NULL, 0, NULL, NULL)) < 0)
+	    {stat = NC_EHDFERR; goto done;}
+	if((cd_values = calloc(sizeof(unsigned int),cd_nelems))==NULL)
+	    {stat = NC_EHDFERR; goto done;}
+        if ((filter = H5Pget_filter2(propid, f, NULL, &cd_nelems, cd_values, 0, NULL, NULL)) < 0)
+	    {stat = NC_EHDFERR; goto done;}
         switch (filter)
         {
         case H5Z_FILTER_SHUFFLE:
@@ -960,60 +1040,45 @@ static int get_filter_info(hid_t propid, NC_VAR_INFO_T *var)
 
         case H5Z_FILTER_DEFLATE:
             if (cd_nelems != CD_NELEMS_ZLIB ||
-                cd_values_zip[0] > NC_MAX_DEFLATE_LEVEL)
-                return NC_EHDFERR;
-	    if((stat = NC4_hdf5_addfilter(var,FILTERACTIVE,filter,cd_nelems,cd_values_zip)))
-		return stat;
+                cd_values[0] > NC_MAX_DEFLATE_LEVEL)
+		    {stat = NC_EHDFERR; goto done;}
+	    if((stat = NC4_hdf5_addfilter(var,filter,cd_nelems,cd_values)))
+	       goto done;
             break;
 
         case H5Z_FILTER_SZIP: {
             /* Szip is tricky because the filter code expands the set of parameters from 2 to 4
                and changes some of the parameter values; try to compensate */
             if(cd_nelems == 0) {
-		if((stat = NC4_hdf5_addfilter(var,FILTERACTIVE,filter,0,NULL)))
-		   return stat;
+		if((stat = NC4_hdf5_addfilter(var,filter,0,NULL)))
+		   goto done;
             } else {
-                /* We have to re-read the parameters based on actual nparams,
-                   which in the case of szip, differs from users original nparams */
-                unsigned int* realparams = (unsigned int*)calloc(1,sizeof(unsigned int)*cd_nelems);
-                if(realparams == NULL)
-                    return NC_ENOMEM;
-                if((filter = H5Pget_filter2(propid, f, NULL, &cd_nelems,
-                                            realparams, 0, NULL, NULL)) < 0) 
-                    return NC_EHDFERR;
                 /* fix up the parameters and the #params */
 		if(cd_nelems != 4)
-		    return NC_EHDFERR;
+		    {stat = NC_EHDFERR; goto done;}
 		cd_nelems = 2; /* ignore last two */		
 		/* Fix up changed params */
-		realparams[0] &= (H5_SZIP_ALL_MASKS);
+		cd_values[0] &= (H5_SZIP_ALL_MASKS);
 		/* Save info */
-		stat = NC4_hdf5_addfilter(var,FILTERACTIVE,filter,cd_nelems,realparams);
-		nullfree(realparams);
-		if(stat) return stat;
-
+		stat = NC4_hdf5_addfilter(var,filter,cd_nelems,cd_values);
+		if(stat) goto done;
             }
             } break;
 
         default:
             if(cd_nelems == 0) {
-  	        if((stat = NC4_hdf5_addfilter(var,FILTERACTIVE,filter,0,NULL))) return stat;
+  	        if((stat = NC4_hdf5_addfilter(var,filter,0,NULL))) goto done;
             } else {
-                /* We have to re-read the parameters based on actual nparams */
-                unsigned int* realparams = (unsigned int*)calloc(1,sizeof(unsigned int)*cd_nelems);
-                if(realparams == NULL)
-                    return NC_ENOMEM;
-                if((filter = H5Pget_filter2(propid, f, NULL, &cd_nelems,
-                                            realparams, 0, NULL, NULL)) < 0)
-                    return NC_EHDFERR;
-  	        stat = NC4_hdf5_addfilter(var,FILTERACTIVE,filter,cd_nelems,realparams);
-		nullfree(realparams);
-		if(stat) return stat;
+  	        stat = NC4_hdf5_addfilter(var,filter,cd_nelems,cd_values);
+		if(stat) goto done;
             }
             break;
         }
+	nullfree(cd_values); cd_values = NULL;
     }
-    return NC_NOERR;
+done:
+    nullfree(cd_values);
+    return stat;
 }
 
 /**
@@ -1151,13 +1216,13 @@ get_attached_info(NC_VAR_INFO_T *var, NC_HDF5_VAR_INFO_T *hdf5_var, int ndims,
 
     /* If an enddef has already been called, the dimscales will already
      * be taken care of. */
-    if (num_scales && ndims && !var->dimscale_attached)
+    if (num_scales && ndims && !hdf5_var->dimscale_attached)
     {
         /* Allocate space to remember whether the dimscale has been
          * attached for each dimension, and the HDF5 object IDs of the
          * scale(s). */
         assert(!hdf5_var->dimscale_hdf5_objids);
-        if (!(var->dimscale_attached = calloc(ndims, sizeof(nc_bool_t))))
+        if (!(hdf5_var->dimscale_attached = calloc(ndims, sizeof(nc_bool_t))))
             return NC_ENOMEM;
         if (!(hdf5_var->dimscale_hdf5_objids = malloc(ndims *
                                                       sizeof(struct hdf5_objid))))
@@ -1171,7 +1236,7 @@ get_attached_info(NC_VAR_INFO_T *var, NC_HDF5_VAR_INFO_T *hdf5_var, int ndims,
             if (H5DSiterate_scales(hdf5_var->hdf_datasetid, d, NULL, dimscale_visitor,
                                    &(hdf5_var->dimscale_hdf5_objids[d])) < 0)
                 return NC_EHDFERR;
-            var->dimscale_attached[d] = NC_TRUE;
+            hdf5_var->dimscale_attached[d] = NC_TRUE;
             LOG((4, "dimscale attached"));
         }
     }
@@ -1208,7 +1273,7 @@ get_scale_info(NC_GRP_INFO_T *grp, NC_DIM_INFO_T *dim, NC_VAR_INFO_T *var,
     if (dim)
     {
         assert(ndims);
-        var->dimscale = NC_TRUE;
+        hdf5_var->dimscale = NC_TRUE;
 
         /* If this is a multi-dimensional coordinate var, then the
          * dimids must be stored in the hidden coordinates attribute. */
@@ -1298,7 +1363,7 @@ nc4_get_var_meta(NC_VAR_INFO_T *var)
     if ((retval = nc4_adjust_var_cache(var->container, var)))
         BAIL(retval);
 
-    if (var->coords_read && !var->dimscale)
+    if (var->coords_read && !hdf5_var->dimscale)
         if ((retval = get_attached_info(var, hdf5_var, var->ndims, hdf5_var->hdf_datasetid)))
             return retval;
 
@@ -1377,6 +1442,9 @@ read_var(NC_GRP_INFO_T *grp, hid_t datasetid, const char *obj_name,
     var->created = NC_TRUE;
     var->atts_read = 0;
 
+    /* Create filter list */
+    var->filters = (void*)nclistnew();
+
     /* Try and read the dimids from the COORDINATES attribute. If it's
      * not present, we will have to do dimsscale matching to locate the
      * dims for this var. */
@@ -1399,6 +1467,9 @@ read_var(NC_GRP_INFO_T *grp, hid_t datasetid, const char *obj_name,
     /* Indicate that the variable has a pointer to the type */
     var->type_info->rc++;
 
+    /* Transfer endianness */
+    var->endianness = var->type_info->endianness; 
+
 exit:
     if (finalname)
         free(finalname);
@@ -1408,6 +1479,10 @@ exit:
          * delete the var info struct we just created. */
         if (incr_id_rc && H5Idec_ref(datasetid) < 0)
             BAIL2(NC_EHDFERR);
+	if(var && var->format_var_info)
+	    free(var->format_var_info);
+	if(var && var->filters)
+	    nclistfree(var->filters);
         if (var)
             nc4_var_list_del(grp, var);
     }
@@ -2130,6 +2205,8 @@ exit:
     {
         /* NC_EBADTYPID will be normally converted to NC_NOERR so that
            the parent iterator does not fail. */
+	/* Free up the format_att_info */
+        if((retval=nc4_HDF5_close_att(att))) return retval;
         retval = nc4_att_list_del(list, att);
         att = NULL;
     }
@@ -2204,10 +2281,16 @@ nc4_read_atts(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var)
  * @returns ::NC_NOERR No error.
  * @return ::NC_EHDFERR HDF5 returned error.
  * @author Ed Hartnett
+ * [Candidate for libsrc4]
  */
 static int
 read_scale(NC_GRP_INFO_T *grp, hid_t datasetid, const char *obj_name,
-           const H5G_stat_t *statbuf, hsize_t scale_size,
+#if H5_VERSION_GE(1,12,0)
+           const H5O_info2_t *statbuf,
+#else
+           const H5G_stat_t *statbuf,
+#endif
+           hsize_t scale_size,
            hsize_t max_scale_size, NC_DIM_INFO_T **dim)
 {
     NC_DIM_INFO_T *new_dim; /* Dimension added to group */
@@ -2230,7 +2313,8 @@ read_scale(NC_GRP_INFO_T *grp, hid_t datasetid, const char *obj_name,
         BAIL(NC_EHDFERR);
     if (attr_exists)
     {
-        if ((attid = H5Aopen_name(datasetid, NC_DIMID_ATT_NAME)) < 0)
+        if ((attid = H5Aopen_by_name(datasetid,".", NC_DIMID_ATT_NAME,
+                                     H5P_DEFAULT, H5P_DEFAULT)) < 0)
             BAIL(NC_EHDFERR);
 
         if (H5Aread(attid, H5T_NATIVE_INT, &assigned_id) < 0)
@@ -2263,12 +2347,17 @@ read_scale(NC_GRP_INFO_T *grp, hid_t datasetid, const char *obj_name,
 
     dimscale_created++;
 
-    /* Remember these 4 values to uniquely identify this dataset in the
+    /* Remember these 4 (or 2 for HDF5 1.12) values to uniquely identify this dataset in the
      * HDF5 file. */
+#if H5_VERSION_GE(1,12,0)
+    new_hdf5_dim->hdf5_objid.fileno = statbuf->fileno;
+    new_hdf5_dim->hdf5_objid.token = statbuf->token;
+#else
     new_hdf5_dim->hdf5_objid.fileno[0] = statbuf->fileno[0];
     new_hdf5_dim->hdf5_objid.fileno[1] = statbuf->fileno[1];
     new_hdf5_dim->hdf5_objid.objno[0] = statbuf->objno[0];
     new_hdf5_dim->hdf5_objid.objno[1] = statbuf->objno[1];
+#endif
 
     /* If the dimscale has an unlimited dimension, then this dimension
      * is unlimited. */
@@ -2339,7 +2428,12 @@ exit:
  */
 static int
 read_dataset(NC_GRP_INFO_T *grp, hid_t datasetid, const char *obj_name,
-             const H5G_stat_t *statbuf)
+#if H5_VERSION_GE(1,12,0)
+             const H5O_info2_t *statbuf
+#else
+             const H5G_stat_t *statbuf
+#endif
+)
 {
     NC_DIM_INFO_T *dim = NULL;   /* Dimension created for scales */
     NC_HDF5_DIM_INFO_T *hdf5_dim;
@@ -2451,8 +2545,13 @@ read_hdf5_obj(hid_t grpid, const char *name, const H5L_info_t *info,
         BAIL(H5_ITER_ERROR);
 
     /* Get info about the object.*/
+#if H5_VERSION_GE(1,12,0)
+    if (H5Oget_info3(oinfo.oid, &oinfo.statbuf, H5O_INFO_BASIC) < 0)
+        BAIL(H5_ITER_ERROR);
+#else
     if (H5Gget_objinfo(oinfo.oid, ".", 1, &oinfo.statbuf) < 0)
         BAIL(H5_ITER_ERROR);
+#endif
 
     strncpy(oinfo.oname, name, NC_MAX_NAME);
 
@@ -2656,4 +2755,84 @@ exit:
     nclistfree(udata.grps);
 
     return retval;
+}
+
+#ifdef ENABLE_BYTERANGE
+#ifdef ENABLE_HDF5_ROS3
+static int
+ros3info(NCauth** authp, NCURI* uri, char** hostportp, char** regionp)
+{
+    int stat = NC_NOERR;
+    size_t len;
+    char* hostport = NULL;
+    char* region = NULL;    
+    char* p;
+
+    if(uri == NULL || uri->host == NULL)
+	{stat = NC_EINVAL; goto done;}
+    len = strlen(uri->host);
+    if(uri->port != NULL)
+        len += 1+strlen(uri->port);
+    len++; /* nul term */
+    if((hostport = malloc(len)) == NULL)
+	{stat = NC_ENOMEM; goto done;}    
+    hostport[0] = '\0';
+    strlcat(hostport,uri->host,len);
+    if(uri->port != NULL) {
+        strlcat(hostport,":",len);
+	strlcat(hostport,uri->port,len);
+    }
+    /* We only support path urls, not virtual urls, so the
+       host past the first dot must be "s3.amazonaws.com" */
+    p = strchr(uri->host,'.');
+    if(p != NULL && strcmp(p+1,"s3.amazonaws.com")==0) {
+	len = (size_t)((p - uri->host)-1);
+	region = calloc(1,len+1);
+	memcpy(region,uri->host,len);
+	region[len] = '\0';
+    } else /* cannot find region: use "" */
+	region = strdup("");
+    if(hostportp) {*hostportp = hostport; hostport = NULL;}
+    if(regionp) {*regionp = region; region = NULL;}
+
+    /* Extract auth related info */
+    if((stat=NC_authsetup(authp, uri)))
+	goto done;
+
+done:
+    nullfree(hostport);
+    nullfree(region);
+    return stat;
+}
+#endif /*ENABLE_HDF5_ROS3*/
+#endif /*ENABLE_BYTERANGE*/
+
+/**
+ * Wrapper function for H5Fopen.
+ * Converts the filename from ANSI to UTF-8 as needed before calling H5Fopen.
+ *
+ * @param filename The filename encoded ANSI to access.
+ * @param flags File access flags.
+ * @param fapl_id File access property list identifier.
+ * @return A file identifier if succeeded. A negative value if failed.
+ */
+hid_t
+nc4_H5Fopen(const char *filename0, unsigned flags, hid_t fapl_id)
+{
+    hid_t hid;
+    char* localname = NULL;
+    char* filename = NULL;
+
+#ifdef HDF5_UTF8_PATHS
+    NCpath2utf8(filename0,&filename);
+#else    
+    filename = strdup(filename0);
+#endif
+    if((localname = NCpathcvt(filename))==NULL)
+	{hid = H5I_INVALID_HID; goto done;}
+    hid = H5Fopen(localname, flags, fapl_id);
+done:
+    nullfree(filename);
+    nullfree(localname);
+    return hid;
 }

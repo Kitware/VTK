@@ -24,7 +24,7 @@
 #include "ncbytes.h"
 #include "nclist.h"
 #include "nclog.h"
-#include "ncwinpath.h"
+#include "ncpathmgr.h"
 
 extern int mkstemp(char *template);
 
@@ -182,7 +182,8 @@ NC_mktmp(const char* base)
     mode_t mask;
 #endif
 
-    /* Make sure that this path conversion has been applied */
+    /* Make sure that this path conversion has been applied
+       since we do not wrap mkstemp */
     cvtpath = NCpathcvt(base);
     strncpy(tmp,cvtpath,sizeof(tmp));
     nullfree(cvtpath);
@@ -214,7 +215,7 @@ NC_mktmp(const char* base)
             strncat(tmp,spid,sizeof(tmp) - strlen(tmp) - 1);
 	}
 #endif /* HAVE_MKTEMP */
-#ifdef _MSC_VER
+#ifdef _WIN32
         fd=NCopen3(tmp,O_RDWR|O_BINARY|O_CREAT, _S_IREAD|_S_IWRITE);
 #else
         fd=NCopen3(tmp,O_RDWR|O_CREAT|O_EXCL, S_IRWXU);
@@ -303,7 +304,7 @@ NC_getmodelist(const char* path, NClist** modelistp)
 
     /* Get the mode= arg from the fragment */
     modelist = nclistnew();    
-    modestr = ncurilookup(uri,"mode");
+    modestr = ncurifragmentlookup(uri,"mode");
     if(modestr == NULL || strlen(modestr) == 0) goto done;
     /* Parse the mode string at the commas or EOL */
     p = modestr;
@@ -351,3 +352,22 @@ done:
     nclistfreeall(modelist);
     return found;
 }
+
+#ifdef __APPLE__
+int isinf(double x)
+{
+    union { unsigned long long u; double f; } ieee754;
+    ieee754.f = x;
+    return ( (unsigned)(ieee754.u >> 32) & 0x7fffffff ) == 0x7ff00000 &&
+           ( (unsigned)ieee754.u == 0 );
+}
+
+int isnan(double x)
+{
+    union { unsigned long long u; double f; } ieee754;
+    ieee754.f = x;
+    return ( (unsigned)(ieee754.u >> 32) & 0x7fffffff ) +
+           ( (unsigned)ieee754.u != 0 ) > 0x7ff00000;
+}
+
+#endif /*APPLE*/

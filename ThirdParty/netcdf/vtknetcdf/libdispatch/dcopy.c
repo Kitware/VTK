@@ -7,6 +7,7 @@
  *
  * @author Dennis Heimbigner
 */
+#include "config.h"
 #include "ncdispatch.h"
 #include "nc_logging.h"
 
