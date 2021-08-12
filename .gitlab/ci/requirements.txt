@@ -7,6 +7,5 @@
 numpy==1.19.3
 
 # Web modules
-Twisted==20.3.0
-autobahn==20.7.1
-wslink==0.2.0
+aiohttp==3.7.4.post0
+wslink==1.0.4

@@ -20,10 +20,4 @@ vtk_module_add_python_module(VTK::WebPython
 
 set_property(GLOBAL APPEND
   PROPERTY
-    vtk_required_python_modules "wslink>=0.1.3")
-set_property(GLOBAL APPEND
-  PROPERTY
-    vtk_required_python_modules "Twisted>=17.5.0")
-set_property(GLOBAL APPEND
-  PROPERTY
-    vtk_required_python_modules "autobahn>=17.7.1")
+    vtk_required_python_modules "wslink>=1.0.4")
