@@ -1134,7 +1134,7 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
 
   shaderStr += std::string("\
       \n  finalColor.a = color.a;\
-      \n  return finalColor;\
+      \n  return clamp(finalColor, 0.0, 1.0);\
       \n  }");
 
   return shaderStr;
@@ -1178,9 +1178,9 @@ std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
     shaderStr += std::string("\
           \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
-          \n  return computeLighting(vec4(texture2D(" +
+          \n  return clamp(computeLighting(vec4(texture2D(" +
       colorTableMap[0] + ",\
-          \n                         vec2(scalar.w, 0.0)).xyz, opacity), 0, 0.0);\
+          \n                         vec2(scalar.w, 0.0)).xyz, opacity), 0, 0.0), 0.0, 1.0);\
           \n  }");
     return shaderStr;
   }
@@ -1201,14 +1201,14 @@ std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
 
       shaderStr += std::string("\
             \n    {\
-            \n    return computeLighting(vec4(texture2D(\
+            \n    return clamp(computeLighting(vec4(texture2D(\
             \n      " +
         colorTableMap[i]);
       shaderStr += std::string(", vec2(\
             \n      scalar[" +
         toString.str() + "],0.0)).xyz,\
             \n      opacity)," +
-        toString.str() + ", 0.0);\
+        toString.str() + ", 0.0), 0.0, 1.0);\
             \n    }");
 
       // Reset
@@ -1224,10 +1224,10 @@ std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
     shaderStr += std::string("\
           \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
-          \n  return computeLighting(vec4(texture2D(" +
+          \n  return clamp(computeLighting(vec4(texture2D(" +
       colorTableMap[0] + ",\
           \n                                        vec2(scalar.x, 0.0)).xyz,\
-          \n                              opacity), 0, 0.0);\
+          \n                              opacity), 0, 0.0), 0.0, 1.0);\
           \n  }");
     return shaderStr;
   }
@@ -1236,7 +1236,7 @@ std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
     shaderStr += std::string("\
           \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
-          \n  return computeLighting(vec4(scalar.xyz, opacity), 0, 0.0);\
+          \n  return clamp(computeLighting(vec4(scalar.xyz, opacity), 0, 0.0), 0.0, 1.0);\
           \n  }");
     return shaderStr;
   }
@@ -1268,8 +1268,8 @@ std::string ComputeColorMultiDeclaration(vtkOpenGLGPUVolumeRayCastMapper::Volume
   {
     ss << "vec4 computeColor(vec4 scalar, const in sampler2D colorTF)\
       \n  {\
-      \n  return computeLighting(vec4(texture2D(colorTF,\
-      \n                         vec2(scalar.w, 0.0)).xyz, opacity), 0);\
+      \n  return clamp(computeLighting(vec4(texture2D(colorTF,\
+      \n                         vec2(scalar.w, 0.0)).xyz, opacity), 0), 0.0, 1.0);\
       \n  }\n";
   }
   else
@@ -1277,9 +1277,9 @@ std::string ComputeColorMultiDeclaration(vtkOpenGLGPUVolumeRayCastMapper::Volume
     ss << "vec4 computeColor(vec3 texPos, vec4 scalar, float opacity, const in sampler2D colorTF, "
           "const in sampler2D gradientTF, const in sampler3D volume, const int volIdx)\n"
           "{\n"
-          "  return computeLighting(texPos, vec4(texture2D(colorTF,\n"
+          "  return clamp(computeLighting(texPos, vec4(texture2D(colorTF,\n"
           "                         vec2(scalar.w, 0.0)).xyz, opacity), gradientTF, volume, "
-          "volIdx, 0);\n"
+          "volIdx, 0), 0.0, 1.0);\n"
           "}\n";
   }
 
