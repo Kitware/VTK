@@ -84,15 +84,15 @@ public:
   /**
    * Specify file name of meta file
    */
-  void SetFileName(const char* fname) override;
-  char* GetFileName() override { return this->MHDFileName; }
+  void SetFileName(VTK_FILEPATH const char* fname) override;
+  VTK_FILEPATH char* GetFileName() override { return this->MHDFileName; }
 
   ///@{
   /**
    * Specify the file name of the raw image data.
    */
-  virtual void SetRAWFileName(const char* fname);
-  virtual char* GetRAWFileName();
+  virtual void SetRAWFileName(VTK_FILEPATH const char* fname);
+  virtual VTK_FILEPATH char* GetRAWFileName();
   ///@}
 
   virtual void SetCompression(bool compress) { this->Compress = compress; }
@@ -106,7 +106,7 @@ protected:
   vtkMetaImageWriter();
   ~vtkMetaImageWriter() override;
 
-  vtkSetStringMacro(MHDFileName);
+  vtkSetFilePathMacro(MHDFileName);
   char* MHDFileName;
   bool Compress;
 

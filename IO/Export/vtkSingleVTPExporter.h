@@ -50,14 +50,14 @@ public:
    * Specify the prefix of the files to write out. The resulting filenames
    * will have .vtp and .png appended to them.
    */
-  vtkSetStringMacro(FilePrefix);
-  vtkGetStringMacro(FilePrefix);
+  vtkSetFilePathMacro(FilePrefix);
+  vtkGetFilePathMacro(FilePrefix);
   ///@}
 
   // computes the file prefix from a filename by removing
   // the .vtp extension if present. Useful for APIs that
   // are filename centric.
-  void SetFileName(const char*);
+  void SetFileName(VTK_FILEPATH const char*);
 
 protected:
   vtkSingleVTPExporter();

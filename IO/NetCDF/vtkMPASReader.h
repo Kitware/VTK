@@ -99,8 +99,8 @@ public:
   /**
    * Specify file name of MPAS data file to read.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{
@@ -225,7 +225,7 @@ public:
   /**
    * Returns true if the given file can be read.
    */
-  static int CanReadFile(const char* filename);
+  static int CanReadFile(VTK_FILEPATH const char* filename);
 
   vtkMTimeType GetMTime() override;
 

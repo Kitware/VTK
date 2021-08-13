@@ -43,8 +43,8 @@ public:
   /**
    * Specify file name of H5Rage data file to read.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{

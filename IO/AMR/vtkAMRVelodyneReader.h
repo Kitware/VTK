@@ -42,7 +42,7 @@ public:
 
   int GetNumberOfBlocks() override;
   int GetNumberOfLevels() override;
-  void SetFileName(const char* fileName) override;
+  void SetFileName(VTK_FILEPATH const char* fileName) override;
   vtkOverlappingAMR* GetOutput();
 
 protected:

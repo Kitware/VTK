@@ -71,9 +71,12 @@ public:
    * a convenience method that calls the superclass' AddFileName
    * method.
    */
-  void SetFileName(const char* fname);
-  const char* GetFileName() const;
-  const char* GetFileName(int i) const { return this->vtkSimpleReader::GetFileName(i); }
+  void SetFileName(VTK_FILEPATH const char* fname);
+  VTK_FILEPATH const char* GetFileName() const;
+  VTK_FILEPATH const char* GetFileName(int i) const
+  {
+    return this->vtkSimpleReader::GetFileName(i);
+  }
   ///@}
 
   ///@{
@@ -343,12 +346,12 @@ public:
   /**
    * Open a vtk data file. Returns zero if error.
    */
-  int OpenVTKFile(const char* fname = nullptr);
+  int OpenVTKFile(VTK_FILEPATH const char* fname = nullptr);
 
   /**
    * Read the header of a vtk data file. Returns 0 if error.
    */
-  int ReadHeader(const char* fname = nullptr);
+  int ReadHeader(VTK_FILEPATH const char* fname = nullptr);
 
   /**
    * Read the cell data of a vtk data file. The number of cells (from the
@@ -502,12 +505,17 @@ public:
    * so that subclasses only override what is needed (usually
    * only ReadMesh).
    */
-  int ReadMeshSimple(const std::string& /*fname*/, vtkDataObject* /*output*/) override { return 1; }
-  int ReadPointsSimple(const std::string& /*fname*/, vtkDataObject* /*output*/) override
+  int ReadMeshSimple(VTK_FILEPATH const std::string& /*fname*/, vtkDataObject* /*output*/) override
   {
     return 1;
   }
-  int ReadArraysSimple(const std::string& /*fname*/, vtkDataObject* /*output*/) override
+  int ReadPointsSimple(
+    VTK_FILEPATH const std::string& /*fname*/, vtkDataObject* /*output*/) override
+  {
+    return 1;
+  }
+  int ReadArraysSimple(
+    VTK_FILEPATH const std::string& /*fname*/, vtkDataObject* /*output*/) override
   {
     return 1;
   }

@@ -66,7 +66,7 @@ public:
    * During each update timing information is stored, it can
    * be written to disk by calling WriteLog.
    */
-  void WriteTimerLog(const char* fileName) override;
+  void WriteTimerLog(VTK_FILEPATH const char* fileName) override;
 
 protected:
   vtkPLineIntegralConvolution2D();

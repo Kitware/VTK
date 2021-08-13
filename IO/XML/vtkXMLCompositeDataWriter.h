@@ -124,8 +124,8 @@ protected:
 
   // Methods to help construct internal file names.
   void SplitFileName();
-  const char* GetFilePrefix();
-  const char* GetFilePath();
+  VTK_FILEPATH const char* GetFilePrefix();
+  VTK_FILEPATH const char* GetFilePath();
 
   /**
    * Returns the default extension to use for the given dataset type.

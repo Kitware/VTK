@@ -53,8 +53,8 @@ public:
   /**
    * Specify file name of VPIC data file to read.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{

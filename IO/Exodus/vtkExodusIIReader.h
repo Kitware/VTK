@@ -61,7 +61,7 @@ public:
   /**
    * Determine if the file can be read with this reader.
    */
-  virtual int CanReadFile(const char* fname);
+  virtual int CanReadFile(VTK_FILEPATH const char* fname);
 
   // virtual void Modified();
 
@@ -81,16 +81,16 @@ public:
   /**
    * Specify file name of the Exodus file.
    */
-  virtual void SetFileName(const char* fname);
-  vtkGetStringMacro(FileName);
+  virtual void SetFileName(VTK_FILEPATH const char* fname);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{
   /**
    * Specify file name of the xml file.
    */
-  virtual void SetXMLFileName(const char* fname);
-  vtkGetStringMacro(XMLFileName);
+  virtual void SetXMLFileName(VTK_FILEPATH const char* fname);
+  vtkGetFilePathMacro(XMLFileName);
   ///@}
 
   ///@{

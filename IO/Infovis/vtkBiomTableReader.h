@@ -50,7 +50,7 @@ public:
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
+  int ReadMeshSimple(VTK_FILEPATH const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkBiomTableReader();

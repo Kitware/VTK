@@ -63,14 +63,14 @@ public:
   /**
    * Specify file name of CGNS datafile to read
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   /**
    * Is the given file name a CGNS file?
    */
-  int CanReadFile(const char* filename);
+  int CanReadFile(VTK_FILEPATH const char* filename);
 
   /**
    * Returns access to the base selection object.

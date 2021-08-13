@@ -45,7 +45,7 @@ public:
    * Note that the time values are either integers growing sequentially,
    * or are obtained from individual files as supported by the subclass.
    */
-  void AddFileName(const char* fname);
+  void AddFileName(VTK_FILEPATH const char* fname);
 
   /**
    * Removes all filenames stored by the reader.
@@ -60,13 +60,13 @@ public:
   /**
    * Returns a particular filename stored by the reader.
    */
-  const char* GetFileName(int i) const;
+  VTK_FILEPATH const char* GetFileName(int i) const;
 
   /**
    * Returns the filename that was last loaded by the reader.
    * This is set internally in ReadMesh()
    */
-  const char* GetCurrentFileName() const;
+  VTK_FILEPATH const char* GetCurrentFileName() const;
 
   ///@{
   /**

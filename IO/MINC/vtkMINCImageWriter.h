@@ -100,7 +100,7 @@ public:
   /**
    * Set the file name.
    */
-  void SetFileName(const char* name) override;
+  void SetFileName(VTK_FILEPATH const char* name) override;
 
   /**
    * Write the data.  This will attempt to stream the data

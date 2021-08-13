@@ -108,7 +108,7 @@ public:
   /**
    * Specify a Tecplot ASCII file for data loading.
    */
-  void SetFileName(const char* fileName);
+  void SetFileName(VTK_FILEPATH const char* fileName);
 
   /**
    * Get the Tecplot data title.

@@ -157,11 +157,11 @@ public:
   /**
    * Set/Get the PLOT3D geometry filename.
    */
-  void SetFileName(const char* name) { this->SetXYZFileName(name); }
-  const char* GetFileName() { return this->GetXYZFileName(); }
-  const char* GetFileName(int i) { return this->vtkParallelReader::GetFileName(i); }
-  virtual void SetXYZFileName(const char*);
-  vtkGetStringMacro(XYZFileName);
+  void SetFileName(VTK_FILEPATH const char* name) { this->SetXYZFileName(name); }
+  VTK_FILEPATH const char* GetFileName() { return this->GetXYZFileName(); }
+  VTK_FILEPATH const char* GetFileName(int i) { return this->vtkParallelReader::GetFileName(i); }
+  virtual void SetXYZFileName(VTK_FILEPATH const char*);
+  vtkGetFilePathMacro(XYZFileName);
   ///@}
 
   ///@{
@@ -175,16 +175,16 @@ public:
    * Use a meta reader to support time values for non-Overflow file
    * sequences.
    */
-  void SetQFileName(const char* name);
-  const char* GetQFileName();
+  void SetQFileName(VTK_FILEPATH const char* name);
+  VTK_FILEPATH const char* GetQFileName();
   ///@}
 
   ///@{
   /**
    * Set/Get the PLOT3D function filename.
    */
-  vtkSetStringMacro(FunctionFileName);
-  vtkGetStringMacro(FunctionFileName);
+  vtkSetFilePathMacro(FunctionFileName);
+  vtkGetFilePathMacro(FunctionFileName);
   ///@}
 
   ///@{
@@ -356,7 +356,7 @@ public:
    * Return 1 if the reader can read the given file name. Only meaningful
    * for binary files.
    */
-  virtual int CanReadBinaryFile(const char* fname);
+  virtual int CanReadBinaryFile(VTK_FILEPATH const char* fname);
 
   ///@{
   /**

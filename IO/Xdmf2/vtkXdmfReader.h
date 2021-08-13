@@ -79,8 +79,8 @@ public:
   /**
    * Name of the file to read.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   /**
@@ -165,7 +165,7 @@ public:
   /**
    * Determine if the file can be read with this reader.
    */
-  virtual int CanReadFile(const char* filename);
+  virtual int CanReadFile(VTK_FILEPATH const char* filename);
 
   ///@{
   /**

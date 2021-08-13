@@ -47,13 +47,13 @@ public:
    * files, the result is not definitive.  Invalid files may still return 1
    * although a valid file will never return 0.
    */
-  static int CanReadFile(const char* fileName);
+  static int CanReadFile(VTK_FILEPATH const char* fileName);
 
-  void SetFileName(const char* fileName);
-  vtkGetStringMacro(FileName);
+  void SetFileName(VTK_FILEPATH const char* fileName);
+  vtkGetFilePathMacro(FileName);
 
-  void SetConnectivityFileName(const char* fileName);
-  vtkGetStringMacro(ConnectivityFileName);
+  void SetConnectivityFileName(VTK_FILEPATH const char* fileName);
+  vtkGetFilePathMacro(ConnectivityFileName);
 
   ///@{
   /**

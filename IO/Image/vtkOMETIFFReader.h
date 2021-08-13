@@ -50,7 +50,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
-  int CanReadFile(const char* fname) override;
+  int CanReadFile(VTK_FILEPATH const char* fname) override;
   const char* GetFileExtensions() override { return ".ome.tif .ome.tiff"; }
   const char* GetDescriptiveName() override { return "OME TIFF"; }
   ///@}

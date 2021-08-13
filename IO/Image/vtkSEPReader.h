@@ -98,7 +98,7 @@ public:
   vtkSetMacro(FixedDimensionValue2, int);
   vtkGetVector2Macro(FixedDimRange, int);
 
-  bool CanReadFile(const char*);
+  bool CanReadFile(VTK_FILEPATH const char*);
 
   std::array<std::int32_t, 6> ComputeExtent() const;
 

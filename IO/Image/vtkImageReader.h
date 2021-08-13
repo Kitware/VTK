@@ -94,7 +94,7 @@ public:
    * Subclasses that read specific file format should override and implement
    * appropriate checks for file format.
    */
-  int CanReadFile(const char*) override
+  int CanReadFile(VTK_FILEPATH const char*) override
   {
     return 1; // I think I can read the file but I cannot prove it
   }

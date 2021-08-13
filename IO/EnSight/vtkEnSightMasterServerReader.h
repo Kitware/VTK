@@ -42,7 +42,7 @@ public:
   /**
    * Get the file name that will be read.
    */
-  vtkGetStringMacro(PieceCaseFileName);
+  vtkGetFilePathMacro(PieceCaseFileName);
   ///@}
 
   ///@{
@@ -53,7 +53,7 @@ public:
   vtkGetMacro(CurrentPiece, int);
   ///@}
 
-  int CanReadFile(const char* fname) override;
+  int CanReadFile(VTK_FILEPATH const char* fname) override;
 
 protected:
   vtkEnSightMasterServerReader();
@@ -62,7 +62,7 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkSetStringMacro(PieceCaseFileName);
+  vtkSetFilePathMacro(PieceCaseFileName);
   char* PieceCaseFileName;
   int MaxNumberOfPieces;
   int CurrentPiece;

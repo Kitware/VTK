@@ -231,8 +231,8 @@ public:
   /**
    * Set/Get the name of the valid image file
    */
-  vtkSetStringMacro(ValidImageFileName);
-  const char* GetValidImageFileName();
+  vtkSetFilePathMacro(ValidImageFileName);
+  VTK_FILEPATH const char* GetValidImageFileName();
   ///@}
 
   ///@{
@@ -271,16 +271,16 @@ public:
   /**
    * Get some parameters from the command line arguments, env, or defaults
    */
-  const char* GetDataRoot();
-  vtkSetStringMacro(DataRoot);
+  VTK_FILEPATH const char* GetDataRoot();
+  vtkSetFilePathMacro(DataRoot);
   ///@}
 
   ///@{
   /**
    * Get some parameters from the command line arguments, env, or defaults
    */
-  const char* GetTempDirectory();
-  vtkSetStringMacro(TempDirectory);
+  VTK_FILEPATH const char* GetTempDirectory();
+  vtkSetFilePathMacro(TempDirectory);
   ///@}
 
   /**

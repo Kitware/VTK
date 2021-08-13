@@ -46,7 +46,7 @@ public:
   /**
    * Set tells the reader the name of a single top level xml file to read.
    */
-  void SetFileName(const char* filename);
+  void SetFileName(VTK_FILEPATH const char* filename);
 
   ///@{
   /**
@@ -54,7 +54,7 @@ public:
    * Whether the set is treated as a spatial or temporal collection depends
    * on FileSeriestAsTime.
    */
-  virtual void AddFileName(const char* filename);
+  virtual void AddFileName(VTK_FILEPATH const char* filename);
   virtual void RemoveAllFileNames();
   ///@}
 
@@ -71,7 +71,7 @@ public:
   /**
    * Determine if the file can be read with this reader.
    */
-  virtual int CanReadFile(const char* filename);
+  virtual int CanReadFile(VTK_FILEPATH const char* filename);
 
   /**
    * Get information about point-based arrays. As is typical with readers this
@@ -166,7 +166,7 @@ protected:
   ~vtkXdmf3Reader() override;
 
   const char* FileNameInternal;
-  vtkSetStringMacro(FileNameInternal);
+  vtkSetFilePathMacro(FileNameInternal);
 
   // Overridden to announce that we make general DataObjects.
   int FillOutputPortInformation(int port, vtkInformation* info) override;

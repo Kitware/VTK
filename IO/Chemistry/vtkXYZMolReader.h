@@ -41,7 +41,7 @@ public:
    * Test whether the file with the given name can be read by this
    * reader.
    */
-  virtual int CanReadFile(const char* name);
+  virtual int CanReadFile(VTK_FILEPATH const char* name);
 
   ///@{
   /**

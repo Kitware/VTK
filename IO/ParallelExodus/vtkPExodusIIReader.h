@@ -74,10 +74,10 @@ public:
    * numbers. This may happen in the future. (That is why there is no
    * GetFileNumberRange method.
    */
-  vtkSetStringMacro(FilePattern);
-  vtkGetStringMacro(FilePattern);
-  vtkSetStringMacro(FilePrefix);
-  vtkGetStringMacro(FilePrefix);
+  vtkSetFilePathMacro(FilePattern);
+  vtkGetFilePathMacro(FilePattern);
+  vtkSetFilePathMacro(FilePrefix);
+  vtkGetFilePathMacro(FilePrefix);
   ///@}
 
   ///@{
@@ -98,7 +98,7 @@ public:
    */
   void SetFileNames(int nfiles, const char** names);
 
-  void SetFileName(const char* name) override;
+  void SetFileName(VTK_FILEPATH const char* name) override;
 
   /**
    * Return pointer to list of file names set in SetFileNames

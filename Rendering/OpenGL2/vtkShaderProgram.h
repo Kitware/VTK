@@ -279,8 +279,8 @@ public:
    * This is only intended for debugging during development and should not be
    * used in production.
    */
-  vtkSetStringMacro(FileNamePrefixForDebugging);
-  vtkGetStringMacro(FileNamePrefixForDebugging);
+  vtkSetFilePathMacro(FileNamePrefixForDebugging);
+  vtkGetFilePathMacro(FileNamePrefixForDebugging);
   ///@}
 
   ///@{

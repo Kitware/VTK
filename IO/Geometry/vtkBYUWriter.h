@@ -46,32 +46,32 @@ public:
   /**
    * Specify the name of the geometry file to write.
    */
-  vtkSetStringMacro(GeometryFileName);
-  vtkGetStringMacro(GeometryFileName);
+  vtkSetFilePathMacro(GeometryFileName);
+  vtkGetFilePathMacro(GeometryFileName);
   ///@}
 
   ///@{
   /**
    * Specify the name of the displacement file to write.
    */
-  vtkSetStringMacro(DisplacementFileName);
-  vtkGetStringMacro(DisplacementFileName);
+  vtkSetFilePathMacro(DisplacementFileName);
+  vtkGetFilePathMacro(DisplacementFileName);
   ///@}
 
   ///@{
   /**
    * Specify the name of the scalar file to write.
    */
-  vtkSetStringMacro(ScalarFileName);
-  vtkGetStringMacro(ScalarFileName);
+  vtkSetFilePathMacro(ScalarFileName);
+  vtkGetFilePathMacro(ScalarFileName);
   ///@}
 
   ///@{
   /**
    * Specify the name of the texture file to write.
    */
-  vtkSetStringMacro(TextureFileName);
-  vtkGetStringMacro(TextureFileName);
+  vtkSetFilePathMacro(TextureFileName);
+  vtkGetFilePathMacro(TextureFileName);
   ///@}
 
   ///@{

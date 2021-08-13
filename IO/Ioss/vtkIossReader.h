@@ -187,16 +187,16 @@ public:
   /**
    * API to set the filenames.
    */
-  void AddFileName(const char* fname);
+  void AddFileName(VTK_FILEPATH const char* fname);
   void ClearFileNames();
-  const char* GetFileName(int index) const;
+  VTK_FILEPATH const char* GetFileName(int index) const;
   int GetNumberOfFileNames() const;
   ///@}
 
   /**
    * Set a single filename. Note, this will clear all existing filenames.
    */
-  void SetFileName(const char* fname);
+  void SetFileName(VTK_FILEPATH const char* fname);
 
   ///@{
   /**

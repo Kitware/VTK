@@ -53,8 +53,8 @@ public:
   /**
    * Set/get file name of marching cubes limits file.
    */
-  vtkSetStringMacro(LimitsFileName);
-  vtkGetStringMacro(LimitsFileName);
+  vtkSetFilePathMacro(LimitsFileName);
+  vtkGetFilePathMacro(LimitsFileName);
   ///@}
 
   ///@{
@@ -69,8 +69,8 @@ public:
   /**
    * Specify file name of vtk polygon data file to write.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
 protected:

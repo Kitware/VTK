@@ -41,12 +41,12 @@ public:
   /**
    * Returns true if the file is a meta-file.
    */
-  static bool IsMetaFile(const std::string& filename);
+  static bool IsMetaFile(VTK_FILEPATH const std::string& filename);
 
   /**
    * Parses the meta-file and returns a collection of files.
    */
-  static std::set<std::string> GetFilesFromMetaFile(const std::string& filename);
+  static std::set<std::string> GetFilesFromMetaFile(VTK_FILEPATH const std::string& filename);
 
   /**
    * Scans for related files.

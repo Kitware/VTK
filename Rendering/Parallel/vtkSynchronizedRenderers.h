@@ -218,7 +218,7 @@ public:
     bool Capture(vtkRenderer*);
 
     // Save the image as a png. Useful for debugging.
-    void SaveAsPNG(const char* filename);
+    void SaveAsPNG(VTK_FILEPATH const char* filename);
 
   private:
     bool Valid;

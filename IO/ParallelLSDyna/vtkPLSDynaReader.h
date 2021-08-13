@@ -138,7 +138,7 @@ public:
   /**
    * Determine if the file can be read with this reader.
    */
-  int CanReadFile(const char* fname) override;
+  int CanReadFile(VTK_FILEPATH const char* fname) override;
 
   ///@{
   /**

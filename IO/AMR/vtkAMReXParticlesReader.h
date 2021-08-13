@@ -58,8 +58,8 @@ public:
    * Get/Set the AMReX plotfile. Note this is a directory on the filesystem and
    * not the file.
    */
-  void SetPlotFileName(const char* fname);
-  const char* GetPlotFileName() const;
+  void SetPlotFileName(VTK_FILEPATH const char* fname);
+  VTK_FILEPATH const char* GetPlotFileName() const;
   ///@}
 
   ///@{
@@ -81,7 +81,7 @@ public:
   /**
    * Returns 1 is fname refers to a plotfile that the reader can read.
    */
-  static int CanReadFile(const char* fname, const char* particlesType = nullptr);
+  static int CanReadFile(VTK_FILEPATH const char* fname, const char* particlesType = nullptr);
 
   ///@{
   /**

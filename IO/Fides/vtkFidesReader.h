@@ -68,12 +68,12 @@ public:
    * Test whether or not a given file should even be attempted for use with this
    * reader.
    */
-  int CanReadFile(const std::string& name);
+  int CanReadFile(VTK_FILEPATH const std::string& name);
 
   /**
    * Set the filename to be read
    */
-  void SetFileName(const std::string& fname);
+  void SetFileName(VTK_FILEPATH const std::string& fname);
 
   ///@{
   /**
@@ -81,7 +81,7 @@ public:
    * model. Has to be called before any data input can take place.
    * See the Fides documentation for the description of the schema.
    */
-  void ParseDataModel(const std::string& fname);
+  void ParseDataModel(VTK_FILEPATH const std::string& fname);
   void ParseDataModel();
   ///@}
 
@@ -90,7 +90,7 @@ public:
    * SST stream or an inline data source. The name of the data source
    * corresponds to what is in the data model.
    */
-  void SetDataSourcePath(const std::string& name, const std::string& path);
+  void SetDataSourcePath(const std::string& name, VTK_FILEPATH const std::string& path);
 
   /**
    * Implements various pipeline passes.

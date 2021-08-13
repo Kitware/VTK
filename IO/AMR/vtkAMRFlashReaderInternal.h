@@ -166,7 +166,7 @@ public:
   double GetTime();
 
   void Init();
-  void SetFileName(char* fileName) { this->FileName = fileName; }
+  void SetFileName(VTK_FILEPATH char* fileName) { this->FileName = fileName; }
   const char* GetParticleName(char* variableName)
   {
     static std::string particleName;

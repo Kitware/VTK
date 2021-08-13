@@ -95,7 +95,7 @@ public:
   /**
    * Write GDALDataset to tiff file
    */
-  void WriteTifFile(GDALDataset* dataset, const char* filename);
+  void WriteTifFile(GDALDataset* dataset, VTK_FILEPATH const char* filename);
 
   /**
    * Traverse values in specified band to find min/max.

@@ -62,8 +62,8 @@ public:
   /**
    * Specify path of EnSight data files to write.
    */
-  vtkSetStringMacro(Path);
-  vtkGetStringMacro(Path);
+  vtkSetFilePathMacro(Path);
+  vtkGetFilePathMacro(Path);
   ///@}
 
   ///@{
@@ -78,8 +78,8 @@ public:
   /**
    * Specify the path and base name of the output files.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{

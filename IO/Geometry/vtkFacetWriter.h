@@ -55,8 +55,8 @@ public:
   /**
    * Specify file name of Facet datafile to read
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   /**

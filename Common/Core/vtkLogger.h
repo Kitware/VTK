@@ -373,14 +373,15 @@ public:
    *
    * Not intended for public use, please use the logging macros instead.
    */
-  static void Log(Verbosity verbosity, const char* fname, unsigned int lineno, const char* txt);
+  static void Log(
+    Verbosity verbosity, VTK_FILEPATH const char* fname, unsigned int lineno, const char* txt);
   static void StartScope(
-    Verbosity verbosity, const char* id, const char* fname, unsigned int lineno);
+    Verbosity verbosity, const char* id, VTK_FILEPATH const char* fname, unsigned int lineno);
   static void EndScope(const char* id);
 #if !defined(__WRAP__)
-  static void LogF(Verbosity verbosity, const char* fname, unsigned int lineno,
+  static void LogF(Verbosity verbosity, VTK_FILEPATH const char* fname, unsigned int lineno,
     VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(4, 5);
-  static void StartScopeF(Verbosity verbosity, const char* id, const char* fname,
+  static void StartScopeF(Verbosity verbosity, const char* id, VTK_FILEPATH const char* fname,
     unsigned int lineno, VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(5, 6);
 
   class VTKCOMMONCORE_EXPORT LogScopeRAII

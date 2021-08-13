@@ -161,8 +161,8 @@ public:
   /**
    * Specify file name of vtk polygon data file to write.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
 protected:

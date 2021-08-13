@@ -73,9 +73,9 @@ public:
    * Test whether or not a given file should even be attempted for use with this
    * reader.
    */
-  int CanReadFile(const std::string& name);
+  int CanReadFile(VTK_FILEPATH const std::string& name);
 
-  virtual int CanReadFile(const char* filename);
+  virtual int CanReadFile(VTK_FILEPATH const char* filename);
 
   ///@{
   /**
@@ -85,7 +85,7 @@ public:
   vtkGetMacro(FileName, std::string);
   ///@}
 
-  void SetFileName(const char* filename);
+  void SetFileName(VTK_FILEPATH const char* filename);
 
   ///@{
   /**

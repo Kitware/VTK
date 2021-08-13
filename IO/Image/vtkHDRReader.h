@@ -76,7 +76,7 @@ public:
   /**
    * Is the given file a HDR file?
    */
-  int CanReadFile(const char* fname) override;
+  int CanReadFile(VTK_FILEPATH const char* fname) override;
 
   /**
    * Get the file extensions for this format.

@@ -54,7 +54,7 @@ public:
    * You may run into thread safety issues. Typically, the caller code will
    * simply release reference to the data and stop using it.
    */
-  void EncodeAndWrite(vtkImageData* image, const char* fileName);
+  void EncodeAndWrite(vtkImageData* image, VTK_FILEPATH const char* fileName);
 
   /**
    * Define the number of worker thread to use.

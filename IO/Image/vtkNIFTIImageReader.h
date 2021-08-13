@@ -73,7 +73,7 @@ public:
   /**
    * Return true if this reader can read the given file.
    */
-  int CanReadFile(const char* filename) override;
+  int CanReadFile(VTK_FILEPATH const char* filename) override;
 
   ///@{
   /**

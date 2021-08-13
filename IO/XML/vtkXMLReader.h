@@ -60,8 +60,8 @@ public:
   /**
    * Get/Set the name of the input file.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{
@@ -81,7 +81,7 @@ public:
    * This enables clients (ParaView) to distinguish between failures when we
    * need to look for another reader and failures when we don't.
    */
-  virtual int CanReadFile(const char* name);
+  virtual int CanReadFile(VTK_FILEPATH const char* name);
 
   ///@{
   /**

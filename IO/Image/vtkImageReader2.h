@@ -61,8 +61,8 @@ public:
    * Specify file name for the image file. If the data is stored in
    * multiple files, then use SetFileNames or SetFilePrefix instead.
    */
-  virtual void SetFileName(const char*);
-  vtkGetStringMacro(FileName);
+  virtual void SetFileName(VTK_FILEPATH const char*);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{
@@ -85,8 +85,8 @@ public:
    * the DataExtent so that the reader will know what range of slices
    * to load.
    */
-  virtual void SetFilePrefix(const char*);
-  vtkGetStringMacro(FilePrefix);
+  virtual void SetFilePrefix(VTK_FILEPATH const char*);
+  vtkGetFilePathMacro(FilePrefix);
   ///@}
 
   ///@{
@@ -94,8 +94,8 @@ public:
    * The snprintf-style format string used to build filename from
    * FilePrefix and slice number.
    */
-  virtual void SetFilePattern(const char*);
-  vtkGetStringMacro(FilePattern);
+  virtual void SetFilePattern(VTK_FILEPATH const char*);
+  vtkGetFilePathMacro(FilePattern);
   ///@}
 
   /**
@@ -268,7 +268,7 @@ public:
    * Set/Get the internal file name
    */
   virtual void ComputeInternalFileName(int slice);
-  vtkGetStringMacro(InternalFileName);
+  vtkGetFilePathMacro(InternalFileName);
   ///@}
 
   /**
@@ -280,7 +280,7 @@ public:
    * 3 - I can read the file and I have validated that I am the
    * correct reader for this file
    */
-  virtual int CanReadFile(const char* vtkNotUsed(fname)) { return 0; }
+  virtual int CanReadFile(VTK_FILEPATH const char* vtkNotUsed(fname)) { return 0; }
 
   /**
    * Get the file extensions for this format.

@@ -42,8 +42,8 @@ public:
    * Specify the file name prefix of the cel/vrt files to read.
    * The reader will try to open FileName.cel and FileName.vrt files.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{

@@ -63,7 +63,7 @@ public:
    * be determined from the filename.  Qt's image format support may vary, usually
    * bmp, jpg, ppm, or png is a safe choice.  Returns false if there was a failure.
    */
-  virtual bool SaveImage(const char* fileName);
+  virtual bool SaveImage(VTK_FILEPATH const char* fileName);
 
 protected:
   vtkQtView();

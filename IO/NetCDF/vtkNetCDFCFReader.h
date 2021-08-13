@@ -100,7 +100,7 @@ public:
   /**
    * Returns true if the given file can be read.
    */
-  static int CanReadFile(const char* filename);
+  static int CanReadFile(VTK_FILEPATH const char* filename);
 
 protected:
   vtkNetCDFCFReader();

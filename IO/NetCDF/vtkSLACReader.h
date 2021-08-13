@@ -53,8 +53,8 @@ public:
   static vtkSLACReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkGetStringMacro(MeshFileName);
-  vtkSetStringMacro(MeshFileName);
+  vtkGetFilePathMacro(MeshFileName);
+  vtkSetFilePathMacro(MeshFileName);
 
   ///@{
   /**
@@ -62,10 +62,10 @@ public:
    * files (which usually actually represent time series).  These methods
    * set and clear the list of mode files (which can be a single mode file).
    */
-  virtual void AddModeFileName(const char* fname);
+  virtual void AddModeFileName(VTK_FILEPATH const char* fname);
   virtual void RemoveAllModeFileNames();
   virtual unsigned int GetNumberOfModeFileNames();
-  virtual const char* GetModeFileName(unsigned int idx);
+  virtual VTK_FILEPATH const char* GetModeFileName(unsigned int idx);
   ///@}
 
   ///@{
@@ -133,7 +133,7 @@ public:
   /**
    * Returns true if the given file can be read by this reader.
    */
-  static int CanReadFile(const char* filename);
+  static int CanReadFile(VTK_FILEPATH const char* filename);
 
   /**
    * This key is attached to the metadata information of all data sets in the

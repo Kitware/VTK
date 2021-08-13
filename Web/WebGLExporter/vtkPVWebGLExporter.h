@@ -27,8 +27,8 @@ public:
 
   // Description:
   // Specify the name of the VRML file to write.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
 protected:
   vtkPVWebGLExporter();

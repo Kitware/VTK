@@ -539,7 +539,7 @@ public:
    * Load the binary part of a binary glTF (.glb) file. Returns false if no valid binary part was
    * found.
    */
-  bool LoadFileBuffer(const std::string& fileName, std::vector<char>& glbBuffer);
+  bool LoadFileBuffer(VTK_FILEPATH const std::string& fileName, std::vector<char>& glbBuffer);
 
   /**
    * Reset internal Model struct, and serialize glTF metadata (all json information) into it.

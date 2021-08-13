@@ -32,8 +32,8 @@ public:
   vtkTypeMacro(vtkVeraOutReader, vtkRectilinearGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
   /**
    * Get vtkDataArraySelection instance to select cell arrays to read.

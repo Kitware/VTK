@@ -55,8 +55,8 @@ public:
   /**
    * Specify file name of AVS UCD datafile to read
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{

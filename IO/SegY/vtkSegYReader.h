@@ -45,8 +45,8 @@ public:
   vtkSegYReader();
   ~vtkSegYReader() override;
 
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
   enum VTKSegYCoordinateModes
   {

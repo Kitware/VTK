@@ -74,13 +74,13 @@ public:
    * Test a file for readability. Ensure that vtkCGNSFileSeriesReader::SetReader
    * is called before using this method.
    */
-  int CanReadFile(const char* filename);
+  int CanReadFile(VTK_FILEPATH const char* filename);
 
   ///@{
   /**
    * Add/remove files names in the file series.
    */
-  void AddFileName(const char* fname);
+  void AddFileName(VTK_FILEPATH const char* fname);
   void RemoveAllFileNames();
   ///@}
 
@@ -99,7 +99,7 @@ public:
    * This is only reasonable for temporal file series. For a partitioned file
    * series, this will return the filename being used on the current rank.
    */
-  const char* GetCurrentFileName() const;
+  VTK_FILEPATH const char* GetCurrentFileName() const;
 
   /**
    * Overridden to setup the `Reader` and then forward the pass to the reader.

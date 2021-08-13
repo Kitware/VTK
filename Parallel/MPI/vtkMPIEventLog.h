@@ -67,7 +67,7 @@ public:
    * See mpe documentation for file formats.
    */
   static void InitializeLogging();
-  static void FinalizeLogging(const char* fileName);
+  static void FinalizeLogging(VTK_FILEPATH const char* fileName);
   ///@}
 
   ///@{
