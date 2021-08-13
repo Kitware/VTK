@@ -13,6 +13,7 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   TestQVTKOpenGLStereoWidget,TestQtWidget.cxx
   TestQVTKOpenGLStereoWidgetWithDisabledInteractor,TestQtWithDisabledInteractor.cxx
   TestQVTKOpenGLStereoWidgetWithMSAA,TestQtWithMSAA.cxx
+  TestQVTKOpenGLStereoWidgetWithChartHistogram2D,TestQtWithChartHistogram2D.cxx
   )
 
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
@@ -23,6 +24,7 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   TestQVTKOpenGLNativeWidget,TestQtWidget.cxx
   TestQVTKOpenGLNativeWidgetWithDisabledInteractor,TestQtWithDisabledInteractor.cxx
   TestQVTKOpenGLNativeWidgetWithMSAA,TestQtWithMSAA.cxx
+  TestQVTKOpenGLNativeWidgetWithChartHistogram2D,TestQtWithChartHistogram2D.cxx
   )
 
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
@@ -32,6 +34,7 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   TestQVTKOpenGLWindow,TestQtWidget.cxx
   TestQVTKOpenGLWindowWithDisabledInteractor,TestQtWithDisabledInteractor.cxx
   TestQVTKOpenGLWindowWithMSAA,TestQtWithMSAA.cxx
+  TestQVTKOpenGLWindowWithChartHistogram2D,TestQtWithChartHistogram2D.cxx
   )
 
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
@@ -42,6 +45,7 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   TestQVTKRenderWidget,TestQtWidget.cxx
   TestQVTKRenderWidgetWithDisabledInteractor,TestQtWithDisabledInteractor.cxx
   TestQVTKRenderWidgetWithMSAA,TestQtWithMSAA.cxx
+  TestQVTKRenderWidgetWithChartHistogram2D,TestQtWithChartHistogram2D.cxx
   )
 
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
@@ -52,6 +56,7 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   TestQVTKOpenGLWidget,TestQtWidget.cxx
   TestQVTKOpenGLWidgetWithDisabledInteractor,TestQtWithDisabledInteractor.cxx
   TestQVTKOpenGLWidgetWithMSAA,TestQtWithMSAA.cxx
+  TestQVTKOpenGLWidgetWithChartHistogram2D,TestQtWithChartHistogram2D.cxx
   )
 
 find_package("Qt${vtk_qt_major_version}" COMPONENTS Widgets REQUIRED)

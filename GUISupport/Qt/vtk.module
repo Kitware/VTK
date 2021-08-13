@@ -15,7 +15,10 @@ PRIVATE_DEPENDS
   VTK::InteractionStyle
   VTK::opengl
 TEST_DEPENDS
+  VTK::ChartsCore
   VTK::FiltersSources
+  VTK::RenderingContextOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+  VTK::ViewsContext2D
 EXCLUDE_WRAP
