@@ -223,6 +223,7 @@ set(classes
   vtkTreeDFSIterator
   vtkTreeIterator
   vtkTriQuadraticHexahedron
+  vtkTriQuadraticPyramid
   vtkTriangle
   vtkTriangleStrip
   vtkUndirectedGraph

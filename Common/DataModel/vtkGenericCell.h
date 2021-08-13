@@ -148,6 +148,7 @@ public:
     this->SetCellType(VTK_BIQUADRATIC_QUADRATIC_WEDGE);
   }
   void SetCellTypeToTriQuadraticHexahedron() { this->SetCellType(VTK_TRIQUADRATIC_HEXAHEDRON); }
+  void SetCellTypeToTriQuadraticPyramid() { this->SetCellType(VTK_TRIQUADRATIC_PYRAMID); }
   void SetCellTypeToBiQuadraticQuadraticHexahedron()
   {
     this->SetCellType(VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON);

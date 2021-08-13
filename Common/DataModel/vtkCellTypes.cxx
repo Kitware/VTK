@@ -28,7 +28,7 @@ static const char* vtkCellTypesStrings[] = { "vtkEmptyCell", "vtkVertex", "vtkPo
   "vtkQuadraticHexahedron", "vtkQuadraticWedge", "vtkQuadraticPyramid", "vtkBiQuadraticQuad",
   "vtkTriQuadraticHexahedron", "vtkQuadraticLinearQuad", "vtkQuadraticLinearWedge",
   "vtkBiQuadraticQuadraticWedge", "vtkBiQuadraticQuadraticHexahedron", "vtkBiQuadraticTriangle",
-  "vtkCubicLine", "vtkQuadraticPolygon", "UnknownClass", "UnknownClass", "UnknownClass",
+  "vtkCubicLine", "vtkQuadraticPolygon", "vtkTriQuadraticPyramid", "UnknownClass", "UnknownClass",
   "UnknownClass", "vtkConvexPointSet", "vtkPolyhedron", "UnknownClass", "UnknownClass",
   "UnknownClass", "UnknownClass", "UnknownClass", "UnknownClass", "UnknownClass", "UnknownClass",
   "vtkParametricCurve", "vtkParametricSurface", "vtkParametricTriSurface",
