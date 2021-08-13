@@ -102,7 +102,9 @@ int vtkCutMaterial::RequestData(vtkInformation* vtkNotUsed(request),
   thresh->SetInputData(input);
   thresh->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, this->MaterialArrayName);
-  thresh->ThresholdBetween(this->Material - 0.5, this->Material + 0.5);
+  thresh->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  thresh->SetLowerThreshold(this->Material - 0.5);
+  thresh->SetUpperThreshold(this->Material + 0.5);
   thresh->Update();
 
   const double* bds = thresh->GetOutput()->GetBounds();

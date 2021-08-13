@@ -20,7 +20,8 @@ mark1.Update()
 
 thresh1 = vtk.vtkThreshold()
 thresh1.SetInputConnection(mark1.GetOutputPort())
-thresh1.ThresholdByUpper(1)
+thresh1.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_UPPER)
+thresh1.SetUpperThreshold(1.0)
 thresh1.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS, "BoundaryCells")
 thresh1.Update()
 
@@ -45,7 +46,8 @@ mark2.Update()
 
 thresh2 = vtk.vtkThreshold()
 thresh2.SetInputConnection(mark2.GetOutputPort())
-thresh2.ThresholdByUpper(1)
+thresh2.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_UPPER)
+thresh2.SetUpperThreshold(1.0)
 thresh2.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS, "BoundaryCells")
 
 mapper2 = vtk.vtkDataSetMapper()
@@ -65,7 +67,8 @@ mark3.SetInputData(image)
 
 thresh3 = vtk.vtkThreshold()
 thresh3.SetInputConnection(mark3.GetOutputPort())
-thresh3.ThresholdByUpper(1)
+thresh3.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_UPPER)
+thresh3.SetUpperThreshold(1.0)
 thresh3.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS, "BoundaryCells")
 
 mapper3 = vtk.vtkDataSetMapper()

@@ -161,7 +161,9 @@ int TestQuadraturePoints(int argc, char* argv[])
   // Demonstrate threshold functionality.
   vtkSmartPointer<vtkThreshold> thresholder = vtkSmartPointer<vtkThreshold>::New();
   thresholder->SetInputConnection(clip->GetOutputPort());
-  thresholder->ThresholdBetween(0.0, 3.0);
+  thresholder->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  thresholder->SetLowerThreshold(0.0);
+  thresholder->SetUpperThreshold(3.0);
 
   // Generate the quadrature point set using a specific array as point data.
   vtkSmartPointer<vtkQuadraturePointsGenerator> pointGen =

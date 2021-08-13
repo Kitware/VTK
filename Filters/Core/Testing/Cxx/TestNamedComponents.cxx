@@ -128,8 +128,9 @@ int TestNamedComponents(int, char*[])
   thresh->SetInputData(poly);
   thresh->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
-
-  thresh->ThresholdBetween(0, 10);
+  thresh->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  thresh->SetLowerThreshold(0.0);
+  thresh->SetUpperThreshold(10.0);
   thresh->Update();
 
   vtkSmartPointer<vtkUnstructuredGrid> out = thresh->GetOutput();

@@ -861,7 +861,9 @@ int vtkPConnectivityFilter::RequestData(
     // Now extract only the cells that have the desired id.
     vtkNew<vtkThreshold> thresholder;
     thresholder->SetInputData(output);
-    thresholder->ThresholdBetween(threshold, threshold);
+    thresholder->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+    thresholder->SetLowerThreshold(threshold);
+    thresholder->SetUpperThreshold(threshold);
     thresholder->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "RegionId");
     thresholder->Update();

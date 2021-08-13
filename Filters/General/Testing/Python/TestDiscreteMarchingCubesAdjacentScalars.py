@@ -81,7 +81,11 @@ thr = vtk.vtkThreshold()
 thr.SetInputConnection(discrete.GetOutputPort())
 thr.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, vtk.vtkDataSetAttributes.SCALARS) # act on PointScalars created by ComputeAdjacentScalarsOn
 thr.AllScalarsOn() # default, changes better visible
-thr.ThresholdBetween(0, 0) # remove cells between labels, i.e. keep cells neighbouring background (label 0)
+
+# remove cells between labels, i.e. keep cells neighbouring background (label 0)
+thr.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_BETWEEN)
+thr.SetLowerThreshold(0.0)
+thr.SetUpperThreshold(0.0)
 
 vtu2vtp = vtk.vtkGeometryFilter()
 vtu2vtp.SetInputConnection(thr.GetOutputPort())

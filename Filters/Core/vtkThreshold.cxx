@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkThreshold.h"
 
 #include "vtkCell.h"
@@ -26,6 +30,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
+#include <limits>
 
 vtkStandardNewMacro(vtkThreshold);
 
@@ -33,21 +38,12 @@ vtkStandardNewMacro(vtkThreshold);
 // function=upper AllScalars=1.
 vtkThreshold::vtkThreshold()
 {
-  this->LowerThreshold = 0.0;
-  this->UpperThreshold = 1.0;
-  this->AllScalars = 1;
-  this->AttributeMode = -1;
-  this->ThresholdFunction = &vtkThreshold::Upper;
-  this->ComponentMode = VTK_COMPONENT_MODE_USE_SELECTED;
-  this->SelectedComponent = 0;
-  this->OutputPointsPrecision = DEFAULT_PRECISION;
+  this->LowerThreshold = -std::numeric_limits<double>::infinity();
+  this->UpperThreshold = std::numeric_limits<double>::infinity();
 
   // by default process active point scalars
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
-
-  this->UseContinuousCellRange = 0;
-  this->Invert = false;
 }
 
 vtkThreshold::~vtkThreshold() = default;
@@ -73,6 +69,7 @@ int vtkThreshold::Between(double s) const
 // Criterion is cells whose scalars are less or equal to lower threshold.
 void vtkThreshold::ThresholdByLower(double lower)
 {
+  VTK_LEGACY_BODY(vtkThreshold::ThresholdByLower, "VTK 9.1");
   if (this->LowerThreshold != lower || this->ThresholdFunction != &vtkThreshold::Lower)
   {
     this->LowerThreshold = lower;
@@ -84,6 +81,7 @@ void vtkThreshold::ThresholdByLower(double lower)
 // Criterion is cells whose scalars are greater or equal to upper threshold.
 void vtkThreshold::ThresholdByUpper(double upper)
 {
+  VTK_LEGACY_BODY(vtkThreshold::ThresholdByUpper, "VTK 9.1");
   if (this->UpperThreshold != upper || this->ThresholdFunction != &vtkThreshold::Upper)
   {
     this->UpperThreshold = upper;
@@ -95,6 +93,7 @@ void vtkThreshold::ThresholdByUpper(double upper)
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThreshold::ThresholdBetween(double lower, double upper)
 {
+  VTK_LEGACY_BODY(vtkThreshold::ThresholdBetween, "VTK 9.1");
   if (this->LowerThreshold != lower || this->UpperThreshold != upper ||
     this->ThresholdFunction != &vtkThreshold::Between)
   {
@@ -103,6 +102,48 @@ void vtkThreshold::ThresholdBetween(double lower, double upper)
     this->ThresholdFunction = &vtkThreshold::Between;
     this->Modified();
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkThreshold::SetThresholdFunction(int function)
+{
+  if (this->GetThresholdFunction() != function)
+  {
+    switch (function)
+    {
+      case vtkThreshold::THRESHOLD_BETWEEN:
+        this->ThresholdFunction = &vtkThreshold::Between;
+        break;
+      case vtkThreshold::THRESHOLD_LOWER:
+        this->ThresholdFunction = &vtkThreshold::Lower;
+        break;
+      case vtkThreshold::THRESHOLD_UPPER:
+        this->ThresholdFunction = &vtkThreshold::Upper;
+        break;
+    }
+
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkThreshold::GetThresholdFunction()
+{
+  if (this->ThresholdFunction == &vtkThreshold::Between)
+  {
+    return vtkThreshold::THRESHOLD_BETWEEN;
+  }
+  else if (this->ThresholdFunction == &vtkThreshold::Lower)
+  {
+    return vtkThreshold::THRESHOLD_LOWER;
+  }
+  else if (this->ThresholdFunction == &vtkThreshold::Upper)
+  {
+    return vtkThreshold::THRESHOLD_UPPER;
+  }
+
+  // Added to avoid warning. Should never be reached.
+  return -1;
 }
 
 int vtkThreshold::RequestData(vtkInformation* vtkNotUsed(request),

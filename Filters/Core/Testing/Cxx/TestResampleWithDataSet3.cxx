@@ -113,7 +113,8 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
   vtkNew<vtkThreshold> threshold;
   threshold->SetInputConnection(wavelet->GetOutputPort());
-  threshold->ThresholdByLower(185.0);
+  threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_LOWER);
+  threshold->SetLowerThreshold(185.0);
 
   for (int i = 0; i < numberOfBlocks; ++i)
   {

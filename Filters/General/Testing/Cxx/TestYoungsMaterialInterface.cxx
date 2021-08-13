@@ -85,7 +85,8 @@ int TestYoungsMaterialInterface(int argc, char* argv[])
   threshold2->SetInputData(mesh);
   threshold2->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
-  threshold2->ThresholdByLower(2);
+  threshold2->SetThresholdFunction(vtkThreshold::THRESHOLD_LOWER);
+  threshold2->SetLowerThreshold(2.0);
   threshold2->Update();
   vtkUnstructuredGrid* meshMat2 = threshold2->GetOutput();
 
@@ -94,7 +95,8 @@ int TestYoungsMaterialInterface(int argc, char* argv[])
   threshold3->SetInputData(mesh);
   threshold3->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
-  threshold3->ThresholdByUpper(3);
+  threshold3->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
+  threshold3->SetUpperThreshold(3.0);
   threshold3->Update();
   vtkUnstructuredGrid* meshMat3 = threshold3->GetOutput();
 

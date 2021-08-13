@@ -72,7 +72,9 @@ int TestSingleGridBlanking(bool pointBlanking, bool reverse, int expectedNumberO
   // are the blanked cells.
   vtkNew<vtkThreshold> threshold;
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
-  threshold->ThresholdBetween(-1000, 1000);
+  threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  threshold->SetLowerThreshold(-1000.0);
+  threshold->SetUpperThreshold(1000.0);
   threshold->SetInputConnection(imageDataToUniformGrid->GetOutputPort());
   threshold->Update();
   vtkUnstructuredGrid* outputGrid = threshold->GetOutput();
@@ -115,7 +117,9 @@ int TestMultiBlockBlanking(int expectedNumberOfCells)
 
   vtkNew<vtkThreshold> threshold;
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
-  threshold->ThresholdBetween(50, 150);
+  threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  threshold->SetLowerThreshold(50.0);
+  threshold->SetUpperThreshold(150.0);
   threshold->SetInputData(output->GetBlock(0));
   threshold->Update();
   vtkUnstructuredGrid* outputGrid = threshold->GetOutput();

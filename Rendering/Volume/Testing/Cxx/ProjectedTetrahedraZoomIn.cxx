@@ -106,7 +106,8 @@ int ProjectedTetrahedraZoomIn(int argc, char* argv[])
   // Convert from vtkImageData to vtkUnstructuredGrid.
   // Remove any cells where all values are below 80.
   VTK_CREATE(vtkThreshold, thresh);
-  thresh->ThresholdByUpper(80);
+  thresh->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
+  thresh->SetUpperThreshold(80.0);
   thresh->AllScalarsOff();
   thresh->SetInputConnection(reader->GetOutputPort());
 

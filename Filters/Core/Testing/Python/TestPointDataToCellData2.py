@@ -39,7 +39,9 @@ print("Point Data To Cell Data (Structured): {0}".format(time))
 # conversion to vtkUnstructuredGrid)
 extract = vtk.vtkThreshold()
 extract.SetInputConnection(ele.GetOutputPort())
-extract.ThresholdBetween(-10000,10000)
+extract.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_BETWEEN)
+extract.SetLowerThreshold(-10000.0)
+extract.SetUpperThreshold(10000.0)
 extract.Update()
 
 # Create tests
