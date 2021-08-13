@@ -246,17 +246,17 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkTypeBool AllScalars;
   double LowerThreshold;
   double UpperThreshold;
-  int AttributeMode;
-  int ComponentMode;
-  int SelectedComponent;
-  int OutputPointsPrecision;
-  vtkTypeBool UseContinuousCellRange;
-  bool Invert;
+  vtkTypeBool AllScalars = 1;
+  vtkTypeBool UseContinuousCellRange = 0;
+  bool Invert = false;
+  int AttributeMode = -1;
+  int ComponentMode = VTK_COMPONENT_MODE_USE_SELECTED;
+  int SelectedComponent = 0;
+  int OutputPointsPrecision = DEFAULT_PRECISION;
 
-  int (vtkThreshold::*ThresholdFunction)(double s) const;
+  int (vtkThreshold::*ThresholdFunction)(double s) const = &vtkThreshold::Between;
 
   int EvaluateComponents(vtkDataArray* scalars, vtkIdType id);
   int EvaluateCell(vtkDataArray* scalars, vtkIdList* cellPts, int numCellPts);

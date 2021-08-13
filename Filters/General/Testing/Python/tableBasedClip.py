@@ -173,7 +173,8 @@ class TestClip(Testing.vtkTest):
 
         t = vtk.vtkThreshold()
         t.SetInputConnection(rt.GetOutputPort())
-        t.ThresholdByUpper(-10)
+        t.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_UPPER)
+        t.SetUpperThreshold(-10.0)
 
         s = vtk.vtkSphere()
         s.SetRadius(2)

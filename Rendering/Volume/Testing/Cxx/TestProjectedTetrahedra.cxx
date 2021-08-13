@@ -105,7 +105,8 @@ int TestProjectedTetrahedra(int argc, char* argv[])
   // Convert from vtkImageData to vtkUnstructuredGrid.
   // Remove any cells where all values are below 80.
   vtkThreshold* thresh = vtkThreshold::New();
-  thresh->ThresholdByUpper(80);
+  thresh->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
+  thresh->SetUpperThreshold(80.0);
   thresh->AllScalarsOff();
   thresh->SetInputConnection(reader->GetOutputPort());
 

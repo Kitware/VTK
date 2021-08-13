@@ -31,7 +31,9 @@ class FiltersLosingPrecisionBase:
     def test_threshold(self):
         f = vtkThreshold()
         f.SetInputData(self.cell)
-        f.ThresholdBetween(0.0,1.0)
+        f.SetThresholdFunction(vtkThreshold.THRESHOLD_BETWEEN)
+        f.SetLowerThreshold(0.0)
+        f.SetUpperThreshold(1.0)
         f.Update()
         self.assertEquals(f.GetOutput().GetPoints().GetDataType(), vtk_const.VTK_DOUBLE)
 

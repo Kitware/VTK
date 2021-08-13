@@ -40,19 +40,10 @@ vtkThreshold::vtkThreshold()
 {
   this->LowerThreshold = -std::numeric_limits<double>::infinity();
   this->UpperThreshold = std::numeric_limits<double>::infinity();
-  this->AllScalars = 1;
-  this->AttributeMode = -1;
-  this->ThresholdFunction = &vtkThreshold::Between;
-  this->ComponentMode = VTK_COMPONENT_MODE_USE_SELECTED;
-  this->SelectedComponent = 0;
-  this->OutputPointsPrecision = DEFAULT_PRECISION;
 
   // by default process active point scalars
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
-
-  this->UseContinuousCellRange = 0;
-  this->Invert = false;
 }
 
 vtkThreshold::~vtkThreshold() = default;

@@ -1320,7 +1320,9 @@ void vtkLoopBooleanPolyDataFilter::Impl::PerformBoolean(vtkPolyData* output, int
   this->ThresholdRegions(surfaces);
   // thresholder->SetInputData(this->Mesh[0]);
   // thresholder->SetInputArrayToProcess(0, 0, 0, 1, "BooleanRegion");
-  // thresholder->ThresholdBetween(-1, -1);
+  // thresholder->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  // thresholder->SetLowerThreshold(-1.0);
+  // thresholder->SetUpperThreshold(-1.0);
   // thresholder->Update();
   // surfacer->SetInputData(thresholder->GetOutput());
   // surfacer->Update();
@@ -1328,7 +1330,9 @@ void vtkLoopBooleanPolyDataFilter::Impl::PerformBoolean(vtkPolyData* output, int
 
   // thresholder->SetInputData(this->Mesh[0]);
   // thresholder->SetInputArrayToProcess(0, 0, 0, 1, "BooleanRegion");
-  // thresholder->ThresholdBetween(1, 1);
+  // thresholder->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  // thresholder->SetLowerThreshold(1.0);
+  // thresholder->SetUpperThreshold(1.0);
   // thresholder->Update();
   // surfacer->SetInputData(thresholder->GetOutput());
   // surfacer->Update();
@@ -1336,7 +1340,9 @@ void vtkLoopBooleanPolyDataFilter::Impl::PerformBoolean(vtkPolyData* output, int
 
   // thresholder->SetInputData(this->Mesh[1]);
   // thresholder->SetInputArrayToProcess(0, 0, 0, 1, "BooleanRegion");
-  // thresholder->ThresholdBetween(1, 1);
+  // thresholder->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  // thresholder->SetLowerThreshold(1.0);
+  // thresholder->SetUpperThreshold(1.0);
   // thresholder->Update();
   // surfacer->SetInputData(thresholder->GetOutput());
   // surfacer->Update();
@@ -1344,7 +1350,9 @@ void vtkLoopBooleanPolyDataFilter::Impl::PerformBoolean(vtkPolyData* output, int
 
   // thresholder->SetInputData(this->Mesh[1]);
   // thresholder->SetInputArrayToProcess(0, 0, 0, 1, "BooleanRegion");
-  // thresholder->ThresholdBetween(-1, -1);
+  // thresholder->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  // thresholder->SetLowerThreshold(-1.0);
+  // thresholder->SetUpperThreshold(-1.0);
   // thresholder->Update();
   // surfacer->SetInputData(thresholder->GetOutput());
   // surfacer->Update();

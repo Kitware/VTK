@@ -57,7 +57,8 @@ int TestTemporalFractal(int argc, char* argv[])
 
   vtkSmartPointer<vtkThreshold> contour = vtkSmartPointer<vtkThreshold>::New();
   contour->SetInputConnection(interp->GetOutputPort());
-  contour->ThresholdByUpper(0.5);
+  contour->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
+  contour->SetUpperThreshold(0.5);
 
   vtkSmartPointer<vtkCompositeDataGeometryFilter> geom =
     vtkSmartPointer<vtkCompositeDataGeometryFilter>::New();

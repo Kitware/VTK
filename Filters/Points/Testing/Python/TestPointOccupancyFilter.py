@@ -46,7 +46,8 @@ outlineActor.SetMapper(outlineMapper);
 
 surface = vtk.vtkThreshold()
 surface.SetInputConnection(occ.GetOutputPort())
-surface.ThresholdByUpper(1)
+surface.SetThresholdFunction(vtk.vtkThreshold.THRESHOLD_UPPER)
+surface.SetUpperThreshold(1.0)
 surface.AllScalarsOff()
 
 surfaceMapper = vtk.vtkDataSetMapper()

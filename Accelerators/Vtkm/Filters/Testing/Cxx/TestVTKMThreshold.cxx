@@ -68,7 +68,9 @@ int RunVTKPipeline(vtkImageData* grid, int argc, char* argv[])
   threshold->SetInputConnection(producer->GetOutputPort());
   threshold->SetPointsDataTypeToFloat();
   threshold->AllScalarsOn();
-  threshold->ThresholdBetween(0, 100);
+  threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  threshold->SetLowerThreshold(0.0);
+  threshold->SetUpperThreshold(100.0);
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Elevation");
 
   vtkNew<vtkDataSetSurfaceFilter> surface;

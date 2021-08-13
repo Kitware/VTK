@@ -53,9 +53,11 @@ int TestVTKMThreshold2(int argc, char* argv[])
   threshold->SetInputConnection(elevation->GetOutputPort());
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
 
-  double L = 100;
-  double U = 200;
-  threshold->ThresholdBetween(L, U);
+  double L = 100.0;
+  double U = 200.0;
+  threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_BETWEEN);
+  threshold->SetLowerThreshold(L);
+  threshold->SetUpperThreshold(U);
   threshold->SetAllScalars(0);
   threshold->Update();
 

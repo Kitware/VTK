@@ -58,18 +58,24 @@ static vtkActor* GetBooleanOperationActor(double x, int operation)
 
   if (operation == vtkBooleanOperationPolyDataFilter::VTK_UNION)
   {
-    thresh1->ThresholdByUpper(0.0);
-    thresh2->ThresholdByUpper(0.0);
+    thresh1->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
+    thresh1->SetUpperThreshold(0.0);
+    thresh2->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
+    thresh2->SetUpperThreshold(0.0);
   }
   else if (operation == vtkBooleanOperationPolyDataFilter::VTK_INTERSECTION)
   {
-    thresh1->ThresholdByLower(0.0);
-    thresh2->ThresholdByLower(0.0);
+    thresh1->SetThresholdFunction(vtkThreshold::THRESHOLD_LOWER);
+    thresh1->SetLowerThreshold(0.0);
+    thresh2->SetThresholdFunction(vtkThreshold::THRESHOLD_LOWER);
+    thresh2->SetLowerThreshold(0.0);
   }
   else // Difference
   {
-    thresh1->ThresholdByUpper(0.0);
-    thresh2->ThresholdByLower(0.0);
+    thresh1->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
+    thresh1->SetUpperThreshold(0.0);
+    thresh2->SetThresholdFunction(vtkThreshold::THRESHOLD_LOWER);
+    thresh2->SetLowerThreshold(0.0);
   }
 
   vtkSmartPointer<vtkDataSetSurfaceFilter> surface1 =

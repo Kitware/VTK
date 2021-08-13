@@ -188,7 +188,8 @@ int TestPResampleWithDataSet2(int argc, char* argv[])
   threshold->SetInputConnection(resample->GetOutputPort());
   threshold->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "vtkValidPointMask");
-  threshold->ThresholdByUpper(1);
+  threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
+  threshold->SetUpperThreshold(1.0);
 
   vtkNew<vtkCompositeDataGeometryFilter> toPoly;
   toPoly->SetInputConnection(threshold->GetOutputPort());
