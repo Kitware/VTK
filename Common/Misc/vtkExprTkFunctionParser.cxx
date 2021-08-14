@@ -312,11 +312,12 @@ std::string GenerateUniqueVariableName(
   const std::vector<std::string>& variableNames, const std::string& variableName)
 {
   std::string sanitizedName = vtkExprTkFunctionParser::SanitizeName(variableName.c_str());
-  while (
-    std::find(variableNames.begin(), variableNames.end(), sanitizedName) != variableNames.end())
+  do
   {
-    sanitizedName += "1";
-  }
+    sanitizedName += GenerateRandomAlphabeticString(5);
+  } while (
+    std::find(variableNames.begin(), variableNames.end(), sanitizedName) != variableNames.end());
+
   return sanitizedName;
 }
 }
@@ -919,7 +920,7 @@ void vtkExprTkFunctionParser::SetScalarVariableValue(
   }
 
   double* scalarValue = new double(value);
-  // if variable name is not sanitized, create a random sanitized string and set it as variable name
+  // if variable name is not sanitized, create a unique sanitized string and set it as variable name
   std::string variableName = vtkExprTkFunctionParser::SanitizeName(inVariableName.c_str());
   if (variableName != inVariableName)
   {
@@ -1029,7 +1030,7 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
   (*vector)[1] = yValue;
   (*vector)[2] = zValue;
 
-  // if variable name is not sanitized, create a random sanitized string and set it as variable name
+  // if variable name is not sanitized, create a unique sanitized string and set it as variable name
   std::string variableName = vtkExprTkFunctionParser::SanitizeName(inVariableName.c_str());
   if (variableName != inVariableName)
   {
