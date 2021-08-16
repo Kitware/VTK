@@ -1400,7 +1400,7 @@ bool vtkEnSightGoldBinaryReader::OpenVariableFile(const char* fileName, const ch
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to scalar per node file: " << sfilename.c_str());
+    vtkDebugMacro("full path to variable (" << type << ") file: " << sfilename.c_str());
   }
   else
   {
