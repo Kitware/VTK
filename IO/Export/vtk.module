@@ -22,6 +22,7 @@ PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::FiltersGeometry
   VTK::IOImage
+  VTK::IOGeometry
   VTK::ImagingCore
   VTK::jsoncpp
   VTK::libharu

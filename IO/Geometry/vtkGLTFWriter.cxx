@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGLTFExporter.cxx
+  Module:    vtkGLTFWriter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkGLTFExporter.h"
+#include "vtkGLTFWriter.h"
 #include "vtkGLTFWriterUtils.h"
 
 #include <cstdio>
@@ -27,18 +27,26 @@
 #include "vtkCollectionRange.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkImageFlip.h"
+#include "vtkImageReader.h"
+#include "vtkInformation.h"
+#include "vtkJPEGReader.h"
+#include "vtkLogger.h"
 #include "vtkMapper.h"
 #include "vtkMatrix4x4.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPNGReader.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringArray.h"
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTrivialProducer.h"
@@ -48,52 +56,191 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
-vtkStandardNewMacro(vtkGLTFExporter);
+#include <fstream>
 
-vtkGLTFExporter::vtkGLTFExporter()
+vtkStandardNewMacro(vtkGLTFWriter);
+
+vtkGLTFWriter::vtkGLTFWriter()
 {
   this->FileName = nullptr;
+  this->TextureBaseDirectory = nullptr;
   this->InlineData = false;
   this->SaveNormal = false;
   this->SaveBatchId = false;
+  this->SaveTextures = true;
 }
 
-vtkGLTFExporter::~vtkGLTFExporter()
+vtkGLTFWriter::~vtkGLTFWriter()
 {
-  delete[] this->FileName;
+  this->SetFileName(nullptr);
+  this->SetTextureBaseDirectory(nullptr);
 }
 
 namespace
 {
-
-vtkPolyData* findPolyData(vtkDataObject* input)
+std::string GetFieldAsString(vtkDataObject* obj, const char* name)
 {
-  // do we have polydata?
-  vtkPolyData* pd = vtkPolyData::SafeDownCast(input);
-  if (pd)
+  vtkFieldData* fd = obj->GetFieldData();
+  if (!fd)
   {
-    return pd;
+    return std::string();
   }
-  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(input);
-  if (cd)
+  vtkStringArray* sa = vtkStringArray::SafeDownCast(fd->GetAbstractArray(name));
+  if (!sa)
   {
-    vtkSmartPointer<vtkCompositeDataIterator> iter;
-    iter.TakeReference(cd->NewIterator());
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    return std::string();
+  }
+  return sa->GetValue(0);
+}
+
+std::vector<float> GetFieldAsFloat(
+  vtkDataObject* obj, const char* name, const std::vector<float>& d)
+{
+  vtkFieldData* fd = obj->GetFieldData();
+  if (!fd)
+  {
+    return d;
+  }
+  vtkFloatArray* fa = vtkFloatArray::SafeDownCast(fd->GetAbstractArray(name));
+  if (!fa)
+  {
+    return d;
+  }
+  std::vector<float> v(d.size());
+  fa->GetTypedTuple(0, &v[0]);
+  return v;
+}
+
+vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePath)
+{
+  std::string ext = vtksys::SystemTools::GetFilenameLastExtension(texturePath);
+  if (ext == ".png")
+  {
+    return vtkSmartPointer<vtkPNGReader>::New();
+  }
+  else if (ext == ".jpg")
+  {
+    return vtkSmartPointer<vtkJPEGReader>::New();
+  }
+  else
+  {
+    vtkLog(ERROR, "Invalid type for texture file: " << texturePath);
+    return nullptr;
+  }
+}
+
+std::string GetMimeType(const char* textureFileName)
+{
+  std::string ext = vtksys::SystemTools::GetFilenameLastExtension(textureFileName);
+  if (ext == ".png")
+  {
+    return "image/png";
+  }
+  else if (ext == ".jpg")
+  {
+    return "image/jpeg";
+  }
+  else
+  {
+    vtkLog(ERROR, "Invalid mime type for texture file: " << textureFileName);
+    return "";
+  }
+}
+
+std::string WriteBufferAndView(const char* textureFileName, const char* textureBaseDirectory,
+  const char* fileName, bool inlineData, Json::Value& buffers, Json::Value& bufferViews)
+{
+  // if inline then base64 encode the data. In this case we need to read the texture
+  std::string result;
+  std::string mimeType;
+  std::string texturePath = std::string(textureBaseDirectory) + "/" + textureFileName;
+  unsigned int byteLength = 0;
+  if (inlineData)
+  {
+    vtkSmartPointer<vtkTexture> t;
+    vtkSmartPointer<vtkImageData> id;
+
+    auto textureReader = SetupTextureReader(texturePath);
+    textureReader->SetFileName(texturePath.c_str());
+    vtkNew<vtkTexture> texture;
+    texture->SetInputConnection(textureReader->GetOutputPort());
+    texture->Update();
+    t = texture;
+    id = t->GetInput();
+
+    vtkUnsignedCharArray* da = nullptr;
+    if (id && id->GetPointData()->GetScalars())
     {
-      pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
-      if (pd)
-      {
-        return pd;
-      }
+      da = vtkUnsignedCharArray::SafeDownCast(id->GetPointData()->GetScalars());
     }
+    if (!da)
+    {
+      return mimeType; /*empty mimeType signals error*/
+    }
+
+    // flip Y
+    vtkNew<vtkTrivialProducer> triv;
+    triv->SetOutput(id);
+    vtkNew<vtkImageFlip> flip;
+    flip->SetFilteredAxis(1);
+    flip->SetInputConnection(triv->GetOutputPort());
+
+    // convert to png
+    vtkNew<vtkPNGWriter> png;
+    png->SetCompressionLevel(5);
+    png->SetInputConnection(flip->GetOutputPort());
+    png->WriteToMemoryOn();
+    png->Write();
+    da = png->GetResult();
+
+    mimeType = "image/png";
+
+    result = "data:application/octet-stream;base64,";
+    std::ostringstream toString;
+    vtkNew<vtkBase64OutputStream> ostr;
+    ostr->SetStream(&toString);
+    ostr->StartWriting();
+    vtkGLTFWriterUtils::WriteValues(da, ostr);
+    ostr->EndWriting();
+    result += toString.str();
+    unsigned int count = da->GetNumberOfTuples() * da->GetNumberOfComponents();
+    byteLength = da->GetElementComponentSize() * count;
   }
-  return nullptr;
+  else
+  {
+    // otherwise we only refer to the image file.
+    result = texturePath;
+    // byte length
+    std::ifstream textureStream(result, ios::binary);
+    if (textureStream.fail())
+    {
+      return mimeType; /* empty mimeType signals error*/
+    }
+    textureStream.seekg(0, ios::end);
+    byteLength = textureStream.tellg();
+    // mimeType from extension
+    mimeType = GetMimeType(textureFileName);
+  }
+
+  Json::Value buffer;
+  Json::Value view;
+
+  buffer["byteLength"] = static_cast<Json::Value::Int64>(byteLength);
+  buffer["uri"] = result;
+  buffers.append(buffer);
+
+  // write the buffer views
+  view["buffer"] = buffers.size() - 1;
+  view["byteOffset"] = 0;
+  view["byteLength"] = static_cast<Json::Value::Int64>(byteLength);
+  bufferViews.append(view);
+
+  return mimeType;
 }
 
 void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& bufferViews,
-  Json::Value& meshes, Json::Value& nodes, vtkPolyData* pd, vtkActor* aPart, const char* fileName,
-  bool inlineData, bool saveNormal, bool saveBatchId)
+  Json::Value& meshes, Json::Value& nodes, vtkPolyData* pd, const char* fileName, bool inlineData,
+  bool saveNormal, bool saveBatchId)
 {
   vtkNew<vtkTriangleFilter> trif;
   trif->SetInputData(pd);
@@ -162,47 +309,22 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     accessors.append(acc);
   }
 
-  // if we have vertex colors then write them out
-  int vertColorAccessor = -1;
-  aPart->GetMapper()->MapScalars(tris, 1.0);
-  if (aPart->GetMapper()->GetColorMapColors())
-  {
-    vtkUnsignedCharArray* da = aPart->GetMapper()->GetColorMapColors();
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
-
-    // write the accessor
-    Json::Value acc;
-    acc["bufferView"] = bufferViews.size() - 1;
-    acc["byteOffset"] = 0;
-    acc["type"] = "VEC4";
-    acc["componentType"] = GL_UNSIGNED_BYTE;
-    acc["normalized"] = true;
-    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfTuples());
-    vertColorAccessor = accessors.size();
-    accessors.append(acc);
-  }
-
   // if we have tcoords then write them out
   // first check for colortcoords
   int tcoordAccessor = -1;
-  vtkFloatArray* tcoords = aPart->GetMapper()->GetColorCoordinates();
-  if (!tcoords)
-  {
-    tcoords = vtkFloatArray::SafeDownCast(tris->GetPointData()->GetTCoords());
-  }
+  vtkDataArray* tcoords = tris->GetPointData()->GetTCoords();
   if (tcoords)
   {
-    vtkFloatArray* da = tcoords;
     vtkGLTFWriterUtils::WriteBufferAndView(tcoords, fileName, inlineData, buffers, bufferViews);
 
     // write the accessor
     Json::Value acc;
     acc["bufferView"] = bufferViews.size() - 1;
     acc["byteOffset"] = 0;
-    acc["type"] = da->GetNumberOfComponents() == 3 ? "VEC3" : "VEC2";
+    acc["type"] = tcoords->GetNumberOfComponents() == 3 ? "VEC3" : "VEC2";
     acc["componentType"] = GL_FLOAT;
     acc["normalized"] = false;
-    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfTuples());
+    acc["count"] = static_cast<Json::Value::Int64>(tcoords->GetNumberOfTuples());
     tcoordAccessor = accessors.size();
     accessors.append(acc);
   }
@@ -235,10 +357,6 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     for (size_t i = 0; i < arraysToSave.size(); ++i)
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
-    }
-    if (vertColorAccessor >= 0)
-    {
-      attribs["COLOR_0"] = vertColorAccessor;
     }
     if (tcoordAccessor >= 0)
     {
@@ -274,10 +392,6 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
     }
-    if (vertColorAccessor >= 0)
-    {
-      attribs["COLOR_0"] = vertColorAccessor;
-    }
     if (tcoordAccessor >= 0)
     {
       attribs["TEXCOORD_0"] = tcoordAccessor;
@@ -312,10 +426,6 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     {
       attribs[arraysToSave[i]->GetName()] = userAccessor++;
     }
-    if (vertColorAccessor >= 0)
-    {
-      attribs["COLOR_0"] = vertColorAccessor;
-    }
     if (tcoordAccessor >= 0)
     {
       attribs["TEXCOORD_0"] = tcoordAccessor;
@@ -331,19 +441,8 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
   amesh["primitives"] = prims;
   meshes.append(amesh);
 
-  // write out an actor
+  // write out a surface
   Json::Value child;
-  vtkMatrix4x4* amat = aPart->GetMatrix();
-  if (!amat->IsIdentity())
-  {
-    for (int i = 0; i < 4; ++i)
-    {
-      for (int j = 0; j < 4; ++j)
-      {
-        child["matrix"].append(amat->GetElement(j, i));
-      }
-    }
-  }
   child["mesh"] = meshes.size() - 1;
   child["name"] = meshNameBuffer;
   nodes.append(child);
@@ -374,87 +473,60 @@ void WriteCamera(Json::Value& cameras, vtkRenderer* ren)
 }
 
 void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& textures,
-  Json::Value& samplers, Json::Value& images, vtkPolyData* pd, vtkActor* aPart,
-  const char* fileName, bool inlineData, std::map<vtkUnsignedCharArray*, unsigned int>& textureMap)
+  Json::Value& samplers, Json::Value& images, vtkPolyData* pd, const char* fileName,
+  bool inlineData, std::map<std::string, unsigned int>& textureMap, bool saveTextures,
+  const char* textureBaseDirectory)
 {
-  // do we have a texture
-  aPart->GetMapper()->MapScalars(pd, 1.0);
-  vtkImageData* id = aPart->GetMapper()->GetColorTextureMap();
-  vtkTexture* t = nullptr;
-  if (!id && aPart->GetTexture())
-  {
-    t = aPart->GetTexture();
-    id = t->GetInput();
-  }
-
-  vtkUnsignedCharArray* da = nullptr;
-  if (id && id->GetPointData()->GetScalars())
-  {
-    da = vtkUnsignedCharArray::SafeDownCast(id->GetPointData()->GetScalars());
-  }
-  if (!da)
+  std::string textureFileName = GetFieldAsString(pd, "texture_uri");
+  if (!saveTextures || textureFileName.empty())
   {
     return;
   }
 
   unsigned int textureSource = 0;
-
-  if (textureMap.find(da) == textureMap.end())
+  if (textureMap.find(textureFileName) == textureMap.end())
   {
-    textureMap[da] = textures.size();
-
-    // flip Y
-    vtkNew<vtkTrivialProducer> triv;
-    triv->SetOutput(id);
-    vtkNew<vtkImageFlip> flip;
-    flip->SetFilteredAxis(1);
-    flip->SetInputConnection(triv->GetOutputPort());
-
-    // convert to png
-    vtkNew<vtkPNGWriter> png;
-    png->SetCompressionLevel(5);
-    png->SetInputConnection(flip->GetOutputPort());
-    png->WriteToMemoryOn();
-    png->Write();
-    da = png->GetResult();
-
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    std::string mimeType = WriteBufferAndView(
+      textureFileName.c_str(), textureBaseDirectory, fileName, inlineData, buffers, bufferViews);
+    if (mimeType.empty())
+    {
+      return;
+    }
 
     // write the image
     Json::Value img;
     img["bufferView"] = bufferViews.size() - 1;
-    img["mimeType"] = "image/png";
+    img["mimeType"] = mimeType;
     images.append(img);
 
     textureSource = images.size() - 1;
+    textureMap[textureFileName] = textureSource;
+
+    // write the sampler
+    Json::Value smp;
+    smp["magFilter"] = GL_NEAREST;
+    smp["minFilter"] = GL_NEAREST;
+    smp["wrapS"] = GL_CLAMP_TO_EDGE;
+    smp["wrapT"] = GL_CLAMP_TO_EDGE;
+    // use vtkTexture defaults
+    smp["wrapS"] = GL_REPEAT;
+    smp["wrapT"] = GL_REPEAT;
+    smp["magFilter"] = GL_NEAREST;
+    smp["minFilter"] = GL_NEAREST;
+    samplers.append(smp);
   }
   else
   {
-    textureSource = textureMap[da];
+    textureSource = textureMap[textureFileName];
   }
-
-  // write the sampler
-  Json::Value smp;
-  smp["magFilter"] = GL_NEAREST;
-  smp["minFilter"] = GL_NEAREST;
-  smp["wrapS"] = GL_CLAMP_TO_EDGE;
-  smp["wrapT"] = GL_CLAMP_TO_EDGE;
-  if (t)
-  {
-    smp["wrapS"] = t->GetRepeat() ? GL_REPEAT : GL_CLAMP_TO_EDGE;
-    smp["wrapT"] = t->GetRepeat() ? GL_REPEAT : GL_CLAMP_TO_EDGE;
-    smp["magFilter"] = t->GetInterpolate() ? GL_LINEAR : GL_NEAREST;
-    smp["minFilter"] = t->GetInterpolate() ? GL_LINEAR : GL_NEAREST;
-  }
-  samplers.append(smp);
 
   Json::Value texture;
   texture["source"] = textureSource;
-  texture["sampler"] = samplers.size() - 1;
+  texture["sampler"] = textureSource;
   textures.append(texture);
 }
 
-void WriteMaterial(Json::Value& materials, int textureIndex, bool haveTexture, vtkActor* aPart)
+void WriteMaterial(vtkPolyData* pd, Json::Value& materials, int textureIndex, bool haveTexture)
 {
   Json::Value mat;
   Json::Value model;
@@ -467,32 +539,45 @@ void WriteMaterial(Json::Value& materials, int textureIndex, bool haveTexture, v
     model["baseColorTexture"] = tex;
   }
 
-  vtkProperty* prop = aPart->GetProperty();
-  double dcolor[3];
-  prop->GetDiffuseColor(dcolor);
+  std::vector<float> dcolor = GetFieldAsFloat(pd, "diffuse_color", { 1, 1, 1 });
+  std::vector<float> scolor = GetFieldAsFloat(pd, "specular_color", { 0, 0, 0 });
+  float transparency = GetFieldAsFloat(pd, "transparency", { 0 })[0];
+  float shininess = GetFieldAsFloat(pd, "shininess", { 0 })[0];
   model["baseColorFactor"].append(dcolor[0]);
   model["baseColorFactor"].append(dcolor[1]);
   model["baseColorFactor"].append(dcolor[2]);
-  model["baseColorFactor"].append(prop->GetOpacity());
-  model["metallicFactor"] = prop->GetSpecular();
-  model["roughnessFactor"] = 1.0 / (1.0 + prop->GetSpecular() * 0.2 * prop->GetSpecularPower());
+  model["baseColorFactor"].append(1 - transparency);
+  model["metallicFactor"] = shininess;
+  model["roughnessFactor"] = 1.0;
   mat["pbrMetallicRoughness"] = model;
   materials.append(mat);
 }
 
 }
 
-std::string vtkGLTFExporter::WriteToString()
+std::string vtkGLTFWriter::WriteToString()
 {
+  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
+  if (mb == nullptr)
+  {
+    vtkErrorMacro(<< "This writer needs a vtkMultiBlockDataSet input");
+    return std::string();
+  }
   std::ostringstream result;
 
-  this->WriteToStream(result);
+  this->WriteToStream(result, mb);
 
   return result.str();
 }
 
-void vtkGLTFExporter::WriteData()
+void vtkGLTFWriter::WriteData()
 {
+  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
+  if (mb == nullptr)
+  {
+    vtkErrorMacro(<< "This writer needs a vtkMultiBlockDataSet input");
+    return;
+  }
   vtksys::ofstream output;
 
   // make sure the user specified a FileName or FilePointer
@@ -510,11 +595,11 @@ void vtkGLTFExporter::WriteData()
     return;
   }
 
-  this->WriteToStream(output);
+  this->WriteToStream(output, mb);
   output.close();
 }
 
-void vtkGLTFExporter::WriteToStream(ostream& output)
+void vtkGLTFWriter::WriteToStream(ostream& output, vtkMultiBlockDataSet* mb)
 {
   Json::Value cameras;
   Json::Value bufferViews;
@@ -526,93 +611,74 @@ void vtkGLTFExporter::WriteToStream(ostream& output)
   Json::Value images;
   Json::Value samplers;
   Json::Value materials;
-
   std::vector<unsigned int> topNodes;
 
   // support sharing texture maps
-  std::map<vtkUnsignedCharArray*, unsigned int> textureMap;
+  std::map<std::string, unsigned int> textureMap;
 
-  for (auto ren : vtk::Range(this->RenderWindow->GetRenderers()))
+  vtkNew<vtkRenderer> ren;
+  double bounds[6];
+  mb->GetBounds(bounds);
+  ren->ResetCamera(bounds);
+
+  // setup the camera data in case we need to use it later
+  Json::Value anode;
+  anode["camera"] = cameras.size(); // camera node
+  vtkMatrix4x4* mat = ren->GetActiveCamera()->GetModelViewTransformMatrix();
+  for (int i = 0; i < 4; ++i)
   {
-    if (this->ActiveRenderer && ren != this->ActiveRenderer)
+    for (int j = 0; j < 4; ++j)
     {
-      // If ActiveRenderer is specified then ignore all other renderers
-      continue;
+      anode["matrix"].append(mat->GetElement(j, i));
     }
-    if (!ren->GetDraw())
-    {
-      continue;
-    }
+  }
+  anode["name"] = "Camera Node";
 
-    // setup the camera data in case we need to use it later
-    Json::Value anode;
-    anode["camera"] = cameras.size(); // camera node
-    vtkMatrix4x4* mat = ren->GetActiveCamera()->GetModelViewTransformMatrix();
-    for (int i = 0; i < 4; ++i)
+  // setup renderer group node
+  Json::Value rendererNode;
+  rendererNode["name"] = "Renderer Node";
+
+  auto buildingIt = vtk::TakeSmartPointer(mb->NewTreeIterator());
+  buildingIt->VisitOnlyLeavesOff();
+  buildingIt->TraverseSubTreeOff();
+
+  bool foundVisibleProp = false;
+  // all buildings
+  for (buildingIt->InitTraversal(); !buildingIt->IsDoneWithTraversal(); buildingIt->GoToNextItem())
+  {
+    auto building = vtkMultiBlockDataSet::SafeDownCast(buildingIt->GetCurrentDataObject());
+    // all parts - actors (all parts of a buildings)
+    auto it = vtk::TakeSmartPointer(building->NewIterator());
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
     {
-      for (int j = 0; j < 4; ++j)
+      auto pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+      if (!pd)
       {
-        anode["matrix"].append(mat->GetElement(j, i));
+        vtkLog(WARNING, "Expecting vtkPolyData but got: " << pd->GetClassName());
+      }
+
+      if (pd && pd->GetNumberOfCells() > 0)
+      {
+        foundVisibleProp = true;
+        WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, this->FileName,
+          this->InlineData, this->SaveNormal, this->SaveBatchId);
+        rendererNode["children"].append(nodes.size() - 1);
+        unsigned int oldTextureCount = textures.size();
+        WriteTexture(buffers, bufferViews, textures, samplers, images, pd, this->FileName,
+          this->InlineData, textureMap, this->SaveTextures, this->TextureBaseDirectory);
+        meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
+        WriteMaterial(pd, materials, oldTextureCount, oldTextureCount != textures.size());
       }
     }
-    anode["name"] = "Camera Node";
-
-    // setup renderer group node
-    Json::Value rendererNode;
-    rendererNode["name"] = "Renderer Node";
-
-    vtkPropCollection* pc;
-    vtkProp* aProp;
-    pc = ren->GetViewProps();
-    vtkCollectionSimpleIterator pit;
-    bool foundVisibleProp = false;
-    for (pc->InitTraversal(pit); (aProp = pc->GetNextProp(pit));)
-    {
-      if (!aProp->GetVisibility())
-      {
-        continue;
-      }
-      vtkNew<vtkActorCollection> ac;
-      aProp->GetActors(ac);
-      vtkActor* anActor;
-      vtkCollectionSimpleIterator ait;
-      for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait));)
-      {
-        vtkAssemblyPath* apath;
-        vtkActor* aPart;
-        for (anActor->InitPathTraversal(); (apath = anActor->GetNextPath());)
-        {
-          aPart = static_cast<vtkActor*>(apath->GetLastNode()->GetViewProp());
-          if (aPart->GetVisibility() && aPart->GetMapper() &&
-            aPart->GetMapper()->GetInputAlgorithm())
-          {
-            aPart->GetMapper()->GetInputAlgorithm()->Update();
-            vtkPolyData* pd = findPolyData(aPart->GetMapper()->GetInputDataObject(0, 0));
-            if (pd && pd->GetNumberOfCells() > 0)
-            {
-              foundVisibleProp = true;
-              WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, aPart, this->FileName,
-                this->InlineData, this->SaveNormal, this->SaveBatchId);
-              rendererNode["children"].append(nodes.size() - 1);
-              unsigned int oldTextureCount = textures.size();
-              WriteTexture(buffers, bufferViews, textures, samplers, images, pd, aPart,
-                this->FileName, this->InlineData, textureMap);
-              meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
-              WriteMaterial(materials, oldTextureCount, oldTextureCount != textures.size(), aPart);
-            }
-          }
-        }
-      }
-    }
-    // only write the camera if we had visible nodes
-    if (foundVisibleProp)
-    {
-      WriteCamera(cameras, ren);
-      nodes.append(anode);
-      rendererNode["children"].append(nodes.size() - 1);
-      nodes.append(rendererNode);
-      topNodes.push_back(nodes.size() - 1);
-    }
+  }
+  // only write the camera if we had visible nodes
+  if (foundVisibleProp)
+  {
+    WriteCamera(cameras, ren);
+    nodes.append(anode);
+    rendererNode["children"].append(nodes.size() - 1);
+    nodes.append(rendererNode);
+    topNodes.push_back(nodes.size() - 1);
   }
 
   Json::Value root;
@@ -655,7 +721,7 @@ void vtkGLTFExporter::WriteToStream(ostream& output)
   writer->write(root, &output);
 }
 
-void vtkGLTFExporter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGLTFWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -668,4 +734,10 @@ void vtkGLTFExporter::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "FileName: (null)\n";
   }
+}
+
+int vtkGLTFWriter::FillInputPortInformation(int, vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
+  return 1;
 }
