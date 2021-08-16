@@ -153,8 +153,7 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2FromExtension(const c
 bool vtkImageReader2Factory::CheckExtensionIsInExtensions(
   const char* extension, const char* extensions)
 {
-
-  auto iss = std::istringstream{ extensions };
+  std::istringstream iss(extensions);
   std::string localExtension;
   while (iss >> localExtension)
   {
