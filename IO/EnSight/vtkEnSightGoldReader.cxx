@@ -865,12 +865,6 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerNode(const char* fileName,
 int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
-  char line[256];
-  int symmTensorOrder[6] = { 0, 1, 2, 3, 5, 4 };
-  int partId, realId, numPts, i, j;
-  vtkFloatArray* tensors;
-  vtkDataSet* output;
-
   // Initialize
   if (!this->OpenVariableFile(fileName, "TensorPerNode"))
   {
@@ -882,24 +876,24 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
     return 0;
   }
 
+  char line[256];
   this->ReadNextDataLine(line); // skip the description line
-
   while (this->ReadNextDataLine(line) && strncmp(line, "part", 4) == 0)
   {
     this->ReadNextDataLine(line);
-    partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    realId = this->InsertNewPartId(partId);
-    output = this->GetDataSetFromBlock(compositeOutput, realId);
-    numPts = output->GetNumberOfPoints();
+    int partId = atoi(line) - 1; // EnSight starts #ing with 1.
+    int realId = this->InsertNewPartId(partId);
+    auto output = this->GetDataSetFromBlock(compositeOutput, realId);
+    auto numPts = output->GetNumberOfPoints();
     if (numPts)
     {
-      tensors = vtkFloatArray::New();
+      auto tensors = vtkFloatArray::New();
       this->ReadNextDataLine(line); // "coordinates" or "block"
       tensors->SetNumberOfComponents(6);
       tensors->SetNumberOfTuples(numPts);
 
       UndefPartialHelper helper(line, this);
-      for (i = 0; i < 6; i++)
+      for (int i = 0; i < 6; i++)
       {
         helper.ReadArray(tensors, 6, i, this);
       }
@@ -918,12 +912,6 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
 int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int numberOfComponents, int component)
 {
-  char line[256];
-  int partId, realId, numCells, numCellsPerElement, i, idx;
-  vtkFloatArray* scalars;
-  int lineRead, elementType;
-  float scalar;
-  vtkDataSet* output;
 
   // Initialize
   if (!this->OpenVariableFile(fileName, "ScalarPerElement"))
@@ -936,19 +924,22 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char
     return 0;
   }
 
-  this->ReadNextDataLine(line);            // skip the description line
-  lineRead = this->ReadNextDataLine(line); // "part"
+  char line[256];
+  this->ReadNextDataLine(line);                // skip the description line
+  int lineRead = this->ReadNextDataLine(line); // "part"
 
   while (lineRead && strncmp(line, "part", 4) == 0)
   {
     this->ReadNextDataLine(line);
-    partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    realId = this->InsertNewPartId(partId);
-    output = this->GetDataSetFromBlock(compositeOutput, realId);
-    numCells = output->GetNumberOfCells();
+    auto partId = atoi(line) - 1; // EnSight starts #ing with 1.
+    auto realId = this->InsertNewPartId(partId);
+    auto output = this->GetDataSetFromBlock(compositeOutput, realId);
+    auto numCells = output->GetNumberOfCells();
     if (numCells)
     {
       this->ReadNextDataLine(line); // element type or "block"
+
+      vtkFloatArray* scalars = nullptr;
       if (component == 0)
       {
         scalars = vtkFloatArray::New();
@@ -974,7 +965,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char
         // read one element type at a time.
         while (lineRead && strncmp(line, "part", 4) != 0 && strncmp(line, "END TIME STEP", 13) != 0)
         {
-          elementType = this->GetElementType(line);
+          const int elementType = this->GetElementType(line);
           if (elementType == -1)
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
@@ -986,9 +977,9 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char
             }
             return 0;
           }
-          idx = this->UnstructuredPartIds->IsId(realId);
+          const auto idx = this->UnstructuredPartIds->IsId(realId);
           auto dstIds = this->GetCellIds(idx, elementType);
-          numCellsPerElement = dstIds->GetNumberOfIds();
+          const auto numCellsPerElement = dstIds->GetNumberOfIds();
 
           vtkNew<vtkIdList> srcIds;
           srcIds->SetNumberOfIds(numCellsPerElement);
@@ -1040,13 +1031,6 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char
 int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
-  char line[256];
-  int partId, realId, numCells, numCellsPerElement, i, j, idx;
-  vtkFloatArray* vectors;
-  int lineRead, elementType;
-  float value;
-  vtkDataSet* output;
-
   // Initialize
   if (!this->OpenVariableFile(fileName, "VectorPerElement"))
   {
@@ -1058,19 +1042,20 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
     return 0;
   }
 
-  this->ReadNextDataLine(line);            // skip the description line
-  lineRead = this->ReadNextDataLine(line); // "part"
+  char line[256];
+  this->ReadNextDataLine(line);                // skip the description line
+  int lineRead = this->ReadNextDataLine(line); // "part"
 
   while (lineRead && strncmp(line, "part", 4) == 0)
   {
     this->ReadNextDataLine(line);
-    partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    realId = this->InsertNewPartId(partId);
-    output = this->GetDataSetFromBlock(compositeOutput, realId);
-    numCells = output->GetNumberOfCells();
+    const auto partId = atoi(line) - 1; // EnSight starts #ing with 1.
+    const auto realId = this->InsertNewPartId(partId);
+    auto output = this->GetDataSetFromBlock(compositeOutput, realId);
+    const auto numCells = output->GetNumberOfCells();
     if (numCells)
     {
-      vectors = vtkFloatArray::New();
+      auto vectors = vtkFloatArray::New();
       this->ReadNextDataLine(line); // element type or "block"
       vectors->SetNumberOfTuples(numCells);
       vectors->SetNumberOfComponents(3);
@@ -1083,7 +1068,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
         // phew! no chunks, simply read all cell data.
         UndefPartialHelper helper(line, this);
 
-        for (i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
           helper.ReadArray(vectors, 3, i, this);
         }
@@ -1094,7 +1079,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
         // read one element type at a time.
         while (lineRead && strncmp(line, "part", 4) != 0 && strncmp(line, "END TIME STEP", 13) != 0)
         {
-          elementType = this->GetElementType(line);
+          const int elementType = this->GetElementType(line);
           if (elementType == -1)
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
@@ -1103,16 +1088,16 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
             vectors->Delete();
             return 0;
           }
-          idx = this->UnstructuredPartIds->IsId(realId);
+          const auto idx = this->UnstructuredPartIds->IsId(realId);
           auto dstIds = this->GetCellIds(idx, elementType);
-          numCellsPerElement = dstIds->GetNumberOfIds();
+          const auto numCellsPerElement = dstIds->GetNumberOfIds();
 
           vtkNew<vtkFloatArray> subArray;
           subArray->SetNumberOfComponents(3);
           subArray->SetNumberOfTuples(numCellsPerElement);
 
           UndefPartialHelper helper(line, this);
-          for (i = 0; i < 3; i++)
+          for (int i = 0; i < 3; i++)
           {
             helper.ReadArray(subArray, 3, i, this);
           }
@@ -1248,14 +1233,6 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
 int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
-  char line[256];
-  int symmTensorOrder[6] = { 0, 1, 2, 3, 5, 4 };
-  int partId, realId, numCells, numCellsPerElement, i, j, idx;
-  vtkFloatArray* tensors;
-  int lineRead, elementType;
-  float value;
-  vtkDataSet* output;
-
   // Initialize
   if (!this->OpenVariableFile(fileName, "TensorPerElement"))
   {
@@ -1268,19 +1245,20 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
     return 0;
   }
 
-  this->ReadNextDataLine(line);            // skip the description line
-  lineRead = this->ReadNextDataLine(line); // "part"
+  char line[256];
+  this->ReadNextDataLine(line);                // skip the description line
+  int lineRead = this->ReadNextDataLine(line); // "part"
 
   while (lineRead && strncmp(line, "part", 4) == 0)
   {
     this->ReadNextDataLine(line);
-    partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    realId = this->InsertNewPartId(partId);
-    output = this->GetDataSetFromBlock(compositeOutput, realId);
-    numCells = output->GetNumberOfCells();
+    const auto partId = atoi(line) - 1; // EnSight starts #ing with 1.
+    const auto realId = this->InsertNewPartId(partId);
+    auto output = this->GetDataSetFromBlock(compositeOutput, realId);
+    const auto numCells = output->GetNumberOfCells();
     if (numCells)
     {
-      tensors = vtkFloatArray::New();
+      auto tensors = vtkFloatArray::New();
       this->ReadNextDataLine(line); // element type or "block"
       tensors->SetNumberOfTuples(numCells);
       tensors->SetNumberOfComponents(6);
@@ -1292,7 +1270,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
       {
         // phew! no chunks, simply read all cell data.
         UndefPartialHelper helper(line, this);
-        for (i = 0; i < 6; i++)
+        for (int i = 0; i < 6; i++)
         {
           helper.ReadArray(tensors, 6, i, this);
         }
@@ -1303,7 +1281,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
         // read one element type at a time.
         while (lineRead && strncmp(line, "part", 4) != 0 && strncmp(line, "END TIME STEP", 13) != 0)
         {
-          elementType = this->GetElementType(line);
+          const auto elementType = this->GetElementType(line);
           if (elementType == -1)
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
@@ -1312,16 +1290,16 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
             tensors->Delete();
             return 0;
           }
-          idx = this->UnstructuredPartIds->IsId(realId);
+          const auto idx = this->UnstructuredPartIds->IsId(realId);
           auto dstIds = this->GetCellIds(idx, elementType);
-          numCellsPerElement = dstIds->GetNumberOfIds();
+          const auto numCellsPerElement = dstIds->GetNumberOfIds();
 
           vtkNew<vtkFloatArray> subArray;
           subArray->SetNumberOfComponents(6);
           subArray->SetNumberOfTuples(numCellsPerElement);
 
           UndefPartialHelper helper(line, this);
-          for (i = 0; i < 6; i++)
+          for (int i = 0; i < 6; i++)
           {
             helper.ReadArray(subArray, 6, i, this);
           }
