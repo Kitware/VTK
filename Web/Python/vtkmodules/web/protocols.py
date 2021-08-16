@@ -16,11 +16,7 @@ from vtkmodules.web.render_window_serializer import (
     initializeSerializers,
 )
 
-try:
-    from wslink import schedule_callback
-except:
-    from twisted.internet.reactor import callLater as schedule_callback
-
+from wslink import schedule_callback
 from wslink import register as exportRpc
 from wslink.websocket import LinkProtocol
 
