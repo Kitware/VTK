@@ -39,9 +39,10 @@
  * the poly dataset has a texture, we specify this with a point array
  * called "tcoords" and a field array with one element called
  * "texture_uri" containing the path to the texture file. If the poly
- * dataset has a app::X3DMaterial we store two fields arrays with 3
+ * dataset has a app::X3DMaterial we store two double field arrays with 3
  * components and 1 tuple: "diffuse_color" and "specular_color" and
- * one field array with 1 component and 1 tuple: "transparency".
+ * two double field arrays with 1 component and 1 tuple: "transparency",
+ * "shininess"
 
  * Top level children of the multiblock dataset have a field array
  * with one element called "element" which contains the CityGML

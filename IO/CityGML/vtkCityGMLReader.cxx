@@ -126,7 +126,7 @@ public:
       {
         const char* value = node.child_value();
         std::istringstream iss(value);
-        std::array<float, 3> color;
+        std::array<double, 3> color;
         for (size_t i = 0; i < color.size(); ++i)
         {
           iss >> color[i];
@@ -141,8 +141,13 @@ public:
         }
         else if (std::string(node.name()) == "app:transparency")
         {
-          float transparency = this->UseTransparencyAsOpacity ? 1 - color[0] : color[0];
+          double transparency = this->UseTransparencyAsOpacity ? 1 - color[0] : color[0];
           material.Transparency = transparency;
+        }
+        else if (std::string(node.name()) == "app:shininess")
+        {
+          double shininess = color[0];
+          material.Shininess = shininess;
         }
       }
       this->Materials.push_back(material);
@@ -589,7 +594,7 @@ public:
     fd->AddArray(sa);
   }
 
-  static void SetField(vtkDataObject* obj, const char* name, float* value, vtkIdType size)
+  static void SetField(vtkDataObject* obj, const char* name, double* value, vtkIdType components)
   {
     vtkFieldData* fd = obj->GetFieldData();
     if (!fd)
@@ -597,12 +602,10 @@ public:
       vtkNew<vtkFieldData> newfd;
       obj->SetFieldData(newfd);
     }
-    vtkNew<vtkFloatArray> da;
-    da->SetNumberOfTuples(size);
-    for (vtkIdType i = 0; i < size; ++i)
-    {
-      da->SetValue(i, value[i]);
-    }
+    vtkNew<vtkDoubleArray> da;
+    da->SetNumberOfTuples(1);
+    da->SetNumberOfComponents(components);
+    da->SetTypedTuple(0, value);
     da->SetName(name);
     fd->AddArray(da);
   }
@@ -667,6 +670,8 @@ public:
               polyData, "specular_color", &material.Specular[0], 3);
             vtkCityGMLReader::Implementation::SetField(
               polyData, "transparency", &material.Transparency, 1);
+            vtkCityGMLReader::Implementation::SetField(
+              polyData, "shininess", &material.Shininess, 1);
             break;
           }
           case PolygonType::NONE:
@@ -1007,9 +1012,10 @@ private:
       std::fill(this->Specular.begin(), this->Specular.end(), 1.0);
       this->Transparency = 1.0;
     }
-    std::array<float, 3> Diffuse;
-    std::array<float, 3> Specular;
-    float Transparency;
+    std::array<double, 3> Diffuse;
+    std::array<double, 3> Specular;
+    double Transparency;
+    double Shininess;
   };
 
   vtkCityGMLReader* Reader;
