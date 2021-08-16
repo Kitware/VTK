@@ -102,7 +102,10 @@ public:
       self->ReadIntArray(&buffer.front(), count);
 
       partialIndices->SetNumberOfIds(count);
-      std::copy(buffer.begin(), buffer.end(), partialIndices->GetPointer(0));
+      std::transform(
+        buffer.begin(), buffer.end(), partialIndices->GetPointer(0), [](vtkIdType val) {
+          return val - 1; /* since ensight indices start with 1*/
+        });
     }
 
     // replace undefined values with "internal undef" which in ParaView is NaN

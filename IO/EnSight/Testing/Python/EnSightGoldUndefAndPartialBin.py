@@ -21,8 +21,8 @@ assert mass is not None and \
 pres = block0.GetPointData().GetArray("pres")
 assert pres is not None and \
         pres.GetRange()[0] == 4.0 and pres.GetRange()[1] == 6.0 and \
-        pres.GetValue(3) == 4 and pres.GetValue(5) == 6
+        pres.GetValue(2) == 4 and pres.GetValue(4) == 6
 
 for i in range(0, 10):
-    if i == 3 or i == 5: continue
+    if i == 2 or i == 4: continue
     assert math.isnan(pres.GetValue(i))
