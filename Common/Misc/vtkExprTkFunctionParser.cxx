@@ -226,9 +226,13 @@ public:
 
     if ((1 == ps_index) &&
       !exprtk::rtl::vecops::helper::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0))
+    {
       return std::numeric_limits<T>::quiet_NaN();
+    }
     else if (exprtk::rtl::vecops::helper::invalid_range(y, r0, r1))
+    {
       return std::numeric_limits<T>::quiet_NaN();
+    }
 
     T result = x[0] * y[1] - x[1] * y[0];
 
@@ -446,61 +450,20 @@ int vtkExprTkFunctionParser::Parse(ParseMode mode)
       FixVectorReturningFunctionOccurrences(VectorReturningFunction::Norm);
   }
 
-  // ExprTk is supposed to support scalars and vector in the format:
-  // if(statement, true-val, false-val)
-  // but there is a bug for the vectors, which will soon be fixed.
-  // Once fixed the following code for the if replacement will be removed.
-  //
-  // check if "if-statement exists in the function and replace it with branches to support vectors
-  // @note this regex works ONLY if statement, true-val, false-val are just variables,
-  // not a sub-expression which includes parenthesis,and commas
-  std::string temp = this->FunctionWithUsedVariableNames;
-  std::regex ifStatementRegex = std::regex("if\\(([^)]+),([^)]+),([^)]+)\\)");
-  std::smatch sm;
-  bool ifStatementFound = std::regex_search(temp, sm, ifStatementRegex);
-  // if the if-statement has been extracted and the statement, true-val, false-val have been
-  // identified
-  if (ifStatementFound && sm.size() == 4)
+  if (mode == ParseMode::DetectReturnType)
   {
-    std::string substring = "if(" + sm[1].str() + "," + sm[2].str() + "," + sm[3].str() + ")";
-    std::string replacement;
-    if (mode == ParseMode::DetectReturnType)
-    {
-      // ExprTK, in order to extract vector and scalar results, and identify the result type,
-      // it requires to "return results" instead of just evaluating an expression
-      replacement =
-        "if(" + sm[1].str() + ") return [" + sm[2].str() + "]; else return [" + sm[3].str() + "];";
-    }
-    else
-    {
-      // Since we know now the return type, we can assign the result to a result vector
-      std::string resultArray = GenerateRandomAlphabeticString(10);
-      this->ExprTkTools->SymbolTable.add_vector(
-        resultArray, this->Result.GetData(), this->Result.GetSize());
-
-      replacement = "if(" + sm[1].str() + ") " + resultArray + " := [" + sm[2].str() + "]; else " +
-        resultArray + " := [" + sm[3].str() + "];";
-    }
-    this->ExpressionString = this->FunctionWithUsedVariableNames;
-    vtksys::SystemTools::ReplaceString(this->ExpressionString, substring, replacement);
+    // ExprTK, in order to extract vector and scalar results, and identify the result type,
+    // it requires to "return results" instead of just evaluating an expression
+    this->ExpressionString = "return [" + this->FunctionWithUsedVariableNames + "];";
   }
   else
   {
-    if (mode == ParseMode::DetectReturnType)
-    {
-      // ExprTK, in order to extract vector and scalar results, and identify the result type,
-      // it requires to "return results" instead of just evaluating an expression
-      this->ExpressionString = "return [" + this->FunctionWithUsedVariableNames + "];";
-    }
-    else
-    {
-      // Since we know now the return type, we can assign the result to a result vector
-      std::string resultArray = GenerateRandomAlphabeticString(10);
-      this->ExprTkTools->SymbolTable.add_vector(
-        resultArray, this->Result.GetData(), this->Result.GetSize());
-      // Since we know now the return type, we can assign the result to a result vector
-      this->ExpressionString = resultArray + " := [" + this->FunctionWithUsedVariableNames + "];";
-    }
+    // Since we know now the return type, we can assign the result to a result vector
+    std::string resultArray = GenerateRandomAlphabeticString(10);
+    this->ExprTkTools->SymbolTable.add_vector(
+      resultArray, this->Result.GetData(), this->Result.GetSize());
+    // Since we know now the return type, we can assign the result to a result vector
+    this->ExpressionString = resultArray + " := [" + this->FunctionWithUsedVariableNames + "];";
   }
 
   bool parsingResult =
