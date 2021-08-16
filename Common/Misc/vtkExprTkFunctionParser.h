@@ -28,7 +28,7 @@
  * 3) norm(v), the normalized version of a vector.
  *
  * @par Thanks:
- * Arash Partow (arash@partow.net) for implementing the ExprTk library.
+ * Arash Partow for implementing the ExprTk library.
  */
 
 #ifndef vtkExprTkFunctionParser_h
