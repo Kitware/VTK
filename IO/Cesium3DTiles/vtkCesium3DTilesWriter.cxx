@@ -56,7 +56,6 @@ namespace
 //------------------------------------------------------------------------------
 /**
  * Add building centers to the octree
- * and create actors to add to the renderer.
  */
 vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctree(
   std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
@@ -116,6 +115,7 @@ std::string GetFieldAsString(vtkDataObject* obj, const char* name)
   return sa->GetValue(0);
 }
 
+#ifndef NDEBUG
 //------------------------------------------------------------------------------
 void SaveLevel(const std::string& output, int level, vtkPolyData* poly)
 {
@@ -126,6 +126,7 @@ void SaveLevel(const std::string& output, int level, vtkPolyData* poly)
   writer->SetFileName(ostr.str().c_str());
   writer->Write();
 }
+#endif
 
 //------------------------------------------------------------------------------
 void AddTextures(const std::string& path,
@@ -267,52 +268,62 @@ int vtkCesium3DTilesWriter::FillInputPortInformation(int port, vtkInformation* i
 //------------------------------------------------------------------------------
 void vtkCesium3DTilesWriter::WriteData()
 {
-  auto root = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
-  std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
-  std::vector<vtkSmartPointer<vtkActor>> actors;
-  std::vector<size_t> buildingActorStart;
-  std::array<double, 3> offset = { 0, 0, 0 };
-
-  vtkNew<vtkRenderer> renderer;
-  auto renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
-  renderWindow->AddRenderer(renderer);
-  renderWindow->SetSize(640, 480);
-
-  auto wholeBB = AddBuildingsWithTexture(root, this->TexturePath, this->Origin, renderer,
-    this->SaveTextures, buildings, buildingActorStart, actors, offset);
-  std::copy(offset.begin(), offset.end(), this->Origin);
-  if (buildings.empty())
   {
-    vtkLog(ERROR,
-      "No buildings read from the input file. "
-      "Maybe buildings are on a different LOD. Try changing --lod parameter.");
-    return;
-  }
-  vtkLog(
-    INFO, "Processing " << buildings.size() << " buildings and " << actors.size() << " actors...");
-  vtkDirectory::MakeDirectory(this->DirectoryName);
+    std::vector<vtkSmartPointer<vtkActor>> actors;
+    vtkNew<vtkRenderer> renderer;
+    auto renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
+    {
+      auto root = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
+      std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
+      std::vector<size_t> buildingActorStart;
+      std::array<double, 3> offset = { 0, 0, 0 };
 
-  vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
-    BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
-  TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), buildings,
-    buildingActorStart, offset, actors, renderWindow, this->DirectoryName, this->SrsName,
-    this->UTMZone, this->UTMHemisphere);
-  treeInformation.Compute();
-  vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
-  treeInformation.Generate3DTiles(std::string(this->DirectoryName) + "/tileset.json");
-  // debug - save poly data for each level of the tree.
-  // int numberOfLevels = octree->GetNumberOfLevels();
-  // for (int level = 0; level < numberOfLevels; ++level)
-  // {
-  //   vtkNew<vtkPolyData> octreePoly;
-  //   octree->GenerateRepresentation(
-  //     level, octreePoly, &TreeInformation::GetNodeBounds, &treeInformation);
-  //   treeInformation.AddGeometricError(octreePoly);
-  //   // ::SaveLevel(this->DirectoryName, level, octreePoly);
-  // }
-  renderWindow->Render();
-  if (this->SaveGLTF)
-  {
-    treeInformation.SaveGLTF();
+      renderWindow->AddRenderer(renderer);
+      renderWindow->OffScreenRenderingOn();
+      renderWindow->SetSize(640, 480);
+
+      auto wholeBB = AddBuildingsWithTexture(root, this->TexturePath, this->Origin, renderer,
+        this->SaveTextures, buildings, buildingActorStart, actors, offset);
+      std::copy(offset.begin(), offset.end(), this->Origin);
+      if (buildings.empty())
+      {
+        vtkLog(ERROR,
+          "No buildings read from the input file. "
+          "Maybe buildings are on a different LOD. Try changing --lod parameter.");
+        return;
+      }
+      vtkLog(INFO,
+        "Processing " << buildings.size() << " buildings and " << actors.size() << " actors...");
+      vtkDirectory::MakeDirectory(this->DirectoryName);
+
+      vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
+        BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
+      TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), buildings,
+        buildingActorStart, offset, actors, renderWindow, this->DirectoryName, this->SrsName,
+        this->UTMZone, this->UTMHemisphere);
+      treeInformation.Compute();
+      vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
+      treeInformation.Generate3DTiles(std::string(this->DirectoryName) + "/tileset.json");
+
+      // debug - save poly data for each level of the tree.
+      // int numberOfLevels = octree->GetNumberOfLevels();
+      // for (int level = 0; level < numberOfLevels; ++level)
+      // {
+      //   vtkNew<vtkPolyData> octreePoly;
+      //   octree->GenerateRepresentation(
+      //     level, octreePoly, &TreeInformation::GetNodeBounds, &treeInformation);
+      //   treeInformation.AddGeometricError(octreePoly);
+      //   // ::SaveLevel(this->DirectoryName, level, octreePoly);
+      // }
+
+      renderWindow->Render();
+      if (this->SaveGLTF)
+      {
+        treeInformation.SaveGLTF();
+      }
+      vtkLog(INFO, "Deleting objects ...");
+    }
+    vtkLog(INFO, "Deleting rendering objects ...");
   }
+  vtkLog(INFO, "Done.");
 }

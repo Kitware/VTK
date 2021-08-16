@@ -188,8 +188,6 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   std::fill(this->EmptyNode.begin(), this->EmptyNode.end(), true);
   std::fill(this->GeometricError.begin(), this->GeometricError.end(), 0);
   std::fill(this->VolumeError.begin(), this->VolumeError.end(), 0);
-  this->Interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  this->Interactor->SetRenderWindow(this->RenderWindow);
 }
 
 //------------------------------------------------------------------------------

@@ -104,7 +104,6 @@ private:
   const std::array<double, 3>& Offset;
   std::vector<vtkSmartPointer<vtkActor>>& Actors;
   vtkSmartPointer<vtkRenderWindow> RenderWindow;
-  vtkSmartPointer<vtkRenderWindowInteractor> Interactor;
   std::string OutputDir;
   const char* SrsName;
   int UTMZone;
