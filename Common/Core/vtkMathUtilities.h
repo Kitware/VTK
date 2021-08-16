@@ -34,19 +34,10 @@ namespace vtkMathUtilities
 {
 
 /**
- * Perform a fuzzy compare of floats/doubles.
- */
-template <class A>
-bool FuzzyCompare(A a, A b)
-{
-  return fabs(a - b) < std::numeric_limits<A>::epsilon();
-}
-
-/**
  * Perform a fuzzy compare of floats/doubles, specify the allowed tolerance
  */
 template <class A>
-bool FuzzyCompare(A a, A b, A epsilon)
+bool FuzzyCompare(A a, A b, A epsilon = std::numeric_limits<A>::epsilon())
 {
   return fabs(a - b) < epsilon;
 }
@@ -74,7 +65,6 @@ A SafeDivision(A a, A b)
   return (a / b);
 }
 
-///@{
 /**
  * A slightly different fuzzy comparator that checks if two values are
  * "nearly" equal based on Knuth, "The Art of Computer Programming (vol II)"
@@ -85,13 +75,8 @@ bool NearlyEqual(A a, A b, A tol = std::numeric_limits<A>::epsilon())
   A absdiff = fabs(a - b);
   A d1 = vtkMathUtilities::SafeDivision<A>(absdiff, fabs(a));
   A d2 = vtkMathUtilities::SafeDivision<A>(absdiff, fabs(b));
-  ///@}
 
-  if ((d1 <= tol) || (d2 <= tol))
-  {
-    return true;
-  }
-  return false;
+  return ((d1 <= tol) || (d2 <= tol));
 }
 
 } // End vtkMathUtilities namespace.
