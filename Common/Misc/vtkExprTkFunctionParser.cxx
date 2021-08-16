@@ -458,12 +458,19 @@ int vtkExprTkFunctionParser::Parse(ParseMode mode)
   }
   else
   {
-    // Since we know now the return type, we can assign the result to a result vector
-    std::string resultArray = GenerateRandomAlphabeticString(10);
-    this->ExprTkTools->SymbolTable.add_vector(
-      resultArray, this->Result.GetData(), this->Result.GetSize());
-    // Since we know now the return type, we can assign the result to a result vector
-    this->ExpressionString = resultArray + " := [" + this->FunctionWithUsedVariableNames + "];";
+    // Since we know now the return type, we can assign the result to a result scalar/vector
+    std::string resultName = GenerateRandomAlphabeticString(10);
+    if (this->ResultType == ExprTkResultType::e_scalar)
+    {
+      this->ExprTkTools->SymbolTable.add_variable(resultName, this->Result[0]);
+      this->ExpressionString = resultName + " := " + this->FunctionWithUsedVariableNames + ";";
+    }
+    else
+    {
+      this->ExprTkTools->SymbolTable.add_vector(
+        resultName, this->Result.GetData(), this->Result.GetSize());
+      this->ExpressionString = resultName + " := [" + this->FunctionWithUsedVariableNames + "];";
+    }
   }
 
   bool parsingResult =
