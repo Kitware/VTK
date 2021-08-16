@@ -8,7 +8,7 @@ readonly name="exprtk"
 readonly ownership="ExprTk Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/exprtk.git"
-readonly tag="for/vtk-20210720-2.71"
+readonly tag="for/vtk-20210816-2.71"
 readonly paths="
 .gitattributes
 CMakeLists.vtk.txt
