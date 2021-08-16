@@ -15,6 +15,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # Numerical problems?
     "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
 
+    # This is a flaky test. It sometimes passes.
+    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
+
     # These tests all seem to have some problem with the rendering order of
     # some components of the scenes that are being tested. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
@@ -146,7 +149,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithMSAA$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$"
+
+    # Ignored on other platforms but timeout on Windows consistently
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIoss$"
+  )
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
