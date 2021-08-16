@@ -177,6 +177,18 @@ protected:
 private:
   vtkEnSightGoldReader(const vtkEnSightGoldReader&) = delete;
   void operator=(const vtkEnSightGoldReader&) = delete;
+
+  /**
+   * Opens a variable file name. This will compute the full path and then open
+   * it. `variableType` is simply used to report helpful error messages.
+   */
+  bool OpenVariableFile(const char* fname, const char* variableType);
+
+  /**
+   * Jump forward to a particular timestep in the variable file, if
+   * applicable.
+   */
+  bool SkipToTimeStep(const char* fileName, int timeStep);
 };
 
 #endif

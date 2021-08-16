@@ -417,23 +417,14 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
 }
 
 //------------------------------------------------------------------------------
-int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* description,
-  int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured, int numberOfComponents,
-  int component)
+bool vtkEnSightGoldReader::OpenVariableFile(const char* fileName, const char* variableType)
 {
-  char line[256], formatLine[256], tempLine[256];
-  int partId, realId, numPts, i, j, numLines, moreScalars;
-  vtkFloatArray* scalars;
-  float scalarsRead[6];
-  vtkDataSet* output;
-
-  // Initialize
-  //
   if (!fileName)
   {
-    vtkErrorMacro("nullptr ScalarPerNode variable file name");
-    return 0;
+    vtkErrorMacro("nullptr " << variableType << " variable file name");
+    return false;
   }
+
   std::string sfilename;
   if (this->FilePath)
   {
@@ -443,7 +434,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to scalar per node file: " << sfilename.c_str());
+    vtkDebugMacro("full path to variable (" << variableType << ") file: " << sfilename.c_str());
   }
   else
   {
@@ -456,47 +447,83 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = nullptr;
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkEnSightGoldReader::SkipToTimeStep(const char* fileName, int timeStep)
+{
+  if (!this->UseFileSets)
+  {
+    // nothing to do.
+    return true;
+  }
+
+  const int realTimeStep = timeStep - 1;
+  // Try to find the nearest time step for which we know the offset
+  int j = 0;
+  for (int i = realTimeStep; i >= 0; --i)
+  {
+    if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
+      this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
+    {
+      this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
+      j = i;
+      break;
+    }
+  }
+
+  char line[256];
+  // Hopefully we are not very far from the timestep we want to use
+  // Find it (and cache any timestep we find on the way...)
+  while (j++ < realTimeStep)
+  {
+    this->ReadLine(line);
+    while (strncmp(line, "END TIME STEP", 13) != 0)
+    {
+      this->ReadLine(line);
+    }
+    if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
+    {
+      std::map<int, long> tsMap;
+      this->FileOffsets->Map[fileName] = tsMap;
+    }
+    this->FileOffsets->Map[fileName][j] = this->IS->tellg();
+  }
+
+  this->ReadLine(line);
+  while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+  {
+    this->ReadLine(line);
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* description,
+  int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured, int numberOfComponents,
+  int component)
+{
+  char line[256], formatLine[256], tempLine[256];
+  int partId, realId, numPts, i, j, numLines, moreScalars;
+  vtkFloatArray* scalars;
+  float scalarsRead[6];
+  vtkDataSet* output;
+
+  // Initialize
+  //
+  if (!this->OpenVariableFile(fileName, "ScalarPerNode"))
+  {
     return 0;
   }
 
-  if (this->UseFileSets)
+  if (!this->SkipToTimeStep(fileName, timeStep))
   {
-    int realTimeStep = timeStep - 1;
-    // Try to find the nearest time step for which we know the offset
-    j = 0;
-    for (i = realTimeStep; i >= 0; i--)
-    {
-      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
-        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
-      {
-        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
-        j = i;
-        break;
-      }
-    }
-
-    // Hopefully we are not very far from the timestep we want to use
-    // Find it (and cache any timestep we find on the way...)
-    while (j++ < realTimeStep)
-    {
-      this->ReadLine(line);
-      while (strncmp(line, "END TIME STEP", 13) != 0)
-      {
-        this->ReadLine(line);
-      }
-      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
-      {
-        std::map<int, long> tsMap;
-        this->FileOffsets->Map[fileName] = tsMap;
-      }
-      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
-    }
-
-    this->ReadLine(line);
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
-    {
-      this->ReadLine(line);
-    }
+    return 0;
   }
 
   this->ReadNextDataLine(line); // skip the description line
@@ -636,76 +663,14 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
   vtkDataSet* output;
 
   // Initialize
-  //
-  if (!fileName)
+  if (!this->OpenVariableFile(fileName, "VectorPerNode"))
   {
-    vtkErrorMacro("nullptr VectorPerNode variable file name");
-    return 0;
-  }
-  std::string sfilename;
-  if (this->FilePath)
-  {
-    sfilename = this->FilePath;
-    if (sfilename.at(sfilename.length() - 1) != '/')
-    {
-      sfilename += "/";
-    }
-    sfilename += fileName;
-    vtkDebugMacro("full path to vector per node file: " << sfilename.c_str());
-  }
-  else
-  {
-    sfilename = fileName;
-  }
-
-  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
-  if (this->IS->fail())
-  {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
-    delete this->IS;
-    this->IS = nullptr;
     return 0;
   }
 
-  if (this->UseFileSets)
+  if (!this->SkipToTimeStep(fileName, timeStep))
   {
-    int realTimeStep = timeStep - 1;
-    // Try to find the nearest time step for which we know the offset
-    j = 0;
-    for (i = realTimeStep; i >= 0; i--)
-    {
-
-      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
-        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
-      {
-        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
-        j = i;
-        break;
-      }
-    }
-
-    // Hopefully we are not very far from the timestep we want to use
-    // Find it (and cache any timestep we find on the way...)
-    while (j++ < realTimeStep)
-    {
-      this->ReadLine(line);
-      while (strncmp(line, "END TIME STEP", 13) != 0)
-      {
-        this->ReadLine(line);
-      }
-      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
-      {
-        std::map<int, long> tsMap;
-        this->FileOffsets->Map[fileName] = tsMap;
-      }
-      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
-    }
-
-    this->ReadLine(line);
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
-    {
-      this->ReadLine(line);
-    }
+    return 0;
   }
 
   this->ReadNextDataLine(line); // skip the description line
@@ -796,33 +761,13 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerNode(const char* fileName,
   const char* description, int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
   // Initialize
-  if (!fileName)
+  if (!this->OpenVariableFile(fileName, "TensorPerNode"))
   {
-    vtkErrorMacro("nullptr TensorPerNode variable file name");
     return 0;
   }
-  std::string fileNameString;
-  if (this->FilePath)
-  {
-    fileNameString = this->FilePath;
-    if (fileNameString.back() != '/')
-    {
-      fileNameString += "/";
-    }
-    fileNameString += fileName;
-    vtkDebugMacro("full path to tensor per node file: " << fileNameString.c_str());
-  }
-  else
-  {
-    fileNameString = fileName;
-  }
 
-  this->IS = new vtksys::ifstream(fileNameString.c_str(), ios::in);
-  if (this->IS->fail())
+  if (!this->SkipToTimeStep(fileName, timeStep))
   {
-    vtkErrorMacro("Unable to open file: " << fileNameString.c_str());
-    delete this->IS;
-    this->IS = nullptr;
     return 0;
   }
 
@@ -832,46 +777,6 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerNode(const char* fileName,
   // C++11 compatible way to get a pointer to underlying data
   // data() could be used with C++17
   char* linePtr = &line[0];
-  if (this->UseFileSets)
-  {
-    int realTimeStep = timeStep - 1;
-    // Try to find the nearest time step for which we know the offset
-    int j = 0;
-    for (int i = realTimeStep; i >= 0; i--)
-    {
-      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
-        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
-      {
-        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
-        j = i;
-        break;
-      }
-    }
-
-    // Hopefully we are not very far from the timestep we want to use
-    // Find it (and cache any timestep we find on the way...)
-    while (j++ < realTimeStep)
-    {
-      this->ReadLine(linePtr);
-      while (line.compare(0, 13, "END TIME STEP") != 0)
-      {
-        this->ReadLine(linePtr);
-      }
-      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
-      {
-        std::map<int, long> tsMap;
-        this->FileOffsets->Map[fileName] = tsMap;
-      }
-      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
-    }
-
-    this->ReadLine(linePtr);
-    while (line.compare(0, 15, "BEGIN TIME STEP") != 0)
-    {
-      this->ReadLine(linePtr);
-    }
-  }
-
   this->ReadNextDataLine(linePtr); // skip the description line
 
   while (this->ReadNextDataLine(linePtr) && line.compare(0, 4, "part") == 0)
@@ -916,75 +821,14 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
   vtkDataSet* output;
 
   // Initialize
-  //
-  if (!fileName)
+  if (!this->OpenVariableFile(fileName, "TensorPerNode"))
   {
-    vtkErrorMacro("nullptr TensorPerNode variable file name");
-    return 0;
-  }
-  std::string sfilename;
-  if (this->FilePath)
-  {
-    sfilename = this->FilePath;
-    if (sfilename.at(sfilename.length() - 1) != '/')
-    {
-      sfilename += "/";
-    }
-    sfilename += fileName;
-    vtkDebugMacro("full path to tensor per node file: " << sfilename.c_str());
-  }
-  else
-  {
-    sfilename = fileName;
-  }
-
-  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
-  if (this->IS->fail())
-  {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
-    delete this->IS;
-    this->IS = nullptr;
     return 0;
   }
 
-  if (this->UseFileSets)
+  if (!this->SkipToTimeStep(fileName, timeStep))
   {
-    int realTimeStep = timeStep - 1;
-    // Try to find the nearest time step for which we know the offset
-    j = 0;
-    for (i = realTimeStep; i >= 0; i--)
-    {
-      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
-        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
-      {
-        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
-        j = i;
-        break;
-      }
-    }
-
-    // Hopefully we are not very far from the timestep we want to use
-    // Find it (and cache any timestep we find on the way...)
-    while (j++ < realTimeStep)
-    {
-      this->ReadLine(line);
-      while (strncmp(line, "END TIME STEP", 13) != 0)
-      {
-        this->ReadLine(line);
-      }
-      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
-      {
-        std::map<int, long> tsMap;
-        this->FileOffsets->Map[fileName] = tsMap;
-      }
-      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
-    }
-
-    this->ReadLine(line);
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
-    {
-      this->ReadLine(line);
-    }
+    return 0;
   }
 
   this->ReadNextDataLine(line); // skip the description line
@@ -1034,75 +878,14 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char
   vtkDataSet* output;
 
   // Initialize
-  //
-  if (!fileName)
+  if (!this->OpenVariableFile(fileName, "ScalarPerElement"))
   {
-    vtkErrorMacro("nullptr ScalarPerElement variable file name");
-    return 0;
-  }
-  std::string sfilename;
-  if (this->FilePath)
-  {
-    sfilename = this->FilePath;
-    if (sfilename.at(sfilename.length() - 1) != '/')
-    {
-      sfilename += "/";
-    }
-    sfilename += fileName;
-    vtkDebugMacro("full path to scalar per element file: " << sfilename.c_str());
-  }
-  else
-  {
-    sfilename = fileName;
-  }
-
-  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
-  if (this->IS->fail())
-  {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
-    delete this->IS;
-    this->IS = nullptr;
     return 0;
   }
 
-  if (this->UseFileSets)
+  if (!this->SkipToTimeStep(fileName, timeStep))
   {
-    int realTimeStep = timeStep - 1;
-    // Try to find the nearest time step for which we know the offset
-    int j = 0;
-    for (i = realTimeStep; i >= 0; i--)
-    {
-      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
-        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
-      {
-        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
-        j = i;
-        break;
-      }
-    }
-
-    // Hopefully we are not very far from the timestep we want to use
-    // Find it (and cache any timestep we find on the way...)
-    while (j++ < realTimeStep)
-    {
-      this->ReadLine(line);
-      while (strncmp(line, "END TIME STEP", 13) != 0)
-      {
-        this->ReadLine(line);
-      }
-      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
-      {
-        std::map<int, long> tsMap;
-        this->FileOffsets->Map[fileName] = tsMap;
-      }
-      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
-    }
-
-    this->ReadLine(line);
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
-    {
-      this->ReadLine(line);
-    }
+    return 0;
   }
 
   this->ReadNextDataLine(line);            // skip the description line
@@ -1233,75 +1016,14 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
   vtkDataSet* output;
 
   // Initialize
-  //
-  if (!fileName)
+  if (!this->OpenVariableFile(fileName, "VectorPerElement"))
   {
-    vtkErrorMacro("nullptr VectorPerElement variable file name");
-    return 0;
-  }
-  std::string sfilename;
-  if (this->FilePath)
-  {
-    sfilename = this->FilePath;
-    if (sfilename.at(sfilename.length() - 1) != '/')
-    {
-      sfilename += "/";
-    }
-    sfilename += fileName;
-    vtkDebugMacro("full path to vector per element file: " << sfilename.c_str());
-  }
-  else
-  {
-    sfilename = fileName;
-  }
-
-  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
-  if (this->IS->fail())
-  {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
-    delete this->IS;
-    this->IS = nullptr;
     return 0;
   }
 
-  if (this->UseFileSets)
+  if (!this->SkipToTimeStep(fileName, timeStep))
   {
-    int realTimeStep = timeStep - 1;
-    // Try to find the nearest time step for which we know the offset
-    j = 0;
-    for (i = realTimeStep; i >= 0; i--)
-    {
-      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
-        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
-      {
-        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
-        j = i;
-        break;
-      }
-    }
-
-    // Hopefully we are not very far from the timestep we want to use
-    // Find it (and cache any timestep we find on the way...)
-    while (j++ < realTimeStep)
-    {
-      this->ReadLine(line);
-      while (strncmp(line, "END TIME STEP", 13) != 0)
-      {
-        this->ReadLine(line);
-      }
-      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
-      {
-        std::map<int, long> tsMap;
-        this->FileOffsets->Map[fileName] = tsMap;
-      }
-      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
-    }
-
-    this->ReadLine(line);
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
-    {
-      this->ReadLine(line);
-    }
+    return 0;
   }
 
   this->ReadNextDataLine(line);            // skip the description line
@@ -1388,33 +1110,13 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
   const char* description, int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
   // Initialize
-  if (!fileName)
+  if (!this->OpenVariableFile(fileName, "AsymetricTensorPerElement"))
   {
-    vtkErrorMacro("nullptr TensorPerElement variable file name");
     return 0;
   }
-  std::string fileNameString;
-  if (this->FilePath)
-  {
-    fileNameString = this->FilePath;
-    if (fileNameString.back() != '/')
-    {
-      fileNameString += "/";
-    }
-    fileNameString += fileName;
-    vtkDebugMacro("full path to tensor per element file: " << fileNameString.c_str());
-  }
-  else
-  {
-    fileNameString = fileName;
-  }
 
-  this->IS = new vtksys::ifstream(fileNameString.c_str(), ios::in);
-  if (this->IS->fail())
+  if (!this->SkipToTimeStep(fileName, timeStep))
   {
-    vtkErrorMacro("Unable to open file: " << fileNameString.c_str());
-    delete this->IS;
-    this->IS = nullptr;
     return 0;
   }
 
@@ -1424,45 +1126,6 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
   // C++11 compatible way to get a pointer to underlying data
   // data() could be used with C++17
   char* linePtr = &line[0];
-  if (this->UseFileSets)
-  {
-    const int realTimeStep = timeStep - 1;
-    // Try to find the nearest time step for which we know the offset
-    int j = 0;
-    for (int i = realTimeStep; i >= 0; i--)
-    {
-      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
-        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
-      {
-        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
-        j = i;
-        break;
-      }
-    }
-
-    // Hopefully we are not very far from the timestep we want to use
-    // Find it (and cache any timestep we find on the way...)
-    while (j++ < realTimeStep)
-    {
-      this->ReadLine(linePtr);
-      while (line.compare(0, 13, "END TIME STEP") != 0)
-      {
-        this->ReadLine(linePtr);
-      }
-      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
-      {
-        this->FileOffsets->Map[fileName] = std::map<int, long>();
-      }
-      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
-    }
-
-    this->ReadLine(linePtr);
-    while (line.compare(0, 15, "BEGIN TIME STEP") != 0)
-    {
-      this->ReadLine(linePtr);
-    }
-  }
-
   this->ReadNextDataLine(linePtr);                // skip the description line
   int lineRead = this->ReadNextDataLine(linePtr); // "part"
 
@@ -1549,75 +1212,15 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
   vtkDataSet* output;
 
   // Initialize
-  //
-  if (!fileName)
+  if (!this->OpenVariableFile(fileName, "TensorPerElement"))
   {
     vtkErrorMacro("Empty TensorPerElement variable file name");
     return 0;
   }
-  std::string sfilename;
-  if (this->FilePath)
-  {
-    sfilename = this->FilePath;
-    if (sfilename.at(sfilename.length() - 1) != '/')
-    {
-      sfilename += "/";
-    }
-    sfilename += fileName;
-    vtkDebugMacro("full path to tensor per element file: " << sfilename.c_str());
-  }
-  else
-  {
-    sfilename = fileName;
-  }
 
-  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
-  if (this->IS->fail())
+  if (!this->SkipToTimeStep(fileName, timeStep))
   {
-    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
-    delete this->IS;
-    this->IS = nullptr;
     return 0;
-  }
-
-  if (this->UseFileSets)
-  {
-    int realTimeStep = timeStep - 1;
-    // Try to find the nearest time step for which we know the offset
-    j = 0;
-    for (i = realTimeStep; i >= 0; i--)
-    {
-      if (this->FileOffsets->Map.find(fileName) != this->FileOffsets->Map.end() &&
-        this->FileOffsets->Map[fileName].find(i) != this->FileOffsets->Map[fileName].end())
-      {
-        this->IS->seekg(this->FileOffsets->Map[fileName][i], ios::beg);
-        j = i;
-        break;
-      }
-    }
-
-    // Hopefully we are not very far from the timestep we want to use
-    // Find it (and cache any timestep we find on the way...)
-    while (j++ < realTimeStep)
-    {
-      this->ReadLine(line);
-      while (strncmp(line, "END TIME STEP", 13) != 0)
-      {
-        this->ReadLine(line);
-      }
-      if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
-      {
-        std::map<int, long> tsMap;
-        this->FileOffsets->Map[fileName] = tsMap;
-      }
-      this->FileOffsets->Map[fileName][j] = this->IS->tellg();
-    }
-
-    this->ReadLine(line);
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
-    {
-      this->ReadLine(line);
-    }
   }
 
   this->ReadNextDataLine(line);            // skip the description line
