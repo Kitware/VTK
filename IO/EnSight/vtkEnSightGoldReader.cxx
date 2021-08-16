@@ -19,7 +19,9 @@
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -30,6 +32,7 @@
 
 #include <cctype>
 #include <map>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -41,21 +44,102 @@ class vtkEnSightGoldReader::FileOffsetMapInternal
 public:
   std::map<std::string, std::map<int, long>> Map;
 };
-class vtkEnSightGoldReader::UndefPartialInternal
+
+class vtkEnSightGoldReader::UndefPartialHelper
 {
+  bool HasUndef = false;
+  double Undef = std::nanf("1");
+
+  bool HasPartial = false;
+  std::vector<vtkIdType> PartialIndices;
+
 public:
-  double UndefCoordinates;
-  double UndefBlock;
-  double UndefElementTypes;
-  std::vector<vtkIdType> PartialCoordinates;
-  std::vector<vtkIdType> PartialBlock;
-  std::vector<vtkIdType> PartialElementTypes;
+  UndefPartialHelper(const char* line, vtkEnSightGoldReader* self)
+  {
+    char undefvar[16];
+    // Look for keyword 'partial' or 'undef':
+    int r = sscanf(line, "%*s %15s", undefvar);
+    if (r == 1)
+    {
+      char subline[80];
+      if (strcmp(undefvar, "undef") == 0)
+      {
+        self->ReadNextDataLine(subline);
+        this->Undef = atof(subline);
+        this->HasUndef = true;
+      }
+      else if (strcmp(undefvar, "partial") == 0)
+      {
+        self->ReadNextDataLine(subline);
+        const int nLines = atoi(subline);
+        this->HasPartial = true;
+        this->PartialIndices.resize(nLines, 0);
+        for (int i = 0; i < nLines; ++i)
+        {
+          self->ReadNextDataLine(subline);
+          const vtkIdType val = atoi(subline) - 1; // EnSight start at 1
+          this->PartialIndices[i] = val;
+        }
+      }
+      else
+      {
+        vtkLogF(ERROR, "Unknown value for undef or partial: %s", undefvar);
+      }
+    }
+  }
+
+  void ReadArray(
+    vtkFloatArray* array, int numberOfComponents, int component, vtkEnSightGoldReader* self)
+  {
+    if (numberOfComponents == 6)
+    {
+      // for 6 component tensors, the symmetric tensor components XZ and YZ are interchanged
+      // see #10637.
+      switch (component)
+      {
+        case 4:
+          component = 5;
+          break;
+
+        case 5:
+          component = 4;
+          break;
+      }
+    }
+
+    char line[256];
+    if (this->HasPartial)
+    {
+      array->FillTypedComponent(component, std::nanf("1"));
+      for (const auto& idx : this->PartialIndices)
+      {
+        self->ReadNextDataLine(line);
+        array->InsertComponent(idx, component, atof(line));
+      }
+    }
+    else
+    {
+      const auto undefValue = std::nanf("1");
+      for (vtkIdType cc = 0, max = array->GetNumberOfTuples(); cc < max; ++cc)
+      {
+        self->ReadNextDataLine(line);
+        const double val = atof(line);
+        if (this->HasUndef && val == this->Undef)
+        {
+          array->InsertComponent(cc, component, undefValue);
+        }
+        else
+        {
+          array->InsertComponent(cc, component, val);
+        }
+      }
+    }
+  }
 };
 
 //------------------------------------------------------------------------------
 vtkEnSightGoldReader::vtkEnSightGoldReader()
 {
-  this->UndefPartial = new vtkEnSightGoldReader::UndefPartialInternal;
   this->FileOffsets = new vtkEnSightGoldReader::FileOffsetMapInternal;
 
   this->NodeIdsListed = 0;
@@ -66,7 +150,6 @@ vtkEnSightGoldReader::vtkEnSightGoldReader()
 
 vtkEnSightGoldReader::~vtkEnSightGoldReader()
 {
-  delete this->UndefPartial;
   delete this->FileOffsets;
 }
 
@@ -587,49 +670,20 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
     if (numPts)
     {
       this->ReadNextDataLine(line); // "coordinates" or "block"
-      int partial = this->CheckForUndefOrPartial(line);
+
+      UndefPartialHelper helper(line, this);
       if (component == 0)
       {
         scalars = vtkFloatArray::New();
-        scalars->SetNumberOfTuples(numPts);
         scalars->SetNumberOfComponents(numberOfComponents);
-        scalars->Allocate(numPts * numberOfComponents);
+        scalars->SetNumberOfTuples(numPts);
       }
       else
       {
         scalars = (vtkFloatArray*)(output->GetPointData()->GetArray(description));
       }
 
-      // If the keyword 'partial' was found, we should replace unspecified
-      // coordinate to take the value specified in the 'undef' field
-      if (partial)
-      {
-        int l = 0;
-        double val;
-        for (i = 0; i < numPts; i++)
-        {
-          if (i == this->UndefPartial->PartialCoordinates[l])
-          {
-            this->ReadNextDataLine(line);
-            val = atof(line);
-          }
-          else
-          {
-            val = this->UndefPartial->UndefCoordinates;
-            l++;
-          }
-          scalars->InsertComponent(i, component, val);
-        }
-      }
-      else
-      {
-        for (i = 0; i < numPts; i++)
-        {
-          this->ReadNextDataLine(line);
-          scalars->InsertComponent(i, component, atof(line));
-        }
-      }
-
+      helper.ReadArray(scalars, numberOfComponents, component, this);
       if (component == 0)
       {
         scalars->SetName(description);
@@ -728,19 +782,18 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
     numPts = output->GetNumberOfPoints();
     if (numPts)
     {
-      vectors = vtkFloatArray::New();
       this->ReadNextDataLine(line); // "coordinates" or "block"
-      vectors->SetNumberOfTuples(numPts);
+
+      vectors = vtkFloatArray::New();
       vectors->SetNumberOfComponents(3);
-      vectors->Allocate(numPts * 3);
+      vectors->SetNumberOfTuples(numPts);
+
+      UndefPartialHelper helper(line, this);
       for (i = 0; i < 3; i++)
       {
-        for (j = 0; j < numPts; j++)
-        {
-          this->ReadNextDataLine(line);
-          vectors->InsertComponent(j, i, atof(line));
-        }
+        helper.ReadArray(vectors, 3, i, this);
       }
+
       vectors->SetName(description);
       output->GetPointData()->AddArray(vectors);
       if (!output->GetPointData()->GetVectors())
@@ -793,13 +846,11 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerNode(const char* fileName,
       tensors->SetNumberOfComponents(9);
       tensors->SetNumberOfTuples(numPts);
       tensors->SetName(description);
+
+      UndefPartialHelper helper(linePtr, this);
       for (int i = 0; i < 9; i++)
       {
-        for (int j = 0; j < numPts; j++)
-        {
-          this->ReadNextDataLine(linePtr);
-          tensors->InsertComponent(j, i, std::stof(line));
-        }
+        helper.ReadArray(tensors, 9, i, this);
       }
       output->GetPointData()->AddArray(tensors);
     }
@@ -844,16 +895,13 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
     {
       tensors = vtkFloatArray::New();
       this->ReadNextDataLine(line); // "coordinates" or "block"
-      tensors->SetNumberOfTuples(numPts);
       tensors->SetNumberOfComponents(6);
-      tensors->Allocate(numPts * 6);
+      tensors->SetNumberOfTuples(numPts);
+
+      UndefPartialHelper helper(line, this);
       for (i = 0; i < 6; i++)
       {
-        for (j = 0; j < numPts; j++)
-        {
-          this->ReadNextDataLine(line);
-          tensors->InsertComponent(j, symmTensorOrder[i], atof(line));
-        }
+        helper.ReadArray(tensors, 6, i, this);
       }
       tensors->SetName(description);
       output->GetPointData()->AddArray(tensors);
@@ -912,25 +960,21 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char
         scalars = (vtkFloatArray*)(output->GetCellData()->GetArray(description));
       }
 
-      // need to find out from CellIds how many cells we have of this element
-      // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+      // For element data (aka cell data), "part" may be followed by "[element type]";
+      // if so, we need to read data in chunks rather than whole.
       if (strncmp(line, "block", 5) == 0)
       {
-        for (i = 0; i < numCells; i++)
-        {
-          this->ReadNextDataLine(line);
-          scalar = atof(line);
-          scalars->InsertComponent(i, component, scalar);
-        }
+        // phew! no chunks, simply read all cell data.
+        UndefPartialHelper helper(line, this);
+        helper.ReadArray(scalars, numberOfComponents, component, this);
         lineRead = this->ReadNextDataLine(line);
       }
       else
       {
+        // read one element type at a time.
         while (lineRead && strncmp(line, "part", 4) != 0 && strncmp(line, "END TIME STEP", 13) != 0)
         {
           elementType = this->GetElementType(line);
-          // Check if line contains either 'partial' or 'undef' keyword
-          int partial = this->CheckForUndefOrPartial(line);
           if (elementType == -1)
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
@@ -943,38 +987,26 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char
             return 0;
           }
           idx = this->UnstructuredPartIds->IsId(realId);
-          numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
-          // If the 'partial' keyword was found, we should replace
-          // unspecified coordinate with value specified in the 'undef' section
-          if (partial)
+          auto dstIds = this->GetCellIds(idx, elementType);
+          numCellsPerElement = dstIds->GetNumberOfIds();
+
+          vtkNew<vtkIdList> srcIds;
+          srcIds->SetNumberOfIds(numCellsPerElement);
+          std::iota(srcIds->begin(), srcIds->end(), 0);
+
+          UndefPartialHelper helper(line, this);
+
+          vtkNew<vtkFloatArray> subArray;
+          subArray->SetNumberOfComponents(numberOfComponents);
+          subArray->SetNumberOfTuples(numCellsPerElement);
+          if (component != 0)
           {
-            int j = 0;
-            for (i = 0; i < numCellsPerElement; i++)
-            {
-              if (i == this->UndefPartial->PartialElementTypes[j])
-              {
-                this->ReadNextDataLine(line);
-                scalar = atof(line);
-              }
-              else
-              {
-                scalar = this->UndefPartial->UndefElementTypes;
-                j++; // go on to the next value in the partial list
-              }
-              scalars->InsertComponent(
-                this->GetCellIds(idx, elementType)->GetId(i), component, scalar);
-            }
+            // `scalars` already has some partial values. let's copy them first.
+            subArray->InsertTuples(srcIds, dstIds, scalars);
           }
-          else
-          {
-            for (i = 0; i < numCellsPerElement; i++)
-            {
-              this->ReadNextDataLine(line);
-              scalar = atof(line);
-              scalars->InsertComponent(
-                this->GetCellIds(idx, elementType)->GetId(i), component, scalar);
-            }
-          }
+          helper.ReadArray(subArray, numberOfComponents, component, this);
+          scalars->InsertTuples(dstIds, srcIds, subArray);
+
           lineRead = this->ReadNextDataLine(line);
         } // end while
       }   // end else
@@ -1044,23 +1076,22 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
       vectors->SetNumberOfComponents(3);
       vectors->Allocate(numCells * 3);
 
-      // need to find out from CellIds how many cells we have of this element
-      // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+      // For element data (aka cell data), "part" may be followed by "[element type]";
+      // if so, we need to read data in chunks rather than whole.
       if (strncmp(line, "block", 5) == 0)
       {
+        // phew! no chunks, simply read all cell data.
+        UndefPartialHelper helper(line, this);
+
         for (i = 0; i < 3; i++)
         {
-          for (j = 0; j < numCells; j++)
-          {
-            this->ReadNextDataLine(line);
-            value = atof(line);
-            vectors->InsertComponent(j, i, value);
-          }
+          helper.ReadArray(vectors, 3, i, this);
         }
         lineRead = this->ReadNextDataLine(line);
       }
       else
       {
+        // read one element type at a time.
         while (lineRead && strncmp(line, "part", 4) != 0 && strncmp(line, "END TIME STEP", 13) != 0)
         {
           elementType = this->GetElementType(line);
@@ -1073,16 +1104,24 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
             return 0;
           }
           idx = this->UnstructuredPartIds->IsId(realId);
-          numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
+          auto dstIds = this->GetCellIds(idx, elementType);
+          numCellsPerElement = dstIds->GetNumberOfIds();
+
+          vtkNew<vtkFloatArray> subArray;
+          subArray->SetNumberOfComponents(3);
+          subArray->SetNumberOfTuples(numCellsPerElement);
+
+          UndefPartialHelper helper(line, this);
           for (i = 0; i < 3; i++)
           {
-            for (j = 0; j < numCellsPerElement; j++)
-            {
-              this->ReadNextDataLine(line);
-              value = atof(line);
-              vectors->InsertComponent(this->GetCellIds(idx, elementType)->GetId(j), i, value);
-            }
+            helper.ReadArray(subArray, 3, i, this);
           }
+
+          vtkNew<vtkIdList> srcIds;
+          srcIds->SetNumberOfIds(numCellsPerElement);
+          std::iota(srcIds->begin(), srcIds->end(), 0);
+          vectors->InsertTuples(dstIds, srcIds, subArray);
+
           lineRead = this->ReadNextDataLine(line);
         } // end while
       }   // end else
@@ -1144,23 +1183,21 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
       tensors->SetNumberOfTuples(numCells);
       tensors->SetName(description);
 
-      // need to find out from CellIds how many cells we have of this element
-      // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+      // For element data (aka cell data), "part" may be followed by "[element type]";
+      // if so, we need to read data in chunks rather than whole.
       if (line.compare(0, 5, "block") == 0)
       {
+        // phew! no chunks, simply read all cell data.
+        UndefPartialHelper helper(linePtr, this);
         for (int i = 0; i < 9; i++)
         {
-          for (int j = 0; j < numCells; j++)
-          {
-            this->ReadNextDataLine(linePtr);
-            float value = std::stof(line);
-            tensors->InsertComponent(j, i, value);
-          }
+          helper.ReadArray(tensors, 9, i, this);
         }
         lineRead = this->ReadNextDataLine(linePtr);
       }
       else
       {
+        // read one element type at a time.
         while (
           lineRead && line.compare(0, 4, "part") != 0 && line.compare(0, 13, "END TIME STEP") != 0)
         {
@@ -1173,16 +1210,24 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
             return 0;
           }
           int idx = this->UnstructuredPartIds->IsId(realId);
-          int numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
+          auto dstIds = this->GetCellIds(idx, elementType);
+          auto numCellsPerElement = dstIds->GetNumberOfIds();
+
+          vtkNew<vtkFloatArray> subArray;
+          subArray->SetNumberOfComponents(9);
+          subArray->SetNumberOfTuples(numCellsPerElement);
+
+          UndefPartialHelper helper(linePtr, this);
           for (int i = 0; i < 9; i++)
           {
-            for (int j = 0; j < numCellsPerElement; j++)
-            {
-              this->ReadNextDataLine(linePtr);
-              float value = std::stof(line);
-              tensors->InsertComponent(this->GetCellIds(idx, elementType)->GetId(j), i, value);
-            }
+            helper.ReadArray(subArray, 9, i, this);
           }
+
+          vtkNew<vtkIdList> srcIds;
+          srcIds->SetNumberOfIds(numCellsPerElement);
+          std::iota(srcIds->begin(), srcIds->end(), 0);
+          tensors->InsertTuples(dstIds, srcIds, subArray);
+
           lineRead = this->ReadNextDataLine(linePtr);
         } // end while
       }   // end else
@@ -1241,23 +1286,21 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
       tensors->SetNumberOfComponents(6);
       tensors->Allocate(numCells * 6);
 
-      // need to find out from CellIds how many cells we have of this element
-      // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
+      // For element data (aka cell data), "part" may be followed by "[element type]";
+      // if so, we need to read data in chunks rather than whole.
       if (strncmp(line, "block", 5) == 0)
       {
+        // phew! no chunks, simply read all cell data.
+        UndefPartialHelper helper(line, this);
         for (i = 0; i < 6; i++)
         {
-          for (j = 0; j < numCells; j++)
-          {
-            this->ReadNextDataLine(line);
-            value = atof(line);
-            tensors->InsertComponent(j, symmTensorOrder[i], value);
-          }
+          helper.ReadArray(tensors, 6, i, this);
         }
         lineRead = this->ReadNextDataLine(line);
       }
       else
       {
+        // read one element type at a time.
         while (lineRead && strncmp(line, "part", 4) != 0 && strncmp(line, "END TIME STEP", 13) != 0)
         {
           elementType = this->GetElementType(line);
@@ -1270,17 +1313,24 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
             return 0;
           }
           idx = this->UnstructuredPartIds->IsId(realId);
-          numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
+          auto dstIds = this->GetCellIds(idx, elementType);
+          numCellsPerElement = dstIds->GetNumberOfIds();
+
+          vtkNew<vtkFloatArray> subArray;
+          subArray->SetNumberOfComponents(6);
+          subArray->SetNumberOfTuples(numCellsPerElement);
+
+          UndefPartialHelper helper(line, this);
           for (i = 0; i < 6; i++)
           {
-            for (j = 0; j < numCellsPerElement; j++)
-            {
-              this->ReadNextDataLine(line);
-              value = atof(line);
-              tensors->InsertComponent(
-                this->GetCellIds(idx, elementType)->GetId(j), symmTensorOrder[i], value);
-            }
+            helper.ReadArray(subArray, 6, i, this);
           }
+
+          vtkNew<vtkIdList> srcIds;
+          srcIds->SetNumberOfIds(numCellsPerElement);
+          std::iota(srcIds->begin(), srcIds->end(), 0);
+          tensors->InsertTuples(dstIds, srcIds, subArray);
+
           lineRead = this->ReadNextDataLine(line);
         } // end while
       }   // end else
@@ -2657,82 +2707,6 @@ int vtkEnSightGoldReader::CreateImageDataOutput(
   // reading next line to check for EOF
   lineRead = this->ReadNextDataLine(line);
   return lineRead;
-}
-
-//------------------------------------------------------------------------------
-int vtkEnSightGoldReader::CheckForUndefOrPartial(const char* line)
-{
-  char undefvar[16];
-  // Look for keyword 'partial' or 'undef':
-  int r = sscanf(line, "%*s %15s", undefvar);
-  if (r == 1)
-  {
-    char subline[80];
-    if (strcmp(undefvar, "undef") == 0)
-    {
-      vtkDebugMacro("undef: " << line);
-      this->ReadNextDataLine(subline);
-      double val = atof(subline);
-      switch (this->GetSectionType(line))
-      {
-        case vtkEnSightReader::COORDINATES:
-          this->UndefPartial->UndefCoordinates = val;
-          break;
-        case vtkEnSightReader::BLOCK:
-          this->UndefPartial->UndefBlock = val;
-          break;
-        case vtkEnSightReader::ELEMENT:
-          this->UndefPartial->UndefElementTypes = val;
-          break;
-        default:
-          vtkErrorMacro(<< "Unknown section type: " << subline);
-      }
-      return 0; // meaning 'undef', so no other steps is necesserary
-    }
-    else if (strcmp(undefvar, "partial") == 0)
-    {
-      vtkDebugMacro("partial: " << line);
-      this->ReadNextDataLine(subline);
-      int nLines = atoi(subline);
-      vtkIdType val;
-      int i;
-      switch (this->GetSectionType(line))
-      {
-        case vtkEnSightReader::COORDINATES:
-          for (i = 0; i < nLines; ++i)
-          {
-            this->ReadNextDataLine(subline);
-            val = atoi(subline) - 1; // EnSight start at 1
-            this->UndefPartial->PartialCoordinates.push_back(val);
-          }
-          break;
-        case vtkEnSightReader::BLOCK:
-          for (i = 0; i < nLines; ++i)
-          {
-            this->ReadNextDataLine(subline);
-            val = atoi(subline) - 1; // EnSight start at 1
-            this->UndefPartial->PartialBlock.push_back(val);
-          }
-          break;
-        case vtkEnSightReader::ELEMENT:
-          for (i = 0; i < nLines; ++i)
-          {
-            this->ReadNextDataLine(subline);
-            val = atoi(subline) - 1; // EnSight start at 1
-            this->UndefPartial->PartialElementTypes.push_back(val);
-          }
-          break;
-        default:
-          vtkErrorMacro(<< "Unknown section type: " << subline);
-      }
-      return 1; // meaning 'partial', so other steps are necesserary
-    }
-    else
-    {
-      vtkErrorMacro(<< "Unknown value for undef or partial: " << undefvar);
-    }
-  }
-  return 0;
 }
 
 //------------------------------------------------------------------------------

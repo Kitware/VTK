@@ -156,20 +156,8 @@ protected:
   int CreateImageDataOutput(
     int partId, char line[256], const char* name, vtkMultiBlockDataSet* output);
 
-  /**
-   * Skip next line in file if the 'undef' or 'partial' keyword was
-   * specified after a sectional keyword
-   */
-  int CheckForUndefOrPartial(const char* line);
-
   int NodeIdsListed;
   int ElementIdsListed;
-
-  class UndefPartialInternal;
-  /**
-   * Handle the undef / partial support for EnSight gold
-   */
-  UndefPartialInternal* UndefPartial;
 
   class FileOffsetMapInternal;
   FileOffsetMapInternal* FileOffsets;
@@ -189,6 +177,9 @@ private:
    * applicable.
    */
   bool SkipToTimeStep(const char* fileName, int timeStep);
+
+  class UndefPartialHelper;
+  friend class UndefPartialHelper;
 };
 
 #endif
