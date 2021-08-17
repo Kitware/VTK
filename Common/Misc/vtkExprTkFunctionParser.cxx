@@ -27,7 +27,7 @@
 #include "vtk_exprtk.h"
 #include "vtksys/SystemTools.hxx"
 
-using ResultType = exprtk::results_context<double>::type_store_t::store_type;
+using ExprTkResultType = exprtk::results_context<double>::type_store_t::store_type;
 
 /**
  * Implementation of vtkExprTkTools
@@ -226,9 +226,13 @@ public:
 
     if ((1 == ps_index) &&
       !exprtk::rtl::vecops::helper::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0))
+    {
       return std::numeric_limits<T>::quiet_NaN();
+    }
     else if (exprtk::rtl::vecops::helper::invalid_range(y, r0, r1))
+    {
       return std::numeric_limits<T>::quiet_NaN();
+    }
 
     T result = x[0] * y[1] - x[1] * y[0];
 
@@ -446,60 +450,26 @@ int vtkExprTkFunctionParser::Parse(ParseMode mode)
       FixVectorReturningFunctionOccurrences(VectorReturningFunction::Norm);
   }
 
-  // ExprTk is supposed to support scalars and vector in the format:
-  // if(statement, true-val, false-val)
-  // but there is a bug for the vectors, which will soon be fixed.
-  // Once fixed the following code for the if replacement will be removed.
-  //
-  // check if "if-statement exists in the function and replace it with branches to support vectors
-  // @note this regex works ONLY if statement, true-val, false-val are just variables,
-  // not a sub-expression which includes parenthesis,and commas
-  std::string temp = this->FunctionWithUsedVariableNames;
-  std::regex ifStatementRegex = std::regex("if\\(([^)]+),([^)]+),([^)]+)\\)");
-  std::smatch sm;
-  bool ifStatementFound = std::regex_search(temp, sm, ifStatementRegex);
-  // if the if-statement has been extracted and the statement, true-val, false-val have been
-  // identified
-  if (ifStatementFound && sm.size() == 4)
+  if (mode == ParseMode::DetectReturnType)
   {
-    std::string substring = "if(" + sm[1].str() + "," + sm[2].str() + "," + sm[3].str() + ")";
-    std::string replacement;
-    if (mode == ParseMode::DetectReturnType)
-    {
-      // ExprTK, in order to extract vector and scalar results, and identify the result type,
-      // it requires to "return results" instead of just evaluating an expression
-      replacement =
-        "if(" + sm[1].str() + ") return [" + sm[2].str() + "]; else return [" + sm[3].str() + "];";
-    }
-    else
-    {
-      // Since we know now the return type, we can assign the result to a result vector
-      std::string resultArray = GenerateRandomAlphabeticString(10);
-      this->ExprTkTools->SymbolTable.add_vector(
-        resultArray, this->Result.GetData(), this->Result.GetSize());
-
-      replacement = "if(" + sm[1].str() + ") " + resultArray + " := [" + sm[2].str() + "]; else " +
-        resultArray + " := [" + sm[3].str() + "];";
-    }
-    this->ExpressionString = this->FunctionWithUsedVariableNames;
-    vtksys::SystemTools::ReplaceString(this->ExpressionString, substring, replacement);
+    // ExprTK, in order to extract vector and scalar results, and identify the result type,
+    // it requires to "return results" instead of just evaluating an expression
+    this->ExpressionString = "return [" + this->FunctionWithUsedVariableNames + "];";
   }
   else
   {
-    if (mode == ParseMode::DetectReturnType)
+    // Since we know now the return type, we can assign the result to a result scalar/vector
+    std::string resultName = GenerateRandomAlphabeticString(10);
+    if (this->ResultType == ExprTkResultType::e_scalar)
     {
-      // ExprTK, in order to extract vector and scalar results, and identify the result type,
-      // it requires to "return results" instead of just evaluating an expression
-      this->ExpressionString = "return [" + this->FunctionWithUsedVariableNames + "];";
+      this->ExprTkTools->SymbolTable.add_variable(resultName, this->Result[0]);
+      this->ExpressionString = resultName + " := " + this->FunctionWithUsedVariableNames + ";";
     }
     else
     {
-      // Since we know now the return type, we can assign the result to a result vector
-      std::string resultArray = GenerateRandomAlphabeticString(10);
       this->ExprTkTools->SymbolTable.add_vector(
-        resultArray, this->Result.GetData(), this->Result.GetSize());
-      // Since we know now the return type, we can assign the result to a result vector
-      this->ExpressionString = resultArray + " := [" + this->FunctionWithUsedVariableNames + "];";
+        resultName, this->Result.GetData(), this->Result.GetSize());
+      this->ExpressionString = resultName + " := [" + this->FunctionWithUsedVariableNames + "];";
     }
   }
 
@@ -578,7 +548,7 @@ std::string vtkExprTkFunctionParser::FixVectorReturningFunctionOccurrences(
   while ((pos = function.find(desiredFunction, pos)) != std::string::npos)
   {
     // if we are not in the beginning
-    if (pos - 1 != -1)
+    if (static_cast<int>(pos) - 1 != -1)
     {
       // check the found occurrence if it's part of a variable
       // this check is required because the previous character could be a number
@@ -586,15 +556,20 @@ std::string vtkExprTkFunctionParser::FixVectorReturningFunctionOccurrences(
       bool foundVariableOccurrence = false;
       for (const auto& variable : variableNamesContainingFunction)
       {
-        const size_t sizeDifference = variable.size() - functionWithoutParenthesis.size();
-        // check pos to not exceed the beginning
-        if (pos - sizeDifference >= 0)
+        // check the size of the variable vs the function
+        if (variable.size() >= functionWithoutParenthesis.size())
         {
-          // check if occurrence match variable
-          if (function.substr(pos - sizeDifference, variable.size()) == variable)
+          const int sizeDifference =
+            static_cast<int>(variable.size() - functionWithoutParenthesis.size());
+          // check pos to not exceed the beginning
+          if (static_cast<int>(pos) - sizeDifference >= 0)
           {
-            foundVariableOccurrence = true;
-            break;
+            // check if occurrence match variable
+            if (function.substr(pos - sizeDifference, variable.size()) == variable)
+            {
+              foundVariableOccurrence = true;
+              break;
+            }
           }
         }
       }
@@ -690,7 +665,7 @@ bool vtkExprTkFunctionParser::CheckOldFormatOfDotProductUsage()
   while ((pos = function.find('.', pos)) != std::string::npos)
   {
     // if we are not in the beginning
-    if (pos - 1 != -1)
+    if (static_cast<int>(pos) - 1 != -1)
     {
       // check if left character is digit
       bool leftCharacterIsDigit = false;
@@ -779,7 +754,7 @@ bool vtkExprTkFunctionParser::Evaluate()
 
   switch (this->ResultType)
   {
-    case ResultType::e_scalar:
+    case ExprTkResultType::e_scalar:
       if (std::isnan(this->Result[0]) || std::isinf(this->Result[0]))
       {
         if (this->ReplaceInvalidValues)
@@ -793,7 +768,7 @@ bool vtkExprTkFunctionParser::Evaluate()
         }
       }
       break;
-    case ResultType::e_vector:
+    case ExprTkResultType::e_vector:
       for (int i = 0; i < 3; i++)
       {
         if (std::isnan(this->Result[i]) || std::isinf(this->Result[i]))
@@ -829,7 +804,7 @@ int vtkExprTkFunctionParser::IsScalarResult()
     if (this->Evaluate() == false)
       return 0;
   }
-  return (this->ResultType == ResultType::e_scalar);
+  return (this->ResultType == ExprTkResultType::e_scalar);
 }
 
 //------------------------------------------------------------------------------
@@ -852,7 +827,7 @@ int vtkExprTkFunctionParser::IsVectorResult()
     if (this->Evaluate() == false)
       return 0;
   }
-  return (this->ResultType == ResultType::e_vector);
+  return (this->ResultType == ExprTkResultType::e_vector);
 }
 
 //------------------------------------------------------------------------------
@@ -1180,25 +1155,22 @@ void vtkExprTkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
   for (size_t i = 0; i < this->OriginalScalarVariableNames.size(); i++)
   {
     os << indent << "  " << this->OriginalScalarVariableNames[i] << " / "
-       << this->GetScalarVariableName(static_cast<int>(i)) << ": "
-       << this->GetScalarVariableValue(static_cast<int>(i)) << endl;
+       << this->UsedScalarVariableNames[i] << ": " << (*this->ScalarVariableValues[i]) << endl;
   }
 
   for (size_t i = 0; i < this->OriginalVectorVariableNames.size(); i++)
   {
     os << indent << "  " << this->OriginalVectorVariableNames[i] << " / "
-       << this->GetVectorVariableName(static_cast<int>(i)) << ": ("
-       << this->GetVectorVariableValue(static_cast<int>(i))[0] << ", "
-       << this->GetVectorVariableValue(static_cast<int>(i))[1] << ", "
-       << this->GetVectorVariableValue(static_cast<int>(i))[2] << ")" << endl;
+       << this->UsedVectorVariableNames[i] << ": (" << (*this->VectorVariableValues[i])[0] << ", "
+       << (*this->VectorVariableValues[i])[1] << ", " << (*this->VectorVariableValues[i])[2] << ")"
+       << endl;
   }
 
   if (this->EvaluateMTime.GetMTime() > this->FunctionMTime.GetMTime() &&
     this->EvaluateMTime.GetMTime() > this->VariableMTime.GetMTime() &&
     this->ExprTkTools->Expression.results().count() > 0)
   {
-    auto result = this->ExprTkTools->Expression.results()[0];
-    if (result.type == ResultType::e_scalar)
+    if (this->ResultType == ExprTkResultType::e_scalar)
     {
       os << indent << "ScalarResult: " << this->GetScalarResult() << endl;
       os << indent << "VectorResult: "
