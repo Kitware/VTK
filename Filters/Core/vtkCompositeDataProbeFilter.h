@@ -22,6 +22,8 @@
  * probing at only those locations at which there were no hits when probing
  * earlier datasets. For Hierarchical datasets, this traversal through leaf
  * datasets is done in reverse order of levels i.e. highest level first.
+ * To keep the ability of using locators with a composite input, we use a map that
+ * maps a dataset belonging to the composite input to its FindCell strategy.
  *
  * When dealing with composite datasets, partial arrays are common i.e.
  * data-arrays that are not available in all of the blocks. By default, this
@@ -41,7 +43,14 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkProbeFilter.h"
 
+#include <map> // For std::map
+
 class vtkCompositeDataSet;
+class vtkDataSet;
+class vtkFindCellStrategy;
+template <typename T>
+class vtkSmartPointer;
+
 class VTKFILTERSCORE_EXPORT vtkCompositeDataProbeFilter : public vtkProbeFilter
 {
 public:
@@ -66,6 +75,14 @@ public:
   vtkGetMacro(PassPartialArrays, bool);
   vtkBooleanMacro(PassPartialArrays, bool);
   ///@}
+
+  /**
+   * Set the structure mapping a dataset belonging to the composite input to
+   * its FindCell strategy. If a leaf is not a key of the provided map then no
+   * strategy will be used for this leaf.
+   */
+  void SetFindCellStrategyMap(
+    const std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>>& map);
 
 protected:
   vtkCompositeDataProbeFilter();
@@ -102,6 +119,8 @@ protected:
 private:
   vtkCompositeDataProbeFilter(const vtkCompositeDataProbeFilter&) = delete;
   void operator=(const vtkCompositeDataProbeFilter&) = delete;
+
+  std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>> StrategyMap;
 };
 
 #endif

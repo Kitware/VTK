@@ -205,6 +205,9 @@ protected:
 private:
   vtkProbeLineFilter(const vtkProbeLineFilter&) = delete;
   void operator=(const vtkProbeLineFilter&) = delete;
+
+  struct vtkInternals;
+  vtkInternals* Internal;
 };
 
 #endif
