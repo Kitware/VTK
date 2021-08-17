@@ -66,6 +66,9 @@ int TestIossExodusParitionedFiles(int argc, char* argv[])
     reader->AddFileName(fname.c_str());
   }
 
+  // Let's read only 3 files.
+  reader->SetFileRange(0, 3);
+
   vtkNew<vtkProcessIdScalars> procIdScalars;
   vtkNew<vtkDataSetSurfaceFilter> surface;
   vtkNew<vtkCompositePolyDataMapper2> mapper;
