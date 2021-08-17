@@ -83,7 +83,6 @@ vtkFidesReader::vtkFidesReader()
   this->SetNumberOfOutputPorts(1);
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
-  this->FieldDataArraySelection = vtkDataArraySelection::New();
   this->ConvertToVTK = false;
   this->StreamSteps = false;
   this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
@@ -93,7 +92,6 @@ vtkFidesReader::~vtkFidesReader()
 {
   this->PointDataArraySelection->Delete();
   this->CellDataArraySelection->Delete();
-  this->FieldDataArraySelection->Delete();
 }
 
 int vtkFidesReader::CanReadFile(const std::string& name)
@@ -272,17 +270,13 @@ int vtkFidesReader::RequestInformation(
       fides::keys::FIELDS());
     for (auto& field : fields.Data)
     {
-      if (field.Association == fides::Association::POINTS)
+      if (field.Association == vtkm::cont::Field::Association::POINTS)
       {
         this->PointDataArraySelection->AddArray(field.Name.c_str());
       }
-      else if (field.Association == fides::Association::CELL_SET)
+      else if (field.Association == vtkm::cont::Field::Association::CELL_SET)
       {
         this->CellDataArraySelection->AddArray(field.Name.c_str());
-      }
-      else if (field.Association == fides::Association::FIELD_DATA)
-      {
-        this->FieldDataArraySelection->AddArray(field.Name.c_str());
       }
     }
   }
@@ -384,30 +378,6 @@ vtkDataSet* ConvertDataSet(const vtkm::cont::DataSet& ds)
   return ConvertDataSet(result);
 }
 
-vtkFieldData* GetVTKFieldData(
-  const std::unordered_map<std::string, fides::datamodel::FieldData>& fidesFieldData,
-  vtkm::Id partition)
-{
-  if (fidesFieldData.empty())
-  {
-    return nullptr;
-  }
-
-  vtkFieldData* fieldData = vtkFieldData::New();
-  for (const auto& fd : fidesFieldData)
-  {
-    const std::vector<vtkm::cont::UnknownArrayHandle>& fdBlocks = fd.second.GetData();
-    if (static_cast<size_t>(partition) < fdBlocks.size())
-    {
-      auto& array = fdBlocks[partition];
-      vtkDataArray* temp = fromvtkm::Convert(array, fd.second.GetName().c_str());
-      fieldData->AddArray(temp);
-      temp->Delete();
-    }
-  }
-  return fieldData;
-}
-
 } // end anon namespace
 
 void vtkFidesReader::PrepareNextStep()
@@ -488,15 +458,6 @@ int vtkFidesReader::RequestData(
       arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::CELL_SET);
     }
   }
-  int nFArrays = this->FieldDataArraySelection->GetNumberOfArrays();
-  for (int i = 0; i < nFArrays; i++)
-  {
-    const char* aname = this->FieldDataArraySelection->GetArrayName(i);
-    if (this->FieldDataArraySelection->ArrayIsEnabled(aname))
-    {
-      arraySelection.Data.emplace_back(aname, fides::Association::FIELD_DATA);
-    }
-  }
   selections.Set(fides::keys::FIELDS(), arraySelection);
 
   vtkm::cont::PartitionedDataSet datasets;
@@ -522,24 +483,14 @@ int vtkFidesReader::RequestData(
   vtkm::Id nParts = datasets.GetNumberOfPartitions();
   output->SetNumberOfPartitions(nParts);
 
-  // need to get field data from fides and save it into a vtkFieldData
-  // and add it to the dataset so it can be used in filters.
-  const auto& fidesFieldData = this->Impl->Reader->GetFieldData()->GetAllFields();
-  vtkDebugMacro(<< "Fides FieldData contains " << fidesFieldData.size() << " fields");
   for (vtkm::Id i = 0; i < nParts; i++)
   {
     auto& ds = datasets.GetPartition(i);
-    vtkFieldData* fieldData = GetVTKFieldData(fidesFieldData, i);
     if (this->ConvertToVTK)
     {
       vtkDataSet* vds = ConvertDataSet(ds);
       if (vds)
       {
-        if (fieldData)
-        {
-          vds->SetFieldData(fieldData);
-          fieldData->Delete();
-        }
         output->SetPartition(i, vds);
         vds->Delete();
       }
@@ -548,11 +499,6 @@ int vtkFidesReader::RequestData(
     {
       vtkmDataSet* vds = vtkmDataSet::New();
       vds->SetVtkmDataSet(ds);
-      if (fieldData)
-      {
-        vds->SetFieldData(fieldData);
-        fieldData->Delete();
-      }
       output->SetPartition(i, vds);
       vds->Delete();
     }
