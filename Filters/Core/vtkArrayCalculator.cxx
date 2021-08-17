@@ -1071,7 +1071,7 @@ int vtkArrayCalculator::GetSelectedScalarComponent(int i)
   return -1;
 }
 
-const vtkTuple<int, 3> vtkArrayCalculator::GetSelectedVectorComponents(int i)
+vtkTuple<int, 3> vtkArrayCalculator::GetSelectedVectorComponents(int i)
 {
   if (i < static_cast<int>(this->VectorArrayNames.size()))
   {
