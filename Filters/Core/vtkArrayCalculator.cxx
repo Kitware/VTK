@@ -194,7 +194,7 @@ public:
       {
         if (currentArray->GetNumberOfComponents() > this->SelectedScalarComponents[i])
         {
-          functionParser->SetScalarVariableValue(this->ScalarVariableNames[i].c_str(),
+          functionParser->SetScalarVariableValue(this->ScalarVariableNames[i],
             currentArray->GetComponent(0, this->SelectedScalarComponents[i]));
         }
         else
@@ -206,7 +206,7 @@ public:
       {
         // Add a dummy value with the variable name. We'll skip it if the variable is
         // actually needed when collecting the arrays needed for evaluation later on.
-        functionParser->SetScalarVariableValue(this->ScalarVariableNames[i].c_str(), 0.0);
+        functionParser->SetScalarVariableValue(this->ScalarVariableNames[i], 0.0);
       }
       else if (this->InFD->GetAbstractArray(this->ScalarArrayNames[i].c_str()) ==
         nullptr) // We ignore string array
@@ -225,7 +225,7 @@ public:
           (currentArray->GetNumberOfComponents() > this->SelectedVectorComponents[i][1]) &&
           (currentArray->GetNumberOfComponents() > this->SelectedVectorComponents[i][2]))
         {
-          functionParser->SetVectorVariableValue(this->VectorVariableNames[i].c_str(),
+          functionParser->SetVectorVariableValue(this->VectorVariableNames[i],
             currentArray->GetComponent(0, this->SelectedVectorComponents[i][0]),
             currentArray->GetComponent(0, this->SelectedVectorComponents[i][1]),
             currentArray->GetComponent(0, this->SelectedVectorComponents[i][2]));
@@ -239,7 +239,7 @@ public:
       {
         // Add a dummy value with the variable name. We'll skip it if the variable is
         // actually needed when collecting the arrays needed for evaluation later on.
-        functionParser->SetVectorVariableValue(this->VectorVariableNames[i].c_str(), 0.0, 0.0, 0.0);
+        functionParser->SetVectorVariableValue(this->VectorVariableNames[i], 0.0, 0.0, 0.0);
       }
       else if (this->InFD->GetAbstractArray(this->VectorArrayNames[i].c_str()) ==
         nullptr) // We ignore string array
@@ -262,8 +262,8 @@ public:
         {
           this->GraphInput->GetPoint(0, pt);
         }
-        functionParser->SetScalarVariableValue(this->CoordinateScalarVariableNames[i].c_str(),
-          pt[this->SelectedCoordinateScalarComponents[i]]);
+        functionParser->SetScalarVariableValue(
+          this->CoordinateScalarVariableNames[i], pt[this->SelectedCoordinateScalarComponents[i]]);
       }
 
       for (size_t i = 0; i < this->CoordinateVectorVariableNames.size(); i++)
@@ -276,7 +276,7 @@ public:
         {
           this->GraphInput->GetPoint(0, pt);
         }
-        functionParser->SetVectorVariableValue(this->CoordinateVectorVariableNames[i].c_str(),
+        functionParser->SetVectorVariableValue(this->CoordinateVectorVariableNames[i],
           pt[this->SelectedCoordinateVectorComponents[i][0]],
           pt[this->SelectedCoordinateVectorComponents[i][1]],
           pt[this->SelectedCoordinateVectorComponents[i][2]]);
@@ -385,7 +385,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
     {
       if (currentArray->GetNumberOfComponents() > this->SelectedScalarComponents[i])
       {
-        functionParser->SetScalarVariableValue(this->ScalarVariableNames[i].c_str(),
+        functionParser->SetScalarVariableValue(this->ScalarVariableNames[i],
           currentArray->GetComponent(0, this->SelectedScalarComponents[i]));
       }
       else
@@ -399,7 +399,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
     {
       // Add a dummy value with the variable name. We'll skip it if the variable is
       // actually needed when collecting the arrays needed for evaluation later on.
-      functionParser->SetScalarVariableValue(this->ScalarVariableNames[i].c_str(), 0.0);
+      functionParser->SetScalarVariableValue(this->ScalarVariableNames[i], 0.0);
     }
     else if (inFD->GetAbstractArray(this->ScalarArrayNames[i].c_str()) ==
       nullptr) // We ignore string array
@@ -419,7 +419,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
         (currentArray->GetNumberOfComponents() > this->SelectedVectorComponents[i][1]) &&
         (currentArray->GetNumberOfComponents() > this->SelectedVectorComponents[i][2]))
       {
-        functionParser->SetVectorVariableValue(this->VectorVariableNames[i].c_str(),
+        functionParser->SetVectorVariableValue(this->VectorVariableNames[i],
           currentArray->GetComponent(0, this->SelectedVectorComponents[i][0]),
           currentArray->GetComponent(0, this->SelectedVectorComponents[i][1]),
           currentArray->GetComponent(0, this->SelectedVectorComponents[i][2]));
@@ -435,7 +435,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
     {
       // Add a dummy value with the variable name. We'll skip it if the variable is
       // actually needed when collecting the arrays needed for evaluation later on.
-      functionParser->SetVectorVariableValue(this->VectorVariableNames[i].c_str(), 0.0, 0.0, 0.0);
+      functionParser->SetVectorVariableValue(this->VectorVariableNames[i], 0.0, 0.0, 0.0);
     }
     else if (inFD->GetAbstractArray(this->VectorArrayNames[i].c_str()) ==
       nullptr) // We ignore string array
@@ -459,8 +459,8 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
       {
         graphInput->GetPoint(0, pt);
       }
-      functionParser->SetScalarVariableValue(this->CoordinateScalarVariableNames[i].c_str(),
-        pt[this->SelectedCoordinateScalarComponents[i]]);
+      functionParser->SetScalarVariableValue(
+        this->CoordinateScalarVariableNames[i], pt[this->SelectedCoordinateScalarComponents[i]]);
     }
 
     for (size_t i = 0; i < this->CoordinateVectorVariableNames.size(); i++)
@@ -473,7 +473,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
       {
         graphInput->GetPoint(0, pt);
       }
-      functionParser->SetVectorVariableValue(this->CoordinateVectorVariableNames[i].c_str(),
+      functionParser->SetVectorVariableValue(this->CoordinateVectorVariableNames[i],
         pt[this->SelectedCoordinateVectorComponents[i][0]],
         pt[this->SelectedCoordinateVectorComponents[i][1]],
         pt[this->SelectedCoordinateVectorComponents[i][2]]);
@@ -575,7 +575,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
 
   for (size_t cc = 0; cc < this->ScalarArrayNames.size(); cc++)
   {
-    int idx = functionParser->GetScalarVariableIndex(this->ScalarVariableNames[cc].c_str());
+    int idx = functionParser->GetScalarVariableIndex(this->ScalarVariableNames[cc]);
     if (idx >= 0)
     {
       bool needed = functionParser->GetScalarVariableNeeded(idx);
@@ -596,7 +596,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
 
   for (size_t cc = 0; cc < this->VectorArrayNames.size(); cc++)
   {
-    int idx = functionParser->GetVectorVariableIndex(this->VectorVariableNames[cc].c_str());
+    int idx = functionParser->GetVectorVariableIndex(this->VectorVariableNames[cc]);
     if (idx >= 0)
     {
       bool needed = functionParser->GetVectorVariableNeeded(idx);
