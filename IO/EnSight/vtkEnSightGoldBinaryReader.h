@@ -267,7 +267,7 @@ private:
     int attributeType, int numComponents, bool measured);
 
   /**
-   * Reads measured data froma variable file.
+   * Reads measured data from a variable file.
    */
   bool ReadMeasureVariableArray(
     const char* description, vtkMultiBlockDataSet* compositeOutput, int numComponents);

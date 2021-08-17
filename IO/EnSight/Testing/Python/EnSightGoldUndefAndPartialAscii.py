@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-
 import math
 import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 reader = vtk.vtkGenericEnSightReader()
-reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/UndefAndPartial/grid_bin.case")
+reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/UndefAndPartialAscii/grid.case")
 reader.ReadAllVariablesOn()
 reader.Update()
 

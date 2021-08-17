@@ -102,7 +102,10 @@ public:
       self->ReadIntArray(&buffer.front(), count);
 
       partialIndices->SetNumberOfIds(count);
-      std::copy(buffer.begin(), buffer.end(), partialIndices->GetPointer(0));
+      std::transform(
+        buffer.begin(), buffer.end(), partialIndices->GetPointer(0), [](vtkIdType val) {
+          return val - 1; /* since ensight indices start with 1*/
+        });
     }
 
     // replace undefined values with "internal undef" which in ParaView is NaN
@@ -1400,7 +1403,7 @@ bool vtkEnSightGoldBinaryReader::OpenVariableFile(const char* fileName, const ch
       sfilename += "/";
     }
     sfilename += fileName;
-    vtkDebugMacro("full path to scalar per node file: " << sfilename.c_str());
+    vtkDebugMacro("full path to variable (" << type << ") file: " << sfilename.c_str());
   }
   else
   {
