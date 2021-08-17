@@ -38,6 +38,17 @@
  * vtkGeometryFilter will delegate to vtkDataSetSurfaceFilter when it
  * encounters nonlinear cells.)
  *
+ * @section FastMode Fast Mode
+ *
+ * vtkDataSetSurfaceFilter is sometimes used to simply render a 3D
+ * dataset. In which case we only are concerned about an approximate
+ * representation of the data and not necessarily the true exterior surface. In
+ * that case, simply set the FastMode flag to true.
+ *
+ * Currently FastMode is used when extracting surface from a structured dataset
+ * or when `Delegation` is true. When Delegation is true, the flag is passed on
+ * to `vtkGeometryFilter` (see `vtkGeometryFilter:SetFastMode`).
+ *
  * @warning
  * At one time, vtkDataSetSurfaceFilter was a faster version of
  * vtkGeometryFilter when processing unstructured grids, however
@@ -155,6 +166,18 @@ public:
 
   ///@{
   /**
+   * Turn on/off fast mode execution. If enabled, fast mode typically runs
+   * much faster (2-3x) than the standard algorithm, however the output is an
+   * approximation to the correct result. Also, note that the FastMode
+   * depends on the data member Degree for its execution.
+   */
+  vtkSetMacro(FastMode, bool);
+  vtkGetMacro(FastMode, bool);
+  vtkBooleanMacro(FastMode, bool);
+  ///@}
+
+  ///@{
+  /**
    * If PassThroughCellIds or PassThroughPointIds is on, then these ivars
    * control the name given to the field in which the ids are written into.  If
    * set to nullptr, then vtkOriginalCellIds or vtkOriginalPointIds (the default)
@@ -207,7 +230,8 @@ public:
   virtual int StructuredExecute(
     vtkDataSet* input, vtkPolyData* output, vtkIdType* ext, vtkIdType* wholeExt);
 #ifdef VTK_USE_64BIT_IDS
-  virtual int StructuredExecute(vtkDataSet* input, vtkPolyData* output, int* ext32, int* wholeExt32)
+  virtual int StructuredExecute(
+    vtkDataSet* input, vtkPolyData* output, const int* ext32, const int* wholeExt32)
   {
     vtkIdType ext[6];
     vtkIdType wholeExt[6];
@@ -235,9 +259,6 @@ public:
    * The correct function should be used accordingly to the type of the input.
    */
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
-  virtual int StructuredWithBlankingExecute(vtkStructuredGrid* input, vtkPolyData* output);
-  virtual int StructuredWithBlankingExecute(vtkImageData* input, vtkPolyData* output);
-  virtual int StructuredWithBlankingExecute(vtkRectilinearGrid* input, vtkPolyData* output);
   virtual int UniformGridExecute(vtkDataSet* input, vtkPolyData* output, vtkIdType* ext,
     vtkIdType* wholeExt, bool extractface[6]);
   ///@}
@@ -249,8 +270,8 @@ public:
   int UnstructuredGridExecute(
     vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info);
 #ifdef VTK_USE_64BIT_IDS
-  virtual int UniformGridExecute(
-    vtkDataSet* input, vtkPolyData* output, int* ext32, int* wholeExt32, bool extractface[6])
+  virtual int UniformGridExecute(vtkDataSet* input, vtkPolyData* output, const int* ext32,
+    const int* wholeExt32, bool extractface[6])
   {
     vtkIdType ext[6];
     vtkIdType wholeExt[6];
@@ -357,31 +378,19 @@ protected:
   char* OriginalPointIdsName;
 
   int NonlinearSubdivisionLevel;
-
   vtkTypeBool Delegation;
+  bool FastMode;
 
 private:
   int UnstructuredGridBaseExecute(vtkDataSet* input, vtkPolyData* output);
   int UnstructuredGridExecuteInternal(vtkUnstructuredGridBase* input, vtkPolyData* output,
     bool handleSubdivision, vtkSmartPointer<vtkCellIterator> cellIter);
 
-  /**
-   * Implementation of StructuredWithBlankingExecute.
-   */
-  template <class GridDataSetT>
-  int StructuredWithBlankingExecuteImpl(GridDataSetT* grid, vtkPolyData* output);
-
-  /**
-   * This method multiplexes which surface filter implementation to use in structured data sets
-   * depending on the presence of blanking or not.
-   */
-  template <class GridDataSetT>
-  int StructuredDataSetExecute(vtkDataSet* input, vtkPolyData* output, vtkIdType* wholeExt);
+  int StructuredExecuteNoBlanking(
+    vtkDataSet* input, vtkPolyData* output, vtkIdType* ext, vtkIdType* wholeExt);
 
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&) = delete;
   void operator=(const vtkDataSetSurfaceFilter&) = delete;
 };
-
-#include "vtkDataSetSurfaceFilter.txx" // for templated implementations
 
 #endif

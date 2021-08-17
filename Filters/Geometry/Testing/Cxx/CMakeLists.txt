@@ -1,10 +1,11 @@
 vtk_add_test_cxx(vtkFiltersGeometryCxxTests tests
-  TestExtractSurfaceNonLinearSubdivision.cxx
+  TestDataSetRegionSurfaceFilter.cxx
   TestDataSetSurfaceFieldData.cxx,NO_VALID
   TestDataSetSurfaceFilterQuadraticTetsGhostCells.cxx,NO_VALID
   TestDataSetSurfaceFilterWith1DGrids.cxx,NO_VALID
-  TestDataSetRegionSurfaceFilter.cxx
+  TestDataSetSurfaceFilterWithBlankedImageData.cxx
   TestExplicitStructuredGridSurfaceFilter.cxx
+  TestExtractSurfaceNonLinearSubdivision.cxx
   TestImageDataToUniformGrid.cxx,NO_VALID
   TestLinearToQuadraticCellsFilter.cxx
   TestProjectSphereFilter.cxx,NO_VALID
