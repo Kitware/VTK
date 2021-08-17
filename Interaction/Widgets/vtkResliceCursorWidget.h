@@ -119,6 +119,8 @@ protected:
   // These are the callbacks for this widget
   static void SelectAction(vtkAbstractWidget*);
   static void RotateAction(vtkAbstractWidget*);
+  static void TranslateAction(vtkAbstractWidget*);
+  static void EndTranslateAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
   static void ResizeThicknessAction(vtkAbstractWidget*);
   static void EndResizeThicknessAction(vtkAbstractWidget*);

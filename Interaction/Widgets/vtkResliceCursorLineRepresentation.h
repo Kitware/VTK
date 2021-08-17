@@ -104,6 +104,13 @@ public:
    */
   virtual void SetUserMatrix(vtkMatrix4x4* matrix);
 
+  /**
+   * Set this representation in Translation mode (axis cannot be rotated, only translated).
+   */
+  vtkGetMacro(TranslationMode, bool);
+  vtkSetMacro(TranslationMode, bool);
+  vtkBooleanMacro(TranslationMode, bool);
+
 protected:
   vtkResliceCursorLineRepresentation();
   ~vtkResliceCursorLineRepresentation() override;
@@ -111,6 +118,7 @@ protected:
   vtkResliceCursorPolyDataAlgorithm* GetCursorAlgorithm() override;
 
   double RotateAxis(double evenPos[2], int axis);
+  void TranslateAxis(double evenPos[2], int axis);
 
   void RotateAxis(int axis, double angle);
 
@@ -132,6 +140,8 @@ protected:
   vtkMatrix4x4* MatrixReslice;
   vtkMatrix4x4* MatrixView;
   vtkMatrix4x4* MatrixReslicedView;
+
+  bool TranslationMode;
 
 private:
   vtkResliceCursorLineRepresentation(const vtkResliceCursorLineRepresentation&) = delete;

@@ -117,6 +117,7 @@ public:
     None = 0,
     PanAndRotate,
     RotateBothAxes,
+    TranslateSingleAxis,
     ResizeThickness,
     WindowLevelling
   };

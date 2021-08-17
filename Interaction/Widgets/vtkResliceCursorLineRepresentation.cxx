@@ -61,6 +61,8 @@ vtkResliceCursorLineRepresentation::vtkResliceCursorLineRepresentation()
   this->MatrixReslice = vtkMatrix4x4::New();
   this->MatrixView = vtkMatrix4x4::New();
   this->MatrixReslicedView = vtkMatrix4x4::New();
+
+  this->TranslationMode = false;
 }
 
 //------------------------------------------------------------------------------
@@ -244,16 +246,50 @@ void vtkResliceCursorLineRepresentation::WidgetInteraction(double e[2])
 
   // 4. Rotation of both axes
 
-  if ((this->InteractionState == OnAxis2 || this->InteractionState == OnAxis1) && this->Modifier)
+  if ((this->InteractionState == OnAxis2 || this->InteractionState == OnAxis1) && this->Modifier &&
+    !this->TranslationMode)
   {
-    // Rotate both by the same angle
     const double angle =
       this->RotateAxis(e, this->ResliceCursorActor->GetCursorAlgorithm()->GetPlaneAxis1());
     this->RotateAxis(this->ResliceCursorActor->GetCursorAlgorithm()->GetPlaneAxis2(), angle);
   }
 
+  // 5. Translation of axis 1
+  if (this->InteractionState == OnAxis1 && this->Modifier && this->TranslationMode)
+  {
+    this->TranslateAxis(e, this->GetResliceCursorActor()->GetCursorAlgorithm()->GetPlaneAxis1());
+  }
+
+  // 6. Translation of axis 1
+  if (this->InteractionState == OnAxis2 && this->Modifier && this->TranslationMode)
+  {
+    this->TranslateAxis(e, this->GetResliceCursorActor()->GetCursorAlgorithm()->GetPlaneAxis2());
+  }
+
   this->LastEventPosition[0] = e[0];
   this->LastEventPosition[1] = e[1];
+}
+
+//------------------------------------------------------------------------------
+void vtkResliceCursorLineRepresentation::TranslateAxis(double e[2], int axis)
+{
+  // Intersect with the viewing vector. We will use this point and the
+  // start event point to compute an offset vector to translate the
+  // center by.
+
+  double intersectionPos[3], newCenter[3], move_value[3], currentPlaneNormal[3];
+  this->Picker->Pick(e, intersectionPos, this->Renderer);
+
+  // Offset the center by this vector.
+  vtkSmartPointer<vtkPlane> normalPlane = this->GetResliceCursor()->GetPlane(axis);
+  normalPlane->GetNormal(currentPlaneNormal);
+  vtkMath::Subtract(intersectionPos, this->StartCenterPosition, move_value);
+  for (int i = 0; i < 3; i++)
+  {
+    newCenter[i] = this->StartCenterPosition[i] +
+      (currentPlaneNormal[i] * vtkMath::Dot(currentPlaneNormal, move_value));
+  }
+  this->GetResliceCursor()->SetCenter(newCenter);
 }
 
 //------------------------------------------------------------------------------
