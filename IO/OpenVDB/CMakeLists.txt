@@ -10,8 +10,8 @@ find_package(OpenVDB REQUIRED)
 set(classes
   vtkOpenVDBWriter)
 
-vtk_module_add_module(VTK::OpenVDB
+vtk_module_add_module(VTK::IOOpenVDB
   CLASSES ${classes})
-vtk_module_link(VTK::OpenVDB
+vtk_module_link(VTK::IOOpenVDB
   PRIVATE
     OpenVDB::openvdb)
