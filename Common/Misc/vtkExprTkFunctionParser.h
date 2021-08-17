@@ -180,7 +180,7 @@ public:
   /**
    * Get scalar variable index or -1 if not found
    */
-  int GetScalarVariableIndex(const char* name);
+  int GetScalarVariableIndex(const std::string& name);
 
   /**
    * Get the number of vector variables.
@@ -193,7 +193,7 @@ public:
   /**
    * Get scalar variable index or -1 if not found
    */
-  int GetVectorVariableIndex(const char* name);
+  int GetVectorVariableIndex(const std::string& name);
 
   /**
    * Get the ith scalar variable name.
@@ -212,7 +212,7 @@ public:
    * or IsScalarResult() or similar method before calling this.
    */
   bool GetScalarVariableNeeded(int i);
-  bool GetScalarVariableNeeded(const char* variableName);
+  bool GetScalarVariableNeeded(const std::string& variableName);
   ///@}
 
   ///@{
@@ -222,7 +222,7 @@ public:
    * or IsVectorResult() or similar method before calling this.
    */
   bool GetVectorVariableNeeded(int i);
-  bool GetVectorVariableNeeded(const char* variableName);
+  bool GetVectorVariableNeeded(const std::string& variableName);
   ///@}
 
   /**
