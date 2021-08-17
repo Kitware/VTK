@@ -41,6 +41,9 @@
  * `vtkIossReader::AddFileName`. Then too, if `ScanForRelatedFiles` is `true`,
  * the reader will search for related files for each of the files specified.
  *
+ * Additionally, `FileRange` and `FileStride` may be used to limit to reading a
+ * subset of files.
+ *
  * @section SelectingBlocksSets Selecting blocks and sets to read
  *
  * An Ioss file comprises of blocks and sets of various types. These are
@@ -215,6 +218,26 @@ public:
   void SetScanForRelatedFiles(bool value);
   vtkGetMacro(ScanForRelatedFiles, bool);
   vtkBooleanMacro(ScanForRelatedFiles, bool);
+  ///@}
+
+  ///@{
+  /**
+   * This provides a mechanism to limit to reading to certain files in a
+   * spatially partitioned file-series. To just specific subset of files, one can
+   * always simply specify those files using `AddFileName` and then set
+   * `ScanForRelatedFiles` to false. Another way is to let the reader scan for all
+   * related files and then use `FileRange` and `FileStride` to limit which
+   * files are read.
+   *
+   * If the range is invalid, i.e. `FileRange[0] >= FileRange[1]`, it's assumed
+   * that no file-range overrides have been specified and both FileRange and
+   * FileStride will be ignored. When valid, only the chosen subset of files
+   * will be processed.
+   */
+  vtkSetVector2Macro(FileRange, int);
+  vtkGetVector2Macro(FileRange, int);
+  vtkSetClampMacro(FileStride, int, 1, VTK_INT_MAX);
+  vtkGetMacro(FileStride, int);
   ///@}
 
   ///@{
@@ -476,6 +499,8 @@ private:
   bool ReadQAAndInformationRecords;
   char* DatabaseTypeOverride;
   int AssemblyTag;
+  int FileRange[2];
+  int FileStride;
 
   class vtkInternals;
   vtkInternals* Internals;

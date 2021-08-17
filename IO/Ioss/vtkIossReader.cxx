@@ -82,6 +82,11 @@ struct DatabaseParitionInfo
 {
   int ProcessCount = 0;
   std::set<int> Ranks;
+
+  bool operator==(const DatabaseParitionInfo& other) const
+  {
+    return this->ProcessCount == other.ProcessCount && this->Ranks == other.Ranks;
+  }
 };
 
 // Opaque handle used to identify a specific Region
@@ -182,7 +187,9 @@ class vtkIossReader::vtkInternals
   // it's okay to instantiate this multiple times.
   Ioss::Init::Initializer io;
 
-  std::map<std::string, DatabaseParitionInfo> DatabaseNames;
+  using DatabaseNamesType = std::map<std::string, DatabaseParitionInfo>;
+  DatabaseNamesType UnfilteredDatabaseNames;
+  DatabaseNamesType DatabaseNames;
   vtkTimeStamp DatabaseNamesMTime;
 
   std::map<std::string, std::set<double>> DatabaseTimes;
@@ -571,6 +578,12 @@ private:
   ///@}
 
   bool BuildAssembly(Ioss::Region* region, vtkDataAssembly* assembly, int root, bool add_leaves);
+
+  /**
+   * Generate a subset based the readers current settings for FileRange and
+   * FileStride.
+   */
+  DatabaseNamesType GenerateSubset(const DatabaseNamesType& databases, vtkIossReader* self);
 };
 
 //----------------------------------------------------------------------------
@@ -628,6 +641,16 @@ bool vtkIossReader::vtkInternals::UpdateDatabaseNames(vtkIossReader* self)
 {
   if (this->DatabaseNamesMTime > this->FileNamesMTime)
   {
+    // we may still need filtering if MTime changed, so check that.
+    if (self->GetMTime() > this->DatabaseNamesMTime)
+    {
+      auto subset = this->GenerateSubset(this->UnfilteredDatabaseNames, self);
+      if (this->DatabaseNames != subset)
+      {
+        this->DatabaseNames = std::move(subset);
+        this->DatabaseNamesMTime.Modified();
+      }
+    }
     return (!this->DatabaseNames.empty());
   }
 
@@ -671,7 +694,7 @@ bool vtkIossReader::vtkInternals::UpdateDatabaseNames(vtkIossReader* self)
   vtksys::RegularExpression regEx(R"(^(.*)\.([0-9]+)\.([0-9]+)$)");
   // clang-format on
 
-  decltype(this->DatabaseNames) databases;
+  DatabaseNamesType databases;
   for (auto& fname : filenames)
   {
     if (regEx.find(fname))
@@ -702,15 +725,15 @@ bool vtkIossReader::vtkInternals::UpdateDatabaseNames(vtkIossReader* self)
     }
   }
 
-  this->DatabaseNames.swap(databases);
-  this->DatabaseNamesMTime.Modified();
+  this->UnfilteredDatabaseNames.swap(databases);
 
   if (vtkLogger::GetCurrentVerbosityCutoff() >= vtkLogger::VERBOSITY_TRACE)
   {
     // let's log.
-    vtkLogF(TRACE, "Found Ioss databases (%d)", static_cast<int>(this->DatabaseNames.size()));
+    vtkLogF(
+      TRACE, "Found Ioss databases (%d)", static_cast<int>(this->UnfilteredDatabaseNames.size()));
     std::ostringstream str;
-    for (auto& pair : this->DatabaseNames)
+    for (const auto& pair : this->UnfilteredDatabaseNames)
     {
       if (pair.second.ProcessCount > 0)
       {
@@ -731,7 +754,63 @@ bool vtkIossReader::vtkInternals::UpdateDatabaseNames(vtkIossReader* self)
       }
     }
   }
+
+  this->DatabaseNames = this->GenerateSubset(this->UnfilteredDatabaseNames, self);
+  this->DatabaseNamesMTime.Modified();
   return !this->DatabaseNames.empty();
+}
+
+//----------------------------------------------------------------------------
+vtkIossReader::vtkInternals::DatabaseNamesType vtkIossReader::vtkInternals::GenerateSubset(
+  const vtkIossReader::vtkInternals::DatabaseNamesType& databases, vtkIossReader* self)
+{
+  int fileRange[2];
+  self->GetFileRange(fileRange);
+  const int stride = self->GetFileStride();
+  if (fileRange[0] >= fileRange[1] || stride < 1 || databases.empty())
+  {
+    return databases;
+  }
+
+  // We need to filter filenames.
+  DatabaseNamesType result = databases;
+  for (auto& pair : result)
+  {
+    auto& dbaseInfo = pair.second;
+    if (dbaseInfo.ProcessCount <= 0)
+    {
+      continue;
+    }
+
+    // remove all "ranks" not fitting the requested range.
+    for (auto iter = dbaseInfo.Ranks.begin(); iter != dbaseInfo.Ranks.end();)
+    {
+      const int rank = (*iter);
+      if ((rank < fileRange[0] || rank >= fileRange[1] || (rank - fileRange[0]) % stride != 0))
+      {
+        iter = dbaseInfo.Ranks.erase(iter);
+      }
+      else
+      {
+        ++iter;
+      }
+    }
+  }
+
+  // remove any databases which have no ranks to be read in.
+  for (auto iter = result.begin(); iter != result.end();)
+  {
+    auto& dbaseInfo = iter->second;
+    if (dbaseInfo.ProcessCount > 0 && dbaseInfo.Ranks.size() == 0)
+    {
+      iter = result.erase(iter);
+    }
+    else
+    {
+      ++iter;
+    }
+  }
+  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -2038,8 +2117,24 @@ bool vtkIossReader::vtkInternals::GenerateFileId(
   vtkNew<vtkIntArray> file_ids;
   file_ids->SetName("file_id");
   file_ids->SetNumberOfTuples(grid->GetNumberOfCells());
-  std::fill(
-    file_ids->GetPointer(0), file_ids->GetPointer(0) + grid->GetNumberOfCells(), handle.second);
+
+  int fileId = handle.second;
+
+  // from index get original file rank number, if possible and use that.
+  try
+  {
+    const auto& dbaseInfo = this->DatabaseNames.at(handle.first);
+    if (dbaseInfo.ProcessCount != 0)
+    {
+      assert(fileId >= 0 && fileId < dbaseInfo.Ranks.size());
+      fileId = *std::next(dbaseInfo.Ranks.begin(), fileId);
+    }
+  }
+  catch (std::out_of_range&)
+  {
+  }
+
+  std::fill(file_ids->GetPointer(0), file_ids->GetPointer(0) + grid->GetNumberOfCells(), fileId);
   cache.Insert(group_entity, "__vtk_file_ids__", file_ids.GetPointer());
   grid->GetCellData()->AddArray(file_ids);
   return true;
@@ -2211,6 +2306,8 @@ vtkIossReader::vtkIossReader()
   , ReadQAAndInformationRecords(true)
   , DatabaseTypeOverride(nullptr)
   , AssemblyTag(0)
+  , FileRange{ 0, -1 }
+  , FileStride{ 1 }
   , Internals(new vtkIossReader::vtkInternals(this))
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
@@ -2769,12 +2866,15 @@ void vtkIossReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "GenerateFileId: " << this->GenerateFileId << endl;
   os << indent << "ScanForRelatedFiles: " << this->ScanForRelatedFiles << endl;
+  os << indent << "FileRange: " << this->FileRange[0] << ", " << this->FileRange[1] << endl;
+  os << indent << "FileStride: " << this->FileStride << endl;
   os << indent << "ReadIds: " << this->ReadIds << endl;
   os << indent << "RemoveUnusedPoints: " << this->RemoveUnusedPoints << endl;
   os << indent << "ApplyDisplacements: " << this->ApplyDisplacements << endl;
   os << indent << "ReadGlobalFields: " << this->ReadGlobalFields << endl;
   os << indent << "ReadQAAndInformationRecords: " << this->ReadQAAndInformationRecords << endl;
   os << indent << "DatabaseTypeOverride: " << this->DatabaseTypeOverride << endl;
+
   os << indent << "NodeBlockSelection: " << endl;
   this->GetNodeBlockSelection()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "EdgeBlockSelection: " << endl;
