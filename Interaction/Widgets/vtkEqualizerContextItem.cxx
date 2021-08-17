@@ -212,7 +212,7 @@ public:
     // 2.Try to find nearest line
     if (this->TakenPoint == -1)
     {
-      auto itPrev = this->Points.cbegin();
+      auto itPrev = this->Points.begin();
       auto itCur = itPrev;
 
       for (++itCur; itCur != this->Points.cend(); ++itCur)
@@ -240,7 +240,7 @@ public:
       return false;
     }
 
-    for (auto it = this->Points.cbegin() + 1; it != this->Points.cend() - 1; ++it)
+    for (auto it = this->Points.begin() + 1; it != this->Points.end() - 1; ++it)
     {
       auto point = transform->MapToScene(*it);
       if (equalizer::isNear(posScreen, point, equalizer::EqualizerPoint::radiusInteractive))
