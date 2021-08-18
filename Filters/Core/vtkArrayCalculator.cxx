@@ -108,15 +108,15 @@ private:
   int AttributeType;
 
   char* Function;
+  vtkTypeBool ReplaceInvalidValues;
+  double ReplacementValue;
+  bool IgnoreMissingArrays;
   std::vector<std::string> ScalarArrayNames;
   std::vector<std::string> VectorArrayNames;
   std::vector<std::string> ScalarVariableNames;
   std::vector<std::string> VectorVariableNames;
   std::vector<int> SelectedScalarComponents;
   std::vector<vtkTuple<int, 3>> SelectedVectorComponents;
-  vtkTypeBool ReplaceInvalidValues;
-  double ReplacementValue;
-  bool IgnoreMissingArrays;
   std::vector<std::string> CoordinateScalarVariableNames;
   std::vector<std::string> CoordinateVectorVariableNames;
   std::vector<int> SelectedCoordinateScalarComponents;
@@ -134,11 +134,12 @@ private:
 public:
   explicit vtkArrayCalculatorFunctor(vtkDataSet* dsInput, vtkGraph* graphInput,
     vtkDataSetAttributes* inFD, int attributeType, char* function, vtkTypeBool replaceInvalidValues,
-    double replacementValue, const std::vector<std::string>& scalarArrayNames,
-    const std::vector<int>& selectedScalarComponents,
-    const std::vector<std::string>& scalarVariableNames, bool ignoreMissingArrays,
+    double replacementValue, bool ignoreMissingArrays,
+    const std::vector<std::string>& scalarArrayNames,
     const std::vector<std::string>& vectorArrayNames,
+    const std::vector<std::string>& scalarVariableNames,
     const std::vector<std::string>& vectorVariableNames,
+    const std::vector<int>& selectedScalarComponents,
     std::vector<vtkTuple<int, 3>> selectedVectorComponents,
     const std::vector<std::string>& coordinateScalarVariableNames,
     const std::vector<std::string>& coordinateVectorVariableNames,
@@ -154,12 +155,12 @@ public:
     , Function(function)
     , ReplaceInvalidValues(replaceInvalidValues)
     , ReplacementValue(replacementValue)
-    , ScalarArrayNames(scalarArrayNames)
-    , SelectedScalarComponents(selectedScalarComponents)
-    , ScalarVariableNames(scalarVariableNames)
     , IgnoreMissingArrays(ignoreMissingArrays)
+    , ScalarArrayNames(scalarArrayNames)
     , VectorArrayNames(vectorArrayNames)
+    , ScalarVariableNames(scalarVariableNames)
     , VectorVariableNames(vectorVariableNames)
+    , SelectedScalarComponents(selectedScalarComponents)
     , SelectedVectorComponents(selectedVectorComponents)
     , CoordinateScalarVariableNames(coordinateScalarVariableNames)
     , CoordinateVectorVariableNames(coordinateVectorVariableNames)
@@ -618,8 +619,8 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
   // Execute functor for all tuples
   vtkArrayCalculatorFunctor<TFunctionParser> arrayCalculatorFunctor(dsInput, graphInput, inFD,
     attributeType, this->Function, this->ReplaceInvalidValues, this->ReplacementValue,
-    this->ScalarArrayNames, this->SelectedScalarComponents, this->ScalarVariableNames,
-    this->IgnoreMissingArrays, this->VectorArrayNames, this->VectorVariableNames,
+    this->IgnoreMissingArrays, this->ScalarArrayNames, this->VectorArrayNames,
+    this->ScalarVariableNames, this->VectorVariableNames, this->SelectedScalarComponents,
     this->SelectedVectorComponents, this->CoordinateScalarVariableNames,
     this->CoordinateVectorVariableNames, this->SelectedCoordinateScalarComponents,
     this->SelectedCoordinateVectorComponents, scalarArrays, vectorArrays, scalarArrayIndices,
