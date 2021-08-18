@@ -1269,7 +1269,7 @@ std::string vtkExprTkFunctionParser::SanitizeName(const char* name)
 }
 
 //------------------------------------------------------------------------------
-int vtkExprTkFunctionParser::GetScalarVariableIndex(const char* inVariableName)
+int vtkExprTkFunctionParser::GetScalarVariableIndex(const std::string& inVariableName)
 {
   for (size_t i = 0; i < this->OriginalScalarVariableNames.size(); ++i)
   {
@@ -1292,11 +1292,11 @@ bool vtkExprTkFunctionParser::GetScalarVariableNeeded(int i)
 }
 
 //------------------------------------------------------------------------------
-bool vtkExprTkFunctionParser::GetScalarVariableNeeded(const char* inVariableName)
+bool vtkExprTkFunctionParser::GetScalarVariableNeeded(const std::string& inVariableName)
 {
   std::vector<std::string>::const_iterator iter =
     std::find(this->OriginalScalarVariableNames.begin(), this->OriginalScalarVariableNames.end(),
-      std::string(inVariableName));
+      inVariableName);
   if (iter != this->OriginalScalarVariableNames.end())
   {
     return this->GetScalarVariableNeeded(
@@ -1311,7 +1311,7 @@ bool vtkExprTkFunctionParser::GetScalarVariableNeeded(const char* inVariableName
 }
 
 //------------------------------------------------------------------------------
-int vtkExprTkFunctionParser::GetVectorVariableIndex(const char* inVariableName)
+int vtkExprTkFunctionParser::GetVectorVariableIndex(const std::string& inVariableName)
 {
   for (size_t i = 0; i < this->OriginalVectorVariableNames.size(); i++)
   {
@@ -1334,11 +1334,11 @@ bool vtkExprTkFunctionParser::GetVectorVariableNeeded(int i)
 }
 
 //------------------------------------------------------------------------------
-bool vtkExprTkFunctionParser::GetVectorVariableNeeded(const char* inVariableName)
+bool vtkExprTkFunctionParser::GetVectorVariableNeeded(const std::string& inVariableName)
 {
   std::vector<std::string>::const_iterator iter =
     std::find(this->OriginalVectorVariableNames.begin(), this->OriginalVectorVariableNames.end(),
-      std::string(inVariableName));
+      inVariableName);
   if (iter != this->OriginalVectorVariableNames.end())
   {
     return this->GetVectorVariableNeeded(

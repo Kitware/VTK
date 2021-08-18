@@ -256,7 +256,7 @@ public:
   {
     return this->SelectedVectorComponents;
   }
-  const vtkTuple<int, 3> GetSelectedVectorComponents(int i);
+  vtkTuple<int, 3> GetSelectedVectorComponents(int i);
   int GetNumberOfScalarArrays() { return static_cast<int>(this->ScalarArrayNames.size()); }
   int GetNumberOfVectorArrays() { return static_cast<int>(this->VectorArrayNames.size()); }
   ///@}
