@@ -590,18 +590,21 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
       {
         partId = this->UnstructuredPartIds->GetId(i);
         output = static_cast<vtkDataSet*>(this->GetDataSetFromBlock(compositeOutput, partId));
-        if (component == 0)
+        if (output)
         {
-          scalars->SetName(description);
-          output->GetPointData()->AddArray(scalars);
-          if (!output->GetPointData()->GetScalars())
+          if (component == 0)
           {
-            output->GetPointData()->SetScalars(scalars);
+            scalars->SetName(description);
+            output->GetPointData()->AddArray(scalars);
+            if (!output->GetPointData()->GetScalars())
+            {
+              output->GetPointData()->SetScalars(scalars);
+            }
           }
-        }
-        else
-        {
-          output->GetPointData()->AddArray(scalars);
+          else
+          {
+            output->GetPointData()->AddArray(scalars);
+          }
         }
       }
     }
@@ -610,10 +613,13 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
       scalars->SetName(description);
       output = static_cast<vtkDataSet*>(
         this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts));
-      output->GetPointData()->AddArray(scalars);
-      if (!output->GetPointData()->GetScalars())
+      if (output)
       {
-        output->GetPointData()->SetScalars(scalars);
+        output->GetPointData()->AddArray(scalars);
+        if (!output->GetPointData()->GetScalars())
+        {
+          output->GetPointData()->SetScalars(scalars);
+        }
       }
     }
     if (allocatedScalars)
@@ -632,6 +638,13 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
     int realId = this->InsertNewPartId(partId);
 
     output = static_cast<vtkDataSet*>(this->GetDataSetFromBlock(compositeOutput, realId));
+    if (output == nullptr)
+    {
+      vtkErrorMacro("Could not get output for part " << partId);
+      vtkErrorMacro("Got part from line: " << line);
+      return 0;
+    }
+
     this->ReadNextDataLine(line); // block
     numPts = output->GetNumberOfPoints();
     numLines = numPts / 6;

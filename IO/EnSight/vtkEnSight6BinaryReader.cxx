@@ -1017,18 +1017,21 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(const char* fileName, const char
       {
         partId = this->UnstructuredPartIds->GetId(i);
         output = this->GetDataSetFromBlock(compositeOutput, partId);
-        if (component == 0)
+        if (output)
         {
-          scalars->SetName(description);
-          output->GetPointData()->AddArray(scalars);
-          if (!output->GetPointData()->GetScalars())
+          if (component == 0)
           {
-            output->GetPointData()->SetScalars(scalars);
+            scalars->SetName(description);
+            output->GetPointData()->AddArray(scalars);
+            if (!output->GetPointData()->GetScalars())
+            {
+              output->GetPointData()->SetScalars(scalars);
+            }
           }
-        }
-        else
-        {
-          output->GetPointData()->AddArray(scalars);
+          else
+          {
+            output->GetPointData()->AddArray(scalars);
+          }
         }
       }
     }
@@ -1036,10 +1039,13 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(const char* fileName, const char
     {
       scalars->SetName(description);
       output = this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts);
-      output->GetPointData()->AddArray(scalars);
-      if (!output->GetPointData()->GetScalars())
+      if (output)
       {
-        output->GetPointData()->SetScalars(scalars);
+        output->GetPointData()->AddArray(scalars);
+        if (!output->GetPointData()->GetScalars())
+        {
+          output->GetPointData()->SetScalars(scalars);
+        }
       }
     }
     delete[] scalarsRead;
