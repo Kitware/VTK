@@ -59,20 +59,6 @@ class AddBoundsListOperator : public vtkCommunicator::Operation
 };
 
 //------------------------------------------------------------------------------
-vtkPOutlineFilterInternals::vtkPOutlineFilterInternals()
-{
-  this->Controller = nullptr;
-  this->IsCornerSource = false;
-  this->CornerFactor = 0.2;
-}
-
-//------------------------------------------------------------------------------
-vtkPOutlineFilterInternals::~vtkPOutlineFilterInternals()
-{
-  this->Controller = nullptr;
-}
-
-//------------------------------------------------------------------------------
 void vtkPOutlineFilterInternals::SetController(vtkMultiProcessController* controller)
 {
   this->Controller = controller;
@@ -174,8 +160,6 @@ void vtkPOutlineFilterInternals::CollectCompositeBounds(vtkDataObject* input)
 //------------------------------------------------------------------------------
 int vtkPOutlineFilterInternals::RequestData(vtkDataObjectTree* input, vtkPolyData* output)
 {
-  // Check Output and Input
-
   // Collect local bounds.
   this->CollectCompositeBounds(input);
 
@@ -241,6 +225,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkOverlappingAMR* input, vtkPolyDat
       appender->AddInputData(this->GenerateOutlineGeometry(bounds));
     }
   }
+
   appender->Update();
   output->ShallowCopy(appender->GetOutput());
   return 1;
@@ -278,7 +263,6 @@ int vtkPOutlineFilterInternals::RequestData(vtkDataSet* input, vtkPolyData* outp
 {
   double bounds[6];
   input->GetBounds(bounds);
-
   if (this->Controller->GetNumberOfProcesses() > 1)
   {
     double reduced_bounds[6];
@@ -292,6 +276,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkDataSet* input, vtkPolyData* outp
     }
     memcpy(bounds, reduced_bounds, 6 * sizeof(double));
   }
+
   output->ShallowCopy(this->GenerateOutlineGeometry(bounds));
   return 1;
 }
@@ -315,6 +300,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkGraph* input, vtkPolyData* output
     }
     memcpy(bounds, reduced_bounds, 6 * sizeof(double));
   }
+
   output->ShallowCopy(this->GenerateOutlineGeometry(bounds));
   return 1;
 }
@@ -325,7 +311,6 @@ vtkSmartPointer<vtkPolyData> vtkPOutlineFilterInternals::GenerateOutlineGeometry
   vtkSmartPointer<vtkPolyData> output = nullptr;
   if (vtkMath::AreBoundsInitialized(bounds))
   {
-    // only output in process 0.
     if (this->IsCornerSource)
     {
       vtkNew<vtkOutlineCornerSource> corner;
