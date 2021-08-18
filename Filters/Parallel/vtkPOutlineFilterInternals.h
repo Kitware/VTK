@@ -61,6 +61,7 @@ private:
   int RequestData(vtkGraph* graph, vtkPolyData* output);
 
   void CollectCompositeBounds(vtkDataObject* input);
+  vtkSmartPointer<vtkPolyData> GenerateOutlineGeometry(double bounds[6]);
 
   std::vector<vtkBoundingBox> BoundsList;
   vtkMultiProcessController* Controller;
