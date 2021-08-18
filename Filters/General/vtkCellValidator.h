@@ -103,6 +103,7 @@ class vtkQuadraticWedge;
 class vtkQuadraticPyramid;
 class vtkBiQuadraticQuad;
 class vtkTriQuadraticHexahedron;
+class vtkTriQuadraticPyramid;
 class vtkQuadraticLinearQuad;
 class vtkQuadraticLinearWedge;
 class vtkBiQuadraticQuadraticWedge;
@@ -189,6 +190,7 @@ public:
   static State Check(vtkQuadraticPyramid*, double tolerance);
   static State Check(vtkBiQuadraticQuad*, double tolerance);
   static State Check(vtkTriQuadraticHexahedron*, double tolerance);
+  static State Check(vtkTriQuadraticPyramid*, double tolerance);
   static State Check(vtkQuadraticLinearQuad*, double tolerance);
   static State Check(vtkQuadraticLinearWedge*, double tolerance);
   static State Check(vtkBiQuadraticQuadraticWedge*, double tolerance);
