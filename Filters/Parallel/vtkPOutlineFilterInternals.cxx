@@ -230,11 +230,8 @@ int vtkPOutlineFilterInternals::RequestData(vtkDataObjectTree* input, vtkPolyDat
     }
   }
 
-  if (appender->GetNumberOfInputConnections(0) > 1)
-  {
-    appender->Update();
-    output->ShallowCopy(appender->GetOutput());
-  }
+  appender->Update();
+  output->ShallowCopy(appender->GetOutput());
   return 1;
 }
 
@@ -281,11 +278,8 @@ int vtkPOutlineFilterInternals::RequestData(vtkOverlappingAMR* input, vtkPolyDat
       }
     }
   }
-  if (appender->GetNumberOfInputConnections(0) > 1)
-  {
-    appender->Update();
-    output->ShallowCopy(appender->GetOutput());
-  }
+  appender->Update();
+  output->ShallowCopy(appender->GetOutput());
   return 1;
 }
 
@@ -329,11 +323,9 @@ int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input, vtkPolyDat
       }
     }
   }
-  if (appender->GetNumberOfInputConnections(0) > 1)
-  {
-    appender->Update();
-    output->ShallowCopy(appender->GetOutput());
-  }
+
+  appender->Update();
+  output->ShallowCopy(appender->GetOutput());
   return 1;
 }
 
