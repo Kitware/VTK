@@ -132,7 +132,7 @@ int TestCONVERGECFDReader(int argc, char* argv[])
       "SPARK PLUG ELECTRODE1" };
     int expectedNumPoints[] = { 10095, 4159, 20202, 858, 10 };
     int expectedNumCells[] = { 11763, 3994, 25182, 1080, 7 };
-    for (int i = 0; i < sizeof(expectedNumPoints) / sizeof(int); ++i)
+    for (int i = 0; i < static_cast<int>(sizeof(expectedNumPoints) / sizeof(int)); ++i)
     {
       std::string blockName(
         surfaces->GetMetaData(static_cast<unsigned int>(i))->Get(vtkCompositeDataSet::NAME()));
