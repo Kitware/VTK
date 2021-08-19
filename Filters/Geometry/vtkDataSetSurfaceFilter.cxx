@@ -232,12 +232,6 @@ bool StructuredExecuteWithBlanking(
     const int extent[6] = { inExtent[2 * iAxis], inExtent[2 * iAxis + 1], inExtent[2 * jAxis],
       inExtent[2 * jAxis + 1], inExtent[2 * axis], inExtent[2 * axis + 1] };
 
-    const int dims[3] = {
-      extent[1] - extent[0] + 1,
-      extent[3] - extent[2] + 1,
-      extent[5] - extent[4] + 1,
-    };
-
     // iterate over cells
     for (int i = extent[0]; i < extent[1]; ++i)
     {

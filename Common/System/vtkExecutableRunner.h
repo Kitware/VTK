@@ -37,7 +37,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkExecutableRunner() = default;
-  virtual ~vtkExecutableRunner() = default;
+  ~vtkExecutableRunner() override = default;
 
   /**
    * Execute the command currently set if any.

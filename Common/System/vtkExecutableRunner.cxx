@@ -35,11 +35,6 @@ static inline void rtrim(std::string& s)
     std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(),
     s.end());
 }
-static inline void trim(std::string& s)
-{
-  ltrim(s);
-  rtrim(s);
-}
 
 std::vector<std::string> ParseCommand(std::string command)
 {
