@@ -89,7 +89,7 @@ static inline int sizeofFastQuad(int numPts)
  * blanking. The algorithm, which we call "Shrinking Faces",
  * takes the min and max face along each axis and then for each cell on the
  * face, keep on advancing the cell in the direction of the axis till a visible
- * cell if found and then extracts the face long the chosen axis. For min face,
+ * cell is found and then extracts the face long the chosen axis. For min face,
  * this advancing is done in the positive direction of the axis while it's in
  * reverse for the max face. This works well for generating an outer shell and
  * is quite fast too. However we miss internal faces. So in non-fast mode, we
@@ -97,7 +97,7 @@ static inline int sizeofFastQuad(int numPts)
  * flip-flopping between detecting visible or invisible cells and then picking
  * the appropriate face to extract.
  *
- * This implementation only supports 3D grids for 2D/1D grids, the standard
+ * This implementation only supports 3D grids. For 2D/1D grids, the standard
  * algorithm for extracting surface is adequate.
  *
  * This function returns false if data is not appropriate in which case the
