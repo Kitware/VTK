@@ -29,18 +29,6 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-#include <type_traits>
-
-//----------------------------------------------------------------------------
-namespace
-{
-template <typename EnumT>
-constexpr typename std::underlying_type<EnumT>::type to_underlying(const EnumT& e) noexcept
-{
-  return static_cast<typename std::underlying_type<EnumT>::type>(e);
-}
-}
-
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCameraOrientationWidget);
 
