@@ -495,7 +495,7 @@ protected:
   double UserBounds[4] = { 0., -1., 0., -1. };
   double ValidBounds[4] = { 0., -1., 0., -1. };
 
-  vtkNew<vtkTransform2D> Transform;
+  vtkNew<vtkTransform2D> ControlPointsTransform;
   float ScreenPointRadius = 6.f;
 
   bool DrawPoints = true;
