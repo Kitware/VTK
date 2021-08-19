@@ -801,7 +801,7 @@ vtkIossReader::vtkInternals::DatabaseNamesType vtkIossReader::vtkInternals::Gene
   for (auto iter = result.begin(); iter != result.end();)
   {
     auto& dbaseInfo = iter->second;
-    if (dbaseInfo.ProcessCount > 0 && dbaseInfo.Ranks.size() == 0)
+    if (dbaseInfo.ProcessCount > 0 && dbaseInfo.Ranks.empty())
     {
       iter = result.erase(iter);
     }

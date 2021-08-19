@@ -329,7 +329,7 @@ public:
       {
         vtkGenericWarningMacro(
           "No parcel coordinate array " << name.str() << " dataset available in " << name.str());
-        return 0;
+        return nullptr;
       }
 
       for (hsize_t j = 0; j < parcelLength; ++j)

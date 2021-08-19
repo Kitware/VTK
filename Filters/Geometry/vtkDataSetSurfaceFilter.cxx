@@ -68,7 +68,7 @@
 
 namespace
 {
-static inline int sizeofFastQuad(int numPts)
+inline int sizeofFastQuad(int numPts)
 {
   const int qsize = sizeof(vtkFastGeomQuad);
   const int sizeId = sizeof(vtkIdType);
@@ -301,7 +301,7 @@ bool StructuredExecuteWithBlanking(
   passData(originalCellIds, input->GetCellData(), output->GetCellData(),
     self->GetPassThroughCellIds() ? self->GetOriginalCellIdsName() : nullptr);
   output->Squeeze();
-  return 1;
+  return true;
 }
 
 }
