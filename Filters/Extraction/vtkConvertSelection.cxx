@@ -224,6 +224,15 @@ int vtkConvertSelection::ConvertToBlockSelection(
   for (unsigned int n = 0; n < input->GetNumberOfNodes(); ++n)
   {
     vtkSmartPointer<vtkSelectionNode> inputNode = input->GetNode(n);
+
+    // if node has not items in the selection list, it's a clear indication that
+    // nothing is selected and the node should simply be ignored.
+    if (inputNode->GetSelectionList() == nullptr ||
+      inputNode->GetSelectionList()->GetNumberOfTuples() == 0)
+    {
+      continue;
+    }
+
     if (inputNode->GetContentType() == vtkSelectionNode::GLOBALIDS)
     {
       // global id selection does not have COMPOSITE_INDEX() key, so we convert
@@ -255,11 +264,15 @@ int vtkConvertSelection::ConvertToBlockSelection(
     }
   }
 
-  vtkSmartPointer<vtkUnsignedIntArray> selectionList = vtkSmartPointer<vtkUnsignedIntArray>::New();
-  selectionList->SetNumberOfTuples(static_cast<vtkIdType>(indices.size()));
-  std::set<unsigned int>::iterator siter;
-  vtkIdType index = 0;
-  for (siter = indices.begin(); siter != indices.end(); ++siter, ++index)
+  if (indices.empty())
+  {
+    // nothing to convert, or converted to empty selection.
+    return 1;
+  }
+
+  auto outputNode = vtkSmartPointer<vtkSelectionNode>::New();
+  outputNode->SetFieldType(fieldType);
+  if (this->OutputType == vtkSelectionNode::BLOCKS)
   {
     selectionList->SetValue(index, *siter);
   }
