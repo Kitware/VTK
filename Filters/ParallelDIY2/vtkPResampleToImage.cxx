@@ -19,6 +19,7 @@
 #include "vtkPResampleToImage.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkBoundingBox.h"
 #include "vtkCharArray.h"
 #include "vtkCompositeDataProbeFilter.h"
 #include "vtkCompositeDataSet.h"
@@ -316,28 +317,6 @@ void SetPointsToImage(
   points.Indices.clear(); // reset the points structure to a valid empty state
 }
 
-//------------------------------------------------------------------------------
-inline void ComputeGlobalBounds(
-  diy::mpi::communicator& comm, const double lbounds[6], double gbounds[6])
-{
-  Array<double, 3> localBoundsMin, localBoundsMax;
-  for (std::size_t i = 0; i < 3; ++i)
-  {
-    localBoundsMin[i] = lbounds[2 * i];
-    localBoundsMax[i] = lbounds[2 * i + 1];
-  }
-
-  Array<double, 3> globalBoundsMin, globalBoundsMax;
-  diy::mpi::all_reduce(comm, localBoundsMin, globalBoundsMin, diy::mpi::minimum<double>());
-  diy::mpi::all_reduce(comm, localBoundsMax, globalBoundsMax, diy::mpi::maximum<double>());
-
-  for (std::size_t i = 0; i < 3; ++i)
-  {
-    gbounds[2 * i] = globalBoundsMin[i];
-    gbounds[2 * i + 1] = globalBoundsMax[i];
-  }
-}
-
 inline void GetGlobalFieldMetaData(
   diy::mpi::communicator& comm, vtkDataSetAttributes* data, std::vector<FieldMetaData>* metadata)
 {
@@ -498,7 +477,17 @@ int vtkPResampleToImage::RequestData(
   double samplingBounds[6];
   if (this->UseInputBounds)
   {
-    ComputeGlobalBounds(comm, localBounds, samplingBounds);
+    vtkBoundingBox bbox(localBounds);
+    vtkDIYUtilities::AllReduce(comm, bbox);
+
+    // To avoid accidentally sampling outside the dataset due to floating point roundoff,
+    // nudge the bounds inward by epsilon.
+    // Note: this is same as what's done in the non-parallel version of this
+    // filter i.e. vtkResampleToImage. So just doing the same here for
+    // consistency.
+    const double epsilon = 1.0e-6;
+    bbox.ScaleAboutCenter(1.0 - epsilon);
+    bbox.GetBounds(samplingBounds);
   }
   else
   {

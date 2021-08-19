@@ -2054,6 +2054,7 @@ void vtkGeometryFilterHelper::CopyFilterParams(vtkGeometryFilter* gf, vtkDataSet
   dssf->SetOriginalCellIdsName(gf->GetOriginalCellIdsName());
   dssf->SetOriginalPointIdsName(gf->GetOriginalPointIdsName());
   dssf->SetNonlinearSubdivisionLevel(gf->GetNonlinearSubdivisionLevel());
+  dssf->SetFastMode(gf->GetFastMode());
 }
 
 //----------------------------------------------------------------------------
@@ -2067,6 +2068,7 @@ void vtkGeometryFilterHelper::CopyFilterParams(vtkDataSetSurfaceFilter* dssf, vt
   gf->SetOriginalCellIdsName(dssf->GetOriginalCellIdsName());
   gf->SetOriginalPointIdsName(dssf->GetOriginalPointIdsName());
   gf->SetNonlinearSubdivisionLevel(dssf->GetNonlinearSubdivisionLevel());
+  gf->SetFastMode(dssf->GetFastMode());
 }
 
 //----------------------------------------------------------------------------

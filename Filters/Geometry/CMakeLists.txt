@@ -25,9 +25,5 @@ set(classes
   vtkUniformGridGhostDataGenerator
   vtkUnstructuredGridGeometryFilter)
 
-set(templates
-  vtkDataSetSurfaceFilter.txx)
-
 vtk_module_add_module(VTK::FiltersGeometry
-  CLASSES ${classes}
-  TEMPLATES ${templates})
+  CLASSES ${classes})

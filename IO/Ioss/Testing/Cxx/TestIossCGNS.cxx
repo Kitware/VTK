@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include <vtkCamera.h>
+#include <vtkCellData.h>
 #include <vtkCompositeDataSet.h>
 #include <vtkCompositeDataSetRange.h>
 #include <vtkCompositePolyDataMapper.h>
@@ -22,6 +23,7 @@
 #include <vtkIossReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
+#include <vtkPointData.h>
 #include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
