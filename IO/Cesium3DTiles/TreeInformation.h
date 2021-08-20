@@ -45,7 +45,8 @@ public:
     const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
     const std::vector<size_t>& buildingActorStart, const std::array<double, 3>& offset,
     std::vector<vtkSmartPointer<vtkActor>>& actors, vtkSmartPointer<vtkRenderWindow> renderWindow,
-    const std::string& outputDir, const char* srsName, int utmZone, char utmHemisphere);
+    const std::string& outputDir, const std::string& texturePath, bool saveTextures,
+    const char* srsName, int utmZone, char utmHemisphere);
 
   void PrintNode(vtkIncrementalOctreeNode* node);
 
@@ -105,6 +106,8 @@ private:
   std::vector<vtkSmartPointer<vtkActor>>& Actors;
   vtkSmartPointer<vtkRenderWindow> RenderWindow;
   std::string OutputDir;
+  std::string TexturePath;
+  bool SaveTextures;
   const char* SrsName;
   int UTMZone;
   char UTMHemisphere;

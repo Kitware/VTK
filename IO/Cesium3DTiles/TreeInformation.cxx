@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "TreeInformation.h"
 
+#include "vtkGLTFWriter.h"
+#include "vtkMultiBlockDataSet.h"
 #include <vtkActor.h>
 #include <vtkCellData.h>
 #include <vtkCompositeDataSet.h>
@@ -162,7 +164,8 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
   const std::vector<size_t>& buildingActorStart, const std::array<double, 3>& offset,
   std::vector<vtkSmartPointer<vtkActor>>& actors, vtkSmartPointer<vtkRenderWindow> renderWindow,
-  const std::string& output, const char* srsName, int utmZone, char utmHemisphere)
+  const std::string& output, const std::string& texturePath, bool saveTextures, const char* srsName,
+  int utmZone, char utmHemisphere)
   :
 
   Root(root)
@@ -172,6 +175,8 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , Actors(actors)
   , RenderWindow(renderWindow)
   , OutputDir(output)
+  , TexturePath(texturePath)
+  , SaveTextures(saveTextures)
   , SrsName(srsName)
   , UTMZone(utmZone)
   , UTMHemisphere(utmHemisphere)
@@ -258,6 +263,7 @@ void TreeInformation::SaveGLTF(vtkIncrementalOctreeNode* node)
     std::ostringstream ostr;
     vtkIdList* pointIds = node->GetPointIds();
     // ostr << "Rendering buildings for node " << node->GetID() << ": ";
+    vtkNew<vtkMultiBlockDataSet> tile;
     for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
     {
       int buildingId = pointIds->GetId(i);
@@ -269,7 +275,11 @@ void TreeInformation::SaveGLTF(vtkIncrementalOctreeNode* node)
       {
         this->Actors[j]->VisibilityOn();
       }
+      // add all buildings to the tile
+      tile->SetBlock(i, this->Buildings[buildingId]);
     }
+
+    /*
     // vtkLog(INFO, << ostr.str());
     this->RenderWindow->Render();
     // this->Interactor->Start();
@@ -284,6 +294,19 @@ void TreeInformation::SaveGLTF(vtkIncrementalOctreeNode* node)
     ostr << "/" << node->GetID() << ".gltf";
     exporter->SetFileName(ostr.str().c_str());
     exporter->Write();
+    */
+
+    vtkLog(INFO, "Saving GLTF file for " << pointIds->GetNumberOfIds() << " buildings...");
+    vtkNew<vtkGLTFWriter> writer;
+    writer->SetInputData(tile);
+    ostr.str("");
+    ostr << this->OutputDir << "/" << node->GetID();
+    vtkDirectory::MakeDirectory(ostr.str().c_str());
+    ostr << "/" << node->GetID() << ".gltf";
+    writer->SetFileName(ostr.str().c_str());
+    writer->SetTextureBaseDirectory(this->TexturePath.c_str());
+    writer->SetSaveTextures(this->SaveTextures);
+    writer->Write();
   }
 }
 

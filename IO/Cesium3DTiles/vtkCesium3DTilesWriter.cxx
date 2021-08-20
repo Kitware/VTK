@@ -282,6 +282,7 @@ void vtkCesium3DTilesWriter::WriteData()
       renderWindow->OffScreenRenderingOn();
       renderWindow->SetSize(640, 480);
 
+      vtkLog(INFO, "Add buildings with texture...");
       auto wholeBB = AddBuildingsWithTexture(root, this->TexturePath, this->Origin, renderer,
         this->SaveTextures, buildings, buildingActorStart, actors, offset);
       std::copy(offset.begin(), offset.end(), this->Origin);
@@ -299,8 +300,8 @@ void vtkCesium3DTilesWriter::WriteData()
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), buildings,
-        buildingActorStart, offset, actors, renderWindow, this->DirectoryName, this->SrsName,
-        this->UTMZone, this->UTMHemisphere);
+        buildingActorStart, offset, actors, renderWindow, this->DirectoryName, this->TexturePath,
+        this->SaveTextures, this->SrsName, this->UTMZone, this->UTMHemisphere);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.Generate3DTiles(std::string(this->DirectoryName) + "/tileset.json");
@@ -316,7 +317,7 @@ void vtkCesium3DTilesWriter::WriteData()
       //   // ::SaveLevel(this->DirectoryName, level, octreePoly);
       // }
 
-      renderWindow->Render();
+      // renderWindow->Render();
       if (this->SaveGLTF)
       {
         treeInformation.SaveGLTF();
