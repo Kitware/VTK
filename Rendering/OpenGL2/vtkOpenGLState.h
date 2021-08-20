@@ -347,6 +347,12 @@ public:
   void GetCurrentDrawFramebufferState(unsigned int& drawBinding, unsigned int& drawBuffer);
 
   /**
+   * Perform a blit but handle some driver bugs safely. Use this instead of directly calling
+   * glBlitFrambuffer.
+   */
+  void vtkglBlitFramebuffer(int, int, int, int, int, int, int, int, unsigned int, unsigned int);
+
+  /**
    * Record the OpenGL state into this class. Lots of get calls so probably
    * a pipeline stall. This method is most useful when integrating VTK with
    * something else that touches OpenGL such as a GUI library or external

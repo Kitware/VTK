@@ -857,10 +857,9 @@ int vtkOpenGLRenderWindow::ReadPixels(
 
       // Now blit to resolve the MSAA and get an anti-aliased rendering in
       // resolvedFBO.
-      // Note: extents are (x-min, x-max, y-min, y-max).
-      const int srcExtents[4] = { rect.GetLeft(), rect.GetRight(), rect.GetBottom(),
-        rect.GetTop() };
-      vtkOpenGLFramebufferObject::Blit(srcExtents, srcExtents, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+      this->GetState()->vtkglBlitFramebuffer(rect.GetLeft(), rect.GetBottom(), rect.GetRight(),
+        rect.GetTop(), rect.GetLeft(), rect.GetBottom(), rect.GetRight(), rect.GetTop(),
+        GL_COLOR_BUFFER_BIT, GL_NEAREST);
       this->GetState()->PopDrawFramebufferBinding();
 
       // Now make the resolvedFBO the read buffer and read from it.
@@ -968,14 +967,7 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
     this->RenderFramebuffer->Bind(GL_READ_FRAMEBUFFER);
     this->RenderFramebuffer->ActivateReadBuffer(0);
 
-    // ON APPLE OSX you must turn off scissor test for DEPTH blits to work
-    auto ostate = this->GetState();
-    vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
-    ostate->vtkglDisable(GL_SCISSOR_TEST);
-
-    // recall Blit upper right corner is exclusive of the range
-    const int srcExtents[4] = { 0, fbsize[0], 0, fbsize[1] };
-    vtkOpenGLFramebufferObject::Blit(srcExtents, srcExtents,
+    this->GetState()->vtkglBlitFramebuffer(0, 0, fbsize[0], fbsize[1], 0, 0, fbsize[0], fbsize[1],
       (copiedColor ? 0 : GL_COLOR_BUFFER_BIT) | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
     this->GetState()->PopFramebufferBindings();
@@ -1055,14 +1047,7 @@ void vtkOpenGLRenderWindow::Frame()
     this->RenderFramebuffer->Bind(GL_READ_FRAMEBUFFER);
     this->RenderFramebuffer->ActivateReadBuffer(0);
 
-    // ON APPLE OSX you must turn off scissor test for DEPTH blits to work
-    auto ostate = this->GetState();
-    vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
-    ostate->vtkglDisable(GL_SCISSOR_TEST);
-
-    // recall Blit upper right corner is exclusive of the range
-    const int srcExtents[4] = { 0, fbsize[0], 0, fbsize[1] };
-    vtkOpenGLFramebufferObject::Blit(srcExtents, srcExtents,
+    this->GetState()->vtkglBlitFramebuffer(0, 0, fbsize[0], fbsize[1], 0, 0, fbsize[0], fbsize[1],
       (copiedColor ? 0 : GL_COLOR_BUFFER_BIT) | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
     this->GetState()->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
@@ -1088,27 +1073,23 @@ void vtkOpenGLRenderWindow::BlitDisplayFramebuffersToHardware()
   auto ostate = this->GetState();
   ostate->PushFramebufferBindings();
   this->DisplayFramebuffer->Bind(GL_READ_FRAMEBUFFER);
-  this->GetState()->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
-  this->GetState()->vtkglScissor(0, 0, this->Size[0], this->Size[1]);
+  ostate->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
+  ostate->vtkglScissor(0, 0, this->Size[0], this->Size[1]);
 
-  // recall Blit upper right corner is exclusive of the range
-  const int srcExtents[4] = { 0, this->Size[0], 0, this->Size[1] };
-
-  this->GetState()->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  ostate->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
   if (this->StereoRender && this->StereoType == VTK_STEREO_CRYSTAL_EYES)
   {
     this->DisplayFramebuffer->ActivateReadBuffer(1);
-    this->GetState()->vtkglDrawBuffer(this->DoubleBuffer ? GL_BACK_RIGHT : GL_FRONT_RIGHT);
-    vtkOpenGLFramebufferObject::Blit(
-      srcExtents, srcExtents, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    ostate->vtkglDrawBuffer(this->DoubleBuffer ? GL_BACK_RIGHT : GL_FRONT_RIGHT);
+    ostate->vtkglBlitFramebuffer(0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0],
+      this->Size[1], GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
   }
 
   this->DisplayFramebuffer->ActivateReadBuffer(0);
-  this->GetState()->vtkglDrawBuffer(this->DoubleBuffer ? GL_BACK_LEFT : GL_FRONT_LEFT);
-  vtkOpenGLFramebufferObject::Blit(
-    srcExtents, srcExtents, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-
+  ostate->vtkglDrawBuffer(this->DoubleBuffer ? GL_BACK_LEFT : GL_FRONT_LEFT);
+  ostate->vtkglBlitFramebuffer(0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0],
+    this->Size[1], GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
   this->GetState()->PopFramebufferBindings();
 }
 
@@ -1127,15 +1108,14 @@ void vtkOpenGLRenderWindow::BlitDisplayFramebuffer(int right, int srcX, int srcY
   vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
   ostate->vtkglDisable(GL_SCISSOR_TEST);
 
-  this->GetState()->PushReadFramebufferBinding();
+  ostate->PushReadFramebufferBinding();
   this->DisplayFramebuffer->Bind(GL_READ_FRAMEBUFFER);
   this->DisplayFramebuffer->ActivateReadBuffer(right ? 1 : 0);
-  const int srcExtents[4] = { srcX, srcX + srcWidth, srcY, srcY + srcHeight };
-  const int destExtents[4] = { destX, destX + destWidth, destY, destY + destHeight };
-  this->GetState()->vtkglViewport(destX, destY, destWidth, destHeight);
-  this->GetState()->vtkglScissor(destX, destY, destWidth, destHeight);
-  vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, bufferMode, interpolation);
-  this->GetState()->PopReadFramebufferBinding();
+  ostate->vtkglViewport(destX, destY, destWidth, destHeight);
+  ostate->vtkglScissor(destX, destY, destWidth, destHeight);
+  ostate->vtkglBlitFramebuffer(srcX, srcY, srcX + srcWidth, srcY + srcHeight, destX, destY,
+    destX + destWidth, destY + destHeight, bufferMode, interpolation);
+  ostate->PopReadFramebufferBinding();
 }
 
 void vtkOpenGLRenderWindow::BlitToRenderFramebuffer(bool includeDepth)
@@ -1155,8 +1135,6 @@ void vtkOpenGLRenderWindow::BlitToRenderFramebuffer(int srcX, int srcY, int srcW
   auto ostate = this->GetState();
   ostate->PushFramebufferBindings();
 
-  const int srcExtents[4] = { srcX, srcX + srcWidth, srcY, srcY + srcHeight };
-  const int destExtents[4] = { destX, destX + destWidth, destY, destY + destHeight };
   ostate->vtkglViewport(destX, destY, destWidth, destHeight);
   ostate->vtkglScissor(destX, destY, destWidth, destHeight);
 
@@ -1173,8 +1151,8 @@ void vtkOpenGLRenderWindow::BlitToRenderFramebuffer(int srcX, int srcY, int srcW
     this->ResolveFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
     this->ResolveFramebuffer->ActivateDrawBuffer(0);
 
-    // Note: extents are (x-min, x-max, y-min, y-max).
-    vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, bufferMode, interpolation);
+    ostate->vtkglBlitFramebuffer(srcX, srcY, srcX + srcWidth, srcY + srcHeight, destX, destY,
+      destX + destWidth, destY + destHeight, bufferMode, interpolation);
 
     // Now make the resolvedFBO the read buffer and read from it.
     this->ResolveFramebuffer->Bind(GL_READ_FRAMEBUFFER);
@@ -1183,7 +1161,8 @@ void vtkOpenGLRenderWindow::BlitToRenderFramebuffer(int srcX, int srcY, int srcW
 
   this->RenderFramebuffer->Bind(GL_DRAW_FRAMEBUFFER);
   this->RenderFramebuffer->ActivateDrawBuffer(0);
-  vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, bufferMode, interpolation);
+  ostate->vtkglBlitFramebuffer(srcX, srcY, srcX + srcWidth, srcY + srcHeight, destX, destY,
+    destX + destWidth, destY + destHeight, bufferMode, interpolation);
   ostate->PopFramebufferBindings();
 }
 
@@ -1828,9 +1807,8 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
 
     // Now blit to resolve the MSAA and get an anti-aliased rendering in
     // resolvedFBO.
-    // Note: extents are (x-min, x-max, y-min, y-max).
-    const int srcExtents[4] = { x_low, x_low + width, y_low, y_low + height };
-    vtkOpenGLFramebufferObject::Blit(srcExtents, srcExtents, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    this->GetState()->vtkglBlitFramebuffer(x_low, y_low, x_low + width, y_low + height, x_low,
+      y_low, x_low + width, y_low + height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     this->GetState()->PopDrawFramebufferBinding();
 
     // Now make the resolvedFBO the read buffer and read from it.
