@@ -131,6 +131,11 @@ struct OMFProject::ProjectImpl
       // so replace dashes with underscores as well
       // see vtk issue #18128
       vtksys::SystemTools::ReplaceString(name, "-", "_");
+      // names can only start with the following (see vtkDataAssembly::IsNodeNameValid)
+      if ((name[0] < 'a' || name[0] > 'z') && (name[0] < 'A' || name[0] > 'Z') && name[0] != '_')
+      {
+        name = "_" + name;
+      }
       auto assembly = output->GetDataAssembly();
       auto node = assembly->AddNode(name.c_str());
       vtkIdType pdsIdx = output->GetNumberOfPartitionedDataSets();
