@@ -219,7 +219,9 @@ int vtkSelectionNode::GetContentType()
 //------------------------------------------------------------------------------
 const char* vtkSelectionNode::GetContentTypeAsString(int type)
 {
-  return vtkSelectionNode::ContentTypeNames[type];
+  return type >= 0 && type < vtkSelectionNode::NUM_CONTENT_TYPES
+    ? vtkSelectionNode::ContentTypeNames[type]
+    : "(invalid)";
 }
 
 //------------------------------------------------------------------------------
@@ -241,7 +243,7 @@ int vtkSelectionNode::GetFieldType()
 //------------------------------------------------------------------------------
 const char* vtkSelectionNode::GetFieldTypeAsString(int type)
 {
-  return vtkSelectionNode::FieldTypeNames[type];
+  return type >= 0 && type < NUM_FIELD_TYPES ? vtkSelectionNode::FieldTypeNames[type] : "(invalid)";
 }
 
 //------------------------------------------------------------------------------
