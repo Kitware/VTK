@@ -47,8 +47,8 @@ public:
   vtkTypeMacro(vtkMoleculeReaderBase, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
   ///@{
   /**

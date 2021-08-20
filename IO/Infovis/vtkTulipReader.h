@@ -79,8 +79,8 @@ public:
   /**
    * The Tulip file name.
    */
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
   ///@}
 
 protected:

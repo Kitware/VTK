@@ -801,7 +801,8 @@ void vtkWrap_FindFilePathMethods(ClassInfo* data)
       /* check if method ends in "FileName" or "DirectoryName" */
       l = strlen(name);
       if ((l >= 8 && strcmp(&name[l - 8], "FileName") == 0) ||
-        (l >= 13 && strcmp(&name[l - 13], "DirectoryName") == 0))
+        (l >= 13 && strcmp(&name[l - 13], "DirectoryName") == 0) ||
+        (l == 11 && strcmp(name, "CanReadFile") == 0))
       {
         n = theFunc->NumberOfParameters;
         /* look for Set and Get methods */
@@ -810,6 +811,10 @@ void vtkWrap_FindFilePathMethods(ClassInfo* data)
           arg = theFunc->ReturnValue;
         }
         else if (n == 1 && strncmp(name, "Set", 3) == 0)
+        {
+          arg = theFunc->Parameters[0];
+        }
+        else if (n == 1 && strncmp(name, "Can", 3) == 0)
         {
           arg = theFunc->Parameters[0];
         }

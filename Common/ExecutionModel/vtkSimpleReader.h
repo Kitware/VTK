@@ -40,7 +40,7 @@ public:
    * Note that the time values are either integers growing sequentially,
    * or are obtained from individual files as supported by the subclass.
    */
-  void AddFileName(const char* fname);
+  void AddFileName(VTK_FILEPATH const char* fname);
 
   /**
    * Removes all filenames stored by the reader.
@@ -55,13 +55,13 @@ public:
   /**
    * Returns a particular filename stored by the reader.
    */
-  const char* GetFileName(int i) const;
+  VTK_FILEPATH const char* GetFileName(int i) const;
 
   /**
    * Returns the filename that was last loaded by the reader.
    * This is set internally in ReadMesh()
    */
-  const char* GetCurrentFileName() const;
+  VTK_FILEPATH const char* GetCurrentFileName() const;
 
   ///@{
   /**
@@ -84,14 +84,15 @@ public:
    * will return vtkMath::NaN() if no time value is present
    * in the file.
    */
-  virtual double GetTimeValue(const std::string& fname);
+  virtual double GetTimeValue(VTK_FILEPATH const std::string& fname);
 
   /**
    * A subclass can override this method to provide meta data
    * specific to a particular file. In order for this method
    * to be called, HasTemporalMetaData has to be set to true.
    */
-  virtual int ReadMetaDataSimple(const std::string& /*fname*/, vtkInformation* /*metadata*/)
+  virtual int ReadMetaDataSimple(
+    VTK_FILEPATH const std::string& /*fname*/, vtkInformation* /*metadata*/)
   {
     return 1;
   }
@@ -102,7 +103,7 @@ public:
    * method and should be used by the subclass. The subclass directly
    * adds the structure/topology to the provided data object.
    */
-  virtual int ReadMeshSimple(const std::string& fname, vtkDataObject* output) = 0;
+  virtual int ReadMeshSimple(VTK_FILEPATH const std::string& fname, vtkDataObject* output) = 0;
 
   /**
    * A method that needs to be override by the subclass to provide
@@ -110,7 +111,7 @@ public:
    * method and should be used by the subclass. The subclass directly
    * adds the coordinates to the provided data object.
    */
-  virtual int ReadPointsSimple(const std::string& fname, vtkDataObject* output) = 0;
+  virtual int ReadPointsSimple(VTK_FILEPATH const std::string& fname, vtkDataObject* output) = 0;
 
   /**
    * A method that needs to be override by the subclass to provide
@@ -118,7 +119,7 @@ public:
    * method and should be used by the subclass. The subclass directly
    * adds data arrays to the provided data object.
    */
-  virtual int ReadArraysSimple(const std::string& fname, vtkDataObject* output) = 0;
+  virtual int ReadArraysSimple(VTK_FILEPATH const std::string& fname, vtkDataObject* output) = 0;
 
 protected:
   vtkSimpleReader();

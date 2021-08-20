@@ -52,8 +52,9 @@ public:
    * is returned.
    */
 
-  static std::string CollapseFullPath(const std::string& in_relative);
-  static std::string CollapseFullPath(const std::string& in_relative, const char* in_base);
+  static VTK_FILEPATH std::string CollapseFullPath(VTK_FILEPATH const std::string& in_relative);
+  static VTK_FILEPATH std::string CollapseFullPath(
+    VTK_FILEPATH const std::string& in_relative, VTK_FILEPATH const char* in_base);
 
   ///@{
   /**
@@ -64,16 +65,16 @@ public:
    * also be checked for read access.  (Currently, this check
    * for read access is only done on POSIX systems.)
    */
-  static bool FileExists(const char* filename, bool isFile);
-  static bool FileExists(const std::string& filename, bool isFile);
-  static bool FileExists(const char* filename);
-  static bool FileExists(const std::string& filename);
+  static bool FileExists(VTK_FILEPATH const char* filename, bool isFile);
+  static bool FileExists(VTK_FILEPATH const std::string& filename, bool isFile);
+  static bool FileExists(VTK_FILEPATH const char* filename);
+  static bool FileExists(VTK_FILEPATH const std::string& filename);
   ///@}
 
   /**
    * Return true if the file is a directory
    */
-  static bool FileIsDirectory(const std::string& name);
+  static bool FileIsDirectory(VTK_FILEPATH const std::string& name);
 
   /**
    * Given argv[0] for a unix program find the full path to a running
@@ -94,14 +95,14 @@ public:
   /**
    * Get current working directory CWD
    */
-  static std::string GetCurrentWorkingDirectory(bool collapse = true);
+  static VTK_FILEPATH std::string GetCurrentWorkingDirectory(bool collapse = true);
 
   /**
    * Given the path to a program executable, get the directory part of
    * the path with the file stripped off.  If there is no directory
    * part, the empty string is returned.
    */
-  static std::string GetProgramPath(const std::string&);
+  static VTK_FILEPATH std::string GetProgramPath(VTK_FILEPATH const std::string&);
 
 protected:
   vtkPSystemTools() = default;

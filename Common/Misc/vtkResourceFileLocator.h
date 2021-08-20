@@ -107,8 +107,8 @@ public:
    * can simply use the `vtkGetLibraryPathForSymbol(GetVTKVersion)` macro
    * that makes the appropriate call as per the current platform.
    */
-  static std::string GetLibraryPathForSymbolUnix(const char* symbolname);
-  static std::string GetLibraryPathForSymbolWin32(const void* fptr);
+  static VTK_FILEPATH std::string GetLibraryPathForSymbolUnix(const char* symbolname);
+  static VTK_FILEPATH std::string GetLibraryPathForSymbolWin32(const void* fptr);
   ///@}
 
 protected:

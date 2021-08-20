@@ -83,8 +83,8 @@ public:
   /**
    * Set the file name.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   /**
@@ -100,7 +100,7 @@ public:
   /**
    * Test whether the specified file can be read.
    */
-  virtual int CanReadFile(const char* name);
+  virtual int CanReadFile(VTK_FILEPATH const char* name);
 
   /**
    * Get the number of transforms in the file.

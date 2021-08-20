@@ -41,16 +41,16 @@ public:
   /**
    * Set the input filename.
    */
-  vtkSetStringMacro(InputFileName);
-  vtkGetStringMacro(InputFileName);
+  vtkSetFilePathMacro(InputFileName);
+  vtkGetFilePathMacro(InputFileName);
   ///@}
 
   ///@{
   /**
    * Set the output filename.
    */
-  vtkSetStringMacro(OutputFileName);
-  vtkGetStringMacro(OutputFileName);
+  vtkSetFilePathMacro(OutputFileName);
+  vtkGetFilePathMacro(OutputFileName);
   ///@}
 
   /**
@@ -70,7 +70,7 @@ protected:
   char* InputFileName;
   char* OutputFileName;
   char* FilePath;
-  vtkSetStringMacro(FilePath);
+  vtkSetFilePathMacro(FilePath);
 
 private:
   vtkXMLHierarchicalBoxDataFileConverter(const vtkXMLHierarchicalBoxDataFileConverter&) = delete;

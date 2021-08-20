@@ -137,8 +137,8 @@ public:
   /**
    * String representing the database filename.
    */
-  vtkGetStringMacro(DatabaseFileName);
-  vtkSetStringMacro(DatabaseFileName);
+  vtkGetFilePathMacro(DatabaseFileName);
+  vtkSetFilePathMacro(DatabaseFileName);
   ///@}
 
   /**

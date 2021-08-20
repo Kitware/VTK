@@ -61,7 +61,7 @@ public:
   /**
    * See vtkAMRBaseReader::SetFileName
    */
-  void SetFileName(const char* fileName) override;
+  void SetFileName(VTK_FILEPATH const char* fileName) override;
 
 protected:
   vtkAMREnzoReader();

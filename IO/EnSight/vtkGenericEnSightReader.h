@@ -56,16 +56,16 @@ public:
   /**
    * Set/Get the Case file name.
    */
-  void SetCaseFileName(const char* fileName);
-  vtkGetStringMacro(CaseFileName);
+  void SetCaseFileName(VTK_FILEPATH const char* fileName);
+  vtkGetFilePathMacro(CaseFileName);
   ///@}
 
   ///@{
   /**
    * Set/Get the file path.
    */
-  vtkSetStringMacro(FilePath);
-  vtkGetStringMacro(FilePath);
+  vtkSetFilePathMacro(FilePath);
+  vtkGetFilePathMacro(FilePath);
   ///@}
 
   ///@{
@@ -247,7 +247,7 @@ public:
    * Get the Geometry file name. Made public to allow access from
    * apps requiring detailed info about the Data contents
    */
-  vtkGetStringMacro(GeometryFileName);
+  vtkGetFilePathMacro(GeometryFileName);
   ///@}
 
   ///@{
@@ -272,12 +272,12 @@ public:
    * Returns true if the file pointed to by casefilename appears to be a
    * valid EnSight case file.
    */
-  static bool IsEnSightFile(const char* casefilename);
+  static bool IsEnSightFile(VTK_FILEPATH const char* casefilename);
 
   /**
    * Returns IsEnSightFile() by default, but can be overridden
    */
-  virtual int CanReadFile(const char* casefilename);
+  virtual int CanReadFile(VTK_FILEPATH const char* casefilename);
 
   // THIB
   vtkGenericEnSightReader* GetReader() { return this->Reader; }
@@ -323,7 +323,7 @@ protected:
   /**
    * Set the geometry file name.
    */
-  vtkSetStringMacro(GeometryFileName);
+  vtkSetFilePathMacro(GeometryFileName);
   ///@}
 
   ///@{

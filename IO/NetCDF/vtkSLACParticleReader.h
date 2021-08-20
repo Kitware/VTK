@@ -53,13 +53,13 @@ public:
   static vtkSLACParticleReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
 
   /**
    * Returns true if the given file can be read by this reader.
    */
-  static int CanReadFile(const char* filename);
+  static int CanReadFile(VTK_FILEPATH const char* filename);
 
 protected:
   vtkSLACParticleReader();

@@ -72,8 +72,8 @@ public:
   /**
    * The DIMACS file name.
    */
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
   ///@}
 
   ///@{

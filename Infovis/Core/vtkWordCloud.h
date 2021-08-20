@@ -300,7 +300,7 @@ public:
    * be processed.
    */
   ///@}
-  virtual void SetFileName(std::string arg)
+  virtual void SetFileName(VTK_FILEPATH std::string arg)
   {
     if (FileName != arg)
     {
@@ -317,7 +317,7 @@ public:
    * TrueType font.
    */
   ///@}
-  virtual void SetFontFileName(std::string arg)
+  virtual void SetFontFileName(VTK_FILEPATH std::string arg)
   {
     if (FontFileName != arg)
     {
@@ -364,7 +364,7 @@ public:
    * vtkImageAppendComponents.
    */
   ///@}
-  virtual void SetMaskFileName(std::string arg)
+  virtual void SetMaskFileName(VTK_FILEPATH std::string arg)
   {
     if (MaskFileName != arg)
     {
@@ -506,7 +506,7 @@ public:
    * stop words, one per line.
    */
   ///@}
-  virtual void SetStopListFileName(std::string arg)
+  virtual void SetStopListFileName(VTK_FILEPATH std::string arg)
   {
     if (StopListFileName != arg)
     {

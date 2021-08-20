@@ -74,8 +74,8 @@ public:
    * starts with "/" or a drive letter) then that absolute path
    * will be used and Directory will be ignored.
    */
-  vtkSetStringMacro(Directory);
-  vtkGetStringMacro(Directory);
+  vtkSetFilePathMacro(Directory);
+  vtkGetFilePathMacro(Directory);
   ///@}
 
   /**
@@ -84,7 +84,7 @@ public:
    * be called repeatedly to add files matching additional patterns.
    * Returns 1 if successful, otherwise returns zero.
    */
-  int AddFileNames(const char* pattern);
+  int AddFileNames(VTK_FILEPATH const char* pattern);
 
   ///@{
   /**
@@ -103,7 +103,7 @@ public:
   /**
    * Return the file at the given index, the indexing is 0 based.
    */
-  const char* GetNthFileName(int index);
+  VTK_FILEPATH const char* GetNthFileName(int index);
 
   ///@{
   /**
@@ -117,8 +117,8 @@ protected:
   /**
    * Set the wildcard pattern.
    */
-  vtkSetStringMacro(Pattern);
-  vtkGetStringMacro(Pattern);
+  vtkSetFilePathMacro(Pattern);
+  vtkGetFilePathMacro(Pattern);
   ///@}
 
   vtkGlobFileNames();

@@ -39,8 +39,8 @@ public:
   /**
    * Specify file name.
    */
-  void SetFileName(const char* filename);
-  vtkGetStringMacro(FileName);
+  void SetFileName(VTK_FILEPATH const char* filename);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   ///@{

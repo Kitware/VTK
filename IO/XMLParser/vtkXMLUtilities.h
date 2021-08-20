@@ -73,7 +73,7 @@ public:
    * Return 1 on success, 0 otherwise.
    */
   static int WriteElementToFile(
-    vtkXMLDataElement*, const char* filename, vtkIndent* indent = nullptr);
+    vtkXMLDataElement*, VTK_FILEPATH const char* filename, vtkIndent* indent = nullptr);
 
   ///@{
   /**
@@ -91,7 +91,7 @@ public:
   static vtkXMLDataElement* ReadElementFromString(
     const char* str, int encoding = VTK_ENCODING_NONE);
   static vtkXMLDataElement* ReadElementFromFile(
-    const char* filename, int encoding = VTK_ENCODING_NONE);
+    VTK_FILEPATH const char* filename, int encoding = VTK_ENCODING_NONE);
   ///@}
 
   /**

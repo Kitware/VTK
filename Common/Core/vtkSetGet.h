@@ -176,6 +176,10 @@
 #define vtkSetStringMacro(name)                                                                    \
   virtual void Set##name(const char* _arg) vtkSetStringBodyMacro(name, _arg)
 
+// Set a file path, like vtkSetStringMacro but with VTK_FILEPATH hint.
+#define vtkSetFilePathMacro(name)                                                                  \
+  virtual void Set##name(VTK_FILEPATH const char* _arg) vtkSetStringBodyMacro(name, _arg)
+
 // This macro defines a body of set string macro. It can be used either in
 // the header file using vtkSetStringMacro or in the implementation.
 #define vtkSetStringBodyMacro(name, _arg)                                                          \
@@ -213,8 +217,14 @@
 // Get character string.  Creates member Get"name"()
 // (e.g., char *GetFilename());
 //
-#define vtkGetStringMacro(name)                                                                    \
-  virtual char* Get##name()                                                                        \
+#define vtkGetStringMacro(name) virtual char* Get##name() vtkGetStringBodyMacro(name)
+
+// Get a file path, like vtkGetStringMacro but with VTK_FILEPATH hint.
+#define vtkGetFilePathMacro(name) virtual VTK_FILEPATH char* Get##name() vtkGetStringBodyMacro(name)
+
+// This macro defines a body of get string macro. It can be used either in
+// the header file using vtkGetStringMacro or in the implementation.
+#define vtkGetStringBodyMacro(name)                                                                \
   {                                                                                                \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of "       \
                   << (this->name ? this->name : "(null)"));                                        \

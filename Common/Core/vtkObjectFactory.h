@@ -199,7 +199,7 @@ public:
   /**
    * This returns the path to a dynamically loaded factory.
    */
-  vtkGetStringMacro(LibraryPath);
+  vtkGetFilePathMacro(LibraryPath);
   ///@}
 
   typedef vtkObject* (*CreateFunction)();

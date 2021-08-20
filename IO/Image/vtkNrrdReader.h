@@ -48,7 +48,7 @@ public:
   static vtkNrrdReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int CanReadFile(const char* filename) override;
+  int CanReadFile(VTK_FILEPATH const char* filename) override;
 
 protected:
   vtkNrrdReader();

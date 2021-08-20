@@ -44,8 +44,8 @@ public:
    * The returned vtkLibHandle can be used to access the symbols in the
    * library.
    */
-  static vtkLibHandle OpenLibrary(const char*);
-  static vtkLibHandle OpenLibrary(const char*, int);
+  static vtkLibHandle OpenLibrary(VTK_FILEPATH const char*);
+  static vtkLibHandle OpenLibrary(VTK_FILEPATH const char*, int);
 
   /**
    * Attempt to detach a dynamic library from the

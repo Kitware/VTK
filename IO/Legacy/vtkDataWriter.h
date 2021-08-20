@@ -65,8 +65,8 @@ public:
   /**
    * Specify the file name of VTK data file to write.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   // Currently VTK can write out two different versions of file format: files

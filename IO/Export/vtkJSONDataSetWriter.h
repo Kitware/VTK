@@ -99,7 +99,7 @@ public:
    * If vtkDataArray is a Uint64 or Int64, the data will be converted
    * to Uint32 or Int32 before being written.
    */
-  bool WriteArrayContents(vtkDataArray*, const char* relativeFilePath);
+  bool WriteArrayContents(vtkDataArray*, VTK_FILEPATH const char* relativeFilePath);
   ///@}
 
   ///@{
@@ -107,7 +107,7 @@ public:
    * For backwards compatiblity, this static method writes a data array's
    * contents directly to a file.
    */
-  static bool WriteArrayAsRAW(vtkDataArray*, const char* filePath);
+  static bool WriteArrayAsRAW(vtkDataArray*, VTK_FILEPATH const char* filePath);
   ///@}
 
   static vtkJSONDataSetWriter* New();
@@ -121,9 +121,9 @@ public:
    * DEPRECATED: use the Archive's API instead.
    */
   VTK_DEPRECATED_IN_9_0_0("Use vtkJSONDataSetWriter::SetArchiveName")
-  void SetFileName(const char*);
+  void SetFileName(VTK_FILEPATH const char*);
   VTK_DEPRECATED_IN_9_0_0("Use vtkJSONDataSetWriter::GetArchiveName")
-  virtual char* GetFileName();
+  virtual VTK_FILEPATH char* GetFileName();
   ///@}
 
   ///@{

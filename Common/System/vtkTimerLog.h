@@ -124,7 +124,7 @@ public:
    * Write the timing table out to a file.  Calculate some helpful
    * statistics (deltas and percentages) in the process.
    */
-  static void DumpLog(const char* filename);
+  static void DumpLog(VTK_FILEPATH const char* filename);
   ///@}
 
   ///@{

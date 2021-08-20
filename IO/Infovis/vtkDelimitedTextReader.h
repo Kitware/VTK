@@ -79,8 +79,8 @@ public:
   /**
    * Specifies the delimited text file to be loaded.
    */
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
   ///@}
 
   ///@{

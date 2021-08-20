@@ -49,8 +49,8 @@ public:
    * Specify the prefix of the files to write out. The resulting filenames
    * will have .obj and .mtl appended to them.
    */
-  vtkSetStringMacro(FilePrefix);
-  vtkGetStringMacro(FilePrefix);
+  vtkSetFilePathMacro(FilePrefix);
+  vtkGetFilePathMacro(FilePrefix);
   ///@}
 
   ///@{

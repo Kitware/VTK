@@ -141,8 +141,8 @@ public:
    * if GetFontFamily() return VTK_FONT_FILE. The result is undefined for other
    * values of GetFontFamily().
    */
-  vtkGetStringMacro(FontFile);
-  vtkSetStringMacro(FontFile);
+  vtkGetFilePathMacro(FontFile);
+  vtkSetFilePathMacro(FontFile);
   ///@}
 
   ///@{

@@ -44,8 +44,8 @@ public:
   /** @} */
 
   /** The name of the exported file. @{ */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   /** @} */
 
 protected:

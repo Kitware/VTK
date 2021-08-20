@@ -54,7 +54,7 @@ public:
   /**
    * Trigger parsing of the XML file.
    */
-  void Go(const char* filename);
+  void Go(VTK_FILEPATH const char* filename);
 
   // Returns if the parser has some information about the block with given "id".
   // This is valid only after Go().

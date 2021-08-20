@@ -45,7 +45,7 @@ public:
   /**
    * Is the given file a GESigna file?
    */
-  int CanReadFile(const char* fname) override;
+  int CanReadFile(VTK_FILEPATH const char* fname) override;
 
   /**
    * Valid extentsions

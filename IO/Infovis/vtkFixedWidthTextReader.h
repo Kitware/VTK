@@ -57,8 +57,8 @@ public:
   vtkTypeMacro(vtkFixedWidthTextReader, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
 
   ///@{
   /**

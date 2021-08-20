@@ -35,7 +35,7 @@ public:
   bool Initialize();
   void Clean();
   bool CanRead();
-  bool Open(const char* filename);
+  bool Open(VTK_FILEPATH const char* filename);
   TIFF* Image;
   bool IsOpen;
   unsigned int Width;

@@ -83,8 +83,8 @@ public:
    * Specify the prefix of the files to write out. The resulting file names
    * will have .rib appended to them.
    */
-  vtkSetStringMacro(FilePrefix);
-  vtkGetStringMacro(FilePrefix);
+  vtkSetFilePathMacro(FilePrefix);
+  vtkGetFilePathMacro(FilePrefix);
   ///@}
 
   ///@{

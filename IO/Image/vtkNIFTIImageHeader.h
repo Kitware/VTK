@@ -331,8 +331,8 @@ public:
    * 24 characters, and it will be assumed to be in the same directory
    * as the NIFTI file.
    */
-  void SetAuxFile(const char* auxfile);
-  const char* GetAuxFile() { return this->AuxFile; }
+  void SetAuxFile(VTK_FILEPATH const char* auxfile);
+  VTK_FILEPATH const char* GetAuxFile() { return this->AuxFile; }
 
   ///@{
   /**

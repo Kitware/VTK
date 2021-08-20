@@ -272,7 +272,7 @@ public:
    * Prints element tree as XML.
    */
   void PrintXML(ostream& os, vtkIndent indent);
-  void PrintXML(const char* fname);
+  void PrintXML(VTK_FILEPATH const char* fname);
   ///@}
 
   ///@{

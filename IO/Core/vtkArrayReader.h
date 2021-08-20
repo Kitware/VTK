@@ -56,8 +56,8 @@ public:
   /**
    * Set the filesystem location from which data will be read.
    */
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  vtkSetFilePathMacro(FileName);
   ///@}
 
   ///@{

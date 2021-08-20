@@ -78,14 +78,14 @@ public:
   /**
    * Determine if the file can be read with this reader.
    */
-  virtual int CanReadFile(const char* fname);
+  virtual int CanReadFile(VTK_FILEPATH const char* fname);
 
   ///@{
   /**
    * Specify file name of the Exodus file.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
 protected:

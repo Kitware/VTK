@@ -93,7 +93,7 @@ public:
   /**
    * Set the file name.
    */
-  void SetFileName(const char* name) override;
+  void SetFileName(VTK_FILEPATH const char* name) override;
 
   /**
    * Get the extension for this file format.
@@ -108,7 +108,7 @@ public:
   /**
    * Test whether the specified file can be read.
    */
-  int CanReadFile(const char* name) override;
+  int CanReadFile(VTK_FILEPATH const char* name) override;
 
   /**
    * Get a matrix that describes the orientation of the data.

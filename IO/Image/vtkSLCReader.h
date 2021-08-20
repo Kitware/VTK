@@ -45,7 +45,7 @@ public:
   /**
    * Is the given file an SLC file?
    */
-  int CanReadFile(const char* fname) override;
+  int CanReadFile(VTK_FILEPATH const char* fname) override;
   /**
    * .slc
    */

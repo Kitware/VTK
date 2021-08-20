@@ -44,7 +44,7 @@ public:
   /**
    * Opens this VTK HDF file and checks if it is valid.
    */
-  bool Open(const char* fileName);
+  bool Open(VTK_FILEPATH const char* fileName);
   /**
    * Closes the VTK HDF file and releases any allocated resources.
    */

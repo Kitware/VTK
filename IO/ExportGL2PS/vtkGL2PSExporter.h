@@ -97,8 +97,8 @@ public:
    * will have .ps or .eps or .tex appended to them depending on the
    * other options chosen.
    */
-  vtkSetStringMacro(FilePrefix);
-  vtkGetStringMacro(FilePrefix);
+  vtkSetFilePathMacro(FilePrefix);
+  vtkGetFilePathMacro(FilePrefix);
   ///@}
 
   ///@{

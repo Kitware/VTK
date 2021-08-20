@@ -39,8 +39,8 @@ public:
    * It's aassumed that the data is duplicated on all
    * ranks thus only rank 0 writes the data to disk.
    */
-  static void Write(
-    int commRank, const char* fileName, const std::deque<std::deque<vtkPixelExtent>>& exts);
+  static void Write(int commRank, VTK_FILEPATH const char* fileName,
+    const std::deque<std::deque<vtkPixelExtent>>& exts);
 
   /**
    * Writes an extent for each MPI rank to disk as an
@@ -50,7 +50,8 @@ public:
    * It's aassumed that the data is duplicated on all
    * ranks thus only rank 0 writes the data to disk.
    */
-  static void Write(int commRank, const char* fileName, const std::deque<vtkPixelExtent>& exts);
+  static void Write(
+    int commRank, VTK_FILEPATH const char* fileName, const std::deque<vtkPixelExtent>& exts);
 
   ///@{
   /**
@@ -58,7 +59,7 @@ public:
    * write. It's assumed that each rank passes a unique
    * filename.
    */
-  static void Write(int commRank, const char* fileName, const vtkPixelExtent& ext);
+  static void Write(int commRank, VTK_FILEPATH const char* fileName, const vtkPixelExtent& ext);
   ///@}
 };
 

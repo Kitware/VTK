@@ -108,8 +108,8 @@ public:
    * If not set, this class will make up a file name.
    */
 
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
   /**
    * If StoreDoubles is ON, the floating point fields in the Exodus file

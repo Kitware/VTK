@@ -43,8 +43,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkGDALVectorReader, vtkMultiBlockDataSetAlgorithm);
 
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
 
   /**
    * Return number of layers.

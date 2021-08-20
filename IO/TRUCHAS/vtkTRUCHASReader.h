@@ -39,14 +39,14 @@ public:
   /**
    * Specify file name of vtk data file to read.
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
   ///@}
 
   /**
    * A simple, non-exhaustive check to see if a file is a valid truchas file.
    */
-  static int CanReadFile(const char* filename);
+  static int CanReadFile(VTK_FILEPATH const char* filename);
 
   ///@{
   /**
