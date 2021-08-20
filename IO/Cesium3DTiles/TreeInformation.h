@@ -43,10 +43,9 @@ class TreeInformation
 public:
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
     const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
-    const std::vector<size_t>& buildingActorStart, const std::array<double, 3>& offset,
-    std::vector<vtkSmartPointer<vtkActor>>& actors, vtkSmartPointer<vtkRenderWindow> renderWindow,
-    const std::string& outputDir, const std::string& texturePath, bool saveTextures,
-    const char* srsName, int utmZone, char utmHemisphere);
+    const std::array<double, 3>& offset, const std::string& outputDir,
+    const std::string& texturePath, bool saveTextures, const char* srsName, int utmZone,
+    char utmHemisphere);
 
   void PrintNode(vtkIncrementalOctreeNode* node);
 
@@ -101,10 +100,7 @@ private:
   vtkIncrementalOctreeNode* Root;
   // buildings indexed by building ID
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& Buildings;
-  const std::vector<size_t>& BuildingActorStart;
   const std::array<double, 3>& Offset;
-  std::vector<vtkSmartPointer<vtkActor>>& Actors;
-  vtkSmartPointer<vtkRenderWindow> RenderWindow;
   std::string OutputDir;
   std::string TexturePath;
   bool SaveTextures;

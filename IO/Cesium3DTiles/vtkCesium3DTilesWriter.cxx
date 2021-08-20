@@ -30,7 +30,6 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
-#include "vtkXMLPolyDataWriter.h"
 #include "vtksys/FStream.hxx"
 #include <vtkDataObjectTreeIterator.h>
 #include <vtkIncrementalOctreeNode.h>
@@ -81,114 +80,10 @@ vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctree(
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePath)
-{
-  std::string ext = SystemTools::GetFilenameLastExtension(texturePath);
-  if (ext == ".png")
-  {
-    return vtkSmartPointer<vtkPNGReader>::New();
-  }
-  else if (ext == ".jpg")
-  {
-    return vtkSmartPointer<vtkJPEGReader>::New();
-  }
-  else
-  {
-    vtkLog(ERROR, "Invalid type for texture file: " << texturePath);
-    return nullptr;
-  }
-}
-
-//------------------------------------------------------------------------------
-std::string GetFieldAsString(vtkDataObject* obj, const char* name)
-{
-  vtkFieldData* fd = obj->GetFieldData();
-  if (!fd)
-  {
-    return std::string();
-  }
-  vtkStringArray* sa = vtkStringArray::SafeDownCast(fd->GetAbstractArray(name));
-  if (!sa)
-  {
-    return std::string();
-  }
-  return sa->GetValue(0);
-}
-
-#ifndef NDEBUG
-//------------------------------------------------------------------------------
-void SaveLevel(const std::string& output, int level, vtkPolyData* poly)
-{
-  std::ostringstream ostr;
-  ostr << output << "/level_" << level << ".vtp";
-  vtkNew<vtkXMLPolyDataWriter> writer;
-  writer->SetInputDataObject(poly);
-  writer->SetFileName(ostr.str().c_str());
-  writer->Write();
-}
-#endif
-
-//------------------------------------------------------------------------------
-void AddTextures(const std::string& path,
-  std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
-  std::vector<size_t>& buildingActorStart, std::vector<vtkSmartPointer<vtkActor>>& actors,
-  vtkRenderer* renderer, bool saveTextures)
-{
-  for (size_t i = 0; i < buildings.size(); ++i)
-  {
-    auto it = vtk::TakeSmartPointer(buildings[i]->NewIterator());
-    buildingActorStart.push_back(actors.size());
-    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
-    {
-      auto surface = it->GetCurrentDataObject();
-      if (!vtkPolyData::SafeDownCast(surface))
-      {
-        vtkLog(WARNING, "Expecting vtkPolyData but got: " << surface->GetClassName());
-      }
-      vtkNew<vtkPolyDataMapper> mapper;
-      mapper->SetInputDataObject(surface);
-
-      auto actor = vtkSmartPointer<vtkActor>::New();
-      actor->SetMapper(mapper);
-      actors.push_back(actor);
-      std::string textureFileName = GetFieldAsString(surface, "texture_uri");
-      if (saveTextures && !textureFileName.empty())
-      {
-        std::string texturePath = path + "/" + textureFileName;
-        auto textureReader = SetupTextureReader(texturePath);
-        textureReader->SetFileName(texturePath.c_str());
-        vtkNew<vtkTexture> texture;
-        texture->SetInputConnection(textureReader->GetOutputPort());
-        actor->SetTexture(texture);
-      }
-      else
-      {
-        // generate normals - these are needed in Cesium if there are no textures
-        vtkNew<vtkPolyDataNormals> normals;
-        normals->SetInputDataObject(surface);
-        normals->Update();
-        auto surfaceWithNormals = vtkPolyData::SafeDownCast(normals->GetOutputDataObject(0));
-        auto normalArray = surfaceWithNormals->GetPointData()->GetNormals();
-        if (normalArray)
-        {
-          normalArray->SetName("NORMAL");
-          mapper->SetInputDataObject(surfaceWithNormals);
-        }
-      }
-      renderer->AddActor(actor);
-    }
-  }
-  buildingActorStart.push_back(actors.size());
-}
-
-//------------------------------------------------------------------------------
 std::array<double, 6> AddBuildingsWithTexture(vtkMultiBlockDataSet* root,
-  const std::string& texturePath, const double* fileOffset, vtkRenderer* renderer,
-  bool saveTextures,
+  const std::string& texturePath, const double* fileOffset, bool saveTextures,
 
-  std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
-  std::vector<size_t>& buildingActorStart, std::vector<vtkSmartPointer<vtkActor>>& actors,
-  std::array<double, 3>& offset)
+  std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings, std::array<double, 3>& offset)
 {
   std::array<double, 6> wholeBB;
   root->GetBounds(&wholeBB[0]);
@@ -218,7 +113,6 @@ std::array<double, 6> AddBuildingsWithTexture(vtkMultiBlockDataSet* root,
     }
     buildings.push_back(building);
   }
-  AddTextures(texturePath, buildings, buildingActorStart, actors, renderer, saveTextures);
 
   std::transform(offset.begin(), offset.end(), fileOffset, offset.begin(), std::plus<double>());
 
@@ -269,22 +163,14 @@ int vtkCesium3DTilesWriter::FillInputPortInformation(int port, vtkInformation* i
 void vtkCesium3DTilesWriter::WriteData()
 {
   {
-    std::vector<vtkSmartPointer<vtkActor>> actors;
-    vtkNew<vtkRenderer> renderer;
-    auto renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
     {
       auto root = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
       std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
-      std::vector<size_t> buildingActorStart;
       std::array<double, 3> offset = { 0, 0, 0 };
 
-      renderWindow->AddRenderer(renderer);
-      renderWindow->OffScreenRenderingOn();
-      renderWindow->SetSize(640, 480);
-
       vtkLog(INFO, "Add buildings with texture...");
-      auto wholeBB = AddBuildingsWithTexture(root, this->TexturePath, this->Origin, renderer,
-        this->SaveTextures, buildings, buildingActorStart, actors, offset);
+      auto wholeBB = AddBuildingsWithTexture(
+        root, this->TexturePath, this->Origin, this->SaveTextures, buildings, offset);
       std::copy(offset.begin(), offset.end(), this->Origin);
       if (buildings.empty())
       {
@@ -293,31 +179,18 @@ void vtkCesium3DTilesWriter::WriteData()
           "Maybe buildings are on a different LOD. Try changing --lod parameter.");
         return;
       }
-      vtkLog(INFO,
-        "Processing " << buildings.size() << " buildings and " << actors.size() << " actors...");
+      vtkLog(INFO, "Processing " << buildings.size() << " buildings...");
       vtkDirectory::MakeDirectory(this->DirectoryName);
 
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), buildings,
-        buildingActorStart, offset, actors, renderWindow, this->DirectoryName, this->TexturePath,
-        this->SaveTextures, this->SrsName, this->UTMZone, this->UTMHemisphere);
+        offset, this->DirectoryName, this->TexturePath, this->SaveTextures, this->SrsName,
+        this->UTMZone, this->UTMHemisphere);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.Generate3DTiles(std::string(this->DirectoryName) + "/tileset.json");
 
-      // debug - save poly data for each level of the tree.
-      // int numberOfLevels = octree->GetNumberOfLevels();
-      // for (int level = 0; level < numberOfLevels; ++level)
-      // {
-      //   vtkNew<vtkPolyData> octreePoly;
-      //   octree->GenerateRepresentation(
-      //     level, octreePoly, &TreeInformation::GetNodeBounds, &treeInformation);
-      //   treeInformation.AddGeometricError(octreePoly);
-      //   // ::SaveLevel(this->DirectoryName, level, octreePoly);
-      // }
-
-      // renderWindow->Render();
       if (this->SaveGLTF)
       {
         treeInformation.SaveGLTF();

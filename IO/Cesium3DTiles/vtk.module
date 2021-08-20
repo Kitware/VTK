@@ -12,12 +12,10 @@ PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonTransforms
   VTK::CommonSystem
-  VTK::IOExport
   VTK::IOImage
   VTK::IOGeometry
   VTK::FiltersGeneral
   VTK::RenderingCore
-  VTK::RenderingOpenGL2
   VTK::jsoncpp
   VTK::vtksys
   VTK::libproj
