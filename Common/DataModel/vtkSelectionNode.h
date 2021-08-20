@@ -74,7 +74,10 @@ public:
 
   ///@{
   /**
-   * Sets the selection list.
+   * Get/Set the selection list. The selection list is the container
+   * that stores values that indicate the selected items. What these values
+   * correspond to depends on the `ContentType`. `ContentType` may also dictate
+   * the type and form of the selection list array.
    */
   virtual void SetSelectionList(vtkAbstractArray*);
   virtual vtkAbstractArray* GetSelectionList();
@@ -128,17 +131,18 @@ public:
    */
   enum SelectionContent
   {
-    SELECTIONS,  //!< Deprecated.
-    GLOBALIDS,   //!< Select entities called out by their globally-unique IDs.
-    PEDIGREEIDS, //!< Select entities that have some identifiable pedigree.
-    VALUES,      //!< Select entities that take on specific array values.
-    INDICES,     //!< Select entities by their offsets into the dataset.
-    FRUSTUM,     //!< Select entities contained within a viewing frustum.
-    LOCATIONS,   //!< Select entities near the supplied world coordinates.
-    THRESHOLDS,  //!< Select entities whose array values fall within a given threshold.
-    BLOCKS,      //!< Select blocks within a composite dataset by their flat index.
-    QUERY,       //!< Select entities with a text query.
-    USER,        //!< Select entities with user-supplied, application-specific logic.
+    SELECTIONS,      //!< Deprecated.
+    GLOBALIDS,       //!< Select entities called out by their globally-unique IDs.
+    PEDIGREEIDS,     //!< Select entities that have some identifiable pedigree.
+    VALUES,          //!< Select entities that take on specific array values.
+    INDICES,         //!< Select entities by their offsets into the dataset.
+    FRUSTUM,         //!< Select entities contained within a viewing frustum.
+    LOCATIONS,       //!< Select entities near the supplied world coordinates.
+    THRESHOLDS,      //!< Select entities whose array values fall within a given threshold.
+    BLOCKS,          //!< Select blocks within a composite dataset by their flat index.
+    BLOCK_SELECTORS, //!< Select datasets within a composite dataset using selector expressions.
+    QUERY,           //!< Select entities with a text query.
+    USER,            //!< Select entities with user-supplied, application-specific logic.
     NUM_CONTENT_TYPES
   };
 
@@ -343,7 +347,7 @@ protected:
   char* QueryString;
 
   // Map from content type to content type name
-  static const char ContentTypeNames[SelectionContent::NUM_CONTENT_TYPES][14];
+  static const char ContentTypeNames[SelectionContent::NUM_CONTENT_TYPES][16];
 
   // Map from integer field type to field type name
   static const char FieldTypeNames[SelectionField::NUM_FIELD_TYPES][8];

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
+#include <vtkConvertSelection.h>
 #include <vtkDataAssemblyUtilities.h>
 #include <vtkExtractSelection.h>
 #include <vtkIossReader.h>
@@ -65,6 +65,49 @@ int TestExtractSelectionUsingDataAssembly(int argc, char* argv[])
   extractor->Update();
   vtkLogIfF(ERROR, extractor->GetOutputDataObject(0)->GetNumberOfElements(vtkDataObject::CELL) != 2,
     "Incorrect selection for selection '//element_blocks'!");
+
+  // reset selSource.
+  selSource->RemoveAllSelectors();
+  selSource->SetAssemblyName(nullptr);
+  selSource->RemoveAllIDs();
+
+  // Now test vtkSelectionNode::BLOCK_SELECTORS.
+  selSource->SetContentType(vtkSelectionNode::BLOCK_SELECTORS);
+
+  selSource->AddBlockSelector("//block_2");
+  extractor->SetInputConnection(1, selSource->GetOutputPort());
+  extractor->Update();
+  vtkLogIfF(ERROR,
+    extractor->GetOutputDataObject(0)->GetNumberOfElements(vtkDataObject::CELL) != 2352,
+    "Incorrect selection for selection '//block_2'!");
+
+  selSource->RemoveAllSelectors();
+  selSource->AddBlockSelector("//element_blocks");
+  selSource->SetArrayName("Assembly");
+  selSource->SetFieldType(vtkSelectionNode::POINT);
+  extractor->Update();
+  vtkLogIfF(ERROR,
+    extractor->GetOutputDataObject(0)->GetNumberOfElements(vtkDataObject::POINT) != 10088,
+    "Incorrect selection for selection '//element_blocks'!");
+
+  //------------------------------------------------------------------------
+  // let's also test selection convertor.
+  selSource->RemoveAllSelectors();
+  selSource->RemoveAllBlockSelectors();
+  selSource->SetCompositeIndex(3u);
+  selSource->AddID(-1, 0);
+  selSource->SetFieldType(vtkSelectionNode::CELL);
+  selSource->SetContentType(vtkSelectionNode::INDICES);
+
+  vtkNew<vtkConvertSelection> convertor;
+  convertor->SetOutputType(vtkSelectionNode::BLOCK_SELECTORS);
+  convertor->SetDataObjectConnection(reader->GetOutputPort());
+  convertor->SetInputConnection(selSource->GetOutputPort());
+  extractor->SetInputConnection(1, convertor->GetOutputPort());
+  extractor->Update();
+  vtkLogIfF(ERROR,
+    extractor->GetOutputDataObject(0)->GetNumberOfElements(vtkDataObject::CELL) != 2352,
+    "Incorrect selection after conversion for '//block_2'!");
 
   return EXIT_SUCCESS;
 }

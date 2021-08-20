@@ -405,6 +405,7 @@ vtkSmartPointer<vtkSelector> vtkExtractSelection::NewSelectionOperator(
       return vtkSmartPointer<vtkLocationSelector>::New();
 
     case vtkSelectionNode::BLOCKS:
+    case vtkSelectionNode::BLOCK_SELECTORS:
       return vtkSmartPointer<vtkBlockSelector>::New();
 
     case vtkSelectionNode::USER:

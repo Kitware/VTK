@@ -46,10 +46,12 @@ public:
 
   std::vector<double> Thresholds;
   std::vector<double> Locations;
-  std::vector<std::string> Selectors;
 
   IDSetType Blocks;
   double Frustum[32];
+
+  std::vector<std::string> BlockSelectors;
+  std::vector<std::string> Selectors; //< Qualifiers
 
   vtkInternals() { std::fill_n(this->Frustum, 32, 0); }
 };
@@ -207,69 +209,33 @@ void vtkSelectionSource::RemoveAllSelectors()
 }
 
 //------------------------------------------------------------------------------
+void vtkSelectionSource::AddBlockSelector(const char* selector)
+{
+  if (selector)
+  {
+    this->Internal->BlockSelectors.emplace_back(selector);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllBlockSelectors()
+{
+  if (!this->Internal->BlockSelectors.empty())
+  {
+    this->Internal->BlockSelectors.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "ContentType: ";
-  switch (this->ContentType)
-  {
-    case vtkSelectionNode::SELECTIONS:
-      os << "SELECTIONS";
-      break;
-    case vtkSelectionNode::GLOBALIDS:
-      os << "GLOBALIDS";
-      break;
-    case vtkSelectionNode::VALUES:
-      os << "VALUES";
-      break;
-    case vtkSelectionNode::INDICES:
-      os << "INDICES";
-      break;
-    case vtkSelectionNode::FRUSTUM:
-      os << "FRUSTUM";
-      break;
-    case vtkSelectionNode::LOCATIONS:
-      os << "LOCATIONS";
-      break;
-    case vtkSelectionNode::THRESHOLDS:
-      os << "THRESHOLDS";
-      break;
-    case vtkSelectionNode::BLOCKS:
-      os << "BLOCKS";
-      break;
-    default:
-      os << "UNKNOWN";
-  }
-  os << endl;
-
-  os << indent << "FieldType: ";
-  switch (this->FieldType)
-  {
-    case vtkSelectionNode::CELL:
-      os << "CELL";
-      break;
-    case vtkSelectionNode::POINT:
-      os << "POINT";
-      break;
-    case vtkSelectionNode::FIELD:
-      os << "FIELD";
-      break;
-    case vtkSelectionNode::VERTEX:
-      os << "VERTEX";
-      break;
-    case vtkSelectionNode::EDGE:
-      os << "EDGE";
-      break;
-    case vtkSelectionNode::ROW:
-      os << "ROW";
-      break;
-    default:
-      os << "UNKNOWN";
-  }
-  os << endl;
-
-  os << indent << "ContainingCells: ";
-  os << (this->ContainingCells ? "CELLS" : "POINTS") << endl;
+  os << indent << "ContentType: " << vtkSelectionNode::GetContentTypeAsString(this->ContentType)
+     << endl;
+  os << indent << "FieldType: " << vtkSelectionNode::GetFieldTypeAsString(this->FieldType) << endl;
+  os << indent << "ContainingCells: " << (this->ContainingCells ? "CELLS" : "POINTS") << endl;
   os << indent << "Inverse: " << this->Inverse << endl;
   os << indent << "ArrayName: " << (this->ArrayName ? this->ArrayName : "(nullptr)") << endl;
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
@@ -502,6 +468,20 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
          ++iter, ++cc)
     {
       selectionList->SetValue(cc, *iter);
+    }
+    output->SetSelectionList(selectionList);
+  }
+
+  if (this->ContentType == vtkSelectionNode::BLOCK_SELECTORS)
+  {
+    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
+    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
+    vtkNew<vtkStringArray> selectionList;
+    selectionList->SetNumberOfTuples(static_cast<vtkIdType>(this->Internal->BlockSelectors.size()));
+    vtkIdType cc = 0;
+    for (const auto& selector : this->Internal->BlockSelectors)
+    {
+      selectionList->SetValue(cc++, selector);
     }
     output->SetSelectionList(selectionList);
   }

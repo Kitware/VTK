@@ -21,6 +21,8 @@
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataAssembly.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelectedThresholds.h"
@@ -221,6 +223,7 @@ int vtkConvertSelection::ConvertToBlockSelection(
   vtkSelection* input, vtkCompositeDataSet* data, vtkSelection* output)
 {
   std::set<unsigned int> indices;
+  int fieldType = -1;
   for (unsigned int n = 0; n < input->GetNumberOfNodes(); ++n)
   {
     vtkSmartPointer<vtkSelectionNode> inputNode = input->GetNode(n);
@@ -244,6 +247,7 @@ int vtkConvertSelection::ConvertToBlockSelection(
       tempOutput.TakeReference(vtkConvertSelection::ToIndexSelection(tempSel, data));
       inputNode = tempOutput->GetNode(0);
     }
+
     vtkInformation* properties = inputNode->GetProperties();
     if (properties->Has(vtkSelectionNode::CONTENT_TYPE()) &&
       properties->Has(vtkSelectionNode::COMPOSITE_INDEX()))
@@ -262,6 +266,9 @@ int vtkConvertSelection::ConvertToBlockSelection(
         static_cast<unsigned int>(properties->Get(vtkSelectionNode::HIERARCHICAL_LEVEL())),
         static_cast<unsigned int>(properties->Get(vtkSelectionNode::HIERARCHICAL_INDEX()))));
     }
+
+    // save field type. I am just picking the first one for now.
+    fieldType = fieldType == -1 ? inputNode->GetFieldType() : fieldType;
   }
 
   if (indices.empty())
@@ -274,11 +281,40 @@ int vtkConvertSelection::ConvertToBlockSelection(
   outputNode->SetFieldType(fieldType);
   if (this->OutputType == vtkSelectionNode::BLOCKS)
   {
-    selectionList->SetValue(index, *siter);
+    auto selectionList = vtkSmartPointer<vtkUnsignedIntArray>::New();
+    selectionList->SetNumberOfTuples(static_cast<vtkIdType>(indices.size()));
+    vtkIdType cc = 0;
+    for (const auto& id : indices)
+    {
+      selectionList->SetValue(cc++, id);
+    }
+    outputNode->SetContentType(vtkSelectionNode::BLOCKS);
+    outputNode->SetSelectionList(selectionList);
   }
-  vtkSmartPointer<vtkSelectionNode> outputNode = vtkSmartPointer<vtkSelectionNode>::New();
-  outputNode->SetContentType(vtkSelectionNode::BLOCKS);
-  outputNode->SetSelectionList(selectionList);
+  else if (this->OutputType == vtkSelectionNode::BLOCK_SELECTORS)
+  {
+    // convert ids to selectors.
+    std::vector<unsigned int> vIndices(indices.size());
+    std::copy(indices.begin(), indices.end(), vIndices.begin());
+
+    auto hierarchy =
+      vtkDataAssemblyUtilities::GetDataAssembly(vtkDataAssemblyUtilities::HierarchyName(), data);
+    const auto selectors =
+      vtkDataAssemblyUtilities::GetSelectorsForCompositeIds(vIndices, hierarchy);
+
+    vtkNew<vtkStringArray> selectionList;
+    selectionList->SetName(vtkDataAssemblyUtilities::HierarchyName());
+    selectionList->SetNumberOfTuples(selectors.size());
+    vtkIdType cc = 0;
+    for (const auto& name : selectors)
+    {
+      selectionList->SetValue(cc++, name);
+    }
+    outputNode->SetContentType(vtkSelectionNode::BLOCK_SELECTORS);
+    outputNode->SetSelectionList(selectionList);
+  }
+
+  outputNode->SetFieldType(fieldType);
   output->AddNode(outputNode);
   return 1;
 }
@@ -287,9 +323,10 @@ int vtkConvertSelection::ConvertToBlockSelection(
 int vtkConvertSelection::ConvertCompositeDataSet(
   vtkSelection* input, vtkCompositeDataSet* data, vtkSelection* output)
 {
-  // If this->OutputType == vtkSelectionNode::BLOCKS we just want to create a new
+  // If OutputType is BLOCKS or BLOCK_SELECTORS we just want to create a new
   // selection with the chosen block indices.
-  if (this->OutputType == vtkSelectionNode::BLOCKS)
+  if (this->OutputType == vtkSelectionNode::BLOCKS ||
+    this->OutputType == vtkSelectionNode::BLOCK_SELECTORS)
   {
     return this->ConvertToBlockSelection(input, data, output);
   }

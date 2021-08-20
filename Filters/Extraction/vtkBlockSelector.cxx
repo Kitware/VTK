@@ -15,17 +15,19 @@
 #include "vtkBlockSelector.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
-#include "vtkDataSetAttributes.h"
+#include "vtkDataAssembly.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
+#include "vtkStringArray.h"
 #include "vtkUniformGridAMRDataIterator.h"
 
 #include <set>
+#include <string>
 
 class vtkBlockSelector::vtkInternals
 {
@@ -64,6 +66,11 @@ public:
 
   CompositeIdsT CompositeIds;
   AMRIdsT AMRIds;
+
+  // note: here `selectors` are path-queries used by vtkDataAssembly and **not**
+  // `vtkSelector`.
+  std::vector<std::string> Selectors;
+  std::string AssemblyName = vtkDataAssemblyUtilities::HierarchyName();
 };
 
 vtkStandardNewMacro(vtkBlockSelector);
@@ -85,24 +92,71 @@ void vtkBlockSelector::Initialize(vtkSelectionNode* node)
 {
   this->Superclass::Initialize(node);
 
-  assert(this->Node->GetContentType() == vtkSelectionNode::BLOCKS);
-  vtkDataArray* selectionList = vtkDataArray::SafeDownCast(this->Node->GetSelectionList());
-  if (selectionList->GetNumberOfComponents() == 2)
+  auto& internals = (*this->Internals);
+  internals = vtkInternals(); // reset values.
+
+  const auto contentType = this->Node->GetContentType();
+  if (contentType == vtkSelectionNode::BLOCKS)
   {
-    if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>::Execute(
-          selectionList, this->Internals->AMRIds))
+    vtkDataArray* selectionList = vtkDataArray::SafeDownCast(this->Node->GetSelectionList());
+    if (selectionList->GetNumberOfComponents() == 2)
     {
-      vtkGenericWarningMacro("SelectionList of unexpected type!");
+      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>::Execute(
+            selectionList, internals.AMRIds))
+      {
+        vtkGenericWarningMacro("SelectionList of unexpected type!");
+      }
+    }
+    else if (selectionList->GetNumberOfComponents() == 1)
+    {
+      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>::Execute(
+            selectionList, internals.CompositeIds))
+      {
+        vtkGenericWarningMacro("SelectionList of unexpected type!");
+      }
     }
   }
-  else if (selectionList->GetNumberOfComponents() == 1)
+  else if (contentType == vtkSelectionNode::BLOCK_SELECTORS)
   {
-    if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>::Execute(
-          selectionList, this->Internals->CompositeIds))
+    if (auto selectionList = vtkStringArray::SafeDownCast(this->Node->GetSelectionList()))
     {
-      vtkGenericWarningMacro("SelectionList of unexpected type!");
+      for (vtkIdType cc = 0, max = selectionList->GetNumberOfValues(); cc < max; ++cc)
+      {
+        internals.Selectors.push_back(selectionList->GetValue(cc));
+      }
+      // if selectionList has a name, we use that as an way to pick which
+      // assembly to use.
+      if (selectionList->GetName() && selectionList->GetName()[0] != '\0')
+      {
+        internals.AssemblyName = selectionList->GetName();
+      }
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkBlockSelector::Execute(vtkDataObject* input, vtkDataObject* output)
+{
+  auto& internals = (*this->Internals);
+  auto inputCD = vtkCompositeDataSet::SafeDownCast(input);
+  if (input && this->Node->GetContentType() == vtkSelectionNode::BLOCK_SELECTORS)
+  {
+    internals.CompositeIds.clear();
+
+    // convert selectors to composite indices.
+    if (auto assembly =
+          vtkDataAssemblyUtilities::GetDataAssembly(internals.AssemblyName.c_str(), inputCD))
+    {
+      const auto compositeIds = vtkDataAssemblyUtilities::GetSelectedCompositeIds(
+        internals.Selectors, assembly, vtkPartitionedDataSetCollection::SafeDownCast(inputCD));
+      // note the vtkPartitionedDataSetCollection is not needed unless were
+      // using a vtkDataAssembly which doesn't represent a hierarchy. Such a
+      // vtkDataAssembly is currently only supported by
+      // vtkPartitionedDataSetCollection.
+      internals.CompositeIds.insert(compositeIds.begin(), compositeIds.end());
+    }
+  }
+  this->Superclass::Execute(input, output);
 }
 
 //------------------------------------------------------------------------------
