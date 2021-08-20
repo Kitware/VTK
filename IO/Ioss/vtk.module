@@ -2,6 +2,8 @@ NAME
   VTK::IOIoss
 LIBRARY_NAME
   vtkIOIoss
+GROUPS
+  StandAlone
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
