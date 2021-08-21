@@ -1967,11 +1967,8 @@ void vtkTextureObject::CopyFromFrameBuffer(
 
     // Now blit to resolve the MSAA and get an anti-aliased rendering in
     // resolvedFBO.
-    // Note: extents are (x-min, x-max, y-min, y-max).
-    const int srcExtents[4] = { srcXmin, srcXmin + width, srcYmin, srcYmin + height };
-    const int destExtents[4] = { 0, width, 0, height };
-    vtkOpenGLFramebufferObject::Blit(
-      srcExtents, destExtents, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    this->Context->GetState()->vtkglBlitFramebuffer(srcXmin, srcYmin, srcXmin + width,
+      srcYmin + height, 0, 0, width, height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
     // Now make the resolvedFBO the read buffer and read from it.
     this->Context->GetState()->PushReadFramebufferBinding();

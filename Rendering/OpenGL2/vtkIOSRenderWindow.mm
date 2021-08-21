@@ -54,15 +54,14 @@ void vtkIOSRenderWindow::BlitDisplayFramebuffersToHardware()
   this->GetState()->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
   this->GetState()->vtkglScissor(0, 0, this->Size[0], this->Size[1]);
 
-  // recall Blit upper right corner is exclusive of the range
-  const int srcExtents[4] = { 0, this->Size[0], 0, this->Size[1] };
-
   this->GetState()->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
   this->DisplayFramebuffer->ActivateReadBuffer(0);
   this->GetState()->vtkglDrawBuffer(this->DoubleBuffer ? GL_BACK : GL_FRONT);
-  vtkOpenGLFramebufferObject::Blit(
-    srcExtents, srcExtents, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+  // recall Blit upper right corner is exclusive of the range
+  this->GetState()->vtkglBlitFramebuffer(0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0],
+    this->Size[1], GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
   this->GetState()->PopFramebufferBindings();
 }

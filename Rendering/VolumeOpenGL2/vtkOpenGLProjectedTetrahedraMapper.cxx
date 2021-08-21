@@ -541,7 +541,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
       vtkErrorMacro("FO is incomplete ");
     }
 
-    glBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
+    ostate->vtkglBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
       this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
       GL_NEAREST);
 
@@ -1079,7 +1079,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
     ostate->PopDrawFramebufferBinding();
 
     // Depth buffer has not changed so only copy color
-    glBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
+    ostate->vtkglBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight, 0, 0,
       this->CurrentFBOWidth, this->CurrentFBOHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
