@@ -183,7 +183,7 @@ public:
 
   ///@{
   /**
-   * For selector-based selection qualification. Note, this should
+   * For selector-based selection qualification. Note, this should not
    * be confused with block-selectors used to select blocks using selectors.
    * These here are qualifiers i.e. they limit the selected items.
    */
