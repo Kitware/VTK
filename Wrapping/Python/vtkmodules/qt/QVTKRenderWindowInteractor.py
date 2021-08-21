@@ -622,7 +622,9 @@ def QVTKRenderWidgetConeExample():
     widget.Start()
 
     # start event processing
-    # 'exec_' will be removed in the future. Use 'exec' instead
+    # Source: https://doc.qt.io/qtforpython/porting_from2.html
+    # 'exec_' is deprecated and will be removed in the future.
+    # Use 'exec' instead.
     try:
         app.exec()
     except AttributeError:
