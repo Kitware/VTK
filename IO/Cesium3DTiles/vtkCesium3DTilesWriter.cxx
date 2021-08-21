@@ -80,8 +80,7 @@ vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctree(
 }
 
 //------------------------------------------------------------------------------
-std::array<double, 6> AddBuildingsWithTexture(vtkMultiBlockDataSet* root,
-  const std::string& texturePath, const double* fileOffset, bool saveTextures,
+std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* root, const double* fileOffset,
 
   std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings, std::array<double, 3>& offset)
 {
@@ -163,41 +162,37 @@ int vtkCesium3DTilesWriter::FillInputPortInformation(int port, vtkInformation* i
 void vtkCesium3DTilesWriter::WriteData()
 {
   {
+    auto root = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
+    std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
+    std::array<double, 3> offset = { 0, 0, 0 };
+
+    vtkLog(INFO, "Translate buildings...");
+    auto wholeBB = TranslateBuildings(root, this->Origin, buildings, offset);
+    std::copy(offset.begin(), offset.end(), this->Origin);
+    if (buildings.empty())
     {
-      auto root = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
-      std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
-      std::array<double, 3> offset = { 0, 0, 0 };
-
-      vtkLog(INFO, "Add buildings with texture...");
-      auto wholeBB = AddBuildingsWithTexture(
-        root, this->TexturePath, this->Origin, this->SaveTextures, buildings, offset);
-      std::copy(offset.begin(), offset.end(), this->Origin);
-      if (buildings.empty())
-      {
-        vtkLog(ERROR,
-          "No buildings read from the input file. "
-          "Maybe buildings are on a different LOD. Try changing --lod parameter.");
-        return;
-      }
-      vtkLog(INFO, "Processing " << buildings.size() << " buildings...");
-      vtkDirectory::MakeDirectory(this->DirectoryName);
-
-      vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
-        BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
-      TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), buildings,
-        offset, this->DirectoryName, this->TexturePath, this->SaveTextures, this->SrsName,
-        this->UTMZone, this->UTMHemisphere);
-      treeInformation.Compute();
-      vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
-      treeInformation.Generate3DTiles(std::string(this->DirectoryName) + "/tileset.json");
-
-      if (this->SaveGLTF)
-      {
-        treeInformation.SaveGLTF();
-      }
-      vtkLog(INFO, "Deleting objects ...");
+      vtkLog(ERROR,
+        "No buildings read from the input file. "
+        "Maybe buildings are on a different LOD. Try changing --lod parameter.");
+      return;
     }
-    vtkLog(INFO, "Deleting rendering objects ...");
+    vtkLog(INFO, "Processing " << buildings.size() << " buildings...");
+    vtkDirectory::MakeDirectory(this->DirectoryName);
+
+    vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
+      BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
+    TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), buildings,
+      offset, this->DirectoryName, this->TexturePath, this->SaveTextures, this->SrsName,
+      this->UTMZone, this->UTMHemisphere);
+    treeInformation.Compute();
+    vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
+    treeInformation.Generate3DTiles(std::string(this->DirectoryName) + "/tileset.json");
+
+    if (this->SaveGLTF)
+    {
+      treeInformation.SaveGLTF();
+    }
+    vtkLog(INFO, "Deleting objects ...");
   }
   vtkLog(INFO, "Done.");
 }
