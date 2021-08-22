@@ -96,8 +96,8 @@ void vtkMultiBlockVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 
   this->SortMappers(ren, vol->GetMatrix());
 
-  MapperVec::const_iterator end = this->Mappers.end();
-  for (MapperVec::const_iterator it = this->Mappers.begin(); it != end; ++it)
+  MapperVec::iterator end = this->Mappers.end();
+  for (MapperVec::iterator it = this->Mappers.begin(); it != end; ++it)
   {
     if (this->FallBackMapper)
     {
