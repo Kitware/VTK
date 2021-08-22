@@ -1,0 +1,32 @@
+#
+# HDF5 code should not trigger the following warnings under any
+# circumstances, so ask the compiler to treat them as errors:
+#
+# NOTE: c++/test files are not compatible with these warnings as errors
+#     c++/test/tcompound.cpp
+#       -Werror=cast-align
+-Wcast-align
+# NOTE: c++/src files are not compatible with these warnings as errors
+#     c++/src/H5Object.cpp
+#       -Werror=missing-declarations
+-Wmissing-declarations
+-Wpacked
+-Wredundant-decls
+-Wswitch
+# NOTE: c++/test files are not compatible with these warnings as errors
+#     c++/test/tattr.cpp
+#       -Werror=unused-but-set-variable
+-Wunused-but-set-variable
+-Wunused-function
+-Wunused-variable
+# NOTE: c++/src files are not compatible with these warnings as errors
+#     c++/src/H5Object.cpp,c++/src/H5StrType.cpp,c++/src/H5PredType.cpp
+#       -Werror=unused-parameter
+-Wunused-parameter
+#
+# Other files not compatible
+# NOTE: c++/test files are not compatible with these warnings as errors
+#     c++/test/titerate.cpp,c++/test/tarray.cpp
+#       -Werror=missing-declarations
+#     c++/test/titerate.cpp,c++/test/tarray.cpp,c++/test/tlinks.cpp,c++/test/ttypes.cpp,c++/test/dsets.cpp
+#       -Werror=unused-parameter

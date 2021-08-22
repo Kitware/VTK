@@ -5,7 +5,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -32,7 +32,7 @@
 /* Define the default plugins path to compile */
 #cmakedefine H5_DEFAULT_PLUGINDIR "@H5_DEFAULT_PLUGINDIR@"
 
-/* Define if `dev_t' is a scalar */
+/* Define if dev_t is a scalar */
 #cmakedefine H5_DEV_T_IS_SCALAR @H5_DEV_T_IS_SCALAR@
 
 /* Define to dummy `main' function (if any) required to link to the Fortran
@@ -88,6 +88,9 @@
 /* Define to 1 if you have the `alarm' function. */
 #cmakedefine H5_HAVE_ALARM @H5_HAVE_ALARM@
 
+/* Define to 1 if you have the <arpa/inet.h> header file. */
+#cmakedefine H5_HAVE_ARPA_INET_H @H5_HAVE_ARPA_INET_H@
+
 /* Define to 1 if you have the `asprintf' function. */
 #cmakedefine H5_HAVE_ASPRINTF @H5_HAVE_ASPRINTF@
 
@@ -101,8 +104,8 @@
 /* Define if the compiler understands the __func__ keyword */
 #cmakedefine H5_HAVE_C99_FUNC @H5_HAVE_C99_FUNC@
 
-/* Define to 1 if you have the <arpa/inet.h> header file. */
-#cmakedefine H5_HAVE_ARPA_INET_H @H5_HAVE_ARPA_INET_H@
+/* Define to 1 if you have the `clock_gettime' function. */
+#cmakedefine H5_HAVE_CLOCK_GETTIME @H5_HAVE_CLOCK_GETTIME@
 
 /* Define if the function stack tracing code is to be compiled in */
 #cmakedefine H5_HAVE_CODESTACK @H5_HAVE_CODESTACK@
@@ -234,7 +237,10 @@
 /* Define to 1 if you have the `lseek64' function. */
 #cmakedefine H5_HAVE_LSEEK64 @H5_HAVE_LSEEK64@
 
-/* Define if we can build the Mirror VFD */
+/* Define if the map API (H5M) should be compiled */
+#cmakedefine H5_HAVE_MAP_API @H5_HAVE_MAP_API@
+
+/* Define whether the Mirror virtual file driver (VFD) will be compiled */
 #cmakedefine H5_HAVE_MIRROR_VFD @H5_HAVE_MIRROR_VFD@
 
 /* Define if we have MPE support */
@@ -243,10 +249,10 @@
 /* Define to 1 if you have the <mpe.h> header file. */
 #cmakedefine H5_HAVE_MPE_H @H5_HAVE_MPE_H@
 
-/* Define if MPI_Comm_c2f and MPI_Comm_f2c exists */
+/* Define if MPI_Comm_c2f and MPI_Comm_f2c exist */
 #cmakedefine H5_HAVE_MPI_MULTI_LANG_Comm @H5_HAVE_MPI_MULTI_LANG_Comm@
 
-/* Define if MPI_Info_c2f and MPI_Info_f2c exists */
+/* Define if MPI_Info_c2f and MPI_Info_f2c exist */
 #cmakedefine H5_HAVE_MPI_MULTI_LANG_Info @H5_HAVE_MPI_MULTI_LANG_Info@
 
 /* Define to 1 if you have the <netdb.h> header file. */
@@ -423,7 +429,7 @@
 /* Define if the compiler understands __inline__ */
 #cmakedefine H5_HAVE___INLINE__ @H5_HAVE___INLINE__@
 
-/* Define if the library will ignore file locks when disabled */                 
+/* Define if the library will ignore file locks when disabled */
 #cmakedefine H5_IGNORE_DISABLED_FILE_LOCKS @H5_IGNORE_DISABLED_FILE_LOCKS@
 
 /* Define if the high-level library headers should be included in hdf5.h */
@@ -452,7 +458,7 @@
 #cmakedefine H5_LT_OBJDIR @H5_LT_OBJDIR@
 
 /* Define to enable internal memory allocation sanity checking. */
-/* #cmakedefine H5_MEMORY_ALLOC_SANITY_CHECK @H5_MEMORY_ALLOC_SANITY_CHECK@ ** Define in CMakeLists.txt */
+#cmakedefine H5_MEMORY_ALLOC_SANITY_CHECK @H5_MEMORY_ALLOC_SANITY_CHECK@
 
 /* Define if we can violate pointer alignment restrictions */
 #cmakedefine H5_NO_ALIGNMENT_RESTRICTIONS @H5_NO_ALIGNMENT_RESTRICTIONS@
@@ -482,10 +488,10 @@
 #define H5_PACKAGE_VERSION "@HDF5_PACKAGE_VERSION_STRING@"
 
 /* Determine the maximum decimal precision in C */
-#cmakedefine H5_PAC_C_MAX_REAL_PRECISION @H5_PAC_C_MAX_REAL_PRECISION@
+#define H5_PAC_C_MAX_REAL_PRECISION @H5_PAC_C_MAX_REAL_PRECISION@
 
 /* Define Fortran Maximum Real Decimal Precision */
-#cmakedefine H5_PAC_FC_MAX_REAL_PRECISION @H5_PAC_FC_MAX_REAL_PRECISION@
+#define H5_PAC_FC_MAX_REAL_PRECISION @H5_PAC_FC_MAX_REAL_PRECISION@
 
 /* Width for printf() for type `long long' or `__int64', use `ll' */
 #cmakedefine H5_PRINTF_LL_WIDTH @H5_PRINTF_LL_WIDTH@
@@ -675,8 +681,14 @@
 /* Define using v1.10 public API symbols by default */
 #cmakedefine H5_USE_110_API_DEFAULT @H5_USE_110_API_DEFAULT@
 
+/* Define using v1.12 public API symbols by default */
+#cmakedefine H5_USE_112_API_DEFAULT @H5_USE_112_API_DEFAULT@
+
 /* Define if the library will use file locking */
 #cmakedefine H5_USE_FILE_LOCKING @H5_USE_FILE_LOCKING@
+
+/* Define if the library will use recursive RW locks for thread safety */
+#cmakedefine H5_USE_RECURSIVE_RW_LOCKS @H5_USE_RECURSIVE_RW_LOCKS@
 
 /* Define if a memory checking tool will be used on the library, to cause
    library to be very picky about memory operations and also disable the

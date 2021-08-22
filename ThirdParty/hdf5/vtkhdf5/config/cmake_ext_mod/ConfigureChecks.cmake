@@ -5,7 +5,7 @@
 # This file is part of HDF5.  The full HDF5 copyright notice, including
 # terms governing use, modification, and redistribution, is contained in
 # the COPYING file, which can be found at the root of the source code
-# distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.
+# distribution tree, or in https://www.hdfgroup.org/licenses.
 # If you do not have access to either file, you may request a copy from
 # help@hdfgroup.org.
 #
@@ -54,6 +54,7 @@ if (MINGW)
   set (WINDOWS 1) # MinGW tries to imitate Windows
   set (CMAKE_REQUIRED_FLAGS "-DWIN32_LEAN_AND_MEAN=1 -DNOGDI=1")
   set (${HDF_PREFIX}_HAVE_WINSOCK2_H 1)
+  set (__USE_MINGW_ANSI_STDIO 1)
 endif ()
 
 if (WIN32 AND NOT MINGW)
@@ -177,7 +178,9 @@ macro (HDF_FUNCTION_TEST OTHER_TEST)
       )
     endif ()
 
-    #message (STATUS "Performing ${OTHER_TEST}")
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+      message (TRACE "Performing ${OTHER_TEST}")
+    endif ()
     try_compile (${OTHER_TEST}
         ${CMAKE_BINARY_DIR}
         ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
@@ -187,9 +190,13 @@ macro (HDF_FUNCTION_TEST OTHER_TEST)
     )
     if (${OTHER_TEST})
       set (${HDF_PREFIX}_${OTHER_TEST} 1 CACHE INTERNAL "Other test ${FUNCTION}")
-      message (STATUS "Performing Other Test ${OTHER_TEST} - Success")
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+        message (VERBOSE "Performing Other Test ${OTHER_TEST} - Success")
+      endif ()
     else ()
-      message (STATUS "Performing Other Test ${OTHER_TEST} - Failed")
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+        message (VERBOSE "Performing Other Test ${OTHER_TEST} - Failed")
+      endif ()
       set (${HDF_PREFIX}_${OTHER_TEST} "" CACHE INTERNAL "Other test ${FUNCTION}")
       file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
           "Performing Other Test ${OTHER_TEST} failed with the following output:\n"
@@ -254,17 +261,23 @@ if (MINGW OR NOT WINDOWS)
         set (TEST_LFS_WORKS 1 CACHE INTERNAL ${msg})
         set (LARGEFILE 1)
         set (HDF_EXTRA_FLAGS ${HDF_EXTRA_FLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE)
-        message (STATUS "${msg}... yes")
+        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+          message (VERBOSE "${msg}... yes")
+        endif ()
       else ()
         set (TEST_LFS_WORKS "" CACHE INTERNAL ${msg})
-        message (STATUS "${msg}... no")
+        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+          message (VERBOSE "${msg}... no")
+        endif ()
         file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
               "Test TEST_LFS_WORKS Run failed with the following exit code:\n ${TEST_LFS_WORKS_RUN}\n"
         )
       endif ()
     else ()
       set (TEST_LFS_WORKS "" CACHE INTERNAL ${msg})
-      message (STATUS "${msg}... no")
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+          message (VERBOSE "${msg}... no")
+      endif ()
       file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
           "Test TEST_LFS_WORKS Compile failed\n"
       )
@@ -297,11 +310,15 @@ endif ()
 macro (HDF_CHECK_TYPE_SIZE type var)
   set (aType ${type})
   set (aVar  ${var})
-#  message (STATUS "Checking size of ${aType} and storing into ${aVar}")
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+    message (TRACE "Checking size of ${aType} and storing into ${aVar}")
+  endif ()
   CHECK_TYPE_SIZE (${aType}   ${aVar})
   if (NOT ${aVar})
     set (${aVar} 0 CACHE INTERNAL "SizeOf for ${aType}")
-#    message (STATUS "Size of ${aType} was NOT Found")
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+      message (TRACE "Size of ${aType} was NOT Found")
+    endif ()
   endif ()
 endmacro ()
 
@@ -509,7 +526,9 @@ endif ()
 #-----------------------------------------------------------------------------
 if (WINDOWS)
   if (NOT HDF_NO_IOEO_TEST)
-  #message (STATUS "Checking for InitOnceExecuteOnce:")
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+      #message (VERBOSE "Checking for InitOnceExecuteOnce:")
+    endif ()
   if (NOT DEFINED ${HDF_PREFIX}_HAVE_IOEO)
     if (LARGEFILE)
       set (CMAKE_REQUIRED_DEFINITIONS
@@ -538,7 +557,9 @@ if (WINDOWS)
     # if the return value was 0 then it worked
     if ("${HAVE_IOEO_EXITCODE}" EQUAL 0)
       set (${HDF_PREFIX}_HAVE_IOEO 1 CACHE INTERNAL "Test InitOnceExecuteOnce")
-      message (STATUS "Performing Test InitOnceExecuteOnce - Success")
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+        message (VERBOSE "Performing Test InitOnceExecuteOnce - Success")
+      endif ()
       file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
         "Performing C SOURCE FILE Test InitOnceExecuteOnce succeded with the following output:\n"
         "${OUTPUT}\n"
@@ -550,7 +571,9 @@ if (WINDOWS)
         set (${HDF_PREFIX}_HAVE_IOEO "" CACHE INTERNAL "Test InitOnceExecuteOnce")
       endif ()
 
-      message (STATUS "Performing Test InitOnceExecuteOnce - Failed")
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+        message (VERBOSE "Performing Test InitOnceExecuteOnce - Failed")
+      endif ()
       file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
         "Performing InitOnceExecuteOnce Test  failed with the following output:\n"
         "${OUTPUT}\n"
@@ -573,7 +596,9 @@ endforeach ()
 #-----------------------------------------------------------------------------
 if (NOT ${HDF_PREFIX}_PRINTF_LL_WIDTH OR ${HDF_PREFIX}_PRINTF_LL_WIDTH MATCHES "unknown")
   set (PRINT_LL_FOUND 0)
-  message (STATUS "Checking for appropriate format for 64 bit long:")
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+    message (VERBOSE "Checking for appropriate format for 64 bit long:")
+  endif ()
   set (CURRENT_TEST_DEFINITIONS "-DPRINTF_LL_WIDTH")
   if (${HDF_PREFIX}_SIZEOF_LONG_LONG)
     set (CURRENT_TEST_DEFINITIONS "${CURRENT_TEST_DEFINITIONS} -DHAVE_LONG_LONG")
@@ -590,7 +615,9 @@ if (NOT ${HDF_PREFIX}_PRINTF_LL_WIDTH OR ${HDF_PREFIX}_PRINTF_LL_WIDTH MATCHES "
       set (${HDF_PREFIX}_PRINTF_LL_WIDTH "\"${${HDF_PREFIX}_PRINTF_LL}\"" CACHE INTERNAL "Width for printf for type `long long' or `__int64', us. `ll")
       set (PRINT_LL_FOUND 1)
     else ()
-      message (STATUS "Width test failed with result: ${${HDF_PREFIX}_PRINTF_LL_TEST_RUN}")
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+        message (VERBOSE "Width test failed with result: ${${HDF_PREFIX}_PRINTF_LL_TEST_RUN}")
+      endif ()
     endif ()
   else ()
     file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
@@ -599,9 +626,13 @@ if (NOT ${HDF_PREFIX}_PRINTF_LL_WIDTH OR ${HDF_PREFIX}_PRINTF_LL_WIDTH MATCHES "
   endif ()
 
   if (PRINT_LL_FOUND)
-    message (STATUS "Checking for appropriate format for 64 bit long: found ${${HDF_PREFIX}_PRINTF_LL_WIDTH}")
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+      message (VERBOSE "Checking for appropriate format for 64 bit long: found ${${HDF_PREFIX}_PRINTF_LL_WIDTH}")
+    endif ()
   else ()
-    message (STATUS "Checking for appropriate format for 64 bit long: not found")
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+      message (VERBOSE "Checking for appropriate format for 64 bit long: not found")
+    endif ()
     set (${HDF_PREFIX}_PRINTF_LL_WIDTH "\"unknown\"" CACHE INTERNAL
         "Width for printf for type `long long' or `__int64', us. `ll"
     )

@@ -3,5 +3,4 @@
 -Wduplicated-branches
 -Wformat-overflow=2
 -Wformat-truncation=1
--Wimplicit-fallthrough=5
 -Wrestrict

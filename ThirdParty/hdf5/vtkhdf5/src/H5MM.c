@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -22,30 +22,27 @@
  *-------------------------------------------------------------------------
  */
 
-
 /****************/
 /* Module Setup */
 /****************/
 
-
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5MMprivate.h"	/* Memory management			*/
-
+#include "H5private.h"   /* Generic Functions			*/
+#include "H5Eprivate.h"  /* Error handling		  	*/
+#include "H5MMprivate.h" /* Memory management			*/
 
 /****************/
 /* Local Macros */
 /****************/
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
-#define H5MM_SIG_SIZE           4
-#define H5MM_HEAD_GUARD_SIZE    8
-#define H5MM_TAIL_GUARD_SIZE    8
-#define H5MM_BLOCK_FROM_BUF(mem) ((H5MM_block_t *)((void *)((unsigned char *)mem - (offsetof(H5MM_block_t, b) + H5MM_HEAD_GUARD_SIZE))))
+#define H5MM_SIG_SIZE        4
+#define H5MM_HEAD_GUARD_SIZE 8
+#define H5MM_TAIL_GUARD_SIZE 8
+#define H5MM_BLOCK_FROM_BUF(mem)                                                                             \
+    ((H5MM_block_t *)((void *)((unsigned char *)mem - (offsetof(H5MM_block_t, b) + H5MM_HEAD_GUARD_SIZE))))
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
-
 
 /******************/
 /* Local Typedefs */
@@ -53,42 +50,39 @@
 
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
 /* Memory allocation "block", wrapped around each allocation */
-struct H5MM_block_t;    /* Forward declaration for typedef */
+struct H5MM_block_t; /* Forward declaration for typedef */
 typedef struct H5MM_block_t {
-    unsigned char sig[H5MM_SIG_SIZE];   /* Signature for the block, to indicate it was allocated with H5MM* interface */
-    struct H5MM_block_t *next;          /* Pointer to next block in the list of allocated blocks */
-    struct H5MM_block_t *prev;          /* Pointer to previous block in the list of allocated blocks */
+    unsigned char
+                         sig[H5MM_SIG_SIZE]; /* Signature for the block, to indicate it was allocated with H5MM* interface */
+    struct H5MM_block_t *next; /* Pointer to next block in the list of allocated blocks */
+    struct H5MM_block_t *prev; /* Pointer to previous block in the list of allocated blocks */
     union {
         struct {
-            size_t size;                /* Size of allocated block */
-            hbool_t in_use;             /* Whether the block is in use or is free */
+            size_t  size;   /* Size of allocated block */
+            hbool_t in_use; /* Whether the block is in use or is free */
         } info;
-        double _align;                  /* Align following buffer (b) to double boundary (unused) */
+        double _align; /* Align following buffer (b) to double boundary (unused) */
     } u;
-    unsigned char b[];                  /* Buffer for caller (includes header and footer) */
+    unsigned char b[]; /* Buffer for caller (includes header and footer) */
 } H5MM_block_t;
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
-
 
 /********************/
 /* Local Prototypes */
 /********************/
-#if defined H5_MEMORY_ALLOC_SANITY_CHECK
+#if defined    H5_MEMORY_ALLOC_SANITY_CHECK
 static hbool_t H5MM__is_our_block(void *mem);
-static void H5MM__sanity_check_block(const H5MM_block_t *block);
-static void H5MM__sanity_check(void *mem);
+static void    H5MM__sanity_check_block(const H5MM_block_t *block);
+static void    H5MM__sanity_check(void *mem);
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
-
 
 /*********************/
 /* Package Variables */
 /*********************/
 
-
 /*****************************/
 /* Library Private Variables */
 /*****************************/
-
 
 /*******************/
 /* Local Variables */
@@ -96,7 +90,7 @@ static void H5MM__sanity_check(void *mem);
 
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
 /* Constant strings for block signature, head & tail guards */
-static const char H5MM_block_signature_s[H5MM_SIG_SIZE] = {'H', '5', 'M', 'M'};
+static const char H5MM_block_signature_s[H5MM_SIG_SIZE]         = {'H', '5', 'M', 'M'};
 static const char H5MM_block_head_guard_s[H5MM_HEAD_GUARD_SIZE] = {'D', 'E', 'A', 'D', 'B', 'E', 'E', 'F'};
 static const char H5MM_block_tail_guard_s[H5MM_TAIL_GUARD_SIZE] = {'B', 'E', 'E', 'F', 'D', 'E', 'A', 'D'};
 
@@ -107,18 +101,17 @@ static hbool_t H5MM_init_s = FALSE;
 static H5MM_block_t H5MM_block_head_s;
 
 /* Statistics about block allocations */
-static unsigned long long H5MM_total_alloc_bytes_s = 0;
-static size_t H5MM_curr_alloc_bytes_s = 0;
-static size_t H5MM_peak_alloc_bytes_s = 0;
-static size_t H5MM_max_block_size_s = 0;
-static size_t H5MM_total_alloc_blocks_count_s = 0;
-static size_t H5MM_curr_alloc_blocks_count_s = 0;
-static size_t H5MM_peak_alloc_blocks_count_s = 0;
+static unsigned long long H5MM_total_alloc_bytes_s        = 0;
+static size_t             H5MM_curr_alloc_bytes_s         = 0;
+static size_t             H5MM_peak_alloc_bytes_s         = 0;
+static size_t             H5MM_max_block_size_s           = 0;
+static size_t             H5MM_total_alloc_blocks_count_s = 0;
+static size_t             H5MM_curr_alloc_blocks_count_s  = 0;
+static size_t             H5MM_peak_alloc_blocks_count_s  = 0;
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
 
-
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5MM__is_our_block
  *
@@ -138,10 +131,9 @@ H5MM__is_our_block(void *mem)
 {
     H5MM_block_t *block = H5MM_BLOCK_FROM_BUF(mem);
 
-    return(0 == HDmemcmp(block->sig, H5MM_block_signature_s, H5MM_SIG_SIZE));
+    return (0 == HDmemcmp(block->sig, H5MM_block_signature_s, H5MM_SIG_SIZE));
 }
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM__sanity_check_block
  *
@@ -160,13 +152,13 @@ H5MM__sanity_check_block(const H5MM_block_t *block)
     HDassert(block->u.info.size > 0);
     HDassert(block->u.info.in_use);
     /* Check for head & tail guards, if not head of linked list */
-    if(block->u.info.size != SIZET_MAX) {
+    if (block->u.info.size != SIZET_MAX) {
         HDassert(0 == HDmemcmp(block->b, H5MM_block_head_guard_s, H5MM_HEAD_GUARD_SIZE));
-        HDassert(0 == HDmemcmp(block->b + H5MM_HEAD_GUARD_SIZE + block->u.info.size, H5MM_block_tail_guard_s, H5MM_TAIL_GUARD_SIZE));
+        HDassert(0 == HDmemcmp(block->b + H5MM_HEAD_GUARD_SIZE + block->u.info.size, H5MM_block_tail_guard_s,
+                               H5MM_TAIL_GUARD_SIZE));
     }
 }
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM__sanity_check
  *
@@ -188,7 +180,6 @@ H5MM__sanity_check(void *mem)
     H5MM__sanity_check_block(block);
 }
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_sanity_check_all
  *
@@ -207,13 +198,12 @@ H5MM_sanity_check_all(void)
     H5MM_block_t *curr = NULL;
 
     curr = H5MM_block_head_s.next;
-    while(curr != &H5MM_block_head_s) {
+    while (curr != &H5MM_block_head_s) {
         H5MM__sanity_check_block(curr);
         curr = curr->next;
     } /* end while */
 } /* end H5MM_sanity_check_all() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_final_sanity_check
  *
@@ -237,13 +227,13 @@ H5MM_final_sanity_check(void)
     HDfprintf(stderr, "%s: H5MM_total_alloc_bytes_s = %llu\n", __func__, H5MM_total_alloc_bytes_s);
     HDfprintf(stderr, "%s: H5MM_peak_alloc_bytes_s = %zu\n", __func__, H5MM_peak_alloc_bytes_s);
     HDfprintf(stderr, "%s: H5MM_max_block_size_s = %zu\n", __func__, H5MM_max_block_size_s);
-    HDfprintf(stderr, "%s: H5MM_total_alloc_blocks_count_s = %zu\n", __func__, H5MM_total_alloc_blocks_count_s);
+    HDfprintf(stderr, "%s: H5MM_total_alloc_blocks_count_s = %zu\n", __func__,
+              H5MM_total_alloc_blocks_count_s);
     HDfprintf(stderr, "%s: H5MM_peak_alloc_blocks_count_s = %zu\n", __func__, H5MM_peak_alloc_blocks_count_s);
 #endif /* H5MM_PRINT_MEMORY_STATS */
 }
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_malloc
  *
@@ -273,44 +263,45 @@ H5MM_malloc(size_t size)
 
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
     /* Initialize block list head singleton */
-    if(!H5MM_init_s) {
+    if (!H5MM_init_s) {
         H5MM_memcpy(H5MM_block_head_s.sig, H5MM_block_signature_s, H5MM_SIG_SIZE);
-        H5MM_block_head_s.next = &H5MM_block_head_s;
-        H5MM_block_head_s.prev = &H5MM_block_head_s;
-        H5MM_block_head_s.u.info.size = SIZET_MAX;
+        H5MM_block_head_s.next          = &H5MM_block_head_s;
+        H5MM_block_head_s.prev          = &H5MM_block_head_s;
+        H5MM_block_head_s.u.info.size   = SIZET_MAX;
         H5MM_block_head_s.u.info.in_use = TRUE;
 
         H5MM_init_s = TRUE;
-    } /* end if */
+    }  /* end if */
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
 
-    if(size) {
+    if (size) {
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
         H5MM_block_t *block;
-        size_t alloc_size = sizeof(H5MM_block_t) + size + H5MM_HEAD_GUARD_SIZE + H5MM_TAIL_GUARD_SIZE;
+        size_t        alloc_size = sizeof(H5MM_block_t) + size + H5MM_HEAD_GUARD_SIZE + H5MM_TAIL_GUARD_SIZE;
 
-        if(NULL != (block = (H5MM_block_t *)HDmalloc(alloc_size))) {
+        if (NULL != (block = (H5MM_block_t *)HDmalloc(alloc_size))) {
             /* Set up block */
             H5MM_memcpy(block->sig, H5MM_block_signature_s, H5MM_SIG_SIZE);
-            block->next = H5MM_block_head_s.next;
+            block->next            = H5MM_block_head_s.next;
             H5MM_block_head_s.next = block;
-            block->next->prev = block;
-            block->prev = &H5MM_block_head_s;
-            block->u.info.size = size;
-            block->u.info.in_use = TRUE;
+            block->next->prev      = block;
+            block->prev            = &H5MM_block_head_s;
+            block->u.info.size     = size;
+            block->u.info.in_use   = TRUE;
             H5MM_memcpy(block->b, H5MM_block_head_guard_s, H5MM_HEAD_GUARD_SIZE);
-            H5MM_memcpy(block->b + H5MM_HEAD_GUARD_SIZE + size, H5MM_block_tail_guard_s, H5MM_TAIL_GUARD_SIZE);
+            H5MM_memcpy(block->b + H5MM_HEAD_GUARD_SIZE + size, H5MM_block_tail_guard_s,
+                        H5MM_TAIL_GUARD_SIZE);
 
             /* Update statistics */
             H5MM_total_alloc_bytes_s += size;
             H5MM_curr_alloc_bytes_s += size;
-            if(H5MM_curr_alloc_bytes_s > H5MM_peak_alloc_bytes_s)
+            if (H5MM_curr_alloc_bytes_s > H5MM_peak_alloc_bytes_s)
                 H5MM_peak_alloc_bytes_s = H5MM_curr_alloc_bytes_s;
-            if(size > H5MM_max_block_size_s)
+            if (size > H5MM_max_block_size_s)
                 H5MM_max_block_size_s = size;
             H5MM_total_alloc_blocks_count_s++;
             H5MM_curr_alloc_blocks_count_s++;
-            if(H5MM_curr_alloc_blocks_count_s > H5MM_peak_alloc_blocks_count_s)
+            if (H5MM_curr_alloc_blocks_count_s > H5MM_peak_alloc_blocks_count_s)
                 H5MM_peak_alloc_blocks_count_s = H5MM_curr_alloc_blocks_count_s;
 
             /* Set buffer to return */
@@ -318,17 +309,16 @@ H5MM_malloc(size_t size)
         } /* end if */
         else
             ret_value = NULL;
-#else /* H5_MEMORY_ALLOC_SANITY_CHECK */
+#else  /* H5_MEMORY_ALLOC_SANITY_CHECK */
         ret_value = HDmalloc(size);
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
-    } /* end if */
+    }  /* end if */
     else
         ret_value = NULL;
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5MM_malloc() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_calloc
  *
@@ -358,21 +348,20 @@ H5MM_calloc(size_t size)
     /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if(size) {
+    if (size) {
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
-        if(NULL != (ret_value = H5MM_malloc(size)))
+        if (NULL != (ret_value = H5MM_malloc(size)))
             HDmemset(ret_value, 0, size);
-#else /* H5_MEMORY_ALLOC_SANITY_CHECK */
+#else  /* H5_MEMORY_ALLOC_SANITY_CHECK */
         ret_value = HDcalloc((size_t)1, size);
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
-    } /* end if */
+    }  /* end if */
     else
         ret_value = NULL;
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5MM_calloc() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_realloc
  *
@@ -403,16 +392,16 @@ H5MM_realloc(void *mem, size_t size)
     /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if(NULL == mem && 0 == size)
+    if (NULL == mem && 0 == size)
         /* Not defined in the standard, return NULL */
         ret_value = NULL;
     else {
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
-        if(size > 0) {
-            if(mem) {
-                if(H5MM__is_our_block(mem)) {
-                    H5MM_block_t *block = H5MM_BLOCK_FROM_BUF(mem);
-                    size_t old_size = block->u.info.size;
+        if (size > 0) {
+            if (mem) {
+                if (H5MM__is_our_block(mem)) {
+                    H5MM_block_t *block    = H5MM_BLOCK_FROM_BUF(mem);
+                    size_t        old_size = block->u.info.size;
 
                     H5MM__sanity_check(mem);
 
@@ -428,19 +417,18 @@ H5MM_realloc(void *mem, size_t size)
         }
         else
             ret_value = H5MM_xfree(mem);
-#else /* H5_MEMORY_ALLOC_SANITY_CHECK */
+#else  /* H5_MEMORY_ALLOC_SANITY_CHECK */
         ret_value = HDrealloc(mem, size);
 
         /* Some platforms do not return NULL if size is zero. */
-        if(0 == size)
+        if (0 == size)
             ret_value = NULL;
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
-    } /* end else */
+    }  /* end else */
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5MM_realloc() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_xstrdup
  *
@@ -457,21 +445,26 @@ H5MM_realloc(void *mem, size_t size)
 char *
 H5MM_xstrdup(const char *s)
 {
-    char    *ret_value = NULL;
+    char *ret_value = NULL;
 
     FUNC_ENTER_NOAPI(NULL)
 
-    if(s) {
-        if(NULL == (ret_value = (char *)H5MM_malloc(HDstrlen(s) + 1)))
+#if defined H5_MEMORY_ALLOC_SANITY_CHECK
+    if (s) {
+        if (NULL == (ret_value = (char *)H5MM_malloc(HDstrlen(s) + 1)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
         HDstrcpy(ret_value, s);
-    } /* end if */
+    }
+#else
+    if (s)
+        if (NULL == (ret_value = HDstrdup(s)))
+            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "string duplication failed")
+#endif
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5MM_xstrdup() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_strdup
  *
@@ -495,17 +488,21 @@ H5MM_strdup(const char *s)
 
     FUNC_ENTER_NOAPI(NULL)
 
-    if(!s)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "null string")
-    if(NULL == (ret_value = (char *)H5MM_malloc(HDstrlen(s) + 1)))
+    if (!s)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "NULL string not allowed")
+#if defined H5_MEMORY_ALLOC_SANITY_CHECK
+    if (NULL == (ret_value = (char *)H5MM_malloc(HDstrlen(s) + 1)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
     HDstrcpy(ret_value, s);
+#else
+    if (NULL == (ret_value = HDstrdup(s)))
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "string duplication failed")
+#endif
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5MM_strdup() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_xfree
  *
@@ -529,9 +526,9 @@ H5MM_xfree(void *mem)
     /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if(mem) {
+    if (mem) {
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
-        if(H5MM__is_our_block(mem)) {
+        if (H5MM__is_our_block(mem)) {
             H5MM_block_t *block = H5MM_BLOCK_FROM_BUF(mem);
 
             /* Run sanity checks on this block and its neighbors */
@@ -545,10 +542,10 @@ H5MM_xfree(void *mem)
 
             /* Reset block info */
             HDmemset(block->sig, 0, H5MM_SIG_SIZE);
-            block->next->prev = block->prev;
-            block->prev->next = block->next;
-            block->next = NULL;
-            block->prev = NULL;
+            block->next->prev    = block->prev;
+            block->prev->next    = block->next;
+            block->next          = NULL;
+            block->prev          = NULL;
             block->u.info.in_use = FALSE;
 
             /* Free the block (finally!) */
@@ -556,15 +553,14 @@ H5MM_xfree(void *mem)
         }
         else
             HDfree(mem);
-#else /* H5_MEMORY_ALLOC_SANITY_CHECK */
+#else  /* H5_MEMORY_ALLOC_SANITY_CHECK */
         HDfree(mem);
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
-    } /* end if */
+    }  /* end if */
 
     FUNC_LEAVE_NOAPI(NULL)
 } /* end H5MM_xfree() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_xfree_const
  *
@@ -589,7 +585,6 @@ H5MM_xfree_const(const void *mem)
     FUNC_LEAVE_NOAPI(NULL)
 } /* end H5MM_xfree_const() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5MM_memcpy
  *
@@ -625,7 +620,6 @@ H5MM_memcpy(void *dest, const void *src, size_t n)
 
 } /* end H5MM_memcpy() */
 
-
 /*-------------------------------------------------------------------------
  * Function:	H5MM_get_alloc_stats
  *
@@ -651,20 +645,19 @@ H5MM_get_alloc_stats(H5_alloc_stats_t *stats)
     FUNC_ENTER_NOAPI_NOERR
 
 #if defined H5_MEMORY_ALLOC_SANITY_CHECK
-    if(stats) {
-        stats->total_alloc_bytes = H5MM_total_alloc_bytes_s;
-        stats->curr_alloc_bytes = H5MM_curr_alloc_bytes_s;
-        stats->peak_alloc_bytes = H5MM_peak_alloc_bytes_s;
-        stats->max_block_size = H5MM_max_block_size_s;
+    if (stats) {
+        stats->total_alloc_bytes        = H5MM_total_alloc_bytes_s;
+        stats->curr_alloc_bytes         = H5MM_curr_alloc_bytes_s;
+        stats->peak_alloc_bytes         = H5MM_peak_alloc_bytes_s;
+        stats->max_block_size           = H5MM_max_block_size_s;
         stats->total_alloc_blocks_count = H5MM_total_alloc_blocks_count_s;
-        stats->curr_alloc_blocks_count = H5MM_curr_alloc_blocks_count_s;
-        stats->peak_alloc_blocks_count = H5MM_peak_alloc_blocks_count_s;
-    } /* end if */
-#else /* H5_MEMORY_ALLOC_SANITY_CHECK */
-    if(stats)
+        stats->curr_alloc_blocks_count  = H5MM_curr_alloc_blocks_count_s;
+        stats->peak_alloc_blocks_count  = H5MM_peak_alloc_blocks_count_s;
+    }  /* end if */
+#else  /* H5_MEMORY_ALLOC_SANITY_CHECK */
+    if (stats)
         HDmemset(stats, 0, sizeof(H5_alloc_stats_t));
 #endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-}   /* end H5MM_get_alloc_stats() */
-
+} /* end H5MM_get_alloc_stats() */
