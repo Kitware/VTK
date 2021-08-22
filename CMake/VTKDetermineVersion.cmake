@@ -46,7 +46,7 @@ function(determine_version source_dir git_command var_prefix)
       ERROR_QUIET
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_STRIP_TRAILING_WHITESPACE)
-    if (NOT result EQUAL 0)
+    if (NOT result EQUAL "0")
       # git describe failed (bad return code).
       set(output "")
     endif()
