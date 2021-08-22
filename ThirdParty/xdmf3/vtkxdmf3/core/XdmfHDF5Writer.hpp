@@ -29,14 +29,7 @@
 #include "XdmfHeavyDataWriter.hpp"
 #include "XdmfHeavyDataController.hpp"
 
-// So that hdf5 does not need to be included in the header files
-// It would add a dependancy to programs that use Xdmf
-#ifndef _H5Ipublic_H
-  #ifndef XDMF_HID_T
-  #define XDMF_HID_T
-    typedef int hid_t;
-  #endif
-#endif
+#include "vtk_hdf5.h"
 
 #ifdef __cplusplus
 
