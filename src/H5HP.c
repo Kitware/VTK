@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -19,37 +19,36 @@
  *
  */
 
-
 /* Private headers needed */
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5HPprivate.h"	/* Heap routines			*/
-#include "H5FLprivate.h"	/* Memory management functions		*/
+#include "H5private.h"   /* Generic Functions			*/
+#include "H5Eprivate.h"  /* Error handling		  	*/
+#include "H5HPprivate.h" /* Heap routines			*/
+#include "H5FLprivate.h" /* Memory management functions		*/
 
 /* Local Macros */
-#define H5HP_START_SIZE 16      /* Initial number of entries for heaps */
+#define H5HP_START_SIZE 16 /* Initial number of entries for heaps */
 
 /* Private typedefs & structs */
 
 /* Data structure for entries in the internal heap array */
 typedef struct {
-    int val;            /* Value to be used for heap condition */
-    H5HP_info_t *obj;   /* Pointer to object stored in heap */
-}H5HP_ent_t;
+    int          val; /* Value to be used for heap condition */
+    H5HP_info_t *obj; /* Pointer to object stored in heap */
+} H5HP_ent_t;
 
 /* Main heap data structure */
 struct H5HP_t {
     H5HP_type_t type;   /* Type of heap (minimum or maximum value at "top") */
-    size_t nobjs;       /* Number of active objects in heap array */
-    size_t nalloc;      /* Number of allocated locations in heap array */
+    size_t      nobjs;  /* Number of active objects in heap array */
+    size_t      nalloc; /* Number of allocated locations in heap array */
     H5HP_ent_t *heap;   /* Pointer to array containing heap entries */
 };
 
 /* Static functions */
-static herr_t H5HP_swim_max(H5HP_t *heap, size_t loc);
-static herr_t H5HP_swim_min(H5HP_t *heap, size_t loc);
-static herr_t H5HP_sink_max(H5HP_t *heap, size_t loc);
-static herr_t H5HP_sink_min(H5HP_t *heap, size_t loc);
+static herr_t H5HP__swim_max(H5HP_t *heap, size_t loc);
+static herr_t H5HP__swim_min(H5HP_t *heap, size_t loc);
+static herr_t H5HP__sink_max(H5HP_t *heap, size_t loc);
+static herr_t H5HP__sink_min(H5HP_t *heap, size_t loc);
 
 /* Declare a free list to manage the H5HP_t struct */
 H5FL_DEFINE_STATIC(H5HP_t);
@@ -57,14 +56,13 @@ H5FL_DEFINE_STATIC(H5HP_t);
 /* Declare a free list to manage sequences of H5HP_ent_t */
 H5FL_SEQ_DEFINE_STATIC(H5HP_ent_t);
 
-
 /*--------------------------------------------------------------------------
  NAME
-    H5HP_swim_max
+    H5HP__swim_max
  PURPOSE
     Restore heap condition by moving an object upward
  USAGE
-    herr_t H5HP_swim_max(heap, loc)
+    herr_t H5HP__swim_max(heap, loc)
         H5HP_t *heap;           IN/OUT: Pointer to heap to modify
         size_t loc;             IN: Location to start from
 
@@ -80,49 +78,48 @@ H5FL_SEQ_DEFINE_STATIC(H5HP_ent_t);
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5HP_swim_max(H5HP_t *heap, size_t loc)
+H5HP__swim_max(H5HP_t *heap, size_t loc)
 {
-    int val;                    /* Temporary copy value of object to move in heap */
-    H5HP_info_t *obj;           /* Temporary pointer to object to move in heap */
-    herr_t ret_value=SUCCEED;   /* Return value */
+    int          val;                 /* Temporary copy value of object to move in heap */
+    H5HP_info_t *obj;                 /* Temporary pointer to object to move in heap */
+    herr_t       ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Get copies of the information about the object to move in the heap */
-    val=heap->heap[loc].val;
-    obj=heap->heap[loc].obj;
+    val = heap->heap[loc].val;
+    obj = heap->heap[loc].obj;
 
     /* Move object up in heap until it's reached the maximum location possible */
-    while(heap->heap[loc/2].val < val) {
+    while (heap->heap[loc / 2].val < val) {
         /* Move object "above" current location in heap down */
-        heap->heap[loc].val=heap->heap[loc/2].val;
-        heap->heap[loc].obj=heap->heap[loc/2].obj;
+        heap->heap[loc].val = heap->heap[loc / 2].val;
+        heap->heap[loc].obj = heap->heap[loc / 2].obj;
 
         /* Update heap location for object which moved */
-        heap->heap[loc].obj->heap_loc=loc;
+        heap->heap[loc].obj->heap_loc = loc;
 
         /* Move to location "above" current location */
-        loc=loc/2;
+        loc = loc / 2;
     } /* end while */
 
     /* Put object into heap at correct location */
-    heap->heap[loc].val=val;
-    heap->heap[loc].obj=obj;
+    heap->heap[loc].val = val;
+    heap->heap[loc].obj = obj;
 
     /* Update heap location for object */
-    heap->heap[loc].obj->heap_loc=loc;
+    heap->heap[loc].obj->heap_loc = loc;
 
     FUNC_LEAVE_NOAPI(ret_value);
-} /* end H5HP_swim_max() */
+} /* end H5HP__swim_max() */
 
-
 /*--------------------------------------------------------------------------
  NAME
-    H5HP_swim_min
+    H5HP__swim_min
  PURPOSE
     Restore heap condition by moving an object upward
  USAGE
-    herr_t H5HP_swim_min(heap, loc)
+    herr_t H5HP__swim_min(heap, loc)
         H5HP_t *heap;           IN/OUT: Pointer to heap to modify
         size_t loc;             IN: Location to start from
 
@@ -138,49 +135,48 @@ H5HP_swim_max(H5HP_t *heap, size_t loc)
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5HP_swim_min(H5HP_t *heap, size_t loc)
+H5HP__swim_min(H5HP_t *heap, size_t loc)
 {
-    int val;                    /* Temporary copy value of object to move in heap */
-    H5HP_info_t *obj;           /* Temporary pointer to object to move in heap */
-    herr_t ret_value=SUCCEED;   /* Return value */
+    int          val;                 /* Temporary copy value of object to move in heap */
+    H5HP_info_t *obj;                 /* Temporary pointer to object to move in heap */
+    herr_t       ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Get copies of the information about the object to move in the heap */
-    val=heap->heap[loc].val;
-    obj=heap->heap[loc].obj;
+    val = heap->heap[loc].val;
+    obj = heap->heap[loc].obj;
 
     /* Move object up in heap until it's reached the minimum location possible */
-    while(heap->heap[loc/2].val > val) {
+    while (heap->heap[loc / 2].val > val) {
         /* Move object "above" current location in heap down */
-        heap->heap[loc].val=heap->heap[loc/2].val;
-        heap->heap[loc].obj=heap->heap[loc/2].obj;
+        heap->heap[loc].val = heap->heap[loc / 2].val;
+        heap->heap[loc].obj = heap->heap[loc / 2].obj;
 
         /* Update heap location for object which moved */
-        heap->heap[loc].obj->heap_loc=loc;
+        heap->heap[loc].obj->heap_loc = loc;
 
         /* Move to location "above" current location */
-        loc=loc/2;
+        loc = loc / 2;
     } /* end while */
 
     /* Put object into heap at correct location */
-    heap->heap[loc].val=val;
-    heap->heap[loc].obj=obj;
+    heap->heap[loc].val = val;
+    heap->heap[loc].obj = obj;
 
     /* Update heap location for object */
-    heap->heap[loc].obj->heap_loc=loc;
+    heap->heap[loc].obj->heap_loc = loc;
 
     FUNC_LEAVE_NOAPI(ret_value);
-} /* end H5HP_swim_min() */
+} /* end H5HP__swim_min() */
 
-
 /*--------------------------------------------------------------------------
  NAME
-    H5HP_sink_max
+    H5HP__sink_max
  PURPOSE
     Restore heap condition by moving an object downward
  USAGE
-    herr_t H5HP_sink_max(heap, loc)
+    herr_t H5HP__sink_max(heap, loc)
         H5HP_t *heap;           IN/OUT: Pointer to heap to modify
         size_t loc;             IN: Location to start from
 
@@ -196,40 +192,40 @@ H5HP_swim_min(H5HP_t *heap, size_t loc)
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5HP_sink_max(H5HP_t *heap, size_t loc)
+H5HP__sink_max(H5HP_t *heap, size_t loc)
 {
-    int val;                    /* Temporary copy value of object to move in heap */
-    void *obj;                  /* Temporary pointer to object to move in heap */
-    herr_t ret_value=SUCCEED;   /* Return value */
+    int    val;                 /* Temporary copy value of object to move in heap */
+    void * obj;                 /* Temporary pointer to object to move in heap */
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Get copies of the information about the object to move in the heap */
-    val=heap->heap[loc].val;
-    obj=heap->heap[loc].obj;
+    val = heap->heap[loc].val;
+    obj = heap->heap[loc].obj;
 
     /* Move object up in heap until it's reached the maximum location possible */
-    while((2*loc)<=heap->nobjs) {
-        size_t new_loc=loc*2;   /* New object's potential location area */
+    while ((2 * loc) <= heap->nobjs) {
+        size_t new_loc = loc * 2; /* New object's potential location area */
 
         /* Get the greater of the two objects below the location in heap */
-        if(new_loc<heap->nobjs && (heap->heap[new_loc].val < heap->heap[new_loc+1].val))
+        if (new_loc < heap->nobjs && (heap->heap[new_loc].val < heap->heap[new_loc + 1].val))
             new_loc++;
 
         /* Check if the object is smaller than the larger of the objects below it */
         /* If so, its in the correct location now, and we can get out */
-        if(val >= heap->heap[new_loc].val)
+        if (val >= heap->heap[new_loc].val)
             break;
 
         /* Move the greater of the two objects below the current location up */
-        heap->heap[loc].val=heap->heap[new_loc].val;
-        heap->heap[loc].obj=heap->heap[new_loc].obj;
+        heap->heap[loc].val = heap->heap[new_loc].val;
+        heap->heap[loc].obj = heap->heap[new_loc].obj;
 
         /* Update heap location for object which moved */
-        heap->heap[loc].obj->heap_loc=loc;
+        heap->heap[loc].obj->heap_loc = loc;
 
         /* Move to location "below" current location */
-        loc=new_loc;
+        loc = new_loc;
     } /* end while */
 
     /* Put object into heap at correct location */
@@ -240,16 +236,15 @@ H5HP_sink_max(H5HP_t *heap, size_t loc)
     heap->heap[loc].obj->heap_loc = loc;
 
     FUNC_LEAVE_NOAPI(ret_value);
-} /* end H5HP_sink_max() */
+} /* end H5HP__sink_max() */
 
-
 /*--------------------------------------------------------------------------
  NAME
-    H5HP_sink_min
+    H5HP__sink_min
  PURPOSE
     Restore heap condition by moving an object downward
  USAGE
-    herr_t H5HP_sink_min(heap, loc)
+    herr_t H5HP__sink_min(heap, loc)
         H5HP_t *heap;           IN/OUT: Pointer to heap to modify
         size_t loc;             IN: Location to start from
 
@@ -265,40 +260,40 @@ H5HP_sink_max(H5HP_t *heap, size_t loc)
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5HP_sink_min(H5HP_t *heap, size_t loc)
+H5HP__sink_min(H5HP_t *heap, size_t loc)
 {
-    int val;                    /* Temporary copy value of object to move in heap */
-    void *obj;                  /* Temporary pointer to object to move in heap */
-    herr_t ret_value=SUCCEED;   /* Return value */
+    int    val;                 /* Temporary copy value of object to move in heap */
+    void * obj;                 /* Temporary pointer to object to move in heap */
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Get copies of the information about the object to move in the heap */
-    val=heap->heap[loc].val;
-    obj=heap->heap[loc].obj;
+    val = heap->heap[loc].val;
+    obj = heap->heap[loc].obj;
 
     /* Move object up in heap until it's reached the maximum location possible */
-    while((2*loc)<=heap->nobjs) {
-        size_t new_loc=loc*2;   /* New object's potential location area */
+    while ((2 * loc) <= heap->nobjs) {
+        size_t new_loc = loc * 2; /* New object's potential location area */
 
         /* Get the lesser of the two objects below the location in heap */
-        if(new_loc<heap->nobjs && (heap->heap[new_loc].val > heap->heap[new_loc+1].val))
+        if (new_loc < heap->nobjs && (heap->heap[new_loc].val > heap->heap[new_loc + 1].val))
             new_loc++;
 
         /* Check if the object is greater than the larger of the objects below it */
         /* If so, its in the correct location now, and we can get out */
-        if(val <= heap->heap[new_loc].val)
+        if (val <= heap->heap[new_loc].val)
             break;
 
         /* Move the greater of the two objects below the current location up */
-        heap->heap[loc].val=heap->heap[new_loc].val;
-        heap->heap[loc].obj=heap->heap[new_loc].obj;
+        heap->heap[loc].val = heap->heap[new_loc].val;
+        heap->heap[loc].obj = heap->heap[new_loc].obj;
 
         /* Update heap location for object which moved */
-        heap->heap[loc].obj->heap_loc=loc;
+        heap->heap[loc].obj->heap_loc = loc;
 
         /* Move to location "below" current location */
-        loc=new_loc;
+        loc = new_loc;
     } /* end while */
 
     /* Put object into heap at correct location */
@@ -309,9 +304,8 @@ H5HP_sink_min(H5HP_t *heap, size_t loc)
     heap->heap[loc].obj->heap_loc = loc;
 
     FUNC_LEAVE_NOAPI(ret_value);
-} /* end H5HP_sink_min() */
+} /* end H5HP__sink_min() */
 
-
 /*--------------------------------------------------------------------------
  NAME
     H5HP_create
@@ -334,60 +328,59 @@ H5HP_sink_min(H5HP_t *heap, size_t loc)
 H5HP_t *
 H5HP_create(H5HP_type_t heap_type)
 {
-    H5HP_t *new_heap=NULL;      /* Pointer to new heap object created */
-    H5HP_t *ret_value;          /* Return value */
+    H5HP_t *new_heap = NULL; /* Pointer to new heap object created */
+    H5HP_t *ret_value;       /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
     /* Check args */
-    HDassert(heap_type==H5HP_MIN_HEAP || heap_type==H5HP_MAX_HEAP);
+    HDassert(heap_type == H5HP_MIN_HEAP || heap_type == H5HP_MAX_HEAP);
 
     /* Allocate ref-counted string structure */
-    if((new_heap=H5FL_MALLOC(H5HP_t))==NULL)
-        HGOTO_ERROR(H5E_HEAP,H5E_NOSPACE,NULL,"memory allocation failed");
+    if ((new_heap = H5FL_MALLOC(H5HP_t)) == NULL)
+        HGOTO_ERROR(H5E_HEAP, H5E_NOSPACE, NULL, "memory allocation failed");
 
     /* Allocate the array to store the heap entries */
-    if((new_heap->heap = H5FL_SEQ_MALLOC(H5HP_ent_t, (size_t)(H5HP_START_SIZE + 1)))==NULL)
-        HGOTO_ERROR(H5E_HEAP,H5E_NOSPACE,NULL,"memory allocation failed");
+    if ((new_heap->heap = H5FL_SEQ_MALLOC(H5HP_ent_t, (size_t)(H5HP_START_SIZE + 1))) == NULL)
+        HGOTO_ERROR(H5E_HEAP, H5E_NOSPACE, NULL, "memory allocation failed");
 
     /* Set the internal fields */
-    new_heap->type=heap_type;
-    new_heap->nobjs=0;
-    new_heap->nalloc=H5HP_START_SIZE+1;
+    new_heap->type   = heap_type;
+    new_heap->nobjs  = 0;
+    new_heap->nalloc = H5HP_START_SIZE + 1;
 
     /* Set the information in the 0'th location based on the type of heap */
-    if(heap_type==H5HP_MIN_HEAP) {
+    if (heap_type == H5HP_MIN_HEAP) {
         /* Set the value in the '0' location to be the minimum value, to
          * simplify the algorithms
          */
-        new_heap->heap[0].val=INT_MIN;
-        new_heap->heap[0].obj=NULL;
+        new_heap->heap[0].val = INT_MIN;
+        new_heap->heap[0].obj = NULL;
     } /* end if */
     else {
         /* Set the value in the '0' location to be the maximum value, to
          * simplify the algorithms
          */
-        new_heap->heap[0].val=INT_MAX;
-        new_heap->heap[0].obj=NULL;
+        new_heap->heap[0].val = INT_MAX;
+        new_heap->heap[0].obj = NULL;
     } /* end else */
 
     /* Set the return value */
-    ret_value=new_heap;
+    ret_value = new_heap;
 
 done:
     /* Error cleanup */
-    if(NULL ==ret_value) {
-        if(NULL != new_heap) {
-            if(NULL != new_heap->heap)
+    if (NULL == ret_value) {
+        if (NULL != new_heap) {
+            if (NULL != new_heap->heap)
                 new_heap->heap = H5FL_SEQ_FREE(H5HP_ent_t, new_heap->heap);
             new_heap = H5FL_FREE(H5HP_t, new_heap);
         } /* end if */
-    } /* end if */
+    }     /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value);
 } /* end H5HP_create() */
 
-
 /*--------------------------------------------------------------------------
  NAME
     H5HP_count
@@ -409,7 +402,7 @@ done:
 ssize_t
 H5HP_count(const H5HP_t *heap)
 {
-    ssize_t ret_value;   /* Return value */
+    ssize_t ret_value; /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -418,21 +411,20 @@ H5HP_count(const H5HP_t *heap)
 
     /* Check internal consistency */
     /* (Pre-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     /* Return the number of objects in the heap */
-    H5_CHECK_OVERFLOW(heap->nobjs,size_t,ssize_t);
-    ret_value=(ssize_t)heap->nobjs;
+    H5_CHECK_OVERFLOW(heap->nobjs, size_t, ssize_t);
+    ret_value = (ssize_t)heap->nobjs;
 
     /* No post-condition check necessary, since heap is constant */
     FUNC_LEAVE_NOAPI(ret_value);
 } /* end H5HP_count() */
 
-
 /*--------------------------------------------------------------------------
  NAME
     H5HP_insert
@@ -456,7 +448,7 @@ H5HP_count(const H5HP_t *heap)
 herr_t
 H5HP_insert(H5HP_t *heap, int val, void *obj)
 {
-    herr_t ret_value=SUCCEED;   /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -466,38 +458,38 @@ H5HP_insert(H5HP_t *heap, int val, void *obj)
 
     /* Check internal consistency */
     /* (Pre-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     /* Increment number of objects in heap */
     heap->nobjs++;
 
     /* Check if we need to allocate more room for heap array */
-    if(heap->nobjs>=heap->nalloc) {
-        size_t n = MAX(H5HP_START_SIZE, 2*(heap->nalloc-1)) + 1;
-        H5HP_ent_t *new_heap = H5FL_SEQ_REALLOC(H5HP_ent_t,heap->heap, n);
+    if (heap->nobjs >= heap->nalloc) {
+        size_t      n        = MAX(H5HP_START_SIZE, 2 * (heap->nalloc - 1)) + 1;
+        H5HP_ent_t *new_heap = H5FL_SEQ_REALLOC(H5HP_ent_t, heap->heap, n);
 
         if (!new_heap)
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "unable to extend heap array");
-        heap->heap = new_heap;
+        heap->heap   = new_heap;
         heap->nalloc = n;
     } /* end if */
 
     /* Insert new object at end of heap */
-    heap->heap[heap->nobjs].val = val;
-    heap->heap[heap->nobjs].obj = (H5HP_info_t *)obj;
+    heap->heap[heap->nobjs].val           = val;
+    heap->heap[heap->nobjs].obj           = (H5HP_info_t *)obj;
     heap->heap[heap->nobjs].obj->heap_loc = heap->nobjs;
 
     /* Restore heap condition */
-    if(heap->type==H5HP_MAX_HEAP) {
-        if(H5HP_swim_max(heap,heap->nobjs)<0)
+    if (heap->type == H5HP_MAX_HEAP) {
+        if (H5HP__swim_max(heap, heap->nobjs) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTINSERT, FAIL, "unable to restore heap condition");
     } /* end if */
     else {
-        if(H5HP_swim_min(heap,heap->nobjs)<0)
+        if (H5HP__swim_min(heap, heap->nobjs) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTINSERT, FAIL, "unable to restore heap condition");
     } /* end else */
 
@@ -505,16 +497,15 @@ done:
 
     /* Check internal consistency */
     /* (Post-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     FUNC_LEAVE_NOAPI(ret_value);
 } /* end H5HP_insert() */
 
-
 /*--------------------------------------------------------------------------
  NAME
     H5HP_top
@@ -545,20 +536,19 @@ H5HP_top(const H5HP_t *heap, int *val)
 
     /* Check internal consistency */
     /* (Pre-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     /* Get value of the top object in the heap */
-    *val=heap->heap[1].val;
+    *val = heap->heap[1].val;
 
     /* No post-condition check necessary, since heap is constant */
     FUNC_LEAVE_NOAPI(SUCCEED);
 } /* end H5HP_top() */
 
-
 /*--------------------------------------------------------------------------
  NAME
     H5HP_remove
@@ -582,7 +572,7 @@ H5HP_top(const H5HP_t *heap, int *val)
 herr_t
 H5HP_remove(H5HP_t *heap, int *val, void **obj)
 {
-    herr_t ret_value=SUCCEED;   /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -593,55 +583,54 @@ H5HP_remove(H5HP_t *heap, int *val, void **obj)
 
     /* Check internal consistency */
     /* (Pre-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     /* Check if there are any objects on the heap to remove */
-    if(heap->nobjs==0)
+    if (heap->nobjs == 0)
         HGOTO_ERROR(H5E_HEAP, H5E_NOTFOUND, FAIL, "heap is empty");
 
     /* Get the information for the top object on the heap */
-    HDassert(heap->heap[1].obj->heap_loc==1);
-    *val=heap->heap[1].val;
-    *obj=heap->heap[1].obj;
+    HDassert(heap->heap[1].obj->heap_loc == 1);
+    *val = heap->heap[1].val;
+    *obj = heap->heap[1].obj;
 
     /* Move the last element in the heap to the top */
-    heap->heap[1].val=heap->heap[heap->nobjs].val;
-    heap->heap[1].obj=heap->heap[heap->nobjs].obj;
-    heap->heap[1].obj->heap_loc=1;
+    heap->heap[1].val           = heap->heap[heap->nobjs].val;
+    heap->heap[1].obj           = heap->heap[heap->nobjs].obj;
+    heap->heap[1].obj->heap_loc = 1;
 
     /* Decrement number of objects in heap */
     heap->nobjs--;
 
     /* Restore heap condition, if there are objects on the heap */
-    if(heap->nobjs>0) {
-        if(heap->type==H5HP_MAX_HEAP) {
-            if(H5HP_sink_max(heap, (size_t)1) < 0)
+    if (heap->nobjs > 0) {
+        if (heap->type == H5HP_MAX_HEAP) {
+            if (H5HP__sink_max(heap, (size_t)1) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTDELETE, FAIL, "unable to restore heap condition");
         } /* end if */
         else {
-            if(H5HP_sink_min(heap, (size_t)1) < 0)
+            if (H5HP__sink_min(heap, (size_t)1) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTDELETE, FAIL, "unable to restore heap condition");
         } /* end else */
-    } /* end if */
+    }     /* end if */
 
 done:
 
     /* Check internal consistency */
     /* (Post-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     FUNC_LEAVE_NOAPI(ret_value);
 } /* end H5HP_remove() */
 
-
 /*--------------------------------------------------------------------------
  NAME
     H5HP_change
@@ -665,10 +654,10 @@ done:
 herr_t
 H5HP_change(H5HP_t *heap, int val, void *_obj)
 {
-    H5HP_info_t *obj=(H5HP_info_t *)_obj;       /* Alias for object */
-    size_t obj_loc;             /* Location of object in heap */
-    int old_val;                /* Object's old priority value */
-    herr_t ret_value=SUCCEED;   /* Return value */
+    H5HP_info_t *obj = (H5HP_info_t *)_obj; /* Alias for object */
+    size_t       obj_loc;                   /* Location of object in heap */
+    int          old_val;                   /* Object's old priority value */
+    herr_t       ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -678,56 +667,55 @@ H5HP_change(H5HP_t *heap, int val, void *_obj)
 
     /* Check internal consistency */
     /* (Pre-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     /* Get the location of the object in the heap */
-    obj_loc=obj->heap_loc;
-    HDassert(obj_loc>0 && obj_loc<=heap->nobjs);
+    obj_loc = obj->heap_loc;
+    HDassert(obj_loc > 0 && obj_loc <= heap->nobjs);
 
     /* Change the heap object's priority */
-    old_val=heap->heap[obj_loc].val;
-    heap->heap[obj_loc].val=val;
+    old_val                 = heap->heap[obj_loc].val;
+    heap->heap[obj_loc].val = val;
 
     /* Restore heap condition */
-    if(val<old_val) {
-        if(heap->type==H5HP_MAX_HEAP) {
-            if(H5HP_sink_max(heap,obj_loc)<0)
+    if (val < old_val) {
+        if (heap->type == H5HP_MAX_HEAP) {
+            if (H5HP__sink_max(heap, obj_loc) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTRESTORE, FAIL, "unable to restore heap condition");
         } /* end if */
         else {
-            if(H5HP_swim_min(heap,obj_loc)<0)
+            if (H5HP__swim_min(heap, obj_loc) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTRESTORE, FAIL, "unable to restore heap condition");
         } /* end else */
-    } /* end if */
+    }     /* end if */
     else {
-        if(heap->type==H5HP_MAX_HEAP) {
-            if(H5HP_swim_max(heap,obj_loc)<0)
+        if (heap->type == H5HP_MAX_HEAP) {
+            if (H5HP__swim_max(heap, obj_loc) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTRESTORE, FAIL, "unable to restore heap condition");
         } /* end if */
         else {
-            if(H5HP_sink_min(heap,obj_loc)<0)
+            if (H5HP__sink_min(heap, obj_loc) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTRESTORE, FAIL, "unable to restore heap condition");
         } /* end else */
-    } /* end else */
+    }     /* end else */
 
 done:
 
     /* Check internal consistency */
     /* (Post-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     FUNC_LEAVE_NOAPI(ret_value);
 } /* end H5HP_change() */
 
-
 /*--------------------------------------------------------------------------
  NAME
     H5HP_incr
@@ -751,9 +739,9 @@ done:
 herr_t
 H5HP_incr(H5HP_t *heap, unsigned amt, void *_obj)
 {
-    H5HP_info_t *obj=(H5HP_info_t *)_obj;       /* Alias for object */
-    size_t obj_loc;             /* Location of object in heap */
-    herr_t ret_value=SUCCEED;   /* Return value */
+    H5HP_info_t *obj = (H5HP_info_t *)_obj; /* Alias for object */
+    size_t       obj_loc;                   /* Location of object in heap */
+    herr_t       ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -763,11 +751,11 @@ H5HP_incr(H5HP_t *heap, unsigned amt, void *_obj)
 
     /* Check internal consistency */
     /* (Pre-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     /* Get the location of the object in the heap */
     obj_loc = obj->heap_loc;
@@ -777,12 +765,12 @@ H5HP_incr(H5HP_t *heap, unsigned amt, void *_obj)
     heap->heap[obj_loc].val += (int)amt;
 
     /* Restore heap condition */
-    if(H5HP_MAX_HEAP == heap->type) {
-        if(H5HP_swim_max(heap, obj_loc) < 0)
+    if (H5HP_MAX_HEAP == heap->type) {
+        if (H5HP__swim_max(heap, obj_loc) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTRESTORE, FAIL, "unable to restore heap condition")
     } /* end if */
     else {
-        if(H5HP_sink_min(heap, obj_loc) < 0)
+        if (H5HP__sink_min(heap, obj_loc) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTRESTORE, FAIL, "unable to restore heap condition")
     } /* end else */
 
@@ -790,16 +778,15 @@ done:
 
     /* Check internal consistency */
     /* (Post-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     FUNC_LEAVE_NOAPI(ret_value);
 } /* end H5HP_incr() */
 
-
 /*--------------------------------------------------------------------------
  NAME
     H5HP_decr
@@ -823,9 +810,9 @@ done:
 herr_t
 H5HP_decr(H5HP_t *heap, unsigned amt, void *_obj)
 {
-    H5HP_info_t *obj=(H5HP_info_t *)_obj;       /* Alias for object */
-    size_t obj_loc;             /* Location of object in heap */
-    herr_t ret_value=SUCCEED;   /* Return value */
+    H5HP_info_t *obj = (H5HP_info_t *)_obj; /* Alias for object */
+    size_t       obj_loc;                   /* Location of object in heap */
+    herr_t       ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -835,27 +822,27 @@ H5HP_decr(H5HP_t *heap, unsigned amt, void *_obj)
 
     /* Check internal consistency */
     /* (Pre-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     /* Get the location of the object in the heap */
-    obj_loc=obj->heap_loc;
-    HDassert(obj_loc>0 && obj_loc<=heap->nobjs);
+    obj_loc = obj->heap_loc;
+    HDassert(obj_loc > 0 && obj_loc <= heap->nobjs);
 
     /* Change the heap object's priority */
     H5_CHECK_OVERFLOW(amt, unsigned, int);
-    heap->heap[obj_loc].val-=(int)amt;
+    heap->heap[obj_loc].val -= (int)amt;
 
     /* Restore heap condition */
-    if(heap->type==H5HP_MAX_HEAP) {
-        if(H5HP_sink_max(heap,obj_loc)<0)
+    if (heap->type == H5HP_MAX_HEAP) {
+        if (H5HP__sink_max(heap, obj_loc) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTRESTORE, FAIL, "unable to restore heap condition");
     } /* end if */
     else {
-        if(H5HP_swim_min(heap,obj_loc)<0)
+        if (H5HP__swim_min(heap, obj_loc) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTRESTORE, FAIL, "unable to restore heap condition");
     } /* end else */
 
@@ -863,16 +850,15 @@ done:
 
     /* Check internal consistency */
     /* (Post-condition) */
-    HDassert(heap->nobjs<heap->nalloc);
+    HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
-    HDassert((heap->type==H5HP_MAX_HEAP && heap->heap[0].val==INT_MAX) ||
-        (heap->type==H5HP_MIN_HEAP && heap->heap[0].val==INT_MIN));
-    HDassert(heap->heap[0].obj==NULL);
+    HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+    HDassert(heap->heap[0].obj == NULL);
 
     FUNC_LEAVE_NOAPI(ret_value);
 } /* end H5HP_decr() */
 
-
 /*--------------------------------------------------------------------------
  NAME
     H5HP_close
@@ -905,7 +891,7 @@ H5HP_close(H5HP_t *heap)
     HDassert(heap->nobjs < heap->nalloc);
     HDassert(heap->heap);
     HDassert((heap->type == H5HP_MAX_HEAP && heap->heap[0].val == INT_MAX) ||
-        (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
+             (heap->type == H5HP_MIN_HEAP && heap->heap[0].val == INT_MIN));
     HDassert(NULL == heap->heap[0].obj);
 
     /* Free internal structures for heap */
@@ -916,4 +902,3 @@ H5HP_close(H5HP_t *heap)
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5HP_close() */
-

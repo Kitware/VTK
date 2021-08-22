@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -23,54 +23,45 @@
 /****************/
 /* Module Setup */
 /****************/
-#include "H5ACmodule.h"         /* This source code file is part of the H5AC module */
-#define H5F_FRIEND		/* Suppress error about including H5Fpkg            */
+#include "H5ACmodule.h" /* This source code file is part of the H5AC module */
+#define H5F_FRIEND      /* Suppress error about including H5Fpkg            */
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"          /* Generic Functions                    */
-#include "H5ACpkg.h"            /* Metadata cache                       */
-#include "H5Eprivate.h"         /* Error handling                       */
-#include "H5Fpkg.h"		/* Files				*/
-
+#include "H5private.h"  /* Generic Functions                    */
+#include "H5ACpkg.h"    /* Metadata cache                       */
+#include "H5Eprivate.h" /* Error handling                       */
+#include "H5Fpkg.h"     /* Files				*/
 
 /****************/
 /* Local Macros */
 /****************/
 
-
 /******************/
 /* Local Typedefs */
 /******************/
-
 
 /********************/
 /* Package Typedefs */
 /********************/
 
-
 /********************/
 /* Local Prototypes */
 /********************/
-
 
 /*********************/
 /* Package Variables */
 /*********************/
 
-
 /*****************************/
 /* Library Private Variables */
 /*****************************/
-
 
 /*******************/
 /* Local Variables */
 /*******************/
 
-
-
 /*-------------------------------------------------------------------------
  * Function:    H5AC_stats
  *
@@ -100,7 +91,7 @@ H5AC_stats(const H5F_t *f)
 } /* H5AC_stats() */
 
 #ifndef NDEBUG
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5AC_dump_cache
  *
@@ -117,7 +108,7 @@ H5AC_stats(const H5F_t *f)
 herr_t
 H5AC_dump_cache(const H5F_t *f)
 {
-    herr_t              ret_value = SUCCEED;   /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -126,7 +117,7 @@ H5AC_dump_cache(const H5F_t *f)
     HDassert(f->shared);
     HDassert(f->shared->cache);
 
-    if(H5C_dump_cache(f->shared->cache, H5F_OPEN_NAME(f)) < 0)
+    if (H5C_dump_cache(f->shared->cache, H5F_OPEN_NAME(f)) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "H5C_dump_cache() failed.")
 
 done:
@@ -134,7 +125,6 @@ done:
 } /* H5AC_dump_cache() */
 #endif /* NDEBUG */
 
-
 /*-------------------------------------------------------------------------
  *
  * Function:    H5AC_get_entry_ptr_from_addr()
@@ -178,8 +168,8 @@ done:
 herr_t
 H5AC_get_entry_ptr_from_addr(const H5F_t *f, haddr_t addr, void **entry_ptr_ptr)
 {
-    H5C_t *cache_ptr;               /* Ptr to cache */
-    herr_t ret_value = SUCCEED;     /* Return value */
+    H5C_t *cache_ptr;           /* Ptr to cache */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -188,7 +178,7 @@ H5AC_get_entry_ptr_from_addr(const H5F_t *f, haddr_t addr, void **entry_ptr_ptr)
     HDassert(f->shared);
     cache_ptr = f->shared->cache;
 
-    if(H5C_get_entry_ptr_from_addr(cache_ptr, addr, entry_ptr_ptr) < 0)
+    if (H5C_get_entry_ptr_from_addr(cache_ptr, addr, entry_ptr_ptr) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "H5C_get_entry_ptr_from_addr() failed")
 
 done:
@@ -196,7 +186,6 @@ done:
 } /* H5AC_get_entry_ptr_from_addr() */
 #endif /* NDEBUG */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5AC_flush_dependency_exists()
  *
@@ -224,11 +213,10 @@ done:
  */
 #ifndef NDEBUG
 herr_t
-H5AC_flush_dependency_exists(H5F_t *f, haddr_t parent_addr, haddr_t child_addr,
-    hbool_t *fd_exists_ptr)
+H5AC_flush_dependency_exists(H5F_t *f, haddr_t parent_addr, haddr_t child_addr, hbool_t *fd_exists_ptr)
 {
-    H5C_t *cache_ptr;               /* Ptr to cache */
-    herr_t  ret_value = FAIL;       /* Return value */
+    H5C_t *cache_ptr;        /* Ptr to cache */
+    herr_t ret_value = FAIL; /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -243,7 +231,6 @@ H5AC_flush_dependency_exists(H5F_t *f, haddr_t parent_addr, haddr_t child_addr,
 } /* H5AC_flush_dependency_exists() */
 #endif /* NDEBUG */
 
-
 /*-------------------------------------------------------------------------
  *
  * Function:    H5AC_verify_entry_type()
@@ -274,12 +261,11 @@ H5AC_flush_dependency_exists(H5F_t *f, haddr_t parent_addr, haddr_t child_addr,
  */
 #ifndef NDEBUG
 herr_t
-H5AC_verify_entry_type(const H5F_t *f, haddr_t addr,
-    const H5AC_class_t *expected_type, hbool_t *in_cache_ptr,
-    hbool_t *type_ok_ptr)
+H5AC_verify_entry_type(const H5F_t *f, haddr_t addr, const H5AC_class_t *expected_type, hbool_t *in_cache_ptr,
+                       hbool_t *type_ok_ptr)
 {
-    H5C_t             * cache_ptr;
-    herr_t              ret_value = SUCCEED;      /* Return value */
+    H5C_t *cache_ptr;
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -288,7 +274,7 @@ H5AC_verify_entry_type(const H5F_t *f, haddr_t addr,
     HDassert(f->shared);
     cache_ptr = f->shared->cache;
 
-    if(H5C_verify_entry_type(cache_ptr, addr, expected_type, in_cache_ptr, type_ok_ptr) < 0)
+    if (H5C_verify_entry_type(cache_ptr, addr, expected_type, in_cache_ptr, type_ok_ptr) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "H5C_verify_entry_type() failed")
 
 done:
@@ -296,7 +282,6 @@ done:
 } /* H5AC_verify_entry_type() */
 #endif /* NDEBUG */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5AC_get_serialization_in_progress
  *
@@ -315,7 +300,7 @@ hbool_t
 H5AC_get_serialization_in_progress(H5F_t *f)
 {
     H5C_t * cache_ptr;
-    hbool_t ret_value = FALSE;      /* Return value */
+    hbool_t ret_value = FALSE; /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -331,7 +316,6 @@ H5AC_get_serialization_in_progress(H5F_t *f)
 } /* H5AC_get_serialization_in_progress() */
 #endif /* NDEBUG */
 
-
 /*-------------------------------------------------------------------------
  *
  * Function:    H5AC_cache_is_clean()
@@ -353,8 +337,8 @@ H5AC_get_serialization_in_progress(H5F_t *f)
 hbool_t
 H5AC_cache_is_clean(const H5F_t *f, H5AC_ring_t inner_ring)
 {
-    H5C_t *cache_ptr;
-    hbool_t ret_value = FALSE;  /* Return value */
+    H5C_t * cache_ptr;
+    hbool_t ret_value = FALSE; /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -368,4 +352,3 @@ H5AC_cache_is_clean(const H5F_t *f, H5AC_ring_t inner_ring)
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5AC_cache_is_clean() */
 #endif /* NDEBUG */
-

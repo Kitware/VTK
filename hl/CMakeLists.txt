@@ -20,8 +20,6 @@ if (HDF5_BUILD_EXAMPLES)
 endif ()
 
 #-- Build the Unit testing if requested
-if (NOT HDF5_EXTERNALLY_CONFIGURED)
-  if (BUILD_TESTING AND HDF5_TEST_SERIAL)
-    add_subdirectory (test)
-  endif ()
+if (BUILD_TESTING AND HDF5_TEST_SERIAL)
+  add_subdirectory (test)
 endif ()

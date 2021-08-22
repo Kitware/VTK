@@ -5,7 +5,7 @@
 # This file is part of HDF5.  The full HDF5 copyright notice, including
 # terms governing use, modification, and redistribution, is contained in
 # the COPYING file, which can be found at the root of the source code
-# distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.
+# distribution tree, or in https://www.hdfgroup.org/licenses.
 # If you do not have access to either file, you may request a copy from
 # help@hdfgroup.org.
 #
@@ -46,6 +46,7 @@
 MAJOR, H5E_ARGS, Invalid arguments to routine
 MAJOR, H5E_RESOURCE, Resource unavailable
 MAJOR, H5E_INTERNAL, Internal error (too specific to document in detail)
+MAJOR, H5E_LIB, General library infrastructure
 MAJOR, H5E_FILE, File accessibility
 MAJOR, H5E_IO, Low-level I/O
 MAJOR, H5E_FUNC, Function entry/exit
@@ -66,6 +67,7 @@ MAJOR, H5E_PLINE, Data filters
 MAJOR, H5E_EFL, External file list
 MAJOR, H5E_REFERENCE, References
 MAJOR, H5E_VFL, Virtual File Layer
+MAJOR, H5E_VOL, Virtual Object Layer
 MAJOR, H5E_TST, Ternary Search Trees
 MAJOR, H5E_RS, Reference Counted Strings
 MAJOR, H5E_ERROR, Error API
@@ -77,6 +79,7 @@ MAJOR, H5E_FARRAY, Fixed Array
 MAJOR, H5E_PLUGIN, Plugin for dynamically loaded library
 MAJOR, H5E_PAGEBUF, Page Buffering
 MAJOR, H5E_CONTEXT, API Context
+MAJOR, H5E_MAP, Map
 MAJOR, H5E_NONE_MAJOR, No error
 
 # Sections (for grouping minor errors)
@@ -133,6 +136,7 @@ MINOR, FILEACC, H5E_NOTHDF5, Not an HDF5 file
 MINOR, FILEACC, H5E_BADFILE, Bad file ID accessed
 MINOR, FILEACC, H5E_TRUNCATED, File has been truncated
 MINOR, FILEACC, H5E_MOUNT, File mount error
+MINOR, FILEACC, H5E_CANTDELETEFILE, Unable to delete file
 MINOR, FILEACC, H5E_CANTLOCKFILE, Unable to lock file
 MINOR, FILEACC, H5E_CANTUNLOCKFILE, Unable to unlock file
 
@@ -183,7 +187,6 @@ MINOR, CACHE, H5E_CANTDEPEND, Unable to create a flush dependency
 MINOR, CACHE, H5E_CANTUNDEPEND, Unable to destroy a flush dependency
 MINOR, CACHE, H5E_CANTNOTIFY, Unable to notify object about action
 MINOR, CACHE, H5E_LOGGING, Failure in the cache logging framework
-MINOR, CACHE, H5E_LOGFAIL, old H5E_LOGGING_g (maintained for binary compatibility)
 MINOR, CACHE, H5E_CANTCORK, Unable to cork an object
 MINOR, CACHE, H5E_CANTUNCORK, Unable to uncork an object
 

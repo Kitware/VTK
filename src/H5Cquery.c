@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -27,50 +27,41 @@
 /* Module Setup */
 /****************/
 
-#include "H5Cmodule.h"          /* This source code file is part of the H5C module */
-#define H5F_FRIEND		/*suppress error about including H5Fpkg	  */
-
+#include "H5Cmodule.h" /* This source code file is part of the H5C module */
+#define H5F_FRIEND     /*suppress error about including H5Fpkg	  */
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Cpkg.h"		/* Cache				*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fpkg.h"		/* Files				*/
-
+#include "H5private.h"  /* Generic Functions			*/
+#include "H5Cpkg.h"     /* Cache				*/
+#include "H5Eprivate.h" /* Error handling		  	*/
+#include "H5Fpkg.h"     /* Files				*/
 
 /****************/
 /* Local Macros */
 /****************/
 
-
 /******************/
 /* Local Typedefs */
 /******************/
-
 
 /********************/
 /* Local Prototypes */
 /********************/
 
-
 /*********************/
 /* Package Variables */
 /*********************/
-
 
 /*****************************/
 /* Library Private Variables */
 /*****************************/
 
-
 /*******************/
 /* Local Variables */
 /*******************/
 
-
-
 /*-------------------------------------------------------------------------
  * Function:    H5C_get_cache_auto_resize_config
  *
@@ -86,28 +77,26 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_get_cache_auto_resize_config(const H5C_t * cache_ptr,
-                                 H5C_auto_size_ctl_t *config_ptr)
+H5C_get_cache_auto_resize_config(const H5C_t *cache_ptr, H5C_auto_size_ctl_t *config_ptr)
 {
-    herr_t ret_value = SUCCEED;      /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
-    if((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
+    if ((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad cache_ptr on entry.")
-    if(config_ptr == NULL)
+    if (config_ptr == NULL)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad config_ptr on entry.")
 
     *config_ptr = cache_ptr->resize_ctl;
 
     config_ptr->set_initial_size = FALSE;
-    config_ptr->initial_size = cache_ptr->max_cache_size;
+    config_ptr->initial_size     = cache_ptr->max_cache_size;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C_get_cache_auto_resize_config() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5C_get_cache_size
  *
@@ -125,36 +114,59 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_get_cache_size(H5C_t * cache_ptr,
-                   size_t * max_size_ptr,
-                   size_t * min_clean_size_ptr,
-                   size_t * cur_size_ptr,
-                   uint32_t * cur_num_entries_ptr)
+H5C_get_cache_size(H5C_t *cache_ptr, size_t *max_size_ptr, size_t *min_clean_size_ptr, size_t *cur_size_ptr,
+                   uint32_t *cur_num_entries_ptr)
 {
-    herr_t ret_value = SUCCEED;      /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
-    if((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
+    if ((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad cache_ptr on entry.")
 
-    if(max_size_ptr != NULL)
+    if (max_size_ptr != NULL)
         *max_size_ptr = cache_ptr->max_cache_size;
 
-    if(min_clean_size_ptr != NULL)
+    if (min_clean_size_ptr != NULL)
         *min_clean_size_ptr = cache_ptr->min_clean_size;
 
-    if(cur_size_ptr != NULL)
+    if (cur_size_ptr != NULL)
         *cur_size_ptr = cache_ptr->index_size;
 
-    if(cur_num_entries_ptr != NULL)
+    if (cur_num_entries_ptr != NULL)
         *cur_num_entries_ptr = cache_ptr->index_len;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C_get_cache_size() */
 
-
+/*-------------------------------------------------------------------------
+ * Function:    H5C_get_cache_flush_in_progress
+ *
+ * Purpose:	Return flush_in_progress in *flush_in_progress_ptr
+ *		    If the parameter is NULL, skip that value.
+ *
+ * Return:  SUCCEED on success, and FAIL on failure.
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5C_get_cache_flush_in_progress(H5C_t *cache_ptr, hbool_t *flush_in_progress_ptr)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    if ((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
+        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad cache_ptr on entry.")
+
+    if (flush_in_progress_ptr != NULL)
+        *flush_in_progress_ptr = cache_ptr->flush_in_progress;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C_get_cache_flush_in_progress() */
+
 /*-------------------------------------------------------------------------
  * Function:    H5C_get_cache_hit_rate
  *
@@ -172,23 +184,22 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_get_cache_hit_rate(H5C_t * cache_ptr, double * hit_rate_ptr)
+H5C_get_cache_hit_rate(H5C_t *cache_ptr, double *hit_rate_ptr)
 {
-    herr_t ret_value = SUCCEED;      /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
-    if((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
+    if ((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad cache_ptr on entry.")
-    if(hit_rate_ptr == NULL)
+    if (hit_rate_ptr == NULL)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad hit_rate_ptr on entry.")
 
     HDassert(cache_ptr->cache_hits >= 0);
     HDassert(cache_ptr->cache_accesses >= cache_ptr->cache_hits);
 
-    if(cache_ptr->cache_accesses > 0)
-        *hit_rate_ptr = ((double)(cache_ptr->cache_hits)) /
-                         ((double)(cache_ptr->cache_accesses));
+    if (cache_ptr->cache_accesses > 0)
+        *hit_rate_ptr = ((double)(cache_ptr->cache_hits)) / ((double)(cache_ptr->cache_accesses));
     else
         *hit_rate_ptr = 0.0f;
 
@@ -196,7 +207,6 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C_get_cache_hit_rate() */
 
-
 /*-------------------------------------------------------------------------
  *
  * Function:    H5C_get_entry_status
@@ -220,21 +230,14 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_get_entry_status(const H5F_t *f,
-                     haddr_t   addr,
-                     size_t *  size_ptr,
-                     hbool_t * in_cache_ptr,
-                     hbool_t * is_dirty_ptr,
-                     hbool_t * is_protected_ptr,
-		     hbool_t * is_pinned_ptr,
-		     hbool_t * is_corked_ptr,
-		     hbool_t * is_flush_dep_parent_ptr,
-                     hbool_t * is_flush_dep_child_ptr,
-		     hbool_t * image_up_to_date_ptr)
+H5C_get_entry_status(const H5F_t *f, haddr_t addr, size_t *size_ptr, hbool_t *in_cache_ptr,
+                     hbool_t *is_dirty_ptr, hbool_t *is_protected_ptr, hbool_t *is_pinned_ptr,
+                     hbool_t *is_corked_ptr, hbool_t *is_flush_dep_parent_ptr,
+                     hbool_t *is_flush_dep_child_ptr, hbool_t *image_up_to_date_ptr)
 {
-    H5C_t             * cache_ptr;
-    H5C_cache_entry_t *	entry_ptr = NULL;
-    herr_t		ret_value = SUCCEED;      /* Return value */
+    H5C_t *            cache_ptr;
+    H5C_cache_entry_t *entry_ptr = NULL;
+    herr_t             ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -252,12 +255,12 @@ H5C_get_entry_status(const H5F_t *f,
     /* this test duplicates two of the above asserts, but we need an
      * invocation of HGOTO_ERROR to keep the compiler happy.
      */
-    if((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
+    if ((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad cache_ptr on entry.")
 
     H5C__SEARCH_INDEX(cache_ptr, addr, entry_ptr, FAIL)
 
-    if(entry_ptr == NULL) {
+    if (entry_ptr == NULL) {
         /* the entry doesn't exist in the cache -- report this
          * and quit.
          */
@@ -265,21 +268,21 @@ H5C_get_entry_status(const H5F_t *f,
     } /* end if */
     else {
         *in_cache_ptr = TRUE;
-        if(size_ptr != NULL)
+        if (size_ptr != NULL)
             *size_ptr = entry_ptr->size;
-        if(is_dirty_ptr != NULL)
+        if (is_dirty_ptr != NULL)
             *is_dirty_ptr = entry_ptr->is_dirty;
-        if(is_protected_ptr != NULL)
+        if (is_protected_ptr != NULL)
             *is_protected_ptr = entry_ptr->is_protected;
-        if(is_pinned_ptr != NULL)
+        if (is_pinned_ptr != NULL)
             *is_pinned_ptr = entry_ptr->is_pinned;
-        if(is_corked_ptr != NULL)
+        if (is_corked_ptr != NULL)
             *is_corked_ptr = entry_ptr->tag_info ? entry_ptr->tag_info->corked : FALSE;
-        if(is_flush_dep_parent_ptr != NULL)
+        if (is_flush_dep_parent_ptr != NULL)
             *is_flush_dep_parent_ptr = (entry_ptr->flush_dep_nchildren > 0);
-        if(is_flush_dep_child_ptr != NULL)
+        if (is_flush_dep_child_ptr != NULL)
             *is_flush_dep_child_ptr = (entry_ptr->flush_dep_nparents > 0);
-        if(image_up_to_date_ptr != NULL )
+        if (image_up_to_date_ptr != NULL)
             *image_up_to_date_ptr = entry_ptr->image_up_to_date;
     } /* end else */
 
@@ -287,7 +290,6 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C_get_entry_status() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5C_get_evictions_enabled()
  *
@@ -302,17 +304,16 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_get_evictions_enabled(const H5C_t *cache_ptr,
-                          hbool_t * evictions_enabled_ptr)
+H5C_get_evictions_enabled(const H5C_t *cache_ptr, hbool_t *evictions_enabled_ptr)
 {
-    herr_t ret_value = SUCCEED;      /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
-    if((cache_ptr == NULL ) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
+    if ((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad cache_ptr on entry.")
 
-    if(evictions_enabled_ptr == NULL)
+    if (evictions_enabled_ptr == NULL)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "Bad evictions_enabled_ptr on entry.")
 
     *evictions_enabled_ptr = cache_ptr->evictions_enabled;
@@ -321,7 +322,6 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C_get_evictions_enabled() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5C_get_aux_ptr
  *
@@ -349,7 +349,6 @@ H5C_get_aux_ptr(const H5C_t *cache_ptr)
     FUNC_LEAVE_NOAPI(cache_ptr->aux_ptr)
 } /* H5C_get_aux_ptr() */
 
-
 /*-------------------------------------------------------------------------
  * Function:    H5C_get_entry_ring
  *
@@ -368,9 +367,9 @@ H5C_get_aux_ptr(const H5C_t *cache_ptr)
 herr_t
 H5C_get_entry_ring(const H5F_t *f, haddr_t addr, H5C_ring_t *ring)
 {
-    H5C_t *cache_ptr;                   /* Pointer to cache */
-    H5C_cache_entry_t *entry_ptr;       /* Pointer to cache entry at address */
-    herr_t ret_value = SUCCEED;         /* Return value */
+    H5C_t *            cache_ptr;           /* Pointer to cache */
+    H5C_cache_entry_t *entry_ptr;           /* Pointer to cache entry at address */
+    herr_t             ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -384,7 +383,7 @@ H5C_get_entry_ring(const H5F_t *f, haddr_t addr, H5C_ring_t *ring)
 
     /* Locate the entry at the address */
     H5C__SEARCH_INDEX(cache_ptr, addr, entry_ptr, FAIL)
-    if(entry_ptr == NULL)
+    if (entry_ptr == NULL)
         HGOTO_ERROR(H5E_CACHE, H5E_NOTFOUND, FAIL, "can't find entry in index")
 
     /* Return the ring value */
@@ -406,21 +405,20 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_get_mdc_image_info(H5C_t * cache_ptr, haddr_t *image_addr, hsize_t *image_len)
+H5C_get_mdc_image_info(H5C_t *cache_ptr, haddr_t *image_addr, hsize_t *image_len)
 {
-    herr_t ret_value = SUCCEED;      /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
-    if((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
+    if ((cache_ptr == NULL) || (cache_ptr->magic != H5C__H5C_T_MAGIC))
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "bad cache_ptr on entry")
-    if(image_addr == NULL || image_len == NULL)
-        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "bad image_addr or image_len on entry")
 
-    *image_addr = cache_ptr->image_addr;
-    *image_len = cache_ptr->image_len;
+    if (image_addr)
+        *image_addr = cache_ptr->image_addr;
+    if (image_len)
+        *image_len = cache_ptr->image_len;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C_get_mdc_image_info() */
-

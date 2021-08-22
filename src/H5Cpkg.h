@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -17,21 +17,24 @@
  * Purpose:     This file contains declarations which are normally visible
  *              only within the H5C package.
  *
- *		Source files outside the H5C package should include
- *		H5Cprivate.h instead.
+ *        Source files outside the H5C package should include
+ *        H5Cprivate.h instead.
  *
- *		The one exception to this rule is test/cache.c.  The test
- *		code is easier to write if it can look at the cache's
- *		internal data structures.  Indeed, this is the main
- *		reason why this file was created.
+ *        The one exception to this rule is test/cache.c.  The test
+ *        code is easier to write if it can look at the cache's
+ *        internal data structures.  Indeed, this is the main
+ *        reason why this file was created.
  */
+
+/* clang-format off */
+/* Maintain current format by disabling format for this file */
 
 #if !(defined H5C_FRIEND || defined H5C_MODULE)
 #error "Do not include this file outside the H5C package!"
 #endif
 
-#ifndef _H5Cpkg_H
-#define _H5Cpkg_H
+#ifndef H5Cpkg_H
+#define H5Cpkg_H
 
 /* Get package's private header */
 #include "H5Cprivate.h"
@@ -50,7 +53,7 @@
 
 /* Cache configuration settings */
 #define H5C__HASH_TABLE_LEN     (64 * 1024) /* must be a power of 2 */
-#define H5C__H5C_T_MAGIC	0x005CAC0E
+#define H5C__H5C_T_MAGIC    0x005CAC0E
 
 
 /* Initial allocated size of the "flush_dep_parent" array */
@@ -81,7 +84,7 @@
  * to the HGOTO_ERROR macro, which may not be appropriate in all cases.
  * If so, we will need versions of the insertion and deletion macros which
  * do not reference the sanity checking macros.
- *							JRM - 5/5/04
+ *                            JRM - 5/5/04
  *
  * Changes:
  *
@@ -156,14 +159,14 @@
  *    sanity checking macros.  These macro are used to update the size of
  *    a DLL when one of its entries changes size.
  *
- *							JRM - 9/8/05
+ *                            JRM - 9/8/05
  *
  *  - Added macros supporting the index list -- a doubly liked list of
  *    all entries in the index.  This list is necessary to reduce the
  *    cost of visiting all entries in the cache, which was previously
  *    done via a scan of the hash table.
  *
- *							JRM - 10/15/15
+ *                            JRM - 10/15/15
  *
  ****************************************************************************/
 
@@ -591,7 +594,7 @@ if ( ( ( ( (head_ptr) == NULL ) || ( (tail_ptr) == NULL ) ) &&             \
     H5C__IL_DLL_SC(head_ptr, tail_ptr, len, Size, fv)                       \
 } /* H5C__IL_DLL_REMOVE() */
 
-
+
 /***********************************************************************
  *
  * Stats collection macros
@@ -626,68 +629,68 @@ if ( ( ( ( (head_ptr) == NULL ) || ( (tail_ptr) == NULL ) ) &&             \
                 (cache_ptr)->dirty_index_size;
 
 #define H5C__UPDATE_STATS_FOR_DIRTY_PIN(cache_ptr, entry_ptr) \
-	(((cache_ptr)->dirty_pins)[(entry_ptr)->type->id])++;
+    (((cache_ptr)->dirty_pins)[(entry_ptr)->type->id])++;
 
 #define H5C__UPDATE_STATS_FOR_UNPROTECT(cache_ptr)                   \
         if ( (cache_ptr)->slist_len > (cache_ptr)->max_slist_len )   \
-	    (cache_ptr)->max_slist_len = (cache_ptr)->slist_len;     \
+        (cache_ptr)->max_slist_len = (cache_ptr)->slist_len;     \
         if ( (cache_ptr)->slist_size > (cache_ptr)->max_slist_size ) \
-	    (cache_ptr)->max_slist_size = (cache_ptr)->slist_size;   \
-	if ( (cache_ptr)->pel_len > (cache_ptr)->max_pel_len )       \
-	    (cache_ptr)->max_pel_len = (cache_ptr)->pel_len;         \
-	if ( (cache_ptr)->pel_size > (cache_ptr)->max_pel_size )     \
-	    (cache_ptr)->max_pel_size = (cache_ptr)->pel_size;
+        (cache_ptr)->max_slist_size = (cache_ptr)->slist_size;   \
+    if ( (cache_ptr)->pel_len > (cache_ptr)->max_pel_len )       \
+        (cache_ptr)->max_pel_len = (cache_ptr)->pel_len;         \
+    if ( (cache_ptr)->pel_size > (cache_ptr)->max_pel_size )     \
+        (cache_ptr)->max_pel_size = (cache_ptr)->pel_size;
 
 #define H5C__UPDATE_STATS_FOR_MOVE(cache_ptr, entry_ptr)               \
-	if ( cache_ptr->flush_in_progress )                            \
+    if ( cache_ptr->flush_in_progress )                            \
             ((cache_ptr)->cache_flush_moves[(entry_ptr)->type->id])++; \
         if ( entry_ptr->flush_in_progress )                            \
             ((cache_ptr)->entry_flush_moves[(entry_ptr)->type->id])++; \
-	(((cache_ptr)->moves)[(entry_ptr)->type->id])++;               \
+    (((cache_ptr)->moves)[(entry_ptr)->type->id])++;               \
         (cache_ptr)->entries_relocated_counter++;
 
 #define H5C__UPDATE_STATS_FOR_ENTRY_SIZE_CHANGE(cache_ptr, entry_ptr, new_size)\
-	if ( cache_ptr->flush_in_progress )                                    \
+    if ( cache_ptr->flush_in_progress )                                    \
             ((cache_ptr)->cache_flush_size_changes[(entry_ptr)->type->id])++;  \
         if ( entry_ptr->flush_in_progress )                                    \
             ((cache_ptr)->entry_flush_size_changes[(entry_ptr)->type->id])++;  \
-	if ( (entry_ptr)->size < (new_size) ) {                                \
-	    ((cache_ptr)->size_increases[(entry_ptr)->type->id])++;            \
+    if ( (entry_ptr)->size < (new_size) ) {                                \
+        ((cache_ptr)->size_increases[(entry_ptr)->type->id])++;            \
             H5C__UPDATE_MAX_INDEX_SIZE_STATS(cache_ptr)                        \
             if ( (cache_ptr)->slist_size > (cache_ptr)->max_slist_size )       \
                 (cache_ptr)->max_slist_size = (cache_ptr)->slist_size;         \
             if ( (cache_ptr)->pl_size > (cache_ptr)->max_pl_size )             \
                 (cache_ptr)->max_pl_size = (cache_ptr)->pl_size;               \
-	} else if ( (entry_ptr)->size > (new_size) ) {                         \
-	    ((cache_ptr)->size_decreases[(entry_ptr)->type->id])++;            \
-	}
+    } else if ( (entry_ptr)->size > (new_size) ) {                         \
+        ((cache_ptr)->size_decreases[(entry_ptr)->type->id])++;            \
+    }
 
 #define H5C__UPDATE_STATS_FOR_HT_INSERTION(cache_ptr) \
-	(cache_ptr)->total_ht_insertions++;
+    (cache_ptr)->total_ht_insertions++;
 
 #define H5C__UPDATE_STATS_FOR_HT_DELETION(cache_ptr) \
-	(cache_ptr)->total_ht_deletions++;
+    (cache_ptr)->total_ht_deletions++;
 
 #define H5C__UPDATE_STATS_FOR_HT_SEARCH(cache_ptr, success, depth)  \
-	if ( success ) {                                            \
-	    (cache_ptr)->successful_ht_searches++;                  \
-	    (cache_ptr)->total_successful_ht_search_depth += depth; \
-	} else {                                                    \
-	    (cache_ptr)->failed_ht_searches++;                      \
-	    (cache_ptr)->total_failed_ht_search_depth += depth;     \
-	}
+    if ( success ) {                                            \
+        (cache_ptr)->successful_ht_searches++;                  \
+        (cache_ptr)->total_successful_ht_search_depth += depth; \
+    } else {                                                    \
+        (cache_ptr)->failed_ht_searches++;                      \
+        (cache_ptr)->total_failed_ht_search_depth += depth;     \
+    }
 
 #define H5C__UPDATE_STATS_FOR_UNPIN(cache_ptr, entry_ptr) \
-	((cache_ptr)->unpins)[(entry_ptr)->type->id]++;
+    ((cache_ptr)->unpins)[(entry_ptr)->type->id]++;
 
 #define H5C__UPDATE_STATS_FOR_SLIST_SCAN_RESTART(cache_ptr) \
-	((cache_ptr)->slist_scan_restarts)++;
+    ((cache_ptr)->slist_scan_restarts)++;
 
 #define H5C__UPDATE_STATS_FOR_LRU_SCAN_RESTART(cache_ptr) \
-	((cache_ptr)->LRU_scan_restarts)++;
+    ((cache_ptr)->LRU_scan_restarts)++;
 
 #define H5C__UPDATE_STATS_FOR_INDEX_SCAN_RESTART(cache_ptr) \
-	((cache_ptr)->index_scan_restarts)++;
+    ((cache_ptr)->index_scan_restarts)++;
 
 #define H5C__UPDATE_STATS_FOR_CACHE_IMAGE_CREATE(cache_ptr) \
 {                                                           \
@@ -953,7 +956,7 @@ if ( ( ( ( (head_ptr) == NULL ) || ( (tail_ptr) == NULL ) ) &&             \
 
 #endif /* H5C_COLLECT_CACHE_STATS */
 
-
+
 /***********************************************************************
  *
  * Hash table access and manipulation macros:
@@ -970,13 +973,13 @@ if ( ( ( ( (head_ptr) == NULL ) || ( (tail_ptr) == NULL ) ) &&             \
  *     the clean_index_size and dirty_index_size fields of H5C_t.  Also
  *     added macros to allow us to track entry cleans and dirties.
  *
- *     						JRM -- 11/5/08
+ *                             JRM -- 11/5/08
  *
  *   - Updated existing index macros and sanity check macros to maintain
  *     the index_ring_len, index_ring_size, clean_index_ring_size, and
  *     dirty_index_ring_size fields of H5C_t.
  *
- *						JRM -- 9/1/15
+ *                        JRM -- 9/1/15
  *
  *   - Updated existing index macros and sanity checks macros to
  *     maintain an doubly linked list of all entries in the index.
@@ -990,9 +993,9 @@ if ( ( ( ( (head_ptr) == NULL ) || ( (tail_ptr) == NULL ) ) &&             \
 
 /* H5C__HASH_TABLE_LEN is defined in H5Cpkg.h.  It mut be a power of two. */
 
-#define H5C__HASH_MASK		((size_t)(H5C__HASH_TABLE_LEN - 1) << 3)
+#define H5C__HASH_MASK        ((size_t)(H5C__HASH_TABLE_LEN - 1) << 3)
 
-#define H5C__HASH_FCN(x)	(int)((unsigned)((x) & H5C__HASH_MASK) >> 3)
+#define H5C__HASH_FCN(x)    (int)((unsigned)((x) & H5C__HASH_MASK) >> 3)
 
 #if H5C_DO_SANITY_CHECKS
 
@@ -1008,7 +1011,7 @@ if ( ( (cache_ptr) == NULL ) ||                                         \
      ( H5C__HASH_FCN((entry_ptr)->addr) >= H5C__HASH_TABLE_LEN ) ||     \
      ( (cache_ptr)->index_size !=                                       \
        ((cache_ptr)->clean_index_size +                                 \
-	(cache_ptr)->dirty_index_size) ) ||                             \
+    (cache_ptr)->dirty_index_size) ) ||                             \
      ( (cache_ptr)->index_size < ((cache_ptr)->clean_index_size) ) ||   \
      ( (cache_ptr)->index_size < ((cache_ptr)->dirty_index_size) ) ||   \
      ( (entry_ptr)->ring <= H5C_RING_UNDEFINED ) ||                     \
@@ -1031,7 +1034,7 @@ if ( ( (cache_ptr) == NULL ) ||                                         \
      ( (cache_ptr)->magic != H5C__H5C_T_MAGIC ) ||                      \
      ( (cache_ptr)->index_size !=                                       \
        ((cache_ptr)->clean_index_size +                                 \
-	(cache_ptr)->dirty_index_size) ) ||                             \
+    (cache_ptr)->dirty_index_size) ) ||                             \
      ( (cache_ptr)->index_size < ((cache_ptr)->clean_index_size) ) ||   \
      ( (cache_ptr)->index_size < ((cache_ptr)->dirty_index_size) ) ||   \
      ( (cache_ptr)->index_ring_len[(entry_ptr)->ring] == 0 ) ||         \
@@ -1068,7 +1071,7 @@ if ( ( (cache_ptr) == NULL ) ||                                         \
        ( (entry_ptr)->ht_prev != NULL ) ) ||                            \
      ( (cache_ptr)->index_size !=                                       \
        ((cache_ptr)->clean_index_size +                                 \
-	(cache_ptr)->dirty_index_size) ) ||                             \
+    (cache_ptr)->dirty_index_size) ) ||                             \
      ( (cache_ptr)->index_size < ((cache_ptr)->clean_index_size) ) ||   \
      ( (cache_ptr)->index_size < ((cache_ptr)->dirty_index_size) ) ||   \
      ( (entry_ptr)->ring <= H5C_RING_UNDEFINED ) ||                     \
@@ -1099,7 +1102,7 @@ if ( ( (cache_ptr) == NULL ) ||                                          \
      ( (entry_ptr)->ht_prev != NULL ) ||                                 \
      ( (cache_ptr)->index_size !=                                        \
        ((cache_ptr)->clean_index_size +                                  \
-	(cache_ptr)->dirty_index_size) ) ||                              \
+    (cache_ptr)->dirty_index_size) ) ||                              \
      ( (cache_ptr)->index_size < ((cache_ptr)->clean_index_size) ) ||    \
      ( (cache_ptr)->index_size < ((cache_ptr)->dirty_index_size) ) ||    \
      ( (cache_ptr)->index_ring_len[(entry_ptr)->ring] >                  \
@@ -1158,7 +1161,7 @@ if ( ( (cache_ptr) == NULL ) ||                                        \
 }
 
 #define H5C__PRE_HT_ENTRY_SIZE_CHANGE_SC(cache_ptr, old_size, new_size, \
-		                         entry_ptr, was_clean)          \
+                                entry_ptr, was_clean)          \
 if ( ( (cache_ptr) == NULL ) ||                                         \
      ( (cache_ptr)->index_len <= 0 ) ||                                 \
      ( (cache_ptr)->index_size <= 0 ) ||                                \
@@ -1172,9 +1175,9 @@ if ( ( (cache_ptr) == NULL ) ||                                         \
      ( (cache_ptr)->index_size < ((cache_ptr)->clean_index_size) ) ||   \
      ( (cache_ptr)->index_size < ((cache_ptr)->dirty_index_size) ) ||   \
      ( ( !( was_clean ) ||                                              \
-	    ( (cache_ptr)->clean_index_size < (old_size) ) ) &&         \
-	  ( ( (was_clean) ) ||                                          \
-	    ( (cache_ptr)->dirty_index_size < (old_size) ) ) ) ||       \
+        ( (cache_ptr)->clean_index_size < (old_size) ) ) &&         \
+    ( ( (was_clean) ) ||                                          \
+        ( (cache_ptr)->dirty_index_size < (old_size) ) ) ) ||       \
      ( (entry_ptr) == NULL ) ||                                         \
      ( (entry_ptr)->ring <= H5C_RING_UNDEFINED ) ||                     \
      ( (entry_ptr)->ring >= H5C_RING_NTYPES ) ||                        \
@@ -1193,20 +1196,20 @@ if ( ( (cache_ptr) == NULL ) ||                                         \
 }
 
 #define H5C__POST_HT_ENTRY_SIZE_CHANGE_SC(cache_ptr, old_size, new_size,  \
-		                          entry_ptr)                      \
+                                entry_ptr)                      \
 if ( ( (cache_ptr) == NULL ) ||                                           \
      ( (cache_ptr)->index_len <= 0 ) ||                                   \
      ( (cache_ptr)->index_size <= 0 ) ||                                  \
      ( (new_size) > (cache_ptr)->index_size ) ||                          \
      ( (cache_ptr)->index_size !=                                         \
-	  ((cache_ptr)->clean_index_size +                                \
+    ((cache_ptr)->clean_index_size +                                \
            (cache_ptr)->dirty_index_size) ) ||                            \
      ( (cache_ptr)->index_size < ((cache_ptr)->clean_index_size) ) ||     \
      ( (cache_ptr)->index_size < ((cache_ptr)->dirty_index_size) ) ||     \
      ( ( !((entry_ptr)->is_dirty ) ||                                     \
-	    ( (cache_ptr)->dirty_index_size < (new_size) ) ) &&           \
-	  ( ( ((entry_ptr)->is_dirty)  ) ||                               \
-	    ( (cache_ptr)->clean_index_size < (new_size) ) ) ) ||         \
+        ( (cache_ptr)->dirty_index_size < (new_size) ) ) &&           \
+    ( ( ((entry_ptr)->is_dirty)  ) ||                               \
+        ( (cache_ptr)->clean_index_size < (new_size) ) ) ) ||         \
      ( ( (cache_ptr)->index_len == 1 ) &&                                 \
        ( (cache_ptr)->index_size != (new_size) ) ) ||                     \
      ( (cache_ptr)->index_ring_len[(entry_ptr)->ring] >                   \
@@ -1320,9 +1323,9 @@ if ( ( (cache_ptr)->index_size !=                                           \
 #define H5C__PRE_HT_UPDATE_FOR_ENTRY_CLEAN_SC(cache_ptr, entry_ptr)
 #define H5C__PRE_HT_UPDATE_FOR_ENTRY_DIRTY_SC(cache_ptr, entry_ptr)
 #define H5C__PRE_HT_ENTRY_SIZE_CHANGE_SC(cache_ptr, old_size, new_size, \
-		                         entry_ptr, was_clean)
+                                entry_ptr, was_clean)
 #define H5C__POST_HT_ENTRY_SIZE_CHANGE_SC(cache_ptr, old_size, new_size, \
-		                          entry_ptr)
+                                entry_ptr)
 #define H5C__POST_HT_UPDATE_FOR_ENTRY_CLEAN_SC(cache_ptr, entry_ptr)
 #define H5C__POST_HT_UPDATE_FOR_ENTRY_DIRTY_SC(cache_ptr, entry_ptr)
 
@@ -1462,10 +1465,10 @@ if ( ( (cache_ptr)->index_size !=                                           \
     H5C__PRE_HT_UPDATE_FOR_ENTRY_CLEAN_SC(cache_ptr, entry_ptr);  \
     (cache_ptr)->dirty_index_size -= (entry_ptr)->size;           \
     ((cache_ptr)->dirty_index_ring_size[entry_ptr->ring])         \
-		-= (entry_ptr)->size;                             \
+        -= (entry_ptr)->size;                             \
     (cache_ptr)->clean_index_size += (entry_ptr)->size;           \
     ((cache_ptr)->clean_index_ring_size[entry_ptr->ring])         \
-		+= (entry_ptr)->size;                             \
+        += (entry_ptr)->size;                             \
     H5C__POST_HT_UPDATE_FOR_ENTRY_CLEAN_SC(cache_ptr, entry_ptr); \
 }
 
@@ -1474,18 +1477,18 @@ if ( ( (cache_ptr)->index_size !=                                           \
     H5C__PRE_HT_UPDATE_FOR_ENTRY_DIRTY_SC(cache_ptr, entry_ptr);  \
     (cache_ptr)->clean_index_size -= (entry_ptr)->size;           \
     ((cache_ptr)->clean_index_ring_size[entry_ptr->ring])         \
-		-= (entry_ptr)->size;                             \
+        -= (entry_ptr)->size;                             \
     (cache_ptr)->dirty_index_size += (entry_ptr)->size;           \
     ((cache_ptr)->dirty_index_ring_size[entry_ptr->ring])         \
-		+= (entry_ptr)->size;                             \
+        += (entry_ptr)->size;                             \
     H5C__POST_HT_UPDATE_FOR_ENTRY_DIRTY_SC(cache_ptr, entry_ptr); \
 }
 
 #define H5C__UPDATE_INDEX_FOR_SIZE_CHANGE(cache_ptr, old_size, new_size,    \
-		                          entry_ptr, was_clean)             \
+                                entry_ptr, was_clean)             \
 {                                                                           \
     H5C__PRE_HT_ENTRY_SIZE_CHANGE_SC(cache_ptr, old_size, new_size,         \
-		                     entry_ptr, was_clean)                  \
+                            entry_ptr, was_clean)                  \
     (cache_ptr)->index_size -= (old_size);                                  \
     (cache_ptr)->index_size += (new_size);                                  \
     ((cache_ptr)->index_ring_size[entry_ptr->ring]) -= (old_size);          \
@@ -1494,14 +1497,14 @@ if ( ( (cache_ptr)->index_size !=                                           \
         (cache_ptr)->clean_index_size -= (old_size);                        \
         ((cache_ptr)->clean_index_ring_size[entry_ptr->ring])-= (old_size); \
     } else {                                                                \
-	(cache_ptr)->dirty_index_size -= (old_size);                        \
+    (cache_ptr)->dirty_index_size -= (old_size);                        \
         ((cache_ptr)->dirty_index_ring_size[entry_ptr->ring])-= (old_size); \
     }                                                                       \
     if((entry_ptr)->is_dirty) {                                             \
         (cache_ptr)->dirty_index_size += (new_size);                        \
         ((cache_ptr)->dirty_index_ring_size[entry_ptr->ring])+= (new_size); \
     } else {                                                                \
-	(cache_ptr)->clean_index_size += (new_size);                        \
+    (cache_ptr)->clean_index_size += (new_size);                        \
         ((cache_ptr)->clean_index_ring_size[entry_ptr->ring])+= (new_size); \
     }                                                                       \
     H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->il_len,                    \
@@ -1511,7 +1514,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
                                       entry_ptr)                            \
 }
 
-
+
 /**************************************************************************
  *
  * Skip list insertion and deletion macros:
@@ -1523,11 +1526,11 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__INSERT_ENTRY_IN_SLIST
+ * Macro:    H5C__INSERT_ENTRY_IN_SLIST
  *
  * Purpose:     Insert the specified instance of H5C_cache_entry_t into
- *		the skip list in the specified instance of H5C_t.  Update
- *		the associated length and size fields.
+ *        the skip list in the specified instance of H5C_t.  Update
+ *        the associated length and size fields.
  *
  * Return:      N/A
  *
@@ -1535,66 +1538,66 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- *		JRM -- 7/21/04
- *		Updated function to set the in_tree flag when inserting
- *		an entry into the tree.  Also modified the function to
- *		update the tree size and len fields instead of the similar
- *		index fields.
+ *        JRM -- 7/21/04
+ *        Updated function to set the in_tree flag when inserting
+ *        an entry into the tree.  Also modified the function to
+ *        update the tree size and len fields instead of the similar
+ *        index fields.
  *
- *		All of this is part of the modifications to support the
- *		hash table.
+ *        All of this is part of the modifications to support the
+ *        hash table.
  *
- *		JRM -- 7/27/04
- *		Converted the function H5C_insert_entry_in_tree() into
- *		the macro H5C__INSERT_ENTRY_IN_TREE in the hopes of
- *		wringing a little more speed out of the cache.
+ *        JRM -- 7/27/04
+ *        Converted the function H5C_insert_entry_in_tree() into
+ *        the macro H5C__INSERT_ENTRY_IN_TREE in the hopes of
+ *        wringing a little more speed out of the cache.
  *
- *		Note that we don't bother to check if the entry is already
- *		in the tree -- if it is, H5SL_insert() will fail.
+ *        Note that we don't bother to check if the entry is already
+ *        in the tree -- if it is, H5SL_insert() will fail.
  *
- *		QAK -- 11/27/04
- *		Switched over to using skip list routines.
+ *        QAK -- 11/27/04
+ *        Switched over to using skip list routines.
  *
- *		JRM -- 6/27/06
- *		Added fail_val parameter.
+ *        JRM -- 6/27/06
+ *        Added fail_val parameter.
  *
- *		JRM -- 8/25/06
- *		Added the H5C_DO_SANITY_CHECKS version of the macro.
+ *        JRM -- 8/25/06
+ *        Added the H5C_DO_SANITY_CHECKS version of the macro.
  *
- *		This version maintains the slist_len_increase and
- *		slist_size_increase fields that are used in sanity
- *		checks in the flush routines.
+ *        This version maintains the slist_len_increase and
+ *        slist_size_increase fields that are used in sanity
+ *        checks in the flush routines.
  *
- *		All this is needed as the fractal heap needs to be
- *		able to dirty, resize and/or move entries during the
- *		flush.
+ *        All this is needed as the fractal heap needs to be
+ *        able to dirty, resize and/or move entries during the
+ *        flush.
  *
- *		JRM -- 12/13/14
- *		Added code to set cache_ptr->slist_changed to TRUE
- *		when an entry is inserted in the slist.
+ *        JRM -- 12/13/14
+ *        Added code to set cache_ptr->slist_changed to TRUE
+ *        when an entry is inserted in the slist.
  *
- *		JRM -- 9/1/15
- *		Added code to maintain the cache_ptr->slist_ring_len
- *		and cache_ptr->slist_ring_size arrays.
+ *        JRM -- 9/1/15
+ *        Added code to maintain the cache_ptr->slist_ring_len
+ *        and cache_ptr->slist_ring_size arrays.
  *
  *              JRM -- 4/29/20
- *              Reworked macro to support the slist_enabled field 
- *              of H5C_t.  If slist_enabled == TRUE, the macro 
+ *              Reworked macro to support the slist_enabled field
+ *              of H5C_t.  If slist_enabled == TRUE, the macro
  *              functions as before.  Otherwise, the macro is a no-op,
  *              and the slist must be empty.
  *
  *-------------------------------------------------------------------------
  */
 
-/* NOTE:  The H5C__INSERT_ENTRY_IN_SLIST() macro is set up so that 
- *        
- *            H5C_DO_SANITY_CHECKS 
+/* NOTE:  The H5C__INSERT_ENTRY_IN_SLIST() macro is set up so that
  *
- *        and 
+ *            H5C_DO_SANITY_CHECKS
  *
- *            H5C_DO_SLIST_SANITY_CHECKS 
+ *        and
  *
- *        can be selected independantly.  This is easy to miss as the 
+ *            H5C_DO_SLIST_SANITY_CHECKS
+ *
+ *        can be selected independantly.  This is easy to miss as the
  *        two #defines are easy to confuse.
  */
 
@@ -1701,7 +1704,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_DO_SANITY_CHECKS */
 
-
+
 /*-------------------------------------------------------------------------
  *
  * Function:    H5C__REMOVE_ENTRY_FROM_SLIST
@@ -1736,8 +1739,8 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *              when an entry is removed from the slist.
  *
  *              JRM -- 4/29/20
- *              Reworked macro to support the slist_enabled field 
- *              of H5C_t.  If slist_enabled == TRUE, the macro 
+ *              Reworked macro to support the slist_enabled field
+ *              of H5C_t.  If slist_enabled == TRUE, the macro
  *              functions as before.  Otherwise, the macro is a no-op,
  *              and the slist must be empty.
  *
@@ -1839,7 +1842,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_DO_SANITY_CHECKS */
 
-
+
 /*-------------------------------------------------------------------------
  *
  * Function:    H5C__UPDATE_SLIST_FOR_SIZE_CHANGE
@@ -1873,8 +1876,8 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *              and cache_ptr->slist_ring_size arrays.
  *
  *              JRM -- 4/29/20
- *              Reworked macro to support the slist_enabled field 
- *              of H5C_t.  If slist_enabled == TRUE, the macro 
+ *              Reworked macro to support the slist_enabled field
+ *              of H5C_t.  If slist_enabled == TRUE, the macro
  *              functions as before.  Otherwise, the macro is a no-op,
  *              and the slist must be empty.
  *
@@ -1969,7 +1972,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_DO_SANITY_CHECKS */
 
-
+
 /**************************************************************************
  *
  * Replacement policy update macros:
@@ -1981,18 +1984,18 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__FAKE_RP_FOR_MOST_RECENT_ACCESS
+ * Macro:    H5C__FAKE_RP_FOR_MOST_RECENT_ACCESS
  *
  * Purpose:     For efficiency, we sometimes change the order of flushes --
- *		but doing so can confuse the replacement policy.  This
- *		macro exists to allow us to specify an entry as the
- *		most recently touched so we can repair any such
- *		confusion.
+ *        but doing so can confuse the replacement policy.  This
+ *        macro exists to allow us to specify an entry as the
+ *        most recently touched so we can repair any such
+ *        confusion.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the macro
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the macro
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      N/A
  *
@@ -2000,15 +2003,15 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- *		JRM -- 3/20/06
- *		Modified macro to ignore pinned entries.  Pinned entries
- *		do not appear in the data structures maintained by the
- *		replacement policy code, and thus this macro has nothing
- *		to do if called for such an entry.
+ *        JRM -- 3/20/06
+ *        Modified macro to ignore pinned entries.  Pinned entries
+ *        do not appear in the data structures maintained by the
+ *        replacement policy code, and thus this macro has nothing
+ *        to do if called for such an entry.
  *
- *		JRM -- 3/28/07
- *		Added sanity checks using the new is_read_only and
- *		ro_ref_count fields of struct H5C_cache_entry_t.
+ *        JRM -- 3/28/07
+ *        Added sanity checks using the new is_read_only and
+ *        ro_ref_count fields of struct H5C_cache_entry_t.
  *
  *-------------------------------------------------------------------------
  */
@@ -2030,16 +2033,16 @@ if ( ( (cache_ptr)->index_size !=                                           \
         /* modified LRU specific code */                                    \
                                                                             \
         /* remove the entry from the LRU list, and re-insert it at the head.\
-	 */                                                                 \
+    */                                                                 \
                                                                             \
         H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->LRU_head_ptr,             \
                         (cache_ptr)->LRU_tail_ptr,                          \
-			(cache_ptr)->LRU_list_len,                          \
+            (cache_ptr)->LRU_list_len,                          \
                         (cache_ptr)->LRU_list_size, (fail_val))             \
                                                                             \
         H5C__DLL_PREPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,            \
                          (cache_ptr)->LRU_tail_ptr,                         \
-			 (cache_ptr)->LRU_list_len,                         \
+            (cache_ptr)->LRU_list_len,                         \
                          (cache_ptr)->LRU_list_size, (fail_val))            \
                                                                             \
         /* Use the dirty flag to infer whether the entry is on the clean or \
@@ -2093,16 +2096,16 @@ if ( ( (cache_ptr)->index_size !=                                           \
         /* modified LRU specific code */                                    \
                                                                             \
         /* remove the entry from the LRU list, and re-insert it at the head \
-	 */                                                                 \
+    */                                                                 \
                                                                             \
         H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->LRU_head_ptr,             \
                         (cache_ptr)->LRU_tail_ptr,                          \
-			(cache_ptr)->LRU_list_len,                          \
+            (cache_ptr)->LRU_list_len,                          \
                         (cache_ptr)->LRU_list_size, (fail_val))             \
                                                                             \
         H5C__DLL_PREPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,            \
                          (cache_ptr)->LRU_tail_ptr,                         \
-			 (cache_ptr)->LRU_list_len,                         \
+            (cache_ptr)->LRU_list_len,                         \
                          (cache_ptr)->LRU_list_size, (fail_val))            \
                                                                             \
         /* End modified LRU specific code. */                               \
@@ -2111,18 +2114,18 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__UPDATE_RP_FOR_EVICTION
+ * Macro:    H5C__UPDATE_RP_FOR_EVICTION
  *
  * Purpose:     Update the replacement policy data structures for an
- *		eviction of the specified cache entry.
+ *        eviction of the specified cache entry.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the function
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the function
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      Non-negative on success/Negative on failure.
  *
@@ -2130,27 +2133,27 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- *		JRM - 7/27/04
- *		Converted the function H5C_update_rp_for_eviction() to the
- *		macro H5C__UPDATE_RP_FOR_EVICTION in an effort to squeeze
- *		a bit more performance out of the cache.
+ *        JRM - 7/27/04
+ *        Converted the function H5C_update_rp_for_eviction() to the
+ *        macro H5C__UPDATE_RP_FOR_EVICTION in an effort to squeeze
+ *        a bit more performance out of the cache.
  *
- *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause difficulties with
- *		the pre-processor, I'll have to remove them.
+ *        At least for the first cut, I am leaving the comments and
+ *        white space in the macro.  If they cause difficulties with
+ *        the pre-processor, I'll have to remove them.
  *
- *		JRM - 7/28/04
- *		Split macro into two version, one supporting the clean and
- *		dirty LRU lists, and the other not.  Yet another attempt
- *		at optimization.
+ *        JRM - 7/28/04
+ *        Split macro into two version, one supporting the clean and
+ *        dirty LRU lists, and the other not.  Yet another attempt
+ *        at optimization.
  *
- *		JRM - 3/20/06
- *		Pinned entries can't be evicted, so this entry should never
- *		be called on a pinned entry.  Added assert to verify this.
+ *        JRM - 3/20/06
+ *        Pinned entries can't be evicted, so this entry should never
+ *        be called on a pinned entry.  Added assert to verify this.
  *
- *		JRM -- 3/28/07
- *		Added sanity checks for the new is_read_only and
- *		ro_ref_count fields of struct H5C_cache_entry_t.
+ *        JRM -- 3/28/07
+ *        Added sanity checks for the new is_read_only and
+ *        ro_ref_count fields of struct H5C_cache_entry_t.
  *
  *-------------------------------------------------------------------------
  */
@@ -2222,18 +2225,18 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__UPDATE_RP_FOR_FLUSH
+ * Macro:    H5C__UPDATE_RP_FOR_FLUSH
  *
  * Purpose:     Update the replacement policy data structures for a flush
- *		of the specified cache entry.
+ *        of the specified cache entry.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the function
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the function
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      N/A
  *
@@ -2241,29 +2244,29 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- *		JRM - 7/27/04
- *		Converted the function H5C_update_rp_for_flush() to the
- *		macro H5C__UPDATE_RP_FOR_FLUSH in an effort to squeeze
- *		a bit more performance out of the cache.
+ *        JRM - 7/27/04
+ *        Converted the function H5C_update_rp_for_flush() to the
+ *        macro H5C__UPDATE_RP_FOR_FLUSH in an effort to squeeze
+ *        a bit more performance out of the cache.
  *
- *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause difficulties with
- *		pre-processor, I'll have to remove them.
+ *        At least for the first cut, I am leaving the comments and
+ *        white space in the macro.  If they cause difficulties with
+ *        pre-processor, I'll have to remove them.
  *
- *		JRM - 7/28/04
- *		Split macro into two versions, one supporting the clean and
- *		dirty LRU lists, and the other not.  Yet another attempt
- *		at optimization.
+ *        JRM - 7/28/04
+ *        Split macro into two versions, one supporting the clean and
+ *        dirty LRU lists, and the other not.  Yet another attempt
+ *        at optimization.
  *
- *		JRM - 3/20/06
- *		While pinned entries can be flushed, they don't reside in
- *		the replacement policy data structures when unprotected.
- *		Thus I modified this macro to do nothing if the entry is
- *		pinned.
+ *        JRM - 3/20/06
+ *        While pinned entries can be flushed, they don't reside in
+ *        the replacement policy data structures when unprotected.
+ *        Thus I modified this macro to do nothing if the entry is
+ *        pinned.
  *
- *		JRM - 3/28/07
- *		Added sanity checks based on the new is_read_only and
- *		ro_ref_count fields of struct H5C_cache_entry_t.
+ *        JRM - 3/28/07
+ *        Added sanity checks based on the new is_read_only and
+ *        ro_ref_count fields of struct H5C_cache_entry_t.
  *
  *-------------------------------------------------------------------------
  */
@@ -2285,28 +2288,28 @@ if ( ( (cache_ptr)->index_size !=                                           \
         /* modified LRU specific code */                                    \
                                                                             \
         /* remove the entry from the LRU list, and re-insert it at the      \
-	 * head.                                                            \
-	 */                                                                 \
+    * head.                                                            \
+    */                                                                 \
                                                                             \
         H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->LRU_head_ptr,             \
                         (cache_ptr)->LRU_tail_ptr,                          \
-			(cache_ptr)->LRU_list_len,                          \
+            (cache_ptr)->LRU_list_len,                          \
                         (cache_ptr)->LRU_list_size, (fail_val))             \
                                                                             \
         H5C__DLL_PREPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,            \
                          (cache_ptr)->LRU_tail_ptr,                         \
-			 (cache_ptr)->LRU_list_len,                         \
+            (cache_ptr)->LRU_list_len,                         \
                          (cache_ptr)->LRU_list_size, (fail_val))            \
                                                                             \
         /* since the entry is being flushed or cleared, one would think     \
-	 * that it must be dirty -- but that need not be the case.  Use the \
-	 * dirty flag to infer whether the entry is on the clean or dirty   \
-	 * LRU list, and remove it.  Then insert it at the head of the      \
-	 * clean LRU list.                                                  \
+    * that it must be dirty -- but that need not be the case.  Use the \
+    * dirty flag to infer whether the entry is on the clean or dirty   \
+    * LRU list, and remove it.  Then insert it at the head of the      \
+    * clean LRU list.                                                  \
          *                                                                  \
          * The function presumes that a dirty entry will be either cleared  \
-	 * or flushed shortly, so it is OK if we put a dirty entry on the   \
-	 * clean LRU list.                                                  \
+    * or flushed shortly, so it is OK if we put a dirty entry on the   \
+    * clean LRU list.                                                  \
          */                                                                 \
                                                                             \
         if ( (entry_ptr)->is_dirty ) {                                      \
@@ -2347,17 +2350,17 @@ if ( ( (cache_ptr)->index_size !=                                           \
         /* modified LRU specific code */                                    \
                                                                             \
         /* remove the entry from the LRU list, and re-insert it at the      \
-	 * head.                                                            \
-	 */                                                                 \
+    * head.                                                            \
+    */                                                                 \
                                                                             \
         H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->LRU_head_ptr,             \
                         (cache_ptr)->LRU_tail_ptr,                          \
-			(cache_ptr)->LRU_list_len,                          \
+            (cache_ptr)->LRU_list_len,                          \
                         (cache_ptr)->LRU_list_size, (fail_val))             \
                                                                             \
         H5C__DLL_PREPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,            \
                          (cache_ptr)->LRU_tail_ptr,                         \
-			 (cache_ptr)->LRU_list_len,                         \
+            (cache_ptr)->LRU_list_len,                         \
                          (cache_ptr)->LRU_list_size, (fail_val))            \
                                                                             \
         /* End modified LRU specific code. */                               \
@@ -2366,26 +2369,26 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__UPDATE_RP_FOR_INSERT_APPEND
+ * Macro:    H5C__UPDATE_RP_FOR_INSERT_APPEND
  *
  * Purpose:     Update the replacement policy data structures for an
- *		insertion of the specified cache entry.
+ *        insertion of the specified cache entry.
  *
- *		Unlike H5C__UPDATE_RP_FOR_INSERTION below, mark the
- *		new entry as the LEAST recently used entry, not the
- *		most recently used.
+ *        Unlike H5C__UPDATE_RP_FOR_INSERTION below, mark the
+ *        new entry as the LEAST recently used entry, not the
+ *        most recently used.
  *
- *		For now at least, this macro should only be used in
- *		the reconstruction of the metadata cache from a cache
- *		image block.
+ *        For now at least, this macro should only be used in
+ *        the reconstruction of the metadata cache from a cache
+ *        image block.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the function
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the function
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      N/A
  *
@@ -2421,7 +2424,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
                                                                            \
         H5C__DLL_APPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,            \
                         (cache_ptr)->LRU_tail_ptr,                         \
-		        (cache_ptr)->LRU_list_len,                         \
+                (cache_ptr)->LRU_list_len,                         \
                         (cache_ptr)->LRU_list_size, (fail_val))            \
                                                                            \
         /* insert the entry at the tail of the clean or dirty LRU list as  \
@@ -2462,7 +2465,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
                          (cache_ptr)->pel_tail_ptr,                        \
                          (cache_ptr)->pel_len,                             \
                          (cache_ptr)->pel_size, (fail_val))                \
-	                                                                   \
+                                                                    \
     } else {                                                               \
                                                                            \
         /* modified LRU specific code */                                   \
@@ -2471,7 +2474,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
                                                                            \
         H5C__DLL_APPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,            \
                         (cache_ptr)->LRU_tail_ptr,                         \
-			(cache_ptr)->LRU_list_len,                         \
+            (cache_ptr)->LRU_list_len,                         \
                         (cache_ptr)->LRU_list_size, (fail_val))            \
                                                                            \
         /* End modified LRU specific code. */                              \
@@ -2480,18 +2483,18 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__UPDATE_RP_FOR_INSERTION
+ * Macro:    H5C__UPDATE_RP_FOR_INSERTION
  *
  * Purpose:     Update the replacement policy data structures for an
- *		insertion of the specified cache entry.
+ *        insertion of the specified cache entry.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the function
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the function
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      N/A
  *
@@ -2499,31 +2502,31 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- *		JRM - 7/27/04
- *		Converted the function H5C_update_rp_for_insertion() to the
- *		macro H5C__UPDATE_RP_FOR_INSERTION in an effort to squeeze
- *		a bit more performance out of the cache.
+ *        JRM - 7/27/04
+ *        Converted the function H5C_update_rp_for_insertion() to the
+ *        macro H5C__UPDATE_RP_FOR_INSERTION in an effort to squeeze
+ *        a bit more performance out of the cache.
  *
- *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause difficulties with
- *		pre-processor, I'll have to remove them.
+ *        At least for the first cut, I am leaving the comments and
+ *        white space in the macro.  If they cause difficulties with
+ *        pre-processor, I'll have to remove them.
  *
- *		JRM - 7/28/04
- *		Split macro into two version, one supporting the clean and
- *		dirty LRU lists, and the other not.  Yet another attempt
- *		at optimization.
+ *        JRM - 7/28/04
+ *        Split macro into two version, one supporting the clean and
+ *        dirty LRU lists, and the other not.  Yet another attempt
+ *        at optimization.
  *
- *		JRM - 3/10/06
- *		This macro should never be called on a pinned entry.
- *		Inserted an assert to verify this.
+ *        JRM - 3/10/06
+ *        This macro should never be called on a pinned entry.
+ *        Inserted an assert to verify this.
  *
- *		JRM - 8/9/06
- *		Not any more.  We must now allow insertion of pinned
- *		entries.  Updated macro to support this.
+ *        JRM - 8/9/06
+ *        Not any more.  We must now allow insertion of pinned
+ *        entries.  Updated macro to support this.
  *
- *		JRM - 3/28/07
- *		Added sanity checks using the new is_read_only and
- *		ro_ref_count fields of struct H5C_cache_entry_t.
+ *        JRM - 3/28/07
+ *        Added sanity checks using the new is_read_only and
+ *        ro_ref_count fields of struct H5C_cache_entry_t.
  *
  *-------------------------------------------------------------------------
  */
@@ -2555,7 +2558,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
                                                                            \
         H5C__DLL_PREPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,           \
                          (cache_ptr)->LRU_tail_ptr,                        \
-			 (cache_ptr)->LRU_list_len,                        \
+            (cache_ptr)->LRU_list_len,                        \
                          (cache_ptr)->LRU_list_size, (fail_val))           \
                                                                            \
         /* insert the entry at the head of the clean or dirty LRU list as  \
@@ -2596,7 +2599,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
                          (cache_ptr)->pel_tail_ptr,                        \
                          (cache_ptr)->pel_len,                             \
                          (cache_ptr)->pel_size, (fail_val))                \
-	                                                                   \
+                                                                    \
     } else {                                                               \
                                                                            \
         /* modified LRU specific code */                                   \
@@ -2605,7 +2608,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
                                                                            \
         H5C__DLL_PREPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,           \
                          (cache_ptr)->LRU_tail_ptr,                        \
-			 (cache_ptr)->LRU_list_len,                        \
+            (cache_ptr)->LRU_list_len,                        \
                          (cache_ptr)->LRU_list_size, (fail_val))           \
                                                                            \
         /* End modified LRU specific code. */                              \
@@ -2614,22 +2617,22 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__UPDATE_RP_FOR_PROTECT
+ * Macro:    H5C__UPDATE_RP_FOR_PROTECT
  *
  * Purpose:     Update the replacement policy data structures for a
- *		protect of the specified cache entry.
+ *        protect of the specified cache entry.
  *
- *		To do this, unlink the specified entry from any data
- *		structures used by the replacement policy, and add the
- *		entry to the protected list.
+ *        To do this, unlink the specified entry from any data
+ *        structures used by the replacement policy, and add the
+ *        entry to the protected list.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the function
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the function
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      N/A
  *
@@ -2637,28 +2640,28 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- *		JRM - 7/27/04
- *		Converted the function H5C_update_rp_for_protect() to the
- *		macro H5C__UPDATE_RP_FOR_PROTECT in an effort to squeeze
- *		a bit more performance out of the cache.
+ *        JRM - 7/27/04
+ *        Converted the function H5C_update_rp_for_protect() to the
+ *        macro H5C__UPDATE_RP_FOR_PROTECT in an effort to squeeze
+ *        a bit more performance out of the cache.
  *
- *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause difficulties with
- *		pre-processor, I'll have to remove them.
+ *        At least for the first cut, I am leaving the comments and
+ *        white space in the macro.  If they cause difficulties with
+ *        pre-processor, I'll have to remove them.
  *
- *		JRM - 7/28/04
- *		Split macro into two version, one supporting the clean and
- *		dirty LRU lists, and the other not.  Yet another attempt
- *		at optimization.
+ *        JRM - 7/28/04
+ *        Split macro into two version, one supporting the clean and
+ *        dirty LRU lists, and the other not.  Yet another attempt
+ *        at optimization.
  *
- *		JRM - 3/17/06
- *		Modified macro to attempt to remove pinned entriese from
- *		the pinned entry list instead of from the data structures
- *		maintained by the replacement policy.
+ *        JRM - 3/17/06
+ *        Modified macro to attempt to remove pinned entriese from
+ *        the pinned entry list instead of from the data structures
+ *        maintained by the replacement policy.
  *
- *		JRM - 3/28/07
- *		Added sanity checks based on the new is_read_only and
- *		ro_ref_count fields of struct H5C_cache_entry_t.
+ *        JRM - 3/28/07
+ *        Added sanity checks based on the new is_read_only and
+ *        ro_ref_count fields of struct H5C_cache_entry_t.
  *
  *-------------------------------------------------------------------------
  */
@@ -2674,12 +2677,12 @@ if ( ( (cache_ptr)->index_size !=                                           \
     HDassert( !((entry_ptr)->is_read_only) );                             \
     HDassert( ((entry_ptr)->ro_ref_count) == 0 );                         \
     HDassert( (entry_ptr)->size > 0 );                                    \
-									  \
+                                    \
     if ( (entry_ptr)->is_pinned ) {                                       \
                                                                           \
         H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->pel_head_ptr,           \
-                        (cache_ptr)->pel_tail_ptr, 			  \
-			(cache_ptr)->pel_len,                             \
+                        (cache_ptr)->pel_tail_ptr,               \
+            (cache_ptr)->pel_len,                             \
                         (cache_ptr)->pel_size, (fail_val))                \
                                                                           \
     } else {                                                              \
@@ -2690,7 +2693,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
                                                                           \
         H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->LRU_head_ptr,           \
                         (cache_ptr)->LRU_tail_ptr,                        \
-			(cache_ptr)->LRU_list_len,                        \
+            (cache_ptr)->LRU_list_len,                        \
                         (cache_ptr)->LRU_list_size, (fail_val))           \
                                                                           \
         /* Similarly, remove the entry from the clean or dirty LRU list   \
@@ -2736,12 +2739,12 @@ if ( ( (cache_ptr)->index_size !=                                           \
     HDassert( !((entry_ptr)->is_read_only) );                             \
     HDassert( ((entry_ptr)->ro_ref_count) == 0 );                         \
     HDassert( (entry_ptr)->size > 0 );                                    \
-									  \
+                                    \
     if ( (entry_ptr)->is_pinned ) {                                       \
                                                                           \
         H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->pel_head_ptr,           \
-                        (cache_ptr)->pel_tail_ptr, 			  \
-			(cache_ptr)->pel_len,                             \
+                        (cache_ptr)->pel_tail_ptr,               \
+            (cache_ptr)->pel_len,                             \
                         (cache_ptr)->pel_size, (fail_val))                \
                                                                           \
     } else {                                                              \
@@ -2752,7 +2755,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
                                                                           \
         H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->LRU_head_ptr,           \
                         (cache_ptr)->LRU_tail_ptr,                        \
-			(cache_ptr)->LRU_list_len,                        \
+            (cache_ptr)->LRU_list_len,                        \
                         (cache_ptr)->LRU_list_size, (fail_val))           \
                                                                           \
         /* End modified LRU specific code. */                             \
@@ -2770,18 +2773,18 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__UPDATE_RP_FOR_MOVE
+ * Macro:    H5C__UPDATE_RP_FOR_MOVE
  *
  * Purpose:     Update the replacement policy data structures for a
- *		move of the specified cache entry.
+ *        move of the specified cache entry.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the function
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the function
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      N/A
  *
@@ -2802,20 +2805,20 @@ if ( ( (cache_ptr)->index_size !=                                           \
     HDassert( (entry_ptr)->size > 0 );                                       \
                                                                              \
     if ( ! ( (entry_ptr)->is_pinned ) && ! ( (entry_ptr->is_protected ) ) ) { \
-	                                                                     \
+                                                                        \
         /* modified LRU specific code */                                     \
                                                                              \
         /* remove the entry from the LRU list, and re-insert it at the head. \
-	 */                                                                  \
+    */                                                                  \
                                                                              \
             H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->LRU_head_ptr,          \
                              (cache_ptr)->LRU_tail_ptr,                      \
-			     (cache_ptr)->LRU_list_len,                      \
+                (cache_ptr)->LRU_list_len,                      \
                              (cache_ptr)->LRU_list_size, (fail_val))         \
                                                                              \
         H5C__DLL_PREPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,             \
                          (cache_ptr)->LRU_tail_ptr,                          \
-			 (cache_ptr)->LRU_list_len,                          \
+            (cache_ptr)->LRU_list_len,                          \
                          (cache_ptr)->LRU_list_size, (fail_val))             \
                                                                              \
             /* remove the entry from either the clean or dirty LUR list as   \
@@ -2824,43 +2827,43 @@ if ( ( (cache_ptr)->index_size !=                                           \
             if ( was_dirty ) {                                               \
                                                                              \
                 H5C__AUX_DLL_REMOVE((entry_ptr),                             \
-				     (cache_ptr)->dLRU_head_ptr,             \
+                    (cache_ptr)->dLRU_head_ptr,             \
                                      (cache_ptr)->dLRU_tail_ptr,             \
                                      (cache_ptr)->dLRU_list_len,             \
                                      (cache_ptr)->dLRU_list_size,            \
-				     (fail_val))                             \
+                    (fail_val))                             \
                                                                              \
             } else {                                                         \
                                                                              \
                 H5C__AUX_DLL_REMOVE((entry_ptr),                             \
-				     (cache_ptr)->cLRU_head_ptr,             \
+                    (cache_ptr)->cLRU_head_ptr,             \
                                      (cache_ptr)->cLRU_tail_ptr,             \
                                      (cache_ptr)->cLRU_list_len,             \
                                      (cache_ptr)->cLRU_list_size,            \
-				     (fail_val))                             \
+                    (fail_val))                             \
             }                                                                \
                                                                              \
             /* insert the entry at the head of either the clean or dirty     \
-	     * LRU list as appropriate.                                      \
+        * LRU list as appropriate.                                      \
              */                                                              \
                                                                              \
             if ( (entry_ptr)->is_dirty ) {                                   \
                                                                              \
                 H5C__AUX_DLL_PREPEND((entry_ptr),                            \
-				      (cache_ptr)->dLRU_head_ptr,            \
+                    (cache_ptr)->dLRU_head_ptr,            \
                                       (cache_ptr)->dLRU_tail_ptr,            \
                                       (cache_ptr)->dLRU_list_len,            \
                                       (cache_ptr)->dLRU_list_size,           \
-				      (fail_val))                            \
+                    (fail_val))                            \
                                                                              \
             } else {                                                         \
                                                                              \
                 H5C__AUX_DLL_PREPEND((entry_ptr),                            \
-				      (cache_ptr)->cLRU_head_ptr,            \
+                    (cache_ptr)->cLRU_head_ptr,            \
                                       (cache_ptr)->cLRU_tail_ptr,            \
                                       (cache_ptr)->cLRU_list_len,            \
                                       (cache_ptr)->cLRU_list_size,           \
-				      (fail_val))                            \
+                    (fail_val))                            \
             }                                                                \
                                                                              \
             /* End modified LRU specific code. */                            \
@@ -2879,20 +2882,20 @@ if ( ( (cache_ptr)->index_size !=                                           \
     HDassert( (entry_ptr)->size > 0 );                                       \
                                                                              \
     if ( ! ( (entry_ptr)->is_pinned ) && ! ( (entry_ptr->is_protected ) ) ) { \
-	                                                                     \
+                                                                        \
         /* modified LRU specific code */                                     \
                                                                              \
         /* remove the entry from the LRU list, and re-insert it at the head. \
-	 */                                                                  \
+    */                                                                  \
                                                                              \
             H5C__DLL_REMOVE((entry_ptr), (cache_ptr)->LRU_head_ptr,          \
                              (cache_ptr)->LRU_tail_ptr,                      \
-			     (cache_ptr)->LRU_list_len,                      \
+                (cache_ptr)->LRU_list_len,                      \
                              (cache_ptr)->LRU_list_size, (fail_val))         \
                                                                              \
             H5C__DLL_PREPEND((entry_ptr), (cache_ptr)->LRU_head_ptr,         \
                               (cache_ptr)->LRU_tail_ptr,                     \
-			      (cache_ptr)->LRU_list_len,                     \
+                (cache_ptr)->LRU_list_len,                     \
                               (cache_ptr)->LRU_list_size, (fail_val))        \
                                                                              \
             /* End modified LRU specific code. */                            \
@@ -2901,25 +2904,25 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__UPDATE_RP_FOR_SIZE_CHANGE
+ * Macro:    H5C__UPDATE_RP_FOR_SIZE_CHANGE
  *
  * Purpose:     Update the replacement policy data structures for a
- *		size change of the specified cache entry.
+ *        size change of the specified cache entry.
  *
- *		To do this, determine if the entry is pinned.  If it is,
- *		update the size of the pinned entry list.
+ *        To do this, determine if the entry is pinned.  If it is,
+ *        update the size of the pinned entry list.
  *
- *		If it isn't pinned, the entry must handled by the
- *		replacement policy.  Update the appropriate replacement
- *		policy data structures.
+ *        If it isn't pinned, the entry must handled by the
+ *        replacement policy.  Update the appropriate replacement
+ *        policy data structures.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the function
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the function
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      N/A
  *
@@ -2927,9 +2930,9 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- * 		JRM -- 3/28/07
- *		Added sanity checks based on the new is_read_only and
- *		ro_ref_count fields of struct H5C_cache_entry_t.
+ *         JRM -- 3/28/07
+ *        Added sanity checks based on the new is_read_only and
+ *        ro_ref_count fields of struct H5C_cache_entry_t.
  *
  *-------------------------------------------------------------------------
  */
@@ -2949,49 +2952,49 @@ if ( ( (cache_ptr)->index_size !=                                           \
                                                                           \
     if ( (entry_ptr)->coll_access ) {                                     \
                                                                           \
-	H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->coll_list_len,       \
-			                (cache_ptr)->coll_list_size,      \
-			                (entry_ptr)->size,                \
-					(new_size));                      \
-	                                                                  \
+    H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->coll_list_len,       \
+                            (cache_ptr)->coll_list_size,      \
+                            (entry_ptr)->size,                \
+                    (new_size));                      \
+                                                                    \
     }                                                                     \
                                                                           \
     if ( (entry_ptr)->is_pinned ) {                                       \
                                                                           \
-	H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->pel_len,             \
-			                (cache_ptr)->pel_size,            \
-			                (entry_ptr)->size,                \
-					(new_size));                      \
-	                                                                  \
+    H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->pel_len,             \
+                            (cache_ptr)->pel_size,            \
+                            (entry_ptr)->size,                \
+                    (new_size));                      \
+                                                                    \
     } else {                                                              \
                                                                           \
         /* modified LRU specific code */                                  \
                                                                           \
-	/* Update the size of the LRU list */                             \
+    /* Update the size of the LRU list */                             \
                                                                           \
-	H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->LRU_list_len,        \
-			                (cache_ptr)->LRU_list_size,       \
-			                (entry_ptr)->size,                \
-					(new_size));                      \
+    H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->LRU_list_len,        \
+                            (cache_ptr)->LRU_list_size,       \
+                            (entry_ptr)->size,                \
+                    (new_size));                      \
                                                                           \
         /* Similarly, update the size of the clean or dirty LRU list as   \
-	 * appropriate.  At present, the entry must be clean, but that    \
-	 * could change.                                                  \
+    * appropriate.  At present, the entry must be clean, but that    \
+    * could change.                                                  \
          */                                                               \
                                                                           \
         if ( (entry_ptr)->is_dirty ) {                                    \
                                                                           \
-	    H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->dLRU_list_len,   \
-			                    (cache_ptr)->dLRU_list_size,  \
-			                    (entry_ptr)->size,            \
-					    (new_size));                  \
+        H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->dLRU_list_len,   \
+                                (cache_ptr)->dLRU_list_size,  \
+                                (entry_ptr)->size,            \
+                        (new_size));                  \
                                                                           \
         } else {                                                          \
                                                                           \
-	    H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->cLRU_list_len,   \
-			                    (cache_ptr)->cLRU_list_size,  \
-			                    (entry_ptr)->size,            \
-					    (new_size));                  \
+        H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->cLRU_list_len,   \
+                                (cache_ptr)->cLRU_list_size,  \
+                                (entry_ptr)->size,            \
+                        (new_size));                  \
         }                                                                 \
                                                                           \
         /* End modified LRU specific code. */                             \
@@ -3011,24 +3014,24 @@ if ( ( (cache_ptr)->index_size !=                                           \
     HDassert( ((entry_ptr)->ro_ref_count) == 0 );                         \
     HDassert( (entry_ptr)->size > 0 );                                    \
     HDassert( new_size > 0 );                                             \
-				  					  \
+                                        \
     if ( (entry_ptr)->is_pinned ) {                                       \
                                                                           \
-	H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->pel_len,             \
-			                (cache_ptr)->pel_size,            \
-			                (entry_ptr)->size,                \
-					(new_size));                      \
+    H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->pel_len,             \
+                            (cache_ptr)->pel_size,            \
+                            (entry_ptr)->size,                \
+                    (new_size));                      \
                                                                           \
     } else {                                                              \
                                                                           \
         /* modified LRU specific code */                                  \
                                                                           \
-	/* Update the size of the LRU list */                             \
+    /* Update the size of the LRU list */                             \
                                                                           \
-	H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->LRU_list_len,        \
-			                (cache_ptr)->LRU_list_size,       \
-			                (entry_ptr)->size,                \
-					(new_size));                      \
+    H5C__DLL_UPDATE_FOR_SIZE_CHANGE((cache_ptr)->LRU_list_len,        \
+                            (cache_ptr)->LRU_list_size,       \
+                            (entry_ptr)->size,                \
+                    (new_size));                      \
                                                                           \
         /* End modified LRU specific code. */                             \
     }                                                                     \
@@ -3037,22 +3040,22 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__UPDATE_RP_FOR_UNPIN
+ * Macro:    H5C__UPDATE_RP_FOR_UNPIN
  *
  * Purpose:     Update the replacement policy data structures for an
- *		unpin of the specified cache entry.
+ *        unpin of the specified cache entry.
  *
- *		To do this, unlink the specified entry from the protected
- *		entry list, and re-insert it in the data structures used
- *		by the current replacement policy.
+ *        To do this, unlink the specified entry from the protected
+ *        entry list, and re-insert it in the data structures used
+ *        by the current replacement policy.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the macro
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the macro
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      N/A
  *
@@ -3060,9 +3063,9 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- *		JRM -- 3/28/07
- *		Added sanity checks based on the new is_read_only and
- *		ro_ref_count fields of struct H5C_cache_entry_t.
+ *        JRM -- 3/28/07
+ *        Added sanity checks based on the new is_read_only and
+ *        ro_ref_count fields of struct H5C_cache_entry_t.
  *
  *-------------------------------------------------------------------------
  */
@@ -3158,22 +3161,22 @@ if ( ( (cache_ptr)->index_size !=                                           \
 
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__UPDATE_RP_FOR_UNPROTECT
+ * Macro:    H5C__UPDATE_RP_FOR_UNPROTECT
  *
  * Purpose:     Update the replacement policy data structures for an
- *		unprotect of the specified cache entry.
+ *        unprotect of the specified cache entry.
  *
- *		To do this, unlink the specified entry from the protected
- *		list, and re-insert it in the data structures used by the
- *		current replacement policy.
+ *        To do this, unlink the specified entry from the protected
+ *        list, and re-insert it in the data structures used by the
+ *        current replacement policy.
  *
- *		At present, we only support the modified LRU policy, so
- *		this function deals with that case unconditionally.  If
- *		we ever support other replacement policies, the function
- *		should switch on the current policy and act accordingly.
+ *        At present, we only support the modified LRU policy, so
+ *        this function deals with that case unconditionally.  If
+ *        we ever support other replacement policies, the function
+ *        should switch on the current policy and act accordingly.
  *
  * Return:      N/A
  *
@@ -3181,24 +3184,24 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- *		JRM - 7/27/04
- *		Converted the function H5C_update_rp_for_unprotect() to
- *		the macro H5C__UPDATE_RP_FOR_UNPROTECT in an effort to
- *		squeeze a bit more performance out of the cache.
+ *        JRM - 7/27/04
+ *        Converted the function H5C_update_rp_for_unprotect() to
+ *        the macro H5C__UPDATE_RP_FOR_UNPROTECT in an effort to
+ *        squeeze a bit more performance out of the cache.
  *
- *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause difficulties with
- *		pre-processor, I'll have to remove them.
+ *        At least for the first cut, I am leaving the comments and
+ *        white space in the macro.  If they cause difficulties with
+ *        pre-processor, I'll have to remove them.
  *
- *		JRM - 7/28/04
- *		Split macro into two version, one supporting the clean and
- *		dirty LRU lists, and the other not.  Yet another attempt
- *		at optimization.
+ *        JRM - 7/28/04
+ *        Split macro into two version, one supporting the clean and
+ *        dirty LRU lists, and the other not.  Yet another attempt
+ *        at optimization.
  *
- *		JRM - 3/17/06
- *		Modified macro to put pinned entries on the pinned entry
- *		list instead of inserting them in the data structures
- *		maintained by the replacement policy.
+ *        JRM - 3/17/06
+ *        Modified macro to put pinned entries on the pinned entry
+ *        list instead of inserting them in the data structures
+ *        maintained by the replacement policy.
  *
  *-------------------------------------------------------------------------
  */
@@ -3447,10 +3450,10 @@ if ( ( (entry_ptr) == NULL ) ||                                                \
     }                                                                        \
 } /* H5C__COLL_DLL_REMOVE() */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__INSERT_IN_COLL_LIST
+ * Macro:    H5C__INSERT_IN_COLL_LIST
  *
  * Purpose:     Insert entry into collective entries list
  *
@@ -3477,10 +3480,10 @@ if ( ( (entry_ptr) == NULL ) ||                                                \
                                                                         \
 } /* H5C__INSERT_IN_COLL_LIST */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__REMOVE_FROM_COLL_LIST
+ * Macro:    H5C__REMOVE_FROM_COLL_LIST
  *
  * Purpose:     Remove entry from collective entries list
  *
@@ -3507,10 +3510,10 @@ if ( ( (entry_ptr) == NULL ) ||                                                \
                                                                         \
 } /* H5C__REMOVE_FROM_COLL_LIST */
 
-
+
 /*-------------------------------------------------------------------------
  *
- * Macro:	H5C__MOVE_TO_TOP_IN_COLL_LIST
+ * Macro:    H5C__MOVE_TO_TOP_IN_COLL_LIST
  *
  * Purpose:     Update entry position in collective entries list
  *
@@ -3563,7 +3566,7 @@ if ( ( (entry_ptr) == NULL ) ||                                                \
  *
  * The fields of this structure are discussed individually below:
  *
- * tag:	Address (i.e. "tag") of the object header for all the entries
+ * tag:    Address (i.e. "tag") of the object header for all the entries
  *              corresponding to parts of that object.
  *
  * head: Head of doubly-linked list of all entries belonging to the tag.
@@ -3571,7 +3574,7 @@ if ( ( (entry_ptr) == NULL ) ||                                                \
  * entry_cnt: Number of entries on linked list of entries for this tag.
  *
  * corked: Boolean flag indicating whether entries for this object can be
- * 		evicted.
+ *         evicted.
  *
  ****************************************************************************/
 typedef struct H5C_tag_info_t {
@@ -3613,32 +3616,32 @@ typedef struct H5C_tag_info_t {
  * Note that index_size and index_len now refer to the total size of
  * and number of entries in the hash table.
  *
- *						JRM - 7/19/04
+ *                        JRM - 7/19/04
  *
  * The TBBT has since been replaced with a skip list.  This change
  * greatly predates this note.
  *
- *						JRM - 9/26/05
+ *                        JRM - 9/26/05
  *
- * magic:	Unsigned 32 bit integer always set to H5C__H5C_T_MAGIC.
- * 		This field is used to validate pointers to instances of
- * 		H5C_t.
+ * magic:    Unsigned 32 bit integer always set to H5C__H5C_T_MAGIC.
+ *         This field is used to validate pointers to instances of
+ *         H5C_t.
  *
  * flush_in_progress: Boolean flag indicating whether a flush is in
- * 		progress.
+ *         progress.
  *
  * log_info:    Information used by the MDC logging functionality.
  *              Described in H5Clog.h.
  *
- * aux_ptr:	Pointer to void used to allow wrapper code to associate
- *		its data with an instance of H5C_t.  The H5C cache code
- *		sets this field to NULL, and otherwise leaves it alone.
+ * aux_ptr:    Pointer to void used to allow wrapper code to associate
+ *        its data with an instance of H5C_t.  The H5C cache code
+ *        sets this field to NULL, and otherwise leaves it alone.
  *
- * max_type_id:	Integer field containing the maximum type id number assigned
- *		to a type of entry in the cache.  All type ids from 0 to
- *		max_type_id inclusive must be defined.  The names of the
- *		types are stored in the type_name_table discussed below, and
- *		indexed by the ids.
+ * max_type_id:    Integer field containing the maximum type id number assigned
+ *        to a type of entry in the cache.  All type ids from 0 to
+ *        max_type_id inclusive must be defined.  The names of the
+ *        types are stored in the type_name_table discussed below, and
+ *        indexed by the ids.
  *
  * class_table_ptr: Pointer to an array of H5C_class_t of length
  *              max_type_id + 1.  Entry classes for the cache.
@@ -3654,19 +3657,19 @@ typedef struct H5C_tag_info_t {
  *                 to reduce its size as entries are unprotected.
  *
  *              b) When running in parallel mode, the cache may not be
- *		   permitted to flush a dirty entry in response to a read.
- *		   If there are no clean entries available to evict, the
- *		   cache will exceed its maximum size.  Again the cache
+ *           permitted to flush a dirty entry in response to a read.
+ *           If there are no clean entries available to evict, the
+ *           cache will exceed its maximum size.  Again the cache
  *                 will attempt to reduce its size to the max_cache_size
  *                 limit on the next cache write.
  *
- *		c) When an entry increases in size, the cache may exceed
- *		   the max_cache_size limit until the next time the cache
- *		   attempts to load or insert an entry.
+ *        c) When an entry increases in size, the cache may exceed
+ *           the max_cache_size limit until the next time the cache
+ *           attempts to load or insert an entry.
  *
- *		d) When the evictions_enabled field is false (see below),
- *		   the cache size will increase without limit until the
- *		   field is set to true.
+ *        d) When the evictions_enabled field is false (see below),
+ *           the cache size will increase without limit until the
+ *           field is set to true.
  *
  * min_clean_size: Nominal minimum number of clean bytes in the cache.
  *              The cache attempts to maintain this number of bytes of
@@ -3674,7 +3677,7 @@ typedef struct H5C_tag_info_t {
  *              a soft limit.
  *
  * close_warning_received: Boolean flag indicating that a file closing
- *		warning has been received.
+ *        warning has been received.
  *
  *
  * In addition to the call back functions required for each entry, the
@@ -3682,19 +3685,19 @@ typedef struct H5C_tag_info_t {
  * the cache as a whole:
  *
  * check_write_permitted:  In certain applications, the cache may not
- *		be allowed to write to disk at certain time.  If specified,
- *		the check_write_permitted function is used to determine if
- *		a write is permissible at any given point in time.
+ *        be allowed to write to disk at certain time.  If specified,
+ *        the check_write_permitted function is used to determine if
+ *        a write is permissible at any given point in time.
  *
- *		If no such function is specified (i.e. this field is NULL),
- *		the cache uses the following write_permitted field to
- *		determine whether writes are permitted.
+ *        If no such function is specified (i.e. this field is NULL),
+ *        the cache uses the following write_permitted field to
+ *        determine whether writes are permitted.
  *
  * write_permitted: If check_write_permitted is NULL, this boolean flag
- *		indicates whether writes are permitted.
+ *        indicates whether writes are permitted.
  *
- * log_flush:	If provided, this function is called whenever a dirty
- *		entry is flushed to disk.
+ * log_flush:    If provided, this function is called whenever a dirty
+ *        entry is flushed to disk.
  *
  *
  * In cases where memory is plentiful, and performance is an issue, it may
@@ -3702,11 +3705,11 @@ typedef struct H5C_tag_info_t {
  * writes.  The following field is used to implement this.
  *
  * evictions_enabled:  Boolean flag that is initialized to TRUE.  When
- * 		this flag is set to FALSE, the metadata cache will not
- * 		attempt to evict entries to make space for newly protected
- * 		entries, and instead the will grow without limit.
+ *         this flag is set to FALSE, the metadata cache will not
+ *         attempt to evict entries to make space for newly protected
+ *         entries, and instead the will grow without limit.
  *
- * 		Needless to say, this feature must be used with care.
+ *         Needless to say, this feature must be used with care.
  *
  *
  * The cache requires an index to facilitate searching for entries.  The
@@ -3724,7 +3727,7 @@ typedef struct H5C_tag_info_t {
  * index, and must have the same length and size as the index proper.
  *
  * index_len:   Number of entries currently in the hash table used to index
- *		the cache.
+ *        the cache.
  *
  * index_size:  Number of bytes of cache entries currently stored in the
  *              hash table used to index the cache.
@@ -3736,84 +3739,84 @@ typedef struct H5C_tag_info_t {
  *              of the cache's memory footprint.
  *
  * index_ring_len: Array of integer of length H5C_RING_NTYPES used to
- *		maintain a count of entries in the index by ring.  Note
- *		that the sum of all the cells in this array must equal
- *		the value stored in index_len above.
+ *        maintain a count of entries in the index by ring.  Note
+ *        that the sum of all the cells in this array must equal
+ *        the value stored in index_len above.
  *
  * index_ring_size: Array of size_t of length H5C_RING_NTYPES used to
- *		maintain the sum of the sizes of all entries in the index
- *		by ring.  Note that the sum of all cells in this array must
- *		equal the value stored in index_size above.
+ *        maintain the sum of the sizes of all entries in the index
+ *        by ring.  Note that the sum of all cells in this array must
+ *        equal the value stored in index_size above.
  *
  * clean_index_size: Number of bytes of clean entries currently stored in
- * 		the hash table.  Note that the index_size field (above)
- *		is also the sum of the sizes of all entries in the cache.
- *		Thus we should have the invariant that clean_index_size +
- *		dirty_index_size == index_size.
+ *         the hash table.  Note that the index_size field (above)
+ *        is also the sum of the sizes of all entries in the cache.
+ *        Thus we should have the invariant that clean_index_size +
+ *        dirty_index_size == index_size.
  *
- *		WARNING:
+ *        WARNING:
  *
- *		   The value of the clean_index_size must not be mistaken
- *		   for the current clean size of the cache.  Rather, the
- *		   clean size of the cache is the current value of
- *		   clean_index_size plus the amount of empty space (if any)
+ *           The value of the clean_index_size must not be mistaken
+ *           for the current clean size of the cache.  Rather, the
+ *           clean size of the cache is the current value of
+ *           clean_index_size plus the amount of empty space (if any)
  *                 in the cache.
  *
  * clean_index_ring_size: Array of size_t of length H5C_RING_NTYPES used to
- *		maintain the sum of the sizes of all clean entries in the
- *		index by ring.  Note that the sum of all cells in this array
- *		must equal the value stored in clean_index_size above.
+ *        maintain the sum of the sizes of all clean entries in the
+ *        index by ring.  Note that the sum of all cells in this array
+ *        must equal the value stored in clean_index_size above.
  *
  * dirty_index_size: Number of bytes of dirty entries currently stored in
- * 		the hash table.  Note that the index_size field (above)
- *		is also the sum of the sizes of all entries in the cache.
- *		Thus we should have the invariant that clean_index_size +
- *		dirty_index_size == index_size.
+ *         the hash table.  Note that the index_size field (above)
+ *        is also the sum of the sizes of all entries in the cache.
+ *        Thus we should have the invariant that clean_index_size +
+ *        dirty_index_size == index_size.
  *
  * dirty_index_ring_size: Array of size_t of length H5C_RING_NTYPES used to
- *		maintain the sum of the sizes of all dirty entries in the
- *		index by ring.  Note that the sum of all cells in this array
- *		must equal the value stored in dirty_index_size above.
+ *        maintain the sum of the sizes of all dirty entries in the
+ *        index by ring.  Note that the sum of all cells in this array
+ *        must equal the value stored in dirty_index_size above.
  *
- * index:	Array of pointer to H5C_cache_entry_t of size
- *		H5C__HASH_TABLE_LEN.  At present, this value is a power
- *		of two, not the usual prime number.
+ * index:    Array of pointer to H5C_cache_entry_t of size
+ *        H5C__HASH_TABLE_LEN.  At present, this value is a power
+ *        of two, not the usual prime number.
  *
- *		I hope that the variable size of cache elements, the large
- *		hash table size, and the way in which HDF5 allocates space
- *		will combine to avoid problems with periodicity.  If so, we
- *		can use a trivial hash function (a bit-and and a 3 bit left
- *		shift) with some small savings.
+ *        I hope that the variable size of cache elements, the large
+ *        hash table size, and the way in which HDF5 allocates space
+ *        will combine to avoid problems with periodicity.  If so, we
+ *        can use a trivial hash function (a bit-and and a 3 bit left
+ *        shift) with some small savings.
  *
- *		If not, it will become evident in the statistics. Changing
- *		to the usual prime number length hash table will require
- *		changing the H5C__HASH_FCN macro and the deletion of the
- *		H5C__HASH_MASK #define.  No other changes should be required.
+ *        If not, it will become evident in the statistics. Changing
+ *        to the usual prime number length hash table will require
+ *        changing the H5C__HASH_FCN macro and the deletion of the
+ *        H5C__HASH_MASK #define.  No other changes should be required.
  *
- * il_len:	Number of entries on the index list.
+ * il_len:    Number of entries on the index list.
  *
- *		This must always be equal to index_len.  As such, this
- *		field is redundant.  However, the existing linked list
- *		management macros expect to maintain a length field, so
- *		this field exists primarily to avoid adding complexity to
- *		these macros.
+ *        This must always be equal to index_len.  As such, this
+ *        field is redundant.  However, the existing linked list
+ *        management macros expect to maintain a length field, so
+ *        this field exists primarily to avoid adding complexity to
+ *        these macros.
  *
- * il_size: 	Number of bytes of cache entries currently stored in the
- *		index list.
+ * il_size:     Number of bytes of cache entries currently stored in the
+ *        index list.
  *
- *		This must always be equal to index_size.  As such, this
- *		field is redundant.  However, the existing linked list
- *		management macros expect to maintain a size field, so
- *		this field exists primarily to avoid adding complexity to
- *		these macros.
+ *        This must always be equal to index_size.  As such, this
+ *        field is redundant.  However, the existing linked list
+ *        management macros expect to maintain a size field, so
+ *        this field exists primarily to avoid adding complexity to
+ *        these macros.
  *
- * il_head:	Pointer to the head of the doubly linked list of entries in
+ * il_head:    Pointer to the head of the doubly linked list of entries in
  *              the index list.  Note that cache entries on this list are
- *		linked by their il_next and il_prev fields.
+ *        linked by their il_next and il_prev fields.
  *
  *              This field is NULL if the index is empty.
  *
- * il_tail:	Pointer to the tail of the doubly linked list of entries in
+ * il_tail:    Pointer to the tail of the doubly linked list of entries in
  *              the index list.  Note that cache entries on this list are
  *              linked by their il_next and il_prev fields.
  *
@@ -3830,32 +3833,32 @@ typedef struct H5C_tag_info_t {
  *
  * The following fields are maintained to facilitate this.
  *
- * entries_removed_counter:	Counter that is incremented each time an
- *		entry is removed from the cache by any means (eviction,
- *		expungement, or take ownership at this point in time).
- *		Functions that perform scans on lists may set this field
- *		to zero prior to calling H5C__flush_single_entry().
- *		Unexpected changes to the counter indicate that an entry
- *		was removed from the cache as a side effect of the flush.
+ * entries_removed_counter:    Counter that is incremented each time an
+ *        entry is removed from the cache by any means (eviction,
+ *        expungement, or take ownership at this point in time).
+ *        Functions that perform scans on lists may set this field
+ *        to zero prior to calling H5C__flush_single_entry().
+ *        Unexpected changes to the counter indicate that an entry
+ *        was removed from the cache as a side effect of the flush.
  *
- * last_entry_removed_ptr:	Pointer to the instance of H5C_cache_entry_t
- *		which contained the last entry to be removed from the cache,
- *		or NULL if there either is no such entry, or if a function
- *		performing a scan of a list has set this field to NULL prior
- *		to calling H5C__flush_single_entry().
+ * last_entry_removed_ptr:    Pointer to the instance of H5C_cache_entry_t
+ *        which contained the last entry to be removed from the cache,
+ *        or NULL if there either is no such entry, or if a function
+ *        performing a scan of a list has set this field to NULL prior
+ *        to calling H5C__flush_single_entry().
  *
- *		WARNING!!! This field must NEVER be dereferenced.  It is
- *		maintained to allow functions that perform scans of lists
- *		to compare this pointer with their pointers to next, thus
- *		allowing them to avoid unnecessary restarts of scans if the
- *		pointers don't match, and if entries_removed_counter is
- *		one.
+ *        WARNING!!! This field must NEVER be dereferenced.  It is
+ *        maintained to allow functions that perform scans of lists
+ *        to compare this pointer with their pointers to next, thus
+ *        allowing them to avoid unnecessary restarts of scans if the
+ *        pointers don't match, and if entries_removed_counter is
+ *        one.
  *
- * entry_watched_for_removal:	Pointer to an instance of H5C_cache_entry_t
+ * entry_watched_for_removal:    Pointer to an instance of H5C_cache_entry_t
  *              which contains the 'next' entry for an iteration.  Removing
  *              this entry must trigger a rescan of the iteration, so each
  *              entry removed from the cache is compared against this pointer
- *              and the pointer is reset to NULL if the watched entry is 
+ *              and the pointer is reset to NULL if the watched entry is
  *              removed.
  *              (This functions similarly to a "dead man's switch")
  *
@@ -3870,14 +3873,14 @@ typedef struct H5C_tag_info_t {
  * are flushed. (this has been changed -- dirty entries are now removed from
  * the skip list as they are flushed.  JRM - 10/25/05)
  *
- * Update 4/21/20: 
+ * Update 4/21/20:
  *
- * Profiling indicates that the cost of maintaining the skip list is 
+ * Profiling indicates that the cost of maintaining the skip list is
  * significant.  As it is only used on flush and close, maintaining it
  * only when needed is an obvious optimization.
  *
  * To do this, we add a flag to control maintenanace of the skip list.
- * This flag is initially set to FALSE, which disables all operations 
+ * This flag is initially set to FALSE, which disables all operations
  * on the skip list.
  *
  * At the beginning of either flush or close, we scan the index list,
@@ -3885,27 +3888,27 @@ typedef struct H5C_tag_info_t {
  * on skip list by setting above control flag to true.
  *
  * At the end of a complete flush, we verify that the skip list is empty,
- * and set the control flag back to false, so as to avoid skip list 
- * maintenance overhead until the next flush or close.  
+ * and set the control flag back to false, so as to avoid skip list
+ * maintenance overhead until the next flush or close.
  *
  * In the case of a partial flush (i.e. flush marked entries), we remove
  * all remaining entries from the skip list, and then set the control flag
- * back to false -- again avoiding skip list maintenance overhead until 
+ * back to false -- again avoiding skip list maintenance overhead until
  * the next flush or close.
  *
  * slist_enabled: Boolean flag used to control operation of the skip
- *              list.  If this filed is FALSE, operations on the 
+ *              list.  If this filed is FALSE, operations on the
  *              slist are no-ops, and the slist must be empty.  If
  *              it is TRUE, operations on the slist proceed as usual,
  *              and all dirty entries in the metadata cache must be
  *              listed in the slist.
  *
  * slist_changed: Boolean flag used to indicate whether the contents of
- *		the slist has changed since the last time this flag was
- *		reset.  This is used in the cache flush code to detect
- *		conditions in which pre-serialize or serialize callbacks
- *		have modified the slist -- which obliges us to restart
- *		the scan of the slist from the beginning.
+ *        the slist has changed since the last time this flag was
+ *        reset.  This is used in the cache flush code to detect
+ *        conditions in which pre-serialize or serialize callbacks
+ *        have modified the slist -- which obliges us to restart
+ *        the scan of the slist from the beginning.
  *
  * slist_len:   Number of entries currently in the skip list
  *              used to maintain a sorted list of dirty entries in the
@@ -3916,14 +3919,14 @@ typedef struct H5C_tag_info_t {
  *              dirty entries in the cache.
  *
  * slist_ring_len: Array of integer of length H5C_RING_NTYPES used to
- *		maintain a count of entries in the slist by ring.  Note
- *		that the sum of all the cells in this array must equal
- *		the value stored in slist_len above.
+ *        maintain a count of entries in the slist by ring.  Note
+ *        that the sum of all the cells in this array must equal
+ *        the value stored in slist_len above.
  *
  * slist_ring_size: Array of size_t of length H5C_RING_NTYPES used to
  *              maintain the sum of the sizes of all entries in the
- *		slist by ring.  Note that the sum of all cells in this
- *		array must equal the value stored in slist_size above.
+ *        slist by ring.  Note that the sum of all cells in this
+ *        array must equal the value stored in slist_size above.
  *
  * slist_ptr:   pointer to the instance of H5SL_t used maintain a sorted
  *              list of dirty entries in the cache.  This sorted list has
@@ -3938,7 +3941,7 @@ typedef struct H5C_tag_info_t {
  *                 some optimizations when I get to it.
  *
  * num_last_entries: The number of entries in the cache that can only be
- *		flushed after all other entries in the cache have
+ *        flushed after all other entries in the cache have
  *              been flushed. At this time, this will only ever be
  *              one entry (the superblock), and the code has been
  *              protected with HDasserts to enforce this. This restraint
@@ -3947,10 +3950,10 @@ typedef struct H5C_tag_info_t {
  *              explicit tests for that case should be added when said
  *              HDasserts are removed.
  *
- *		Update: There are now two possible last entries
- *		(superblock and file driver info message).  This
- *		number will probably increase as we add superblock
- *		messages.   JRM -- 11/18/14
+ *        Update: There are now two possible last entries
+ *        (superblock and file driver info message).  This
+ *        number will probably increase as we add superblock
+ *        messages.   JRM -- 11/18/14
  *
  * With the addition of the fractal heap, the cache must now deal with
  * the case in which entries may be dirtied, moved, or have their sizes
@@ -3959,12 +3962,12 @@ typedef struct H5C_tag_info_t {
  * H5C_DO_SANITY_CHECKS is TRUE.
  *
  * slist_len_increase: Number of entries that have been added to the
- * 		slist since the last time this field was set to zero.
- *		Note that this value can be negative.
+ *         slist since the last time this field was set to zero.
+ *        Note that this value can be negative.
  *
  * slist_size_increase: Total size of all entries that have been added
- * 		to the slist since the last time this field was set to
- * 		zero.  Note that this value can be negative.
+ *         to the slist since the last time this field was set to
+ *         zero.  Note that this value can be negative.
  *
  * Cache entries belonging to a particular object are "tagged" with that
  * object's base object header address.
@@ -3981,7 +3984,7 @@ typedef struct H5C_tag_info_t {
  *                freelist, as well as shared entries like global
  *                heaps and shared object header messages, are not tagged.
  *
- * ignore_tags:	Boolean flag to disable tag validation during entry insertion.
+ * ignore_tags:    Boolean flag to disable tag validation during entry insertion.
  *
  * num_objs_corked: Unsigned integer field containing the number of objects
  *                  that are "corked".  The "corked" status of an object is
@@ -4020,15 +4023,15 @@ typedef struct H5C_tag_info_t {
  *
  * Pinning an entry has the following implications:
  *
- *	1) A pinned entry cannot be evicted.  Thus unprotected
+ *    1) A pinned entry cannot be evicted.  Thus unprotected
  *         pinned entries reside in the pinned entry list, instead
  *         of the LRU list(s) (or other lists maintained by the current
  *         replacement policy code).
  *
  *      2) A pinned entry can be accessed or modified at any time.
  *         This places an additional burden on the associated pre-serialize
- *	   and serialize callbacks, which must ensure the the entry is in
- *	   a consistent state before creating an image of it.
+ *       and serialize callbacks, which must ensure the the entry is in
+ *       a consistent state before creating an image of it.
  *
  *      3) A pinned entry can be marked as dirty (and possibly
  *         change size) while it is unprotected.
@@ -4043,21 +4046,21 @@ typedef struct H5C_tag_info_t {
  *
  * Maintaining the pinned entry list requires the following fields:
  *
- * pel_len:	Number of entries currently residing on the pinned
- * 		entry list.
+ * pel_len:    Number of entries currently residing on the pinned
+ *         entry list.
  *
- * pel_size:	Number of bytes of cache entries currently residing on
- * 		the pinned entry list.
+ * pel_size:    Number of bytes of cache entries currently residing on
+ *         the pinned entry list.
  *
  * pel_head_ptr: Pointer to the head of the doubly linked list of pinned
- * 		but not protected entries.  Note that cache entries on
- * 		this list are linked by their next and prev fields.
+ *         but not protected entries.  Note that cache entries on
+ *         this list are linked by their next and prev fields.
  *
  *              This field is NULL if the list is empty.
  *
  * pel_tail_ptr: Pointer to the tail of the doubly linked list of pinned
- * 		but not protected entries.  Note that cache entries on
- * 		this list are linked by their next and prev fields.
+ *         but not protected entries.  Note that cache entries on
+ *         this list are linked by their next and prev fields.
  *
  *              This field is NULL if the list is empty.
  *
@@ -4115,13 +4118,13 @@ typedef struct H5C_tag_info_t {
  * LRU_list_len:  Number of cache entries currently on the LRU list.
  *
  *              Observe that LRU_list_len + pl_len + pel_len must always
- *		equal index_len.
+ *        equal index_len.
  *
  * LRU_list_size:  Number of bytes of cache entries currently residing on the
  *              LRU list.
  *
  *              Observe that LRU_list_size + pl_size + pel_size must always
- *		equal index_size.
+ *        equal index_size.
  *
  * LRU_head_ptr:  Pointer to the head of the doubly linked LRU list.  Cache
  *              entries on this list are linked by their next and prev fields.
@@ -4190,10 +4193,10 @@ typedef struct H5C_tag_info_t {
  * the structure described below:
  *
  * size_increase_possible:  Depending on the configuration data given
- *		in the resize_ctl field, it may or may not be possible
- *		to increase the size of the cache.  Rather than test for
- *		all the ways this can happen, we simply set this flag when
- *		we receive a new configuration.
+ *        in the resize_ctl field, it may or may not be possible
+ *        to increase the size of the cache.  Rather than test for
+ *        all the ways this can happen, we simply set this flag when
+ *        we receive a new configuration.
  *
  * flash_size_increase_possible: Depending on the configuration data given
  *              in the resize_ctl field, it may or may not be possible
@@ -4214,37 +4217,37 @@ typedef struct H5C_tag_info_t {
  *              we receive a new configuration.
  *
  * resize_enabled:  This is another convenience flag which is set whenever
- *		a new set of values for resize_ctl are provided.  Very
- *		simply,
+ *        a new set of values for resize_ctl are provided.  Very
+ *        simply,
  *
- *		    resize_enabled = size_increase_possible ||
+ *            resize_enabled = size_increase_possible ||
  *                                   size_decrease_possible;
  *
- * cache_full:	Boolean flag used to keep track of whether the cache is
- *		full, so we can refrain from increasing the size of a
- *		cache which hasn't used up the space allotted to it.
+ * cache_full:    Boolean flag used to keep track of whether the cache is
+ *        full, so we can refrain from increasing the size of a
+ *        cache which hasn't used up the space allotted to it.
  *
- *		The field is initialized to FALSE, and then set to TRUE
- *		whenever we attempt to make space in the cache.
+ *        The field is initialized to FALSE, and then set to TRUE
+ *        whenever we attempt to make space in the cache.
  *
  * size_decreased:  Boolean flag set to TRUE whenever the maximum cache
- *		size is decreased.  The flag triggers a call to
- *		H5C__make_space_in_cache() on the next call to H5C_protect().
+ *        size is decreased.  The flag triggers a call to
+ *        H5C__make_space_in_cache() on the next call to H5C_protect().
  *
  * resize_in_progress: As the metadata cache has become re-entrant, it is
- *		possible that a protect may trigger a call to
- *		H5C__auto_adjust_cache_size(), which may trigger a flush,
- *		which may trigger a protect, which will result in another
- *		call to H5C__auto_adjust_cache_size().
+ *        possible that a protect may trigger a call to
+ *        H5C__auto_adjust_cache_size(), which may trigger a flush,
+ *        which may trigger a protect, which will result in another
+ *        call to H5C__auto_adjust_cache_size().
  *
- *		The resize_in_progress boolean flag is used to detect this,
- *		and to prevent the infinite recursion that would otherwise
- *		occur.
+ *        The resize_in_progress boolean flag is used to detect this,
+ *        and to prevent the infinite recursion that would otherwise
+ *        occur.
  *
- *		Note that this issue is not hypothetical -- this field
- *		was added 12/29/15 to fix a bug exposed in the testing
- *		of changes to the file driver info superblock extension
- *		management code needed to support rings.
+ *        Note that this issue is not hypothetical -- this field
+ *        was added 12/29/15 to fix a bug exposed in the testing
+ *        of changes to the file driver info superblock extension
+ *        management code needed to support rings.
  *
  * msic_in_progress: As the metadata cache has become re-entrant, and as
  *              the free space manager code has become more tightly
@@ -4263,62 +4266,62 @@ typedef struct H5C_tag_info_t {
  *              exposed by modifications to test/fheap.c to cause it to
  *              use paged allocation.
  *
- * resize_ctl:	Instance of H5C_auto_size_ctl_t containing configuration
- * 		data for automatic cache resizing.
+ * resize_ctl:    Instance of H5C_auto_size_ctl_t containing configuration
+ *         data for automatic cache resizing.
  *
  * epoch_markers_active:  Integer field containing the number of epoch
- *		markers currently in use in the LRU list.  This value
- *		must be in the range [0, H5C__MAX_EPOCH_MARKERS - 1].
+ *        markers currently in use in the LRU list.  This value
+ *        must be in the range [0, H5C__MAX_EPOCH_MARKERS - 1].
  *
  * epoch_marker_active:  Array of boolean of length H5C__MAX_EPOCH_MARKERS.
- *		This array is used to track which epoch markers are currently
- *		in use.
+ *        This array is used to track which epoch markers are currently
+ *        in use.
  *
  * epoch_marker_ringbuf:  Array of int of length H5C__MAX_EPOCH_MARKERS + 1.
  *
- *		To manage the epoch marker cache entries, it is necessary
- *		to track their order in the LRU list.  This is done with
- *		epoch_marker_ringbuf.  When markers are inserted at the
- *		head of the LRU list, the index of the marker in the
- *		epoch_markers array is inserted at the tail of the ring
- *		buffer.  When it becomes the epoch_marker_active'th marker
- *		in the LRU list, it will have worked its way to the head
- *		of the ring buffer as well.  This allows us to remove it
- *		without scanning the LRU list if such is required.
+ *        To manage the epoch marker cache entries, it is necessary
+ *        to track their order in the LRU list.  This is done with
+ *        epoch_marker_ringbuf.  When markers are inserted at the
+ *        head of the LRU list, the index of the marker in the
+ *        epoch_markers array is inserted at the tail of the ring
+ *        buffer.  When it becomes the epoch_marker_active'th marker
+ *        in the LRU list, it will have worked its way to the head
+ *        of the ring buffer as well.  This allows us to remove it
+ *        without scanning the LRU list if such is required.
  *
  * epoch_marker_ringbuf_first: Integer field containing the index of the
- *		first entry in the ring buffer.
+ *        first entry in the ring buffer.
  *
  * epoch_marker_ringbuf_last: Integer field containing the index of the
- *		last entry in the ring buffer.
+ *        last entry in the ring buffer.
  *
  * epoch_marker_ringbuf_size: Integer field containing the number of entries
- *		in the ring buffer.
+ *        in the ring buffer.
  *
  * epoch_markers:  Array of instances of H5C_cache_entry_t of length
- *		H5C__MAX_EPOCH_MARKERS.  The entries are used as markers
- *		in the LRU list to identify cache entries that haven't
- *		been accessed for some (small) specified number of
- *		epochs.  These entries (if any) can then be evicted and
- *		the cache size reduced -- ideally without evicting any
- *		of the current working set.  Needless to say, the epoch
- *		length and the number of epochs before an unused entry
- *		must be chosen so that all, or almost all, the working
- *		set will be accessed before the limit.
+ *        H5C__MAX_EPOCH_MARKERS.  The entries are used as markers
+ *        in the LRU list to identify cache entries that haven't
+ *        been accessed for some (small) specified number of
+ *        epochs.  These entries (if any) can then be evicted and
+ *        the cache size reduced -- ideally without evicting any
+ *        of the current working set.  Needless to say, the epoch
+ *        length and the number of epochs before an unused entry
+ *        must be chosen so that all, or almost all, the working
+ *        set will be accessed before the limit.
  *
- *		Epoch markers only appear in the LRU list, never in
- *		the index or slist.  While they are of type
- *		H5C__EPOCH_MARKER_TYPE, and have associated class
- *		functions, these functions should never be called.
+ *        Epoch markers only appear in the LRU list, never in
+ *        the index or slist.  While they are of type
+ *        H5C__EPOCH_MARKER_TYPE, and have associated class
+ *        functions, these functions should never be called.
  *
- *		The addr fields of these instances of H5C_cache_entry_t
- *		are set to the index of the instance in the epoch_markers
- *		array, the size is set to 0, and the type field points
- *		to the constant structure epoch_marker_class defined
- *		in H5C.c.  The next and prev fields are used as usual
- *		to link the entry into the LRU list.
+ *        The addr fields of these instances of H5C_cache_entry_t
+ *        are set to the index of the instance in the epoch_markers
+ *        array, the size is set to 0, and the type field points
+ *        to the constant structure epoch_marker_class defined
+ *        in H5C.c.  The next and prev fields are used as usual
+ *        to link the entry into the LRU list.
  *
- *		All other fields are unused.
+ *        All other fields are unused.
  *
  *
  * Cache hit rate collection fields:
@@ -4328,62 +4331,62 @@ typedef struct H5C_tag_info_t {
  * collection is enabled.  The following fields support this capability.
  *
  * cache_hits: Number of cache hits since the last time the cache hit
- *	rate statistics were reset.  Note that when automatic cache
- *	re-sizing is enabled, this field will be reset every automatic
- *	resize epoch.
+ *    rate statistics were reset.  Note that when automatic cache
+ *    re-sizing is enabled, this field will be reset every automatic
+ *    resize epoch.
  *
  * cache_accesses: Number of times the cache has been accessed while
- *	since the last since the last time the cache hit rate statistics
- *	were reset.  Note that when automatic cache re-sizing is enabled,
- *	this field will be reset every automatic resize epoch.
+ *    since the last since the last time the cache hit rate statistics
+ *    were reset.  Note that when automatic cache re-sizing is enabled,
+ *    this field will be reset every automatic resize epoch.
  *
  *
  * Metadata cache image management related fields.
  *
- * image_ctl:	Instance of H5C_cache_image_ctl_t containing configuration
- * 		data for generation of a cache image on file close.
+ * image_ctl:    Instance of H5C_cache_image_ctl_t containing configuration
+ *         data for generation of a cache image on file close.
  *
  * serialization_in_progress:  Boolean field that is set to TRUE iff
- *		the cache is in the process of being serialized.  This
- *		field is needed to support the H5C_serialization_in_progress()
- *		call, which is in turn required for sanity checks in some
- *		cache clients.
+ *        the cache is in the process of being serialized.  This
+ *        field is needed to support the H5C_serialization_in_progress()
+ *        call, which is in turn required for sanity checks in some
+ *        cache clients.
  *
- * load_image:	Boolean flag indicating that the metadata cache image
- *		superblock extension message exists and should be
- *		read, and the image block read and decoded on the next
- *		call to H5C_protect().
+ * load_image:    Boolean flag indicating that the metadata cache image
+ *        superblock extension message exists and should be
+ *        read, and the image block read and decoded on the next
+ *        call to H5C_protect().
  *
  * image_loaded:  Boolean flag indicating that the metadata cache has
  *              loaded the metadata cache image as directed by the
  *              MDC cache image superblock extension message.
  *
  * delete_image: Boolean flag indicating whether the metadata cache image
- *		superblock message should be deleted and the cache image
- *		file space freed after they have been read and decoded.
+ *        superblock message should be deleted and the cache image
+ *        file space freed after they have been read and decoded.
  *
- *		This flag should be set to TRUE iff the file is opened
- *		R/W and there is a cache image to be read.
+ *        This flag should be set to TRUE iff the file is opened
+ *        R/W and there is a cache image to be read.
  *
  * image_addr:  haddr_t containing the base address of the on disk
- *		metadata cache image, or HADDR_UNDEF if that value is
- *		undefined.  Note that this field is used both in the
- *		construction and write, and the read and decode of
- *		metadata cache image blocks.
+ *        metadata cache image, or HADDR_UNDEF if that value is
+ *        undefined.  Note that this field is used both in the
+ *        construction and write, and the read and decode of
+ *        metadata cache image blocks.
  *
- * image_len:	hsize_t containing the size of the on disk metadata cache
- *		image, or zero if that value is undefined.  Note that this
- *		field is used both in the construction and write, and the
- *		read and decode of metadata cache image blocks.
+ * image_len:    hsize_t containing the size of the on disk metadata cache
+ *        image, or zero if that value is undefined.  Note that this
+ *        field is used both in the construction and write, and the
+ *        read and decode of metadata cache image blocks.
  *
  * image_data_len:  size_t containing the number of bytes of data in the
- *		on disk metadata cache image, or zero if that value is
- *		undefined.
+ *        on disk metadata cache image, or zero if that value is
+ *        undefined.
  *
- *		In most cases, this value is the same as the image_len
- *		above.  It exists to allow for metadata cache image blocks
- *		that are larger than the actual image.  Thus in all
- *		cases image_data_len <= image_len.
+ *        In most cases, this value is the same as the image_len
+ *        above.  It exists to allow for metadata cache image blocks
+ *        that are larger than the actual image.  Thus in all
+ *        cases image_data_len <= image_len.
  *
  * To create the metadata cache image, we must first serialize all the
  * entries in the metadata cache.  This is done by a scan of the index.
@@ -4410,35 +4413,35 @@ typedef struct H5C_tag_info_t {
  * Note that all these new fields would work just as well as booleans.
  *
  * entries_loaded_counter: Number of entries loaded into the cache
- *		since the last time this field was reset.
+ *        since the last time this field was reset.
  *
  * entries_inserted_counter: Number of entries inserted into the cache
- *		since the last time this field was reset.
+ *        since the last time this field was reset.
  *
  * entries relocated_counter: Number of entries whose base address has
- *		been changed since the last time this field was reset.
+ *        been changed since the last time this field was reset.
  *
  * entry_fd_height_change_counter: Number of entries whose flush dependency
- *		height has changed since the last time this field was reset.
+ *        height has changed since the last time this field was reset.
  *
  * The following fields are used assemble the cache image prior to
  * writing it to disk.
  *
  * num_entries_in_image: Unsigned integer field containing the number of entries
- *		to be copied into the metadata cache image.  Note that
- *		this value will be less than the number of entries in
- *		the cache, and the superblock and its related entries
- *		are not written to the metadata cache image.
+ *        to be copied into the metadata cache image.  Note that
+ *        this value will be less than the number of entries in
+ *        the cache, and the superblock and its related entries
+ *        are not written to the metadata cache image.
  *
  * image_entries: Pointer to a dynamically allocated array of instance of
- *		H5C_image_entry_t of length num_entries_in_image, or NULL
- *		if that array does not exist.  This array is used to
- *		assemble entry data to be included in the image, and to
- *		sort them by flush dependency height and LRU rank.
+ *        H5C_image_entry_t of length num_entries_in_image, or NULL
+ *        if that array does not exist.  This array is used to
+ *        assemble entry data to be included in the image, and to
+ *        sort them by flush dependency height and LRU rank.
  *
  * image_buffer: Pointer to the dynamically allocated buffer of length
- *		image_len in which the metadata cache image is assembled,
- *		or NULL if that	buffer does not exist.
+ *        image_len in which the metadata cache image is assembled,
+ *        or NULL if that    buffer does not exist.
  *
  *
  * Free Space Manager Related fields:
@@ -4460,13 +4463,13 @@ typedef struct H5C_tag_info_t {
  * flush is complete.
  *
  * rdfsm_settled:  Boolean flag indicating whether the raw data free space
- *		manager is settled -- i.e. whether the correct space has
- *		been allocated for it in the file.
+ *        manager is settled -- i.e. whether the correct space has
+ *        been allocated for it in the file.
  *
- *		Note that the name of this field is deceptive.  In the
- *		multi file case, the flag applies to all free space
- *		managers that are not involved in allocating space for
- *		free space manager metadata.
+ *        Note that the name of this field is deceptive.  In the
+ *        multi file case, the flag applies to all free space
+ *        managers that are not involved in allocating space for
+ *        free space manager metadata.
  *
  * mdfsm_settled:  Boolean flag indicating whether the meta data free space
  *              manager is settled -- i.e. whether the correct space has
@@ -4474,8 +4477,8 @@ typedef struct H5C_tag_info_t {
  *
  *              Note that the name of this field is deceptive.  In the
  *              multi file case, the flag applies only to free space
- *		managers that are involved in allocating space for free
- *		space managers.
+ *        managers that are involved in allocating space for free
+ *        space managers.
  *
  *
  * Statistics collection fields:
@@ -4485,144 +4488,144 @@ typedef struct H5C_tag_info_t {
  * is true.
  *
  * hits:        Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times an entry with type id
- *		equal to the array index has been in cache when requested in
- *		the current epoch.
+ *        are used to record the number of times an entry with type id
+ *        equal to the array index has been in cache when requested in
+ *        the current epoch.
  *
  * misses:      Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times an entry with type id
- *		equal to the array index has not been in cache when
- *		requested in the current epoch.
+ *        are used to record the number of times an entry with type id
+ *        equal to the array index has not been in cache when
+ *        requested in the current epoch.
  *
  * write_protects:  Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The
- * 		cells are used to record the number of times an entry with
- * 		type id equal to the array index has been write protected
- * 		in the current epoch.
+ *         cells are used to record the number of times an entry with
+ *         type id equal to the array index has been write protected
+ *         in the current epoch.
  *
- * 		Observe that (hits + misses) = (write_protects + read_protects).
+ *         Observe that (hits + misses) = (write_protects + read_protects).
  *
  * read_protects: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The
- * 		cells are used to record the number of times an entry with
- * 		type id equal to the array index has been read protected in
- * 		the current epoch.
+ *         cells are used to record the number of times an entry with
+ *         type id equal to the array index has been read protected in
+ *         the current epoch.
  *
  *              Observe that (hits + misses) = (write_protects + read_protects).
  *
  * max_read_protects:  Array of int32 of length H5C__MAX_NUM_TYPE_IDS + 1.
- * 		The cells are used to maximum number of simultaneous read
- * 		protects on any entry with type id equal to the array index
- * 		in the current epoch.
+ *         The cells are used to maximum number of simultaneous read
+ *         protects on any entry with type id equal to the array index
+ *         in the current epoch.
  *
  * insertions:  Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times an entry with type
- *		id equal to the array index has been inserted into the
- *		cache in the current epoch.
+ *        are used to record the number of times an entry with type
+ *        id equal to the array index has been inserted into the
+ *        cache in the current epoch.
  *
  * pinned_insertions:  Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.
- * 		The cells are used to record the number of times an entry
- * 		with type id equal to the array index has been inserted
- * 		pinned into the cache in the current epoch.
+ *         The cells are used to record the number of times an entry
+ *         with type id equal to the array index has been inserted
+ *         pinned into the cache in the current epoch.
  *
  * clears:      Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times a dirty entry with type
- *		id equal to the array index has been cleared in the current
- *		epoch.
+ *        are used to record the number of times a dirty entry with type
+ *        id equal to the array index has been cleared in the current
+ *        epoch.
  *
  * flushes:     Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times an entry with type id
- *		equal to the array index has been written to disk in the
+ *        are used to record the number of times an entry with type id
+ *        equal to the array index has been written to disk in the
  *              current epoch.
  *
  * evictions:   Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times an entry with type id
- *		equal to the array index has been evicted from the cache in
- *		the current epoch.
+ *        are used to record the number of times an entry with type id
+ *        equal to the array index has been evicted from the cache in
+ *        the current epoch.
  *
  * take_ownerships: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The
- *		cells are used to record the number of times an entry with
- *		type id equal to the array index has been removed from the
- *		cache via the H5C__TAKE_OWNERSHIP_FLAG in the current epoch.
+ *        cells are used to record the number of times an entry with
+ *        type id equal to the array index has been removed from the
+ *        cache via the H5C__TAKE_OWNERSHIP_FLAG in the current epoch.
  *
  * moves:       Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times an entry with type
- *		id equal to the array index has been moved in the current
- *		epoch.
+ *        are used to record the number of times an entry with type
+ *        id equal to the array index has been moved in the current
+ *        epoch.
  *
  * entry_flush_moves: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.
- * 		The cells are used to record the number of times an entry
- * 		with type id equal to the array index has been moved
- * 		during its pre-serialize callback in the current epoch.
+ *         The cells are used to record the number of times an entry
+ *         with type id equal to the array index has been moved
+ *         during its pre-serialize callback in the current epoch.
  *
  * cache_flush_moves: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.
- * 		The cells are used to record the number of times an entry
- * 		with type id equal to the array index has been moved
- * 		during a cache flush in the current epoch.
+ *         The cells are used to record the number of times an entry
+ *         with type id equal to the array index has been moved
+ *         during a cache flush in the current epoch.
  *
  * pins:        Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times an entry with type
- *		id equal to the array index has been pinned in the current
- *		epoch.
+ *        are used to record the number of times an entry with type
+ *        id equal to the array index has been pinned in the current
+ *        epoch.
  *
  * unpins:      Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times an entry with type
- *		id equal to the array index has been unpinned in the current
- *		epoch.
+ *        are used to record the number of times an entry with type
+ *        id equal to the array index has been unpinned in the current
+ *        epoch.
  *
- * dirty_pins:	Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the number of times an entry with type
- *		id equal to the array index has been marked dirty while pinned
- *		in the current epoch.
+ * dirty_pins:    Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
+ *        are used to record the number of times an entry with type
+ *        id equal to the array index has been marked dirty while pinned
+ *        in the current epoch.
  *
  * pinned_flushes:  Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The
- * 		cells are used to record the number of times an  entry
- * 		with type id equal to the array index has been flushed while
- * 		pinned in the current epoch.
+ *         cells are used to record the number of times an  entry
+ *         with type id equal to the array index has been flushed while
+ *         pinned in the current epoch.
  *
  * pinned_clears:  Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The
- * 		cells are used to record the number of times an  entry
- * 		with type id equal to the array index has been cleared while
- * 		pinned in the current epoch.
+ *         cells are used to record the number of times an  entry
+ *         with type id equal to the array index has been cleared while
+ *         pinned in the current epoch.
  *
  * size_increases:  Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.
- *		The cells are used to record the number of times an entry
- *		with type id equal to the array index has increased in
- *		size in the current epoch.
+ *        The cells are used to record the number of times an entry
+ *        with type id equal to the array index has increased in
+ *        size in the current epoch.
  *
  * size_decreases:  Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.
- *		The cells are used to record the number of times an entry
- *		with type id equal to the array index has decreased in
- *		size in the current epoch.
+ *        The cells are used to record the number of times an entry
+ *        with type id equal to the array index has decreased in
+ *        size in the current epoch.
  *
  * entry_flush_size_changes:  Array of int64 of length
- * 		H5C__MAX_NUM_TYPE_IDS + 1.  The cells are used to record
- * 		the number of times an entry with type id equal to the
- * 		array index has changed size while in its pre-serialize
- *		callback.
+ *         H5C__MAX_NUM_TYPE_IDS + 1.  The cells are used to record
+ *         the number of times an entry with type id equal to the
+ *         array index has changed size while in its pre-serialize
+ *        callback.
  *
  * cache_flush_size_changes:  Array of int64 of length
- * 		H5C__MAX_NUM_TYPE_IDS + 1.  The cells are used to record
- * 		the number of times an entry with type id equal to the
- * 		array index has changed size during a cache flush
+ *         H5C__MAX_NUM_TYPE_IDS + 1.  The cells are used to record
+ *         the number of times an entry with type id equal to the
+ *         array index has changed size during a cache flush
  *
  * total_ht_insertions: Number of times entries have been inserted into the
- *		hash table in the current epoch.
+ *        hash table in the current epoch.
  *
  * total_ht_deletions: Number of times entries have been deleted from the
  *              hash table in the current epoch.
  *
  * successful_ht_searches: int64 containing the total number of successful
- *		searches of the hash table in the current epoch.
+ *        searches of the hash table in the current epoch.
  *
  * total_successful_ht_search_depth: int64 containing the total number of
- *		entries other than the targets examined in successful
- *		searches of the hash table in the current epoch.
+ *        entries other than the targets examined in successful
+ *        searches of the hash table in the current epoch.
  *
  * failed_ht_searches: int64 containing the total number of unsuccessful
  *              searches of the hash table in the current epoch.
  *
  * total_failed_ht_search_depth: int64 containing the total number of
  *              entries examined in unsuccessful searches of the hash
- *		table in the current epoch.
+ *        table in the current epoch.
  *
  * max_index_len:  Largest value attained by the index_len field in the
  *              current epoch.
@@ -4631,10 +4634,10 @@ typedef struct H5C_tag_info_t {
  *              current epoch.
  *
  * max_clean_index_size: Largest value attained by the clean_index_size field
- * 		in the current epoch.
+ *         in the current epoch.
  *
  * max_dirty_index_size: Largest value attained by the dirty_index_size field
- * 		in the current epoch.
+ *         in the current epoch.
  *
  * max_slist_len:  Largest value attained by the slist_len field in the
  *              current epoch.
@@ -4685,11 +4688,11 @@ typedef struct H5C_tag_info_t {
  * The following fields track statistics on cache images.
  *
  * images_created:  Integer field containing the number of cache images
- *		created since the last time statistics were reset.
+ *        created since the last time statistics were reset.
  *
- *		At present, this field must always be either 0 or 1.
- *		Further, since cache images are only created at file
- *		close, this field should only be set at that time.
+ *        At present, this field must always be either 0 or 1.
+ *        Further, since cache images are only created at file
+ *        close, this field should only be set at that time.
  *
  * images_read: Integer field containing the number of cache images
  *              read from file.  Note that reading an image is different
@@ -4704,12 +4707,12 @@ typedef struct H5C_tag_info_t {
  *              from process 0.
  *
  * images_loaded:  Integer field containing the number of cache images
- *		loaded since the last time statistics were reset.
+ *        loaded since the last time statistics were reset.
  *
- *		At present, this field must always be either 0 or 1.
- *		Further, since cache images are only loaded at the
- *		time of the first protect or on file close, this value
- *		should only change on those events.
+ *        At present, this field must always be either 0 or 1.
+ *        Further, since cache images are only loaded at the
+ *        time of the first protect or on file close, this value
+ *        should only change on those events.
  *
  * last_image_size:  Size of the most recently loaded metadata cache image
  *             loaded into the cache, or zero if no image has been
@@ -4725,11 +4728,11 @@ typedef struct H5C_tag_info_t {
  * of prefetched entries are tracked in the flushes and evictions arrays
  * discused above.
  *
- * prefetches:	Number of prefetched entries that are loaded to the
- *		cache.
+ * prefetches:    Number of prefetched entries that are loaded to the
+ *        cache.
  *
  * dirty_prefetches:  Number of dirty prefetched entries that are loaded
- *		into the cache.
+ *        into the cache.
  *
  * prefetch_hits:  Number of prefetched entries that are actually used.
  *
@@ -4745,9 +4748,9 @@ typedef struct H5C_tag_info_t {
  * obtain estimates of how frequently these restarts occur.
  *
  * slist_scan_restarts: Number of times a scan of the slist (that contains
- *		calls to H5C__flush_single_entry()) has been restarted to
- *		avoid potential issues with change of status of the next
- *		entry in the scan.
+ *        calls to H5C__flush_single_entry()) has been restarted to
+ *        avoid potential issues with change of status of the next
+ *        entry in the scan.
  *
  * LRU_scan_restarts: Number of times a scan of the LRU list (that contains
  *              calls to H5C__flush_single_entry()) has been restarted to
@@ -4755,43 +4758,43 @@ typedef struct H5C_tag_info_t {
  *              entry in the scan.
  *
  * index_scan_restarts: Number of times a scan of the index has been
- *		restarted to avoid potential issues with load, insertion
- *		or change in flush dependency height of an entry other
- *		than the target entry as the result of call(s) to the
- *		pre_serialize or serialize callbacks.
+ *        restarted to avoid potential issues with load, insertion
+ *        or change in flush dependency height of an entry other
+ *        than the target entry as the result of call(s) to the
+ *        pre_serialize or serialize callbacks.
  *
- *		Note that at present, this condition can only be triggered
- *		by a call to H5C_serialize_single_entry().
+ *        Note that at present, this condition can only be triggered
+ *        by a call to H5C_serialize_single_entry().
  *
  * The remaining stats are collected only when both H5C_COLLECT_CACHE_STATS
  * and H5C_COLLECT_CACHE_ENTRY_STATS are true.
  *
  * max_accesses: Array of int32 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the maximum number of times any single
- *		entry with type id equal to the array index has been
- *		accessed in the current epoch.
+ *        are used to record the maximum number of times any single
+ *        entry with type id equal to the array index has been
+ *        accessed in the current epoch.
  *
  * min_accesses: Array of int32 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the minimum number of times any single
- *		entry with type id equal to the array index has been
- *		accessed in the current epoch.
+ *        are used to record the minimum number of times any single
+ *        entry with type id equal to the array index has been
+ *        accessed in the current epoch.
  *
  * max_clears:  Array of int32 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the maximum number of times any single
- *		entry with type id equal to the array index has been cleared
- *		in the current epoch.
+ *        are used to record the maximum number of times any single
+ *        entry with type id equal to the array index has been cleared
+ *        in the current epoch.
  *
  * max_flushes: Array of int32 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
- *		are used to record the maximum number of times any single
- *		entry with type id equal to the array index has been
- *		flushed in the current epoch.
+ *        are used to record the maximum number of times any single
+ *        entry with type id equal to the array index has been
+ *        flushed in the current epoch.
  *
- * max_size:	Array of size_t of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
+ * max_size:    Array of size_t of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
  *              are used to record the maximum size of any single entry
- *		with type id equal to the array index that has resided in
- *		the cache in the current epoch.
+ *        with type id equal to the array index that has resided in
+ *        the cache in the current epoch.
  *
- * max_pins:	Array of size_t of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
+ * max_pins:    Array of size_t of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
  *              are used to record the maximum number of times that any single
  *              entry with type id equal to the array index that has been
  *              marked as pinned in the cache in the current epoch.
@@ -4799,9 +4802,9 @@ typedef struct H5C_tag_info_t {
  *
  * Fields supporting testing:
  *
- * prefix	Array of char used to prefix debugging output.  The
- *		field is intended to allow marking of output of with
- *		the processes mpi rank.
+ * prefix    Array of char used to prefix debugging output.  The
+ *        field is intended to allow marking of output of with
+ *        the processes mpi rank.
  *
  * get_entry_ptr_from_addr_counter: Counter used to track the number of
  *              times the H5C_get_entry_ptr_from_addr() function has been
@@ -4811,147 +4814,147 @@ typedef struct H5C_tag_info_t {
  ****************************************************************************/
 
 struct H5C_t {
-    uint32_t			magic;
-    hbool_t			flush_in_progress;
+    uint32_t            magic;
+    hbool_t            flush_in_progress;
     H5C_log_info_t  *log_info;
-    void *			aux_ptr;
-    int32_t			max_type_id;
+    void *            aux_ptr;
+    int32_t            max_type_id;
     const H5C_class_t * const   *class_table_ptr;
     size_t                      max_cache_size;
     size_t                      min_clean_size;
-    H5C_write_permitted_func_t	check_write_permitted;
-    hbool_t			write_permitted;
-    H5C_log_flush_func_t	log_flush;
-    hbool_t			evictions_enabled;
-    hbool_t			close_warning_received;
+    H5C_write_permitted_func_t    check_write_permitted;
+    hbool_t            write_permitted;
+    H5C_log_flush_func_t    log_flush;
+    hbool_t            evictions_enabled;
+    hbool_t            close_warning_received;
 
     /* Fields for maintaining the [hash table] index of entries */
     uint32_t                    index_len;
     size_t                      index_size;
-    uint32_t			index_ring_len[H5C_RING_NTYPES];
-    size_t			index_ring_size[H5C_RING_NTYPES];
-    size_t 			clean_index_size;
-    size_t			clean_index_ring_size[H5C_RING_NTYPES];
-    size_t			dirty_index_size;
-    size_t			dirty_index_ring_size[H5C_RING_NTYPES];
-    H5C_cache_entry_t *	        index[H5C__HASH_TABLE_LEN];
+    uint32_t            index_ring_len[H5C_RING_NTYPES];
+    size_t            index_ring_size[H5C_RING_NTYPES];
+    size_t             clean_index_size;
+    size_t            clean_index_ring_size[H5C_RING_NTYPES];
+    size_t            dirty_index_size;
+    size_t            dirty_index_ring_size[H5C_RING_NTYPES];
+    H5C_cache_entry_t *            index[H5C__HASH_TABLE_LEN];
     uint32_t                    il_len;
     size_t                      il_size;
-    H5C_cache_entry_t *	        il_head;
-    H5C_cache_entry_t *	        il_tail;
+    H5C_cache_entry_t *            il_head;
+    H5C_cache_entry_t *            il_tail;
 
     /* Fields to detect entries removed during scans */
-    int64_t			entries_removed_counter;
-    H5C_cache_entry_t *		last_entry_removed_ptr;
-    H5C_cache_entry_t *		entry_watched_for_removal;
+    int64_t            entries_removed_counter;
+    H5C_cache_entry_t *        last_entry_removed_ptr;
+    H5C_cache_entry_t *        entry_watched_for_removal;
 
     /* Fields for maintaining list of in-order entries, for flushing */
     hbool_t                     slist_enabled;
-    hbool_t			slist_changed;
+    hbool_t            slist_changed;
     uint32_t                    slist_len;
     size_t                      slist_size;
-    uint32_t			slist_ring_len[H5C_RING_NTYPES];
-    size_t			slist_ring_size[H5C_RING_NTYPES];
+    uint32_t            slist_ring_len[H5C_RING_NTYPES];
+    size_t            slist_ring_size[H5C_RING_NTYPES];
     H5SL_t *                    slist_ptr;
     uint32_t                    num_last_entries;
 #if H5C_DO_SANITY_CHECKS
-    int32_t			slist_len_increase;
-    int64_t			slist_size_increase;
+    int32_t            slist_len_increase;
+    int64_t            slist_size_increase;
 #endif /* H5C_DO_SANITY_CHECKS */
 
     /* Fields for maintaining list of tagged entries */
     H5SL_t *                    tag_list;
     hbool_t                     ignore_tags;
-    uint32_t			        num_objs_corked;
+    uint32_t                    num_objs_corked;
 
     /* Fields for tracking protected entries */
     uint32_t                    pl_len;
     size_t                      pl_size;
-    H5C_cache_entry_t *	        pl_head_ptr;
-    H5C_cache_entry_t *  	pl_tail_ptr;
+    H5C_cache_entry_t *            pl_head_ptr;
+    H5C_cache_entry_t *      pl_tail_ptr;
 
     /* Fields for tracking pinned entries */
     uint32_t                    pel_len;
     size_t                      pel_size;
-    H5C_cache_entry_t *	        pel_head_ptr;
-    H5C_cache_entry_t *  	pel_tail_ptr;
+    H5C_cache_entry_t *            pel_head_ptr;
+    H5C_cache_entry_t *      pel_tail_ptr;
 
     /* Fields for complete LRU list of entries */
     uint32_t                    LRU_list_len;
     size_t                      LRU_list_size;
-    H5C_cache_entry_t *		LRU_head_ptr;
-    H5C_cache_entry_t *		LRU_tail_ptr;
+    H5C_cache_entry_t *        LRU_head_ptr;
+    H5C_cache_entry_t *        LRU_tail_ptr;
 
 #if H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS
     /* Fields for clean LRU list of entries */
     uint32_t                    cLRU_list_len;
     size_t                      cLRU_list_size;
-    H5C_cache_entry_t *		cLRU_head_ptr;
-    H5C_cache_entry_t *		cLRU_tail_ptr;
+    H5C_cache_entry_t *        cLRU_head_ptr;
+    H5C_cache_entry_t *        cLRU_tail_ptr;
 
     /* Fields for dirty LRU list of entries */
     uint32_t                    dLRU_list_len;
     size_t                      dLRU_list_size;
-    H5C_cache_entry_t *		dLRU_head_ptr;
-    H5C_cache_entry_t *	        dLRU_tail_ptr;
+    H5C_cache_entry_t *        dLRU_head_ptr;
+    H5C_cache_entry_t *            dLRU_tail_ptr;
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
 #ifdef H5_HAVE_PARALLEL
     /* Fields for collective metadata reads */
     uint32_t                    coll_list_len;
     size_t                      coll_list_size;
-    H5C_cache_entry_t *		coll_head_ptr;
-    H5C_cache_entry_t *		coll_tail_ptr;
+    H5C_cache_entry_t *        coll_head_ptr;
+    H5C_cache_entry_t *        coll_tail_ptr;
 
     /* Fields for collective metadata writes */
     H5SL_t *                    coll_write_list;
 #endif /* H5_HAVE_PARALLEL */
 
     /* Fields for automatic cache size adjustment */
-    hbool_t			size_increase_possible;
-    hbool_t			flash_size_increase_possible;
-    size_t			flash_size_increase_threshold;
-    hbool_t			size_decrease_possible;
-    hbool_t			resize_enabled;
-    hbool_t			cache_full;
-    hbool_t			size_decreased;
-    hbool_t			resize_in_progress;
-    hbool_t			msic_in_progress;
-    H5C_auto_size_ctl_t		resize_ctl;
+    hbool_t            size_increase_possible;
+    hbool_t            flash_size_increase_possible;
+    size_t            flash_size_increase_threshold;
+    hbool_t            size_decrease_possible;
+    hbool_t            resize_enabled;
+    hbool_t            cache_full;
+    hbool_t            size_decreased;
+    hbool_t            resize_in_progress;
+    hbool_t            msic_in_progress;
+    H5C_auto_size_ctl_t        resize_ctl;
 
     /* Fields for epoch markers used in automatic cache size adjustment */
-    int32_t			epoch_markers_active;
-    hbool_t			epoch_marker_active[H5C__MAX_EPOCH_MARKERS];
-    int32_t			epoch_marker_ringbuf[H5C__MAX_EPOCH_MARKERS+1];
-    int32_t			epoch_marker_ringbuf_first;
-    int32_t			epoch_marker_ringbuf_last;
-    int32_t			epoch_marker_ringbuf_size;
-    H5C_cache_entry_t		epoch_markers[H5C__MAX_EPOCH_MARKERS];
+    int32_t            epoch_markers_active;
+    hbool_t            epoch_marker_active[H5C__MAX_EPOCH_MARKERS];
+    int32_t            epoch_marker_ringbuf[H5C__MAX_EPOCH_MARKERS+1];
+    int32_t            epoch_marker_ringbuf_first;
+    int32_t            epoch_marker_ringbuf_last;
+    int32_t            epoch_marker_ringbuf_size;
+    H5C_cache_entry_t        epoch_markers[H5C__MAX_EPOCH_MARKERS];
 
     /* Fields for cache hit rate collection */
-    int64_t			cache_hits;
-    int64_t			cache_accesses;
+    int64_t            cache_hits;
+    int64_t            cache_accesses;
 
     /* fields supporting generation of a cache image on file close */
-    H5C_cache_image_ctl_t	image_ctl;
-    hbool_t			serialization_in_progress;
-    hbool_t			load_image;
+    H5C_cache_image_ctl_t    image_ctl;
+    hbool_t            serialization_in_progress;
+    hbool_t            load_image;
     hbool_t                     image_loaded;
-    hbool_t			delete_image;
-    haddr_t 			image_addr;
-    hsize_t			image_len;
-    hsize_t			image_data_len;
-    int64_t			entries_loaded_counter;
-    int64_t			entries_inserted_counter;
-    int64_t			entries_relocated_counter;
-    int64_t			entry_fd_height_change_counter;
-    uint32_t			num_entries_in_image;
-    H5C_image_entry_t *		image_entries;
+    hbool_t            delete_image;
+    haddr_t             image_addr;
+    hsize_t            image_len;
+    hsize_t            image_data_len;
+    int64_t            entries_loaded_counter;
+    int64_t            entries_inserted_counter;
+    int64_t            entries_relocated_counter;
+    int64_t            entry_fd_height_change_counter;
+    uint32_t            num_entries_in_image;
+    H5C_image_entry_t *        image_entries;
     void *                      image_buffer;
 
     /* Free Space Manager Related fields */
-    hbool_t 			rdfsm_settled;
-    hbool_t			mdfsm_settled;
+    hbool_t             rdfsm_settled;
+    hbool_t            mdfsm_settled;
 
 #if H5C_COLLECT_CACHE_STATS
     /* stats fields */
@@ -4980,12 +4983,12 @@ struct H5C_t {
     int64_t                     cache_flush_size_changes[H5C__MAX_NUM_TYPE_IDS + 1];
 
     /* Fields for hash table operations */
-    int64_t			total_ht_insertions;
-    int64_t			total_ht_deletions;
-    int64_t			successful_ht_searches;
-    int64_t			total_successful_ht_search_depth;
-    int64_t			failed_ht_searches;
-    int64_t			total_failed_ht_search_depth;
+    int64_t            total_ht_insertions;
+    int64_t            total_ht_deletions;
+    int64_t            successful_ht_searches;
+    int64_t            total_successful_ht_search_depth;
+    int64_t            failed_ht_searches;
+    int64_t            total_failed_ht_search_depth;
     uint32_t                    max_index_len;
     size_t                      max_index_size;
     size_t                      max_clean_index_size;
@@ -5014,20 +5017,20 @@ struct H5C_t {
     int64_t                     entries_scanned_to_make_space;
 
     /* Fields for tracking skip list scan restarts */
-    int64_t			slist_scan_restarts;
-    int64_t			LRU_scan_restarts;
-    int64_t			index_scan_restarts;
+    int64_t            slist_scan_restarts;
+    int64_t            LRU_scan_restarts;
+    int64_t            index_scan_restarts;
 
     /* Fields for tracking cache image operations */
-    int32_t			images_created;
-    int32_t			images_read;
-    int32_t			images_loaded;
-    hsize_t			last_image_size;
+    int32_t            images_created;
+    int32_t            images_read;
+    int32_t            images_loaded;
+    hsize_t            last_image_size;
 
     /* Fields for tracking prefetched entries */
-    int64_t			prefetches;
-    int64_t			dirty_prefetches;
-    int64_t			prefetch_hits;
+    int64_t            prefetches;
+    int64_t            dirty_prefetches;
+    int64_t            prefetch_hits;
 
 #if H5C_COLLECT_CACHE_ENTRY_STATS
     int32_t                     max_accesses[H5C__MAX_NUM_TYPE_IDS + 1];
@@ -5039,7 +5042,7 @@ struct H5C_t {
 #endif /* H5C_COLLECT_CACHE_ENTRY_STATS */
 #endif /* H5C_COLLECT_CACHE_STATS */
 
-    char			prefix[H5C__PREFIX_LEN];
+    char            prefix[H5C__PREFIX_LEN];
 
 #ifndef NDEBUG
     int64_t                     get_entry_ptr_from_addr_counter;
@@ -5074,8 +5077,6 @@ H5_DLL herr_t H5C__mark_flush_dep_unserialized(H5C_cache_entry_t * entry_ptr);
 H5_DLL herr_t H5C__make_space_in_cache(H5F_t * f, size_t  space_needed,
     hbool_t write_permitted);
 H5_DLL herr_t H5C__flush_marked_entries(H5F_t * f);
-H5_DLL herr_t H5C__generate_image(H5F_t *f, H5C_t *cache_ptr,
-    H5C_cache_entry_t *entry_ptr);
 H5_DLL herr_t H5C__serialize_cache(H5F_t *f);
 H5_DLL herr_t H5C__iter_tagged_entries(H5C_t *cache, haddr_t tag, hbool_t match_global,
     H5C_tag_iter_cb_t cb, void *cb_ctx);
@@ -5086,8 +5087,8 @@ H5_DLL herr_t H5C__untag_entry(H5C_t *cache, H5C_cache_entry_t *entry);
 
 /* Testing functions */
 #ifdef H5C_TESTING
-H5_DLL herr_t H5C__verify_cork_tag_test(hid_t fid, haddr_t tag, hbool_t status);
+H5_DLL herr_t H5C__verify_cork_tag_test(hid_t fid, H5O_token_t tag_token, hbool_t status);
 #endif /* H5C_TESTING */
 
-#endif /* _H5Cpkg_H */
-
+#endif /* H5Cpkg_H */
+/* clang-format on */

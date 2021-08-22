@@ -5,7 +5,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -22,9 +22,9 @@
 #define H5FDros3_H
 
 #ifdef H5_HAVE_ROS3_VFD
-#define H5FD_ROS3               (H5FD_ros3_init())
+#define H5FD_ROS3 (H5FD_ros3_init())
 #else
-#define H5FD_ROS3               (H5I_INVALID_HID)
+#define H5FD_ROS3 (H5I_INVALID_HID)
 #endif /* H5_HAVE_ROS3_VFD */
 
 #ifdef H5_HAVE_ROS3_VFD
@@ -71,11 +71,11 @@
  *
  ****************************************************************************/
 
-#define H5FD_CURR_ROS3_FAPL_T_VERSION     1
+#define H5FD_CURR_ROS3_FAPL_T_VERSION 1
 
-#define H5FD_ROS3_MAX_REGION_LEN         32
-#define H5FD_ROS3_MAX_SECRET_ID_LEN     128
-#define H5FD_ROS3_MAX_SECRET_KEY_LEN    128
+#define H5FD_ROS3_MAX_REGION_LEN     32
+#define H5FD_ROS3_MAX_SECRET_ID_LEN  128
+#define H5FD_ROS3_MAX_SECRET_KEY_LEN 128
 
 typedef struct H5FD_ros3_fapl_t {
     int32_t version;
@@ -85,13 +85,24 @@ typedef struct H5FD_ros3_fapl_t {
     char    secret_key[H5FD_ROS3_MAX_SECRET_KEY_LEN + 1];
 } H5FD_ros3_fapl_t;
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 H5_DLL hid_t H5FD_ros3_init(void);
+
+/**
+ * \ingroup FAPL
+ *
+ * \todo Add missing documentation
+ */
 H5_DLL herr_t H5Pget_fapl_ros3(hid_t fapl_id, H5FD_ros3_fapl_t *fa_out);
+
+/**
+ * \ingroup FAPL
+ *
+ * \todo Add missing documentation
+ */
 H5_DLL herr_t H5Pset_fapl_ros3(hid_t fapl_id, H5FD_ros3_fapl_t *fa);
 
 #ifdef __cplusplus
@@ -101,5 +112,3 @@ H5_DLL herr_t H5Pset_fapl_ros3(hid_t fapl_id, H5FD_ros3_fapl_t *fa);
 #endif /* H5_HAVE_ROS3_VFD */
 
 #endif /* ifndef H5FDros3_H */
-
-

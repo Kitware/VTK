@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -15,12 +15,13 @@
 /* Add new errors to H5err.txt file */
 
 
-#ifndef _H5Edefin_H
-#define _H5Edefin_H
+#ifndef H5Edefin_H
+#define H5Edefin_H
 
 /* Major error IDs */
 hid_t H5E_FUNC_g           = FAIL;      /* Function entry/exit */
 hid_t H5E_FILE_g           = FAIL;      /* File accessibility */
+hid_t H5E_VOL_g            = FAIL;      /* Virtual Object Layer */
 hid_t H5E_SOHM_g           = FAIL;      /* Shared Object Header Messages */
 hid_t H5E_SYM_g            = FAIL;      /* Symbol table */
 hid_t H5E_PLUGIN_g         = FAIL;      /* Plugin for dynamically loaded library */
@@ -33,10 +34,12 @@ hid_t H5E_RESOURCE_g       = FAIL;      /* Resource unavailable */
 hid_t H5E_RS_g             = FAIL;      /* Reference Counted Strings */
 hid_t H5E_FARRAY_g         = FAIL;      /* Fixed Array */
 hid_t H5E_HEAP_g           = FAIL;      /* Heap */
+hid_t H5E_MAP_g            = FAIL;      /* Map */
 hid_t H5E_ATTR_g           = FAIL;      /* Attribute */
 hid_t H5E_IO_g             = FAIL;      /* Low-level I/O */
 hid_t H5E_EFL_g            = FAIL;      /* External file list */
 hid_t H5E_TST_g            = FAIL;      /* Ternary Search Trees */
+hid_t H5E_LIB_g            = FAIL;      /* General library infrastructure */
 hid_t H5E_PAGEBUF_g        = FAIL;      /* Page Buffering */
 hid_t H5E_FSPACE_g         = FAIL;      /* Free Space Manager */
 hid_t H5E_DATASET_g        = FAIL;      /* Dataset */
@@ -145,6 +148,7 @@ hid_t H5E_NOTHDF5_g        = FAIL;      /* Not an HDF5 file */
 hid_t H5E_BADFILE_g        = FAIL;      /* Bad file ID accessed */
 hid_t H5E_TRUNCATED_g      = FAIL;      /* File has been truncated */
 hid_t H5E_MOUNT_g          = FAIL;      /* File mount error */
+hid_t H5E_CANTDELETEFILE_g = FAIL;      /* Unable to delete file */
 hid_t H5E_CANTLOCKFILE_g   = FAIL;      /* Unable to lock file */
 hid_t H5E_CANTUNLOCKFILE_g = FAIL;      /* Unable to unlock file */
 
@@ -182,7 +186,6 @@ hid_t H5E_CANTDEPEND_g     = FAIL;      /* Unable to create a flush dependency *
 hid_t H5E_CANTUNDEPEND_g   = FAIL;      /* Unable to destroy a flush dependency */
 hid_t H5E_CANTNOTIFY_g     = FAIL;      /* Unable to notify object about action */
 hid_t H5E_LOGGING_g        = FAIL;      /* Failure in the cache logging framework */
-hid_t H5E_LOGFAIL_g        = FAIL;      /* old H5E_LOGGING_g (maintained for binary compatibility) */
 hid_t H5E_CANTCORK_g       = FAIL;      /* Unable to cork an object */
 hid_t H5E_CANTUNCORK_g     = FAIL;      /* Unable to uncork an object */
 

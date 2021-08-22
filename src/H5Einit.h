@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -15,8 +15,8 @@
 /* Add new errors to H5err.txt file */
 
 
-#ifndef _H5Einit_H
-#define _H5Einit_H
+#ifndef H5Einit_H
+#define H5Einit_H
 
 /*********************/
 /* Major error codes */
@@ -31,6 +31,11 @@ HDassert(H5E_FILE_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MAJOR, "File accessibility"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_FILE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_VOL_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MAJOR, "Virtual Object Layer"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_VOL_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 HDassert(H5E_SOHM_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MAJOR, "Shared Object Header Messages"))==NULL)
@@ -92,6 +97,11 @@ if((msg = H5E__create_msg(cls, H5E_MAJOR, "Heap"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_HEAP_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_MAP_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MAJOR, "Map"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_MAP_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 HDassert(H5E_ATTR_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MAJOR, "Attribute"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
@@ -111,6 +121,11 @@ HDassert(H5E_TST_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MAJOR, "Ternary Search Trees"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_TST_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_LIB_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MAJOR, "General library infrastructure"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_LIB_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 HDassert(H5E_PAGEBUF_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MAJOR, "Page Buffering"))==NULL)
@@ -543,6 +558,11 @@ if((msg = H5E__create_msg(cls, H5E_MINOR, "File mount error"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_MOUNT_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_CANTDELETEFILE_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to delete file"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTDELETEFILE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 HDassert(H5E_CANTLOCKFILE_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to lock file"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
@@ -711,11 +731,6 @@ HDassert(H5E_LOGGING_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MINOR, "Failure in the cache logging framework"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_LOGGING_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-HDassert(H5E_LOGFAIL_g==(-1));
-if((msg = H5E__create_msg(cls, H5E_MINOR, "old H5E_LOGGING_g (maintained for binary compatibility)"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_LOGFAIL_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 HDassert(H5E_CANTCORK_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to cork an object"))==NULL)

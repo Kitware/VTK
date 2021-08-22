@@ -5,7 +5,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -51,18 +51,30 @@ extern "C" {
  *      IP address string of "Mirror Server" remote host.
  * ---------------------------------------------------------------------------
  */
-#define H5FD_MIRROR_FAPL_MAGIC 0xF8DD514C
+#define H5FD_MIRROR_FAPL_MAGIC          0xF8DD514C
 #define H5FD_MIRROR_CURR_FAPL_T_VERSION 1
-#define H5FD_MIRROR_MAX_IP_LEN 32
+#define H5FD_MIRROR_MAX_IP_LEN          32
 typedef struct H5FD_mirror_fapl_t {
     uint32_t magic;
     uint32_t version;
-    int     handshake_port;
-    char    remote_ip[H5FD_MIRROR_MAX_IP_LEN + 1];
+    int      handshake_port;
+    char     remote_ip[H5FD_MIRROR_MAX_IP_LEN + 1];
 } H5FD_mirror_fapl_t;
 
-H5_DLL hid_t  H5FD_mirror_init(void);
+H5_DLL hid_t H5FD_mirror_init(void);
+
+/**
+ * \ingroup FAPL
+ *
+ * \todo Add missing documentation
+ */
 H5_DLL herr_t H5Pget_fapl_mirror(hid_t fapl_id, H5FD_mirror_fapl_t *fa_out);
+
+/**
+ * \ingroup FAPL
+ *
+ * \todo Add missing documentation
+ */
 H5_DLL herr_t H5Pset_fapl_mirror(hid_t fapl_id, H5FD_mirror_fapl_t *fa);
 
 #ifdef __cplusplus
@@ -76,4 +88,3 @@ H5_DLL herr_t H5Pset_fapl_mirror(hid_t fapl_id, H5FD_mirror_fapl_t *fa);
 #endif /* H5_HAVE_MIRROR_VFD */
 
 #endif /* H5FDmirror_H */
-

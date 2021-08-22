@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -25,43 +25,37 @@
 /****************/
 /* Module Setup */
 /****************/
+#include "H5module.h" /* This source code file is part of the H5 module */
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"        /* Generic Functions            */
+#include "H5private.h" /* Generic Functions            */
 
 /****************/
 /* Local Macros */
 /****************/
 
-
 /******************/
 /* Local Typedefs */
 /******************/
-
 
 /********************/
 /* Local Prototypes */
 /********************/
 
-
 /*********************/
 /* Package Variables */
 /*********************/
-
 
 /*****************************/
 /* Library Private Variables */
 /*****************************/
 
-
 /*******************/
 /* Local Variables */
 /*******************/
 
-
-
 /*-------------------------------------------------------------------------
  * Function:    H5_buffer_dump
  *
@@ -75,10 +69,10 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5_buffer_dump(FILE *stream, int indent, const uint8_t *buf,
-    const uint8_t *marker, size_t buf_offset, size_t buf_size)
+H5_buffer_dump(FILE *stream, int indent, const uint8_t *buf, const uint8_t *marker, size_t buf_offset,
+               size_t buf_size)
 {
-    size_t    u, v;                   /* Local index variable */
+    size_t u, v; /* Local index variable */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -94,47 +88,46 @@ H5_buffer_dump(FILE *stream, int indent, const uint8_t *buf,
     /*
      * Print the buffer in a VMS-style octal dump.
      */
-    HDfprintf(stream, "%*sData follows (`__' indicates free region)...\n",
-        indent, "");
-    for(u = 0; u < buf_size; u += 16) {
-        uint8_t        c;
+    HDfprintf(stream, "%*sData follows (`__' indicates free region)...\n", indent, "");
+    for (u = 0; u < buf_size; u += 16) {
+        uint8_t c;
 
-        HDfprintf(stream, "%*s %8d: ", indent, "", u + buf_offset);
+        HDfprintf(stream, "%*s %8zu: ", indent, "", u + buf_offset);
 
         /* Print the hex values */
-        for(v = 0; v < 16; v++) {
-            if(u + v < buf_size) {
-                if(marker[u + v])
+        for (v = 0; v < 16; v++) {
+            if (u + v < buf_size) {
+                if (marker[u + v])
                     HDfprintf(stream, "__ ");
                 else {
                     c = buf[buf_offset + u + v];
                     HDfprintf(stream, "%02x ", c);
                 } /* end else */
-            } /* end if */
+            }     /* end if */
             else
                 HDfprintf(stream, "   ");
 
-            if(7 == v)
+            if (7 == v)
                 HDfputc(' ', stream);
         } /* end for */
         HDfputc(' ', stream);
 
         /* Print the character values */
-        for(v = 0; v < 16; v++) {
-            if(u + v < buf_size) {
-                if(marker[u + v])
+        for (v = 0; v < 16; v++) {
+            if (u + v < buf_size) {
+                if (marker[u + v])
                     HDfputc(' ', stream);
                 else {
                     c = buf[buf_offset + u + v];
 
-                    if(HDisprint(c))
+                    if (HDisprint(c))
                         HDfputc(c, stream);
                     else
                         HDfputc('.', stream);
                 } /* end else */
-            } /* end if */
+            }     /* end if */
 
-            if(7 == v)
+            if (7 == v)
                 HDfputc(' ', stream);
         } /* end for */
 
@@ -143,4 +136,3 @@ H5_buffer_dump(FILE *stream, int indent, const uint8_t *buf,
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5_buffer_dump() */
-

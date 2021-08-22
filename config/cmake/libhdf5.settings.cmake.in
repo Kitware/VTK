@@ -70,7 +70,7 @@ Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
               High-level library: @HDF5_BUILD_HL_LIB@
                 Build HDF5 Tests: @BUILD_TESTING@
                 Build HDF5 Tools: @HDF5_BUILD_TOOLS@
-                    Threadsafety: @HDF5_ENABLE_THREADSAFE@
+                    Threadsafety: @HDF5_ENABLE_THREADSAFE@ (recursive RW locks: @HDF5_USE_RECURSIVE_RW_LOCKS@) 
              Default API mapping: @DEFAULT_API_VERSION@
   With deprecated public symbols: @HDF5_ENABLE_DEPRECATED_SYMBOLS@
           I/O filters (external): @EXTERNAL_FILTERS@

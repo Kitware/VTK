@@ -230,6 +230,9 @@
 /* Define to 1 if you have the <mach/mach_time.h> header file. */
 #undef HAVE_MACH_MACH_TIME_H
 
+/* Define if the map API (H5M) should be compiled */
+#undef HAVE_MAP_API
+
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
@@ -632,6 +635,9 @@
 /* Define using v1.10 public API symbols by default */
 #undef USE_110_API_DEFAULT
 
+/* Define using v1.12 public API symbols by default */
+#undef USE_112_API_DEFAULT
+
 /* Define using v1.6 public API symbols by default */
 #undef USE_16_API_DEFAULT
 
@@ -640,6 +646,9 @@
 
 /* Define if the library will use file locking */
 #undef USE_FILE_LOCKING
+
+/* Define if the library will use recursive RW locks for thread safety */
+#undef USE_RECURSIVE_RW_LOCKS
 
 /* Define if a memory checking tool will be used on the library, to cause
    library to be very picky about memory operations and also disable the
