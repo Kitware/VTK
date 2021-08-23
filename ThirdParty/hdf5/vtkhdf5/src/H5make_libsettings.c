@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -21,7 +21,7 @@ static const char *FileHeader = "\n\
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *\n\
  * terms governing use, modification, and redistribution, is contained in    *\n\
  * the COPYING file, which can be found at the root of the source code       *\n\
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *\n\
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *\n\
  * If you do not have access to either file, you may request a copy from     *\n\
  * help@hdfgroup.org.                                                        *\n\
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *";
@@ -42,7 +42,6 @@ static const char *FileHeader = "\n\
 
 FILE *rawoutstream = NULL;
 
-
 /*-------------------------------------------------------------------------
  * Function:  insert_libhdf5_settings
  *
@@ -58,11 +57,11 @@ static void
 insert_libhdf5_settings(FILE *flibinfo)
 {
 #ifdef H5_HAVE_EMBEDDED_LIBINFO
-    FILE *fsettings;    /* for files libhdf5.settings */
-    int inchar;
-    int    bol = 0;    /* indicates the beginning of a new line */
+    FILE *fsettings; /* for files libhdf5.settings */
+    int   inchar;
+    int   bol = 0; /* indicates the beginning of a new line */
 
-    if(NULL == (fsettings = HDfopen(LIBSETTINGSFNAME, "r"))) {
+    if (NULL == (fsettings = HDfopen(LIBSETTINGSFNAME, "r"))) {
         HDperror(LIBSETTINGSFNAME);
         HDexit(EXIT_FAILURE);
     }
@@ -71,13 +70,13 @@ insert_libhdf5_settings(FILE *flibinfo)
     /* Do not use const else AIX strings does not show it. */
     fprintf(flibinfo, "char H5libhdf5_settings[]=\n");
     bol++;
-    while(EOF != (inchar = HDgetc(fsettings))) {
-        if(bol) {
+    while (EOF != (inchar = HDgetc(fsettings))) {
+        if (bol) {
             /* Start a new line */
             fprintf(flibinfo, "\t\"");
             bol = 0;
         }
-        if(inchar == '\n') {
+        if (inchar == '\n') {
             /* end of a line */
             fprintf(flibinfo, "\\n\"\n");
             bol++;
@@ -86,9 +85,9 @@ insert_libhdf5_settings(FILE *flibinfo)
             HDputc(inchar, flibinfo);
     }
 
-    if(HDfeof(fsettings)) {
+    if (HDfeof(fsettings)) {
         /* wrap up */
-        if(!bol)
+        if (!bol)
             /* EOF found without a new line */
             fprintf(flibinfo, "\\n\"\n");
         fprintf(flibinfo, ";\n\n");
@@ -97,7 +96,7 @@ insert_libhdf5_settings(FILE *flibinfo)
         fprintf(stderr, "Read errors encountered with %s\n", LIBSETTINGSFNAME);
         HDexit(EXIT_FAILURE);
     }
-    if(0 != HDfclose(fsettings)) {
+    if (0 != HDfclose(fsettings)) {
         HDperror(LIBSETTINGSFNAME);
         HDexit(EXIT_FAILURE);
     }
@@ -107,7 +106,6 @@ insert_libhdf5_settings(FILE *flibinfo)
     fprintf(flibinfo, "char H5libhdf5_settings[]=\"\";\n");
 #endif
 } /* insert_libhdf5_settings() */
-
 
 /*-------------------------------------------------------------------------
  * Function:  make_libinfo
@@ -126,7 +124,6 @@ make_libinfo(void)
     insert_libhdf5_settings(rawoutstream);
 }
 
-
 /*-------------------------------------------------------------------------
  * Function:  print_header
  *
@@ -138,22 +135,20 @@ make_libinfo(void)
 static void
 print_header(void)
 {
-    time_t        now = HDtime(NULL);
-    struct tm        *tm = HDlocaltime(&now);
+    time_t      now = HDtime(NULL);
+    struct tm * tm  = HDlocaltime(&now);
     char        real_name[30];
     char        host_name[256];
-    int            i;
-    const char        *s;
+    int         i;
+    const char *s;
 #ifdef H5_HAVE_GETPWUID
-    struct passwd    *pwd = NULL;
+    struct passwd *pwd = NULL;
 #else
-    int            pwd = 1;
+    int pwd      = 1;
 #endif
-    static const char    *month_name[] =
-    {
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-    static const char    *purpose = "\
+    static const char *month_name[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    static const char *purpose      = "\
 This machine-generated source code contains\n\
 information about the library build configuration\n";
 
@@ -163,10 +158,10 @@ information about the library build configuration\n";
 #ifdef H5_HAVE_GETPWUID
     {
         size_t n;
-        char *comma;
+        char * comma;
 
-        if((pwd = HDgetpwuid(HDgetuid()))) {
-            if((comma = HDstrchr(pwd->pw_gecos, ','))) {
+        if ((pwd = HDgetpwuid(HDgetuid()))) {
+            if ((comma = HDstrchr(pwd->pw_gecos, ','))) {
                 n = MIN(sizeof(real_name) - 1, (unsigned)(comma - pwd->pw_gecos));
                 HDstrncpy(real_name, pwd->pw_gecos, n);
                 real_name[n] = '\0';
@@ -187,7 +182,7 @@ information about the library build configuration\n";
      * The FQDM of this host or the empty string.
      */
 #ifdef H5_HAVE_GETHOSTNAME
-    if(HDgethostname(host_name, sizeof(host_name)) < 0)
+    if (HDgethostname(host_name, sizeof(host_name)) < 0)
         host_name[0] = '\0';
 #else
     host_name[0] = '\0';
@@ -197,30 +192,30 @@ information about the library build configuration\n";
      * The file header: warning, copyright notice, build information.
      */
     fprintf(rawoutstream, "/* Generated automatically by H5make_libsettings -- do not edit */\n\n\n");
-    HDfputs(FileHeader, rawoutstream);        /*the copyright notice--see top of this file */
+    HDfputs(FileHeader, rawoutstream); /*the copyright notice--see top of this file */
 
-    fprintf(rawoutstream, " *\n * Created:\t\t%s %2d, %4d\n",
-    month_name[tm->tm_mon], tm->tm_mday, 1900 + tm->tm_year);
-    if(pwd || real_name[0] || host_name[0]) {
+    fprintf(rawoutstream, " *\n * Created:\t\t%s %2d, %4d\n", month_name[tm->tm_mon], tm->tm_mday,
+            1900 + tm->tm_year);
+    if (pwd || real_name[0] || host_name[0]) {
         fprintf(rawoutstream, " *\t\t\t");
-        if(real_name[0])
+        if (real_name[0])
             fprintf(rawoutstream, "%s <", real_name);
 #ifdef H5_HAVE_GETPWUID
-        if(pwd)
+        if (pwd)
             HDfputs(pwd->pw_name, rawoutstream);
 #endif
-        if(host_name[0])
+        if (host_name[0])
             fprintf(rawoutstream, "@%s", host_name);
-        if(real_name[0])
+        if (real_name[0])
             fprintf(rawoutstream, ">");
         HDfputc('\n', rawoutstream);
     }
 
     fprintf(rawoutstream, " *\n * Purpose:\t\t");
 
-    for(s = purpose; *s; s++) {
+    for (s = purpose; *s; s++) {
         HDfputc(*s, rawoutstream);
-        if('\n' == *s && s[1])
+        if ('\n' == *s && s[1])
             fprintf(rawoutstream, " *\t\t\t");
     }
 
@@ -229,12 +224,11 @@ information about the library build configuration\n";
     fprintf(rawoutstream, " *\tIt was generated by code in `H5make_libsettings.c'.\n");
 
     fprintf(rawoutstream, " *\n *");
-    for(i = 0; i < 73; i++)
+    for (i = 0; i < 73; i++)
         HDfputc('-', rawoutstream);
     fprintf(rawoutstream, "\n */\n\n");
     fprintf(rawoutstream, "#include \"vtk_hdf5_mangle.h\"\n\n");
 }
-
 
 /*-------------------------------------------------------------------------
  * Function:  print_footer
@@ -250,7 +244,6 @@ print_footer(void)
     /* nothing */
 }
 
-
 /*-------------------------------------------------------------------------
  * Function:  main
  *
@@ -262,21 +255,21 @@ print_footer(void)
 int
 main(int argc, char *argv[])
 {
-    char    *fname = NULL;
-    FILE    *f;    /* temporary holding place for the stream pointer
-                    * so that rawoutstream is changed only when succeeded
-                    */
+    char *fname = NULL;
+    FILE *f; /* temporary holding place for the stream pointer
+              * so that rawoutstream is changed only when succeeded
+              */
 
-    if(argc > 1)
+    if (argc > 1)
         fname = argv[1];
 
     /* First check if filename is string "NULL" */
-    if(fname != NULL) {
+    if (fname != NULL) {
         /* binary output */
-        if((f = HDfopen(fname, "w")) != NULL)
+        if ((f = HDfopen(fname, "w")) != NULL)
             rawoutstream = f;
     }
-    if(!rawoutstream)
+    if (!rawoutstream)
         rawoutstream = stdout;
 
     print_header();
@@ -286,8 +279,8 @@ main(int argc, char *argv[])
 
     print_footer();
 
-    if(rawoutstream && rawoutstream != stdout) {
-        if(HDfclose(rawoutstream))
+    if (rawoutstream && rawoutstream != stdout) {
+        if (HDfclose(rawoutstream))
             fprintf(stderr, "closing rawoutstream");
         else
             rawoutstream = NULL;
@@ -295,4 +288,3 @@ main(int argc, char *argv[])
 
     HDexit(EXIT_SUCCESS);
 }
-

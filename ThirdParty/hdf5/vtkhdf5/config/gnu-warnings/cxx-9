@@ -1,0 +1,4 @@
+-Wattribute-alias=2
+-Wmissing-profile
+# Turn this on when the C++ wrappers obey the Rule of Five
+-Wno-deprecated-copy

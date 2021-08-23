@@ -335,7 +335,7 @@ enum_list       :
                 ;
 enum_def        :       enum_symbol         {
                                                 is_enum_memb = 1; /*indicate member of enum*/
-                                                enum_memb_symbol = strdup(yylval.sval); 
+                                                enum_memb_symbol = HDstrdup(yylval.sval); 
                                                 HDfree(yylval.sval);
                                                 yylval.sval = NULL;
                                             }

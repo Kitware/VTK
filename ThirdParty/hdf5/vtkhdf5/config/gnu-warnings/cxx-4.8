@@ -1,0 +1,26 @@
+# warning flags added for GCC >= 4.3
+-Wlarger-than=2560
+-Wlogical-op
+
+# warning flags added for GCC >= 4.4
+-Wframe-larger-than=16384
+-Wpacked-bitfield-compat
+-Wsync-nand
+
+# warning flag added for GCC >= 4.5
+-Wstrict-overflow=5
+
+# warning flags added for GCC >= 4.6
+-Wdouble-promotion
+-Wtrampolines
+
+# warning flag added for GCC >= 4.7
+#
+# -Wstack-usage=8192 warnings need to be swept up on a branch so
+# that we can stop burdening the whole development team.
+#
+-Wstack-usage=8192
+
+# warning flag added for GCC >= 4.8
+-Wmaybe-uninitialized
+

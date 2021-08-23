@@ -3,7 +3,6 @@
 # circumstances, so ask the compiler to treat them as errors:
 #
 -Werror=bad-function-cast
--Werror=declaration-after-statement
 -Werror=implicit-function-declaration
 -Werror=missing-declarations
 -Werror=missing-prototypes
@@ -59,7 +58,7 @@
 #     jni/h5util.c
 #       -Werror=format(-overflow)
 #
--Wformat
+-Werror=format
 #
 #
 #Examples and tests do not use the same set of extensive warning flags as libraries

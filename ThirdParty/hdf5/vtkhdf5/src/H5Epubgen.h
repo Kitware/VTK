@@ -6,7 +6,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -15,8 +15,8 @@
 /* Add new errors to H5err.txt file */
 
 
-#ifndef _H5Epubgen_H
-#define _H5Epubgen_H
+#ifndef H5Epubgen_H
+#define H5Epubgen_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,6 +28,7 @@ extern "C" {
 
 #define H5E_FUNC             (H5OPEN H5E_FUNC_g)
 #define H5E_FILE             (H5OPEN H5E_FILE_g)
+#define H5E_VOL              (H5OPEN H5E_VOL_g)
 #define H5E_SOHM             (H5OPEN H5E_SOHM_g)
 #define H5E_SYM              (H5OPEN H5E_SYM_g)
 #define H5E_PLUGIN           (H5OPEN H5E_PLUGIN_g)
@@ -40,10 +41,12 @@ extern "C" {
 #define H5E_RS               (H5OPEN H5E_RS_g)
 #define H5E_FARRAY           (H5OPEN H5E_FARRAY_g)
 #define H5E_HEAP             (H5OPEN H5E_HEAP_g)
+#define H5E_MAP              (H5OPEN H5E_MAP_g)
 #define H5E_ATTR             (H5OPEN H5E_ATTR_g)
 #define H5E_IO               (H5OPEN H5E_IO_g)
 #define H5E_EFL              (H5OPEN H5E_EFL_g)
 #define H5E_TST              (H5OPEN H5E_TST_g)
+#define H5E_LIB              (H5OPEN H5E_LIB_g)
 #define H5E_PAGEBUF          (H5OPEN H5E_PAGEBUF_g)
 #define H5E_FSPACE           (H5OPEN H5E_FSPACE_g)
 #define H5E_DATASET          (H5OPEN H5E_DATASET_g)
@@ -63,6 +66,7 @@ extern "C" {
 #define H5E_CACHE            (H5OPEN H5E_CACHE_g)
 H5_DLLVAR hid_t H5E_FUNC_g;          /* Function entry/exit */
 H5_DLLVAR hid_t H5E_FILE_g;          /* File accessibility */
+H5_DLLVAR hid_t H5E_VOL_g;           /* Virtual Object Layer */
 H5_DLLVAR hid_t H5E_SOHM_g;          /* Shared Object Header Messages */
 H5_DLLVAR hid_t H5E_SYM_g;           /* Symbol table */
 H5_DLLVAR hid_t H5E_PLUGIN_g;        /* Plugin for dynamically loaded library */
@@ -75,10 +79,12 @@ H5_DLLVAR hid_t H5E_RESOURCE_g;      /* Resource unavailable */
 H5_DLLVAR hid_t H5E_RS_g;            /* Reference Counted Strings */
 H5_DLLVAR hid_t H5E_FARRAY_g;        /* Fixed Array */
 H5_DLLVAR hid_t H5E_HEAP_g;          /* Heap */
+H5_DLLVAR hid_t H5E_MAP_g;           /* Map */
 H5_DLLVAR hid_t H5E_ATTR_g;          /* Attribute */
 H5_DLLVAR hid_t H5E_IO_g;            /* Low-level I/O */
 H5_DLLVAR hid_t H5E_EFL_g;           /* External file list */
 H5_DLLVAR hid_t H5E_TST_g;           /* Ternary Search Trees */
+H5_DLLVAR hid_t H5E_LIB_g;           /* General library infrastructure */
 H5_DLLVAR hid_t H5E_PAGEBUF_g;       /* Page Buffering */
 H5_DLLVAR hid_t H5E_FSPACE_g;        /* Free Space Manager */
 H5_DLLVAR hid_t H5E_DATASET_g;       /* Dataset */
@@ -243,6 +249,7 @@ H5_DLLVAR hid_t H5E_OPENERROR_g;     /* Can't open directory or file */
 #define H5E_BADFILE          (H5OPEN H5E_BADFILE_g)
 #define H5E_TRUNCATED        (H5OPEN H5E_TRUNCATED_g)
 #define H5E_MOUNT            (H5OPEN H5E_MOUNT_g)
+#define H5E_CANTDELETEFILE   (H5OPEN H5E_CANTDELETEFILE_g)
 #define H5E_CANTLOCKFILE     (H5OPEN H5E_CANTLOCKFILE_g)
 #define H5E_CANTUNLOCKFILE   (H5OPEN H5E_CANTUNLOCKFILE_g)
 H5_DLLVAR hid_t H5E_FILEEXISTS_g;    /* File already exists */
@@ -254,6 +261,7 @@ H5_DLLVAR hid_t H5E_NOTHDF5_g;       /* Not an HDF5 file */
 H5_DLLVAR hid_t H5E_BADFILE_g;       /* Bad file ID accessed */
 H5_DLLVAR hid_t H5E_TRUNCATED_g;     /* File has been truncated */
 H5_DLLVAR hid_t H5E_MOUNT_g;         /* File mount error */
+H5_DLLVAR hid_t H5E_CANTDELETEFILE_g; /* Unable to delete file */
 H5_DLLVAR hid_t H5E_CANTLOCKFILE_g;  /* Unable to lock file */
 H5_DLLVAR hid_t H5E_CANTUNLOCKFILE_g; /* Unable to unlock file */
 
@@ -297,7 +305,6 @@ H5_DLLVAR hid_t H5E_NOIDS_g;         /* Out of IDs for group */
 #define H5E_CANTUNDEPEND     (H5OPEN H5E_CANTUNDEPEND_g)
 #define H5E_CANTNOTIFY       (H5OPEN H5E_CANTNOTIFY_g)
 #define H5E_LOGGING          (H5OPEN H5E_LOGGING_g)
-#define H5E_LOGFAIL          (H5OPEN H5E_LOGFAIL_g)
 #define H5E_CANTCORK         (H5OPEN H5E_CANTCORK_g)
 #define H5E_CANTUNCORK       (H5OPEN H5E_CANTUNCORK_g)
 H5_DLLVAR hid_t H5E_CANTFLUSH_g;     /* Unable to flush data from cache */
@@ -325,7 +332,6 @@ H5_DLLVAR hid_t H5E_CANTDEPEND_g;    /* Unable to create a flush dependency */
 H5_DLLVAR hid_t H5E_CANTUNDEPEND_g;  /* Unable to destroy a flush dependency */
 H5_DLLVAR hid_t H5E_CANTNOTIFY_g;    /* Unable to notify object about action */
 H5_DLLVAR hid_t H5E_LOGGING_g;       /* Failure in the cache logging framework */
-H5_DLLVAR hid_t H5E_LOGFAIL_g;       /* old H5E_LOGGING_g (maintained for binary compatibility) */
 H5_DLLVAR hid_t H5E_CANTCORK_g;      /* Unable to cork an object */
 H5_DLLVAR hid_t H5E_CANTUNCORK_g;    /* Unable to uncork an object */
 

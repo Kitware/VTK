@@ -5,7 +5,7 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -34,7 +34,7 @@ extern "C" {
 #define H5FD_MIRROR_DATA_BUFFER_MAX H5_GB /* 1 Gigabyte */
 
 #define H5FD_MIRROR_XMIT_CURR_VERSION 1
-#define H5FD_MIRROR_XMIT_MAGIC 0x87F8005B
+#define H5FD_MIRROR_XMIT_MAGIC        0x87F8005B
 
 #define H5FD_MIRROR_OP_OPEN     1
 #define H5FD_MIRROR_OP_CLOSE    2
@@ -45,8 +45,8 @@ extern "C" {
 #define H5FD_MIRROR_OP_LOCK     7
 #define H5FD_MIRROR_OP_UNLOCK   8
 
-#define H5FD_MIRROR_STATUS_OK 0
-#define H5FD_MIRROR_STATUS_ERROR 1
+#define H5FD_MIRROR_STATUS_OK          0
+#define H5FD_MIRROR_STATUS_ERROR       1
 #define H5FD_MIRROR_STATUS_MESSAGE_MAX 256 /* Dedicated error message size */
 
 /* Maximum length of a path/filename string, including the NULL-terminator.
@@ -60,19 +60,16 @@ extern "C" {
  * must be reflected here.
  * */
 #define H5FD_MIRROR_XMIT_HEADER_SIZE 14
-#define H5FD_MIRROR_XMIT_EOA_SIZE (H5FD_MIRROR_XMIT_HEADER_SIZE + 9)
-#define H5FD_MIRROR_XMIT_LOCK_SIZE (H5FD_MIRROR_XMIT_HEADER_SIZE + 8)
-#define H5FD_MIRROR_XMIT_OPEN_SIZE (H5FD_MIRROR_XMIT_HEADER_SIZE + 20 + H5FD_MIRROR_XMIT_FILEPATH_MAX)
-#define H5FD_MIRROR_XMIT_REPLY_SIZE (H5FD_MIRROR_XMIT_HEADER_SIZE + 4 + H5FD_MIRROR_STATUS_MESSAGE_MAX)
-#define H5FD_MIRROR_XMIT_WRITE_SIZE (H5FD_MIRROR_XMIT_HEADER_SIZE + 17)
+#define H5FD_MIRROR_XMIT_EOA_SIZE    (H5FD_MIRROR_XMIT_HEADER_SIZE + 9)
+#define H5FD_MIRROR_XMIT_LOCK_SIZE   (H5FD_MIRROR_XMIT_HEADER_SIZE + 8)
+#define H5FD_MIRROR_XMIT_OPEN_SIZE   (H5FD_MIRROR_XMIT_HEADER_SIZE + 20 + H5FD_MIRROR_XMIT_FILEPATH_MAX)
+#define H5FD_MIRROR_XMIT_REPLY_SIZE  (H5FD_MIRROR_XMIT_HEADER_SIZE + 4 + H5FD_MIRROR_STATUS_MESSAGE_MAX)
+#define H5FD_MIRROR_XMIT_WRITE_SIZE  (H5FD_MIRROR_XMIT_HEADER_SIZE + 17)
 
 /* Maximum length of any xmit. */
-#define H5FD_MIRROR_XMIT_BUFFER_MAX MAX2( MAX3(H5FD_MIRROR_XMIT_HEADER_SIZE,  \
-                                               H5FD_MIRROR_XMIT_EOA_SIZE,     \
-                                               H5FD_MIRROR_XMIT_LOCK_SIZE),   \
-                                          MAX3(H5FD_MIRROR_XMIT_OPEN_SIZE,    \
-                                               H5FD_MIRROR_XMIT_REPLY_SIZE,   \
-                                               H5FD_MIRROR_XMIT_WRITE_SIZE) ) \
+#define H5FD_MIRROR_XMIT_BUFFER_MAX                                                                          \
+    MAX2(MAX3(H5FD_MIRROR_XMIT_HEADER_SIZE, H5FD_MIRROR_XMIT_EOA_SIZE, H5FD_MIRROR_XMIT_LOCK_SIZE),          \
+         MAX3(H5FD_MIRROR_XMIT_OPEN_SIZE, H5FD_MIRROR_XMIT_REPLY_SIZE, H5FD_MIRROR_XMIT_WRITE_SIZE))
 
 /* ---------------------------------------------------------------------------
  * Structure:   H5FD_mirror_xmit_t
@@ -264,13 +261,11 @@ typedef struct H5FD_mirror_xmit_reply_t {
  * ---------------------------------------------------------------------------
  */
 typedef struct H5FD_mirror_xmit_write_t {
-    H5FD_mirror_xmit_t  pub;
-    uint8_t             type;
-    uint64_t            offset;
-    uint64_t            size;
+    H5FD_mirror_xmit_t pub;
+    uint8_t            type;
+    uint64_t           offset;
+    uint64_t           size;
 } H5FD_mirror_xmit_write_t;
-
-
 
 /* Encode/decode routines are required to "pack" the xmit data into a known
  * byte format for transmission over the wire.
@@ -320,4 +315,3 @@ H5_DLL hbool_t H5FD_mirror_xmit_is_xmit(const H5FD_mirror_xmit_t *xmit);
 #endif /* H5_HAVE_MIRROR_VFD */
 
 #endif /* H5FDmirror_priv_H */
-

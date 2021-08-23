@@ -216,10 +216,10 @@ java/src/hdf/hdf5lib/callbacks/H5D_iterate_cb.java -text
 java/src/hdf/hdf5lib/callbacks/H5D_iterate_t.java -text
 java/src/hdf/hdf5lib/callbacks/H5E_walk_cb.java -text
 java/src/hdf/hdf5lib/callbacks/H5E_walk_t.java -text
-java/src/hdf/hdf5lib/callbacks/H5L_iterate_cb.java -text
 java/src/hdf/hdf5lib/callbacks/H5L_iterate_t.java -text
-java/src/hdf/hdf5lib/callbacks/H5O_iterate_cb.java -text
+java/src/hdf/hdf5lib/callbacks/H5L_iterate_opdata_t.java -text
 java/src/hdf/hdf5lib/callbacks/H5O_iterate_t.java -text
+java/src/hdf/hdf5lib/callbacks/H5O_iterate_opdata_t.java -text
 java/src/hdf/hdf5lib/callbacks/H5P_cls_close_func_cb.java -text
 java/src/hdf/hdf5lib/callbacks/H5P_cls_close_func_t.java -text
 java/src/hdf/hdf5lib/callbacks/H5P_cls_copy_func_cb.java -text
@@ -267,6 +267,8 @@ java/src/hdf/hdf5lib/structs/H5G_info_t.java -text
 java/src/hdf/hdf5lib/structs/H5L_info_t.java -text
 java/src/hdf/hdf5lib/structs/H5O_hdr_info_t.java -text
 java/src/hdf/hdf5lib/structs/H5O_info_t.java -text
+java/src/hdf/hdf5lib/structs/H5O_native_info_t.java -text
+java/src/hdf/hdf5lib/structs/H5O_token_t.java -text
 java/src/hdf/hdf5lib/structs/H5_ih_info_t.java -text
 java/src/hdf/overview.html -text
 java/src/jni/CMakeLists.txt -text
@@ -363,6 +365,7 @@ m4/ax_check_rqrd_class.m4 -text
 m4/ax_java_check_class.m4 -text
 m4/ax_java_options.m4 -text
 m4/ax_jni_include_dir.m4 -text
+m4/ax_prog_doxygen.m4 -text
 m4/ax_prog_jar.m4 -text
 m4/ax_prog_java.m4 -text
 m4/ax_prog_java_cc.m4 -text
@@ -782,6 +785,7 @@ tools/testfiles/tints4dimsStride2.ddl -text
 tools/testfiles/tintsattrs.h5 -text svneol=unset#application/x-hdf
 tools/testfiles/tlarge_objname.h5 -text
 tools/testfiles/tldouble.h5 -text
+tools/testfiles/tldouble_scalar.h5 -text
 tools/testfiles/tlonglinks.h5 -text
 tools/testfiles/tloop.h5 -text
 tools/testfiles/tloop2.h5 -text

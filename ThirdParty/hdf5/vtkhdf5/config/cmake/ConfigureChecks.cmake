@@ -5,7 +5,7 @@
 # This file is part of HDF5.  The full HDF5 copyright notice, including
 # terms governing use, modification, and redistribution, is contained in
 # the COPYING file, which can be found at the root of the source code
-# distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.
+# distribution tree, or in https://www.hdfgroup.org/licenses.
 # If you do not have access to either file, you may request a copy from
 # help@hdfgroup.org.
 #
@@ -31,6 +31,22 @@ if (HDF5_STRICT_FORMAT_CHECKS)
   set (${HDF_PREFIX}_STRICT_FORMAT_CHECKS 1)
 endif ()
 MARK_AS_ADVANCED (HDF5_STRICT_FORMAT_CHECKS)
+
+#-----------------------------------------------------------------------------
+# Option for --enable-threadsafe
+#-----------------------------------------------------------------------------
+# Recursive RW locks are not supported on Windows (yet)
+if (NOT WINDOWS)
+  if (FALSE) # XXX(kitware): Hardcode settings.
+  option (HDF5_USE_RECURSIVE_RW_LOCKS "Whether to use recursive RW locks for thread-safety" OFF)
+  else ()
+  set(HDF5_USE_RECURSIVE_RW_LOCKS OFF)
+  endif ()
+  if (HDF5_USE_RECURSIVE_RW_LOCKS)
+    set (${HDF_PREFIX}_USE_RECURSIVE_RW_LOCKS 1)
+  endif ()
+  MARK_AS_ADVANCED (HDF5_USE_RECURSIVE_RW_LOCKS)
+endif ()
 
 # ----------------------------------------------------------------------
 # Decide whether the data accuracy has higher priority during data
@@ -174,20 +190,24 @@ if (NOT WINDOWS)
         OUTPUT_VARIABLE OUTPUT
     )
     if (TEST_DIRECT_VFD_WORKS_COMPILE)
-      if (TEST_DIRECT_VFD_WORKS_RUN MATCHES 0)
+      if (TEST_DIRECT_VFD_WORKS_RUN EQUAL "0")
         HDF_FUNCTION_TEST (HAVE_DIRECT)
         set (CMAKE_REQUIRED_DEFINITIONS "${CMAKE_REQUIRED_DEFINITIONS} -D_GNU_SOURCE")
         add_definitions ("-D_GNU_SOURCE")
       else ()
         set (TEST_DIRECT_VFD_WORKS "" CACHE INTERNAL ${msg})
-        message (STATUS "${msg}... no")
+        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+          message (VERBOSE "${msg}... no")
+        endif ()
         file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
               "Test TEST_DIRECT_VFD_WORKS Run failed with the following output and exit code:\n ${OUTPUT}\n"
         )
       endif ()
     else ()
       set (TEST_DIRECT_VFD_WORKS "" CACHE INTERNAL ${msg})
-      message (STATUS "${msg}... no")
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+        message (VERBOSE "${msg}... no")
+      endif ()
       file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Test TEST_DIRECT_VFD_WORKS Compile failed with the following output:\n ${OUTPUT}\n"
       )
@@ -198,7 +218,11 @@ endif ()
 #-----------------------------------------------------------------------------
 #  Check if ROS3 driver can be built
 #-----------------------------------------------------------------------------
+if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_ENABLE_ROS3_VFD "Build the ROS3 Virtual File Driver" OFF)
+else ()
+set(HDF5_ENABLE_ROS3_VFD OFF)
+endif ()
   if (HDF5_ENABLE_ROS3_VFD)
     find_package(CURL REQUIRED)
     find_package(OpenSSL REQUIRED)
@@ -207,7 +231,7 @@ option (HDF5_ENABLE_ROS3_VFD "Build the ROS3 Virtual File Driver" OFF)
       list (APPEND LINK_LIBS ${CURL_LIBRARIES} ${OPENSSL_LIBRARIES})
       INCLUDE_DIRECTORIES (${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
     else ()
-      message (STATUS "The Read-Only S3 VFD was requested but cannot be built.\nPlease check that openssl and cURL are available on your\nsystem, and/or re-configure without option HDF5_ENABLE_ROS3_VFD.")
+      message (WARNING "The Read-Only S3 VFD was requested but cannot be built.\nPlease check that openssl and cURL are available on your\nsystem, and/or re-configure without option HDF5_ENABLE_ROS3_VFD.")
     endif ()
 endif ()
 
@@ -215,7 +239,11 @@ endif ()
 # Check whether we can build the Mirror VFD
 # Header-check flags set in config/cmake_ext_mod/ConfigureChecks.cmake
 # ----------------------------------------------------------------------
+if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_ENABLE_MIRROR_VFD "Build the Mirror Virtual File Driver" OFF)
+else ()
+set(HDF5_ENABLE_MIRROR_VFD OFF)
+endif ()
 if (H5FD_ENABLE_MIRROR_VFD)
   if ( ${HDF_PREFIX}_HAVE_NETINET_IN_H AND
        ${HDF_PREFIX}_HAVE_NETDB_H      AND
@@ -224,7 +252,7 @@ if (H5FD_ENABLE_MIRROR_VFD)
        ${HDF_PREFIX}_HAVE_FORK)
       set (${HDF_PREFIX}_HAVE_MIRROR_VFD 1)
   else()
-    message(STATUS "The socket-based Mirror VFD was requested but cannot be built. System prerequisites are not met.")
+    message(WARNING "The socket-based Mirror VFD was requested but cannot be built. System prerequisites are not met.")
   endif()
 endif()
 
@@ -232,25 +260,132 @@ endif()
 # Check if C has __float128 extension
 #-----------------------------------------------------------------------------
 
-CHECK_TYPE_SIZE("__float128" ${HDF_PREFIX}_SIZEOF___FLOAT128)
-if (${${HDF_PREFIX}_SIZEOF___FLOAT128})
+HDF_CHECK_TYPE_SIZE(__float128 _SIZEOF___FLOAT128)
+if (_SIZEOF___FLOAT128)
   set (${HDF_PREFIX}_HAVE_FLOAT128 1)
+  set (${HDF_PREFIX}_SIZEOF___FLOAT128 ${_SIZEOF___FLOAT128})
 else ()
   set (${HDF_PREFIX}_HAVE_FLOAT128 0)
   set (${HDF_PREFIX}_SIZEOF___FLOAT128 0)
 endif ()
 
-CHECK_TYPE_SIZE("_Quad" ${HDF_PREFIX}_SIZEOF__QUAD)
-if (NOT ${${HDF_PREFIX}_SIZEOF__QUAD})
+HDF_CHECK_TYPE_SIZE(_Quad _SIZEOF__QUAD)
+if (NOT _SIZEOF__QUAD)
   set (${HDF_PREFIX}_SIZEOF__QUAD 0)
+else ()
+  set (${HDF_PREFIX}_SIZEOF__QUAD ${_SIZEOF__QUAD})
 endif ()
+
+#-----------------------------------------------------------------------------
+# The provided CMake C macros don't provide a general compile/run function
+# so this one is used.
+#-----------------------------------------------------------------------------
+set (RUN_OUTPUT_PATH_DEFAULT ${CMAKE_BINARY_DIR})
+macro (C_RUN FUNCTION_NAME SOURCE_CODE RETURN_VAR)
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+      message (VERBOSE "Detecting C ${FUNCTION_NAME}")
+    endif ()
+    file (WRITE
+        ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/testCCompiler1.c
+        ${SOURCE_CODE}
+    )
+    TRY_RUN (RUN_RESULT_VAR COMPILE_RESULT_VAR
+        ${CMAKE_BINARY_DIR}
+        ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/testCCompiler1.c
+        COMPILE_DEFINITIONS "-D_SIZEOF___FLOAT128=${H5_SIZEOF___FLOAT128};-D_HAVE_QUADMATH_H=${H5_HAVE_QUADMATH_H}"
+        COMPILE_OUTPUT_VARIABLE COMPILEOUT
+        RUN_OUTPUT_VARIABLE OUTPUT_VAR
+    )
+
+    set (${RETURN_VAR} ${OUTPUT_VAR})
+
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+      message (VERBOSE "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
+      message (VERBOSE "Test COMPILE_RESULT_VAR ${COMPILE_RESULT_VAR} ")
+      message (VERBOSE "Test COMPILE_OUTPUT ${COMPILEOUT} ")
+      message (VERBOSE "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
+      message (VERBOSE "Test RUN_RESULT_VAR ${RUN_RESULT_VAR} ")
+      message (VERBOSE "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
+    endif ()
+
+    if (COMPILE_RESULT_VAR)
+      if (RUN_RESULT_VAR EQUAL "0")
+        set (${RETURN_VAR} 1 CACHE INTERNAL "Have C function ${FUNCTION_NAME}")
+        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+          message (VERBOSE "Testing C ${FUNCTION_NAME} - OK")
+        endif ()
+        file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
+            "Determining if the C ${FUNCTION_NAME} exists passed with the following output:\n"
+            "${OUTPUT_VAR}\n\n"
+        )
+      else ()
+        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+          message (VERBOSE "Testing C ${FUNCTION_NAME} - Fail")
+        endif ()
+        set (${RETURN_VAR} 0 CACHE INTERNAL "Have C function ${FUNCTION_NAME}")
+        file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+            "Determining if the C ${FUNCTION_NAME} exists failed with the following output:\n"
+            "${OUTPUT_VAR}\n\n")
+      endif ()
+    else ()
+        message (FATAL_ERROR "Compilation of C ${FUNCTION_NAME} - Failed")
+    endif ()
+endmacro ()
+
+set (PROG_SRC
+    "
+#include <float.h>\n\
+#include <stdio.h>\n\
+#define CHECK_FLOAT128 _SIZEOF___FLOAT128\n\
+#if CHECK_FLOAT128!=0\n\
+#if _HAVE_QUADMATH_H!=0\n\
+#include <quadmath.h>\n\
+#endif\n\
+#ifdef FLT128_DIG\n\
+#define C_FLT128_DIG FLT128_DIG\n\
+#else\n\
+#define C_FLT128_DIG 0\n\
+#endif\n\
+#else\n\
+#define C_FLT128_DIG 0\n\
+#endif\n\
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L\n\
+#define C_LDBL_DIG DECIMAL_DIG\n\
+#else\n\
+#define C_LDBL_DIG LDBL_DIG\n\
+#endif\n\nint main() {\nFILE *pFile = fopen(\"pac_Cconftest.out\",\"w\")\\\;\nfprintf(pFile, \"\\%d\\\;\\%d\\\;\", C_LDBL_DIG, C_FLT128_DIG)\\\;\n\nreturn 0\\\;\n}\n
+     "
+)
+
+C_RUN ("maximum decimal precision for C" ${PROG_SRC} PROG_RES)
+file (READ "${RUN_OUTPUT_PATH_DEFAULT}/pac_Cconftest.out" PROG_OUTPUT4)
+#message (STATUS "Testing maximum decimal precision for C - ${PROG_OUTPUT4}")
+
+# dnl The output from the above program will be:
+# dnl  -- long double decimal precision  --  __float128 decimal precision
+
+list (GET PROG_OUTPUT4 0 H5_LDBL_DIG)
+list (GET PROG_OUTPUT4 1 H5_FLT128_DIG)
+
+if (${HDF_PREFIX}_SIZEOF___FLOAT128 EQUAL "0" OR FLT128_DIG EQUAL "0")
+  set (${HDF_PREFIX}_HAVE_FLOAT128 0)
+  set (${HDF_PREFIX}_SIZEOF___FLOAT128 0)
+  set (_PAC_C_MAX_REAL_PRECISION ${H5_LDBL_DIG})
+else ()
+  set (_PAC_C_MAX_REAL_PRECISION ${H5_FLT128_DIG})
+endif ()
+if (NOT ${_PAC_C_MAX_REAL_PRECISION})
+  set (${HDF_PREFIX}_PAC_C_MAX_REAL_PRECISION 0)
+else ()
+  set (${HDF_PREFIX}_PAC_C_MAX_REAL_PRECISION ${_PAC_C_MAX_REAL_PRECISION})
+endif ()
+#message (STATUS "maximum decimal precision for C var - ${${HDF_PREFIX}_PAC_C_MAX_REAL_PRECISION}")
 
 #-----------------------------------------------------------------------------
 # Macro to determine the various conversion capabilities
 #-----------------------------------------------------------------------------
 macro (H5ConversionTests TEST msg)
   if (NOT DEFINED ${TEST})
-   # message (STATUS "===> ${TEST}")
     TRY_RUN (${TEST}_RUN   ${TEST}_COMPILE
         ${CMAKE_BINARY_DIR}
         ${HDF_RESOURCES_DIR}/ConversionTests.c
@@ -258,19 +393,25 @@ macro (H5ConversionTests TEST msg)
         OUTPUT_VARIABLE OUTPUT
     )
     if (${TEST}_COMPILE)
-      if (${TEST}_RUN MATCHES 0)
+      if (${TEST}_RUN EQUAL "0")
         set (${TEST} 1 CACHE INTERNAL ${msg})
-        message (STATUS "${msg}... yes")
+        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+          message (VERBOSE "${msg}... yes")
+        endif ()
       else ()
         set (${TEST} "" CACHE INTERNAL ${msg})
-        message (STATUS "${msg}... no")
+        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+          message (VERBOSE "${msg}... no")
+        endif ()
         file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
               "Test ${TEST} Run failed with the following output and exit code:\n ${OUTPUT}\n"
         )
       endif ()
     else ()
       set (${TEST} "" CACHE INTERNAL ${msg})
-      message (STATUS "${msg}... no")
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+        message (VERBOSE "${msg}... no")
+      endif ()
       file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Test ${TEST} Compile failed with the following output:\n ${OUTPUT}\n"
       )

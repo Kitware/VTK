@@ -6,13 +6,13 @@
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _H5LDprivate_H
-#define _H5LDprivate_H
+#ifndef H5LDprivate_H
+#define H5LDprivate_H
 
 /* High-level library internal header file */
 #include "H5HLprivate2.h"
@@ -26,7 +26,7 @@
 typedef struct H5LD_memb_t {
     size_t tot_offset;
     size_t last_tsize;
-    hid_t last_tid;
+    hid_t  last_tid;
     char **names;
 } H5LD_memb_t;
 
@@ -44,11 +44,10 @@ extern "C" {
  * Decide to do #3 at this point of time after some discussion.
  */
 H5_HLDLL void H5LD_clean_vector(H5LD_memb_t *listv[]);
-H5_HLDLL int H5LD_construct_vector(char *fields, H5LD_memb_t *listv[], hid_t par_tid);
+H5_HLDLL int  H5LD_construct_vector(char *fields, H5LD_memb_t *listv[], hid_t par_tid);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* end _H5LDprivate_H */
-
+#endif /* end H5LDprivate_H */
