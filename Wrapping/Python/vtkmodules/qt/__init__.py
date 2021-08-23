@@ -25,15 +25,15 @@ import sys
 PyQtImpl = None
 
 # Has an implementation has been imported yet?
-for impl in ["PyQt5", "PySide2", "PyQt4", "PySide"]:
+for impl in ["PySide6", "PyQt5", "PySide2", "PyQt4", "PySide"]:
     if impl in sys.modules:
         PyQtImpl = impl
         break
 
 # QVTKRWIBase, base class for QVTKRenderWindowInteractor,
-# can be altered by the user to "QGLWidget" in case
-# of rendering errors (e.g. depth check problems, readGLBuffer
-# warnings...)
+# can be altered by the user to "QGLWidget" or "QOpenGLWidget"
+# in case of rendering errors (e.g. depth check problems,
+# readGLBuffer warnings...)
 QVTKRWIBase = "QWidget"
 
 __all__ = ['QVTKRenderWindowInteractor']
