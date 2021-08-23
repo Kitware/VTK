@@ -22,4 +22,14 @@
 #define new_termios vtkioss_new_termios
 #define old_termios vtkioss_old_termios
 
+// Mangle all global namespaces
+#define Iocatalyst vtkIocatalyst
+#define Iocgns vtkIocgns
+#define Ioex vtkIoex
+#define Iogn vtkIogn
+#define Iogs vtkIogs
+#define Iohb vtkIohb
+#define Ioss vtkIoss
+#define Iotr vtkIotr
+#define SmartAssert vtkSmartAssert
 #endif
