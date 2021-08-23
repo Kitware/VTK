@@ -92,6 +92,7 @@ vtkOSOpenGLRenderWindow::vtkOSOpenGLRenderWindow()
   this->ForceMakeCurrent = 0;
   this->OwnWindow = 0;
   this->ShowWindow = false;
+  this->UseOffScreenBuffers = true;
 
   this->Internal = new vtkOSOpenGLRenderWindowInternal();
 }
@@ -101,7 +102,6 @@ vtkOSOpenGLRenderWindow::~vtkOSOpenGLRenderWindow()
 {
   // close-down all system-specific drawing resources
   this->Finalize();
-
   vtkRenderer* ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
@@ -295,10 +295,7 @@ void vtkOSOpenGLRenderWindow::SetSize(int width, int height)
   if ((this->Size[0] != width) || (this->Size[1] != height))
   {
     this->Superclass::SetSize(width, height);
-    if (!this->UseOffScreenBuffers)
-    {
-      this->ResizeOffScreenWindow(width, height);
-    }
+    this->ResizeOffScreenWindow(width, height);
     this->Modified();
   }
 }

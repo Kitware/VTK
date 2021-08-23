@@ -439,6 +439,23 @@ public:
   void SetFrameBlitModeToNoBlit() { this->SetFrameBlitMode(NoBlit); }
   ///@}
 
+  ///@{
+  // copy depth values from a source framebuffer to a destination framebuffer
+  // using texture maps to do the copy. The source framebufferobject must be texture
+  // backed. This method is designed to work around issues with trying to blit depth
+  // values between framebuffers that have different depth formats.
+
+  // blit entire source texture to active viewport
+  virtual void TextureDepthBlit(vtkTextureObject* source);
+
+  // blit specified source texels to active viewport
+  virtual void TextureDepthBlit(vtkTextureObject* source, int srcX, int srcY, int srcX2, int srcY2);
+
+  // blit specified source texels to specified viewport
+  virtual void TextureDepthBlit(vtkTextureObject* source, int srcX, int srcY, int srcX2, int srcY2,
+    int destX, int destY, int destX2, int destY2);
+  ///@}
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
@@ -451,6 +468,9 @@ protected:
 
   // a FSQ we use to resolve MSAA that handles gamma
   vtkOpenGLQuadHelper* ResolveQuad;
+
+  // a FSQ we use to blit depth values
+  vtkOpenGLQuadHelper* DepthBlitQuad;
 
   // used in testing for opengl support
   // in the SupportsOpenGL() method

@@ -882,6 +882,11 @@ vtkTextureObject* vtkOpenGLFramebufferObject::GetColorAttachmentAsTextureObject(
   return nullptr;
 }
 
+vtkTextureObject* vtkOpenGLFramebufferObject::GetDepthAttachmentAsTextureObject()
+{
+  return this->DepthBuffer ? this->DepthBuffer->Texture : nullptr;
+}
+
 void vtkOpenGLFramebufferObject::AddColorAttachment(unsigned int index, vtkTextureObject* tex,
   unsigned int zslice, unsigned int format, unsigned int mipmapLevel)
 {
