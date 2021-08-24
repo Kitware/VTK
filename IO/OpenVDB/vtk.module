@@ -2,8 +2,6 @@ NAME
   VTK::IOOpenVDB
 LIBRARY_NAME
   vtkIOOpenVDB
-GROUPS
-  StandAlone
 KIT
   VTK::IO
 DEPENDS
