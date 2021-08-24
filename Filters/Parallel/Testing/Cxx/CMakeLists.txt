@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
   TestAngularPeriodicFilter.cxx
+  TestPOutlineFilter.cxx, NO_VALID
   )
 vtk_test_cxx_executable(vtkFiltersParallelCxxTests testsStd)
 
@@ -20,6 +21,7 @@ if (TARGET VTK::ParallelMPI)
     ParallelResampling.cxx
     PCellDataToPointData.cxx
     UnitTestPMaskPoints.cxx
+    TestPOutlineFilter.cxx, NO_VALID
     )
 
   # We want 4 processes to test the vtkAggregateDataSetFilter

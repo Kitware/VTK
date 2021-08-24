@@ -59,20 +59,6 @@ class AddBoundsListOperator : public vtkCommunicator::Operation
 };
 
 //------------------------------------------------------------------------------
-vtkPOutlineFilterInternals::vtkPOutlineFilterInternals()
-{
-  this->Controller = nullptr;
-  this->IsCornerSource = false;
-  this->CornerFactor = 0.2;
-}
-
-//------------------------------------------------------------------------------
-vtkPOutlineFilterInternals::~vtkPOutlineFilterInternals()
-{
-  this->Controller = nullptr;
-}
-
-//------------------------------------------------------------------------------
 void vtkPOutlineFilterInternals::SetController(vtkMultiProcessController* controller)
 {
   this->Controller = controller;
@@ -174,8 +160,6 @@ void vtkPOutlineFilterInternals::CollectCompositeBounds(vtkDataObject* input)
 //------------------------------------------------------------------------------
 int vtkPOutlineFilterInternals::RequestData(vtkDataObjectTree* input, vtkPolyData* output)
 {
-  // Check Output and Input
-
   // Collect local bounds.
   this->CollectCompositeBounds(input);
 
@@ -209,32 +193,11 @@ int vtkPOutlineFilterInternals::RequestData(vtkDataObjectTree* input, vtkPolyDat
   vtkNew<vtkAppendPolyData> appender;
   for (size_t i = 0; i < 6 * this->BoundsList.size(); i += 6)
   {
-    vtkBoundingBox box(&boundsList[i]);
-    if (box.IsValid())
-    {
-      if (this->IsCornerSource)
-      {
-        vtkNew<vtkOutlineCornerSource> corner;
-        corner->SetBounds(&boundsList[i]);
-        corner->SetCornerFactor(this->CornerFactor);
-        corner->Update();
-        appender->AddInputData(corner->GetOutput());
-      }
-      else
-      {
-        vtkNew<vtkOutlineSource> corner;
-        corner->SetBounds(&boundsList[i]);
-        corner->Update();
-        appender->AddInputData(corner->GetOutput());
-      }
-    }
+    appender->AddInputData(this->GenerateOutlineGeometry(&boundsList[i]));
   }
 
-  if (appender->GetNumberOfInputConnections(0) > 1)
-  {
-    appender->Update();
-    output->ShallowCopy(appender->GetOutput());
-  }
+  appender->Update();
+  output->ShallowCopy(appender->GetOutput());
   return 1;
 }
 
@@ -259,33 +222,12 @@ int vtkPOutlineFilterInternals::RequestData(vtkOverlappingAMR* input, vtkPolyDat
     {
       double bounds[6];
       input->GetAMRInfo()->GetBounds(level, dataIdx, bounds);
-
-      // Check if the bounds received are not default bounding box
-      if (vtkBoundingBox::IsValid(bounds))
-      {
-        if (this->IsCornerSource)
-        {
-          vtkNew<vtkOutlineCornerSource> corner;
-          corner->SetBounds(bounds);
-          corner->SetCornerFactor(this->CornerFactor);
-          corner->Update();
-          appender->AddInputData(corner->GetOutput());
-        }
-        else
-        {
-          vtkNew<vtkOutlineSource> corner;
-          corner->SetBounds(bounds);
-          corner->Update();
-          appender->AddInputData(corner->GetOutput());
-        }
-      }
+      appender->AddInputData(this->GenerateOutlineGeometry(bounds));
     }
   }
-  if (appender->GetNumberOfInputConnections(0) > 1)
-  {
-    appender->Update();
-    output->ShallowCopy(appender->GetOutput());
-  }
+
+  appender->Update();
+  output->ShallowCopy(appender->GetOutput());
   return 1;
 }
 
@@ -306,34 +248,13 @@ int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input, vtkPolyDat
       {
         double bounds[6];
         ug->GetBounds(bounds);
-
-        // Check if the bounds received are not default bounding box
-        if (vtkBoundingBox::IsValid(bounds))
-        {
-          if (this->IsCornerSource)
-          {
-            vtkNew<vtkOutlineCornerSource> corner;
-            corner->SetBounds(bounds);
-            corner->SetCornerFactor(this->CornerFactor);
-            corner->Update();
-            appender->AddInputData(corner->GetOutput());
-          }
-          else
-          {
-            vtkNew<vtkOutlineSource> corner;
-            corner->SetBounds(bounds);
-            corner->Update();
-            appender->AddInputData(corner->GetOutput());
-          }
-        }
+        appender->AddInputData(this->GenerateOutlineGeometry(bounds));
       }
     }
   }
-  if (appender->GetNumberOfInputConnections(0) > 1)
-  {
-    appender->Update();
-    output->ShallowCopy(appender->GetOutput());
-  }
+
+  appender->Update();
+  output->ShallowCopy(appender->GetOutput());
   return 1;
 }
 
@@ -342,7 +263,6 @@ int vtkPOutlineFilterInternals::RequestData(vtkDataSet* input, vtkPolyData* outp
 {
   double bounds[6];
   input->GetBounds(bounds);
-
   if (this->Controller->GetNumberOfProcesses() > 1)
   {
     double reduced_bounds[6];
@@ -357,26 +277,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkDataSet* input, vtkPolyData* outp
     memcpy(bounds, reduced_bounds, 6 * sizeof(double));
   }
 
-  if (vtkMath::AreBoundsInitialized(bounds))
-  {
-    // only output in process 0.
-    if (this->IsCornerSource)
-    {
-      vtkNew<vtkOutlineCornerSource> corner;
-      corner->SetBounds(bounds);
-      corner->SetCornerFactor(this->CornerFactor);
-      corner->Update();
-      output->ShallowCopy(corner->GetOutput());
-    }
-    else
-    {
-      vtkNew<vtkOutlineSource> corner;
-      corner->SetBounds(bounds);
-      corner->Update();
-      output->ShallowCopy(corner->GetOutput());
-    }
-  }
-
+  output->ShallowCopy(this->GenerateOutlineGeometry(bounds));
   return 1;
 }
 
@@ -400,25 +301,31 @@ int vtkPOutlineFilterInternals::RequestData(vtkGraph* input, vtkPolyData* output
     memcpy(bounds, reduced_bounds, 6 * sizeof(double));
   }
 
+  output->ShallowCopy(this->GenerateOutlineGeometry(bounds));
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkPolyData> vtkPOutlineFilterInternals::GenerateOutlineGeometry(double bounds[6])
+{
+  vtkSmartPointer<vtkPolyData> output = nullptr;
   if (vtkMath::AreBoundsInitialized(bounds))
   {
-    // only output in process 0.
     if (this->IsCornerSource)
     {
       vtkNew<vtkOutlineCornerSource> corner;
       corner->SetBounds(bounds);
       corner->SetCornerFactor(this->CornerFactor);
       corner->Update();
-      output->ShallowCopy(corner->GetOutput());
+      output = corner->GetOutput();
     }
     else
     {
       vtkNew<vtkOutlineSource> corner;
       corner->SetBounds(bounds);
       corner->Update();
-      output->ShallowCopy(corner->GetOutput());
+      output = corner->GetOutput();
     }
   }
-
-  return 1;
+  return output;
 }
