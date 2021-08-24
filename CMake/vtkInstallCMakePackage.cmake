@@ -123,13 +123,6 @@ set(vtk_cmake_module_files
 set(vtk_cmake_patch_files
   patches/3.13/FindZLIB.cmake
   patches/3.16/FindPostgreSQL.cmake
-  patches/3.17/FindMPI/fortranparam_mpi.f90.in
-  patches/3.17/FindMPI/libver_mpi.c
-  patches/3.17/FindMPI/libver_mpi.f90.in
-  patches/3.17/FindMPI/mpiver.f90.in
-  patches/3.17/FindMPI/test_mpi.c
-  patches/3.17/FindMPI/test_mpi.f90.in
-  patches/3.17/FindMPI.cmake
   patches/3.18/FindPython/Support.cmake
   patches/3.18/FindPython2.cmake
   patches/3.18/FindPython3.cmake
@@ -138,6 +131,13 @@ set(vtk_cmake_patch_files
   patches/3.19/FindSQLite3.cmake
   patches/3.19/FindX11.cmake
   patches/3.20/FindGDAL.cmake
+  patches/3.22/FindMPI/fortranparam_mpi.f90.in
+  patches/3.22/FindMPI/libver_mpi.c
+  patches/3.22/FindMPI/libver_mpi.f90.in
+  patches/3.22/FindMPI/mpiver.f90.in
+  patches/3.22/FindMPI/test_mpi.c
+  patches/3.22/FindMPI/test_mpi.f90.in
+  patches/3.22/FindMPI.cmake
   patches/99/FindHDF5.cmake
   patches/99/FindOpenGL.cmake)
 
