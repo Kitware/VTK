@@ -105,11 +105,19 @@ public:
     const std::vector<std::string>& selectors, vtkDataAssembly* hierarchyOrAssembly,
     vtkPartitionedDataSetCollection* data = nullptr, bool leaf_nodes_only = false);
 
+  ///@{
   /**
    * For a vtkDataAssembly representing an hierarchy, returns the selector for
-   * the given composite id.
+   * the given composite id. Note, the selectors maybe best-match. When dealing
+   * with vtkPartitionedDataSetCollection, for example, a composite id may point
+   * to a particular dataset in a nested vtkPartitionedDataSet, however,
+   * selectors are simply not expressive enough to pick a dataset at that level
+   * and hence will simply point to the parent vtkPartitionedDataSet.
    */
   static std::string GetSelectorForCompositeId(unsigned int id, vtkDataAssembly* hierarchy);
+  static std::vector<std::string> GetSelectorsForCompositeIds(
+    const std::vector<unsigned int>& ids, vtkDataAssembly* hierarchy);
+  ///@}
 
 protected:
   vtkDataAssemblyUtilities();

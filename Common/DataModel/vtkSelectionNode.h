@@ -13,40 +13,208 @@
 
 =========================================================================*/
 /**
- * @class   vtkSelectionNode
- * @brief   A node in a selection tree. Used to store selection results.
+ * @class vtkSelectionNode
+ * @brief a node in a vtkSelection the defines the selection criteria.
  *
+ * vtkSelectionNode helps define the selection criteria in a vtkSelection.
+ * vtkSelection can comprise of multiple such vtkSelectionNode instances that
+ * help define the selection.
  *
- * vtkSelectionNode stores selection parameters for a selection
- * (or part of a selection). It stores a list of properties (in a vtkInformation)
- * and a list of selection values (in a vtkAbstractArray). The properties
- * provide information about what the selection values mean. For example the
- * CONTENT_TYPE property gives information about what is stored by the node.
- * If the CONTENT_TYPE is GLOBALIDS,
- * the SelectionList array should contain a list of cell or point ids, which
- * identify the particular cells or points that have matching values in the
- * GLOBALID vtkDataSetAttribute array. If the CONTENT_TYPE is PEDIGREEIDS, the
- * SelectionList array should contain a list of cell or point ids, which identify
- * the particular cells or points that have matching values in the PEDIGREEID
- * vtkDataSetAttribute array. The FIELD_TYPE property designates whether the
- * selection refers to cells or points.
+ * vtkSelectionNode has two components: a list of properties (stored in a
+ * vtkInformation) and a selection list (a vtkAbstractArray subclass). The
+ * properties help indicate how to interpret the values specified in a
+ * selection-list.
  *
- * Usually, each node under the root is a selection from
- * one data object. SOURCE or SOURCE_ID properties point to this object. If
- * the selection was performed on a renderer, PROP or PROP_ID point to the
- * prop the selection was made on. Selection nodes corresponding to
- * composite datasets may contain child nodes. Each child node of a
- * composite dataset should have COMPOSITE_INDEX set. This is the flat-index to
- * identify a node with in the composite dataset to which the selection applies.
+ * The properties can be broadly classified into three categories: core,
+ * qualifiers, and information. The core properties must be specified other wise the
+ * vtkSelectionNode is not considered valid. These are `FIELD_TYPE` and
+ * `CONTENT_TYPE`. `FIELD_TYPE` defines what kinds of entities are being selected.
+ * Since selections are used select items in a data-object, these correspond to
+ * things like cells, points, nodes, edges, rows, etc. Supported FIELD_TYPE
+ * values are defined in `vtkSelectionNode::SelectionField`. `CONTENT_TYPE`
+ * defines the how the selection is described. Supported values are
+ * `vtkSelectionNode::SelectionContent`. For example, if CONTENT_TYPE is
+ * `INDICES`, then selection is described as ids for entities being selected.
+ * The ids themselves will be specified using the selection list. Thus, the
+ * CONTENT_TYPE dictates what the selection list comprises.
+ *
+ * Qualifiers are used to further qualify the selection criteria. All qualifiers
+ * are optional. When present they restrict the selection. For example, when
+ * selecting elements from a composite-dataset, the `COMPOSITE_INDEX` qualifier
+ * can be specified of limit the selection to a specific dataset (or subtree).
+ *
+ * Information properties are simply for informative purposes and generally used
+ * to provide information about the selection when the selection is created. For
+ * example, `PIXEL_COUNT` is used to indicate how many screen pixels resulted in
+ * creation of this selection node.
+ *
+ * @section SelectionTypes Selection Types
+ *
+ * `CONTENT_TYPE` property is one of the required properties that helps
+ * describe how the selection is defined. To set the content type, one can
+ * access the properties store using `vtkSelectionNode::GetProperties()` and
+ * then set the `CONTENT_TYPE` using the `vtkSelectionNode::CONTENT_TYPE()` key
+ * or simply use `vtkSelectionNode::SetContentType`.
+ *
+ * * `vtkSelectionNode::GLOBALIDS`: indicates that the selection is defined
+ *   using global ids. In VTK data-object, global ids are specified an `vtkIdTypeArray`
+ *   added to a appropriate `vtkDataSetAttributes` and marked as global-ids
+ *   using vtkDataSetAttributes API. Since global ids are expected to be unique
+ *   for that element type over the entire dataset, it's a convenient way of
+ *   defining selections. For this content-type, the selection list must be
+ *   to a single-component, `vtkIdTypeArray` that lists all the globals ids for
+ *   the selected elements.
+ *
+ * * `vtkSelectionNode::PEDIGREEIDS`: similar to `GLOBALIDS` except uses
+ *   pedigree ids instead of global ids.
+ *
+ * * `vtkSelectionNode::VALUES`: this type is used to define a selection based
+ *   on array values. The selection list specifies the values to be selected.
+ *   All elements with array values in the selection list are treated as
+ *   selected. The qualifier COMPONENT_NUMBER is used to indicate which
+ *   component to use for the checks. Use `-1` for magnitude. Current
+ *   implementation does not support checking multiple-components or non-exact
+ *   matches although support for both is conceivable in future.
+ *   The selection list array name is used to specify the name of the array from
+ *   the dataset to use for the checks. Thus, for defining a selection for a
+ *   dataset where all `TEMP` values match those specified in the selection
+ *   list, ensure that the selection list array's name is set to `TEMP` as well.
+ *
+ * * `vtkSelectionNode::INDICES`: this is similar to global ids except in this
+ *   case the selection list is simply the VTK element id which is 0-based
+ *   index of that element in the particular dataset. Often with this type of
+ *   selection, additional qualifiers such as `COMPOSITE_INDEX`,
+ *   `BLOCK_SELECTORS`, `PROCESS_ID` etc. are needed to correctly identify the
+ *   chosen element(s) in case of composite or distributed datasets.
+ *
+ * * `vtkSelectionNode::FRUSTUM: this type is used to define a frustum in world
+ *   coordinates that identifies the selected elements. In this case, the
+ *   selection list is a vtkDoubleArray with 32 values specifying the 8 frustum
+ *   corners in homogeneous world coordinates.
+ *
+ * * `vtkSelectionNode::LOCATIONS`: this is used to select points (or cells)
+ *   near (or containing) specified locations. The selection list is a
+ *   3-compnent vtkDoubleArray with coordinates for locations of interest.
+ *
+ * * `vtkSelectionNode::THRESHOLDS`: this type is used to define a selection based
+ *   on array value ranges. This is akin to thresholding. All elements with values in
+ *   the specified ranges are to be treated as selected. For this content-type,
+ *   the selection-list is a 2-component `vtkDataArray`-subclass that specifies
+ *   where each tuple defines the min and max values for a range. The selection
+ *   list can have multiple tuples to define multiple ranges. Elements with
+ *   values in any of the specified ranges are treated as selected. The
+ *   selection list array name is used to specify the name of the array from
+ *   the dataset to use for the checks. Thus, for defining a selection for a
+ *   dataset where all `TEMP` values are within a range, ensure that the
+ *   selection list array's name is set to `TEMP` as well.
+ *
+ * * `vtkSelectionNode::BLOCKS`: this type is used to select blocks in a
+ *   composite dataset. The term blocks is used loosely here and can correspond
+ *   to a block in a multiblock dataset or a partition in a partitioned-dataset.
+ *   The selection list is an integral type vtkDataArray subclass that can be 1-
+ *   or 2- component. If 1-component, it's interpreted as the composite-index
+ *   (also called flat index) and can be applied to any composite-dataset to
+ *   choose specific datasets. If 2-component, it's typically associated with
+ *   vtkUniformGridAMR or vtkPartitionedDataSetCollection which support 2-tuple
+ *   indexing to locate a dataset.
+ *
+ * * `vtkSelectionNode::BLOCK_SELECTORS`: this is similar to BLOCKS, however
+ *   instead of using indices to select datasets, here, the selection list is a
+ *   vtkStringArray which lists selector expressions to select blocks in the
+ *   composite dataset. By default, the selector expressions are applied to a
+ *   vtkDataAssembly generated from the composite dataset that represents its
+ *   hierarchy (see `vtkDataAssembly::GenerateHierarchy`). However, in case of
+ *   vtkPartitionedDataSetCollection, one can select any other data assembly
+ *   associated with the vtkPartitionedDataSetCollection by naming the array
+ *   with the name of the assembly.
+ *
+ *   @note, currently vtkPartitionedDataSetCollection only supports a single
+ *   vtkDataAssembly but this may change in the future.
+ *
+ * * `vtkSelectionNode::QUERY`: this type is primarily added for ParaView where
+ *   selection expression is specified as a query string. This is likely to
+ *   change in the future and hence applications are discouraged from using this
+ *   type.
+ *
+ * @section Properties Properties
+ *
+ * Following a properties that can be used to qualify the selection.
+ *
+ * * `vtkSelectionNode::EPSILON()`: this is a qualifier that can be used to
+ *   indicate a fuzz-factor when comparing values for equality. Currently, this
+ *   is only used with content-type LOCATIONS, however, it can be expanded to
+ *   other selection types in the future.
+ *
+ * * `vtkSelectionNode::CONTAINING_CELLS()`: this qualifier is intended to be
+ *   used with field-type `POINT`. When present, it indicates that while the
+ *   selection criteria selects a collection of points the selection should be
+ *   formed using cell containing the chosen points.
+ *
+ * * `vtkSelectionNode::CONNECTED_LAYERS()`: a qualifier used to expand the
+ *   definition of selected elements to connected elements for the specified
+ *   number of layers. Layers can be positive or negative to grow or shrink the
+ *   selection respectively.
+ *
+ * * `vtkSelectionNode::INVERSE()`: a qualifier that causes the selection to be
+ *   inverted i.e. all elements not chosen by the criteria are to be treated
+ *   as selected.
+ *
+ * * `vtkSelectionNode::COMPONENT_NUMBER()`: for VALUES and THRESHOLDS selection
+ *   types, this qualifier identifies the array component of interest. -1
+ *   indicates magnitude.
+ *
+ * * `vtkSelectionNode::PROCESS_ID()`: limits the selection to a particular
+ *   rank in a distributed environment.
+ *
+ * * `vtkSelectionNode::COMPOSITE_INDEX()`: a qualifier used to limit the
+ *   selection to a specific composite index for a composite-dataset.
+ *
+ * * `vtkSelectionNode::ASSEMBLY_NAME()`, `vtkSelectionNode::SELECTORS()`:
+ *   similar to composite index, except uses data-assembly and selectors to
+ *   limit the selection to a subset of nodes in a composite-dataset.
+ *
+ * * `vtkSelectionNode::HIERARCHICAL_LEVEL()`,
+ *   `vtkSelectionNode::HIERARCHICAL_INDEX()`: similar to composite index, except
+ *   uses level and index for an AMR dataset so limit the selection to a
+ *   specific AMR level or dataset.
+ *
+ * Following for properties that are primarily intended to provide additional
+ * information when the selection is created.
+ *
+ * * `vtkSelectionNode::ZBUFFER_VALUE()`: an information qualifier representing
+ *   the z-depth for a particular selection when it was created.
+ *
+ * * `vtkSelectionNode::PIXEL_COUNT()`: a qualifier used to provide a count for
+ *   the number of pixels that resulted in this selection.
+ *
+ * * `vtkSelectionNode::SOURCE()`, `vtkSelectionNode::SOURCE_ID()`: provides
+ *   information about data producer or selection originator. The interpretation
+ *   is very specific to the creator creating the selection and varies greatly
+ *   with VTK.
+ *
+ * * `vtkSelectionNode::PROP(), `vtkSelectionNode::PROP_ID()`: similar to
+ *   SOURCE/SOURCE_ID except is used to represent a rendering prop from which
+ *   the selection was created.
  *
  * @warning
  * No SelectionList is created by default. It should be assigned.
+ *
+ * @section SelectionFieldMismatch vtkSelectionNode::SelectionField and
+ * vtkDataSetAttribute::AttributeTypes
+ *
+ * Strictly speaking, vtkSelectionNode::SelectionField maps directly to
+ * vtkDataSetAttribute::AttributeTypes. However, the two enum values are not
+ * identical for historical reasons. Use
+ * `vtkSelectionNode::ConvertSelectionFieldToAttributeType` and
+ * `vtkSelectionNode::ConvertAttributeTypeToSelectionField` to convert between
+ * the two.
  */
 
 #ifndef vtkSelectionNode_h
 #define vtkSelectionNode_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // for deprecation
 #include "vtkObject.h"
 
 class vtkAbstractArray;
@@ -74,7 +242,10 @@ public:
 
   ///@{
   /**
-   * Sets the selection list.
+   * Get/Set the selection list. The selection list is the container
+   * that stores values that indicate the selected items. What these values
+   * correspond to depends on the `ContentType`. `ContentType` may also dictate
+   * the type and form of the selection list array.
    */
   virtual void SetSelectionList(vtkAbstractArray*);
   virtual vtkAbstractArray* GetSelectionList();
@@ -128,17 +299,18 @@ public:
    */
   enum SelectionContent
   {
-    SELECTIONS,  //!< Deprecated.
-    GLOBALIDS,   //!< Select entities called out by their globally-unique IDs.
-    PEDIGREEIDS, //!< Select entities that have some identifiable pedigree.
-    VALUES,      //!< Select entities that take on specific array values.
-    INDICES,     //!< Select entities by their offsets into the dataset.
-    FRUSTUM,     //!< Select entities contained within a viewing frustum.
-    LOCATIONS,   //!< Select entities near the supplied world coordinates.
-    THRESHOLDS,  //!< Select entities whose array values fall within a given threshold.
-    BLOCKS,      //!< Select blocks within a composite dataset by their flat index.
-    QUERY,       //!< Select entities with a text query.
-    USER,        //!< Select entities with user-supplied, application-specific logic.
+    SELECTIONS,      //!< Deprecated.
+    GLOBALIDS,       //!< Select entities called out by their globally-unique IDs.
+    PEDIGREEIDS,     //!< Select entities that have some identifiable pedigree.
+    VALUES,          //!< Select entities that take on specific array values.
+    INDICES,         //!< Select entities by their offsets into the dataset.
+    FRUSTUM,         //!< Select entities contained within a viewing frustum.
+    LOCATIONS,       //!< Select entities near the supplied world coordinates.
+    THRESHOLDS,      //!< Select entities whose array values fall within a given threshold.
+    BLOCKS,          //!< Select blocks within a composite dataset by their flat index.
+    BLOCK_SELECTORS, //!< Select datasets within a composite dataset using selector expressions.
+    QUERY,           //!< Select entities with a text query.
+    USER,            //!< Select entities with user-supplied, application-specific logic.
     NUM_CONTENT_TYPES
   };
 
@@ -310,10 +482,9 @@ public:
   ///@}
 
   /**
-   * This key is used when making visible vertex selection. It means
-   * that the cell ID selection has data about which vertices for each
-   * cell are visible.
+   * @deprecated no longer relevant.
    */
+  VTK_DEPRECATED_IN_9_1_0("no longer relevant")
   static vtkInformationIntegerKey* INDEXED_VERTICES();
 
   /**
@@ -343,7 +514,7 @@ protected:
   char* QueryString;
 
   // Map from content type to content type name
-  static const char ContentTypeNames[SelectionContent::NUM_CONTENT_TYPES][14];
+  static const char ContentTypeNames[SelectionContent::NUM_CONTENT_TYPES][16];
 
   // Map from integer field type to field type name
   static const char FieldTypeNames[SelectionField::NUM_FIELD_TYPES][8];

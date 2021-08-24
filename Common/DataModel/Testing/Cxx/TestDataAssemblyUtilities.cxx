@@ -115,6 +115,12 @@ bool TestPartitionedDataSetCollection()
   vtkLogIfF(
     ERROR, xformed->GetNumberOfPartitionedDataSets() != 5, "partitioned dataset count mismatch!");
 
+  vtkLogIfF(ERROR,
+    vtkDataAssemblyUtilities::GetSelectorForCompositeId(13u, hierarchy) != "/Root/Block3",
+    "GetSelectorForCompositeId with id for non-leaf node failed!");
+  vtkLogIfF(ERROR,
+    vtkDataAssemblyUtilities::GetSelectorForCompositeId(10u, hierarchy) != "/Root/Block2",
+    "GetSelectorForCompositeId with  id for leaf node failed!");
   return true;
 }
 

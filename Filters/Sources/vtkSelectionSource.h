@@ -68,6 +68,15 @@ public:
 
   ///@{
   /**
+   * Add/Remove block-selectors to make selections with
+   * vtkSelectionNode::BLOCK_SELECTORS as the content-type.
+   */
+  void AddBlockSelector(const char* selector);
+  void RemoveAllBlockSelectors();
+  ///@}
+
+  ///@{
+  /**
    * Removes all IDs.
    */
   void RemoveAllIDs();
@@ -137,7 +146,8 @@ public:
 
   ///@{
   /**
-   * Access to the name of the selection's subset description array.
+   * Get/Set the name used for the SelectionList in the generated
+   * vtkSelectionNode.
    */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
@@ -173,7 +183,9 @@ public:
 
   ///@{
   /**
-   * For selector-based block selection.
+   * For selector-based selection qualification. Note, this should not
+   * be confused with block-selectors used to select blocks using selectors.
+   * These here are qualifiers i.e. they limit the selected items.
    */
   vtkSetStringMacro(AssemblyName);
   vtkGetStringMacro(AssemblyName);

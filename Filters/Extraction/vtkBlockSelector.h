@@ -14,9 +14,13 @@
 =========================================================================*/
 /**
  * @class vtkBlockSelector
- * @brief Selects cells or points contained in a block as defined in the
+ * @brief selector for blocks
+ *
+ * Selects cells or points contained in a block as defined in the
  * vtkSelectionNode used to initialize this operator.
  *
+ * This selector supports vtkSelectionNode::BLOCKS and
+ * vtkSelectionNode::BLOCK_SELECTORS.
  */
 
 #ifndef vtkBlockSelector_h
@@ -32,6 +36,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkSelectionNode* node) override;
+
+  /**
+   * Overridden to handle `BLOCK_SELECTORS`. We need the data to convert
+   * selector expressions to composite indices for quick check if block is
+   * selected. We do that here.
+   */
+  void Execute(vtkDataObject* input, vtkDataObject* output) override;
 
 protected:
   vtkBlockSelector();

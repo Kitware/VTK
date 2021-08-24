@@ -37,7 +37,7 @@
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
 
-const char vtkSelectionNode ::ContentTypeNames[vtkSelectionNode::NUM_CONTENT_TYPES][14] = {
+const char vtkSelectionNode ::ContentTypeNames[vtkSelectionNode::NUM_CONTENT_TYPES][16] = {
   "SELECTIONS", // deprecated
   "GLOBALIDS",
   "PEDIGREEIDS",
@@ -47,6 +47,7 @@ const char vtkSelectionNode ::ContentTypeNames[vtkSelectionNode::NUM_CONTENT_TYP
   "LOCATIONS",
   "THRESHOLDS",
   "BLOCKS",
+  "BLOCK_SELECTORS",
   "QUERY",
   "USER",
 };
@@ -219,7 +220,9 @@ int vtkSelectionNode::GetContentType()
 //------------------------------------------------------------------------------
 const char* vtkSelectionNode::GetContentTypeAsString(int type)
 {
-  return vtkSelectionNode::ContentTypeNames[type];
+  return type >= 0 && type < vtkSelectionNode::NUM_CONTENT_TYPES
+    ? vtkSelectionNode::ContentTypeNames[type]
+    : "(invalid)";
 }
 
 //------------------------------------------------------------------------------
@@ -241,7 +244,7 @@ int vtkSelectionNode::GetFieldType()
 //------------------------------------------------------------------------------
 const char* vtkSelectionNode::GetFieldTypeAsString(int type)
 {
-  return vtkSelectionNode::FieldTypeNames[type];
+  return type >= 0 && type < NUM_FIELD_TYPES ? vtkSelectionNode::FieldTypeNames[type] : "(invalid)";
 }
 
 //------------------------------------------------------------------------------
@@ -344,6 +347,7 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
     case LOCATIONS:
     case THRESHOLDS:
     case BLOCKS:
+    case BLOCK_SELECTORS:
     {
       vtkDataSetAttributes* fd1 = this->GetSelectionData();
       vtkDataSetAttributes* fd2 = other->GetSelectionData();
