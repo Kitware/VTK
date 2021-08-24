@@ -35,10 +35,14 @@ class vtkInformation;
 class vtkCommand;
 
 /**
- * Reads data saved using the VTKHDF format which supports all
+ * @class vtkHDFReader
+ * @brief  Read VTK HDF files.
+ *
+ * Reads data saved using the VTK HDF format which supports all
  * vtkDataSet types (image data and unstructured grid are currently
- * implemented) and both serial and parallel processing.  The standard
- * extension for this format is .hdf.
+ * implemented) and serial as well as parallel processing. See (@ref
+ * VTKHDFFileFormat) for more information about this.
+ *
  */
 class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataSetAlgorithm
 {
