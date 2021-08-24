@@ -1528,6 +1528,7 @@ void vtkBoxClipDataSet::CellGrid(
 
     case VTK_PYRAMID: // Create 2 tetrahedra
     case VTK_QUADRATIC_PYRAMID:
+    case VTK_TRIQUADRATIC_PYRAMID:
       if (npts == 5)
       {
         // note: the first element vpyram[][0] is the smallest index of pyramid
