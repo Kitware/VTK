@@ -5,7 +5,7 @@ find_path(OPENVDB_CMAKE_PATH
 )
 
 list(APPEND CMAKE_MODULE_PATH "${OPENVDB_CMAKE_PATH}")
-find_package(OpenVDB REQUIRED)
+vtk_module_find_package(PACKAGE OpenVDB)
 
 set(classes
   vtkOpenVDBWriter)
