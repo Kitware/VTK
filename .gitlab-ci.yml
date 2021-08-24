@@ -3,6 +3,7 @@ include:
     - local: .gitlab/rules.yml
     - local: .gitlab/artifacts.yml
     - local: .gitlab/upload.yml
+    - local: .gitlab/vtk-mixins.yml
 
     # OS builds.
     - local: .gitlab/os-linux.yml
@@ -157,11 +158,10 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
         - test:fedora33-mpi-python-qt-tbb
 
 test:fedora33-mpi-python-qt-stdthread:
-    variables:
-        VTK_SMP_BACKEND_IN_USE: 'STDThread'
-        CTEST_NEW_CDASH_SUBMISSION: 'True'
     extends:
         - .fedora33_mpi_python_qt_stdthread
+        - .smp_backend_stdthread_env_variable
+        - .ctest_new_cdash_submission
         - .cmake_test_linux
         - .linux_qt_tester_tags
         - .cmake_test_artifacts
@@ -503,11 +503,10 @@ test:macos-x86_64-kits-python-qt:
     timeout: 2 hours
 
 test:macos-x86_64-kits-python-qt-stdthread:
-    variables:
-        VTK_SMP_BACKEND_IN_USE: 'STDThread'
-        CTEST_NEW_CDASH_SUBMISSION: 'True'
     extends:
         - .macos_x86_64_kits_python_qt_stdthread
+        - .smp_backend_stdthread_env_variable
+        - .ctest_new_cdash_submission
         - .cmake_test_macos
         - .macos_builder_tags
         - .cmake_test_artifacts
@@ -662,11 +661,10 @@ test:windows-vs2019-kits-mpi-python-qt:
         - build:windows-vs2019-kits-mpi-python-qt
 
 test:windows-vs2019-kits-mpi-python-qt-stdthread:
-    variables:
-        VTK_SMP_BACKEND_IN_USE: 'STDThread'
-        CTEST_NEW_CDASH_SUBMISSION: 'True'
     extends:
         - .windows_vs2019_kits_mpi_python_qt_stdthread
+        - .smp_backend_stdthread_env_variable
+        - .ctest_new_cdash_submission
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
