@@ -29,7 +29,7 @@ static unsigned char HigherOrderCell[][depth] = {
     VTK_TRIQUADRATIC_HEXAHEDRON, VTK_NUMBER_OF_CELL_TYPES },
   { VTK_WEDGE, VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_LINEAR_WEDGE, VTK_BIQUADRATIC_QUADRATIC_WEDGE,
     VTK_NUMBER_OF_CELL_TYPES },
-  { VTK_PYRAMID, VTK_QUADRATIC_PYRAMID, VTK_NUMBER_OF_CELL_TYPES, VTK_NUMBER_OF_CELL_TYPES,
+  { VTK_PYRAMID, VTK_QUADRATIC_PYRAMID, VTK_TRIQUADRATIC_PYRAMID, VTK_NUMBER_OF_CELL_TYPES,
     VTK_NUMBER_OF_CELL_TYPES }
 };
 
@@ -155,12 +155,16 @@ int TestHigherOrderCell(int, char*[])
           vtkCell* c2 = cell->GetEdge(e);
           cerr << "Doing Edge: #" << e << " comp:" << linCell->GetCellType() << " vs "
                << cell->GetCellType() << endl;
-          rval += CompareHigherOrderCell(c1, c2);
+          if (cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)
+          {
+            rval += CompareHigherOrderCell(c1, c2);
+          }
           vtkCell* qc1 = quadCell->GetEdge(e);
           cerr << "Doing Edge: #" << e << " comp:" << quadCell->GetCellType() << " vs "
                << cell->GetCellType() << endl;
           if (cell->GetCellType() != VTK_QUADRATIC_LINEAR_QUAD &&
-            cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE)
+            cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE &&
+            cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)
           {
             rval += CompareHigherOrderCell(qc1, c2);
           }
@@ -172,7 +176,8 @@ int TestHigherOrderCell(int, char*[])
           vtkCell* f2 = cell->GetFace(f);
           cerr << "Doing Face: #" << f << " comp:" << linCell->GetCellType() << " vs "
                << cell->GetCellType() << endl;
-          if (cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE)
+          if (cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE &&
+            cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)
           {
             rval += CompareHigherOrderCell(f1, f2);
           }
@@ -180,7 +185,8 @@ int TestHigherOrderCell(int, char*[])
           cerr << "Doing Face: #" << f << " comp:" << quadCell->GetCellType() << " vs "
                << cell->GetCellType() << endl;
           if (cell->GetCellType() != VTK_QUADRATIC_LINEAR_QUAD &&
-            cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE)
+            cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE &&
+            cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)
           {
             rval += CompareHigherOrderCell(qf1, f2);
           }
