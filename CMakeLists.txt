@@ -33,9 +33,6 @@ endif()
 
 include(vtkCMakeBackports)
 
-option(VTK_ENABLE_OPENVDB "Enable the OpenVDB Writer" OFF)
-mark_as_advanced(VTK_ENABLE_OPENVDB)
-
 option(VTK_WHEEL_BUILD "Build in such a way that Python wheels are supported" OFF)
 mark_as_advanced(VTK_WHEEL_BUILD)
 if (VTK_WHEEL_BUILD)
