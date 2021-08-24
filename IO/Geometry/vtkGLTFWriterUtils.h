@@ -67,3 +67,5 @@ public:
 #define GL_LINEAR 0x2601
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkGLTFWriterUtils.h

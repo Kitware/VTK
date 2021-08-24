@@ -74,7 +74,7 @@ int TestGLTFWriter(int argc, char* argv[])
   writer->Write();
 
   vtkNew<vtkGLTFImporter> importer;
-  importer->SetFileName("test.gltf");
+  importer->SetFileName(filename.c_str());
   importer->SetCamera(-1);
   importer->SetRenderWindow(renWin);
   importer->Update();

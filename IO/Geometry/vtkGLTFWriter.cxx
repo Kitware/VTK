@@ -148,7 +148,7 @@ std::string GetMimeType(const char* textureFileName)
 }
 
 std::string WriteBufferAndView(const char* textureFileName, const char* textureBaseDirectory,
-  const char* fileName, bool inlineData, Json::Value& buffers, Json::Value& bufferViews)
+  bool inlineData, Json::Value& buffers, Json::Value& bufferViews)
 {
   // if inline then base64 encode the data. In this case we need to read the texture
   std::string result;
@@ -473,8 +473,8 @@ void WriteCamera(Json::Value& cameras, vtkRenderer* ren)
 }
 
 void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& textures,
-  Json::Value& samplers, Json::Value& images, vtkPolyData* pd, const char* fileName,
-  bool inlineData, std::map<std::string, unsigned int>& textureMap, bool saveTextures,
+  Json::Value& samplers, Json::Value& images, vtkPolyData* pd, bool inlineData,
+  std::map<std::string, unsigned int>& textureMap, bool saveTextures,
   const char* textureBaseDirectory)
 {
   std::string textureFileName = GetFieldAsString(pd, "texture_uri");
@@ -487,7 +487,7 @@ void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& t
   if (textureMap.find(textureFileName) == textureMap.end())
   {
     std::string mimeType = WriteBufferAndView(
-      textureFileName.c_str(), textureBaseDirectory, fileName, inlineData, buffers, bufferViews);
+      textureFileName.c_str(), textureBaseDirectory, inlineData, buffers, bufferViews);
     if (mimeType.empty())
     {
       return;
@@ -664,8 +664,8 @@ void vtkGLTFWriter::WriteToStream(ostream& output, vtkMultiBlockDataSet* mb)
           this->InlineData, this->SaveNormal, this->SaveBatchId);
         rendererNode["children"].append(nodes.size() - 1);
         unsigned int oldTextureCount = textures.size();
-        WriteTexture(buffers, bufferViews, textures, samplers, images, pd, this->FileName,
-          this->InlineData, textureMap, this->SaveTextures, this->TextureBaseDirectory);
+        WriteTexture(buffers, bufferViews, textures, samplers, images, pd, this->InlineData,
+          textureMap, this->SaveTextures, this->TextureBaseDirectory);
         meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
         WriteMaterial(pd, materials, oldTextureCount, oldTextureCount != textures.size());
       }
