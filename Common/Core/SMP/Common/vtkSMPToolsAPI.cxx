@@ -162,6 +162,60 @@ int vtkSMPToolsAPI::GetEstimatedNumberOfThreads()
   return 0;
 }
 
+//------------------------------------------------------------------------------
+void vtkSMPToolsAPI::SetNestedParallelism(bool isNested)
+{
+  switch (this->ActivatedBackend)
+  {
+    case BackendType::Sequential:
+      this->SequentialBackend->SetNestedParallelism(isNested);
+      break;
+    case BackendType::STDThread:
+      this->STDThreadBackend->SetNestedParallelism(isNested);
+      break;
+    case BackendType::TBB:
+      this->TBBBackend->SetNestedParallelism(isNested);
+      break;
+    case BackendType::OpenMP:
+      this->OpenMPBackend->SetNestedParallelism(isNested);
+      break;
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkSMPToolsAPI::GetNestedParallelism()
+{
+  switch (this->ActivatedBackend)
+  {
+    case BackendType::Sequential:
+      return this->SequentialBackend->GetNestedParallelism();
+    case BackendType::STDThread:
+      return this->STDThreadBackend->GetNestedParallelism();
+    case BackendType::TBB:
+      return this->TBBBackend->GetNestedParallelism();
+    case BackendType::OpenMP:
+      return this->OpenMPBackend->GetNestedParallelism();
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkSMPToolsAPI::IsParallelScope()
+{
+  switch (this->ActivatedBackend)
+  {
+    case BackendType::Sequential:
+      return this->SequentialBackend->IsParallelScope();
+    case BackendType::STDThread:
+      return this->STDThreadBackend->IsParallelScope();
+    case BackendType::TBB:
+      return this->TBBBackend->IsParallelScope();
+    case BackendType::OpenMP:
+      return this->OpenMPBackend->IsParallelScope();
+  }
+  return false;
+}
+
 } // namespace smp
 } // namespace detail
 } // namespace vtk

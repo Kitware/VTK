@@ -26,7 +26,7 @@ vtk::detail::smp::vtkSMPThreadPool::vtkSMPThreadPool(int threadNumber)
   }
 }
 
-vtk::detail::smp::vtkSMPThreadPool::~vtkSMPThreadPool()
+void vtk::detail::smp::vtkSMPThreadPool::Join()
 {
   {
     std::unique_lock<std::mutex> lock(this->Mutex);

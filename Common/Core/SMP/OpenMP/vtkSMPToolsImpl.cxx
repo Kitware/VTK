@@ -69,13 +69,15 @@ int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedNumberOfThreads()
 
 //------------------------------------------------------------------------------
 void vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
-  ExecuteFunctorPtrType functorExecuter, void* functor)
+  ExecuteFunctorPtrType functorExecuter, void* functor, bool nestedActivated)
 {
   if (grain <= 0)
   {
     vtkIdType estimateGrain = (last - first) / (GetNumberOfThreadsOpenMP() * 4);
     grain = (estimateGrain > 0) ? estimateGrain : 1;
   }
+
+  omp_set_nested(nestedActivated);
 
 #pragma omp parallel for schedule(runtime)
   for (vtkIdType from = first; from < last; from += grain)

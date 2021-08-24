@@ -66,6 +66,15 @@ public:
   //--------------------------------------------------------------------------------
   int GetEstimatedNumberOfThreads();
 
+  //------------------------------------------------------------------------------
+  void SetNestedParallelism(bool isNested);
+
+  //--------------------------------------------------------------------------------
+  bool GetNestedParallelism();
+
+  //--------------------------------------------------------------------------------
+  bool IsParallelScope();
+
   //--------------------------------------------------------------------------------
   int GetInternalDesiredNumberOfThread() { return this->DesiredNumberOfThread; }
 
@@ -233,6 +242,7 @@ private:
   {
     this->Initialize(config.MaxNumberOfThreads);
     this->SetBackend(config.Backend.c_str());
+    this->SetNestedParallelism(config.NestedParallelism);
     return *this;
   }
 

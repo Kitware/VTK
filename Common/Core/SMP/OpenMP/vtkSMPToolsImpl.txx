@@ -31,7 +31,7 @@ namespace smp
 
 int VTKCOMMONCORE_EXPORT GetNumberOfThreadsOpenMP();
 void VTKCOMMONCORE_EXPORT vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
-  ExecuteFunctorPtrType functorExecuter, void* functor);
+  ExecuteFunctorPtrType functorExecuter, void* functor, bool nestedActivated);
 
 //--------------------------------------------------------------------------------
 template <typename FunctorInternal>
@@ -61,7 +61,17 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::For(
   }
   else
   {
-    vtkSMPToolsImplForOpenMP(first, last, grain, ExecuteFunctorOpenMP<FunctorInternal>, &fi);
+    // this->IsParallel may have threads conficts but it will be always between true and true,
+    // it is set to false only in sequential code.
+    // /!\ This behaviour should be changed if we want more control on nested
+    // (e.g only the 2 first nested For are in parallel)
+    bool fromParallelCode = this->IsParallel;
+    this->IsParallel = true;
+
+    vtkSMPToolsImplForOpenMP(
+      first, last, grain, ExecuteFunctorOpenMP<FunctorInternal>, &fi, this->NestedActivated);
+
+    this->IsParallel &= fromParallelCode;
   }
 }
 

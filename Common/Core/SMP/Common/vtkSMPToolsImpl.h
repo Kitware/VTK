@@ -62,6 +62,15 @@ public:
   int GetEstimatedNumberOfThreads();
 
   //--------------------------------------------------------------------------------
+  void SetNestedParallelism(bool isNested) { this->NestedActivated = isNested; }
+
+  //--------------------------------------------------------------------------------
+  bool GetNestedParallelism() { return this->NestedActivated; }
+
+  //--------------------------------------------------------------------------------
+  bool IsParallelScope() { return this->IsParallel; }
+
+  //--------------------------------------------------------------------------------
   template <typename FunctorInternal>
   void For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi);
 
@@ -85,6 +94,10 @@ public:
   //--------------------------------------------------------------------------------
   template <typename RandomAccessIterator, typename Compare>
   void Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp);
+
+private:
+  bool NestedActivated = true;
+  bool IsParallel = false;
 };
 
 using ExecuteFunctorPtrType = void (*)(void*, vtkIdType, vtkIdType, vtkIdType);
