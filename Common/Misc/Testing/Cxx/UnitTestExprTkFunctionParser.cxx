@@ -41,7 +41,7 @@ constexpr bool STATUS_FAILURE = false;
     auto rand = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();                          \
     for (unsigned int i = 0; i < 1000; ++i)                                                        \
     {                                                                                              \
-      double value = rand->GetRangeValue(low, hi);                                                 \
+      double value = rand->GetNextRangeValue(low, hi);                                             \
       parser->SetScalarVariableValue("x", value);                                                  \
       double result = parser->GetScalarResult();                                                   \
       double expected = math(value);                                                               \
@@ -286,14 +286,14 @@ bool TestVectors()
   // Cross
   for (unsigned int i = 0; i < 10; ++i)
   {
-    double x0 = rand->GetRangeValue(-1.0, 1.0);
-    double x1 = rand->GetRangeValue(-1.0, 1.0);
-    double x2 = rand->GetRangeValue(-1.0, 1.0);
+    double x0 = rand->GetNextRangeValue(-1.0, 1.0);
+    double x1 = rand->GetNextRangeValue(-1.0, 1.0);
+    double x2 = rand->GetNextRangeValue(-1.0, 1.0);
     parser->SetVectorVariableValue("x", x0, x1, x2);
 
-    double y0 = rand->GetRangeValue(-1.0, 1.0);
-    double y1 = rand->GetRangeValue(-1.0, 1.0);
-    double y2 = rand->GetRangeValue(-1.0, 1.0);
+    double y0 = rand->GetNextRangeValue(-1.0, 1.0);
+    double y1 = rand->GetNextRangeValue(-1.0, 1.0);
+    double y2 = rand->GetNextRangeValue(-1.0, 1.0);
     parser->SetVectorVariableValue("y", y0, y1, y2);
 
     parser->SetFunction("cross(x,y)");
@@ -341,14 +341,14 @@ bool TestVectors()
             << "...";
   for (unsigned int i = 0; i < 10; ++i)
   {
-    double x0 = rand->GetRangeValue(-1.0, 1.0);
-    double x1 = rand->GetRangeValue(-1.0, 1.0);
-    double x2 = rand->GetRangeValue(-1.0, 1.0);
+    double x0 = rand->GetNextRangeValue(-1.0, 1.0);
+    double x1 = rand->GetNextRangeValue(-1.0, 1.0);
+    double x2 = rand->GetNextRangeValue(-1.0, 1.0);
     parser->SetVectorVariableValue("x", x0, x1, x2);
 
-    double y0 = rand->GetRangeValue(-1.0, 1.0);
-    double y1 = rand->GetRangeValue(-1.0, 1.0);
-    double y2 = rand->GetRangeValue(-1.0, 1.0);
+    double y0 = rand->GetNextRangeValue(-1.0, 1.0);
+    double y1 = rand->GetNextRangeValue(-1.0, 1.0);
+    double y2 = rand->GetNextRangeValue(-1.0, 1.0);
     parser->SetVectorVariableValue("y", y0, y1, y2);
 
     parser->SetScalarVariableValue("t", 2.0);
@@ -461,7 +461,7 @@ bool TestMinMax()
   bool status = STATUS_SUCCESS;
   for (unsigned int i = 0; i < 1000; ++i)
   {
-    double value = rand->GetRangeValue(-1000.0, 1000.0);
+    double value = rand->GetNextRangeValue(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", value);
     parser->SetScalarVariableValue("y", -value);
 
@@ -483,7 +483,7 @@ bool TestMinMax()
 
   for (unsigned int i = 0; i < 1000; ++i)
   {
-    double value = rand->GetRangeValue(-1000.0, 1000.0);
+    double value = rand->GetNextRangeValue(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", value);
     parser->SetScalarVariableValue("y", -value);
 
@@ -520,8 +520,8 @@ bool TestScalarLogic()
   parser->SetFunction("if(x < y, x, y)");
   for (unsigned int i = 0; i < 1000; ++i)
   {
-    double x = rand->GetRangeValue(-1000.0, 1000.0);
-    double y = rand->GetRangeValue(-1000.0, 1000.0);
+    double x = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double y = rand->GetNextRangeValue(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", x);
     parser->SetScalarVariableValue("y", y);
 
@@ -539,8 +539,8 @@ bool TestScalarLogic()
   parser->SetFunction("if(x > y, x, y)");
   for (unsigned int i = 0; i < 1000; ++i)
   {
-    double x = rand->GetRangeValue(-1000.0, 1000.0);
-    double y = rand->GetRangeValue(-1000.0, 1000.0);
+    double x = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double y = rand->GetNextRangeValue(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", x);
     parser->SetScalarVariableValue("y", y);
 
@@ -558,7 +558,7 @@ bool TestScalarLogic()
   parser->SetFunction("if(x = y, x, 0.0)");
   for (unsigned int i = 0; i < 1000; ++i)
   {
-    double x = rand->GetRangeValue(-1000.0, 1000.0);
+    double x = rand->GetNextRangeValue(-1000.0, 1000.0);
     double y = x;
     parser->SetScalarVariableValue("x", x);
     parser->SetScalarVariableValue("y", y);
@@ -628,17 +628,17 @@ bool TestVectorLogic()
   parser->SetFunction("if(x < y, v, w)");
   for (unsigned int i = 0; i < 1000; ++i)
   {
-    double x = rand->GetRangeValue(-1000.0, 1000.0);
-    double y = rand->GetRangeValue(-1000.0, 1000.0);
+    double x = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double y = rand->GetNextRangeValue(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", x);
     parser->SetScalarVariableValue("y", y);
 
-    double v1 = rand->GetRangeValue(-1000.0, 1000.0);
-    double v2 = rand->GetRangeValue(-1000.0, 1000.0);
-    double v3 = rand->GetRangeValue(-1000.0, 1000.0);
-    double w1 = rand->GetRangeValue(-1000.0, 1000.0);
-    double w2 = rand->GetRangeValue(-1000.0, 1000.0);
-    double w3 = rand->GetRangeValue(-1000.0, 1000.0);
+    double v1 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double v2 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double v3 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double w1 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double w2 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double w3 = rand->GetNextRangeValue(-1000.0, 1000.0);
     parser->SetVectorVariableValue("v", v1, v2, v3);
     parser->SetVectorVariableValue("w", w1, w2, w3);
 
@@ -656,17 +656,17 @@ bool TestVectorLogic()
   parser->SetFunction("if(x > y, v, w)");
   for (unsigned int i = 0; i < 1000; ++i)
   {
-    double x = rand->GetRangeValue(-1000.0, 1000.0);
-    double y = rand->GetRangeValue(-1000.0, 1000.0);
+    double x = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double y = rand->GetNextRangeValue(-1000.0, 1000.0);
     parser->SetScalarVariableValue("x", x);
     parser->SetScalarVariableValue("y", y);
 
-    double v1 = rand->GetRangeValue(-1000.0, 1000.0);
-    double v2 = rand->GetRangeValue(-1000.0, 1000.0);
-    double v3 = rand->GetRangeValue(-1000.0, 1000.0);
-    double w1 = rand->GetRangeValue(-1000.0, 1000.0);
-    double w2 = rand->GetRangeValue(-1000.0, 1000.0);
-    double w3 = rand->GetRangeValue(-1000.0, 1000.0);
+    double v1 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double v2 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double v3 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double w1 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double w2 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double w3 = rand->GetNextRangeValue(-1000.0, 1000.0);
     parser->SetVectorVariableValue("v", v1, v2, v3);
     parser->SetVectorVariableValue("w", w1, w2, w3);
 
@@ -685,17 +685,17 @@ bool TestVectorLogic()
   for (unsigned int i = 0; i < 1000; ++i)
   {
 
-    double x = rand->GetRangeValue(-1000.0, 1000.0);
+    double x = rand->GetNextRangeValue(-1000.0, 1000.0);
     double y = x;
     parser->SetScalarVariableValue("x", x);
     parser->SetScalarVariableValue("y", y);
 
-    double v1 = rand->GetRangeValue(-1000.0, 1000.0);
-    double v2 = rand->GetRangeValue(-1000.0, 1000.0);
-    double v3 = rand->GetRangeValue(-1000.0, 1000.0);
-    double w1 = rand->GetRangeValue(-1000.0, 1000.0);
-    double w2 = rand->GetRangeValue(-1000.0, 1000.0);
-    double w3 = rand->GetRangeValue(-1000.0, 1000.0);
+    double v1 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double v2 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double v3 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double w1 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double w2 = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double w3 = rand->GetNextRangeValue(-1000.0, 1000.0);
     parser->SetVectorVariableValue("v", v1, v2, v3);
     parser->SetVectorVariableValue("w", w1, w2, w3);
 
@@ -761,8 +761,8 @@ bool TestMiscFunctions()
   status = STATUS_SUCCESS;
   for (unsigned int i = 0; i < 1000; ++i)
   {
-    double x = rand->GetRangeValue(0.0, 10.0);
-    double y = rand->GetRangeValue(0.0, 2.0);
+    double x = rand->GetNextRangeValue(0.0, 10.0);
+    double y = rand->GetNextRangeValue(0.0, 2.0);
     parser->SetScalarVariableValue("x", x);
     parser->SetScalarVariableValue("y", y);
     parser->SetFunction("x ^ y");
@@ -794,8 +794,8 @@ bool TestMiscFunctions()
   status = STATUS_SUCCESS;
   for (unsigned int i = 0; i < 1000; ++i)
   {
-    double x = rand->GetRangeValue(-10.0, 10.0);
-    double y = rand->GetRangeValue(-10.0, 10.0);
+    double x = rand->GetNextRangeValue(-10.0, 10.0);
+    double y = rand->GetNextRangeValue(-10.0, 10.0);
     parser->SetScalarVariableValue("x", x);
     parser->SetScalarVariableValue("y", y);
     parser->SetFunction("x / y");

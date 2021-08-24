@@ -86,6 +86,10 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # Python notes triggered from MPI4Py Cython-generated code.
   "include/python3.*: note:"
 
+  # macOS warnings about dependencies htat are newer than the CI target
+  # version.
+  "ld: warning: dylib \\(/Applications/Xcode.*\\.app/Contents/Developer/Library/Frameworks/.*\\) was built for newer macOS version \\(.*\\) than being linked \\(.*\\)"
+
   # Warning notes from Xcode.
   "/Applications/Xcode.*: note:"
 

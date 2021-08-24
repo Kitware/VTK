@@ -60,6 +60,11 @@ public:
    */
   virtual void Next() = 0;
 
+  /**
+   * Advance the sequence and return the new value.
+   */
+  double GetNextValue();
+
 protected:
   vtkRandomSequence();
   ~vtkRandomSequence() override;

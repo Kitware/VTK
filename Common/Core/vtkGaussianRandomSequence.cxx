@@ -26,6 +26,13 @@ double vtkGaussianRandomSequence::GetScaledValue(double mean, double standardDev
 }
 
 //------------------------------------------------------------------------------
+double vtkGaussianRandomSequence::GetNextScaledValue(double mean, double standardDeviation)
+{
+  this->Next();
+  return this->GetScaledValue(mean, standardDeviation);
+}
+
+//------------------------------------------------------------------------------
 void vtkGaussianRandomSequence::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
