@@ -321,7 +321,10 @@ if ("VTK::Python" IN_LIST vtk_modules)
   endif ()
 endif ()
 
-option(VTK_ENABLE_KITS "Enable kits compilation" OFF)
+cmake_dependent_option(VTK_ENABLE_KITS "Enable kits compilation" OFF
+  # Static builds don't make sense with kits. Ignore the flag if shared
+  # libraries aren't being built.
+  "VTK_BUILD_SHARED_LIBS" OFF)
 mark_as_advanced(VTK_ENABLE_KITS)
 
 option(VTK_USE_EXTERNAL "Use external copies of third party libraries by default" OFF)
