@@ -2366,6 +2366,11 @@ function (vtk_module_build)
   if (NOT DEFINED _vtk_build_BUILD_WITH_KITS)
     set(_vtk_build_BUILD_WITH_KITS OFF)
   endif ()
+  if (_vtk_build_BUILD_WITH_KITS AND NOT BUILD_SHARED_LIBS)
+    message(AUTHOR_WARNING
+      "Static builds with kits are not well-tested and doesn't make much "
+      "sense. It is recommended to only build with kits in shared builds.")
+  endif ()
 
   if (_vtk_build_BUILD_WITH_KITS AND NOT DEFINED _vtk_build_KITS)
     message(FATAL_ERROR
