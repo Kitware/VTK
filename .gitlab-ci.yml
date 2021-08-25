@@ -3,6 +3,7 @@ include:
     - local: .gitlab/rules.yml
     - local: .gitlab/artifacts.yml
     - local: .gitlab/upload.yml
+    - local: .gitlab/vtk-mixins.yml
 
     # OS builds.
     - local: .gitlab/os-linux.yml
@@ -156,25 +157,19 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
     needs:
         - test:fedora33-mpi-python-qt-tbb
 
-build:fedora33-mpi-python-qt-shared-stdthread:
+test:fedora33-mpi-python-qt-stdthread:
     extends:
-        - .fedora33_mpi_python_qt_shared_stdthread
-        - .cmake_build_linux
-        - .linux_qt_builder_tags
-        - .cmake_build_artifacts
-        - .run_manually
-
-test:fedora33-mpi-python-qt-shared-stdthread:
-    extends:
-        - .fedora33_mpi_python_qt_shared_stdthread
+        - .fedora33_mpi_python_qt_stdthread
+        - .smp_backend_stdthread_env_variable
+        - .ctest_new_cdash_submission
         - .cmake_test_linux
         - .linux_qt_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - build:fedora33-mpi-python-qt-shared-stdthread
+        - build:fedora33-mpi-python-qt-tbb
     needs:
-        - build:fedora33-mpi-python-qt-shared-stdthread
+        - build:fedora33-mpi-python-qt-tbb
 
 
 ## Python wheel builds
@@ -507,27 +502,20 @@ test:macos-x86_64-kits-python-qt:
         - build:macos-x86_64-kits-python-qt
     timeout: 2 hours
 
-build:macos-x86_64-python-qt-stdthread:
+test:macos-x86_64-kits-python-qt-stdthread:
     extends:
-        - .macos_x86_64_python_qt_stdthread
-        - .cmake_build_macos
-        - .macos_builder_tags
-        - .cmake_build_artifacts
-        - .run_manually
-    # Some of the macOS runners are not very powerful.
-    timeout: 2 hours
-
-test:macos-x86_64-python-qt-stdthread:
-    extends:
-        - .macos_x86_64_python_qt_stdthread
+        - .macos_x86_64_kits_python_qt_stdthread
+        - .smp_backend_stdthread_env_variable
+        - .ctest_new_cdash_submission
         - .cmake_test_macos
         - .macos_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - build:macos-x86_64-python-qt-stdthread
+        - build:macos-x86_64-kits-python-qt
     needs:
-        - build:macos-x86_64-python-qt-stdthread
+        - build:macos-x86_64-kits-python-qt
+    timeout: 2 hours
 
 # FIXME: This is not working because Qt uses @rpath/ for its library
 # references. Since we're using a `nonconcurrent` runner for this, we can't
@@ -672,25 +660,19 @@ test:windows-vs2019-kits-mpi-python-qt:
     needs:
         - build:windows-vs2019-kits-mpi-python-qt
 
-build:windows-vs2019-mpi-python-qt-stdthread:
+test:windows-vs2019-kits-mpi-python-qt-stdthread:
     extends:
-        - .windows_vs2019_mpi_python_qt_stdthread
-        - .cmake_build_windows
-        - .windows_builder_tags
-        - .cmake_build_artifacts
-        - .run_manually
-
-test:windows-vs2019-mpi-python-qt-stdthread:
-    extends:
-        - .windows_vs2019_mpi_python_qt_stdthread
+        - .windows_vs2019_kits_mpi_python_qt_stdthread
+        - .smp_backend_stdthread_env_variable
+        - .ctest_new_cdash_submission
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - build:windows-vs2019-mpi-python-qt-stdthread
+        - build:windows-vs2019-kits-mpi-python-qt
     needs:
-        - build:windows-vs2019-mpi-python-qt-stdthread
+        - build:windows-vs2019-kits-mpi-python-qt
 
 # This is disabled because VTK-m doesn't make a relocatable installation of its
 # imported targets (cf. `vtkm::tbb` since it embeds the build-time locations

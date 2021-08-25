@@ -1,0 +1,9 @@
+# Mixins for VTK CI jobs
+
+.smp_backend_stdthread_env_variable:
+    variables:
+        VTK_SMP_BACKEND_IN_USE: 'STDThread'
+
+.ctest_new_cdash_submission:
+    variables:
+        CTEST_NEW_CDASH_SUBMISSION: 'True'

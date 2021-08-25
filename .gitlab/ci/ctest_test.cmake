@@ -3,8 +3,20 @@ include("${CMAKE_CURRENT_LIST_DIR}/gitlab_ci.cmake")
 # Read the files from the build directory.
 ctest_read_custom_files("${CTEST_BINARY_DIRECTORY}")
 
-# Pick up from where the configure left off.
-ctest_start(APPEND)
+# Create a new entry if needed,
+# else pick up from where the configure left off.
+if("$ENV{CTEST_NEW_CDASH_SUBMISSION}" STREQUAL "True")
+  ctest_start(Experimental TRACK "${ctest_track}")
+
+  # Gather update information.
+  find_package(Git)
+  set(CTEST_UPDATE_VERSION_ONLY ON)
+  set(CTEST_UPDATE_COMMAND "${GIT_EXECUTABLE}")
+  ctest_update()
+  ctest_submit(PARTS Update)
+else()
+  ctest_start(APPEND)
+endif()
 
 include(ProcessorCount)
 ProcessorCount(nproc)

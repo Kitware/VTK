@@ -127,13 +127,13 @@
     variables:
         CMAKE_CONFIGURATION: fedora33_mpi_python_qt_tbb_ext_vtk
 
-.fedora33_mpi_python_qt_shared_stdthread:
+.fedora33_mpi_python_qt_stdthread:
     extends:
         - .fedora33
         - .fedora_mpich_addon
 
     variables:
-        CMAKE_CONFIGURATION: fedora33_mpi_python_qt_shared_stdthread
+        CMAKE_CONFIGURATION: fedora33_mpi_python_qt_stdthread
 
 .fedora33_tidy:
     extends:
