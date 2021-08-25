@@ -269,6 +269,7 @@ void TreeInformation::SaveGLTF(vtkIncrementalOctreeNode* node)
     writer->SetFileName(ostr.str().c_str());
     writer->SetTextureBaseDirectory(this->TexturePath.c_str());
     writer->SetSaveTextures(this->SaveTextures);
+    writer->SetSaveNormal(!this->SaveTextures);
     writer->Write();
   }
 }

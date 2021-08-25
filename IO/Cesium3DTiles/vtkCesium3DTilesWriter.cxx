@@ -99,7 +99,13 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* root, const doubl
   vtkMultiBlockDataSet* tr = vtkMultiBlockDataSet::SafeDownCast(f->GetOutputDataObject(0));
   tr->GetBounds(&wholeBB[0]);
 
-  auto buildingIt = vtk::TakeSmartPointer(tr->NewTreeIterator());
+  // generate normals - these are needed in Cesium if there are no textures
+  vtkNew<vtkPolyDataNormals> normals;
+  normals->SetInputDataObject(tr);
+  normals->Update();
+  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(normals->GetOutputDataObject(0));
+
+  auto buildingIt = vtk::TakeSmartPointer(mb->NewTreeIterator());
   buildingIt->VisitOnlyLeavesOff();
   buildingIt->TraverseSubTreeOff();
   for (buildingIt->InitTraversal(); !buildingIt->IsDoneWithTraversal(); buildingIt->GoToNextItem())
