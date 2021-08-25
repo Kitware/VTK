@@ -171,9 +171,9 @@ Less common, but variables which may be of interest to some:
     values are `OFF` (no testing), `WANT` (enable tests as possible), and `ON`
     (enable all tests; may error out if features otherwise disabled are
     required by test code).
-  * `VTK_ENABLE_KITS` (default `OFF`): Compile VTK into
-    a smaller set of libraries. Can be useful on platforms where VTK takes a
-    long time to launch due to expensive disk access.
+  * `VTK_ENABLE_KITS` (default `OFF`; requires `BUILD_SHARED_LIBS`): Compile
+    VTK into a smaller set of libraries. Can be useful on platforms where VTK
+    takes a long time to launch due to expensive disk access.
   * `VTK_ENABLE_WRAPPING` (default `ON`): Whether any wrapping support will be
     available or not.
   * `VTK_WRAP_JAVA` (default `OFF`; requires `VTK_ENABLE_WRAPPING`):
