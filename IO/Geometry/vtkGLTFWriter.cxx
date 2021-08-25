@@ -147,13 +147,12 @@ std::string GetMimeType(const char* textureFileName)
   }
 }
 
-std::string WriteBufferAndView(const char* textureFileName, const char* textureBaseDirectory,
+std::string WriteBufferAndView(const char* gltfRelativeTexturePath, const char* texturePath,
   bool inlineData, Json::Value& buffers, Json::Value& bufferViews)
 {
   // if inline then base64 encode the data. In this case we need to read the texture
   std::string result;
   std::string mimeType;
-  std::string texturePath = std::string(textureBaseDirectory) + "/" + textureFileName;
   unsigned int byteLength = 0;
   if (inlineData)
   {
@@ -161,7 +160,7 @@ std::string WriteBufferAndView(const char* textureFileName, const char* textureB
     vtkSmartPointer<vtkImageData> id;
 
     auto textureReader = SetupTextureReader(texturePath);
-    textureReader->SetFileName(texturePath.c_str());
+    textureReader->SetFileName(texturePath);
     vtkNew<vtkTexture> texture;
     texture->SetInputConnection(textureReader->GetOutputPort());
     texture->Update();
@@ -209,9 +208,9 @@ std::string WriteBufferAndView(const char* textureFileName, const char* textureB
   else
   {
     // otherwise we only refer to the image file.
-    result = texturePath;
+    result = gltfRelativeTexturePath;
     // byte length
-    std::ifstream textureStream(result, ios::binary);
+    std::ifstream textureStream(texturePath, ios::binary);
     if (textureStream.fail())
     {
       return mimeType; /* empty mimeType signals error*/
@@ -219,7 +218,7 @@ std::string WriteBufferAndView(const char* textureFileName, const char* textureB
     textureStream.seekg(0, ios::end);
     byteLength = textureStream.tellg();
     // mimeType from extension
-    mimeType = GetMimeType(textureFileName);
+    mimeType = GetMimeType(texturePath);
   }
 
   Json::Value buffer;
@@ -277,6 +276,7 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
   }
 
   std::vector<vtkDataArray*> arraysToSave;
+  vtkNew<vtkFloatArray> normals;
   if (saveBatchId)
   {
     vtkDataArray* a;
@@ -475,7 +475,7 @@ void WriteCamera(Json::Value& cameras, vtkRenderer* ren)
 void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& textures,
   Json::Value& samplers, Json::Value& images, vtkPolyData* pd, bool inlineData,
   std::map<std::string, unsigned int>& textureMap, bool saveTextures,
-  const char* textureBaseDirectory)
+  const char* textureBaseDirectory, const char* gltfFileName)
 {
   std::string textureFileName = GetFieldAsString(pd, "texture_uri");
   if (!saveTextures || textureFileName.empty())
@@ -486,8 +486,16 @@ void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& t
   unsigned int textureSource = 0;
   if (textureMap.find(textureFileName) == textureMap.end())
   {
+    // compute the relative texture base directory from the gltFile
+    // initially they are either absolute or relative to the CWD
+    std::string gltfFullPath = vtksys::SystemTools::CollapseFullPath(gltfFileName);
+    std::string gltfFullDir = vtksys::SystemTools::GetFilenamePath(gltfFullPath);
+    std::string texturePath = std::string(textureBaseDirectory) + "/" + textureFileName;
+    std::string textureFullPath = vtksys::SystemTools::CollapseFullPath(texturePath);
+    std::string gltfRelativeTexturePath =
+      vtksys::SystemTools::RelativePath(gltfFullDir, textureFullPath);
     std::string mimeType = WriteBufferAndView(
-      textureFileName.c_str(), textureBaseDirectory, inlineData, buffers, bufferViews);
+      gltfRelativeTexturePath.c_str(), texturePath.c_str(), inlineData, buffers, bufferViews);
     if (mimeType.empty())
     {
       return;
@@ -665,7 +673,7 @@ void vtkGLTFWriter::WriteToStream(ostream& output, vtkMultiBlockDataSet* mb)
         rendererNode["children"].append(nodes.size() - 1);
         unsigned int oldTextureCount = textures.size();
         WriteTexture(buffers, bufferViews, textures, samplers, images, pd, this->InlineData,
-          textureMap, this->SaveTextures, this->TextureBaseDirectory);
+          textureMap, this->SaveTextures, this->TextureBaseDirectory, this->FileName);
         meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
         WriteMaterial(pd, materials, oldTextureCount, oldTextureCount != textures.size());
       }
