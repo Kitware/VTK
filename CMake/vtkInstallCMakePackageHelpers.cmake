@@ -60,6 +60,16 @@ foreach (_vtk_package IN LISTS _vtk_packages)
     ${${_vtk_package}_find_package_vars})
 endforeach ()
 
+if ("OpenVDB" IN_LIST _vtk_packages)
+  # FIXME: FindOpenVDB is provided by upstream and needs module path help to
+  # work properly.
+  # https://github.com/AcademySoftwareFoundation/openvdb/issues/1160
+  string(APPEND vtk_find_package_code
+    "list(INSERT CMAKE_MODULE_PATH 0
+  \"${OpenVDB_CMAKE_PATH}\")
+")
+endif ()
+
 file(GENERATE
   OUTPUT  "${vtk_cmake_build_dir}/vtk-find-package-helpers.cmake"
   CONTENT "${vtk_find_package_code}")
