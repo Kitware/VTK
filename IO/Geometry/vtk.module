@@ -13,6 +13,7 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::IOCore
   VTK::IOLegacy
+  VTK::jsoncpp
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
@@ -22,7 +23,6 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
   VTK::IOImage
   VTK::RenderingCore
-  VTK::jsoncpp
   VTK::vtksys
   VTK::zlib
 TEST_DEPENDS
@@ -32,7 +32,9 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersSources
   VTK::IOAMR
+  VTK::IOCityGML
   VTK::IOImage
+  VTK::IOImport
   VTK::IOLegacy
   VTK::InteractionStyle
   VTK::RenderingOpenGL2

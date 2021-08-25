@@ -9,6 +9,7 @@ set(classes
   vtkGAMBITReader
   vtkGLTFDocumentLoader
   vtkGLTFReader
+  vtkGLTFWriter
   vtkHoudiniPolyDataWriter
   vtkIVWriter
   vtkMCubesReader
@@ -27,6 +28,7 @@ set(classes
 
 set(private_classes
   vtkGLTFDocumentLoaderInternals
+  vtkGLTFWriterUtils  
   vtkGLTFUtils)
 
 vtk_module_add_module(VTK::IOGeometry
