@@ -18,7 +18,7 @@ class refs:
     raw_base_url: str = "https://raw.githubusercontent.com/sankhesh/vtk-examples/"
     base_url: str = "https://kitware.github.io/vtk-examples/"
     site_url: str = base_url + "site/"
-    hash: str = "acc1229ce68f1f36e89133bdc67389db6ada44cb"
+    hash: str = "104a1aed92827ecf58b609af4e0852a46c7ea73c"
     selectExamples: str = "src/Python/Utilities/SelectExamples.py"
     img_base: str =\
         "https://raw.githubusercontent.com/Kitware/vtk-examples/gh-pages/src/Testing/Baseline/"
@@ -217,6 +217,10 @@ def main(indir, tmpdir, label, max_num):
     logging.debug("Iterating over collected files...")
     intermediate_time = time.time()
     for headerfile in headerlist:
+        if not headerfile.name.startswith('vtk'):
+            logging.debug("Ignoring non-vtk header {f}"
+                          .format(f=headerfile.name))
+            continue
         # eliminate matcher
         if eliminate_matcher.match(headerfile.name) is not None:
             logging.warning("Ignoring header {f}".format(f=headerfile.name))
