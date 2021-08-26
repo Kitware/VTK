@@ -21,8 +21,14 @@ if (WIN32)
   endif ()
 endif ()
 
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkIOMovieConfigure.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkIOMovieConfigure.h"
+  @ONLY)
+
 vtk_module_add_module(VTK::IOMovie
-  CLASSES ${classes})
+  CLASSES ${classes}
+  HEADERS "${CMAKE_CURRENT_BINARY_DIR}/vtkIOMovieConfigure.h")
 
 set(libs)
 if (WIN32)
