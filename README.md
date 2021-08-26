@@ -70,6 +70,11 @@ VTK supports the following operating systems:
 2. Mac OS X 10.7 or newer
 3. Linux (ex: Ubuntu 12.04 or newer, Debian 4 or newer)
 
+Building
+========
+
+See [build.md][vtk-build] (in Documentation/dev/) for build instructions.
+
 Contributing
 ============
 
@@ -86,6 +91,7 @@ See [Copyright.txt][vtk-copyright] for details.
 [kitware-support]: https://www.kitware.com/what-we-offer/#support
 [kitware-training]: https://www.kitware.com/what-we-offer/#training
 [vtk-banner]: vtkBanner.gif
+[vtk-build]: Documentation/dev/build.md#building-vtk
 [vtk-contributing]: CONTRIBUTING.md#contributing-to-vtk
 [vtk-copyright]: Copyright.txt
 [vtk-discourse]: https://discourse.vtk.org/
