@@ -250,6 +250,8 @@ More advanced options:
     `vtkAVIWriter` class in the `VTK::IOMovie` module.
   * `VTK_USE_VIDEO_FOR_WINDOWS_CAPTURE` (default `OFF`; requires Windows):
     Enable the `vtkWin32VideoSource` class in the `VTK::IOVideo` module.
+  * `VTK_USE_MICROSOFT_MEDIA_FOUNDATION` (default `OFF`; requires Windows):
+    Enable the `vtkMP4Writer` class in the `VTK::IOMovie` module.
 
 The VTK module system provides a number of variables to control modules which
 are not otherwise controlled by the other options provided.
