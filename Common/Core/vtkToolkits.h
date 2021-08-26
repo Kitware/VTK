@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkToolkits.h.in
+  Module:    vtkToolkits.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,6 +15,9 @@
 #ifndef vtkToolkits_h
 #define vtkToolkits_h
 
-/* This header is configured by VTK's build process.  */
+#warning                                                                                           \
+  "vtkToolkits.h is deprecated. For `VTK_DEBUG_LEAKS`, check `vtkDebug.h`, for video support, see `vtkIOMovieConfigure.h` and `vtkIOVideoConfigure.h`."
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkToolkits.h
