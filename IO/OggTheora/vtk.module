@@ -15,3 +15,10 @@ PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
   VTK::theora
+TEST_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::TestingCore
+  VTK::vtksys
