@@ -646,8 +646,8 @@ void CellProcessor<T>::FindCellsAlongLine(
           cellHasBeenVisited[cId] = 1;
 
           // check whether we intersect the cell bounds
-          int hitCellBounds = vtkBox::IntersectBox(
-            this->CellBounds + (6 * cId), a0, rayDir, hitCellBoundsPosition, tHitCell);
+          int hitCellBounds = vtkBox::IntersectBox(this->CellBounds + (6 * cId), a0, rayDir,
+            hitCellBoundsPosition, tHitCell, this->Binner->binTol);
 
           if (hitCellBounds)
           {
@@ -690,8 +690,8 @@ void CellProcessor<T>::FindCellsAlongLine(
       }
     }
 
-    if (curT > 1.0 || ijk[0] < 0 || ijk[0] >= ndivs[0] || ijk[1] < 0 || ijk[1] >= ndivs[1] ||
-      ijk[2] < 0 || ijk[2] >= ndivs[2])
+    if (curT > 1.0 + this->Binner->binTol || ijk[0] < 0 || ijk[0] >= ndivs[0] || ijk[1] < 0 ||
+      ijk[1] >= ndivs[1] || ijk[2] < 0 || ijk[2] >= ndivs[2])
     {
       break;
     }
