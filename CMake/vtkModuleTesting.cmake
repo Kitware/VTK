@@ -339,7 +339,7 @@ function (vtk_add_test_cxx exename _tests)
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
-        # This must match VTK_SKIP_RETURN_CODE in vtkTestingObjectFactory.h
+        # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h
         SKIP_RETURN_CODE 125
       )
 
@@ -441,7 +441,7 @@ function (vtk_add_test_mpi exename _tests)
         LABELS "${_vtk_build_test_labels}"
         PROCESSORS "${numprocs}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
-        # This must match VTK_SKIP_RETURN_CODE in vtkTestingObjectFactory.h"
+        # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h"
         SKIP_RETURN_CODE 125
       )
 
