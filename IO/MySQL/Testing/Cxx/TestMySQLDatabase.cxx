@@ -42,7 +42,6 @@
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimePointUtility.h"
-#include "vtkToolkits.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 

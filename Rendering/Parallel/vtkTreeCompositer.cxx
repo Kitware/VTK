@@ -43,7 +43,6 @@
 #include "vtkFloatArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkTreeCompositer);

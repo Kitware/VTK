@@ -49,7 +49,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 #include "vtkTemporalInterpolatedVelocityField.h"
-#include "vtkToolkits.h"
 #include <cassert>
 
 using namespace vtkTemporalStreamTracerNamespace;

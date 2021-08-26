@@ -60,7 +60,6 @@ typedef ptrdiff_t GLsizeiptr;
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkStringOutputWindow.h"
-#include "vtkToolkits.h"
 
 #include <sstream>
 

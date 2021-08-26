@@ -46,7 +46,6 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
-#include "vtkToolkits.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"

@@ -29,7 +29,6 @@
 #include "vtkProcess.h"
 #include "vtkProcessGroup.h"
 #include "vtkSubCommunicator.h"
-#include "vtkToolkits.h"
 #include "vtkWeakPointer.h"
 
 #include <algorithm>

@@ -19,7 +19,6 @@ PURPOSE.  See the above copyright notice for more information.
   -------------------------------------------------------------------------*/
 
 #include "vtkPOrderStatistics.h"
-#include "vtkToolkits.h"
 
 #include "vtkCommunicator.h"
 #include "vtkIdTypeArray.h"

@@ -31,7 +31,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <iostream>

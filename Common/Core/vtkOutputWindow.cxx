@@ -13,7 +13,6 @@
 
 =========================================================================*/
 #include "vtkOutputWindow.h"
-#include "vtkToolkits.h"
 #if defined(_WIN32) && !defined(VTK_USE_X)
 #include "vtkWin32OutputWindow.h"
 #endif

@@ -18,7 +18,6 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkToolkits.h"
 #include <vtksys/SystemTools.hxx>
 
 #include <vector>

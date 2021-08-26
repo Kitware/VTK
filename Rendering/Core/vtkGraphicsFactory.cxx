@@ -16,7 +16,6 @@
 
 #include "vtkDebugLeaks.h"
 #include "vtkGraphicsFactory.h"
-#include "vtkToolkits.h"
 
 #include <cstdlib>
 #include <mutex>

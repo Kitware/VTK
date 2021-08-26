@@ -23,7 +23,6 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
-#include "vtkToolkits.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <cassert>

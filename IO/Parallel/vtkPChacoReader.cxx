@@ -34,7 +34,6 @@
 #include "vtkPointData.h"
 #include "vtkProcessGroup.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkPChacoReader);

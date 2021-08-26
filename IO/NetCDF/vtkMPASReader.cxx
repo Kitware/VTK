@@ -82,7 +82,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtk_netcdf.h"

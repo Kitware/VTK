@@ -38,7 +38,6 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
-#include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWindowToImageFilter.h"
 #include "vtkXMLUnstructuredGridReader.h"

@@ -15,7 +15,6 @@
 #include "vtkWindow.h"
 
 #include "vtkCommand.h"
-#include "vtkToolkits.h"
 
 //------------------------------------------------------------------------------
 // Construct an instance of vtkRenderWindow with its screen size

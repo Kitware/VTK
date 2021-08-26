@@ -22,7 +22,6 @@
 
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "vtkToolkits.h"
 
 // Include the MPI headers and then determine if MPIIO is available.
 #include "vtkMPI.h"

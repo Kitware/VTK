@@ -30,7 +30,6 @@
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkToolkits.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 #include <vector>

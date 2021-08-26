@@ -50,7 +50,6 @@
 #include "vtkSocketController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
-#include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 

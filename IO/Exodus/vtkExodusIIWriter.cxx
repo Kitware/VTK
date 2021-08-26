@@ -43,7 +43,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkThreshold.h"
-#include "vtkToolkits.h" // for VTK_USE_PARALLEL
 #include "vtkUnstructuredGrid.h"
 
 #include "vtk_exodusII.h"

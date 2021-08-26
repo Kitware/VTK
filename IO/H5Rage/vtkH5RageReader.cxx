@@ -28,7 +28,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkToolkits.h"
 
 #include "H5RageAdaptor.h"
 

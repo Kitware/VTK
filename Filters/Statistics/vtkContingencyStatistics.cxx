@@ -18,8 +18,6 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
 
-#include "vtkToolkits.h"
-
 #include "vtkContingencyStatistics.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 
