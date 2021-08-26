@@ -257,9 +257,11 @@ void TreeInformation::SaveGLTF(vtkIncrementalOctreeNode* node)
       int buildingId = pointIds->GetId(i);
       // add all buildings to the tile
       tile->SetBlock(i, this->Buildings[buildingId]);
+      // ostr << buildingId << " ";
     }
 
     vtkLog(INFO, "Saving GLTF file for " << pointIds->GetNumberOfIds() << " buildings...");
+    // vtkLog(INFO, << ostr.str());
     vtkNew<vtkGLTFWriter> writer;
     writer->SetInputData(tile);
     ostr.str("");
