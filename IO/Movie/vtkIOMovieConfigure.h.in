@@ -15,4 +15,7 @@
 #ifndef vtkIOMovieConfigure_h
 #define vtkIOMovieConfigure_h
 
+// If defined, `vtkAVIWriter.h` is available.
+#cmakedefine VTK_USE_VIDEO_FOR_WINDOWS
+
 #endif
