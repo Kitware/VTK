@@ -17,12 +17,6 @@
 
 /* This header is configured by VTK's build process.  */
 
-/* The Hybrid and VolumeRendering kits are now switched with Rendering.  */
-#ifdef VTK_USE_RENDERING
-# define VTK_USE_HYBRID
-# define VTK_USE_VOLUMERENDERING
-#endif
-
 #cmakedefine VTK_USE_VOLUMEPRO_1000
 
 /*--------------------------------------------------------------------------*/
