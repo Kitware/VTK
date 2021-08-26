@@ -24,9 +24,6 @@
 #cmakedefine VTK_USE_VIDEO_FOR_WINDOWS
 #cmakedefine VTK_VFW_SUPPORTS_CAPTURE
 
-/* Whether the user has linked in the MPEG2 library or not  */
-#cmakedefine VTK_USE_MPEG2_ENCODER
-
 /* Whether the user wants to use the Ogg/Theora encoder or not */
 #cmakedefine VTK_USE_OGGTHEORA_ENCODER
 
