@@ -17,11 +17,4 @@
 
 /* This header is configured by VTK's build process.  */
 
-/*--------------------------------------------------------------------------*/
-/* Other Configuration Options                                              */
-
-/* Whether VTK is using vfw32 and if it supports video capture */
-#cmakedefine VTK_USE_VIDEO_FOR_WINDOWS
-#cmakedefine VTK_VFW_SUPPORTS_CAPTURE
-
 #endif
