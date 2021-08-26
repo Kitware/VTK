@@ -109,15 +109,15 @@ public:
   //--------------------------------------------------------------------------------
   T& Local()
   {
-    this->RefreshBackend();
-    return this->BackendsImpl[static_cast<int>(this->Backend)]->Local();
+    BackendType backendType = this->GetSMPBackendType();
+    return this->BackendsImpl[static_cast<int>(backendType)]->Local();
   }
 
   //--------------------------------------------------------------------------------
   size_t size()
   {
-    this->RefreshBackend();
-    return this->BackendsImpl[static_cast<int>(this->Backend)]->size();
+    BackendType backendType = this->GetSMPBackendType();
+    return this->BackendsImpl[static_cast<int>(backendType)]->size();
   }
 
   //--------------------------------------------------------------------------------
@@ -176,18 +176,18 @@ public:
   //--------------------------------------------------------------------------------
   iterator begin()
   {
-    this->RefreshBackend();
+    BackendType backendType = this->GetSMPBackendType();
     iterator iter;
-    iter.ImplAbstract = this->BackendsImpl[static_cast<int>(this->Backend)]->begin();
+    iter.ImplAbstract = this->BackendsImpl[static_cast<int>(backendType)]->begin();
     return iter;
   };
 
   //--------------------------------------------------------------------------------
   iterator end()
   {
-    this->RefreshBackend();
+    BackendType backendType = this->GetSMPBackendType();
     iterator iter;
-    iter.ImplAbstract = this->BackendsImpl[static_cast<int>(this->Backend)]->end();
+    iter.ImplAbstract = this->BackendsImpl[static_cast<int>(backendType)]->end();
     return iter;
   }
 
@@ -196,15 +196,14 @@ public:
   vtkSMPThreadLocalAPI& operator=(const vtkSMPThreadLocalAPI&) = delete;
 
 private:
-  BackendType Backend = DefaultBackend;
   std::array<std::unique_ptr<vtkSMPThreadLocalImplAbstract<T>>, VTK_SMP_MAX_BACKENDS_NB>
     BackendsImpl;
 
   //--------------------------------------------------------------------------------
-  void RefreshBackend()
+  BackendType GetSMPBackendType()
   {
     auto& SMPToolsAPI = vtkSMPToolsAPI::GetInstance();
-    this->Backend = SMPToolsAPI.GetBackendType();
+    return SMPToolsAPI.GetBackendType();
   }
 };
 
