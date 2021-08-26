@@ -50,6 +50,8 @@ set(VTKm_USE_DOUBLE_PRECISION OFF)
 set(VTKm_USE_64BIT_IDS "${VTK_USE_64BIT_IDS}")
 set(VTKm_NO_ASSERT ON)
 
+set(VTKm_SKIP_LIBRARY_VERSIONS "${VTK_WHEEL_BUILD}")
+
 # VTK-m uses stricter warning checks resulting in more warnings when VTK-m
 # is enabled.
 # Disable VTK-m warning flags and just rely on VTK's warning flags.
