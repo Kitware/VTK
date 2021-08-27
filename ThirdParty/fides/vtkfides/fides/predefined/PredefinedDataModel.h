@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 namespace fides
 {
@@ -54,6 +55,8 @@ public:
   /// prints the JSON
   void PrintJSON();
 
+  virtual std::unordered_map<std::string, std::vector<std::string>> GetAttributes() = 0;
+
 protected:
   /// creates a single data source called source
   virtual void CreateDataSources(rapidjson::Value& parent);
@@ -81,6 +84,9 @@ protected:
   /// DOM with the name of the data model
   virtual void AddRootToDocument(rapidjson::Value& root) = 0;
 
+  virtual void AddFieldAttributes(
+    std::unordered_map<std::string, std::vector<std::string>>& attrMap);
+
   rapidjson::Document Doc;
   std::string DataSourceName = "source";
   std::shared_ptr<InternalMetadataSource> MetadataSource;
@@ -107,10 +113,12 @@ public:
   UniformDataModel(std::shared_ptr<InternalMetadataSource> source);
   UniformDataModel(const vtkm::cont::DataSet& dataSet);
 
+  std::unordered_map<std::string, std::vector<std::string>> GetAttributes() override;
+
 protected:
-  void CreateCoordinateSystem(rapidjson::Value& parent);
-  void CreateCellSet(rapidjson::Value& parent);
-  void AddRootToDocument(rapidjson::Value& root);
+  void CreateCoordinateSystem(rapidjson::Value& parent) override;
+  void CreateCellSet(rapidjson::Value& parent) override;
+  void AddRootToDocument(rapidjson::Value& root) override;
   bool GetDimensionFieldName(std::string& varName) const;
 };
 
@@ -132,10 +140,12 @@ public:
   RectilinearDataModel(std::shared_ptr<InternalMetadataSource> source);
   RectilinearDataModel(const vtkm::cont::DataSet& dataSet);
 
+  std::unordered_map<std::string, std::vector<std::string>> GetAttributes() override;
+
 protected:
-  void CreateCoordinateSystem(rapidjson::Value& parent);
-  void CreateCellSet(rapidjson::Value& parent);
-  void AddRootToDocument(rapidjson::Value& root);
+  void CreateCoordinateSystem(rapidjson::Value& parent) override;
+  void CreateCellSet(rapidjson::Value& parent) override;
+  void AddRootToDocument(rapidjson::Value& root) override;
 };
 
 /// Creates a data model for an unstructured grid where the coordinate system
@@ -152,10 +162,12 @@ public:
   UnstructuredDataModel(std::shared_ptr<InternalMetadataSource> source);
   UnstructuredDataModel(const vtkm::cont::DataSet& dataSet);
 
+  std::unordered_map<std::string, std::vector<std::string>> GetAttributes() override;
+
 protected:
-  void CreateCoordinateSystem(rapidjson::Value& parent);
-  void CreateCellSet(rapidjson::Value& parent);
-  void AddRootToDocument(rapidjson::Value& root);
+  void CreateCoordinateSystem(rapidjson::Value& parent) override;
+  void CreateCellSet(rapidjson::Value& parent) override;
+  void AddRootToDocument(rapidjson::Value& root) override;
 };
 
 /// Similar to UnstructuredDataModel, except for data sets with only
@@ -174,6 +186,8 @@ public:
   UnstructuredSingleTypeDataModel(std::shared_ptr<InternalMetadataSource> source);
   UnstructuredSingleTypeDataModel(const vtkm::cont::DataSet& dataSet);
 
+  std::unordered_map<std::string, std::vector<std::string>> GetAttributes() override;
+
 protected:
   void CreateCellSet(rapidjson::Value& parent) override;
   void AddRootToDocument(rapidjson::Value& root) override;
@@ -186,6 +200,8 @@ class XGCDataModel : public PredefinedDataModel
 public:
   XGCDataModel(std::shared_ptr<InternalMetadataSource> source);
   rapidjson::Document& GetDOM(bool print = false) override;
+
+  std::unordered_map<std::string, std::vector<std::string>> GetAttributes() override;
 
 protected:
   void CreateDataSources(rapidjson::Value& parent) override;

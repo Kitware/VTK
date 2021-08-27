@@ -94,20 +94,25 @@ struct FIDES_EXPORT FieldInformation
 {
   FieldInformation(std::string name, vtkm::cont::Field::Association assoc)
     : Name(name)
-  {
-    this->Association = ConvertVTKmAssociationToFides(assoc);
-  }
-
-  FieldInformation(std::string name, fides::Association assoc)
-    : Name(name)
     , Association(assoc)
   {
   }
 
+  FIDES_DEPRECATED_SUPPRESS_BEGIN
+  FIDES_DEPRECATED(
+    1.1,
+    "fides::Association is no longer used. Use vtkm::cont::Field::Association directly.")
+  FieldInformation(std::string name, fides::Association assoc)
+    : Name(name)
+  {
+    this->Association = ConvertToVTKmAssociation(assoc);
+  }
+  FIDES_DEPRECATED_SUPPRESS_END
+
   /// Name of the field.
   std::string Name;
-  /// Association of the field. \sa fides::Association
-  fides::Association Association;
+  /// Association of the field. See VTK-m field association for details
+  vtkm::cont::Field::Association Association;
 };
 
 /// \brief Meta-data item to store a vector.

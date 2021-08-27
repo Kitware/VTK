@@ -56,7 +56,6 @@ struct CoordinateSystem : public DataModelBase
 
 private:
   std::shared_ptr<fides::datamodel::Array> Array;
-  bool NumberOfBlocksInitialized = false;
   size_t NumberOfBlocks = 0;
 };
 

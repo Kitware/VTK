@@ -10,7 +10,6 @@
 
 #include <fides/Array.h>
 #include <vtkm/cont/ArrayHandleSOA.h>
-#include <vtkm/cont/ArrayHandleStride.h>
 #include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
 #include <vtkm/cont/ArrayHandleXGCCoordinates.h>
 
@@ -643,45 +642,6 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCCoordinates::Read(
   return retVal;
 }
 
-/// Functor created so that UnknownArrayHandle's CastAndCall() will handle making the
-/// appropriate cast to an ArrayHandle.
-/// The specialization is because it tries to use other StorageTags when compiling,
-/// but we only want to support StorageTagBasic.
-struct ArrayXGCField::AddToVectorFunctor
-{
-  template <typename T, typename S>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>&,
-                            std::vector<vtkm::cont::UnknownArrayHandle>&,
-                            std::vector<vtkm::cont::UnknownArrayHandle>&,
-                            vtkm::Id,
-                            bool) const
-  {
-  }
-
-  /// This version is for creating the field AHs
-  template <typename T>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>& array,
-                            std::vector<vtkm::cont::UnknownArrayHandle>& retVal,
-                            vtkm::Id numberOfPlanesOwned,
-                            bool is2dField) const
-  {
-    if (is2dField)
-    {
-      // In this case, the planes are replicated, so we set ArrayHandleStride to have
-      // the number of values in a single plane times number of planes in this partition.
-      // We also need to give the modulo which is number of values in a single plane
-      retVal.push_back(vtkm::cont::ArrayHandleStride<T>(
-        array, array.GetNumberOfValues() * numberOfPlanesOwned, 1, 0, array.GetNumberOfValues()));
-    }
-    else
-    {
-      // in this case the array's number of values is all the planes in this partition,
-      // and modulo is not needed.
-      retVal.push_back(vtkm::cont::ArrayHandleStride<T>(array, array.GetNumberOfValues(), 1, 0));
-    }
-  }
-};
-
 vtkm::cont::UnknownArrayHandle ArrayXGCField::Read3DVariable(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
@@ -766,13 +726,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCField::Read(
   {
     auto fieldData = this->ReadSelf(paths, sources, newSelections, fides::io::IsVector::No);
     assert(fieldData.size() == 1);
-    auto& fieldAH = fieldData[0];
-    for (size_t i = 0; i < blocksInfo.size(); ++i)
-    {
-      const auto& block = blocksInfo[i];
-      fieldAH.CastAndCallForTypes<vtkm::TypeListScalarAll, vtkm::List<vtkm::cont::StorageTagBasic>>(
-        AddToVectorFunctor(), retVal, block.NumberOfPlanesOwned, this->Is2DField);
-    }
+    retVal.push_back(fieldData[0]);
   }
   else
   {
@@ -794,10 +748,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCField::Read(
       newSelections.Remove(fides::keys::BLOCK_SELECTION());
       newSelections.Set(fides::keys::BLOCK_SELECTION(), planesToRead);
       auto planeData = this->Read3DVariable(paths, sources, newSelections);
-
-      planeData
-        .CastAndCallForTypes<vtkm::TypeListScalarAll, vtkm::List<vtkm::cont::StorageTagBasic>>(
-          AddToVectorFunctor(), retVal, block.NumberOfPlanesOwned, this->Is2DField);
+      retVal.push_back(planeData);
     }
   }
 
@@ -840,8 +791,8 @@ void ArrayXGCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
 
   vtkm::cont::Invoker invoke;
 
-  using floatType = vtkm::cont::ArrayHandleStride<float>;
-  using doubleType = vtkm::cont::ArrayHandleStride<double>;
+  using floatType = vtkm::cont::ArrayHandle<float>;
+  using doubleType = vtkm::cont::ArrayHandle<double>;
   fusionutil::PlaneInserterField planeInserter(numPlanes, ptsPerPlane, numInsertPlanes);
   if (fieldArray.IsType<floatType>())
   {
@@ -1043,11 +994,6 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     throw std::runtime_error("Wrong number of partitions for GTC DataSets.");
   }
 
-  if (!dataSets[0].HasField("num_planes") || !dataSets[0].HasField("num_pts_per_plane"))
-  {
-    throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
-  }
-
   auto& dataSet = dataSets[0];
   auto& cs = dataSet.GetCoordinateSystem();
 
@@ -1065,7 +1011,7 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
   }
   else if (!this->IsCached)
   {
-    //Add additional planes.
+    //Make sure fields are there.
     if (!dataSet.HasField("num_planes") || !dataSet.HasField("num_pts_per_plane"))
     {
       throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
@@ -1149,33 +1095,39 @@ void ArrayGTCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
 
   //Add additional planes.
   auto& dataSet = dataSets[0];
-  if (!dataSet.HasField("num_planes") || !dataSet.HasField("num_pts_per_plane"))
+
+  //Grab metadata on the first read.
+  if (!this->IsCached)
   {
-    throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
+    if (!dataSet.HasField("num_planes") || !dataSet.HasField("num_pts_per_plane"))
+    {
+      throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
+    }
+    using intType = vtkm::cont::ArrayHandle<int>;
+    auto numPlanes = dataSet.GetField("num_planes").GetData().AsArrayHandle<intType>();
+    auto numPtsPerPlane = dataSet.GetField("num_pts_per_plane").GetData().AsArrayHandle<intType>();
+
+    this->NumberOfPointsPerPlane = static_cast<vtkm::Id>(numPtsPerPlane.ReadPortal().Get(0));
+    this->NumberOfPlanes = static_cast<vtkm::Id>(numPlanes.ReadPortal().Get(0));
+
+    this->IsCached = true;
   }
-
-  using intType = vtkm::cont::ArrayHandle<int>;
-  auto numPlanes = dataSet.GetField("num_planes").GetData().AsArrayHandle<intType>();
-  auto numPtsPerPlane = dataSet.GetField("num_pts_per_plane").GetData().AsArrayHandle<intType>();
-
-  int numberOfPointsPerPlane = static_cast<vtkm::Id>(numPtsPerPlane.ReadPortal().Get(0));
-  int numberOfPlanes = static_cast<vtkm::Id>(numPlanes.ReadPortal().Get(0));
 
   if (dataSet.HasPointField(this->VariableName))
   {
     const auto& field = dataSet.GetField(this->VariableName);
     const auto& arr = field.GetData();
 
-    vtkm::Id numTotalPlanes = numberOfPlanes * (1 + numInsertPlanes);
+    vtkm::Id numTotalPlanes = this->NumberOfPlanes * (1 + numInsertPlanes);
     fusionutil::PlaneInserterField planeInserter(
-      numberOfPlanes, numberOfPointsPerPlane, numInsertPlanes);
+      this->NumberOfPlanes, this->NumberOfPointsPerPlane, numInsertPlanes);
     vtkm::cont::Invoker invoke;
 
     if (arr.IsType<vtkm::cont::ArrayHandle<vtkm::Float32>>())
     {
       auto inArr = arr.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float32>>();
       vtkm::cont::ArrayHandle<vtkm::Float32> outArr;
-      outArr.Allocate(numTotalPlanes * numberOfPointsPerPlane);
+      outArr.Allocate(numTotalPlanes * this->NumberOfPointsPerPlane);
       invoke(planeInserter, inArr, outArr);
 
       dataSet.AddPointField(this->VariableName, outArr);
@@ -1184,7 +1136,7 @@ void ArrayGTCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     {
       auto inArr = arr.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float64>>();
       vtkm::cont::ArrayHandle<vtkm::Float64> outArr;
-      outArr.Allocate(numTotalPlanes * numberOfPointsPerPlane);
+      outArr.Allocate(numTotalPlanes * this->NumberOfPointsPerPlane);
       invoke(planeInserter, inArr, outArr);
 
       dataSet.AddPointField(this->VariableName, outArr);

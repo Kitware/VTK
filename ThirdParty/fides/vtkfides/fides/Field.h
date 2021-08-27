@@ -13,6 +13,7 @@
 
 #include <fides/Array.h>
 #include <fides/DataModel.h>
+#include <fides/FidesTypes.h>
 #include <fides/FieldData.h>
 #include <fides/predefined/InternalMetadataSource.h>
 
@@ -60,9 +61,12 @@ struct Field : public DataModelBase
   /// handled by the underlying Array object.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
+  FIDES_DEPRECATED_SUPPRESS_BEGIN
+  FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in VTK-m DataSet.")
   FieldData ReadFieldData(const std::unordered_map<std::string, std::string>& paths,
                           DataSourcesType& sources,
                           const fides::metadata::MetaData& selections);
+  FIDES_DEPRECATED_SUPPRESS_END
 
   /// Returns true if this is a wildcard field
   bool IsWildcardField() { return this->WildcardField; }
@@ -72,6 +76,7 @@ struct Field : public DataModelBase
   {
     std::vector<std::string> Names;
     std::vector<std::string> Associations;
+    std::vector<std::string> IsVector;
     std::vector<std::string> Sources;
     std::vector<std::string> ArrayTypes;
   };
@@ -86,12 +91,13 @@ struct Field : public DataModelBase
   std::string Name;
 
   /// The association of the array, either POINTS, CELL_SET, or FIELD_DATA
-  fides::Association Association;
+  vtkm::cont::Field::Association Association;
 
 private:
   std::shared_ptr<fides::datamodel::Array> Array;
   std::string VariableAttributeName;
   std::string AssociationAttributeName;
+  std::string VectorAttributeName;
   std::string SourcesAttributeName;
   std::string ArrayTypesAttributeName;
   bool WildcardField = false;

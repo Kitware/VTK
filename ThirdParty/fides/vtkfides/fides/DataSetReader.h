@@ -52,24 +52,15 @@ public:
   /// Constructor to set up the Fides reader
   /// \param dataModel the value should be 1) a path
   /// to a JSON file describing the data model to be used by the reader,
-  /// 2) a string containing valid JSON, or 3) a path to a BP file containing attributes
-  /// that Fides can use to generate a data model.
+  /// 2) a string containing valid JSON, 3) a path to a BP file containing attributes
+  /// that Fides can use to generate a data model, or 4) a path to a BP file that
+  /// contains a fides/schema attribute that contains the full JSON for the data model.
   /// \param inputType specifies what is stored in the dataModel arg. Optional
   /// \param params a map of ADIOS engine parameters to be
   /// used for each data source. Optional
   /// \sa DataModelInput
   DataSetReader(const std::string dataModel,
                 DataModelInput inputType = DataModelInput::JSONFile,
-                const Params& params = Params());
-
-  /// Constructor to set up the Fides reader using a named attribute in the file that
-  /// contains a JSON string specifying the data model.
-  /// \param bpFileName Name of the file
-  /// \param attrName Name of the attribute in the file that contains the JSON data model
-  /// \param params a map of ADIOS engine parameters to be
-  /// used for each data source. Optional
-  DataSetReader(const std::string bpFileName,
-                const std::string attrName,
                 const Params& params = Params());
 
   ~DataSetReader();
@@ -135,7 +126,10 @@ public:
 
   /// Get a pointer to the field data manager
   /// \sa FieldDataManager, FieldData
+  FIDES_DEPRECATED_SUPPRESS_BEGIN
+  FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in VTK-m DataSet.")
   std::shared_ptr<fides::datamodel::FieldDataManager> GetFieldData();
+  FIDES_DEPRECATED_SUPPRESS_END
 
   /// Get std::vector of DataSource names.
   std::vector<std::string> GetDataSourceNames();
