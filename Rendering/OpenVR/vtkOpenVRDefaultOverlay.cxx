@@ -205,10 +205,7 @@ void handleSetViewUp(vtkObject* /* caller */, unsigned long eid, void* clientdat
   }
 }
 
-vtkOpenVRDefaultOverlay::vtkOpenVRDefaultOverlay() = default;
-
-vtkOpenVRDefaultOverlay::~vtkOpenVRDefaultOverlay() = default;
-
+//------------------------------------------------------------------------------
 void vtkOpenVRDefaultOverlay::SetupSpots()
 {
   // add default spots
@@ -272,6 +269,7 @@ void vtkOpenVRDefaultOverlay::SetupSpots()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenVRDefaultOverlay::Render()
 {
   // update settings
@@ -292,9 +290,4 @@ void vtkOpenVRDefaultOverlay::Render()
   }
 
   this->Superclass::Render();
-}
-
-void vtkOpenVRDefaultOverlay::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
 }

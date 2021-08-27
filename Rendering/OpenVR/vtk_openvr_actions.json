@@ -40,6 +40,10 @@
     },
     {
       "binding_url": "vtk_openvr_binding_oculus_touch.json",
+      "controller_type": "generic"
+    },
+    {
+      "binding_url": "vtk_openvr_binding_oculus_touch.json",
       "controller_type": "oculus_touch"
     },
     {

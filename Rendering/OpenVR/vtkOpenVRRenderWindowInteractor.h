@@ -23,17 +23,17 @@
 #ifndef vtkOpenVRRenderWindowInteractor_h
 #define vtkOpenVRRenderWindowInteractor_h
 
-#include "vtkNew.h"                // ivars
-#include "vtkOpenVRRenderWindow.h" // ivars
+#include "vtkNew.h" // ivars
 #include "vtkRenderWindowInteractor3D.h"
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include <functional>                 // for ivar
 #include <map>                        // for ivar
+#include <openvr.h>                   // for ivar
 #include <string>                     // for ivar
 #include <tuple>                      // for ivar
-
 class vtkTransform;
 class vtkMatrix4x4;
+class vtkOpenVRRenderWindow;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRenderWindowInteractor : public vtkRenderWindowInteractor3D
 {
@@ -110,6 +110,8 @@ public:
    */
   void ConvertPoseToWorldCoordinates(const vr::TrackedDevicePose_t& tdPose, double pos[3],
     double wxyz[4], double ppos[3], double wdir[3]);
+  void ConvertPoseMatrixToWorldCoordinates(
+    const float poseMatrix[3][4], double pos[3], double wxyz[4], double ppos[3], double wdir[3]);
 
   ///@{
   /**

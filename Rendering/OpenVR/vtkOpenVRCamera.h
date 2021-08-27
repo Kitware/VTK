@@ -22,50 +22,50 @@
 #ifndef vtkOpenVRCamera_h
 #define vtkOpenVRCamera_h
 
-#include "vtkNew.h" // ivars
-#include "vtkOpenGLCamera.h"
+#include "vtkNew.h"                   // ivars
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkTransform.h"             // ivars
+#include "vtkVRCamera.h"
 
-class vtkOpenVRRenderer;
-class vtkOpenVRRenderWindow;
+class vtkRenderer;
+class vtkVRRenderWindow;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRCamera : public vtkOpenGLCamera
+class VTKRENDERINGOPENVR_EXPORT vtkOpenVRCamera : public vtkVRCamera
 {
 public:
   static vtkOpenVRCamera* New();
-  vtkTypeMacro(vtkOpenVRCamera, vtkOpenGLCamera);
+  vtkTypeMacro(vtkOpenVRCamera, vtkVRCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement base class method.
    */
-  virtual void Render(vtkRenderer* ren);
+  void Render(vtkRenderer* ren) override;
 
-  virtual void GetKeyMatrices(vtkRenderer* ren, vtkMatrix4x4*& WCVCMatrix,
-    vtkMatrix3x3*& normalMatrix, vtkMatrix4x4*& VCDCMatrix, vtkMatrix4x4*& WCDCMatrix);
+  void GetKeyMatrices(vtkRenderer* ren, vtkMatrix4x4*& WCVCMatrix, vtkMatrix3x3*& normalMatrix,
+    vtkMatrix4x4*& VCDCMatrix, vtkMatrix4x4*& WCDCMatrix) override;
 
   /**
    * Provides a matrix to go from absolute OpenVR tracking coordinates
    * to device coordinates. Used for rendering devices.
    */
-  virtual void GetTrackingToDCMatrix(vtkMatrix4x4*& TCDCMatrix);
+  void GetTrackingToDCMatrix(vtkMatrix4x4*& TCDCMatrix) override;
 
   // apply the left or right eye pose to the camera
   // position and focal point.  Factor is typically
   // 1.0 to add or -1.0 to subtract
-  void ApplyEyePose(vtkOpenVRRenderWindow*, bool left, double factor);
+  void ApplyEyePose(vtkVRRenderWindow*, bool left, double factor);
 
-  // Get the OpenVR Physical Space to World coordinate matrix
+  // Get the VR Physical Space to World coordinate matrix
   vtkTransform* GetPhysicalToWorldTransform() { return this->PoseTransform.Get(); }
 
 protected:
   vtkOpenVRCamera();
   ~vtkOpenVRCamera() override;
 
-  // gets the pose and projections for the left and right eves from
+  // gets the pose and projections for the left and right eyes from
   // the openvr library
   void GetHMDEyePoses(vtkRenderer*);
   void GetHMDEyeProjections(vtkRenderer*);
