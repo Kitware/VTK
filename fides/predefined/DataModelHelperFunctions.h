@@ -34,7 +34,8 @@ void CreateArrayBasic(rapidjson::Document::AllocatorType& allocator,
                       const std::string& dataSource,
                       const std::string& variable,
                       bool isStatic = false,
-                      const std::string& arrayType = "basic");
+                      const std::string& arrayType = "basic",
+                      const std::string& isVector = "");
 
 /// Creates DOM for an ArrayCartesianProduct
 void CreateArrayCartesianProduct(rapidjson::Document::AllocatorType& allocator,
@@ -74,7 +75,8 @@ void CreateValueArray(rapidjson::Document::AllocatorType& allocator,
                       rapidjson::Value& parent,
                       std::shared_ptr<InternalMetadataSource> source,
                       const std::string& attrName,
-                      const std::string& memberName);
+                      const std::string& memberName,
+                      const std::string& dataSourceName);
 
 
 void CreateValueArrayVariable(rapidjson::Document::AllocatorType& allocator,
@@ -215,7 +217,8 @@ inline void CreateUnstructuredSingleTypeCellset(rapidjson::Document::AllocatorTy
 /// that is being expanded
 rapidjson::Document CreateFieldArrayDoc(const std::string& variable,
                                         const std::string& source = "source",
-                                        const std::string& arrayType = "basic");
+                                        const std::string& arrayType = "basic",
+                                        const std::string& isVector = "auto");
 }
 }
 

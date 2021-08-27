@@ -661,10 +661,34 @@ void CellSetGTC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
     throw std::runtime_error("Wrong type for partitions for GTC DataSets.");
   }
 
+  //Add additional fields if requested.
+  bool addR = false, addPhi = false;
+  if (selections.Has(fides::keys::fusion::ADD_R_FIELD()))
+    addR = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_R_FIELD()).Value;
+  if (selections.Has(fides::keys::fusion::ADD_PHI_FIELD()))
+    addPhi = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_PHI_FIELD()).Value;
+
   auto& dataSet = partitions[0];
   if (this->IsCached)
   {
     dataSet.SetCellSet(this->CachedCellSet);
+
+    if (addR)
+    {
+      if (!this->RArrayCached)
+      {
+        throw std::runtime_error("R Array not cached.");
+      }
+      dataSet.AddPointField("R", this->RArray);
+    }
+    if (addPhi)
+    {
+      if (!this->PhiArrayCached)
+      {
+        throw std::runtime_error("Phi Array not cached.");
+      }
+      dataSet.AddPointField("Phi", this->PhiArray);
+    }
     return;
   }
 
@@ -690,31 +714,23 @@ void CellSetGTC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   //Calculate the cellset.
   this->ComputeCellSet(dataSet);
 
-  //Add additional fields if requested.
-  bool addR = false, addPhi = false;
-  if (selections.Has(fides::keys::fusion::ADD_R_FIELD()))
-    addR = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_R_FIELD()).Value;
-  if (selections.Has(fides::keys::fusion::ADD_PHI_FIELD()))
-    addPhi = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_PHI_FIELD()).Value;
-
   if (addR)
   {
-    vtkm::cont::ArrayHandle<vtkm::Float32> var;
     vtkm::cont::Invoker invoke;
 
     const auto& coords = dataSet.GetCoordinateSystem().GetData();
-    invoke(fusionutil::CalcRadius{}, coords, var);
-    dataSet.AddPointField("R", var);
+    invoke(fusionutil::CalcRadius{}, coords, this->RArray);
+    this->RArrayCached = true;
+    dataSet.AddPointField("R", this->RArray);
   }
   if (addPhi)
   {
-    vtkm::cont::ArrayHandle<vtkm::Float32> var;
     vtkm::cont::Invoker invoke;
-
     const auto& coords = dataSet.GetCoordinateSystem().GetData();
     fusionutil::CalcPhi calcPhi(this->NumberOfPlanes, this->NumberOfPointsPerPlane);
-    invoke(calcPhi, coords, var);
-    dataSet.AddPointField("Phi", var);
+    invoke(calcPhi, coords, this->PhiArray);
+    this->PhiArrayCached = true;
+    dataSet.AddPointField("Phi", this->PhiArray);
   }
 }
 

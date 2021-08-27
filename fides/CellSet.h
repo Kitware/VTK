@@ -249,6 +249,11 @@ private:
   std::unique_ptr<Array> IndexShift = nullptr;
   vtkm::Id NumberOfPlanes = -1;
   vtkm::Id NumberOfPointsPerPlane = -1;
+
+  bool RArrayCached = false;
+  bool PhiArrayCached = false;
+  vtkm::cont::ArrayHandle<vtkm::Float32> RArray;
+  vtkm::cont::ArrayHandle<vtkm::Float32> PhiArray;
 };
 
 }

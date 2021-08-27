@@ -11,6 +11,8 @@
 #ifndef fides_FidesTypes_H_
 #define fides_FidesTypes_H_
 
+#include <fides/Deprecated.h>
+
 #include <string>
 #include <unordered_map>
 
@@ -61,7 +63,9 @@ enum class StepStatus
 
 /// Association for fields, based on VTK-m's association enum, but
 /// also includes a value for representing field data.
-enum class Association
+enum class FIDES_DEPRECATED(
+  1.1,
+  "fides::Association is no longer used. Use vtkm::cont::Field::Association directly.") Association
 {
   POINTS,
   CELL_SET,
@@ -70,11 +74,21 @@ enum class Association
 
 /// Converts an fides::Association to a vtkm::cont::Field::Association.
 /// Throws a runtime error if trying to convert fides::Association::FIELD_DATA
+FIDES_DEPRECATED_SUPPRESS_BEGIN
+FIDES_DEPRECATED(
+  1.1,
+  "fides::Association is no longer used. Use vtkm::cont::Field::Association directly.")
 vtkm::cont::Field::Association FIDES_EXPORT ConvertToVTKmAssociation(fides::Association assoc);
+FIDES_DEPRECATED_SUPPRESS_END
 
 /// Converts vtkm::cont::Field::Association to fides::Association.
 /// Throws an error if assoc is not either POINTS or CELL_SET
+FIDES_DEPRECATED_SUPPRESS_BEGIN
+FIDES_DEPRECATED(
+  1.1,
+  "fides::Association is no longer used. Use vtkm::cont::Field::Association directly.")
 fides::Association FIDES_EXPORT ConvertVTKmAssociationToFides(vtkm::cont::Field::Association assoc);
+FIDES_DEPRECATED_SUPPRESS_END
 
 /// Converts a VTKm cell shape type to the fides string.
 /// Throws a runtime error for unsupported cell types.

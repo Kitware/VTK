@@ -100,16 +100,16 @@ const bool xgcRegistered =
   DataModelFactory::GetInstance().RegisterDataModel(DataModelTypes::XGC, CreateXGC);
 
 const bool uniformDSRegistered =
-  DataModelFactory::GetInstance().RegisterDataModelFromDS(DataModelTypes::UNIFORM_FROM_DATASET,
+  DataModelFactory::GetInstance().RegisterDataModelFromDS(DataModelTypes::UNIFORM,
                                                           CreateUniformFromDataSet);
 const bool rectilinearDSRegistered =
-  DataModelFactory::GetInstance().RegisterDataModelFromDS(DataModelTypes::RECTILINEAR_FROM_DATASET,
+  DataModelFactory::GetInstance().RegisterDataModelFromDS(DataModelTypes::RECTILINEAR,
                                                           CreateRectilinearFromDataSet);
-const bool unstructuredSingleDSRegistered = DataModelFactory::GetInstance().RegisterDataModelFromDS(
-  DataModelTypes::UNSTRUCTURED_SINGLE_FROM_DATASET,
-  CreateUnstructuredSingleTypeFromDataSet);
+const bool unstructuredSingleDSRegistered =
+  DataModelFactory::GetInstance().RegisterDataModelFromDS(DataModelTypes::UNSTRUCTURED_SINGLE,
+                                                          CreateUnstructuredSingleTypeFromDataSet);
 const bool unstructuredDSRegistered =
-  DataModelFactory::GetInstance().RegisterDataModelFromDS(DataModelTypes::UNSTRUCTURED_FROM_DATASET,
+  DataModelFactory::GetInstance().RegisterDataModelFromDS(DataModelTypes::UNSTRUCTURED,
                                                           CreateUnstructuredFromDataSet);
 
 // some helper functions that are used by different data model classes
@@ -131,6 +131,22 @@ std::string GetOptionalVariableName(std::shared_ptr<InternalMetadataSource> sour
   return vec[0];
 }
 
+std::pair<bool, std::string> GetOptionalVariableName(std::shared_ptr<InternalMetadataSource> source,
+                                                     const std::string& attrName)
+{
+  if (!source)
+  {
+    return std::make_pair(false, "");
+  }
+
+  auto vec = source->GetAttribute<std::string>(attrName);
+  if (vec.empty())
+  {
+    return std::make_pair(false, "");
+  }
+  return std::make_pair(true, vec[0]);
+}
+
 std::string GetRequiredVariableName(std::shared_ptr<InternalMetadataSource> source,
                                     const std::string& attrName)
 {
@@ -142,6 +158,56 @@ std::string GetRequiredVariableName(std::shared_ptr<InternalMetadataSource> sour
   return dimVarName[0];
 }
 
+const std::string DataModelAttrName = "Fides_Data_Model";
+const std::string OriginAttrName = "Fides_Origin";
+const std::string SpacingAttrName = "Fides_Spacing";
+const std::string DimensionsAttrName = "Fides_Dimensions";
+const std::string DimensionsVarAttrName = "Fides_Dimension_Variable";
+const std::string XVarAttrName = "Fides_X_Variable";
+const std::string YVarAttrName = "Fides_Y_Variable";
+const std::string ZVarAttrName = "Fides_Z_Variable";
+const std::string CoordinatesAttrName = "Fides_Coordinates_Variable";
+const std::string ConnectivityAttrName = "Fides_Connectivity_Variable";
+const std::string CellTypesAttrName = "Fides_Cell_Types_Variable";
+const std::string CellTypeAttrName = "Fides_Cell_Type";
+const std::string NumVertsAttrName = "Fides_Num_Vertices_Variable";
+
+const std::string VarListAttrName = "Fides_Variable_List";
+const std::string AssocListAttrName = "Fides_Variable_Associations";
+const std::string VectorListAttrName = "Fides_Variable_Vectors";
+const std::string VarSourcesAttrName = "Fides_Variable_Sources";
+const std::string VarArrayTypesAttrName = "Fides_Variable_Array_Types";
+
+const std::string XGCNumPlanesAttrName = "Fides_Number_Of_Planes_Variable";
+const std::string XGCMeshAttrName = "Fides_XGC_Mesh_Filename";
+const std::string XGC3dAttrName = "Fides_XGC_3d_Filename";
+const std::string XGCDiagAttrName = "Fides_XGC_Diag_Filename";
+const std::string XGCTriConnAttrName = "Fides_Triangle_Connectivity_Variable";
+const std::string XGCPlaneConnAttrName = "Fides_Plane_Connectivity_Variable";
+
+void createDimensionsJSON(std::shared_ptr<InternalMetadataSource> mdSource,
+                          rapidjson::Document::AllocatorType& allocator,
+                          rapidjson::Value& arrObj,
+                          const std::string& dataSourceName)
+{
+  auto retVal = GetOptionalVariableName(mdSource, DimensionsVarAttrName);
+  std::string dimVarName;
+  if (retVal.first)
+  {
+    dimVarName = retVal.second;
+    CreateValueVariableDimensions(
+      allocator, arrObj, "variable_dimensions", dataSourceName, dimVarName);
+  }
+  else
+  {
+    retVal = GetOptionalVariableName(mdSource, DimensionsAttrName);
+    if (!retVal.first)
+    {
+      throw std::runtime_error(DimensionsAttrName + " or " + DimensionsVarAttrName + " required");
+    }
+    CreateValueArrayVariable(allocator, arrObj, retVal.second, dataSourceName, "dimensions");
+  }
+}
 
 } // end anonymous namespace
 
@@ -181,7 +247,7 @@ rapidjson::Document& PredefinedDataModel::GetDOM(bool print /* = false*/)
 void PredefinedDataModel::CreateDataSources(rapidjson::Value& parent)
 {
   rapidjson::Value allSources(rapidjson::kArrayType);
-  this->CreateDataSource(allSources, "source", "input");
+  this->CreateDataSource(allSources, this->DataSourceName, "input");
   parent.AddMember("data_sources", allSources, this->Doc.GetAllocator());
 }
 
@@ -208,8 +274,52 @@ void PredefinedDataModel::CreateDataSource(rapidjson::Value& parent,
 void PredefinedDataModel::AddStepInformation(rapidjson::Value& parent)
 {
   rapidjson::Value stepInfo(rapidjson::kObjectType);
-  stepInfo.AddMember("data_source", "source", this->Doc.GetAllocator());
+  auto srcName = SetString(this->Doc.GetAllocator(), this->DataSourceName);
+  stepInfo.AddMember("data_source", srcName, this->Doc.GetAllocator());
   parent.AddMember("step_information", stepInfo, this->Doc.GetAllocator());
+}
+
+void PredefinedDataModel::AddFieldAttributes(
+  std::unordered_map<std::string, std::vector<std::string>>& attrMap)
+{
+  vtkm::Id numFields = this->DataSetSource.GetNumberOfFields();
+  attrMap[VarListAttrName] = std::vector<std::string>();
+  attrMap[AssocListAttrName] = std::vector<std::string>();
+  attrMap[VectorListAttrName] = std::vector<std::string>();
+  for (vtkm::Id i = 0; i < numFields; i++)
+  {
+    auto field = this->DataSetSource.GetField(i);
+    //If field restriction is turned on, then skip those fields.
+    if (this->FieldsToWriteSet &&
+        this->FieldsToWrite.find(field.GetName()) == this->FieldsToWrite.end())
+    {
+      continue;
+    }
+
+    std::string assoc;
+    if (field.IsFieldCell())
+    {
+      assoc = "cell_set";
+    }
+    else if (field.IsFieldPoint())
+    {
+      assoc = "points";
+    }
+    else
+    {
+      throw std::runtime_error("Unsupported field association");
+    }
+
+    // we handle isVector as string instead of bool, because there's also a
+    // case where it could be "auto", but in this case it's always true or false
+    std::string isVector = "false";
+    if (field.GetData().GetNumberOfComponents() > 1)
+      isVector = "true";
+
+    attrMap[VarListAttrName].push_back(field.GetName());
+    attrMap[AssocListAttrName].push_back(assoc);
+    attrMap[VectorListAttrName].push_back(isVector);
+  }
 }
 
 void PredefinedDataModel::CreateFields(rapidjson::Value& parent)
@@ -248,7 +358,8 @@ void PredefinedDataModel::CreateFields(rapidjson::Value& parent)
 
       rapidjson::Value arrObj(rapidjson::kObjectType);
       arrObj.AddMember("array_type", "basic", this->Doc.GetAllocator());
-      arrObj.AddMember("data_source", "source", this->Doc.GetAllocator());
+      auto srcName = SetString(this->Doc.GetAllocator(), this->DataSourceName);
+      arrObj.AddMember("data_source", srcName, this->Doc.GetAllocator());
       if (isVector)
         arrObj.AddMember("is_vector", "true", this->Doc.GetAllocator());
       else
@@ -265,7 +376,7 @@ void PredefinedDataModel::CreateFields(rapidjson::Value& parent)
     return;
   }
 
-  auto varList = this->MetadataSource->GetAttribute<std::string>("Fides_Variable_List");
+  auto varList = this->MetadataSource->GetAttribute<std::string>(VarListAttrName);
   if (varList.empty())
   {
     // In this case there are no fields specified in an ADIOS attribute
@@ -273,11 +384,14 @@ void PredefinedDataModel::CreateFields(rapidjson::Value& parent)
   }
   rapidjson::Value fields(rapidjson::kArrayType);
   rapidjson::Value field(rapidjson::kObjectType);
-  field.AddMember("variable_list_attribute_name", "Fides_Variable_List", this->Doc.GetAllocator());
-  field.AddMember(
-    "variable_association_attribute_name", "Fides_Variable_Associations", this->Doc.GetAllocator());
+  auto varListName = SetString(this->Doc.GetAllocator(), VarListAttrName);
+  field.AddMember("variable_list_attribute_name", varListName, this->Doc.GetAllocator());
+  auto assocListName = SetString(this->Doc.GetAllocator(), AssocListAttrName);
+  field.AddMember("variable_association_attribute_name", assocListName, this->Doc.GetAllocator());
+  auto vecListName = SetString(this->Doc.GetAllocator(), VectorListAttrName);
+  field.AddMember("variable_vector_attribute_name", vecListName, this->Doc.GetAllocator());
   rapidjson::Value arrObj(rapidjson::kObjectType);
-  CreateArrayBasic(this->Doc.GetAllocator(), arrObj, "source", "");
+  CreateArrayBasic(this->Doc.GetAllocator(), arrObj, this->DataSourceName, "");
   field.AddMember("array", arrObj, this->Doc.GetAllocator());
   fields.PushBack(field, this->Doc.GetAllocator());
   parent.AddMember("fields", fields, this->Doc.GetAllocator());
@@ -302,6 +416,17 @@ UniformDataModel::UniformDataModel(const vtkm::cont::DataSet& dataSet)
 {
 }
 
+std::unordered_map<std::string, std::vector<std::string>> UniformDataModel::GetAttributes()
+{
+  std::unordered_map<std::string, std::vector<std::string>> attrMap;
+  attrMap[DataModelAttrName] = std::vector<std::string>(1, "uniform");
+  attrMap[OriginAttrName] = std::vector<std::string>(1, "origin");
+  attrMap[SpacingAttrName] = std::vector<std::string>(1, "spacing");
+  attrMap[DimensionsAttrName] = std::vector<std::string>(1, "dims");
+  this->AddFieldAttributes(attrMap);
+  return attrMap;
+}
+
 void UniformDataModel::CreateCoordinateSystem(rapidjson::Value& parent)
 {
   if (this->MetadataSource == nullptr)
@@ -320,15 +445,21 @@ void UniformDataModel::CreateCoordinateSystem(rapidjson::Value& parent)
   rapidjson::Value coordSys(rapidjson::kObjectType);
   rapidjson::Value arrObj(rapidjson::kObjectType);
   arrObj.AddMember("array_type", "uniform_point_coordinates", this->Doc.GetAllocator());
+  createDimensionsJSON(
+    this->MetadataSource, this->Doc.GetAllocator(), arrObj, this->DataSourceName);
 
-  auto dimVarName = GetRequiredVariableName(this->MetadataSource, "Fides_Dimension_Variable");
-  CreateValueVariableDimensions(
-    this->Doc.GetAllocator(), arrObj, "variable_dimensions", "source", dimVarName);
-
-  CreateValueArray(
-    this->Doc.GetAllocator(), arrObj, this->MetadataSource, "Fides_Origin", "origin");
-  CreateValueArray(
-    this->Doc.GetAllocator(), arrObj, this->MetadataSource, "Fides_Spacing", "spacing");
+  CreateValueArray(this->Doc.GetAllocator(),
+                   arrObj,
+                   this->MetadataSource,
+                   OriginAttrName,
+                   "origin",
+                   this->DataSourceName);
+  CreateValueArray(this->Doc.GetAllocator(),
+                   arrObj,
+                   this->MetadataSource,
+                   SpacingAttrName,
+                   "spacing",
+                   this->DataSourceName);
 
   coordSys.AddMember("array", arrObj, this->Doc.GetAllocator());
   parent.AddMember("coordinate_system", coordSys, this->Doc.GetAllocator());
@@ -343,9 +474,8 @@ void UniformDataModel::CreateCellSet(rapidjson::Value& parent)
   }
   rapidjson::Value cellSet(rapidjson::kObjectType);
   cellSet.AddMember("cell_set_type", "structured", this->Doc.GetAllocator());
-  auto dimVarName = GetRequiredVariableName(this->MetadataSource, "Fides_Dimension_Variable");
-  CreateValueVariableDimensions(
-    this->Doc.GetAllocator(), cellSet, "variable_dimensions", "source", dimVarName);
+  createDimensionsJSON(
+    this->MetadataSource, this->Doc.GetAllocator(), cellSet, this->DataSourceName);
   parent.AddMember("cell_set", cellSet, this->Doc.GetAllocator());
 }
 
@@ -365,6 +495,18 @@ RectilinearDataModel::RectilinearDataModel(const vtkm::cont::DataSet& dataSet)
 {
 }
 
+std::unordered_map<std::string, std::vector<std::string>> RectilinearDataModel::GetAttributes()
+{
+  std::unordered_map<std::string, std::vector<std::string>> attrMap;
+  attrMap[DataModelAttrName] = std::vector<std::string>(1, "rectilinear");
+  attrMap[XVarAttrName] = std::vector<std::string>(1, "x_array");
+  attrMap[YVarAttrName] = std::vector<std::string>(1, "y_array");
+  attrMap[ZVarAttrName] = std::vector<std::string>(1, "z_array");
+  attrMap[DimensionsAttrName] = std::vector<std::string>(1, "dims");
+  this->AddFieldAttributes(attrMap);
+  return attrMap;
+}
+
 void RectilinearDataModel::CreateCoordinateSystem(rapidjson::Value& parent)
 {
   if (this->MetadataSource == nullptr)
@@ -382,7 +524,8 @@ void RectilinearDataModel::CreateCoordinateSystem(rapidjson::Value& parent)
 
   rapidjson::Value coordSys(rapidjson::kObjectType);
   rapidjson::Value arrObj(rapidjson::kObjectType);
-  CreateArrayCartesianProduct(this->Doc.GetAllocator(), arrObj, this->MetadataSource, "source");
+  CreateArrayCartesianProduct(
+    this->Doc.GetAllocator(), arrObj, this->MetadataSource, this->DataSourceName);
   coordSys.AddMember("array", arrObj, this->Doc.GetAllocator());
   parent.AddMember("coordinate_system", coordSys, this->Doc.GetAllocator());
 }
@@ -397,10 +540,8 @@ void RectilinearDataModel::CreateCellSet(rapidjson::Value& parent)
 
   rapidjson::Value cellSet(rapidjson::kObjectType);
   cellSet.AddMember("cell_set_type", "structured", this->Doc.GetAllocator());
-
-  auto dimVarName = GetRequiredVariableName(this->MetadataSource, "Fides_Dimension_Variable");
-  CreateValueVariableDimensions(
-    this->Doc.GetAllocator(), cellSet, "variable_dimensions", "source", dimVarName);
+  createDimensionsJSON(
+    this->MetadataSource, this->Doc.GetAllocator(), cellSet, this->DataSourceName);
   parent.AddMember("cell_set", cellSet, this->Doc.GetAllocator());
 }
 
@@ -420,6 +561,18 @@ UnstructuredDataModel::UnstructuredDataModel(const vtkm::cont::DataSet& dataSet)
 {
 }
 
+std::unordered_map<std::string, std::vector<std::string>> UnstructuredDataModel::GetAttributes()
+{
+  std::unordered_map<std::string, std::vector<std::string>> attrMap;
+  attrMap[DataModelAttrName] = std::vector<std::string>(1, "unstructured");
+  attrMap[CoordinatesAttrName] = std::vector<std::string>(1, "coordinates");
+  attrMap[ConnectivityAttrName] = std::vector<std::string>(1, "connectivity");
+  attrMap[CellTypesAttrName] = std::vector<std::string>(1, "cell_types");
+  attrMap[NumVertsAttrName] = std::vector<std::string>(1, "num_verts");
+  this->AddFieldAttributes(attrMap);
+  return attrMap;
+}
+
 void UnstructuredDataModel::CreateCoordinateSystem(rapidjson::Value& parent)
 {
   if (this->MetadataSource == nullptr)
@@ -436,9 +589,8 @@ void UnstructuredDataModel::CreateCoordinateSystem(rapidjson::Value& parent)
 
   rapidjson::Value coordSys(rapidjson::kObjectType);
   rapidjson::Value arrObj(rapidjson::kObjectType);
-  auto varName =
-    GetOptionalVariableName(this->MetadataSource, "Fides_Coordinates_Variable", "points");
-  CreateArrayBasic(this->Doc.GetAllocator(), arrObj, "source", varName, true);
+  auto varName = GetOptionalVariableName(this->MetadataSource, CoordinatesAttrName, "points");
+  CreateArrayBasic(this->Doc.GetAllocator(), arrObj, this->DataSourceName, varName, false);
   coordSys.AddMember("array", arrObj, this->Doc.GetAllocator());
   parent.AddMember("coordinate_system", coordSys, this->Doc.GetAllocator());
 }
@@ -450,20 +602,20 @@ void UnstructuredDataModel::CreateCellSet(rapidjson::Value& parent)
 
   rapidjson::Value connectivity(rapidjson::kObjectType);
   std::string connName =
-    GetOptionalVariableName(this->MetadataSource, "Fides_Connectivity_Variable", "connectivity");
-  CreateArrayBasic(this->Doc.GetAllocator(), connectivity, "source", connName);
+    GetOptionalVariableName(this->MetadataSource, ConnectivityAttrName, "connectivity");
+  CreateArrayBasic(this->Doc.GetAllocator(), connectivity, this->DataSourceName, connName);
   cellSet.AddMember("connectivity", connectivity, this->Doc.GetAllocator());
 
   rapidjson::Value cellTypes(rapidjson::kObjectType);
   std::string ctName =
-    GetOptionalVariableName(this->MetadataSource, "Fides_Cell_Types_Variable", "cell_types");
-  CreateArrayBasic(this->Doc.GetAllocator(), cellTypes, "source", ctName);
+    GetOptionalVariableName(this->MetadataSource, CellTypesAttrName, "cell_types");
+  CreateArrayBasic(this->Doc.GetAllocator(), cellTypes, this->DataSourceName, ctName);
   cellSet.AddMember("cell_types", cellTypes, this->Doc.GetAllocator());
 
   rapidjson::Value numVertices(rapidjson::kObjectType);
   std::string vertName =
-    GetOptionalVariableName(this->MetadataSource, "Fides_Num_Vertices_Variable", "num_verts");
-  CreateArrayBasic(this->Doc.GetAllocator(), numVertices, "source", vertName);
+    GetOptionalVariableName(this->MetadataSource, NumVertsAttrName, "num_verts");
+  CreateArrayBasic(this->Doc.GetAllocator(), numVertices, this->DataSourceName, vertName);
   cellSet.AddMember("number_of_vertices", numVertices, this->Doc.GetAllocator());
 
   parent.AddMember("cell_set", cellSet, this->Doc.GetAllocator());
@@ -484,6 +636,22 @@ UnstructuredSingleTypeDataModel::UnstructuredSingleTypeDataModel(
 UnstructuredSingleTypeDataModel::UnstructuredSingleTypeDataModel(const vtkm::cont::DataSet& dataSet)
   : UnstructuredDataModel(dataSet)
 {
+}
+
+std::unordered_map<std::string, std::vector<std::string>>
+UnstructuredSingleTypeDataModel::GetAttributes()
+{
+  std::unordered_map<std::string, std::vector<std::string>> attrMap;
+  attrMap[DataModelAttrName] = std::vector<std::string>(1, "unstructured_single");
+  attrMap[CoordinatesAttrName] = std::vector<std::string>(1, "coordinates");
+  attrMap[ConnectivityAttrName] = std::vector<std::string>(1, "connectivity");
+
+  const auto& cellSet = this->DataSetSource.GetCellSet().Cast<UnstructuredSingleType>();
+  vtkm::UInt8 shapeId = cellSet.GetCellShape(0);
+  std::string cellType = fides::ConvertVTKmCellTypeToFides(shapeId);
+  attrMap[CellTypeAttrName] = std::vector<std::string>(1, cellType);
+  this->AddFieldAttributes(attrMap);
+  return attrMap;
 }
 
 void UnstructuredSingleTypeDataModel::CreateCellSet(rapidjson::Value& parent)
@@ -510,10 +678,11 @@ void UnstructuredSingleTypeDataModel::CreateCellSet(rapidjson::Value& parent)
   std::string cellType = this->MetadataSource->GetDataModelCellType();
   rapidjson::Value ct = SetString(this->Doc.GetAllocator(), cellType);
   cellSet.AddMember("cell_type", ct, this->Doc.GetAllocator());
-  cellSet.AddMember("data_source", "source", this->Doc.GetAllocator());
+  auto srcName = SetString(this->Doc.GetAllocator(), this->DataSourceName);
+  cellSet.AddMember("data_source", srcName, this->Doc.GetAllocator());
 
   auto connName =
-    GetOptionalVariableName(this->MetadataSource, "Fides_Connectivity_Variable", "connectivity");
+    GetOptionalVariableName(this->MetadataSource, ConnectivityAttrName, "connectivity");
   auto conn = SetString(this->Doc.GetAllocator(), connName);
   cellSet.AddMember("variable", conn, this->Doc.GetAllocator());
 
@@ -531,6 +700,14 @@ XGCDataModel::XGCDataModel(std::shared_ptr<InternalMetadataSource> source)
 {
 }
 
+std::unordered_map<std::string, std::vector<std::string>> XGCDataModel::GetAttributes()
+{
+  std::unordered_map<std::string, std::vector<std::string>> attrMap;
+  attrMap[DataModelAttrName] = std::vector<std::string>(1, "xgc");
+  this->AddFieldAttributes(attrMap);
+  return attrMap;
+}
+
 rapidjson::Document& XGCDataModel::GetDOM(bool print /* = false*/)
 {
   PredefinedDataModel::GetDOM();
@@ -539,8 +716,7 @@ rapidjson::Document& XGCDataModel::GetDOM(bool print /* = false*/)
     throw std::runtime_error("doc doesn't have xgc member");
   }
   auto& root = this->Doc["xgc"];
-  auto nplanes =
-    GetOptionalVariableName(this->MetadataSource, "Fides_Number_Of_Planes_Variable", "nphi");
+  auto nplanes = GetOptionalVariableName(this->MetadataSource, XGCNumPlanesAttrName, "nphi");
   CreateValueScalar(this->Doc.GetAllocator(), root, "number_of_planes", "scalar", "3d", "nphi");
 
   if (print)
@@ -554,14 +730,12 @@ rapidjson::Document& XGCDataModel::GetDOM(bool print /* = false*/)
 void XGCDataModel::CreateDataSources(rapidjson::Value& parent)
 {
   rapidjson::Value allSources(rapidjson::kArrayType);
-  auto meshFilename =
-    GetOptionalVariableName(this->MetadataSource, "Fides_XGC_Mesh_Filename", "xgc.mesh.bp");
+  auto meshFilename = GetOptionalVariableName(this->MetadataSource, XGCMeshAttrName, "xgc.mesh.bp");
   this->CreateDataSource(allSources, "mesh", "relative", meshFilename);
-  auto dFilename =
-    GetOptionalVariableName(this->MetadataSource, "Fides_XGC_3d_Filename", "xgc.3d.bp");
+  auto dFilename = GetOptionalVariableName(this->MetadataSource, XGC3dAttrName, "xgc.3d.bp");
   this->CreateDataSource(allSources, "3d", "relative", dFilename);
   auto diagFilename =
-    GetOptionalVariableName(this->MetadataSource, "Fides_XGC_Diag_Filename", "xgc.oneddiag.bp");
+    GetOptionalVariableName(this->MetadataSource, XGCDiagAttrName, "xgc.oneddiag.bp");
   this->CreateDataSource(allSources, "diag", "relative", diagFilename);
   parent.AddMember("data_sources", allSources, this->Doc.GetAllocator());
 }
@@ -577,7 +751,7 @@ void XGCDataModel::CreateCoordinateSystem(rapidjson::Value& parent)
 {
   rapidjson::Value coordSys(rapidjson::kObjectType);
   rapidjson::Value arrObj(rapidjson::kObjectType);
-  auto coords = GetOptionalVariableName(this->MetadataSource, "Fides_Coordinates_Variable", "rz");
+  auto coords = GetOptionalVariableName(this->MetadataSource, CoordinatesAttrName, "rz");
   CreateArrayXGCCoordinates(this->Doc.GetAllocator(), arrObj, "mesh", coords);
   coordSys.AddMember("array", arrObj, this->Doc.GetAllocator());
   parent.AddMember("coordinate_system", coordSys, this->Doc.GetAllocator());
@@ -589,16 +763,15 @@ void XGCDataModel::CreateCellSet(rapidjson::Value& parent)
   cellSet.AddMember("cell_set_type", "xgc", this->Doc.GetAllocator());
   cellSet.AddMember("periodic", true, this->Doc.GetAllocator());
 
-  auto triConn = GetOptionalVariableName(
-    this->MetadataSource, "Fides_Triangle_Connectivity_Variable", "nd_connect_list");
+  auto triConn =
+    GetOptionalVariableName(this->MetadataSource, XGCTriConnAttrName, "nd_connect_list");
   rapidjson::Value cells(rapidjson::kObjectType);
   CreateArrayBasic(this->Doc.GetAllocator(), cells, "mesh", triConn);
   cells.AddMember("static", true, this->Doc.GetAllocator());
   cells.AddMember("is_vector", "false", this->Doc.GetAllocator());
   cellSet.AddMember("cells", cells, this->Doc.GetAllocator());
 
-  auto planeConn =
-    GetOptionalVariableName(this->MetadataSource, "Fides_Plane_Connectivity_Variable", "nextnode");
+  auto planeConn = GetOptionalVariableName(this->MetadataSource, XGCPlaneConnAttrName, "nextnode");
   rapidjson::Value conn(rapidjson::kObjectType);
   CreateArrayBasic(this->Doc.GetAllocator(), conn, "mesh", planeConn);
   conn.AddMember("static", true, this->Doc.GetAllocator());
@@ -612,13 +785,14 @@ void XGCDataModel::CreateFields(rapidjson::Value& parent)
 {
   rapidjson::Value fields(rapidjson::kArrayType);
   rapidjson::Value field(rapidjson::kObjectType);
-  field.AddMember("variable_list_attribute_name", "Fides_Variable_List", this->Doc.GetAllocator());
-  field.AddMember(
-    "variable_association_attribute_name", "Fides_Variable_Associations", this->Doc.GetAllocator());
-  field.AddMember(
-    "variable_sources_attribute_name", "Fides_Variable_Sources", this->Doc.GetAllocator());
-  field.AddMember(
-    "variable_arrays_attribute_name", "Fides_Variable_Array_Types", this->Doc.GetAllocator());
+  auto varListName = SetString(this->Doc.GetAllocator(), VarListAttrName);
+  field.AddMember("variable_list_attribute_name", varListName, this->Doc.GetAllocator());
+  auto assocListName = SetString(this->Doc.GetAllocator(), AssocListAttrName);
+  field.AddMember("variable_association_attribute_name", assocListName, this->Doc.GetAllocator());
+  auto varSourcesName = SetString(this->Doc.GetAllocator(), VarSourcesAttrName);
+  field.AddMember("variable_sources_attribute_name", varSourcesName, this->Doc.GetAllocator());
+  auto varArrayTypesName = SetString(this->Doc.GetAllocator(), VarArrayTypesAttrName);
+  field.AddMember("variable_arrays_attribute_name", varArrayTypesName, this->Doc.GetAllocator());
 
   rapidjson::Value arrObj(rapidjson::kObjectType);
   CreateArrayBasic(this->Doc.GetAllocator(), arrObj, "", "", false, "");

@@ -14,6 +14,7 @@
 namespace fides
 {
 
+FIDES_DEPRECATED_SUPPRESS_BEGIN
 vtkm::cont::Field::Association ConvertToVTKmAssociation(fides::Association assoc)
 {
   switch (assoc)
@@ -41,6 +42,7 @@ fides::Association ConvertVTKmAssociationToFides(vtkm::cont::Field::Association 
       throw std::runtime_error("Can only convert POINTS and CELL_SET to an fides::Association");
   }
 }
+FIDES_DEPRECATED_SUPPRESS_END
 
 
 std::string ConvertVTKmCellTypeToFides(vtkm::UInt8 cellShapeType)
