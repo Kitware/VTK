@@ -300,6 +300,7 @@ public:
   void AddDepthAttachment(vtkTextureObject* tex);
   void AddDepthAttachment(vtkRenderbuffer* tex);
   void RemoveDepthAttachment();
+  vtkTextureObject* GetDepthAttachmentAsTextureObject();
   ///@}
 
   ///@{

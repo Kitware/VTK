@@ -116,6 +116,21 @@ const char* ResolveShader =
   }
   )***";
 
+const char* DepthBlitShader =
+  R"***(
+  //VTK::System::Dec
+  in vec2 texCoord;
+  uniform sampler2D tex;
+  uniform vec2 texLL;
+  uniform vec2 texSize;
+  //VTK::Output::Dec
+
+  void main()
+  {
+    gl_FragDepth = texture(tex, texCoord*texSize + texLL).r;
+  }
+  )***";
+
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
 {
@@ -144,6 +159,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->State = vtkOpenGLState::New();
   this->FrameBlitMode = BlitToHardware;
   this->ResolveQuad = nullptr;
+  this->DepthBlitQuad = nullptr;
 
   this->Initialized = false;
   this->GlewInitValid = false;
@@ -273,11 +289,11 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
 {
   this->PushContext();
 
-  if (this->ResolveQuad)
-  {
-    delete this->ResolveQuad;
-    this->ResolveQuad = nullptr;
-  }
+  delete this->ResolveQuad;
+  this->ResolveQuad = nullptr;
+
+  delete this->DepthBlitQuad;
+  this->DepthBlitQuad = nullptr;
 
   this->RenderFramebuffer->ReleaseGraphicsResources(renWin);
   this->DisplayFramebuffer->ReleaseGraphicsResources(renWin);
@@ -889,6 +905,69 @@ void vtkOpenGLRenderWindow::End()
   this->GetState()->PopFramebufferBindings();
 }
 
+void vtkOpenGLRenderWindow::TextureDepthBlit(vtkTextureObject* source, int srcX, int srcY,
+  int srcX2, int srcY2, int destX, int destY, int destX2, int destY2)
+{
+  // blit upper right is exclusive
+  vtkOpenGLState::ScopedglViewport viewportSaver(this->GetState());
+  this->GetState()->vtkglViewport(destX, destY, destX2 - destX, destY2 - destY);
+  this->TextureDepthBlit(source, srcX, srcY, srcX2, srcY2);
+}
+
+void vtkOpenGLRenderWindow::TextureDepthBlit(vtkTextureObject* source)
+{
+  this->TextureDepthBlit(source, 0, 0, source->GetWidth(), source->GetHeight());
+}
+
+void vtkOpenGLRenderWindow::TextureDepthBlit(
+  vtkTextureObject* source, int srcX, int srcY, int srcX2, int srcY2)
+{
+  assert("pre: must have both source and destination FO" && source);
+
+  if (!this->DepthBlitQuad)
+  {
+    this->DepthBlitQuad = new vtkOpenGLQuadHelper(this, nullptr, DepthBlitShader, "");
+    if (!this->DepthBlitQuad->Program || !this->DepthBlitQuad->Program->GetCompiled())
+    {
+      vtkErrorMacro("Couldn't build the shader program for depth blits");
+    }
+  }
+  else
+  {
+    this->GetShaderCache()->ReadyShaderProgram(this->DepthBlitQuad->Program);
+  }
+
+  if (this->DepthBlitQuad->Program && this->DepthBlitQuad->Program->GetCompiled())
+  {
+    auto ostate = this->GetState();
+    // save any state we mess with
+    vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
+    ostate->vtkglDisable(GL_SCISSOR_TEST);
+
+    vtkOpenGLState::ScopedglColorMask colorMaskSaver(ostate);
+    ostate->vtkglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+    vtkOpenGLState::ScopedglDepthMask depthMaskSaver(ostate);
+    ostate->vtkglDepthMask(GL_TRUE);
+
+    vtkOpenGLState::ScopedglDepthFunc depthTestSaver(ostate);
+    this->GetState()->vtkglDepthFunc(GL_ALWAYS);
+
+    source->Activate();
+    double width = source->GetWidth();
+    double height = source->GetHeight();
+    this->DepthBlitQuad->Program->SetUniformi("tex", source->GetTextureUnit());
+    float tmp[2] = { static_cast<float>(srcX / width), static_cast<float>(srcY / height) };
+    this->DepthBlitQuad->Program->SetUniform2f("texLL", tmp);
+    tmp[0] = (srcX2 - srcX) / width;
+    tmp[1] = (srcY2 - srcY) / height;
+    this->DepthBlitQuad->Program->SetUniform2f("texSize", tmp);
+
+    this->DepthBlitQuad->Render();
+    source->Deactivate();
+  }
+}
+
 //------------------------------------------------------------------------------
 // for crystal eyes in stereo we have to blit here as well
 void vtkOpenGLRenderWindow::StereoMidpoint()
@@ -1072,7 +1151,6 @@ void vtkOpenGLRenderWindow::BlitDisplayFramebuffersToHardware()
 {
   auto ostate = this->GetState();
   ostate->PushFramebufferBindings();
-  this->DisplayFramebuffer->Bind(GL_READ_FRAMEBUFFER);
   ostate->vtkglViewport(0, 0, this->Size[0], this->Size[1]);
   ostate->vtkglScissor(0, 0, this->Size[0], this->Size[1]);
 
@@ -1080,16 +1158,27 @@ void vtkOpenGLRenderWindow::BlitDisplayFramebuffersToHardware()
 
   if (this->StereoRender && this->StereoType == VTK_STEREO_CRYSTAL_EYES)
   {
+    // bind the read buffer to detach the display framebuffer to be safe
+    ostate->vtkglBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    this->TextureDepthBlit(this->DisplayFramebuffer->GetDepthAttachmentAsTextureObject());
+
+    this->DisplayFramebuffer->Bind(GL_READ_FRAMEBUFFER);
     this->DisplayFramebuffer->ActivateReadBuffer(1);
     ostate->vtkglDrawBuffer(this->DoubleBuffer ? GL_BACK_RIGHT : GL_FRONT_RIGHT);
     ostate->vtkglBlitFramebuffer(0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0],
-      this->Size[1], GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+      this->Size[1], GL_COLOR_BUFFER_BIT, GL_NEAREST);
   }
 
-  this->DisplayFramebuffer->ActivateReadBuffer(0);
   ostate->vtkglDrawBuffer(this->DoubleBuffer ? GL_BACK_LEFT : GL_FRONT_LEFT);
+  // bind the read buffer to detach the display framebuffer to be safe
+  ostate->vtkglBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  this->TextureDepthBlit(this->DisplayFramebuffer->GetDepthAttachmentAsTextureObject());
+
+  this->DisplayFramebuffer->Bind(GL_READ_FRAMEBUFFER);
+  this->DisplayFramebuffer->ActivateReadBuffer(0);
   ostate->vtkglBlitFramebuffer(0, 0, this->Size[0], this->Size[1], 0, 0, this->Size[0],
-    this->Size[1], GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    this->Size[1], GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
   this->GetState()->PopFramebufferBindings();
 }
 
@@ -1807,6 +1896,7 @@ int vtkOpenGLRenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
 
     // Now blit to resolve the MSAA and get an anti-aliased rendering in
     // resolvedFBO.
+    // this is a safe blit as we own both of these texture backed framebuffers
     this->GetState()->vtkglBlitFramebuffer(x_low, y_low, x_low + width, y_low + height, x_low,
       y_low, x_low + width, y_low + height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     this->GetState()->PopDrawFramebufferBinding();
