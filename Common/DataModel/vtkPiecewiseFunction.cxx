@@ -443,7 +443,8 @@ int vtkPiecewiseFunction::AddPoint(double x, double y, double midpoint, double s
 //------------------------------------------------------------------------------
 void vtkPiecewiseFunction::SortAndUpdateRange()
 {
-  std::sort(
+  // Use stable_sort to avoid shuffling of DuplicateScalars
+  std::stable_sort(
     this->Internal->Nodes.begin(), this->Internal->Nodes.end(), this->Internal->CompareNodes);
   bool modifiedInvoked = this->UpdateRange();
   // If range is updated, Modified() has been called, don't call it again.
