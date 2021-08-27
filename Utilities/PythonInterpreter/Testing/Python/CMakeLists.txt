@@ -8,7 +8,7 @@ if (PYTHON_EXECUTABLE AND NOT BUILD_SHARED_LIBS)
     PROPERTIES
       LABELS "${_vtk_build_test_labels}"
       FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
-      # This must match VTK_SKIP_RETURN_CODE in vtkTestingObjectFactory.h
+      # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h
       SKIP_RETURN_CODE 125
       ENVIRONMENT
       "PYTHONPATH=${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/_vtk.zip:${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/"

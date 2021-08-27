@@ -19,7 +19,6 @@ PURPOSE.  See the above copyright notice for more information.
 -------------------------------------------------------------------------*/
 
 #include "vtkSQLDatabaseSchema.h"
-#include "vtkToolkits.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"

@@ -22,7 +22,6 @@
 #include "vtkTable.h"
 #include "vtkTableReader.h"
 #include "vtkTableWriter.h"
-#include "vtkToolkits.h"
 #include "vtksys/SystemTools.hxx"
 
 #include "vtkIOPostgresSQLTestingCxxConfigure.h"

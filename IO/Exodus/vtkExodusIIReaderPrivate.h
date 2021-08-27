@@ -11,7 +11,6 @@
 #include "vtkExodusIIReader.h" // for vtkExodusIIReader
 #include "vtkObject.h"
 #include "vtkStdString.h"               // for vtkStdString
-#include "vtkToolkits.h"                // make sure VTK_USE_PARALLEL is properly set
 #include "vtksys/RegularExpression.hxx" // for vtksys::RegularExpression
 
 #include <map>    // for std::map

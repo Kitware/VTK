@@ -19,7 +19,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTclUtil.h"
 #include "vtkTkInternals.h"
-#include "vtkToolkits.h"
 #include "vtkVersionMacros.h"
 
 #ifdef _WIN32

@@ -21,7 +21,6 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
-#include "vtkToolkits.h"
 #include "vtkType.h"
 #include "vtk_glew.h"
 #include "vtksys/SystemTools.hxx"

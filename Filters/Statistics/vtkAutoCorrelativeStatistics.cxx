@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkToolkits.h"
 
 #include "vtkAutoCorrelativeStatistics.h"
 #include "vtkStatisticsAlgorithmPrivate.h"

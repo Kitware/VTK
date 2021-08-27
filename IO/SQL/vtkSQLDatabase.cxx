@@ -21,7 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSQLDatabase.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkSQLQuery.h"
-#include "vtkToolkits.h"
 
 #include "vtkSQLDatabaseSchema.h"
 

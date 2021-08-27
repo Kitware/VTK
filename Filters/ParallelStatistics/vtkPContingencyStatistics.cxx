@@ -18,8 +18,6 @@
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
 
-#include "vtkToolkits.h"
-
 #include "vtkPContingencyStatistics.h"
 
 #include "vtkCommunicator.h"

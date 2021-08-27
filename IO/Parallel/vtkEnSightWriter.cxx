@@ -29,11 +29,6 @@
 
 #include <vtksys/SystemTools.hxx>
 
-#include "vtkToolkits.h" // for VTK_USE_PARALLEL
-#ifdef VTK_USE_PARALLEL
-#include "vtkMultiProcessController.h"
-#endif
-
 #include "vtkBitArray.h"
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
@@ -49,6 +44,7 @@
 #include "vtkLongArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -178,7 +174,6 @@ void vtkEnSightWriter::WriteData()
   this->ProcessNumber = 0;
   this->NumberOfProcesses = 1;
 
-#ifdef VTK_USE_PARALLEL
   vtkMultiProcessController* c = vtkMultiProcessController::GetGlobalController();
 
   if (c != nullptr)
@@ -186,7 +181,6 @@ void vtkEnSightWriter::WriteData()
     this->ProcessNumber = c->GetLocalProcessId();
     this->NumberOfProcesses = c->GetNumberOfProcesses();
   }
-#endif
 
   vtkUnstructuredGrid* input = this->GetInput();
   vtkInformation* inInfo = this->GetInputInformation();

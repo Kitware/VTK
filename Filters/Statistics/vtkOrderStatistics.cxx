@@ -17,7 +17,6 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-#include "vtkToolkits.h"
 
 #include "vtkOrderStatistics.h"
 #include "vtkStatisticsAlgorithmPrivate.h"

@@ -17,8 +17,8 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-#include "vtkToolkits.h"
 
+#include "vtkPKMeansStatistics.h"
 #include "vtkCommunicator.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -27,7 +27,6 @@
 #include "vtkKMeansStatistics.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "vtkPKMeansStatistics.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 

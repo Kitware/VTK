@@ -415,7 +415,6 @@ set(generated_headers
   vtkPlatform.h
   vtkSMP.h
   vtkThreads.h
-  vtkToolkits.h
   vtkVersionFull.h
   vtkVersionMacros.h)
 if (NOT VTK_LEGACY_REMOVE)
@@ -433,7 +432,8 @@ endforeach ()
 
 if (NOT VTK_LEGACY_REMOVE)
   list(APPEND nowrap_headers
-    vtkConfigure.h)
+    vtkConfigure.h
+    vtkToolkits.h)
 endif ()
 
 add_custom_command(

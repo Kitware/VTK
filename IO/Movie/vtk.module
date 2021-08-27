@@ -17,3 +17,4 @@ TEST_DEPENDS
   VTK::ImagingCore
   VTK::ImagingSources
   VTK::TestingCore
+  VTK::TestingRendering

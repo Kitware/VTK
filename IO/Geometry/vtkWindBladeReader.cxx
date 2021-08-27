@@ -33,7 +33,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
-#include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtksys/FStream.hxx"

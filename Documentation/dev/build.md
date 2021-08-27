@@ -246,6 +246,12 @@ More advanced options:
   * `VTK_SMP_ENABLE_<backend_name>` (default `OFF` if needs an external library otherwise `ON`):
     If set, builds with the specified SMPTools backend implementation that can be
     changed on runtime with `VTK_SMP_BACKEND_IN_USE` environment variable.
+  * `VTK_USE_VIDEO_FOR_WINDOWS` (default `OFF`; requires Windows): Enable the
+    `vtkAVIWriter` class in the `VTK::IOMovie` module.
+  * `VTK_USE_VIDEO_FOR_WINDOWS_CAPTURE` (default `OFF`; requires Windows):
+    Enable the `vtkWin32VideoSource` class in the `VTK::IOVideo` module.
+  * `VTK_USE_MICROSOFT_MEDIA_FOUNDATION` (default `OFF`; requires Windows):
+    Enable the `vtkMP4Writer` class in the `VTK::IOMovie` module.
 
 The VTK module system provides a number of variables to control modules which
 are not otherwise controlled by the other options provided.

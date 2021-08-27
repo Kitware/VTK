@@ -19,7 +19,6 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
 #include <vtksys/SystemTools.hxx>
 

@@ -35,7 +35,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
-#include "vtkToolkits.h"
 #include "vtkWindowToImageFilter.h"
 
 #include <sstream>

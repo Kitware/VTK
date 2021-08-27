@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+#include "vtkIOMovieConfigure.h"
+
+#ifdef VTK_USE_MICROSOFT_MEDIA_FOUNDATION
 #include "vtkImageCast.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
@@ -22,9 +26,13 @@
 #include "vtkTestUtilities.h"
 
 #include "vtksys/SystemTools.hxx"
+#else
+#include "vtkTesting.h"
+#endif
 
 int TestMP4Writer(int argc, char* argv[])
 {
+#ifdef VTK_USE_MICROSOFT_MEDIA_FOUNDATION
   vtkNew<vtkImageMandelbrotSource> fractal;
   fractal->SetWholeExtent(0, 247, 0, 247, 0, 0);
   fractal->SetProjectionAxes(0, 1, 2);
@@ -96,4 +104,7 @@ int TestMP4Writer(int argc, char* argv[])
   }
 
   return success ? 0 : -1;
+#else
+  return VTK_SKIP_RETURN_CODE;
+#endif
 }
