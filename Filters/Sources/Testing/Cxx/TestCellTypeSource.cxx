@@ -233,6 +233,13 @@ int TestCellTypeSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     cerr << "Error with VTK_QUADRATIC_PYRAMID\n";
     return EXIT_FAILURE;
   }
+  if (CheckCells(VTK_TRIQUADRATIC_PYRAMID, dims, vtkAlgorithm::DOUBLE_PRECISION,
+        3327 + 9 * dims[0] * dims[1] * dims[2], dims[0] * dims[1] * dims[2] * 6, size,
+        4.387482193696061, 16.) == EXIT_FAILURE)
+  {
+    cerr << "Error with VTK_TRIQUADRATIC_PYRAMID\n";
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }
