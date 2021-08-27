@@ -152,6 +152,7 @@ protected:
   void GenerateQuadraticHexahedron(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuadraticWedges(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuadraticPyramids(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateTriQuadraticPyramids(vtkUnstructuredGrid*, int extent[6]);
 
   void GenerateLagrangeCurves(vtkUnstructuredGrid*, int extent[6]);
   void GenerateLagrangeTris(vtkUnstructuredGrid*, int extent[6]);
