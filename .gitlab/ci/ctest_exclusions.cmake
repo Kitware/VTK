@@ -9,9 +9,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # GPURayCast doesn't work with the CI's VNC setup.
     "TestGPURayCast"
 
-    # New baseline?
-    "^VTK::RenderingMatplotlibCxx-TestScalarBarCombinatorics$"
-
     # Numerical problems?
     "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
 
@@ -84,16 +81,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$"
     "^VTK::RenderingCorePython-PickerWithLocator$"
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
-    "^VTK::RenderingFreeTypeCxx-TestFontDPIScaling$"
-    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapper$"
     "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
-    "^VTK::RenderingFreeTypeCxx-TestMathTextFreeTypeTextRenderer$"
     "^VTK::RenderingImagePython-TestDepthImageToPointCloud$"
     "^VTK::RenderingOpenGL2Cxx-TestCameraShiftScale$"
     "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CameraShiftScale$"
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
-    "^VTK::RenderingVolumeCxx-TestRemoveVolumeNonCurrentContext$"
     "^VTKExample-Medical/Cxx$")
 endif ()
 
@@ -117,13 +110,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
 
     # Blank test image
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWindowWithDisabledInteractor$"
-
-    # Image corruption
-    "^VTK::RenderingCorePython-TestWindowToImageTransparency$"
-    "^VTK::RenderingCorePython-rendererSource$"
-    "^VTK::RenderingImagePython-TestDepthImageToPointCloud$"
-    "^VTK::RenderingImagePython-TestDepthImageToPointCloud-TwoInputs$"
-    "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$"
 
     # Timeouts; need investigation.
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidget$"
