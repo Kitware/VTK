@@ -1213,9 +1213,27 @@ macro(_MPI_create_imported_target LANG)
   set_property(TARGET MPI::MPI_${LANG} PROPERTY INTERFACE_COMPILE_DEFINITIONS "${MPI_${LANG}_COMPILE_DEFINITIONS}")
 
   if(MPI_${LANG}_LINK_FLAGS)
-    string(REPLACE "," "$<COMMA>" _MPI_${LANG}_LINK_FLAGS "${MPI_${LANG}_LINK_FLAGS}")
-    string(PREPEND _MPI_${LANG}_LINK_FLAGS "$<HOST_LINK:SHELL:")
-    string(APPEND _MPI_${LANG}_LINK_FLAGS ">")
+    if (CMAKE_VERSION VERSION_LESS "3.18") # Introduction of `$<HOST_LINK>`
+      if (CMAKE_CUDA_COMPILER)
+        message(AUTHOR_WARNING
+          "MPI cannot indicate that its link flags are only intended for host "
+          "and not device usage. Please use CMake 3.20.1+ for proper link flag "
+          "specifications from the MPI targets.")
+      endif ()
+    elseif (CMAKE_VERSION VERSION_LESS "3.20.1") # cmake/cmake#22007
+      if (CMAKE_CUDA_COMPILER)
+        message(AUTHOR_WARNING
+          "MPI cannot indicate that its link flags are only intended for host "
+          "and not device usage due to issues with using `$<HOST_LINK>` and "
+          "the `try_compile` family of commands. Please use CMake 3.20.1+ for "
+          "proper link flag specifications from the MPI targets. (See "
+          "https://gitlab.kitware.com/cmake/cmake/-/issues/22007)")
+      endif ()
+    else ()
+      string(REPLACE "," "$<COMMA>" _MPI_${LANG}_LINK_FLAGS "${MPI_${LANG}_LINK_FLAGS}")
+      string(PREPEND _MPI_${LANG}_LINK_FLAGS "$<HOST_LINK:SHELL:")
+      string(APPEND _MPI_${LANG}_LINK_FLAGS ">")
+    endif ()
     set_property(TARGET MPI::MPI_${LANG} PROPERTY INTERFACE_LINK_OPTIONS "${_MPI_${LANG}_LINK_FLAGS}")
   endif()
   # If the compiler links MPI implicitly, no libraries will be found as they're contained within
