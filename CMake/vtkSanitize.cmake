@@ -29,7 +29,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
       if (VTK_SANITIZER STREQUAL "address" OR
           VTK_SANITIZER STREQUAL "undefined")
         find_library(VTK_ASAN_LIBRARY
-          NAMES libasan.so.5
+          NAMES libasan.so.6 libasan.so.5
           DOC "ASan library")
         mark_as_advanced(VTK_ASAN_LIBRARY)
 
