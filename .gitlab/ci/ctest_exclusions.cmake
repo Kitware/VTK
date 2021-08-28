@@ -1,4 +1,7 @@
 set(test_exclusions
+  # Flaky; timesout sometimes on macOS and Linux
+  "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$"
+
   # This test just seems to be incorrect.
   "^VTK::FiltersSelectionCxx-TestLinearSelector3D$")
 
@@ -101,9 +104,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
 
     # Font rendering differences (new baseline?)
     "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
-
-    # Time out
-    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$"
 
     # Needs investigation
     "^VTKExample-Medical/Cxx")
