@@ -131,9 +131,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::FiltersCorePython-TestOrientedFlyingEdgesPlaneCutter2$"
     "^VTK::RenderingOpenGL2Cxx-TestToneMappingPass$"
 
-    # Something is wrong. #18144
-    "^VTK::FiltersCorePython-QuadricDecimation2$"
-
     # PATH manipulations needed
     "^VTKExample-ImageProcessing/Cxx$"
     "^VTKExample-IO/Cxx$"
