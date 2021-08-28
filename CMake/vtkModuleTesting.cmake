@@ -300,6 +300,10 @@ function (vtk_add_test_cxx exename _tests)
     "Failed Image Test"
     "DartMeasurement name=.ImageNotFound")
 
+  set(_vtk_skip_regex
+    # Insufficient graphics resources.
+    "Attempt to use a texture buffer exceeding your hardware's limits")
+
   foreach (name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
     _vtk_test_parse_name("${name}" "cxx")
@@ -339,6 +343,7 @@ function (vtk_add_test_cxx exename _tests)
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
+        SKIP_REGULAR_EXPRESSION "${_vtk_skip_regex}"
         # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h
         SKIP_RETURN_CODE 125
       )
@@ -398,6 +403,10 @@ function (vtk_add_test_mpi exename _tests)
 
   set(_vtk_fail_regex "(\n|^)ERROR: " "ERR\\|" "instance(s)? still around")
 
+  set(_vtk_skip_regex
+    # Insufficient graphics resources.
+    "Attempt to use a texture buffer exceeding your hardware's limits")
+
   set(default_numprocs ${VTK_MPI_NUMPROCS})
   if (${exename}_NUMPROCS)
     set(default_numprocs ${${exename}_NUMPROCS})
@@ -441,6 +450,7 @@ function (vtk_add_test_mpi exename _tests)
         LABELS "${_vtk_build_test_labels}"
         PROCESSORS "${numprocs}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
+        SKIP_REGULAR_EXPRESSION "${_vtk_skip_regex}"
         # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h"
         SKIP_RETURN_CODE 125
       )
@@ -594,6 +604,10 @@ function (vtk_add_test_python)
 
   set(_vtk_fail_regex "(\n|^)ERROR: " "ERR\\|" "instance(s)? still around")
 
+  set(_vtk_skip_regex
+    # Insufficient graphics resources.
+    "Attempt to use a texture buffer exceeding your hardware's limits")
+
   foreach (name IN LISTS names)
     _vtk_test_set_options("${python_options}" "local_" ${_${name}_options})
     _vtk_test_parse_name(${name} "py")
@@ -672,6 +686,7 @@ function (vtk_add_test_python)
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
+        SKIP_REGULAR_EXPRESSION "${_vtk_skip_regex}"
         # This must match the skip() function in vtk/test/Testing.py"
         SKIP_RETURN_CODE 125
       )
