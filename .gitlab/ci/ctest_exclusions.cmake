@@ -6,9 +6,6 @@ set(test_exclusions
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
   list(APPEND test_exclusions
-    # GPURayCast doesn't work with the CI's VNC setup.
-    "TestGPURayCast"
-
     # See this issue to track the status of these tests.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
 
@@ -40,6 +37,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CameraShiftScale$"
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
 
     # Point rendering differences
     "^VTK::FiltersGeneralPython-TestCellDerivs$"
@@ -80,6 +78,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::RenderingCoreCxx-TestTextureRGBA$"
     "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$" # seems to just not work here
     "^VTK::RenderingCorePython-PickerWithLocator$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastRenderDepthToImage$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastRenderDepthToImage2$"
 
     # Test image has a different background.
     "^VTK::InteractionWidgetsCxx-TestDijkstraImageGeodesicPath$"
@@ -102,6 +102,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
 
     # Font rendering differences (new baseline?)
     "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
+
+    # Time out
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$"
 
     # Needs investigation
     "^VTKExample-Medical/Cxx")
