@@ -1,7 +1,5 @@
 set(test_exclusions
-  # Long-failing tests. Excluding to get better dashboards.
-  "^VTK::FiltersModelingPython-TestImprintFilter6$"
-  "^VTK::FiltersPointsCxx-TestPoissonDiskSampler$"
+  # This test just seems to be incorrect.
   "^VTK::FiltersSelectionCxx-TestLinearSelector3D$")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
@@ -27,6 +25,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::FiltersModelingPython-TestCookieCutter3$"
     "^VTK::FiltersModelingPython-TestImprintFilter2$"
     "^VTK::FiltersModelingPython-TestImprintFilter3$"
+    "^VTK::FiltersModelingPython-TestImprintFilter6$"
     "^VTK::FiltersSourcesPython-TestStaticCellLocatorLineIntersection$"
     "^VTK::InteractionWidgetsCxx-TestPickingManagerWidgets$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget$"
