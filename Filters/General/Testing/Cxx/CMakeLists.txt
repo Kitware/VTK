@@ -26,6 +26,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
   TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
+  TestGroupDataSetsFilter.cxx,NO_VALID
   TestImageDataToPointSet.cxx,NO_VALID
   TestIntersectionPolyDataFilter.cxx
   TestIntersectionPolyDataFilter2.cxx,NO_VALID
