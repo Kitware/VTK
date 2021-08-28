@@ -23,6 +23,7 @@ TEST_DEPENDS
   VTK::CommonColor
   VTK::FiltersGeometry
   VTK::FiltersStatistics
+  VTK::InteractionStyle
   VTK::IOImage
   VTK::IOInfovis
   VTK::RenderingContextOpenGL2
