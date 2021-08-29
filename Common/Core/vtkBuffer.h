@@ -207,9 +207,20 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
   if (this->Pointer && this->DeleteFunction != free)
   {
     ScalarType* newArray;
+    bool forceFreeFunction = false;
     if (this->MallocFunction)
     {
       newArray = static_cast<ScalarType*>(this->MallocFunction(newsize * sizeof(ScalarType)));
+      if (this->MallocFunction == malloc)
+      {
+        // This must be done because the array passed in may have been
+        // allocated outside of the memory management of `vtkBuffer` and
+        // therefore have been registered with a `DeleteFunction` such as
+        // `delete` or `delete[]`. Since the memory is now allocated with
+        // `malloc` here, we must also reset `DeleteFunction` to something
+        // which matches.
+        forceFreeFunction = true;
+      }
     }
     else
     {
@@ -222,7 +233,7 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
     std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize), newArray);
     // now save the new array and release the old one too.
     this->SetBuffer(newArray, newsize);
-    if (!this->MallocFunction)
+    if (!this->MallocFunction || forceFreeFunction)
     {
       this->DeleteFunction = free;
     }
