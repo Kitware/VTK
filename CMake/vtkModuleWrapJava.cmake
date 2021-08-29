@@ -309,7 +309,11 @@ vtk_module_wrap_java(
   MODULES <module>...
   [WRAPPED_MODULES <varname>]
 
-  [JAVA_OUTPUT <destination>])
+  [JAVA_OUTPUT <destination>]
+
+  [LIBRARY_DESTINATION <destination>]
+  [JNILIB_DESTINATION <destination>]
+  [JNILIB_COMPONENT <component>])
 ~~~
 
   * `MODULES`: (Required) The list of modules to wrap.
