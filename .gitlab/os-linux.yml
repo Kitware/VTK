@@ -193,14 +193,14 @@
 .fedora33_ubsan:
     extends:
         - .fedora33
-        # - .fedora_mpich_addon
+        - .fedora_mpich_addon
         - .fedora_ubsan_addon
 
     variables:
         # MPI and Python are currently not part of this list because there are
         # issues with tests using external executables when testing UBSan
         # around ASan not being first in the initial library list.
-        CMAKE_CONFIGURATION: fedora33_qt_tbb_ubsan
+        CMAKE_CONFIGURATION: fedora33_mpi_python_qt_tbb_ubsan
 
 .linux_builder_tags:
     tags:
