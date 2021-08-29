@@ -433,6 +433,13 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
     target_link_libraries("${name}"
       PUBLIC
         VTK::Python)
+
+    if (_vtk_python_UTILITY_TARGET)
+      target_link_libraries("${name}"
+        PRIVATE
+          "${_vtk_python_UTILITY_TARGET}")
+    endif ()
+
     set_property(TARGET "${name}"
       PROPERTY
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_python_STATIC_MODULE_DESTINATION}")
@@ -473,6 +480,13 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
             "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
       endforeach ()
     endif ()
+
+    if (_vtk_python_UTILITY_TARGET)
+      target_link_libraries("${name}"
+        PRIVATE
+          "${_vtk_python_UTILITY_TARGET}")
+    endif ()
+
     set_target_properties("${name}"
       PROPERTIES
         PREFIX ""
@@ -529,6 +543,7 @@ vtk_module_wrap_python(
   [INSTALL_HEADERS <ON|OFF>]
 
   [DEPENDS <target>...]
+  [UTILITY_TARGET <target>]
 
   [MODULE_DESTINATION <destination>]
   [STATIC_MODULE_DESTINATION <destination>]
@@ -567,6 +582,9 @@ vtk_module_wrap_python(
     generated from previous calls to `vtk_module_wrap_python` that this new
     target depends on. This is used when `BUILD_STATIC` is true to ensure that
     the `void <TARGET>_load()` is correctly called for each of the dependencies.
+  * `UTILITY_TARGET`: If specified, all libraries made by the Python wrapping
+    will link privately to this target. This may be used to add compile flags
+    to the Python libraries.
   * `MODULE_DESTINATION`: Modules will be placed in this location in the
     build tree. The install tree should remove `$<CONFIGURATION>` bits, but it
     currently does not. See `vtk_module_python_default_destination` for the
@@ -595,7 +613,7 @@ vtk_module_wrap_python(
 function (vtk_module_wrap_python)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_python
     ""
-    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;SOABI;USE_DEBUG_SUFFIX"
+    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;SOABI;USE_DEBUG_SUFFIX;UTILITY_TARGET"
     "DEPENDS;MODULES")
 
   if (_vtk_python_UNPARSED_ARGUMENTS)
@@ -964,6 +982,13 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
           ${_vtk_python_TARGET_NAME}
           VTK::WrappingPythonCore
           VTK::Python)
+
+      if (_vtk_python_UTILITY_TARGET)
+        target_link_libraries("${_vtk_python_TARGET_NAME}"
+          PRIVATE
+            "${_vtk_python_UTILITY_TARGET}")
+      endif ()
+
       install(
         TARGETS             "${_vtk_python_static_importer_name}"
         COMPONENT           "${_vtk_python_component}"
