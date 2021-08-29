@@ -2121,7 +2121,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
   vtkCellData* inCD = input->GetCellData();
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* outCD = output->GetCellData();
-  std::unique_ptr<char> uCellVis; // reference count to prevent leakage
+  std::unique_ptr<char[]> uCellVis; // reference count to prevent leakage
   char* cellVis;
   unsigned char* cellGhosts = nullptr;
 
@@ -2148,7 +2148,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
   }
   else
   {
-    uCellVis = std::unique_ptr<char>(new char[numCells]);
+    uCellVis = std::unique_ptr<char[]>(new char[numCells]);
     cellVis = uCellVis.get();
   }
 
@@ -2362,7 +2362,7 @@ int vtkGeometryFilter::StructuredExecute(
   ext[5] = tmpext[5];
 
   // Ghost cells and visibility if necessary
-  std::unique_ptr<char> uCellVis; // reference count to prevent leakage
+  std::unique_ptr<char[]> uCellVis; // reference count to prevent leakage
   char* cellVis;
   unsigned char* cellGhosts = nullptr;
   vtkDataArray* temp = inCD->GetArray(vtkDataSetAttributes::GhostArrayName());
@@ -2386,7 +2386,7 @@ int vtkGeometryFilter::StructuredExecute(
   }
   else
   {
-    uCellVis = std::unique_ptr<char>(new char[numCells]);
+    uCellVis = std::unique_ptr<char[]>(new char[numCells]);
     cellVis = uCellVis.get();
   }
 
@@ -2540,7 +2540,7 @@ int vtkGeometryFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* output, vt
   vtkCellData* inCD = input->GetCellData();
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* outCD = output->GetCellData();
-  std::unique_ptr<char> uCellVis; // reference count to prevent leakage
+  std::unique_ptr<char[]> uCellVis; // reference count to prevent leakage
   char* cellVis;
   unsigned char* cellGhosts = nullptr;
 
@@ -2574,7 +2574,7 @@ int vtkGeometryFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* output, vt
   }
   else
   {
-    uCellVis = std::unique_ptr<char>(new char[numCells]);
+    uCellVis = std::unique_ptr<char[]>(new char[numCells]);
     cellVis = uCellVis.get();
   }
 
