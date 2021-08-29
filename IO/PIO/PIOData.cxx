@@ -1,4 +1,5 @@
 #include <PIOData.h>
+#include <cstdlib>
 #include <iostream>
 #include <vtksys/FStream.hxx>
 
@@ -126,12 +127,12 @@ PIO_DATA::~PIO_DATA()
   VarMMap.clear();
   delete this->Infile;
   this->Infile = nullptr;
-  std::set<const char*, Cstring_less>::const_iterator q;
-  for (q = RealData.begin(); q != RealData.end(); ++q)
-    delete[] * q;
+  std::set<const char*, Cstring_less>::iterator q;
+  for (auto q : RealData)
+    std::free(const_cast<char*>(q));
   RealData.clear();
-  for (q = CharData.begin(); q != CharData.end(); ++q)
-    delete[] * q;
+  for (auto q : CharData)
+    std::free(const_cast<char*>(q));
   CharData.clear();
 } // End PIO_DATA::~PIO_DATA()
 
