@@ -76,84 +76,45 @@ int vtkExtractSelection::FillInputPortInformation(int port, vtkInformation* info
 int vtkExtractSelection::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (!inInfo)
+  auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  if (!inputDO)
   {
     return 0;
   }
 
-  vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
-  vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
-  assert(inputDO != nullptr);
-
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  const int inputType = inputDO->GetDataObjectType();
+  int outputType = -1;
 
   if (this->PreserveTopology)
   {
     // when PreserveTopology is ON, we're preserve input data type.
-    if (outputDO == nullptr || !outputDO->IsA(inputDO->GetClassName()))
-    {
-      outputDO = inputDO->NewInstance();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
-      outputDO->Delete();
-    }
-    return 1;
+    outputType = inputType;
   }
-
-  if (vtkDataObjectTree::SafeDownCast(inputDO))
+  else if (vtkDataObjectTree::SafeDownCast(inputDO))
   {
     // For DataObjectTree, preserve the type.
-    if (outputDO == nullptr || outputDO->GetDataObjectType() != inputDO->GetDataObjectType())
-    {
-      outputDO = inputDO->NewInstance();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
-      outputDO->Delete();
-    }
-    return 1;
+    outputType = inputType;
   }
-  if (vtkCompositeDataSet::SafeDownCast(inputDO))
+  else if (vtkCompositeDataSet::SafeDownCast(inputDO))
   {
     // For other composite datasets, we're create a vtkMultiBlockDataSet as output;
-    if (vtkMultiBlockDataSet::SafeDownCast(outputDO) == nullptr)
-    {
-      outputDO = vtkMultiBlockDataSet::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
-      outputDO->Delete();
-    }
-    return 1;
+    outputType = VTK_MULTIBLOCK_DATA_SET;
   }
-
-  if (vtkTable::SafeDownCast(inputDO))
-  {
-    // vtkTable input stays as vtkTable.
-    if (vtkTable::SafeDownCast(outputDO) == nullptr)
-    {
-      outputDO = vtkTable::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
-      outputDO->Delete();
-    }
-    return 1;
-  }
-
-  if (vtkDataSet::SafeDownCast(inputDO))
+  else if (vtkDataSet::SafeDownCast(inputDO))
   {
     // vtkDataSet becomes a vtkUnstructuredGrid.
-    if (vtkUnstructuredGrid::SafeDownCast(outputDO) == nullptr)
-    {
-      outputDO = vtkUnstructuredGrid::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
-      outputDO->Delete();
-    }
-    return 1;
+    outputType = VTK_UNSTRUCTURED_GRID;
+  }
+  else
+  {
+    // preserve input type for the rest e.g. vtkTable, vtkGraph etc.
+    outputType = inputType;
   }
 
-  // XXX: This code is very fishy. Investigation is needed as to whether this
-  // static call is actually what is intended.
-  if (!outputDO || !vtkDataObject::IsTypeOf(inputDO->GetClassName()))
+  auto outInfo = outputVector->GetInformationObject(0);
+  if (outputType != -1 &&
+    vtkDataObjectAlgorithm::SetOutputDataObject(outputType, outInfo, /*exact=*/true))
   {
-    outputDO = inputDO->NewInstance();
-    outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
-    outputDO->Delete();
     return 1;
   }
 
