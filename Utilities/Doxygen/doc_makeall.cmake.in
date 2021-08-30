@@ -349,6 +349,19 @@ execute_process(COMMAND ${PERL}
 )
 
 # ----------------------------------------------------------------------------
+# Cross-reference against vtk-examples
+
+step (5a "cross-reference classes with online examples")
+execute_process(COMMAND ${PYTHON_EXECUTABLE}
+  "${PATH_TO_VTK_DOX_SCRIPTS}/doc_class2onlineexamples.py"
+  --label "Online Examples"
+  --number 10
+  --tmpdir "${DOXTEMP}"
+  --dir "${INTERMEDIATE_DOX_DIR}"
+  RESULT_VARIABLE rv
+)
+
+# ----------------------------------------------------------------------------
 # Generate the 'Class to Tests' page cross-linking each class to these
 # tests that use that class.
 

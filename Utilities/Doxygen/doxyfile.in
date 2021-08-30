@@ -93,6 +93,7 @@ TAB_SIZE             = 3
 HTML_TIMESTAMP       = YES
 HTML_HEADER          = "@VTK_SOURCE_DIR@/Utilities/Doxygen/dox_header.html"
 HTML_EXTRA_FILES     += "@VTK_SOURCE_DIR@/Utilities/Doxygen/vtk_favicon.png"
+HTML_EXTRA_STYLESHEET = "@VTK_SOURCE_DIR@/Utilities/Doxygen/doc_extra_stylesheet.css"
 SHORT_NAMES          = @DOXYGEN_SHORT_NAMES@
 # PAPER_TYPE           = letter
 
