@@ -81,6 +81,12 @@ function (vtk_module_test_executable name)
       "VTK_MODULE_ENABLE_${safe_test_optional_depend}=$<TARGET_EXISTS:${test_optional_depend}>")
   endforeach ()
 
+  if (_vtk_build_UTILITY_TARGET)
+    target_link_libraries("${name}"
+      PRIVATE
+        "${_vtk_build_UTILITY_TARGET}")
+  endif ()
+
   target_link_libraries("${name}"
     PRIVATE
       "${_vtk_build_test}"
