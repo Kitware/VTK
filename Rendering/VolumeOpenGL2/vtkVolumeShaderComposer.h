@@ -1395,8 +1395,8 @@ std::string ComputeOpacityDeclaration(vtkRenderer* vtkNotUsed(ren),
 }
 
 //--------------------------------------------------------------------------
-std::string ComputeColor2DYAxisDeclaration(
-  int noOfComponents, int independentComponents, std::map<int, std::string> colorTableMap)
+std::string ComputeColor2DYAxisDeclaration(int noOfComponents,
+  int vtkNotUsed(independentComponents), std::map<int, std::string> colorTableMap)
 {
   if (noOfComponents == 1)
   {
