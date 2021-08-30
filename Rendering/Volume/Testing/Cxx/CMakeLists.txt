@@ -101,4 +101,6 @@ vtk_test_cxx_executable(vtkRenderingVolumeCxxTests tests
   )
 
 vtk_module_test_data(
-  Data/TestGPURayCastTransfer2DYScalarsTransferFunction.vti)
+  Data/TestGPURayCastTransfer2DYScalarsTransferFunction.vti
+  Data/disk_out_ref.ex2
+  )
