@@ -17,6 +17,7 @@
 #include "vtkAMRUtilities.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataAssemblyUtilities.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
@@ -31,6 +32,24 @@
 #include <iterator>
 #include <set>
 #include <vector>
+
+namespace
+{
+class vtkScopedFieldDataCopier
+{
+  vtkFieldData* InputFD;
+  vtkFieldData* OutputFD;
+
+public:
+  vtkScopedFieldDataCopier(vtkDataObject* input, vtkDataObject* output)
+    : InputFD(input->GetFieldData())
+    , OutputFD(output->GetFieldData())
+  {
+  }
+
+  ~vtkScopedFieldDataCopier() { this->OutputFD->PassData(this->InputFD); }
+};
+}
 
 class vtkExtractBlockUsingDataAssembly::vtkInternals
 {
@@ -236,6 +255,9 @@ int vtkExtractBlockUsingDataAssembly::RequestData(
 
   auto outputCD = vtkCompositeDataSet::GetData(outputVector, 0);
 
+  // Ensure field data from input is copied to output when this method returns.
+  vtkScopedFieldDataCopier copier(inputCD, outputCD);
+
   auto assembly = vtkDataAssemblyUtilities::GetDataAssembly(this->AssemblyName, inputCD);
   if (!assembly)
   {
@@ -285,6 +307,7 @@ int vtkExtractBlockUsingDataAssembly::RequestData(
       {
         outputPDC->SetDataAssembly(output_assemblies[0]);
       }
+
       return 1;
     }
     else
