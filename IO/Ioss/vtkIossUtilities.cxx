@@ -326,6 +326,8 @@ int GetCellType(const Ioss::ElementTopology* topology)
         case 13:
         case 14:
           return VTK_QUADRATIC_PYRAMID;
+        case 19:
+          return VTK_TRIQUADRATIC_PYRAMID;
         case 5:
           return VTK_PYRAMID;
       }
