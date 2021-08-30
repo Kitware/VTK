@@ -138,6 +138,8 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 
   this->OSPRayMapper = nullptr;
 
+  this->Transfer2DYAxisArray = nullptr;
+
   this->LastInput = nullptr;
   this->LastFilterInput = nullptr;
 }
@@ -182,6 +184,8 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
     this->OSPRayMapper->Delete();
     this->OSPRayMapper = nullptr;
   }
+
+  this->SetTransfer2DYAxisArray(nullptr);
 
   this->LastInput = nullptr;
   this->LastFilterInput = nullptr;
@@ -460,6 +464,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
       this->GPUMapper->SetFinalColorWindow(this->FinalColorWindow);
       this->GPUMapper->SetFinalColorLevel(this->FinalColorLevel);
       this->GPUMapper->SetSampleDistance(this->SampleDistance);
+      this->GPUMapper->SetTransfer2DYAxisArray(this->Transfer2DYAxisArray);
 
       // Make the window current because we need the OpenGL context
       win->MakeCurrent();

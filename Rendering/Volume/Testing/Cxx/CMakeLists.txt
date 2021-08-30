@@ -59,6 +59,7 @@ set (VolumeCxxTests
   TestGPURayCastThreeComponentsAdditive.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTransfer2D.cxx
+  TestGPURayCastTransfer2DYScalars.cxx
   TestGPURayCastTwoComponentsDependent.cxx
   TestGPURayCastTwoComponentsDependentGradient.cxx
   TestGPURayCastTwoComponentsGradient.cxx
@@ -97,4 +98,9 @@ vtk_add_test_cxx(vtkRenderingVolumeCxxTests tests
 
 vtk_test_cxx_executable(vtkRenderingVolumeCxxTests tests
   RENDERING_FACTORY
+  )
+
+vtk_module_test_data(
+  Data/TestGPURayCastTransfer2DYScalarsTransferFunction.vti
+  Data/disk_out_ref.ex2
   )

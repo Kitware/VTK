@@ -107,6 +107,8 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->ReportProgress = true;
 
   this->SetNumberOfInputPorts(10);
+
+  this->Transfer2DYAxisArray = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -126,6 +128,7 @@ vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
   {
     this->DepthPassContourValues->Delete();
   }
+  this->SetTransfer2DYAxisArray(nullptr);
 }
 
 //------------------------------------------------------------------------------

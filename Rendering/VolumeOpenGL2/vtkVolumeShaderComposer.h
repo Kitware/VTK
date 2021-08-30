@@ -1395,10 +1395,40 @@ std::string ComputeOpacityDeclaration(vtkRenderer* vtkNotUsed(ren),
 }
 
 //--------------------------------------------------------------------------
+std::string ComputeColor2DYAxisDeclaration(int noOfComponents,
+  int vtkNotUsed(independentComponents), std::map<int, std::string> colorTableMap)
+{
+  if (noOfComponents == 1)
+  {
+    // Single component
+    return std::string(
+      "vec4 computeColor(vec4 scalar, float opacity)\n"
+      "{\n"
+      "  vec4 yscalar = texture3D(in_transfer2DYAxis, g_dataPos);\n"
+      "  yscalar.r = yscalar.r * in_transfer2DYAxis_scale.r + in_transfer2DYAxis_bias.r;\n"
+      "  yscalar = vec4(yscalar.r);\n"
+      "  vec4 color = texture2D(" +
+      colorTableMap[0] +
+      ",\n"
+      "                         vec2(scalar.w, yscalar.w));\n"
+      "  return computeLighting(color, 0, 0);\n"
+      "}\n");
+  }
+  return std::string("vec4 computeColor(vec4 scalar, float opacity)\n"
+                     "{\n"
+                     "  return vec4(0, 0, 0, 0)\n"
+                     "}\n");
+}
+
+//--------------------------------------------------------------------------
 std::string ComputeColor2DDeclaration(vtkRenderer* vtkNotUsed(ren),
   vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol), int noOfComponents,
-  int independentComponents, std::map<int, std::string> colorTableMap)
+  int independentComponents, std::map<int, std::string> colorTableMap, int useGradient)
 {
+  if (!useGradient)
+  {
+    return ComputeColor2DYAxisDeclaration(noOfComponents, independentComponents, colorTableMap);
+  }
   if (noOfComponents == 1)
   {
     // Single component
@@ -1408,7 +1438,7 @@ std::string ComputeColor2DDeclaration(vtkRenderer* vtkNotUsed(ren),
       colorTableMap[0] +
       ",\n"
       "    vec2(scalar.w, g_gradients_0[0].w));\n"
-      "  return computeLighting(color, 0, 0.0);\n"
+      "  return computeLighting(color, 0, 0);\n"
       "}\n");
   }
   else if (noOfComponents > 1 && independentComponents)
@@ -1479,13 +1509,18 @@ std::string Transfer2DDeclaration(vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMa
     i++;
   }
 
-  return ss.str();
+  std::string result = ss.str() +
+    std::string("uniform sampler3D in_transfer2DYAxis;\n"
+                "uniform vec4 in_transfer2DYAxis_scale;\n"
+                "uniform vec4 in_transfer2DYAxis_bias;\n");
+
+  return result;
 }
 
 //--------------------------------------------------------------------------
 std::string ComputeOpacity2DDeclaration(vtkRenderer* vtkNotUsed(ren),
   vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol), int noOfComponents,
-  int independentComponents, std::map<int, std::string> opacityTableMap)
+  int independentComponents, std::map<int, std::string> opacityTableMap, int useGradient)
 {
   std::ostringstream toString;
   if (noOfComponents > 1 && independentComponents)
@@ -1493,44 +1528,107 @@ std::string ComputeOpacity2DDeclaration(vtkRenderer* vtkNotUsed(ren),
     // Multiple independent components
     toString << "float computeOpacity(vec4 scalar, int component)\n"
                 "{\n";
+    if (!useGradient)
+    {
+      toString
+        << "vec4 yscalar = texture3D(in_transfer2DYAxis, g_dataPos);\n"
+           "for (int i = 0; i < 4; ++i)\n"
+           "{\n"
+           "  yscalar[i] = yscalar[i] * in_transfer2DYAxis_scale[i] + in_transfer2DYAxis_bias[i];\n"
+           "}\n";
+      if (noOfComponents == 1)
+      {
+        toString << "yscalar = vec4(yscalar.r);\n";
+      }
+    }
 
     for (int i = 0; i < noOfComponents; ++i)
     {
-      toString << "  if (component == " << i
-               << ")\n"
-                  "  {\n"
-                  "    return texture2D("
-               << opacityTableMap[i]
-               << ",\n"
-                  "      vec2(scalar["
-               << i << "], g_gradients_0[" << i
-               << "].w)).a;\n"
-                  "  }\n";
+      if (useGradient)
+      {
+        toString << "  if (component == " << i
+                 << ")\n"
+                    "  {\n"
+                    "    return texture2D("
+                 << opacityTableMap[i]
+                 << ",\n"
+                    "      vec2(scalar["
+                 << i << "], g_gradients_0[" << i
+                 << "].w)).a;\n"
+                    "  }\n";
+      }
+      else
+      {
+        toString << "  if (component == " << i
+                 << ")\n"
+                    "  {\n"
+                    "    return texture2D("
+                 << opacityTableMap[i]
+                 << ",\n"
+                    "      vec2(scalar["
+                 << i << "], yscalar[" << i
+                 << "])).a;\n"
+                    "  }\n";
+      }
     }
 
     toString << "}\n";
   }
+
   else if (noOfComponents == 2 && !independentComponents)
   {
-    // Dependent components (Luminance/ Opacity)
-    toString << "float computeOpacity(vec4 scalar)\n"
-                "{\n"
-                "  return texture2D(" +
-        opacityTableMap[0] +
-        ",\n"
-        "    vec2(scalar.y, g_gradients_0[0].w)).a;\n"
-        "}\n";
+    if (useGradient)
+    {
+      // Dependent components (Luminance/ Opacity)
+      toString << "float computeOpacity(vec4 scalar)\n"
+                  "{\n"
+                  "  return texture2D(" +
+          opacityTableMap[0] +
+          ",\n"
+          "    vec2(scalar.y, g_gradients_0[0].w)).a;\n"
+          "}\n";
+    }
+    else
+    {
+      // Dependent components (Luminance/ Opacity)
+      toString << "float computeOpacity(vec4 scalar)\n"
+                  "{\n"
+                  "  return texture2D(" +
+          opacityTableMap[0] +
+          ",\n"
+          "    vec2(scalar.y, yscalar.y)).a;\n"
+          "}\n";
+    }
   }
+
   else
   {
-    // Dependent components (RGBA) || Single component
-    toString << "float computeOpacity(vec4 scalar)\n"
-                "{\n"
-                "  return texture2D(" +
-        opacityTableMap[0] +
-        ",\n"
-        "    vec2(scalar.a, g_gradients_0[0].w)).a;\n"
-        "}\n";
+    if (useGradient)
+    {
+      // Dependent compoennts (RGBA) || Single component
+      toString << "float computeOpacity(vec4 scalar)\n"
+                  "{\n"
+                  "  return texture2D(" +
+          opacityTableMap[0] +
+          ",\n"
+          "    vec2(scalar.a, g_gradients_0[0].w)).a;\n"
+          "}\n";
+    }
+    else
+    {
+      // Dependent compoennts (RGBA) || Single component
+      toString
+        << "float computeOpacity(vec4 scalar)\n"
+           "{\n"
+           "  vec4 yscalar = texture3D(in_transfer2DYAxis, g_dataPos);\n"
+           "  yscalar.r = yscalar.r * in_transfer2DYAxis_scale.r + in_transfer2DYAxis_bias.r;\n"
+           "  yscalar = vec4(yscalar.r);\n"
+           "  return texture2D(" +
+          opacityTableMap[0] +
+          ",\n"
+          "    vec2(scalar.a, yscalar.w)).a;\n"
+          "}\n";
+    }
   }
   return toString.str();
 }

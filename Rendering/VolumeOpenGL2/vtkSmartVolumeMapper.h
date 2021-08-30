@@ -329,6 +329,14 @@ public:
   vtkGetMacro(VectorComponent, int);
   ///@}
 
+  //@{
+  /**
+   * Set/Get the transfer 2D Y axis array
+   */
+  vtkSetStringMacro(Transfer2DYAxisArray);
+  vtkGetStringMacro(Transfer2DYAxisArray);
+  //@}
+
 protected:
   vtkSmartVolumeMapper();
   ~vtkSmartVolumeMapper() override;
@@ -491,6 +499,13 @@ protected:
   vtkDataSet* LastInput;
   vtkDataSet* LastFilterInput;
   ///@}
+
+  /**
+   * Define the array used for the Y axis of transfer 2D.
+   * This is used when the transfer function  mode is set to 2D. If unset, the
+   * default is to use the gradient of the scalar.
+   */
+  char* Transfer2DYAxisArray;
 
 private:
   ///@{

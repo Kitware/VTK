@@ -248,6 +248,8 @@ public:
   void DeleteMaskTransfer();
   ///@}
 
+  void UpdateTransfer2DYAxisArray(vtkRenderer* ren, vtkVolume* vol);
+
   bool LoadMask(vtkRenderer* ren);
 
   // Update the depth sampler with the current state of the z-buffer. The
@@ -495,6 +497,10 @@ public:
   size_t NumImageSampleDrawBuffers = 0;
   bool RebuildImageSampleProg = false;
   bool RenderPassAttached = false;
+
+  bool Transfer2DUseGradient = true;
+  vtkSmartPointer<vtkVolumeTexture> Transfer2DYAxisScalars;
+  vtkTimeStamp Transfer2DYAxisScalarsUpdateTime;
 
   vtkNew<vtkContourFilter> ContourFilter;
   vtkNew<vtkPolyDataMapper> ContourMapper;
@@ -2440,11 +2446,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
       case vtkVolumeProperty::TF_2D:
         vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeOpacity::Dec",
           vtkvolume::ComputeOpacity2DDeclaration(ren, this, vol, numComps, independentComponents,
-            this->AssembledInputs[0].TransferFunctions2DMap));
+            this->AssembledInputs[0].TransferFunctions2DMap, this->Impl->Transfer2DUseGradient));
 
         vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeColor::Dec",
           vtkvolume::ComputeColor2DDeclaration(ren, this, vol, numComps, independentComponents,
-            this->AssembledInputs[0].TransferFunctions2DMap));
+            this->AssembledInputs[0].TransferFunctions2DMap, this->Impl->Transfer2DUseGradient));
 
         vtkShaderProgram::Substitute(fragmentShader, "//VTK::GradientCache::Dec",
           vtkvolume::GradientCacheDec(ren, vol, this->AssembledInputs, independentComponents));
@@ -2967,7 +2973,63 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
   return success;
 }
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateTransfer2DYAxisArray(
+  vtkRenderer* ren, vtkVolume* vol)
+{
+  vtkVolumeProperty* prop = vol->GetProperty();
+  vtkImageData* input = vtkImageData::SafeDownCast(this->Parent->GetTransformedInput(0));
+  if (prop->GetTransferFunctionMode() != vtkVolumeProperty::TF_2D)
+  {
+    this->Transfer2DUseGradient = true;
+    return;
+  }
+
+  bool hasTransfer2DYAxisArray = this->Parent->GetTransfer2DYAxisArray() != nullptr;
+  bool isCellData = hasTransfer2DYAxisArray &&
+    input->GetCellData()->HasArray(this->Parent->GetTransfer2DYAxisArray());
+  bool isPointData = hasTransfer2DYAxisArray &&
+    input->GetPointData()->HasArray(this->Parent->GetTransfer2DYAxisArray());
+  hasTransfer2DYAxisArray = hasTransfer2DYAxisArray && (isCellData || isPointData);
+  if (!hasTransfer2DYAxisArray)
+  {
+    this->Transfer2DUseGradient = true;
+    return;
+  }
+  else
+  {
+    this->Transfer2DUseGradient = false;
+  }
+
+  // Now load the array
+  if (!this->Transfer2DYAxisScalars)
+  {
+    this->Transfer2DYAxisScalars = vtkSmartPointer<vtkVolumeTexture>::New();
+
+    const auto part = this->Partitions;
+    this->Transfer2DYAxisScalars->SetPartitions(part[0], part[1], part[2]);
+  }
+  vtkDataArray* arr = nullptr;
+  if (isPointData)
+  {
+    arr = input->GetPointData()->GetArray(this->Parent->GetTransfer2DYAxisArray());
+  }
+  else
+  {
+    arr = input->GetCellData()->GetArray(this->Parent->GetTransfer2DYAxisArray());
+  }
+
+  if (input->GetMTime() > this->Transfer2DYAxisScalarsUpdateTime ||
+    this->Transfer2DYAxisScalars->GetLoadedScalars() != arr ||
+    (arr && arr->GetMTime() > this->Transfer2DYAxisScalarsUpdateTime))
+  {
+    this->Transfer2DYAxisScalars->LoadVolume(
+      ren, input, arr, isCellData, prop->GetInterpolationType());
+    this->Transfer2DYAxisScalarsUpdateTime.Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::GetComponentMode(
   vtkVolumeProperty* prop, vtkDataArray* array) const
 {
@@ -3046,6 +3108,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   this->Impl->ClearRemovedInputs(renWin);
   this->Impl->UpdateInputs(ren, vol);
   this->Impl->UpdateSamplingDistance(ren);
+  this->Impl->UpdateTransfer2DYAxisArray(ren, vol);
   this->Impl->UpdateTransferFunctions(ren);
 
   // Masks are only supported on single-input rendering.
@@ -3389,7 +3452,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetVolumeShaderParameters(
 
 ////----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
-  vtkShaderProgram* prog, vtkRenderer* ren, int vtkNotUsed(independent), int numComp)
+  vtkShaderProgram* prog, vtkRenderer* ren, int independent, int numComp)
 {
   if (!this->SharedDepthTextureObject)
   {
@@ -3410,6 +3473,35 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
   prog->SetUniformf("in_scale", 1.0 / this->Parent->FinalColorWindow);
   prog->SetUniformf(
     "in_bias", (0.5 - (this->Parent->FinalColorLevel / this->Parent->FinalColorWindow)));
+  // prog->SetUniformi("in_useTransfer2DGradient", this->Transfer2DUseGradient);
+  if (!this->Transfer2DUseGradient && this->Transfer2DYAxisScalars)
+  {
+    vtkTextureObject* transfer2DYAxisTex =
+      this->Transfer2DYAxisScalars->GetCurrentBlock()->TextureObject;
+    transfer2DYAxisTex->Activate();
+    prog->SetUniformi("in_transfer2DYAxis", transfer2DYAxisTex->GetTextureUnit());
+    // LargeDataTypes have been already biased and scaled so in those cases 0s
+    // and 1s are passed respectively.
+    float tscale[4] = { 1.0, 1.0, 1.0, 1.0 };
+    float tbias[4] = { 0.0, 0.0, 0.0, 0.0 };
+    auto volTex = this->Transfer2DYAxisScalars;
+    auto noOfComponents = volTex->GetLoadedScalars()->GetNumberOfComponents();
+    if (!volTex->HandleLargeDataTypes &&
+      (noOfComponents == 1 || noOfComponents == 2 || independent))
+    {
+      prog->SetUniform4f("in_transfer2DYAxis_scale", volTex->Scale);
+      prog->SetUniform4f("in_transfer2DYAxis_bias", volTex->Bias);
+    }
+    else
+    {
+      prog->SetUniform4f("in_transfer2DYAxis_scale", tscale);
+      prog->SetUniform4f("in_transfer2DYAxis_bias", tbias);
+    }
+  }
+  else
+  {
+    prog->SetUniformi("in_transfer2DYAxis", 0);
+  }
 }
 
 ////----------------------------------------------------------------------------

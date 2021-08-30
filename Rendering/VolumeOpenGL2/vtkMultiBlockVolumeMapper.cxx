@@ -57,6 +57,7 @@ vtkMultiBlockVolumeMapper::vtkMultiBlockVolumeMapper()
   , VectorMode(vtkSmartVolumeMapper::DISABLED)
   , VectorComponent(0)
   , RequestedRenderMode(vtkSmartVolumeMapper::DefaultRenderMode)
+  , Transfer2DYAxisArray(nullptr)
 {
 #ifdef MB_DEBUG
   this->DebugWin = vtkRenderWindow::New();
@@ -95,8 +96,8 @@ void vtkMultiBlockVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 
   this->SortMappers(ren, vol->GetMatrix());
 
-  MapperVec::const_iterator end = this->Mappers.end();
-  for (MapperVec::const_iterator it = this->Mappers.begin(); it != end; ++it)
+  MapperVec::iterator end = this->Mappers.end();
+  for (MapperVec::iterator it = this->Mappers.begin(); it != end; ++it)
   {
     if (this->FallBackMapper)
     {
@@ -332,6 +333,7 @@ vtkSmartVolumeMapper* vtkMultiBlockVolumeMapper::CreateMapper()
   mapper->SetCropping(this->GetCropping());
   mapper->SetCroppingRegionFlags(this->GetCroppingRegionFlags());
   mapper->SetCroppingRegionPlanes(this->GetCroppingRegionPlanes());
+  mapper->SetTransfer2DYAxisArray(this->Transfer2DYAxisArray);
 
   vtkOpenGLGPUVolumeRayCastMapper* glMapper =
     vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper->GetGPUMapper());
@@ -538,4 +540,39 @@ void vtkMultiBlockVolumeMapper::SetRequestedRenderMode(int mode)
     this->RequestedRenderMode = mode;
     this->Modified();
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetTransfer2DYAxisArray(const char* a)
+{
+  if (this->Transfer2DYAxisArray == nullptr && a == nullptr)
+  {
+    return;
+  }
+  if (this->Transfer2DYAxisArray && a && (!strcmp(this->Transfer2DYAxisArray, a)))
+  {
+    return;
+  }
+  delete[] this->Transfer2DYAxisArray;
+  if (a)
+  {
+    size_t n = strlen(a) + 1;
+    char* cp1 = new char[n];
+    const char* cp2 = (a);
+    this->Transfer2DYAxisArray = cp1;
+    do
+    {
+      *cp1++ = *cp2++;
+    } while (--n);
+  }
+  else
+  {
+    this->Transfer2DYAxisArray = nullptr;
+  }
+  MapperVec::const_iterator end = this->Mappers.end();
+  for (MapperVec::const_iterator it = this->Mappers.begin(); it != end; ++it)
+  {
+    (*it)->SetTransfer2DYAxisArray(a);
+  }
+  this->Modified();
 }

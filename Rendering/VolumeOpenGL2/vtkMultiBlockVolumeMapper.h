@@ -128,6 +128,13 @@ public:
   void SetRequestedRenderMode(int);
   ///@}
 
+  //@{
+  /**
+   * \sa vtkSmartVolumeMapper::SetTransfer2DYAxisArray
+   */
+  void SetTransfer2DYAxisArray(const char* a);
+  //@}
+
 protected:
   vtkMultiBlockVolumeMapper();
   ~vtkMultiBlockVolumeMapper() override;
@@ -196,5 +203,7 @@ private:
   int VectorMode;
   int VectorComponent;
   int RequestedRenderMode;
+
+  char* Transfer2DYAxisArray;
 };
 #endif
