@@ -26,8 +26,7 @@
  * preferred filter to use in most cases and may be deprecated in the
  * future.)
  *
- * The filter only has only a few options: whether to produce triangle strips
- * when the input dataset type is structured; methods for passing through
+ * The filter only has only a few options: methods for passing through
  * point and cell ids (to support picking); and controls for nonlinear cell
  * subdivision. At this time vtkDataSetSurfaceFilter has the distinction of
  * being able to process non-linear cells requiring subdivision. For this
@@ -128,13 +127,20 @@ public:
 
   ///@{
   /**
-   * When input is structured data, this flag will generate faces with
-   * triangle strips.  This should render faster and use less memory, but no
-   * cell data is copied.  By default, UseStrips is Off.
+   * Triangle strip support was dropped in 9.1. Please use vtkStripper to
+   * generate triangle strips, if needed.
    */
-  vtkSetMacro(UseStrips, vtkTypeBool);
-  vtkGetMacro(UseStrips, vtkTypeBool);
-  vtkBooleanMacro(UseStrips, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_1_0("no longer supported")
+  vtkTypeBool GetUseStrips();
+
+  VTK_DEPRECATED_IN_9_1_0("no longer supported")
+  void SetUseStrips(vtkTypeBool);
+
+  VTK_DEPRECATED_IN_9_1_0("no longer supported")
+  void UseStripsOn();
+
+  VTK_DEPRECATED_IN_9_1_0("no longer supported")
+  void UseStripsOff();
   ///@}
 
   ///@{
@@ -152,9 +158,7 @@ public:
    * If on, the output polygonal dataset will have a celldata array that
    * holds the cell index of the original 3D cell that produced each output
    * cell. This is useful for cell picking. The default is off to conserve
-   * memory. Note that PassThroughCellIds will be ignored if UseStrips is on,
-   * since in that case each tringle strip can represent more than on of the
-   * input cells.
+   * memory.
    */
   vtkSetMacro(PassThroughCellIds, vtkTypeBool);
   vtkGetMacro(PassThroughCellIds, vtkTypeBool);
@@ -289,8 +293,6 @@ protected:
   vtkDataSetSurfaceFilter();
   ~vtkDataSetSurfaceFilter() override;
 
-  vtkTypeBool UseStrips;
-
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -307,9 +309,6 @@ protected:
    */
   void EstimateStructuredDataArraySizes(
     vtkIdType* ext, vtkIdType* wholeExt, vtkIdType& numPoints, vtkIdType& numCells);
-
-  void ExecuteFaceStrips(vtkDataSet* input, vtkPolyData* output, int maxFlag, vtkIdType* ext,
-    int aAxis, int bAxis, int cAxis, vtkIdType* wholeExt);
 
   void ExecuteFaceQuads(vtkDataSet* input, vtkPolyData* output, int maxFlag, vtkIdType* ext,
     int aAxis, int bAxis, int cAxis, vtkIdType* wholeExt, bool checkVisibility);
