@@ -1029,7 +1029,7 @@ static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInf
         "    }\n"
         "\n");
     }
-    else if (vtkWrap_IsStdVector(arg) && !vtkWrap_IsConst(arg))
+    else if (vtkWrap_IsStdVector(arg) && vtkWrap_IsNonConstRef(arg))
     {
       fprintf(fp,
         "    if (!ap.ErrorOccurred())\n"
