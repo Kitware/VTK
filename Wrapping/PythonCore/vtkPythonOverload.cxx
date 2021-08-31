@@ -123,7 +123,7 @@ bool vtkPythonOverloadHelper::next(const char** format, const char** classname)
 
   // check if the parameter has extended type information
   char c = *m_format;
-  if (c == '0' || c == 'V' || c == 'W' || c == 'Q' || c == 'E' || c == 'A' || c == 'P')
+  if (c == '0' || c == 'V' || c == 'W' || c == 'Q' || c == 'E' || c == 'A' || c == 'P' || c == 'T')
   {
     *classname = m_classname;
 
@@ -829,6 +829,30 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
       else
       {
         badref = true;
+      }
+      break;
+
+    case 'T':
+      // std::vector<T>
+      if (PySequence_Check(arg))
+      {
+        Py_ssize_t m = PySequence_Size(arg);
+        if (m > 0)
+        {
+          // if sequence is not empty, check the type of its contents
+          PyObject* sarg = PySequence_GetItem(arg, 0);
+          penalty = vtkPythonOverload::CheckArg(sarg, classname, "");
+          Py_DECREF(sarg);
+        }
+        // always consider PySequence to std::vector as a conversion
+        if (penalty < VTK_PYTHON_NEEDS_CONVERSION)
+        {
+          penalty = VTK_PYTHON_NEEDS_CONVERSION;
+        }
+      }
+      else
+      {
+        penalty = VTK_PYTHON_INCOMPATIBLE;
       }
       break;
 

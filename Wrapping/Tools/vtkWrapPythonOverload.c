@@ -80,6 +80,7 @@
 #include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonTemplate.h"
 
+#include "vtkParseExtras.h"
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 
@@ -293,6 +294,22 @@ static char* vtkWrapPython_ArgCheckString(ClassInfo* data, FunctionInfo* current
           result[endPos++] = ']';
         }
       }
+    }
+    else if (vtkWrap_IsStdVector(arg))
+    {
+      /* tclass, ttype will hold the value type of the vector */
+      const char* tclass;
+      unsigned int ttype;
+      /* first, decompose template into template name + args */
+      const char* tname;                      /* will store template name, i.e. "std::vector" */
+      size_t n;                               /* will store length of the template name */
+      const char** targs;                     /* will store the template args */
+      const char* defaults[2] = { NULL, "" }; /* NULL means "not optional" */
+      vtkParse_DecomposeTemplatedType(arg->Class, &tname, 2, &targs, defaults);
+      vtkParse_BasicTypeFromString(targs[0], &ttype, &tclass, &n);
+      c = 'T';
+      result[endPos++] = ' ';
+      result[endPos++] = vtkWrapPython_FormatChar(ttype);
     }
 
     /* add the format char to the string */
