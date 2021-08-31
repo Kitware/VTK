@@ -105,6 +105,10 @@ int TestMP4Writer(int argc, char* argv[])
 
   return success ? 0 : -1;
 #else
+  // The next two lines prevent an unused parameter warning
+  (void)argc;
+  (void)argv;
+
   return VTK_SKIP_RETURN_CODE;
 #endif
 }

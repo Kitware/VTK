@@ -128,7 +128,7 @@ bool StructuredExecuteWithBlanking(
 
   // Extracts a either the min (or max) face along the `axis` for the cell
   // identified by `cellId` in the input dataset.
-  auto getFace = [input, &inExtent](const int ijk[3], const int axis, bool minFace) {
+  auto getFace = [&inExtent](const int ijk[3], const int axis, bool minFace) {
     const int iAxis = (axis + 1) % 3;
     const int jAxis = (axis + 2) % 3;
 
