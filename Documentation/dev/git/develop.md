@@ -433,16 +433,16 @@ methods:
     Do: test
 
   `@kwrobot` will add an award emoji to the comment to indicate that it was
-  process and also trigger all jobs that are awaiting manual interaction in the
+  processed and trigger all jobs that are awaiting manual interaction in the
   merge request's pipeline.
 
   The `Do: test` command accepts the following arguments:
 
-  * `--named <regex>` or `-n <regex>`: Trigger jobs matching `<regex>` wnywhere
+  * `--named <regex>` or `-n <regex>`: Trigger jobs matching `<regex>` anywhere
     in their name. Job names may be seen on the merge request's pipeline page.
   * `--stage <stage>` or `-s <stage>`: Only affect jobs in a given stage. Stage
-    names may be seen on the merge request's pipeline page. Note that the names
-    are determined by what is in the `.gitlab-ci.yml` file ane may be
+    names may be seen on the merge request's pipeline page. Note that the stage
+    names are determined by what is in the `.gitlab-ci.yml` file and may be
     capitalized in the web page, so lowercasing the webpage's display name for
     stages may be required.
   * `--action <action>` or `-a <action>`: The action to perform on the jobs.
@@ -451,7 +451,7 @@ methods:
     - `manual` (the default): Start jobs awaiting manual interaction.
     - `unsuccessful`: Start or restart jobs which have not completed
       successfully.
-    - `failed`: Restart jobs which have complete, but without success.
+    - `failed`: Restart jobs which have completed, but without success.
     - `completed`: Restart all completed jobs.
 
 If the merge request topic branch is updated by a push, a new manual trigger
