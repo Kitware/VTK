@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossApplyDisplacementsCGNS.cxx
+  Module:    TestIOSSApplyDisplacementsCGNS.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -19,7 +19,7 @@
 #include <vtkDataArraySelection.h>
 #include <vtkDataObject.h>
 #include <vtkDataSetSurfaceFilter.h>
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkProperty.h>
@@ -37,11 +37,11 @@ static std::string GetFileName(int argc, char* argv[], const std::string& fnameC
   return fname;
 }
 
-int TestIossApplyDisplacementsCGNS(int argc, char* argv[])
+int TestIOSSApplyDisplacementsCGNS(int argc, char* argv[])
 {
   auto fname = GetFileName(
     argc, argv, std::string("Data/CGNS/r24_node_tailor_test_output/sparc-volume.cgns.36.00"));
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   reader->AddFileName(fname.c_str());
   reader->GenerateFileIdOn();
   reader->UpdateInformation();

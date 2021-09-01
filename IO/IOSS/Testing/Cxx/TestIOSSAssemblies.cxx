@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossAssemblies.cxx
+  Module:    TestIOSSAssemblies.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -14,8 +14,8 @@
 =========================================================================*/
 #include <vtkDataArraySelection.h>
 #include <vtkDataAssembly.h>
+#include <vtkIOSSReader.h>
 #include <vtkInformation.h>
-#include <vtkIossReader.h>
 #include <vtkLogger.h>
 #include <vtkPartitionedDataSet.h>
 #include <vtkPartitionedDataSetCollection.h>
@@ -64,10 +64,10 @@ static bool Validate(vtkPartitionedDataSetCollection* pdc, const std::string& qu
   return true;
 }
 
-int TestIossAssemblies(int argc, char* argv[])
+int TestIOSSAssemblies(int argc, char* argv[])
 {
   auto fname = ::GetFileName(argc, argv, "Data/Exodus/Assembly-Example.g");
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   reader->SetFileName(fname.c_str());
   reader->UpdateInformation();
 

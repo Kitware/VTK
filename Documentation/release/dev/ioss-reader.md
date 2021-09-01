@@ -1,8 +1,8 @@
 ## New reader for Exodus files
 
-VTK now supports reading Exodus files using `vtkIossReader`. vtkIossReader uses
-the [Sierra IO System (Ioss)](http://gsjaardema.github.io/seacas/).
-vtkIossReader produces a `vtkPartitionedDataSetCollection` as the output data
+VTK now supports reading Exodus files using `vtkIOSSReader`. vtkIOSSReader uses
+the [Sierra IO System (IOSS)](http://gsjaardema.github.io/seacas/).
+vtkIOSSReader produces a `vtkPartitionedDataSetCollection` as the output data
 type together with a `vtkDataAssembly` to represent the logical structure of the
-blocks in the file. `vtkIossReader` is intended to eventually replace
+blocks in the file. `vtkIOSSReader` is intended to eventually replace
 `vtkExodusIIReader`.

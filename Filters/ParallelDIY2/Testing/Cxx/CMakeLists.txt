@@ -12,7 +12,7 @@ if (TARGET VTK::mpi)
     TestPUnstructuredGridGhostCellsGenerator.cxx,NO_VALID
     TestProbeLineFilter.cxx
     TestRedistributeDataSetFilter.cxx
-    TestRedistributeDataSetFilterOnIoss.cxx,NO_VALID
+    TestRedistributeDataSetFilterOnIOSS.cxx,NO_VALID
     TestStructuredGridGhostDataGenerator.cxx,NO_VALID
     TestUniformGridGhostDataGenerator.cxx,NO_VALID
     TestUnstructuredGridGeometryFilterGhostCells.cxx,NO_VALID)
@@ -42,6 +42,6 @@ vtk_add_test_cxx(vtkFiltersParallelDIY2CxxTests non_mpi_tests
   TestGenerateGlobalIds.cxx,NO_VALID
   TestGenerateGlobalIdsSphere.cxx,NO_VALID
   TestRedistributeDataSetFilter.cxx,NO_VALID
-  TestRedistributeDataSetFilterOnIoss.cxx,NO_VALID
+  TestRedistributeDataSetFilterOnIOSS.cxx,NO_VALID
   TestRedistributeDataSetFilterWithPolyData.cxx)
 vtk_test_cxx_executable(vtkFiltersParallelDIY2CxxTests non_mpi_tests)

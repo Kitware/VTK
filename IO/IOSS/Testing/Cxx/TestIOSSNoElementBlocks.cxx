@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossExodus.cxx
+  Module:    TestIOSSNoElementBlocks.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,16 +13,19 @@
 
 =========================================================================*/
 /**
- * Test for paraview/paraview#17404
+ * Test for paraview/paraview#18686
+ * Ensures that exodus files without any element blocks and node blocks alone
+ * can be read correctly.
  */
 
-#include <vtkCellData.h>
+#include <vtkDataArraySelection.h>
 #include <vtkDataSet.h>
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkPartitionedDataSet.h>
 #include <vtkPartitionedDataSetCollection.h>
+#include <vtkPointData.h>
 #include <vtkTestUtilities.h>
 
 #include <string>
@@ -46,31 +49,22 @@ static std::string GetFileName(int argc, char* argv[], const char* fnameC)
     vtkLogF(1, "%s -- success", (y));                                                              \
   }
 
-int TestIossAttributes(int argc, char* argv[])
+int TestIOSSNoElementBlocks(int argc, char* argv[])
 {
-  vtkNew<vtkIossReader> reader0;
-  reader0->AddFileName(
-    ::GetFileName(argc, argv, "Data/Exodus/RubiksCubeWithRotations_gold.g").c_str());
+  vtkNew<vtkIOSSReader> reader0;
+  reader0->AddFileName(::GetFileName(argc, argv, "Data/Exodus/hello_world_fix-d_frf.frq").c_str());
+  reader0->UpdateInformation();
+  reader0->GetNodeSetSelection()->EnableAllArrays();
   reader0->Update();
 
   auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(reader0->GetOutputDataObject(0));
-  auto pd = pdc ? pdc->GetPartitionedDataSet(0) : nullptr;
+  VERIFY((pdc != nullptr), "expected vtkPartitionedDataSetCollection");
+  VERIFY((pdc->GetNumberOfPartitionedDataSets() == 7), "expected 7 partitioned-datasets");
+  auto pd = pdc ? pdc->GetPartitionedDataSet(4) : nullptr;
   auto ds = pd ? pd->GetPartition(0) : nullptr;
   VERIFY((ds != nullptr), "expected block");
-  VERIFY(ds->GetCellData()->GetArray("attribute") != nullptr, "expected 'attribute' array");
-  VERIFY(ds->GetCellData()->GetArray("rotation_matrix_") != nullptr,
-    "expected 'rotation_matrix_' array");
-
-  reader0->ClearFileNames();
-  reader0->AddFileName(::GetFileName(argc, argv, "Data/Exodus/block_with_attributes.g").c_str());
-  reader0->Update();
-
-  pdc = vtkPartitionedDataSetCollection::SafeDownCast(reader0->GetOutputDataObject(0));
-  pd = pdc ? pdc->GetPartitionedDataSet(0) : nullptr;
-  ds = pd ? pd->GetPartition(0) : nullptr;
-  VERIFY((ds != nullptr), "expected block");
-  VERIFY(ds->GetCellData()->GetArray("attribute") != nullptr, "expected 'attribute' array");
-  VERIFY(ds->GetCellData()->GetArray("block_0_attribute_label") != nullptr,
-    "expected 'block_0_attribute_label' array");
+  VERIFY((ds->GetNumberOfPoints() == 1), "expected 1 points");
+  VERIFY(ds->GetPointData()->GetArray("disp") != nullptr, "expected 'disp' array");
+  VERIFY(ds->GetPointData()->GetArray("rot") != nullptr, "expected 'rot' array");
   return EXIT_SUCCESS;
 }

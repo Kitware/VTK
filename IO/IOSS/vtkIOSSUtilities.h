@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkIossUtilities.h
+  Module:    vtkIOSSUtilities.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,10 +13,10 @@
 
 =========================================================================*/
 /**
- * @namespace vtkIossUtilities
- * @brief internal utilities for vtkIossReader
+ * @namespace vtkIOSSUtilities
+ * @brief internal utilities for vtkIOSSReader
  *
- * vtkIossReader provides some helper functions to go between VTK and Ioss.
+ * vtkIOSSReader provides some helper functions to go between VTK and Ioss.
  * Not intended for public consumption. API likely to change without notice.
  *
  * @section DeveloperNotes Developer Notes
@@ -27,12 +27,12 @@
  *
  */
 
-#ifndef vtkIossUtilities_h
-#define vtkIossUtilities_h
+#ifndef vtkIOSSUtilities_h
+#define vtkIOSSUtilities_h
 
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
-#include "vtkIossReader.h"
+#include "vtkIOSSReader.h"
 #include "vtkLogger.h"
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
@@ -52,7 +52,7 @@
 #include <set>
 
 class vtkCellArray;
-namespace vtkIossUtilities
+namespace vtkIOSSUtilities
 {
 
 enum DatabaseFormatType
@@ -102,7 +102,7 @@ private:
 using EntityNameType = std::pair<vtkTypeUInt64, std::string>;
 
 /**
- * List of possible ArrayTypes that are produced by vtkIossUtilities.
+ * List of possible ArrayTypes that are produced by vtkIOSSUtilities.
  *
  * This can be used with vtkArrayDispatch::DispatchByArray, etc. when dealing
  * with arrays read from Ioss.
@@ -137,7 +137,7 @@ void GetEntityAndFieldNames(const Ioss::Region* region, const std::vector<Entity
   for (const auto& entity : entities)
   {
     const int64_t id = entity->property_exists("id") ? entity->get_property("id").get_int() : 0;
-    auto name = vtkIossUtilities::GetSanitizedBlockName(region, entity->name());
+    auto name = vtkIOSSUtilities::GetSanitizedBlockName(region, entity->name());
     entity_names.insert(EntityNameType{ static_cast<vtkTypeUInt64>(id), name });
 
     Ioss::NameList attributeNames;
@@ -149,12 +149,12 @@ void GetEntityAndFieldNames(const Ioss::Region* region, const std::vector<Entity
 }
 
 /**
- * For the given vtkIossReader::EntityType return the corresponding
+ * For the given vtkIOSSReader::EntityType return the corresponding
  * Ioss::EntityType.
  *
  * Throws `std::runtime_error` for invalid values.
  */
-Ioss::EntityType GetIossEntityType(vtkIossReader::EntityType vtk_type);
+Ioss::EntityType GetIOSSEntityType(vtkIOSSReader::EntityType vtk_type);
 
 /**
  * Create an array for the given `field`. Uses type information from the field
@@ -223,7 +223,7 @@ std::string GetDisplacementFieldName(Ioss::GroupingEntity* nodeblock);
  * Must be called before using any Ioss library functions. Necessary to
  * initialize factories used internally by Ioss library.
  */
-void InitializeEnvironmentForIoss();
+void InitializeEnvironmentForIOSS();
 
 /**
  * Given a filename determines and returns the database type. Currently,
@@ -240,7 +240,7 @@ DatabaseFormatType GetFormat(const Ioss::GroupingEntity* entity);
 
 /**
  * Returns collection of StructuredBlock's matching the selected blockname.
- * Since vtkIossReader may modify block names to avoid creating separate block
+ * Since vtkIOSSReader may modify block names to avoid creating separate block
  * for each rank for what logically is the same block, we have to use this
  * method to find the blocks user selected. @sa GetSanitizedBlockName
  */
@@ -249,4 +249,4 @@ std::vector<Ioss::StructuredBlock*> GetMatchingStructuredBlocks(
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkIossUtilities.h
+// VTK-HeaderTest-Exclude: vtkIOSSUtilities.h

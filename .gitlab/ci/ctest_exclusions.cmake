@@ -54,7 +54,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::FiltersModelingPython-TestCookieCutter3$"
     "^VTK::FiltersModelingPython-TestImprintFilter2$"
     "^VTK::FiltersModelingPython-TestImprintFilter3$"
-    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIoss$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIOSS$"
     "^VTK::FiltersPointsPython-TestConnectedPointsFilter$"
     "^VTK::FiltersPointsPython-TestFitImplicitFunction$"
     "^VTK::FiltersPointsPython-TestHierarchicalBinningFilter$"
@@ -82,8 +82,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::IOImageCxx-TestTIFFReaderMulti$"
     "^VTK::IOImportCxx-OBJImport-MixedOrder1$"
     "^VTK::IOImportCxx-OBJImport-MTLwithoutTextureFile$"
-    "^VTK::IOIossCxx-MPI-TestIossExodusParitionedFiles$"
-    "^VTK::IOIossCxx-MPI-TestIossExodusRestarts$"
+    "^VTK::IOIOSSCxx-MPI-TestIOSSExodusParitionedFiles$"
+    "^VTK::IOIOSSCxx-MPI-TestIOSSExodusRestarts$"
     "^VTK::IOLASCxx-TestLASReader_test_1$"
     "^VTK::IOLASCxx-TestLASReader_test_2$"
     "^VTK::IOPDALCxx-TestPDALReader_test_1$"
@@ -154,7 +154,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$"
 
     # Ignored on other platforms but timeout on Windows consistently
-    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIoss$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIOSS$"
   )
 endif ()
 
@@ -173,9 +173,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread") # They failed also on OpenM
     # Need investigations https://gitlab.kitware.com/vtk/vtk/-/issues/18222
     "^VTK::FiltersExtractionCxx-TestExtractSelectionUsingDataAssembly$"
     "^VTK::FiltersGeneralCxx-TestAnimateModes$"
-    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIoss$"
-    "^VTK::IOIossCxx-TestIossExodus$"
-    "^VTK::IOIossCxx-TestIossSuperelements$"
+    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIOSS$"
+    "^VTK::IOIOSSCxx-TestIOSSExodus$"
+    "^VTK::IOIOSSCxx-TestIOSSSuperelements$"
     "^VTK::ImagingHybridPython-TestCheckerboardSplatter$")
 endif ()
 

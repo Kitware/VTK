@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossSuperelements.cxx
+  Module:    TestIOSSSuperelements.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkPartitionedDataSet.h>
@@ -31,9 +31,9 @@ static std::string GetFileName(int argc, char* argv[], const char* fnameC)
  * This test open various unsupported files and ensures that the reader raises
  * errors as expected without crashing.
  */
-int TestIossSuperelements(int argc, char* argv[])
+int TestIOSSSuperelements(int argc, char* argv[])
 {
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   reader->SetFileName(
     GetFileName(argc, argv, "Data/Exodus/SAND2017-5827O-FSM_Residual-bad-eigen.e").c_str());
   reader->Update();

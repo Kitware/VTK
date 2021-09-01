@@ -13,7 +13,7 @@
 
 ===========================================================================*/
 /**
- * Test vtkRedistributeDataSetFilter can operate on vtkIossReader output and
+ * Test vtkRedistributeDataSetFilter can operate on vtkIOSSReader output and
  * produce correct cell ids.
  * Tests: paraview/paraview#20438
  */
@@ -23,7 +23,7 @@
 #include "vtkDataArraySelection.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataSet.h"
-#include "vtkIossReader.h"
+#include "vtkIOSSReader.h"
 #include "vtkLogger.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkTestUtilities.h"
@@ -48,7 +48,7 @@ std::string GetFileName(int argc, char* argv[], const std::string& fnameC)
 
 }
 
-int TestRedistributeDataSetFilterOnIoss(int argc, char* argv[])
+int TestRedistributeDataSetFilterOnIOSS(int argc, char* argv[])
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> controller;
@@ -61,12 +61,12 @@ int TestRedistributeDataSetFilterOnIoss(int argc, char* argv[])
   const int rank = controller->GetLocalProcessId();
   vtkLogger::SetThreadName("rank:" + std::to_string(rank));
 
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   auto fname = GetFileName(argc, argv, std::string("Data/Exodus/can.e.4/can.e.4.0"));
   reader->SetFileName(fname.c_str());
   reader->UpdateInformation();
   reader->ReadIdsOff(); // turn off global ids
-  for (int etype = vtkIossReader::BLOCK_START; etype < vtkIossReader::BLOCK_END; ++etype)
+  for (int etype = vtkIOSSReader::BLOCK_START; etype < vtkIOSSReader::BLOCK_END; ++etype)
   {
     // enable all blocks.
     reader->GetEntitySelection(etype)->EnableAllArrays();

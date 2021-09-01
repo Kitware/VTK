@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkIossFilesScanner.h
+  Module:    vtkIOSSFilesScanner.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,29 +13,29 @@
 
 =========================================================================*/
 /**
- * @class vtkIossFilesScanner
+ * @class vtkIOSSFilesScanner
  * @brief helper to scan files
  *
- * vtkIossReader supports specifying files in a variety of ways. This class
+ * vtkIOSSReader supports specifying files in a variety of ways. This class
  * helps expand the chosen set of files to a complete set based on Ioss
  * conventions.
  */
 
-#ifndef vtkIossFilesScanner_h
-#define vtkIossFilesScanner_h
+#ifndef vtkIOSSFilesScanner_h
+#define vtkIOSSFilesScanner_h
 
-#include "vtkIOIossModule.h" // for export macros
+#include "vtkIOIOSSModule.h" // for export macros
 #include "vtkObject.h"
 
 #include <set>
 #include <string>
 #include <vector>
 
-class VTKIOIOSS_EXPORT vtkIossFilesScanner : public vtkObject
+class VTKIOIOSS_EXPORT vtkIOSSFilesScanner : public vtkObject
 {
 public:
-  static vtkIossFilesScanner* New();
-  vtkTypeMacro(vtkIossFilesScanner, vtkObject);
+  static vtkIOSSFilesScanner* New();
+  vtkTypeMacro(vtkIOSSFilesScanner, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -66,13 +66,13 @@ public:
   static bool DoTestFilePatternMatching();
 
 protected:
-  vtkIossFilesScanner();
-  ~vtkIossFilesScanner() override;
+  vtkIOSSFilesScanner();
+  ~vtkIOSSFilesScanner() override;
 
 private:
-  vtkIossFilesScanner(const vtkIossFilesScanner&) = delete;
-  void operator=(const vtkIossFilesScanner&) = delete;
+  vtkIOSSFilesScanner(const vtkIOSSFilesScanner&) = delete;
+  void operator=(const vtkIOSSFilesScanner&) = delete;
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkIossFilesScanner.h
+// VTK-HeaderTest-Exclude: vtkIOSSFilesScanner.h

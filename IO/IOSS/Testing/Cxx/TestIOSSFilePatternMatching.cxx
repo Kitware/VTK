@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossFilePatternMatching.cxx
+  Module:    TestIOSSFilePatternMatching.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,12 +13,12 @@
 
 =========================================================================*/
 /**
- * Test vtkIossReader::GetRelatedFiles(...).
+ * Test vtkIOSSReader::GetRelatedFiles(...).
  */
-#include "vtkIossReader.h"
+#include "vtkIOSSReader.h"
 #include "vtkObject.h"
 
-int TestIossFilePatternMatching(int, char*[])
+int TestIOSSFilePatternMatching(int, char*[])
 {
-  return vtkIossReader::DoTestFilePatternMatching() ? EXIT_SUCCESS : EXIT_FAILURE;
+  return vtkIOSSReader::DoTestFilePatternMatching() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

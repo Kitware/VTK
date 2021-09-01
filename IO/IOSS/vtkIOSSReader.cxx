@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkIossReader.cxx
+  Module:    vtkIOSSReader.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkIossReader.h"
-#include "vtkIossFilesScanner.h"
-#include "vtkIossUtilities.h"
+#include "vtkIOSSReader.h"
+#include "vtkIOSSFilesScanner.h"
+#include "vtkIOSSUtilities.h"
 
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
@@ -182,7 +182,7 @@ vtkSmartPointer<vtkAbstractArray> JoinArrays(
 }
 }
 
-class vtkIossReader::vtkInternals
+class vtkIOSSReader::vtkInternals
 {
   // it's okay to instantiate this multiple times.
   Ioss::Init::Initializer io;
@@ -197,7 +197,7 @@ class vtkIossReader::vtkInternals
   vtkTimeStamp TimestepValuesMTime;
 
   // a collection of names for blocks and sets in the file(s).
-  std::array<std::set<vtkIossUtilities::EntityNameType>, vtkIossReader::NUMBER_OF_ENTITY_TYPES>
+  std::array<std::set<vtkIOSSUtilities::EntityNameType>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES>
     EntityNames;
   vtkTimeStamp SelectionsMTime;
 
@@ -206,16 +206,16 @@ class vtkIossReader::vtkInternals
 
   std::map<DatabaseHandle, std::shared_ptr<Ioss::Region>> RegionMap;
 
-  vtkIossUtilities::Cache Cache;
+  vtkIOSSUtilities::Cache Cache;
 
-  vtkIossUtilities::DatabaseFormatType Format = vtkIossUtilities::DatabaseFormatType::UNKNOWN;
-  vtkIossReader* IOSSReader = nullptr;
+  vtkIOSSUtilities::DatabaseFormatType Format = vtkIOSSUtilities::DatabaseFormatType::UNKNOWN;
+  vtkIOSSReader* IOSSReader = nullptr;
 
   vtkSmartPointer<vtkDataAssembly> Assembly;
   vtkTimeStamp AssemblyMTime;
 
 public:
-  vtkInternals(vtkIossReader* reader)
+  vtkInternals(vtkIOSSReader* reader)
     : IOSSReader(reader)
   {
   }
@@ -227,7 +227,7 @@ public:
   std::set<std::string> Selectors;
 
   const std::vector<double>& GetTimeSteps() const { return this->TimestepValues; }
-  vtkIossUtilities::DatabaseFormatType GetFormat() const { return this->Format; }
+  vtkIOSSUtilities::DatabaseFormatType GetFormat() const { return this->Format; }
 
   //@{
   /**
@@ -239,7 +239,7 @@ public:
   {
     switch (this->Format)
     {
-      case vtkIossUtilities::DatabaseFormatType::CATALYST:
+      case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
         // For Catalyst, we don't want to hold on to the cache for longer than
         // the RequestData pass. For we clear it entirely here.
         this->Cache.Clear();
@@ -267,7 +267,7 @@ public:
    *
    * @returns `false` to indicate failure.
    */
-  bool UpdateDatabaseNames(vtkIossReader* self);
+  bool UpdateDatabaseNames(vtkIOSSReader* self);
 
   /**
    * Read Ioss databases to generate information about timesteps / times
@@ -283,18 +283,18 @@ public:
    *
    * @returns `false` on failure.
    */
-  bool UpdateTimeInformation(vtkIossReader* self);
+  bool UpdateTimeInformation(vtkIOSSReader* self);
 
   /**
-   * Populates various `vtkDataArraySelection` objects on the vtkIossReader with
+   * Populates various `vtkDataArraySelection` objects on the vtkIOSSReader with
    * names for entity-blocks, -sets, and fields defined on them.
    */
-  bool UpdateEntityAndFieldSelections(vtkIossReader* self);
+  bool UpdateEntityAndFieldSelections(vtkIOSSReader* self);
 
   /**
    * Populates the vtkDataAssembly used for block/set selection.
    */
-  bool UpdateAssembly(vtkIossReader* self, int* tag);
+  bool UpdateAssembly(vtkIOSSReader* self, int* tag);
 
   vtkDataAssembly* GetAssembly() const { return this->Assembly; }
 
@@ -302,7 +302,7 @@ public:
    * Fills up the output data-structure based on the entity blocks/sets chosen
    * and those available.
    */
-  bool GenerateOutput(vtkPartitionedDataSetCollection* output, vtkIossReader* self);
+  bool GenerateOutput(vtkPartitionedDataSetCollection* output, vtkIOSSReader* self);
 
   /**
    * Fills up the vtkDataAssembly with ioss-assemblies, if present.
@@ -313,8 +313,8 @@ public:
    * Reads datasets (meshes and fields) for the given block.
    */
   std::vector<vtkSmartPointer<vtkDataSet>> GetDataSets(const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
-    vtkIossReader* self);
+    vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
+    vtkIOSSReader* self);
 
   /**
    * Read quality assurance and information data from the file.
@@ -438,7 +438,7 @@ private:
    * On file reading error, `std::runtime_error` is thrown.
    */
   bool GetTopology(vtkUnstructuredGrid* grid, const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
+    vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
 
   /**
    * Fill up `grid` with point coordinates aka geometry read from the block
@@ -474,15 +474,15 @@ private:
    * which can be used to identify which points were passed through.
    */
   bool GetMesh(vtkUnstructuredGrid* grid, const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle,
+    vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle,
     bool remove_unused_points);
 
   /**
    * Reads a structured block. vtk_entity_type must be
-   * `vtkIossReader::STRUCTUREDBLOCK`.
+   * `vtkIOSSReader::STRUCTUREDBLOCK`.
    */
   bool GetMesh(vtkStructuredGrid* grid, const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
+    vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
 
   /**
    * Add "id" array to the dataset using the id for the groupping entity, if
@@ -490,7 +490,7 @@ private:
    * the pattern used by vtkExodusIIReader.
    */
   bool GenerateEntityIdArray(vtkDataSet* grid, const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
+    vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
 
   /**
    * Reads selected field arrays for the given entity block or set.
@@ -569,12 +569,12 @@ private:
    * There's slight difference in how they are handled and hence these separate methods.
    */
   std::vector<vtkSmartPointer<vtkDataSet>> GetExodusDataSets(const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
-    vtkIossReader* self);
+    vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
+    vtkIOSSReader* self);
 
   std::vector<vtkSmartPointer<vtkDataSet>> GetCGNSDataSets(const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
-    vtkIossReader* self);
+    vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
+    vtkIOSSReader* self);
   ///@}
 
   bool BuildAssembly(Ioss::Region* region, vtkDataAssembly* assembly, int root, bool add_leaves);
@@ -583,11 +583,11 @@ private:
    * Generate a subset based the readers current settings for FileRange and
    * FileStride.
    */
-  DatabaseNamesType GenerateSubset(const DatabaseNamesType& databases, vtkIossReader* self);
+  DatabaseNamesType GenerateSubset(const DatabaseNamesType& databases, vtkIOSSReader* self);
 };
 
 //----------------------------------------------------------------------------
-std::vector<int> vtkIossReader::vtkInternals::GetFileIds(
+std::vector<int> vtkIOSSReader::vtkInternals::GetFileIds(
   const std::string& dbasename, int myrank, int numRanks) const
 {
   auto iter = this->DatabaseNames.find(dbasename);
@@ -637,7 +637,7 @@ std::vector<int> vtkIossReader::vtkInternals::GetFileIds(
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::UpdateDatabaseNames(vtkIossReader* self)
+bool vtkIOSSReader::vtkInternals::UpdateDatabaseNames(vtkIOSSReader* self)
 {
   if (this->DatabaseNamesMTime > this->FileNamesMTime)
   {
@@ -667,13 +667,13 @@ bool vtkIossReader::vtkInternals::UpdateDatabaseNames(vtkIossReader* self)
 
   if (myrank == 0)
   {
-    if (filenames.size() == 1 && vtkIossFilesScanner::IsMetaFile(*filenames.begin()))
+    if (filenames.size() == 1 && vtkIOSSFilesScanner::IsMetaFile(*filenames.begin()))
     {
-      filenames = vtkIossFilesScanner::GetFilesFromMetaFile(*filenames.begin());
+      filenames = vtkIOSSFilesScanner::GetFilesFromMetaFile(*filenames.begin());
     }
     else if (self->GetScanForRelatedFiles())
     {
-      filenames = vtkIossFilesScanner::GetRelatedFiles(filenames);
+      filenames = vtkIOSSFilesScanner::GetRelatedFiles(filenames);
     }
   }
 
@@ -761,8 +761,8 @@ bool vtkIossReader::vtkInternals::UpdateDatabaseNames(vtkIossReader* self)
 }
 
 //----------------------------------------------------------------------------
-vtkIossReader::vtkInternals::DatabaseNamesType vtkIossReader::vtkInternals::GenerateSubset(
-  const vtkIossReader::vtkInternals::DatabaseNamesType& databases, vtkIossReader* self)
+vtkIOSSReader::vtkInternals::DatabaseNamesType vtkIOSSReader::vtkInternals::GenerateSubset(
+  const vtkIOSSReader::vtkInternals::DatabaseNamesType& databases, vtkIOSSReader* self)
 {
   int fileRange[2];
   self->GetFileRange(fileRange);
@@ -814,7 +814,7 @@ vtkIossReader::vtkInternals::DatabaseNamesType vtkIossReader::vtkInternals::Gene
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::UpdateTimeInformation(vtkIossReader* self)
+bool vtkIOSSReader::vtkInternals::UpdateTimeInformation(vtkIOSSReader* self)
 {
   if (this->TimestepValuesMTime > this->DatabaseNamesMTime)
   {
@@ -844,7 +844,7 @@ bool vtkIossReader::vtkInternals::UpdateTimeInformation(vtkIossReader* self)
       try
       {
         auto region = this->GetRegion(pair.first, fileids.front());
-        dbase_times[pair.first] = vtkIossUtilities::GetTimeValues(region);
+        dbase_times[pair.first] = vtkIOSSUtilities::GetTimeValues(region);
       }
       catch (std::runtime_error& e)
       {
@@ -887,7 +887,7 @@ bool vtkIossReader::vtkInternals::UpdateTimeInformation(vtkIossReader* self)
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* self)
+bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* self)
 {
   if (this->SelectionsMTime > this->DatabaseNamesMTime)
   {
@@ -901,16 +901,16 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
 
   // This has to be done all all ranks since not all files in a database have
   // all the blocks consequently need not have all the fields.
-  std::array<std::set<vtkIossUtilities::EntityNameType>, vtkIossReader::NUMBER_OF_ENTITY_TYPES>
+  std::array<std::set<vtkIOSSUtilities::EntityNameType>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES>
     entity_names;
-  std::array<std::set<std::string>, vtkIossReader::NUMBER_OF_ENTITY_TYPES> field_names;
-  std::set<vtkIossUtilities::EntityNameType> bc_names;
+  std::array<std::set<std::string>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES> field_names;
+  std::set<vtkIOSSUtilities::EntityNameType> bc_names;
 
   // When each rank is reading multiple files, reading all those files for
   // gathering meta-data can be slow. However, with CGNS, that is required
   // since the file doesn't have information about all blocks in all files.
   // see paraview/paraview#20873.
-  const bool readAllFilesForMetaData = (this->Format == vtkIossUtilities::DatabaseFormatType::CGNS);
+  const bool readAllFilesForMetaData = (this->Format == vtkIOSSUtilities::DatabaseFormatType::CGNS);
 
   for (const auto& pair : this->DatabaseNames)
   {
@@ -925,30 +925,30 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
     {
       if (auto region = this->GetRegion(pair.first, fileid))
       {
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_node_blocks(),
-          entity_names[vtkIossReader::NODEBLOCK], field_names[vtkIossReader::NODEBLOCK]);
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_edge_blocks(),
-          entity_names[vtkIossReader::EDGEBLOCK], field_names[vtkIossReader::EDGEBLOCK]);
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_face_blocks(),
-          entity_names[vtkIossReader::FACEBLOCK], field_names[vtkIossReader::FACEBLOCK]);
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_element_blocks(),
-          entity_names[vtkIossReader::ELEMENTBLOCK], field_names[vtkIossReader::ELEMENTBLOCK]);
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_structured_blocks(),
-          entity_names[vtkIossReader::STRUCTUREDBLOCK],
-          field_names[vtkIossReader::STRUCTUREDBLOCK]);
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_nodesets(),
-          entity_names[vtkIossReader::NODESET], field_names[vtkIossReader::NODESET]);
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_edgesets(),
-          entity_names[vtkIossReader::EDGESET], field_names[vtkIossReader::EDGESET]);
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_facesets(),
-          entity_names[vtkIossReader::FACESET], field_names[vtkIossReader::FACESET]);
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_elementsets(),
-          entity_names[vtkIossReader::ELEMENTSET], field_names[vtkIossReader::ELEMENTSET]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_node_blocks(),
+          entity_names[vtkIOSSReader::NODEBLOCK], field_names[vtkIOSSReader::NODEBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_edge_blocks(),
+          entity_names[vtkIOSSReader::EDGEBLOCK], field_names[vtkIOSSReader::EDGEBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_face_blocks(),
+          entity_names[vtkIOSSReader::FACEBLOCK], field_names[vtkIOSSReader::FACEBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_element_blocks(),
+          entity_names[vtkIOSSReader::ELEMENTBLOCK], field_names[vtkIOSSReader::ELEMENTBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_structured_blocks(),
+          entity_names[vtkIOSSReader::STRUCTUREDBLOCK],
+          field_names[vtkIOSSReader::STRUCTUREDBLOCK]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_nodesets(),
+          entity_names[vtkIOSSReader::NODESET], field_names[vtkIOSSReader::NODESET]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_edgesets(),
+          entity_names[vtkIOSSReader::EDGESET], field_names[vtkIOSSReader::EDGESET]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_facesets(),
+          entity_names[vtkIOSSReader::FACESET], field_names[vtkIOSSReader::FACESET]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_elementsets(),
+          entity_names[vtkIOSSReader::ELEMENTSET], field_names[vtkIOSSReader::ELEMENTSET]);
 
         // note: for CGNS, the sidesets contain family names for BC. They need to
         // be handled differently from exodus side sets.
-        vtkIossUtilities::GetEntityAndFieldNames(region, region->get_sidesets(),
-          entity_names[vtkIossReader::SIDESET], field_names[vtkIossReader::SIDESET]);
+        vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_sidesets(),
+          entity_names[vtkIOSSReader::SIDESET], field_names[vtkIOSSReader::SIDESET]);
 
         // note: for CGNS, the structuredblock elements have nested BC patches. These patches
         // are named as well. Let's collect those names too.
@@ -968,10 +968,10 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
         // node_blocks nested under the structured_blocks.
         for (auto& sb : region->get_structured_blocks())
         {
-          std::set<vtkIossUtilities::EntityNameType> unused;
-          vtkIossUtilities::GetEntityAndFieldNames(region,
+          std::set<vtkIOSSUtilities::EntityNameType> unused;
+          vtkIOSSUtilities::GetEntityAndFieldNames(region,
             Ioss::NodeBlockContainer({ &sb->get_node_block() }), unused,
-            field_names[vtkIossReader::NODEBLOCK]);
+            field_names[vtkIOSSReader::NODEBLOCK]);
         }
       }
       // necessary to avoid errors from IO libraries, e.g. CGNS, about
@@ -990,7 +990,7 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
     // thus may not have format setup correctly.
     int iFormat = static_cast<int>(this->Format);
     controller->Broadcast(&iFormat, 1, 0);
-    this->Format = static_cast<vtkIossUtilities::DatabaseFormatType>(iFormat);
+    this->Format = static_cast<vtkIOSSUtilities::DatabaseFormatType>(iFormat);
   }
 
   // update known block/set names.
@@ -1000,19 +1000,19 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
     auto entitySelection = self->GetEntitySelection(cc);
     for (auto& name : entity_names[cc])
     {
-      entitySelection->AddArray(name.second.c_str(), vtkIossReader::GetEntityTypeIsBlock(cc));
+      entitySelection->AddArray(name.second.c_str(), vtkIOSSReader::GetEntityTypeIsBlock(cc));
     }
 
     auto fieldSelection = self->GetFieldSelection(cc);
     for (auto& name : field_names[cc])
     {
-      fieldSelection->AddArray(name.c_str(), vtkIossReader::GetEntityTypeIsBlock(cc));
+      fieldSelection->AddArray(name.c_str(), vtkIOSSReader::GetEntityTypeIsBlock(cc));
     }
   }
 
   // Populate DatasetIndexMap.
   unsigned int pdsIdx = 0;
-  for (int etype = vtkIossReader::NODEBLOCK + 1; etype < vtkIossReader::ENTITY_END; ++etype)
+  for (int etype = vtkIOSSReader::NODEBLOCK + 1; etype < vtkIOSSReader::ENTITY_END; ++etype)
   {
     // for sidesets when reading CGNS, use the patch names.
     const auto& namesSet = this->EntityNames[etype];
@@ -1021,7 +1021,7 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
     for (const auto& ename : namesSet)
     {
       auto ioss_etype =
-        vtkIossUtilities::GetIossEntityType(static_cast<vtkIossReader::EntityType>(etype));
+        vtkIOSSUtilities::GetIOSSEntityType(static_cast<vtkIOSSReader::EntityType>(etype));
       this->DatasetIndexMap[std::make_pair(ioss_etype, ename.second)] = pdsIdx++;
     }
   }
@@ -1031,7 +1031,7 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::BuildAssembly(
+bool vtkIOSSReader::vtkInternals::BuildAssembly(
   Ioss::Region* region, vtkDataAssembly* assembly, int root, bool add_leaves)
 {
   if (region == nullptr || assembly == nullptr)
@@ -1101,7 +1101,7 @@ bool vtkIossReader::vtkInternals::BuildAssembly(
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::UpdateAssembly(vtkIossReader* self, int* tag)
+bool vtkIOSSReader::vtkInternals::UpdateAssembly(vtkIOSSReader* self, int* tag)
 {
   if (this->AssemblyMTime > this->DatabaseNamesMTime)
   {
@@ -1162,15 +1162,15 @@ bool vtkIossReader::vtkInternals::UpdateAssembly(vtkIossReader* self, int* tag)
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GenerateOutput(
-  vtkPartitionedDataSetCollection* output, vtkIossReader*)
+bool vtkIOSSReader::vtkInternals::GenerateOutput(
+  vtkPartitionedDataSetCollection* output, vtkIOSSReader*)
 {
   // we skip NODEBLOCK since we never put out NODEBLOCK in the output by itself.
   vtkNew<vtkDataAssembly> assembly;
-  assembly->SetRootNodeName("Ioss");
+  assembly->SetRootNodeName("IOSS");
   output->SetDataAssembly(assembly);
 
-  for (int etype = vtkIossReader::NODEBLOCK + 1; etype < vtkIossReader::ENTITY_END; ++etype)
+  for (int etype = vtkIOSSReader::NODEBLOCK + 1; etype < vtkIOSSReader::ENTITY_END; ++etype)
   {
     // for sidesets when reading CGNS, use the patch names.
     const auto& namesSet = this->EntityNames[etype];
@@ -1182,7 +1182,7 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
     }
 
     const int entity_node =
-      assembly->AddNode(vtkIossReader::GetDataAssemblyNodeNameForEntityType(etype));
+      assembly->AddNode(vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(etype));
 
     // EntityNames are sorted by their exodus "id".
     for (const auto& ename : namesSet)
@@ -1192,7 +1192,7 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
       output->SetPartitionedDataSet(pdsIdx, parts);
       output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
       output->GetMetaData(pdsIdx)->Set(
-        vtkIossReader::ENTITY_TYPE(), etype); // save for vtkIossReader use.
+        vtkIOSSReader::ENTITY_TYPE(), etype); // save for vtkIOSSReader use.
       auto node = assembly->AddNode(
         vtkDataAssembly::MakeValidNodeName(ename.second.c_str()).c_str(), entity_node);
       assembly->SetAttribute(node, "label", ename.second.c_str());
@@ -1204,7 +1204,7 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::ReadAssemblies(
+bool vtkIOSSReader::vtkInternals::ReadAssemblies(
   vtkPartitionedDataSetCollection* output, const DatabaseHandle& handle)
 {
   /**
@@ -1231,7 +1231,7 @@ bool vtkIossReader::vtkInternals::ReadAssemblies(
 }
 
 //----------------------------------------------------------------------------
-Ioss::Region* vtkIossReader::vtkInternals::GetRegion(const std::string& dbasename, int fileid)
+Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasename, int fileid)
 {
   assert(fileid >= 0);
   auto iter = this->DatabaseNames.find(dbasename);
@@ -1274,17 +1274,17 @@ Ioss::Region* vtkIossReader::vtkInternals::GetRegion(const std::string& dbasenam
     // If MPI is enabled in the build, Ioss can call MPI routines. We need to
     // make sure that MPI is initialized before calling
     // Ioss::IOFactory::create.
-    vtkIossUtilities::InitializeEnvironmentForIoss();
+    vtkIOSSUtilities::InitializeEnvironmentForIOSS();
     std::string dtype;
-    switch (vtkIossUtilities::DetectType(dbasename))
+    switch (vtkIOSSUtilities::DetectType(dbasename))
     {
-      case vtkIossUtilities::DatabaseFormatType::CGNS:
+      case vtkIOSSUtilities::DatabaseFormatType::CGNS:
         dtype = "cgns";
         break;
-      case vtkIossUtilities::DatabaseFormatType::CATALYST:
+      case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
         dtype = "catalyst";
         break;
-      case vtkIossUtilities::DatabaseFormatType::EXODUS:
+      case vtkIOSSUtilities::DatabaseFormatType::EXODUS:
       default:
         dtype = "exodusII";
         break;
@@ -1311,19 +1311,19 @@ Ioss::Region* vtkIossReader::vtkInternals::GetRegion(const std::string& dbasenam
     riter =
       this->RegionMap.insert(std::make_pair(std::make_pair(dbasename, processor), region)).first;
 
-    if (this->Format != vtkIossUtilities::DatabaseFormatType::UNKNOWN &&
-      this->Format != vtkIossUtilities::GetFormat(region.get()))
+    if (this->Format != vtkIOSSUtilities::DatabaseFormatType::UNKNOWN &&
+      this->Format != vtkIOSSUtilities::GetFormat(region.get()))
     {
       throw std::runtime_error("Format mismatch! This is unexpected and indicate an error "
                                "in the reader implementation.");
     }
-    this->Format = vtkIossUtilities::GetFormat(region.get());
+    this->Format = vtkIOSSUtilities::GetFormat(region.get());
   }
   return riter->second.get();
 }
 
 //----------------------------------------------------------------------------
-std::vector<DatabaseHandle> vtkIossReader::vtkInternals::GetDatabaseHandles(
+std::vector<DatabaseHandle> vtkIOSSReader::vtkInternals::GetDatabaseHandles(
   int piece, int npieces, int timestep) const
 {
   std::string dbasename;
@@ -1367,14 +1367,14 @@ std::vector<DatabaseHandle> vtkIossReader::vtkInternals::GetDatabaseHandles(
 }
 
 //----------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetDataSets(
-  const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
-  const DatabaseHandle& handle, int timestep, vtkIossReader* self)
+std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetDataSets(
+  const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
+  const DatabaseHandle& handle, int timestep, vtkIOSSReader* self)
 {
   // TODO: ideally, this method shouldn't depend on format but entity type.
   switch (this->Format)
   {
-    case vtkIossUtilities::DatabaseFormatType::CGNS:
+    case vtkIOSSUtilities::DatabaseFormatType::CGNS:
       switch (vtk_entity_type)
       {
         case STRUCTUREDBLOCK:
@@ -1386,8 +1386,8 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetDataSet
           return {};
       }
 
-    case vtkIossUtilities::DatabaseFormatType::EXODUS:
-    case vtkIossUtilities::DatabaseFormatType::CATALYST:
+    case vtkIOSSUtilities::DatabaseFormatType::EXODUS:
+    case vtkIOSSUtilities::DatabaseFormatType::CATALYST:
       switch (vtk_entity_type)
       {
         case STRUCTUREDBLOCK:
@@ -1404,11 +1404,11 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetDataSet
 }
 
 //----------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetExodusDataSets(
-  const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
-  const DatabaseHandle& handle, int timestep, vtkIossReader* self)
+std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetExodusDataSets(
+  const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
+  const DatabaseHandle& handle, int timestep, vtkIOSSReader* self)
 {
-  const auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
+  const auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
   auto region = this->GetRegion(handle.first, handle.second);
   if (!region)
   {
@@ -1457,20 +1457,20 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetExodusD
 }
 
 //----------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDataSets(
-  const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
-  const DatabaseHandle& handle, int timestep, vtkIossReader* self)
+std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetCGNSDataSets(
+  const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
+  const DatabaseHandle& handle, int timestep, vtkIOSSReader* self)
 {
-  const auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
+  const auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
   auto region = this->GetRegion(handle.first, handle.second);
   if (!region)
   {
     return {};
   }
 
-  if (vtk_entity_type == vtkIossReader::STRUCTUREDBLOCK)
+  if (vtk_entity_type == vtkIOSSReader::STRUCTUREDBLOCK)
   {
-    auto groups = vtkIossUtilities::GetMatchingStructuredBlocks(region, blockname);
+    auto groups = vtkIOSSUtilities::GetMatchingStructuredBlocks(region, blockname);
     std::vector<vtkSmartPointer<vtkDataSet>> grids;
     for (auto group_entity : groups)
     {
@@ -1510,7 +1510,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
     }
     return grids;
   }
-  else if (vtk_entity_type == vtkIossReader::SIDESET)
+  else if (vtk_entity_type == vtkIOSSReader::SIDESET)
   {
     std::vector<vtkSmartPointer<vtkDataSet>> result;
 
@@ -1542,7 +1542,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
           if (iter == fullGridMap.end())
           {
             auto grids = this->GetCGNSDataSets(
-              parentBlock->name(), vtkIossReader::STRUCTUREDBLOCK, handle, timestep, self);
+              parentBlock->name(), vtkIOSSReader::STRUCTUREDBLOCK, handle, timestep, self);
             if (grids.empty())
             {
               continue;
@@ -1592,11 +1592,11 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
-  const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
+bool vtkIOSSReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
+  const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle, bool remove_unused_points)
 {
-  auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
+  auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
   auto region = this->GetRegion(handle);
   auto group_entity = region->get_entity(blockname, ioss_entity_type);
   if (!group_entity)
@@ -1649,16 +1649,16 @@ bool vtkIossReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GetMesh(vtkStructuredGrid* grid, const std::string& blockname,
-  vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle)
+bool vtkIOSSReader::vtkInternals::GetMesh(vtkStructuredGrid* grid, const std::string& blockname,
+  vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle)
 {
   vtkLogScopeF(TRACE, "GetMesh(%s)", blockname.c_str());
   assert(
-    vtk_entity_type == vtkIossReader::STRUCTUREDBLOCK || vtk_entity_type == vtkIossReader::SIDESET);
+    vtk_entity_type == vtkIOSSReader::STRUCTUREDBLOCK || vtk_entity_type == vtkIOSSReader::SIDESET);
 
-  if (vtk_entity_type == vtkIossReader::STRUCTUREDBLOCK)
+  if (vtk_entity_type == vtkIOSSReader::STRUCTUREDBLOCK)
   {
-    auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
+    auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
     auto region = this->GetRegion(handle);
     auto group_entity =
       dynamic_cast<Ioss::StructuredBlock*>(region->get_entity(blockname, ioss_entity_type));
@@ -1669,9 +1669,9 @@ bool vtkIossReader::vtkInternals::GetMesh(vtkStructuredGrid* grid, const std::st
 
     return this->GetGeometry(grid, group_entity);
   }
-  else if (vtk_entity_type == vtkIossReader::SIDESET)
+  else if (vtk_entity_type == vtkIOSSReader::SIDESET)
   {
-    auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
+    auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
     auto region = this->GetRegion(handle);
     auto sideSet = dynamic_cast<Ioss::SideSet*>(region->get_entity(blockname, ioss_entity_type));
     if (!sideSet)
@@ -1714,11 +1714,11 @@ bool vtkIossReader::vtkInternals::GetMesh(vtkStructuredGrid* grid, const std::st
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GenerateEntityIdArray(vtkDataSet* dataset,
-  const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
+bool vtkIOSSReader::vtkInternals::GenerateEntityIdArray(vtkDataSet* dataset,
+  const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle)
 {
-  auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
+  auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
   auto region = this->GetRegion(handle);
   auto group_entity = region->get_entity(blockname, ioss_entity_type);
   if (!group_entity || !group_entity->property_exists("id"))
@@ -1747,11 +1747,11 @@ bool vtkIossReader::vtkInternals::GenerateEntityIdArray(vtkDataSet* dataset,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
-  const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
+bool vtkIOSSReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
+  const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle)
 {
-  auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
+  auto ioss_entity_type = vtkIOSSUtilities::GetIOSSEntityType(vtk_entity_type);
   auto region = this->GetRegion(handle);
   auto group_entity = region->get_entity(blockname, ioss_entity_type);
   if (!group_entity)
@@ -1773,7 +1773,7 @@ bool vtkIossReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
     for (auto sideBlock : sideSet->get_side_blocks())
     {
       int cell_type = VTK_EMPTY_CELL;
-      auto cellarray = vtkIossUtilities::GetConnectivity(sideBlock, cell_type, &this->Cache);
+      auto cellarray = vtkIOSSUtilities::GetConnectivity(sideBlock, cell_type, &this->Cache);
       if (cellarray != nullptr && cell_type != VTK_EMPTY_CELL)
       {
         numCells += cellarray->GetNumberOfCells();
@@ -1806,7 +1806,7 @@ bool vtkIossReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
   else
   {
     int cell_type = VTK_EMPTY_CELL;
-    auto cellarray = vtkIossUtilities::GetConnectivity(group_entity, cell_type, &this->Cache);
+    auto cellarray = vtkIOSSUtilities::GetConnectivity(group_entity, cell_type, &this->Cache);
     if (cell_type != VTK_EMPTY_CELL && cellarray != nullptr)
     {
       grid->SetCells(cell_type, cellarray);
@@ -1817,7 +1817,7 @@ bool vtkIossReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GetGeometry(
+bool vtkIOSSReader::vtkInternals::GetGeometry(
   vtkUnstructuredGrid* grid, const std::string& blockname, const DatabaseHandle& handle)
 {
   auto region = this->GetRegion(handle);
@@ -1829,13 +1829,13 @@ bool vtkIossReader::vtkInternals::GetGeometry(
 
   vtkLogScopeF(TRACE, "GetGeometry(%s)[file=%s]", blockname.c_str(),
     this->GetRawFileName(handle, true).c_str());
-  auto pts = vtkIossUtilities::GetMeshModelCoordinates(group_entity, &this->Cache);
+  auto pts = vtkIOSSUtilities::GetMeshModelCoordinates(group_entity, &this->Cache);
   grid->SetPoints(pts);
   return true;
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GetGeometry(
+bool vtkIOSSReader::vtkInternals::GetGeometry(
   vtkStructuredGrid* grid, const Ioss::StructuredBlock* groupEntity)
 {
   auto& sblock = (*groupEntity);
@@ -1857,14 +1857,14 @@ bool vtkIossReader::vtkInternals::GetGeometry(
   grid->SetExtent(extents);
 
   // now read the points.
-  auto points = vtkIossUtilities::GetMeshModelCoordinates(&sblock, &this->Cache);
+  auto points = vtkIOSSUtilities::GetMeshModelCoordinates(&sblock, &this->Cache);
   grid->SetPoints(points);
   assert(points->GetNumberOfPoints() == vtkStructuredData::GetNumberOfPoints(extents));
   return true;
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
+vtkSmartPointer<vtkAbstractArray> vtkIOSSReader::vtkInternals::GetField(
   const std::string& fieldname, Ioss::Region* region, Ioss::GroupingEntity* group_entity,
   const DatabaseHandle& vtkNotUsed(handle), int timestep, vtkIdTypeArray* ids_to_extract,
   const std::string& cache_key_suffix)
@@ -1876,10 +1876,10 @@ vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
       return nullptr;
     }
 
-    if (!vtkIossUtilities::IsFieldTransient(entity, fieldname))
+    if (!vtkIOSSUtilities::IsFieldTransient(entity, fieldname))
     {
       // non-time dependent field.
-      return vtkIossUtilities::GetData(entity, fieldname, /*transform=*/nullptr, &this->Cache);
+      return vtkIOSSUtilities::GetData(entity, fieldname, /*transform=*/nullptr, &this->Cache);
     }
 
     // determine state for transient data.
@@ -1909,7 +1909,7 @@ vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
     {
       const std::string key = "__vtk_transient_" + fieldname + "_" + std::to_string(state) + "__";
       auto f =
-        vtkIossUtilities::GetData(entity, fieldname, /*transform=*/nullptr, &this->Cache, key);
+        vtkIOSSUtilities::GetData(entity, fieldname, /*transform=*/nullptr, &this->Cache, key);
       region->end_state(state);
       return f;
     }
@@ -1944,7 +1944,7 @@ vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
 
   auto& cache = this->Cache;
   const std::string cacheKey =
-    (vtkIossUtilities::IsFieldTransient(group_entity, fieldname)
+    (vtkIOSSUtilities::IsFieldTransient(group_entity, fieldname)
         ? "__vtk_transientfield_" + fieldname + std::to_string(timestep) + "__"
         : "__vtk_field_" + fieldname + "__") +
     cache_key_suffix;
@@ -1988,7 +1988,7 @@ vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
+bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
   vtkDataArraySelection* selection, Ioss::Region* region, Ioss::GroupingEntity* group_entity,
   const DatabaseHandle& handle, int timestep, bool read_ioss_ids,
   vtkIdTypeArray* ids_to_extract /*=nullptr*/,
@@ -2060,7 +2060,7 @@ bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
+bool vtkIOSSReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
   vtkDataArraySelection* selection, Ioss::Region* region, Ioss::GroupingEntity* group_entity,
   const DatabaseHandle& handle, int timestep, bool read_ioss_ids)
 {
@@ -2098,7 +2098,7 @@ bool vtkIossReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GenerateFileId(
+bool vtkIOSSReader::vtkInternals::GenerateFileId(
   vtkDataSet* grid, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle)
 {
   if (!group_entity)
@@ -2141,7 +2141,7 @@ bool vtkIossReader::vtkInternals::GenerateFileId(
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Region* region,
+bool vtkIOSSReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Region* region,
   Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep)
 {
   if (!group_entity)
@@ -2166,7 +2166,7 @@ bool vtkIossReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Re
     // node fields are stored under nested node block. So use that.
     auto sb = dynamic_cast<Ioss::StructuredBlock*>(group_entity);
     auto& nodeBlock = sb->get_node_block();
-    auto displ_array_name = vtkIossUtilities::GetDisplacementFieldName(&nodeBlock);
+    auto displ_array_name = vtkIOSSUtilities::GetDisplacementFieldName(&nodeBlock);
     if (displ_array_name.empty())
     {
       return false;
@@ -2181,7 +2181,7 @@ bool vtkIossReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Re
     // node fields are stored in global node-block from which we need to subset based on the "ids"
     // for those current block.
     auto nodeBlock = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
-    auto displ_array_name = vtkIossUtilities::GetDisplacementFieldName(nodeBlock);
+    auto displ_array_name = vtkIOSSUtilities::GetDisplacementFieldName(nodeBlock);
     if (displ_array_name.empty())
     {
       return false;
@@ -2222,7 +2222,7 @@ bool vtkIossReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Re
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GetQAAndInformationRecords(
+bool vtkIOSSReader::vtkInternals::GetQAAndInformationRecords(
   vtkFieldData* fd, const DatabaseHandle& handle)
 {
   auto region = this->GetRegion(handle);
@@ -2261,7 +2261,7 @@ bool vtkIossReader::vtkInternals::GetQAAndInformationRecords(
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GetGlobalFields(
+bool vtkIOSSReader::vtkInternals::GetGlobalFields(
   vtkFieldData* fd, const DatabaseHandle& handle, int timestep)
 {
   auto region = this->GetRegion(handle);
@@ -2291,11 +2291,11 @@ bool vtkIossReader::vtkInternals::GetGlobalFields(
 }
 
 //============================================================================
-vtkStandardNewMacro(vtkIossReader);
-vtkCxxSetObjectMacro(vtkIossReader, Controller, vtkMultiProcessController);
-vtkInformationKeyMacro(vtkIossReader, ENTITY_TYPE, Integer);
+vtkStandardNewMacro(vtkIOSSReader);
+vtkCxxSetObjectMacro(vtkIOSSReader, Controller, vtkMultiProcessController);
+vtkInformationKeyMacro(vtkIOSSReader, ENTITY_TYPE, Integer);
 //----------------------------------------------------------------------------
-vtkIossReader::vtkIossReader()
+vtkIOSSReader::vtkIOSSReader()
   : Controller(nullptr)
   , GenerateFileId(false)
   , ScanForRelatedFiles(true)
@@ -2308,13 +2308,13 @@ vtkIossReader::vtkIossReader()
   , AssemblyTag(0)
   , FileRange{ 0, -1 }
   , FileStride{ 1 }
-  , Internals(new vtkIossReader::vtkInternals(this))
+  , Internals(new vtkIOSSReader::vtkInternals(this))
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
-vtkIossReader::~vtkIossReader()
+vtkIOSSReader::~vtkIOSSReader()
 {
   this->SetDatabaseTypeOverride(nullptr);
   this->SetController(nullptr);
@@ -2322,14 +2322,14 @@ vtkIossReader::~vtkIossReader()
 }
 
 //----------------------------------------------------------------------------
-int vtkIossReader::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+int vtkIOSSReader::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSetCollection");
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::SetScanForRelatedFiles(bool val)
+void vtkIOSSReader::SetScanForRelatedFiles(bool val)
 {
   if (this->ScanForRelatedFiles != val)
   {
@@ -2341,7 +2341,7 @@ void vtkIossReader::SetScanForRelatedFiles(bool val)
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::SetFileName(const char* fname)
+void vtkIOSSReader::SetFileName(const char* fname)
 {
   auto& internals = (*this->Internals);
   if (fname == nullptr)
@@ -2367,7 +2367,7 @@ void vtkIossReader::SetFileName(const char* fname)
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::AddFileName(const char* fname)
+void vtkIOSSReader::AddFileName(const char* fname)
 {
   auto& internals = (*this->Internals);
   if (fname != nullptr && !internals.FileNames.insert(fname).second)
@@ -2378,7 +2378,7 @@ void vtkIossReader::AddFileName(const char* fname)
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::ClearFileNames()
+void vtkIOSSReader::ClearFileNames()
 {
   auto& internals = (*this->Internals);
   if (!internals.FileNames.empty())
@@ -2390,7 +2390,7 @@ void vtkIossReader::ClearFileNames()
 }
 
 //----------------------------------------------------------------------------
-const char* vtkIossReader::GetFileName(int index) const
+const char* vtkIOSSReader::GetFileName(int index) const
 {
   auto& internals = (*this->Internals);
   if (static_cast<int>(internals.FileNames.size()) > index)
@@ -2402,14 +2402,14 @@ const char* vtkIossReader::GetFileName(int index) const
 }
 
 //----------------------------------------------------------------------------
-int vtkIossReader::GetNumberOfFileNames() const
+int vtkIOSSReader::GetNumberOfFileNames() const
 {
   auto& internals = (*this->Internals);
   return static_cast<int>(internals.FileNames.size());
 }
 
 //----------------------------------------------------------------------------
-int vtkIossReader::ReadMetaData(vtkInformation* metadata)
+int vtkIOSSReader::ReadMetaData(vtkInformation* metadata)
 {
   vtkLogScopeF(TRACE, "ReadMetaData");
   auto& internals = (*this->Internals);
@@ -2460,7 +2460,7 @@ int vtkIossReader::ReadMetaData(vtkInformation* metadata)
 }
 
 //----------------------------------------------------------------------------
-int vtkIossReader::ReadMesh(
+int vtkIOSSReader::ReadMesh(
   int piece, int npieces, int vtkNotUsed(nghosts), int timestep, vtkDataObject* output)
 {
   auto& internals = (*this->Internals);
@@ -2507,7 +2507,7 @@ int vtkIossReader::ReadMesh(
   {
     const std::string blockname(collection->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()));
     const auto vtk_entity_type =
-      static_cast<vtkIossReader::EntityType>(collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE()));
+      static_cast<vtkIOSSReader::EntityType>(collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE()));
 
     auto selection = this->GetEntitySelection(vtk_entity_type);
     if (!selection->ArrayIsEnabled(blockname.c_str()) &&
@@ -2592,35 +2592,35 @@ int vtkIossReader::ReadMesh(
 }
 
 //----------------------------------------------------------------------------
-vtkDataArraySelection* vtkIossReader::GetEntitySelection(int type)
+vtkDataArraySelection* vtkIOSSReader::GetEntitySelection(int type)
 {
   if (type < 0 || type >= NUMBER_OF_ENTITY_TYPES)
   {
     vtkErrorMacro("Invalid type '" << type
                                    << "'. Supported values are "
-                                      "vtkIossReader::NODEBLOCK (0), ... vtkIossReader::SIDESET ("
-                                   << vtkIossReader::SIDESET << ").");
+                                      "vtkIOSSReader::NODEBLOCK (0), ... vtkIOSSReader::SIDESET ("
+                                   << vtkIOSSReader::SIDESET << ").");
     return nullptr;
   }
   return this->EntitySelection[type];
 }
 
 //----------------------------------------------------------------------------
-vtkDataArraySelection* vtkIossReader::GetFieldSelection(int type)
+vtkDataArraySelection* vtkIOSSReader::GetFieldSelection(int type)
 {
   if (type < 0 || type >= NUMBER_OF_ENTITY_TYPES)
   {
     vtkErrorMacro("Invalid type '" << type
                                    << "'. Supported values are "
-                                      "vtkIossReader::NODEBLOCK (0), ... vtkIossReader::SIDESET ("
-                                   << vtkIossReader::SIDESET << ").");
+                                      "vtkIOSSReader::NODEBLOCK (0), ... vtkIOSSReader::SIDESET ("
+                                   << vtkIOSSReader::SIDESET << ").");
     return nullptr;
   }
   return this->EntityFieldSelection[type];
 }
 
 //----------------------------------------------------------------------------
-vtkMTimeType vtkIossReader::GetMTime()
+vtkMTimeType vtkIOSSReader::GetMTime()
 {
   auto mtime = this->Superclass::GetMTime();
   for (int cc = ENTITY_START; cc < ENTITY_END; ++cc)
@@ -2632,7 +2632,7 @@ vtkMTimeType vtkIossReader::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::RemoveAllEntitySelections()
+void vtkIOSSReader::RemoveAllEntitySelections()
 {
   for (int cc = ENTITY_START; cc < ENTITY_END; ++cc)
   {
@@ -2641,7 +2641,7 @@ void vtkIossReader::RemoveAllEntitySelections()
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::RemoveAllFieldSelections()
+void vtkIOSSReader::RemoveAllFieldSelections()
 {
   for (int cc = ENTITY_START; cc < ENTITY_END; ++cc)
   {
@@ -2650,7 +2650,7 @@ void vtkIossReader::RemoveAllFieldSelections()
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::SetRemoveUnusedPoints(bool val)
+void vtkIOSSReader::SetRemoveUnusedPoints(bool val)
 {
   if (this->RemoveUnusedPoints != val)
   {
@@ -2662,7 +2662,7 @@ void vtkIossReader::SetRemoveUnusedPoints(bool val)
 }
 
 //----------------------------------------------------------------------------
-const char* vtkIossReader::GetDataAssemblyNodeNameForEntityType(int type)
+const char* vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(int type)
 {
   switch (type)
   {
@@ -2693,13 +2693,13 @@ const char* vtkIossReader::GetDataAssemblyNodeNameForEntityType(int type)
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::DoTestFilePatternMatching()
+bool vtkIOSSReader::DoTestFilePatternMatching()
 {
-  return vtkIossFilesScanner::DoTestFilePatternMatching();
+  return vtkIOSSFilesScanner::DoTestFilePatternMatching();
 }
 
 //----------------------------------------------------------------------------
-vtkTypeBool vtkIossReader::ProcessRequest(
+vtkTypeBool vtkIOSSReader::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo)
 {
   const auto status = this->Superclass::ProcessRequest(request, inInfo, outInfo);
@@ -2724,7 +2724,7 @@ bool updateProperty(Ioss::PropertyManager& pm, const std::string& name, const T&
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::AddProperty(const char* name, int value)
+void vtkIOSSReader::AddProperty(const char* name, int value)
 {
   auto& internals = (*this->Internals);
   auto& pm = internals.DatabaseProperties;
@@ -2736,7 +2736,7 @@ void vtkIossReader::AddProperty(const char* name, int value)
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::AddProperty(const char* name, double value)
+void vtkIOSSReader::AddProperty(const char* name, double value)
 {
   auto& internals = (*this->Internals);
   auto& pm = internals.DatabaseProperties;
@@ -2748,7 +2748,7 @@ void vtkIossReader::AddProperty(const char* name, double value)
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::AddProperty(const char* name, void* value)
+void vtkIOSSReader::AddProperty(const char* name, void* value)
 {
   auto& internals = (*this->Internals);
   auto& pm = internals.DatabaseProperties;
@@ -2760,7 +2760,7 @@ void vtkIossReader::AddProperty(const char* name, void* value)
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::AddProperty(const char* name, const char* value)
+void vtkIOSSReader::AddProperty(const char* name, const char* value)
 {
   auto& internals = (*this->Internals);
   auto& pm = internals.DatabaseProperties;
@@ -2773,7 +2773,7 @@ void vtkIossReader::AddProperty(const char* name, const char* value)
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::RemoveProperty(const char* name)
+void vtkIOSSReader::RemoveProperty(const char* name)
 {
   auto& internals = (*this->Internals);
   auto& pm = internals.DatabaseProperties;
@@ -2786,7 +2786,7 @@ void vtkIossReader::RemoveProperty(const char* name)
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::ClearProperties()
+void vtkIOSSReader::ClearProperties()
 {
   auto& internals = (*this->Internals);
   auto& pm = internals.DatabaseProperties;
@@ -2804,14 +2804,14 @@ void vtkIossReader::ClearProperties()
 }
 
 //----------------------------------------------------------------------------
-vtkDataAssembly* vtkIossReader::GetAssembly()
+vtkDataAssembly* vtkIOSSReader::GetAssembly()
 {
   auto& internals = (*this->Internals);
   return internals.GetAssembly();
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::AddSelector(const char* selector)
+bool vtkIOSSReader::AddSelector(const char* selector)
 {
   auto& internals = (*this->Internals);
   if (selector != nullptr && internals.Selectors.insert(selector).second)
@@ -2824,7 +2824,7 @@ bool vtkIossReader::AddSelector(const char* selector)
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::ClearSelectors()
+void vtkIOSSReader::ClearSelectors()
 {
   auto& internals = (*this->Internals);
   if (!internals.Selectors.empty())
@@ -2835,21 +2835,21 @@ void vtkIossReader::ClearSelectors()
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::SetSelector(const char* selector)
+void vtkIOSSReader::SetSelector(const char* selector)
 {
   this->ClearSelectors();
   this->AddSelector(selector);
 }
 
 //----------------------------------------------------------------------------
-int vtkIossReader::GetNumberOfSelectors() const
+int vtkIOSSReader::GetNumberOfSelectors() const
 {
   auto& internals = (*this->Internals);
   return static_cast<int>(internals.Selectors.size());
 }
 
 //----------------------------------------------------------------------------
-const char* vtkIossReader::GetSelector(int index) const
+const char* vtkIOSSReader::GetSelector(int index) const
 {
   auto& internals = (*this->Internals);
   if (index >= 0 && index < this->GetNumberOfSelectors())
@@ -2861,7 +2861,7 @@ const char* vtkIossReader::GetSelector(int index) const
 }
 
 //----------------------------------------------------------------------------
-void vtkIossReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkIOSSReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "GenerateFileId: " << this->GenerateFileId << endl;

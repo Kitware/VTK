@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossTri6.cxx
+  Module:    TestIOSSExodus.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,17 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/**
- * Test for paraview/paraview#19404
- */
 #include <vtkCamera.h>
-#include <vtkCompositePolyDataMapper2.h>
-#include <vtkDataArraySelection.h>
+#include <vtkCompositePolyDataMapper.h>
 #include <vtkDataObject.h>
 #include <vtkDataSetSurfaceFilter.h>
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkNew.h>
-#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -37,50 +32,38 @@ static std::string GetFileName(int argc, char* argv[], const std::string& fnameC
   return fname;
 }
 
-int TestIossTri6(int argc, char* argv[])
+int TestIOSSExodus(int argc, char* argv[])
 {
-  vtkNew<vtkIossReader> reader;
-  reader->SetFileName(
-    ::GetFileName(argc, argv, "Data/Exodus/SAND2020-4077_O-tri6sWFace2.exo").c_str());
-  reader->UpdateInformation();
-
-  // hide blocks and enable sets.
-  for (int cc = vtkIossReader::ENTITY_START; cc < vtkIossReader::ENTITY_END; ++cc)
-  {
-    auto sel = reader->GetEntitySelection(cc);
-    if (vtkIossReader::GetEntityTypeIsBlock(cc))
-    {
-      sel->DisableAllArrays();
-    }
-    else if (vtkIossReader::GetEntityTypeIsSet(cc))
-    {
-      sel->EnableAllArrays();
-    }
-  }
+  vtkNew<vtkIOSSReader> reader;
+  auto fname = GetFileName(argc, argv, std::string("Data/Exodus/can.e.4/can.e.4.0"));
+  reader->AddFileName(fname.c_str());
 
   vtkNew<vtkDataSetSurfaceFilter> surface;
-  surface->SetInputConnection(reader->GetOutputPort());
-
-  vtkNew<vtkCompositePolyDataMapper2> mapper;
-  mapper->SetInputConnection(surface->GetOutputPort());
-
+  vtkNew<vtkCompositePolyDataMapper> mapper;
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-  actor->GetProperty()->EdgeVisibilityOn();
-
-  vtkNew<vtkRenderer> ren;
-  ren->AddActor(actor);
-
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren);
-
+  vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindowInteractor> iren;
+
+  surface->SetInputConnection(reader->GetOutputPort());
+  mapper->SetInputConnection(surface->GetOutputPort());
+  actor->SetMapper(mapper);
+  renWin->AddRenderer(ren);
   iren->SetRenderWindow(renWin);
-  iren->Initialize();
+
+  ren->AddActor(actor);
+  renWin->SetSize(300, 300);
+  auto cam = ren->GetActiveCamera();
+  cam->SetPosition(10., 10., 5.);
+  cam->SetViewUp(0., 0.4, 1.);
+  ren->ResetCamera();
+  renWin->Render();
+
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
+
   return !retVal;
 }

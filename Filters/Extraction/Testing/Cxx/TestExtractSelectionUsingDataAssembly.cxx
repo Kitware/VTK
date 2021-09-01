@@ -15,7 +15,7 @@
 #include <vtkConvertSelection.h>
 #include <vtkDataAssemblyUtilities.h>
 #include <vtkExtractSelection.h>
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkSelectionNode.h>
@@ -32,7 +32,7 @@ static std::string GetFileName(int argc, char* argv[], const std::string& fnameC
 
 int TestExtractSelectionUsingDataAssembly(int argc, char* argv[])
 {
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   auto fname = GetFileName(argc, argv, std::string("Data/can.ex2"));
   reader->AddFileName(fname.c_str());
 

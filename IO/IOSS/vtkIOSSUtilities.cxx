@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkIossUtilities.cxx
+  Module:    vtkIOSSUtilities.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,7 +17,7 @@
 #include "vtk_mpi.h"
 #endif
 
-#include "vtkIossUtilities.h"
+#include "vtkIOSSUtilities.h"
 
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
@@ -39,7 +39,7 @@
 
 #include <memory>
 
-namespace vtkIossUtilities
+namespace vtkIOSSUtilities
 {
 
 //----------------------------------------------------------------------------
@@ -166,29 +166,29 @@ std::set<double> GetTimeValues(const Ioss::Region* region)
 }
 
 //----------------------------------------------------------------------------
-Ioss::EntityType GetIossEntityType(vtkIossReader::EntityType vtk_type)
+Ioss::EntityType GetIOSSEntityType(vtkIOSSReader::EntityType vtk_type)
 {
   switch (vtk_type)
   {
-    case vtkIossReader::NODEBLOCK:
+    case vtkIOSSReader::NODEBLOCK:
       return Ioss::EntityType::NODEBLOCK;
-    case vtkIossReader::EDGEBLOCK:
+    case vtkIOSSReader::EDGEBLOCK:
       return Ioss::EntityType::EDGEBLOCK;
-    case vtkIossReader::FACEBLOCK:
+    case vtkIOSSReader::FACEBLOCK:
       return Ioss::EntityType::FACEBLOCK;
-    case vtkIossReader::ELEMENTBLOCK:
+    case vtkIOSSReader::ELEMENTBLOCK:
       return Ioss::EntityType::ELEMENTBLOCK;
-    case vtkIossReader::STRUCTUREDBLOCK:
+    case vtkIOSSReader::STRUCTUREDBLOCK:
       return Ioss::EntityType::STRUCTUREDBLOCK;
-    case vtkIossReader::NODESET:
+    case vtkIOSSReader::NODESET:
       return Ioss::EntityType::NODESET;
-    case vtkIossReader::EDGESET:
+    case vtkIOSSReader::EDGESET:
       return Ioss::EntityType::EDGESET;
-    case vtkIossReader::FACESET:
+    case vtkIOSSReader::FACESET:
       return Ioss::EntityType::FACESET;
-    case vtkIossReader::ELEMENTSET:
+    case vtkIOSSReader::ELEMENTSET:
       return Ioss::EntityType::ELEMENTSET;
-    case vtkIossReader::SIDESET:
+    case vtkIOSSReader::SIDESET:
       return Ioss::EntityType::SIDESET;
     default:
       throw std::runtime_error("Invalid entity type " + std::to_string(vtk_type));
@@ -199,7 +199,7 @@ Ioss::EntityType GetIossEntityType(vtkIossReader::EntityType vtk_type)
 vtkSmartPointer<vtkDataArray> CreateArray(const Ioss::Field& field)
 {
   // NOTE: if adding new array types here, ensure that
-  // vtkIossUtilities::ArrayList is updated.
+  // vtkIOSSUtilities::ArrayList is updated.
   vtkSmartPointer<vtkDataArray> array;
   switch (field.get_type())
   {
@@ -248,7 +248,7 @@ vtkSmartPointer<vtkDataArray> GetData(const Ioss::GroupingEntity* entity,
 
   // vtkLogF(TRACE, "%s: size: %d * %d", fieldname.c_str(), (int)field.raw_count(),
   //  (int)field.raw_storage()->component_count());
-  auto array = vtkIossUtilities::CreateArray(field);
+  auto array = vtkIOSSUtilities::CreateArray(field);
   auto count = entity->get_field_data(
     fieldname, array->GetVoidPointer(0), array->GetDataSize() * array->GetDataTypeSize());
   if (static_cast<vtkIdType>(count) != array->GetNumberOfTuples())
@@ -423,7 +423,7 @@ static vtkSmartPointer<vtkDataArray> ChangeComponents(vtkDataArray* array, int n
   result->SetNumberOfTuples(array->GetNumberOfTuples());
 
   ChangeComponentsImpl worker{ array };
-  using SupportedArrays = vtkIossUtilities::ArrayList;
+  using SupportedArrays = vtkIOSSUtilities::ArrayList;
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
   if (!Dispatch::Execute(result, worker))
   {
@@ -462,7 +462,7 @@ struct Swizzler
 static bool SwizzleComponents(vtkDataArray* array, const std::vector<int>& ordering)
 {
   Swizzler worker{ ordering };
-  using SupportedArrays = vtkIossUtilities::ArrayList;
+  using SupportedArrays = vtkIOSSUtilities::ArrayList;
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
   if (!Dispatch::Execute(array, worker))
   {
@@ -486,7 +486,7 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
   {
     auto topology_type = group_entity->get_property("topology_type").get_string();
     auto topology_element = Ioss::ElementTopology::factory(topology_type);
-    vtk_topology_type = vtkIossUtilities::GetCellType(topology_element);
+    vtk_topology_type = vtkIOSSUtilities::GetCellType(topology_element);
     ioss_cell_points = static_cast<vtkIdType>(topology_element->number_nodes());
 
     vtkLogF(TRACE, "topology_type=%s, number_nodes=%d", topology_type.c_str(),
@@ -518,7 +518,7 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
     // ioss ids_raw is 1-indexed, let's make it 0-indexed for VTK.
     auto transform = std::unique_ptr<Ioss::Transform>(Iotr::Factory::create("offset"));
     transform->set_property("offset", -1);
-    auto ids_raw = vtkIossUtilities::GetData(group_entity, "ids_raw", transform.get());
+    auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "ids_raw", transform.get());
     ids_raw->SetNumberOfComponents(1);
 
     vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
@@ -540,9 +540,9 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
   transform->set_property("offset", -1);
 
   auto connectivity_raw =
-    vtkIossUtilities::GetData(group_entity, "connectivity_raw", transform.get());
+    vtkIOSSUtilities::GetData(group_entity, "connectivity_raw", transform.get());
 
-  auto vtk_cell_points = vtkIossUtilities::GetNumberOfPointsInCellType(vtk_topology_type);
+  auto vtk_cell_points = vtkIOSSUtilities::GetNumberOfPointsInCellType(vtk_topology_type);
   if (vtk_cell_points == -1)
   {
     // means that the VTK cell can have as many points as needed e.g.
@@ -554,7 +554,7 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
     // need to drop components in the 'connectivity_raw' array since we don't
     // support all components in VTK cell.
     vtkLogF(TRACE, "IOSS has more points for this cell than VTK. Skipping the extra components.");
-    connectivity_raw = vtkIossUtilities::ChangeComponents(connectivity_raw, vtk_cell_points);
+    connectivity_raw = vtkIOSSUtilities::ChangeComponents(connectivity_raw, vtk_cell_points);
   }
   else if (vtk_cell_points > ioss_cell_points)
   {
@@ -653,7 +653,7 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
       val -= 1;
     }
     assert(ordering_transform.size() == vtk_cell_points);
-    vtkIossUtilities::SwizzleComponents(connectivity_raw, ordering_transform);
+    vtkIOSSUtilities::SwizzleComponents(connectivity_raw, ordering_transform);
   }
 
   // change number of components to 1.
@@ -682,8 +682,8 @@ vtkSmartPointer<vtkPoints> GetMeshModelCoordinates(
     return cached;
   }
 
-  auto mesh_model_coordinates = vtkIossUtilities::GetData(group_entity, "mesh_model_coordinates");
-  mesh_model_coordinates = vtkIossUtilities::ChangeComponents(mesh_model_coordinates, 3);
+  auto mesh_model_coordinates = vtkIOSSUtilities::GetData(group_entity, "mesh_model_coordinates");
+  mesh_model_coordinates = vtkIOSSUtilities::ChangeComponents(mesh_model_coordinates, 3);
   vtkNew<vtkPoints> pts;
   pts->SetData(mesh_model_coordinates);
 
@@ -783,46 +783,46 @@ DatabaseFormatType GetFormat(const Ioss::GroupingEntity* entity)
 
 //----------------------------------------------------------------------------
 // Implementation detail for Schwarz counter idiom.
-class vtkIossUtilitiesCleanup
+class vtkIOSSUtilitiesCleanup
 {
 public:
-  vtkIossUtilitiesCleanup();
-  ~vtkIossUtilitiesCleanup();
+  vtkIOSSUtilitiesCleanup();
+  ~vtkIOSSUtilitiesCleanup();
 
 private:
-  vtkIossUtilitiesCleanup(const vtkIossUtilitiesCleanup&) = delete;
-  void operator=(const vtkIossUtilitiesCleanup&) = delete;
+  vtkIOSSUtilitiesCleanup(const vtkIOSSUtilitiesCleanup&) = delete;
+  void operator=(const vtkIOSSUtilitiesCleanup&) = delete;
 };
-static vtkIossUtilitiesCleanup vtkIossUtilitiesCleanupInstance;
+static vtkIOSSUtilitiesCleanup vtkIOSSUtilitiesCleanupInstance;
 
-static unsigned int vtkIossUtilitiesCleanupCounter = 0;
+static unsigned int vtkIOSSUtilitiesCleanupCounter = 0;
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
-static vtkMPIController* vtkIossUtilitiesCleanupMPIController = nullptr;
+static vtkMPIController* vtkIOSSUtilitiesCleanupMPIController = nullptr;
 #endif
 
-vtkIossUtilitiesCleanup::vtkIossUtilitiesCleanup()
+vtkIOSSUtilitiesCleanup::vtkIOSSUtilitiesCleanup()
 {
-  ++vtkIossUtilitiesCleanupCounter;
+  ++vtkIOSSUtilitiesCleanupCounter;
 }
 
-vtkIossUtilitiesCleanup::~vtkIossUtilitiesCleanup()
+vtkIOSSUtilitiesCleanup::~vtkIOSSUtilitiesCleanup()
 {
-  if (--vtkIossUtilitiesCleanupCounter == 0)
+  if (--vtkIOSSUtilitiesCleanupCounter == 0)
   {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
-    if (vtkIossUtilitiesCleanupMPIController)
+    if (vtkIOSSUtilitiesCleanupMPIController)
     {
       vtkLogF(TRACE, "Cleaning up MPI controller created for Ioss filters.");
-      vtkIossUtilitiesCleanupMPIController->Finalize();
-      vtkIossUtilitiesCleanupMPIController->Delete();
-      vtkIossUtilitiesCleanupMPIController = nullptr;
+      vtkIOSSUtilitiesCleanupMPIController->Finalize();
+      vtkIOSSUtilitiesCleanupMPIController->Delete();
+      vtkIOSSUtilitiesCleanupMPIController = nullptr;
     }
 #endif
   }
 }
 
 //----------------------------------------------------------------------------
-void InitializeEnvironmentForIoss()
+void InitializeEnvironmentForIOSS()
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   int mpiOk;
@@ -831,12 +831,12 @@ void InitializeEnvironmentForIoss()
   {
     vtkLogF(TRACE,
       "Initializing MPI for Ioss filters since process did not do so in an MPI enabled build.");
-    assert(vtkIossUtilitiesCleanupMPIController == nullptr);
-    vtkIossUtilitiesCleanupMPIController = vtkMPIController::New();
+    assert(vtkIOSSUtilitiesCleanupMPIController == nullptr);
+    vtkIOSSUtilitiesCleanupMPIController = vtkMPIController::New();
 
     static int argc = 0;
     static char** argv = { nullptr };
-    vtkIossUtilitiesCleanupMPIController->Initialize(&argc, &argv);
+    vtkIOSSUtilitiesCleanupMPIController->Initialize(&argc, &argv);
   }
 #endif
 }
@@ -844,7 +844,7 @@ void InitializeEnvironmentForIoss()
 //----------------------------------------------------------------------------
 std::string GetSanitizedBlockName(const Ioss::Region* region, const std::string& blockname)
 {
-  if (vtkIossUtilities::GetFormat(region) != vtkIossUtilities::DatabaseFormatType::CGNS)
+  if (vtkIOSSUtilities::GetFormat(region) != vtkIOSSUtilities::DatabaseFormatType::CGNS)
   {
     return blockname;
   }
@@ -870,7 +870,7 @@ std::vector<Ioss::StructuredBlock*> GetMatchingStructuredBlocks(
   for (auto block : region->get_structured_blocks())
   {
     if (block->name() == blockname ||
-      vtkIossUtilities::GetSanitizedBlockName(region, block->name()) == blockname)
+      vtkIOSSUtilities::GetSanitizedBlockName(region, block->name()) == blockname)
     {
       groups.push_back(block);
     }
