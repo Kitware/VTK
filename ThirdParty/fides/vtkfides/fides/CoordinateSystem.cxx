@@ -31,11 +31,8 @@ size_t CoordinateSystem::GetNumberOfBlocks(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
-  if (!this->NumberOfBlocksInitialized)
-  {
-    this->NumberOfBlocks = this->Array->GetNumberOfBlocks(paths, sources);
-    this->NumberOfBlocksInitialized = true;
-  }
+  // blocks can change per timestep
+  this->NumberOfBlocks = this->Array->GetNumberOfBlocks(paths, sources);
   return this->NumberOfBlocks;
 }
 

@@ -12,7 +12,6 @@
 #define fides_io_DataSetWriter_h
 
 #include <fides/FidesTypes.h>
-#include <fides/FieldDataManager.h>
 #include <fides/MetaData.h>
 
 #include <vtkm/cont/DataSet.h>

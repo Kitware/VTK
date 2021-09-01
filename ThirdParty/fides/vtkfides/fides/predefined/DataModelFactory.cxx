@@ -78,19 +78,19 @@ std::shared_ptr<PredefinedDataModel> DataModelFactory::CreateDataModel(
   DataModelTypes modelId;
   if (ds.GetCoordinateSystem().GetData().IsType<UniformCoordType>())
   {
-    modelId = DataModelTypes::UNIFORM_FROM_DATASET;
+    modelId = DataModelTypes::UNIFORM;
   }
   else if (ds.GetCoordinateSystem().GetData().IsType<RectilinearCoordType>())
   {
-    modelId = DataModelTypes::RECTILINEAR_FROM_DATASET;
+    modelId = DataModelTypes::RECTILINEAR;
   }
   else if (ds.GetCellSet().IsType<UnstructuredSingleType>())
   {
-    modelId = DataModelTypes::UNSTRUCTURED_SINGLE_FROM_DATASET;
+    modelId = DataModelTypes::UNSTRUCTURED_SINGLE;
   }
   else if (ds.GetCellSet().IsType<UnstructuredExplicitType>())
   {
-    modelId = DataModelTypes::UNSTRUCTURED_FROM_DATASET;
+    modelId = DataModelTypes::UNSTRUCTURED;
   }
   else
   {

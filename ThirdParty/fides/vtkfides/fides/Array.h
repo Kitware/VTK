@@ -287,7 +287,6 @@ private:
   /// If false, then each plane has its own set of values.
   bool Is2DField = true;
   bool FieldDimsChecked = false;
-  struct AddToVectorFunctor;
 };
 
 /// \brief Class to read \c ArrayGTCCoordinates objects.
@@ -345,8 +344,12 @@ struct ArrayGTCField : public ArrayBase
 
   void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
                 const fides::metadata::MetaData& metaData) override;
-};
 
+private:
+  vtkm::Id NumberOfPlanes = -1;
+  vtkm::Id NumberOfPointsPerPlane = -1;
+  bool IsCached = false;
+};
 
 }
 }

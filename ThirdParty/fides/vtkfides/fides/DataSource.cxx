@@ -783,7 +783,7 @@ size_t DataSource::GetNumberOfSteps()
   }
   // This is here to handle cases that do not support Steps()
   // such as the SST engine.
-  catch (std::invalid_argument)
+  catch (std::invalid_argument&)
   {
     nSteps = 0;
   }

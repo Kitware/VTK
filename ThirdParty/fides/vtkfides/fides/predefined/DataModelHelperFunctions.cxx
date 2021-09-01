@@ -60,7 +60,8 @@ void CreateArrayBasic(rapidjson::Document::AllocatorType& allocator,
                       const std::string& dataSource,
                       const std::string& variable,
                       bool isStatic /* = false*/,
-                      const std::string& arrayType /* = "basic"*/)
+                      const std::string& arrayType /* = "basic"*/,
+                      const std::string& isVector /* = "" */)
 {
   rapidjson::Value at = SetString(allocator, arrayType);
   parent.AddMember("array_type", at, allocator);
@@ -70,6 +71,12 @@ void CreateArrayBasic(rapidjson::Document::AllocatorType& allocator,
 
   rapidjson::Value var = SetString(allocator, variable);
   parent.AddMember("variable", var, allocator);
+
+  if (!isVector.empty())
+  {
+    rapidjson::Value vec = SetString(allocator, isVector);
+    parent.AddMember("is_vector", vec, allocator);
+  }
 
   if (isStatic)
   {
@@ -91,7 +98,7 @@ void CreateArrayCartesianProduct(rapidjson::Document::AllocatorType& allocator,
     xName = vec[0];
   }
   rapidjson::Value xArr(rapidjson::kObjectType);
-  CreateArrayBasic(allocator, xArr, dataSource, xName, true);
+  CreateArrayBasic(allocator, xArr, dataSource, xName, false);
   parent.AddMember("x_array", xArr, allocator);
 
   std::string yName = "y";
@@ -101,7 +108,7 @@ void CreateArrayCartesianProduct(rapidjson::Document::AllocatorType& allocator,
     yName = vec[0];
   }
   rapidjson::Value yArr(rapidjson::kObjectType);
-  CreateArrayBasic(allocator, yArr, dataSource, yName, true);
+  CreateArrayBasic(allocator, yArr, dataSource, yName, false);
   parent.AddMember("y_array", yArr, allocator);
 
   std::string zName = "z";
@@ -111,7 +118,7 @@ void CreateArrayCartesianProduct(rapidjson::Document::AllocatorType& allocator,
     zName = vec[0];
   }
   rapidjson::Value zArr(rapidjson::kObjectType);
-  CreateArrayBasic(allocator, zArr, dataSource, zName, true);
+  CreateArrayBasic(allocator, zArr, dataSource, zName, false);
   parent.AddMember("z_array", zArr, allocator);
 }
 
@@ -181,12 +188,23 @@ void CreateValueArray(rapidjson::Document::AllocatorType& allocator,
                       rapidjson::Value& parent,
                       std::shared_ptr<InternalMetadataSource> source,
                       const std::string& attrName,
-                      const std::string& memberName)
+                      const std::string& memberName,
+                      const std::string& dataSourceName)
 {
   auto typeStr = source->GetAttributeType(attrName);
   if (typeStr.empty())
   {
     throw std::runtime_error(attrName + " could not be found.");
+  }
+  if (typeStr == GetType<std::string>())
+  {
+    auto varName = source->GetAttribute<std::string>(attrName);
+    if (varName.size() != 1)
+    {
+      throw std::runtime_error(memberName + " should have a single value. Check " + attrName +
+                               " attribute.");
+    }
+    CreateValueScalar(allocator, parent, memberName, "array_variable", dataSourceName, varName[0]);
   }
 #define declare_type(T)                                                        \
   if (typeStr == GetType<T>())                                                 \
@@ -212,12 +230,13 @@ void CreateValueArrayVariable(rapidjson::Document::AllocatorType& allocator,
 
 rapidjson::Document CreateFieldArrayDoc(const std::string& variable,
                                         const std::string& source,
-                                        const std::string& arrayType)
+                                        const std::string& arrayType,
+                                        const std::string& isVector)
 {
   rapidjson::Document d;
   d.SetObject();
   rapidjson::Value arrObj(rapidjson::kObjectType);
-  CreateArrayBasic(d.GetAllocator(), arrObj, source, variable, false, arrayType);
+  CreateArrayBasic(d.GetAllocator(), arrObj, source, variable, false, arrayType, isVector);
   d.AddMember("array", arrObj, d.GetAllocator());
 
   return d;

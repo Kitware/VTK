@@ -9,7 +9,6 @@
 //============================================================================
 
 #include <fides/DataSetReader.h>
-#include <fides/FieldData.h>
 #include <fides/predefined/DataModelFactory.h>
 #include <fides/predefined/DataModelHelperFunctions.h>
 #include <fides/predefined/InternalMetadataSource.h>
@@ -48,7 +47,6 @@ class DataSetReader::DataSetReaderImpl
 {
 public:
   DataSetReaderImpl(const std::string dataModel, DataModelInput inputType, const Params& params)
-    : FDManager(new fides::datamodel::FieldDataManager())
   {
     this->Cleanup();
     if (inputType == DataModelInput::BPFile)
@@ -391,26 +389,31 @@ public:
         // as well as create the associated Field object
         auto& names = lists.Names;
         auto& associations = lists.Associations;
-        // next 2 are optional; if we don't find them, just assume for all variables
-        // that data_source is "source" and array_type is "basic"
-        auto& sources = lists.Sources;
-        auto& arrayTypes = lists.ArrayTypes;
 
         for (size_t i = 0; i < names.size(); ++i)
         {
+          std::string isVector = "auto";
+          std::string source = "source";
+          std::string arrayType = "basic";
+          if (!lists.IsVector.empty() && i < lists.IsVector.size())
+          {
+            isVector = lists.IsVector[i];
+          }
+          if (!lists.Sources.empty() && i < lists.Sources.size())
+          {
+            source = lists.Sources[i];
+          }
+          if (!lists.ArrayTypes.empty() && i < lists.ArrayTypes.size())
+          {
+            arrayType = lists.ArrayTypes[i];
+          }
+
           // the wildcard field uses an ArrayPlaceholder. Now we have enough info
           // to create the actual JSON for the Array object for this Field. This can
           // then be passed to Field.ProcessExpandedField which will use it to create
           // the actual array object.
           rapidjson::Document arrayObj;
-          if (sources.empty() || arrayTypes.empty())
-          {
-            arrayObj = predefined::CreateFieldArrayDoc(names[i], "source", "basic");
-          }
-          else
-          {
-            arrayObj = predefined::CreateFieldArrayDoc(names[i], sources[i], arrayTypes[i]);
-          }
+          arrayObj = predefined::CreateFieldArrayDoc(names[i], source, arrayType, isVector);
 
           if (!arrayObj.HasMember("array"))
           {
@@ -535,65 +538,84 @@ public:
   std::shared_ptr<fides::predefined::InternalMetadataSource> MetadataSource = nullptr;
   std::shared_ptr<fides::datamodel::CoordinateSystem> CoordinateSystem = nullptr;
   std::shared_ptr<fides::datamodel::CellSet> CellSet = nullptr;
-  using FieldsKeyType = std::pair<std::string, fides::Association>;
+  using FieldsKeyType = std::pair<std::string, vtkm::cont::Field::Association>;
   std::map<FieldsKeyType, std::shared_ptr<fides::datamodel::Field>> Fields;
   std::string StepSource;
-  std::shared_ptr<fides::datamodel::FieldDataManager> FDManager = nullptr;
 };
 
 bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
                                                const std::string& attrName /*="Fides_Data_Model"*/)
 {
+  bool found = false;
   auto source = std::make_shared<DataSourceType>();
   source->Mode = fides::io::FileNameMode::Relative;
   source->FileName = filename;
   source->OpenSource(filename);
-  if (source->GetAttributeType(attrName) != "string")
+  if (source->GetAttributeType(attrName) == "string")
   {
-    throw std::runtime_error("Attribute " + attrName + " should have type string");
+    std::vector<std::string> result = source->ReadAttribute<std::string>(attrName);
+    if (!result.empty())
+    {
+      found = predefined::DataModelSupported(result[0]);
+    }
   }
-  std::vector<std::string> result = source->ReadAttribute<std::string>(attrName);
-  if (result.empty())
+  if (!found)
   {
-    return false;
+    // Fides_Data_Model attribute not found, now look for a fides/schema attribute
+    std::string schemaAttr = "fides/schema";
+    if (source->GetAttributeType(schemaAttr) == "string")
+    {
+      found = true;
+    }
   }
-  return predefined::DataModelSupported(result[0]);
+  return found;
 }
 
 DataSetReader::DataSetReader(const std::string dataModel,
                              DataModelInput inputType /*=DataModelInput::JSONFile*/,
                              const Params& params)
-  : Impl(new DataSetReaderImpl(dataModel, inputType, params))
-{
-}
-
-DataSetReader::DataSetReader(const std::string bpFileName,
-                             const std::string attrName,
-                             const Params& params)
   : Impl(nullptr)
 {
+  if (inputType != DataModelInput::BPFile)
+  {
+    this->Impl.reset(new DataSetReaderImpl(dataModel, inputType, params));
+    return;
+  }
+
+  // we have a BPFile and we need to look for either Fides_Data_Model
+  // or fides/schema attributes
+  std::string fidesAttr = "Fides_Data_Model";
   auto source = std::make_shared<DataSourceType>();
   source->Mode = fides::io::FileNameMode::Relative;
-  source->FileName = bpFileName;
-  source->OpenSource(bpFileName);
-
-  std::string attType = source->GetAttributeType(attrName);
-  if (attType.empty())
+  source->FileName = dataModel; // in this case dataModel should be bp filename
+  source->OpenSource(dataModel);
+  if (source->GetAttributeType(fidesAttr) == "string")
   {
-    throw std::runtime_error("Attribute " + attrName + " is not present in file " + bpFileName);
+    std::vector<std::string> result = source->ReadAttribute<std::string>(fidesAttr);
+    if (!result.empty())
+    {
+      if (predefined::DataModelSupported(result[0]))
+      {
+        this->Impl.reset(new DataSetReaderImpl(dataModel, inputType, params));
+        return;
+      }
+    }
   }
 
-  if (attType != "string")
+  // Fides_Data_Model either not found or value was incorrect, now look for fides/schema
+  std::string schemaAttr = "fides/schema";
+  if (source->GetAttributeType(schemaAttr) == "string")
   {
-    throw std::runtime_error("Attribute " + attrName +
-                             " should have type string; however, its type is " + attType);
+    auto schema = source->ReadAttribute<std::string>(schemaAttr);
+    if (!schema.empty())
+    {
+      this->Impl.reset(new DataSetReaderImpl(schema[0], DataModelInput::JSONString, params));
+      return;
+    }
   }
-  std::vector<std::string> schema = source->ReadAttribute<std::string>(attrName);
-  if (schema.empty())
-  {
-    throw std::runtime_error("Attribute " + attrName + " not found");
-  }
-  this->Impl.reset(new DataSetReaderImpl(schema[0], DataModelInput::JSONString, params));
+
+  throw std::runtime_error("InputType is a BP File, but valid 'Fides_Data_Model' or "
+                           "'fides/schema' attributes could not be found in the file.");
 }
 
 DataSetReader::~DataSetReader() = default;
@@ -662,7 +684,6 @@ std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
     }
   }
 
-  this->Impl->FDManager->Clear();
   if (selections.Has(fides::keys::FIELDS()))
   {
     using FieldInfoType = fides::metadata::Vector<fides::metadata::FieldInformation>;
@@ -714,10 +735,13 @@ void DataSetReader::SetDataSourceIO(const std::string source, void* io)
   this->Impl->SetDataSourceIO(source, io);
 }
 
+FIDES_DEPRECATED_SUPPRESS_BEGIN
 std::shared_ptr<fides::datamodel::FieldDataManager> DataSetReader::GetFieldData()
 {
-  return this->Impl->FDManager;
+  // Function to be removed in next version
+  return nullptr;
 }
+FIDES_DEPRECATED_SUPPRESS_END
 
 std::vector<std::string> DataSetReader::GetDataSourceNames()
 {
