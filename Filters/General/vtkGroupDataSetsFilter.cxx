@@ -22,6 +22,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkType.h"
 
 #include <cmath>
@@ -138,6 +139,15 @@ int vtkGroupDataSetsFilter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkGroupDataSetsFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+{
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  info->Remove(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return 1;
 }
 

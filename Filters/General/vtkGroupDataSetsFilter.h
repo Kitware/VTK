@@ -78,6 +78,7 @@ protected:
   ~vtkGroupDataSetsFilter() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

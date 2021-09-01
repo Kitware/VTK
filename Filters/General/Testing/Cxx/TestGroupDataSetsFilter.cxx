@@ -19,6 +19,7 @@
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkSphereSource.h"
 
 int TestGroupDataSetsFilter(int, char*[])
@@ -72,6 +73,14 @@ int TestGroupDataSetsFilter(int, char*[])
   pdc = vtkPartitionedDataSetCollection::SafeDownCast(groupie->GetOutputDataObject(0));
   vtkLogIfF(ERROR, pdc->GetNumberOfPartitionedDataSets() != 3 || pdc->GetNumberOfPartitions(2) != 2,
     "Incorrect vtkPartitionedDataSetCollection created.");
+
+  // test filter with structured input.
+  vtkNew<vtkRTAnalyticSource> rtSource1;
+  vtkNew<vtkRTAnalyticSource> rtSource2;
+  groupie->RemoveAllInputs();
+  groupie->AddInputConnection(rtSource1->GetOutputPort());
+  groupie->AddInputConnection(rtSource2->GetOutputPort());
+  groupie->Update(); // this will raise errors without the extents fix.
 
   return EXIT_SUCCESS;
 }
