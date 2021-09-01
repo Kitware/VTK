@@ -654,7 +654,7 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
     {
       val -= 1;
     }
-    assert(ordering_transform.size() == vtk_cell_points);
+    assert(static_cast<decltype(vtk_cell_points)>(ordering_transform.size()) == vtk_cell_points);
     vtkIOSSUtilities::SwizzleComponents(connectivity_raw, ordering_transform);
   }
 
