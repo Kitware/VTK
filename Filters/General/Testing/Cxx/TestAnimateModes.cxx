@@ -18,7 +18,7 @@
 #include <vtkDataArraySelection.h>
 #include <vtkDataObject.h>
 #include <vtkDataSetSurfaceFilter.h>
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkRegressionTestImage.h>
@@ -37,7 +37,7 @@ static std::string GetFileName(int argc, char* argv[], const std::string& fnameC
 
 int TestAnimateModes(int argc, char* argv[])
 {
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   auto fname = GetFileName(argc, argv, std::string("Data/Exodus/can.e.4/can.e.4.0"));
   reader->AddFileName(fname.c_str());
   reader->ApplyDisplacementsOn();

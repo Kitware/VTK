@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkIossReader.h
+  Module:    vtkIOSSReader.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,11 +18,11 @@
 ----------------------------------------------------------------------------*/
 
 /**
- * @class vtkIossReader
- * @brief Reader for Ioss (Sierra IO System)
+ * @class vtkIOSSReader
+ * @brief Reader for IOSS (Sierra IO System)
  *
- * vtkIossReader is reader that uses the Ioss (Sierra IO System) library to
- * read files. Currently, this reader support Exodus and CGNS file formats. Ioss
+ * vtkIOSSReader is reader that uses the IOSS (Sierra IO System) library to
+ * read files. Currently, this reader support Exodus and CGNS file formats. IOSS
  * imposes certain restrictions on these file formats and hence it may not be
  * possible to open every Exodus or CGNS file using this reader. This is
  * true especially for CGNS, more so than Exodus. In that case `vtkCGNSReader`
@@ -30,15 +30,15 @@
  *
  * @section SpecifyingFiles Specifying Files
  *
- * One can select a single file to read using `vtkIossReader::SetFileName`.
- * With Ioss, however, it is not uncommon to have a collection of files named
+ * One can select a single file to read using `vtkIOSSReader::SetFileName`.
+ * With IOSS, however, it is not uncommon to have a collection of files named
  * using standard patterns (described in Section @ref IossNamingConventions).
  * To support this use-case, the reader automatically scans for additionally
  * files internally. To disable this behaviour, call
- * `vtkIossReader::ScanForRelatedFilesOff`.
+ * `vtkIOSSReader::ScanForRelatedFilesOff`.
  *
  * Alternatively, the list of files to be read can be explicitly specified using
- * `vtkIossReader::AddFileName`. Then too, if `ScanForRelatedFiles` is `true`,
+ * `vtkIOSSReader::AddFileName`. Then too, if `ScanForRelatedFiles` is `true`,
  * the reader will search for related files for each of the files specified.
  *
  * Additionally, `FileRange` and `FileStride` may be used to limit to reading a
@@ -46,10 +46,10 @@
  *
  * @section SelectingBlocksSets Selecting blocks and sets to read
  *
- * An Ioss file comprises of blocks and sets of various types. These are
- * described by the enum `vtkIossReader::EntityType`.
+ * An IOSS file comprises of blocks and sets of various types. These are
+ * described by the enum `vtkIOSSReader::EntityType`.
  *
- * `vtkIossReader::GetEntitySelection` returns a `vtkDataArraySelection`
+ * `vtkIOSSReader::GetEntitySelection` returns a `vtkDataArraySelection`
  * instance for each of the entity types. This `vtkDataArraySelection` can be
  * used to query the names for available blocks or sets and also select which
  * ones to read.
@@ -58,11 +58,11 @@
  *
  * @code{.cpp}
  *
- * vtkNew<vtkIossReader> reader;
+ * vtkNew<vtkIOSSReader> reader;
  * reader->SetFileName(...);
  * reader->UpdateInformation();
  * reader->GetElementBlockSelection()->EnableArray("Block0");
- * reader->GetEntitySelection(vtkIossReader::SIDESET)->DisableAllArrays();
+ * reader->GetEntitySelection(vtkIOSSReader::SIDESET)->DisableAllArrays();
  * @endcode
  *
  * By default, all blocks are enabled, while all sets are disabled.
@@ -77,7 +77,7 @@
  * Typical usage to select blocks by assembly alone is as follows:
  *
  * @code{.cpp}
- * vtkNew<vtkIossReader> reader;
+ * vtkNew<vtkIOSSReader> reader;
  * reader->SetFileName(...);
  * reader->UpdateInformation();
  * reader->GetElementBlockSelection()->DisableAllArrays();
@@ -88,16 +88,16 @@
  *
  * @section SelectingArrays Selecting arrays to read
  *
- * Similar to the block and set selection, arrays (or fields as Ioss refers to
+ * Similar to the block and set selection, arrays (or fields as IOSS refers to
  * them) to read from each of the blocks or sets can be specified using the
  * `vtkDataArraySelection` instance returned using
- * `vtkIossReader::GetFieldSelection` (or one of its convenience variants).
+ * `vtkIOSSReader::GetFieldSelection` (or one of its convenience variants).
  *
  * By default all arrays are enabled.
  *
- * @section IossNamingConventions Ioss Naming Conventions
+ * @section IossNamingConventions IOSS Naming Conventions
  *
- * An Ioss complete dataset is referred to as a database. There can be multiple
+ * An IOSS complete dataset is referred to as a database. There can be multiple
  * multiple timesteps in a single database. A single database may
  * split among multiple files. When a database is split among multiple files,
  * this is strictly spatial partitioning with each file storing part of the data
@@ -168,10 +168,10 @@
  * * [Sierra IO System](http://gsjaardema.github.io/seacas/)
  */
 
-#ifndef vtkIossReader_h
-#define vtkIossReader_h
+#ifndef vtkIOSSReader_h
+#define vtkIOSSReader_h
 
-#include "vtkIOIossModule.h" // for export macros
+#include "vtkIOIOSSModule.h" // for export macros
 #include "vtkNew.h"          // for vtkNew
 #include "vtkReaderAlgorithm.h"
 
@@ -179,11 +179,11 @@ class vtkDataArraySelection;
 class vtkDataAssembly;
 class vtkMultiProcessController;
 
-class VTKIOIOSS_EXPORT vtkIossReader : public vtkReaderAlgorithm
+class VTKIOIOSS_EXPORT vtkIOSSReader : public vtkReaderAlgorithm
 {
 public:
-  static vtkIossReader* New();
-  vtkTypeMacro(vtkIossReader, vtkReaderAlgorithm);
+  static vtkIOSSReader* New();
+  vtkTypeMacro(vtkIOSSReader, vtkReaderAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -479,14 +479,14 @@ public:
     vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
 protected:
-  vtkIossReader();
-  ~vtkIossReader() override;
+  vtkIOSSReader();
+  ~vtkIOSSReader() override;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkIossReader(const vtkIossReader&) = delete;
-  void operator=(const vtkIossReader&) = delete;
+  vtkIOSSReader(const vtkIOSSReader&) = delete;
+  void operator=(const vtkIOSSReader&) = delete;
   vtkNew<vtkDataArraySelection> EntitySelection[NUMBER_OF_ENTITY_TYPES];
   vtkNew<vtkDataArraySelection> EntityFieldSelection[NUMBER_OF_ENTITY_TYPES];
   vtkMultiProcessController* Controller;

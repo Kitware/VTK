@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossExodusParitionedFiles.cxx
+  Module:    TestIOSSExodusParitionedFiles.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -21,7 +21,7 @@
 #include <vtkCompositedSynchronizedRenderers.h>
 #include <vtkDataObject.h>
 #include <vtkDataSetSurfaceFilter.h>
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkNew.h>
 #include <vtkProcessIdScalars.h>
 #include <vtkRegressionTestImage.h>
@@ -45,7 +45,7 @@ static std::string GetFileName(int argc, char* argv[], const std::string& fnameC
   return fname;
 }
 
-int TestIossExodusParitionedFiles(int argc, char* argv[])
+int TestIOSSExodusParitionedFiles(int argc, char* argv[])
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> contr;
@@ -58,7 +58,7 @@ int TestIossExodusParitionedFiles(int argc, char* argv[])
   const int myId = contr->GetLocalProcessId();
   const int numProcs = contr->GetNumberOfProcesses();
 
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   for (int cc = 0; cc < 4; ++cc)
   {
     auto fname =

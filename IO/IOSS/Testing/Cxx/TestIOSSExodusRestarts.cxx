@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossExodusRestarts.cxx
+  Module:    TestIOSSExodusRestarts.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -19,7 +19,7 @@
 #include <vtkDataArray.h>
 #include <vtkDataObject.h>
 #include <vtkDataSet.h>
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkPartitionedDataSet.h>
@@ -43,7 +43,7 @@ static std::string GetFileName(int argc, char* argv[], const std::string& fnameC
   return fname;
 }
 
-int TestIossExodusRestarts(int argc, char* argv[])
+int TestIOSSExodusRestarts(int argc, char* argv[])
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkMPIController* contr = vtkMPIController::New();
@@ -56,7 +56,7 @@ int TestIossExodusRestarts(int argc, char* argv[])
   const int myId = contr->GetLocalProcessId();
   const int numProcs = contr->GetNumberOfProcesses();
 
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   const auto fname = GetFileName(argc, argv, "Data/Exodus/ExRestarts/blow.ex-timeseries");
   reader->SetFileName(fname.c_str());
   reader->SetController(contr);

@@ -29,7 +29,7 @@ TEST_DEPENDS
   VTK::IOXML
   VTK::ParallelCore
   VTK::IOExodus
-  VTK::IOIoss
+  VTK::IOIOSS
   VTK::IOParallelXML
   VTK::RenderingOpenGL2
   VTK::RenderingParallel

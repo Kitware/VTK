@@ -1,10 +1,10 @@
 set(classes
-  vtkIossReader)
+  vtkIOSSReader)
 
 set(private_classes
-  vtkIossFilesScanner
-  vtkIossUtilities)
+  vtkIOSSFilesScanner
+  vtkIOSSUtilities)
 
-vtk_module_add_module(VTK::IOIoss
+vtk_module_add_module(VTK::IOIOSS
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes})

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossCGNS.cxx
+  Module:    TestIOSSCGNS.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -20,7 +20,7 @@
 #include <vtkDataArraySelection.h>
 #include <vtkDataObject.h>
 #include <vtkDataSetSurfaceFilter.h>
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
@@ -39,10 +39,10 @@ static std::string GetFileName(int argc, char* argv[], const std::string& fnameC
   return fname;
 }
 
-int TestIossCGNS(int argc, char* argv[])
+int TestIOSSCGNS(int argc, char* argv[])
 {
   auto fname = GetFileName(argc, argv, std::string("Data/CGNS/fluid.cgns.4.0"));
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   reader->ReadIdsOn();
   reader->AddFileName(fname.c_str());
   reader->GenerateFileIdOn();

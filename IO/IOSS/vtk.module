@@ -1,7 +1,7 @@
 NAME
-  VTK::IOIoss
+  VTK::IOIOSS
 LIBRARY_NAME
-  vtkIOIoss
+  vtkIOIOSS
 GROUPS
   StandAlone
 DEPENDS

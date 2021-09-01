@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIossUnsupported.cxx
+  Module:    TestIOSSUnsupported.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkIossReader.h>
+#include <vtkIOSSReader.h>
 #include <vtkNew.h>
 #include <vtkTestUtilities.h>
 
 static bool TestFile(const std::string& fname)
 {
   vtkObject::SetGlobalWarningDisplay(0);
-  vtkNew<vtkIossReader> reader;
+  vtkNew<vtkIOSSReader> reader;
   reader->AddFileName(fname.c_str());
   reader->Update();
   vtkObject::SetGlobalWarningDisplay(1);
@@ -38,7 +38,7 @@ static std::string GetFileName(int argc, char* argv[], const char* fnameC)
  * This test open various unsupported files and ensures that the reader raises
  * errors as expected without crashing.
  */
-int TestIossUnsupported(int argc, char* argv[])
+int TestIOSSUnsupported(int argc, char* argv[])
 {
   if (TestFile(GetFileName(argc, argv, "Data/Exodus/test-nfaced.exo")))
   {

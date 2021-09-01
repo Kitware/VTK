@@ -6,7 +6,7 @@ if(${VTK_USE_64BIT_IDS})
 endif()
 
 set(test_ioss)
-if(TARGET VTK::IOIoss)
+if(TARGET VTK::IOIOSS)
   # this is done to avoid vtk/vtk#17509
   set(test_ioss
     TestExtractSelectionUsingDataAssembly.cxx,NO_VALID)

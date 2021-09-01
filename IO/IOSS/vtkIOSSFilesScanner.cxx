@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkIossFilesScanner.cxx
+  Module:    vtkIOSSFilesScanner.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkIossFilesScanner.h"
+#include "vtkIOSSFilesScanner.h"
 
 #include "vtkObjectFactory.h"
 
@@ -24,15 +24,15 @@
 #include <algorithm>
 #include <cctype>
 
-vtkStandardNewMacro(vtkIossFilesScanner);
+vtkStandardNewMacro(vtkIOSSFilesScanner);
 //----------------------------------------------------------------------------
-vtkIossFilesScanner::vtkIossFilesScanner() = default;
+vtkIOSSFilesScanner::vtkIOSSFilesScanner() = default;
 
 //----------------------------------------------------------------------------
-vtkIossFilesScanner::~vtkIossFilesScanner() = default;
+vtkIOSSFilesScanner::~vtkIOSSFilesScanner() = default;
 
 //----------------------------------------------------------------------------
-bool vtkIossFilesScanner::IsMetaFile(const std::string& filename)
+bool vtkIOSSFilesScanner::IsMetaFile(const std::string& filename)
 {
   vtksys::ifstream metafile(filename.c_str());
   if (!metafile.good())
@@ -58,9 +58,9 @@ bool vtkIossFilesScanner::IsMetaFile(const std::string& filename)
 }
 
 //----------------------------------------------------------------------------
-std::set<std::string> vtkIossFilesScanner::GetFilesFromMetaFile(const std::string& filename)
+std::set<std::string> vtkIOSSFilesScanner::GetFilesFromMetaFile(const std::string& filename)
 {
-  if (!vtkIossFilesScanner::IsMetaFile(filename))
+  if (!vtkIOSSFilesScanner::IsMetaFile(filename))
   {
     return { filename };
   }
@@ -84,7 +84,7 @@ std::set<std::string> vtkIossFilesScanner::GetFilesFromMetaFile(const std::strin
 }
 
 //----------------------------------------------------------------------------
-std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
+std::set<std::string> vtkIOSSFilesScanner::GetRelatedFiles(
   const std::set<std::string>& originalSet, const std::vector<std::string>& directoryListing)
 {
   if (originalSet.empty())
@@ -189,12 +189,12 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossFilesScanner::DoTestFilePatternMatching()
+bool vtkIOSSFilesScanner::DoTestFilePatternMatching()
 {
   auto verify = [](const std::set<std::string>& original,
                   const std::vector<std::string>& dir_listing,
                   const std::set<std::string>& expected) {
-    return (vtkIossFilesScanner::GetRelatedFiles(original, dir_listing) == expected);
+    return (vtkIOSSFilesScanner::GetRelatedFiles(original, dir_listing) == expected);
   };
 
   if (!verify({ "mysimoutput.e-s.000" },
@@ -246,7 +246,7 @@ bool vtkIossFilesScanner::DoTestFilePatternMatching()
 }
 
 //----------------------------------------------------------------------------
-void vtkIossFilesScanner::PrintSelf(ostream& os, vtkIndent indent)
+void vtkIOSSFilesScanner::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
