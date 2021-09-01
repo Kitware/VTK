@@ -48,21 +48,6 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_asan_mpi_python_qt_tbb]"
-        },
-        {
-            "group": "master",
-            "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_qt_tbb_tsan]"
-        },
-        {
-            "group": "master",
-            "site": "gitlab-ci",
-            "buildname": "[fedora33_qt_tbb_ubsan]"
-        },
-        {
-            "group": "master",
-            "site": "gitlab-ci",
             "buildname": "[macos_arm64_kits_python_qt]"
         },
         {
