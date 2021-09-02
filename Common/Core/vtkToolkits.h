@@ -15,7 +15,7 @@
 #ifndef vtkToolkits_h
 #define vtkToolkits_h
 
-#warning                                                                                           \
+#pragma message                                                                                    \
   "vtkToolkits.h is deprecated. For `VTK_DEBUG_LEAKS`, check `vtkDebug.h`, for video support, see `vtkIOMovieConfigure.h` and `vtkIOVideoConfigure.h`."
 
 #endif
