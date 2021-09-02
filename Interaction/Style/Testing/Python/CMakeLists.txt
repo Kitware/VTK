@@ -1,3 +1,4 @@
+include(vtkOpenGLOptions)
 if (VTK_CAN_DO_ONSCREEN AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   vtk_add_test_python(
     TestFlyTo.py
@@ -13,6 +14,6 @@ if (VTK_CAN_DO_ONSCREEN AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
     TestStyleUser.py
     )
 
-  set_tests_properties(vtkInteractionStylePython-TestStyleRubberBandZoomPerspective
+  set_tests_properties(VTK::InteractionStylePython-TestStyleRubberBandZoomPerspective
                        PROPERTIES RUN_SERIAL ON)
 endif ()

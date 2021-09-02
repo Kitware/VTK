@@ -244,9 +244,20 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
   }
   else
   {
+    cam->SetFocalPoint(this->CalculatePerspectiveZoomFocalPoint(box).GetData());
     this->CurrentRenderer->ZoomToBoxUsingViewAngle(box);
   }
   this->Interactor->Render();
+}
+
+vtkVector3d vtkInteractorStyleRubberBandZoom::CalculatePerspectiveZoomFocalPoint(
+  const vtkRecti& box) const
+{
+  const vtkVector2d rbCenter2d = box.GetCenter();
+  const vtkVector3d rbCenter3d = vtkVector3d(rbCenter2d.GetX(), rbCenter2d.GetY(), 0.0);
+  const vtkVector3d worldRBCenter = this->CurrentRenderer->DisplayToWorld(rbCenter3d);
+
+  return worldRBCenter;
 }
 
 void vtkInteractorStyleRubberBandZoom::ZoomTraditional(const vtkRecti& box)

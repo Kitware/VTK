@@ -201,6 +201,20 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "ext_vtk")
+    # Theses tests fail when using an external VTK because the condition
+    # VTK_CAN_DO_ONSCREEN AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN should be false
+    # in Interaction/Style/Testing/Python/CMakeLists.txt
+    list(APPEND test_exclusions
+      "^VTK::InteractionStylePython-TestStyleJoystickActor$"
+      "^VTK::InteractionStylePython-TestStyleJoystickCamera$"
+      "^VTK::InteractionStylePython-TestStyleRubberBandZoomPerspective$"
+      "^VTK::InteractionStylePython-TestStyleTrackballActor$"
+      "^VTK::InteractionStylePython-TestStyleTrackballCamera$")
+  endif ()
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")

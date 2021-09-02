@@ -1436,7 +1436,8 @@ void vtkRenderer::ResetCameraScreenSpace(const double bounds[6])
   // Now the focal point is at the center of the box
 
   const vtkRecti box(xmin, ymin, xmax - xmin, ymax - ymin);
-  this->ZoomToBoxUsingViewAngle(box);
+  // We let a 10% offset around the zoomed data
+  this->ZoomToBoxUsingViewAngle(box, 0.9);
 }
 
 // Display to world using vtkVector3d
@@ -1453,16 +1454,16 @@ vtkVector3d vtkRenderer::DisplayToWorld(const vtkVector3d& display)
   return vtkVector3d(world4.GetData());
 }
 
-void vtkRenderer::ZoomToBoxUsingViewAngle(const vtkRecti& box)
+void vtkRenderer::ZoomToBoxUsingViewAngle(const vtkRecti& box, const double offsetRatio)
 {
   const int* size = this->GetSize();
   double zf1 = size[0] / static_cast<double>(box.GetWidth());
   double zf2 = size[1] / static_cast<double>(box.GetHeight());
   double zoomFactor = std::min(zf1, zf2);
 
-  // Offset a little to let a free space between the zoomed data
+  // OffsetRatio will let a free space between the zoomed data
   // And the edges of the window
-  this->GetActiveCamera()->Zoom(zoomFactor * 0.90);
+  this->GetActiveCamera()->Zoom(zoomFactor * offsetRatio);
 }
 
 // Specify the rendering window in which to draw. This is automatically set
