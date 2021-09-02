@@ -110,6 +110,7 @@ static void pop_scope(const char* id)
 }
 
 //=============================================================================
+bool vtkLogger::EnableUnsafeSignalHandler = true;
 vtkLogger::Verbosity vtkLogger::InternalVerbosityLevel = vtkLogger::VERBOSITY_1;
 std::string vtkLogger::ThreadName;
 
@@ -142,6 +143,7 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
   }
   loguru::Options options;
   options.verbosity_flag = verbosity_flag;
+  options.unsafe_signal_handler = vtkLogger::EnableUnsafeSignalHandler;
   if (!vtkLogger::ThreadName.empty())
   {
     options.main_thread_name = vtkLogger::ThreadName.c_str();
