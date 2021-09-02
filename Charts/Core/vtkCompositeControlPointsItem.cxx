@@ -166,7 +166,11 @@ void vtkCompositeControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType i
     const unsigned char* rgb = this->ColorTransferFunction->MapValue(xvms[0]);
     painter->GetBrush()->SetColorF(rgb[0] / 255., rgb[1] / 255., rgb[2] / 255., 0.55);
   }
-  this->Superclass::DrawPoint(painter, index);
+  // The superclass logic was already considered at the beginning of this method.
+  // As such, the grandparent class must be called here in order to avoid applying
+  // the color transfer function a second time.
+  // NOLINTNEXTLINE(bugprone-parent-virtual-call)
+  this->Superclass::Superclass::DrawPoint(painter, index);
 }
 
 //------------------------------------------------------------------------------
