@@ -58,6 +58,10 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # the main culprit here.
   "vcruntime_exception.h.*: note: see declaration of 'std::exception'"
 
+  # C4702 warning (unreachable code) caused by intentional abort() used
+  # in test which prevents the return statement from being called.
+  "TestLoggerDisableSignalHandler.*unreachable code"
+
   # GetVersion is deprecated, but its use is OK.
   "sysinfoapi.h.*: note: see declaration of 'GetVersion'"
 
