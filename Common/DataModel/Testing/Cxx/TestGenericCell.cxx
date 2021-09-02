@@ -23,9 +23,8 @@
 int TestGenericCell(int, char*[])
 {
   int rval = 0;
-  vtkGenericCell* cell = vtkGenericCell::New();
-  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
-    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  auto cell = vtkSmartPointer<vtkGenericCell>::New();
+  auto errorObserver = vtkSmartPointer<vtkTest::ErrorObserver>::New();
   cell->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   for (int i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
   {
@@ -54,7 +53,7 @@ int TestGenericCell(int, char*[])
       double m[3] = { 0., 0., 0. };
       // We add all the points since
       // Those on the corner points indeed define the parametric center
-      // The dof node (center mid points) by definition have the same parametric center
+      // The dof node (center mid-points) by definition have the same parametric center
       // and taking into account the center point only add a 0 vector to the sum
       // therefore we do not need to differentiate corner from the rest in this sum:
       for (int j = 0; j < numPts; ++j)
@@ -101,8 +100,6 @@ int TestGenericCell(int, char*[])
       ++rval;
     }
   }
-
-  cell->Delete();
 
   return rval;
 }

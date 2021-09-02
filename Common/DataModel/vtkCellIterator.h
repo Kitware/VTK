@@ -340,6 +340,7 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
 
     case VTK_PYRAMID:
     case VTK_QUADRATIC_PYRAMID:
+    case VTK_TRIQUADRATIC_PYRAMID:
     case VTK_HIGHER_ORDER_PYRAMID:
     case VTK_WEDGE:
     case VTK_QUADRATIC_WEDGE:

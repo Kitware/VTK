@@ -38,12 +38,14 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTriQuadraticPyramid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
 #include <map>
-typedef std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType> EdgeToPointMap;
+using EdgeToPointMap = std::map<std::pair<vtkIdType, vtkIdType>, vtkIdType>;
+using TriangleFaceToPointMap = std::map<std::tuple<vtkIdType, vtkIdType, vtkIdType>, vtkIdType>;
 
 vtkStandardNewMacro(vtkCellTypeSource);
 
@@ -56,12 +58,12 @@ const int NumberOf2DCellTypes = 8;
 const int TwoDCellTypes[NumberOf2DCellTypes] = { VTK_TRIANGLE, VTK_QUAD, VTK_QUADRATIC_TRIANGLE,
   VTK_QUADRATIC_QUAD, VTK_LAGRANGE_TRIANGLE, VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_TRIANGLE,
   VTK_BEZIER_QUADRILATERAL };
-const int NumberOf3DCellTypes = 16;
+const int NumberOf3DCellTypes = 17;
 const int ThreeDCellTypes[NumberOf3DCellTypes] = { VTK_TETRA, VTK_HEXAHEDRON, VTK_WEDGE,
   VTK_PYRAMID, VTK_PENTAGONAL_PRISM, VTK_HEXAGONAL_PRISM, VTK_QUADRATIC_TETRA,
-  VTK_QUADRATIC_HEXAHEDRON, VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON,
-  VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE, VTK_BEZIER_TETRAHEDRON, VTK_BEZIER_HEXAHEDRON,
-  VTK_BEZIER_WEDGE };
+  VTK_QUADRATIC_HEXAHEDRON, VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_PYRAMID, VTK_TRIQUADRATIC_PYRAMID,
+  VTK_LAGRANGE_TETRAHEDRON, VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE, VTK_BEZIER_TETRAHEDRON,
+  VTK_BEZIER_HEXAHEDRON, VTK_BEZIER_WEDGE };
 }
 
 //------------------------------------------------------------------------------
@@ -351,6 +353,11 @@ int vtkCellTypeSource::RequestData(vtkInformation* vtkNotUsed(request),
     case VTK_QUADRATIC_PYRAMID:
     {
       this->GenerateQuadraticPyramids(output, extent);
+      break;
+    }
+    case VTK_TRIQUADRATIC_PYRAMID:
+    {
+      this->GenerateTriQuadraticPyramids(output, extent);
       break;
     }
     case VTK_LAGRANGE_CURVE:
@@ -1314,6 +1321,206 @@ void vtkCellTypeSource::GenerateQuadraticPyramids(vtkUnstructuredGrid* output, i
             }
           }
           output->InsertNextCell(VTK_QUADRATIC_PYRAMID, 13, pyramidIds[c]);
+        }
+      }
+    }
+  }
+}
+
+void vtkCellTypeSource::GenerateTriQuadraticPyramids(vtkUnstructuredGrid* output, int extent[6])
+{
+  // cell dimensions
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(static_cast<vtkIdType>(xDim * yDim * zDim * 6));
+
+  EdgeToPointMap edgeToPointId;
+  // pairs go from lower to higher point id
+  static constexpr vtkIdType edgePairs[6][8][2] = {
+    // 6 pyramids, 8 edges
+    {
+      { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, //
+      { 0, 8 }, { 1, 8 }, { 2, 8 }, { 3, 8 }  //
+    },
+    {
+      { 5, 6 }, { 4, 5 }, { 4, 7 }, { 7, 6 }, //
+      { 6, 8 }, { 5, 8 }, { 4, 8 }, { 7, 8 }  //
+    },
+    {
+      { 1, 5 }, { 5, 6 }, { 2, 6 }, { 1, 2 }, //
+      { 1, 8 }, { 5, 8 }, { 6, 8 }, { 2, 8 }  //
+    },
+    {
+      { 0, 4 }, { 4, 5 }, { 1, 5 }, { 0, 1 }, //
+      { 0, 8 }, { 4, 8 }, { 5, 8 }, { 1, 8 }  //
+    },
+    {
+      { 0, 3 }, { 3, 7 }, { 4, 7 }, { 0, 4 }, //
+      { 0, 8 }, { 3, 8 }, { 7, 8 }, { 4, 8 }  //
+    },
+    {
+      { 7, 6 }, { 3, 7 }, { 3, 2 }, { 2, 6 }, //
+      { 6, 8 }, { 7, 8 }, { 3, 8 }, { 2, 8 }  //
+    },
+  };
+
+  TriangleFaceToPointMap triangleFaceToPointId;
+  // tuples to go from lower to higher point id
+  static constexpr vtkIdType triangleTuples[6][4][3] = {
+    // 6 pyramids, 4 triangle faces
+    {
+      { 0, 1, 8 }, { 1, 2, 8 }, { 2, 3, 8 }, { 0, 3, 8 }, //
+    },
+    {
+      { 5, 6, 8 }, { 4, 5, 8 }, { 4, 7, 8 }, { 6, 7, 8 }, //
+    },
+    {
+      { 1, 5, 8 }, { 5, 6, 8 }, { 2, 6, 8 }, { 1, 2, 8 }, //
+    },
+    {
+      { 0, 4, 8 }, { 4, 5, 8 }, { 1, 5, 8 }, { 0, 1, 8 }, //
+    },
+    {
+      { 0, 3, 8 }, { 3, 7, 8 }, { 4, 7, 8 }, { 0, 4, 8 }, //
+    },
+    {
+      { 6, 7, 8 }, { 3, 7, 8 }, { 2, 3, 8 }, { 2, 6, 8 }, //
+    },
+  };
+
+  for (int k = 0; k < zDim; k++)
+  {
+    for (int j = 0; j < yDim; j++)
+    {
+      for (int i = 0; i < xDim; i++)
+      {
+        // also add in the middle point id
+        vtkIdType hexIds[9] = {
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          -1, // this is just a placeholder, the actual id will be calculated next
+        };
+
+        // add in center point by checking the mid-point of the diagonal
+        double point1[3], point2[3], point3[3];
+        output->GetPoint(hexIds[0], point1);
+        output->GetPoint(hexIds[6], point2);
+        for (int l = 0; l < 3; l++)
+        {
+          point1[l] = 0.5 * (point1[l] + point2[l]);
+        }
+        this->Locator->InsertUniquePoint(point1, hexIds[8]); // this updates hexIds[8]
+
+        vtkIdType pyramidIds[6][19] = { { hexIds[0], hexIds[1], hexIds[2], hexIds[3], hexIds[8], -1,
+                                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+          { hexIds[6], hexIds[5], hexIds[4], hexIds[7], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1 },
+          { hexIds[1], hexIds[5], hexIds[6], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1 },
+          { hexIds[0], hexIds[4], hexIds[5], hexIds[1], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1 },
+          { hexIds[0], hexIds[3], hexIds[7], hexIds[4], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1 },
+          { hexIds[6], hexIds[7], hexIds[3], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1 } };
+
+        for (int pId = 0; pId < 6; pId++) // iterate over pyramids
+        {
+          for (int eId = 0; eId < 8; eId++) // iterate over edges to create mid-edge points
+          {
+            std::pair<vtkIdType, vtkIdType> edge =
+              std::make_pair(hexIds[edgePairs[pId][eId][0]], hexIds[edgePairs[pId][eId][1]]);
+            EdgeToPointMap::iterator it = edgeToPointId.find(edge);
+            if (it == edgeToPointId.end())
+            {
+              output->GetPoint(edge.first, point1);
+              output->GetPoint(edge.second, point2);
+              for (int l = 0; l < 3; l++)
+              {
+                point1[l] = (point1[l] + point2[l]) * .5;
+              }
+              vtkIdType mid;
+              this->Locator->InsertUniquePoint(point1, mid);
+              edgeToPointId[edge] = mid;
+              pyramidIds[pId][5 + eId] = mid;
+            }
+            else
+            {
+              pyramidIds[pId][5 + eId] = it->second;
+            }
+          }
+
+          // add quad mid-face point
+          double quadFacePoint[3];
+          output->GetPoint(pyramidIds[pId][0], quadFacePoint);
+          for (int quadPointId = 1; quadPointId < 4; quadPointId++)
+          {
+            double tmp[3];
+            output->GetPoint(pyramidIds[pId][quadPointId], tmp);
+            for (int d = 0; d < 3; d++)
+            {
+              quadFacePoint[d] += tmp[d];
+            }
+          }
+          for (int d = 0; d < 3; d++)
+          {
+            quadFacePoint[d] /= 4.0;
+          }
+          this->Locator->InsertUniquePoint(quadFacePoint, pyramidIds[pId][13]);
+
+          for (int f = 0; f < 4; f++) // iterate over triangle faces to create mid-face points
+          {
+            auto triangleFace = std::make_tuple(hexIds[triangleTuples[pId][f][0]],
+              hexIds[triangleTuples[pId][f][1]], hexIds[triangleTuples[pId][f][2]]);
+            TriangleFaceToPointMap::iterator it = triangleFaceToPointId.find(triangleFace);
+            if (it == triangleFaceToPointId.end())
+            {
+              output->GetPoint(std::get<0>(triangleFace), point1);
+              output->GetPoint(std::get<1>(triangleFace), point2);
+              output->GetPoint(std::get<2>(triangleFace), point3);
+              double midTriangleFacePoint[3];
+              for (int l = 0; l < 3; l++)
+              {
+                midTriangleFacePoint[l] = (point1[l] + point2[l] + point3[l]) / 3.0;
+              }
+              vtkIdType mid;
+              this->Locator->InsertUniquePoint(midTriangleFacePoint, mid);
+              triangleFaceToPointId[triangleFace] = mid;
+              pyramidIds[pId][14 + f] = mid;
+            }
+            else
+            {
+              pyramidIds[pId][14 + f] = it->second;
+            }
+          }
+
+          // add volumetric centroid point
+          double volumetricCentroidPoint[3];
+          output->GetPoint(pyramidIds[pId][0], volumetricCentroidPoint);
+          for (int corners = 1; corners < 5; corners++)
+          {
+            double tmp[3];
+            output->GetPoint(pyramidIds[pId][corners], tmp);
+            for (int d = 0; d < 3; d++)
+            {
+              volumetricCentroidPoint[d] += tmp[d];
+            }
+          }
+          for (int d = 0; d < 3; d++)
+          {
+            volumetricCentroidPoint[d] /= 5.0;
+          }
+          this->Locator->InsertUniquePoint(volumetricCentroidPoint, pyramidIds[pId][18]);
+
+          // insert bi-quadratic pyramid
+          output->InsertNextCell(VTK_TRIQUADRATIC_PYRAMID, 19, pyramidIds[pId]);
         }
       }
     }

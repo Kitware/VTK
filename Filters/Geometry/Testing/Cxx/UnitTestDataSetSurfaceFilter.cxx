@@ -108,12 +108,13 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
     typesToProcess["QuadraticWedge"] = test::CellDescription(VTK_QUADRATIC_WEDGE, 26);
     typesToProcess["QuadraticPyramid"] = test::CellDescription(VTK_QUADRATIC_PYRAMID, 22);
     typesToProcess["BiQuadraticQuad"] = test::CellDescription(VTK_BIQUADRATIC_QUAD, 8);
-    typesToProcess["TriQuadraticHexahedron"] =
-      test::CellDescription(VTK_TRIQUADRATIC_HEXAHEDRON, 768);
     typesToProcess["QuadraticLinearQuad"] = test::CellDescription(VTK_QUADRATIC_LINEAR_QUAD, 4);
     typesToProcess["QuadraticLinearWedge"] = test::CellDescription(VTK_QUADRATIC_LINEAR_WEDGE, 20);
     typesToProcess["BiQuadraticQuadraticWedge"] =
       test::CellDescription(VTK_BIQUADRATIC_QUADRATIC_WEDGE, 32);
+    typesToProcess["TriQuadraticHexahedron"] =
+      test::CellDescription(VTK_TRIQUADRATIC_HEXAHEDRON, 768);
+    typesToProcess["TriQuadraticPyramid"] = test::CellDescription(VTK_TRIQUADRATIC_PYRAMID, 32);
     typesToProcess["EmptyCell"] = test::CellDescription(VTK_EMPTY_CELL, 0);
 
     std::map<std::string, test::CellDescription>::iterator it;

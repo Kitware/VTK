@@ -80,6 +80,7 @@ class vtkVertex;
 class vtkVoxel;
 class vtkWedge;
 class vtkTriQuadraticHexahedron;
+class vtkTriQuadraticPyramid;
 class vtkQuadraticLinearWedge;
 class vtkQuadraticLinearQuad;
 class vtkBiQuadraticQuad;
@@ -550,6 +551,7 @@ protected:
   vtkQuadraticLinearQuad* QuadraticLinearQuad;
   vtkBiQuadraticQuad* BiQuadraticQuad;
   vtkTriQuadraticHexahedron* TriQuadraticHexahedron;
+  vtkTriQuadraticPyramid* TriQuadraticPyramid;
   vtkQuadraticLinearWedge* QuadraticLinearWedge;
   vtkBiQuadraticQuadraticWedge* BiQuadraticQuadraticWedge;
   vtkBiQuadraticQuadraticHexahedron* BiQuadraticQuadraticHexahedron;

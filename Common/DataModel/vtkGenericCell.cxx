@@ -63,6 +63,7 @@
 #include "vtkQuadraticWedge.h"
 #include "vtkTetra.h"
 #include "vtkTriQuadraticHexahedron.h"
+#include "vtkTriQuadraticPyramid.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
@@ -351,6 +352,9 @@ vtkCell* vtkGenericCell::InstantiateCell(int cellType)
       break;
     case VTK_TRIQUADRATIC_HEXAHEDRON:
       cell = vtkTriQuadraticHexahedron::New();
+      break;
+    case VTK_TRIQUADRATIC_PYRAMID:
+      cell = vtkTriQuadraticPyramid::New();
       break;
     case VTK_QUADRATIC_LINEAR_WEDGE:
       cell = vtkQuadraticLinearWedge::New();

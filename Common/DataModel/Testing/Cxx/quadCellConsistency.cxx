@@ -40,6 +40,7 @@
 #include "vtkQuadraticWedge.h"
 #include "vtkTetra.h"
 #include "vtkTriQuadraticHexahedron.h"
+#include "vtkTriQuadraticPyramid.h"
 #include "vtkTriangle.h"
 #include "vtkWedge.h"
 
@@ -110,48 +111,38 @@ int quadCellConsistency(int, char*[])
 {
   int ret = 0;
   // Line / vtkQuadraticEdge / CubicLine:
-  vtkLine* edge = vtkLine::New();
-  vtkQuadraticEdge* qedge = vtkQuadraticEdge::New();
-  vtkCubicLine* culine = vtkCubicLine::New();
+  auto edge = vtkSmartPointer<vtkLine>::New();
+  auto qedge = vtkSmartPointer<vtkQuadraticEdge>::New();
+  auto culine = vtkSmartPointer<vtkCubicLine>::New();
 
   InitializeCell(edge);
   InitializeCell(qedge);
   ret += CompareCellEdges(edge, qedge);
   ret += CompareCellFaces(edge, qedge);
 
-  qedge->Delete();
-
   InitializeCell(culine);
   ret += CompareCellEdges(edge, culine);
   ret += CompareCellFaces(edge, culine);
 
-  edge->Delete();
-  culine->Delete();
-
   // Triangles:
-  vtkTriangle* tri = vtkTriangle::New();
-  vtkQuadraticTriangle* qtri = vtkQuadraticTriangle::New();
-  vtkBiQuadraticTriangle* bitri = vtkBiQuadraticTriangle::New();
+  auto tri = vtkSmartPointer<vtkTriangle>::New();
+  auto qtri = vtkSmartPointer<vtkQuadraticTriangle>::New();
+  auto bitri = vtkSmartPointer<vtkBiQuadraticTriangle>::New();
 
   InitializeCell(tri);
   InitializeCell(qtri);
   ret += CompareCellEdges(tri, qtri);
   ret += CompareCellFaces(tri, qtri);
 
-  qtri->Delete();
-
   InitializeCell(bitri);
   ret += CompareCellEdges(tri, bitri);
   ret += CompareCellFaces(tri, bitri);
 
-  tri->Delete();
-  bitri->Delete();
-
   // Quad
-  vtkQuad* quad = vtkQuad::New();
-  vtkQuadraticQuad* qquad = vtkQuadraticQuad::New();
-  vtkBiQuadraticQuad* biqquad = vtkBiQuadraticQuad::New();
-  vtkQuadraticLinearQuad* qlquad = vtkQuadraticLinearQuad::New();
+  auto quad = vtkSmartPointer<vtkQuad>::New();
+  auto qquad = vtkSmartPointer<vtkQuadraticQuad>::New();
+  auto biqquad = vtkSmartPointer<vtkBiQuadraticQuad>::New();
+  auto qlquad = vtkSmartPointer<vtkQuadraticLinearQuad>::New();
 
   InitializeCell(quad);
   InitializeCell(qquad);
@@ -164,28 +155,20 @@ int quadCellConsistency(int, char*[])
   ret += CompareCellEdges(quad, qlquad);
   ret += CompareCellFaces(quad, qlquad);
 
-  quad->Delete();
-  qquad->Delete();
-  biqquad->Delete();
-  qlquad->Delete();
-
   // Tetra
-  vtkTetra* tetra = vtkTetra::New();
-  vtkQuadraticTetra* qtetra = vtkQuadraticTetra::New();
+  auto tetra = vtkSmartPointer<vtkTetra>::New();
+  auto qtetra = vtkSmartPointer<vtkQuadraticTetra>::New();
 
   InitializeCell(tetra);
   InitializeCell(qtetra);
   ret += CompareCellEdges(tetra, qtetra);
   ret += CompareCellFaces(tetra, qtetra);
 
-  tetra->Delete();
-  qtetra->Delete();
-
   // Hexhedron
-  vtkHexahedron* hex = vtkHexahedron::New();
-  vtkQuadraticHexahedron* qhex = vtkQuadraticHexahedron::New();
-  vtkTriQuadraticHexahedron* triqhex = vtkTriQuadraticHexahedron::New();
-  vtkBiQuadraticQuadraticHexahedron* biqqhex = vtkBiQuadraticQuadraticHexahedron::New();
+  auto hex = vtkSmartPointer<vtkHexahedron>::New();
+  auto qhex = vtkSmartPointer<vtkQuadraticHexahedron>::New();
+  auto triqhex = vtkSmartPointer<vtkTriQuadraticHexahedron>::New();
+  auto biqqhex = vtkSmartPointer<vtkBiQuadraticQuadraticHexahedron>::New();
 
   InitializeCell(hex);
   InitializeCell(qhex);
@@ -198,27 +181,23 @@ int quadCellConsistency(int, char*[])
   ret += CompareCellEdges(hex, biqqhex);
   ret += CompareCellFaces(hex, biqqhex);
 
-  hex->Delete();
-  qhex->Delete();
-  triqhex->Delete();
-  biqqhex->Delete();
-
   // Pyramid
-  vtkPyramid* pyr = vtkPyramid::New();
-  vtkQuadraticPyramid* qpyr = vtkQuadraticPyramid::New();
+  auto pyr = vtkSmartPointer<vtkPyramid>::New();
+  auto qpyr = vtkSmartPointer<vtkQuadraticPyramid>::New();
+  auto tqpyr = vtkSmartPointer<vtkTriQuadraticPyramid>::New();
 
   InitializeCell(pyr);
   InitializeCell(qpyr);
+  InitializeCell(tqpyr);
   ret += CompareCellEdges(pyr, qpyr);
   ret += CompareCellFaces(pyr, qpyr);
-
-  pyr->Delete();
-  qpyr->Delete();
+  ret += CompareCellFaces(pyr, tqpyr);
+  ret += CompareCellFaces(pyr, tqpyr);
 
   // Wedge cells
-  vtkWedge* wedge = vtkWedge::New();
-  vtkQuadraticWedge* qwedge = vtkQuadraticWedge::New();
-  vtkBiQuadraticQuadraticWedge* biqwedge = vtkBiQuadraticQuadraticWedge::New();
+  auto wedge = vtkSmartPointer<vtkWedge>::New();
+  auto qwedge = vtkSmartPointer<vtkQuadraticWedge>::New();
+  auto biqwedge = vtkSmartPointer<vtkBiQuadraticQuadraticWedge>::New();
 
   InitializeCell(wedge);
   InitializeCell(qwedge);
@@ -227,10 +206,6 @@ int quadCellConsistency(int, char*[])
   ret += CompareCellFaces(wedge, qwedge);
   ret += CompareCellEdges(wedge, biqwedge);
   ret += CompareCellFaces(wedge, biqwedge);
-
-  wedge->Delete();
-  qwedge->Delete();
-  biqwedge->Delete();
 
   return ret;
 }

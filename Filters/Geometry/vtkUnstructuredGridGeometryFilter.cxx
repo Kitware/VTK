@@ -57,6 +57,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTetra.h"
 #include "vtkTriQuadraticHexahedron.h"
+#include "vtkTriQuadraticPyramid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
@@ -1118,6 +1119,12 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
             this->HashTable->InsertFaces<vtkQuadraticPyramid, 0, 1, 8, VTK_QUADRATIC_QUAD>(
               pts, cellId);
             this->HashTable->InsertFaces<vtkQuadraticPyramid, 1, 5, 6, VTK_QUADRATIC_TRIANGLE>(
+              pts, cellId);
+            break;
+          case VTK_TRIQUADRATIC_PYRAMID:
+            this->HashTable->InsertFaces<vtkTriQuadraticPyramid, 0, 1, 9, VTK_BIQUADRATIC_QUAD>(
+              pts, cellId);
+            this->HashTable->InsertFaces<vtkTriQuadraticPyramid, 1, 5, 7, VTK_BIQUADRATIC_TRIANGLE>(
               pts, cellId);
             break;
           case VTK_TRIQUADRATIC_HEXAHEDRON:

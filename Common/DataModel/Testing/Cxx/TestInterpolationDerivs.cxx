@@ -50,32 +50,33 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
 
-// New bi-class from gebbert
+// Bi/Tri linear quadratic cells
 #include "vtkBiQuadraticQuad.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkBiQuadraticTriangle.h"
+#include "vtkCubicLine.h"
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticLinearWedge.h"
 #include "vtkTriQuadraticHexahedron.h"
+#include "vtkTriQuadraticPyramid.h"
 
-// New Bi-Class
-#include "vtkBiQuadraticTriangle.h"
-#include "vtkCubicLine.h"
+#include <vector>
 
 template <class TCell>
 int TestOneInterpolationDerivs(double eps = VTK_EPSILON)
 {
-  TCell* cell = TCell::New();
+  auto cell = vtkSmartPointer<TCell>::New();
   int numPts = cell->GetNumberOfPoints();
   int dim = cell->GetCellDimension();
-  double* derivs = new double[dim * numPts];
+  std::vector<double> derivs(dim * numPts);
   double* coords = cell->GetParametricCoords();
   int r = 0;
   for (int i = 0; i < numPts; ++i)
   {
     double* point = coords + 3 * i;
     double sum = 0.;
-    cell->InterpolateDerivs(point, derivs); // static function
+    cell->InterpolateDerivs(point, derivs.data()); // static function
     for (int j = 0; j < dim * numPts; j++)
     {
       sum += derivs[j];
@@ -89,7 +90,7 @@ int TestOneInterpolationDerivs(double eps = VTK_EPSILON)
   // Let's test zero condition on the center point:
   double center[3];
   cell->GetParametricCenter(center);
-  cell->InterpolateDerivs(center, derivs); // static function
+  cell->InterpolateDerivs(center, derivs.data()); // static function
   double sum = 0.;
   for (int j = 0; j < dim * numPts; j++)
   {
@@ -100,8 +101,6 @@ int TestOneInterpolationDerivs(double eps = VTK_EPSILON)
     ++r;
   }
 
-  cell->Delete();
-  delete[] derivs;
   return r;
 }
 
@@ -141,15 +140,16 @@ int TestInterpolationDerivs(int, char*[])
   r += TestOneInterpolationDerivs<vtkQuadraticTriangle>();
   r += TestOneInterpolationDerivs<vtkQuadraticWedge>();
 
-  // New bi-class
+  // Bi/Tri linear quadratic cells
   r += TestOneInterpolationDerivs<vtkBiQuadraticQuad>();
   r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticHexahedron>();
   r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticWedge>();
+  r += TestOneInterpolationDerivs<vtkBiQuadraticTriangle>();
+  r += TestOneInterpolationDerivs<vtkCubicLine>();
   r += TestOneInterpolationDerivs<vtkQuadraticLinearQuad>();
   r += TestOneInterpolationDerivs<vtkQuadraticLinearWedge>();
   r += TestOneInterpolationDerivs<vtkTriQuadraticHexahedron>();
-  r += TestOneInterpolationDerivs<vtkBiQuadraticTriangle>();
-  r += TestOneInterpolationDerivs<vtkCubicLine>();
+  r += TestOneInterpolationDerivs<vtkTriQuadraticPyramid>();
 
   return r;
 }

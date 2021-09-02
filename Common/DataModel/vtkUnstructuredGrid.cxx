@@ -72,11 +72,11 @@
 #include "vtkQuadraticTetra.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticCellLinks.h"
 #include "vtkTetra.h"
 #include "vtkTriQuadraticHexahedron.h"
+#include "vtkTriQuadraticPyramid.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
 #include "vtkUnsignedCharArray.h"
@@ -85,13 +85,8 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-#include "vtkSMPTools.h"
-#include "vtkTimerLog.h"
-
 #include <algorithm>
-#include <limits>
 #include <set>
-#include <unordered_map>
 
 vtkStandardNewMacro(vtkUnstructuredGrid);
 vtkStandardExtendedNewMacro(vtkUnstructuredGrid);
@@ -165,6 +160,7 @@ vtkUnstructuredGrid::vtkUnstructuredGrid()
   this->QuadraticLinearQuad = nullptr;
   this->BiQuadraticQuad = nullptr;
   this->TriQuadraticHexahedron = nullptr;
+  this->TriQuadraticPyramid = nullptr;
   this->QuadraticLinearWedge = nullptr;
   this->BiQuadraticQuadraticWedge = nullptr;
   this->BiQuadraticQuadraticHexahedron = nullptr;
@@ -343,6 +339,10 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   if (this->TriQuadraticHexahedron)
   {
     this->TriQuadraticHexahedron->Delete();
+  }
+  if (this->TriQuadraticPyramid)
+  {
+    this->TriQuadraticPyramid->Delete();
   }
   if (this->QuadraticLinearWedge)
   {
@@ -922,6 +922,14 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
       cell = this->TriQuadraticHexahedron;
       break;
 
+    case VTK_TRIQUADRATIC_PYRAMID:
+      if (!this->TriQuadraticPyramid)
+      {
+        this->TriQuadraticPyramid = vtkTriQuadraticPyramid::New();
+      }
+      cell = this->TriQuadraticPyramid;
+      break;
+
     case VTK_QUADRATIC_LINEAR_WEDGE:
       if (!this->QuadraticLinearWedge)
       {
@@ -945,6 +953,7 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
       }
       cell = this->BiQuadraticQuadraticHexahedron;
       break;
+
     case VTK_BIQUADRATIC_TRIANGLE:
       if (!this->BiQuadraticTriangle)
       {
@@ -952,6 +961,7 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
       }
       cell = this->BiQuadraticTriangle;
       break;
+
     case VTK_CUBIC_LINE:
       if (!this->CubicLine)
       {
