@@ -136,7 +136,7 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
   const auto current_stderr_verbosity = loguru::g_stderr_verbosity;
   if (loguru::g_internal_verbosity > loguru::g_stderr_verbosity)
   {
-    // this avoid printing the preamble-header on stderr except for cases
+    // this avoids printing the preamble-header on stderr except for cases
     // where the stderr log is guaranteed to have some log text generated.
     loguru::g_stderr_verbosity = loguru::Verbosity_WARNING;
   }
