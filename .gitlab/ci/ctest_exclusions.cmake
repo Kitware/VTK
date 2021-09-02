@@ -1,61 +1,49 @@
 set(test_exclusions
-  # Long-failing tests. Excluding to get better dashboards.
-  "^VTK::FiltersModelingPython-TestImprintFilter6$"
-  "^VTK::FiltersPointsCxx-TestPoissonDiskSampler$"
+  # Flaky; timesout sometimes on macOS and Linux
+  "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$"
+
+  # This test just seems to be incorrect.
   "^VTK::FiltersSelectionCxx-TestLinearSelector3D$")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
   list(APPEND test_exclusions
-    # GPURayCast doesn't work with the CI's VNC setup.
-    "TestGPURayCast"
-
-    # New baseline?
-    "^VTK::RenderingMatplotlibCxx-TestScalarBarCombinatorics$"
-
-    # Numerical problems?
-    "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
-
-    # This is a flaky test. It sometimes passes.
-    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
-
-    # These tests all seem to have some problem with the rendering order of
-    # some components of the scenes that are being tested. Needs investigation.
+    # See this issue to track the status of these tests.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
-    "^VTK::CommonDataModelPython-TestHyperTreeGrid3DMandel$"
+
+    # Line rendering differences
     "^VTK::FiltersCorePython-contourCells$"
     "^VTK::FiltersCorePython-contourQuadraticCells$"
-    "^VTK::FiltersCorePython-TestPolyDataPlaneClipper2$"
     "^VTK::FiltersFlowPathsCxx-TestBSPTree$"
-    "^VTK::FiltersGeneralCxx-TestDateToNumeric$"
-    "^VTK::FiltersGeneralCxx-TestDensifyPolyData$"
+    "^VTK::FiltersGeneralCxx-TestDensifyPolyData$" # valid image looks weird too
     "^VTK::FiltersGeneralCxx-TestYoungsMaterialInterface$"
     "^VTK::FiltersGeneralPython-clipQuadraticCells$"
     "^VTK::FiltersGeneralPython-edgePoints$"
-    "^VTK::FiltersGeneralPython-TestCellDerivs$"
-    "^VTK::FiltersGeneralPython-TestDiscreteFlyingEdgesClipper2D$"
     "^VTK::FiltersGeneralPython-TestFEDiscreteClipper2D$"
-    "^VTK::FiltersGeneralPython-TestSampleImplicitFunctionFilter$"
-    "^VTK::FiltersGeometryCxx-TestExplicitStructuredGridSurfaceFilter$"
     "^VTK::FiltersGeometryCxx-TestLinearToQuadraticCellsFilter$"
-    "^VTK::FiltersGeometryPython-LagrangeGeometricOperations$"
-    "^VTK::FiltersHybridPython-depthSort$"
-    "^VTK::FiltersHybridPython-imageToPolyData$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryEllipseMaterial$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryHyperbolicParaboloidMaterial$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DAxisClipBox$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DDualContour$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DPlaneCutterDual$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernaryHyperbola$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernarySphereMaterial$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernarySphereMaterialReflections$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridToDualGrid$"
-    "^VTK::FiltersModelingCxx-TestQuadRotationalExtrusionMultiBlock$"
-    "^VTK::FiltersModelingPython-TestCookieCutter$"
     "^VTK::FiltersModelingPython-TestCookieCutter3$"
     "^VTK::FiltersModelingPython-TestImprintFilter2$"
     "^VTK::FiltersModelingPython-TestImprintFilter3$"
-    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIOSS$"
-    "^VTK::FiltersPointsPython-TestConnectedPointsFilter$"
+    "^VTK::FiltersModelingPython-TestImprintFilter6$"
+    "^VTK::FiltersSourcesPython-TestStaticCellLocatorLineIntersection$"
+    "^VTK::InteractionWidgetsCxx-TestPickingManagerWidgets$"
+    "^VTK::InteractionWidgetsPython-TestTensorWidget$"
+    "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
+    "^VTK::RenderingCoreCxx-TestEdgeFlags$"
+    "^VTK::RenderingImagePython-TestDepthImageToPointCloud$"
+    "^VTK::RenderingOpenGL2Cxx-TestCameraShiftScale$"
+    "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
+    "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CameraShiftScale$"
+    "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
+
+    # Point rendering differences
+    "^VTK::FiltersGeneralPython-TestCellDerivs$"
+    "^VTK::FiltersPointsPython-TestConnectedPointsFilter$" # other differences too
     "^VTK::FiltersPointsPython-TestFitImplicitFunction$"
     "^VTK::FiltersPointsPython-TestHierarchicalBinningFilter$"
     "^VTK::FiltersPointsPython-TestPCANormalEstimation$"
@@ -63,49 +51,76 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::FiltersPointsPython-TestRadiusOutlierRemoval$"
     "^VTK::FiltersPointsPython-TestSignedDistanceFilter$"
     "^VTK::FiltersPointsPython-TestVoxelGridFilter$"
-    "^VTK::FiltersSourcesPython-TestStaticCellLocatorLineIntersection$"
-    "^VTK::FiltersTexturePython-textureThreshold$"
-    "^VTK::GeovisGDALCxx-TestRasterReprojectionFilter$"
-    "^VTK::ImagingCorePython-Spectrum$"
-    "^VTK::ImagingCorePython-TestMapToWindowLevelColors2$"
-    "^VTK::InteractionWidgetsCxx-TestDijkstraImageGeodesicPath$"
-    "^VTK::InteractionWidgetsCxx-TestPickingManagerWidgets$"
-    "^VTK::InteractionWidgetsCxx-TestSeedWidget2$"
-    "^VTK::InteractionWidgetsPython-TestPointCloudWidget$"
-    "^VTK::InteractionWidgetsPython-TestPointCloudWidget2$"
-    "^VTK::InteractionWidgetsPython-TestTensorWidget$"
-    "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
     "^VTK::IOGeometryPython-ParticleReader$"
-    "^VTK::IOImageCxx-TestCompressedTIFFReader$"
-    "^VTK::IOImageCxx-TestDICOMImageReader$"
-    "^VTK::IOImageCxx-TestDICOMImageReaderFileCollection$"
-    "^VTK::IOImageCxx-TestTIFFReaderMulti$"
-    "^VTK::IOImportCxx-OBJImport-MixedOrder1$"
-    "^VTK::IOImportCxx-OBJImport-MTLwithoutTextureFile$"
-    "^VTK::IOIOSSCxx-MPI-TestIOSSExodusParitionedFiles$"
-    "^VTK::IOIOSSCxx-MPI-TestIOSSExodusRestarts$"
     "^VTK::IOLASCxx-TestLASReader_test_1$"
     "^VTK::IOLASCxx-TestLASReader_test_2$"
     "^VTK::IOPDALCxx-TestPDALReader_test_1$"
     "^VTK::IOPDALCxx-TestPDALReader_test_2$"
+    "^VTK::InteractionWidgetsPython-TestPointCloudWidget$"
+    "^VTK::InteractionWidgetsPython-TestPointCloudWidget2$"
+
+    # Floating point imprecision?
+    "^VTK::FiltersGeneralPython-TestSampleImplicitFunctionFilter$"
+
+    # Test image looks "dim"; image rendering seems to be common
+    # (some also have vertical line rendering differences)
+    "^VTK::FiltersGeometryCxx-TestExplicitStructuredGridSurfaceFilter$"
+    "^VTK::FiltersHybridPython-depthSort$"
+    "^VTK::FiltersModelingPython-TestCookieCutter$"
+    "^VTK::FiltersTexturePython-textureThreshold$"
+    "^VTK::GeovisGDALCxx-TestRasterReprojectionFilter$"
+    "^VTK::ImagingCorePython-Spectrum$"
+    "^VTK::ImagingCorePython-TestMapToWindowLevelColors2$"
+    "^VTK::InteractionWidgetsCxx-TestSeedWidget2$"
+    "^VTK::IOImageCxx-TestCompressedTIFFReader$"
+    "^VTK::IOImageCxx-TestDICOMImageReader$"
+    "^VTK::IOImageCxx-TestDICOMImageReaderFileCollection$" # also warns about file I/O
+    "^VTK::IOImageCxx-TestTIFFReaderMulti$"
     "^VTK::RenderingAnnotationCxx-TestCornerAnnotation$"
-    "^VTK::RenderingCoreCxx-TestEdgeFlags$"
     "^VTK::RenderingCoreCxx-TestTextureRGBA$"
-    "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$"
+    "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$" # seems to just not work here
     "^VTK::RenderingCorePython-PickerWithLocator$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastRenderDepthToImage$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastRenderDepthToImage2$"
+
+    # Test image has a different background.
+    "^VTK::InteractionWidgetsCxx-TestDijkstraImageGeodesicPath$"
+
+    # Test image looks "better", but seems to have holes
+    "^VTK::FiltersModelingCxx-TestQuadRotationalExtrusionMultiBlock$"
+
+    # Numerical problems?
+    "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
+
+    # Geometry looks "off"
+    "^VTK::IOImportCxx-OBJImport-MixedOrder1$"
+    "^VTK::IOImportCxx-OBJImport-MTLwithoutTextureFile$"
+
+    # Gets the wrong selection (sometimes).
+    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
+
+    # Syntax error in generated shader program.
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
-    "^VTK::RenderingFreeTypeCxx-TestFontDPIScaling$"
-    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapper$"
+
+    # Font rendering differences (new baseline?)
     "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
-    "^VTK::RenderingFreeTypeCxx-TestMathTextFreeTypeTextRenderer$"
-    "^VTK::RenderingImagePython-TestDepthImageToPointCloud$"
-    "^VTK::RenderingOpenGL2Cxx-TestCameraShiftScale$"
-    "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
-    "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CameraShiftScale$"
-    "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CellScalars$"
-    "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
-    "^VTK::RenderingVolumeCxx-TestRemoveVolumeNonCurrentContext$"
-    "^VTKExample-Medical/Cxx$")
+
+    # Needs investigation
+    "^VTKExample-Medical/Cxx")
+
+  if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
+    list(APPEND test_exclusions
+      # Passes on `offscreen`, fails elsewhere with MPI errors.
+      "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIOSS$"
+      "^VTK::IOIOSSCxx-MPI-TestIOSSExodusParitionedFiles$"
+      "^VTK::IOIOSSCxx-MPI-TestIOSSExodusRestarts$")
+  endif ()
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
+  list(APPEND test_exclusions
+    # Failed to open the display
+    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
@@ -114,9 +129,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::ChartsCoreCxx-TestMultipleScalarsToColors$"
     "^VTK::FiltersCorePython-TestOrientedFlyingEdgesPlaneCutter2$"
     "^VTK::RenderingOpenGL2Cxx-TestToneMappingPass$"
-
-    # Something is wrong. #18144
-    "^VTK::FiltersCorePython-QuadricDecimation2$"
 
     # PATH manipulations needed
     "^VTKExample-ImageProcessing/Cxx$"
@@ -129,26 +141,19 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     # Blank test image
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWindowWithDisabledInteractor$"
 
-    # Image corruption
-    "^VTK::RenderingCorePython-TestWindowToImageTransparency$"
-    "^VTK::RenderingCorePython-rendererSource$"
-    "^VTK::RenderingImagePython-TestDepthImageToPointCloud$"
-    "^VTK::RenderingImagePython-TestDepthImageToPointCloud-TwoInputs$"
-    "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$"
-
     # Timeouts; need investigation.
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidget$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetPicking$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetQWidgetWidget$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetWithChartHistogram2D$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetWithDisabledInteractor$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetWithMSAA$"
-    "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetWithChartHistogram2D$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidget$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetPicking$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetQWidgetWidget$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithChartHistogram2D$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithDisabledInteractor$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithMSAA$"
-    "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithChartHistogram2D$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$"
@@ -193,10 +198,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
-  # Screenshot issue for test comparison with background buffer
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
+  # Screenshot issue for test comparison with background buffer (intermittent)
   list(APPEND test_exclusions
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
 endif ()
