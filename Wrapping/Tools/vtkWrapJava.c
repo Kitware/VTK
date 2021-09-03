@@ -261,9 +261,9 @@ void return_result(FILE* fp)
     case VTK_PARSE_BOOL:
       fprintf(fp, "jboolean ");
       break;
+    case VTK_PARSE_SIGNED_CHAR_PTR:
+    case VTK_PARSE_UNSIGNED_CHAR_PTR:
     case VTK_PARSE_CHAR_PTR:
-      fprintf(fp, thisFunction->ReturnValue->Count == 0 ? "jbyteArray " : "jarray ");
-      break;
     case VTK_PARSE_STRING:
     case VTK_PARSE_STRING_REF:
       fprintf(fp, "jbyteArray ");
@@ -272,18 +272,29 @@ void return_result(FILE* fp)
       fprintf(fp, "jlong ");
       break;
     case VTK_PARSE_FLOAT_PTR:
+      fprintf(fp, "jfloatArray ");
+      break;
     case VTK_PARSE_DOUBLE_PTR:
-    case VTK_PARSE_UNSIGNED_CHAR_PTR:
+      fprintf(fp, "jdoubleArray ");
+      break;
     case VTK_PARSE_INT_PTR:
+    case VTK_PARSE_UNSIGNED_INT_PTR:
+      fprintf(fp, "jintArray ");
+      break;
     case VTK_PARSE_SHORT_PTR:
+    case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      fprintf(fp, "jshortArray ");
+      break;
     case VTK_PARSE_LONG_PTR:
     case VTK_PARSE_LONG_LONG_PTR:
     case VTK_PARSE___INT64_PTR:
-    case VTK_PARSE_SIGNED_CHAR_PTR:
-    case VTK_PARSE_BOOL_PTR:
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
+    case VTK_PARSE_UNSIGNED_LONG_PTR:
     case VTK_PARSE_UNSIGNED___INT64_PTR:
-      fprintf(fp, "jarray ");
+      fprintf(fp, "jlongArray ");
+      break;
+    case VTK_PARSE_BOOL_PTR:
+      fprintf(fp, "jbooleanArray ");
       break;
   }
 }
@@ -872,7 +883,8 @@ void HandleDataArray(FILE* fp, ClassInfo* data)
 
   fprintf(fp, "// Array conversion routines\n");
   fprintf(fp, "extern \"C\" JNIEXPORT ");
-  fprintf(fp, "jarray JNICALL Java_vtk_%s_GetJavaArray_10(JNIEnv* env, jobject obj)\n", data->Name);
+  fprintf(fp, "j%sArray JNICALL Java_vtk_%s_GetJavaArray_10(JNIEnv* env, jobject obj)\n", jtype,
+    data->Name);
   fprintf(fp, "{\n");
   fprintf(fp, "  %s* op = static_cast<%s*>(vtkJavaGetPointerFromObject(env, obj));\n", data->Name,
     data->Name);

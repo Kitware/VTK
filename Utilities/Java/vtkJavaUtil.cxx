@@ -49,7 +49,7 @@ JNIEXPORT void* vtkJavaGetPointerFromObject(JNIEnv* env, jobject obj)
   return obj ? (void*)(size_t)vtkJavaGetId(env, obj) : nullptr;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfByte(JNIEnv* env, const jbyte* ptr, int size)
+JNIEXPORT jbyteArray vtkJavaMakeJArrayOfByte(JNIEnv* env, const jbyte* ptr, int size)
 {
   jbyteArray result = env->NewByteArray(size);
   if (result != nullptr)
@@ -60,7 +60,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfByte(JNIEnv* env, const jbyte* ptr, int size
   return result;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfShort(JNIEnv* env, const jshort* ptr, int size)
+JNIEXPORT jshortArray vtkJavaMakeJArrayOfShort(JNIEnv* env, const jshort* ptr, int size)
 {
   jshortArray result = env->NewShortArray(size);
   if (result != nullptr)
@@ -71,7 +71,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfShort(JNIEnv* env, const jshort* ptr, int si
   return result;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfInt(JNIEnv* env, const jint* ptr, int size)
+JNIEXPORT jintArray vtkJavaMakeJArrayOfInt(JNIEnv* env, const jint* ptr, int size)
 {
   jintArray result = env->NewIntArray(size);
   if (result != nullptr)
@@ -82,7 +82,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfInt(JNIEnv* env, const jint* ptr, int size)
   return result;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfLong(JNIEnv* env, const jlong* ptr, int size)
+JNIEXPORT jlongArray vtkJavaMakeJArrayOfLong(JNIEnv* env, const jlong* ptr, int size)
 {
   jlongArray result = env->NewLongArray(size);
   if (result != nullptr)
@@ -93,7 +93,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfLong(JNIEnv* env, const jlong* ptr, int size
   return result;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfBoolean(JNIEnv* env, const jboolean* ptr, int size)
+JNIEXPORT jbooleanArray vtkJavaMakeJArrayOfBoolean(JNIEnv* env, const jboolean* ptr, int size)
 {
   jbooleanArray result = env->NewBooleanArray(size);
   if (result != nullptr)
@@ -104,7 +104,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfBoolean(JNIEnv* env, const jboolean* ptr, in
   return result;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfDouble(JNIEnv* env, const jdouble* ptr, int size)
+JNIEXPORT jdoubleArray vtkJavaMakeJArrayOfDouble(JNIEnv* env, const jdouble* ptr, int size)
 {
   jdoubleArray result = env->NewDoubleArray(size);
   if (result != nullptr)
@@ -115,7 +115,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfDouble(JNIEnv* env, const jdouble* ptr, int 
   return result;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfFloat(JNIEnv* env, const jfloat* ptr, int size)
+JNIEXPORT jfloatArray vtkJavaMakeJArrayOfFloat(JNIEnv* env, const jfloat* ptr, int size)
 {
   jfloatArray result = env->NewFloatArray(size);
   if (result != nullptr)
@@ -175,8 +175,7 @@ JNIEXPORT jbyteArray vtkJavaStringToUTF8(JNIEnv* env, const std::string& text)
 
 JNIEXPORT jbyteArray vtkJavaCharsToUTF8(JNIEnv* env, const char* chars, size_t length)
 {
-  return static_cast<jbyteArray>(
-    vtkJavaMakeJArrayOfByte(env, reinterpret_cast<const jbyte*>(chars), length));
+  return vtkJavaMakeJArrayOfByte(env, reinterpret_cast<const jbyte*>(chars), length);
 }
 
 //**jcp this is the callback interface stub for Java. no user parms are passed
