@@ -156,7 +156,7 @@ int vtkGroupDataSetsFilter::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // create output of specified type.
-  return this->Superclass::SetOutputDataObject(
+  return vtkDataObjectAlgorithm::SetOutputDataObject(
            this->OutputType, outputVector->GetInformationObject(0), /*exact = */ true)
     ? 1
     : 0;
