@@ -110,6 +110,7 @@ static void pop_scope(const char* id)
 }
 
 //=============================================================================
+bool vtkLogger::EnableUnsafeSignalHandler = true;
 vtkLogger::Verbosity vtkLogger::InternalVerbosityLevel = vtkLogger::VERBOSITY_1;
 std::string vtkLogger::ThreadName;
 
@@ -136,12 +137,13 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
   const auto current_stderr_verbosity = loguru::g_stderr_verbosity;
   if (loguru::g_internal_verbosity > loguru::g_stderr_verbosity)
   {
-    // this avoid printing the preamble-header on stderr except for cases
+    // this avoids printing the preamble-header on stderr except for cases
     // where the stderr log is guaranteed to have some log text generated.
     loguru::g_stderr_verbosity = loguru::Verbosity_WARNING;
   }
   loguru::Options options;
   options.verbosity_flag = verbosity_flag;
+  options.unsafe_signal_handler = vtkLogger::EnableUnsafeSignalHandler;
   if (!vtkLogger::ThreadName.empty())
   {
     options.main_thread_name = vtkLogger::ThreadName.c_str();

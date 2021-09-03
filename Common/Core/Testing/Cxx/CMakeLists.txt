@@ -172,6 +172,20 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   ${scale_soa_test}
   )
 
+# Special test to check whether disabling loguru signal handling, i.e.,
+# stack trace printing when it catches a signal, works. We add an
+# executable where the stack trace is disabled. The actual test is a
+# CMake script that runs the test executable and analyzes the output to
+# determine whether a stack trace was printed or not.
+add_executable(TestLoggerDisableSignalHandlerCxx
+  TestLoggerDisableSignalHandler.cxx)
+target_link_libraries(TestLoggerDisableSignalHandlerCxx
+  PRIVATE VTK::CommonCore)
+add_test(NAME TestLoggerDisableSignalHandler
+  COMMAND ${CMAKE_COMMAND}
+  -DEXECUTABLE_PATH:FILEPATH=$<TARGET_FILE:TestLoggerDisableSignalHandlerCxx>
+  -P ${CMAKE_CURRENT_SOURCE_DIR}/TestLoggerDisableSignalHandler.cmake)
+
 vtk_test_cxx_executable(vtkCommonCoreCxxTests tests
   vtkTestNewVar.cxx
   )

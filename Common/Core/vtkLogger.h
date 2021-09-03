@@ -49,6 +49,10 @@
  * that, use `vtkLogger::SetThreadName`. Calling `vtkLogger::Init` will set the name
  * for the main thread.
  *
+ * To prevent the logging framework from intercepting signals from your application,
+ * you can set the static variable `vtkLogger::EnableUnsafeSignalHandler` to `false`
+ * prior to calling `vtkLogger::Init(argc, argv)` or `vtkLogger::Init()`.
+ *
  * @section Logging Logging
  *
  * vtkLogger provides several macros (again, based on `loguru`) that can be
@@ -64,6 +68,11 @@
  * usage.
  *
  * @code{.cpp}
+ *
+ *  // Optional, leaving this as the default value `true` will let the logging
+ *  // framework log signals such as segmentation faults.
+ *
+ *  vtkLogger::EnableUnsafeSignalHandler = false;
  *
  *  // Optional, but useful to time-stamp the start of the log.
  *  // Will also detect verbosity level on the command line as -v.
@@ -236,6 +245,11 @@ public:
    * You can also use something else instead of '-v' flag by the via
    * `verbosity_flag` argument. You can also set to nullptr to skip parsing
    * verbosity level from the command line arguments.
+   *
+   * For applications that do not want loguru to handle any signals, i.e.,
+   * print a stack trace when a signal is intercepted, the
+   * `vtkLogger::EnableUnsafeSignalHandler` static member variable
+   * should be set to `false`.
    * @{
    */
   static void Init(int& argc, char* argv[], const char* verbosity_flag = "-v");
@@ -410,6 +424,14 @@ public:
   };
 #endif
   ///@}
+
+  /**
+   * Flag to enable/disable the logging frameworks printing of a stack trace
+   * when catching signals, which could lead to crashes and deadlocks in
+   * certain circumstances.
+   */
+  static bool EnableUnsafeSignalHandler;
+
 protected:
   vtkLogger();
   ~vtkLogger() override;
