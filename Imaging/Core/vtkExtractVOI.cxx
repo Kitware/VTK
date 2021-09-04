@@ -51,16 +51,23 @@ vtkExtractVOI::~vtkExtractVOI()
 int vtkExtractVOI::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  // get the info objects
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+
+  // Re-init helper to full whole extent. This is needed since `RequestData`
+  // modifies the helper to limit to the input extents rather than whole
+  // extents.
+  int wholeExtent[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+  this->Internal->Initialize(
+    this->VOI, wholeExtent, this->SampleRate, (this->IncludeBoundary == 1));
+
   if (!this->Internal->IsValid())
   {
     return 0;
   }
 
   int i;
-
-  // get the info objects
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-
   bool emptyExtent = false;
   int uExt[6];
   for (i = 0; i < 3; i++)
