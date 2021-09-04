@@ -434,7 +434,7 @@ macro (HDF_DIR_PATHS package_prefix)
     endif ()
   endif ()
 
-  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  if (FALSE AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT) # VTK doesn't need HDF5's help for the install prefix.
     if (CMAKE_HOST_UNIX)
       set (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/HDF_Group/${HDF5_PACKAGE_NAME}/${HDF5_PACKAGE_VERSION}"
         CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
