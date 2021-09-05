@@ -48,7 +48,7 @@ namespace
 std::string GetVDBGridName(const char* arrayName, int component, int numberOfComponents)
 {
   std::string vdbName = arrayName;
-  if (numberOfComponents != 1 and numberOfComponents != 3)
+  if (numberOfComponents != 1 && numberOfComponents != 3)
   {
     vdbName = vdbName + "_" + std::to_string(component);
   }
