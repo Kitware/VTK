@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/can.ex2
   Data/cow.vtp)
 
 add_subdirectory(Cxx)
