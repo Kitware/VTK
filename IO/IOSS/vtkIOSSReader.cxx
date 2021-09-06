@@ -872,6 +872,11 @@ bool vtkIOSSReader::vtkInternals::UpdateTimeInformation(vtkIOSSReader* self)
     {
       dbase_times.clear();
     }
+
+    // this is a good place for us to sync up format too.
+    int iFormat = static_cast<int>(this->Format);
+    controller->Broadcast(&iFormat, 1, 0);
+    this->Format = static_cast<vtkIOSSUtilities::DatabaseFormatType>(iFormat);
   }
 
   // Fillup TimestepValues for ease of use later.
@@ -905,6 +910,9 @@ bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* 
     entity_names;
   std::array<std::set<std::string>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES> field_names;
   std::set<vtkIOSSUtilities::EntityNameType> bc_names;
+
+  // format should have been set (and synced) across all ranks by now.
+  assert(this->Format != vtkIOSSUtilities::UNKNOWN);
 
   // When each rank is reading multiple files, reading all those files for
   // gathering meta-data can be slow. However, with CGNS, that is required
