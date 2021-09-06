@@ -27,7 +27,9 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkFieldData.h"
 #include "vtkJPEGReader.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkOBJReader.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
@@ -39,16 +41,122 @@
 #include "vtkTexture.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <sstream>
+
+//------------------------------------------------------------------------------
+void SetField(vtkDataObject* obj, const char* name, const char* value)
+{
+  vtkFieldData* fd = obj->GetFieldData();
+  if (!fd)
+  {
+    vtkNew<vtkFieldData> newfd;
+    obj->SetFieldData(newfd);
+    fd = newfd;
+  }
+  vtkNew<vtkStringArray> sa;
+  sa->SetNumberOfTuples(1);
+  sa->SetValue(0, value);
+  sa->SetName(name);
+  fd->AddArray(sa);
+}
+
+//------------------------------------------------------------------------------
+std::array<double, 3> ReadOBJOffset(const char* comment)
+{
+  std::array<double, 3> translation = { 0, 0, 0 };
+  if (comment)
+  {
+    std::istringstream istr(comment);
+    std::array<std::string, 3> axesNames = { "x", "y", "z" };
+    for (int i = 0; i < 3; ++i)
+    {
+      std::string axis;
+      std::string s;
+      istr >> axis >> s >> translation[i];
+      if (istr.fail())
+      {
+        vtkLog(WARNING, "Cannot read axis " << axesNames[i] << " from comment.");
+      }
+      if (axis != axesNames[i])
+      {
+        vtkLog(WARNING, "Invalid axis " << axesNames[i] << ": " << axis);
+      }
+    }
+  }
+  else
+  {
+    vtkLog(WARNING, "nullptr comment.");
+  }
+  return translation;
+}
+
+//------------------------------------------------------------------------------
+std::string GetOBJTextureFileName(const std::string& file)
+{
+  std::string fileNoExt = vtksys::SystemTools::GetFilenameWithoutExtension(file);
+  return fileNoExt + ".png";
+}
+
+vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJFiles(int numberOfBuildings, int vtkNotUsed(lod),
+  const std::vector<std::string>& files, std::array<double, 3>& fileOffset)
+{
+  auto root = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+  for (size_t i = 0; i < files.size() && i < static_cast<size_t>(numberOfBuildings); ++i)
+  {
+    vtkNew<vtkOBJReader> reader;
+    reader->SetFileName(files[i].c_str());
+    reader->Update();
+    if (i == 0)
+    {
+      fileOffset = ReadOBJOffset(reader->GetComment());
+    }
+    auto polyData = reader->GetOutput();
+    std::string textureFileName = GetOBJTextureFileName(files[i]);
+    SetField(polyData, "texture_uri", textureFileName.c_str());
+    auto building = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+    building->SetBlock(0, polyData);
+    root->SetBlock(root->GetNumberOfBlocks(), building);
+  }
+  return root;
+}
+
 int TestGLTFWriter(int argc, char* argv[])
 {
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/CityGML/Part-4-Buildings-V4-one.gml");
-  std::string fileName(fname);
-  delete[] fname;
+  std::string fileName = argv[1];
   std::string filePath = vtksys::SystemTools::GetFilenamePath(fileName);
+  std::string fileExt = vtksys::SystemTools::GetFilenameExtension(fileName);
+  std::array<double, 3> fileOffset;
 
   std::cout << fileName << std::endl;
   std::cout << filePath << std::endl;
+  bool cityGML = false;
+  if (fileExt == ".gml")
+  {
+    cityGML = true;
+  }
+  else if (fileExt == ".obj")
+  {
+    cityGML = false;
+  }
+  else
+  {
+    vtkLog(ERROR, "Invalid file type: " << fileName);
+    return 0;
+  }
+
+  vtkSmartPointer<vtkMultiBlockDataSet> data;
+  if (cityGML)
+  {
+    vtkNew<vtkCityGMLReader> reader;
+    reader->SetFileName(fileName.c_str());
+    reader->Update();
+    data = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+  }
+  else
+  {
+    data = ReadOBJFiles(1, 0 /*lod - not used*/, { fileName }, fileOffset);
+  }
+
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.5, 0.7, 0.7);
 
@@ -58,31 +166,31 @@ int TestGLTFWriter(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renWin);
 
-  vtkNew<vtkCityGMLReader> reader;
-  reader->SetFileName(fileName.c_str());
-
   char* tname =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string tmpDir(tname);
   delete[] tname;
-  std::string filename = tmpDir + "/TestGLTFWriter.gltf";
+  std::string outputName = tmpDir + "/TestGLTFWriter.gltf";
 
   vtkNew<vtkGLTFWriter> writer;
-  writer->SetFileName(filename.c_str());
+  writer->SetFileName(outputName.c_str());
   writer->SetTextureBaseDirectory((filePath).c_str());
-  writer->SetInputConnection(reader->GetOutputPort());
+  writer->SetInputDataObject(data);
   writer->Write();
 
   vtkNew<vtkGLTFImporter> importer;
-  importer->SetFileName(filename.c_str());
+  importer->SetFileName(outputName.c_str());
   importer->SetCamera(-1);
   importer->SetRenderWindow(renWin);
   importer->Update();
 
   renderer->ResetCamera();
-  renderer->GetActiveCamera()->Azimuth(90);
-  renderer->GetActiveCamera()->Roll(-90);
-  renderer->GetActiveCamera()->Zoom(1.5);
+  if (cityGML)
+  {
+    renderer->GetActiveCamera()->Azimuth(90);
+    renderer->GetActiveCamera()->Roll(-90);
+    renderer->GetActiveCamera()->Zoom(1.5);
+  }
 
   renWin->SetSize(400, 400);
   renWin->Render();
