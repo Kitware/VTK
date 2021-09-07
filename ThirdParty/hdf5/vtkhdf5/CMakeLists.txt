@@ -555,9 +555,11 @@ endif ()
 
 #-----------------------------------------------------------------------------
 # perl is used in some optional src and tests, check availability
+if (FALSE) # VTK doesn't expose where this is used anyways.
 find_package (Perl)
 if (PERL_FOUND)
   set (H5_PERL_FOUND YES)
+endif ()
 endif ()
 #-----------------------------------------------------------------------------
 
