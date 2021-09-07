@@ -174,7 +174,7 @@ int vtkTemporalArrayOperatorFilter::RequestUpdateExtent(vtkInformation* vtkNotUs
 }
 
 //------------------------------------------------------------------------------
-int vtkTemporalArrayOperatorFilter::Execute(vtkInformation* request,
+int vtkTemporalArrayOperatorFilter::Execute(vtkInformation*,
   const std::vector<vtkSmartPointer<vtkDataObject>>& inputs, vtkInformationVector* outputVector)
 {
   if (inputs.size() != 2)
