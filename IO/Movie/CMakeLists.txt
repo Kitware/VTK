@@ -15,7 +15,8 @@ if (VTK_USE_VIDEO_FOR_WINDOWS)
 
   if (NOT vtk_video_for_windows_works)
     message(FATAL_ERROR
-      "`VTK_USE_VIDEO_FOR_WINDOWS` was requested, but support detection failed: ${_vfw_output}.")
+      "`VTK_USE_VIDEO_FOR_WINDOWS` was requested, but support detection "
+      "failed: ${_vfw_output}.")
   endif ()
 endif ()
 
@@ -38,7 +39,8 @@ if (VTK_USE_MICROSOFT_MEDIA_FOUNDATION)
 
   if (NOT vtk_microsoft_media_foundation_works)
     message(FATAL_ERROR
-      "`VTK_USE_MICROSOFT_MEDIA_FOUNDATION` was requested, but support detection failed: ${_msmf_output}.")
+      "`VTK_USE_MICROSOFT_MEDIA_FOUNDATION` was requested, but support "
+      "detection failed: ${_msmf_output}.")
   endif ()
 endif ()
 
@@ -56,15 +58,13 @@ vtk_module_add_module(VTK::IOMovie
   HEADERS "${CMAKE_CURRENT_BINARY_DIR}/vtkIOMovieConfigure.h")
 
 set(libs)
-if (WIN32)
-  if (VTK_USE_VIDEO_FOR_WINDOWS)
-    list(APPEND libs vfw32)
-  endif ()
-
-  if (VTK_USE_MICROSOFT_MEDIA_FOUNDATION)
-    list(APPEND libs mfreadwrite mfplat mfuuid)
-  endif()
-
-  vtk_module_link(VTK::IOMovie
-    PRIVATE ${libs})
+if (VTK_USE_VIDEO_FOR_WINDOWS)
+  list(APPEND libs vfw32)
 endif ()
+
+if (VTK_USE_MICROSOFT_MEDIA_FOUNDATION)
+  list(APPEND libs mfreadwrite mfplat mfuuid)
+endif()
+
+vtk_module_link(VTK::IOMovie
+  PRIVATE ${libs})
