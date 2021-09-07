@@ -203,7 +203,7 @@ int vtkTemporalInterpolator::RequestInformation(vtkInformation* vtkNotUsed(reque
 }
 
 //------------------------------------------------------------------------------
-int vtkTemporalInterpolator::Execute(vtkInformation* request,
+int vtkTemporalInterpolator::Execute(vtkInformation*,
   const std::vector<vtkSmartPointer<vtkDataObject>>& inputs, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
