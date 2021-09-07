@@ -15,6 +15,7 @@ vtk_add_test_cxx(vtkFiltersHybridCxxTests tests
   TestTemporalCacheTemporal.cxx,NO_VALID
   TestTemporalCacheMemkind.cxx,NO_VALID
   TestTemporalFractal.cxx
+  TestTemporalInterpolator.cxx
   )
 vtk_test_cxx_executable(vtkFiltersHybridCxxTests tests
   RENDERING_FACTORY

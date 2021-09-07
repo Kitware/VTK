@@ -88,7 +88,8 @@ protected:
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int Execute(vtkInformation* request, const std::vector<vtkSmartPointer<vtkDataObject>>& inputs,
+    vtkInformationVector* outputVector) override;
 
   int GetInputArrayAssociation();
   virtual vtkDataObject* Process(vtkDataObject*, vtkDataObject*);

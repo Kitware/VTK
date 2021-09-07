@@ -23,6 +23,7 @@ TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersHyperTree
   VTK::FiltersSources
+  VTK::IOIOSS
   VTK::IOLegacy
   VTK::IOXML
   VTK::ImagingCore
