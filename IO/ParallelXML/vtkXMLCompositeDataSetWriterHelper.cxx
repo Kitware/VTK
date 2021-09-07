@@ -42,6 +42,18 @@ std::string vtkXMLCompositeDataSetWriterHelper::WriteDataSet(
     return {};
   }
 
+  bool isEmpty = true;
+  for (int attrType = vtkDataObject::POINT;
+       attrType < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES && isEmpty; ++attrType)
+  {
+    isEmpty = (data->GetNumberOfElements(attrType) == 0);
+  }
+
+  if (isEmpty)
+  {
+    return {};
+  }
+
   auto writer = this->GetWriter(data->GetDataObjectType());
   if (!writer)
   {
