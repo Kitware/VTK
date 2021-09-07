@@ -58,15 +58,13 @@ vtk_module_add_module(VTK::IOMovie
   HEADERS "${CMAKE_CURRENT_BINARY_DIR}/vtkIOMovieConfigure.h")
 
 set(libs)
-if (WIN32)
-  if (VTK_USE_VIDEO_FOR_WINDOWS)
-    list(APPEND libs vfw32)
-  endif ()
-
-  if (VTK_USE_MICROSOFT_MEDIA_FOUNDATION)
-    list(APPEND libs mfreadwrite mfplat mfuuid)
-  endif()
-
-  vtk_module_link(VTK::IOMovie
-    PRIVATE ${libs})
+if (VTK_USE_VIDEO_FOR_WINDOWS)
+  list(APPEND libs vfw32)
 endif ()
+
+if (VTK_USE_MICROSOFT_MEDIA_FOUNDATION)
+  list(APPEND libs mfreadwrite mfplat mfuuid)
+endif()
+
+vtk_module_link(VTK::IOMovie
+  PRIVATE ${libs})
