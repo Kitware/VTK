@@ -650,7 +650,7 @@ function (_MPI_interrogate_compiler LANG)
       # produce inconsistent results with the regularly flags.
       # Similarly, aliasing flags do not belong into our flag array.
       # Also strip out `-framework` flags.
-      if(NOT "${_MPI_COMPILE_OPTION}" MATCHES "^-f((no-|)(stack-protector|strict-aliasing)|PI[CE]|pi[ce]|framework)")
+      if(NOT "${_MPI_COMPILE_OPTION}" MATCHES "^-f((no-|)(stack-protector|strict-aliasing)|PI[CE]|pi[ce]|ramework)")
         list(APPEND MPI_COMPILE_OPTIONS_WORK "${_MPI_COMPILE_OPTION}")
       endif()
     endforeach()
