@@ -53,13 +53,10 @@ vtkResliceCursorWidget::vtkResliceCursorWidget()
     vtkWidgetEvent::EndResize, this, vtkResliceCursorWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent, vtkEvent::AltModifier,
     0, 0, nullptr, vtkWidgetEvent::Translate, this, vtkResliceCursorWidget::TranslateAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
-    vtkWidgetEvent::EndTranslate, this, vtkResliceCursorWidget::EndTranslateAction);
   this->CallbackMapper->SetCallbackMethod(
     vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkResliceCursorWidget::MoveAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::NoModifier, 111, 1,
     "o", vtkWidgetEvent::Reset, this, vtkResliceCursorWidget::ResetResliceCursorAction);
-
   this->ManageWindowLevel = 1;
 }
 
@@ -246,11 +243,12 @@ void vtkResliceCursorWidget::RotateAction(vtkAbstractWidget* w)
   self->InvokeAnEvent();
 }
 
+//------------------------------------------------------------------------------
 void vtkResliceCursorWidget::TranslateAction(vtkAbstractWidget* w)
 {
-  vtkResliceCursorWidget* self = reinterpret_cast<vtkResliceCursorWidget*>(w);
+  vtkResliceCursorWidget* self = vtkResliceCursorWidget::SafeDownCast(w);
   vtkResliceCursorLineRepresentation* rep =
-    reinterpret_cast<vtkResliceCursorLineRepresentation*>(self->WidgetRep);
+    vtkResliceCursorLineRepresentation::SafeDownCast(self->WidgetRep);
 
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
@@ -268,7 +266,6 @@ void vtkResliceCursorWidget::TranslateAction(vtkAbstractWidget* w)
   double eventPos[2];
   eventPos[0] = static_cast<double>(X);
   eventPos[1] = static_cast<double>(Y);
-  rep->TranslationModeOn();
   self->WidgetRep->StartWidgetInteraction(eventPos);
 
   // We are definitely selected
@@ -371,15 +368,6 @@ void vtkResliceCursorWidget::EndSelectAction(vtkAbstractWidget* w)
   self->Render();
 
   self->InvokeAnEvent();
-}
-
-void vtkResliceCursorWidget::EndTranslateAction(vtkAbstractWidget* w)
-{
-  vtkResliceCursorWidget* self = static_cast<vtkResliceCursorWidget*>(w);
-  vtkResliceCursorLineRepresentation* rep =
-    reinterpret_cast<vtkResliceCursorLineRepresentation*>(w->GetRepresentation());
-  rep->TranslationModeOff();
-  EndSelectAction(w);
 }
 
 //------------------------------------------------------------------------------

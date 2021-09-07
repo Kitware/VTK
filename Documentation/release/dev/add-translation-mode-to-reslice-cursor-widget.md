@@ -1,4 +1,5 @@
 ## Add translation mode to vtkResliceCursorWidgetLineRepresentation
 
-Added the function `SetTranslationMode(bool isTranslationMode)` to the vtkResliceCursorWidgetLineRepresentation, as well as a bool member TranslationMode (false by default).
-Modified the ResliceCursorWidget so that using Alt + Left Click allows the user to translate a single axis.
+Add a binding on Alt+LeftClick on the ResliceCursorWidget to allow the user to translate a single axis.
+Add a TranslateAction to the ResliceCursorWidget to trigger this behavior.
+Modify the ResliceCursorLineRepresentation so that the ManipulationMode drives which type of interaction is triggered.
