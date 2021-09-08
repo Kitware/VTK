@@ -523,13 +523,13 @@ protected:
      * This is a cursor telling the amount of faces information, that has
      * already been added to the output. This variable is used at the very end of the pipeline.
      */
-    vtkIdType CurrentFacesSize;
+    vtkIdType CurrentFacesSize = 0;
 
     /**
      * This is a cursor telling how much the output connectivity array is filled.
      * This is used at the very end of the pipeline.
      */
-    vtkIdType CurrentConnectivitySize;
+    vtkIdType CurrentConnectivitySize = 0;
 
     vtkIdTypeArray* Faces = nullptr;
     vtkIdTypeArray* FaceLocations = nullptr;
@@ -539,7 +539,7 @@ protected:
     /**
      * Cell connectivity array size of the input if the ghost cells are removed.
      */
-    vtkIdType InputConnectivitySize;
+    vtkIdType InputConnectivitySize = 0;
 
     /**
      * Faces array size of the input if the ghost cells are removed.

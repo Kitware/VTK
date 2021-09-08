@@ -1874,6 +1874,19 @@ bool TestUnstructuredGrid(
       break;
   }
 
+  {
+    vtkNew<vtkUnstructuredGrid> emptyUG;
+    // Calling Initialize sets GetCells to nullptr
+    emptyUG->Initialize();
+
+    // We are checking if the filter crashes in this instance.
+    vtkNew<vtkGhostCellsGenerator> generator;
+    generator->SetInputData(emptyUG);
+    generator->BuildIfRequiredOff();
+    generator->SetNumberOfGhostLayers(1);
+    generator->Update();
+  }
+
   // Generating an image englobing the extents of every blocks
   // to use as a reference
   vtkNew<vtkImageData> refImage;

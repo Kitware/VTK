@@ -2155,12 +2155,19 @@ void InitializeInformationIdsForUnstructuredData(vtkUnstructuredGrid* input,
   info.CurrentMaxPointId = info.NumberOfInputPoints;
   info.CurrentMaxCellId = info.NumberOfInputCells;
 
+  vtkCellArray* cells = input->GetCells();
+
+  if (!cells)
+  {
+    return;
+  }
+
   if (vtkUnsignedCharArray* ghosts = input->GetCellGhostArray())
   {
     using ArrayType32 = vtkCellArray::ArrayType32;
     using ArrayType64 = vtkCellArray::ArrayType64;
 
-    vtkCellArray* cells = input->GetCells();
+    vtkIdType numberOfCells = input->GetNumberOfCells();
 
     if (cells->IsStorage64Bit())
     {
@@ -2174,17 +2181,24 @@ void InitializeInformationIdsForUnstructuredData(vtkUnstructuredGrid* input,
     {
       ComputeConnectivitySizeWorker<ArrayType32> worker(
           vtkArrayDownCast<ArrayType32>(cells->GetOffsetsArray()), ghosts);
-      vtkSMPTools::For(0, input->GetNumberOfCells(), worker);
+      vtkSMPTools::For(0, numberOfCells, worker);
 
       info.InputConnectivitySize = worker.TotalSize;
     }
 
-    ComputeFacesSizeWorker worker(input->GetFaces(), input->GetFaceLocations(), ghosts);
-    info.InputFacesSize = worker.TotalSize;
+    vtkIdTypeArray* faces = input->GetFaces();
+
+    if (faces)
+    {
+      ComputeFacesSizeWorker worker(faces, input->GetFaceLocations(), ghosts);
+      vtkSMPTools::For(0, numberOfCells, worker);
+
+      info.InputFacesSize = worker.TotalSize;
+    }
   }
   else
   {
-    info.InputConnectivitySize = input->GetCells()->GetConnectivityArray()->GetNumberOfTuples();
+    info.InputConnectivitySize = cells->GetConnectivityArray()->GetNumberOfTuples();
     info.InputFacesSize = input->GetFaces() ? input->GetFaces()->GetNumberOfValues() : 0;
   }
 
