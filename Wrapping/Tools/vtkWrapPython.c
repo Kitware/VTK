@@ -507,7 +507,7 @@ int main(int argc, char* argv[])
       fprintf(fp,
         "  if (o)\n"
         "  {\n"
-        "#if PY_VERSION_HEX >= 0x03040000\n"
+        "#ifdef VTK_PY3K\n"
         "    const char *methodname = \"values\";\n"
         "#else\n"
         "    char methodname[] = \"values\";\n"

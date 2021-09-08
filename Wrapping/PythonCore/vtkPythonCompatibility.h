@@ -35,6 +35,7 @@
 #define PyInt_AsLong PyLong_AsLong
 
 // Unicode/String compatibility
+#define PyString_AsString PyUnicode_AsUTF8
 #define PyString_InternFromString PyUnicode_InternFromString
 #define PyString_FromFormat PyUnicode_FromFormat
 #define PyString_Check PyUnicode_Check
@@ -44,43 +45,24 @@
 // Use this for PyUnicode_EncodeLocale, see PEP 383
 #define VTK_PYUNICODE_ENC "surrogateescape"
 
-// Required for Python 3.2 compatibility
-#if PY_VERSION_HEX < 0x03030000
-#define PyUnicode_DecodeLocaleAndSize PyUnicode_DecodeFSDefaultAndSize
-#define PyUnicode_DecodeLocale PyUnicode_DecodeFSDefault
-#define PyUnicode_EncodeLocale(o, e) PyUnicode_EncodeFSDefault(o)
-#define PyString_AsString _PyUnicode_AsString
-#else
-#define PyString_AsString PyUnicode_AsUTF8
-#endif
-
-// Buffer compatibility
-#if PY_VERSION_HEX < 0x03030000
-#define VTK_PYBUFFER_INITIALIZER                                                                   \
-  {                                                                                                \
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0                                                      \
-  }
-#else
+// Buffer initialization
 #define VTK_PYBUFFER_INITIALIZER                                                                   \
   {                                                                                                \
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                                                                \
   }
-#endif
 
 // PyTypeObject compatibility
 #if PY_VERSION_HEX >= 0x03090000
 #define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0, 0, 0,
 #elif PY_VERSION_HEX >= 0x03080000
 #define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0, 0, 0, 0,
-#elif PY_VERSION_HEX >= 0x03040000
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0, 0,
 #else
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0,
+#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0, 0,
 #endif
 
 // Python 3.8 contains a deprecation marker on the `tp_print` field. Since some
 // compilers are very touchy about this situation, just suppress the warning.
-#if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000
+#if PY_VERSION_HEX < 0x03090000
 // GCC-alike (but not Intel) need this.
 #if defined(__GNUC__) && !defined(__INTEL_COMPILER)
 #define VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION

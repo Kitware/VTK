@@ -99,7 +99,7 @@ Py_ssize_t vtkPythonGetStringSize(PyObject* o)
   }
   else if (PyUnicode_Check(o))
   {
-#if PY_VERSION_HEX >= 0x03030000
+#ifdef VTK_PY3K
     Py_ssize_t size;
     PyUnicode_AsUTF8AndSize(o, &size);
     return size;
@@ -128,7 +128,7 @@ bool vtkPythonGetStringValue(PyObject* o, const char*& a, const char* exctext)
   }
   else if (PyUnicode_Check(o))
   {
-#if PY_VERSION_HEX >= 0x03030000
+#ifdef VTK_PY3K
     a = PyUnicode_AsUTF8(o);
     return true;
 #else
@@ -166,7 +166,7 @@ inline bool vtkPythonGetStdStringValue(PyObject* o, std::string& a, const char* 
   }
   else if (PyUnicode_Check(o))
   {
-#if PY_VERSION_HEX >= 0x03030000
+#ifdef VTK_PY3K
     Py_ssize_t len;
     const char* val = PyUnicode_AsUTF8AndSize(o, &len);
     a = std::string(val, len);

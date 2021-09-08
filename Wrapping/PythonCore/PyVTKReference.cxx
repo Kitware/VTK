@@ -236,11 +236,7 @@ static PyObject* PyVTKReference_Trunc(PyObject* self, PyObject* args)
         PyExc_TypeError, "type %.100s doesn't define __trunc__ method", Py_TYPE(ob)->tp_name);
       return nullptr;
     }
-#if PY_VERSION_HEX >= 0x03040000
     return PyObject_CallFunction(meth, "O", ob);
-#else
-    return PyObject_CallFunction(meth, const_cast<char*>("O"), ob);
-#endif
   }
 
   return nullptr;
@@ -261,19 +257,11 @@ static PyObject* PyVTKReference_Round(PyObject* self, PyObject* args)
         PyExc_TypeError, "type %.100s doesn't define __round__ method", Py_TYPE(ob)->tp_name);
       return nullptr;
     }
-#if PY_VERSION_HEX >= 0x03040000
     if (opn)
     {
       return PyObject_CallFunction(meth, "OO", ob, opn);
     }
     return PyObject_CallFunction(meth, "O", ob);
-#else
-    if (opn)
-    {
-      return PyObject_CallFunction(meth, const_cast<char*>("OO"), ob, opn);
-    }
-    return PyObject_CallFunction(meth, const_cast<char*>("O"), ob);
-#endif
   }
 
   return nullptr;
@@ -867,17 +855,11 @@ static PyObject* PyVTKReference_GetAttr(PyObject* self, PyObject* attr)
 #ifndef VTK_PY3K
   char* name = PyString_AsString(attr);
   int firstchar = name[0];
-#elif PY_VERSION_HEX >= 0x03030000
+#else
   int firstchar = '\0';
   if (PyUnicode_GetLength(attr) > 0)
   {
     firstchar = PyUnicode_ReadChar(attr, 0);
-  }
-#else
-  int firstchar = '\0';
-  if (PyUnicode_Check(attr) && PyUnicode_GetSize(attr) > 0)
-  {
-    firstchar = PyUnicode_AS_UNICODE(attr)[0];
   }
 #endif
   if (firstchar != '_')
