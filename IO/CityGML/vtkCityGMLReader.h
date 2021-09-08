@@ -87,10 +87,26 @@ public:
   ///@{
   /**
    * Number of buildings read from the file.
-   * Default is numeric_limits<int>::max().
+   * Default is numeric_limits<int>::max() which means the reader will read all
+   * buildings from the file. You can set either NumberOfBuidlings to read the range
+   * [0, NumberOfBuildings) or you can set BeginBuildingIndex and EndBuildingIndex to
+   * read the range [BeginBuildingIndex, EndBuildingIndex). If you send them both,
+   * a warning will be printed and we'll use the latter.
    */
   vtkSetMacro(NumberOfBuildings, int);
   vtkGetMacro(NumberOfBuildings, int);
+  ///@}
+
+  ///@{
+  /**
+   * Read a range of buildings from the file [begin, end)
+   * Default is begin=0, end = numeric_limits<int>::max() which means the reader
+   * will read all buildings from the file.
+   */
+  vtkSetMacro(BeginBuildingIndex, int);
+  vtkGetMacro(BeginBuildingIndex, int);
+  vtkSetMacro(EndBuildingIndex, int);
+  vtkGetMacro(EndBuildingIndex, int);
   ///@}
 
 protected:
@@ -103,6 +119,8 @@ protected:
   int LOD;
   int UseTransparencyAsOpacity;
   int NumberOfBuildings;
+  int BeginBuildingIndex;
+  int EndBuildingIndex;
 
 private:
   vtkCityGMLReader(const vtkCityGMLReader&) = delete;

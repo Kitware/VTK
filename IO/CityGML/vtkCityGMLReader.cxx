@@ -883,16 +883,23 @@ public:
 
   void ReadMultiSurfaceGroup(pugi::xml_document& doc, vtkMultiBlockDataSet* output,
     const char* gmlNamespace, const char* feature, float progressStart, float progressEnd,
-    int maximumNumberOfNodes = std::numeric_limits<int>::max())
+    size_t beginNodeIndex = 0, size_t endNodeIndex = std::numeric_limits<int>::max())
   {
     std::ostringstream ostr;
     std::string element = std::string(gmlNamespace) + ":" + feature;
     ostr << "//" << element;
     auto nodes = doc.select_nodes(ostr.str().c_str());
     int size = std::distance(nodes.begin(), nodes.end());
-    int i = 0;
-    for (auto featureNode : nodes)
+
+    endNodeIndex = std::min(endNodeIndex, nodes.size());
+    for (int i = beginNodeIndex; i < endNodeIndex; ++i)
     {
+      auto featureNode = nodes[i];
+      if (i % 1024 == 0)
+      {
+        this->Reader->UpdateProgress(progressStart + (progressEnd - progressStart) * i / size);
+      }
+
       vtkNew<vtkMultiBlockDataSet> groupBlock;
       ostr.str("");
       ostr << "descendant::" << gmlNamespace
@@ -916,15 +923,6 @@ public:
         {
           vtkCityGMLReader::Implementation::SetField(groupBlock, "gml_id", gmlId);
         }
-      }
-      ++i;
-      if (i >= maximumNumberOfNodes)
-      {
-        break;
-      }
-      if (i % 1024 == 0)
-      {
-        this->Reader->UpdateProgress(progressStart + (progressEnd - progressStart) * i / size);
       }
     }
   }
@@ -1036,7 +1034,8 @@ vtkCityGMLReader::vtkCityGMLReader()
   this->UseTransparencyAsOpacity = false;
   this->Impl = new Implementation(this, this->LOD, this->UseTransparencyAsOpacity);
   this->SetNumberOfInputPorts(0);
-  this->NumberOfBuildings = std::numeric_limits<int>::max();
+  this->NumberOfBuildings = this->EndBuildingIndex = std::numeric_limits<int>::max();
+  this->BeginBuildingIndex = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1050,6 +1049,23 @@ vtkCityGMLReader::~vtkCityGMLReader()
 int vtkCityGMLReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
+  int beginBuildingIndex = 0, endBuildingIndex = std::numeric_limits<int>::max();
+  if (this->NumberOfBuildings != std::numeric_limits<int>::max())
+  {
+    beginBuildingIndex = 0;
+    endBuildingIndex = this->NumberOfBuildings;
+  }
+  if (this->BeginBuildingIndex != 0 || this->EndBuildingIndex != std::numeric_limits<int>::max())
+  {
+    if (this->NumberOfBuildings != std::numeric_limits<int>::max())
+    {
+      vtkWarningMacro("Both NumberOfBuildings and (BeginBuildingIndex, EndBuildingIndex)"
+                      " are set. Using the latter form.");
+    }
+    beginBuildingIndex = this->BeginBuildingIndex;
+    endBuildingIndex = this->EndBuildingIndex;
+  }
+
   this->Impl->Initialize(this, this->LOD, this->UseTransparencyAsOpacity);
   pugi::xml_document doc;
   pugi::xml_parse_result result = doc.load_file(this->FileName);
@@ -1085,7 +1101,7 @@ int vtkCityGMLReader::RequestData(
     this->Impl->ReadMultiSurfaceGroup(doc, output, "tran", "Road", 0.475, 0.5);
     this->UpdateProgress(0.5);
     this->Impl->ReadMultiSurfaceGroup(
-      doc, output, "bldg", "Building", 0.5, 0.875, this->NumberOfBuildings);
+      doc, output, "bldg", "Building", 0.5, 0.875, beginBuildingIndex, endBuildingIndex);
     this->Impl->ReadMultiSurfaceGroup(doc, output, "frn", "CityFurniture", 0.875, 0.9);
     this->UpdateProgress(0.9);
     this->Impl->CacheImplicitGeometry(doc, "frn", "CityFurniture");
@@ -1093,6 +1109,10 @@ int vtkCityGMLReader::RequestData(
     this->Impl->InitializeImplicitGeometry();
     this->Impl->ReadMultiSurfaceGroup(doc, output, "gen", "GenericCityObject", 0.9, 0.95);
     this->Impl->ReadMultiSurfaceGroup(doc, output, "luse", "LandUse", 0.95, 1.0);
+    if (!output->GetNumberOfBlocks())
+    {
+      vtkWarningMacro("There is no data on LOD " << this->LOD << ". Try a different LOD.");
+    }
   }
   catch (pugi::xpath_exception& e)
   {
