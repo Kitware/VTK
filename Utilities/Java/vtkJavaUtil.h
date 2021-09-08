@@ -29,13 +29,17 @@ extern VTKJAVA_EXPORT std::string vtkJavaUTF8ToString(JNIEnv* env, jbyteArray by
 extern VTKJAVA_EXPORT jbyteArray vtkJavaCharsToUTF8(JNIEnv* env, const char* chars, size_t length);
 extern VTKJAVA_EXPORT jbyteArray vtkJavaStringToUTF8(JNIEnv* env, const std::string& text);
 
-extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfBoolean(JNIEnv* env, const jboolean* ptr, int size);
-extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfDouble(JNIEnv* env, const jdouble* ptr, int size);
-extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfFloat(JNIEnv* env, const jfloat* ptr, int size);
-extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfByte(JNIEnv* env, const jbyte* ptr, int size);
-extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfShort(JNIEnv* env, const jshort* ptr, int size);
-extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfInt(JNIEnv* env, const jint* ptr, int size);
-extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfLong(JNIEnv* env, const jlong* ptr, int size);
+extern VTKJAVA_EXPORT jbooleanArray vtkJavaMakeJArrayOfBoolean(
+  JNIEnv* env, const jboolean* ptr, int size);
+extern VTKJAVA_EXPORT jdoubleArray vtkJavaMakeJArrayOfDouble(
+  JNIEnv* env, const jdouble* ptr, int size);
+extern VTKJAVA_EXPORT jfloatArray vtkJavaMakeJArrayOfFloat(
+  JNIEnv* env, const jfloat* ptr, int size);
+extern VTKJAVA_EXPORT jbyteArray vtkJavaMakeJArrayOfByte(JNIEnv* env, const jbyte* ptr, int size);
+extern VTKJAVA_EXPORT jshortArray vtkJavaMakeJArrayOfShort(
+  JNIEnv* env, const jshort* ptr, int size);
+extern VTKJAVA_EXPORT jintArray vtkJavaMakeJArrayOfInt(JNIEnv* env, const jint* ptr, int size);
+extern VTKJAVA_EXPORT jlongArray vtkJavaMakeJArrayOfLong(JNIEnv* env, const jlong* ptr, int size);
 
 // this is the void pointer parameter passed to the vtk callback routines on
 // behalf of the Java interface for callbacks.
