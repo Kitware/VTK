@@ -97,7 +97,6 @@ Py_ssize_t vtkPythonGetStringSize(PyObject* o)
   {
     return PyByteArray_GET_SIZE(o);
   }
-#ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
   {
 #if PY_VERSION_HEX >= 0x03030000
@@ -112,7 +111,6 @@ Py_ssize_t vtkPythonGetStringSize(PyObject* o)
     }
 #endif
   }
-#endif
   return 0;
 }
 
@@ -128,7 +126,6 @@ bool vtkPythonGetStringValue(PyObject* o, const char*& a, const char* exctext)
     a = PyByteArray_AS_STRING(o);
     return true;
   }
-#ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
   {
 #if PY_VERSION_HEX >= 0x03030000
@@ -149,7 +146,6 @@ bool vtkPythonGetStringValue(PyObject* o, const char*& a, const char* exctext)
     }
 #endif
   }
-#endif
 
   if (exctext)
   {
@@ -168,7 +164,6 @@ inline bool vtkPythonGetStdStringValue(PyObject* o, std::string& a, const char* 
     a = std::string(val, len);
     return true;
   }
-#ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
   {
 #if PY_VERSION_HEX >= 0x03030000
@@ -190,7 +185,6 @@ inline bool vtkPythonGetStdStringValue(PyObject* o, std::string& a, const char* 
     exctext = "(unicode conversion error)";
 #endif
   }
-#endif
 
   PyErr_SetString(PyExc_TypeError, exctext);
   return false;
@@ -341,7 +335,6 @@ inline bool vtkPythonGetValue(PyObject* o, std::string& a)
 
 inline bool vtkPythonGetValue(PyObject* o, vtkUnicodeString& a)
 {
-#ifdef Py_USING_UNICODE
   PyObject* s = PyUnicode_AsUTF8String(o);
   if (s)
   {
@@ -350,11 +343,6 @@ inline bool vtkPythonGetValue(PyObject* o, vtkUnicodeString& a)
     return true;
   }
   return false;
-#else
-  a.clear();
-  PyErr_SetString(PyExc_TypeError, "python built without unicode support");
-  return false;
-#endif
 }
 
 inline bool vtkPythonGetValue(PyObject* o, char& a)

@@ -535,7 +535,6 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
           penalty = VTK_PYTHON_INCOMPATIBLE;
         }
       }
-#ifdef Py_USING_UNICODE
       else if (PyUnicode_Check(arg))
       {
 #ifdef VTK_PY3K
@@ -544,7 +543,6 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
 #endif
       }
-#endif
       else if (!PyBytes_Check(arg) && !PyByteArray_Check(arg))
       {
         penalty = VTK_PYTHON_INCOMPATIBLE;
@@ -558,7 +556,6 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
       }
       break;
 
-#ifdef Py_USING_UNICODE
     case 'u':
       // unicode string
       if (!PyUnicode_Check(arg))
@@ -572,7 +569,6 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
       }
 #endif
       break;
-#endif
 
     case 'v':
       // memory buffer (void pointer)
