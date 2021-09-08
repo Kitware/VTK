@@ -50,7 +50,7 @@ Optional dependencies:
 
   * [Python][python]
     - When using Python 2, at least 2.7 is required
-    - When using Python 3, at least 3.3 is required
+    - When using Python 3, at least 3.4 is required
   * [Qt5][qt]
     - Version 5.9 or newer
 
