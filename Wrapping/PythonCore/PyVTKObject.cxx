@@ -315,8 +315,6 @@ static Py_ssize_t PyVTKObject_AsBuffer_GetWriteBuf(PyObject* op, Py_ssize_t segm
 
 #endif
 
-#if PY_VERSION_HEX >= 0x02060000
-
 //------------------------------------------------------------------------------
 // Convert a VTK type to a python type char (struct module)
 static const char* pythonTypeFormat(int t)
@@ -410,7 +408,7 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
       view->ndim = (ncomp > 1 ? 2 : 1);
       view->format = const_cast<char*>(format);
 
-#if PY_VERSION_HEX >= 0x02070000 && PY_VERSION_HEX < 0x03030000
+#ifndef VTK_PY3K
       // use "smalltable" for 1D arrays, like memoryobject.c
       view->shape = view->smalltable;
       view->strides = &view->smalltable[1];
@@ -472,8 +470,6 @@ static void PyVTKObject_AsBuffer_ReleaseBuffer(PyObject* obj, Py_buffer* view)
   (void)view;
 }
 
-#endif
-
 //------------------------------------------------------------------------------
 PyBufferProcs PyVTKObject_AsBuffer = {
 #ifndef VTK_PY3K
@@ -482,10 +478,8 @@ PyBufferProcs PyVTKObject_AsBuffer = {
   PyVTKObject_AsBuffer_GetSegCount, // bf_getsegcount
   nullptr,                          // bf_getcharbuffer
 #endif
-#if PY_VERSION_HEX >= 0x02060000
   PyVTKObject_AsBuffer_GetBuffer,    // bf_getbuffer
   PyVTKObject_AsBuffer_ReleaseBuffer // bf_releasebuffer
-#endif
 };
 
 //------------------------------------------------------------------------------

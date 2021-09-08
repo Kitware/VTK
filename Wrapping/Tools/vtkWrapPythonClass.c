@@ -381,7 +381,7 @@ static void vtkWrapPython_GenerateObjectNew(
 
   /* add any flags specific to this type */
   fprintf(fp,
-    "#if !defined(VTK_PY3K) && PY_VERSION_HEX >= 0x02060000\n"
+    "#if !defined(VTK_PY3K)\n"
     "  pytype->tp_flags |= Py_TPFLAGS_HAVE_NEWBUFFER;\n"
     "#endif\n\n");
 

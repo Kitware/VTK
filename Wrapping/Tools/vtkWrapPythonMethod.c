@@ -1065,12 +1065,10 @@ static void vtkWrapPython_FreeTemporaries(FILE* fp, FunctionInfo* currentFunctio
     {
       /* release Py_buffer objects */
       fprintf(fp,
-        "#if PY_VERSION_HEX >= 0x02060000\n"
         "  if (pbuf%d.obj != nullptr)\n"
         "  {\n"
         "    PyBuffer_Release(&pbuf%d);\n"
-        "  }\n"
-        "#endif\n",
+        "  }\n",
         i, i);
     }
     else if (vtkWrap_IsSpecialObject(arg) && !vtkWrap_IsNonConstRef(arg))

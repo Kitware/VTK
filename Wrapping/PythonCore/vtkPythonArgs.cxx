@@ -204,9 +204,6 @@ static bool vtkPythonGetValue(PyObject* o, const void*& a, Py_buffer* view, char
   PyBufferProcs* b = Py_TYPE(o)->tp_as_buffer;
 #endif
 
-#if PY_VERSION_HEX < 0x02060000
-  (void)view;
-#else
 #ifdef VTK_PY3K
   PyObject* bytes = nullptr;
   if (PyUnicode_Check(o))
@@ -250,12 +247,8 @@ static bool vtkPythonGetValue(PyObject* o, const void*& a, Py_buffer* view, char
     }
   }
 #ifndef VTK_PY3K
-  else
-#endif
-#endif
-#ifndef VTK_PY3K
   // use the old buffer interface
-  if (b && b->bf_getreadbuffer && b->bf_getsegcount)
+  else if (b && b->bf_getreadbuffer && b->bf_getsegcount)
   {
     if (b->bf_getsegcount(o, nullptr) == 1)
     {
@@ -272,8 +265,8 @@ static bool vtkPythonGetValue(PyObject* o, const void*& a, Py_buffer* view, char
 #ifdef VTK_PY3K
   if (bytes && btype == '\0')
 #else
-    if (p && sz >= 0 && sz <= VTK_INT_MAX && btype == '\0' &&
-      (format == nullptr || format[0] == 'c' || format[0] == 'B'))
+  if (p && sz >= 0 && sz <= VTK_INT_MAX && btype == '\0' &&
+    (format == nullptr || format[0] == 'c' || format[0] == 'B'))
 #endif
   {
     // check for pointer mangled as string

@@ -468,33 +468,13 @@ static int PyVTKReference_Coerce(PyObject** ob1, PyObject** ob2)
 static PyObject* PyVTKReference_Hex(PyObject* ob)
 {
   ob = ((PyVTKReference*)ob)->value;
-#if PY_VERSION_HEX >= 0x02060000
   return PyNumber_ToBase(ob, 16);
-#else
-  if (Py_TYPE(ob)->tp_as_number && Py_TYPE(ob)->tp_as_number->nb_hex)
-  {
-    return Py_TYPE(ob)->tp_as_number->nb_hex(ob);
-  }
-
-  PyErr_SetString(PyExc_TypeError, "hex() argument can't be converted to hex");
-  return nullptr;
-#endif
 }
 
 static PyObject* PyVTKReference_Oct(PyObject* ob)
 {
   ob = ((PyVTKReference*)ob)->value;
-#if PY_VERSION_HEX >= 0x02060000
   return PyNumber_ToBase(ob, 8);
-#else
-  if (Py_TYPE(ob)->tp_as_number && Py_TYPE(ob)->tp_as_number->nb_oct)
-  {
-    return Py_TYPE(ob)->tp_as_number->nb_oct(ob);
-  }
-
-  PyErr_SetString(PyExc_TypeError, "oct() argument can't be converted to oct");
-  return nullptr;
-#endif
 }
 #endif
 
@@ -789,7 +769,6 @@ static Py_ssize_t PyVTKReference_GetCharBuf(PyObject* op, Py_ssize_t segment, ch
 }
 #endif
 
-#if PY_VERSION_HEX >= 0x02060000
 // new buffer protocol
 static int PyVTKReference_GetBuffer(PyObject* self, Py_buffer* view, int flags)
 {
@@ -801,7 +780,6 @@ static void PyVTKReference_ReleaseBuffer(PyObject*, Py_buffer* view)
 {
   PyBuffer_Release(view);
 }
-#endif
 
 static PyBufferProcs PyVTKReference_AsBuffer = {
 #ifndef VTK_PY3K
@@ -810,10 +788,8 @@ static PyBufferProcs PyVTKReference_AsBuffer = {
   PyVTKReference_GetSegCount, // bf_getsegcount
   PyVTKReference_GetCharBuf,  // bf_getcharbuffer
 #endif
-#if PY_VERSION_HEX >= 0x02060000
   PyVTKReference_GetBuffer,    // bf_getbuffer
   PyVTKReference_ReleaseBuffer // bf_releasebuffer
-#endif
 };
 
 //------------------------------------------------------------------------------
@@ -986,11 +962,7 @@ PyTypeObject PyVTKReference_Type = {
   nullptr,                // tp_as_number
   nullptr,                // tp_as_sequence
   nullptr,                // tp_as_mapping
-#if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented, // tp_hash
-#else
-  nullptr,                // tp_hash
-#endif
   nullptr,                // tp_call
   PyVTKReference_Str,     // tp_string
   PyVTKReference_GetAttr, // tp_getattro
@@ -1046,11 +1018,7 @@ PyTypeObject PyVTKNumberReference_Type = {
   &PyVTKReference_AsNumber, // tp_as_number
   nullptr,                  // tp_as_sequence
   nullptr,                  // tp_as_mapping
-#if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented, // tp_hash
-#else
-  nullptr,                  // tp_hash
-#endif
   nullptr,                  // tp_call
   PyVTKReference_Str,       // tp_string
   PyVTKReference_GetAttr,   // tp_getattro
@@ -1106,11 +1074,7 @@ PyTypeObject PyVTKStringReference_Type = {
   &PyVTKStringReference_AsNumber, // tp_as_number
   &PyVTKReference_AsSequence,     // tp_as_sequence
   &PyVTKReference_AsMapping,      // tp_as_mapping
-#if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented,    // tp_hash
-#else
-  nullptr,                        // tp_hash
-#endif
   nullptr,                        // tp_call
   PyVTKReference_Str,             // tp_string
   PyVTKReference_GetAttr,         // tp_getattro
@@ -1166,11 +1130,7 @@ PyTypeObject PyVTKTupleReference_Type = {
   nullptr,                    // tp_as_number
   &PyVTKReference_AsSequence, // tp_as_sequence
   &PyVTKReference_AsMapping,  // tp_as_mapping
-#if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented, // tp_hash
-#else
-  nullptr,                    // tp_hash
-#endif
   nullptr,                    // tp_call
   PyVTKReference_Str,         // tp_string
   PyVTKReference_GetAttr,     // tp_getattro

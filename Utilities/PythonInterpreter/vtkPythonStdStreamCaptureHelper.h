@@ -97,13 +97,10 @@ static PyMemberDef vtkPythonStdStreamCaptureHelperMembers[] = {
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+// clang-format off
 static PyTypeObject vtkPythonStdStreamCaptureHelperType = {
-#if PY_VERSION_HEX >= 0x02060000
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
-#else
-  PyObject_HEAD_INIT(&PyType_Type) 0,
-#endif
-    "vtkPythonStdStreamCaptureHelper",     // tp_name
+  "vtkPythonStdStreamCaptureHelper",       // tp_name
   sizeof(vtkPythonStdStreamCaptureHelper), // tp_basicsize
   0,                                       // tp_itemsize
   0,                                       // tp_dealloc
@@ -153,6 +150,7 @@ static PyTypeObject vtkPythonStdStreamCaptureHelperType = {
   0,                                        // PyObject *tp_weaklist;
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
 };
+// clang-format on
 
 static PyObject* vtkWrite(PyObject* self, PyObject* args)
 {
