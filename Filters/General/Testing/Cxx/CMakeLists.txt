@@ -25,6 +25,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestDeformPointSet.cxx
   TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
+  TestExtractGhostCells.cxx,NO_VALID
   TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   TestGroupDataSetsFilter.cxx,NO_VALID
   TestImageDataToPointSet.cxx,NO_VALID

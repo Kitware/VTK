@@ -42,6 +42,7 @@ set(classes
   vtkEdgePoints
   vtkEqualizerFilter
   vtkExtractArray
+  vtkExtractGhostCells
   vtkExtractSelectedFrustum
   vtkExtractSelectionBase
   vtkGradientFilter
