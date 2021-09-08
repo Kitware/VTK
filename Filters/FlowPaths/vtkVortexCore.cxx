@@ -15,11 +15,9 @@
 #include "vtkVortexCore.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkCell3D.h"
 #include "vtkCharArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkGenericCell.h"
 #include "vtkGradientFilter.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -30,6 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 #include "vtkPolygon.h"
+#include "vtkSMPTools.h"
 
 #include "vtk_eigen.h"
 #include VTK_EIGEN(Eigenvalues)
@@ -42,14 +41,26 @@
 namespace
 {
 // Computes A*b = x given a 3-matrix A and a 3-vector b.
-struct MatrixVectorMultiplyWorker
+template <typename AArrayType, typename BArrayType, typename XArrayType>
+class MatrixVectorMultiplyFunctor
 {
-  template <typename AArrayType, typename BArrayType, typename XArrayType>
-  void operator()(AArrayType* aArray, BArrayType* bArray, XArrayType* xArray)
+  AArrayType* AArray;
+  BArrayType* BArray;
+  XArrayType* XArray;
+
+public:
+  MatrixVectorMultiplyFunctor(AArrayType* aArray, BArrayType* bArray, XArrayType* xArray)
+    : AArray(aArray)
+    , BArray(bArray)
+    , XArray(xArray)
   {
-    const auto aRange = vtk::DataArrayTupleRange<9>(aArray);
-    const auto bRange = vtk::DataArrayTupleRange<3>(bArray);
-    auto xRange = vtk::DataArrayTupleRange<3>(xArray);
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    const auto aRange = vtk::DataArrayTupleRange<9>(this->AArray, begin, end);
+    const auto bRange = vtk::DataArrayTupleRange<3>(this->BArray, begin, end);
+    auto xRange = vtk::DataArrayTupleRange<3>(this->XArray, begin, end);
 
     auto a = aRange.cbegin();
     auto b = bRange.cbegin();
@@ -63,6 +74,16 @@ struct MatrixVectorMultiplyWorker
           ((*a)[0 + i * 3] * (*b)[0] + (*a)[1 + i * 3] * (*b)[1] + (*a)[2 + i * 3] * (*b)[2]);
       }
     }
+  }
+};
+
+struct MatrixVectorMultiplyWorker
+{
+  template <typename AArrayType, typename BArrayType, typename XArrayType>
+  void operator()(AArrayType* aArray, BArrayType* bArray, XArrayType* xArray)
+  {
+    MatrixVectorMultiplyFunctor<AArrayType, BArrayType, XArrayType> functor(aArray, bArray, xArray);
+    vtkSMPTools::For(0, xArray->GetNumberOfTuples(), functor);
   }
 };
 
@@ -168,13 +189,24 @@ bool computeVortexCriteria(const double s[9], const double omega[9], double vort
   return true;
 }
 
-struct ComputeCriteriaWorker
+template <typename JacobianArrayType, typename AcceptedPointsArrayType>
+class ComputeCriteriaFunctor
 {
-  template <typename JacobianArrayType, typename AcceptedPointsArrayType>
-  void operator()(JacobianArrayType* jacobianArray, AcceptedPointsArrayType* acceptedPointsArray)
+  JacobianArrayType* JacobianArray;
+  AcceptedPointsArrayType* AcceptedPointsArray;
+
+public:
+  ComputeCriteriaFunctor(
+    JacobianArrayType* jacobianArray, AcceptedPointsArrayType* acceptedPointsArray)
+    : JacobianArray(jacobianArray)
+    , AcceptedPointsArray(acceptedPointsArray)
   {
-    const auto jacobianRange = vtk::DataArrayTupleRange<9>(jacobianArray);
-    auto acceptedPointsRange = vtk::DataArrayTupleRange<1>(acceptedPointsArray);
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    const auto jacobianRange = vtk::DataArrayTupleRange<9>(this->JacobianArray, begin, end);
+    auto acceptedPointsRange = vtk::DataArrayTupleRange<1>(this->AcceptedPointsArray, begin, end);
 
     auto j = jacobianRange.cbegin();
     auto a = acceptedPointsRange.begin();
@@ -198,6 +230,17 @@ struct ComputeCriteriaWorker
       // Only use the first two criteria to discriminate points
       (*a)[0] = computeVortexCriteria(S, Omega, vortexCriteria.data(), false);
     }
+  }
+};
+
+struct ComputeCriteriaWorker
+{
+  template <typename JacobianArrayType, typename AcceptedPointsArrayType>
+  void operator()(JacobianArrayType* jacobianArray, AcceptedPointsArrayType* acceptedPointsArray)
+  {
+    ComputeCriteriaFunctor<JacobianArrayType, AcceptedPointsArrayType> functor(
+      jacobianArray, acceptedPointsArray);
+    vtkSMPTools::For(0, acceptedPointsArray->GetNumberOfTuples(), functor);
   }
 };
 }
@@ -450,7 +493,7 @@ int vtkVortexCore::RequestData(
         gradientPrime->GetOutput()->GetPointData()->GetAbstractArray("jacobian_prime"));
     }
 
-    // Next, compute the jerk field: j = J' * a
+    // Next, compute the jerk field: j = J' * v
     vtkSmartPointer<vtkDoubleArray> jerk;
     {
       jerk = vtkSmartPointer<vtkDoubleArray>::New();
@@ -466,7 +509,7 @@ int vtkVortexCore::RequestData(
       // Generate optimized workers when mags/vecs are both float|double
       if (!Dispatcher::Execute(jacobianPrime, velocity, jerk, worker))
       {
-        // Otherwise fallback to using the vtkDataArray API.
+        // Otherwise, fallback to using the vtkDataArray API.
         worker(jacobianPrime.Get(), velocity, jerk.Get());
       }
     }
@@ -501,7 +544,6 @@ int vtkVortexCore::RequestData(
   parallelVectorsForVortexCore->SetJacobianDataArray(jacobian);
   parallelVectorsForVortexCore->SetFirstVectorFieldName(vField->GetName());
   parallelVectorsForVortexCore->SetSecondVectorFieldName(wField->GetName());
-
   parallelVectorsForVortexCore->Update();
 
   vtkPolyData* parallelVectorsOutput =
