@@ -96,7 +96,9 @@ int vtkXMLWriter2::RequestUpdateExtent(
 std::tuple<std::string, std::string, std::string> vtkXMLWriter2::SplitFileName(
   const std::string& inputName)
 {
-  std::string unixPath = inputName;
+  // if it's a relative path, convert to full path first to avoid issues like
+  // paraview/paraview#20840.
+  std::string unixPath = vtksys::SystemTools::CollapseFullPath(inputName);
   vtksys::SystemTools::ConvertToUnixSlashes(unixPath);
   const auto path = vtksys::SystemTools::GetFilenamePath(unixPath);
   const auto fname = vtksys::SystemTools::GetFilenameName(unixPath);
