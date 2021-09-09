@@ -60,7 +60,8 @@ public:
 // own structs.
 struct PyVTKSpecialObject
 {
-  PyObject_HEAD PyVTKSpecialType* vtk_info;
+  PyObject_HEAD
+  PyVTKSpecialType* vtk_info;
   void* vtk_ptr;
   long vtk_hash;
 };
