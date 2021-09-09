@@ -229,12 +229,13 @@ public:
 
   ///@{
   /*
-   * Get the number of contacting cell pairs
+   * Get the number of contacting cell pairs.
+   *
+   * @note If FirstContact mode is set, it will return either 0 or 1.
+   * @warning It is mandatory to call Update() before, otherwise -1 is returned
+   * @return -1 if internal nullptr is found, otherwise the number of contacts found
    */
-  int GetNumberOfContacts()
-  {
-    return this->GetOutput(0)->GetFieldData()->GetArray("ContactCells")->GetNumberOfTuples();
-  }
+  int GetNumberOfContacts();
   ///@}
 
   ///@{Description:
