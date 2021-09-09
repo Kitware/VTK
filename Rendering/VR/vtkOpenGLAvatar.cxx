@@ -28,13 +28,12 @@
 #include "vtkFlagpoleLabel.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
-#include "vtkOpenVRCamera.h"
-#include "vtkOpenVRRay.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -43,6 +42,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkVRRay.h"
 #include "vtkVectorOperators.h"
 #include "vtkXMLPolyDataReader.h"
 
@@ -282,7 +282,7 @@ int vtkOpenGLAvatar::RenderOpaqueGeometry(vtkViewport* vp)
     if (this->LeftRay->GetShow() || this->RightRay->GetShow())
     {
       auto renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-      vtkOpenVRCamera* cam = static_cast<vtkOpenVRCamera*>(ren->GetActiveCamera());
+      vtkOpenGLCamera* cam = static_cast<vtkOpenGLCamera*>(ren->GetActiveCamera());
       if (renWin && cam)
       {
 

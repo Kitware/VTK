@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkImplicitPlaneRepresentation.h
+Module:    vtkVRPanelRepresentation.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -13,43 +13,42 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
- * @class   vtkOpenVRPanelRepresentation
- * @brief   Widget representation for vtkOpenVRPanelWidget
+ * @class   vtkVRPanelRepresentation
+ * @brief   Widget representation for vtkVRPanelWidget
  * Implementation of the popup panel representation for the
- * vtkOpenVRPanelWidget.
+ * vtkVRPanelWidget.
  * This representation is rebuilt every time the hovered prop changes.
  * Its position is set according to the camera orientation and is placed at a
  * distance defined in meters in the BuildRepresentation() method.
  *
  * WARNING: The panel might be occluded by other props.
- *   TODO: Improve placement method.
- **/
+ */
 
-#ifndef vtkOpenVRPanelRepresentation_h
-#define vtkOpenVRPanelRepresentation_h
+#ifndef vtkVRPanelRepresentation_h
+#define vtkVRPanelRepresentation_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
+#include "vtkRenderingVRModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 #include <string> // for ivar
 
 class vtkPicker;
 class vtkTextActor3D;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRPanelRepresentation : public vtkWidgetRepresentation
+class VTKRENDERINGVR_EXPORT vtkVRPanelRepresentation : public vtkWidgetRepresentation
 {
 public:
   /**
    * Instantiate the class.
    */
-  static vtkOpenVRPanelRepresentation* New();
+  static vtkVRPanelRepresentation* New();
 
-  ///@{
+  //@{
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkOpenVRPanelRepresentation, vtkWidgetRepresentation);
+  vtkTypeMacro(vtkVRPanelRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  ///@}
+  //@}
 
   // Enums define the state of the representation relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
@@ -61,9 +60,9 @@ public:
     Moving
   };
 
-  ///@{
+  //@{
   /**
-   * Methods to interface with the vtkOpenVRPanelWidget.
+   * Methods to interface with the vtkVRPanelWidget.
    */
   void BuildRepresentation() override;
   void PlaceWidget(double bounds[6]) override;
@@ -75,7 +74,7 @@ public:
     unsigned long event, void* calldata, int modify = 0) override;
   void EndComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
     unsigned long event, void* calldata) override;
-  ///@}
+  //@}
 
   // Place the widget with a few more options
   // This method allows you to place the panel
@@ -102,7 +101,7 @@ public:
   void PlaceWidgetExtended(
     const double* bounds, const double* normal, const double* upvec, double scale);
 
-  ///@{
+  //@{
   /**
    * Methods supporting the rendering process.
    */
@@ -110,14 +109,14 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  ///@}
+  //@}
 
-  ///@{
+  //@{
   /**
    * Set panel text
    */
   void SetText(const char* str);
-  ///@}
+  //@}
 
   // allow access to the underlying text actor
   // so that properties can be set
@@ -129,18 +128,18 @@ public:
   void SetCoordinateSystemToLeftController();
   void SetCoordinateSystemToRightController();
 
-  ///@{
+  //@{
   /**
    * Can the panel be relocated by the user
    */
   vtkSetMacro(AllowAdjustment, bool);
   vtkGetMacro(AllowAdjustment, bool);
   vtkBooleanMacro(AllowAdjustment, bool);
-  ///@}
+  //@}
 
 protected:
-  vtkOpenVRPanelRepresentation();
-  ~vtkOpenVRPanelRepresentation() override;
+  vtkVRPanelRepresentation();
+  ~vtkVRPanelRepresentation() override;
 
   // Keep track of event positions
   double LastEventPosition[3];
@@ -170,8 +169,8 @@ protected:
   std::string Text;
 
 private:
-  vtkOpenVRPanelRepresentation(const vtkOpenVRPanelRepresentation&) = delete;
-  void operator=(const vtkOpenVRPanelRepresentation&) = delete;
+  vtkVRPanelRepresentation(const vtkVRPanelRepresentation&) = delete;
+  void operator=(const vtkVRPanelRepresentation&) = delete;
 };
 
 #endif

@@ -51,8 +51,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRRenderWindow_h
 #define vtkOpenVRRenderWindow_h
 
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenVRModule.h" // For export macro
+#include "vtkVRRenderWindow.h"
 
 #include "vtkEventData.h"    // for enums
 #include "vtkOpenGLHelper.h" // used for ivars
@@ -67,33 +67,22 @@ class vtkOpenVROverlay;
 class vtkOpenGLVertexBufferObject;
 class vtkTransform;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRenderWindow : public vtkVRRenderWindow
 {
 public:
-  enum
-  {
-    PhysicalToWorldMatrixModified = vtkCommand::UserEvent + 200
-  };
-
   static vtkOpenVRRenderWindow* New();
-  vtkTypeMacro(vtkOpenVRRenderWindow, vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkOpenVRRenderWindow, vtkVRRenderWindow);
 
-  static bool IsHMDPresent();
+  void Initialize(void) override;
+
+  void ReleaseGraphicsResources(vtkWindow* renWin) override;
 
   /**
    * Get the system pointer
    */
   vr::IVRSystem* GetHMD() { return this->HMD; }
 
-  ///@{
-  /**
-   * Set/Get the visibility of the base stations. Defaults to false
-   */
-  vtkGetMacro(BaseStationVisibility, bool);
-  vtkSetMacro(BaseStationVisibility, bool);
-  vtkBooleanMacro(BaseStationVisibility, bool);
-  ///@}
+  static bool IsHMDPresent();
 
   /**
    * Create an interactor to control renderers in this window.
@@ -101,56 +90,65 @@ public:
    */
   vtkRenderWindowInteractor* MakeRenderWindowInteractor() override;
 
+  void Render() override;
+
+  /**
+   * Intermediate method performs operations required between the rendering
+   * of the left and right eye.
+   */
+  void StereoMidpoint() override;
+
+  /**
+   * Handles work required once both views have been rendered when using
+   * stereo rendering.
+   */
+  void StereoRenderComplete() override;
+
   /**
    * Draw the overlay
    */
   void RenderOverlay();
 
   ///@{
-  /**
+  /*
    * Set/Get the overlay to use on the VR dashboard
    */
   vtkGetObjectMacro(DashboardOverlay, vtkOpenVROverlay);
   void SetDashboardOverlay(vtkOpenVROverlay*);
   ///@}
 
+  //@{
+  /**
+   * Set/Get the visibility of the base stations. Defaults to false
+   */
+  vtkGetMacro(BaseStationVisibility, bool);
+  vtkSetMacro(BaseStationVisibility, bool);
+  vtkBooleanMacro(BaseStationVisibility, bool);
+  //@}
+
   /**
    * Update the HMD pose based on hardware pose and physical to world transform.
    * VR camera properties are directly modified based on physical to world to
    * simulate \sa PhysicalTranslation, \sa PhysicalScale, etc.
    */
-  void UpdateHMDMatrixPose();
+  void UpdateHMDMatrixPose() override;
 
-  ///@{
-  /**
-   * Get the frame buffers used for rendering
-   */
-  GLuint GetLeftResolveBufferId() { return this->LeftEyeDesc.m_nResolveFramebufferId; }
-  GLuint GetRightResolveBufferId() { return this->RightEyeDesc.m_nResolveFramebufferId; }
-  void GetRenderBufferSize(int& width, int& height)
-  {
-    width = this->Size[0];
-    height = this->Size[1];
-  }
-  ///@}
+  using vtkVRRenderWindow::GetTrackedDeviceModel;
 
   /**
    * Get the VRModel corresponding to the tracked device
    */
-  vtkOpenVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx)
-  {
-    return this->GetTrackedDeviceModel(idx, 0);
-  }
-  vtkOpenVRModel* GetTrackedDeviceModel(vr::TrackedDeviceIndex_t idx)
-  {
-    return this->TrackedDeviceToRenderModel[idx];
-  }
-  vtkOpenVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx, uint32_t index);
+  vtkVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx, uint32_t index) override;
 
   /**
    * Get the openVR Render Models
    */
   vr::IVRRenderModels* GetOpenVRRenderModels() { return this->OpenVRRenderModels; }
+
+  /**
+   * Get the EventDataDevice corresponding to the OpenVR index
+   */
+  vtkEventDataDevice GetDeviceFromDeviceIndex(vr::TrackedDeviceIndex_t index);
 
   /**
    * Get the index corresponding to the tracked device
@@ -165,260 +163,43 @@ public:
   /**
    * Get the most recent pose corresponding to the tracked device
    */
-  void GetTrackedDevicePose(vtkEventDataDevice idx, vr::TrackedDevicePose_t** pose)
+  vr::TrackedDevicePose_t* GetTrackedDevicePose(vtkEventDataDevice idx)
   {
-    return this->GetTrackedDevicePose(idx, 0, pose);
+    return this->GetTrackedDevicePose(idx, 0);
   }
-  void GetTrackedDevicePose(vtkEventDataDevice idx, uint32_t index, vr::TrackedDevicePose_t** pose);
+  vr::TrackedDevicePose_t* GetTrackedDevicePose(vtkEventDataDevice idx, uint32_t index);
   vr::TrackedDevicePose_t& GetTrackedDevicePose(vr::TrackedDeviceIndex_t idx)
   {
     return this->TrackedDevicePose[idx];
   }
 
   /**
-   * Initialize the HMD to World setting and camera settings so
-   * that the VR world view most closely matched the view from
-   * the provided camera. This method is useful for initialing
-   * a VR world from an existing on screen window and camera.
-   * The Renderer and its camera must already be created and
-   * set when this is called.
+   * Render the controller and base station models
    */
-  void InitializeViewFromCamera(vtkCamera* cam);
+  void RenderModels() override;
 
-  ///@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * View direction is the -Z axis of the physical coordinate system
-   * in world coordinate system.
-   * \sa SetPhysicalViewUp, \sa SetPhysicalTranslation,
-   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
-   */
-  virtual void SetPhysicalViewDirection(double, double, double);
-  virtual void SetPhysicalViewDirection(double[3]);
-  vtkGetVector3Macro(PhysicalViewDirection, double);
-  ///@}
+  bool GetPoseMatrixWorldFromDevice(
+    vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld) override;
 
-  ///@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * View up is the +Y axis of the physical coordinate system
-   * in world coordinate system.
-   * \sa SetPhysicalViewDirection, \sa SetPhysicalTranslation,
-   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
-   */
-  virtual void SetPhysicalViewUp(double, double, double);
-  virtual void SetPhysicalViewUp(double[3]);
-  vtkGetVector3Macro(PhysicalViewUp, double);
-  ///@}
-
-  ///@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * Position of the physical coordinate system origin
-   * in world coordinates.
-   * \sa SetPhysicalViewDirection, \sa SetPhysicalViewUp,
-   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
-   */
-  virtual void SetPhysicalTranslation(double, double, double);
-  virtual void SetPhysicalTranslation(double[3]);
-  vtkGetVector3Macro(PhysicalTranslation, double);
-  ///@}
-
-  ///@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * Ratio of distance in world coordinate and physical and system
-   * (PhysicalScale = distance_World / distance_Physical).
-   * Example: if world coordinate system is in mm then
-   * PhysicalScale = 1000.0 makes objects appear in real size.
-   * PhysicalScale = 100.0 makes objects appear 10x larger than real size.
-   */
-  virtual void SetPhysicalScale(double);
-  vtkGetMacro(PhysicalScale, double);
-  ///@}
-
-  /**
-   * Set physical to world transform matrix. Members calculated and set from the matrix:
-   * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
-   * The x axis scale is used for \sa PhysicalScale
-   */
-  void SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
-  /**
-   * Get physical to world transform matrix. Members used to calculate the matrix:
-   * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
-   */
-  void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
-
-  ///@{
-  /**
-   * When on the camera will track the HMD position.
-   * On is the default.
-   */
-  vtkSetMacro(TrackHMD, bool);
-  vtkGetMacro(TrackHMD, bool);
-  ///@}
-
-  /**
-   * Add a renderer to the list of renderers.
-   */
-  void AddRenderer(vtkRenderer*) override;
-
-  /**
-   * Begin the rendering process.
-   */
-  virtual void Start();
-
-  /**
-   * Update the system, if needed, due to stereo rendering. For some stereo
-   * methods, subclasses might need to switch some hardware settings here.
-   */
-  virtual void StereoUpdate();
-
-  /**
-   * Intermediate method performs operations required between the rendering
-   * of the left and right eye.
-   */
-  virtual void StereoMidpoint();
-
-  /**
-   * Handles work required once both views have been rendered when using
-   * stereo rendering.
-   */
-  virtual void StereoRenderComplete();
-
-  /**
-   * Initialize the rendering window.  This will setup all system-specific
-   * resources.  This method and Finalize() must be symmetric and it
-   * should be possible to call them multiple times, even changing WindowId
-   * in-between.  This is what WindowRemap does.
-   */
-  virtual void Initialize();
-
-  /**
-   * Finalize the rendering window.  This will shutdown all system-specific
-   * resources.  After having called this, it should be possible to destroy
-   * a window that was used for a SetWindowId() call without any ill effects.
-   */
-  virtual void Finalize();
-
-  /**
-   * Make this windows OpenGL context the current context.
-   */
-  void MakeCurrent();
-
-  /**
-   * Tells if this window is the current OpenGL context for the calling thread.
-   */
-  virtual bool IsCurrent();
-
-  /**
-   * Get report of capabilities for the render window
-   */
-  const char* ReportCapabilities() { return "OpenVR System"; }
-
-  /**
-   * Is this render window using hardware acceleration? 0-false, 1-true
-   */
-  vtkTypeBool IsDirect() { return 1; }
-
-  /**
-   * Check to see if a mouse button has been pressed or mouse wheel activated.
-   * All other events are ignored by this method.
-   * Maybe should return 1 always?
-   */
-  virtual vtkTypeBool GetEventPending() { return 0; }
-
-  /**
-   * Get the current size of the screen in pixels.
-   */
-  virtual int* GetScreenSize();
-
-  ///@{
-  /**
-   * Set the size of the window in screen coordinates in pixels.
-   * This resizes the operating system's window and redraws it.
-   *
-   * If the size has changed, this method will fire
-   * vtkCommand::WindowResizeEvent.
-   */
-  void SetSize(int width, int height) override;
-  void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
-  ///@}
-
-  ///@{
-  /**
-   * Set the position (x and y) of the rendering window in
-   * screen coordinates (in pixels). This resizes the operating
-   * system's view/window and redraws it.
-   */
-  void SetPosition(int x, int y) override;
-  void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
-  ///@}
-
-  // implement required virtual functions
-  virtual void* GetGenericDisplayId() { return (void*)this->HelperWindow->GetGenericDisplayId(); }
-  virtual void* GetGenericWindowId() { return (void*)this->HelperWindow->GetGenericWindowId(); }
-  virtual void* GetGenericParentId() { return (void*)nullptr; }
-  virtual void* GetGenericContext() { return (void*)this->HelperWindow->GetGenericContext(); }
-  virtual void* GetGenericDrawable() { return (void*)this->HelperWindow->GetGenericDrawable(); }
-
-  /**
-   * Does this render window support OpenGL? 0-false, 1-true
-   */
-  virtual int SupportsOpenGL() { return 1; }
-
-  /**
-   * Overridden to not release resources that would interfere with an external
-   * application's rendering. Avoiding round trip.
-   */
-  void Render();
-
-  /**
-   * Set/Get the window to use for the openGL context
-   */
-  vtkGetObjectMacro(HelperWindow, vtkOpenGLRenderWindow);
-  void SetHelperWindow(vtkOpenGLRenderWindow* val);
-
-  // Get the state object used to keep track of
-  // OpenGL state
-  vtkOpenGLState* GetState() override;
-
-  /**
-   * Free up any graphics resources associated with this window
-   * a value of nullptr means the context may already be destroyed
-   */
-  void ReleaseGraphicsResources(vtkWindow*) override;
-
-  /**
-   * Render the controller and base stattion models
-   */
-  void RenderModels();
+  void ConvertOpenVRPoseToMatrices(const vr::TrackedDevicePose_t& tdPose,
+    vtkMatrix4x4* poseMatrixWorld, vtkMatrix4x4* poseMatrixPhysical = nullptr);
 
 protected:
   vtkOpenVRRenderWindow();
   ~vtkOpenVRRenderWindow() override;
 
-  virtual void CreateAWindow() {}
-  virtual void DestroyWindow() {}
+  std::string GetWindowTitleFromAPI() override;
 
-  std::string m_strDriver;
-  std::string m_strDisplay;
-  vr::IVRSystem* HMD;
-  vr::IVRRenderModels* OpenVRRenderModels;
+  bool GetSizeFromAPI() override;
+
   bool BaseStationVisibility;
 
-  struct FramebufferDesc
-  {
-    GLuint m_nResolveTextureId;
-    GLuint m_nResolveFramebufferId;
-  };
-  FramebufferDesc LeftEyeDesc;
-  FramebufferDesc RightEyeDesc;
-  bool CreateFrameBuffer(int nWidth, int nHeight, FramebufferDesc& framebufferDesc);
+  vr::IVRSystem* HMD;
+  vr::IVRRenderModels* OpenVRRenderModels;
+
+  bool CreateFramebuffers() override;
+
+  bool CreateOneFramebuffer(int nWidth, int nHeight, FramebufferDesc& framebufferDesc);
 
   // convert a device index to a human string
   std::string GetTrackedDeviceString(vr::IVRSystem* pHmd, vr::TrackedDeviceIndex_t unDevice,
@@ -427,27 +208,10 @@ protected:
   // devices may have polygonal models
   // load them
   vtkOpenVRModel* FindOrLoadRenderModel(const char* modelName);
-  std::vector<vtkOpenVRModel*> VTKRenderModels;
-  vtkOpenVRModel* TrackedDeviceToRenderModel[vr::k_unMaxTrackedDeviceCount];
+
   vr::TrackedDevicePose_t TrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 
-  // used in computing the pose
-  vtkTransform* HMDTransform;
-  /// -Z axis of the Physical to World matrix
-  double PhysicalViewDirection[3];
-  /// Y axis of the Physical to World matrix
-  double PhysicalViewUp[3];
-  /// Inverse of the translation component of the Physical to World matrix, in mm
-  double PhysicalTranslation[3];
-  /// Scale of the Physical to World matrix
-  double PhysicalScale;
-
-  // for the overlay
   vtkOpenVROverlay* DashboardOverlay;
-
-  bool TrackHMD;
-
-  vtkOpenGLRenderWindow* HelperWindow;
 
 private:
   vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&) = delete;

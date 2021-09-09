@@ -11,33 +11,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenVRFollower.h"
+#include "vtkVRFollower.h"
 
 #include "vtkCamera.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenVRRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
+#include "vtkVRRenderWindow.h"
 
-vtkStandardNewMacro(vtkOpenVRFollower);
-
-vtkOpenVRFollower::vtkOpenVRFollower() = default;
-
-vtkOpenVRFollower::~vtkOpenVRFollower() = default;
+vtkStandardNewMacro(vtkVRFollower);
 
 //------------------------------------------------------------------------------
 // This causes the actor to be rendered. It, in turn, will render the actor's
 // property and then mapper.
-void vtkOpenVRFollower::Render(vtkRenderer* ren)
+void vtkVRFollower::Render(vtkRenderer* ren)
 {
-  vtkOpenVRRenderWindow* renWin = static_cast<vtkOpenVRRenderWindow*>(ren->GetVTKWindow());
+  vtkVRRenderWindow* renWin = static_cast<vtkVRRenderWindow*>(ren->GetVTKWindow());
 
   renWin->GetPhysicalViewUp(this->LastViewUp);
   this->Superclass::Render(ren);
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRFollower::ComputeMatrix()
+void vtkVRFollower::ComputeMatrix()
 {
   // check whether or not need to rebuild the matrix
   // only rebuild on left eye otherwise we get two different
@@ -149,7 +145,10 @@ void vtkOpenVRFollower::ComputeMatrix()
   }
 }
 
-void vtkOpenVRFollower::PrintSelf(ostream& os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkVRFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "LastViewUp: " << this->LastViewUp << "\n";
 }

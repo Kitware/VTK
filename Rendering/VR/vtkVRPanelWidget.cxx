@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkOpenVRPanelWidget.cxx
+Module:    vtkVRPanelWidget.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,8 +12,8 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenVRPanelWidget.h"
-#include "vtkOpenVRPanelRepresentation.h"
+#include "vtkVRPanelWidget.h"
+#include "vtkVRPanelRepresentation.h"
 
 #include "vtkCallbackCommand.h"
 #include "vtkEventData.h"
@@ -22,12 +22,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkStandardNewMacro(vtkOpenVRPanelWidget);
+vtkStandardNewMacro(vtkVRPanelWidget);
 
 //------------------------------------------------------------------------------
-vtkOpenVRPanelWidget::vtkOpenVRPanelWidget()
+vtkVRPanelWidget::vtkVRPanelWidget()
 {
-  this->WidgetState = vtkOpenVRPanelWidget::Start;
+  this->WidgetState = vtkVRPanelWidget::Start;
 
   {
     vtkNew<vtkEventDataDevice3D> ed;
@@ -35,7 +35,7 @@ vtkOpenVRPanelWidget::vtkOpenVRPanelWidget()
     ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Press);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed, vtkWidgetEvent::Select3D,
-      this, vtkOpenVRPanelWidget::SelectAction3D);
+      this, vtkVRPanelWidget::SelectAction3D);
   }
 
   {
@@ -44,52 +44,49 @@ vtkOpenVRPanelWidget::vtkOpenVRPanelWidget()
     ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Release);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed,
-      vtkWidgetEvent::EndSelect3D, this, vtkOpenVRPanelWidget::EndSelectAction3D);
+      vtkWidgetEvent::EndSelect3D, this, vtkVRPanelWidget::EndSelectAction3D);
   }
 
   {
     vtkNew<vtkEventDataDevice3D> ed;
     ed->SetDevice(vtkEventDataDevice::Any);
     ed->SetInput(vtkEventDataDeviceInput::Any);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D,
-      this, vtkOpenVRPanelWidget::MoveAction3D);
+    this->CallbackMapper->SetCallbackMethod(
+      vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D, this, vtkVRPanelWidget::MoveAction3D);
   }
 }
 
 //------------------------------------------------------------------------------
-vtkOpenVRPanelWidget::~vtkOpenVRPanelWidget() = default;
-
-//------------------------------------------------------------------------------
-void vtkOpenVRPanelWidget::SetRepresentation(vtkOpenVRPanelRepresentation* rep)
+void vtkVRPanelWidget::SetRepresentation(vtkVRPanelRepresentation* rep)
 {
   this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(rep));
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelWidget::CreateDefaultRepresentation()
+void vtkVRPanelWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
   {
-    this->WidgetRep = vtkOpenVRPanelRepresentation::New();
+    this->WidgetRep = vtkVRPanelRepresentation::New();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelWidget::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVRPanelWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelWidget::SelectAction3D(vtkAbstractWidget* w)
+void vtkVRPanelWidget::SelectAction3D(vtkAbstractWidget* w)
 {
-  vtkOpenVRPanelWidget* self = reinterpret_cast<vtkOpenVRPanelWidget*>(w);
+  vtkVRPanelWidget* self = reinterpret_cast<vtkVRPanelWidget*>(w);
 
   // We want to compute an orthogonal vector to the plane that has been selected
   int interactionState = self->WidgetRep->ComputeComplexInteractionState(
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
 
-  if (interactionState == vtkOpenVRPanelRepresentation::Outside)
+  if (interactionState == vtkVRPanelRepresentation::Outside)
   {
     return;
   }
@@ -100,7 +97,7 @@ void vtkOpenVRPanelWidget::SelectAction3D(vtkAbstractWidget* w)
     self->GrabFocus(self->EventCallbackCommand);
   }
 
-  self->WidgetState = vtkOpenVRPanelWidget::Active;
+  self->WidgetState = vtkVRPanelWidget::Active;
   self->WidgetRep->StartComplexInteraction(
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
 
@@ -110,12 +107,12 @@ void vtkOpenVRPanelWidget::SelectAction3D(vtkAbstractWidget* w)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelWidget::MoveAction3D(vtkAbstractWidget* w)
+void vtkVRPanelWidget::MoveAction3D(vtkAbstractWidget* w)
 {
-  vtkOpenVRPanelWidget* self = reinterpret_cast<vtkOpenVRPanelWidget*>(w);
+  vtkVRPanelWidget* self = reinterpret_cast<vtkVRPanelWidget*>(w);
 
   // See whether we're active
-  if (self->WidgetState == vtkOpenVRPanelWidget::Start)
+  if (self->WidgetState == vtkVRPanelWidget::Start)
   {
     return;
   }
@@ -130,13 +127,13 @@ void vtkOpenVRPanelWidget::MoveAction3D(vtkAbstractWidget* w)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelWidget::EndSelectAction3D(vtkAbstractWidget* w)
+void vtkVRPanelWidget::EndSelectAction3D(vtkAbstractWidget* w)
 {
-  vtkOpenVRPanelWidget* self = reinterpret_cast<vtkOpenVRPanelWidget*>(w);
+  vtkVRPanelWidget* self = reinterpret_cast<vtkVRPanelWidget*>(w);
 
   // See whether we're active
-  if (self->WidgetState != vtkOpenVRPanelWidget::Active ||
-    self->WidgetRep->GetInteractionState() == vtkOpenVRPanelRepresentation::Outside)
+  if (self->WidgetState != vtkVRPanelWidget::Active ||
+    self->WidgetRep->GetInteractionState() == vtkVRPanelRepresentation::Outside)
   {
     return;
   }
@@ -145,7 +142,7 @@ void vtkOpenVRPanelWidget::EndSelectAction3D(vtkAbstractWidget* w)
   self->WidgetRep->EndComplexInteraction(
     self->Interactor, self, vtkWidgetEvent::EndSelect3D, self->CallData);
 
-  self->WidgetState = vtkOpenVRPanelWidget::Start;
+  self->WidgetState = vtkVRPanelWidget::Start;
   if (!self->Parent)
   {
     self->ReleaseFocus();

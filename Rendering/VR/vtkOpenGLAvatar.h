@@ -24,17 +24,17 @@
 #define vtkOpenGLAvatar_h
 
 #include "vtkAvatar.h"
-#include "vtkNew.h"                   // for ivars
-#include "vtkRenderingOpenVRModule.h" // For export macro
+#include "vtkNew.h"               // for ivars
+#include "vtkRenderingVRModule.h" // For export macro
 
 class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
 class vtkOpenGLRenderer;
-class vtkOpenVRRay;
+class vtkVRRay;
 class vtkFlagpoleLabel;
 class vtkTextProperty;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenGLAvatar : public vtkAvatar
+class VTKRENDERINGVR_EXPORT vtkOpenGLAvatar : public vtkAvatar
 {
 public:
   static vtkOpenGLAvatar* New();
@@ -44,7 +44,6 @@ public:
   /**
    * Actual Avatar render method.
    */
-  // void Render(vtkRenderer *ren, vtkMapper *mapper) override;
   int RenderOpaqueGeometry(vtkViewport* vp) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* vp) override;
 
@@ -78,8 +77,8 @@ protected:
   vtkNew<vtkOpenGLPolyDataMapper> BodyMapper[NUM_BODY];
   vtkNew<vtkOpenGLActor> BodyActor[NUM_BODY];
 
-  vtkNew<vtkOpenVRRay> LeftRay;
-  vtkNew<vtkOpenVRRay> RightRay;
+  vtkNew<vtkVRRay> LeftRay;
+  vtkNew<vtkVRRay> RightRay;
 
   vtkNew<vtkFlagpoleLabel> LabelActor;
 

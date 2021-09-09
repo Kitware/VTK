@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkOpenVRModel.cxx
+Module:    vtkVRRay.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,29 +12,28 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenVRRay.h"
+#include "vtkVRRay.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkOpenVRRenderWindow.h"
-// #include "vtkOpenVRCamera.h"
-#include "vtkOpenGLVertexArrayObject.h"
-#include "vtkOpenGLVertexBufferObject.h"
-// #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLHelper.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkRendererCollection.h"
 #include "vtkShaderProgram.h"
-// #include "vtkRenderWindowInteractor.h"
-// #include "vtkInteractorObserver.h"
+
+#include "vtk_glew.h"
 
 /*=========================================================================
-vtkOpenVRRay
+vtkVRRay
 =========================================================================*/
-vtkStandardNewMacro(vtkOpenVRRay);
+vtkStandardNewMacro(vtkVRRay);
 
-vtkOpenVRRay::vtkOpenVRRay()
+//------------------------------------------------------------------------------
+vtkVRRay::vtkVRRay()
 {
   this->Show = false;
   this->Length = 1.0f;
@@ -45,26 +44,35 @@ vtkOpenVRRay::vtkOpenVRRay()
   this->RayVBO = vtkOpenGLVertexBufferObject::New();
 };
 
-vtkOpenVRRay::~vtkOpenVRRay()
+//------------------------------------------------------------------------------
+vtkVRRay::~vtkVRRay()
 {
   this->RayVBO->Delete();
   this->RayVBO = nullptr;
 }
 
-void vtkOpenVRRay::PrintSelf(ostream& os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkVRRay::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Loaded " << (this->Loaded ? "On\n" : "Off\n");
+  os << indent << "Show " << (this->Show ? "On\n" : "Off\n");
+  os << indent << "Length: " << this->Length << "\n";
+  os << indent << "Color: (" << this->Color[0] << ", " << this->Color[1] << "," << this->Color[2]
+     << ")\n";
+  this->PoseMatrix->PrintSelf(os, indent);
 }
 
-void vtkOpenVRRay::ReleaseGraphicsResources(vtkRenderWindow* win)
+//------------------------------------------------------------------------------
+void vtkVRRay::ReleaseGraphicsResources(vtkRenderWindow* win)
 {
   this->RayVBO->ReleaseGraphicsResources();
   this->RayHelper.ReleaseGraphicsResources(win);
 }
 
-bool vtkOpenVRRay::Build(vtkOpenGLRenderWindow* win)
+//------------------------------------------------------------------------------
+bool vtkVRRay::Build(vtkOpenGLRenderWindow* win)
 {
   // Ray geometry
   float vert[] = { 0, 0, 0, 0, 0, -1 };
@@ -105,7 +113,8 @@ bool vtkOpenVRRay::Build(vtkOpenGLRenderWindow* win)
   return true;
 }
 
-void vtkOpenVRRay::Render(vtkOpenGLRenderWindow* win, vtkMatrix4x4* poseMatrix)
+//------------------------------------------------------------------------------
+void vtkVRRay::Render(vtkOpenGLRenderWindow* win, vtkMatrix4x4* poseMatrix)
 {
   // Load ray
   if (!this->Loaded)

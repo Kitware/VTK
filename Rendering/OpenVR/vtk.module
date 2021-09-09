@@ -2,9 +2,8 @@ NAME
   VTK::RenderingOpenVR
 LIBRARY_NAME
   vtkRenderingOpenVR
-IMPLEMENTS
-  VTK::RenderingCore
 DEPENDS
+  VTK::RenderingVR
   VTK::CommonCore
   VTK::IOImage
   VTK::IOXMLParser

@@ -12,20 +12,20 @@
 
 =========================================================================*/
 
-#include "vtkOpenVRCollaborationClient.h"
+#include "vtkVRCollaborationClient.h"
 
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLAvatar.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenVRModel.h"
-#include "vtkOpenVRRenderWindow.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTextProperty.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
+#include "vtkVRModel.h"
+#include "vtkVRRenderWindow.h"
 
 #include <sstream>
 #include <zmq.h>
@@ -91,7 +91,7 @@ void _zmq_sock_clear(void* socket)
   this->Log(verbosity, ss.str());
 
 // PIMPL to keep zeromq out of the class interface
-class vtkOpenVRCollaborationClientInternal
+class vtkVRCollaborationClientInternal
 {
 public:
   void* Context;
@@ -99,7 +99,7 @@ public:
   void* Subscriber;
   zmq_pollitem_t CollabPollItems[2];
 
-  vtkOpenVRCollaborationClientInternal()
+  vtkVRCollaborationClientInternal()
     : CollabPollItems{ { nullptr, 0, ZMQ_POLLIN, 0 }, { nullptr, 0, ZMQ_POLLIN, 0 } }
   {
     // ceate context
@@ -117,7 +117,7 @@ public:
     this->CollabPollItems[1].socket = this->Subscriber;
   }
 
-  ~vtkOpenVRCollaborationClientInternal()
+  ~vtkVRCollaborationClientInternal()
   {
     if (this->Requester)
     {
@@ -135,16 +135,16 @@ public:
   }
 };
 
-vtkStandardNewMacro(vtkOpenVRCollaborationClient);
+vtkStandardNewMacro(vtkVRCollaborationClient);
 
-vtkOpenVRCollaborationClient::vtkOpenVRCollaborationClient()
+vtkVRCollaborationClient::vtkVRCollaborationClient()
   : Connected(false)
   , DisplayOwnAvatar(false)
   , MoveObserver(-1)
   , Callback(nullptr)
   , YourLastAvatarUpdateTime(0.0)
 {
-  this->Internal = new vtkOpenVRCollaborationClientInternal();
+  this->Internal = new vtkVRCollaborationClientInternal();
 
   this->CollabPort = 5555;
   // Position MineView Zeromq, default when none is specified.
@@ -156,23 +156,23 @@ vtkOpenVRCollaborationClient::vtkOpenVRCollaborationClient()
 
   this->EventCommand = vtkCallbackCommand::New();
   this->EventCommand->SetClientData(this);
-  this->EventCommand->SetCallback(vtkOpenVRCollaborationClient::EventCallback);
+  this->EventCommand->SetCallback(vtkVRCollaborationClient::EventCallback);
 
   // setup default scale callback
   this->ScaleCallback = [this]() {
-    auto ovrrw = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+    auto ovrrw = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
     return ovrrw ? ovrrw->GetPhysicalScale() : 1.0;
   };
 }
 
-vtkOpenVRCollaborationClient::~vtkOpenVRCollaborationClient()
+vtkVRCollaborationClient::~vtkVRCollaborationClient()
 {
   this->Disconnect();
   this->EventCommand->Delete();
   delete this->Internal;
 }
 
-void vtkOpenVRCollaborationClient::Log(vtkLogger::Verbosity verbosity, std::string const& msg)
+void vtkVRCollaborationClient::Log(vtkLogger::Verbosity verbosity, std::string const& msg)
 {
   if (this->Callback)
   {
@@ -184,7 +184,7 @@ void vtkOpenVRCollaborationClient::Log(vtkLogger::Verbosity verbosity, std::stri
   }
 }
 
-void vtkOpenVRCollaborationClient::Disconnect()
+void vtkVRCollaborationClient::Disconnect()
 {
   if (!this->Connected)
   {
@@ -217,7 +217,7 @@ void vtkOpenVRCollaborationClient::Disconnect()
   this->CollabID.clear();
 }
 
-void vtkOpenVRCollaborationClient::AddArguments(vtksys::CommandLineArguments& arguments)
+void vtkVRCollaborationClient::AddArguments(vtksys::CommandLineArguments& arguments)
 {
   typedef vtksys::CommandLineArguments argT;
 
@@ -234,7 +234,7 @@ void vtkOpenVRCollaborationClient::AddArguments(vtksys::CommandLineArguments& ar
     "(default false) Show an avatar at my own position.");
 }
 
-void vtkOpenVRCollaborationClient::Render()
+void vtkVRCollaborationClient::Render()
 {
   if (this->Connected)
   {
@@ -248,7 +248,7 @@ void vtkOpenVRCollaborationClient::Render()
   }
 }
 
-void vtkOpenVRCollaborationClient::UpdateAvatarPoseFromCamera()
+void vtkVRCollaborationClient::UpdateAvatarPoseFromCamera()
 {
   // act like a Move3D event for the head
   int idevice = static_cast<int>(vtkEventDataDevice::HeadMountedDisplay);
@@ -269,7 +269,7 @@ void vtkOpenVRCollaborationClient::UpdateAvatarPoseFromCamera()
   this->SendLatestDevicePoses();
 }
 
-void vtkOpenVRCollaborationClient::SendLatestDevicePoses()
+void vtkVRCollaborationClient::SendLatestDevicePoses()
 {
   // don't send a message if we haven't gotten one during the last
   // heartbeat. View messages, however, are always sent (queued).
@@ -312,7 +312,7 @@ void vtkOpenVRCollaborationClient::SendLatestDevicePoses()
 
     double scale = this->ScaleCallback();
 
-    std::vector<vtkOpenVRCollaborationClient::Argument> args;
+    std::vector<vtkVRCollaborationClient::Argument> args;
     args.resize(3);
     args[0].SetInt32Vector(devices.data(), static_cast<int32_t>(devices.size()));
     args[1].SetDoubleVector(poses.data(), static_cast<int32_t>(poses.size()));
@@ -322,7 +322,7 @@ void vtkOpenVRCollaborationClient::SendLatestDevicePoses()
   }
 }
 
-void vtkOpenVRCollaborationClient::SendAMessage(
+void vtkVRCollaborationClient::SendAMessage(
   std::string const& msgType, std::vector<Argument> const& args)
 {
   if (this->CollabID.empty())
@@ -379,7 +379,7 @@ void vtkOpenVRCollaborationClient::SendAMessage(
   }
 }
 
-bool vtkOpenVRCollaborationClient::Argument::GetString(std::string& result)
+bool vtkVRCollaborationClient::Argument::GetString(std::string& result)
 {
   if (this->Type != String || !this->Data)
   {
@@ -393,7 +393,7 @@ bool vtkOpenVRCollaborationClient::Argument::GetString(std::string& result)
   return true;
 }
 
-void vtkOpenVRCollaborationClient::Argument::SetString(std::string const& in)
+void vtkVRCollaborationClient::Argument::SetString(std::string const& in)
 {
   this->Type = String;
   this->Count = static_cast<uint16_t>(in.size() + 1);
@@ -403,7 +403,7 @@ void vtkOpenVRCollaborationClient::Argument::SetString(std::string const& in)
   cdata[in.size()] = 0;
 }
 
-bool vtkOpenVRCollaborationClient::Argument::GetStringVector(std::vector<std::string>& result)
+bool vtkVRCollaborationClient::Argument::GetStringVector(std::vector<std::string>& result)
 {
   if (this->Type != String || !this->Data)
   {
@@ -425,7 +425,7 @@ bool vtkOpenVRCollaborationClient::Argument::GetStringVector(std::vector<std::st
   return true;
 }
 
-void vtkOpenVRCollaborationClient::Argument::SetStringVector(std::vector<std::string> const& in)
+void vtkVRCollaborationClient::Argument::SetStringVector(std::vector<std::string> const& in)
 {
   this->Type = String;
 
@@ -450,7 +450,7 @@ void vtkOpenVRCollaborationClient::Argument::SetStringVector(std::vector<std::st
   }
 }
 
-bool vtkOpenVRCollaborationClient::Argument::GetDoubleVector(std::vector<double>& result)
+bool vtkVRCollaborationClient::Argument::GetDoubleVector(std::vector<double>& result)
 {
   if (this->Type != Double || !this->Data)
   {
@@ -463,7 +463,7 @@ bool vtkOpenVRCollaborationClient::Argument::GetDoubleVector(std::vector<double>
   return true;
 }
 
-void vtkOpenVRCollaborationClient::Argument::SetDoubleVector(double const* in, uint16_t size)
+void vtkVRCollaborationClient::Argument::SetDoubleVector(double const* in, uint16_t size)
 {
   this->Type = Double;
   this->Count = size;
@@ -472,7 +472,7 @@ void vtkOpenVRCollaborationClient::Argument::SetDoubleVector(double const* in, u
   std::copy(in, in + size, cdata);
 }
 
-void vtkOpenVRCollaborationClient::Argument::SetDouble(double in)
+void vtkVRCollaborationClient::Argument::SetDouble(double in)
 {
   this->Type = Double;
   this->Count = 1;
@@ -481,7 +481,7 @@ void vtkOpenVRCollaborationClient::Argument::SetDouble(double in)
   this->Data = std::shared_ptr<void>(cdata, free);
 }
 
-bool vtkOpenVRCollaborationClient::Argument::GetDouble(double& result)
+bool vtkVRCollaborationClient::Argument::GetDouble(double& result)
 {
   if (this->Type != Double || !this->Data || this->Count != 1)
   {
@@ -493,7 +493,7 @@ bool vtkOpenVRCollaborationClient::Argument::GetDouble(double& result)
   return true;
 }
 
-bool vtkOpenVRCollaborationClient::Argument::GetInt32Vector(std::vector<int32_t>& result)
+bool vtkVRCollaborationClient::Argument::GetInt32Vector(std::vector<int32_t>& result)
 {
   if (this->Type != Int32 || !this->Data)
   {
@@ -506,7 +506,7 @@ bool vtkOpenVRCollaborationClient::Argument::GetInt32Vector(std::vector<int32_t>
   return true;
 }
 
-void vtkOpenVRCollaborationClient::Argument::SetInt32Vector(int32_t const* in, uint16_t size)
+void vtkVRCollaborationClient::Argument::SetInt32Vector(int32_t const* in, uint16_t size)
 {
   this->Type = Int32;
   this->Count = size;
@@ -515,7 +515,7 @@ void vtkOpenVRCollaborationClient::Argument::SetInt32Vector(int32_t const* in, u
   std::copy(in, in + size, cdata);
 }
 
-void vtkOpenVRCollaborationClient::Argument::SetInt32(int32_t in)
+void vtkVRCollaborationClient::Argument::SetInt32(int32_t in)
 {
   this->Type = Int32;
   this->Count = 1;
@@ -524,7 +524,7 @@ void vtkOpenVRCollaborationClient::Argument::SetInt32(int32_t in)
   this->Data = std::shared_ptr<void>(cdata, free);
 }
 
-bool vtkOpenVRCollaborationClient::Argument::GetInt32(int32_t& result)
+bool vtkVRCollaborationClient::Argument::GetInt32(int32_t& result)
 {
   if (this->Type != Int32 || !this->Data || this->Count != 1)
   {
@@ -536,8 +536,7 @@ bool vtkOpenVRCollaborationClient::Argument::GetInt32(int32_t& result)
   return true;
 }
 
-std::vector<vtkOpenVRCollaborationClient::Argument>
-vtkOpenVRCollaborationClient::GetMessageArguments()
+std::vector<vtkVRCollaborationClient::Argument> vtkVRCollaborationClient::GetMessageArguments()
 {
   std::vector<Argument> result;
 
@@ -600,7 +599,7 @@ vtkOpenVRCollaborationClient::GetMessageArguments()
   return result;
 }
 
-void vtkOpenVRCollaborationClient::SendAMessage(std::string const& msgType)
+void vtkVRCollaborationClient::SendAMessage(std::string const& msgType)
 {
   if (this->CollabID.empty())
   {
@@ -614,10 +613,10 @@ void vtkOpenVRCollaborationClient::SendAMessage(std::string const& msgType)
   zmq_send(this->Internal->Requester, msgType.c_str(), msgType.size(), 0);
 }
 
-void vtkOpenVRCollaborationClient::SendPoseMessage(
+void vtkVRCollaborationClient::SendPoseMessage(
   std::string const& msgType, int index, double pos[3], double dir[3])
 {
-  std::vector<vtkOpenVRCollaborationClient::Argument> args;
+  std::vector<vtkVRCollaborationClient::Argument> args;
   args.resize(3);
   args[0].SetInt32(index);
   args[1].SetDoubleVector(pos, 3);
@@ -625,7 +624,7 @@ void vtkOpenVRCollaborationClient::SendPoseMessage(
   this->SendAMessage(msgType, args);
 }
 
-void vtkOpenVRCollaborationClient::HandleBroadcastMessage(
+void vtkVRCollaborationClient::HandleBroadcastMessage(
   std::string const& otherID, std::string const& type)
 {
   if (type == "A")
@@ -711,7 +710,7 @@ void vtkOpenVRCollaborationClient::HandleBroadcastMessage(
     {
       mvLog(vtkLogger::VERBOSITY_INFO, "Collab " << otherID << " return from idle " << std::endl);
 
-      std::vector<vtkOpenVRCollaborationClient::Argument> args2;
+      std::vector<vtkVRCollaborationClient::Argument> args2;
       args2.resize(1);
       args2[0].SetString(this->CollabID);
       this->SendAMessage("J", args2);
@@ -739,7 +738,7 @@ void vtkOpenVRCollaborationClient::HandleBroadcastMessage(
     mvLog(vtkLogger::VERBOSITY_INFO, "Collab " << otherID << ", Join" << std::endl);
     if (!this->CollabName.empty())
     {
-      std::vector<vtkOpenVRCollaborationClient::Argument> args2;
+      std::vector<vtkVRCollaborationClient::Argument> args2;
       args2.resize(1);
       args2[0].SetString(this->CollabName);
       this->SendAMessage("N", args2);
@@ -792,7 +791,7 @@ void vtkOpenVRCollaborationClient::HandleBroadcastMessage(
   }
 }
 
-vtkSmartPointer<vtkOpenGLAvatar> vtkOpenVRCollaborationClient::GetAvatar(std::string otherID)
+vtkSmartPointer<vtkOpenGLAvatar> vtkVRCollaborationClient::GetAvatar(std::string otherID)
 {
   // if it's from a new collaborator, add an avatar
   if (this->Avatars.count(otherID) == 0)
@@ -821,10 +820,10 @@ vtkSmartPointer<vtkOpenGLAvatar> vtkOpenVRCollaborationClient::GetAvatar(std::st
     {
       // Display only the hands
       newAvatar->SetShowHandsOnly(true);
-      auto ovrrw = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+      auto ovrrw = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
       if (ovrrw)
       {
-        vtkOpenVRModel* cmodel = ovrrw->GetTrackedDeviceModel(vtkEventDataDevice::LeftController);
+        vtkVRModel* cmodel = ovrrw->GetTrackedDeviceModel(vtkEventDataDevice::LeftController);
         if (cmodel)
         {
           cmodel->SetVisibility(false);
@@ -844,7 +843,7 @@ vtkSmartPointer<vtkOpenGLAvatar> vtkOpenVRCollaborationClient::GetAvatar(std::st
   return this->Avatars[otherID];
 }
 
-void vtkOpenVRCollaborationClient::HandleCollabMessage()
+void vtkVRCollaborationClient::HandleCollabMessage()
 {
   double currTime = vtkTimerLog::GetUniversalTime();
   bool receivedMsg = true;
@@ -925,7 +924,7 @@ void vtkOpenVRCollaborationClient::HandleCollabMessage()
         {
           this->PublishAvailable = true;
           // send join message, to trigger view setup.
-          std::vector<vtkOpenVRCollaborationClient::Argument> args;
+          std::vector<vtkVRCollaborationClient::Argument> args;
           args.resize(1);
           args[0].SetString(this->CollabID);
           this->SendAMessage("J", args);
@@ -980,7 +979,7 @@ void vtkOpenVRCollaborationClient::HandleCollabMessage()
   } while (receivedMsg);
 }
 
-bool vtkOpenVRCollaborationClient::AvatarIdle(std::string id)
+bool vtkVRCollaborationClient::AvatarIdle(std::string id)
 {
   double currTime = vtkTimerLog::GetUniversalTime();
   auto times = this->AvatarUpdateTime[id];
@@ -997,7 +996,7 @@ bool vtkOpenVRCollaborationClient::AvatarIdle(std::string id)
   return (currTime - avatarTime > timeout);
 }
 
-void vtkOpenVRCollaborationClient::EraseIdleAvatars()
+void vtkVRCollaborationClient::EraseIdleAvatars()
 {
   double currTime = vtkTimerLog::GetUniversalTime();
   for (auto it : this->AvatarUpdateTime)
@@ -1015,7 +1014,7 @@ void vtkOpenVRCollaborationClient::EraseIdleAvatars()
       this->Avatars.erase(it.first);
       this->AvatarUpdateTime.erase(it.first);
       // send join message, to trigger view setup.
-      std::vector<vtkOpenVRCollaborationClient::Argument> args;
+      std::vector<vtkVRCollaborationClient::Argument> args;
       args.resize(1);
       args[0].SetString(this->CollabID);
       this->SendAMessage("J", args);
@@ -1049,10 +1048,10 @@ void vtkOpenVRCollaborationClient::EraseIdleAvatars()
   }
 }
 
-void vtkOpenVRCollaborationClient::EventCallback(
+void vtkVRCollaborationClient::EventCallback(
   vtkObject*, unsigned long eventID, void* clientdata, void* calldata)
 {
-  vtkOpenVRCollaborationClient* self = static_cast<vtkOpenVRCollaborationClient*>(clientdata);
+  vtkVRCollaborationClient* self = static_cast<vtkVRCollaborationClient*>(clientdata);
 
   if (eventID == vtkCommand::Move3DEvent)
   {
@@ -1105,7 +1104,7 @@ void vtkOpenVRCollaborationClient::EventCallback(
 
 // disconnect if needed, then connect to server.
 // Retry count is set externally.
-bool vtkOpenVRCollaborationClient::Initialize(vtkOpenGLRenderer* ren)
+bool vtkVRCollaborationClient::Initialize(vtkOpenGLRenderer* ren)
 {
   if (!ren)
   {
@@ -1164,7 +1163,7 @@ bool vtkOpenVRCollaborationClient::Initialize(vtkOpenGLRenderer* ren)
   // async reply, so get ID in HandleCollabMessage()
 
   // add observer based on VR versus windowed
-  if (this->RenderWindow->IsA("vtkOpenVRRenderWindow"))
+  if (this->RenderWindow->IsA("vtkVRRenderWindow"))
   {
     if (this->MoveObserver == -1)
     {
@@ -1177,7 +1176,7 @@ bool vtkOpenVRCollaborationClient::Initialize(vtkOpenGLRenderer* ren)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRCollaborationClient::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVRCollaborationClient::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

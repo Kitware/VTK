@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkImplicitPlaneRepresentation.h
+Module:    vtkVRMenuRepresentation.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -13,10 +13,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
- * @class   vtkOpenVRMenuRepresentation
- * @brief   Widget representation for vtkOpenVRPanelWidget
+ * @class   vtkVRMenuRepresentation
+ * @brief   Widget representation for vtkVRMenuWidget
  * Implementation of the popup panel representation for the
- * vtkOpenVRPanelWidget.
+ * vtkVRMenuWidget.
  * This representation is rebuilt every time the selected/hovered prop changes.
  * Its position is set according to the camera orientation and is placed at a
  * distance defined in meters in the BuildRepresentation() method.
@@ -25,10 +25,10 @@ PURPOSE.  See the above copyright notice for more information.
  *   TODO: Improve placement method.
  **/
 
-#ifndef vtkOpenVRMenuRepresentation_h
-#define vtkOpenVRMenuRepresentation_h
+#ifndef vtkVRMenuRepresentation_h
+#define vtkVRMenuRepresentation_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
+#include "vtkRenderingVRModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 #include <deque> // for ivar
 
@@ -40,25 +40,25 @@ class vtkCellArray;
 class vtkPoints;
 class vtkTextActor3D;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRMenuRepresentation : public vtkWidgetRepresentation
+class VTKRENDERINGVR_EXPORT vtkVRMenuRepresentation : public vtkWidgetRepresentation
 {
 public:
   /**
    * Instantiate the class.
    */
-  static vtkOpenVRMenuRepresentation* New();
+  static vtkVRMenuRepresentation* New();
 
   ///@{
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkOpenVRMenuRepresentation, vtkWidgetRepresentation);
+  vtkTypeMacro(vtkVRMenuRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
   ///@{
   /**
-   * Methods to interface with the vtkOpenVRPanelWidget.
+   * Methods to interface with the vtkVRMenuWidget.
    */
   void BuildRepresentation() override;
 
@@ -92,8 +92,8 @@ public:
   vtkGetMacro(CurrentOption, double);
 
 protected:
-  vtkOpenVRMenuRepresentation();
-  ~vtkOpenVRMenuRepresentation() override;
+  vtkVRMenuRepresentation();
+  ~vtkVRMenuRepresentation() override;
 
   class InternalElement;
   std::deque<InternalElement*> Menus;
@@ -106,8 +106,8 @@ protected:
   double PlacedOrientation[3];
 
 private:
-  vtkOpenVRMenuRepresentation(const vtkOpenVRMenuRepresentation&) = delete;
-  void operator=(const vtkOpenVRMenuRepresentation&) = delete;
+  vtkVRMenuRepresentation(const vtkVRMenuRepresentation&) = delete;
+  void operator=(const vtkVRMenuRepresentation&) = delete;
 };
 
 #endif

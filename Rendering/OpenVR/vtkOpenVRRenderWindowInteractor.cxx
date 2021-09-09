@@ -23,6 +23,7 @@
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
+#include "vtkVRRenderWindow.h"
 
 #include "vtkEventData.h"
 
@@ -64,26 +65,26 @@ vtkOpenVRRenderWindowInteractor::~vtkOpenVRRenderWindowInteractor() = default;
 
 void vtkOpenVRRenderWindowInteractor::SetPhysicalScale(double scale)
 {
-  vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
   win->SetPhysicalScale(scale);
 }
 
 double vtkOpenVRRenderWindowInteractor::GetPhysicalScale()
 {
-  vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
   return win->GetPhysicalScale();
 }
 
 void vtkOpenVRRenderWindowInteractor::SetPhysicalTranslation(
   vtkCamera*, double t1, double t2, double t3)
 {
-  vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
   win->SetPhysicalTranslation(t1, t2, t3);
 }
 
 double* vtkOpenVRRenderWindowInteractor::GetPhysicalTranslation(vtkCamera*)
 {
-  vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
   return win->GetPhysicalTranslation();
 }
 
@@ -111,7 +112,7 @@ void vtkOpenVRRenderWindowInteractor::ConvertOpenVRPoseToMatrices(
 
   if (poseMatrixWorld)
   {
-    vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+    vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
     vtkNew<vtkMatrix4x4> physicalToWorldMatrix;
     win->GetPhysicalToWorldMatrix(physicalToWorldMatrix);
     vtkMatrix4x4::Multiply4x4(physicalToWorldMatrix, poseMatrixPhysicalTemp, poseMatrixWorld);
@@ -125,7 +126,21 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
   double ppos[3], // Output physical position
   double wdir[3]) // Output world view direction (-Z)
 {
-  vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  // Convenience function to use the openvr-independant function
+  // TODO: remove it
+  this->ConvertPoseMatrixToWorldCoordinates(
+    tdPose.mDeviceToAbsoluteTracking.m, pos, wxyz, ppos, wdir);
+}
+
+void vtkOpenVRRenderWindowInteractor::ConvertPoseMatrixToWorldCoordinates(
+  const float poseMatrix[3][4],
+  double pos[3],  // Output world position
+  double wxyz[4], // Output world orientation quaternion
+  double ppos[3], // Output physical position
+  double wdir[3]) // Output world view direction (-Z)
+{
+  // TODO: define it in generic superclass VRRenderWindowInteractor
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
   double physicalScale = win->GetPhysicalScale();
   double* trans = win->GetPhysicalTranslation();
 
@@ -137,19 +152,19 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
 
   // extract HMD axes
   double hvright[3];
-  hvright[0] = tdPose.mDeviceToAbsoluteTracking.m[0][0];
-  hvright[1] = tdPose.mDeviceToAbsoluteTracking.m[1][0];
-  hvright[2] = tdPose.mDeviceToAbsoluteTracking.m[2][0];
+  hvright[0] = poseMatrix[0][0];
+  hvright[1] = poseMatrix[1][0];
+  hvright[2] = poseMatrix[2][0];
   double hvup[3];
-  hvup[0] = tdPose.mDeviceToAbsoluteTracking.m[0][1];
-  hvup[1] = tdPose.mDeviceToAbsoluteTracking.m[1][1];
-  hvup[2] = tdPose.mDeviceToAbsoluteTracking.m[2][1];
+  hvup[0] = poseMatrix[0][1];
+  hvup[1] = poseMatrix[1][1];
+  hvup[2] = poseMatrix[2][1];
 
   // convert position to world coordinates
   // get the position and orientation of the button press
   for (int i = 0; i < 3; i++)
   {
-    ppos[i] = tdPose.mDeviceToAbsoluteTracking.m[i][3];
+    ppos[i] = poseMatrix[i][3];
   }
 
   pos[0] = ppos[0] * vright[0] + ppos[1] * vup[0] - ppos[2] * dop[0];
@@ -536,7 +551,7 @@ void vtkOpenVRRenderWindowInteractor::HandleGripEvents(vtkEventData* ed)
     this->StartingPhysicalEventPositions[this->PointerIndex][2] =
       this->PhysicalEventPositions[this->PointerIndex][2];
 
-    vtkOpenVRRenderWindow* renWin = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+    vtkVRRenderWindow* renWin = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
     renWin->GetPhysicalToWorldMatrix(this->StartingPhysicalToWorldMatrix);
 
     // Both controllers have the grip down, start multitouch
@@ -688,7 +703,7 @@ void vtkOpenVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice
     if (this->CurrentGesture == vtkCommand::PanEvent)
     {
       // Vive to world axes
-      vtkOpenVRRenderWindow* win = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+      vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
       double* vup = win->GetPhysicalViewUp();
       double* dop = win->GetPhysicalViewDirection();
       double physicalScale = win->GetPhysicalScale();
@@ -753,7 +768,7 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
     return;
   }
 
-  vtkOpenVRRenderWindow* ren = vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  vtkVRRenderWindow* ren = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
   int* size;
 
   this->Initialized = 1;

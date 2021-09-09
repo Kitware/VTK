@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkOpenVRHardwarePicker.cxx
+Module:    vtkVRHardwarePicker.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,42 +12,28 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenVRHardwarePicker.h"
+#include "vtkVRHardwarePicker.h"
 
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
 #include "vtkHardwareSelector.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenVRRenderWindow.h"
-#include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkTransform.h"
+#include "vtkVRRenderWindow.h"
 
-vtkStandardNewMacro(vtkOpenVRHardwarePicker);
-
-vtkOpenVRHardwarePicker::vtkOpenVRHardwarePicker()
-{
-  this->Selection = nullptr;
-}
-
-vtkOpenVRHardwarePicker::~vtkOpenVRHardwarePicker()
-{
-  if (this->Selection)
-  {
-    this->Selection->Delete();
-  }
-}
+vtkStandardNewMacro(vtkVRHardwarePicker);
 
 // set up for a pick
-void vtkOpenVRHardwarePicker::Initialize()
+void vtkVRHardwarePicker::Initialize()
 {
   this->Superclass::Initialize();
 }
 
 // Pick from the given collection
-int vtkOpenVRHardwarePicker::PickProp(
+int vtkVRHardwarePicker::PickProp(
   double p0[3], double wxyz[4], vtkRenderer* renderer, vtkPropCollection*, bool actorPassOnly)
 {
   //  Initialize picking process
@@ -57,7 +43,7 @@ int vtkOpenVRHardwarePicker::PickProp(
   // Invoke start pick method if defined
   this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
 
-  vtkOpenVRRenderWindow* renWin = vtkOpenVRRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  vtkVRRenderWindow* renWin = vtkVRRenderWindow::SafeDownCast(renderer->GetRenderWindow());
   if (!renWin)
   {
     return 0;
@@ -121,7 +107,13 @@ int vtkOpenVRHardwarePicker::PickProp(
   }
 }
 
-void vtkOpenVRHardwarePicker::PrintSelf(ostream& os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkVRHardwarePicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  if (this->Selection)
+  {
+    this->Selection->PrintSelf(os, indent);
+  }
 }

@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkOpenVRMenuWidget.h
+Module:    vtkVRMenuWidget.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -13,38 +13,38 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
- * @class   vtkOpenVRMenuWidget
+ * @class   vtkVRMenuWidget
  * @brief   3D widget to display a menu in VR
  *
  * @sa
- * vtkOpenVRMenuRepresentation
+ * vtkVRMenuRepresentation
  */
 
-#ifndef vtkOpenVRMenuWidget_h
-#define vtkOpenVRMenuWidget_h
+#ifndef vtkVRMenuWidget_h
+#define vtkVRMenuWidget_h
 
 #include "vtkAbstractWidget.h"
-#include "vtkRenderingOpenVRModule.h" // For export macro
-#include <deque>                      // for ivar
+#include "vtkRenderingVRModule.h" // For export macro
+#include <deque>                  // for ivar
 
 class vtkEventData;
-class vtkOpenVRMenuRepresentation;
+class vtkVRMenuRepresentation;
 class vtkPropMap;
 class vtkProp;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRMenuWidget : public vtkAbstractWidget
+class VTKRENDERINGVR_EXPORT vtkVRMenuWidget : public vtkAbstractWidget
 {
 public:
   /**
    * Instantiate the object.
    */
-  static vtkOpenVRMenuWidget* New();
+  static vtkVRMenuWidget* New();
 
   ///@{
   /**
    * Standard vtkObject methods
    */
-  vtkTypeMacro(vtkOpenVRMenuWidget, vtkAbstractWidget);
+  vtkTypeMacro(vtkVRMenuWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
@@ -53,7 +53,7 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkOpenVRMenuRepresentation* rep);
+  void SetRepresentation(vtkVRMenuRepresentation* rep);
 
   /**
    * Create the default widget representation if one is not set.
@@ -85,11 +85,11 @@ public:
   ///@}
 
   void Show(vtkEventData* ed);
-  void ShowSubMenu(vtkOpenVRMenuWidget*);
+  void ShowSubMenu(vtkVRMenuWidget*);
 
 protected:
-  vtkOpenVRMenuWidget();
-  ~vtkOpenVRMenuWidget() override;
+  vtkVRMenuWidget();
+  ~vtkVRMenuWidget() override;
 
   int WidgetState;
 
@@ -111,7 +111,7 @@ protected:
   static void Update(vtkAbstractWidget*);
 
 private:
-  vtkOpenVRMenuWidget(const vtkOpenVRMenuWidget&) = delete;
-  void operator=(const vtkOpenVRMenuWidget&) = delete;
+  vtkVRMenuWidget(const vtkVRMenuWidget&) = delete;
+  void operator=(const vtkVRMenuWidget&) = delete;
 };
 #endif

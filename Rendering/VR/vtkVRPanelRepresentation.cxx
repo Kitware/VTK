@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkOpenVRPanelRepresentation.cxx
+Module:    vtkVRPanelRepresentation.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,31 +12,26 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenVRPanelRepresentation.h"
+#include "vtkVRPanelRepresentation.h"
 
 #include "vtkCamera.h"
 #include "vtkEventData.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenVRRenderWindow.h"
 #include "vtkQuaternion.h"
 #include "vtkRenderer.h"
 #include "vtkTextActor3D.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
+#include "vtkVRRenderWindow.h"
 #include "vtkVectorOperators.h"
 
-#include "vtkOpenVRRenderWindowInteractor.h"
-
-// todo
-// - use text bounds for position/scale (done)
-// - fix bearing to be correct (done)
-// - make sure adjustment of the panel works for controllers (done)
+// TODO
 // - add option to remove crop planes
 
-vtkStandardNewMacro(vtkOpenVRPanelRepresentation);
+vtkStandardNewMacro(vtkVRPanelRepresentation);
 
 //------------------------------------------------------------------------------
-vtkOpenVRPanelRepresentation::vtkOpenVRPanelRepresentation()
+vtkVRPanelRepresentation::vtkVRPanelRepresentation()
 {
   this->TextActor = vtkTextActor3D::New();
   this->TextActor->GetTextProperty()->SetFontSize(17);
@@ -55,18 +50,19 @@ vtkOpenVRPanelRepresentation::vtkOpenVRPanelRepresentation()
   prop->SetBackgroundColor(0.0, 0.0, 0.0);
   prop->SetFontSize(25);
 
-  this->InteractionState = vtkOpenVRPanelRepresentation::Outside;
+  this->InteractionState = vtkVRPanelRepresentation::Outside;
   this->CoordinateSystem = World;
   this->AllowAdjustment = true;
 }
 
 //------------------------------------------------------------------------------
-vtkOpenVRPanelRepresentation::~vtkOpenVRPanelRepresentation()
+vtkVRPanelRepresentation::~vtkVRPanelRepresentation()
 {
   this->TextActor->Delete();
 }
 
-void vtkOpenVRPanelRepresentation::SetCoordinateSystemToWorld()
+//------------------------------------------------------------------------------
+void vtkVRPanelRepresentation::SetCoordinateSystemToWorld()
 {
   if (this->CoordinateSystem == World)
   {
@@ -77,7 +73,8 @@ void vtkOpenVRPanelRepresentation::SetCoordinateSystemToWorld()
   this->Modified();
 }
 
-void vtkOpenVRPanelRepresentation::SetCoordinateSystemToHMD()
+//------------------------------------------------------------------------------
+void vtkVRPanelRepresentation::SetCoordinateSystemToHMD()
 {
   if (this->CoordinateSystem == HMD)
   {
@@ -87,7 +84,8 @@ void vtkOpenVRPanelRepresentation::SetCoordinateSystemToHMD()
   this->Modified();
 }
 
-void vtkOpenVRPanelRepresentation::SetCoordinateSystemToLeftController()
+//------------------------------------------------------------------------------
+void vtkVRPanelRepresentation::SetCoordinateSystemToLeftController()
 {
   if (this->CoordinateSystem == LeftController)
   {
@@ -97,7 +95,8 @@ void vtkOpenVRPanelRepresentation::SetCoordinateSystemToLeftController()
   this->Modified();
 }
 
-void vtkOpenVRPanelRepresentation::SetCoordinateSystemToRightController()
+//------------------------------------------------------------------------------
+void vtkVRPanelRepresentation::SetCoordinateSystemToRightController()
 {
   if (this->CoordinateSystem == RightController)
   {
@@ -107,10 +106,11 @@ void vtkOpenVRPanelRepresentation::SetCoordinateSystemToRightController()
   this->Modified();
 }
 
-int vtkOpenVRPanelRepresentation::ComputeComplexInteractionState(
+//------------------------------------------------------------------------------
+int vtkVRPanelRepresentation::ComputeComplexInteractionState(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata, int)
 {
-  if (!this->AllowAdjustment || this->InteractionState == vtkOpenVRPanelRepresentation::Moving)
+  if (!this->AllowAdjustment || this->InteractionState == vtkVRPanelRepresentation::Moving)
   {
     return this->InteractionState;
   }
@@ -130,18 +130,19 @@ int vtkOpenVRPanelRepresentation::ComputeComplexInteractionState(
     if (pos[0] > bds[0] - tolerance && pos[0] < bds[1] + tolerance && pos[1] > bds[2] - tolerance &&
       pos[1] < bds[3] + tolerance && pos[2] > bds[4] - tolerance && pos[2] < bds[5] + tolerance)
     {
-      this->InteractionState = vtkOpenVRPanelRepresentation::Moving;
+      this->InteractionState = vtkVRPanelRepresentation::Moving;
     }
     else
     {
-      this->InteractionState = vtkOpenVRPanelRepresentation::Outside;
+      this->InteractionState = vtkVRPanelRepresentation::Outside;
     }
   }
 
   return this->InteractionState;
 }
 
-void vtkOpenVRPanelRepresentation::StartComplexInteraction(
+//------------------------------------------------------------------------------
+void vtkVRPanelRepresentation::StartComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
   vtkEventData* edata = static_cast<vtkEventData*>(calldata);
@@ -158,7 +159,8 @@ void vtkOpenVRPanelRepresentation::StartComplexInteraction(
   }
 }
 
-void vtkOpenVRPanelRepresentation::ComplexInteraction(
+//------------------------------------------------------------------------------
+void vtkVRPanelRepresentation::ComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
   vtkEventData* edata = static_cast<vtkEventData*>(calldata);
@@ -171,7 +173,7 @@ void vtkOpenVRPanelRepresentation::ComplexInteraction(
     edd->GetWorldOrientation(eventDir);
 
     // Process the motion
-    if (this->InteractionState == vtkOpenVRPanelRepresentation::Moving)
+    if (this->InteractionState == vtkVRPanelRepresentation::Moving)
     {
       // this->TranslateOutline(this->LastEventPosition, eventPos);
       this->UpdatePose(this->LastEventPosition, this->LastEventOrientation, eventPos, eventDir);
@@ -186,16 +188,16 @@ void vtkOpenVRPanelRepresentation::ComplexInteraction(
   }
 }
 
-void vtkOpenVRPanelRepresentation::EndComplexInteraction(
+//------------------------------------------------------------------------------
+void vtkVRPanelRepresentation::EndComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void*)
 {
-  this->InteractionState = vtkOpenVRPanelRepresentation::Outside;
+  this->InteractionState = vtkVRPanelRepresentation::Outside;
 }
 
 //------------------------------------------------------------------------------
 // Loop through all points and translate and rotate them
-void vtkOpenVRPanelRepresentation::UpdatePose(
-  double* p1, double* orient1, double* p2, double* orient2)
+void vtkVRPanelRepresentation::UpdatePose(double* p1, double* orient1, double* p2, double* orient2)
 {
   if (this->CoordinateSystem == World)
   {
@@ -328,13 +330,13 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::ReleaseGraphicsResources(vtkWindow* w)
+void vtkVRPanelRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->TextActor->ReleaseGraphicsResources(w);
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer* ren)
+void vtkVRPanelRepresentation::ComputeMatrix(vtkRenderer* ren)
 {
   // check whether or not need to rebuild the matrix
   // only rebuild on left eye otherwise we get two different
@@ -342,7 +344,7 @@ void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer* ren)
   vtkCamera* cam = ren->GetActiveCamera();
   if (this->CoordinateSystem != World && cam->GetLeftEye())
   {
-    vtkOpenVRRenderWindow* rw = static_cast<vtkOpenVRRenderWindow*>(ren->GetVTKWindow());
+    vtkVRRenderWindow* rw = static_cast<vtkVRRenderWindow*>(ren->GetVTKWindow());
 
     if (this->CoordinateSystem == HMD)
     {
@@ -365,36 +367,20 @@ void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer* ren)
       }
     }
 
-    if (this->CoordinateSystem == LeftController)
-    {
-      vr::TrackedDevicePose_t* tdPose;
-      rw->GetTrackedDevicePose(vtkEventDataDevice::LeftController, &tdPose);
-      if (tdPose && tdPose->bPoseIsValid)
-      {
-        vtkNew<vtkMatrix4x4> poseMatrixWorld;
-        static_cast<vtkOpenVRRenderWindowInteractor*>(rw->GetInteractor())
-          ->ConvertOpenVRPoseToMatrices(*tdPose, poseMatrixWorld);
-        this->TextActor->GetUserMatrix()->DeepCopy(poseMatrixWorld);
-      }
-    }
+    vtkEventDataDevice device = this->CoordinateSystem == LeftController
+      ? vtkEventDataDevice::LeftController
+      : vtkEventDataDevice::RightController;
 
-    if (this->CoordinateSystem == RightController)
+    vtkNew<vtkMatrix4x4> poseMatrixWorld;
+    if (rw->GetPoseMatrixWorldFromDevice(device, poseMatrixWorld))
     {
-      vr::TrackedDevicePose_t* tdPose;
-      rw->GetTrackedDevicePose(vtkEventDataDevice::RightController, &tdPose);
-      if (tdPose && tdPose->bPoseIsValid)
-      {
-        vtkNew<vtkMatrix4x4> poseMatrixWorld;
-        static_cast<vtkOpenVRRenderWindowInteractor*>(rw->GetInteractor())
-          ->ConvertOpenVRPoseToMatrices(*tdPose, poseMatrixWorld);
-        this->TextActor->GetUserMatrix()->DeepCopy(poseMatrixWorld);
-      }
+      this->TextActor->GetUserMatrix()->DeepCopy(poseMatrixWorld);
     }
   }
 }
 
 //------------------------------------------------------------------------------
-int vtkOpenVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport* v)
+int vtkVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   if (!this->GetVisibility())
   {
@@ -413,7 +399,7 @@ int vtkOpenVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 }
 
 //------------------------------------------------------------------------------
-int vtkOpenVRPanelRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
+int vtkVRPanelRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   if (!this->GetVisibility())
   {
@@ -426,7 +412,7 @@ int vtkOpenVRPanelRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport
 }
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkOpenVRPanelRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkVRPanelRepresentation::HasTranslucentPolygonalGeometry()
 {
   if (!this->GetVisibility())
   {
@@ -441,7 +427,7 @@ vtkTypeBool vtkOpenVRPanelRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::PlaceWidget(double bds[6])
+void vtkVRPanelRepresentation::PlaceWidget(double bds[6])
 {
   this->TextActor->GetUserMatrix()->Identity();
   if (this->CoordinateSystem == World)
@@ -466,7 +452,7 @@ void vtkOpenVRPanelRepresentation::PlaceWidget(double bds[6])
   }
 }
 
-void vtkOpenVRPanelRepresentation::PlaceWidgetExtended(
+void vtkVRPanelRepresentation::PlaceWidgetExtended(
   const double* bds, const double* normal, const double* upvec, double scale)
 {
   this->TextActor->GetUserMatrix()->Identity();
@@ -543,7 +529,7 @@ void vtkOpenVRPanelRepresentation::PlaceWidgetExtended(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::BuildRepresentation()
+void vtkVRPanelRepresentation::BuildRepresentation()
 {
   // if (this->GetMTime() > this->BuildTime)
   // {
@@ -562,13 +548,13 @@ void vtkOpenVRPanelRepresentation::BuildRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVRPanelRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::SetText(const char* text)
+void vtkVRPanelRepresentation::SetText(const char* text)
 {
   if (this->Text == text)
   {

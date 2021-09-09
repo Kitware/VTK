@@ -30,9 +30,9 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkCell;
 class vtkPlane;
 class vtkOpenVRControlsHelper;
-class vtkOpenVRHardwarePicker;
-class vtkOpenVRMenuRepresentation;
-class vtkOpenVRMenuWidget;
+class vtkVRHardwarePicker;
+class vtkVRMenuRepresentation;
+class vtkVRMenuWidget;
 class vtkTextActor3D;
 class vtkSelection;
 class vtkSphereSource;
@@ -150,7 +150,7 @@ public:
   void SetInteractor(vtkRenderWindowInteractor* iren) override;
 
   // allow the user to add options to the menu
-  vtkOpenVRMenuWidget* GetMenu() { return this->Menu.Get(); }
+  vtkVRMenuWidget* GetMenu() { return this->Menu.Get(); }
 
 protected:
   vtkOpenVRInteractorStyle();
@@ -161,8 +161,8 @@ protected:
   // Ray drawing
   void UpdateRay(vtkEventDataDevice controller);
 
-  vtkNew<vtkOpenVRMenuWidget> Menu;
-  vtkNew<vtkOpenVRMenuRepresentation> MenuRepresentation;
+  vtkNew<vtkVRMenuWidget> Menu;
+  vtkNew<vtkVRMenuRepresentation> MenuRepresentation;
   vtkCallbackCommand* MenuCommand;
   static void MenuCallback(
     vtkObject* object, unsigned long event, void* clientdata, void* calldata);
@@ -192,7 +192,7 @@ protected:
   vtkProp3D* InteractionProps[vtkEventDataNumberOfDevices];
   vtkPlane* ClippingPlanes[vtkEventDataNumberOfDevices];
 
-  vtkNew<vtkOpenVRHardwarePicker> HardwarePicker;
+  vtkNew<vtkVRHardwarePicker> HardwarePicker;
 
   /**
    * Controls helpers drawing

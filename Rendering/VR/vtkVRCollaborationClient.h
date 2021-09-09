@@ -16,13 +16,13 @@
 // It relies on ZeroMQ to communicate with a collaboration server
 // to exchance avatar names and poses and potentially other messages.
 
-#ifndef vtkOpenVRCollaborationClient_h
-#define vtkOpenVRCollaborationClient_h
+#ifndef vtkVRCollaborationClient_h
+#define vtkVRCollaborationClient_h
 
 #include "vtkEventData.h" // for ivars
 #include "vtkLogger.h"    // for Verbosity enum
 #include "vtkObject.h"
-#include "vtkRenderingOpenVRModule.h"      // For export macro
+#include "vtkRenderingVRModule.h"          // For export macro
 #include "vtkSmartPointer.h"               // method sig
 #include "vtksys/CommandLineArguments.hxx" // for method sig
 #include <array>                           // for ivar
@@ -37,16 +37,16 @@ class vtkOpenGLAvatar;
 class vtkOpenGLRenderer;
 class vtkOpenGLRenderWindow;
 class vtkTransform;
-class vtkOpenVRCollaborationClientInternal;
+class vtkVRCollaborationClientInternal;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRCollaborationClient : public vtkObject
+class VTKRENDERINGVR_EXPORT vtkVRCollaborationClient : public vtkObject
 {
 public:
-  static vtkOpenVRCollaborationClient* New();
-  vtkTypeMacro(vtkOpenVRCollaborationClient, vtkObject);
+  static vtkVRCollaborationClient* New();
+  vtkTypeMacro(vtkVRCollaborationClient, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkOpenVRCollaborationClient(const vtkOpenVRCollaborationClient&) = delete;
-  vtkOpenVRCollaborationClient& operator=(const vtkOpenVRCollaborationClient&) = delete;
+  vtkVRCollaborationClient(const vtkVRCollaborationClient&) = delete;
+  vtkVRCollaborationClient& operator=(const vtkVRCollaborationClient&) = delete;
 
   // when sending messages we have to marshal arguments so we have a simple
   // class to encapsulate an argument. The method to send a message takes a
@@ -59,7 +59,7 @@ public:
     String
   };
 
-  class VTKRENDERINGOPENVR_EXPORT Argument
+  class VTKRENDERINGVR_EXPORT Argument
   {
   public:
     bool GetString(std::string& result);
@@ -127,8 +127,8 @@ public:
   bool GetConnected() { return this->Connected; }
 
 protected:
-  vtkOpenVRCollaborationClient();
-  ~vtkOpenVRCollaborationClient() override;
+  vtkVRCollaborationClient();
+  ~vtkVRCollaborationClient() override;
 
   void Log(vtkLogger::Verbosity verbosity, std::string const& msg);
 
@@ -186,7 +186,7 @@ protected:
   std::map<std::string, double[vtkEventDataNumberOfDevices]> AvatarUpdateTime;
 
   // PIMPL to keep zeromq out of the interface for this class
-  vtkOpenVRCollaborationClientInternal* Internal;
+  vtkVRCollaborationClientInternal* Internal;
 };
 
 #endif

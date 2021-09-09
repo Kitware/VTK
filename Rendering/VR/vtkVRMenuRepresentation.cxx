@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkOpenVRMenuRepresentation.cxx
+Module:    vtkVRMenuRepresentation.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,12 +12,12 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenVRMenuRepresentation.h"
+#include "vtkVRMenuRepresentation.h"
 
 #include "vtkEventData.h"
 #include "vtkMatrix4x4.h"
-#include "vtkOpenVRRenderWindow.h"
 #include "vtkTransform.h"
+#include "vtkVRRenderWindow.h"
 
 #include "vtkActor.h"
 #include "vtkAssemblyPath.h"
@@ -40,11 +40,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkWidgetEvent.h"
 
-//#include "vtk_glew.h"
+vtkStandardNewMacro(vtkVRMenuRepresentation);
 
-vtkStandardNewMacro(vtkOpenVRMenuRepresentation);
-
-class vtkOpenVRMenuRepresentation::InternalElement
+class vtkVRMenuRepresentation::InternalElement
 {
 public:
   vtkNew<vtkTextActor3D> TextActor;
@@ -68,22 +66,21 @@ public:
 };
 
 //------------------------------------------------------------------------------
-vtkOpenVRMenuRepresentation::vtkOpenVRMenuRepresentation()
+vtkVRMenuRepresentation::vtkVRMenuRepresentation()
 {
   this->VisibilityOff();
 }
 
 //------------------------------------------------------------------------------
-vtkOpenVRMenuRepresentation::~vtkOpenVRMenuRepresentation()
+vtkVRMenuRepresentation::~vtkVRMenuRepresentation()
 {
   this->RemoveAllMenuItems();
 }
 
-void vtkOpenVRMenuRepresentation::PushFrontMenuItem(
-  const char* name, const char* text, vtkCommand* cmd)
+//------------------------------------------------------------------------------
+void vtkVRMenuRepresentation::PushFrontMenuItem(const char* name, const char* text, vtkCommand* cmd)
 {
-  vtkOpenVRMenuRepresentation::InternalElement* el =
-    new vtkOpenVRMenuRepresentation::InternalElement();
+  vtkVRMenuRepresentation::InternalElement* el = new vtkVRMenuRepresentation::InternalElement();
   el->TextActor->SetInput(text);
   el->Command = cmd;
   el->Name = name;
@@ -91,7 +88,8 @@ void vtkOpenVRMenuRepresentation::PushFrontMenuItem(
   this->Modified();
 }
 
-void vtkOpenVRMenuRepresentation::RenameMenuItem(const char* name, const char* text)
+//------------------------------------------------------------------------------
+void vtkVRMenuRepresentation::RenameMenuItem(const char* name, const char* text)
 {
   for (auto itr : this->Menus)
   {
@@ -103,7 +101,8 @@ void vtkOpenVRMenuRepresentation::RenameMenuItem(const char* name, const char* t
   }
 }
 
-void vtkOpenVRMenuRepresentation::RemoveMenuItem(const char* name)
+//------------------------------------------------------------------------------
+void vtkVRMenuRepresentation::RemoveMenuItem(const char* name)
 {
   for (auto itr = this->Menus.begin(); itr != this->Menus.end(); ++itr)
   {
@@ -117,7 +116,8 @@ void vtkOpenVRMenuRepresentation::RemoveMenuItem(const char* name)
   }
 }
 
-void vtkOpenVRMenuRepresentation::RemoveAllMenuItems()
+//------------------------------------------------------------------------------
+void vtkVRMenuRepresentation::RemoveAllMenuItems()
 {
   while (!this->Menus.empty())
   {
@@ -127,7 +127,8 @@ void vtkOpenVRMenuRepresentation::RemoveAllMenuItems()
   }
 }
 
-void vtkOpenVRMenuRepresentation::StartComplexInteraction(
+//------------------------------------------------------------------------------
+void vtkVRMenuRepresentation::StartComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
   vtkEventData* edata = static_cast<vtkEventData*>(calldata);
@@ -141,13 +142,15 @@ void vtkOpenVRMenuRepresentation::StartComplexInteraction(
   }
 }
 
-void vtkOpenVRMenuRepresentation::EndComplexInteraction(
+//------------------------------------------------------------------------------
+void vtkVRMenuRepresentation::EndComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void*)
 {
   this->VisibilityOff();
 }
 
-void vtkOpenVRMenuRepresentation::ComplexInteraction(
+//------------------------------------------------------------------------------
+void vtkVRMenuRepresentation::ComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long event, void* calldata)
 {
   switch (event)
@@ -178,8 +181,8 @@ void vtkOpenVRMenuRepresentation::ComplexInteraction(
       }
       const double* dir = ed->GetWorldDirection();
       // adjust CurrentOption based on controller orientation
-      vtkOpenVRRenderWindow* renWin =
-        static_cast<vtkOpenVRRenderWindow*>(this->Renderer->GetRenderWindow());
+      vtkVRRenderWindow* renWin =
+        static_cast<vtkVRRenderWindow*>(this->Renderer->GetRenderWindow());
       double* vup = renWin->GetPhysicalViewUp();
       double dot = vtkMath::Dot(dir, vup);
       this->CurrentOption -= dot * 0.12;
@@ -197,7 +200,7 @@ void vtkOpenVRMenuRepresentation::ComplexInteraction(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuRepresentation::ReleaseGraphicsResources(vtkWindow* w)
+void vtkVRMenuRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   for (auto& menu : this->Menus)
   {
@@ -206,15 +209,14 @@ void vtkOpenVRMenuRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 }
 
 //------------------------------------------------------------------------------
-int vtkOpenVRMenuRepresentation::RenderOverlay(vtkViewport* v)
+int vtkVRMenuRepresentation::RenderOverlay(vtkViewport* v)
 {
   if (!this->GetVisibility())
   {
     return 0;
   }
 
-  vtkOpenVRRenderWindow* renWin =
-    static_cast<vtkOpenVRRenderWindow*>(this->Renderer->GetRenderWindow());
+  vtkVRRenderWindow* renWin = static_cast<vtkVRRenderWindow*>(this->Renderer->GetRenderWindow());
   vtkOpenGLState* ostate = renWin->GetState();
 
   // always draw over the rest
@@ -229,16 +231,15 @@ int vtkOpenVRMenuRepresentation::RenderOverlay(vtkViewport* v)
 }
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkOpenVRMenuRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkVRMenuRepresentation::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuRepresentation::BuildRepresentation()
+void vtkVRMenuRepresentation::BuildRepresentation()
 {
-  vtkOpenVRRenderWindow* renWin =
-    static_cast<vtkOpenVRRenderWindow*>(this->Renderer->GetRenderWindow());
+  vtkVRRenderWindow* renWin = static_cast<vtkVRRenderWindow*>(this->Renderer->GetRenderWindow());
   double physicalScale = renWin->GetPhysicalScale();
 
   if (this->GetMTime() > this->BuildTime)
@@ -321,7 +322,20 @@ void vtkOpenVRMenuRepresentation::BuildRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuRepresentation::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVRMenuRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "CurrentOption: " << this->CurrentOption << "\n";
+
+  os << indent << "PlacedPos: (" << this->PlacedPos[0] << ", " << this->PlacedPos[1] << ","
+     << this->PlacedPos[2] << ")\n";
+  os << indent << "PlacedDOP: (" << this->PlacedDOP[0] << ", " << this->PlacedDOP[1] << ","
+     << this->PlacedDOP[2] << ")\n";
+  os << indent << "PlacedVUP: (" << this->PlacedVUP[0] << ", " << this->PlacedVUP[1] << ","
+     << this->PlacedVUP[2] << ")\n";
+  os << indent << "PlacedVRight: (" << this->PlacedVRight[0] << ", " << this->PlacedVRight[1] << ","
+     << this->PlacedVRight[2] << ")\n";
+  os << indent << "PlacedOrientation: (" << this->PlacedOrientation[0] << ", "
+     << this->PlacedOrientation[1] << "," << this->PlacedOrientation[2] << ")\n";
 }

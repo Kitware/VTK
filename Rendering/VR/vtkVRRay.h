@@ -1,6 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
+Module:    vtkVRRay.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,31 +13,30 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
-* @class   vtkOpenVRRay
-* @brief   OpenVR device model
+* @class   vtkVRRay
+* @brief   VR device model
 
 * Represents a ray shooting from a VR controller, used for pointing or picking.
 */
 
-#ifndef vtkOpenVRRay_h
-#define vtkOpenVRRay_h
+#ifndef vtkVRRay_h
+#define vtkVRRay_h
 
 #include "vtkNew.h" // for ivar
 #include "vtkObject.h"
-#include "vtkOpenGLHelper.h"          // ivar
-#include "vtkRenderingOpenVRModule.h" // For export macro
-#include <openvr.h>                   // for ivars
+#include "vtkOpenGLHelper.h"      // ivar
+#include "vtkRenderingVRModule.h" // For export macro
 
 class vtkOpenGLRenderWindow;
 class vtkRenderWindow;
 class vtkOpenGLVertexBufferObject;
 class vtkMatrix4x4;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRay : public vtkObject
+class VTKRENDERINGVR_EXPORT vtkVRRay : public vtkObject
 {
 public:
-  static vtkOpenVRRay* New();
-  vtkTypeMacro(vtkOpenVRRay, vtkObject);
+  static vtkVRRay* New();
+  vtkTypeMacro(vtkVRRay, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   bool Build(vtkOpenGLRenderWindow* win);
@@ -53,8 +53,8 @@ public:
   void ReleaseGraphicsResources(vtkRenderWindow* win);
 
 protected:
-  vtkOpenVRRay();
-  ~vtkOpenVRRay() override;
+  vtkVRRay();
+  ~vtkVRRay() override;
 
   bool Show;
   bool Loaded;
@@ -67,8 +67,8 @@ protected:
   float Color[3];
 
 private:
-  vtkOpenVRRay(const vtkOpenVRRay&) = delete;
-  void operator=(const vtkOpenVRRay&) = delete;
+  vtkVRRay(const vtkVRRay&) = delete;
+  void operator=(const vtkVRRay&) = delete;
 };
 
 #endif

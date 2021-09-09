@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkOpenVRMenuWidget.cxx
+Module:    vtkVRMenuWidget.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -13,8 +13,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
-#include "vtkOpenVRMenuWidget.h"
-#include "vtkOpenVRMenuRepresentation.h"
+#include "vtkVRMenuWidget.h"
+#include "vtkVRMenuRepresentation.h"
 
 #include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
@@ -30,9 +30,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map>
 
-vtkStandardNewMacro(vtkOpenVRMenuWidget);
+vtkStandardNewMacro(vtkVRMenuWidget);
 
-class vtkOpenVRMenuWidget::InternalElement
+class vtkVRMenuWidget::InternalElement
 {
 public:
   vtkCommand* Command;
@@ -42,22 +42,22 @@ public:
 };
 
 //------------------------------------------------------------------------------
-vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
+vtkVRMenuWidget::vtkVRMenuWidget()
 {
   // Set the initial state
-  this->WidgetState = vtkOpenVRMenuWidget::Start;
+  this->WidgetState = vtkVRMenuWidget::Start;
 
   this->EventCommand = vtkCallbackCommand::New();
   this->EventCommand->SetClientData(this);
-  this->EventCommand->SetCallback(vtkOpenVRMenuWidget::EventCallback);
+  this->EventCommand->SetCallback(vtkVRMenuWidget::EventCallback);
 
   {
     vtkNew<vtkEventDataDevice3D> ed;
     ed->SetDevice(vtkEventDataDevice::Any);
     ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Release);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Menu3DEvent, ed, vtkWidgetEvent::Select,
-      this, vtkOpenVRMenuWidget::StartMenuAction);
+    this->CallbackMapper->SetCallbackMethod(
+      vtkCommand::Menu3DEvent, ed, vtkWidgetEvent::Select, this, vtkVRMenuWidget::StartMenuAction);
   }
 
   {
@@ -66,7 +66,7 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Release);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed, vtkWidgetEvent::Select3D,
-      this, vtkOpenVRMenuWidget::SelectMenuAction);
+      this, vtkVRMenuWidget::SelectMenuAction);
   }
 
   {
@@ -74,31 +74,33 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     ed->SetDevice(vtkEventDataDevice::Any);
     ed->SetInput(vtkEventDataDeviceInput::Any);
     this->CallbackMapper->SetCallbackMethod(
-      vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D, this, vtkOpenVRMenuWidget::MoveAction);
+      vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D, this, vtkVRMenuWidget::MoveAction);
   }
 }
 
 //------------------------------------------------------------------------------
-vtkOpenVRMenuWidget::~vtkOpenVRMenuWidget()
+vtkVRMenuWidget::~vtkVRMenuWidget()
 {
   this->EventCommand->Delete();
 }
 
-void vtkOpenVRMenuWidget::PushFrontMenuItem(const char* name, const char* text, vtkCommand* cmd)
+//------------------------------------------------------------------------------
+void vtkVRMenuWidget::PushFrontMenuItem(const char* name, const char* text, vtkCommand* cmd)
 {
-  vtkOpenVRMenuWidget::InternalElement* el = new vtkOpenVRMenuWidget::InternalElement();
+  vtkVRMenuWidget::InternalElement* el = new vtkVRMenuWidget::InternalElement();
   el->Text = text;
   el->Command = cmd;
   el->Name = name;
   this->Menus.push_front(el);
 
-  static_cast<vtkOpenVRMenuRepresentation*>(this->WidgetRep)
+  static_cast<vtkVRMenuRepresentation*>(this->WidgetRep)
     ->PushFrontMenuItem(name, text, this->EventCommand);
 
   this->Modified();
 }
 
-void vtkOpenVRMenuWidget::RenameMenuItem(const char* name, const char* text)
+//------------------------------------------------------------------------------
+void vtkVRMenuWidget::RenameMenuItem(const char* name, const char* text)
 {
   for (auto itr : this->Menus)
   {
@@ -107,10 +109,11 @@ void vtkOpenVRMenuWidget::RenameMenuItem(const char* name, const char* text)
       itr->Text = text;
     }
   }
-  static_cast<vtkOpenVRMenuRepresentation*>(this->WidgetRep)->RenameMenuItem(name, text);
+  static_cast<vtkVRMenuRepresentation*>(this->WidgetRep)->RenameMenuItem(name, text);
 }
 
-void vtkOpenVRMenuWidget::RemoveMenuItem(const char* name)
+//------------------------------------------------------------------------------
+void vtkVRMenuWidget::RemoveMenuItem(const char* name)
 {
   for (auto itr = this->Menus.begin(); itr != this->Menus.end(); ++itr)
   {
@@ -121,10 +124,11 @@ void vtkOpenVRMenuWidget::RemoveMenuItem(const char* name)
       break;
     }
   }
-  static_cast<vtkOpenVRMenuRepresentation*>(this->WidgetRep)->RemoveMenuItem(name);
+  static_cast<vtkVRMenuRepresentation*>(this->WidgetRep)->RemoveMenuItem(name);
 }
 
-void vtkOpenVRMenuWidget::RemoveAllMenuItems()
+//------------------------------------------------------------------------------
+void vtkVRMenuWidget::RemoveAllMenuItems()
 {
   while (!this->Menus.empty())
   {
@@ -132,12 +136,13 @@ void vtkOpenVRMenuWidget::RemoveAllMenuItems()
     delete *itr;
     this->Menus.erase(itr);
   }
-  static_cast<vtkOpenVRMenuRepresentation*>(this->WidgetRep)->RemoveAllMenuItems();
+  static_cast<vtkVRMenuRepresentation*>(this->WidgetRep)->RemoveAllMenuItems();
 }
 
-void vtkOpenVRMenuWidget::EventCallback(vtkObject*, unsigned long, void* clientdata, void* calldata)
+//------------------------------------------------------------------------------
+void vtkVRMenuWidget::EventCallback(vtkObject*, unsigned long, void* clientdata, void* calldata)
 {
-  vtkOpenVRMenuWidget* self = static_cast<vtkOpenVRMenuWidget*>(clientdata);
+  vtkVRMenuWidget* self = static_cast<vtkVRMenuWidget*>(clientdata);
   std::string name = static_cast<const char*>(calldata);
 
   for (auto& menu : self->Menus)
@@ -151,16 +156,17 @@ void vtkOpenVRMenuWidget::EventCallback(vtkObject*, unsigned long, void* clientd
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::ShowSubMenu(vtkOpenVRMenuWidget* w)
+void vtkVRMenuWidget::ShowSubMenu(vtkVRMenuWidget* w)
 {
   w->SetInteractor(this->Interactor);
   w->Show(static_cast<vtkEventData*>(this->CallData));
 }
 
-void vtkOpenVRMenuWidget::Show(vtkEventData* ed)
+//------------------------------------------------------------------------------
+void vtkVRMenuWidget::Show(vtkEventData* ed)
 {
   this->On();
-  if (this->WidgetState == vtkOpenVRMenuWidget::Start)
+  if (this->WidgetState == vtkVRMenuWidget::Start)
   {
     if (!this->Parent)
     {
@@ -169,16 +175,16 @@ void vtkOpenVRMenuWidget::Show(vtkEventData* ed)
     this->CallData = ed;
     this->WidgetRep->StartComplexInteraction(this->Interactor, this, vtkWidgetEvent::Select, ed);
 
-    this->WidgetState = vtkOpenVRMenuWidget::Active;
+    this->WidgetState = vtkVRMenuWidget::Active;
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::StartMenuAction(vtkAbstractWidget* w)
+void vtkVRMenuWidget::StartMenuAction(vtkAbstractWidget* w)
 {
-  vtkOpenVRMenuWidget* self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
+  vtkVRMenuWidget* self = reinterpret_cast<vtkVRMenuWidget*>(w);
 
-  if (self->WidgetState == vtkOpenVRMenuWidget::Active)
+  if (self->WidgetState == vtkVRMenuWidget::Active)
   {
     if (!self->Parent)
     {
@@ -186,7 +192,7 @@ void vtkOpenVRMenuWidget::StartMenuAction(vtkAbstractWidget* w)
     }
 
     self->Off();
-    self->WidgetState = vtkOpenVRMenuWidget::Start;
+    self->WidgetState = vtkVRMenuWidget::Start;
 
     self->WidgetRep->EndComplexInteraction(
       self->Interactor, self, vtkWidgetEvent::Select, self->CallData);
@@ -194,11 +200,11 @@ void vtkOpenVRMenuWidget::StartMenuAction(vtkAbstractWidget* w)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::SelectMenuAction(vtkAbstractWidget* w)
+void vtkVRMenuWidget::SelectMenuAction(vtkAbstractWidget* w)
 {
-  vtkOpenVRMenuWidget* self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
+  vtkVRMenuWidget* self = reinterpret_cast<vtkVRMenuWidget*>(w);
 
-  if (self->WidgetState != vtkOpenVRMenuWidget::Active)
+  if (self->WidgetState != vtkVRMenuWidget::Active)
   {
     return;
   }
@@ -209,18 +215,18 @@ void vtkOpenVRMenuWidget::SelectMenuAction(vtkAbstractWidget* w)
   }
 
   self->Off();
-  self->WidgetState = vtkOpenVRMenuWidget::Start;
+  self->WidgetState = vtkVRMenuWidget::Start;
 
   self->WidgetRep->ComplexInteraction(
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::MoveAction(vtkAbstractWidget* w)
+void vtkVRMenuWidget::MoveAction(vtkAbstractWidget* w)
 {
-  vtkOpenVRMenuWidget* self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
+  vtkVRMenuWidget* self = reinterpret_cast<vtkVRMenuWidget*>(w);
 
-  if (self->WidgetState != vtkOpenVRMenuWidget::Active)
+  if (self->WidgetState != vtkVRMenuWidget::Active)
   {
     return;
   }
@@ -230,22 +236,24 @@ void vtkOpenVRMenuWidget::MoveAction(vtkAbstractWidget* w)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::SetRepresentation(vtkOpenVRMenuRepresentation* rep)
+void vtkVRMenuWidget::SetRepresentation(vtkVRMenuRepresentation* rep)
 {
   this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(rep));
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::CreateDefaultRepresentation()
+void vtkVRMenuWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
   {
-    this->WidgetRep = vtkOpenVRMenuRepresentation::New();
+    this->WidgetRep = vtkVRMenuRepresentation::New();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRMenuWidget::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVRMenuWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "WidgetState: " << this->WidgetState << "\n";
 }

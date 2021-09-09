@@ -1,6 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
+  Module:    vtkVRFollower.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,23 +13,23 @@
 
 =========================================================================*/
 /**
- * @class   vtkOpenVRFollower
- * @brief   OpenVR Follower
+ * @class   vtkVRFollower
+ * @brief   VR Follower
  *
- * vtkOpenVRFollower a follower that aligns with PhysicalViewUp
+ * vtkVRFollower a follower that aligns with PhysicalViewUp
  */
 
-#ifndef vtkOpenVRFollower_h
-#define vtkOpenVRFollower_h
+#ifndef vtkVRFollower_h
+#define vtkVRFollower_h
 
 #include "vtkFollower.h"
-#include "vtkRenderingOpenVRModule.h" // For export macro
+#include "vtkRenderingVRModule.h" // For export macro
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRFollower : public vtkFollower
+class VTKRENDERINGVR_EXPORT vtkVRFollower : public vtkFollower
 {
 public:
-  static vtkOpenVRFollower* New();
-  vtkTypeMacro(vtkOpenVRFollower, vtkFollower);
+  static vtkVRFollower* New();
+  vtkTypeMacro(vtkVRFollower, vtkFollower);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Render(vtkRenderer* ren) override;
@@ -40,14 +41,14 @@ public:
   void ComputeMatrix() override;
 
 protected:
-  vtkOpenVRFollower();
-  ~vtkOpenVRFollower() override;
+  vtkVRFollower() = default;
+  ~vtkVRFollower() override = default;
 
   double LastViewUp[3];
 
 private:
-  vtkOpenVRFollower(const vtkOpenVRFollower&) = delete;
-  void operator=(const vtkOpenVRFollower&) = delete;
+  vtkVRFollower(const vtkVRFollower&) = delete;
+  void operator=(const vtkVRFollower&) = delete;
 };
 
 #endif
