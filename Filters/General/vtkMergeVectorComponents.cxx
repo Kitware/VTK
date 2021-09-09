@@ -18,6 +18,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
@@ -56,16 +57,15 @@ class MergeVectorComponentsFunctor
   ArrayT* ArrayX;
   ArrayT* ArrayY;
   ArrayT* ArrayZ;
-  ArrayT* Vector;
+  vtkDoubleArray* Vector;
 
 public:
-  MergeVectorComponentsFunctor(
-    vtkDataArray* arrayX, vtkDataArray* arrayY, vtkDataArray* arrayZ, ArrayT* vector)
-    : Vector(vector)
+  MergeVectorComponentsFunctor(ArrayT* arrayX, ArrayT* arrayY, ArrayT* arrayZ, vtkDataArray* vector)
+    : ArrayX(arrayX)
+    , ArrayY(arrayY)
+    , ArrayZ(arrayZ)
+    , Vector(vtkDoubleArray::FastDownCast(vector))
   {
-    this->ArrayX = ArrayT::FastDownCast(arrayX);
-    this->ArrayY = ArrayT::FastDownCast(arrayY);
-    this->ArrayZ = ArrayT::FastDownCast(arrayZ);
   }
 
   void operator()(vtkIdType begin, vtkIdType end)
@@ -88,7 +88,7 @@ public:
 struct MergeVectorComponentsWorker
 {
   template <class ArrayT>
-  void operator()(ArrayT* vector, vtkDataArray* arrayX, vtkDataArray* arrayY, vtkDataArray* arrayZ)
+  void operator()(ArrayT* arrayX, ArrayT* arrayY, ArrayT* arrayZ, vtkDataArray* vector)
   {
     MergeVectorComponentsFunctor<ArrayT> functor(arrayX, arrayY, arrayZ, vector);
     vtkSMPTools::For(0, vector->GetNumberOfTuples(), functor);
@@ -155,9 +155,10 @@ int vtkMergeVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   vectorFD->SetNumberOfTuples(xFD->GetNumberOfTuples());
   vectorFD->SetName(outVectorName.c_str());
 
-  if (!vtkArrayDispatch::Dispatch::Execute(vectorFD, MergeVectorComponentsWorker{}, xFD, yFD, zFD))
+  using Dispatcher = vtkArrayDispatch::Dispatch3BySameValueType<vtkArrayDispatch::AllTypes>;
+  if (!Dispatcher::Execute(xFD, yFD, zFD, MergeVectorComponentsWorker{}, vectorFD))
   {
-    MergeVectorComponentsWorker{}(vectorFD, xFD, yFD, zFD);
+    MergeVectorComponentsWorker{}(xFD, yFD, zFD, vectorFD);
   }
 
   // add array and copy field data of same type
