@@ -14,12 +14,9 @@
 =========================================================================*/
 #include "vtkParallelVectors.h"
 
-#include "vtkArrayDispatch.h"
 #include "vtkCell3D.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkGenericCell.h"
-#include "vtkGradientFilter.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
@@ -54,20 +51,22 @@ bool fieldAlignmentPointForTriangle(const double v0[3], const double v1[3], cons
 {
   // If the first field is zero across the entire face, the notion of parallel
   // vector fields is not applicable.
-  if (fabs(v0[0]) < VTK_DBL_EPSILON && fabs(v0[1]) < VTK_DBL_EPSILON &&
-    fabs(v0[2]) < VTK_DBL_EPSILON && fabs(v1[0]) < VTK_DBL_EPSILON &&
-    fabs(v1[1]) < VTK_DBL_EPSILON && fabs(v1[2]) < VTK_DBL_EPSILON &&
-    fabs(v2[0]) < VTK_DBL_EPSILON && fabs(v2[1]) < VTK_DBL_EPSILON && fabs(v2[2]) < VTK_DBL_EPSILON)
+  if (std::abs(v0[0]) < VTK_DBL_EPSILON && std::abs(v0[1]) < VTK_DBL_EPSILON &&
+    std::abs(v0[2]) < VTK_DBL_EPSILON && std::abs(v1[0]) < VTK_DBL_EPSILON &&
+    std::abs(v1[1]) < VTK_DBL_EPSILON && std::abs(v1[2]) < VTK_DBL_EPSILON &&
+    std::abs(v2[0]) < VTK_DBL_EPSILON && std::abs(v2[1]) < VTK_DBL_EPSILON &&
+    std::abs(v2[2]) < VTK_DBL_EPSILON)
   {
     return false;
   }
 
   // If the second field is zero across the entire face, the notion of parallel
   // vector fields is not applicable.
-  if (fabs(w0[0]) < VTK_DBL_EPSILON && fabs(w0[1]) < VTK_DBL_EPSILON &&
-    fabs(w0[2]) < VTK_DBL_EPSILON && fabs(w1[0]) < VTK_DBL_EPSILON &&
-    fabs(w1[1]) < VTK_DBL_EPSILON && fabs(w1[2]) < VTK_DBL_EPSILON &&
-    fabs(w2[0]) < VTK_DBL_EPSILON && fabs(w2[1]) < VTK_DBL_EPSILON && fabs(w2[2]) < VTK_DBL_EPSILON)
+  if (std::abs(w0[0]) < VTK_DBL_EPSILON && std::abs(w0[1]) < VTK_DBL_EPSILON &&
+    std::abs(w0[2]) < VTK_DBL_EPSILON && std::abs(w1[0]) < VTK_DBL_EPSILON &&
+    std::abs(w1[1]) < VTK_DBL_EPSILON && std::abs(w1[2]) < VTK_DBL_EPSILON &&
+    std::abs(w2[0]) < VTK_DBL_EPSILON && std::abs(w2[1]) < VTK_DBL_EPSILON &&
+    std::abs(w2[2]) < VTK_DBL_EPSILON)
   {
     return false;
   }
@@ -104,11 +103,11 @@ bool fieldAlignmentPointForTriangle(const double v0[3], const double v1[3], cons
   //
   // or, by symmetry arguments, $\mathbf{M} = \mathbf{V}^{-1} \mathbf{W}$.
   Eigen::Matrix<double, 3, 3> M;
-  if (fabs(V.determinant()) > VTK_DBL_EPSILON)
+  if (std::abs(V.determinant()) > VTK_DBL_EPSILON)
   {
     M = V.inverse() * W;
   }
-  else if (fabs(W.determinant()) > VTK_DBL_EPSILON)
+  else if (std::abs(W.determinant()) > VTK_DBL_EPSILON)
   {
     M = W.inverse() * V;
   }
@@ -125,15 +124,15 @@ bool fieldAlignmentPointForTriangle(const double v0[3], const double v1[3], cons
     const auto col = eigenvectors.col(i);
 
     // We are only interested in real solutions to the above equation.
-    if (fabs(col[0].imag()) > VTK_DBL_EPSILON || fabs(col[1].imag()) > VTK_DBL_EPSILON ||
-      fabs(col[2].imag()) > VTK_DBL_EPSILON)
+    if (std::abs(col[0].imag()) > VTK_DBL_EPSILON || std::abs(col[1].imag()) > VTK_DBL_EPSILON ||
+      std::abs(col[2].imag()) > VTK_DBL_EPSILON)
     {
       continue;
     }
 
     // Additionally, we require that our degenerate degree of freedom be nonzero
     // so we can rescale the eigenvectors to set it to unity.
-    if (fabs(col[2].real()) < VTK_DBL_EPSILON)
+    if (std::abs(col[2].real()) < VTK_DBL_EPSILON)
     {
       continue;
     }
@@ -164,18 +163,12 @@ bool fieldAlignmentPointForTriangle(const double v0[3], const double v1[3], cons
 }
 
 // A Link is simply a pair of vertex ids.
-struct Link
+struct Link : public std::pair<vtkIdType, vtkIdType>
 {
   Link(const vtkIdType& handle0, const vtkIdType& handle1)
+    : std::pair<vtkIdType, vtkIdType>(handle0, handle1)
   {
-    this->Handles[0] = handle0;
-    this->Handles[1] = handle1;
   }
-
-  const vtkIdType& first() const { return this->Handles[0]; }
-  const vtkIdType& second() const { return this->Handles[1]; }
-
-  vtkIdType Handles[2];
 };
 
 // A Chain is a list of Links, allowing for O[1] prepending, appending and
@@ -207,39 +200,39 @@ struct PolyLineBuilder
     // link (a,b)
     for (auto& c : this->Chains)
     {
-      if (l.second() == c.front().first())
+      if (l.second == c.front().first)
       {
         // (a,b) -> (b,...)
-        if (l.first() != c.front().second())
+        if (l.first != c.front().second)
         {
           c.emplace_front(l);
         }
         return;
       }
-      else if (l.second() == c.back().second())
+      else if (l.second == c.back().second)
       {
         // (...,b)<- ~(a,b)
-        if (l.first() != c.back().first())
+        if (l.first != c.back().first)
         {
-          c.emplace_back(Link(l.second(), l.first()));
+          c.emplace_back(Link(l.second, l.first));
         }
         return;
       }
-      else if (l.first() == c.back().second())
+      else if (l.first == c.back().second)
       {
         // (...,a) <- (a,b)
-        if (l.second() != c.back().first())
+        if (l.second != c.back().first)
         {
           c.emplace_back(l);
         }
         return;
       }
-      else if (l.first() == c.front().first())
+      else if (l.first == c.front().first)
       {
         // ~(a,b) -> (a,...)
-        if (l.second() != c.front().second())
+        if (l.second != c.front().second)
         {
-          c.emplace_front(Link(l.second(), l.first()));
+          c.emplace_front(Link(l.second, l.first));
         }
         return;
       }
@@ -274,35 +267,35 @@ struct PolyLineBuilder
         }
 
         // chain c1 looks like (a,...,b)
-        if (c1->front().first() == c2->back().second())
+        if (c1->front().first == c2->back().second)
         {
           // (...,a) -> (a,...,b)
           c1->insert(
             c1->begin(), std::make_move_iterator(c2->begin()), std::make_move_iterator(c2->end()));
           c2->clear();
         }
-        else if (c2->front().first() == c1->back().second())
+        else if (c2->front().first == c1->back().second)
         {
           // (a,...,b) <- (b,...)
           c1->insert(
             c1->end(), std::make_move_iterator(c2->begin()), std::make_move_iterator(c2->end()));
           c2->clear();
         }
-        else if (c1->front().first() == c2->front().first())
+        else if (c1->front().first == c2->front().first)
         {
           // (a,...,b) <- (a,...)
           for (auto linkIt = c2->begin(); linkIt != c2->end(); ++linkIt)
           {
-            c1->emplace_front(Link(linkIt->second(), linkIt->first()));
+            c1->emplace_front(Link(linkIt->second, linkIt->first));
           }
           c2->clear();
         }
-        else if (c1->back().second() == c2->back().second())
+        else if (c1->back().second == c2->back().second)
         {
           // (...,a) <- (...,a)
           for (auto linkIt = c2->rbegin(); linkIt != c2->rend(); ++linkIt)
           {
-            c1->emplace_back(Link(linkIt->second(), linkIt->first()));
+            c1->emplace_back(Link(linkIt->second, linkIt->first));
           }
           c2->clear();
         }
@@ -661,9 +654,9 @@ int vtkParallelVectors::RequestData(
     vtkIdType counter = 0;
     for (auto& link : chain)
     {
-      polyLine->GetPointIds()->SetId(counter++, link.first());
+      polyLine->GetPointIds()->SetId(counter++, link.first);
     }
-    polyLine->GetPointIds()->SetId(counter, static_cast<vtkIdType>(chain.back().second()));
+    polyLine->GetPointIds()->SetId(counter, static_cast<vtkIdType>(chain.back().second));
     outputLines->InsertNextCell(polyLine);
   }
 

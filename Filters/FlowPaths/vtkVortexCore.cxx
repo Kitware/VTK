@@ -21,13 +21,10 @@
 #include "vtkGradientFilter.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkParallelVectors.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkPolyLine.h"
-#include "vtkPolygon.h"
 #include "vtkSMPTools.h"
 
 #include "vtk_eigen.h"
@@ -35,7 +32,6 @@
 #include VTK_EIGEN(Geometry)
 
 #include <array>
-#include <deque>
 
 //------------------------------------------------------------------------------
 namespace
@@ -165,23 +161,23 @@ bool computeVortexCriteria(const double s[9], const double omega[9], double vort
     Eigen::EigenSolver<Eigen::Matrix<double, 3, 3>> eigensolver(J);
     auto eigenvalues = eigensolver.eigenvalues();
 
-    if (fabs(eigenvalues[0].imag()) > VTK_DBL_EPSILON)
+    if (std::abs(eigenvalues[0].imag()) > VTK_DBL_EPSILON)
     {
-      if ((fabs(eigenvalues[0].real() - eigenvalues[1].real()) < VTK_DBL_EPSILON &&
-            fabs(eigenvalues[0].imag() + eigenvalues[1].imag()) < VTK_DBL_EPSILON) ||
-        (fabs(eigenvalues[0].real() - eigenvalues[2].real()) < VTK_DBL_EPSILON &&
-          fabs(eigenvalues[0].imag() + eigenvalues[2].imag()) < VTK_DBL_EPSILON))
+      if ((std::abs(eigenvalues[0].real() - eigenvalues[1].real()) < VTK_DBL_EPSILON &&
+            std::abs(eigenvalues[0].imag() + eigenvalues[1].imag()) < VTK_DBL_EPSILON) ||
+        (std::abs(eigenvalues[0].real() - eigenvalues[2].real()) < VTK_DBL_EPSILON &&
+          std::abs(eigenvalues[0].imag() + eigenvalues[2].imag()) < VTK_DBL_EPSILON))
       {
-        lambda_ci = fabs(eigenvalues[0].imag());
+        lambda_ci = std::abs(eigenvalues[0].imag());
       }
     }
-    else if (fabs(eigenvalues[1].imag()) > VTK_DBL_EPSILON)
+    else if (std::abs(eigenvalues[1].imag()) > VTK_DBL_EPSILON)
     {
-      if (fabs(eigenvalues[1].real() - eigenvalues[2].real()) < VTK_DBL_EPSILON &&
-        fabs(eigenvalues[1].imag() + eigenvalues[2].imag()) < VTK_DBL_EPSILON)
+      if (std::abs(eigenvalues[1].real() - eigenvalues[2].real()) < VTK_DBL_EPSILON &&
+        std::abs(eigenvalues[1].imag() + eigenvalues[2].imag()) < VTK_DBL_EPSILON)
 
       {
-        lambda_ci = fabs(eigenvalues[1].imag());
+        lambda_ci = std::abs(eigenvalues[1].imag());
       }
     }
   }
