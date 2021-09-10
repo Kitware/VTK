@@ -32,7 +32,6 @@ static void* buffer_pointer_and_size(PyObject* o, Py_ssize_t* size)
 {
   void* ptr = nullptr;
 
-#if PY_VERSION_HEX >= 0x02060000
   // New buffer protocol
   Py_buffer view = VTK_PYBUFFER_INITIALIZER;
   if (PyObject_CheckBuffer(o))
@@ -58,7 +57,6 @@ static void* buffer_pointer_and_size(PyObject* o, Py_ssize_t* size)
       return ptr;
     }
   }
-#endif
 
 #ifndef VTK_PY3K
   // Old buffer protocol

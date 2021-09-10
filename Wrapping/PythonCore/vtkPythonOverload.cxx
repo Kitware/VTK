@@ -249,7 +249,6 @@ static int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
 
 static int vtkPythonStringPenalty(PyObject* u, char format, int penalty)
 {
-#if PY_VERSION_HEX > 0x03030000
   int ascii = 0;
   if (PyUnicode_READY(u) != -1)
   {
@@ -269,17 +268,6 @@ static int vtkPythonStringPenalty(PyObject* u, char format, int penalty)
   {
     PyErr_Clear();
   }
-#else
-  PyObject* ascii = PyUnicode_AsASCIIString(u);
-  if (ascii == 0)
-  {
-    PyErr_Clear();
-  }
-  else
-  {
-    Py_DECREF(ascii);
-  }
-#endif
 
   if ((format == 'u') ^ (ascii == 0))
   {
@@ -506,7 +494,7 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
 
     case 'c':
       // penalize chars, they must be converted from strings
-#if PY_VERSION_HEX >= 0x03030000
+#ifdef VTK_PY3K
       if (PyUnicode_Check(arg) && PyUnicode_GetLength(arg) == 1)
 #else
       if (PyUnicode_Check(arg) && PyUnicode_GetSize(arg) == 1)
@@ -535,7 +523,6 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
           penalty = VTK_PYTHON_INCOMPATIBLE;
         }
       }
-#ifdef Py_USING_UNICODE
       else if (PyUnicode_Check(arg))
       {
 #ifdef VTK_PY3K
@@ -544,7 +531,6 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
 #endif
       }
-#endif
       else if (!PyBytes_Check(arg) && !PyByteArray_Check(arg))
       {
         penalty = VTK_PYTHON_INCOMPATIBLE;
@@ -558,7 +544,6 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
       }
       break;
 
-#ifdef Py_USING_UNICODE
     case 'u':
       // unicode string
       if (!PyUnicode_Check(arg))
@@ -572,7 +557,6 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
       }
 #endif
       break;
-#endif
 
     case 'v':
       // memory buffer (void pointer)

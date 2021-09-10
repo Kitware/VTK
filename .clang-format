@@ -16,6 +16,8 @@ ColumnLimit: 100
 SpaceAfterTemplateKeyword: true
 Standard: Cpp11
 StatementMacros:
+- PyObject_HEAD
+- PyObject_VAR_HEAD
 - vtkAbstractTypeMacro
 - vtkTypeMacro
 - vtkBaseTypeMacro

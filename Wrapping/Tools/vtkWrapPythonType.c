@@ -576,14 +576,7 @@ static void vtkWrapPython_HashProtocol(FILE* fp, const char* classname, ClassInf
     /* if hash is not implemented, raise an exception */
     fprintf(fp,
       "{\n"
-      "#if PY_VERSION_HEX >= 0x020600B2\n"
       "  return PyObject_HashNotImplemented(self);\n"
-      "#else\n"
-      "  char text[256];\n"
-      "  sprintf(text, \"unhashable type: \'%%s\'\", Py_TYPE(self)->tp_name);\n"
-      "  PyErr_SetString(PyExc_TypeError, text);\n"
-      "  return -1;\n"
-      "#endif\n"
       "}\n"
       "\n");
   }

@@ -30,7 +30,8 @@
 // type int or float.
 struct PyVTKReference
 {
-  PyObject_HEAD PyObject* value;
+  PyObject_HEAD
+  PyObject* value;
 };
 
 extern PyTypeObject PyVTKReference_Type;

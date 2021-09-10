@@ -97,10 +97,9 @@ Py_ssize_t vtkPythonGetStringSize(PyObject* o)
   {
     return PyByteArray_GET_SIZE(o);
   }
-#ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
   {
-#if PY_VERSION_HEX >= 0x03030000
+#ifdef VTK_PY3K
     Py_ssize_t size;
     PyUnicode_AsUTF8AndSize(o, &size);
     return size;
@@ -112,7 +111,6 @@ Py_ssize_t vtkPythonGetStringSize(PyObject* o)
     }
 #endif
   }
-#endif
   return 0;
 }
 
@@ -128,10 +126,9 @@ bool vtkPythonGetStringValue(PyObject* o, const char*& a, const char* exctext)
     a = PyByteArray_AS_STRING(o);
     return true;
   }
-#ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
   {
-#if PY_VERSION_HEX >= 0x03030000
+#ifdef VTK_PY3K
     a = PyUnicode_AsUTF8(o);
     return true;
 #else
@@ -149,7 +146,6 @@ bool vtkPythonGetStringValue(PyObject* o, const char*& a, const char* exctext)
     }
 #endif
   }
-#endif
 
   if (exctext)
   {
@@ -168,10 +164,9 @@ inline bool vtkPythonGetStdStringValue(PyObject* o, std::string& a, const char* 
     a = std::string(val, len);
     return true;
   }
-#ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
   {
-#if PY_VERSION_HEX >= 0x03030000
+#ifdef VTK_PY3K
     Py_ssize_t len;
     const char* val = PyUnicode_AsUTF8AndSize(o, &len);
     a = std::string(val, len);
@@ -190,7 +185,6 @@ inline bool vtkPythonGetStdStringValue(PyObject* o, std::string& a, const char* 
     exctext = "(unicode conversion error)";
 #endif
   }
-#endif
 
   PyErr_SetString(PyExc_TypeError, exctext);
   return false;
@@ -210,9 +204,6 @@ static bool vtkPythonGetValue(PyObject* o, const void*& a, Py_buffer* view, char
   PyBufferProcs* b = Py_TYPE(o)->tp_as_buffer;
 #endif
 
-#if PY_VERSION_HEX < 0x02060000
-  (void)view;
-#else
 #ifdef VTK_PY3K
   PyObject* bytes = nullptr;
   if (PyUnicode_Check(o))
@@ -256,12 +247,8 @@ static bool vtkPythonGetValue(PyObject* o, const void*& a, Py_buffer* view, char
     }
   }
 #ifndef VTK_PY3K
-  else
-#endif
-#endif
-#ifndef VTK_PY3K
   // use the old buffer interface
-  if (b && b->bf_getreadbuffer && b->bf_getsegcount)
+  else if (b && b->bf_getreadbuffer && b->bf_getsegcount)
   {
     if (b->bf_getsegcount(o, nullptr) == 1)
     {
@@ -278,8 +265,8 @@ static bool vtkPythonGetValue(PyObject* o, const void*& a, Py_buffer* view, char
 #ifdef VTK_PY3K
   if (bytes && btype == '\0')
 #else
-    if (p && sz >= 0 && sz <= VTK_INT_MAX && btype == '\0' &&
-      (format == nullptr || format[0] == 'c' || format[0] == 'B'))
+  if (p && sz >= 0 && sz <= VTK_INT_MAX && btype == '\0' &&
+    (format == nullptr || format[0] == 'c' || format[0] == 'B'))
 #endif
   {
     // check for pointer mangled as string
@@ -341,7 +328,6 @@ inline bool vtkPythonGetValue(PyObject* o, std::string& a)
 
 inline bool vtkPythonGetValue(PyObject* o, vtkUnicodeString& a)
 {
-#ifdef Py_USING_UNICODE
   PyObject* s = PyUnicode_AsUTF8String(o);
   if (s)
   {
@@ -350,11 +336,6 @@ inline bool vtkPythonGetValue(PyObject* o, vtkUnicodeString& a)
     return true;
   }
   return false;
-#else
-  a.clear();
-  PyErr_SetString(PyExc_TypeError, "python built without unicode support");
-  return false;
-#endif
 }
 
 inline bool vtkPythonGetValue(PyObject* o, char& a)

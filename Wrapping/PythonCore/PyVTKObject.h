@@ -57,13 +57,14 @@ public:
 // plus a pointer to the associated vtkObjectBase and PyVTKClass.
 struct PyVTKObject
 {
-  PyObject_HEAD PyObject* vtk_dict; // each object has its own dict
-  PyObject* vtk_weakreflist;        // list of weak references via python
-  PyVTKClass* vtk_class;            // information about the class
-  vtkObjectBase* vtk_ptr;           // pointer to the C++ object
-  Py_ssize_t* vtk_buffer;           // ndims, shape, strides for Py_buffer
-  unsigned long* vtk_observers;     // used to find our observers
-  unsigned int vtk_flags;           // flags (see list above)
+  PyObject_HEAD
+  PyObject* vtk_dict;           // each object has its own dict
+  PyObject* vtk_weakreflist;    // list of weak references via python
+  PyVTKClass* vtk_class;        // information about the class
+  vtkObjectBase* vtk_ptr;       // pointer to the C++ object
+  Py_ssize_t* vtk_buffer;       // ndims, shape, strides for Py_buffer
+  unsigned long* vtk_observers; // used to find our observers
+  unsigned int vtk_flags;       // flags (see list above)
 };
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyGetSetDef PyVTKObject_GetSet[];

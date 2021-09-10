@@ -640,13 +640,11 @@ PyObject* vtkPythonUtil::GetObjectFromObject(PyObject* arg, const char* type)
   union vtkPythonUtilPointerUnion u;
   PyObject* tmp = nullptr;
 
-#ifdef Py_USING_UNICODE
   if (PyUnicode_Check(arg))
   {
     tmp = PyUnicode_AsUTF8String(arg);
     arg = tmp;
   }
-#endif
 
   if (PyBytes_Check(arg))
   {
@@ -1031,7 +1029,6 @@ Py_hash_t vtkPythonUtil::VariantHash(const vtkVariant* v)
       break;
     }
 
-#ifdef Py_USING_UNICODE
     case VTK_UNICODE_STRING:
     {
       vtkUnicodeString u = v->ToUnicodeString();
@@ -1046,7 +1043,6 @@ Py_hash_t vtkPythonUtil::VariantHash(const vtkVariant* v)
       Py_DECREF(tmp);
       break;
     }
-#endif
 
     default:
     {

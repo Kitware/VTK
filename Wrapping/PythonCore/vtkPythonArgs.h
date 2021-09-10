@@ -867,14 +867,10 @@ inline PyObject* vtkPythonArgs::BuildValue(const void* a)
 
 inline PyObject* vtkPythonArgs::BuildValue(const char* a, size_t l)
 {
-#if PY_VERSION_HEX < 0x03000000
+#ifndef VTK_PY3K
   return PyString_FromStringAndSize(a, static_cast<Py_ssize_t>(l));
 #else
-#if PY_VERSION_HEX >= 0x03030000
   PyObject* o = PyUnicode_FromStringAndSize(a, static_cast<Py_ssize_t>(l));
-#else
-  PyObject* o = PyUnicode_Decode(a, static_cast<Py_ssize_t>(l), nullptr, nullptr);
-#endif
   if (o == nullptr)
   {
     PyErr_Clear();
@@ -903,11 +899,7 @@ inline PyObject* vtkPythonArgs::BuildValue(const vtkUnicodeString& a)
 {
   std::string s;
   a.utf8_str(s);
-#ifdef Py_USING_UNICODE
   return PyUnicode_DecodeUTF8(s.c_str(), static_cast<Py_ssize_t>(s.size()), nullptr);
-#else
-  return PyString_FromStringAndSize(s.c_str(), static_cast<Py_ssize_t>(s.size()));
-#endif
 }
 
 inline PyObject* vtkPythonArgs::BuildValue(char a)
