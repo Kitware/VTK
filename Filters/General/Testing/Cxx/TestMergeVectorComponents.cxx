@@ -14,7 +14,9 @@
 =========================================================================*/
 
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
 #include "vtkMergeVectorComponents.h"
 #include "vtkPointData.h"
 #include "vtkSphereSource.h"
@@ -73,6 +75,53 @@ int TestMergeVectorComponents(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       return EXIT_FAILURE;
     }
     if (vectorPD->GetComponent(i, 2) != zPD->GetValue(i))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  // test point data by creating 3 point data related arrays of different type and merging them
+  vtkNew<vtkDoubleArray> xPD2;
+  xPD2->SetNumberOfValues(dataset->GetNumberOfPoints());
+  xPD2->SetName("xPD2");
+  xPD2->Fill(0);
+  dataset->GetPointData()->AddArray(xPD2);
+
+  vtkNew<vtkIntArray> yPD2;
+  yPD2->SetNumberOfValues(dataset->GetNumberOfPoints());
+  yPD2->SetName("yPD2");
+  yPD2->Fill(1);
+  dataset->GetPointData()->AddArray(yPD2);
+
+  vtkNew<vtkCharArray> zPD2;
+  zPD2->SetNumberOfValues(dataset->GetNumberOfPoints());
+  zPD2->SetName("zPD2");
+  zPD2->Fill(2);
+  dataset->GetPointData()->AddArray(zPD2);
+
+  vtkNew<vtkMergeVectorComponents> mergeFilterPD2;
+  mergeFilterPD2->SetInputData(dataset);
+  mergeFilterPD2->SetXArrayName("xPD2");
+  mergeFilterPD2->SetYArrayName("yPD2");
+  mergeFilterPD2->SetZArrayName("zPD2");
+  mergeFilterPD2->SetAttributeType(vtkDataObject::POINT);
+  mergeFilterPD2->SetOutputVectorName("vectorPD2");
+  mergeFilterPD2->Update();
+
+  auto outputPD2 = mergeFilterPD2->GetPolyDataOutput();
+  auto vectorPD2 = outputPD2->GetPointData()->GetArray("vectorPD2");
+
+  for (vtkIdType i = 0; i < outputPD2->GetNumberOfPoints(); ++i)
+  {
+    if (vectorPD2->GetComponent(i, 0) != xPD2->GetValue(i))
+    {
+      return EXIT_FAILURE;
+    }
+    if (vectorPD2->GetComponent(i, 1) != yPD2->GetValue(i))
+    {
+      return EXIT_FAILURE;
+    }
+    if (vectorPD2->GetComponent(i, 2) != zPD2->GetValue(i))
     {
       return EXIT_FAILURE;
     }
