@@ -46,6 +46,7 @@ class vtkDataSet;
 class vtkFieldData;
 class vtkMultiProcessController;
 class vtkPoints;
+class vtkStringArray;
 
 class VTKPARALLELDIY_EXPORT vtkDIYUtilities : public vtkObject
 {
@@ -74,8 +75,22 @@ public:
   static void Load(diy::BinaryBuffer& bb, vtkDataSet*&);
   ///@}
 
+  ///@{
+  /**
+   * Load/Save a vtkFieldData in a diy::BinaryBuffer.
+   */
   static void Save(diy::BinaryBuffer& bb, vtkFieldData*);
   static void Load(diy::BinaryBuffer& bb, vtkFieldData*&);
+  ///@}
+
+  ///@{
+  /**
+   * Load/Save a vtkStringArray in a diy::BinaryBuffer.
+   */
+  static void Save(diy::BinaryBuffer& bb, vtkStringArray*);
+  static void Load(diy::BinaryBuffer& bb, vtkStringArray*&);
+  ///@}
+
   ///@{
   /**
    * Load/Save a vtkDataArray in a diy::BinaryBuffer.

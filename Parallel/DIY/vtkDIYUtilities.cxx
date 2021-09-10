@@ -31,6 +31,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridToPointSet.h"
+#include "vtkSmartPointer.h"
+#include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataObjectWriter.h"
 #include "vtkXMLGenericDataObjectReader.h"
@@ -58,7 +61,10 @@ struct SaveArrayWorker
   template <class ArrayT>
   void operator()(ArrayT* array)
   {
-    auto data = array->GetPointer(0);
+    using ValueType = typename ArrayT::ValueType;
+
+    const ValueType* data = array->GetPointer(0);
+
     diy::save(this->BB, data, array->GetNumberOfValues());
   }
 
@@ -76,6 +82,8 @@ struct LoadArrayWorker
   template <class ArrayT>
   void operator()(ArrayT* array)
   {
+    using ValueType = typename ArrayT::ValueType;
+
     int numberOfComponents;
     vtkIdType numberOfTuples;
     std::string name;
@@ -87,8 +95,8 @@ struct LoadArrayWorker
     array->SetNumberOfTuples(numberOfTuples);
     array->SetName(name.c_str());
 
-    auto data = array->GetPointer(0);
-    diy::load(this->BB, data, numberOfComponents * numberOfTuples);
+    ValueType* data = array->GetPointer(0);
+    diy::load(this->BB, data, array->GetNumberOfValues());
   }
 
   diy::BinaryBuffer& BB;
@@ -207,6 +215,35 @@ void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkDataArray* array)
 }
 
 //------------------------------------------------------------------------------
+void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkStringArray* array)
+{
+  if (!array)
+  {
+    diy::save(bb, static_cast<int>(VTK_VOID));
+  }
+  else
+  {
+    diy::save(bb, static_cast<int>(VTK_STRING));
+    diy::save(bb, array->GetNumberOfComponents());
+    diy::save(bb, array->GetNumberOfTuples());
+    if (array->GetName())
+    {
+      diy::save(bb, std::string(array->GetName()));
+    }
+    else
+    {
+      diy::save(bb, std::string(""));
+    }
+
+    for (vtkIdType id = 0; id < array->GetNumberOfValues(); ++id)
+    {
+      std::string& string = array->GetValue(id);
+      diy::save(bb, string);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkFieldData* fd)
 {
   if (!fd)
@@ -218,7 +255,21 @@ void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkFieldData* fd)
     diy::save(bb, fd->GetNumberOfArrays());
     for (int id = 0; id < fd->GetNumberOfArrays(); ++id)
     {
-      vtkDIYUtilities::Save(bb, vtkArrayDownCast<vtkDataArray>(fd->GetAbstractArray(id)));
+      vtkAbstractArray* aa = fd->GetAbstractArray(id);
+      if (auto da = vtkArrayDownCast<vtkDataArray>(aa))
+      {
+        diy::save(bb, 0); // vtkDataArray flag
+        vtkDIYUtilities::Save(bb, da);
+      }
+      else if (auto sa = vtkArrayDownCast<vtkStringArray>(aa))
+      {
+        diy::save(bb, 1); // vtkStringArray flag
+        vtkDIYUtilities::Save(bb, sa);
+      }
+      else
+      {
+        vtkLog(ERROR, "Cannot save array of type " << aa->GetClassName());
+      }
     }
   }
 }
@@ -264,9 +315,45 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkDataArray*& array)
   }
   else
   {
-    array = vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(type));
+    array = vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(type));
     LoadArrayWorker worker(bb);
     vtkArrayDispatch::Dispatch::Execute(array, worker);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkStringArray*& array)
+{
+  int type;
+  diy::load(bb, type);
+  if (type == VTK_VOID)
+  {
+    array = nullptr;
+  }
+  else
+  {
+    array = vtkStringArray::New();
+
+    int numberOfComponents;
+    vtkIdType numberOfTuples;
+    std::string name;
+
+    diy::load(bb, numberOfComponents);
+    diy::load(bb, numberOfTuples);
+    diy::load(bb, name);
+
+    array->SetNumberOfComponents(numberOfComponents);
+    array->SetNumberOfTuples(numberOfTuples);
+    array->SetName(name.c_str());
+
+    vtkIdType numberOfValues = numberOfComponents * numberOfTuples;
+
+    std::string string;
+    for (vtkIdType id = 0; id < numberOfValues; ++id)
+    {
+      diy::load(bb, string);
+      array->SetValue(id, string);
+    }
   }
 }
 
@@ -284,12 +371,33 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkFieldData*& fd)
     fd = vtkFieldData::New();
     for (int id = 0; id < numberOfArrays; ++id)
     {
-      vtkDataArray* array = nullptr;
-      vtkDIYUtilities::Load(bb, array);
-      if (array)
+      int flag;
+      diy::load(bb, flag);
+      vtkAbstractArray* aa = nullptr;
+      switch (flag)
       {
-        fd->AddArray(array);
-        array->FastDelete();
+        case 0: // vtkDataArray flag
+        {
+          vtkDataArray* array = nullptr;
+          vtkDIYUtilities::Load(bb, array);
+          aa = array;
+          break;
+        }
+        case 1: // vtkStringArray flag
+        {
+          vtkStringArray* array = nullptr;
+          vtkDIYUtilities::Load(bb, array);
+          aa = array;
+          break;
+        }
+        default:
+          vtkLog(ERROR, "Error while receiving array: wrong flag.");
+          break;
+      }
+      if (aa)
+      {
+        fd->AddArray(aa);
+        aa->FastDelete();
       }
     }
   }
