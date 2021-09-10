@@ -33,6 +33,7 @@ set(classes
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHardwareSelector
   vtkOpenGLHelper
+  vtkOpenGLHyperTreeGridMapper
   vtkOpenGLImageAlgorithmHelper
   vtkOpenGLImageMapper
   vtkOpenGLImageSliceMapper
@@ -186,6 +187,7 @@ set(opengl_overrides
   ImageMapper
   ImageSliceMapper
   Glyph3DMapper
+  HyperTreeGridMapper
   Light
   PointGaussianMapper
   PolyDataMapper

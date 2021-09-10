@@ -41,7 +41,6 @@ void vtkPolyDataMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
   if (this->Static)
   {
-    std::cout << "RenderPiece" << std::endl;
     this->RenderPiece(ren, act);
     return;
   }

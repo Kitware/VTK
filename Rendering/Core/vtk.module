@@ -13,7 +13,6 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::CommonMath
   VTK::FiltersCore
-  VTK::FiltersHyperTree
 PRIVATE_DEPENDS
   VTK::CommonColor
   VTK::CommonComputationalGeometry

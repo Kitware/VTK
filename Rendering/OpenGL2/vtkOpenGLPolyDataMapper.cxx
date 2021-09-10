@@ -3555,7 +3555,6 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
 //------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
-  std::cout << "UpdateBufferObjects" << std::endl;
   // Rebuild buffers if needed
   if (this->GetNeedToRebuildBufferObjects(ren, act))
   {
@@ -3781,7 +3780,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
       c = nullptr;
     }
   }
-  std::cout << "HaveCellScalars " << this->HaveCellScalars << std::endl;
 
   this->HaveCellNormals = false;
   // Do we have cell normals?
@@ -3819,7 +3817,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
   if (this->CellTextureBuildState != this->TempState)
   {
     this->CellTextureBuildState = this->TempState;
-    std::cout << "Building cell textures " << std::endl;
     this->BuildCellTextures(ren, act, prims, representation);
   }
 
@@ -4072,7 +4069,6 @@ void vtkOpenGLPolyDataMapper::AddCellIdsToSelectionPrimitives(vtkPolyData* poly,
     }
   };
 
-  std::cout << "arrayName " << arrayName << std::endl;
   if (arrayName)
   {
     // compute corresponding cell ids from selected id or value.
@@ -4093,7 +4089,6 @@ void vtkOpenGLPolyDataMapper::AddCellIdsToSelectionPrimitives(vtkPolyData* poly,
 void vtkOpenGLPolyDataMapper::BuildSelectionIBO(
   vtkPolyData* poly, std::vector<unsigned int> (&indices)[4], vtkIdType offset)
 {
-  std::cout << "BuildSelectionIBO " << std::endl;
   // We need to construct primitives based on a vtkSelection.
   // These primitives are filtered based on composite index and process index.
   for (int i = 0; i < 4; i++)
@@ -4208,7 +4203,6 @@ void vtkOpenGLPolyDataMapper::BuildSelectionIBO(
 void vtkOpenGLPolyDataMapper::BuildSelectionCache(
   const char* arrayName, bool selectingPoints, vtkPolyData* poly)
 {
-  std::cout << "BuildSelectionCache " << std::endl;
   if (arrayName &&
     (this->SelectionCacheForPoints != selectingPoints || this->SelectionCacheName != arrayName ||
       this->SelectionCacheTime < poly->GetMTime() || poly != this->SelectionPolyData))
@@ -4377,7 +4371,6 @@ void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
   vtkHardwareSelector* sel, std::vector<unsigned int>& pixeloffsets, vtkProp* prop)
 {
-  std::cout << "ProcessSelectorPixelBuffers " << std::endl;
   vtkPolyData* poly = this->CurrentInput;
 
   if (!this->PopulateSelectionSettings || !poly)

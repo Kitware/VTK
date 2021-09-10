@@ -230,7 +230,6 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, vtkInformation* inInfo)
 void vtkAlgorithm::SetInputArrayToProcess(
   int idx, int port, int connection, int fieldAssociation, int attributeType)
 {
-  std::cout << "vtkAlgorithm::SetInputArrayToProcess " << this->GetClassName() << std::endl;
   vtkInformation* info = this->GetInputArrayInformation(idx);
 
   info->Set(INPUT_PORT(), port);

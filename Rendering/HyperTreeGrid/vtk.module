@@ -1,7 +1,7 @@
 NAME
-  VTK::RenderingHyperTree
+  VTK::RenderingHyperTreeGrid
 LIBRARY_NAME
-  vtkRenderingHyperTree
+  vtkRenderingHyperTreeGrid
 IMPLEMENTABLE
 KIT
   VTK::Rendering
@@ -14,4 +14,4 @@ DEPENDS
   VTK::CommonMath
   VTK::FiltersHybrid
   VTK::FiltersHyperTree
-  VTK::RenderingOpenGL2
+  VTK::RenderingCore

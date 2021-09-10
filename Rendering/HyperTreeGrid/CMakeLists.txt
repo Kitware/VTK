@@ -1,7 +1,7 @@
 set(classes
   vtkHyperTreeGridMapper)
 
-vtk_module_add_module(VTK::RenderingHyperTree
+vtk_module_add_module(VTK::RenderingHyperTreeGrid
   CLASSES ${classes}
   )
 

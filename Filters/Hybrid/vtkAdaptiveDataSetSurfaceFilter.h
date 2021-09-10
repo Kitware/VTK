@@ -251,14 +251,6 @@ protected:
    */
   bool BBSelection;
 
-#ifndef NDEBUG
-  /**
-   * Effect of options selection
-   */
-  long int NbRejectByCircle;
-  long int NbRejectByBB;
-#endif
-
   /**
    * JB Forced, fixed the level depth, ignored automatic determination
    */
