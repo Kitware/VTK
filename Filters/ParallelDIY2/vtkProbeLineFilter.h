@@ -184,7 +184,8 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const std::vector<vtkDataSet*>& input) const;
+  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(
+    const std::vector<vtkDataSet*>& input, const double tolerance) const;
   vtkSmartPointer<vtkPolyData> SampleLineUniformly() const;
 
   vtkMultiProcessController* Controller;
