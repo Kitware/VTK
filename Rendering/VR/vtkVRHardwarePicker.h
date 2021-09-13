@@ -52,7 +52,7 @@ public:
   ~vtkVRHardwarePicker() override = default;
 
   void Initialize() override;
-  vtkSelection* Selection;
+  vtkSelection* Selection = nullptr;
 
 private:
   vtkVRHardwarePicker(const vtkVRHardwarePicker&) = delete;

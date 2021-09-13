@@ -35,13 +35,6 @@ vtkOpenVRModel::vtkOpenVRModel()
 }
 
 //------------------------------------------------------------------------------
-vtkOpenVRModel::~vtkOpenVRModel()
-{
-  this->ModelVBO->Delete();
-  this->ModelVBO = nullptr;
-}
-
-//------------------------------------------------------------------------------
 void vtkOpenVRModel::FillModelHelper()
 {
   this->ModelVBO->Upload(
