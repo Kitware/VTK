@@ -343,9 +343,8 @@ void vtkAMReXGridReader::SetUpDataArraySelections()
   {
     return;
   }
-  int numberOfVariables = this->Internal->Header->variableNamesSize;
-  for (int i = 0; i < numberOfVariables; ++i)
+  for (const auto& variable : this->Internal->Header->parsedVariableNames)
   {
-    this->CellDataArraySelection->AddArray(this->Internal->Header->variableNames[i].c_str());
+    this->CellDataArraySelection->AddArray(variable.first.c_str());
   }
 }
