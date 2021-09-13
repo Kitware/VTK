@@ -36,6 +36,7 @@ set(classes
   vtkPProjectSphereFilter
   vtkPReflectionFilter
   vtkPResampleFilter
+  vtkPartitionBalancer
   vtkProcessIdScalars
   vtkPSphereSource
   vtkPTextureMapToSphere
