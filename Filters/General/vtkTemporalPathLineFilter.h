@@ -121,6 +121,14 @@ public:
   vtkGetMacro(KeepDeadTrails, int);
   ///@}
 
+  ///@{
+  /**
+   * Allow the filter to work when time goes backward.
+   */
+  virtual void SetBackward(bool backward);
+  vtkGetMacro(Backward, bool);
+  ///@}
+
   /**
    * Flush will wipe any existing data so that traces can be restarted from
    * whatever time step is next supplied.
@@ -175,6 +183,7 @@ protected:
   double LatestTime;
   int KeepDeadTrails;
   int UsingSelection;
+  bool Backward;
   //
 
   vtkSmartPointer<vtkCellArray> PolyLines;

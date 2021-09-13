@@ -103,6 +103,7 @@ public:
 vtkStandardNewMacro(vtkTemporalPathLineFilterInternals);
 
 typedef std::map<int, double>::iterator TimeStepIterator;
+static constexpr double LatestTimeMax = 01E10;
 //------------------------------------------------------------------------------
 vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 {
@@ -112,7 +113,7 @@ vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
   this->LastTrackLength = 10;
   this->FirstTime = 1;
   this->IdChannelArray = nullptr;
-  this->LatestTime = 01E10;
+  this->LatestTime = LatestTimeMax;
   this->MaxStepDistance[0] = 0.0001;
   this->MaxStepDistance[1] = 0.0001;
   this->MaxStepDistance[2] = 0.0001;
@@ -120,6 +121,7 @@ vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
   this->MaxStepDistance[1] = 1;
   this->MaxStepDistance[2] = 1;
   this->KeepDeadTrails = 0;
+  this->Backward = false;
   this->Vertices = vtkSmartPointer<vtkCellArray>::New();
   this->PolyLines = vtkSmartPointer<vtkCellArray>::New();
   this->LineCoordinates = vtkSmartPointer<vtkPoints>::New();
@@ -163,6 +165,25 @@ int vtkTemporalPathLineFilter::FillOutputPortInformation(int port, vtkInformatio
   }
   return 1;
 }
+
+//------------------------------------------------------------------------------
+void vtkTemporalPathLineFilter::SetBackward(bool backward)
+{
+  if (this->Backward != backward)
+  {
+    if (backward)
+    {
+      this->LatestTime = 0;
+    }
+    else
+    {
+      this->LatestTime = LatestTimeMax;
+    }
+    this->Backward = backward;
+    this->Modified();
+  }
+}
+
 //------------------------------------------------------------------------------
 void vtkTemporalPathLineFilter::SetSelectionConnection(vtkAlgorithmOutput* algOutput)
 {
@@ -393,10 +414,15 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   //
   // Check time and Track length
   //
-  if (CurrentTimeStep < this->LatestTime)
+  if ((!Backward && (CurrentTimeStep < this->LatestTime)) ||
+    (Backward && (CurrentTimeStep > this->LatestTime)))
+  {
     this->FirstTime = 1;
+  }
   if (this->LastTrackLength != this->MaxTrackLength)
+  {
     this->FirstTime = 1;
+  }
 
   //
   // Reset everything if we are starting afresh
