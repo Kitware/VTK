@@ -741,10 +741,10 @@ struct BucketList : public vtkBucketList
   {
     // Place each point in a bucket
     //
-    vtkPointSet* ps = static_cast<vtkPointSet*>(this->DataSet);
+    vtkPointSet* ps = vtkPointSet::SafeDownCast(this->DataSet);
     int mapped = 0;
     if (ps)
-    { // map points array: explicit points representation
+    { // map points array: explicit points representation of float or double
       int dataType = ps->GetPoints()->GetDataType();
       void* pts = ps->GetPoints()->GetVoidPointer(0);
       if (dataType == VTK_FLOAT)
