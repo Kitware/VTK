@@ -892,7 +892,7 @@ public:
     int size = std::distance(nodes.begin(), nodes.end());
 
     endNodeIndex = std::min(endNodeIndex, nodes.size());
-    for (int i = beginNodeIndex; i < endNodeIndex; ++i)
+    for (size_t i = beginNodeIndex; i < endNodeIndex; ++i)
     {
       auto featureNode = nodes[i];
       if (i % 1024 == 0)
