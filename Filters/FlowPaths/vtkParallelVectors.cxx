@@ -440,37 +440,9 @@ void vtkParallelVectors::Postfilter(
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkPolyData* output = vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
-  // We need to remap from original positions in these arrays to positions in new arrays that
-  // correspond to point indices in the output. Since a locator is used to insert points into
-  // the output, we need to do this here.
-  std::vector<vtkSmartPointer<vtkDoubleArray>> remappedArrays(this->CriteriaArrays.size());
-
   for (size_t i = 0; i < this->CriteriaArrays.size(); ++i)
   {
-    remappedArrays[i].TakeReference(this->CriteriaArrays[i]->NewInstance());
-    remappedArrays[i]->SetNumberOfComponents(this->CriteriaArrays[i]->GetNumberOfComponents());
-    remappedArrays[i]->SetNumberOfTuples(output->GetNumberOfPoints());
-    remappedArrays[i]->SetName(this->CriteriaArrays[i]->GetName());
-
-    output->GetPointData()->AddArray(remappedArrays[i]);
-  }
-
-  assert(this->UniquePointIdToValidId->GetNumberOfTuples() - 1 < output->GetNumberOfPoints());
-  for (vtkIdType uniqueId = 0; uniqueId < this->UniquePointIdToValidId->GetNumberOfTuples();
-       ++uniqueId)
-  {
-    vtkIdType originalId = this->UniquePointIdToValidId->GetTypedComponent(uniqueId, 0);
-    for (int i = 0; i < 4; ++i)
-    {
-      remappedArrays[i]->SetTypedComponent(
-        uniqueId, 0, this->CriteriaArrays[i]->GetTypedComponent(originalId, 0));
-    }
-  }
-
-  // Clear the criteria arrays
-  for (size_t i = 0; i < this->CriteriaArrays.size(); ++i)
-  {
-    this->CriteriaArrays[i]->Initialize();
+    output->GetPointData()->AddArray(this->CriteriaArrays[i]);
   }
 }
 
@@ -657,9 +629,6 @@ int vtkParallelVectors::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  this->UniquePointIdToValidId->Initialize();
-  this->UniquePointIdToValidId->SetNumberOfComponents(1);
-
   this->Prefilter(info, inputVector, outputVector);
 
   // Check that the input names for the two vector fields have been set
@@ -758,7 +727,6 @@ int vtkParallelVectors::RequestData(
     polyLineBuilder.MergeLimit = static_cast<std::size_t>(std::cbrt(input->GetNumberOfCells()));
   }
 
-  vtkIdType validPointCounter = 0;
   for (const auto& points : cellSurfaceTrianglePoints)
   {
     vtkIdType pIndex[2] = { -1, -1 };
@@ -766,14 +734,6 @@ int vtkParallelVectors::RequestData(
     // For each surface triangle point comprising the cell's surface...
     for (const auto& point : points)
     {
-      // Note that values are inserted into these arrays without regard to the
-      // point merging being later on. At the end of the algorithm, we need to
-      // create new arrays from these arrays based on the UniquePointIdToValidId map
-      for (size_t i = 0; i < this->CriteriaArrays.size(); ++i)
-      {
-        this->CriteriaArrays[i]->InsertNextTuple(&(point.Criteria[i]));
-      }
-
       if (counter == 2)
       {
         // If we are here, then we have found at least three faces that
@@ -788,10 +748,10 @@ int vtkParallelVectors::RequestData(
       vtkIdType pIdx;
       locator->InsertUniquePoint(point.Coordinates.data(), pIdx);
 
-      // Build our map from original point to inserted point id.
-      // Overwriting values in this array with other valid ids is expected and fine.
-      // At the end of the process, the map will have the last encountered valid ids.
-      this->UniquePointIdToValidId->InsertTypedComponent(pIdx, 0, validPointCounter++);
+      for (size_t i = 0; i < this->CriteriaArrays.size(); ++i)
+      {
+        this->CriteriaArrays[i]->InsertTypedTuple(pIdx, (&(point.Criteria[i])));
+      }
 
       // We have identified either our first or second point. Record it
       // and continue searching.
@@ -835,9 +795,6 @@ int vtkParallelVectors::RequestData(
   output->SetLines(outputLines);
 
   this->Postfilter(info, inputVector, outputVector);
-
-  // Free the UniquePointIdToValidId map.
-  this->UniquePointIdToValidId->Initialize();
 
   return 1;
 }

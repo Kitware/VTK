@@ -104,17 +104,6 @@ protected:
    */
   char* SecondVectorFieldName;
 
-  /**
-   * Map from unique points inserted in the data set to valid point ids.
-   * This is potentially needed to update criteria arrays in subclasses.
-   * Criteria array values may be calculated in overridden versions of ComputeAdditionalCriteria(),
-   * where only the current index of the valid point is known. However, points
-   * are inserted to be unique, so at the end of the algorithm, the point data arrays
-   * do not match one-for-one the points. We need to create new
-   * Criteria arrays with point data that matches the points in the output. This
-   * map is used for that purpose.
-   */
-  vtkNew<vtkIdTypeArray> UniquePointIdToValidId;
   // The arrays are used to store additional criteria related arrays with 1 component.
   // The size of this vector should be resized inside Prefilter.
   std::vector<vtkSmartPointer<vtkDoubleArray>> CriteriaArrays;
