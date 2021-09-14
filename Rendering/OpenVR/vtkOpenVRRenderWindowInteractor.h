@@ -23,7 +23,8 @@
 #ifndef vtkOpenVRRenderWindowInteractor_h
 #define vtkOpenVRRenderWindowInteractor_h
 
-#include "vtkNew.h" // ivars
+#include "vtkEventData.h" // for ivar
+#include "vtkNew.h"       // ivars
 #include "vtkRenderWindowInteractor3D.h"
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include <functional>                 // for ivar
@@ -31,6 +32,7 @@
 #include <openvr.h>                   // for ivar
 #include <string>                     // for ivar
 #include <tuple>                      // for ivar
+
 class vtkTransform;
 class vtkMatrix4x4;
 class vtkOpenVRRenderWindow;

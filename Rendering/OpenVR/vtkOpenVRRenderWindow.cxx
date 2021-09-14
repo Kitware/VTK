@@ -79,23 +79,9 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
     this->DashboardOverlay->Delete();
     this->DashboardOverlay = nullptr;
   }
-  this->Finalize();
 
-  vtkRenderer* ren;
-  vtkCollectionSimpleIterator rit;
-  this->Renderers->InitTraversal(rit);
-  while ((ren = this->Renderers->GetNextRenderer(rit)))
-  {
-    ren->SetRenderWindow(nullptr);
-  }
   this->HMDTransform->Delete();
   this->HMDTransform = nullptr;
-
-  if (this->HelperWindow)
-  {
-    this->HelperWindow->Delete();
-    this->HelperWindow = nullptr;
-  }
 }
 
 //------------------------------------------------------------------------------

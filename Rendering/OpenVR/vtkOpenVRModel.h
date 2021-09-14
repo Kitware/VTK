@@ -38,7 +38,7 @@ public:
 
 protected:
   vtkOpenVRModel();
-  ~vtkOpenVRModel() override;
+  ~vtkOpenVRModel() override = default;
 
   void FillModelHelper() override;
   void SetPositionAndTCoords() override;
