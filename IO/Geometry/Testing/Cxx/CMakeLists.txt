@@ -3,7 +3,6 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   UnstructuredGridCellGradients.cxx
   UnstructuredGridFastGradients.cxx
   UnstructuredGridGradients.cxx
-  TestGLTFWriter.cxx
   TestOBJPolyDataWriter.cxx
   TestOBJReaderComments.cxx,NO_VALID
   TestOBJReaderGroups.cxx,NO_VALID
@@ -165,6 +164,15 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFReaderReadTriangleStripIndices,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/PrimitiveModes/Mesh_PrimitiveMode_TRIANGLE_STRIP_2.gltf,Mesh_PrimitiveMode_11.bin}
 )
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFWriterCityGML,TestGLTFWriter.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/CityGML/Part-4-Buildings-V4-one.gml}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFWriterObj,TestGLTFWriter.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/jacksonville_15.obj}
+)
+
 
 if(enable_large_data_tests)
   vtk_add_test_cxx(vtkIOGeometryCxxTests large_data_tests

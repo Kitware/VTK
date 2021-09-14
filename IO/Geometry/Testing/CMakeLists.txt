@@ -4,6 +4,10 @@ vtk_module_test_data(
   Data/IncOctPntLocData.dat
   Data/IncOctPntLocResult.dat
 
+  Data/jacksonville_15.obj
+  Data/jacksonville_15.mtl
+  Data/jacksonville_15.png
+
   Data/OpenFOAM/DimFields/cavity/,REGEX:.*
   Data/OpenFOAM/DimFields/cavity/system/,RECURSE:,REGEX:.*$
   Data/OpenFOAM/DimFields/cavity/constant/,RECURSE:,REGEX:.*$

@@ -21,6 +21,7 @@
 
 #include "vtk_jsoncpp.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkAssemblyPath.h"
 #include "vtkBase64OutputStream.h"
 #include "vtkCamera.h"
@@ -30,7 +31,6 @@
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
-#include "vtkImageFlip.h"
 #include "vtkImageReader.h"
 #include "vtkInformation.h"
 #include "vtkJPEGReader.h"
@@ -46,6 +46,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
@@ -78,6 +79,46 @@ vtkGLTFWriter::~vtkGLTFWriter()
 
 namespace
 {
+// The functor that implements the algorithm:
+struct FlipYTCoordsWorker
+{
+  template <typename InOutArrayT>
+  void operator()(InOutArrayT* inArray) const
+  {
+    // TupleRanges iterate tuple-by-tuple:
+    auto inRange = vtk::DataArrayTupleRange(inArray);
+
+    const vtk::TupleIdType numTuples = inRange.size();
+
+    for (vtk::TupleIdType tupleId = 0; tupleId < numTuples; ++tupleId)
+    {
+      auto inTuple = inRange[tupleId];
+      inTuple[1] = 1 - inTuple[1];
+    }
+  }
+};
+
+// Code to call the dispatcher:
+void FlipYTCoords(vtkDataArray* inOutArray)
+{
+  // Create an alias for a dispatcher that handles three arrays and only
+  // generates code for cases where all three arrays use float or double:
+  using FastPathTypes = vtkArrayDispatch::Reals;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<FastPathTypes>;
+
+  // Create the functor:
+  FlipYTCoordsWorker worker;
+
+  // Check if the arrays are using float/double, and if so,
+  // run an optimized specialization of the algorithm.
+  if (!Dispatcher::Execute(inOutArray, worker))
+  {
+    // If Execute(...) fails, the arrays don't match the constraints.
+    // Run the algorithm using the slower vtkDataArray double API instead:
+    worker(inOutArray);
+  }
+}
+
 std::string GetFieldAsString(vtkDataObject* obj, const char* name)
 {
   vtkFieldData* fd = obj->GetFieldData();
@@ -114,19 +155,22 @@ std::vector<float> GetFieldAsFloat(
 vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePath)
 {
   std::string ext = vtksys::SystemTools::GetFilenameLastExtension(texturePath);
+  vtkSmartPointer<vtkImageReader2> reader;
   if (ext == ".png")
   {
-    return vtkSmartPointer<vtkPNGReader>::New();
+    reader = vtkSmartPointer<vtkPNGReader>::New();
   }
   else if (ext == ".jpg")
   {
-    return vtkSmartPointer<vtkJPEGReader>::New();
+    reader = vtkSmartPointer<vtkJPEGReader>::New();
   }
   else
   {
     vtkLog(ERROR, "Invalid type for texture file: " << texturePath);
     return nullptr;
   }
+  reader->SetFileName(texturePath.c_str());
+  return reader;
 }
 
 std::string GetMimeType(const char* textureFileName)
@@ -147,13 +191,12 @@ std::string GetMimeType(const char* textureFileName)
   }
 }
 
-std::string WriteBufferAndView(const char* textureFileName, const char* textureBaseDirectory,
+std::string WriteBufferAndView(const char* gltfRelativeTexturePath, const char* texturePath,
   bool inlineData, Json::Value& buffers, Json::Value& bufferViews)
 {
   // if inline then base64 encode the data. In this case we need to read the texture
   std::string result;
   std::string mimeType;
-  std::string texturePath = std::string(textureBaseDirectory) + "/" + textureFileName;
   unsigned int byteLength = 0;
   if (inlineData)
   {
@@ -161,7 +204,6 @@ std::string WriteBufferAndView(const char* textureFileName, const char* textureB
     vtkSmartPointer<vtkImageData> id;
 
     auto textureReader = SetupTextureReader(texturePath);
-    textureReader->SetFileName(texturePath.c_str());
     vtkNew<vtkTexture> texture;
     texture->SetInputConnection(textureReader->GetOutputPort());
     texture->Update();
@@ -178,17 +220,14 @@ std::string WriteBufferAndView(const char* textureFileName, const char* textureB
       return mimeType; /*empty mimeType signals error*/
     }
 
-    // flip Y
     vtkNew<vtkTrivialProducer> triv;
     triv->SetOutput(id);
-    vtkNew<vtkImageFlip> flip;
-    flip->SetFilteredAxis(1);
-    flip->SetInputConnection(triv->GetOutputPort());
+    // no need to flip Y the texture as we filp the texture coordinates
 
     // convert to png
     vtkNew<vtkPNGWriter> png;
     png->SetCompressionLevel(5);
-    png->SetInputConnection(flip->GetOutputPort());
+    png->SetInputConnection(triv->GetOutputPort());
     png->WriteToMemoryOn();
     png->Write();
     da = png->GetResult();
@@ -209,9 +248,9 @@ std::string WriteBufferAndView(const char* textureFileName, const char* textureB
   else
   {
     // otherwise we only refer to the image file.
-    result = texturePath;
+    result = gltfRelativeTexturePath;
     // byte length
-    std::ifstream textureStream(result, ios::binary);
+    std::ifstream textureStream(texturePath, ios::binary);
     if (textureStream.fail())
     {
       return mimeType; /* empty mimeType signals error*/
@@ -219,7 +258,7 @@ std::string WriteBufferAndView(const char* textureFileName, const char* textureB
     textureStream.seekg(0, ios::end);
     byteLength = textureStream.tellg();
     // mimeType from extension
-    mimeType = GetMimeType(textureFileName);
+    mimeType = GetMimeType(texturePath);
   }
 
   Json::Value buffer;
@@ -277,6 +316,7 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
   }
 
   std::vector<vtkDataArray*> arraysToSave;
+  vtkNew<vtkFloatArray> normals;
   if (saveBatchId)
   {
     vtkDataArray* a;
@@ -315,7 +355,11 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
   vtkDataArray* tcoords = tris->GetPointData()->GetTCoords();
   if (tcoords)
   {
-    vtkGLTFWriterUtils::WriteBufferAndView(tcoords, fileName, inlineData, buffers, bufferViews);
+    // if there is a valid texture image flipY the tcoords
+    auto flipY = vtk::TakeSmartPointer(tcoords->NewInstance());
+    flipY->DeepCopy(tcoords);
+    FlipYTCoords(flipY);
+    vtkGLTFWriterUtils::WriteBufferAndView(flipY, fileName, inlineData, buffers, bufferViews);
 
     // write the accessor
     Json::Value acc;
@@ -473,21 +517,23 @@ void WriteCamera(Json::Value& cameras, vtkRenderer* ren)
 }
 
 void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& textures,
-  Json::Value& samplers, Json::Value& images, vtkPolyData* pd, bool inlineData,
-  std::map<std::string, unsigned int>& textureMap, bool saveTextures,
-  const char* textureBaseDirectory)
+  Json::Value& samplers, Json::Value& images, bool inlineData,
+  std::map<std::string, unsigned int>& textureMap, const char* textureBaseDirectory,
+  const char* textureFileName, const char* gltfFileName)
 {
-  std::string textureFileName = GetFieldAsString(pd, "texture_uri");
-  if (!saveTextures || textureFileName.empty())
-  {
-    return;
-  }
-
   unsigned int textureSource = 0;
   if (textureMap.find(textureFileName) == textureMap.end())
   {
+    // compute the relative texture base directory from the gltFile
+    // initially they are either absolute or relative to the CWD
+    std::string gltfFullPath = vtksys::SystemTools::CollapseFullPath(gltfFileName);
+    std::string gltfFullDir = vtksys::SystemTools::GetFilenamePath(gltfFullPath);
+    std::string texturePath = std::string(textureBaseDirectory) + "/" + textureFileName;
+    std::string textureFullPath = vtksys::SystemTools::CollapseFullPath(texturePath);
+    std::string gltfRelativeTexturePath =
+      vtksys::SystemTools::RelativePath(gltfFullDir, textureFullPath);
     std::string mimeType = WriteBufferAndView(
-      textureFileName.c_str(), textureBaseDirectory, inlineData, buffers, bufferViews);
+      gltfRelativeTexturePath.c_str(), texturePath.c_str(), inlineData, buffers, bufferViews);
     if (mimeType.empty())
     {
       return;
@@ -552,7 +598,6 @@ void WriteMaterial(vtkPolyData* pd, Json::Value& materials, int textureIndex, bo
   mat["pbrMetallicRoughness"] = model;
   materials.append(mat);
 }
-
 }
 
 std::string vtkGLTFWriter::WriteToString()
@@ -664,8 +709,12 @@ void vtkGLTFWriter::WriteToStream(ostream& output, vtkMultiBlockDataSet* mb)
           this->InlineData, this->SaveNormal, this->SaveBatchId);
         rendererNode["children"].append(nodes.size() - 1);
         unsigned int oldTextureCount = textures.size();
-        WriteTexture(buffers, bufferViews, textures, samplers, images, pd, this->InlineData,
-          textureMap, this->SaveTextures, this->TextureBaseDirectory);
+        std::string textureFileName = GetFieldAsString(pd, "texture_uri");
+        if (this->SaveTextures && !textureFileName.empty())
+        {
+          WriteTexture(buffers, bufferViews, textures, samplers, images, this->InlineData,
+            textureMap, this->TextureBaseDirectory, textureFileName.c_str(), this->FileName);
+        }
         meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
         WriteMaterial(pd, materials, oldTextureCount, oldTextureCount != textures.size());
       }
