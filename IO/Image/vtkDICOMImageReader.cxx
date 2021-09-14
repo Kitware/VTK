@@ -135,48 +135,79 @@ void vtkDICOMImageReader::ExecuteInformation()
     this->Parser->ReadHeader();
     this->SetupOutputInformation(1);
   }
-  else if (this->DirectoryName)
+  else if (this->DirectoryName || this->FileNames)
   {
-    vtkDirectory* dir = vtkDirectory::New();
-    int opened = dir->Open(this->DirectoryName);
-    if (!opened)
+    //The SetFileNames method is not implemented here to read, It’s not elegant to put it here, it should extract the method.
+    if (this->FileNames)
+		{
+			vtkIdType numFiles = this->FileNames->GetNumberOfValues();
+			vtkDebugMacro(<< "There are " << numFiles << " files in the directory.");
+			this->DICOMFileNames->clear();
+			this->AppHelper->Clear();
+			for (vtkIdType i = 0; i < numFiles; i++)
+			{
+
+				std::string fileString = this->FileNames->GetValue(i);
+
+				int val = this->CanReadFile(fileString.c_str());
+
+				if (val == 1)
+				{
+					vtkDebugMacro(<< "Adding " << fileString.c_str() << " to DICOMFileNames.");
+					this->DICOMFileNames->push_back(fileString);
+				}
+				else
+				{
+					vtkDebugMacro(<< fileString.c_str() << " - DICOMParser CanReadFile returned : " << val);
+				}
+			}
+		}
+    else
     {
-      vtkErrorMacro("Couldn't open " << this->DirectoryName);
+      vtkDirectory* dir = vtkDirectory::New();
+      int opened = dir->Open(this->DirectoryName);
+      if (!opened)
+      {
+        vtkErrorMacro("Couldn't open " << this->DirectoryName);
+        dir->Delete();
+        return;
+      }
+      vtkIdType numFiles = dir->GetNumberOfFiles();
+
+      vtkDebugMacro(<< "There are " << numFiles << " files in the directory.");
+
+      this->DICOMFileNames->clear();
+      this->AppHelper->Clear();
+
+      for (vtkIdType i = 0; i < numFiles; i++)
+      {
+        if (strcmp(dir->GetFile(i), ".") == 0 || strcmp(dir->GetFile(i), "..") == 0)
+        {
+          continue;
+        }
+
+        std::string fileString = this->DirectoryName;
+        fileString += "/";
+        fileString += dir->GetFile(i);
+
+        int val = this->CanReadFile(fileString.c_str());
+
+        if (val == 1)
+        {
+          vtkDebugMacro(<< "Adding " << fileString.c_str() << " to DICOMFileNames.");
+          this->DICOMFileNames->push_back(fileString);
+        }
+        else
+        {
+          vtkDebugMacro(<< fileString.c_str() << " - DICOMParser CanReadFile returned : " << val);
+        }
+      }
       dir->Delete();
-      return;
+			dir = nullptr;
     }
-    vtkIdType numFiles = dir->GetNumberOfFiles();
-
-    vtkDebugMacro(<< "There are " << numFiles << " files in the directory.");
-
-    this->DICOMFileNames->clear();
-    this->AppHelper->Clear();
-
-    for (vtkIdType i = 0; i < numFiles; i++)
-    {
-      if (strcmp(dir->GetFile(i), ".") == 0 || strcmp(dir->GetFile(i), "..") == 0)
-      {
-        continue;
-      }
-
-      std::string fileString = this->DirectoryName;
-      fileString += "/";
-      fileString += dir->GetFile(i);
-
-      int val = this->CanReadFile(fileString.c_str());
-
-      if (val == 1)
-      {
-        vtkDebugMacro(<< "Adding " << fileString.c_str() << " to DICOMFileNames.");
-        this->DICOMFileNames->push_back(fileString);
-      }
-      else
-      {
-        vtkDebugMacro(<< fileString.c_str() << " - DICOMParser CanReadFile returned : " << val);
-      }
-    }
+    
     std::vector<std::string>::iterator iter;
-
+    
     for (iter = this->DICOMFileNames->begin(); iter != this->DICOMFileNames->end(); ++iter)
     {
       const char* fn = iter->c_str();
@@ -184,8 +215,7 @@ void vtkDICOMImageReader::ExecuteInformation()
 
       bool couldOpen = this->Parser->OpenFile(fn);
       if (!couldOpen)
-      {
-        dir->Delete();
+      {       
         return;
       }
 
