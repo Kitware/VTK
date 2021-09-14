@@ -38,8 +38,17 @@
 
 #include "vtkNew.h" // for vtkNew
 
+namespace detail
+{
+template <typename VArrayType, typename WArrayType>
+class CollectValidCellSurfacePointsFunctor;
+}
+
 class VTKFILTERSFLOWPATHS_EXPORT vtkParallelVectors : public vtkPolyDataAlgorithm
 {
+  template <typename, typename>
+  friend class detail::CollectValidCellSurfacePointsFunctor;
+
 public:
   static vtkParallelVectors* New();
   vtkTypeMacro(vtkParallelVectors, vtkPolyDataAlgorithm);
@@ -68,17 +77,22 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int, vtkInformation*) override;
 
+  /**
+   * Prefilter should resize the CriteriaArrays, initialize them and set their names.
+   */
   virtual void Prefilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) {}
-  virtual void Postfilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) {}
+  virtual void Postfilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
   virtual bool AcceptSurfaceTriangle(const vtkIdType surfaceSimplexIndices[3]);
 
   /**
    * Computes additional criteria to determine if a point should be added to a vortex core.
    * Criteria are returned in the criteria parameter.
+   *
+   * @note criterionArrayValues has the size of the number of the CriteriaArrays.
    */
-  virtual bool ComputeAdditionalCriteria(
-    const vtkIdType surfaceSimplexIndices[3], double s, double t);
+  virtual bool ComputeAdditionalCriteria(const vtkIdType surfaceSimplexIndices[3], double s,
+    double t, std::vector<double>& criterionArrayValues);
 
   /**
    * Contains the name of the first vector field to compare.
@@ -92,15 +106,18 @@ protected:
 
   /**
    * Map from unique points inserted in the data set to valid point ids.
-   * This is potentially needed to update auxilliary arrays in subclasses.
-   * Auxilliary arrays may be built in overridden versions of ComputeAdditionalCriteria(),
+   * This is potentially needed to update criteria arrays in subclasses.
+   * Criteria array values may be calculated in overridden versions of ComputeAdditionalCriteria(),
    * where only the current index of the valid point is known. However, points
    * are inserted to be unique, so at the end of the algorithm, the point data arrays
    * do not match one-for-one the points. We need to create new
-   * auxilliary arrays with point data that matches the points in the output. This
+   * Criteria arrays with point data that matches the points in the output. This
    * map is used for that purpose.
    */
   vtkNew<vtkIdTypeArray> UniquePointIdToValidId;
+  // The arrays are used to store additional criteria related arrays with 1 component.
+  // The size of this vector should be resized inside Prefilter.
+  std::vector<vtkSmartPointer<vtkDoubleArray>> CriteriaArrays;
 
 private:
   vtkParallelVectors(const vtkParallelVectors&) = delete;

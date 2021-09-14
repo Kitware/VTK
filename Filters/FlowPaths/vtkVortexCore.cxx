@@ -92,7 +92,7 @@ struct MatrixVectorMultiplyWorker
 bool computeVortexCriteria(const double s[9], const double omega[9], double vortexCriteria[4],
   const vtkTypeBool computeAdditionalTerms = true)
 {
-  // The velocity gradient tensor J_{ij} = \frac{\partial u_i}{\partial x_j} can be
+  // The velocity gradient tensor $J_{ij} = \frac{\partial u_i}{\partial x_j}$ can be
   // decomposed into a symmetric and antisymmetric part:
   // J = S + \Omega
   // where $S = \frac{1}{2} \left[ J + J^{T} \right]$ is known as the rate-of-strain
@@ -258,20 +258,14 @@ protected:
   ~vtkParallelVectorsForVortexCore() override = default;
 
   void Prefilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  void Postfilter(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   bool AcceptSurfaceTriangle(const vtkIdType surfaceSimplexIndices[3]) override;
 
-  bool ComputeAdditionalCriteria(
-    const vtkIdType surfaceSimplexIndices[3], double s, double t) override;
+  bool ComputeAdditionalCriteria(const vtkIdType surfaceSimplexIndices[3], double s, double t,
+    std::vector<double>& criterionArrayValues) override;
 
   vtkSmartPointer<vtkCharArray> AcceptedPoints;
   vtkSmartPointer<vtkDataArray> Jacobian;
-
-  vtkNew<vtkDoubleArray> QCriterionArray;
-  vtkNew<vtkDoubleArray> DeltaCriterionArray;
-  vtkNew<vtkDoubleArray> Lambda_2CriterionArray;
-  vtkNew<vtkDoubleArray> Lambda_ciCriterionArray;
 
 private:
   vtkParallelVectorsForVortexCore(const vtkParallelVectorsForVortexCore&) = delete;
@@ -283,55 +277,15 @@ vtkStandardNewMacro(vtkParallelVectorsForVortexCore);
 void vtkParallelVectorsForVortexCore::Prefilter(
   vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
-  this->QCriterionArray->SetName("q-criterion");
-  this->DeltaCriterionArray->SetName("delta-criterion");
-  this->Lambda_2CriterionArray->SetName("lambda_2-criterion");
-  this->Lambda_ciCriterionArray->SetName("lambda_ci-criterion");
-}
-
-//------------------------------------------------------------------------------
-void vtkParallelVectorsForVortexCore::Postfilter(
-  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
-{
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkPolyData* output = vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-
-  // We need to remap from original positions in these arrays to positions in new arrays that
-  // correspond to point indices in the output. Since a locator is used to insert points into
-  // the output, we need to do this here.
-  vtkDoubleArray* criteriaArrays[4] = { this->QCriterionArray, this->DeltaCriterionArray,
-    this->Lambda_2CriterionArray, this->Lambda_ciCriterionArray };
-  vtkSmartPointer<vtkDoubleArray> remappedArrays[4];
-
-  // NOLINTNEXTLINE(bugprone-sizeof-expression)
-  for (size_t i = 0; i < sizeof(criteriaArrays) / sizeof(*criteriaArrays); ++i)
-  {
-    remappedArrays[i].TakeReference(criteriaArrays[i]->NewInstance());
-    remappedArrays[i]->SetNumberOfComponents(criteriaArrays[i]->GetNumberOfComponents());
-    remappedArrays[i]->SetNumberOfTuples(output->GetNumberOfPoints());
-    remappedArrays[i]->SetName(criteriaArrays[i]->GetName());
-
-    output->GetPointData()->AddArray(remappedArrays[i]);
-  }
-
-  for (vtkIdType uniqueId = 0; uniqueId < this->UniquePointIdToValidId->GetNumberOfTuples();
-       ++uniqueId)
-  {
-    assert(uniqueId < output->GetNumberOfPoints());
-    vtkIdType originalId = this->UniquePointIdToValidId->GetTypedComponent(uniqueId, 0);
-    for (int i = 0; i < 4; ++i)
-    {
-      remappedArrays[i]->SetTypedComponent(
-        uniqueId, 0, criteriaArrays[i]->GetTypedComponent(originalId, 0));
-    }
-  }
-
-  // Clear the criteria arrays
-  // NOLINTNEXTLINE(bugprone-sizeof-expression)
-  for (size_t i = 0; i < sizeof(criteriaArrays) / sizeof(*criteriaArrays); ++i)
-  {
-    criteriaArrays[i]->Initialize();
-  }
+  this->CriteriaArrays.resize(4);
+  this->CriteriaArrays[0] = vtkSmartPointer<vtkDoubleArray>::New();
+  this->CriteriaArrays[0]->SetName("q-criterion");
+  this->CriteriaArrays[1] = vtkSmartPointer<vtkDoubleArray>::New();
+  this->CriteriaArrays[1]->SetName("delta-criterion");
+  this->CriteriaArrays[2] = vtkSmartPointer<vtkDoubleArray>::New();
+  this->CriteriaArrays[2]->SetName("lambda_2-criterion");
+  this->CriteriaArrays[3] = vtkSmartPointer<vtkDoubleArray>::New();
+  this->CriteriaArrays[3]->SetName("lambda_ci-criterion");
 }
 
 //------------------------------------------------------------------------------
@@ -352,45 +306,33 @@ bool vtkParallelVectorsForVortexCore::AcceptSurfaceTriangle(
 
 //------------------------------------------------------------------------------
 bool vtkParallelVectorsForVortexCore::ComputeAdditionalCriteria(
-  const vtkIdType surfaceSimplexIndices[3], double s, double t)
+  const vtkIdType surfaceSimplexIndices[3], double s, double t,
+  std::vector<double>& criterionArrayValues)
 {
-  std::array<double, 4> vortexCriteria;
+  double j[3][9];
+  for (int i = 0; i < 3; i++)
   {
-    double j[3][9];
-    for (int i = 0; i < 3; i++)
-    {
-      this->Jacobian->GetTuple(surfaceSimplexIndices[i], j[i]);
-    }
-
-    double S[9];
-    double Omega[9];
-    static const std::array<std::size_t, 9> idxT = { 0, 3, 6, 1, 4, 7, 2, 5, 8 };
-    for (int i = 0; i < 9; i++)
-    {
-      double j_i = (1. - s - t) * j[0][i] + s * j[1][i] + t * j[2][i];
-
-      double jt_i = (1. - s - t) * j[0][idxT[i]] + s * j[1][idxT[i]] + t * j[2][idxT[i]];
-
-      S[i] = (j_i + jt_i) / 2.;
-      Omega[i] = (j_i - jt_i) / 2.;
-    }
-
-    // If any of the criteria fail, do not add this point
-    if (!computeVortexCriteria(S, Omega, vortexCriteria.data()))
-    {
-      return false;
-    }
+    this->Jacobian->GetTuple(surfaceSimplexIndices[i], j[i]);
   }
 
-  // Note that values are inserted into these arrays without regard to the
-  // point merging being done in vtkParallelVectors::RequestData().
-  // At the end of the algorithm, we need to create new arrays from
-  // these arrays based on the map defined by UniquePointIdToValidId
-  // in the superclass.
-  this->QCriterionArray->InsertNextTuple(&vortexCriteria[0]);
-  this->DeltaCriterionArray->InsertNextTuple(&vortexCriteria[1]);
-  this->Lambda_2CriterionArray->InsertNextTuple(&vortexCriteria[2]);
-  this->Lambda_ciCriterionArray->InsertNextTuple(&vortexCriteria[3]);
+  double S[9];
+  double Omega[9];
+  static const std::array<std::size_t, 9> idxT = { 0, 3, 6, 1, 4, 7, 2, 5, 8 };
+  for (int i = 0; i < 9; i++)
+  {
+    double j_i = (1. - s - t) * j[0][i] + s * j[1][i] + t * j[2][i];
+
+    double jt_i = (1. - s - t) * j[0][idxT[i]] + s * j[1][idxT[i]] + t * j[2][idxT[i]];
+
+    S[i] = (j_i + jt_i) / 2.;
+    Omega[i] = (j_i - jt_i) / 2.;
+  }
+
+  // If any of the criteria fail, do not add this point
+  if (!computeVortexCriteria(S, Omega, criterionArrayValues.data()))
+  {
+    return false;
+  }
 
   return true;
 }
@@ -401,6 +343,7 @@ vtkStandardNewMacro(vtkVortexCore);
 //------------------------------------------------------------------------------
 vtkVortexCore::vtkVortexCore()
   : HigherOrderMethod(false)
+  , FasterApproximation(false)
 {
 }
 

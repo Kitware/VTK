@@ -98,7 +98,7 @@ protected:
 
   vtkTypeBool HigherOrderMethod;
 
-  bool FasterApproximation = false;
+  bool FasterApproximation;
 
 private:
   vtkVortexCore(const vtkVortexCore&) = delete;
