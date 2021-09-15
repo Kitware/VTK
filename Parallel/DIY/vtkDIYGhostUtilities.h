@@ -437,18 +437,6 @@ protected:
     vtkIdType NumberOfInputPoints;
     vtkIdType NumberOfInputCells;
     ///@}
-
-    /**
-     * This lists ids from 1 to the number of input points (with potential input ghost points
-     * peeled off).
-     */
-    vtkNew<vtkIdList> PointIota;
-
-    /**
-     * This lists ids from 1 to the number of input cells (with potential input ghost cells
-     * peeled off).
-     */
-    vtkNew<vtkIdList> CellIota;
   };
 
   struct UnstructuredDataBlockStructure : public DataSetBlockStructure

@@ -204,6 +204,8 @@ vtkSmartPointer<vtkIdList> ExtractPointIdsInsideBoundingBox(vtkPoints* inputPoin
   auto inputPointsRange = vtk::DataArrayTupleRange<3>(inputPoints->GetData());
   using ConstPointRef = typename decltype(inputPointsRange)::ConstTupleReferenceType;
 
+  pointIds->Allocate(inputPoints->GetNumberOfPoints());
+
   for (vtkIdType pointId = 0; pointId < inputPointsRange.size(); ++pointId)
   {
     ConstPointRef point = inputPointsRange[pointId];
@@ -235,10 +237,6 @@ void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
       vtkSmartPointer<vtkIdList> ids = ExtractPointIdsInsideBoundingBox(
           interfacePoints->GetPoints(), block->NeighborBoundingBoxes.at(blockId.gid));
 
-      vtkNew<vtkIdList> identity;
-      identity->SetNumberOfIds(ids->GetNumberOfIds());
-      std::iota(identity->begin(), identity->end(), 0);
-
       if (!interfacePoints->GetNumberOfPoints())
       {
         cp.enqueue<vtkDataArray*>(blockId, nullptr);
@@ -250,7 +248,8 @@ void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
             interfacePoints->GetPointData()->GetGlobalIds()))
       {
         vtkNew<vtkIdTypeArray> gids;
-        gids->InsertTuples(identity, ids, globalIds);
+        gids->SetNumberOfValues(ids->GetNumberOfIds());
+        globalIds->GetTuples(ids, gids);
 
         cp.enqueue<vtkDataArray*>(blockId, interfacePoints->GetPointData()->GetGlobalIds());
       }
@@ -258,7 +257,8 @@ void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
       {
         vtkNew<vtkPoints> points;
         points->SetDataType(interfacePoints->GetPoints()->GetDataType());
-        points->InsertPoints(identity, ids, interfacePoints->GetPoints());
+        points->SetNumberOfPoints(ids->GetNumberOfIds());
+        interfacePoints->GetPoints()->GetData()->GetTuples(ids, points->GetData());
 
         cp.enqueue<vtkDataArray*>(blockId, points->GetData());
       }
@@ -2250,10 +2250,6 @@ void InitializeBlocksForUnstructuredData(diy::Master& master,
 
       information.NumberOfInputPoints = pointIdMap->GetNumberOfIds();
 
-      vtkIdList* pointIota = information.PointIota;
-      pointIota->SetNumberOfIds(information.NumberOfInputPoints);
-      std::iota(pointIota->begin(), pointIota->end(), 0);
-
       vtkSmartPointer<vtkIdList>& cellIdMap = information.InputToOutputCellIdRedirectionMap;
       cellIdMap = vtkSmartPointer<vtkIdList>::New();
       cellIdMap->Allocate(numberOfInputCells);
@@ -2267,10 +2263,6 @@ void InitializeBlocksForUnstructuredData(diy::Master& master,
       }
 
       information.NumberOfInputCells = cellIdMap->GetNumberOfIds();
-
-      vtkIdList* cellIota = information.CellIota;
-      cellIota->SetNumberOfIds(information.NumberOfInputCells);
-      std::iota(cellIota->begin(), cellIota->end(), 0);
     }
     else
     {
@@ -2366,6 +2358,7 @@ struct MatchingPointExtractor
       auto gidRange = vtk::DataArrayValueRange<1>(globalPointIds);
 
       inverseMap.reserve(gidRange.size());
+      this->MatchingSourcePointIds->Allocate(gidRange.size());
 
       using ConstRef = typename decltype(gidRange)::ConstReferenceType;
 
@@ -2388,6 +2381,7 @@ struct MatchingPointExtractor
       auto surfacePointsRange = vtk::DataArrayTupleRange<3>(surfacePoints);
 
       inverseMap.reserve(pointsRange.size());
+      this->MatchingSourcePointIds->Allocate(pointsRange.size());
 
       using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
       using ValueType = typename PointArrayT::ValueType;
@@ -2906,7 +2900,6 @@ void BuildTopologyBufferToSend(vtkIdTypeArray* seedPointIds,
   std::set<vtkIdType> pointIdsToSendAtLastLevel;
 
   pointIdsToSendAtLastLevel.insert(pointIdsToSend.cbegin(), pointIdsToSend.cend());
-  input->BuildLinks();
 
   vtkUnsignedCharArray* ghostCellArray = input->GetCellGhostArray();
 
@@ -3476,12 +3469,8 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
 
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* gridCellData = grid->GetCellData();
-  cloneCellData->CopyStructure(gridCellData);
-
-  for (int arrayId = 0; arrayId < cloneCellData->GetNumberOfArrays(); ++arrayId)
-  {
-    cloneCellData->GetAbstractArray(arrayId)->SetNumberOfTuples(clone->GetNumberOfCells());
-  }
+  cloneCellData->CopyAllocate(gridCellData, clone->GetNumberOfCells());
+  cloneCellData->SetNumberOfTuples(clone->GetNumberOfCells());
 
   const int* cloneExtent = clone->GetExtent();
   const int* gridExtent = grid->GetExtent();
@@ -3511,12 +3500,8 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
 
   vtkPointData* clonePointData = clone->GetPointData();
   vtkPointData* gridPointData = grid->GetPointData();
-  clonePointData->CopyStructure(gridPointData);
-
-  for (int arrayId = 0; arrayId < clonePointData->GetNumberOfArrays(); ++arrayId)
-  {
-    clonePointData->GetAbstractArray(arrayId)->SetNumberOfTuples(clone->GetNumberOfPoints());
-  }
+  clonePointData->CopyAllocate(gridPointData, clone->GetNumberOfPoints());
+  clonePointData->SetNumberOfTuples(clone->GetNumberOfPoints());
 
   imax = gridExtent[1];
   jmax = gridExtent[3];
@@ -3540,16 +3525,15 @@ void CloneCellData(vtkPointSet* ps, vtkPointSet* clone, UnstructuredDataInformat
 {
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* psCellData = ps->GetCellData();
-  cloneCellData->CopyStructure(psCellData);
+  cloneCellData->CopyAllocate(psCellData, clone->GetNumberOfCells());
   cloneCellData->SetNumberOfTuples(clone->GetNumberOfCells());
 
   if (vtkIdList* redirectionMap = info.InputToOutputCellIdRedirectionMap)
   {
-    vtkIdList* iota = info.CellIota;
     for (int arrayId = 0; arrayId < cloneCellData->GetNumberOfArrays(); ++arrayId)
     {
-      cloneCellData->GetArray(arrayId)->InsertTuples(iota, redirectionMap,
-          psCellData->GetArray(arrayId));
+      psCellData->GetAbstractArray(arrayId)->GetTuples(redirectionMap,
+          cloneCellData->GetAbstractArray(arrayId));
     }
   }
   else
@@ -3557,8 +3541,8 @@ void CloneCellData(vtkPointSet* ps, vtkPointSet* clone, UnstructuredDataInformat
     for (int arrayId = 0; arrayId < cloneCellData->GetNumberOfArrays(); ++arrayId)
     {
       vtkAbstractArray* sourceArray = psCellData->GetAbstractArray(arrayId);
-      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(0, sourceArray->GetNumberOfTuples(), 0,
-          sourceArray);
+      sourceArray->GetTuples(0, sourceArray->GetNumberOfTuples() - 1,
+          cloneCellData->GetAbstractArray(arrayId));
     }
   }
 }
@@ -3568,16 +3552,15 @@ void ClonePointData(vtkPointSet* ps, vtkPointSet* clone, UnstructuredDataInforma
 {
   vtkPointData* clonePointData = clone->GetPointData();
   vtkPointData* psPointData = ps->GetPointData();
-  clonePointData->CopyStructure(psPointData);
+  clonePointData->CopyAllocate(psPointData, clone->GetNumberOfPoints());
   clonePointData->SetNumberOfTuples(clone->GetNumberOfPoints());
 
   if (vtkIdList* redirectionMap = info.InputToOutputPointIdRedirectionMap)
   {
-    vtkIdList* iota = info.PointIota;
     for (int arrayId = 0; arrayId < clonePointData->GetNumberOfArrays(); ++arrayId)
     {
-      clonePointData->GetArray(arrayId)->InsertTuples(iota, redirectionMap,
-          psPointData->GetArray(arrayId));
+      psPointData->GetAbstractArray(arrayId)->GetTuples(redirectionMap,
+          clonePointData->GetAbstractArray(arrayId));
     }
   }
   else
@@ -3585,8 +3568,8 @@ void ClonePointData(vtkPointSet* ps, vtkPointSet* clone, UnstructuredDataInforma
     for (int arrayId = 0; arrayId < clonePointData->GetNumberOfArrays(); ++arrayId)
     {
       vtkAbstractArray* sourceArray = psPointData->GetAbstractArray(arrayId);
-      clonePointData->GetAbstractArray(arrayId)->InsertTuples(0, sourceArray->GetNumberOfTuples(), 0,
-          sourceArray);
+      sourceArray->GetTuples(0, sourceArray->GetNumberOfTuples() - 1,
+          clonePointData->GetAbstractArray(arrayId));
     }
   }
 }
@@ -3596,12 +3579,13 @@ void ClonePoints(vtkPointSet* ps, vtkPointSet* clone, UnstructuredDataInformatio
 {
   if (vtkIdList* redirectionMap = info.InputToOutputPointIdRedirectionMap)
   {
-    clone->GetPoints()->InsertPoints(info.PointIota, redirectionMap, ps->GetPoints());
+    ps->GetPoints()->GetData()->GetTuples(redirectionMap, clone->GetPoints()->GetData());
   }
   else
   {
     vtkPoints* sourcePoints = ps->GetPoints();
-    clone->GetPoints()->InsertPoints(0, sourcePoints->GetNumberOfPoints(), 0, sourcePoints);
+    sourcePoints->GetData()->GetTuples(0, sourcePoints->GetNumberOfPoints() - 1,
+        clone->GetPoints()->GetData());
   }
 }
 
@@ -3696,7 +3680,7 @@ void DeepCopyPolyhedrons(vtkUnstructuredGrid* ug, vtkUnstructuredGrid* clone,
   vtkIdList* cellRedirectionMap = info.InputToOutputCellIdRedirectionMap;
   vtkIdList* pointRedirectionMap = info.InputToOutputPointIdRedirectionMap;
 
-  cloneFaceLocations->InsertTuples(info.CellIota, cellRedirectionMap, ugFaceLocations);
+  ugFaceLocations->GetTuples(cellRedirectionMap, cloneFaceLocations);
 
   vtkIdType outputFacesId = 0;
 
@@ -3743,8 +3727,7 @@ void CloneUnstructuredGrid(vtkUnstructuredGrid* ug, vtkUnstructuredGrid* clone,
   if (vtkIdList* redirectionMap = info.InputToOutputCellIdRedirectionMap)
   {
     DeepCopyCells(ug->GetCells(), clone->GetCells(), redirectionMap);
-    vtkIdList* iota = info.CellIota;
-    clone->GetCellTypesArray()->InsertTuples(iota, redirectionMap, ug->GetCellTypesArray());
+    ug->GetCellTypesArray()->GetTuples(redirectionMap, clone->GetCellTypesArray());
 
     if (clone->GetFaces() && ug->GetFaces())
     {
@@ -3758,15 +3741,15 @@ void CloneUnstructuredGrid(vtkUnstructuredGrid* ug, vtkUnstructuredGrid* clone,
     vtkDataArray* ugConnectivity = ugCellArray->GetConnectivityArray();
     vtkDataArray* ugOffsets = ugCellArray->GetOffsetsArray();
 
-    cloneCellArray->GetConnectivityArray()->InsertTuples(0, ugConnectivity->GetNumberOfTuples(), 0,
-        ugConnectivity);
-    cloneCellArray->GetOffsetsArray()->InsertTuples(0, ugOffsets->GetNumberOfTuples(), 0, ugOffsets);
-    clone->GetCellTypesArray()->InsertTuples(0, ug->GetNumberOfCells(), 0, ug->GetCellTypesArray());
+    ugConnectivity->GetTuples(0, ugConnectivity->GetNumberOfTuples() - 1,
+        cloneCellArray->GetConnectivityArray());
+    ugOffsets->GetTuples(0, ugOffsets->GetNumberOfTuples() - 1, cloneCellArray->GetOffsetsArray());
+    ug->GetCellTypesArray()->GetTuples(0, ug->GetNumberOfCells() - 1, clone->GetCellTypesArray());
 
     if (clone->GetFaces() && ug->GetFaces())
     {
-      clone->GetFaceLocations()->InsertTuples(0, ug->GetNumberOfCells(), 0, ug->GetFaceLocations());
-      clone->GetFaces()->InsertTuples(0, ug->GetFaces()->GetNumberOfValues(), 0, ug->GetFaces());
+      ug->GetFaceLocations()->GetTuples(0, ug->GetNumberOfCells() - 1, clone->GetFaceLocations());
+      ug->GetFaces()->GetTuples(0, ug->GetFaces()->GetNumberOfValues() - 1, clone->GetFaces());
     }
   }
 }
@@ -3794,7 +3777,7 @@ void ClonePolyData(vtkPolyData* pd, vtkPolyData* clone, PolyDataInformation& inf
   // We cannot use CloneCellData here because the cell data gets all stirred up in a vtkPolyData
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* pdCellData = pd->GetCellData();
-  cloneCellData->CopyStructure(pdCellData);
+  cloneCellData->CopyAllocate(pdCellData, clone->GetNumberOfCells());
   cloneCellData->SetNumberOfTuples(clone->GetNumberOfCells());
 
   if (info.InputToOutputCellIdRedirectionMap)
@@ -3896,16 +3879,13 @@ void ClonePolyData(vtkPolyData* pd, vtkPolyData* clone, PolyDataInformation& inf
 
     for (int arrayId = 0; arrayId < cloneCellData->GetNumberOfArrays(); ++arrayId)
     {
-      vtkAbstractArray* sourceArray = pdCellData->GetAbstractArray(arrayId);
+      vtkAbstractArray* source = pdCellData->GetAbstractArray(arrayId);
+      vtkAbstractArray* target = cloneCellData->GetAbstractArray(arrayId);
 
-      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(0,
-          info.NumberOfInputVerts, 0, sourceArray);
-      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(cloneLinesOffset,
-          info.NumberOfInputLines, pdLinesOffset, sourceArray);
-      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(clonePolysOffset, 
-          info.NumberOfInputPolys, pdPolysOffset, sourceArray);
-      cloneCellData->GetAbstractArray(arrayId)->InsertTuples(cloneStripsOffset,
-          info.NumberOfInputStrips, pdStripsOffset, sourceArray);
+      target->InsertTuples(0, info.NumberOfInputVerts, 0, source);
+      target->InsertTuples(cloneLinesOffset, info.NumberOfInputLines, pdLinesOffset, source);
+      target->InsertTuples(clonePolysOffset, info.NumberOfInputPolys, pdPolysOffset, source);
+      target->InsertTuples(cloneStripsOffset, info.NumberOfInputStrips, pdStripsOffset, source);
     }
   }
 }
@@ -3914,10 +3894,16 @@ void ClonePolyData(vtkPolyData* pd, vtkPolyData* clone, PolyDataInformation& inf
 void EnqueuePointData(const diy::Master::ProxyWithLink& cp,
     const diy::BlockID& blockId, vtkDataSet* input, vtkIdList* pointIds)
 {
-  vtkNew<vtkPointData> pointData;
+  vtkNew<vtkFieldData> pointData;
   vtkPointData* inputPointData = input->GetPointData();
   pointData->CopyStructure(inputPointData);
-  inputPointData->GetField(pointIds, pointData);
+  pointData->SetNumberOfTuples(pointIds->GetNumberOfIds());
+
+  for (int arrayId = 0; arrayId < pointData->GetNumberOfArrays(); ++arrayId)
+  {
+    inputPointData->GetAbstractArray(arrayId)->GetTuples(
+        pointIds, pointData->GetAbstractArray(arrayId));
+  }
 
   cp.enqueue<vtkFieldData*>(blockId, pointData);
 }
@@ -3926,10 +3912,16 @@ void EnqueuePointData(const diy::Master::ProxyWithLink& cp,
 void EnqueueCellData(const diy::Master::ProxyWithLink& cp,
     const diy::BlockID& blockId, vtkDataSet* input, vtkIdList* cellIds)
 {
-  vtkNew<vtkCellData> cellData;
+  vtkNew<vtkFieldData> cellData;
   vtkCellData* inputCellData = input->GetCellData();
   cellData->CopyStructure(inputCellData);
-  inputCellData->GetField(cellIds, cellData);
+  cellData->SetNumberOfTuples(cellIds->GetNumberOfIds());
+
+  for (int arrayId = 0; arrayId < cellData->GetNumberOfArrays(); ++arrayId)
+  {
+    inputCellData->GetAbstractArray(arrayId)->GetTuples(
+        cellIds, cellData->GetAbstractArray(arrayId));
+  }
 
   cp.enqueue<vtkFieldData*>(blockId, cellData);
 }
