@@ -125,8 +125,8 @@ public:
   /**
    * Allow the filter to work when time goes backward.
    */
-  virtual void SetBackward(bool backward);
-  vtkGetMacro(Backward, bool);
+  virtual void SetBackwardTime(bool backward);
+  vtkGetMacro(BackwardTime, bool);
   ///@}
 
   /**
@@ -183,7 +183,7 @@ protected:
   double LatestTime;
   int KeepDeadTrails;
   int UsingSelection;
-  bool Backward;
+  bool BackwardTime = false;
   //
 
   vtkSmartPointer<vtkCellArray> PolyLines;

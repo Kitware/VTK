@@ -103,7 +103,7 @@ public:
 vtkStandardNewMacro(vtkTemporalPathLineFilterInternals);
 
 typedef std::map<int, double>::iterator TimeStepIterator;
-static constexpr double LatestTimeMax = 01E10;
+static constexpr double LATEST_TIME_MAX = VTK_DOUBLE_MAX;
 //------------------------------------------------------------------------------
 vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 {
@@ -113,7 +113,7 @@ vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
   this->LastTrackLength = 10;
   this->FirstTime = 1;
   this->IdChannelArray = nullptr;
-  this->LatestTime = LatestTimeMax;
+  this->LatestTime = LATEST_TIME_MAX;
   this->MaxStepDistance[0] = 0.0001;
   this->MaxStepDistance[1] = 0.0001;
   this->MaxStepDistance[2] = 0.0001;
@@ -121,7 +121,7 @@ vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
   this->MaxStepDistance[1] = 1;
   this->MaxStepDistance[2] = 1;
   this->KeepDeadTrails = 0;
-  this->Backward = false;
+  this->BackwardTime = false;
   this->Vertices = vtkSmartPointer<vtkCellArray>::New();
   this->PolyLines = vtkSmartPointer<vtkCellArray>::New();
   this->LineCoordinates = vtkSmartPointer<vtkPoints>::New();
@@ -167,9 +167,9 @@ int vtkTemporalPathLineFilter::FillOutputPortInformation(int port, vtkInformatio
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalPathLineFilter::SetBackward(bool backward)
+void vtkTemporalPathLineFilter::SetBackwardTime(bool backward)
 {
-  if (this->Backward != backward)
+  if (this->BackwardTime != backward)
   {
     if (backward)
     {
@@ -177,9 +177,9 @@ void vtkTemporalPathLineFilter::SetBackward(bool backward)
     }
     else
     {
-      this->LatestTime = LatestTimeMax;
+      this->LatestTime = LATEST_TIME_MAX;
     }
-    this->Backward = backward;
+    this->BackwardTime = backward;
     this->Modified();
   }
 }
@@ -414,8 +414,8 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   //
   // Check time and Track length
   //
-  if ((!Backward && (CurrentTimeStep < this->LatestTime)) ||
-    (Backward && (CurrentTimeStep > this->LatestTime)))
+  if ((!this->BackwardTime && (CurrentTimeStep < this->LatestTime)) ||
+    (this->BackwardTime && (CurrentTimeStep > this->LatestTime)))
   {
     this->FirstTime = 1;
   }
