@@ -117,8 +117,8 @@ public:
    * until the next time the list is cleared. Use carefully as it may cause
    * excessive memory consumption if left on by mistake.
    */
-  vtkSetMacro(KeepDeadTrails, int);
-  vtkGetMacro(KeepDeadTrails, int);
+  vtkSetMacro(KeepDeadTrails, bool);
+  vtkGetMacro(KeepDeadTrails, bool);
   ///@}
 
   ///@{
@@ -181,10 +181,9 @@ protected:
   int FirstTime = 1;
   char* IdChannelArray = nullptr;
   double MaxStepDistance[3] = { 1, 1, 1 };
-  static constexpr double LATEST_TIME_MAX = VTK_DOUBLE_MAX;
-  double LatestTime = LATEST_TIME_MAX;
-  int KeepDeadTrails = 0;
-  int UsingSelection = 0;
+  double LatestTime;
+  bool KeepDeadTrails = false;
+  bool UsingSelection = false;
   bool BackwardTime = false;
   //
 

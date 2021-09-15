@@ -103,9 +103,12 @@ public:
 vtkStandardNewMacro(vtkTemporalPathLineFilterInternals);
 
 typedef std::map<int, double>::iterator TimeStepIterator;
+static constexpr double LATEST_TIME_MAX = VTK_DOUBLE_MAX;
 //------------------------------------------------------------------------------
 vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 {
+  this->LatestTime = LATEST_TIME_MAX;
+
   this->PolyLines = vtkSmartPointer<vtkCellArray>::New();
   this->Vertices = vtkSmartPointer<vtkCellArray>::New();
   this->LineCoordinates = vtkSmartPointer<vtkPoints>::New();
@@ -156,14 +159,7 @@ void vtkTemporalPathLineFilter::SetBackwardTime(bool backward)
 {
   if (this->BackwardTime != backward)
   {
-    if (backward)
-    {
-      this->LatestTime = 0;
-    }
-    else
-    {
-      this->LatestTime = this->LATEST_TIME_MAX;
-    }
+    this->LatestTime = backward ? 0 : LATEST_TIME_MAX;
     this->BackwardTime = backward;
     this->Modified();
   }
@@ -459,10 +455,10 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   //
   // If a selection input was provided, Build a list of selected Ids
   //
-  this->UsingSelection = 0;
+  this->UsingSelection = false;
   if (selection && Ids)
   {
-    this->UsingSelection = 1;
+    this->UsingSelection = true;
     this->SelectionIds.clear();
     vtkDataArray* selectionIds;
     if (this->IdChannelArray)
