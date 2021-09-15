@@ -188,13 +188,12 @@ protected:
   bool BackwardTime = false;
   //
 
-  vtkSmartPointer<vtkCellArray> PolyLines = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkCellArray> Vertices = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkPoints> LineCoordinates = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkPoints> VertexCoordinates = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkFloatArray> TrailId = vtkSmartPointer<vtkFloatArray>::New();
-  vtkSmartPointer<vtkTemporalPathLineFilterInternals> Internals =
-    vtkSmartPointer<vtkTemporalPathLineFilterInternals>::New();
+  vtkSmartPointer<vtkCellArray> PolyLines;
+  vtkSmartPointer<vtkCellArray> Vertices;
+  vtkSmartPointer<vtkPoints> LineCoordinates;
+  vtkSmartPointer<vtkPoints> VertexCoordinates;
+  vtkSmartPointer<vtkFloatArray> TrailId;
+  vtkSmartPointer<vtkTemporalPathLineFilterInternals> Internals;
   std::set<vtkIdType> SelectionIds;
 
   //

@@ -106,6 +106,13 @@ typedef std::map<int, double>::iterator TimeStepIterator;
 //------------------------------------------------------------------------------
 vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 {
+  this->PolyLines = vtkSmartPointer<vtkCellArray>::New();
+  this->Vertices = vtkSmartPointer<vtkCellArray>::New();
+  this->LineCoordinates = vtkSmartPointer<vtkPoints>::New();
+  this->VertexCoordinates = vtkSmartPointer<vtkPoints>::New();
+  this->TrailId = vtkSmartPointer<vtkFloatArray>::New();
+  this->Internals = vtkSmartPointer<vtkTemporalPathLineFilterInternals>::New();
+
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2); // Lines and points
 }
