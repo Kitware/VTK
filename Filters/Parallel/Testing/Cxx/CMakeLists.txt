@@ -12,6 +12,7 @@ if (TARGET VTK::ParallelMPI)
     DistributedDataRenderPass.cxx
     PTextureMapToSphere.cxx
     TestPExtractDataArraysOverTime.cxx,NO_VALID
+    TestPartitionBalancer.cxx,NO_VALID
     TransmitImageData.cxx
     TransmitImageDataRenderPass.cxx
     TransmitRectilinearGrid.cxx
