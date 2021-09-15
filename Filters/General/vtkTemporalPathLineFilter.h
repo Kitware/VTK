@@ -174,25 +174,27 @@ protected:
   void IncrementTrail(TrailPointer trail, vtkDataSet* input, vtkIdType i);
 
   // internal data variables
-  int NumberOfTimeSteps;
-  int MaskPoints;
-  unsigned int MaxTrackLength;
-  unsigned int LastTrackLength;
-  int FirstTime;
-  char* IdChannelArray;
-  double MaxStepDistance[3];
-  double LatestTime;
-  int KeepDeadTrails;
-  int UsingSelection;
+  int NumberOfTimeSteps = 0;
+  int MaskPoints = 200;
+  unsigned int MaxTrackLength = 10;
+  unsigned int LastTrackLength = 10;
+  int FirstTime = 1;
+  char* IdChannelArray = nullptr;
+  double MaxStepDistance[3] = { 1, 1, 1 };
+  static constexpr double LATEST_TIME_MAX = VTK_DOUBLE_MAX;
+  double LatestTime = LATEST_TIME_MAX;
+  int KeepDeadTrails = 0;
+  int UsingSelection = 0;
   bool BackwardTime = false;
   //
 
-  vtkSmartPointer<vtkCellArray> PolyLines;
-  vtkSmartPointer<vtkCellArray> Vertices;
-  vtkSmartPointer<vtkPoints> LineCoordinates;
-  vtkSmartPointer<vtkPoints> VertexCoordinates;
-  vtkSmartPointer<vtkFloatArray> TrailId;
-  vtkSmartPointer<vtkTemporalPathLineFilterInternals> Internals;
+  vtkSmartPointer<vtkCellArray> PolyLines = vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkCellArray> Vertices = vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkPoints> LineCoordinates = vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> VertexCoordinates = vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkFloatArray> TrailId = vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkTemporalPathLineFilterInternals> Internals =
+    vtkSmartPointer<vtkTemporalPathLineFilterInternals>::New();
   std::set<vtkIdType> SelectionIds;
 
   //

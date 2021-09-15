@@ -103,31 +103,9 @@ public:
 vtkStandardNewMacro(vtkTemporalPathLineFilterInternals);
 
 typedef std::map<int, double>::iterator TimeStepIterator;
-static constexpr double LATEST_TIME_MAX = VTK_DOUBLE_MAX;
 //------------------------------------------------------------------------------
 vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 {
-  this->NumberOfTimeSteps = 0;
-  this->MaskPoints = 200;
-  this->MaxTrackLength = 10;
-  this->LastTrackLength = 10;
-  this->FirstTime = 1;
-  this->IdChannelArray = nullptr;
-  this->LatestTime = LATEST_TIME_MAX;
-  this->MaxStepDistance[0] = 0.0001;
-  this->MaxStepDistance[1] = 0.0001;
-  this->MaxStepDistance[2] = 0.0001;
-  this->MaxStepDistance[0] = 1;
-  this->MaxStepDistance[1] = 1;
-  this->MaxStepDistance[2] = 1;
-  this->KeepDeadTrails = 0;
-  this->BackwardTime = false;
-  this->Vertices = vtkSmartPointer<vtkCellArray>::New();
-  this->PolyLines = vtkSmartPointer<vtkCellArray>::New();
-  this->LineCoordinates = vtkSmartPointer<vtkPoints>::New();
-  this->VertexCoordinates = vtkSmartPointer<vtkPoints>::New();
-  this->TrailId = vtkSmartPointer<vtkFloatArray>::New();
-  this->Internals = vtkSmartPointer<vtkTemporalPathLineFilterInternals>::New();
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2); // Lines and points
 }
@@ -177,7 +155,7 @@ void vtkTemporalPathLineFilter::SetBackwardTime(bool backward)
     }
     else
     {
-      this->LatestTime = LATEST_TIME_MAX;
+      this->LatestTime = this->LATEST_TIME_MAX;
     }
     this->BackwardTime = backward;
     this->Modified();
