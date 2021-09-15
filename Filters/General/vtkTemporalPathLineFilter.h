@@ -123,7 +123,8 @@ public:
 
   ///@{
   /**
-   * Allow the filter to work when time goes backward.
+   * Set / Get if the filter is configured to work in backward time going mode.
+   * Default is false (time should go forward).
    */
   virtual void SetBackwardTime(bool backward);
   vtkGetMacro(BackwardTime, bool);
