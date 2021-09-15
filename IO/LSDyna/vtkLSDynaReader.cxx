@@ -2590,13 +2590,13 @@ int vtkLSDynaReader::ReadUserIds()
   // FIXME: This won't work if Rigid Body and Shell elements are interleaved (which I now believe
   // they are)
   this->Parts->ReadCellUserIds(
+    LSDynaMetaData::SOLID, this->GetCellArrayStatus(LSDynaMetaData::SOLID, LS_ARRAYNAME_USERID));
+  this->Parts->ReadCellUserIds(
     LSDynaMetaData::BEAM, this->GetCellArrayStatus(LSDynaMetaData::BEAM, LS_ARRAYNAME_USERID));
   this->Parts->ReadCellUserIds(
     LSDynaMetaData::SHELL, this->GetCellArrayStatus(LSDynaMetaData::SHELL, LS_ARRAYNAME_USERID));
   this->Parts->ReadCellUserIds(LSDynaMetaData::THICK_SHELL,
     this->GetCellArrayStatus(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_USERID));
-  this->Parts->ReadCellUserIds(
-    LSDynaMetaData::SOLID, this->GetCellArrayStatus(LSDynaMetaData::SOLID, LS_ARRAYNAME_USERID));
   this->Parts->ReadCellUserIds(LSDynaMetaData::RIGID_BODY,
     this->GetCellArrayStatus(LSDynaMetaData::RIGID_BODY, LS_ARRAYNAME_USERID));
   return 0;
