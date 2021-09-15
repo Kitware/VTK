@@ -18,30 +18,34 @@ int TestExecutableRunner(int, char*[])
   std::string out = process->GetStdOut();
   std::string err = process->GetStdErr();
   int code = process->GetReturnValue();
+  int returnValue = EXIT_SUCCESS;
 
   // ---
   if (code != 0)
   {
-    std::cerr << "ERROR: command did not succeed" << std::endl;
-    return EXIT_FAILURE;
+    std::cerr << " === ERROR: command did not succeed" << std::endl;
+    returnValue = EXIT_FAILURE;
   }
   if (out != "Hello World")
   {
-    std::cerr << "ERROR: wrong command output" << std::endl;
-    return EXIT_FAILURE;
+    std::cerr << " === ERROR: wrong command output. Got '" << out << "' but expected 'Hello World'."
+              << std::endl;
+    returnValue = EXIT_FAILURE;
   }
   if (!err.empty())
   {
-    std::cerr << "ERROR: there is output in the error stream" << std::endl;
-    return EXIT_FAILURE;
+    std::cerr << " === ERROR: there is output in the error stream : \n --- \n"
+              << err << "\n --- " << std::endl;
+    returnValue = EXIT_FAILURE;
   }
 
   // ---
   process->Execute();
-  if (process->GetStdOut() != out || !std::string(process->GetStdErr()).empty())
+  if (process->GetStdOut() != out || process->GetStdErr() != err ||
+    process->GetReturnValue() != code)
   {
-    std::cerr << "ERROR: ran twice the same process, expected the same result" << std::endl;
-    return EXIT_FAILURE;
+    std::cerr << " === ERROR: ran twice the same command, expected the same result" << std::endl;
+    returnValue = EXIT_FAILURE;
   }
 
   // ---
@@ -55,9 +59,9 @@ int TestExecutableRunner(int, char*[])
   code = process->GetReturnValue();
   if (code == 0)
   {
-    std::cerr << "ERROR: command did not return a failure but was supposed to." << std::endl;
-    return EXIT_FAILURE;
+    std::cerr << " === ERROR: command did not return a failure but was supposed to." << std::endl;
+    returnValue = EXIT_FAILURE;
   }
 
-  return EXIT_SUCCESS;
+  return returnValue;
 }
