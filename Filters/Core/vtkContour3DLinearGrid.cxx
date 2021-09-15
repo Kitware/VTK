@@ -951,9 +951,9 @@ struct ProduceAttributes
 template <typename TIds>
 int ProcessMerged(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, int sType, void* s,
   double isoValue, vtkPoints* outPts, vtkCellArray* newPolys, vtkTypeBool intAttr,
-  vtkDataArray* inScalars, vtkPointData* inPD, vtkPointData* outPD, ArrayList* arrays,
-  vtkScalarTree* st, vtkTypeBool seqProcessing, int& numThreads, vtkIdType totalPts,
-  vtkIdType totalTris)
+  vtkTypeBool computeScalars, vtkDataArray* inScalars, vtkPointData* inPD, vtkPointData* outPD,
+  ArrayList* arrays, vtkScalarTree* st, vtkTypeBool seqProcessing, int& numThreads,
+  vtkIdType totalPts, vtkIdType totalTris)
 {
   // Extract edges that the contour intersects. Templated on type of scalars.
   // List below the explicit choice of scalars that can be processed.
@@ -1029,9 +1029,15 @@ int ProcessMerged(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, int 
     if (totalPts <= 0) // first contour value generating output
     {
       outPD->InterpolateAllocate(inPD, numPts);
-      arrays->ExcludeArray(inScalars);
+      if (!computeScalars)
+      {
+        arrays->ExcludeArray(inScalars);
+      }
       arrays->AddArrays(numPts, inPD, outPD);
-      outPD->RemoveArray(inScalars->GetName());
+      if (!computeScalars)
+      {
+        outPD->RemoveArray(inScalars->GetName());
+      }
     }
     else
     {
@@ -1196,6 +1202,7 @@ vtkContour3DLinearGrid::vtkContour3DLinearGrid()
   this->MergePoints = false;
   this->InterpolateAttributes = false;
   this->ComputeNormals = false;
+  this->ComputeScalars = false;
   this->SequentialProcessing = false;
   this->NumberOfThreadsUsed = 0;
   this->LargeIds = false;
@@ -1396,8 +1403,8 @@ void vtkContour3DLinearGrid::ProcessPiece(
       if (this->LargeIds == false)
       {
         if (!ProcessMerged<int>(numCells, inPts, cellIter, sType, sPtr, value, outPts, newPolys,
-              this->InterpolateAttributes, inScalars, inPD, outPD, &arrays, stree,
-              this->SequentialProcessing, this->NumberOfThreadsUsed, totalPts, totalTris))
+              this->InterpolateAttributes, this->ComputeScalars, inScalars, inPD, outPD, &arrays,
+              stree, this->SequentialProcessing, this->NumberOfThreadsUsed, totalPts, totalTris))
         {
           return;
         }
@@ -1405,8 +1412,9 @@ void vtkContour3DLinearGrid::ProcessPiece(
       else
       {
         if (!ProcessMerged<vtkIdType>(numCells, inPts, cellIter, sType, sPtr, value, outPts,
-              newPolys, this->InterpolateAttributes, inScalars, inPD, outPD, &arrays, stree,
-              this->SequentialProcessing, this->NumberOfThreadsUsed, totalPts, totalTris))
+              newPolys, this->InterpolateAttributes, this->ComputeScalars, inScalars, inPD, outPD,
+              &arrays, stree, this->SequentialProcessing, this->NumberOfThreadsUsed, totalPts,
+              totalTris))
         {
           return;
         }

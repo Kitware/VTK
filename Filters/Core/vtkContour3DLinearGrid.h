@@ -180,6 +180,18 @@ public:
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
   ///@}
 
+  //@{
+  /**
+   * Set/Get flag to compute scalars. When enabled, and when the
+    InterpolateAttributes option is on, vtkContour3DLinearGrid will add an
+    array corresponding to the array used to compute the contour and
+    populate it with values.
+   */
+  vtkSetMacro(ComputeScalars, vtkTypeBool);
+  vtkGetMacro(ComputeScalars, vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars, vtkTypeBool);
+  //@}
+
   ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
@@ -263,6 +275,7 @@ protected:
   vtkTypeBool MergePoints;
   vtkTypeBool InterpolateAttributes;
   vtkTypeBool ComputeNormals;
+  vtkTypeBool ComputeScalars;
   vtkTypeBool SequentialProcessing;
   int NumberOfThreadsUsed;
   bool LargeIds; // indicate whether integral ids are large(==true) or not
