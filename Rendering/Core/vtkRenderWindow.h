@@ -651,12 +651,6 @@ public:
   ///@}
 
   /**
-   * Attempt to make this window the current graphics context for the calling
-   * thread.
-   */
-  void MakeCurrent() override {}
-
-  /**
    * Tells if this window is the current graphics context for the calling
    * thread.
    */

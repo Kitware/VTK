@@ -108,6 +108,11 @@ public:
   void MakeCurrent() override;
 
   /**
+   * Release the current context.
+   */
+  void ReleaseCurrent() override;
+
+  /**
    * Tells if this window is the current OpenGL context for the calling thread.
    */
   bool IsCurrent() override;

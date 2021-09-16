@@ -135,6 +135,11 @@ public:
   bool IsCurrent() override;
 
   /**
+   * Release the current context.
+   */
+  void ReleaseCurrent() override;
+
+  /**
    * If called, allow MakeCurrent() to skip cache-check when called.
    * MakeCurrent() reverts to original behavior of cache-checking
    * on the next render.

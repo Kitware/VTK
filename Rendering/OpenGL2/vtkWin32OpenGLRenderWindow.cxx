@@ -272,6 +272,17 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
 }
 
 //------------------------------------------------------------------------------
+void vtkWin32OpenGLRenderWindow::ReleaseCurrent()
+{
+  // Try to avoid doing anything (for performance).
+  HGLRC current = wglGetCurrentContext();
+  if (this->ContextId == current && this->DeviceContext)
+  {
+    wglMakeCurrent(this->DeviceContext, nullptr);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::PushContext()
 {
   HGLRC current = wglGetCurrentContext();

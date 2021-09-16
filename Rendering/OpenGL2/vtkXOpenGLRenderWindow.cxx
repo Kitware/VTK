@@ -1107,6 +1107,15 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
   }
 }
 
+void vtkXOpenGLRenderWindow::ReleaseCurrent()
+{
+  if (this->Internal->ContextId && (this->Internal->ContextId == glXGetCurrentContext()) &&
+    this->DisplayId)
+  {
+    glXMakeCurrent(this->DisplayId, None, nullptr);
+  }
+}
+
 //------------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.

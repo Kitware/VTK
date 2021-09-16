@@ -220,6 +220,15 @@ void vtkVRRenderWindow::MakeCurrent()
 }
 
 //------------------------------------------------------------------------------
+void vtkVRRenderWindow::ReleaseCurrent()
+{
+  if (this->HelperWindow)
+  {
+    this->HelperWindow->ReleaseCurrent();
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkOpenGLState* vtkVRRenderWindow::GetState()
 {
   if (this->HelperWindow)

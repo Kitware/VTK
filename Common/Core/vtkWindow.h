@@ -242,6 +242,12 @@ public:
    */
   virtual void MakeCurrent() {}
 
+  /**
+   * Release the current context. May be overridden in subclasses to do
+   * for example a glXMakeCurrent or a wglMakeCurrent.
+   */
+  virtual void ReleaseCurrent() {}
+
   ///@{
   /**
    * These methods are used by vtkWindowToImageFilter to tell a VTK window
