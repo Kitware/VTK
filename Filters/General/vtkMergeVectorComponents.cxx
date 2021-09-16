@@ -51,16 +51,17 @@ int vtkMergeVectorComponents::FillInputPortInformation(int vtkNotUsed(port), vtk
 //------------------------------------------------------------------------------
 namespace
 {
-template <typename ArrayT>
+template <typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ>
 class MergeVectorComponentsFunctor
 {
-  ArrayT* ArrayX;
-  ArrayT* ArrayY;
-  ArrayT* ArrayZ;
+  ArrayTypeX* ArrayX;
+  ArrayTypeY* ArrayY;
+  ArrayTypeZ* ArrayZ;
   vtkDoubleArray* Vector;
 
 public:
-  MergeVectorComponentsFunctor(ArrayT* arrayX, ArrayT* arrayY, ArrayT* arrayZ, vtkDataArray* vector)
+  MergeVectorComponentsFunctor(
+    ArrayTypeX* arrayX, ArrayTypeY* arrayY, ArrayTypeZ* arrayZ, vtkDataArray* vector)
     : ArrayX(arrayX)
     , ArrayY(arrayY)
     , ArrayZ(arrayZ)
@@ -87,10 +88,11 @@ public:
 
 struct MergeVectorComponentsWorker
 {
-  template <class ArrayT>
-  void operator()(ArrayT* arrayX, ArrayT* arrayY, ArrayT* arrayZ, vtkDataArray* vector)
+  template <typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ>
+  void operator()(ArrayTypeX* arrayX, ArrayTypeY* arrayY, ArrayTypeZ* arrayZ, vtkDataArray* vector)
   {
-    MergeVectorComponentsFunctor<ArrayT> functor(arrayX, arrayY, arrayZ, vector);
+    MergeVectorComponentsFunctor<ArrayTypeX, ArrayTypeY, ArrayTypeZ> functor(
+      arrayX, arrayY, arrayZ, vector);
     vtkSMPTools::For(0, vector->GetNumberOfTuples(), functor);
   }
 };
@@ -155,7 +157,7 @@ int vtkMergeVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   vectorFD->SetNumberOfTuples(xFD->GetNumberOfTuples());
   vectorFD->SetName(outVectorName.c_str());
 
-  using Dispatcher = vtkArrayDispatch::Dispatch3BySameValueType<vtkArrayDispatch::AllTypes>;
+  using Dispatcher = vtkArrayDispatch::Dispatch3SameValueType;
   if (!Dispatcher::Execute(xFD, yFD, zFD, MergeVectorComponentsWorker{}, vectorFD))
   {
     MergeVectorComponentsWorker{}(xFD, yFD, zFD, vectorFD);
