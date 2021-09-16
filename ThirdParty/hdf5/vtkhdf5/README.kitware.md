@@ -7,4 +7,3 @@ to avoid conflicts with other copies of the library within a single process.
 
   * Fix CMake to work within VTK's module system. This largely involves
     hard-coding some settings to reduce the number of cache entries exposed.
-  * Always generate H5Tinit.c
