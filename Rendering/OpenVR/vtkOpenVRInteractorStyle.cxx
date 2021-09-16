@@ -21,7 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkVRControlsHelper.h"
-#include "vtkVRRenderWindowInteractor.h"
 
 vtkStandardNewMacro(vtkOpenVRInteractorStyle);
 

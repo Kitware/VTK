@@ -294,22 +294,12 @@ void vtkOpenXRRenderWindow::RenderModels()
     // this could be done without a new every time
     vtkNew<vtkMatrix4x4> poseMatrixPhysical;
     vtkOpenXRUtilities::CreateModelMatrix(poseMatrixPhysical, handPose);
-
-    float fMatrix[3][4];
-    for (int j = 0; j < 3; j++)
-    {
-      for (int i = 0; i < 4; i++)
-      {
-        fMatrix[j][i] = poseMatrixPhysical->GetElement(j, i);
-      }
-    }
-
-    this->Models[hand]->Render(this, fMatrix);
+    this->Models[hand]->Render(this, poseMatrixPhysical);
   }
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenXRRenderWindow::CreateFramebuffers()
+bool vtkOpenXRRenderWindow::CreateFramebuffers(uint32_t vtkNotUsed(viewCount))
 {
   // With OpenXR, textures are created by the runtime because the compositor / runtime
   // knows better how to allocate a texture/buffer that will perform well
@@ -426,33 +416,33 @@ void vtkOpenXRRenderWindow::ConvertOpenXRPoseToMatrices(const XrPosef& xrPose,
 }
 
 //------------------------------------------------------------------------------
-const int vtkOpenXRRenderWindow::GetTrackedDeviceIndexForDevice(vtkEventDataDevice controller)
+uint32_t vtkOpenXRRenderWindow::GetTrackedDeviceIndexForDevice(
+  vtkEventDataDevice controller, uint32_t vtkNotUsed(index))
 {
   if (controller == vtkEventDataDevice::HeadMountedDisplay)
   {
     vtkWarningMacro(<< "Controller is a HeadMountedDisplay, not supported yet");
-    return vtkOpenXRManager::ControllerIndex::Inactive;
+    return static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Inactive);
   }
   if (controller == vtkEventDataDevice::LeftController)
   {
-    return vtkOpenXRManager::ControllerIndex::Left;
+    return static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Left);
   }
   if (controller == vtkEventDataDevice::RightController)
   {
-    return vtkOpenXRManager::ControllerIndex::Right;
+    return static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Right);
   }
   if (controller == vtkEventDataDevice::GenericTracker)
   {
     vtkWarningMacro(<< "Controller is a GenericTracker, not supported yet");
-    return vtkOpenXRManager::ControllerIndex::Inactive;
+    return static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Inactive);
   }
 
-  return vtkOpenXRManager::ControllerIndex::Inactive;
+  return this->InvalidDeviceIndex;
 }
 
 //------------------------------------------------------------------------------
-vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(
-  vtkEventDataDevice vtkNotUsed(dev), uint32_t idx)
+vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(uint32_t idx)
 {
   if (idx == vtkOpenXRManager::ControllerIndex::Inactive)
   {

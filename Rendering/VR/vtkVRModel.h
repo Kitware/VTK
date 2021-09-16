@@ -31,10 +31,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLHelper.h"      // ivar
 #include "vtkRenderingVRModule.h" // For export macro
 
+class vtkMatrix4x4;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexBufferObject;
 class vtkTextureObject;
-class vtkMatrix4x4;
 class vtkVRRay;
 
 class VTKRENDERINGVR_EXPORT vtkVRModel : public vtkObject
@@ -45,7 +45,6 @@ public:
 
   bool Build(vtkOpenGLRenderWindow* win);
 
-  // void Render(vtkOpenGLRenderWindow* win, const float poseInTrackingCoordinates[][4]);
   void Render(vtkOpenGLRenderWindow* win, vtkMatrix4x4* poseInTrackingCoordinates);
 
   const std::string& GetName() const { return this->ModelName; }

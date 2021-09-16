@@ -18,7 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
  *
  *
  * vtkOpenVRRenderWindow is a concrete implementation of the abstract
- * class vtkRenderWindow. vtkOpenVRRenderer interfaces to the
+ * class vtkVRRenderWindow. vtkOpenVRRenderer interfaces to the
  * OpenVR graphics library
  *
  * This class and its similar classes are designed to be drop in
@@ -52,21 +52,18 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRRenderWindow_h
 #define vtkOpenVRRenderWindow_h
 
+#include "vtkEventData.h"             // for enums
+#include "vtkOpenGLHelper.h"          // used for ivars
+#include "vtkOpenVROverlay.h"         // used for ivars
 #include "vtkRenderingOpenVRModule.h" // For export macro
+#include "vtkSmartPointer.h"          // used for ivars
 #include "vtkVRRenderWindow.h"
 
-#include "vtkEventData.h"    // for enums
-#include "vtkOpenGLHelper.h" // used for ivars
-#include "vtk_glew.h"        // used for methods
-#include <openvr.h>          // for ivars
-#include <vector>            // ivars
+#include "vtk_glew.h" // used for methods
+#include <openvr.h>   // for ivars
 
-class vtkCamera;
 class vtkMatrix4x4;
 class vtkOpenVRModel;
-class vtkOpenVROverlay;
-class vtkOpenGLVertexBufferObject;
-class vtkTransform;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRenderWindow : public vtkVRRenderWindow
 {
@@ -74,8 +71,20 @@ public:
   static vtkOpenVRRenderWindow* New();
   vtkTypeMacro(vtkOpenVRRenderWindow, vtkVRRenderWindow);
 
-  void Initialize(void) override;
+  /**
+   * Returns true if the system believes that an HMD is present on the system.
+   */
+  static bool IsHMDPresent();
 
+  /**
+   * Initialize the rendering window.
+   */
+  void Initialize() override;
+
+  /**
+   * Free up any graphics resources associated with this window
+   * a value of nullptr means the context may already be destroyed
+   */
   void ReleaseGraphicsResources(vtkWindow* renWin) override;
 
   /**
@@ -83,14 +92,15 @@ public:
    */
   vr::IVRSystem* GetHMD() { return this->HMD; }
 
-  static bool IsHMDPresent();
-
   /**
-   * Create an interactor to control renderers in this window.
-   * Creates one specific to OpenVR
+   * Create an interactor specific to OpenVR to control renderers in this window.
    */
   vtkRenderWindowInteractor* MakeRenderWindowInteractor() override;
 
+  /**
+   * Overridden to not release resources that would interfere with an external
+   * application's rendering. Avoiding round trip.
+   */
   void Render() override;
 
   /**
@@ -110,13 +120,10 @@ public:
    */
   void RenderOverlay();
 
-  ///@{
   /*
-   * Set/Get the overlay to use on the VR dashboard
+   * Get the overlay to use on the VR dashboard.
    */
-  vtkGetObjectMacro(DashboardOverlay, vtkOpenVROverlay);
-  void SetDashboardOverlay(vtkOpenVROverlay*);
-  ///@}
+  vtkGetSmartPointerMacro(DashboardOverlay, vtkOpenVROverlay);
 
   //@{
   /**
@@ -150,45 +157,45 @@ public:
   vtkEventDataDevice GetDeviceFromDeviceIndex(vr::TrackedDeviceIndex_t index);
 
   /**
-   * Get the index corresponding to the tracked device
+   * Get the index corresponding to the tracked device.
    */
-  uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev)
-  {
-    return this->GetTrackedDeviceIndexForDevice(dev, 0);
-  }
-  uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index);
+  uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index = 0) override;
+
+  /**
+   * Get the number of tracked devices of the given device type.
+   */
   uint32_t GetNumberOfTrackedDevicesForDevice(vtkEventDataDevice dev);
 
   /**
-   * Render the controller and base station models
+   * Render the controller and base station models.
    */
   void RenderModels() override;
 
 protected:
   vtkOpenVRRenderWindow();
-  ~vtkOpenVRRenderWindow() override;
+  ~vtkOpenVRRenderWindow() override = default;
 
   std::string GetWindowTitleFromAPI() override;
-
   bool GetSizeFromAPI() override;
 
-  bool BaseStationVisibility;
-
-  vr::IVRSystem* HMD;
-  vr::IVRRenderModels* OpenVRRenderModels;
-
-  bool CreateFramebuffers() override;
-
+  bool CreateFramebuffers(uint32_t viewCount = 2) override;
   bool CreateOneFramebuffer(int nWidth, int nHeight, FramebufferDesc& framebufferDesc);
 
-  // convert a device index to a human string
+  /**
+   * Convert a device index to a human-readable string.
+   */
   std::string GetTrackedDeviceString(vr::IVRSystem* pHmd, vr::TrackedDeviceIndex_t unDevice,
     vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError = nullptr);
 
-  // Finds a render model that has already been loaded or loads a new one
+  /**
+   * Find a render model that has already been loaded or load a new one.
+   */
   vtkOpenVRModel* FindOrLoadRenderModel(const char* modelName);
 
-  vtkOpenVROverlay* DashboardOverlay;
+  bool BaseStationVisibility = false;
+  vtkSmartPointer<vtkOpenVROverlay> DashboardOverlay;
+  vr::IVRSystem* HMD = nullptr;
+  vr::IVRRenderModels* OpenVRRenderModels = nullptr;
 
 private:
   vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&) = delete;

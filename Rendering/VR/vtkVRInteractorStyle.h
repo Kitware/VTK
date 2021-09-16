@@ -14,9 +14,9 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 /**
  * @class   vtkVRInteractorStyle
- * @brief   Extended from vtkInteractorStyle3D to override command methods
+ * @brief   Extended from vtkInteractorStyle3D to override command methods.
  *
- * This abstract class defines an interactor style in a VR context.
+ * This abstract class defines an interactor style in a virtual reality context.
  */
 
 #ifndef vtkVRInteractorStyle_h
@@ -24,11 +24,14 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkEventData.h" // for enums
 #include "vtkInteractorStyle3D.h"
-#include "vtkNew.h"               // for ivars
+#include "vtkNew.h"               // for vtkNew
 #include "vtkRenderingVRModule.h" // For export macro
+#include "vtkSmartPointer.h"      // for vtkSmartPointer
 
-#include <map>
+#include <map>    // for std::map
+#include <vector> // for std::vector
 
+class vtkCallbackCommand;
 class vtkCell;
 class vtkPlane;
 class vtkRenderWindowInteractor;
@@ -39,7 +42,6 @@ class vtkVRControlsHelper;
 class vtkVRHardwarePicker;
 class vtkVRMenuRepresentation;
 class vtkVRMenuWidget;
-class vtkVRRenderWindowInteractor;
 
 class VTKRENDERINGVR_EXPORT vtkVRInteractorStyle : public vtkInteractorStyle3D
 {
@@ -62,16 +64,16 @@ public:
   /**
    * Interaction mode entry points.
    */
-  virtual void StartPick(vtkEventDataDevice3D*);
-  virtual void EndPick(vtkEventDataDevice3D*);
-  virtual void StartLoadCamPose(vtkEventDataDevice3D*);
-  virtual void EndLoadCamPose(vtkEventDataDevice3D*);
-  virtual void StartPositionProp(vtkEventDataDevice3D*);
-  virtual void EndPositionProp(vtkEventDataDevice3D*);
-  virtual void StartClip(vtkEventDataDevice3D*);
-  virtual void EndClip(vtkEventDataDevice3D*);
-  virtual void StartDolly3D(vtkEventDataDevice3D*);
-  virtual void EndDolly3D(vtkEventDataDevice3D*);
+  void StartPick(vtkEventDataDevice3D*);
+  void EndPick(vtkEventDataDevice3D*);
+  void StartLoadCamPose(vtkEventDataDevice3D*);
+  void EndLoadCamPose(vtkEventDataDevice3D*);
+  void StartPositionProp(vtkEventDataDevice3D*);
+  void EndPositionProp(vtkEventDataDevice3D*);
+  void StartClip(vtkEventDataDevice3D*);
+  void EndClip(vtkEventDataDevice3D*);
+  void StartDolly3D(vtkEventDataDevice3D*);
+  void EndDolly3D(vtkEventDataDevice3D*);
   ///@}
 
   ///@{
@@ -88,9 +90,9 @@ public:
    * Methods for interaction.
    */
   void ProbeData(vtkEventDataDevice controller);
+  void PositionProp(vtkEventData*, double* lwpos = nullptr, double* lwori = nullptr) override;
+  void Clip(vtkEventDataDevice3D*);
   virtual void LoadNextCameraPose() = 0;
-  virtual void PositionProp(vtkEventData*, double* lwpos = nullptr, double* lwori = nullptr);
-  virtual void Clip(vtkEventDataDevice3D*);
   ///@}
 
   ///@{
@@ -107,7 +109,7 @@ public:
    * Define the helper text that goes with an input.
    */
   void AddTooltipForInput(
-    vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text);
+    vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text = "");
 
   /**
    * Creates a new ControlsHelper suitable for use with the child class.
@@ -127,7 +129,7 @@ public:
 
   ///@{
   /**
-   * Specify if the grab mode use the ray to grab distant objects.
+   * Specify if the grab mode uses the ray to grab distant objects.
    * Default is set to on.
    */
   vtkSetMacro(GrabWithRay, bool);
@@ -135,26 +137,64 @@ public:
   vtkBooleanMacro(GrabWithRay, bool);
   ///@}
 
+  /**
+   * Return interaction state for the specified device (dolly, pick, none, etc...).
+   */
   int GetInteractionState(vtkEventDataDevice device)
   {
     return this->InteractionState[static_cast<int>(device)];
   }
 
+  ///@{
+  /**
+   * Show/hide the ray for the specified controller.
+   */
   void ShowRay(vtkEventDataDevice controller);
   void HideRay(vtkEventDataDevice controller);
+  ///@}
 
+  ///@{
+  /**
+   * Show/hide billboard with given text string.
+   */
   void ShowBillboard(const std::string& text);
   void HideBillboard();
+  ///@}
 
+  /**
+   * Make the pick actor a sphere of given radius centered at given position,
+   * and show it.
+   */
   void ShowPickSphere(double* pos, double radius, vtkProp3D*);
+
+  /**
+   * Make the pick actor a polydata built from the points and edges of the
+   * given cell, and show it.
+   */
+
   void ShowPickCell(vtkCell* cell, vtkProp3D*);
+
+  /**
+   * Hide the pick actor (sphere or polydata).
+   */
   void HidePickActor();
 
+  ///@{
+  /**
+   * Control visibility of descriptive tooltips for controller/HMD models.
+   */
   void ToggleDrawControls();
   void SetDrawControls(bool);
+  ///@}
 
+  /**
+   * Set the Interactor wrapper being controlled by this object.
+   */
   void SetInteractor(vtkRenderWindowInteractor* iren) override;
 
+  /**
+   * Setup default actions defined with an action path and a corresponding command.
+   */
   virtual void SetupActions(vtkRenderWindowInteractor* iren) = 0;
 
   /**
@@ -165,27 +205,6 @@ public:
 protected:
   vtkVRInteractorStyle();
   ~vtkVRInteractorStyle() override;
-
-  bool HoverPick;
-  bool GrabWithRay;
-
-  vtkNew<vtkVRMenuWidget> Menu;
-  vtkNew<vtkVRMenuRepresentation> MenuRepresentation;
-  vtkCallbackCommand* MenuCommand;
-
-  vtkNew<vtkTextActor3D> TextActor3D;
-  vtkNew<vtkActor> PickActor;
-  vtkNew<vtkSphereSource> Sphere;
-  vtkNew<vtkVRHardwarePicker> HardwarePicker;
-
-  // Device input to interaction state mapping
-  std::map<std::tuple<vtkCommand::EventIds, vtkEventDataAction>, int> InputMap;
-  vtkVRControlsHelper* ControlsHelpers[vtkEventDataNumberOfDevices][vtkEventDataNumberOfInputs];
-
-  // Store required controllers information when performing action
-  int InteractionState[vtkEventDataNumberOfDevices];
-  vtkProp3D* InteractionProps[vtkEventDataNumberOfDevices];
-  vtkPlane* ClippingPlanes[vtkEventDataNumberOfDevices];
 
   /**
    * Update and draw the ray.
@@ -207,10 +226,26 @@ protected:
    */
   bool HardwareSelect(vtkEventDataDevice controller, bool actorPassOnly);
 
-  /**
-   * Controls helpers drawing.
-   */
-  void AddTooltipForInput(vtkEventDataDevice device, vtkEventDataDeviceInput input);
+  bool HoverPick = false;
+  bool GrabWithRay = true;
+
+  vtkNew<vtkVRMenuWidget> Menu;
+  vtkNew<vtkVRMenuRepresentation> MenuRepresentation;
+  vtkNew<vtkCallbackCommand> MenuCommand;
+
+  vtkNew<vtkTextActor3D> TextActor3D;
+  vtkNew<vtkActor> PickActor;
+  vtkNew<vtkSphereSource> Sphere;
+  vtkNew<vtkVRHardwarePicker> HardwarePicker;
+
+  // Device input to interaction state mapping
+  std::map<std::tuple<vtkCommand::EventIds, vtkEventDataAction>, int> InputMap;
+  vtkVRControlsHelper* ControlsHelpers[vtkEventDataNumberOfDevices][vtkEventDataNumberOfInputs];
+
+  // Store required controllers information when performing action
+  int InteractionState[vtkEventDataNumberOfDevices];
+  std::vector<vtkSmartPointer<vtkProp3D>> InteractionProps;
+  std::vector<vtkSmartPointer<vtkPlane>> ClippingPlanes;
 
 private:
   vtkVRInteractorStyle(const vtkVRInteractorStyle&) = delete;

@@ -14,15 +14,13 @@
 =========================================================================*/
 /**
  * @class   vtkOpenVRRenderWindowInteractor
- * @brief   implements OpenVR specific functions
- * required by vtkRenderWindowInteractor.
+ * @brief   Implements OpenVR specific functions required by vtkVRRenderWindowInteractor.
  */
 
 #ifndef vtkOpenVRRenderWindowInteractor_h
 #define vtkOpenVRRenderWindowInteractor_h
 
 #include "vtkEventData.h"             // for ivar
-#include "vtkNew.h"                   // ivars
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkVRRenderWindowInteractor.h"
 
@@ -30,29 +28,26 @@
 #include <map>        // for ivar
 #include <openvr.h>   // for ivar
 #include <string>     // for ivar
-#include <tuple>      // for ivar
-
-class vtkOpenVRRenderWindow;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRenderWindowInteractor : public vtkVRRenderWindowInteractor
 {
 public:
-  /**
-   * Construct object so that light follows camera motion.
-   */
   static vtkOpenVRRenderWindowInteractor* New();
-  vtkTypeMacro(vtkOpenVRRenderWindowInteractor, vtkRenderWindowInteractor3D);
+  vtkTypeMacro(vtkOpenVRRenderWindowInteractor, vtkVRRenderWindowInteractor);
 
   /**
-   * Initialize the event handler
+   * Initialize the event handler.
    */
-  virtual void Initialize() override;
+  void Initialize() override;
 
-  virtual void DoOneEvent(vtkVRRenderWindow* renWin, vtkRenderer* ren) override;
+  /**
+   * Implements the event loop.
+   */
+  void DoOneEvent(vtkVRRenderWindow* renWin, vtkRenderer* ren) override;
 
   ///@{
   /**
-   * Assign an event or std::function to an event path
+   * Assign an event or std::function to an event path.
    */
   void AddAction(std::string path, vtkCommand::EventIds, bool isAnalog);
   void AddAction(std::string path, bool isAnalog, std::function<void(vtkEventData*)>);
@@ -60,7 +55,7 @@ public:
 
 protected:
   vtkOpenVRRenderWindowInteractor();
-  ~vtkOpenVRRenderWindowInteractor() = default;
+  ~vtkOpenVRRenderWindowInteractor() override = default;
 
   class ActionData
   {
@@ -73,15 +68,14 @@ protected:
   };
 
   std::map<std::string, ActionData> ActionMap;
-
   vr::VRActionSetHandle_t ActionsetVTK = vr::k_ulInvalidActionSetHandle;
 
   enum TrackerEnum
   {
-    LeftHand = 0,
-    RightHand,
-    Head,
-    NumberOfTrackers
+    LEFT_HAND = 0,
+    RIGHT_HAND,
+    HEAD,
+    NUMBER_OF_TRACKERS
   };
 
   struct TrackerActions
@@ -89,7 +83,8 @@ protected:
     vr::VRInputValueHandle_t Source = vr::k_ulInvalidInputValueHandle;
     vr::TrackedDevicePose_t LastPose;
   };
-  TrackerActions Trackers[NumberOfTrackers];
+
+  TrackerActions Trackers[NUMBER_OF_TRACKERS];
 
 private:
   vtkOpenVRRenderWindowInteractor(const vtkOpenVRRenderWindowInteractor&) = delete;

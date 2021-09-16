@@ -173,14 +173,14 @@ public:
   /*
    * Get the index corresponding to this EventDataDevice
    */
-  const int GetTrackedDeviceIndexForDevice(vtkEventDataDevice);
+  uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index = 0) override;
   //@}
 
   //@{
   /*
    * Get the OpenXRModel corresponding to the device index.
    */
-  vtkVRModel* GetTrackedDeviceModel(vtkEventDataDevice dev, uint32_t idx) override;
+  vtkVRModel* GetTrackedDeviceModel(uint32_t idx) override;
   //@}
 
   //@{
@@ -202,7 +202,7 @@ protected:
   ~vtkOpenXRRenderWindow() override;
 
   // Create one framebuffer per view
-  bool CreateFramebuffers() override;
+  bool CreateFramebuffers(uint32_t viewCount = 2) override;
 
   bool BindTextureToFramebuffer(FramebufferDesc& framebufferDesc);
   void RenderFramebuffer(FramebufferDesc& framebufferDesc);

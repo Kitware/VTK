@@ -14,7 +14,7 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 /**
  * @class   vtkOpenVRInteractorStyle
- * @brief   extended from vtkInteractorStyle3D to override command methods
+ * @brief   Implements OpenVR specific functions required by vtkVRInteractorStyle.
  */
 
 #ifndef vtkOpenVRInteractorStyle_h
@@ -32,8 +32,19 @@ public:
   static vtkOpenVRInteractorStyle* New();
   vtkTypeMacro(vtkOpenVRInteractorStyle, vtkVRInteractorStyle);
 
-  virtual void SetupActions(vtkRenderWindowInteractor* iren) override;
-  virtual void LoadNextCameraPose() override;
+  /**
+   * Setup default actions defined with an action path and a corresponding command.
+   */
+  void SetupActions(vtkRenderWindowInteractor* iren) override;
+
+  /**
+   * Load the next camera pose.
+   */
+  void LoadNextCameraPose() override;
+
+  /**
+   * Creates a new ControlsHelper suitable for use with this class.
+   */
   vtkVRControlsHelper* MakeControlsHelper() override;
 
 protected:
