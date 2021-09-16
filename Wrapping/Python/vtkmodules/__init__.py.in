@@ -48,10 +48,7 @@ if sys.version_info >= (3, 8) and sys.platform == 'win32':
 # the user imports this Python package in a non-statically linked Python
 # interpreter i.e. not of the of the VTK-python executables, then we import the
 # static components importer module.
-try:
-    from . import vtkCommonCore
-except ImportError:
-    import _vtkmodules_static
+@_vtkmodules_static_import@
 
 #------------------------------------------------------------------------------
 # list the contents
