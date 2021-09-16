@@ -35,7 +35,6 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
