@@ -16,6 +16,7 @@
 #include "vtkIOSSFilesScanner.h"
 #include "vtkIOSSUtilities.h"
 
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
@@ -182,6 +183,54 @@ vtkSmartPointer<vtkAbstractArray> JoinArrays(
 }
 }
 
+struct DGInformation
+{
+  // list of element types ordered with blocks
+  // assumes each block will have a single element type
+  std::map<std::string, std::string> elementTypes;
+
+  // list of fields present on each block
+  std::map<std::string, std::vector<std::string>> fields;
+
+  bool BlockIsDG(std::string name) { return elementTypes.count(name); }
+};
+
+std::vector<std::string> split(std::string inString, std::string delimeter)
+{
+  std::vector<std::string> subStrings;
+  int sIdx = 0;
+  int eIdx = 0;
+  while ((eIdx = inString.find(delimeter, sIdx)) < inString.size())
+  {
+    subStrings.push_back(inString.substr(sIdx, eIdx - sIdx));
+    sIdx = eIdx + delimeter.size();
+  }
+  if (sIdx < inString.size())
+  {
+    subStrings.push_back(inString.substr(sIdx));
+  }
+  return subStrings;
+}
+
+void parseDGInfo(DGInformation& dgInfo, std::vector<std::string> info_records)
+{
+  for (auto& record : info_records)
+  {
+    auto data = split(record, "::");
+    // check if the row in the record is a DG callout
+    if (data[0] != "DG" || data.size() < 4)
+      continue;
+    // get the block associated with that callout
+    std::string name = data[1];
+
+    // get if its a basis or a field
+    if (data[2] == "basis")
+      dgInfo.elementTypes[name] = data[3];
+    if (data[2] == "field")
+      dgInfo.fields[name].push_back(data[3]);
+  }
+}
+
 class vtkIOSSReader::vtkInternals
 {
   // it's okay to instantiate this multiple times.
@@ -213,6 +262,8 @@ class vtkIOSSReader::vtkInternals
 
   vtkSmartPointer<vtkDataAssembly> Assembly;
   vtkTimeStamp AssemblyMTime;
+
+  DGInformation DGInfo;
 
 public:
   vtkInternals(vtkIOSSReader* reader)
@@ -1600,6 +1651,46 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetCGNSDat
 }
 
 //----------------------------------------------------------------------------
+bool ExplodeDGMesh(vtkUnstructuredGrid* dataset)
+{
+  auto old_points = dataset->GetPoints();
+  vtkNew<vtkPoints> exploded_points;
+  vtkNew<vtkCellArray> exploded_cells;
+
+  const vtkIdType nCells = dataset->GetCells()->GetNumberOfCells();
+
+  // TO DO: Get the actual number of points in each element
+  const int nPtsPerCell = 8;
+  exploded_points->SetNumberOfPoints(nCells * nPtsPerCell);
+  exploded_cells->AllocateExact(nCells, nPtsPerCell);
+
+  // loop over cell connectivity, redo the connectivity so that each cell is
+  // disconnected from other cells and then copy associated points into the
+  // point array
+  long ind = 0;
+  auto iter = vtk::TakeSmartPointer(dataset->GetCells()->NewIterator());
+  for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+  {
+    // get next cell in original dataset
+    vtkIdList* cellIds = iter->GetCurrentCell();
+
+    exploded_cells->InsertNextCell(nPtsPerCell);
+    for (vtkIdType i = 0; i < nPtsPerCell; ++i)
+    {
+      vtkVector3d coords{ 0.0 };
+
+      old_points->GetPoint(cellIds->GetId(i), coords.GetData());
+      exploded_points->InsertPoint(ind, coords.GetData());
+      exploded_cells->InsertCellPoint(ind);
+      ind++;
+    }
+  }
+  dataset->SetPoints(exploded_points);
+  dataset->SetCells(dataset->GetCellTypesArray(), exploded_cells);
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkIOSSReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
   const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle, bool remove_unused_points)
@@ -1624,6 +1715,13 @@ bool vtkIOSSReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
     !this->GetGeometry(dataset, "nodeblock_1", handle))
   {
     return false;
+  }
+
+  // if the block is a DG block, we explode the connectivity and points array so each
+  // cell is disconnected from every other cell
+  if (this->DGInfo.BlockIsDG(blockname))
+  {
+    ExplodeDGMesh(dataset);
   }
 
   if (remove_unused_points)
@@ -2045,6 +2143,7 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
   }
   for (const auto& fieldname : fieldnames)
   {
+    std::cout << group_entity->name() << " field: " << fieldname << std::endl;
     if (auto array = this->GetField(
           fieldname, region, group_entity, handle, timestep, ids_to_extract, cache_key_suffix))
     {
@@ -2256,6 +2355,25 @@ bool vtkIOSSReader::vtkInternals::GetQAAndInformationRecords(
   for (auto& n : info)
   {
     info_records->InsertNextValue(n);
+  }
+
+  // parse potential info about DG blocks
+  parseDGInfo(this->DGInfo, info);
+
+  std::cout << "bases: \n";
+  for (auto name : this->DGInfo.elementTypes)
+  {
+    std::cout << "  " << name.first << " " << name.second << "\n";
+  }
+
+  std::cout << "fields: \n";
+  for (auto name : this->DGInfo.fields)
+  {
+    std::cout << "  " << name.first << ":\n";
+    for (auto field : name.second)
+    {
+      std::cout << "    " << field << "\n";
+    }
   }
 
   fd->AddArray(info_records);
@@ -2506,6 +2624,32 @@ int vtkIOSSReader::ReadMesh(
   // dbaseHandles are handles for individual files this instance will to read to
   // satisfy the request. Can be >= 0.
   const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
+
+  // Read global data. Since this should be same on all ranks, we only read on
+  // root node and broadcast it to all. This helps us easily handle the case
+  // where the number of reading-ranks is more than writing-ranks.
+  auto controller = this->GetController();
+  const auto rank = controller ? controller->GetLocalProcessId() : 0;
+  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
+  if (!dbaseHandles.empty() && rank == 0)
+  {
+    // Read global data. Since global data is expected to be identical on all
+    // files in a partitioned collection, we can read it from the first
+    // dbaseHandle alone.
+    if (this->ReadGlobalFields)
+    {
+      internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
+    }
+
+    if (this->ReadQAAndInformationRecords)
+    {
+      internals.GetQAAndInformationRecords(collection->GetFieldData(), dbaseHandles[0]);
+    }
+
+    // Handle assemblies.
+    internals.ReadAssemblies(collection, dbaseHandles[0]);
+  }
+
   for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
   {
     const std::string blockname(collection->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()));
@@ -2542,31 +2686,6 @@ int vtkIOSSReader::ReadMesh(
 
       internals.ReleaseHandles();
     }
-  }
-
-  // Read global data. Since this should be same on all ranks, we only read on
-  // root node and broadcast it to all. This helps us easily handle the case
-  // where the number of reading-ranks is more than writing-ranks.
-  auto controller = this->GetController();
-  const auto rank = controller ? controller->GetLocalProcessId() : 0;
-  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
-  if (!dbaseHandles.empty() && rank == 0)
-  {
-    // Read global data. Since global data is expected to be identical on all
-    // files in a partitioned collection, we can read it from the first
-    // dbaseHandle alone.
-    if (this->ReadGlobalFields)
-    {
-      internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
-    }
-
-    if (this->ReadQAAndInformationRecords)
-    {
-      internals.GetQAAndInformationRecords(collection->GetFieldData(), dbaseHandles[0]);
-    }
-
-    // Handle assemblies.
-    internals.ReadAssemblies(collection, dbaseHandles[0]);
   }
 
   if (numRanks > 1)
