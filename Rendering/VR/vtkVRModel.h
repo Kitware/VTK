@@ -45,7 +45,8 @@ public:
 
   bool Build(vtkOpenGLRenderWindow* win);
 
-  void Render(vtkOpenGLRenderWindow* win, const float poseInTrackingCoordinates[][4]);
+  // void Render(vtkOpenGLRenderWindow* win, const float poseInTrackingCoordinates[][4]);
+  void Render(vtkOpenGLRenderWindow* win, vtkMatrix4x4* poseInTrackingCoordinates);
 
   const std::string& GetName() const { return this->ModelName; }
   void SetName(const std::string& modelName) { this->ModelName = modelName; }

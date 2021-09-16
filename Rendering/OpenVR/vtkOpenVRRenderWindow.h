@@ -1,6 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
+Module:    vtkOpenVRRenderWindow.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -133,12 +134,10 @@ public:
    */
   void UpdateHMDMatrixPose() override;
 
-  using vtkVRRenderWindow::GetTrackedDeviceModel;
-
   /**
-   * Get the VRModel corresponding to the tracked device
+   * Convert an OpenVR pose struct to a vtkMatrix4x4 object.
    */
-  vtkVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx, uint32_t index) override;
+  void CreateMatrixFromVrPose(vtkMatrix4x4* result, const vr::TrackedDevicePose_t& vrPose);
 
   /**
    * Get the openVR Render Models
@@ -153,36 +152,17 @@ public:
   /**
    * Get the index corresponding to the tracked device
    */
-  vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev)
+  uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev)
   {
     return this->GetTrackedDeviceIndexForDevice(dev, 0);
   }
-  vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index);
+  uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index);
   uint32_t GetNumberOfTrackedDevicesForDevice(vtkEventDataDevice dev);
-
-  /**
-   * Get the most recent pose corresponding to the tracked device
-   */
-  vr::TrackedDevicePose_t* GetTrackedDevicePose(vtkEventDataDevice idx)
-  {
-    return this->GetTrackedDevicePose(idx, 0);
-  }
-  vr::TrackedDevicePose_t* GetTrackedDevicePose(vtkEventDataDevice idx, uint32_t index);
-  vr::TrackedDevicePose_t& GetTrackedDevicePose(vr::TrackedDeviceIndex_t idx)
-  {
-    return this->TrackedDevicePose[idx];
-  }
 
   /**
    * Render the controller and base station models
    */
   void RenderModels() override;
-
-  bool GetPoseMatrixWorldFromDevice(
-    vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld) override;
-
-  void ConvertOpenVRPoseToMatrices(const vr::TrackedDevicePose_t& tdPose,
-    vtkMatrix4x4* poseMatrixWorld, vtkMatrix4x4* poseMatrixPhysical = nullptr);
 
 protected:
   vtkOpenVRRenderWindow();
@@ -205,11 +185,8 @@ protected:
   std::string GetTrackedDeviceString(vr::IVRSystem* pHmd, vr::TrackedDeviceIndex_t unDevice,
     vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError = nullptr);
 
-  // devices may have polygonal models
-  // load them
+  // Finds a render model that has already been loaded or loads a new one
   vtkOpenVRModel* FindOrLoadRenderModel(const char* modelName);
-
-  vr::TrackedDevicePose_t TrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 
   vtkOpenVROverlay* DashboardOverlay;
 

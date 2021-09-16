@@ -11,10 +11,6 @@ This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
-Parts Copyright Valve Coproration from hellovr_opengl_main.cpp
-under their BSD license found here:
-https://github.com/ValveSoftware/openvr/blob/master/LICENSE
-
 =========================================================================*/
 #include "vtkVRRenderWindow.h"
 
@@ -126,8 +122,8 @@ void vtkVRRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
     glDeleteFramebuffers(1, &fbo.ResolveFramebufferId);
   }
 
-  for (std::vector<vtkVRModel*>::iterator i = this->VTKRenderModels.begin();
-       i != this->VTKRenderModels.end(); ++i)
+  for (std::vector<vtkVRModel*>::iterator i = this->TrackedDeviceToRenderModel.begin();
+       i != this->TrackedDeviceToRenderModel.end(); ++i)
   {
     (*i)->ReleaseGraphicsResources(renWin);
   }
@@ -156,6 +152,69 @@ void vtkVRRenderWindow::SetHelperWindow(vtkOpenGLRenderWindow* win)
 
   this->Modified();
 }
+
+//------------------------------------------------------------------------------
+vtkVRModel* vtkVRRenderWindow::GetTrackedDeviceModel(vtkEventDataDevice idx)
+{
+  uint32_t index = this->GetTrackedDeviceIndexForDevice(idx, 0);
+
+  // Invalid index
+  if (index == -1)
+  {
+    return nullptr;
+  }
+
+  return this->TrackedDeviceToRenderModel[index];
+}
+
+//------------------------------------------------------------------------------
+vtkMatrix4x4* vtkVRRenderWindow::GetTrackedDevicePose(vtkEventDataDevice idx)
+// void vtkVRRenderWindow::GetTrackedDevicePose(vtkEventDataDevice idx, float pose[3][4])
+// float (*vtkVRRenderWindow::GetTrackedDevicePose(vtkEventDataDevice idx))[4]
+{
+  uint32_t index = this->GetTrackedDeviceIndexForDevice(idx, 0);
+
+  // Invalid index
+  if (index == this->InvalidDeviceIndex)
+  {
+    return nullptr;
+  }
+
+  // float devicePose[3][4] = this->TrackedDevicePoses[index];
+  // float devicePose[3][4];
+  // devicePose = this->TrackedDevicePoses[index];
+  // float(*devicePose)[4] = this->TrackedDevicePoses[index];
+
+  // for (vtkIdType i = 0; i < 3; ++i)
+  // {
+  //   for (vtkIdType j = 0; j < 4; ++j)
+  //   {
+  //     pose[i][j] = devicePose[i][j];
+  //   }
+  // }
+
+  return this->TrackedDevicePoses[index];
+}
+
+//------------------------------------------------------------------------------
+vtkMatrix4x4* vtkVRRenderWindow::GetTrackedDevicePose(uint32_t idx)
+{
+  return this->TrackedDevicePoses[idx];
+}
+// void vtkVRRenderWindow::GetTrackedDevicePose(uint32_t idx, float pose[3][4])
+// {
+//   // float devicePose[3][4];
+//   // devicePose = this->TrackedDevicePoses[idx];
+//   float(*devicePose)[4] = this->TrackedDevicePoses[idx];
+
+//   for (vtkIdType i = 0; i < 3; ++i)
+//   {
+//     for (vtkIdType j = 0; j < 4; ++j)
+//     {
+//       pose[i][j] = devicePose[i][j];
+//     }
+//   }
+// }
 
 //------------------------------------------------------------------------------
 void vtkVRRenderWindow::InitializeViewFromCamera(vtkCamera* srccam)
@@ -312,12 +371,12 @@ void vtkVRRenderWindow::Finalize()
 {
   this->ReleaseGraphicsResources(this);
 
-  for (std::vector<vtkVRModel*>::iterator i = this->VTKRenderModels.begin();
-       i != this->VTKRenderModels.end(); ++i)
+  for (std::vector<vtkVRModel*>::iterator i = this->TrackedDeviceToRenderModel.begin();
+       i != this->TrackedDeviceToRenderModel.end(); ++i)
   {
     (*i)->Delete();
   }
-  this->VTKRenderModels.clear();
+  this->TrackedDeviceToRenderModel.clear();
 
   if (this->HelperWindow && this->HelperWindow->GetGenericContext())
   {
@@ -349,6 +408,57 @@ void vtkVRRenderWindow::RenderFramebuffer(FramebufferDesc& framebufferDesc)
   }
 
   this->GetState()->PopDrawFramebufferBinding();
+}
+
+//------------------------------------------------------------------------------
+void vtkVRRenderWindow::ConvertPoseToMatrices(vtkMatrix4x4* pose, vtkMatrix4x4* poseMatrixWorld,
+  // void vtkVRRenderWindow::ConvertPoseToMatrices(const float pose[3][4], vtkMatrix4x4*
+  // poseMatrixWorld,
+  vtkMatrix4x4* poseMatrixPhysical /*=nullptr*/)
+{
+  // TODO: if vtkMatrix4x4 is good, poseMatrixPhysical becomes useless because = pose
+  if (!poseMatrixWorld && !poseMatrixPhysical)
+  {
+    return;
+  }
+
+  // vtkNew<vtkMatrix4x4> poseMatrixPhysicalTemp;
+  // for (int row = 0; row < 3; ++row)
+  // {
+  //   for (int col = 0; col < 4; ++col)
+  //   {
+  //     poseMatrixPhysicalTemp->SetElement(row, col, pose[row][col]);
+  //   }
+  // }
+  if (poseMatrixPhysical)
+  {
+    // poseMatrixPhysical->DeepCopy(poseMatrixPhysicalTemp);
+    poseMatrixPhysical->DeepCopy(pose);
+  }
+
+  if (poseMatrixWorld)
+  {
+    vtkNew<vtkMatrix4x4> physicalToWorldMatrix;
+    this->GetPhysicalToWorldMatrix(physicalToWorldMatrix);
+    // vtkMatrix4x4::Multiply4x4(physicalToWorldMatrix, poseMatrixPhysicalTemp, poseMatrixWorld);
+    vtkMatrix4x4::Multiply4x4(physicalToWorldMatrix, pose, poseMatrixWorld);
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkVRRenderWindow::GetPoseMatrixWorldFromDevice(
+  vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld)
+{
+  vtkMatrix4x4* tdPose = this->GetTrackedDevicePose(device);
+  // float tdPose[3][4];
+  // this->GetTrackedDevicePose(device, tdPose);
+  // if (tdPose = this->GetTrackedDevicePose(device))
+  if (tdPose)
+  {
+    this->ConvertPoseToMatrices(tdPose, poseMatrixWorld);
+    return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------

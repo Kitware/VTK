@@ -2,19 +2,20 @@ option(VTK_ENABLE_VR_COLLABORATION "Enable VR collaboration support. Requires li
 mark_as_advanced(VTK_ENABLE_VR_COLLABORATION)
 
 set(classes
-  vtkVRRenderWindow
-  vtkVRRenderer
-  vtkVRRay
+  vtkOpenGLAvatar
+  vtkVRControlsHelper
+  vtkVRFollower
+  vtkVRHardwarePicker
+  vtkVRInteractorStyle
   vtkVRMenuRepresentation
   vtkVRMenuWidget
+  vtkVRModel
   vtkVRPanelRepresentation
   vtkVRPanelWidget
-  vtkOpenGLAvatar
-  vtkVRHardwarePicker
-  vtkVRFollower
-  vtkVRModel
-  vtkVRControlsHelper
-  )
+  vtkVRRay
+  vtkVRRenderer
+  vtkVRRenderWindow
+  vtkVRRenderWindowInteractor)
 
 set(headers
   vtkVRCamera.h)

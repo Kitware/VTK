@@ -88,14 +88,31 @@ public:
   //@}
 
   /**
+   * Get the index corresponding to the tracked device.
+   * Used to retrieve models and poses.
+   */
+  virtual uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice idx, uint32_t index) = 0;
+
+  //@{
+  /**
    * Get the VRModel corresponding to the tracked device
    */
-  vtkVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx)
-  {
-    return this->GetTrackedDeviceModel(idx, 0);
-  }
+  vtkVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx);
   vtkVRModel* GetTrackedDeviceModel(uint32_t idx) { return this->TrackedDeviceToRenderModel[idx]; }
-  virtual vtkVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx, uint32_t index) = 0;
+  //@}
+
+  //@{
+  /**
+   * Get the pose matrix corresponding to the tracked device
+   */
+  vtkMatrix4x4* GetTrackedDevicePose(vtkEventDataDevice idx);
+  vtkMatrix4x4* GetTrackedDevicePose(uint32_t idx); // { return this->TrackedDevicePoses[idx]; }
+  // void GetTrackedDevicePose(vtkEventDataDevice idx, float pose[3][4]);
+  // void GetTrackedDevicePose(uint32_t idx, float pose[3][4]);// { return
+  // this->TrackedDevicePoses[idx]; } float (*GetTrackedDevicePose(vtkEventDataDevice idx))[4];
+  // float
+  // (*GetTrackedDevicePose(uint32_t idx))[4] { return this->TrackedDevicePoses[idx]; }
+  //@}
 
   /**
    * Initialize the HMD to World setting and camera settings so
@@ -106,6 +123,9 @@ public:
    * set when this is called.
    */
   virtual void InitializeViewFromCamera(vtkCamera* cam);
+
+  void ConvertPoseToMatrices(
+    vtkMatrix4x4* pose, vtkMatrix4x4* poseMatrixWorld, vtkMatrix4x4* poseMatrixPhysical = nullptr);
 
   //@{
   /**
@@ -299,11 +319,9 @@ public:
 
   /**
    * Store in \p poseMatrixWorld the pose matrix in world coordinate from an event data device.
-   * Must be defined in subclasses depending on the backend API
    * Return true if the pose is valid, else false.
    */
-  virtual bool GetPoseMatrixWorldFromDevice(
-    vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld) = 0;
+  bool GetPoseMatrixWorldFromDevice(vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld);
 
   //@{
   /**
@@ -348,9 +366,10 @@ protected:
 
   bool TrackHMD;
 
-  std::vector<vtkVRModel*> VTKRenderModels;
-  // This vector must be resized in subclass with the maximum number of devices
+  // These vectors must be resized in subclass with the maximum number of devices
   std::vector<vtkVRModel*> TrackedDeviceToRenderModel;
+  std::vector<vtkNew<vtkMatrix4x4>> TrackedDevicePoses;
+  uint32_t InvalidDeviceIndex = UINT32_MAX;
 
   // used in computing the pose
   vtkNew<vtkTransform> HMDTransform;
