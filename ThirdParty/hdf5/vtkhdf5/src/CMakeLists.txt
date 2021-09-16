@@ -1199,7 +1199,7 @@ endif ()
 
 else ()
 set (gen_SRCS ${HDF5_GENERATED_SOURCE_DIR}/H5Tinit.c ${HDF5_SRC_BINARY_DIR}/H5lib_settings.c)
-add_custom_target (gen_${HDF5_LIB_TARGET} ALL DEPENDS ${HDF5_GENERATED_SOURCE_DIR}/gen_SRCS.stamp1 ${HDF5_GENERATED_SOURCE_DIR}/gen_SRCS.stamp2)
+add_custom_target (gen_${HDF5_LIB_TARGET} ALL)
 
 add_library(vtkhdf5_src ${common_SRCS} ${gen_SRCS} ${H5_PUBLIC_HEADERS} ${H5_PRIVATE_HEADERS} ${H5_GENERATED_HEADERS})
 target_include_directories(vtkhdf5_src
