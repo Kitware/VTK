@@ -241,7 +241,7 @@ More advanced options:
   * `VTK_DLL_PATHS` (default `""`): If set, these paths will be added via
     Python 3.8's `os.add_dll_directory` mechanism in order to find dependent
     DLLs when loading VTK's Python modules.
-  * `VTK_ENABLE_OPENVR_COLLABORATION` (default `OFF`): If `ON`, includes support
+  * `VTK_ENABLE_VR_COLLABORATION` (default `OFF`): If `ON`, includes support
     for multi client VR collaboration. Requires libzmq and cppzmq external libraries.
   * `VTK_SMP_ENABLE_<backend_name>` (default `OFF` if needs an external library otherwise `ON`):
     If set, builds with the specified SMPTools backend implementation that can be
