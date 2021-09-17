@@ -34,7 +34,7 @@ The following variables are provided by this module:
     support.
   * `VTK_QT_VERSION`: The major version of Qt used by VTK if Qt support enabled.
   * `VTK_QML_DIR`: Where VTK's QML plugins live if QML support is enabled.
-  * `VTK_ENABLE_OPENVR_COLLABORATION`: Is VR collaboration enabled when OpenVR is enabled.
+  * `VTK_ENABLE_VR_COLLABORATION`: Is VR collaboration enabled when VR is enabled.
   * `VTK_SMP_BACKENDS`: The list of available SMP backends.
 
 For more information about the Python in use by VTK, the `VTK_PYTHON_VERSION`
@@ -157,8 +157,8 @@ if (TARGET VTK::opengl)
   set(VTK_OPENGL_HAS_EGL "@VTK_OPENGL_HAS_EGL@")
 endif ()
 
-if (TARGET VTK::RenderingOpenVR)
-  set("${CMAKE_FIND_PACKAGE_NAME}_ENABLE_OPENVR_COLLABORATION" "@VTK_ENABLE_OPENVR_COLLABORATION@")
+if (TARGET VTK::RenderingVR)
+  set("${CMAKE_FIND_PACKAGE_NAME}_ENABLE_VR_COLLABORATION" "@VTK_ENABLE_VR_COLLABORATION@")
 endif ()
 
 if (@vtk_qt_major_version@) # VTK_QT_VERSION
