@@ -38,6 +38,8 @@
 #include "vtkActorCollection.h"  // Needed for access in inline members
 #include "vtkVolumeCollection.h" // Needed for access in inline members
 
+#include <array> // To store matrices
+
 class vtkFXAAOptions;
 class vtkRenderWindow;
 class vtkVolume;
@@ -962,6 +964,24 @@ protected:
   vtkPropCollection* GL2PSSpecialPropCollection;
 
   /**
+   * Gets the ActiveCamera CompositeProjectionTransformationMatrix, only computing it if necessary.
+   * This function expects that this->ActiveCamera is not nullptr.
+   */
+  const std::array<double, 16>& GetCompositeProjectionTransformationMatrix();
+
+  /**
+   * Gets the ActiveCamera ProjectionTransformationMatrix, only computing it if necessary.
+   * This function expects that this->ActiveCamera is not nullptr.
+   */
+  const std::array<double, 16>& GetProjectionTransformationMatrix();
+
+  /**
+   * Gets the ActiveCamera ViewTransformMatrix, only computing it if necessary.
+   * This function expects that this->ActiveCamera is not nullptr.
+   */
+  const std::array<double, 16>& GetViewTransformMatrix();
+
+  /**
    * Ask all props to update and draw any opaque and translucent
    * geometry. This includes both vtkActors and vtkVolumes
    * Returns the number of props that rendered geometry.
@@ -1114,6 +1134,46 @@ protected:
   double EnvironmentRight[3];
 
 private:
+  /**
+   * Cache of CompositeProjectionTransformationMatrix.
+   */
+  std::array<double, 16> CompositeProjectionTransformationMatrix;
+
+  /**
+   * Tiled Aspect Ratio used to get the transform in this->CompositeProjectionTransformationMatrix.
+   */
+  double LastCompositeProjectionTransformationMatrixTiledAspectRatio;
+
+  /**
+   * Modified time from the camera when this->CompositeProjectionTransformationMatrix was set.
+   */
+  vtkMTimeType LastCompositeProjectionTransformationMatrixCameraModified;
+
+  /**
+   * Cache of ProjectionTransformationMatrix.
+   */
+  std::array<double, 16> ProjectionTransformationMatrix;
+
+  /**
+   * Tiled Aspect Ratio used to get the transform in this->ProjectionTransformationMatrix.
+   */
+  double LastProjectionTransformationMatrixTiledAspectRatio;
+
+  /**
+   * Modified time from the camera when this->ProjectionTransformationMatrix was set.
+   */
+  vtkMTimeType LastProjectionTransformationMatrixCameraModified;
+
+  /**
+   * Cache of ViewTransformMatrix.
+   */
+  std::array<double, 16> ViewTransformMatrix;
+
+  /**
+   * Modified time from the camera when this->ViewTransformMatrix was set.
+   */
+  vtkMTimeType LastViewTransformCameraModified;
+
   vtkRenderer(const vtkRenderer&) = delete;
   void operator=(const vtkRenderer&) = delete;
 };

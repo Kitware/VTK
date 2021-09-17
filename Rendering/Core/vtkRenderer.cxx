@@ -1562,7 +1562,6 @@ void vtkRenderer::WorldToView()
 // Convert world point coordinates to view coordinates.
 void vtkRenderer::WorldToView(double& x, double& y, double& z)
 {
-  double mat[16];
   double view[4];
 
   // get the perspective transformation from the active camera
@@ -1572,8 +1571,7 @@ void vtkRenderer::WorldToView(double& x, double& y, double& z)
     x = y = z = 0.0;
     return;
   }
-  vtkMatrix4x4::DeepCopy(mat,
-    this->ActiveCamera->GetCompositeProjectionTransformMatrix(this->GetTiledAspectRatio(), 0, 1));
+  const auto& mat = this->GetCompositeProjectionTransformationMatrix();
 
   view[0] = x * mat[0] + y * mat[1] + z * mat[2] + mat[3];
   view[1] = x * mat[4] + y * mat[5] + z * mat[6] + mat[7];
@@ -1590,7 +1588,6 @@ void vtkRenderer::WorldToView(double& x, double& y, double& z)
 
 void vtkRenderer::WorldToPose(double& x, double& y, double& z)
 {
-  double mat[16];
   double view[4];
 
   // get the perspective transformation from the active camera
@@ -1600,7 +1597,7 @@ void vtkRenderer::WorldToPose(double& x, double& y, double& z)
     x = y = z = 0.0;
     return;
   }
-  vtkMatrix4x4::DeepCopy(mat, this->ActiveCamera->GetViewTransformMatrix());
+  const auto& mat = this->GetViewTransformMatrix();
 
   view[0] = x * mat[0] + y * mat[1] + z * mat[2] + mat[3];
   view[1] = x * mat[4] + y * mat[5] + z * mat[6] + mat[7];
@@ -1617,7 +1614,6 @@ void vtkRenderer::WorldToPose(double& x, double& y, double& z)
 
 void vtkRenderer::PoseToView(double& x, double& y, double& z)
 {
-  double mat[16];
   double view[4];
 
   // get the perspective transformation from the active camera
@@ -1627,8 +1623,7 @@ void vtkRenderer::PoseToView(double& x, double& y, double& z)
     x = y = z = 0.0;
     return;
   }
-  vtkMatrix4x4::DeepCopy(
-    mat, this->ActiveCamera->GetProjectionTransformMatrix(this->GetTiledAspectRatio(), 0, 1));
+  const auto& mat = this->GetProjectionTransformationMatrix();
 
   view[0] = x * mat[0] + y * mat[1] + z * mat[2] + mat[3];
   view[1] = x * mat[4] + y * mat[5] + z * mat[6] + mat[7];
@@ -1656,10 +1651,10 @@ void vtkRenderer::PoseToWorld(double& x, double& y, double& z)
   }
 
   // get the perspective transformation from the active camera
-  vtkMatrix4x4* matrix = this->ActiveCamera->GetViewTransformMatrix();
+  const auto& matrix = this->GetViewTransformMatrix();
 
   // use the inverse matrix
-  vtkMatrix4x4::Invert(*matrix->Element, mat);
+  vtkMatrix4x4::Invert(matrix.data(), mat);
 
   // Transform point to world coordinates
   result[0] = x;
@@ -1691,13 +1686,8 @@ void vtkRenderer::ViewToPose(double& x, double& y, double& z)
     return;
   }
 
-  // get the perspective transformation from the active camera
-  vtkMatrix4x4* matrix =
-    this->ActiveCamera->GetProjectionTransformMatrix(this->GetTiledAspectRatio(), 0, 1);
-
-  // use the inverse matrix
-  vtkMatrix4x4::Invert(*matrix->Element, mat);
-
+  const auto& matrix = this->GetProjectionTransformationMatrix();
+  vtkMatrix4x4::Invert(matrix.data(), mat);
   // Transform point to world coordinates
   result[0] = x;
   result[1] = y;
@@ -2066,3 +2056,47 @@ int vtkRenderer::CaptureGL2PSSpecialProp(vtkProp* prop)
 }
 
 vtkCxxSetObjectMacro(vtkRenderer, GL2PSSpecialPropCollection, vtkPropCollection);
+
+const std::array<double, 16>& vtkRenderer::GetViewTransformMatrix()
+{
+  if (this->LastViewTransformCameraModified != this->ActiveCamera->GetMTime())
+  {
+    vtkMatrix4x4::DeepCopy(
+      this->ViewTransformMatrix.data(), this->ActiveCamera->GetViewTransformMatrix());
+
+    this->LastViewTransformCameraModified = this->ActiveCamera->GetMTime();
+  }
+  return this->ViewTransformMatrix;
+}
+
+const std::array<double, 16>& vtkRenderer::GetCompositeProjectionTransformationMatrix()
+{
+  const double tiledAspectRatio = this->GetTiledAspectRatio();
+  if (tiledAspectRatio != this->LastCompositeProjectionTransformationMatrixTiledAspectRatio ||
+    this->LastCompositeProjectionTransformationMatrixCameraModified !=
+      this->ActiveCamera->GetMTime())
+  {
+    vtkMatrix4x4::DeepCopy(this->CompositeProjectionTransformationMatrix.data(),
+      this->ActiveCamera->GetCompositeProjectionTransformMatrix(tiledAspectRatio, 0, 1));
+
+    this->LastCompositeProjectionTransformationMatrixTiledAspectRatio = tiledAspectRatio;
+    this->LastCompositeProjectionTransformationMatrixCameraModified =
+      this->ActiveCamera->GetMTime();
+  }
+  return this->CompositeProjectionTransformationMatrix;
+}
+
+const std::array<double, 16>& vtkRenderer::GetProjectionTransformationMatrix()
+{
+  const double tiledAspectRatio = this->GetTiledAspectRatio();
+  if (tiledAspectRatio != this->LastProjectionTransformationMatrixTiledAspectRatio ||
+    this->LastProjectionTransformationMatrixCameraModified != this->ActiveCamera->GetMTime())
+  {
+    vtkMatrix4x4::DeepCopy(this->ProjectionTransformationMatrix.data(),
+      this->ActiveCamera->GetProjectionTransformMatrix(tiledAspectRatio, 0, 1));
+
+    this->LastProjectionTransformationMatrixTiledAspectRatio = tiledAspectRatio;
+    this->LastProjectionTransformationMatrixCameraModified = this->ActiveCamera->GetMTime();
+  }
+  return this->ProjectionTransformationMatrix;
+}
