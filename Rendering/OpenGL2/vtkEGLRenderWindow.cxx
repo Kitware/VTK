@@ -590,6 +590,15 @@ void vtkEGLRenderWindow::MakeCurrent()
   }
 }
 
+void vtkEGLRenderWindow::ReleaseCurrent()
+{
+  vtkInternals* impl = this->Internals;
+  if (impl->Display != EGL_NO_DISPLAY)
+  {
+    eglMakeCurrent(impl->Display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+  }
+}
+
 //------------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.

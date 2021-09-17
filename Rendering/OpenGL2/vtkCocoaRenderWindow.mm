@@ -336,6 +336,12 @@ void vtkCocoaRenderWindow::MakeCurrent()
 }
 
 //----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::ReleaseCurrent()
+{
+  [NSOpenGLContext clearCurrentContext];
+}
+
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::PushContext()
 {
   NSOpenGLContext* current = [NSOpenGLContext currentContext];

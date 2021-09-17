@@ -102,6 +102,14 @@ void vtkSDL2OpenGLRenderWindow::MakeCurrent()
   }
 }
 
+void vtkSDL2OpenGLRenderWindow::ReleaseCurrent()
+{
+  if (this->ContextId)
+  {
+    SDL_GL_MakeCurrent(this->WindowId, nullptr);
+  }
+}
+
 void vtkSDL2OpenGLRenderWindow::PushContext()
 {
   SDL_GLContext current = SDL_GL_GetCurrentContext();
