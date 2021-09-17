@@ -45,6 +45,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestSplitByCellScalarFilter.cxx,NO_VALID
   TestTableFFT.cxx,NO_VALID
   TestTableSplitColumnComponents.cxx,NO_VALID
+  TestTemporalPathLineFilter.cxx,NO_VALID
   TestTessellator.cxx,NO_VALID
   TestTransformFilter.cxx,NO_VALID
   TestTransformPolyDataFilter.cxx,NO_VALID
