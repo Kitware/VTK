@@ -65,11 +65,20 @@ if (NOT VTK_WHEEL_BUILD)
   endif ()
 endif ()
 
+# goes in __init__.py for when vtkmodules is BUILD_STATIC
+set(_vtkmodules_static_import "import _vtkmodules_static")
+if (BUILD_SHARED_LIBS)
+    string(PREPEND _vtkmodules_static_import "#")
+endif ()
+
+set(_vtkmodules_all)
 set(_vtk_python_imports)
 foreach (_vtk_python_module IN LISTS vtk_python_wrapped_modules)
   get_property(_vtk_python_library_name
     TARGET    "${_vtk_python_module}"
     PROPERTY  "INTERFACE_vtk_module_library_name")
+  string(APPEND _vtkmodules_all
+    "    \'${_vtk_python_library_name}\',\n")
   string(APPEND _vtk_python_imports
     "from .${_vtk_python_library_name} import *\n")
 endforeach ()
@@ -135,6 +144,13 @@ set(python_files
   vtkmodules/wx/__init__.py
   vtkmodules/wx/wxVTKRenderWindow.py
   vtkmodules/wx/wxVTKRenderWindowInteractor.py)
+
+foreach (python_file IN LISTS python_files)
+  # add submodules that don't begin with "_" to _vtkmodules_all
+  if (python_file MATCHES "^vtkmodules\/([A-Za-z][A-Za-z0-9_]*)(\/__init__)?[.]py")
+    string(APPEND _vtkmodules_all "    \'${CMAKE_MATCH_1}\',\n")
+  endif ()
+endforeach ()
 
 set(python_copied_modules)
 foreach (python_file IN LISTS python_files)
