@@ -17,10 +17,11 @@
 #include "vtkCONVERGECFDReader.h"
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
+#include "vtkDataAssembly.h"
 #include "vtkDebugLeaks.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -40,22 +41,19 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     reader->Update();
     delete[] fname;
 
-    // Check on the structure of the output multiblock dataset
-    auto mbds = reader->GetOutput();
-    if (mbds->GetNumberOfBlocks() != 3)
+    // Check on the structure of the output partitioned dataset collection's assembly
+    auto pdc = reader->GetOutput();
+    auto assembly = pdc->GetDataAssembly();
+    if (assembly->GetNumberOfChildren(0) != 3)
     {
       vtkLog(ERROR, "Invalid number of streams in file.");
       return EXIT_FAILURE;
     }
 
-    auto streamBlock = vtkMultiBlockDataSet::SafeDownCast(mbds->GetBlock(0));
-    if (!streamBlock)
-    {
-      vtkLog(ERROR, "Stream block is not a vtkMultiBlockDataSet");
-      return EXIT_FAILURE;
-    }
-
-    auto mesh = vtkUnstructuredGrid::SafeDownCast(streamBlock->GetBlock(0));
+    int stream0NodeId = assembly->GetChild(0, 0);
+    int meshNodeId = assembly->GetChild(stream0NodeId, 0);
+    int meshId = assembly->GetDataSetIndices(meshNodeId, false)[0];
+    auto mesh = vtkUnstructuredGrid::SafeDownCast(pdc->GetPartition(meshId, 0));
     if (!mesh)
     {
       vtkLog(ERROR, "No mesh block found in stream 0.");
@@ -96,32 +94,11 @@ int TestCONVERGECFDReader(int argc, char* argv[])
       }
     }
 
-    auto surfaces = vtkMultiBlockDataSet::SafeDownCast(streamBlock->GetBlock(1));
-    if (!surfaces)
-    {
-      vtkLog(ERROR, "No surfaces block found in file.");
-      return EXIT_FAILURE;
-    }
+    int surfacesNodeId = assembly->GetChild(stream0NodeId, 1);
 
     std::vector<std::string> pointArrays = { "FILM_FLAG", "RADIUS", "TEMP", "VELOCITY" };
 
-    if (surfaces->GetNumberOfPoints() != 157957)
-    {
-      vtkLog(ERROR,
-        "Incorrect number of points in surfaces. Should be 157957, but got "
-          << surfaces->GetNumberOfPoints());
-      return EXIT_FAILURE;
-    }
-
-    if (surfaces->GetNumberOfCells() != 186929)
-    {
-      vtkLog(ERROR,
-        "Incorrect number of cells in surfaces. Should be 186929, but got "
-          << surfaces->GetNumberOfCells());
-      return EXIT_FAILURE;
-    }
-
-    int numBlocks = surfaces->GetNumberOfBlocks();
+    int numBlocks = assembly->GetNumberOfChildren(surfacesNodeId);
     if (numBlocks != 42)
     {
       vtkLog(ERROR, "Incorrect number of surface blocks. Should be 42, got " << numBlocks);
@@ -134,8 +111,10 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     int expectedNumCells[] = { 11763, 3994, 25182, 1080, 7 };
     for (int i = 0; i < static_cast<int>(sizeof(expectedNumPoints) / sizeof(int)); ++i)
     {
+      int surfaceNodeId = assembly->GetChild(surfacesNodeId, i);
+      int surfaceId = assembly->GetDataSetIndices(surfaceNodeId, false)[0];
       std::string blockName(
-        surfaces->GetMetaData(static_cast<unsigned int>(i))->Get(vtkCompositeDataSet::NAME()));
+        pdc->GetMetaData(static_cast<unsigned int>(surfaceId))->Get(vtkCompositeDataSet::NAME()));
       if (blockName != expectedBlockNames[i])
       {
         vtkLog(ERROR,
@@ -144,7 +123,7 @@ int TestCONVERGECFDReader(int argc, char* argv[])
         return EXIT_FAILURE;
       }
 
-      vtkPolyData* surface = vtkPolyData::SafeDownCast(surfaces->GetBlock(i));
+      vtkPolyData* surface = vtkPolyData::SafeDownCast(pdc->GetPartition(surfaceId, 0));
       if (!surface)
       {
         vtkLog(ERROR, "No polydata surface at block " << i);
@@ -177,21 +156,12 @@ int TestCONVERGECFDReader(int argc, char* argv[])
       }
     }
 
-    auto parcels = vtkMultiBlockDataSet::SafeDownCast(streamBlock->GetBlock(2));
-    if (!parcels)
-    {
-      vtkLog(ERROR, "No parcels in dataset.");
-      return EXIT_FAILURE;
-    }
+    int parcelNodeId = assembly->GetChild(stream0NodeId, 2);
+    int liquidParcelNodeId = assembly->GetChild(parcelNodeId, 0);
+    int liqParcel1NodeId = assembly->GetChild(liquidParcelNodeId, 0);
+    int liqParcel1Id = assembly->GetDataSetIndices(liqParcel1NodeId, false)[0];
 
-    auto liquidParcelData = vtkMultiBlockDataSet::SafeDownCast(parcels->GetBlock(0));
-    if (!liquidParcelData)
-    {
-      vtkLog(ERROR, "No liquid parcel data");
-      return EXIT_FAILURE;
-    }
-
-    auto liqparcel_1 = vtkPolyData::SafeDownCast(liquidParcelData->GetBlock(0));
+    auto liqparcel_1 = vtkPolyData::SafeDownCast(pdc->GetPartition(liqParcel1Id, 0));
     if (!liqparcel_1)
     {
       vtkLog(ERROR, "No liqparcel_1 parcel data");
@@ -215,31 +185,20 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     }
 
     // Check parcel type
-    std::string expectedBlockName = "LIQUID_PARCEL_DATA";
-    std::string blockName(parcels->GetMetaData(0u)->Get(vtkCompositeDataSet::NAME()));
+    std::string expectedBlockName("LIQPARCEL_1");
+    std::string blockName(pdc->GetMetaData(liqParcel1Id)->Get(vtkCompositeDataSet::NAME()));
     if (blockName != expectedBlockName)
     {
-      vtkLog(ERROR, "Expected block name " << expectedBlockName << " but got " << blockName);
-      return EXIT_FAILURE;
-    }
-
-    expectedBlockName = "LIQPARCEL_1";
-    blockName = liquidParcelData->GetMetaData(0u)->Get(vtkCompositeDataSet::NAME());
-    if (blockName != expectedBlockName)
-    {
-      vtkLog(ERROR, "Expected block name " << expectedBlockName << " but got " << blockName);
+      vtkLog(
+        ERROR, "Expected block name '" << expectedBlockName << "' but got '" << blockName << "'");
       return EXIT_FAILURE;
     }
 
     // Check second stream
-    streamBlock = vtkMultiBlockDataSet::SafeDownCast(mbds->GetBlock(1));
-    if (!streamBlock)
-    {
-      vtkLog(ERROR, "Stream block is not a vtkMultiBlockDataSet");
-      return EXIT_FAILURE;
-    }
-
-    mesh = vtkUnstructuredGrid::SafeDownCast(streamBlock->GetBlock(0));
+    int stream1NodeId = assembly->GetChild(0, 1);
+    meshNodeId = assembly->GetChild(stream1NodeId, 0);
+    meshId = assembly->GetDataSetIndices(meshNodeId, false)[0];
+    mesh = vtkUnstructuredGrid::SafeDownCast(pdc->GetPartition(meshId, 0));
     if (!mesh)
     {
       vtkLog(ERROR, "No mesh block found in stream 1.");
@@ -260,51 +219,21 @@ int TestCONVERGECFDReader(int argc, char* argv[])
       return EXIT_FAILURE;
     }
 
-    surfaces = vtkMultiBlockDataSet::SafeDownCast(streamBlock->GetBlock(1));
-    if (!surfaces)
-    {
-      vtkLog(ERROR, "No surfaces block found in file.");
-      return EXIT_FAILURE;
-    }
+    surfacesNodeId = assembly->GetChild(stream1NodeId, 1);
 
-    if (surfaces->GetNumberOfPoints() != 159054)
-    {
-      vtkLog(ERROR,
-        "Incorrect number of points in surfaces. Should be 159054, but got "
-          << surfaces->GetNumberOfPoints());
-      return EXIT_FAILURE;
-    }
-
-    if (surfaces->GetNumberOfCells() != 188046)
-    {
-      vtkLog(ERROR,
-        "Incorrect number of cells in surfaces. Should be 188046, but got "
-          << surfaces->GetNumberOfCells());
-      return EXIT_FAILURE;
-    }
-
-    numBlocks = surfaces->GetNumberOfBlocks();
+    numBlocks = assembly->GetNumberOfChildren(surfacesNodeId);
     if (numBlocks != 42)
     {
       vtkLog(ERROR, "Incorrect number of surface blocks. Should be 42, got " << numBlocks);
       return EXIT_FAILURE;
     }
 
-    parcels = vtkMultiBlockDataSet::SafeDownCast(streamBlock->GetBlock(2));
-    if (!parcels)
-    {
-      vtkLog(ERROR, "No parcels in dataset.");
-      return EXIT_FAILURE;
-    }
+    parcelNodeId = assembly->GetChild(stream1NodeId, 2);
+    liquidParcelNodeId = assembly->GetChild(parcelNodeId, 0);
+    liqParcel1NodeId = assembly->GetChild(liquidParcelNodeId, 0);
+    liqParcel1Id = assembly->GetDataSetIndices(liqParcel1NodeId, false)[0];
 
-    liquidParcelData = vtkMultiBlockDataSet::SafeDownCast(parcels->GetBlock(0));
-    if (!liquidParcelData)
-    {
-      vtkLog(ERROR, "No liquid parcel data");
-      return EXIT_FAILURE;
-    }
-
-    liqparcel_1 = vtkPolyData::SafeDownCast(liquidParcelData->GetBlock(0));
+    liqparcel_1 = vtkPolyData::SafeDownCast(pdc->GetPartition(liqParcel1Id, 0));
     if (!liqparcel_1)
     {
       vtkLog(ERROR, "No liqparcel_1 parcel data");
@@ -328,17 +257,13 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     }
 
     // Check third stream
-    streamBlock = vtkMultiBlockDataSet::SafeDownCast(mbds->GetBlock(2));
-    if (!streamBlock)
-    {
-      vtkLog(ERROR, "Stream block is not a vtkMultiBlockDataSet");
-      return EXIT_FAILURE;
-    }
-
-    mesh = vtkUnstructuredGrid::SafeDownCast(streamBlock->GetBlock(0));
+    int stream2NodeId = assembly->GetChild(0, 2);
+    meshNodeId = assembly->GetChild(stream2NodeId, 0);
+    meshId = assembly->GetDataSetIndices(meshNodeId, false)[0];
+    mesh = vtkUnstructuredGrid::SafeDownCast(pdc->GetPartition(meshId, 0));
     if (!mesh)
     {
-      vtkLog(ERROR, "No mesh block found in stream 1.");
+      vtkLog(ERROR, "No mesh block found in stream 2.");
       return EXIT_FAILURE;
     }
 
@@ -356,34 +281,12 @@ int TestCONVERGECFDReader(int argc, char* argv[])
       return EXIT_FAILURE;
     }
 
-    surfaces = vtkMultiBlockDataSet::SafeDownCast(streamBlock->GetBlock(1));
-    if (!surfaces)
-    {
-      vtkLog(ERROR, "No surfaces block found in file.");
-      return EXIT_FAILURE;
-    }
-
-    if (surfaces->GetNumberOfPoints() != 3801)
-    {
-      vtkLog(ERROR,
-        "Incorrect number of points in surfaces. Should be 3801, but got "
-          << surfaces->GetNumberOfPoints());
-      return EXIT_FAILURE;
-    }
-
-    if (surfaces->GetNumberOfCells() != 4114)
-    {
-      vtkLog(ERROR,
-        "Incorrect number of cells in surfaces. Should be 4114, but got "
-          << surfaces->GetNumberOfCells());
-      return EXIT_FAILURE;
-    }
-
     // Ensure there are no parcels in the third stream
-    if (streamBlock->GetNumberOfBlocks() != 2)
+    if (assembly->GetNumberOfChildren(stream2NodeId) != 2)
     {
       vtkLog(ERROR,
-        "Number of blocks should be 2, but is " << streamBlock->GetNumberOfBlocks() << " instead");
+        "Number of children should be 2, but is " << assembly->GetNumberOfChildren(stream2NodeId)
+                                                  << " instead");
       return EXIT_FAILURE;
     }
   }
@@ -398,24 +301,18 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     delete[] fname;
 
     // Check on the structure of the output multiblock dataset
-    auto mbds = reader->GetOutput();
-    if (mbds->GetNumberOfBlocks() != 1)
+    auto pdc = reader->GetOutput();
+    auto assembly = pdc->GetDataAssembly();
+    if (assembly->GetNumberOfChildren(0) != 1)
     {
       vtkLog(ERROR, "Invalid number of streams in file.");
       return EXIT_FAILURE;
     }
 
-    auto streamBlock = vtkMultiBlockDataSet::SafeDownCast(mbds->GetBlock(0));
-    if (!streamBlock)
-    {
-      vtkLog(ERROR, "Stream block is not a vtkMultiBlockDataSet");
-      return EXIT_FAILURE;
-    }
-
-    auto mesh = vtkUnstructuredGrid::SafeDownCast(streamBlock->GetBlock(0));
-    auto surfaces = vtkMultiBlockDataSet::SafeDownCast(streamBlock->GetBlock(1));
-    auto parcels = vtkPolyData::SafeDownCast(streamBlock->GetBlock(2));
-
+    int stream0NodeId = assembly->GetChild(0, 0);
+    int meshNodeId = assembly->GetChild(stream0NodeId, 0);
+    int meshId = assembly->GetDataSetIndices(meshNodeId, false)[0];
+    auto mesh = vtkUnstructuredGrid::SafeDownCast(pdc->GetPartition(meshId, 0));
     if (!mesh)
     {
       vtkLog(ERROR, "No mesh block found in file.");
@@ -456,25 +353,8 @@ int TestCONVERGECFDReader(int argc, char* argv[])
       }
     }
 
-    if (!surfaces)
-    {
-      vtkLog(ERROR, "No surfaces block found in file.");
-      return EXIT_FAILURE;
-    }
-
-    if (surfaces->GetNumberOfPoints() != 9085)
-    {
-      vtkLog(ERROR, "Incorrect number of points in surfaces.");
-      return EXIT_FAILURE;
-    }
-
-    if (surfaces->GetNumberOfCells() != 9318)
-    {
-      vtkLog(ERROR, "Incorrect number of cells in surfaces.");
-      return EXIT_FAILURE;
-    }
-
-    int numBlocks = surfaces->GetNumberOfBlocks();
+    int surfacesNodeId = assembly->GetChild(stream0NodeId, 1);
+    int numBlocks = assembly->GetNumberOfChildren(surfacesNodeId);
     if (numBlocks != 7)
     {
       vtkLog(ERROR, "Incorrect number of surface blocks. Should be 7, got " << numBlocks);
@@ -484,7 +364,9 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     int expectedNumCells[] = { 6038, 770, 763, 461, 1286, 0, 0 };
     for (int i = 0; i < numBlocks; ++i)
     {
-      vtkPolyData* surface = vtkPolyData::SafeDownCast(surfaces->GetBlock(i));
+      int surfaceNodeId = assembly->GetChild(surfacesNodeId, i);
+      int surfaceId = assembly->GetDataSetIndices(surfaceNodeId, false)[0];
+      vtkPolyData* surface = vtkPolyData::SafeDownCast(pdc->GetPartition(surfaceId, 0));
       if (!surface)
       {
         vtkLog(ERROR, "No polydata surface at block " << i);
@@ -517,6 +399,9 @@ int TestCONVERGECFDReader(int argc, char* argv[])
       }
     }
 
+    int parcelsNodeId = assembly->GetChild(stream0NodeId, 2);
+    int parcelsId = assembly->GetDataSetIndices(parcelsNodeId, false)[0];
+    auto parcels = vtkPolyData::SafeDownCast(pdc->GetPartition(parcelsId, 0));
     if (!parcels)
     {
       vtkLog(ERROR, "No parcels block found in file.");
@@ -558,10 +443,10 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     parcelArraySelection->DisableArray("RADIUS");
     reader->Update();
 
-    streamBlock = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput()->GetBlock(0));
-    mesh = vtkUnstructuredGrid::SafeDownCast(streamBlock->GetBlock(0));
-    surfaces = vtkMultiBlockDataSet::SafeDownCast(streamBlock->GetBlock(1));
-    parcels = vtkPolyData::SafeDownCast(streamBlock->GetBlock(2));
+    pdc = reader->GetOutput();
+    assembly = pdc->GetDataAssembly();
+    mesh = vtkUnstructuredGrid::SafeDownCast(pdc->GetPartition(meshId, 0));
+    parcels = vtkPolyData::SafeDownCast(pdc->GetPartition(parcelsId, 0));
 
     auto cellData = mesh->GetCellData();
     if (cellData->GetArray("EPS") != nullptr)
@@ -577,7 +462,9 @@ int TestCONVERGECFDReader(int argc, char* argv[])
 
     for (int i = 0; i < numBlocks; ++i)
     {
-      vtkPolyData* surface = vtkPolyData::SafeDownCast(surfaces->GetBlock(i));
+      int surfaceNodeId = assembly->GetChild(surfacesNodeId, i);
+      int surfaceId = assembly->GetDataSetIndices(surfaceNodeId, false)[0];
+      vtkPolyData* surface = vtkPolyData::SafeDownCast(pdc->GetPartition(surfaceId, 0));
       if (!surface)
       {
         vtkLog(ERROR, "No polydata surface at block " << i);
