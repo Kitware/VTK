@@ -19,13 +19,14 @@
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataArraySelection.h"
+#include "vtkDataAssembly.h"
 #include "vtkDirectory.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -697,13 +698,16 @@ int vtkCONVERGECFDReader::RequestData(
     return 0;
   }
 
-  vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::GetData(outInfo);
-
-  if (!outputMB)
+  vtkPartitionedDataSetCollection* outputPDC = vtkPartitionedDataSetCollection::GetData(outInfo);
+  if (!outputPDC)
   {
     vtkErrorMacro("No output available!");
     return 0;
   }
+
+  vtkNew<vtkDataAssembly> hierarchy;
+  hierarchy->Initialize();
+  outputPDC->SetDataAssembly(hierarchy);
 
   ScopedH5FHandle fileId = H5Fopen(fileName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
   if (fileId < 0)
@@ -754,6 +758,10 @@ int vtkCONVERGECFDReader::RequestData(
       vtkErrorMacro("Could not find array VERTEX_COORDINATES/X");
       break;
     }
+
+    std::stringstream streamss;
+    streamss << "STREAM_" << std::setw(2) << std::setfill('0') << streamCount;
+    int streamNodeId = hierarchy->AddNode(streamss.str().c_str(), 0 /* root */);
 
     hsize_t xCoordsLength = GetDataLength(streamId, "VERTEX_COORDINATES/X");
 
@@ -841,23 +849,39 @@ int vtkCONVERGECFDReader::RequestData(
       return 0;
     }
 
+    // Make mesh the first node in the stream and put it first in the collection
+    int meshNodeId = hierarchy->AddNode("Mesh", streamNodeId);
+    int meshStartId = outputPDC->GetNumberOfPartitionedDataSets();
+    outputPDC->SetNumberOfPartitionedDataSets(meshStartId + 1);
+
+    vtkNew<vtkUnstructuredGrid> ugrid;
+    outputPDC->SetPartition(meshStartId, 0, ugrid);
+    outputPDC->GetMetaData(meshStartId)->Set(vtkCompositeDataSet::NAME(), "Mesh");
+    hierarchy->AddDataSetIndex(meshNodeId, meshStartId);
+
     // Multiple surfaces can exist in a single file. We create a vtkPolyData for
-    // each one and store them under another multiblock dataset.
-    vtkNew<vtkMultiBlockDataSet> multiSurfaces;
-    multiSurfaces->SetNumberOfBlocks(static_cast<unsigned int>(boundaryIds.size()));
-    for (size_t i = 0; i < boundaryIds.size(); ++i)
+    // each one and store them under another group in the partitioned dataset collection.
+    unsigned int streamSurfaceStartId = outputPDC->GetNumberOfPartitionedDataSets();
+    outputPDC->SetNumberOfPartitionedDataSets(
+      streamSurfaceStartId + static_cast<unsigned int>(boundaryIds.size()));
+
+    int surfaceNodeId = hierarchy->AddNode("Surfaces", streamNodeId);
+    for (int i = 0; i < static_cast<int>(boundaryIds.size()); ++i)
     {
       // If boundary index 0 has boundary id == 1, index 1 of boundaryIdToIndex will be 0.
       boundaryIdToIndex[boundaryIds[i]] = static_cast<int>(i);
 
       vtkNew<vtkPolyData> boundarySurface;
-      multiSurfaces->SetBlock(static_cast<unsigned int>(i), boundarySurface);
-      multiSurfaces->GetMetaData(static_cast<unsigned int>(i))
+      outputPDC->SetPartition(streamSurfaceStartId + i, 0, boundarySurface);
+      outputPDC->GetMetaData(streamSurfaceStartId + static_cast<unsigned int>(i))
         ->Set(vtkCompositeDataSet::NAME(), boundaryNames[i]);
 
       vtkNew<vtkCellArray> polys;
       polys->AllocateEstimate(boundaryNumElements[i], 4);
       boundarySurface->SetPolys(polys);
+      std::string validName = vtkDataAssembly::MakeValidNodeName(boundaryNames[i].c_str());
+      unsigned int boundaryNodeId = hierarchy->AddNode(validName.c_str(), surfaceNodeId);
+      hierarchy->AddDataSetIndex(boundaryNodeId, streamSurfaceStartId + i);
     }
 
     // Create maps from surface point IDs for each block
@@ -911,7 +935,7 @@ int vtkCONVERGECFDReader::RequestData(
       }
 
       vtkPolyData* boundarySurface =
-        vtkPolyData::SafeDownCast(multiSurfaces->GetBlock(boundaryIndex));
+        vtkPolyData::SafeDownCast(outputPDC->GetPartition(streamSurfaceStartId + boundaryIndex, 0));
       boundarySurface->SetPoints(blockPoints);
     }
 
@@ -929,7 +953,8 @@ int vtkCONVERGECFDReader::RequestData(
 
       int boundaryId = -(connectedCells[2 * polyId + 0] + 1);
       int boundaryIndex = boundaryIdToIndex[boundaryId];
-      vtkPolyData* polyData = vtkPolyData::SafeDownCast(multiSurfaces->GetBlock(boundaryIndex));
+      vtkPolyData* polyData =
+        vtkPolyData::SafeDownCast(outputPDC->GetPartition(streamSurfaceStartId + boundaryIndex, 0));
       vtkIdType numCellPts =
         static_cast<vtkIdType>(polygonOffsets[polyId + 1] - polygonOffsets[polyId]);
       std::vector<vtkIdType> ptIds(numCellPts);
@@ -978,8 +1003,7 @@ int vtkCONVERGECFDReader::RequestData(
       }
     }
 
-    // Create a new unstructured grid
-    vtkNew<vtkUnstructuredGrid> ugrid;
+    // Set the points in the unstructured grid
     ugrid->SetPoints(points);
 
     // Create polyhedra from their faces
@@ -1087,11 +1111,11 @@ int vtkCONVERGECFDReader::RequestData(
         ugrid->GetCellData()->AddArray(dataArray);
 
         // Now pull out the values needed for the surface geometry
-        for (int boundaryIndex = 0;
-             boundaryIndex < static_cast<int>(multiSurfaces->GetNumberOfBlocks()); ++boundaryIndex)
+        for (int boundaryIndex = 0; boundaryIndex < static_cast<int>(numBoundaryNames);
+             ++boundaryIndex)
         {
-          vtkPolyData* boundarySurface =
-            vtkPolyData::SafeDownCast(multiSurfaces->GetBlock(boundaryIndex));
+          vtkPolyData* boundarySurface = vtkPolyData::SafeDownCast(
+            outputPDC->GetPartition(streamSurfaceStartId + boundaryIndex, 0));
           int numBoundaryPolys = boundarySurface->GetNumberOfCells();
           vtkNew<vtkFloatArray> surfaceDataArray;
           surfaceDataArray->SetNumberOfComponents(dataArray->GetNumberOfComponents());
@@ -1125,14 +1149,6 @@ int vtkCONVERGECFDReader::RequestData(
       }
     }
 
-    // Set the mesh and surface in the multiblock output
-    vtkNew<vtkMultiBlockDataSet> streamMB;
-    streamMB->SetNumberOfBlocks(2);
-    streamMB->SetBlock(0, ugrid);
-    streamMB->GetMetaData(0u)->Set(vtkCompositeDataSet::NAME(), "Mesh");
-    streamMB->SetBlock(1, multiSurfaces);
-    streamMB->GetMetaData(1u)->Set(vtkCompositeDataSet::NAME(), "Surface");
-
     // ++++ PARCEL DATA ++++
     bool parcelExists = GroupExists(streamId, "PARCEL_DATA");
     if (parcelExists)
@@ -1159,15 +1175,10 @@ int vtkCONVERGECFDReader::RequestData(
           return 0;
         }
 
-        // Create a multiblock dataset to hold the separate parcel datasets
-        vtkNew<vtkMultiBlockDataSet> multiDataSetTypes;
-        // multiDataSetTypes->SetNumberOfBlocks(static_cast<unsigned
-        // int>(this->Internal->ParcelDataTypes.size()));
-        multiDataSetTypes->SetNumberOfBlocks(static_cast<unsigned int>(numParcelDataTypes));
+        int parcelsNodeId = hierarchy->AddNode("Parcels", streamNodeId);
 
         // Iterate over the parcel data types/data sets
         unsigned int parcelDataTypeCount = 0;
-        // for (const auto dataType : this->Internal->ParcelDataTypes)
         for (hsize_t parcelDataTypeIndex = 0; parcelDataTypeIndex < numParcelDataTypes;
              ++parcelDataTypeIndex)
         {
@@ -1201,11 +1212,9 @@ int vtkCONVERGECFDReader::RequestData(
           }
           hsize_t numDataSets = groupInfo.nlinks;
 
-          vtkNew<vtkMultiBlockDataSet> multiParcels;
-          multiParcels->SetNumberOfBlocks(static_cast<unsigned int>(numDataSets));
-          multiDataSetTypes->SetBlock(parcelDataTypeCount, multiParcels);
-          multiDataSetTypes->GetMetaData(parcelDataTypeCount)
-            ->Set(vtkCompositeDataSet::NAME(), dataType.c_str());
+          std::string dataTypeNodeName = vtkDataAssembly::MakeValidNodeName(dataType.c_str());
+          int parcelDataTypeNodeId = hierarchy->AddNode(dataTypeNodeName.c_str(), parcelsNodeId);
+
           parcelDataTypeCount++;
 
           // Iterate over the datasets in the dataset type group
@@ -1221,31 +1230,30 @@ int vtkCONVERGECFDReader::RequestData(
 
             vtkSmartPointer<vtkPolyData> parcels =
               this->Internal->ReadParcelDataSet(dataTypeHandle, dataSetGroupName);
-            multiParcels->SetBlock(i, parcels);
-            multiParcels->GetMetaData(static_cast<unsigned int>(i))
-              ->Set(vtkCompositeDataSet::NAME(), dataSetGroupName);
+            int parcelsId = outputPDC->GetNumberOfPartitionedDataSets();
+            outputPDC->SetNumberOfPartitionedDataSets(parcelsId + 1);
+            outputPDC->SetPartition(parcelsId, 0, parcels);
+            outputPDC->GetMetaData(parcelsId)->Set(vtkCompositeDataSet::NAME(), dataSetGroupName);
+            std::string validDataSetGroupName =
+              vtkDataAssembly::MakeValidNodeName(dataSetGroupName);
+            int parcelNodeId =
+              hierarchy->AddNode(validDataSetGroupName.c_str(), parcelDataTypeNodeId);
+            hierarchy->AddDataSetIndex(parcelNodeId, parcelsId);
           }
         }
-        streamMB->SetNumberOfBlocks(3);
-        streamMB->SetBlock(2, multiDataSetTypes);
-        streamMB->GetMetaData(2u)->Set(vtkCompositeDataSet::NAME(), "Parcels");
       }
       else
       {
         vtkSmartPointer<vtkPolyData> parcels =
           this->Internal->ReadParcelDataSet(streamId, "PARCEL_DATA");
-        streamMB->SetNumberOfBlocks(3);
-        streamMB->SetBlock(2, parcels);
-        streamMB->GetMetaData(2u)->Set(vtkCompositeDataSet::NAME(), "Parcels");
+        int parcelsId = outputPDC->GetNumberOfPartitionedDataSets();
+        outputPDC->SetNumberOfPartitionedDataSets(parcelsId + 1);
+        outputPDC->SetPartition(parcelsId, 0, parcels);
+        outputPDC->GetMetaData(parcelsId)->Set(vtkCompositeDataSet::NAME(), "Parcels");
+        int parcelNodeId = hierarchy->AddNode("Parcels", streamNodeId);
+        hierarchy->AddDataSetIndex(parcelNodeId, parcelsId);
       }
     }
-
-    std::stringstream streamss;
-    streamss << "STREAM_" << std::setw(2) << std::setfill('0') << streamCount;
-    outputMB->SetNumberOfBlocks(streamCount + 1);
-    outputMB->GetMetaData(streamCount)->Set(vtkCompositeDataSet::NAME(), streamss.str().c_str());
-    outputMB->SetBlock(streamCount, streamMB);
-
     streamCount++;
   } while (true);
 

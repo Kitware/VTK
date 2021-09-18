@@ -27,9 +27,9 @@
  *
  * @section Overview Overview
  *
- * At its core, vtkDataAssembly is simply a tree comprising on nodes starting
+ * At its core, vtkDataAssembly is simply a tree of nodes starting
  * with the root node. Each node has a unique id and a string name (names need not
- * be unique). On initialization, `vtkDataAssembly::Initialize` a empty tree
+ * be unique). On initialization with `vtkDataAssembly::Initialize`, an empty tree
  * with a root node is created. The root node's id and name can be obtained
  * using `vtkDataAssembly::GetRootNode` and `vtkDataAssembly::GetRootNodeName`.
  * The root node's id is fixed (vtkDataAssembly::GetRootNode), however the name
@@ -39,10 +39,10 @@
  * `vtkDataAssembly::AddNodes`, each of which returns the ids for every child
  * node added. A non-root node can be removed using `vtkDataAssembly::RemoveNode`.
  *
- * Each node in the tree (including the root node) can has associated dataset
+ * Each node in the tree (including the root node) can have associated dataset
  * indices. For a vtkDataAssembly associated with a
  * vtkPartitionedDataSetCollection, these indices refer to the item index, or
- * partioned-dataset-index for items in the collection. Dataset indices can be
+ * partitioned-dataset-index for items in the collection. Dataset indices can be
  * specified using `vtkDataAssembly::AddDataSetIndex`,
  * `vtkDataAssembly::AddDataSetIndices` and removed using `vtkDataAssembly::RemoveDataSetIndex`,
  * `vtkDataAssembly::RemoveAllDataSetIndices`.
@@ -63,7 +63,7 @@
  *
  * @section Traversal Traversal
  *
- * `vtkDataAssemblyVisitor` defines a visitor API. An instance of concretized
+ * `vtkDataAssemblyVisitor` defines a visitor API. An instance of a concretized
  * `vtkDataAssemblyVisitor` subclass can be passed to `vtkDataAssembly::Visit`
  * to traverse the data-assembly hierarchy either in depth-first or
  * breadth-first order.
