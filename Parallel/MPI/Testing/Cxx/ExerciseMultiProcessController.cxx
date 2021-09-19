@@ -29,6 +29,8 @@
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSetCollection.h"
+#include "vtkPartitionedDataSetCollectionSource.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -246,31 +248,56 @@ static int CompareDataObjects(vtkDataObject* obj1, vtkDataObject* obj2)
   {
     if (obj2->IsA(obj1->GetClassName()))
     {
-      vtkGenericWarningMacro("Data type was elevated in this transfer. "
-                             "`vtkImageData` is known to have this issue :(");
+      vtkLogF(WARNING,
+        "Data type was elevated in this transfer. "
+        "`vtkImageData` is known to have this issue :(");
     }
     else
     {
-      vtkGenericWarningMacro("Data objects are not of the same type: "
-        << obj1->GetClassName() << " != " << obj2->GetClassName());
+      vtkLogF(WARNING, "Data objects are not of the same type: '%s' != '%s'", obj1->GetClassName(),
+        obj2->GetClassName());
       return 0;
     }
   }
 
   if (!CompareFieldData(obj1->GetFieldData(), obj2->GetFieldData()))
+  {
     return 0;
+  }
+
+  if (vtkCompositeDataSet::SafeDownCast(obj1))
+  {
+    auto datasets1 = vtkCompositeDataSet::GetDataSets(obj1);
+    auto datasets2 = vtkCompositeDataSet::GetDataSets(obj2);
+
+    if (datasets1.size() != datasets2.size())
+    {
+      vtkLogF(ERROR, "Composite dataset leaf nodes don't agree!");
+      return 0;
+    }
+
+    for (size_t cc = 0; cc < datasets1.size(); ++cc)
+    {
+      if (!::CompareDataObjects(datasets1[cc], datasets2[cc]))
+      {
+        return 0;
+      }
+    }
+
+    return 1;
+  }
 
   vtkDataSet* ds1 = vtkDataSet::SafeDownCast(obj1);
   vtkDataSet* ds2 = vtkDataSet::SafeDownCast(obj2);
 
   if (ds1->GetNumberOfPoints() != ds2->GetNumberOfPoints())
   {
-    vtkGenericWarningMacro("Point counts do not agree.");
+    vtkLogF(ERROR, "Point counts do not agree.");
     return 0;
   }
   if (ds1->GetNumberOfCells() != ds2->GetNumberOfCells())
   {
-    vtkGenericWarningMacro("Cell counts do not agree.");
+    vtkLogF(ERROR, "Cell counts do not agree.");
     return 0;
   }
 
@@ -292,7 +319,7 @@ static int CompareDataObjects(vtkDataObject* obj1, vtkDataObject* obj2)
       (id1->GetDimensions()[1] != id2->GetDimensions()[1]) ||
       (id1->GetDimensions()[2] != id2->GetDimensions()[2]))
     {
-      vtkGenericWarningMacro("Dimensions of image data do not agree.");
+      vtkLogF(ERROR, "Dimensions of image data do not agree.");
       return 0;
     }
 
@@ -1140,6 +1167,12 @@ static void Run(vtkMultiProcessController* controller, void* _args)
     vtkNew<vtkSphereSource> polySource;
     polySource->Update();
     ExerciseDataObject(controller, polySource->GetOutput(), vtkSmartPointer<vtkPolyData>::New());
+
+    vtkNew<vtkPartitionedDataSetCollectionSource> pdcSource;
+    pdcSource->SetNumberOfShapes(12);
+    pdcSource->Update();
+    ExerciseDataObject(
+      controller, pdcSource->GetOutput(), vtkSmartPointer<vtkPartitionedDataSetCollection>::New());
   }
   catch (ExerciseMultiProcessControllerError)
   {
