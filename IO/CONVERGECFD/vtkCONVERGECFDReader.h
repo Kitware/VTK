@@ -47,19 +47,19 @@
 
 #include "vtkIOCONVERGECFDModule.h" // For export macro
 
-#include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // for vtkNew
+#include "vtkPartitionedDataSetCollectionAlgorithm.h"
 
 #include <string> // for std::string
 #include <vector> // for std::vector
 
 class vtkDataArraySelection;
 
-class VTKIOCONVERGECFD_EXPORT vtkCONVERGECFDReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOCONVERGECFD_EXPORT vtkCONVERGECFDReader : public vtkPartitionedDataSetCollectionAlgorithm
 {
 public:
   static vtkCONVERGECFDReader* New();
-  vtkTypeMacro(vtkCONVERGECFDReader, vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkCONVERGECFDReader, vtkPartitionedDataSetCollectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
