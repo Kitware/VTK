@@ -203,6 +203,8 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle, int tag)
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_UNIFORM_GRID_AMR:
     case VTK_OVERLAPPING_AMR:
+    case VTK_PARTITIONED_DATA_SET:
+    case VTK_PARTITIONED_DATA_SET_COLLECTION:
       return this->SendElementalDataObject(data, remoteHandle, tag);
   }
 }
@@ -396,6 +398,8 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle, in
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_UNIFORM_GRID_AMR:
     case VTK_OVERLAPPING_AMR:
+    case VTK_PARTITIONED_DATA_SET:
+    case VTK_PARTITIONED_DATA_SET_COLLECTION:
       return this->ReceiveElementalDataObject(data, remoteHandle, tag);
   }
 }
