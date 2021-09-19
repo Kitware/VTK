@@ -178,6 +178,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread") # They failed also on OpenM
     # Need investigations https://gitlab.kitware.com/vtk/vtk/-/issues/18222
     "^VTK::FiltersExtractionCxx-TestExtractSelectionUsingDataAssembly$"
     "^VTK::FiltersGeneralCxx-TestAnimateModes$"
+    "^VTK::FiltersHybridCxx-TestTemporalInterpolator$"
     "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIOSS$"
     "^VTK::IOIOSSCxx-TestIOSSExodus$"
     "^VTK::IOIOSSCxx-TestIOSSSuperelements$"
