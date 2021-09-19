@@ -36,8 +36,6 @@
 
 PyObject* PyVTKMethodDescriptor_New(PyTypeObject* pytype, PyMethodDef* meth)
 {
-  PyType_Ready(&PyVTKMethodDescriptor_Type);
-
   PyMethodDescrObject* descr =
     (PyMethodDescrObject*)PyType_GenericAlloc(&PyVTKMethodDescriptor_Type, 0);
 
