@@ -401,6 +401,23 @@ endif()
 include(TestBigEndian)
 test_big_endian(VTK_WORDS_BIGENDIAN)
 
+# vtkSMP header information.
+set(smp_backends
+  OpenMP
+  Sequential
+  STDThread
+  TBB)
+foreach (smp_backend IN LISTS smp_backends)
+  string(TOLOWER "${smp_backend}" smp_backend_lower)
+  string(TOUPPER "${smp_backend}" smp_backend_upper)
+  set("VTK_SMP_ENABLE_${smp_backend_upper}" "${vtk_smp_enable_${smp_backend_lower}}")
+  if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL smp_backend)
+    set("VTK_SMP_DEFAULT_IMPLEMENTATION_${smp_backend_upper}" 1)
+  else ()
+    set("VTK_SMP_DEFAULT_IMPLEMENTATION_${smp_backend_upper}" 0)
+  endif ()
+endforeach ()
+
 set(nowrap_headers
   vtkMathPrivate.hxx
   ${vtk_smp_nowrap_headers})
@@ -554,14 +571,3 @@ vtk_module_link(VTK::CommonCore
 vtk_module_compile_features(VTK::CommonCore
   PUBLIC
     cxx_std_11)
-
-vtk_module_definitions(VTK::CommonCore
-  PUBLIC
-    "VTK_SMP_ENABLE_SEQUENTIAL=${vtk_smp_enable_sequential}"
-    "VTK_SMP_ENABLE_STDTHREAD=${vtk_smp_enable_stdthread}"
-    "VTK_SMP_ENABLE_TBB=${vtk_smp_enable_tbb}"
-    "VTK_SMP_ENABLE_OPENMP=${vtk_smp_enable_openmp}"
-    "VTK_SMP_DEFAULT_IMPLEMENTATION_SEQUENTIAL=$<STREQUAL:${VTK_SMP_IMPLEMENTATION_TYPE},Sequential>"
-    "VTK_SMP_DEFAULT_IMPLEMENTATION_STDTHREAD=$<STREQUAL:${VTK_SMP_IMPLEMENTATION_TYPE},STDThread>"
-    "VTK_SMP_DEFAULT_IMPLEMENTATION_TBB=$<STREQUAL:${VTK_SMP_IMPLEMENTATION_TYPE},TBB>"
-    "VTK_SMP_DEFAULT_IMPLEMENTATION_OPENMP=$<STREQUAL:${VTK_SMP_IMPLEMENTATION_TYPE},OpenMP>")
