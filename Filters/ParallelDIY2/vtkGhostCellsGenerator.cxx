@@ -130,8 +130,8 @@ int vtkGhostCellsGenerator::RequestData(
       {
         using Opts = vtk::DataObjectTreeOptions;
         outputCDS->CopyStructure(inputCDS);
-        auto outputs = vtk::Range(outputCDS, Opts::None);
-        auto inputs = vtk::Range(inputCDS, Opts::None);
+        auto outputs = vtk::Range(outputCDS, Opts::VisitOnlyLeaves | Opts::TraverseSubTree);
+        auto inputs = vtk::Range(inputCDS, Opts::VisitOnlyLeaves | Opts::TraverseSubTree);
         for (auto inIt = inputs.begin(), outIt = outputs.begin(); inIt != inputs.end();
              ++inIt, ++outIt)
         {
