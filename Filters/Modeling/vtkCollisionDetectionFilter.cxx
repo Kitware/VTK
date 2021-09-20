@@ -168,7 +168,31 @@ vtkIdTypeArray* vtkCollisionDetectionFilter::GetContactCells(int i)
       << " is out of range in GetContactCells. There are only two contact cells arrays!");
     return nullptr;
   }
+  if (!this->GetOutput(i))
+  {
+    vtkErrorMacro(<< "Output " << i << " is null!");
+    return nullptr;
+  }
+  if (!this->GetOutput(i)->GetFieldData()->GetArray("ContactCells"))
+  {
+    vtkErrorMacro(<< "Output " << i << " has null contact cells array!");
+    return nullptr;
+  }
   return vtkIdTypeArray::SafeDownCast(this->GetOutput(i)->GetFieldData()->GetArray("ContactCells"));
+}
+
+int vtkCollisionDetectionFilter::GetNumberOfContacts()
+{
+  if (this->GetOutput(0) && this->GetOutput(0)->GetFieldData()->GetArray("ContactCells"))
+  {
+    return this->GetOutput(0)->GetFieldData()->GetArray("ContactCells")->GetNumberOfTuples();
+  }
+  else
+  {
+    vtkErrorMacro(
+      << "Number of contacts cannot be calculated, nullptr found! Call Update() before.");
+    return -1;
+  }
 }
 
 void vtkCollisionDetectionFilter::SetTransform(int i, vtkLinearTransform* transform)
@@ -374,8 +398,9 @@ static int ComputeCollisions(
           boundsB[5] = ptsB[v + 2];
       }
       // Test for intersection
-      if (self->IntersectPolygonWithPolygon(
-            3, ptsA, boundsA, 3, ptsB, boundsB, Tolerance, x1, x2, self->GetCollisionMode()))
+      if (contactcells1 && contactcells2 &&
+        self->IntersectPolygonWithPolygon(
+          3, ptsA, boundsA, 3, ptsB, boundsB, Tolerance, x1, x2, self->GetCollisionMode()))
       {
         contactcells1->InsertNextValue(cellIdA);
         contactcells2->InsertNextValue(cellIdB);
@@ -470,11 +495,17 @@ int vtkCollisionDetectionFilter::RequestData(vtkInformation* vtkNotUsed(request)
 
   // Allocate arrays for the contact cells lists
   vtkSmartPointer<vtkIdTypeArray> contactcells0 = vtkSmartPointer<vtkIdTypeArray>::New();
-  contactcells0->SetName("ContactCells");
+  if (contactcells0)
+  {
+    contactcells0->SetName("ContactCells");
+  }
   output[0]->GetFieldData()->AddArray(contactcells0);
 
   vtkSmartPointer<vtkIdTypeArray> contactcells1 = vtkSmartPointer<vtkIdTypeArray>::New();
-  contactcells1->SetName("ContactCells");
+  if (contactcells1)
+  {
+    contactcells1->SetName("ContactCells");
+  }
   output[1]->GetFieldData()->AddArray(contactcells1);
 
   // The transformations...
@@ -569,7 +600,7 @@ int vtkCollisionDetectionFilter::RequestData(vtkInformation* vtkNotUsed(request)
       double* RGBA;
       float RGB[4];
 
-      for (vtkIdType id, i = 0; i < numContacts; i++)
+      for (vtkIdType id, i = 0; i < numContacts && contactcells; i++)
       {
         id = contactcells->GetValue(i);
         RGBA = lut->GetTableValue(i);
