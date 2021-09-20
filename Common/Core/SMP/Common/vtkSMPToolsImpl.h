@@ -18,6 +18,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkSMP.h"
 
 #define VTK_SMP_MAX_BACKENDS_NB 4
 

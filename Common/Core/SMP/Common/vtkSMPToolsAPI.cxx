@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "SMP/Common/vtkSMPToolsAPI.h"
+#include "vtkSMP.h"    // For SMP preprocessor information
 #include "vtkSetGet.h" // For vtkWarningMacro
 
 #include <algorithm> // For std::toupper

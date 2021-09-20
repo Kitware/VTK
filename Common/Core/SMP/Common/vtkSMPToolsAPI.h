@@ -19,6 +19,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkNew.h"
 #include "vtkObject.h"
+#include "vtkSMP.h"
 
 #include <memory>
 
