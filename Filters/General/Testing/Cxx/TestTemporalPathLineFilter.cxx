@@ -149,7 +149,7 @@ bool TestBackwardTime()
   return true;
 }
 
-int TestTemporalPathLineFilter(int vtkNotUsed(argc), char** vtkNotUsed(argv))
+int TestTemporalPathLineFilter(int, char*[])
 {
   if (!TestForwardTime() || !TestBackwardTime())
   {
