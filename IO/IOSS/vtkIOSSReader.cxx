@@ -1714,11 +1714,6 @@ bool vtkIOSSReader::vtkInternals::GetMesh(vtkStructuredGrid* grid, const std::st
   {
     throw std::runtime_error("Unsupported 'GetMesh' call for entity type.");
   }
-
-  double bds[6];
-  grid->GetBounds(bds);
-  vtkLogF(TRACE, "bds=%f, %f, %f, %f, %f, %f", bds[0], bds[1], bds[2], bds[3], bds[4], bds[5]);
-  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -2134,7 +2129,7 @@ bool vtkIOSSReader::vtkInternals::GenerateFileId(
     const auto& dbaseInfo = this->DatabaseNames.at(handle.first);
     if (dbaseInfo.ProcessCount != 0)
     {
-      assert(fileId >= 0 && fileId < dbaseInfo.Ranks.size());
+      assert(fileId >= 0 && fileId < static_cast<decltype(fileId)>(dbaseInfo.Ranks.size()));
       fileId = *std::next(dbaseInfo.Ranks.begin(), fileId);
     }
   }

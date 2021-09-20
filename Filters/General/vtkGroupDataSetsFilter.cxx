@@ -47,7 +47,7 @@ public:
       return {};
     }
 
-    if (index >= 0 && index < this->Names.size() && !this->Names[index].empty())
+    if (index >= 0 && index < static_cast<int>(this->Names.size()) && !this->Names[index].empty())
     {
       return this->Names[index];
     }
