@@ -24,10 +24,12 @@
 #define vtkAMReXGridReaderInternal_h
 #ifndef __VTK_WRAP__
 
+#include <map>
 #include <string>
 #include <vector>
 
 #include "vtkDataSet.h"
+#include "vtkSOADataArrayTemplate.h"
 
 class vtkIndent;
 
@@ -91,6 +93,19 @@ public:
   std::string versionName;
   int variableNamesSize;
   std::vector<std::string> variableNames;
+
+  // prefix string indicating a variable is a vector component
+  // Note: this prefix will be removed from any variable name
+  // whether or not the variable name is a properly formed
+  // vector variable name (contains a proper postfix)
+  std::string vectorNamePrefix = "amrexvec";
+
+  // delimeter must be the same after prefix and before postfix
+  char nameDelim = '_';
+
+  // variableNames map to (potentially a collection of) variableNames indices
+  std::map<std::string, std::vector<int>> parsedVariableNames;
+
   int dim;
   double time;
   int finestLevel;
@@ -114,6 +129,21 @@ public:
   void PrintSelfGenericHeader(std::ostream& os, vtkIndent indent);
   bool Parse(const std::string& headerData);
   bool ParseGenericHeader(const std::string& headerData);
+
+  void SetVectorNamePrefix(const std::string& prefix);
+  void SetNameDelimiter(const char delim);
+
+private:
+  // if the vectorNamePrefix is detected at the beginning of the name,
+  // remove it along with the expected x/y/z postfix. Otherwise, return
+  // the original string
+  std::string GetBaseVariableName(const std::string& name);
+
+  // returns 0 if postfix is x, 1 for y and 2 for z. returns -1 otherwise
+  int CheckComponent(const std::string& name);
+
+  // check if name has the vectorNamePrefix
+  bool HasVectorPrefix(const std::string& name);
 };
 
 // ----------------------------------------------------------------------------
@@ -216,6 +246,11 @@ public:
   void PermuteOrder(
     void* out, const void* in, long nitems, const int* outord, const int* inord, int REALSIZE);
 
+  template <typename T>
+  void CreateVTKAttributeArray(vtkSOADataArrayTemplate<T>* dataArray, const RealDescriptor* ord,
+    const RealDescriptor* ird, const std::vector<std::vector<char>>& buffers,
+    const int numberOfPoints, const std::string& attribute);
+
   bool headersAreRead;
   bool debugReader;
   std::string FileName;
@@ -224,6 +259,23 @@ public:
   std::vector<vtkAMReXGridLevelHeader*> LevelHeader;
   friend class vtkAMReXGridLeveHeader;
 };
+
+template <typename T>
+void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkSOADataArrayTemplate<T>* dataArray,
+  const RealDescriptor* ord, const RealDescriptor* ird,
+  const std::vector<std::vector<char>>& buffers, const int numberOfPoints,
+  const std::string& attribute)
+{
+  const int nComps = this->Header->parsedVariableNames[attribute].size();
+  dataArray->SetName(attribute.c_str());
+  dataArray->SetNumberOfComponents(nComps);
+  dataArray->SetNumberOfTuples(numberOfPoints);
+  for (int i = 0; i < nComps; ++i)
+  {
+    T* arrayPtr = dataArray->GetComponentArrayPointer(i);
+    this->Convert(arrayPtr, buffers[i].data(), numberOfPoints, *ord, *ird);
+  }
+}
 
 // ----------------------------------------------------------------------------
 //                     Class  vtkAMReXGridReaderInternal ( end )
