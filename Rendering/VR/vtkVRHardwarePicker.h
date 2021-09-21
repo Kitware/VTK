@@ -46,9 +46,10 @@ public:
   virtual int PickProp(double selectionPt[3], double eventWorldOrientation[4],
     vtkRenderer* renderer, vtkPropCollection* pickfrom, bool actorPassOnly);
 
-  vtkGetObjectMacro(Selection, vtkSelection)
+  vtkGetObjectMacro(Selection, vtkSelection);
 
-    protected : vtkVRHardwarePicker() = default;
+protected:
+  vtkVRHardwarePicker() = default;
   ~vtkVRHardwarePicker() override = default;
 
   void Initialize() override;
