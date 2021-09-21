@@ -14,6 +14,10 @@
 #  endif
 #endif
 
+#if defined(_WIN32) && !defined(_WIN32_WINNT)
+#  define _WIN32_WINNT _WIN32_WINNT_VISTA
+#endif
+
 #include "kwsysPrivate.h"
 #include KWSYS_HEADER(RegularExpression.hxx)
 #include KWSYS_HEADER(SystemTools.hxx)
@@ -3761,6 +3765,32 @@ bool SystemTools::Split(const std::string& str,
     lpos = rpos + 1;
   }
   return true;
+}
+
+std::string SystemTools::Join(const std::vector<std::string>& list,
+                              const std::string& separator)
+{
+  std::string result;
+  if (list.empty()) {
+    return result;
+  }
+
+  size_t total_size = separator.size() * (list.size() - 1);
+  for (const std::string& string : list) {
+    total_size += string.size();
+  }
+
+  result.reserve(total_size);
+  bool needs_separator = false;
+  for (const std::string& string : list) {
+    if (needs_separator) {
+      result += separator;
+    }
+    result += string;
+    needs_separator = true;
+  }
+
+  return result;
 }
 
 /**
