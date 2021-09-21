@@ -2386,10 +2386,12 @@ struct MatchingPointExtractor
       using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
       using ValueType = typename PointArrayT::ValueType;
       constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
+      double p[3];
 
       for (ConstPointRef point : pointsRange)
       {
-        vtkIdType closestPointId = this->Locator->FindClosestPoint(point[0], point[1], point[2]);
+        vtkMath::Assign(point, p);
+        vtkIdType closestPointId = this->Locator->FindClosestPoint(p);
         ConstPointRef closestPoint = surfacePointsRange[closestPointId];
 
         if (Comparator<IsInteger>::Equals(point[0], closestPoint[0]) &&
@@ -2413,7 +2415,7 @@ struct MatchingPointExtractor
 
   // Inputs
   vtkIdTypeArray* SourcePointIds;
-  vtkNew<vtkStaticPointLocator> Locator;
+  vtkNew<vtkKdTreePointLocator> Locator;
   vtkDataArray* SourcePoints;
   std::unordered_map<vtkIdType, vtkIdType> SourceGlobalPointIds;
 
