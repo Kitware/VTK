@@ -117,8 +117,22 @@ public:
    * until the next time the list is cleared. Use carefully as it may cause
    * excessive memory consumption if left on by mistake.
    */
-  vtkSetMacro(KeepDeadTrails, int);
-  vtkGetMacro(KeepDeadTrails, int);
+  vtkSetMacro(KeepDeadTrails, bool);
+  vtkGetMacro(KeepDeadTrails, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set / Get if the filter is configured to work in backward time going mode.
+   * Default is false (time should go forward).
+   *
+   * Time going forward means that for each call to RequestData, then the time
+   * step from vtkDataObject::DATA_TIME_STEP() is greater than the time step
+   * from the previous call. Time going backward means that the current time
+   * step is smaller than the previous one.
+   */
+  virtual void SetBackwardTime(bool backward);
+  vtkGetMacro(BackwardTime, bool);
   ///@}
 
   /**
@@ -165,16 +179,17 @@ protected:
   void IncrementTrail(TrailPointer trail, vtkDataSet* input, vtkIdType i);
 
   // internal data variables
-  int NumberOfTimeSteps;
-  int MaskPoints;
-  unsigned int MaxTrackLength;
-  unsigned int LastTrackLength;
-  int FirstTime;
-  char* IdChannelArray;
-  double MaxStepDistance[3];
+  int NumberOfTimeSteps = 0;
+  int MaskPoints = 200;
+  unsigned int MaxTrackLength = 10;
+  unsigned int LastTrackLength = 10;
+  int FirstTime = 1;
+  char* IdChannelArray = nullptr;
+  double MaxStepDistance[3] = { 1, 1, 1 };
   double LatestTime;
-  int KeepDeadTrails;
-  int UsingSelection;
+  bool KeepDeadTrails = false;
+  bool UsingSelection = false;
+  bool BackwardTime = false;
   //
 
   vtkSmartPointer<vtkCellArray> PolyLines;

@@ -103,29 +103,19 @@ public:
 vtkStandardNewMacro(vtkTemporalPathLineFilterInternals);
 
 typedef std::map<int, double>::iterator TimeStepIterator;
+static constexpr double LATEST_TIME_MAX = VTK_DOUBLE_MAX;
 //------------------------------------------------------------------------------
 vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 {
-  this->NumberOfTimeSteps = 0;
-  this->MaskPoints = 200;
-  this->MaxTrackLength = 10;
-  this->LastTrackLength = 10;
-  this->FirstTime = 1;
-  this->IdChannelArray = nullptr;
-  this->LatestTime = 01E10;
-  this->MaxStepDistance[0] = 0.0001;
-  this->MaxStepDistance[1] = 0.0001;
-  this->MaxStepDistance[2] = 0.0001;
-  this->MaxStepDistance[0] = 1;
-  this->MaxStepDistance[1] = 1;
-  this->MaxStepDistance[2] = 1;
-  this->KeepDeadTrails = 0;
-  this->Vertices = vtkSmartPointer<vtkCellArray>::New();
+  this->LatestTime = LATEST_TIME_MAX;
+
   this->PolyLines = vtkSmartPointer<vtkCellArray>::New();
+  this->Vertices = vtkSmartPointer<vtkCellArray>::New();
   this->LineCoordinates = vtkSmartPointer<vtkPoints>::New();
   this->VertexCoordinates = vtkSmartPointer<vtkPoints>::New();
   this->TrailId = vtkSmartPointer<vtkFloatArray>::New();
   this->Internals = vtkSmartPointer<vtkTemporalPathLineFilterInternals>::New();
+
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2); // Lines and points
 }
@@ -163,6 +153,18 @@ int vtkTemporalPathLineFilter::FillOutputPortInformation(int port, vtkInformatio
   }
   return 1;
 }
+
+//------------------------------------------------------------------------------
+void vtkTemporalPathLineFilter::SetBackwardTime(bool backward)
+{
+  if (this->BackwardTime != backward)
+  {
+    this->LatestTime = backward ? 0 : LATEST_TIME_MAX;
+    this->BackwardTime = backward;
+    this->Modified();
+  }
+}
+
 //------------------------------------------------------------------------------
 void vtkTemporalPathLineFilter::SetSelectionConnection(vtkAlgorithmOutput* algOutput)
 {
@@ -393,10 +395,15 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   //
   // Check time and Track length
   //
-  if (CurrentTimeStep < this->LatestTime)
+  if ((!this->BackwardTime && (CurrentTimeStep < this->LatestTime)) ||
+    (this->BackwardTime && (CurrentTimeStep > this->LatestTime)))
+  {
     this->FirstTime = 1;
+  }
   if (this->LastTrackLength != this->MaxTrackLength)
+  {
     this->FirstTime = 1;
+  }
 
   //
   // Reset everything if we are starting afresh
@@ -448,10 +455,10 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   //
   // If a selection input was provided, Build a list of selected Ids
   //
-  this->UsingSelection = 0;
+  this->UsingSelection = false;
   if (selection && Ids)
   {
-    this->UsingSelection = 1;
+    this->UsingSelection = true;
     this->SelectionIds.clear();
     vtkDataArray* selectionIds;
     if (this->IdChannelArray)
