@@ -125,6 +125,11 @@ public:
   /**
    * Set / Get if the filter is configured to work in backward time going mode.
    * Default is false (time should go forward).
+   *
+   * Time going forward means that for each call to RequestData, then the time
+   * step from vtkDataObject::DATA_TIME_STEP() is greater than the time step
+   * from the previous call. Time going backward means that the current time
+   * step is smaller than the previous one.
    */
   virtual void SetBackwardTime(bool backward);
   vtkGetMacro(BackwardTime, bool);
