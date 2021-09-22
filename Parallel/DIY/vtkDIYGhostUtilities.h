@@ -388,13 +388,16 @@ protected:
      * When the input has ghosts, this map is being used to copy input cells / cell data into
      * the output (with input ghosts peeled off).
      */
-    vtkSmartPointer<vtkIdList> InputToOutputCellIdRedirectionMap = nullptr;
+    vtkSmartPointer<vtkIdList> OutputToInputCellIdRedirectionMap = nullptr;
 
+    ///@{
     /**
      * When the input has ghosts, this map is being used to copy input points / point data into
      * the output (with input ghosts peeled off).
      */
     vtkSmartPointer<vtkIdList> InputToOutputPointIdRedirectionMap = nullptr;
+    vtkSmartPointer<vtkIdList> OutputToInputPointIdRedirectionMap = nullptr;
+    ///@}
 
     /**
      * Filter that is being used to extract the surface of the input.
@@ -443,15 +446,15 @@ protected:
   {
     /**
      * This lists the matching point ids to the interfacing points that are exchanged with current
-     * neighboring block. Those ids correspond to local point ordering.
+     * neighboring block. Those ids correspond to local point ordering as indexed in the input.
      */
     vtkNew<vtkIdTypeArray> MatchingReceivedPointIds;
 
     /**
      * This array describes the same points as `MatchingReceivedPointIds`, but points are ordered
-     * like in the current neighboring block.
+     * like in the current neighboring block. Point ids stored in this array map to the output.
      */
-    vtkNew<vtkIdTypeArray> MatchingReceivedPointIdsSortedLikeTarget;
+    vtkNew<vtkIdTypeArray> RemappedMatchingReceivedPointIdsSortedLikeTarget;
 
     /**
      * These are the interfacing points sent by the current neighboring block. They should match
@@ -609,10 +612,10 @@ protected:
      * In the event that the input has ghost cells, this maps the output cells (with input ghosts
      * removed) to the input cells.
      */
-    vtkNew<vtkIdList> InputToOutputVertCellIdRedirectionMap;
-    vtkNew<vtkIdList> InputToOutputLineCellIdRedirectionMap;
-    vtkNew<vtkIdList> InputToOutputPolyCellIdRedirectionMap;
-    vtkNew<vtkIdList> InputToOutputStripCellIdRedirectionMap;
+    vtkNew<vtkIdList> OutputToInputVertCellIdRedirectionMap;
+    vtkNew<vtkIdList> OutputToInputLineCellIdRedirectionMap;
+    vtkNew<vtkIdList> OutputToInputPolyCellIdRedirectionMap;
+    vtkNew<vtkIdList> OutputToInputStripCellIdRedirectionMap;
     ///@}
   };
 
