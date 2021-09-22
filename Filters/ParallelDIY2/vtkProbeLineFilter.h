@@ -16,46 +16,52 @@
  * @class   vtkProbeLineFilter
  * @brief   probe dataset along a line in parallel
  *
- * This filter probes the input data set along an input segment of end points `Point1` and
- * `Point2`. It outputs a `vtkPolyData` composed of `vtkLine` cells. Points are sorted along
- * the line, from `Point1` to `Point2`.
+ * This filter probes the input data set along an source dataset composed of `vtkLine` and/or
+ * `vtkPolyLine` cells. It outputs a `vtkMultiBlockDataSet`. Each block contains the probe
+ * result for a single cell of the source. Points are sorted along the line or the polyline.
+ * Cells are outputted in the same order they were defined in the input (i.e. cells 0 is
+ * block 0 of the output).
  *
  * The probing can have different sampling patterns. Three are available:
  * * `SAMPLE_LINE_AT_CELL_BOUNDARIES`: The intersection between the input line and the input
  * data set is computed. At each intersection point, 2 points are generated, slightly shifted
  * inside each interfacing cell. Points are moved back to the intersection after probing.
  * This sampling pattern should typically be used on input data
- * sets holding cell data if one wants to output a step function profile. It should be noted
- * that `Point1` and `Point2` are duplicated to handle the case where they lie inside a cell
- * boundary. This ensures that the output is always a step function on cell data.
- * If one wants to ignore `Point1` and `Point2` in the output, one can skip the first 2 points
- * and the last 2 points of the output.
+ * sets holding cell data if one wants to output a step function profile.
  * * `SAMPLE_LINE_AT_SEGMENT_CENTERS`: Center points each consecutive segment formed by the
  * Probing points computed with `SAMPLE_LINE_AT_CELL_BOUNDARIES` are used for probing.
- * This outputs one point per cell, in addition to `Point1` and `Point2`.
+ * This outputs one point per cell, in addition to the end points of a segment.
  * * `SAMPLE_LINE_UNIFORMLY`: A uniformly sampled line is used for probing. In this instance,
  * `LineResolution` is used to determine how many samples are being generated
  *
  * @note In every sampling pattern, the end points are included in the probing, even if they
  * are outside the input data set.
+ *
+ * @attention In case of a distributed pipeline, the dataset used to determine the lines to
+ * probe from (ie the dataset on port 1) will always be the one from rank 0, and will be
+ * broadcasted to all other ranks.
  */
 
 #ifndef vtkProbeLineFilter_h
 #define vtkProbeLineFilter_h
 
 #include "vtkFiltersParallelDIY2Module.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // For sampling line
 
 #include <vector> // For sampling line
 
+class vtkDataSet;
+class vtkIdList;
 class vtkMultiProcessController;
+class vtkPoints;
 class vtkPolyData;
+class vtkVector3d;
 
-class VTKFILTERSPARALLELDIY2_EXPORT vtkProbeLineFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSPARALLELDIY2_EXPORT vtkProbeLineFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkProbeLineFilter, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkProbeLineFilter, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkProbeLineFilter* New();
@@ -68,16 +74,11 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
-  ///@{
   /**
-   * Set and get for `Point1` and `Point2`, which are the points describing the input line
-   * on which to probe from.
+   * Set the source for creating the lines to probe from. Only cells of type VTK_LINE or
+   * VTK_POLY_LINE will be processed.
    */
-  vtkSetVector3Macro(Point1, double);
-  vtkGetVector3Macro(Point1, double);
-  vtkSetVector3Macro(Point2, double);
-  vtkGetVector3Macro(Point2, double);
-  ///@}
+  virtual void SetSourceConnection(vtkAlgorithmOutput* input);
 
   ///@{
   /**
@@ -180,21 +181,32 @@ protected:
   vtkProbeLineFilter();
   ~vtkProbeLineFilter() override;
 
-  // Usual data generation method
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(
+  /**
+   * Generate sampling point for a given cell. Supports line and polyline cells.
+   * This functions is expected to return a polydata with a single polyline in it.
+   */
+  vtkSmartPointer<vtkPolyData> CreateSamplingPolyLine(
+    vtkPoints* points, vtkIdList* pointIds, vtkDataObject* input, double tol) const;
+
+  ///@{
+  /**
+   * Generate sampling point between p1 and p2 according to @c SamplingPattern.
+   * This functions is expected to return a polydata with a single polyline in it.
+   */
+  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
     const std::vector<vtkDataSet*>& input, const double tolerance) const;
-  vtkSmartPointer<vtkPolyData> SampleLineUniformly() const;
+  vtkSmartPointer<vtkPolyData> SampleLineUniformly(
+    const vtkVector3d& p1, const vtkVector3d& p2) const;
+  ///@}
 
   vtkMultiProcessController* Controller;
 
   int SamplingPattern;
   int LineResolution;
-
-  double Point1[3];
-  double Point2[3];
 
   bool PassPartialArrays;
   bool PassCellArrays;

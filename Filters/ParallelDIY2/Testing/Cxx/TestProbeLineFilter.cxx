@@ -13,8 +13,11 @@
 =========================================================================*/
 
 #include "vtkDataArray.h"
+#include "vtkDummyController.h"
+#include "vtkLineSource.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
@@ -78,55 +81,67 @@ int TestProbeLineFilter(int argc, char* argv[])
   vtkNew<vtkPointDataToCellData> point2cell;
   point2cell->SetInputData(pds);
 
+  vtkNew<vtkLineSource> line;
+  line->SetPoint1(-10, -10, -10);
+  line->SetPoint2(10, 10, 10);
+  line->SetResolution(1);
+  line->Update();
   vtkNew<vtkProbeLineFilter> probeLine;
   probeLine->SetInputConnection(point2cell->GetOutputPort());
+  probeLine->SetSourceConnection(line->GetOutputPort());
   probeLine->SetController(contr);
-  probeLine->SetPoint1(-10, -10, -10);
-  probeLine->SetPoint2(10, 10, 10);
   probeLine->SetLineResolution(10);
+
+  auto CheckForErrors = [myrank](vtkProbeLineFilter* prober, const double* expected, vtkIdType size,
+                          const char* name) {
+    if (myrank != 0)
+    {
+      return EXIT_SUCCESS;
+    }
+
+    vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(prober->GetOutputDataObject(0));
+    if (mbds->GetNumberOfBlocks() != 1)
+    {
+      vtkLog(ERROR, "Wrong number ok blocks in the output");
+      return EXIT_FAILURE;
+    }
+
+    vtkPolyData* pd = vtkPolyData::SafeDownCast(mbds->GetBlock(0));
+    vtkDataArray* result = pd->GetPointData()->GetArray("RTData");
+    vtkIdType minsize = (size >= result->GetNumberOfValues() ? result->GetNumberOfValues() : size);
+    if (result->GetNumberOfValues() != size)
+    {
+      vtkLog(ERROR, << name << ": result and expected result does not have the same size (resp. "
+                    << result->GetNumberOfValues() << " vs " << size
+                    << " values). Still checking the " << minsize << " first common elements ...");
+    }
+
+    int code = EXIT_SUCCESS;
+    for (vtkIdType pointId = 0; pointId < minsize; ++pointId)
+    {
+      if (std::fabs(result->GetTuple1(pointId) - expected[pointId]) > 0.001)
+      {
+        vtkLog(ERROR, "Failed to probe line with SAMPLE_LINE_AT_CELL_BOUNDARIES at " << pointId);
+        code = EXIT_FAILURE;
+      }
+    }
+    return code;
+  };
 
   probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_CELL_BOUNDARIES);
   probeLine->Update();
-
-  vtkPolyData* pd = vtkPolyData::SafeDownCast(probeLine->GetOutputDataObject(0));
-  vtkDataArray* array = pd->GetPointData()->GetArray("RTData");
-
-  for (vtkIdType pointId = 0; pointId < pd->GetNumberOfPoints(); ++pointId)
-  {
-    if (std::fabs(array->GetTuple1(pointId) - ProbingAtCellBoundaries[pointId]) > 0.001)
-    {
-      vtkLog(ERROR, "Failed to probe line with SAMPLE_LINE_AT_CELL_BOUNDARIES at " << pointId);
-      retVal = EXIT_FAILURE;
-    }
-  }
+  retVal = CheckForErrors(probeLine, ProbingAtCellBoundaries.data(), ProbingAtCellBoundaries.size(),
+    "SAMPLE_LINE_AT_CELL_BOUNDARIES");
 
   probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS);
   probeLine->Update();
-
-  pd = vtkPolyData::SafeDownCast(probeLine->GetOutputDataObject(0));
-  array = pd->GetPointData()->GetArray("RTData");
-  for (vtkIdType pointId = 0; pointId < pd->GetNumberOfPoints(); ++pointId)
-  {
-    if (std::fabs(array->GetTuple1(pointId) - ProbingAtSegmentCenters[pointId]) > 0.001)
-    {
-      vtkLog(ERROR, "Failed to probe line with SAMPLE_LINE_AT_SEGMENT_CENTERS at " << pointId);
-      retVal = EXIT_FAILURE;
-    }
-  }
+  retVal = CheckForErrors(probeLine, ProbingAtSegmentCenters.data(), ProbingAtSegmentCenters.size(),
+    "SAMPLE_LINE_AT_SEGMENT_CENTERS");
 
   probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
   probeLine->Update();
-
-  pd = vtkPolyData::SafeDownCast(probeLine->GetOutputDataObject(0));
-  array = pd->GetPointData()->GetArray("RTData");
-  for (vtkIdType pointId = 0; pointId < pd->GetNumberOfPoints(); ++pointId)
-  {
-    if (std::fabs(array->GetTuple1(pointId) - ProbingUniformly[pointId]) > 0.001)
-    {
-      vtkLog(ERROR, "Failed to probe line with SAMPLE_LINE_UNIFORMLY at " << pointId);
-      retVal = EXIT_FAILURE;
-    }
-  }
+  retVal = CheckForErrors(
+    probeLine, ProbingUniformly.data(), ProbingUniformly.size(), "SAMPLE_LINE_UNIFORMLY");
 
   vtkMultiProcessController::SetGlobalController(nullptr);
   contr->Finalize();
