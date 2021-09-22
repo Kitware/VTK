@@ -26,7 +26,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkIncrementalOctreePointLocator.h"
-#include "vtkKdTreePointLocator.h"
+#include "vtkKdTree.h"
 #include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkMatrix3x3.h"
@@ -924,6 +924,24 @@ struct Comparator<false>
 };
 
 //============================================================================
+template<class ValueT, bool IsIntegerT = std::numeric_limits<ValueT>::is_integer>
+struct Epsilon;
+
+//============================================================================
+template<class ValueT>
+struct Epsilon<ValueT, true>
+{
+  static constexpr ValueT Value = 0;
+};
+
+//============================================================================
+template<class ValueT>
+struct Epsilon<ValueT, false>
+{
+  static constexpr ValueT Value = std::numeric_limits<ValueT>::epsilon();
+};
+
+//============================================================================
 struct RectilinearGridFittingWorker
 {
   RectilinearGridFittingWorker(vtkDataArray* array)
@@ -1166,7 +1184,7 @@ struct StructuredGridFittingWorker
       ArrayT* points, vtkAbstractPointLocator* locator, const ExtentType& extent, int extentId)
   {
     using ValueType = typename ArrayT::ValueType;
-    constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
+    constexpr ValueType Eps = Epsilon<ValueType>::Value;
 
     bool retVal = false;
 
@@ -1183,6 +1201,7 @@ struct StructuredGridFittingWorker
     int yNumberOfCorners = yCorners[0] == yCorners[1] ? 1 : 2;
 
     constexpr int sweepDirection[2] = { 1, -1 };
+    double dist2;
 
     for (int xCornerId = 0; xCornerId < xNumberOfCorners; ++xCornerId)
     {
@@ -1194,23 +1213,25 @@ struct StructuredGridFittingWorker
             queryExtent.data(), queryijk);
         ValueType queryPoint[3];
         queryPoints->GetTypedTuple(queryPointId, queryPoint);
+
         double tmp[3] = { static_cast<double>(queryPoint[0]), static_cast<double>(queryPoint[1]),
           static_cast<double>(queryPoint[2]) };
-        vtkIdType pointId = locator->FindClosestPoint(tmp);
-        ValueType point[3];
-        points->GetTypedTuple(pointId, point);
 
-        if (Comparator<IsInteger>::Equals(point[0], queryPoint[0]) &&
-            Comparator<IsInteger>::Equals(point[1], queryPoint[1]) &&
-            Comparator<IsInteger>::Equals(point[2], queryPoint[2]))
+        vtkIdType pointId = locator->FindClosestPointWithinRadius(
+            std::max({ std::fabs(tmp[0]), std::fabs(tmp[1]), std::fabs(tmp[2]) }) * Eps,
+            tmp, dist2);
+
+        if (pointId == -1)
         {
-          if (this->SweepGrids(queryPoints, queryExtentId, queryExtent, queryXDim,
-                xCorners[xCornerId], xCorners[(xCornerId + 1) % 2], sweepDirection[xCornerId],
-                queryYDim, yCorners[yCornerId], yCorners[(yCornerId + 1) % 2],
-                sweepDirection[yCornerId], points, pointId, extentId, extent))
-          {
-            retVal = true;
-          }
+          continue;
+        }
+
+        if (this->SweepGrids(queryPoints, queryExtentId, queryExtent, queryXDim,
+              xCorners[xCornerId], xCorners[(xCornerId + 1) % 2], sweepDirection[xCornerId],
+              queryYDim, yCorners[yCornerId], yCorners[(yCornerId + 1) % 2],
+              sweepDirection[yCornerId], points, pointId, extentId, extent))
+        {
+          retVal = true;
         }
       }
     }
@@ -2311,7 +2332,7 @@ void InitializeBlocksForUnstructuredData(diy::Master& master,
  */
 struct MatchingPointExtractor
 {
-  MatchingPointExtractor(vtkIdTypeArray* sourcePointIds, vtkDataSet* surface,
+  MatchingPointExtractor(vtkIdTypeArray* sourcePointIds, vtkPointSet* surface,
       vtkDataArray* sourcePoints, vtkIdTypeArray* sourceGlobalPointIds, vtkIdList* pointIdMap)
     : SourcePointIds(sourcePointIds)
     , SourcePoints(sourcePoints)
@@ -2330,8 +2351,7 @@ struct MatchingPointExtractor
     else
     {
       // We only use the locator if global point ids are not present.
-      this->Locator->SetDataSet(surface);
-      this->Locator->BuildLocator();
+      this->KdTree->BuildLocatorFromPoints(surface->GetPoints());
     }
   }
 
@@ -2370,32 +2390,30 @@ struct MatchingPointExtractor
     }
     else
     {
-      PointArrayT* surfacePoints = vtkArrayDownCast<PointArrayT>(this->SourcePoints);
-
       auto pointsRange = vtk::DataArrayTupleRange<3>(points);
-      auto surfacePointsRange = vtk::DataArrayTupleRange<3>(surfacePoints);
 
       inverseMap.reserve(pointsRange.size());
       this->MatchingSourcePointIds->Allocate(pointsRange.size());
 
       using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
       using ValueType = typename PointArrayT::ValueType;
-      constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
+      constexpr ValueType Eps = Epsilon<ValueType>::Value;
       double p[3];
+      double dist2;
 
       for (ConstPointRef point : pointsRange)
       {
         vtkMath::Assign(point, p);
-        vtkIdType closestPointId = this->Locator->FindClosestPoint(p);
-        ConstPointRef closestPoint = surfacePointsRange[closestPointId];
+        vtkIdType closestPointId = this->KdTree->FindClosestPointWithinRadius(
+            std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) }) * Eps, p, dist2);
 
-        if (Comparator<IsInteger>::Equals(point[0], closestPoint[0]) &&
-            Comparator<IsInteger>::Equals(point[1], closestPoint[1]) &&
-            Comparator<IsInteger>::Equals(point[2], closestPoint[2]))
+        if (closestPointId == -1)
         {
-          this->MatchingSourcePointIds->InsertNextValue(sourcePointIdsRange[closestPointId]);
-          inverseMap.push_back(closestPointId);
+          continue;
         }
+
+        this->MatchingSourcePointIds->InsertNextValue(sourcePointIdsRange[closestPointId]);
+        inverseMap.push_back(closestPointId);
       }
     }
 
@@ -2421,7 +2439,7 @@ struct MatchingPointExtractor
 
   // Inputs
   vtkIdTypeArray* SourcePointIds;
-  vtkNew<vtkKdTreePointLocator> Locator;
+  vtkNew<vtkKdTree> KdTree;
   vtkDataArray* SourcePoints;
   std::unordered_map<vtkIdType, vtkIdType> SourceGlobalPointIds;
   vtkIdList* OutputToInputPointIdMap;
@@ -3037,7 +3055,7 @@ LinkMap ComputeLinkMapForUnstructuredData(const diy::Master& master,
     Links& localLinks = linkMap[localId];
 
     MatchingPointExtractor matchingPointExtractor(info.InterfacePointIds,
-      vtkDataSet::SafeDownCast(info.InterfaceExtractor->GetOutputDataObject(0)),
+      vtkPointSet::SafeDownCast(info.InterfaceExtractor->GetOutputDataObject(0)),
       info.InterfacePoints, globalPointIds, info.InputToOutputPointIdRedirectionMap);
 
     for (auto it = blockStructures.begin(); it != blockStructures.end();)
@@ -4436,25 +4454,25 @@ struct PolyhedronsInserter
 /**
  * This worker is used to checked if 2 points are the same, using the underlying type of the point.
  */
-struct MatchingPointWorker
+struct QueryPointWorker
 {
-  template<class SourceArrayT, class TargetArrayT>
-  void operator()(SourceArrayT* source, TargetArrayT* target)
+  QueryPointWorker(vtkAbstractPointLocator* locator) : Locator(locator)
   {
-    using ValueType = typename SourceArrayT::ValueType;
-    constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
-
-    ValueType p[3], q[3];
-    source->GetTypedTuple(this->SourcePointId, p);
-    target->GetTypedTuple(this->TargetPointId, q);
-
-    this->PointsAreMatching = Comparator<IsInteger>::Equals(p[0], q[0]) &&
-      Comparator<IsInteger>::Equals(p[1], q[1]) && Comparator<IsInteger>::Equals(p[2], q[2]);
   }
 
-  vtkIdType SourcePointId;
+  template<class ArrayT>
+  void operator()(ArrayT* vtkNotUsed(array), double p[3])
+  {
+    using ValueType = typename ArrayT::ValueType;
+    constexpr ValueType Eps = Epsilon<ValueType>::Value;
+
+    this->TargetPointId = this->Locator->FindClosestPointWithinRadius(
+        std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) }) * Eps, p, this->Dist2);
+  }
+
+  vtkAbstractPointLocator* Locator;
   vtkIdType TargetPointId;
-  bool PointsAreMatching;
+  double Dist2;
 };
 
 //----------------------------------------------------------------------------
@@ -4732,7 +4750,7 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredData(const diy::Master& maste
 
       pointLocator->InitPointInsertion(points, bounds);
 
-      MatchingPointWorker matchingPointWorker;
+      QueryPointWorker queryPointWorker(pointLocator);
 
       for (auto& pair : blockStructures)
       {
@@ -4754,17 +4772,14 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredData(const diy::Master& maste
             continue;
           }
 
-          matchingPointWorker.TargetPointId = pointLocator->FindClosestInsertedPoint(p);
-          matchingPointWorker.SourcePointId = pointId;
+          using Dispatcher = vtkArrayDispatch::Dispatch;
+          Dispatcher::Execute(receivedPoints->GetData(), queryPointWorker, p);
 
-          using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
-          Dispatcher::Execute(receivedPoints->GetData(), points->GetData(), matchingPointWorker);
-
-          if (matchingPointWorker.PointsAreMatching)
+          if (queryPointWorker.TargetPointId != -1)
           {
             ++numberOfMatchingPoints;
             redirectionMapForDuplicatePointIds.insert(
-                { pointId, pointIdRedirection[matchingPointWorker.TargetPointId] });
+                { pointId, pointIdRedirection[queryPointWorker.TargetPointId] });
           }
           else
           {
