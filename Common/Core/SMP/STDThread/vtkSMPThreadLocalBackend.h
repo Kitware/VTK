@@ -63,7 +63,7 @@ struct Slot
   StoragePointerType Storage;
 
   Slot();
-  virtual ~Slot();
+  ~Slot();
 
 private:
   // not copyable
@@ -79,7 +79,7 @@ struct HashTableArray
   HashTableArray* Prev;
 
   explicit HashTableArray(size_t sizeLg);
-  virtual ~HashTableArray();
+  ~HashTableArray();
 
 private:
   // disallow copying

@@ -554,7 +554,7 @@ vtk_module_add_module(VTK::CommonCore
 if (vtk_include_dirs)
   vtk_module_include(VTK::CommonCore
     PRIVATE
-    ${vtk_include_dirs})
+      ${vtk_include_dirs})
 endif ()
 
 vtk_module_link(VTK::CommonCore
