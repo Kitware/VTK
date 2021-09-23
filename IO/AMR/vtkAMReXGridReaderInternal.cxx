@@ -920,13 +920,13 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
 
       // read every component of the variable into the buffers vector
       std::string attributeName(attribute);
-      int nComps = this->Header->parsedVariableNames[attributeName].size();
+      size_t nComps = this->Header->parsedVariableNames[attributeName].size();
       std::vector<std::vector<char>> buffers(nComps);
       for (int i = 0; i < nComps; ++i)
       {
         int compIndex = this->Header->parsedVariableNames[attributeName][i];
         std::string compName = this->Header->variableNames[compIndex];
-        int offsetOfAttribute = this->GetOffsetOfAttribute(compName.c_str());
+        size_t offsetOfAttribute = this->GetOffsetOfAttribute(compName.c_str());
         is.seekg((linefeed + 1) + (offsetOfAttribute * (numberOfPoints * ird->numBytes())));
         buffers[i].resize(numberOfPoints * ird->numBytes());
         this->ReadBlockAttribute(is, numberOfPoints, ird->numBytes(), buffers[i].data());
