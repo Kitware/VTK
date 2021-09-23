@@ -158,7 +158,10 @@ HitCellInfo ProcessLimitPoint(vtkVector3d p1, vtkVector3d p2, int pattern, vtkDa
   const double norm = (p2 - p1).Norm();
   HitCellInfo result{0.0, -1.0, -1};
 
-  vtkIdType cellId = locator->FindCell(p1.GetData());
+  // We offset a bit P1 only for finding its corresponding cell so there is no
+  // ambiguity in case of consecutive 3D cells
+  vtkVector3d findCellLocation = p1 +  (p2 - p1) * (tolerance / norm);
+  vtkIdType cellId = locator->FindCell(findCellLocation.GetData());
   if (cellId >= 0)
   {
     vtkCell* cell = input->GetCell(cellId);
@@ -202,11 +205,10 @@ struct PointProjectionBordersWorker
 
   void operator()(vtkIdType startId, vtkIdType endId)
   {
-    vtkVector3d point;
     vtkIdType idx = 2 + 2 * startId;
     for (vtkIdType i = startId; i < endId; ++i)
     {
-      point = this->P1 + this->Intersections[i].InT * this->V12;
+      vtkVector3d point = this->P1 + this->Intersections[i].InT * this->V12;
       this->Result->SetPoint(idx, point.GetData());
       ++idx;
       point = this->P1 + this->Intersections[i].OutT * this->V12;
@@ -232,10 +234,9 @@ struct PointProjectionCentersWorker
 
   void operator()(vtkIdType startId, vtkIdType endId)
   {
-    vtkVector3d point;
     for (vtkIdType i = startId; i < endId; ++i)
     {
-      point = this->P1 + (this->Intersections[i].InT + this->Intersections[i].OutT) * 0.5 * this->V12;
+      vtkVector3d point = this->P1 + (this->Intersections[i].InT + this->Intersections[i].OutT) * 0.5 * this->V12;
       this->Result->SetPoint(i + 1, point.GetData());
     }
   }
@@ -322,6 +323,8 @@ int vtkProbeLineFilter::RequestData(
   {
     // We move points to the cell interfaces.
     // They were artificially moved away from the cell interfaces so probing works well.
+    // XXX: this actually assume that every cells is next to each other i.e. this is only
+    // valid for 3D ImageData/RectilinearGrid/StructuredGrid.
     vtkPointSet* points = vtkPointSet::SafeDownCast(prober->GetOutputDataObject(0));
     auto pointsRange = vtk::DataArrayTupleRange<3>(points->GetPoints()->GetData());
     using PointRef = decltype(pointsRange)::TupleReferenceType;
@@ -395,9 +398,9 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
 
     // We process p1 and p2 a bit differently so in the case of their intersection with a cell
     // they are not duplicated
-    auto AddLimitPointToIntersections = [&](const vtkVector3d& p1, const vtkVector3d& p2, bool inverse, HitCellInfo& hit)
+    auto AddLimitPointToIntersections = [&](const vtkVector3d& start, const vtkVector3d& end, bool inverse, HitCellInfo& hit)
     {
-      auto processed = ::ProcessLimitPoint(p1, p2, this->SamplingPattern, input, locator, tolerance);
+      auto processed = ::ProcessLimitPoint(start, end, this->SamplingPattern, input, locator, tolerance);
 
       if (processed.OutT >= 0.0)
       {
@@ -501,7 +504,7 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
       }
     });
 
-  auto ReduceLimitPointHit = [&p1Hit, &p2Hit, this](std::vector<HitCellInfo>& inter)
+  auto ReduceLimitPointHit = [&p1Hit, &p2Hit](std::vector<HitCellInfo>& inter)
   {
     HitCellInfo p2InterHit = inter.back();
     inter.pop_back();
@@ -551,16 +554,22 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
       vtkIdType numberOfPoints = intersections.size() * 2 + 4;
       coordinates->SetNumberOfPoints(numberOfPoints);
 
-      vtkVector3d point = p1 + p1Hit.OutT * v12;
-      coordinates->SetPoint(0, this->Point1);
-      coordinates->SetPoint(1, point.GetData());
+      if (p1Hit.OutT != 0.0)
+      {
+        vtkVector3d point = p1 + p1Hit.OutT * v12;
+        coordinates->SetPoint(0, this->Point1);
+        coordinates->SetPoint(1, point.GetData());
+      }
 
       ::PointProjectionBordersWorker worker(p1, p2, intersections, coordinates);
       vtkSMPTools::For(0, intersections.size(), worker);
 
-      point = p1 + p2Hit.InT * v12;
-      coordinates->SetPoint(numberOfPoints - 2, point.GetData());
-      coordinates->SetPoint(numberOfPoints - 1, this->Point2);
+      if (p2Hit.InT != 1.0)
+      {
+        vtkVector3d point = p1 + p2Hit.InT * v12;
+        coordinates->SetPoint(numberOfPoints - 2, point.GetData());
+        coordinates->SetPoint(numberOfPoints - 1, this->Point2);
+      }
     }
   }
   else // SamplingPattern == SAMPLE_LINE_AT_SEGMENT_CENTERS
