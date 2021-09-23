@@ -21,6 +21,7 @@
 #include "vtkPDescriptiveStatistics.h"
 
 #include "vtkCommunicator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
@@ -91,8 +92,8 @@ void vtkPDescriptiveStatistics::Learn(
   }
 
   // (All) gather all sample sizes
-  int n_l = primaryTab->GetValueByName(0, "Cardinality").ToInt(); // Cardinality
-  int* n_g = new int[np];
+  double n_l = primaryTab->GetValueByName(0, "Cardinality").ToDouble(); // Cardinality
+  double* n_g = new double[np];
   com->AllGather(&n_l, n_g, 1);
 
   // Iterate over all parameter rows
@@ -121,7 +122,7 @@ void vtkPDescriptiveStatistics::Learn(
     com->AllGather(M_l, M_g, 4);
 
     // Aggregate all local quadruples of M statistics into global ones
-    int ns = n_g[0];
+    double ns = n_g[0];
     double mean = M_g[0];
     double mom2 = M_g[1];
     double mom3 = M_g[2];
@@ -129,8 +130,8 @@ void vtkPDescriptiveStatistics::Learn(
 
     for (int i = 1; i < np; ++i)
     {
-      int ns_l = n_g[i];
-      int N = ns + ns_l;
+      double ns_l = n_g[i];
+      double N = ns + ns_l;
 
       int o = 4 * i;
       double mean_part = M_g[o];
@@ -142,11 +143,24 @@ void vtkPDescriptiveStatistics::Learn(
       double delta_sur_N = delta / static_cast<double>(N);
       double delta2_sur_N2 = delta_sur_N * delta_sur_N;
 
-      int ns2 = ns * ns;
-      int ns_l2 = ns_l * ns_l;
-      int prod_ns = ns * ns_l;
+      double ns2 = ns * ns;
+      double ns_l2 = ns_l * ns_l;
+      double prod_ns = ns * ns_l;
 
-      mom4 += mom4_part + prod_ns * (ns2 - prod_ns + ns_l2) * delta * delta_sur_N * delta2_sur_N2 +
+      // ###########
+      // # WARNING #
+      // ###########
+      //
+      // The formula from "Formulas for Robust, One-Pass Parallel Computation of Covariances
+      // and Arbitrary-Order Statistical Moments" (Philippe Pébay, 2008) for mom4 is WRONG.
+      // In particular, the line not involving any lower order moments has a mistake (equation 1.6
+      // in the paper).
+      // To verify this part of the formula, please refer to equation 3.6 from
+      // "Formulas for the computation of higher-order central moments" (Philippe Pébay,
+      // Timothy B. Terriberry, Hemanth Kolla and Janine Bennett, 2016).
+
+      mom4 += mom4_part +
+        delta2_sur_N2 * delta2_sur_N2 * prod_ns * (ns * ns2 + ns_l * ns_l2) + // Mistake was here
         6. * (ns2 * mom2_part + ns_l2 * mom2) * delta2_sur_N2 +
         4. * (ns * mom3_part - ns_l * mom3) * delta_sur_N;
 
@@ -172,4 +186,23 @@ void vtkPDescriptiveStatistics::Learn(
     delete[] M_g;
   }
   delete[] n_g;
+}
+
+//------------------------------------------------------------------------------
+int vtkPDescriptiveStatistics::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  int retVal = this->Superclass::RequestData(request, inputVector, outputVector);
+
+  if (this->Controller && this->Controller->GetLocalProcessId() != 0)
+  {
+    vtkMultiBlockDataSet* outModel = vtkMultiBlockDataSet::GetData(outputVector, OUTPUT_MODEL);
+    std::vector<vtkDataObject*> outputs = vtkCompositeDataSet::GetDataSets<vtkDataObject>(outModel);
+    for (vtkDataObject* output : outputs)
+    {
+      output->Initialize();
+    }
+  }
+
+  return retVal;
 }
