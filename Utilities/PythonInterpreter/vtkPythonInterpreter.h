@@ -160,6 +160,14 @@ public:
   static bool GetCaptureStdin();
   ///@}
 
+  ///@{
+  /**
+   * Enable/disable VTK from redirecting Python output to vtkOutputWindow. On by default.
+   */
+  static void SetRedirectOutput(bool redirect);
+  static bool GetRedirectOutput();
+  ///@}
+
   VTK_DEPRECATED_IN_9_0_0("Use vtkPythonInterpreter::GetLogVerbosity")
   static int GetPythonVerboseFlag();
 
@@ -195,6 +203,7 @@ private:
 
   static bool InitializedOnce;
   static bool CaptureStdin;
+  static bool RedirectOutput;
   /**
    * If true, buffer output to console and sent it to other modules at
    * the end of the operation. If false, send the output as it becomes available.
