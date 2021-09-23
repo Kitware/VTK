@@ -926,7 +926,7 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
       {
         int compIndex = this->Header->parsedVariableNames[attributeName][i];
         std::string compName = this->Header->variableNames[compIndex];
-        size_t offsetOfAttribute = this->GetOffsetOfAttribute(compName.c_str());
+        offsetOfAttribute = this->GetOffsetOfAttribute(compName.c_str());
         is.seekg((linefeed + 1) + (offsetOfAttribute * (numberOfPoints * ird->numBytes())));
         buffers[i].resize(numberOfPoints * ird->numBytes());
         this->ReadBlockAttribute(is, numberOfPoints, ird->numBytes(), buffers[i].data());
