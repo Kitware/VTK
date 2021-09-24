@@ -303,7 +303,7 @@ std::string GenerateRandomAlphabeticString(unsigned int len)
 {
   static constexpr auto chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                 "abcdefghijklmnopqrstuvwxyz";
-  thread_local auto rng = std::default_random_engine(std::random_device{}());
+  auto rng = std::default_random_engine(std::random_device{}());
   auto dist = std::uniform_int_distribution<int>(0, static_cast<int>(std::strlen(chars) - 1));
   auto result = std::string(len, '\0');
   std::generate_n(begin(result), len, [&]() { return chars[dist(rng)]; });
