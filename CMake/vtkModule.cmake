@@ -2194,6 +2194,8 @@ vtk_module_build(
 
   [TARGET_SPECIFIC_COMPONENTS <ON|OFF>]
 
+  [UTILITY_TARGET     <target>]
+
   [TEST_DIRECTORY_NAME        <name>]
   [TEST_DATA_TARGET           <target>]
   [TEST_INPUT_DATA_DIRECTORY  <directory>]
@@ -2239,6 +2241,9 @@ have reasonable defaults if not specified.
     for the libraries built.
   * `TARGET_SPECIFIC_COMPONENTS`: (Defaults to `OFF`) If `ON`, place artifacts
     into target-specific install components (`<TARGET>-<COMPONENT>`).
+  * `UTILITY_TARGET`: If specified, all libraries and executables made by the
+    VTK Module API will privately link to this target. This may be used to
+    provide things such as project-wide compilation flags or similar.
   * `TARGET_NAMESPACE`: `Defaults to `\<AUTO\>`) The namespace for installed
     targets. All targets must have the same namespace. If set to `\<AUTO\>`,
     the namespace will be detected automatically.
@@ -2291,6 +2296,7 @@ function (vtk_module_build)
     INSTALL_EXPORT
     TARGETS_COMPONENT
     TARGET_NAMESPACE
+    UTILITY_TARGET
 
     # Destinations
     ARCHIVE_DESTINATION
@@ -2618,6 +2624,13 @@ function (vtk_module_build)
         PRIVATE
           ${_vtk_build_kit_modules_object_libraries}
           ${_vtk_build_kit_modules_private_depends})
+
+      if (_vtk_build_UTILITY_TARGET)
+        target_link_libraries("${_vtk_build_target_name}"
+          PRIVATE
+            "${_vtk_build_UTILITY_TARGET}")
+      endif ()
+
       get_property(_vtk_build_kit_library_name GLOBAL
         PROPERTY "_vtk_kit_${_vtk_build_kit}_library_name")
       if (_vtk_build_LIBRARY_NAME_SUFFIX)
@@ -3497,6 +3510,13 @@ function (vtk_module_add_module name)
         ${_vtk_add_module_HEADERS}
         ${_vtk_add_module_NOWRAP_HEADERS}
         ${_vtk_add_module_PRIVATE_HEADERS})
+
+      if (_vtk_build_UTILITY_TARGET)
+        target_link_libraries("${_vtk_add_module_real_target}-objects"
+          PRIVATE
+            "${_vtk_build_UTILITY_TARGET}")
+      endif ()
+
       set_target_properties("${_vtk_add_module_real_target}-objects"
         PROPERTIES
           # Emulate the regular library as much as possible.
@@ -3512,6 +3532,12 @@ function (vtk_module_add_module name)
         ${_vtk_add_module_TEMPLATES}
         ${_vtk_add_module_HEADERS}
         ${_vtk_add_module_PRIVATE_HEADERS})
+
+      if (_vtk_build_UTILITY_TARGET)
+        target_link_libraries("${_vtk_add_module_real_target}"
+          PRIVATE
+            "${_vtk_build_UTILITY_TARGET}")
+      endif ()
 
       set_property(TARGET "${_vtk_add_module_real_target}"
         PROPERTY
@@ -4236,6 +4262,12 @@ function (vtk_module_add_executable name)
           "shouldn't be necessary.")
       endif ()
     endif ()
+  endif ()
+
+  if (_vtk_build_UTILITY_TARGET)
+    target_link_libraries("${_vtk_add_executable_target_name}"
+      PRIVATE
+        "${_vtk_build_UTILITY_TARGET}")
   endif ()
 
   set(_vtk_add_executable_property_args)

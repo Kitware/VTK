@@ -41,6 +41,9 @@ endif ()
 
 include(GNUInstallDirs)
 
+add_library(vtkbuild INTERFACE)
+add_library(VTK::vtkbuild ALIAS vtkbuild)
+
 include(vtkCompilerChecks)
 include(vtkCompilerPlatformFlags)
 include(vtkCompilerExtraFlags)
@@ -346,6 +349,7 @@ if (NOT DEFINED vtk_cmake_destination)
     set(vtk_target_package PACKAGE "${vtk_install_export}")
   endif ()
 endif ()
+install(TARGETS vtkbuild EXPORT "${vtk_install_export}")
 
 set(VTK_CUSTOM_LIBRARY_SUFFIX "<DEFAULT>"
   CACHE STRING "Custom library file name suffix (defaults to the version number)")
@@ -381,6 +385,7 @@ vtk_module_build(
   BUILD_WITH_KITS     "${VTK_ENABLE_KITS}"
   USE_EXTERNAL        "${VTK_USE_EXTERNAL}"
   ENABLE_WRAPPING     "${VTK_ENABLE_WRAPPING}"
+  UTILITY_TARGET      "VTK::vtkbuild"
   TARGET_SPECIFIC_COMPONENTS  "${VTK_TARGET_SPECIFIC_COMPONENTS}"
   TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
   TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing")
@@ -427,6 +432,7 @@ if (VTK_WRAP_PYTHON)
     INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
     SOABI               "${vtk_soabi}"
     USE_DEBUG_SUFFIX    "${VTK_WINDOWS_PYTHON_DEBUGGABLE}"
+    UTILITY_TARGET      "VTK::vtkbuild"
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET_SPECIFIC_COMPONENTS "${VTK_TARGET_SPECIFIC_COMPONENTS}"
     TARGET          VTK::vtkpythonmodules)

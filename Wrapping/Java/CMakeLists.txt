@@ -15,6 +15,7 @@ vtk_module_wrap_java(
   JAVA_OUTPUT     "${CMAKE_CURRENT_BINARY_DIR}/vtk"
   MODULES         ${vtk_modules}
   WRAPPED_MODULES vtk_java_wrapped_modules
+  UTILITY_TARGET  "VTK::vtkbuild"
   LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   # Update vtkSettings.java.in if this changes.
   JNILIB_DESTINATION  "${CMAKE_INSTALL_JNILIBDIR}")
