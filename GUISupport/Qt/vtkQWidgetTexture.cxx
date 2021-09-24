@@ -18,10 +18,10 @@
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLState.h"
 
+#include "vtkOpenGLError.h"
+
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
-#include <QOffscreenSurface>
-#include <QOpenGLFramebufferObject>
 #include <QOpenGLPaintDevice>
 #include <QPainter>
 #include <QWidget>
@@ -37,39 +37,68 @@ void vtkQWidgetTexture::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkQWidgetTexture::vtkQWidgetTexture()
+  : ImageBufferDimensions({ 0, 0 })
+  , Scene(nullptr)
+  , Widget(nullptr)
+  , ImageBuffer(nullptr)
 {
-  this->Framebuffer = nullptr;
-  this->OffscreenSurface = nullptr;
-  this->Scene = nullptr;
-  this->Widget = nullptr;
   this->SetMagnificationFilter(vtkTextureObject::Linear);
-  this->SetMinificationFilter(vtkTextureObject::Linear);
+  this->SetMinificationFilter(vtkTextureObject::LinearMipmapLinear);
+  this->GenerateMipmap = true;
 
   this->RedrawMethod = [this]() {
-    if (this->Framebuffer)
+    if (this->Scene && this->Widget)
     {
+      if (!this->Context)
+      {
+        return;
+      }
+
+      auto size = this->Widget->size();
+      int width = size.width();
+      int height = size.height();
+
       this->Context->MakeCurrent();
       auto state = this->Context->GetState();
-      this->Framebuffer->bind();
-
-      QOpenGLPaintDevice* device = new QOpenGLPaintDevice(this->Framebuffer->size());
-      QPainter* painter = new QPainter(device);
 
       state->Reset();
-      state->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+      state->Push();
+
+      auto ImageData = QImage(size, QImage::Format_ARGB32);
+      QPainter* painter = new QPainter(&ImageData);
       this->Scene->render(painter);
-      this->Framebuffer->release();
-
-      this->AssignToExistingTexture(this->Framebuffer->texture(), GL_TEXTURE_2D);
-
+      painter->end();
       delete painter;
-      delete device;
 
+      this->Context->MakeCurrent();
       state->Reset();
+      state->Pop();
 
-      // reset the depth test to LEQUAL as all vtk classes
-      // expect this to be the case when called
-      state->vtkglDepthFunc(GL_LEQUAL);
+      // copy the data
+      if (this->ImageBufferDimensions[0] != width || this->ImageBufferDimensions[1] != height)
+      {
+        delete[] this->ImageBuffer;
+        this->ImageBuffer = new unsigned char[width * height * 4];
+        this->ImageBufferDimensions[0] = width;
+        this->ImageBufferDimensions[1] = height;
+      }
+      unsigned char* imgPtr = this->ImageBuffer;
+      for (int j = 0; j < height; j++)
+      {
+        unsigned char const* line = ImageData.scanLine(height - j - 1);
+        unsigned char const* linePtr = line;
+        for (int i = 0; i < width; i++)
+        {
+          *imgPtr++ = linePtr[2];
+          *imgPtr++ = linePtr[1];
+          *imgPtr++ = linePtr[0];
+          *imgPtr++ = 0xff;
+          linePtr += 4;
+        }
+      }
+
+      this->Create2DFromRaw(width, height, 4, VTK_UNSIGNED_CHAR, this->ImageBuffer);
+      vtkOpenGLCheckErrorMacro("failed after QWidgeTexture repaint and draw");
     }
   };
 }
@@ -80,9 +109,7 @@ vtkQWidgetTexture::~vtkQWidgetTexture()
   this->SetWidget(nullptr);
   delete this->Scene;
   this->Scene = nullptr;
-  delete this->OffscreenSurface;
-  this->OffscreenSurface = nullptr;
-  delete this->Framebuffer;
+  delete[] this->ImageBuffer;
 }
 
 //------------------------------------------------------------------------------
@@ -95,9 +122,6 @@ void vtkQWidgetTexture::ReleaseGraphicsResources(vtkWindow* win)
   }
 
   this->Superclass::ReleaseGraphicsResources(win);
-
-  delete this->Framebuffer;
-  this->Framebuffer = nullptr;
 }
 
 // just hold onto the widget until opengl context is active
@@ -121,46 +145,34 @@ void vtkQWidgetTexture::SetWidget(QWidget* w)
 // handle any setup required, only call when OpenGL context is active
 void vtkQWidgetTexture::AllocateFromWidget()
 {
-  if (this->OffscreenSurface && this->Framebuffer)
+  if (!this->Widget)
   {
     return;
   }
 
-  // the Qt code can modify a lot of OpenGL State
-  // some of which we may want to preserve
-  auto state = this->Context->GetState();
-  state->Reset();
-  state->Push();
-
-  // typically just created once, maybe no OpenGL
-  if (!this->OffscreenSurface)
+  if (!this->Scene)
   {
-    if (!this->Widget)
-    {
-      return;
-    }
+    // the Qt code can modify a lot of OpenGL State
+    // some of which we may want to preserve
+    auto state = this->Context->GetState();
+    state->Reset();
+    state->Push();
 
-    this->OffscreenSurface = new QOffscreenSurface();
-    this->OffscreenSurface->create();
-
+    // typically just created once, maybe no OpenGL
     this->Scene = new QGraphicsScene();
 
     this->Widget->move(0, 0);
     this->Scene->addWidget(this->Widget);
+    this->Widget->show();
 
     QObject::connect(this->Scene, &QGraphicsScene::changed, this->RedrawMethod);
+    state->Pop();
   }
 
-  // Framebuffer gets freed when ReleaseGraphicsResources is called
-  // so re setup as needed
-  if (!this->Framebuffer)
+  if (!this->Handle)
   {
-    this->Framebuffer =
-      new QOpenGLFramebufferObject(this->Widget->width(), this->Widget->height(), GL_TEXTURE_2D);
     this->RedrawMethod();
   }
-
-  state->Pop();
 }
 
 void vtkQWidgetTexture::Activate()
