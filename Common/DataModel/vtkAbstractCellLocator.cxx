@@ -16,13 +16,19 @@
 #include "vtkAbstractCellLocator.h"
 
 #include "vtkCellArray.h"
+#include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
-//------------------------------------------------------------------------------
+#include "vtkPolyData.h"
+#include "vtkSMPTools.h"
+#include "vtkUnstructuredGrid.h"
+
 //------------------------------------------------------------------------------
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
@@ -63,6 +69,19 @@ void vtkAbstractCellLocator::FreeCellBounds()
   delete[] this->CellBounds;
   this->CellBounds = nullptr;
 }
+
+//------------------------------------------------------------------------------
+void vtkAbstractCellLocator::UpdateInternalWeights()
+{
+  if (this->WeightsTime > this->MTime || !this->DataSet)
+  {
+    return;
+  }
+
+  this->Weights.resize(this->DataSet->GetMaxCellSize());
+  this->WeightsTime.Modified();
+}
+
 //------------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& t, double x[3], double pcoords[3], int& subId)
@@ -153,9 +172,9 @@ void vtkAbstractCellLocator::FindCellsAlongLine(const double vtkNotUsed(p1)[3],
 //------------------------------------------------------------------------------
 vtkIdType vtkAbstractCellLocator::FindCell(double x[3])
 {
-  //
-  double dist2 = 0, pcoords[3], weights[32];
-  return this->FindCell(x, dist2, this->GenericCell, pcoords, weights);
+  this->UpdateInternalWeights();
+  double dist2 = 0, pcoords[3];
+  return this->FindCell(x, dist2, this->GenericCell, pcoords, this->Weights.data());
 }
 //------------------------------------------------------------------------------
 vtkIdType vtkAbstractCellLocator::FindCell(
