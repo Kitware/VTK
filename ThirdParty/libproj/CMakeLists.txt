@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtklibproj/COPYING"
-    VERSION       "4.9.3"
+    VERSION       "8.1.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LibPROJ
@@ -10,7 +10,7 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS)
 
 if (NOT VTK_MODULE_USE_EXTERNAL_VTK_libproj)
-  set(LibPROJ_MAJOR_VERSION "4")
+  set(LibPROJ_MAJOR_VERSION "8")
 endif ()
 
 configure_file(
