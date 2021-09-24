@@ -16,24 +16,10 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkArrayIteratorIncludes.h"
-#include "vtkAssume.h"
-#include "vtkCell.h"
-#include "vtkCharArray.h"
 #include "vtkDataArrayRange.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkInformation.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkShortArray.h"
 #include "vtkStructuredExtent.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
+
 #include <vector>
 
 vtkStandardNewMacro(vtkDataSetAttributes);
