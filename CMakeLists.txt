@@ -18,6 +18,16 @@ target_include_directories(sqlite
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
 
+if (vtk_sqlite_build_binary)
+  vtk_module_add_executable(sqlitebin
+    NO_INSTALL
+    shell.c)
+  add_executable(VTK::sqlitebin ALIAS sqlitebin)
+  target_link_libraries(sqlitebin
+    PRIVATE
+      VTK::sqlite)
+endif ()
+
 include(GenerateExportHeader)
 generate_export_header(sqlite
   EXPORT_MACRO_NAME SQLITE_API
