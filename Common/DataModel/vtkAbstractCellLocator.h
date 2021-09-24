@@ -40,6 +40,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLocator.h"
 
+#include <vector> // For Weights
+
 class vtkCellArray;
 class vtkGenericCell;
 class vtkIdList;
@@ -237,6 +239,8 @@ public:
   /**
    * Returns the Id of the cell containing the point,
    * returns -1 if no cell found. This interface uses a tolerance of zero
+   *
+   * @warning: This method is not thread safe!
    */
   virtual vtkIdType FindCell(double x[3]);
 
@@ -271,6 +275,12 @@ protected:
   virtual void FreeCellBounds();
   ///@}
 
+  /**
+   * To be called in `FindCell(double[3])`. If need be, the internal `Weights` array size is
+   * updated to be able to host all points of the largest cell of the input data set.
+   */
+  void UpdateInternalWeights();
+
   int NumberOfCellsPerNode;
   vtkTypeBool RetainCellLists;
   vtkTypeBool CacheCellBounds;
@@ -278,6 +288,19 @@ protected:
   vtkTypeBool UseExistingSearchStructure;
   vtkGenericCell* GenericCell;
   double (*CellBounds)[6];
+
+  /**
+   * This time stamp helps us decide if we want to update internal `Weights` array size.
+   */
+  vtkTimeStamp WeightsTime;
+
+  /**
+   * This array is resized so that it can fit points from the cell hosting the most in the input
+   * data set. Resizing is done in `UpdateInternalWeights`.
+   *
+   * @note This array needs resized in `FindCell(double[3])`.
+   */
+  std::vector<double> Weights;
 
 private:
   vtkAbstractCellLocator(const vtkAbstractCellLocator&) = delete;
