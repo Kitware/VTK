@@ -187,6 +187,7 @@ vtkPythonGlobalInterpreters::~vtkPythonGlobalInterpreters()
 
 bool vtkPythonInterpreter::InitializedOnce = false;
 bool vtkPythonInterpreter::CaptureStdin = false;
+bool vtkPythonInterpreter::RedirectOutput = true;
 bool vtkPythonInterpreter::ConsoleBuffering = false;
 std::string vtkPythonInterpreter::StdErrBuffer;
 std::string vtkPythonInterpreter::StdOutBuffer;
@@ -281,6 +282,7 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
     vtkPythonInterpreter::RunSimpleString("");
 
     // Redirect Python's stdout and stderr and stdin - GIL protected operation
+    if (vtkPythonInterpreter::RedirectOutput)
     {
       // Setup handlers for stdout/stdin/stderr.
       vtkPythonStdStreamCaptureHelper* wrapperOut = NewPythonStdStreamCaptureHelper(false);
@@ -629,6 +631,18 @@ void vtkPythonInterpreter::SetCaptureStdin(bool val)
 bool vtkPythonInterpreter::GetCaptureStdin()
 {
   return vtkPythonInterpreter::CaptureStdin;
+}
+
+//------------------------------------------------------------------------------
+void vtkPythonInterpreter::SetRedirectOutput(bool redirect)
+{
+  vtkPythonInterpreter::RedirectOutput = redirect;
+}
+
+//------------------------------------------------------------------------------
+bool vtkPythonInterpreter::GetRedirectOutput()
+{
+  return vtkPythonInterpreter::RedirectOutput;
 }
 
 //------------------------------------------------------------------------------
