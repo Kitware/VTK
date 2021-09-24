@@ -396,6 +396,8 @@ void vtkOpenGLTexture::Load(vtkRenderer* ren)
     {
       this->RenderWindow = renWin;
       this->TextureObject->SetContext(renWin);
+      // modify the load time to the current time
+      this->LoadTime.Modified();
     }
   }
 
