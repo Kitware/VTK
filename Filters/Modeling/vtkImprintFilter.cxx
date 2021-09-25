@@ -49,6 +49,9 @@ vtkStandardNewMacro(vtkImprintFilter);
 vtkImprintFilter::vtkImprintFilter()
 {
   this->Tolerance = 0.001;
+  this->MergeTolerance = 0.025;
+  this->MergeToleranceType = RELATIVE_TO_MIN_EDGE_LENGTH;
+
   this->OutputType = MERGED_IMPRINT;
   this->BoundaryEdgeInsertion = false;
   this->TriangulateOutput = false;
@@ -769,16 +772,20 @@ struct vtkTargetPointClassifier
   vtkPoints* CandidatePoints;
   vtkCellArray* CandidateCells;
   vtkStaticCellLocator* ImprintLocator;
-  double Tol;
+  double ProjTol;
+  double MergeTol;
+
   std::vector<char> PtClassification;
   // Scratch object for classifying points in parallel
   vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
 
-  vtkTargetPointClassifier(vtkPolyData* target, vtkStaticCellLocator* cellLoc, double tol)
+  vtkTargetPointClassifier(
+    vtkPolyData* target, vtkStaticCellLocator* cellLoc, double projTol, double mergeTol)
     : Candidates(target)
     , ImprintLocator(cellLoc)
-    , Tol(tol)
+    , ProjTol(projTol)
+    , MergeTol(mergeTol)
   {
     this->CandidatePoints = target->GetPoints();
     this->CandidateCells = target->GetPolys();
@@ -833,7 +840,7 @@ struct vtkTargetPointClassifier
         {
           this->CandidatePoints->GetPoint(pId, x);
           int inout = this->ImprintLocator->FindClosestPointWithinRadius(
-            x, this->Tol, closest, cell, cId, subId, dist2, inside);
+            x, this->ProjTol, closest, cell, cId, subId, dist2, inside);
           this->PtClassification[pId] =
             (inout ? PointClassification::TargetInside : PointClassification::TargetOutside);
 
@@ -980,25 +987,29 @@ struct ProjPoints
   vtkStaticCellLocator* CellLocator;
   DataT* ImprintPts;
   vtkPointList* ImprintArray;
-  double Tol;
-  double Tol2;
+  double ProjTol;
+  double ProjTol2;
+  double MergeTol;
+  double MergeTol2;
   vtkTargetPointClassifier* PtClassifier;
   vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
 
   ProjPoints(vtkPolyData* target, vtkStaticCellLocator* targetLoc, DataT* impPts,
-    vtkPointList* pList, double tol, vtkTargetPointClassifier* tpc)
+    vtkPointList* pList, double projTol, double mergeTol, vtkTargetPointClassifier* tpc)
     : Target(target)
     , CellLocator(targetLoc)
     , ImprintPts(impPts)
     , ImprintArray(pList)
-    , Tol(tol)
+    , ProjTol(projTol)
+    , MergeTol(mergeTol)
     , PtClassifier(tpc)
   {
     this->TargetPts = target->GetPoints();
     this->TargetCells = target->GetPolys();
     this->NumTargetPts = target->GetNumberOfPoints();
-    this->Tol2 = tol * tol;
+    this->ProjTol2 = projTol * projTol;
+    this->MergeTol2 = mergeTol * mergeTol;
   }
 
   void Initialize()
@@ -1017,7 +1028,7 @@ struct ProjPoints
     vtkStaticCellLocator* targetLoc = this->CellLocator;
     vtkIdType cellId;
     int subId, inside;
-    double x[3], dist2, closest[3], tol = this->Tol;
+    double x[3], dist2, closest[3], projTol = this->ProjTol;
     vtkIdType npts;
     const vtkIdType* pts;
     vtkNew<vtkIdList> edgeNeis;
@@ -1039,7 +1050,7 @@ struct ProjPoints
 
       // See if the imprint point projects onto the target
       if (!targetLoc->FindClosestPointWithinRadius(
-            x, tol, closest, cell, cellId, subId, dist2, inside))
+            x, projTol, closest, cell, cellId, subId, dist2, inside))
       {
         pt.Classification = PointClassification::Outside;
       }
@@ -1062,7 +1073,7 @@ struct ProjPoints
         for (i = 0; i < npts; ++i)
         {
           targetPts->GetPoint(pts[i], p0);
-          if (vtkMath::Distance2BetweenPoints(p0, pt.X) < this->Tol2)
+          if (vtkMath::Distance2BetweenPoints(p0, pt.X) < this->MergeTol2)
           {
             pt.Classification = PointClassification::OnVertex;
             pt.VTKPtId = pts[i]; // The target point is on which the point projects
@@ -1085,7 +1096,7 @@ struct ProjPoints
             targetPts->GetPoint(v0, p0);
             targetPts->GetPoint(v1, p1);
             d2 = vtkLine::DistanceToLine(pt.X, p0, p1, t, closest);
-            if (d2 <= this->Tol2)
+            if (d2 <= this->MergeTol2)
             {
               candidateOutput->GetCellEdgeNeighbors(-1, v0, v1, edgeNeis);
               pt.Cells[0] = (edgeNeis->GetNumberOfIds() < 1 ? -1 : edgeNeis->GetId(0));
@@ -1112,10 +1123,10 @@ struct ProjPointsWorker
 {
   template <typename DataT>
   void operator()(DataT* impPts, vtkPolyData* candidateOutput, vtkStaticCellLocator* targetLoc,
-    vtkPointList* pList, double tol, vtkTargetPointClassifier* tpc)
+    vtkPointList* pList, double projTol, double mergeTol, vtkTargetPointClassifier* tpc)
   {
     vtkIdType numPts = impPts->GetNumberOfTuples();
-    ProjPoints<DataT> pp(candidateOutput, targetLoc, impPts, pList, tol, tpc);
+    ProjPoints<DataT> pp(candidateOutput, targetLoc, impPts, pList, projTol, mergeTol, tpc);
     vtkSMPTools::For(0, numPts, pp); // currently a non-thread-safe operation
   }
 };
@@ -1253,14 +1264,16 @@ struct ProduceIntersectionPoints
   vtkStaticCellLocator* Locator;
   vtkCandidateList* CandidateList;
   vtkIdType TargetOffset;
-  double Tol;
-  double Tol2;
+  double ProjTol;
+  double ProjTol2;
+  double MergeTol;
+  double MergeTol2;
   // Keep track of output points and cells
   vtkSMPThreadLocal<vtkLocalIntData> LocalIntData;
 
   ProduceIntersectionPoints(bool bedgeInsert, vtkPoints* outPts, vtkPolyData* imprint,
     vtkPointList* pList, vtkPolyData* candidateOutput, vtkStaticCellLocator* loc,
-    vtkCandidateList* candidateList, vtkIdType offset, double tol)
+    vtkCandidateList* candidateList, vtkIdType offset, double projTol, double mergeTol)
     : BoundaryEdgeInsertion(bedgeInsert)
     , OutPts(outPts)
     , Imprint(imprint)
@@ -1269,11 +1282,13 @@ struct ProduceIntersectionPoints
     , Locator(loc)
     , CandidateList(candidateList)
     , TargetOffset(offset)
-    , Tol(tol)
+    , ProjTol(projTol)
+    , MergeTol(mergeTol)
   {
     this->ImprintCells = this->Imprint->GetPolys();
     this->TargetCells = this->CandidateOutput->GetPolys();
-    this->Tol2 = this->Tol * this->Tol;
+    this->ProjTol2 = this->ProjTol * this->ProjTol;
+    this->MergeTol2 = this->MergeTol * this->MergeTol;
   }
 
   // Get information about an imprint point.
@@ -1304,6 +1319,47 @@ struct ProduceIntersectionPoints
       return (-1); // By default, not an interior edge
     }
   } // IsInteriorEdge()
+
+  // Evaluate the local topology to determine whether the intersection point
+  // should be inserted. At entry into this method, it is known that the
+  // intersection point is within ProjTol of an imprint edge end point.
+  bool AddIntersectionPoint(
+    vtkPointInfo* pStart, vtkPointInfo* pEnd, double x0[3], double x1[3], double u, double xInt[3])
+  {
+    // Determine which end of the imprint edge to consider.
+    vtkPointInfo* pt;
+    double* x;
+    if (u < 0.5)
+    {
+      pt = pStart;
+      x = x0;
+    }
+    else
+    {
+      pt = pEnd;
+      x = x1;
+    }
+
+    // Determine whether the points are within MergeTol of one another. if so,
+    // then they are considered the same point.
+    bool coincident = (vtkMath::Distance2BetweenPoints(xInt, x) <= this->MergeTol2 ? true : false);
+
+    // If the imprint edge end point is already classified on the edge, and the points are
+    // coincident, then the intersection point is the same as the imprint edge end point.
+    if (pt->Classification == PointClassification::OnEdge && coincident)
+    {
+      return false;
+    }
+
+    // Make sure the point is within parametric range (the FuzzyTolerance can result in
+    // intersections outside of the edge).
+    if (u < 0.0 || u > 1.0)
+    {
+      return false;
+    }
+
+    return true;
+  }
 
   // Intersect the imprint edge defined by (x0,x1) with the target edge
   // (v0,v1). If there is an intersection, add the intersection point to the
@@ -1340,9 +1396,10 @@ struct ProduceIntersectionPoints
     target->GetPoint(v0, y0);
     target->GetPoint(v1, y1);
 
-    // Perform intersection, return if none. Recall parametric coordinate u is
-    // along the imprint edge; v is along the target edge.
-    if (vtkLine::Intersection(x0, x1, y0, y1, u, v, this->Tol, vtkLine::AbsoluteFuzzy) !=
+    // Perform intersection, return if no intersection (i.e., don't add a
+    // point). Recall parametric coordinate u is along the imprint edge; v is
+    // along the target edge.
+    if (vtkLine::Intersection(x0, x1, y0, y1, u, v, this->ProjTol, vtkLine::AbsoluteFuzzy) !=
       vtkLine::Intersect)
     {
       return 1;
@@ -1355,23 +1412,31 @@ struct ProduceIntersectionPoints
     xInt[1] = y0[1] + v * (y1[1] - y0[1]);
     xInt[2] = y0[2] + v * (y1[2] - y0[2]);
 
-    // If coincident to the imprint edge end points, don't add the point.
-    // This is because they should have already been added during point
-    // projection / during the imprint edge intersection process.
-    if (vtkMath::Distance2BetweenPoints(xInt, x0) <= this->Tol2 ||
-      vtkMath::Distance2BetweenPoints(xInt, x1) <= this->Tol2)
+    // If coincident to an imprint edge end point, depending on tolerances
+    // and local topological reasons, it may or may not be necessary to add
+    // the intersection point. This is because the imprint end point may
+    // have already been added during point projection., and the intersection
+    // point (within tolerance) is the same as the end point.
+    if (vtkMath::Distance2BetweenPoints(xInt, x0) <= this->ProjTol2 ||
+      vtkMath::Distance2BetweenPoints(xInt, x1) <= this->ProjTol2)
     {
-      return 1;
+      // Evaluate whether this intersection point should actually be
+      // added.
+      if (!this->AddIntersectionPoint(pStart, pEnd, x0, x1, u, xInt))
+      {
+        return 1;
+      }
     }
 
     // If the intersection is coincident to a target edge end point, create
     // a new point labeled OnVertex. It's quite likely that a second,
     // coincident intersection point will occur as well - these duplicate
     // points along the edge are "cleaned up" and merged later (see CleanDuplicates).
-    if (vtkMath::Distance2BetweenPoints(xInt, y0) <= this->Tol2 ||
-      vtkMath::Distance2BetweenPoints(xInt, y1) <= this->Tol2)
+    if (vtkMath::Distance2BetweenPoints(xInt, y0) <= this->MergeTol2 ||
+      vtkMath::Distance2BetweenPoints(xInt, y1) <= this->MergeTol2)
     {
-      vtkIdType vtkPtId = ((vtkMath::Distance2BetweenPoints(xInt, y0) <= this->Tol2) ? v0 : v1);
+      vtkIdType vtkPtId =
+        ((vtkMath::Distance2BetweenPoints(xInt, y0) <= this->MergeTol2) ? v0 : v1);
 
       vtkPointList& newPts = this->LocalIntData.Local().NewPoints;
       newPts.emplace_back(vtkPointInfo());
@@ -1662,7 +1727,7 @@ struct ProduceIntersectionPoints
 
           // Identify the target candidate cells and consequently edges which may
           // intersect the current imprint edge.
-          loc->FindCellsAlongLine(xStart, xEnd, this->Tol, cells);
+          loc->FindCellsAlongLine(xStart, xEnd, this->ProjTol, cells);
 
           vtkIdType numCells = cells->GetNumberOfIds();
           for (auto j = 0; j < numCells; ++j)
@@ -1686,7 +1751,7 @@ struct ProduceIntersectionPoints
           // Finally intersect the current imprint edge with the candidate
           // target edges.  This has the side affect of adding new
           // intersection points and interior edge fragments to the list of
-          // intersection points and interior edges. Start be defining the
+          // intersection points and interior edges. Start by defining the
           // beginning and ending of the imprint edge in parametric space.
           edgeIntList.clear();
           edgeIntList.emplace_back(vtkEdgeIntersection(0.0, viStart, this->PointList));
@@ -2322,7 +2387,110 @@ struct Triangulate
 
 }; // Triangulate
 
+// Compute the minimum edge length of the mesh
+struct ComputeMinEdgeLength
+{
+  vtkPolyData* PData;
+  double MinEdgeLength;
+
+  vtkSMPThreadLocal<double> MinLength2;
+  vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+  vtkSMPThreadLocal<vtkSmartPointer<vtkIdList>> EdgeNeighbors;
+
+  ComputeMinEdgeLength(vtkPolyData* pd)
+    : PData(pd)
+    , MinEdgeLength(VTK_FLOAT_MAX)
+  {
+  }
+
+  void Initialize()
+  {
+    this->MinLength2.Local() = VTK_FLOAT_MAX;
+    vtkCellArray* ca = PData->GetPolys();
+    this->CellIterator.Local().TakeReference(ca->NewIterator());
+    this->EdgeNeighbors.Local().TakeReference(vtkIdList::New());
+  }
+
+  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  {
+    vtkPolyData* pd = this->PData;
+    double& minLength2 = this->MinLength2.Local();
+    vtkCellArrayIterator* iter = this->CellIterator.Local();
+    vtkIdList* edgeNeighbors = this->EdgeNeighbors.Local();
+    vtkIdType npts;
+    const vtkIdType* pts;
+    double x0[3], x1[3];
+
+    // Loop over cells, and only process cell edges only when the
+    // neighboring cell id is greater than the current cell id.
+    for (; cellId < endCellId; cellId++)
+    {
+      iter->GetCellAtId(cellId, npts, pts);
+      for (auto i = 0; i < npts; ++i)
+      {
+        vtkIdType v0 = pts[i];
+        vtkIdType v1 = pts[(i + 1) % npts];
+        pd->GetCellEdgeNeighbors(cellId, v0, v1, edgeNeighbors);
+        // Only process edge if it's a boundary edge, or the id of the current
+        // cell is less than the neighbor's id.
+        if (edgeNeighbors->GetNumberOfIds() < 1 || edgeNeighbors->GetId(0) > cellId)
+        {
+          pd->GetPoint(v0, x0);
+          pd->GetPoint(v1, x1);
+          double len2 = vtkMath::Distance2BetweenPoints(x0, x1);
+          minLength2 = (len2 < minLength2 ? len2 : minLength2);
+        }
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    double minLength2 = VTK_FLOAT_MAX;
+    auto lEnd = this->MinLength2.end();
+    for (auto lItr = this->MinLength2.begin(); lItr != lEnd; ++lItr)
+    {
+      if (*lItr < minLength2)
+      {
+        minLength2 = *lItr;
+      }
+    }
+    this->MinEdgeLength = sqrt(minLength2);
+    cout << "Min edge length: " << this->MinEdgeLength << "\n";
+  }
+
+  // Cause execution of the edge length calculation
+  static double GetLength(vtkPolyData* pdata)
+  {
+    ComputeMinEdgeLength compEdgeLen(pdata);
+    vtkIdType numCells = pdata->GetNumberOfCells();
+    vtkSMPTools::For(0, numCells, compEdgeLen);
+
+    return compEdgeLen.MinEdgeLength;
+  }
+
+}; // ComputeMinEdgeLength
+
 } // anonymous
+
+//------------------------------------------------------------------------------
+// Compute the tolerance used to merge near-coincident points. The polydata
+// provided requires that cell links have been built.
+double vtkImprintFilter::ComputeMergeTolerance(vtkPolyData* pdata)
+{
+  if (this->MergeToleranceType == RELATIVE_TO_PROJECTION_TOLERANCE)
+  {
+    return this->MergeTolerance * this->Tolerance;
+  }
+  else if (this->MergeToleranceType == RELATIVE_TO_MIN_EDGE_LENGTH)
+  {
+    return this->MergeTolerance * ComputeMinEdgeLength::GetLength(pdata);
+  }
+  else // if ( this->MergeToleranceType == ABSOLUTE )
+  {
+    return this->MergeTolerance;
+  }
+}
 
 //------------------------------------------------------------------------------
 int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
@@ -2395,7 +2563,7 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkStaticCellLocator> impLocator;
   impLocator->SetDataSet(imprint);
   impLocator->SetNumberOfCellsPerNode(5);
-  impLocator->SetTolerance(0.01);
+  impLocator->SetTolerance(this->Tolerance);
   impLocator->BuildLocator();
 
   // A cell map might be needed for debugging
@@ -2429,13 +2597,18 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkStaticCellLocator> candidateCellLocator;
   candidateCellLocator->SetDataSet(candidateOutput);
   candidateCellLocator->SetNumberOfCellsPerNode(5);
-  candidateCellLocator->SetTolerance(0.01);
+  candidateCellLocator->SetTolerance(this->Tolerance);
   candidateCellLocator->BuildLocator();
 
   // Adaptively classify the target points wrt the imprint. We avoid classifying all
   // of the points (there may be many); use topological checks whenever possible; and
   // use geometric checks as a last resort.
-  vtkTargetPointClassifier tpc(candidateOutput, impLocator, this->Tolerance);
+  double mergeTol = this->ComputeMergeTolerance(imprint);
+  if (mergeTol <= 0.0)
+  {
+    vtkWarningMacro("Merge tolerance <= 0.0");
+  }
+  vtkTargetPointClassifier tpc(candidateOutput, impLocator, this->Tolerance, mergeTol);
 
   // Create an initial array of pointers to candidate cell information
   // structures, in which each struct contains information about the points
@@ -2463,10 +2636,10 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   using ProjPointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
   ProjPointsWorker ppWorker;
   if (!ProjPointsDispatch::Execute(imprintPts->GetData(), ppWorker, candidateOutput,
-        candidateCellLocator, &pList, this->Tolerance, &tpc))
+        candidateCellLocator, &pList, this->Tolerance, mergeTol, &tpc))
   {
-    ppWorker(
-      imprintPts->GetData(), candidateOutput, candidateCellLocator, &pList, this->Tolerance, &tpc);
+    ppWorker(imprintPts->GetData(), candidateOutput, candidateCellLocator, &pList, this->Tolerance,
+      mergeTol, &tpc);
   }
 
   // If the desired output is a projection of the imprint onto the target,
@@ -2488,7 +2661,7 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Now produce edge intersection points and edge fragments. This an
   // intersection of the imprint edges against the target edges.
   ProduceIntersectionPoints pip(this->BoundaryEdgeInsertion, outPts, imprint, &pList,
-    candidateOutput, candidateCellLocator, &candidateList, numTargetPts, this->Tolerance);
+    candidateOutput, candidateCellLocator, &candidateList, numTargetPts, this->Tolerance, mergeTol);
   vtkSMPTools::For(0, numImprintCells, pip);
 
   if (this->OutputType == IMPRINTED_CELLS)
@@ -2552,6 +2725,9 @@ void vtkImprintFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
+
+  os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
+  os << indent << "Merge Tolerance Type: " << this->MergeToleranceType << "\n";
 
   os << indent << "Output Type: " << this->OutputType << "\n";
 

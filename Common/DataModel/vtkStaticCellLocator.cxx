@@ -581,13 +581,17 @@ void CellProcessor<T>::FindCellsAlongLine(
   // Initialize the list of cells
   cells->Reset();
 
-  // Make sure the bounding box of the locator is hit.
+  // Make sure the bounding box of the locator is hit. Also, determine the
+  // entry and exit points into and out of the locator. This is used to
+  // determine the bins where the ray starts and ends.
   double* bounds = this->Binner->Bounds;
-  double curPos[3], curT, rayDir[3];
+  double t0, t1, x0[3], x1[3], rayDir[3];
+  int plane0, plane1;
   vtkMath::Subtract(a1, a0, rayDir);
-  if (vtkBox::IntersectBox(bounds, a0, rayDir, curPos, curT) == 0)
+
+  if (vtkBox::IntersectWithLine(bounds, a0, a1, t0, t1, x0, x1, plane0, plane1) == 0)
   {
-    return;
+    return; // No intersections possible, line is outside the locator
   }
 
   // Okay process line
@@ -595,7 +599,7 @@ void CellProcessor<T>::FindCellsAlongLine(
   vtkIdType prod = ndivs[0] * ndivs[1];
   double* h = this->Binner->H;
   T i, numCellsInBin;
-  int ijk[3];
+  int ijk[3], ijkEnd[3];
   vtkIdType idx, cId;
   double hitCellBoundsPosition[3], tHitCell;
   double step[3], next[3], tMax[3], tDelta[3];
@@ -606,8 +610,10 @@ void CellProcessor<T>::FindCellsAlongLine(
   std::vector<unsigned char> cellHasBeenVisited(this->NumCells, 0);
 
   // Get the i-j-k point of intersection and bin index. This is
-  // clamped to the boundary of the locator.
-  this->Binner->GetBinIndices(curPos, ijk);
+  // clamped to the boundary of the locator. Also get the exit bin
+  // of the line.
+  this->Binner->GetBinIndices(x0, ijk);
+  this->Binner->GetBinIndices(x1, ijkEnd);
   idx = ijk[0] + ijk[1] * ndivs[0] + ijk[2] * prod;
 
   // Set up some traversal parameters for traversing through bins
@@ -621,9 +627,9 @@ void CellProcessor<T>::FindCellsAlongLine(
   next[1] = bounds[2] + h[1] * (rayDir[1] >= 0.0 ? (ijk[1] + step[1]) : ijk[1]);
   next[2] = bounds[4] + h[2] * (rayDir[2] >= 0.0 ? (ijk[2] + step[2]) : ijk[2]);
 
-  tMax[0] = (rayDir[0] != 0.0) ? (next[0] - curPos[0]) / rayDir[0] : VTK_FLOAT_MAX;
-  tMax[1] = (rayDir[1] != 0.0) ? (next[1] - curPos[1]) / rayDir[1] : VTK_FLOAT_MAX;
-  tMax[2] = (rayDir[2] != 0.0) ? (next[2] - curPos[2]) / rayDir[2] : VTK_FLOAT_MAX;
+  tMax[0] = (rayDir[0] != 0.0) ? (next[0] - x0[0]) / rayDir[0] : VTK_FLOAT_MAX;
+  tMax[1] = (rayDir[1] != 0.0) ? (next[1] - x0[1]) / rayDir[1] : VTK_FLOAT_MAX;
+  tMax[2] = (rayDir[2] != 0.0) ? (next[2] - x0[2]) / rayDir[2] : VTK_FLOAT_MAX;
 
   tDelta[0] = (rayDir[0] != 0.0) ? (h[0] / rayDir[0]) * step[0] : VTK_FLOAT_MAX;
   tDelta[1] = (rayDir[1] != 0.0) ? (h[1] / rayDir[1]) * step[1] : VTK_FLOAT_MAX;
@@ -658,20 +664,24 @@ void CellProcessor<T>::FindCellsAlongLine(
       }     // over all cells in bin
     }       // if cells in bin
 
-    // Advance to next voxel
+    // See if the traversal is complete (reached the end of the line).
+    if (ijk[0] == ijkEnd[0] && ijk[1] == ijkEnd[1] && ijk[2] == ijkEnd[2])
+    {
+      break;
+    }
+
+    // Advance to the next voxel
     if (tMax[0] < tMax[1])
     {
       if (tMax[0] < tMax[2])
       {
         ijk[0] += static_cast<int>(step[0]);
         tMax[0] += tDelta[0];
-        curT = tMax[0];
       }
       else
       {
         ijk[2] += static_cast<int>(step[2]);
         tMax[2] += tDelta[2];
-        curT = tMax[2];
       }
     }
     else
@@ -680,18 +690,17 @@ void CellProcessor<T>::FindCellsAlongLine(
       {
         ijk[1] += static_cast<int>(step[1]);
         tMax[1] += tDelta[1];
-        curT = tMax[1];
       }
       else
       {
         ijk[2] += static_cast<int>(step[2]);
         tMax[2] += tDelta[2];
-        curT = tMax[2];
       }
     }
 
-    if (curT > 1.0 + this->Binner->binTol || ijk[0] < 0 || ijk[0] >= ndivs[0] || ijk[1] < 0 ||
-      ijk[1] >= ndivs[1] || ijk[2] < 0 || ijk[2] >= ndivs[2])
+    // If exiting the locator, we are done
+    if (ijk[0] < 0 || ijk[0] >= ndivs[0] || ijk[1] < 0 || ijk[1] >= ndivs[1] || ijk[2] < 0 ||
+      ijk[2] >= ndivs[2])
     {
       break;
     }

@@ -25,7 +25,7 @@
  * vtkBox is a concrete implementation of vtkImplicitFunction.
  *
  * @sa
- * vtkCubeSource vtkImplicitFunction
+ * vtkCubeSource vtkImplicitFunction vtkBoundingBox
  */
 
 #ifndef vtkBox_h
