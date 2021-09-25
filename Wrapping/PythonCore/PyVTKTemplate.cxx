@@ -727,7 +727,38 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
         }
         else
         {
-          ptype = cp;
+          // use the type name as-is
+          if (*dp == 'I')
+          {
+            // the type name is templated
+            dp++;
+            if (*dp >= '0' && *dp <= '9')
+            {
+              size_t l = strtol(dp, &dp, 10);
+              for (size_t k = 0; k < l; k++)
+              {
+                if (*dp++ == '\0')
+                {
+                  break;
+                }
+              }
+            }
+            else if (*dp != '\0')
+            {
+              dp++;
+            }
+            if (*dp == 'E')
+            {
+              // end of template args
+              dp++;
+              ptype = cp;
+            }
+          }
+          else
+          {
+            // type name is not templated
+            ptype = cp;
+          }
         }
         cp = dp;
       }
