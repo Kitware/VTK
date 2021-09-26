@@ -122,7 +122,8 @@ void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar
     for (j = 0; j < cls->NumberOfConstants; j++)
     {
       val = cls->Constants[j];
-      fprintf(fp, "%s    { \"%s\", cxx_enum_type::%s },%s\n", indent, val->Name, val->Name,
+      fprintf(fp, "%s    { \"%s%s\", cxx_enum_type::%s },%s\n", indent, val->Name,
+        (vtkWrapText_IsPythonKeyword(val->Name) ? "_" : ""), val->Name,
         ((val->Attributes & VTK_PARSE_DEPRECATED) ? " /* deprecated */" : ""));
     }
 

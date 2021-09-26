@@ -928,6 +928,11 @@ const char* vtkWrapText_PythonSignature(FunctionInfo* currentFunction)
     if (arg->Name)
     {
       vtkWPString_Append(result, arg->Name);
+      /* add underscore to keywords and other specials */
+      if (vtkWrapText_IsPythonKeyword(arg->Name) || strcmp(arg->Name, "self") == 0)
+      {
+        vtkWPString_Append(result, "_");
+      }
     }
     else
     {
@@ -1247,4 +1252,27 @@ void vtkWrapText_PythonName(const char* name, char* pname)
       pname[j - 2] = '\0';
     }
   }
+}
+
+/* -------------------------------------------------------------------- */
+/* Check if an identifier is a Python keyword */
+static int stringcomp(const void* a, const void* b)
+{
+  return strcmp(*((const char**)a), *((const char**)b));
+}
+
+int vtkWrapText_IsPythonKeyword(const char* name)
+{
+  const char* text = name;
+  /* The keywords must be lexically sorted in order for bsearch to work */
+  const char* specials[] = { "False", "None", "True", "and", "as", "assert", "async", "await",
+    "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from",
+    "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise",
+    "return", "try", "while", "with", "yield" };
+
+  if (bsearch(&text, specials, sizeof(specials) / sizeof(char*), sizeof(char*), stringcomp))
+  {
+    return 1;
+  }
+  return 0;
 }

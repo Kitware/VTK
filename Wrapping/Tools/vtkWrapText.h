@@ -64,6 +64,11 @@ extern "C"
    * as long as the input name, that is sufficient. */
   VTKWRAPPINGTOOLS_EXPORT void vtkWrapText_PythonName(const char* name, char* pname);
 
+  /**
+   * Check if a name is a reserved keyword in Python.
+   */
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrapText_IsPythonKeyword(const char* name);
+
 #ifdef __cplusplus
 }
 #endif
