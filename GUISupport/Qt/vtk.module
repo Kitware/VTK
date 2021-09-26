@@ -11,6 +11,7 @@ DEPENDS
   VTK::InteractionWidgets
 PRIVATE_DEPENDS
   VTK::CommonDataModel
+  VTK::CommonSystem
   VTK::FiltersExtraction
   VTK::InteractionStyle
   VTK::opengl

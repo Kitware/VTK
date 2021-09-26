@@ -17,11 +17,10 @@
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkTextureObject.h"
+#include <array>      // for ivar
 #include <functional> // for ivar
 
 class QGraphicsScene;
-class QOffscreenSurface;
-class QOpenGLFramebufferObject;
 class QWidget;
 
 /**
@@ -53,7 +52,7 @@ public:
   QGraphicsScene* GetScene() { return this->Scene; }
 
   /**
-   * Activate and Bind the texture. Ovrloaded to handle the opengl related
+   * Activate and Bind the texture. Overloaded to handle the opengl related
    * setup at the same time. as We know the context will be active then.
    */
   void Activate() override;
@@ -68,8 +67,6 @@ protected:
   ~vtkQWidgetTexture() override;
 
   QGraphicsScene* Scene;
-  QOffscreenSurface* OffscreenSurface;
-  QOpenGLFramebufferObject* Framebuffer;
   QWidget* Widget;
 
   // method called when the widget needs repainting
@@ -77,6 +74,9 @@ protected:
 
   // internal method to setup the scene/framebuffer/etc
   void AllocateFromWidget();
+
+  unsigned char* ImageBuffer;
+  std::array<int, 2> ImageBufferDimensions;
 
 private:
   vtkQWidgetTexture(const vtkQWidgetTexture&) = delete;

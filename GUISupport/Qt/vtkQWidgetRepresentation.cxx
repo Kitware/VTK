@@ -52,6 +52,7 @@ vtkQWidgetRepresentation::vtkQWidgetRepresentation()
   this->PlaneActor->SetTexture(this->PlaneTexture);
   this->PlaneActor->GetProperty()->SetAmbient(1.0);
   this->PlaneActor->GetProperty()->SetDiffuse(0.0);
+  this->PlaneActor->ForceOpaqueOn();
 
   // Define the point coordinates
   double bounds[6];
@@ -175,8 +176,7 @@ int vtkQWidgetRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   vtkInformation* info = this->GetPropertyKeys();
   this->PlaneActor->SetPropertyKeys(info);
 
-  vtkOpenGLRenderWindow* renWin =
-    static_cast<vtkOpenGLRenderWindow*>(this->Renderer->GetRenderWindow());
+  vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(v->GetVTKWindow());
   vtkOpenGLState* ostate = renWin->GetState();
 
   // always draw over the rest

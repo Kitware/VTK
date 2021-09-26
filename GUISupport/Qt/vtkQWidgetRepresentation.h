@@ -127,13 +127,13 @@ public:
    * Get the widget coordinates as computed in the last call to
    * ComputeComplexInteractionState.
    */
-  vtkGetVector2Macro(WidgetCoordinates, int);
+  vtkGetVector2Macro(WidgetCoordinates, float);
 
 protected:
   vtkQWidgetRepresentation();
   ~vtkQWidgetRepresentation() override;
 
-  int WidgetCoordinates[2];
+  float WidgetCoordinates[2];
 
   vtkPlaneSource* PlaneSource;
   vtkPolyDataMapper* PlaneMapper;
