@@ -65,7 +65,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"      // For SmartPointer
-#include <vector>                 // For vector
+#include <map>                    // For std::map
 
 class vtkCellArray;
 class vtkCellData;
@@ -163,12 +163,6 @@ public:
   vtkBooleanMacro(BuildHierarchy, bool);
   ///@}
 
-  /**
-   * See vtkAlgorithm for details.
-   */
-  vtkTypeBool ProcessRequest(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
 protected:
   vtkPlaneCutter();
   ~vtkPlaneCutter() override;
@@ -181,7 +175,8 @@ protected:
   bool BuildHierarchy;
 
   // Helpers
-  std::vector<vtkSmartPointer<vtkSphereTree>> SphereTrees;
+  vtkSphereTree* GetSphereTree(vtkDataSet*);
+  std::map<vtkDataSet*, vtkSmartPointer<vtkSphereTree>> SphereTrees;
 
   // Pipeline-related methods
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
