@@ -411,20 +411,21 @@ struct PointSetFunctor : public CuttingFunctor
       for (auto& out : this->LocalData)
       {
         vtkPolyData* output = out.Output;
-        vtkCellArray* newVerts = output->GetVerts();
-        vtkCellArray* newLines = output->GetLines();
-        vtkCellArray* newPolys = output->GetPolys();
         vtkCellData* outCD = output->GetCellData();
-        vtkCellData* newVertsData = out.NewVertsData;
-        vtkCellData* newLinesData = out.NewLinesData;
-        vtkCellData* newPolysData = out.NewPolysData;
+        std::array<vtkCellData*, 3> newCD = { out.NewVertsData, out.NewLinesData,
+          out.NewPolysData };
 
         // Reconstruct cell data
-        outCD->CopyData(newVertsData, 0, newVerts->GetNumberOfCells(), 0);
-        vtkIdType offset = newVerts->GetNumberOfCells();
-        outCD->CopyData(newLinesData, offset, newLines->GetNumberOfCells(), 0);
-        offset += newLines->GetNumberOfCells();
-        outCD->CopyData(newPolysData, offset, newPolys->GetNumberOfCells(), 0);
+        vtkIdType offset = 0;
+        for (auto& newCellTypeCD : newCD)
+        {
+          for (int j = 0; j < newCellTypeCD->GetNumberOfArrays(); ++j)
+          {
+            outCD->CopyTuples(newCellTypeCD->GetAbstractArray(j), outCD->GetAbstractArray(j),
+              offset, newCellTypeCD->GetNumberOfTuples(), 0);
+          }
+          offset += newCellTypeCD->GetNumberOfTuples();
+        }
       }
     }
   }
