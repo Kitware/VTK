@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkPlaneCutter.h"
 
-#include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
@@ -29,19 +28,16 @@
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
-#include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkNonMergingPointLocator.h"
-#include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSphereTree.h"
@@ -49,9 +45,6 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTransform.h"
 #include "vtkUnstructuredGrid.h"
-
-#include <cmath>
-#include <unordered_map>
 
 vtkObjectFactoryNewMacro(vtkPlaneCutter);
 vtkCxxSetObjectMacro(vtkPlaneCutter, Plane, vtkPlane);
@@ -215,19 +208,15 @@ struct CuttingFunctor
   virtual ~CuttingFunctor()
   {
     // Cleanup all allocated temporaries
-    vtkSMPThreadLocal<vtkDoubleArray*>::iterator cellScalarsIter = this->CellScalars.begin();
-    while (cellScalarsIter != this->CellScalars.end())
+    for (auto& cellScalars : this->CellScalars)
     {
-      (*cellScalarsIter)->Delete();
-      ++cellScalarsIter;
+      cellScalars->Delete();
     }
 
-    vtkSMPThreadLocal<vtkLocalDataType>::iterator dataIter = this->LocalData.begin();
-    while (dataIter != this->LocalData.end())
+    for (auto& data : this->LocalData)
     {
-      (*dataIter).Output->Delete();
-      (*dataIter).Locator->Delete();
-      ++dataIter;
+      data.Output->Delete();
+      data.Locator->Delete();
     }
 
     if (this->InPoints)
@@ -364,13 +353,11 @@ struct CuttingFunctor
 
     // Create the final multi-piece
     int count = 0;
-    vtkSMPThreadLocal<vtkLocalDataType>::iterator outIter = this->LocalData.begin();
-    while (outIter != this->LocalData.end())
+    for (auto& out : this->LocalData)
     {
-      vtkPolyData* output = (*outIter).Output;
+      vtkPolyData* output = out.Output;
       mp->SetPiece(count++, output);
       output->GetFieldData()->PassData(this->Input->GetFieldData());
-      ++outIter;
     }
   }
 };
@@ -388,13 +375,11 @@ struct PointSetFunctor : public CuttingFunctor
   {
     if (this->Interpolate)
     {
-      vtkSMPThreadLocal<vtkLocalDataType>::iterator dataIter = this->LocalData.begin();
-      while (dataIter != this->LocalData.end())
+      for (auto& data : this->LocalData)
       {
-        (*dataIter).NewVertsData->Delete();
-        (*dataIter).NewLinesData->Delete();
-        (*dataIter).NewPolysData->Delete();
-        ++dataIter;
+        data.NewVertsData->Delete();
+        data.NewLinesData->Delete();
+        data.NewPolysData->Delete();
       }
     }
   }
@@ -424,17 +409,16 @@ struct PointSetFunctor : public CuttingFunctor
     if (this->Interpolate)
     {
       // Add specific cell data
-      vtkSMPThreadLocal<vtkLocalDataType>::iterator outIter = this->LocalData.begin();
-      while (outIter != this->LocalData.end())
+      for (auto& out : this->LocalData)
       {
-        vtkPolyData* output = (*outIter).Output;
+        vtkPolyData* output = out.Output;
         vtkCellArray* newVerts = output->GetVerts();
         vtkCellArray* newLines = output->GetLines();
         vtkCellArray* newPolys = output->GetPolys();
         vtkCellData* outCD = output->GetCellData();
-        vtkCellData* newVertsData = (*outIter).NewVertsData;
-        vtkCellData* newLinesData = (*outIter).NewLinesData;
-        vtkCellData* newPolysData = (*outIter).NewPolysData;
+        vtkCellData* newVertsData = out.NewVertsData;
+        vtkCellData* newLinesData = out.NewLinesData;
+        vtkCellData* newPolysData = out.NewPolysData;
 
         // Reconstruct cell data
         outCD->CopyData(newVertsData, 0, newVerts->GetNumberOfCells(), 0);
@@ -442,7 +426,6 @@ struct PointSetFunctor : public CuttingFunctor
         outCD->CopyData(newLinesData, offset, newLines->GetNumberOfCells(), 0);
         offset += newLines->GetNumberOfCells();
         outCD->CopyData(newPolysData, offset, newPolys->GetNumberOfCells(), 0);
-        ++outIter;
       }
     }
   }
@@ -463,7 +446,7 @@ struct UnstructuredGridFunctor : public PointSetFunctor
 
   void Initialize() { PointSetFunctor::Initialize(); }
 
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     // Actual computation.
     // Note the usage of thread local objects. These objects
@@ -500,10 +483,10 @@ struct UnstructuredGridFunctor : public PointSetFunctor
     double* s;
     int i, numPts;
     vtkPoints* cellPoints;
-    const unsigned char* selected = this->Selected + cellId;
+    const unsigned char* selected = this->Selected + beginCellId;
 
     // Loop over the cell, processing only the one that are needed
-    for (; cellId < endCellId; ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       needCell = false;
       if (this->SphereTree)
@@ -597,7 +580,7 @@ struct PolyDataFunctor : public PointSetFunctor
 
   void Initialize() { PointSetFunctor::Initialize(); }
 
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     // Actual computation.
     // Note the usage of thread local objects. These objects
@@ -634,10 +617,10 @@ struct PolyDataFunctor : public PointSetFunctor
     double* s;
     int i, numPts;
     vtkPoints* cellPoints;
-    const unsigned char* selected = this->Selected + cellId;
+    const unsigned char* selected = this->Selected + beginCellId;
 
     // Loop over the cell, processing only the one that are needed
-    for (; cellId < endCellId; ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       needCell = false;
       if (this->SphereTree)
@@ -1417,7 +1400,7 @@ struct StructuredFunctor : public CuttingFunctor
 
   void Initialize() { CuttingFunctor::Initialize(); }
 
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     // Actual computation.
     // Note the usage of thread local objects. These objects
@@ -1457,12 +1440,12 @@ struct StructuredFunctor : public CuttingFunctor
     double* planeOrigin = this->Origin;
     double* planeNormal = this->Normal;
     void* ptsPtr = this->InPoints->GetVoidPointer(0);
-    const unsigned char* selected = this->Selected + cellId;
+    const unsigned char* selected = this->Selected + beginCellId;
 
     // Traverse this batch of cells (whose bounding sphere possibly
     // intersects the plane).
     bool needCell;
-    for (; cellId < endCellId; ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       needCell = false;
       if (this->SphereTree)
@@ -1526,7 +1509,7 @@ struct RectilinearFunctor : public CuttingFunctor
 
   void Initialize() { CuttingFunctor::Initialize(); }
 
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     // Actual computation.
     // Note the usage of thread local objects. These objects
@@ -1566,12 +1549,12 @@ struct RectilinearFunctor : public CuttingFunctor
     double* planeOrigin = this->Origin;
     double* planeNormal = this->Normal;
     void* ptsPtr = this->InPoints->GetVoidPointer(0);
-    const unsigned char* selected = this->Selected + cellId;
+    const unsigned char* selected = this->Selected + beginCellId;
 
     // Traverse this batch of cells (whose bounding sphere possibly
     // intersects the plane).
     bool needCell;
-    for (; cellId < endCellId; ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       needCell = false;
       if (this->SphereTree)
