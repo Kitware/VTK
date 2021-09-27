@@ -27,7 +27,7 @@
  * vtkMultiPieceDataSet.
  * Note that vtkMultiPieceDataSet is intended to be included in other composite
  * datasets eg. vtkMultiBlockDataSet, vtkHierarchicalBoxDataSet. Hence the lack
- * of algorithms producting vtkMultiPieceDataSet.
+ * of algorithms producing vtkMultiPieceDataSet.
  */
 
 #ifndef vtkMultiPieceDataSet_h
