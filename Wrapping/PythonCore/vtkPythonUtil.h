@@ -50,6 +50,12 @@ class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonUtil
 {
 public:
   /**
+   * Initialize the Python wrappers.  This can be called multiple times,
+   * only the first call will have any effect.
+   */
+  static void Initialize();
+
+  /**
    * If the name is templated or mangled, converts it into
    * a python-printable name.
    */

@@ -33,6 +33,11 @@
 //------------------------------------------------------------------------------
 
 static const char* PyVTKReference_Doc =
+  "reference(value:int) -> reference\n"
+  "reference(value:float) -> reference\n"
+  "reference(value:str) -> reference\n"
+  "reference(value:(int, ...)) -> reference\n"
+  "\n"
   "A simple container that acts as a reference to its contents.\n\n"
   "This wrapper class is needed when a VTK method returns a value\n"
   "in an argument that has been passed by reference.  By calling\n"
@@ -269,13 +274,13 @@ static PyObject* PyVTKReference_Round(PyObject* self, PyObject* args)
 #endif
 
 static PyMethodDef PyVTKReference_Methods[] = { { "get", PyVTKReference_Get, METH_VARARGS,
-                                                  "Get the stored value." },
-  { "set", PyVTKReference_Set, METH_VARARGS, "Set the stored value." },
+                                                  "get() -> object\n\nGet the stored value." },
+  { "set", PyVTKReference_Set, METH_VARARGS, "set(value:object) -> None\n\nSet the stored value." },
 #ifdef VTK_PY3K
   { "__trunc__", PyVTKReference_Trunc, METH_VARARGS,
-    "Returns the Integral closest to x between 0 and x." },
+    "__trunc__() -> int\n\nReturns the Integral closest to x between 0 and x." },
   { "__round__", PyVTKReference_Round, METH_VARARGS,
-    "Returns the Integral closest to x, rounding half toward even.\n" },
+    "__round__() -> int\n\nReturns the Integral closest to x, rounding half toward even.\n" },
 #endif
   { nullptr, nullptr, 0, nullptr } };
 

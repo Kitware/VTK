@@ -861,6 +861,14 @@ static void vtkWrapText_PythonTypeSignature(
 static void vtkWrapText_PythonArraySignature(struct vtkWPString* result, const char* classname,
   const char* braces[2], int ndim, const char** dims);
 
+static void vtkWrapText_PythonPODSignature(
+  struct vtkWPString* result, const char* classname, const char* braces[2]);
+
+static void vtkWrapText_PythonStdVectorSignature(
+  struct vtkWPString* result, ValueInfo* arg, const char* braces[2]);
+
+static void vtkWrapText_PythonValueSignature(struct vtkWPString* result, ValueInfo* arg);
+
 const char* vtkWrapText_PythonSignature(FunctionInfo* currentFunction)
 {
   /* string is intentionally not freed until the program exits */
@@ -871,6 +879,18 @@ const char* vtkWrapText_PythonSignature(FunctionInfo* currentFunction)
   const char* braces[2] = { "[", "]" };
   const char** delims;
   int i, n;
+  int isConstructor = 0;
+  int needsSelf = 1;
+
+  if (currentFunction->Class && strcmp(currentFunction->Class, currentFunction->Name) == 0)
+  {
+    isConstructor = 1;
+  }
+
+  if (isConstructor || currentFunction->IsStatic || !currentFunction->Class)
+  {
+    needsSelf = 0;
+  }
 
   n = vtkWrap_CountWrappedParameters(currentFunction);
 
@@ -878,17 +898,23 @@ const char* vtkWrapText_PythonSignature(FunctionInfo* currentFunction)
   result->len = 0;
 
   /* print out the name of the method */
-  vtkWPString_Append(result, "V.");
   vtkWPString_Append(result, currentFunction->Name);
 
   /* print the arg list */
-  vtkWPString_Append(result, "(");
+  if (needsSelf)
+  {
+    vtkWPString_Append(result, "(self");
+  }
+  else
+  {
+    vtkWPString_Append(result, "(");
+  }
 
   for (i = 0; i < n; i++)
   {
     arg = currentFunction->Parameters[i];
 
-    if (i != 0)
+    if (i != 0 || needsSelf)
     {
       vtkWPString_Append(result, ", ");
     }
@@ -899,19 +925,58 @@ const char* vtkWrapText_PythonSignature(FunctionInfo* currentFunction)
       delims = braces;
     }
 
+    if (arg->Name)
+    {
+      vtkWPString_Append(result, arg->Name);
+      /* add underscore to keywords and other specials */
+      if (vtkWrapText_IsPythonKeyword(arg->Name) || strcmp(arg->Name, "self") == 0)
+      {
+        vtkWPString_Append(result, "_");
+      }
+    }
+    else
+    {
+      /* PEP 484 recommends underscores for position-only arguments */
+      char argname[4];
+      sprintf(argname, "__%c", 'a' + (i % 26));
+      vtkWPString_Append(result, argname);
+    }
+
+    vtkWPString_Append(result, ":");
+
     vtkWrapText_PythonTypeSignature(result, delims, arg);
+    if (arg->Name && arg->Value)
+    {
+      vtkWPString_Append(result, "=");
+      vtkWrapText_PythonValueSignature(result, arg);
+    }
   }
 
   vtkWPString_Append(result, ")");
 
-  /* if this is a void method, we are finished */
-  /* otherwise, print "->" and the return type */
+  /* print "->" and the return type */
   ret = currentFunction->ReturnValue;
-  if (ret && (ret->Type & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_VOID)
+  if (ret && !vtkWrap_IsVoid(ret))
   {
     vtkWPString_Append(result, " -> ");
-
-    vtkWrapText_PythonTypeSignature(result, parens, ret);
+    if (vtkWrap_IsPODPointer(ret))
+    {
+      /* can't return POD as tuple, since size is unknown */
+      vtkWPString_Append(result, "Pointer");
+    }
+    else
+    {
+      vtkWrapText_PythonTypeSignature(result, parens, ret);
+    }
+  }
+  else if (isConstructor)
+  {
+    vtkWPString_Append(result, " -> ");
+    vtkWPString_Append(result, currentFunction->Name);
+  }
+  else
+  {
+    vtkWPString_Append(result, " -> None");
   }
 
   if (currentFunction->Signature)
@@ -932,23 +997,27 @@ static void vtkWrapText_PythonTypeSignature(
 
   if (vtkWrap_IsVoid(arg))
   {
-    classname = "void";
+    classname = "Any";
   }
   else if (vtkWrap_IsFunction(arg))
   {
-    classname = "function";
+    classname = "Callback";
+  }
+  else if (vtkWrap_IsZeroCopyPointer(arg))
+  {
+    classname = "Buffer";
+  }
+  else if (vtkWrap_IsVoidPointer(arg))
+  {
+    classname = "Pointer";
   }
   else if (vtkWrap_IsString(arg) || vtkWrap_IsCharPointer(arg))
   {
-    classname = "string";
-    if ((arg->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING)
-    {
-      classname = "unicode";
-    }
+    classname = "str";
   }
   else if (vtkWrap_IsChar(arg))
   {
-    classname = "char";
+    classname = "str";
   }
   else if (vtkWrap_IsBool(arg))
   {
@@ -970,10 +1039,7 @@ static void vtkWrapText_PythonTypeSignature(
 
   if ((vtkWrap_IsArray(arg) && arg->CountHint) || vtkWrap_IsPODPointer(arg))
   {
-    vtkWPString_Append(result, braces[0]);
-    vtkWPString_Append(result, classname);
-    vtkWPString_Append(result, ", ...");
-    vtkWPString_Append(result, braces[1]);
+    vtkWrapText_PythonPODSignature(result, classname, braces);
   }
   else if (vtkWrap_IsArray(arg))
   {
@@ -985,6 +1051,10 @@ static void vtkWrapText_PythonTypeSignature(
   {
     vtkWrapText_PythonArraySignature(
       result, classname, braces, arg->NumberOfDimensions, arg->Dimensions);
+  }
+  else if (vtkWrap_IsStdVector(arg))
+  {
+    vtkWrapText_PythonStdVectorSignature(result, arg, braces);
   }
   else
   {
@@ -1022,6 +1092,90 @@ static void vtkWrapText_PythonArraySignature(struct vtkWPString* result, const c
     }
   }
   vtkWPString_Append(result, braces[1]);
+}
+
+static void vtkWrapText_PythonPODSignature(
+  struct vtkWPString* result, const char* classname, const char* braces[2])
+{
+  vtkWPString_Append(result, braces[0]);
+  vtkWPString_Append(result, classname);
+  vtkWPString_Append(result, ", ...");
+  vtkWPString_Append(result, braces[1]);
+}
+
+static void vtkWrapText_PythonStdVectorSignature(
+  struct vtkWPString* result, ValueInfo* arg, const char* braces[2])
+{
+  StringCache cache = { 0, 0, 0, 0 };
+  ValueInfo val;
+  size_t n;
+  const char* classname;
+  const char* temp;
+  const char** args;
+  const char* defaults[2] = { NULL, "" };
+  unsigned int basetype;
+  /* decompose template to get the first arg */
+  vtkParse_DecomposeTemplatedType(arg->Class, &temp, 2, &args, defaults);
+  vtkParse_BasicTypeFromString(args[0], &basetype, &classname, &n);
+  vtkParse_FreeTemplateDecomposition(temp, 2, args);
+  /* create a ValueInfo that describes the type */
+  vtkParse_InitValue(&val);
+  val.Class = vtkParse_CacheString(&cache, classname, n);
+  val.Type = basetype;
+  /* write out as a list of unknown size */
+  vtkWPString_Append(result, braces[0]);
+  vtkWrapText_PythonTypeSignature(result, braces, &val);
+  vtkWPString_Append(result, ", ...");
+  vtkWPString_Append(result, braces[1]);
+  /* cleanup */
+  vtkParse_FreeStringCache(&cache);
+}
+
+static void vtkWrapText_PythonValueSignature(struct vtkWPString* result, ValueInfo* arg)
+{
+  const char* valstring = "...";
+  size_t l;
+
+  if (vtkWrap_IsScalar(arg))
+  {
+    if (vtkWrap_IsBool(arg) || vtkWrap_IsInteger(arg) || vtkWrap_IsRealNumber(arg))
+    {
+      if (strcmp(arg->Value, "true") == 0)
+      {
+        valstring = "True";
+      }
+      else if (strcmp(arg->Value, "false") == 0)
+      {
+        valstring = "False";
+      }
+      else
+      {
+        const char* tryval = arg->Value;
+        if (tryval[0] == '-' || tryval[0] == '+' || tryval[0] == '~')
+        {
+          tryval++;
+        }
+        l = vtkParse_SkipNumber(tryval);
+        if (tryval[l] == '\0')
+        {
+          valstring = arg->Value;
+        }
+      }
+    }
+  }
+  else if (vtkWrap_IsPointer(arg))
+  {
+    if (vtkWrap_IsCharPointer(arg))
+    {
+      l = vtkParse_SkipQuotes(arg->Value);
+      if (arg->Value[l] == '\0')
+      {
+        valstring = arg->Value;
+      }
+    }
+  }
+
+  vtkWPString_Append(result, valstring);
 }
 
 /* convert C++ identifier to a valid python identifier by mangling */
@@ -1098,4 +1252,27 @@ void vtkWrapText_PythonName(const char* name, char* pname)
       pname[j - 2] = '\0';
     }
   }
+}
+
+/* -------------------------------------------------------------------- */
+/* Check if an identifier is a Python keyword */
+static int stringcomp(const void* a, const void* b)
+{
+  return strcmp(*((const char**)a), *((const char**)b));
+}
+
+int vtkWrapText_IsPythonKeyword(const char* name)
+{
+  const char* text = name;
+  /* The keywords must be lexically sorted in order for bsearch to work */
+  const char* specials[] = { "False", "None", "True", "and", "as", "assert", "async", "await",
+    "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from",
+    "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise",
+    "return", "try", "while", "with", "yield" };
+
+  if (bsearch(&text, specials, sizeof(specials) / sizeof(char*), sizeof(char*), stringcomp))
+  {
+    return 1;
+  }
+  return 0;
 }

@@ -394,21 +394,27 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassI
   {
     fprintf(fp,
       "  {\"AddObserver\",  Py%s_AddObserver, 1,\n"
-      "   \"V.AddObserver(int, function) -> int\\nC++: unsigned long AddObserver(const char "
-      "*event,\\n    vtkCommand *command, float priority=0.0f)\\n\\nAdd an event callback "
-      "function(vtkObject, int) for an event type.\\nReturns a handle that can be used with "
-      "RemoveEvent(int).\"},\n",
+      "   \"AddObserver(self, event:int, command:callable, priority:float=0.0) -> int\\n"
+      "C++: unsigned long AddObserver(const char* event,\\n"
+      "    vtkCommand* command, float priority=0.0f)\\n\\n"
+      "Add an event callback callable(o:vtkObject, event:int) for an event type.\\n"
+      "Returns a handle that can be used with RemoveEvent(event:int).\"},\n",
       classname);
 
     /* vtkObject needs a special entry for InvokeEvent */
     fprintf(fp,
       "{\"InvokeEvent\", PyvtkObject_InvokeEvent, METH_VARARGS,\n"
-      "   \"V.InvokeEvent(int, void) -> int\\nC++: int InvokeEvent(unsigned long event, void "
-      "*callData)\\nV.InvokeEvent(string, void) -> int\\nC++: int InvokeEvent(const char *event, "
-      "void *callData)\\nV.InvokeEvent(int) -> int\\nC++: int InvokeEvent(unsigned long "
-      "event)\\nV.InvokeEvent(string) -> int\\nC++: int InvokeEvent(const char *event)\\n\\nThis "
-      "method invokes an event and return whether the event was\\naborted or not. If the event was "
-      "aborted, the return value is 1,\\notherwise it is 0.\"\n},\n");
+      "   \"InvokeEvent(self, event:int, callData:any) -> int\\n"
+      "C++: int InvokeEvent(unsigned long event, void* callData)\\n"
+      "InvokeEvent(self, event:str, callData:any) -> int\\n"
+      "C++: int InvokeEvent(const char* event, void* callData)\\n"
+      "InvokeEvent(self, event:int) -> int\\n"
+      "C++: int InvokeEvent(unsigned long event)\\n"
+      "InvokeEvent(self, event:str) -> int\\n"
+      "C++: int InvokeEvent(const char* event)\\n\\n"
+      "This method invokes an event and returns whether the event was\\n"
+      "aborted or not. If the event was aborted, the return value is 1,\\n"
+      "otherwise it is 0.\"\n},\n");
   }
 
   /* vtkObjectBase needs GetAddressAsString, UnRegister */
@@ -416,18 +422,21 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassI
   {
     fprintf(fp,
       "  {\"GetAddressAsString\",  Py%s_GetAddressAsString, 1,\n"
-      "   \"V.GetAddressAsString(string) -> string\\nC++: const char "
-      "*GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting "
-      "to\\nthe specified type.  You can get the same information from o.__this__.\"},\n",
+      "   \"GetAddressAsString(self, classname:str) -> str\\n\\n"
+      "Get address of C++ object in format 'Addr=%%p' after casting to\\n"
+      "the specified type.  This method is obsolete, you can get the\\n"
+      "same information from o.__this__.\"},\n",
       classname);
     fprintf(fp,
       "  {\"Register\", Py%s_Register, 1,\n"
-      "   \"V.Register(vtkObjectBase)\\nC++: virtual void Register(vtkObjectBase *o)\\n\\nIncrease "
-      "the reference count by 1.\\n\"},\n"
+      "   \"Register(self, o:vtkObjectBase)\\nC++: virtual void Register(vtkObjectBase "
+      "*o)\\n\\nIncrease the reference count by 1.\\n\"},\n"
       "  {\"UnRegister\", Py%s_UnRegister, 1,\n"
-      "   \"V.UnRegister(vtkObjectBase)\\nC++: virtual void UnRegister(vtkObjectBase "
-      "*o)\\n\\nDecrease the reference count (release by another object). This\\nhas the same "
-      "effect as invoking Delete() (i.e., it reduces the\\nreference count by 1).\\n\"},\n",
+      "   \"UnRegister(self, o:vtkObjectBase)\\n"
+      "C++: virtual void UnRegister(vtkObjectBase* o)\\n\\n"
+      "Decrease the reference count (release by another object). This\\n"
+      "has the same effect as invoking Delete() (i.e., it reduces the\\n"
+      "reference count by 1).\\n\"},\n",
       classname, classname);
   }
 

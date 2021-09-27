@@ -123,6 +123,11 @@ static void CreateImplFile(const char* libName, const char* importName, int numD
     fprintf(fout, "    }\n");
     fprintf(fout, "  }\n\n");
   }
+  else
+  {
+    /* if we have no dependencies, ensure wrappers are initialized */
+    fprintf(fout, "  vtkPythonUtil::Initialize();\n\n");
+  }
 
   for (i = 0; i < numFiles; i++)
   {

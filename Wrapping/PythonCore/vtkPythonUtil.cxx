@@ -16,6 +16,8 @@
 #include "vtkPythonUtil.h"
 #include "vtkPythonOverload.h"
 
+#include "PyVTKMethodDescriptor.h"
+
 #include "vtkSystemIncludes.h"
 
 #include "vtkObject.h"
@@ -231,11 +233,19 @@ vtkPythonUtil::~vtkPythonUtil()
 }
 
 //------------------------------------------------------------------------------
+void vtkPythonUtil::Initialize()
+{
+  // create the singleton
+  vtkPythonUtilCreateIfNeeded();
+  // finalize our custom MethodDescriptor type
+  PyType_Ready(&PyVTKMethodDescriptor_Type);
+}
+
+//------------------------------------------------------------------------------
 void vtkPythonUtil::RegisterPythonCommand(vtkPythonCommand* cmd)
 {
   if (cmd)
   {
-    vtkPythonUtilCreateIfNeeded();
     vtkPythonMap->PythonCommandList->push_back(cmd);
   }
 }
@@ -254,7 +264,6 @@ PyTypeObject* vtkPythonUtil::AddSpecialTypeToMap(
   PyTypeObject* pytype, PyMethodDef* methods, PyMethodDef* constructors, vtkcopyfunc copyfunc)
 {
   const char* classname = vtkPythonUtil::StripModule(pytype->tp_name);
-  vtkPythonUtilCreateIfNeeded();
 
   // lets make sure it isn't already there
   vtkPythonSpecialTypeMap::iterator i = vtkPythonMap->SpecialTypeMap->find(classname);
@@ -287,8 +296,6 @@ PyVTKSpecialType* vtkPythonUtil::FindSpecialType(const char* classname)
 //------------------------------------------------------------------------------
 void vtkPythonUtil::AddObjectToMap(PyObject* obj, vtkObjectBase* ptr)
 {
-  vtkPythonUtilCreateIfNeeded();
-
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Adding an object to map ptr = " << ptr);
 #endif
@@ -481,8 +488,6 @@ const char* vtkPythonUtil::StripModule(const char* tpname)
 PyTypeObject* vtkPythonUtil::AddClassToMap(
   PyTypeObject* pytype, PyMethodDef* methods, const char* classname, vtknewfunc constructor)
 {
-  vtkPythonUtilCreateIfNeeded();
-
   // lets make sure it isn't already there
   vtkPythonClassMap::iterator i = vtkPythonMap->ClassMap->find(classname);
   if (i == vtkPythonMap->ClassMap->end())
@@ -786,8 +791,6 @@ void vtkPythonUtil::AddNamespaceToMap(PyObject* module)
     return;
   }
 
-  vtkPythonUtilCreateIfNeeded();
-
   const char* name = PyVTKNamespace_GetName(module);
   // let's make sure it isn't already there
   vtkPythonNamespaceMap::iterator i = vtkPythonMap->NamespaceMap->find(name);
@@ -834,8 +837,6 @@ PyObject* vtkPythonUtil::FindNamespace(const char* name)
 //------------------------------------------------------------------------------
 void vtkPythonUtil::AddEnumToMap(PyTypeObject* enumtype, const char* name)
 {
-  vtkPythonUtilCreateIfNeeded();
-
   // Only add to map if it isn't already there
   vtkPythonEnumMap::iterator i = vtkPythonMap->EnumMap->find(name);
   if (i == vtkPythonMap->EnumMap->end())
@@ -940,8 +941,6 @@ bool vtkPythonUtil::ImportModule(const char* fullname, PyObject* globals)
 //------------------------------------------------------------------------------
 void vtkPythonUtil::AddModule(const char* name)
 {
-  vtkPythonUtilCreateIfNeeded();
-
   vtkPythonMap->ModuleList->push_back(name);
 }
 

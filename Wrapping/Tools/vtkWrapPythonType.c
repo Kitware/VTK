@@ -656,6 +656,11 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
     vtkWrapPython_GenerateMethods(fp, classname, data, finfo, hinfo, 0, 1);
   }
 
+  /* the docstring for the class, as a static var ending in "Doc" */
+  fprintf(fp, "\nstatic const char *Py%s_Doc =\n", classname);
+  vtkWrapPython_ClassDoc(fp, finfo, data, hinfo, 0);
+  fprintf(fp, ";\n\n");
+
   /* generate all functions and protocols needed for the type */
   vtkWrapPython_SpecialTypeProtocols(fp, classname, data, finfo, hinfo, &info);
 

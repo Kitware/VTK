@@ -159,11 +159,12 @@ void vtkWrapPython_AddConstantHelper(FILE* fp, const char* indent, const char* d
     fprintf(fp,
       "%sif (%s)\n"
       "%s{\n"
-      "%s  PyDict_SetItemString(%s, %s%s%s, %s);\n"
+      "%s  PyDict_SetItemString(%s, %s%s%s%s, %s);\n"
       "%s  Py_DECREF(%s);\n"
       "%s}\n",
       indent, objvar, indent, indent, dictvar, (attrib ? "" : "\""), (attrib ? attrib : valname),
-      (attrib ? "" : "\""), objvar, indent, objvar, indent);
+      (attrib || !vtkWrapText_IsPythonKeyword(valname) ? "" : "_"), (attrib ? "" : "\""), objvar,
+      indent, objvar, indent);
   }
 }
 
@@ -313,7 +314,8 @@ void vtkWrapPython_AddPublicConstants(
       val = data->Constants[j++];
       if (val->Access == VTK_ACCESS_PUBLIC)
       {
-        fprintf(fp, "%s      { \"%s\", %s%s%s },%s\n", indent, val->Name, (scopeValue ? scope : ""),
+        fprintf(fp, "%s      { \"%s%s\", %s%s%s },%s\n", indent, val->Name,
+          (vtkWrapText_IsPythonKeyword(val->Name) ? "_" : ""), (scopeValue ? scope : ""),
           (scopeValue ? "::" : ""), (val->IsEnum ? val->Name : val->Value),
           ((val->Attributes & VTK_PARSE_DEPRECATED) ? " /* deprecated */" : ""));
       }
