@@ -62,7 +62,7 @@
 #ifndef vtkPlaneCutter_h
 #define vtkPlaneCutter_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"      // For SmartPointer
 #include <vector>                 // For vector
@@ -78,7 +78,7 @@ class vtkSphereTree;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 
-class VTKFILTERSCORE_EXPORT vtkPlaneCutter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkPlaneCutter : public vtkDataObjectAlgorithm
 {
 public:
   ///@{
@@ -86,7 +86,7 @@ public:
    * Standard construction and print methods.
    */
   static vtkPlaneCutter* New();
-  vtkTypeMacro(vtkPlaneCutter, vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkPlaneCutter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
