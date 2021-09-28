@@ -2,8 +2,6 @@ NAME
   VTK::IOExport
 LIBRARY_NAME
   vtkIOExport
-KIT
-  VTK::IO
 IMPLEMENTABLE
 GROUPS
   Rendering
@@ -20,6 +18,8 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonMath
   VTK::CommonTransforms
+  VTK::DomainsChemistry
+  VTK::FiltersCore
   VTK::FiltersGeometry
   VTK::IOImage
   VTK::IOGeometry

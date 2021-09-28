@@ -28,9 +28,14 @@
 #include "vtkJPEGWriter.h"
 #include "vtkJSONDataSetWriter.h"
 #include "vtkMapper.h"
+#include "vtkMolecule.h"
+#include "vtkMoleculeMapper.h"
+#include "vtkMoleculeToAtomBallFilter.h"
+#include "vtkMoleculeToBondStickFilter.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkProperty.h"
@@ -134,7 +139,81 @@ void vtkJSONSceneExporter::WriteDataObject(
       this->WriteDataObject(os, iter->GetCurrentDataObject(), actor, volume);
       iter->GoToNextItem();
     }
+
+    return;
   }
+
+  // Handle molecule
+  if (dataObject->IsA("vtkMolecule"))
+  {
+    vtkMolecule* molecule = vtkMolecule::SafeDownCast(dataObject);
+
+    // Create tubes for each bond
+    vtkNew<vtkMoleculeToBondStickFilter> stickFilter;
+    stickFilter->SetInputDataObject(molecule);
+    stickFilter->Update();
+
+    // Create spheres for each atom
+    vtkNew<vtkMoleculeToAtomBallFilter> ballFilter;
+    ballFilter->SetInputDataObject(molecule);
+
+    if (actor)
+    {
+      // Retrieve radius type and scale factor from mapper
+      vtkMoleculeMapper* mapper = vtkMoleculeMapper::SafeDownCast(actor->GetMapper());
+
+      switch (mapper->GetAtomicRadiusType())
+      {
+        case vtkMoleculeMapper::CovalentRadius:
+        {
+          ballFilter->SetRadiusSource(vtkMoleculeToAtomBallFilter::CovalentRadius);
+          break;
+        }
+        case vtkMoleculeMapper::VDWRadius:
+        {
+          ballFilter->SetRadiusSource(vtkMoleculeToAtomBallFilter::VDWRadius);
+          break;
+        }
+        case vtkMoleculeMapper::UnitRadius:
+        {
+          ballFilter->SetRadiusSource(vtkMoleculeToAtomBallFilter::UnitRadius);
+          break;
+        }
+        default:
+        {
+          // Default to Van Der Waals
+          ballFilter->SetRadiusSource(vtkMoleculeToAtomBallFilter::VDWRadius);
+          break;
+        }
+      }
+
+      ballFilter->SetRadiusScale(mapper->GetAtomicRadiusScaleFactor());
+    }
+    else
+    {
+      // Set default radius type and scale
+      ballFilter->SetRadiusSource(vtkMoleculeToAtomBallFilter::VDWRadius);
+      ballFilter->SetRadiusScale(0.3);
+    }
+
+    // Reduce resolution when the number of atoms is high
+    // The threshold value has been arbitrarily chosen
+    if (molecule->GetNumberOfAtoms() > 100)
+    {
+      ballFilter->SetResolution(20);
+    }
+
+    // Create vertex normals for a smoother appearance
+    vtkNew<vtkPolyDataNormals> normalFilter;
+    normalFilter->SetInputConnection(ballFilter->GetOutputPort());
+    normalFilter->Update();
+
+    // Write tubes and spheres
+    this->WriteDataObject(os, stickFilter->GetOutput(), actor, volume);
+    this->WriteDataObject(os, normalFilter->GetOutput(), actor, volume);
+  }
+
+  return;
 }
 
 //------------------------------------------------------------------------------
