@@ -47,6 +47,8 @@ set(vtk_smp_enable_openmp 0)
 set(VTK_SMP_IMPLEMENTATION_TYPE)
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkSMPSelection.cmake")
 
+set(vtk_object_base_defines)
+
 # An optional dependency on memkind
 set(vtk_memkind_libraries)
 if (VTK_USE_MEMKIND)
@@ -54,8 +56,8 @@ if (VTK_USE_MEMKIND)
     PACKAGE MEMKIND)
   list(APPEND vtk_memkind_libraries
     MEMKIND::MEMKIND)
-  get_target_property(MEMKIND_VERSION_MINOR MEMKIND::MEMKIND MEMKIND_VERSION_MINOR)
-  list(APPEND VTK_OBJECT_BASE_DEFINES "MEMKIND_VERSION_MINOR=${MEMKIND_VERSION_MINOR}")
+  get_target_property(memkind_version_minor MEMKIND::MEMKIND MEMKIND_VERSION_MINOR)
+  list(APPEND vtk_object_base_defines "MEMKIND_VERSION_MINOR=${memkind_version_minor}")
 endif()
 
 # Generate the vtkTypeList_Create macros:
@@ -527,12 +529,12 @@ configure_file(
 
 # Allow work arounds for lack of thread_local on odd compilers
 if (NOT (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0) )
-  list(APPEND VTK_OBJECT_BASE_DEFINES "VTK_HAS_THREADLOCAL")
+  list(APPEND vtk_object_base_defines "VTK_HAS_THREADLOCAL")
 endif ()
 
 set_property(SOURCE vtkObjectBase.cxx
   PROPERTY
-     COMPILE_DEFINITIONS ${VTK_OBJECT_BASE_DEFINES})
+     COMPILE_DEFINITIONS ${vtk_object_base_defines})
 
 if(MSVC)
   set_source_files_properties(
