@@ -477,7 +477,6 @@ static bool SwizzleComponents(vtkDataArray* array, const std::vector<int>& order
 vtkSmartPointer<vtkCellArray> GetConnectivity(
   Ioss::GroupingEntity* group_entity, int& vtk_topology_type, Cache* cache /*=nullptr*/)
 {
-  std::cout << "group_entity->name() = " << group_entity->name() << std::endl;
   if (group_entity->get_property("entity_count").get_int() <= 0)
   {
     vtk_topology_type = VTK_EMPTY_CELL;

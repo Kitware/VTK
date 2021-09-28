@@ -544,6 +544,30 @@ private:
     vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
 
   /**
+   * @brief FieldIsDG
+   *
+   * @param blockname = name of the block this field is on
+   * @param fieldname = name of the field
+   * @return true if the field is a DG field
+   */
+  bool FieldIsDG(std::string blockname, std::string fieldname);
+  /**
+   * @brief like GetFields and GetNodalFields, but uses DG info records to parse
+   * which fields are DG fields, and properly reinterprets these fields as nodal
+   * fields on the DG mesh
+   *
+   * @param ds = output mesh
+   * @param selection = selection of arrays to parse
+   * @param region = the region of the mesh to read data on
+   * @param group_entity = the Ioss entity in question
+   * @param handle = database handle
+   * @param timestep = time step to read from
+   * @return true on successful parsing of field
+   */
+  bool GetDGFields(vtkUnstructuredGrid* ds, vtkDataArraySelection* selection, Ioss::Region* region,
+    Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep);
+
+  /**
    * Reads selected field arrays for the given entity block or set.
    * If `read_ioss_ids` is true, then element ids are read as applicable.
    *
@@ -1492,6 +1516,8 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetExodusD
   this->GetFields(dataset->GetCellData(), fieldSelection, region, group_entity, handle, timestep,
     self->GetReadIds());
 
+  this->GetDGFields(dataset, fieldSelection, region, group_entity, handle, timestep);
+
   auto nodeFieldSelection = self->GetNodeBlockFieldSelection();
   assert(nodeFieldSelection != nullptr);
   this->GetNodeFields(dataset->GetPointData(), nodeFieldSelection, region, group_entity, handle,
@@ -1660,7 +1686,7 @@ bool ExplodeDGMesh(vtkUnstructuredGrid* dataset)
   const vtkIdType nCells = dataset->GetCells()->GetNumberOfCells();
 
   // TO DO: Get the actual number of points in each element
-  const int nPtsPerCell = 8;
+  const int nPtsPerCell = dataset->GetCells()->GetMaxCellSize();
   exploded_points->SetNumberOfPoints(nCells * nPtsPerCell);
   exploded_cells->AllocateExact(nCells, nPtsPerCell);
 
@@ -2136,14 +2162,14 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
   }
   for (int cc = 0; selection != nullptr && cc < selection->GetNumberOfArrays(); ++cc)
   {
-    if (selection->GetArraySetting(cc))
+    if (selection->GetArraySetting(cc) &&
+      !this->FieldIsDG(group_entity->name(), selection->GetArrayName(cc)))
     {
       fieldnames.emplace_back(selection->GetArrayName(cc));
     }
   }
   for (const auto& fieldname : fieldnames)
   {
-    std::cout << group_entity->name() << " field: " << fieldname << std::endl;
     if (auto array = this->GetField(
           fieldname, region, group_entity, handle, timestep, ids_to_extract, cache_key_suffix))
     {
@@ -2155,6 +2181,101 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
       {
         dsa->AddArray(array);
       }
+    }
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+// nodalData <out>: nodal DG field interpolated from dgData
+// dgData <in>: cell centered, 1 component per nodal dof
+// ds <in>: the mesh dataset. idk if we need this here
+// rule <in>: this string indicates what element type is being used in this
+//            DG block
+void interpolateDGFieldToNodes(
+  vtkDataArray* nodalData, vtkDataArray* dgData, const std::string& rule)
+{
+  const vtkIdType nNodes = dgData->GetNumberOfComponents();
+  const vtkIdType nCells = dgData->GetNumberOfTuples();
+
+  if (rule == "HGRAD")
+  {
+    for (vtkIdType i = 0; i < nNodes; ++i)
+    {
+      for (vtkIdType j = 0; j < nCells; ++j)
+      {
+        const vtkIdType ptId = i + nNodes * j;
+        nodalData->SetTuple1(ptId, dgData->GetComponent(j, i));
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::vtkInternals::FieldIsDG(std::string blockname, std::string fieldname)
+{
+  auto dgFields = this->DGInfo.fields[blockname];
+  for (auto field : dgFields)
+  {
+    if (fieldname.find(field) != std::string::npos)
+    {
+      return true;
+    }
+    // fields with uppercase characters sometimes get set to lower case in the
+    // selection array
+    std::string lowerCaseField = field;
+    std::transform(lowerCaseField.begin(), lowerCaseField.end(), lowerCaseField.begin(),
+      [](unsigned char c) { return std::tolower(c); });
+    if (lowerCaseField.find(field) != std::string::npos)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::vtkInternals::GetDGFields(vtkUnstructuredGrid* ds,
+  vtkDataArraySelection* selection, Ioss::Region* region, Ioss::GroupingEntity* group_entity,
+  const DatabaseHandle& handle, int timestep)
+{
+  std::vector<std::string> fieldnames;
+
+  for (int cc = 0; selection != nullptr && cc < selection->GetNumberOfArrays(); ++cc)
+  {
+    if (selection->GetArraySetting(cc) &&
+      this->FieldIsDG(group_entity->name(), selection->GetArrayName(cc)))
+    {
+      fieldnames.emplace_back(selection->GetArrayName(cc));
+    }
+  }
+
+  auto dgFields = this->DGInfo.fields[group_entity->name()];
+  for (const auto& fieldname : fieldnames)
+  {
+    if (auto array =
+          this->GetField(fieldname, region, group_entity, handle, timestep, nullptr, std::string()))
+    {
+      vtkDataArray* dgData = reinterpret_cast<vtkDataArray*>(array.Get());
+
+      // hard coding the rule until we have example of other exotic element flavors
+      // TO DO: interpret rule from DGInformation::elementTypes
+      const std::string rule = "HGRAD";
+
+      // create a new vtkDataArray to store the single processed DG field
+      vtkNew<vtkDoubleArray> nodalData;
+      // each dgData field has nNodes components and components of
+      // vector fields are broken into individual scalar fields
+      // we start by interpolating all scalar fields individually
+      nodalData->SetNumberOfComponents(1);
+      nodalData->SetNumberOfTuples(ds->GetNumberOfPoints());
+      nodalData->SetName(fieldname.c_str());
+      // interpolate the dg data onto the nodes
+      interpolateDGFieldToNodes(nodalData, dgData, rule);
+
+      // add the nodal field array
+      ds->GetPointData()->AddArray(nodalData);
     }
   }
 
@@ -2359,22 +2480,6 @@ bool vtkIOSSReader::vtkInternals::GetQAAndInformationRecords(
 
   // parse potential info about DG blocks
   parseDGInfo(this->DGInfo, info);
-
-  std::cout << "bases: \n";
-  for (auto name : this->DGInfo.elementTypes)
-  {
-    std::cout << "  " << name.first << " " << name.second << "\n";
-  }
-
-  std::cout << "fields: \n";
-  for (auto name : this->DGInfo.fields)
-  {
-    std::cout << "  " << name.first << ":\n";
-    for (auto field : name.second)
-    {
-      std::cout << "    " << field << "\n";
-    }
-  }
 
   fd->AddArray(info_records);
   fd->AddArray(qa_records);
