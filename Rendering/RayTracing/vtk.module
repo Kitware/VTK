@@ -41,11 +41,11 @@ TEST_DEPENDS
   VTK::ImagingHybrid
   VTK::ImagingSources
   VTK::InteractionStyle
-  VTK::InteractionStyle
+  VTK::InteractionWidgets
   #VTK::ParallelMPI
+  #VTK::RenderingParallel
   VTK::RenderingAnnotation
   VTK::RenderingFreeType
-  #VTK::RenderingParallel
   VTK::RenderingVolume
   VTK::RenderingVolumeAMR
   VTK::RenderingVolumeOpenGL2

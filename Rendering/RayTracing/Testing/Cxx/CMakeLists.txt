@@ -3,6 +3,7 @@ if (VTK_ENABLE_OSPRAY)
     # Surface rendering tests
     TestOSPRayAmbient.cxx
     TestOSPRayAMRVolumeRenderer.cxx
+    TestOSPRayBoxWidget2.cxx
     TestOSPRayCompositePolyDataMapper2.cxx
     TestOSPRayDepthOfField.cxx
     TestOSPRayDynamicObject.cxx
