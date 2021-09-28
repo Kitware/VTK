@@ -254,12 +254,7 @@ struct PointProjectionCentersWorker
 
 //------------------------------------------------------------------------------
 vtkProbeLineFilter::vtkProbeLineFilter()
-  : Controller(nullptr)
-  , SamplingPattern(SAMPLE_LINE_AT_CELL_BOUNDARIES)
-  , LineResolution(1000)
-  , ComputeTolerance(true)
-  , Tolerance(1.0)
-  , Internal(new vtkInternals)
+  : Internal(new vtkInternals)
 {
   this->SetNumberOfInputPorts(2);
   this->SetController(vtkMultiProcessController::GetGlobalController());
@@ -276,6 +271,7 @@ vtkProbeLineFilter::~vtkProbeLineFilter()
 int vtkProbeLineFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  // Check inputs / ouputs
   vtkInformation* inputInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* samplerInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -287,8 +283,11 @@ int vtkProbeLineFilter::RequestData(
 
   vtkDataObject* input = inputInfo->Get(vtkDataObject::DATA_OBJECT());
   auto* samplerLocal = vtkPointSet::SafeDownCast(samplerInfo->Get(vtkDataObject::DATA_OBJECT()));
-  auto* output = vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!output || !input || !samplerLocal)
+  auto* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  bool outputIsValid = this->AggregateAsPolyData
+    ? vtkPolyData::SafeDownCast(output) != nullptr
+    : vtkMultiBlockDataSet::SafeDownCast(output) != nullptr;
+  if (!output || !input || !samplerLocal || !outputIsValid)
   {
     vtkErrorMacro("Missing input or output");
     return 0;
@@ -306,6 +305,7 @@ int vtkProbeLineFilter::RequestData(
     this->Controller->Broadcast(sampler, 0);
   }
 
+  // Compute tolerance
   double tolerance = this->Tolerance;
   if (this->ComputeTolerance)
   {
@@ -322,7 +322,9 @@ int vtkProbeLineFilter::RequestData(
   }
   this->Internal->UpdateLocators(input, this->SamplingPattern, tolerance);
 
+  // For each cell create a polyline to probe with
   auto samplerCellsIt = vtkSmartPointer<vtkCellIterator>::Take(sampler->NewCellIterator());
+  vtkNew<vtkMultiBlockDataSet> multiBlockOutput;
   for (samplerCellsIt->InitTraversal(); !samplerCellsIt->IsDoneWithTraversal(); samplerCellsIt->GoToNextCell())
   {
     if (samplerCellsIt->GetCellType() == VTK_LINE || samplerCellsIt->GetCellType() == VTK_POLY_LINE)
@@ -371,11 +373,31 @@ int vtkProbeLineFilter::RequestData(
       arcs->SetInputConnection(prober->GetOutputPort());
       arcs->Update();
 
-      const unsigned int block = output->GetNumberOfBlocks();
-      output->SetNumberOfBlocks(block + 1);
-      output->SetBlock(block, arcs->GetOutputDataObject(0));
+      const unsigned int block = multiBlockOutput->GetNumberOfBlocks();
+      multiBlockOutput->SetNumberOfBlocks(block + 1);
+      multiBlockOutput->SetBlock(block, arcs->GetOutputDataObject(0));
+    }
+    else
+    {
+      vtkWarningMacro("Found non Line/PolyLine cell in the prober source at: " << samplerCellsIt->GetCellId());
     }
   } // end for each cell
+
+  if (this->AggregateAsPolyData)
+  {
+    vtkNew<vtkAppendDataSets> appender;
+    appender->SetMergePoints(false);
+    for (unsigned int i = 0; i < multiBlockOutput->GetNumberOfBlocks(); ++i)
+    {
+      appender->AddInputData(multiBlockOutput->GetBlock(i));
+    }
+    appender->Update();
+    output->ShallowCopy(appender->GetOutputDataObject(0));
+  }
+  else
+  {
+    output->ShallowCopy(multiBlockOutput);
+  }
 
   return 1;
 }
@@ -407,7 +429,7 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::CreateSamplingPolyLine(
 
     vtkPoints* tmpPoints = tmp->GetPoints();
     vtkIdList* tmpPointIds = tmp->GetCell(0)->PointIds;
-    // We should have a single cell containing all points ..
+    // We should have a single cell containing all points
     // assert for future development insurance
     assert(tmpPoints->GetNumberOfPoints() == tmpPointIds->GetNumberOfIds());
 
@@ -728,12 +750,25 @@ int vtkProbeLineFilter::RequestDataObject(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
-  if (!output)
+  if (this->AggregateAsPolyData)
   {
-    auto newOutput = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-    outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+    vtkPolyData* output = vtkPolyData::GetData(outInfo);
+    if (!output)
+    {
+      auto newOutput = vtkSmartPointer<vtkPolyData>::New();
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+    }
   }
+  else
+  {
+    vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
+    if (!output)
+    {
+      auto newOutput = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+    }
+  }
+
   return 1;
 }
 
@@ -764,6 +799,7 @@ void vtkProbeLineFilter::PrintSelf(ostream& os, vtkIndent indent)
       break;
   }
   os << indent << "LineResolution: " << this->LineResolution << endl;
+  os << indent << "AggregateAsPolyData: " << this->AggregateAsPolyData << endl;
   os << indent << "PassPartialArrays: " << this->PassPartialArrays << endl;
   os << indent << "PassCellArrays: " << this->PassCellArrays << endl;
   os << indent << "PassPointArrays: " << this->PassPointArrays << endl;

@@ -27,6 +27,7 @@
 #include "vtkProbeLineFilter.h"
 #include "vtkRTAnalyticSource.h"
 
+#include <algorithm>
 #include <array>
 
 static constexpr std::array<double, 40> ProbingAtCellBoundaries = { 10.3309, 10.3309, 1.68499,
@@ -92,28 +93,33 @@ int TestProbeLineFilter(int argc, char* argv[])
   probeLine->SetController(contr);
   probeLine->SetLineResolution(10);
 
-  auto CheckForErrors = [myrank](vtkProbeLineFilter* prober, const double* expected, vtkIdType size,
+  auto CheckForErrors = [myrank](vtkPolyData* pd, const double* expected, vtkIdType size,
                           const char* name) {
+    // Ignore rank != 0 as all results are passed to rank 0
     if (myrank != 0)
     {
       return EXIT_SUCCESS;
     }
 
-    vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(prober->GetOutputDataObject(0));
-    if (mbds->GetNumberOfBlocks() != 1)
+    if (pd == nullptr)
     {
-      vtkLog(ERROR, "Wrong number ok blocks in the output");
+      vtkLog(ERROR, << "Wrong output type");
       return EXIT_FAILURE;
     }
 
-    vtkPolyData* pd = vtkPolyData::SafeDownCast(mbds->GetBlock(0));
     vtkDataArray* result = pd->GetPointData()->GetArray("RTData");
-    vtkIdType minsize = (size >= result->GetNumberOfValues() ? result->GetNumberOfValues() : size);
+    if (!result)
+    {
+      vtkLog(ERROR, << name << ": missing 'RTData' array");
+      return EXIT_FAILURE;
+    }
+
+    vtkIdType minsize = std::min(size, result->GetNumberOfTuples());
     if (result->GetNumberOfValues() != size)
     {
       vtkLog(ERROR, << name << ": result and expected result does not have the same size (resp. "
                     << result->GetNumberOfValues() << " vs " << size
-                    << " values). Still checking the " << minsize << " first common elements ...");
+                    << " values). Still checking the " << minsize << " first elements ...");
     }
 
     int code = EXIT_SUCCESS;
@@ -121,27 +127,86 @@ int TestProbeLineFilter(int argc, char* argv[])
     {
       if (std::fabs(result->GetTuple1(pointId) - expected[pointId]) > 0.001)
       {
-        vtkLog(ERROR, "Failed to probe line with SAMPLE_LINE_AT_CELL_BOUNDARIES at " << pointId);
+        vtkLog(ERROR, << name << " failed at " << pointId);
         code = EXIT_FAILURE;
       }
     }
     return code;
   };
 
+  // Check result for polyData output
+  vtkLog(INFO, << "Testing vtkProbeLineFilter with polydata output");
+  probeLine->AggregateAsPolyDataOn();
   probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_CELL_BOUNDARIES);
   probeLine->Update();
-  retVal = CheckForErrors(probeLine, ProbingAtCellBoundaries.data(), ProbingAtCellBoundaries.size(),
+  retVal |= CheckForErrors(vtkPolyData::SafeDownCast(probeLine->GetOutputDataObject(0)),
+    ProbingAtCellBoundaries.data(), ProbingAtCellBoundaries.size(),
     "SAMPLE_LINE_AT_CELL_BOUNDARIES");
 
   probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS);
   probeLine->Update();
-  retVal = CheckForErrors(probeLine, ProbingAtSegmentCenters.data(), ProbingAtSegmentCenters.size(),
+  retVal |= CheckForErrors(vtkPolyData::SafeDownCast(probeLine->GetOutputDataObject(0)),
+    ProbingAtSegmentCenters.data(), ProbingAtSegmentCenters.size(),
     "SAMPLE_LINE_AT_SEGMENT_CENTERS");
 
   probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
   probeLine->Update();
-  retVal = CheckForErrors(
-    probeLine, ProbingUniformly.data(), ProbingUniformly.size(), "SAMPLE_LINE_UNIFORMLY");
+  retVal |= CheckForErrors(vtkPolyData::SafeDownCast(probeLine->GetOutputDataObject(0)),
+    ProbingUniformly.data(), ProbingUniformly.size(), "SAMPLE_LINE_UNIFORMLY");
+
+  // Check result for multiblock ouput
+  vtkLog(INFO, << "Testing vtkProbeLineFilter with multiblock output");
+  probeLine->AggregateAsPolyDataOff();
+  vtkMultiBlockDataSet* mbds;
+  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_CELL_BOUNDARIES);
+  probeLine->Update();
+  mbds = vtkMultiBlockDataSet::SafeDownCast(probeLine->GetOutputDataObject(0));
+  if (mbds == nullptr)
+  {
+    vtkLog(ERROR, << "Expecting a multiblock output, found something else");
+    return EXIT_FAILURE;
+  }
+  if (mbds->GetNumberOfBlocks() != 1)
+  {
+    vtkLog(ERROR, "Wrong number of blocks in the output");
+    return EXIT_FAILURE;
+  }
+  retVal |=
+    CheckForErrors(vtkPolyData::SafeDownCast(mbds->GetBlock(0)), ProbingAtCellBoundaries.data(),
+      ProbingAtCellBoundaries.size(), "SAMPLE_LINE_AT_CELL_BOUNDARIES");
+
+  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS);
+  probeLine->Update();
+  mbds = vtkMultiBlockDataSet::SafeDownCast(probeLine->GetOutputDataObject(0));
+  if (mbds == nullptr)
+  {
+    vtkLog(ERROR, << "Expecting a multiblock output, found something else");
+    return EXIT_FAILURE;
+  }
+  if (mbds->GetNumberOfBlocks() != 1)
+  {
+    vtkLog(ERROR, "Wrong number of blocks in the output");
+    return EXIT_FAILURE;
+  }
+  retVal |=
+    CheckForErrors(vtkPolyData::SafeDownCast(mbds->GetBlock(0)), ProbingAtSegmentCenters.data(),
+      ProbingAtSegmentCenters.size(), "SAMPLE_LINE_AT_SEGMENT_CENTERS");
+
+  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
+  probeLine->Update();
+  mbds = vtkMultiBlockDataSet::SafeDownCast(probeLine->GetOutputDataObject(0));
+  if (mbds == nullptr)
+  {
+    vtkLog(ERROR, << "Expecting a multiblock output, found something else");
+    return EXIT_FAILURE;
+  }
+  if (mbds->GetNumberOfBlocks() != 1)
+  {
+    vtkLog(ERROR, "Wrong number of blocks in the output");
+    return EXIT_FAILURE;
+  }
+  retVal |= CheckForErrors(vtkPolyData::SafeDownCast(mbds->GetBlock(0)), ProbingUniformly.data(),
+    ProbingUniformly.size(), "SAMPLE_LINE_UNIFORMLY");
 
   vtkMultiProcessController::SetGlobalController(nullptr);
   contr->Finalize();

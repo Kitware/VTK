@@ -17,10 +17,11 @@
  * @brief   probe dataset along a line in parallel
  *
  * This filter probes the input data set along an source dataset composed of `vtkLine` and/or
- * `vtkPolyLine` cells. It outputs a `vtkMultiBlockDataSet`. Each block contains the probe
- * result for a single cell of the source. Points are sorted along the line or the polyline.
- * Cells are outputted in the same order they were defined in the input (i.e. cells 0 is
- * block 0 of the output).
+ * `vtkPolyLine` cells. It outputs a `vtkPolyData`, or a `vtkMultiBlockDataSet` if asked. In
+ * the case of a multiblock, each block contains the probe result for a single cell of the
+ * source. In the case of a polydata output and multiple input lines, only the first line
+ * results are returned. Points are sorted along the line or the polyline. Cells are outputted
+ * in the same order they were defined in the input (i.e. cells 0 is block 0 of the output).
  *
  * The probing can have different sampling patterns. Three are available:
  * * `SAMPLE_LINE_AT_CELL_BOUNDARIES`: The intersection between the input line and the input
@@ -45,9 +46,9 @@
 #ifndef vtkProbeLineFilter_h
 #define vtkProbeLineFilter_h
 
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersParallelDIY2Module.h" // For export macro
-#include "vtkMultiBlockDataSetAlgorithm.h"
-#include "vtkSmartPointer.h" // For sampling line
+#include "vtkSmartPointer.h"              // For sampling line
 
 #include <vector> // For sampling line
 
@@ -58,10 +59,10 @@ class vtkPoints;
 class vtkPolyData;
 class vtkVector3d;
 
-class VTKFILTERSPARALLELDIY2_EXPORT vtkProbeLineFilter : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSPARALLELDIY2_EXPORT vtkProbeLineFilter : public vtkDataObjectAlgorithm
 {
 public:
-  vtkTypeMacro(vtkProbeLineFilter, vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkProbeLineFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkProbeLineFilter* New();
@@ -177,6 +178,19 @@ public:
   vtkSetMacro(LineResolution, int);
   ///@}
 
+  ///@{
+  /**
+   * If false then each result from an input line to probe results in a block in a
+   * vtkMultiBlockDataSet. If true then each block is aggregated as a cell in a
+   * single dataset and the output type of the filter becomes a vtkPolyData.
+   *
+   * Default is true.
+   */
+  vtkGetMacro(AggregateAsPolyData, bool);
+  vtkSetMacro(AggregateAsPolyData, bool);
+  vtkBooleanMacro(AggregateAsPolyData, bool);
+  ///@}
+
 protected:
   vtkProbeLineFilter();
   ~vtkProbeLineFilter() override;
@@ -203,17 +217,18 @@ protected:
     const vtkVector3d& p1, const vtkVector3d& p2) const;
   ///@}
 
-  vtkMultiProcessController* Controller;
+  vtkMultiProcessController* Controller = nullptr;
 
-  int SamplingPattern;
-  int LineResolution;
+  int SamplingPattern = SAMPLE_LINE_AT_CELL_BOUNDARIES;
+  int LineResolution = 1000;
 
-  bool PassPartialArrays;
-  bool PassCellArrays;
-  bool PassPointArrays;
-  bool PassFieldArrays;
-  bool ComputeTolerance;
-  double Tolerance;
+  bool AggregateAsPolyData = true;
+  bool PassPartialArrays = false;
+  bool PassCellArrays = false;
+  bool PassPointArrays = false;
+  bool PassFieldArrays = false;
+  bool ComputeTolerance = true;
+  double Tolerance = 1.0;
 
 private:
   vtkProbeLineFilter(const vtkProbeLineFilter&) = delete;
