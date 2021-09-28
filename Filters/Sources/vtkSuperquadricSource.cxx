@@ -30,8 +30,6 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-#include <cmath>
-
 vtkStandardNewMacro(vtkSuperquadricSource);
 
 static void evalSuperquadric(double theta, double phi, double dtheta, double dphi, double rtheta,
@@ -140,10 +138,10 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   int i, j;
   vtkIdType numPts;
-  vtkPoints* newPoints;
-  vtkFloatArray* newNormals;
-  vtkFloatArray* newTCoords;
-  vtkCellArray* newPolys;
+  vtkSmartPointer<vtkPoints> newPoints;
+  vtkSmartPointer<vtkFloatArray> newNormals;
+  vtkSmartPointer<vtkFloatArray> newTCoords;
+  vtkSmartPointer<vtkCellArray> newPolys;
   vtkIdType* ptidx;
   double pt[3], nv[3], dims[3];
   double len;
@@ -200,7 +198,8 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
   phiSubsegs = this->PhiResolution / phiSegs;
   thetaSubsegs = this->ThetaResolution / thetaSegs;
 
-  numPts = (this->PhiResolution + phiSegs) * (this->ThetaResolution + thetaSegs);
+  numPts =
+    static_cast<vtkIdType>((this->PhiResolution + phiSegs) * (this->ThetaResolution + thetaSegs));
   // creating triangles
   numStrips = this->PhiResolution * thetaSegs;
   ptsPerStrip = thetaSubsegs * 2 + 2;
@@ -208,7 +207,7 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
   //
   // Set things up; allocate memory
   //
-  newPoints = vtkPoints::New();
+  newPoints = vtkSmartPointer<vtkPoints>::New();
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
@@ -221,16 +220,16 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   newPoints->Allocate(numPts);
-  newNormals = vtkFloatArray::New();
+  newNormals = vtkSmartPointer<vtkFloatArray>::New();
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(3 * numPts);
   newNormals->SetName("Normals");
-  newTCoords = vtkFloatArray::New();
+  newTCoords = vtkSmartPointer<vtkFloatArray>::New();
   newTCoords->SetNumberOfComponents(2);
   newTCoords->Allocate(2 * numPts);
   newTCoords->SetName("TextureCoords");
 
-  newPolys = vtkCellArray::New();
+  newPolys = vtkSmartPointer<vtkCellArray>::New();
   newPolys->AllocateEstimate(numStrips, ptsPerStrip);
 
   // generate!
@@ -384,17 +383,14 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
   }
   delete[] ptidx;
 
+  newPoints->Squeeze();
   output->SetPoints(newPoints);
-  newPoints->Delete();
-
+  newNormals->Squeeze();
   output->GetPointData()->SetNormals(newNormals);
-  newNormals->Delete();
-
+  newTCoords->Squeeze();
   output->GetPointData()->SetTCoords(newTCoords);
-  newTCoords->Delete();
-
+  newPolys->Squeeze();
   output->SetStrips(newPolys);
-  newPolys->Delete();
 
   return 1;
 }
@@ -429,10 +425,10 @@ static double cf(double w, double m, double a = 0)
   }
   else
   {
-    c = cos(w);
+    c = std::cos(w);
   }
   sgn = c < 0.0 ? -1.0 : 1.0;
-  return a + sgn * pow(sgn * c, m);
+  return a + sgn * std::pow(sgn * c, m);
 }
 
 static double sf(double w, double m)
@@ -446,10 +442,10 @@ static double sf(double w, double m)
   }
   else
   {
-    s = sin(w);
+    s = std::sin(w);
   }
   sgn = s < 0.0 ? -1.0 : 1.0;
-  return sgn * pow(sgn * s, m);
+  return sgn * std::pow(sgn * s, m);
 }
 
 static void evalSuperquadric(double theta, double phi, // parametric coords
