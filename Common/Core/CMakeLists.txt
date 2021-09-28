@@ -1,20 +1,20 @@
-# Core configuration options.
-if(CMAKE_SIZEOF_VOID_P GREATER 4)
- set(VTK_USE_64BIT_IDS_DEFAULT ON)
-else()
- set(VTK_USE_64BIT_IDS_DEFAULT OFF)
- set(VTK_USE_64BIT_TIMESTAMPS_DEFAULT OFF)
- option(VTK_USE_64BIT_TIMESTAMPS "Build VTK with 64 bit timestamps"
-  ${VTK_USE_64BIT_TIMESTAMPS_DEFAULT})
-endif()
+include(CMakeDependentOption)
+cmake_dependent_option(VTK_USE_64BIT_TIMESTAMPS "Build VTK with 64 bit timestamps" OFF
+  "NOT CMAKE_SIZEOF_VOID_P GREATER 4" ON)
+mark_as_advanced(VTK_USE_64BIT_TIMESTAMPS)
 
-option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
-  ${VTK_USE_64BIT_IDS_DEFAULT})
+if (CMAKE_SIZEOF_VOID_P GREATER 4)
+ set(vtk_use_64bit_ids_default ON)
+else ()
+ set(vtk_use_64bit_ids_default OFF)
+endif ()
+
+option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids" "${vtk_use_64bit_ids_default}")
 mark_as_advanced(VTK_USE_64BIT_IDS)
 
 option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 mark_as_advanced(VTK_DEBUG_LEAKS)
-include(CMakeDependentOption)
+
 # See vtkDataArrayRange.h docs for more info on these:
 cmake_dependent_option(VTK_DEBUG_RANGE_ITERATORS
   "Detect usage errors with the for-range iterators (SLOW)." OFF
