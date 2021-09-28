@@ -252,6 +252,22 @@ More advanced options:
     Enable the `vtkWin32VideoSource` class in the `VTK::IOVideo` module.
   * `VTK_USE_MICROSOFT_MEDIA_FOUNDATION` (default `OFF`; requires Windows):
     Enable the `vtkMP4Writer` class in the `VTK::IOMovie` module.
+  * `VTK_USE_64BIT_TIMESTAMPS` (default `OFF`; forced on for 64-bit builds):
+    Build with 64-bit `vtkMTimeType`.
+  * `VTK_USE_64BIT_IDS` (default `OFF` for 32-bit builds; `ON` for 64-bit
+    builds): Whether `vtkIdType` should be 32-bit or 64-bit.
+  * `VTK_DEBUG_LEAKS` (default `OFF`): Whether VTK will report leaked
+    `vtkObject` instances at process destruction or not.
+  * `VTK_DEBUG_RANGE_ITERATORS` (default `OFF`; requires a `Debug` build):
+    Detect errors with `for-range` iterators in VTK (note that this is very
+    slow).
+  * `VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS` (default `OFF`; requires `NOT
+    VTK_DEBUG_RANGE_ITERATORS`): Optimize `for-range` array iterators even in
+    `Debug` builds.
+  * `VTK_ALL_NEW_OBJECT_FACTORY` (default `OFF`): If `ON`, classes using
+    `vtkStandardNewMacro` will use `vtkObjectFactoryNewMacro` allowing
+    overrides to be available even when not explicitly requested through
+    `vtkObjectFactoryNewMacro` or `vtkAbstractObjectFactoryNewMacro`.
 
 The VTK module system provides a number of variables to control modules which
 are not otherwise controlled by the other options provided.
