@@ -1117,10 +1117,11 @@ static void vtkWrapText_PythonStdVectorSignature(
   /* decompose template to get the first arg */
   vtkParse_DecomposeTemplatedType(arg->Class, &temp, 2, &args, defaults);
   vtkParse_BasicTypeFromString(args[0], &basetype, &classname, &n);
+  classname = vtkParse_CacheString(&cache, classname, n);
   vtkParse_FreeTemplateDecomposition(temp, 2, args);
   /* create a ValueInfo that describes the type */
   vtkParse_InitValue(&val);
-  val.Class = vtkParse_CacheString(&cache, classname, n);
+  val.Class = classname;
   val.Type = basetype;
   /* write out as a list of unknown size */
   vtkWPString_Append(result, braces[0]);
