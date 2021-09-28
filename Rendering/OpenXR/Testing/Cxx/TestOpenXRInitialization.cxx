@@ -40,9 +40,6 @@ int TestOpenXRInitialization(int argc, char* argv[])
   renderer->SetShowFloor(true);
 
   vtkNew<vtkOpenXRRenderWindow> renderWindow;
-  // renderWindow->SetPhysicalTranslation(0.0, 1.0, 0.0);
-  // renderWindow->SetPhysicalScale(5.0);
-
   vtkNew<vtkOpenXRRenderWindowInteractor> iren;
   vtkNew<vtkOpenXRCamera> cam;
 
@@ -65,7 +62,6 @@ int TestOpenXRInitialization(int argc, char* argv[])
   reader->SetFileName(fileName);
 
   vtkNew<vtkTransform> trans;
-  // trans->Translate(1.0, 1.0, 1.0);
   trans->Scale(10.0, 10.0, 10.0);
   vtkNew<vtkTransformPolyDataFilter> tf;
   tf->SetTransform(trans);
@@ -83,7 +79,6 @@ int TestOpenXRInitialization(int argc, char* argv[])
   actor->GetProperty()->SetAmbient(0.5);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
-  //  actor->GetProperty()->SetRepresentationToWireframe();
 
   iren->Start();
 

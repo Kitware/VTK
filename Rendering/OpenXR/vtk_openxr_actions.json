@@ -68,7 +68,6 @@
       "name": "vtk-actions",
       "localizedName": "VTK actions"
     }
-    // we could add other action sets, like for navigating in a menu, etc...
   ],
   "localization": [
     {

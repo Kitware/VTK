@@ -35,10 +35,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMapper.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenXRHardwarePicker.h"
-/*#include "vtkOpenVRControlsHelper.h"
-#include "vtkOpenVRModel.h"
-#include "vtkOpenVROverlay.h"*/
 #include "vtkPlane.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -46,18 +42,20 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSphereSource.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 #include "vtkTimerLog.h"
+#include "vtkVRHardwarePicker.h"
 
 #include "vtkOpenXRCamera.h"
-#include "vtkOpenXRMenuRepresentation.h"
-#include "vtkOpenXRMenuWidget.h"
 #include "vtkOpenXRRenderWindow.h"
 #include "vtkOpenXRRenderWindowInteractor.h"
+#include "vtkVRMenuRepresentation.h"
+#include "vtkVRMenuWidget.h"
 
 #include "vtkWidgetRepresentation.h"
 
@@ -74,11 +72,6 @@ vtkOpenXRInteractorStyle::vtkOpenXRInteractorStyle()
     this->InteractionState[d] = VTKIS_NONE;
     this->InteractionProps[d] = nullptr;
     this->ClippingPlanes[d] = nullptr;
-
-    /*for (int i = 0; i < vtkEventDataNumberOfInputs; i++)
-    {
-      this->ControlsHelpers[d][i] = nullptr;
-    }*/
   }
 
   // Create default inputs mapping
@@ -87,7 +80,6 @@ vtkOpenXRInteractorStyle::vtkOpenXRInteractorStyle()
   this->MapInputToAction(vtkCommand::NextPose3DEvent, VTKIS_LOAD_CAMERA_POSE);
   this->MapInputToAction(vtkCommand::Select3DEvent, VTKIS_POSITION_PROP);
 
-  this->MenuCommand = vtkCallbackCommand::New();
   this->MenuCommand->SetClientData(this);
   this->MenuCommand->SetCallback(vtkOpenXRInteractorStyle::MenuCallback);
 
@@ -104,9 +96,6 @@ vtkOpenXRInteractorStyle::vtkOpenXRInteractorStyle()
   this->PickActor->GetProperty()->SetRepresentationToWireframe();
   this->PickActor->DragableOff();
 
-  this->HoverPickOff();
-  this->GrabWithRayOn();
-
   vtkNew<vtkCellPicker> exactPicker;
   this->SetInteractionPicker(exactPicker);
 }
@@ -119,21 +108,8 @@ vtkOpenXRInteractorStyle::~vtkOpenXRInteractorStyle()
     if (this->ClippingPlanes[d])
     {
       this->ClippingPlanes[d]->Delete();
-      this->ClippingPlanes[d] = nullptr;
     }
   }
-  /*for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
-  {
-    for (int i = 0; i < vtkEventDataNumberOfInputs; i++)
-    {
-      if (this->ControlsHelpers[d][i])
-      {
-        this->ControlsHelpers[d][i]->Delete();
-        this->ControlsHelpers[d][i] = nullptr;
-      }
-    }
-  }*/
-  this->MenuCommand->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -160,6 +136,8 @@ void vtkOpenXRInteractorStyle::SetInteractor(vtkRenderWindowInteractor* iren)
 void vtkOpenXRInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "HoverPick: " << this->HoverPick;
+  os << indent << "GrabWithRay: " << this->GrabWithRay;
 }
 
 //------------------------------------------------------------------------------
@@ -305,6 +283,10 @@ void vtkOpenXRInteractorStyle::OnMove3D(vtkEventData* edata)
       this->Clip(edd);
       this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
+    default:
+      vtkWarningMacro(<< "OnMove3D: unknown device " << idev << " interaction state "
+                      << this->InteractionState[idev]);
+      break;
   }
 
   // Update rays
@@ -378,7 +360,6 @@ void vtkOpenXRInteractorStyle::OnSelect3D(vtkEventData* edata)
     this->EndAction(state, bd);
   }
 }
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Interaction entry points
@@ -393,6 +374,7 @@ void vtkOpenXRInteractorStyle::StartPick(vtkEventDataDevice3D* edata)
   // update ray
   this->UpdateRay(edata->GetDevice());
 }
+
 //------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::EndPick(vtkEventDataDevice3D* edata)
 {
@@ -411,6 +393,7 @@ void vtkOpenXRInteractorStyle::StartLoadCamPose(vtkEventDataDevice3D* edata)
   int iDevice = static_cast<int>(edata->GetDevice());
   this->InteractionState[iDevice] = VTKIS_LOAD_CAMERA_POSE;
 }
+
 //------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::EndLoadCamPose(vtkEventDataDevice3D* edata)
 {
@@ -594,9 +577,8 @@ void vtkOpenXRInteractorStyle::StartDolly3D(vtkEventDataDevice3D* ed)
   vtkEventDataDevice dev = ed->GetDevice();
   this->InteractionState[static_cast<int>(dev)] = VTKIS_DOLLY;
   this->LastDolly3DEventTime->StartTimer();
-
-  // this->GrabFocus(this->EventCallbackCommand);
 }
+
 //------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::EndDolly3D(vtkEventDataDevice3D* ed)
 {
@@ -613,76 +595,15 @@ void vtkOpenXRInteractorStyle::ToggleDrawControls()
   {
     return;
   }
-
-  // Enable helpers
-  /*for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
-  {
-    // No helper for HMD
-    if (static_cast<vtkEventDataDevice>(d) == vtkEventDataDevice::HeadMountedDisplay)
-    {
-      continue;
-    }
-
-    for (int i = 0; i < vtkEventDataNumberOfInputs; i++)
-    {
-      if (this->ControlsHelpers[d][i])
-      {
-        if (this->ControlsHelpers[d][i]->GetRenderer() != this->CurrentRenderer)
-        {
-          vtkRenderer* ren = this->ControlsHelpers[d][i]->GetRenderer();
-          if (ren)
-          {
-            ren->RemoveViewProp(this->ControlsHelpers[d][i]);
-          }
-          this->ControlsHelpers[d][i]->SetRenderer(this->CurrentRenderer);
-          this->ControlsHelpers[d][i]->BuildRepresentation();
-          // this->ControlsHelpers[iDevice][iInput]->SetEnabled(false);
-          this->CurrentRenderer->AddViewProp(this->ControlsHelpers[d][i]);
-        }
-
-        this->ControlsHelpers[d][i]->SetEnabled(!this->ControlsHelpers[d][i]->GetEnabled());
-      }
-    }
-  }*/
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::SetDrawControls(bool val)
 {
-  /*if (this->CurrentRenderer == nullptr)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
-
-  // Enable helpers
-  for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
-  {
-    // No helper for HMD
-    if (static_cast<vtkEventDataDevice>(d) == vtkEventDataDevice::HeadMountedDisplay)
-    {
-      continue;
-    }
-
-    for (int i = 0; i < vtkEventDataNumberOfInputs; i++)
-    {
-      if (this->ControlsHelpers[d][i])
-      {
-        if (this->ControlsHelpers[d][i]->GetRenderer() != this->CurrentRenderer)
-        {
-          vtkRenderer* ren = this->ControlsHelpers[d][i]->GetRenderer();
-          if (ren)
-          {
-            ren->RemoveViewProp(this->ControlsHelpers[d][i]);
-          }
-          this->ControlsHelpers[d][i]->SetRenderer(this->CurrentRenderer);
-          this->ControlsHelpers[d][i]->BuildRepresentation();
-          // this->ControlsHelpers[iDevice][iInput]->SetEnabled(false);
-          this->CurrentRenderer->AddViewProp(this->ControlsHelpers[d][i]);
-        }
-
-        this->ControlsHelpers[d][i]->SetEnabled(val);
-      }
-    }
-  }*/
 }
 
 //------------------------------------------------------------------------------
@@ -709,6 +630,7 @@ void vtkOpenXRInteractorStyle::ProbeData(vtkEventDataDevice controller)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::EndPickCallback(vtkSelection* sel)
 {
   if (!sel)
@@ -739,11 +661,6 @@ void vtkOpenXRInteractorStyle::LoadNextCameraPose()
   {
     return;
   }
-
-  vtkWarningMacro(<< "LoadNextCameraPose");
-
-  /*vtkOpenVROverlay* ovl = renWin->GetDashboardOverlay();
-  ovl->LoadNextCameraPose();*/
 }
 
 //------------------------------------------------------------------------------
@@ -774,23 +691,18 @@ void vtkOpenXRInteractorStyle::Clip(vtkEventDataDevice3D* ed)
   ori[3] = wori[3];
 
   // we have a position and a normal, that defines our plane
-  // plane->SetOrigin(wpos[0], wpos[1], wpos[2]);
-
   double r[3];
   double up[3];
   up[0] = 0;
   up[1] = -1;
   up[2] = 0;
   vtkMath::RotateVectorByWXYZ(up, ori, r);
-  // plane->SetNormal(r);
 
   vtkEventDataDevice dev = ed->GetDevice();
   int idev = static_cast<int>(dev);
   this->ClippingPlanes[idev]->SetNormal(r);
   this->ClippingPlanes[idev]->SetOrigin(wpos[0], wpos[1], wpos[2]);
 }
-
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Multitouch interaction methods
@@ -833,6 +745,7 @@ void vtkOpenXRInteractorStyle::OnPan()
     }
   }
 }
+
 //------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::OnPinch()
 {
@@ -862,6 +775,7 @@ void vtkOpenXRInteractorStyle::OnPinch()
     this->SetScale(camera, physicalScale / dyf);
   }
 }
+
 //------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::OnRotate()
 {
@@ -877,7 +791,7 @@ void vtkOpenXRInteractorStyle::OnRotate()
     double angle = this->Interactor->GetRotation() - this->Interactor->GetLastRotation();
     if (fabs(angle) > 90)
     {
-      // return;
+      return;
     }
 
     // rotate the world, aka rotate the physicalViewDirection about the physicalViewUp
@@ -900,7 +814,6 @@ void vtkOpenXRInteractorStyle::OnRotate()
     renWin->SetPhysicalViewDirection(newDOP);
   }
 }
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Utility routines
@@ -928,6 +841,7 @@ void vtkOpenXRInteractorStyle::MapInputToAction(
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::MapInputToAction(vtkCommand::EventIds eid, int state)
 {
   this->MapInputToAction(eid, vtkEventDataAction::Press, state);
@@ -954,8 +868,12 @@ void vtkOpenXRInteractorStyle::StartAction(int state, vtkEventDataDevice3D* edat
     case VTKIS_LOAD_CAMERA_POSE:
       this->StartLoadCamPose(edata);
       break;
+    default:
+      vtkWarningMacro(<< "StartAction: unknown state: " << state);
+      break;
   }
 }
+
 //------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::EndAction(int state, vtkEventDataDevice3D* edata)
 {
@@ -989,6 +907,9 @@ void vtkOpenXRInteractorStyle::EndAction(int state, vtkEventDataDevice3D* edata)
         this->Interactor->ExitCallback();
       }
       break;
+    default:
+      vtkWarningMacro(<< "EndAction: unknown state " << state);
+      break;
   }
 
   // Reset multitouch state because a button has been released
@@ -1001,10 +922,13 @@ void vtkOpenXRInteractorStyle::EndAction(int state, vtkEventDataDevice3D* edata)
       case VTKIS_ROTATE:
         this->InteractionState[d] = VTKIS_NONE;
         break;
+      default:
+        vtkWarningMacro(<< "EndAction: unknown interaction state " << d << ": "
+                        << this->InteractionState[d]);
+        break;
     }
   }
 }
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Handle Ray drawing and update
@@ -1021,13 +945,14 @@ void vtkOpenXRInteractorStyle::ShowRay(vtkEventDataDevice controller)
   }
 
   const int trackedDeviceIndex = renWin->GetTrackedDeviceIndexForDevice(controller);
-  vtkOpenXRRay* ray = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
+  vtkVRRay* ray = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
 
   if (ray)
   {
     ray->SetShow(true);
   }
 }
+
 //------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::HideRay(vtkEventDataDevice controller)
 {
@@ -1041,15 +966,13 @@ void vtkOpenXRInteractorStyle::HideRay(vtkEventDataDevice controller)
   }
 
   const int trackedDeviceIndex = renWin->GetTrackedDeviceIndexForDevice(controller);
-  vtkOpenXRRay* ray = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
+  vtkVRRay* ray = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
 
   if (ray)
   {
     ray->SetShow(false);
   }
 }
-
-#include "vtkRendererCollection.h"
 
 //------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
@@ -1063,7 +986,6 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
   vtkOpenXRRenderWindow* renWin =
     vtkOpenXRRenderWindow::SafeDownCast(this->Interactor->GetRenderWindow());
 
-  // Todo remove this
   this->CurrentRenderer = static_cast<vtkRenderer*>(renWin->GetRenderers()->GetItemAsObject(0));
 
   vtkOpenXRRenderWindowInteractor* iren =
@@ -1076,7 +998,7 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 
   // Get the index from the controller
   const int trackedDeviceIndex = renWin->GetTrackedDeviceIndexForDevice(controller);
-  vtkOpenXRRay* ray = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
+  vtkVRRay* ray = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
 
   if (!ray)
   {
@@ -1134,8 +1056,6 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
   XrPosef tdPose = iren->GetHandPose(trackedDeviceIndex);
   renWin->ConvertOpenXRPoseToWorldCoordinates(tdPose, p0, wxyz, dummy_ppos, wdir);
 
-  // vtkWarningMacro(<< "Hand " << trackedDeviceIndex << "\np0: " << p0 << ", wdir: " << wdir);
-
   // Compute ray length.
   this->InteractionPicker->Pick3DRay(p0, wxyz, ren);
 
@@ -1157,8 +1077,8 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 
   return;
 }
-//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::ShowBillboard(const std::string& text)
 {
   vtkOpenXRRenderWindow* renWin =
@@ -1170,68 +1090,15 @@ void vtkOpenXRInteractorStyle::ShowBillboard(const std::string& text)
   }
 
   vtkWarningMacro(<< "ShowBillboard");
-
-  /*renWin->UpdateHMDMatrixPose();
-  double dop[3];
-  ren->GetActiveCamera()->GetDirectionOfProjection(dop);
-  double vr[3];
-  double* vup = renWin->GetPhysicalViewUp();
-  double dtmp[3];
-  double vupdot = vtkMath::Dot(dop, vup);
-  if (fabs(vupdot) < 0.999)
-  {
-    dtmp[0] = dop[0] - vup[0] * vupdot;
-    dtmp[1] = dop[1] - vup[1] * vupdot;
-    dtmp[2] = dop[2] - vup[2] * vupdot;
-    vtkMath::Normalize(dtmp);
-  }
-  else
-  {
-    renWin->GetPhysicalViewDirection(dtmp);
-  }
-  vtkMath::Cross(dtmp, vup, vr);
-  vtkNew<vtkMatrix4x4> rot;
-  for (int i = 0; i < 3; ++i)
-  {
-    rot->SetElement(0, i, vr[i]);
-    rot->SetElement(1, i, vup[i]);
-    rot->SetElement(2, i, -dtmp[i]);
-  }
-  rot->Transpose();
-  double orient[3];
-  vtkTransform::GetOrientation(orient, rot);
-  vtkTextProperty* prop = this->TextActor3D->GetTextProperty();
-  this->TextActor3D->SetOrientation(orient);
-  this->TextActor3D->RotateX(-30.0);
-
-  double tpos[3];
-  double scale = renWin->GetPhysicalScale();
-  ren->GetActiveCamera()->GetPosition(tpos);
-  tpos[0] += (0.7 * scale * dop[0] - 0.1 * scale * vr[0] - 0.4 * scale * vup[0]);
-  tpos[1] += (0.7 * scale * dop[1] - 0.1 * scale * vr[1] - 0.4 * scale * vup[1]);
-  tpos[2] += (0.7 * scale * dop[2] - 0.1 * scale * vr[2] - 0.4 * scale * vup[2]);
-  this->TextActor3D->SetPosition(tpos);
-  // scale should cover 10% of FOV
-  double fov = ren->GetActiveCamera()->GetViewAngle();
-  double tsize = 0.1 * 2.0 * atan(fov * 0.5); // 10% of fov
-  tsize /= 200.0;                             // about 200 pixel texture map
-  scale *= tsize;
-  this->TextActor3D->SetScale(scale, scale, scale);
-  this->TextActor3D->SetInput(text.c_str());
-  this->CurrentRenderer->AddActor(this->TextActor3D);
-
-  prop->SetFrame(1);
-  prop->SetFrameColor(1.0, 1.0, 1.0);
-  prop->SetBackgroundOpacity(1.0);
-  prop->SetBackgroundColor(0.0, 0.0, 0.0);
-  prop->SetFontSize(14);*/
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::HideBillboard()
 {
   this->CurrentRenderer->RemoveActor(this->TextActor3D);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::ShowPickSphere(double* pos, double radius, vtkProp3D* prop)
 {
   this->PickActor->GetProperty()->SetColor(this->PickColor);
@@ -1252,6 +1119,7 @@ void vtkOpenXRInteractorStyle::ShowPickSphere(double* pos, double radius, vtkPro
   this->CurrentRenderer->AddActor(this->PickActor);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::ShowPickCell(vtkCell* cell, vtkProp3D* prop)
 {
   vtkNew<vtkPolyData> pd;
@@ -1313,6 +1181,7 @@ void vtkOpenXRInteractorStyle::ShowPickCell(vtkCell* cell, vtkProp3D* prop)
   this->CurrentRenderer->AddActor(this->PickActor);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenXRInteractorStyle::HidePickActor()
 {
   if (this->CurrentRenderer)
@@ -1332,68 +1201,5 @@ void vtkOpenXRInteractorStyle::AddTooltipForInput(
 void vtkOpenXRInteractorStyle::AddTooltipForInput(
   vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text)
 {
-  /*int iInput = static_cast<int>(input);
-  int iDevice = static_cast<int>(device);
-
-  vtkStdString controlName = vtkStdString();
-  vtkStdString controlText = vtkStdString();
-  int drawSide = -1;
-  int buttonSide = -1;
-
-  // Setup default text and layout
-  switch (input)
-  {
-    case vtkEventDataDeviceInput::Trigger:
-      controlName = "trigger";
-      drawSide = vtkOpenVRControlsHelper::Left;
-      buttonSide = vtkOpenVRControlsHelper::Back;
-      controlText = "Trigger :\n";
-      break;
-    case vtkEventDataDeviceInput::TrackPad:
-      controlName = "trackpad";
-      drawSide = vtkOpenVRControlsHelper::Right;
-      buttonSide = vtkOpenVRControlsHelper::Front;
-      controlText = "Trackpad :\n";
-      break;
-    case vtkEventDataDeviceInput::Grip:
-      controlName = "lgrip";
-      drawSide = vtkOpenVRControlsHelper::Right;
-      buttonSide = vtkOpenVRControlsHelper::Back;
-      controlText = "Grip :\n";
-      break;
-    case vtkEventDataDeviceInput::ApplicationMenu:
-      controlName = "button";
-      drawSide = vtkOpenVRControlsHelper::Left;
-      buttonSide = vtkOpenVRControlsHelper::Front;
-      controlText = "Application Menu :\n";
-      break;
-  }
-
-  controlText += text;
-
-  // Clean already existing helpers
-  if (this->ControlsHelpers[iDevice][iInput] != nullptr)
-  {
-    if (this->CurrentRenderer)
-    {
-      this->CurrentRenderer->RemoveViewProp(this->ControlsHelpers[iDevice][iInput]);
-    }
-    this->ControlsHelpers[iDevice][iInput]->Delete();
-    this->ControlsHelpers[iDevice][iInput] = nullptr;
-  }
-
-  // Create an input helper and add it to the renderer
-  vtkOpenVRControlsHelper* inputHelper = vtkOpenVRControlsHelper::New();
-  inputHelper->SetTooltipInfo(controlName.c_str(), buttonSide, drawSide, controlText.c_str());
-
-  this->ControlsHelpers[iDevice][iInput] = inputHelper;
-  this->ControlsHelpers[iDevice][iInput]->SetDevice(device);
-
-  if (this->CurrentRenderer)
-  {
-    this->ControlsHelpers[iDevice][iInput]->SetRenderer(this->CurrentRenderer);
-    this->ControlsHelpers[iDevice][iInput]->BuildRepresentation();
-    // this->ControlsHelpers[iDevice][iInput]->SetEnabled(false);
-    this->CurrentRenderer->AddViewProp(this->ControlsHelpers[iDevice][iInput]);
-  }*/
+  return;
 }

@@ -35,22 +35,72 @@ public:
   static vtkOpenXRUtilities* New();
   vtkTypeMacro(vtkOpenXRUtilities, vtkObject);
 
+  //@{
+  /**
+   * Given a field of view (left, right, up, down angles) and near/far
+   * clipping builds, return a projection matrix in result.
+   */
   static void CreateProjectionFov(
     vtkMatrix4x4* result, const XrFovf fov, const float nearZ, const float farZ);
+  //@}
+
+  //@{
+  /**
+   * Given an XR pose (orientation quaternion + position vector), return equivalent
+   * matrix in result.
+   */
   static void CreateMatrixFromXrPose(vtkMatrix4x4* result, const XrPosef& xrPose);
+  //@}
+
+  //@{
+  /**
+   * Given a quaternion, return elements of equivalent matrix as an array.
+   */
   static void CreateFromQuaternion(double result[16], const XrQuaternionf& quat);
+  //@}
+
+  //@{
+  /**
+   * Given an XR pose (orientation quaternion + position vector), return inverse
+   * transpose of the equivalent matrix in result.
+   */
   static void CreateViewMatrix(vtkMatrix4x4* result, const XrPosef& xrPose);
+  //@}
+
+  //@{
+  /**
+   * Given an XR pose (orientation quaternion + position vector), return transpose
+   * of the equivalent matrix in result.
+   */
   static void CreateModelMatrix(vtkMatrix4x4* result, const XrPosef& xrPose);
+  //@}
+
+  //@{
+  /**
+   * Return string representation of given XrActionType.
+   */
+  constexpr static const char* GetActionTypeAsString(const XrActionType& actionType);
+  //@}
+
+  //@{
+  /**
+   * Return string representation of given XrViewConfigurationType.
+   */
+  constexpr static const char* GetViewConfigurationTypeAsString(
+    const XrViewConfigurationType& viewConfigType);
+  //@}
+
+  //@{
+  /**
+   * Return string representation of given XrStructureType.
+   */
+  constexpr static const char* GetStructureTypeAsString(const XrStructureType& structureType);
+  //@}
 
   constexpr static XrPosef IdentityPose = {
     { 0.0, 0.0, 0.0, 1.0 }, // .orientation
     { 0.0, 0.0, 0.0 }       // .position
   };
-
-  constexpr static const char* GetActionTypeAsString(const XrActionType& actionType);
-  constexpr static const char* GetViewConfigurationTypeAsString(
-    const XrViewConfigurationType& viewConfigType);
-  constexpr static const char* GetStructureTypeAsString(const XrStructureType& structureType);
 
 protected:
   vtkOpenXRUtilities() = default;
@@ -501,3 +551,4 @@ constexpr const char* vtkOpenXRUtilities::GetStructureTypeAsString(
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOpenXRUtilities.h

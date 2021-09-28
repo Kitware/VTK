@@ -34,12 +34,12 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 
 vtkStandardNewMacro(vtkOpenXRRenderer);
 
+//------------------------------------------------------------------------------
 vtkOpenXRRenderer::vtkOpenXRRenderer()
 {
   // better default
   this->ClippingRangeExpansion = 0.05;
 
-  this->FloorActor = vtkActor::New();
   this->FloorActor->PickableOff();
 
   vtkNew<vtkPolyDataMapper> pdm;
@@ -80,14 +80,6 @@ vtkOpenXRRenderer::vtkOpenXRRenderer()
   texture->SetInputConnection(grid->GetOutputPort());
 
   this->FloorActor->SetUseBounds(false);
-
-  this->ShowFloor = false;
-}
-
-vtkOpenXRRenderer::~vtkOpenXRRenderer()
-{
-  this->FloorActor->Delete();
-  this->FloorActor = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -98,7 +90,9 @@ vtkCamera* vtkOpenXRRenderer::MakeCamera()
   return cam;
 }
 
+//------------------------------------------------------------------------------
 // adjust the floor if we need to
+//------------------------------------------------------------------------------
 void vtkOpenXRRenderer::DeviceRender()
 {
   if (this->ShowFloor)
@@ -127,6 +121,7 @@ void vtkOpenXRRenderer::DeviceRender()
   this->Superclass::DeviceRender();
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenXRRenderer::SetShowFloor(bool value)
 {
   if (this->ShowFloor == value)
@@ -146,15 +141,18 @@ void vtkOpenXRRenderer::SetShowFloor(bool value)
   }
 }
 
+//------------------------------------------------------------------------------
 // Automatically set up the camera based on the visible actors.
 // The camera will reposition itself to view the center point of the actors,
 // and move along its initial view plane normal (i.e., vector defined from
 // camera position to focal point) so that all of the actors can be seen.
+//------------------------------------------------------------------------------
 void vtkOpenXRRenderer::ResetCamera()
 {
   this->Superclass::ResetCamera();
 }
 
+//------------------------------------------------------------------------------
 // Automatically set up the camera based on a specified bounding box
 // (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
 // that its focal point is the center of the bounding box, and adjust its
@@ -162,6 +160,7 @@ void vtkOpenXRRenderer::ResetCamera()
 // (i.e., vector defined from camera position to focal point). Note: if
 // the view plane is parallel to the view up axis, the view up axis will
 // be reset to one of the three coordinate axes.
+//------------------------------------------------------------------------------
 void vtkOpenXRRenderer::ResetCamera(const double bounds[6])
 {
   double center[3];
@@ -267,7 +266,9 @@ void vtkOpenXRRenderer::ResetCamera(const double bounds[6])
   win->SetPhysicalScale(distance);
 }
 
+//------------------------------------------------------------------------------
 // Alternative version of ResetCamera(bounds[6]);
+//------------------------------------------------------------------------------
 void vtkOpenXRRenderer::ResetCamera(
   double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
 {
@@ -283,7 +284,9 @@ void vtkOpenXRRenderer::ResetCamera(
   this->ResetCamera(bounds);
 }
 
+//------------------------------------------------------------------------------
 // Reset the camera clipping range to include this entire bounding box
+//------------------------------------------------------------------------------
 void vtkOpenXRRenderer::ResetCameraClippingRange(const double bounds[6])
 {
   double range[2];
@@ -340,7 +343,10 @@ void vtkOpenXRRenderer::ResetCameraClippingRange(const double bounds[6])
   this->ActiveCamera->SetClippingRange(range[0] * physicalScale, range[1] * physicalScale);
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenXRRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "ShowFloor: " << this->ShowFloor;
+  this->FloorActor->PrintSelf(os, indent.GetNextIndent());
 }

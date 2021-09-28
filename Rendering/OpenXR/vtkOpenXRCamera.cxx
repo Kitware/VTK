@@ -47,20 +47,21 @@ vtkOpenXRCamera::vtkOpenXRCamera()
 void vtkOpenXRCamera::UpdateViewTransform(vtkOpenXRRenderWindow* win)
 {
   const uint32_t eye = this->LeftEye ? LEFT_EYE : RIGHT_EYE;
-  const XrPosef& xrPose = vtkOpenXRManager::GetInstance()->GetViewPose(eye);
+  const XrPosef* xrPose = vtkOpenXRManager::GetInstance()->GetViewPose(eye);
+
+  if (xrPose == nullptr)
+  {
+    vtkErrorMacro(<< "No pose for eye " << eye << ", cannot update view transform");
+    return;
+  }
 
   // Convert a XrPosef to a vtk view matrix
   vtkNew<vtkMatrix4x4> viewMatrix;
-  vtkOpenXRUtilities::CreateViewMatrix(viewMatrix, xrPose);
+  vtkOpenXRUtilities::CreateViewMatrix(viewMatrix, *xrPose);
 
   // Transform from physical to world space
   vtkNew<vtkMatrix4x4> physicalToWorldMatrix;
   win->GetPhysicalToWorldMatrix(physicalToWorldMatrix);
-
-  // Remove scale
-  /*physicalToWorldMatrix->SetElement(0,0,1.0);
-  physicalToWorldMatrix->SetElement(1,1,1.0);
-  physicalToWorldMatrix->SetElement(2,2,1.0);*/
 
   vtkMatrix4x4::Multiply4x4(viewMatrix, physicalToWorldMatrix, viewMatrix);
 
@@ -72,13 +73,19 @@ void vtkOpenXRCamera::UpdateViewTransform(vtkOpenXRRenderWindow* win)
 void vtkOpenXRCamera::UpdateProjectionMatrix()
 {
   const uint32_t eye = this->LeftEye ? LEFT_EYE : RIGHT_EYE;
-  const XrFovf& xrFov = vtkOpenXRManager::GetInstance()->GetProjectionFov(eye);
+  const XrFovf* xrFov = vtkOpenXRManager::GetInstance()->GetProjectionFov(eye);
+
+  if (xrFov == nullptr)
+  {
+    vtkErrorMacro(<< "No fov for eye " << eye << ", cannot update projection matrix");
+    return;
+  }
 
   double znear = this->ClippingRange[0];
   double zfar = this->ClippingRange[1];
 
   vtkNew<vtkMatrix4x4> projMatrix;
-  vtkOpenXRUtilities::CreateProjectionFov(projMatrix, xrFov, znear, zfar);
+  vtkOpenXRUtilities::CreateProjectionFov(projMatrix, *xrFov, znear, zfar);
 
   this->SetUseExplicitProjectionTransformMatrix(true);
   this->SetExplicitProjectionTransformMatrix(projMatrix);
@@ -107,4 +114,10 @@ void vtkOpenXRCamera::Render(vtkRenderer* ren)
   }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRCamera::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 }

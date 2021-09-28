@@ -51,23 +51,17 @@
 int TestDragon(int argc, char* argv[])
 {
   vtkNew<vtkOpenVRRenderer> renderer;
-
-  // vtkNew<vtkRenderer> renderer;
-
   vtkNew<vtkOpenVRRenderWindow> renderWindow;
-
-  // vtkNew<vtkOpenVRRenderWindowInteractor> iren;
-  vtkNew<vtkRenderWindowInteractor> iren;
-
+  vtkNew<vtkOpenVRRenderWindowInteractor> iren;
   vtkNew<vtkOpenVRCamera> cam;
-  // renderer->SetShowFloor(true);
+  renderer->SetShowFloor(true);
 
   vtkNew<vtkActor> actor;
   renderer->SetBackground(0.2, 0.3, 0.4);
   renderWindow->AddRenderer(renderer);
   renderer->AddActor(actor);
   iren->SetRenderWindow(renderWindow);
-  // renderer->SetActiveCamera(cam);
+  renderer->SetActiveCamera(cam);
 
   // renderer->UseShadowsOn();
 

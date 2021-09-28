@@ -49,17 +49,19 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenXRRenderWindow_h
 #define vtkOpenXRRenderWindow_h
 
-#include "vtkEventData.h"    // for enums
-#include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenXR.h"
-#include "vtkOpenXRRay.h"
 #include "vtkRenderingOpenXRModule.h" // For export macro
+
+#include "vtkEventData.h"
+#include "vtkOpenGLHelper.h"
+#include "vtkOpenXR.h"
+#include "vtkVRRay.h"
 
 #include <array>  // array
 #include <vector> // vector
 
 class vtkMatrix4x4;
+class vtkVRRay;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkOpenGLRenderWindow
 {
@@ -68,14 +70,12 @@ public:
   {
     PhysicalToWorldMatrixModified = vtkCommand::UserEvent + 200
   };
-
   static vtkOpenXRRenderWindow* New();
   vtkTypeMacro(vtkOpenXRRenderWindow, vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create an interactor to control renderers in this window.
-   * Creates one specific to OpenXR
    */
   vtkRenderWindowInteractor* MakeRenderWindowInteractor() override;
 
@@ -87,7 +87,7 @@ public:
   /**
    * Begin the rendering process.
    */
-  virtual void Start(void) override;
+  void Start() override;
 
   /**
    * Free up any graphics resources associated with this window
@@ -99,85 +99,89 @@ public:
    * Update the system, if needed, due to stereo rendering. For some stereo
    * methods, subclasses might need to switch some hardware settings here.
    */
-  virtual void StereoUpdate() override;
+  void StereoUpdate() override;
 
   /**
    * Intermediate method performs operations required between the rendering
    * of the left and right eye.
    */
-  virtual void StereoMidpoint() override;
+  void StereoMidpoint() override;
 
   /**
    * Handles work required once both views have been rendered when using
    * stereo rendering.
    */
-  virtual void StereoRenderComplete() override;
+  void StereoRenderComplete() override;
 
   /**
    * Overridden to not release resources that would interfere with an external
    * application's rendering. Avoiding round trip.
    */
-  virtual void Render() override;
+  void Render() override;
+  //@}
 
+  //@{
   /**
    * Initialize the rendering window.  This will setup all system-specific
    * resources.  This method and Finalize() must be symmetric and it
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  virtual void Initialize(void) override;
+  void Initialize() override;
 
   /**
    * Finalize the rendering window.  This will shutdown all system-specific
    * resources.  After having called this, it should be possible to destroy
    * a window that was used for a SetWindowId() call without any ill effects.
    */
-  virtual void Finalize(void) override;
+  void Finalize() override;
 
   /**
    * Make this windows OpenGL context the current context.
    */
-  void MakeCurrent();
+  void MakeCurrent() override;
 
   /**
    * Tells if this window is the current OpenGL context for the calling thread.
    */
-  virtual bool IsCurrent();
+  bool IsCurrent() override;
 
   /**
    * Get report of capabilities for the render window
    */
-  const char* ReportCapabilities() { return "OpenXR System"; }
+  const char* ReportCapabilities() override { return "OpenXR System"; }
 
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  vtkTypeBool IsDirect() { return 1; }
+  vtkTypeBool IsDirect() override { return 1; }
 
   /**
    * Check to see if a mouse button has been pressed or mouse wheel activated.
    * All other events are ignored by this method.
    * Maybe should return 1 always?
    */
-  virtual vtkTypeBool GetEventPending() { return 0; }
+  vtkTypeBool GetEventPending() override { return 0; }
 
   // implement required virtual functions
-  virtual void* GetGenericDisplayId() { return (void*)this->HelperWindow->GetGenericDisplayId(); }
-  virtual void* GetGenericWindowId() { return (void*)this->HelperWindow->GetGenericWindowId(); }
-  virtual void* GetGenericParentId() { return (void*)nullptr; }
-  virtual void* GetGenericContext() { return (void*)this->HelperWindow->GetGenericContext(); }
-  virtual void* GetGenericDrawable() { return (void*)this->HelperWindow->GetGenericDrawable(); }
+  void* GetGenericDisplayId() override { return (void*)this->HelperWindow->GetGenericDisplayId(); }
+  void* GetGenericWindowId() override { return (void*)this->HelperWindow->GetGenericWindowId(); }
+  void* GetGenericParentId() override { return (void*)nullptr; }
+  void* GetGenericContext() override { return (void*)this->HelperWindow->GetGenericContext(); }
+  void* GetGenericDrawable() override { return (void*)this->HelperWindow->GetGenericDrawable(); }
 
   /**
    * Does this render window support OpenGL? 0-false, 1-true
    */
-  virtual int SupportsOpenGL() { return 1; }
+  int SupportsOpenGL() override { return 1; }
 
+  //@{
   /**
-   * Set/Get the window to use for the openGL context
+   * Set/Get the helper render window to use for the openGL context
    */
   vtkGetObjectMacro(HelperWindow, vtkOpenGLRenderWindow);
   void SetHelperWindow(vtkOpenGLRenderWindow* val);
+  //@}
 
   // Get the state object used to keep track of
   // OpenGL state
@@ -252,18 +256,24 @@ public:
   vtkGetMacro(PhysicalScale, double);
   //@}
 
+  //@{
   /**
    * Set physical to world transform matrix. Members calculated and set from the matrix:
    * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
    * The x axis scale is used for \sa PhysicalScale
    */
   void SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
+  //@}
+
+  //@{
   /**
    * Get physical to world transform matrix. Members used to calculate the matrix:
    * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
    */
   void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
+  //@}
 
+  //@{
   /*
    * Convert a device pose to pose matrices
    * \param poseMatrixPhysical Optional output pose matrix in physical space
@@ -271,7 +281,9 @@ public:
    */
   void ConvertOpenXRPoseToMatrices(const XrPosef& xrPose, vtkMatrix4x4* poseMatrixWorld,
     vtkMatrix4x4* poseMatrixPhysical = nullptr);
+  //@}
 
+  //@{
   /*
    * Convert a device pose to a world coordinate position and orientation
    * \param pos  Output world position
@@ -281,31 +293,54 @@ public:
    */
   void ConvertOpenXRPoseToWorldCoordinates(
     const XrPosef& xrPose, double pos[3], double wxyz[4], double ppos[3], double wdir[3]);
+  //@}
 
+  //@{
   /*
    * Get the index corresponding to this EventDataDevice
    */
   const int GetTrackedDeviceIndexForDevice(vtkEventDataDevice);
+  //@}
 
+  //@{
   /*
-   * Get the OpenXRModel corresponding to the device index
-   * For instance a ray only, @todo create vtkOpenXRModel
+   * Get the OpenXRModel corresponding to the device index.
    */
-  vtkOpenXRRay* GetTrackedDeviceModel(const int idx);
+  vtkVRRay* GetTrackedDeviceModel(const int idx);
+  //@}
 
+  //@{
   /**
    * True if the window has been initialized successfully.
    */
   vtkGetMacro(Initialized, bool);
+  //@}
 
+  //@{
+  /**
+   * Set the active state (active: true / inactive: false) of the specified hand.
+   */
   void SetModelActiveState(const int hand, bool state) { this->ModelsActiveState[hand] = state; }
+  //@}
 
 protected:
   vtkOpenXRRenderWindow();
   ~vtkOpenXRRenderWindow() override;
 
-  virtual void CreateAWindow() {}
-  virtual void DestroyWindow() {}
+  void CreateAWindow() override {}
+  void DestroyWindow() override {}
+
+  // Create one framebuffer per view
+  void CreateFramebuffers(uint32_t viewCount);
+
+  struct FramebufferDesc;
+
+  bool BindTextureToFramebuffer(FramebufferDesc& framebufferDesc);
+  void RenderFramebuffer(FramebufferDesc& framebufferDesc);
+
+  void RenderOneEye(const uint32_t eye);
+
+  void RenderModels();
 
   vtkOpenGLRenderWindow* HelperWindow;
 
@@ -322,13 +357,6 @@ protected:
   // One per view (typically one per eye)
   std::vector<FramebufferDesc> FramebufferDescs;
 
-  // Create one framebuffer per view
-  void CreateFramebuffers(uint32_t viewCount);
-  bool BindTextureToFramebuffer(FramebufferDesc& framebufferDesc);
-  void RenderFramebuffer(FramebufferDesc& framebufferDesc);
-
-  void RenderOneEye(const uint32_t eye);
-
   // TO BE generic
   /// -Z axis of the Physical to World matrix
   double PhysicalViewDirection[3];
@@ -339,16 +367,12 @@ protected:
   /// Scale of the Physical to World matrix
   double PhysicalScale;
 
-  // For instance, the models are only ray
-  // (todo create OpenXRModel with gltf representation
-  // of the controller using the XR_MSFT_controller_model extension)
-  std::array<vtkSmartPointer<vtkOpenXRRay>, 2> Models;
+  // Controller models (currently just a ray)
+  std::array<vtkSmartPointer<vtkVRRay>, 2> Models;
 
   // Store if a model is active or not here as openxr do not have a concept
   // of active/inactive controller
   std::array<bool, 2> ModelsActiveState = { true, true };
-
-  void RenderModels();
 
 private:
   vtkOpenXRRenderWindow(const vtkOpenXRRenderWindow&) = delete;
@@ -356,3 +380,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOpenXRRenderWindow.h

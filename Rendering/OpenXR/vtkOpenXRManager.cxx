@@ -31,9 +31,10 @@
 struct vtkXVisualInfo : public XVisualInfo
 {
 };
-#endif
+#endif // VTK_USE_X
 
 #include <cstring>
+#include <iostream>
 #include <string>
 #include <tuple>
 
@@ -46,16 +47,17 @@ struct vtkXVisualInfo : public XVisualInfo
 
 vtkStandardNewMacro(vtkOpenXRManager);
 
+vtkOpenXRManager* vtkOpenXRManager::UniqueInstance = nullptr;
+
 //----------------------------------------------------------------------------
 vtkOpenXRManager* vtkOpenXRManager::GetInstance()
 {
-  static vtkSmartPointer<vtkOpenXRManager> Instance;
-  if (Instance.GetPointer() == nullptr)
+  if (!vtkOpenXRManager::UniqueInstance)
   {
-    Instance = vtkSmartPointer<vtkOpenXRManager>::New();
+    vtkOpenXRManager::UniqueInstance = new vtkOpenXRManager();
   }
 
-  return Instance;
+  return vtkOpenXRManager::UniqueInstance;
 }
 
 //------------------------------------------------------------------------------
@@ -65,42 +67,50 @@ bool vtkOpenXRManager::Initialize(vtkOpenGLRenderWindow* helperWindow)
 
   if (!this->CreateInstance())
   {
+    vtkWarningMacro("Initialize failed to CreateInstance");
     return false;
   }
 
   // Create the SubactionPaths (left / right hand and head)
   if (!this->CreateSubactionPaths())
   {
+    vtkWarningMacro("Initialize failed to CreateSubactionPaths");
     return false;
   }
 
   if (!this->CreateSystem())
   {
+    vtkWarningMacro("Initialize failed to CreateSystem");
     return false;
   }
 
   if (!this->CheckGraphicsRequirements())
   {
+    vtkWarningMacro("Initialize failed in CheckGraphicsRequirements");
     return false;
   }
 
   if (!this->CreateGraphicsBinding(helperWindow))
   {
+    vtkWarningMacro("Initialize failed to CreateGraphicsBinding");
     return false;
   }
 
   if (!this->CreateSession())
   {
+    vtkWarningMacro("Initialize failed to CreateSession");
     return false;
   }
 
   if (!this->CreateReferenceSpace())
   {
+    vtkWarningMacro("Initialize failed to CreateReferenceSpace");
     return false;
   }
 
   if (!this->CreateSwapchains())
   {
+    vtkWarningMacro("Initialize failed to CreateSwapChains");
     return false;
   }
 
@@ -221,7 +231,6 @@ bool vtkOpenXRManager::WaitAndBeginFrame()
 
     if (viewCountOutput != viewCount)
     {
-      // Error?
       vtkWarningMacro(<< "ViewCountOutput (" << viewCountOutput << ") is different than ViewCount ("
                       << viewCount << ") !");
     }
@@ -281,8 +290,6 @@ bool vtkOpenXRManager::PrepareRendering(
     this->RenderResources->DepthInfoViews[eye] = { XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR };
     this->RenderResources->DepthInfoViews[eye].minDepth = 0;
     this->RenderResources->DepthInfoViews[eye].maxDepth = 1;
-    // TODO choose near / far better ?
-    // Use reversed-Z (near > far) for more uniform Z resolution.
     this->RenderResources->DepthInfoViews[eye].nearZ = 0.1;
     this->RenderResources->DepthInfoViews[eye].farZ = 20.0;
     this->RenderResources->DepthInfoViews[eye].subImage.swapchain = depthSwapchain.Swapchain;
@@ -346,10 +353,6 @@ bool vtkOpenXRManager::EndFrame()
   frameEndInfo.layerCount = (uint32_t)this->LayersToSubmit.size();
   frameEndInfo.layers = this->LayersToSubmit.data();
   xrEndFrame(this->Session, &frameEndInfo);
-  /*if (!this->XrCheckError(xrEndFrame(this->Session, &frameEndInfo), "Failed to end frame !"))
-  {
-    return false;
-  }*/
 
   return true;
 }
@@ -418,29 +421,31 @@ void vtkOpenXRManager::PrintInstanceProperties()
   this->XrCheckWarn(
     xrGetInstanceProperties(this->Instance, &instanceProperties), "Failed to get instance info");
 
-  vtkDebugMacro(<< "Runtime Name: " << instanceProperties.runtimeName);
-  vtkDebugMacro(<< "Runtime Version: " << XR_VERSION_MAJOR(instanceProperties.runtimeVersion) << "."
-                << XR_VERSION_MINOR(instanceProperties.runtimeVersion) << "."
-                << XR_VERSION_PATCH(instanceProperties.runtimeVersion));
+  std::cout << "Runtime Name: " << instanceProperties.runtimeName;
+  std::cout << "Runtime Version: " << XR_VERSION_MAJOR(instanceProperties.runtimeVersion) << "."
+            << XR_VERSION_MINOR(instanceProperties.runtimeVersion) << "."
+            << XR_VERSION_PATCH(instanceProperties.runtimeVersion) << std::endl;
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenXRManager::PrintSystemProperties(XrSystemProperties* systemProperties)
 {
-  vtkDebugMacro(<< "System Properties for system id:" << systemProperties->systemId
-                << ", with name \"" << systemProperties->systemName << "\""
-                << ", vendorID=" << systemProperties->vendorId);
+  std::cout << "System Properties for system id:" << systemProperties->systemId << ", with name \""
+            << systemProperties->systemName << "\""
+            << ", vendorID=" << systemProperties->vendorId << std::endl;
 
-  vtkDebugMacro(<< "\tMax Layers          : "
-                << systemProperties->graphicsProperties.maxLayerCount);
-  vtkDebugMacro(<< "\tMax Swapchain Height: "
-                << systemProperties->graphicsProperties.maxSwapchainImageHeight);
-  vtkDebugMacro(<< "\tMax Swapchain Width : "
-                << systemProperties->graphicsProperties.maxSwapchainImageWidth);
-  vtkDebugMacro(<< "\tOrientation Tracking: "
-                << (systemProperties->trackingProperties.orientationTracking ? "True" : "False"));
-  vtkDebugMacro(<< "\tPosition Tracking   : "
-                << (systemProperties->trackingProperties.positionTracking ? "True" : "False"));
+  std::cout << "\tMax Layers          : " << systemProperties->graphicsProperties.maxLayerCount
+            << std::endl;
+  std::cout << "\tMax Swapchain Height: "
+            << systemProperties->graphicsProperties.maxSwapchainImageHeight << std::endl;
+  std::cout << "\tMax Swapchain Width : "
+            << systemProperties->graphicsProperties.maxSwapchainImageWidth << std::endl;
+  std::cout << "\tOrientation Tracking: "
+            << (systemProperties->trackingProperties.orientationTracking ? "True" : "False")
+            << std::endl;
+  std::cout << "\tPosition Tracking   : "
+            << (systemProperties->trackingProperties.positionTracking ? "True" : "False")
+            << std::endl;
 
   const XrBaseInStructure* next = static_cast<XrBaseInStructure*>(systemProperties->next);
   while (next)
@@ -453,7 +458,7 @@ void vtkOpenXRManager::PrintSystemProperties(XrSystemProperties* systemPropertie
       {
         (void)ht;
       }
-      vtkDebugMacro(<< "\tHand Tracking       : " << ht->supportsHandTracking);
+      std::cout << "\tHand Tracking       : " << ht->supportsHandTracking << std::endl;
     }
     next = next->next;
   }
@@ -467,7 +472,7 @@ void vtkOpenXRManager::PrintSupportedViewConfigs()
     xrEnumerateViewConfigurations(this->Instance, this->SystemId, 0, &viewConfigCount, nullptr),
     "Failed to get view configuration count");
 
-  vtkDebugMacro(<< "Runtime supports " << viewConfigCount << " view configurations");
+  std::cout << "Runtime supports " << viewConfigCount << " view configurations" << std::endl;
 
   std::vector<XrViewConfigurationType> viewConfigs(viewConfigCount);
   this->XrCheckWarn(xrEnumerateViewConfigurations(this->Instance, this->SystemId, viewConfigCount,
@@ -481,10 +486,9 @@ void vtkOpenXRManager::PrintSupportedViewConfigs()
       xrGetViewConfigurationProperties(this->Instance, this->SystemId, viewConfigs[i], &props),
       "Failed to get view configuration info " + i);
 
-    vtkDebugMacro(<< "Type "
-                  << vtkOpenXRUtilities::GetViewConfigurationTypeAsString(
-                       props.viewConfigurationType)
-                  << ": FOV mutable: " << (props.fovMutable ? "True" : "False"));
+    std::cout << "Type "
+              << vtkOpenXRUtilities::GetViewConfigurationTypeAsString(props.viewConfigurationType)
+              << ": FOV mutable: " << (props.fovMutable ? "True" : "False") << std::endl;
   }
 }
 
@@ -499,12 +503,12 @@ void vtkOpenXRManager::PrintViewConfigViewInfo(
     {
       (void)vcfgv;
     }
-    vtkDebugMacro(<< "View Configuration View " << i);
-    vtkDebugMacro(<< "\tResolution       : Recommended: " << vcfgv.recommendedImageRectWidth << "x"
-                  << vcfgv.recommendedImageRectHeight << ", Max: " << vcfgv.maxImageRectWidth << "x"
-                  << vcfgv.maxImageRectHeight);
-    vtkDebugMacro("\tSwapchain Samples: Recommended: "
-      << vcfgv.recommendedSwapchainSampleCount << ", Max: " << vcfgv.maxSwapchainSampleCount);
+    std::cout << "View Configuration View " << i << std::endl;
+    std::cout << "\tResolution       : Recommended: " << vcfgv.recommendedImageRectWidth << "x"
+              << vcfgv.recommendedImageRectHeight << ", Max: " << vcfgv.maxImageRectWidth << "x"
+              << vcfgv.maxImageRectHeight << std::endl;
+    std::cout << "\tSwapchain Samples: Recommended: " << vcfgv.recommendedSwapchainSampleCount
+              << ", Max: " << vcfgv.maxSwapchainSampleCount << std::endl;
   }
 }
 
@@ -520,24 +524,24 @@ bool vtkOpenXRManager::PrintReferenceSpaces()
     xrEnumerateReferenceSpaces(this->Session, refSpaceCount, &refSpaceCount, refSpaces.data()),
     "Enumerating reference spaces failed!");
 
-  vtkDebugMacro(<< "Runtime supports " << refSpaceCount << " reference spaces:");
+  std::cout << "Runtime supports " << refSpaceCount << " reference spaces:" << std::endl;
   for (uint32_t i = 0; i < refSpaceCount; i++)
   {
     if (refSpaces[i] == XR_REFERENCE_SPACE_TYPE_LOCAL)
     {
-      vtkDebugMacro(<< "\tXR_REFERENCE_SPACE_TYPE_LOCAL");
+      std::cout << "\tXR_REFERENCE_SPACE_TYPE_LOCAL" << std::endl;
     }
     else if (refSpaces[i] == XR_REFERENCE_SPACE_TYPE_STAGE)
     {
-      vtkDebugMacro(<< "\tXR_REFERENCE_SPACE_TYPE_STAGE");
+      std::cout << "\tXR_REFERENCE_SPACE_TYPE_STAGE" << std::endl;
     }
     else if (refSpaces[i] == XR_REFERENCE_SPACE_TYPE_VIEW)
     {
-      vtkDebugMacro(<< "\tXR_REFERENCE_SPACE_TYPE_VIEW");
+      std::cout << "\tXR_REFERENCE_SPACE_TYPE_VIEW" << std::endl;
     }
     else
     {
-      vtkDebugMacro(<< "\tOther (extension?) refspace : " << refSpaces[i]);
+      std::cout << "\tOther (extension?) refspace : " << refSpaces[i] << std::endl;
     }
   }
 
@@ -577,15 +581,6 @@ std::vector<const char*> vtkOpenXRManager::SelectExtensions()
 
   this->OptionalExtensions.ControllerModelExtensionSupported =
     EnableExtensionIfSupported(XR_MSFT_CONTROLLER_MODEL_EXTENSION_NAME);
-  // Additional optional extensions for enhanced functionality. Track whether enabled in
-  // this->OptionalExtensions. this->OptionalExtensions.DepthExtensionSupported =
-  // EnableExtensionIfSupported(XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME);
-  // this->OptionalExtensions.UnboundedRefSpaceSupported =
-  // EnableExtensionIfSupported(XR_MSFT_UNBOUNDED_REFERENCE_SPACE_EXTENSION_NAME);
-  // this->OptionalExtensions.SpatialAnchorSupported =
-  // EnableExtensionIfSupported(XR_MSFT_SPATIAL_ANCHOR_EXTENSION_NAME);
-  // this->OptionalExtensions.HandTrackingSupported =
-  // EnableExtensionIfSupported(XR_EXT_HAND_TRACKING_EXTENSION_NAME);
 
   this->PrintOptionalExtensions();
 
@@ -597,23 +592,23 @@ void vtkOpenXRManager::PrintOptionalExtensions()
 {
   if (this->OptionalExtensions.DepthExtensionSupported)
   {
-    vtkDebugMacro(<< "Optional extensions DepthExtension is supported");
+    std::cout << "Optional extensions DepthExtension is supported" << std::endl;
   }
   if (this->OptionalExtensions.ControllerModelExtensionSupported)
   {
-    vtkDebugMacro(<< "Optional extensions ControllerModelExtensionSupported is supported");
+    std::cout << "Optional extensions ControllerModelExtensionSupported is supported" << std::endl;
   }
   if (this->OptionalExtensions.UnboundedRefSpaceSupported)
   {
-    vtkDebugMacro(<< "Optional extensions UnboundedRefSpaceSupported is supported");
+    std::cout << "Optional extensions UnboundedRefSpaceSupported is supported" << std::endl;
   }
   if (this->OptionalExtensions.SpatialAnchorSupported)
   {
-    vtkDebugMacro(<< "Optional extensions SpatialAnchorSupported is supported");
+    std::cout << "Optional extensions SpatialAnchorSupported is supported" << std::endl;
   }
   if (this->OptionalExtensions.HandTrackingSupported)
   {
-    vtkDebugMacro(<< "Optional extensions HandTrackingSupported is supported");
+    std::cout << "Optional extensions HandTrackingSupported is supported" << std::endl;
   }
 }
 
@@ -647,7 +642,6 @@ bool vtkOpenXRManager::CreateInstance()
 
   createInfo.applicationInfo = applicationInfo;
 
-  // Todo fill application name ?
   if (!this->XrCheckError(
         xrCreateInstance(&createInfo, &this->Instance), "Failed to create XR instance."))
   {
@@ -814,9 +808,8 @@ bool vtkOpenXRManager::CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow
   auto glxHelperWindow = vtkXOpenGLRenderWindow::SafeDownCast(helperWindow);
   vtkXVisualInfo* visualInfo = glxHelperWindow->GetDesiredVisualInfo();
   graphicsBindingGLX->visualid = visualInfo->visualid;
-  // graphicsBindingGLX.glxFBConfig =
 
-#elif WIN32
+#elif _WIN32
   auto graphicsBindingGLWin32 =
     std::shared_ptr<XrGraphicsBindingOpenGLWin32KHR>(new XrGraphicsBindingOpenGLWin32KHR{
       XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR, // .type
@@ -830,8 +823,7 @@ bool vtkOpenXRManager::CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow
   graphicsBindingGLWin32->hGLRC = reinterpret_cast<HGLRC>(helperWindow->GetGenericDisplayId());
 
 #else
-  // Android ?
-  vtkErrorMacro(<< "Only X11 or Win32 is supported for instance.");
+  vtkErrorMacro(<< "Only X11 and Win32 are supported at the moment.");
   return false;
 #endif
 
@@ -1101,7 +1093,6 @@ bool vtkOpenXRManager::CreateActionSet(
   }
   this->ActionSets.push_back(actionSet);
 
-  // todo maybe store in a map to get it by name
   return true;
 }
 
@@ -1276,7 +1267,6 @@ bool vtkOpenXRManager::UpdateActionData(Action_t& action_t, const int hand)
     nullptr,                       // .next
     action_t.Action,               // .action
     this->SubactionPaths[hand],    // .subactionPath
-    // todo store paths in interactor?
   };
 
   // we store the state of the action, depending on the selected hand

@@ -27,12 +27,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkNew.h"                // for ivars
 #include "vtkOpenXRRenderWindow.h" // for enums
 
+class vtkCallbackCommand;
 class vtkCell;
 class vtkPlane;
 // class vtkOpenVRControlsHelper;
-class vtkOpenXRHardwarePicker;
-class vtkOpenXRMenuRepresentation;
-class vtkOpenXRMenuWidget;
+class vtkVRHardwarePicker;
+class vtkVRMenuRepresentation;
+class vtkVRMenuWidget;
 class vtkTextActor3D;
 class vtkSelection;
 class vtkSphereSource;
@@ -82,7 +83,7 @@ public:
 
   //@{
   /**
-   * Methods for intertaction.
+   * Methods for interaction.
    */
   void ProbeData(vtkEventDataDevice controller);
   void LoadNextCameraPose();
@@ -129,28 +130,77 @@ public:
   vtkBooleanMacro(GrabWithRay, bool);
   //@}
 
+  //@{
+  /**
+   * Get the interaction state for a device (dolly, pick, none, etc...)
+   */
   int GetInteractionState(vtkEventDataDevice device)
   {
     return this->InteractionState[static_cast<int>(device)];
   }
+  //@}
 
+  //@{
+  /**
+   * Show/hide ray for a given controller.
+   */
   void ShowRay(vtkEventDataDevice controller);
   void HideRay(vtkEventDataDevice controller);
+  //@}
 
+  //@{
+  /**
+   * Show billboard with given text, or hide billboard.
+   */
   void ShowBillboard(const std::string& text);
   void HideBillboard();
+  //@}
 
+  //@{
+  /**
+   * Make the pick actor a sphere of given radius centered at given position,
+   * and show it.
+   */
   void ShowPickSphere(double* pos, double radius, vtkProp3D*);
-  void ShowPickCell(vtkCell* cell, vtkProp3D*);
-  void HidePickActor();
+  //@}
 
+  //@{
+  /**
+   * Make the pick actor a polydata built from the points and edges of the
+   * given cell, and show it.
+   */
+  void ShowPickCell(vtkCell* cell, vtkProp3D*);
+  //@}
+
+  //@{
+  /**
+   * Hide the pick actor (sphere or polydata).
+   */
+  void HidePickActor();
+  //@}
+
+  //@{
+  /**
+   * Control visibility of descriptive tooltips for control/hmd models
+   */
   void ToggleDrawControls();
   void SetDrawControls(bool);
+  //@}
 
+  //@{
+  /**
+   * Set/Get the Interactor wrapper being controlled by this object.
+   * (Satisfy superclass API.)
+   */
   void SetInteractor(vtkRenderWindowInteractor* iren) override;
+  //@}
 
-  // allow the user to add options to the menu
-  vtkOpenXRMenuWidget* GetMenu() { return this->Menu.Get(); }
+  //@{
+  /**
+   * aReturn a menu to allow the user to add options to it.
+   */
+  vtkVRMenuWidget* GetMenu() { return this->Menu.Get(); }
+  //@}
 
 protected:
   vtkOpenXRInteractorStyle();
@@ -161,20 +211,8 @@ protected:
   // Ray drawing
   void UpdateRay(vtkEventDataDevice controller);
 
-  vtkNew<vtkOpenXRMenuWidget> Menu;
-  vtkNew<vtkOpenXRMenuRepresentation> MenuRepresentation;
-  vtkCallbackCommand* MenuCommand;
   static void MenuCallback(
     vtkObject* object, unsigned long event, void* clientdata, void* calldata);
-
-  vtkNew<vtkTextActor3D> TextActor3D;
-  vtkNew<vtkActor> PickActor;
-  vtkNew<vtkSphereSource> Sphere;
-
-  // device input to interaction state mapping
-  std::map<std::tuple<vtkCommand::EventIds, vtkEventDataAction>, int> InputMap;
-  // vtkOpenVRControlsHelper*
-  // ControlsHelpers[vtkEventDataNumberOfDevices][vtkEventDataNumberOfInputs];
 
   // Utility routines
   void StartAction(int VTKIS_STATE, vtkEventDataDevice3D* edata);
@@ -183,8 +221,22 @@ protected:
   // Pick using hardware selector
   bool HardwareSelect(vtkEventDataDevice controller, bool actorPassOnly);
 
-  bool HoverPick;
-  bool GrabWithRay;
+  // Controls helpers drawing
+  void AddTooltipForInput(vtkEventDataDevice device, vtkEventDataDeviceInput input);
+
+  vtkNew<vtkVRMenuWidget> Menu;
+  vtkNew<vtkVRMenuRepresentation> MenuRepresentation;
+  vtkNew<vtkCallbackCommand> MenuCommand;
+
+  vtkNew<vtkTextActor3D> TextActor3D;
+  vtkNew<vtkActor> PickActor;
+  vtkNew<vtkSphereSource> Sphere;
+
+  // device input to interaction state mapping
+  std::map<std::tuple<vtkCommand::EventIds, vtkEventDataAction>, int> InputMap;
+
+  bool HoverPick = false;
+  bool GrabWithRay = true;
 
   /**
    * Store required controllers information when performing action
@@ -193,12 +245,7 @@ protected:
   vtkProp3D* InteractionProps[vtkEventDataNumberOfDevices];
   vtkPlane* ClippingPlanes[vtkEventDataNumberOfDevices];
 
-  vtkNew<vtkOpenXRHardwarePicker> HardwarePicker;
-
-  /**
-   * Controls helpers drawing
-   */
-  void AddTooltipForInput(vtkEventDataDevice device, vtkEventDataDeviceInput input);
+  vtkNew<vtkVRHardwarePicker> HardwarePicker;
 
 private:
   vtkOpenXRInteractorStyle(const vtkOpenXRInteractorStyle&) = delete;

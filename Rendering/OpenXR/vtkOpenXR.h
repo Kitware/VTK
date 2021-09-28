@@ -1,11 +1,11 @@
-#ifndef _OpenXR_h
-#define _OpenXR_h
+#ifndef vtkOpenXR_h
+#define vtkOpenXR_h
 
 // Needed for WIN32 and VTK_USE_X
 #include "vtkRenderingOpenGLConfigure.h"
 #include "vtk_glew.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #define XR_USE_PLATFORM_WIN32
 #include "GL/gl.h"
 #include "Unknwn.h"
@@ -34,4 +34,5 @@
 #define LEFT_EYE 0
 #define RIGHT_EYE 1
 
-#endif // _OpenXR_h
+#endif
+// VTK-HeaderTest-Exclude: vtkOpenXR.h

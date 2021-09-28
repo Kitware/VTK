@@ -4,26 +4,27 @@ LIBRARY_NAME
   vtkRenderingOpenXR
 DEPENDS
   VTK::CommonCore
-  VTK::IOImage
-  VTK::IOXMLParser
-  VTK::InteractionStyle
-  VTK::InteractionWidgets
+  VTK::CommonMath
+  VTK::RenderingCore
   VTK::RenderingOpenGL2
-  VTK::RenderingVolumeOpenGL2
-  VTK::vtksys
-  VTK::jsoncpp
-PRIVATE_DEPENDS
-  VTK::CommonSystem
-  VTK::FiltersSources
-  VTK::IOXML
-  VTK::ImagingSources
+  VTK::RenderingVR
   VTK::glew
-  VTK::opengl
-TEST_DEPENDS
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
   VTK::CommonSystem
-  VTK::IOPLY
-  VTK::IOXML
+  VTK::CommonTransforms
+  VTK::FiltersSources
+  VTK::ImagingSources
   VTK::InteractionWidgets
-  VTK::RenderingVolume
+  VTK::jsoncpp
+  VTK::opengl
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonCore
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::IOPLY
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering

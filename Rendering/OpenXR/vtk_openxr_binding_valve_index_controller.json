@@ -29,7 +29,6 @@
               "output": "movement"
             }
           },
-          // available inputs => x/y (position), force, touch
           "path": "/user/hand/right/input/trackpad"
         },
         {
@@ -38,7 +37,7 @@
               "output": "handposehandgrip"
             }
           },
-          "path": "/user/hand/right/input/grip"
+          "path": "/user/hand/right/input/squeeze"
         },
         {
           "inputs": {
@@ -46,7 +45,7 @@
               "output": "handposehandgrip"
             }
           },
-          "path": "/user/hand/left/input/grip"
+          "path": "/user/hand/left/input/squeeze"
         },
         {
           "inputs": {
@@ -54,7 +53,6 @@
               "output": "showmenu"
             }
           },
-          // available inputs => click, touch
           "path": "/user/hand/right/input/a"
         },
         {
@@ -63,7 +61,6 @@
               "output": "nextcamerapose"
             }
           },
-          // available inputs => click, value, touch
           "path": "/user/hand/left/input/trigger"
         },
         {
@@ -82,19 +79,7 @@
           },
           "path": "/user/hand/right/input/squeeze"
         }
-      ],
-      // TODO add path thumbstick + actions
-      // "haptics": [
-      //   {
-      //     "path": "/user/hand/left/output/haptic",
-      //     "output": "haptic"
-      //   },
-
-      //   {
-      //     "path": "/user/hand/right/output/haptic",
-      //     "output": "haptic"
-      //   }
-      // ]
+      ]
     }
   }
 }

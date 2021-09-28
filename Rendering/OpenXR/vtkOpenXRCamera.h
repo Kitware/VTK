@@ -42,11 +42,12 @@ public:
   /**
    * Implement base class method.
    */
-  virtual void Render(vtkRenderer* ren) override;
+  void Render(vtkRenderer* ren) override;
 
 protected:
   vtkOpenXRCamera();
   ~vtkOpenXRCamera() override = default;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void UpdateViewTransform(vtkOpenXRRenderWindow*);
   void UpdateProjectionMatrix();

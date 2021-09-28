@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenXRRenderer_h
 #define vtkOpenXRRenderer_h
 
+#include "vtkNew.h" // To init FloorActor in header
 #include "vtkOpenGLRenderer.h"
 #include "vtkRenderingOpenXRModule.h" // For export macro
 
@@ -61,22 +62,20 @@ public:
 
   using vtkRenderer::ResetCameraClippingRange;
 
-  //@{
   /**
    * Reset the camera clipping range based on a bounding box.
    */
   void ResetCameraClippingRange(const double bounds[6]) override;
-  //@}
 
   /**
    * Create a new Camera suitable for use with this type of Renderer.
    */
-  vtkCamera* MakeCamera() override;
+  VTK_NEWINSTANCE vtkCamera* MakeCamera() override;
 
   /**
    * Concrete open gl render method.
    */
-  void DeviceRender(void);
+  void DeviceRender() override;
 
   /**
    * Show the floor of the VR world
@@ -86,10 +85,10 @@ public:
 
 protected:
   vtkOpenXRRenderer();
-  ~vtkOpenXRRenderer() override;
+  ~vtkOpenXRRenderer() override = default;
 
-  vtkActor* FloorActor;
-  bool ShowFloor;
+  vtkNew<vtkActor> FloorActor;
+  bool ShowFloor = false;
 
 private:
   vtkOpenXRRenderer(const vtkOpenXRRenderer&) = delete;

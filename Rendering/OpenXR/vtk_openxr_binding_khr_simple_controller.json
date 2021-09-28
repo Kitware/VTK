@@ -40,18 +40,7 @@
           "path": "/user/hand/right/input/grip/pose",
           "output": "handposehandgrip"
         }
-      ],
-      /*"haptics": [
-        {
-          "path": "/user/hand/left/output/haptic",
-          "output": "haptic"
-        },
-
-        {
-          "path": "/user/hand/right/output/haptic",
-          "output": "haptic"
-        }
-      ]*/
+      ]
     }
   }
 }

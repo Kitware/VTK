@@ -28,18 +28,15 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkOpenXRRenderWindowInteractor.h"
 #include "vtkOpenXRRenderer.h"
 #include "vtkOpenXRUtilities.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-//#include <cstring>
-//#include <vector>
-
 // include what we need for the helper window
-#ifdef WIN32
+#ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
-#endif
-#ifdef VTK_USE_X
+#elif VTK_USE_X
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 
@@ -65,20 +62,20 @@ vtkOpenXRRenderWindow::vtkOpenXRRenderWindow()
   this->Position[0] = 100;
   this->Position[1] = 100;
 
-#ifdef WIN32
-  this->HelperWindow = vtkWin32OpenGLRenderWindow::New();
-#endif
-#ifdef VTK_USE_X
-  this->HelperWindow = vtkXOpenGLRenderWindow::New();
-#endif
+  this->HelperWindow = vtkOpenGLRenderWindow::SafeDownCast(vtkRenderWindow::New());
+
+  if (this->HelperWindow == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to create render window");
+  }
 
   // Initialize the models
   // For instance models are only a ray
   // But for the future, we should create a vtkOpenXRModel
   // That contain a ray and a mesh for a controller
   // (mesh loaded using the XR_MSFT_controller_model OpenXR extension)
-  this->Models[0] = vtkSmartPointer<vtkOpenXRRay>::New();
-  this->Models[1] = vtkSmartPointer<vtkOpenXRRay>::New();
+  this->Models[0] = vtkSmartPointer<vtkVRRay>::New();
+  this->Models[1] = vtkSmartPointer<vtkVRRay>::New();
 }
 
 //------------------------------------------------------------------------------
@@ -97,7 +94,6 @@ vtkOpenXRRenderWindow::~vtkOpenXRRenderWindow()
   if (this->HelperWindow)
   {
     this->HelperWindow->Delete();
-    this->HelperWindow = 0;
   }
 }
 
@@ -194,7 +190,7 @@ void vtkOpenXRRenderWindow::AddRenderer(vtkRenderer* ren)
 
 //------------------------------------------------------------------------------
 // Begin the rendering process.
-void vtkOpenXRRenderWindow::Start(void)
+void vtkOpenXRRenderWindow::Start()
 {
   // if the renderer has not been initialized, do so now
   if (this->HelperWindow && !this->Initialized)
@@ -361,13 +357,12 @@ void vtkOpenXRRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* physicalToWor
 
 //------------------------------------------------------------------------------
 // Initialize the rendering window.
-void vtkOpenXRRenderWindow::Initialize(void)
+void vtkOpenXRRenderWindow::Initialize()
 {
   if (this->Initialized)
   {
     return;
   }
-  this->Initialized = false;
 
   // No need to set size of helper window as we own the window
   this->HelperWindow->SetDisplayId(this->GetGenericDisplayId());
@@ -400,7 +395,7 @@ void vtkOpenXRRenderWindow::Initialize(void)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::Finalize(void)
+void vtkOpenXRRenderWindow::Finalize()
 {
   this->ReleaseGraphicsResources(this);
 
@@ -438,7 +433,10 @@ void vtkOpenXRRenderWindow::Render()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::StereoUpdate() {}
+void vtkOpenXRRenderWindow::StereoUpdate()
+{
+  this->Superclass::StereoUpdate();
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenXRRenderWindow::StereoMidpoint()
@@ -494,7 +492,6 @@ void vtkOpenXRRenderWindow::RenderModels()
   vtkOpenGLState* ostate = this->GetState();
   ostate->vtkglEnable(GL_DEPTH_TEST);
 
-  // todo check if active
   auto iren = vtkOpenXRRenderWindowInteractor::SafeDownCast(this->Interactor);
   for (uint32_t hand :
     { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
@@ -669,7 +666,7 @@ const int vtkOpenXRRenderWindow::GetTrackedDeviceIndexForDevice(vtkEventDataDevi
 }
 
 //------------------------------------------------------------------------------
-vtkOpenXRRay* vtkOpenXRRenderWindow::GetTrackedDeviceModel(const int idx)
+vtkVRRay* vtkOpenXRRenderWindow::GetTrackedDeviceModel(const int idx)
 {
   if (idx == vtkOpenXRManager::ControllerIndex::Inactive)
   {

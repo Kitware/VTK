@@ -40,7 +40,7 @@
               "output": "handposehandgrip"
             }
           },
-          "path": "/user/hand/right/input/grip"
+          "path": "/user/hand/right/input/squeeze"
         },
         {
           "inputs": {
@@ -51,7 +51,7 @@
               "output": "handposehandgrip"
             }
           },
-          "path": "/user/hand/left/input/grip"
+          "path": "/user/hand/left/input/squeeze"
         },
         {
           "inputs": {
@@ -77,18 +77,7 @@
           },
           "path": "/user/hand/right/input/trigger"
         }
-      ],
-      // "haptics": [
-      //   {
-      //     "path": "/user/hand/left/output/haptic",
-      //     "output": "haptic"
-      //   },
-
-      //   {
-      //     "path": "/user/hand/right/output/haptic",
-      //     "output": "haptic"
-      //   }
-      // ]
+      ]
     }
   }
 }

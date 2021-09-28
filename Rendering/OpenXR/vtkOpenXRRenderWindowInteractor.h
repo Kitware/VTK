@@ -22,19 +22,16 @@
 #ifndef vtkOpenXRRenderWindowInteractor_h
 #define vtkOpenXRRenderWindowInteractor_h
 
-#include "vtkOpenXRManager.h"
-
-//#include "vtkNew.h"                   // ivars
-#include "vtkEventData.h"
 #include "vtkRenderWindowInteractor3D.h"
 #include "vtkRenderingOpenXRModule.h" // For export macro
+
+#include "vtkEventData.h"
+#include "vtkOpenXRManager.h"
 
 #include <functional> // for std::function
 #include <map>        // for std::map
 
-// TODO
 class vtkOpenXRBooleanActionData;
-
 class vtkEventData;
 class vtkOpenXRRenderWindow;
 typedef vtkOpenXRManager::Action_t Action_t;
@@ -140,6 +137,7 @@ public:
 protected:
   vtkOpenXRRenderWindowInteractor();
   ~vtkOpenXRRenderWindowInteractor() override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -175,6 +173,21 @@ protected:
   int DeviceInputDownCount[vtkEventDataNumberOfDevices];
   virtual void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
 
+  struct ActionData;
+
+  XrActionType GetActionTypeFromString(const std::string& type);
+  bool LoadActions(const std::string& actionFilename);
+  bool LoadDefaultBinding(const std::string& bindingFilename);
+  ActionData* GetActionDataFromName(const std::string& actionName);
+
+  void HandleGripEvents(vtkEventData* ed);
+
+  void HandleAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
+  void HandleBooleanAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
+  void HandlePoseAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
+  void HandleVector2fAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
+  void ApplyAction(const ActionData& actionData, vtkEventDataDevice3D* ed);
+
   /**
    * Store physical to world matrix at the start of a multi-touch gesture
    */
@@ -198,21 +211,8 @@ protected:
     bool UseFunction = false;
   };
 
-  using MapAction = std::map<std::string, ActionData>;
+  using MapAction = std::map<std::string, ActionData*>;
   MapAction MapActionStruct_Name;
-
-  XrActionType GetActionTypeFromString(const std::string& type);
-  bool LoadActions(const std::string& actionFilename);
-  bool LoadDefaultBinding(const std::string& bindingFilename);
-  ActionData& GetActionDataFromName(const std::string& actionName);
-
-  void HandleGripEvents(vtkEventData* ed);
-
-  void HandleAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
-  void HandleBooleanAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
-  void HandlePoseAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
-  void HandleVector2fAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
-  void ApplyAction(const ActionData& actionData, vtkEventDataDevice3D* ed);
 
 private:
   vtkOpenXRRenderWindowInteractor(const vtkOpenXRRenderWindowInteractor&) = delete;
@@ -220,3 +220,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOpenXRRenderWindowInteractor.h
