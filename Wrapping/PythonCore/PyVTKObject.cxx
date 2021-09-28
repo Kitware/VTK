@@ -117,10 +117,9 @@ PyObject* PyVTKObject_String(PyObject* op)
 //------------------------------------------------------------------------------
 PyObject* PyVTKObject_Repr(PyObject* op)
 {
-  char buf[255];
-  snprintf(buf, sizeof(buf), "(%.200s)%p", Py_TYPE(op)->tp_name, static_cast<void*>(op));
-
-  return PyString_FromString(buf);
+  PyVTKObject* obj = (PyVTKObject*)op;
+  return PyString_FromFormat("<%s(%p) at %p>", Py_TYPE(op)->tp_name,
+    static_cast<void*>(obj->vtk_ptr), static_cast<void*>(obj));
 }
 
 //------------------------------------------------------------------------------
