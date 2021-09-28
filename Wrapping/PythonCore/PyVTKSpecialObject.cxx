@@ -80,16 +80,17 @@ PyObject* PyVTKSpecialObject_Repr(PyObject* self)
     else
     {
 #ifdef VTK_PY3K
-      s = PyString_FromFormat("(%.80s)%S", name, t);
+      s = PyString_FromFormat("%s(%S)", name, t);
 #else
-      s = PyString_FromFormat("(%.80s)%s", name, PyString_AsString(t));
+      s = PyString_FromFormat("%s(%s)", name, PyString_AsString(t));
 #endif
     }
   }
   // otherwise just print address of object
   else if (obj->vtk_ptr)
   {
-    s = PyString_FromFormat("(%.80s)%p", name, obj->vtk_ptr);
+    s = PyString_FromFormat(
+      "<%s(%p) at %p>", name, static_cast<void*>(obj->vtk_ptr), static_cast<void*>(obj));
   }
 
   return s;
