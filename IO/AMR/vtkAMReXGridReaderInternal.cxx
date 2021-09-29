@@ -920,7 +920,7 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
 
       // read every component of the variable into the buffers vector
       std::string attributeName(attribute);
-      size_t nComps = this->Header->parsedVariableNames[attributeName].size();
+      int nComps = static_cast<int>(this->Header->parsedVariableNames[attributeName].size());
       std::vector<std::vector<char>> buffers(nComps);
       for (int i = 0; i < nComps; ++i)
       {
