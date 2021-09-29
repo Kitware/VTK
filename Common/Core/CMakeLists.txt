@@ -1,20 +1,20 @@
-# Core configuration options.
-if(CMAKE_SIZEOF_VOID_P GREATER 4)
- set(VTK_USE_64BIT_IDS_DEFAULT ON)
-else()
- set(VTK_USE_64BIT_IDS_DEFAULT OFF)
- set(VTK_USE_64BIT_TIMESTAMPS_DEFAULT OFF)
- option(VTK_USE_64BIT_TIMESTAMPS "Build VTK with 64 bit timestamps"
-  ${VTK_USE_64BIT_TIMESTAMPS_DEFAULT})
-endif()
+include(CMakeDependentOption)
+cmake_dependent_option(VTK_USE_64BIT_TIMESTAMPS "Build VTK with 64 bit timestamps" OFF
+  "NOT CMAKE_SIZEOF_VOID_P GREATER 4" ON)
+mark_as_advanced(VTK_USE_64BIT_TIMESTAMPS)
 
-option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
-  ${VTK_USE_64BIT_IDS_DEFAULT})
+if (CMAKE_SIZEOF_VOID_P GREATER 4)
+ set(vtk_use_64bit_ids_default ON)
+else ()
+ set(vtk_use_64bit_ids_default OFF)
+endif ()
+
+option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids" "${vtk_use_64bit_ids_default}")
 mark_as_advanced(VTK_USE_64BIT_IDS)
 
 option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 mark_as_advanced(VTK_DEBUG_LEAKS)
-include(CMakeDependentOption)
+
 # See vtkDataArrayRange.h docs for more info on these:
 cmake_dependent_option(VTK_DEBUG_RANGE_ITERATORS
   "Detect usage errors with the for-range iterators (SLOW)." OFF
@@ -47,6 +47,8 @@ set(vtk_smp_enable_openmp 0)
 set(VTK_SMP_IMPLEMENTATION_TYPE)
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkSMPSelection.cmake")
 
+set(vtk_object_base_defines)
+
 # An optional dependency on memkind
 set(vtk_memkind_libraries)
 if (VTK_USE_MEMKIND)
@@ -54,8 +56,8 @@ if (VTK_USE_MEMKIND)
     PACKAGE MEMKIND)
   list(APPEND vtk_memkind_libraries
     MEMKIND::MEMKIND)
-  get_target_property(MEMKIND_VERSION_MINOR MEMKIND::MEMKIND MEMKIND_VERSION_MINOR)
-  list(APPEND VTK_OBJECT_BASE_DEFINES "MEMKIND_VERSION_MINOR=${MEMKIND_VERSION_MINOR}")
+  get_target_property(memkind_version_minor MEMKIND::MEMKIND MEMKIND_VERSION_MINOR)
+  list(APPEND vtk_object_base_defines "MEMKIND_VERSION_MINOR=${memkind_version_minor}")
 endif()
 
 # Generate the vtkTypeList_Create macros:
@@ -527,12 +529,12 @@ configure_file(
 
 # Allow work arounds for lack of thread_local on odd compilers
 if (NOT (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0) )
-  list(APPEND VTK_OBJECT_BASE_DEFINES "VTK_HAS_THREADLOCAL")
+  list(APPEND vtk_object_base_defines "VTK_HAS_THREADLOCAL")
 endif ()
 
 set_property(SOURCE vtkObjectBase.cxx
   PROPERTY
-     COMPILE_DEFINITIONS ${VTK_OBJECT_BASE_DEFINES})
+     COMPILE_DEFINITIONS ${vtk_object_base_defines})
 
 if(MSVC)
   set_source_files_properties(
