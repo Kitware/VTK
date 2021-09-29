@@ -303,26 +303,29 @@ struct MapToSpanSpace
     cellPts->SetNumberOfIds(12);
     vtkDoubleArray*& cellScalars = this->CellScalars.Local();
     cellScalars->SetNumberOfTuples(12);
+    // required for multi thread
+    if (this->DataSet->GetNumberOfPoints() > 0)
+    {
+      this->DataSet->GetCellPoints(0, cellPts);
+    }
   }
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
-    vtkIdType j, numScalars;
-    double *s, sMin, sMax;
     vtkIdList*& cellPts = this->CellPts.Local();
     vtkDoubleArray*& cellScalars = this->CellScalars.Local();
 
     for (; cellId < endCellId; ++cellId)
     {
       this->DataSet->GetCellPoints(cellId, cellPts);
-      numScalars = cellPts->GetNumberOfIds();
+      const vtkIdType numScalars = cellPts->GetNumberOfIds();
       cellScalars->SetNumberOfTuples(numScalars);
       this->Scalars->GetTuples(cellPts, cellScalars);
-      s = cellScalars->GetPointer(0);
+      const double* s = cellScalars->GetPointer(0);
 
-      sMin = VTK_DOUBLE_MAX;
-      sMax = VTK_DOUBLE_MIN;
-      for (j = 0; j < numScalars; j++)
+      double sMin = VTK_DOUBLE_MAX;
+      double sMax = VTK_DOUBLE_MIN;
+      for (vtkIdType j = 0; j < numScalars; j++)
       {
         if (s[j] < sMin)
         {
@@ -344,6 +347,12 @@ struct MapToSpanSpace
 
   static void Execute(vtkIdType numCells, vtkInternalSpanSpace* ss, vtkDataSet* ds, vtkDataArray* s)
   {
+    // required for multi thread
+    if (ds->GetNumberOfPoints() > 0)
+    {
+      vtkNew<vtkIdList> dummy;
+      ds->GetCellPoints(0, dummy);
+    }
     MapToSpanSpace map(ss, ds, s);
     vtkSMPTools::For(0, numCells, map);
   }
