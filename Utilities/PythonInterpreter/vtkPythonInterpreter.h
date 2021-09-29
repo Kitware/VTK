@@ -57,7 +57,6 @@
 #ifndef vtkPythonInterpreter_h
 #define vtkPythonInterpreter_h
 
-#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_0_0
 #include "vtkObject.h"
 #include "vtkPythonInterpreterModule.h" // For export macro
 #include "vtkStdString.h"               // needed for vtkStdString.
@@ -167,9 +166,6 @@ public:
   static void SetRedirectOutput(bool redirect);
   static bool GetRedirectOutput();
   ///@}
-
-  VTK_DEPRECATED_IN_9_0_0("Use vtkPythonInterpreter::GetLogVerbosity")
-  static int GetPythonVerboseFlag();
 
   ///@{
   /**

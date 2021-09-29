@@ -149,18 +149,3 @@ void vtkIdFilter::PrintSelf(ostream& os, vtkIndent indent)
      << "CellIdsArrayName: " << (this->CellIdsArrayName ? this->CellIdsArrayName : "(none)")
      << "\n";
 }
-
-void vtkIdFilter::SetIdsArrayName(const char* name)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkIdFilter::SetIdsArrayName, "VTK 9.0",
-    vtkIdFilter::SetPointIdsArrayName or vtkIdFilter::SetCellIdsArrayName);
-  this->SetPointIdsArrayName(name);
-  this->SetCellIdsArrayName(name);
-}
-
-const char* vtkIdFilter::GetIdsArrayName()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkIdFilter::GetIdsArrayName, "VTK 9.0",
-    vtkIdFilter::GetPointIdsArrayName or vtkIdFilter::GetCellIdsArrayName);
-  return this->GetPointIdsArrayName();
-}

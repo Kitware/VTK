@@ -30,7 +30,6 @@
 
 #include "vtkCellArray.h"             //inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // for VTK_DEPRECATED_IN_9_0_0
 #include "vtkIdTypeArray.h"           //inline GetCellPoints()
 #include "vtkUnstructuredGridBase.h"
 
@@ -208,10 +207,6 @@ public:
    * has been called).
    */
   void GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType*& cells)
-    VTK_SIZEHINT(cells, ncells);
-  VTK_DEPRECATED_IN_9_0_0(
-    "Use vtkUnstructuredGrid::GetPointCells::vtkIdType, vtkIdType&, vtkIdType*&)")
-  void GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells)
     VTK_SIZEHINT(cells, ncells);
   ///@}
 

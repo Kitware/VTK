@@ -40,7 +40,6 @@
 
 #include "vtkIOExportModule.h" // For export macro
 
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkWriter.h"
 
 #include <string> // std::string used as parameters in a few methods
@@ -113,18 +112,6 @@ public:
   static vtkJSONDataSetWriter* New();
   vtkTypeMacro(vtkJSONDataSetWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  ///@{
-  /**
-   * Specify file name of vtk data file to write.
-   * This correspond to the root directory of the data to write.
-   * DEPRECATED: use the Archive's API instead.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use vtkJSONDataSetWriter::SetArchiveName")
-  void SetFileName(VTK_FILEPATH const char*);
-  VTK_DEPRECATED_IN_9_0_0("Use vtkJSONDataSetWriter::GetArchiveName")
-  virtual VTK_FILEPATH char* GetFileName();
-  ///@}
 
   ///@{
   /**

@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPlot.h"
 
 #include "vtkAxis.h"
@@ -85,46 +82,10 @@ bool vtkPlot::PaintLegend(vtkContext2D*, const vtkRectf&, int)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkPlot::GetNearestPoint(
-  const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location)
+vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f& vtkNotUsed(point),
+  const vtkVector2f& vtkNotUsed(tolerance), vtkVector2f* vtkNotUsed(location),
+  vtkIdType* vtkNotUsed(segmentId))
 {
-  // When using legacy code, we need to make sure old override are still called
-  // and old call are still working. This is the more generic way to achieve that
-  // The flag is here to ensure that the two implementation
-  // do not call each other in an infinite loop.
-  if (!this->LegacyRecursionFlag)
-  {
-    vtkIdType segmentId;
-    this->LegacyRecursionFlag = true;
-    vtkIdType ret = this->GetNearestPoint(point, tolerance, location, &segmentId);
-    this->LegacyRecursionFlag = false;
-    return ret;
-  }
-  else
-  {
-    return -1;
-  }
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-  vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
-{
-  if (!this->LegacyRecursionFlag)
-  {
-    this->LegacyRecursionFlag = true;
-    int ret = this->GetNearestPoint(point, tolerance, location);
-    this->LegacyRecursionFlag = false;
-    if (ret != -1)
-    {
-      VTK_LEGACY_REPLACED_BODY(vtkPlot::GetNearestPoint(const vtkVector2f& point,
-                                 const vtkVector2f& tol, vtkVector2f* location),
-        "VTK 9.0",
-        vtkPlot::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
-          vtkVector2f* location, vtkIdType* segmentId));
-    }
-    return ret;
-  }
   return -1;
 }
 
@@ -698,5 +659,6 @@ bool vtkPlot::Hit(const vtkContextMouseEvent& mouse)
       picking_zone_size * (1.0 / transform->GetTransform()->GetMatrix()->GetElement(1, 1))));
   }
   vtkVector2f loc;
-  return this->GetNearestPoint(mouse.GetPos(), tol, &loc) >= 0;
+  vtkIdType segmentId;
+  return this->GetNearestPoint(mouse.GetPos(), tol, &loc, &segmentId) >= 0;
 }

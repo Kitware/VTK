@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPlotBar.h"
 
 #include "vtkAxis.h"
@@ -759,25 +756,9 @@ void vtkPlotBar::GetColor(double rgb[3])
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkPlotBar::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-  vtkVector2f* location, vtkIdType* segmentIndex)
+vtkIdType vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
+  const vtkVector2f& vtkNotUsed(tolerance), vtkVector2f* location, vtkIdType* segmentIndex)
 {
-  if (!this->LegacyRecursionFlag)
-  {
-    this->LegacyRecursionFlag = true;
-    vtkIdType ret = this->GetNearestPoint(point, tolerance, location);
-    this->LegacyRecursionFlag = false;
-    if (ret != -1)
-    {
-      VTK_LEGACY_REPLACED_BODY(vtkPlotBox::GetNearestPoint(const vtkVector2f& point,
-                                 const vtkVector2f& tolerance, vtkVector2f* location),
-        "VTK 9.0",
-        vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-          vtkVector2f* location, vtkIdType* segmentId));
-      return ret;
-    }
-  }
-
   return this->Private->GetNearestPoint(
     point, location, this->Width, this->Offset, this->Orientation, segmentIndex);
 }

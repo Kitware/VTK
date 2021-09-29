@@ -260,13 +260,9 @@ set(headers
   vtkColor.h
   vtkCompositeDataSetNodeReference.h
   vtkCompositeDataSetRange.h
-  vtkDataArrayDispatcher.h
   vtkDataAssemblyVisitor.h
   vtkDataObjectTreeInternals.h
   vtkDataObjectTreeRange.h
-  vtkDispatcher.h
-  vtkDispatcher_Private.h
-  vtkDoubleDispatcher.h
   vtkHyperTreeGridScales.h
   vtkHyperTreeGridTools.h
   vtkIntersectionCounter.h

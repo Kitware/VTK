@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPlotStacked.h"
 
 #include "vtkAxis.h"
@@ -691,22 +688,6 @@ void vtkPlotStacked::GetUnscaledInputBounds(double bounds[4])
 vtkIdType vtkPlotStacked::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
   vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
-  if (!this->LegacyRecursionFlag)
-  {
-    this->LegacyRecursionFlag = true;
-    vtkIdType ret = this->GetNearestPoint(point, tol, location);
-    this->LegacyRecursionFlag = false;
-    if (ret != -1)
-    {
-      VTK_LEGACY_REPLACED_BODY(vtkPlotStacked::GetNearestPoint(const vtkVector2f& point,
-                                 const vtkVector2f& tol, vtkVector2f* location),
-        "VTK 9.0",
-        vtkPlotStacked::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
-          vtkVector2f* location, vtkIdType* segmentId));
-      return ret;
-    }
-  }
-
   return this->Private->GetNearestPoint(point, tol, location);
 }
 

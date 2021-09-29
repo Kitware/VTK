@@ -820,11 +820,3 @@ int vtkPythonInterpreter::GetLogVerbosity()
 {
   return vtkPythonInterpreter::LogVerbosity;
 }
-
-//------------------------------------------------------------------------------
-int vtkPythonInterpreter::GetPythonVerboseFlag()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkPythonInterpreter::GetPythonVerboseFlag, "VTK 9.0", vtkPythonInterpreter::GetLogVerbosity);
-  return vtkPythonInterpreter::LogVerbosity == vtkLogger::VERBOSITY_INFO ? 1 : 0;
-}

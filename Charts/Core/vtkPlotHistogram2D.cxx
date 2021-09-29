@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPlotHistogram2D.h"
 
 #include "vtkAxis.h"
@@ -122,22 +119,6 @@ vtkRectf vtkPlotHistogram2D::GetPosition()
 vtkIdType vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
   const vtkVector2f& tolerance, vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
-  if (!this->LegacyRecursionFlag)
-  {
-    this->LegacyRecursionFlag = true;
-    vtkIdType ret = this->GetNearestPoint(point, tolerance, location);
-    this->LegacyRecursionFlag = false;
-    if (ret != -1)
-    {
-      VTK_LEGACY_REPLACED_BODY(vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
-                                 const vtkVector2f& tolerance, vtkVector2f* location),
-        "VTK 9.0",
-        vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-          vtkVector2f* location, vtkIdType* segmentId));
-      return ret;
-    }
-  }
-
   if (!this->Input)
   {
     return -1;

@@ -1796,10 +1796,3 @@ void vtkAlgorithm::AddInputDataObject(int port, vtkDataObject* input)
     tp->Delete();
   }
 }
-
-//------------------------------------------------------------------------------
-void vtkAlgorithm::SetProgress(double val)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAlgorithm::SetProgress, "VTK 9.0", vtkAlgorithm::UpdateProgress);
-  this->UpdateProgress(val);
-}

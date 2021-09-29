@@ -16,9 +16,6 @@
 // Thanks to Soeren Gebbert who developed this class and
 // integrated it into VTK 5.0.
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkBiQuadraticQuadraticWedge.h"
 
 #include "vtkBiQuadraticQuad.h"

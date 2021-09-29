@@ -49,13 +49,7 @@ public:
    * {pts[0], pts[1], pts[3], pts[2]} forms consecutive points of one face.
    */
   void GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts) override;
-  // @deprecated Replaced by GetEdgePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_DEPRECATED_IN_9_0_0("Replaced by vtkVoxel::GetEdgePoints(vtkIdType, const vtkIdType*&)")
-  void GetEdgePoints(int edgeId, int*& pts) override;
   vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
-  // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_DEPRECATED_IN_9_0_0("Replaced by vtkVoxel::GetFacePoints(vtkIdType, const vtkIdType*&)")
-  void GetFacePoints(int faceId, int*& pts) override;
   void GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& pts) override;
   vtkIdType GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faces) override;
   vtkIdType GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edges) override;

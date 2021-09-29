@@ -7,8 +7,6 @@ endif()
 
 vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
-  TestDataArrayDispatcher.cxx
-  TestDispatchers.cxx
   ${memkind_tests}
   LagrangeHexahedron.cxx
   BezierInterpolation.cxx

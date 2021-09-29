@@ -539,20 +539,6 @@ public:
   virtual int CheckAbortStatus();
   ///@}
 
-  ///@{
-  /**
-   * @deprecated in VTK 9.0
-   */
-  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
-  vtkTypeBool GetIsPicking();
-  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
-  void SetIsPicking(vtkTypeBool);
-  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
-  void IsPickingOn();
-  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
-  void IsPickingOff();
-  ///@}
-
   /**
    * Check to see if a mouse button has been pressed.  All other events
    * are ignored by this method.  Ideally, you want to abort the render

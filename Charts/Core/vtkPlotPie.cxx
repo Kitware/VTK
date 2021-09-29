@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPlotPie.h"
 
 #include "vtkBrush.h"
@@ -195,25 +192,9 @@ vtkColorSeries* vtkPlotPie::GetColorSeries()
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-  vtkVector2f* value, vtkIdType* vtkNotUsed(segmentId))
+vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
+  const vtkVector2f& vtkNotUsed(tolerance), vtkVector2f* value, vtkIdType* vtkNotUsed(segmentId))
 {
-  if (!this->LegacyRecursionFlag)
-  {
-    this->LegacyRecursionFlag = true;
-    vtkIdType retLegacy = this->GetNearestPoint(point, tolerance, value);
-    this->LegacyRecursionFlag = false;
-    if (retLegacy != -1)
-    {
-      VTK_LEGACY_REPLACED_BODY(vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
-                                 const vtkVector2f& tolerance, vtkVector2f* value),
-        "VTK 9.0",
-        vtkPlotPie::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-          vtkVector2f* value, vtkIdType* segmentId));
-      return retLegacy;
-    }
-  }
-
   float x = point.GetX() - this->Private->CenterX;
   float y = point.GetY() - this->Private->CenterY;
 

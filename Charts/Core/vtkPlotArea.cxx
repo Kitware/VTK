@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPlotArea.h"
 
 #include "vtkArrayDispatch.h"
@@ -600,22 +597,6 @@ bool vtkPlotArea::PaintLegend(
 vtkIdType vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
   vtkVector2f* location, vtkIdType* vtkNotUsed(segmentId))
 {
-  if (!this->LegacyRecursionFlag)
-  {
-    this->LegacyRecursionFlag = true;
-    vtkIdType ret = this->GetNearestPoint(point, tolerance, location);
-    this->LegacyRecursionFlag = false;
-    if (ret != -1)
-    {
-      VTK_LEGACY_REPLACED_BODY(vtkPlotArea::GetNearestPoint(const vtkVector2f& point,
-                                 const vtkVector2f& tolerance, vtkVector2f* location),
-        "VTK 9.0",
-        vtkPlotArea::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-          vtkVector2f* location, vtkIdType* segmentId));
-      return ret;
-    }
-  }
-
   vtkTableCache& cache = (*this->TableCache);
   if (!this->Visible || !cache.IsInputDataValid() || cache.Points->GetNumberOfPoints() == 0)
   {

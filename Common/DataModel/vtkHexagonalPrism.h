@@ -54,15 +54,7 @@ public:
    * See vtkCell3D API for description of these methods.
    */
   void GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts) override;
-  // @deprecated Replaced by GetEdgePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_DEPRECATED_IN_9_0_0(
-    "Replaced by vtkHexagonalPrism::GetEdgePoints(vtkIdType, const vtkIdType*&)")
-  void GetEdgePoints(int edgeId, int*& pts) override;
   vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
-  // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_DEPRECATED_IN_9_0_0(
-    "Replaced by vtkHexagonalPrism::GetFacePoints(vtkIdType, const vtkIdType*&)")
-  void GetFacePoints(int faceId, int*& pts) override;
   void GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& pts) override;
   vtkIdType GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds) override;
   vtkIdType GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds) override;

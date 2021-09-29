@@ -167,16 +167,6 @@ void vtkCompositeMapperHelper2::SetShaderValues(
 void vtkCompositeMapperHelper2::UpdateShaders(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act)
 {
-  // in cases where LegacyShaderProperty is not nullptr, it means someone has used
-  // legacy shader replacement functions, so we make sure the actor uses the same
-  // shader property. NOTE: this implies that it is not possible to use both legacy
-  // and new functionality on the same actor/mapper.
-  if (this->Parent->LegacyShaderProperty &&
-    act->GetShaderProperty() != this->Parent->LegacyShaderProperty)
-  {
-    act->SetShaderProperty(this->Parent->LegacyShaderProperty);
-  }
-
   Superclass::UpdateShaders(cellBO, ren, act);
   if (cellBO.Program && this->Parent)
   {

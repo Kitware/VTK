@@ -134,31 +134,3 @@ void vtkResourceFileLocator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LogVerbosity: " << this->LogVerbosity << endl;
 }
-
-void vtkResourceFileLocator::SetPrintDebugInformation(bool val)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::SetPrintDebugInformation, "VTK 9.0",
-    vtkResourceFileLocator::SetLogVerbosity);
-  this->SetLogVerbosity(val ? vtkLogger::VERBOSITY_INFO : vtkLogger::VERBOSITY_TRACE);
-}
-
-bool vtkResourceFileLocator::GetPrintDebugInformation()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::GetPrintDebugInformation, "VTK 9.0",
-    vtkResourceFileLocator::GetLogVerbosity);
-  return (this->GetLogVerbosity() == vtkLogger::VERBOSITY_INFO);
-}
-
-void vtkResourceFileLocator::PrintDebugInformationOn()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::PrintDebugInformationOn, "VTK 9.0",
-    vtkResourceFileLocator::SetLogVerbosity);
-  this->SetLogVerbosity(vtkLogger::VERBOSITY_INFO);
-}
-
-void vtkResourceFileLocator::PrintDebugInformationOff()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::PrintDebugInformationOff, "VTK 9.0",
-    vtkResourceFileLocator::SetLogVerbosity);
-  this->SetLogVerbosity(vtkLogger::VERBOSITY_TRACE);
-}

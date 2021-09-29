@@ -19,7 +19,6 @@ set(classes
   vtkStreamSurface
   vtkStreamTracer
   vtkTemporalInterpolatedVelocityField
-  vtkTemporalStreamTracer
   vtkVectorFieldTopology
   vtkVortexCore)
 

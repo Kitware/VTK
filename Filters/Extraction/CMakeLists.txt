@@ -24,7 +24,6 @@ set(classes
   vtkExtractSelectedRows
   vtkExtractSelectedThresholds
   vtkExtractSelection
-  vtkExtractTemporalFieldData
   vtkExtractTensorComponents
   vtkExtractTimeSteps
   vtkExtractUnstructuredGrid

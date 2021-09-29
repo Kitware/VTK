@@ -63,7 +63,6 @@
 #define vtkPolyData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // for VTK_DEPRECATED_IN_9_0_0
 #include "vtkPointSet.h"
 
 #include "vtkCellArray.h"         // Needed for inline methods
@@ -397,9 +396,6 @@ public:
    * sure that BuildLinks() has been called).
    */
   void GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType*& cells)
-    VTK_SIZEHINT(cells, ncells);
-  VTK_DEPRECATED_IN_9_0_0("Use vtkPolyData::GetPointCells::vtkIdType, vtkIdType&, vtkIdType*&)")
-  void GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells)
     VTK_SIZEHINT(cells, ncells);
   ///@}
 
@@ -735,13 +731,6 @@ private:
 inline void vtkPolyData::GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType*& cells)
 {
   ncells = this->Links->GetNcells(ptId);
-  cells = this->Links->GetCells(ptId);
-}
-
-inline void vtkPolyData::GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells)
-{
-  VTK_LEGACY_BODY(vtkPolyData::GetPointCells, "VTK 9.0");
-  ncells = static_cast<unsigned short>(this->Links->GetNcells(ptId));
   cells = this->Links->GetCells(ptId);
 }
 

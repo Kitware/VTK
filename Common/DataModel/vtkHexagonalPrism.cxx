@@ -20,9 +20,6 @@
 // class in VTK.<br>
 // Please address all comments to Jean Favre (jfavre at cscs.ch).
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkHexagonalPrism.h"
 
 #include "vtkLine.h"
@@ -675,24 +672,6 @@ const vtkIdType* vtkHexagonalPrism::GetEdgeArray(vtkIdType edgeId)
 {
   assert(edgeId < vtkHexagonalPrism::NumberOfEdges && "edgeId too large");
   return edges[edgeId];
-}
-
-//------------------------------------------------------------------------------
-void vtkHexagonalPrism::GetEdgePoints(int edgeId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkHexagonalPrism::GetEdgePoints(int, int*&), "VTK 9.0",
-    vtkHexagonalPrism::GetEdgePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
-  pts = tmp.data();
-}
-
-//------------------------------------------------------------------------------
-void vtkHexagonalPrism::GetFacePoints(int faceId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkHexagonalPrism::GetFacePoints(int, int*&), "VTK 9.0",
-    vtkHexagonalPrism::GetFacePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
-  pts = tmp.data();
 }
 
 //------------------------------------------------------------------------------
