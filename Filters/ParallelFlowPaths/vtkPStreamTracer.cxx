@@ -16,6 +16,7 @@
 
 #include "vtkAMRInterpolatedVelocityField.h"
 #include "vtkAbstractInterpolatedVelocityField.h"
+#include "vtkAppendDataSets.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -1439,13 +1440,41 @@ int vtkPStreamTracer::RequestData(
     return 0;
   }
 
-  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
-  vtkDataSet* source = nullptr;
-  if (sourceInfo)
-  {
-    source = vtkDataSet::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-  }
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkDataSet* localSource = vtkDataSet::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* source = nullptr;
+  vtkNew<vtkAppendDataSets> distantAppender;
+  if (this->UseLocalSeedSource)
+  {
+    source = localSource;
+  }
+  else
+  {
+    std::vector<vtkSmartPointer<vtkDataObject>> allSources;
+    if (this->Controller->AllGather(localSource, allSources) == 0)
+    {
+      vtkErrorMacro("Couldn't gather seed sources, aborting StreamTracer");
+      return 0;
+    }
+    for (auto distantSource : allSources)
+    {
+      if (vtkDataSet* ds = vtkDataSet::SafeDownCast(distantSource))
+      {
+        distantAppender->AddInputData(ds);
+      }
+    }
+    distantAppender->MergePointsOn();
+    distantAppender->SetTolerance(0.0);
+    distantAppender->Update();
+    source = vtkDataSet::SafeDownCast(distantAppender->GetOutputDataObject(0));
+  }
+  if (!source)
+  {
+    vtkErrorMacro("Error while retrieving the source");
+    return 0;
+  }
 
   // init 'func' with nullptr such that we can check it later to determine
   // if we need to deallocate 'func' in case CheckInputs() fails (note
