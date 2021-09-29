@@ -303,6 +303,8 @@ public:
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
   ///@}
 
+  void GetActors(vtkPropCollection*) override;
+
 protected:
   vtkBoxRepresentation();
   ~vtkBoxRepresentation() override;

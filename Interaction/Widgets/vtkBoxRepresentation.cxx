@@ -1772,6 +1772,23 @@ void vtkBoxRepresentation::RegisterPickers()
 }
 
 //------------------------------------------------------------------------------
+void vtkBoxRepresentation::GetActors(vtkPropCollection* pc)
+{
+  if (!pc)
+  {
+    return;
+  }
+
+  pc->AddItem(this->HexActor);
+  pc->AddItem(this->HexFace);
+  pc->AddItem(this->HexOutline);
+  for (int j = 0; j < 7; j++)
+  {
+    pc->AddItem(this->Handle[j]);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkBoxRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
