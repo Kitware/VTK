@@ -29,6 +29,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkSuperquadricSource);
 
@@ -54,7 +55,7 @@ vtkSuperquadricSource::vtkSuperquadricSource(int res)
   this->SetThetaResolution(res);
   this->PhiResolution = 0;
   this->SetPhiResolution(res);
-  this->OutputPointsPrecision = SINGLE_PRECISION;
+  this->OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -198,10 +199,29 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
   phiSubsegs = this->PhiResolution / phiSegs;
   thetaSubsegs = this->ThetaResolution / thetaSegs;
 
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+
+  if (numPieces > phiSubsegs)
+  {
+    numPieces = phiSubsegs;
+  }
+  if (piece >= numPieces)
+  {
+    // Although the super class should take care of this,
+    // it cannot hurt to check here.
+    return 1;
+  }
+
+  // Extract start and end to compute localPhiSubsegs
+  int start = piece * phiSubsegs / numPieces;
+  int end = (piece + 1) * phiSubsegs / numPieces;
+  int localPhiSubsegs = end - start;
+
   numPts =
-    static_cast<vtkIdType>((this->PhiResolution + phiSegs) * (this->ThetaResolution + thetaSegs));
+    static_cast<vtkIdType>((phiSegs * (localPhiSubsegs + 1)) * (this->ThetaResolution + thetaSegs));
   // creating triangles
-  numStrips = this->PhiResolution * thetaSegs;
+  numStrips = static_cast<vtkIdType>((phiSegs * localPhiSubsegs) * thetaSegs);
   ptsPerStrip = thetaSubsegs * 2 + 2;
 
   //
@@ -235,19 +255,20 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
   // generate!
   for (iq = 0; iq < phiSegs; iq++)
   {
-    for (i = 0; i <= phiSubsegs; i++)
+    for (i = 0; i <= localPhiSubsegs; i++)
     {
-      phi = phiLim[0] + deltaPhi * (i + iq * phiSubsegs);
-      texCoord[1] = deltaPhiTex * (i + iq * phiSubsegs);
+      int localI = start + i;
+      phi = phiLim[0] + deltaPhi * (localI + iq * phiSubsegs);
+      texCoord[1] = deltaPhiTex * (localI + iq * phiSubsegs);
 
       // SQ_SMALL_OFFSET makes sure that the normal vector isn't
       // evaluated exactly on a crease;  if that were to happen,
       // large shading errors can occur.
-      if (i == 0)
+      if (localI == 0)
       {
         phiOffset = SQ_SMALL_OFFSET * deltaPhi;
       }
-      else if (i == phiSubsegs)
+      else if (localI == phiSubsegs)
       {
         phiOffset = -SQ_SMALL_OFFSET * deltaPhi;
       }
@@ -319,7 +340,8 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
           nv[1] /= len;
           nv[2] /= len;
 
-          if (!this->Toroidal && ((iq == 0 && i == 0) || (iq == (phiSegs - 1) && i == phiSubsegs)))
+          if (!this->Toroidal &&
+            ((iq == 0 && localI == 0) || (iq == (phiSegs - 1) && localI == phiSubsegs)))
           {
 
             // we're at a pole:
@@ -366,9 +388,9 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (iq = 0; iq < phiSegs; iq++)
   {
-    for (i = 0; i < phiSubsegs; i++)
+    for (i = 0; i < localPhiSubsegs; i++)
     {
-      pbase = rowOffset * (i + iq * (phiSubsegs + 1));
+      pbase = rowOffset * (i + iq * (localPhiSubsegs + 1));
       for (jq = 0; jq < thetaSegs; jq++)
       {
         base = pbase + jq * (thetaSubsegs + 1);
@@ -395,6 +417,19 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//------------------------------------------------------------------------------
+int vtkSuperquadricSource::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+{
+  // get the info object
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 void vtkSuperquadricSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -414,6 +449,7 @@ void vtkSuperquadricSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
 
+//------------------------------------------------------------------------------
 static double cf(double w, double m, double a = 0)
 {
   double c;
@@ -431,6 +467,7 @@ static double cf(double w, double m, double a = 0)
   return a + sgn * std::pow(sgn * c, m);
 }
 
+//------------------------------------------------------------------------------
 static double sf(double w, double m)
 {
   double s;
@@ -448,6 +485,7 @@ static double sf(double w, double m)
   return sgn * std::pow(sgn * s, m);
 }
 
+//------------------------------------------------------------------------------
 static void evalSuperquadric(double theta, double phi, // parametric coords
   double dtheta, double dphi,                          // offsets for normals
   double rtheta, double rphi,                          // roundness params
