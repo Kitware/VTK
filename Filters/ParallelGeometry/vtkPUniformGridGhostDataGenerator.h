@@ -51,6 +51,7 @@
 #ifndef vtkPUniformGridGhostDataGenerator_h
 #define vtkPUniformGridGhostDataGenerator_h
 
+#include "vtkDeprecation.h"                   // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkPDataSetGhostGenerator.h"
 
@@ -58,8 +59,8 @@ class vtkMultiBlockDataSet;
 class vtkIndent;
 class vtkPStructuredGridConnectivity;
 
-VTK_DEPRECATED_IN_9_1_0("Use vtkGhostCellsGenerator instead")
-class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUniformGridGhostDataGenerator
+class VTK_DEPRECATED_IN_9_1_0("Use vtkGhostCellsGenerator instead")
+  VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUniformGridGhostDataGenerator
   : public vtkPDataSetGhostGenerator
 {
 public:

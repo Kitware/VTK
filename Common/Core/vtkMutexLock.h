@@ -45,8 +45,8 @@ typedef int vtkMutexType;
 #endif
 
 // Mutex lock that is not a vtkObject.
-VTK_DEPRECATED_IN_9_1_0("Use std::mutex instead.")
-class VTKCOMMONCORE_EXPORT vtkSimpleMutexLock
+
+class VTK_DEPRECATED_IN_9_1_0("Use std::mutex instead.") VTKCOMMONCORE_EXPORT vtkSimpleMutexLock
 {
 public:
   // left public purposely
@@ -76,8 +76,8 @@ private:
   vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs) = delete;
 };
 
-VTK_DEPRECATED_IN_9_1_0("Use std::mutex instead.")
-class VTKCOMMONCORE_EXPORT vtkMutexLock : public vtkObject
+class VTK_DEPRECATED_IN_9_1_0("Use std::mutex instead.") VTKCOMMONCORE_EXPORT vtkMutexLock
+  : public vtkObject
 {
 public:
   static vtkMutexLock* New();

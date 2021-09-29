@@ -133,8 +133,8 @@ public:
    * vector will have just 1 DataSetT. If dobj is a vtkCompositeDataSet, then
    * we iterate over it and add all non-null leaf nodes to the returned vector.
    */
-  VTK_DEPRECATED_IN_9_1_0("Use vtkCompositeDataSet::GetDataSets instead")
   template <class DataSetT = vtkDataSet>
+  VTK_DEPRECATED_IN_9_1_0("Use vtkCompositeDataSet::GetDataSets instead")
   static std::vector<DataSetT*> GetDataSets(vtkDataObject* dobj);
 
   ///@{

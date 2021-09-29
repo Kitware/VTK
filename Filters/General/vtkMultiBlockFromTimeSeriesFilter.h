@@ -30,8 +30,9 @@
 #include <vector> // Vector to hold timesteps
 
 class vtkMultiBlockDataSet;
-VTK_DEPRECATED_IN_9_1_0("Use vtkGroupTimeStepsFilter instead")
-class VTKFILTERSGENERAL_EXPORT vtkMultiBlockFromTimeSeriesFilter
+
+class VTK_DEPRECATED_IN_9_1_0(
+  "Use vtkGroupTimeStepsFilter instead") VTKFILTERSGENERAL_EXPORT vtkMultiBlockFromTimeSeriesFilter
   : public vtkMultiBlockDataSetAlgorithm
 {
 public:

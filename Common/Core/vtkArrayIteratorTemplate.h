@@ -127,8 +127,8 @@ private:
 #endif
 vtkInstantiateTemplateMacro(extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate);
 extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkStdString>;
-VTK_DEPRECATED_IN_9_1_0("Use vtkArrayIteratorTemplate<vtkStdString>")
-extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkUnicodeString>;
+extern template class VTK_DEPRECATED_IN_9_1_0("Use vtkArrayIteratorTemplate<vtkStdString>")
+  VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkUnicodeString>;
 extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkVariant>;
 #ifdef _MSC_VER
 #pragma warning(pop)

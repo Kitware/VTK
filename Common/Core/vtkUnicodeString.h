@@ -67,8 +67,7 @@ typedef vtkTypeUInt32 vtkUnicodeStringValueType;
   vtkExtraExtendedTemplateMacro(call);                                                             \
   vtkTemplateMacroCase(VTK_UNICODE_STRING, vtkUnicodeString, call)
 
-VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
-class VTKCOMMONCORE_EXPORT vtkUnicodeString
+class VTK_DEPRECATED_IN_9_1_0("Use std::string instead.") VTKCOMMONCORE_EXPORT vtkUnicodeString
 {
 public:
   typedef vtkUnicodeStringValueType value_type;

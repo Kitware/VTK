@@ -141,9 +141,9 @@ inline vtkStdString vtkVariantCast<vtkStdString>(const vtkVariant& value, bool* 
   return value.ToString();
 }
 
+template <>
 VTK_DEPRECATED_IN_9_1_0(
   "Use vtkStdString vtkVariantCast<vtkStdString>(const vtkVariant& value, bool* valid)")
-template <>
 inline vtkUnicodeString vtkVariantCast<vtkUnicodeString>(const vtkVariant& value, bool* valid)
 {
   if (valid)

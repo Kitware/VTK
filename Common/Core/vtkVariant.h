@@ -32,6 +32,7 @@
 #define vtkVariant_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkObject.h"           // For vtkObject's warning support
 #include "vtkSetGet.h"           // For vtkNotUsed macro
 #include "vtkStdString.h"

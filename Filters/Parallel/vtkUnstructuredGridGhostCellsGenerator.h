@@ -39,9 +39,8 @@ class vtkMultiProcessController;
 class vtkUnstructuredGrid;
 class vtkUnstructuredGridBase;
 
-VTK_DEPRECATED_IN_9_1_0("Use vtkGhostCellsGenerator instead")
-class VTKFILTERSPARALLEL_EXPORT vtkUnstructuredGridGhostCellsGenerator
-  : public vtkUnstructuredGridAlgorithm
+class VTK_DEPRECATED_IN_9_1_0("Use vtkGhostCellsGenerator instead") VTKFILTERSPARALLEL_EXPORT
+  vtkUnstructuredGridGhostCellsGenerator : public vtkUnstructuredGridAlgorithm
 {
   vtkTypeMacro(vtkUnstructuredGridGhostCellsGenerator, vtkUnstructuredGridAlgorithm);
 

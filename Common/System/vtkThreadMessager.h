@@ -33,8 +33,8 @@
 #include <pthread.h> // Needed for pthread types
 #endif
 
-VTK_DEPRECATED_IN_9_1_0("Use C++ STL threading classes")
-class VTKCOMMONSYSTEM_EXPORT vtkThreadMessager : public vtkObject
+class VTK_DEPRECATED_IN_9_1_0(
+  "Use C++ STL threading classes") VTKCOMMONSYSTEM_EXPORT vtkThreadMessager : public vtkObject
 {
 public:
   static vtkThreadMessager* New();
