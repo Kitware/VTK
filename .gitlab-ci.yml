@@ -255,7 +255,7 @@ test:wheel-linux-python39-x86_64:
 upload:wheel:pypi:
     extends:
         - .pypi_upload
-        - .weekly_upload_only
+        - .tag_only
     dependencies:
         - build:wheel-linux-python36-x86_64
         - build:wheel-linux-python37-x86_64
@@ -301,7 +301,7 @@ upload:wheel:pypi:
 upload:wheel:vtk:
     extends:
         - .pypi_vtk_upload
-        - .tag_only
+        - .weekly_upload_only
     dependencies:
         - build:wheel-linux-python36-x86_64
         - build:wheel-linux-python37-x86_64
