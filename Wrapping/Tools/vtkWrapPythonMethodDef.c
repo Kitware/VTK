@@ -394,19 +394,19 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassI
   {
     fprintf(fp,
       "  {\"AddObserver\",  Py%s_AddObserver, 1,\n"
-      "   \"AddObserver(self, event:int, command:callable, priority:float=0.0) -> int\\n"
+      "   \"AddObserver(self, event:int, command:Callback, priority:float=0.0) -> int\\n"
       "C++: unsigned long AddObserver(const char* event,\\n"
       "    vtkCommand* command, float priority=0.0f)\\n\\n"
-      "Add an event callback callable(o:vtkObject, event:int) for an event type.\\n"
+      "Add an event callback command(o:vtkObject, event:int) for an event type.\\n"
       "Returns a handle that can be used with RemoveEvent(event:int).\"},\n",
       classname);
 
     /* vtkObject needs a special entry for InvokeEvent */
     fprintf(fp,
       "{\"InvokeEvent\", PyvtkObject_InvokeEvent, METH_VARARGS,\n"
-      "   \"InvokeEvent(self, event:int, callData:any) -> int\\n"
+      "   \"InvokeEvent(self, event:int, callData:Any) -> int\\n"
       "C++: int InvokeEvent(unsigned long event, void* callData)\\n"
-      "InvokeEvent(self, event:str, callData:any) -> int\\n"
+      "InvokeEvent(self, event:str, callData:Any) -> int\\n"
       "C++: int InvokeEvent(const char* event, void* callData)\\n"
       "InvokeEvent(self, event:int) -> int\\n"
       "C++: int InvokeEvent(unsigned long event)\\n"
