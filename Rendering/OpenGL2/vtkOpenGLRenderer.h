@@ -23,7 +23,7 @@
 #ifndef vtkOpenGLRenderer_h
 #define vtkOpenGLRenderer_h
 
-#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_0_0
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_1_0
 #include "vtkRenderer.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer

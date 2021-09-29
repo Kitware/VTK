@@ -27,7 +27,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSetAttributes.h"
-#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_0_0
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_1_0
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPointData : public vtkDataSetAttributes
 {

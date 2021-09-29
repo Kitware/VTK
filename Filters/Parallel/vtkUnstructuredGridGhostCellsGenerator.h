@@ -32,6 +32,7 @@
 #ifndef vtkUnstructuredGridGhostCellsGenerator_h
 #define vtkUnstructuredGridGhostCellsGenerator_h
 
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 

@@ -41,7 +41,7 @@
 #ifndef vtkRenderWindow_h
 #define vtkRenderWindow_h
 
-#include "vtkDeprecation.h"         // for VTK_DEPRECATED_IN_9_0_0
+#include "vtkDeprecation.h"         // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkNew.h"                 // For vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For vtkSmartPointer
