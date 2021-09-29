@@ -412,6 +412,12 @@ void vtkStreamTracer::InitializeSeeds(vtkDataArray*& seeds, vtkIdList*& seedIds,
 //------------------------------------------------------------------------------
 int vtkStreamTracer::SetupOutput(vtkInformation* inInfo, vtkInformation* outInfo)
 {
+  if (!inInfo || !outInfo)
+  {
+    vtkErrorMacro("Input/Output informations are not set, aborting.");
+    return 0;
+  }
+
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
