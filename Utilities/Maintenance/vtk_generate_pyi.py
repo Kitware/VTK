@@ -193,6 +193,10 @@ def get_signatures(o):
     """
     doc = o.__doc__
     signatures = [] # output method signatures
+    if doc is None:
+        return signatures
+
+    # variables used for parsing the docstrings
     begin = 0 # beginning of current signature
     pos = 0 # current position in docstring
     delim_stack = [] # keep track of bracket depth
@@ -532,24 +536,25 @@ def main(argv=sys.argv):
     if basedir is None:
         basedir = os.path.dirname(filename)
     if len(modules) == 0:
-        modules = mod.__all__
+        for modname in mod.__all__:
+            # only generate .pyi files for the extension modules in __all__
+            try:
+                spec = importlib.util.find_spec(f"{packagename}.{modname}")
+            except ValueError:
+                spec = None
+                if not errflag:
+                    errflag = True
+                    sys.stderr.write(f"{progname}: couldn't get loader for {modname}\n")
+            if spec is None:
+                continue
+            if not isinstance(spec.loader, importlib.machinery.ExtensionFileLoader):
+                continue
+            # the module is definitely an extension module
+            modules.append(modname)
 
     # iterate through the modules in the package
     errflag = False
     for modname in modules:
-        # inspect the module before loading it
-        try:
-            spec = importlib.util.find_spec(f"{packagename}.{modname}")
-        except ValueError:
-            spec = None
-            if not errflag:
-                errflag = True
-                sys.stderr.write(f"{progname}: couldn't get loader for {modname}\n")
-        if spec is None:
-            continue
-        if not isinstance(spec.loader, importlib.machinery.ExtensionFileLoader):
-            continue
-        # the module is definitely an extension module, so load it
         mod = importlib.import_module(f"{packagename}.{modname}")
         outfile = os.path.join(basedir, f"{modname}{ext}")
         with open(outfile, "w") as output:
