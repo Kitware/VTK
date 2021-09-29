@@ -1677,23 +1677,27 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetCGNSDat
 }
 
 //----------------------------------------------------------------------------
-bool ExplodeDGMesh(vtkUnstructuredGrid* dataset)
+bool ExplodeDGMesh(vtkUnstructuredGrid* dataset, bool remove_unused_points)
 {
   auto old_points = dataset->GetPoints();
   vtkNew<vtkPoints> exploded_points;
   vtkNew<vtkCellArray> exploded_cells;
+  vtkNew<vtkIdList> original_ids;
 
   const vtkIdType nCells = dataset->GetCells()->GetNumberOfCells();
 
   // TO DO: Get the actual number of points in each element
-  const int nPtsPerCell = dataset->GetCells()->GetMaxCellSize();
-  exploded_points->SetNumberOfPoints(nCells * nPtsPerCell);
+  const vtkIdType nPtsPerCell = dataset->GetCells()->GetCellSize(0);
+  const vtkIdType nPts = nCells * nPtsPerCell;
+
+  exploded_points->SetNumberOfPoints(nPts);
   exploded_cells->AllocateExact(nCells, nPtsPerCell);
+  original_ids->SetNumberOfIds(nPts);
 
   // loop over cell connectivity, redo the connectivity so that each cell is
   // disconnected from other cells and then copy associated points into the
   // point array
-  long ind = 0;
+  vtkIdType ind = 0;
   auto iter = vtk::TakeSmartPointer(dataset->GetCells()->NewIterator());
   for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
   {
@@ -1704,15 +1708,22 @@ bool ExplodeDGMesh(vtkUnstructuredGrid* dataset)
     for (vtkIdType i = 0; i < nPtsPerCell; ++i)
     {
       vtkVector3d coords{ 0.0 };
-
-      old_points->GetPoint(cellIds->GetId(i), coords.GetData());
+      vtkIdType o_id = cellIds->GetId(i);
+      original_ids->SetId(ind, o_id);
+      old_points->GetPoint(o_id, coords.GetData());
       exploded_points->InsertPoint(ind, coords.GetData());
       exploded_cells->InsertCellPoint(ind);
       ind++;
     }
   }
+
   dataset->SetPoints(exploded_points);
   dataset->SetCells(dataset->GetCellTypesArray(), exploded_cells);
+
+  vtkNew<vtkIdTypeArray> opids;
+  opids->SetName("__vtk_mesh_original_pt_ids__");
+  opids->SetArray(original_ids->Release(), nPts, /*save=*/0, vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
+  dataset->GetPointData()->AddArray(opids);
   return true;
 }
 
@@ -1747,10 +1758,17 @@ bool vtkIOSSReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
   // cell is disconnected from every other cell
   if (this->DGInfo.BlockIsDG(blockname))
   {
-    ExplodeDGMesh(dataset);
+    ExplodeDGMesh(dataset, remove_unused_points);
+    if (remove_unused_points)
+    {
+      if (auto originalIds = dataset->GetPointData()->GetArray("__vtk_mesh_original_pt_ids__"))
+      {
+        cache.Insert(group_entity, "__vtk_mesh_original_pt_ids__", originalIds);
+      }
+    }
   }
 
-  if (remove_unused_points)
+  if (remove_unused_points && !this->DGInfo.BlockIsDG(blockname))
   {
     // let's prune unused points.
     vtkNew<vtkRemoveUnusedPoints> pruner;
