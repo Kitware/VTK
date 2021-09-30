@@ -98,9 +98,16 @@ std::string FilePathToTextureName(const std::string& path)
 }
 }
 
+struct TextureInfo
+{
+  std::string Name;
+  vtkSmartPointer<vtkTexture> Texture;
+  std::string Filename;
+};
+
 typedef std::map<std::string, std::vector<double>> NamedVariables;
-// Map ShaderVariableName -> Pair(TextureName, TexturePointer)
-typedef std::map<std::string, std::pair<std::string, vtkSmartPointer<vtkTexture>>> NamedTextures;
+// Map ShaderVariableName -> TextureInfo
+typedef std::map<std::string, TextureInfo> NamedTextures;
 
 class vtkOSPRayMaterialLibraryInternals
 {
@@ -172,7 +179,7 @@ void vtkOSPRayMaterialLibrary::RemoveMaterial(const std::string& nickname)
 
 //------------------------------------------------------------------------------
 void vtkOSPRayMaterialLibrary::AddTexture(const std::string& nickname, const std::string& varname,
-  vtkTexture* tex, const std::string& texname)
+  vtkTexture* tex, const std::string& texname, const std::string& filename)
 {
   std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], varname);
 
@@ -181,7 +188,7 @@ void vtkOSPRayMaterialLibrary::AddTexture(const std::string& nickname, const std
   if (params.find(realname) != params.end())
   {
     NamedTextures& tsForNickname = this->Internal->TexturesFor[nickname];
-    tsForNickname[realname] = { texname, tex };
+    tsForNickname[realname] = { texname, tex, filename };
   }
   else
   {
@@ -359,41 +366,13 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON(
         const Json::Value nexttext = textures[vname];
         const char* tfname = nexttext.asCString();
         vtkNew<vtkTexture> textr;
-        vtkNew<vtkJPEGReader> jpgReader;
-        vtkNew<vtkPNGReader> pngReader;
-        std::string textureName = "unnamedTexture";
-        if (fromfile)
+        std::string textureName, textureFilename;
+        if (!this->ReadTextureFileOrData(
+              nexttext.asString(), fromfile, parentDir, textr, textureName, textureFilename))
         {
-          std::string tfullname = parentDir + "/" + tfname;
-          if (!vtksys::SystemTools::FileExists(tfullname.c_str(), true))
-          {
-            cerr << "No such texture file " << tfullname << " skipping" << endl;
-            continue;
-          }
-          textureName = ::FilePathToTextureName(tfullname);
-          if (tfullname.substr(tfullname.length() - 3) == "png")
-          {
-            pngReader->SetFileName(tfullname.c_str());
-            pngReader->Update();
-            textr->SetInputConnection(pngReader->GetOutputPort(0));
-          }
-          else
-          {
-            jpgReader->SetFileName(tfullname.c_str());
-            jpgReader->Update();
-            textr->SetInputConnection(jpgReader->GetOutputPort(0));
-          }
+          continue;
         }
-        else
-        {
-          textureName = "rawDataTexture";
-          vtkNew<vtkXMLImageDataReader> reader;
-          reader->ReadFromInputStringOn();
-          reader->SetInputString(tfname);
-          textr->SetInputConnection(reader->GetOutputPort(0));
-        }
-        textr->Update();
-        this->AddTexture(nickname, vname, textr, textureName);
+        this->AddTexture(nickname, vname, textr, textureName, textureFilename);
       }
     }
     if (nextmat.isMember("doubles"))
@@ -568,42 +547,14 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
       if (!tfname.empty())
       {
         vtkNew<vtkTexture> textr;
-        vtkNew<vtkJPEGReader> jpgReader;
-        vtkNew<vtkPNGReader> pngReader;
-        std::string textureName = "unnamedTexture";
-        if (fromfile)
+        std::string textureName, textureFilename;
+        if (!this->ReadTextureFileOrData(
+              tfname, fromfile, parentDir, textr, textureName, textureFilename))
         {
-          std::string tfullname = parentDir + "/" + tfname;
-          if (!vtksys::SystemTools::FileExists(tfullname.c_str(), true))
-          {
-            cerr << "No such texture file " << tfullname << " skipping" << endl;
-            continue;
-          }
-          textureName = ::FilePathToTextureName(tfullname);
-          if (tfullname.substr(tfullname.length() - 3) == "png")
-          {
-            pngReader->SetFileName(tfullname.c_str());
-            pngReader->Update();
-            textr->SetInputConnection(pngReader->GetOutputPort(0));
-          }
-          else
-          {
-            jpgReader->SetFileName(tfullname.c_str());
-            jpgReader->Update();
-            textr->SetInputConnection(jpgReader->GetOutputPort(0));
-          }
+          continue;
         }
-        else
-        {
-          textureName = "rawDataTexture";
-          vtkNew<vtkXMLImageDataReader> reader;
-          reader->ReadFromInputStringOn();
-          reader->SetInputString(tfname);
-          textr->SetInputConnection(reader->GetOutputPort(0));
-        }
-        textr->Update();
-
-        this->AddTexture(nickname, key.substr(0, key.size() - 1).c_str(), textr, textureName);
+        this->AddTexture(
+          nickname, key.substr(0, key.size() - 1).c_str(), textr, textureName, textureFilename);
       }
     }
   }
@@ -612,7 +563,71 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
 }
 
 //------------------------------------------------------------------------------
-const char* vtkOSPRayMaterialLibrary::WriteBuffer()
+bool vtkOSPRayMaterialLibrary::ReadTextureFileOrData(const std::string& texFilenameOrData,
+  bool fromfile, const std::string& parentDir, vtkTexture* textr, std::string& textureName,
+  std::string& textureFilename)
+{
+  if (!textr)
+  {
+    vtkErrorMacro("You must initialize the resulting texture before calling ReadTextureFileOrData");
+    return false;
+  }
+
+  textureName = "unnamedTexture";
+  textureFilename = "";
+  if (texFilenameOrData.rfind("<?xml", 0) == 0)
+  {
+    // The data starts with an xml tag, so try to read it with a
+    // XMLImageDataReader
+    textureName = "rawDataTexture";
+    vtkNew<vtkXMLImageDataReader> reader;
+    reader->ReadFromInputStringOn();
+    reader->SetInputString(texFilenameOrData);
+    textr->SetInputConnection(reader->GetOutputPort(0));
+  }
+  else if (fromfile)
+  {
+    textureFilename = texFilenameOrData;
+    // try the texFilenameOrData as an absolute path
+    if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))
+    {
+      // Not found, try as a relative path from the current directory
+      textureFilename = parentDir + "/" + texFilenameOrData;
+      if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))
+      {
+        vtkWarningMacro("No such texture file " << texFilenameOrData << "(absolute path), nor "
+                                                << textureFilename << "(relative path) skipping");
+        return false;
+      }
+    }
+    textureName = ::FilePathToTextureName(textureFilename);
+    if (textureFilename.substr(textureFilename.length() - 3) == "png")
+    {
+      vtkNew<vtkPNGReader> pngReader;
+      pngReader->SetFileName(textureFilename.c_str());
+      pngReader->Update();
+      textr->SetInputConnection(pngReader->GetOutputPort(0));
+    }
+    else
+    {
+      vtkNew<vtkJPEGReader> jpgReader;
+      jpgReader->SetFileName(textureFilename.c_str());
+      jpgReader->Update();
+      textr->SetInputConnection(jpgReader->GetOutputPort(0));
+    }
+  }
+  else
+  {
+    vtkErrorMacro(
+      "Unable to read the texture as XML data nor a file for texture " << texFilenameOrData);
+    return false;
+  }
+  textr->Update();
+  return true;
+}
+
+//------------------------------------------------------------------------------
+const char* vtkOSPRayMaterialLibrary::WriteBuffer(bool writeImageInline)
 {
   Json::Value root;
   root["family"] = "OSPRay";
@@ -657,10 +672,30 @@ const char* vtkOSPRayMaterialLibrary::WriteBuffer()
       while (vit != this->Internal->TexturesFor[nickname].end())
       {
         std::string vname = vit->first;
-        vtkSmartPointer<vtkTexture> vvals = vit->second.second;
-        idwriter->SetInputData(vvals->GetInput());
-        idwriter->Write();
-        std::string os = idwriter->GetOutputString();
+        const TextureInfo& texInfo = vit->second;
+        vtkSmartPointer<vtkTexture> vvals = texInfo.Texture;
+        const std::string& filename = texInfo.Filename;
+
+        if (!vvals)
+        {
+          ++vit;
+          continue;
+        }
+
+        std::string os = "";
+        if (writeImageInline || filename.empty())
+        {
+          // We don't know the filename for this texture, store the image data directly
+          idwriter->SetInputData(vvals->GetInput());
+          idwriter->Write();
+          os = idwriter->GetOutputString();
+        }
+        else
+        {
+          // We have a filename for this texture, store it
+          os = filename;
+        }
+
         Json::Value jvvals = os;
         textures[vname] = jvvals;
         ++vit;
@@ -681,8 +716,8 @@ const char* vtkOSPRayMaterialLibrary::WriteBuffer()
   std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
   std::ostringstream result;
   writer->write(root, &result);
-  std::string rstring = result.str();
 
+  std::string rstring = result.str();
   if (!rstring.empty())
   {
     char* buf = new char[rstring.size() + 1];
@@ -691,6 +726,22 @@ const char* vtkOSPRayMaterialLibrary::WriteBuffer()
     return buf;
   }
   return nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkOSPRayMaterialLibrary::WriteFile(const std::string& filename, bool writeImageInline)
+{
+  const char* rchar = this->WriteBuffer(writeImageInline);
+  std::string rstring = rchar;
+  delete[] rchar;
+
+  if (!rstring.empty())
+  {
+    std::ofstream fstream;
+    fstream.open(filename, std::ofstream::out | std::ofstream::trunc);
+    fstream << rstring;
+    fstream.close();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -712,15 +763,25 @@ std::string vtkOSPRayMaterialLibrary::LookupImplName(const std::string& nickname
 }
 
 //------------------------------------------------------------------------------
+const TextureInfo* vtkOSPRayMaterialLibrary::GetTextureInfo(
+  const std::string& nickname, const std::string& varname)
+{
+  if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
+  {
+    NamedTextures& tsForNickname = this->Internal->TexturesFor[nickname];
+    std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], varname);
+    return &tsForNickname[realname];
+  }
+  return nullptr;
+}
+
+//------------------------------------------------------------------------------
 vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(
   const std::string& nickname, const std::string& varname)
 {
-  NamedTextures tsForNickname;
-  if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
+  if (const TextureInfo* texInfo = this->GetTextureInfo(nickname, varname))
   {
-    tsForNickname = this->Internal->TexturesFor[nickname];
-    std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], varname);
-    return tsForNickname[realname].second;
+    return texInfo->Texture;
   }
   return nullptr;
 }
@@ -729,12 +790,20 @@ vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(
 std::string vtkOSPRayMaterialLibrary::GetTextureName(
   const std::string& nickname, const std::string& varname)
 {
-  NamedTextures tsForNickname;
-  if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
+  if (const TextureInfo* texInfo = this->GetTextureInfo(nickname, varname))
   {
-    tsForNickname = this->Internal->TexturesFor[nickname];
-    std::string realname = ::FindRealName(this->Internal->ImplNames[nickname], varname);
-    return tsForNickname[realname].first;
+    return texInfo->Name;
+  }
+  return "";
+}
+
+//------------------------------------------------------------------------------
+std::string vtkOSPRayMaterialLibrary::GetTextureFilename(
+  const std::string& nickname, const std::string& varname)
+{
+  if (const TextureInfo* texInfo = this->GetTextureInfo(nickname, varname))
+  {
+    return texInfo->Filename;
   }
   return "";
 }
