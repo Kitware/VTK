@@ -3125,7 +3125,8 @@ void vtkIOSSReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ApplyDisplacements: " << this->ApplyDisplacements << endl;
   os << indent << "ReadGlobalFields: " << this->ReadGlobalFields << endl;
   os << indent << "ReadQAAndInformationRecords: " << this->ReadQAAndInformationRecords << endl;
-  os << indent << "DatabaseTypeOverride: " << this->DatabaseTypeOverride << endl;
+  os << indent << "DatabaseTypeOverride: "
+     << (this->DatabaseTypeOverride ? this->DatabaseTypeOverride : "(nullptr)") << endl;
 
   os << indent << "NodeBlockSelection: " << endl;
   this->GetNodeBlockSelection()->PrintSelf(os, indent.GetNextIndent());
