@@ -107,3 +107,5 @@ private:
 };
 
 #endif /* vtkPUniformGridGhostDataGenerator_h */
+
+// VTK-HeaderTest-Exclude: vtkPUniformGridGhostDataGenerator.h

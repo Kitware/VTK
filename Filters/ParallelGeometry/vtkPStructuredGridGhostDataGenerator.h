@@ -94,3 +94,5 @@ private:
 };
 
 #endif /* vtkPStructuredGridGhostDataGenerator_h */
+
+// VTK-HeaderTest-Exclude: vtkPStructuredGridGhostDataGenerator.h

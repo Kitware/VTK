@@ -103,3 +103,5 @@ private:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkUnicodeStringArray.h

@@ -81,3 +81,5 @@ private:
 };
 
 #endif /* vtkPDataSetGhostGenerator_h */
+
+// VTK-HeaderTest-Exclude: vtkPDataSetGhostGenerator.h

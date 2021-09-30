@@ -60,3 +60,5 @@ private:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkMultiBlockFromTimeSeriesFilter.h

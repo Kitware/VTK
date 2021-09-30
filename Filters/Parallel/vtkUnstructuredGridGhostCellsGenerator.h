@@ -137,3 +137,5 @@ private:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkUnstructuredGridGhostCellsGenerator.h

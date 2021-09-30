@@ -117,3 +117,5 @@ inline void vtkMutexLock::Unlock(void)
 }
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkMutexLock.h

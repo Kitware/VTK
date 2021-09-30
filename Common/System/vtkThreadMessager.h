@@ -94,3 +94,5 @@ private:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkThreadMessager.h
