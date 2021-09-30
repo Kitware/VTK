@@ -64,9 +64,9 @@ public:
   DelimitedTextIterator(vtkTable* outputTable, vtkIdType maxRecords, vtkIdType headerLines,
     vtkIdType columnHeadersOnLine, vtkIdType skipColumnNames)
     : MaxRecords(maxRecords)
+    // first two lines are title + column names
     , MaxRecordIndex(maxRecords + headerLines)
-    , // first two lines are title + column names
-    WhiteSpaceOnlyString(true)
+    , WhiteSpaceOnlyString(true)
     , OutputTable(outputTable)
     , CurrentRecordIndex(0)
     , CurrentFieldIndex(0)
