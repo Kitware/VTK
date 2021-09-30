@@ -65,11 +65,11 @@ public:
   typedef value_type* pointer;
   typedef value_type& reference;
 
-  DelimitedTextIterator(const vtkIdType max_records, const vtkUnicodeString& record_delimiters,
+  DelimitedTextIterator(vtkIdType max_records, const vtkUnicodeString& record_delimiters,
     const vtkUnicodeString& field_delimiters, const vtkUnicodeString& string_delimiters,
     const vtkUnicodeString& whitespace, const vtkUnicodeString& escape, bool have_headers,
     bool unicode_array_output, bool merg_cons_delimiters, bool use_string_delimeter,
-    vtkTable* const output_table)
+    vtkTable* output_table)
     : MaxRecords(max_records)
     , MaxRecordIndex(have_headers ? max_records + 1 : max_records)
     , RecordDelimiters(record_delimiters.begin(), record_delimiters.end())

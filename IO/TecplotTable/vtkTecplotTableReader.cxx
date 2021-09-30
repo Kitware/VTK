@@ -61,9 +61,8 @@ public:
   typedef value_type* pointer;
   typedef value_type& reference;
 
-  DelimitedTextIterator(vtkTable* const outputTable, const vtkIdType maxRecords,
-    const vtkIdType headerLines, const vtkIdType columnHeadersOnLine,
-    const vtkIdType skipColumnNames)
+  DelimitedTextIterator(vtkTable* outputTable, vtkIdType maxRecords, vtkIdType headerLines,
+    vtkIdType columnHeadersOnLine, vtkIdType skipColumnNames)
     : MaxRecords(maxRecords)
     , MaxRecordIndex(maxRecords + headerLines)
     , // first two lines are title + column names
