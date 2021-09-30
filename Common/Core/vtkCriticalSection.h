@@ -38,7 +38,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkSimpleCriticalSection.h" // For simple critical section
+#include <mutex> // for std::mutex
 
 class VTKCOMMONCORE_EXPORT vtkCriticalSection : public vtkObject
 {
@@ -59,7 +59,7 @@ public:
   void Unlock();
 
 protected:
-  vtkSimpleCriticalSection SimpleCriticalSection;
+  std::mutex mtx;
   vtkCriticalSection() = default;
   ~vtkCriticalSection() override = default;
 
@@ -70,12 +70,12 @@ private:
 
 inline void vtkCriticalSection::Lock()
 {
-  this->SimpleCriticalSection.Lock();
+  this->mtx.lock();
 }
 
 inline void vtkCriticalSection::Unlock()
 {
-  this->SimpleCriticalSection.Unlock();
+  this->mtx.unlock();
 }
 
 #endif
