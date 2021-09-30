@@ -58,7 +58,6 @@ for m in ['Any', 'Buffer', 'Callback', 'None', 'Pointer', 'Template', 'Union']:
 # basic type checking methods
 ismethod = inspect.isroutine
 isclass = inspect.isclass
-isnamespace = inspect.ismodule
 
 # VTK methods have a special type
 vtkmethod = type(vtkObject.IsA)
@@ -67,6 +66,11 @@ template = type(vtkSOADataArrayTemplate)
 def isvtkmethod(m):
     """Check for VTK's custom method descriptor"""
     return (type(m) == vtkmethod)
+
+def isnamespace(m):
+    """Check for namespaces within a module"""
+    # until vtkmodules.vtkCommonCore.namespace is directly accessible
+    return (str(type(m)) == "<class 'vtkmodules.vtkCommonCore.namespace'>")
 
 def isenum(m):
    """Check for enums (currently derived from int)"""
