@@ -21,7 +21,8 @@ The header vtkParse.h provides a C API for the C++ parser that wrappers use
 to read the VTK header files.  The parser consists of three critical pieces:
 a preprocessor (see below), a lex-based lexical analyzer (lex.yy.c, generated
 from vtkParse.l) and a bison-based glr parser (vtkParse.tab.c, generated from
-vtkParse.y).
+vtkParse.y).  Instructions on rebuilding the parser are provided at the end
+of this document.
 
 ### vtkParsePreprocess
 
@@ -130,8 +131,7 @@ These are named according to the pieces of wrapper code they produce.
 * __vtkWrapPythonConstant__ adds C++ constants to Python classes, namespaces
 
 
-Python Wrapper Executables
---------------------------
+## Python Wrapper Executables
 
 ### vtkWrapPython
 
@@ -146,8 +146,7 @@ produced by vtkWrapPythonInit is linked together to the .cxx files that
 are produced by vtkWrapPython to create the module.
 
 
-Java Wrapper Executables
-------------------------
+## Java Wrapper Executables
 
 * __vtkWrapJava__ produces C++ wrapper code that uses the JNI
 * __vtkParseJava__ produces Java code that sits on top of the C++ code
@@ -192,8 +191,6 @@ To generate lex.yy.c from vtkParse.l, use the following steps.
 6. Remove `struct yy_trans_info`, which is used nowhere in the code
 7. Add the following code at line 23 (after "`end standard C headers`")
 
-To avoid warning related to the use of isatty:
-
     #ifndef __cplusplus
     extern int isatty(int);
     #endif /* __cplusplus */
@@ -227,10 +224,10 @@ is as similar as possible to what is currently in the VTK repository.
 2. Use clang-format-8 to re-style vtkParse.tab.c to match VTK code style
 3. Use "git diff -R vtkParse.tab.c" to produce a patch file
 
-If done correctly, this will produce a patch file contains all the changes
-above (steps 3 through 9 in the original list).  Load the patch file into
-a text editor to verify that this is so.  Remove any superfluous changes
-from the patch file.
+If done correctly, this will produce a patch file that contains all the
+changes above (steps 3 through 9 in the original list).  Load the patch
+file into a text editor to verify that this is so, and remove any superfluous
+changes from the patch file.
 
 Then, switch to your new vtkParse.y (the one you have modified).  Repeat
 steps 1 and 2 (generate vtkParse.tab.c and reformat it with clang-format).
