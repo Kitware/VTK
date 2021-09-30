@@ -19,10 +19,10 @@
 #include "vtkContourFilter.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkDistributedDataFilter.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMPIController.h"
 #include "vtkPConnectivityFilter.h"
-#include "vtkPUnstructuredGridGhostCellsGenerator.h"
 #include "vtkRemoveGhosts.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
@@ -68,10 +68,10 @@ int RunParallelConnectivity(
   vtkNew<vtkDataSetTriangleFilter> tetrahedralize;
   tetrahedralize->SetInputConnection(contour->GetOutputPort());
 
-  vtkNew<vtkPUnstructuredGridGhostCellsGenerator> ghostCells;
+  vtkNew<vtkGhostCellsGenerator> ghostCells;
   ghostCells->SetController(contr);
   ghostCells->SetBuildIfRequired(false);
-  ghostCells->SetMinimumNumberOfGhostLevels(1);
+  ghostCells->SetNumberOfGhostLayers(1);
   ghostCells->SetInputConnection(tetrahedralize->GetOutputPort());
 
   // Test factory override mechanism instantiated as a vtkPConnectivityFilter.
