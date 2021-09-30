@@ -35,6 +35,7 @@ TEST_DEPENDS
   VTK::IOImage
   VTK::IOImport
   VTK::IOLegacy
+  VTK::IOParallel
   VTK::IOPLY
   VTK::IOXML
   VTK::ImagingGeneral

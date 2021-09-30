@@ -3,7 +3,6 @@ if (VTK_ENABLE_OSPRAY)
     # Surface rendering tests
     TestOSPRayAmbient.cxx
     TestOSPRayAMRVolumeRenderer.cxx
-    TestOSPRayBoxWidget2.cxx
     TestOSPRayCompositePolyDataMapper2.cxx
     TestOSPRayDepthOfField.cxx
     TestOSPRayDynamicObject.cxx
@@ -53,6 +52,9 @@ if (VTK_ENABLE_OSPRAY)
     # Miscellaneous tests
     TestOSPRayCache.cxx
     TestOSPRayTiling.cxx
+    # Widgets tests
+    TestOSPRayBoxWidget2.cxx
+    TestOSPRayImplicitPlaneWidget2.cxx
   )
 endif()
 
