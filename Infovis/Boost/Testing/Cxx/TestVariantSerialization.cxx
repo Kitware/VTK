@@ -17,6 +17,10 @@
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
+
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkSmartPointer.h"
 #include "vtkUnicodeString.h"
 #include "vtkVariant.h"
