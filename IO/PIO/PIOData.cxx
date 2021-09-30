@@ -128,11 +128,11 @@ PIO_DATA::~PIO_DATA()
   delete this->Infile;
   this->Infile = nullptr;
   std::set<const char*, Cstring_less>::iterator q;
-  for (auto q : RealData)
-    std::free(const_cast<char*>(q));
+  for (auto v : RealData)
+    std::free(const_cast<char*>(v));
   RealData.clear();
-  for (auto q : CharData)
-    std::free(const_cast<char*>(q));
+  for (auto v : CharData)
+    std::free(const_cast<char*>(v));
   CharData.clear();
 } // End PIO_DATA::~PIO_DATA()
 
