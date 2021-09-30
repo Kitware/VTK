@@ -258,9 +258,9 @@ function (_vtk_module_wrap_java_library name)
     ${_vtk_java_library_sources})
 
   if (_vtk_java_UTILITY_TARGET)
-    target_link_libraries("${_vtk_python_TARGET_NAME}"
+    target_link_libraries("${_vtk_java_TARGET_NAME}"
       PRIVATE
-        "${_vtk_python_UTILITY_TARGET}")
+        "${_vtk_java_UTILITY_TARGET}")
   endif ()
 
   add_custom_target("${_vtk_java_target}-java-sources"
