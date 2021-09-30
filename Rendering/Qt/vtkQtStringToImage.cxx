@@ -147,6 +147,12 @@ vtkVector2i vtkQtStringToImage::GetBounds(
 int vtkQtStringToImage::RenderString(vtkTextProperty* property, const vtkUnicodeString& string,
   int dpi, vtkImageData* data, int textDims[2])
 {
+  return this->RenderString(property, string.utf8_str(), dpi, data, textDims);
+}
+
+int vtkQtStringToImage::RenderString(vtkTextProperty* property, const vtkStdString& string, int dpi,
+  vtkImageData* data, int textDims[2])
+{
   if (!QApplication::instance())
   {
     vtkErrorMacro("You must initialize a QApplication before using this class.");
@@ -164,7 +170,7 @@ int vtkQtStringToImage::RenderString(vtkTextProperty* property, const vtkUnicode
     textDims[1] = box.GetY();
   }
 
-  QString text = QString::fromUtf8(string.utf8_str());
+  QString text = QString::fromUtf8(string.c_str());
   QFont fontSpec = this->Implementation->TextPropertyToFont(property, dpi);
   QFontMetrics fontMetric(fontSpec);
 
@@ -217,12 +223,6 @@ int vtkQtStringToImage::RenderString(vtkTextProperty* property, const vtkUnicode
 
   this->QImageToImage->SetQImage(nullptr);
   return 1;
-}
-
-int vtkQtStringToImage::RenderString(vtkTextProperty* property, const vtkStdString& string, int dpi,
-  vtkImageData* data, int textDims[2])
-{
-  return this->RenderString(property, vtkUnicodeString::from_utf8(string), dpi, data, textDims);
 }
 
 //------------------------------------------------------------------------------

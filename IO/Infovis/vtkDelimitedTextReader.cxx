@@ -59,6 +59,7 @@
 namespace
 {
 
+// FIXME(#18327): Port away from `vtkUnicodeString`.
 class DelimitedTextIterator : public vtkTextCodec::OutputIterator
 {
 public:

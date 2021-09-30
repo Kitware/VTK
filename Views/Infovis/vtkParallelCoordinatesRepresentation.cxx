@@ -293,6 +293,8 @@ vtkParallelCoordinatesRepresentation::~vtkParallelCoordinatesRepresentation()
 //------------------------------------------------------------------------------
 std::string vtkParallelCoordinatesRepresentation::GetHoverString(vtkView* view, int x, int y)
 {
+  // FIXME(#18327): Migrate to processing here rather than working on
+  // `vtkUnicodeString`.
   std::string result;
   const char* text = GetHoverText(view, x, y);
   if (text != nullptr)
