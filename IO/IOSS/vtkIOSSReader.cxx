@@ -195,11 +195,11 @@ struct DGInformation
   bool BlockIsDG(std::string name) { return elementTypes.count(name); }
 };
 
-std::vector<std::string> split(std::string inString, std::string delimeter)
+std::vector<std::string> split(const std::string& inString, const std::string& delimeter)
 {
   std::vector<std::string> subStrings;
-  int sIdx = 0;
-  int eIdx = 0;
+  size_t sIdx = 0;
+  size_t eIdx = 0;
   while ((eIdx = inString.find(delimeter, sIdx)) < inString.size())
   {
     subStrings.push_back(inString.substr(sIdx, eIdx - sIdx));
@@ -212,22 +212,29 @@ std::vector<std::string> split(std::string inString, std::string delimeter)
   return subStrings;
 }
 
-void parseDGInfo(DGInformation& dgInfo, std::vector<std::string> info_records)
+void parseDGInfo(DGInformation& dgInfo, const std::vector<std::string>& info_records)
 {
   for (auto& record : info_records)
   {
     auto data = split(record, "::");
     // check if the row in the record is a DG callout
-    if (data[0] != "DG" || data.size() < 4)
+    if (data.size() < 4 || data[0] != "DG")
+    {
       continue;
+    }
+
     // get the block associated with that callout
     std::string name = data[1];
 
     // get if its a basis or a field
     if (data[2] == "basis")
+    {
       dgInfo.elementTypes[name] = data[3];
-    if (data[2] == "field")
+    }
+    else if (data[2] == "field")
+    {
       dgInfo.fields[name].push_back(data[3]);
+    }
   }
 }
 
