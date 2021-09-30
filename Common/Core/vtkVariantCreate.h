@@ -125,10 +125,7 @@ inline vtkVariant vtkVariantCreate<vtkStdString>(const vtkStdString& value)
 
 template <>
 VTK_DEPRECATED_IN_9_1_0("Use vtkVariant vtkVariantCreate<vtkStdString>(const vtkStdString& value)")
-inline vtkVariant vtkVariantCreate<vtkUnicodeString>(const vtkUnicodeString& value)
-{
-  return value;
-}
+VTKCOMMONCORE_EXPORT vtkVariant vtkVariantCreate<vtkUnicodeString>(const vtkUnicodeString& value);
 
 template <>
 inline vtkVariant vtkVariantCreate<vtkVariant>(const vtkVariant& value)

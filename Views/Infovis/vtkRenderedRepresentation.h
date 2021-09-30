@@ -87,10 +87,7 @@ protected:
    */
   virtual std::string GetHoverStringInternal(vtkSelection*) { return ""; }
   VTK_DEPRECATED_IN_9_1_0("Use std::string GetHoverStringInternal(vtkSelection*)")
-  vtkUnicodeString GetHoverTextInternal(vtkSelection* selection)
-  {
-    return vtkUnicodeString::from_utf8(GetHoverStringInternal(selection));
-  }
+  vtkUnicodeString GetHoverTextInternal(vtkSelection* selection);
 
   /**
    * The view will call this method before every render.

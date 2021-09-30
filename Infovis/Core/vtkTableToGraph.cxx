@@ -41,6 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnicodeString.h" // for vtkSuperExtraExtendedTemplateMacro
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 

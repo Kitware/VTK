@@ -1112,3 +1112,13 @@ ostream& operator<<(ostream& os, const vtkVariant& val)
   }
   return os;
 }
+
+bool vtkVariant::CheckUnicodeStringEqual(const vtkVariant& other) const
+{
+  return this->ToUnicodeString() == other.ToUnicodeString();
+}
+
+bool vtkVariant::CheckUnicodeStringLessThan(const vtkVariant& other) const
+{
+  return this->ToUnicodeString() < other.ToUnicodeString();
+}

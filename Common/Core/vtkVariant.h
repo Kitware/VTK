@@ -38,7 +38,6 @@
 #include "vtkStdString.h"
 #include "vtkSystemIncludes.h" // To define ostream
 #include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
-#include "vtkUnicodeString.h"
 
 //
 // The following should be eventually placed in vtkSetGet.h
@@ -454,6 +453,10 @@ private:
     unsigned long long UnsignedLongLong;
     vtkObjectBase* VTKObject;
   } Data;
+
+  // XXX(9.1): Remove with VTK_DEPRECATED_IN_9_1_0().
+  bool CheckUnicodeStringEqual(const vtkVariant& other) const;
+  bool CheckUnicodeStringLessThan(const vtkVariant& other) const;
 
   unsigned char Valid;
   unsigned char Type;

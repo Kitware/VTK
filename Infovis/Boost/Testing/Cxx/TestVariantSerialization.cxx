@@ -18,6 +18,7 @@
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
 #include "vtkSmartPointer.h"
+#include "vtkUnicodeString.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 #include "vtkVariantBoostSerialization.h"

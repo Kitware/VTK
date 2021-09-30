@@ -22,6 +22,7 @@
 #include "vtkPoints2D.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
+#include "vtkUnicodeString.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 

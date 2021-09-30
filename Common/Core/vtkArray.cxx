@@ -22,6 +22,7 @@
 #include "vtkArray.h"
 #include "vtkDenseArray.h"
 #include "vtkSparseArray.h"
+#include "vtkUnicodeString.h"
 #include "vtkVariant.h"
 
 #include <algorithm>

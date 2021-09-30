@@ -26,6 +26,7 @@
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
+#include <vtkUnicodeString.h>
 
 #include <iostream>
 #include <sstream>

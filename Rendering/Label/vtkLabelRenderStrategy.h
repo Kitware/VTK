@@ -75,10 +75,7 @@ public:
    * Compute the bounds of a label. Must be performed after the renderer is set.
    * Only the unicode string version must be implemented in subclasses.
    */
-  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4])
-  {
-    this->ComputeLabelBounds(tprop, vtkUnicodeString::from_utf8(label.c_str()), bds);
-  }
+  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4]);
   VTK_DEPRECATED_IN_9_1_0(
     "Use void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4])")
   virtual void ComputeLabelBounds(
@@ -93,24 +90,14 @@ public:
    * that return true from SupportsBoundedSize must implement this version of th
    * method.
    */
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
-  {
-    this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label));
-  }
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth)
-  {
-    this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label), maxWidth);
-  }
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label);
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth);
   VTK_DEPRECATED_IN_9_1_0(
     "Use void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)")
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label) = 0;
   VTK_DEPRECATED_IN_9_1_0(
     "Use void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth)")
-  virtual void RenderLabel(
-    int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int vtkNotUsed(maxWidth))
-  {
-    this->RenderLabel(x, tprop, label);
-  }
+  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth);
 
   /**
    * Start a rendering frame. Renderer must be set.

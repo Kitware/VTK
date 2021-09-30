@@ -192,10 +192,7 @@ public:
   VTK_DEPRECATED_IN_9_1_0("Use bool GetBoundingBox(vtkTextProperty* tprop, const vtkStdString& "
                           "str, int bbox[4], int dpi, int backend)")
   bool GetBoundingBox(vtkTextProperty* tprop, const vtkUnicodeString& str, int bbox[4], int dpi,
-    int backend = Default)
-  {
-    return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
-  }
+    int backend = Default);
   ///@}
 
   ///@{
@@ -212,10 +209,7 @@ public:
   VTK_DEPRECATED_IN_9_1_0("Use bool GetMetrics(vtkTextProperty* tprop, const vtkStdString& str, "
                           "Metrics& metrics, int dpi, int backend)")
   bool GetMetrics(vtkTextProperty* tprop, const vtkUnicodeString& str, Metrics& metrics, int dpi,
-    int backend = Default)
-  {
-    return this->GetMetricsInternal(tprop, str, metrics, dpi, backend);
-  }
+    int backend = Default);
   ///@}
 
   ///@{
@@ -241,10 +235,7 @@ public:
   VTK_DEPRECATED_IN_9_1_0("Use bool RenderString(vtkTextProperty* tprop, const vtkStdString& str, "
                           "vtkImageData* data, int textDims[2], int dpi, int backend)")
   bool RenderString(vtkTextProperty* tprop, const vtkUnicodeString& str, vtkImageData* data,
-    int textDims[2], int dpi, int backend = Default)
-  {
-    return this->RenderStringInternal(tprop, str, data, textDims, dpi, backend);
-  }
+    int textDims[2], int dpi, int backend = Default);
   ///@}
 
   ///@{
@@ -264,11 +255,7 @@ public:
     "Use int GetConstrainedFontSize(const vtkStdString& str, vtkTextProperty* tprop, int "
     "targetWidth, int targetHeight, int dpi, int backend)")
   int GetConstrainedFontSize(const vtkUnicodeString& str, vtkTextProperty* tprop, int targetWidth,
-    int targetHeight, int dpi, int backend = Default)
-  {
-    return this->GetConstrainedFontSizeInternal(
-      str, tprop, targetWidth, targetHeight, dpi, backend);
-  }
+    int targetHeight, int dpi, int backend = Default);
   ///@}
 
   ///@{
@@ -287,10 +274,7 @@ public:
   VTK_DEPRECATED_IN_9_1_0("Use bool StringToPath(vtkTextProperty* tprop, const vtkStdString& str, "
                           "vtkPath* path, int dpi, int backend)")
   bool StringToPath(vtkTextProperty* tprop, const vtkUnicodeString& str, vtkPath* path, int dpi,
-    int backend = Default)
-  {
-    return this->StringToPathInternal(tprop, str, path, dpi, backend);
-  }
+    int backend = Default);
   ///@}
 
   /**

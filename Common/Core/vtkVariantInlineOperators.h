@@ -109,7 +109,7 @@ inline bool vtkVariant::operator==(const vtkVariant& other) const
   // is a unicode string then they must both be compared as strings.
   if ((this->Type == VTK_UNICODE_STRING) || (other.Type == VTK_UNICODE_STRING))
   {
-    return (this->ToUnicodeString() == other.ToUnicodeString());
+    return this->CheckUnicodeStringEqual(other);
   }
 
   // Fifth: floating point dominates integer types.
@@ -184,7 +184,7 @@ inline bool vtkVariant::operator<(const vtkVariant& other) const
   // is a unicode string then they must both be compared as strings.
   if ((this->Type == VTK_UNICODE_STRING) || (other.Type == VTK_UNICODE_STRING))
   {
-    return (this->ToUnicodeString() < other.ToUnicodeString());
+    return this->CheckUnicodeStringLessThan(other);
   }
 
   // Fourth: floating point dominates integer types.

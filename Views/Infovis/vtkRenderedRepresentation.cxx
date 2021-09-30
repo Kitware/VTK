@@ -112,3 +112,8 @@ void vtkRenderedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LabelRenderMode: " << this->LabelRenderMode << endl;
 }
+
+vtkUnicodeString vtkRenderedRepresentation::GetHoverTextInternal(vtkSelection* selection)
+{
+  return vtkUnicodeString::from_utf8(GetHoverStringInternal(selection));
+}

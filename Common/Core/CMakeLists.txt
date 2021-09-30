@@ -264,6 +264,10 @@ set(template_classes
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
+  # A separate file that hides some deprecated usages from headers to avoid
+  # spamming users of `vtkVariant*.h` headers with noisy warnings. Remove with
+  # `VTK_DEPRECATED_IN_9_1_0()`.
+  vtkVariantCast.cxx
   ${instantiation_sources}
   ${vtk_smp_sources})
 
