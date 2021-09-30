@@ -133,7 +133,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
   db->SetDatabaseType(dbtype.toUtf8().data());
   db->SetDatabaseName(database.toUtf8().data());
   db->SetUserName(user.toUtf8().data());
-  db->SetPort(port);
+  db->SetDbPort(port);
   if (!db->Open(password.toUtf8().data()))
   {
     cerr << "Unable to open database" << endl;
