@@ -21,6 +21,9 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <iostream>
+#include <numeric>
+
 vtkStandardNewMacro(vtkImageDifference);
 
 // Thread-local data needed for each thread.
@@ -65,76 +68,6 @@ vtkImageDifference::vtkImageDifference()
 
   this->SetNumberOfInputPorts(2);
 }
-
-// not so simple macro for calculating error
-#define vtkImageDifferenceComputeError(c1, c2)                                                     \
-  /* if averaging is on and we have neighbor info then compute */                                  \
-  /* avg(input1) to avg(input2) */                                                                 \
-  /* compute the pixel to pixel difference first */                                                \
-  if (averaging == 0 && (idx0 + xneigh >= inMinX) && (idx0 + xneigh <= inMaxX) &&                  \
-    (idx1 + yneigh >= inMinY) && (idx1 + yneigh <= inMaxY))                                        \
-  {                                                                                                \
-    r1 = abs((static_cast<int>((c1)[0]) - static_cast<int>((c2)[0])));                             \
-    g1 = abs((static_cast<int>((c1)[1]) - static_cast<int>((c2)[1])));                             \
-    b1 = abs((static_cast<int>((c1)[2]) - static_cast<int>((c2)[2])));                             \
-    if ((r1 + g1 + b1) < (tr + tg + tb))                                                           \
-    {                                                                                              \
-      tr = r1;                                                                                     \
-      tg = g1;                                                                                     \
-      tb = b1;                                                                                     \
-    }                                                                                              \
-    haveValues = true;                                                                             \
-  }                                                                                                \
-  if (averaging == 1 && (idx0 + xneigh > inMinX) && (idx0 + xneigh < inMaxX) &&                    \
-    (idx1 + yneigh > inMinY) && (idx1 + yneigh < inMaxY))                                          \
-  {                                                                                                \
-    ar1 = static_cast<int>((c1)[0]) + static_cast<int>((c1 - in1Inc0)[0]) +                        \
-      static_cast<int>((c1 + in1Inc0)[0]) + static_cast<int>((c1 - in1Inc1)[0]) +                  \
-      static_cast<int>((c1 - in1Inc1 - in1Inc0)[0]) +                                              \
-      static_cast<int>((c1 - in1Inc1 + in1Inc0)[0]) + static_cast<int>((c1 + in1Inc1)[0]) +        \
-      static_cast<int>((c1 + in1Inc1 - in1Inc0)[0]) +                                              \
-      static_cast<int>((c1 + in1Inc1 + in1Inc0)[0]);                                               \
-    ag1 = static_cast<int>((c1)[1]) + static_cast<int>((c1 - in1Inc0)[1]) +                        \
-      static_cast<int>((c1 + in1Inc0)[1]) + static_cast<int>((c1 - in1Inc1)[1]) +                  \
-      static_cast<int>((c1 - in1Inc1 - in1Inc0)[1]) +                                              \
-      static_cast<int>((c1 - in1Inc1 + in1Inc0)[1]) + static_cast<int>((c1 + in1Inc1)[1]) +        \
-      static_cast<int>((c1 + in1Inc1 - in1Inc0)[1]) +                                              \
-      static_cast<int>((c1 + in1Inc1 + in1Inc0)[1]);                                               \
-    ab1 = static_cast<int>((c1)[2]) + static_cast<int>((c1 - in1Inc0)[2]) +                        \
-      static_cast<int>((c1 + in1Inc0)[2]) + static_cast<int>((c1 - in1Inc1)[2]) +                  \
-      static_cast<int>((c1 - in1Inc1 - in1Inc0)[2]) +                                              \
-      static_cast<int>((c1 - in1Inc1 + in1Inc0)[2]) + static_cast<int>((c1 + in1Inc1)[2]) +        \
-      static_cast<int>((c1 + in1Inc1 - in1Inc0)[2]) +                                              \
-      static_cast<int>((c1 + in1Inc1 + in1Inc0)[2]);                                               \
-    ar2 = static_cast<int>((c2)[0]) + static_cast<int>((c2 - in2Inc0)[0]) +                        \
-      static_cast<int>((c2 + in2Inc0)[0]) + static_cast<int>((c2 - in2Inc1)[0]) +                  \
-      static_cast<int>((c2 - in2Inc1 - in2Inc0)[0]) +                                              \
-      static_cast<int>((c2 - in2Inc1 + in2Inc0)[0]) + static_cast<int>((c2 + in2Inc1)[0]) +        \
-      static_cast<int>((c2 + in2Inc1 - in2Inc0)[0]) +                                              \
-      static_cast<int>((c2 + in2Inc1 + in2Inc0)[0]);                                               \
-    ag2 = static_cast<int>((c2)[1]) + static_cast<int>((c2 - in2Inc0)[1]) +                        \
-      static_cast<int>((c2 + in2Inc0)[1]) + static_cast<int>((c2 - in2Inc1)[1]) +                  \
-      static_cast<int>((c2 - in2Inc1 - in2Inc0)[1]) +                                              \
-      static_cast<int>((c2 - in2Inc1 + in2Inc0)[1]) + static_cast<int>((c2 + in2Inc1)[1]) +        \
-      static_cast<int>((c2 + in2Inc1 - in2Inc0)[1]) +                                              \
-      static_cast<int>((c2 + in2Inc1 + in2Inc0)[1]);                                               \
-    ab2 = static_cast<int>((c2)[2]) + static_cast<int>((c2 - in2Inc0)[2]) +                        \
-      static_cast<int>((c2 + in2Inc0)[2]) + static_cast<int>((c2 - in2Inc1)[2]) +                  \
-      static_cast<int>((c2 - in2Inc1 - in2Inc0)[2]) +                                              \
-      static_cast<int>((c2 - in2Inc1 + in2Inc0)[2]) + static_cast<int>((c2 + in2Inc1)[2]) +        \
-      static_cast<int>((c2 + in2Inc1 - in2Inc0)[2]) +                                              \
-      static_cast<int>((c2 + in2Inc1 + in2Inc0)[2]);                                               \
-    r1 = abs(ar1 - ar2) / (9 * this->AverageThresholdFactor);                                      \
-    g1 = abs(ag1 - ag2) / (9 * this->AverageThresholdFactor);                                      \
-    b1 = abs(ab1 - ab2) / (9 * this->AverageThresholdFactor);                                      \
-    haveValues = true;                                                                             \
-    if ((r1 + g1 + b1) < (tr + tg + tb))                                                           \
-    {                                                                                              \
-      tr = r1;                                                                                     \
-      tg = g1;                                                                                     \
-      tb = b1;                                                                                     \
-    }                                                                                              \
-  }
 
 //------------------------------------------------------------------------------
 // This functor is used with vtkSMPTools to execute the algorithm in pieces
@@ -273,8 +206,8 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   vtkIdType in1Inc0, in1Inc1, in1Inc2;
   vtkIdType in2Inc0, in2Inc1, in2Inc2;
   vtkIdType outInc0, outInc1, outInc2;
-  int tr, tg, tb, r1, g1, b1;
-  int ar1, ag1, ab1, ar2, ag2, ab2;
+  int tr, tg, tb, ta, r1, g1, b1, a1;
+  int ar1, ag1, ab1, aa1, ar2, ag2, ab2, aa2;
   int inMinX, inMaxX, inMinY, inMaxY;
   int* inExt;
   unsigned long count = 0;
@@ -304,12 +237,22 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
     return;
   }
 
-  if (inData[0][0]->GetNumberOfScalarComponents() != 3 ||
-    inData[1][0]->GetNumberOfScalarComponents() != 3 ||
-    outData[0]->GetNumberOfScalarComponents() != 3)
+  int nComp = inData[0][0]->GetNumberOfScalarComponents();
+  int input1NComp = inData[1][0]->GetNumberOfScalarComponents();
+  int outputNComp = outData[0]->GetNumberOfScalarComponents();
+  if (nComp != input1NComp)
   {
-    threadData->ErrorMessage = "Expecting 3 components (RGB)";
+    threadData->ErrorMessage = "Inputs number of components are differents";
     return;
+  }
+  if (outputNComp != input1NComp)
+  {
+    threadData->ErrorMessage = "Input and output number of components are differents";
+    return;
+  }
+  if (nComp != 3 && input1NComp != 4)
+  {
+    threadData->ErrorMessage = "Expecting 3 or 4 components (RGB/A)";
   }
 
   // this filter expects that input is the same type as output.
@@ -381,9 +324,14 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
       {
-        int rmax = 0;
-        int gmax = 0;
-        int bmax = 0;
+        std::array<int, 4> rgbaMax;
+        rgbaMax.fill(0);
+        std::array<int, 4> rgbaTresh;
+        rgbaTresh.fill(1000);
+        if (nComp = 3)
+        {
+          rgbaTresh[3] = 0;
+        }
 
         // ignore the boundary within two pixels as we cannot
         // do a good average calc on the boundary
@@ -394,9 +342,6 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
           {
             unsigned char* dir1Ptr0 = direction == 0 ? in1Ptr0 : in2Ptr0;
             unsigned char* dir2Ptr0 = direction == 0 ? in2Ptr0 : in1Ptr0;
-            tr = 1000;
-            tg = 1000;
-            tb = 1000;
             bool haveValues = false;
             bool done = false;
 
@@ -408,52 +353,108 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
                 for (int xneigh = this->AllowShift ? -2 : 0;
                      xneigh <= (this->AllowShift ? 2 : 0) && !done; ++xneigh)
                 {
-                  vtkImageDifferenceComputeError(
-                    dir1Ptr0 + yneigh * in1Inc1 + xneigh * in1Inc0, dir2Ptr0);
-                  // once we have a good enough match stop to save time
-                  if (tr < this->Threshold && tg < this->Threshold && tb < this->Threshold)
+                  unsigned char* c1 = dir1Ptr0 + yneigh * in1Inc1 + xneigh * in1Inc0;
+                  unsigned char* c2 = dir2Ptr0;
+                  if (averaging)
                   {
-                    done = true;
+                    if ((idx0 + xneigh > inMinX) && (idx0 + xneigh < inMaxX) &&
+                      (idx1 + yneigh > inMinY) && (idx1 + yneigh < inMaxY))
+                    {
+                      std::array<int, 4> rgba1;
+                      rgba1.fill(0);
+                      std::array<int, 4> rgbaA1;
+                      rgbaA1.fill(0);
+                      for (int i = 0; i < nComp; i++)
+                      {
+                        rgbaA1[i] = static_cast<int>((c1)[i]) +
+                          static_cast<int>((c1 - in1Inc0)[i]) +
+                          static_cast<int>((c1 + in1Inc0)[i]) +
+                          static_cast<int>((c1 - in1Inc1)[i]) +
+                          static_cast<int>((c1 - in1Inc1 - in1Inc0)[i]) +
+                          static_cast<int>((c1 - in1Inc1 + in1Inc0)[i]) +
+                          static_cast<int>((c1 + in1Inc1)[i]) +
+                          static_cast<int>((c1 + in1Inc1 - in1Inc0)[i]) +
+                          static_cast<int>((c1 + in1Inc1 + in1Inc0)[i]);
+                      }
+                      std::array<int, 4> rgbaA2;
+                      rgbaA2.fill(0);
+                      for (int i = 0; i < nComp; i++)
+                      {
+                        rgbaA2[i] = static_cast<int>((c2)[i]) +
+                          static_cast<int>((c2 - in2Inc0)[i]) +
+                          static_cast<int>((c2 + in2Inc0)[i]) +
+                          static_cast<int>((c2 - in2Inc1)[i]) +
+                          static_cast<int>((c2 - in2Inc1 - in2Inc0)[i]) +
+                          static_cast<int>((c2 - in2Inc1 + in2Inc0)[i]) +
+                          static_cast<int>((c2 + in2Inc1)[i]) +
+                          static_cast<int>((c2 + in2Inc1 - in2Inc0)[i]) +
+                          static_cast<int>((c2 + in2Inc1 + in2Inc0)[i]);
+                        rgba1[i] = abs(rgbaA1[i] - rgbaA2[i]) / (9 * this->AverageThresholdFactor);
+                      }
+                      haveValues = true;
+                      if (std::accumulate(rgba1.begin(), rgba1.end(), 0) <
+                        std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0))
+                      {
+                        std::copy(rgba1.begin(), rgba1.end(), rgbaTresh.begin());
+                      }
+                    }
+                  }
+                  else
+                  {
+                    if ((idx0 + xneigh >= inMinX) && (idx0 + xneigh <= inMaxX) &&
+                      (idx1 + yneigh >= inMinY) && (idx1 + yneigh <= inMaxY))
+                    {
+                      std::array<int, 4> rgba1;
+                      rgba1.fill(0);
+                      for (int i = 0; i < nComp; i++)
+                      {
+                        rgba1[i] = abs((static_cast<int>((c1)[i]) - static_cast<int>((c2)[i])));
+                      }
+                      if (std::accumulate(rgba1.begin(), rgba1.end(), 0) <
+                        std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0))
+                      {
+                        std::copy(rgba1.begin(), rgba1.end(), rgbaTresh.begin());
+                      }
+                      haveValues = true;
+                    }
+                  }
+
+                  bool done = true;
+                  for (int i = 0; i < nComp; i++)
+                  {
+                    // once we have a good enough match stop to save time
+                    if (rgbaTresh[i] >= this->Threshold)
+                    {
+                      done = false;
+                    }
                   }
                 }
               }
             }
             if (haveValues)
             {
-              rmax = tr > rmax ? tr : rmax;
-              gmax = tg > gmax ? tg : gmax;
-              bmax = tb > bmax ? tb : bmax;
+              for (int i = 0; i < nComp; i++)
+              {
+                rgbaMax[i] = std::max(rgbaTresh[i], rgbaMax[i]);
+              }
             }
           }
         }
 
-        tr = rmax;
-        tg = gmax;
-        tb = bmax;
+        std::copy(rgbaMax.begin(), rgbaMax.end(), rgbaTresh.begin());
 
-        error += (tr + tg + tb) / (3.0 * 255);
-        tr -= this->Threshold;
-        if (tr < 0)
-        {
-          tr = 0;
-        }
-        tg -= this->Threshold;
-        if (tg < 0)
-        {
-          tg = 0;
-        }
-        tb -= this->Threshold;
-        if (tb < 0)
-        {
-          tb = 0;
-        }
-        *outPtr0++ = static_cast<unsigned char>(tr);
-        *outPtr0++ = static_cast<unsigned char>(tg);
-        *outPtr0++ = static_cast<unsigned char>(tb);
-        thresholdedError += (tr + tg + tb) / (3.0 * 255.0);
+        error += std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0) / (4.0 * 255);
 
-        in1Ptr0 += 3;
-        in2Ptr0 += 3;
+        for (int i = 0; i < nComp; i++)
+        {
+          rgbaTresh[i] -= this->Threshold;
+          rgbaTresh[i] = std::max(0, rgbaTresh[i]);
+          *outPtr0++ = static_cast<unsigned char>(rgbaTresh[i]);
+        }
+        thresholdedError += std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0) / (4.0 * 255.0);
+
+        in1Ptr0 += nComp;
+        in2Ptr0 += nComp;
       }
       in1Ptr0 += contInIncr1;
       in2Ptr0 += contInIncr1;
