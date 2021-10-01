@@ -1,8 +1,13 @@
+SET(_VTK_FLT_EXCEPTIONS "vtkFloatingPointExceptions::Enable()")
+IF(${DISABLE_FLOATING_POINT_EXCEPTIONS})
+  SET(_VTK_FLT_EXCEPTIONS "vtkFloatingPointExceptions::Disable()")
+ENDIF()
+
 SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 "
     vtksys::SystemInformation::SetStackTraceOnError(1);
 #ifndef NDEBUG
-    vtkFloatingPointExceptions::Enable();
+    ${_VTK_FLT_EXCEPTIONS};
 #endif
 
     // Set defaults

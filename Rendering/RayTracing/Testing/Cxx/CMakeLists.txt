@@ -107,6 +107,7 @@ endif ()
 
 set(all_tests ${tests} ${tests_optix} ${tests_combined})
 vtk_test_cxx_executable(vtkRenderingRayTracingCxxTests all_tests RENDERING_FACTORY
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   vtkOSPRayTestInteractor.cxx
   )
 

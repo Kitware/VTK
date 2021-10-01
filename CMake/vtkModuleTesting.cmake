@@ -494,7 +494,9 @@ Any additional arguments are added as additional sources for the executable.
 #]==]
 function (vtk_test_cxx_executable exename _tests)
   set(exe_options
-    RENDERING_FACTORY)
+    RENDERING_FACTORY
+    DISABLE_FLOATING_POINT_EXCEPTIONS
+    )
   _vtk_test_parse_args("${exe_options}" "" ${ARGN})
   _vtk_test_set_options("${exe_options}" "" ${options})
 
