@@ -34,6 +34,8 @@ git submodule update --recursive --init
     name: `update-to-v@VERSION@`):
     - Assemble release notes into `Documentation/release/@MAJOR@.@MINOR@.md`.
       - [ ] If `PATCH` is greater than 0, add items to the end of this file.
+    - [ ] If `@BASEBRANCH@` is `master`, update the non-patch version in a
+          separate commit (so that `master` gets it as well).
     - [ ] Remove old release note files
     - [ ] Update `.gitlab/ci/cdash-groups.json` to track the `release` CDash
           groups
