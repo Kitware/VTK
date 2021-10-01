@@ -24,9 +24,9 @@
 
 #include <mfidl.h> // must be included first
 
-#include <Mfreadwrite.h>
 #include <mfapi.h>
 #include <mferror.h>
+#include <mfreadwrite.h>
 
 class vtkMP4Writer::vtkMP4WriterInternals
 {

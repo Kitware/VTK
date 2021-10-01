@@ -266,7 +266,7 @@ void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkSOADataArrayTemplate
   const std::vector<std::vector<char>>& buffers, const int numberOfPoints,
   const std::string& attribute)
 {
-  const int nComps = this->Header->parsedVariableNames[attribute].size();
+  int nComps = static_cast<int>(this->Header->parsedVariableNames[attribute].size());
   dataArray->SetName(attribute.c_str());
   dataArray->SetNumberOfComponents(nComps);
   dataArray->SetNumberOfTuples(numberOfPoints);
