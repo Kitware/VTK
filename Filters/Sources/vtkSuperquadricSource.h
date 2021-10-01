@@ -184,6 +184,7 @@ protected:
   double PhiRoundness;
   double ThetaRoundness;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double Center[3];
   double Scale[3];
   int ThetaResolution;
