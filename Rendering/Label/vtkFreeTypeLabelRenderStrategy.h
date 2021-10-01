@@ -70,10 +70,7 @@ public:
     this->Superclass::RenderLabel(x, tprop, label, width);
   }
   void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label) override;
-  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int width) override
-  {
-    this->Superclass::RenderLabel(x, tprop, label, width);
-  }
+  using Superclass::RenderLabel;
 
   /**
    * Release any graphics resources that are being consumed by this strategy.

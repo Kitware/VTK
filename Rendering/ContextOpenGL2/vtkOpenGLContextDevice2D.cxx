@@ -14,6 +14,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkOpenGLContextDevice2D.h"
 
 #include "vtkAbstractContextBufferId.h"
@@ -1541,12 +1544,16 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(
 //------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawString(float* point, const vtkStdString& string)
 {
+  // FIXME(#18327): Migrate to processing here rather than working on
+  // `vtkUnicodeString`.
   this->DrawString(point, vtkUnicodeString::from_utf8(string));
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString& string, float bounds[4])
 {
+  // FIXME(#18327): Migrate to processing here rather than working on
+  // `vtkUnicodeString`.
   this->ComputeStringBoundsInternal(vtkUnicodeString::from_utf8(string), bounds);
   bounds[0] = 0.f;
   bounds[1] = 0.f;
@@ -1555,6 +1562,8 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString& string, f
 //------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::ComputeJustifiedStringBounds(const char* string, float bounds[4])
 {
+  // FIXME(#18327): Migrate to processing here rather than working on
+  // `vtkUnicodeString`.
   this->ComputeStringBoundsInternal(vtkUnicodeString::from_utf8(string), bounds);
 }
 

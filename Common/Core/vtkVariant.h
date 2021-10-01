@@ -32,12 +32,12 @@
 #define vtkVariant_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkObject.h"           // For vtkObject's warning support
 #include "vtkSetGet.h"           // For vtkNotUsed macro
 #include "vtkStdString.h"
 #include "vtkSystemIncludes.h" // To define ostream
 #include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
-#include "vtkUnicodeString.h"
 
 //
 // The following should be eventually placed in vtkSetGet.h
@@ -453,6 +453,10 @@ private:
     unsigned long long UnsignedLongLong;
     vtkObjectBase* VTKObject;
   } Data;
+
+  // XXX(9.1): Remove with VTK_DEPRECATED_IN_9_1_0().
+  bool CheckUnicodeStringEqual(const vtkVariant& other) const;
+  bool CheckUnicodeStringLessThan(const vtkVariant& other) const;
 
   unsigned char Valid;
   unsigned char Type;

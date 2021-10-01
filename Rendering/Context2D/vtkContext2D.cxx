@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkContext2D.h"
 
 #include "vtkBrush.h"
@@ -22,6 +25,7 @@
 #include "vtkPoints2D.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
+#include "vtkUnicodeString.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 

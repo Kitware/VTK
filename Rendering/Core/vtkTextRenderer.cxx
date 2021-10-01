@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkTextRenderer.h"
 
 #include "vtkDebugLeaks.h" // Must be included before any singletons
@@ -211,4 +214,39 @@ void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkUnicodeString& str)
 
   // Update the input with the cleaned up string:
   str = tmp;
+}
+
+//------------------------------------------------------------------------------
+bool vtkTextRenderer::GetBoundingBox(
+  vtkTextProperty* tprop, const vtkUnicodeString& str, int bbox[4], int dpi, int backend)
+{
+  return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
+}
+
+//------------------------------------------------------------------------------
+bool vtkTextRenderer::GetMetrics(
+  vtkTextProperty* tprop, const vtkUnicodeString& str, Metrics& metrics, int dpi, int backend)
+{
+  return this->GetMetricsInternal(tprop, str, metrics, dpi, backend);
+}
+
+//------------------------------------------------------------------------------
+bool vtkTextRenderer::RenderString(vtkTextProperty* tprop, const vtkUnicodeString& str,
+  vtkImageData* data, int textDims[2], int dpi, int backend)
+{
+  return this->RenderStringInternal(tprop, str.utf8_str(), data, textDims, dpi, backend);
+}
+
+//------------------------------------------------------------------------------
+int vtkTextRenderer::GetConstrainedFontSize(const vtkUnicodeString& str, vtkTextProperty* tprop,
+  int targetWidth, int targetHeight, int dpi, int backend)
+{
+  return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth, targetHeight, dpi, backend);
+}
+
+//------------------------------------------------------------------------------
+bool vtkTextRenderer::StringToPath(
+  vtkTextProperty* tprop, const vtkUnicodeString& str, vtkPath* path, int dpi, int backend)
+{
+  return this->StringToPathInternal(tprop, str, path, dpi, backend);
 }

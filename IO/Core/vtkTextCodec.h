@@ -69,6 +69,9 @@ public:
    * re-reference to the correct class so even though we only need the interface
    * we have to use derivation.
    */
+  // FIXME(#18327): This class should be migrated to do UTF-8-based processing.
+  // Currently it works based on `vtkUnicodeString` due to the `vtkTypeUInt32`
+  // item type.
   class OutputIterator
   {
   public:

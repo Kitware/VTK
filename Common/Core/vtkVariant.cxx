@@ -18,6 +18,9 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkVariant.h"
 
 #include "vtkAbstractArray.h"
@@ -1111,4 +1114,14 @@ ostream& operator<<(ostream& os, const vtkVariant& val)
       break;
   }
   return os;
+}
+
+bool vtkVariant::CheckUnicodeStringEqual(const vtkVariant& other) const
+{
+  return this->ToUnicodeString() == other.ToUnicodeString();
+}
+
+bool vtkVariant::CheckUnicodeStringLessThan(const vtkVariant& other) const
+{
+  return this->ToUnicodeString() < other.ToUnicodeString();
 }

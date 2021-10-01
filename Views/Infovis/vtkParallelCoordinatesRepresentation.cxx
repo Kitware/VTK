@@ -18,6 +18,9 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkParallelCoordinatesRepresentation.h"
 
 #include "vtkAbstractArray.h"
@@ -290,6 +293,8 @@ vtkParallelCoordinatesRepresentation::~vtkParallelCoordinatesRepresentation()
 //------------------------------------------------------------------------------
 std::string vtkParallelCoordinatesRepresentation::GetHoverString(vtkView* view, int x, int y)
 {
+  // FIXME(#18327): Migrate to processing here rather than working on
+  // `vtkUnicodeString`.
   std::string result;
   const char* text = GetHoverText(view, x, y);
   if (text != nullptr)

@@ -17,7 +17,6 @@
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkFFMPEGVideoSource.h"
-#include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLError.h"
@@ -91,7 +90,8 @@ void vtkOpenGLMovieSphere::VideoCallback(vtkFFMPEGVideoSourceVideoCallbackData c
   int* fsize = cbd.Caller->GetFrameSize();
   if (fsize[1] != this->Height)
   {
-    this->TextureUpdateMutex->Lock();
+    const std::lock_guard<std::mutex> lock(this->TextureUpdateMutex);
+    (void)lock;
     for (int i = 0; i < 6; ++i)
     {
       delete[] this->TextureData[i];
@@ -106,7 +106,6 @@ void vtkOpenGLMovieSphere::VideoCallback(vtkFFMPEGVideoSourceVideoCallbackData c
     this->TextureData[2] = new unsigned char[this->UVHeight * this->UVWidth];
     this->TextureData[4] = new unsigned char[this->UVHeight * this->UVWidth];
     this->TextureData[5] = new unsigned char[this->UVHeight * this->UVWidth];
-    this->TextureUpdateMutex->Unlock();
   }
 
   // copy each row due to linesize possibly being larger than width
@@ -123,9 +122,11 @@ void vtkOpenGLMovieSphere::VideoCallback(vtkFFMPEGVideoSourceVideoCallbackData c
       cbd.Data[2] + i * cbd.LineSize[2], this->UVWidth);
   }
 
-  this->TextureUpdateMutex->Lock();
-  this->ReadIndex = this->WriteIndex;
-  this->TextureUpdateMutex->Unlock();
+  {
+    const std::lock_guard<std::mutex> lock(this->TextureUpdateMutex);
+    (void)lock;
+    this->ReadIndex = this->WriteIndex;
+  }
   this->WriteIndex = this->ReadIndex ? 0 : 3;
   this->NewData = 1;
   this->HaveData = 1;
@@ -246,7 +247,8 @@ void vtkOpenGLMovieSphere::Render(vtkRenderer* ren, vtkMapper* mapper)
 
   if (this->NewData.load() == 1)
   {
-    this->TextureUpdateMutex->Lock();
+    const std::lock_guard<std::mutex> lock(this->TextureUpdateMutex);
+    (void)lock;
     this->Textures[this->BuildIndex]->Create2DFromRaw(
       this->Width, this->Height, 1, VTK_UNSIGNED_CHAR, this->TextureData[this->ReadIndex]);
     this->Textures[this->BuildIndex + 1]->Create2DFromRaw(
@@ -256,7 +258,6 @@ void vtkOpenGLMovieSphere::Render(vtkRenderer* ren, vtkMapper* mapper)
     this->NewData = 0;
     this->DrawIndex = this->BuildIndex;
     this->BuildIndex = this->DrawIndex ? 0 : 3;
-    this->TextureUpdateMutex->Unlock();
   }
 
   this->Textures[this->DrawIndex]->Activate();

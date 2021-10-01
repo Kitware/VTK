@@ -22,6 +22,7 @@
 #ifndef vtkFreeTypeStringToImage_h
 #define vtkFreeTypeStringToImage_h
 
+#include "vtkDeprecation.h"             // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkSmartPointer.h"            // For SP ivars
 #include "vtkStringToImage.h"

@@ -36,6 +36,7 @@
 #include "vtkOpenGLSkybox.h"
 #include "vtkRenderingFFMPEGOpenGL2Module.h" // For export macro
 #include <atomic>                            // for ivars
+#include <mutex>                             // for ivars
 
 class vtkFFMPEGVideoSource;
 struct vtkFFMPEGVideoSourceVideoCallbackData;
@@ -73,7 +74,7 @@ protected:
 
   void VideoCallback(vtkFFMPEGVideoSourceVideoCallbackData const& cbd);
 
-  vtkNew<vtkMutexLock> TextureUpdateMutex;
+  std::mutex TextureUpdateMutex;
   unsigned char* TextureData[6];
   int ReadIndex; // access only within mutex
   int WriteIndex;

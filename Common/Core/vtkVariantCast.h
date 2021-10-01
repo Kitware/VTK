@@ -141,16 +141,10 @@ inline vtkStdString vtkVariantCast<vtkStdString>(const vtkVariant& value, bool* 
   return value.ToString();
 }
 
-VTK_DEPRECATED_IN_9_1_0(
-  "Use vtkStdString vtkVariantCast<vtkStdString>(const vtkVariant& value, bool* valid)")
 template <>
-inline vtkUnicodeString vtkVariantCast<vtkUnicodeString>(const vtkVariant& value, bool* valid)
-{
-  if (valid)
-    *valid = true;
-
-  return value.ToUnicodeString();
-}
+VTKCOMMONCORE_EXPORT VTK_DEPRECATED_IN_9_1_0(
+  "Use vtkStdString vtkVariantCast<vtkStdString>(const vtkVariant& value, bool* valid)")
+  vtkUnicodeString vtkVariantCast<vtkUnicodeString>(const vtkVariant& value, bool* valid);
 
 template <>
 inline vtkVariant vtkVariantCast<vtkVariant>(const vtkVariant& value, bool* valid)

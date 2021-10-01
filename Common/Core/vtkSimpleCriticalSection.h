@@ -58,8 +58,8 @@ typedef int vtkCritSecType;
 #endif
 
 // Critical Section object that is not a vtkObject.
-VTK_DEPRECATED_IN_9_1_0("Use std::mutex instead.")
-class VTKCOMMONCORE_EXPORT vtkSimpleCriticalSection
+class VTK_DEPRECATED_IN_9_1_0(
+  "Use std::mutex instead.") VTKCOMMONCORE_EXPORT vtkSimpleCriticalSection
 {
 public:
   // Default cstor

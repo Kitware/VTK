@@ -19,6 +19,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include <vtkArrayData.h>
 #include <vtkArrayReader.h>
 #include <vtkArrayWriter.h>
@@ -26,6 +29,7 @@
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
+#include <vtkUnicodeString.h>
 
 #include <iostream>
 #include <sstream>

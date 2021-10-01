@@ -18,6 +18,9 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkTableToGraph.h"
 
 #include "vtkBitArray.h"
@@ -41,6 +44,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnicodeString.h" // for vtkSuperExtraExtendedTemplateMacro
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 

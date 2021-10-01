@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkSVGContextDevice2D.h"
 
 #include "vtkAssume.h"
@@ -186,6 +189,8 @@ struct FontKey
   }
 };
 
+// FIXME(#18327): Port to work on UTf-8 directly rather than relying on
+// `vtkUnicodeString`.
 struct FontInfo
 {
   using CharType = vtkUnicodeString::value_type;
@@ -1342,12 +1347,16 @@ void vtkSVGContextDevice2D::DrawEllipticArc(
 //------------------------------------------------------------------------------
 void vtkSVGContextDevice2D::DrawString(float* point, const vtkStdString& string)
 {
+  // FIXME(#18327): Migrate to processing here rather than working on
+  // `vtkUnicodeString`.
   this->DrawString(point, vtkUnicodeString::from_utf8(string));
 }
 
 //------------------------------------------------------------------------------
 void vtkSVGContextDevice2D::ComputeStringBounds(const vtkStdString& string, float bounds[4])
 {
+  // FIXME(#18327): Migrate to processing here rather than working on
+  // `vtkUnicodeString`.
   this->ComputeStringBounds(vtkUnicodeString::from_utf8(string), bounds);
 }
 
@@ -1435,6 +1444,8 @@ void vtkSVGContextDevice2D::ComputeStringBounds(const vtkUnicodeString& string, 
 //------------------------------------------------------------------------------
 void vtkSVGContextDevice2D::ComputeJustifiedStringBounds(const char* string, float bounds[4])
 {
+  // FIXME(#18327): Migrate to processing here rather than working on
+  // `vtkUnicodeString`.
   this->ComputeStringBounds(vtkUnicodeString::from_utf8(string), bounds);
 }
 

@@ -720,7 +720,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
     double bds[4];
     if (this->UseUnicodeStrings)
     {
-      this->RenderStrategy->ComputeLabelBounds(tpropCopy, inIter->GetUnicodeLabel(), bds);
+      this->RenderStrategy->ComputeLabelBounds(tpropCopy, inIter->GetLabel(), bds);
     }
     else
     {
@@ -793,7 +793,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
       // Render it
       if (this->UseUnicodeStrings)
       {
-        this->RenderStrategy->RenderLabel(origin, tpropCopy, inIter->GetUnicodeLabel(), width);
+        this->RenderStrategy->RenderLabel(origin, tpropCopy, inIter->GetLabel(), width);
       }
       else
       {
@@ -814,7 +814,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
         if (this->UseUnicodeStrings)
         {
           vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \""
-                                 << inIter->GetUnicodeLabel().utf8_str() << "\"");
+                                 << inIter->GetLabel() << "\"");
         }
         else
         {
@@ -856,7 +856,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
         // label is text
         if (this->UseUnicodeStrings)
         {
-          this->RenderStrategy->RenderLabel(origin, tpropCopy, inIter->GetUnicodeLabel());
+          this->RenderStrategy->RenderLabel(origin, tpropCopy, inIter->GetLabel());
         }
         else
         {

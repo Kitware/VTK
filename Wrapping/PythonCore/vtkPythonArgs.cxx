@@ -21,6 +21,9 @@ more efficient and flexible that the original PyArg_ParseTuple() code,
 resulting in wrapper code that is faster and more compact.
 -----------------------------------------------------------------------*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 // Keep vtkPythonArgs.h from declaring externs for templates we instantiate
 #define vtkPythonArgs_cxx
 

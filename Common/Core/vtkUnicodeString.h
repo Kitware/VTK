@@ -67,7 +67,15 @@ typedef vtkTypeUInt32 vtkUnicodeStringValueType;
   vtkExtraExtendedTemplateMacro(call);                                                             \
   vtkTemplateMacroCase(VTK_UNICODE_STRING, vtkUnicodeString, call)
 
-VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
+class vtkUnicodeString;
+
+VTKCOMMONCORE_EXPORT bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator!=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator<(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator<=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator>=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator>(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+
 class VTKCOMMONCORE_EXPORT vtkUnicodeString
 {
 public:
@@ -102,26 +110,32 @@ public:
   /**
    * Constructs an empty string.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   vtkUnicodeString();
   /**
    * Makes a deep-copy of another sequence.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   vtkUnicodeString(const vtkUnicodeString&);
   /**
    * Constructs a sequence of repeated characters.  Note: throws an exception if
    * the character isn't a valid Unicode code point.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   vtkUnicodeString(size_type count, value_type character);
   /**
    * Constructs a string from a sequence of Unicode characters.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   vtkUnicodeString(const_iterator begin, const_iterator end);
 
   ///@{
   /**
    * Tests a sequence of bytes, returning true iff they are a valid UTF-8 sequence.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   static bool is_utf8(const char*);
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   static bool is_utf8(const std::string&);
   ///@}
 
@@ -129,15 +143,19 @@ public:
   /**
    * Constructs a string from a null-terminated sequence of UTF-8 encoded characters.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   static vtkUnicodeString from_utf8(const char*);
   // Constructs a string from a half-open sequence of UTF-8 encoded characters.
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   static vtkUnicodeString from_utf8(const char* begin, const char* end);
   // Constructs a string from a sequence of UTF-8 encoded characters.
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   static vtkUnicodeString from_utf8(const std::string&);
   ///@}
   /**
    * Constructs a string from a null-terminated sequence of UTF-16 encoded characters.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
   static vtkUnicodeString from_utf16(const vtkTypeUInt16*);
 
   /**
@@ -274,13 +292,6 @@ private:
   std::string Storage;
   class back_insert_iterator;
 };
-
-VTKCOMMONCORE_EXPORT bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTKCOMMONCORE_EXPORT bool operator!=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTKCOMMONCORE_EXPORT bool operator<(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTKCOMMONCORE_EXPORT bool operator<=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTKCOMMONCORE_EXPORT bool operator>=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTKCOMMONCORE_EXPORT bool operator>(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
 
 #endif
 
