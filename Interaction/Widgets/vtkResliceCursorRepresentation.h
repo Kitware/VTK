@@ -118,7 +118,8 @@ public:
     PanAndRotate,
     RotateBothAxes,
     ResizeThickness,
-    WindowLevelling
+    WindowLevelling,
+    TranslateSingleAxis
   };
 
   /**

@@ -111,6 +111,7 @@ protected:
   vtkResliceCursorPolyDataAlgorithm* GetCursorAlgorithm() override;
 
   double RotateAxis(double evenPos[2], int axis);
+  double TranslateAxis(double evenPos[2], int axis);
 
   void RotateAxis(int axis, double angle);
 
