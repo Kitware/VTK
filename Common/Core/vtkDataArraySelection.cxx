@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkDataArraySelection);
 
-class vtkDataArraySelectionInternals
+class vtkDataArraySelection::vtkInternals
 {
 public:
   using ArraySettingPair = std::pair<std::string, bool>;
@@ -43,15 +43,30 @@ public:
 
 //------------------------------------------------------------------------------
 vtkDataArraySelection::vtkDataArraySelection()
+  : Internal(new vtkDataArraySelection::vtkInternals())
+  , UnknownArraySetting(0)
 {
-  this->Internal = new vtkDataArraySelectionInternals;
-  this->UnknownArraySetting = 0;
 }
 
 //------------------------------------------------------------------------------
-vtkDataArraySelection::~vtkDataArraySelection()
+vtkDataArraySelection::~vtkDataArraySelection() = default;
+
+//------------------------------------------------------------------------------
+void vtkDataArraySelection::DeepCopy(const vtkDataArraySelection* other)
 {
-  delete this->Internal;
+  if (!this->IsEqual(other))
+  {
+    this->UnknownArraySetting = other->UnknownArraySetting;
+    this->Internal->Arrays = other->Internal->Arrays;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataArraySelection::IsEqual(const vtkDataArraySelection* other) const
+{
+  return (this->UnknownArraySetting == other->UnknownArraySetting &&
+    this->Internal->Arrays == other->Internal->Arrays);
 }
 
 //------------------------------------------------------------------------------
@@ -101,7 +116,7 @@ void vtkDataArraySelection::SetArraySetting(const char* name, int setting)
   }
   else if (name)
   {
-    internal.Arrays.push_back(vtkDataArraySelectionInternals::ArraySettingPair(name, status));
+    internal.Arrays.push_back(vtkInternals::ArraySettingPair(name, status));
     this->Modified();
   }
 }
@@ -260,7 +275,7 @@ int vtkDataArraySelection::AddArray(const char* name, bool state)
   {
     return 0;
   }
-  this->Internal->Arrays.push_back(vtkDataArraySelectionInternals::ArraySettingPair(name, state));
+  this->Internal->Arrays.push_back(vtkInternals::ArraySettingPair(name, state));
   return 1;
 }
 
@@ -300,7 +315,7 @@ void vtkDataArraySelection::SetArraysWithDefault(
   vtkDebugMacro("Settings arrays to given list of " << numArrays << " arrays.");
 
   // Create a new map for this set of arrays.
-  vtkDataArraySelectionInternals* newInternal = new vtkDataArraySelectionInternals;
+  vtkInternals* newInternal = new vtkInternals;
 
   newInternal->Arrays.reserve(numArrays);
 
@@ -315,13 +330,11 @@ void vtkDataArraySelection::SetArraysWithDefault(
     {
       setting = iter->second;
     }
-    newInternal->Arrays.push_back(
-      vtkDataArraySelectionInternals::ArraySettingPair(names[i], setting));
+    newInternal->Arrays.push_back(vtkInternals::ArraySettingPair(names[i], setting));
   }
 
   // Delete the old map and save the new one.
-  delete this->Internal;
-  this->Internal = newInternal;
+  this->Internal.reset(newInternal);
 }
 
 //------------------------------------------------------------------------------
