@@ -61,12 +61,21 @@
  * points must lie inside modified bounds).
  *
  * @warning
- * If you wish to operate on a set of coordinates
- * that has no cells, you must add a vtkPolyVertex cell with all of the points to the PolyData
+ * If you wish to operate on a set of point coordinates that has no cells,
+ * you must add a vtkPolyVertex cell with all of the points to the PolyData
  * (or use a vtkVertexGlyphFilter) before using the vtkCleanPolyData filter.
  *
+ * @warning
+ * The vtkStaticCleanPolyData filter is similar in operation to
+ * vtkCleanPolyData. However, vtkStaticCleanPolyData is non-incremental and
+ * uses a much faster threading approach (especially for larger datasets, and
+ * when merging points with a non-zero tolerance). However because of the
+ * difference in the traveral order in the point merging process, the output
+ * of the filters may be different.
+ *
  * @sa
- * vtkQuantizePolyDataPoints
+ * vtkQuantizePolyDataPoints vtkStaticCleanPolyData
+ * vtkStaticCleanUnstructuredGrid
  */
 
 #ifndef vtkCleanPolyData_h

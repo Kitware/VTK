@@ -89,6 +89,7 @@ set(classes
   vtkSmoothPolyDataFilter
   vtkSphereTreeFilter
   vtkStaticCleanPolyData
+  vtkStaticCleanUnstructuredGrid
   vtkStreamerBase
   vtkStreamingTessellator
   vtkStripper

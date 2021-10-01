@@ -21,6 +21,7 @@ vtk_add_test_python(
   Test3DLinearGridPlaneCutter.py
   TestBinnedDecimation.py
   TestCalculatorDataTypes.py,NO_VALID
+  TestCleanUnstructuredGrid.py
   TestCompositeDataSetPlaneCutter.py
   TestContour3DLinearGrid.py
   TestContour3DLinearGrid2.py

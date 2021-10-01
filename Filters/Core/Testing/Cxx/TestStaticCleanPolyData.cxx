@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestCleanPolyData2.cxx
+  Module:    TestCleanPolyData3.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -14,11 +14,49 @@
 =========================================================================*/
 
 #include <vtkCellArray.h>
-#include <vtkCleanPolyData.h>
 #include <vtkSmartPointer.h>
+#include <vtkStaticCleanPolyData.h>
 
 namespace
 {
+
+vtkSmartPointer<vtkPolyData> ConstructVerts()
+{
+  vtkIdType ptIds[4];
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  points->InsertNextPoint(0.0, 0.0, 0.0);
+  points->InsertNextPoint(1.0, 0.0, 0.0);
+  points->InsertNextPoint(1.0, 1.0, 0.0);
+  points->InsertNextPoint(0.0, 0.0, 0.0); // Repeated point 0
+
+  vtkSmartPointer<vtkCellArray> degeneratedVerts = vtkSmartPointer<vtkCellArray>::New();
+
+  // Construct a polyvertex (3 pts)
+  ptIds[0] = 0;
+  ptIds[1] = 1;
+  ptIds[2] = 2;
+  degeneratedVerts->InsertNextCell(3, ptIds);
+
+  // Construct a vertex (1 pt)
+  ptIds[0] = 0;
+  ptIds[1] = 0;
+  ptIds[2] = 0;
+  ptIds[3] = 0;
+  degeneratedVerts->InsertNextCell(4, ptIds);
+
+  // Construct a polyvertex (2 pts)
+  ptIds[0] = 0;
+  ptIds[1] = 3;
+  ptIds[2] = 1;
+  degeneratedVerts->InsertNextCell(3, ptIds);
+
+  vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
+  polydata->SetPoints(points);
+  polydata->SetVerts(degeneratedVerts);
+
+  return polydata;
+}
+
 vtkSmartPointer<vtkPolyData> ConstructLines()
 {
   vtkIdType ptIds[4];
@@ -208,107 +246,127 @@ vtkSmartPointer<vtkPolyData> ConstructStrips()
   return polydata;
 }
 
-bool UpdateAndTestCleanPolyData(vtkSmartPointer<vtkCleanPolyData> clean, int numExpectedPoints,
+bool UpdateAndTestCleanPolyData(vtkStaticCleanPolyData* clean, int numExpectedPoints,
   int numExpectedVertices, int numExpectedLines, int numExpectedPolys, int numExpectedStrips)
 {
+  bool retValue = true;
+
   clean->Update();
   auto ds = clean->GetOutput();
+
+  std::cerr << "Testing-------------------------\n";
 
   if (ds->GetNumberOfPoints() != numExpectedPoints)
   {
     std::cerr << "Expected " << numExpectedPoints << " but got " << ds->GetNumberOfPoints()
               << " points." << std::endl;
-    return false;
+    retValue = false;
   }
 
   if (ds->GetNumberOfVerts() != numExpectedVertices)
   {
     std::cerr << "Expected " << numExpectedVertices << " but got " << ds->GetNumberOfVerts()
               << " verts." << std::endl;
-    return false;
+    retValue = false;
   }
 
   if (ds->GetNumberOfLines() != numExpectedLines)
   {
     std::cerr << "Expected " << numExpectedLines << " but got " << ds->GetNumberOfLines()
               << " lines." << std::endl;
-    return false;
+    retValue = false;
   }
 
   if (ds->GetNumberOfPolys() != numExpectedPolys)
   {
     std::cerr << "Expected " << numExpectedPolys << " but got " << ds->GetNumberOfPolys()
               << " polys." << std::endl;
-    return false;
+    retValue = false;
   }
 
   if (ds->GetNumberOfStrips() != numExpectedStrips)
   {
     std::cerr << "Expected " << numExpectedStrips << " but got " << ds->GetNumberOfStrips()
               << " strips." << std::endl;
-    return false;
+    retValue = false;
   }
 
-  return true;
+  return retValue;
 }
 }
 
-int TestCleanPolyData2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestStaticCleanPolyData(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
+  int retVal = EXIT_SUCCESS;
+
+  auto verts = ConstructVerts();
   auto lines = ConstructLines();
   auto polys = ConstructPolys();
   auto strips = ConstructStrips();
 
-  // First test degenerate conversions without merging
-  vtkSmartPointer<vtkCleanPolyData> clean = vtkSmartPointer<vtkCleanPolyData>::New();
-  clean->PointMergingOff();
+  // Removing unused points off
+  // Test degenerate conversion
+  vtkNew<vtkStaticCleanPolyData> clean;
+  clean->RemoveUnusedPointsOff();
   clean->ConvertLinesToPointsOn();
   clean->ConvertPolysToLinesOn();
   clean->ConvertStripsToPolysOn();
 
-  clean->SetInputData(lines);
-  if (!UpdateAndTestCleanPolyData(clean, 4, 1, 5, 0, 0))
+  clean->SetInputData(verts);
+  if (!UpdateAndTestCleanPolyData(clean, 3, 3, 0, 0, 0))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
+  }
+
+  clean->SetInputData(lines);
+  if (!UpdateAndTestCleanPolyData(clean, 3, 3, 3, 0, 0))
+  {
+    retVal = EXIT_FAILURE;
   }
 
   clean->SetInputData(polys);
-  if (!UpdateAndTestCleanPolyData(clean, 5, 2, 3, 2, 0))
+  if (!UpdateAndTestCleanPolyData(clean, 4, 3, 3, 1, 0))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
   clean->SetInputData(strips);
-  if (!UpdateAndTestCleanPolyData(clean, 7, 1, 2, 2, 2))
+  if (!UpdateAndTestCleanPolyData(clean, 5, 2, 2, 2, 1))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
-  // Now test degenerate elimination without merging
+  // Test degenerate elimination
   clean->ConvertLinesToPointsOff();
   clean->ConvertPolysToLinesOff();
   clean->ConvertStripsToPolysOff();
 
-  clean->SetInputData(lines);
-  if (!UpdateAndTestCleanPolyData(clean, 4, 0, 5, 0, 0))
+  clean->SetInputData(verts);
+  if (!UpdateAndTestCleanPolyData(clean, 3, 3, 0, 0, 0))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
+  }
+
+  clean->SetInputData(lines);
+  if (!UpdateAndTestCleanPolyData(clean, 3, 0, 3, 0, 0))
+  {
+    retVal = EXIT_FAILURE;
   }
 
   clean->SetInputData(polys);
-  if (!UpdateAndTestCleanPolyData(clean, 5, 0, 0, 2, 0))
+  if (!UpdateAndTestCleanPolyData(clean, 4, 0, 0, 1, 0))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
   clean->SetInputData(strips);
-  if (!UpdateAndTestCleanPolyData(clean, 7, 0, 0, 0, 2))
+  if (!UpdateAndTestCleanPolyData(clean, 5, 0, 0, 0, 1))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
-  // Now test degenerate conversion with merging
-  clean->PointMergingOn();
+  // Removing unused points on
+  clean->RemoveUnusedPointsOn();
   clean->ConvertLinesToPointsOn();
   clean->ConvertPolysToLinesOn();
   clean->ConvertStripsToPolysOn();
@@ -316,22 +374,22 @@ int TestCleanPolyData2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   clean->SetInputData(lines);
   if (!UpdateAndTestCleanPolyData(clean, 3, 3, 3, 0, 0))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
   clean->SetInputData(polys);
   if (!UpdateAndTestCleanPolyData(clean, 3, 3, 3, 1, 0))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
   clean->SetInputData(strips);
   if (!UpdateAndTestCleanPolyData(clean, 4, 2, 2, 2, 1))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
-  // Now test degenerate elimination with merging
+  // Test degenerate elimination
   clean->ConvertLinesToPointsOff();
   clean->ConvertPolysToLinesOff();
   clean->ConvertStripsToPolysOff();
@@ -339,20 +397,20 @@ int TestCleanPolyData2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   clean->SetInputData(lines);
   if (!UpdateAndTestCleanPolyData(clean, 3, 0, 3, 0, 0))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
   clean->SetInputData(polys);
   if (!UpdateAndTestCleanPolyData(clean, 3, 0, 0, 1, 0))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
   clean->SetInputData(strips);
   if (!UpdateAndTestCleanPolyData(clean, 4, 0, 0, 0, 1))
   {
-    return EXIT_FAILURE;
+    retVal = EXIT_FAILURE;
   }
 
-  return EXIT_SUCCESS;
+  return retVal;
 }
