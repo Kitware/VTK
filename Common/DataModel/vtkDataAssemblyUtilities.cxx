@@ -782,9 +782,8 @@ protected:
 
     const auto assembly = this->GetAssembly();
     const unsigned int cid = ids.front();
-    const unsigned int childCount =
-      assembly->GetAttributeOrDefault(nodeid, "number_of_partitions", 0u);
-
+    unsigned int childCount = assembly->GetAttributeOrDefault(nodeid, "number_of_partitions", 0u);
+    childCount = assembly->GetAttributeOrDefault(nodeid, "vtk_num_pieces", childCount);
     const auto cid_range = std::make_pair(cid, cid + 1 + childCount);
     for (auto id = cid_range.first; id < cid_range.second; ++id)
     {
@@ -819,19 +818,8 @@ std::vector<std::string> vtkDataAssemblyUtilities::GetSelectorsForCompositeIds(
   }
 
   const auto dataType = hierarchy->GetAttributeOrDefault(root, "vtk_type", -1);
-  if (vtkDataObjectTypes::TypeIdIsA(dataType, VTK_MULTIBLOCK_DATA_SET))
-  {
-    // easy way out..just build the selector using the `cid` attribute.
-    std::vector<std::string> result(ids.size());
-    std::transform(ids.begin(), ids.end(), result.begin(), [](const unsigned int& cid) {
-      std::ostringstream str;
-      str << "//*[@cid='" << cid << "']";
-      return str.str();
-    });
-
-    return result;
-  }
-  else if (vtkDataObjectTypes::TypeIdIsA(dataType, VTK_PARTITIONED_DATA_SET_COLLECTION))
+  if (vtkDataObjectTypes::TypeIdIsA(dataType, VTK_PARTITIONED_DATA_SET_COLLECTION) ||
+    vtkDataObjectTypes::TypeIdIsA(dataType, VTK_MULTIBLOCK_DATA_SET))
   {
     vtkNew<vtkSelectorsForCompositeIdsVisitor> visitor;
     std::copy(
@@ -839,8 +827,8 @@ std::vector<std::string> vtkDataAssemblyUtilities::GetSelectorsForCompositeIds(
     hierarchy->Visit(visitor);
     return visitor->Selectors;
   }
-  // in theory, this can work for AMR too, but I am leaving that until we have
-  // use-case.
 
+  // in theory, this can work for AMR too, but I am leaving that until we have a
+  // use-case.
   return {};
 }
