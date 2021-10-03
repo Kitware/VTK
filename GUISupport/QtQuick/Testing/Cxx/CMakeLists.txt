@@ -11,8 +11,25 @@ vtk_add_test_cxx(vtkGUISupportQtQuickCxxTests tests
   TestQQuickVTKRenderWindow.cxx
   )
 
+set(qml_files
+  TestQQuickVTKRenderItem.qml
+  TestQQuickVTKRenderItemWidget.qml
+  TestQQuickVTKRenderWindow.qml)
+
+foreach (qml_file IN LISTS qml_files)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/${qml_file}.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${qml_file}"
+    @ONLY)
+endforeach ()
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/TestQQuickVTK.qrc"
+  "${CMAKE_CURRENT_BINARY_DIR}/TestQQuickVTK.qrc"
+  COPYONLY)
+
 vtk_test_cxx_executable(vtkGUISupportQtQuickCxxTests tests
-  TestQQuickVTK.qrc
+  "${CMAKE_CURRENT_BINARY_DIR}/TestQQuickVTK.qrc"
   )
 
 target_link_libraries(vtkGUISupportQtQuickCxxTests
