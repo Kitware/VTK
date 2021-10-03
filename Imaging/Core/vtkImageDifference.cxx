@@ -198,16 +198,8 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
-  unsigned char *in1Ptr0, *in1Ptr2;
-  unsigned char *in2Ptr0, *in2Ptr2;
-  unsigned char *outPtr0, *outPtr1, *outPtr2;
   int min0, max0, min1, max1, min2, max2;
   int idx0, idx1, idx2;
-  vtkIdType in1Inc0, in1Inc1, in1Inc2;
-  vtkIdType in2Inc0, in2Inc1, in2Inc2;
-  vtkIdType outInc0, outInc1, outInc2;
-  int tr, tg, tb, ta, r1, g1, b1, a1;
-  int ar1, ag1, ab1, aa1, ar2, ag2, ab2, aa2;
   int inMinX, inMaxX, inMinY, inMaxY;
   int* inExt;
   unsigned long count = 0;
@@ -264,8 +256,11 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
     return;
   }
 
+  unsigned char *outPtr0, *outPtr1, *outPtr2;
   outPtr2 = static_cast<unsigned char*>(outData[0]->GetScalarPointerForExtent(outExt));
-  outData[0]->GetIncrements(outInc0, outInc1, outInc2);
+
+  vtkIdType outInc[3];
+  outData[0]->GetIncrements(outInc);
 
   min0 = outExt[0];
   max0 = outExt[1];
@@ -274,9 +269,12 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   min2 = outExt[4];
   max2 = outExt[5];
 
+  vtkIdType in1Inc[3];
+  vtkIdType in2Inc[3];
+
   // copy both input data arrays into new arrays for gamma correction
-  inData[0][0]->GetIncrements(in1Inc0, in1Inc1, in1Inc2);
-  inData[1][0]->GetIncrements(in2Inc0, in2Inc1, in2Inc2);
+  inData[0][0]->GetIncrements(in1Inc);
+  inData[1][0]->GetIncrements(in2Inc);
 
   inExt = inData[0][0]->GetExtent();
   int cmax0 = inExt[1] > max0 + 3 ? max0 + 3 : inExt[1];
@@ -284,14 +282,15 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   int cmax1 = inExt[3] > max1 + 3 ? max1 + 3 : inExt[3];
   int cmin1 = inExt[2] < min1 - 3 ? min1 - 3 : inExt[2];
 
+  unsigned char *in1Ptr2, *in2Ptr2;
   in1Ptr2 = static_cast<unsigned char*>(inData[0][0]->GetScalarPointer(cmin0, cmin1, min2));
   in2Ptr2 = static_cast<unsigned char*>(inData[1][0]->GetScalarPointer(cmin0, cmin1, min2));
 
   // reset increments for the new arrays
-  in1Inc1 = in1Inc0 * (cmax0 - cmin0 + 1);
-  in1Inc2 = in1Inc1 * (cmax1 - cmin1 + 1);
-  in2Inc1 = in2Inc0 * (cmax0 - cmin0 + 1);
-  in2Inc2 = in2Inc1 * (cmax1 - cmin1 + 1);
+  in1Inc[1] = in1Inc[0] * (cmax0 - cmin0 + 1);
+  in1Inc[2] = in1Inc[1] * (cmax1 - cmin1 + 1);
+  in2Inc[1] = in2Inc[0] * (cmax0 - cmin0 + 1);
+  in2Inc[2] = in2Inc[1] * (cmax1 - cmin1 + 1);
 
   // we set min and Max to be one pixel in from actual values to support
   // the 3x3 averaging we do
@@ -303,10 +302,12 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   target = static_cast<unsigned long>((max2 - min2 + 1) * (max1 - min1 + 1) / 50.0);
   target++;
 
-  int contInIncr1 = (cmax0 - cmin0 - max0 + min0) * in1Inc0;
-  int contInIncr2 = (cmax1 - cmin1 - max1 + min1) * in1Inc1;
-  in1Ptr0 = in1Ptr2 + (min1 - cmin1) * in1Inc1 + (min0 - cmin0) * in1Inc0;
-  in2Ptr0 = in2Ptr2 + (min1 - cmin1) * in1Inc1 + (min0 - cmin0) * in1Inc0;
+  int contInIncr1 = (cmax0 - cmin0 - max0 + min0) * in1Inc[0];
+  int contInIncr2 = (cmax1 - cmin1 - max1 + min1) * in1Inc[1];
+
+  unsigned char *in1Ptr0, *in2Ptr0;
+  in1Ptr0 = in1Ptr2 + (min1 - cmin1) * in1Inc[1] + (min0 - cmin0) * in1Inc[0];
+  in2Ptr0 = in2Ptr2 + (min1 - cmin1) * in1Inc[1] + (min0 - cmin0) * in1Inc[0];
 
   for (idx2 = min2; idx2 <= max2; ++idx2)
   {
@@ -328,7 +329,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
         rgbaMax.fill(0);
         std::array<int, 4> rgbaTresh;
         rgbaTresh.fill(1000);
-        if (nComp = 3)
+        if (nComp == 3)
         {
           rgbaTresh[3] = 0;
         }
@@ -353,7 +354,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
                 for (int xneigh = this->AllowShift ? -2 : 0;
                      xneigh <= (this->AllowShift ? 2 : 0) && !done; ++xneigh)
                 {
-                  unsigned char* c1 = dir1Ptr0 + yneigh * in1Inc1 + xneigh * in1Inc0;
+                  unsigned char* c1 = dir1Ptr0 + yneigh * in1Inc[1] + xneigh * in1Inc[0];
                   unsigned char* c2 = dir2Ptr0;
                   if (averaging)
                   {
@@ -367,28 +368,28 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
                       for (int i = 0; i < nComp; i++)
                       {
                         rgbaA1[i] = static_cast<int>((c1)[i]) +
-                          static_cast<int>((c1 - in1Inc0)[i]) +
-                          static_cast<int>((c1 + in1Inc0)[i]) +
-                          static_cast<int>((c1 - in1Inc1)[i]) +
-                          static_cast<int>((c1 - in1Inc1 - in1Inc0)[i]) +
-                          static_cast<int>((c1 - in1Inc1 + in1Inc0)[i]) +
-                          static_cast<int>((c1 + in1Inc1)[i]) +
-                          static_cast<int>((c1 + in1Inc1 - in1Inc0)[i]) +
-                          static_cast<int>((c1 + in1Inc1 + in1Inc0)[i]);
+                          static_cast<int>((c1 - in1Inc[0])[i]) +
+                          static_cast<int>((c1 + in1Inc[0])[i]) +
+                          static_cast<int>((c1 - in1Inc[1])[i]) +
+                          static_cast<int>((c1 - in1Inc[1] - in1Inc[0])[i]) +
+                          static_cast<int>((c1 - in1Inc[1] + in1Inc[0])[i]) +
+                          static_cast<int>((c1 + in1Inc[1])[i]) +
+                          static_cast<int>((c1 + in1Inc[1] - in1Inc[0])[i]) +
+                          static_cast<int>((c1 + in1Inc[1] + in1Inc[0])[i]);
                       }
                       std::array<int, 4> rgbaA2;
                       rgbaA2.fill(0);
                       for (int i = 0; i < nComp; i++)
                       {
                         rgbaA2[i] = static_cast<int>((c2)[i]) +
-                          static_cast<int>((c2 - in2Inc0)[i]) +
-                          static_cast<int>((c2 + in2Inc0)[i]) +
-                          static_cast<int>((c2 - in2Inc1)[i]) +
-                          static_cast<int>((c2 - in2Inc1 - in2Inc0)[i]) +
-                          static_cast<int>((c2 - in2Inc1 + in2Inc0)[i]) +
-                          static_cast<int>((c2 + in2Inc1)[i]) +
-                          static_cast<int>((c2 + in2Inc1 - in2Inc0)[i]) +
-                          static_cast<int>((c2 + in2Inc1 + in2Inc0)[i]);
+                          static_cast<int>((c2 - in2Inc[0])[i]) +
+                          static_cast<int>((c2 + in2Inc[0])[i]) +
+                          static_cast<int>((c2 - in2Inc[1])[i]) +
+                          static_cast<int>((c2 - in2Inc[1] - in2Inc[0])[i]) +
+                          static_cast<int>((c2 - in2Inc[1] + in2Inc[0])[i]) +
+                          static_cast<int>((c2 + in2Inc[1])[i]) +
+                          static_cast<int>((c2 + in2Inc[1] - in2Inc[0])[i]) +
+                          static_cast<int>((c2 + in2Inc[1] + in2Inc[0])[i]);
                         rgba1[i] = abs(rgbaA1[i] - rgbaA2[i]) / (9 * this->AverageThresholdFactor);
                       }
                       haveValues = true;
@@ -458,11 +459,11 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
       }
       in1Ptr0 += contInIncr1;
       in2Ptr0 += contInIncr1;
-      outPtr1 += outInc1;
+      outPtr1 += outInc[1];
     }
     in1Ptr0 += contInIncr2;
     in2Ptr0 += contInIncr2;
-    outPtr2 += outInc2;
+    outPtr2 += outInc[2];
   }
 
   // Add the results to the thread-local total.
