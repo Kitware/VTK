@@ -24,6 +24,9 @@
 #include <iostream>
 #include <numeric>
 
+constexpr int MAX_NCOMPS = 4;
+using max_ncomps_array_t = std::array<int, MAX_NCOMPS>;
+
 vtkStandardNewMacro(vtkImageDifference);
 
 // Thread-local data needed for each thread.
@@ -203,8 +206,8 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
     return;
   }
 
-  // This code supports up to 4 components, storing intermediate
-  // results in 4 component std::array.
+  // This code supports up to MAX_NCOMPS components, storing intermediate
+  // results in max_ncomps_array_t.
   // nComp is not taken into account with std::copy and std::accumulate
   // as it is simplifying the code and because non-considered-component
   // treshold value is always zero.
@@ -221,9 +224,9 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
     threadData->ErrorMessage = "Input and output number of components are differents";
     return;
   }
-  if (nComp > 4 || nComp <= 0)
+  if (nComp > MAX_NCOMPS || nComp <= 0)
   {
-    threadData->ErrorMessage = "Expecting between 1 and 4 components";
+    threadData->ErrorMessage = "Expecting between 1 and MAX_NCOMPS components";
   }
 
   // this filter expects that both inputs and output are of the same type.
@@ -238,8 +241,8 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   unsigned char *outPtr0, *outPtr1, *outPtr2;
   outPtr2 = static_cast<unsigned char*>(outData[0]->GetScalarPointerForExtent(outExt));
 
-  vtkIdType outInc[3];
-  outData[0]->GetIncrements(outInc);
+  std::array<vtkIdType, 3> outInc;
+  outData[0]->GetIncrements(outInc.data());
 
   int min0, max0, min1, max1, min2, max2;
   min0 = outExt[0];
@@ -249,12 +252,11 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   min2 = outExt[4];
   max2 = outExt[5];
 
-  vtkIdType in1Inc[3];
-  vtkIdType in2Inc[3];
-
   // copy both input data arrays into new arrays for gamma correction
-  inData[0][0]->GetIncrements(in1Inc);
-  inData[1][0]->GetIncrements(in2Inc);
+  std::array<vtkIdType, 3> in1Inc;
+  inData[0][0]->GetIncrements(in1Inc.data());
+  std::array<vtkIdType, 3> in2Inc;
+  inData[1][0]->GetIncrements(in2Inc.data());
 
   int* inExt;
   inExt = inData[0][0]->GetExtent();
@@ -312,9 +314,9 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
       {
-        std::array<int, 4> rgbaMax;
+        max_ncomps_array_t rgbaMax;
         rgbaMax.fill(0);
-        std::array<int, 4> rgbaTresh;
+        max_ncomps_array_t rgbaTresh;
         rgbaTresh.fill(1000);
 
         // ignore the boundary within two pixels as we cannot
@@ -343,19 +345,19 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
                     (idx0 + xneigh + averaging <= inMaxX) &&
                     (idx1 + yneigh - averaging >= inMinY) && (idx1 + yneigh + averaging <= inMaxY))
                   {
-                    std::array<int, 4> rgba1;
+                    max_ncomps_array_t rgba1;
                     rgba1.fill(0);
                     if (averaging == 1)
                     {
-                      std::array<int, 4> rgbaA1;
+                      max_ncomps_array_t rgbaA1;
                       rgbaA1.fill(0);
-                      std::array<int, 4> rgbaA2;
+                      max_ncomps_array_t rgbaA2;
                       rgbaA2.fill(0);
 
                       for (int i = 0; i < nComp; i++)
                       {
-                        rgbaA1[i] = ComputeSumedValue(c1, in1Inc, i);
-                        rgbaA2[i] = ComputeSumedValue(c2, in2Inc, i);
+                        rgbaA1[i] = ComputeSumedValue(c1, in1Inc.data(), i);
+                        rgbaA2[i] = ComputeSumedValue(c2, in2Inc.data(), i);
                         rgba1[i] = abs(rgbaA1[i] - rgbaA2[i]) / (9 * this->AverageThresholdFactor);
                       }
                     }
@@ -458,7 +460,7 @@ int vtkImageDifference::RequestData(
   }
   else
   {
-    // For vtkMultithreader implementation.
+    // For vtkMultiThreader implementation.
     this->ThreadData = new vtkImageDifferenceThreadData[this->NumberOfThreads];
 
     // The superclass will call ThreadedRequestData

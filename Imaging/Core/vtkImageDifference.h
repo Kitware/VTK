@@ -113,7 +113,7 @@ protected:
   ~vtkImageDifference() override = default;
 
   // Parameters
-  // ideally threshold*averageThresholdFactor should be < 255/9
+  // ideally threshold * averageThresholdFactor should be < 255/9
   // to capture one pixel errors or 510/9 to capture 2 pixel errors
   bool AllowShift = true;
   bool Averaging = true;
@@ -136,7 +136,7 @@ protected:
   void GrowExtent(int* uExt, int* wholeExtent);
   int ComputeSumedValue(unsigned char* values, vtkIdType* indices, int comp);
 
-  // Used for vtkMultithreader operation.
+  // Used for vtkMultiThreader operation.
   vtkImageDifferenceThreadData* ThreadData;
 
   // Used for vtkSMPTools operation.
