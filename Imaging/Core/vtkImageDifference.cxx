@@ -198,14 +198,6 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
-  int min0, max0, min1, max1, min2, max2;
-  int idx0, idx1, idx2;
-  int inMinX, inMaxX, inMinY, inMaxY;
-  int* inExt;
-  unsigned long count = 0;
-  unsigned long target;
-  double error = 0.0;
-  double thresholdedError = 0.0;
   vtkImageDifferenceThreadData* threadData = nullptr;
 
   if (this->EnableSMP)
@@ -262,6 +254,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   vtkIdType outInc[3];
   outData[0]->GetIncrements(outInc);
 
+  int min0, max0, min1, max1, min2, max2;
   min0 = outExt[0];
   max0 = outExt[1];
   min1 = outExt[2];
@@ -276,6 +269,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   inData[0][0]->GetIncrements(in1Inc);
   inData[1][0]->GetIncrements(in2Inc);
 
+  int* inExt;
   inExt = inData[0][0]->GetExtent();
   int cmax0 = inExt[1] > max0 + 3 ? max0 + 3 : inExt[1];
   int cmin0 = inExt[0] < min0 - 3 ? min0 - 3 : inExt[0];
@@ -294,11 +288,13 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
 
   // we set min and Max to be one pixel in from actual values to support
   // the 3x3 averaging we do
+  int inMinX, inMaxX, inMinY, inMaxY;
   inMinX = cmin0;
   inMaxX = cmax0;
   inMinY = cmin1;
   inMaxY = cmax1;
 
+  unsigned long target;
   target = static_cast<unsigned long>((max2 - min2 + 1) * (max1 - min1 + 1) / 50.0);
   target++;
 
@@ -309,6 +305,10 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   in1Ptr0 = in1Ptr2 + (min1 - cmin1) * in1Inc[1] + (min0 - cmin0) * in1Inc[0];
   in2Ptr0 = in2Ptr2 + (min1 - cmin1) * in1Inc[1] + (min0 - cmin0) * in1Inc[0];
 
+  double error = 0.0;
+  double thresholdedError = 0.0;
+  unsigned long count = 0;
+  int idx0, idx1, idx2;
   for (idx2 = min2; idx2 <= max2; ++idx2)
   {
     outPtr1 = outPtr2;
