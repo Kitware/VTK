@@ -74,7 +74,7 @@ std::string exec(const char* cmd)
 /**
  * bb: xmin, xmax, ymin, ymax, zmin, zmax
  * Return: west, south, east, north, zmin, zmax
- * TODO: update proj and use srsName which takes precedence to UTM.
+ * TODO: use srsName which takes precedence to UTM.
  */
 std::array<double, 6> ToLonLatHeight(const char* vtkNotUsed(srsName), int utmZone,
   char utmHemisphere, const std::array<double, 6>& bb, const std::array<double, 3>& offset)
@@ -83,44 +83,104 @@ std::array<double, 6> ToLonLatHeight(const char* vtkNotUsed(srsName), int utmZon
   lonlatheight[4] = offset[2] + bb[4];
   lonlatheight[5] = offset[2] + bb[5];
   std::ostringstream ostr;
-  ostr << "+proj=utm +zone=" << utmZone << utmHemisphere << " +datum=WGS84";
-  projPJ projection = pj_init_plus(ostr.str().c_str());
-  projXY xy;
-  projLP lp;
+  ostr << "+proj=utm +zone=" << utmZone << (utmHemisphere == 'S' ? "+south" : "")
+       << " +datum=WGS84";
+  PJ* P;
+  P =
+    proj_create_crs_to_crs(PJ_DEFAULT_CTX, ostr.str().c_str(), "+proj=longlat +ellps=WGS84", NULL);
+  if (P == 0)
+  {
+    vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(0)));
+    return lonlatheight;
+  }
+  {
+    /* For that particular use case, this is not needed. */
+    /* proj_normalize_for_visualization() ensures that the coordinate */
+    /* order expected and returned by proj_trans() will be longitude, */
+    /* latitude for geographic CRS, and easting, northing for projected */
+    /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
+    /* had been used, this might had been necessary. */
+    PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
+    if (0 == P_for_GIS)
+    {
+      proj_destroy(P);
+      vtkLog(
+        ERROR, "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(0)));
+      return lonlatheight;
+    }
+    proj_destroy(P);
+    P = P_for_GIS;
+  }
+  PJ_COORD c, c_out;
   for (int i = 0; i < 2; ++i)
   {
-    xy.u = offset[0] + bb[i];
-    xy.v = offset[1] + bb[i + 2];
-    lp = pj_inv(xy, projection);
-    lonlatheight[2 * i] = lp.u;
-    lonlatheight[2 * i + 1] = lp.v;
+    c.xy.x = offset[0] + bb[i];
+    c.xy.y = offset[1] + bb[i + 2];
+    c_out = proj_trans(P, PJ_FWD, c);
+    lonlatheight[2 * i] = vtkMath::RadiansFromDegrees(c_out.lp.lam);
+    lonlatheight[2 * i + 1] = vtkMath::RadiansFromDegrees(c_out.lp.phi);
   }
+  proj_destroy(P);
+  // std::cout << lonlatheight[0] << " "
+  //           << lonlatheight[1] << " "
+  //           << lonlatheight[2] << " "
+  //           << lonlatheight[3] << std::endl;
   return lonlatheight;
 }
 
 //------------------------------------------------------------------------------
-// TODO: update proj and use srsName which takes precedence to UTM.
+// TODO: use srsName which takes precedence to UTM.
 vtkSmartPointer<vtkMatrix4x4> ComputeTransform(const char* vtkNotUsed(srsName), int utmZone,
   char utmHemisphere, const std::array<double, 3>& offset, const std::array<double, 6>& bounds)
 {
+  auto m = vtkSmartPointer<vtkMatrix4x4>::New();
+  m->Identity();
   vtkNew<vtkTransform> t;
   double originDegrees[2];
-
   std::ostringstream ostr;
-  ostr << "+proj=utm +zone=" << utmZone << utmHemisphere << " +datum=WGS84";
-  projPJ projection = pj_init_plus(ostr.str().c_str());
-  projXY xy;
-  projLP lp;
+  ostr << "+proj=utm +zone=" << utmZone << (utmHemisphere == 'S' ? "+south" : "")
+       << " +datum=WGS84";
+
+  PJ* P;
+  P =
+    proj_create_crs_to_crs(PJ_DEFAULT_CTX, ostr.str().c_str(), "+proj=longlat +ellps=WGS84", NULL);
+  if (P == 0)
+  {
+    vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(0)));
+    return m;
+  }
+  {
+    /* For that particular use case, this is not needed. */
+    /* proj_normalize_for_visualization() ensures that the coordinate */
+    /* order expected and returned by proj_trans() will be longitude, */
+    /* latitude for geographic CRS, and easting, northing for projected */
+    /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
+    /* had been used, this might had been necessary. */
+    PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
+    if (0 == P_for_GIS)
+    {
+      proj_destroy(P);
+      vtkLog(
+        ERROR, "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(0)));
+      return m;
+    }
+    proj_destroy(P);
+    P = P_for_GIS;
+  }
+  PJ_COORD c, c_out;
   std::array<double, 3> origin = { { bounds[0], bounds[2], bounds[4] } };
   // std::cout << "origin: " << origin[0] << ", " << origin[1] << ", "
   //           << origin[2] << std::endl;
 
   // project the origin of the bounding box from UTM to geodetic lon, lat
-  xy.u = offset[0] + origin[0];
-  xy.v = offset[1] + origin[1];
-  lp = pj_inv(xy, projection);
-  originDegrees[0] = lp.u * 180 / vtkMath::Pi();
-  originDegrees[1] = lp.v * 180 / vtkMath::Pi();
+  c.xy.x = offset[0] + origin[0];
+  c.xy.y = offset[1] + origin[1];
+  c_out = proj_trans(P, PJ_FWD, c);
+  proj_destroy(P);
+
+  originDegrees[0] = c_out.lp.lam;
+  originDegrees[1] = c_out.lp.phi;
+
   // std::cout << "originDegrees: "
   //           << originDegrees[0] << ", " << originDegrees[1] << std::endl;
   // std::cout << "originRadians: "
@@ -128,28 +188,52 @@ vtkSmartPointer<vtkMatrix4x4> ComputeTransform(const char* vtkNotUsed(srsName), 
   //           << lp.u << ", " << lp.v << std::endl;
 
   // transform from geodetic lon, lat, height to geocentric coordinates (proj >= 5.0)
-  std::ofstream out("lonlatheight.txt");
-  out << std::setprecision(std::numeric_limits<double>::max_digits10) << std::fixed
-      << originDegrees[0] << " " << originDegrees[1] << " " << (offset[2] + origin[2]) << std::endl;
-  out.close();
-  std::string stringEcef = exec("cct -d 16 +proj=cart +ellps=WGS84 lonlatheight.txt");
-  std::istringstream istr(stringEcef);
+  P = proj_create_crs_to_crs(
+    PJ_DEFAULT_CTX, "+proj=longlat +ellps=WGS84", "+proj=cart +ellps=WGS84", NULL);
+  if (P == 0)
+  {
+    vtkLog(ERROR, "proj_create_crs_to_crs failed:" << proj_errno_string(proj_errno(0)));
+    return m;
+  }
+  {
+    /* For that particular use case, this is not needed. */
+    /* proj_normalize_for_visualization() ensures that the coordinate */
+    /* order expected and returned by proj_trans() will be longitude, */
+    /* latitude for geographic CRS, and easting, northing for projected */
+    /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
+    /* had been used, this might had been necessary. */
+    PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
+    if (0 == P_for_GIS)
+    {
+      proj_destroy(P);
+      vtkLog(
+        ERROR, "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(0)));
+      return m;
+    }
+    proj_destroy(P);
+    P = P_for_GIS;
+  }
+  c.lpz.lam = originDegrees[0];
+  c.lpz.phi = originDegrees[1];
+  c.lpz.z = offset[2] + origin[2];
+  c_out = proj_trans(P, PJ_FWD, c);
+  proj_destroy(P);
 
   double ecefOrigin[3];
-  istr >> ecefOrigin[0] >> ecefOrigin[1] >> ecefOrigin[2];
+  ecefOrigin[0] = c_out.xyz.x;
+  ecefOrigin[1] = c_out.xyz.y;
+  ecefOrigin[2] = c_out.xyz.z;
   // std::cout << "ecefOrigin: "
   //           << ecefOrigin[0] << " "
   //           << ecefOrigin[1] << " "
   //           << ecefOrigin[2]
   //           << std::endl;
-
   t->Identity();
   t->Translate(ecefOrigin);
   t->RotateZ(90.0 + originDegrees[0]);
   t->RotateX(-originDegrees[1]);
   t->Translate(-origin[0], -origin[1], -origin[2]);
 
-  auto m = vtkSmartPointer<vtkMatrix4x4>::New();
   t->GetTranspose(m);
   return m;
 }
