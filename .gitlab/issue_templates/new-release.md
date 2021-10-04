@@ -77,6 +77,11 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
       - This must be done after a nightly run to ensure all builds are in the
         `release` group
       - See the script itself for usage documentation
+    - Deprecation updates (if `@BASEBRANCH@` is `master`)
+    - [ ] Update deprecation macros for the next release
+    - [ ] Remove deprecated symbols from before the *prior* release
+    - [ ] Update `VTK_MINIMUM_DEPRECATION_LEVEL` to be that of the *prior*
+          release
 
 [backport-mrs]: https://gitlab.kitware.com/utils/release-utils/-/blob/master/backport-mrs.py
 [release-mr]: https://gitlab.kitware.com/utils/release-utils/-/blob/master/release-mr.py
