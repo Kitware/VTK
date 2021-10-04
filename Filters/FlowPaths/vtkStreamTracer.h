@@ -341,6 +341,20 @@ public:
   vtkGetMacro(RotationScale, double);
   ///@}
 
+  ///@{
+  /**
+   * If true the filter considers that the whole seed source is available on all ranks.
+   * Else the filter will aggregate all seed sources from all ranks and merge their points.
+   *
+   * This property only makes sense when the filter is parallelized and is a no-op for its
+   * sequential version.
+   * Default is true.
+   */
+  vtkSetMacro(UseLocalSeedSource, bool);
+  vtkGetMacro(UseLocalSeedSource, bool);
+  vtkBooleanMacro(UseLocalSeedSource, bool);
+  ///@}
+
   /**
    * The object used to interpolate the velocity field during
    * integration is of the same class as this prototype.
@@ -451,6 +465,9 @@ protected:
 
   // Compute streamlines only on surface.
   bool SurfaceStreamlines;
+
+  // Only relevant for the parallel version of this filter (see vtkPStreamTracer)
+  bool UseLocalSeedSource = true;
 
   vtkAbstractInterpolatedVelocityField* InterpolatorPrototype;
 

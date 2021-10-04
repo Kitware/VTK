@@ -116,14 +116,25 @@ void MyMain(vtkMultiProcessController* controller, void* arg)
 
   ren->AddActor(Actor5);
 
-  vtkLineSource* LineSourceWidget0 = vtkLineSource::New();
-  LineSourceWidget0->SetPoint1(13.9548, -0.47371, 31.7642);
-  LineSourceWidget0->SetPoint2(6.3766, -0.5886, 26.6274);
-  LineSourceWidget0->SetResolution(20);
+  // Make the seed source not available on every ranks on purpose :
+  // tests the `UseLocalSeedSource = false` property of the stream tracer
+  vtkNew<vtkPolyData> lineSource;
+  constexpr int LINE_SOURCE_RESOLUTION = 20;
+  if (myId == 0)
+  {
+    vtkNew<vtkLineSource> LineSourceWidget0;
+    LineSourceWidget0->SetPoint1(13.9548, -0.47371, 31.7642);
+    LineSourceWidget0->SetPoint2(6.3766, -0.5886, 26.6274);
+    LineSourceWidget0->SetResolution(LINE_SOURCE_RESOLUTION);
+    LineSourceWidget0->Update();
+
+    lineSource->ShallowCopy(LineSourceWidget0->GetOutput());
+  }
 
   vtkPStreamTracer* Stream0 = vtkPStreamTracer::New();
+  Stream0->UseLocalSeedSourceOff();
   Stream0->SetInputConnection(tv->GetOutputPort());
-  Stream0->SetSourceConnection(LineSourceWidget0->GetOutputPort());
+  Stream0->SetSourceData(lineSource);
   Stream0->SetIntegrationStepUnit(2);
   Stream0->SetMaximumPropagation(5);
   Stream0->SetInitialIntegrationStep(0.5);
@@ -201,7 +212,7 @@ void MyMain(vtkMultiProcessController* controller, void* arg)
   if (auto seedIds =
         vtkIntArray::SafeDownCast(Stream0->GetOutput()->GetCellData()->GetArray("SeedIds")))
   {
-    const auto numPts = LineSourceWidget0->GetOutput()->GetNumberOfPoints();
+    const auto numPts = LINE_SOURCE_RESOLUTION + 1;
     for (vtkIdType cc = 0; cc < seedIds->GetNumberOfTuples(); ++cc)
     {
       auto id = seedIds->GetTypedComponent(cc, 0);
@@ -224,7 +235,6 @@ void MyMain(vtkMultiProcessController* controller, void* arg)
   tv->Delete();
   Stream0->Delete();
   LookupTable1->Delete();
-  LineSourceWidget0->Delete();
   Geometry5->Delete();
   Geometry6->Delete();
   Actor5->Delete();
