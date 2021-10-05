@@ -82,9 +82,9 @@ public:
    * Otherwise, the difference is computed directly between pixels
    * of identical row/column values.
    */
-  vtkSetMacro(AllowShift, vtkTypeBool);
-  vtkGetMacro(AllowShift, vtkTypeBool);
-  vtkBooleanMacro(AllowShift, vtkTypeBool);
+  vtkSetMacro(AllowShift, bool);
+  vtkGetMacro(AllowShift, bool);
+  vtkBooleanMacro(AllowShift, bool);
   ///@}
 
   ///@{
@@ -94,9 +94,9 @@ public:
    * you normally would leave this on. For imaging operations it
    * should be off.
    */
-  vtkSetMacro(Averaging, vtkTypeBool);
-  vtkGetMacro(Averaging, vtkTypeBool);
-  vtkBooleanMacro(Averaging, vtkTypeBool);
+  vtkSetMacro(Averaging, bool);
+  vtkGetMacro(Averaging, bool);
+  vtkBooleanMacro(Averaging, bool);
   ///@}
 
   ///@{
