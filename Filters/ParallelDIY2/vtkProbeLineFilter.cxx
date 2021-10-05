@@ -387,6 +387,7 @@ int vtkProbeLineFilter::RequestData(
   {
     vtkNew<vtkAppendDataSets> appender;
     appender->SetMergePoints(false);
+    appender->SetOutputDataSetType(VTK_POLY_DATA);
     for (unsigned int i = 0; i < multiBlockOutput->GetNumberOfBlocks(); ++i)
     {
       appender->AddInputData(multiBlockOutput->GetBlock(i));
