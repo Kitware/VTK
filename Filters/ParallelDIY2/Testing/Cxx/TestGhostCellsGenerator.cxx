@@ -1558,11 +1558,11 @@ vtkSmartPointer<vtkUnstructuredGrid> Convert3DImageToUnstructuredGrid(
   for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)
   {
     vtkStructuredData::ComputeCellStructuredCoordsForExtent(cellId, extent, ijkCell);
-    for (ijkPoint[0] = ijkCell[0]; ijkPoint[0] <= ijkCell[0] + 1; ++ijkPoint[0])
+    for (ijkPoint[2] = ijkCell[2]; ijkPoint[2] <= ijkCell[2] + 1; ++ijkPoint[2])
     {
       for (ijkPoint[1] = ijkCell[1]; ijkPoint[1] <= ijkCell[1] + 1; ++ijkPoint[1])
       {
-        for (ijkPoint[2] = ijkCell[2]; ijkPoint[2] <= ijkCell[2] + 1; ++ijkPoint[2])
+        for (ijkPoint[0] = ijkCell[0]; ijkPoint[0] <= ijkCell[0] + 1; ++ijkPoint[0])
         {
           connectivity->SetValue(
             connectivityId++, vtkStructuredData::ComputePointIdForExtent(extent, ijkPoint));
@@ -1807,6 +1807,82 @@ void GenerateGlobalIds(vtkPointSet* ps, const int localExtent[6])
 }
 
 //----------------------------------------------------------------------------
+bool TestVoxelCellsVolume(vtkDataSet* ds)
+{
+  double p1[3], p2[3], p3[3], p4[3], p5[4], p6[4], p7[4], p8[4];
+  double diff[3];
+  constexpr double eps = 0.00001;
+  for (vtkIdType cellId = 0; cellId < ds->GetNumberOfCells(); ++cellId)
+  {
+    vtkCell* cell = ds->GetCell(cellId);
+    vtkPoints* points = cell->GetPoints();
+
+    points->GetPoint(0, p1);
+    points->GetPoint(1, p2);
+    points->GetPoint(2, p3);
+    points->GetPoint(3, p4);
+    points->GetPoint(4, p5);
+    points->GetPoint(5, p6);
+    points->GetPoint(6, p7);
+    points->GetPoint(7, p8);
+
+    vtkMath::Subtract(p2, p1, diff);
+    if (std::fabs(diff[0] - 1.0) > eps || std::fabs(diff[1]) > eps || std::fabs(diff[2]) > eps)
+    {
+      vtkLog(INFO, "p2diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
+      return false;
+    }
+
+    vtkMath::Subtract(p3, p1, diff);
+    if (std::fabs(diff[0]) > eps || std::fabs(diff[1] - 1.0) > eps || std::fabs(diff[2]) > eps)
+    {
+      vtkLog(INFO, "p3diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
+      return false;
+    }
+
+    vtkMath::Subtract(p4, p1, diff);
+    if (std::fabs(diff[0] - 1.0) > eps || std::fabs(diff[1] - 1) > eps || std::fabs(diff[2]) > eps)
+    {
+      vtkLog(INFO, "p4diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
+      return false;
+    }
+
+    vtkMath::Subtract(p5, p1, diff);
+    if (std::fabs(diff[0]) > eps || std::fabs(diff[1]) > eps || std::fabs(diff[2] - 1.0) > eps)
+    {
+      vtkLog(INFO, "p5diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
+      return false;
+    }
+
+    vtkMath::Subtract(p6, p1, diff);
+    if (std::fabs(diff[0] - 1.0) > eps || std::fabs(diff[1]) > eps ||
+      std::fabs(diff[2] - 1.0) > eps)
+    {
+      vtkLog(INFO, "p6diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
+      return false;
+    }
+
+    vtkMath::Subtract(p7, p1, diff);
+    if (std::fabs(diff[0]) > eps || std::fabs(diff[1] - 1.0) > eps ||
+      std::fabs(diff[2] - 1.0) > eps)
+    {
+      vtkLog(INFO, "p7diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
+      return false;
+    }
+
+    vtkMath::Subtract(p8, p1, diff);
+    if (std::fabs(diff[0] - 1.0) > eps || std::fabs(diff[1] - 1.0) > eps ||
+      std::fabs(diff[2] - 1.0) > eps)
+    {
+      vtkLog(INFO, "p8diff " << diff[0] << ", " << diff[1] << ", " << diff[2]);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool TestQueryReferenceToGenerated(vtkPointSet* ref, vtkAbstractPointLocator* refLocator,
   vtkPointSet* gen, bool centers = false, bool ignorePointPosition = false)
 {
@@ -2011,6 +2087,12 @@ bool TestUnstructuredGrid(
     retVal = false;
   }
 
+  if (!TestVoxelCellsVolume(preug))
+  {
+    vtkLog(ERROR, "Generated cells have wrong geometry");
+    retVal = false;
+  }
+
   vtkNew<vtkPartitionedDataSet> pds;
   pds->SetNumberOfPartitions(5);
 
@@ -2069,6 +2151,12 @@ bool TestUnstructuredGrid(
   for (int id = 0; id < 4; ++id)
   {
     vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(outPDS->GetPartition(id));
+
+    if (!TestVoxelCellsVolume(ug))
+    {
+      vtkLog(ERROR, "Generated cells have wrong geometry");
+      retVal = false;
+    }
 
     vtkIdType numberOfCells = (MaxExtent + numberOfGhostLayers) *
       (MaxExtent + numberOfGhostLayers) * (MaxExtent + numberOfGhostLayers);
