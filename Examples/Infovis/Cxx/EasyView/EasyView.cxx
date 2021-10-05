@@ -39,7 +39,7 @@ EasyView::EasyView()
   this->ui = new Ui_EasyView;
   this->ui->setupUi(this);
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
-  this->ui->vtkGraphViewWidget->SetRenderWindow(renderWindow);
+  this->ui->vtkGraphViewWidget->setRenderWindow(renderWindow);
 
   this->XMLReader = vtkSmartPointer<vtkXMLTreeReader>::New();
   this->GraphView = vtkSmartPointer<vtkGraphLayoutView>::New();
@@ -58,8 +58,8 @@ EasyView::EasyView()
   this->ui->columnFrame->layout()->addWidget(this->ColumnView->GetWidget());
 
   // Graph View needs to get my render window
-  this->GraphView->SetInteractor(this->ui->vtkGraphViewWidget->GetInteractor());
-  this->GraphView->SetRenderWindow(this->ui->vtkGraphViewWidget->GetRenderWindow());
+  this->GraphView->SetInteractor(this->ui->vtkGraphViewWidget->interactor());
+  this->GraphView->SetRenderWindow(this->ui->vtkGraphViewWidget->renderWindow());
 
   // Set up the theme on the graph view :)
   vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();
