@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
@@ -21,7 +22,7 @@
 #include "vtkTable.h"
 
 #define GET_ARRAYS(arrays, out)                                                                    \
-  for (int cc = 0; cc < 9; ++cc)                                                                   \
+  for (int cc = 0; cc < 10; ++cc)                                                                  \
   {                                                                                                \
     arrays[cc] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(cc));                                \
     if (arrays[cc] == nullptr)                                                                     \
@@ -44,11 +45,16 @@ int TestTableSplitColumnComponents(int, char*[])
   multi->SetNumberOfTuples(5);
   multi->SetName("Multi");
 
+  vtkNew<vtkIntArray> globalIds;
+  globalIds->SetNumberOfValues(5);
+  globalIds->SetName("Ids");
+
   for (int i = 0; i < 5; ++i)
   {
     single->InsertValue(i, i);
     int ints[] = { i + 1, 2 * (i + 1), 3 * (i + 1) };
     multi->InsertTypedTuple(i, ints);
+    globalIds->SetValue(i, 5 - i);
   }
 
   vtkNew<vtkIntArray> multinamed;
@@ -62,6 +68,8 @@ int TestTableSplitColumnComponents(int, char*[])
   table->AddColumn(single);
   table->AddColumn(multi);
   table->AddColumn(multinamed);
+  table->AddColumn(globalIds);
+  table->GetRowData()->SetGlobalIds(globalIds);
 
   // Merge the two tables
   vtkNew<vtkSplitColumnComponents> split;
@@ -69,18 +77,26 @@ int TestTableSplitColumnComponents(int, char*[])
   split->Update();
 
   vtkTable* out = split->GetOutput(0);
-  if (out->GetNumberOfColumns() != 9) // 1 + (1+3) + (1+3)
+  if (out->GetNumberOfColumns() != 10) // 1 + (1+3) + (1+3) + 1
   {
     vtkGenericWarningMacro(<< "Incorrect column count: " << out->GetNumberOfColumns());
     return EXIT_FAILURE;
   }
-  vtkIntArray* arrays[9];
+  vtkIntArray* arrays[10];
   GET_ARRAYS(arrays, out);
+
+  if (!out->GetRowData()->GetGlobalIds() ||
+    strcmp(out->GetRowData()->GetGlobalIds()->GetName(), "Ids") != 0)
+  {
+    vtkGenericWarningMacro(<< "Global ids information absent in the output.");
+    return EXIT_FAILURE;
+  }
 
   for (int i = 0; i < 5; ++i)
   {
     if (arrays[0]->GetValue(i) != i || arrays[1]->GetValue(i) != i + 1 ||
-      arrays[2]->GetValue(i) != 2 * (i + 1) || arrays[3]->GetValue(i) != 3 * (i + 1))
+      arrays[2]->GetValue(i) != 2 * (i + 1) || arrays[3]->GetValue(i) != 3 * (i + 1) ||
+      arrays[9]->GetValue(i) != 5 - i)
     {
       vtkGenericWarningMacro(<< "One of the output arrays values did not match.");
       table->Dump();
