@@ -313,19 +313,8 @@ void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::SplatPoint(vtkIdType p
     }
   }
 
-  // The parallel splat across the splat footprint. If the footprint is too
-  // small then use serial processing to avoid thread inefficiency. Note that
-  // empirically the crossover point seems to be a footprint=1 (e.g., 3x3x3
-  // splat footprint and smaller is processed in serial).
   splat.SetSliceBounds(min, max);
-  if (this->Footprint < this->ParallelSplatCrossover)
-  {
-    splat(min[2], max[2] + 1);
-  }
-  else
-  { // parallelize splat
-    vtkSMPTools::For(min[2], max[2] + 1, splat);
-  }
+  splat(min[2], max[2] + 1);
 }
 
 //------------------------------------------------------------------------------
