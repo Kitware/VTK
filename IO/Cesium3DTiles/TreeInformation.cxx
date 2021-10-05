@@ -54,29 +54,13 @@ std::array<double, 6> ComputeTightBoudingBox(
   return wholeBB;
 }
 
-std::string exec(const char* cmd)
-{
-  std::array<char, 128> buffer;
-  std::string result;
-  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-  if (!pipe)
-  {
-    throw std::runtime_error("popen() failed!");
-  }
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-  {
-    result += buffer.data();
-  }
-  return result;
-}
-
 //------------------------------------------------------------------------------
 /**
  * bb: xmin, xmax, ymin, ymax, zmin, zmax
  * Return: west, south, east, north, zmin, zmax
  * TODO: use srsName which takes precedence to UTM.
  */
-std::array<double, 6> ToLonLatHeight(const char* vtkNotUsed(srsName), int utmZone,
+std::array<double, 6> ToLonLatRadiansHeight(const char* vtkNotUsed(srsName), int utmZone,
   char utmHemisphere, const std::array<double, 6>& bb, const std::array<double, 3>& offset)
 {
   std::array<double, 6> lonlatheight;
@@ -130,62 +114,22 @@ std::array<double, 6> ToLonLatHeight(const char* vtkNotUsed(srsName), int utmZon
 
 //------------------------------------------------------------------------------
 // TODO: use srsName which takes precedence to UTM.
-vtkSmartPointer<vtkMatrix4x4> ComputeTransform(const char* vtkNotUsed(srsName), int utmZone,
-  char utmHemisphere, const std::array<double, 3>& offset, const std::array<double, 6>& bounds)
+vtkSmartPointer<vtkMatrix4x4> ComputeTransform(
+  const std::array<double, 6>& bounds, const std::array<double, 6>& lonLatRadiansHeight)
 {
   auto m = vtkSmartPointer<vtkMatrix4x4>::New();
   m->Identity();
   vtkNew<vtkTransform> t;
   double originDegrees[2];
   std::ostringstream ostr;
-  ostr << "+proj=utm +zone=" << utmZone << (utmHemisphere == 'S' ? "+south" : "")
-       << " +datum=WGS84";
-
   PJ* P;
-  P =
-    proj_create_crs_to_crs(PJ_DEFAULT_CTX, ostr.str().c_str(), "+proj=longlat +ellps=WGS84", NULL);
-  if (P == 0)
-  {
-    vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(0)));
-    return m;
-  }
-  {
-    /* For that particular use case, this is not needed. */
-    /* proj_normalize_for_visualization() ensures that the coordinate */
-    /* order expected and returned by proj_trans() will be longitude, */
-    /* latitude for geographic CRS, and easting, northing for projected */
-    /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
-    /* had been used, this might had been necessary. */
-    PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
-    if (0 == P_for_GIS)
-    {
-      proj_destroy(P);
-      vtkLog(
-        ERROR, "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(0)));
-      return m;
-    }
-    proj_destroy(P);
-    P = P_for_GIS;
-  }
   PJ_COORD c, c_out;
-  std::array<double, 3> origin = { { bounds[0], bounds[2], bounds[4] } };
-  // std::cout << "origin: " << origin[0] << ", " << origin[1] << ", "
-  //           << origin[2] << std::endl;
 
-  // project the origin of the bounding box from UTM to geodetic lon, lat
-  c.xy.x = offset[0] + origin[0];
-  c.xy.y = offset[1] + origin[1];
-  c_out = proj_trans(P, PJ_FWD, c);
-  proj_destroy(P);
-
-  originDegrees[0] = c_out.lp.lam;
-  originDegrees[1] = c_out.lp.phi;
+  originDegrees[0] = vtkMath::DegreesFromRadians(lonLatRadiansHeight[0]);
+  originDegrees[1] = vtkMath::DegreesFromRadians(lonLatRadiansHeight[1]);
 
   // std::cout << "originDegrees: "
   //           << originDegrees[0] << ", " << originDegrees[1] << std::endl;
-  // std::cout << "originRadians: "
-  //           << setprecision(std::numeric_limits<double>::max_digits10)
-  //           << lp.u << ", " << lp.v << std::endl;
 
   // transform from geodetic lon, lat, height to geocentric coordinates (proj >= 5.0)
   P = proj_create_crs_to_crs(
@@ -215,7 +159,7 @@ vtkSmartPointer<vtkMatrix4x4> ComputeTransform(const char* vtkNotUsed(srsName), 
   }
   c.lpz.lam = originDegrees[0];
   c.lpz.phi = originDegrees[1];
-  c.lpz.z = offset[2] + origin[2];
+  c.lpz.z = lonLatRadiansHeight[4];
   c_out = proj_trans(P, PJ_FWD, c);
   proj_destroy(P);
 
@@ -232,7 +176,7 @@ vtkSmartPointer<vtkMatrix4x4> ComputeTransform(const char* vtkNotUsed(srsName), 
   t->Translate(ecefOrigin);
   t->RotateZ(90.0 + originDegrees[0]);
   t->RotateX(-originDegrees[1]);
-  t->Translate(-origin[0], -origin[1], -origin[2]);
+  t->Translate(-bounds[0], -bounds[2], -bounds[4]);
 
   t->GetTranspose(m);
   return m;
@@ -452,27 +396,28 @@ Json::Value TreeInformation::GenerateCesium3DTiles(vtkIncrementalOctreeNode* nod
 {
   Json::Value tree;
   Json::Value v;
-  std::array<double, 6> lonlatheight = ToLonLatHeight(this->SrsName, this->UTMZone,
+  std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(this->SrsName, this->UTMZone,
     this->UTMHemisphere, this->NodeBounds[node->GetID()], this->Offset);
   std::ostringstream ostr;
   ostr << std::string("NodeBounds(") << node->GetID() << ")";
   // PrintBounds(ostr.str(), &this->NodeBounds[node->GetID()][0]);
-  // std::cout << "lonlatheight: " << (lonlatheight[0] * 180.0) / vtkMath::Pi() << " "
-  //           << (lonlatheight[1] * 180.0) / vtkMath::Pi() << " "
-  //           << (lonlatheight[2] * 180.0) / vtkMath::Pi() << " "
-  //           << (lonlatheight[3] * 180.0) / vtkMath::Pi() << " " << lonlatheight[4] << " "
-  //           << lonlatheight[5] << " " << std::endl;
+  // std::cout << "lonLatRadiansHeight: " << (lonLatRadiansHeight[0] * 180.0) / vtkMath::Pi() << " "
+  //           << (lonLatRadiansHeight[1] * 180.0) / vtkMath::Pi() << " "
+  //           << (lonLatRadiansHeight[2] * 180.0) / vtkMath::Pi() << " "
+  //           << (lonLatRadiansHeight[3] * 180.0) / vtkMath::Pi() << " " << lonLatRadiansHeight[4]
+  //           << " "
+  //           << lonLatRadiansHeight[5] << " " << std::endl;
   for (int i = 0; i < 6; ++i)
   {
-    v[i] = lonlatheight[i];
+    v[i] = lonLatRadiansHeight[i];
   }
   tree["boundingVolume"]["region"] = v;
   tree["geometricError"] = this->GeometricError[node->GetID()];
   if (node == this->Root)
   {
     tree["refine"] = "REPLACE";
-    vtkSmartPointer<vtkMatrix4x4> m = ::ComputeTransform(this->SrsName, this->UTMZone,
-      this->UTMHemisphere, this->Offset, this->NodeBounds[node->GetID()]);
+    vtkSmartPointer<vtkMatrix4x4> m =
+      ::ComputeTransform(this->NodeBounds[node->GetID()], lonLatRadiansHeight);
     double* t = m->GetData();
     v.clear();
     for (int i = 0; i < 16; ++i)
