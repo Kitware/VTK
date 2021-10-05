@@ -377,7 +377,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
                     haveValues = true;
                   }
 
-                  bool done = true;
+                  done = true;
                   for (int i = 0; i < nComp; i++)
                   {
                     // once we have a good enough match stop to save time
