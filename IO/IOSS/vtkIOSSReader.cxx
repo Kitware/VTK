@@ -16,6 +16,7 @@
 #include "vtkIOSSFilesScanner.h"
 #include "vtkIOSSUtilities.h"
 
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
@@ -182,6 +183,61 @@ vtkSmartPointer<vtkAbstractArray> JoinArrays(
 }
 }
 
+struct DGInformation
+{
+  // list of element types ordered with blocks
+  // assumes each block will have a single element type
+  std::map<std::string, std::string> elementTypes;
+
+  // list of fields present on each block
+  std::map<std::string, std::vector<std::string>> fields;
+
+  bool BlockIsDG(std::string name) { return elementTypes.count(name); }
+};
+
+std::vector<std::string> split(const std::string& inString, const std::string& delimeter)
+{
+  std::vector<std::string> subStrings;
+  size_t sIdx = 0;
+  size_t eIdx = 0;
+  while ((eIdx = inString.find(delimeter, sIdx)) < inString.size())
+  {
+    subStrings.push_back(inString.substr(sIdx, eIdx - sIdx));
+    sIdx = eIdx + delimeter.size();
+  }
+  if (sIdx < inString.size())
+  {
+    subStrings.push_back(inString.substr(sIdx));
+  }
+  return subStrings;
+}
+
+void parseDGInfo(DGInformation& dgInfo, const std::vector<std::string>& info_records)
+{
+  for (auto& record : info_records)
+  {
+    auto data = split(record, "::");
+    // check if the row in the record is a DG callout
+    if (data.size() < 4 || data[0] != "DG")
+    {
+      continue;
+    }
+
+    // get the block associated with that callout
+    std::string name = data[1];
+
+    // get if its a basis or a field
+    if (data[2] == "basis")
+    {
+      dgInfo.elementTypes[name] = data[3];
+    }
+    else if (data[2] == "field")
+    {
+      dgInfo.fields[name].push_back(data[3]);
+    }
+  }
+}
+
 class vtkIOSSReader::vtkInternals
 {
   // it's okay to instantiate this multiple times.
@@ -213,6 +269,8 @@ class vtkIOSSReader::vtkInternals
 
   vtkSmartPointer<vtkDataAssembly> Assembly;
   vtkTimeStamp AssemblyMTime;
+
+  DGInformation DGInfo;
 
 public:
   vtkInternals(vtkIOSSReader* reader)
@@ -491,6 +549,30 @@ private:
    */
   bool GenerateEntityIdArray(vtkDataSet* grid, const std::string& blockname,
     vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
+
+  /**
+   * @brief FieldIsDG
+   *
+   * @param blockname = name of the block this field is on
+   * @param fieldname = name of the field
+   * @return true if the field is a DG field
+   */
+  bool FieldIsDG(std::string blockname, std::string fieldname);
+  /**
+   * @brief like GetFields and GetNodalFields, but uses DG info records to parse
+   * which fields are DG fields, and properly reinterprets these fields as nodal
+   * fields on the DG mesh
+   *
+   * @param ds = output mesh
+   * @param selection = selection of arrays to parse
+   * @param region = the region of the mesh to read data on
+   * @param group_entity = the Ioss entity in question
+   * @param handle = database handle
+   * @param timestep = time step to read from
+   * @return true on successful parsing of field
+   */
+  bool GetDGFields(vtkUnstructuredGrid* ds, vtkDataArraySelection* selection, Ioss::Region* region,
+    Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep);
 
   /**
    * Reads selected field arrays for the given entity block or set.
@@ -1441,6 +1523,8 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetExodusD
   this->GetFields(dataset->GetCellData(), fieldSelection, region, group_entity, handle, timestep,
     self->GetReadIds());
 
+  this->GetDGFields(dataset, fieldSelection, region, group_entity, handle, timestep);
+
   auto nodeFieldSelection = self->GetNodeBlockFieldSelection();
   assert(nodeFieldSelection != nullptr);
   this->GetNodeFields(dataset->GetPointData(), nodeFieldSelection, region, group_entity, handle,
@@ -1600,6 +1684,57 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetCGNSDat
 }
 
 //----------------------------------------------------------------------------
+bool ExplodeDGMesh(vtkUnstructuredGrid* dataset, bool remove_unused_points)
+{
+  auto old_points = dataset->GetPoints();
+  vtkNew<vtkPoints> exploded_points;
+  vtkNew<vtkCellArray> exploded_cells;
+  vtkNew<vtkIdList> original_ids;
+
+  const vtkIdType nCells = dataset->GetCells()->GetNumberOfCells();
+
+  // TO DO: Get the actual number of points in each element
+  const vtkIdType nPtsPerCell = dataset->GetCells()->GetCellSize(0);
+  const vtkIdType nPts = nCells * nPtsPerCell;
+
+  exploded_points->SetNumberOfPoints(nPts);
+  exploded_cells->AllocateExact(nCells, nPtsPerCell);
+  original_ids->SetNumberOfIds(nPts);
+
+  // loop over cell connectivity, redo the connectivity so that each cell is
+  // disconnected from other cells and then copy associated points into the
+  // point array
+  vtkIdType ind = 0;
+  auto iter = vtk::TakeSmartPointer(dataset->GetCells()->NewIterator());
+  for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+  {
+    // get next cell in original dataset
+    vtkIdList* cellIds = iter->GetCurrentCell();
+
+    exploded_cells->InsertNextCell(nPtsPerCell);
+    for (vtkIdType i = 0; i < nPtsPerCell; ++i)
+    {
+      vtkVector3d coords{ 0.0 };
+      vtkIdType o_id = cellIds->GetId(i);
+      original_ids->SetId(ind, o_id);
+      old_points->GetPoint(o_id, coords.GetData());
+      exploded_points->InsertPoint(ind, coords.GetData());
+      exploded_cells->InsertCellPoint(ind);
+      ind++;
+    }
+  }
+
+  dataset->SetPoints(exploded_points);
+  dataset->SetCells(dataset->GetCellTypesArray(), exploded_cells);
+
+  vtkNew<vtkIdTypeArray> opids;
+  opids->SetName("__vtk_mesh_original_pt_ids__");
+  opids->SetArray(original_ids->Release(), nPts, /*save=*/0, vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
+  dataset->GetPointData()->AddArray(opids);
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkIOSSReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
   const std::string& blockname, vtkIOSSReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle, bool remove_unused_points)
@@ -1626,7 +1761,21 @@ bool vtkIOSSReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
     return false;
   }
 
-  if (remove_unused_points)
+  // if the block is a DG block, we explode the connectivity and points array so each
+  // cell is disconnected from every other cell
+  if (this->DGInfo.BlockIsDG(blockname))
+  {
+    ExplodeDGMesh(dataset, remove_unused_points);
+    if (remove_unused_points)
+    {
+      if (auto originalIds = dataset->GetPointData()->GetArray("__vtk_mesh_original_pt_ids__"))
+      {
+        cache.Insert(group_entity, "__vtk_mesh_original_pt_ids__", originalIds);
+      }
+    }
+  }
+
+  if (remove_unused_points && !this->DGInfo.BlockIsDG(blockname))
   {
     // let's prune unused points.
     vtkNew<vtkRemoveUnusedPoints> pruner;
@@ -2038,7 +2187,8 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
   }
   for (int cc = 0; selection != nullptr && cc < selection->GetNumberOfArrays(); ++cc)
   {
-    if (selection->GetArraySetting(cc))
+    if (selection->GetArraySetting(cc) &&
+      !this->FieldIsDG(group_entity->name(), selection->GetArrayName(cc)))
     {
       fieldnames.emplace_back(selection->GetArrayName(cc));
     }
@@ -2056,6 +2206,101 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
       {
         dsa->AddArray(array);
       }
+    }
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+// nodalData <out>: nodal DG field interpolated from dgData
+// dgData <in>: cell centered, 1 component per nodal dof
+// ds <in>: the mesh dataset. idk if we need this here
+// rule <in>: this string indicates what element type is being used in this
+//            DG block
+void interpolateDGFieldToNodes(
+  vtkDataArray* nodalData, vtkDataArray* dgData, const std::string& rule)
+{
+  const vtkIdType nNodes = dgData->GetNumberOfComponents();
+  const vtkIdType nCells = dgData->GetNumberOfTuples();
+
+  if (rule == "HGRAD")
+  {
+    for (vtkIdType i = 0; i < nNodes; ++i)
+    {
+      for (vtkIdType j = 0; j < nCells; ++j)
+      {
+        const vtkIdType ptId = i + nNodes * j;
+        nodalData->SetTuple1(ptId, dgData->GetComponent(j, i));
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::vtkInternals::FieldIsDG(std::string blockname, std::string fieldname)
+{
+  auto dgFields = this->DGInfo.fields[blockname];
+  for (auto field : dgFields)
+  {
+    if (fieldname.find(field) != std::string::npos)
+    {
+      return true;
+    }
+    // fields with uppercase characters sometimes get set to lower case in the
+    // selection array
+    std::string lowerCaseField = field;
+    std::transform(lowerCaseField.begin(), lowerCaseField.end(), lowerCaseField.begin(),
+      [](unsigned char c) { return std::tolower(c); });
+    if (lowerCaseField.find(field) != std::string::npos)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::vtkInternals::GetDGFields(vtkUnstructuredGrid* ds,
+  vtkDataArraySelection* selection, Ioss::Region* region, Ioss::GroupingEntity* group_entity,
+  const DatabaseHandle& handle, int timestep)
+{
+  std::vector<std::string> fieldnames;
+
+  for (int cc = 0; selection != nullptr && cc < selection->GetNumberOfArrays(); ++cc)
+  {
+    if (selection->GetArraySetting(cc) &&
+      this->FieldIsDG(group_entity->name(), selection->GetArrayName(cc)))
+    {
+      fieldnames.emplace_back(selection->GetArrayName(cc));
+    }
+  }
+
+  auto dgFields = this->DGInfo.fields[group_entity->name()];
+  for (const auto& fieldname : fieldnames)
+  {
+    if (auto array =
+          this->GetField(fieldname, region, group_entity, handle, timestep, nullptr, std::string()))
+    {
+      vtkDataArray* dgData = reinterpret_cast<vtkDataArray*>(array.Get());
+
+      // hard coding the rule until we have example of other exotic element flavors
+      // TO DO: interpret rule from DGInformation::elementTypes
+      const std::string rule = "HGRAD";
+
+      // create a new vtkDataArray to store the single processed DG field
+      vtkNew<vtkDoubleArray> nodalData;
+      // each dgData field has nNodes components and components of
+      // vector fields are broken into individual scalar fields
+      // we start by interpolating all scalar fields individually
+      nodalData->SetNumberOfComponents(1);
+      nodalData->SetNumberOfTuples(ds->GetNumberOfPoints());
+      nodalData->SetName(fieldname.c_str());
+      // interpolate the dg data onto the nodes
+      interpolateDGFieldToNodes(nodalData, dgData, rule);
+
+      // add the nodal field array
+      ds->GetPointData()->AddArray(nodalData);
     }
   }
 
@@ -2257,6 +2502,9 @@ bool vtkIOSSReader::vtkInternals::GetQAAndInformationRecords(
   {
     info_records->InsertNextValue(n);
   }
+
+  // parse potential info about DG blocks
+  parseDGInfo(this->DGInfo, info);
 
   fd->AddArray(info_records);
   fd->AddArray(qa_records);
@@ -2506,6 +2754,32 @@ int vtkIOSSReader::ReadMesh(
   // dbaseHandles are handles for individual files this instance will to read to
   // satisfy the request. Can be >= 0.
   const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
+
+  // Read global data. Since this should be same on all ranks, we only read on
+  // root node and broadcast it to all. This helps us easily handle the case
+  // where the number of reading-ranks is more than writing-ranks.
+  auto controller = this->GetController();
+  const auto rank = controller ? controller->GetLocalProcessId() : 0;
+  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
+  if (!dbaseHandles.empty() && rank == 0)
+  {
+    // Read global data. Since global data is expected to be identical on all
+    // files in a partitioned collection, we can read it from the first
+    // dbaseHandle alone.
+    if (this->ReadGlobalFields)
+    {
+      internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
+    }
+
+    if (this->ReadQAAndInformationRecords)
+    {
+      internals.GetQAAndInformationRecords(collection->GetFieldData(), dbaseHandles[0]);
+    }
+
+    // Handle assemblies.
+    internals.ReadAssemblies(collection, dbaseHandles[0]);
+  }
+
   for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
   {
     const std::string blockname(collection->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()));
@@ -2542,31 +2816,6 @@ int vtkIOSSReader::ReadMesh(
 
       internals.ReleaseHandles();
     }
-  }
-
-  // Read global data. Since this should be same on all ranks, we only read on
-  // root node and broadcast it to all. This helps us easily handle the case
-  // where the number of reading-ranks is more than writing-ranks.
-  auto controller = this->GetController();
-  const auto rank = controller ? controller->GetLocalProcessId() : 0;
-  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
-  if (!dbaseHandles.empty() && rank == 0)
-  {
-    // Read global data. Since global data is expected to be identical on all
-    // files in a partitioned collection, we can read it from the first
-    // dbaseHandle alone.
-    if (this->ReadGlobalFields)
-    {
-      internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
-    }
-
-    if (this->ReadQAAndInformationRecords)
-    {
-      internals.GetQAAndInformationRecords(collection->GetFieldData(), dbaseHandles[0]);
-    }
-
-    // Handle assemblies.
-    internals.ReadAssemblies(collection, dbaseHandles[0]);
   }
 
   if (numRanks > 1)
