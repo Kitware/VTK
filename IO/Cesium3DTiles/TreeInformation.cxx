@@ -114,19 +114,15 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* vtkNotUsed(srsName), int
 
 //------------------------------------------------------------------------------
 // TODO: use srsName which takes precedence to UTM.
-vtkSmartPointer<vtkMatrix4x4> ComputeTransform(
-  const std::array<double, 6>& bounds, const std::array<double, 6>& lonLatRadiansHeight)
+vtkSmartPointer<vtkMatrix4x4> ComputeTransformCartesian(
+  const std::array<double, 3>& originLonLatDegreesHeight)
 {
   auto m = vtkSmartPointer<vtkMatrix4x4>::New();
   m->Identity();
   vtkNew<vtkTransform> t;
-  double originDegrees[2];
   std::ostringstream ostr;
   PJ* P;
   PJ_COORD c, c_out;
-
-  originDegrees[0] = vtkMath::DegreesFromRadians(lonLatRadiansHeight[0]);
-  originDegrees[1] = vtkMath::DegreesFromRadians(lonLatRadiansHeight[1]);
 
   // std::cout << "originDegrees: "
   //           << originDegrees[0] << ", " << originDegrees[1] << std::endl;
@@ -157,9 +153,9 @@ vtkSmartPointer<vtkMatrix4x4> ComputeTransform(
     proj_destroy(P);
     P = P_for_GIS;
   }
-  c.lpz.lam = originDegrees[0];
-  c.lpz.phi = originDegrees[1];
-  c.lpz.z = lonLatRadiansHeight[4];
+  c.lpz.lam = originLonLatDegreesHeight[0];
+  c.lpz.phi = originLonLatDegreesHeight[1];
+  c.lpz.z = originLonLatDegreesHeight[2];
   c_out = proj_trans(P, PJ_FWD, c);
   proj_destroy(P);
 
@@ -174,9 +170,8 @@ vtkSmartPointer<vtkMatrix4x4> ComputeTransform(
   //           << std::endl;
   t->Identity();
   t->Translate(ecefOrigin);
-  t->RotateZ(90.0 + originDegrees[0]);
-  t->RotateX(-originDegrees[1]);
-  t->Translate(-bounds[0], -bounds[2], -bounds[4]);
+  t->RotateZ(90.0 + originLonLatDegreesHeight[0]);
+  t->RotateX(-originLonLatDegreesHeight[1]);
 
   t->GetTranspose(m);
   return m;
@@ -399,8 +394,6 @@ Json::Value TreeInformation::GenerateCesium3DTiles(vtkIncrementalOctreeNode* nod
   std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(this->SrsName, this->UTMZone,
     this->UTMHemisphere, this->NodeBounds[node->GetID()], this->Offset);
   std::ostringstream ostr;
-  ostr << std::string("NodeBounds(") << node->GetID() << ")";
-  // PrintBounds(ostr.str(), &this->NodeBounds[node->GetID()][0]);
   // std::cout << "lonLatRadiansHeight: " << (lonLatRadiansHeight[0] * 180.0) / vtkMath::Pi() << " "
   //           << (lonLatRadiansHeight[1] * 180.0) / vtkMath::Pi() << " "
   //           << (lonLatRadiansHeight[2] * 180.0) / vtkMath::Pi() << " "
@@ -415,9 +408,13 @@ Json::Value TreeInformation::GenerateCesium3DTiles(vtkIncrementalOctreeNode* nod
   tree["geometricError"] = this->GeometricError[node->GetID()];
   if (node == this->Root)
   {
+    ostr << std::string("NodeBounds(") << node->GetID() << ")";
+    PrintBounds(ostr.str(), &this->NodeBounds[node->GetID()][0]);
     tree["refine"] = "REPLACE";
-    vtkSmartPointer<vtkMatrix4x4> m =
-      ::ComputeTransform(this->NodeBounds[node->GetID()], lonLatRadiansHeight);
+    std::array<double, 3> originLonLatDegreesHeight = { { vtkMath::DegreesFromRadians(
+                                                            lonLatRadiansHeight[0]),
+      vtkMath::DegreesFromRadians(lonLatRadiansHeight[1]), lonLatRadiansHeight[4] } };
+    vtkSmartPointer<vtkMatrix4x4> m = ::ComputeTransformCartesian(originLonLatDegreesHeight);
     double* t = m->GetData();
     v.clear();
     for (int i = 0; i < 16; ++i)
