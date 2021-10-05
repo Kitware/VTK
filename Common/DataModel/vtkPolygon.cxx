@@ -664,7 +664,9 @@ int vtkPolygon::ParameterizePolygon(
 // (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
 // Can also return -1 to indicate degenerate polygon. Note: a point in
 // bounding box check is NOT performed prior to in/out check. You may want
-// to do this to improve performance.
+// to do this to improve performance. Note: a bounds check is performed to
+// cull out trivial outside cases, thus the bounds provided should be
+// inflated if tolerances are an issue.
 int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double bounds[6], double* n)
 {
   double *x1, *x2, xray[3], u, v;
@@ -673,6 +675,7 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
   int iterNumber;
   int maxComp, comps[2];
   int deltaVotes;
+
   // do a quick bounds check
   if (x[0] < bounds[0] || x[0] > bounds[1] || x[1] < bounds[2] || x[1] > bounds[3] ||
     x[2] < bounds[4] || x[2] > bounds[5])

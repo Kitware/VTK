@@ -20,6 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkMergePoints.h"
+#include "vtkPointData.h"
 #include "vtkPolygon.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -38,6 +39,70 @@ vtkCxxSetObjectMacro(vtkCookieCutter, Locator, vtkIncrementalPointLocator);
 
 namespace
 {
+
+// Helper function to create cutting/trim loops from the second filter input,
+// which may consist of polylines and/or polygons. Note that the polylines
+// are assumed to close in on themselves, meaning that the first and last
+// points are repeated, or if not, implicitly assumed to close and also to
+// not self-intersect.  Also, polylines and polygons must consist of three
+// points or more (it is assumed that they define a non-zero area; if the
+// area is zero the cutting process will likely fail). The valid loops are
+// placed into a cell array and returned. If the returned value is a nullptr,
+// then no trim lines/polygons are available.
+vtkSmartPointer<vtkCellArray> BuildTrimLoops(vtkPolyData* loops)
+{
+  // See what we have
+  vtkCellArray* loopLines = loops->GetLines();
+  vtkCellArray* loopPolys = loops->GetPolys();
+  vtkIdType numLoopLines = loopLines->GetNumberOfCells();
+  vtkIdType numLoopPolys = loopPolys->GetNumberOfCells();
+
+  // If no lines, just return the polygon array
+  if (numLoopLines < 1 && numLoopPolys < 1)
+  {
+    return nullptr;
+  }
+
+  else if (numLoopLines > 0 && numLoopPolys < 1)
+  {
+    return loopLines;
+  } // Just has trim lines
+
+  else if (numLoopPolys > 0 && numLoopLines < 1)
+  {
+    return loopPolys;
+  } // Just has trim polygons
+
+  else // Have to create a combined collection of cut polygons and lines
+  {
+    vtkNew<vtkCellArray> cutLoops;
+    vtkIdType npts;
+    const vtkIdType* pts;
+
+    for (loopLines->InitTraversal(); loopLines->GetNextCell(npts, pts);)
+    {
+      // The polyline closes in on itself, to make it a polygon, we eliminate
+      // the last point. This is far from foolproof, especially if the polyline
+      // self-intersects etc.
+      npts = (pts[0] == pts[npts - 1] ? npts - 1 : npts);
+      if (npts > 2)
+      {
+        cutLoops->InsertNextCell(npts, pts);
+      }
+    }
+
+    // Process polygons
+    for (loopPolys->InitTraversal(); loopPolys->GetNextCell(npts, pts);)
+    {
+      if (npts > 2)
+      {
+        cutLoops->InsertNextCell(npts, pts);
+      }
+    }
+
+    return cutLoops;
+  } // Combination of trim lines and polygons
+} // BuildTrimLoops
 
 // Note on the definition of parametric coordinates: Given a sequence of
 // line segments (vi,vi+1) that form a primitive (e.g., polyline or
@@ -520,13 +585,65 @@ int ClassifyPolygon(
   return hasOnClassification;
 }
 
+// A helper class used to manage point and cell attributes, and simplify the
+// overall cookie cutting code.
+struct vtkAttributeManager
+{
+  vtkPointData* InPtData;
+  vtkPointData* OutPtData;
+  vtkCellData* InCellData;
+  vtkCellData* OutCellData;
+
+  // Constructor:: Initialize the process of attribute processing
+  vtkAttributeManager(vtkPolyData* input, vtkPolyData* loops, vtkPolyData* output, bool passCD,
+    bool passPD, int ptInterpolation)
+  {
+    // Process cell data if requested
+    this->InCellData = nullptr;
+    this->OutCellData = nullptr;
+    if (passCD)
+    {
+      this->InCellData = input->GetCellData();
+      this->OutCellData = output->GetCellData();
+      this->OutCellData->CopyAllocate(this->InCellData);
+    }
+
+    // Process point data if requested. Note the complication due to how the
+    // new point data is generated from line-line intersections.
+    this->InPtData = nullptr;
+    this->OutPtData = nullptr;
+    if (passPD)
+    //         && SelectPointData(this->PointInterpolation, inPtData, outPtData) )
+    {
+      this->OutPtData->CopyAllocate(this->InPtData);
+    }
+  }
+
+  // // Depending on the point interpolation mode, select the point data to use,
+  // // making sure that it is consistent (so interpolation can be performed
+  // // correctly). Return 0 if consistent point data is not available.
+  // int SelectPointData(int ptInterpolation, vtkPointData* &inPtData,
+  //                     vtkPointData* &outPtData)
+  // {
+  //   return 0;
+  // }
+
+  void CopyCellData(vtkIdType inCellId, vtkIdType outCellId)
+  {
+    if (this->InCellData)
+    {
+      this->OutCellData->CopyData(this->InCellData, inCellId, outCellId);
+    }
+  }
+
+}; // vtkAttributeManager
+
 // A helper class used to crop vtkCookieCutter input polys and lines.
 class vtkCookieCutterHelper
 {
 public:
-  vtkCookieCutterHelper(vtkIncrementalPointLocator* locator, vtkPoints* inPts,
-    vtkCellData* inCellData, vtkPoints* outPts, vtkCellArray* outLines, vtkCellArray* outPolys,
-    vtkCellData* outCellData);
+  vtkCookieCutterHelper(vtkIncrementalPointLocator* locator, vtkPoints* inPts, vtkPoints* outPts,
+    vtkCellArray* outLines, vtkCellArray* outPolys, vtkAttributeManager* attMgr);
 
   virtual ~vtkCookieCutterHelper();
 
@@ -552,23 +669,21 @@ protected:
 public:
   vtkIncrementalPointLocator* Locator;
   vtkPoints* InPoints;
-  vtkCellData* InCellData;
   vtkPoints* OutPoints;
   vtkCellArray* OutLines;
   vtkCellArray* OutPolys;
-  vtkCellData* OutCellData;
-};
+  vtkAttributeManager* AttributeManager;
+}; // vtkCookieCutterHelper
 
+// vtkCookieCutterHelper methods follow
 vtkCookieCutterHelper::vtkCookieCutterHelper(vtkIncrementalPointLocator* locator, vtkPoints* inPts,
-  vtkCellData* inCellData, vtkPoints* outPts, vtkCellArray* outLines, vtkCellArray* outPolys,
-  vtkCellData* outCellData)
+  vtkPoints* outPts, vtkCellArray* outLines, vtkCellArray* outPolys, vtkAttributeManager* attMgr)
   : Locator(locator)
   , InPoints(inPts)
-  , InCellData(inCellData)
   , OutPoints(outPts)
   , OutLines(outLines)
   , OutPolys(outPolys)
-  , OutCellData(outCellData)
+  , AttributeManager(attMgr)
 {
 }
 
@@ -709,7 +824,7 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
     // Output line segments
     numInsertedPts = endIdx - startIdx + 1;
     newCellId = this->OutLines->InsertNextCell(numInsertedPts) + cellOffset;
-    this->OutCellData->CopyData(this->InCellData, cellId, newCellId);
+    this->AttributeManager->CopyCellData(cellId, newCellId);
     for (i = startIdx; i <= endIdx; ++i)
     {
       InsertPoint(sortedPoints[i].X, this->OutLines);
@@ -801,8 +916,9 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
 
   // Make sure that the polygons actually overlap in the x-y plane
   double polyBds[6];
-  double* p = static_cast<double*>(poly->Points->GetVoidPointer(0));
-  poly->GetBounds(polyBds);
+  vtkBoundingBox bbox(poly->GetBounds());
+  bbox.Inflate(0, 0, 0.01);
+  bbox.GetBounds(polyBds);
   if (loopBds[0] > polyBds[1] || loopBds[1] < polyBds[0] || loopBds[2] > polyBds[3] ||
     loopBds[3] < polyBds[2])
   {
@@ -813,6 +929,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
   // (eventually sorted) arrays. These sorted arrays will alternate inside
   // paths with outside paths, sort of like a "braid". To construct polygon
   // loops, the braid is woven together to form the loops.
+  double* p = static_cast<double*>(poly->Points->GetVoidPointer(0));
   vtkIdType i, j, newCellId, numPts = 0, numInts = 0;
   double t, u, v, x[3], x0[3], x1[3], y0[3], y1[3];
   int result;
@@ -1000,7 +1117,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
       numInsertedPts = 0;
       thisCell = cells[0];
       newCellId = this->OutPolys->InsertNextCell(numInsertedPts) + cellOffset;
-      this->OutCellData->CopyData(this->InCellData, cellId, newCellId);
+      this->AttributeManager->CopyCellData(cellId, newCellId);
 
       do
       {
@@ -1023,6 +1140,10 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
 // Instantiate object with empty loop.
 vtkCookieCutter::vtkCookieCutter()
 {
+  this->PassCellData = true;
+  this->PassPointData = true;
+  this->PointInterpolation = USE_MESH_EDGES;
+
   this->Locator = nullptr;
   this->SetNumberOfInputPorts(2);
 }
@@ -1085,65 +1206,67 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  if (!loops || loops->GetNumberOfCells() < 1)
+  // Process loops from second input. Make sure valid trim loops
+  // are available.
+  vtkSmartPointer<vtkCellArray> loopPolys = BuildTrimLoops(loops);
+  if (loopPolys == nullptr)
   {
-    vtkErrorMacro("Please define a polygonal loop with at least three points");
+    vtkErrorMacro("No trim lines/polygons defined");
     return 1;
   }
 
   // Create output data objects and prepare for processing
   vtkPoints* inPts = input->GetPoints();
   vtkPoints* loopPts = loops->GetPoints();
-  vtkPoints* outPts = inPts->NewInstance();
+  vtkSmartPointer<vtkPoints> outPts;
+  outPts.TakeReference(inPts->NewInstance());
 
-  vtkCellData* inCellData = input->GetCellData();
-  vtkCellData* outCellData = output->GetCellData();
-  outCellData->CopyAllocate(inCellData);
+  vtkAttributeManager attributeManager(
+    input, loops, output, this->PassCellData, this->PassPointData, this->PointInterpolation);
 
   vtkCellArray* inVerts = input->GetVerts();
-  vtkCellArray* outVerts = vtkCellArray::New();
+  vtkNew<vtkCellArray> outVerts;
   outVerts->AllocateCopy(inVerts);
 
   vtkCellArray* inLines = input->GetLines();
-  vtkCellArray* outLines = vtkCellArray::New();
+  vtkNew<vtkCellArray> outLines;
   outLines->AllocateCopy(inLines);
 
   vtkCellArray* inPolys = input->GetPolys();
   vtkCellArray* inStrips = input->GetStrips();
-  vtkCellArray* outPolys = vtkCellArray::New();
+  vtkNew<vtkCellArray> outPolys;
   outPolys->AllocateCopy(inPolys);
 
   // Locator used to merge potentially duplicate points
+  double bds[6];
+  vtkBoundingBox bbox(loops->GetBounds());
+  bbox.Scale(1.0, 1.0, 1.01);
   if (this->Locator == nullptr)
   {
     this->CreateDefaultLocator();
   }
-  this->Locator->InitPointInsertion(outPts, loops->GetBounds());
-
-  // Setup the lines and polys cropping helper
-  vtkCookieCutterHelper* helper = new vtkCookieCutterHelper(
-    this->Locator, inPts, inCellData, outPts, outLines, outPolys, outCellData);
+  bbox.GetBounds(bds);
+  this->Locator->InitPointInsertion(outPts, bds);
 
   // Initialize and create polygon representing the loop
-  double n[3], bds[6];
-  vtkPolygon* loop = vtkPolygon::New();
-  vtkPolygon* poly = vtkPolygon::New();
+  double n[3];
+  vtkNew<vtkPolygon> loop;
+  vtkNew<vtkPolygon> poly;
 
-  // Process loops from second input. Note that the cell id in vtkPolyData
-  // starts with verts, then lines, then polys, then strips.
+  // Setup the lines and polys cropping helper
+  vtkCookieCutterHelper* helper =
+    new vtkCookieCutterHelper(this->Locator, inPts, outPts, outLines, outPolys, &attributeManager);
+
   vtkIdType npts;
   const vtkIdType* pts;
   vtkIdType cellId = 0;
-  vtkCellArray* loopPolys = loops->GetPolys();
   for (loopPolys->InitTraversal(); loopPolys->GetNextCell(npts, pts);)
   {
     vtkIdType numLoopPts = npts;
-    if (numLoopPts < 3)
-    {
-      continue; // need a valid polygon loop, skip this one
-    }
     loop->Initialize(npts, pts, loopPts);
-    loop->GetBounds(bds);
+    bbox.SetBounds(loop->GetBounds());
+    bbox.Inflate(0, 0, 0.01); // Handle the x-y plane points numerical fuzz
+    bbox.GetBounds(bds);
     vtkPolygon::ComputeNormal(loop->Points, n);
     double* l = static_cast<double*>(loop->Points->GetVoidPointer(0));
 
@@ -1161,7 +1284,7 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
             vtkIdType ptId;
             this->Locator->InsertUniquePoint(x, ptId);
             vtkIdType newCellId = outVerts->InsertNextCell(1, &ptId);
-            outCellData->CopyData(inCellData, cellId, newCellId);
+            attributeManager.CopyCellData(cellId, newCellId);
           }
         }
       } // for all verts
@@ -1210,20 +1333,10 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
   delete helper;
 
   // Assign output as appropriate
-  output->SetVerts(outVerts);
-  outVerts->Delete();
-
-  output->SetLines(outLines);
-  outLines->Delete();
-
-  output->SetPolys(outPolys);
-  outPolys->Delete();
-
-  // Clean up
   output->SetPoints(outPts);
-  outPts->Delete();
-  loop->Delete();
-  poly->Delete();
+  output->SetVerts(outVerts);
+  output->SetLines(outLines);
+  output->SetPolys(outPolys);
 
   return 1;
 }
@@ -1271,9 +1384,24 @@ int vtkCookieCutter::FillInputPortInformation(int port, vtkInformation* info)
 }
 
 //------------------------------------------------------------------------------
+void vtkCookieCutter::CreateDefaultLocator()
+{
+  if (this->Locator == nullptr)
+  {
+    this->Locator = vtkMergePoints::New();
+    this->Locator->Register(this);
+    this->Locator->Delete();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkCookieCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Pass Cell Data: " << (this->PassCellData ? "On\n" : "Off\n");
+  os << indent << "Pass Point Data: " << (this->PassCellData ? "On\n" : "Off\n");
+  os << indent << "Point Interpolation: " << this->PointInterpolation << "\n";
 
   if (this->Locator)
   {
@@ -1282,16 +1410,5 @@ void vtkCookieCutter::PrintSelf(ostream& os, vtkIndent indent)
   else
   {
     os << indent << "Locator: (none)\n";
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkCookieCutter::CreateDefaultLocator()
-{
-  if (this->Locator == nullptr)
-  {
-    this->Locator = vtkMergePoints::New();
-    this->Locator->Register(this);
-    this->Locator->Delete();
   }
 }
