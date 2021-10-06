@@ -50,13 +50,13 @@ void vtkAlgorithmOutput::SetIndex(int index)
 }
 
 //------------------------------------------------------------------------------
-int vtkAlgorithmOutput::GetIndex()
+int vtkAlgorithmOutput::GetIndex() const
 {
   return this->Index;
 }
 
 //------------------------------------------------------------------------------
-vtkAlgorithm* vtkAlgorithmOutput::GetProducer()
+vtkAlgorithm* vtkAlgorithmOutput::GetProducer() const
 {
   return this->Producer;
 }
