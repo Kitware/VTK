@@ -217,7 +217,6 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   // Determine if some data is being skipped over and either shallow copy out
   // or copy the cell attribute data and prune the extra cells. Points are
   // always passed through.
-  vtkIdType polyId;
   vtkIdType numCells = input->GetNumberOfCells();
   if (numCells == numPolys)
   {
@@ -238,9 +237,10 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
     // Just process polys and copy over associated cell data
     input->BuildCells();
     output->SetPolys(input->GetPolys());
-    vtkIdType cellId;
+    outputCD->CopyAllocate(inputCD);
+
     unsigned char cellType;
-    for (polyId = 0, cellId = 0; cellId < numCells; ++cellId)
+    for (vtkIdType cellId = 0, polyId = 0; cellId < numCells; ++cellId)
     {
       cellType = input->GetCellType(cellId);
       if (cellType == VTK_TRIANGLE || cellType == VTK_QUAD || cellType == VTK_POLYGON)
@@ -261,7 +261,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   int idx;
   vtkIdType* objectIds;
   vtkIdTypeArray* objectIdsArray =
-    static_cast<vtkIdTypeArray*>(output->GetCellData()->GetArray("ObjectIds", idx));
+    vtkIdTypeArray::FastDownCast(output->GetCellData()->GetAbstractArray("ObjectIds", idx));
   if (!this->SkipValidityCheck || objectIdsArray == nullptr ||
     objectIdsArray->GetDataType() != VTK_ID_TYPE)
   {
@@ -284,8 +284,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   unsigned char* valid;
 
   // All polygons initially assumed oriented properly
-  unsigned char* orient = new unsigned char[numPolys];
-  std::fill_n(orient, numPolys, 1);
+  std::vector<unsigned char> orient(numPolys, 1);
 
   // This traversal identifies the number of objects in the mesh, and whether
   // they are valid (closed, manifold).
@@ -298,7 +297,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
     this->Wave2 = vtkIdList::New();
     this->Wave2->Allocate(numPolys / 4 + 1, numPolys);
 
-    for (polyId = 0; polyId < numPolys; ++polyId)
+    for (vtkIdType polyId = 0; polyId < numPolys; ++polyId)
     {
       // check if value is less than 0, because the initial value is -1
       if (objectIds[polyId] < 0)
@@ -306,8 +305,8 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
         // found another object
         this->Wave->InsertNextId(polyId);
         objectIds[polyId] = this->NumberOfObjects;
-        this->ObjectValidity->InsertTuple1(this->NumberOfObjects, 1);
-        this->TraverseAndMark(output, objectIds, this->ObjectValidity, orient);
+        this->ObjectValidity->InsertValue(this->NumberOfObjects, 1);
+        this->TraverseAndMark(output, objectIds, this->ObjectValidity, orient.data());
         this->NumberOfObjects++;
         // Wave & Wave2 need to be reset since they are populated in TraverseAndMark()
         this->Wave->Reset();
@@ -333,7 +332,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   else
   {
     this->NumberOfObjects = 0;
-    for (polyId = 0; polyId < numPolys; ++polyId)
+    for (vtkIdType polyId = 0; polyId < numPolys; ++polyId)
     {
       if (this->NumberOfObjects < (objectIds[polyId] + 1))
       {
@@ -368,7 +367,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
 
   // Compute areas and volumes in parallel
   ComputeProperties::Execute(
-    numPolys, output, center, orient, polyAreas->GetPointer(0), polyVolumes->GetPointer(0));
+    numPolys, output, center, orient.data(), polyAreas->GetPointer(0), polyVolumes->GetPointer(0));
 
   // Roll up the results into total results on a per-object basis.
   this->ObjectAreas = vtkDoubleArray::New();
@@ -387,7 +386,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   std::fill_n(volumes, this->NumberOfObjects, 0.0);
 
   // Roll up final numbers
-  for (polyId = 0; polyId < numPolys; ++polyId)
+  for (vtkIdType polyId = 0; polyId < numPolys; ++polyId)
   {
     areas[objectIds[polyId]] += pAreas[polyId];
     volumes[objectIds[polyId]] += pVolumes[polyId];
@@ -414,7 +413,6 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   this->ObjectAreas->Delete();
   polyAreas->Delete();
   polyVolumes->Delete();
-  delete[] orient;
 
   return 1;
 }
