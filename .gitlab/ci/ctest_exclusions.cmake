@@ -181,8 +181,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread") # They failed also on OpenM
     "^VTK::FiltersHybridCxx-TestTemporalInterpolator$"
     "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIOSS$"
     "^VTK::IOIOSSCxx-TestIOSSExodus$"
-    "^VTK::IOIOSSCxx-TestIOSSSuperelements$"
-    "^VTK::ImagingHybridPython-TestCheckerboardSplatter$")
+    "^VTK::IOIOSSCxx-TestIOSSSuperelements$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
