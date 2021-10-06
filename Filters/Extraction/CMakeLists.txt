@@ -14,6 +14,7 @@ set(classes
   vtkExtractGeometry
   vtkExtractGrid
   vtkExtractLevel
+  vtkExtractParticlesOverTime
   vtkExtractPolyDataGeometry
   vtkExtractRectilinearGrid
   vtkExtractSelectedArraysOverTime
