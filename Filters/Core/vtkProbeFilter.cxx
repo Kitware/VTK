@@ -758,7 +758,7 @@ namespace
 // Thread local storage
 struct ProbeImageDataPointsThreadLocal
 {
-  bool BaseThread;
+  bool BaseThread = false;
   vtkSmartPointer<vtkIdList> PointIds;
 };
 

@@ -141,6 +141,10 @@ void BroadcastDoubleVector(
 ///////////////////////////////////////////////////////////////////////////////
 
 PIOAdaptor::PIOAdaptor(vtkMultiProcessController* ctrl)
+  : useHTG(false)
+  , useTracer(false)
+  , useFloat64(false)
+  , hasTracers(false)
 {
   this->Controller = ctrl;
   if (this->Controller)
