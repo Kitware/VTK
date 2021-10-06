@@ -12,6 +12,7 @@ DEPENDS
   VTK::CommonCore
   VTK::kissfft
 TEST_DEPENDS
+  VTK::CommonDataModel
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::TestingCore
