@@ -17,6 +17,7 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -58,6 +59,11 @@ int vtkSplitColumnComponents::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkTable* output = vtkTable::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  vtkDataSetAttributes* inputRD = table->GetRowData();
+  vtkDataSetAttributes* outputRD = output->GetRowData();
+
+  vtkDataArray* inputGlobalIds = inputRD->GetGlobalIds();
+
   // Add columns from table, split multiple component columns as necessary
   for (int i = 0; i < table->GetNumberOfColumns(); ++i)
   {
@@ -72,6 +78,13 @@ int vtkSplitColumnComponents::RequestData(
     if (components == 1)
     {
       output->AddColumn(col);
+      vtkDataArray* newCol =
+        vtkArrayDownCast<vtkDataArray>(output->GetColumn(output->GetNumberOfColumns() - 1));
+
+      if (col == inputGlobalIds)
+      {
+        outputRD->SetGlobalIds(newCol);
+      }
     }
     else if (components > 1)
     {
