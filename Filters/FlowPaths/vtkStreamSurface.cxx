@@ -16,6 +16,7 @@
 
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
+#include <vtkCellData.h>
 #include <vtkDoubleArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
@@ -88,10 +89,7 @@ int vtkStreamSurface::AdvectIterative(
     this->StreamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
     this->StreamTracer->SetInitialIntegrationStep(this->InitialIntegrationStep);
     this->StreamTracer->SetIntegrationDirection(integrationDirection);
-    int vecType(0);
-    vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, field, vecType);
-    this->StreamTracer->SetInputArrayToProcess(
-      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vectors->GetName());
+    this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vectorArrayType, this->NameOfVectorArray);
     // setting this to zero makes the tracer do 1 step
     this->StreamTracer->SetMaximumNumberOfSteps(0);
     this->StreamTracer->Update();
@@ -320,6 +318,90 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
 
   // make output
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(fieldInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int vecType(0);
+  vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, dataset, vecType);
+
+  cout << "vecType(0) = " << vecType << " FIELD_ASSOCIATION() = "
+       << this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_ASSOCIATION()) << endl;
+
+  if (vecType == 0)
+    vectorArrayType = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+  else if (vecType == 1)
+    vectorArrayType = vtkDataObject::FIELD_ASSOCIATION_CELLS;
+
+  if (!vectors)
+  {
+    if (this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME()) != nullptr &&
+      ((dataset->GetPointData()->GetArray(
+          std::string(this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME()))
+            .c_str()) == nullptr &&
+         vecType == vtkDataObject::FIELD_ASSOCIATION_POINTS) ||
+        (dataset->GetCellData()->GetArray(
+           std::string(this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME()))
+             .c_str()) == nullptr &&
+          vecType == vtkDataObject::FIELD_ASSOCIATION_CELLS)))
+      vtkWarningMacro("The array chosen via GetInputArrayToProcess was not found. The algorithm "
+                      "tries to use vectors instead.");
+
+    bool VectorNotFound = true;
+
+    // search point data
+    for (int i = 0; i < dataset->GetPointData()->GetNumberOfArrays(); i++)
+      if (dataset->GetPointData()->GetArray(i)->GetNumberOfComponents() == 3)
+      {
+        vectors = dataset->GetPointData()->GetArray(i);
+        cout << vectors->GetName() << endl;
+        vectorArrayType = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+        VectorNotFound = false;
+        break;
+      }
+
+    // search cell data
+    if (VectorNotFound)
+    {
+      for (int i = 0; i < dataset->GetCellData()->GetNumberOfArrays(); i++)
+        if (dataset->GetCellData()->GetArray(i)->GetNumberOfComponents() == 3)
+        {
+          vectors = dataset->GetCellData()->GetArray(i);
+          cout << vectors->GetName() << endl;
+          vectorArrayType = vtkDataObject::FIELD_ASSOCIATION_CELLS;
+          VectorNotFound = false;
+          break;
+        }
+    }
+
+    if (VectorNotFound)
+    {
+      vtkErrorMacro("The input field does not contain any vectors as pointdata and celldata.");
+      return 0;
+    }
+  }
+  else
+  {
+    // Users might set the name that belongs to an existing array that is not a vector array.
+    if (vecType == 0)
+    {
+      if (dataset->GetPointData()->GetArray(vectors->GetName())->GetNumberOfComponents() != 3)
+      {
+        vtkErrorMacro(
+          "The array that corresponds to the name of vector array is not a vector array.");
+        return 0;
+      }
+    }
+    else if (vecType == 1)
+    {
+      if (dataset->GetCellData()->GetArray(vectors->GetName())->GetNumberOfComponents() != 3)
+      {
+        vtkErrorMacro(
+          "The array that corresponds to the name of vector array is not a vector array.");
+        return 0;
+      }
+    }
+  }
+
+  this->NameOfVectorArray = vectors->GetName();
 
   int finishedSuccessfully = 0;
   if (this->UseIterativeSeeding)

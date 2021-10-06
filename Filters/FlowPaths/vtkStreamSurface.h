@@ -88,6 +88,17 @@ private:
    */
   bool UseIterativeSeeding = false;
 
+  /**
+   * The type of the vector array the will be proccessed.
+   * Only FIELD_ASSOCIATION_POINTS and FIELD_ASSOCIATION_CELLS are supported.
+   */
+  vtkDataObject::FieldAssociations vectorArrayType;
+
+  /**
+   * The name of the vector array the will be proccessed.
+   */
+  const char* NameOfVectorArray;
+
   vtkNew<vtkRuledSurfaceFilter> RuledSurface;
   vtkNew<vtkStreamTracer> StreamTracer;
   vtkNew<vtkAppendPolyData> AppendSurfaces;
