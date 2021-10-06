@@ -162,7 +162,7 @@ public:
   {
     unsigned int size = sizeof(T);
     AssertGe(Size, this->Head + size - this->Data);
-    t = *(reinterpret_cast<T*>(this->Head));
+    memcpy(&t, this->Head, sizeof(T));
     this->Head += size;
     return (*this);
   }
