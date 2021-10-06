@@ -18,8 +18,13 @@
 #include "vtkDeprecation.h" // for deprecation macros
 
 #if VTK_DEPRECATION_LEVEL >= VTK_VERSION_CHECK(9, 1, 0)
+#ifdef _MSC_VER
+#pragma message(                                                                                   \
+  "This header has been renamed to `vtkCompositeMapperHelper2.h` to match its provided class name")
+#else
 #warning                                                                                           \
   "This header has been renamed to `vtkCompositeMapperHelper2.h` to match its provided class name"
+#endif
 #endif
 
 #include "vtkCompositeMapperHelper2.h"
