@@ -63,7 +63,7 @@ struct Slot
   StoragePointerType Storage;
 
   Slot();
-  ~Slot();
+  ~Slot() = default;
 
 private:
   // not copyable
