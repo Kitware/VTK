@@ -21,22 +21,23 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <iostream>
+#include <numeric>
+
+constexpr int MAX_NCOMPS = 4;
+using max_ncomps_array_t = std::array<int, MAX_NCOMPS>;
+
 vtkStandardNewMacro(vtkImageDifference);
 
 // Thread-local data needed for each thread.
 class vtkImageDifferenceThreadData
 {
 public:
-  vtkImageDifferenceThreadData()
-    : ErrorMessage(nullptr)
-    , Error(0.0)
-    , ThresholdedError(0.0)
-  {
-  }
+  vtkImageDifferenceThreadData() = default;
 
-  const char* ErrorMessage;
-  double Error;
-  double ThresholdedError;
+  const char* ErrorMessage = nullptr;
+  double Error = 0.0;
+  double ThresholdedError = 0.0;
 };
 
 // Holds thread-local data for all threads.
@@ -45,96 +46,6 @@ class vtkImageDifferenceSMPThreadLocal : public vtkSMPThreadLocal<vtkImageDiffer
 public:
   typedef vtkSMPThreadLocal<vtkImageDifferenceThreadData>::iterator iterator;
 };
-
-// Construct object to extract all of the input data.
-vtkImageDifference::vtkImageDifference()
-{
-  this->Threshold = 105;
-  this->AllowShift = 1;
-  this->Averaging = 1;
-  this->AverageThresholdFactor = 0.65;
-  // ideally threshold*averageThresholdFactor should be < 255/9
-  // to capture one pixel errors or 510/9 to capture 2 pixel errors
-
-  this->ErrorMessage = nullptr;
-  this->Error = 0.0;
-  this->ThresholdedError = 0.0;
-
-  this->ThreadData = nullptr;
-  this->SMPThreadData = nullptr;
-
-  this->SetNumberOfInputPorts(2);
-}
-
-// not so simple macro for calculating error
-#define vtkImageDifferenceComputeError(c1, c2)                                                     \
-  /* if averaging is on and we have neighbor info then compute */                                  \
-  /* avg(input1) to avg(input2) */                                                                 \
-  /* compute the pixel to pixel difference first */                                                \
-  if (averaging == 0 && (idx0 + xneigh >= inMinX) && (idx0 + xneigh <= inMaxX) &&                  \
-    (idx1 + yneigh >= inMinY) && (idx1 + yneigh <= inMaxY))                                        \
-  {                                                                                                \
-    r1 = abs((static_cast<int>((c1)[0]) - static_cast<int>((c2)[0])));                             \
-    g1 = abs((static_cast<int>((c1)[1]) - static_cast<int>((c2)[1])));                             \
-    b1 = abs((static_cast<int>((c1)[2]) - static_cast<int>((c2)[2])));                             \
-    if ((r1 + g1 + b1) < (tr + tg + tb))                                                           \
-    {                                                                                              \
-      tr = r1;                                                                                     \
-      tg = g1;                                                                                     \
-      tb = b1;                                                                                     \
-    }                                                                                              \
-    haveValues = true;                                                                             \
-  }                                                                                                \
-  if (averaging == 1 && (idx0 + xneigh > inMinX) && (idx0 + xneigh < inMaxX) &&                    \
-    (idx1 + yneigh > inMinY) && (idx1 + yneigh < inMaxY))                                          \
-  {                                                                                                \
-    ar1 = static_cast<int>((c1)[0]) + static_cast<int>((c1 - in1Inc0)[0]) +                        \
-      static_cast<int>((c1 + in1Inc0)[0]) + static_cast<int>((c1 - in1Inc1)[0]) +                  \
-      static_cast<int>((c1 - in1Inc1 - in1Inc0)[0]) +                                              \
-      static_cast<int>((c1 - in1Inc1 + in1Inc0)[0]) + static_cast<int>((c1 + in1Inc1)[0]) +        \
-      static_cast<int>((c1 + in1Inc1 - in1Inc0)[0]) +                                              \
-      static_cast<int>((c1 + in1Inc1 + in1Inc0)[0]);                                               \
-    ag1 = static_cast<int>((c1)[1]) + static_cast<int>((c1 - in1Inc0)[1]) +                        \
-      static_cast<int>((c1 + in1Inc0)[1]) + static_cast<int>((c1 - in1Inc1)[1]) +                  \
-      static_cast<int>((c1 - in1Inc1 - in1Inc0)[1]) +                                              \
-      static_cast<int>((c1 - in1Inc1 + in1Inc0)[1]) + static_cast<int>((c1 + in1Inc1)[1]) +        \
-      static_cast<int>((c1 + in1Inc1 - in1Inc0)[1]) +                                              \
-      static_cast<int>((c1 + in1Inc1 + in1Inc0)[1]);                                               \
-    ab1 = static_cast<int>((c1)[2]) + static_cast<int>((c1 - in1Inc0)[2]) +                        \
-      static_cast<int>((c1 + in1Inc0)[2]) + static_cast<int>((c1 - in1Inc1)[2]) +                  \
-      static_cast<int>((c1 - in1Inc1 - in1Inc0)[2]) +                                              \
-      static_cast<int>((c1 - in1Inc1 + in1Inc0)[2]) + static_cast<int>((c1 + in1Inc1)[2]) +        \
-      static_cast<int>((c1 + in1Inc1 - in1Inc0)[2]) +                                              \
-      static_cast<int>((c1 + in1Inc1 + in1Inc0)[2]);                                               \
-    ar2 = static_cast<int>((c2)[0]) + static_cast<int>((c2 - in2Inc0)[0]) +                        \
-      static_cast<int>((c2 + in2Inc0)[0]) + static_cast<int>((c2 - in2Inc1)[0]) +                  \
-      static_cast<int>((c2 - in2Inc1 - in2Inc0)[0]) +                                              \
-      static_cast<int>((c2 - in2Inc1 + in2Inc0)[0]) + static_cast<int>((c2 + in2Inc1)[0]) +        \
-      static_cast<int>((c2 + in2Inc1 - in2Inc0)[0]) +                                              \
-      static_cast<int>((c2 + in2Inc1 + in2Inc0)[0]);                                               \
-    ag2 = static_cast<int>((c2)[1]) + static_cast<int>((c2 - in2Inc0)[1]) +                        \
-      static_cast<int>((c2 + in2Inc0)[1]) + static_cast<int>((c2 - in2Inc1)[1]) +                  \
-      static_cast<int>((c2 - in2Inc1 - in2Inc0)[1]) +                                              \
-      static_cast<int>((c2 - in2Inc1 + in2Inc0)[1]) + static_cast<int>((c2 + in2Inc1)[1]) +        \
-      static_cast<int>((c2 + in2Inc1 - in2Inc0)[1]) +                                              \
-      static_cast<int>((c2 + in2Inc1 + in2Inc0)[1]);                                               \
-    ab2 = static_cast<int>((c2)[2]) + static_cast<int>((c2 - in2Inc0)[2]) +                        \
-      static_cast<int>((c2 + in2Inc0)[2]) + static_cast<int>((c2 - in2Inc1)[2]) +                  \
-      static_cast<int>((c2 - in2Inc1 - in2Inc0)[2]) +                                              \
-      static_cast<int>((c2 - in2Inc1 + in2Inc0)[2]) + static_cast<int>((c2 + in2Inc1)[2]) +        \
-      static_cast<int>((c2 + in2Inc1 - in2Inc0)[2]) +                                              \
-      static_cast<int>((c2 + in2Inc1 + in2Inc0)[2]);                                               \
-    r1 = abs(ar1 - ar2) / (9 * this->AverageThresholdFactor);                                      \
-    g1 = abs(ag1 - ag2) / (9 * this->AverageThresholdFactor);                                      \
-    b1 = abs(ab1 - ab2) / (9 * this->AverageThresholdFactor);                                      \
-    haveValues = true;                                                                             \
-    if ((r1 + g1 + b1) < (tr + tg + tb))                                                           \
-    {                                                                                              \
-      tr = r1;                                                                                     \
-      tg = g1;                                                                                     \
-      tb = b1;                                                                                     \
-    }                                                                                              \
-  }
 
 //------------------------------------------------------------------------------
 // This functor is used with vtkSMPTools to execute the algorithm in pieces
@@ -201,63 +112,70 @@ void vtkImageDifferenceSMPFunctor::Reduce()
 }
 
 //------------------------------------------------------------------------------
+// Construct object to extract all of the input data.
+vtkImageDifference::vtkImageDifference()
+{
+  this->SetNumberOfInputPorts(2);
+}
+
+//------------------------------------------------------------------------------
+void vtkImageDifference::GrowExtent(int* uExt, int* wholeExtent)
+{
+  // grow input whole extent.
+  for (int idx = 0; idx < 2; ++idx)
+  {
+    uExt[idx * 2] -= 2;
+    uExt[idx * 2 + 1] += 2;
+
+    // we must clip extent with whole extent is we handle boundaries.
+    if (uExt[idx * 2] < wholeExtent[idx * 2])
+    {
+      uExt[idx * 2] = wholeExtent[idx * 2];
+    }
+    if (uExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
+    {
+      uExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 int vtkImageDifference::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  int idx;
-
-  // get the info objects
+  // get the output info object
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-
-  int* wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   int uExt[6];
+
+  // Recover and grow extent into first input extent
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  int* wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt);
-
-  // grow input whole extent.
-  for (idx = 0; idx < 2; ++idx)
-  {
-    uExt[idx * 2] -= 2;
-    uExt[idx * 2 + 1] += 2;
-
-    // we must clip extent with whole extent is we handle boundaries.
-    if (uExt[idx * 2] < wholeExtent[idx * 2])
-    {
-      uExt[idx * 2] = wholeExtent[idx * 2];
-    }
-    if (uExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
-    {
-      uExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
-    }
-  }
+  this->GrowExtent(uExt, wholeExtent);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
 
-  // now do the second input
+  // Recover and grow extent into second input extent
   inInfo = inputVector[1]->GetInformationObject(0);
   wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt);
-
-  // grow input whole extent.
-  for (idx = 0; idx < 2; ++idx)
-  {
-    uExt[idx * 2] -= 2;
-    uExt[idx * 2 + 1] += 2;
-
-    // we must clip extent with whole extent is we handle boundaries.
-    if (uExt[idx * 2] < wholeExtent[idx * 2])
-    {
-      uExt[idx * 2] = wholeExtent[idx * 2];
-    }
-    if (uExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
-    {
-      uExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
-    }
-  }
+  this->GrowExtent(uExt, wholeExtent);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkImageDifference::ComputeSumedValue(unsigned char* values, vtkIdType* indices, int comp)
+{
+  return static_cast<int>((values)[comp]) + static_cast<int>((values - indices[0])[comp]) +
+    static_cast<int>((values + indices[0])[comp]) + static_cast<int>((values - indices[1])[comp]) +
+    static_cast<int>((values - indices[1] - indices[0])[comp]) +
+    static_cast<int>((values - indices[1] + indices[0])[comp]) +
+    static_cast<int>((values + indices[1])[comp]) +
+    static_cast<int>((values + indices[1] - indices[0])[comp]) +
+    static_cast<int>((values + indices[1] + indices[0])[comp]);
 }
 
 //------------------------------------------------------------------------------
@@ -265,22 +183,6 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
-  unsigned char *in1Ptr0, *in1Ptr2;
-  unsigned char *in2Ptr0, *in2Ptr2;
-  unsigned char *outPtr0, *outPtr1, *outPtr2;
-  int min0, max0, min1, max1, min2, max2;
-  int idx0, idx1, idx2;
-  vtkIdType in1Inc0, in1Inc1, in1Inc2;
-  vtkIdType in2Inc0, in2Inc1, in2Inc2;
-  vtkIdType outInc0, outInc1, outInc2;
-  int tr, tg, tb, r1, g1, b1;
-  int ar1, ag1, ab1, ar2, ag2, ab2;
-  int inMinX, inMaxX, inMinY, inMaxY;
-  int* inExt;
-  unsigned long count = 0;
-  unsigned long target;
-  double error = 0.0;
-  double thresholdedError = 0.0;
   vtkImageDifferenceThreadData* threadData = nullptr;
 
   if (this->EnableSMP)
@@ -304,15 +206,30 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
     return;
   }
 
-  if (inData[0][0]->GetNumberOfScalarComponents() != 3 ||
-    inData[1][0]->GetNumberOfScalarComponents() != 3 ||
-    outData[0]->GetNumberOfScalarComponents() != 3)
+  // This code supports up to MAX_NCOMPS components, storing intermediate
+  // results in max_ncomps_array_t.
+  // nComp is not taken into account with std::copy and std::accumulate
+  // as it is simplifying the code and because non-considered-component
+  // treshold value is always zero.
+  int nComp = inData[0][0]->GetNumberOfScalarComponents();
+  int input1NComp = inData[1][0]->GetNumberOfScalarComponents();
+  int outputNComp = outData[0]->GetNumberOfScalarComponents();
+  if (nComp != input1NComp)
   {
-    threadData->ErrorMessage = "Expecting 3 components (RGB)";
+    threadData->ErrorMessage = "Inputs number of components are differents";
     return;
   }
+  if (outputNComp != input1NComp)
+  {
+    threadData->ErrorMessage = "Input and output number of components are differents";
+    return;
+  }
+  if (nComp > MAX_NCOMPS || nComp <= 0)
+  {
+    threadData->ErrorMessage = "Expecting between 1 and MAX_NCOMPS components";
+  }
 
-  // this filter expects that input is the same type as output.
+  // this filter expects that both inputs and output are of the same type.
   if (inData[0][0]->GetScalarType() != VTK_UNSIGNED_CHAR ||
     inData[1][0]->GetScalarType() != VTK_UNSIGNED_CHAR ||
     outData[0]->GetScalarType() != VTK_UNSIGNED_CHAR)
@@ -321,9 +238,13 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
     return;
   }
 
+  unsigned char *outPtr0, *outPtr1, *outPtr2;
   outPtr2 = static_cast<unsigned char*>(outData[0]->GetScalarPointerForExtent(outExt));
-  outData[0]->GetIncrements(outInc0, outInc1, outInc2);
 
+  std::array<vtkIdType, 3> outInc;
+  outData[0]->GetIncrements(outInc.data());
+
+  int min0, max0, min1, max1, min2, max2;
   min0 = outExt[0];
   max0 = outExt[1];
   min1 = outExt[2];
@@ -332,39 +253,51 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   max2 = outExt[5];
 
   // copy both input data arrays into new arrays for gamma correction
-  inData[0][0]->GetIncrements(in1Inc0, in1Inc1, in1Inc2);
-  inData[1][0]->GetIncrements(in2Inc0, in2Inc1, in2Inc2);
+  std::array<vtkIdType, 3> in1Inc;
+  inData[0][0]->GetIncrements(in1Inc.data());
+  std::array<vtkIdType, 3> in2Inc;
+  inData[1][0]->GetIncrements(in2Inc.data());
 
+  int* inExt;
   inExt = inData[0][0]->GetExtent();
   int cmax0 = inExt[1] > max0 + 3 ? max0 + 3 : inExt[1];
   int cmin0 = inExt[0] < min0 - 3 ? min0 - 3 : inExt[0];
   int cmax1 = inExt[3] > max1 + 3 ? max1 + 3 : inExt[3];
   int cmin1 = inExt[2] < min1 - 3 ? min1 - 3 : inExt[2];
 
+  unsigned char *in1Ptr2, *in2Ptr2;
   in1Ptr2 = static_cast<unsigned char*>(inData[0][0]->GetScalarPointer(cmin0, cmin1, min2));
   in2Ptr2 = static_cast<unsigned char*>(inData[1][0]->GetScalarPointer(cmin0, cmin1, min2));
 
   // reset increments for the new arrays
-  in1Inc1 = in1Inc0 * (cmax0 - cmin0 + 1);
-  in1Inc2 = in1Inc1 * (cmax1 - cmin1 + 1);
-  in2Inc1 = in2Inc0 * (cmax0 - cmin0 + 1);
-  in2Inc2 = in2Inc1 * (cmax1 - cmin1 + 1);
+  in1Inc[1] = in1Inc[0] * (cmax0 - cmin0 + 1);
+  in1Inc[2] = in1Inc[1] * (cmax1 - cmin1 + 1);
+  in2Inc[1] = in2Inc[0] * (cmax0 - cmin0 + 1);
+  in2Inc[2] = in2Inc[1] * (cmax1 - cmin1 + 1);
 
-  // we set min and Max to be one pixel in from actual values to support
+  // we set min and max to be one pixel in from actual values to support
   // the 3x3 averaging we do
+  int inMinX, inMaxX, inMinY, inMaxY;
   inMinX = cmin0;
   inMaxX = cmax0;
   inMinY = cmin1;
   inMaxY = cmax1;
 
+  unsigned long target;
   target = static_cast<unsigned long>((max2 - min2 + 1) * (max1 - min1 + 1) / 50.0);
   target++;
 
-  int contInIncr1 = (cmax0 - cmin0 - max0 + min0) * in1Inc0;
-  int contInIncr2 = (cmax1 - cmin1 - max1 + min1) * in1Inc1;
-  in1Ptr0 = in1Ptr2 + (min1 - cmin1) * in1Inc1 + (min0 - cmin0) * in1Inc0;
-  in2Ptr0 = in2Ptr2 + (min1 - cmin1) * in1Inc1 + (min0 - cmin0) * in1Inc0;
+  int contInIncr1 = (cmax0 - cmin0 - max0 + min0) * in1Inc[0];
+  int contInIncr2 = (cmax1 - cmin1 - max1 + min1) * in1Inc[1];
 
+  unsigned char *in1Ptr0, *in2Ptr0;
+  in1Ptr0 = in1Ptr2 + (min1 - cmin1) * in1Inc[1] + (min0 - cmin0) * in1Inc[0];
+  in2Ptr0 = in2Ptr2 + (min1 - cmin1) * in1Inc[1] + (min0 - cmin0) * in1Inc[0];
+
+  double error = 0.0;
+  double thresholdedError = 0.0;
+  unsigned long count = 0;
+  int idx0, idx1, idx2;
   for (idx2 = min2; idx2 <= max2; ++idx2)
   {
     outPtr1 = outPtr2;
@@ -381,9 +314,10 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
       {
-        int rmax = 0;
-        int gmax = 0;
-        int bmax = 0;
+        max_ncomps_array_t rgbaMax;
+        rgbaMax.fill(0);
+        max_ncomps_array_t rgbaTresh;
+        rgbaTresh.fill(1000);
 
         // ignore the boundary within two pixels as we cannot
         // do a good average calc on the boundary
@@ -394,9 +328,6 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
           {
             unsigned char* dir1Ptr0 = direction == 0 ? in1Ptr0 : in2Ptr0;
             unsigned char* dir2Ptr0 = direction == 0 ? in2Ptr0 : in1Ptr0;
-            tr = 1000;
-            tg = 1000;
-            tb = 1000;
             bool haveValues = false;
             bool done = false;
 
@@ -408,60 +339,89 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
                 for (int xneigh = this->AllowShift ? -2 : 0;
                      xneigh <= (this->AllowShift ? 2 : 0) && !done; ++xneigh)
                 {
-                  vtkImageDifferenceComputeError(
-                    dir1Ptr0 + yneigh * in1Inc1 + xneigh * in1Inc0, dir2Ptr0);
-                  // once we have a good enough match stop to save time
-                  if (tr < this->Threshold && tg < this->Threshold && tb < this->Threshold)
+                  unsigned char* c1 = dir1Ptr0 + yneigh * in1Inc[1] + xneigh * in1Inc[0];
+                  unsigned char* c2 = dir2Ptr0;
+                  if ((idx0 + xneigh - averaging >= inMinX) &&
+                    (idx0 + xneigh + averaging <= inMaxX) &&
+                    (idx1 + yneigh - averaging >= inMinY) && (idx1 + yneigh + averaging <= inMaxY))
                   {
-                    done = true;
+                    max_ncomps_array_t rgba1;
+                    rgba1.fill(0);
+                    if (averaging == 1)
+                    {
+                      max_ncomps_array_t rgbaA1;
+                      rgbaA1.fill(0);
+                      max_ncomps_array_t rgbaA2;
+                      rgbaA2.fill(0);
+
+                      for (int i = 0; i < nComp; i++)
+                      {
+                        rgbaA1[i] = ComputeSumedValue(c1, in1Inc.data(), i);
+                        rgbaA2[i] = ComputeSumedValue(c2, in2Inc.data(), i);
+                        rgba1[i] = abs(rgbaA1[i] - rgbaA2[i]) / (9 * this->AverageThresholdFactor);
+                      }
+                    }
+                    else
+                    {
+                      for (int i = 0; i < nComp; i++)
+                      {
+                        rgba1[i] = abs((static_cast<int>((c1)[i]) - static_cast<int>((c2)[i])));
+                      }
+                    }
+
+                    if (std::accumulate(rgba1.begin(), rgba1.end(), 0) <
+                      std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0))
+                    {
+                      std::copy(rgba1.begin(), rgba1.end(), rgbaTresh.begin());
+                    }
+                    haveValues = true;
+                  }
+
+                  done = true;
+                  for (int i = 0; i < nComp; i++)
+                  {
+                    // once we have a good enough match stop to save time
+                    if (rgbaTresh[i] >= this->Threshold)
+                    {
+                      done = false;
+                    }
                   }
                 }
               }
             }
             if (haveValues)
             {
-              rmax = tr > rmax ? tr : rmax;
-              gmax = tg > gmax ? tg : gmax;
-              bmax = tb > bmax ? tb : bmax;
+              for (int i = 0; i < nComp; i++)
+              {
+                rgbaMax[i] = std::max(rgbaTresh[i], rgbaMax[i]);
+              }
             }
           }
         }
 
-        tr = rmax;
-        tg = gmax;
-        tb = bmax;
+        std::copy(rgbaMax.begin(), rgbaMax.end(), rgbaTresh.begin());
 
-        error += (tr + tg + tb) / (3.0 * 255);
-        tr -= this->Threshold;
-        if (tr < 0)
-        {
-          tr = 0;
-        }
-        tg -= this->Threshold;
-        if (tg < 0)
-        {
-          tg = 0;
-        }
-        tb -= this->Threshold;
-        if (tb < 0)
-        {
-          tb = 0;
-        }
-        *outPtr0++ = static_cast<unsigned char>(tr);
-        *outPtr0++ = static_cast<unsigned char>(tg);
-        *outPtr0++ = static_cast<unsigned char>(tb);
-        thresholdedError += (tr + tg + tb) / (3.0 * 255.0);
+        error += std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0) / (nComp * 255);
 
-        in1Ptr0 += 3;
-        in2Ptr0 += 3;
+        for (int i = 0; i < nComp; i++)
+        {
+          rgbaTresh[i] -= this->Threshold;
+          rgbaTresh[i] = std::max(0, rgbaTresh[i]);
+          *outPtr0++ = static_cast<unsigned char>(rgbaTresh[i]);
+        }
+        thresholdedError +=
+          std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0) / (nComp * 255.0);
+
+        in1Ptr0 += nComp;
+        in2Ptr0 += nComp;
       }
       in1Ptr0 += contInIncr1;
       in2Ptr0 += contInIncr1;
-      outPtr1 += outInc1;
+      outPtr1 += outInc[1];
     }
     in1Ptr0 += contInIncr2;
     in2Ptr0 += contInIncr2;
-    outPtr2 += outInc2;
+    outPtr2 += outInc[2];
   }
 
   // Add the results to the thread-local total.
@@ -474,7 +434,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
 int vtkImageDifference::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  int r = 1;
+  int ret = 1;
 
   if (this->EnableSMP) // For vtkSMPTools implementation.
   {
@@ -495,25 +455,21 @@ int vtkImageDifference::RequestData(
     vtkImageDifferenceSMPThreadLocal threadData;
     vtkImageDifferenceSMPFunctor functor(this, inData, outData, extent, pieces);
     this->SMPThreadData = &threadData;
-    bool debug = this->Debug;
-    this->Debug = false;
     vtkSMPTools::For(0, pieces, functor);
-    this->Debug = debug;
     this->SMPThreadData = nullptr;
   }
   else
   {
     // For vtkMultiThreader implementation.
-    int n = this->NumberOfThreads;
-    this->ThreadData = new vtkImageDifferenceThreadData[n];
+    this->ThreadData = new vtkImageDifferenceThreadData[this->NumberOfThreads];
 
     // The superclass will call ThreadedRequestData
-    r = this->Superclass::RequestData(request, inputVector, outputVector);
+    ret = this->Superclass::RequestData(request, inputVector, outputVector);
 
     // Compute error sums here.
     this->Error = 0.0;
     this->ThresholdedError = 0.0;
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < this->NumberOfThreads; i++)
     {
       this->Error += this->ThreadData[i].Error;
       this->ThresholdedError += this->ThreadData[i].ThresholdedError;
@@ -535,10 +491,10 @@ int vtkImageDifference::RequestData(
     this->ErrorMessage = nullptr;
     this->Error = 1000.0;
     this->ThresholdedError = 1000.0;
-    r = 0;
+    ret = 0;
   }
 
-  return r;
+  return ret;
 }
 
 //------------------------------------------------------------------------------

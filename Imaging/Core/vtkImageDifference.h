@@ -30,6 +30,7 @@
 #define vtkImageDifference_h
 
 #include "vtkImagingCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"      // For smart pointer
 #include "vtkThreadedImageAlgorithm.h"
 
 class vtkImageDifferenceThreadData;
@@ -81,9 +82,9 @@ public:
    * Otherwise, the difference is computed directly between pixels
    * of identical row/column values.
    */
-  vtkSetMacro(AllowShift, vtkTypeBool);
-  vtkGetMacro(AllowShift, vtkTypeBool);
-  vtkBooleanMacro(AllowShift, vtkTypeBool);
+  vtkSetMacro(AllowShift, bool);
+  vtkGetMacro(AllowShift, bool);
+  vtkBooleanMacro(AllowShift, bool);
   ///@}
 
   ///@{
@@ -93,9 +94,9 @@ public:
    * you normally would leave this on. For imaging operations it
    * should be off.
    */
-  vtkSetMacro(Averaging, vtkTypeBool);
-  vtkGetMacro(Averaging, vtkTypeBool);
-  vtkBooleanMacro(Averaging, vtkTypeBool);
+  vtkSetMacro(Averaging, bool);
+  vtkGetMacro(Averaging, bool);
+  vtkBooleanMacro(Averaging, bool);
   ///@}
 
   ///@{
@@ -112,15 +113,17 @@ protected:
   ~vtkImageDifference() override = default;
 
   // Parameters
-  vtkTypeBool AllowShift;
-  int Threshold;
-  vtkTypeBool Averaging;
+  // ideally threshold * averageThresholdFactor should be < 255/9
+  // to capture one pixel errors or 510/9 to capture 2 pixel errors
+  bool AllowShift = true;
+  bool Averaging = true;
+  int Threshold = 105;
+  double AverageThresholdFactor = 0.65;
 
   // Outputs
-  const char* ErrorMessage;
-  double Error;
-  double ThresholdedError;
-  double AverageThresholdFactor;
+  const char* ErrorMessage = nullptr;
+  double Error = 0.;
+  double ThresholdedError = 0.;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -130,11 +133,14 @@ protected:
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
     int outExt[6], int threadId) override;
 
+  void GrowExtent(int* uExt, int* wholeExtent);
+  int ComputeSumedValue(unsigned char* values, vtkIdType* indices, int comp);
+
   // Used for vtkMultiThreader operation.
   vtkImageDifferenceThreadData* ThreadData;
 
   // Used for vtkSMPTools operation.
-  vtkImageDifferenceSMPThreadLocal* SMPThreadData;
+  vtkImageDifferenceSMPThreadLocal* SMPThreadData = nullptr;
 
 private:
   vtkImageDifference(const vtkImageDifference&) = delete;
