@@ -479,6 +479,7 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
     // Receive the name
     this->Receive(str, nameLength, remoteHandle, tag);
     data->SetName(str);
+    delete[] str;
   }
   else
   {

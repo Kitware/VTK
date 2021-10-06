@@ -293,9 +293,14 @@ void vtkPOrderStatistics::Learn(
       if (!com->GatherV(&(*sPack_l.begin()), sPack_g, nc_l, nc_g, offsets, rProc))
       {
         vtkErrorMacro("Process " << myRank << "could not gather string values.");
+        delete[] nc_g;
+        delete[] offsets;
+        delete[] sPack_g;
 
         return;
       }
+      delete[] nc_g;
+      delete[] offsets;
 
       // Reduce to global histogram on process rProc
       std::map<vtkStdString, vtkIdType> histogram;
@@ -303,9 +308,11 @@ void vtkPOrderStatistics::Learn(
       {
         if (this->Reduce(card_g, ncTotal, sPack_g, histogram))
         {
+          delete[] sPack_g;
           return;
         }
       } // if ( myRank == rProc )
+      delete[] sPack_g;
 
       // Create column for global histogram values of the same type as the values
       vtkStringArray* sVals_g = vtkStringArray::New();
@@ -316,6 +323,7 @@ void vtkPOrderStatistics::Learn(
       {
         vtkErrorMacro("Process " << com->GetLocalProcessId()
                                  << " could not broadcast reduced histogram values.");
+        sVals_g->Delete();
 
         return;
       }

@@ -111,6 +111,8 @@ vtkGeometryFilter::vtkGeometryFilter()
 vtkGeometryFilter::~vtkGeometryFilter()
 {
   this->SetLocator(nullptr);
+  this->SetOriginalCellIdsName(nullptr);
+  this->SetOriginalPointIdsName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -2093,9 +2095,11 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
   // Depending on the outcome, we may process the data ourselves, or send over
   // to the faster vtkGeometryFilter.
   bool mayDelegate = (info == nullptr && this->Delegation);
+  bool info_owned = false;
   if (info == nullptr)
   {
     info = vtkGeometryFilterHelper::CharacterizeUnstructuredGrid(input);
+    info_owned = true;
   }
 
   // Nonlinear cells are handled by vtkDataSetSurfaceFilter
@@ -2107,6 +2111,10 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
     dssf->UnstructuredGridExecute(dataSetInput, output, info);
     delete info;
     return 1;
+  }
+  if (info_owned)
+  {
+    delete info;
   }
 
   auto cellIter = vtk::TakeSmartPointer(input->NewCellIterator());

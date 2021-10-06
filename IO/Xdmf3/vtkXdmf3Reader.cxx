@@ -86,6 +86,7 @@ public:
     delete this->SILBuilder;
     this->ReleaseArrays(true);
     this->FileNames.clear();
+    delete this->Keeper;
   };
 
   //--------------------------------------------------------------------------

@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkADIOS2VTXReader();
-  ~vtkADIOS2VTXReader() = default;
+  ~vtkADIOS2VTXReader();
 
   vtkADIOS2VTXReader(const vtkADIOS2VTXReader&) = delete;
   void operator=(const vtkADIOS2VTXReader&) = delete;

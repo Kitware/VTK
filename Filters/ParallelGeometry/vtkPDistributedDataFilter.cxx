@@ -1419,6 +1419,11 @@ vtkFloatArray** vtkPDistributedDataFilter::ExchangeFloatArraysLean(
       {
         vtkErrorMacro(<< "vtkPDistributedDataFilter::ExchangeIdArrays memory allocation");
         delete[] recvSize;
+        delete[] sendSize;
+        for (int i = 0; i < nprocs; ++i)
+        {
+          delete[] recvArrays[i];
+        }
         delete[] recvArrays;
         return nullptr;
       }

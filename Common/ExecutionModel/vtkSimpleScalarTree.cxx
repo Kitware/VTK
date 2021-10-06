@@ -63,6 +63,7 @@ vtkSimpleScalarTree::vtkSimpleScalarTree()
 vtkSimpleScalarTree::~vtkSimpleScalarTree()
 {
   delete[] this->Tree;
+  delete[] this->CandidateCells;
 }
 
 //------------------------------------------------------------------------------

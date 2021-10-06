@@ -42,6 +42,11 @@ vtkADIOS2VTXReader::vtkADIOS2VTXReader()
   this->SetNumberOfOutputPorts(1);
 }
 
+vtkADIOS2VTXReader::~vtkADIOS2VTXReader()
+{
+  this->SetFileName(nullptr);
+}
+
 int vtkADIOS2VTXReader::RequestInformation(vtkInformation* vtkNotUsed(inputVector),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
