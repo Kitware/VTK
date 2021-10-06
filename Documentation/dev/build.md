@@ -339,7 +339,8 @@ Python3 (Python2 wheels are no longer supported). This is supported by setting
 the `VTK_WHEEL_BUILD` flag. This changes the build directory structure around
 to match that expected by wheels. Once configured, the build tree may be built
 as it would be normally and then the generated `setup.py` file used to create
-the wheel.
+the wheel. Note that the `bdist_wheel` command requires that the `wheel`
+package is available (`pip install wheel`).
 
 ```sh
 cmake -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON path/to/vtk/source
