@@ -1,4 +1,4 @@
-FROM fedora:33
+FROM fedora:34
 MAINTAINER Ben Boeckel <ben.boeckel@kitware.com>
 
 COPY install_deps.sh /root/install_deps.sh
@@ -13,7 +13,7 @@ RUN sh /root/install_adios.sh
 COPY install_openvr.sh /root/install_openvr.sh
 RUN sh /root/install_openvr.sh
 
-# XXX(fedora34): ispc is too old in Fedora 33
+# XXX(fedora34): ispc is too old in Fedora 34
 # COPY install_ospray.sh /root/install_ospray.sh
 # RUN sh /root/install_ospray.sh
 

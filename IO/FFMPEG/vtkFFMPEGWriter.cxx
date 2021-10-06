@@ -310,19 +310,18 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData* id)
   }
 
   // run the encoder
-  AVPacket pkt;
-  av_init_packet(&pkt);
-  pkt.data = nullptr;
-  pkt.size = 0;
+  AVPacket* pkt = av_packet_alloc();
+  pkt->data = nullptr;
+  pkt->size = 0;
 
   while (!ret)
   {
     // dump the compressed result to file
-    ret = avcodec_receive_packet(this->avCodecContext, &pkt);
+    ret = avcodec_receive_packet(this->avCodecContext, pkt);
     if (!ret)
     {
-      pkt.stream_index = this->avStream->index;
-      int wret = av_write_frame(this->avFormatContext, &pkt);
+      pkt->stream_index = this->avStream->index;
+      int wret = av_write_frame(this->avFormatContext, pkt);
       if (wret < 0)
       {
         vtkGenericWarningMacro(<< "Problem encoding frame.");
@@ -330,6 +329,7 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData* id)
       }
     }
   }
+  av_packet_free(&pkt);
 
   return 1;
 }

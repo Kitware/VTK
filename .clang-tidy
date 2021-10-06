@@ -67,6 +67,7 @@ mpi-*,\
 openmp-*,\
 performance-*,\
 -performance-inefficient-string-concatenation,\
+-performance-no-int-to-ptr,\
 -performance-type-promotion-in-math-fn,\
 -performance-unnecessary-value-param,\
 portability-*,\
@@ -74,6 +75,7 @@ readability-*,\
 -readability-braces-around-statements,\
 -readability-convert-member-functions-to-static,\
 -readability-else-after-return,\
+-readability-function-cognitive-complexity,\
 -readability-function-size,\
 -readability-implicit-bool-conversion,\
 -readability-inconsistent-declaration-parameter-name,\
