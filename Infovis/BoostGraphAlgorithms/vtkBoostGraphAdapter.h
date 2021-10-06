@@ -137,6 +137,13 @@ using ::boost::put;
 #include <utility> // STL Header
 
 #include <boost/config.hpp>
+#include <boost/version.hpp>
+
+#if BOOST_VERSION > 107300 && BOOST_VERSION < 107600
+#define BOOST_ALLOW_DEPRECATED_HEADERS
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
+#endif
+
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
