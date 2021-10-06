@@ -231,6 +231,11 @@ void vtkXMLPStructuredDataReader::SetupOutputData()
 void vtkXMLPStructuredDataReader::SetupPieces(int numPieces)
 {
   this->Superclass::SetupPieces(numPieces);
+  if (!numPieces)
+  {
+    return;
+  }
+
   this->PieceExtents = new int[6 * this->NumberOfPieces];
   int i;
   for (i = 0; i < this->NumberOfPieces; ++i)
