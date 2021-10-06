@@ -78,13 +78,13 @@ struct ComputeProperties
 
   // There is a lot of data shuffling between the dataset and the cells going
   // on. This could be optimized if it ever comes to that.
-  void operator()(vtkIdType polyId, vtkIdType endPolyId)
+  void operator()(vtkIdType beginPolyId, vtkIdType endPolyId)
   {
     vtkPoints* inPts = this->Points;
     double x[3], n[3];
-    double* areas = this->Areas + polyId;
-    double* volumes = this->Volumes + polyId;
-    const unsigned char* orient = this->Orient + polyId;
+    double* areas = this->Areas + beginPolyId;
+    double* volumes = this->Volumes + beginPolyId;
+    const unsigned char* orient = this->Orient + beginPolyId;
     const double* c = this->Center;
     vtkIdType npts;
     const vtkIdType* pts;
@@ -95,7 +95,7 @@ struct ComputeProperties
     double x0[3], x1[3], x2[3], vol;
     double v210, v120, v201, v021, v102, v012;
 
-    for (; polyId < endPolyId; ++polyId)
+    for (vtkIdType polyId = beginPolyId; polyId < endPolyId; ++polyId)
     {
       this->Mesh->GetCellPoints(polyId, npts, pts);
 
@@ -113,7 +113,7 @@ struct ComputeProperties
       }
 
       // The volume computation implemented using signed tetrahedra from
-      // generating triangles. Thus polygons may need tessellation.
+      // generating triangles. Thus, polygons may need to be triangulated.
       poly->Triangulate(tris);
       numTris = tris->GetNumberOfIds() / 3;
 
@@ -186,9 +186,8 @@ vtkMultiObjectMassProperties::~vtkMultiObjectMassProperties()
 }
 
 //------------------------------------------------------------------------------
-// Description:
-// This method measures volume, surface area, and normalized shape index.
-// Currently, the input is a ploydata which consists of triangles.
+// This method measures volume and surface area.
+// The input is a PolyData which consists of polygons.
 int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -212,8 +211,8 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   // Attribute data
-  vtkPointData *pd = input->GetPointData(), *outputPD = output->GetPointData();
-  vtkCellData *cd = input->GetCellData(), *outputCD = output->GetCellData();
+  vtkPointData *inputPD = input->GetPointData(), *outputPD = output->GetPointData();
+  vtkCellData *inputCD = input->GetCellData(), *outputCD = output->GetCellData();
 
   // Determine if some data is being skipped over and either shallow copy out
   // or copy the cell attribute data and prune the extra cells. Points are
@@ -224,8 +223,8 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   {
     // Just copy stuff through and we'll add arrays
     output->CopyStructure(input);
-    outputPD->PassData(pd);
-    outputCD->PassData(cd);
+    outputPD->PassData(inputPD);
+    outputCD->PassData(inputCD);
   }
   else
   {
@@ -234,7 +233,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
     // Pass points through, can always use vtkCleanPolyData to eliminate
     // unused points.
     output->SetPoints(input->GetPoints());
-    outputPD->PassData(pd);
+    outputPD->PassData(inputPD);
 
     // Just process polys and copy over associated cell data
     input->BuildCells();
@@ -246,7 +245,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
       cellType = input->GetCellType(cellId);
       if (cellType == VTK_TRIANGLE || cellType == VTK_QUAD || cellType == VTK_POLYGON)
       {
-        outputCD->CopyData(cd, cellId, polyId);
+        outputCD->CopyData(inputCD, cellId, polyId);
         polyId++;
       }
     }
@@ -301,6 +300,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
 
     for (polyId = 0; polyId < numPolys; ++polyId)
     {
+      // check if value is less than 0, because the initial value is -1
       if (objectIds[polyId] < 0)
       {
         // found another object
@@ -309,6 +309,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
         this->ObjectValidity->InsertTuple1(this->NumberOfObjects, 1);
         this->TraverseAndMark(output, objectIds, this->ObjectValidity, orient);
         this->NumberOfObjects++;
+        // Wave & Wave2 need to be reset since they are populated in TraverseAndMark()
         this->Wave->Reset();
         this->Wave2->Reset();
       }
@@ -327,7 +328,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   } // if validity check required
 
   // Here we assume that the object ids provided are associated with valid
-  // objects. However we need to traverse provided array to determine number
+  // objects. However, we need to traverse provided array to determine number
   // of objects.
   else
   {
@@ -346,9 +347,9 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   // Now compute the areas and volumes. This can be done in parallel. We
-  // compute on a per polygon basis and sum the results later. Note that the
-  // polygon volumes are the contribution that the polygon makes to the total
-  // object volume (may be negative or positive).
+  // compute on a per-polygon basis and sum the results later. Note that the
+  // polygon volumes, which can be negative or positive, are the contribution
+  // that the polygon makes to the total object volume.
   vtkDoubleArray* polyAreas = vtkDoubleArray::New();
   polyAreas->SetName("Areas");
   polyAreas->SetNumberOfTuples(numPolys);
@@ -369,7 +370,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   ComputeProperties::Execute(
     numPolys, output, center, orient, polyAreas->GetPointer(0), polyVolumes->GetPointer(0));
 
-  // Roll up the results into total results on a per object basis.
+  // Roll up the results into total results on a per-object basis.
   this->ObjectAreas = vtkDoubleArray::New();
   this->ObjectAreas->SetName("ObjectAreas");
   output->GetFieldData()->AddArray(this->ObjectAreas);
@@ -458,7 +459,7 @@ void vtkMultiObjectMassProperties::TraverseAndMark(
 
         // Determine whether neighbor is consistent with the current
         // cell. The neighbor ordering of the edge (p0,p1) should be reversed
-        // (p1,p0). Otherwise it is inconsistent and is marked as such. For
+        // (p1,p0). Otherwise, it is inconsistent and is marked as such. For
         // non-valid objects we don't care about consistency.
         else // have one neighbor.
         {

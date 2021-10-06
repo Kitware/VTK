@@ -33,17 +33,16 @@
  * performed. It is possible to skip the first part if the SkipValidityCheck
  * is enabled, AND a vtkIdTypeArray data array named "ObjectIds" is
  * associated with the polygon input (i.e., cell data) that enumerates which
- * object every polygon belongs to (i.e., indictaes that it is a boundary
+ * object every polygon belongs to (i.e., indicates that it is a boundary
  * polygon of a specified object).
  *
  * The algorithm implemented here is inspired by this paper:
  * http://chenlab.ece.cornell.edu/Publication/Cha/icip01_Cha.pdf. Also see
- * the Stackflow entry: https://stackoverflow.com/questions/1406029/
- * how-to-calculate-the-volume-of-a-3d-mesh-object-the-surface-of-which-is-made-up.
+ * the stack-overflow entry: https://stackoverflow.com/questions/1406029/.
  * The general assumption here is that the model is of closed surface.  Also,
  * this approach requires triangulating the polygons so triangle meshes are
  * processed much faster. Finally, the volume and area calculations are done
- * in paraellel (threaded) after a connectivity pass is made (used to
+ * in parallel (threaded) after a connectivity pass is made (used to
  * identify objects and verify that they are manifold and closed).
  *
  * The output contains six additional data arrays. The arrays
@@ -57,7 +56,7 @@
  * the filter executes (i.e., the sum of the ObjectVolumes and ObjectAreas
  * arrays).
  *
- * Per object validity, as mentioned previously, is reported in the
+ * Per-object validity, as mentioned previously, is reported in the
  * ObjectValidity array. However another variable, AllValid, is set after
  * filter execution which indicates whether all objects are valid (!=0) or
  * not. This information can be used as a shortcut in case you want to skip
@@ -65,7 +64,7 @@
  *
  * @warning
  * This filter operates on the polygonal data contained in the input
- * vtkPolyData. Other types (verts, lines, triangle strips) are ignored and
+ * vtkPolyData. Other types (vertices, lines, triangle strips) are ignored and
  * not passed to the output. The input polys and points, as well as
  * associated point and cell data, are passed through to the output.
  *
