@@ -79,6 +79,11 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
   double tmp[4];
   double tmpval;
 
+  if (!this->LineListLength)
+  {
+    return;
+  }
+
   // Make sure we have enough space in our sorted list
   if (this->SortedListSize < this->LineListLength)
   {
