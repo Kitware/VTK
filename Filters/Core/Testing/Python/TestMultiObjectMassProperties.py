@@ -4,13 +4,14 @@
 # defined by polygonal meshes
 import vtk
 from vtk.util.misc import vtkGetDataRoot
+
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create the RenderWindow, Renderer
 #
 ren = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()
-renWin.AddRenderer( ren )
+renWin.AddRenderer(ren)
 
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
@@ -68,7 +69,7 @@ pts.SetPoint(31, 2, 2, 0.5)
 
 # Invalid poly mess (a "X")
 pts.SetPoint(32, 0, -0.5, -0.5)
-pts.SetPoint(33, 0,  0.5, -0.5)
+pts.SetPoint(33, 0, 0.5, -0.5)
 pts.SetPoint(34, -0.5, -0.5, 0)
 pts.SetPoint(35, 0, -0.5, 0)
 pts.SetPoint(36, 0.5, -0.5, 0)
@@ -264,7 +265,7 @@ massP = vtk.vtkMultiObjectMassProperties()
 massP.SetInputData(polyData)
 massP.Update()
 
-print("Mass Propertites: {0}".format(massP))
+print("Mass Properties: {0}".format(massP))
 print("Number Objects: {0}".format(massP.GetNumberOfObjects()))
 print("All Valid: {0}".format(massP.GetAllValid()))
 print("Total Area: {0}".format(massP.GetTotalArea()))
@@ -274,12 +275,14 @@ numObjects = massP.GetNumberOfObjects()
 validArray = massP.GetOutput().GetFieldData().GetArray("ObjectValidity")
 areaArray = massP.GetOutput().GetFieldData().GetArray("ObjectAreas")
 volArray = massP.GetOutput().GetFieldData().GetArray("ObjectVolumes")
-print("Object ID, Valid, Area, Volume")
-for i in range(0,numObjects) :
+centroidArray = massP.GetOutput().GetFieldData().GetArray("ObjectCentroids")
+print("Object ID, Valid, Area, Volume, Centroid")
+for i in range(0, numObjects):
     valid = validArray.GetTuple1(i)
-    area = areaArray.GetTuple1(i);
+    area = areaArray.GetTuple1(i)
     vol = volArray.GetTuple1(i)
-    print(i, valid, area, vol)
+    centroid = centroidArray.GetTuple3(i)
+    print(i, valid, area, vol, centroid)
 
 mapper = vtk.vtkPolyDataMapper()
 mapper.SetInputConnection(massP.GetOutputPort())
@@ -291,8 +294,8 @@ actor.SetMapper(mapper)
 # Render it
 ren.AddActor(actor)
 
-ren.GetActiveCamera().SetPosition( 0.5, 0.5, 1 )
-ren.GetActiveCamera().SetFocalPoint( 0, 0, 0 )
+ren.GetActiveCamera().SetPosition(0.5, 0.5, 1)
+ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
 ren.ResetCamera()
 
 renWin.Render()
