@@ -251,6 +251,7 @@ vtkMultiObjectMassProperties::vtkMultiObjectMassProperties()
   // The labeling (e.g., ids) of objects. The ObjectValidity is a 0/1 flag
   // indicating whether the object is manifold (i.e., valid) meaning every
   // edge is used exactly two times.
+  this->SetObjectIdsArrayName("ObjectIds");
   this->NumberOfObjects = 0;
   this->ObjectIds = nullptr;
   this->ObjectValidity = nullptr;
@@ -345,14 +346,14 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   bool performValidityCheck = false;
   int idx;
   vtkIdType* objectIds;
-  vtkIdTypeArray* objectIdsArray =
-    vtkIdTypeArray::FastDownCast(output->GetCellData()->GetAbstractArray("ObjectIds", idx));
+  vtkIdTypeArray* objectIdsArray = vtkIdTypeArray::FastDownCast(
+    output->GetCellData()->GetAbstractArray(this->ObjectIdsArrayName.c_str(), idx));
   if (!this->SkipValidityCheck || objectIdsArray == nullptr ||
     objectIdsArray->GetDataType() != VTK_ID_TYPE)
   {
     performValidityCheck = true;
     this->ObjectIds = objectIdsArray = vtkIdTypeArray::New();
-    this->ObjectIds->SetName("ObjectIds");
+    this->ObjectIds->SetName(this->ObjectIdsArrayName.c_str());
     this->ObjectIds->SetNumberOfTuples(numPolys);
     outputCD->AddArray(objectIdsArray);
     objectIds = objectIdsArray->GetPointer(0);

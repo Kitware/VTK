@@ -122,6 +122,16 @@ public:
   vtkBooleanMacro(SkipValidityCheck, vtkTypeBool);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the name of the ObjectIds array. This array, which indicates in which object
+   * a polygon belongs to, can be either provided by the user or computed.
+   * The default name is "ObjectIds".
+   */
+  vtkSetStdStringFromCharMacro(ObjectIdsArrayName);
+  vtkGetCharFromStdStringMacro(ObjectIdsArrayName);
+  ///@}
+
   /**
    * Return the number of objects identified. This is valid only after the
    * filter executes. Check the ObjectValidity array which indicates which of
@@ -162,8 +172,9 @@ protected:
   double TotalArea;
 
   // Internal data members supporting algorithm execution
-  vtkIdType NumberOfObjects; // number of objects identified
-  vtkIdTypeArray* ObjectIds; // for each input polygon, the object id that the polygon is in
+  vtkIdType NumberOfObjects;      // number of objects identified
+  vtkIdTypeArray* ObjectIds;      // for each input polygon, the object id that the polygon is in
+  std::string ObjectIdsArrayName; // the array name of ObjectIds.
 
   vtkUnsignedCharArray* ObjectValidity; // is it a valid object?
   vtkDoubleArray* ObjectVolumes;        // what is the object volume (if valid)?
