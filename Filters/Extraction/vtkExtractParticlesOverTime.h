@@ -30,7 +30,7 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h"         // For smart pointers
 
 class vtkExtractParticlesOverTimeInternals;
 
