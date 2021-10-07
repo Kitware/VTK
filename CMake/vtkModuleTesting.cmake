@@ -490,6 +490,11 @@ variable named in the `VARNAME` argument. The `EXENAME` must match the
 If `RENDERING_FACTORY` is provided, VTK's rendering factories are initialized
 during the test.
 
+By default, VTK's rendering tests enable FP exceptions to find floating point
+errors in debug builds. If `DISABLE_FLOATING_POINT_EXCEPTIONS` is provided,
+FP exceptions are not enabled for the test. This is useful when testing against
+external libraries to ignore exceptions in third-party code.
+
 Any additional arguments are added as additional sources for the executable.
 #]==]
 function (vtk_test_cxx_executable exename _tests)
