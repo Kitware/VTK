@@ -244,8 +244,8 @@ bool vtkExtractParticlesOverTimeInternals::GenerateOutput(
     return false;
   }
 
-  this->CachedOutputDataSet =
-    vtkSmartPointer<vtkDataSet>(vtkDataSet::SafeDownCast(extractedDataSet->NewInstance()));
+  this->CachedOutputDataSet.TakeReference(
+    vtkDataSet::SafeDownCast(extractedDataSet->NewInstance()));
   this->CachedOutputDataSet->DeepCopy(extractedDataSet);
 
   return true;
