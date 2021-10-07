@@ -24,6 +24,7 @@
 #include "vtkEdgeListIterator.h"
 #include "vtkIdList.h"
 #include "vtkLight.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
@@ -55,2347 +56,184 @@
 // put whatever mesh you like here.
 int LoadVolumeMesh(vtkUnstructuredGrid* vMesh)
 {
+  const double mesh_points[][3] = { { 0, 0, 0 }, { 0.632981, 0.774167, 0 }, { 1.26596, 1.54833, 0 },
+    { 1.89894, 2.3225, 0 }, { -0.774167, 0.632981, 0 }, { -0.141186, 1.40715, 0 },
+    { 0.491796, 2.18132, 0 }, { 1.12478, 2.95548, 0 }, { -1.54833, 1.26596, 0 },
+    { -0.915353, 2.04013, 0 }, { -0.282372, 2.8143, 0 }, { 0.35061, 3.58846, 0 },
+    { -2.3225, 1.89894, 0 }, { -1.68952, 2.67311, 0 }, { -1.05654, 3.44728, 0 },
+    { -0.423557, 4.22145, 0 }, { -3.09667, 2.53193, 0 }, { -2.46369, 3.30609, 0 },
+    { -1.83071, 4.08026, 0 }, { -1.19772, 4.85443, 0 }, { -3.87084, 3.16491, 0 },
+    { -3.23785, 3.93907, 0 }, { -2.60487, 4.71324, 0 }, { -1.97189, 5.48741, 0 },
+    { -4.645, 3.79789, 0 }, { -4.01202, 4.57205, 0 }, { -3.37904, 5.34622, 0 },
+    { -2.74606, 6.12039, 0 }, { -5.41917, 4.43087, 0 }, { -4.78619, 5.20504, 0 },
+    { -4.15321, 5.9792, 0 }, { -3.52023, 6.75337, 0 }, { 0, 0, 1 }, { 0.632981, 0.774167, 1 },
+    { 1.26596, 1.54833, 1 }, { 1.89894, 2.3225, 1 }, { -0.774167, 0.632981, 1 },
+    { -0.141186, 1.40715, 1 }, { 0.491796, 2.18132, 1 }, { 1.12478, 2.95548, 1 },
+    { -1.54833, 1.26596, 1 }, { -0.915353, 2.04013, 1 }, { -0.282372, 2.8143, 1 },
+    { 0.35061, 3.58846, 1 }, { -2.3225, 1.89894, 1 }, { -1.68952, 2.67311, 1 },
+    { -1.05654, 3.44728, 1 }, { -0.423557, 4.22145, 1 }, { -3.09667, 2.53193, 1 },
+    { -2.46369, 3.30609, 1 }, { -1.83071, 4.08026, 1 }, { -1.19772, 4.85443, 1 },
+    { -3.87084, 3.16491, 1 }, { -3.23785, 3.93907, 1 }, { -2.60487, 4.71324, 1 },
+    { -1.97189, 5.48741, 1 }, { -4.645, 3.79789, 1 }, { -4.01202, 4.57205, 1 },
+    { -3.37904, 5.34622, 1 }, { -2.74606, 6.12039, 1 }, { -5.41917, 4.43087, 1 },
+    { -4.78619, 5.20504, 1 }, { -4.15321, 5.9792, 1 }, { -3.52023, 6.75337, 1 },
+    { -0.0352964, 0.351787, 0.25 }, { -0.264135, 0.86182, 0.25 }, { -0.228838, 0.510032, 0.5 },
+    { 0.0876524, 0.897116, 0.5 }, { -0.105889, 1.05536, 0.75 }, { 0.122949, 0.545329, 0.75 },
+    { 0.597685, 1.12595, 0.25 }, { 0.368847, 1.63599, 0.25 }, { 0.404143, 1.2842, 0.5 },
+    { 0.720634, 1.67128, 0.5 }, { 0.527092, 1.82953, 0.75 }, { 0.75593, 1.3195, 0.75 },
+    { 1.23067, 1.90012, 0.25 }, { 1.00183, 2.41015, 0.25 }, { 1.03712, 2.05837, 0.5 },
+    { 1.35362, 2.44545, 0.5 }, { 1.16007, 2.6037, 0.75 }, { 1.38891, 2.09366, 0.75 },
+    { -0.809464, 0.984768, 0.25 }, { -1.0383, 1.4948, 0.25 }, { -1.00301, 1.14301, 0.5 },
+    { -0.686515, 1.5301, 0.5 }, { -0.880056, 1.68834, 0.75 }, { -0.651218, 1.17831, 0.75 },
+    { 0.456499, 2.5331, 0.25 }, { 0.227661, 3.04313, 0.25 }, { 0.262957, 2.69135, 0.5 },
+    { 0.579448, 3.07843, 0.5 }, { 0.385906, 3.23668, 0.75 }, { 0.614744, 2.72664, 0.75 },
+    { -1.58363, 1.61775, 0.25 }, { -1.81247, 2.12778, 0.25 }, { -1.77717, 1.776, 0.5 },
+    { -1.46068, 2.16308, 0.5 }, { -1.65422, 2.32132, 0.75 }, { -1.42539, 1.81129, 0.75 },
+    { -0.950649, 2.39192, 0.25 }, { -1.17949, 2.90195, 0.25 }, { -1.14419, 2.55016, 0.5 },
+    { -0.8277, 2.93725, 0.5 }, { -1.02124, 3.09549, 0.75 }, { -0.792404, 2.58546, 0.75 },
+    { -0.317668, 3.16608, 0.25 }, { -0.546506, 3.67612, 0.25 }, { -0.51121, 3.32433, 0.5 },
+    { -0.194719, 3.71141, 0.5 }, { -0.388261, 3.86966, 0.75 }, { -0.159423, 3.35963, 0.75 },
+    { -2.3578, 2.25073, 0.25 }, { -2.58664, 2.76076, 0.25 }, { -2.55134, 2.40898, 0.5 },
+    { -2.23485, 2.79606, 0.5 }, { -2.42839, 2.95431, 0.75 }, { -2.19955, 2.44427, 0.75 },
+    { -1.09184, 3.79907, 0.25 }, { -1.32067, 4.3091, 0.25 }, { -1.28538, 3.95731, 0.5 },
+    { -0.968886, 4.34439, 0.5 }, { -1.16243, 4.50264, 0.75 }, { -0.93359, 3.99261, 0.75 },
+    { -3.13196, 2.88371, 0.25 }, { -3.3608, 3.39374, 0.25 }, { -3.32551, 3.04196, 0.5 },
+    { -3.00902, 3.42904, 0.5 }, { -3.20256, 3.58729, 0.75 }, { -2.97372, 3.07725, 0.75 },
+    { -2.49898, 3.65788, 0.25 }, { -2.72782, 4.16791, 0.25 }, { -2.69253, 3.81612, 0.5 },
+    { -2.37603, 4.20321, 0.5 }, { -2.56958, 4.36145, 0.75 }, { -2.34074, 3.85142, 0.75 },
+    { -1.866, 4.43205, 0.25 }, { -2.09484, 4.94208, 0.25 }, { -2.05954, 4.59029, 0.5 },
+    { -1.74305, 4.97738, 0.5 }, { -1.9366, 5.13562, 0.75 }, { -1.70776, 4.62559, 0.75 },
+    { -3.90613, 3.51669, 0.25 }, { -4.13497, 4.02673, 0.25 }, { -4.09967, 3.67494, 0.5 },
+    { -3.78318, 4.06202, 0.5 }, { -3.97672, 4.22027, 0.75 }, { -3.74789, 3.71024, 0.75 },
+    { -2.64017, 5.06503, 0.25 }, { -2.86901, 5.57506, 0.25 }, { -2.83371, 5.22327, 0.5 },
+    { -2.51722, 5.61036, 0.5 }, { -2.71076, 5.7686, 0.75 }, { -2.48192, 5.25857, 0.75 },
+    { -4.6803, 4.14967, 0.25 }, { -4.90914, 4.65971, 0.25 }, { -4.87384, 4.30792, 0.5 },
+    { -4.55735, 4.695, 0.5 }, { -4.75089, 4.85325, 0.75 }, { -4.52205, 4.34322, 0.75 },
+    { -4.04732, 4.92384, 0.25 }, { -4.27616, 5.43387, 0.25 }, { -4.24086, 5.08209, 0.5 },
+    { -3.92437, 5.46917, 0.5 }, { -4.11791, 5.62742, 0.75 }, { -3.88907, 5.11738, 0.75 },
+    { -3.41434, 5.69801, 0.25 }, { -3.64317, 6.20804, 0.25 }, { -3.60788, 5.85625, 0.5 },
+    { -3.29139, 6.24334, 0.5 }, { -3.48493, 6.40158, 0.75 }, { -3.25609, 5.89155, 0.75 } };
+
   vMesh->Allocate();
 
-  vtkPoints* points = vtkPoints::New();
-  points->InsertNextPoint(0, 0, 0);
-  points->InsertNextPoint(0.632981, 0.774167, 0);
-  points->InsertNextPoint(1.26596, 1.54833, 0);
-  points->InsertNextPoint(1.89894, 2.3225, 0);
-  points->InsertNextPoint(-0.774167, 0.632981, 0);
-  points->InsertNextPoint(-0.141186, 1.40715, 0);
-  points->InsertNextPoint(0.491796, 2.18132, 0);
-  points->InsertNextPoint(1.12478, 2.95548, 0);
-  points->InsertNextPoint(-1.54833, 1.26596, 0);
-  points->InsertNextPoint(-0.915353, 2.04013, 0);
-  points->InsertNextPoint(-0.282372, 2.8143, 0);
-  points->InsertNextPoint(0.35061, 3.58846, 0);
-  points->InsertNextPoint(-2.3225, 1.89894, 0);
-  points->InsertNextPoint(-1.68952, 2.67311, 0);
-  points->InsertNextPoint(-1.05654, 3.44728, 0);
-  points->InsertNextPoint(-0.423557, 4.22145, 0);
-  points->InsertNextPoint(-3.09667, 2.53193, 0);
-  points->InsertNextPoint(-2.46369, 3.30609, 0);
-  points->InsertNextPoint(-1.83071, 4.08026, 0);
-  points->InsertNextPoint(-1.19772, 4.85443, 0);
-  points->InsertNextPoint(-3.87084, 3.16491, 0);
-  points->InsertNextPoint(-3.23785, 3.93907, 0);
-  points->InsertNextPoint(-2.60487, 4.71324, 0);
-  points->InsertNextPoint(-1.97189, 5.48741, 0);
-  points->InsertNextPoint(-4.645, 3.79789, 0);
-  points->InsertNextPoint(-4.01202, 4.57205, 0);
-  points->InsertNextPoint(-3.37904, 5.34622, 0);
-  points->InsertNextPoint(-2.74606, 6.12039, 0);
-  points->InsertNextPoint(-5.41917, 4.43087, 0);
-  points->InsertNextPoint(-4.78619, 5.20504, 0);
-  points->InsertNextPoint(-4.15321, 5.9792, 0);
-  points->InsertNextPoint(-3.52023, 6.75337, 0);
-  points->InsertNextPoint(0, 0, 1);
-  points->InsertNextPoint(0.632981, 0.774167, 1);
-  points->InsertNextPoint(1.26596, 1.54833, 1);
-  points->InsertNextPoint(1.89894, 2.3225, 1);
-  points->InsertNextPoint(-0.774167, 0.632981, 1);
-  points->InsertNextPoint(-0.141186, 1.40715, 1);
-  points->InsertNextPoint(0.491796, 2.18132, 1);
-  points->InsertNextPoint(1.12478, 2.95548, 1);
-  points->InsertNextPoint(-1.54833, 1.26596, 1);
-  points->InsertNextPoint(-0.915353, 2.04013, 1);
-  points->InsertNextPoint(-0.282372, 2.8143, 1);
-  points->InsertNextPoint(0.35061, 3.58846, 1);
-  points->InsertNextPoint(-2.3225, 1.89894, 1);
-  points->InsertNextPoint(-1.68952, 2.67311, 1);
-  points->InsertNextPoint(-1.05654, 3.44728, 1);
-  points->InsertNextPoint(-0.423557, 4.22145, 1);
-  points->InsertNextPoint(-3.09667, 2.53193, 1);
-  points->InsertNextPoint(-2.46369, 3.30609, 1);
-  points->InsertNextPoint(-1.83071, 4.08026, 1);
-  points->InsertNextPoint(-1.19772, 4.85443, 1);
-  points->InsertNextPoint(-3.87084, 3.16491, 1);
-  points->InsertNextPoint(-3.23785, 3.93907, 1);
-  points->InsertNextPoint(-2.60487, 4.71324, 1);
-  points->InsertNextPoint(-1.97189, 5.48741, 1);
-  points->InsertNextPoint(-4.645, 3.79789, 1);
-  points->InsertNextPoint(-4.01202, 4.57205, 1);
-  points->InsertNextPoint(-3.37904, 5.34622, 1);
-  points->InsertNextPoint(-2.74606, 6.12039, 1);
-  points->InsertNextPoint(-5.41917, 4.43087, 1);
-  points->InsertNextPoint(-4.78619, 5.20504, 1);
-  points->InsertNextPoint(-4.15321, 5.9792, 1);
-  points->InsertNextPoint(-3.52023, 6.75337, 1);
-  points->InsertNextPoint(-0.0352964, 0.351787, 0.25);
-  points->InsertNextPoint(-0.264135, 0.86182, 0.25);
-  points->InsertNextPoint(-0.228838, 0.510032, 0.5);
-  points->InsertNextPoint(0.0876524, 0.897116, 0.5);
-  points->InsertNextPoint(-0.105889, 1.05536, 0.75);
-  points->InsertNextPoint(0.122949, 0.545329, 0.75);
-  points->InsertNextPoint(0.597685, 1.12595, 0.25);
-  points->InsertNextPoint(0.368847, 1.63599, 0.25);
-  points->InsertNextPoint(0.404143, 1.2842, 0.5);
-  points->InsertNextPoint(0.720634, 1.67128, 0.5);
-  points->InsertNextPoint(0.527092, 1.82953, 0.75);
-  points->InsertNextPoint(0.75593, 1.3195, 0.75);
-  points->InsertNextPoint(1.23067, 1.90012, 0.25);
-  points->InsertNextPoint(1.00183, 2.41015, 0.25);
-  points->InsertNextPoint(1.03712, 2.05837, 0.5);
-  points->InsertNextPoint(1.35362, 2.44545, 0.5);
-  points->InsertNextPoint(1.16007, 2.6037, 0.75);
-  points->InsertNextPoint(1.38891, 2.09366, 0.75);
-  points->InsertNextPoint(-0.809464, 0.984768, 0.25);
-  points->InsertNextPoint(-1.0383, 1.4948, 0.25);
-  points->InsertNextPoint(-1.00301, 1.14301, 0.5);
-  points->InsertNextPoint(-0.686515, 1.5301, 0.5);
-  points->InsertNextPoint(-0.880056, 1.68834, 0.75);
-  points->InsertNextPoint(-0.651218, 1.17831, 0.75);
-  points->InsertNextPoint(0.456499, 2.5331, 0.25);
-  points->InsertNextPoint(0.227661, 3.04313, 0.25);
-  points->InsertNextPoint(0.262957, 2.69135, 0.5);
-  points->InsertNextPoint(0.579448, 3.07843, 0.5);
-  points->InsertNextPoint(0.385906, 3.23668, 0.75);
-  points->InsertNextPoint(0.614744, 2.72664, 0.75);
-  points->InsertNextPoint(-1.58363, 1.61775, 0.25);
-  points->InsertNextPoint(-1.81247, 2.12778, 0.25);
-  points->InsertNextPoint(-1.77717, 1.776, 0.5);
-  points->InsertNextPoint(-1.46068, 2.16308, 0.5);
-  points->InsertNextPoint(-1.65422, 2.32132, 0.75);
-  points->InsertNextPoint(-1.42539, 1.81129, 0.75);
-  points->InsertNextPoint(-0.950649, 2.39192, 0.25);
-  points->InsertNextPoint(-1.17949, 2.90195, 0.25);
-  points->InsertNextPoint(-1.14419, 2.55016, 0.5);
-  points->InsertNextPoint(-0.8277, 2.93725, 0.5);
-  points->InsertNextPoint(-1.02124, 3.09549, 0.75);
-  points->InsertNextPoint(-0.792404, 2.58546, 0.75);
-  points->InsertNextPoint(-0.317668, 3.16608, 0.25);
-  points->InsertNextPoint(-0.546506, 3.67612, 0.25);
-  points->InsertNextPoint(-0.51121, 3.32433, 0.5);
-  points->InsertNextPoint(-0.194719, 3.71141, 0.5);
-  points->InsertNextPoint(-0.388261, 3.86966, 0.75);
-  points->InsertNextPoint(-0.159423, 3.35963, 0.75);
-  points->InsertNextPoint(-2.3578, 2.25073, 0.25);
-  points->InsertNextPoint(-2.58664, 2.76076, 0.25);
-  points->InsertNextPoint(-2.55134, 2.40898, 0.5);
-  points->InsertNextPoint(-2.23485, 2.79606, 0.5);
-  points->InsertNextPoint(-2.42839, 2.95431, 0.75);
-  points->InsertNextPoint(-2.19955, 2.44427, 0.75);
-  points->InsertNextPoint(-1.09184, 3.79907, 0.25);
-  points->InsertNextPoint(-1.32067, 4.3091, 0.25);
-  points->InsertNextPoint(-1.28538, 3.95731, 0.5);
-  points->InsertNextPoint(-0.968886, 4.34439, 0.5);
-  points->InsertNextPoint(-1.16243, 4.50264, 0.75);
-  points->InsertNextPoint(-0.93359, 3.99261, 0.75);
-  points->InsertNextPoint(-3.13196, 2.88371, 0.25);
-  points->InsertNextPoint(-3.3608, 3.39374, 0.25);
-  points->InsertNextPoint(-3.32551, 3.04196, 0.5);
-  points->InsertNextPoint(-3.00902, 3.42904, 0.5);
-  points->InsertNextPoint(-3.20256, 3.58729, 0.75);
-  points->InsertNextPoint(-2.97372, 3.07725, 0.75);
-  points->InsertNextPoint(-2.49898, 3.65788, 0.25);
-  points->InsertNextPoint(-2.72782, 4.16791, 0.25);
-  points->InsertNextPoint(-2.69253, 3.81612, 0.5);
-  points->InsertNextPoint(-2.37603, 4.20321, 0.5);
-  points->InsertNextPoint(-2.56958, 4.36145, 0.75);
-  points->InsertNextPoint(-2.34074, 3.85142, 0.75);
-  points->InsertNextPoint(-1.866, 4.43205, 0.25);
-  points->InsertNextPoint(-2.09484, 4.94208, 0.25);
-  points->InsertNextPoint(-2.05954, 4.59029, 0.5);
-  points->InsertNextPoint(-1.74305, 4.97738, 0.5);
-  points->InsertNextPoint(-1.9366, 5.13562, 0.75);
-  points->InsertNextPoint(-1.70776, 4.62559, 0.75);
-  points->InsertNextPoint(-3.90613, 3.51669, 0.25);
-  points->InsertNextPoint(-4.13497, 4.02673, 0.25);
-  points->InsertNextPoint(-4.09967, 3.67494, 0.5);
-  points->InsertNextPoint(-3.78318, 4.06202, 0.5);
-  points->InsertNextPoint(-3.97672, 4.22027, 0.75);
-  points->InsertNextPoint(-3.74789, 3.71024, 0.75);
-  points->InsertNextPoint(-2.64017, 5.06503, 0.25);
-  points->InsertNextPoint(-2.86901, 5.57506, 0.25);
-  points->InsertNextPoint(-2.83371, 5.22327, 0.5);
-  points->InsertNextPoint(-2.51722, 5.61036, 0.5);
-  points->InsertNextPoint(-2.71076, 5.7686, 0.75);
-  points->InsertNextPoint(-2.48192, 5.25857, 0.75);
-  points->InsertNextPoint(-4.6803, 4.14967, 0.25);
-  points->InsertNextPoint(-4.90914, 4.65971, 0.25);
-  points->InsertNextPoint(-4.87384, 4.30792, 0.5);
-  points->InsertNextPoint(-4.55735, 4.695, 0.5);
-  points->InsertNextPoint(-4.75089, 4.85325, 0.75);
-  points->InsertNextPoint(-4.52205, 4.34322, 0.75);
-  points->InsertNextPoint(-4.04732, 4.92384, 0.25);
-  points->InsertNextPoint(-4.27616, 5.43387, 0.25);
-  points->InsertNextPoint(-4.24086, 5.08209, 0.5);
-  points->InsertNextPoint(-3.92437, 5.46917, 0.5);
-  points->InsertNextPoint(-4.11791, 5.62742, 0.75);
-  points->InsertNextPoint(-3.88907, 5.11738, 0.75);
-  points->InsertNextPoint(-3.41434, 5.69801, 0.25);
-  points->InsertNextPoint(-3.64317, 6.20804, 0.25);
-  points->InsertNextPoint(-3.60788, 5.85625, 0.5);
-  points->InsertNextPoint(-3.29139, 6.24334, 0.5);
-  points->InsertNextPoint(-3.48493, 6.40158, 0.75);
-  points->InsertNextPoint(-3.25609, 5.89155, 0.75);
-  vMesh->SetPoints(points);
-  points->Delete();
-  vtkIdType* vertexIds = (vtkIdType*)malloc(sizeof(vtkIdType) * 4);
+  {
+    vtkNew<vtkPoints> points;
+    for (auto* mesh_point : mesh_points)
+    {
+      points->InsertNextPoint(mesh_point[0], mesh_point[1], mesh_point[2]);
+    }
+    vMesh->SetPoints(points);
+  }
 
-  vertexIds[0] = 0;
-  vertexIds[1] = 1;
-  vertexIds[2] = 32;
-  vertexIds[3] = 64;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 1;
-  vertexIds[2] = 36;
-  vertexIds[3] = 65;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 1;
-  vertexIds[2] = 32;
-  vertexIds[3] = 66;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 33;
-  vertexIds[2] = 5;
-  vertexIds[3] = 67;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 5;
-  vertexIds[2] = 36;
-  vertexIds[3] = 68;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 33;
-  vertexIds[2] = 32;
-  vertexIds[3] = 69;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 2;
-  vertexIds[2] = 33;
-  vertexIds[3] = 70;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 2;
-  vertexIds[2] = 37;
-  vertexIds[3] = 71;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 2;
-  vertexIds[2] = 33;
-  vertexIds[3] = 72;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 2;
-  vertexIds[1] = 34;
-  vertexIds[2] = 6;
-  vertexIds[3] = 73;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 6;
-  vertexIds[2] = 37;
-  vertexIds[3] = 74;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 2;
-  vertexIds[1] = 34;
-  vertexIds[2] = 33;
-  vertexIds[3] = 75;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 2;
-  vertexIds[1] = 3;
-  vertexIds[2] = 34;
-  vertexIds[3] = 76;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 3;
-  vertexIds[2] = 38;
-  vertexIds[3] = 77;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 3;
-  vertexIds[2] = 34;
-  vertexIds[3] = 78;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 3;
-  vertexIds[1] = 35;
-  vertexIds[2] = 7;
-  vertexIds[3] = 79;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 35;
-  vertexIds[1] = 7;
-  vertexIds[2] = 38;
-  vertexIds[3] = 80;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 3;
-  vertexIds[1] = 35;
-  vertexIds[2] = 34;
-  vertexIds[3] = 81;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 5;
-  vertexIds[2] = 36;
-  vertexIds[3] = 82;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 5;
-  vertexIds[2] = 40;
-  vertexIds[3] = 83;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 5;
-  vertexIds[2] = 36;
-  vertexIds[3] = 84;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 37;
-  vertexIds[2] = 9;
-  vertexIds[3] = 85;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 9;
-  vertexIds[2] = 40;
-  vertexIds[3] = 86;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 37;
-  vertexIds[2] = 36;
-  vertexIds[3] = 87;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 7;
-  vertexIds[2] = 38;
-  vertexIds[3] = 88;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 7;
-  vertexIds[2] = 42;
-  vertexIds[3] = 89;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 7;
-  vertexIds[2] = 38;
-  vertexIds[3] = 90;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 7;
-  vertexIds[1] = 39;
-  vertexIds[2] = 11;
-  vertexIds[3] = 91;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 39;
-  vertexIds[1] = 11;
-  vertexIds[2] = 42;
-  vertexIds[3] = 92;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 7;
-  vertexIds[1] = 39;
-  vertexIds[2] = 38;
-  vertexIds[3] = 93;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 9;
-  vertexIds[2] = 40;
-  vertexIds[3] = 94;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 9;
-  vertexIds[2] = 44;
-  vertexIds[3] = 95;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 9;
-  vertexIds[2] = 40;
-  vertexIds[3] = 96;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 41;
-  vertexIds[2] = 13;
-  vertexIds[3] = 97;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 13;
-  vertexIds[2] = 44;
-  vertexIds[3] = 98;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 41;
-  vertexIds[2] = 40;
-  vertexIds[3] = 99;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 10;
-  vertexIds[2] = 41;
-  vertexIds[3] = 100;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 10;
-  vertexIds[2] = 45;
-  vertexIds[3] = 101;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 10;
-  vertexIds[2] = 41;
-  vertexIds[3] = 102;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 42;
-  vertexIds[2] = 14;
-  vertexIds[3] = 103;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 14;
-  vertexIds[2] = 45;
-  vertexIds[3] = 104;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 42;
-  vertexIds[2] = 41;
-  vertexIds[3] = 105;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 11;
-  vertexIds[2] = 42;
-  vertexIds[3] = 106;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 11;
-  vertexIds[2] = 46;
-  vertexIds[3] = 107;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 11;
-  vertexIds[2] = 42;
-  vertexIds[3] = 108;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 11;
-  vertexIds[1] = 43;
-  vertexIds[2] = 15;
-  vertexIds[3] = 109;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 43;
-  vertexIds[1] = 15;
-  vertexIds[2] = 46;
-  vertexIds[3] = 110;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 11;
-  vertexIds[1] = 43;
-  vertexIds[2] = 42;
-  vertexIds[3] = 111;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 13;
-  vertexIds[2] = 44;
-  vertexIds[3] = 112;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 13;
-  vertexIds[2] = 48;
-  vertexIds[3] = 113;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 13;
-  vertexIds[2] = 44;
-  vertexIds[3] = 114;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 45;
-  vertexIds[2] = 17;
-  vertexIds[3] = 115;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 17;
-  vertexIds[2] = 48;
-  vertexIds[3] = 116;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 45;
-  vertexIds[2] = 44;
-  vertexIds[3] = 117;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 15;
-  vertexIds[2] = 46;
-  vertexIds[3] = 118;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 15;
-  vertexIds[2] = 50;
-  vertexIds[3] = 119;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 15;
-  vertexIds[2] = 46;
-  vertexIds[3] = 120;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 15;
-  vertexIds[1] = 47;
-  vertexIds[2] = 19;
-  vertexIds[3] = 121;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 47;
-  vertexIds[1] = 19;
-  vertexIds[2] = 50;
-  vertexIds[3] = 122;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 15;
-  vertexIds[1] = 47;
-  vertexIds[2] = 46;
-  vertexIds[3] = 123;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 17;
-  vertexIds[2] = 48;
-  vertexIds[3] = 124;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 17;
-  vertexIds[2] = 52;
-  vertexIds[3] = 125;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 17;
-  vertexIds[2] = 48;
-  vertexIds[3] = 126;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 49;
-  vertexIds[2] = 21;
-  vertexIds[3] = 127;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 21;
-  vertexIds[2] = 52;
-  vertexIds[3] = 128;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 49;
-  vertexIds[2] = 48;
-  vertexIds[3] = 129;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 18;
-  vertexIds[2] = 49;
-  vertexIds[3] = 130;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 18;
-  vertexIds[2] = 53;
-  vertexIds[3] = 131;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 18;
-  vertexIds[2] = 49;
-  vertexIds[3] = 132;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 50;
-  vertexIds[2] = 22;
-  vertexIds[3] = 133;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 22;
-  vertexIds[2] = 53;
-  vertexIds[3] = 134;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 50;
-  vertexIds[2] = 49;
-  vertexIds[3] = 135;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 19;
-  vertexIds[2] = 50;
-  vertexIds[3] = 136;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 19;
-  vertexIds[2] = 54;
-  vertexIds[3] = 137;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 19;
-  vertexIds[2] = 50;
-  vertexIds[3] = 138;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 19;
-  vertexIds[1] = 51;
-  vertexIds[2] = 23;
-  vertexIds[3] = 139;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 51;
-  vertexIds[1] = 23;
-  vertexIds[2] = 54;
-  vertexIds[3] = 140;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 19;
-  vertexIds[1] = 51;
-  vertexIds[2] = 50;
-  vertexIds[3] = 141;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 21;
-  vertexIds[2] = 52;
-  vertexIds[3] = 142;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 21;
-  vertexIds[2] = 56;
-  vertexIds[3] = 143;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 21;
-  vertexIds[2] = 52;
-  vertexIds[3] = 144;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 53;
-  vertexIds[2] = 25;
-  vertexIds[3] = 145;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 25;
-  vertexIds[2] = 56;
-  vertexIds[3] = 146;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 53;
-  vertexIds[2] = 52;
-  vertexIds[3] = 147;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 23;
-  vertexIds[2] = 54;
-  vertexIds[3] = 148;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 23;
-  vertexIds[2] = 58;
-  vertexIds[3] = 149;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 23;
-  vertexIds[2] = 54;
-  vertexIds[3] = 150;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 23;
-  vertexIds[1] = 55;
-  vertexIds[2] = 27;
-  vertexIds[3] = 151;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 55;
-  vertexIds[1] = 27;
-  vertexIds[2] = 58;
-  vertexIds[3] = 152;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 23;
-  vertexIds[1] = 55;
-  vertexIds[2] = 54;
-  vertexIds[3] = 153;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 25;
-  vertexIds[2] = 56;
-  vertexIds[3] = 154;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 25;
-  vertexIds[2] = 60;
-  vertexIds[3] = 155;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 25;
-  vertexIds[2] = 56;
-  vertexIds[3] = 156;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 57;
-  vertexIds[2] = 29;
-  vertexIds[3] = 157;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 29;
-  vertexIds[2] = 60;
-  vertexIds[3] = 158;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 57;
-  vertexIds[2] = 56;
-  vertexIds[3] = 159;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 26;
-  vertexIds[2] = 57;
-  vertexIds[3] = 160;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 26;
-  vertexIds[2] = 61;
-  vertexIds[3] = 161;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 26;
-  vertexIds[2] = 57;
-  vertexIds[3] = 162;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 58;
-  vertexIds[2] = 30;
-  vertexIds[3] = 163;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 30;
-  vertexIds[2] = 61;
-  vertexIds[3] = 164;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 58;
-  vertexIds[2] = 57;
-  vertexIds[3] = 165;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 27;
-  vertexIds[2] = 58;
-  vertexIds[3] = 166;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 27;
-  vertexIds[2] = 62;
-  vertexIds[3] = 167;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 27;
-  vertexIds[2] = 58;
-  vertexIds[3] = 168;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 59;
-  vertexIds[2] = 31;
-  vertexIds[3] = 169;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 59;
-  vertexIds[1] = 31;
-  vertexIds[2] = 62;
-  vertexIds[3] = 170;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 59;
-  vertexIds[2] = 58;
-  vertexIds[3] = 171;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 1;
-  vertexIds[2] = 0;
-  vertexIds[3] = 64;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 32;
-  vertexIds[2] = 0;
-  vertexIds[3] = 64;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 32;
-  vertexIds[1] = 4;
-  vertexIds[2] = 1;
-  vertexIds[3] = 64;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 1;
-  vertexIds[2] = 4;
-  vertexIds[3] = 65;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 36;
-  vertexIds[2] = 4;
-  vertexIds[3] = 65;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 5;
-  vertexIds[2] = 1;
-  vertexIds[3] = 65;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 1;
-  vertexIds[2] = 4;
-  vertexIds[3] = 66;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 32;
-  vertexIds[2] = 4;
-  vertexIds[3] = 66;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 32;
-  vertexIds[1] = 36;
-  vertexIds[2] = 1;
-  vertexIds[3] = 66;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 33;
-  vertexIds[2] = 1;
-  vertexIds[3] = 67;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 5;
-  vertexIds[2] = 1;
-  vertexIds[3] = 67;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 36;
-  vertexIds[2] = 33;
-  vertexIds[3] = 67;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 5;
-  vertexIds[2] = 33;
-  vertexIds[3] = 68;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 36;
-  vertexIds[2] = 33;
-  vertexIds[3] = 68;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 37;
-  vertexIds[2] = 5;
-  vertexIds[3] = 68;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 33;
-  vertexIds[2] = 1;
-  vertexIds[3] = 69;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 32;
-  vertexIds[2] = 1;
-  vertexIds[3] = 69;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 32;
-  vertexIds[1] = 36;
-  vertexIds[2] = 33;
-  vertexIds[3] = 69;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 2;
-  vertexIds[2] = 1;
-  vertexIds[3] = 70;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 33;
-  vertexIds[2] = 1;
-  vertexIds[3] = 70;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 5;
-  vertexIds[2] = 2;
-  vertexIds[3] = 70;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 2;
-  vertexIds[2] = 5;
-  vertexIds[3] = 71;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 37;
-  vertexIds[2] = 5;
-  vertexIds[3] = 71;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 6;
-  vertexIds[2] = 2;
-  vertexIds[3] = 71;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 2;
-  vertexIds[2] = 5;
-  vertexIds[3] = 72;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 33;
-  vertexIds[2] = 5;
-  vertexIds[3] = 72;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 37;
-  vertexIds[2] = 2;
-  vertexIds[3] = 72;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 34;
-  vertexIds[2] = 2;
-  vertexIds[3] = 73;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 6;
-  vertexIds[2] = 2;
-  vertexIds[3] = 73;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 37;
-  vertexIds[2] = 34;
-  vertexIds[3] = 73;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 6;
-  vertexIds[2] = 34;
-  vertexIds[3] = 74;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 37;
-  vertexIds[2] = 34;
-  vertexIds[3] = 74;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 38;
-  vertexIds[2] = 6;
-  vertexIds[3] = 74;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 34;
-  vertexIds[2] = 2;
-  vertexIds[3] = 75;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 33;
-  vertexIds[2] = 2;
-  vertexIds[3] = 75;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 37;
-  vertexIds[2] = 34;
-  vertexIds[3] = 75;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 3;
-  vertexIds[2] = 2;
-  vertexIds[3] = 76;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 34;
-  vertexIds[2] = 2;
-  vertexIds[3] = 76;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 6;
-  vertexIds[2] = 3;
-  vertexIds[3] = 76;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 7;
-  vertexIds[1] = 3;
-  vertexIds[2] = 6;
-  vertexIds[3] = 77;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 7;
-  vertexIds[1] = 38;
-  vertexIds[2] = 6;
-  vertexIds[3] = 77;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 7;
-  vertexIds[2] = 3;
-  vertexIds[3] = 77;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 3;
-  vertexIds[2] = 6;
-  vertexIds[3] = 78;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 34;
-  vertexIds[2] = 6;
-  vertexIds[3] = 78;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 38;
-  vertexIds[2] = 3;
-  vertexIds[3] = 78;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 35;
-  vertexIds[2] = 3;
-  vertexIds[3] = 79;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 7;
-  vertexIds[2] = 3;
-  vertexIds[3] = 79;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 7;
-  vertexIds[1] = 38;
-  vertexIds[2] = 35;
-  vertexIds[3] = 79;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 39;
-  vertexIds[1] = 7;
-  vertexIds[2] = 35;
-  vertexIds[3] = 80;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 39;
-  vertexIds[1] = 38;
-  vertexIds[2] = 35;
-  vertexIds[3] = 80;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 39;
-  vertexIds[2] = 7;
-  vertexIds[3] = 80;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 35;
-  vertexIds[2] = 3;
-  vertexIds[3] = 81;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 34;
-  vertexIds[2] = 3;
-  vertexIds[3] = 81;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 38;
-  vertexIds[2] = 35;
-  vertexIds[3] = 81;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 5;
-  vertexIds[2] = 4;
-  vertexIds[3] = 82;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 36;
-  vertexIds[2] = 4;
-  vertexIds[3] = 82;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 8;
-  vertexIds[2] = 5;
-  vertexIds[3] = 82;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 5;
-  vertexIds[2] = 8;
-  vertexIds[3] = 83;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 40;
-  vertexIds[2] = 8;
-  vertexIds[3] = 83;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 9;
-  vertexIds[2] = 5;
-  vertexIds[3] = 83;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 5;
-  vertexIds[2] = 8;
-  vertexIds[3] = 84;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 36;
-  vertexIds[2] = 8;
-  vertexIds[3] = 84;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 40;
-  vertexIds[2] = 5;
-  vertexIds[3] = 84;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 37;
-  vertexIds[2] = 5;
-  vertexIds[3] = 85;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 9;
-  vertexIds[2] = 5;
-  vertexIds[3] = 85;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 40;
-  vertexIds[2] = 37;
-  vertexIds[3] = 85;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 9;
-  vertexIds[2] = 37;
-  vertexIds[3] = 86;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 40;
-  vertexIds[2] = 37;
-  vertexIds[3] = 86;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 41;
-  vertexIds[2] = 9;
-  vertexIds[3] = 86;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 37;
-  vertexIds[2] = 5;
-  vertexIds[3] = 87;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 36;
-  vertexIds[2] = 5;
-  vertexIds[3] = 87;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 40;
-  vertexIds[2] = 37;
-  vertexIds[3] = 87;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 7;
-  vertexIds[2] = 6;
-  vertexIds[3] = 88;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 38;
-  vertexIds[2] = 6;
-  vertexIds[3] = 88;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 10;
-  vertexIds[2] = 7;
-  vertexIds[3] = 88;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 11;
-  vertexIds[1] = 7;
-  vertexIds[2] = 10;
-  vertexIds[3] = 89;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 11;
-  vertexIds[1] = 42;
-  vertexIds[2] = 10;
-  vertexIds[3] = 89;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 11;
-  vertexIds[2] = 7;
-  vertexIds[3] = 89;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 7;
-  vertexIds[2] = 10;
-  vertexIds[3] = 90;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 38;
-  vertexIds[2] = 10;
-  vertexIds[3] = 90;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 42;
-  vertexIds[2] = 7;
-  vertexIds[3] = 90;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 39;
-  vertexIds[2] = 7;
-  vertexIds[3] = 91;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 11;
-  vertexIds[2] = 7;
-  vertexIds[3] = 91;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 11;
-  vertexIds[1] = 42;
-  vertexIds[2] = 39;
-  vertexIds[3] = 91;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 43;
-  vertexIds[1] = 11;
-  vertexIds[2] = 39;
-  vertexIds[3] = 92;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 43;
-  vertexIds[1] = 42;
-  vertexIds[2] = 39;
-  vertexIds[3] = 92;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 43;
-  vertexIds[2] = 11;
-  vertexIds[3] = 92;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 39;
-  vertexIds[2] = 7;
-  vertexIds[3] = 93;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 38;
-  vertexIds[2] = 7;
-  vertexIds[3] = 93;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 42;
-  vertexIds[2] = 39;
-  vertexIds[3] = 93;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 9;
-  vertexIds[2] = 8;
-  vertexIds[3] = 94;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 40;
-  vertexIds[2] = 8;
-  vertexIds[3] = 94;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 12;
-  vertexIds[2] = 9;
-  vertexIds[3] = 94;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 9;
-  vertexIds[2] = 12;
-  vertexIds[3] = 95;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 44;
-  vertexIds[2] = 12;
-  vertexIds[3] = 95;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 13;
-  vertexIds[2] = 9;
-  vertexIds[3] = 95;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 9;
-  vertexIds[2] = 12;
-  vertexIds[3] = 96;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 40;
-  vertexIds[2] = 12;
-  vertexIds[3] = 96;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 44;
-  vertexIds[2] = 9;
-  vertexIds[3] = 96;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 41;
-  vertexIds[2] = 9;
-  vertexIds[3] = 97;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 13;
-  vertexIds[2] = 9;
-  vertexIds[3] = 97;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 44;
-  vertexIds[2] = 41;
-  vertexIds[3] = 97;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 13;
-  vertexIds[2] = 41;
-  vertexIds[3] = 98;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 44;
-  vertexIds[2] = 41;
-  vertexIds[3] = 98;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 45;
-  vertexIds[2] = 13;
-  vertexIds[3] = 98;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 41;
-  vertexIds[2] = 9;
-  vertexIds[3] = 99;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 40;
-  vertexIds[2] = 9;
-  vertexIds[3] = 99;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 44;
-  vertexIds[2] = 41;
-  vertexIds[3] = 99;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 10;
-  vertexIds[2] = 9;
-  vertexIds[3] = 100;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 41;
-  vertexIds[2] = 9;
-  vertexIds[3] = 100;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 13;
-  vertexIds[2] = 10;
-  vertexIds[3] = 100;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 10;
-  vertexIds[2] = 13;
-  vertexIds[3] = 101;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 45;
-  vertexIds[2] = 13;
-  vertexIds[3] = 101;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 14;
-  vertexIds[2] = 10;
-  vertexIds[3] = 101;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 10;
-  vertexIds[2] = 13;
-  vertexIds[3] = 102;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 41;
-  vertexIds[2] = 13;
-  vertexIds[3] = 102;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 45;
-  vertexIds[2] = 10;
-  vertexIds[3] = 102;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 42;
-  vertexIds[2] = 10;
-  vertexIds[3] = 103;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 14;
-  vertexIds[2] = 10;
-  vertexIds[3] = 103;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 45;
-  vertexIds[2] = 42;
-  vertexIds[3] = 103;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 14;
-  vertexIds[2] = 42;
-  vertexIds[3] = 104;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 45;
-  vertexIds[2] = 42;
-  vertexIds[3] = 104;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 46;
-  vertexIds[2] = 14;
-  vertexIds[3] = 104;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 42;
-  vertexIds[2] = 10;
-  vertexIds[3] = 105;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 41;
-  vertexIds[2] = 10;
-  vertexIds[3] = 105;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 45;
-  vertexIds[2] = 42;
-  vertexIds[3] = 105;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 11;
-  vertexIds[2] = 10;
-  vertexIds[3] = 106;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 42;
-  vertexIds[2] = 10;
-  vertexIds[3] = 106;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 14;
-  vertexIds[2] = 11;
-  vertexIds[3] = 106;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 15;
-  vertexIds[1] = 11;
-  vertexIds[2] = 14;
-  vertexIds[3] = 107;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 15;
-  vertexIds[1] = 46;
-  vertexIds[2] = 14;
-  vertexIds[3] = 107;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 15;
-  vertexIds[2] = 11;
-  vertexIds[3] = 107;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 11;
-  vertexIds[2] = 14;
-  vertexIds[3] = 108;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 42;
-  vertexIds[2] = 14;
-  vertexIds[3] = 108;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 46;
-  vertexIds[2] = 11;
-  vertexIds[3] = 108;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 43;
-  vertexIds[2] = 11;
-  vertexIds[3] = 109;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 15;
-  vertexIds[2] = 11;
-  vertexIds[3] = 109;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 15;
-  vertexIds[1] = 46;
-  vertexIds[2] = 43;
-  vertexIds[3] = 109;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 47;
-  vertexIds[1] = 15;
-  vertexIds[2] = 43;
-  vertexIds[3] = 110;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 47;
-  vertexIds[1] = 46;
-  vertexIds[2] = 43;
-  vertexIds[3] = 110;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 47;
-  vertexIds[2] = 15;
-  vertexIds[3] = 110;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 43;
-  vertexIds[2] = 11;
-  vertexIds[3] = 111;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 42;
-  vertexIds[2] = 11;
-  vertexIds[3] = 111;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 46;
-  vertexIds[2] = 43;
-  vertexIds[3] = 111;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 13;
-  vertexIds[2] = 12;
-  vertexIds[3] = 112;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 44;
-  vertexIds[2] = 12;
-  vertexIds[3] = 112;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 16;
-  vertexIds[2] = 13;
-  vertexIds[3] = 112;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 13;
-  vertexIds[2] = 16;
-  vertexIds[3] = 113;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 48;
-  vertexIds[2] = 16;
-  vertexIds[3] = 113;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 17;
-  vertexIds[2] = 13;
-  vertexIds[3] = 113;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 13;
-  vertexIds[2] = 16;
-  vertexIds[3] = 114;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 44;
-  vertexIds[2] = 16;
-  vertexIds[3] = 114;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 48;
-  vertexIds[2] = 13;
-  vertexIds[3] = 114;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 45;
-  vertexIds[2] = 13;
-  vertexIds[3] = 115;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 17;
-  vertexIds[2] = 13;
-  vertexIds[3] = 115;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 48;
-  vertexIds[2] = 45;
-  vertexIds[3] = 115;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 17;
-  vertexIds[2] = 45;
-  vertexIds[3] = 116;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 48;
-  vertexIds[2] = 45;
-  vertexIds[3] = 116;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 49;
-  vertexIds[2] = 17;
-  vertexIds[3] = 116;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 45;
-  vertexIds[2] = 13;
-  vertexIds[3] = 117;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 44;
-  vertexIds[2] = 13;
-  vertexIds[3] = 117;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 48;
-  vertexIds[2] = 45;
-  vertexIds[3] = 117;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 15;
-  vertexIds[2] = 14;
-  vertexIds[3] = 118;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 46;
-  vertexIds[2] = 14;
-  vertexIds[3] = 118;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 18;
-  vertexIds[2] = 15;
-  vertexIds[3] = 118;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 19;
-  vertexIds[1] = 15;
-  vertexIds[2] = 18;
-  vertexIds[3] = 119;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 19;
-  vertexIds[1] = 50;
-  vertexIds[2] = 18;
-  vertexIds[3] = 119;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 19;
-  vertexIds[2] = 15;
-  vertexIds[3] = 119;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 15;
-  vertexIds[2] = 18;
-  vertexIds[3] = 120;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 46;
-  vertexIds[2] = 18;
-  vertexIds[3] = 120;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 50;
-  vertexIds[2] = 15;
-  vertexIds[3] = 120;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 47;
-  vertexIds[2] = 15;
-  vertexIds[3] = 121;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 19;
-  vertexIds[2] = 15;
-  vertexIds[3] = 121;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 19;
-  vertexIds[1] = 50;
-  vertexIds[2] = 47;
-  vertexIds[3] = 121;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 51;
-  vertexIds[1] = 19;
-  vertexIds[2] = 47;
-  vertexIds[3] = 122;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 51;
-  vertexIds[1] = 50;
-  vertexIds[2] = 47;
-  vertexIds[3] = 122;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 51;
-  vertexIds[2] = 19;
-  vertexIds[3] = 122;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 47;
-  vertexIds[2] = 15;
-  vertexIds[3] = 123;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 46;
-  vertexIds[2] = 15;
-  vertexIds[3] = 123;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 50;
-  vertexIds[2] = 47;
-  vertexIds[3] = 123;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 17;
-  vertexIds[2] = 16;
-  vertexIds[3] = 124;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 48;
-  vertexIds[2] = 16;
-  vertexIds[3] = 124;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 20;
-  vertexIds[2] = 17;
-  vertexIds[3] = 124;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 17;
-  vertexIds[2] = 20;
-  vertexIds[3] = 125;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 52;
-  vertexIds[2] = 20;
-  vertexIds[3] = 125;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 21;
-  vertexIds[2] = 17;
-  vertexIds[3] = 125;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 17;
-  vertexIds[2] = 20;
-  vertexIds[3] = 126;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 48;
-  vertexIds[2] = 20;
-  vertexIds[3] = 126;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 52;
-  vertexIds[2] = 17;
-  vertexIds[3] = 126;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 49;
-  vertexIds[2] = 17;
-  vertexIds[3] = 127;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 21;
-  vertexIds[2] = 17;
-  vertexIds[3] = 127;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 52;
-  vertexIds[2] = 49;
-  vertexIds[3] = 127;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 21;
-  vertexIds[2] = 49;
-  vertexIds[3] = 128;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 52;
-  vertexIds[2] = 49;
-  vertexIds[3] = 128;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 53;
-  vertexIds[2] = 21;
-  vertexIds[3] = 128;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 49;
-  vertexIds[2] = 17;
-  vertexIds[3] = 129;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 48;
-  vertexIds[2] = 17;
-  vertexIds[3] = 129;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 52;
-  vertexIds[2] = 49;
-  vertexIds[3] = 129;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 18;
-  vertexIds[2] = 17;
-  vertexIds[3] = 130;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 49;
-  vertexIds[2] = 17;
-  vertexIds[3] = 130;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 21;
-  vertexIds[2] = 18;
-  vertexIds[3] = 130;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 18;
-  vertexIds[2] = 21;
-  vertexIds[3] = 131;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 53;
-  vertexIds[2] = 21;
-  vertexIds[3] = 131;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 22;
-  vertexIds[2] = 18;
-  vertexIds[3] = 131;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 18;
-  vertexIds[2] = 21;
-  vertexIds[3] = 132;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 49;
-  vertexIds[2] = 21;
-  vertexIds[3] = 132;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 53;
-  vertexIds[2] = 18;
-  vertexIds[3] = 132;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 50;
-  vertexIds[2] = 18;
-  vertexIds[3] = 133;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 22;
-  vertexIds[2] = 18;
-  vertexIds[3] = 133;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 53;
-  vertexIds[2] = 50;
-  vertexIds[3] = 133;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 22;
-  vertexIds[2] = 50;
-  vertexIds[3] = 134;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 53;
-  vertexIds[2] = 50;
-  vertexIds[3] = 134;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 54;
-  vertexIds[2] = 22;
-  vertexIds[3] = 134;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 50;
-  vertexIds[2] = 18;
-  vertexIds[3] = 135;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 49;
-  vertexIds[2] = 18;
-  vertexIds[3] = 135;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 53;
-  vertexIds[2] = 50;
-  vertexIds[3] = 135;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 19;
-  vertexIds[2] = 18;
-  vertexIds[3] = 136;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 50;
-  vertexIds[2] = 18;
-  vertexIds[3] = 136;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 22;
-  vertexIds[2] = 19;
-  vertexIds[3] = 136;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 23;
-  vertexIds[1] = 19;
-  vertexIds[2] = 22;
-  vertexIds[3] = 137;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 23;
-  vertexIds[1] = 54;
-  vertexIds[2] = 22;
-  vertexIds[3] = 137;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 23;
-  vertexIds[2] = 19;
-  vertexIds[3] = 137;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 19;
-  vertexIds[2] = 22;
-  vertexIds[3] = 138;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 50;
-  vertexIds[2] = 22;
-  vertexIds[3] = 138;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 54;
-  vertexIds[2] = 19;
-  vertexIds[3] = 138;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 51;
-  vertexIds[2] = 19;
-  vertexIds[3] = 139;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 23;
-  vertexIds[2] = 19;
-  vertexIds[3] = 139;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 23;
-  vertexIds[1] = 54;
-  vertexIds[2] = 51;
-  vertexIds[3] = 139;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 55;
-  vertexIds[1] = 23;
-  vertexIds[2] = 51;
-  vertexIds[3] = 140;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 55;
-  vertexIds[1] = 54;
-  vertexIds[2] = 51;
-  vertexIds[3] = 140;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 55;
-  vertexIds[2] = 23;
-  vertexIds[3] = 140;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 51;
-  vertexIds[2] = 19;
-  vertexIds[3] = 141;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 50;
-  vertexIds[2] = 19;
-  vertexIds[3] = 141;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 54;
-  vertexIds[2] = 51;
-  vertexIds[3] = 141;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 21;
-  vertexIds[2] = 20;
-  vertexIds[3] = 142;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 52;
-  vertexIds[2] = 20;
-  vertexIds[3] = 142;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 24;
-  vertexIds[2] = 21;
-  vertexIds[3] = 142;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 21;
-  vertexIds[2] = 24;
-  vertexIds[3] = 143;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 56;
-  vertexIds[2] = 24;
-  vertexIds[3] = 143;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 25;
-  vertexIds[2] = 21;
-  vertexIds[3] = 143;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 21;
-  vertexIds[2] = 24;
-  vertexIds[3] = 144;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 52;
-  vertexIds[2] = 24;
-  vertexIds[3] = 144;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 56;
-  vertexIds[2] = 21;
-  vertexIds[3] = 144;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 53;
-  vertexIds[2] = 21;
-  vertexIds[3] = 145;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 25;
-  vertexIds[2] = 21;
-  vertexIds[3] = 145;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 56;
-  vertexIds[2] = 53;
-  vertexIds[3] = 145;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 25;
-  vertexIds[2] = 53;
-  vertexIds[3] = 146;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 56;
-  vertexIds[2] = 53;
-  vertexIds[3] = 146;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 57;
-  vertexIds[2] = 25;
-  vertexIds[3] = 146;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 53;
-  vertexIds[2] = 21;
-  vertexIds[3] = 147;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 52;
-  vertexIds[2] = 21;
-  vertexIds[3] = 147;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 56;
-  vertexIds[2] = 53;
-  vertexIds[3] = 147;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 23;
-  vertexIds[2] = 22;
-  vertexIds[3] = 148;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 54;
-  vertexIds[2] = 22;
-  vertexIds[3] = 148;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 26;
-  vertexIds[2] = 23;
-  vertexIds[3] = 148;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 23;
-  vertexIds[2] = 26;
-  vertexIds[3] = 149;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 58;
-  vertexIds[2] = 26;
-  vertexIds[3] = 149;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 27;
-  vertexIds[2] = 23;
-  vertexIds[3] = 149;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 23;
-  vertexIds[2] = 26;
-  vertexIds[3] = 150;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 54;
-  vertexIds[2] = 26;
-  vertexIds[3] = 150;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 58;
-  vertexIds[2] = 23;
-  vertexIds[3] = 150;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 55;
-  vertexIds[2] = 23;
-  vertexIds[3] = 151;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 27;
-  vertexIds[2] = 23;
-  vertexIds[3] = 151;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 58;
-  vertexIds[2] = 55;
-  vertexIds[3] = 151;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 59;
-  vertexIds[1] = 27;
-  vertexIds[2] = 55;
-  vertexIds[3] = 152;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 59;
-  vertexIds[1] = 58;
-  vertexIds[2] = 55;
-  vertexIds[3] = 152;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 59;
-  vertexIds[2] = 27;
-  vertexIds[3] = 152;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 55;
-  vertexIds[2] = 23;
-  vertexIds[3] = 153;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 54;
-  vertexIds[2] = 23;
-  vertexIds[3] = 153;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 58;
-  vertexIds[2] = 55;
-  vertexIds[3] = 153;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 25;
-  vertexIds[2] = 24;
-  vertexIds[3] = 154;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 56;
-  vertexIds[2] = 24;
-  vertexIds[3] = 154;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 28;
-  vertexIds[2] = 25;
-  vertexIds[3] = 154;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 25;
-  vertexIds[2] = 28;
-  vertexIds[3] = 155;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 60;
-  vertexIds[2] = 28;
-  vertexIds[3] = 155;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 29;
-  vertexIds[2] = 25;
-  vertexIds[3] = 155;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 25;
-  vertexIds[2] = 28;
-  vertexIds[3] = 156;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 56;
-  vertexIds[2] = 28;
-  vertexIds[3] = 156;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 60;
-  vertexIds[2] = 25;
-  vertexIds[3] = 156;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 57;
-  vertexIds[2] = 25;
-  vertexIds[3] = 157;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 29;
-  vertexIds[2] = 25;
-  vertexIds[3] = 157;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 60;
-  vertexIds[2] = 57;
-  vertexIds[3] = 157;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 29;
-  vertexIds[2] = 57;
-  vertexIds[3] = 158;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 60;
-  vertexIds[2] = 57;
-  vertexIds[3] = 158;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 61;
-  vertexIds[2] = 29;
-  vertexIds[3] = 158;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 57;
-  vertexIds[2] = 25;
-  vertexIds[3] = 159;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 56;
-  vertexIds[2] = 25;
-  vertexIds[3] = 159;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 60;
-  vertexIds[2] = 57;
-  vertexIds[3] = 159;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 26;
-  vertexIds[2] = 25;
-  vertexIds[3] = 160;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 57;
-  vertexIds[2] = 25;
-  vertexIds[3] = 160;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 29;
-  vertexIds[2] = 26;
-  vertexIds[3] = 160;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 26;
-  vertexIds[2] = 29;
-  vertexIds[3] = 161;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 61;
-  vertexIds[2] = 29;
-  vertexIds[3] = 161;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 30;
-  vertexIds[2] = 26;
-  vertexIds[3] = 161;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 26;
-  vertexIds[2] = 29;
-  vertexIds[3] = 162;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 57;
-  vertexIds[2] = 29;
-  vertexIds[3] = 162;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 61;
-  vertexIds[2] = 26;
-  vertexIds[3] = 162;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 58;
-  vertexIds[2] = 26;
-  vertexIds[3] = 163;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 30;
-  vertexIds[2] = 26;
-  vertexIds[3] = 163;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 61;
-  vertexIds[2] = 58;
-  vertexIds[3] = 163;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 30;
-  vertexIds[2] = 58;
-  vertexIds[3] = 164;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 61;
-  vertexIds[2] = 58;
-  vertexIds[3] = 164;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 62;
-  vertexIds[2] = 30;
-  vertexIds[3] = 164;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 58;
-  vertexIds[2] = 26;
-  vertexIds[3] = 165;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 57;
-  vertexIds[2] = 26;
-  vertexIds[3] = 165;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 61;
-  vertexIds[2] = 58;
-  vertexIds[3] = 165;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 27;
-  vertexIds[2] = 26;
-  vertexIds[3] = 166;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 58;
-  vertexIds[2] = 26;
-  vertexIds[3] = 166;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 30;
-  vertexIds[2] = 27;
-  vertexIds[3] = 166;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 31;
-  vertexIds[1] = 27;
-  vertexIds[2] = 30;
-  vertexIds[3] = 167;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 31;
-  vertexIds[1] = 62;
-  vertexIds[2] = 30;
-  vertexIds[3] = 167;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 31;
-  vertexIds[2] = 27;
-  vertexIds[3] = 167;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 27;
-  vertexIds[2] = 30;
-  vertexIds[3] = 168;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 58;
-  vertexIds[2] = 30;
-  vertexIds[3] = 168;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 62;
-  vertexIds[2] = 27;
-  vertexIds[3] = 168;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 59;
-  vertexIds[2] = 27;
-  vertexIds[3] = 169;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 31;
-  vertexIds[2] = 27;
-  vertexIds[3] = 169;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 31;
-  vertexIds[1] = 62;
-  vertexIds[2] = 59;
-  vertexIds[3] = 169;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 63;
-  vertexIds[1] = 31;
-  vertexIds[2] = 59;
-  vertexIds[3] = 170;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 63;
-  vertexIds[1] = 62;
-  vertexIds[2] = 59;
-  vertexIds[3] = 170;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 63;
-  vertexIds[2] = 31;
-  vertexIds[3] = 170;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 59;
-  vertexIds[2] = 27;
-  vertexIds[3] = 171;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 58;
-  vertexIds[2] = 27;
-  vertexIds[3] = 171;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 62;
-  vertexIds[2] = 59;
-  vertexIds[3] = 171;
-  vMesh->InsertNextCell(VTK_TETRA, 4, vertexIds);
+  const vtkIdType mesh_tets[][4] = { { 0, 1, 32, 64 }, { 4, 1, 36, 65 }, { 4, 1, 32, 66 },
+    { 1, 33, 5, 67 }, { 33, 5, 36, 68 }, { 1, 33, 32, 69 }, { 1, 2, 33, 70 }, { 5, 2, 37, 71 },
+    { 5, 2, 33, 72 }, { 2, 34, 6, 73 }, { 34, 6, 37, 74 }, { 2, 34, 33, 75 }, { 2, 3, 34, 76 },
+    { 6, 3, 38, 77 }, { 6, 3, 34, 78 }, { 3, 35, 7, 79 }, { 35, 7, 38, 80 }, { 3, 35, 34, 81 },
+    { 4, 5, 36, 82 }, { 8, 5, 40, 83 }, { 8, 5, 36, 84 }, { 5, 37, 9, 85 }, { 37, 9, 40, 86 },
+    { 5, 37, 36, 87 }, { 6, 7, 38, 88 }, { 10, 7, 42, 89 }, { 10, 7, 38, 90 }, { 7, 39, 11, 91 },
+    { 39, 11, 42, 92 }, { 7, 39, 38, 93 }, { 8, 9, 40, 94 }, { 12, 9, 44, 95 }, { 12, 9, 40, 96 },
+    { 9, 41, 13, 97 }, { 41, 13, 44, 98 }, { 9, 41, 40, 99 }, { 9, 10, 41, 100 },
+    { 13, 10, 45, 101 }, { 13, 10, 41, 102 }, { 10, 42, 14, 103 }, { 42, 14, 45, 104 },
+    { 10, 42, 41, 105 }, { 10, 11, 42, 106 }, { 14, 11, 46, 107 }, { 14, 11, 42, 108 },
+    { 11, 43, 15, 109 }, { 43, 15, 46, 110 }, { 11, 43, 42, 111 }, { 12, 13, 44, 112 },
+    { 16, 13, 48, 113 }, { 16, 13, 44, 114 }, { 13, 45, 17, 115 }, { 45, 17, 48, 116 },
+    { 13, 45, 44, 117 }, { 14, 15, 46, 118 }, { 18, 15, 50, 119 }, { 18, 15, 46, 120 },
+    { 15, 47, 19, 121 }, { 47, 19, 50, 122 }, { 15, 47, 46, 123 }, { 16, 17, 48, 124 },
+    { 20, 17, 52, 125 }, { 20, 17, 48, 126 }, { 17, 49, 21, 127 }, { 49, 21, 52, 128 },
+    { 17, 49, 48, 129 }, { 17, 18, 49, 130 }, { 21, 18, 53, 131 }, { 21, 18, 49, 132 },
+    { 18, 50, 22, 133 }, { 50, 22, 53, 134 }, { 18, 50, 49, 135 }, { 18, 19, 50, 136 },
+    { 22, 19, 54, 137 }, { 22, 19, 50, 138 }, { 19, 51, 23, 139 }, { 51, 23, 54, 140 },
+    { 19, 51, 50, 141 }, { 20, 21, 52, 142 }, { 24, 21, 56, 143 }, { 24, 21, 52, 144 },
+    { 21, 53, 25, 145 }, { 53, 25, 56, 146 }, { 21, 53, 52, 147 }, { 22, 23, 54, 148 },
+    { 26, 23, 58, 149 }, { 26, 23, 54, 150 }, { 23, 55, 27, 151 }, { 55, 27, 58, 152 },
+    { 23, 55, 54, 153 }, { 24, 25, 56, 154 }, { 28, 25, 60, 155 }, { 28, 25, 56, 156 },
+    { 25, 57, 29, 157 }, { 57, 29, 60, 158 }, { 25, 57, 56, 159 }, { 25, 26, 57, 160 },
+    { 29, 26, 61, 161 }, { 29, 26, 57, 162 }, { 26, 58, 30, 163 }, { 58, 30, 61, 164 },
+    { 26, 58, 57, 165 }, { 26, 27, 58, 166 }, { 30, 27, 62, 167 }, { 30, 27, 58, 168 },
+    { 27, 59, 31, 169 }, { 59, 31, 62, 170 }, { 27, 59, 58, 171 }, { 4, 1, 0, 64 },
+    { 4, 32, 0, 64 }, { 32, 4, 1, 64 }, { 5, 1, 4, 65 }, { 5, 36, 4, 65 }, { 36, 5, 1, 65 },
+    { 36, 1, 4, 66 }, { 36, 32, 4, 66 }, { 32, 36, 1, 66 }, { 36, 33, 1, 67 }, { 36, 5, 1, 67 },
+    { 5, 36, 33, 67 }, { 37, 5, 33, 68 }, { 37, 36, 33, 68 }, { 36, 37, 5, 68 }, { 36, 33, 1, 69 },
+    { 36, 32, 1, 69 }, { 32, 36, 33, 69 }, { 5, 2, 1, 70 }, { 5, 33, 1, 70 }, { 33, 5, 2, 70 },
+    { 6, 2, 5, 71 }, { 6, 37, 5, 71 }, { 37, 6, 2, 71 }, { 37, 2, 5, 72 }, { 37, 33, 5, 72 },
+    { 33, 37, 2, 72 }, { 37, 34, 2, 73 }, { 37, 6, 2, 73 }, { 6, 37, 34, 73 }, { 38, 6, 34, 74 },
+    { 38, 37, 34, 74 }, { 37, 38, 6, 74 }, { 37, 34, 2, 75 }, { 37, 33, 2, 75 }, { 33, 37, 34, 75 },
+    { 6, 3, 2, 76 }, { 6, 34, 2, 76 }, { 34, 6, 3, 76 }, { 7, 3, 6, 77 }, { 7, 38, 6, 77 },
+    { 38, 7, 3, 77 }, { 38, 3, 6, 78 }, { 38, 34, 6, 78 }, { 34, 38, 3, 78 }, { 38, 35, 3, 79 },
+    { 38, 7, 3, 79 }, { 7, 38, 35, 79 }, { 39, 7, 35, 80 }, { 39, 38, 35, 80 }, { 38, 39, 7, 80 },
+    { 38, 35, 3, 81 }, { 38, 34, 3, 81 }, { 34, 38, 35, 81 }, { 8, 5, 4, 82 }, { 8, 36, 4, 82 },
+    { 36, 8, 5, 82 }, { 9, 5, 8, 83 }, { 9, 40, 8, 83 }, { 40, 9, 5, 83 }, { 40, 5, 8, 84 },
+    { 40, 36, 8, 84 }, { 36, 40, 5, 84 }, { 40, 37, 5, 85 }, { 40, 9, 5, 85 }, { 9, 40, 37, 85 },
+    { 41, 9, 37, 86 }, { 41, 40, 37, 86 }, { 40, 41, 9, 86 }, { 40, 37, 5, 87 }, { 40, 36, 5, 87 },
+    { 36, 40, 37, 87 }, { 10, 7, 6, 88 }, { 10, 38, 6, 88 }, { 38, 10, 7, 88 }, { 11, 7, 10, 89 },
+    { 11, 42, 10, 89 }, { 42, 11, 7, 89 }, { 42, 7, 10, 90 }, { 42, 38, 10, 90 }, { 38, 42, 7, 90 },
+    { 42, 39, 7, 91 }, { 42, 11, 7, 91 }, { 11, 42, 39, 91 }, { 43, 11, 39, 92 },
+    { 43, 42, 39, 92 }, { 42, 43, 11, 92 }, { 42, 39, 7, 93 }, { 42, 38, 7, 93 },
+    { 38, 42, 39, 93 }, { 12, 9, 8, 94 }, { 12, 40, 8, 94 }, { 40, 12, 9, 94 }, { 13, 9, 12, 95 },
+    { 13, 44, 12, 95 }, { 44, 13, 9, 95 }, { 44, 9, 12, 96 }, { 44, 40, 12, 96 }, { 40, 44, 9, 96 },
+    { 44, 41, 9, 97 }, { 44, 13, 9, 97 }, { 13, 44, 41, 97 }, { 45, 13, 41, 98 },
+    { 45, 44, 41, 98 }, { 44, 45, 13, 98 }, { 44, 41, 9, 99 }, { 44, 40, 9, 99 },
+    { 40, 44, 41, 99 }, { 13, 10, 9, 100 }, { 13, 41, 9, 100 }, { 41, 13, 10, 100 },
+    { 14, 10, 13, 101 }, { 14, 45, 13, 101 }, { 45, 14, 10, 101 }, { 45, 10, 13, 102 },
+    { 45, 41, 13, 102 }, { 41, 45, 10, 102 }, { 45, 42, 10, 103 }, { 45, 14, 10, 103 },
+    { 14, 45, 42, 103 }, { 46, 14, 42, 104 }, { 46, 45, 42, 104 }, { 45, 46, 14, 104 },
+    { 45, 42, 10, 105 }, { 45, 41, 10, 105 }, { 41, 45, 42, 105 }, { 14, 11, 10, 106 },
+    { 14, 42, 10, 106 }, { 42, 14, 11, 106 }, { 15, 11, 14, 107 }, { 15, 46, 14, 107 },
+    { 46, 15, 11, 107 }, { 46, 11, 14, 108 }, { 46, 42, 14, 108 }, { 42, 46, 11, 108 },
+    { 46, 43, 11, 109 }, { 46, 15, 11, 109 }, { 15, 46, 43, 109 }, { 47, 15, 43, 110 },
+    { 47, 46, 43, 110 }, { 46, 47, 15, 110 }, { 46, 43, 11, 111 }, { 46, 42, 11, 111 },
+    { 42, 46, 43, 111 }, { 16, 13, 12, 112 }, { 16, 44, 12, 112 }, { 44, 16, 13, 112 },
+    { 17, 13, 16, 113 }, { 17, 48, 16, 113 }, { 48, 17, 13, 113 }, { 48, 13, 16, 114 },
+    { 48, 44, 16, 114 }, { 44, 48, 13, 114 }, { 48, 45, 13, 115 }, { 48, 17, 13, 115 },
+    { 17, 48, 45, 115 }, { 49, 17, 45, 116 }, { 49, 48, 45, 116 }, { 48, 49, 17, 116 },
+    { 48, 45, 13, 117 }, { 48, 44, 13, 117 }, { 44, 48, 45, 117 }, { 18, 15, 14, 118 },
+    { 18, 46, 14, 118 }, { 46, 18, 15, 118 }, { 19, 15, 18, 119 }, { 19, 50, 18, 119 },
+    { 50, 19, 15, 119 }, { 50, 15, 18, 120 }, { 50, 46, 18, 120 }, { 46, 50, 15, 120 },
+    { 50, 47, 15, 121 }, { 50, 19, 15, 121 }, { 19, 50, 47, 121 }, { 51, 19, 47, 122 },
+    { 51, 50, 47, 122 }, { 50, 51, 19, 122 }, { 50, 47, 15, 123 }, { 50, 46, 15, 123 },
+    { 46, 50, 47, 123 }, { 20, 17, 16, 124 }, { 20, 48, 16, 124 }, { 48, 20, 17, 124 },
+    { 21, 17, 20, 125 }, { 21, 52, 20, 125 }, { 52, 21, 17, 125 }, { 52, 17, 20, 126 },
+    { 52, 48, 20, 126 }, { 48, 52, 17, 126 }, { 52, 49, 17, 127 }, { 52, 21, 17, 127 },
+    { 21, 52, 49, 127 }, { 53, 21, 49, 128 }, { 53, 52, 49, 128 }, { 52, 53, 21, 128 },
+    { 52, 49, 17, 129 }, { 52, 48, 17, 129 }, { 48, 52, 49, 129 }, { 21, 18, 17, 130 },
+    { 21, 49, 17, 130 }, { 49, 21, 18, 130 }, { 22, 18, 21, 131 }, { 22, 53, 21, 131 },
+    { 53, 22, 18, 131 }, { 53, 18, 21, 132 }, { 53, 49, 21, 132 }, { 49, 53, 18, 132 },
+    { 53, 50, 18, 133 }, { 53, 22, 18, 133 }, { 22, 53, 50, 133 }, { 54, 22, 50, 134 },
+    { 54, 53, 50, 134 }, { 53, 54, 22, 134 }, { 53, 50, 18, 135 }, { 53, 49, 18, 135 },
+    { 49, 53, 50, 135 }, { 22, 19, 18, 136 }, { 22, 50, 18, 136 }, { 50, 22, 19, 136 },
+    { 23, 19, 22, 137 }, { 23, 54, 22, 137 }, { 54, 23, 19, 137 }, { 54, 19, 22, 138 },
+    { 54, 50, 22, 138 }, { 50, 54, 19, 138 }, { 54, 51, 19, 139 }, { 54, 23, 19, 139 },
+    { 23, 54, 51, 139 }, { 55, 23, 51, 140 }, { 55, 54, 51, 140 }, { 54, 55, 23, 140 },
+    { 54, 51, 19, 141 }, { 54, 50, 19, 141 }, { 50, 54, 51, 141 }, { 24, 21, 20, 142 },
+    { 24, 52, 20, 142 }, { 52, 24, 21, 142 }, { 25, 21, 24, 143 }, { 25, 56, 24, 143 },
+    { 56, 25, 21, 143 }, { 56, 21, 24, 144 }, { 56, 52, 24, 144 }, { 52, 56, 21, 144 },
+    { 56, 53, 21, 145 }, { 56, 25, 21, 145 }, { 25, 56, 53, 145 }, { 57, 25, 53, 146 },
+    { 57, 56, 53, 146 }, { 56, 57, 25, 146 }, { 56, 53, 21, 147 }, { 56, 52, 21, 147 },
+    { 52, 56, 53, 147 }, { 26, 23, 22, 148 }, { 26, 54, 22, 148 }, { 54, 26, 23, 148 },
+    { 27, 23, 26, 149 }, { 27, 58, 26, 149 }, { 58, 27, 23, 149 }, { 58, 23, 26, 150 },
+    { 58, 54, 26, 150 }, { 54, 58, 23, 150 }, { 58, 55, 23, 151 }, { 58, 27, 23, 151 },
+    { 27, 58, 55, 151 }, { 59, 27, 55, 152 }, { 59, 58, 55, 152 }, { 58, 59, 27, 152 },
+    { 58, 55, 23, 153 }, { 58, 54, 23, 153 }, { 54, 58, 55, 153 }, { 28, 25, 24, 154 },
+    { 28, 56, 24, 154 }, { 56, 28, 25, 154 }, { 29, 25, 28, 155 }, { 29, 60, 28, 155 },
+    { 60, 29, 25, 155 }, { 60, 25, 28, 156 }, { 60, 56, 28, 156 }, { 56, 60, 25, 156 },
+    { 60, 57, 25, 157 }, { 60, 29, 25, 157 }, { 29, 60, 57, 157 }, { 61, 29, 57, 158 },
+    { 61, 60, 57, 158 }, { 60, 61, 29, 158 }, { 60, 57, 25, 159 }, { 60, 56, 25, 159 },
+    { 56, 60, 57, 159 }, { 29, 26, 25, 160 }, { 29, 57, 25, 160 }, { 57, 29, 26, 160 },
+    { 30, 26, 29, 161 }, { 30, 61, 29, 161 }, { 61, 30, 26, 161 }, { 61, 26, 29, 162 },
+    { 61, 57, 29, 162 }, { 57, 61, 26, 162 }, { 61, 58, 26, 163 }, { 61, 30, 26, 163 },
+    { 30, 61, 58, 163 }, { 62, 30, 58, 164 }, { 62, 61, 58, 164 }, { 61, 62, 30, 164 },
+    { 61, 58, 26, 165 }, { 61, 57, 26, 165 }, { 57, 61, 58, 165 }, { 30, 27, 26, 166 },
+    { 30, 58, 26, 166 }, { 58, 30, 27, 166 }, { 31, 27, 30, 167 }, { 31, 62, 30, 167 },
+    { 62, 31, 27, 167 }, { 62, 27, 30, 168 }, { 62, 58, 30, 168 }, { 58, 62, 27, 168 },
+    { 62, 59, 27, 169 }, { 62, 31, 27, 169 }, { 31, 62, 59, 169 }, { 63, 31, 59, 170 },
+    { 63, 62, 59, 170 }, { 62, 63, 31, 170 }, { 62, 59, 27, 171 }, { 62, 58, 27, 171 },
+    { 58, 62, 59, 171 } };
 
-  free(vertexIds);
+  for (auto* mesh_tet : mesh_tets)
+  {
+    vMesh->InsertNextCell(VTK_TETRA, 4, mesh_tet);
+  }
+
   return 1;
 }
 
@@ -2405,1845 +243,503 @@ int LoadSurfaceMesh(vtkPolyData* sMesh)
 {
   sMesh->AllocateExact(1024, 1024);
 
-  vtkPoints* points = vtkPoints::New();
-  points->InsertNextPoint(-0.774167, 0.632981, 0);
-  points->InsertNextPoint(-0.141186, 1.40715, 0);
-  points->InsertNextPoint(0.632981, 0.774167, 0);
-  points->InsertNextPoint(0, 0, 0);
-  points->InsertNextPoint(-0.774167, 0.632981, 1);
-  points->InsertNextPoint(-0.141186, 1.40715, 1);
-  points->InsertNextPoint(0.632981, 0.774167, 1);
-  points->InsertNextPoint(0, 0, 1);
-  points->InsertNextPoint(0.491796, 2.18132, 0);
-  points->InsertNextPoint(1.26596, 1.54833, 0);
-  points->InsertNextPoint(0.491796, 2.18132, 1);
-  points->InsertNextPoint(1.26596, 1.54833, 1);
-  points->InsertNextPoint(1.12478, 2.95548, 0);
-  points->InsertNextPoint(1.89894, 2.3225, 0);
-  points->InsertNextPoint(1.12478, 2.95548, 1);
-  points->InsertNextPoint(1.89894, 2.3225, 1);
-  points->InsertNextPoint(-1.54833, 1.26596, 0);
-  points->InsertNextPoint(-0.915353, 2.04013, 0);
-  points->InsertNextPoint(-1.54833, 1.26596, 1);
-  points->InsertNextPoint(-0.915353, 2.04013, 1);
-  points->InsertNextPoint(-0.282372, 2.8143, 0);
-  points->InsertNextPoint(0.35061, 3.58846, 0);
-  points->InsertNextPoint(-0.282372, 2.8143, 1);
-  points->InsertNextPoint(0.35061, 3.58846, 1);
-  points->InsertNextPoint(-2.3225, 1.89894, 0);
-  points->InsertNextPoint(-1.68952, 2.67311, 0);
-  points->InsertNextPoint(-2.3225, 1.89894, 1);
-  points->InsertNextPoint(-1.68952, 2.67311, 1);
-  points->InsertNextPoint(-1.05654, 3.44728, 0);
-  points->InsertNextPoint(-1.05654, 3.44728, 1);
-  points->InsertNextPoint(-0.423557, 4.22145, 0);
-  points->InsertNextPoint(-0.423557, 4.22145, 1);
-  points->InsertNextPoint(-3.09667, 2.53193, 0);
-  points->InsertNextPoint(-2.46369, 3.30609, 0);
-  points->InsertNextPoint(-3.09667, 2.53193, 1);
-  points->InsertNextPoint(-2.46369, 3.30609, 1);
-  points->InsertNextPoint(-1.83071, 4.08026, 0);
-  points->InsertNextPoint(-1.19772, 4.85443, 0);
-  points->InsertNextPoint(-1.83071, 4.08026, 1);
-  points->InsertNextPoint(-1.19772, 4.85443, 1);
-  points->InsertNextPoint(-3.87084, 3.16491, 0);
-  points->InsertNextPoint(-3.23785, 3.93907, 0);
-  points->InsertNextPoint(-3.87084, 3.16491, 1);
-  points->InsertNextPoint(-3.23785, 3.93907, 1);
-  points->InsertNextPoint(-2.60487, 4.71324, 0);
-  points->InsertNextPoint(-2.60487, 4.71324, 1);
-  points->InsertNextPoint(-1.97189, 5.48741, 0);
-  points->InsertNextPoint(-1.97189, 5.48741, 1);
-  points->InsertNextPoint(-4.645, 3.79789, 0);
-  points->InsertNextPoint(-4.01202, 4.57205, 0);
-  points->InsertNextPoint(-4.645, 3.79789, 1);
-  points->InsertNextPoint(-4.01202, 4.57205, 1);
-  points->InsertNextPoint(-3.37904, 5.34622, 0);
-  points->InsertNextPoint(-2.74606, 6.12039, 0);
-  points->InsertNextPoint(-3.37904, 5.34622, 1);
-  points->InsertNextPoint(-2.74606, 6.12039, 1);
-  points->InsertNextPoint(-5.41917, 4.43087, 0);
-  points->InsertNextPoint(-4.78619, 5.20504, 0);
-  points->InsertNextPoint(-5.41917, 4.43087, 1);
-  points->InsertNextPoint(-4.78619, 5.20504, 1);
-  points->InsertNextPoint(-4.15321, 5.9792, 0);
-  points->InsertNextPoint(-4.15321, 5.9792, 1);
-  points->InsertNextPoint(-3.52023, 6.75337, 0);
-  points->InsertNextPoint(-3.52023, 6.75337, 1);
-  points->InsertNextPoint(-0.0941238, 0.938099, 0);
-  points->InsertNextPoint(-0.0470619, 0.469049, 0);
-  points->InsertNextPoint(-0.0941238, 0.938099, 1);
-  points->InsertNextPoint(-0.0470619, 0.469049, 1);
-  points->InsertNextPoint(-0.516111, 0.421988, 0.333333);
-  points->InsertNextPoint(-0.258056, 0.210994, 0.666667);
-  points->InsertNextPoint(0.210994, 0.258056, 0.333333);
-  points->InsertNextPoint(0.421988, 0.516111, 0.666667);
-  points->InsertNextPoint(0.538857, 1.71227, 0);
-  points->InsertNextPoint(0.585919, 1.24322, 0);
-  points->InsertNextPoint(0.538857, 1.71227, 1);
-  points->InsertNextPoint(0.585919, 1.24322, 1);
-  points->InsertNextPoint(0.069808, 1.6652, 0.666667);
-  points->InsertNextPoint(0.280802, 1.92326, 0.333333);
-  points->InsertNextPoint(0.843975, 1.03222, 0.333333);
-  points->InsertNextPoint(1.05497, 1.29028, 0.666667);
-  points->InsertNextPoint(1.17184, 2.48643, 0);
-  points->InsertNextPoint(1.2189, 2.01738, 0);
-  points->InsertNextPoint(1.17184, 2.48643, 1);
-  points->InsertNextPoint(1.2189, 2.01738, 1);
-  points->InsertNextPoint(1.47696, 1.80639, 0.333333);
-  points->InsertNextPoint(1.68795, 2.06445, 0.666667);
-  points->InsertNextPoint(1.38283, 2.74449, 0.666667);
-  points->InsertNextPoint(1.64089, 2.5335, 0.333333);
-  points->InsertNextPoint(-0.868291, 1.57108, 0);
-  points->InsertNextPoint(-0.821229, 1.10203, 0);
-  points->InsertNextPoint(-0.868291, 1.57108, 1);
-  points->InsertNextPoint(-0.821229, 1.10203, 1);
-  points->InsertNextPoint(-1.29028, 1.05497, 0.333333);
-  points->InsertNextPoint(-1.03222, 0.843975, 0.666667);
-  points->InsertNextPoint(-0.657297, 1.82914, 0.666667);
-  points->InsertNextPoint(-0.399241, 1.61814, 0.333333);
-  points->InsertNextPoint(0.397672, 3.11941, 0);
-  points->InsertNextPoint(0.444734, 2.65036, 0);
-  points->InsertNextPoint(0.397672, 3.11941, 1);
-  points->InsertNextPoint(0.444734, 2.65036, 1);
-  points->InsertNextPoint(-0.0243159, 2.6033, 0.333333);
-  points->InsertNextPoint(0.23374, 2.39231, 0.666667);
-  points->InsertNextPoint(0.608665, 3.37747, 0.666667);
-  points->InsertNextPoint(0.866721, 3.16648, 0.333333);
-  points->InsertNextPoint(-1.64246, 2.20406, 0);
-  points->InsertNextPoint(-1.5954, 1.73501, 0);
-  points->InsertNextPoint(-1.64246, 2.20406, 1);
-  points->InsertNextPoint(-1.5954, 1.73501, 1);
-  points->InsertNextPoint(-2.06445, 1.68795, 0.333333);
-  points->InsertNextPoint(-1.80639, 1.47696, 0.666667);
-  points->InsertNextPoint(-1.00948, 2.97823, 0);
-  points->InsertNextPoint(-0.962415, 2.50918, 0);
-  points->InsertNextPoint(-1.00948, 2.97823, 1);
-  points->InsertNextPoint(-0.962415, 2.50918, 1);
-  points->InsertNextPoint(-1.47853, 2.93117, 0.666667);
-  points->InsertNextPoint(-1.26753, 3.18922, 0.333333);
-  points->InsertNextPoint(-0.704359, 2.29819, 0.333333);
-  points->InsertNextPoint(-0.493365, 2.55624, 0.666667);
-  points->InsertNextPoint(-0.376495, 3.7524, 0);
-  points->InsertNextPoint(-0.329433, 3.28335, 0);
-  points->InsertNextPoint(-0.376495, 3.7524, 1);
-  points->InsertNextPoint(-0.329433, 3.28335, 1);
-  points->InsertNextPoint(-0.165502, 4.01045, 0.666667);
-  points->InsertNextPoint(0.0925541, 3.79946, 0.333333);
-  points->InsertNextPoint(-2.41663, 2.83704, 0);
-  points->InsertNextPoint(-2.36956, 2.36799, 0);
-  points->InsertNextPoint(-2.41663, 2.83704, 1);
-  points->InsertNextPoint(-2.36956, 2.36799, 1);
-  points->InsertNextPoint(-2.83861, 2.32093, 0.333333);
-  points->InsertNextPoint(-2.58056, 2.10994, 0.666667);
-  points->InsertNextPoint(-2.20563, 3.0951, 0.666667);
-  points->InsertNextPoint(-1.94758, 2.8841, 0.333333);
-  points->InsertNextPoint(-1.15066, 4.38538, 0);
-  points->InsertNextPoint(-1.1036, 3.91633, 0);
-  points->InsertNextPoint(-1.15066, 4.38538, 1);
-  points->InsertNextPoint(-1.1036, 3.91633, 1);
-  points->InsertNextPoint(-1.57265, 3.86927, 0.333333);
-  points->InsertNextPoint(-1.31459, 3.65827, 0.666667);
-  points->InsertNextPoint(-0.939669, 4.64343, 0.666667);
-  points->InsertNextPoint(-0.681613, 4.43244, 0.333333);
-  points->InsertNextPoint(-3.19079, 3.47002, 0);
-  points->InsertNextPoint(-3.14373, 3.00097, 0);
-  points->InsertNextPoint(-3.19079, 3.47002, 1);
-  points->InsertNextPoint(-3.14373, 3.00097, 1);
-  points->InsertNextPoint(-3.61278, 2.95391, 0.333333);
-  points->InsertNextPoint(-3.35472, 2.74292, 0.666667);
-  points->InsertNextPoint(-2.55781, 4.24419, 0);
-  points->InsertNextPoint(-2.51075, 3.77514, 0);
-  points->InsertNextPoint(-2.55781, 4.24419, 1);
-  points->InsertNextPoint(-2.51075, 3.77514, 1);
-  points->InsertNextPoint(-3.02686, 4.19713, 0.666667);
-  points->InsertNextPoint(-2.81587, 4.45518, 0.333333);
-  points->InsertNextPoint(-2.25269, 3.56415, 0.333333);
-  points->InsertNextPoint(-2.0417, 3.8222, 0.666667);
-  points->InsertNextPoint(-1.92483, 5.01836, 0);
-  points->InsertNextPoint(-1.87777, 4.54931, 0);
-  points->InsertNextPoint(-1.92483, 5.01836, 1);
-  points->InsertNextPoint(-1.87777, 4.54931, 1);
-  points->InsertNextPoint(-1.71384, 5.27641, 0.666667);
-  points->InsertNextPoint(-1.45578, 5.06542, 0.333333);
-  points->InsertNextPoint(-3.96496, 4.10301, 0);
-  points->InsertNextPoint(-3.9179, 3.63396, 0);
-  points->InsertNextPoint(-3.96496, 4.10301, 1);
-  points->InsertNextPoint(-3.9179, 3.63396, 1);
-  points->InsertNextPoint(-4.38695, 3.58689, 0.333333);
-  points->InsertNextPoint(-4.12889, 3.3759, 0.666667);
-  points->InsertNextPoint(-3.75397, 4.36106, 0.666667);
-  points->InsertNextPoint(-3.49591, 4.15007, 0.333333);
-  points->InsertNextPoint(-2.699, 5.65134, 0);
-  points->InsertNextPoint(-2.65193, 5.18229, 0);
-  points->InsertNextPoint(-2.699, 5.65134, 1);
-  points->InsertNextPoint(-2.65193, 5.18229, 1);
-  points->InsertNextPoint(-3.12098, 5.13523, 0.333333);
-  points->InsertNextPoint(-2.86293, 4.92423, 0.666667);
-  points->InsertNextPoint(-2.488, 5.9094, 0.666667);
-  points->InsertNextPoint(-2.22995, 5.6984, 0.333333);
-  points->InsertNextPoint(-4.73913, 4.73599, 0);
-  points->InsertNextPoint(-4.69206, 4.26694, 0);
-  points->InsertNextPoint(-4.73913, 4.73599, 1);
-  points->InsertNextPoint(-4.69206, 4.26694, 1);
-  points->InsertNextPoint(-5.20818, 4.68892, 0.666667);
-  points->InsertNextPoint(-4.99718, 4.94698, 0.333333);
-  points->InsertNextPoint(-5.16111, 4.21988, 0.333333);
-  points->InsertNextPoint(-4.90306, 4.00888, 0.666667);
-  points->InsertNextPoint(-4.10615, 5.51015, 0);
-  points->InsertNextPoint(-4.05908, 5.0411, 0);
-  points->InsertNextPoint(-4.10615, 5.51015, 1);
-  points->InsertNextPoint(-4.05908, 5.0411, 1);
-  points->InsertNextPoint(-4.57519, 5.46309, 0.666667);
-  points->InsertNextPoint(-4.3642, 5.72115, 0.333333);
-  points->InsertNextPoint(-3.80103, 4.83011, 0.333333);
-  points->InsertNextPoint(-3.59003, 5.08817, 0.666667);
-  points->InsertNextPoint(-3.47316, 6.28432, 0);
-  points->InsertNextPoint(-3.4261, 5.81527, 0);
-  points->InsertNextPoint(-3.47316, 6.28432, 1);
-  points->InsertNextPoint(-3.4261, 5.81527, 1);
-  points->InsertNextPoint(-3.94221, 6.23726, 0.666667);
-  points->InsertNextPoint(-3.73122, 6.49531, 0.333333);
-  points->InsertNextPoint(-3.26217, 6.54238, 0.666667);
-  points->InsertNextPoint(-3.00411, 6.33138, 0.333333);
-  sMesh->SetPoints(points);
-  points->Delete();
-  vtkIdType* vertexIds = (vtkIdType*)malloc(sizeof(vtkIdType) * 3);
+  const double mesh_points[][3] = { { -0.774167, 0.632981, 0 }, { -0.141186, 1.40715, 0 },
+    { 0.632981, 0.774167, 0 }, { 0, 0, 0 }, { -0.774167, 0.632981, 1 }, { -0.141186, 1.40715, 1 },
+    { 0.632981, 0.774167, 1 }, { 0, 0, 1 }, { 0.491796, 2.18132, 0 }, { 1.26596, 1.54833, 0 },
+    { 0.491796, 2.18132, 1 }, { 1.26596, 1.54833, 1 }, { 1.12478, 2.95548, 0 },
+    { 1.89894, 2.3225, 0 }, { 1.12478, 2.95548, 1 }, { 1.89894, 2.3225, 1 },
+    { -1.54833, 1.26596, 0 }, { -0.915353, 2.04013, 0 }, { -1.54833, 1.26596, 1 },
+    { -0.915353, 2.04013, 1 }, { -0.282372, 2.8143, 0 }, { 0.35061, 3.58846, 0 },
+    { -0.282372, 2.8143, 1 }, { 0.35061, 3.58846, 1 }, { -2.3225, 1.89894, 0 },
+    { -1.68952, 2.67311, 0 }, { -2.3225, 1.89894, 1 }, { -1.68952, 2.67311, 1 },
+    { -1.05654, 3.44728, 0 }, { -1.05654, 3.44728, 1 }, { -0.423557, 4.22145, 0 },
+    { -0.423557, 4.22145, 1 }, { -3.09667, 2.53193, 0 }, { -2.46369, 3.30609, 0 },
+    { -3.09667, 2.53193, 1 }, { -2.46369, 3.30609, 1 }, { -1.83071, 4.08026, 0 },
+    { -1.19772, 4.85443, 0 }, { -1.83071, 4.08026, 1 }, { -1.19772, 4.85443, 1 },
+    { -3.87084, 3.16491, 0 }, { -3.23785, 3.93907, 0 }, { -3.87084, 3.16491, 1 },
+    { -3.23785, 3.93907, 1 }, { -2.60487, 4.71324, 0 }, { -2.60487, 4.71324, 1 },
+    { -1.97189, 5.48741, 0 }, { -1.97189, 5.48741, 1 }, { -4.645, 3.79789, 0 },
+    { -4.01202, 4.57205, 0 }, { -4.645, 3.79789, 1 }, { -4.01202, 4.57205, 1 },
+    { -3.37904, 5.34622, 0 }, { -2.74606, 6.12039, 0 }, { -3.37904, 5.34622, 1 },
+    { -2.74606, 6.12039, 1 }, { -5.41917, 4.43087, 0 }, { -4.78619, 5.20504, 0 },
+    { -5.41917, 4.43087, 1 }, { -4.78619, 5.20504, 1 }, { -4.15321, 5.9792, 0 },
+    { -4.15321, 5.9792, 1 }, { -3.52023, 6.75337, 0 }, { -3.52023, 6.75337, 1 },
+    { -0.0941238, 0.938099, 0 }, { -0.0470619, 0.469049, 0 }, { -0.0941238, 0.938099, 1 },
+    { -0.0470619, 0.469049, 1 }, { -0.516111, 0.421988, 0.333333 },
+    { -0.258056, 0.210994, 0.666667 }, { 0.210994, 0.258056, 0.333333 },
+    { 0.421988, 0.516111, 0.666667 }, { 0.538857, 1.71227, 0 }, { 0.585919, 1.24322, 0 },
+    { 0.538857, 1.71227, 1 }, { 0.585919, 1.24322, 1 }, { 0.069808, 1.6652, 0.666667 },
+    { 0.280802, 1.92326, 0.333333 }, { 0.843975, 1.03222, 0.333333 },
+    { 1.05497, 1.29028, 0.666667 }, { 1.17184, 2.48643, 0 }, { 1.2189, 2.01738, 0 },
+    { 1.17184, 2.48643, 1 }, { 1.2189, 2.01738, 1 }, { 1.47696, 1.80639, 0.333333 },
+    { 1.68795, 2.06445, 0.666667 }, { 1.38283, 2.74449, 0.666667 }, { 1.64089, 2.5335, 0.333333 },
+    { -0.868291, 1.57108, 0 }, { -0.821229, 1.10203, 0 }, { -0.868291, 1.57108, 1 },
+    { -0.821229, 1.10203, 1 }, { -1.29028, 1.05497, 0.333333 }, { -1.03222, 0.843975, 0.666667 },
+    { -0.657297, 1.82914, 0.666667 }, { -0.399241, 1.61814, 0.333333 }, { 0.397672, 3.11941, 0 },
+    { 0.444734, 2.65036, 0 }, { 0.397672, 3.11941, 1 }, { 0.444734, 2.65036, 1 },
+    { -0.0243159, 2.6033, 0.333333 }, { 0.23374, 2.39231, 0.666667 },
+    { 0.608665, 3.37747, 0.666667 }, { 0.866721, 3.16648, 0.333333 }, { -1.64246, 2.20406, 0 },
+    { -1.5954, 1.73501, 0 }, { -1.64246, 2.20406, 1 }, { -1.5954, 1.73501, 1 },
+    { -2.06445, 1.68795, 0.333333 }, { -1.80639, 1.47696, 0.666667 }, { -1.00948, 2.97823, 0 },
+    { -0.962415, 2.50918, 0 }, { -1.00948, 2.97823, 1 }, { -0.962415, 2.50918, 1 },
+    { -1.47853, 2.93117, 0.666667 }, { -1.26753, 3.18922, 0.333333 },
+    { -0.704359, 2.29819, 0.333333 }, { -0.493365, 2.55624, 0.666667 }, { -0.376495, 3.7524, 0 },
+    { -0.329433, 3.28335, 0 }, { -0.376495, 3.7524, 1 }, { -0.329433, 3.28335, 1 },
+    { -0.165502, 4.01045, 0.666667 }, { 0.0925541, 3.79946, 0.333333 }, { -2.41663, 2.83704, 0 },
+    { -2.36956, 2.36799, 0 }, { -2.41663, 2.83704, 1 }, { -2.36956, 2.36799, 1 },
+    { -2.83861, 2.32093, 0.333333 }, { -2.58056, 2.10994, 0.666667 },
+    { -2.20563, 3.0951, 0.666667 }, { -1.94758, 2.8841, 0.333333 }, { -1.15066, 4.38538, 0 },
+    { -1.1036, 3.91633, 0 }, { -1.15066, 4.38538, 1 }, { -1.1036, 3.91633, 1 },
+    { -1.57265, 3.86927, 0.333333 }, { -1.31459, 3.65827, 0.666667 },
+    { -0.939669, 4.64343, 0.666667 }, { -0.681613, 4.43244, 0.333333 }, { -3.19079, 3.47002, 0 },
+    { -3.14373, 3.00097, 0 }, { -3.19079, 3.47002, 1 }, { -3.14373, 3.00097, 1 },
+    { -3.61278, 2.95391, 0.333333 }, { -3.35472, 2.74292, 0.666667 }, { -2.55781, 4.24419, 0 },
+    { -2.51075, 3.77514, 0 }, { -2.55781, 4.24419, 1 }, { -2.51075, 3.77514, 1 },
+    { -3.02686, 4.19713, 0.666667 }, { -2.81587, 4.45518, 0.333333 },
+    { -2.25269, 3.56415, 0.333333 }, { -2.0417, 3.8222, 0.666667 }, { -1.92483, 5.01836, 0 },
+    { -1.87777, 4.54931, 0 }, { -1.92483, 5.01836, 1 }, { -1.87777, 4.54931, 1 },
+    { -1.71384, 5.27641, 0.666667 }, { -1.45578, 5.06542, 0.333333 }, { -3.96496, 4.10301, 0 },
+    { -3.9179, 3.63396, 0 }, { -3.96496, 4.10301, 1 }, { -3.9179, 3.63396, 1 },
+    { -4.38695, 3.58689, 0.333333 }, { -4.12889, 3.3759, 0.666667 },
+    { -3.75397, 4.36106, 0.666667 }, { -3.49591, 4.15007, 0.333333 }, { -2.699, 5.65134, 0 },
+    { -2.65193, 5.18229, 0 }, { -2.699, 5.65134, 1 }, { -2.65193, 5.18229, 1 },
+    { -3.12098, 5.13523, 0.333333 }, { -2.86293, 4.92423, 0.666667 }, { -2.488, 5.9094, 0.666667 },
+    { -2.22995, 5.6984, 0.333333 }, { -4.73913, 4.73599, 0 }, { -4.69206, 4.26694, 0 },
+    { -4.73913, 4.73599, 1 }, { -4.69206, 4.26694, 1 }, { -5.20818, 4.68892, 0.666667 },
+    { -4.99718, 4.94698, 0.333333 }, { -5.16111, 4.21988, 0.333333 },
+    { -4.90306, 4.00888, 0.666667 }, { -4.10615, 5.51015, 0 }, { -4.05908, 5.0411, 0 },
+    { -4.10615, 5.51015, 1 }, { -4.05908, 5.0411, 1 }, { -4.57519, 5.46309, 0.666667 },
+    { -4.3642, 5.72115, 0.333333 }, { -3.80103, 4.83011, 0.333333 },
+    { -3.59003, 5.08817, 0.666667 }, { -3.47316, 6.28432, 0 }, { -3.4261, 5.81527, 0 },
+    { -3.47316, 6.28432, 1 }, { -3.4261, 5.81527, 1 }, { -3.94221, 6.23726, 0.666667 },
+    { -3.73122, 6.49531, 0.333333 }, { -3.26217, 6.54238, 0.666667 },
+    { -3.00411, 6.33138, 0.333333 } };
 
-  vertexIds[0] = 0;
-  vertexIds[1] = 1;
-  vertexIds[2] = 64;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 0;
-  vertexIds[1] = 2;
-  vertexIds[2] = 65;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 5;
-  vertexIds[2] = 66;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 6;
-  vertexIds[2] = 67;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 0;
-  vertexIds[2] = 68;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 3;
-  vertexIds[2] = 69;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 2;
-  vertexIds[1] = 3;
-  vertexIds[2] = 70;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 2;
-  vertexIds[1] = 7;
-  vertexIds[2] = 71;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 8;
-  vertexIds[2] = 72;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 9;
-  vertexIds[2] = 73;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 10;
-  vertexIds[2] = 74;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 11;
-  vertexIds[2] = 75;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 5;
-  vertexIds[2] = 76;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 10;
-  vertexIds[2] = 77;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 2;
-  vertexIds[2] = 78;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 6;
-  vertexIds[2] = 79;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 12;
-  vertexIds[2] = 80;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 13;
-  vertexIds[2] = 81;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 14;
-  vertexIds[2] = 82;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 15;
-  vertexIds[2] = 83;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 9;
-  vertexIds[2] = 84;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 11;
-  vertexIds[2] = 85;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 14;
-  vertexIds[2] = 86;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 15;
-  vertexIds[2] = 87;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 17;
-  vertexIds[2] = 88;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 1;
-  vertexIds[2] = 89;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 19;
-  vertexIds[2] = 90;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 5;
-  vertexIds[2] = 91;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 16;
-  vertexIds[2] = 92;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 0;
-  vertexIds[2] = 93;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 19;
-  vertexIds[2] = 94;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 5;
-  vertexIds[2] = 95;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 21;
-  vertexIds[2] = 96;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 12;
-  vertexIds[2] = 97;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 23;
-  vertexIds[2] = 98;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 14;
-  vertexIds[2] = 99;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 20;
-  vertexIds[2] = 100;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 8;
-  vertexIds[2] = 101;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 23;
-  vertexIds[2] = 102;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 14;
-  vertexIds[2] = 103;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 25;
-  vertexIds[2] = 104;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 17;
-  vertexIds[2] = 105;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 27;
-  vertexIds[2] = 106;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 19;
-  vertexIds[2] = 107;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 24;
-  vertexIds[2] = 108;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 16;
-  vertexIds[2] = 109;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 28;
-  vertexIds[2] = 110;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 20;
-  vertexIds[2] = 111;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 29;
-  vertexIds[2] = 112;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 22;
-  vertexIds[2] = 113;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 27;
-  vertexIds[2] = 114;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 29;
-  vertexIds[2] = 115;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 17;
-  vertexIds[2] = 116;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 19;
-  vertexIds[2] = 117;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 30;
-  vertexIds[2] = 118;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 21;
-  vertexIds[2] = 119;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 31;
-  vertexIds[2] = 120;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 23;
-  vertexIds[2] = 121;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 31;
-  vertexIds[2] = 122;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 23;
-  vertexIds[2] = 123;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 32;
-  vertexIds[1] = 33;
-  vertexIds[2] = 124;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 32;
-  vertexIds[1] = 25;
-  vertexIds[2] = 125;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 35;
-  vertexIds[2] = 126;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 27;
-  vertexIds[2] = 127;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 32;
-  vertexIds[2] = 128;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 24;
-  vertexIds[2] = 129;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 35;
-  vertexIds[2] = 130;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 27;
-  vertexIds[2] = 131;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 37;
-  vertexIds[2] = 132;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 30;
-  vertexIds[2] = 133;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 39;
-  vertexIds[2] = 134;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 31;
-  vertexIds[2] = 135;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 36;
-  vertexIds[2] = 136;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 28;
-  vertexIds[2] = 137;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 39;
-  vertexIds[2] = 138;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 31;
-  vertexIds[2] = 139;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 41;
-  vertexIds[2] = 140;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 33;
-  vertexIds[2] = 141;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 43;
-  vertexIds[2] = 142;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 35;
-  vertexIds[2] = 143;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 40;
-  vertexIds[2] = 144;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 32;
-  vertexIds[2] = 145;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 44;
-  vertexIds[2] = 146;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 36;
-  vertexIds[2] = 147;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 43;
-  vertexIds[1] = 45;
-  vertexIds[2] = 148;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 43;
-  vertexIds[1] = 38;
-  vertexIds[2] = 149;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 43;
-  vertexIds[2] = 150;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 45;
-  vertexIds[2] = 151;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 33;
-  vertexIds[2] = 152;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 35;
-  vertexIds[2] = 153;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 46;
-  vertexIds[2] = 154;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 37;
-  vertexIds[2] = 155;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 47;
-  vertexIds[2] = 156;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 39;
-  vertexIds[2] = 157;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 47;
-  vertexIds[2] = 158;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 39;
-  vertexIds[2] = 159;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 49;
-  vertexIds[2] = 160;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 41;
-  vertexIds[2] = 161;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 51;
-  vertexIds[2] = 162;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 43;
-  vertexIds[2] = 163;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 48;
-  vertexIds[2] = 164;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 40;
-  vertexIds[2] = 165;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 51;
-  vertexIds[2] = 166;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 43;
-  vertexIds[2] = 167;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 53;
-  vertexIds[2] = 168;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 46;
-  vertexIds[2] = 169;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 55;
-  vertexIds[2] = 170;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 47;
-  vertexIds[2] = 171;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 52;
-  vertexIds[2] = 172;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 44;
-  vertexIds[2] = 173;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 55;
-  vertexIds[2] = 174;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 47;
-  vertexIds[2] = 175;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 57;
-  vertexIds[2] = 176;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 49;
-  vertexIds[2] = 177;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 59;
-  vertexIds[2] = 178;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 51;
-  vertexIds[2] = 179;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 58;
-  vertexIds[2] = 180;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 59;
-  vertexIds[2] = 181;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 56;
-  vertexIds[2] = 182;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 48;
-  vertexIds[2] = 183;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 60;
-  vertexIds[2] = 184;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 52;
-  vertexIds[2] = 185;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 59;
-  vertexIds[1] = 61;
-  vertexIds[2] = 186;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 59;
-  vertexIds[1] = 54;
-  vertexIds[2] = 187;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 59;
-  vertexIds[2] = 188;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 61;
-  vertexIds[2] = 189;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 49;
-  vertexIds[2] = 190;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 51;
-  vertexIds[2] = 191;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 62;
-  vertexIds[2] = 192;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 53;
-  vertexIds[2] = 193;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 63;
-  vertexIds[2] = 194;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 55;
-  vertexIds[2] = 195;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 61;
-  vertexIds[2] = 196;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 63;
-  vertexIds[2] = 197;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 63;
-  vertexIds[2] = 198;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 55;
-  vertexIds[2] = 199;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 2;
-  vertexIds[1] = 64;
-  vertexIds[2] = 1;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 0;
-  vertexIds[1] = 64;
-  vertexIds[2] = 2;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 3;
-  vertexIds[1] = 65;
-  vertexIds[2] = 2;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 0;
-  vertexIds[1] = 65;
-  vertexIds[2] = 3;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 66;
-  vertexIds[2] = 5;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 66;
-  vertexIds[2] = 6;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 7;
-  vertexIds[1] = 67;
-  vertexIds[2] = 6;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 67;
-  vertexIds[2] = 7;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 3;
-  vertexIds[1] = 68;
-  vertexIds[2] = 0;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 68;
-  vertexIds[2] = 3;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 7;
-  vertexIds[1] = 69;
-  vertexIds[2] = 3;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 69;
-  vertexIds[2] = 7;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 7;
-  vertexIds[1] = 70;
-  vertexIds[2] = 3;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 2;
-  vertexIds[1] = 70;
-  vertexIds[2] = 7;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 71;
-  vertexIds[2] = 7;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 2;
-  vertexIds[1] = 71;
-  vertexIds[2] = 6;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 72;
-  vertexIds[2] = 8;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 72;
-  vertexIds[2] = 9;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 2;
-  vertexIds[1] = 73;
-  vertexIds[2] = 9;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 73;
-  vertexIds[2] = 2;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 11;
-  vertexIds[1] = 74;
-  vertexIds[2] = 10;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 74;
-  vertexIds[2] = 11;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 75;
-  vertexIds[2] = 11;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 75;
-  vertexIds[2] = 6;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 76;
-  vertexIds[2] = 5;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 76;
-  vertexIds[2] = 10;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 77;
-  vertexIds[2] = 10;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 77;
-  vertexIds[2] = 8;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 6;
-  vertexIds[1] = 78;
-  vertexIds[2] = 2;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 78;
-  vertexIds[2] = 6;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 11;
-  vertexIds[1] = 79;
-  vertexIds[2] = 6;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 79;
-  vertexIds[2] = 11;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 80;
-  vertexIds[2] = 12;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 80;
-  vertexIds[2] = 13;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 9;
-  vertexIds[1] = 81;
-  vertexIds[2] = 13;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 81;
-  vertexIds[2] = 9;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 15;
-  vertexIds[1] = 82;
-  vertexIds[2] = 14;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 82;
-  vertexIds[2] = 15;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 11;
-  vertexIds[1] = 83;
-  vertexIds[2] = 15;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 83;
-  vertexIds[2] = 11;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 11;
-  vertexIds[1] = 84;
-  vertexIds[2] = 9;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 84;
-  vertexIds[2] = 11;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 15;
-  vertexIds[1] = 85;
-  vertexIds[2] = 11;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 85;
-  vertexIds[2] = 15;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 15;
-  vertexIds[1] = 86;
-  vertexIds[2] = 14;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 86;
-  vertexIds[2] = 15;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 13;
-  vertexIds[1] = 87;
-  vertexIds[2] = 15;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 87;
-  vertexIds[2] = 13;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 88;
-  vertexIds[2] = 17;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 88;
-  vertexIds[2] = 1;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 0;
-  vertexIds[1] = 89;
-  vertexIds[2] = 1;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 89;
-  vertexIds[2] = 0;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 90;
-  vertexIds[2] = 19;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 90;
-  vertexIds[2] = 5;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 91;
-  vertexIds[2] = 5;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 91;
-  vertexIds[2] = 4;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 0;
-  vertexIds[1] = 92;
-  vertexIds[2] = 16;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 92;
-  vertexIds[2] = 0;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 4;
-  vertexIds[1] = 93;
-  vertexIds[2] = 0;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 93;
-  vertexIds[2] = 4;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 5;
-  vertexIds[1] = 94;
-  vertexIds[2] = 19;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 94;
-  vertexIds[2] = 5;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 1;
-  vertexIds[1] = 95;
-  vertexIds[2] = 5;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 95;
-  vertexIds[2] = 1;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 96;
-  vertexIds[2] = 21;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 96;
-  vertexIds[2] = 12;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 97;
-  vertexIds[2] = 12;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 97;
-  vertexIds[2] = 8;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 98;
-  vertexIds[2] = 23;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 98;
-  vertexIds[2] = 14;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 99;
-  vertexIds[2] = 14;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 99;
-  vertexIds[2] = 10;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 8;
-  vertexIds[1] = 100;
-  vertexIds[2] = 20;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 100;
-  vertexIds[2] = 8;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 10;
-  vertexIds[1] = 101;
-  vertexIds[2] = 8;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 101;
-  vertexIds[2] = 10;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 14;
-  vertexIds[1] = 102;
-  vertexIds[2] = 23;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 102;
-  vertexIds[2] = 14;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 12;
-  vertexIds[1] = 103;
-  vertexIds[2] = 14;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 103;
-  vertexIds[2] = 12;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 104;
-  vertexIds[2] = 25;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 104;
-  vertexIds[2] = 17;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 105;
-  vertexIds[2] = 17;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 105;
-  vertexIds[2] = 16;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 19;
-  vertexIds[1] = 106;
-  vertexIds[2] = 27;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 106;
-  vertexIds[2] = 19;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 107;
-  vertexIds[2] = 19;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 107;
-  vertexIds[2] = 18;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 16;
-  vertexIds[1] = 108;
-  vertexIds[2] = 24;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 108;
-  vertexIds[2] = 16;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 18;
-  vertexIds[1] = 109;
-  vertexIds[2] = 16;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 109;
-  vertexIds[2] = 18;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 110;
-  vertexIds[2] = 28;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 110;
-  vertexIds[2] = 20;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 17;
-  vertexIds[1] = 111;
-  vertexIds[2] = 20;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 111;
-  vertexIds[2] = 17;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 112;
-  vertexIds[2] = 29;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 112;
-  vertexIds[2] = 22;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 19;
-  vertexIds[1] = 113;
-  vertexIds[2] = 22;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 113;
-  vertexIds[2] = 19;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 114;
-  vertexIds[2] = 27;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 114;
-  vertexIds[2] = 29;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 115;
-  vertexIds[2] = 29;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 115;
-  vertexIds[2] = 28;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 19;
-  vertexIds[1] = 116;
-  vertexIds[2] = 17;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 116;
-  vertexIds[2] = 19;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 117;
-  vertexIds[2] = 19;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 117;
-  vertexIds[2] = 22;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 118;
-  vertexIds[2] = 30;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 118;
-  vertexIds[2] = 21;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 20;
-  vertexIds[1] = 119;
-  vertexIds[2] = 21;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 119;
-  vertexIds[2] = 20;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 23;
-  vertexIds[1] = 120;
-  vertexIds[2] = 31;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 120;
-  vertexIds[2] = 23;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 22;
-  vertexIds[1] = 121;
-  vertexIds[2] = 23;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 121;
-  vertexIds[2] = 22;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 23;
-  vertexIds[1] = 122;
-  vertexIds[2] = 31;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 122;
-  vertexIds[2] = 23;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 21;
-  vertexIds[1] = 123;
-  vertexIds[2] = 23;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 123;
-  vertexIds[2] = 21;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 124;
-  vertexIds[2] = 33;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 32;
-  vertexIds[1] = 124;
-  vertexIds[2] = 25;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 125;
-  vertexIds[2] = 25;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 32;
-  vertexIds[1] = 125;
-  vertexIds[2] = 24;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 126;
-  vertexIds[2] = 35;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 126;
-  vertexIds[2] = 27;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 127;
-  vertexIds[2] = 27;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 127;
-  vertexIds[2] = 26;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 24;
-  vertexIds[1] = 128;
-  vertexIds[2] = 32;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 128;
-  vertexIds[2] = 24;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 26;
-  vertexIds[1] = 129;
-  vertexIds[2] = 24;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 129;
-  vertexIds[2] = 26;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 27;
-  vertexIds[1] = 130;
-  vertexIds[2] = 35;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 130;
-  vertexIds[2] = 27;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 25;
-  vertexIds[1] = 131;
-  vertexIds[2] = 27;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 131;
-  vertexIds[2] = 25;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 132;
-  vertexIds[2] = 37;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 132;
-  vertexIds[2] = 30;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 133;
-  vertexIds[2] = 30;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 133;
-  vertexIds[2] = 28;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 31;
-  vertexIds[1] = 134;
-  vertexIds[2] = 39;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 134;
-  vertexIds[2] = 31;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 135;
-  vertexIds[2] = 31;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 135;
-  vertexIds[2] = 29;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 28;
-  vertexIds[1] = 136;
-  vertexIds[2] = 36;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 136;
-  vertexIds[2] = 28;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 29;
-  vertexIds[1] = 137;
-  vertexIds[2] = 28;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 137;
-  vertexIds[2] = 29;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 31;
-  vertexIds[1] = 138;
-  vertexIds[2] = 39;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 138;
-  vertexIds[2] = 31;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 30;
-  vertexIds[1] = 139;
-  vertexIds[2] = 31;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 139;
-  vertexIds[2] = 30;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 140;
-  vertexIds[2] = 41;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 140;
-  vertexIds[2] = 33;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 32;
-  vertexIds[1] = 141;
-  vertexIds[2] = 33;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 141;
-  vertexIds[2] = 32;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 35;
-  vertexIds[1] = 142;
-  vertexIds[2] = 43;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 142;
-  vertexIds[2] = 35;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 143;
-  vertexIds[2] = 35;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 143;
-  vertexIds[2] = 34;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 32;
-  vertexIds[1] = 144;
-  vertexIds[2] = 40;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 144;
-  vertexIds[2] = 32;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 34;
-  vertexIds[1] = 145;
-  vertexIds[2] = 32;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 145;
-  vertexIds[2] = 34;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 146;
-  vertexIds[2] = 44;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 146;
-  vertexIds[2] = 36;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 33;
-  vertexIds[1] = 147;
-  vertexIds[2] = 36;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 147;
-  vertexIds[2] = 33;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 148;
-  vertexIds[2] = 45;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 43;
-  vertexIds[1] = 148;
-  vertexIds[2] = 38;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 35;
-  vertexIds[1] = 149;
-  vertexIds[2] = 38;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 43;
-  vertexIds[1] = 149;
-  vertexIds[2] = 35;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 150;
-  vertexIds[2] = 43;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 150;
-  vertexIds[2] = 45;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 151;
-  vertexIds[2] = 45;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 151;
-  vertexIds[2] = 44;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 35;
-  vertexIds[1] = 152;
-  vertexIds[2] = 33;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 152;
-  vertexIds[2] = 35;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 153;
-  vertexIds[2] = 35;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 153;
-  vertexIds[2] = 38;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 154;
-  vertexIds[2] = 46;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 154;
-  vertexIds[2] = 37;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 36;
-  vertexIds[1] = 155;
-  vertexIds[2] = 37;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 155;
-  vertexIds[2] = 36;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 39;
-  vertexIds[1] = 156;
-  vertexIds[2] = 47;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 156;
-  vertexIds[2] = 39;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 38;
-  vertexIds[1] = 157;
-  vertexIds[2] = 39;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 157;
-  vertexIds[2] = 38;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 39;
-  vertexIds[1] = 158;
-  vertexIds[2] = 47;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 158;
-  vertexIds[2] = 39;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 37;
-  vertexIds[1] = 159;
-  vertexIds[2] = 39;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 159;
-  vertexIds[2] = 37;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 160;
-  vertexIds[2] = 49;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 160;
-  vertexIds[2] = 41;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 161;
-  vertexIds[2] = 41;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 161;
-  vertexIds[2] = 40;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 43;
-  vertexIds[1] = 162;
-  vertexIds[2] = 51;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 162;
-  vertexIds[2] = 43;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 163;
-  vertexIds[2] = 43;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 163;
-  vertexIds[2] = 42;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 40;
-  vertexIds[1] = 164;
-  vertexIds[2] = 48;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 164;
-  vertexIds[2] = 40;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 42;
-  vertexIds[1] = 165;
-  vertexIds[2] = 40;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 165;
-  vertexIds[2] = 42;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 43;
-  vertexIds[1] = 166;
-  vertexIds[2] = 51;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 166;
-  vertexIds[2] = 43;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 41;
-  vertexIds[1] = 167;
-  vertexIds[2] = 43;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 167;
-  vertexIds[2] = 41;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 168;
-  vertexIds[2] = 53;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 168;
-  vertexIds[2] = 46;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 169;
-  vertexIds[2] = 46;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 169;
-  vertexIds[2] = 44;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 47;
-  vertexIds[1] = 170;
-  vertexIds[2] = 55;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 170;
-  vertexIds[2] = 47;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 171;
-  vertexIds[2] = 47;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 171;
-  vertexIds[2] = 45;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 44;
-  vertexIds[1] = 172;
-  vertexIds[2] = 52;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 172;
-  vertexIds[2] = 44;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 45;
-  vertexIds[1] = 173;
-  vertexIds[2] = 44;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 173;
-  vertexIds[2] = 45;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 47;
-  vertexIds[1] = 174;
-  vertexIds[2] = 55;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 174;
-  vertexIds[2] = 47;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 46;
-  vertexIds[1] = 175;
-  vertexIds[2] = 47;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 175;
-  vertexIds[2] = 46;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 176;
-  vertexIds[2] = 57;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 176;
-  vertexIds[2] = 49;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 177;
-  vertexIds[2] = 49;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 177;
-  vertexIds[2] = 48;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 51;
-  vertexIds[1] = 178;
-  vertexIds[2] = 59;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 178;
-  vertexIds[2] = 51;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 179;
-  vertexIds[2] = 51;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 179;
-  vertexIds[2] = 50;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 59;
-  vertexIds[1] = 180;
-  vertexIds[2] = 58;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 180;
-  vertexIds[2] = 59;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 181;
-  vertexIds[2] = 59;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 56;
-  vertexIds[1] = 181;
-  vertexIds[2] = 57;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 48;
-  vertexIds[1] = 182;
-  vertexIds[2] = 56;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 182;
-  vertexIds[2] = 48;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 50;
-  vertexIds[1] = 183;
-  vertexIds[2] = 48;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 58;
-  vertexIds[1] = 183;
-  vertexIds[2] = 50;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 184;
-  vertexIds[2] = 60;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 184;
-  vertexIds[2] = 52;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 49;
-  vertexIds[1] = 185;
-  vertexIds[2] = 52;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 185;
-  vertexIds[2] = 49;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 186;
-  vertexIds[2] = 61;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 59;
-  vertexIds[1] = 186;
-  vertexIds[2] = 54;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 51;
-  vertexIds[1] = 187;
-  vertexIds[2] = 54;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 59;
-  vertexIds[1] = 187;
-  vertexIds[2] = 51;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 188;
-  vertexIds[2] = 59;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 188;
-  vertexIds[2] = 61;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 189;
-  vertexIds[2] = 61;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 57;
-  vertexIds[1] = 189;
-  vertexIds[2] = 60;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 51;
-  vertexIds[1] = 190;
-  vertexIds[2] = 49;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 190;
-  vertexIds[2] = 51;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 191;
-  vertexIds[2] = 51;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 191;
-  vertexIds[2] = 54;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 192;
-  vertexIds[2] = 62;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 192;
-  vertexIds[2] = 53;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 52;
-  vertexIds[1] = 193;
-  vertexIds[2] = 53;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 193;
-  vertexIds[2] = 52;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 55;
-  vertexIds[1] = 194;
-  vertexIds[2] = 63;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 194;
-  vertexIds[2] = 55;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 54;
-  vertexIds[1] = 195;
-  vertexIds[2] = 55;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 61;
-  vertexIds[1] = 195;
-  vertexIds[2] = 54;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 63;
-  vertexIds[1] = 196;
-  vertexIds[2] = 61;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 196;
-  vertexIds[2] = 63;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 197;
-  vertexIds[2] = 63;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 60;
-  vertexIds[1] = 197;
-  vertexIds[2] = 62;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 55;
-  vertexIds[1] = 198;
-  vertexIds[2] = 63;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 198;
-  vertexIds[2] = 55;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 53;
-  vertexIds[1] = 199;
-  vertexIds[2] = 55;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
-  vertexIds[0] = 62;
-  vertexIds[1] = 199;
-  vertexIds[2] = 53;
-  sMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
+  {
+    vtkNew<vtkPoints> points;
+    for (auto* mesh_point : mesh_points)
+    {
+      points->InsertNextPoint(mesh_point[0], mesh_point[1], mesh_point[2]);
+    }
+    sMesh->SetPoints(points);
+  }
 
-  free(vertexIds);
+  const vtkIdType mesh_tris[][3] = {
+    { 0, 1, 64 },
+    { 0, 2, 65 },
+    { 4, 5, 66 },
+    { 4, 6, 67 },
+    { 4, 0, 68 },
+    { 4, 3, 69 },
+    { 2, 3, 70 },
+    { 2, 7, 71 },
+    { 1, 8, 72 },
+    { 1, 9, 73 },
+    { 5, 10, 74 },
+    { 5, 11, 75 },
+    { 1, 5, 76 },
+    { 1, 10, 77 },
+    { 9, 2, 78 },
+    { 9, 6, 79 },
+    { 8, 12, 80 },
+    { 8, 13, 81 },
+    { 10, 14, 82 },
+    { 10, 15, 83 },
+    { 13, 9, 84 },
+    { 13, 11, 85 },
+    { 12, 14, 86 },
+    { 12, 15, 87 },
+    { 16, 17, 88 },
+    { 16, 1, 89 },
+    { 18, 19, 90 },
+    { 18, 5, 91 },
+    { 18, 16, 92 },
+    { 18, 0, 93 },
+    { 17, 19, 94 },
+    { 17, 5, 95 },
+    { 20, 21, 96 },
+    { 20, 12, 97 },
+    { 22, 23, 98 },
+    { 22, 14, 99 },
+    { 22, 20, 100 },
+    { 22, 8, 101 },
+    { 21, 23, 102 },
+    { 21, 14, 103 },
+    { 24, 25, 104 },
+    { 24, 17, 105 },
+    { 26, 27, 106 },
+    { 26, 19, 107 },
+    { 26, 24, 108 },
+    { 26, 16, 109 },
+    { 25, 28, 110 },
+    { 25, 20, 111 },
+    { 27, 29, 112 },
+    { 27, 22, 113 },
+    { 25, 27, 114 },
+    { 25, 29, 115 },
+    { 20, 17, 116 },
+    { 20, 19, 117 },
+    { 28, 30, 118 },
+    { 28, 21, 119 },
+    { 29, 31, 120 },
+    { 29, 23, 121 },
+    { 30, 31, 122 },
+    { 30, 23, 123 },
+    { 32, 33, 124 },
+    { 32, 25, 125 },
+    { 34, 35, 126 },
+    { 34, 27, 127 },
+    { 34, 32, 128 },
+    { 34, 24, 129 },
+    { 33, 35, 130 },
+    { 33, 27, 131 },
+    { 36, 37, 132 },
+    { 36, 30, 133 },
+    { 38, 39, 134 },
+    { 38, 31, 135 },
+    { 38, 36, 136 },
+    { 38, 28, 137 },
+    { 37, 39, 138 },
+    { 37, 31, 139 },
+    { 40, 41, 140 },
+    { 40, 33, 141 },
+    { 42, 43, 142 },
+    { 42, 35, 143 },
+    { 42, 40, 144 },
+    { 42, 32, 145 },
+    { 41, 44, 146 },
+    { 41, 36, 147 },
+    { 43, 45, 148 },
+    { 43, 38, 149 },
+    { 41, 43, 150 },
+    { 41, 45, 151 },
+    { 36, 33, 152 },
+    { 36, 35, 153 },
+    { 44, 46, 154 },
+    { 44, 37, 155 },
+    { 45, 47, 156 },
+    { 45, 39, 157 },
+    { 46, 47, 158 },
+    { 46, 39, 159 },
+    { 48, 49, 160 },
+    { 48, 41, 161 },
+    { 50, 51, 162 },
+    { 50, 43, 163 },
+    { 50, 48, 164 },
+    { 50, 40, 165 },
+    { 49, 51, 166 },
+    { 49, 43, 167 },
+    { 52, 53, 168 },
+    { 52, 46, 169 },
+    { 54, 55, 170 },
+    { 54, 47, 171 },
+    { 54, 52, 172 },
+    { 54, 44, 173 },
+    { 53, 55, 174 },
+    { 53, 47, 175 },
+    { 56, 57, 176 },
+    { 56, 49, 177 },
+    { 58, 59, 178 },
+    { 58, 51, 179 },
+    { 56, 58, 180 },
+    { 56, 59, 181 },
+    { 58, 56, 182 },
+    { 58, 48, 183 },
+    { 57, 60, 184 },
+    { 57, 52, 185 },
+    { 59, 61, 186 },
+    { 59, 54, 187 },
+    { 57, 59, 188 },
+    { 57, 61, 189 },
+    { 52, 49, 190 },
+    { 52, 51, 191 },
+    { 60, 62, 192 },
+    { 60, 53, 193 },
+    { 61, 63, 194 },
+    { 61, 55, 195 },
+    { 60, 61, 196 },
+    { 60, 63, 197 },
+    { 62, 63, 198 },
+    { 62, 55, 199 },
+    { 2, 64, 1 },
+    { 0, 64, 2 },
+    { 3, 65, 2 },
+    { 0, 65, 3 },
+    { 6, 66, 5 },
+    { 4, 66, 6 },
+    { 7, 67, 6 },
+    { 4, 67, 7 },
+    { 3, 68, 0 },
+    { 4, 68, 3 },
+    { 7, 69, 3 },
+    { 4, 69, 7 },
+    { 7, 70, 3 },
+    { 2, 70, 7 },
+    { 6, 71, 7 },
+    { 2, 71, 6 },
+    { 9, 72, 8 },
+    { 1, 72, 9 },
+    { 2, 73, 9 },
+    { 1, 73, 2 },
+    { 11, 74, 10 },
+    { 5, 74, 11 },
+    { 6, 75, 11 },
+    { 5, 75, 6 },
+    { 10, 76, 5 },
+    { 1, 76, 10 },
+    { 8, 77, 10 },
+    { 1, 77, 8 },
+    { 6, 78, 2 },
+    { 9, 78, 6 },
+    { 11, 79, 6 },
+    { 9, 79, 11 },
+    { 13, 80, 12 },
+    { 8, 80, 13 },
+    { 9, 81, 13 },
+    { 8, 81, 9 },
+    { 15, 82, 14 },
+    { 10, 82, 15 },
+    { 11, 83, 15 },
+    { 10, 83, 11 },
+    { 11, 84, 9 },
+    { 13, 84, 11 },
+    { 15, 85, 11 },
+    { 13, 85, 15 },
+    { 15, 86, 14 },
+    { 12, 86, 15 },
+    { 13, 87, 15 },
+    { 12, 87, 13 },
+    { 1, 88, 17 },
+    { 16, 88, 1 },
+    { 0, 89, 1 },
+    { 16, 89, 0 },
+    { 5, 90, 19 },
+    { 18, 90, 5 },
+    { 4, 91, 5 },
+    { 18, 91, 4 },
+    { 0, 92, 16 },
+    { 18, 92, 0 },
+    { 4, 93, 0 },
+    { 18, 93, 4 },
+    { 5, 94, 19 },
+    { 17, 94, 5 },
+    { 1, 95, 5 },
+    { 17, 95, 1 },
+    { 12, 96, 21 },
+    { 20, 96, 12 },
+    { 8, 97, 12 },
+    { 20, 97, 8 },
+    { 14, 98, 23 },
+    { 22, 98, 14 },
+    { 10, 99, 14 },
+    { 22, 99, 10 },
+    { 8, 100, 20 },
+    { 22, 100, 8 },
+    { 10, 101, 8 },
+    { 22, 101, 10 },
+    { 14, 102, 23 },
+    { 21, 102, 14 },
+    { 12, 103, 14 },
+    { 21, 103, 12 },
+    { 17, 104, 25 },
+    { 24, 104, 17 },
+    { 16, 105, 17 },
+    { 24, 105, 16 },
+    { 19, 106, 27 },
+    { 26, 106, 19 },
+    { 18, 107, 19 },
+    { 26, 107, 18 },
+    { 16, 108, 24 },
+    { 26, 108, 16 },
+    { 18, 109, 16 },
+    { 26, 109, 18 },
+    { 20, 110, 28 },
+    { 25, 110, 20 },
+    { 17, 111, 20 },
+    { 25, 111, 17 },
+    { 22, 112, 29 },
+    { 27, 112, 22 },
+    { 19, 113, 22 },
+    { 27, 113, 19 },
+    { 29, 114, 27 },
+    { 25, 114, 29 },
+    { 28, 115, 29 },
+    { 25, 115, 28 },
+    { 19, 116, 17 },
+    { 20, 116, 19 },
+    { 22, 117, 19 },
+    { 20, 117, 22 },
+    { 21, 118, 30 },
+    { 28, 118, 21 },
+    { 20, 119, 21 },
+    { 28, 119, 20 },
+    { 23, 120, 31 },
+    { 29, 120, 23 },
+    { 22, 121, 23 },
+    { 29, 121, 22 },
+    { 23, 122, 31 },
+    { 30, 122, 23 },
+    { 21, 123, 23 },
+    { 30, 123, 21 },
+    { 25, 124, 33 },
+    { 32, 124, 25 },
+    { 24, 125, 25 },
+    { 32, 125, 24 },
+    { 27, 126, 35 },
+    { 34, 126, 27 },
+    { 26, 127, 27 },
+    { 34, 127, 26 },
+    { 24, 128, 32 },
+    { 34, 128, 24 },
+    { 26, 129, 24 },
+    { 34, 129, 26 },
+    { 27, 130, 35 },
+    { 33, 130, 27 },
+    { 25, 131, 27 },
+    { 33, 131, 25 },
+    { 30, 132, 37 },
+    { 36, 132, 30 },
+    { 28, 133, 30 },
+    { 36, 133, 28 },
+    { 31, 134, 39 },
+    { 38, 134, 31 },
+    { 29, 135, 31 },
+    { 38, 135, 29 },
+    { 28, 136, 36 },
+    { 38, 136, 28 },
+    { 29, 137, 28 },
+    { 38, 137, 29 },
+    { 31, 138, 39 },
+    { 37, 138, 31 },
+    { 30, 139, 31 },
+    { 37, 139, 30 },
+    { 33, 140, 41 },
+    { 40, 140, 33 },
+    { 32, 141, 33 },
+    { 40, 141, 32 },
+    { 35, 142, 43 },
+    { 42, 142, 35 },
+    { 34, 143, 35 },
+    { 42, 143, 34 },
+    { 32, 144, 40 },
+    { 42, 144, 32 },
+    { 34, 145, 32 },
+    { 42, 145, 34 },
+    { 36, 146, 44 },
+    { 41, 146, 36 },
+    { 33, 147, 36 },
+    { 41, 147, 33 },
+    { 38, 148, 45 },
+    { 43, 148, 38 },
+    { 35, 149, 38 },
+    { 43, 149, 35 },
+    { 45, 150, 43 },
+    { 41, 150, 45 },
+    { 44, 151, 45 },
+    { 41, 151, 44 },
+    { 35, 152, 33 },
+    { 36, 152, 35 },
+    { 38, 153, 35 },
+    { 36, 153, 38 },
+    { 37, 154, 46 },
+    { 44, 154, 37 },
+    { 36, 155, 37 },
+    { 44, 155, 36 },
+    { 39, 156, 47 },
+    { 45, 156, 39 },
+    { 38, 157, 39 },
+    { 45, 157, 38 },
+    { 39, 158, 47 },
+    { 46, 158, 39 },
+    { 37, 159, 39 },
+    { 46, 159, 37 },
+    { 41, 160, 49 },
+    { 48, 160, 41 },
+    { 40, 161, 41 },
+    { 48, 161, 40 },
+    { 43, 162, 51 },
+    { 50, 162, 43 },
+    { 42, 163, 43 },
+    { 50, 163, 42 },
+    { 40, 164, 48 },
+    { 50, 164, 40 },
+    { 42, 165, 40 },
+    { 50, 165, 42 },
+    { 43, 166, 51 },
+    { 49, 166, 43 },
+    { 41, 167, 43 },
+    { 49, 167, 41 },
+    { 46, 168, 53 },
+    { 52, 168, 46 },
+    { 44, 169, 46 },
+    { 52, 169, 44 },
+    { 47, 170, 55 },
+    { 54, 170, 47 },
+    { 45, 171, 47 },
+    { 54, 171, 45 },
+    { 44, 172, 52 },
+    { 54, 172, 44 },
+    { 45, 173, 44 },
+    { 54, 173, 45 },
+    { 47, 174, 55 },
+    { 53, 174, 47 },
+    { 46, 175, 47 },
+    { 53, 175, 46 },
+    { 49, 176, 57 },
+    { 56, 176, 49 },
+    { 48, 177, 49 },
+    { 56, 177, 48 },
+    { 51, 178, 59 },
+    { 58, 178, 51 },
+    { 50, 179, 51 },
+    { 58, 179, 50 },
+    { 59, 180, 58 },
+    { 56, 180, 59 },
+    { 57, 181, 59 },
+    { 56, 181, 57 },
+    { 48, 182, 56 },
+    { 58, 182, 48 },
+    { 50, 183, 48 },
+    { 58, 183, 50 },
+    { 52, 184, 60 },
+    { 57, 184, 52 },
+    { 49, 185, 52 },
+    { 57, 185, 49 },
+    { 54, 186, 61 },
+    { 59, 186, 54 },
+    { 51, 187, 54 },
+    { 59, 187, 51 },
+    { 61, 188, 59 },
+    { 57, 188, 61 },
+    { 60, 189, 61 },
+    { 57, 189, 60 },
+    { 51, 190, 49 },
+    { 52, 190, 51 },
+    { 54, 191, 51 },
+    { 52, 191, 54 },
+    { 53, 192, 62 },
+    { 60, 192, 53 },
+    { 52, 193, 53 },
+    { 60, 193, 52 },
+    { 55, 194, 63 },
+    { 61, 194, 55 },
+    { 54, 195, 55 },
+    { 61, 195, 54 },
+    { 63, 196, 61 },
+    { 60, 196, 63 },
+    { 62, 197, 63 },
+    { 60, 197, 62 },
+    { 55, 198, 63 },
+    { 62, 198, 55 },
+    { 53, 199, 55 },
+    { 62, 199, 53 },
+  };
+
+  for (auto* mesh_tri : mesh_tris)
+  {
+    sMesh->InsertNextCell(VTK_TRIANGLE, 3, mesh_tri);
+  }
+
   return 1;
 }
 
