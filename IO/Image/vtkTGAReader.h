@@ -34,6 +34,7 @@ class VTKIOIMAGE_EXPORT vtkTGAReader : public vtkImageReader2
 public:
   static vtkTGAReader* New();
   vtkTypeMacro(vtkTGAReader, vtkImageReader2);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Is the given file a valid TGA file?
