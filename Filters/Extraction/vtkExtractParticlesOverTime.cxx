@@ -24,6 +24,7 @@
 #include "vtkStaticCellLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <array>
 #include <set>
 
 //------------------------------------------------------------------------------
