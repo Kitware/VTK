@@ -616,7 +616,7 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
   if (this->OriginalCellIds)
   {
     this->OriginalCellIds->Delete();
-    this->OriginalPointIds = nullptr;
+    this->OriginalCellIds = nullptr;
   }
   return 1;
 }
