@@ -109,12 +109,12 @@ typedef struct _ItemInfo
 } ItemInfo;
 
 /* forward declarations */
-struct _ValueInfo;
-struct _FunctionInfo;
-struct _FileInfo;
-typedef struct _ValueInfo ValueInfo;
-typedef struct _FunctionInfo FunctionInfo;
-typedef struct _FileInfo FileInfo;
+struct ValueInfo_;
+struct FunctionInfo_;
+struct FileInfo_;
+typedef struct ValueInfo_ ValueInfo;
+typedef struct FunctionInfo_ FunctionInfo;
+typedef struct FileInfo_ FileInfo;
 
 /**
  * CommentInfo is for storing comments by category
@@ -146,7 +146,7 @@ typedef struct _TemplateInfo
  * order to support dimensions that are sized according to
  * template parameter values or according to named constants.
  */
-struct _ValueInfo
+struct ValueInfo_
 {
   parse_item_t ItemType;
   parse_access_t Access;
@@ -170,7 +170,7 @@ struct _ValueInfo
 /**
  * FunctionInfo is for functions and methods
  */
-struct _FunctionInfo
+struct FunctionInfo_
 {
   parse_item_t ItemType;
   parse_access_t Access;
@@ -219,7 +219,7 @@ struct _FunctionInfo
 /**
  * UsingInfo is for using directives
  */
-typedef struct _UsingInfo
+typedef struct UsingInfo_
 {
   parse_item_t ItemType;
   parse_access_t Access;
@@ -231,7 +231,7 @@ typedef struct _UsingInfo
 /**
  * ClassInfo is for classes, structs, unions, and namespaces
  */
-typedef struct _ClassInfo
+typedef struct ClassInfo_
 {
   parse_item_t ItemType;
   parse_access_t Access;
@@ -243,7 +243,7 @@ typedef struct _ClassInfo
   int NumberOfItems;
   ItemInfo* Items;
   int NumberOfClasses;
-  struct _ClassInfo** Classes;
+  struct ClassInfo_** Classes;
   int NumberOfFunctions;
   FunctionInfo** Functions;
   int NumberOfConstants;
@@ -251,13 +251,13 @@ typedef struct _ClassInfo
   int NumberOfVariables;
   ValueInfo** Variables;
   int NumberOfEnums;
-  struct _ClassInfo** Enums;
+  struct ClassInfo_** Enums;
   int NumberOfTypedefs;
   ValueInfo** Typedefs;
   int NumberOfUsings;
   UsingInfo** Usings;
   int NumberOfNamespaces;
-  struct _ClassInfo** Namespaces;
+  struct ClassInfo_** Namespaces;
   int NumberOfComments;
   CommentInfo** Comments;
   const char* DeprecatedReason;
@@ -274,17 +274,17 @@ typedef struct _ClassInfo
  * For scoped enums, the constants are in the enum itself, but for
  * standard enums, the constants are at the same level as the enum.
  */
-typedef struct _ClassInfo EnumInfo;
+typedef struct ClassInfo_ EnumInfo;
 
 /**
  * Namespace is for namespaces
  */
-typedef struct _ClassInfo NamespaceInfo;
+typedef struct ClassInfo_ NamespaceInfo;
 
 /**
  * FileInfo is for header files
  */
-struct _FileInfo
+struct FileInfo_
 {
   const char* FileName;
   const char* NameComment;
@@ -293,7 +293,7 @@ struct _FileInfo
   const char* SeeAlso;
 
   int NumberOfIncludes;
-  struct _FileInfo** Includes;
+  struct FileInfo_** Includes;
   ClassInfo* MainClass;
   NamespaceInfo* Contents;
   StringCache* Strings;
