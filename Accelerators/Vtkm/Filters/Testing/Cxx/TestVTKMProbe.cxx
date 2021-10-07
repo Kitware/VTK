@@ -146,7 +146,7 @@ int TestVTKMProbe(int, char*[])
 
   vtkDataSet* result = probe->GetOutput();
   TestResultArray(result->GetPointData()->GetArray(pointArray->GetName()), GetExpectedPointData());
-  TestResultArray(result->GetCellData()->GetArray(cellArray->GetName()), GetExpectedCellData());
+  TestResultArray(result->GetPointData()->GetArray(cellArray->GetName()), GetExpectedCellData());
   TestResultArray(result->GetPointData()->GetArray("validPoint"), GetExpectedHiddenPoints());
   TestResultArray(result->GetCellData()->GetArray("validCell"), GetExpectedHiddenCells());
   return 0;
