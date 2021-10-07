@@ -34,7 +34,9 @@
 
 int TestSEPReader(int argc, char* argv[])
 {
-  const std::string filename = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/small.H");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/small.H");
+  const std::string filename = fname;
+  delete[] fname;
 
   vtkNew<vtkSEPReader> SEPReader;
 

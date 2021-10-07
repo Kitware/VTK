@@ -176,6 +176,8 @@ int TestPStreamAMR(int argc, char* argv[])
   imageSource->SetCellArrayStatus("y-velocity", 1);
   imageSource->SetCellArrayStatus("z-velocity", 1);
 
+  delete[] fname;
+
   vtkNew<TestAMRVectorSource> gradientSource;
   gradientSource->SetInputConnection(imageSource->GetOutputPort());
 

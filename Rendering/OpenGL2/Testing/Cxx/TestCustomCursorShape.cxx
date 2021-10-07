@@ -47,6 +47,8 @@ int TestCustomCursorShape(int argc, char* argv[])
   renWin->SetCurrentCursor(VTK_CURSOR_CUSTOM);
   renWin->Render();
 
+  delete[] fileName;
+
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

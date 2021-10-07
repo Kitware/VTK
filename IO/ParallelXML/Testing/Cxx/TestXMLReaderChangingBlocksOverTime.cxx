@@ -32,7 +32,9 @@ int TestXMLReaderChangingBlocksOverTime(int argc, char* argv[])
   contr->Initialize(&argc, &argv);
   vtkMultiProcessController::SetGlobalController(contr);
 
-  const std::string dataRoot = vtkTestUtilities::GetDataRoot(argc, argv);
+  char* root = vtkTestUtilities::GetDataRoot(argc, argv);
+  const std::string dataRoot = root;
+  delete[] root;
   std::string filename(dataRoot);
   filename += "/Data/ChangingBlocksOverTime/wavelet_0.vtm";
 
