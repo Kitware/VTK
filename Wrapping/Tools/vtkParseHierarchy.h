@@ -47,7 +47,7 @@
  * One entry from the hierarchy file.
  * It contains a class name, the superclasses, and the header file.
  */
-typedef struct _HierarchyEntry
+typedef struct HierarchyEntry_
 {
   const char* Name;               /* the class or type name */
   const char* HeaderFile;         /* header file the class is defined in */
@@ -68,7 +68,7 @@ typedef struct _HierarchyEntry
 /**
  * All the entries from a hierarchy file.
  */
-typedef struct _HierarchyInfo
+typedef struct HierarchyInfo_
 {
   int MaxNumberOfEntries;
   int NumberOfEntries;
