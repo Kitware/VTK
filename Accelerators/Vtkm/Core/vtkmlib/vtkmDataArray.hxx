@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
+#include <vtkm/cont/Algorithm.h>
 #include <vtkm/cont/ArrayHandleCounting.h>
 #include <vtkm/cont/ArrayHandleGroupVecVariable.h>
 #include <vtkm/cont/ArrayHandleTransform.h>
