@@ -135,52 +135,58 @@ vtkSmartPointer<vtkPolyData> GeneratePolyData()
   vtkIdType nCells = pd->GetNumberOfCells();
 
 #define AddPointDataArray(dataType, vtkArrayType, nComponents, value)                              \
-  vtkSmartPointer<vtkArrayType> myp_##vtkArrayType = vtkSmartPointer<vtkArrayType>::New();         \
-  std::string name_myp_##vtkArrayType = "p_";                                                      \
-  name_myp_##vtkArrayType.append(#vtkArrayType);                                                   \
-  myp_##vtkArrayType->SetName(name_myp_##vtkArrayType.c_str());                                    \
-  myp_##vtkArrayType->SetNumberOfComponents(nComponents);                                          \
-  myp_##vtkArrayType->SetNumberOfTuples(nPoints);                                                  \
+  do                                                                                               \
   {                                                                                                \
-    dataType tuple[nComponents];                                                                   \
-    for (vtkIdType j = 0; j < (nComponents); j++)                                                  \
+    vtkSmartPointer<vtkArrayType> myp_##vtkArrayType = vtkSmartPointer<vtkArrayType>::New();       \
+    std::string name_myp_##vtkArrayType = "p_";                                                    \
+    name_myp_##vtkArrayType.append(#vtkArrayType);                                                 \
+    myp_##vtkArrayType->SetName(name_myp_##vtkArrayType.c_str());                                  \
+    myp_##vtkArrayType->SetNumberOfComponents(nComponents);                                        \
+    myp_##vtkArrayType->SetNumberOfTuples(nPoints);                                                \
     {                                                                                              \
-      tuple[j] = value;                                                                            \
-    }                                                                                              \
-    for (vtkIdType i = 0; i < nPoints; i++)                                                        \
-    {                                                                                              \
+      dataType tuple[nComponents];                                                                 \
       for (vtkIdType j = 0; j < (nComponents); j++)                                                \
       {                                                                                            \
-        tuple[j] += 1;                                                                             \
+        tuple[j] = value;                                                                          \
       }                                                                                            \
-      myp_##vtkArrayType->SetTypedTuple(i, tuple);                                                 \
+      for (vtkIdType i = 0; i < nPoints; i++)                                                      \
+      {                                                                                            \
+        for (vtkIdType j = 0; j < (nComponents); j++)                                              \
+        {                                                                                          \
+          tuple[j] += 1;                                                                           \
+        }                                                                                          \
+        myp_##vtkArrayType->SetTypedTuple(i, tuple);                                               \
+      }                                                                                            \
     }                                                                                              \
-  }                                                                                                \
-  pd->GetPointData()->AddArray(myp_##vtkArrayType)
+    pd->GetPointData()->AddArray(myp_##vtkArrayType);                                              \
+  } while (false)
 
 #define AddCellDataArray(dataType, vtkArrayType, nComponents, value)                               \
-  vtkSmartPointer<vtkArrayType> myc_##vtkArrayType = vtkSmartPointer<vtkArrayType>::New();         \
-  std::string name_myc_##vtkArrayType = "c_";                                                      \
-  name_myc_##vtkArrayType.append(#vtkArrayType);                                                   \
-  myc_##vtkArrayType->SetName(name_myc_##vtkArrayType.c_str());                                    \
-  myc_##vtkArrayType->SetNumberOfComponents(nComponents);                                          \
-  myc_##vtkArrayType->SetNumberOfTuples(nCells);                                                   \
+  do                                                                                               \
   {                                                                                                \
-    dataType tuple[nComponents];                                                                   \
-    for (vtkIdType j = 0; j < (nComponents); j++)                                                  \
+    vtkSmartPointer<vtkArrayType> myc_##vtkArrayType = vtkSmartPointer<vtkArrayType>::New();       \
+    std::string name_myc_##vtkArrayType = "c_";                                                    \
+    name_myc_##vtkArrayType.append(#vtkArrayType);                                                 \
+    myc_##vtkArrayType->SetName(name_myc_##vtkArrayType.c_str());                                  \
+    myc_##vtkArrayType->SetNumberOfComponents(nComponents);                                        \
+    myc_##vtkArrayType->SetNumberOfTuples(nCells);                                                 \
     {                                                                                              \
-      tuple[j] = value;                                                                            \
-    }                                                                                              \
-    for (vtkIdType i = 0; i < nCells; i++)                                                         \
-    {                                                                                              \
+      dataType tuple[nComponents];                                                                 \
       for (vtkIdType j = 0; j < (nComponents); j++)                                                \
       {                                                                                            \
-        tuple[j] += 1;                                                                             \
+        tuple[j] = value;                                                                          \
       }                                                                                            \
-      myc_##vtkArrayType->SetTypedTuple(i, tuple);                                                 \
+      for (vtkIdType i = 0; i < nCells; i++)                                                       \
+      {                                                                                            \
+        for (vtkIdType j = 0; j < (nComponents); j++)                                              \
+        {                                                                                          \
+          tuple[j] += 1;                                                                           \
+        }                                                                                          \
+        myc_##vtkArrayType->SetTypedTuple(i, tuple);                                               \
+      }                                                                                            \
     }                                                                                              \
-  }                                                                                                \
-  pd->GetCellData()->AddArray(myc_##vtkArrayType)
+    pd->GetCellData()->AddArray(myc_##vtkArrayType);                                               \
+  } while (false)
 
   AddPointDataArray(int, vtkIntArray, 1, 0);
   AddPointDataArray(long, vtkLongArray, 1, 0);
