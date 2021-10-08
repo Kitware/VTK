@@ -3,47 +3,47 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_doxygen_mpi_python_qt_tbb]"
+            "buildname": "[fedora34_doxygen_mpi_python_qt_tbb]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_offscreen_osmesa_python]"
+            "buildname": "[fedora34_mpi_offscreen_osmesa_python]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_offscreen_osmesa_python_ext_vtk]"
+            "buildname": "[fedora34_mpi_offscreen_osmesa_python_ext_vtk]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_renderless]"
+            "buildname": "[fedora34_mpi_renderless]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_renderless_ext_vtk]"
+            "buildname": "[fedora34_mpi_renderless_ext_vtk]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_python_qt_tbb]"
+            "buildname": "[fedora34_mpi_python_qt_tbb]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_python_qt_tbb_ext_vtk]"
+            "buildname": "[fedora34_mpi_python_qt_tbb_ext_vtk]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_python_qt_stdthread]"
+            "buildname": "[fedora34_mpi_python_qt_stdthread]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora33_mpi_python_qt_tbb_tidy]"
+            "buildname": "[fedora34_mpi_python_qt_tbb_tidy]"
         },
         {
             "group": "master",

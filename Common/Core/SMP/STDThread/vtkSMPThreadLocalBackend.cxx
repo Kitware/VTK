@@ -58,8 +58,6 @@ Slot::Slot()
 {
 }
 
-Slot::~Slot() = default;
-
 HashTableArray::HashTableArray(size_t sizeLg)
   : Size(1ULL << sizeLg)
   , SizeLg(sizeLg)

@@ -112,7 +112,7 @@ public:
   int AudioStreamIndex = -1;
   AVFrame* Frame = nullptr;
   AVFrame* AudioFrame = nullptr;
-  AVPacket Packet;
+  AVPacket* Packet;
   struct SwsContext* RGBContext = nullptr;
 };
 
@@ -159,6 +159,7 @@ vtkFFMPEGVideoSource::~vtkFFMPEGVideoSource()
   this->Stop();
   this->vtkFFMPEGVideoSource::ReleaseSystemResources();
   delete[] this->FileName;
+  av_packet_free(&this->Internal->Packet);
   delete this->Internal;
 }
 
@@ -310,9 +311,9 @@ void vtkFFMPEGVideoSource::Initialize()
   }
 
   /* initialize packet, set data to nullptr, let the demuxer fill it */
-  av_init_packet(&this->Internal->Packet);
-  this->Internal->Packet.data = nullptr;
-  this->Internal->Packet.size = 0;
+  this->Internal->Packet = av_packet_alloc();
+  this->Internal->Packet->data = nullptr;
+  this->Internal->Packet->size = 0;
 
   // update framebuffer again to reflect any changes which
   // might have occurred
@@ -345,17 +346,17 @@ void* vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo* data)
     // read in the packet
     if (!retryPacket)
     {
-      av_packet_unref(&this->Internal->Packet);
-      fret = av_read_frame(this->Internal->FormatContext, &this->Internal->Packet);
+      av_packet_unref(this->Internal->Packet);
+      fret = av_read_frame(this->Internal->FormatContext, this->Internal->Packet);
     }
     retryPacket = false;
     // feed video
-    if (fret >= 0 && this->Internal->Packet.stream_index == this->Internal->VideoStreamIndex)
+    if (fret >= 0 && this->Internal->Packet->stream_index == this->Internal->VideoStreamIndex)
     {
       // lock the decoder
       this->FeedMutex.lock();
 
-      int sret = avcodec_send_packet(this->Internal->VideoDecodeContext, &this->Internal->Packet);
+      int sret = avcodec_send_packet(this->Internal->VideoDecodeContext, this->Internal->Packet);
       if (sret == 0) // good decode
       {
         this->FeedCondition.notify_one();
@@ -378,12 +379,12 @@ void* vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo* data)
     }
 
     // feed audio
-    if (fret >= 0 && this->Internal->Packet.stream_index == this->Internal->AudioStreamIndex)
+    if (fret >= 0 && this->Internal->Packet->stream_index == this->Internal->AudioStreamIndex)
     {
       // lock the decoder
       this->FeedAudioMutex.lock();
 
-      int sret = avcodec_send_packet(this->Internal->AudioDecodeContext, &this->Internal->Packet);
+      int sret = avcodec_send_packet(this->Internal->AudioDecodeContext, this->Internal->Packet);
       if (sret == 0) // good decode
       {
         this->FeedAudioCondition.notify_one();
@@ -691,10 +692,10 @@ void vtkFFMPEGVideoSource::ReadFrame()
 {
   // first try to grab a frame from data we already have
   bool gotFrame = false;
-  while (!gotFrame && (!this->EndOfFile || this->Internal->Packet.size > 0))
+  while (!gotFrame && (!this->EndOfFile || this->Internal->Packet->size > 0))
   {
     int ret = AVERROR(EAGAIN);
-    if (this->Internal->Packet.size > 0)
+    if (this->Internal->Packet->size > 0)
     {
       ret = avcodec_receive_frame(this->Internal->VideoDecodeContext, this->Internal->Frame);
       if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF)
@@ -717,11 +718,11 @@ void vtkFFMPEGVideoSource::ReadFrame()
     if (ret == AVERROR(EAGAIN) && !this->EndOfFile)
     {
       // if the packet is empty read more data from the file
-      av_packet_unref(&this->Internal->Packet);
-      int fret = av_read_frame(this->Internal->FormatContext, &this->Internal->Packet);
-      if (fret >= 0 && this->Internal->Packet.stream_index == this->Internal->VideoStreamIndex)
+      av_packet_unref(this->Internal->Packet);
+      int fret = av_read_frame(this->Internal->FormatContext, this->Internal->Packet);
+      if (fret >= 0 && this->Internal->Packet->stream_index == this->Internal->VideoStreamIndex)
       {
-        int sret = avcodec_send_packet(this->Internal->VideoDecodeContext, &this->Internal->Packet);
+        int sret = avcodec_send_packet(this->Internal->VideoDecodeContext, this->Internal->Packet);
         if (sret < 0 && sret != AVERROR(EAGAIN) && sret != AVERROR_EOF)
         {
           vtkErrorMacro("codec did not send packet");
