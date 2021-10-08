@@ -39,52 +39,84 @@ vtkStandardNewMacro(vtkMultiObjectMassProperties);
 namespace
 {
 
-struct ComputeProperties
+class ComputeProperties
 {
+private:
   vtkPolyData* Mesh;
   vtkPoints* Points;
   double Center[3];
   unsigned char* Orient;
   double* Areas;
   double* Volumes;
+  vtkIdType NumberOfObjects;
+  vtkIdType* ObjectIds;
+  double* ObjectAreas;
+  double* ObjectVolumes;
+  double* ObjectCentroids;
 
   vtkSMPThreadLocalObject<vtkPolygon> Polygon;
   vtkSMPThreadLocalObject<vtkIdList> Triangles;
+  vtkSMPThreadLocal<std::vector<double>> TLObjectAreas;
+  vtkSMPThreadLocal<std::vector<double>> TLObjectVolumes;
+  vtkSMPThreadLocal<std::vector<double>> TLObjectCentroids;
 
-  ComputeProperties(
-    vtkPolyData* mesh, double center[3], unsigned char* orient, double* areas, double* volumes)
+public:
+  ComputeProperties(vtkPolyData* mesh, double center[3], unsigned char* orient, double* areas,
+    double* volumes, vtkIdType numberOfObjects, vtkIdType* objectIds, double* objectAreas,
+    double* objectVolumes, double* objectCentroids)
     : Mesh(mesh)
     , Orient(orient)
     , Areas(areas)
     , Volumes(volumes)
+    , NumberOfObjects(numberOfObjects)
+    , ObjectIds(objectIds)
+    , ObjectAreas(objectAreas)
+    , ObjectVolumes(objectVolumes)
+    , ObjectCentroids(objectCentroids)
+    , Points(Mesh->GetPoints())
   {
-    this->Points = this->Mesh->GetPoints();
-
     this->Center[0] = center[0];
     this->Center[1] = center[1];
     this->Center[2] = center[2];
   }
 
-  // Just allocate a little bit of memory to get started.
   void Initialize()
   {
-    vtkPolygon*& polygon = this->Polygon.Local();
+    // allocate some memory
+    auto& polygon = this->Polygon.Local();
     polygon->PointIds->Allocate(128);
     polygon->Points->Allocate(128);
 
-    vtkIdList*& tris = this->Triangles.Local();
-    tris->Allocate(128); // allocate some memory
+    // allocate some memory
+    auto& tris = this->Triangles.Local();
+    tris->Allocate(128);
+
+    // initialize thread local object-related results;
+    auto& objectAreas = this->TLObjectAreas.Local();
+    objectAreas.resize(this->NumberOfObjects);
+    std::fill_n(objectAreas.begin(), this->NumberOfObjects, 0.0);
+
+    auto& objectVolumes = this->TLObjectVolumes.Local();
+    objectVolumes.resize(this->NumberOfObjects);
+    std::fill_n(objectVolumes.begin(), this->NumberOfObjects, 0.0);
+
+    auto& objectCentroids = this->TLObjectCentroids.Local();
+    objectCentroids.resize(this->NumberOfObjects * 3);
+    std::fill_n(objectCentroids.begin(), this->NumberOfObjects * 3, 0.0);
   }
 
   // There is a lot of data shuffling between the dataset and the cells going
   // on. This could be optimized if it ever comes to that.
-  void operator()(vtkIdType polyId, vtkIdType endPolyId)
+  void operator()(vtkIdType beginPolyId, vtkIdType endPolyId)
   {
+    auto& objectAreas = this->TLObjectAreas.Local();
+    auto& objectVolumes = this->TLObjectVolumes.Local();
+    auto& objectCentroids = this->TLObjectCentroids.Local();
     vtkPoints* inPts = this->Points;
-    double x[3], n[3];
-    double* areas = this->Areas + polyId;
-    double* volumes = this->Volumes + polyId;
-    const unsigned char* orient = this->Orient + polyId;
+    double x[3], n[3], centroid[3];
+    double* areas = this->Areas + beginPolyId;
+    double* volumes = this->Volumes + beginPolyId;
+    const unsigned char* orient = this->Orient + beginPolyId;
     const double* c = this->Center;
     vtkIdType npts;
     const vtkIdType* pts;
@@ -92,15 +124,17 @@ struct ComputeProperties
     vtkPolygon*& poly = this->Polygon.Local();
     vtkIdList*& tris = this->Triangles.Local();
     int i;
-    double x0[3], x1[3], x2[3], vol;
+    double x0[3], x1[3], x2[3], tetVol;
     double v210, v120, v201, v021, v102, v012;
 
-    for (; polyId < endPolyId; ++polyId)
+    for (vtkIdType polyId = beginPolyId; polyId < endPolyId; ++polyId)
     {
+      vtkIdType& objectId = this->ObjectIds[polyId];
       this->Mesh->GetCellPoints(polyId, npts, pts);
 
       // Compute area of polygon.
-      *areas++ = vtkPolygon::ComputeArea(inPts, npts, pts, n);
+      *areas = vtkPolygon::ComputeArea(inPts, npts, pts, n);
+      objectAreas[objectId] += *areas++;
 
       // Now need to compute volume contribution of polygon.
       poly->PointIds->SetNumberOfIds(npts);
@@ -113,12 +147,12 @@ struct ComputeProperties
       }
 
       // The volume computation implemented using signed tetrahedra from
-      // generating triangles. Thus polygons may need tessellation.
+      // generating triangles. Thus, polygons may need to be triangulated.
       poly->Triangulate(tris);
       numTris = tris->GetNumberOfIds() / 3;
 
       // Loop over each triangle from the tessellation
-      for (vol = 0.0, i = 0; i < numTris; i++)
+      for (*volumes = 0.0, i = 0; i < numTris; i++)
       {
         poly->Points->GetPoint(tris->GetId(3 * i), x0);
         poly->Points->GetPoint(tris->GetId(3 * i + 1), x1);
@@ -133,20 +167,71 @@ struct ComputeProperties
         v102 = (x1[0] - c[0]) * (x0[1] - c[1]) * (x2[2] - c[2]);
         v012 = (x0[0] - c[0]) * (x1[1] - c[1]) * (x2[2] - c[2]);
 
-        vol += -v210 + v120 + v201 - v021 - v102 + v012;
-      } // for each triangle in this polygon
+        // Find volume contribution of tetrahedron
+        // Note: Ordering consistency affects sign of volume contribution
+        tetVol =
+          (*orient != 0 ? 1.0 : -1.0) * (-v210 + v120 + v201 - v021 - v102 + v012) * (1.0 / 6.0);
 
-      // Ordering consistency affects sign of volume contribution
-      *volumes++ = (1.0 / 6.0) * (*orient++ != 0 ? 1.0 : -1.0) * vol;
+        // Find centroid of tetrahedron
+        centroid[0] = (x0[0] + x1[0] + x2[0] + c[0]) / 4.0;
+        centroid[1] = (x0[1] + x1[1] + x2[1] + c[1]) / 4.0;
+        centroid[2] = (x0[2] + x1[2] + x2[2] + c[2]) / 4.0;
+        objectCentroids[3 * objectId + 0] += (tetVol * centroid[0]);
+        objectCentroids[3 * objectId + 1] += (tetVol * centroid[1]);
+        objectCentroids[3 * objectId + 2] += (tetVol * centroid[2]);
+
+        *volumes += tetVol;
+      } // for each triangle in this polygon
+      orient++;
+      objectVolumes[objectId] += *volumes++;
     } // for this polygon
   }
 
-  void Reduce() {}
+  void Reduce()
+  {
+    // calculate the area of each object using the thread results
+    std::fill_n(this->ObjectAreas, this->NumberOfObjects, 0.0);
+    for (auto& tlObjectAreas : this->TLObjectAreas)
+    {
+      for (vtkIdType i = 0; i < this->NumberOfObjects; ++i)
+      {
+        this->ObjectAreas[i] += tlObjectAreas[i];
+      }
+    }
+    // calculate the volume of each object using the thread results
+    std::fill_n(this->ObjectVolumes, this->NumberOfObjects, 0.0);
+    for (auto& tlObjectVolumes : this->TLObjectVolumes)
+    {
+      for (vtkIdType i = 0; i < this->NumberOfObjects; ++i)
+      {
+        this->ObjectVolumes[i] += tlObjectVolumes[i];
+      }
+    }
+    // calculate the weighted centroid of each object using the thread results
+    std::fill_n(this->ObjectCentroids, this->NumberOfObjects * 3, 0.0);
+    for (auto& tlObjectCentroids : this->TLObjectCentroids)
+    {
+      for (vtkIdType i = 0; i < this->NumberOfObjects; ++i)
+      {
+        this->ObjectCentroids[3 * i + 0] += tlObjectCentroids[3 * i + 0];
+        this->ObjectCentroids[3 * i + 1] += tlObjectCentroids[3 * i + 1];
+        this->ObjectCentroids[3 * i + 2] += tlObjectCentroids[3 * i + 2];
+      }
+    }
+    for (vtkIdType i = 0; i < this->NumberOfObjects; ++i)
+    {
+      this->ObjectCentroids[3 * i + 0] /= this->ObjectVolumes[i];
+      this->ObjectCentroids[3 * i + 1] /= this->ObjectVolumes[i];
+      this->ObjectCentroids[3 * i + 2] /= this->ObjectVolumes[i];
+    }
+  }
 
   static void Execute(vtkIdType numPolys, vtkPolyData* output, double center[3],
-    unsigned char* orient, double* areas, double* volumes)
+    unsigned char* orient, double* areas, double* volumes, vtkIdType numberOfObjects,
+    vtkIdType* objectIds, double* objectAreas, double* objectVolumes, double* objectCentroids)
   {
-    ComputeProperties compute(output, center, orient, areas, volumes);
+    ComputeProperties compute(output, center, orient, areas, volumes, numberOfObjects, objectIds,
+      objectAreas, objectVolumes, objectCentroids);
     vtkSMPTools::For(0, numPolys, compute);
   }
 };
@@ -166,6 +251,7 @@ vtkMultiObjectMassProperties::vtkMultiObjectMassProperties()
   // The labeling (e.g., ids) of objects. The ObjectValidity is a 0/1 flag
   // indicating whether the object is manifold (i.e., valid) meaning every
   // edge is used exactly two times.
+  this->SetObjectIdsArrayName("ObjectIds");
   this->NumberOfObjects = 0;
   this->ObjectIds = nullptr;
   this->ObjectValidity = nullptr;
@@ -186,9 +272,8 @@ vtkMultiObjectMassProperties::~vtkMultiObjectMassProperties()
 }
 
 //------------------------------------------------------------------------------
-// Description:
-// This method measures volume, surface area, and normalized shape index.
-// Currently, the input is a ploydata which consists of triangles.
+// This method measures volume and surface area.
+// The input is a PolyData which consists of polygons.
 int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -212,20 +297,19 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   // Attribute data
-  vtkPointData *pd = input->GetPointData(), *outputPD = output->GetPointData();
-  vtkCellData *cd = input->GetCellData(), *outputCD = output->GetCellData();
+  vtkPointData *inputPD = input->GetPointData(), *outputPD = output->GetPointData();
+  vtkCellData *inputCD = input->GetCellData(), *outputCD = output->GetCellData();
 
   // Determine if some data is being skipped over and either shallow copy out
   // or copy the cell attribute data and prune the extra cells. Points are
   // always passed through.
-  vtkIdType polyId;
   vtkIdType numCells = input->GetNumberOfCells();
   if (numCells == numPolys)
   {
     // Just copy stuff through and we'll add arrays
     output->CopyStructure(input);
-    outputPD->PassData(pd);
-    outputCD->PassData(cd);
+    outputPD->PassData(inputPD);
+    outputCD->PassData(inputCD);
   }
   else
   {
@@ -234,19 +318,20 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
     // Pass points through, can always use vtkCleanPolyData to eliminate
     // unused points.
     output->SetPoints(input->GetPoints());
-    outputPD->PassData(pd);
+    outputPD->PassData(inputPD);
 
     // Just process polys and copy over associated cell data
     input->BuildCells();
     output->SetPolys(input->GetPolys());
-    vtkIdType cellId;
+    outputCD->CopyAllocate(inputCD);
+
     unsigned char cellType;
-    for (polyId = 0, cellId = 0; cellId < numCells; ++cellId)
+    for (vtkIdType cellId = 0, polyId = 0; cellId < numCells; ++cellId)
     {
       cellType = input->GetCellType(cellId);
       if (cellType == VTK_TRIANGLE || cellType == VTK_QUAD || cellType == VTK_POLYGON)
       {
-        outputCD->CopyData(cd, cellId, polyId);
+        outputCD->CopyData(inputCD, cellId, polyId);
         polyId++;
       }
     }
@@ -261,14 +346,14 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   bool performValidityCheck = false;
   int idx;
   vtkIdType* objectIds;
-  vtkIdTypeArray* objectIdsArray =
-    static_cast<vtkIdTypeArray*>(output->GetCellData()->GetArray("ObjectIds", idx));
+  vtkIdTypeArray* objectIdsArray = vtkIdTypeArray::FastDownCast(
+    output->GetCellData()->GetAbstractArray(this->ObjectIdsArrayName.c_str(), idx));
   if (!this->SkipValidityCheck || objectIdsArray == nullptr ||
     objectIdsArray->GetDataType() != VTK_ID_TYPE)
   {
     performValidityCheck = true;
     this->ObjectIds = objectIdsArray = vtkIdTypeArray::New();
-    this->ObjectIds->SetName("ObjectIds");
+    this->ObjectIds->SetName(this->ObjectIdsArrayName.c_str());
     this->ObjectIds->SetNumberOfTuples(numPolys);
     outputCD->AddArray(objectIdsArray);
     objectIds = objectIdsArray->GetPointer(0);
@@ -285,8 +370,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   unsigned char* valid;
 
   // All polygons initially assumed oriented properly
-  unsigned char* orient = new unsigned char[numPolys];
-  std::fill_n(orient, numPolys, 1);
+  std::vector<unsigned char> orient(numPolys, 1);
 
   // This traversal identifies the number of objects in the mesh, and whether
   // they are valid (closed, manifold).
@@ -299,16 +383,18 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
     this->Wave2 = vtkIdList::New();
     this->Wave2->Allocate(numPolys / 4 + 1, numPolys);
 
-    for (polyId = 0; polyId < numPolys; ++polyId)
+    for (vtkIdType polyId = 0; polyId < numPolys; ++polyId)
     {
+      // check if value is less than 0, because the initial value is -1
       if (objectIds[polyId] < 0)
       {
         // found another object
         this->Wave->InsertNextId(polyId);
         objectIds[polyId] = this->NumberOfObjects;
-        this->ObjectValidity->InsertTuple1(this->NumberOfObjects, 1);
-        this->TraverseAndMark(output, objectIds, this->ObjectValidity, orient);
+        this->ObjectValidity->InsertValue(this->NumberOfObjects, 1);
+        this->TraverseAndMark(output, objectIds, this->ObjectValidity, orient.data());
         this->NumberOfObjects++;
+        // Wave & Wave2 need to be reset since they are populated in TraverseAndMark()
         this->Wave->Reset();
         this->Wave2->Reset();
       }
@@ -327,12 +413,12 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   } // if validity check required
 
   // Here we assume that the object ids provided are associated with valid
-  // objects. However we need to traverse provided array to determine number
+  // objects. However, we need to traverse provided array to determine number
   // of objects.
   else
   {
     this->NumberOfObjects = 0;
-    for (polyId = 0; polyId < numPolys; ++polyId)
+    for (vtkIdType polyId = 0; polyId < numPolys; ++polyId)
     {
       if (this->NumberOfObjects < (objectIds[polyId] + 1))
       {
@@ -346,9 +432,9 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   // Now compute the areas and volumes. This can be done in parallel. We
-  // compute on a per polygon basis and sum the results later. Note that the
-  // polygon volumes are the contribution that the polygon makes to the total
-  // object volume (may be negative or positive).
+  // compute on a per-polygon basis and sum the results later. Note that the
+  // polygon volumes, which can be negative or positive, are the contribution
+  // that the polygon makes to the total object volume.
   vtkDoubleArray* polyAreas = vtkDoubleArray::New();
   polyAreas->SetName("Areas");
   polyAreas->SetNumberOfTuples(numPolys);
@@ -361,45 +447,42 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   outputCD->AddArray(polyVolumes);
   double* pVolumes = polyVolumes->GetPointer(0);
 
+  // Roll up the results into total results on a per-object basis.
+  this->ObjectAreas = vtkDoubleArray::New();
+  this->ObjectAreas->SetName("ObjectAreas");
+  this->ObjectAreas->SetNumberOfTuples(this->NumberOfObjects);
+  output->GetFieldData()->AddArray(this->ObjectAreas);
+  double* objectAreas = this->ObjectAreas->GetPointer(0);
+
+  this->ObjectVolumes = vtkDoubleArray::New();
+  this->ObjectVolumes->SetName("ObjectVolumes");
+  this->ObjectVolumes->SetNumberOfTuples(this->NumberOfObjects);
+  output->GetFieldData()->AddArray(this->ObjectVolumes);
+  double* objectVolumes = this->ObjectVolumes->GetPointer(0);
+
+  this->ObjectCentroids = vtkDoubleArray::New();
+  this->ObjectCentroids->SetName("ObjectCentroids");
+  this->ObjectCentroids->SetNumberOfComponents(3);
+  this->ObjectCentroids->SetNumberOfTuples(this->NumberOfObjects);
+  output->GetFieldData()->AddArray(this->ObjectCentroids);
+  double* objectCentroids = this->ObjectCentroids->GetPointer(0);
+
   // Need reference origin to compute volumes
   double center[3];
   output->GetCenter(center);
 
   // Compute areas and volumes in parallel
-  ComputeProperties::Execute(
-    numPolys, output, center, orient, polyAreas->GetPointer(0), polyVolumes->GetPointer(0));
-
-  // Roll up the results into total results on a per object basis.
-  this->ObjectAreas = vtkDoubleArray::New();
-  this->ObjectAreas->SetName("ObjectAreas");
-  output->GetFieldData()->AddArray(this->ObjectAreas);
-  this->ObjectAreas->SetNumberOfTuples(this->NumberOfObjects);
-  this->ObjectAreas->FillValue(0.0);
-  double* areas = this->ObjectAreas->GetPointer(0);
-  std::fill_n(areas, this->NumberOfObjects, 0.0);
-
-  this->ObjectVolumes = vtkDoubleArray::New();
-  this->ObjectVolumes->SetName("ObjectVolumes");
-  output->GetFieldData()->AddArray(this->ObjectVolumes);
-  this->ObjectVolumes->SetNumberOfTuples(this->NumberOfObjects);
-  double* volumes = this->ObjectVolumes->GetPointer(0);
-  std::fill_n(volumes, this->NumberOfObjects, 0.0);
-
-  // Roll up final numbers
-  for (polyId = 0; polyId < numPolys; ++polyId)
-  {
-    areas[objectIds[polyId]] += pAreas[polyId];
-    volumes[objectIds[polyId]] += pVolumes[polyId];
-  }
+  ComputeProperties::Execute(numPolys, output, center, orient.data(), pAreas, pVolumes,
+    this->NumberOfObjects, objectIds, objectAreas, objectVolumes, objectCentroids);
 
   // Volumes are always positive
   for (idx = 0; idx < this->NumberOfObjects; ++idx)
   {
-    this->TotalArea += areas[idx];
+    this->TotalArea += objectAreas[idx];
     if (valid[idx])
     {
-      volumes[idx] = fabs(volumes[idx]);
-      this->TotalVolume += volumes[idx];
+      objectVolumes[idx] = std::abs(objectVolumes[idx]);
+      this->TotalVolume += objectVolumes[idx];
     }
   }
 
@@ -411,9 +494,9 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   this->ObjectValidity->Delete();
   this->ObjectVolumes->Delete();
   this->ObjectAreas->Delete();
+  this->ObjectCentroids->Delete();
   polyAreas->Delete();
   polyVolumes->Delete();
-  delete[] orient;
 
   return 1;
 }
@@ -458,7 +541,7 @@ void vtkMultiObjectMassProperties::TraverseAndMark(
 
         // Determine whether neighbor is consistent with the current
         // cell. The neighbor ordering of the edge (p0,p1) should be reversed
-        // (p1,p0). Otherwise it is inconsistent and is marked as such. For
+        // (p1,p0). Otherwise, it is inconsistent and is marked as such. For
         // non-valid objects we don't care about consistency.
         else // have one neighbor.
         {
