@@ -29,12 +29,12 @@
 #define vtkExtractParticlesOverTime_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkFiltersGeneralModule.h" // For export macro
-#include "vtkSmartPointer.h"         // For smart pointers
+#include "vtkFiltersExtractionModule.h" // For export macro
+#include "vtkSmartPointer.h"            // For smart pointers
 
 class vtkExtractParticlesOverTimeInternals;
 
-class VTKFILTERSGENERAL_EXPORT vtkExtractParticlesOverTime : public vtkDataSetAlgorithm
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractParticlesOverTime : public vtkDataSetAlgorithm
 {
 public:
   ///@{
