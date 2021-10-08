@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    Filters/Core/vtkRemoveUnusedPoints.h
+  Module:    vtkRemoveUnusedPoints.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,7 +18,6 @@
  *
  * vtkRemoveUnusedPoints is a filter that removes any points that are not used by the
  * cells. Currently, this filter only supports vtkUnstructuredGrid.
- *
  */
 
 #ifndef vtkRemoveUnusedPoints_h

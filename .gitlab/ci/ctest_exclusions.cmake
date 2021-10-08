@@ -157,9 +157,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$"
-
-    # Ignored on other platforms but timeout on Windows consistently
-    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIOSS$"
   )
 endif ()
 
@@ -172,17 +169,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread") # They failed also on OpenMP build (non tested)
-  list(APPEND test_exclusions
-    # Theses tests fail for stdthread + openmp builds they may be link to a bad use of ThreadLocal
-    # Need investigations https://gitlab.kitware.com/vtk/vtk/-/issues/18222
-    "^VTK::FiltersExtractionCxx-TestExtractSelectionUsingDataAssembly$"
-    "^VTK::FiltersGeneralCxx-TestAnimateModes$"
-    "^VTK::FiltersHybridCxx-TestTemporalInterpolator$"
-    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIOSS$"
-    "^VTK::IOIOSSCxx-TestIOSSExodus$"
-    "^VTK::IOIOSSCxx-TestIOSSSuperelements$")
-endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
   list(APPEND test_exclusions

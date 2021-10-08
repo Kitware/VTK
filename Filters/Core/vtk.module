@@ -28,6 +28,7 @@ TEST_DEPENDS
   VTK::FiltersTexture
   VTK::IOExodus
   VTK::IOImage
+  VTK::IOIOSS
   VTK::IOLegacy
   VTK::IOXML
   VTK::ImagingCore

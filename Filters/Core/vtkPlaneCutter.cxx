@@ -14,11 +14,12 @@
 =========================================================================*/
 #include "vtkPlaneCutter.h"
 
-#include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataSetRange.h"
+#include "vtkDataAssembly.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -29,29 +30,26 @@
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
-#include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkNonMergingPointLocator.h"
-#include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSphereTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTransform.h"
+#include "vtkUniformGridAMR.h"
 #include "vtkUnstructuredGrid.h"
-
-#include <cmath>
-#include <unordered_map>
 
 vtkObjectFactoryNewMacro(vtkPlaneCutter);
 vtkCxxSetObjectMacro(vtkPlaneCutter, Plane, vtkPlane);
@@ -215,19 +213,15 @@ struct CuttingFunctor
   virtual ~CuttingFunctor()
   {
     // Cleanup all allocated temporaries
-    vtkSMPThreadLocal<vtkDoubleArray*>::iterator cellScalarsIter = this->CellScalars.begin();
-    while (cellScalarsIter != this->CellScalars.end())
+    for (auto& cellScalars : this->CellScalars)
     {
-      (*cellScalarsIter)->Delete();
-      ++cellScalarsIter;
+      cellScalars->Delete();
     }
 
-    vtkSMPThreadLocal<vtkLocalDataType>::iterator dataIter = this->LocalData.begin();
-    while (dataIter != this->LocalData.end())
+    for (auto& data : this->LocalData)
     {
-      (*dataIter).Output->Delete();
-      (*dataIter).Locator->Delete();
-      ++dataIter;
+      data.Output->Delete();
+      data.Locator->Delete();
     }
 
     if (this->InPoints)
@@ -364,13 +358,11 @@ struct CuttingFunctor
 
     // Create the final multi-piece
     int count = 0;
-    vtkSMPThreadLocal<vtkLocalDataType>::iterator outIter = this->LocalData.begin();
-    while (outIter != this->LocalData.end())
+    for (auto& out : this->LocalData)
     {
-      vtkPolyData* output = (*outIter).Output;
+      vtkPolyData* output = out.Output;
       mp->SetPiece(count++, output);
       output->GetFieldData()->PassData(this->Input->GetFieldData());
-      ++outIter;
     }
   }
 };
@@ -388,13 +380,11 @@ struct PointSetFunctor : public CuttingFunctor
   {
     if (this->Interpolate)
     {
-      vtkSMPThreadLocal<vtkLocalDataType>::iterator dataIter = this->LocalData.begin();
-      while (dataIter != this->LocalData.end())
+      for (auto& data : this->LocalData)
       {
-        (*dataIter).NewVertsData->Delete();
-        (*dataIter).NewLinesData->Delete();
-        (*dataIter).NewPolysData->Delete();
-        ++dataIter;
+        data.NewVertsData->Delete();
+        data.NewLinesData->Delete();
+        data.NewPolysData->Delete();
       }
     }
   }
@@ -407,14 +397,13 @@ struct PointSetFunctor : public CuttingFunctor
     if (this->Interpolate)
     {
       vtkLocalDataType& localData = this->LocalData.Local();
-      vtkPolyData* output = localData.Output;
-      vtkCellData* outCD = output->GetCellData();
+      vtkCellData* inCD = this->Input->GetCellData();
       localData.NewVertsData = vtkCellData::New();
       localData.NewLinesData = vtkCellData::New();
       localData.NewPolysData = vtkCellData::New();
-      localData.NewVertsData->CopyAllocate(outCD);
-      localData.NewLinesData->CopyAllocate(outCD);
-      localData.NewPolysData->CopyAllocate(outCD);
+      localData.NewVertsData->CopyAllocate(inCD);
+      localData.NewLinesData->CopyAllocate(inCD);
+      localData.NewPolysData->CopyAllocate(inCD);
     }
   }
 
@@ -424,25 +413,24 @@ struct PointSetFunctor : public CuttingFunctor
     if (this->Interpolate)
     {
       // Add specific cell data
-      vtkSMPThreadLocal<vtkLocalDataType>::iterator outIter = this->LocalData.begin();
-      while (outIter != this->LocalData.end())
+      for (auto& out : this->LocalData)
       {
-        vtkPolyData* output = (*outIter).Output;
-        vtkCellArray* newVerts = output->GetVerts();
-        vtkCellArray* newLines = output->GetLines();
-        vtkCellArray* newPolys = output->GetPolys();
+        vtkPolyData* output = out.Output;
         vtkCellData* outCD = output->GetCellData();
-        vtkCellData* newVertsData = (*outIter).NewVertsData;
-        vtkCellData* newLinesData = (*outIter).NewLinesData;
-        vtkCellData* newPolysData = (*outIter).NewPolysData;
+        std::array<vtkCellData*, 3> newCD = { out.NewVertsData, out.NewLinesData,
+          out.NewPolysData };
 
         // Reconstruct cell data
-        outCD->CopyData(newVertsData, 0, newVerts->GetNumberOfCells(), 0);
-        vtkIdType offset = newVerts->GetNumberOfCells();
-        outCD->CopyData(newLinesData, offset, newLines->GetNumberOfCells(), 0);
-        offset += newLines->GetNumberOfCells();
-        outCD->CopyData(newPolysData, offset, newPolys->GetNumberOfCells(), 0);
-        ++outIter;
+        vtkIdType offset = 0;
+        for (auto& newCellTypeCD : newCD)
+        {
+          for (int j = 0; j < newCellTypeCD->GetNumberOfArrays(); ++j)
+          {
+            outCD->CopyTuples(newCellTypeCD->GetAbstractArray(j), outCD->GetAbstractArray(j),
+              offset, newCellTypeCD->GetNumberOfTuples(), 0);
+          }
+          offset += newCellTypeCD->GetNumberOfTuples();
+        }
       }
     }
   }
@@ -463,7 +451,7 @@ struct UnstructuredGridFunctor : public PointSetFunctor
 
   void Initialize() { PointSetFunctor::Initialize(); }
 
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     // Actual computation.
     // Note the usage of thread local objects. These objects
@@ -500,10 +488,10 @@ struct UnstructuredGridFunctor : public PointSetFunctor
     double* s;
     int i, numPts;
     vtkPoints* cellPoints;
-    const unsigned char* selected = this->Selected + cellId;
+    const unsigned char* selected = this->Selected + beginCellId;
 
     // Loop over the cell, processing only the one that are needed
-    for (; cellId < endCellId; ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       needCell = false;
       if (this->SphereTree)
@@ -597,7 +585,7 @@ struct PolyDataFunctor : public PointSetFunctor
 
   void Initialize() { PointSetFunctor::Initialize(); }
 
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     // Actual computation.
     // Note the usage of thread local objects. These objects
@@ -634,10 +622,10 @@ struct PolyDataFunctor : public PointSetFunctor
     double* s;
     int i, numPts;
     vtkPoints* cellPoints;
-    const unsigned char* selected = this->Selected + cellId;
+    const unsigned char* selected = this->Selected + beginCellId;
 
     // Loop over the cell, processing only the one that are needed
-    for (; cellId < endCellId; ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       needCell = false;
       if (this->SphereTree)
@@ -1417,7 +1405,7 @@ struct StructuredFunctor : public CuttingFunctor
 
   void Initialize() { CuttingFunctor::Initialize(); }
 
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     // Actual computation.
     // Note the usage of thread local objects. These objects
@@ -1457,12 +1445,12 @@ struct StructuredFunctor : public CuttingFunctor
     double* planeOrigin = this->Origin;
     double* planeNormal = this->Normal;
     void* ptsPtr = this->InPoints->GetVoidPointer(0);
-    const unsigned char* selected = this->Selected + cellId;
+    const unsigned char* selected = this->Selected + beginCellId;
 
     // Traverse this batch of cells (whose bounding sphere possibly
     // intersects the plane).
     bool needCell;
-    for (; cellId < endCellId; ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       needCell = false;
       if (this->SphereTree)
@@ -1526,7 +1514,7 @@ struct RectilinearFunctor : public CuttingFunctor
 
   void Initialize() { CuttingFunctor::Initialize(); }
 
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
     // Actual computation.
     // Note the usage of thread local objects. These objects
@@ -1566,12 +1554,12 @@ struct RectilinearFunctor : public CuttingFunctor
     double* planeOrigin = this->Origin;
     double* planeNormal = this->Normal;
     void* ptsPtr = this->InPoints->GetVoidPointer(0);
-    const unsigned char* selected = this->Selected + cellId;
+    const unsigned char* selected = this->Selected + beginCellId;
 
     // Traverse this batch of cells (whose bounding sphere possibly
     // intersects the plane).
     bool needCell;
-    for (; cellId < endCellId; ++cellId)
+    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
       needCell = false;
       if (this->SphereTree)
@@ -1659,32 +1647,33 @@ vtkMTimeType vtkPlaneCutter::GetMTime()
 }
 
 //------------------------------------------------------------------------------
-// Always create multiblock, although it is necessary only with Threading enabled
 int vtkPlaneCutter::RequestDataObject(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
-  if (!output)
+  auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  int outputType = -1;
+  if (vtkDataSet::SafeDownCast(inputDO) || vtkPartitionedDataSet::SafeDownCast(inputDO))
   {
-    vtkMultiBlockDataSet* newOutput = vtkMultiBlockDataSet::New();
-    outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
-    newOutput->Delete();
+    outputType = VTK_PARTITIONED_DATA_SET;
   }
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-vtkTypeBool vtkPlaneCutter::ProcessRequest(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
-{
-  // generate the data
-  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  else if (vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
   {
-    return this->RequestDataObject(request, inputVector, outputVector);
+    outputType = VTK_PARTITIONED_DATA_SET_COLLECTION;
+  }
+  else if (vtkMultiBlockDataSet::SafeDownCast(inputDO) || vtkUniformGridAMR::SafeDownCast(inputDO))
+  {
+    outputType = VTK_MULTIBLOCK_DATA_SET;
+  }
+  else
+  {
+    vtkErrorMacro("Unsupported input type: " << inputDO->GetClassName());
+    return 0;
   }
 
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+  return vtkDataObjectAlgorithm::SetOutputDataObject(
+           outputType, outputVector->GetInformationObject(0), /*exact*/ true)
+    ? 1
+    : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1711,65 +1700,101 @@ int vtkPlaneCutter::FillOutputPortInformation(int vtkNotUsed(port), vtkInformati
 }
 
 //------------------------------------------------------------------------------
+vtkSphereTree* vtkPlaneCutter::GetSphereTree(vtkDataSet* ds)
+{
+  if (this->BuildTree)
+  {
+    auto pair =
+      this->SphereTrees.insert(std::make_pair(ds, vtk::TakeSmartPointer(vtkSphereTree::New())));
+    return pair.first->second.GetPointer();
+  }
+  return nullptr;
+}
+
+//------------------------------------------------------------------------------
 // This method delegates to the appropriate algorithm
 int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDebugMacro(<< "Executing plane cutter");
 
-  // get the input and output
-  vtkDataObject* input = vtkDataObject::GetData(inputVector[0]);
-  vtkDataSet* dsInput = vtkDataSet::SafeDownCast(input);
-  vtkCompositeDataSet* hdInput = vtkCompositeDataSet::SafeDownCast(input);
-  vtkMultiBlockDataSet* mb =
-    vtkMultiBlockDataSet::SafeDownCast(vtkDataObject::GetData(outputVector));
+  auto execute = [this](vtkDataObject* input, vtkPartitionedDataSet* output) {
+    assert(output != nullptr);
 
-  if (dsInput)
-  {
-    vtkNew<vtkMultiPieceDataSet> output;
-    mb->SetBlock(0, output);
-    vtkSphereTree* tree = nullptr;
-    if (this->BuildTree)
+    std::vector<vtkSmartPointer<vtkDataSet>> outputParts;
+    for (auto& inputDS : vtkCompositeDataSet::GetDataSets(input))
     {
-      if (this->SphereTrees.empty())
+      vtkNew<vtkMultiPieceDataSet> tempResult;
+      if (this->ExecuteDataSet(inputDS, this->GetSphereTree(inputDS), tempResult))
       {
-        this->SphereTrees.push_back(vtkSmartPointer<vtkSphereTree>::New());
-      }
-      tree = this->SphereTrees[0];
-    }
-    return this->ExecuteDataSet(dsInput, tree, output);
-  }
-  else if (hdInput)
-  {
-    mb->CopyStructure(hdInput);
-
-    int ret = 0;
-    unsigned int treeIndex = 0;
-
-    using Opts = vtk::CompositeDataSetOptions;
-    for (auto node : vtk::Range(hdInput, Opts::SkipEmptyNodes))
-    {
-      vtkDataSet* hdLeafInput = vtkDataSet::SafeDownCast(node.GetDataObject());
-
-      vtkNew<vtkMultiPieceDataSet> output;
-      vtkSphereTree* tree = nullptr;
-      if (this->BuildTree)
-      {
-        if (this->SphereTrees.size() <= treeIndex)
+        for (unsigned int cc = 0, max = tempResult->GetNumberOfPieces(); cc < max; ++cc)
         {
-          this->SphereTrees.push_back(vtkSmartPointer<vtkSphereTree>::New());
+          if (auto ds = tempResult->GetPiece(cc))
+          {
+            outputParts.push_back(ds);
+          }
         }
-        tree = this->SphereTrees[treeIndex];
-        treeIndex++;
       }
-      ret += this->ExecuteDataSet(hdLeafInput, tree, output);
-      node.SetDataObject(mb, output);
     }
-    return ret;
+    output->SetNumberOfPartitions(static_cast<unsigned int>(outputParts.size()));
+    unsigned int cc = 0;
+    for (auto& part : outputParts)
+    {
+      output->SetPartition(cc++, part);
+    }
+  };
+
+  auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  if (vtkUniformGridAMR::SafeDownCast(inputDO) || vtkMultiBlockDataSet::SafeDownCast(inputDO))
+  {
+    auto inputCD = vtkCompositeDataSet::SafeDownCast(inputDO);
+
+    vtkNew<vtkDataAssembly> hierarchyUnused;
+    vtkNew<vtkPartitionedDataSetCollection> tempPDC;
+    if (!vtkDataAssemblyUtilities::GenerateHierarchy(inputCD, hierarchyUnused, tempPDC))
+    {
+      vtkErrorMacro("Failed to generate hierarchy for input!");
+      return 0;
+    }
+    for (unsigned int index = 0; index < tempPDC->GetNumberOfPartitionedDataSets(); ++index)
+    {
+      execute(tempPDC->GetPartitionedDataSet(index), tempPDC->GetPartitionedDataSet(index));
+    }
+
+    if (auto mb = vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
+          tempPDC, tempPDC->GetDataAssembly()))
+    {
+      auto outputMB = vtkMultiBlockDataSet::GetData(outputVector, 0);
+      outputMB->ShallowCopy(mb);
+      return 1;
+    }
+    else
+    {
+      vtkErrorMacro("Failed to convert back to vtkMultiBlockDataSet");
+      return 0;
+    }
+  }
+  else if (auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
+  {
+    auto outputPDC = vtkPartitionedDataSetCollection::GetData(outputVector, 0);
+    assert(outputPDC != nullptr);
+    outputPDC->CopyStructure(inputPDC);
+    for (unsigned int index = 0; index < inputPDC->GetNumberOfPartitionedDataSets(); ++index)
+    {
+      execute(inputPDC->GetPartitionedDataSet(index), outputPDC->GetPartitionedDataSet(index));
+    }
+    return 1;
+  }
+  else if (vtkPartitionedDataSet::SafeDownCast(inputDO) || vtkDataSet::SafeDownCast(inputDO))
+  {
+    auto outputPD = vtkPartitionedDataSet::GetData(outputVector, 0);
+    assert(outputPD != nullptr);
+    execute(inputDO, outputPD);
+    return 1;
   }
   else
   {
-    vtkErrorMacro("Unrecognized input type :" << input->GetClassName());
+    vtkErrorMacro("Unrecognized input type :" << inputDO->GetClassName());
     return 0;
   }
 }
