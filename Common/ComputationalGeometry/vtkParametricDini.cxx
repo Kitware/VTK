@@ -61,7 +61,7 @@ void vtkParametricDini::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   Pt[0] = this->A * cu * sv;
   Pt[1] = this->A * su * sv;
   double tolerance = 0.0001;
-  if (abs(v) > tolerance)
+  if (std::abs(v) > tolerance)
   {
     Pt[2] = this->A * (cos(v) + log(tan((v / 2)))) + this->B * u;
   }
