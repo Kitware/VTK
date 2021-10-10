@@ -1,4 +1,4 @@
-# Notes on the Python Wrappers for VTK
+# Python Wrappers
 
 The Python wrappers for VTK are produced algorithmically from the VTK header
 files, and using VTK through Python is very much like using VTK through C++.
@@ -8,7 +8,7 @@ are already familiar with VTK itself, and want to know more details about
 how to use VTK through Python.
 
 
-# Installation
+# Installation {#installation}
 
 The most convenient way to install VTK for Python is with pip, which is a
 package manager that comes with Python:
@@ -23,10 +23,10 @@ also be downloaded directly from https://www.vtk.org/download/.
 Instructions for building VTK from source code are given in the file
 [Documentation/dev/build.md][vtk-build] within the source repository.
 
-[vtk-build]: Documentation/dev/build.md
+[vtk-build]: https://gitlab.kitware.com/vtk/vtk/-/blob/release/Documentation/dev/build.md
 
 
-# Importing
+# Importing {#importing}
 
 VTK is comprised of over one hundred individual modules. Programs can import
 just the modules that are needed, in order to reduce load time.
@@ -60,7 +60,7 @@ The output is as follows:
     from vtkmodules.vtkFiltersSources import vtkConeSource
     from vtkmodules.vtkRenderingCore import vtkRenderWindow
 
-## Factories and Implementation Modules
+## Factories and Implementation Modules {#implementation-modules}
 
 In the first 'import' example above, you might be wondering about this line:
 
@@ -107,7 +107,7 @@ into your program, even if you are not certain that you need them.
 * For `vtkRenderingVolume`, `import vtkRenderingVolumeOpenGL2`
 * For `vtkCharts`, `import vtkContextOpenGL2`
 
-## Obsolete VTK Import
+## Obsolete VTK Import {#obsolete-import}
 
 There are many VTK programs that still use the old '`vtk`' module,
 instead of using the '`vtkmodules`' package introduced in VTK 8.2:
@@ -128,9 +128,9 @@ different name for '`vtkmodules.all`'.  It will also keep your IDE from
 becoming confused about what exactly the '`vtk`' module is.
 
 
-# VTK Classes and Objects
+# VTK Classes and Objects {#classes-and-objects}
 
-## Classes Derived from vtkObjectBase
+## Classes Derived from vtkObjectBase {#vtkobject-classes}
 
 In C++, classes derived from `vtkObjectBase` are instantiated by calling
 `::New()`.  In Python, these classes are instantiated by simply calling the
@@ -166,7 +166,7 @@ C++ `PrintSelf()` method.  The printed information can be useful for debugging:
       Reference Count: 1
       Registered Events: (none)
 
-## Other Classes (Special Types)
+## Other Classes (Special Types) {#special-types}
 
 VTK also uses several classes that aren't derived from `vtkObjectBase`.  The
 most important of these is `vtkVariant`, which can hold any type of object:
@@ -198,7 +198,7 @@ on what `operator<<` produces.
     >> print(repr(v))
     vtkmodules.vtkCommonCore.vtkVariant((invalid))
 
-## Class Templates
+## Class Templates {#class-templates}
 
 There are several C++ templates in VTK, which can be tricky to use from the
 wrappers since the Python language has no real concept of templates.  The
@@ -240,7 +240,7 @@ The type names are the same as numpy's dtypes: `bool`, `int8`, `uint8`,
 see [Template Keys](#template-keys) in [Advanced Topics](#advanced-topics).
 
 
-# Method Calls
+# Method Calls {#method-calls}
 
 When VTK methods are called from Python, conversion of all parameters from
 Python to C++ occurs automatically.  That is, if the C++ method signature
@@ -289,7 +289,7 @@ you to pass null objects and null strings:
     >>> print(a.GetMapper())
     None
 
-## Wrappable and Unwrappable Methods
+## Wrappable and Unwrappable Methods {#wrappable}
 
 A method cannot be used from Python if its C++ parameters or return type
 cannot be converted to or from Python by the wrappers, or if the method is
@@ -339,9 +339,9 @@ name 'zerocopy', which indicates no copying is done, and that direct memory
 access is used.
 
 The `vtkObject::AddObserver()` method has a special wrapping, as discussed
-in the [Observer Callback](#observer-callback) section below.
+in the [Observer Callbacks](#observer-callbacks) section below.
 
-## Conversion Constructors
+## Conversion Constructors {#conversion-constructors}
 
 If a wrapped type has constructor that takes one parameter, and if that
 constructor is not declared '`explicit`', then the wrappers will automatically
@@ -359,7 +359,7 @@ will then pass it as a parameter to `InsertNextItem()`.  This is a feature
 that most C++ programmers will take for granted, but Python users might
 find it surprising.
 
-## Overloaded Methods
+## Overloaded Methods {#overloaded-methods}
 
 If you call a VTK method that is overloaded, the Python wrappers will choose
 the overload that best matches the supplied arguments.  This matching takes
@@ -373,7 +373,7 @@ any methods that is overloaded on C++ `float` and `double`.  The Python
 `float` type is a perfect match C++ `double`, therefore the `float` overload
 is not wrapped.
 
-## Static Methods
+## Static Methods {#static-methods}
 
 A static method can be called without an instance.  For example,
 
@@ -384,7 +384,7 @@ like `vtkMatrix4x4`, most of the non-static methods have static overloads.
 Within Python, the only way to tell if a VTK method is static (other than
 trying it) is to look at its docstring.
 
-## Unbound Methods
+## Unbound Methods {#unbound-methods}
 
 When a non-static method is called on the class, rather than on an instance,
 it is called an unbound method call.  An unbound method call must provide
@@ -399,7 +399,7 @@ C++ unbound method calls.  These are useful when deriving a Python class
 from a wrapped VTK class, since they allow you to call any base class
 methods that have been overridden in the subclass.
 
-## Operator Methods
+## Operator Methods {#operator-methods}
 
 For special classes (the ones not derived from `vtkObjectBase`), some useful
 C++ operators are wrapped in python.  The '`[]`' operator is wrapped for
@@ -414,7 +414,7 @@ of `vtkVariant` objects with Python.
 The '`<<`' operator for printing is wrapped and is used by the python
 `print()` and `str()` commands.
 
-## Strings and Bytes
+## Strings and Bytes {#strings-and-bytes}
 
 VTK uses both `char*` and `std::string` for strings.  As far as the wrappers
 are concerned, these are equivalent except that the former can be `nullptr`
@@ -430,7 +430,7 @@ if it is valid utf-8, or as a `bytes` object if not.  The caller should check
 the type of the returned object (`str`, `bytes`, or perhaps `None`) if there
 is any reason to suspect that non-utf-8 text might be present.
 
-## STL Containers
+## STL Containers {#stl-containers}
 
 VTK provides conversion between `std::vector` and Python sequences
 such as `tuple` and `list`.  If the C++ method returns a vector,
@@ -457,7 +457,7 @@ The value type of the `std::vector<T>` must be `std::string` or a
 fundamental numeric type such as `double` or `int` (including
 `signed char` and `unsigned char` but excluding `char`).
 
-## Pass by Reference
+## Pass by Reference {#pass-by-reference}
 
 Many VTK methods use pass-by-reference to return values back to the caller.
 Calling these methods from Python requires special consideration, since
@@ -499,7 +499,7 @@ Some important notes when using pass-by-reference:
    because the reference already supports the interface protocols of the
    object that it contains.
 
-## Preconditions
+## Preconditions {#preconditions}
 
 One very real concern when using VTK from Python is that the parameters that
 you pass to a method might cause the program to crash.  In particular, it is
@@ -521,7 +521,7 @@ Currently the only way to find out if a method has preconditions is to look
 at the declaration of the method in the C++ header file to see if it has a
 `VTK_EXPECTS` hint.
 
-# Observer Callbacks
+# Observer Callbacks {#observer-callbacks}
 
 Similar to what can be done in C++, a Python function can be called
 each time a VTK event is invoked on a given object.  In general, the
@@ -538,7 +538,7 @@ or `func(self, obj:vtkObject, event:str)` if it is a method of a class.
     object: vtkObject - event: ModifiedEvent
 
 
-## Call Data
+## Call Data {#observer-call-data}
 
 In case there is a 'CallData' value associated with an event, in C++, you
 have to cast it from `void*` to the expected type using `reinterpret_cast`.
@@ -575,9 +575,9 @@ is first declared with the help of the `@calldata_type` decorator:
     >>>     print('object: %s - event: %s - msg: %s' % (object.GetClassName(),
                                                         event, calldata))
 
-# Other Wrapped Entities
+# Other Wrapped Entities {#other}
 
-## Constants
+## Constants {#constants}
 
 Most of the constants defined in the VTK header files are available in Python,
 and they can be accessed from the module in which they are defined.  Many of
@@ -598,7 +598,7 @@ Constants in the header files are wrapped if they are enums, or if they are
 const variables of a wrappable scalar type, or if they are preprocessor
 symbols that evaluate to integer, floating-point, or string literal types.
 
-## Enum Types
+## Enum Types {#enum-types}
 
 Each named enum type is wrapped as a new Python type, and members of the enum
 are instances of that type.  This allows type checking for enum types:
@@ -629,7 +629,7 @@ Note that the VTK enum types behave like C++ enums, and not like the Python
 enums types provided by the Python '`enum`' module.  In particular, all VTK
 enum values can be used anywhere that an `int` can be used.
 
-## Namespaces
+## Namespaces {#namespaces}
 
 Namespaces are currently wrapped in a very limited manner.  The only
 namespace members that are wrapped are enum constants and enum types.
@@ -638,14 +638,14 @@ namespaces.  Currently, the wrappers implement namespaces as Python
 `module` objects.
 
 
-# Docstrings
+# Docstrings {#docstrings}
 
 The wrappers automatically generate docstrings from the doxygen comments in
 the header files.  The Python `help()` command can be used to print the
 documentation to the screen, or the `__doc__` attributes of the classes
 and methods can be accessed directly.
 
-## Method Docstrings
+## Method Docstrings {#method-docstrings}
 
 The method docstrings are formatted with the method signatures first,
 followed by doxygen comments.  The Python method signatures have type
@@ -670,7 +670,7 @@ completeness.
 Some Python IDEs will automatically show the docstring as soon as you type
 the name of the method.
 
-## Class Docstrings
+## Class Docstrings {#class-docstrings}
 
 The class docstrings include a brief description of the class, followed
 by the name of the superclass, and then the full doxygen documentation,
@@ -707,7 +707,7 @@ more public constructors, and these will be included before the comments:
     through different threads.
 ```
 
-## Template Docstrings
+## Template Docstrings {#template-docstrings}
 
 Class templates are documented similar to classes, except that they include
 a 'Provided Types' section that lists the available template instantiations
@@ -772,9 +772,9 @@ of whether the the class template derives from `vtkObjectBase` or not:
 ```
 
 
-# Internals and Advanced Topics
+# Internals and Advanced Topics {#advanced-topics}
 
-## Special Attributes
+## Special Attributes {#special-attributes}
 
 Classes and objects derived from `vtkObjectBase` have special attributes, which
 are only used in very special circumstances.
@@ -816,7 +816,7 @@ wrapped with a different wrapper tool, for example with SWIG.  If you can
 get the VTK pointer from SWIG, you can use it to construct Python object
 that can be used with the native VTK wrappers.
 
-## Wrapper Hints
+## Wrapper Hints {#wrapper-hints}
 
 A wrapper hint is an attribute that can be added to a class, method, or
 parameter declaration in a C++ header file to give extra information to
@@ -863,7 +863,7 @@ used with `T*` parameters, for basic integer or float type `T`, to indicate
 that the Python buffer protocol will be used to access the values, rather
 than the Python sequence protocol that is used by default.
 
-## Deprecation Warnings
+## Deprecation Warnings {#deprecation-warnings}
 
 In addition to the wrapping hints, the Python wrappers are also aware of the
 deprecation attributes that have been applied to classes and methods.  When
@@ -880,7 +880,7 @@ To see each deprecation warning just once per session,
 
     warnings.filterwarnings('once', category=DeprecationWarning)
 
-## Template Keys
+## Template Keys {#template-keys}
 
 The following is a table of common template key names, which are the same as
 the numpy dtype names.  Note that you can actually use numpy dtypes as keys,
@@ -911,7 +911,7 @@ much older `array` module.
 Since the size of '`long`' and '`unsigned long`' is platform-dependent, these
 types should generally be avoided.
 
-## Exception Handling
+## Exception Handling {#exception-handling}
 
 There are times when an observer might generate a Python exception.  Since
 the observers are called from C++, there is no good way to catch these
@@ -920,7 +920,7 @@ traceback to stderr and then clear the error indicator.  The Python program
 will continue running unless the exception was a `KeyboardInterrupt` (Ctrl-C),
 in which case the program will exit with an error code of 1.
 
-## Deleting a vtkObject
+## Deleting a vtkObject {#deleting-objects}
 
 There is no direct equivalent of VTK's `Delete()` method, since Python does
 garbage collection automatically.  The Python object will be deleted
@@ -954,7 +954,7 @@ it useful to call the `SetReferenceCount()` and `GetReferenceCount()` methods
 of the object directly.  Of course, direct manipulation of the reference count
 should never be done in production code.
 
-## Ghosts
+## Ghosts {#ghosts}
 
 A wrapped VTK object (derived from `vtkObjectBase`) is a Python object that
 holds a pointer to a C++ object (specifically, a `vtkObjectBase*`).  The
@@ -990,7 +990,7 @@ graveyard holds a weak pointer to its C++ object and will vanish when the C++
 object is deleted (not immediately, but the next time the graveyard garbage
 collector runs).
 
-## Subclassing a VTK Class
+## Subclassing a VTK Class {#subclassing}
 
 It is possible to subclass a VTK class from within Python, but this is of
 limited use because the C++ virtual methods are not hooked to the Python
@@ -1005,18 +1005,18 @@ is via callbacks. The `vtkProgrammableSource` and `vtkProgrammableFilter` are
 examples of VTK algorithm classes that use callbacks for execution, while
 `vtkInteractionStyleUser` can use observer callbacks for event handling.
 
-## Wrapping External VTK Modules
+## Wrapping External VTK Modules {#external-wrapping}
 
 If you have your own C++ classes that are based on VTK, and if they are
 placed with a VTK module with a vtk.module file, then they can be wrapped
 as shown in the [Module Wrapping Example][external-wrapping].  You will
 also find the cmake documentation on VTK modules to be useful.
 
-[external-wrapping]: Examples/Modules/Wrapping
+[external-wrapping]: https://gitlab.kitware.com/vtk/vtk/-/blob/release/Examples/Modules/Wrapping
 
-# Experimental Features
+# Experimental Features {#experimental-features}
 
-## Stub Files for Type Hinting
+## Stub Files for Type Hinting {#stub-files}
 
 VTK includes a script called [`vtk_generate_pyi.py`][vtk_generate_pyi] that
 will generate pyi stub files for each wrapped VTK module.  The purpose of
@@ -1070,5 +1070,5 @@ help for this script is as follows:
 The pyi files are syntactically correct python files, so it is possible to
 load them as such in order to test them and inspect them.
 
-[vtk_generate_pyi]: Utilities/Maintenance/vtk_generate_pyi.py
+[vtk_generate_pyi]: https://gitlab.kitware.com/vtk/vtk/-/blob/release/Utilities/Maintenance/vtk_generate_pyi.py
 [pep_484]: https://www.python.org/dev/peps/pep-0484/#stub-files
