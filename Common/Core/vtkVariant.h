@@ -258,18 +258,6 @@ public:
   bool IsUnsignedLong() const;
 
   /**
-   * Legacy.  Returns false.  The variant is never an __int64.
-   */
-  VTK_DEPRECATED_IN_9_1_0("Legacy.  Returns false.  The variant is never an __int64")
-  bool Is__Int64() const;
-
-  /**
-   * Legacy.  Returns false.  The variant is never an unsigned __int64.
-   */
-  VTK_DEPRECATED_IN_9_1_0("Legacy.  Returns false.  The variant is never an unsigned __int64")
-  bool IsUnsigned__Int64() const;
-
-  /**
    * Get whether the variant is long long.
    */
   bool IsLongLong() const;
