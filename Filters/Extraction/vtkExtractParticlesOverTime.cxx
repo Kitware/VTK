@@ -119,13 +119,6 @@ bool vtkExtractParticlesOverTimeInternals::ProcessRequestData(vtkMTimeType modif
   if (this->CurrentState == PROCESSING)
   {
     vtkPointData* particlePointData = particleDataSet->GetPointData();
-    if (!particlePointData)
-    {
-      vtkLog(ERROR, "Invalid Point Data in particle input.");
-      this->CurrentState = NOT_PROCESSED;
-      return false;
-    }
-
     const vtkIdTypeArray* Ids = this->GetIds(particlePointData, IdChannelArray);
     if (!Ids)
     {
