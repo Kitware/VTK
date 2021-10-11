@@ -904,6 +904,7 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   // If clip loops are requested, send to the output.
   if (this->ClippingLoops)
   {
+    vtkDebugMacro(<< "Generated: " << outLines->GetNumberOfCells() << " loops");
     output2->SetLines(outLines);
   }
 
@@ -912,6 +913,14 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->Capping)
   {
     GenerateCap(outLines, output2);
+    vtkDebugMacro(<< "Generated: " << output2->GetPolys()->GetNumberOfCells()
+                  << "capping polygons");
+  }
+
+  // Some filters make use of the loop/capping point data
+  if (this->ClippingLoops || this->Capping)
+  {
+    output2->GetPointData()->PassData(output->GetPointData());
   }
 
   return 1;

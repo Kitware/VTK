@@ -62,7 +62,7 @@ public:
   /**
    * Control whether the input point data is to be passed to the output. If
    * on, then the input point data is passed through to the output; otherwise,
-   * only generated point data is placed into the output.
+   * only generated cell data is placed into the output.
    */
   vtkSetMacro(PassPointData, bool);
   vtkGetMacro(PassPointData, bool);
