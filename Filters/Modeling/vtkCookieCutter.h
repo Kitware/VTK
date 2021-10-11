@@ -38,9 +38,8 @@
  * attributes are exactly the same for both the mesh and trim loops.
  *
  * @warning
- * The z-values of the input vtkPolyData and the points defining the loops are
- * assumed to lie at z=constant. In other words, this filter assumes that the data lies
- * in a plane orthogonal to the z axis.
+ * The mesh and trim loops must lie on the same plane. The plane may be arbitrarily
+ * oriented. If not, tolerancing issues will produce erratic results.
  *
  * @sa
  * vtkImprintFilter

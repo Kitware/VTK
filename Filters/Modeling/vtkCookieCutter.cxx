@@ -799,7 +799,7 @@ struct vtkAttributeManager
       {
         this->OutPtData->InterpolateEdge(this->MeshPtData, outPtId, ptAttr.V0, ptAttr.V1, ptAttr.T);
       }
-      else
+      else // if ( ptAttr.AttributeType == PointAttribute::LoopEdge )
       {
         this->OutPtData->InterpolateEdge(this->LoopPtData, outPtId, ptAttr.V0, ptAttr.V1, ptAttr.T);
       }
@@ -1101,13 +1101,13 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
     return;
   }
 
-  // Make sure that the polygons actually overlap in the x-y plane
+  // Make sure that the polygons actually overlap
   double polyBds[6];
   vtkBoundingBox bbox(poly->GetBounds());
   bbox.Inflate(0, 0, 0.01);
   bbox.GetBounds(polyBds);
   if (loopBds[0] > polyBds[1] || loopBds[1] < polyBds[0] || loopBds[2] > polyBds[3] ||
-    loopBds[3] < polyBds[2])
+    loopBds[3] < polyBds[2] || loopBds[4] > polyBds[5] || loopBds[5] < polyBds[4])
   {
     return;
   }
