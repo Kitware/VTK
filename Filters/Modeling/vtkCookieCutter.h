@@ -18,12 +18,13 @@
  *
  * This filter crops an input vtkPolyData consisting of cells (i.e., points,
  * lines, polygons, and triangle strips) with loops specified by a second
- * input containing polygons and/or polylines. Note that this filter can
- * handle concave polygons and/or loops. It may produce multiple output
- * polygons for each polygon/loop interaction. Similarly, it may produce
- * multiple line segments and so on. (The input to cookie cut (input0) in the
- * following is referred to as the input mesh, while the loops used to cut
- * the input mesh (input1) are referred to as the trim loops.)
+ * input containing polygons and/or polylines. The input vtkPolyData and the
+ * loops must lie on the same plane. Note that this filter can handle concave
+ * polygons and/or loops. It may produce multiple output polygons for each
+ * polygon/loop interaction. Similarly, it may produce multiple line segments
+ * and so on. (The input to cookie cut (input0) in the following is referred
+ * to as the input mesh, while the loops used to cut the input mesh (input1)
+ * are referred to as the trim loops.)
  *
  * The filter has the option to pass through and generate point and cell
  * data.  If PassCellData is enabled, then the cell data associated with the
@@ -109,7 +110,7 @@ public:
   enum PointInterpolationType
   {
     USE_MESH_EDGES = 0,
-    USE_TRIM_EDGES = 1
+    USE_LOOP_EDGES = 1
   };
 
   ///@{
@@ -122,10 +123,10 @@ public:
    * must match the point data of the mesh edges. If not, point data is not
    * generated.
    */
-  vtkSetClampMacro(PointInterpolation, int, USE_MESH_EDGES, USE_TRIM_EDGES);
+  vtkSetClampMacro(PointInterpolation, int, USE_MESH_EDGES, USE_LOOP_EDGES);
   vtkGetMacro(PointInterpolation, int);
   void SetPointInterpolationToMeshEdges() { this->SetPointInterpolation(USE_MESH_EDGES); }
-  void SetPointInterpolationToTrimEdges() { this->SetPointInterpolation(USE_TRIM_EDGES); }
+  void SetPointInterpolationToLoopEdges() { this->SetPointInterpolation(USE_LOOP_EDGES); }
   ///@}
 
   ///@{
