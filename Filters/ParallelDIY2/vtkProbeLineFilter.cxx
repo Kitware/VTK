@@ -87,6 +87,11 @@ struct vtkProbeLineFilter::vtkInternals
       const auto& inputs = vtkCompositeDataSet::GetDataSets(input);
       for (vtkDataSet* ds : inputs)
       {
+        if (!ds || !ds->GetNumberOfCells())
+        {
+          continue;
+        }
+
         vtkNew<vtkStaticCellLocator> locator;
         locator->SetDataSet(ds);
         locator->UseDiagonalLengthToleranceOff();
@@ -527,6 +532,12 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(const vtkV
   for (std::size_t dsId = 0; dsId < inputs.size(); ++dsId)
   {
     vtkDataSet* input = inputs[dsId];
+
+    if (!input || !input->GetNumberOfCells())
+    {
+      continue;
+    }
+
     auto* strategy = vtkCellLocatorStrategy::SafeDownCast(this->Internal->Strategies.at(input));
     assert(strategy);
     vtkAbstractCellLocator* locator = strategy->GetCellLocator();
