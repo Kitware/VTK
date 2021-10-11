@@ -19,11 +19,13 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
+#include "vtkLogger.h"
 #include "vtkMergePoints.h"
 #include "vtkPointData.h"
 #include "vtkPolygon.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -153,14 +155,55 @@ struct SortPoint
   }
 };
 
-// Special sort operation on primitive parametric coordinate T-------------
+// Special sort operation of intersection points via parametric coordinate T---
 bool PointSorter(SortPoint const& lhs, SortPoint const& rhs)
 {
   return lhs.T < rhs.T;
 }
 
-// Vectors are used to hold points, eventually sorted
-typedef std::vector<SortPoint> SortedPointsType;
+// Vectors are used to hold points, eventually sorted around the perimeter of
+// polygons, or along lines.
+using SortedPointsType = std::vector<SortPoint>;
+
+// This is an adjunct to the SortPoint struct. It is used when passing point
+// data through to the output, and used by vtkAttributeManager. It collects
+// information about the point data so that when points are inserted into the
+// final polydata output, the appropriate interpolation (or CopyData())
+// process can be used.  These point attributes (which are referenced via
+// SortPoint::Id in the vtkAttributeManager) may originate from a mesh vertex
+// (MeshAttribute); a loop vertex (LoopAttribute); interpolation along a mesh
+// edge (MeshEdgeAttribute); or interpolation along a loop edge
+// (LoopEdgeAttribute).
+struct PointAttribute
+{
+  enum PointAttributeEnum
+  {
+    MeshVertex = 0,
+    LoopVertex = 1,
+    Intersection = 2,
+    MeshEdge = 3,
+    LoopEdge = 4
+  };
+
+  // Note that V0 may be the originating point is from which to copy
+  // data, or (V0,V1) may be the edge from which to interpolate data.
+  int AttributeType; // one of PointAttributeEnum
+  vtkIdType V0;      // Vertex id(s)
+  vtkIdType V1;
+  double T; // the parametric coordinate along the interpolating edge
+
+  PointAttribute(int attType, vtkIdType v0, vtkIdType v1, double t)
+    : AttributeType(attType)
+    , V0(v0)
+    , V1(v1)
+    , T(t)
+  {
+  }
+};
+
+// Vectors are used to hold point attributes, eventually processed during the
+// crop operation to produce output point data.
+using PointAttributesType = std::vector<PointAttribute>;
 
 // Used to analyze and merge nearly coincident points----------------------
 struct MergeRange
@@ -175,7 +218,7 @@ struct MergeRange
 };
 
 // Vectors are used to hold merge regions
-typedef std::vector<MergeRange> MergeRangeType;
+using MergeRangeType = std::vector<MergeRange>;
 
 // Convenience function classifies a segment of a loop or polyline--------
 int ClassifySegment(SortedPointsType& sortedPoints, int i, int j, vtkIdType npts, double* p,
@@ -239,7 +282,7 @@ int CleanSortedPolyline(SortedPointsType& sortedPoints)
     t = sortedPoints[i].T;
     if (end == (num - 1))
     { // last point may require special treatment
-      mergeRange.push_back(MergeRange(end, end + 1));
+      mergeRange.emplace_back(MergeRange(end, end + 1));
       break;
     }
     ip = i + 1;
@@ -254,7 +297,7 @@ int CleanSortedPolyline(SortedPointsType& sortedPoints)
     end = ip;
 
     // Add new segment
-    mergeRange.push_back(MergeRange(start, end));
+    mergeRange.emplace_back(MergeRange(start, end));
 
     // Move to next segment
     i = start = end;
@@ -272,7 +315,7 @@ int CleanSortedPolyline(SortedPointsType& sortedPoints)
     sze = (end > start ? end - start : (end + num) - start);
     if (sze == 1) // just copy vertex
     {
-      newSortedPoints.push_back(sortedPoints[start]);
+      newSortedPoints.emplace_back(sortedPoints[start]);
       continue;
     }
 
@@ -303,7 +346,7 @@ int CleanSortedPolyline(SortedPointsType& sortedPoints)
     {
       spc = SortPoint::MULT_INTS;
     }
-    newSortedPoints.push_back(SortPoint(minT, spc, minId, onId, sortedPoints[minX].X));
+    newSortedPoints.emplace_back(SortPoint(minT, spc, minId, onId, sortedPoints[minX].X));
   } // across all merge ranges
 
   // Update the sorted points array, now clean!
@@ -364,7 +407,7 @@ void CleanSortedPolygon(vtkIdType npts, SortedPointsType& sortedPoints)
   {
     if (i == (imax - 1))
     {
-      mergeRange.push_back(MergeRange(i, imax));
+      mergeRange.emplace_back(MergeRange(i, imax));
       break;
     }
 
@@ -395,7 +438,7 @@ void CleanSortedPolygon(vtkIdType npts, SortedPointsType& sortedPoints)
     end = ip;
 
     // Add new segment
-    mergeRange.push_back(MergeRange(start, end));
+    mergeRange.emplace_back(MergeRange(start, end));
 
     // Move to next segment
     i = start = end;
@@ -413,7 +456,7 @@ void CleanSortedPolygon(vtkIdType npts, SortedPointsType& sortedPoints)
     sze = (end > start ? end - start : (end + num) - start);
     if (sze == 1) // just copy vertex
     {
-      newSortedPoints.push_back(sortedPoints[start]);
+      newSortedPoints.emplace_back(sortedPoints[start]);
       continue;
     }
 
@@ -446,7 +489,7 @@ void CleanSortedPolygon(vtkIdType npts, SortedPointsType& sortedPoints)
     {
       spc = SortPoint::MULT_INTS;
     }
-    newSortedPoints.push_back(SortPoint(minT, spc, minId, onId, sortedPoints[minX].X));
+    newSortedPoints.emplace_back(SortPoint(minT, spc, minId, onId, sortedPoints[minX].X));
   } // across all merge ranges
 
   // Update the sorted points array, now clean!
@@ -589,12 +632,48 @@ int ClassifyPolygon(
 // overall cookie cutting code.
 struct vtkAttributeManager
 {
-  vtkPointData* InPtData;
-  vtkPointData* OutPtData;
+  // Support cell data processing
   vtkCellData* InCellData;
   vtkCellData* OutCellData;
 
-  // Constructor:: Initialize the process of attribute processing
+  // Support point data processing
+  int PointInterpolation;              // indicate how to interpolate point data
+  PointAttributesType PointAttributes; // point attributes for this cell
+  vtkPointData* MeshPtData;
+  vtkPointData* LoopPtData;
+  vtkPointData* OutPtData;
+
+  // Helper function to determine if two vtkDataSetAttributes are equivalent and may
+  // be used together for copying and interpolating point data.
+  bool HaveEquivalentAttributes(vtkDataSetAttributes* dsa0, vtkDataSetAttributes* dsa1)
+  {
+    // Check that the number of arrays is the same
+    int numArrays0 = dsa0->GetNumberOfArrays();
+    int numArrays1 = dsa1->GetNumberOfArrays();
+    if (numArrays0 != numArrays1)
+    {
+      return false;
+    }
+
+    // Check that identical arrays exist in both (name, number of components, order)
+    for (auto arrayNum = 0; arrayNum < numArrays0; ++arrayNum)
+    {
+      const char *name0, *name1;
+      vtkDataArray* da0 = dsa0->GetArray(arrayNum);
+      vtkDataArray* da1 = dsa1->GetArray(arrayNum);
+      if (!da0 || !da1 || da0->GetDataType() != da1->GetDataType() ||
+        da0->GetNumberOfComponents() != da1->GetNumberOfComponents() ||
+        !(name0 = dsa0->GetArrayName(arrayNum)) || !(name1 = dsa1->GetArrayName(arrayNum)) ||
+        strcmp(name0, name1))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Constructor: Initialize the process of attribute processing
   vtkAttributeManager(vtkPolyData* input, vtkPolyData* loops, vtkPolyData* output, bool passCD,
     bool passPD, int ptInterpolation)
   {
@@ -609,30 +688,121 @@ struct vtkAttributeManager
     }
 
     // Process point data if requested. Note the complication due to how the
-    // new point data is generated from line-line intersections.
-    this->InPtData = nullptr;
+    // new point data is interpolated from line-line intersections.
+    this->MeshPtData = nullptr;
+    this->LoopPtData = nullptr;
     this->OutPtData = nullptr;
     if (passPD)
-    //         && SelectPointData(this->PointInterpolation, inPtData, outPtData) )
     {
-      this->OutPtData->CopyAllocate(this->InPtData);
-    }
-  }
+      // If trim edge interpoltion is specified, make sure that the trim loop point
+      // attributes match the mesh point attributes. If not, point data is not passed
+      // to the output.
+      if (this->HaveEquivalentAttributes(input->GetPointData(), loops->GetPointData()))
+      {
+        this->PointInterpolation = ptInterpolation;
+        this->MeshPtData = input->GetPointData();
+        this->LoopPtData = loops->GetPointData();
+        this->OutPtData = output->GetPointData();
+        this->OutPtData->CopyAllocate(this->MeshPtData);
+      }
+      else
+      {
+        vtkLog(WARNING, "Mesh and trim loop attributes are not equal, point data not interpolated");
+      } // if point attributes identical
+    }   // if passing point data
+  }     // constructor
 
-  // // Depending on the point interpolation mode, select the point data to use,
-  // // making sure that it is consistent (so interpolation can be performed
-  // // correctly). Return 0 if consistent point data is not available.
-  // int SelectPointData(int ptInterpolation, vtkPointData* &inPtData,
-  //                     vtkPointData* &outPtData)
-  // {
-  //   return 0;
-  // }
-
+  // Copy cell data from the input to the output.
   void CopyCellData(vtkIdType inCellId, vtkIdType outCellId)
   {
     if (this->InCellData)
     {
       this->OutCellData->CopyData(this->InCellData, inCellId, outCellId);
+    }
+  }
+
+  // Processing point data is tricky because two sets of point attributes may
+  // be in play. Point which are passed through, can just use the
+  // conventional vtkDataSetAttributes::CopyData() approach (copy from input
+  // mesh to output mesh). However, intersection points may be interpolated
+  // from the mesh edges, or from the trim loop edges. This means using the
+  // correct point data to interpolate from (via InterpolateEdge()).
+
+  // In some simple cases, a straightforward copying of point data from the
+  // input mesh to the output mesh can be used.
+  void CopyPointData(vtkIdType inPtId, vtkIdType outPtId)
+  {
+    if (this->MeshPtData)
+    {
+      this->OutPtData->CopyData(this->MeshPtData, inPtId, outPtId);
+    }
+  }
+
+  // Because the cookie cutter algorithm processes cells on a cell-by-cell
+  // basis, before processing each cell the point data management process
+  // must be reset.
+  void InitializePointAttributeCollection() { this->PointAttributes.clear(); }
+
+  // Add point attribute data to the vector of attributes. Note that there is
+  // an implicit ordering of points consisted with SortPoints: the
+  // SortPoint::Id refers to the position of the point attribute in the
+  // PointAttributes vector.
+  void AddPointAttribute(int attType, vtkIdType m0 = (-1), vtkIdType m1 = (-1), vtkIdType l0 = (-1),
+    vtkIdType l1 = (-1), double tm = 0.0, double tl = 0.0)
+  {
+    // See if it's a vertex (CopyData)
+    if (attType < PointAttribute::Intersection)
+    {
+      this->PointAttributes.emplace_back(PointAttribute(attType, m0, m1, tm));
+      return;
+    }
+
+    // See if it's an edge (InterpolateData)
+    if (this->PointInterpolation == vtkCookieCutter::USE_MESH_EDGES)
+    {
+      this->PointAttributes.emplace_back(PointAttribute(PointAttribute::MeshEdge, m0, m1, tm));
+    }
+    else
+    {
+      this->PointAttributes.emplace_back(PointAttribute(PointAttribute::LoopEdge, l0, l1, tl));
+    }
+  }
+
+  // Interpolate or pass point data from either the input mesh or trim loop
+  // edges, to the output mesh.
+  void InterpolatePointData(vtkIdType sortPtId, vtkIdType outPtId)
+  {
+    // Make sure we actually want to process point data
+    if (!this->MeshPtData)
+    {
+      return;
+    }
+
+    // Grab the point attribute information associated with input, sorted
+    // point.
+    PointAttribute& ptAttr = this->PointAttributes[sortPtId];
+
+    // Maybe just copying data from mesh or trim loop to output
+    if (ptAttr.AttributeType == PointAttribute::MeshVertex)
+    {
+      this->OutPtData->CopyData(this->MeshPtData, ptAttr.V0, outPtId);
+    }
+    else if (ptAttr.AttributeType == PointAttribute::LoopVertex)
+    {
+      this->OutPtData->CopyData(this->LoopPtData, ptAttr.V0, outPtId);
+    }
+
+    // Interpolating along an edge
+    else
+    {
+      if (ptAttr.AttributeType == PointAttribute::MeshEdge)
+      {
+        this->OutPtData->InterpolateEdge(this->MeshPtData, outPtId, ptAttr.V0, ptAttr.V1, ptAttr.T);
+      }
+      else
+      {
+        this->OutPtData->InterpolateEdge(this->LoopPtData, outPtId, ptAttr.V0, ptAttr.V1, ptAttr.T);
+      }
     }
   }
 
@@ -657,7 +827,7 @@ public:
 
 protected:
   // Convenience method
-  inline void InsertPoint(double x[3], vtkCellArray* ca);
+  inline void InsertPoint(SortPoint& sortPt, double x[3], vtkCellArray* ca);
 
   // Check and clean up potentially non manifold situations
   // Used to clean up complex sets of lines assumed to form one or more loops
@@ -689,10 +859,14 @@ vtkCookieCutterHelper::vtkCookieCutterHelper(vtkIncrementalPointLocator* locator
 
 vtkCookieCutterHelper::~vtkCookieCutterHelper() = default;
 
-void vtkCookieCutterHelper::InsertPoint(double x[3], vtkCellArray* ca)
+void vtkCookieCutterHelper::InsertPoint(SortPoint& sortPt, double x[3], vtkCellArray* ca)
 {
   vtkIdType ptId;
-  this->Locator->InsertUniquePoint(x, ptId);
+  if (this->Locator->InsertUniquePoint(x, ptId))
+  {
+    vtkIdType sortPtId = sortPt.Id;
+    this->AttributeManager->InterpolatePointData(sortPtId, ptId);
+  }
   ca->InsertCellPoint(ptId);
 }
 
@@ -704,6 +878,9 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
   {
     return;
   }
+
+  // This handles point and cell data attributes
+  vtkAttributeManager* attrMgr = this->AttributeManager;
 
   // Create a vector of points with parametric coordinates, etc. which will
   // be sorted later. The tricky part is getting the classification of each
@@ -717,21 +894,26 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
   {
     t = static_cast<double>(i);
     this->InPoints->GetPoint(pts[i], x);
-    sortedPoints.push_back(SortPoint(t, SortPoint::VERTEX, -1, -1, x));
+    sortedPoints.emplace_back(SortPoint(t, SortPoint::VERTEX, -1, -1, x));
+    attrMgr->AddPointAttribute(PointAttribute::MeshVertex, pts[i]);
   }
 
   // Now insert any intersection points
   vtkIdType numInts = 0, numLoopPts = loop->Points->GetNumberOfPoints();
   for (numInts = 0, i = 0; i < (npts - 1); ++i)
   {
-    this->InPoints->GetPoint(pts[i], x0);
-    this->InPoints->GetPoint(pts[i + 1], x1);
+    vtkIdType m0 = pts[i];
+    vtkIdType m1 = pts[i + 1];
+    this->InPoints->GetPoint(m0, x0);
+    this->InPoints->GetPoint(m1, x1);
 
     // Traverse polygon loop intersecting each polygon segment
     for (j = 0; j < numLoopPts; ++j)
     {
-      loop->Points->GetPoint(j, y0);
-      loop->Points->GetPoint((j + 1) % numLoopPts, y1);
+      vtkIdType l0 = j;
+      vtkIdType l1 = (j + 1) % numLoopPts;
+      loop->Points->GetPoint(l0, y0);
+      loop->Points->GetPoint(l1, y1);
       if ((result = vtkLine::Intersection(x0, x1, y0, y1, u, v)) == vtkLine::Intersect)
       {
         x[0] = x0[0] + u * (x1[0] - x0[0]);
@@ -739,7 +921,8 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
         x[2] = x0[2] + u * (x1[2] - x0[2]);
         u += static_cast<double>(i);
         v += static_cast<double>(j);
-        sortedPoints.push_back(SortPoint(u, SortPoint::INTERSECTION, numInts, -1, x));
+        sortedPoints.emplace_back(SortPoint(u, SortPoint::INTERSECTION, numInts, -1, x));
+        attrMgr->AddPointAttribute(PointAttribute::Intersection, m0, m1, l0, l1, u, v);
         numInts++;
       }
       else if (result == 3) // parallel lines
@@ -757,29 +940,33 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
           vtkLine::DistanceToLine(x0, y0, y1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            sortedPoints.push_back(
+            sortedPoints.emplace_back(
               SortPoint(static_cast<double>(i), SortPoint::ON, numInts, onId, c));
+            attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m0);
             numInts++;
           }
           vtkLine::DistanceToLine(x1, y0, y1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            sortedPoints.push_back(
+            sortedPoints.emplace_back(
               SortPoint(static_cast<double>(i) + 1.0, SortPoint::ON, numInts, onId, c));
+            attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m1);
             numInts++;
           }
           vtkLine::DistanceToLine(y0, x0, x1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            sortedPoints.push_back(
+            sortedPoints.emplace_back(
               SortPoint(static_cast<double>(i) + u, SortPoint::ON, numInts, onId, c));
+            attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l0);
             numInts++;
           }
           vtkLine::DistanceToLine(y1, x0, x1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            sortedPoints.push_back(
+            sortedPoints.emplace_back(
               SortPoint(static_cast<double>(i) + u, SortPoint::ON, numInts, onId, c));
+            attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l1);
             numInts++;
           }
         } // within tolerance of other line
@@ -827,7 +1014,7 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
     this->AttributeManager->CopyCellData(cellId, newCellId);
     for (i = startIdx; i <= endIdx; ++i)
     {
-      InsertPoint(sortedPoints[i].X, this->OutLines);
+      InsertPoint(sortedPoints[i], sortedPoints[i].X, this->OutLines);
     }
     startIdx = endIdx;
   } // over all sorted points
@@ -929,6 +1116,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
   // (eventually sorted) arrays. These sorted arrays will alternate inside
   // paths with outside paths, sort of like a "braid". To construct polygon
   // loops, the braid is woven together to form the loops.
+  vtkAttributeManager* attrMgr = this->AttributeManager;
   double* p = static_cast<double*>(poly->Points->GetVoidPointer(0));
   vtkIdType i, j, newCellId, numPts = 0, numInts = 0;
   double t, u, v, x[3], x0[3], x1[3], y0[3], y1[3];
@@ -939,28 +1127,34 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
   {
     t = static_cast<double>(i);
     this->InPoints->GetPoint(pts[i], x);
-    polyPoints.push_back(SortPoint(t, SortPoint::VERTEX, numPts, -1, x));
+    polyPoints.emplace_back(SortPoint(t, SortPoint::VERTEX, numPts, -1, x));
+    attrMgr->AddPointAttribute(PointAttribute::MeshVertex, pts[i]);
     numPts++;
   }
   for (i = 0; i < numLoopPts; ++i)
   {
     t = static_cast<double>(i);
     loop->Points->GetPoint(i, x);
-    loopPoints.push_back(SortPoint(t, SortPoint::VERTEX, numPts, -1, x));
+    loopPoints.emplace_back(SortPoint(t, SortPoint::VERTEX, numPts, -1, x));
+    attrMgr->AddPointAttribute(PointAttribute::LoopVertex, i);
     numPts++;
   }
 
   // Now insert intersection points
   for (i = 0; i < npts; ++i)
   {
-    this->InPoints->GetPoint(pts[i], x0);
-    this->InPoints->GetPoint(pts[(i + 1) % npts], x1);
+    vtkIdType m0 = pts[i];
+    vtkIdType m1 = pts[(i + 1) % npts];
+    this->InPoints->GetPoint(m0, x0);
+    this->InPoints->GetPoint(m1, x1);
 
     // Traverse polygon loop intersecting each polygon segment
     for (j = 0; j < numLoopPts; ++j)
     {
-      loop->Points->GetPoint(j, y0);
-      loop->Points->GetPoint((j + 1) % numLoopPts, y1);
+      vtkIdType l0 = j;
+      vtkIdType l1 = (j + 1) % numLoopPts;
+      loop->Points->GetPoint(l0, y0);
+      loop->Points->GetPoint(l1, y1);
       if ((result = vtkLine::Intersection(x0, x1, y0, y1, u, v)) == vtkLine::Intersect)
       {
         x[0] = x0[0] + u * (x1[0] - x0[0]);
@@ -968,8 +1162,9 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
         x[2] = x0[2] + u * (x1[2] - x0[2]);
         u += static_cast<double>(i);
         v += static_cast<double>(j);
-        polyPoints.push_back(SortPoint(u, SortPoint::INTERSECTION, numPts, -1, x));
-        loopPoints.push_back(SortPoint(v, SortPoint::INTERSECTION, numPts, -1, x));
+        polyPoints.emplace_back(SortPoint(u, SortPoint::INTERSECTION, numPts, -1, x));
+        loopPoints.emplace_back(SortPoint(v, SortPoint::INTERSECTION, numPts, -1, x));
+        attrMgr->AddPointAttribute(PointAttribute::Intersection, m0, m1, l0, l1, u, v);
         numInts++;
         numPts++;
       }
@@ -988,38 +1183,44 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
           vtkLine::DistanceToLine(x0, y0, y1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            polyPoints.push_back(SortPoint(static_cast<double>(i), SortPoint::ON, numPts, onId, c));
-            loopPoints.push_back(
+            polyPoints.emplace_back(
+              SortPoint(static_cast<double>(i), SortPoint::ON, numPts, onId, c));
+            loopPoints.emplace_back(
               SortPoint(static_cast<double>(j) + u, SortPoint::ON, numPts, onId, c));
+            attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m0);
             numInts++;
             numPts++;
           }
           vtkLine::DistanceToLine(x1, y0, y1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            polyPoints.push_back(
+            polyPoints.emplace_back(
               SortPoint(static_cast<double>(i) + 1.0, SortPoint::ON, numPts, onId, c));
-            loopPoints.push_back(
+            loopPoints.emplace_back(
               SortPoint(static_cast<double>(j) + u, SortPoint::ON, numPts, onId, c));
+            attrMgr->AddPointAttribute(PointAttribute::MeshVertex, m1);
             numInts++;
             numPts++;
           }
           vtkLine::DistanceToLine(y0, x0, x1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            polyPoints.push_back(
+            polyPoints.emplace_back(
               SortPoint(static_cast<double>(i) + u, SortPoint::ON, numPts, onId, c));
-            loopPoints.push_back(SortPoint(static_cast<double>(j), SortPoint::ON, numPts, onId, c));
+            loopPoints.emplace_back(
+              SortPoint(static_cast<double>(j), SortPoint::ON, numPts, onId, c));
+            attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l0);
             numInts++;
             numPts++;
           }
           vtkLine::DistanceToLine(y1, x0, x1, u, c);
           if (-VTK_DEGENERATE_TOL <= u && u <= (1.0 + VTK_DEGENERATE_TOL))
           {
-            polyPoints.push_back(
+            polyPoints.emplace_back(
               SortPoint(static_cast<double>(i) + u, SortPoint::ON, numPts, onId, c));
-            loopPoints.push_back(
+            loopPoints.emplace_back(
               SortPoint(static_cast<double>(j) + 1.0, SortPoint::ON, numPts, onId, c));
+            attrMgr->AddPointAttribute(PointAttribute::LoopVertex, l1);
             numInts++;
             numPts++;
           }
@@ -1123,7 +1324,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
       {
         visited[nextId] = 1;
         numInsertedPts++;
-        InsertPoint(pDataPts->GetPoint(nextId), this->OutPolys);
+        InsertPoint(polyPoints[i], pDataPts->GetPoint(nextId), this->OutPolys);
         pData->GetCellPoints(thisCell, thisNPts, thisPts);
         nextId = (thisPts[0] != nextId ? thisPts[0] : thisPts[1]);
         pData->GetPointCells(nextId, ncells, cells);
@@ -1221,7 +1422,11 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkPoints> outPts;
   outPts.TakeReference(inPts->NewInstance());
 
-  vtkAttributeManager attributeManager(
+  // This class assists with the copying and interpolation of point and cell
+  // data. While cell data is easy to process, point data can be complex
+  // because of the merging of coincident points, and the interpolation of
+  // data across mesh edges and/or tril loop edges.
+  vtkAttributeManager attrMgr(
     input, loops, output, this->PassCellData, this->PassPointData, this->PointInterpolation);
 
   vtkCellArray* inVerts = input->GetVerts();
@@ -1237,14 +1442,17 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkCellArray> outPolys;
   outPolys->AllocateCopy(inPolys);
 
-  // Locator used to merge potentially duplicate points
-  double bds[6];
+  // Locator used to merge potentially duplicate points. Make sure that
+  // the bounding box provides a little breathing room for proper
+  // bounds-bounds intersection checks.
   vtkBoundingBox bbox(loops->GetBounds());
-  bbox.Scale(1.0, 1.0, 1.01);
+  double tol = 0.001 * bbox.GetDiagonalLength();
+  bbox.Inflate(tol);
   if (this->Locator == nullptr)
   {
     this->CreateDefaultLocator();
   }
+  double bds[6];
   bbox.GetBounds(bds);
   this->Locator->InitPointInsertion(outPts, bds);
 
@@ -1254,41 +1462,43 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkPolygon> poly;
 
   // Setup the lines and polys cropping helper
-  vtkCookieCutterHelper* helper =
-    new vtkCookieCutterHelper(this->Locator, inPts, outPts, outLines, outPolys, &attributeManager);
+  std::unique_ptr<vtkCookieCutterHelper> helper(
+    new vtkCookieCutterHelper(this->Locator, inPts, outPts, outLines, outPolys, &attrMgr));
 
+  // For each trim loop, crop the input mesh cells.
   vtkIdType npts;
   const vtkIdType* pts;
-  vtkIdType cellId = 0;
   for (loopPolys->InitTraversal(); loopPolys->GetNextCell(npts, pts);)
   {
+    vtkIdType cellId = 0;
     vtkIdType numLoopPts = npts;
     loop->Initialize(npts, pts, loopPts);
     bbox.SetBounds(loop->GetBounds());
-    bbox.Inflate(0, 0, 0.01); // Handle the x-y plane points numerical fuzz
+    bbox.Inflate(tol); // Handle exactly aligned x-y plane numerical fuzz
     bbox.GetBounds(bds);
     vtkPolygon::ComputeNormal(loop->Points, n);
     double* l = static_cast<double*>(loop->Points->GetVoidPointer(0));
 
     // Start by processing the verts. A simple in/out check.
-    double x[3];
     if (inVerts->GetNumberOfCells() > 0)
     {
       for (inVerts->InitTraversal(); inVerts->GetNextCell(npts, pts); ++cellId)
       {
         for (vtkIdType i = 0; i < npts; ++i)
         {
+          double x[3];
           inPts->GetPoint(pts[i], x);
           if (vtkPolygon::PointInPolygon(x, numLoopPts, l, bds, n) == 1)
           {
             vtkIdType ptId;
             this->Locator->InsertUniquePoint(x, ptId);
+            attrMgr.CopyPointData(pts[i], ptId);
             vtkIdType newCellId = outVerts->InsertNextCell(1, &ptId);
-            attributeManager.CopyCellData(cellId, newCellId);
-          }
-        }
-      } // for all verts
-    }   // if vert cells
+            attrMgr.CopyCellData(cellId, newCellId);
+          } // if point inside trim loop
+        }   // for all points composing vert cell
+      }     // for all vert cells
+    }       // if vert cells
 
     // Now process lines
     if (inLines->GetNumberOfCells() > 0)
@@ -1296,6 +1506,7 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
       vtkIdType cellOffset = outVerts->GetNumberOfCells();
       for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts); ++cellId)
       {
+        attrMgr.InitializePointAttributeCollection();
         helper->CropLine(cellId, cellOffset, npts, pts, loop, l, bds, n);
       }
     } // if line cells
@@ -1307,6 +1518,7 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
       for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts); ++cellId)
       {
         poly->Initialize(npts, pts, inPts);
+        attrMgr.InitializePointAttributeCollection();
         helper->CropPoly(cellId, cellOffset, poly, npts, pts, loop, l, bds, n);
       }
     } // if polygonal cells
@@ -1324,13 +1536,12 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
           triPts[1] = pts[i + 1];
           triPts[2] = pts[i + 2];
           poly->Initialize(3, triPts, inPts);
+          attrMgr.InitializePointAttributeCollection();
           helper->CropPoly(cellId, cellOffset, poly, numTriPts, triPts, loop, l, bds, n);
         }
       }
     } // if polygonal cells
   }   // for all loops
-
-  delete helper;
 
   // Assign output as appropriate
   output->SetPoints(outPts);
@@ -1400,7 +1611,7 @@ void vtkCookieCutter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Pass Cell Data: " << (this->PassCellData ? "On\n" : "Off\n");
-  os << indent << "Pass Point Data: " << (this->PassCellData ? "On\n" : "Off\n");
+  os << indent << "Pass Point Data: " << (this->PassPointData ? "On\n" : "Off\n");
   os << indent << "Point Interpolation: " << this->PointInterpolation << "\n";
 
   if (this->Locator)

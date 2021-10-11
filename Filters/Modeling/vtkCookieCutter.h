@@ -33,7 +33,9 @@
  * intersection may have point data interpolated in one of two ways. First,
  * the input mesh edges are interpolated at the new intersection points to
  * generate point data, or the trim loop edges are interpolated at the new
- * intersection points to generate point data.
+ * intersection points to generate point data. Note: for PassPointData and
+ * point interpolation to function, the filter requires that the point data
+ * attributes are exactly the same for both the mesh and trim loops.
  *
  * @warning
  * The z-values of the input vtkPolyData and the points defining the loops are
@@ -97,7 +99,8 @@ public:
   /**
    * Indicate whether point data from the input mesh are to be passed through
    * and/or interpolated to the output mesh. By default, PassPointData is
-   * enabled.
+   * enabled. Note: to enable this, both the input mesh points and the trim
+   * loops, must have identical point data.
    */
   vtkSetMacro(PassPointData, bool);
   vtkGetMacro(PassPointData, bool);
@@ -112,12 +115,13 @@ public:
 
   ///@{
   /**
-   * If PassPointData is on, indicate how new point data is to generated
-   * at the intersection points between the input mesh edges and the trim
-   * edges. By default, PointInterpolation is set to USE_MESH_EDGES. Note:
-   * if intersected point data is generated from the trim edges, then the
-   * point data to be interpolated from the trim edges must match the point
-   * data of the mesh edges. If not, point data is not generated.
+   * If PassPointData is on, indicate how new point data is to generated at
+   * the intersection points between the input mesh edges and the trim edges
+   * (trim edges form the loops). By default, PointInterpolation is set to
+   * USE_MESH_EDGES. Note: if intersected point data is generated from the
+   * trim edges, then the point data to be interpolated from the trim edges
+   * must match the point data of the mesh edges. If not, point data is not
+   * generated.
    */
   vtkSetClampMacro(PointInterpolation, int, USE_MESH_EDGES, USE_TRIM_EDGES);
   vtkGetMacro(PointInterpolation, int);
