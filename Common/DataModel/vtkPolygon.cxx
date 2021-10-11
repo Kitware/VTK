@@ -699,6 +699,9 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
     return VTK_POLYGON_OUTSIDE;
   }
 
+  // Tolerance needs to be a little sloppy due to arbitray oriented plane
+  double tol = 0.01 * rayMag;
+
   //  Get the maximum component of the normal.
   //
   if (fabs(n[0]) > fabs(n[1]))
@@ -791,7 +794,7 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
       //   of degenerate cases (e.g., ray intersects at vertex).
       //
 
-      if ((status = vtkLine::Intersection(x, xray, x1, x2, u, v)) == vtkLine::Intersect)
+      if ((status = vtkLine::Intersection(x, xray, x1, x2, u, v, tol)) == vtkLine::Intersect)
       {
         // This test checks for vertex and edge intersections
         // For example
