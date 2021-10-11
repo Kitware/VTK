@@ -38,13 +38,6 @@ target_link_libraries(qmlvtkplugin
     VTK::GUISupportQtQuick
     "Qt${vtk_qt_major_version}::Qml")
 
-if(NOT APPLE)
-  # QML plugins should have a "d" suffix in debug builds.
-  set_property(TARGET qmlvtkplugin
-    PROPERTY
-      DEBUG_POSTFIX "d")
-endif()
-
 install(
   TARGETS qmlvtkplugin
   EXPORT  "${_vtk_build_INSTALL_EXPORT}"
