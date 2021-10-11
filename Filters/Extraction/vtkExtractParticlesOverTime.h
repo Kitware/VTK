@@ -79,7 +79,7 @@ private:
   void operator=(const vtkExtractParticlesOverTime&) = delete;
 
   std::string IdChannelArray;
-  vtkSmartPointer<vtkExtractParticlesOverTimeInternals> Internals;
+  vtkNew<vtkExtractParticlesOverTimeInternals> Internals;
 };
 
 #endif

@@ -253,11 +253,16 @@ bool vtkExtractParticlesOverTimeInternals::FillExtractedPointSelection(
     array->SetName(IdChannelArray.c_str());
   }
 
-  array->Allocate(static_cast<vtkIdType>(this->ExtractedPoints.size()));
+  array->SetNumberOfComponents(1);
+  array->SetNumberOfTuples(2);
+  array->Resize(static_cast<vtkIdType>(this->ExtractedPoints.size()));
+  vtkIdType pointIndex = 0;
   for (const auto& pointId : this->ExtractedPoints)
   {
-    array->InsertNextValue(pointId);
+    array->SetValue(pointIndex, pointId);
+    ++pointIndex;
   }
+
   particleSelectionNode->SetSelectionList(array);
   selection->AddNode(particleSelectionNode);
 
@@ -286,8 +291,6 @@ const vtkIdTypeArray* vtkExtractParticlesOverTimeInternals::GetIds(
 //------------------------------------------------------------------------------
 vtkExtractParticlesOverTime::vtkExtractParticlesOverTime()
 {
-  this->Internals = vtkSmartPointer<vtkExtractParticlesOverTimeInternals>::New();
-
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
 }
