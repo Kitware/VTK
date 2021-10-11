@@ -65,6 +65,7 @@ public:
     double* volumes, vtkIdType numberOfObjects, vtkIdType* objectIds, double* objectAreas,
     double* objectVolumes, double* objectCentroids)
     : Mesh(mesh)
+    , Points(Mesh->GetPoints())
     , Orient(orient)
     , Areas(areas)
     , Volumes(volumes)
@@ -73,7 +74,6 @@ public:
     , ObjectAreas(objectAreas)
     , ObjectVolumes(objectVolumes)
     , ObjectCentroids(objectCentroids)
-    , Points(Mesh->GetPoints())
   {
     this->Center[0] = center[0];
     this->Center[1] = center[1];
