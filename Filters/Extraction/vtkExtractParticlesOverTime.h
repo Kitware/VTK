@@ -55,16 +55,13 @@ public:
    * If this array is nullptr, the global point ids are used.  If an Id
    * array cannot otherwise be found, the point index is used as the ID.
    */
-  vtkSetStringMacro(IdChannelArray);
-  vtkGetStringMacro(IdChannelArray);
+  vtkSetStdStringFromCharMacro(IdChannelArray);
+  vtkGetCharFromStdStringMacro(IdChannelArray);
   ///@}
 
 protected:
   vtkExtractParticlesOverTime();
-  ~vtkExtractParticlesOverTime() override;
-
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  ~vtkExtractParticlesOverTime() override = default;
 
   ///@{
   /**
@@ -77,12 +74,12 @@ protected:
     vtkInformationVector* outputVector) override;
   ///@}
 
-  char* IdChannelArray = nullptr;
-  vtkSmartPointer<vtkExtractParticlesOverTimeInternals> Internals;
-
 private:
   vtkExtractParticlesOverTime(const vtkExtractParticlesOverTime&) = delete;
   void operator=(const vtkExtractParticlesOverTime&) = delete;
+
+  std::string IdChannelArray;
+  vtkSmartPointer<vtkExtractParticlesOverTimeInternals> Internals;
 };
 
 #endif
