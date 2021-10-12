@@ -41,9 +41,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetIndex(int index);
-  int GetIndex();
+  int GetIndex() const;
 
-  vtkAlgorithm* GetProducer();
+  vtkAlgorithm* GetProducer() const;
   void SetProducer(vtkAlgorithm* producer);
 
 protected:

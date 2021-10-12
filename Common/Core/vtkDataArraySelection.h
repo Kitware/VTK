@@ -29,7 +29,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-class vtkDataArraySelectionInternals;
+#include <memory> // for std::unique_ptr
 
 class VTKCOMMONCORE_EXPORT vtkDataArraySelection : public vtkObject
 {
@@ -211,18 +211,30 @@ public:
   vtkSetMacro(UnknownArraySetting, int);
   vtkGetMacro(UnknownArraySetting, int);
   ///@}
+
+  /**
+   * Copy contents of other. The MTime for this instance is modified only if
+   * values are different.
+   */
+  void DeepCopy(const vtkDataArraySelection* other);
+
+  /**
+   * Returns true if the two array selections are equivalent.
+   */
+  bool IsEqual(const vtkDataArraySelection* other) const;
+
 protected:
   vtkDataArraySelection();
   ~vtkDataArraySelection() override;
 
-  // Internal implementation details.
-  vtkDataArraySelectionInternals* Internal;
-
-  int UnknownArraySetting;
-
 private:
   vtkDataArraySelection(const vtkDataArraySelection&) = delete;
   void operator=(const vtkDataArraySelection&) = delete;
+
+  // Internal implementation details.
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Internal;
+  int UnknownArraySetting;
 };
 
 #endif
