@@ -31,12 +31,9 @@
 vtkStandardNewMacro(vtkExtractParticlesOverTime);
 
 //------------------------------------------------------------------------------
-class vtkExtractParticlesOverTimeInternals : public vtkObject
+class vtkExtractParticlesOverTimeInternals
 {
 public:
-  static vtkExtractParticlesOverTimeInternals* New();
-  vtkTypeMacro(vtkExtractParticlesOverTimeInternals, vtkObject);
-
   bool ProcessRequestUpdateExtent(vtkInformation* inputInformation);
 
   bool ProcessRequestData(vtkMTimeType modifiedTime, vtkInformation* request,
@@ -69,7 +66,6 @@ private:
   };
   State CurrentState = State::NOT_PROCESSED;
 };
-vtkStandardNewMacro(vtkExtractParticlesOverTimeInternals);
 
 //------------------------------------------------------------------------------
 bool vtkExtractParticlesOverTimeInternals::ProcessRequestUpdateExtent(
@@ -103,7 +99,7 @@ bool vtkExtractParticlesOverTimeInternals::ProcessRequestData(vtkMTimeType modif
 {
   if (this->NumberOfTimeSteps <= 0)
   {
-    vtkErrorMacro("No time steps in input data!");
+    vtkLog(ERROR, "No time steps in input data!");
     return false;
   }
 
@@ -284,6 +280,7 @@ const vtkIdTypeArray* vtkExtractParticlesOverTimeInternals::GetIds(
 //------------------------------------------------------------------------------
 vtkExtractParticlesOverTime::vtkExtractParticlesOverTime()
 {
+  this->Internals = std::make_shared<vtkExtractParticlesOverTimeInternals>();
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
 }

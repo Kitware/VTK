@@ -30,7 +30,8 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
-#include "vtkSmartPointer.h"            // For smart pointers
+#include <memory>                       // For smart pointers
+#include <string>                       // For channel array name
 
 class vtkExtractParticlesOverTimeInternals;
 
@@ -79,7 +80,7 @@ private:
   void operator=(const vtkExtractParticlesOverTime&) = delete;
 
   std::string IdChannelArray;
-  vtkNew<vtkExtractParticlesOverTimeInternals> Internals;
+  std::shared_ptr<vtkExtractParticlesOverTimeInternals> Internals;
 };
 
 #endif
