@@ -29,7 +29,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
       if (VTK_SANITIZER STREQUAL "address" OR
           VTK_SANITIZER STREQUAL "undefined")
         find_library(VTK_ASAN_LIBRARY
-          NAMES libasan.so.5
+          NAMES libasan.so.6 libasan.so.5
           DOC "ASan library")
         mark_as_advanced(VTK_ASAN_LIBRARY)
 
@@ -37,5 +37,24 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
           "${VTK_ASAN_LIBRARY}")
       endif ()
     endif ()
+
+    set(vtk_sanitize_args
+      "-fsanitize=${VTK_SANITIZER}")
+
+    if (CMAKE_COMPILER_IS_CLANGXX)
+      configure_file(
+        "${VTK_SOURCE_DIR}/Utilities/DynamicAnalysis/sanitizer_ignore.txt.in"
+        "${VTK_BINARY_DIR}/sanitizer_ignore.txt"
+        @ONLY)
+      list(APPEND vtk_sanitize_args
+        "SHELL:-fsanitize-blacklist=${VTK_BINARY_DIR}/sanitizer_ignore.txt")
+    endif ()
+
+    target_compile_options(vtkbuild
+      INTERFACE
+        "$<BUILD_INTERFACE:${vtk_sanitize_args}>")
+    target_link_options(vtkbuild
+      INTERFACE
+        "$<BUILD_INTERFACE:${vtk_sanitize_args}>")
   endif()
 endif()

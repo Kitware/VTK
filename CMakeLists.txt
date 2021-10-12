@@ -541,11 +541,6 @@ if (VTK_WHEEL_BUILD)
   include(vtkWheelFinalization)
 endif ()
 
-# Setup compiler flags for dynamic analysis. This is included late to avoid
-# interfering with any `try_compile` or other things involved with a normal
-# configuration.
-include(vtkSanitizeFlags)
-
 # Some generated code has some warnings that we need to exclude for now.
 configure_file(
   "${VTK_SOURCE_DIR}/.clang-tidy"
