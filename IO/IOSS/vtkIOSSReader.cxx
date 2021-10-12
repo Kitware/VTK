@@ -71,6 +71,7 @@
 
 #include <array>
 #include <cassert>
+#include <cctype>
 #include <iterator>
 #include <map>
 #include <memory>
