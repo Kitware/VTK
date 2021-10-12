@@ -127,7 +127,6 @@ PIO_DATA::~PIO_DATA()
   VarMMap.clear();
   delete this->Infile;
   this->Infile = nullptr;
-  std::set<const char*, Cstring_less>::iterator q;
   for (auto v : RealData)
     std::free(const_cast<char*>(v));
   RealData.clear();
