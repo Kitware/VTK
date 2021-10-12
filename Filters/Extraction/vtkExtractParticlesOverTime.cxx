@@ -61,13 +61,13 @@ private:
   double TimeStepBeforeExecuting = 0;
   vtkNew<vtkExtractSelection> SelectionExtractor;
 
-  enum State
+  enum class State
   {
     NOT_PROCESSED,
     PROCESSING,
     PROCESSING_DONE
   };
-  State CurrentState = NOT_PROCESSED;
+  State CurrentState = State::NOT_PROCESSED;
 };
 vtkStandardNewMacro(vtkExtractParticlesOverTimeInternals);
 
@@ -75,7 +75,7 @@ vtkStandardNewMacro(vtkExtractParticlesOverTimeInternals);
 bool vtkExtractParticlesOverTimeInternals::ProcessRequestUpdateExtent(
   vtkInformation* inputInformation)
 {
-  if (this->CurrentState != PROCESSING)
+  if (this->CurrentState != State::PROCESSING)
   {
     this->TimeStepBeforeExecuting = 0;
     if (inputInformation->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
@@ -113,17 +113,17 @@ bool vtkExtractParticlesOverTimeInternals::ProcessRequestData(vtkMTimeType modif
     this->CurrentTimeIndex = 0;
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
     this->ExtractedPoints.clear();
-    this->CurrentState = PROCESSING;
+    this->CurrentState = State::PROCESSING;
   }
 
-  if (this->CurrentState == PROCESSING)
+  if (this->CurrentState == State::PROCESSING)
   {
     vtkPointData* particlePointData = particleDataSet->GetPointData();
     const vtkIdTypeArray* Ids = this->GetIds(particlePointData, IdChannelArray);
     if (!Ids)
     {
       vtkLog(ERROR, "Invalid Ids array in particle input: " << IdChannelArray);
-      this->CurrentState = NOT_PROCESSED;
+      this->CurrentState = State::NOT_PROCESSED;
       return false;
     }
 
@@ -163,17 +163,17 @@ bool vtkExtractParticlesOverTimeInternals::ProcessRequestData(vtkMTimeType modif
 
       if (!GenerateOutput(particleDataSet, IdChannelArray))
       {
-        this->CurrentState = NOT_PROCESSED;
+        this->CurrentState = State::NOT_PROCESSED;
         return false;
       }
 
       inputInformation->Set(
         vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->TimeStepBeforeExecuting);
-      this->CurrentState = PROCESSING_DONE;
+      this->CurrentState = State::PROCESSING_DONE;
     }
   }
 
-  if (this->CurrentState == PROCESSING_DONE)
+  if (this->CurrentState == State::PROCESSING_DONE)
   {
     outputParticleDataSet->ShallowCopy(this->SelectionExtractor->GetOutputDataObject(0));
   }
@@ -186,9 +186,9 @@ double vtkExtractParticlesOverTimeInternals::GetProgress() const
 {
   switch (this->CurrentState)
   {
-    case NOT_PROCESSED:
+    case State::NOT_PROCESSED:
       return 0;
-    case PROCESSING:
+    case State::PROCESSING:
       if (this->NumberOfTimeSteps <= 0 || this->CurrentTimeIndex < 0)
       {
         return 0;
@@ -197,7 +197,7 @@ double vtkExtractParticlesOverTimeInternals::GetProgress() const
       {
         return static_cast<double>(this->CurrentTimeIndex) / this->NumberOfTimeSteps;
       }
-    case PROCESSING_DONE:
+    case State::PROCESSING_DONE:
       return 1;
     default:
       return 0;
@@ -207,7 +207,7 @@ double vtkExtractParticlesOverTimeInternals::GetProgress() const
 //------------------------------------------------------------------------------
 bool vtkExtractParticlesOverTimeInternals::ShouldRestart(vtkMTimeType modifiedTime) const
 {
-  return this->CurrentState == NOT_PROCESSED || this->LastModificationTime < modifiedTime;
+  return this->CurrentState == State::NOT_PROCESSED || this->LastModificationTime < modifiedTime;
 }
 
 //------------------------------------------------------------------------------
