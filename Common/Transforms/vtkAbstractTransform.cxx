@@ -16,7 +16,7 @@
 
 #include "vtkDataArray.h"
 #include "vtkDebugLeaks.h"
-#include "vtkHomogeneousTransform.h"
+#include "vtkLinearTransform.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -351,10 +351,10 @@ void vtkAbstractTransform::UnRegister(vtkObjectBase* o)
 
 //------------------------------------------------------------------------------
 // A very, very minimal transformation
-class vtkSimpleTransform : public vtkHomogeneousTransform
+class vtkSimpleTransform : public vtkLinearTransform
 {
 public:
-  vtkTypeMacro(vtkSimpleTransform, vtkHomogeneousTransform);
+  vtkTypeMacro(vtkSimpleTransform, vtkLinearTransform);
   static vtkSimpleTransform* New() { VTK_STANDARD_NEW_BODY(vtkSimpleTransform); }
   vtkAbstractTransform* MakeTransform() override { return vtkSimpleTransform::New(); }
   void Inverse() override
