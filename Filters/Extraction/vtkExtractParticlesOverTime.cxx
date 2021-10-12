@@ -66,8 +66,6 @@ public:
   double GetProgress() const;
   bool ShouldRestart(vtkMTimeType modifiedTime) const;
   bool GenerateOutput(vtkDataSet* inputDataSet, const std::string& IdChannelArray);
-  bool FillExtractedPointSelection(
-    const std::string& IdChannelArray, vtkSelection* selection) const;
 
   int NumberOfTimeSteps = 0;
   vtkMTimeType LastModificationTime = 0;
@@ -111,24 +109,6 @@ bool vtkExtractParticlesOverTimeInternals::ShouldRestart(vtkMTimeType modifiedTi
 bool vtkExtractParticlesOverTimeInternals::GenerateOutput(
   vtkDataSet* inputDataSet, const std::string& IdChannelArray)
 {
-  vtkNew<vtkSelection> particleSelection;
-  if (!FillExtractedPointSelection(IdChannelArray, particleSelection))
-  {
-    vtkLog(ERROR, "Error while generating particle selection.");
-    return false;
-  }
-
-  this->SelectionExtractor->SetInputDataObject(0, inputDataSet);
-  this->SelectionExtractor->SetInputDataObject(1, particleSelection);
-  this->SelectionExtractor->Update();
-
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkExtractParticlesOverTimeInternals::FillExtractedPointSelection(
-  const std::string& IdChannelArray, vtkSelection* selection) const
-{
   vtkNew<vtkSelectionNode> particleSelectionNode;
   vtkNew<vtkIdTypeArray> array;
   particleSelectionNode->SetFieldType(vtkSelectionNode::POINT);
@@ -154,7 +134,13 @@ bool vtkExtractParticlesOverTimeInternals::FillExtractedPointSelection(
   }
 
   particleSelectionNode->SetSelectionList(array);
-  selection->AddNode(particleSelectionNode);
+
+  vtkNew<vtkSelection> particleSelection;
+  particleSelection->AddNode(particleSelectionNode);
+
+  this->SelectionExtractor->SetInputDataObject(0, inputDataSet);
+  this->SelectionExtractor->SetInputDataObject(1, particleSelection);
+  this->SelectionExtractor->Update();
 
   return true;
 }
