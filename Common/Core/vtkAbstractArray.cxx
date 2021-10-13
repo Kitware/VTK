@@ -39,6 +39,16 @@
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStringArray.h"
+#include "vtkTypeFloat32Array.h"
+#include "vtkTypeFloat64Array.h"
+#include "vtkTypeInt16Array.h"
+#include "vtkTypeInt32Array.h"
+#include "vtkTypeInt64Array.h"
+#include "vtkTypeInt8Array.h"
+#include "vtkTypeUInt16Array.h"
+#include "vtkTypeUInt32Array.h"
+#include "vtkTypeUInt64Array.h"
+#include "vtkTypeUInt8Array.h"
 #include "vtkUnicodeString.h" // for vtkSuperExtraExtendedTemplateMacro
 #include "vtkUnicodeStringArray.h"
 #include "vtkUnsignedCharArray.h"
@@ -371,6 +381,44 @@ int vtkAbstractArray::GetDataTypeSize(int type)
 //------------------------------------------------------------------------------
 vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 {
+  // First we check IntT and FloatN type to allow downcasting to such array types.
+  switch (dataType)
+  {
+    case VTK_TYPE_UINT8:
+      return vtkTypeUInt8Array::New();
+
+    case VTK_TYPE_INT8:
+      return vtkTypeInt8Array::New();
+
+    case VTK_TYPE_UINT16:
+      return vtkTypeUInt16Array::New();
+
+    case VTK_TYPE_INT16:
+      return vtkTypeInt16Array::New();
+
+    case VTK_TYPE_UINT32:
+      return vtkTypeUInt32Array::New();
+
+    case VTK_TYPE_INT32:
+      return vtkTypeInt32Array::New();
+
+    case VTK_TYPE_UINT64:
+      return vtkTypeUInt64Array::New();
+
+    case VTK_TYPE_INT64:
+      return vtkTypeInt64Array::New();
+
+    case VTK_TYPE_FLOAT32:
+      return vtkTypeFloat32Array::New();
+
+    case VTK_TYPE_FLOAT64:
+      return vtkTypeFloat64Array::New();
+
+    default:
+      break;
+  }
+
+  // Didn't find any IntN or FloatN? The array we want should be down there.
   switch (dataType)
   {
     case VTK_BIT:
