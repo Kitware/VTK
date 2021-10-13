@@ -282,7 +282,7 @@ int vtkEGLRenderWindow::GetNumberOfDevices()
   return 0;
 }
 
-void vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
+bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex, EGLint* major, EGLint* minor)
 {
   vtkInternals* impl = this->Internals;
   vtkEGLDeviceExtensions* ext = vtkEGLDeviceExtensions::GetInstance();
@@ -295,15 +295,38 @@ void vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
       vtkWarningMacro("EGL device index: " << deviceIndex
                                            << " is greater than "
                                               "the number of supported deviced in the system: "
-                                           << num_devices << ". Using device 0 ...");
-      return;
+                                           << num_devices);
     }
     EGLDeviceEXT* devices = new EGLDeviceEXT[num_devices];
     ext->eglQueryDevices(num_devices, devices, &num_devices);
+    // Try deviceIndex first
     impl->Display =
       ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[deviceIndex], nullptr);
-    delete[] devices;
-    return;
+    if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) == EGL_TRUE)
+    {
+      delete[] devices;
+      return true;
+    }
+    // Device could not be initialized. Try others
+    for (int i = 0; i < num_devices; i++)
+    {
+      // Don't check deviceIndex again
+      if (i == deviceIndex)
+      {
+        continue;
+      }
+      impl->Display = ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[i], nullptr);
+      if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) == EGL_TRUE)
+      {
+        delete[] devices;
+        return true;
+      }
+    }
+
+    impl->Display = EGL_NO_DISPLAY
+
+      delete[] devices;
+    return false;
   }
   vtkWarningMacro("Setting an EGL display to device index: "
     << deviceIndex
@@ -365,23 +388,15 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
   {
     // eglGetDisplay(EGL_DEFAULT_DISPLAY) does not seem to work
     // if there are several cards on a system.
-    this->SetDeviceAsDisplay(this->DeviceIndex);
+
+    EGLint major = 0, minor = 0;
 
     // try to use the default display
-    if (impl->Display == EGL_NO_DISPLAY)
+    if (!this->SetDeviceAsDisplay(this->DeviceIndex, &major, &minor))
     {
       impl->Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     }
 
-    EGLint major = 0, minor = 0;
-    try
-    {
-      vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor);
-    }
-    catch (...)
-    {
-      vtkErrorMacro("Caught an error");
-    }
 #if !defined(__ANDROID__) && !defined(ANDROID)
     if (major <= 1 && minor < 4)
     {
