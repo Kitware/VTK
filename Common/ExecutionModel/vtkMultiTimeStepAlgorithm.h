@@ -40,6 +40,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkDeprecation.h"                // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkSmartPointer.h"               //needed for a private variable
 
 #include "vtkDataObject.h" // needed for the smart pointer

@@ -23,6 +23,7 @@
 #ifndef vtkMultiBlockFromTimeSeriesFilter_h
 #define vtkMultiBlockFromTimeSeriesFilter_h
 
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // Smart pointer

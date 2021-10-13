@@ -21,8 +21,6 @@
 #include "QVTKOpenGLWindow.h" // needed for ivar
 #include <QPointer>           // needed for ivar
 
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_0_0
-
 // Forward Qt class declarations
 class QSurfaceFormat;
 class QOpenGLContext;
@@ -187,48 +185,6 @@ public:
    * Returns the context and surface format used by this widget and its toplevel window.
    */
   QSurfaceFormat format() const { return this->VTKOpenGLWindow->format(); }
-
-  ///@{
-  /**
-   * @deprecated in VTK 8.3
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLStereoWidget::setRenderWindow")
-  void SetRenderWindow(vtkGenericOpenGLRenderWindow* win);
-  VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLStereoWidget::setRenderWindow")
-  void SetRenderWindow(vtkRenderWindow* win);
-  ///@}
-
-  ///@{
-  /**
-   * These methods have be deprecated to fix naming style. Since
-   * QVTKOpenGLNativeWidget is QObject subclass, we follow Qt naming conventions
-   * rather than VTK's.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLStereoWidget::renderWindow")
-  vtkRenderWindow* GetRenderWindow();
-  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0.0 (internal)")
-  QVTKInteractor* GetInteractor();
-  ///@}
-
-  /**
-   * @deprecated in VTK 8.3
-   * QVTKInteractorAdapter is an internal helper. Hence the API was removed.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0.0 (internal)")
-  QVTKInteractorAdapter* GetInteractorAdapter();
-
-  /**
-   * @deprecated in VTK 8.3. Simply use `QWidget::setCursor` API to change
-   * cursor.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use QWidget::setCursor")
-  void setQVTKCursor(const QCursor& cursor);
-
-  /**
-   * @deprecated in VTK 8.3. Use `setDefaultCursor` instead.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use QWidget::setDefaultCursor")
-  void setDefaultQVTKCursor(const QCursor& cursor);
 
 protected:
   void resizeEvent(QResizeEvent* evt) override;

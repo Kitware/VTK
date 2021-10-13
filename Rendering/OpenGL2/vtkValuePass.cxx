@@ -384,19 +384,6 @@ void vtkValuePass::SetInputComponentToProcess(int component)
 }
 
 //------------------------------------------------------------------------------
-void vtkValuePass::SetScalarRange(double min, double max)
-{
-  VTK_LEGACY_BODY(vtkValuePass::SetScalarRange, "VTK 9.0");
-  if ((this->PassState->ScalarRange[0] != min || this->PassState->ScalarRange[1] != max) &&
-    min <= max)
-  {
-    this->PassState->ScalarRange[0] = min;
-    this->PassState->ScalarRange[1] = max;
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkValuePass::PopulateCellCellMap(const vtkRenderState* s)
 {
   int const count = s->GetPropArrayCount();
@@ -684,17 +671,6 @@ void vtkValuePass::ReleaseFBO(vtkWindow* win)
   this->ImplFloat->DepthRBO = nullptr;
 
   this->ImplFloat->FBOAllocated = false;
-}
-
-//------------------------------------------------------------------------------
-bool vtkValuePass::IsFloatingPointModeSupported()
-{
-  VTK_LEGACY_BODY(vtkValuePass::IsFloatihngPointModeSupported, "VTK 9.0");
-#ifdef GL_ES_VERSION_3_0
-  return true;
-#else
-  return true;
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -1085,12 +1061,4 @@ vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(vtkMapper* mapper, Par
   }
 
   return abstractArray;
-}
-
-//-------------------------------------------------------------------
-void vtkValuePass::ColorToValue(
-  unsigned char const* color, double const min, double const scale, double& value)
-{
-  VTK_LEGACY_BODY(vtkValuePass::ColorToValue, "VTK 9.0");
-  this->ImplInv->ColorToValue(color, min, scale, value);
 }

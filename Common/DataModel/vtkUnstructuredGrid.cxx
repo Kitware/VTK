@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkArrayDispatch.h"
@@ -1479,15 +1476,6 @@ void vtkUnstructuredGrid::GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkId
     ncells = links->GetNcells(ptId);
     cells = links->GetCells(ptId);
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkUnstructuredGrid::GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells)
-{
-  VTK_LEGACY_BODY(vtkUnstructuredGrid::GetPointCells, "VTK 9.0");
-  vtkIdType nc;
-  this->GetPointCells(ptId, nc, cells);
-  ncells = static_cast<unsigned short>(nc);
 }
 
 //------------------------------------------------------------------------------

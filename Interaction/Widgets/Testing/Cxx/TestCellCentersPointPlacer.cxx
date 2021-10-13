@@ -19,9 +19,6 @@
 //   Here we demonstrate constraining the distance widget to the centers
 // of various cells.
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include <vtkActor.h>
 #include <vtkAxisActor2D.h>
 #include <vtkCamera.h>

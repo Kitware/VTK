@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPyramid.h"
 
 #include "vtkCellArray.h"
@@ -1036,24 +1033,6 @@ void vtkPyramid::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& pts)
 {
   assert(edgeId < vtkPyramid::NumberOfEdges && "edgeId too large");
   pts = edgeToAdjacentFaces[edgeId];
-}
-
-//------------------------------------------------------------------------------
-void vtkPyramid::GetEdgePoints(int edgeId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkPyramid::GetEdgePoints(int, int*&), "VTK 9.0",
-    vtkPyramid::GetEdgePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
-  pts = tmp.data();
-}
-
-//------------------------------------------------------------------------------
-void vtkPyramid::GetFacePoints(int faceId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkPyramid::GetFacePoints(int, int*&), "VTK 9.0",
-    vtkPyramid::GetFacePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
-  pts = tmp.data();
 }
 
 //------------------------------------------------------------------------------

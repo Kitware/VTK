@@ -30,7 +30,6 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkContextPolygon.h" // For vtkContextPolygon
-#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkRect.h"           // For vtkRectd ivar
 #include "vtkSmartPointer.h"   // Needed to hold SP ivars
 #include "vtkStdString.h"      // Needed to hold TooltipLabelFormat ivar
@@ -117,17 +116,6 @@ public:
    */
   virtual vtkIdType GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
     vtkVector2f* location, vtkIdType* segmentId);
-
-  /**
-   * Function to query a plot for the nearest point to the specified coordinate.
-   * Returns the index of the data series with which the point is associated, or
-   * -1 if no point was found.
-   * Deprecated method, uses GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tolerance,
-   * vtkVector2f* location, vtkIdType* segmentId); instead.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use the vtkPlot::GetNearestPoint() overload with a segmentId argument")
-  virtual vtkIdType GetNearestPoint(
-    const vtkVector2f& point, const vtkVector2f& tolerance, vtkVector2f* location);
 
   /**
    * Select all points in the specified rectangle.
@@ -511,13 +499,6 @@ protected:
   vtkRectd ShiftScale;
 
   bool LegendVisibility;
-
-  /**
-   * Flag used by GetNearestPoint legacy implementation
-   * to avoid infinite call
-   */
-  // VTK_DEPRECATED_IN_9_0_0("used to track deprecation integration logic")
-  bool LegacyRecursionFlag = false;
 
 private:
   vtkPlot(const vtkPlot&) = delete;

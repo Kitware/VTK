@@ -33,7 +33,6 @@
 #define vtkResourceFileLocator_h
 
 #include "vtkCommonMiscModule.h" // For export macro
-#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkObject.h"
 
 #include <string> // needed for std::string
@@ -45,25 +44,6 @@ public:
   static vtkResourceFileLocator* New();
   vtkTypeMacro(vtkResourceFileLocator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  ///@{
-  /**
-   * Enable/disable printing of testing of various path during `Locate`
-   * to `stdout`.
-   *
-   * @deprecated Instead use `SetLogVerbosity` to specify the verbosity at which
-   * this instance should log trace information. Default is
-   * `vtkLogger::VERBOSITY_TRACE`.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use vtkResourceFileLocator::SetLogVerbosity")
-  void SetPrintDebugInformation(bool);
-  VTK_DEPRECATED_IN_9_0_0("Use vtkResourceFileLocator::GetLogVerbosity")
-  bool GetPrintDebugInformation();
-  VTK_DEPRECATED_IN_9_0_0("Use vtkResourceFileLocator::SetLogVerbosity")
-  void PrintDebugInformationOn();
-  VTK_DEPRECATED_IN_9_0_0("Use vtkResourceFileLocator::SetLogVerbosity")
-  void PrintDebugInformationOff();
-  ///@}
 
   ///@{
   /**

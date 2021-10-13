@@ -107,7 +107,6 @@
 #include <QScopedPointer> // for QScopedPointer.
 
 #include "QVTKInteractor.h"        // needed for QVTKInteractor
-#include "vtkDeprecation.h"        // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkGUISupportQtModule.h" // for export macro
 #include "vtkNew.h"                // needed for vtkNew
 #include "vtkSmartPointer.h"       // needed for vtkSmartPointer
@@ -200,48 +199,6 @@ public:
   void setDefaultCursor(const QCursor& cursor);
   const QCursor& defaultCursor() const { return this->DefaultCursor; }
   ///@}
-
-  ///@{
-  /**
-   * @deprecated in VTK 9.0
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLNativeWidget::setRenderWindow")
-  void SetRenderWindow(vtkGenericOpenGLRenderWindow* win);
-  VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLNativeWidget::setRenderWindow")
-  void SetRenderWindow(vtkRenderWindow* win);
-  ///@}
-
-  ///@{
-  /**
-   * These methods have be deprecated to fix naming style. Since
-   * QVTKOpenGLNativeWidget is QObject subclass, we follow Qt naming conventions
-   * rather than VTK's.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLNativeWidget::renderWindow")
-  vtkRenderWindow* GetRenderWindow();
-  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0.0 (internal)")
-  QVTKInteractor* GetInteractor();
-  ///@}
-
-  /**
-   * @deprecated in VTK 9.0
-   * QVTKInteractorAdapter is an internal helper. Hence the API was removed.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0.0 (internal)")
-  QVTKInteractorAdapter* GetInteractorAdapter();
-
-  /**
-   * @deprecated in VTK 9.0. Simply use `QWidget::setCursor` API to change
-   * cursor.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use QWidget::setCursor")
-  void setQVTKCursor(const QCursor& cursor);
-
-  /**
-   * @deprecated in VTK 9.0. Use `setDefaultCursor` instead.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use QWidget::setDefaultCursor")
-  void setDefaultQVTKCursor(const QCursor& cursor);
 
 protected Q_SLOTS:
   /**

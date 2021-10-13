@@ -301,22 +301,6 @@ void vtkHyperTreeGridSource::SetLevelZeroMaterialIndex(vtkIdTypeArray* indexArra
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkHyperTreeGridSource::GetMaximumLevel()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkHyperTreeGridSource::GetMaximumLevel, "VTK 9", vtkHyperTreeGridSource::GetMaxDepth);
-  return this->GetMaxDepth();
-}
-
-//------------------------------------------------------------------------------
-void vtkHyperTreeGridSource::SetMaximumLevel(unsigned int levels)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkHyperTreeGridSource::SetMaximumLevel, "VTK 9", vtkHyperTreeGridSource::SetMaxDepth);
-  this->SetMaxDepth(levels);
-}
-
-//------------------------------------------------------------------------------
 unsigned int vtkHyperTreeGridSource::GetMaxDepth()
 {
   assert("post: positive_result" && this->MaxDepth >= 1);

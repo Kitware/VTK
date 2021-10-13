@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkChartPie.h"
 
 #include "vtkObjectFactory.h"
@@ -260,7 +257,9 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent& mouse)
     if (pos[0] >= dimensions[0] && pos[0] <= dimensions[0] + dimensions[2] &&
       pos[1] >= dimensions[1] && pos[1] <= dimensions[1] + dimensions[3])
     {
-      int labelIndex = this->Private->Plot->GetNearestPoint(position, tolerance, &plotPos);
+      vtkIdType segmentId;
+      int labelIndex =
+        this->Private->Plot->GetNearestPoint(position, tolerance, &plotPos, &segmentId);
       if (labelIndex >= 0)
       {
         const char* label = this->Private->Plot->GetLabel(labelIndex);

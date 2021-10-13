@@ -1,6 +1,5 @@
 #include "QVTKOpenGLNativeWidget.h"
 #include "QVTKOpenGLStereoWidget.h"
-#include "QVTKOpenGLWidget.h"
 #include "QVTKOpenGLWindow.h"
 #include "QVTKRenderWidget.h"
 #include "vtkGenericOpenGLRenderWindow.h"

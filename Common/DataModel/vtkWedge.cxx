@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkWedge.h"
 
 #include "vtkCellArray.h"
@@ -1028,24 +1025,6 @@ void vtkWedge::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& pts)
 {
   assert(edgeId < vtkWedge::NumberOfEdges && "edgeId too large");
   pts = edgeToAdjacentFaces[edgeId];
-}
-
-//------------------------------------------------------------------------------
-void vtkWedge::GetEdgePoints(int edgeId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkWedge::GetEdgePoints(int, int*&), "VTK 9.0",
-    vtkWedge::GetEdgePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
-  pts = tmp.data();
-}
-
-//------------------------------------------------------------------------------
-void vtkWedge::GetFacePoints(int faceId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkWedge::GetFacePoints(int, int*&), "VTK 9.0",
-    vtkWedge::GetFacePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
-  pts = tmp.data();
 }
 
 //------------------------------------------------------------------------------

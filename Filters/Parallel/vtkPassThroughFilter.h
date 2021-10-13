@@ -25,7 +25,7 @@
 #define vtkPassThroughFilter_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_0_0
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkFieldData;

@@ -31,7 +31,6 @@
 #define vtkIdFilter_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkIdFilter : public vtkDataSetAlgorithm
@@ -73,17 +72,6 @@ public:
   vtkSetMacro(FieldData, vtkTypeBool);
   vtkGetMacro(FieldData, vtkTypeBool);
   vtkBooleanMacro(FieldData, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * @deprecated use SetPointIdsArrayName/GetPointIdsArrayName or
-   * SetCellIdsArrayName/GetCellIdsArrayName.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use vtkIdFilter::SetCellIdsArrayName")
-  void SetIdsArrayName(const char*);
-  VTK_DEPRECATED_IN_9_0_0("Use vtkIdFilter::GetCellIdsArrayName")
-  const char* GetIdsArrayName();
   ///@}
 
   ///@{

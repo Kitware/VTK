@@ -1,6 +1,3 @@
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "TestQtCommon.h"
 
 namespace detail
@@ -28,10 +25,6 @@ Type select_widget(int argc, char* argv[])
       else if (strcmp(typestr, "QVTKOpenGLStereoWidget") == 0)
       {
         return Type::USE_QVTKOPENGLSTEREOWIDGET;
-      }
-      else if (strcmp(typestr, "QVTKOpenGLWidget") == 0)
-      {
-        return Type::USE_QVTKOPENGLWIDGET;
       }
     }
   }
@@ -142,11 +135,6 @@ vtkRenderWindow* get_render_window(std::shared_ptr<QObject> widgetOrWindow)
     return w1->renderWindow();
   }
 
-  if (auto w1 = qobject_cast<QVTKOpenGLWidget*>(widgetOrWindow.get()))
-  {
-    return w1->renderWindow();
-  }
-
   return nullptr;
 }
 
@@ -168,11 +156,6 @@ void set_render_window(std::shared_ptr<QObject> widgetOrWindow, vtkRenderWindow*
   }
 
   if (auto w1 = qobject_cast<QVTKOpenGLWindow*>(widgetOrWindow.get()))
-  {
-    w1->setRenderWindow(renWin);
-  }
-
-  if (auto w1 = qobject_cast<QVTKOpenGLWidget*>(widgetOrWindow.get()))
   {
     w1->setRenderWindow(renWin);
   }
@@ -242,10 +225,6 @@ QImage grab_framebuffer(std::shared_ptr<QObject> widgetOrWindow)
     return w1->grabFramebuffer();
   }
 
-  if (auto w1 = qobject_cast<QVTKOpenGLWidget*>(widgetOrWindow.get()))
-  {
-    return w1->grabFramebuffer();
-  }
   return QImage();
 }
 }

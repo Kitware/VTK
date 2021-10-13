@@ -25,7 +25,7 @@
 #ifndef vtkOpenGLRenderWindow_h
 #define vtkOpenGLRenderWindow_h
 
-#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_0_0
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_1_0
 #include "vtkRect.h"        // for vtkRecti
 #include "vtkRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro

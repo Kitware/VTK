@@ -27,7 +27,6 @@
 
 #include "vtkCommonCoreModule.h"  // For export macro
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkObject.h"
 
 class VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
@@ -96,26 +95,6 @@ public:
    */
   vtkBooleanMacro(PromptUser, bool);
   vtkSetMacro(PromptUser, bool);
-  ///@}
-
-  ///@{
-  /**
-   * Historically (VTK 8.1 and earlier), when printing messages to terminals,
-   * vtkOutputWindow would always post messages to `cerr`. Setting this to true
-   * restores that incorrect behavior. When false (default),
-   * vtkOutputWindow uses `cerr` for debug, error and warning messages, and
-   * `cout` for text messages.
-   *
-   * @deprecated use `SetDisplayModeToAlwaysStdErr` instead.
-   */
-  VTK_DEPRECATED_IN_9_0_0("Use vtkOutputWindow::SetDisplayMode")
-  void SetUseStdErrorForAllMessages(bool);
-  VTK_DEPRECATED_IN_9_0_0("Use vtkOutputWindow::GetDisplayMode")
-  bool GetUseStdErrorForAllMessages();
-  VTK_DEPRECATED_IN_9_0_0("Use vtkOutputWindow::SetDisplayMode")
-  void UseStdErrorForAllMessagesOn();
-  VTK_DEPRECATED_IN_9_0_0("Use vtkOutputWindow::SetDisplayMode")
-  void UseStdErrorForAllMessagesOff();
   ///@}
 
   ///@{

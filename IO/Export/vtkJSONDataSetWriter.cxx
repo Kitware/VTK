@@ -59,24 +59,6 @@ vtkJSONDataSetWriter::~vtkJSONDataSetWriter()
 
 //------------------------------------------------------------------------------
 
-void vtkJSONDataSetWriter::SetFileName(const char* archiveName)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkJSONDataSetWriter::SetFileName, "VTK 9.0", vtkJSONDataSetWriter::SetArchiveName);
-  this->Archiver->SetArchiveName(archiveName);
-}
-
-//------------------------------------------------------------------------------
-
-char* vtkJSONDataSetWriter::GetFileName()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkJSONDataSetWriter::GetFileName, "VTK 9.0", vtkJSONDataSetWriter::GetArchiveName);
-  return this->Archiver->GetArchiveName();
-}
-
-//------------------------------------------------------------------------------
-
 vtkDataSet* vtkJSONDataSetWriter::GetInput()
 {
   return vtkDataSet::SafeDownCast(this->Superclass::GetInput());

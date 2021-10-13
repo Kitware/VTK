@@ -672,24 +672,6 @@ const char* vtkRenderWindow::GetStereoTypeAsString(int type)
   }
 }
 
-vtkTypeBool vtkRenderWindow::GetIsPicking()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::GetIsPicking, "VTK 9.0");
-  return false;
-}
-void vtkRenderWindow::SetIsPicking(vtkTypeBool)
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::SetIsPicking, "VTK 9.0");
-}
-void vtkRenderWindow::IsPickingOn()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOn, "VTK 9.0");
-}
-void vtkRenderWindow::IsPickingOff()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::IsPickingOff, "VTK 9.0");
-}
-
 //----------------------------------------------------------------------------
 bool vtkRenderWindow::IsDrawable()
 {

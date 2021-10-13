@@ -29,7 +29,6 @@
 
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_0_0
 
 class vtkOrderedTriangulator;
 class vtkTetra;
@@ -50,9 +49,6 @@ public:
    * range between 0<=edgeId<this->GetNumberOfEdges().
    */
   virtual void GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts) = 0;
-  // @deprecated Replaced by GetEdgePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_DEPRECATED_IN_9_0_0("Replaced by vtkCell::GetEdgePoints(vtkIdType, const vtkIdType*&)")
-  virtual void GetEdgePoints(int edgeId, int*& pts) = 0;
 
   /**
    * Get the list of vertices that define a face. The list is terminated
@@ -64,9 +60,6 @@ public:
    * @return The number of points in face faceId
    */
   virtual vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) = 0;
-  // @deprecated Replaced by GetFacePoints(vtkIdType, const vtkIdType*&) as of VTK 9.0
-  VTK_DEPRECATED_IN_9_0_0("Replaced by vtkCell::GetFacePoints(vtkIdType, const vtkIdType*&)")
-  virtual void GetFacePoints(int faceId, int*& pts) = 0;
 
   /**
    * Get the ids of the two adjacent faces to edge of id edgeId.

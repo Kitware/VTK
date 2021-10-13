@@ -364,31 +364,3 @@ void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
   // user will call ->Delete() after setting instance
   instance->Register(nullptr);
 }
-
-void vtkOutputWindow::SetUseStdErrorForAllMessages(bool val)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkOutputWindow::SetUseStdErrorForAllMessages, "VTK 9.0", vtkOutputWindow::SetDisplayMode);
-  this->SetDisplayMode(val ? ALWAYS_STDERR : DEFAULT);
-}
-
-bool vtkOutputWindow::GetUseStdErrorForAllMessages()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkOutputWindow::GetUseStdErrorForAllMessages, "VTK 9.0", vtkOutputWindow::GetDisplayMode);
-  return this->DisplayMode == ALWAYS_STDERR;
-}
-
-void vtkOutputWindow::UseStdErrorForAllMessagesOn()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkOutputWindow::UseStdErrorForAllMessagesOn, "VTK 9.0", vtkOutputWindow::SetDisplayMode);
-  this->SetDisplayMode(ALWAYS_STDERR);
-}
-
-void vtkOutputWindow::UseStdErrorForAllMessagesOff()
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkOutputWindow::UseStdErrorForAllMessagesOff, "VTK 9.0", vtkOutputWindow::SetDisplayMode);
-  this->SetDisplayMode(DEFAULT);
-}

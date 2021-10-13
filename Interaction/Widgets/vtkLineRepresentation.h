@@ -38,7 +38,6 @@
 #ifndef vtkLineRepresentation_h
 #define vtkLineRepresentation_h
 
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_0_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -316,13 +315,6 @@ public:
     RestrictToY,
     RestrictToZ
   };
-
-  /**
-   * Set if translations should be restricted to one of the axes (disabled if
-   * RestrictNone is specified).
-   */
-  VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
-  void SetRestrictFlag(int restrict_flag);
 
 protected:
   vtkLineRepresentation();

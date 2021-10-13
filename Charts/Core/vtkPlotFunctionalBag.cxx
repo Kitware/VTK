@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPlotFunctionalBag.h"
 
 #include "vtkAbstractArray.h"
@@ -262,22 +259,6 @@ bool vtkPlotFunctionalBag::PaintLegend(vtkContext2D* painter, const vtkRectf& re
 vtkIdType vtkPlotFunctionalBag::GetNearestPoint(
   const vtkVector2f& point, const vtkVector2f& tol, vtkVector2f* location, vtkIdType* segmentId)
 {
-  if (!this->LegacyRecursionFlag)
-  {
-    this->LegacyRecursionFlag = true;
-    vtkIdType ret = this->GetNearestPoint(point, tol, location);
-    this->LegacyRecursionFlag = false;
-    if (ret != -1)
-    {
-      VTK_LEGACY_REPLACED_BODY(vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point,
-                                 const vtkVector2f& tol, vtkVector2f* location),
-        "VTK 9.0",
-        vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point, const vtkVector2f& tol,
-          vtkVector2f* location, vtkIdType* segmentId));
-      return ret;
-    }
-  }
-
   if (this->BagPoints->GetNumberOfPoints() == 0)
   {
     return this->Line->GetNearestPoint(point, tol, location, segmentId);

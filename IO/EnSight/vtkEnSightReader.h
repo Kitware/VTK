@@ -20,6 +20,7 @@
 #ifndef vtkEnSightReader_h
 #define vtkEnSightReader_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkGenericEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
 

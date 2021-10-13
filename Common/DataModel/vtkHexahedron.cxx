@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkHexahedron.h"
 
 #include "vtkCellArray.h"
@@ -987,24 +984,6 @@ void vtkHexahedron::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& p
 {
   assert(edgeId < vtkHexahedron::NumberOfEdges && "edgeId too large");
   pts = edgeToAdjacentFaces[edgeId];
-}
-
-//------------------------------------------------------------------------------
-void vtkHexahedron::GetEdgePoints(int edgeId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkHexahedron::GetEdgePoints(int, int*&), "VTK 9.0",
-    vtkHexahedron::GetEdgePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
-  pts = tmp.data();
-}
-
-//------------------------------------------------------------------------------
-void vtkHexahedron::GetFacePoints(int faceId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkHexahedron::GetFacePoints(int, int*&), "VTK 9.0",
-    vtkHexahedron::GetFacePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
-  pts = tmp.data();
 }
 
 //------------------------------------------------------------------------------

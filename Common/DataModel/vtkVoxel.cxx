@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkVoxel.h"
 
 #include "vtkBox.h"
@@ -812,24 +809,6 @@ void vtkVoxel::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& pts)
 {
   assert(edgeId < vtkVoxel::NumberOfEdges && "edgeId too large");
   pts = edgeToAdjacentFaces[edgeId];
-}
-
-//------------------------------------------------------------------------------
-void vtkVoxel::GetEdgePoints(int edgeId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkVoxel::GetEdgePoints(int, int*&), "VTK 9.0",
-    vtkVoxel::GetEdgePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[edgeId]), std::end(faces[edgeId]));
-  pts = tmp.data();
-}
-
-//------------------------------------------------------------------------------
-void vtkVoxel::GetFacePoints(int faceId, int*& pts)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkVoxel::GetFacePoints(int, int*&), "VTK 9.0",
-    vtkVoxel::GetFacePoints(vtkIdType, const vtkIdType*&));
-  static std::vector<int> tmp(std::begin(faces[faceId]), std::end(faces[faceId]));
-  pts = tmp.data();
 }
 
 //------------------------------------------------------------------------------

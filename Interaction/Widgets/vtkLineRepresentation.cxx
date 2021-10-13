@@ -955,15 +955,6 @@ vtkMTimeType vtkLineRepresentation::GetMTime()
 }
 
 //------------------------------------------------------------------------------
-void vtkLineRepresentation::SetRestrictFlag(int restrict_flag)
-{
-  VTK_LEGACY_BODY(vtkLineRepresentation::SetRestricFlag, "VTK 9");
-  this->GetPoint1Representation()->SetTranslationAxis(restrict_flag - 1);
-  this->GetPoint2Representation()->SetTranslationAxis(restrict_flag - 1);
-  this->GetLineHandleRepresentation()->SetTranslationAxis(restrict_flag - 1);
-}
-
-//------------------------------------------------------------------------------
 void vtkLineRepresentation::SetDistanceAnnotationScale(double scale[3])
 {
   this->TextActor->SetScale(scale);

@@ -1684,7 +1684,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetCGNSDat
 }
 
 //----------------------------------------------------------------------------
-bool ExplodeDGMesh(vtkUnstructuredGrid* dataset, bool remove_unused_points)
+bool ExplodeDGMesh(vtkUnstructuredGrid* dataset, bool vtkNotUsed(remove_unused_points))
 {
   auto old_points = dataset->GetPoints();
   vtkNew<vtkPoints> exploded_points;
