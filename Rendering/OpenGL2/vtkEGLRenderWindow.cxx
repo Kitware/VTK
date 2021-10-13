@@ -374,7 +374,14 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
     }
 
     EGLint major = 0, minor = 0;
-    vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor);
+    try
+    {
+      vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor);
+    }
+    catch (...)
+    {
+      vtkErrorMacro("Caught an error");
+    }
 #if !defined(__ANDROID__) && !defined(ANDROID)
     if (major <= 1 && minor < 4)
     {
