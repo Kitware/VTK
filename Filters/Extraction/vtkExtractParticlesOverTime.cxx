@@ -230,8 +230,8 @@ int vtkExtractParticlesOverTime::RequestData(
   if (this->Internals->CurrentState == State::PROCESSING)
   {
     vtkPointData* particlePointData = particleDataSet->GetPointData();
-    const vtkIdTypeArray* Ids = ::GetIds(particlePointData, IdChannelArray);
-    if (!Ids)
+    const vtkIdTypeArray* ids = ::GetIds(particlePointData, IdChannelArray);
+    if (!ids)
     {
       vtkLog(ERROR, "Invalid Ids array in particle input: " << IdChannelArray);
       this->Internals->CurrentState = State::NOT_PROCESSED;
@@ -248,11 +248,11 @@ int vtkExtractParticlesOverTime::RequestData(
     std::array<double, VTK_CELL_SIZE> resultWeights = {};
     double tolerance = 0;
 
-    vtkIdType numberOfPoints = Ids->GetNumberOfTuples();
+    vtkIdType numberOfPoints = ids->GetNumberOfTuples();
     for (vtkIdType index = 0; index < numberOfPoints; ++index)
     {
       vtkIdType pointId = 0;
-      Ids->GetTypedTuple(index, &pointId);
+      ids->GetTypedTuple(index, &pointId);
       if (this->Internals->ExtractedPoints.count(pointId) == 0)
       {
         double* pointCoordinates = particleDataSet->GetPoint(pointId);
