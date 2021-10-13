@@ -123,9 +123,7 @@ bool vtkExtractParticlesOverTimeInternals::GenerateOutput(
     array->SetName(IdChannelArray.c_str());
   }
 
-  array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(2);
-  array->Resize(static_cast<vtkIdType>(this->ExtractedPoints.size()));
   vtkIdType pointIndex = 0;
   for (const auto& pointId : this->ExtractedPoints)
   {
