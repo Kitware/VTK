@@ -303,11 +303,11 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex, int* major, int* mi
     impl->Display =
       ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[deviceIndex], nullptr);
     EGLint eglMajor = 0, eglMinor = 0;
-    if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, eglMajor, eglMinor) ==
+    if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &eglMajor, &eglMinor) ==
       EGL_TRUE)
     {
-      major = eglMajor;
-      minor = eglMinor;
+      *major = eglMajor;
+      *minor = eglMinor;
       delete[] devices;
       return true;
     }
@@ -320,11 +320,11 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex, int* major, int* mi
         continue;
       }
       impl->Display = ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[i], nullptr);
-      if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, eglMajor, eglMinor) ==
+      if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &eglMajor, &eglMinor) ==
         EGL_TRUE)
       {
-        major = eglMajor;
-        minor = eglMinor;
+        *major = eglMajor;
+        *minor = eglMinor;
         delete[] devices;
         return true;
       }
