@@ -323,7 +323,17 @@ int vtkProbeLineFilter::RequestData(
     {
       ds->GetBounds(bounds);
     }
-    tolerance = VTK_TOL * vtkBoundingBox(bounds).GetDiagonalLength();
+    vtkBoundingBox bb(bounds);
+    if (!bb.IsValid())
+    {
+      // There is no geometry in the dataset : this can happen
+      // if the input is not distributed on all MPI ranks
+      tolerance = 0.0;
+    }
+    else
+    {
+      tolerance = VTK_TOL * bb.GetDiagonalLength();
+    }
   }
   this->Internal->UpdateLocators(input, this->SamplingPattern, tolerance);
 
