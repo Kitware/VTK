@@ -19,7 +19,7 @@
  * vtkExtractParticlesOverTime extracts particles (points) from the first input that goes through
  * the volume of the second input by iterating over time. Both inputs should be vtkDataSet objects.
  * The first input should be temporal (i.e contains time steps), and the second one should be a
- * volumic dataset (i.e contains cells and not only surfaces).
+ * volumic dataset (i.e contains 3D cells).
  *
  * The output is a vtkDataSet that contains points which are subsets of the first input. The points
  * move over time the same way the first input does.
