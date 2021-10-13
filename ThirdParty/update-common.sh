@@ -42,6 +42,22 @@
 # For convenience, the function may use the "git_archive" function which
 # does a standard "git archive" extraction using the (optional) "paths"
 # variable to only extract a subset of the source tree.
+#
+# Dependencies
+#
+# To update third party packages from git repositories with submodule,
+# you will need to install the "git-archive-all" Python package with
+#
+#   pip install git-archive-all
+#
+# or install it from https://github.com/Kentzo/git-archive-all.
+#
+# This package installs a script named "git-archive-all" where pip
+# installs executables. If you run pip under your user privileges (i.e.,
+# not using "sudo"), this location may be $HOME/.local/bin. Make sure
+# that directory is in your path so that git can find the
+# "git-archive-all" script.
+#
 ########################################################################
 
 ########################################################################
@@ -52,11 +68,25 @@ git_archive () {
         tar -C "$extractdir" -x
 }
 
+confirm_archive_all_exists () {
+    which git-archive-all || die "git requires an archive-all command. Please run 'pip install git-archive-all'"
+}
+
+git_archive_all () {
+    confirm_archive_all_exists
+    local tmptarball="temp.tar"
+    git archive-all --prefix="" "$tmptarball"
+    mkdir -p "$extractdir/$name-reduced"
+    tar -C "$extractdir/$name-reduced" -xf "$tmptarball" $paths
+    rm -f "$tmptarball"
+}
+
 disable_custom_gitattributes() {
     pushd "${extractdir}/${name}-reduced"
     # Git does not allow custom attributes in a subdirectory where we
     # are about to merge the `.gitattributes` file, so disable them.
-    sed -i '/^\[attr\]/ {s/^/#/;}' .gitattributes
+    sed -i.bak -e '/^\[attr\]/ {s/^/#/;}' .gitattributes
+    rm .gitattributes.bak
     popd
 }
 
@@ -92,7 +122,7 @@ cd "$toplevel_dir"
 # Check for an empty destination directory on disk.  By checking on disk and
 # not in the repo it allows a library to be freshly re-inialized in a single
 # commit rather than first deleting the old copy in one commit and adding the
-# new copy in a seperate commit.
+# new copy in a separate commit.
 if [ ! -d "$(git rev-parse --show-toplevel)/$subtree" ]; then
     readonly basehash=""
 else
@@ -114,7 +144,7 @@ readonly extractdir="$workdir/extract"
 trap "rm -rf '$workdir'" EXIT
 
 # Get upstream
-git clone "$repo" "$upstreamdir"
+git clone --recursive "$repo" "$upstreamdir"
 
 if [ -n "$basehash" ]; then
     # Remove old worktrees
@@ -123,7 +153,7 @@ if [ -n "$basehash" ]; then
     git worktree add "$extractdir" "$basehash"
     # Clear out the working tree
     pushd "$extractdir"
-    git ls-files | xargs rm -v
+    git ls-files -z --recurse-submodules | xargs -0 rm -v
     find . -type d -empty -delete
     popd
 else
@@ -135,6 +165,8 @@ fi
 # Extract the subset of upstream we care about
 pushd "$upstreamdir"
 git checkout "$tag"
+git submodule sync --recursive
+git submodule update --recursive --init
 readonly upstream_hash="$( git rev-parse HEAD )"
 readonly upstream_hash_short="$( git rev-parse --short=8 "$upstream_hash" )"
 readonly upstream_datetime="$( git rev-list "$upstream_hash" --format='%ci' -n 1 | grep -e "^$regex_date" )"
