@@ -229,7 +229,7 @@ protected:
    * extensions to set the display (output graphics card) to something different than
    * EGL_DEFAULT_DISPLAY. Just use the default display if deviceIndex == 0.
    */
-  void SetDeviceAsDisplay(int deviceIndex);
+  bool SetDeviceAsDisplay(int deviceIndex, EGLint* major, EGLint* minor);
 
 private:
   vtkEGLRenderWindow(const vtkEGLRenderWindow&) = delete;
