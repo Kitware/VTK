@@ -614,16 +614,6 @@ bool vtkVariant::IsUnsignedLong() const
   return this->Type == VTK_UNSIGNED_LONG;
 }
 
-bool vtkVariant::Is__Int64() const
-{
-  return false;
-}
-
-bool vtkVariant::IsUnsigned__Int64() const
-{
-  return false;
-}
-
 bool vtkVariant::IsLongLong() const
 {
   return this->Type == VTK_LONG_LONG;
