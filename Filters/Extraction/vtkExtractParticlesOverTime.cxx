@@ -148,7 +148,6 @@ vtkExtractParticlesOverTime::vtkExtractParticlesOverTime()
 {
   this->Internals = std::make_shared<vtkExtractParticlesOverTimeInternals>();
   this->SetNumberOfInputPorts(2);
-  this->SetNumberOfOutputPorts(1);
 }
 
 //------------------------------------------------------------------------------
