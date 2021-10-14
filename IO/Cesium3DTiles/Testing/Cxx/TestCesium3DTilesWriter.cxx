@@ -206,7 +206,7 @@ struct Input
 
 Input tiler(const std::vector<std::string>& input, const std::string& output, int numberOfBuildings,
   int buildingsPerTile, int lod, const std::vector<double>& inputOffset, bool saveGLTF,
-  bool saveTextures, const std::string& srsName, const int utmZone, char utmHemisphere)
+  bool saveTextures, const std::string& crs, const int utmZone, char utmHemisphere)
 {
   Input ret;
   std::vector<std::string> files = getFiles(input);
@@ -235,14 +235,14 @@ Input tiler(const std::vector<std::string>& input, const std::string& output, in
   writer->SetSaveTextures(saveTextures);
   writer->SetNumberOfBuildingsPerTile(buildingsPerTile);
   writer->SetSaveGLTF(saveGLTF);
-  if (srsName.empty())
+  if (crs.empty())
   {
     writer->SetUTMZone(utmZone);
     writer->SetUTMHemisphere(utmHemisphere);
   }
   else
   {
-    writer->SetSrsName(srsName.c_str());
+    writer->SetCRS(crs.c_str());
   }
   writer->Write();
   std::copy(writer->GetOrigin(), writer->GetOrigin() + 3, ret.OutputOrigin.begin());

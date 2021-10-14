@@ -58,9 +58,9 @@ std::array<double, 6> ComputeTightBoudingBox(
 /**
  * bb: xmin, xmax, ymin, ymax, zmin, zmax
  * Return: west, south, east, north, zmin, zmax
- * TODO: use srsName which takes precedence to UTM.
+ * TODO: use crs which takes precedence to UTM.
  */
-std::array<double, 6> ToLonLatRadiansHeight(const char* vtkNotUsed(srsName), int utmZone,
+std::array<double, 6> ToLonLatRadiansHeight(const char* vtkNotUsed(crs), int utmZone,
   char utmHemisphere, const std::array<double, 6>& bb, const std::array<double, 3>& offset)
 {
   std::array<double, 6> lonlatheight;
@@ -113,7 +113,7 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* vtkNotUsed(srsName), int
 }
 
 //------------------------------------------------------------------------------
-// TODO: use srsName which takes precedence to UTM.
+// TODO: use crs which takes precedence to UTM.
 vtkSmartPointer<vtkMatrix4x4> ComputeTransformCartesian(
   const std::array<double, 3>& originLonLatDegreesHeight)
 {
@@ -183,7 +183,7 @@ vtkSmartPointer<vtkMatrix4x4> ComputeTransformCartesian(
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
   const std::array<double, 3>& offset, const std::string& output, const std::string& texturePath,
-  bool saveTextures, const char* srsName, int utmZone, char utmHemisphere)
+  bool saveTextures, const char* crs, int utmZone, char utmHemisphere)
   :
 
   Root(root)
@@ -192,7 +192,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , OutputDir(output)
   , TexturePath(texturePath)
   , SaveTextures(saveTextures)
-  , SrsName(srsName)
+  , CRS(crs)
   , UTMZone(utmZone)
   , UTMHemisphere(utmHemisphere)
   , NodeBounds(numberOfNodes)
@@ -208,6 +208,8 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   std::fill(this->EmptyNode.begin(), this->EmptyNode.end(), true);
   std::fill(this->GeometricError.begin(), this->GeometricError.end(), 0);
   std::fill(this->VolumeError.begin(), this->VolumeError.end(), 0);
+  std::cout << "Offset: " << this->Offset[0] << ", " << this->Offset[1] << ", " << this->Offset[2]
+            << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -360,19 +362,18 @@ void TreeInformation::Compute(vtkIncrementalOctreeNode* node)
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::Generate3DTiles(const std::string& output)
+void TreeInformation::SaveTileset(const std::string& output)
 {
-  this->GenerateCesium3DTiles(this->Root, output);
+  this->SaveTileset(this->Root, output);
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::GenerateCesium3DTiles(
-  vtkIncrementalOctreeNode* root, const std::string& output)
+void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output)
 {
 
   this->RootJson["asset"]["version"] = "1.0";
   this->RootJson["geometricError"] = this->ComputeTilesetGeometricError();
-  this->RootJson["root"] = this->GenerateCesium3DTiles(root);
+  this->RootJson["root"] = this->GenerateTileset(root);
   std::ofstream file(output);
   if (!file)
   {
@@ -387,12 +388,12 @@ void TreeInformation::GenerateCesium3DTiles(
 }
 
 //------------------------------------------------------------------------------
-Json::Value TreeInformation::GenerateCesium3DTiles(vtkIncrementalOctreeNode* node)
+Json::Value TreeInformation::GenerateTileset(vtkIncrementalOctreeNode* node)
 {
   Json::Value tree;
   Json::Value v;
-  std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(this->SrsName, this->UTMZone,
-    this->UTMHemisphere, this->NodeBounds[node->GetID()], this->Offset);
+  std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(
+    this->CRS, this->UTMZone, this->UTMHemisphere, this->NodeBounds[node->GetID()], this->Offset);
   std::ostringstream ostr;
   // std::cout << "lonLatRadiansHeight: " << (lonLatRadiansHeight[0] * 180.0) / vtkMath::Pi() << " "
   //           << (lonLatRadiansHeight[1] * 180.0) / vtkMath::Pi() << " "
@@ -431,7 +432,7 @@ Json::Value TreeInformation::GenerateCesium3DTiles(vtkIncrementalOctreeNode* nod
     {
       if (!this->EmptyNode[node->GetChild(i)->GetID()])
       {
-        v[j++] = this->GenerateCesium3DTiles(node->GetChild(i));
+        v[j++] = this->GenerateTileset(node->GetChild(i));
       }
       tree["children"] = v;
     }

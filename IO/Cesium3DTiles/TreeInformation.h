@@ -44,7 +44,7 @@ public:
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
     const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
     const std::array<double, 3>& offset, const std::string& outputDir,
-    const std::string& texturePath, bool saveTextures, const char* srsName, int utmZone,
+    const std::string& texturePath, bool saveTextures, const char* crs, int utmZone,
     char utmHemisphere);
 
   void PrintNode(vtkIncrementalOctreeNode* node);
@@ -74,8 +74,7 @@ public:
    */
   void Compute();
   void SaveGLTF();
-  Json::Value GenerateCesium3DTiles(vtkIncrementalOctreeNode* node);
-  void Generate3DTiles(const std::string& output);
+  void SaveTileset(const std::string& output);
   static void PrintBounds(const char* name, const double* bounds);
   static void PrintBounds(const std::string& name, const double* bounds)
   {
@@ -86,7 +85,8 @@ public:
 protected:
   void PostOrderTraversal(
     void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node), vtkIncrementalOctreeNode* node);
-  void GenerateCesium3DTiles(vtkIncrementalOctreeNode* root, const std::string& output);
+  void SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output);
+  Json::Value GenerateTileset(vtkIncrementalOctreeNode* node);
   /**
    * Computes the additional information for 'node'. This includes
    * the tight bounding box around the buildings, if the node is empty or not,
@@ -104,7 +104,7 @@ private:
   std::string OutputDir;
   std::string TexturePath;
   bool SaveTextures;
-  const char* SrsName;
+  const char* CRS;
   int UTMZone;
   char UTMHemisphere;
   // tight bounds indexed by tile ID

@@ -136,7 +136,7 @@ vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
   this->NumberOfBuildingsPerTile = 100;
   this->UTMZone = 1;
   this->UTMHemisphere = 'N';
-  this->SrsName = nullptr;
+  this->CRS = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -188,11 +188,11 @@ void vtkCesium3DTilesWriter::WriteData()
     vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
       BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
     TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), buildings,
-      offset, this->DirectoryName, this->TexturePath, this->SaveTextures, this->SrsName,
-      this->UTMZone, this->UTMHemisphere);
+      offset, this->DirectoryName, this->TexturePath, this->SaveTextures, this->CRS, this->UTMZone,
+      this->UTMHemisphere);
     treeInformation.Compute();
     vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
-    treeInformation.Generate3DTiles(std::string(this->DirectoryName) + "/tileset.json");
+    treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
 
     if (this->SaveGLTF)
     {

@@ -102,11 +102,11 @@ public:
 
   ///@{
   /**
-   * Set the spatial reference system (SRC) also known as coordinate reference system (CRS)
+   * Set the coordinate reference system (CRS) also known as spatial reference system (SRC),
    * such as EPSG:2263. This takes precedence over the UTM zone and hemisphere.
    */
-  vtkSetStringMacro(SrsName);
-  vtkGetStringMacro(SrsName);
+  vtkSetStringMacro(CRS);
+  vtkGetStringMacro(CRS);
   ///@}
 
 protected:
@@ -127,7 +127,7 @@ protected:
   int NumberOfBuildingsPerTile;
   int UTMZone;
   char UTMHemisphere;
-  char* SrsName;
+  char* CRS;
 
 private:
   vtkCesium3DTilesWriter(const vtkCesium3DTilesWriter&) = delete;
