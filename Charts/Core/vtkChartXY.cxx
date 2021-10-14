@@ -1948,9 +1948,10 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent& mouse, int invok
           int seriesIndex = LocatePointInPlot(position, tolerance, plotPos, plot, segmentIndex);
           if (seriesIndex >= 0)
           {
-            // We found a point, set up the tooltip and return
-            vtkRectd ss(plot->GetShiftScale());
-            vtkVector2d plotPosd(plotPos[0] / ss[2] - ss[0], plotPos[1] / ss[3] - ss[1]);
+            // We found a point, set up the tooltip and return. Note: we do not
+            // need to apply the shift nor scale from the plot because they
+            // have been applied in LocatePointInPlot() already.
+            vtkVector2d plotPosd(plotPos[0], plotPos[1]);
             this->SetTooltipInfo(mouse, plotPosd, seriesIndex, plot, segmentIndex);
             if (invokeEvent >= 0)
             {
