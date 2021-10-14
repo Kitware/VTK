@@ -54,65 +54,73 @@ vtkSmartPointer<vtkPolyData> GeneratePolyData()
 {
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
-  vtkSmartPointer<vtkVertex> vertex = vtkSmartPointer<vtkVertex>::New();
-  vertex->GetPointIds()->SetId(0, points->InsertNextPoint(0., 0., 0.5));
-
-  vtkSmartPointer<vtkPolyVertex> polyVertex = vtkSmartPointer<vtkPolyVertex>::New();
-  polyVertex->GetPointIds()->SetNumberOfIds(2);
-  polyVertex->GetPointIds()->SetId(0, points->InsertNextPoint(1., 0., 0.5));
-  polyVertex->GetPointIds()->SetId(1, points->InsertNextPoint(0., 1., 0.5));
-
   vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
-  verts->InsertNextCell(vertex);
-  verts->InsertNextCell(polyVertex);
+  {
+    vtkSmartPointer<vtkVertex> vertex = vtkSmartPointer<vtkVertex>::New();
+    vertex->GetPointIds()->SetId(0, points->InsertNextPoint(0., 0., 0.5));
 
-  vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
-  line->GetPointIds()->SetId(0, points->InsertNextPoint(0., 0., 1.));
-  line->GetPointIds()->SetId(1, points->InsertNextPoint(1., 0., 1.));
+    vtkSmartPointer<vtkPolyVertex> polyVertex = vtkSmartPointer<vtkPolyVertex>::New();
+    polyVertex->GetPointIds()->SetNumberOfIds(2);
+    polyVertex->GetPointIds()->SetId(0, points->InsertNextPoint(1., 0., 0.5));
+    polyVertex->GetPointIds()->SetId(1, points->InsertNextPoint(0., 1., 0.5));
 
-  vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
-  polyLine->GetPointIds()->SetNumberOfIds(3);
-  polyLine->GetPointIds()->SetId(0, points->InsertNextPoint(1., 1., 1.));
-  polyLine->GetPointIds()->SetId(1, points->InsertNextPoint(0., 1., 1.));
-  polyLine->GetPointIds()->SetId(2, points->InsertNextPoint(1.5, 1., 1.));
+    verts->InsertNextCell(vertex);
+    verts->InsertNextCell(polyVertex);
+  }
 
   vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
-  lines->InsertNextCell(line);
-  lines->InsertNextCell(polyLine);
+  {
+    vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
+    line->GetPointIds()->SetId(0, points->InsertNextPoint(0., 0., 1.));
+    line->GetPointIds()->SetId(1, points->InsertNextPoint(1., 0., 1.));
 
-  vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
-  triangle->GetPointIds()->SetId(0, points->InsertNextPoint(0., 0., 2.));
-  triangle->GetPointIds()->SetId(1, points->InsertNextPoint(1., 0., 2.));
-  triangle->GetPointIds()->SetId(2, points->InsertNextPoint(1., 1., 2.));
+    vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
+    polyLine->GetPointIds()->SetNumberOfIds(3);
+    polyLine->GetPointIds()->SetId(0, points->InsertNextPoint(1., 1., 1.));
+    polyLine->GetPointIds()->SetId(1, points->InsertNextPoint(0., 1., 1.));
+    polyLine->GetPointIds()->SetId(2, points->InsertNextPoint(1.5, 1., 1.));
 
-  vtkSmartPointer<vtkQuad> quad = vtkSmartPointer<vtkQuad>::New();
-  quad->GetPointIds()->SetId(0, points->InsertNextPoint(-1., -1., 2.));
-  quad->GetPointIds()->SetId(1, points->InsertNextPoint(0., -1., 2.));
-  quad->GetPointIds()->SetId(2, points->InsertNextPoint(0., 0., 2.));
-  quad->GetPointIds()->SetId(3, points->InsertNextPoint(-1., 0., 2.));
-
-  vtkSmartPointer<vtkPolygon> poly = vtkSmartPointer<vtkPolygon>::New();
-  poly->GetPointIds()->SetNumberOfIds(5);
-  poly->GetPointIds()->SetId(0, points->InsertNextPoint(2., 2., 2.));
-  poly->GetPointIds()->SetId(1, points->InsertNextPoint(2., 3., 2.));
-  poly->GetPointIds()->SetId(2, points->InsertNextPoint(3., 4., 2.));
-  poly->GetPointIds()->SetId(3, points->InsertNextPoint(4., 6., 2.));
-  poly->GetPointIds()->SetId(4, points->InsertNextPoint(6., 1., 2.));
+    lines->InsertNextCell(line);
+    lines->InsertNextCell(polyLine);
+  }
 
   vtkSmartPointer<vtkCellArray> polys = vtkSmartPointer<vtkCellArray>::New();
-  polys->InsertNextCell(triangle);
-  polys->InsertNextCell(quad);
-  polys->InsertNextCell(poly);
+  {
+    vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+    triangle->GetPointIds()->SetId(0, points->InsertNextPoint(0., 0., 2.));
+    triangle->GetPointIds()->SetId(1, points->InsertNextPoint(1., 0., 2.));
+    triangle->GetPointIds()->SetId(2, points->InsertNextPoint(1., 1., 2.));
 
-  vtkSmartPointer<vtkTriangleStrip> triangleStrip = vtkSmartPointer<vtkTriangleStrip>::New();
-  triangleStrip->GetPointIds()->SetNumberOfIds(4);
-  triangleStrip->GetPointIds()->SetId(0, points->InsertNextPoint(0, 0., 3.));
-  triangleStrip->GetPointIds()->SetId(1, points->InsertNextPoint(0, 1., 3.));
-  triangleStrip->GetPointIds()->SetId(2, points->InsertNextPoint(1., 0., 3.));
-  triangleStrip->GetPointIds()->SetId(3, points->InsertNextPoint(1.5, 1., 3.));
+    vtkSmartPointer<vtkQuad> quad = vtkSmartPointer<vtkQuad>::New();
+    quad->GetPointIds()->SetId(0, points->InsertNextPoint(-1., -1., 2.));
+    quad->GetPointIds()->SetId(1, points->InsertNextPoint(0., -1., 2.));
+    quad->GetPointIds()->SetId(2, points->InsertNextPoint(0., 0., 2.));
+    quad->GetPointIds()->SetId(3, points->InsertNextPoint(-1., 0., 2.));
+
+    vtkSmartPointer<vtkPolygon> poly = vtkSmartPointer<vtkPolygon>::New();
+    poly->GetPointIds()->SetNumberOfIds(5);
+    poly->GetPointIds()->SetId(0, points->InsertNextPoint(2., 2., 2.));
+    poly->GetPointIds()->SetId(1, points->InsertNextPoint(2., 3., 2.));
+    poly->GetPointIds()->SetId(2, points->InsertNextPoint(3., 4., 2.));
+    poly->GetPointIds()->SetId(3, points->InsertNextPoint(4., 6., 2.));
+    poly->GetPointIds()->SetId(4, points->InsertNextPoint(6., 1., 2.));
+
+    polys->InsertNextCell(triangle);
+    polys->InsertNextCell(quad);
+    polys->InsertNextCell(poly);
+  }
 
   vtkSmartPointer<vtkCellArray> strips = vtkSmartPointer<vtkCellArray>::New();
-  strips->InsertNextCell(triangleStrip);
+  {
+    vtkSmartPointer<vtkTriangleStrip> triangleStrip = vtkSmartPointer<vtkTriangleStrip>::New();
+    triangleStrip->GetPointIds()->SetNumberOfIds(4);
+    triangleStrip->GetPointIds()->SetId(0, points->InsertNextPoint(0, 0., 3.));
+    triangleStrip->GetPointIds()->SetId(1, points->InsertNextPoint(0, 1., 3.));
+    triangleStrip->GetPointIds()->SetId(2, points->InsertNextPoint(1., 0., 3.));
+    triangleStrip->GetPointIds()->SetId(3, points->InsertNextPoint(1.5, 1., 3.));
+
+    strips->InsertNextCell(triangleStrip);
+  }
 
   vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
   pd->SetPoints(points);
@@ -125,52 +133,58 @@ vtkSmartPointer<vtkPolyData> GeneratePolyData()
   vtkIdType nCells = pd->GetNumberOfCells();
 
 #define AddPointDataArray(dataType, vtkArrayType, nComponents, value)                              \
-  vtkSmartPointer<vtkArrayType> myp_##vtkArrayType = vtkSmartPointer<vtkArrayType>::New();         \
-  std::string name_myp_##vtkArrayType = "p_";                                                      \
-  name_myp_##vtkArrayType.append(#vtkArrayType);                                                   \
-  myp_##vtkArrayType->SetName(name_myp_##vtkArrayType.c_str());                                    \
-  myp_##vtkArrayType->SetNumberOfComponents(nComponents);                                          \
-  myp_##vtkArrayType->SetNumberOfTuples(nPoints);                                                  \
+  do                                                                                               \
   {                                                                                                \
-    dataType tuple[nComponents];                                                                   \
-    for (vtkIdType j = 0; j < (nComponents); j++)                                                  \
+    vtkSmartPointer<vtkArrayType> myp_##vtkArrayType = vtkSmartPointer<vtkArrayType>::New();       \
+    std::string name_myp_##vtkArrayType = "p_";                                                    \
+    name_myp_##vtkArrayType.append(#vtkArrayType);                                                 \
+    myp_##vtkArrayType->SetName(name_myp_##vtkArrayType.c_str());                                  \
+    myp_##vtkArrayType->SetNumberOfComponents(nComponents);                                        \
+    myp_##vtkArrayType->SetNumberOfTuples(nPoints);                                                \
     {                                                                                              \
-      tuple[j] = value;                                                                            \
-    }                                                                                              \
-    for (vtkIdType i = 0; i < nPoints; i++)                                                        \
-    {                                                                                              \
+      dataType tuple[nComponents];                                                                 \
       for (vtkIdType j = 0; j < (nComponents); j++)                                                \
       {                                                                                            \
-        tuple[j] += 1;                                                                             \
+        tuple[j] = value;                                                                          \
       }                                                                                            \
-      myp_##vtkArrayType->SetTypedTuple(i, tuple);                                                 \
+      for (vtkIdType i = 0; i < nPoints; i++)                                                      \
+      {                                                                                            \
+        for (vtkIdType j = 0; j < (nComponents); j++)                                              \
+        {                                                                                          \
+          tuple[j] += 1;                                                                           \
+        }                                                                                          \
+        myp_##vtkArrayType->SetTypedTuple(i, tuple);                                               \
+      }                                                                                            \
     }                                                                                              \
-  }                                                                                                \
-  pd->GetPointData()->AddArray(myp_##vtkArrayType)
+    pd->GetPointData()->AddArray(myp_##vtkArrayType);                                              \
+  } while (false)
 
 #define AddCellDataArray(dataType, vtkArrayType, nComponents, value)                               \
-  vtkSmartPointer<vtkArrayType> myc_##vtkArrayType = vtkSmartPointer<vtkArrayType>::New();         \
-  std::string name_myc_##vtkArrayType = "c_";                                                      \
-  name_myc_##vtkArrayType.append(#vtkArrayType);                                                   \
-  myc_##vtkArrayType->SetName(name_myc_##vtkArrayType.c_str());                                    \
-  myc_##vtkArrayType->SetNumberOfComponents(nComponents);                                          \
-  myc_##vtkArrayType->SetNumberOfTuples(nCells);                                                   \
+  do                                                                                               \
   {                                                                                                \
-    dataType tuple[nComponents];                                                                   \
-    for (vtkIdType j = 0; j < (nComponents); j++)                                                  \
+    vtkSmartPointer<vtkArrayType> myc_##vtkArrayType = vtkSmartPointer<vtkArrayType>::New();       \
+    std::string name_myc_##vtkArrayType = "c_";                                                    \
+    name_myc_##vtkArrayType.append(#vtkArrayType);                                                 \
+    myc_##vtkArrayType->SetName(name_myc_##vtkArrayType.c_str());                                  \
+    myc_##vtkArrayType->SetNumberOfComponents(nComponents);                                        \
+    myc_##vtkArrayType->SetNumberOfTuples(nCells);                                                 \
     {                                                                                              \
-      tuple[j] = value;                                                                            \
-    }                                                                                              \
-    for (vtkIdType i = 0; i < nCells; i++)                                                         \
-    {                                                                                              \
+      dataType tuple[nComponents];                                                                 \
       for (vtkIdType j = 0; j < (nComponents); j++)                                                \
       {                                                                                            \
-        tuple[j] += 1;                                                                             \
+        tuple[j] = value;                                                                          \
       }                                                                                            \
-      myc_##vtkArrayType->SetTypedTuple(i, tuple);                                                 \
+      for (vtkIdType i = 0; i < nCells; i++)                                                       \
+      {                                                                                            \
+        for (vtkIdType j = 0; j < (nComponents); j++)                                              \
+        {                                                                                          \
+          tuple[j] += 1;                                                                           \
+        }                                                                                          \
+        myc_##vtkArrayType->SetTypedTuple(i, tuple);                                               \
+      }                                                                                            \
     }                                                                                              \
-  }                                                                                                \
-  pd->GetCellData()->AddArray(myc_##vtkArrayType)
+    pd->GetCellData()->AddArray(myc_##vtkArrayType);                                               \
+  } while (false)
 
   AddPointDataArray(int, vtkIntArray, 1, 0);
   AddPointDataArray(long, vtkLongArray, 1, 0);
