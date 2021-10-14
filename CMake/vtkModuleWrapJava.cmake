@@ -258,7 +258,7 @@ function (_vtk_module_wrap_java_library name)
     ${_vtk_java_library_sources})
 
   if (_vtk_java_UTILITY_TARGET)
-    target_link_libraries("${_vtk_java_target_name}"
+    target_link_libraries("${_vtk_java_target}"
       PRIVATE
         "${_vtk_java_UTILITY_TARGET}")
   endif ()
