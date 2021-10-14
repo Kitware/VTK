@@ -888,9 +888,9 @@ void HandleDataArray(FILE* fp, ClassInfo* data)
   fprintf(fp, "{\n");
   fprintf(fp, "  %s* op = static_cast<%s*>(vtkJavaGetPointerFromObject(env, obj));\n", data->Name,
     data->Name);
-  fprintf(fp, "  %s* temp20 = static_cast<%s*>(op->GetVoidPointer(0));\n", type, type);
+  fprintf(fp, "  %s* buffer = op->GetPointer(0);\n", type);
   fprintf(fp,
-    "  return vtkJavaMakeJArrayOf%s(env, reinterpret_cast<j%s*>(temp20), op->GetSize());\n",
+    "  return vtkJavaMakeJArrayOf%s(env, reinterpret_cast<j%s*>(buffer), op->GetSize());\n",
     jfromtype, jtype);
   fprintf(fp, "}\n\n");
 
@@ -900,14 +900,12 @@ void HandleDataArray(FILE* fp, ClassInfo* data)
     "len0)\n",
     data->Name, jtype);
   fprintf(fp, "{\n");
-  fprintf(fp, "  %s* buffer = new %s[len0];\n", type, type);
-  fprintf(fp, "  env->Get%sArrayRegion(id0, 0, len0, reinterpret_cast<j%s*>(&buffer[0]));\n",
-    jfromtype, jtype);
   fprintf(fp, "  %s* op = static_cast<%s*>(vtkJavaGetPointerFromObject(env, obj));\n", data->Name,
     data->Name);
   fprintf(fp, "  op->SetNumberOfTuples(len0 / op->GetNumberOfComponents());\n");
-  fprintf(fp, "  memcpy(op->GetVoidPointer(0), buffer, len0 * sizeof(%s));\n", type);
-  fprintf(fp, "  delete[] buffer;\n");
+  fprintf(fp, "  %s* buffer = op->GetPointer(0);\n", type);
+  fprintf(fp, "  env->Get%sArrayRegion(id0, 0, len0, reinterpret_cast<j%s*>(buffer));\n", jfromtype,
+    jtype);
   fprintf(fp, "}\n");
 }
 
