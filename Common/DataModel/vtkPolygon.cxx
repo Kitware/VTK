@@ -23,6 +23,7 @@
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkMergePoints.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
@@ -652,195 +653,109 @@ int vtkPolygon::ParameterizePolygon(
   return 1;
 }
 
-#define VTK_POLYGON_CERTAIN 1
-#define VTK_POLYGON_UNCERTAIN 0
-#define VTK_POLYGON_RAY_TOL 1.e-03 // Tolerance for ray firing
-#define VTK_POLYGON_MAX_ITER 10    // Maximum iterations for ray-firing
-#define VTK_POLYGON_VOTE_THRESHOLD 2
+// Support the PointInPolygon algorithm. Determine on which side a point is
+// positioned wrt an oriented edge.
+namespace
+{
+
+// Given the line (p0,p1), determine if a point x is located to the left
+// of, on, or to the right of a line (with the function returning >0, ==0, or
+// <0 respectively).  The points are assumed 3D points, but projected into
+// one of x-y-z planes; hence the indices axis0 and axis1 specify which plane
+// the computation is to be performed on.
+inline double PointLocation(int axis0, int axis1, double* p0, double* p1, double* x)
+{
+  return (((p1[axis0] - p0[axis0]) * (x[axis1] - p0[axis1])) -
+    ((x[axis0] - p0[axis0]) * (p1[axis1] - p0[axis1])));
+}
+}
 
 //------------------------------------------------------------------------------
-// Determine whether point is inside polygon. Function uses ray-casting
-// to determine if point is inside polygon. Works for arbitrary polygon shape
-// (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
-// Can also return -1 to indicate degenerate polygon. Note: a point in
-// bounding box check is NOT performed prior to in/out check. You may want
-// to do this to improve performance. Note: a bounds check is performed to
-// cull out trivial outside cases, thus the bounds provided should be
-// inflated if tolerances are an issue.
+// Determine whether a point is inside a polygon. The function uses a winding
+// number calculation generalized to the 3D plane one which the polygon
+// resides. Returns 0 if point is not in polygon; 1 if it is.  Can also
+// return -1 to indicate a degenerate polygon. This implementation is inspired
+// by Dan Sunday's algorithm found in the book Practical Geometry Algorithms.
 int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double bounds[6], double* n)
 {
-  double *x1, *x2, xray[3], u, v;
-  double rayMag, mag = 1, ray[3];
-  int testResult, status, numInts, i;
-  int iterNumber;
-  int maxComp, comps[2];
-  int deltaVotes;
-
-  // do a quick bounds check
+  // Do a quick bounds check to throw out trivial cases.
+  // winding plane.
   if (x[0] < bounds[0] || x[0] > bounds[1] || x[1] < bounds[2] || x[1] > bounds[3] ||
     x[2] < bounds[4] || x[2] > bounds[5])
   {
     return VTK_POLYGON_OUTSIDE;
   }
 
-  //
-  //  Define a ray to fire.  The ray is a random ray normal to the
-  //  normal of the face.  The length of the ray is a function of the
-  //  size of the face bounding box.
-  //
-  for (i = 0; i < 3; i++)
+  //  Check that the normal is non-zero.
+  if (vtkMath::Norm(n) <= FLT_EPSILON)
   {
-    ray[i] = (bounds[2 * i + 1] - bounds[2 * i]) * 1.1 +
-      fabs((bounds[2 * i + 1] + bounds[2 * i]) / 2.0 - x[i]);
+    return VTK_POLYGON_FAILURE;
   }
 
-  if ((rayMag = vtkMath::Norm(ray)) == 0.0)
-  {
-    return VTK_POLYGON_OUTSIDE;
-  }
-
-  // Tolerance needs to be a little sloppy due to arbitray oriented plane
-  double tol = 0.01 * rayMag;
-
-  //  Get the maximum component of the normal.
-  //
+  // Get the maximum component of the normal. This is used
+  // to project the computation onto one of the x-y-z coordinate
+  // planes. The computation will be peformed in the (axis0,axis1) plane.
+  int axis0, axis1;
   if (fabs(n[0]) > fabs(n[1]))
   {
     if (fabs(n[0]) > fabs(n[2]))
     {
-      maxComp = 0;
-      comps[0] = 1;
-      comps[1] = 2;
+      axis0 = 1;
+      axis1 = 2;
     }
     else
     {
-      maxComp = 2;
-      comps[0] = 0;
-      comps[1] = 1;
+      axis0 = 0;
+      axis1 = 1;
     }
   }
   else
   {
     if (fabs(n[1]) > fabs(n[2]))
     {
-      maxComp = 1;
-      comps[0] = 0;
-      comps[1] = 2;
+      axis0 = 0;
+      axis1 = 2;
     }
     else
     {
-      maxComp = 2;
-      comps[0] = 0;
-      comps[1] = 1;
+      axis0 = 0;
+      axis1 = 1;
     }
   }
 
-  //  Check that max component is non-zero
-  //
-  if (n[maxComp] == 0.0)
+  // Compute the winding number wn. If after processing all polygon edges
+  // wn==0, then the point is outside.  Otherwise, the point is inside the
+  // polygon. Process all polygon edges determining if there are ascending or
+  // descending crossings.
+  int wn = 0;
+  for (int i = 0; i < numPts; i++)
   {
-    return VTK_POLYGON_FAILURE;
-  }
+    double* p0 = pts + 3 * i;
+    double* p1 = pts + 3 * ((i + 1) % numPts);
 
-  //  Enough information has been acquired to determine the random ray.
-  //  Random rays are generated until one is satisfactory (i.e.,
-  //  produces a ray of non-zero magnitude).  Also, since more than one
-  //  ray may need to be fired, the ray-firing occurs in a large loop.
-  //
-  //  The variable iterNumber counts the number of iterations and is
-  //  limited by the defined variable VTK_POLYGON_MAX_ITER.
-  //
-  //  The variable deltaVotes keeps track of the number of votes for
-  //  "in" versus "out" of the face.  When delta_vote > 0, more votes
-  //  have counted for "in" than "out".  When delta_vote < 0, more votes
-  //  have counted for "out" than "in".  When the delta_vote exceeds or
-  //  equals the defined variable VTK_POLYGON_VOTE_THRESHOLD, than the
-  //  appropriate "in" or "out" status is returned.
-  //
-  for (deltaVotes = 0, iterNumber = 1;
-       (iterNumber < VTK_POLYGON_MAX_ITER) && (abs(deltaVotes) < VTK_POLYGON_VOTE_THRESHOLD);
-       iterNumber++)
-  {
-    //
-    //  Generate ray
-    //
-    bool rayOK;
-    for (rayOK = false; rayOK == false;)
+    if (p0[axis1] <= x[axis1])
     {
-      ray[comps[0]] = vtkMath::Random(-rayMag, rayMag);
-      ray[comps[1]] = vtkMath::Random(-rayMag, rayMag);
-      ray[maxComp] = -(n[comps[0]] * ray[comps[0]] + n[comps[1]] * ray[comps[1]]) / n[maxComp];
-      if ((mag = vtkMath::Norm(ray)) > rayMag * VTK_TOL)
+      if (p1[axis1] > x[axis1]) // if an upward crossing
       {
-        rayOK = true;
-      }
-    }
-
-    //  The ray must be appropriately sized.
-    //
-    for (i = 0; i < 3; i++)
-    {
-      xray[i] = x[i] + (rayMag / mag) * ray[i];
-    }
-
-    //  The ray may now be fired against all the edges
-    //
-    for (numInts = 0, testResult = VTK_POLYGON_CERTAIN, i = 0; i < numPts; i++)
-    {
-      x1 = pts + 3 * i;
-      x2 = pts + 3 * ((i + 1) % numPts);
-
-      //   Fire the ray and compute the number of intersections.  Be careful
-      //   of degenerate cases (e.g., ray intersects at vertex).
-      //
-
-      if ((status = vtkLine::Intersection(x, xray, x1, x2, u, v, tol)) == vtkLine::Intersect)
-      {
-        // This test checks for vertex and edge intersections
-        // For example
-        //  Vertex intersection
-        //    (u=0 v=0), (u=0 v=1), (u=1 v=0), (u=1 v=0)
-        //  Edge intersection
-        //    (u=0 v!=0 v!=1), (u=1 v!=0 v!=1)
-        //    (u!=0 u!=1 v=0), (u!=0 u!=1 v=1)
-        if ((VTK_POLYGON_RAY_TOL < u) && (u < 1.0 - VTK_POLYGON_RAY_TOL) &&
-          (VTK_POLYGON_RAY_TOL < v) && (v < 1.0 - VTK_POLYGON_RAY_TOL))
+        if (PointLocation(axis0, axis1, p0, p1, x) > 0) // if x left of edge
         {
-          numInts++;
-        }
-        else
-        {
-          testResult = VTK_POLYGON_UNCERTAIN;
+          ++wn; // a valid up intersect, increment winding number
         }
       }
-      else if (status == VTK_POLYGON_ON_LINE)
-      {
-        testResult = VTK_POLYGON_UNCERTAIN;
-      }
     }
-    if (testResult == VTK_POLYGON_CERTAIN)
+    else
     {
-      if (numInts % 2 == 0)
+      if (p1[axis1] <= x[axis1]) // if a downward crossing
       {
-        --deltaVotes;
-      }
-      else
-      {
-        ++deltaVotes;
+        if (PointLocation(axis0, axis1, p0, p1, x) < 0) // if x right of edge
+        {
+          --wn; // a valid down intersect, decrement winding number
+        }
       }
     }
-  } // try another ray
+  } // Over all polygon edges
 
-  //   If the number of intersections is odd, the point is in the polygon.
-  //
-  if (deltaVotes < 0)
-  {
-    return VTK_POLYGON_OUTSIDE;
-  }
-  else
-  {
-    return VTK_POLYGON_INSIDE;
-  }
+  return ((wn == 0 ? VTK_POLYGON_OUTSIDE : VTK_POLYGON_INSIDE));
 }
 
 //------------------------------------------------------------------------------

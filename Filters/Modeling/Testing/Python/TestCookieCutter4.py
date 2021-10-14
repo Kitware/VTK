@@ -9,6 +9,7 @@ res = 51
 
 # The orientation of the plane
 normal = [1,1,1]
+normal = [0,0,1]
 
 # Create a pipeline that cuts a volume to create a
 # plane. This plane will be cookie cut.
