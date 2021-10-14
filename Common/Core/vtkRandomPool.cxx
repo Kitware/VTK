@@ -310,6 +310,7 @@ const double* vtkRandomPool::GeneratePool()
     this->NumberOfComponents = 1;
   }
   this->ChunkSize = (this->ChunkSize < 1000 ? 1000 : this->ChunkSize);
+  delete[] this->Pool;
   this->Pool = new double[this->TotalSize];
 
   // Control the number of threads spawned.

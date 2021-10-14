@@ -5,5 +5,6 @@ LIBRARY_NAME
 DEPENDS
   VTK::CommonCore
 TEST_DEPENDS
+  VTK::CommonDataModel
   VTK::TestingCore
 EXCLUDE_WRAP

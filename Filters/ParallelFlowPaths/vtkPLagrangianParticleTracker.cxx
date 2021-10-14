@@ -73,7 +73,7 @@ public:
   MessageStream& operator>>(T& t)
   {
     size_t size = sizeof(T);
-    t = *reinterpret_cast<T*>(this->Head);
+    memcpy(&t, this->Head, size);
     this->Head += size;
     return *this;
   }

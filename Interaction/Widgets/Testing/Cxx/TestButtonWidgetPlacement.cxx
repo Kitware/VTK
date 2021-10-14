@@ -58,7 +58,9 @@ int TestButtonWidgetPlacement(int argc, char* argv[])
       readers[i] = vtkSmartPointer<vtkPNGReader>::New();
     }
     std::cout << fullFnames[i] << "\n";
-    fullFnames[i] = vtkTestUtilities::ExpandDataFileName(argc, argv, fnames[i].c_str());
+    char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, fnames[i].c_str());
+    fullFnames[i] = fname;
+    delete[] fname;
     readers[i]->SetFileName(fullFnames[i].c_str());
     readers[i]->Update();
   }

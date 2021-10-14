@@ -234,6 +234,7 @@ void vtkMPIMultiBlockPLOT3DReader::CloseFile(void* vfp)
   {
     vtkErrorMacro("Failed to close file!");
   }
+  delete handle;
 }
 
 //------------------------------------------------------------------------------

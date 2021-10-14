@@ -13,4 +13,5 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::vtksys
 TEST_DEPENDS
+  VTK::CommonDataModel
   VTK::TestingCore

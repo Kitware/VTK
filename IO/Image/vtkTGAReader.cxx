@@ -194,3 +194,9 @@ int vtkTGAReader::CanReadFile(const char* fname)
 
   return 1;
 }
+
+//------------------------------------------------------------------------------
+void vtkTGAReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}

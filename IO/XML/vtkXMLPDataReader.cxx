@@ -251,6 +251,11 @@ void vtkXMLPDataReader::SetupPieces(int numPieces)
 {
   this->Superclass::SetupPieces(numPieces);
 
+  if (!numPieces)
+  {
+    return;
+  }
+
   this->PieceReaders = new vtkXMLDataReader*[this->NumberOfPieces];
 
   for (int i = 0; i < this->NumberOfPieces; ++i)

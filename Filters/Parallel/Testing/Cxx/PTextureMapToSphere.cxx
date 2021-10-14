@@ -108,6 +108,7 @@ void MyProcess::Execute()
   vtkNew<vtkPNGReader> PNGReader;
   PNGReader->SetFileName(fname);
   PNGReader->Update();
+  delete[] fname;
 
   vtkNew<vtkTexture> texture;
   texture->SetInputConnection(PNGReader->GetOutputPort());

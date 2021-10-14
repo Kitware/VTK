@@ -36,6 +36,9 @@
 #include "vtkTesting.h"
 #include "vtkXMLPolyDataReader.h"
 
+namespace
+{
+
 const char TestAngleWidget3DEventLog[] = "# StreamVersion 1\n"
                                          "RenderEvent 0 0 0 0 0 0 0\n"
                                          "EnterEvent 2 184 0 0 0 0 0\n"
@@ -665,6 +668,8 @@ public:
   {
   }
 };
+
+}
 
 // The actual test function
 int TestAngleWidget3D(int argc, char* argv[])

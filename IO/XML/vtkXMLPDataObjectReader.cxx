@@ -160,6 +160,11 @@ void vtkXMLPDataObjectReader::SetupPieces(int numPieces)
     this->DestroyPieces();
   }
 
+  if (!numPieces)
+  {
+    return;
+  }
+
   this->NumberOfPieces = numPieces;
   this->PieceElements = new vtkXMLDataElement*[this->NumberOfPieces];
   this->CanReadPieceFlag = new int[this->NumberOfPieces];

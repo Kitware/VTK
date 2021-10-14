@@ -180,7 +180,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
 add_executable(TestLoggerDisableSignalHandlerCxx
   TestLoggerDisableSignalHandler.cxx)
 target_link_libraries(TestLoggerDisableSignalHandlerCxx
-  PRIVATE VTK::CommonCore)
+  PRIVATE VTK::CommonCore VTK::CommonDataModel)
 add_test(NAME TestLoggerDisableSignalHandler
   COMMAND ${CMAKE_COMMAND}
   -DEXECUTABLE_PATH:FILEPATH=$<TARGET_FILE:TestLoggerDisableSignalHandlerCxx>

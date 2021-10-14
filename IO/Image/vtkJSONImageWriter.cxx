@@ -44,6 +44,7 @@ vtkJSONImageWriter::vtkJSONImageWriter()
 vtkJSONImageWriter::~vtkJSONImageWriter()
 {
   this->SetFileName(nullptr);
+  this->SetArrayName(nullptr);
 }
 
 //------------------------------------------------------------------------------

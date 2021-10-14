@@ -63,6 +63,7 @@ vtkSimpleScalarTree::vtkSimpleScalarTree()
 vtkSimpleScalarTree::~vtkSimpleScalarTree()
 {
   delete[] this->Tree;
+  delete[] this->CandidateCells;
 }
 
 //------------------------------------------------------------------------------
@@ -394,11 +395,8 @@ vtkIdType vtkSimpleScalarTree::GetNumberOfCellBatches(double scalarValue)
   // Basically we do a traversal of the tree and identify potential candidates.
   // It is essential that InitTraversal() has been called first.
   this->NumCandidates = 0;
-  if (this->CandidateCells)
-  {
-    delete[] this->CandidateCells;
-    this->CandidateCells = nullptr;
-  }
+  delete[] this->CandidateCells;
+  this->CandidateCells = nullptr;
   if (this->NumCells < 1)
   {
     return 0;

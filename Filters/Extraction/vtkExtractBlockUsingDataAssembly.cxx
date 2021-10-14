@@ -136,6 +136,7 @@ vtkExtractBlockUsingDataAssembly::vtkExtractBlockUsingDataAssembly()
 vtkExtractBlockUsingDataAssembly::~vtkExtractBlockUsingDataAssembly()
 {
   delete this->Internals;
+  delete[] this->AssemblyName;
 }
 
 //------------------------------------------------------------------------------

@@ -34,6 +34,9 @@
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
 
+namespace
+{
+
 const char TestAngleWidget2DEventLog[] = "# StreamVersion 1\n"
                                          "EnterEvent 185 1 0 0 0 0 0\n"
                                          "MouseMoveEvent 179 19 0 0 0 0 0\n"
@@ -386,6 +389,8 @@ public:
   {
   }
 };
+
+}
 
 // The actual test function
 int TestAngleWidget2D(int argc, char* argv[])

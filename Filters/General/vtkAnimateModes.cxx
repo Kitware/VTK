@@ -73,6 +73,7 @@ vtkAnimateModes::vtkAnimateModes()
   , ModeShapesRange{ 1, 1 }
   , ModeShape{ 1 }
   , DisplacementMagnitude{ 1.0 }
+  , DisplacementPreapplied(false)
   , TimeRange{ 0.0, 1.0 }
 {
   // the displacement array

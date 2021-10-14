@@ -371,6 +371,16 @@ vtkDataSetSurfaceFilter::~vtkDataSetSurfaceFilter()
 {
   this->SetOriginalCellIdsName(nullptr);
   this->SetOriginalPointIdsName(nullptr);
+  if (this->OriginalPointIds)
+  {
+    this->OriginalPointIds->Delete();
+    this->OriginalPointIds = nullptr;
+  }
+  if (this->OriginalCellIds)
+  {
+    this->OriginalCellIds->Delete();
+    this->OriginalCellIds = nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -603,7 +613,7 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
   if (this->OriginalCellIds)
   {
     this->OriginalCellIds->Delete();
-    this->OriginalPointIds = nullptr;
+    this->OriginalCellIds = nullptr;
   }
   return 1;
 }
@@ -1303,9 +1313,11 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(
   // Depending on the outcome, we may process the data ourselves, or send over
   // to the faster vtkGeometryFilter.
   bool mayDelegate = (info == nullptr && this->Delegation);
+  bool info_owned = false;
   if (info == nullptr)
   {
     info = vtkGeometryFilterHelper::CharacterizeUnstructuredGrid(input);
+    info_owned = true;
   }
   bool handleSubdivision = (!info->IsLinear);
 
@@ -1318,6 +1330,10 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(
     gf->UnstructuredGridExecute(dataSetInput, output, info, nullptr);
     delete info;
     return 1;
+  }
+  if (info_owned)
+  {
+    delete info;
   }
 
   // If here, the data is gnarly and this filter will process it.

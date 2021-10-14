@@ -282,6 +282,7 @@ int vtkTrimmedExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     this->AdjustPoints(input, numPts, numCells, hits, newPts);
   }
+  delete[] hits;
 
   // Now generate the topology.
   this->ExtrudeEdges(input, output, numPts, numCells);

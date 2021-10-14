@@ -39,7 +39,13 @@ vtkMergeVectorComponents::vtkMergeVectorComponents()
 }
 
 //------------------------------------------------------------------------------
-vtkMergeVectorComponents::~vtkMergeVectorComponents() = default;
+vtkMergeVectorComponents::~vtkMergeVectorComponents()
+{
+  this->SetXArrayName(nullptr);
+  this->SetYArrayName(nullptr);
+  this->SetZArrayName(nullptr);
+  this->SetOutputVectorName(nullptr);
+}
 
 //------------------------------------------------------------------------------
 int vtkMergeVectorComponents::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)

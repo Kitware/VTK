@@ -46,6 +46,9 @@ VPICGlobal::~VPICGlobal()
      delete [] this->speciesBasicType[s];
      delete [] this->speciesByteCount[s];
   }
+  delete [] this->speciesDirectory;
+  delete [] this->speciesBaseName;
+  delete [] this->speciesVarCount;
   delete [] this->speciesName;
   delete [] this->speciesStructType;
   delete [] this->speciesCompSize;
@@ -63,6 +66,16 @@ VPICGlobal::~VPICGlobal()
 
    delete [] this->directoryName;
    delete [] this->baseFileName;
+
+   for (int i = 0; i < this->layoutSize[0]; ++i)
+   {
+     for (int j = 0; j < this->layoutSize[1]; ++j)
+     {
+       delete [] this->layoutID[i][j];
+     }
+     delete [] this->layoutID[i];
+   }
+   delete [] this->layoutID;
 }
 
 //////////////////////////////////////////////////////////////////////////////
