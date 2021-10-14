@@ -39,7 +39,7 @@
 /**
  * Access flags
  */
-typedef enum _parse_access_t
+typedef enum parse_access_t_
 {
   VTK_ACCESS_PUBLIC = 0,
   VTK_ACCESS_PROTECTED = 1,
@@ -49,7 +49,7 @@ typedef enum _parse_access_t
 /**
  * Comment type constants
  */
-typedef enum _parse_dox_t
+typedef enum parse_dox_t_
 {
   DOX_COMMAND_OTHER = 0,
   DOX_COMMAND_DEF,
@@ -85,7 +85,7 @@ typedef enum _parse_dox_t
 /**
  * ItemType constants
  */
-typedef enum _parse_item_t
+typedef enum parse_item_t_
 {
   VTK_NAMESPACE_INFO = 1,
   VTK_CLASS_INFO = 2,
@@ -102,7 +102,7 @@ typedef enum _parse_item_t
 /**
  * ItemInfo just contains an index
  */
-typedef struct _ItemInfo
+typedef struct ItemInfo_
 {
   parse_item_t Type;
   int Index;
@@ -122,7 +122,7 @@ typedef struct FileInfo_ FileInfo;
  * for example class comments that come at the top of the header file
  * rather than immediately before the class that they document.
  */
-typedef struct _CommentInfo
+typedef struct CommentInfo_
 {
   parse_dox_t Type;
   const char* Comment;
@@ -132,7 +132,7 @@ typedef struct _CommentInfo
 /**
  * TemplateInfo holds template definitions
  */
-typedef struct _TemplateInfo
+typedef struct TemplateInfo_
 {
   int NumberOfParameters;
   ValueInfo** Parameters;
