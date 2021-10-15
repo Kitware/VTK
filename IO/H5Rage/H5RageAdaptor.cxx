@@ -367,6 +367,7 @@ int H5RageAdaptor::CollectMetaData(const char* H5RageFileName)
 // HDF_BASE_NAME base        (Required)
 // HDF_DIRECTORY hdf0        (Defaults to "." if missing)
 // HDF_DIRECTORY hdf1
+// HDF_CYCLE_DIGITS number
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -399,6 +400,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
   // Parse the h5rage input file
   std::string hdfBaseName;               // base name to use for data files
   std::vector<std::string> hdfDirectory; // directories holding data files
+  int numCycleDigits = 6;                // number of digits used for cycle number, default is 6
   std::string::size_type pos = hdfRageFileName.rfind('.');
   std::string suffix = hdfRageFileName.substr(pos + 1);
   char inBuf[256];
@@ -458,6 +460,31 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
           std::ostringstream tempStr;
           tempStr << rest;
           hdfBaseName = tempStr.str();
+        }
+
+        if (keyword == "HDF_CYCLE_DIGITS")
+        {
+          line >> rest;
+          std::ostringstream tempStr;
+          tempStr << rest;
+
+          // check that all characters are digits
+          bool good = true;
+          std::string cycleDigits = tempStr.str();
+          for (std::string::const_iterator it = cycleDigits.begin(); it != cycleDigits.end(); it++)
+          {
+            if (!std::isdigit(*it))
+            {
+              vtkGenericWarningMacro(
+                "Argument for HDF_CYCLE_DIGITS is not a number: \'" << cycleDigits << "\'");
+              good = false;
+              break;
+            }
+          }
+          if (good)
+          {
+            numCycleDigits = std::stoi(cycleDigits);
+          }
         }
       }
     }
@@ -520,9 +547,24 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
           }
         }
 
+        // filename is basename + four digits, then variable name, then cycle number
         size_t base_length = baseNameStr.str().length();
-        std::string cycleStr = fileStr.substr(base_length + 7, fileStr.length() - base_length + 7);
-        std::string varStr = fileStr.substr(base_length + 4, 3);
+        std::string varStr =
+          fileStr.substr(base_length + 4, fileStr.length() - base_length - 4 - numCycleDigits);
+
+        // check that the cycle is all digits
+        std::string cycleStr = fileStr.substr(fileStr.length() - numCycleDigits, numCycleDigits);
+        for (std::string::const_iterator it = cycleStr.begin(); it != cycleStr.end(); it++)
+        {
+          if (!std::isdigit(*it))
+          {
+            vtkGenericWarningMacro("Expected last six characters of filename to be digits, but "
+                                   "found a non-digit chacter. Filename: \'"
+              << fileStr << "\' cycleStr: \'" << cycleStr << "\'");
+            return 0;
+          }
+        }
+
         cycleSet.insert(cycleStr);
         std::ostringstream tempStr2;
         tempStr2 << hdfDirectory[dir] << Slash << fileStr;
