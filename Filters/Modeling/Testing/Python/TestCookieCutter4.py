@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 import vtk
 
-# Test the processing of point and cell data via vtkCookieCutter
+# Test the processing of point and cell data with vtkCookieCutter
 #
 
 # Control the size of the test
-res = 51
+res = 101
+cylRes = 20
+
+# Control the coloring of the data
+coloring = 1
 
 # The orientation of the plane
-normal = [1,1,1]
-normal = [0,0,1]
+normal = [0.1,1,0.8]
 
-# Create a pipeline that cuts a volume to create a
-# plane. This plane will be cookie cut.
+# Create a pipeline that cuts a volume to create a plane. This plane will be
+# cookie cut with a cylinder.
 
-# From the same volume, extract an isosurface. This
-# isosurface will be clipped to produce clip surface
-# plus polyline cut loop. This cut loop with cookie cut
+# The cylinder is cut to produce a trim loop.  This trim loop will cookie cut
 # the plane mentioned previously.
 
 # Along the way, various combinations of the cell data
@@ -24,15 +25,17 @@ normal = [0,0,1]
 # the cookie cutter.
 
 # Create a synthetic source: sample a sphere across a volume
-sphere = vtk.vtkSphere()
-sphere.SetCenter( 0.0,0.0,0.0)
-sphere.SetRadius(0.25)
+cyl = vtk.vtkCylinder()
+cyl.SetCenter( 0.0,0.0,0.0)
+cyl.SetRadius(0.25)
+cyl.SetAxis(0,1,0)
 
 sample = vtk.vtkSampleFunction()
-sample.SetImplicitFunction(sphere)
-sample.SetModelBounds(-1,1, -0.75,0.75, -0.5,0.5)
+sample.SetImplicitFunction(cyl)
+sample.SetModelBounds(-0.75,0.75, -1,1, -0.5,0.5)
 sample.SetSampleDimensions(res,res,res)
 sample.ComputeNormalsOff()
+sample.SetOutputScalarTypeToFloat()
 sample.Update()
 
 # The cut plane
@@ -40,6 +43,7 @@ plane = vtk.vtkPlane()
 plane.SetOrigin(0,0,0)
 plane.SetNormal(normal)
 
+# Cut the volume quickly
 cut = vtk.vtkFlyingEdgesPlaneCutter()
 cut.SetInputConnection(sample.GetOutputPort())
 cut.SetPlane(plane)
@@ -60,52 +64,58 @@ cutActor.SetMapper(cutMapper);
 cutActor.GetProperty().SetColor(0.1,0.1,0.1)
 cutActor.GetProperty().SetRepresentationToWireframe()
 
-# Generate an isosurface and clip it to
-# produce a trim loop.
-iso = vtk.vtkFlyingEdges3D()
-iso.SetInputConnection(sample.GetOutputPort())
-iso.SetValue(0,0.1)
-iso.ComputeNormalsOff()
-iso.Update()
+# Clip a cylinder shell to produce a a trim loop.
+shell = vtk.vtkCylinderSource()
+shell.SetCenter(0,0,0)
+shell.SetResolution(cylRes)
+shell.SetHeight(5)
+shell.CappingOff()
+shell.Update()
 
-clippedIso = vtk.vtkPolyDataPlaneClipper()
-clippedIso.SetInputConnection(iso.GetOutputPort())
-clippedIso.SetPlane(plane)
-clippedIso.ClippingLoopsOn()
-clippedIso.CappingOff()
-clippedIso.Update()
+clippedShell = vtk.vtkPolyDataPlaneClipper()
+clippedShell.SetInputConnection(shell.GetOutputPort())
+clippedShell.SetPlane(plane)
+clippedShell.ClippingLoopsOn()
+clippedShell.CappingOff()
+clippedShell.Update()
 
-clippedIsoMapper = vtk.vtkPolyDataMapper()
-clippedIsoMapper.SetInputConnection(clippedIso.GetOutputPort())
-clippedIsoMapper.ScalarVisibilityOff()
+sampleImp = vtk.vtkSampleImplicitFunctionFilter()
+sampleImp.SetInputConnection(clippedShell.GetOutputPort(1))
+sampleImp.SetImplicitFunction(plane)
+sampleImp.ComputeGradientsOff()
+sampleImp.SetScalarArrayName("scalars")
+sampleImp.Update()
 
-clippedIsoActor = vtk.vtkActor()
-clippedIsoActor.SetMapper(clippedIsoMapper);
+clippedShellMapper = vtk.vtkPolyDataMapper()
+clippedShellMapper.SetInputConnection(sampleImp.GetOutputPort())
+clippedShellMapper.ScalarVisibilityOff()
+
+clippedShellActor = vtk.vtkActor()
+clippedShellActor.SetMapper(clippedShellMapper);
 
 trimMapper = vtk.vtkPolyDataMapper()
-trimMapper.SetInputConnection(clippedIso.GetOutputPort(1))
+trimMapper.SetInputConnection(sampleImp.GetOutputPort(0))
 trimMapper.ScalarVisibilityOff()
 
 trimActor = vtk.vtkActor()
 trimActor.SetMapper(trimMapper);
 trimActor.GetProperty().SetColor(0,0,1)
 
-# Cookie cut the plane with the trim loop
+# Build a loop from the clipper
 buildLoops = vtk.vtkContourLoopExtraction()
-buildLoops.SetInputConnection(clippedIso.GetOutputPort(1))
+buildLoops.SetInputConnection(sampleImp.GetOutputPort(0))
 buildLoops.Update()
-
-cleanLoops = vtk.vtkStaticCleanPolyData()
-cleanLoops.SetInputConnection(buildLoops.GetOutputPort())
-cleanLoops.SetTolerance(0.0)
-cleanLoops.Update()
 
 # Test cell data
 cookie0 = vtk.vtkCookieCutter()
 cookie0.SetInputConnection(pd2cd.GetOutputPort())
-cookie0.SetLoopsConnection(cleanLoops.GetOutputPort())
-cookie0.PassCellDataOn()
-cookie0.PassPointDataOff()
+cookie0.SetLoopsConnection(buildLoops.GetOutputPort())
+if coloring == 0:
+    cookie0.PassCellDataOff()
+    cookie0.PassPointDataOff()
+else:
+    cookie0.PassCellDataOn()
+    cookie0.PassPointDataOff()
 
 timer = vtk.vtkTimerLog()
 timer.StartTimer()
@@ -124,10 +134,14 @@ cookie0Actor.SetMapper(cookie0Mapper);
 # Test point data - mesh interpolation
 cookie1 = vtk.vtkCookieCutter()
 cookie1.SetInputConnection(pd2cd.GetOutputPort())
-cookie1.SetLoopsConnection(cleanLoops.GetOutputPort())
-cookie1.PassCellDataOff()
-cookie1.PassPointDataOn()
-cookie1.SetPointInterpolationToMeshEdges()
+cookie1.SetLoopsConnection(buildLoops.GetOutputPort())
+if coloring == 0:
+    cookie1.PassCellDataOff()
+    cookie1.PassPointDataOff()
+else:
+    cookie1.PassCellDataOff()
+    cookie1.PassPointDataOn()
+    cookie1.SetPointInterpolationToMeshEdges()
 
 timer = vtk.vtkTimerLog()
 timer.StartTimer()
@@ -139,17 +153,23 @@ print("Cookie cutting with mesh edge interpolation: {0}".format(time))
 cookie1Mapper = vtk.vtkPolyDataMapper()
 cookie1Mapper.SetInputConnection(cookie1.GetOutputPort())
 cookie1Mapper.SetScalarRange(0,0.1)
+cookie1Mapper.SetScalarModeToUsePointFieldData()
+cookie1Mapper.SelectColorArray("scalars")
 
 cookie1Actor = vtk.vtkActor()
 cookie1Actor.SetMapper(cookie1Mapper);
 
-# Test point data - mesh interpolation
+# Test point data - loop edge interpolation
 cookie2 = vtk.vtkCookieCutter()
 cookie2.SetInputConnection(pd2cd.GetOutputPort())
-cookie2.SetLoopsConnection(cleanLoops.GetOutputPort())
-cookie2.PassCellDataOff()
-cookie2.PassPointDataOn()
-cookie2.SetPointInterpolationToLoopEdges()
+cookie2.SetLoopsConnection(buildLoops.GetOutputPort())
+if coloring == 0:
+    cookie2.PassCellDataOff()
+    cookie2.PassPointDataOff()
+else:
+    cookie2.PassCellDataOff()
+    cookie2.PassPointDataOn()
+    cookie2.SetPointInterpolationToLoopEdges()
 
 timer = vtk.vtkTimerLog()
 timer.StartTimer()
@@ -161,6 +181,8 @@ print("Cookie cutting with loop edge interpolation: {0}".format(time))
 cookie2Mapper = vtk.vtkPolyDataMapper()
 cookie2Mapper.SetInputConnection(cookie2.GetOutputPort())
 cookie2Mapper.SetScalarRange(0,0.1)
+cookie2Mapper.SetScalarModeToUsePointFieldData()
+cookie2Mapper.SelectColorArray("scalars")
 
 cookie2Actor = vtk.vtkActor()
 cookie2Actor.SetMapper(cookie2Mapper);
@@ -191,6 +213,11 @@ renWin.AddRenderer( ren0 )
 renWin.AddRenderer( ren1 )
 renWin.AddRenderer( ren2 )
 renWin.SetSize(600,200)
+
+#ren0.AddActor(cutActor)
+#ren0.AddActor(trimActor)
+#ren0.AddActor(clippedShellActor)
+#ren0.AddActor(cookie0Actor)
 
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)

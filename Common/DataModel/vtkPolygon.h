@@ -155,14 +155,14 @@ public:
 
   /**
    * Determine whether a point is inside the specified polygon. The function
-   * computes the winding number to determine if point is inside the
-   * polygon. It works for arbitrary polygon shapes (e.g., non-convex)
-   * oriented arbitraily in 3D space. Returns 0 if point is not in polygon; 1
-   * if it is.  Can also return -1 to indicate a degenerate
-   * polygon. Parameters passed into the method include the point in question
-   * x[3]; the polygon defined by (npts,pts); the bounds of the polygon
-   * bounds[6]; and the normal n[3] to the polygon. (The implementation was
-   * inspired by Dan Sunday's book Practical Geometry Algorithms.)
+   * computes the winding number to assess inclusion. It works for arbitrary
+   * polygon shapes (e.g., non-convex) oriented arbitraily in 3D
+   * space. Returns 0 if the point is not in the polygon; 1 if it is.  Can
+   * also return -1 to indicate a degenerate polygon. Parameters passed into
+   * the method include the point in question x[3]; the polygon defined by
+   * (npts,pts); the bounds of the polygon bounds[6]; and the normal n[3] to
+   * the polygon. (The implementation was inspired by Dan Sunday's book
+   * Practical Geometry Algorithms.) This method is thread safe.
    */
   static int PointInPolygon(double x[3], int numPts, double* pts, double bounds[6], double n[3]);
 

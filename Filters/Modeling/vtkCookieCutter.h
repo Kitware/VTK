@@ -17,14 +17,14 @@
  * @brief   cut vtkPolyData defined on the 2D plane with one or more polygons
  *
  * This filter crops an input vtkPolyData consisting of cells (i.e., points,
- * lines, polygons, and triangle strips) with loops specified by a second
+ * lines, polygons, and triangle strips) with trim loops specified by a second
  * input containing polygons and/or polylines. The input vtkPolyData and the
  * loops must lie on the same plane. Note that this filter can handle concave
  * polygons and/or loops. It may produce multiple output polygons for each
  * polygon/loop interaction. Similarly, it may produce multiple line segments
- * and so on. (The input to cookie cut (input0) in the following is referred
- * to as the input mesh, while the loops used to cut the input mesh (input1)
- * are referred to as the trim loops.)
+ * and so on. (The input to cookie cut (input0) is referred to as the input
+ * mesh, while the loops used to cut the input mesh (input1) are referred to
+ * as the trim loops.)
  *
  * The filter has the option to pass through and generate point and cell
  * data.  If PassCellData is enabled, then the cell data associated with the
@@ -36,11 +36,14 @@
  * generate point data, or the trim loop edges are interpolated at the new
  * intersection points to generate point data. Note: for PassPointData and
  * point interpolation to function, the filter requires that the point data
- * attributes are exactly the same for both the mesh and trim loops.
+ * attributes (from the mesh and trim loop) are exactly the same. If they are
+ * not, then a set intersection operation is performed which uses the point
+ * data arrays common to both the mesh and trim loops.
  *
  * @warning
- * The mesh and trim loops must lie on the same plane. The plane may be arbitrarily
- * oriented. If not, tolerancing issues will produce erratic results.
+ * The mesh and trim loops must lie on the same plane and the plane may be
+ * arbitrarily oriented. If not on the same plane, tolerancing issues can
+ * produce erratic results.
  *
  * @sa
  * vtkImprintFilter
@@ -65,19 +68,19 @@ public:
   ///@}
 
   /**
-   * Specify the a second vtkPolyData input which defines loops used to cut
-   * the input polygonal data. These loops must be manifold, i.e., do not
+   * Specify the a second vtkPolyData input which defines trim loops used to
+   * cut the input polygonal data. These loops must be manifold, i.e., do not
    * self intersect. The loops are defined from the polygons and polylines
-   * defined in this second input. Note that if polylines are used, they
-   * are assumed to be closed.
+   * defined in this second input. Note that if polylines are used, they are
+   * assumed to be closed.
    */
   void SetLoopsConnection(vtkAlgorithmOutput* algOutput);
   vtkAlgorithmOutput* GetLoopsConnection();
 
   ///@{
   /**
-   * Specify the a second vtkPolyData input which defines loops used to cut
-   * the input polygonal data. These loops must be manifold, i.e., do not
+   * Specify the a second vtkPolyData input which defines trim loops used to
+   * cut the input polygonal data. These loops must be manifold, i.e., do not
    * self intersect. The loops are defined from the polygons and polylines
    * defined in this second input.
    */
@@ -99,8 +102,10 @@ public:
   /**
    * Indicate whether point data from the input mesh are to be passed through
    * and/or interpolated to the output mesh. By default, PassPointData is
-   * enabled. Note: to enable this, both the input mesh points and the trim
-   * loops, must have identical point data.
+   * enabled. Note: both the input mesh points and the trim
+   * loops, must have identical point data. Otherwise, a set operation will
+   * be performed to process just the point data arrays common to both the
+   * mesh point data and loops point data.
    */
   vtkSetMacro(PassPointData, bool);
   vtkGetMacro(PassPointData, bool);
@@ -118,10 +123,7 @@ public:
    * If PassPointData is on, indicate how new point data is to generated at
    * the intersection points between the input mesh edges and the trim edges
    * (trim edges form the loops). By default, PointInterpolation is set to
-   * USE_MESH_EDGES. Note: if intersected point data is generated from the
-   * trim edges, then the point data to be interpolated from the trim edges
-   * must match the point data of the mesh edges. If not, point data is not
-   * generated.
+   * USE_MESH_EDGES.
    */
   vtkSetClampMacro(PointInterpolation, int, USE_MESH_EDGES, USE_LOOP_EDGES);
   vtkGetMacro(PointInterpolation, int);

@@ -670,12 +670,15 @@ inline double PointLocation(int axis0, int axis1, double* p0, double* p1, double
 }
 }
 
+#define VTK_POLYGON_TOL 1.e-06 // Tolerance for testing on polygon boundary
+
 //------------------------------------------------------------------------------
 // Determine whether a point is inside a polygon. The function uses a winding
 // number calculation generalized to the 3D plane one which the polygon
-// resides. Returns 0 if point is not in polygon; 1 if it is.  Can also
-// return -1 to indicate a degenerate polygon. This implementation is inspired
-// by Dan Sunday's algorithm found in the book Practical Geometry Algorithms.
+// resides. Returns 0 if point is not in the polygon; 1 if it is inside.  Can
+// also return -1 to indicate a degenerate polygon. This implementation is
+// inspired by Dan Sunday's algorithm found in the book Practical Geometry
+// Algorithms.
 int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double bounds[6], double* n)
 {
   // Do a quick bounds check to throw out trivial cases.
@@ -692,9 +695,38 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
     return VTK_POLYGON_FAILURE;
   }
 
-  // Get the maximum component of the normal. This is used
-  // to project the computation onto one of the x-y-z coordinate
-  // planes. The computation will be peformed in the (axis0,axis1) plane.
+  // Assess whether the point lies on the boundary of the polygon. Points on
+  // the boundary are considered inside the polygon. Need to define a small
+  // tolerance relative to the bounding box diagonal length of the polygon.
+  double tol2 = VTK_POLYGON_TOL *
+    ((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+      (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
+      (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
+  tol2 *= tol2;
+
+  for (int i = 0; i < numPts; i++)
+  {
+    // Check coincidence to polygon vertices
+    double* p0 = pts + 3 * i;
+    if (vtkMath::Distance2BetweenPoints(x, p0) <= tol2)
+    {
+      return VTK_POLYGON_INSIDE;
+    }
+
+    // Check coincidence to polygon edges
+    double* p1 = pts + 3 * ((i + 1) % numPts);
+    double t;
+    double d2 = vtkLine::DistanceToLine(x, p0, p1, t);
+    if (d2 <= tol2 && 0.0 < t && t < 1.0)
+    {
+      return VTK_POLYGON_INSIDE;
+    }
+  }
+
+  // If here, begin computation of the winding number. This method works for
+  // points/polygons arbitrarily oriented in 3D space.  Hence a projection
+  // onto one of the x-y-z coordinate planes using the maximum normal
+  // component. The computation will be peformed in the (axis0,axis1) plane.
   int axis0, axis1;
   if (fabs(n[0]) > fabs(n[1]))
   {
@@ -726,7 +758,7 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
   // Compute the winding number wn. If after processing all polygon edges
   // wn==0, then the point is outside.  Otherwise, the point is inside the
   // polygon. Process all polygon edges determining if there are ascending or
-  // descending crossings.
+  // descending crossings of the line axis1=constant.
   int wn = 0;
   for (int i = 0; i < numPts; i++)
   {
@@ -739,7 +771,7 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
       {
         if (PointLocation(axis0, axis1, p0, p1, x) > 0) // if x left of edge
         {
-          ++wn; // a valid up intersect, increment winding number
+          ++wn; // a valid up intersect, increment the winding number
         }
       }
     }
@@ -749,12 +781,13 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
       {
         if (PointLocation(axis0, axis1, p0, p1, x) < 0) // if x right of edge
         {
-          --wn; // a valid down intersect, decrement winding number
+          --wn; // a valid down intersect, decrement the winding number
         }
       }
     }
   } // Over all polygon edges
 
+  // A winding number==0 is outside the polygon
   return ((wn == 0 ? VTK_POLYGON_OUTSIDE : VTK_POLYGON_INSIDE));
 }
 

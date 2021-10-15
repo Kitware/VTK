@@ -34,9 +34,9 @@ vtkCxxSetObjectMacro(vtkCookieCutter, Locator, vtkIncrementalPointLocator);
 
 // Helper functions------------------------------------------------------------
 
-// Precision in the parametric coordinate system. Note that intersection
-// points, and/or parallel segments routinely occur during processing. This
-// tolerance is used to merge nearly coincident points.
+// Precision in the parametric coordinate system. Note that nearly coincident
+// intersection points, and/or parallel segments routinely occur during
+// processing. This tolerance is used to merge nearly coincident points.
 #define VTK_DEGENERATE_TOL 0.001
 
 namespace
@@ -641,8 +641,8 @@ struct vtkAttributeManager
   PointAttributesType PointAttributes; // point attributes for this cell
   SortedPointsType* LoopPts;
   SortedPointsType* PolyPts;
-  vtkPointData* MeshPtData;
-  vtkPointData* LoopPtData;
+  vtkSmartPointer<vtkPointData> MeshPtData;
+  vtkSmartPointer<vtkPointData> LoopPtData;
   vtkPointData* OutPtData;
 
   // Helper function to determine if two vtkDataSetAttributes are equivalent and may
@@ -675,6 +675,31 @@ struct vtkAttributeManager
     return true;
   }
 
+  // Build point data attributes that are the set intersection of the mesh
+  // point data attributes, and the loop point data attributes.  The
+  // attributes must be equivalent because of the two-way interpolation/copy
+  // data process that occurs.
+  void IntersectAttributes(vtkPointData* meshPD, vtkPointData* loopPD)
+  {
+    this->MeshPtData.TakeReference(vtkPointData::New());
+    this->LoopPtData.TakeReference(vtkPointData::New());
+
+    // Loop over the the first attributes determining what data arrays are
+    // common.
+    int numMeshPDArrays = meshPD->GetNumberOfArrays();
+    for (auto arrayNum = 0; arrayNum < numMeshPDArrays; ++arrayNum)
+    {
+      vtkDataArray *da0 = meshPD->GetArray(arrayNum), *da1;
+      const char* name = meshPD->GetArrayName(arrayNum);
+      if ((da1 = loopPD->GetArray(name)) != nullptr && da1->GetDataType() == da0->GetDataType() &&
+        da1->GetNumberOfComponents() == da0->GetNumberOfComponents())
+      {
+        this->MeshPtData->AddArray(da0);
+        this->LoopPtData->AddArray(da1);
+      }
+    }
+  }
+
   // Constructor: Initialize the process of attribute processing
   vtkAttributeManager(vtkPolyData* input, vtkPolyData* loops, vtkPolyData* output, bool passCD,
     bool passPD, int ptInterpolation)
@@ -697,22 +722,27 @@ struct vtkAttributeManager
     this->OutPtData = nullptr;
     if (passPD)
     {
+      vtkPointData* inPD = input->GetPointData();
+      vtkPointData* loopPD = loops->GetPointData();
       // If trim edge interpoltion is specified, make sure that the trim loop point
       // attributes match the mesh point attributes. If not, point data is not passed
       // to the output.
-      if (this->HaveEquivalentAttributes(input->GetPointData(), loops->GetPointData()))
+      if (this->HaveEquivalentAttributes(inPD, loopPD))
       {
-        this->MeshPtData = input->GetPointData();
-        this->LoopPtData = loops->GetPointData();
-        this->OutPtData = output->GetPointData();
-        this->OutPtData->CopyAllocate(this->MeshPtData);
+        this->MeshPtData = inPD;
+        this->LoopPtData = loopPD;
       }
       else
       {
-        vtkLog(WARNING, "Mesh and trim loop attributes are not equal, point data not interpolated");
+        vtkLog(WARNING,
+          "Mesh and trim loop point data attributes are different, only common point data arrays "
+          "will be processed");
+        this->IntersectAttributes(inPD, loopPD);
       } // if point attributes identical
-    }   // if passing point data
-  }     // constructor
+      this->OutPtData = output->GetPointData();
+      this->OutPtData->CopyAllocate(this->MeshPtData);
+    } // if passing point data
+  }   // constructor
 
   // Copy cell data from the input to the output.
   void CopyCellData(vtkIdType inCellId, vtkIdType outCellId)
