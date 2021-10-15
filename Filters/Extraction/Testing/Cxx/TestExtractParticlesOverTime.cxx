@@ -79,5 +79,18 @@ int TestExtractParticlesOverTime(int, char*[])
     return EXIT_FAILURE;
   }
 
+  double expectedFirstCoordinates[3] = { 3.4202, 0, 0 };
+  double* firstPointCoordinates = resultDataSet->GetPoint(0);
+  for (size_t index = 0; index < 3; ++index)
+  {
+    if (std::abs(firstPointCoordinates[index] - expectedFirstCoordinates[index]) > 1e-4)
+    {
+      vtkLog(ERROR,
+        "Wrong extracted coordinates, index: " << index
+                                               << " expected: " << expectedFirstCoordinates[index]
+                                               << " got: " << firstPointCoordinates[index]);
+    }
+  }
+
   return EXIT_SUCCESS;
 }
