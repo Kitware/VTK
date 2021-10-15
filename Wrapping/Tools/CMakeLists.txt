@@ -22,6 +22,7 @@ set(sources
 
 set(headers
   vtkParse.h
+  vtkParseAttributes.h
   vtkParseData.h
   vtkParseExtras.h
   vtkParseHierarchy.h
@@ -32,7 +33,8 @@ set(headers
   vtkParseString.h
   vtkParseSystem.h
   vtkParseType.h
-  vtkWrap.h)
+  vtkWrap.h
+  vtkWrapText.h)
 
 set_property(SOURCE vtkParseMain.c
   PROPERTY
