@@ -436,9 +436,14 @@ namespace KWSYS_NAMESPACE {
 DynamicLoader::LibraryHandle DynamicLoader::OpenLibrary(
   const std::string& libname, int flags)
 {
-  CHECK_OPEN_FLAGS(flags, 0, nullptr);
+  CHECK_OPEN_FLAGS(flags, RTLDGlobal, nullptr);
 
-  return dlopen(libname.c_str(), RTLD_LAZY);
+  int llFlags = RTLD_LAZY;
+  if (flags & RTLDGlobal) {
+    llFlags |= RTLD_GLOBAL;
+  }
+
+  return dlopen(libname.c_str(), llFlags);
 }
 
 int DynamicLoader::CloseLibrary(DynamicLoader::LibraryHandle lib)
