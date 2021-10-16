@@ -44,9 +44,9 @@ public:
     ItImpl() = default;
     virtual ~ItImpl() = default;
     ItImpl(const ItImpl&) = default;
-    ItImpl(ItImpl&&) = default;
+    ItImpl(ItImpl&&) noexcept = default;
     ItImpl& operator=(const ItImpl&) = default;
-    ItImpl& operator=(ItImpl&&) = default;
+    ItImpl& operator=(ItImpl&&) noexcept = default;
 
     virtual void Increment() = 0;
 
