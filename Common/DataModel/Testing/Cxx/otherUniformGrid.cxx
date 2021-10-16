@@ -29,7 +29,7 @@
 
 int TestOUG_0d(ostream& strm)
 {
-  int i, j, k;
+  int i;
   vtkNew<vtkUniformGrid> ug0D;
 
   ug0D->SetDimensions(1, 1, 1);
@@ -95,16 +95,6 @@ int TestOUG_0d(ostream& strm)
   ug0D->GetPoint(0, point);
   strm << "GetPoint(ug0D): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
 
-  // Test FindPoint
-
-  double point3D[3] = { 10, 12, 14 };
-
-  // Test FindAndGetCell
-
-  double pcoords[3], weights[8];
-  int subId;
-  vtkCell* dummyCell = nullptr;
-
   // Test GetCellType
 
   strm << "GetCellType(ug0D): " << ug0D->GetCellType(0) << endl;
@@ -118,7 +108,7 @@ int TestOUG_0d(ostream& strm)
 
 int TestOUG_1dx(ostream& strm)
 {
-  int i, j, k;
+  int i;
   vtkNew<vtkUniformGrid> ug1Dx;
 
   ug1Dx->SetDimensions(20, 1, 1);
@@ -240,7 +230,7 @@ int TestOUG_1dx(ostream& strm)
 
 int TestOUG_1dy(ostream& strm)
 {
-  int i, j, k;
+  int i;
   vtkNew<vtkUniformGrid> ug1Dy;
 
   ug1Dy->SetDimensions(1, 20, 1);
@@ -364,7 +354,7 @@ int TestOUG_1dy(ostream& strm)
 
 int TestOUG_1dz(ostream& strm)
 {
-  int i, j, k;
+  int i;
   vtkNew<vtkUniformGrid> ug1Dz;
 
   ug1Dz->SetDimensions(1, 1, 20);
@@ -486,7 +476,7 @@ int TestOUG_1dz(ostream& strm)
 
 int TestOUG_2dxy(ostream& strm)
 {
-  int i, j, k;
+  int i, j;
   vtkNew<vtkUniformGrid> ug2Dxy;
 
   ug2Dxy->SetDimensions(20, 20, 1);
@@ -610,7 +600,7 @@ int TestOUG_2dxy(ostream& strm)
 
 int TestOUG_2dxz(ostream& strm)
 {
-  int i, j, k;
+  int i, j;
   vtkNew<vtkUniformGrid> ug2Dxz;
 
   ug2Dxz->SetDimensions(20, 1, 20);
@@ -735,7 +725,7 @@ int TestOUG_2dxz(ostream& strm)
 
 int TestOUG_2dyz(ostream& strm)
 {
-  int i, j, k;
+  int i, j;
   vtkNew<vtkUniformGrid> ug2Dyz;
 
   ug2Dyz->SetDimensions(1, 20, 20);

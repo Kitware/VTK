@@ -783,7 +783,7 @@ struct
 {
   size_t index;
   const char* name;
-} variables[] = {
+} variable_info[] = {
   //
   { 1, "PRESSURE" },
   { 2, "MOMENTUM" },
@@ -2360,7 +2360,7 @@ struct
 
 void vtkFLUENTReader::LoadVariableNames()
 {
-  for (auto const& variable : variables)
+  for (auto const& variable : variable_info)
   {
     this->VariableNames->value[variable.index] = variable.name;
   }

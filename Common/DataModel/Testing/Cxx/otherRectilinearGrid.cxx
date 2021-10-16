@@ -191,7 +191,7 @@ int test_rg3d(ostream& strm)
 
 int test_rg2d_xy(ostream& strm)
 {
-  int i, j, k;
+  int i, j;
   // actual test
   strm << "Testing vtkRectilinearGrid 2D (xy)" << endl;
   vtkNew<vtkRectilinearGrid> rg2Dxy;
@@ -346,7 +346,7 @@ int test_rg2d_xy(ostream& strm)
 
 int test_rg2d_xz(ostream& strm)
 {
-  int i, j, k;
+  int i, j;
   // actual test
   strm << "Testing vtkRectilinearGrid" << endl;
   vtkNew<vtkRectilinearGrid> rg2Dxz;
@@ -502,7 +502,7 @@ int test_rg2d_xz(ostream& strm)
 
 int test_rg2d_yz(ostream& strm)
 {
-  int i, j, k;
+  int i, j;
   // actual test
   strm << "Testing vtkRectilinearGrid" << endl;
   vtkNew<vtkRectilinearGrid> rg2Dyz;
@@ -658,7 +658,7 @@ int test_rg2d_yz(ostream& strm)
 
 int test_rg1d_x(ostream& strm)
 {
-  int i, j, k;
+  int i;
   // actual test
   strm << "Testing vtkRectilinearGrid" << endl;
   vtkNew<vtkRectilinearGrid> rg1Dx;
@@ -806,7 +806,7 @@ int test_rg1d_x(ostream& strm)
 
 int test_rg1d_y(ostream& strm)
 {
-  int i, j, k;
+  int i;
   // actual test
   strm << "Testing vtkRectilinearGrid" << endl;
   vtkNew<vtkRectilinearGrid> rg1Dy;
@@ -955,7 +955,7 @@ int test_rg1d_y(ostream& strm)
 
 int test_rg1d_z(ostream& strm)
 {
-  int i, j, k;
+  int i;
   // actual test
   strm << "Testing vtkRectilinearGrid" << endl;
   vtkNew<vtkRectilinearGrid> rg1Dz;
@@ -1103,7 +1103,7 @@ int test_rg1d_z(ostream& strm)
 
 int test_rg0d(ostream& strm)
 {
-  int i, j, k;
+  int i;
   // actual test
   strm << "Testing vtkRectilinearGrid" << endl;
   vtkNew<vtkRectilinearGrid> rg0D;
