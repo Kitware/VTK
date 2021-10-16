@@ -245,7 +245,7 @@ void vtkOSOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
 }
 
 // Initialize the window for rendering.
-void vtkOSOpenGLRenderWindow::WindowInitialize(void)
+void vtkOSOpenGLRenderWindow::WindowInitialize()
 {
   this->CreateAWindow();
 
@@ -263,7 +263,7 @@ void vtkOSOpenGLRenderWindow::WindowInitialize(void)
 }
 
 // Initialize the rendering window.
-void vtkOSOpenGLRenderWindow::Initialize(void)
+void vtkOSOpenGLRenderWindow::Initialize()
 {
   if (!(this->Internal->OffScreenContextId))
   {
@@ -274,7 +274,7 @@ void vtkOSOpenGLRenderWindow::Initialize(void)
   }
 }
 
-void vtkOSOpenGLRenderWindow::Finalize(void)
+void vtkOSOpenGLRenderWindow::Finalize()
 {
   // clean and destroy window
   this->DestroyWindow();
@@ -365,7 +365,7 @@ int* vtkOSOpenGLRenderWindow::GetScreenSize()
 }
 
 // Get the position in screen coordinates (pixels) of the window.
-int* vtkOSOpenGLRenderWindow::GetPosition(void)
+int* vtkOSOpenGLRenderWindow::GetPosition()
 {
   return this->Position;
 }

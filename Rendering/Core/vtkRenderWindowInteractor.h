@@ -291,7 +291,7 @@ public:
    * specified and should be overridden by platform dependent subclasses
    * to provide a termination procedure if one is required.
    */
-  virtual void TerminateApp(void) { this->Done = true; }
+  virtual void TerminateApp() { this->Done = true; }
 
   ///@{
   /**

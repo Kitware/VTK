@@ -180,20 +180,20 @@ public:
    */
   vtkSetClampMacro(ScalarMode, int, SCALAR_NONE, SCALAR_FUNCTION_DEFINED);
   vtkGetMacro(ScalarMode, int);
-  void SetScalarModeToNone(void) { this->SetScalarMode(SCALAR_NONE); }
-  void SetScalarModeToU(void) { this->SetScalarMode(SCALAR_U); }
-  void SetScalarModeToV(void) { this->SetScalarMode(SCALAR_V); }
-  void SetScalarModeToU0(void) { this->SetScalarMode(SCALAR_U0); }
-  void SetScalarModeToV0(void) { this->SetScalarMode(SCALAR_V0); }
-  void SetScalarModeToU0V0(void) { this->SetScalarMode(SCALAR_U0V0); }
-  void SetScalarModeToModulus(void) { this->SetScalarMode(SCALAR_MODULUS); }
-  void SetScalarModeToPhase(void) { this->SetScalarMode(SCALAR_PHASE); }
-  void SetScalarModeToQuadrant(void) { this->SetScalarMode(SCALAR_QUADRANT); }
-  void SetScalarModeToX(void) { this->SetScalarMode(SCALAR_X); }
-  void SetScalarModeToY(void) { this->SetScalarMode(SCALAR_Y); }
-  void SetScalarModeToZ(void) { this->SetScalarMode(SCALAR_Z); }
-  void SetScalarModeToDistance(void) { this->SetScalarMode(SCALAR_DISTANCE); }
-  void SetScalarModeToFunctionDefined(void) { this->SetScalarMode(SCALAR_FUNCTION_DEFINED); }
+  void SetScalarModeToNone() { this->SetScalarMode(SCALAR_NONE); }
+  void SetScalarModeToU() { this->SetScalarMode(SCALAR_U); }
+  void SetScalarModeToV() { this->SetScalarMode(SCALAR_V); }
+  void SetScalarModeToU0() { this->SetScalarMode(SCALAR_U0); }
+  void SetScalarModeToV0() { this->SetScalarMode(SCALAR_V0); }
+  void SetScalarModeToU0V0() { this->SetScalarMode(SCALAR_U0V0); }
+  void SetScalarModeToModulus() { this->SetScalarMode(SCALAR_MODULUS); }
+  void SetScalarModeToPhase() { this->SetScalarMode(SCALAR_PHASE); }
+  void SetScalarModeToQuadrant() { this->SetScalarMode(SCALAR_QUADRANT); }
+  void SetScalarModeToX() { this->SetScalarMode(SCALAR_X); }
+  void SetScalarModeToY() { this->SetScalarMode(SCALAR_Y); }
+  void SetScalarModeToZ() { this->SetScalarMode(SCALAR_Z); }
+  void SetScalarModeToDistance() { this->SetScalarMode(SCALAR_DISTANCE); }
+  void SetScalarModeToFunctionDefined() { this->SetScalarMode(SCALAR_FUNCTION_DEFINED); }
   ///@}
 
   /**

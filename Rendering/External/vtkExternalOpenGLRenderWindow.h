@@ -56,7 +56,7 @@ public:
   /**
    * Begin the rendering process using the existing context.
    */
-  void Start(void) override;
+  void Start() override;
 
   /**
    * Tells if this window is the current graphics context for the calling

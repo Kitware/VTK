@@ -74,9 +74,9 @@ public:
    */
   void SetAxis(int axis);
   vtkGetMacro(Axis, int);
-  void SetAxisToX(void) { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_X); }
-  void SetAxisToY(void) { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_Y); }
-  void SetAxisToZ(void) { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_Z); }
+  void SetAxisToX() { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_X); }
+  void SetAxisToY() { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_Y); }
+  void SetAxisToZ() { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_Z); }
   ///@}
 
 protected:

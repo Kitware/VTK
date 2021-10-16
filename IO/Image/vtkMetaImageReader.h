@@ -92,7 +92,7 @@ public:
   double* GetImagePositionPatient() { return this->GetDataOrigin(); }
   int GetNumberOfComponents() { return this->GetNumberOfScalarComponents(); }
   int GetPixelRepresentation() { return this->GetDataScalarType(); }
-  int GetDataByteOrder(void) override;
+  int GetDataByteOrder() override;
 
   vtkGetMacro(RescaleSlope, double);
   vtkGetMacro(RescaleOffset, double);
@@ -165,9 +165,9 @@ protected:
   virtual void ComputeInternalFileName(int slice)
     { vtkImageReader2::ComputeInternalFileName(slice); }
   vtkGetFilePathMacro(InternalFileName);
-  const char * GetDataByteOrderAsString(void)
+  const char * GetDataByteOrderAsString()
     { return vtkImageReader2::GetDataByteOrderAsString(); }
-  unsigned long GetHeaderSize(void)
+  unsigned long GetHeaderSize()
     { return vtkImageReader2::GetHeaderSize(); }*/
 
   void ExecuteInformation() override;

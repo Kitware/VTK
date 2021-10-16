@@ -59,7 +59,7 @@ public:
   /**
    * Get the number of point arrays available in the input.
    */
-  int GetNumberOfPointArrays(void);
+  int GetNumberOfPointArrays();
 
   /**
    * Get the name of the  point array with the given index in

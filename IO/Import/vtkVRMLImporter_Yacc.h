@@ -190,7 +190,7 @@ public:
   // Lexer variables and functions:
   int yyleng;
   FILE *yyin, *yyout;
-  int yywrap(void );
+  int yywrap();
 
   struct yy_buffer_state
   {
@@ -261,7 +261,7 @@ public:
 
   void yyrestart ( FILE *input_file );
   void yy_switch_to_buffer ( YY_BUFFER_STATE new_buffer );
-  void yy_load_buffer_state ( void );
+  void yy_load_buffer_state ();
   YY_BUFFER_STATE yy_create_buffer ( FILE *file, int size );
   void yy_delete_buffer ( YY_BUFFER_STATE b );
   void yy_init_buffer ( YY_BUFFER_STATE b, FILE *file );
@@ -272,9 +272,9 @@ public:
 
   char *yytext;
 
-  yy_state_type yy_get_previous_state ( void );
+  yy_state_type yy_get_previous_state ();
   yy_state_type yy_try_NUL_trans ( yy_state_type current_state );
-  int yy_get_next_buffer ( void );
+  int yy_get_next_buffer ();
   void yy_fatal_error ( const char msg[] );
 
   yy_state_type yy_last_accepting_state;
@@ -5031,7 +5031,7 @@ void vtkVRMLYaccData::yy_switch_to_buffer( YY_BUFFER_STATE new_buffer )
 }
 
 
-void vtkVRMLYaccData::yy_load_buffer_state( void )
+void vtkVRMLYaccData::yy_load_buffer_state()
 {
   yy_n_chars = yy_current_buffer->yy_n_chars;
   yytext_ptr = yy_c_buf_p = yy_current_buffer->yy_buf_pos;

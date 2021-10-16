@@ -76,7 +76,7 @@ public:
     this->Init();
   }
 
-  ~vtkVRMLVectorType(void)
+  ~vtkVRMLVectorType()
   {
     if (this->UseNew)
     {
@@ -134,7 +134,7 @@ public:
     this->Used = newSize;
   }
 
-  int Count(void) const { return this->Used; }
+  int Count() const { return this->Used; }
 
   T& Get(int index) const
   {

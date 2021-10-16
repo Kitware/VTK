@@ -34,7 +34,7 @@ extern "C"
    * on failure.
    */
   VTKIOXML_EXPORT
-  vtkXMLWriterC* vtkXMLWriterC_New(void);
+  vtkXMLWriterC* vtkXMLWriterC_New();
 
   /**
    * Delete the writer object.
