@@ -117,8 +117,7 @@ private:
    * Reads a level. Blocks in the level are distributed among pieces in a
    * contiguous fashion.
    */
-  bool ReadLevel(const int level, vtkMultiPieceDataSet* pdataset, const int piece_idx,
-    const int num_pieces) const;
+  bool ReadLevel(int level, vtkMultiPieceDataSet* pdataset, int piece_idx, int num_pieces) const;
 
   vtkTimeStamp PlotFileNameMTime;
   vtkTimeStamp MetaDataMTime;

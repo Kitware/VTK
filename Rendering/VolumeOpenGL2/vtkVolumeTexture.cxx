@@ -62,8 +62,8 @@ vtkVolumeTexture::~vtkVolumeTexture()
 vtkStandardNewMacro(vtkVolumeTexture);
 
 //------------------------------------------------------------------------------
-bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkDataSet* data, vtkDataArray* scalars,
-  int const isCell, int const interpolation)
+bool vtkVolumeTexture::LoadVolume(
+  vtkRenderer* ren, vtkDataSet* data, vtkDataArray* scalars, int isCell, int interpolation)
 {
   this->ClearBlocks();
   this->Scalars = scalars;
@@ -167,7 +167,7 @@ bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkDataSet* data, vtkDataArr
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeTexture::SetInterpolation(int const interpolation)
+void vtkVolumeTexture::SetInterpolation(int interpolation)
 {
   this->InterpolationType = interpolation;
 
@@ -207,8 +207,7 @@ vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetCurrentBlock()
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeTexture::CreateBlocks(
-  unsigned int const format, unsigned int const internalFormat, int const type)
+void vtkVolumeTexture::CreateBlocks(unsigned int format, unsigned int internalFormat, int type)
 {
   // Pre compute array size
   this->FullSize[0] = this->FullExtent[1] - this->FullExtent[0] + 1;
@@ -282,7 +281,7 @@ vtkVolumeTexture::Size3 vtkVolumeTexture::ComputeBlockSize(int* extent)
 }
 
 //------------------------------------------------------------------------------
-bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBlock)
+bool vtkVolumeTexture::LoadTexture(int interpolation, VolumeBlock* volBlock)
 {
   int const noOfComponents = this->Scalars->GetNumberOfComponents();
   int scalarType = this->Scalars->GetDataType();
@@ -649,7 +648,7 @@ void vtkVolumeTexture::SplitVolume(vtkImageData* imageData, Size3 const& part)
 
 //------------------------------------------------------------------------------
 void vtkVolumeTexture::GetScaleAndBias(
-  const int scalarType, float* scalarRange, float& scale, float& bias)
+  int scalarType, float* scalarRange, float& scale, float& bias)
 {
   scale = 1.0f;
   bias = 0.0f;
@@ -694,8 +693,8 @@ void vtkVolumeTexture::GetScaleAndBias(
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeTexture::SelectTextureFormat(unsigned int& format, unsigned int& internalFormat,
-  int& type, int const scalarType, int const noOfComponents)
+void vtkVolumeTexture::SelectTextureFormat(
+  unsigned int& format, unsigned int& internalFormat, int& type, int scalarType, int noOfComponents)
 {
   bool supportsFloat = true;
   this->HandleLargeDataTypes = false;
@@ -836,7 +835,7 @@ void vtkVolumeTexture::UpdateVolume(vtkVolumeProperty* property)
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeTexture::UpdateInterpolationType(int const interpolation)
+void vtkVolumeTexture::UpdateInterpolationType(int interpolation)
 {
   if (interpolation == VTK_LINEAR_INTERPOLATION &&
     this->InterpolationType != vtkTextureObject::Linear)
@@ -878,7 +877,7 @@ void vtkVolumeTexture::SortBlocksBackToFront(vtkRenderer* ren, vtkMatrix4x4* vol
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeTexture::SetPartitions(int const x, int const y, int const z)
+void vtkVolumeTexture::SetPartitions(int x, int y, int z)
 {
   if (x > 0 && y > 0 && z > 0)
   {
@@ -922,7 +921,7 @@ void vtkVolumeTexture::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 bool vtkVolumeTexture::AreDimensionsValid(
-  vtkTextureObject* texture, int const width, int const height, int const depth)
+  vtkTextureObject* texture, int width, int height, int depth)
 {
   int const maxSize = texture->GetMaximumTextureSize3D();
   if (width > maxSize || height > maxSize || depth > maxSize)
@@ -935,8 +934,8 @@ bool vtkVolumeTexture::AreDimensionsValid(
 }
 
 //------------------------------------------------------------------------------
-bool vtkVolumeTexture::SafeLoadTexture(vtkTextureObject* texture, int const width, int const height,
-  int const depth, int numComps, int dataType, void* dataPtr)
+bool vtkVolumeTexture::SafeLoadTexture(vtkTextureObject* texture, int width, int height, int depth,
+  int numComps, int dataType, void* dataPtr)
 {
   if (!AreDimensionsValid(texture, width, height, depth))
   {

@@ -608,7 +608,7 @@ void vtkPlot::TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out)
 }
 
 //------------------------------------------------------------------------------
-void vtkPlot::TransformScreenToData(const double inX, const double inY, double& outX, double& outY)
+void vtkPlot::TransformScreenToData(double inX, double inY, double& outX, double& outY)
 {
   // inverse shift/scale from screen space.
   const vtkRectd& ss = this->ShiftScale;
@@ -629,7 +629,7 @@ void vtkPlot::TransformScreenToData(const double inX, const double inY, double& 
 }
 
 //------------------------------------------------------------------------------
-void vtkPlot::TransformDataToScreen(const double inX, const double inY, double& outX, double& outY)
+void vtkPlot::TransformDataToScreen(double inX, double inY, double& outX, double& outY)
 {
   outX = inX;
   outY = inY;

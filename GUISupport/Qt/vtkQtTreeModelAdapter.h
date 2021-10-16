@@ -76,7 +76,7 @@ public:
   /**
    * Selection conversion from VTK land to Qt land
    */
-  vtkSelection* QModelIndexListToVTKIndexSelection(const QModelIndexList qmil) const override;
+  vtkSelection* QModelIndexListToVTKIndexSelection(QModelIndexList qmil) const override;
   QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const override;
   ///@}
 

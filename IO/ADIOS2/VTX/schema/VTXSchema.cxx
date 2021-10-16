@@ -40,7 +40,7 @@ VTXSchema::VTXSchema(
 
 VTXSchema::~VTXSchema() = default;
 
-void VTXSchema::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VTXSchema::Fill(vtkMultiBlockDataSet* multiBlock, size_t step)
 {
   DoFill(multiBlock, step);
 }
@@ -75,7 +75,7 @@ void VTXSchema::GetTimes(const std::string& variableName)
 }
 
 void VTXSchema::GetDataArray(
-  const std::string& variableName, types::DataArray& dataArray, const size_t step)
+  const std::string& variableName, types::DataArray& dataArray, size_t step)
 {
   const std::string type = this->IO.VariableType(variableName);
 
@@ -93,14 +93,14 @@ void VTXSchema::GetDataArray(
 }
 
 #define declare_type(T)                                                                            \
-  void VTXSchema::SetDimensions(adios2::Variable<T> /*variable*/,                                  \
-    const types::DataArray& /*dataArray*/, const size_t /*step*/)                                  \
+  void VTXSchema::SetDimensions(                                                                   \
+    adios2::Variable<T> /*variable*/, const types::DataArray& /*dataArray*/, size_t /*step*/)      \
   {                                                                                                \
     throw std::invalid_argument("ERROR: global array not supported for this schema\n");            \
   }                                                                                                \
                                                                                                    \
   void VTXSchema::SetBlocks(                                                                       \
-    adios2::Variable<T> /*variable*/, types::DataArray& /*dataArray*/, const size_t /*step*/)      \
+    adios2::Variable<T> /*variable*/, types::DataArray& /*dataArray*/, size_t /*step*/)            \
   {                                                                                                \
     throw std::invalid_argument("ERROR: local array not supported for this schema\n");             \
   }

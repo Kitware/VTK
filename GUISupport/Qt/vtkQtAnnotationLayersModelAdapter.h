@@ -60,10 +60,9 @@ public:
   /**
    * Selection conversion from VTK land to Qt land
    */
-  virtual vtkAnnotationLayers* QModelIndexListToVTKAnnotationLayers(
-    const QModelIndexList qmil) const;
+  virtual vtkAnnotationLayers* QModelIndexListToVTKAnnotationLayers(QModelIndexList qmil) const;
   virtual QItemSelection VTKAnnotationLayersToQItemSelection(vtkAnnotationLayers* vtkann) const;
-  vtkSelection* QModelIndexListToVTKIndexSelection(const QModelIndexList qmil) const override;
+  vtkSelection* QModelIndexListToVTKIndexSelection(QModelIndexList qmil) const override;
   QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const override;
   ///@}
 

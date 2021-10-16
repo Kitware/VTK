@@ -229,7 +229,7 @@ void vtkAMReXGridHeader::SetVectorNamePrefix(const std::string& prefix)
   this->vectorNamePrefix = prefix;
 }
 
-void vtkAMReXGridHeader::SetNameDelimiter(const char delim)
+void vtkAMReXGridHeader::SetNameDelimiter(char delim)
 {
   this->nameDelim = delim;
 }
@@ -901,7 +901,7 @@ int vtkAMReXGridReaderInternal::GetNumberOfLevels()
   return this->headersAreRead ? this->Header->finestLevel : -1;
 }
 
-int vtkAMReXGridReaderInternal::GetBlockLevel(const int blockIdx)
+int vtkAMReXGridReaderInternal::GetBlockLevel(int blockIdx)
 {
   if (this->headersAreRead)
   {

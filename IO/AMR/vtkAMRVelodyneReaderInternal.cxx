@@ -1014,7 +1014,7 @@ herr_t vtkAMRVelodyneReaderInternal::CloseFile(hid_t& fid)
   return ierr;
 }
 
-vtkDataArray* vtkAMRVelodyneReaderInternal::GetTypeAndArray(const int type, hid_t& dType)
+vtkDataArray* vtkAMRVelodyneReaderInternal::GetTypeAndArray(int type, hid_t& dType)
 {
   vtkDataArray* dataArray;
   switch (type)

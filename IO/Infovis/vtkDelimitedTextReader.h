@@ -330,7 +330,7 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Read the content of the input file.
-  int ReadData(vtkTable* const output_table);
+  int ReadData(vtkTable* output_table);
 
   char* FileName;
   vtkTypeBool ReadFromInputString;

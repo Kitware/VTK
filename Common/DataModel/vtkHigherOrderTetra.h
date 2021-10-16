@@ -95,7 +95,7 @@ public:
 
   vtkIdType GetOrder() const { return this->Order; }
   vtkIdType ComputeOrder();
-  static vtkIdType ComputeOrder(const vtkIdType nPoints);
+  static vtkIdType ComputeOrder(vtkIdType nPoints);
   /// Return true if the number of points supports a cell of uniform
   /// degree along each axis.
   static bool PointCountSupportsUniformOrder(vtkIdType pointsPerCell);

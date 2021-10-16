@@ -53,7 +53,7 @@ VTXvtkVTU::VTXvtkVTU(const std::string& schema, adios2::IO& io, adios2::Engine& 
 VTXvtkVTU::~VTXvtkVTU() = default;
 
 // PRIVATE
-void VTXvtkVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
+void VTXvtkVTU::DoFill(vtkMultiBlockDataSet* multiBlock, size_t step)
 {
   ReadPiece(step, 0); // just read piece 0 for now
 
@@ -64,7 +64,7 @@ void VTXvtkVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
   multiBlock->SetBlock(0, pieces);
 }
 
-void VTXvtkVTU::ReadPiece(const size_t step, const size_t pieceID)
+void VTXvtkVTU::ReadPiece(size_t step, size_t pieceID)
 {
   if (!ReadDataSets(types::DataSetType::Cells, step, pieceID))
   {
@@ -277,7 +277,7 @@ void VTXvtkVTU::Init()
 
 #define declare_type(T)                                                                            \
   void VTXvtkVTU::SetBlocks(                                                                       \
-    adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)                  \
+    adios2::Variable<T> variable, types::DataArray& dataArray, size_t step)                        \
   {                                                                                                \
     SetBlocksCommon(variable, dataArray, step);                                                    \
   }

@@ -92,7 +92,7 @@ public:
   // \pre gridID >= 0. The code uses values of gridID < -1 as flag internally.
   // \pre vtkStructuredExtent::Smaller(extent,wholeExtent) == true.
   // \note A rank with no or an empty grid, should not call this method.
-  void RegisterGrid(const int gridID, int extent[6], vtkPoints* gridPnts, vtkPointData* pointData);
+  void RegisterGrid(int gridID, int extent[6], vtkPoints* gridPnts, vtkPointData* pointData);
 
   // \brief Registers the rectilinear grid dataset belonging to this process.
   // \param gridID the ID of the in this rank.
@@ -104,7 +104,7 @@ public:
   // \pre gridID >= 0. The code uses values of gridID < -1 as flag internally.
   // \pre vtkStructuredExtent::Smaller(extent,wholeExtent) == true.
   // \note A rank with no or an empty grid, should not call this method.
-  void RegisterRectilinearGrid(const int gridID, int extent[6], vtkDataArray* xcoords,
+  void RegisterRectilinearGrid(int gridID, int extent[6], vtkDataArray* xcoords,
     vtkDataArray* ycoords, vtkDataArray* zcoords, vtkPointData* pointData);
 
   /**
@@ -135,21 +135,21 @@ public:
    * \param gridID the ID of the grid
    * \param grid pointer to data-structure where to store the output.
    */
-  void GetOutputStructuredGrid(const int gridID, vtkStructuredGrid* grid);
+  void GetOutputStructuredGrid(int gridID, vtkStructuredGrid* grid);
 
   /**
    * \brief Gets the output uniform grid instance on this process.
    * \param gridID the ID of the grid.
    * \param grid pointer to data-structure where to store the output.
    */
-  void GetOutputImageData(const int gridID, vtkImageData* grid);
+  void GetOutputImageData(int gridID, vtkImageData* grid);
 
   /**
    * \brief Gets the output rectilinear grid instance on this process.
    * \param gridID the ID of the grid.
    * \param grid pointer to data-structure where to store the output.
    */
-  void GetOutputRectilinearGrid(const int gridID, vtkRectilinearGrid* grid);
+  void GetOutputRectilinearGrid(int gridID, vtkRectilinearGrid* grid);
 
 protected:
   vtkStructuredImplicitConnectivity();
@@ -181,7 +181,7 @@ protected:
   /**
    * \brief Allocates send/rcv buffers needed to carry out the communication.
    */
-  void AllocateBuffers(const int dim);
+  void AllocateBuffers(int dim);
 
   /**
    * \brief Computes the neighbors with implicit connectivity.
@@ -197,14 +197,14 @@ protected:
    * \brief Grows grid along a given dimension.
    * \param dim the dimension in query.
    */
-  void GrowGrid(const int dim);
+  void GrowGrid(int dim);
 
   /**
    * \brief Updates the list of neighbors after growing the grid along the
    * given dimension dim.
    * \param dim the dimension in query.
    */
-  void UpdateNeighborList(const int dim);
+  void UpdateNeighborList(int dim);
 
   /**
    * \brief Gets whether there is implicit connectivity across all processes.

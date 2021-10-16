@@ -185,8 +185,8 @@ protected:
 
   virtual void WriteStringToFile(const char* string, FILE* file);
   virtual void WriteTerminatedStringToFile(const char* string, FILE* file);
-  virtual void WriteIntToFile(const int i, FILE* file);
-  virtual void WriteFloatToFile(const float f, FILE* file);
+  virtual void WriteIntToFile(int i, FILE* file);
+  virtual void WriteFloatToFile(float f, FILE* file);
   virtual void WriteElementTypeToFile(int ElementType, FILE* fd);
 
   virtual bool ShouldWriteGeometry();

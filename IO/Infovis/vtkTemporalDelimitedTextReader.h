@@ -63,7 +63,7 @@ public:
    * Default to empty string.
    */
   vtkGetMacro(TimeColumnName, std::string);
-  void SetTimeColumnName(const std::string name);
+  void SetTimeColumnName(std::string name);
   ///@}
 
   ///@{
@@ -76,7 +76,7 @@ public:
    * Default to -1.
    */
   vtkGetMacro(TimeColumnId, int);
-  void SetTimeColumnId(const int idx);
+  void SetTimeColumnId(int idx);
   ///@}
 
   ///@{

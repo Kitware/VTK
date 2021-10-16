@@ -62,10 +62,10 @@ public:
     const double* fieldVals, int fieldDim, double* fieldDerivs,
     void (*function_evaluate_shape_and_gradient)(int, double, double*, double*));
 
-  static void WedgeShapeFunctions(const int order[3], const vtkIdType numberOfPoints,
+  static void WedgeShapeFunctions(const int order[3], vtkIdType numberOfPoints,
     const double* pcoords, double* shape, vtkHigherOrderTriangle& tri,
     void (*function_evaluate_shape_functions)(int, double, double*));
-  static void WedgeShapeDerivatives(const int order[3], const vtkIdType numberOfPoints,
+  static void WedgeShapeDerivatives(const int order[3], vtkIdType numberOfPoints,
     const double* pcoords, double* derivs, vtkHigherOrderTriangle& tri,
     void (*function_evaluate_shape_and_gradient)(int, double, double*, double*));
 
@@ -76,10 +76,10 @@ public:
   int JacobianInverse(vtkPoints* points, const double* derivs, double** inverse);
   int JacobianInverseWedge(vtkPoints* points, const double* derivs, double** inverse);
 
-  virtual void WedgeEvaluate(const int order[3], const vtkIdType numberOfPoints,
-    const double* pcoords, double* fieldVals, int fieldDim, double* fieldAtPCoords) = 0;
+  virtual void WedgeEvaluate(const int order[3], vtkIdType numberOfPoints, const double* pcoords,
+    double* fieldVals, int fieldDim, double* fieldAtPCoords) = 0;
 
-  void WedgeEvaluate(const int order[3], const vtkIdType numberOfPoints, const double* pcoords,
+  void WedgeEvaluate(const int order[3], vtkIdType numberOfPoints, const double* pcoords,
     double* fieldVals, int fieldDim, double* fieldAtPCoords, vtkHigherOrderTriangle& tri,
     void (*function_evaluate_shape_functions)(int, double, double*));
 
@@ -124,7 +124,7 @@ protected:
   vtkHigherOrderInterpolation();
   ~vtkHigherOrderInterpolation() override;
 
-  void PrepareForOrder(const int order[3], const vtkIdType numberOfPoints);
+  void PrepareForOrder(const int order[3], vtkIdType numberOfPoints);
 
   std::vector<double> ShapeSpace;
   std::vector<double> DerivSpace;

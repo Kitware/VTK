@@ -1465,8 +1465,8 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height, 
 }
 
 //------------------------------------------------------------------------------
-bool vtkTextureObject::AllocateProxyTexture3D(unsigned int const width, unsigned int const height,
-  unsigned int depth, int const numComps, int const dataType)
+bool vtkTextureObject::AllocateProxyTexture3D(
+  unsigned int width, unsigned int height, unsigned int depth, int numComps, int dataType)
 {
 #ifndef GL_ES_VERSION_3_0
   assert(this->Context);

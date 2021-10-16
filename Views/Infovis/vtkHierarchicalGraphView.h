@@ -124,7 +124,7 @@ public:
   /**
    * The size of the font used for edge labeling
    */
-  virtual void SetGraphEdgeLabelFontSize(const int size);
+  virtual void SetGraphEdgeLabelFontSize(int size);
   virtual int GetGraphEdgeLabelFontSize();
   ///@}
 

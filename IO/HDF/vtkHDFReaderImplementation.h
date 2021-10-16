@@ -175,8 +175,8 @@ protected:
    */
   vtkDataArray* NewArrayForGroup(
     hid_t group, const char* name, const std::vector<hsize_t>& fileExtent);
-  vtkDataArray* NewArrayForGroup(hid_t dataset, const hid_t nativeType,
-    const std::vector<hsize_t>& dims, const std::vector<hsize_t>& fileExtent);
+  vtkDataArray* NewArrayForGroup(hid_t dataset, hid_t nativeType, const std::vector<hsize_t>& dims,
+    const std::vector<hsize_t>& fileExtent);
   template <typename T>
   vtkDataArray* NewArray(
     hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents);

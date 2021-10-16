@@ -51,7 +51,7 @@ public:
   int GetCellType() override { return VTK_BEZIER_TETRAHEDRON; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
-  void SetRationalWeightsFromPointData(vtkPointData* point_data, const vtkIdType numPts);
+  void SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts);
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
 

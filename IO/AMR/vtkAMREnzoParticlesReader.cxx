@@ -40,7 +40,7 @@
 // Finds the block index (blockIndx) within the HDF5 file associated with
 // the given file index.
 VTK_ABI_NAMESPACE_BEGIN
-static bool FindBlockIndex(hid_t fileIndx, const int blockIdx, hid_t& rootIndx)
+static bool FindBlockIndex(hid_t fileIndx, int blockIdx, hid_t& rootIndx)
 {
   // retrieve the contents of the root directory to look for a group
   // corresponding to the target block, if available, open that group
@@ -192,7 +192,7 @@ void vtkAMREnzoParticlesReader::ReadMetaData()
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkAMREnzoParticlesReader::GetParticlesTypeArray(const int blockIdx)
+vtkDataArray* vtkAMREnzoParticlesReader::GetParticlesTypeArray(int blockIdx)
 {
 
   vtkIntArray* array = vtkIntArray::New();
@@ -205,7 +205,7 @@ vtkDataArray* vtkAMREnzoParticlesReader::GetParticlesTypeArray(const int blockId
 }
 
 //------------------------------------------------------------------------------
-bool vtkAMREnzoParticlesReader::CheckParticleType(const int idx, vtkIntArray* ptypes)
+bool vtkAMREnzoParticlesReader::CheckParticleType(int idx, vtkIntArray* ptypes)
 {
   assert("pre: particles type array should not be nullptr" && (ptypes != nullptr));
 
@@ -222,7 +222,7 @@ bool vtkAMREnzoParticlesReader::CheckParticleType(const int idx, vtkIntArray* pt
 }
 
 //------------------------------------------------------------------------------
-vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(const char* file, const int blockIdx)
+vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(const char* file, int blockIdx)
 {
   vtkPolyData* particles = vtkPolyData::New();
   vtkPoints* positions = vtkPoints::New();
@@ -377,7 +377,7 @@ int vtkAMREnzoParticlesReader::GetTotalNumberOfParticles()
 }
 
 //------------------------------------------------------------------------------
-vtkPolyData* vtkAMREnzoParticlesReader::ReadParticles(const int blkidx)
+vtkPolyData* vtkAMREnzoParticlesReader::ReadParticles(int blkidx)
 {
   // this->Internal->Blocks includes a pseudo block -- the roo as block #0
   int iBlockIdx = blkidx + 1;

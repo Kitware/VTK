@@ -318,7 +318,7 @@ protected:
   /**
    * Rotate the chart in a specific direction.
    */
-  bool Rotate(const RotateDirection rotateDirection);
+  bool Rotate(RotateDirection rotateDirection);
 
   /**
    * Pan the data within the chart in response to a mouse movement.

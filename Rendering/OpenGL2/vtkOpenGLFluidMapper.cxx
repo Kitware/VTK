@@ -231,7 +231,7 @@ void vtkOpenGLFluidMapper::SetDepthThicknessColorShaderParameters(
   }
 }
 
-void vtkOpenGLFluidMapper::SetupBuffers(vtkOpenGLRenderWindow* const renderWindow)
+void vtkOpenGLFluidMapper::SetupBuffers(vtkOpenGLRenderWindow* renderWindow)
 {
   // create textures we need if not done already
   if (this->TexBuffer[0]->GetHandle() == 0)

@@ -110,8 +110,7 @@ vtkCell* vtkBezierTetra::GetFace(int faceId)
 
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
-void vtkBezierTetra::SetRationalWeightsFromPointData(
-  vtkPointData* point_data, const vtkIdType numPts)
+void vtkBezierTetra::SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts)
 {
   vtkDataArray* v = point_data->GetRationalWeights();
   if (v)

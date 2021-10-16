@@ -204,7 +204,7 @@ public:
    * parent_obj. Traverses the entire hierarchy recursively.
    */
   static vtkDataObject* DataObjectFromIndex(
-    const unsigned int flat_index, vtkDataObject* parent_obj, unsigned int current_flat_index = 0);
+    unsigned int flat_index, vtkDataObject* parent_obj, unsigned int current_flat_index = 0);
 
   void VisitVisibilities(std::function<bool(vtkDataObject*, bool)> visitor)
   {

@@ -833,7 +833,7 @@ void vtkSpiderPlotActor::ReleaseGraphicsResources(vtkWindow* win)
 }
 
 //------------------------------------------------------------------------------
-void vtkSpiderPlotActor::SetAxisLabel(const int i, const char* label)
+void vtkSpiderPlotActor::SetAxisLabel(int i, const char* label)
 {
   if (i < 0)
   {

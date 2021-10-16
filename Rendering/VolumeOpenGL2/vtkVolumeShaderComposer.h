@@ -3878,8 +3878,7 @@ std::string WorkerImplementation(
 }
 
 //---------------------------------------------------------------------------
-std::string ImageSampleDeclarationFrag(
-  const std::vector<std::string>& varNames, const size_t usedNames)
+std::string ImageSampleDeclarationFrag(const std::vector<std::string>& varNames, size_t usedNames)
 {
   std::string shader = "\n";
   for (size_t i = 0; i < usedNames; i++)
@@ -3891,7 +3890,7 @@ std::string ImageSampleDeclarationFrag(
 
 //---------------------------------------------------------------------------
 std::string ImageSampleImplementationFrag(
-  const std::vector<std::string>& varNames, const size_t usedNames)
+  const std::vector<std::string>& varNames, size_t usedNames)
 {
   std::string shader = "\n";
   for (size_t i = 0; i < usedNames; i++)

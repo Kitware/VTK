@@ -176,7 +176,7 @@ void vtkBorderRepresentation::ComputeRoundCorners()
 
 //------------------------------------------------------------------------------
 void vtkBorderRepresentation::ComputeOneRoundCorner(vtkCellArray* polys, vtkPoints* points,
-  const double radius, vtkIdType idCenterX, vtkIdType idCenterY, const double startAngle)
+  double radius, vtkIdType idCenterX, vtkIdType idCenterY, double startAngle)
 {
   double xPoint[3], yPoint[3];
   points->GetPoint(idCenterX, xPoint);

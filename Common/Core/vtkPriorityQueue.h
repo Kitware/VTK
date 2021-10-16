@@ -126,7 +126,7 @@ protected:
   vtkPriorityQueue();
   ~vtkPriorityQueue() override;
 
-  Item* Resize(const vtkIdType sz);
+  Item* Resize(vtkIdType sz);
 
   vtkIdTypeArray* ItemLocation;
   Item* Array;

@@ -65,12 +65,12 @@ public:
   /**
    * Sets the total number of domains distributed among processors
    */
-  void SetNumberOfGrids(const unsigned int N) override;
+  void SetNumberOfGrids(unsigned int N) override;
 
   /**
    * See vtkStructuredGridConnectivity::RegisterGrid
    */
-  void RegisterGrid(const int gridID, int extents[6], vtkUnsignedCharArray* nodesGhostArray,
+  void RegisterGrid(int gridID, int extents[6], vtkUnsignedCharArray* nodesGhostArray,
     vtkUnsignedCharArray* cellGhostArray, vtkPointData* pointData, vtkCellData* cellData,
     vtkPoints* gridNodes) override;
 
@@ -86,17 +86,17 @@ public:
    * has not been called and consequently the GridRanks vector has not been
    * populated yet.
    */
-  int GetGridRank(const int gridID);
+  int GetGridRank(int gridID);
 
   /**
    * Returns true iff the grid is remote, otherwise false.
    */
-  bool IsGridRemote(const int gridID);
+  bool IsGridRemote(int gridID);
 
   /**
    * Returns true iff the grid corresponding to the given gridID is local.
    */
-  bool IsGridLocal(const int gridID);
+  bool IsGridLocal(int gridID);
 
   /**
    * Initializes this instance of vtkPStructuredGridConnectivity, essentially,
@@ -116,7 +116,7 @@ public:
    * Creates ghost layers on the grids owned by this process using data from
    * both local and remote block neighbors.
    */
-  void CreateGhostLayers(const int N = 1) override;
+  void CreateGhostLayers(int N = 1) override;
 
 protected:
   vtkPStructuredGridConnectivity();
@@ -159,17 +159,17 @@ protected:
   /**
    * Returns true iff the grid corresponding to the given ID has point data.
    */
-  bool HasPointData(const int gridIdx);
+  bool HasPointData(int gridIdx);
 
   /**
    * Returns true iff the grid corresponding to the given ID has cell data.
    */
-  bool HasCellData(const int gridIdx);
+  bool HasCellData(int gridIdx);
 
   /**
    * Returns true iff the grid corresponding to the given ID has points.
    */
-  bool HasPoints(const int gridIdx);
+  bool HasPoints(int gridIdx);
 
   /**
    * Sets all message counters to 0.
@@ -191,21 +191,20 @@ protected:
    * Registers a remote grid with the given grid Id, structured extents and
    * process.
    */
-  void RegisterRemoteGrid(const int gridID, int extents[6], int process);
+  void RegisterRemoteGrid(int gridID, int extents[6], int process);
 
   /**
    * This method transfers all the remote neighbor data to the ghosted grid
    * instance of the grid corresponding to the given grid index.
    */
-  void TransferRemoteNeighborData(
-    const int gridIdx, const int nei, const vtkStructuredNeighbor& Neighbor);
+  void TransferRemoteNeighborData(int gridIdx, int nei, const vtkStructuredNeighbor& Neighbor);
 
   /**
    * This method transfers the fields (point data and cell data) to the ghost
    * extents from the neighboring grids of the grid corresponding to the given
    * gridID.
    */
-  void TransferGhostDataFromNeighbors(const int gridID) override;
+  void TransferGhostDataFromNeighbors(int gridID) override;
 
   /**
    * Helper method to pack all the ghost data into send buffers.
@@ -222,7 +221,7 @@ protected:
    * Helper method to deserialize the buffer sizes coming from the given
    * process.
    */
-  void DeserializeBufferSizesForProcess(int* buffersizes, vtkIdType N, const int processId);
+  void DeserializeBufferSizesForProcess(int* buffersizes, vtkIdType N, int processId);
 
   /**
    * Helper method to serialize the buffer sizes for the grids of this process
@@ -278,7 +277,7 @@ protected:
    * Helper method to serialize the ghost points to send to a remote process.
    * Called from SerializeGhostData.
    */
-  void SerializeGhostPoints(const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream);
+  void SerializeGhostPoints(int gridIdx, int ext[6], vtkMultiProcessStream& bytestream);
 
   /**
    * Serializes the data array into a bytestream.
@@ -296,26 +295,25 @@ protected:
    * Helper method to serialize ghost point data. Called from
    * SerializeGhostData.
    */
-  void SerializeGhostPointData(const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream);
+  void SerializeGhostPointData(int gridIdx, int ext[6], vtkMultiProcessStream& bytestream);
 
   /**
    * Helper method to serialize ghost cell data. Called from
    * SerializeGhostData.
    */
-  void SerializeGhostCellData(const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream);
+  void SerializeGhostCellData(int gridIdx, int ext[6], vtkMultiProcessStream& bytestream);
 
   /**
    * Helper method to de-serialize the ghost points received from a remote
    * process. Called from DeserializeGhostData.
    */
-  void DeserializeGhostPoints(
-    const int gridIdx, const int nei, int ext[6], vtkMultiProcessStream& bytestream);
+  void DeserializeGhostPoints(int gridIdx, int nei, int ext[6], vtkMultiProcessStream& bytestream);
 
   /**
    * Helper method to deserialize the data array from a bytestream.
    */
-  void DeserializeDataArray(vtkDataArray*& dataArray, const int dataType, const int numberOfTuples,
-    const int numberOfComponents, vtkMultiProcessStream& bytestream);
+  void DeserializeDataArray(vtkDataArray*& dataArray, int dataType, int numberOfTuples,
+    int numberOfComponents, vtkMultiProcessStream& bytestream);
 
   /**
    * Helper method to de-serialize field data. Called from
@@ -328,14 +326,14 @@ protected:
    * remote process. Called from DeserializeGhostData.
    */
   void DeserializeGhostPointData(
-    const int gridIdx, const int nei, int ext[6], vtkMultiProcessStream& bytestream);
+    int gridIdx, int nei, int ext[6], vtkMultiProcessStream& bytestream);
 
   /**
    * Helper method to de-serialize the ghost cell data received from a remote
    * process. Called from DeserializeGhostCellData.
    */
   void DeserializeGhostCellData(
-    const int gridIdx, const int nei, int ext[6], vtkMultiProcessStream& bytestream);
+    int gridIdx, int nei, int ext[6], vtkMultiProcessStream& bytestream);
 
   /**
    * Given a grid ID and the corresponding send extent, this method serializes
@@ -343,15 +341,15 @@ protected:
    * allocated and contains the data in raw form, ready to be sent. Called
    * from vtkPStructuredGridConnectivity::PackGhostData().
    */
-  void SerializeGhostData(const int sndGridID, const int rcvGrid, int sndext[6],
-    unsigned char*& buffer, unsigned int& size);
+  void SerializeGhostData(
+    int sndGridID, int rcvGrid, int sndext[6], unsigned char*& buffer, unsigned int& size);
 
   /**
    * Given the raw buffer consisting of ghost data, this method deserializes
    * the object and returns the gridID and rcvext of the grid.
    */
-  void DeserializeGhostData(const int gridID, const int neiListID, const int neiGridIdx,
-    int rcvext[6], unsigned char* buffer, unsigned int size);
+  void DeserializeGhostData(int gridID, int neiListID, int neiGridIdx, int rcvext[6],
+    unsigned char* buffer, unsigned int size);
 
   /**
    * Exchanges the grid extents among all processes and fully populates the
@@ -369,7 +367,7 @@ protected:
    * Deserializes the received grid extent information to the GridExtents
    * internal data-structures.
    */
-  void DeserializeGridExtentForProcess(int* rcvbuffer, vtkIdType& N, const int processId);
+  void DeserializeGridExtentForProcess(int* rcvbuffer, vtkIdType& N, int processId);
 
 private:
   vtkPStructuredGridConnectivity(const vtkPStructuredGridConnectivity&) = delete;
@@ -393,7 +391,7 @@ inline bool vtkPStructuredGridConnectivity::GridExtentsAreEqual(int rhs[6], int 
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkPStructuredGridConnectivity::HasPointData(const int gridIdx)
+inline bool vtkPStructuredGridConnectivity::HasPointData(int gridIdx)
 {
   // Sanity check
   assert("pre: grid index is out-of-bounds!" && (gridIdx >= 0) &&
@@ -408,7 +406,7 @@ inline bool vtkPStructuredGridConnectivity::HasPointData(const int gridIdx)
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkPStructuredGridConnectivity::HasCellData(const int gridIdx)
+inline bool vtkPStructuredGridConnectivity::HasCellData(int gridIdx)
 {
   // Sanity check
   assert("pre: grid index is out-of-bounds!" && (gridIdx >= 0) &&
@@ -423,7 +421,7 @@ inline bool vtkPStructuredGridConnectivity::HasCellData(const int gridIdx)
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkPStructuredGridConnectivity::HasPoints(const int gridIdx)
+inline bool vtkPStructuredGridConnectivity::HasPoints(int gridIdx)
 {
   // Sanity check
   assert("pre: grid index is out-of-bounds!" && (gridIdx >= 0) &&
@@ -518,13 +516,13 @@ inline void vtkPStructuredGridConnectivity::ClearRemoteData()
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkPStructuredGridConnectivity::IsGridRemote(const int gridID)
+inline bool vtkPStructuredGridConnectivity::IsGridRemote(int gridID)
 {
   return (!this->IsGridLocal(gridID));
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkPStructuredGridConnectivity::IsGridLocal(const int gridID)
+inline bool vtkPStructuredGridConnectivity::IsGridLocal(int gridID)
 {
   assert("pre: Instance has not been initialized!" && this->Initialized);
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -535,7 +533,7 @@ inline bool vtkPStructuredGridConnectivity::IsGridLocal(const int gridID)
 }
 
 //------------------------------------------------------------------------------
-inline int vtkPStructuredGridConnectivity::GetGridRank(const int gridID)
+inline int vtkPStructuredGridConnectivity::GetGridRank(int gridID)
 {
   assert("pre: Instance has not been initialized!" && this->Initialized);
   assert("pre: gridID out-of-bounds!" &&

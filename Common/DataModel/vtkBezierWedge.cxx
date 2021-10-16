@@ -181,8 +181,7 @@ void vtkBezierWedge::InterpolateDerivs(const double pcoords[3], double* derivs)
 
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
-void vtkBezierWedge::SetRationalWeightsFromPointData(
-  vtkPointData* point_data, const vtkIdType numPts)
+void vtkBezierWedge::SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts)
 {
   vtkDataArray* v = point_data->GetRationalWeights();
   if (v)

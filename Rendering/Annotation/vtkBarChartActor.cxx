@@ -601,7 +601,7 @@ void vtkBarChartActor::ReleaseGraphicsResources(vtkWindow* win)
 }
 
 //------------------------------------------------------------------------------
-void vtkBarChartActor::SetBarLabel(const int i, const char* label)
+void vtkBarChartActor::SetBarLabel(int i, const char* label)
 {
   if (i < 0)
   {

@@ -180,7 +180,7 @@ struct CountPoints
   template <typename CellStateT, typename TIds>
   void operator()(CellStateT& state,
     TIds* linkOffsets, // May be std::atomic<...>
-    const vtkIdType beginCellId, const vtkIdType endCellId, const vtkIdType idOffset = 0)
+    vtkIdType beginCellId, vtkIdType endCellId, vtkIdType idOffset = 0)
   {
     using ValueType = typename CellStateT::ValueType;
     const vtkIdType connBeginId = state.GetBeginOffset(beginCellId);
@@ -200,7 +200,7 @@ struct CountPoints
 struct BuildLinks
 {
   template <typename CellStateT, typename TIds>
-  void operator()(CellStateT& state, TIds* linkOffsets, TIds* links, const vtkIdType idOffset = 0)
+  void operator()(CellStateT& state, TIds* linkOffsets, TIds* links, vtkIdType idOffset = 0)
   {
     using ValueType = typename CellStateT::ValueType;
 
@@ -231,7 +231,7 @@ struct BuildLinksThreaded
 {
   template <typename CellStateT, typename TIds>
   void operator()(CellStateT& state, const TIds* offsets, std::atomic<TIds>* counts, TIds* links,
-    const vtkIdType beginCellId, const vtkIdType endCellId, const TIds idOffset = 0)
+    vtkIdType beginCellId, vtkIdType endCellId, const TIds idOffset = 0)
   {
     using ValueType = typename CellStateT::ValueType;
 
@@ -268,7 +268,7 @@ VTK_ABI_NAMESPACE_BEGIN
 // faster.
 template <typename TIds>
 void vtkStaticCellLinksTemplate<TIds>::SerialBuildLinks(
-  const vtkIdType numPts, const vtkIdType numCells, vtkCellArray* cellArray)
+  vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
 {
   // Basic information about the grid
   this->NumPts = numPts;
@@ -354,7 +354,7 @@ VTK_ABI_NAMESPACE_BEGIN
 // implementation: it uses SMPTools and atomics to prevent race situations.
 template <typename TIds>
 void vtkStaticCellLinksTemplate<TIds>::ThreadedBuildLinks(
-  const vtkIdType numPts, const vtkIdType numCells, vtkCellArray* cellArray)
+  vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
 {
   // Basic information about the grid
   this->NumPts = numPts;

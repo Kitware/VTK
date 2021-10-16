@@ -84,7 +84,7 @@ public:
   /**
    * Set the number of x-y subdivisions in the plane.
    */
-  void SetResolution(const int xR, const int yR);
+  void SetResolution(int xR, int yR);
   void GetResolution(int& xR, int& yR)
   {
     xR = this->XResolution;

@@ -208,7 +208,7 @@ public:
    * intersects successfully. Otherwise, there is no intersection along the
    * given dimension and false is returned.
    */
-  bool DoesBoxIntersectAlongDimension(const vtkAMRBox& other, const int q) const;
+  bool DoesBoxIntersectAlongDimension(const vtkAMRBox& other, int q) const;
 
   bool DoesIntersect(const vtkAMRBox& other) const;
 
@@ -282,8 +282,7 @@ public:
   /**
    * Returns the linear index of the given cell structured coordinates
    */
-  static int GetCellLinearIndex(
-    const vtkAMRBox& box, const int i, const int j, const int k, int imageDimension[3]);
+  static int GetCellLinearIndex(const vtkAMRBox& box, int i, int j, int k, int imageDimension[3]);
 
   /**
    * Get the bounds of this box.
@@ -323,7 +322,7 @@ protected:
    * successfully. Otherwise, false is returned if there is no intersection at
    * the given dimension.
    */
-  bool IntersectBoxAlongDimension(const vtkAMRBox& other, const int q);
+  bool IntersectBoxAlongDimension(const vtkAMRBox& other, int q);
 
 private:
   int LoCorner[3]; // lo corner cell id.
@@ -335,8 +334,7 @@ private:
    * Note: the dimension of the AMR box is automatically detected
    * within this method.
    */
-  void BuildAMRBox(
-    const int ilo, const int jlo, const int klo, const int ihi, const int jhi, const int khi);
+  void BuildAMRBox(int ilo, int jlo, int klo, int ihi, int jhi, int khi);
   ///@}
 };
 

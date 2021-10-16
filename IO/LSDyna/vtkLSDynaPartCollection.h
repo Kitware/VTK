@@ -146,7 +146,7 @@ protected:
     const bool& isRoadPoints);
   template <typename T>
   void FillPointProperty(const vtkIdType& numTuples, const vtkIdType& numComps,
-    vtkLSDynaPart** parts, const vtkIdType numParts);
+    vtkLSDynaPart** parts, vtkIdType numParts);
 
 private:
   vtkLSDynaPartCollection(const vtkLSDynaPartCollection&) = delete;

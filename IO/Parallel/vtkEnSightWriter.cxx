@@ -1152,13 +1152,13 @@ void vtkEnSightWriter::WriteTerminatedStringToFile(const char* cstring, FILE* fi
 }
 
 //------------------------------------------------------------------------------
-void vtkEnSightWriter::WriteIntToFile(const int i, FILE* file)
+void vtkEnSightWriter::WriteIntToFile(int i, FILE* file)
 {
   fwrite(&i, sizeof(int), 1, file);
 }
 
 //------------------------------------------------------------------------------
-void vtkEnSightWriter::WriteFloatToFile(const float f, FILE* file)
+void vtkEnSightWriter::WriteFloatToFile(float f, FILE* file)
 {
   fwrite(&f, sizeof(float), 1, file);
 }

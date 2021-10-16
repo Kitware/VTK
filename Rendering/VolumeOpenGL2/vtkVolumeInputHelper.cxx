@@ -26,7 +26,7 @@ vtkVolumeInputHelper::vtkVolumeInputHelper(vtkSmartPointer<vtkVolumeTexture> tex
 }
 
 void vtkVolumeInputHelper::RefreshTransferFunction(
-  vtkRenderer* ren, const int uniformIndex, const int blendMode, const float samplingDist)
+  vtkRenderer* ren, int uniformIndex, int blendMode, float samplingDist)
 {
   if (this->InitializeTransfer ||
     this->Volume->GetProperty()->GetMTime() > this->LutInit.GetMTime())
@@ -36,7 +36,7 @@ void vtkVolumeInputHelper::RefreshTransferFunction(
   this->UpdateTransferFunctions(ren, blendMode, samplingDist);
 }
 
-void vtkVolumeInputHelper::InitializeTransferFunction(vtkRenderer* ren, const int index)
+void vtkVolumeInputHelper::InitializeTransferFunction(vtkRenderer* ren, int index)
 {
   const int transferMode = this->Volume->GetProperty()->GetTransferFunctionMode();
   switch (transferMode)
@@ -53,7 +53,7 @@ void vtkVolumeInputHelper::InitializeTransferFunction(vtkRenderer* ren, const in
 }
 
 void vtkVolumeInputHelper::UpdateTransferFunctions(
-  vtkRenderer* ren, const int blendMode, const float samplingDist)
+  vtkRenderer* ren, int blendMode, float samplingDist)
 {
   auto vol = this->Volume;
   const int transferMode = vol->GetProperty()->GetTransferFunctionMode();
@@ -94,8 +94,8 @@ void vtkVolumeInputHelper::UpdateTransferFunctions(
   }
 }
 
-int vtkVolumeInputHelper::UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-  unsigned int component, const int blendMode, const float samplingDist)
+int vtkVolumeInputHelper::UpdateOpacityTransferFunction(
+  vtkRenderer* ren, vtkVolume* vol, unsigned int component, int blendMode, float samplingDist)
 {
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
@@ -190,7 +190,7 @@ int vtkVolumeInputHelper::UpdateColorTransferFunction(
 }
 
 int vtkVolumeInputHelper::UpdateGradientOpacityTransferFunction(
-  vtkRenderer* ren, vtkVolume* vol, unsigned int component, const float samplingDist)
+  vtkRenderer* ren, vtkVolume* vol, unsigned int component, float samplingDist)
 {
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
@@ -262,7 +262,7 @@ void vtkVolumeInputHelper::UpdateTransferFunction2D(vtkRenderer* ren, unsigned i
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 }
 
-void vtkVolumeInputHelper::ActivateTransferFunction(vtkShaderProgram* prog, const int blendMode)
+void vtkVolumeInputHelper::ActivateTransferFunction(vtkShaderProgram* prog, int blendMode)
 {
   int const transferMode = this->Volume->GetProperty()->GetTransferFunctionMode();
   int const numActiveLuts =
@@ -302,7 +302,7 @@ void vtkVolumeInputHelper::ActivateTransferFunction(vtkShaderProgram* prog, cons
   }
 }
 
-void vtkVolumeInputHelper::DeactivateTransferFunction(const int blendMode)
+void vtkVolumeInputHelper::DeactivateTransferFunction(int blendMode)
 {
   int const transferMode = this->Volume->GetProperty()->GetTransferFunctionMode();
   int const numActiveLuts =
@@ -332,7 +332,7 @@ void vtkVolumeInputHelper::DeactivateTransferFunction(const int blendMode)
   }
 }
 
-void vtkVolumeInputHelper::CreateTransferFunction1D(vtkRenderer* ren, const int index)
+void vtkVolumeInputHelper::CreateTransferFunction1D(vtkRenderer* ren, int index)
 {
   this->ReleaseGraphicsTransfer1D(ren->GetRenderWindow());
 
@@ -378,7 +378,7 @@ void vtkVolumeInputHelper::CreateTransferFunction1D(vtkRenderer* ren, const int 
   this->LutInit.Modified();
 }
 
-void vtkVolumeInputHelper::CreateTransferFunction2D(vtkRenderer* ren, const int index)
+void vtkVolumeInputHelper::CreateTransferFunction2D(vtkRenderer* ren, int index)
 {
   this->ReleaseGraphicsTransfer2D(ren->GetRenderWindow());
 

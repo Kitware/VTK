@@ -75,8 +75,8 @@ public:
    * \p action to emit vibration on \p hand to emit on \p amplitude 0.0 to 1.0.
    * \p duration nanoseconds, default 25ms \p frequency (hz)
    */
-  bool ApplyVibration(const std::string& actionName, const int hand, const float amplitude = 0.5f,
-    const float duration = 25000000.0f, const float frequency = XR_FREQUENCY_UNSPECIFIED);
+  bool ApplyVibration(const std::string& actionName, int hand, float amplitude = 0.5f,
+    float duration = 25000000.0f, float frequency = XR_FREQUENCY_UNSPECIFIED);
 
 protected:
   /**
@@ -107,10 +107,10 @@ protected:
   bool LoadDefaultBinding(const std::string& bindingFilename);
   ActionData* GetActionDataFromName(const std::string& actionName);
 
-  void HandleAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
-  void HandleBooleanAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
-  void HandlePoseAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
-  void HandleVector2fAction(const ActionData& actionData, const int hand, vtkEventDataDevice3D* ed);
+  void HandleAction(const ActionData& actionData, int hand, vtkEventDataDevice3D* ed);
+  void HandleBooleanAction(const ActionData& actionData, int hand, vtkEventDataDevice3D* ed);
+  void HandlePoseAction(const ActionData& actionData, int hand, vtkEventDataDevice3D* ed);
+  void HandleVector2fAction(const ActionData& actionData, int hand, vtkEventDataDevice3D* ed);
   void ApplyAction(const ActionData& actionData, vtkEventDataDevice3D* ed);
 
   struct ActionData

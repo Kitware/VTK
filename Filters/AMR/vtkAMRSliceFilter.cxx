@@ -392,7 +392,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRSliceFilter::ComputeCellCenter(vtkUniformGrid* ug, const int cellIdx, double centroid[3])
+void vtkAMRSliceFilter::ComputeCellCenter(vtkUniformGrid* ug, int cellIdx, double centroid[3])
 {
   assert("pre: Input grid is nullptr" && (ug != nullptr));
   assert(

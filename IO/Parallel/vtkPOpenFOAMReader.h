@@ -55,7 +55,7 @@ public:
   /**
    * Set and get case type. 0 = decomposed case, 1 = reconstructed case.
    */
-  void SetCaseType(const int t);
+  void SetCaseType(int t);
   vtkGetMacro(CaseType, caseType);
   ///@}
   ///@{

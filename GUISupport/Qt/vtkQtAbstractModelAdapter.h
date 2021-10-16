@@ -77,7 +77,7 @@ public:
   /**
    * Selection conversion from VTK land to Qt land
    */
-  virtual vtkSelection* QModelIndexListToVTKIndexSelection(const QModelIndexList qmil) const = 0;
+  virtual vtkSelection* QModelIndexListToVTKIndexSelection(QModelIndexList qmil) const = 0;
   virtual QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const = 0;
   ///@}
 

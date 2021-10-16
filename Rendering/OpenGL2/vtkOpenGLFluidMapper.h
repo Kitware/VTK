@@ -293,7 +293,7 @@ protected:
   /**
    * Setup the texture buffers
    */
-  void SetupBuffers(vtkOpenGLRenderWindow* const renderWindow);
+  void SetupBuffers(vtkOpenGLRenderWindow* renderWindow);
 
   /**
    * Render the fluid particles

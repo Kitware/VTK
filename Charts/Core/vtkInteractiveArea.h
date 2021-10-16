@@ -64,7 +64,7 @@ private:
   /**
    * Re-scale axis when interacting.
    */
-  void RecalculateTickSpacing(vtkAxis* axis, int const numClicks);
+  void RecalculateTickSpacing(vtkAxis* axis, int numClicks);
 
   /**
    * Re-computes the transformation expressing the current zoom, panning, etc.

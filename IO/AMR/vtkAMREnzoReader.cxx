@@ -291,7 +291,7 @@ void vtkAMREnzoReader::ReadMetaData()
 }
 
 //------------------------------------------------------------------------------
-int vtkAMREnzoReader::GetBlockLevel(const int blockIdx)
+int vtkAMREnzoReader::GetBlockLevel(int blockIdx)
 {
   assert("pre: Internal Enzo Reader is nullptr" && (this->Internal != nullptr));
 
@@ -387,7 +387,7 @@ int vtkAMREnzoReader::FillMetaData()
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid(const int blockIdx)
+vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid(int blockIdx)
 {
   assert("pre: Internal Enzo Reader is nullptr" && (this->Internal != nullptr));
 
@@ -421,7 +421,7 @@ vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid(const int blockIdx)
 }
 
 //------------------------------------------------------------------------------
-void vtkAMREnzoReader::GetAMRGridData(const int blockIdx, vtkUniformGrid* block, const char* field)
+void vtkAMREnzoReader::GetAMRGridData(int blockIdx, vtkUniformGrid* block, const char* field)
 {
   assert("pre: AMR block is nullptr" && (block != nullptr));
 

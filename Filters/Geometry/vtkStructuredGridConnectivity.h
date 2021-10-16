@@ -80,31 +80,31 @@ public:
   /**
    * Set/Get the total number of domains distributed among processors
    */
-  void SetNumberOfGrids(const unsigned int N) override;
+  void SetNumberOfGrids(unsigned int N) override;
 
   /**
    * Registers the current grid corresponding to the grid ID by its global
    * extent w.r.t. the whole extent.
    */
-  virtual void RegisterGrid(const int gridID, int extents[6], vtkUnsignedCharArray* nodesGhostArray,
+  virtual void RegisterGrid(int gridID, int extents[6], vtkUnsignedCharArray* nodesGhostArray,
     vtkUnsignedCharArray* cellGhostArray, vtkPointData* pointData, vtkCellData* cellData,
     vtkPoints* gridNodes);
 
   /**
    * Returns the grid extent of the grid corresponding to the given grid ID.
    */
-  void GetGridExtent(const int gridID, int extent[6]);
+  void GetGridExtent(int gridID, int extent[6]);
 
   /**
    * Sets the ghosted grid extent for the grid corresponding to the given
    * grid ID to the given extent.
    */
-  void SetGhostedGridExtent(const int gridID, int ext[6]);
+  void SetGhostedGridExtent(int gridID, int ext[6]);
 
   /**
    * Returns the ghosted grid extent for the block corresponding the
    */
-  void GetGhostedGridExtent(const int gridID, int ext[6]);
+  void GetGhostedGridExtent(int gridID, int ext[6]);
 
   /**
    * Computes neighboring information
@@ -115,7 +115,7 @@ public:
    * Returns the number of neighbors for the grid corresponding to the given
    * grid ID.
    */
-  int GetNumberOfNeighbors(const int gridID)
+  int GetNumberOfNeighbors(int gridID)
   {
     return (static_cast<int>(this->Neighbors[gridID].size()));
   }
@@ -124,7 +124,7 @@ public:
    * Returns the neighbor corresponding to the index nei for the grid with the
    * given (global) grid ID.
    */
-  vtkStructuredNeighbor GetGridNeighbor(const int gridID, const int nei);
+  vtkStructuredNeighbor GetGridNeighbor(int gridID, int nei);
 
   /**
    * Returns the list of neighboring blocks for the given grid and the
@@ -133,7 +133,7 @@ public:
 
    * NOTE: the flat array extents must be pre-allocated.
    */
-  vtkIdList* GetNeighbors(const int gridID, int* extents);
+  vtkIdList* GetNeighbors(int gridID, int* extents);
 
   /**
    * Fills the mesh property arrays, nodes and cells, for the grid
@@ -141,12 +141,12 @@ public:
    * NOTE: this method assumes that ComputeNeighbors() has been called.
    */
   void FillGhostArrays(
-    const int gridID, vtkUnsignedCharArray* nodesArray, vtkUnsignedCharArray* cellsArray) override;
+    int gridID, vtkUnsignedCharArray* nodesArray, vtkUnsignedCharArray* cellsArray) override;
 
   /**
    * Creates ghost layers.
    */
-  void CreateGhostLayers(const int N = 1) override;
+  void CreateGhostLayers(int N = 1) override;
 
 protected:
   vtkStructuredGridConnectivity();
@@ -155,15 +155,12 @@ protected:
   /**
    * Returns true iff Lo <= idx <= Hi, otherwise false.
    */
-  bool InBounds(const int idx, const int Lo, const int Hi) { return ((idx >= Lo) && (idx <= Hi)); }
+  bool InBounds(int idx, int Lo, int Hi) { return ((idx >= Lo) && (idx <= Hi)); }
 
   /**
    * Returns true iff Lo < idx < Hi, otherwise false.
    */
-  bool StrictlyInsideBounds(const int idx, const int Lo, const int Hi)
-  {
-    return ((idx > Lo) && (idx < Hi));
-  }
+  bool StrictlyInsideBounds(int idx, int Lo, int Hi) { return ((idx > Lo) && (idx < Hi)); }
 
   /**
    * Returns true iff A is a subset of B, otherwise false.
@@ -182,7 +179,7 @@ protected:
   /**
    * Returns the number of nodes per cell according to the given dimension.
    */
-  int GetNumberOfNodesPerCell(const int dim)
+  int GetNumberOfNodesPerCell(int dim)
   {
     int numNodes = 0;
     switch (dim)
@@ -206,77 +203,76 @@ protected:
   /**
    * Fills the ghost array for the nodes
    */
-  void FillNodesGhostArray(const int gridID, const int dataDescription, int GridExtent[6],
-    int RealExtent[6], vtkUnsignedCharArray* nodesArray);
+  void FillNodesGhostArray(int gridID, int dataDescription, int GridExtent[6], int RealExtent[6],
+    vtkUnsignedCharArray* nodesArray);
 
   /**
    * Fills the ghost array for the grid cells
    */
-  void FillCellsGhostArray(const int dataDescription, const int numNodesPerCell, int dims[3],
-    int CellExtent[6], vtkUnsignedCharArray* nodesArray, vtkUnsignedCharArray* cellsArray);
+  void FillCellsGhostArray(int dataDescription, int numNodesPerCell, int dims[3], int CellExtent[6],
+    vtkUnsignedCharArray* nodesArray, vtkUnsignedCharArray* cellsArray);
 
   /**
    * Given a point (i,j,k) belonging to the grid corresponding to the given
    * gridID, this method searches for the grids that this point is neighboring
    * with.
    */
-  void SearchNeighbors(const int gridID, const int i, const int j, const int k, vtkIdList* neiList);
+  void SearchNeighbors(int gridID, int i, int j, int k, vtkIdList* neiList);
 
   /**
    * Marks the node properties with the node with the given global i,j,k
    * grid coordinates w.r.t. to the grid defined by the given extent ext.
    */
-  void MarkNodeProperty(const int gridID, const int i, const int j, const int k, int ext[6],
-    int RealExtent[6], unsigned char& pfield);
+  void MarkNodeProperty(
+    int gridID, int i, int j, int k, int ext[6], int RealExtent[6], unsigned char& pfield);
 
   /**
    * Marks the cell property for the cell composed by the nodes with the
    * given ghost fields.
    */
-  void MarkCellProperty(unsigned char& pfield, unsigned char* nodeGhostFields, const int numNodes);
+  void MarkCellProperty(unsigned char& pfield, unsigned char* nodeGhostFields, int numNodes);
 
   /**
    * Given a grid extent, this method computes the RealExtent.
    */
-  void GetRealExtent(const int gridID, int GridExtent[6], int RealExtent[6]);
+  void GetRealExtent(int gridID, int GridExtent[6], int RealExtent[6]);
 
   /**
    * Checks if the node corresponding to the given global i,j,k coordinates
    * is a ghost node or not.
    */
-  bool IsGhostNode(int GridExtent[6], int RealExtent[6], const int i, const int j, const int k);
+  bool IsGhostNode(int GridExtent[6], int RealExtent[6], int i, int j, int k);
 
   /**
    * Checks if the node corresponding to the given global i,j,k coordinates
    * is on the boundary of the given extent.
    */
-  bool IsNodeOnBoundaryOfExtent(const int i, const int j, const int k, int ext[6]);
+  bool IsNodeOnBoundaryOfExtent(int i, int j, int k, int ext[6]);
 
   /**
    * Checks if the node corresponding to the given global i,j,k coordinates
    * is on the shared boundary, i.e., a partition interface.
    * NOTE: A node on a shared boundary, may also be on a real boundary.
    */
-  bool IsNodeOnSharedBoundary(
-    const int gridID, int RealExtent[6], const int i, const int j, const int k);
+  bool IsNodeOnSharedBoundary(int gridID, int RealExtent[6], int i, int j, int k);
 
   /**
    * Checks if the node corresponding to the given global i,j,k coordinates
    * touches the real boundaries of the domain given the whole extent.
    */
-  bool IsNodeOnBoundary(const int i, const int j, const int k);
+  bool IsNodeOnBoundary(int i, int j, int k);
 
   /**
    * Checks if the node, corresponding to the given global i,j,k coordinates
    * is within the interior of the given global grid extent.
    */
-  bool IsNodeInterior(const int i, const int j, const int k, int GridExtent[6]);
+  bool IsNodeInterior(int i, int j, int k, int GridExtent[6]);
 
   /**
    * Checks if the node corresponding to the given global i,j,k coordinates
    * is within the given extent, inclusive of the extent bounds.
    */
-  bool IsNodeWithinExtent(const int i, const int j, const int k, int GridExtent[6])
+  bool IsNodeWithinExtent(int i, int j, int k, int GridExtent[6])
   {
     bool status = false;
 
@@ -341,7 +337,7 @@ protected:
    * Creates a neighbor from i-to-j and from j-to-i.
    */
   void SetNeighbors(
-    const int i, const int j, int i2jOrientation[3], int j2iOrientation[3], int overlapExtent[6]);
+    int i, int j, int i2jOrientation[3], int j2iOrientation[3], int overlapExtent[6]);
 
   /**
    * Given two overlapping extents A,B and the corresponding overlap extent
@@ -351,16 +347,14 @@ protected:
    * axis, i, j, k. See vtkStructuredNeighbor::NeighborOrientation for a list
    * of valid orientation values.
    */
-  void DetermineNeighborOrientation(
-    const int idx, int A[2], int B[2], int overlap[2], int orient[3]);
+  void DetermineNeighborOrientation(int idx, int A[2], int B[2], int overlap[2], int orient[3]);
 
   /**
    * Detects if the two extents, ex1 and ex2, corresponding to the grids
    * with grid IDs i,j respectively, are neighbors, i.e, they either share
    * a corner, an edge or a plane in 3-D.
    */
-  void DetectNeighbors(
-    const int i, const int j, int ex1[6], int ex2[6], int orientation[3], int ndim);
+  void DetectNeighbors(int i, int j, int ex1[6], int ex2[6], int orientation[3], int ndim);
 
   /**
    * Checks if the intervals A,B overlap. The intersection of A,B is returned
@@ -393,14 +387,13 @@ protected:
    * VTK_NODE_OVERLAP    1
    * VTK_PARTIAL_OVERLAP 3
    */
-  int PartialOverlap(
-    int A[2], const int CardinalityOfA, int B[2], const int CardinalityOfB, int overlap[2]);
+  int PartialOverlap(int A[2], int CardinalityOfA, int B[2], int CardinalityOfB, int overlap[2]);
 
   /**
    * Establishes the neighboring information between the two grids
    * corresponding to grid ids "i" and "j" with i < j.
    */
-  void EstablishNeighbors(const int i, const int j);
+  void EstablishNeighbors(int i, int j);
 
   /**
    * Based on the user-supplied WholeExtent, this method determines the
@@ -422,7 +415,7 @@ protected:
    * <li> BOTTOM = 5 (-j direction) </li>
    * </ul>
    */
-  bool HasBlockConnection(const int gridID, const int blockDirection);
+  bool HasBlockConnection(int gridID, int blockDirection);
 
   /**
    * Removes a block connection along the given direction for the block
@@ -438,7 +431,7 @@ protected:
    * <li> BOTTOM = 5 (-j direction) </li>
    * </ul>
    */
-  void RemoveBlockConnection(const int gridID, const int blockDirection);
+  void RemoveBlockConnection(int gridID, int blockDirection);
 
   /**
    * Adds a block connection along the given direction for the block
@@ -454,13 +447,13 @@ protected:
    * <li> BOTTOM = 5 (-j direction) </li>
    * </ul>
    */
-  void AddBlockConnection(const int gridID, const int blockDirection);
+  void AddBlockConnection(int gridID, int blockDirection);
 
   /**
    * Clears all block connections for the block corresponding to the given
    * grid ID.
    */
-  void ClearBlockConnections(const int gridID);
+  void ClearBlockConnections(int gridID);
 
   /**
    * Returns the number of faces of the block corresponding to the given grid
@@ -469,12 +462,12 @@ protected:
    * many out of the 6 block faces have connections. Thus, the return value
    * has an upper-bound of 6.
    */
-  int GetNumberOfConnectingBlockFaces(const int gridID);
+  int GetNumberOfConnectingBlockFaces(int gridID);
 
   /**
    * Sets the block topology connections for the grid corresponding to gridID.
    */
-  void SetBlockTopology(const int gridID);
+  void SetBlockTopology(int gridID);
 
   /**
    * Given i-j-k coordinates and the grid defined by tis extent, ext, this
@@ -482,35 +475,32 @@ protected:
    * i.e., the 6 block faces. If the node is not on a boundary, then
    * orientation[i] = BlockFace::NOT_ON_BLOCK_FACE for all i in [0,2].
    */
-  void GetIJKBlockOrientation(
-    const int i, const int j, const int k, int ext[6], int orientation[3]);
+  void GetIJKBlockOrientation(int i, int j, int k, int ext[6], int orientation[3]);
 
   /**
    * A helper method that computes the 1-D i-j-k orientation to facilitate the
    * implementation of GetNodeBlockOrientation.
    */
-  int Get1DOrientation(const int idx, const int ExtentLo, const int ExtentHi, const int OnLo,
-    const int OnHi, const int NotOnBoundary);
+  int Get1DOrientation(int idx, int ExtentLo, int ExtentHi, int OnLo, int OnHi, int NotOnBoundary);
 
   /**
    * Creates the ghosted extent of the grid corresponding to the given
    * gridID.
    */
-  void CreateGhostedExtent(const int gridID, const int N);
+  void CreateGhostedExtent(int gridID, int N);
 
   /**
    * Gets the ghosted extent from the given grid extent along the dimension
    * given by minIdx and maxIdx. This method is a helper method for the
    * implementation of CreateGhostedExtent.
    */
-  void GetGhostedExtent(
-    int* ghostedExtent, int GridExtent[6], const int minIdx, const int maxIdx, const int N);
+  void GetGhostedExtent(int* ghostedExtent, int GridExtent[6], int minIdx, int maxIdx, int N);
 
   /**
    * This method creates the ghosted mask arrays, i.e., the NodeGhostArrays
    * and the CellGhostArrays for the grid corresponding to the given gridID.
    */
-  void CreateGhostedMaskArrays(const int gridID);
+  void CreateGhostedMaskArrays(int gridID);
 
   /**
    * This method initializes the ghost data according to the computed ghosted
@@ -518,45 +508,45 @@ protected:
    * CellData and grid coordinates are allocated for the ghosted grid
    * accordingly.
    */
-  void InitializeGhostData(const int gridID);
+  void InitializeGhostData(int gridID);
 
   /**
    * Adds/creates all the arrays in the reference grid point data, RPD, to
    * the user-supplied point data instance, PD, where the number of points
    * is given by N.
    */
-  void AllocatePointData(vtkPointData* RPD, const int N, vtkPointData* PD);
+  void AllocatePointData(vtkPointData* RPD, int N, vtkPointData* PD);
 
   /**
    * Adds/creates all the arrays in the reference grid cell data, RCD, to the
    * user-supplied cell data instance, CD, where the number of cells is given
    * by N.
    */
-  void AllocateCellData(vtkCellData* RCD, const int N, vtkCellData* CD);
+  void AllocateCellData(vtkCellData* RCD, int N, vtkCellData* CD);
 
   /**
    * This method transfers the registered grid data to the corresponding
    * ghosted grid data.
    */
-  void TransferRegisteredDataToGhostedData(const int gridID);
+  void TransferRegisteredDataToGhostedData(int gridID);
 
   /**
    * This method computes, the send and rcv extents for each neighbor of
    * each grid.
    */
-  void ComputeNeighborSendAndRcvExtent(const int gridID, const int N);
+  void ComputeNeighborSendAndRcvExtent(int gridID, int N);
 
   /**
    * This method transfers the fields (point data and cell data) to the
    * ghost extents from the neighboring grids of the grid corresponding
    * to the given gridID.
    */
-  virtual void TransferGhostDataFromNeighbors(const int gridID);
+  virtual void TransferGhostDataFromNeighbors(int gridID);
 
   /**
    * This method transfers the fields
    */
-  void TransferLocalNeighborData(const int gridID, const vtkStructuredNeighbor& Neighbor);
+  void TransferLocalNeighborData(int gridID, const vtkStructuredNeighbor& Neighbor);
 
   /**
    * Copies the coordinates from the source points to the target points.
@@ -578,7 +568,7 @@ protected:
    * neighbor index w.r.t. the Neighbors list of the grid with grid ID
    * gridIdx.
    */
-  int GetNeighborIndex(const int gridIdx, const int NeighborGridIdx);
+  int GetNeighborIndex(int gridIdx, int NeighborGridIdx);
 
   /**
    * Prints the extent, used for debugging
@@ -605,8 +595,7 @@ private:
 //=============================================================================
 
 //------------------------------------------------------------------------------
-inline int vtkStructuredGridConnectivity::GetNeighborIndex(
-  const int gridIdx, const int NeighborGridIdx)
+inline int vtkStructuredGridConnectivity::GetNeighborIndex(int gridIdx, int NeighborGridIdx)
 {
   assert("pre: Grid index is out-of-bounds!" && (gridIdx >= 0) &&
     (gridIdx < static_cast<int>(this->NumberOfGrids)));
@@ -623,7 +612,7 @@ inline int vtkStructuredGridConnectivity::GetNeighborIndex(
 
 //------------------------------------------------------------------------------
 inline void vtkStructuredGridConnectivity::GetGhostedExtent(
-  int* ghostedExtent, int GridExtent[6], const int minIdx, const int maxIdx, const int N)
+  int* ghostedExtent, int GridExtent[6], int minIdx, int maxIdx, int N)
 {
   assert("pre: Number of ghost layers must be N >= 1" && (N >= 1));
   assert("pre: ghosted extent pointer is nullptr" && ghostedExtent != nullptr);
@@ -641,7 +630,7 @@ inline void vtkStructuredGridConnectivity::GetGhostedExtent(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredGridConnectivity::SetGhostedGridExtent(const int gridID, int ext[6])
+inline void vtkStructuredGridConnectivity::SetGhostedGridExtent(int gridID, int ext[6])
 {
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
     (gridID < static_cast<int>(this->NumberOfGrids)));
@@ -655,7 +644,7 @@ inline void vtkStructuredGridConnectivity::SetGhostedGridExtent(const int gridID
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredGridConnectivity::GetGridExtent(const int gridID, int ext[6])
+inline void vtkStructuredGridConnectivity::GetGridExtent(int gridID, int ext[6])
 {
   assert("pre: gridID out-of-bounds!" &&
     (gridID >= 0 && gridID < static_cast<int>(this->NumberOfGrids)));
@@ -666,7 +655,7 @@ inline void vtkStructuredGridConnectivity::GetGridExtent(const int gridID, int e
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredGridConnectivity::GetGhostedGridExtent(const int gridID, int ext[6])
+inline void vtkStructuredGridConnectivity::GetGhostedGridExtent(int gridID, int ext[6])
 {
   assert("pre: gridID out-of-bounds!" &&
     (gridID >= 0 && gridID < static_cast<int>(this->NumberOfGrids)));
@@ -688,8 +677,7 @@ inline void vtkStructuredGridConnectivity::GetGhostedGridExtent(const int gridID
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
-  const int i, const int j, const int k, int ext[6])
+inline bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(int i, int j, int k, int ext[6])
 {
   if (!this->IsNodeWithinExtent(i, j, k, ext))
   {
@@ -752,8 +740,7 @@ inline bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkStructuredGridConnectivity::IsNodeInterior(
-  const int i, const int j, const int k, int GridExtent[6])
+inline bool vtkStructuredGridConnectivity::IsNodeInterior(int i, int j, int k, int GridExtent[6])
 {
   bool status = false;
 
@@ -813,7 +800,7 @@ inline bool vtkStructuredGridConnectivity::IsNodeInterior(
 
 //------------------------------------------------------------------------------
 inline void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
-  const int idx, int A[2], int B[2], int overlap[2], int orient[3])
+  int idx, int A[2], int B[2], int overlap[2], int orient[3])
 {
   assert("pre: idx is out-of-bounds" && (idx >= 0) && (idx < 3));
 
@@ -890,8 +877,8 @@ inline void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
 }
 
 //------------------------------------------------------------------------------
-inline int vtkStructuredGridConnectivity::Get1DOrientation(const int idx, const int ExtentLo,
-  const int ExtentHi, const int OnLo, const int OnHi, const int NotOnBoundary)
+inline int vtkStructuredGridConnectivity::Get1DOrientation(
+  int idx, int ExtentLo, int ExtentHi, int OnLo, int OnHi, int NotOnBoundary)
 {
   if (idx == ExtentLo)
   {
@@ -905,8 +892,7 @@ inline int vtkStructuredGridConnectivity::Get1DOrientation(const int idx, const 
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkStructuredGridConnectivity::HasBlockConnection(
-  const int gridID, const int blockDirection)
+inline bool vtkStructuredGridConnectivity::HasBlockConnection(int gridID, int blockDirection)
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -923,8 +909,7 @@ inline bool vtkStructuredGridConnectivity::HasBlockConnection(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredGridConnectivity::RemoveBlockConnection(
-  const int gridID, const int blockDirection)
+inline void vtkStructuredGridConnectivity::RemoveBlockConnection(int gridID, int blockDirection)
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -937,8 +922,7 @@ inline void vtkStructuredGridConnectivity::RemoveBlockConnection(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredGridConnectivity::AddBlockConnection(
-  const int gridID, const int blockDirection)
+inline void vtkStructuredGridConnectivity::AddBlockConnection(int gridID, int blockDirection)
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -950,7 +934,7 @@ inline void vtkStructuredGridConnectivity::AddBlockConnection(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredGridConnectivity::ClearBlockConnections(const int gridID)
+inline void vtkStructuredGridConnectivity::ClearBlockConnections(int gridID)
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -964,7 +948,7 @@ inline void vtkStructuredGridConnectivity::ClearBlockConnections(const int gridI
 }
 
 //------------------------------------------------------------------------------
-inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(const int gridID)
+inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(int gridID)
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -985,7 +969,7 @@ inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(const 
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredGridConnectivity::SetNumberOfGrids(const unsigned int N)
+inline void vtkStructuredGridConnectivity::SetNumberOfGrids(unsigned int N)
 {
   if (N == 0)
   {

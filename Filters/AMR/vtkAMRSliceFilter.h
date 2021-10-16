@@ -128,7 +128,7 @@ protected:
    * Computes the cell center of the cell corresponding to the supplied
    * cell index w.r.t. the input uniform grid.
    */
-  void ComputeCellCenter(vtkUniformGrid* ug, const int cellIdx, double centroid[3]);
+  void ComputeCellCenter(vtkUniformGrid* ug, int cellIdx, double centroid[3]);
 
   /**
    * Gets the slice from the given grid given the plane origin & the

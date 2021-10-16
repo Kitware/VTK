@@ -94,7 +94,7 @@ public:
    * a format for the internal glReadPixels call can be specified. 'data' is expected
    * to be allocated and cleaned-up by the caller.
    */
-  void GetFloatImageData(int const format, int const width, int const height, void* data);
+  void GetFloatImageData(int format, int width, int height, void* data);
 
   /**
    * Interface to get the rendered image in FLOATING_POINT mode.  Image extents of

@@ -446,9 +446,9 @@ public:
    */
   int GetInputCount();
 
-  vtkDataSet* GetTransformedInput(const int port = 0);
+  vtkDataSet* GetTransformedInput(int port = 0);
 
-  double* GetBoundsFromPort(const int port) VTK_SIZEHINT(6);
+  double* GetBoundsFromPort(int port) VTK_SIZEHINT(6);
 
   ///@{
   /**
@@ -483,7 +483,7 @@ protected:
    * There is not a easy fix in the GPU volume ray cast mapper hence
    * this fix has been introduced.
    */
-  void TransformInput(const int port);
+  void TransformInput(int port);
 
   ///@{
   /**
@@ -497,7 +497,7 @@ protected:
    */
   int ValidateRender(vtkRenderer*, vtkVolume*);
   int ValidateInputs();
-  int ValidateInput(vtkVolumeProperty* property, const int port);
+  int ValidateInput(vtkVolumeProperty* property, int port);
   ///@}
 
   ///@{
@@ -506,7 +506,7 @@ protected:
    * \sa vtkGPUVolumeRayCastMapper::TransformInput
    */
   void CloneInputs();
-  void CloneInput(vtkDataSet* input, const int port);
+  void CloneInput(vtkDataSet* input, int port);
   ///@}
 
   // Special version of render called during the creation
@@ -521,7 +521,7 @@ protected:
   virtual void RenderBlock(vtkRenderer* ren, vtkVolume* vol, unsigned int level) = 0;
 
   virtual void PostRender(vtkRenderer* ren, int numberOfScalarComponents) = 0;
-  vtkDataSet* GetInput(const int port) override;
+  vtkDataSet* GetInput(int port) override;
 
   /**
    * Called by the AMR Volume Mapper.
@@ -529,7 +529,7 @@ protected:
    * cell data (1).
    */
   void SetCellFlag(int cellFlag);
-  void RemovePortInternal(const int port);
+  void RemovePortInternal(int port);
 
   vtkTypeBool LockSampleDistanceToInputSpacing;
   vtkTypeBool AutoAdjustSampleDistances;

@@ -25,7 +25,7 @@ int global::NRanks = 0;
 
 vtkUnstructuredGrid* global::Grid;
 
-int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
+int CheckGrid(vtkUnstructuredGrid* ghostGrid, int iteration)
 {
   int rc = 0;
 
@@ -128,7 +128,7 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
 }
 
 //------------------------------------------------------------------------------
-void UpdateGrid(const int iteration)
+void UpdateGrid(int iteration)
 {
   // increment node fields by the iteration number
   vtkDoubleArray* nodeXYZ =
@@ -229,7 +229,7 @@ void WriteDataSet(vtkUnstructuredGrid* grid, const std::string& file)
 }
 
 //------------------------------------------------------------------------------
-void GetPoint(const int i, const int j, const int k, double pnt[3])
+void GetPoint(int i, int j, int k, double pnt[3])
 {
   pnt[0] = global::Origin[0] + i * global::Spacing[0];
   pnt[1] = global::Origin[1] + j * global::Spacing[1];

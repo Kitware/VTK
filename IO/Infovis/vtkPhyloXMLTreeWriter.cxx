@@ -160,7 +160,7 @@ void vtkPhyloXMLTreeWriter::WriteTreeLevelProperties(vtkTree* input, vtkXMLDataE
 
 //------------------------------------------------------------------------------
 void vtkPhyloXMLTreeWriter::WriteCladeElement(
-  vtkTree* const input, vtkIdType vertex, vtkXMLDataElement* parentElement)
+  vtkTree* input, vtkIdType vertex, vtkXMLDataElement* parentElement)
 {
   // create new clade element for this vertex
   vtkNew<vtkXMLDataElement> cladeElement;
@@ -205,7 +205,7 @@ void vtkPhyloXMLTreeWriter::WriteCladeElement(
 
 //------------------------------------------------------------------------------
 void vtkPhyloXMLTreeWriter::WriteBranchLengthAttribute(
-  vtkTree* const input, vtkIdType vertex, vtkXMLDataElement* element)
+  vtkTree* input, vtkIdType vertex, vtkXMLDataElement* element)
 {
   if (!this->EdgeWeightArray)
   {
@@ -254,7 +254,7 @@ void vtkPhyloXMLTreeWriter::WriteNameElement(vtkIdType vertex, vtkXMLDataElement
 
 //------------------------------------------------------------------------------
 void vtkPhyloXMLTreeWriter::WriteConfidenceElement(
-  vtkTree* const input, vtkIdType vertex, vtkXMLDataElement* element)
+  vtkTree* input, vtkIdType vertex, vtkXMLDataElement* element)
 {
   vtkAbstractArray* confidenceArray = input->GetVertexData()->GetAbstractArray("confidence");
   if (!confidenceArray)
@@ -287,7 +287,7 @@ void vtkPhyloXMLTreeWriter::WriteConfidenceElement(
 
 //------------------------------------------------------------------------------
 void vtkPhyloXMLTreeWriter::WriteColorElement(
-  vtkTree* const input, vtkIdType vertex, vtkXMLDataElement* element)
+  vtkTree* input, vtkIdType vertex, vtkXMLDataElement* element)
 {
   vtkUnsignedCharArray* colorArray =
     vtkArrayDownCast<vtkUnsignedCharArray>(input->GetVertexData()->GetAbstractArray("color"));

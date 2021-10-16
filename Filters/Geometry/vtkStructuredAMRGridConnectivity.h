@@ -58,8 +58,7 @@ public:
    * initialization as the code optimizes for it. If a -1 or no refinement
    * ratio is specified a varying refinement ratio is assumed.
    */
-  void Initialize(
-    const unsigned int NumberOfLevels, const unsigned int N, const int RefinementRatio = -1);
+  void Initialize(unsigned int NumberOfLevels, unsigned int N, int RefinementRatio = -1);
 
   /**
    * Computes neighboring information.
@@ -69,15 +68,15 @@ public:
   /**
    * Creates ghost layers.
    */
-  void CreateGhostLayers(const int N = 1) override;
+  void CreateGhostLayers(int N = 1) override;
 
   /**
    * Registers the AMR grid with the given global linear grid ID (starting
    * numbering from 0) and level and refinement ratio. This method is to be
    * used when the refinement ratio is not constant.
    */
-  virtual void RegisterGrid(const int gridIdx, const int level, const int refinementRatio,
-    int extents[6], vtkUnsignedCharArray* nodesGhostArray, vtkUnsignedCharArray* cellGhostArray,
+  virtual void RegisterGrid(int gridIdx, int level, int refinementRatio, int extents[6],
+    vtkUnsignedCharArray* nodesGhostArray, vtkUnsignedCharArray* cellGhostArray,
     vtkPointData* pointData, vtkCellData* cellData, vtkPoints* gridNodes);
 
   /**
@@ -85,7 +84,7 @@ public:
    * numbering from 0) and level. The extents of the grid are expected to be
    * global node extents.
    */
-  virtual void RegisterGrid(const int gridIdx, const int level, int extents[6],
+  virtual void RegisterGrid(int gridIdx, int level, int extents[6],
     vtkUnsignedCharArray* nodesGhostArray, vtkUnsignedCharArray* cellGhostArray,
     vtkPointData* pointData, vtkCellData* cellData, vtkPoints* gridNodes);
 
@@ -122,17 +121,17 @@ public:
    * Returns the number of neighbors for the grid corresponding to the given
    * grid ID.
    */
-  int GetNumberOfNeighbors(const int gridID);
+  int GetNumberOfNeighbors(int gridID);
 
   /**
    * Returns the ghost extend for the grid corresponding to the given grid ID.
    */
-  void GetGhostedExtent(const int gridID, int ext[6]);
+  void GetGhostedExtent(int gridID, int ext[6]);
 
   /**
    * Returns the AMR neighbor for the patch with the corresponding grid ID.
    */
-  vtkStructuredAMRNeighbor GetNeighbor(const int gridID, const int nei);
+  vtkStructuredAMRNeighbor GetNeighbor(int gridID, int nei);
 
 protected:
   vtkStructuredAMRGridConnectivity();
@@ -141,32 +140,32 @@ protected:
   /**
    * Sets the total number of grids(blocks) in the AMR hierarchy
    */
-  void SetNumberOfGrids(const unsigned int N) override;
+  void SetNumberOfGrids(unsigned int N) override;
 
   /**
    * Creates the ghosted mask arrays
    */
-  void CreateGhostedMaskArrays(const int gridID);
+  void CreateGhostedMaskArrays(int gridID);
 
   /**
    * Creates the ghosted extent of the given grid
    */
-  void CreateGhostedExtent(const int gridID, const int N);
+  void CreateGhostedExtent(int gridID, int N);
 
   /**
    * Sets the ghost extent for the grid corresponding to the given grid ID.
    */
-  void SetGhostedExtent(const int gridID, int ext[6]);
+  void SetGhostedExtent(int gridID, int ext[6]);
 
   /**
    * Gets the coarsened extent for the grid with the given grid index.
    */
-  void GetCoarsenedExtent(const int gridIdx, int fromLevel, int toLevel, int ext[6]);
+  void GetCoarsenedExtent(int gridIdx, int fromLevel, int toLevel, int ext[6]);
 
   /**
    * Gets the refined extent for the grid with the given grid index.
    */
-  void GetRefinedExtent(const int gridIdx, int fromLevel, int toLevel, int ext[6]);
+  void GetRefinedExtent(int gridIdx, int fromLevel, int toLevel, int ext[6]);
 
   /**
    * Refines the given extent.
@@ -177,8 +176,8 @@ protected:
    * Given the global i,j,k index of a cell at a coarse level, fromLevel, this
    * method computes the range of cells on the refined grid.
    */
-  void GetCellRefinedExtent(int orient[3], int ndim, const int i, const int j, const int k,
-    const int fromLevel, const int toLevel, int ext[6]);
+  void GetCellRefinedExtent(
+    int orient[3], int ndim, int i, int j, int k, int fromLevel, int toLevel, int ext[6]);
 
   /**
    * Coarsens the given extent.
@@ -188,49 +187,48 @@ protected:
   /**
    * Gets the grid extent for the grid with the given grid ID.
    */
-  void GetGridExtent(const int gridIdx, int ext[6]);
+  void GetGridExtent(int gridIdx, int ext[6]);
 
   /**
    * Returns the level of the grid with the corresponding grid ID.
    */
-  int GetGridLevel(const int gridIdx);
+  int GetGridLevel(int gridIdx);
 
   /**
    * Checks if the given level has been registered
    */
-  bool LevelExists(const int level);
+  bool LevelExists(int level);
 
   /**
    * Checks if the node is an interior node in the given extent.
    */
-  bool IsNodeInterior(const int i, const int j, const int k, int GridExtent[6]);
+  bool IsNodeInterior(int i, int j, int k, int GridExtent[6]);
 
   /**
    * Checks if the node is within the extent.
    */
-  bool IsNodeWithinExtent(const int i, const int j, const int k, int GridExtent[6]);
+  bool IsNodeWithinExtent(int i, int j, int k, int GridExtent[6]);
 
   /**
    * Checks if the node is on a shared boundary.
    */
-  bool IsNodeOnSharedBoundary(
-    const int i, const int j, const int k, const int gridId, int gridExt[6]);
+  bool IsNodeOnSharedBoundary(int i, int j, int k, int gridId, int gridExt[6]);
 
   /**
    * Checks if the node is on the boundary of the given extent.
    */
-  bool IsNodeOnBoundaryOfExtent(const int i, const int j, const int k, int ext[6]);
+  bool IsNodeOnBoundaryOfExtent(int i, int j, int k, int ext[6]);
 
   /**
    * Inserts the grid corresponding to the given ID at the prescribed level.
    */
-  void InsertGridAtLevel(const int level, const int gridID);
+  void InsertGridAtLevel(int level, int gridID);
 
   /**
    * Loops through the neighbors of this grid and computes the send and rcv
    * extents for the N requested ghost layers.
    */
-  void ComputeNeighborSendAndRcvExtent(const int gridID, const int N);
+  void ComputeNeighborSendAndRcvExtent(int gridID, int N);
 
   /**
    * Computes the whole extent w.r.t. level 0 as well as the AMR dataset
@@ -242,19 +240,18 @@ protected:
    * Gets the whole extent with respect to the given level.
    * NOTE: This method assument that the whole extent has been computed.
    */
-  void GetWholeExtentAtLevel(const int level, int ext[6]);
+  void GetWholeExtentAtLevel(int level, int ext[6]);
 
   /**
    * Establishes neighboring relationship between grids i,j wheren i,j are
    * global indices.
    */
-  void EstablishNeighbors(const int i, const int j);
+  void EstablishNeighbors(int i, int j);
 
   /**
    * Computes the node orientation tuple for the given i,j,k node.
    */
-  void GetNodeOrientation(
-    const int i, const int j, const int k, int gridExt[6], int nodeOrientation[3]);
+  void GetNodeOrientation(int i, int j, int k, int gridExt[6], int nodeOrientation[3]);
 
   /**
    * Establishes the orientation vector and dimension based on the computed
@@ -263,7 +260,7 @@ protected:
    * the orientation to be in the XZ plane, then, the orient array would be
    * constructed as follows: {0,2 -1}, where -1 indicates a NIL value.
    */
-  void GetOrientationVector(const int dataDescription, int orient[3], int& ndim);
+  void GetOrientationVector(int dataDescription, int orient[3], int& ndim);
 
   /**
    * Checks if a constant refinement ratio has been specified.
@@ -273,12 +270,12 @@ protected:
   /**
    * Sets the refinement ratio at the given level.
    */
-  void SetRefinementRatioAtLevel(const int level, const int r);
+  void SetRefinementRatioAtLevel(int level, int r);
 
   /**
    * Returns the refinement ratio at the given level.
    */
-  int GetRefinementRatioAtLevel(const int level);
+  int GetRefinementRatioAtLevel(int level);
 
   /**
    * Checks if the extent ext1 and ext2 are equal.
@@ -288,7 +285,7 @@ protected:
   /**
    * Constructs the block topology for the given grid.
    */
-  void SetBlockTopology(const int gridID);
+  void SetBlockTopology(int gridID);
 
   /**
    * Returns the number of faces of the block corresponding to the given grid
@@ -297,7 +294,7 @@ protected:
    * many out of the 6 block faces have connections. Thus, the return value
    * has an upper-bound of 6.
    */
-  int GetNumberOfConnectingBlockFaces(const int gridID);
+  int GetNumberOfConnectingBlockFaces(int gridID);
 
   ///@{
   /**
@@ -314,7 +311,7 @@ protected:
    * <li> BOTTOM = 5 (-j direction) </li>
    * </ul>
    */
-  bool HasBlockConnection(const int gridID, const int blockDirection)
+  bool HasBlockConnection(int gridID, int blockDirection)
   {
     // Sanity check
     assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -345,7 +342,7 @@ protected:
    * <li> BOTTOM = 5 (-j direction) </li>
    * </ul>
    */
-  void RemoveBlockConnection(const int gridID, const int blockDirection);
+  void RemoveBlockConnection(int gridID, int blockDirection);
 
   /**
    * Adds a block connection along the given direction for the block
@@ -361,35 +358,35 @@ protected:
    * <li> BOTTOM = 5 (-j direction) </li>
    * </ul>
    */
-  void AddBlockConnection(const int gridID, const int blockDirection);
+  void AddBlockConnection(int gridID, int blockDirection);
 
   /**
    * Clears all block connections for the block corresponding to the given
    * grid ID.
    */
-  void ClearBlockConnections(const int gridID);
+  void ClearBlockConnections(int gridID);
 
   /**
    * Marks the ghost property for the given node.
    */
-  virtual void MarkNodeProperty(const int gridId, const int i, const int j, const int k,
-    int gridExt[6], int wholeExt[6], unsigned char& p);
+  virtual void MarkNodeProperty(
+    int gridId, int i, int j, int k, int gridExt[6], int wholeExt[6], unsigned char& p);
 
   /**
    * Fills the node ghost arrays for the given grid
    */
-  virtual void FillNodesGhostArray(const int gridId, vtkUnsignedCharArray* nodesArray);
+  virtual void FillNodesGhostArray(int gridId, vtkUnsignedCharArray* nodesArray);
 
   /**
    * Fills the cell ghost arrays for the given grid
    */
-  virtual void FillCellsGhostArray(const int gridId, vtkUnsignedCharArray* cellsArray);
+  virtual void FillCellsGhostArray(int gridId, vtkUnsignedCharArray* cellsArray);
 
   /**
    * Fills ghost arrays.
    */
   void FillGhostArrays(
-    const int gridId, vtkUnsignedCharArray* nodesArray, vtkUnsignedCharArray* cellsArray) override;
+    int gridId, vtkUnsignedCharArray* nodesArray, vtkUnsignedCharArray* cellsArray) override;
 
   /**
    * Compute the AMR neighbor of grid "i" and its neighbor grid "j".
@@ -402,24 +399,22 @@ protected:
    * NOTE:
    * The extents next1 and next2 for each grid are the normalized extents
    */
-  vtkStructuredAMRNeighbor GetAMRNeighbor(const int i, const int iLevel, int next1[6], const int j,
-    const int jLevel, int next2[6], const int normalizedLevel, const int levelDiff,
-    vtkStructuredNeighbor& nei);
+  vtkStructuredAMRNeighbor GetAMRNeighbor(int i, int iLevel, int next1[6], int j, int jLevel,
+    int next2[6], int normalizedLevel, int levelDiff, vtkStructuredNeighbor& nei);
 
   /**
    * A Helper method to compute the AMR neighbor overlap extents. The method
    * coarsens/refines the gridOverlap and neiOverlap extents accordingly s.t.
    * they are w.r.t. to the level of the grid they refer to.
    */
-  void ComputeAMRNeighborOverlapExtents(const int iLevel, const int jLevel,
-    const int normalizedLevel, const vtkStructuredNeighbor& nei, int orient[3], int ndim,
-    int gridOverlapExtent[6], int neiOverlapExtent[6]);
+  void ComputeAMRNeighborOverlapExtents(int iLevel, int jLevel, int normalizedLevel,
+    const vtkStructuredNeighbor& nei, int orient[3], int ndim, int gridOverlapExtent[6],
+    int neiOverlapExtent[6]);
 
   /**
    * Get 1-D orientation.
    */
-  int Get1DOrientation(const int idx, const int ExtentLo, const int ExtentHi, const int OnLo,
-    const int OnHi, const int NotOnBoundary);
+  int Get1DOrientation(int idx, int ExtentLo, int ExtentHi, int OnLo, int OnHi, int NotOnBoundary);
 
   /**
    * Prints the extent
@@ -429,56 +424,56 @@ protected:
   /**
    * Initializes the ghost data-structures
    */
-  void InitializeGhostData(const int gridID);
+  void InitializeGhostData(int gridID);
 
   /**
    * Transfers the data of the registered grid, to the ghosted data-structures.
    */
-  void TransferRegisteredDataToGhostedData(const int gridID);
+  void TransferRegisteredDataToGhostedData(int gridID);
 
   /**
    * Transfers local node-centered neighbor data
    */
-  void TransferLocalNodeCenteredNeighborData(const int gridID, vtkStructuredAMRNeighbor& nei);
+  void TransferLocalNodeCenteredNeighborData(int gridID, vtkStructuredAMRNeighbor& nei);
 
   /**
    * Copy cell center value from a coarser level by direct-injection, i.e., the
    * values within the coarse cell is assumed to be constant.
    */
-  void GetLocalCellCentersFromCoarserLevel(const int gridID, vtkStructuredAMRNeighbor& nei);
+  void GetLocalCellCentersFromCoarserLevel(int gridID, vtkStructuredAMRNeighbor& nei);
 
   /**
    * Copy cell center values from a finer level by cell averaging.
    */
-  void GetLocalCellCentersFromFinerLevel(const int gridID, vtkStructuredAMRNeighbor& nei);
+  void GetLocalCellCentersFromFinerLevel(int gridID, vtkStructuredAMRNeighbor& nei);
 
   /**
    * Copy cell center values to fill in the ghost levels from a neighbor at
    * the same level as the grid corresponding to the given grid ID.
    */
-  void GetLocalCellCentersAtSameLevel(const int gridID, vtkStructuredAMRNeighbor& nei);
+  void GetLocalCellCentersAtSameLevel(int gridID, vtkStructuredAMRNeighbor& nei);
 
   /**
    * Transfers local cell-centered neighbor data
    */
-  void TransferLocalCellCenteredNeighborData(const int gridID, vtkStructuredAMRNeighbor& nei);
+  void TransferLocalCellCenteredNeighborData(int gridID, vtkStructuredAMRNeighbor& nei);
 
   /**
    * Transfers local neighbor data
    */
-  void TransferLocalNeighborData(const int gridID, vtkStructuredAMRNeighbor& nei);
+  void TransferLocalNeighborData(int gridID, vtkStructuredAMRNeighbor& nei);
 
   /**
    * Fills in the ghost data from the neighbors
    */
-  virtual void TransferGhostDataFromNeighbors(const int gridID);
+  virtual void TransferGhostDataFromNeighbors(int gridID);
 
   /**
    * Loops through all arrays and computes the average of the supplied source
    * indices and stores the corresponding average
    */
-  void AverageFieldData(vtkFieldData* source, vtkIdType* sourceIds, const int N,
-    vtkFieldData* target, vtkIdType targetIdx);
+  void AverageFieldData(
+    vtkFieldData* source, vtkIdType* sourceIds, int N, vtkFieldData* target, vtkIdType targetIdx);
 
   /**
    * Loops through all arrays in the source and for each array, it copies the
@@ -535,7 +530,7 @@ private:
 //=============================================================================
 
 //------------------------------------------------------------------------------
-inline int vtkStructuredAMRGridConnectivity::GetNumberOfNeighbors(const int gridID)
+inline int vtkStructuredAMRGridConnectivity::GetNumberOfNeighbors(int gridID)
 {
   assert("pre: grid ID is out-of-bounds" && (gridID >= 0) &&
     (gridID < static_cast<int>(this->NumberOfGrids)));
@@ -545,8 +540,7 @@ inline int vtkStructuredAMRGridConnectivity::GetNumberOfNeighbors(const int grid
 }
 
 //------------------------------------------------------------------------------
-inline vtkStructuredAMRNeighbor vtkStructuredAMRGridConnectivity::GetNeighbor(
-  const int gridID, const int nei)
+inline vtkStructuredAMRNeighbor vtkStructuredAMRGridConnectivity::GetNeighbor(int gridID, int nei)
 {
   assert("pre: grid ID is out-of-bounds" && (gridID >= 0) &&
     (gridID < static_cast<int>(this->NumberOfGrids)));
@@ -558,8 +552,8 @@ inline vtkStructuredAMRNeighbor vtkStructuredAMRGridConnectivity::GetNeighbor(
 }
 
 //------------------------------------------------------------------------------
-inline int vtkStructuredAMRGridConnectivity::Get1DOrientation(const int idx, const int ExtentLo,
-  const int ExtentHi, const int OnLo, const int OnHi, const int NotOnBoundary)
+inline int vtkStructuredAMRGridConnectivity::Get1DOrientation(
+  int idx, int ExtentLo, int ExtentHi, int OnLo, int OnHi, int NotOnBoundary)
 {
   if (idx == ExtentLo)
   {
@@ -573,7 +567,7 @@ inline int vtkStructuredAMRGridConnectivity::Get1DOrientation(const int idx, con
 }
 
 //------------------------------------------------------------------------------
-inline int vtkStructuredAMRGridConnectivity::GetNumberOfConnectingBlockFaces(const int gridID)
+inline int vtkStructuredAMRGridConnectivity::GetNumberOfConnectingBlockFaces(int gridID)
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -594,8 +588,7 @@ inline int vtkStructuredAMRGridConnectivity::GetNumberOfConnectingBlockFaces(con
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredAMRGridConnectivity::RemoveBlockConnection(
-  const int gridID, const int blockDirection)
+inline void vtkStructuredAMRGridConnectivity::RemoveBlockConnection(int gridID, int blockDirection)
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -608,8 +601,7 @@ inline void vtkStructuredAMRGridConnectivity::RemoveBlockConnection(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredAMRGridConnectivity::AddBlockConnection(
-  const int gridID, const int blockDirection)
+inline void vtkStructuredAMRGridConnectivity::AddBlockConnection(int gridID, int blockDirection)
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -621,7 +613,7 @@ inline void vtkStructuredAMRGridConnectivity::AddBlockConnection(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredAMRGridConnectivity::ClearBlockConnections(const int gridID)
+inline void vtkStructuredAMRGridConnectivity::ClearBlockConnections(int gridID)
 {
   // Sanity check
   assert("pre: gridID is out-of-bounds" && (gridID >= 0) &&
@@ -659,7 +651,7 @@ inline void vtkStructuredAMRGridConnectivity::PrintExtent(std::ostream& os, int 
 }
 
 //------------------------------------------------------------------------------
-inline int vtkStructuredAMRGridConnectivity::GetGridLevel(const int gridIdx)
+inline int vtkStructuredAMRGridConnectivity::GetGridLevel(int gridIdx)
 {
   assert("pre: grid Index is out-of-bounds!" && (gridIdx < static_cast<int>(this->NumberOfGrids)));
   assert("pre: grid levels vector has not been allocated" &&
@@ -668,8 +660,7 @@ inline int vtkStructuredAMRGridConnectivity::GetGridLevel(const int gridIdx)
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredAMRGridConnectivity::SetRefinementRatioAtLevel(
-  const int level, const int r)
+inline void vtkStructuredAMRGridConnectivity::SetRefinementRatioAtLevel(int level, int r)
 {
   assert("pre: RefinementRatios vector is not properly allocated" &&
     this->RefinementRatios.size() == this->NumberOfLevels);
@@ -681,7 +672,7 @@ inline void vtkStructuredAMRGridConnectivity::SetRefinementRatioAtLevel(
 }
 
 //------------------------------------------------------------------------------
-inline int vtkStructuredAMRGridConnectivity::GetRefinementRatioAtLevel(const int level)
+inline int vtkStructuredAMRGridConnectivity::GetRefinementRatioAtLevel(int level)
 {
   assert("pre: RefinementRatios vector is not properly allocated" &&
     this->RefinementRatios.size() == this->NumberOfLevels);
@@ -704,7 +695,7 @@ inline bool vtkStructuredAMRGridConnectivity::HasConstantRefinementRatio()
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredAMRGridConnectivity::GetGridExtent(const int gridIdx, int ext[6])
+inline void vtkStructuredAMRGridConnectivity::GetGridExtent(int gridIdx, int ext[6])
 {
   assert("pre: grid index is out-of-bounds" &&
     ((gridIdx >= 0) && (gridIdx < static_cast<int>(this->GridExtents.size()))));
@@ -716,7 +707,7 @@ inline void vtkStructuredAMRGridConnectivity::GetGridExtent(const int gridIdx, i
 }
 
 //------------------------------------------------------------------------------
-inline bool vtkStructuredAMRGridConnectivity::LevelExists(const int level)
+inline bool vtkStructuredAMRGridConnectivity::LevelExists(int level)
 {
   if (this->AMRHierarchy.find(level) != this->AMRHierarchy.end())
   {
@@ -726,7 +717,7 @@ inline bool vtkStructuredAMRGridConnectivity::LevelExists(const int level)
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredAMRGridConnectivity::InsertGridAtLevel(const int level, const int gridID)
+inline void vtkStructuredAMRGridConnectivity::InsertGridAtLevel(int level, int gridID)
 {
   if (this->LevelExists(level))
   {

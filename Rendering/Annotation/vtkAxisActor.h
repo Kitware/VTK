@@ -488,9 +488,9 @@ public:
   double ComputeMaxLabelLength(const double[3]);
   double ComputeTitleLength(const double[3]);
 
-  void SetLabelScale(const double scale);
-  void SetLabelScale(int labelIndex, const double scale);
-  void SetTitleScale(const double scale);
+  void SetLabelScale(double scale);
+  void SetLabelScale(int labelIndex, double scale);
+  void SetTitleScale(double scale);
 
   ///@{
   /**

@@ -162,8 +162,7 @@ int vtkAMRFlashParticlesReader::GetTotalNumberOfParticles()
 }
 
 //------------------------------------------------------------------------------
-vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
-  const char* file, const int vtkNotUsed(blkidx))
+vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(const char* file, int vtkNotUsed(blkidx))
 {
   hid_t dataIdx = H5Dopen(this->Internal->FileIndex, file);
   if (dataIdx < 0)
@@ -304,7 +303,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
 }
 
 //------------------------------------------------------------------------------
-vtkPolyData* vtkAMRFlashParticlesReader::ReadParticles(const int blkidx)
+vtkPolyData* vtkAMRFlashParticlesReader::ReadParticles(int blkidx)
 {
   assert("pre: Internal reader is nullptr" && (this->Internal != nullptr));
   assert("pre: Not initialized " && (this->Initialized));

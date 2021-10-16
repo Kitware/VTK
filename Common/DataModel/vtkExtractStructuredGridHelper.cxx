@@ -255,7 +255,7 @@ int vtkExtractStructuredGridHelper::GetMappedExtentValueFromIndex(int dim, int o
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractStructuredGridHelper::GetSize(const int dim)
+int vtkExtractStructuredGridHelper::GetSize(int dim)
 {
   assert("pre: dimension dim is out-of-bounds!" && (dim >= 0) && (dim < 3));
   return (static_cast<int>(this->IndexMap->Mapping[dim].size()));

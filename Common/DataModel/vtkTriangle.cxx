@@ -1583,7 +1583,7 @@ int vtkTriangle::TrianglesIntersect(const double p1[3], const double q1[3], cons
 // (Note: in current implementation the tolerance only works in the
 // neighborhood of the three vertices of the triangle.
 int vtkTriangle::PointInTriangle(
-  const double x[3], const double p1[3], const double p2[3], const double p3[3], const double tol2)
+  const double x[3], const double p1[3], const double p2[3], const double p3[3], double tol2)
 {
   double x1[3], x2[3], x3[3], v13[3], v21[3], v32[3];
   double n1[3], n2[3], n3[3];

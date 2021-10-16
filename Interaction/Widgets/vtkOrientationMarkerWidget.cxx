@@ -1071,7 +1071,7 @@ void vtkOrientationMarkerWidget::SetShouldConstrainSize(const vtkTypeBool should
 
 //------------------------------------------------------------------------------
 bool vtkOrientationMarkerWidget::SetSizeConstraintDimensionSizes(
-  const int minDimensionSize, const int maxDimensionSize)
+  int minDimensionSize, int maxDimensionSize)
 {
   // noop if the value doesn't change
   if (this->MinDimensionSize == minDimensionSize && this->MaxDimensionSize == maxDimensionSize)

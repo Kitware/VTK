@@ -139,7 +139,7 @@ vtkDataSet* vtkVolumeMapper::GetInput()
   return vtkDataSet::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-vtkDataSet* vtkVolumeMapper::GetInput(const int port)
+vtkDataSet* vtkVolumeMapper::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {

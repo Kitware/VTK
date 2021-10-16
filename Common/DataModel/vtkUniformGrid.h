@@ -132,8 +132,8 @@ public:
    */
   virtual void BlankPoint(vtkIdType ptId);
   virtual void UnBlankPoint(vtkIdType ptId);
-  virtual void BlankPoint(const int i, const int j, const int k);
-  virtual void UnBlankPoint(const int i, const int j, const int k);
+  virtual void BlankPoint(int i, int j, int k);
+  virtual void UnBlankPoint(int i, int j, int k);
   ///@}
 
   ///@{
@@ -145,8 +145,8 @@ public:
    */
   virtual void BlankCell(vtkIdType ptId);
   virtual void UnBlankCell(vtkIdType ptId);
-  virtual void BlankCell(const int i, const int j, const int k);
-  virtual void UnBlankCell(const int i, const int j, const int k);
+  virtual void BlankCell(int i, int j, int k);
+  virtual void UnBlankCell(int i, int j, int k);
   ///@}
 
   /**

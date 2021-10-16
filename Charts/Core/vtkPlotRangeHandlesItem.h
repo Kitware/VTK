@@ -187,10 +187,8 @@ protected:
    */
   using vtkPlot::TransformDataToScreen;
   using vtkPlot::TransformScreenToData;
-  void TransformScreenToData(
-    const double inX, const double inY, double& outX, double& outY) override;
-  void TransformDataToScreen(
-    const double inX, const double inY, double& outX, double& outY) override;
+  void TransformScreenToData(double inX, double inY, double& outX, double& outY) override;
+  void TransformDataToScreen(double inX, double inY, double& outX, double& outY) override;
   ///@}
 
   /**

@@ -128,8 +128,8 @@ public:
 
   std::vector<vtkOBJImportedMaterial*> ParseOBJandMTL(std::string filename, int& result_code);
 
-  void ReadVertices(bool gotFirstUseMaterialTag, char* pLine, float xyz, int lineNr,
-    const double v_scale, bool everything_ok, vtkPoints* points, const bool use_scale);
+  void ReadVertices(bool gotFirstUseMaterialTag, char* pLine, float xyz, int lineNr, double v_scale,
+    bool everything_ok, vtkPoints* points, bool use_scale);
 
 protected:
   vtkOBJPolyDataProcessor();

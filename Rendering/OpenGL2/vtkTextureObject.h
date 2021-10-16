@@ -284,8 +284,8 @@ public:
    * of the texture to be created is supported by the implementation and that
    * there is sufficient texture memory available for it.
    */
-  bool AllocateProxyTexture3D(unsigned int const width, unsigned int const height,
-    unsigned int const depth, int const numComps, int const dataType);
+  bool AllocateProxyTexture3D(
+    unsigned int width, unsigned int height, unsigned int depth, int numComps, int dataType);
 
   /**
    * This is used to download raw data from the texture into a pixel buffer. The

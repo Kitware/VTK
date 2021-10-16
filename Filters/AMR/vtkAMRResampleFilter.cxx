@@ -293,8 +293,7 @@ void vtkAMRResampleFilter::CopyData(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRResampleFilter::ComputeCellCentroid(
-  vtkUniformGrid* g, const vtkIdType cellIdx, double c[3])
+void vtkAMRResampleFilter::ComputeCellCentroid(vtkUniformGrid* g, vtkIdType cellIdx, double c[3])
 {
   assert("pre: uniform grid is nullptr" && (g != nullptr));
   assert("pre: centroid is nullptr" && (c != nullptr));
@@ -932,7 +931,7 @@ void vtkAMRResampleFilter::SnapBounds(const double* vtkNotUsed(h0[3]), const dou
 
 //------------------------------------------------------------------------------
 void vtkAMRResampleFilter::ComputeLevelOfResolution(
-  const int N[3], const double h0[3], const double L[3], const double rf)
+  const int N[3], const double h0[3], const double L[3], double rf)
 {
   this->LevelOfResolution = 0;
   for (int i = 0; i < 3; ++i)
@@ -1176,7 +1175,7 @@ bool vtkAMRResampleFilter::IsBlockWithinBounds(double* grd)
 }
 
 //------------------------------------------------------------------------------
-int vtkAMRResampleFilter::GetRegionProcessId(const int regionIdx)
+int vtkAMRResampleFilter::GetRegionProcessId(int regionIdx)
 {
   if (!this->IsParallel())
   {
@@ -1188,7 +1187,7 @@ int vtkAMRResampleFilter::GetRegionProcessId(const int regionIdx)
 }
 
 //------------------------------------------------------------------------------
-bool vtkAMRResampleFilter::IsRegionMine(const int regionIdx)
+bool vtkAMRResampleFilter::IsRegionMine(int regionIdx)
 {
   if (!this->IsParallel())
   {

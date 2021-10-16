@@ -74,8 +74,7 @@ vtkAMRBox::vtkAMRBox(const int* dims)
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRBox::BuildAMRBox(
-  const int ilo, const int jlo, const int klo, const int ihi, const int jhi, const int khi)
+void vtkAMRBox::BuildAMRBox(int ilo, int jlo, int klo, int ihi, int jhi, int khi)
 {
   this->Initialize();
   this->SetDimensions(ilo, jlo, klo, ihi, jhi, khi);
@@ -288,7 +287,7 @@ void vtkAMRBox::Deserialize(unsigned char* buffer, const vtkIdType& vtkNotUsed(b
 }
 
 //------------------------------------------------------------------------------
-bool vtkAMRBox::IntersectBoxAlongDimension(const vtkAMRBox& other, const int q)
+bool vtkAMRBox::IntersectBoxAlongDimension(const vtkAMRBox& other, int q)
 {
   assert("pre: dimension is out-of-bounds!" && (q >= 0) && (q <= 2));
   bool e1 = this->EmptyDimension(q);
@@ -322,8 +321,7 @@ bool vtkAMRBox::Intersect(const vtkAMRBox& other)
     this->IntersectBoxAlongDimension(other, 2);
 }
 
-int vtkAMRBox::GetCellLinearIndex(
-  const vtkAMRBox& box, const int i, const int j, const int k, int dim[3])
+int vtkAMRBox::GetCellLinearIndex(const vtkAMRBox& box, int i, int j, int k, int dim[3])
 {
   // Convert to local numbering
   int I[3] = { i - box.GetLoCorner()[0], j - box.GetLoCorner()[1], k - box.GetLoCorner()[2] };
@@ -407,7 +405,7 @@ void vtkAMRBox::Refine(int r)
 }
 
 //------------------------------------------------------------------------------
-bool vtkAMRBox::DoesBoxIntersectAlongDimension(const vtkAMRBox& other, const int q) const
+bool vtkAMRBox::DoesBoxIntersectAlongDimension(const vtkAMRBox& other, int q) const
 {
   if (this->EmptyDimension(q) && other.EmptyDimension(q))
   {

@@ -342,7 +342,7 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
 }
 
 vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
-  const unsigned int flat_index, vtkDataObject* parent_obj, unsigned int current_flat_index)
+  unsigned int flat_index, vtkDataObject* parent_obj, unsigned int current_flat_index)
 {
   if (current_flat_index == flat_index)
   {

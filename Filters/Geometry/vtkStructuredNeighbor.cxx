@@ -31,7 +31,7 @@ vtkStructuredNeighbor::vtkStructuredNeighbor()
 }
 
 //------------------------------------------------------------------------------
-vtkStructuredNeighbor::vtkStructuredNeighbor(const int neiId, int overlap[6])
+vtkStructuredNeighbor::vtkStructuredNeighbor(int neiId, int overlap[6])
 {
   this->NeighborID = neiId;
   for (int i = 0; i < 6; ++i)
@@ -41,7 +41,7 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(const int neiId, int overlap[6])
 }
 
 //------------------------------------------------------------------------------
-vtkStructuredNeighbor::vtkStructuredNeighbor(const int neiId, int overlap[6], int orient[3])
+vtkStructuredNeighbor::vtkStructuredNeighbor(int neiId, int overlap[6], int orient[3])
 {
   this->NeighborID = neiId;
   for (int i = 0; i < 3; ++i)
@@ -60,7 +60,7 @@ vtkStructuredNeighbor::~vtkStructuredNeighbor() = default;
 
 //------------------------------------------------------------------------------
 void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(int gridRealExtent[6],
-  int* vtkNotUsed(gridGhostedExtent[6]), int neiRealExtent[6], int WholeExtent[6], const int N)
+  int* vtkNotUsed(gridGhostedExtent[6]), int neiRealExtent[6], int WholeExtent[6], int N)
 {
 
   for (int i = 0; i < 3; ++i)

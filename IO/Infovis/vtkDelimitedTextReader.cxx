@@ -492,7 +492,7 @@ int vtkDelimitedTextReader::RequestData(
   return this->ReadData(output_table);
 }
 
-int vtkDelimitedTextReader::ReadData(vtkTable* const output_table)
+int vtkDelimitedTextReader::ReadData(vtkTable* output_table)
 {
   this->LastError = "";
 

@@ -50,7 +50,7 @@ public:
    * set the number of stored ids in the list to 0.
    * strategy is not used.
    */
-  int Allocate(const vtkIdType sz, const int strategy = 0);
+  int Allocate(vtkIdType sz, int strategy = 0);
 
   /**
    * Return the number of id's in the list.
@@ -60,10 +60,7 @@ public:
   /**
    * Return the id at location i.
    */
-  vtkIdType GetId(const vtkIdType i) VTK_EXPECTS(0 <= i && i < GetNumberOfIds())
-  {
-    return this->Ids[i];
-  }
+  vtkIdType GetId(vtkIdType i) VTK_EXPECTS(0 <= i && i < GetNumberOfIds()) { return this->Ids[i]; }
 
   /**
    * Find the location i of the provided id.
@@ -80,14 +77,14 @@ public:
    * Specify the number of ids for this object to hold. Does an
    * allocation as well as setting the number of ids.
    */
-  void SetNumberOfIds(const vtkIdType number);
+  void SetNumberOfIds(vtkIdType number);
 
   /**
    * Set the id at location i. Doesn't do range checking so it's a bit
    * faster than InsertId. Make sure you use SetNumberOfIds() to allocate
    * memory prior to using SetId().
    */
-  void SetId(const vtkIdType i, const vtkIdType vtkid) VTK_EXPECTS(0 <= i && i < GetNumberOfIds())
+  void SetId(vtkIdType i, vtkIdType vtkid) VTK_EXPECTS(0 <= i && i < GetNumberOfIds())
   {
     this->Ids[i] = vtkid;
   }
@@ -96,18 +93,18 @@ public:
    * Set the id at location i. Does range checking and allocates memory
    * as necessary.
    */
-  void InsertId(const vtkIdType i, const vtkIdType vtkid) VTK_EXPECTS(0 <= i);
+  void InsertId(vtkIdType i, vtkIdType vtkid) VTK_EXPECTS(0 <= i);
 
   /**
    * Add the id specified to the end of the list. Range checking is performed.
    */
-  vtkIdType InsertNextId(const vtkIdType vtkid);
+  vtkIdType InsertNextId(vtkIdType vtkid);
 
   /**
    * If id is not already in list, insert it and return location in
    * list. Otherwise return just location in list.
    */
-  vtkIdType InsertUniqueId(const vtkIdType vtkid);
+  vtkIdType InsertUniqueId(vtkIdType vtkid);
 
   /**
    * Sort the ids in the list in ascending id order. This method uses
@@ -124,14 +121,14 @@ public:
   /**
    * Get a pointer to a particular data index.
    */
-  vtkIdType* GetPointer(const vtkIdType i) { return this->Ids + i; }
+  vtkIdType* GetPointer(vtkIdType i) { return this->Ids + i; }
 
   /**
    * Get a pointer to a particular data index. Make sure data is allocated
    * for the number of items requested. Set MaxId according to the number of
    * data values requested.
    */
-  vtkIdType* WritePointer(const vtkIdType i, const vtkIdType number);
+  vtkIdType* WritePointer(vtkIdType i, vtkIdType number);
 
   /**
    * Specify an array of vtkIdType to use as the id list. This replaces the
@@ -176,7 +173,7 @@ public:
    * Adjust the size of the id list while maintaining its content (except
    * when being truncated).
    */
-  vtkIdType* Resize(const vtkIdType sz);
+  vtkIdType* Resize(vtkIdType sz);
 
 #ifndef __VTK_WRAP__
   /**

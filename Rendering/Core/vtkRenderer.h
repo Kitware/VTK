@@ -414,7 +414,7 @@ public:
    * OffsetRatio can be used to add a zoom offset.
    * Default value is 0.9, which means that the camera will be 10% further from the data
    */
-  virtual void ResetCameraScreenSpace(const double offsetRatio = 0.9);
+  virtual void ResetCameraScreenSpace(double offsetRatio = 0.9);
 
   /**
    * Automatically set up the camera based on a specified bounding box
@@ -424,7 +424,7 @@ public:
    * OffsetRatio can be used to add a zoom offset.
    * Default value is 0.9, which means that the camera will be 10% further from the data.
    */
-  virtual void ResetCameraScreenSpace(const double bounds[6], const double offsetRatio = 0.9);
+  virtual void ResetCameraScreenSpace(const double bounds[6], double offsetRatio = 0.9);
 
   using vtkViewport::DisplayToWorld;
 
@@ -438,7 +438,7 @@ public:
    * observe the \p box in display coordinates.
    * \p OffsetRatio can be used to add a zoom offset.
    */
-  void ZoomToBoxUsingViewAngle(const vtkRecti& box, const double offsetRatio = 1.0);
+  void ZoomToBoxUsingViewAngle(const vtkRecti& box, double offsetRatio = 1.0);
 
   /**
    * Alternative version of ResetCameraScreenSpace(bounds[6]);
@@ -447,7 +447,7 @@ public:
    * Default value is 0.9, which means that the camera will be 10% further from the data.
    */
   virtual void ResetCameraScreenSpace(double xmin, double xmax, double ymin, double ymax,
-    double zmin, double zmax, const double offsetRatio = 0.9);
+    double zmin, double zmax, double offsetRatio = 0.9);
 
   ///@{
   /**

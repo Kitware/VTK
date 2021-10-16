@@ -668,27 +668,27 @@ public:
    * Compute the amplitude of a Gaussian function with mean=0 and specified variance.
    * That is, 1./(std::sqrt(2 Pi * variance)) * exp(-distanceFromMean^2/(2.*variance)).
    */
-  static double GaussianAmplitude(const double variance, const double distanceFromMean);
+  static double GaussianAmplitude(double variance, double distanceFromMean);
 
   /**
    * Compute the amplitude of a Gaussian function with specified mean and variance.
    * That is, 1./(std::sqrt(2 Pi * variance)) * exp(-(position - mean)^2/(2.*variance)).
    */
-  static double GaussianAmplitude(const double mean, const double variance, const double position);
+  static double GaussianAmplitude(double mean, double variance, double position);
 
   /**
    * Compute the amplitude of an unnormalized Gaussian function with mean=0 and specified variance.
    * That is, exp(-distanceFromMean^2/(2.*variance)). When distanceFromMean = 0, this function
    * returns 1.
    */
-  static double GaussianWeight(const double variance, const double distanceFromMean);
+  static double GaussianWeight(double variance, double distanceFromMean);
 
   /**
    * Compute the amplitude of an unnormalized Gaussian function with specified mean and variance.
    * That is, exp(-(position - mean)^2/(2.*variance)). When the distance from 'position' to 'mean'
    * is 0, this function returns 1.
    */
-  static double GaussianWeight(const double mean, const double variance, const double position);
+  static double GaussianWeight(double mean, double variance, double position);
 
   /**
    * Dot product of two 2-vectors. (float version).

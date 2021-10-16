@@ -61,7 +61,7 @@ typename vtkSparseArray<T>::SizeT vtkSparseArray<T>::GetNonNullSize()
 }
 
 template <typename T>
-void vtkSparseArray<T>::GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates)
+void vtkSparseArray<T>::GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates)
 {
   coordinates.SetDimensions(this->GetDimensions());
   for (DimensionT i = 0; i != this->GetDimensions(); ++i)
@@ -181,7 +181,7 @@ const T& vtkSparseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
 }
 
 template <typename T>
-const T& vtkSparseArray<T>::GetValueN(const SizeT n)
+const T& vtkSparseArray<T>::GetValueN(SizeT n)
 {
   return this->Values[n];
 }
@@ -294,7 +294,7 @@ void vtkSparseArray<T>::SetValue(const vtkArrayCoordinates& coordinates, const T
 }
 
 template <typename T>
-void vtkSparseArray<T>::SetValueN(const SizeT n, const T& value)
+void vtkSparseArray<T>::SetValueN(SizeT n, const T& value)
 {
   this->Values[n] = value;
 }
@@ -445,7 +445,7 @@ T* vtkSparseArray<T>::GetValueStorage()
 }
 
 template <typename T>
-void vtkSparseArray<T>::ReserveStorage(const SizeT value_count)
+void vtkSparseArray<T>::ReserveStorage(SizeT value_count)
 {
   for (DimensionT dimension = 0; dimension != this->GetDimensions(); ++dimension)
     this->Coordinates[dimension].resize(value_count);

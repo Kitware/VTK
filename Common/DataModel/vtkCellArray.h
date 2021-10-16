@@ -627,7 +627,7 @@ public:
   /**
    * Return the size of the cell at @a cellId.
    */
-  vtkIdType GetCellSize(const vtkIdType cellId) const;
+  vtkIdType GetCellSize(vtkIdType cellId) const;
 
   /**
    * Insert a cell object. Return the cell id of the cell.
@@ -1437,7 +1437,7 @@ struct UpdateCellCountImpl
 struct GetCellSizeImpl
 {
   template <typename CellStateT>
-  vtkIdType operator()(CellStateT& state, const vtkIdType cellId)
+  vtkIdType operator()(CellStateT& state, vtkIdType cellId)
   {
     return state.GetCellSize(cellId);
   }

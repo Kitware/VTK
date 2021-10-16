@@ -52,9 +52,8 @@ vtkRectilinearGridToTetrahedra::vtkRectilinearGridToTetrahedra()
 
 //------------------------------------------------------------------------------
 
-void vtkRectilinearGridToTetrahedra::SetInput(const double ExtentX, const double ExtentY,
-  const double ExtentZ, const double SpacingX, const double SpacingY, const double SpacingZ,
-  const double tol)
+void vtkRectilinearGridToTetrahedra::SetInput(double ExtentX, double ExtentY, double ExtentZ,
+  double SpacingX, double SpacingY, double SpacingZ, double tol)
 {
   double Extent[3];
   double Spacing[3];
@@ -71,7 +70,7 @@ void vtkRectilinearGridToTetrahedra::SetInput(const double ExtentX, const double
 
 // Create an input for the filter
 void vtkRectilinearGridToTetrahedra::SetInput(
-  const double Extent[3], const double Spacing[3], const double tol)
+  const double Extent[3], const double Spacing[3], double tol)
 {
   //
   // Determine the number of points in each direction, and the positions

@@ -60,7 +60,7 @@ public:
   /**
    * The sizes of the fonts used for labeling.
    */
-  virtual void SetFontSizeRange(const int maxSize, const int minSize, const int delta = 4);
+  virtual void SetFontSizeRange(int maxSize, int minSize, int delta = 4);
   virtual void GetFontSizeRange(int range[3]);
   ///@}
 

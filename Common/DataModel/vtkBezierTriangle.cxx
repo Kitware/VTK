@@ -81,8 +81,7 @@ vtkCell* vtkBezierTriangle::GetEdge(int edgeId)
 
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
-void vtkBezierTriangle::SetRationalWeightsFromPointData(
-  vtkPointData* point_data, const vtkIdType numPts)
+void vtkBezierTriangle::SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts)
 {
   vtkDataArray* v = point_data->GetRationalWeights();
   if (v)

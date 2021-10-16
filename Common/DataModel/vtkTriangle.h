@@ -203,8 +203,8 @@ public:
   // coordinate values p1, p2, p3. Method is via comparing dot products.
   // (Note: in current implementation the tolerance only works in the
   // neighborhood of the three vertices of the triangle.
-  static int PointInTriangle(const double x[3], const double x1[3], const double x2[3],
-    const double x3[3], const double tol2);
+  static int PointInTriangle(
+    const double x[3], const double x1[3], const double x2[3], const double x3[3], double tol2);
 
   ///@{
   /**

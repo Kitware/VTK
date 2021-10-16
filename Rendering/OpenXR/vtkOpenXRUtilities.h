@@ -40,8 +40,7 @@ public:
    * Given a field of view (left, right, up, down angles) and near/far
    * clipping builds, return a projection matrix in result.
    */
-  static void CreateProjectionFov(
-    vtkMatrix4x4* result, const XrFovf fov, const float nearZ, const float farZ);
+  static void CreateProjectionFov(vtkMatrix4x4* result, XrFovf fov, float nearZ, float farZ);
 
   /**
    * Given an XR pose (orientation quaternion + position vector), set the provided

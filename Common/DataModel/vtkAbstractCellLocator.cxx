@@ -103,7 +103,7 @@ void vtkAbstractCellLocator::UpdateInternalWeights()
 }
 
 //------------------------------------------------------------------------------
-bool vtkAbstractCellLocator::IsInBounds(const double bounds[6], const double x[3], const double tol)
+bool vtkAbstractCellLocator::IsInBounds(const double bounds[6], const double x[3], double tol)
 {
   return (bounds[0] - tol) <= x[0] && x[0] <= (bounds[1] + tol) && (bounds[2] - tol) <= x[1] &&
     x[1] <= (bounds[3] + tol) && (bounds[4] - tol) <= x[2] && x[2] <= (bounds[5] + tol);
@@ -148,7 +148,7 @@ int vtkAbstractCellLocator::IntersectWithLine(const double vtkNotUsed(p1)[3],
 
 //------------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
-  const double p1[3], const double p2[3], const double tol, vtkPoints* points, vtkIdList* cellIds)
+  const double p1[3], const double p2[3], double tol, vtkPoints* points, vtkIdList* cellIds)
 {
   return this->IntersectWithLine(p1, p2, tol, points, cellIds, this->GenericCell);
 }

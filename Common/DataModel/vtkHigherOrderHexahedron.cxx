@@ -670,7 +670,7 @@ int vtkHigherOrderHexahedron::PointIndexFromIJK(int i, int j, int k, const int* 
 }
 
 vtkIdType vtkHigherOrderHexahedron::NodeNumberingMappingFromVTK8To9(
-  const int order[3], const vtkIdType node_id_vtk8)
+  const int order[3], vtkIdType node_id_vtk8)
 {
   int numPtsPerEdgeWithoutCorners[3];
   numPtsPerEdgeWithoutCorners[0] = order[0] - 1;
@@ -741,7 +741,7 @@ bool vtkHigherOrderHexahedron::TransformFaceToCellParams(int bdyFace, double* pc
 /**\brief Set the degree  of the cell, given a vtkDataSet and cellId
  */
 void vtkHigherOrderHexahedron::SetOrderFromCellData(
-  vtkCellData* cell_data, const vtkIdType numPts, const vtkIdType cell_id)
+  vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id)
 {
   vtkDataArray* v = cell_data->GetHigherOrderDegrees();
   if (v)

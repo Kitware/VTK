@@ -484,7 +484,7 @@ bool vtkGraphLayoutView::GetIconVisibility()
 }
 
 //------------------------------------------------------------------------------
-void vtkGraphLayoutView::SetVertexLabelFontSize(const int size)
+void vtkGraphLayoutView::SetVertexLabelFontSize(int size)
 {
   this->GetGraphRepresentation()->GetVertexLabelTextProperty()->SetFontSize(size);
 }
@@ -496,7 +496,7 @@ int vtkGraphLayoutView::GetVertexLabelFontSize()
 }
 
 //------------------------------------------------------------------------------
-void vtkGraphLayoutView::SetEdgeLabelFontSize(const int size)
+void vtkGraphLayoutView::SetEdgeLabelFontSize(int size)
 {
   this->GetGraphRepresentation()->GetEdgeLabelTextProperty()->SetFontSize(size);
 }

@@ -346,27 +346,27 @@ public:
    * stored with the other fields and will cause the method
    * to behave in an unexpected way.
    */
-  void SetNumberOfTuples(const vtkIdType number);
+  void SetNumberOfTuples(vtkIdType number);
 
   /**
    * Set the jth tuple in source field data at the ith location.
    * Set operations mean that no range checking is performed, so
    * they're faster.
    */
-  void SetTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* source);
+  void SetTuple(vtkIdType i, vtkIdType j, vtkFieldData* source);
 
   /**
    * Insert the jth tuple in source field data at the ith location.
    * Range checking is performed and memory allocates as necessary.
    */
-  void InsertTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* source);
+  void InsertTuple(vtkIdType i, vtkIdType j, vtkFieldData* source);
 
   /**
    * Insert the jth tuple in source field data at the end of the
    * tuple matrix. Range checking is performed and memory is allocated
    * as necessary.
    */
-  vtkIdType InsertNextTuple(const vtkIdType j, vtkFieldData* source);
+  vtkIdType InsertNextTuple(vtkIdType j, vtkFieldData* source);
 
   ///@{
   /**

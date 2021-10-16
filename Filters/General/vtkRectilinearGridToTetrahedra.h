@@ -102,12 +102,12 @@ public:
    * If Extent[i]/Spacing[i] is within tol of an integer, then
    * assume the programmer meant an integer for direction i.
    */
-  void SetInput(const double Extent[3], const double Spacing[3], const double tol = 0.001);
+  void SetInput(const double Extent[3], const double Spacing[3], double tol = 0.001);
   /**
    * This version of the function for the wrappers
    */
-  void SetInput(const double ExtentX, const double ExtentY, const double ExtentZ,
-    const double SpacingX, const double SpacingY, const double SpacingZ, const double tol = 0.001);
+  void SetInput(double ExtentX, double ExtentY, double ExtentZ, double SpacingX, double SpacingY,
+    double SpacingZ, double tol = 0.001);
 
 protected:
   vtkRectilinearGridToTetrahedra();

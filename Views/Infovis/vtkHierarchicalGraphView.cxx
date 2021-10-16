@@ -185,7 +185,7 @@ double vtkHierarchicalGraphView::GetBundlingStrength()
 }
 
 //------------------------------------------------------------------------------
-void vtkHierarchicalGraphView::SetGraphEdgeLabelFontSize(const int size)
+void vtkHierarchicalGraphView::SetGraphEdgeLabelFontSize(int size)
 {
   this->GetHierarchyRepresentation()->SetGraphEdgeLabelFontSize(size);
 }

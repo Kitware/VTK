@@ -92,7 +92,7 @@ public:
   /**
    * Checks if the AMR block associated with the given composite is cached.
    */
-  bool HasAMRBlock(const int compositeIdx);
+  bool HasAMRBlock(int compositeIdx);
 
 protected:
   vtkAMRDataSetCache();

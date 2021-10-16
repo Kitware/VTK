@@ -30,7 +30,7 @@
 #include "vtkSmartPointer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-bool vtkGraphWeightFilter::CheckRequirements(vtkGraph* const vtkNotUsed(graph)) const
+bool vtkGraphWeightFilter::CheckRequirements(vtkGraph* vtkNotUsed(graph)) const
 {
   return true;
 }

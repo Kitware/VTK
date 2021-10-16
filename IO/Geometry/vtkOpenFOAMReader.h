@@ -365,11 +365,11 @@ public:
     vtkStringArray* timeNames = nullptr, vtkDoubleArray* timeValues = nullptr);
 
   double GetTimeValue() const;
-  bool SetTimeValue(const double);
+  bool SetTimeValue(double);
   vtkStringArray* GetTimeNames();
   vtkDoubleArray* GetTimeValues();
 
-  int MakeMetaDataAtTimeStep(const bool);
+  int MakeMetaDataAtTimeStep(bool);
 
 protected:
   // refresh flag

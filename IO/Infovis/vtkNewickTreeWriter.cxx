@@ -61,7 +61,7 @@ void vtkNewickTreeWriter::WriteData()
 }
 
 //------------------------------------------------------------------------------
-void vtkNewickTreeWriter::WriteVertex(ostream* fp, vtkTree* const input, vtkIdType vertex)
+void vtkNewickTreeWriter::WriteVertex(ostream* fp, vtkTree* input, vtkIdType vertex)
 {
   vtkIdType numChildren = input->GetNumberOfChildren(vertex);
   if (numChildren > 0)

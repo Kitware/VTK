@@ -82,7 +82,7 @@ public:
    * \param dim the dimension in query
    * \pre dim >= 0 && dim < 3
    */
-  int GetSize(const int dim);
+  int GetSize(int dim);
 
   /**
    * \brief Given a dimension and output index, return the corresponding

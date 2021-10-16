@@ -342,7 +342,7 @@ vtkMPIController* vtkMPIController::PartitionController(int localColor, int loca
 
 //------------------------------------------------------------------------------
 int vtkMPIController::WaitSome(
-  const int count, vtkMPICommunicator::Request rqsts[], vtkIntArray* completed)
+  int count, vtkMPICommunicator::Request rqsts[], vtkIntArray* completed)
 {
   assert("pre: completed array is nullptr!" && (completed != nullptr));
 
@@ -363,7 +363,7 @@ int vtkMPIController::WaitSome(
 }
 
 //------------------------------------------------------------------------------
-bool vtkMPIController::TestAll(const int count, vtkMPICommunicator::Request requests[])
+bool vtkMPIController::TestAll(int count, vtkMPICommunicator::Request requests[])
 {
   int flag = 0;
 
@@ -375,7 +375,7 @@ bool vtkMPIController::TestAll(const int count, vtkMPICommunicator::Request requ
 }
 
 //------------------------------------------------------------------------------
-bool vtkMPIController::TestAny(const int count, vtkMPICommunicator::Request requests[], int& idx)
+bool vtkMPIController::TestAny(int count, vtkMPICommunicator::Request requests[], int& idx)
 {
   int flag = 0;
 
@@ -388,7 +388,7 @@ bool vtkMPIController::TestAny(const int count, vtkMPICommunicator::Request requ
 
 //------------------------------------------------------------------------------
 bool vtkMPIController::TestSome(
-  const int count, vtkMPICommunicator::Request requests[], vtkIntArray* completed)
+  int count, vtkMPICommunicator::Request requests[], vtkIntArray* completed)
 {
   assert("pre: completed array is nullptr" && (completed != nullptr));
 

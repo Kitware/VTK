@@ -104,12 +104,12 @@ public:
 
   ///@{
   /** Set the @p name uniform array to @p f with @p count elements */
-  virtual void SetUniform1iv(const char* name, const int count, const int* f) = 0;
-  virtual void SetUniform1fv(const char* name, const int count, const float* f) = 0;
-  virtual void SetUniform2fv(const char* name, const int count, const float (*f)[2]) = 0;
-  virtual void SetUniform3fv(const char* name, const int count, const float (*f)[3]) = 0;
-  virtual void SetUniform4fv(const char* name, const int count, const float (*f)[4]) = 0;
-  virtual void SetUniformMatrix4x4v(const char* name, const int count, float* v) = 0;
+  virtual void SetUniform1iv(const char* name, int count, const int* f) = 0;
+  virtual void SetUniform1fv(const char* name, int count, const float* f) = 0;
+  virtual void SetUniform2fv(const char* name, int count, const float (*f)[2]) = 0;
+  virtual void SetUniform3fv(const char* name, int count, const float (*f)[3]) = 0;
+  virtual void SetUniform4fv(const char* name, int count, const float (*f)[4]) = 0;
+  virtual void SetUniformMatrix4x4v(const char* name, int count, float* v) = 0;
   ///@}
 
   ///@{
