@@ -148,7 +148,6 @@ public:
   };
   ///@}
 
-public:
   static vtkHardwareSelector* New();
   vtkTypeMacro(vtkHardwareSelector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;

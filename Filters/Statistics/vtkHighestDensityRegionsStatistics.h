@@ -144,7 +144,6 @@ private:
    */
   double ComputeSmoothGaussianKernel(int dimension, double khx, double khy);
 
-private:
   vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&) = delete;
   void operator=(const vtkHighestDensityRegionsStatistics&) = delete;
 };

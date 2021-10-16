@@ -458,7 +458,6 @@ private:
   friend class vtkInformationKeyToInformationFriendship;
   friend class vtkInformationIterator;
 
-private:
   vtkInformation(const vtkInformation&) = delete;
   void operator=(const vtkInformation&) = delete;
   vtkInformationRequestKey* Request;

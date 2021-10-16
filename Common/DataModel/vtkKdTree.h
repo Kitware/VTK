@@ -751,7 +751,6 @@ protected:
   vtkGetMacro(Progress, double);
   ///@}
 
-protected:
   // So that each suboperation can report progress
   // in [0,1], yet we will be able to report a global
   // progress. Sub-operations must use UpdateSubOperationProgress()

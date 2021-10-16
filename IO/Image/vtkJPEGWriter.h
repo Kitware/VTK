@@ -93,7 +93,6 @@ private:
   vtkUnsignedCharArray* Result;
   FILE* TempFP;
 
-private:
   vtkJPEGWriter(const vtkJPEGWriter&) = delete;
   void operator=(const vtkJPEGWriter&) = delete;
 };

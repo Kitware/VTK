@@ -240,7 +240,6 @@ private:
   int PlaceAxes(vtkViewport* viewport, const int* size);
   int BuildPlot(vtkViewport*);
 
-private:
   vtkBarChartActor(const vtkBarChartActor&) = delete;
   void operator=(const vtkBarChartActor&) = delete;
 };

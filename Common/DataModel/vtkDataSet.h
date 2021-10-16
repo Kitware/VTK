@@ -572,7 +572,6 @@ private:
   static void OnDataModified(
     vtkObject* source, unsigned long eid, void* clientdata, void* calldata);
 
-private:
   vtkDataSet(const vtkDataSet&) = delete;
   void operator=(const vtkDataSet&) = delete;
 };

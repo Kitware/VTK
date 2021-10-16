@@ -150,7 +150,6 @@ protected:
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-protected:
   int TargetDimensions[2];
   std::string Projection;
   std::string ProjectionWKT;

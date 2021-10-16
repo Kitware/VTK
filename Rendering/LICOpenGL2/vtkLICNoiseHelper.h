@@ -58,7 +58,6 @@ private:
   void operator=(const vtkLICRandomNumberGeneratorInterface&) = delete;
   vtkLICRandomNumberGeneratorInterface(const vtkLICRandomNumberGeneratorInterface&) = delete;
 
-private:
   vtkMinimalStandardRandomSequence* RNG;
 };
 
@@ -142,7 +141,6 @@ private:
    */
   void GetValidDimensionAndGrainSize(int type, int& dim, int& grainSize);
 
-private:
   vtkLICRandomNumberGeneratorInterface ValueGen;
   vtkLICRandomNumberGeneratorInterface ProbGen;
 };

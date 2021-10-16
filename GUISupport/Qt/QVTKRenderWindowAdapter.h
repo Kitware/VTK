@@ -184,7 +184,7 @@ public:
 private Q_SLOTS:
   void contextAboutToBeDestroyed();
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
   QVTKRenderWindowAdapter(
     QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* window, QObject* widgetOrWindow);
   Q_DISABLE_COPY(QVTKRenderWindowAdapter);

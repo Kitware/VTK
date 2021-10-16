@@ -169,7 +169,6 @@ private:
   vtkFloatArray* CurrentScalars;
   vtkPolyDataMapper* CurrentMapper;
 
-private:
   vtkVRMLImporter(const vtkVRMLImporter&) = delete;
   void operator=(const vtkVRMLImporter&) = delete;
 };

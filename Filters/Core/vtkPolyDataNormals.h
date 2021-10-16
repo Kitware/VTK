@@ -214,7 +214,6 @@ private:
   void ExecuteMarkAndSplit(vtkPolyData* oldMesh, vtkPolyData* newMesh, vtkFloatArray* cellNormals,
     vtkIdList* map, vtkIdType numPoints, vtkIdType numPolys, double cosAngle);
 
-private:
   vtkPolyDataNormals(const vtkPolyDataNormals&) = delete;
   void operator=(const vtkPolyDataNormals&) = delete;
 };

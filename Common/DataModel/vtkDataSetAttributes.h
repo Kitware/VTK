@@ -673,7 +673,6 @@ private:
 
   vtkFieldData::BasicIterator ComputeRequiredArrays(vtkDataSetAttributes* pd, int ctype);
 
-private:
   vtkDataSetAttributes(const vtkDataSetAttributes&) = delete;
   void operator=(const vtkDataSetAttributes&) = delete;
 

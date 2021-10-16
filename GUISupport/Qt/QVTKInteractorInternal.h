@@ -49,10 +49,10 @@ class QVTKInteractorInternal : public QObject
 public:
   QVTKInteractorInternal(QVTKInteractor* p);
   ~QVTKInteractorInternal() override;
-public Q_SLOTS:
+public Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
   void TimerEvent(int id);
 
-public:
+public: // NOLINT(readability-redundant-access-specifiers)
   QSignalMapper* SignalMapper;
   typedef std::map<int, QTimer*> TimerMap;
   TimerMap Timers;

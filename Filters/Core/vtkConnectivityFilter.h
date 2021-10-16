@@ -265,7 +265,6 @@ private:
   vtkIdList* PointIds;
   vtkIdList* CellIds;
 
-private:
   vtkConnectivityFilter(const vtkConnectivityFilter&) = delete;
   void operator=(const vtkConnectivityFilter&) = delete;
 };

@@ -258,7 +258,6 @@ private:
   vtkIdList* Wave;
   vtkIdList* Wave2;
 
-private:
   vtkConnectedPointsFilter(const vtkConnectedPointsFilter&) = delete;
   void operator=(const vtkConnectedPointsFilter&) = delete;
 };

@@ -111,7 +111,6 @@ private:
   // Populates the list of domains.
   void UpdateDomains();
 
-private:
   int ActiveDomainIndex;
   xdmf2::XdmfDOM XMLDOM;
   vtkXdmfDomain* ActiveDomain;

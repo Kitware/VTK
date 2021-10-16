@@ -72,7 +72,6 @@ private:
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
   void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
 
-private:
   vtkProp3DCollection(const vtkProp3DCollection&) = delete;
   void operator=(const vtkProp3DCollection&) = delete;
 };

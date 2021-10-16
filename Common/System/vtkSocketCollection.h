@@ -73,7 +73,6 @@ private:
   // Hide the standard AddItem.
   void AddItem(vtkObject* o) { this->Superclass::AddItem(o); }
 
-private:
   vtkSocketCollection(const vtkSocketCollection&) = delete;
   void operator=(const vtkSocketCollection&) = delete;
 };

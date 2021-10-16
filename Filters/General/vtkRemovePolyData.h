@@ -129,7 +129,6 @@ private:
   vtkIdTypeArray* PointIds;
   bool ExactMatch;
 
-private:
   vtkRemovePolyData(const vtkRemovePolyData&) = delete;
   void operator=(const vtkRemovePolyData&) = delete;
 };

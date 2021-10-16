@@ -683,7 +683,6 @@ protected:
 private:
   double* GetTupleN(vtkIdType i, int n);
 
-private:
   vtkDataArray(const vtkDataArray&) = delete;
   void operator=(const vtkDataArray&) = delete;
 };

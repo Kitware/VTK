@@ -213,7 +213,6 @@ private:
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 
-private:
   vtkAppendSelection(const vtkAppendSelection&) = delete;
   void operator=(const vtkAppendSelection&) = delete;
 };

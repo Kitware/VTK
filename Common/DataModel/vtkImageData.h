@@ -641,7 +641,6 @@ protected:
 private:
   void InternalImageDataCopy(vtkImageData* src);
 
-private:
   friend class vtkUniformGrid;
 
   // for the GetCell method

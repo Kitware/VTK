@@ -308,7 +308,6 @@ private:
    */
   int ChooseTimeStep(vtkInformation* outInfo);
 
-private:
   vtkXdmfReader(const vtkXdmfReader&) = delete;
   void operator=(const vtkXdmfReader&) = delete;
 };

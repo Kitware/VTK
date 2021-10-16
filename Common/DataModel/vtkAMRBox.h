@@ -271,7 +271,6 @@ public:
    */
   void RemoveGhosts(int r);
 
-public:
   /**
    * Returns the number of bytes allocated by this instance. In addition,
    * this number of bytes corresponds to the buffer size required to serialize

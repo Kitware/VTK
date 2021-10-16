@@ -98,7 +98,6 @@ private:
   char* Description;
   vtkObjectFactory* ObjectFactory;
 
-private:
   vtkOverrideInformation(const vtkOverrideInformation&) = delete;
   void operator=(const vtkOverrideInformation&) = delete;
 };

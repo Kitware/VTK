@@ -446,7 +446,6 @@ private:
   // Helper method for the ShallowCopy and DeepCopy methods.
   void InternalDataObjectCopy(vtkDataObject* src);
 
-private:
   vtkDataObject(const vtkDataObject&) = delete;
   void operator=(const vtkDataObject&) = delete;
 };

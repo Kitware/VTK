@@ -91,7 +91,6 @@ private:
   void ProcessColumn(
     vtkDataArray* array, vtkTable* spectrumTable, vtkTable* resultTable, vtkTable* normalizedTable);
 
-private:
   vtkEqualizerFilter(const vtkEqualizerFilter&) = delete;
   void operator=(const vtkEqualizerFilter&) = delete;
 

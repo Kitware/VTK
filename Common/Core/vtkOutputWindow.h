@@ -182,7 +182,6 @@ private:
 
   friend class vtkOutputWindowPrivateAccessor;
 
-private:
   vtkOutputWindow(const vtkOutputWindow&) = delete;
   void operator=(const vtkOutputWindow&) = delete;
 };

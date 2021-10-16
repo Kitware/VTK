@@ -289,7 +289,6 @@ private:
   int PlaceAxes(vtkViewport* viewport, const int* size);
   int BuildPlot(vtkViewport*);
 
-private:
   vtkSpiderPlotActor(const vtkSpiderPlotActor&) = delete;
   void operator=(const vtkSpiderPlotActor&) = delete;
 };

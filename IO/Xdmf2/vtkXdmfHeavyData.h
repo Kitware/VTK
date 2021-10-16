@@ -51,7 +51,6 @@ public:
   int Stride[3];
   XdmfFloat64 Time;
 
-public:
   vtkXdmfHeavyData(vtkXdmfDomain* domain, vtkAlgorithm* reader);
   ~vtkXdmfHeavyData();
 

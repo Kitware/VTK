@@ -202,7 +202,7 @@ public:
   virtual void removeWidgetByName(QString name);
   ///@}
 
-public Q_SLOTS:
+public Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
   /**
    * This is the function called on the QtQuick render thread before the scenegraph state
    * is synchronized. This is where most of the pipeline updates, camera manipulations, etc. and
@@ -240,7 +240,7 @@ public Q_SLOTS:
 protected Q_SLOTS:
   virtual void handleWindowChanged(QQuickWindow* w);
 
-protected:
+protected: // NOLINT(readability-redundant-access-specifiers)
   // Helper members
   QQuickVTKRenderWindow* m_renderWindow = nullptr;
   vtkNew<vtkRenderer> m_renderer;

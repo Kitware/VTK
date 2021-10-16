@@ -289,7 +289,6 @@ private:
 
   friend class vtkAlgorithmToExecutiveFriendship;
 
-private:
   vtkExecutive(const vtkExecutive&) = delete;
   void operator=(const vtkExecutive&) = delete;
 };

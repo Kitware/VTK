@@ -178,7 +178,6 @@ private:
   friend void VTKCOMMONCORE_EXPORT vtkGarbageCollectorReportInternal(
     vtkGarbageCollector*, vtkObjectBase*, void*, const char*);
 
-private:
   vtkGarbageCollector(const vtkGarbageCollector&) = delete;
   void operator=(const vtkGarbageCollector&) = delete;
 };

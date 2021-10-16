@@ -270,7 +270,6 @@ private:
   int Execute(MPI_Comm comm, int rank, int nComps, SOURCE_TYPE* srcData, int destType,
     void* destData, std::vector<MPI_Request>& reqs, std::deque<MPI_Datatype>& types, int tag);
 
-private:
   int Id;                      // transaction id
   int SrcRank;                 // rank who owns source memory
   vtkPixelExtent SrcWholeExt;  // source extent

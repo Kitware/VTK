@@ -62,7 +62,6 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkImageReader2Collection(const vtkImageReader2Collection&) = delete;
   void operator=(const vtkImageReader2Collection&) = delete;
 };

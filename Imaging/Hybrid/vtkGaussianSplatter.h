@@ -322,7 +322,6 @@ private:
   double SplatDistance[3];
   double NullValue;
 
-private:
   vtkGaussianSplatter(const vtkGaussianSplatter&) = delete;
   void operator=(const vtkGaussianSplatter&) = delete;
 };

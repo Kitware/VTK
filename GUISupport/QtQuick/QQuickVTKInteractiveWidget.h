@@ -65,7 +65,7 @@ public:
   bool enabled() const;
   ///@}
 
-public Q_SLOTS:
+public Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
   virtual void sync(vtkRenderer* ren);
 
 Q_SIGNALS:

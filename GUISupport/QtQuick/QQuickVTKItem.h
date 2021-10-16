@@ -136,10 +136,8 @@ public:
 protected:
   void scheduleRender();
 
-protected:
   bool event(QEvent*) override;
 
-protected:
   QSGNode* updatePaintNode(QSGNode*, UpdatePaintNodeData*) override;
   bool isTextureProvider() const override;
   QSGTextureProvider* textureProvider() const override;
@@ -148,7 +146,7 @@ protected:
 private Q_SLOTS:
   void invalidateSceneGraph();
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
   Q_DISABLE_COPY(QQuickVTKItem)
   Q_DECLARE_PRIVATE_D(_d_ptr, QQuickVTKItem)
   QScopedPointer<QQuickVTKItemPrivate> _d_ptr;

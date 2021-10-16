@@ -274,7 +274,6 @@ private:
   // function prototype
   virtual void AddDataSet(vtkDataSet*) {}
 
-private:
   vtkTemporalInterpolatedVelocityField(const vtkTemporalInterpolatedVelocityField&) = delete;
   void operator=(const vtkTemporalInterpolatedVelocityField&) = delete;
 };

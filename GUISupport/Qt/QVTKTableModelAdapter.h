@@ -104,7 +104,7 @@ protected:
   QPointer<QAbstractItemModel> ItemModel;
   vtkNew<vtkTable> Table;
 
-protected Q_SLOTS:
+protected Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
   virtual void onModified();
   virtual void onModelReset();
   virtual void onDataChanged(

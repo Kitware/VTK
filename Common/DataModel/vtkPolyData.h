@@ -754,7 +754,6 @@ protected:
 private:
   void Cleanup();
 
-private:
   vtkPolyData(const vtkPolyData&) = delete;
   void operator=(const vtkPolyData&) = delete;
 };

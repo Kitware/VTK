@@ -112,7 +112,6 @@ protected:
    */
   void BuildBufferObjects(vtkRenderer* ren, vtkActor* act) override;
 
-protected:
   /**
    * Set the shader parameters related to the mapper/input data, called by UpdateShader
    */
