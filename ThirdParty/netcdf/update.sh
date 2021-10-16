@@ -34,10 +34,8 @@ vtk_netcdf_config.h.in
 extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
-    sed -i -e '/#line/d' libsrc/attr.c libsrc/ncx.c libsrc/putget.c
-    # macOS takes "-e" as an extension for backup files for in-place replacement specified by -i
-    # remove the backup files
-    rm -f libsrc/attr.c-e libsrc/ncx.c-e libsrc/putget.c-e
+    sed -i.bak -e '/#line/d' libsrc/attr.c libsrc/ncx.c libsrc/putget.c
+    rm libsrc/attr.c.bak libsrc/ncx.c.bak libsrc/putget.c.bak
     mv -v CMakeLists.vtk.txt CMakeLists.txt
     popd
 }

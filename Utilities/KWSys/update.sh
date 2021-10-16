@@ -15,7 +15,8 @@ readonly paths="
 
 extract_source () {
     git_archive
-    sed -i -e '/import off/,/import on/d' "$extractdir/$name-reduced/.gitattributes"
+    sed -i.bak -e '/import off/,/import on/d' "$extractdir/$name-reduced/.gitattributes"
+    rm "$extractdir/$name-reduced/.gitattributes.bak"
 }
 
 . "${BASH_SOURCE%/*}/../../ThirdParty/update-common.sh"
