@@ -35,7 +35,7 @@
 
 int TestOSG_0d(ostream& strm)
 {
-  int i, j, k;
+  int i, k;
   vtkNew<vtkStructuredGrid> sg0D;
 
   vtkNew<vtkPoints> onepoints;
@@ -116,16 +116,6 @@ int TestOSG_0d(ostream& strm)
   sg0D->GetPoint(0, point);
   strm << "GetPoint(sg0D): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
 
-  // Test FindPoint
-
-  double point3D[3] = { 10, 12, 14 };
-
-  // Test FindAndGetCell
-
-  double pcoords[3], weights[8];
-  int subId;
-  vtkCell* dummyCell = nullptr;
-
   // Test GetCellType
 
   strm << "GetCellType(sg0D): " << sg0D->GetCellType(0) << endl;
@@ -139,7 +129,7 @@ int TestOSG_0d(ostream& strm)
 
 int TestOSG_1dx(ostream& strm)
 {
-  int i, j, k;
+  int i;
   vtkNew<vtkStructuredGrid> sg1Dx;
 
   vtkNew<vtkPoints> xpoints;
@@ -282,7 +272,7 @@ int TestOSG_1dx(ostream& strm)
 
 int TestOSG_1dy(ostream& strm)
 {
-  int i, j, k;
+  int i, j;
   vtkNew<vtkStructuredGrid> sg1Dy;
 
   vtkNew<vtkPoints> ypoints;
@@ -426,7 +416,7 @@ int TestOSG_1dy(ostream& strm)
 
 int TestOSG_1dz(ostream& strm)
 {
-  int i, j, k;
+  int i, k;
   vtkNew<vtkStructuredGrid> sg1Dz;
 
   vtkNew<vtkPoints> zpoints;
@@ -569,7 +559,7 @@ int TestOSG_1dz(ostream& strm)
 
 int TestOSG_2dxy(ostream& strm)
 {
-  int i, j, k;
+  int i, j;
   vtkNew<vtkStructuredGrid> sg2Dxy;
 
   vtkNew<vtkPoints> xypoints;
