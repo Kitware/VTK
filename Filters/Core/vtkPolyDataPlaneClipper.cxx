@@ -1,3 +1,4 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -46,6 +47,7 @@ vtkPolyDataPlaneClipper::vtkPolyDataPlaneClipper()
   this->Plane = nullptr;
   this->ClippingLoops = true;
   this->Capping = true;
+  this->PassCapPointData = false;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
   this->BatchSize = 10000;
 
@@ -918,7 +920,7 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Some filters make use of the loop/capping point data
-  if (this->ClippingLoops || this->Capping)
+  if (this->PassCapPointData && (this->ClippingLoops || this->Capping))
   {
     output2->GetPointData()->PassData(output->GetPointData());
   }
@@ -933,6 +935,7 @@ void vtkPolyDataPlaneClipper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Plane: " << this->Plane << "\n";
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
+  os << indent << "Pass Cap Point Data: " << (this->PassCapPointData ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
   os << indent << "Batch Size: " << this->BatchSize << "\n";
 }
