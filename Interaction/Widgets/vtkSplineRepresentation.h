@@ -45,7 +45,7 @@ public:
    * Set the number of handles for this widget,
    *  while keeping a similar spline.
    */
-  virtual void SetNumberOfHandles(int npts) override;
+  void SetNumberOfHandles(int npts) override;
 
   /**
    * Set the parametric spline object.
@@ -104,7 +104,7 @@ protected:
   // Specialized methods to access handles
   vtkActor* GetHandleActor(int index) override;
   vtkHandleSource* GetHandleSource(int index) override;
-  virtual int GetHandleIndex(vtkProp* prop) override;
+  int GetHandleIndex(vtkProp* prop) override;
 
 private:
   vtkSplineRepresentation(const vtkSplineRepresentation&) = delete;

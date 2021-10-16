@@ -78,19 +78,19 @@ public:
   /**
    * Destructor
    */
-  virtual ~QQmlVTKPlugin() = default;
+  ~QQmlVTKPlugin() override = default;
 
   /**
    * Register QML types provided by VTK
    */
-  void registerTypes(const char* uri);
+  void registerTypes(const char* uri) override;
 
   /**
    * Initialize the extension using the QQmlEngine
    *
    * \sa cleanup
    */
-  void initializeEngine(QQmlEngine* engine, const char* uri);
+  void initializeEngine(QQmlEngine* engine, const char* uri) override;
 
 protected Q_SLOTS:
   /**

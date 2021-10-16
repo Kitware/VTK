@@ -88,7 +88,7 @@ public:
     T* GetContentPtr() override { return reinterpret_cast<T*>(this->Impl.GetStorage()); }
 
   protected:
-    virtual ItImpl* CloneImpl() const override { return new ItImpl(*this); };
+    ItImpl* CloneImpl() const override { return new ItImpl(*this); };
 
   private:
     OpenMP::ThreadSpecificStorageIterator Impl;

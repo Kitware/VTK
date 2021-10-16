@@ -120,7 +120,7 @@ protected:
    * @param supportSeek true is Seek and Tell are supported
    */
   vtkResourceStream(bool supportSeek);
-  virtual ~vtkResourceStream() override;
+  ~vtkResourceStream() override;
   vtkResourceStream(const vtkResourceStream&) = delete;
   vtkResourceStream& operator=(const vtkResourceStream&) = delete;
 

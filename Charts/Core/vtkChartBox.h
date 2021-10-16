@@ -166,19 +166,19 @@ public:
    * Calls superclass implementation and sets GeometryValid to False, causing
    * the chart's geometry to be updated on the next Paint call.
    */
-  virtual void SetSize(const vtkRectf& rect) override;
+  void SetSize(const vtkRectf& rect) override;
 
   /**
    * Calls superclass implementation and sets GeometryValid to False, causing
    * the chart's geometry to be updated on the next Paint call.
    */
-  virtual void SetGeometry(int arg1, int arg2) override;
+  void SetGeometry(int arg1, int arg2) override;
 
   /**
    * Calls superclass implementation and sets GeometryValid to False, causing
    * the chart's geometry to be updated on the next Paint call.
    */
-  virtual void SetLayoutStrategy(int strategy) override;
+  void SetLayoutStrategy(int strategy) override;
 
 protected:
   vtkChartBox();

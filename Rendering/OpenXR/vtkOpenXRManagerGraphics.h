@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkOpenXRManagerGraphics() = default;
-  ~vtkOpenXRManagerGraphics() = default;
+  ~vtkOpenXRManagerGraphics() override = default;
 
 private:
   vtkOpenXRManagerGraphics(const vtkOpenXRManagerGraphics&) = delete;

@@ -59,14 +59,14 @@ public:
   void SetStringCommand(const char* arg);
   void SetInterp(Tcl_Interp* interp) { this->Interp = interp; }
 
-  void Execute(vtkObject*, unsigned long, void*);
+  void Execute(vtkObject*, unsigned long, void*) override;
 
   char* StringCommand;
   Tcl_Interp* Interp;
 
 protected:
   vtkTclCommand();
-  ~vtkTclCommand();
+  ~vtkTclCommand() override;
 };
 
 typedef struct _vtkTclVoidFuncArg

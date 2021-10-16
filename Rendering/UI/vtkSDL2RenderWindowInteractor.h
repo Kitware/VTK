@@ -41,7 +41,7 @@ public:
   /**
    * Initialize the event handler
    */
-  virtual void Initialize() override;
+  void Initialize() override;
 
   /**
    * Run the event loop and return. This is provided so that you can

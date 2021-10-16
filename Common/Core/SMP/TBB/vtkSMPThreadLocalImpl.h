@@ -75,7 +75,7 @@ public:
     T* GetContentPtr() override { return &*this->Iter; }
 
   protected:
-    virtual ItImpl* CloneImpl() const override { return new ItImpl(*this); };
+    ItImpl* CloneImpl() const override { return new ItImpl(*this); };
 
   private:
     TLSIter Iter;

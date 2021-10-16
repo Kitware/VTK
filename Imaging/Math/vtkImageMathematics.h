@@ -213,8 +213,8 @@ public:
    */
   virtual void SetInput1Data(vtkDataObject* in) { this->SetInputData(0, in); }
   virtual void SetInput2Data(vtkDataObject* in) { this->AddInputData(0, in); }
-  virtual void SetInputConnection(int idx, vtkAlgorithmOutput* input) override;
-  virtual void SetInputConnection(vtkAlgorithmOutput* input) override
+  void SetInputConnection(int idx, vtkAlgorithmOutput* input) override;
+  void SetInputConnection(vtkAlgorithmOutput* input) override
   {
     this->SetInputConnection(0, input);
   }

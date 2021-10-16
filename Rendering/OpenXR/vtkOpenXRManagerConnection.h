@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkOpenXRManagerConnection() = default;
-  ~vtkOpenXRManagerConnection() = default;
+  ~vtkOpenXRManagerConnection() override = default;
 
   // IP Address to connect to
   std::string IPAddress;

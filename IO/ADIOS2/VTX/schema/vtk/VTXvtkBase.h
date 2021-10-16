@@ -47,7 +47,7 @@ public:
     const std::string& type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
 
   // can't use = default, due to forward class not defined
-  virtual ~VTXvtkBase();
+  ~VTXvtkBase() override;
 
 protected:
   std::vector<types::Piece> Pieces;
@@ -56,12 +56,12 @@ protected:
   const static std::set<std::string> SpecialNames;
   const static std::map<types::DataSetType, std::string> DataSetTypes;
 
-  virtual void DoFill(vtkMultiBlockDataSet* multiBlock, size_t step) = 0;
-  virtual void ReadPiece(size_t step, size_t pieceID) = 0;
+  void DoFill(vtkMultiBlockDataSet* multiBlock, size_t step) override = 0;
+  void ReadPiece(size_t step, size_t pieceID) override = 0;
 
   bool ReadDataSets(types::DataSetType type, size_t step, size_t pieceID);
 
-  virtual void Init() = 0;
+  void Init() override = 0;
   void InitTimes() final;
 
   std::string DataSetType(types::DataSetType type) const noexcept;
