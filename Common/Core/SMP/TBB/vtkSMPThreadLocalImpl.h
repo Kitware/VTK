@@ -49,7 +49,7 @@ class vtkSMPThreadLocalImpl<BackendType::TBB, T> : public vtkSMPThreadLocalImplA
   typedef typename vtkSMPThreadLocalImplAbstract<T>::ItImpl ItImplAbstract;
 
 public:
-  vtkSMPThreadLocalImpl() {}
+  vtkSMPThreadLocalImpl() = default;
 
   explicit vtkSMPThreadLocalImpl(const T& exemplar)
     : Internal(exemplar)

@@ -60,9 +60,7 @@
  */
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
-octree_cursor<T_, R_, P_, O_, OP_, d_>::octree_cursor()
-{
-}
+octree_cursor<T_, R_, P_, O_, OP_, d_>::octree_cursor() = default;
 
 /**\brief Constructor you should generally use.
  *

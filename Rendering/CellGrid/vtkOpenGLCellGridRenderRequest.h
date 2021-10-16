@@ -48,7 +48,7 @@ public:
   class StateBase
   {
   public:
-    virtual ~StateBase() {}
+    virtual ~StateBase() = default;
   };
 
   /// An enumeration of which shapes to render.
