@@ -670,7 +670,7 @@ inline double PointLocation(int axis0, int axis1, double* p0, double* p1, double
 }
 }
 
-#define VTK_POLYGON_TOL 1.e-06 // Tolerance for testing on polygon boundary
+#define VTK_POLYGON_TOL 1.e-08 // Tolerance for testing on polygon boundary
 
 //------------------------------------------------------------------------------
 // Determine whether a point is inside a polygon. The function uses a winding
@@ -703,6 +703,7 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
       (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
       (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
   tol2 *= tol2;
+  tol2 = (tol2 == 0.0 ? FLT_EPSILON : tol2);
 
   for (int i = 0; i < numPts; i++)
   {
