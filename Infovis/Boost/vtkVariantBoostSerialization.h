@@ -196,7 +196,7 @@ void load(Archiver& ar, vtkVariantArray& array, const unsigned int vtkNotUsed(ve
 
   if (name.empty())
   {
-    array.SetName(0);
+    array.SetName(nullptr);
   }
   else
   {

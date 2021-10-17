@@ -113,22 +113,22 @@ private:
 
   // Description:
   // Read attributes.
-  bool ReadAttributes(vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid, int* update_extents = 0);
+  bool ReadAttributes(vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid, int* update_extents = nullptr);
 
   // Description:
   // Reads an attribute.
   // If update_extents are non-null, then we are reading structured attributes
   // and we read only the sub-set specified by update_extents.
   vtkDataArray* ReadAttribute(
-    xdmf2::XdmfAttribute* xmfAttribute, int data_dimensionality, int* update_extents = 0);
+    xdmf2::XdmfAttribute* xmfAttribute, int data_dimensionality, int* update_extents = nullptr);
 
   // Description:
   // Read sets that mark ghost cells/nodes and then create attribute arrays for
   // marking the cells as such.
-  bool ReadGhostSets(vtkDataSet* ds, xdmf2::XdmfGrid* xmfGrid, int* update_extents = 0);
+  bool ReadGhostSets(vtkDataSet* ds, xdmf2::XdmfGrid* xmfGrid, int* update_extents = nullptr);
 
   vtkMultiBlockDataSet* ReadSets(
-    vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid, int* update_extents = 0);
+    vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid, int* update_extents = nullptr);
 
   // Description:
   // Used when reading node-sets.

@@ -53,9 +53,9 @@ typedef std::pair<CVMI, CVMI> CVMP;
 class PIO_DATA
 {
 public:
-  PIO_DATA(const char* piofile = 0, const std::list<std::string>* fields_to_read = 0,
-    bool _defer_read_data = true, const std::set<const char*, Cstring_less>* rdata = 0,
-    const std::set<const char*, Cstring_less>* cdata = 0);
+  PIO_DATA(const char* piofile = nullptr, const std::list<std::string>* fields_to_read = nullptr,
+    bool _defer_read_data = true, const std::set<const char*, Cstring_less>* rdata = nullptr,
+    const std::set<const char*, Cstring_less>* cdata = nullptr);
   ~PIO_DATA();
   bool GetPIOfileTime(const char*, double&);
   void print(std::ostream&);
@@ -124,8 +124,8 @@ private:
   char* buf;
   size_t size_buf;
   void ReadPioFieldData(PIO_FIELD& pio_field);
-  bool read(const char*, const std::list<std::string>* fields_to_read = 0);
-  bool read(const std::list<std::string>* fields_to_read = 0);
+  bool read(const char*, const std::list<std::string>* fields_to_read = nullptr);
+  bool read(const std::list<std::string>* fields_to_read = nullptr);
   inline void byte_flip(char* word, int64_t size)
   {
     if (size_buf < (size_t)size)
@@ -205,7 +205,7 @@ private:
   inline bool read_field(const char* pio_name, const std::list<std::string>* fields_to_read)
   {
     std::string spio_name = std::string(pio_name);
-    if (fields_to_read == 0)
+    if (fields_to_read == nullptr)
       return true;
     else
     {

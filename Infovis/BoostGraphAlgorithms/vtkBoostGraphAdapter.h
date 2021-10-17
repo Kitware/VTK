@@ -185,7 +185,7 @@ class vtk_edge_iterator
       const vtkEdgeType&, vtkIdType>
 {
 public:
-  explicit vtk_edge_iterator(vtkGraph* g = 0, vtkIdType v = 0)
+  explicit vtk_edge_iterator(vtkGraph* g = nullptr, vtkIdType v = 0)
     : directed(false)
     , vertex(v)
     , lastVertex(v)
@@ -199,7 +199,8 @@ public:
     }
 
     vtkIdType myRank = -1;
-    vtkDistributedGraphHelper* helper = this->graph ? this->graph->GetDistributedGraphHelper() : 0;
+    vtkDistributedGraphHelper* helper =
+      this->graph ? this->graph->GetDistributedGraphHelper() : nullptr;
     if (helper)
     {
       myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -207,9 +208,9 @@ public:
       lastVertex = helper->MakeDistributedId(myRank, lastVertex);
     }
 
-    if (graph != 0)
+    if (graph != nullptr)
     {
-      directed = (vtkDirectedGraph::SafeDownCast(graph) != 0);
+      directed = (vtkDirectedGraph::SafeDownCast(graph) != nullptr);
       while (vertex < lastVertex && this->graph->GetOutDegree(vertex) == 0)
       {
         ++vertex;
@@ -266,13 +267,13 @@ private:
     {
       vtkIdType myRank = -1;
       vtkDistributedGraphHelper* helper =
-        this->graph ? this->graph->GetDistributedGraphHelper() : 0;
+        this->graph ? this->graph->GetDistributedGraphHelper() : nullptr;
       if (helper)
       {
         myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
       }
 
-      while (iter != 0 &&
+      while (iter != nullptr &&
         ( // Skip non-local edges
           (helper && helper->GetEdgeOwner(iter->Id) != myRank)
           // Skip entirely-local edges where Source > Target
@@ -334,7 +335,7 @@ class vtk_out_edge_pointer_iterator
       const vtkEdgeType&, ptrdiff_t>
 {
 public:
-  explicit vtk_out_edge_pointer_iterator(vtkGraph* g = 0, vtkIdType v = 0, bool end = false)
+  explicit vtk_out_edge_pointer_iterator(vtkGraph* g = nullptr, vtkIdType v = 0, bool end = false)
     : vertex(v)
     , iter(nullptr)
   {
@@ -391,7 +392,7 @@ class vtk_in_edge_pointer_iterator
       const vtkEdgeType&, ptrdiff_t>
 {
 public:
-  explicit vtk_in_edge_pointer_iterator(vtkGraph* g = 0, vtkIdType v = 0, bool end = false)
+  explicit vtk_in_edge_pointer_iterator(vtkGraph* g = nullptr, vtkIdType v = 0, bool end = false)
     : vertex(v)
     , iter(nullptr)
   {

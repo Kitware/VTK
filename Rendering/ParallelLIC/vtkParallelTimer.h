@@ -209,7 +209,7 @@ private:
   {
   public:
     vtkParallelTimerDestructor()
-      : Log(0)
+      : Log(nullptr)
     {
     }
     ~vtkParallelTimerDestructor();

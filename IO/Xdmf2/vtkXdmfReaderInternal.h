@@ -214,7 +214,7 @@ public:
    * After instantiating, check that the domain is valid. If this returns false,
    * it means that the specified domain could not be located.
    */
-  bool IsValid() { return (this->XMLDomain != 0); }
+  bool IsValid() { return (this->XMLDomain != nullptr); }
 
   //---------------------------------------------------------------------------
   vtkGraph* GetSIL() { return this->SIL; }
