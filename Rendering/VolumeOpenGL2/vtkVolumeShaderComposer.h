@@ -2839,7 +2839,7 @@ inline std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMap
         \n#if NUMBER_OF_CONTOURS\
         \n    int maxComp = 0;");
 
-    std::string compParamStr = "";
+    std::string compParamStr;
     if (noOfComponents > 1 && independentComponents)
     {
       shaderStr += std::string("\

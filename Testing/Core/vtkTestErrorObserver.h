@@ -29,8 +29,6 @@ public:
   ErrorObserver()
     : Error(false)
     , Warning(false)
-    , ErrorMessage("")
-    , WarningMessage("")
   {
   }
   static ErrorObserver* New() { return new ErrorObserver; }

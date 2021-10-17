@@ -351,7 +351,7 @@ private:
   vtkCGNSReader(const vtkCGNSReader&) = delete;
   void operator=(const vtkCGNSReader&) = delete;
 
-  std::string FileName = "";
+  std::string FileName;
   int DataLocation = vtkCGNSReader::CELL_DATA;
   bool LoadBndPatch = false;
   bool LoadMesh = true;

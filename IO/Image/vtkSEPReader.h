@@ -118,7 +118,7 @@ protected:
   /**
    * Exposed Properties
    */
-  std::string FileName = "";
+  std::string FileName;
   int OutputGridDimension = 3;
   int ExtentSplitMode = vtkExtentTranslator::BLOCK_MODE;
   double DataOrigin[details::SEP_READER_MAX_DIMENSION];

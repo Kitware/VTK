@@ -186,8 +186,6 @@ public:
   public:
     XdmfDataSetTopoGeoPath()
       : dataset(nullptr)
-      , topologyPath()
-      , geometryPath()
     {
     }
     vtkDataSet* dataset;
