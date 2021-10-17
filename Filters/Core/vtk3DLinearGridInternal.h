@@ -127,7 +127,7 @@ struct TetraCell : public BaseCell
     this->NumVerts = 4;
     this->NumEdges = 6;
     this->BuildCases();
-    this->Cases = this->TetraCases;
+    this->Cases = TetraCell::TetraCases;
   }
   ~TetraCell() override = default;
   void BuildCases() override;
@@ -151,7 +151,7 @@ void TetraCell::BuildCases()
     cases[i] = vtkTetra::GetTriangleCases(i);
   }
 
-  BaseCell::BuildCases(numCases, edges, cases, this->TetraCases);
+  BaseCell::BuildCases(numCases, edges, cases, TetraCell::TetraCases);
 
   delete[] edges;
   delete[] cases;
@@ -168,7 +168,7 @@ struct HexahedronCell : public BaseCell
     this->NumVerts = 8;
     this->NumEdges = 12;
     this->BuildCases();
-    this->Cases = this->HexahedronCases;
+    this->Cases = HexahedronCell::HexahedronCases;
   }
   ~HexahedronCell() override = default;
   void BuildCases() override;
@@ -191,7 +191,7 @@ void HexahedronCell::BuildCases()
     cases[i] = vtkHexahedron::GetTriangleCases(i);
   }
 
-  BaseCell::BuildCases(numCases, edges, cases, this->HexahedronCases);
+  BaseCell::BuildCases(numCases, edges, cases, HexahedronCell::HexahedronCases);
 
   delete[] edges;
   delete[] cases;
@@ -208,7 +208,7 @@ struct WedgeCell : public BaseCell
     this->NumVerts = 6;
     this->NumEdges = 9;
     this->BuildCases();
-    this->Cases = this->WedgeCases;
+    this->Cases = WedgeCell::WedgeCases;
   }
   ~WedgeCell() override = default;
   void BuildCases() override;
@@ -231,7 +231,7 @@ void WedgeCell::BuildCases()
     cases[i] = vtkWedge::GetTriangleCases(i);
   }
 
-  BaseCell::BuildCases(numCases, edges, cases, this->WedgeCases);
+  BaseCell::BuildCases(numCases, edges, cases, WedgeCell::WedgeCases);
 
   delete[] edges;
   delete[] cases;
@@ -248,7 +248,7 @@ struct PyramidCell : public BaseCell
     this->NumVerts = 5;
     this->NumEdges = 8;
     this->BuildCases();
-    this->Cases = this->PyramidCases;
+    this->Cases = PyramidCell::PyramidCases;
   }
   ~PyramidCell() override = default;
   void BuildCases() override;
@@ -271,7 +271,7 @@ void PyramidCell::BuildCases()
     cases[i] = vtkPyramid::GetTriangleCases(i);
   }
 
-  BaseCell::BuildCases(numCases, edges, cases, this->PyramidCases);
+  BaseCell::BuildCases(numCases, edges, cases, PyramidCell::PyramidCases);
 
   delete[] edges;
   delete[] cases;
@@ -288,7 +288,7 @@ struct VoxelCell : public BaseCell
     this->NumVerts = 8;
     this->NumEdges = 12;
     this->BuildCases();
-    this->Cases = this->VoxCases;
+    this->Cases = VoxelCell::VoxCases;
   }
   ~VoxelCell() override = default;
   void BuildCases() override;
@@ -330,7 +330,7 @@ void VoxelCell::BuildCases()
     cases[voxCase] = vtkHexahedron::GetTriangleCases(hexCase);
   }
 
-  BaseCell::BuildCases(numCases, edges, cases, this->VoxCases);
+  BaseCell::BuildCases(numCases, edges, cases, VoxelCell::VoxCases);
 
   delete[] edges;
   delete[] cases;
@@ -346,7 +346,7 @@ struct EmptyCell : public BaseCell
   {
     this->NumVerts = 0;
     this->NumEdges = 0;
-    this->Cases = this->EmptyCases;
+    this->Cases = EmptyCell::EmptyCases;
   }
   ~EmptyCell() override = default;
   void BuildCases() override {}

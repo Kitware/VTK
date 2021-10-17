@@ -64,7 +64,10 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  float* GetDecodedGradientTable() override { return &(this->DecodedGradientTable[0]); }
+  float* GetDecodedGradientTable() override
+  {
+    return &(vtkSphericalDirectionEncoder::DecodedGradientTable[0]);
+  }
 
 protected:
   vtkSphericalDirectionEncoder();

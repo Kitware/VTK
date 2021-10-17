@@ -824,7 +824,7 @@ inline bool vtkPythonArgs::CheckPrecond(bool c, const char* text)
 {
   if (!c)
   {
-    this->PrecondError(text);
+    vtkPythonArgs::PrecondError(text);
   }
   return c;
 }

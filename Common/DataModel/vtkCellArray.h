@@ -444,11 +444,11 @@ public:
   {
     if (this->Storage.Is64Bit())
     {
-      return this->Storage.GetArrays64().ValueTypeIsSameAsIdType;
+      return VisitState<ArrayType64>::ValueTypeIsSameAsIdType;
     }
     else
     {
-      return this->Storage.GetArrays32().ValueTypeIsSameAsIdType;
+      return VisitState<ArrayType32>::ValueTypeIsSameAsIdType;
     }
   }
 
