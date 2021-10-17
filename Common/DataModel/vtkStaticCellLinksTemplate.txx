@@ -641,17 +641,11 @@ void vtkStaticCellLinksTemplate<TIds>::DeepCopy(vtkAbstractCellLinks* src)
     this->NumPts = links->NumPts;
     this->NumCells = links->NumCells;
 
-    if (this->Links != nullptr)
-    {
-      delete[] this->Links;
-    }
+    delete[] this->Links;
     this->Links = new TIds[this->LinksSize + 1];
     std::copy(links->Links, links->Links + (this->LinksSize + 1), this->Links);
 
-    if (this->Offsets != nullptr)
-    {
-      delete[] this->Offsets;
-    }
+    delete[] this->Offsets;
     this->Offsets = new TIds[this->NumPts + 1];
     std::copy(links->Offsets, links->Offsets + (this->NumPts + 1), this->Offsets);
   }

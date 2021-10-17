@@ -130,8 +130,7 @@ private:
   {
     if (size_buf < (size_t)size)
     {
-      if (buf)
-        delete[] buf;
+      delete[] buf;
       size_buf = size;
       buf = new char[size_buf];
     }
@@ -175,8 +174,7 @@ private:
   {
     if (size_buf <= len)
     {
-      if (buf)
-        delete[] buf;
+      delete[] buf;
       size_buf = len + 1;
       buf = new char[size_buf];
     }
