@@ -65,7 +65,7 @@ public:
    * Given a collection of models, calculate aggregate model
    * NB: not implemented
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override { return; }
+  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override {}
 
 protected:
   vtkContingencyStatistics();

@@ -372,7 +372,6 @@ inline void vtkXMLDataElement::AddCharacterData(const char* data, size_t length)
   char* pCD = this->CharacterData + eod;
   memmove(pCD, data, length);
   pCD[length] = '\0';
-  return;
 }
 
 VTK_ABI_NAMESPACE_END

@@ -108,10 +108,7 @@ inline void vtkWindowsTestUtilitiesSetupForTesting()
 VTK_ABI_NAMESPACE_END
 #else
 VTK_ABI_NAMESPACE_BEGIN
-inline void vtkWindowsTestUtilitiesSetupForTesting()
-{
-  return;
-}
+inline void vtkWindowsTestUtilitiesSetupForTesting() {}
 VTK_ABI_NAMESPACE_END
 #endif
 #endif
