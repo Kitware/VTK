@@ -383,6 +383,7 @@ protected:
 
 private:
   // hide the superclass' ShallowCopy() from the user and the compiler.
+  // NOLINTNEXTLINE(bugprone-parent-virtual-call)
   void ShallowCopy(vtkProp* prop) override { this->vtkProp::ShallowCopy(prop); }
 
   vtkCubeAxesActor2D(const vtkCubeAxesActor2D&) = delete;
