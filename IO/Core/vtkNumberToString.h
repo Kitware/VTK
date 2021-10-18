@@ -65,8 +65,8 @@ public:
   {
     return val;
   }
-  const TagDouble operator()(const double& val) const { return TagDouble(val); }
-  const TagFloat operator()(const float& val) const { return TagFloat(val); }
+  TagDouble operator()(const double& val) const { return TagDouble(val); }
+  TagFloat operator()(const float& val) const { return TagFloat(val); }
 };
 
 VTKIOCORE_EXPORT ostream& operator<<(ostream& stream, const vtkNumberToString::TagDouble& tag);
