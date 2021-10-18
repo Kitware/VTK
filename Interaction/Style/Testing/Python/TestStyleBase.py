@@ -49,6 +49,8 @@ class TestStyleBase(object):
         win_center_x = win_size[0] / (2.0)
         win_center_y = win_size[1] / (2.0)
 
+        # The following line can be problematic, it may use a different picker
+        # than what the interactions style uses causing inconsistencies.
         pick = vtk.vtkPropPicker()
 
         radius = 5 * (1 + use_timers)
