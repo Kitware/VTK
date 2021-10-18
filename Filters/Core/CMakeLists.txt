@@ -125,9 +125,10 @@ set(classes
   vtkVoronoi2D
   vtkWindowedSincPolyDataFilter)
 
-set(headers
-    vtk3DLinearGridInternal.h)
+set(private_headers
+  vtk3DLinearGridInternal.h)
 
 vtk_module_add_module(VTK::FiltersCore
-  CLASSES ${classes})
+  CLASSES ${classes}
+  PRIVATE_HEADERS ${private_headers})
 vtk_add_test_mangling(VTK::FiltersCore)
