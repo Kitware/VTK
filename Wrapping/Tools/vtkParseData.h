@@ -233,35 +233,35 @@ typedef struct UsingInfo_
  */
 typedef struct ClassInfo_
 {
-  parse_item_t ItemType;
-  parse_access_t Access;
   const char* Name;
   const char* Comment;
   TemplateInfo* Template;
-  int NumberOfSuperClasses;
   const char** SuperClasses;
-  int NumberOfItems;
   ItemInfo* Items;
-  int NumberOfClasses;
   struct ClassInfo_** Classes;
-  int NumberOfFunctions;
   FunctionInfo** Functions;
-  int NumberOfConstants;
   ValueInfo** Constants;
-  int NumberOfVariables;
   ValueInfo** Variables;
-  int NumberOfEnums;
   struct ClassInfo_** Enums;
-  int NumberOfTypedefs;
   ValueInfo** Typedefs;
-  int NumberOfUsings;
   UsingInfo** Usings;
-  int NumberOfNamespaces;
   struct ClassInfo_** Namespaces;
-  int NumberOfComments;
   CommentInfo** Comments;
   const char* DeprecatedReason;
   const char* DeprecatedVersion;
+  parse_item_t ItemType;
+  parse_access_t Access;
+  int NumberOfSuperClasses;
+  int NumberOfItems;
+  int NumberOfClasses;
+  int NumberOfFunctions;
+  int NumberOfConstants;
+  int NumberOfVariables;
+  int NumberOfEnums;
+  int NumberOfTypedefs;
+  int NumberOfUsings;
+  int NumberOfNamespaces;
+  int NumberOfComments;
   int IsAbstract;
   int IsFinal;
   int HasDelete;
