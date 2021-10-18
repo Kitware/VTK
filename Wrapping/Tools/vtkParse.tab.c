@@ -8834,6 +8834,7 @@ static void yypdumpstack(yyGLRStack* yystackp)
 #undef yychar
 #undef yynerrs
 
+// NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "lex.yy.c"
 #include <string.h>
 
