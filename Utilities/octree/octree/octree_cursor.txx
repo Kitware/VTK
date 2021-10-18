@@ -228,7 +228,7 @@ bool octree_cursor<T_, R_, P_, O_, OP_, d_>::axis_bit(int axis) const
     throw std::logic_error("The root node has no axis partner.");
   }
 
-  return (bitcode & (1 << axis)) ? 1 : 0;
+  return (bitcode & (1 << axis)) ? true : false;
 }
 
 /**\brief Visit a specified octree node if it exists.

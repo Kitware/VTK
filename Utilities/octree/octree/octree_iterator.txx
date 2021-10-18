@@ -138,7 +138,7 @@ octree_iterator<T_, R_, P_, O_, OP_, d_>::check_incr()
   }
   else if (this->m_current_node->is_leaf_node())
   {
-    while (1)
+    while (true)
     {
       if (this->m_indices.empty())
       {
@@ -201,7 +201,7 @@ octree_iterator<T_, R_, P_, O_, OP_, d_>::check_decr()
   }
   int child = (1 << d_) - 1;
   // Uptown. (Climb upwards to the first non-traversed node)
-  while (1)
+  while (true)
   {
     if (this->m_indices.empty())
     { // Last node is root node. Report it if we should.
