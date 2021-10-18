@@ -74,8 +74,7 @@ inline bool UseClippedVoxelIntensity(vtkOpenGLGPUVolumeRayCastMapper::VolumeInpu
 
 inline std::string ArrayBaseName(const std::string& arrayName)
 {
-  const std::string base = arrayName.substr(0, arrayName.length() - 3);
-  return base;
+  return arrayName.substr(0, arrayName.length() - 3);
 }
 }
 
