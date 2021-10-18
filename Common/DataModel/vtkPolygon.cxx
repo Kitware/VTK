@@ -20,6 +20,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
+#include "vtkLogger.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkMergePoints.h"
@@ -1295,7 +1296,7 @@ double vtkPolyVertexList::ComputeMeasure(vtkLocalPolyVertex* vtx)
   }
   else
   {
-    cout << "Measure not supported\n";
+    vtkLog(WARNING, "Measure not supported");
     return -1.0;
   }
 }
