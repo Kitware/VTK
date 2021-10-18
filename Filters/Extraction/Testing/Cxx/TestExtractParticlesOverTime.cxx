@@ -92,5 +92,15 @@ int TestExtractParticlesOverTime(int, char*[])
     }
   }
 
+  sphere->SetCenter(0, 0, 0);
+  particleExtraction->Update();
+  vtkIdType updatedNumberOfPoints =
+    vtkDataSet::SafeDownCast(particleExtraction->GetOutputDataObject(0))->GetNumberOfPoints();
+  if (updatedNumberOfPoints != 1)
+  {
+    vtkLog(ERROR, "wrong number of points after source update.");
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }

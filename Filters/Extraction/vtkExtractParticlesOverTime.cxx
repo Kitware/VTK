@@ -167,6 +167,8 @@ int vtkExtractParticlesOverTime::RequestInformation(vtkInformation* vtkNotUsed(r
     this->Internals->NumberOfTimeSteps = 0;
   }
 
+  this->Internals->CurrentState = State::NOT_EXTRACTED;
+
   return 1;
 }
 
