@@ -59,4 +59,5 @@ renWin.AddObserver("AbortCheckEvent",TkCheckAbort)
 mat = vtk.vtkMatrix4x4()
 spikeActor.SetUserMatrix(mat)
 renWin.Render()
+iren.Start()
 # --- end of script --
