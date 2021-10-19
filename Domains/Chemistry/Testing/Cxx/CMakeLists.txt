@@ -4,15 +4,22 @@ option(VTK_BUILD_BODR_DATA_GENERATOR
 )
 mark_as_advanced(VTK_BUILD_BODR_DATA_GENERATOR)
 
-set(generator_test)
 if(VTK_BUILD_BODR_DATA_GENERATOR)
-  set(generator_test
-    "GenerateBlueObeliskHeader.cxx,NO_VALID,NO_DATA,NO_OUTPUT"
-  )
+  add_executable(GenerateBlueObeliskHeader
+    GenerateBlueObeliskHeader.cxx)
+  target_link_libraries(GenerateBlueObeliskHeader
+    PRIVATE
+      VTK::DomainsChemistry)
+  vtk_module_autolink(
+    TARGETS GenerateBlueObeliskHeader
+    MODULES VTK::DomainsChemistry)
+  add_test(
+    NAME    VTK::DomainsChemistry-GenerateBlueObeliskHeader
+    COMMAND GenerateBlueObeliskHeader
+            "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 endif()
 
 vtk_add_test_cxx(vtkDomainsChemistryCxxTests tests
-  ${generator_test}
   TestBallAndStick.cxx
   TestPDBBallAndStick.cxx
   TestBondColorModeDiscreteByAtom.cxx
