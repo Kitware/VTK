@@ -6,7 +6,7 @@ if (VTK_CAN_DO_ONSCREEN AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
     TestStyleRubberBandZoomPerspective.py,NO_RT
     TestInteractorStyleTerrain.py
     TestStyleBaseSpike.py,NO_RT
-    TestStyleJoystickActor.py,NO_RT
+    TestStyleJoystickActor.py
     TestStyleJoystickCamera.py,NO_RT
     TestStyleTerrain.py,NO_RT
     TestStyleTrackballActor.py
