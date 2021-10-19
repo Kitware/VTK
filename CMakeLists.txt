@@ -64,7 +64,7 @@ cmake_dependent_option(VTK_UNIFIED_INSTALL_TREE "Assume that the install tree co
 mark_as_advanced(VTK_UNIFIED_INSTALL_TREE)
 
 set(CMAKE_INSTALL_LICENSEDIR ""
-  CACHE PATH "License files (DATAROOTDIR/licenses/${CMAKE_PROJECT_NAME}")
+  CACHE STRING "License files (DATAROOTDIR/licenses/${CMAKE_PROJECT_NAME}")
 mark_as_advanced(CMAKE_INSTALL_LICENSEDIR)
 if (NOT CMAKE_INSTALL_LICENSEDIR)
   set(CMAKE_INSTALL_LICENSEDIR
