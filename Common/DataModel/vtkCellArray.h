@@ -605,6 +605,19 @@ public:
     VTK_SIZEHINT(cellPoints, cellSize) VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
 
   /**
+   * Return the point ids for the cell at @a cellId.
+   *
+   * Subsequent calls to this method may invalidate previous call
+   * results if the internal storage type is not the same as vtkIdType and
+   * cannot be shared through the @a cellPoints pointer. If that occurs,
+   * the method will use ptIds, which is an object that is created by each thread,
+   * to guarantee thread safety.
+   */
+  void GetCellAtId(
+    vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints, vtkIdList* ptIds)
+    VTK_SIZEHINT(cellPoints, cellSize) VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
+
+  /**
    * Return the point ids for the cell at @a cellId. This always copies
    * the cell ids (i.e., the list of points @a pts into the supplied
    * vtkIdList). This method is thread safe.
@@ -1547,6 +1560,13 @@ inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize,
   vtkIdType const*& cellPoints) VTK_SIZEHINT(cellPoints, cellSize)
 {
   this->Visit(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellSize, cellPoints, this->TempCell);
+}
+
+//----------------------------------------------------------------------------
+inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize,
+  vtkIdType const*& cellPoints, vtkIdList* ptIds) VTK_SIZEHINT(cellPoints, cellSize)
+{
+  this->Visit(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellSize, cellPoints, ptIds);
 }
 
 //----------------------------------------------------------------------------

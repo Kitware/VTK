@@ -421,9 +421,28 @@ public:
    * results.
    *
    * The @a pts pointer must not be modified.
+   *
+   * Note: This method MAY NOT be thread-safe. (See GetCellAtId at vtkCellArray)
    */
   unsigned char GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts)
     VTK_SIZEHINT(pts, npts);
+
+  /**
+   * Get a list of point ids that define a cell. The cell type is
+   * returned. Requires the the cells have been built with BuildCells.
+   *
+   * This function MAY use ptIds, which is an object that is created by each thread,
+   * to guarantee thread safety.
+   *
+   * @warning Subsequent calls to this method may invalidate previous call
+   * results.
+   *
+   * The @a pts pointer must not be modified.
+   *
+   * Note: This method is thread-safe.
+   */
+  unsigned char GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts,
+    vtkIdList* ptIds) VTK_SIZEHINT(pts, npts);
 
   /**
    * Given three vertices, determine whether it's a triangle. Make sure
@@ -925,6 +944,28 @@ inline unsigned char vtkPolyData::GetCellPoints(
 
   vtkCellArray* cells = this->GetCellArrayInternal(tag);
   cells->GetCellAtId(tag.GetCellId(), npts, pts);
+  return tag.GetCellType();
+}
+
+//------------------------------------------------------------------------------
+inline unsigned char vtkPolyData::GetCellPoints(
+  vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
+{
+  if (!this->Cells)
+  {
+    this->BuildCells();
+  }
+
+  const TaggedCellId tag = this->Cells->GetTag(cellId);
+  if (tag.IsDeleted())
+  {
+    npts = 0;
+    pts = nullptr;
+    return VTK_EMPTY_CELL;
+  }
+
+  vtkCellArray* cells = this->GetCellArrayInternal(tag);
+  cells->GetCellAtId(tag.GetCellId(), npts, pts, ptIds);
   return tag.GetCellType();
 }
 
