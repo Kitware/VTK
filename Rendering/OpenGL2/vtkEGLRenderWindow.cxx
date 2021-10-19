@@ -69,9 +69,12 @@ public:
     }
     return EGL_TRUE;
   }
+
+  static int DefaultDeviceIndex;
 };
 
 std::map<EGLDisplay, std::atomic<int64_t>> vtkEGLDisplayInitializationHelper::DisplayUsageCounts;
+int vtkEGLDisplayInitializationHelper::DefaultDeviceIndex = VTK_DEFAULT_EGL_DEVICE_INDEX;
 
 struct vtkEGLDeviceExtensions
 {
@@ -145,8 +148,8 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
 
   // this is initialized in vtkRenderWindow
   // so we don't need to initialize on else
+  this->DeviceIndex = -1;
 #ifdef VTK_USE_OFFSCREEN_EGL
-  this->DeviceIndex = VTK_DEFAULT_EGL_DEVICE_INDEX;
   this->ShowWindow = false;
 #endif
 
@@ -154,11 +157,33 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   char* EGLDefaultDeviceIndexEnv = std::getenv("VTK_DEFAULT_EGL_DEVICE_INDEX");
   if (EGLDefaultDeviceIndexEnv)
   {
-    // If parsing the environment variable fails and throws an exception we
-    // can safely ignore it since a default is already set above.
     try
     {
-      this->DeviceIndex = atoi(EGLDefaultDeviceIndexEnv);
+      int index = atoi(EGLDefaultDeviceIndexEnv);
+      if (index >= 0)
+      {
+        vtkEGLDisplayInitializationHelper::DefaultDeviceIndex = index;
+      }
+    }
+    catch (const std::out_of_range&)
+    {
+    }
+    catch (const std::invalid_argument&)
+    {
+    }
+  }
+
+  // If the device index is explicitly set then we need to use it.
+  char* EGLDeviceIndexEnv = std::getenv("VTK_EGL_DEVICE_INDEX");
+  if (EGLDeviceIndexEnv)
+  {
+    try
+    {
+      int index = atoi(EGLDeviceIndexEnv);
+      if (index >= 0)
+      {
+        this->DeviceIndex = index;
+      }
     }
     catch (const std::out_of_range&)
     {
@@ -282,7 +307,30 @@ int vtkEGLRenderWindow::GetNumberOfDevices()
   return 0;
 }
 
-bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex, int* major, int* minor)
+bool vtkEGLRenderWindow::SetDeviceAsDisplay()
+{
+
+  // query all the devices
+
+  // Try to initialize default index
+  if (default init sccessful)
+    return true;
+
+  // Try all the others, skipping the default becasuse we've already tried it
+  for (int idx = 0; idx < numDevices; ++idx)
+  {
+    if (idx == vtkEGLDisplayInitializationHelper::DefaultDisplayIndex)
+    {
+      continue;
+    }
+    // initialize idx
+  }
+
+  impl->Display = EGL_NO_DISPLAY;
+  return false;
+}
+
+bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
 {
   vtkInternals* impl = this->Internals;
   vtkEGLDeviceExtensions* ext = vtkEGLDeviceExtensions::GetInstance();
@@ -297,8 +345,9 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex, int* major, int* mi
                                               "the number of supported deviced in the system: "
                                            << num_devices);
     }
-    EGLDeviceEXT* devices = new EGLDeviceEXT[num_devices];
-    ext->eglQueryDevices(num_devices, devices, &num_devices);
+
+    std::vector<EGLDeviceEXT> devices(num_devices);
+    ext->eglQueryDevices(num_devices, devices.data(), &num_devices);
     // Try deviceIndex first
     impl->Display =
       ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[deviceIndex], nullptr);
@@ -308,7 +357,6 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex, int* major, int* mi
     {
       *major = eglMajor;
       *minor = eglMinor;
-      delete[] devices;
       return true;
     }
     // Device could not be initialized. Try others
@@ -325,14 +373,10 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex, int* major, int* mi
       {
         *major = eglMajor;
         *minor = eglMinor;
-        delete[] devices;
         return true;
       }
     }
 
-    impl->Display = EGL_NO_DISPLAY;
-
-    delete[] devices;
     return false;
   }
   vtkWarningMacro("Setting an EGL display to device index: "
@@ -400,10 +444,19 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
 
     EGLint major = 0, minor = 0;
 
-    // try to use the default display
-    if (!this->SetDeviceAsDisplay(this->DeviceIndex, &major, &minor))
+    if (this->DeviceIndex != -1)
     {
-      impl->Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+      if (!this->SetDeviceAsDisplay(this->DeviceIndex, &major, &minor))
+      {
+        return;
+      }
+    }
+    else
+    {
+      if (!this->SetDeviceAsDisplay())
+      {
+        impl->Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+      }
     }
 
 #if !defined(__ANDROID__) && !defined(ANDROID)
