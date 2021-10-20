@@ -229,7 +229,6 @@ protected:
    * extensions to set the display (output graphics card) to something different than
    * EGL_DEFAULT_DISPLAY. Just use the default display if deviceIndex == 0.
    */
-  bool SetDeviceAsDisplay();
   bool SetDeviceAsDisplay(int deviceIndex);
 
 private:

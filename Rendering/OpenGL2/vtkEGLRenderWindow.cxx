@@ -307,29 +307,6 @@ int vtkEGLRenderWindow::GetNumberOfDevices()
   return 0;
 }
 
-bool vtkEGLRenderWindow::SetDeviceAsDisplay()
-{
-
-  // query all the devices
-
-  // Try to initialize default index
-  if (default init sccessful)
-    return true;
-
-  // Try all the others, skipping the default becasuse we've already tried it
-  for (int idx = 0; idx < numDevices; ++idx)
-  {
-    if (idx == vtkEGLDisplayInitializationHelper::DefaultDisplayIndex)
-    {
-      continue;
-    }
-    // initialize idx
-  }
-
-  impl->Display = EGL_NO_DISPLAY;
-  return false;
-}
-
 bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
 {
   vtkInternals* impl = this->Internals;
@@ -348,36 +325,71 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
 
     std::vector<EGLDeviceEXT> devices(num_devices);
     ext->eglQueryDevices(num_devices, devices.data(), &num_devices);
-    // Try deviceIndex first
-    impl->Display =
-      ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[deviceIndex], nullptr);
-    EGLint eglMajor = 0, eglMinor = 0;
-    if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &eglMajor, &eglMinor) ==
-      EGL_TRUE)
+
+    EGLint major = 0, minor = 0;
+    if (deviceIndex >= 0)
     {
-      *major = eglMajor;
-      *minor = eglMinor;
-      return true;
-    }
-    // Device could not be initialized. Try others
-    for (int i = 0; i < num_devices; i++)
-    {
-      // Don't check deviceIndex again
-      if (i == deviceIndex)
+      impl->Display =
+        ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[deviceIndex], nullptr);
+
+      if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) == EGL_FALSE)
       {
-        continue;
+        return false;
       }
-      impl->Display = ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[i], nullptr);
-      if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &eglMajor, &eglMinor) ==
-        EGL_TRUE)
+    }
+    else
+    {
+      impl->Display = ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT,
+        devices[vtkEGLDisplayInitializationHelper::DefaultDeviceIndex], nullptr);
+
+      if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) == EGL_FALSE)
       {
-        *major = eglMajor;
-        *minor = eglMinor;
-        return true;
+        bool foundWorkingDisplay = false;
+
+        for (int i = 0; i < num_devices; i++)
+        {
+          // Don't check DefaultDeviceIndex again
+          if (i == vtkEGLDisplayInitializationHelper::DefaultDeviceIndex)
+          {
+            continue;
+          }
+
+          impl->Display = ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[i], nullptr);
+          if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) ==
+            EGL_TRUE)
+          {
+            foundWorkingDisplay = true;
+            break;
+          }
+        }
+
+        if (!foundWorkingDisplay)
+        {
+
+          // eglGetDisplay(EGL_DEFAULT_DISPLAY) does not seem to work
+          // if there are several cards on a system.
+          impl->Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+
+          if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) ==
+            EGL_FALSE)
+          {
+            return false;
+          }
+        }
       }
     }
 
-    return false;
+#if !defined(__ANDROID__) && !defined(ANDROID)
+    if (major <= 1 && minor < 4)
+    {
+      vtkErrorMacro("Only EGL 1.4 and greater allows OpenGL as client API. "
+                    "See eglBindAPI for more information.");
+      return false;
+    }
+    eglBindAPI(EGL_OPENGL_API);
+#endif
+
+    return true;
   }
   vtkWarningMacro("Setting an EGL display to device index: "
     << deviceIndex
@@ -439,35 +451,13 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
 
   if (impl->Display == EGL_NO_DISPLAY)
   {
-    // eglGetDisplay(EGL_DEFAULT_DISPLAY) does not seem to work
-    // if there are several cards on a system.
 
     EGLint major = 0, minor = 0;
 
-    if (this->DeviceIndex != -1)
+    if (!this.SetDeviceAsDisplay(this->DeviceIndex))
     {
-      if (!this->SetDeviceAsDisplay(this->DeviceIndex, &major, &minor))
-      {
-        return;
-      }
-    }
-    else
-    {
-      if (!this->SetDeviceAsDisplay())
-      {
-        impl->Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-      }
-    }
-
-#if !defined(__ANDROID__) && !defined(ANDROID)
-    if (major <= 1 && minor < 4)
-    {
-      vtkErrorMacro("Only EGL 1.4 and greater allows OpenGL as client API. "
-                    "See eglBindAPI for more information.");
       return;
     }
-    eglBindAPI(EGL_OPENGL_API);
-#endif
   }
 
   /* Here, the application chooses the configuration it desires. In this
