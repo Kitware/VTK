@@ -19,20 +19,19 @@
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
-#include "vtkCharArray.h"
-#include "vtkDelaunay2D.h"
-#include "vtkEdgeTable.h"
 #include "vtkExecutive.h"
 #include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
+#include "vtkLogger.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
+#include "vtkSignedCharArray.h"
 #include "vtkStaticCellLocator.h"
 #include "vtkStaticEdgeLocatorTemplate.h"
 #include "vtkStaticPointLocator.h"
@@ -54,6 +53,11 @@ vtkImprintFilter::vtkImprintFilter()
 
   this->OutputType = MERGED_IMPRINT;
   this->BoundaryEdgeInsertion = false;
+
+  this->PassCellData = true;
+  this->PassPointData = true;
+  this->PointInterpolation = USE_TARGET_EDGES;
+
   this->TriangulateOutput = false;
 
   this->DebugOutputType = NO_DEBUG_OUTPUT;
@@ -164,8 +168,10 @@ enum PointClassification
   OnEdge = 3,   // imprint pt is on an edge of a target cell
 };
 
-// EdgeTuple is defined in vtkStaticEdgeLocatorTemplate
-using vtkCellEdgeType = EdgeTuple<vtkIdType, vtkIdType>; // templated on two point ids
+// EdgeTuple is defined in vtkStaticEdgeLocatorTemplate. It represented an
+// edge (V0,V1) with parametric coordinate T along the edge. Note that
+// V0 < V1.
+using vtkCellEdgeType = EdgeTuple<vtkIdType, double>;
 
 // The following struct represents information relative points that are
 // generated during the imprint operations. Points may be created from
@@ -174,31 +180,36 @@ using vtkCellEdgeType = EdgeTuple<vtkIdType, vtkIdType>; // templated on two poi
 struct vtkPointInfo
 {
   char Classification; // Type of point
-  vtkIdType VTKPtId;   // Which target VTK point/vertex does this map to?
-  double T;            // Perimeter coordinate (if applicable, eg. point on edge)
+  vtkIdType VTKPtId;   // Which target VTK point/vertex does this map to? or is assigned?
   vtkIdType
     Cells[2]; // Which cell(s) does this point project to? <0 if misses target (e.g., Outside)
-  vtkCellEdgeType CellEdge; // What target cell edge does this point lie on? (if applicable)
-  double X[3];              // Coordinates of projection
+  vtkCellEdgeType TargetEdge;  // What target cell edge does this point lie on? (if applicable)
+  vtkCellEdgeType ImprintEdge; // What imprint cell edge does this point lie on? (if applicable)
+  double X[3];                 // Coordinates of projection
 
   vtkPointInfo()
     : Classification(PointClassification::Unknown)
     , VTKPtId(-1)
-    , T(0.0)
   {
     this->Cells[0] = this->Cells[1] = -1;
-    this->CellEdge.V0 = this->CellEdge.V1 = -1;
+    this->TargetEdge.V0 = this->TargetEdge.V1 = -1;
+    this->TargetEdge.Data = 0.0;
+    this->ImprintEdge.V0 = this->ImprintEdge.V1 = -1;
+    this->ImprintEdge.Data = 0.0;
   }
-  vtkPointInfo(char classification, vtkIdType ptId, vtkIdType* cells, vtkIdType v0, vtkIdType v1,
-    double x[3], double t)
+  vtkPointInfo(char classification, vtkIdType ptId, vtkIdType* cells, vtkIdType u0, vtkIdType u1,
+    double tt, vtkIdType v0, vtkIdType v1, double ti, double x[3])
     : Classification(classification)
     , VTKPtId(ptId)
-    , T(t)
   {
     this->Cells[0] = cells[0];
     this->Cells[1] = cells[1];
-    this->CellEdge.V0 = v0;
-    this->CellEdge.V1 = v1;
+    this->TargetEdge.V0 = u0;
+    this->TargetEdge.V1 = u1;
+    this->ImprintEdge.Data = tt;
+    this->ImprintEdge.V0 = v0;
+    this->ImprintEdge.V1 = v1;
+    this->TargetEdge.Data = ti;
     this->X[0] = x[0];
     this->X[1] = x[1];
     this->X[2] = x[2];
@@ -224,7 +235,7 @@ using vtkPointIdList =
 struct vtkEdgeIntersection
 {
   double T;                // parametric coordinate along an edge
-  vtkIdType Id;            // the position that the point is located within the point array
+  vtkIdType Id;            // the position that the point is located within the point list
   vtkPointList* PointList; // the list in which the point is located
 
   vtkEdgeIntersection()
@@ -646,11 +657,214 @@ struct vtkCandidateList : public std::vector<vtkCandidateInfo*>
 };
 
 // Map candidate cells back to input target cells. This is used for
-// debugging.
+// debugging and for copying cell attribute data (if desired).
 using vtkCellMapType = std::vector<vtkIdType>;
+
+// A helper class used to manage point and cell attributes, and simplify the
+// overall imprint code.
+struct vtkAttributeManager
+{
+  // Support cell data processing
+  vtkCellData* InCellData;
+  vtkCellData* OutCellData;
+
+  // Support point data processing
+  vtkIdType NumTargetPts;                      // The number of input target points
+  vtkIdType NumImprintPts;                     // The number of input imprint points
+  int PointInterpolation;                      // Specify how to interpolate point data
+  vtkSmartPointer<vtkPointData> TargetPtData;  // The target point data
+  vtkSmartPointer<vtkPointData> ImprintPtData; // The imprint point data
+  vtkPointData* OutPtData;                     // The filter output point data
+
+  // Helper function to determine if two vtkDataSetAttributes are equivalent and may
+  // be used together for copying and interpolating point data.
+  bool HaveEquivalentAttributes(vtkDataSetAttributes* dsa0, vtkDataSetAttributes* dsa1)
+  {
+    // Check that the number of arrays is the same
+    int numArrays0 = dsa0->GetNumberOfArrays();
+    int numArrays1 = dsa1->GetNumberOfArrays();
+    if (numArrays0 != numArrays1)
+    {
+      return false;
+    }
+
+    // Check that identical arrays exist in both (name, number of components, order)
+    for (auto arrayNum = 0; arrayNum < numArrays0; ++arrayNum)
+    {
+      const char *name0, *name1;
+      vtkDataArray* da0 = dsa0->GetArray(arrayNum);
+      vtkDataArray* da1 = dsa1->GetArray(arrayNum);
+      if (!da0 || !da1 || da0->GetDataType() != da1->GetDataType() ||
+        da0->GetNumberOfComponents() != da1->GetNumberOfComponents() ||
+        !(name0 = dsa0->GetArrayName(arrayNum)) || !(name1 = dsa1->GetArrayName(arrayNum)) ||
+        strcmp(name0, name1))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Build point data attributes that are the set intersection of the mesh
+  // point data attributes, and the loop point data attributes.  The
+  // attributes must be equivalent because of the two-way interpolation/copy
+  // data process that occurs.
+  void IntersectAttributes(vtkPointData* targetPD, vtkPointData* imprintPD)
+  {
+    this->TargetPtData.TakeReference(vtkPointData::New());
+    this->ImprintPtData.TakeReference(vtkPointData::New());
+
+    // Loop over the the first attributes determining what data arrays are
+    // common.
+    int numTargetPDArrays = targetPD->GetNumberOfArrays();
+    for (auto arrayNum = 0; arrayNum < numTargetPDArrays; ++arrayNum)
+    {
+      vtkDataArray *da0 = targetPD->GetArray(arrayNum), *da1;
+      const char* name = targetPD->GetArrayName(arrayNum);
+      if ((da1 = imprintPD->GetArray(name)) != nullptr &&
+        da1->GetDataType() == da0->GetDataType() &&
+        da1->GetNumberOfComponents() == da0->GetNumberOfComponents())
+      {
+        this->TargetPtData->AddArray(da0);
+        this->ImprintPtData->AddArray(da1);
+      }
+    }
+  }
+
+  // Constructor: Initialize the process of attribute processing
+  vtkAttributeManager(vtkPolyData* target, vtkPolyData* imprint, vtkPolyData* output, bool passCD,
+    bool passPD, int ptInterpolation)
+  {
+    // Process cell data if requested
+    this->InCellData = nullptr;
+    this->OutCellData = nullptr;
+    if (passCD)
+    {
+      this->InCellData = target->GetCellData();
+      this->OutCellData = output->GetCellData();
+      this->OutCellData->CopyAllocate(this->InCellData);
+    }
+
+    // Process point data if requested. Note the complication due to how the
+    // new point data is interpolated from line-line intersections. The actual
+    // allocation of output arrays does not occur here, rather in the method
+    // ProducePointData() once the number of output points is known.
+    this->NumTargetPts = target->GetNumberOfPoints();
+    this->NumImprintPts = imprint->GetNumberOfPoints();
+    this->PointInterpolation = ptInterpolation;
+    this->TargetPtData = nullptr;
+    this->ImprintPtData = nullptr;
+    this->OutPtData = nullptr;
+    if (passPD)
+    {
+      vtkPointData* targetPD = target->GetPointData();
+      vtkPointData* imprintPD = imprint->GetPointData();
+      // If trim edge interpoltion is specified, make sure that the trim loop point
+      // attributes match the mesh point attributes. If not, point data is not passed
+      // to the output.
+      if (this->HaveEquivalentAttributes(targetPD, imprintPD))
+      {
+        this->TargetPtData = targetPD;
+        this->ImprintPtData = imprintPD;
+      }
+      else
+      {
+        vtkLog(WARNING,
+          "Target and imprint loop point data attributes are different, only common point data "
+          "arrays "
+          "will be processed");
+        this->IntersectAttributes(targetPD, imprintPD);
+      } // if point attributes identical
+
+      // We now have consistent target, imprint, and filter output point data attributes.
+      this->OutPtData = output->GetPointData();
+      this->OutPtData->CopyAllocate(this->TargetPtData);
+    } // if passing point data
+  }   // constructor
+
+  // Copy cell data from the input to the output.
+  void CopyCellData(vtkIdType inCellId, vtkIdType outCellId)
+  {
+    if (this->InCellData)
+    {
+      this->OutCellData->CopyData(this->InCellData, inCellId, outCellId);
+    }
+  }
+  void CopyCellData(vtkCellMapType* cellMap, vtkIdType inCellId, vtkIdType outCellId)
+  {
+    if (this->InCellData && cellMap)
+    {
+      this->OutCellData->CopyData(this->InCellData, (*cellMap)[inCellId], outCellId);
+    }
+  }
+
+  // Processing point data is tricky because two sets of point attributes may
+  // be in play. Point which are passed through, can just use the
+  // conventional vtkDataSetAttributes::CopyData() approach (copy from input
+  // mesh to output mesh). However, intersection points may be interpolated
+  // from the target edges, or from the imprint edges. This means using the
+  // correct point data to interpolate from (via InterpolateEdge()).
+
+  // Interpolate or pass point data from either the target or imprint
+  // edges, to the output mesh. There are three steps: 1) copy input target
+  // point data to the output; 2) copy input imprint data to the output; and
+  // 3) interpolate the point data across target or imprint edges.
+  void ProducePointData(vtkPointList* pList)
+  {
+    // Make sure we actually want to process point data
+    if (!this->OutPtData)
+    {
+      return;
+    }
+
+    // Gather information and initialize
+    vtkIdType numTargetPts = this->NumTargetPts;
+    vtkIdType numImprintedPts = pList->size();
+    vtkPointData* targetPD = this->TargetPtData;
+    vtkPointData* imprintPD = this->ImprintPtData;
+    vtkPointData* outPD = this->OutPtData;
+
+    // Step #1: copy the point data from the target to the filter output.
+    for (vtkIdType pId = 0; pId < numTargetPts; ++pId)
+    {
+      outPD->CopyData(targetPD, pId, pId);
+    }
+
+    // Step #2: copy the point data from the imprint to the filter output.
+    // There may be merged points which should be skipped. (Merged points
+    // have the same point id as a target point.) This is combined with Step
+    // #3: interpolate the point data across either the target or imprint
+    // edges.
+    for (vtkIdType pId = 0; pId < numImprintedPts; ++pId)
+    {
+      vtkPointInfo& pInfo = (*pList)[pId];
+      if (pInfo.Classification == PointClassification::Interior)
+      {
+        outPD->CopyData(imprintPD, pId, pInfo.VTKPtId);
+      }
+      else if (pInfo.Classification == PointClassification::OnEdge)
+      {
+        if (this->PointInterpolation == vtkImprintFilter::USE_TARGET_EDGES)
+        {
+          outPD->InterpolateEdge(targetPD, pInfo.VTKPtId, pInfo.TargetEdge.V0, pInfo.TargetEdge.V1,
+            pInfo.TargetEdge.Data);
+        }
+        else // if ( this->PointInterpolation == vtkImprintFilter::USE_IMPRINT_EDGES)
+        {
+          outPD->InterpolateEdge(imprintPD, pInfo.VTKPtId, pInfo.ImprintEdge.V0,
+            pInfo.ImprintEdge.V1, pInfo.ImprintEdge.Data);
+        }
+      } // Edge interpolation
+    }   // Copy / interpolate from target and imprint
+  }     // ProducePointData()
+
+}; // vtkAttributeManager
 
 // Separate the kept candidate cells from the input target cells. This
 // reduces the overall work/data that the algorithm must perform/process.
+// Note one side effect of this functor is that the filter output may be
+// partially constructed from those cells not in the imprinted region.
 struct BoundsCull
 {
   vtkPolyData* Target;                  // input vtkPolyData to algorithm
@@ -667,13 +881,16 @@ struct BoundsCull
   // CellMarks is used to mark cells to include as part of the output
   // candidate cells.
   std::vector<char> CellMarks;
-  // If requested in the constructor, a CellMap is constructed which
+  // If requested in the constructor, a CellMap is created which
   // maps the candidate cells back to their originating target cell id.
   vtkCellMapType* CellMap;
+  // The attribute manager facilitates the copying and interpolation of
+  // point and cell attribute data.
+  vtkAttributeManager* AttributeManager;
 
   BoundsCull(vtkPolyData* target, vtkPolyData* imprint, vtkStaticCellLocator* impLoc,
     int outputType, double tol, vtkPolyData* candidateOutput, vtkPolyData* output,
-    vtkCellMapType* cellMap)
+    vtkCellMapType* cellMap, vtkAttributeManager* attrMgr)
     : Target(target)
     , Imprint(imprint)
     , OutputType(outputType)
@@ -682,6 +899,7 @@ struct BoundsCull
     , Output(output)
     , ImprintLocator(impLoc)
     , CellMap(cellMap)
+    , AttributeManager(attrMgr)
   {
     vtkIdType numCells = target->GetNumberOfCells();
     this->CellMarks.resize(numCells);
@@ -744,6 +962,7 @@ struct BoundsCull
     int outputType = this->OutputType;
     vtkIdType cellId;
     auto iter = this->CellMarks.begin();
+    vtkAttributeManager* attrMgr = this->AttributeManager;
 
     for (cellId = 0; iter != this->CellMarks.end(); ++iter, ++cellId)
     {
@@ -759,13 +978,18 @@ struct BoundsCull
       else if (outputType != vtkImprintFilter::TARGET_CELLS &&
         outputType != vtkImprintFilter::IMPRINTED_REGION)
       {
-        output->InsertNextCell(-(*iter), npts, pts);
+        vtkIdType cId = output->InsertNextCell(-(*iter), npts, pts);
+        attrMgr->CopyCellData(cellId, cId);
       }
     }
   } // Reduce()
 
 }; // BoundsCull
 
+// This struct manages the classification of the target points. It gathers
+// information as imprint points are projected, and edges intersected, about
+// the classification of points. If necessary it uses expensive geometric
+// classification methods to determine the final target point classification.
 struct vtkTargetPointClassifier
 {
   vtkPolyData* Candidates;
@@ -1102,8 +1326,8 @@ struct ProjPoints
               pt.Cells[0] = (edgeNeis->GetNumberOfIds() < 1 ? -1 : edgeNeis->GetId(0));
               pt.Cells[1] = (edgeNeis->GetNumberOfIds() < 2 ? -1 : edgeNeis->GetId(1));
               pt.Classification = PointClassification::OnEdge;
-              pt.T = (v0 < v1 ? t : (1.0 - t)); // t's origin is from smaller pt id
-              pt.CellEdge.Define(v0, v1);       // this method implicitly reorders pt ids
+              pt.TargetEdge.Define(v0, v1); // this method implicitly reorders pt ids
+              pt.TargetEdge.Data = (v0 < v1 ? t : (1.0 - t)); // t's origin is from smaller pt id
               pt.X[0] = closest[0];
               pt.X[1] = closest[1];
               pt.X[2] = closest[2];
@@ -1135,7 +1359,10 @@ struct ProjPointsWorker
 // initial coordinates.
 void OutputProjectedImprint(vtkPolyData* imprint, vtkPointList* pList, vtkPolyData* output)
 {
+  // Just output the imprint mesh.
   output->ShallowCopy(imprint);
+
+  // However the imprint mesh point coordinates are updated.
   vtkPoints* outPts = output->GetPoints();
   vtkIdType numPts = outPts->GetNumberOfPoints();
 
@@ -1370,8 +1597,9 @@ struct ProduceIntersectionPoints
   // the edge intersections require cleaning. (A degeneracy occurs when a imprint
   // edge intersects a target cell at one of the target cell's vertices, possibly
   // producing duplicate intersection points.)
-  int IntersectEdge(vtkPointInfo* pStart, vtkPointInfo* pEnd, double x0[3], double x1[3],
-    vtkIdType v0, vtkIdType v1, vtkIdList* neighbors, vtkEdgeIntersectionList& eIntList)
+  int IntersectEdge(vtkPointInfo* pStart, vtkPointInfo* pEnd, vtkIdType u0, vtkIdType u1,
+    double x0[3], double x1[3], vtkIdType v0, vtkIdType v1, vtkIdList* neighbors,
+    vtkEdgeIntersectionList& eIntList)
   {
     // If the imprint edge is colinear with the target edge being intersected
     // (i.e., the imprint edge is on the boundary of the target cell), then
@@ -1379,7 +1607,8 @@ struct ProduceIntersectionPoints
     // any fragments.
     if (pStart->Classification == PointClassification::OnEdge &&
       pEnd->Classification == PointClassification::OnEdge &&
-      (pStart->CellEdge.V0 == pEnd->CellEdge.V0 && pStart->CellEdge.V1 == pEnd->CellEdge.V1))
+      (pStart->TargetEdge.V0 == pEnd->TargetEdge.V0 &&
+        pStart->TargetEdge.V1 == pEnd->TargetEdge.V1))
     {
       return 0;
     }
@@ -1457,7 +1686,8 @@ struct ProduceIntersectionPoints
     target->GetCellEdgeNeighbors(-1, v0, v1, neighbors);
     cells[0] = (neighbors->GetNumberOfIds() < 1 ? -1 : neighbors->GetId(0));
     cells[1] = (neighbors->GetNumberOfIds() < 2 ? -1 : neighbors->GetId(1));
-    newPts.emplace_back(vtkPointInfo(PointClassification::OnEdge, -1, cells, v0, v1, xInt, v));
+    newPts.emplace_back(
+      vtkPointInfo(PointClassification::OnEdge, -1, cells, v0, v1, v, u0, u1, u, xInt));
 
     // For now, we are using local point ids. Later we'll update to refer to
     // global point ids. Note we have to use ids rather than pointers to
@@ -1511,14 +1741,14 @@ struct ProduceIntersectionPoints
     // See if edge fragment is on an existing target edge
     if (pStart.Classification == PointClassification::OnVertex &&
       pEnd.Classification == PointClassification::OnEdge &&
-      (pStart.VTKPtId == pEnd.CellEdge.V0 || pStart.VTKPtId == pEnd.CellEdge.V1))
+      (pStart.VTKPtId == pEnd.TargetEdge.V0 || pStart.VTKPtId == pEnd.TargetEdge.V1))
     {
       return false;
     }
 
     else if (pEnd.Classification == PointClassification::OnVertex &&
       pStart.Classification == PointClassification::OnEdge &&
-      (pEnd.VTKPtId == pStart.CellEdge.V0 || pEnd.VTKPtId == pStart.CellEdge.V1))
+      (pEnd.VTKPtId == pStart.TargetEdge.V0 || pEnd.VTKPtId == pStart.TargetEdge.V1))
     {
       return false;
     }
@@ -1761,8 +1991,8 @@ struct ProduceIntersectionPoints
           for (auto teNum = 0; teNum < numTargetEdges; ++teNum)
           {
             tEdge = tEdges.data() + tOffsets[teNum];
-            produceFragments |= this->IntersectEdge(
-              pStart, pEnd, xStart, xEnd, tEdge->V0, tEdge->V1, edgeNeighbors, edgeIntList);
+            produceFragments |= this->IntersectEdge(pStart, pEnd, viStart, viEnd, xStart, xEnd,
+              tEdge->V0, tEdge->V1, edgeNeighbors, edgeIntList);
           } // for potential intersecting target edges
 
           // Collect edge fragments if intersections have been found. In
@@ -1810,10 +2040,11 @@ struct ProduceIntersectionPoints
         if ((newPtId = pIter->VTKPtId) < 0)
         {
           newPtId = outPts->InsertNextPoint(pIter->X);
-          pIter->VTKPtId = newPtId; // Update the local VTK point ids
+          pIter->VTKPtId = newPtId; // Update the local VTK point id
         }
         pList->emplace_back(vtkPointInfo(pIter->Classification, newPtId, pIter->Cells,
-          pIter->CellEdge.V0, pIter->CellEdge.V1, pIter->X, pIter->T));
+          pIter->TargetEdge.V0, pIter->TargetEdge.V1, pIter->TargetEdge.Data, pIter->ImprintEdge.V0,
+          pIter->ImprintEdge.V1, pIter->ImprintEdge.Data, pIter->X));
 
         // Update the perimeter lists from line-line intersections.
         if (pIter->Classification == PointClassification::OnEdge)
@@ -1902,7 +2133,8 @@ struct Triangulate
   vtkPolyData* DebugOutput;
   vtkPointClassifier* PtClassifier;
   bool TriangulateOutput;
-  vtkSmartPointer<vtkCharArray> CellLabels; // for cell labeling
+  vtkAttributeManager* AttributeManager;
+  vtkSmartPointer<vtkSignedCharArray> CellLabels; // for cell labeling
 
   // Used for thread-based triangulation
   vtkSMPThreadLocal<vtkSmartPointer<vtkPolygon>> Polygon;
@@ -1910,7 +2142,8 @@ struct Triangulate
 
   Triangulate(vtkPoints* outPts, vtkPointList* pl, vtkPolyData* candidates, vtkCandidateList* ca,
     vtkPolyData* output, vtkIdType offset, int outputType, int debugOption, vtkCellMapType* cellMap,
-    vtkIdType debugCellId, vtkPolyData* debugOutput, vtkPointClassifier* pc, bool triOutput)
+    vtkIdType debugCellId, vtkPolyData* debugOutput, vtkPointClassifier* pc, bool triOutput,
+    vtkAttributeManager* attrMgr)
     : OutPts(outPts)
     , PointList(pl)
     , Candidates(candidates)
@@ -1924,12 +2157,13 @@ struct Triangulate
     , DebugOutput(debugOutput)
     , PtClassifier(pc)
     , TriangulateOutput(triOutput)
+    , AttributeManager(attrMgr)
   {
     // On entry into this method, all current cells are marked outside the
     // imprinted region. During triangulation, newly added cells will be
     // classified accordingly.
     vtkIdType numCells = this->Output->GetNumberOfCells();
-    this->CellLabels = vtkSmartPointer<vtkCharArray>::New();
+    this->CellLabels = vtkSmartPointer<vtkSignedCharArray>::New();
     this->CellLabels->SetNumberOfTuples(numCells);
     this->CellLabels->Fill(CellClassification::TargetCell);
     this->CellLabels->SetName("ImprintedCells");
@@ -2010,9 +2244,9 @@ struct Triangulate
         std::swap(v0, v1);
         swapped = true;
       }
-      if (v0 == pInfo->CellEdge.V0 && v1 == pInfo->CellEdge.V1)
+      if (v0 == pInfo->TargetEdge.V0 && v1 == pInfo->TargetEdge.V1)
       {
-        double t = (swapped ? (1.0 - pInfo->T) : pInfo->T);
+        double t = (swapped ? (1.0 - pInfo->TargetEdge.Data) : pInfo->TargetEdge.Data);
         t += static_cast<double>(eId);
         pList.emplace_back(vtkPerimeterPoint(t, pInfo->X, pInfo->VTKPtId));
         return;
@@ -2341,6 +2575,8 @@ struct Triangulate
     int cellType;
     vtkIdType numCandidates = static_cast<vtkIdType>(this->CandidateList->size());
     int outputType = this->OutputType;
+    vtkCellMapType& cellMap = *(this->CellMap);
+    vtkAttributeManager* attrMgr = this->AttributeManager;
 
     for (auto cellId = 0; cellId < numCandidates; cellId++)
     {
@@ -2358,6 +2594,7 @@ struct Triangulate
         {
           cId = this->Output->InsertNextCell(cellType, npts, pts);
           this->CellLabels->InsertValue(cId, cellClassification);
+          attrMgr->CopyCellData(&cellMap, cellId, cId);
         }
       }
 
@@ -2378,6 +2615,7 @@ struct Triangulate
           {
             cId = this->Output->InsertNextCell(cellType, npts, pts);
             this->CellLabels->InsertValue(cId, cInfo->OutCellsClass[i]);
+            attrMgr->CopyCellData(&cellMap, cellId, cId);
           }
           offset += npts;
         } // for all cells in this target candidate cell
@@ -2456,7 +2694,6 @@ struct ComputeMinEdgeLength
       }
     }
     this->MinEdgeLength = sqrt(minLength2);
-    cout << "Min edge length: " << this->MinEdgeLength << "\n";
   }
 
   // Cause execution of the edge length calculation
@@ -2566,10 +2803,23 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   impLocator->SetTolerance(this->Tolerance);
   impLocator->BuildLocator();
 
-  // A cell map might be needed for debugging
+  // A cell map might be needed for debugging or for copying cell attribute data.
   vtkCellMapType cellMap;
+  vtkCellMapType* cellMapPtr = &cellMap;
+  if (this->DebugOutputType == NO_DEBUG_OUTPUT && this->PassCellData == false)
+  {
+    cellMapPtr = nullptr; // indicate that no cell map is necessary
+  }
+  // Point and cell data attributes may be passed to the filter output.
+  // The AttributeManager facilitates this.
+  vtkAttributeManager attrMgr(
+    target, imprint, output, this->PassCellData, this->PassPointData, this->PointInterpolation);
+
+  // Here's where the kept and candidate target cells are separated. Also,
+  // depending on the output, some of the target cells may be sent to the
+  // filter output.
   BoundsCull bc(target, imprint, impLocator, this->OutputType, this->Tolerance, candidateOutput,
-    output, ((this->DebugOutputType != NO_DEBUG_OUTPUT) ? (&cellMap) : nullptr));
+    output, cellMapPtr, &attrMgr);
   vtkSMPTools::For(0, numTargetCells, bc);
 
   // The desired output type may just be the target candidate cells.
@@ -2617,7 +2867,7 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCandidateList candidateList(numCandidateCells);
 
   // The imprint points are projected and classified against the target. The
-  // vtkPointList maintains information about these imprint points.
+  // vtkPointList maintains information about these imprinted points.
   vtkPointList pList(numImprintPts);
 
   // If we are just inserting the imprint boundary points, we need to
@@ -2630,9 +2880,9 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Now project all imprint points onto the target candidate cells. The
   // result is a classification of these points, typically interior but
   // sometimes on the edge or face of a target cell (or outside). Initially
-  // all imprint points are placed in the vtkPointList; however the output
-  // vtkPoints points array will grow later when the edge intersection points
-  // are computed.
+  // all projected imprint points are placed in the vtkPointList; later the
+  // output vtkPoints points array will grow as the edge intersection points
+  // are computed and inserted.
   using ProjPointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
   ProjPointsWorker ppWorker;
   if (!ProjPointsDispatch::Execute(imprintPts->GetData(), ppWorker, candidateOutput,
@@ -2666,8 +2916,10 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->OutputType == IMPRINTED_CELLS)
   {
-    // This eliminates the target cells that were passed through previously.
-    output->ShallowCopy(candidateOutput);
+    // This shallow copy replaces the target cells that were passed through
+    // previously.  Copy only the topology/geometry, leave the attributes
+    // alone.
+    output->CopyStructure(candidateOutput);
   }
 
   // Point classification is required as part of the triangulation process.
@@ -2680,9 +2932,14 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // constraint edges are associated with the candidate cells via the
   // candidate array.
   Triangulate tri(outPts, &pList, candidateOutput, &candidateList, output, numTargetPts,
-    this->OutputType, this->DebugOutputType, &cellMap, this->DebugCellId, out2, &pc,
-    this->TriangulateOutput);
+    this->OutputType, this->DebugOutputType, cellMapPtr, this->DebugCellId, out2, &pc,
+    this->TriangulateOutput, &attrMgr);
   vtkSMPTools::For(0, numCandidateCells, tri);
+
+  // Finally produce output point data if requested. This is a combined operation
+  // of copying points from the target and imprint, and interpolating point data
+  // at intersecting edges.
+  attrMgr.ProducePointData(&pList);
 
   return 1;
 }
@@ -2732,6 +2989,10 @@ void vtkImprintFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Type: " << this->OutputType << "\n";
 
   os << indent << "Boundary Edge Insertion: " << (this->BoundaryEdgeInsertion ? "On\n" : "Off\n");
+
+  os << indent << "Pass Cell Data: " << (this->PassCellData ? "On\n" : "Off\n");
+  os << indent << "Pass Point Data: " << (this->PassPointData ? "On\n" : "Off\n");
+  os << indent << "Point Interpolation: " << this->PointInterpolation << "\n";
 
   os << indent << "Triangulate Output: " << (this->TriangulateOutput ? "On\n" : "Off\n");
 

@@ -64,7 +64,8 @@
  * @sa
  * vtkCookieCutter vtkFlyingEdges2D vtkMarchingSquares vtkFeatureEdges
  * vtkConnectivityFilter vtkPolyDataConnectivityFilter
- * vtkDiscreteFlyingEdges2D vtkStripper
+ * vtkDiscreteFlyingEdges2D vtkStripper vtkImprintFilter
+ * vtkCleanPolyData vtkStaticCleanPolyData
  */
 
 #ifndef vtkContourLoopExtraction_h
@@ -152,6 +153,21 @@ public:
   const char* GetOutputModeAsString();
   ///@}
 
+  ///@{
+  /**
+   * Indicate whether to clean the output points. Cleaning means discarding
+   * any points that are unused by the output polylines or polygons. This
+   * results in a potential renumbering of the points. By default, cleaning
+   * points is on. (This feature is useful because some filters output
+   * points in addition to those used to represent output lines and
+   * polylines, and this method is faster than using
+   * vtkCleanPolyData/vtkStaticCleanPolyData).
+   */
+  vtkSetMacro(CleanPoints, bool);
+  vtkGetMacro(CleanPoints, bool);
+  vtkBooleanMacro(CleanPoints, bool);
+  ///@}
+
 protected:
   vtkContourLoopExtraction();
   ~vtkContourLoopExtraction() override;
@@ -161,6 +177,7 @@ protected:
   double ScalarRange[2];
   double Normal[3];
   int OutputMode;
+  bool CleanPoints;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
