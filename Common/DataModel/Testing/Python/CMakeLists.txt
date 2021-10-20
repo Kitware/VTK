@@ -10,6 +10,7 @@ vtk_add_test_python(
   TestGetBounds2.py,NO_DATA,NO_VALID
   TestNumericArrayImageData.py,NO_DATA,NO_VALID
   TestPartitionedData.py,NO_DATA,NO_VALID
+  TestPointInPolygon.py,NO_DATA,NO_VALID
   TestQuadricClustering.py
   TestStaticPointLocator.py,NO_DATA,NO_VALID
   TestStaticPointLocator2.py,NO_DATA,NO_VALID

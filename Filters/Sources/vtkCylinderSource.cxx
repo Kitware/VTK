@@ -19,6 +19,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -28,6 +29,7 @@
 
 vtkStandardNewMacro(vtkCylinderSource);
 
+//------------------------------------------------------------------------------
 vtkCylinderSource::vtkCylinderSource(int res)
 {
   this->Resolution = res;
@@ -40,6 +42,7 @@ vtkCylinderSource::vtkCylinderSource(int res)
   this->SetNumberOfInputPorts(0);
 }
 
+//------------------------------------------------------------------------------
 int vtkCylinderSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -56,10 +59,6 @@ int vtkCylinderSource::RequestData(vtkInformation* vtkNotUsed(request),
   double* center = this->Center;
   int i, idx;
   vtkIdType pts[VTK_CELL_SIZE];
-  vtkPoints* newPoints;
-  vtkFloatArray* newNormals;
-  vtkFloatArray* newTCoords;
-  vtkCellArray* newPolys;
 
   //
   // Set things up; allocate memory
@@ -76,7 +75,7 @@ int vtkCylinderSource::RequestData(vtkInformation* vtkNotUsed(request),
     numPolys = this->Resolution;
   }
 
-  newPoints = vtkPoints::New();
+  vtkNew<vtkPoints> newPoints;
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
@@ -89,16 +88,16 @@ int vtkCylinderSource::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   newPoints->Allocate(numPts);
-  newNormals = vtkFloatArray::New();
+  vtkNew<vtkFloatArray> newNormals;
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(numPts);
   newNormals->SetName("Normals");
-  newTCoords = vtkFloatArray::New();
+  vtkNew<vtkFloatArray> newTCoords;
   newTCoords->SetNumberOfComponents(2);
   newTCoords->Allocate(numPts);
   newTCoords->SetName("TCoords");
 
-  newPolys = vtkCellArray::New();
+  vtkNew<vtkCellArray> newPolys;
   newPolys->AllocateEstimate(numPolys, this->Resolution);
   //
   // Generate points and point data for sides
@@ -201,21 +200,18 @@ int vtkCylinderSource::RequestData(vtkInformation* vtkNotUsed(request),
     // Update ourselves and release memory
     //
   output->SetPoints(newPoints);
-  newPoints->Delete();
 
   output->GetPointData()->SetNormals(newNormals);
-  newNormals->Delete();
 
   output->GetPointData()->SetTCoords(newTCoords);
-  newTCoords->Delete();
 
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   output->SetPolys(newPolys);
-  newPolys->Delete();
 
   return 1;
 }
 
+//------------------------------------------------------------------------------
 void vtkCylinderSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

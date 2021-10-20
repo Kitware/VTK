@@ -30,6 +30,9 @@
  * The cylinder is infinite in extent. To truncate the cylinder in
  * modeling operations use the vtkImplicitBoolean in combination with
  * clipping planes.
+ *
+ * @sa
+ * vtkCylinderSource
  */
 
 #ifndef vtkCylinder_h

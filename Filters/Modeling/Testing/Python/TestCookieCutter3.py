@@ -85,4 +85,4 @@ ren.AddActor(actor)
 ren.AddActor(loopActor)
 
 renWin.Render()
-#iren.Start()
+iren.Start()

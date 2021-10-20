@@ -1,3 +1,4 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -46,6 +47,7 @@ vtkPolyDataPlaneClipper::vtkPolyDataPlaneClipper()
   this->Plane = nullptr;
   this->ClippingLoops = true;
   this->Capping = true;
+  this->PassCapPointData = false;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
   this->BatchSize = 10000;
 
@@ -904,6 +906,7 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   // If clip loops are requested, send to the output.
   if (this->ClippingLoops)
   {
+    vtkDebugMacro(<< "Generated: " << outLines->GetNumberOfCells() << " loops");
     output2->SetLines(outLines);
   }
 
@@ -912,6 +915,14 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->Capping)
   {
     GenerateCap(outLines, output2);
+    vtkDebugMacro(<< "Generated: " << output2->GetPolys()->GetNumberOfCells()
+                  << "capping polygons");
+  }
+
+  // Some filters make use of the loop/capping point data
+  if (this->PassCapPointData && (this->ClippingLoops || this->Capping))
+  {
+    output2->GetPointData()->PassData(output->GetPointData());
   }
 
   return 1;
@@ -924,6 +935,7 @@ void vtkPolyDataPlaneClipper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Plane: " << this->Plane << "\n";
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
+  os << indent << "Pass Cap Point Data: " << (this->PassCapPointData ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
   os << indent << "Batch Size: " << this->BatchSize << "\n";
 }

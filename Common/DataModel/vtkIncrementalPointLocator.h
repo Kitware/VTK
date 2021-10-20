@@ -106,6 +106,9 @@ public:
 
   /**
    * Insert a point unless there has been a duplicate in the search structure.
+   * Return 0 if the point was already in the list, otherwise return 1. If the
+   * point was not in the list, it will be ADDED.  In either case, the id of
+   * the point (newly inserted or not) is returned in the ptId argument.
    * This method is not thread safe.
    */
   virtual int InsertUniquePoint(const double x[3], vtkIdType& ptId) = 0;

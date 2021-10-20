@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkCylinderSource
- * @brief   generate a cylinder centered at origin
+ * @brief   generate a polygonal cylinder centered at the origin
  *
  * vtkCylinderSource creates a polygonal cylinder centered at Center;
  * The axis of the cylinder is aligned along the global y-axis.
@@ -23,6 +23,9 @@
  * open-ended or capped. If you have the end points of the cylinder, you
  * should use a vtkLineSource followed by a vtkTubeFilter instead of the
  * vtkCylinderSource.
+ *
+ * @sa
+ * vtkCylinder
  */
 
 #ifndef vtkCylinderSource_h

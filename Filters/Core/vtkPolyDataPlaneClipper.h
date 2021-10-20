@@ -117,6 +117,17 @@ public:
 
   ///@{
   /**
+   * Specify whether to pass point data through to the second (Cap) output.
+   * By default this is disabled. This feature is useful in certain situations
+   * when trying to combine the cap with clipped polydata.
+   */
+  vtkSetMacro(PassCapPointData, bool);
+  vtkGetMacro(PassCapPointData, bool);
+  vtkBooleanMacro(PassCapPointData, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set/get the desired precision for the output points type. See the
    * documentation for the vtkAlgorithm::DesiredOutputPrecision enum for an
    * explanation of the available precision settings. OutputPointsPrecision
@@ -144,6 +155,7 @@ protected:
   vtkSmartPointer<vtkPlane> Plane;
   bool ClippingLoops;
   bool Capping;
+  bool PassCapPointData;
   int OutputPointsPrecision;
   unsigned int BatchSize;
 

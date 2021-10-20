@@ -154,10 +154,15 @@ public:
     double p0[3], double p10[3], double& l10, double p20[3], double& l20, double n[3]);
 
   /**
-   * Determine whether point is inside polygon. Function uses ray-casting
-   * to determine if point is inside polygon. Works for arbitrary polygon shape
-   * (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
-   * Can also return -1 to indicate degenerate polygon.
+   * Determine whether a point is inside the specified polygon. The function
+   * computes the winding number to assess inclusion. It works for arbitrary
+   * polygon shapes (e.g., non-convex) oriented arbitraily in 3D
+   * space. Returns 0 if the point is not in the polygon; 1 if it is.  Can
+   * also return -1 to indicate a degenerate polygon. Parameters passed into
+   * the method include the point in question x[3]; the polygon defined by
+   * (npts,pts); the bounds of the polygon bounds[6]; and the normal n[3] to
+   * the polygon. (The implementation was inspired by Dan Sunday's book
+   * Practical Geometry Algorithms.) This method is thread safe.
    */
   static int PointInPolygon(double x[3], int numPts, double* pts, double bounds[6], double n[3]);
 
