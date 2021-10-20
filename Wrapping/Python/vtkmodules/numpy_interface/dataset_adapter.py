@@ -693,6 +693,8 @@ class DataSetAttributes(VTKObjectWrapper):
             arrLength = self.DataSet.GetNumberOfPoints()
         elif self.Association == ArrayAssociation.CELL:
             arrLength = self.DataSet.GetNumberOfCells()
+        elif self.Association == ArrayAssociation.ROW:
+            arrLength = self.DataSet.GetNumberOfRows()
         else:
             if not isinstance(narray, numpy.ndarray):
                 arrLength = 1
