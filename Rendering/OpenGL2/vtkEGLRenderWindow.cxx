@@ -461,7 +461,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
 
     EGLint major = 0, minor = 0;
 
-    if (!this.SetDeviceAsDisplay(this->DeviceIndex))
+    if (!this->SetDeviceAsDisplay(this->DeviceIndex))
     {
       return;
     }
