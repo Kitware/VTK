@@ -30,6 +30,7 @@
   * [metaio](../Utilities/MetaIO/update.sh)
   * [mpi4py](mpi4py/update.sh)
   * [netcdf](netcdf/update.sh)
+  * [nlohmannjson](nlohmannjson/update.sh)
   * [ogg](ogg/update.sh)
   * [pegtl](pegtl/update.sh)
   * [png](png/update.sh)
