@@ -334,6 +334,8 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
 
       if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) == EGL_FALSE)
       {
+        vtkWarningMacro(
+          "EGL device index: " << deviceIndex << " could not be initialized. Exiting...");
         return false;
       }
     }
@@ -344,6 +346,10 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
 
       if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) == EGL_FALSE)
       {
+
+        vtkWarningMacro(
+          "EGL device index: " << vtkEGLDisplayInitializationHelper::DefaultDeviceIndex
+                               << " could not be initialized. Trying other devices...");
         bool foundWorkingDisplay = false;
 
         for (int i = 0; i < num_devices; i++)
@@ -373,6 +379,7 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
           if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) ==
             EGL_FALSE)
           {
+            vtkErrorMacro("Could not initialize a device. Exiting...");
             return false;
           }
         }
