@@ -43,7 +43,7 @@
 
 .fedora34:
     extends: .linux
-    image: "kitware/vtk:ci-fedora34-20210824"
+    image: "kitware/vtk:ci-fedora34-20211020"
 
 .fedora_mpich_addon:
     variables:
