@@ -1,0 +1,89 @@
+{
+  "actions": [
+    {
+      "name": "nextcamerapose",
+      "type": "boolean"
+    },
+    {
+      "name": "triggeraction",
+      "type": "boolean"
+    },
+    {
+      "name": "positionprop",
+      "type": "boolean"
+    },
+    {
+      "name": "showmenu",
+      "type": "boolean"
+    },
+    {
+      "name": "startmovement",
+      "type": "boolean"
+    },
+    {
+      "name": "movement",
+      "type": "vector2"
+    },
+    {
+      "name": "leftgripaction",
+      "type": "boolean"
+    },
+    {
+      "name": "rightgripaction",
+      "type": "boolean"
+    },
+    {
+      "name": "handpose",
+      "type": "pose"
+    },
+    {
+      "name": "handposehandgrip",
+      "type": "pose"
+    },
+    {
+      "name": "squeezeforce",
+      "type": "float"
+    },
+    {
+      "name": "haptic",
+      "type": "vibration"
+    }
+  ],
+  "default_bindings": [
+    {
+      "binding_url": "vtk_openxr_binding_khr_simple_controller.json",
+      "controller_type": "khr_simple"
+    },
+    {
+      "binding_url": "vtk_openxr_binding_htc_vive_controller.json",
+      "controller_type": "vive_controller"
+    },
+    {
+      "binding_url": "vtk_openxr_binding_valve_index_controller.json",
+      "controller_type": "valve_index_controller"
+    }
+  ],
+  "action_sets": [
+    {
+      "name": "vtk-actions",
+      "localizedName": "VTK actions"
+    }
+  ],
+  "localization": [
+    {
+      "leftgripaction": "Left Grip Action",
+      "rightgripaction": "Right Grip Action",
+      "movement": "Movement",
+      "startmovement": "Start Movement",
+      "showmenu": "Show Menu",
+      "nextcamerapose": "Next Camera Pose",
+      "triggeraction": "Trigger Action",
+      "positionprop": "Position Prop",
+      "handpose": "Hand Pose",
+      "handposehandgrip": "Hand Pose Hand Grip",
+      "squeezeforce": "Squeeze Force",
+      "haptic": "Haptic Vibration",
+      "language_tag": "en_US"
+    }
+  ]
+}

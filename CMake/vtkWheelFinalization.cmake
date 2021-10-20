@@ -16,6 +16,10 @@ if (TARGET VTK::RenderingOpenVR)
   list(APPEND vtk_features "openvr")
 endif ()
 
+if (TARGET VTK::RenderingOpenXR)
+  list(APPEND vtk_features "openxr")
+endif ()
+
 if (TARGET VTK::RenderingOpenGL2)
   set(has_onscreen OFF)
   set(has_offscreen OFF)

@@ -1,0 +1,30 @@
+NAME
+  VTK::RenderingOpenXR
+LIBRARY_NAME
+  vtkRenderingOpenXR
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonMath
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::RenderingVR
+  VTK::glew
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersSources
+  VTK::ImagingSources
+  VTK::InteractionWidgets
+  VTK::jsoncpp
+  VTK::opengl
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonCore
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::IOPLY
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
