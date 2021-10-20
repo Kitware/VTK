@@ -462,7 +462,6 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
 
   if (impl->Display == EGL_NO_DISPLAY)
   {
-
     if (!this->SetDeviceAsDisplay(this->DeviceIndex))
     {
       return;
