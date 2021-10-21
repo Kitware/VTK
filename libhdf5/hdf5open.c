@@ -764,12 +764,13 @@ nc4_open_file(const char *path, int mode, void* parameters, int ncid)
 #endif /* !USE_PARALLEL4 */
 
     /* Need this access plist to control how HDF5 handles open objects
-     * on file close. (Setting H5F_CLOSE_SEMI will cause H5Fclose to
-     * fail if there are any open objects in the file). */
+     * on file close. (Setting H5F_CLOSE_WEAK will cause H5Fclose not to
+     * fail if there are any open objects in the file. This may happen when virtual
+     * datasets are opened). */
     if ((fapl_id = H5Pcreate(H5P_FILE_ACCESS)) < 0)
         BAIL(NC_EHDFERR);
 
-    if (H5Pset_fclose_degree(fapl_id, H5F_CLOSE_SEMI) < 0)
+    if (H5Pset_fclose_degree(fapl_id, H5F_CLOSE_WEAK) < 0)
         BAIL(NC_EHDFERR);
 
 #ifdef USE_PARALLEL4
@@ -1013,22 +1014,35 @@ static int get_filter_info(hid_t propid, NC_VAR_INFO_T *var)
     size_t cd_nelems;
     int f;
     int stat = NC_NOERR;
+    NC_HDF5_VAR_INFO_T *hdf5_var;
 
     assert(var);
+
+    /* Get HDF5-sepecific var info. */
+    hdf5_var = (NC_HDF5_VAR_INFO_T *)var->format_var_info;
 
     if ((num_filters = H5Pget_nfilters(propid)) < 0)
 	{stat = NC_EHDFERR; goto done;}
 
     for (f = 0; f < num_filters; f++)
     {
+	int flags = 0;
+	htri_t avail = -1;
 	cd_nelems = 0;
         if ((filter = H5Pget_filter2(propid, f, NULL, &cd_nelems, NULL, 0, NULL, NULL)) < 0)
-	    {stat = NC_EHDFERR; goto done;}
+ 	    {stat = NC_ENOFILTER; goto done;} /* Assume this means an unknown filter */
+	if((avail = H5Zfilter_avail(filter)) < 0)
+ 	    {stat = NC_EHDFERR; goto done;} /* Something in HDF5 went wrong */
+	if(!avail) {
+	    flags |= NC_HDF5_FILTER_MISSING;
+	    /* mark variable as unreadable */
+	    hdf5_var->flags |= NC_HDF5_VAR_FILTER_MISSING;
+	}
 	if((cd_values = calloc(sizeof(unsigned int),cd_nelems))==NULL)
-	    {stat = NC_EHDFERR; goto done;}
+ 	    {stat = NC_ENOMEM; goto done;}
         if ((filter = H5Pget_filter2(propid, f, NULL, &cd_nelems, cd_values, 0, NULL, NULL)) < 0)
-	    {stat = NC_EHDFERR; goto done;}
-        switch (filter)
+ 	    {stat = NC_EHDFERR; goto done;} /* Something in HDF5 went wrong */
+	switch (filter)
         {
         case H5Z_FILTER_SHUFFLE:
             var->shuffle = NC_TRUE;
@@ -1042,7 +1056,7 @@ static int get_filter_info(hid_t propid, NC_VAR_INFO_T *var)
             if (cd_nelems != CD_NELEMS_ZLIB ||
                 cd_values[0] > NC_MAX_DEFLATE_LEVEL)
 		    {stat = NC_EHDFERR; goto done;}
-	    if((stat = NC4_hdf5_addfilter(var,filter,cd_nelems,cd_values)))
+	    if((stat = NC4_hdf5_addfilter(var,filter,cd_nelems,cd_values,flags)))
 	       goto done;
             break;
 
@@ -1050,7 +1064,7 @@ static int get_filter_info(hid_t propid, NC_VAR_INFO_T *var)
             /* Szip is tricky because the filter code expands the set of parameters from 2 to 4
                and changes some of the parameter values; try to compensate */
             if(cd_nelems == 0) {
-		if((stat = NC4_hdf5_addfilter(var,filter,0,NULL)))
+		if((stat = NC4_hdf5_addfilter(var,filter,0,NULL,flags)))
 		   goto done;
             } else {
                 /* fix up the parameters and the #params */
@@ -1060,16 +1074,16 @@ static int get_filter_info(hid_t propid, NC_VAR_INFO_T *var)
 		/* Fix up changed params */
 		cd_values[0] &= (H5_SZIP_ALL_MASKS);
 		/* Save info */
-		stat = NC4_hdf5_addfilter(var,filter,cd_nelems,cd_values);
+		stat = NC4_hdf5_addfilter(var,filter,cd_nelems,cd_values,flags);
 		if(stat) goto done;
             }
             } break;
 
         default:
             if(cd_nelems == 0) {
-  	        if((stat = NC4_hdf5_addfilter(var,filter,0,NULL))) goto done;
+  	        if((stat = NC4_hdf5_addfilter(var,filter,0,NULL,flags))) goto done;
             } else {
-  	        stat = NC4_hdf5_addfilter(var,filter,cd_nelems,cd_values);
+  	        stat = NC4_hdf5_addfilter(var,filter,cd_nelems,cd_values,flags);
 		if(stat) goto done;
             }
             break;
@@ -1176,6 +1190,16 @@ get_chunking_info(hid_t propid, NC_VAR_INFO_T *var)
     else if (layout == H5D_COMPACT)
     {
 	var->storage = NC_COMPACT;
+    }
+#ifdef H5D_VIRTUAL
+    else if (layout == H5D_VIRTUAL)
+    {
+	var->storage = NC_VIRTUAL;
+    }
+#endif
+    else
+    {
+    var->storage = NC_UNKNOWN_STORAGE;
     }
 
     return NC_NOERR;
@@ -1979,7 +2003,7 @@ read_type(NC_GRP_INFO_T *grp, hid_t hdf_typeid, char *type_name)
                 if ((ndims = H5Tget_array_ndims(member_hdf_typeid)) < 0)
                     return NC_EHDFERR;
 
-                if (H5Tget_array_dims(member_hdf_typeid, dims, NULL) != ndims)
+                if (H5Tget_array_dims1(member_hdf_typeid, dims, NULL) != ndims)
                     return NC_EHDFERR;
 
                 for (d = 0; d < ndims; d++)
@@ -2532,7 +2556,12 @@ oinfo_list_add(user_data_t *udata, const hdf5_obj_info_t *oinfo)
  * @author Ed Hartnett
  */
 static int
-read_hdf5_obj(hid_t grpid, const char *name, const H5L_info_t *info,
+read_hdf5_obj(hid_t grpid, const char *name,
+#if H5_VERSION_GE(1,12,0)
+	      const H5L_info2_t *info,
+#else
+	      const H5L_info_t *info,
+#endif
               void *_op_data)
 {
     /* Pointer to user data for callback */

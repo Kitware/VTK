@@ -43,6 +43,15 @@ NC4_inq_ncid(int ncid, const char *name, int *grp_ncid)
         return retval;
     assert(h5);
 
+    /* Short circuit the case of name == NULL => return the root group */
+    if(name == NULL) {
+	if(grp_ncid) {
+	    NC_FILE_INFO_T* file = grp->nc4_info;
+            *grp_ncid = file->controller->ext_ncid | file->root_grp->hdr.id;
+	}	
+	return NC_NOERR;
+    }
+
     /* Normalize name. */
     if ((retval = nc4_check_name(name, norm_name)))
         return retval;

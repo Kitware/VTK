@@ -94,7 +94,7 @@ ncxcachelookup(NCxcache* NCxcache, ncexhashkey_t hkey, void** op)
     if(NCxcache == NULL) return THROW(NC_EINVAL);
     assert(NCxcache->map != NULL);
     if((stat=ncexhashget(NCxcache->map,hkey,&inode)))
-        {stat = THROW(NC_ENOTFOUND); goto done;} /* not present */
+        {stat = THROW(NC_ENOOBJECT); goto done;} /* not present */
     node = (void*)inode;
     if(op) *op = node->content;
 
@@ -112,7 +112,7 @@ ncxcachetouch(NCxcache* cache, ncexhashkey_t hkey)
 
     if(cache == NULL) return THROW(NC_EINVAL);
     if((stat=ncexhashget(cache->map,hkey,&inode)))
-        {stat = THROW(NC_ENOTFOUND); goto done;} /* not present */
+        {stat = THROW(NC_ENOOBJECT); goto done;} /* not present */
     node = (void*)inode;
     /* unlink */
     unlinknode(node);
@@ -171,7 +171,7 @@ ncxcacheremove(NCxcache* cache, ncexhashkey_t hkey, void** op)
 
     /* Remove from the hash map */
     if((stat=ncexhashremove(cache->map,hkey,&inode)))
-        {stat = NC_ENOTFOUND; goto done;} /* not present */
+        {stat = NC_ENOOBJECT; goto done;} /* not present */
     node = (NCxnode*)inode;
     /* unlink */
     unlinknode(node);

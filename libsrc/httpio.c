@@ -44,7 +44,7 @@
 
 typedef struct NCHTTP {
     NC_HTTP_STATE* state;
-    size64_t size; /* of the S3 object */
+    long long size; /* of the S3 object */
     NCbytes* region;
 } NCHTTP;
 

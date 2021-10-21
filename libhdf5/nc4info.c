@@ -339,7 +339,7 @@ NC4_write_ncproperties(NC_FILE_INFO_T* h5)
 	/* Create NCPROPS attribute */
 	if((aspace = H5Screate(H5S_SCALAR)) < 0)
 	    {retval = NC_EFILEMETA; goto done;}
-	if ((attid = H5Acreate(hdf5grpid, NCPROPS, atype, aspace, H5P_DEFAULT)) < 0)
+	if ((attid = H5Acreate1(hdf5grpid, NCPROPS, atype, aspace, H5P_DEFAULT)) < 0)
 	    {retval = NC_EFILEMETA; goto done;}
 	if (H5Awrite(attid, atype, prov->ncproperties) < 0)
 	    {retval = NC_EFILEMETA; goto done;}
