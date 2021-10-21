@@ -59,13 +59,17 @@ Rules:
 2. a leading '/cygdrive/X' will be converted to
    a drive letter X if X is alpha-char.
 3. a leading D:/... is treated as a windows drive letter
+4. a leading // is a windows network path and is converted
+   to a drive letter using the fake drive letter "@".
 5. If any of the above is encountered, then forward slashes
    will be converted to backslashes.
 All other cases are passed thru unchanged
 */
 
 /* Define legal windows drive letters */
-static const char* windrive = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char* windrive = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@";
+
+static const char netdrive = '@';
 
 static const size_t cdlen = 10; /* strlen("/cygdrive/") */
 
@@ -148,6 +152,49 @@ done:
 }
 
 EXTERNL
+int
+NCpathcanonical(const char* srcpath, char** canonp)
+{
+    int stat = NC_NOERR;
+    char* canon = NULL;
+    size_t len;
+    struct Path path = empty;
+    
+    if(srcpath == NULL) goto done;
+
+    if(!pathinitialized) pathinit();
+
+    /* parse the src path */
+    if((stat = parsepath(srcpath,&path))) {goto done;}
+    switch (path.kind) {
+    case NCPD_NIX:
+    case NCPD_CYGWIN:
+    case NCPD_REL:
+	/* use as is */
+	canon = path.path; path.path = NULL;
+	break;	
+    case NCPD_MSYS:
+    case NCPD_WIN: /* convert to cywin form */
+	len = strlen(path.path) + strlen("/cygdrive/X") + 1;
+	canon = (char*)malloc(len);
+	if(canon != NULL) {
+	    canon[0] = '\0';
+	    strlcat(canon,"/cygdrive/X",len);
+	    canon[10] = path.drive;
+	    strlcat(canon,path.path,len);
+	}
+	break;		
+    default: goto done; /* return NULL */
+    }
+    if(canonp) {*canonp = canon; canon = NULL;}
+
+done:
+    nullfree(canon);
+    clearPath(&path);
+    return stat;
+}
+
+EXTERNL
 char* /* caller frees */
 NCpathabsolute(const char* relpath)
 {
@@ -161,7 +208,7 @@ NCpathabsolute(const char* relpath)
 
     if(!pathinitialized) pathinit();
 
-    /* Canonicalize relpath */
+    /* Decompose path */
     if((stat = parsepath(relpath,&canon))) {goto done;}
     
     /* See if relative */
@@ -356,10 +403,7 @@ int
 NCclosedir(DIR* ent)
 {
     int stat = NC_NOERR;
-    char* cvtname = NCpathcvt(path);
-    if(cvtname == NULL) {errno = ENOENT; return -1;}
-    stat = closedir(cvtname);
-    free(cvtname);    
+    if(closedir(ent) < 0) stat = errno;
     return stat;
 }
 #endif
@@ -460,6 +504,43 @@ done:
     return cwdbuf;
 }
 
+EXTERNL
+int
+NCmkstemp(char* base)
+{
+    int stat = 0;
+    int fd, rno;
+    char* tmp = NULL;
+    size_t len;
+    char* xp = NULL;
+    char* cvtpath = NULL;
+    int attempts;
+
+    cvtpath = NCpathcvt(base);
+    len = strlen(cvtpath);
+    xp = cvtpath+(len-6);
+    assert(memcmp(xp,"XXXXXX",6)==0);    
+    for(attempts=10;attempts>0;attempts--) {
+        /* The Windows version of mkstemp does not work right;
+           it only allows for 26 possible XXXXXX values */
+        /* Need to simulate by using some kind of pseudo-random number */
+        rno = rand();
+        if(rno < 0) rno = -rno;
+        snprintf(xp,7,"%06d",rno);
+        fd=NCopen3(cvtpath,O_RDWR|O_BINARY|O_CREAT, _S_IREAD|_S_IWRITE);
+        if(fd >= 0) break;
+    }
+    if(fd < 0) {
+       nclog(NCLOGERR, "Could not create temp file: %s",tmp);
+       stat = EACCES;
+       goto done;
+    }
+done:
+    nullfree(cvtpath);
+    if(stat && fd >= 0) {close(fd);}    
+    return (stat?-1:fd);
+}
+
 #ifdef HAVE_SYS_STAT_H
 EXTERNL
 int
@@ -523,6 +604,27 @@ done:
     return hasdl;
 }
 
+EXTERNL int
+NCisnetworkpath(const char* path)
+{
+    int stat = NC_NOERR;
+    int isnp = 0;    
+    struct Path canon = empty;
+
+    if(!pathinitialized) pathinit();     
+
+    if((stat = parsepath(path,&canon))) goto done;
+    if(canon.kind == NCPD_REL) {
+	clearPath(&canon);
+        /* Get the drive letter (if any) from the local wd */
+	canon.drive = wdpath.drive;	
+    }
+    isnp = (canon.drive == netdrive);
+done:
+    clearPath(&canon);
+    return isnp;
+}
+
 /**************************************************/
 /* Utilities */
 
@@ -549,15 +651,27 @@ parsepath(const char* inpath, struct Path* path)
     /* Convert to forward slash */
     for(p=tmp1;*p;p++) {if(*p == '\\') *p = '/';}
 
-    /* parse all paths to 2-parts:
+    /* parse all paths to 2 parts:
 	1. drive letter (optional)
 	2. path after drive letter
     */
 
     len = strlen(tmp1);
 
-    /* 1. look for MSYS path /D/... */
-    if(len >= 2
+    /* 1. look for Windows network path //... */
+    if(len >= 2 && (tmp1[0] == '/') && (tmp1[1] == '/')) {
+	path->drive = netdrive;
+	/* Remainder */
+	if(tmp1[2] == '\0')
+	    path->path = NULL;
+	else
+	    path->path = strdup(tmp1+1); /*keep first '/' */
+	if(path == NULL)
+	    {stat = NC_ENOMEM; goto done;}
+	path->kind = NCPD_WIN;
+    }
+    /* 2. look for MSYS path /D/... */
+    else if(len >= 2
 	&& (tmp1[0] == '/')
 	&& strchr(windrive,tmp1[1]) != NULL
 	&& (tmp1[2] == '/' || tmp1[2] == '\0')) {
@@ -572,7 +686,7 @@ parsepath(const char* inpath, struct Path* path)
 	    {stat = NC_ENOMEM; goto done;}
 	path->kind = NCPD_MSYS;
     }
-    /* 2. Look for leading /cygdrive/D where D is a single-char drive letter */
+    /* 3. Look for leading /cygdrive/D where D is a single-char drive letter */
     else if(len >= (cdlen+1)
 	&& memcmp(tmp1,"/cygdrive/",cdlen)==0
 	&& strchr(windrive,tmp1[cdlen]) != NULL
@@ -589,7 +703,7 @@ parsepath(const char* inpath, struct Path* path)
 	    {stat = NC_ENOMEM; goto done;}
 	path->kind = NCPD_CYGWIN;
     }
-    /* 3. Look for windows path:  D:/... where D is a single-char
+    /* 4. Look for windows path:  D:/... where D is a single-char
           drive letter */
     else if(len >= 2
 	&& strchr(windrive,tmp1[0]) != NULL
@@ -606,14 +720,14 @@ parsepath(const char* inpath, struct Path* path)
 	    {stat = NC_ENOMEM; goto done;}
 	path->kind = NCPD_WIN;
     }
-    /* look for *nix path */
+    /* 5. look for *nix path */
     else if(len >= 1 && tmp1[0] == '/') {
 	/* Assume this is a *nix path */
 	path->drive = 0; /* no drive letter */
 	/* Remainder */
 	path->path = tmp1; tmp1 = NULL;
 	path->kind = NCPD_NIX;	
-    } else {/* Relative path of unknown type */
+    } else {/* 6. Relative path of unknown type */
 	path->kind = NCPD_REL;
 	path->path = tmp1; tmp1 = NULL;
     }
@@ -671,13 +785,17 @@ unparsepath(struct Path* xp, char** pathp)
 	break;
     case NCPD_WIN:
 	if(xp->drive == 0) {xp->drive = wdpath.drive;} /*requires a drive */
-	len = nulllen(xp->path)+2+1;
+	len = nulllen(xp->path)+2+1+1;
 	if((path = (char*)malloc(len))==NULL)
 	    {stat = NC_ENOMEM; goto done;}	
 	path[0] = '\0';
-	sdrive[0] = xp->drive;
-	strlcat(path,sdrive,len);
-	strlcat(path,":",len);
+	if(xp->drive == netdrive)
+	    strlcat(path,"/",len); /* second slash will come from path */
+	else {
+	    sdrive[0] = xp->drive;
+	    strlcat(path,sdrive,len);
+	    strlcat(path,":",len);
+	}
 	if(xp->path)
 	    strlcat(path,xp->path,len);
 	/* Convert forward to back */ 
@@ -911,33 +1029,3 @@ printutf8hex(const char* s, char* sx)
     }
     *q = '\0';
 }
-
-/**************************************************/
-#if 0
-#ifdef HAVE_DIRENT_H
-EXTERNL
-DIR*
-NCopendir(const char* path)
-{
-    DIR* ent = NULL;
-    char* cvtpath = NCpathcvt(path);
-    if(cvtpath == NULL) return -1;
-    ent = opendir(cvtpath);
-    free(cvtpath);    
-    return ent;
-}
-
-EXTERNL
-int
-NCclosedir(DIR* ent)
-{
-    int stat = 0;
-    char* cvtpath = NCpathcvt(path);
-    if(cvtpath == NULL) return -1;
-    stat = closedir(cvtpath);
-    free(cvtpath);    
-    return stat;
-}
-#endif
-#endif /*0*/
-

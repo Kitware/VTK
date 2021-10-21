@@ -20,7 +20,7 @@ See COPYRIGHT for license information.
 #include "nclog.h"
 #include "ncpathmgr.h"
 
-#define RCFILEENV "DAPRCFILE"
+#undef DRCDEBUG
 
 #define RTAG ']'
 #define LTAG '['
@@ -42,21 +42,41 @@ static void rcfreetriples(NClist* rc);
 static void storedump(char* msg, NClist* triples);
 #endif
 
-/* Define default rc files and aliases, also defines search order*/
-static const char* rcfilenames[] = {".daprc",".dodsrc",".ncrc",NULL};
+/* Define default rc files and aliases, also defines load order*/
+static const char* rcfilenames[] = {".ncrc", ".daprc", ".dodsrc",NULL};
 
 /**************************************************/
 /* External Entry Points */
 
 static NCRCglobalstate* ncrc_globalstate = NULL;
 
+static int NCRCinitialized = 0;
+
+/* Initialize defaults */
+void
+ncrc_initialize(void)
+{
+    const char* tmp = NULL;
+    
+    if(NCRCinitialized) return;
+    if(ncrc_globalstate == NULL) {
+        ncrc_globalstate = calloc(1,sizeof(NCRCglobalstate));
+    }
+    /* Get environment variables */
+    if(getenv(NCRCENVIGNORE) != NULL)
+        ncrc_globalstate->rcinfo.ignore = 1;
+    tmp = getenv(NCRCENVRC);
+    if(tmp != NULL && strlen(tmp) > 0)
+        ncrc_globalstate->rcinfo.rcfile = strdup(tmp);
+    NCRCinitialized = 1;
+}
+
 /* Get global state */
 NCRCglobalstate*
 ncrc_getglobalstate(void)
 {
-    if(ncrc_globalstate == NULL) {
-        ncrc_globalstate = calloc(1,sizeof(NCRCglobalstate));
-    }
+    if(!NCRCinitialized)
+        ncrc_initialize();
     return ncrc_globalstate;
 }
 
@@ -66,6 +86,7 @@ ncrc_freeglobalstate(void)
     if(ncrc_globalstate != NULL) {
         nullfree(ncrc_globalstate->tempdir);
         nullfree(ncrc_globalstate->home);
+        nullfree(ncrc_globalstate->cwd);
         NC_rcclear(&ncrc_globalstate->rcinfo);
 	free(ncrc_globalstate);
 	ncrc_globalstate = NULL;
@@ -94,57 +115,67 @@ rcfreetriples(NClist* rc)
     nclistfree(rc);
 }
 
-/* locate, read and compile the rc file, if any */
+/* locate, read and compile the rc files, if any */
 int
 NC_rcload(void)
 {
-    int ret = NC_NOERR;
+    int i,ret = NC_NOERR;
     char* path = NULL;
-    NCRCglobalstate* globalstate = ncrc_getglobalstate();
+    NCRCglobalstate* globalstate = NULL;
+    NClist* rcfileorder = nclistnew();
 
+    if(!NCRCinitialized) ncrc_initialize();
+    globalstate = ncrc_getglobalstate();
+    
     if(globalstate->rcinfo.ignore) {
-        nclog(NCLOGDBG,"No .daprc|.dodsrc runtime configuration file specified; continuing");
-	return (NC_NOERR);
+        nclog(NCLOGDBG,".rc file loading suppressed");
+	goto done;
     }
-    if(globalstate->rcinfo.loaded) return (NC_NOERR);
+    if(globalstate->rcinfo.loaded) goto done;
 
-    /* locate the configuration files in the following order:
-       1. specified by NC_set_rcfile
-       2. set by DAPRCFILE env variable
-       3. ./<rcfile> (current directory)
-       4. $HOME/<rcfile>
+    /* locate the configuration files in order of use:
+       1. Specified by NCRCENV_RC environment variable.
+       2. If NCRCENV_RC is not set then merge the set of rc files in this order:
+	  1. $HOME/.ncrc
+  	  2. $HOME/.daprc
+	  3. $HOME/.docsrc
+	  4. $CWD/.ncrc
+  	  5. $CWD/.daprc
+	  6. $CWD/.docsrc
+	  Entries in later files override any of the earlier files
     */
     if(globalstate->rcinfo.rcfile != NULL) { /* always use this */
-	path = strdup(globalstate->rcinfo.rcfile);
-    } else if(getenv(RCFILEENV) != NULL && strlen(getenv(RCFILEENV)) > 0) {
-        path = strdup(getenv(RCFILEENV));
+	nclistpush(rcfileorder,strdup(globalstate->rcinfo.rcfile));
     } else {
 	const char** rcname;
-	int found = 0;
-	for(rcname=rcfilenames;!found && *rcname;rcname++) {
-	    ret = rcsearch(".",*rcname,&path);
-    	    if(ret == NC_NOERR && path == NULL)  /* try $HOME */
-	        ret = rcsearch(globalstate->home,*rcname,&path);
-	    if(ret != NC_NOERR)
-		goto done;
-	    if(path != NULL)
-		found = 1;
+	const char* dirnames[3];
+	const char** dir;
+	
+	dirnames[0] = globalstate->home;
+	dirnames[1] = globalstate->cwd;
+	dirnames[2] = NULL;
+
+        for(dir=dirnames;*dir;dir++) {       
+	    for(rcname=rcfilenames;*rcname;rcname++) {
+	        ret = rcsearch(*dir,*rcname,&path);
+		if(ret == NC_NOERR && path != NULL)
+		    nclistpush(rcfileorder,path);
+		path = NULL;		
+	    }
 	}
     }
-    if(path == NULL) {
-        nclog(NCLOGDBG,"No .daprc|.dodsrc runtime configuration file specified; continuing");
-    } else {
-#ifdef D4DEBUG
-        fprintf(stderr, "RC file: %s\n", path);
-#endif
-        if((ret=rccompile(path))) {
-	    nclog(NCLOGERR, "Error parsing %s\n",path);
+    for(i=0;i<nclistlength(rcfileorder);i++) {
+	path = (char*)nclistget(rcfileorder,i);
+	if((ret=rccompile(path))) {
+	    nclog(NCLOGWARN, "Error parsing %s\n",path);
+	    ret = NC_NOERR; /* ignore it */
 	    goto done;
 	}
     }
+
 done:
     globalstate->rcinfo.loaded = 1; /* even if not exists */
-    nullfree(path);
+    nclistfreeall(rcfileorder);
     return (ret);
 }
 
@@ -155,10 +186,13 @@ done:
 char*
 NC_rclookup(const char* key, const char* hostport)
 {
-    struct NCTriple* triple = rclocate(key,hostport);
+    struct NCTriple* triple = NULL;
+    if(!NCRCinitialized) ncrc_initialize();
+    triple = rclocate(key,hostport);
     return (triple == NULL ? NULL : triple->value);
 }
 
+#if 0
 /*!
 Set the absolute path to use for the rc file.
 WARNING: this MUST be called before any other
@@ -195,6 +229,7 @@ NC_set_rcfile(const char* rcfile)
 done:
     return stat;
 }
+#endif
 
 /**************************************************/
 /* RC processing functions */
@@ -223,6 +258,8 @@ rctrim(char* text)
     char* p = text;
     size_t len = 0;
     int i;
+
+    if(text == NULL) return;
 
     /* locate first non-trimchar */
     for(;*p;p++) {
@@ -276,7 +313,7 @@ rcorder(NClist* rc)
     nclistfree(tmprc);
 }
 
-/* Create a triple store from a file */
+/* Merge a triple store from a file*/
 static int
 rccompile(const char* path)
 {
@@ -289,24 +326,23 @@ rccompile(const char* path)
     NCRCglobalstate* globalstate = ncrc_getglobalstate();
 
     if((ret=NC_readfile(path,tmp))) {
-        nclog(NCLOGERR, "Could not open configuration file: %s",path);
+        nclog(NCLOGWARN, "Could not open configuration file: %s",path);
 	goto done;
     }
     contents = ncbytesextract(tmp);
     if(contents == NULL) contents = strdup("");
     /* Either reuse or create new  */
     rc = globalstate->rcinfo.triples;
-    if(rc != NULL)
-        rcfreetriples(rc); /* clear out any old data */
-    else {
+    if(rc == NULL) {
         rc = nclistnew();
         globalstate->rcinfo.triples = rc;
     }
     nextline = contents;
     for(;;) {
 	char* line;
-	char* key;
-        char* value;
+	char* key = NULL;
+        char* value = NULL;
+        char* host = NULL;
 	size_t llen;
         NCTriple* triple;
 
@@ -315,14 +351,11 @@ rccompile(const char* path)
         rctrim(line);  /* trim leading and trailing blanks */
         if(line[0] == '#') continue; /* comment */
 	if((llen=strlen(line)) == 0) continue; /* empty line */
-	triple = (NCTriple*)calloc(1,sizeof(NCTriple));
-	if(triple == NULL) {ret = NC_ENOMEM; goto done;}
 	if(line[0] == LTAG) {
 	    char* url = ++line;
             char* rtag = strchr(line,RTAG);
             if(rtag == NULL) {
                 nclog(NCLOGERR, "Malformed [url] in %s entry: %s",path,line);
-                free(triple);
 		continue;
             }
             line = rtag + 1;
@@ -331,7 +364,6 @@ rccompile(const char* path)
             if(uri) ncurifree(uri);
             if(ncuriparse(url,&uri)) {
                 nclog(NCLOGERR, "Malformed [url] in %s entry: %s",path,line);
-                free(triple);
 		continue;
             }
             ncbytesclear(tmp);
@@ -341,9 +373,9 @@ rccompile(const char* path)
                 ncbytescat(tmp,uri->port);
             }
             ncbytesnull(tmp);
-            triple->host = ncbytesextract(tmp);
-	    if(strlen(triple->host)==0)
-		{free(triple->host); triple->host = NULL;}
+            host = ncbytesextract(tmp);
+	    if(strlen(host)==0)
+		{free(host); host = NULL;}
 	}
         /* split off key and value */
         key=line;
@@ -354,16 +386,30 @@ rccompile(const char* path)
             *value = '\0';
             value++;
         }
-	triple->key = strdup(key);
-        triple->value = strdup(value);
+	/* See if key already exists */
+	triple = rclocate(key,host);
+	if(triple != NULL) {
+	    nullfree(triple->host);
+	    nullfree(triple->key);
+	    nullfree(triple->value);
+	} else {
+	    triple = (NCTriple*)calloc(1,sizeof(NCTriple));
+	    if(triple == NULL) {ret = NC_ENOMEM; goto done;}
+	    nclistpush(rc,triple);
+	}
+	triple->host = host; host = NULL;
+	triple->key = nulldup(key);
+        triple->value = nulldup(value);
+        rctrim(triple->host);
         rctrim(triple->key);
         rctrim(triple->value);
-#ifdef D4DEBUG
+
+#ifdef DRCDEBUG
 	fprintf(stderr,"rc: host=%s key=%s value=%s\n",
 		(triple->host != NULL ? triple->host : "<null>"),
-		triple->key,triple->valu);
+		triple->key,triple->value);
 #endif
-	nclistpush(rc,triple);
+
 	triple = NULL;
     }
     rcorder(rc);
@@ -426,10 +472,12 @@ rcsearch(const char* prefix, const char* rcname, char** pathp)
     size_t rclen = strlen(rcname);
     int ret = NC_NOERR;
 
-    size_t pathlen = plen+rclen+1; /*+1 for '/' */
-    path = (char*)malloc(pathlen+1); /* +1 for nul*/
+    size_t pathlen = plen+rclen+1+1; /*+1 for '/' +1 for nul */
+    path = (char*)malloc(pathlen); /* +1 for nul*/
     if(path == NULL) {ret = NC_ENOMEM;	goto done;}
-    snprintf(path, pathlen, "%s/%s", prefix, rcname);
+    strncpy(path,prefix,pathlen);
+    strlcat(path,"/",pathlen);
+    strlcat(path,rcname,pathlen);
     /* see if file is readable */
     f = NCfopen(path,"r");
     if(f != NULL)
@@ -456,9 +504,13 @@ NC_rcfile_insert(const char* key, const char* value, const char* hostport)
     int ret = NC_NOERR;
     /* See if this key already defined */
     struct NCTriple* triple = NULL;
-    NCRCglobalstate* globalstate = ncrc_getglobalstate();
-    NClist* rc = globalstate->rcinfo.triples;
+    NCRCglobalstate* globalstate = NULL;
+    NClist* rc = NULL;
 
+    if(!NCRCinitialized) ncrc_initialize();
+    globalstate = ncrc_getglobalstate();
+    rc = globalstate->rcinfo.triples;
+    
     if(rc == NULL) {
 	rc = nclistnew();
 	if(rc == NULL) {ret = NC_ENOMEM; goto done;}

@@ -259,9 +259,9 @@ const char *nc_strerror(int ncerr1)
       case NC_EDISKLESS:
 	 return "NetCDF: Error in using diskless access";
       case NC_EFILTER:
-	 return "NetCDF: Filter error: bad id or parameters";
+	 return "NetCDF: Filter error: bad id or parameters or duplicate filter";
       case NC_ENOFILTER:
-	 return "NetCDF: Filter error: filter not defined for variable";
+	 return "NetCDF: Filter error: unimplemented filter encountered";
       case NC_ECANTEXTEND:
 	return "NetCDF: Attempt to extend dataset during NC_INDEPENDENT I/O operation. Use nc_var_par_access to set mode NC_COLLECTIVE before extending variable.";
       case NC_EMPI: return "NetCDF: MPI operation failed.";
@@ -277,8 +277,12 @@ const char *nc_strerror(int ncerr1)
 	 return "NetCDF: AWS S3 error";
       case NC_EEMPTY:
 	 return "NetCDF: Attempt to read empty NCZarr map key";
-      case NC_EFOUND:
+      case NC_EOBJECT:
 	 return "NetCDF: Some object exists when it should not";
+      case NC_ENOOBJECT:
+	 return "NetCDF: Some object not found";
+      case NC_EPLUGIN:
+	 return "NetCDF: Unclassified failure in accessing a dynamically loaded plugin";
      default:
 #ifdef USE_PNETCDF
         /* The behavior of ncmpi_strerror here is to return

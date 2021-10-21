@@ -71,7 +71,7 @@ NC4_inq_unlimdim(int ncid, int *unlimdimidp)
 
 /**
  * @internal Given dim name, find its id.
- *
+ * Fully qualified names are legal
  * @param ncid File and group ID.
  * @param name Name of the dimension to find.
  * @param idp Pointer that gets dimension ID.
@@ -85,28 +85,56 @@ NC4_inq_unlimdim(int ncid, int *unlimdimidp)
 int
 NC4_inq_dimid(int ncid, const char *name, int *idp)
 {
-    NC *nc;
-    NC_GRP_INFO_T *grp, *g;
-    NC_FILE_INFO_T *h5;
-    NC_DIM_INFO_T *dim;
+    NC *nc = NULL;
+    NC_GRP_INFO_T *grp = NULL;
+    NC_GRP_INFO_T *g = NULL;
+    NC_FILE_INFO_T *h5 = NULL;
+    NC_DIM_INFO_T *dim = NULL;
     char norm_name[NC_MAX_NAME + 1];
-    int retval;
-    int found;
+    int retval = NC_NOERR;;
+    int found = 0;
 
     LOG((2, "%s: ncid 0x%x name %s", __func__, ncid, name));
 
     /* Check input. */
     if (!name)
-        return NC_EINVAL;
+        {retval = NC_EINVAL; goto done;}
+
+    /* If the first char is a /, this is a fully-qualified
+     * name. Otherwise, this had better be a local name (i.e. no / in
+     * the middle). */
+    if (name[0] != '/' && strstr(name, "/"))
+        {retval = NC_EINVAL; goto done;}
 
     /* Find metadata for this file. */
     if ((retval = nc4_find_nc_grp_h5(ncid, &nc, &grp, &h5)))
-        return retval;
+        goto done;
     assert(h5 && nc && grp);
 
     /* Normalize name. */
     if ((retval = nc4_normalize_name(name, norm_name)))
-        return retval;
+        goto done;;
+
+    /* If this is a fqn, then walk the sequence of parent groups to the last group
+       and see if that group has a dimension of the right name */
+    if(name[0] == '/') { /* FQN */
+	int rootncid = (grp->nc4_info->root_grp->hdr.id | grp->nc4_info->controller->ext_ncid);
+	int parent = 0;
+	char* lastname = strrchr(norm_name,'/'); /* break off the last segment: the type name */
+	if(lastname == norm_name)
+	    {retval = NC_EINVAL; goto done;}
+	*lastname++ = '\0'; /* break off the lastsegment */
+	if((retval = NC4_inq_grp_full_ncid(rootncid,norm_name,&parent))) 
+	    goto done;
+	/* Get parent info */
+	if((retval=nc4_find_nc4_grp(parent,&grp)))
+	    goto done;
+	/* See if dim exists in this group */
+        dim = (NC_DIM_INFO_T*)ncindexlookup(grp->dim,lastname);
+	if(dim == NULL) 	
+	    {retval = NC_EBADTYPE; goto done;}
+	goto done;
+    }
 
     /* check for a name match in this group and its parents */
     found = 0;
@@ -115,11 +143,15 @@ NC4_inq_dimid(int ncid, const char *name, int *idp)
         if(dim != NULL) {found = 1; break;}
     }
     if(!found)
-        return NC_EBADDIM;
-    assert(dim != NULL);
-    if (idp)
-        *idp = dim->hdr.id;
-    return NC_NOERR;
+        {retval = NC_EBADDIM; goto done;}
+
+done:
+     if(retval == NC_NOERR) {
+         assert(dim != NULL);
+         if (idp)
+            *idp = dim->hdr.id;
+    }
+    return retval;
 }
 
 /**

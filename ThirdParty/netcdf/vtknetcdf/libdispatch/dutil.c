@@ -26,8 +26,6 @@
 #include "nclog.h"
 #include "ncpathmgr.h"
 
-extern int mkstemp(char *template);
-
 #define NC_MAX_PATH 4096
 
 #define LBRACKET '['
@@ -164,6 +162,37 @@ NC_entityescape(const char* s)
     return escaped;
 }
 
+char*
+/*
+Depending on the platform, the shell will sometimes
+pass an escaped octotherpe character without removing
+the backslash. So this function is appropriate to be called
+on possible url paths to unescape such cases. See e.g. ncgen.
+*/
+NC_shellUnescape(const char* esc)
+{
+    size_t len;
+    char* s;
+    const char* p;
+    char* q;
+
+    if(esc == NULL) return NULL;
+    len = strlen(esc);
+    s = (char*)malloc(len+1);
+    if(s == NULL) return NULL;
+    for(p=esc,q=s;*p;) {
+	switch (*p) {
+	case '\\':
+	     if(p[1] == '#')
+	         p++;
+	     /* fall thru */
+	default: *q++ = *p++; break;
+	}
+    }
+    *q = '\0';
+    return s;
+}
+
 /**
 Wrap mktmp and return the generated path,
 or null if failed.
@@ -175,59 +204,23 @@ Return the generated path.
 char*
 NC_mktmp(const char* base)
 {
-    int fd;
-    char* cvtpath = NULL;
-    char tmp[NC_MAX_PATH];
-#ifdef HAVE_MKSTEMP
-    mode_t mask;
-#endif
+    int fd = -1;
+    char* tmp = NULL;
+    size_t len;
 
-    /* Make sure that this path conversion has been applied
-       since we do not wrap mkstemp */
-    cvtpath = NCpathcvt(base);
-    strncpy(tmp,cvtpath,sizeof(tmp));
-    nullfree(cvtpath);
-	strncat(tmp, "XXXXXX", sizeof(tmp) - strlen(tmp) - 1);
-
-#ifdef HAVE_MKSTEMP
-    /* Note Potential problem: old versions of this function
-       leave the file in mode 0666 instead of 0600 */
-    mask=umask(0077);
-    fd = mkstemp(tmp);
-    (void)umask(mask);
-#else /* !HAVE_MKSTEMP */
-    {
-#ifdef HAVE_MKTEMP
-#ifdef _MSC_VER
-        /* Use _mktemp_s */
-	_mktemp_s(tmp,sizeof(tmp)-1);
-#else /*!_MSC_VER*/
-        mktemp(tmp);
-	tmo[sizeof[tmp]-1] = '\0';
-#endif
-#else /* !HAVE_MKTEMP */
-	/* Need to simulate by using some kind of pseudo-random number */
-	{
-	    int rno = rand();
-	    char spid[7];
-	    if(rno < 0) rno = -rno;
-            snprintf(spid,sizeof(spid),"%06d",rno);
-            strncat(tmp,spid,sizeof(tmp) - strlen(tmp) - 1);
-	}
-#endif /* HAVE_MKTEMP */
-#ifdef _WIN32
-        fd=NCopen3(tmp,O_RDWR|O_BINARY|O_CREAT, _S_IREAD|_S_IWRITE);
-#else
-        fd=NCopen3(tmp,O_RDWR|O_CREAT|O_EXCL, S_IRWXU);
-#endif
-    }
-#endif /* !HAVE_MKSTEMP */
+    len = strlen(base)+6+1;
+    if((tmp = (char*)malloc(len))==NULL)
+        goto done;
+    strncpy(tmp,base,len);
+    strlcat(tmp, "XXXXXX", len);
+    fd = NCmkstemp(tmp);
     if(fd < 0) {
        nclog(NCLOGERR, "Could not create temp file: %s",tmp);
-       return NULL;
-    } else
-	close(fd);
-    return strdup(tmp);
+       goto done;
+    }
+done:
+    if(fd >= 0) close(fd);
+    return tmp;
 }
 
 int
@@ -371,3 +364,4 @@ int isnan(double x)
 }
 
 #endif /*APPLE*/
+

@@ -32,23 +32,24 @@
  * across all possible dispatchers
 */
 
-#define NRESERVED 11 /*|NC_reservedatt|*/
-
-/** @internal List of reserved attributes. This list must be in sorted
- * order for binary search. */
-static const NC_reservedatt NC_reserved[NRESERVED] = {
-    {NC_ATT_CLASS, READONLYFLAG|DIMSCALEFLAG},            /*CLASS*/
-    {NC_ATT_DIMENSION_LIST, READONLYFLAG|DIMSCALEFLAG},   /*DIMENSION_LIST*/
-    {NC_ATT_NAME, READONLYFLAG|DIMSCALEFLAG},             /*NAME*/
-    {NC_ATT_REFERENCE_LIST, READONLYFLAG|DIMSCALEFLAG},   /*REFERENCE_LIST*/
-    {NC_ATT_FORMAT, READONLYFLAG},                        /*_Format*/
-    {ISNETCDF4ATT, READONLYFLAG|NAMEONLYFLAG},            /*_IsNetcdf4*/
-    {NCPROPS, READONLYFLAG|NAMEONLYFLAG|MATERIALIZEDFLAG},/*_NCProperties*/
-    {NC_ATT_COORDINATES, READONLYFLAG|DIMSCALEFLAG|MATERIALIZEDFLAG},/*_Netcdf4Coordinates*/
-    {NC_ATT_DIMID_NAME, READONLYFLAG|DIMSCALEFLAG|MATERIALIZEDFLAG},/*_Netcdf4Dimid*/
-    {SUPERBLOCKATT, READONLYFLAG|NAMEONLYFLAG},/*_SuperblockVersion*/
-    {NC_ATT_NC3_STRICT_NAME, READONLYFLAG|MATERIALIZEDFLAG}, /*_nc3_strict*/
+/** @internal List of reserved attributes.
+    WARNING: This list must be in sorted order for binary search. */
+static const NC_reservedatt NC_reserved[] = {
+    {NC_ATT_CLASS, READONLYFLAG|HIDDENATTRFLAG},			/*CLASS*/
+    {NC_ATT_DIMENSION_LIST, READONLYFLAG|HIDDENATTRFLAG},		/*DIMENSION_LIST*/
+    {NC_ATT_NAME, READONLYFLAG|HIDDENATTRFLAG},				/*NAME*/
+    {NC_ATT_REFERENCE_LIST, READONLYFLAG|HIDDENATTRFLAG},		/*REFERENCE_LIST*/
+    {NC_XARRAY_DIMS, READONLYFLAG|HIDDENATTRFLAG},			/*_ARRAY_DIMENSIONS*/
+    {NC_ATT_FORMAT, READONLYFLAG},					/*_Format*/
+    {ISNETCDF4ATT, READONLYFLAG|NAMEONLYFLAG},				/*_IsNetcdf4*/
+    {NCPROPS, READONLYFLAG|NAMEONLYFLAG|MATERIALIZEDFLAG},		/*_NCProperties*/
+    {NC_NCZARR_ATTR, READONLYFLAG|HIDDENATTRFLAG},			/*_NCZARR_ATTR*/
+    {NC_ATT_COORDINATES, READONLYFLAG|HIDDENATTRFLAG|MATERIALIZEDFLAG},	/*_Netcdf4Coordinates*/
+    {NC_ATT_DIMID_NAME, READONLYFLAG|HIDDENATTRFLAG|MATERIALIZEDFLAG},	/*_Netcdf4Dimid*/
+    {SUPERBLOCKATT, READONLYFLAG|NAMEONLYFLAG},				/*_SuperblockVersion*/
+    {NC_ATT_NC3_STRICT_NAME, READONLYFLAG|MATERIALIZEDFLAG},		/*_nc3_strict*/
 };
+#define NRESERVED (sizeof(NC_reserved) / sizeof(NC_reservedatt))  /*|NC_reservedatt|*/
 
 /* These hold the file caching settings for the library. */
 size_t nc4_chunk_cache_size = CHUNK_CACHE_SIZE;            /**< Default chunk cache size. */
@@ -1693,8 +1694,12 @@ rec_print_metadata(NC_GRP_INFO_T *grp, int tab_count)
             strcat(storage_str, "contiguous");
         else if (var->storage == NC_COMPACT)
             strcat(storage_str, "compact");
-        else
+        else if (var->storage == NC_CHUNKED)
             strcat(storage_str, "chunked");
+        else if (var->storage == NC_VIRTUAL)
+            strcat(storage_str, "virtual");
+        else
+            strcat(storage_str, "unknown");
         LOG((2, "%s VARIABLE - varid: %d name: %s ndims: %d "
              "dimids:%s storage: %s", tabs, var->hdr.id, var->hdr.name,
              var->ndims,

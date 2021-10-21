@@ -550,8 +550,8 @@ put_att_grpa(NC_GRP_INFO_T *grp, int varid, NC_ATT_INFO_T *att)
 
             /* Re-create the attribute with the type and length
                reflecting the new value (or values). */
-            if ((attid = H5Acreate(locid, att->hdr.name, file_typeid, spaceid,
-                                   H5P_DEFAULT)) < 0)
+            if ((attid = H5Acreate1(locid, att->hdr.name, file_typeid, spaceid,
+				    H5P_DEFAULT)) < 0)
                 BAIL(NC_EATTMETA);
 
             /* Write the values, (even if length is zero). */
@@ -572,7 +572,7 @@ put_att_grpa(NC_GRP_INFO_T *grp, int varid, NC_ATT_INFO_T *att)
         /* The attribute does not exist yet. */
 
         /* Create the attribute. */
-        if ((attid = H5Acreate(locid, att->hdr.name, file_typeid, spaceid,
+        if ((attid = H5Acreate1(locid, att->hdr.name, file_typeid, spaceid,
                                H5P_DEFAULT)) < 0)
             BAIL(NC_EATTMETA);
 
@@ -663,7 +663,7 @@ write_coord_dimids(NC_VAR_INFO_T *var)
         BAIL(NC_EHDFERR);
 
     /* Create the attribute. */
-    if ((c_attid = H5Acreate(hdf5_var->hdf_datasetid, COORDINATES,
+    if ((c_attid = H5Acreate1(hdf5_var->hdf_datasetid, COORDINATES,
                              H5T_NATIVE_INT, c_spaceid, H5P_DEFAULT)) < 0)
         BAIL(NC_EHDFERR);
 
@@ -708,7 +708,7 @@ write_netcdf4_dimid(hid_t datasetid, int dimid)
                                       H5P_DEFAULT, H5P_DEFAULT);
     else
         /* Create the attribute if needed. */
-        dimid_attid = H5Acreate(datasetid, NC_DIMID_ATT_NAME,
+        dimid_attid = H5Acreate1(datasetid, NC_DIMID_ATT_NAME,
                                 H5T_NATIVE_INT, dimid_spaceid, H5P_DEFAULT);
     if (dimid_attid  < 0)
         BAIL(NC_EHDFERR);
@@ -992,9 +992,9 @@ var_create_dataset(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, nc_bool_t write_dimid
     /* Always write the hidden coordinates attribute, which lists the
      * dimids of this var. When present, this speeds opens. When no
      * present, dimscale matching is used. */
-    if (var->ndims > 1)
+    if (var->ndims)
         if ((retval = write_coord_dimids(var)))
-            BAIL(retval);
+           BAIL(retval);
 
     /* If this is a dimscale, mark it as such in the HDF5 file. Also
      * find the dimension info and store the dataset id of the dimscale
@@ -1158,8 +1158,8 @@ commit_type(NC_GRP_INFO_T *grp, NC_TYPE_INFO_T *type)
 
                 for (d = 0; d < field->ndims; d++)
                     dims[d] = field->dim_size[d];
-                if ((hdf_typeid = H5Tarray_create(hdf_base_typeid, field->ndims,
-                                                  dims, NULL)) < 0)
+                if ((hdf_typeid = H5Tarray_create1(hdf_base_typeid, field->ndims,
+						   dims, NULL)) < 0)
                 {
                     if (H5Tclose(hdf_base_typeid) < 0)
                         return NC_EHDFERR;
@@ -1227,7 +1227,7 @@ commit_type(NC_GRP_INFO_T *grp, NC_TYPE_INFO_T *type)
     }
 
     /* Commit the type. */
-    if (H5Tcommit(hdf5_grp->hdf_grpid, type->hdr.name, hdf5_type->hdf_typeid) < 0)
+    if (H5Tcommit1(hdf5_grp->hdf_grpid, type->hdr.name, hdf5_type->hdf_typeid) < 0)
         return NC_EHDFERR;
     type->committed = NC_TRUE;
     LOG((4, "just committed type %s, HDF typeid: 0x%x", type->hdr.name,
@@ -1272,7 +1272,7 @@ write_nc3_strict_att(hid_t hdf_grpid)
      * strict netcdf-3 rules. */
     if ((spaceid = H5Screate(H5S_SCALAR)) < 0)
         BAIL(NC_EFILEMETA);
-    if ((attid = H5Acreate(hdf_grpid, NC3_STRICT_ATT_NAME,
+    if ((attid = H5Acreate1(hdf_grpid, NC3_STRICT_ATT_NAME,
                            H5T_NATIVE_INT, spaceid, H5P_DEFAULT)) < 0)
         BAIL(NC_EFILEMETA);
     if (H5Awrite(attid, H5T_NATIVE_INT, &one) < 0)
@@ -2532,7 +2532,7 @@ NC4_walk(hid_t gid, int* countp)
         otype =  H5Gget_objtype_by_idx(gid,(size_t)i);
         switch(otype) {
         case H5G_GROUP:
-            grpid = H5Gopen(gid,name);
+	    grpid = H5Gopen1(gid,name);
             NC4_walk(grpid,countp);
             H5Gclose(grpid);
             break;
@@ -2540,7 +2540,7 @@ NC4_walk(hid_t gid, int* countp)
             /* Check for phony_dim */
             if(strcmp(name,"phony_dim")==0)
                 *countp = *countp + 1;
-            dsid = H5Dopen(gid,name);
+            dsid = H5Dopen1(gid,name);
             na = H5Aget_num_attrs(dsid);
             for(j = 0; j < na; j++) {
                 hid_t aid =  H5Aopen_idx(dsid,(unsigned int)    j);

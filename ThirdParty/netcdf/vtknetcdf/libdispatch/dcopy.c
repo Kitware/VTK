@@ -10,8 +10,13 @@
 #include "config.h"
 #include "ncdispatch.h"
 #include "nc_logging.h"
+#include "nclist.h"
 
 #ifdef USE_NETCDF4
+
+static int searchgroup(int ncid1, int tid1, int grp, int* tid2);
+static int searchgrouptree(int ncid1, int tid1, int grp, int* tid2);
+
 /**
  * @internal Compare two netcdf types for equality. Must have the
  * ncids as well, to find user-defined types.
@@ -27,8 +32,7 @@
  * @author Ed Hartnett
 */
 static int
-NC_compare_nc_types(int ncid1, int typeid1, int ncid2, int typeid2,
-		    int *equalp)
+NC_compare_nc_types(int ncid1, int typeid1, int ncid2, int typeid2, int *equalp)
 {
    int ret = NC_NOERR;
 
@@ -152,8 +156,15 @@ NC_compare_nc_types(int ncid1, int typeid1, int ncid2, int typeid2,
 }
 
 /**
- * @internal Recursively hunt for a netCDF type id. (Code from
- * nc4internal.c); Return matching typeid or 0 if not found.
+ * @internal Recursively hunt for a netCDF type id, tid2, that is "equal" to tid1.
+ * Question is: what search order do we use? Ncgen uses root group tree in pre-order.
+ * But NC4_inq_typeid uses these rules:
+ * 1. ncid2
+ * 2. parents of ncid2 (up the tree to root)
+ * 3. root group tree in pre-order.
+ * We will leave ncgen for another day and use the nc_inq_typeid rule.
+ *
+ * Return matching typeid or 0 if not found.
  *
  * @param ncid1 File ID.
  * @param tid1 Type ID.
@@ -161,68 +172,35 @@ NC_compare_nc_types(int ncid1, int typeid1, int ncid2, int typeid2,
  * @param tid2 Pointer that gets type ID of equal type.
  *
  * @return ::NC_NOERR No error.
- * @author Ed Hartnett
+ * @author Ed Hartnett, Dennis Heimbigner
 */
 static int
 NC_rec_find_nc_type(int ncid1, nc_type tid1, int ncid2, nc_type* tid2)
 {
-   int i,ret = NC_NOERR;
-   int nids;
-   int* ids = NULL;
+    int ret = NC_NOERR;
+    int parent;
 
-   /* Get all types in grp ncid2 */
-   if(tid2)
-      *tid2 = 0;
-   if ((ret = nc_inq_typeids(ncid2, &nids, NULL)))
-      return ret;
-   if (nids)
-   {
-      if (!(ids = (int *)malloc((size_t)nids * sizeof(int))))
-	 return NC_ENOMEM;
-      if ((ret = nc_inq_typeids(ncid2, &nids, ids)))
-	 return ret;
-      for(i = 0; i < nids; i++)
-      {
-	 int equal = 0;
-	 if ((ret = NC_compare_nc_types(ncid1, tid1, ncid2, ids[i], &equal)))
-	    return ret;
-	 if(equal)
-	 {
-	    if(tid2)
-	       *tid2 = ids[i];
-	    free(ids);
-	    return NC_NOERR;
-	 }
-      }
-      free(ids);
+    if((ret = searchgroup(ncid1,tid1,ncid2,tid2)))
+        goto done;
+    if(*tid2 != 0)
+        goto done; /* found */
+
+   /* Look in the parents of ncid2 upto the root */
+   switch (ret = nc_inq_grp_parent(ncid2,&parent)) {
+   case NC_NOERR:
+	/* Recurse up using parent grp */
+        ret = NC_rec_find_nc_type(ncid1, tid1, parent, tid2);
+	break;
+   case NC_ENOGRP:
+	/* do the breadth-first pre-order search of the whole tree */
+	/* ncid2 should be root group */
+	ret = searchgrouptree(ncid1,tid1,ncid2,tid2);
+	break;
+   default: break;
    }
 
-   /* recurse */
-   if ((ret = nc_inq_grps(ncid1, &nids, NULL)))
-      return ret;
-   if (nids)
-   {
-      if (!(ids = (int *)malloc((size_t)nids * sizeof(int))))
-	 return NC_ENOMEM;
-      if ((ret = nc_inq_grps(ncid1, &nids, ids)))
-      {
-	 free(ids);
-	 return ret;
-      }
-      for (i = 0; i < nids; i++)
-      {
-	 ret = NC_rec_find_nc_type(ncid1, tid1, ids[i], tid2);
-	 if (ret && ret != NC_EBADTYPE)
-	    break;
-	 if (tid2 && *tid2 != 0) /* found */
-	 {
-	    free(ids);
-	    return NC_NOERR;
-	 }
-      }
-      free(ids);
-   }
-   return NC_EBADTYPE; /* not found */
+done:
+    return ret;
 }
 
 /**
@@ -711,3 +689,93 @@ nc_copy_att(int ncid_in, int varid_in, const char *name,
 
    return NC_NOERR;
 }
+
+#ifdef USE_NETCDF4
+
+/* Helper function for NC_rec_find_nc_type();
+   search a specified group for matching type.
+*/
+static int
+searchgroup(int ncid1, int tid1, int grp, int* tid2)
+{
+    int i,ret = NC_NOERR;
+    int nids;
+    int* ids = NULL;
+
+    /* Get all types in grp */
+    if(tid2)
+	*tid2 = 0;
+    if ((ret = nc_inq_typeids(grp, &nids, NULL)))
+	goto done;
+    if (nids)
+    {
+	if (!(ids = (int *)malloc((size_t)nids * sizeof(int))))
+	    {ret = NC_ENOMEM; goto done;}
+	if ((ret = nc_inq_typeids(grp, &nids, ids)))
+	    goto done;
+	for(i = 0; i < nids; i++)
+        {
+	    int equal = 0;
+	    if ((ret = NC_compare_nc_types(ncid1, tid1, grp, ids[i], &equal)))
+	        goto done;
+	    if(equal)
+	    {
+		if(tid2)
+		    *tid2 = ids[i];
+		goto done;
+	    }
+	}
+    }
+
+done:
+    nullfree(ids);
+    return ret;
+}
+
+/* Helper function for NC_rec_find_nc_type();
+   search a tree of groups for a matching type
+   using a breadth first queue
+*/
+static int
+searchgrouptree(int ncid1, int tid1, int grp, int* tid2)
+{
+    int i,ret = NC_NOERR;
+    int nids;
+    int* ids = NULL;
+    NClist* queue = nclistnew();
+    int gid;
+    uintptr_t id;
+
+    id = grp;
+    nclistpush(queue,(void*)id); /* prime the queue */
+    while(nclistlength(queue) > 0) {
+        id = (uintptr_t)nclistremove(queue,0);
+	gid  = (int)id;
+        if((ret = searchgroup(ncid1,tid1,gid,tid2)))
+            goto done;
+        if(*tid2 != 0)
+            goto done; /*we found it*/
+	/* Get subgroups of gid and push onto front of the queue (for breadth first) */
+        if((ret = nc_inq_grps(gid,&nids,NULL)))
+            goto done;
+        if (!(ids = (int *)malloc((size_t)nids * sizeof(int))))
+	    {ret = NC_ENOMEM; goto done;}
+        if ((ret = nc_inq_grps(gid, &nids, ids)))
+            goto done;
+	/* push onto the end of the queue */
+        for(i=0;i<nids;i++) {
+	    id = ids[i];
+	    nclistpush(queue,(void*)id);
+	}
+	free(ids); ids = NULL;
+    }
+    /* Not found */
+    ret = NC_EBADTYPE;
+
+done:
+    nclistfree(queue);
+    nullfree(ids);
+    return ret;
+}
+
+#endif

@@ -165,6 +165,7 @@
 #define nc4_hdf5_finalize vtknetcdf_nc4_hdf5_finalize
 #define nc4_hdf5_find_grp_h5_var vtknetcdf_nc4_hdf5_find_grp_h5_var
 #define nc4_hdf5_find_grp_var_att vtknetcdf_nc4_hdf5_find_grp_var_att
+#define NC4_hdf5_find_missing_filter vtknetcdf_NC4_hdf5_find_missing_filter
 #define NC4_HDF5_get_att vtknetcdf_NC4_HDF5_get_att
 #define nc4_hdf5_get_chunk_cache vtknetcdf_nc4_hdf5_get_chunk_cache
 #define NC4_hdf5get_libversion vtknetcdf_NC4_hdf5get_libversion
@@ -583,7 +584,21 @@
 #define ncio_rel vtknetcdf_ncio_rel
 #define ncio_sync vtknetcdf_ncio_sync
 #define NC_isLittleEndian vtknetcdf_NC_isLittleEndian
+#define NCisnetworkpath vtknetcdf_NCisnetworkpath
 #define NC_is_recvar vtknetcdf_NC_is_recvar
+#define NCJaddstring vtknetcdf_NCJaddstring
+#define NCJappend vtknetcdf_NCJappend
+#define NCJclone vtknetcdf_NCJclone
+#define NCJcvt vtknetcdf_NCJcvt
+#define NCJdictget vtknetcdf_NCJdictget
+#define NCJdump vtknetcdf_NCJdump
+#define NCJinsert vtknetcdf_NCJinsert
+#define NCJnew vtknetcdf_NCJnew
+#define NCJnewstring vtknetcdf_NCJnewstring
+#define NCJnewstringn vtknetcdf_NCJnewstringn
+#define NCJparse vtknetcdf_NCJparse
+#define NCJreclaim vtknetcdf_NCJreclaim
+#define NCJunparse vtknetcdf_NCJunparse
 #define nclistclone vtknetcdf_nclistclone
 #define nclistcontains vtknetcdf_nclistcontains
 #define nclistelemremove vtknetcdf_nclistelemremove
@@ -662,6 +677,7 @@
 #define NC_parseproxy vtknetcdf_NC_parseproxy
 #define NCpath2utf8 vtknetcdf_NCpath2utf8
 #define NCpathabsolute vtknetcdf_NCpathabsolute
+#define NCpathcanonical vtknetcdf_NCpathcanonical
 #define NCpathcvt vtknetcdf_NCpathcvt
 #define NCpathcvt_test vtknetcdf_NCpathcvt_test
 #define ncprintprovenance vtknetcdf_ncprintprovenance
@@ -763,7 +779,7 @@
 #define NC_rcfile_length vtknetcdf_NC_rcfile_length
 #define ncrc_freeglobalstate vtknetcdf_ncrc_freeglobalstate
 #define ncrc_getglobalstate vtknetcdf_ncrc_getglobalstate
-#define ncrc_globalstate vtknetcdf_ncrc_globalstate
+#define ncrc_initialize vtknetcdf_ncrc_initialize
 #define NC_rcload vtknetcdf_NC_rcload
 #define NC_rclookup vtknetcdf_NC_rclookup
 #define NC_readfile vtknetcdf_NC_readfile
@@ -792,9 +808,9 @@
 #define nc_set_default_format vtknetcdf_nc_set_default_format
 #define nc_set_fill vtknetcdf_nc_set_fill
 #define ncsetlogging vtknetcdf_ncsetlogging
-#define NC_set_rcfile vtknetcdf_NC_set_rcfile
 #define nc_set_var_chunk_cache vtknetcdf_nc_set_var_chunk_cache
 #define nc_set_var_chunk_cache_ints vtknetcdf_nc_set_var_chunk_cache_ints
+#define NC_shellUnescape vtknetcdf_NC_shellUnescape
 #define nc_show_metadata vtknetcdf_nc_show_metadata
 #define nc_strerror vtknetcdf_nc_strerror
 #define NC_stride_one vtknetcdf_NC_stride_one
