@@ -122,7 +122,20 @@ static const struct MACRODEF {
 {"dap4","mode","dap4"},
 {"s3","mode","nczarr,s3"},
 {"bytes","mode","bytes"},
+{"xarray","mode","nczarr,zarr,xarray"},
+{"noxarray","mode","nczarr,zarr,noxarray"},
 {NULL,NULL,NULL}
+};
+
+/* Mode inferences */
+static const struct MODEINFER {
+    char* key;
+    char* inference;
+} modeinferences[] = {
+{"zarr","nczarr"},
+{"xarray","zarr"},
+{"noxarray","zarr"},
+{NULL,NULL}
 };
 
 /* Map FORMATX to readability to get magic number */
@@ -153,7 +166,7 @@ static struct NCPROTOCOLLIST {
     {"file",NULL,NULL},
     {"dods","http","dap2"},
     {"dap4","http","dap4"},
-    {"s3","http","s3"},
+    {"s3","https","s3"},
     {NULL,NULL,NULL} /* Terminate search */
 };
 
@@ -453,6 +466,74 @@ done:
     return check(stat);
 }
 
+/* Process mode flag inferences */
+static int
+processinferences(NClist* fraglenv)
+{
+    int stat = NC_NOERR;
+    const struct MODEINFER* inferences = NULL;
+    NClist* modes = NULL;
+    int inferred,i,pos = -1;
+    char* modeval = NULL;
+    char* newmodeval = NULL;
+
+    if(fraglenv == NULL || nclistlength(fraglenv) == 0) goto done;
+
+    /* Get "mode" entry */
+    for(i=0;i<nclistlength(fraglenv);i+=2) {
+	char* key = NULL;
+	key = nclistget(fraglenv,i);
+	if(strcasecmp(key,"mode")==0) {
+	    pos = i;
+	    break;
+	}
+    }
+    if(pos < 0) 
+	goto done; /* no modes defined */
+
+    /* Get the mode as list */
+    modes = nclistnew();
+    modeval = (char*)nclistget(fraglenv,pos+1);
+    /* split on commas */
+    if((stat=parseonchar(modeval,',',modes))) goto done;
+
+    /* Repeatedly walk the mode list until no more new inferences */
+    do {
+	inferred = 0;
+	for(i=0;i<nclistlength(modes);i++) {
+	    const char* mode = nclistget(modes,i);
+            for(inferences=modeinferences;inferences->key;inferences++) {
+                if(strcasecmp(inferences->key,mode)==0) {
+		    int j;
+		    int exists = 0;
+	            for(j=0;j<nclistlength(modes);j++) {
+		        const char* candidate = nclistget(modes,j);
+			if(strcasecmp(candidate,inferences->inference)==0)
+			    {exists = 1; break;}
+		    }
+		    if(!exists) {
+		        /* append the inferred mode if not already present */
+		        nclistpush(modes,strdup(inferences->inference));
+		        inferred = 1;
+		    }
+		}
+	    }
+	}
+    } while(inferred);
+
+    /* Store new mode value */
+    if((newmodeval = list2string(modes))== NULL)
+	{stat = NC_ENOMEM; goto done;}        
+    nclistset(fraglenv,pos+1,newmodeval);
+    nullfree(modeval);
+    modeval = NULL;
+
+done:
+    nclistfreeall(modes);
+    return check(stat);
+}
+
+
 static int
 mergekey(NClist** valuesp)
 {
@@ -712,6 +793,12 @@ NC_infermodel(const char* path, int* omodep, int iscreate, int useparallel, void
         if((stat = processmacros(&fraglenv))) goto done;
 #ifdef DEBUG
 	printlist(fraglenv,"processmacros");
+#endif
+
+        /* Phase 2a: Expand mode inferences and add to fraglenv */
+        if((stat = processinferences(fraglenv))) goto done;
+#ifdef DEBUG
+	printlist(fraglenv,"processinferences");
 #endif
 
         /* Phase 3: coalesce duplicate fragment keys and remove duplicate values */

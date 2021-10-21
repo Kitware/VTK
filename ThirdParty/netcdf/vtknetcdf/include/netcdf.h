@@ -295,11 +295,14 @@ NOTE: The NC_MAX_DIMS, NC_MAX_ATTRS, and NC_MAX_VARS limits
 
 /** In HDF5 files you can set storage for each variable to be either
  * contiguous or chunked, with nc_def_var_chunking().  This define is
- * used there. */
+ * used there. Unknown storage is used for further extensions of HDF5
+ * storage models, which should be handled transparently by netcdf */
 /**@{*/
-#define NC_CHUNKED    0
-#define NC_CONTIGUOUS 1
-#define NC_COMPACT    2
+#define NC_CHUNKED         0
+#define NC_CONTIGUOUS      1
+#define NC_COMPACT         2
+#define NC_UNKNOWN_STORAGE 3
+#define NC_VIRTUAL         4
 /**@}*/
 
 /** In HDF5 files you can set check-summing for each variable.
@@ -482,9 +485,11 @@ by the desired type. */
 #define NC_ENCZARR       (-137)    /**< Error at NCZarr layer. */
 #define NC_ES3           (-138)    /**< Generic S3 error */
 #define NC_EEMPTY        (-139)    /**< Attempt to read empty NCZarr map key */
-#define NC_EFOUND        (-140)    /**< Some object exists when it should not */
+#define NC_EOBJECT       (-140)    /**< Some object exists when it should not */
+#define NC_ENOOBJECT     (-141)    /**< Some object not found */
+#define NC_EPLUGIN       (-142)    /**< Unclassified failure in accessing a dynamically loaded plugin> */
 
-#define NC4_LAST_ERROR   (-140)    /**< @internal All netCDF errors > this. */
+#define NC4_LAST_ERROR   (-142)    /**< @internal All netCDF errors > this. */
 
 /* Errors for all remote access methods(e.g. DAP and CDMREMOTE)*/
 #define NC_EURL         (NC_EDAPURL)   /**< Malformed URL */
@@ -637,7 +642,7 @@ nc_insert_array_compound(int ncid, nc_type xtype, const char *name,
 EXTERNL int
 nc_inq_type(int ncid, nc_type xtype, char *name, size_t *size);
 
-/* Get the id of a type from the name. */
+/* Get the id of a type from the name, which might be a fully qualified name */
 EXTERNL int
 nc_inq_typeid(int ncid, const char *name, nc_type *typeidp);
 

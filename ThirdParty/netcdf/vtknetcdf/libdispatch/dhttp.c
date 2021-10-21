@@ -189,7 +189,7 @@ Assume URL etc has already been set.
 */
 
 int
-nc_http_size(NC_HTTP_STATE* state, const char* objecturl, size64_t* sizep)
+nc_http_size(NC_HTTP_STATE* state, const char* objecturl, long long* sizep)
 {
     int i,stat = NC_NOERR;
 

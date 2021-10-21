@@ -16,6 +16,11 @@ and accessing rc files (e.g. .daprc).
 #include "nclist.h"
 #include "ncbytes.h"
 
+/* getenv() keys */
+#define NCRCENVIGNORE "NCRCENV_IGNORE"
+#define NCRCENVRC "NCRCENV_RC"
+
+
 typedef struct NCTriple {
 	char* host; /* combined host:port */
         char* key;
@@ -34,31 +39,40 @@ typedef struct NCRCinfo {
 typedef struct NCRCglobalstate {
     int initialized;
     char* tempdir; /* track a usable temp dir */
-    char* home; /* track $HOME for use in creating $HOME/.oc dir */
+    char* home; /* track $HOME */
+    char* cwd; /* track getcwd */
     NCRCinfo rcinfo; /* Currently only one rc file per session */
+    struct GlobalZarr { /* Zarr specific parameters */
+	char dimension_separator;
+    } zarr;
 } NCRCglobalstate;
 
 /* From drc.c */
-extern NCRCglobalstate* ncrc_getglobalstate(void);
-extern void ncrc_freeglobalstate(void);
+EXTERNL void ncrc_initialize(void);
+EXTERNL void ncrc_freeglobalstate(void);
 /* read and compile the rc file, if any */
-extern int NC_rcload(void);
-extern char* NC_rclookup(const char* key, const char* hostport);
-extern void NC_rcclear(NCRCinfo* info);
-extern int NC_set_rcfile(const char* rcfile);
-extern int NC_rcfile_insert(const char* key, const char* value, const char* hostport);
+EXTERNL int NC_rcload(void);
+EXTERNL char* NC_rclookup(const char* key, const char* hostport);
+EXTERNL int NC_rcfile_insert(const char* key, const char* value, const char* hostport);
+
+/* Following are primarily for debugging */
 /* Obtain the count of number of triples */
-extern size_t NC_rcfile_length(NCRCinfo*);
+EXTERNL size_t NC_rcfile_length(NCRCinfo*);
 /* Obtain the ith triple; return NULL if out of range */
-extern NCTriple* NC_rcfile_ith(NCRCinfo*,size_t);
+EXTERNL NCTriple* NC_rcfile_ith(NCRCinfo*,size_t);
+
+/* For internal use */
+EXTERNL NCRCglobalstate* ncrc_getglobalstate(void);
+EXTERNL void NC_rcclear(NCRCinfo* info);
+EXTERNL void NC_rcclear(NCRCinfo* info);
 
 /* From dutil.c (Might later move to e.g. nc.h */
-extern int NC__testurl(const char* path, char** basenamep);
-extern int NC_isLittleEndian(void);
-extern char* NC_entityescape(const char* s);
-extern int NC_readfile(const char* filename, NCbytes* content);
-extern int NC_writefile(const char* filename, size_t size, void* content);
-extern char* NC_mktmp(const char* base);
-extern int NC_getmodelist(const char* url, NClist** modelistp);
-extern int NC_testmode(const char* path, const char* tag);
+EXTERNL int NC__testurl(const char* path, char** basenamep);
+EXTERNL int NC_isLittleEndian(void);
+EXTERNL char* NC_entityescape(const char* s);
+EXTERNL int NC_readfile(const char* filename, NCbytes* content);
+EXTERNL int NC_writefile(const char* filename, size_t size, void* content);
+EXTERNL char* NC_mktmp(const char* base);
+EXTERNL int NC_getmodelist(const char* url, NClist** modelistp);
+EXTERNL int NC_testmode(const char* path, const char* tag);
 #endif /*NCRC_H*/

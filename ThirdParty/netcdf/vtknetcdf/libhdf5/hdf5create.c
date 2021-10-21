@@ -118,11 +118,12 @@ nc4_create_file(const char *path, int cmode, size_t initialsz,
     }
 
     /* Need this access plist to control how HDF5 handles open objects
-     * on file close. Setting H5F_CLOSE_SEMI will cause H5Fclose to
-     * fail if there are any open objects in the file. */
+     * on file close. (Setting H5F_CLOSE_WEAK will cause H5Fclose not to
+     * fail if there are any open objects in the file. This may happen when virtual
+     * datasets are opened). */
     if ((fapl_id = H5Pcreate(H5P_FILE_ACCESS)) < 0)
         BAIL(NC_EHDFERR);
-    if (H5Pset_fclose_degree(fapl_id, H5F_CLOSE_SEMI))
+    if (H5Pset_fclose_degree(fapl_id, H5F_CLOSE_WEAK))
         BAIL(NC_EHDFERR);
 
 #ifdef USE_PARALLEL4

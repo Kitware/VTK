@@ -94,6 +94,8 @@ typedef struct NC_HDF5_VAR_INFO
     HDF5_OBJID_T *dimscale_hdf5_objids;
     nc_bool_t dimscale;          /**< True if var is a dimscale. */
     nc_bool_t *dimscale_attached;  /**< Array of flags that are true if dimscale is attached for that dim index. */
+    int flags;
+#       define NC_HDF5_VAR_FILTER_MISSING 1 /* if any filter is missing */
 } NC_HDF5_VAR_INFO_T;
 
 /* Struct to hold HDF5-specific info for a field. */
@@ -185,6 +187,7 @@ int NC4_hdf5_inq_var_filter_info(int ncid, int varid, unsigned int filterid, siz
 /* The NC_VAR_INFO_T->filters field is an NClist of this struct */
 struct NC_HDF5_Filter {
     int flags;             /**< Flags describing state of this filter. */
+#       define NC_HDF5_FILTER_MISSING 1 /* Filter implementation is not accessible */
     unsigned int filterid; /**< ID for arbitrary filter. */
     size_t nparams;        /**< nparams for arbitrary filter. */
     unsigned int* params;  /**< Params for arbitrary filter. */
@@ -192,8 +195,9 @@ struct NC_HDF5_Filter {
 
 int NC4_hdf5_filter_remove(NC_VAR_INFO_T* var, unsigned int id);
 int NC4_hdf5_filter_lookup(NC_VAR_INFO_T* var, unsigned int id, struct NC_HDF5_Filter** fi);
-int NC4_hdf5_addfilter(NC_VAR_INFO_T* var, unsigned int id, size_t nparams, const unsigned int* params);
+int NC4_hdf5_addfilter(NC_VAR_INFO_T* var, unsigned int id, size_t nparams, const unsigned int* params, int flags);
 int NC4_hdf5_filter_freelist(NC_VAR_INFO_T* var);
+int NC4_hdf5_find_missing_filter(NC_VAR_INFO_T* var, unsigned int* idp);
 
 /* Support functions for provenance info (defined in nc4hdf.c) */
 extern int NC4_hdf5get_libversion(unsigned*,unsigned*,unsigned*);/*libsrc4/nc4hdf.c*/

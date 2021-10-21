@@ -34,7 +34,7 @@
 static herr_t
 h5catch(void* ignored)
 {
-    H5Eprint(NULL);
+    H5Eprint1(NULL);
     return 0;
 }
 #endif
@@ -1008,7 +1008,7 @@ hdf5_set_log_level()
     }
     else
     {
-        if (set_auto((H5E_auto_t)&H5Eprint, stderr) < 0)
+        if (set_auto((H5E_auto_t)&H5Eprint1, stderr) < 0)
             LOG((0, "H5Eset_auto failed!"));
         LOG((1, "HDF5 error messages turned on."));
     }
@@ -1020,7 +1020,7 @@ void
 nc_log_hdf5(void)
 {
 #ifdef USE_HDF5
-    H5Eprint(NULL);
+    H5Eprint1(NULL);
 #endif /* USE_HDF5 */
 }
 
