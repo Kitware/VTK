@@ -32,8 +32,6 @@ size_t NC_coord_zero[NC_MAX_VAR_DIMS] = {0};
 size_t NC_coord_one[NC_MAX_VAR_DIMS] = {1};
 ptrdiff_t NC_stride_one[NC_MAX_VAR_DIMS] = {1};
 
-NCRCglobalstate ncrc_globalstate;
-
 /*
 static nc_type longtype = (sizeof(long) == sizeof(int)?NC_INT:NC_INT64);
 static nc_type ulongtype = (sizeof(unsigned long) == sizeof(unsigned int)?NC_UINT:NC_UINT64);
@@ -58,7 +56,7 @@ NCDISPATCH_initialize(void)
     /* Capture temp dir*/
     {
 	char* tempdir = NULL;
-#if defined _WIN32 || defined __MSYS__
+#if defined _WIN32 || defined __MSYS__ || defined __CYGWIN__
         tempdir = getenv("TEMP");
 #else
 	tempdir = "/tmp";
@@ -79,6 +77,20 @@ NCDISPATCH_initialize(void)
 	    home = globalstate->tempdir;
 	}
         globalstate->home = strdup(home);
+    }
+
+    /* Capture $CWD */
+    {
+        char cwdbuf[4096];
+
+        cwdbuf[0] = '\0';
+	(void)NCgetcwd(cwdbuf,sizeof(cwdbuf));
+
+        if(strlen(cwdbuf) == 0) {
+	    /* use tempdir */
+	    strcpy(cwdbuf, globalstate->tempdir);
+	}
+        globalstate->cwd = strdup(cwdbuf);
     }
 
     /* Now load RC File */

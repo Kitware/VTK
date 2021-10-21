@@ -248,7 +248,7 @@ done:
 }
 
 int
-NC4_hdf5_addfilter(NC_VAR_INFO_T* var, unsigned int id, size_t nparams, const unsigned int* params)
+NC4_hdf5_addfilter(NC_VAR_INFO_T* var, unsigned int id, size_t nparams, const unsigned int* params, int flags)
 {
     int stat = NC_NOERR;
     struct NC_HDF5_Filter* fi = NULL;
@@ -280,6 +280,7 @@ NC4_hdf5_addfilter(NC_VAR_INFO_T* var, unsigned int id, size_t nparams, const un
 	    {stat = NC_ENOMEM; goto done;}
         memcpy(fi->params,params,sizeof(unsigned int)*fi->nparams);
     }
+    fi->flags = flags;
     if(!olddef) {
         nclistpush(flist,fi);
 PRINTFILTERLIST(var,"add");
@@ -346,6 +347,8 @@ NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
     NC_GRP_INFO_T* grp = NULL;
     NC_VAR_INFO_T* var = NULL;
     struct NC_HDF5_Filter* oldspec = NULL;
+    int flags = 0;
+    htri_t avail = -1;
 #ifdef HAVE_H5Z_SZIP
     int havedeflate = 0;
     int haveszip = 0;
@@ -397,6 +400,16 @@ NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
 	default: goto done;
 	}
 #endif /* HAVE_H5Z_SZIP */
+
+	/* See if this filter is missing or not */
+	if((avail = H5Zfilter_avail(id)) < 0)
+ 	    {stat = NC_EHDFERR; goto done;} /* Something in HDF5 went wrong */
+	if(!avail) {
+            NC_HDF5_VAR_INFO_T* hdf5_var = (NC_HDF5_VAR_INFO_T *)var->format_var_info;
+	    flags |= NC_HDF5_FILTER_MISSING;
+	    /* mark variable as unreadable */
+	    hdf5_var->flags |= NC_HDF5_VAR_FILTER_MISSING;
+	}
 
 	/* If incoming filter not already defined, then check for conflicts */
 	if(oldspec == NULL) {
@@ -454,7 +467,7 @@ NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
         }
 #endif
 	/* addfilter can handle case where filter is already defined, and will just replace parameters */
-        if((stat = NC4_hdf5_addfilter(var,id,nparams,params)))
+        if((stat = NC4_hdf5_addfilter(var,id,nparams,params,flags)))
                 goto done;
 #ifdef USE_PARALLEL
 #ifdef HDF5_SUPPORTS_PAR_FILTERS
@@ -541,4 +554,20 @@ NC4_hdf5_inq_var_filter_info(int ncid, int varid, unsigned int id, size_t* npara
 done:
     return stat;
 
+}
+
+/* Return ID for the first missing filter; 0 if no missing filters */
+int
+NC4_hdf5_find_missing_filter(NC_VAR_INFO_T* var, unsigned int* idp)
+{
+    int i,stat = NC_NOERR;
+    NClist* flist = (NClist*)var->filters;
+    int id = 0;
+    
+    for(i=0;i<nclistlength(flist);i++) {
+	struct NC_HDF5_Filter* spec = (struct NC_HDF5_Filter*)nclistget(flist,i);
+	if(spec->flags & NC_HDF5_FILTER_MISSING) {id = spec->filterid; break;}
+    }
+    if(idp) *idp = id;
+    return stat;
 }

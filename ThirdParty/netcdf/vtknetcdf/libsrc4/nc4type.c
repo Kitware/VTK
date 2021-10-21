@@ -537,7 +537,7 @@ NC4_inq_enum_member(int ncid, nc_type typeid1, int idx, char *identifier,
  * @internal Get the id of a type from the name.
  *
  * @param ncid File and group ID.
- * @param name Name of type.
+ * @param name Name of type; might be fully qualified.
  * @param typeidp Pointer that will get the type ID.
  *
  * @return ::NC_NOERR No error.
@@ -554,8 +554,8 @@ NC4_inq_typeid(int ncid, const char *name, nc_type *typeidp)
     NC_GRP_INFO_T *grptwo;
     NC_FILE_INFO_T *h5;
     NC_TYPE_INFO_T *type = NULL;
-    char *norm_name;
-    int i, retval;
+    char *norm_name = NULL;
+    int i, retval = NC_NOERR;
 
     /* Handle atomic types. */
     for (i = 0; i < NUM_ATOMIC_TYPES; i++)
@@ -563,27 +563,47 @@ NC4_inq_typeid(int ncid, const char *name, nc_type *typeidp)
         {
             if (typeidp)
                 *typeidp = i;
-            return NC_NOERR;
+            goto done;
         }
 
     /* Find info for this file and group, and set pointer to each. */
     if ((retval = nc4_find_grp_h5(ncid, &grp, &h5)))
-        return retval;
+        goto done;
     assert(h5 && grp);
 
     /* If the first char is a /, this is a fully-qualified
      * name. Otherwise, this had better be a local name (i.e. no / in
      * the middle). */
     if (name[0] != '/' && strstr(name, "/"))
-        return NC_EINVAL;
+        {retval = NC_EINVAL; goto done;}
 
     /* Normalize name. */
     if (!(norm_name = (char*)malloc(strlen(name) + 1)))
-        return NC_ENOMEM;
-    if ((retval = nc4_normalize_name(name, norm_name))) {
-        free(norm_name);
-        return retval;
+        {retval = NC_ENOMEM; goto done;}
+    if ((retval = nc4_normalize_name(name, norm_name)))
+	goto done;
+
+    /* If this is a fqn, then walk the sequence of parent groups to the last group
+       and see if that group has a type of the right name */
+    if(name[0] == '/') { /* FQN */
+	int rootncid = (grp->nc4_info->root_grp->hdr.id | grp->nc4_info->controller->ext_ncid);
+	int parent = 0;
+	char* lastname = strrchr(norm_name,'/'); /* break off the last segment: the type name */
+	if(lastname == norm_name)
+	    {retval = NC_EINVAL; goto done;}
+	*lastname++ = '\0'; /* break off the lastsegment */
+	if((retval = NC4_inq_grp_full_ncid(rootncid,norm_name,&parent))) 
+	    goto done;
+	/* Get parent info */
+	if((retval=nc4_find_nc4_grp(parent,&grp)))
+	    goto done;
+	/* See if type exists in this group */
+        type = (NC_TYPE_INFO_T*)ncindexlookup(grp->type,lastname);
+	if(type == NULL) 	
+	    {retval = NC_EBADTYPE; goto done;}
+	goto done;
     }
+
     /* Is the type in this group? If not, search parents. */
     for (grptwo = grp; grptwo; grptwo = grptwo->parent) {
         type = (NC_TYPE_INFO_T*)ncindexlookup(grptwo->type,norm_name);
@@ -602,13 +622,13 @@ NC4_inq_typeid(int ncid, const char *name, nc_type *typeidp)
             if (typeidp)
                 *typeidp = type->hdr.id;
 
-    free(norm_name);
-
     /* OK, I give up already! */
     if (!type)
-        return NC_EBADTYPE;
+        {retval = NC_EBADTYPE; goto done;}
 
-    return NC_NOERR;
+done:
+    nullfree(norm_name);
+    return retval;
 }
 
 /**

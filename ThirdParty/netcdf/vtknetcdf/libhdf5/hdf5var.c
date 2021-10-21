@@ -1375,6 +1375,14 @@ NC4_put_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
         return retval;
     assert(hdf5_var->hdf_datasetid && (!var->ndims || (startp && countp)));
 
+    /* Verify that all the variable's filters are available */
+    if(hdf5_var->flags & NC_HDF5_VAR_FILTER_MISSING) {
+	unsigned id = 0;
+	NC4_hdf5_find_missing_filter(var, &id);
+	LOG((0,"missing filter: variable=%s id=%u",var->hdr.name,id));
+        return NC_ENOFILTER;
+    }
+
     /* Convert from size_t and ptrdiff_t to hssize_t, and hsize_t. */
     /* Also do sanity checks */
     for (i = 0; i < var->ndims; i++)
@@ -1692,6 +1700,14 @@ NC4_get_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
     if ((retval = check_for_vara(&mem_nc_type, var, h5)))
         return retval;
     assert(hdf5_var->hdf_datasetid && (!var->ndims || (startp && countp)));
+
+    /* Verify that all the variable's filters are available */
+    if(hdf5_var->flags & NC_HDF5_VAR_FILTER_MISSING) {
+	unsigned id = 0;
+	NC4_hdf5_find_missing_filter(var, &id);
+	LOG((0,"missing filter: variable=%s id=%u",var->hdr.name,id));
+        return NC_ENOFILTER;
+    }
 
     /* Convert from size_t and ptrdiff_t to hsize_t. Also do sanity
      * checks. */

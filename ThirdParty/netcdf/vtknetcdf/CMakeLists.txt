@@ -1,5 +1,5 @@
 set(NC_VERSION_MAJOR 4)
-set(NC_VERSION_MINOR 6)
+set(NC_VERSION_MINOR 8)
 set(NC_VERSION_PATCH 1)
 set(NC_VERSION_NOTE "")
 set(netCDF_VERSION ${NC_VERSION_MAJOR}.${NC_VERSION_MINOR}.${NC_VERSION_PATCH}${NC_VERSION_NOTE})
@@ -48,6 +48,7 @@ set(sources
   libdispatch/ncbytes.c
   libdispatch/ncexhash.c
   libdispatch/nchashmap.c
+  libdispatch/ncjson.c
   libdispatch/nclist.c
   libdispatch/nclistmgr.c
   libdispatch/nclog.c
@@ -268,6 +269,7 @@ configure_file(
 
 set(headers
   include/netcdf.h
+  include/netcdf_filter_build.h
   include/vtk_netcdf_mangle.h
   "${CMAKE_CURRENT_BINARY_DIR}/include/netcdf_dispatch.h"
   "${CMAKE_CURRENT_BINARY_DIR}/include/netcdf_meta.h"
