@@ -933,10 +933,10 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
       }
 
       RealDescriptor* ord = nullptr;
-      // copy buffers into vtkSOADataArray
+      // copy buffers into vtkAOSDataArrayTemplate
       if (ird->numBytes() == 4)
       {
-        vtkNew<vtkSOADataArrayTemplate<float>> dataArray;
+        vtkNew<vtkAOSDataArrayTemplate<float>> dataArray;
         ord = new RealDescriptor(ieee_float, little_float_order, 4);
         this->CreateVTKAttributeArray(
           dataArray.Get(), ord, ird, buffers, numberOfPoints, attributeName);
@@ -944,7 +944,7 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
       }
       else
       {
-        vtkNew<vtkSOADataArrayTemplate<double>> dataArray;
+        vtkNew<vtkAOSDataArrayTemplate<double>> dataArray;
         ord = new RealDescriptor(ieee_double, little_double_order, 8);
         this->CreateVTKAttributeArray(
           dataArray.Get(), ord, ird, buffers, numberOfPoints, attributeName);

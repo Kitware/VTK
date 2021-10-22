@@ -247,7 +247,7 @@ public:
     void* out, const void* in, long nitems, const int* outord, const int* inord, int REALSIZE);
 
   template <typename T>
-  void CreateVTKAttributeArray(vtkSOADataArrayTemplate<T>* dataArray, const RealDescriptor* ord,
+  void CreateVTKAttributeArray(vtkAOSDataArrayTemplate<T>* dataArray, const RealDescriptor* ord,
     const RealDescriptor* ird, const std::vector<std::vector<char>>& buffers,
     const int numberOfPoints, const std::string& attribute);
 
@@ -261,7 +261,7 @@ public:
 };
 
 template <typename T>
-void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkSOADataArrayTemplate<T>* dataArray,
+void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkAOSDataArrayTemplate<T>* dataArray,
   const RealDescriptor* ord, const RealDescriptor* ird,
   const std::vector<std::vector<char>>& buffers, const int numberOfPoints,
   const std::string& attribute)
@@ -270,11 +270,18 @@ void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkSOADataArrayTemplate
   dataArray->SetName(attribute.c_str());
   dataArray->SetNumberOfComponents(nComps);
   dataArray->SetNumberOfTuples(numberOfPoints);
-  for (int i = 0; i < nComps; ++i)
+  T* arrayPtr = new T[numberOfPoints];
+  for (int j = 0; j < nComps; ++j)
   {
-    T* arrayPtr = dataArray->GetComponentArrayPointer(i);
-    this->Convert(arrayPtr, buffers[i].data(), numberOfPoints, *ord, *ird);
+    this->Convert(arrayPtr, buffers[j].data(), numberOfPoints, *ord, *ird);
+
+    // Copy to data array component
+    for (int i = 0; i < numberOfPoints; ++i)
+    {
+      dataArray->SetTypedComponent(i, j, arrayPtr[i]);
+    }
   }
+  delete[] arrayPtr;
 }
 
 // ----------------------------------------------------------------------------
