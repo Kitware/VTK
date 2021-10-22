@@ -803,7 +803,7 @@ public:
 
 protected:
   vtkMeshQuality();
-  ~vtkMeshQuality() override;
+  ~vtkMeshQuality() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
