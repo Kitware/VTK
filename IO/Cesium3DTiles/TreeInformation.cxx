@@ -58,17 +58,23 @@ std::array<double, 6> ComputeTightBoudingBox(
 /**
  * bb: xmin, xmax, ymin, ymax, zmin, zmax
  * Return: west, south, east, north, zmin, zmax
- * TODO: use crs which takes precedence to UTM.
  */
-std::array<double, 6> ToLonLatRadiansHeight(const char* vtkNotUsed(crs), int utmZone,
-  char utmHemisphere, const std::array<double, 6>& bb, const std::array<double, 3>& offset)
+std::array<double, 6> ToLonLatRadiansHeight(const char* crs, int utmZone, char utmHemisphere,
+  const std::array<double, 6>& bb, const std::array<double, 3>& offset)
 {
   std::array<double, 6> lonlatheight;
   lonlatheight[4] = offset[2] + bb[4];
   lonlatheight[5] = offset[2] + bb[5];
   std::ostringstream ostr;
-  ostr << "+proj=utm +zone=" << utmZone << (utmHemisphere == 'S' ? "+south" : "")
-       << " +datum=WGS84";
+  if (crs)
+  {
+    ostr << crs;
+  }
+  else
+  {
+    ostr << "+proj=utm +zone=" << utmZone << (utmHemisphere == 'S' ? "+south" : "")
+         << " +datum=WGS84";
+  }
   PJ* P;
   P =
     proj_create_crs_to_crs(PJ_DEFAULT_CTX, ostr.str().c_str(), "+proj=longlat +ellps=WGS84", NULL);
@@ -115,7 +121,7 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* vtkNotUsed(crs), int utm
 //------------------------------------------------------------------------------
 // TODO: use crs which takes precedence to UTM.
 vtkSmartPointer<vtkMatrix4x4> ComputeTransformCartesian(
-  const std::array<double, 3>& originLonLatDegreesHeight)
+  const std::array<double, 3>& originLonLatDegreesHeight, const std::array<double, 3>& origin)
 {
   auto m = vtkSmartPointer<vtkMatrix4x4>::New();
   m->Identity();
@@ -124,8 +130,9 @@ vtkSmartPointer<vtkMatrix4x4> ComputeTransformCartesian(
   PJ* P;
   PJ_COORD c, c_out;
 
-  // std::cout << "originDegrees: "
-  //           << originDegrees[0] << ", " << originDegrees[1] << std::endl;
+  std::cout << "originDegreesHeight: " << originLonLatDegreesHeight[0] << ", "
+            << originLonLatDegreesHeight[1] << ", " << originLonLatDegreesHeight[2] << ", "
+            << std::endl;
 
   // transform from geodetic lon, lat, height to geocentric coordinates (proj >= 5.0)
   P = proj_create_crs_to_crs(
@@ -172,6 +179,7 @@ vtkSmartPointer<vtkMatrix4x4> ComputeTransformCartesian(
   t->Translate(ecefOrigin);
   t->RotateZ(90.0 + originLonLatDegreesHeight[0]);
   t->RotateX(-originLonLatDegreesHeight[1]);
+  // t->Translate(-origin[0], -origin[1], -origin[2]);
 
   t->GetTranspose(m);
   return m;
@@ -373,7 +381,7 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
 
   this->RootJson["asset"]["version"] = "1.0";
   this->RootJson["geometricError"] = this->ComputeTilesetGeometricError();
-  this->RootJson["root"] = this->GenerateTileset(root);
+  this->RootJson["root"] = this->GenerateTileJson(root);
   std::ofstream file(output);
   if (!file)
   {
@@ -388,12 +396,13 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
 }
 
 //------------------------------------------------------------------------------
-Json::Value TreeInformation::GenerateTileset(vtkIncrementalOctreeNode* node)
+Json::Value TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
 {
   Json::Value tree;
   Json::Value v;
-  std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(
-    this->CRS, this->UTMZone, this->UTMHemisphere, this->NodeBounds[node->GetID()], this->Offset);
+  std::array<double, 6> nodeBounds = this->NodeBounds[node->GetID()];
+  std::array<double, 6> lonLatRadiansHeight =
+    ToLonLatRadiansHeight(this->CRS, this->UTMZone, this->UTMHemisphere, nodeBounds, this->Offset);
   std::ostringstream ostr;
   // std::cout << "lonLatRadiansHeight: " << (lonLatRadiansHeight[0] * 180.0) / vtkMath::Pi() << " "
   //           << (lonLatRadiansHeight[1] * 180.0) / vtkMath::Pi() << " "
@@ -409,13 +418,17 @@ Json::Value TreeInformation::GenerateTileset(vtkIncrementalOctreeNode* node)
   tree["geometricError"] = this->GeometricError[node->GetID()];
   if (node == this->Root)
   {
-    ostr << std::string("NodeBounds(") << node->GetID() << ")";
-    PrintBounds(ostr.str(), &this->NodeBounds[node->GetID()][0]);
     tree["refine"] = "REPLACE";
+
+    ostr.str();
+    ostr << std::string("NodeBounds(") << node->GetID() << ")";
+    PrintBounds(ostr.str(), &nodeBounds[0]);
     std::array<double, 3> originLonLatDegreesHeight = { { vtkMath::DegreesFromRadians(
                                                             lonLatRadiansHeight[0]),
       vtkMath::DegreesFromRadians(lonLatRadiansHeight[1]), lonLatRadiansHeight[4] } };
-    vtkSmartPointer<vtkMatrix4x4> m = ::ComputeTransformCartesian(originLonLatDegreesHeight);
+    std::array<double, 3> origin = { { nodeBounds[0], nodeBounds[2], nodeBounds[4] } };
+    vtkSmartPointer<vtkMatrix4x4> m =
+      ::ComputeTransformCartesian(originLonLatDegreesHeight, origin);
     double* t = m->GetData();
     v.clear();
     for (int i = 0; i < 16; ++i)
@@ -432,7 +445,7 @@ Json::Value TreeInformation::GenerateTileset(vtkIncrementalOctreeNode* node)
     {
       if (!this->EmptyNode[node->GetChild(i)->GetID()])
       {
-        v[j++] = this->GenerateTileset(node->GetChild(i));
+        v[j++] = this->GenerateTileJson(node->GetChild(i));
       }
       tree["children"] = v;
     }

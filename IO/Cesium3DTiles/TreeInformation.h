@@ -86,7 +86,7 @@ protected:
   void PostOrderTraversal(
     void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node), vtkIncrementalOctreeNode* node);
   void SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output);
-  Json::Value GenerateTileset(vtkIncrementalOctreeNode* node);
+  Json::Value GenerateTileJson(vtkIncrementalOctreeNode* node);
   /**
    * Computes the additional information for 'node'. This includes
    * the tight bounding box around the buildings, if the node is empty or not,
