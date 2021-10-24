@@ -21,5 +21,6 @@ PRIVATE_DEPENDS
 TEST_LABELS
   VTK::Web
 TEST_DEPENDS
+  VTK::ImagingCore
   VTK::ImagingSources
   VTK::TestingCore
