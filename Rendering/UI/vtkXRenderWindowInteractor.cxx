@@ -208,12 +208,79 @@ void vtkXRenderWindowInteractor::TerminateApp()
 
 void vtkXRenderWindowInteractor::ProcessEvents()
 {
+  std::vector<int> rwiFileDescriptors;
+  fd_set in_fds;
+  struct timeval tv;
+  struct timeval minTv;
+
+  bool wait = true;
+  bool done = true;
+  minTv.tv_sec = 1000;
+  minTv.tv_usec = 1000;
   XEvent event;
-  while (XPending(this->DisplayId) && !this->Done)
+
+  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
-    XNextEvent(this->DisplayId, &event);
-    this->DispatchEvent(&event);
+    rwiFileDescriptors.push_back(ConnectionNumber(rwi->DisplayId));
   }
+
+  for (auto rwi = vtkXRenderWindowInteractorInternals::Instances.begin();
+       rwi != vtkXRenderWindowInteractorInternals::Instances.end();)
+  {
+
+    if (XPending((*rwi)->DisplayId) == 0)
+    {
+      // get how long to wait for the next timer
+      (*rwi)->Internal->GetTimeToNextTimer(tv);
+      minTv.tv_sec = std::min(tv.tv_sec, minTv.tv_sec);
+      minTv.tv_usec = std::min(tv.tv_usec, minTv.tv_usec);
+    }
+    else
+    {
+      // If events are pending, dispatch them to the right RenderWindowInteractor
+      XNextEvent((*rwi)->DisplayId, &event);
+      (*rwi)->DispatchEvent(&event);
+      wait = false;
+    }
+    (*rwi)->FireTimers();
+
+    // Check if all RenderWindowInteractors have been terminated
+    done = done && (*rwi)->Done;
+
+    // If current RenderWindowInteractor have been terminated, handle its last event,
+    // then remove it from the Instance vector
+    if ((*rwi)->Done)
+    {
+      // Empty the event list
+      while (XPending((*rwi)->DisplayId) != 0)
+      {
+        XNextEvent((*rwi)->DisplayId, &event);
+        (*rwi)->DispatchEvent(&event);
+      }
+      // Adjust the file descriptors vector
+      int rwiPosition = std::distance(vtkXRenderWindowInteractorInternals::Instances.begin(), rwi);
+      rwi = vtkXRenderWindowInteractorInternals::Instances.erase(rwi);
+      rwiFileDescriptors.erase(rwiFileDescriptors.begin() + rwiPosition);
+    }
+    else
+    {
+      ++rwi;
+    }
+  }
+
+  if (wait && !done)
+  {
+    // select will wait until 'tv' elapses or something else wakes us
+    FD_ZERO(&in_fds);
+    for (auto rwiFileDescriptor : rwiFileDescriptors)
+    {
+      FD_SET(rwiFileDescriptor, &in_fds);
+    }
+    int maxFileDescriptor = *std::max_element(rwiFileDescriptors.begin(), rwiFileDescriptors.end());
+    select(maxFileDescriptor + 1, &in_fds, nullptr, nullptr, &minTv);
+  }
+
+  this->Done = done;
 }
 
 //------------------------------------------------------------------------------
@@ -222,84 +289,14 @@ void vtkXRenderWindowInteractor::ProcessEvents()
 // loop is exited.
 void vtkXRenderWindowInteractor::StartEventLoop()
 {
-  std::vector<int> rwiFileDescriptors;
-  fd_set in_fds;
-  struct timeval tv;
-  struct timeval minTv;
-
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
     rwi->Done = false;
-    rwiFileDescriptors.push_back(ConnectionNumber(rwi->DisplayId));
   }
-
-  bool done = true;
   do
   {
-    bool wait = true;
-    done = true;
-    minTv.tv_sec = 1000;
-    minTv.tv_usec = 1000;
-    XEvent event;
-    for (auto rwi = vtkXRenderWindowInteractorInternals::Instances.begin();
-         rwi != vtkXRenderWindowInteractorInternals::Instances.end();)
-    {
-
-      if (XPending((*rwi)->DisplayId) == 0)
-      {
-        // get how long to wait for the next timer
-        (*rwi)->Internal->GetTimeToNextTimer(tv);
-        minTv.tv_sec = std::min(tv.tv_sec, minTv.tv_sec);
-        minTv.tv_usec = std::min(tv.tv_usec, minTv.tv_usec);
-      }
-      else
-      {
-        // If events are pending, dispatch them to the right RenderWindowInteractor
-        XNextEvent((*rwi)->DisplayId, &event);
-        (*rwi)->DispatchEvent(&event);
-        wait = false;
-      }
-      (*rwi)->FireTimers();
-
-      // Check if all RenderWindowInteractors have been terminated
-      done = done && (*rwi)->Done;
-
-      // If current RenderWindowInteractor have been terminated, handle its last event,
-      // then remove it from the Instance vector
-      if ((*rwi)->Done)
-      {
-        // Empty the event list
-        while (XPending((*rwi)->DisplayId) != 0)
-        {
-          XNextEvent((*rwi)->DisplayId, &event);
-          (*rwi)->DispatchEvent(&event);
-        }
-        // Adjust the file descriptors vector
-        int rwiPosition =
-          std::distance(vtkXRenderWindowInteractorInternals::Instances.begin(), rwi);
-        rwi = vtkXRenderWindowInteractorInternals::Instances.erase(rwi);
-        rwiFileDescriptors.erase(rwiFileDescriptors.begin() + rwiPosition);
-      }
-      else
-      {
-        ++rwi;
-      }
-    }
-
-    if (wait && !done)
-    {
-      // select will wait until 'tv' elapses or something else wakes us
-      FD_ZERO(&in_fds);
-      for (auto rwiFileDescriptor : rwiFileDescriptors)
-      {
-        FD_SET(rwiFileDescriptor, &in_fds);
-      }
-      int maxFileDescriptor =
-        *std::max_element(rwiFileDescriptors.begin(), rwiFileDescriptors.end());
-      select(maxFileDescriptor + 1, &in_fds, nullptr, nullptr, &minTv);
-    }
-
-  } while (!done);
+    this->ProcessEvents();
+  } while (!this->Done);
 }
 
 //------------------------------------------------------------------------------
