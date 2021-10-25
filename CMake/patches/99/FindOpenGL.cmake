@@ -183,6 +183,17 @@ else()
       # `nvidia-<version>` subdirectory.
       "/usr/lib/nvidia-*"
       "/usr/lib32/nvidia-*")
+  elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # This is the path where <GL/gl.h> is found in emsdk
+    set(_OPENGL_INCLUDE_PATH
+      "${EMSCRIPTEN_ROOT_PATH}/system/include")
+
+    # These two inevitably include ${EMSCRIPTEN_SYSROOT} in the search path for
+    # OpenGL leading to all kinds of redefinition errors.
+    set(_FindOpenGL_OLD_FIND_ROOT_PATH_MODE_INCLUDE ${CMAKE_FIND_ROOT_PATH_MODE_INCLUDE})
+    set(_FindOpenGL_OLD_FIND_USE_CMAKE_PATH ${CMAKE_FIND_USE_CMAKE_PATH})
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE NEVER)
+    set(CMAKE_FIND_USE_CMAKE_PATH FALSE)
   endif()
 
   # The first line below is to make sure that the proper headers
@@ -207,6 +218,15 @@ else()
     /usr/openwin/share/include
     /opt/graphics/OpenGL/include
   )
+
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # Restore the properties we changed above.
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ${_FindOpenGL_OLD_FIND_ROOT_PATH_MODE_INCLUDE})
+    unset(_FindOpenGL_OLD_FIND_ROOT_PATH_MODE_INCLUDE)
+    set(CMAKE_FIND_USE_CMAKE_PATH ${_FindOpenGL_OLD_FIND_USE_CMAKE_PATH})
+    unset(_FindOpenGL_OLD_FIND_USE_CMAKE_PATH)
+  endif()
+
   list(APPEND _OpenGL_CACHE_VARS
     OPENGL_INCLUDE_DIR
     OPENGL_GLX_INCLUDE_DIR
