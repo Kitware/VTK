@@ -274,3 +274,10 @@ original_arrays = pdw.PointData.GetNumberOfArrays()
 pdw.PointData.append(12, "twelve")
 pdw.PointData.append(12.12, "twelve-point-twelve")
 assert pdw.PointData.GetNumberOfArrays() == (2 + original_arrays)
+
+# create a table
+table = dsa.WrapDataObject(vtk.vtkTable())
+table.RowData.append(numpy.ones(5), "ones")
+table.RowData.append(2*numpy.ones(5), "twos")
+assert table.GetNumberOfRows() == 5
+assert table.GetNumberOfColumns() == 2
