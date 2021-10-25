@@ -26,6 +26,7 @@ vtk_add_test_cxx(vtkDomainsChemistryCxxTests tests
   TestMoleculeSelection.cxx,NO_VALID
   TestMoleculeMapperColors.cxx
   TestMoleculeMapperPropertyUpdate.cxx
+  TestMoleculeToBondStickFilter.cxx,NO_VALID
   TestMoleculeToLines.cxx,NO_VALID
   TestMultiCylinderOn.cxx
   TestMultiCylinderOff.cxx
