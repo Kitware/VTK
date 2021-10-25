@@ -301,7 +301,7 @@ bool vtkJSONDataSetWriter::WriteArrayContents(vtkDataArray* input, const char* f
   }
 
   // Check if we need to convert the (u)int64 to (u)int32
-  vtkSmartPointer<vtkDataArray> arrayToWrite;
+  vtkSmartPointer<vtkDataArray> arrayToWrite = input;
   vtkIdType arraySize = input->GetNumberOfTuples() * input->GetNumberOfComponents();
   switch (input->GetDataType())
   {
