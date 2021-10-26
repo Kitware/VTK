@@ -16,23 +16,23 @@ PURPOSE.  See the above copyright notice for more information.
  * @brief   OpenXR renderer
  *
  * vtkOpenXRRenderer is a concrete implementation of the abstract class
- * vtkRenderer.  vtkOpenXRRenderer interfaces to the OpenXR rendering library.
+ * vtkVRRenderer. vtkOpenXRRenderer interfaces to the OpenXR rendering library.
  */
 
 #ifndef vtkOpenXRRenderer_h
 #define vtkOpenXRRenderer_h
 
-#include "vtkNew.h" // To init FloorActor in header
-#include "vtkOpenGLRenderer.h"
+#include "vtkNew.h"                   // To init FloorActor in header
 #include "vtkRenderingOpenXRModule.h" // For export macro
+#include "vtkVRRenderer.h"
 
 class vtkActor;
 
-class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderer : public vtkOpenGLRenderer
+class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderer : public vtkVRRenderer
 {
 public:
   static vtkOpenXRRenderer* New();
-  vtkTypeMacro(vtkOpenXRRenderer, vtkOpenGLRenderer);
+  vtkTypeMacro(vtkOpenXRRenderer, vtkVRRenderer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   using vtkVRRenderer::ResetCamera;
