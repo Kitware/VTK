@@ -37,3 +37,4 @@ TEST_DEPENDS
   VTK::RenderingOpenGL2
   VTK::RenderingVolumeOpenGL2
   VTK::TestingRendering
+  VTK::TestingDataModel

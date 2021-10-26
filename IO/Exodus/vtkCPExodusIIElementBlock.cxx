@@ -119,6 +119,12 @@ void vtkCPExodusIIElementBlockImpl::GetCellPoints(vtkIdType cellId, vtkIdList* p
 }
 
 //------------------------------------------------------------------------------
+void vtkCPExodusIIElementBlockImpl::GetFaceStream(vtkIdType cellId, vtkIdList* ptIds)
+{
+  vtkErrorMacro(<< __FUNCTION__ << " is not implemented");
+}
+
+//------------------------------------------------------------------------------
 void vtkCPExodusIIElementBlockImpl::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
   const int targetElement = PointToNode(ptId);

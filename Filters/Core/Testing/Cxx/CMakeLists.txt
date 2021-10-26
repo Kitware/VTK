@@ -42,6 +42,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestMaskPointsModes.cxx
   TestNamedComponents.cxx,NO_VALID
   TestPartitionedDataSetCollectionConvertors.cxx,NO_VALID
+  TestPlaneCutter.cxx,NO_VALID
   TestPointDataToCellData.cxx,NO_VALID
   TestPolyDataConnectivityFilter.cxx,NO_VALID
   TestPolyDataTangents.cxx

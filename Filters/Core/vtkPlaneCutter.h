@@ -20,7 +20,7 @@
  * vtkPlaneCutter is a specialization of the vtkCutter algorithm to cut a
  * dataset grid with a single plane. It is designed for performance and an
  * exploratory, fast workflow. It produces output polygons that result from
- * cutting the icnput dataset with the specified plane.
+ * cutting the input dataset with the specified plane.
  *
  * This algorithm is fast because it is threaded, and may build (in a
  * preprocessing step) a spatial search structure that accelerates the plane
