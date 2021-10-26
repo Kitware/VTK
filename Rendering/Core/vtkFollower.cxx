@@ -16,6 +16,7 @@
 #include "vtkFollower.h"
 
 #include "vtkCamera.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -209,31 +210,58 @@ void vtkFollower::ReleaseGraphicsResources(vtkWindow* w)
 // property and then mapper.
 void vtkFollower::Render(vtkRenderer* ren)
 {
+  // Pre render actions
   this->Property->Render(this, ren);
-
   this->Device->SetProperty(this->Property);
-  this->Property->Render(this, ren);
   if (this->BackfaceProperty)
   {
     this->BackfaceProperty->BackfaceRender(this, ren);
     this->Device->SetBackfaceProperty(this->BackfaceProperty);
   }
-
-  /* render the texture */
   if (this->Texture)
   {
     this->Texture->Render(ren);
+    if (this->Texture->GetTransform())
+    {
+      vtkInformation* info = this->GetPropertyKeys();
+      if (!info)
+      {
+        info = vtkInformation::New();
+        this->SetPropertyKeys(info);
+        info->Delete();
+      }
+      info->Set(vtkProp::GeneralTextureTransform(),
+        &(this->Texture->GetTransform()->GetMatrix()->Element[0][0]), 16);
+    }
   }
   this->Device->SetTexture(this->GetTexture());
-
-  // make sure the device has the same matrix
-  this->ComputeMatrix();
-  this->Device->SetUserMatrix(this->Matrix);
   if (this->GetPropertyKeys())
   {
     this->Device->SetPropertyKeys(this->GetPropertyKeys());
   }
+  // make sure the device has the same matrix
+  this->ComputeMatrix();
+  this->Device->SetUserMatrix(this->Matrix);
+
+  // Render
   this->Device->Render(ren, this->Mapper);
+
+  // Post render actions
+  this->Property->PostRender(this, ren);
+  if (this->BackfaceProperty)
+  {
+    this->BackfaceProperty->PostRender(this, ren);
+  }
+  if (this->Texture)
+  {
+    this->Texture->PostRender(ren);
+    if (this->Texture->GetTransform())
+    {
+      vtkInformation* info = this->GetPropertyKeys();
+      info->Remove(vtkProp::GeneralTextureTransform());
+    }
+  }
+  this->EstimatedRenderTime = this->Device->GetEstimatedRenderTime();
 }
 
 //------------------------------------------------------------------------------
