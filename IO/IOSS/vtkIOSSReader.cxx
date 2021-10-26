@@ -22,11 +22,14 @@
 #include "vtkDataAssembly.h"
 #include "vtkDataSet.h"
 #include "vtkExtractGrid.h"
+#include "vtkHexahedron.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkLagrangeHexahedron.h"
+#include "vtkLagrangeQuadrilateral.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
@@ -35,12 +38,14 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
+#include "vtkQuad.h"
 #include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
@@ -574,6 +579,22 @@ private:
    */
   bool GetDGFields(vtkUnstructuredGrid* ds, vtkDataArraySelection* selection, Ioss::Region* region,
     Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep);
+
+  /**
+   * @brief takes a continuous mesh and explodes the point set such that each element has
+   *        its own collection of points unshared by any other element. This also
+   *        converts the mesh into potentially a higher order mesh if the DG fields require it
+   *
+   * @param dataset: the vtkDataSet to explode. new points/connectivity will be allocated and set to
+   * this dataset
+   * @param dg_field_name: the name of the DG field on this block which will dicate how the elements
+   * are allocated
+   * @param remove_unused_points: unused
+   * @return true: mesh explosion success
+   * @return false: mesh explosion failed
+   */
+  bool ExplodeDGMesh(
+    vtkUnstructuredGrid* dataset, const std::string& dg_field_name, bool remove_unused_points);
 
   /**
    * Reads selected field arrays for the given entity block or set.
@@ -1685,48 +1706,297 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReader::vtkInternals::GetCGNSDat
 }
 
 //----------------------------------------------------------------------------
-bool ExplodeDGMesh(vtkUnstructuredGrid* dataset, bool vtkNotUsed(remove_unused_points))
+bool vtkIOSSReader::vtkInternals::ExplodeDGMesh(vtkUnstructuredGrid* dataset,
+  const std::string& dg_field_name, bool vtkNotUsed(remove_unused_points))
 {
   auto old_points = dataset->GetPoints();
   vtkNew<vtkPoints> exploded_points;
   vtkNew<vtkCellArray> exploded_cells;
   vtkNew<vtkIdList> original_ids;
-
+  int type = dataset->GetCellType(0);
   const vtkIdType nCells = dataset->GetCells()->GetNumberOfCells();
+  vtkIdType nPts;
+  std::vector<std::string> field_props = split(dg_field_name, "_");
 
-  // TO DO: Get the actual number of points in each element
-  const vtkIdType nPtsPerCell = dataset->GetCells()->GetCellSize(0);
-  const vtkIdType nPts = nCells * nPtsPerCell;
-
-  exploded_points->SetNumberOfPoints(nPts);
-  exploded_cells->AllocateExact(nCells, nPtsPerCell);
-  original_ids->SetNumberOfIds(nPts);
-
-  // loop over cell connectivity, redo the connectivity so that each cell is
-  // disconnected from other cells and then copy associated points into the
-  // point array
-  vtkIdType ind = 0;
-  auto iter = vtk::TakeSmartPointer(dataset->GetCells()->NewIterator());
-  for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+  // naive check to make sure we have all the properties in expected order
+  // i.e. Intrepid2_HGRAD_QUAD_C2_FEM
+  if (field_props.size() != 5)
   {
-    // get next cell in original dataset
-    vtkIdList* cellIds = iter->GetCurrentCell();
+    return false;
+  }
 
-    exploded_cells->InsertNextCell(nPtsPerCell);
-    for (vtkIdType i = 0; i < nPtsPerCell; ++i)
+  bool isDGLinear = field_props[3] == "C1";
+  std::string DGCellType = field_props[2];
+
+  // if the DG basis used is linear, then we don't need to interpolate new mesh points
+  if (isDGLinear)
+  {
+    const vtkIdType nPtsPerCell = dataset->GetCells()->GetCellSize(0);
+    nPts = nCells * nPtsPerCell;
+
+    exploded_points->SetNumberOfPoints(nPts);
+    exploded_cells->AllocateExact(nCells, nPtsPerCell);
+    original_ids->SetNumberOfIds(nPts);
+
+    // loop over cell connectivity, redo the connectivity so that each cell is
+    // disconnected from other cells and then copy associated points into the
+    // point array
+    vtkIdType ind = 0;
+    auto iter = vtk::TakeSmartPointer(dataset->GetCells()->NewIterator());
+    for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
     {
-      vtkVector3d coords{ 0.0 };
-      vtkIdType o_id = cellIds->GetId(i);
-      original_ids->SetId(ind, o_id);
-      old_points->GetPoint(o_id, coords.GetData());
-      exploded_points->InsertPoint(ind, coords.GetData());
-      exploded_cells->InsertCellPoint(ind);
-      ind++;
+      // get next cell in original dataset
+      vtkIdList* cellIds = iter->GetCurrentCell();
+      exploded_cells->InsertNextCell(nPtsPerCell);
+      for (vtkIdType i = 0; i < nPtsPerCell; ++i)
+      {
+        vtkVector3d coords{ 0.0 };
+        vtkIdType o_id = cellIds->GetId(i);
+        original_ids->SetId(ind, o_id);
+        old_points->GetPoint(o_id, coords.GetData());
+        exploded_points->InsertPoint(ind, coords.GetData());
+        exploded_cells->InsertCellPoint(ind);
+        ind++;
+      }
+    }
+  }
+  else // higher order elements (only quadratic is supported)
+  {
+    if (DGCellType == "HEX")
+    {
+      type = VTK_LAGRANGE_HEXAHEDRON;
+      const vtkIdType nPtsPerCell = 27; // quadratic hexahedron
+      nPts = nCells * nPtsPerCell;
+      exploded_points->SetNumberOfPoints(nPts);
+      exploded_cells->AllocateExact(nCells, nPtsPerCell);
+      original_ids->SetNumberOfIds(nPts);
+
+      // get parametric coords of nodes on edges/faces/volume
+      std::vector<double> pcoords = { 0.5, 0, 0, 1, 0.5, 0, 0.5, 1, 0, 0, 0.5, 0, 0.5, 0, 1, 1, 0.5,
+        1, 0.5, 1, 1, 0, 0.5, 1, 0, 0, 0.5, 1, 0, 0.5, 1, 1, 0.5, 0, 1, 0.5,
+        // faces
+        0, 0.5, 0.5, 1, 0.5, 0.5, 0.5, 0, 0.5, 0.5, 1, 0.5, 0.5, 0.5, 0, 0.5, 0.5, 1,
+        // volume
+        0.5, 0.5, 0.5 };
+
+      // loop over cell connectivity, redo the connectivity so that each cell is
+      // disconnected from other cells and then copy associated points into the
+      // point array
+      vtkIdType ind = 0;
+      double weights[4];
+      int subId = 0;
+      auto iter = vtk::TakeSmartPointer(dataset->GetCells()->NewIterator());
+      for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+      {
+        // get next cell in original dataset
+        vtkIdList* cellIds = iter->GetCurrentCell();
+        exploded_cells->InsertNextCell(nPtsPerCell);
+        vtkVector3d coord{ 0.0 };
+        vtkIdType o_id = 0;
+
+        // build a vtkQuad to evaluate new points on
+        vtkNew<vtkHexahedron> element;
+        element->Initialize(8, cellIds->begin(), old_points);
+
+        // insert points on corners read from original mesh
+        for (vtkIdType i = 0; i < 8; ++i)
+        {
+          o_id = cellIds->GetId(i);
+          old_points->GetPoint(o_id, coord.GetData());
+          exploded_points->InsertPoint(ind, coord.GetData());
+          // newCellIds[i] = ind;
+          exploded_cells->InsertCellPoint(ind);
+          original_ids->SetId(ind, o_id);
+          ind++;
+        }
+
+        // loop over edge/face/volume nodes
+        for (vtkIdType i = 0; i < 19; ++i)
+        {
+          element->EvaluateLocation(subId, &pcoords[3 * i], coord.GetData(), weights);
+          exploded_points->InsertPoint(ind, coord.GetData());
+          exploded_cells->InsertCellPoint(ind);
+          original_ids->SetId(ind, 0);
+          ind++;
+        }
+      }
+    }
+    else if (DGCellType == "TET")
+    {
+      // not implemented
+      return false;
+    }
+    else if (DGCellType == "QUAD")
+    {
+      type = VTK_LAGRANGE_QUADRILATERAL;
+      const vtkIdType nPtsPerCell = 9; // quadratic quadrilateral
+      nPts = nCells * nPtsPerCell;
+      exploded_points->SetNumberOfPoints(nPts);
+      exploded_cells->AllocateExact(nCells, nPtsPerCell);
+      original_ids->SetNumberOfIds(nPts);
+
+      // loop over cell connectivity, redo the connectivity so that each cell is
+      // disconnected from other cells and then copy associated points into the
+      // point array
+      vtkIdType ind = 0;
+      auto iter = vtk::TakeSmartPointer(dataset->GetCells()->NewIterator());
+      for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+      {
+        // get next cell in original dataset
+        vtkIdList* cellIds = iter->GetCurrentCell();
+        exploded_cells->InsertNextCell(nPtsPerCell);
+        vtkVector3d coord{ 0.0 };
+        vtkIdType o_id = 0;
+
+        // build a vtkQuad to evaluate new points on
+        vtkNew<vtkQuad> element;
+        element->Initialize(4, cellIds->begin(), old_points);
+
+        // insert points on corners
+        for (vtkIdType i = 0; i < 4; ++i)
+        {
+          o_id = cellIds->GetId(i);
+          old_points->GetPoint(o_id, coord.GetData());
+          exploded_points->InsertPoint(ind, coord.GetData());
+          exploded_cells->InsertCellPoint(ind);
+          original_ids->SetId(ind, o_id);
+          ind++;
+        }
+
+        double pcoord[3];
+        double weights[4];
+        int subId = 0;
+        // add point on edge between 0 1
+        pcoord[0] = 0.5;
+        pcoord[1] = 0;
+        pcoord[2] = 0;
+
+        element->EvaluateLocation(subId, pcoord, coord.GetData(), weights);
+        exploded_points->InsertPoint(ind, coord.GetData());
+        exploded_cells->InsertCellPoint(ind);
+        original_ids->SetId(ind, 0);
+        ind++;
+        // add point on edge between 1 2
+        pcoord[0] = 1;
+        pcoord[1] = 0.5;
+        pcoord[2] = 0;
+
+        element->EvaluateLocation(subId, pcoord, coord.GetData(), weights);
+        exploded_points->InsertPoint(ind, coord.GetData());
+        exploded_cells->InsertCellPoint(ind);
+        original_ids->SetId(ind, 0);
+        ind++;
+
+        // add point on edge between 2 3
+        pcoord[0] = 0.5;
+        pcoord[1] = 1;
+        pcoord[2] = 0;
+
+        element->EvaluateLocation(subId, pcoord, coord.GetData(), weights);
+        exploded_points->InsertPoint(ind, coord.GetData());
+        exploded_cells->InsertCellPoint(ind);
+        original_ids->SetId(ind, 0);
+        ind++;
+
+        // add point on edge between 3 0
+        pcoord[0] = 0;
+        pcoord[1] = 0.5;
+        pcoord[2] = 0;
+
+        element->EvaluateLocation(subId, pcoord, coord.GetData(), weights);
+        exploded_points->InsertPoint(ind, coord.GetData());
+        exploded_cells->InsertCellPoint(ind);
+        original_ids->SetId(ind, 0);
+        ind++;
+        // add point in center of cell
+        pcoord[0] = 0.5;
+        pcoord[1] = 0.5;
+        pcoord[2] = 0;
+
+        element->EvaluateLocation(subId, pcoord, coord.GetData(), weights);
+        exploded_points->InsertPoint(ind, coord.GetData());
+        exploded_cells->InsertCellPoint(ind);
+        original_ids->SetId(ind, 0);
+        ind++;
+      }
+    }
+    else if (DGCellType == "TRI")
+    {
+      type = VTK_LAGRANGE_TRIANGLE;
+      const vtkIdType nPtsPerCell = 6; // quadratic triangle
+      nPts = nCells * nPtsPerCell;
+      exploded_points->SetNumberOfPoints(nPts);
+      exploded_cells->AllocateExact(nCells, nPtsPerCell);
+      original_ids->SetNumberOfIds(nPts);
+
+      // loop over cell connectivity, redo the connectivity so that each cell is
+      // disconnected from other cells and then copy associated points into the
+      // point array
+      vtkIdType ind = 0;
+      auto iter = vtk::TakeSmartPointer(dataset->GetCells()->NewIterator());
+      for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+      {
+        // get next cell in original dataset
+        vtkIdList* cellIds = iter->GetCurrentCell();
+        exploded_cells->InsertNextCell(nPtsPerCell);
+        vtkVector3d coord{ 0.0 };
+        vtkIdType o_id = 0;
+
+        // build a vtkQuad to evaluate new points on
+        vtkNew<vtkTriangle> element;
+        element->Initialize(3, cellIds->begin(), old_points);
+
+        // insert points on corners
+        for (vtkIdType i = 0; i < 3; ++i)
+        {
+          o_id = cellIds->GetId(i);
+          old_points->GetPoint(o_id, coord.GetData());
+          exploded_points->InsertPoint(ind, coord.GetData());
+          exploded_cells->InsertCellPoint(ind);
+          original_ids->SetId(ind, o_id);
+          ind++;
+        }
+
+        double pcoord[3];
+        double weights[4];
+        int subId = 0;
+        // add point on edge between 0 1
+        pcoord[0] = 0.5;
+        pcoord[1] = 0;
+        pcoord[2] = 0;
+
+        element->EvaluateLocation(subId, pcoord, coord.GetData(), weights);
+        exploded_points->InsertPoint(ind, coord.GetData());
+        exploded_cells->InsertCellPoint(ind);
+        original_ids->SetId(ind, 0);
+        ind++;
+        // add point on edge between 1 2
+        pcoord[0] = 0.5;
+        pcoord[1] = 0.5;
+        pcoord[2] = 0;
+
+        element->EvaluateLocation(subId, pcoord, coord.GetData(), weights);
+        exploded_points->InsertPoint(ind, coord.GetData());
+        exploded_cells->InsertCellPoint(ind);
+        original_ids->SetId(ind, 0);
+        ind++;
+
+        // add point on edge between 2 0
+        pcoord[0] = 0;
+        pcoord[1] = 0.5;
+        pcoord[2] = 0;
+
+        element->EvaluateLocation(subId, pcoord, coord.GetData(), weights);
+        exploded_points->InsertPoint(ind, coord.GetData());
+        exploded_cells->InsertCellPoint(ind);
+        original_ids->SetId(ind, 0);
+        ind++;
+      }
     }
   }
 
   dataset->SetPoints(exploded_points);
-  dataset->SetCells(dataset->GetCellTypesArray(), exploded_cells);
+  dataset->SetCells(type, exploded_cells);
 
   vtkNew<vtkIdTypeArray> opids;
   opids->SetName("__vtk_mesh_original_pt_ids__");
@@ -1766,7 +2036,8 @@ bool vtkIOSSReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
   // cell is disconnected from every other cell
   if (this->DGInfo.BlockIsDG(blockname))
   {
-    ExplodeDGMesh(dataset, remove_unused_points);
+    this->ExplodeDGMesh(dataset, this->DGInfo.elementTypes[blockname], remove_unused_points);
+
     if (remove_unused_points)
     {
       if (auto originalIds = dataset->GetPointData()->GetArray("__vtk_mesh_original_pt_ids__"))
@@ -2277,14 +2548,12 @@ bool vtkIOSSReader::vtkInternals::GetDGFields(vtkUnstructuredGrid* ds,
     }
   }
 
-  auto dgFields = this->DGInfo.fields[group_entity->name()];
   for (const auto& fieldname : fieldnames)
   {
-    if (auto array =
-          this->GetField(fieldname, region, group_entity, handle, timestep, nullptr, std::string()))
+    vtkSmartPointer<vtkDataArray> dgData = vtkDataArray::SafeDownCast(
+      this->GetField(fieldname, region, group_entity, handle, timestep, nullptr, std::string()));
+    if (dgData != nullptr)
     {
-      vtkDataArray* dgData = reinterpret_cast<vtkDataArray*>(array.Get());
-
       // hard coding the rule until we have example of other exotic element flavors
       // TO DO: interpret rule from DGInformation::elementTypes
       const std::string rule = "HGRAD";
