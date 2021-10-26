@@ -102,11 +102,11 @@ int TestUniformHyperTreeOneRootCell()
   //                       0
   return !compareMask(bm, { false });
 }
-void subdivide(vtkHyperTreeGridNonOrientedCursor* cursor, const std::vector<char>& sub)
+void subdivide(vtkHyperTreeGridNonOrientedCursor* cursor, const std::vector<int>& sub)
 {
   for (size_t i = 0; i < sub.size(); ++i)
   {
-    const char subIdx = sub[i];
+    const int subIdx = sub[i];
     if (subIdx == -1)
     {
       cursor->ToParent();
@@ -152,7 +152,7 @@ int TestUniformHyperTreeOneRootCellSubdivided()
 }
 //------------------------------------------------------------------------------
 void initUniformHyperTreeSeveralRootCells(
-  vtkUniformHyperTreeGrid* uhtg, const std::vector<std::vector<char>>& sub = {})
+  vtkUniformHyperTreeGrid* uhtg, const std::vector<std::vector<int>>& sub = {})
 {
   std::cout << "Init Uniform Grid several root cells\n";
   std::cout.flush();

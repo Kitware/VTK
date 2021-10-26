@@ -35,11 +35,14 @@
 #define vtkHyperTreeCursor_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For deprecation
 #include "vtkObject.h"
 
 class vtkHyperTree;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeCursor : public vtkObject
+class VTK_DEPRECATED_IN_9_2_0(
+  "Use other Hyper Tree Grid cursors instead.") VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeCursor
+  : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperTreeCursor, vtkObject);
@@ -153,3 +156,4 @@ private:
   void operator=(const vtkHyperTreeCursor&) = delete;
 };
 #endif
+// VTK-HeaderTest-Exclude: vtkHyperTreeCursor.h
