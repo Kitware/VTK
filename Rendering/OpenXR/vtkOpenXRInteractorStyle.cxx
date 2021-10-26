@@ -56,6 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenXRRenderWindowInteractor.h"
 #include "vtkVRMenuRepresentation.h"
 #include "vtkVRMenuWidget.h"
+#include "vtkVRModel.h"
 
 #include "vtkWidgetRepresentation.h"
 
@@ -282,10 +283,6 @@ void vtkOpenXRInteractorStyle::OnMove3D(vtkEventData* edata)
     case VTKIS_CLIP:
       this->Clip(edd);
       this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
-      break;
-    default:
-      vtkWarningMacro(<< "OnMove3D: unknown device " << idev << " interaction state "
-                      << this->InteractionState[idev]);
       break;
   }
 
@@ -945,11 +942,11 @@ void vtkOpenXRInteractorStyle::ShowRay(vtkEventDataDevice controller)
   }
 
   const int trackedDeviceIndex = renWin->GetTrackedDeviceIndexForDevice(controller);
-  vtkVRRay* ray = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
+  vtkVRModel* model = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
 
-  if (ray)
+  if (model)
   {
-    ray->SetShow(true);
+    model->SetShowRay(true);
   }
 }
 
@@ -966,11 +963,11 @@ void vtkOpenXRInteractorStyle::HideRay(vtkEventDataDevice controller)
   }
 
   const int trackedDeviceIndex = renWin->GetTrackedDeviceIndexForDevice(controller);
-  vtkVRRay* ray = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
+  vtkVRModel* model = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
 
-  if (ray)
+  if (model)
   {
-    ray->SetShow(false);
+    model->SetShowRay(false);
   }
 }
 
@@ -998,9 +995,9 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 
   // Get the index from the controller
   const int trackedDeviceIndex = renWin->GetTrackedDeviceIndexForDevice(controller);
-  vtkVRRay* ray = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
+  vtkVRModel* model = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
 
-  if (!ray)
+  if (!model)
   {
     return;
   }
@@ -1023,28 +1020,28 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 
     if (rep && rep->IsA("vtkQWidgetRepresentation") && rep->GetInteractionState() != 0)
     {
-      ray->SetShow(true);
-      ray->SetLength(ren->GetActiveCamera()->GetClippingRange()[1]);
-      ray->SetColor(0.0, 0.0, 1.0);
+      model->SetShowRay(true);
+      model->SetRayLength(ren->GetActiveCamera()->GetClippingRange()[1]);
+      model->SetRayColor(0.0, 0.0, 1.0);
       return;
     }
   }
 
   if (this->GetGrabWithRay() || this->InteractionState[idev] == VTKIS_PICK)
   {
-    ray->SetShow(true);
+    model->SetShowRay(true);
   }
   else
   {
-    ray->SetShow(false);
+    model->SetShowRay(false);
     return;
   }
 
   // Set length to its max if interactive picking is off
   if (!this->HoverPick)
   {
-    ray->SetColor(1.0, 0.0, 0.0);
-    ray->SetLength(ren->GetActiveCamera()->GetClippingRange()[1]);
+    model->SetRayColor(1.0, 0.0, 0.0);
+    model->SetRayLength(ren->GetActiveCamera()->GetClippingRange()[1]);
     return;
   }
 
@@ -1065,14 +1062,14 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
   {
     double p1[3];
     this->InteractionPicker->GetPickPosition(p1);
-    ray->SetLength(sqrt(vtkMath::Distance2BetweenPoints(p0, p1)));
-    ray->SetColor(0.0, 1.0, 0.0);
+    model->SetRayLength(sqrt(vtkMath::Distance2BetweenPoints(p0, p1)));
+    model->SetRayColor(0.0, 1.0, 0.0);
   }
   // Otherwise set the length to its max
   else
   {
-    ray->SetLength(ren->GetActiveCamera()->GetClippingRange()[1]);
-    ray->SetColor(1.0, 0.0, 0.0);
+    model->SetRayLength(ren->GetActiveCamera()->GetClippingRange()[1]);
+    model->SetRayColor(1.0, 0.0, 0.0);
   }
 
   return;

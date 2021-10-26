@@ -6,6 +6,7 @@ set(classes
   vtkOpenXRManager
   vtkOpenXRCamera
   vtkOpenXRControlsHelper
+  vtkOpenXRModel
   vtkOpenXRRenderer
   vtkOpenXRInteractorStyle)
 

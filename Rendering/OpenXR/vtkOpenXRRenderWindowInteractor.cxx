@@ -816,29 +816,21 @@ bool vtkOpenXRRenderWindowInteractor::LoadActions(const std::string& actionFilen
     this->MapActionStruct_Name[name]->Name = name;
   }
 
-  // Select default binding depending on the selected controllerType (currently,
-  // only htc vive is supported).
-  const std::string controllerType = "vive_controller";
-
   Json::Value defaultBindings = root["default_bindings"];
   if (defaultBindings.isNull())
   {
     vtkErrorMacro(<< "Parse openxr_actions: Missing default_bindings node");
     return false;
   }
+
   for (Json::Value::ArrayIndex i = 0; i < defaultBindings.size(); ++i)
   {
     Json::Value binding = defaultBindings[i];
-
-    // Load the json file corresponding to our selected controller type
-    if (binding["controller_type"] == controllerType)
+    std::string bindingUrl = binding["binding_url"].asString();
+    std::string bindingFilename = vtksys::SystemTools::CollapseFullPath(bindingUrl.c_str());
+    if (!this->LoadDefaultBinding(bindingFilename))
     {
-      std::string bindingUrl = binding["binding_url"].asString();
-      std::string bindingFilename = vtksys::SystemTools::CollapseFullPath(bindingUrl.c_str());
-      if (!this->LoadDefaultBinding(bindingFilename))
-      {
-        return false;
-      }
+      return false;
     }
   }
 

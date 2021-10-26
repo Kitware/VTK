@@ -25,6 +25,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkOpenGLState.h"
 #include "vtkOpenXRCamera.h"
 #include "vtkOpenXRManager.h"
+#include "vtkOpenXRModel.h"
 #include "vtkOpenXRRenderWindowInteractor.h"
 #include "vtkOpenXRRenderer.h"
 #include "vtkOpenXRUtilities.h"
@@ -74,8 +75,8 @@ vtkOpenXRRenderWindow::vtkOpenXRRenderWindow()
   // But for the future, we should create a vtkOpenXRModel
   // That contain a ray and a mesh for a controller
   // (mesh loaded using the XR_MSFT_controller_model OpenXR extension)
-  this->Models[0] = vtkSmartPointer<vtkVRRay>::New();
-  this->Models[1] = vtkSmartPointer<vtkVRRay>::New();
+  this->Models[0] = vtkSmartPointer<vtkOpenXRModel>::New();
+  this->Models[1] = vtkSmartPointer<vtkOpenXRModel>::New();
 }
 
 //------------------------------------------------------------------------------
@@ -492,38 +493,27 @@ void vtkOpenXRRenderWindow::RenderModels()
   vtkOpenGLState* ostate = this->GetState();
   ostate->vtkglEnable(GL_DEPTH_TEST);
 
+  vtkNew<vtkMatrix4x4> poseMatrix;
   auto iren = vtkOpenXRRenderWindowInteractor::SafeDownCast(this->Interactor);
   for (uint32_t hand :
     { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
   {
     XrPosef handPose = iren->GetHandPose(hand);
 
-    vtkRenderer* ren = static_cast<vtkRenderer*>(this->GetRenderers()->GetItemAsObject(0));
-    vtkOpenXRCamera* cam = static_cast<vtkOpenXRCamera*>(ren->GetActiveCamera());
+    // this could be done without a new every time
+    vtkNew<vtkMatrix4x4> poseMatrixPhysical;
+    vtkOpenXRUtilities::CreateModelMatrix(poseMatrixPhysical, handPose);
 
-    vtkMatrix4x4* wcdc;
-    vtkMatrix4x4* wcvc;
-    vtkMatrix3x3* norms;
-    vtkMatrix4x4* vcdc;
-    cam->GetKeyMatrices(ren, wcvc, norms, vcdc, wcdc);
+    float fMatrix[3][4];
+    for (int j = 0; j < 3; j++)
+    {
+      for (int i = 0; i < 4; i++)
+      {
+        fMatrix[j][i] = poseMatrixPhysical->GetElement(j, i);
+      }
+    }
 
-    double p0[3];   // Ray start point
-    double wxyz[4]; // Controller orientation
-    double ppos[3];
-    double wdir[3];
-    this->ConvertOpenXRPoseToWorldCoordinates(handPose, p0, wxyz, ppos, wdir);
-
-    vtkNew<vtkTransform> t;
-    t->Translate(ppos);
-    t->Translate(this->PhysicalTranslation);
-    t->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
-    vtkNew<vtkMatrix4x4> poseMatrix;
-    t->GetMatrix(poseMatrix);
-
-    poseMatrix->Transpose();
-    vtkMatrix4x4::Multiply4x4(poseMatrix, wcdc, poseMatrix);
-
-    this->Models[hand]->Render(this, poseMatrix);
+    this->Models[hand]->Render(this, fMatrix);
   }
 }
 
@@ -666,7 +656,7 @@ const int vtkOpenXRRenderWindow::GetTrackedDeviceIndexForDevice(vtkEventDataDevi
 }
 
 //------------------------------------------------------------------------------
-vtkVRRay* vtkOpenXRRenderWindow::GetTrackedDeviceModel(const int idx)
+vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(const int idx)
 {
   if (idx == vtkOpenXRManager::ControllerIndex::Inactive)
   {
