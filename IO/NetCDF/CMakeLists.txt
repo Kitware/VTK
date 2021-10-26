@@ -2,6 +2,7 @@ set(classes
   vtkMPASReader
   vtkNetCDFCAMReader
   vtkNetCDFCFReader
+  vtkNetCDFCFWriter
   vtkNetCDFPOPReader
   vtkNetCDFReader
   vtkSLACParticleReader
