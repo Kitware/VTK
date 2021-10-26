@@ -28,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkDataObject);
 
@@ -646,10 +647,12 @@ vtkDataSetAttributes* vtkDataObject::GetAttributes(int type)
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkDataObject::GetGhostArray(int type)
+vtkUnsignedCharArray* vtkDataObject::GetGhostArray(int type)
 {
   vtkFieldData* fieldData = this->GetAttributesAsFieldData(type);
-  return fieldData ? fieldData->GetArray(vtkDataSetAttributes::GhostArrayName()) : nullptr;
+  return fieldData ? vtkArrayDownCast<vtkUnsignedCharArray>(
+                       fieldData->GetArray(vtkDataSetAttributes::GhostArrayName()))
+                   : nullptr;
 }
 
 //------------------------------------------------------------------------------

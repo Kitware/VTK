@@ -225,8 +225,7 @@ void vtkDIYGhostUtilities::InitializeGhostCellArray(
   typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType* block, DataSetT* output)
 {
   vtkSmartPointer<vtkUnsignedCharArray>& ghostCellArray = block->GhostCellArray;
-  ghostCellArray = vtkArrayDownCast<vtkUnsignedCharArray>(
-    output->GetGhostArray(vtkDataObject::FIELD_ASSOCIATION_CELLS));
+  ghostCellArray = output->GetGhostArray(vtkDataObject::FIELD_ASSOCIATION_CELLS);
   if (!ghostCellArray)
   {
     ghostCellArray = vtkSmartPointer<vtkUnsignedCharArray>::New();
@@ -243,8 +242,7 @@ void vtkDIYGhostUtilities::InitializeGhostPointArray(
   typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType* block, DataSetT* output)
 {
   vtkSmartPointer<vtkUnsignedCharArray>& ghostPointArray = block->GhostPointArray;
-  ghostPointArray = vtkArrayDownCast<vtkUnsignedCharArray>(
-    output->GetGhostArray(vtkDataObject::FIELD_ASSOCIATION_POINTS));
+  ghostPointArray = output->GetGhostArray(vtkDataObject::FIELD_ASSOCIATION_POINTS);
   if (!ghostPointArray)
   {
     ghostPointArray = vtkSmartPointer<vtkUnsignedCharArray>::New();

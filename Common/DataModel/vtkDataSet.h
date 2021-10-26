@@ -468,6 +468,12 @@ public:
    * Allocate ghost array for cells.
    */
   vtkUnsignedCharArray* AllocateCellGhostArray();
+  /**
+   * Returns the ghost array for the given type (point or cell).
+   * Takes advantage of the cache with the pointer to the array to save a string
+   * comparison.
+   */
+  vtkUnsignedCharArray* GetGhostArray(int type) override;
 
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).

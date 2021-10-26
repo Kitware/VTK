@@ -38,7 +38,6 @@
 #include "vtkObject.h"
 
 class vtkAbstractArray;
-class vtkDataArray;
 class vtkDataSetAttributes;
 class vtkFieldData;
 class vtkInformation;
@@ -51,6 +50,7 @@ class vtkInformationIntegerVectorKey;
 class vtkInformationStringKey;
 class vtkInformationVector;
 class vtkInformationInformationVectorKey;
+class vtkUnsignedCharArray;
 
 #define VTK_PIECES_EXTENT 0
 #define VTK_3D_EXTENT 1
@@ -304,7 +304,7 @@ public:
    * ghosts arrays are not defined for now outside of
    * point or cell.
    */
-  virtual vtkDataArray* GetGhostArray(int type);
+  virtual vtkUnsignedCharArray* GetGhostArray(int type);
 
   /**
    * Returns the attributes of the data object as a vtkFieldData.
