@@ -530,7 +530,6 @@ protected:
   // Methods to manipulate the plane
   void Rotate(double X, double Y, double* p1, double* p2, double* vpn);
   void Rotate3D(double* p1, double* p2);
-  void TranslatePlane(double* p1, double* p2);
   void TranslateOutline(double* p1, double* p2);
   void TranslateOrigin(double* p1, double* p2);
   void UpdatePose(double* p1, double* d1, double* p2, double* d2);
@@ -548,8 +547,6 @@ protected:
   vtkProperty* SelectedOutlineProperty;
   vtkProperty* EdgesProperty;
   virtual void CreateDefaultProperties();
-
-  void GeneratePlane();
 
   bool CropPlaneToBoundingBox;
 

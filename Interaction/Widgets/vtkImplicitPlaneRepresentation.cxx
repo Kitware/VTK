@@ -15,13 +15,11 @@
 #include "vtkImplicitPlaneRepresentation.h"
 
 #include "vtkActor.h"
-#include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
 #include "vtkBox.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
-#include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkCutter.h"
 #include "vtkEventData.h"

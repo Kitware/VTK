@@ -18,8 +18,8 @@
  *
  * vtkDiskSource creates a polygonal disk with a hole in the center. The
  * disk has zero height. The user can specify the inner and outer radius
- * of the disk, and the radial and circumferential resolution of the
- * polygonal representation.
+ * of the disk, the radial and circumferential resolution of the
+ * polygonal representation, and the center and plane normal of the disk.
  * @sa
  * vtkLinearExtrusionFilter
  */
@@ -29,6 +29,8 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+
+class vtkTransform;
 
 class VTKFILTERSSOURCES_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm
 {
@@ -71,6 +73,22 @@ public:
 
   ///@{
   /**
+   * Set the center of the disk. The default is (0, 0, 0).
+   */
+  vtkSetVector3Macro(Center, double);
+  vtkGetVectorMacro(Center, double, 3);
+  ///@}
+
+  ///@{
+  /**
+   * Set/get plane normal. The default is (0, 0, 1).
+   */
+  vtkSetVector3Macro(Normal, double);
+  vtkGetVectorMacro(Normal, double, 3);
+  ///@}
+
+  ///@{
+  /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
@@ -84,8 +102,11 @@ protected:
   ~vtkDiskSource() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkSmartPointer<vtkTransform> GetTransformation();
   double InnerRadius;
   double OuterRadius;
+  double Center[3];
+  double Normal[3];
   int RadialResolution;
   int CircumferentialResolution;
   int OutputPointsPrecision;
