@@ -666,7 +666,7 @@ struct vtkAttributeManager
       if (!da0 || !da1 || da0->GetDataType() != da1->GetDataType() ||
         da0->GetNumberOfComponents() != da1->GetNumberOfComponents() ||
         !(name0 = dsa0->GetArrayName(arrayNum)) || !(name1 = dsa1->GetArrayName(arrayNum)) ||
-        strcmp(name0, name1))
+        strcmp(name0, name1) != 0)
       {
         return false;
       }

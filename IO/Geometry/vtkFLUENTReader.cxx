@@ -134,7 +134,7 @@ struct vtkFLUENTReader::faceVector
 };
 struct vtkFLUENTReader::stdMap
 {
-  std::map<int, std::string> value;
+  std::map<size_t, std::string> value;
 };
 struct vtkFLUENTReader::scalarDataVector
 {

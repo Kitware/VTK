@@ -1737,7 +1737,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
         {
           if (auto ds = tempResult->GetPiece(cc))
           {
-            outputParts.push_back(ds);
+            outputParts.emplace_back(ds);
           }
         }
       }
