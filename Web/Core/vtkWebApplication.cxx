@@ -213,7 +213,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   // vtkTimerLog::MarkEndEvent("StillRenderToString");
   // vtkTimerLog::DumpLogWithIndents(&cout, 0.0);
 
-  this->Internals->Encoder->PushAndTakeReference(
+  this->Internals->Encoder->Push(
     this->Internals->ObjectIdMap->GetGlobalId(view), image, quality, this->ImageEncoding);
   assert(image == nullptr);
 
