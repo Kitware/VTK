@@ -81,6 +81,11 @@ void vtkResliceCursorWidget::CreateDefaultRepresentation()
 //------------------------------------------------------------------------------
 void vtkResliceCursorWidget::SetCursor(int cState)
 {
+  if (!this->ManagesCursor)
+  {
+    return;
+  }
+
   switch (cState)
   {
     case vtkResliceCursorRepresentation::OnAxis1:
