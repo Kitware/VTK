@@ -142,17 +142,6 @@ void vtkOpenXRRenderer::SetShowFloor(bool value)
 }
 
 //------------------------------------------------------------------------------
-// Automatically set up the camera based on the visible actors.
-// The camera will reposition itself to view the center point of the actors,
-// and move along its initial view plane normal (i.e., vector defined from
-// camera position to focal point) so that all of the actors can be seen.
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderer::ResetCamera()
-{
-  this->Superclass::ResetCamera();
-}
-
-//------------------------------------------------------------------------------
 // Automatically set up the camera based on a specified bounding box
 // (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
 // that its focal point is the center of the bounding box, and adjust its
@@ -264,24 +253,6 @@ void vtkOpenXRRenderer::ResetCamera(const double bounds[6])
   vtkOpenXRRenderWindow* win = static_cast<vtkOpenXRRenderWindow*>(this->GetRenderWindow());
   win->SetPhysicalTranslation(-center[0], -center[1] + distance, -center[2]);
   win->SetPhysicalScale(distance);
-}
-
-//------------------------------------------------------------------------------
-// Alternative version of ResetCamera(bounds[6]);
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderer::ResetCamera(
-  double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
-{
-  double bounds[6];
-
-  bounds[0] = xmin;
-  bounds[1] = xmax;
-  bounds[2] = ymin;
-  bounds[3] = ymax;
-  bounds[4] = zmin;
-  bounds[5] = zmax;
-
-  this->ResetCamera(bounds);
 }
 
 //------------------------------------------------------------------------------

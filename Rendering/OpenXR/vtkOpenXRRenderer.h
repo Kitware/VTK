@@ -35,13 +35,7 @@ public:
   vtkTypeMacro(vtkOpenXRRenderer, vtkOpenGLRenderer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  /**
-   * Automatically set up the camera based on the visible actors.
-   * The camera will reposition itself to view the center point of the actors,
-   * and move along its initial view plane normal (i.e., vector defined from
-   * camera position to focal point) so that all of the actors can be seen.
-   */
-  void ResetCamera() override;
+  using vtkVRRenderer::ResetCamera;
 
   /**
    * Automatically set up the camera based on a specified bounding box
@@ -53,12 +47,6 @@ public:
    * be reset to one of the three coordinate axes.
    */
   void ResetCamera(const double bounds[6]) override;
-
-  /**
-   * Alternative version of ResetCamera(bounds[6]);
-   */
-  void ResetCamera(
-    double xmin, double xmax, double ymin, double ymax, double zmin, double zmax) override;
 
   using vtkRenderer::ResetCameraClippingRange;
 
