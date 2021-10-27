@@ -114,6 +114,12 @@ bool vtkOpenXRManager::Initialize(vtkOpenGLRenderWindow* helperWindow)
     return false;
   }
 
+  if (!this->LoadControllerModels())
+  {
+    vtkWarningMacro("Initialize failed to LoadController Models");
+    return false;
+  }
+
   return true;
 }
 
@@ -235,6 +241,41 @@ bool vtkOpenXRManager::WaitAndBeginFrame()
                       << viewCount << ") !");
     }
   }
+
+  return true;
+}
+
+// loads the controller models using an extension if it is present.
+// todo needs to be tied into the models class and
+// the gltf conversion completed right now it is here as an example
+// to start from.
+bool vtkOpenXRManager::LoadControllerModels()
+{
+  if (!this->OptionalExtensions.ControllerModelExtensionSupported)
+  {
+    return true;
+  }
+
+  auto lPath = this->GetXrPath("/user/hand/left");
+
+  XrControllerModelKeyStateMSFT controllerModelKeyState;
+  this->XrCheckError(
+    this->Extensions.xrGetControllerModelKeyMSFT(this->Session, lPath, &controllerModelKeyState),
+    "Failed to get controller model key!");
+
+  // get the size
+  uint32_t bufferCountOutput = 0;
+  this->XrCheckError(this->Extensions.xrLoadControllerModelMSFT(this->Session,
+                       controllerModelKeyState.modelKey, 0, &bufferCountOutput, nullptr),
+    "Failed to get controller model size!");
+
+  // get the data
+  uint32_t bufferCapacityInput = bufferCountOutput;
+  uint8_t* buffer = new uint8_t[bufferCountOutput];
+  this->XrCheckError(
+    this->Extensions.xrLoadControllerModelMSFT(this->Session, controllerModelKeyState.modelKey,
+      bufferCapacityInput, &bufferCountOutput, buffer),
+    "Failed to get controller model!");
 
   return true;
 }

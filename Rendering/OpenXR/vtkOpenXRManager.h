@@ -441,6 +441,8 @@ protected:
   bool CreateReferenceSpace();
   //@}
 
+  bool LoadControllerModels();
+
   //@{
   /**
    * For pose actions, we must create an action space to locate it

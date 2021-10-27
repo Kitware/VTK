@@ -24,7 +24,6 @@
 
 #include "vtkOpenGLCamera.h"
 #include "vtkRenderingVRModule.h" // For export macro
-#include "vtkTransform.h"         // ivars
 
 class vtkMatrix4x4;
 

@@ -61,7 +61,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vector> // vector
 
 class vtkMatrix4x4;
-class vtkVRRay;
+class vtkVRModel;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkOpenGLRenderWindow
 {
@@ -306,7 +306,7 @@ public:
   /*
    * Get the OpenXRModel corresponding to the device index.
    */
-  vtkVRRay* GetTrackedDeviceModel(const int idx);
+  vtkVRModel* GetTrackedDeviceModel(const int idx);
   //@}
 
   //@{
@@ -367,8 +367,8 @@ protected:
   /// Scale of the Physical to World matrix
   double PhysicalScale;
 
-  // Controller models (currently just a ray)
-  std::array<vtkSmartPointer<vtkVRRay>, 2> Models;
+  // Controller models
+  std::array<vtkSmartPointer<vtkVRModel>, 2> Models;
 
   // Store if a model is active or not here as openxr do not have a concept
   // of active/inactive controller

@@ -62,8 +62,10 @@ int TestOpenXRInitialization(int argc, char* argv[])
   reader->SetFileName(fileName);
 
   vtkNew<vtkTransform> trans;
-  trans->Scale(10.0, 10.0, 10.0);
+  trans->Translate(20.0, 0.0, 0.0);
+  trans->Scale(0.001, 0.001, 0.001);
   vtkNew<vtkTransformPolyDataFilter> tf;
+  tf->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   tf->SetTransform(trans);
   tf->SetInputConnection(reader->GetOutputPort());
 
@@ -79,6 +81,8 @@ int TestOpenXRInitialization(int argc, char* argv[])
   actor->GetProperty()->SetAmbient(0.5);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
+
+  renderer->ResetCamera();
 
   iren->Start();
 
