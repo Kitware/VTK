@@ -69,6 +69,11 @@ void vtkAffineWidget::CreateDefaultRepresentation()
 //------------------------------------------------------------------------------
 void vtkAffineWidget::SetCursor(int cState)
 {
+  if (!this->ManagesCursor)
+  {
+    return;
+  }
+
   switch (cState)
   {
     case vtkAffineRepresentation::ScaleNE:
