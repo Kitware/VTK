@@ -760,15 +760,9 @@ void fillVectorsFromVars(std::vector<CGNSRead::CGNSVariable>& vars,
 //------------------------------------------------------------------------------
 bool vtkCGNSMetaData::Parse(const char* cgnsFileName)
 {
-
   if (!cgnsFileName)
   {
     return false;
-  }
-
-  if (this->LastReadFilename == cgnsFileName)
-  {
-    return true;
   }
 
   int cgioNum;
@@ -861,10 +855,10 @@ bool vtkCGNSMetaData::Parse(const char* cgnsFileName)
       this->baseList[numBase].times.push_back(0.0);
     }
 
-    if (nzones > 0)
+    // Read variable name and more from each zone
+    for (nn = 0; nn < nzones; ++nn)
     {
-      // variable name and more, based on first zone only
-      readZoneInfo(cgioNum, baseChildId[0], this->baseList[numBase]);
+      readZoneInfo(cgioNum, baseChildId[nn], this->baseList[numBase]);
     }
   }
 
@@ -919,6 +913,11 @@ void vtkCGNSMetaData::PrintSelf(std::ostream& os)
     {
       os << "      Cell :: ";
       os << this->baseList[b].CellDataArraySelection.GetArrayName(i) << std::endl;
+    }
+    for (int i = 0; i < this->baseList[b].FaceDataArraySelection.GetNumberOfArrays(); ++i)
+    {
+      os << "      Face :: ";
+      os << this->baseList[b].FaceDataArraySelection.GetArrayName(i) << std::endl;
     }
 
     os << "    Family Number: " << this->baseList[b].family.size() << std::endl;
@@ -1194,6 +1193,7 @@ void vtkCGNSMetaData::Broadcast(vtkMultiProcessController* controller, int rank)
 
     CGNSRead::BroadcastSelection(controller, ite.PointDataArraySelection, rank);
     CGNSRead::BroadcastSelection(controller, ite.CellDataArraySelection, rank);
+    CGNSRead::BroadcastSelection(controller, ite.FaceDataArraySelection, rank);
 
     BroadcastIntVector(controller, ite.steps, rank);
     BroadcastDoubleVector(controller, ite.times, rank);

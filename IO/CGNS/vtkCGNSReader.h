@@ -19,7 +19,7 @@
  *
  * vtkCGNSReader creates a multi-block dataset and reads unstructured grids,
  * and structured meshes from binary files stored in CGNS file format,
- * with data stored at the nodes or at the cells.
+ * with data stored at the nodes, cells or faces.
  *
  * vtkCGNSReader is inspired by the VisIt CGNS reader originally written by
  * B. Whitlock. vtkCGNSReader relies on the low level CGNS API to load DataSet
@@ -58,6 +58,28 @@ public:
   static vtkCGNSReader* New();
   vtkTypeMacro(vtkCGNSReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Possible values for the mesh type:
+   * - CELL_MESH - Construct 3D meshes with 3D cells (e.g. a cube is defined as 1 cell) and read
+   * CellCenter data arrays from the CGNS file.
+   * - FACE_MESH - Construct 3D meshes with 2D cells/faces (e.g. a cube is defined as 6 quad cells)
+   * and read FaceCenter data arrays from the CGNS file. Element connectivity must be defined with
+   * element type NGON_n.
+   */
+  enum MeshCellType
+  {
+    CELL_MESH = 0,
+    FACE_MESH
+  };
+
+  ///@{
+  /**
+   * Set/get the mesh type to generate. Default is CELL_MESH.
+   */
+  vtkSetClampMacro(MeshType, int, vtkCGNSReader::CELL_MESH, vtkCGNSReader::FACE_MESH);
+  vtkGetMacro(MeshType, int);
+  ///@}
 
   ///@{
   /**
@@ -134,6 +156,19 @@ public:
   void SetCellArrayStatus(const char* name, int status);
   void DisableAllCellArrays();
   void EnableAllCellArrays();
+  ///@}
+
+  ///@{
+  /**
+   * API to get information of face arrays and enable/disable loading of
+   * a particular arrays.
+   */
+  int GetNumberOfFaceArrays();
+  const char* GetFaceArrayName(int index);
+  int GetFaceArrayStatus(const char* name);
+  void SetFaceArrayStatus(const char* name, int status);
+  void DisableAllFaceArrays();
+  void EnableAllFaceArrays();
   ///@}
 
   vtkSetMacro(DoublePrecisionMesh, int);
@@ -269,6 +304,7 @@ protected:
   vtkNew<vtkDataArraySelection> FamilySelection;
 
   vtkNew<vtkDataArraySelection> CellDataArraySelection;
+  vtkNew<vtkDataArraySelection> FaceDataArraySelection;
   vtkNew<vtkDataArraySelection> PointDataArraySelection;
 
   int GetCurvilinearZone(
@@ -284,7 +320,8 @@ private:
   vtkCGNSReader(const vtkCGNSReader&) = delete;
   void operator=(const vtkCGNSReader&) = delete;
 
-  char* FileName;                // cgns file name
+  char* FileName;
+  int MeshType;
   bool LoadBndPatch;             // option to set section loading for unstructured grid
   bool LoadMesh;                 // option to enable/disable mesh loading
   int DoublePrecisionMesh;       // option to set mesh loading to double precision

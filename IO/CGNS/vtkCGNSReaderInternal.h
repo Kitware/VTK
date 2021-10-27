@@ -285,6 +285,7 @@ public:
   // std::vector<CGNSRead::zone> zone;
   vtkCGNSArraySelection PointDataArraySelection;
   vtkCGNSArraySelection CellDataArraySelection;
+  vtkCGNSArraySelection FaceDataArraySelection;
 };
 
 //==============================================================================
