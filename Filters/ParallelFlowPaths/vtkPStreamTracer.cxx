@@ -1458,7 +1458,7 @@ int vtkPStreamTracer::RequestData(
       vtkErrorMacro("Couldn't gather seed sources, aborting StreamTracer");
       return 0;
     }
-    for (auto distantSource : allSources)
+    for (const auto& distantSource : allSources)
     {
       if (vtkDataSet* ds = vtkDataSet::SafeDownCast(distantSource))
       {

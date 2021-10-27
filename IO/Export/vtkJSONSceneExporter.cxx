@@ -212,8 +212,6 @@ void vtkJSONSceneExporter::WriteDataObject(
     this->WriteDataObject(os, stickFilter->GetOutput(), actor, volume);
     this->WriteDataObject(os, normalFilter->GetOutput(), actor, volume);
   }
-
-  return;
 }
 
 //------------------------------------------------------------------------------
