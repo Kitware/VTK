@@ -595,7 +595,7 @@ void vtkOpenXRInteractorStyle::ToggleDrawControls()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRInteractorStyle::SetDrawControls(bool val)
+void vtkOpenXRInteractorStyle::SetDrawControls(bool vtkNotUsed(val))
 {
   if (this->CurrentRenderer == nullptr)
   {
