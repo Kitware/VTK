@@ -55,6 +55,8 @@
 #include "vtkDataSetAttributesFieldList.h" // for vtkDataSetAttributesFieldList
 #include "vtkFieldData.h"
 
+#include <type_traits> // For CopyData
+
 class vtkLookupTable;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataSetAttributes : public vtkFieldData
@@ -515,7 +517,32 @@ public:
    */
   void CopyData(vtkDataSetAttributes* fromPd, vtkIdType fromId, vtkIdType toId);
   void CopyData(vtkDataSetAttributes* fromPd, vtkIdList* fromIds, vtkIdList* toIds);
+  void CopyData(vtkDataSetAttributes* fromPd, vtkIdList* fromIds, vtkIdType destStartId);
   ///@}
+
+  /**
+   * This method is only here to handle calls to `CopyData(fromId, 0, 0)`.
+   * Without this method, `CopyData(fromId, 0, 0)` produces an ambiguous call. This method can be
+   * disregarded.
+   */
+  template <class T1, class T2,
+    class EnableT1 = typename std::enable_if<std::is_scalar<T1>::value, T1>::type,
+    class EnableT2 = typename std::enable_if<std::is_scalar<T2>::value, T2>::type>
+  void CopyData(vtkDataSetAttributes* fromPd, T1 fromId, T2 toId)
+  {
+    this->CopyData(fromPd, static_cast<vtkIdType>(fromId), static_cast<vtkIdType>(toId));
+  }
+
+  /**
+   * This method is only here to handle calls to `CopyData(fromId, 0, toIds)`.
+   * Without this method, `CopyData(fromId, 0, toIds)` produces an ambiguous call.
+   * This method can be disregarded.
+   */
+  template <class T, class EnableT = typename std::enable_if<std::is_scalar<T>::value, T>::type>
+  void CopyData(vtkDataSetAttributes* fromPd, T fromId, vtkIdList* toIds)
+  {
+    this->CopyData(fromPd, static_cast<vtkIdType>(fromId), toIds);
+  }
 
   /**
    * Copy n consecutive attributes starting at srcStart from fromPd to this
