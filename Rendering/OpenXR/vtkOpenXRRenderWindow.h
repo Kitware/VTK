@@ -49,8 +49,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenXRRenderWindow_h
 #define vtkOpenXRRenderWindow_h
 
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenXRModule.h" // For export macro
+#include "vtkVRRenderWindow.h"
 
 #include "vtkEventData.h"
 #include "vtkOpenGLHelper.h"
@@ -63,7 +63,7 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkMatrix4x4;
 class vtkVRModel;
 
-class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkVRRenderWindow
 {
 public:
   enum
@@ -71,7 +71,7 @@ public:
     PhysicalToWorldMatrixModified = vtkCommand::UserEvent + 200
   };
   static vtkOpenXRRenderWindow* New();
-  vtkTypeMacro(vtkOpenXRRenderWindow, vtkOpenGLRenderWindow);
+  vtkTypeMacro(vtkOpenXRRenderWindow, vtkVRRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -151,6 +151,8 @@ public:
    */
   const char* ReportCapabilities() override { return "OpenXR System"; }
 
+  bool GetSizeFromAPI() override;
+
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
@@ -186,6 +188,9 @@ public:
   // Get the state object used to keep track of
   // OpenGL state
   vtkOpenGLState* GetState() override;
+
+  bool GetPoseMatrixWorldFromDevice(
+    vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld) override;
 
   //@{
   /**
@@ -306,7 +311,7 @@ public:
   /*
    * Get the OpenXRModel corresponding to the device index.
    */
-  vtkVRModel* GetTrackedDeviceModel(const int idx);
+  vtkVRModel* GetTrackedDeviceModel(vtkEventDataDevice dev, uint32_t idx) override;
   //@}
 
   //@{
@@ -331,8 +336,7 @@ protected:
   void DestroyWindow() override {}
 
   // Create one framebuffer per view
-  void CreateFramebuffers(uint32_t viewCount);
-
+  bool CreateFramebuffers() override;
   struct FramebufferDesc;
 
   bool BindTextureToFramebuffer(FramebufferDesc& framebufferDesc);

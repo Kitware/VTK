@@ -170,10 +170,39 @@ vtkOpenGLState* vtkOpenXRRenderWindow::GetState()
 }
 
 //------------------------------------------------------------------------------
+bool vtkOpenXRRenderWindow::GetPoseMatrixWorldFromDevice(
+  vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld)
+{
+  vtkOpenXRManager* xrManager = vtkOpenXRManager::GetInstance();
+  // Not sure if LeftEye should be used here. Probably should have some midpoint eye
+  // or something.
+  const XrPosef* viewPose = xrManager->GetViewPose(vtkVRRenderWindow::LeftEye);
+  if (viewPose)
+  {
+    this->ConvertOpenXRPoseToMatrices(*viewPose, poseMatrixWorld);
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkOpenXRRenderWindow::IsCurrent()
 {
   return this->HelperWindow ? this->HelperWindow->IsCurrent() : false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenXRRenderWindow::GetSizeFromAPI()
+{
+  vtkOpenXRManager* xrManager = vtkOpenXRManager::GetInstance();
+  if (!xrManager)
+  {
+    return false;
+  }
+  std::tie(this->Size[0], this->Size[1]) = xrManager->GetRecommandedImageRectSize();
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -381,7 +410,7 @@ void vtkOpenXRRenderWindow::Initialize()
   }
 
   // Create one framebuffer per view
-  this->CreateFramebuffers(xrManager->GetViewCount());
+  this->CreateFramebuffers();
 
   std::tie(this->Size[0], this->Size[1]) = xrManager->GetRecommandedImageRectSize();
 
@@ -518,18 +547,22 @@ void vtkOpenXRRenderWindow::RenderModels()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::CreateFramebuffers(uint32_t viewCount)
+bool vtkOpenXRRenderWindow::CreateFramebuffers()
 {
   // With OpenXR, textures are created by the runtime because the compositor / runtime
   // knows better how to allocate a texture/buffer that will perform well
   // So we call glFrameBufferTexture2D at each frame with the texture provided by
   // the runtime
   // That's why we only generate framebuffers here
+  vtkOpenXRManager* xrManager = vtkOpenXRManager::GetInstance();
+  uint32_t viewCount = xrManager->GetViewCount();
   this->FramebufferDescs.resize(viewCount);
   for (size_t i = 0; i < viewCount; ++i)
   {
     glGenFramebuffers(1, &this->FramebufferDescs[i].ResolveFramebufferId);
   }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -656,7 +689,7 @@ const int vtkOpenXRRenderWindow::GetTrackedDeviceIndexForDevice(vtkEventDataDevi
 }
 
 //------------------------------------------------------------------------------
-vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(const int idx)
+vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(vtkEventDataDevice dev, uint32_t idx)
 {
   if (idx == vtkOpenXRManager::ControllerIndex::Inactive)
   {
@@ -668,7 +701,7 @@ vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(const int idx)
     return nullptr;
   }
 
-  // Now, check if the model is active adn return nullptr if not
+  // Now, check if the model is active and return nullptr if not
   if (!this->ModelsActiveState[idx])
   {
     return nullptr;

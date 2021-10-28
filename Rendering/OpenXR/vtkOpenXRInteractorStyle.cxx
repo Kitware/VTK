@@ -942,7 +942,7 @@ void vtkOpenXRInteractorStyle::ShowRay(vtkEventDataDevice controller)
   }
 
   const int trackedDeviceIndex = renWin->GetTrackedDeviceIndexForDevice(controller);
-  vtkVRModel* model = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
+  vtkVRModel* model = renWin->GetTrackedDeviceModel(controller, trackedDeviceIndex);
 
   if (model)
   {
@@ -963,7 +963,7 @@ void vtkOpenXRInteractorStyle::HideRay(vtkEventDataDevice controller)
   }
 
   const int trackedDeviceIndex = renWin->GetTrackedDeviceIndexForDevice(controller);
-  vtkVRModel* model = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
+  vtkVRModel* model = renWin->GetTrackedDeviceModel(controller, trackedDeviceIndex);
 
   if (model)
   {
@@ -995,7 +995,7 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 
   // Get the index from the controller
   const int trackedDeviceIndex = renWin->GetTrackedDeviceIndexForDevice(controller);
-  vtkVRModel* model = renWin->GetTrackedDeviceModel(trackedDeviceIndex);
+  vtkVRModel* model = renWin->GetTrackedDeviceModel(controller, trackedDeviceIndex);
 
   if (!model)
   {
