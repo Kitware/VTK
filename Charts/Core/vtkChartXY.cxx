@@ -220,6 +220,10 @@ vtkChartXY::vtkChartXY()
   this->ForceAxesToBounds = false;
   this->IgnoreNanInBounds = false;
   this->ZoomWithMouseWheel = true;
+  for (int i = 0; i < 4; ++i)
+  {
+    this->AxisZoom[i] = true;
+  }
   this->AdjustLowerBoundForLogPlot = false;
 
   this->DragPoint = false;
@@ -1642,6 +1646,25 @@ void vtkChartXY::RemovePlotSelections()
 }
 
 //------------------------------------------------------------------------------
+void vtkChartXY::SetAxisZoom(int index, bool v)
+{
+  if ((index >= 0) && (index < 4))
+  {
+    this->AxisZoom[index] = v;
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkChartXY::GetAxisZoom(int index)
+{
+  if ((index >= 0) && (index < 4))
+  {
+    return this->AxisZoom[index];
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 bool vtkChartXY::Hit(const vtkContextMouseEvent& mouse)
 {
   if (!this->Interactive)
@@ -2454,6 +2477,11 @@ bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent&, int delta)
   // Get the bounds of each plot.
   for (int i = 0; i < 4; ++i)
   {
+    if (!this->AxisZoom[i])
+    {
+      continue;
+    }
+
     vtkAxis* axis = this->ChartPrivate->axes[i];
     double min = axis->GetMinimum();
     double max = axis->GetMaximum();
