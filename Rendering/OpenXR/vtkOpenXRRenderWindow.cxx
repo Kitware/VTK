@@ -109,7 +109,7 @@ vtkRenderWindowInteractor* vtkOpenXRRenderWindow::MakeRenderWindowInteractor()
 
 //------------------------------------------------------------------------------
 bool vtkOpenXRRenderWindow::GetPoseMatrixWorldFromDevice(
-  vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld)
+  vtkEventDataDevice vtkNotUsed(device), vtkMatrix4x4* poseMatrixWorld)
 {
   vtkOpenXRManager* xrManager = vtkOpenXRManager::GetInstance();
   // Not sure if LeftEye should be used here. Probably should have some midpoint eye
@@ -451,7 +451,8 @@ const int vtkOpenXRRenderWindow::GetTrackedDeviceIndexForDevice(vtkEventDataDevi
 }
 
 //------------------------------------------------------------------------------
-vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(vtkEventDataDevice dev, uint32_t idx)
+vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(
+  vtkEventDataDevice vtkNotUsed(dev), uint32_t idx)
 {
   if (idx == vtkOpenXRManager::ControllerIndex::Inactive)
   {
