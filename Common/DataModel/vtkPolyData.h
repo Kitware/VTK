@@ -109,6 +109,7 @@ public:
   vtkCell* GetCell(vtkIdType cellId) override;
   void GetCell(vtkIdType cellId, vtkGenericCell* cell) override;
   int GetCellType(vtkIdType cellId) override;
+  vtkIdType GetCellSize(vtkIdType cellId) override;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
   ///@}
@@ -749,6 +750,39 @@ inline int vtkPolyData::GetCellType(vtkIdType cellId)
     this->BuildCells();
   }
   return static_cast<int>(this->Cells->GetTag(cellId).GetCellType());
+}
+
+//------------------------------------------------------------------------------
+inline vtkIdType vtkPolyData::GetCellSize(vtkIdType cellId)
+{
+  if (!this->Cells)
+  {
+    this->BuildCells();
+  }
+  switch (this->GetCellType(cellId))
+  {
+    case VTK_EMPTY_CELL:
+      return 0;
+    case VTK_VERTEX:
+      return 1;
+    case VTK_LINE:
+      return 2;
+    case VTK_TRIANGLE:
+      return 3;
+    case VTK_QUAD:
+      return 4;
+    case VTK_POLY_VERTEX:
+      return this->Verts ? this->Verts->GetCellSize(this->GetCellIdRelativeToCellArray(cellId)) : 0;
+    case VTK_POLY_LINE:
+      return this->Lines ? this->Lines->GetCellSize(this->GetCellIdRelativeToCellArray(cellId)) : 0;
+    case VTK_POLYGON:
+      return this->Polys ? this->Polys->GetCellSize(this->GetCellIdRelativeToCellArray(cellId)) : 0;
+    case VTK_TRIANGLE_STRIP:
+      return this->Strips ? this->Strips->GetCellSize(this->GetCellIdRelativeToCellArray(cellId))
+                          : 0;
+  }
+  vtkWarningMacro(<< "Cell type not supported.");
+  return 0;
 }
 
 //------------------------------------------------------------------------------

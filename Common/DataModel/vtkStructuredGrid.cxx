@@ -148,6 +148,42 @@ int vtkStructuredGrid::GetCellType(vtkIdType cellId)
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkStructuredGrid::GetCellSize(vtkIdType cellId)
+{
+  // see whether the cell is blanked
+  if (!this->IsCellVisible(cellId))
+  {
+    return 0;
+  }
+
+  switch (this->DataDescription)
+  {
+    case VTK_EMPTY:
+      return 0;
+
+    case VTK_SINGLE_POINT:
+      return 1;
+
+    case VTK_X_LINE:
+    case VTK_Y_LINE:
+    case VTK_Z_LINE:
+      return 2;
+
+    case VTK_XY_PLANE:
+    case VTK_YZ_PLANE:
+    case VTK_XZ_PLANE:
+      return 4;
+
+    case VTK_XYZ_GRID:
+      return 8;
+
+    default:
+      vtkErrorMacro(<< "Bad data description!");
+      return 0;
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkCell* vtkStructuredGrid::GetCell(vtkIdType cellId)
 {
   vtkCell* cell = nullptr;

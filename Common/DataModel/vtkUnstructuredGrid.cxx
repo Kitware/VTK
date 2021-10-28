@@ -451,6 +451,12 @@ int vtkUnstructuredGrid::GetCellType(vtkIdType cellId)
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkUnstructuredGrid::GetCellSize(vtkIdType cellId)
+{
+  return this->Connectivity ? this->Connectivity->GetCellSize(cellId) : 0;
+}
+
+//------------------------------------------------------------------------------
 vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
 {
   vtkIdType numPts;

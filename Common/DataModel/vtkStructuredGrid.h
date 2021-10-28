@@ -88,6 +88,7 @@ public:
   void GetCell(vtkIdType cellId, vtkGenericCell* cell) override;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
   int GetCellType(vtkIdType cellId) override;
+  vtkIdType GetCellSize(vtkIdType cellId) override;
   vtkIdType GetNumberOfCells() override;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override
