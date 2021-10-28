@@ -64,7 +64,6 @@ vtkVRRenderWindow::vtkVRRenderWindow()
   this->Size[1] = 720;
   this->Position[0] = 100;
   this->Position[1] = 100;
-  this->HMDTransform = vtkTransform::New();
 
 #ifdef WIN32
   this->HelperWindow = vtkWin32OpenGLRenderWindow::New();
