@@ -450,8 +450,6 @@ void vtkOpenXRRenderWindow::Render()
   if (xrManager->GetShouldRenderCurrentFrame())
   {
     // Start rendering
-    this->MakeCurrent();
-    this->GetState()->ResetGLViewportState();
     this->Superclass::Render();
   }
   else
