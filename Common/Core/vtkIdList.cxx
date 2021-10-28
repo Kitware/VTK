@@ -24,12 +24,16 @@ vtkIdList::vtkIdList()
   this->NumberOfIds = 0;
   this->Size = 0;
   this->Ids = nullptr;
+  this->ManageMemory = true;
 }
 
 //------------------------------------------------------------------------------
 vtkIdList::~vtkIdList()
 {
-  delete[] this->Ids;
+  if (this->ManageMemory)
+  {
+    delete[] this->Ids;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -44,7 +48,11 @@ vtkIdType* vtkIdList::Release()
 //------------------------------------------------------------------------------
 void vtkIdList::Initialize()
 {
-  delete[] this->Ids;
+  if (this->ManageMemory)
+  {
+    delete[] this->Ids;
+  }
+  this->ManageMemory = false;
   this->Ids = nullptr;
   this->NumberOfIds = 0;
   this->Size = 0;
@@ -103,9 +111,13 @@ vtkIdType* vtkIdList::WritePointer(const vtkIdType i, const vtkIdType number)
 }
 
 //------------------------------------------------------------------------------
-void vtkIdList::SetArray(vtkIdType* array, vtkIdType size)
+void vtkIdList::SetArray(vtkIdType* array, vtkIdType size, bool save)
 {
-  delete[] this->Ids;
+  if (this->ManageMemory)
+  {
+    delete[] this->Ids;
+  }
+  this->ManageMemory = save;
   this->Ids = array;
   this->NumberOfIds = size;
   this->Size = size;
@@ -187,7 +199,11 @@ vtkIdType* vtkIdList::Resize(const vtkIdType sz)
   {
     memcpy(newIds, this->Ids,
       static_cast<size_t>(sz < this->Size ? sz : this->Size) * sizeof(vtkIdType));
-    delete[] this->Ids;
+    if (this->ManageMemory)
+    {
+      delete[] this->Ids;
+    }
+    this->ManageMemory = false;
   }
 
   this->Size = newSize;
