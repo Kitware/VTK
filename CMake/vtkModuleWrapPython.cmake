@@ -983,12 +983,6 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
           VTK::WrappingPythonCore
           VTK::Python)
 
-      if (_vtk_python_UTILITY_TARGET)
-        target_link_libraries("${_vtk_python_TARGET_NAME}"
-          PRIVATE
-            "${_vtk_python_UTILITY_TARGET}")
-      endif ()
-
       install(
         TARGETS             "${_vtk_python_static_importer_name}"
         COMPONENT           "${_vtk_python_component}"
