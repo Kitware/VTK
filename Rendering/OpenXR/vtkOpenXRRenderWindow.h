@@ -66,10 +66,6 @@ class vtkVRModel;
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkVRRenderWindow
 {
 public:
-  enum
-  {
-    PhysicalToWorldMatrixModified = vtkCommand::UserEvent + 200
-  };
   static vtkOpenXRRenderWindow* New();
   vtkTypeMacro(vtkOpenXRRenderWindow, vtkVRRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
