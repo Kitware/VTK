@@ -8,6 +8,7 @@ set(classes
   vtkAppendPolyData
   vtkAppendSelection
   vtkArrayCalculator
+  vtkArrayRename
   vtkAssignAttribute
   vtkAttributeDataToFieldDataFilter
   vtkBinCellDataFilter

@@ -7,6 +7,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestAppendPolyData.cxx,NO_VALID
   TestAppendSelection.cxx,NO_VALID
   TestArrayCalculator.cxx,NO_VALID
+  TestArrayRename.cxx,NO_VALID
   TestAssignAttribute.cxx,NO_VALID
   TestBinCellDataFilter.cxx,NO_VALID
   TestCategoricalPointDataToCellData.cxx,NO_VALID
