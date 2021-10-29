@@ -79,9 +79,6 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
     this->DashboardOverlay->Delete();
     this->DashboardOverlay = nullptr;
   }
-
-  this->HMDTransform->Delete();
-  this->HMDTransform = nullptr;
 }
 
 //------------------------------------------------------------------------------
