@@ -198,6 +198,9 @@ def initializeSerializers():
     registerInstanceSerializer("vtkOpenGLActor", genericActorSerializer)
     registerInstanceSerializer("vtkPVLODActor", genericActorSerializer)
 
+    # Volume/viewProps
+    registerInstanceSerializer("vtkVolume", genericVolumeSerializer)
+
     # Mappers
     registerInstanceSerializer("vtkMapper", genericMapperSerializer)
     registerInstanceSerializer("vtkDataSetMapper", genericMapperSerializer)
@@ -210,11 +213,19 @@ def initializeSerializers():
     registerJSClass("vtkOpenGLPolyDataMapper", "vtkMapper")
     registerJSClass("vtkCompositePolyDataMapper2", "vtkMapper")
 
+    registerInstanceSerializer("vtkVolumeMapper", genericVolumeMapperSerializer)
+    registerInstanceSerializer("vtkFixedPointVolumeRayCastMapper", genericVolumeMapperSerializer)
+    registerJSClass("vtkFixedPointVolumeRayCastMapper", "vtkVolumeMapper")
+
     # LookupTables/TransferFunctions
     registerInstanceSerializer("vtkLookupTable", lookupTableSerializer2)
     registerInstanceSerializer(
         "vtkPVDiscretizableColorTransferFunction", colorTransferFunctionSerializer
     )
+    registerInstanceSerializer(
+        "vtkColorTransferFunction", colorTransferFunctionSerializer
+    )
+    registerInstanceSerializer("vtkPiecewiseFunction", pwfSerializer)
 
     # Textures
     registerInstanceSerializer("vtkTexture", textureSerializer)
@@ -224,11 +235,17 @@ def initializeSerializers():
     registerInstanceSerializer("vtkProperty", propertySerializer)
     registerInstanceSerializer("vtkOpenGLProperty", propertySerializer)
 
+    # VolumeProperty
+    registerInstanceSerializer("vtkVolumeProperty", volumePropertySerializer)
+
     # Datasets
     registerInstanceSerializer("vtkPolyData", polydataSerializer)
     registerInstanceSerializer("vtkImageData", imagedataSerializer)
     registerInstanceSerializer("vtkUnstructuredGrid", mergeToPolydataSerializer)
     registerInstanceSerializer("vtkMultiBlockDataSet", mergeToPolydataSerializer)
+    registerInstanceSerializer("vtkStructuredPoints", imagedataSerializer)
+    registerJSClass("vtkStructuredPoints", "vtkImageData")
+
 
     # RenderWindows
     registerInstanceSerializer("vtkRenderWindow", renderWindowSerializer)
@@ -492,6 +509,73 @@ def genericActorSerializer(parent, actor, actorId, context, depth):
 # -----------------------------------------------------------------------------
 
 
+def genericVolumeSerializer(parent, actor, actorId, context, depth):
+    # This kind of actor has two "children" of interest, a property and a
+    # mapper
+    actorVisibility = actor.GetVisibility()
+    mapperInstance = None
+    propertyInstance = None
+    calls = []
+    dependencies = []
+
+    if actorVisibility:
+        mapper = None
+        if not hasattr(actor, "GetMapper"):
+            if context.debugAll:
+                print("This actor does not have a GetMapper method")
+        else:
+            mapper = actor.GetMapper()
+
+        if mapper:
+            mapperId = getReferenceId(mapper)
+            mapperInstance = serializeInstance(
+                actor, mapper, mapperId, context, depth + 1
+            )
+            if mapperInstance:
+                dependencies.append(mapperInstance)
+                calls.append(["setMapper", [wrapId(mapperId)]])
+
+        prop = None
+        if hasattr(actor, "GetProperty"):
+            prop = actor.GetProperty()
+        else:
+            if context.debugAll:
+                print("This actor does not have a GetProperty method")
+
+        if prop:
+            propId = getReferenceId(prop)
+            propertyInstance = serializeInstance(
+                actor, prop, propId, context, depth + 1
+            )
+            if propertyInstance:
+                dependencies.append(propertyInstance)
+                calls.append(["setProperty", [wrapId(propId)]])
+
+    if actorVisibility == 0 or (mapperInstance and propertyInstance):
+        return {
+            "parent": getReferenceId(parent),
+            "id": actorId,
+            "type": class_name(actor),
+            "properties": {
+                # vtkProp
+                "visibility": actorVisibility,
+                "pickable": actor.GetPickable(),
+                "dragable": actor.GetDragable(),
+                "useBounds": actor.GetUseBounds(),
+                # vtkProp3D
+                "origin": actor.GetOrigin(),
+                "position": actor.GetPosition(),
+                "scale": actor.GetScale(),
+            },
+            "calls": calls,
+            "dependencies": dependencies,
+        }
+
+    return None
+
+# -----------------------------------------------------------------------------
+
+
 def textureSerializer(parent, texture, textureId, context, depth):
     # This kind of mapper requires us to get 2 items: input data and lookup
     # table
@@ -614,6 +698,57 @@ def genericMapperSerializer(parent, mapper, mapperId, context, depth):
 # -----------------------------------------------------------------------------
 
 
+def genericVolumeMapperSerializer(parent, mapper, mapperId, context, depth):
+    # This kind of mapper requires us to get 2 items: input data and lookup
+    # table
+    dataObject = None
+    dataObjectInstance = None
+    lookupTableInstance = None
+    calls = []
+    dependencies = []
+
+    if hasattr(mapper, "GetInputDataObject"):
+        mapper.GetInputAlgorithm().Update()
+        dataObject = mapper.GetInputDataObject(0, 0)
+    else:
+        if context.debugAll:
+            print("This mapper does not have GetInputDataObject method")
+
+    if dataObject:
+        dataObjectId = "%s-dataset" % mapperId
+        dataObjectInstance = serializeInstance(
+            mapper, dataObject, dataObjectId, context, depth + 1
+        )
+
+        if dataObjectInstance:
+            dependencies.append(dataObjectInstance)
+            calls.append(["setInputData", [wrapId(dataObjectId)]])
+
+    if dataObjectInstance:
+        return {
+            "parent": getReferenceId(parent),
+            "id": mapperId,
+            "type": class_name(mapper),
+            "properties": {
+                # VolumeMapper
+                "sampleDistance": mapper.GetSampleDistance(),
+                "imageSampleDistance": mapper.GetImageSampleDistance(),
+                # "maximumSamplesPerRay": mapper.GetMaximumSamplesPerRay(),
+                "autoAdjustSampleDistances": mapper.GetAutoAdjustSampleDistances(),
+                "blendMode": mapper.GetBlendMode(),
+                # "ipScalarRange": mapper.GetIpScalarRange(),
+                # "filterMode": mapper.GetFilterMode(),
+                # "preferSizeOverAccuracy": mapper.Get(),
+            },
+            "calls": calls,
+            "dependencies": dependencies,
+        }
+
+    return None
+
+# -----------------------------------------------------------------------------
+
+
 def lookupTableSerializer(parent, lookupTable, lookupTableId, context, depth):
     # No children in this case, so no additions to bindings and return empty list
     # But we do need to add instance
@@ -725,6 +860,52 @@ def propertySerializer(parent, propObj, propObjId, context, depth):
         },
     }
 
+def volumePropertySerializer(parent, propObj, propObjId, context, depth):
+    calls = []
+    dependencies = []
+
+    # Color handling
+    lut = propObj.GetRGBTransferFunction()
+    if lut:
+        lookupTableId = getReferenceId(lut)
+        lookupTableInstance = serializeInstance(
+            propObj, lut, lookupTableId, context, depth + 1
+        )
+
+        if lookupTableInstance:
+            dependencies.append(lookupTableInstance)
+            calls.append(["setRGBTransferFunction", [0, wrapId(lookupTableId)]])
+
+    # Piecewise handling
+    pwf = propObj.GetScalarOpacity()
+    if pwf:
+        pwfId = getReferenceId(pwf)
+        pwfInstance = serializeInstance(
+            propObj, pwf, pwfId, context, depth + 1
+        )
+
+        if pwfInstance:
+            dependencies.append(pwfInstance)
+            calls.append(["setScalarOpacity", [0, wrapId(pwfId)]])
+
+    return {
+        "parent": getReferenceId(parent),
+        "id": propObjId,
+        "type": class_name(propObj),
+        "properties": {
+            "independentComponents": propObj.GetIndependentComponents(),
+            "interpolationType": propObj.GetInterpolationType(),
+            "shade": propObj.GetShade(),
+            "ambient": propObj.GetAmbient(),
+            "diffuse": propObj.GetDiffuse(),
+            "specular": propObj.GetSpecular(),
+            "specularPower": propObj.GetSpecularPower(),
+            # "useLabelOutline": propObj.GetUseLabelOutline(),
+            # "labelOutlineThickness": propObj.GetLabelOutlineThickness(),
+        },
+        "calls": calls,
+        "dependencies": dependencies,
+    }
 
 # -----------------------------------------------------------------------------
 
@@ -737,7 +918,7 @@ def imagedataSerializer(parent, dataset, datasetId, context, depth, requested_fi
 
     # Extract dataset fields
     fields = []
-    extractRequiredFields(fields, parent, dataset, context, requested_fields)
+    extractRequiredFields(fields, parent, dataset, context, "*")
 
     return {
         "parent": getReferenceId(parent),
@@ -865,6 +1046,28 @@ def colorTransferFunctionSerializer(parent, instance, objId, context, depth):
         },
     }
 
+# -----------------------------------------------------------------------------
+
+def pwfSerializer(parent, instance, objId, context, depth):
+    nodes = []
+
+    for i in range(instance.GetSize()):
+        # x, y, midpoint, sharpness
+        node = [0, 0, 0, 0]
+        instance.GetNodeValue(i, node)
+        nodes.append(node)
+
+    return {
+        "parent": getReferenceId(parent),
+        "id": objId,
+        "type": class_name(instance),
+        "properties": {
+            "range": list(instance.GetRange()),
+            "clamping": instance.GetClamping(),
+            "allowDuplicateScalars": instance.GetAllowDuplicateScalars(),
+            "nodes": nodes,
+        },
+    }
 
 # -----------------------------------------------------------------------------
 
