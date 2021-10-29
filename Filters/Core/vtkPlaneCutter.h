@@ -62,10 +62,10 @@
 #ifndef vtkPlaneCutter_h
 #define vtkPlaneCutter_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"      // For SmartPointer
-#include <vector>                 // For vector
+#include <map>                    // For std::map
 
 class vtkCellArray;
 class vtkCellData;
@@ -78,7 +78,7 @@ class vtkSphereTree;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 
-class VTKFILTERSCORE_EXPORT vtkPlaneCutter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkPlaneCutter : public vtkDataObjectAlgorithm
 {
 public:
   ///@{
@@ -86,7 +86,7 @@ public:
    * Standard construction and print methods.
    */
   static vtkPlaneCutter* New();
-  vtkTypeMacro(vtkPlaneCutter, vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkPlaneCutter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
@@ -163,12 +163,6 @@ public:
   vtkBooleanMacro(BuildHierarchy, bool);
   ///@}
 
-  /**
-   * See vtkAlgorithm for details.
-   */
-  vtkTypeBool ProcessRequest(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
 protected:
   vtkPlaneCutter();
   ~vtkPlaneCutter() override;
@@ -181,7 +175,8 @@ protected:
   bool BuildHierarchy;
 
   // Helpers
-  std::vector<vtkSmartPointer<vtkSphereTree>> SphereTrees;
+  vtkSphereTree* GetSphereTree(vtkDataSet*);
+  std::map<vtkDataSet*, vtkSmartPointer<vtkSphereTree>> SphereTrees;
 
   // Pipeline-related methods
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
