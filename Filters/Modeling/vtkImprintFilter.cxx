@@ -169,8 +169,8 @@ enum PointClassification
 };
 
 // EdgeTuple is defined in vtkStaticEdgeLocatorTemplate. It represented an
-// edge (V0,V1) with parametric coordinate T along the edge. Note that
-// V0 < V1.
+// edge (V0,V1) with parametric coordinate T (i.e., Data) along the
+// edge. Note that V0 < V1.
 using vtkCellEdgeType = EdgeTuple<vtkIdType, double>;
 
 // The following struct represents information relative points that are
@@ -1053,7 +1053,8 @@ struct vtkTargetPointClassifier
     double x[3], closest[3], dist2;
     int subId, inside;
 
-    // Loop over cells, and just classify points if necessary.
+    // Loop over cells, and just classify points with an expensive geometric
+    // query if necessary.
     for (; cellId < endCellId; cellId++)
     {
       targetIter->GetCellAtId(cellId, npts, pts);
@@ -1328,6 +1329,10 @@ struct ProjPoints
               pt.Classification = PointClassification::OnEdge;
               pt.TargetEdge.Define(v0, v1); // this method implicitly reorders pt ids
               pt.TargetEdge.Data = (v0 < v1 ? t : (1.0 - t)); // t's origin is from smaller pt id
+              // Due to potential edge interpolation, an imprint edge needs to be defined as well.
+              // Use a hack to do so: edge(v,v) with t arbitrary.
+              pt.ImprintEdge.V0 = pt.ImprintEdge.V1 = ptId;
+              pt.ImprintEdge.Data = 0.0;
               pt.X[0] = closest[0];
               pt.X[1] = closest[1];
               pt.X[2] = closest[2];
@@ -1429,7 +1434,7 @@ struct ProduceProjectedPoints
       }
       else if (pt.Classification == PointClassification::OnVertex)
       {
-        // The point is already created with a given PtId.
+        // The point is already created with a given VTKPtId.
         // Cell vertices will be treated later during triangulation since
         // the cell vertices are added to the triangulation process.
         continue;
@@ -1495,12 +1500,15 @@ struct ProduceIntersectionPoints
   double ProjTol2;
   double MergeTol;
   double MergeTol2;
+  vtkTargetPointClassifier* PtClassifier;
+
   // Keep track of output points and cells
   vtkSMPThreadLocal<vtkLocalIntData> LocalIntData;
 
   ProduceIntersectionPoints(bool bedgeInsert, vtkPoints* outPts, vtkPolyData* imprint,
     vtkPointList* pList, vtkPolyData* candidateOutput, vtkStaticCellLocator* loc,
-    vtkCandidateList* candidateList, vtkIdType offset, double projTol, double mergeTol)
+    vtkCandidateList* candidateList, vtkIdType offset, double projTol, double mergeTol,
+    vtkTargetPointClassifier* tpc)
     : BoundaryEdgeInsertion(bedgeInsert)
     , OutPts(outPts)
     , Imprint(imprint)
@@ -1511,6 +1519,7 @@ struct ProduceIntersectionPoints
     , TargetOffset(offset)
     , ProjTol(projTol)
     , MergeTol(mergeTol)
+    , PtClassifier(tpc)
   {
     this->ImprintCells = this->Imprint->GetPolys();
     this->TargetCells = this->CandidateOutput->GetPolys();
@@ -1644,7 +1653,7 @@ struct ProduceIntersectionPoints
     // If coincident to an imprint edge end point, depending on tolerances
     // and local topological reasons, it may or may not be necessary to add
     // the intersection point. This is because the imprint end point may
-    // have already been added during point projection., and the intersection
+    // have already been added during point projection, and the intersection
     // point (within tolerance) is the same as the end point.
     if (vtkMath::Distance2BetweenPoints(xInt, x0) <= this->ProjTol2 ||
       vtkMath::Distance2BetweenPoints(xInt, x1) <= this->ProjTol2)
@@ -1660,7 +1669,8 @@ struct ProduceIntersectionPoints
     // If the intersection is coincident to a target edge end point, create
     // a new point labeled OnVertex. It's quite likely that a second,
     // coincident intersection point will occur as well - these duplicate
-    // points along the edge are "cleaned up" and merged later (see CleanDuplicates).
+    // points along the edge are "cleaned up" and merged later (see
+    // CleanDuplicatePoints).
     if (vtkMath::Distance2BetweenPoints(xInt, y0) <= this->MergeTol2 ||
       vtkMath::Distance2BetweenPoints(xInt, y1) <= this->MergeTol2)
     {
@@ -1671,6 +1681,7 @@ struct ProduceIntersectionPoints
       newPts.emplace_back(vtkPointInfo());
       vtkPointInfo& pt = newPts.back();
       pt.Classification = PointClassification::OnVertex;
+      this->PtClassifier->SetClassification(vtkPtId, PointClassification::OnVertex);
       pt.VTKPtId = vtkPtId; // The target point which the imprint edge intersects
       target->GetPoint(vtkPtId, pt.X);
       eIntList.emplace_back(vtkEdgeIntersection(u, newPts.size() - 1, &newPts));
@@ -2739,8 +2750,9 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData* target = vtkPolyData::SafeDownCast(targetInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData* imprint = vtkPolyData::SafeDownCast(imprintInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* targetIn = vtkPolyData::SafeDownCast(targetInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* imprintIn =
+    vtkPolyData::SafeDownCast(imprintInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // get the optional second output for debugging. Make sure it's empty initially.
@@ -2750,6 +2762,22 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Initialize and check data
   vtkDebugMacro(<< "Imprinting...");
 
+  // Make sure that the target and imprint inputs consists only of polygons.
+  // Unfortunately some filters (like vtkCleanPolyData etc.) will output an
+  // unexpected mix on occasion.
+  vtkNew<vtkPolyData> target;
+  target->ShallowCopy(targetIn);
+  vtkNew<vtkPolyData> imprint;
+  imprint->ShallowCopy(imprintIn);
+  vtkNew<vtkCellArray> emptyCellArray;
+  target->SetVerts(emptyCellArray);
+  target->SetLines(emptyCellArray);
+  target->SetStrips(emptyCellArray);
+  imprint->SetVerts(emptyCellArray);
+  imprint->SetLines(emptyCellArray);
+  imprint->SetStrips(emptyCellArray);
+
+  // Check the data
   vtkIdType numTargetPts = target->GetNumberOfPoints();
   vtkIdType numTargetCells = target->GetPolys()->GetNumberOfCells();
   if (numTargetPts < 1 || numTargetCells < 1)
@@ -2911,7 +2939,8 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Now produce edge intersection points and edge fragments. This an
   // intersection of the imprint edges against the target edges.
   ProduceIntersectionPoints pip(this->BoundaryEdgeInsertion, outPts, imprint, &pList,
-    candidateOutput, candidateCellLocator, &candidateList, numTargetPts, this->Tolerance, mergeTol);
+    candidateOutput, candidateCellLocator, &candidateList, numTargetPts, this->Tolerance, mergeTol,
+    &tpc);
   vtkSMPTools::For(0, numImprintCells, pip);
 
   if (this->OutputType == IMPRINTED_CELLS)
