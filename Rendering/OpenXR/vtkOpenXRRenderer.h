@@ -22,7 +22,6 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenXRRenderer_h
 #define vtkOpenXRRenderer_h
 
-#include "vtkNew.h"                   // To init FloorActor in header
 #include "vtkRenderingOpenXRModule.h" // For export macro
 #include "vtkVRRenderer.h"
 
