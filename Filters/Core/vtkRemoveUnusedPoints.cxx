@@ -25,7 +25,6 @@
 #include "vtkSMPTools.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
@@ -35,24 +34,53 @@
 
 namespace
 {
-struct RemapPointIds
+template <typename ArrayT>
+class RemapPointIdsFunctor
 {
-  vtkDataArray* Output;
+private:
+  ArrayT* Input;
+  ArrayT* Output;
   const std::vector<vtkIdType>& PointMap;
-  template <typename ArrayT>
-  void operator()(const ArrayT* input)
+
+  using ValueType = typename ArrayT::ValueType;
+  vtkSMPThreadLocal<std::vector<ValueType>> Tuple;
+
+public:
+  RemapPointIdsFunctor(ArrayT* input, vtkDataArray* output, const std::vector<vtkIdType>& pointMap)
+    : Input(input)
+    , Output(vtkArrayDownCast<ArrayT>(output))
+    , PointMap(pointMap)
   {
-    using ValueType = typename ArrayT::ValueType;
-    auto output = vtkArrayDownCast<ArrayT>(this->Output);
-    const int numComps = input->GetNumberOfComponents();
-    std::unique_ptr<ValueType[]> tuple{ new ValueType[numComps] };
-    for (vtkIdType cc = 0, max = input->GetNumberOfTuples(); cc < max; ++cc)
+  }
+
+  void Initialize()
+  {
+    auto& tuple = this->Tuple.Local();
+    tuple.resize(this->Input->GetNumberOfComponents());
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    auto& tuple = this->Tuple.Local();
+    for (vtkIdType cc = begin; cc < end; ++cc)
     {
-      input->GetTypedTuple(cc, tuple.get());
-      vtkSMPTools::Transform(tuple.get(), tuple.get() + numComps, tuple.get(),
+      this->Input->GetTypedTuple(cc, tuple.data());
+      std::transform(tuple.begin(), tuple.end(), tuple.begin(),
         [this](vtkIdType id) { return this->PointMap[id]; });
-      output->SetTypedTuple(cc, tuple.get());
+      this->Output->SetTypedTuple(cc, tuple.data());
     }
+  }
+
+  void Reduce() {}
+};
+
+struct RemapPointIdsWorker
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* input, vtkDataArray* output, const std::vector<vtkIdType>& pointMap)
+  {
+    RemapPointIdsFunctor<ArrayT> functor(input, output, pointMap);
+    vtkSMPTools::For(0, input->GetNumberOfTuples(), functor);
   }
 };
 
@@ -72,10 +100,10 @@ bool CopyConnectivity(
   outConnectivity->SetNumberOfComponents(inConnectivity->GetNumberOfComponents());
   outConnectivity->SetNumberOfTuples(inConnectivity->GetNumberOfTuples());
 
-  RemapPointIds worker{ outConnectivity, pointMap };
+  RemapPointIdsWorker worker;
   using SupportedArrays = vtkCellArray::StorageArrayList;
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
-  if (!Dispatch::Execute(inConnectivity, worker))
+  if (!Dispatch::Execute(inConnectivity, worker, outConnectivity, pointMap))
   {
     return false;
   }
@@ -87,9 +115,8 @@ bool CopyConnectivity(
     outFaces.TakeReference(vtkIdTypeArray::New());
     outFaces->SetNumberOfComponents(inFaces->GetNumberOfComponents());
     outFaces->SetNumberOfTuples(inFaces->GetNumberOfTuples());
-    worker.Output = outFaces;
     using DispatchFaces = vtkArrayDispatch::DispatchByArray<SupportedFacesArrays>;
-    if (!DispatchFaces::Execute(inFaces, worker))
+    if (!DispatchFaces::Execute(inFaces, worker, outFaces, pointMap))
     {
       return false;
     }
