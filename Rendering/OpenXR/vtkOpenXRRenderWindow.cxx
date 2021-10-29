@@ -50,11 +50,6 @@ vtkStandardNewMacro(vtkOpenXRRenderWindow);
 //------------------------------------------------------------------------------
 vtkOpenXRRenderWindow::vtkOpenXRRenderWindow()
 {
-  this->SetPhysicalViewDirection(0.0, 0.0, -1.0);
-  this->SetPhysicalViewUp(0.0, 1.0, 0.0);
-  this->SetPhysicalTranslation(0.0, 0.0, 0.0);
-  this->PhysicalScale = 1.0;
-
   this->StereoCapableWindow = 1;
   this->StereoRender = 1;
   this->UseOffScreenBuffers = 1;
@@ -62,13 +57,6 @@ vtkOpenXRRenderWindow::vtkOpenXRRenderWindow()
   this->Size[1] = 720;
   this->Position[0] = 100;
   this->Position[1] = 100;
-
-  this->HelperWindow = vtkOpenGLRenderWindow::SafeDownCast(vtkRenderWindow::New());
-
-  if (this->HelperWindow == nullptr)
-  {
-    vtkErrorMacro(<< "Failed to create render window");
-  }
 
   // Initialize the models
   // For instance models are only a ray
@@ -91,19 +79,12 @@ vtkOpenXRRenderWindow::~vtkOpenXRRenderWindow()
   {
     ren->SetRenderWindow(nullptr);
   }
-
-  if (this->HelperWindow)
-  {
-    this->HelperWindow->Delete();
-  }
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenXRRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "Initialized: " << this->Initialized << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -118,30 +99,6 @@ void vtkOpenXRRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::SetHelperWindow(vtkOpenGLRenderWindow* win)
-{
-  if (this->HelperWindow == win)
-  {
-    return;
-  }
-
-  if (this->HelperWindow)
-  {
-    this->ReleaseGraphicsResources(this);
-    this->HelperWindow->Delete();
-    this->HelperWindow = nullptr;
-  }
-
-  this->HelperWindow = win;
-  if (win)
-  {
-    win->Register(this);
-  }
-
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
 // Create an interactor that will work with this renderer.
 vtkRenderWindowInteractor* vtkOpenXRRenderWindow::MakeRenderWindowInteractor()
 {
@@ -151,29 +108,32 @@ vtkRenderWindowInteractor* vtkOpenXRRenderWindow::MakeRenderWindowInteractor()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::MakeCurrent()
+bool vtkOpenXRRenderWindow::GetPoseMatrixWorldFromDevice(
+  vtkEventDataDevice vtkNotUsed(device), vtkMatrix4x4* poseMatrixWorld)
 {
-  if (this->HelperWindow)
+  vtkOpenXRManager* xrManager = vtkOpenXRManager::GetInstance();
+  // Not sure if LeftEye should be used here. Probably should have some midpoint eye
+  // or something.
+  const XrPosef* viewPose = xrManager->GetViewPose(vtkVRRenderWindow::LeftEye);
+  if (viewPose)
   {
-    this->HelperWindow->MakeCurrent();
+    this->ConvertOpenXRPoseToMatrices(*viewPose, poseMatrixWorld);
+    return true;
   }
+  return false;
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLState* vtkOpenXRRenderWindow::GetState()
+bool vtkOpenXRRenderWindow::GetSizeFromAPI()
 {
-  if (this->HelperWindow)
+  vtkOpenXRManager* xrManager = vtkOpenXRManager::GetInstance();
+  if (!xrManager)
   {
-    return this->HelperWindow->GetState();
+    return false;
   }
-  return this->Superclass::GetState();
-}
+  std::tie(this->Size[0], this->Size[1]) = xrManager->GetRecommandedImageRectSize();
 
-//------------------------------------------------------------------------------
-// Tells if this window is the current OpenGL context for the calling thread.
-bool vtkOpenXRRenderWindow::IsCurrent()
-{
-  return this->HelperWindow ? this->HelperWindow->IsCurrent() : false;
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -187,173 +147,6 @@ void vtkOpenXRRenderWindow::AddRenderer(vtkRenderer* ren)
     return;
   }
   this->Superclass::AddRenderer(ren);
-}
-
-//------------------------------------------------------------------------------
-// Begin the rendering process.
-void vtkOpenXRRenderWindow::Start()
-{
-  // if the renderer has not been initialized, do so now
-  if (this->HelperWindow && !this->Initialized)
-  {
-    this->Initialize();
-  }
-
-  if (!this->Initialized)
-  {
-    vtkErrorMacro(<< "Failed to Initialize vtkOpenXRRenderWindow");
-    return;
-  }
-
-  this->Superclass::Start();
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::SetPhysicalViewDirection(double x, double y, double z)
-{
-  if (this->PhysicalViewDirection[0] != x || this->PhysicalViewDirection[1] != y ||
-    this->PhysicalViewDirection[2] != z)
-  {
-    this->PhysicalViewDirection[0] = x;
-    this->PhysicalViewDirection[1] = y;
-    this->PhysicalViewDirection[2] = z;
-    this->InvokeEvent(vtkOpenXRRenderWindow::PhysicalToWorldMatrixModified);
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::SetPhysicalViewDirection(double dir[3])
-{
-  this->SetPhysicalViewDirection(dir[0], dir[1], dir[2]);
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::SetPhysicalViewUp(double x, double y, double z)
-{
-  if (this->PhysicalViewUp[0] != x || this->PhysicalViewUp[1] != y || this->PhysicalViewUp[2] != z)
-  {
-    this->PhysicalViewUp[0] = x;
-    this->PhysicalViewUp[1] = y;
-    this->PhysicalViewUp[2] = z;
-    this->InvokeEvent(vtkOpenXRRenderWindow::PhysicalToWorldMatrixModified);
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::SetPhysicalViewUp(double dir[3])
-{
-  this->SetPhysicalViewUp(dir[0], dir[1], dir[2]);
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::SetPhysicalTranslation(double x, double y, double z)
-{
-  if (this->PhysicalTranslation[0] != x || this->PhysicalTranslation[1] != y ||
-    this->PhysicalTranslation[2] != z)
-  {
-    this->PhysicalTranslation[0] = x;
-    this->PhysicalTranslation[1] = y;
-    this->PhysicalTranslation[2] = z;
-    this->InvokeEvent(vtkOpenXRRenderWindow::PhysicalToWorldMatrixModified);
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::SetPhysicalTranslation(double trans[3])
-{
-  this->SetPhysicalTranslation(trans[0], trans[1], trans[2]);
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::SetPhysicalScale(double scale)
-{
-  if (this->PhysicalScale != scale)
-  {
-    this->PhysicalScale = scale;
-    this->InvokeEvent(vtkOpenXRRenderWindow::PhysicalToWorldMatrixModified);
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
-{
-  if (!matrix)
-  {
-    return;
-  }
-  vtkNew<vtkMatrix4x4> currentPhysicalToWorldMatrix;
-  this->GetPhysicalToWorldMatrix(currentPhysicalToWorldMatrix);
-  bool matrixDifferent = false;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      if (fabs(matrix->GetElement(i, j) - currentPhysicalToWorldMatrix->GetElement(i, j)) >= 1e-3)
-      {
-        matrixDifferent = true;
-        break;
-      }
-    }
-  }
-  if (!matrixDifferent)
-  {
-    return;
-  }
-
-  vtkNew<vtkTransform> hmdToWorldTransform;
-  hmdToWorldTransform->SetMatrix(matrix);
-
-  double translation[3] = { 0.0 };
-  hmdToWorldTransform->GetPosition(translation);
-  this->PhysicalTranslation[0] = (-1.0) * translation[0];
-  this->PhysicalTranslation[1] = (-1.0) * translation[1];
-  this->PhysicalTranslation[2] = (-1.0) * translation[2];
-
-  double scale[3] = { 0.0 };
-  hmdToWorldTransform->GetScale(scale);
-  this->PhysicalScale = scale[0];
-
-  this->PhysicalViewUp[0] = matrix->GetElement(0, 1);
-  this->PhysicalViewUp[1] = matrix->GetElement(1, 1);
-  this->PhysicalViewUp[2] = matrix->GetElement(2, 1);
-  vtkMath::Normalize(this->PhysicalViewUp);
-  this->PhysicalViewDirection[0] = (-1.0) * matrix->GetElement(0, 2);
-  this->PhysicalViewDirection[1] = (-1.0) * matrix->GetElement(1, 2);
-  this->PhysicalViewDirection[2] = (-1.0) * matrix->GetElement(2, 2);
-  vtkMath::Normalize(this->PhysicalViewDirection);
-
-  this->InvokeEvent(vtkOpenXRRenderWindow::PhysicalToWorldMatrixModified);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* physicalToWorldMatrix)
-{
-  if (!physicalToWorldMatrix)
-  {
-    return;
-  }
-
-  physicalToWorldMatrix->Identity();
-
-  // construct physical to non-scaled world axes (scaling is applied later)
-  double physicalZ_NonscaledWorld[3] = { -this->PhysicalViewDirection[0],
-    -this->PhysicalViewDirection[1], -this->PhysicalViewDirection[2] };
-  double* physicalY_NonscaledWorld = this->PhysicalViewUp;
-  double physicalX_NonscaledWorld[3] = { 0.0 };
-  vtkMath::Cross(physicalY_NonscaledWorld, physicalZ_NonscaledWorld, physicalX_NonscaledWorld);
-
-  for (int row = 0; row < 3; ++row)
-  {
-    physicalToWorldMatrix->SetElement(row, 0, physicalX_NonscaledWorld[row] * this->PhysicalScale);
-    physicalToWorldMatrix->SetElement(row, 1, physicalY_NonscaledWorld[row] * this->PhysicalScale);
-    physicalToWorldMatrix->SetElement(row, 2, physicalZ_NonscaledWorld[row] * this->PhysicalScale);
-    physicalToWorldMatrix->SetElement(row, 3, -this->PhysicalTranslation[row]);
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -381,7 +174,7 @@ void vtkOpenXRRenderWindow::Initialize()
   }
 
   // Create one framebuffer per view
-  this->CreateFramebuffers(xrManager->GetViewCount());
+  this->CreateFramebuffers();
 
   std::tie(this->Size[0], this->Size[1]) = xrManager->GetRecommandedImageRectSize();
 
@@ -421,8 +214,6 @@ void vtkOpenXRRenderWindow::Render()
   if (xrManager->GetShouldRenderCurrentFrame())
   {
     // Start rendering
-    this->MakeCurrent();
-    this->GetState()->ResetGLViewportState();
     this->Superclass::Render();
   }
   else
@@ -518,18 +309,22 @@ void vtkOpenXRRenderWindow::RenderModels()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::CreateFramebuffers(uint32_t viewCount)
+bool vtkOpenXRRenderWindow::CreateFramebuffers()
 {
   // With OpenXR, textures are created by the runtime because the compositor / runtime
   // knows better how to allocate a texture/buffer that will perform well
   // So we call glFrameBufferTexture2D at each frame with the texture provided by
   // the runtime
   // That's why we only generate framebuffers here
+  vtkOpenXRManager* xrManager = vtkOpenXRManager::GetInstance();
+  uint32_t viewCount = xrManager->GetViewCount();
   this->FramebufferDescs.resize(viewCount);
   for (size_t i = 0; i < viewCount; ++i)
   {
     glGenFramebuffers(1, &this->FramebufferDescs[i].ResolveFramebufferId);
   }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -656,7 +451,8 @@ const int vtkOpenXRRenderWindow::GetTrackedDeviceIndexForDevice(vtkEventDataDevi
 }
 
 //------------------------------------------------------------------------------
-vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(const int idx)
+vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(
+  vtkEventDataDevice vtkNotUsed(dev), uint32_t idx)
 {
   if (idx == vtkOpenXRManager::ControllerIndex::Inactive)
   {
@@ -668,7 +464,7 @@ vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(const int idx)
     return nullptr;
   }
 
-  // Now, check if the model is active adn return nullptr if not
+  // Now, check if the model is active and return nullptr if not
   if (!this->ModelsActiveState[idx])
   {
     return nullptr;

@@ -49,8 +49,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenXRRenderWindow_h
 #define vtkOpenXRRenderWindow_h
 
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenXRModule.h" // For export macro
+#include "vtkVRRenderWindow.h"
 
 #include "vtkEventData.h"
 #include "vtkOpenGLHelper.h"
@@ -63,15 +63,11 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkMatrix4x4;
 class vtkVRModel;
 
-class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkVRRenderWindow
 {
 public:
-  enum
-  {
-    PhysicalToWorldMatrixModified = vtkCommand::UserEvent + 200
-  };
   static vtkOpenXRRenderWindow* New();
-  vtkTypeMacro(vtkOpenXRRenderWindow, vtkOpenGLRenderWindow);
+  vtkTypeMacro(vtkOpenXRRenderWindow, vtkVRRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -83,11 +79,6 @@ public:
    * Add a renderer to the list of renderers.
    */
   void AddRenderer(vtkRenderer*) override;
-
-  /**
-   * Begin the rendering process.
-   */
-  void Start() override;
 
   /**
    * Free up any graphics resources associated with this window
@@ -137,24 +128,14 @@ public:
   void Finalize() override;
 
   /**
-   * Make this windows OpenGL context the current context.
-   */
-  void MakeCurrent() override;
-
-  /**
-   * Tells if this window is the current OpenGL context for the calling thread.
-   */
-  bool IsCurrent() override;
-
-  /**
    * Get report of capabilities for the render window
    */
   const char* ReportCapabilities() override { return "OpenXR System"; }
 
   /**
-   * Is this render window using hardware acceleration? 0-false, 1-true
+   * Get size of render window from OpenXR.
    */
-  vtkTypeBool IsDirect() override { return 1; }
+  bool GetSizeFromAPI() override;
 
   /**
    * Check to see if a mouse button has been pressed or mouse wheel activated.
@@ -163,115 +144,8 @@ public:
    */
   vtkTypeBool GetEventPending() override { return 0; }
 
-  // implement required virtual functions
-  void* GetGenericDisplayId() override { return (void*)this->HelperWindow->GetGenericDisplayId(); }
-  void* GetGenericWindowId() override { return (void*)this->HelperWindow->GetGenericWindowId(); }
-  void* GetGenericParentId() override { return (void*)nullptr; }
-  void* GetGenericContext() override { return (void*)this->HelperWindow->GetGenericContext(); }
-  void* GetGenericDrawable() override { return (void*)this->HelperWindow->GetGenericDrawable(); }
-
-  /**
-   * Does this render window support OpenGL? 0-false, 1-true
-   */
-  int SupportsOpenGL() override { return 1; }
-
-  //@{
-  /**
-   * Set/Get the helper render window to use for the openGL context
-   */
-  vtkGetObjectMacro(HelperWindow, vtkOpenGLRenderWindow);
-  void SetHelperWindow(vtkOpenGLRenderWindow* val);
-  //@}
-
-  // Get the state object used to keep track of
-  // OpenGL state
-  vtkOpenGLState* GetState() override;
-
-  //@{
-  /**
-   * Get the frame buffers used for rendering
-   */
-  GLuint GetLeftResolveBufferId() { return this->FramebufferDescs[0].ResolveFramebufferId; }
-  GLuint GetRightResolveBufferId() { return this->FramebufferDescs[1].ResolveFramebufferId; }
-  void GetRenderBufferSize(int& width, int& height)
-  {
-    width = this->Size[0];
-    height = this->Size[1];
-  }
-  //@}
-
-  //@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * View direction is the -Z axis of the physical coordinate system
-   * in world coordinate system.
-   * \sa SetPhysicalViewUp, \sa SetPhysicalTranslation,
-   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
-   */
-  virtual void SetPhysicalViewDirection(double, double, double);
-  virtual void SetPhysicalViewDirection(double[3]);
-  vtkGetVector3Macro(PhysicalViewDirection, double);
-  //@}
-
-  //@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * View up is the +Y axis of the physical coordinate system
-   * in world coordinate system.
-   * \sa SetPhysicalViewDirection, \sa SetPhysicalTranslation,
-   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
-   */
-  virtual void SetPhysicalViewUp(double, double, double);
-  virtual void SetPhysicalViewUp(double[3]);
-  vtkGetVector3Macro(PhysicalViewUp, double);
-  //@}
-
-  //@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * Position of the physical coordinate system origin
-   * in world coordinates.
-   * \sa SetPhysicalViewDirection, \sa SetPhysicalViewUp,
-   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
-   */
-  virtual void SetPhysicalTranslation(double, double, double);
-  virtual void SetPhysicalTranslation(double[3]);
-  vtkGetVector3Macro(PhysicalTranslation, double);
-  //@}
-
-  //@{
-  /**
-   * Set/get physical coordinate system in world coordinate system.
-   *
-   * Ratio of distance in world coordinate and physical and system
-   * (PhysicalScale = distance_World / distance_Physical).
-   * Example: if world coordinate system is in mm then
-   * PhysicalScale = 1000.0 makes objects appear in real size.
-   * PhysicalScale = 100.0 makes objects appear 10x larger than real size.
-   */
-  virtual void SetPhysicalScale(double);
-  vtkGetMacro(PhysicalScale, double);
-  //@}
-
-  //@{
-  /**
-   * Set physical to world transform matrix. Members calculated and set from the matrix:
-   * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
-   * The x axis scale is used for \sa PhysicalScale
-   */
-  void SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
-  //@}
-
-  //@{
-  /**
-   * Get physical to world transform matrix. Members used to calculate the matrix:
-   * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
-   */
-  void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
-  //@}
+  bool GetPoseMatrixWorldFromDevice(
+    vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld) override;
 
   //@{
   /*
@@ -306,7 +180,7 @@ public:
   /*
    * Get the OpenXRModel corresponding to the device index.
    */
-  vtkVRModel* GetTrackedDeviceModel(const int idx);
+  vtkVRModel* GetTrackedDeviceModel(vtkEventDataDevice dev, uint32_t idx) override;
   //@}
 
   //@{
@@ -327,13 +201,8 @@ protected:
   vtkOpenXRRenderWindow();
   ~vtkOpenXRRenderWindow() override;
 
-  void CreateAWindow() override {}
-  void DestroyWindow() override {}
-
   // Create one framebuffer per view
-  void CreateFramebuffers(uint32_t viewCount);
-
-  struct FramebufferDesc;
+  bool CreateFramebuffers() override;
 
   bool BindTextureToFramebuffer(FramebufferDesc& framebufferDesc);
   void RenderFramebuffer(FramebufferDesc& framebufferDesc);
@@ -341,31 +210,6 @@ protected:
   void RenderOneEye(const uint32_t eye);
 
   void RenderModels();
-
-  vtkOpenGLRenderWindow* HelperWindow;
-
-  bool Initialized = false;
-
-  struct FramebufferDesc
-  {
-    GLuint ResolveFramebufferId;
-    GLuint ResolveColorTextureId;
-    GLuint ResolveDepthTextureId;
-  };
-
-  // TOBE generic
-  // One per view (typically one per eye)
-  std::vector<FramebufferDesc> FramebufferDescs;
-
-  // TO BE generic
-  /// -Z axis of the Physical to World matrix
-  double PhysicalViewDirection[3];
-  /// Y axis of the Physical to World matrix
-  double PhysicalViewUp[3];
-  /// Inverse of the translation component of the Physical to World matrix, in mm
-  double PhysicalTranslation[3];
-  /// Scale of the Physical to World matrix
-  double PhysicalScale;
 
   // Controller models
   std::array<vtkSmartPointer<vtkVRModel>, 2> Models;

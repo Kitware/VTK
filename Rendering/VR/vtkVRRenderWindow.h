@@ -37,6 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkVRRenderWindow_h
 
 #include "vtkEventData.h"    // for enums
+#include "vtkNew.h"          // for vtkNew
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingVRModule.h" // For export macro
@@ -352,7 +353,7 @@ protected:
   std::vector<vtkVRModel*> TrackedDeviceToRenderModel;
 
   // used in computing the pose
-  vtkTransform* HMDTransform;
+  vtkNew<vtkTransform> HMDTransform;
   /// -Z axis of the Physical to World matrix
   double PhysicalViewDirection[3];
   /// Y axis of the Physical to World matrix

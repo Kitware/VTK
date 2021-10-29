@@ -87,7 +87,7 @@ protected:
   ~vtkVRRenderer() override = default;
 
   vtkNew<vtkActor> FloorActor;
-  bool ShowFloor;
+  bool ShowFloor = false;
 
 private:
   vtkVRRenderer(const vtkVRRenderer&) = delete;
