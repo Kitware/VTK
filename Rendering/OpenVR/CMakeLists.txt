@@ -28,6 +28,7 @@ vtk_module_link(VTK::RenderingOpenVR
 set(openvr_input_files
   vtk_openvr_actions.json
   vtk_openvr_binding_hpmotioncontroller.json
+  vtk_openvr_binding_knuckles.json
   vtk_openvr_binding_oculus_touch.json
   vtk_openvr_binding_vive_controller.json
 )

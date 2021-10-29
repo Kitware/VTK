@@ -35,20 +35,24 @@
   ],
   "default_bindings": [
     {
-      "binding_url": "vtk_openvr_binding_vive_controller.json",
-      "controller_type": "vive_controller"
-    },
-    {
       "binding_url": "vtk_openvr_binding_oculus_touch.json",
       "controller_type": "generic"
+    },
+    {
+      "binding_url": "vtk_openvr_binding_hpmotioncontroller.json",
+      "controller_type": "hpmotioncontroller"
+    },
+    {
+      "binding_url": "vtk_openvr_binding_knuckles.json",
+      "controller_type": "knuckles"
     },
     {
       "binding_url": "vtk_openvr_binding_oculus_touch.json",
       "controller_type": "oculus_touch"
     },
     {
-      "binding_url": "vtk_openvr_binding_hpmotioncontroller.json",
-      "controller_type": "hpmotioncontroller"
+      "binding_url": "vtk_openvr_binding_vive_controller.json",
+      "controller_type": "vive_controller"
     }
   ],
   "localization": [
