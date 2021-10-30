@@ -342,8 +342,6 @@ vtkExprTkFunctionParser::vtkExprTkFunctionParser()
   this->ExprTkTools = new vtkExprTkTools;
   // add vector support
   this->ExprTkTools->SymbolTable.add_package(vectorOperationsPackage);
-  // add basic constants (e, pi, infinity)
-  this->ExprTkTools->SymbolTable.add_constants();
   // add unit vectors
   this->ExprTkTools->SymbolTable.add_vector("iHat", iHat);
   this->ExprTkTools->SymbolTable.add_vector("jHat", jHat);
