@@ -44,6 +44,20 @@ vtkSmartPointer<vtkPartitionedDataSet> CreatePartitionedDataSet(int count)
   return parts;
 }
 
+vtkSmartPointer<vtkMultiPieceDataSet> CreateMultiPieceDataSet(int count)
+{
+  vtkNew<vtkMultiPieceDataSet> parts;
+  parts->SetNumberOfPieces(count);
+  for (int cc = 0; cc < count; ++cc)
+  {
+    vtkNew<vtkSphereSource> sphere;
+    sphere->SetCenter(cc, 0, 0);
+    sphere->Update();
+    parts->SetPiece(cc, sphere->GetOutputDataObject(0));
+  }
+  return parts;
+}
+
 vtkSmartPointer<vtkDataObject> CreateDataSet()
 {
   vtkNew<vtkSphereSource> sphere;
@@ -66,10 +80,7 @@ bool TestPartitionedDataSet()
 
 bool TestMultiPieceDataSet()
 {
-  auto parts = CreatePartitionedDataSet(3);
-  vtkNew<vtkMultiPieceDataSet> mp;
-  mp->ShallowCopy(parts);
-
+  auto mp = CreateMultiPieceDataSet(3);
   vtkNew<vtkDataAssembly> hierarchy;
   if (vtkDataAssemblyUtilities::GenerateHierarchy(mp, hierarchy))
   {
@@ -125,14 +136,21 @@ bool TestPartitionedDataSetCollection()
 }
 
 vtkSmartPointer<vtkMultiBlockDataSet> CreateMultiBlock(
-  const std::map<std::string, std::vector<std::string>>& map)
+  const std::map<std::string, std::vector<std::string>>& map, int numPieces = 0)
 {
   std::function<vtkSmartPointer<vtkDataObject>(const std::string&)> populate;
   populate = [&](const std::string& name) -> vtkSmartPointer<vtkDataObject> {
     auto iter = map.find(name);
     if (iter == map.end())
     {
-      return CreateDataSet();
+      if (numPieces == 0)
+      {
+        return CreateDataSet();
+      }
+      else
+      {
+        return CreateMultiPieceDataSet(numPieces);
+      }
     }
 
     const auto& blockNames = iter->second;
@@ -150,8 +168,10 @@ vtkSmartPointer<vtkMultiBlockDataSet> CreateMultiBlock(
   return vtkMultiBlockDataSet::SafeDownCast(populate("Root"));
 }
 
-bool TestMultiBlockDataSet()
+bool TestMultiBlockDataSet(int numPieces)
 {
+  vtkLogScopeF(INFO, "TestMultiBlockDataSet(%d)", numPieces);
+
   // this intentionally looks like an Exodus II reader output.
   std::map<std::string, std::vector<std::string>> map = {
     { "Root", { "Element Blocks", "Face Blocks", "Side Sets", "Node Sets" } },
@@ -159,7 +179,7 @@ bool TestMultiBlockDataSet()
     { "Side Sets", { "Unnamed set ID: 4" } },
     { "Node Sets", { "Unnamed set ID: 1", "Unnamed set ID: 100" } }
   };
-  auto mb = CreateMultiBlock(map);
+  auto mb = CreateMultiBlock(map, numPieces);
 
   vtkNew<vtkDataAssembly> hierarchy;
   if (!vtkDataAssemblyUtilities::GenerateHierarchy(mb, hierarchy))
@@ -185,20 +205,50 @@ bool TestMultiBlockDataSet()
   vtkLogIfF(ERROR, hierarchy->GetNumberOfChildren(XPath("//*[@label='Node Sets']")) != 2,
     "node sets mismatch");
 
-  vtkLogIfF(ERROR,
-    hierarchy->GetDataSetIndices(7, /*traverse_subtree=*/false) !=
-      std::vector<unsigned int>({ 7u }),
-    "GetDataSetIndices incorrect.");
+  if (numPieces == 0)
+  {
+    vtkLogIfF(ERROR,
+      hierarchy->GetDataSetIndices(7, /*traverse_subtree=*/false) !=
+        std::vector<unsigned int>({ 7u }),
+      "GetDataSetIndices incorrect.");
 
-  vtkLogIfF(ERROR,
-    hierarchy->GetDataSetIndices(7, /*traverse_subtree=*/true) !=
-      std::vector<unsigned int>({ 7u, 8u, 9u }),
-    "GetDataSetIndices incorrect.");
+    vtkLogIfF(ERROR,
+      hierarchy->GetDataSetIndices(7, /*traverse_subtree=*/true) !=
+        std::vector<unsigned int>({ 7u, 8u, 9u }),
+      "GetDataSetIndices incorrect.");
 
-  vtkLogIfF(ERROR,
-    vtkDataAssemblyUtilities::GetSelectedCompositeIds(
-      { "//*[@label='Node Sets']" }, hierarchy, nullptr) != std::vector<unsigned int>{ 7 },
-    "node set cid mismatch");
+    vtkLogIfF(ERROR,
+      vtkDataAssemblyUtilities::GetSelectedCompositeIds(
+        { "//*[@label='Node Sets']" }, hierarchy, nullptr) != std::vector<unsigned int>{ 7 },
+      "node set cid mismatch");
+
+    vtkLogIfF(ERROR,
+      vtkDataAssemblyUtilities::GetSelectorForCompositeId(3, hierarchy) !=
+        "/Root/ElementBlocks/UnnamedblockID2",
+      "GetSelectedCompositeIds mismatch");
+  }
+  else if (numPieces == 2)
+  {
+    vtkLogIfF(ERROR,
+      hierarchy->GetDataSetIndices(7, /*traverse_subtree=*/false) !=
+        std::vector<unsigned int>({ 15u }),
+      "GetDataSetIndices incorrect.");
+
+    vtkLogIfF(ERROR,
+      hierarchy->GetDataSetIndices(7, /*traverse_subtree=*/true) !=
+        std::vector<unsigned int>({ 15u, 16u, 19u }),
+      "GetDataSetIndices incorrect.");
+
+    vtkLogIfF(ERROR,
+      vtkDataAssemblyUtilities::GetSelectedCompositeIds(
+        { "//*[@label='Node Sets']" }, hierarchy, nullptr) != std::vector<unsigned int>{ 15 },
+      "node set cid mismatch");
+
+    vtkLogIfF(ERROR,
+      vtkDataAssemblyUtilities::GetSelectorForCompositeId(3, hierarchy) !=
+        "/Root/ElementBlocks/UnnamedblockID1",
+      "GetSelectedCompositeIds mismatch");
+  }
 
   vtkNew<vtkPartitionedDataSetCollection> xformed;
   if (!vtkDataAssemblyUtilities::GenerateHierarchy(mb, hierarchy, xformed))
@@ -216,7 +266,7 @@ bool TestMultiBlockDataSet()
 int TestDataAssemblyUtilities(int, char*[])
 {
   if (!TestPartitionedDataSet() || !TestMultiPieceDataSet() ||
-    !TestPartitionedDataSetCollection() || !TestMultiBlockDataSet())
+    !TestPartitionedDataSetCollection() || !TestMultiBlockDataSet(0) || !TestMultiBlockDataSet(2))
   {
     return EXIT_FAILURE;
   }
