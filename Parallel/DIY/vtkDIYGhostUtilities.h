@@ -904,6 +904,22 @@ protected:
 private:
   vtkDIYGhostUtilities(const vtkDIYGhostUtilities&) = delete;
   void operator=(const vtkDIYGhostUtilities&) = delete;
+
+  ///@{
+  /**
+   * Internal method that inflates exchanged bounding boxes to better treat floating point precision
+   * for points that are on the boundary of the bounding box.
+   *
+   * @note This method only does something for vtkUnstructuredGrid and vtkPolyData. The vtkDataSet
+   * version is empty;
+   */
+  static void InflateBoundingBoxIfNecessary(vtkDataSet* vtkNotUsed(input),
+    const double* vtkNotUsed(bounds), vtkBoundingBox& vtkNotUsed(bb));
+  static void InflateBoundingBoxIfNecessary(
+    vtkUnstructuredGrid* input, const double* bounds, vtkBoundingBox& bb);
+  static void InflateBoundingBoxIfNecessary(
+    vtkPolyData* input, const double* bounds, vtkBoundingBox& bb);
+  ///@}
 };
 
 #include "vtkDIYGhostUtilities.txx" // for template implementations
