@@ -21,4 +21,7 @@
 /* Whether MTime should use a 64-bit integer type on 32 bit builds.  */
 #cmakedefine VTK_USE_64BIT_TIMESTAMPS
 
+/* Whether VTK_FUTURE_CONST should be defined as const or nothing.  */
+#cmakedefine01 VTK_USE_FUTURE_CONST
+
 #endif

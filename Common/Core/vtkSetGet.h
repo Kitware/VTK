@@ -30,6 +30,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCompiler.h"
 #include "vtkLegacy.h"
+#include "vtkOptions.h"
 #include "vtkSystemIncludes.h"
 #include <type_traits> // for std::underlying type.
 #include <typeinfo>
@@ -43,6 +44,12 @@
 #if !defined(__clang__) && defined(__GNUC__) &&                                                    \
   (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8))
 #error VTK requires GCC 4.8 or newer
+#endif
+
+#if VTK_USE_FUTURE_CONST
+#define VTK_FUTURE_CONST const
+#else
+#define VTK_FUTURE_CONST
 #endif
 
 // Convert a macro representing a value to a string.
