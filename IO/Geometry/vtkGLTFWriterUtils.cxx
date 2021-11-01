@@ -25,6 +25,9 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
+#include <sstream>
+#include <string>
+
 void vtkGLTFWriterUtils::WriteValues(vtkDataArray* ca, ostream& myFile)
 {
   myFile.write(reinterpret_cast<char*>(ca->GetVoidPointer(0)),
