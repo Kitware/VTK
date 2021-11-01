@@ -1752,18 +1752,18 @@ struct ComputePolyDataConnectivitySizeWorker
   using ArrayType32 = vtkCellArray::ArrayType32;
   using ArrayType64 = vtkCellArray::ArrayType64;
 
-    using VertArrayType = typename std::conditional<(MaskT & 1) != 0, ArrayType64, ArrayType32>
-      ::type;
-    using LineArrayType = typename std::conditional<(MaskT & 2) != 0, ArrayType64, ArrayType32>
-      ::type;
-    using PolyArrayType = typename std::conditional<(MaskT & 4) != 0, ArrayType64, ArrayType32>
-      ::type;
-    using StripArrayType = typename std::conditional<(MaskT & 8) != 0, ArrayType64, ArrayType32>
-      ::type;
+  using VertArrayType = typename std::conditional<(MaskT & 1) != 0, ArrayType64, ArrayType32>
+    ::type;
+  using LineArrayType = typename std::conditional<(MaskT & 2) != 0, ArrayType64, ArrayType32>
+    ::type;
+  using PolyArrayType = typename std::conditional<(MaskT & 4) != 0, ArrayType64, ArrayType32>
+    ::type;
+  using StripArrayType = typename std::conditional<(MaskT & 8) != 0, ArrayType64, ArrayType32>
+    ::type;
 
-    ComputePolyDataConnectivitySizeWorker(vtkPolyData* input)
-      : Input(input)
-      , VertOffsets(vtkArrayDownCast<VertArrayType>(input->GetVerts()->GetOffsetsArray()))
+  ComputePolyDataConnectivitySizeWorker(vtkPolyData* input)
+    : Input(input)
+    , VertOffsets(vtkArrayDownCast<VertArrayType>(input->GetVerts()->GetOffsetsArray()))
     , LineOffsets(vtkArrayDownCast<LineArrayType>(input->GetLines()->GetOffsetsArray()))
     , PolyOffsets(vtkArrayDownCast<PolyArrayType>(input->GetPolys()->GetOffsetsArray()))
     , StripOffsets(vtkArrayDownCast<StripArrayType>(input->GetStrips()->GetOffsetsArray()))
