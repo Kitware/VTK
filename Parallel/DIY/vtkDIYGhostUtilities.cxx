@@ -229,6 +229,7 @@ void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
     BlockInformationType& info = block->Information;
     vtkPointSet* interfacePoints = vtkPointSet::SafeDownCast(
         info.InterfaceExtractor->GetOutputDataObject(0));
+    vtkIdTypeArray* interfaceGlobalPointIds = info.InterfaceGlobalPointIds;
 
     for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
     {
@@ -244,14 +245,13 @@ void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
       }
 
       // If we use global ids to match interfacing points, no need to send points
-      if (vtkIdTypeArray* globalIds = vtkArrayDownCast<vtkIdTypeArray>(
-            interfacePoints->GetPointData()->GetGlobalIds()))
+      if (interfaceGlobalPointIds)
       {
         vtkNew<vtkIdTypeArray> gids;
         gids->SetNumberOfValues(ids->GetNumberOfIds());
-        globalIds->GetTuples(ids, gids);
+        interfaceGlobalPointIds->GetTuples(ids, gids);
 
-        cp.enqueue<vtkDataArray*>(blockId, interfacePoints->GetPointData()->GetGlobalIds());
+        cp.enqueue<vtkDataArray*>(blockId, gids);
       }
       else
       {
@@ -1651,12 +1651,22 @@ vtkAlgorithm* InstantiateInterfaceExtractor<vtkUnstructuredGrid>(vtkUnstructured
 {
   vtkDataSetSurfaceFilter* extractor = vtkDataSetSurfaceFilter::New();
 
+  // This part is a hack to keep global point ids on the output of the surface filter.
+  // It would be too messy to change its behavior, so what we do is we untag the global id
+  // array so it gets copied in the output.
+  vtkNew<vtkUnstructuredGrid> untaggedGIDInput;
+  untaggedGIDInput->ShallowCopy(input);
+  auto globalIds = vtkArrayDownCast<vtkIdTypeArray>(input->GetPointData()->GetGlobalIds());
+  vtkPointData* untaggedGIDInputPD = untaggedGIDInput->GetPointData();
+  untaggedGIDInputPD->SetGlobalIds(nullptr);
+  untaggedGIDInputPD->AddArray(globalIds);
+
   if (vtkUnsignedCharArray* inputGhosts = input->GetCellGhostArray())
   {
     // We create a temporary unstructured grid in which we replace the ghost cell array.
     // Every ghost marked as duplicate is replaced by a ghost marked as hidden.
     vtkNew<vtkUnstructuredGrid> tmp;
-    tmp->CopyStructure(input);
+    tmp->CopyStructure(untaggedGIDInput);
 
     vtkIdType numberOfCells = input->GetNumberOfCells();
 
@@ -1664,10 +1674,11 @@ vtkAlgorithm* InstantiateInterfaceExtractor<vtkUnstructuredGrid>(vtkUnstructured
     vtkPointData* pd = tmp->GetPointData();
     vtkFieldData* fd = tmp->GetFieldData();
 
-    vtkCellData* inputCD = input->GetCellData();
+    vtkCellData* inputCD = untaggedGIDInput->GetCellData();
 
-    pd->ShallowCopy(input->GetPointData());
-    fd->ShallowCopy(input->GetFieldData());
+    pd->CopyAllOn();
+    pd->ShallowCopy(untaggedGIDInputPD);
+    fd->ShallowCopy(untaggedGIDInput->GetFieldData());
     cd->CopyStructure(inputCD);
 
     for (int arrayId = 0; arrayId < cd->GetNumberOfArrays(); ++arrayId)
@@ -1692,7 +1703,7 @@ vtkAlgorithm* InstantiateInterfaceExtractor<vtkUnstructuredGrid>(vtkUnstructured
   }
   else
   {
-    extractor->SetInputData(input);
+    extractor->SetInputData(untaggedGIDInput);
   }
 
   return extractor;
@@ -2312,8 +2323,14 @@ void InitializeBlocksForUnstructuredData(diy::Master& master,
       : nullptr;
     information.InterfacePointIds = vtkArrayDownCast<vtkIdTypeArray>(
         surface->GetPointData()->GetAbstractArray(LOCAL_POINT_IDS_ARRAY_NAME));
-    information.InterfaceGlobalPointIds = vtkArrayDownCast<vtkIdTypeArray>(
-        surface->GetPointData()->GetGlobalIds());
+
+    auto inputGlobalPointIds = vtkArrayDownCast<vtkIdTypeArray>(
+        input->GetPointData()->GetGlobalIds());
+
+    information.InterfaceGlobalPointIds = inputGlobalPointIds
+      ? vtkArrayDownCast<vtkIdTypeArray>(
+          surface->GetPointData()->GetAbstractArray(inputGlobalPointIds->GetName()))
+      : nullptr;
 
     InitializeInformationIdsForUnstructuredData(input, information);
   }
