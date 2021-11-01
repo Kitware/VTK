@@ -568,7 +568,6 @@ public:
     }
   }
 
-public:
   std::map<std::string, std::string> StringAttributes;
   std::map<std::string, double> DoubleAttributes;
   vtkNetCDFCFWriter* Obj;
