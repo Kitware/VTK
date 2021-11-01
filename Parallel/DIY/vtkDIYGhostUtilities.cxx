@@ -3513,6 +3513,7 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
 
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* gridCellData = grid->GetCellData();
+  cloneCellData->CopyAllOn();
   cloneCellData->CopyAllocate(gridCellData, clone->GetNumberOfCells());
   cloneCellData->SetNumberOfTuples(clone->GetNumberOfCells());
 
@@ -3544,6 +3545,7 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
 
   vtkPointData* clonePointData = clone->GetPointData();
   vtkPointData* gridPointData = grid->GetPointData();
+  clonePointData->CopyAllOn();
   clonePointData->CopyAllocate(gridPointData, clone->GetNumberOfPoints());
   clonePointData->SetNumberOfTuples(clone->GetNumberOfPoints());
 
@@ -3569,6 +3571,7 @@ void CloneCellData(vtkPointSet* ps, vtkPointSet* clone, UnstructuredDataInformat
 {
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* psCellData = ps->GetCellData();
+  cloneCellData->CopyAllOn();
   cloneCellData->CopyAllocate(psCellData, clone->GetNumberOfCells());
   cloneCellData->SetNumberOfTuples(clone->GetNumberOfCells());
 
@@ -3596,6 +3599,7 @@ void ClonePointData(vtkPointSet* ps, vtkPointSet* clone, UnstructuredDataInforma
 {
   vtkPointData* clonePointData = clone->GetPointData();
   vtkPointData* psPointData = ps->GetPointData();
+  clonePointData->CopyAllOn();
   clonePointData->CopyAllocate(psPointData, clone->GetNumberOfPoints());
   clonePointData->SetNumberOfTuples(clone->GetNumberOfPoints());
 
@@ -3831,6 +3835,7 @@ void ClonePolyData(vtkPolyData* pd, vtkPolyData* clone, PolyDataInformation& inf
   // We cannot use CloneCellData here because the cell data gets all stirred up in a vtkPolyData
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* pdCellData = pd->GetCellData();
+  cloneCellData->CopyAllOn();
   cloneCellData->CopyAllocate(pdCellData, clone->GetNumberOfCells());
   cloneCellData->SetNumberOfTuples(clone->GetNumberOfCells());
 
