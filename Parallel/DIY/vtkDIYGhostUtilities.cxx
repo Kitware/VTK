@@ -71,6 +71,7 @@ using LinkMap = vtkDIYGhostUtilities::LinkMap;
 template<class DataSetT>
 using DataSetTypeToBlockTypeConverter =
     vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<DataSetT>;
+namespace detail = vtkDIYGhostUtilities_detail;
 //@}
 
 //@{
@@ -201,15 +202,15 @@ vtkSmartPointer<vtkIdList> ExtractPointIdsInsideBoundingBox(vtkPoints* inputPoin
     return pointIds;
   }
 
-  auto inputPointsRange = vtk::DataArrayTupleRange<3>(inputPoints->GetData());
-  using ConstPointRef = typename decltype(inputPointsRange)::ConstTupleReferenceType;
-
   pointIds->Allocate(inputPoints->GetNumberOfPoints());
 
-  for (vtkIdType pointId = 0; pointId < inputPointsRange.size(); ++pointId)
+  double p[3];
+
+  for (vtkIdType pointId = 0; pointId < inputPoints->GetNumberOfPoints(); ++pointId)
   {
-    ConstPointRef point = inputPointsRange[pointId];
-    if (bb.ContainsPoint(point))
+    inputPoints->GetPoint(pointId, p);
+
+    if (bb.ContainsPoint(p))
     {
       pointIds->InsertNextId(pointId);
     }
@@ -916,29 +917,9 @@ struct Comparator<false>
   {
     using Scalar = typename ValueToScalar<ValueT1>::Type;
 
-    return std::fabs(val1 - val2) <
-      std::max<Scalar>(std::numeric_limits<Scalar>::epsilon() *
-            std::max(std::fabs(val1), std::fabs(val2)),
-        std::numeric_limits<Scalar>::min());
+    return std::fabs(val1 - val2) < detail::ComputePrecision<Scalar>(
+        std::max(std::fabs(val1), std::fabs(val2)));
   }
-};
-
-//============================================================================
-template<class ValueT, bool IsIntegerT = std::numeric_limits<ValueT>::is_integer>
-struct Epsilon;
-
-//============================================================================
-template<class ValueT>
-struct Epsilon<ValueT, true>
-{
-  static constexpr ValueT Value = 0;
-};
-
-//============================================================================
-template<class ValueT>
-struct Epsilon<ValueT, false>
-{
-  static constexpr ValueT Value = std::numeric_limits<ValueT>::epsilon();
 };
 
 //============================================================================
@@ -1184,7 +1165,6 @@ struct StructuredGridFittingWorker
       ArrayT* points, vtkAbstractPointLocator* locator, const ExtentType& extent, int extentId)
   {
     using ValueType = typename ArrayT::ValueType;
-    constexpr ValueType Eps = Epsilon<ValueType>::Value;
 
     bool retVal = false;
 
@@ -1218,8 +1198,8 @@ struct StructuredGridFittingWorker
           static_cast<double>(queryPoint[2]) };
 
         vtkIdType pointId = locator->FindClosestPointWithinRadius(
-            std::max({ std::fabs(tmp[0]), std::fabs(tmp[1]), std::fabs(tmp[2]) }) * Eps,
-            tmp, dist2);
+            detail::ComputePrecision<ValueType>(
+              std::max({ std::fabs(tmp[0]), std::fabs(tmp[1]), std::fabs(tmp[2]) })), tmp, dist2);
 
         if (pointId == -1)
         {
@@ -2375,6 +2355,8 @@ struct MatchingPointExtractor
   template<class PointArrayT>
   void operator()(PointArrayT* points, vtkIdTypeArray* globalPointIds)
   {
+    using ValueType = typename PointArrayT::ValueType;
+
     if ((globalPointIds == nullptr) != this->SourceGlobalPointIds.empty())
     {
       vtkLog(ERROR, "Inconsistency in the presence of global point ids across partitions. "
@@ -2413,8 +2395,6 @@ struct MatchingPointExtractor
       this->MatchingSourcePointIds->Allocate(pointsRange.size());
 
       using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
-      using ValueType = typename PointArrayT::ValueType;
-      constexpr ValueType Eps = Epsilon<ValueType>::Value;
       double p[3];
       double dist2;
 
@@ -2422,7 +2402,10 @@ struct MatchingPointExtractor
       {
         vtkMath::Assign(point, p);
         vtkIdType closestPointId = this->KdTree->FindClosestPointWithinRadius(
-            std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) }) * Eps, p, dist2);
+            detail::ComputePrecision<ValueType>(
+              std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) })),
+
+            p, dist2);
 
         if (closestPointId == -1)
         {
@@ -4485,11 +4468,10 @@ struct QueryPointWorker
   template<class ArrayT>
   void operator()(ArrayT* vtkNotUsed(array), double p[3])
   {
-    using ValueType = typename ArrayT::ValueType;
-    constexpr ValueType Eps = Epsilon<ValueType>::Value;
-
     this->TargetPointId = this->Locator->FindClosestPointWithinRadius(
-        std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) }) * Eps, p, this->Dist2);
+        detail::ComputePrecision<typename ArrayT::ValueType>(
+          std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) })),
+          p, this->Dist2);
   }
 
   vtkAbstractPointLocator* Locator;
@@ -5403,7 +5385,43 @@ void CopyOuterLayerGridPoints(vtkStructuredGrid* input, vtkSmartPointer<vtkPoint
     }
   }
 }
+
+//----------------------------------------------------------------------------
+void InflateBoundingBoxIfNecessaryImpl(
+  vtkPointSet* input, const double* bounds, vtkBoundingBox& bb)
+{
+  vtkPoints* points = input->GetPoints();
+
+  if (points && points->GetData())
+  {
+    double eps;
+    using Dispatch = vtkArrayDispatch::Dispatch;
+    vtkDIYGhostUtilities_detail::ComputeBoundingBoxPrecisionWorker worker;
+    Dispatch::Execute(points->GetData(), worker, bounds, eps);
+    bb.Inflate(eps);
+  }
+}
 } // anonymous namespace
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
+  vtkDataSet* vtkNotUsed(input), const double* vtkNotUsed(bounds), vtkBoundingBox& vtkNotUsed(bb))
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
+    vtkPolyData* input, const double* bounds, vtkBoundingBox& bb)
+{
+  InflateBoundingBoxIfNecessaryImpl(input, bounds, bb);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
+  vtkUnstructuredGrid* input, const double* bounds, vtkBoundingBox& bb)
+{
+  InflateBoundingBoxIfNecessaryImpl(input, bounds, bb);
+}
 
 //----------------------------------------------------------------------------
 vtkDIYGhostUtilities::GridBlockStructure::GridBlockStructure(const int* extent, int dim)
