@@ -68,7 +68,7 @@ class vtkAMRVelodyneReaderInternal
 public:
   vtkAMRVelodyneReaderInternal();
   ~vtkAMRVelodyneReaderInternal();
-  void SetFileName(VTK_FILEPATH char* fileName);
+  void SetFileName(VTK_FILEPATH VTK_FUTURE_CONST char* fileName);
   void ReadMetaData();
   void GetBlockAttribute(const char* attribute, int blockIdx, vtkUniformGrid* pDataSet);
 
@@ -95,7 +95,7 @@ private:
   herr_t CloseFile(hid_t& fid);
   vtkDataArray* GetTypeAndArray(const int, hid_t&);
 
-  char* FileName;
+  std::string FileName;
   int nLeaves;
   int nFullLeaves;
   int nNodes;

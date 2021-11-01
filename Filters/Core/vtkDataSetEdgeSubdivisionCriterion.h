@@ -148,7 +148,11 @@ public:
    * This is stored as separate state to make subdivisions go faster.
    */
   vtkGetMacro(ActiveFieldCriteria, int);
+
+// With VTK_USE_FUTURE_CONST, vtkGetMacro already makes the member const.
+#if !VTK_USE_FUTURE_CONST
   int GetActiveFieldCriteria() const { return this->ActiveFieldCriteria; }
+#endif
   ///@}
 
 protected:

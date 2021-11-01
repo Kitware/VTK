@@ -94,7 +94,10 @@ public:
   vtkGetMacro(OutputDimension, int);
   ///@}
 
+// With VTK_USE_FUTURE_CONST, vtkGetMacro already makes the member const.
+#if !VTK_USE_FUTURE_CONST
   int GetOutputDimension() const;
+#endif
 
   ///@{
   /**
@@ -191,9 +194,12 @@ private:
   void operator=(const vtkTessellatorFilter&) = delete;
 };
 
+// With VTK_USE_FUTURE_CONST, vtkGetMacro already makes the member const.
+#if !VTK_USE_FUTURE_CONST
 inline int vtkTessellatorFilter::GetOutputDimension() const
 {
   return this->OutputDimension;
 }
+#endif
 
 #endif // vtkTessellatorFilter_h

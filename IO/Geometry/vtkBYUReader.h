@@ -48,7 +48,10 @@ public:
    * Specify name of geometry FileName (alias).
    */
   virtual void SetFileName(VTK_FILEPATH const char* f) { this->SetGeometryFileName(f); }
-  virtual VTK_FILEPATH char* GetFileName() { return this->GetGeometryFileName(); }
+  virtual VTK_FILEPATH VTK_FUTURE_CONST char* GetFileName() VTK_FUTURE_CONST
+  {
+    return this->GetGeometryFileName();
+  }
 
   ///@{
   /**

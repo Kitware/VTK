@@ -308,7 +308,7 @@ public:
       FileName = arg;
     }
   }
-  virtual std::string GetFileName() { return FileName; }
+  virtual std::string GetFileName() VTK_FUTURE_CONST { return FileName; }
 
   ///@{
   /**
@@ -317,7 +317,7 @@ public:
    * TrueType font.
    */
   ///@}
-  virtual void SetFontFileName(VTK_FILEPATH std::string arg)
+  virtual void SetFontFileName(VTK_FILEPATH VTK_FUTURE_CONST std::string arg)
   {
     if (FontFileName != arg)
     {
@@ -325,7 +325,7 @@ public:
       FontFileName = arg;
     }
   }
-  virtual std::string GetFontFileName() { return FontFileName; }
+  virtual std::string GetFontFileName() VTK_FUTURE_CONST { return FontFileName; }
 
   ///@{
   /**
@@ -364,7 +364,7 @@ public:
    * vtkImageAppendComponents.
    */
   ///@}
-  virtual void SetMaskFileName(VTK_FILEPATH std::string arg)
+  virtual void SetMaskFileName(VTK_FILEPATH VTK_FUTURE_CONST std::string arg)
   {
     if (MaskFileName != arg)
     {
@@ -372,7 +372,7 @@ public:
       MaskFileName = arg;
     }
   }
-  virtual std::string GetMaskFileName() { return MaskFileName; }
+  virtual std::string GetMaskFileName() VTK_FUTURE_CONST { return MaskFileName; }
 
   ///@{
   /**
@@ -506,7 +506,7 @@ public:
    * stop words, one per line.
    */
   ///@}
-  virtual void SetStopListFileName(VTK_FILEPATH std::string arg)
+  virtual void SetStopListFileName(VTK_FILEPATH VTK_FUTURE_CONST std::string arg)
   {
     if (StopListFileName != arg)
     {
@@ -514,7 +514,7 @@ public:
       StopListFileName = arg;
     }
   }
-  virtual std::string GetStopListFileName() { return StopListFileName; }
+  virtual std::string GetStopListFileName() VTK_FUTURE_CONST { return StopListFileName; }
 
   ///@{
   /**
