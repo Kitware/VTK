@@ -5,8 +5,8 @@ if (VTK_USE_LARGE_DATA)
     Data/SLAC/ll-9cell-f523/mode0.l0.R2.457036E+09I2.778314E+04.m3
     Data/SLAC/pic-example/,REGEX:.*\.mod
     Data/SLAC/pic-example/,REGEX:.*\.ncdf
-    Data/SLAC/pillbox/,REGEX:.*)
-
+    Data/SLAC/pillbox/,REGEX:.*
+    Data/okanagan.vti)
   add_subdirectory(Cxx)
 endif ()
 

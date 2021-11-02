@@ -10,13 +10,17 @@ GROUPS
 DEPENDS
   VTK::CommonCore
   VTK::CommonExecutionModel
+  VTK::IOCore
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::netcdf
   VTK::vtksys
+  VTK::libproj
 TEST_DEPENDS
   VTK::CommonExecutionModel
   VTK::FiltersGeometry
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
   VTK::TestingRendering
+  VTK::IOXML
+  VTK::netcdf
