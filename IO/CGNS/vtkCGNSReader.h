@@ -17,19 +17,13 @@
 /**
  * @class   vtkCGNSReader
  *
- * vtkCGNSReader creates a multi-block dataset and reads unstructured grids,
+ * vtkCGNSReader creates a multi-block dataset and reads unstructured grids
  * and structured meshes from binary files stored in CGNS file format,
  * with data stored at the nodes, cells or faces.
  *
  * vtkCGNSReader is inspired by the VisIt CGNS reader originally written by
- * B. Whitlock. vtkCGNSReader relies on the low level CGNS API to load DataSet
+ * B. Whitlock. vtkCGNSReader relies on the low level CGNS API to load data sets
  * and reduce memory footprint.
- *
- * @warning
- *   ...
- *
- * @par Thanks:
- * Thanks to .
  */
 
 #ifndef vtkCGNSReader_h
@@ -39,11 +33,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // for vtkNew.
 
-class vtkDataSet;
 class vtkDataArraySelection;
-class vtkCGNSSubsetInclusionLattice;
-class vtkPoints;
-class vtkUnstructuredGrid;
 class vtkInformationStringKey;
 
 namespace CGNSRead
@@ -263,7 +253,7 @@ public:
 
   ///@{
   /**
-   * This reader can cache the meshconnectivities if they are time invariant.
+   * This reader can cache the mesh connectivities if they are time invariant.
    * They will be stored with a unique reference to their /base/zonename
    * and not be read in the file when doing unsteady analysis.
    */
@@ -300,6 +290,16 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  int GetCurvilinearZone(
+    int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
+
+  int GetUnstructuredZone(
+    int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
+
+  vtkMultiProcessController* Controller = nullptr;
+  vtkIdType ProcRank = 0;
+  vtkIdType ProcSize = 1;
+
   vtkNew<vtkDataArraySelection> BaseSelection;
   vtkNew<vtkDataArraySelection> FamilySelection;
 
@@ -307,39 +307,30 @@ protected:
   vtkNew<vtkDataArraySelection> FaceDataArraySelection;
   vtkNew<vtkDataArraySelection> PointDataArraySelection;
 
-  int GetCurvilinearZone(
-    int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
-
-  int GetUnstructuredZone(
-    int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
-  vtkMultiProcessController* Controller;
-  vtkIdType ProcRank;
-  vtkIdType ProcSize;
-
 private:
   vtkCGNSReader(const vtkCGNSReader&) = delete;
   void operator=(const vtkCGNSReader&) = delete;
 
-  char* FileName;
-  int MeshType;
-  bool LoadBndPatch;             // option to set section loading for unstructured grid
-  bool LoadMesh;                 // option to enable/disable mesh loading
-  int DoublePrecisionMesh;       // option to set mesh loading to double precision
-  int CreateEachSolutionAsBlock; // debug option to create
-  bool IgnoreFlowSolutionPointers;
-  bool UseUnsteadyPattern;
-  bool DistributeBlocks;
-  bool CacheMesh;
-  bool CacheConnectivity;
-  bool Use3DVector;
+  char* FileName = nullptr;
+  int MeshType = vtkCGNSReader::CELL_MESH;
+  bool LoadBndPatch = false;         // option to set section loading for unstructured grid
+  bool LoadMesh = true;              // option to enable/disable mesh loading
+  int DoublePrecisionMesh = 1;       // option to set mesh loading to double precision
+  int CreateEachSolutionAsBlock = 0; // debug option to create
+  bool IgnoreFlowSolutionPointers = false;
+  bool UseUnsteadyPattern = false;
+  bool DistributeBlocks = true;
+  bool CacheMesh = false;
+  bool CacheConnectivity = false;
+  bool Use3DVector = true;
 
   // For internal cgio calls (low level IO)
   int cgioNum;      // cgio file reference
   double rootId;    // id of root node
   double currentId; // id of node currently being read (zone)
-  //
-  unsigned int NumberOfBases;
-  int ActualTimeStep;
+
+  unsigned int NumberOfBases = 0;
+  int ActualTimeStep = 0;
 
   class vtkPrivate;
   vtkPrivate* Internals;

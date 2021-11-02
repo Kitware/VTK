@@ -600,27 +600,9 @@ vtkCGNSReader::vtkPrivate::~vtkPrivate()
 vtkCGNSReader::vtkCGNSReader()
   : Internals(new vtkPrivate)
 {
-  this->FileName = nullptr;
-  this->MeshType = vtkCGNSReader::CELL_MESH;
-  this->LoadBndPatch = false;
-  this->LoadMesh = true;
-  this->NumberOfBases = 0;
-  this->ActualTimeStep = 0;
-  this->DoublePrecisionMesh = 1;
-  this->CreateEachSolutionAsBlock = 0;
-  this->IgnoreFlowSolutionPointers = false;
-  this->UseUnsteadyPattern = false;
-  this->DistributeBlocks = true;
-  this->CacheMesh = false;
-  this->CacheConnectivity = false;
-  this->Use3DVector = true;
-
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 
-  this->ProcRank = 0;
-  this->ProcSize = 1;
-  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->PointDataArraySelection->AddObserver(
