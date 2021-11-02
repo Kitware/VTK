@@ -32,6 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 
+#include <cctype>
 #include <float.h>
 #include <fstream>
 #include <iostream>
