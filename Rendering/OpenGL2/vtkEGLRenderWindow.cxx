@@ -394,7 +394,6 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
       return false;
     }
   }
-
 #if !defined(__ANDROID__) && !defined(ANDROID)
   if (major <= 1 && minor < 4)
   {
