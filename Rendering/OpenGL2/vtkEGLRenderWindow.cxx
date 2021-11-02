@@ -41,7 +41,6 @@ typedef void* EGLDeviceEXT;
 typedef EGLBoolean (*EGLQueryDevicesType)(EGLint, EGLDeviceEXT*, EGLint*);
 typedef EGLDisplay (*EGLGetPlatformDisplayType)(EGLenum, void*, const EGLint*);
 const EGLenum EGL_PLATFORM_DEVICE_EXT = 0x313F;
-
 /**
  * EGLDisplay provided by eglGetDisplay() call can be same handle for multiple
  * instances of vtkEGLRenderWindow. In which case, while it's safe to call
@@ -311,6 +310,9 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
 {
   vtkInternals* impl = this->Internals;
   vtkEGLDeviceExtensions* ext = vtkEGLDeviceExtensions::GetInstance();
+  bool foundWorkingDisplay = false;
+  EGLint major = 0, minor = 0;
+
   if (ext->Available())
   {
     EGLint num_devices = 0;
@@ -326,7 +328,6 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
     std::vector<EGLDeviceEXT> devices(num_devices);
     ext->eglQueryDevices(num_devices, devices.data(), &num_devices);
 
-    EGLint major = 0, minor = 0;
     if (deviceIndex >= 0)
     {
       impl->Display =
@@ -338,6 +339,8 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
           "EGL device index: " << deviceIndex << " could not be initialized. Exiting...");
         return false;
       }
+
+      foundWorkingDisplay = true;
     }
     else
     {
@@ -350,7 +353,6 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
         vtkWarningMacro(
           "EGL device index: " << vtkEGLDisplayInitializationHelper::DefaultDeviceIndex
                                << " could not be initialized. Trying other devices...");
-        bool foundWorkingDisplay = false;
 
         for (int i = 0; i < num_devices; i++)
         {
@@ -368,42 +370,44 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
             break;
           }
         }
-
-        if (!foundWorkingDisplay)
-        {
-
-          // eglGetDisplay(EGL_DEFAULT_DISPLAY) does not seem to work
-          // if there are several cards on a system.
-          impl->Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-
-          if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) ==
-            EGL_FALSE)
-          {
-            vtkErrorMacro("Could not initialize a device. Exiting...");
-            return false;
-          }
-        }
+      }
+      else
+      {
+        foundWorkingDisplay = true;
       }
     }
+  }
 
-#if !defined(__ANDROID__) && !defined(ANDROID)
-    if (major <= 1 && minor < 4)
+  if (!foundWorkingDisplay)
+  {
+    // eglGetDisplay(EGL_DEFAULT_DISPLAY) does not seem to work
+    // if there are several cards on a system.
+    vtkWarningMacro("Setting an EGL display to device index: "
+      << deviceIndex
+      << " require "
+         "EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions");
+
+    vtkWarningMacro("Attempting to use EGL_DEFAULT_DISPLAY...");
+    impl->Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+
+    if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) == EGL_FALSE)
     {
-      vtkErrorMacro("Only EGL 1.4 and greater allows OpenGL as client API. "
-                    "See eglBindAPI for more information.");
+      vtkErrorMacro("Could not initialize a device. Exiting...");
       return false;
     }
-    eglBindAPI(EGL_OPENGL_API);
+  }
+
+#if !defined(__ANDROID__) && !defined(ANDROID)
+  if (major <= 1 && minor < 4)
+  {
+    vtkErrorMacro("Only EGL 1.4 and greater allows OpenGL as client API. "
+                  "See eglBindAPI for more information.");
+    return false;
+  }
+  eglBindAPI(EGL_OPENGL_API);
 #endif
 
-    return true;
-  }
-  vtkWarningMacro("Setting an EGL display to device index: "
-    << deviceIndex
-    << " require "
-       "EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions");
-
-  return false;
+  return true;
 }
 
 void vtkEGLRenderWindow::SetShowWindow(bool val)
@@ -458,8 +462,6 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
 
   if (impl->Display == EGL_NO_DISPLAY)
   {
-
-    EGLint major = 0, minor = 0;
 
     if (!this->SetDeviceAsDisplay(this->DeviceIndex))
     {
