@@ -34,5 +34,14 @@ int TestExtractCells(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  vtkNew<vtkUnstructuredGrid> emptyUG;
+  extractor->SetInputDataObject(emptyUG);
+  extractor->Update();
+  if (extractor->GetOutput()->GetNumberOfCells() != 0)
+  {
+    vtkLogF(ERROR, "ERROR: Unexpected output with empty input");
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }
