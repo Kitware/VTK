@@ -410,7 +410,10 @@ public:
 
   vtkIdType Prepare(vtkIdType numInputCells, vtkExtractCells* self)
   {
-    assert(numInputCells > 0);
+    if (numInputCells == 0)
+    {
+      return 0;
+    }
 
     if (self->GetAssumeSortedAndUniqueIds() == false && (self->GetMTime() > this->SortTime))
     {
