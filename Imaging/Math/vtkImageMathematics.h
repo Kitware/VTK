@@ -212,6 +212,41 @@ public:
   virtual void SetInput1Data(vtkDataObject* in) { this->SetInputData(0, in); }
   virtual void SetInput2Data(vtkDataObject* in) { this->SetInputData(1, in); }
 
+  /**
+   * Replace one of the input connections with a new input.  You can
+   * only replace input connections that you previously created with
+   * AddInputConnection() or, in the case of the first input,
+   * with SetInputConnection().
+   */
+  virtual void ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input);
+
+  ///@{
+  /**
+   * Assign a data object as input. Note that this method does not
+   * establish a pipeline connection. Use SetInputConnection() to
+   * setup a pipeline connection.
+   */
+  void SetInputData(int idx, vtkDataObject* input);
+  void SetInputData(vtkDataObject* input) { this->SetInputData(0, input); }
+  ///@}
+
+  ///@{
+  /**
+   * Get one input to this filter. This method is only for support of
+   * old-style pipeline connections.  When writing new code you should
+   * use vtkAlgorithm::GetInputConnection(0, num).
+   */
+  vtkDataObject* GetInput(int idx);
+  vtkDataObject* GetInput() { return this->GetInput(0); }
+  ///@}
+
+  /**
+   * Get the number of inputs to this filter. This method is only for
+   * support of old-style pipeline connections.  When writing new code
+   * you should use vtkAlgorithm::GetNumberOfInputConnections(0).
+   */
+  int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); }
+
 protected:
   vtkImageMathematics();
   ~vtkImageMathematics() override = default;
