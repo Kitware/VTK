@@ -15,10 +15,12 @@
 #include "vtkImageMathematics.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cmath>
@@ -83,8 +85,6 @@ int vtkImageMathematics::RequestInformation(vtkInformation* vtkNotUsed(request),
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  // vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  // vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
   vtkInformation* inInfo;
 
   int c, idx;
@@ -99,12 +99,6 @@ int vtkImageMathematics::RequestInformation(vtkInformation* vtkNotUsed(request),
     this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
     this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2)
   {
-    if (this->GetNumberOfInputConnections(0) < 2)
-    {
-      vtkErrorMacro(<< "Second input must be specified for this operation.");
-      return 1;
-    }
-
     for (c = 0; c < this->GetNumberOfInputConnections(0); ++c)
     {
       inInfo = inputVector[0]->GetInformationObject(c);
@@ -391,6 +385,54 @@ void vtkImageMathematicsExecute2(vtkImageMathematics* self, vtkImageData* inData
 }
 
 //------------------------------------------------------------------------------
+template <class T>
+void vtkImageMathematicsInitOutput(
+  vtkImageData* inData, T* inPtr, vtkImageData* vtkNotUsed(outData), T* outPtr, int ext[6])
+{
+  int idxY, idxZ;
+  int maxY, maxZ;
+  vtkIdType outIncY, outIncZ;
+  int rowLength;
+  int typeSize;
+  T *outPtrZ, *outPtrY;
+  T *inPtrZ, *inPtrY;
+
+  // This method needs to copy scalars from input to output for the update-extent.
+  vtkDataArray* inArray = inData->GetPointData()->GetScalars();
+  typeSize = vtkDataArray::GetDataTypeSize(inArray->GetDataType());
+  outPtrZ = outPtr;
+  inPtrZ = inPtr;
+  // Get increments to march through data
+  vtkIdType increments[3];
+  increments[0] = inArray->GetNumberOfComponents();
+  increments[1] = increments[0] * (ext[1] - ext[0] + 1);
+  increments[2] = increments[1] * (ext[3] - ext[2] + 1);
+  outIncY = increments[1];
+  outIncZ = increments[2];
+
+  // Find the region to loop over
+  rowLength = (ext[1] - ext[0] + 1) * inArray->GetNumberOfComponents();
+  rowLength *= typeSize;
+  maxY = ext[3] - ext[2];
+  maxZ = ext[5] - ext[4];
+
+  // Loop through input pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  {
+    outPtrY = outPtrZ;
+    inPtrY = inPtrZ;
+    for (idxY = 0; idxY <= maxY; idxY++)
+    {
+      memcpy(outPtrY, inPtrY, rowLength);
+      outPtrY += outIncY;
+      inPtrY += outIncY;
+    }
+    outPtrZ += outIncZ;
+    inPtrZ += outIncZ;
+  }
+}
+
+//------------------------------------------------------------------------------
 // This method is passed a input and output datas, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
@@ -432,7 +474,14 @@ void vtkImageMathematics::ThreadedRequestData(vtkInformation* vtkNotUsed(request
       }
       if (idx1 == 0)
       {
-        outData[0]->DeepCopy(inData[0][idx1]);
+        switch (inData[0][idx1]->GetScalarType())
+        {
+          vtkTemplateMacro(vtkImageMathematicsInitOutput(inData[0][idx1],
+            static_cast<VTK_TT*>(inPtr1), outData[0], static_cast<VTK_TT*>(outPtr), outExt));
+          default:
+            vtkErrorMacro(<< "InitOutput: Unknown ScalarType");
+            return;
+        }
       }
       else
       {
