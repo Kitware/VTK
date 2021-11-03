@@ -95,17 +95,13 @@ int vtkCellTypes::GetTypeIdFromClassName(const char* classname)
 vtkCellTypes::vtkCellTypes()
   : TypeArray(vtkSmartPointer<vtkUnsignedCharArray>::New())
   , LocationArray(vtkSmartPointer<vtkIdTypeArray>::New())
-  , Size(0)
   , MaxId(-1)
-  , Extend(1000)
 {
 }
 
 //------------------------------------------------------------------------------
 int vtkCellTypes::Allocate(vtkIdType sz, vtkIdType ext)
 {
-  this->Size = (sz > 0 ? sz : 1);
-  this->Extend = (ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   if (!this->TypeArray)
@@ -152,7 +148,6 @@ vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, vtkIdType loc)
 void vtkCellTypes::SetCellTypes(
   vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIntArray* cellLocations)
 {
-  this->Size = ncells;
   this->TypeArray = cellTypes;
   if (!this->LocationArray)
   {
@@ -167,7 +162,6 @@ void vtkCellTypes::SetCellTypes(
 void vtkCellTypes::SetCellTypes(
   vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIdTypeArray* cellLocations)
 {
-  this->Size = ncells;
   this->TypeArray = cellTypes;
   this->LocationArray = cellLocations;
   this->MaxId = ncells - 1;
@@ -221,8 +215,6 @@ void vtkCellTypes::DeepCopy(vtkCellTypes* src)
   }
   this->LocationArray->DeepCopy(src->LocationArray);
 
-  this->Size = src->Size;
-  this->Extend = src->Extend;
   this->MaxId = src->MaxId;
 }
 
@@ -236,7 +228,5 @@ void vtkCellTypes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LocationArray:\n";
   this->LocationArray->PrintSelf(os, indent.GetNextIndent());
 
-  os << indent << "Size: " << this->Size << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";
-  os << indent << "Extend: " << this->Extend << "\n";
 }
