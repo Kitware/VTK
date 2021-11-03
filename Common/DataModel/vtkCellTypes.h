@@ -170,9 +170,7 @@ protected:
 
   vtkSmartPointer<vtkUnsignedCharArray> TypeArray; // pointer to types array
   vtkSmartPointer<vtkIdTypeArray> LocationArray;   // pointer to array of offsets
-  vtkIdType Size;                                  // allocated size of data
   vtkIdType MaxId;                                 // maximum index inserted thus far
-  vtkIdType Extend;                                // grow array by this point
 
 private:
   vtkCellTypes(const vtkCellTypes&) = delete;
