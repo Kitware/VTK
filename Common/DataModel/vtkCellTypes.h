@@ -39,10 +39,12 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkCellType.h"          // Needed for VTK_EMPTY_CELL
+#include "vtkCellType.h"          // Needed for inline methods
 #include "vtkIdTypeArray.h"       // Needed for inline methods
-#include "vtkIntArray.h"          // Needed for inline methods
+#include "vtkSmartPointer.h"      // Needed for internals
 #include "vtkUnsignedCharArray.h" // Needed for inline methods
+
+class vtkIntArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkCellTypes : public vtkObject
 {
@@ -164,13 +166,13 @@ public:
 
 protected:
   vtkCellTypes();
-  ~vtkCellTypes() override;
+  ~vtkCellTypes() override = default;
 
-  vtkUnsignedCharArray* TypeArray; // pointer to types array
-  vtkIdTypeArray* LocationArray;   // pointer to array of offsets
-  vtkIdType Size;                  // allocated size of data
-  vtkIdType MaxId;                 // maximum index inserted thus far
-  vtkIdType Extend;                // grow array by this point
+  vtkSmartPointer<vtkUnsignedCharArray> TypeArray; // pointer to types array
+  vtkSmartPointer<vtkIdTypeArray> LocationArray;   // pointer to array of offsets
+  vtkIdType Size;                                  // allocated size of data
+  vtkIdType MaxId;                                 // maximum index inserted thus far
+  vtkIdType Extend;                                // grow array by this point
 
 private:
   vtkCellTypes(const vtkCellTypes&) = delete;
