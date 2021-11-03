@@ -33,6 +33,8 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // for vtkNew.
 
+#include <string> // for std::string
+
 class vtkDataArraySelection;
 class vtkInformationStringKey;
 
@@ -49,34 +51,33 @@ public:
   vtkTypeMacro(vtkCGNSReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  /**
-   * Possible values for the mesh type:
-   * - CELL_MESH - Construct 3D meshes with 3D cells (e.g. a cube is defined as 1 cell) and read
-   * CellCenter data arrays from the CGNS file.
-   * - FACE_MESH - Construct 3D meshes with 2D cells/faces (e.g. a cube is defined as 6 quad cells)
-   * and read FaceCenter data arrays from the CGNS file. Element connectivity must be defined with
-   * element type NGON_n.
-   */
-  enum MeshCellType
+  enum DataArrayLocation
   {
-    CELL_MESH = 0,
-    FACE_MESH
+    CELL_DATA = 0,
+    FACE_DATA
   };
 
   ///@{
   /**
-   * Set/get the mesh type to generate. Default is CELL_MESH.
+   * Set/get the location of the data arrays to read. Possible values for the data location are:
+   * - CELL_DATA - Read CellCenter data arrays from the CGNS file. Construct 3D meshes with 3D cells
+   * (e.g. a cube is defined as 1 cell).
+   * - FACE_DATA - Read FaceCenter data arrays from the CGNS file. Construct 3D meshes with 2D
+   * cells/faces (e.g. a cube is defined as 6 quad cells). Element connectivity must be defined with
+   * element type NGON_n.
+   *
+   * Default is CELL_DATA.
    */
-  vtkSetClampMacro(MeshType, int, vtkCGNSReader::CELL_MESH, vtkCGNSReader::FACE_MESH);
-  vtkGetMacro(MeshType, int);
+  vtkSetClampMacro(DataLocation, int, vtkCGNSReader::CELL_DATA, vtkCGNSReader::FACE_DATA);
+  vtkGetMacro(DataLocation, int);
   ///@}
 
   ///@{
   /**
    * Specify file name of CGNS datafile to read
    */
-  vtkSetFilePathMacro(FileName);
-  vtkGetFilePathMacro(FileName);
+  vtkSetStdStringFromCharMacro(FileName);
+  vtkGetCharFromStdStringMacro(FileName);
   ///@}
 
   /**
@@ -311,8 +312,8 @@ private:
   vtkCGNSReader(const vtkCGNSReader&) = delete;
   void operator=(const vtkCGNSReader&) = delete;
 
-  char* FileName = nullptr;
-  int MeshType = vtkCGNSReader::CELL_MESH;
+  std::string FileName = "";
+  int DataLocation = vtkCGNSReader::CELL_DATA;
   bool LoadBndPatch = false;         // option to set section loading for unstructured grid
   bool LoadMesh = true;              // option to enable/disable mesh loading
   int DoublePrecisionMesh = 1;       // option to set mesh loading to double precision

@@ -618,7 +618,6 @@ vtkCGNSReader::vtkCGNSReader()
 //----------------------------------------------------------------------------
 vtkCGNSReader::~vtkCGNSReader()
 {
-  this->SetFileName(nullptr);
   this->SetController(nullptr);
 
   delete this->Internals;
@@ -790,15 +789,6 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
     for (size_t cc = 0; cc < unvalidatedSolutionNames.size(); ++cc)
     {
       double solId = 0.0;
-      std::string solName = unvalidatedSolutionNames[cc];
-
-      if (self->MeshType == vtkCGNSReader::FACE_MESH)
-      {
-        vtksys::RegularExpression stepRe("^[^0-9]+([0-9]+)$");
-        stepRe.find(solName);
-        std::string stepNum = stepRe.match(1);
-        unvalidatedSolutionNames[cc] = "FaceCenter_" + stepNum;
-      }
 
       if (cgio_get_node_id(
             self->cgioNum, self->currentId, unvalidatedSolutionNames[cc].c_str(), &solId) == CG_OK)
@@ -812,6 +802,11 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
     // heuristics to decide which FlowSolution_t nodes correspond to current
     // timestep.
     ignoreFlowSolutionPointers = (solutionNames.empty() && !unvalidatedSolutionNames.empty());
+    if (ignoreFlowSolutionPointers)
+    {
+      vtkGenericWarningMacro("`FlowSolutionPointers` in the CGNS file '"
+        << self->FileName << "' refer to invalid solution nodes. Ignoring them.");
+    }
   }
 
   // Case where everything is OK with standard FlowSolutionPointers
@@ -1131,8 +1126,8 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
   vtkPrivate::getVarsIdAndFillRind(cgioSolId, nVarArray, varCentering, solChildId, rind, self);
 
   // Abort if the solution type does not match the requested type
-  if ((varCentering == CGNS_ENUMV(FaceCenter) && self->MeshType == vtkCGNSReader::CELL_MESH) ||
-    (varCentering == CGNS_ENUMV(CellCenter) && self->MeshType == vtkCGNSReader::FACE_MESH))
+  if ((varCentering == CGNS_ENUMV(FaceCenter) && self->DataLocation == vtkCGNSReader::CELL_DATA) ||
+    (varCentering == CGNS_ENUMV(CellCenter) && self->DataLocation == vtkCGNSReader::FACE_DATA))
   {
     return CG_OK;
   }
@@ -2628,15 +2623,14 @@ int vtkCGNSReader::GetUnstructuredZone(
       }
 
       // Build cells rather than faces
-      if (this->MeshType == vtkCGNSReader::CELL_MESH)
+      if (this->DataLocation == vtkCGNSReader::CELL_DATA)
       {
-        // Now take care of NFACE_n properly
-        //
-        // In case of unordered section :
+        // Process NFACE_n properly in case of unordered section
         std::vector<vtkIdType> startNFaceArraySec(nfaceSec.size());
         std::vector<vtkIdType> startNFaceRangeSec(nfaceSec.size());
         std::size_t cellElementsSize = 0;
-        vtkIdType numCells(0);
+        vtkIdType numCells = 0;
+
         for (std::size_t sec = 0; sec < nfaceSec.size(); sec++)
         {
           int curSec = nfaceSec[sec];
@@ -2644,6 +2638,7 @@ int vtkCGNSReader::GetUnstructuredZone(
           numCells += 1 + sectionInfoList[curSec].range[1] - sectionInfoList[curSec].range[0];
           vtkIdType curNFaceArrayStart = 0;
           vtkIdType curRangeStart = 0;
+
           for (std::size_t lse = 0; lse < nfaceSec.size(); lse++)
           {
             int lseSec = nfaceSec[lse];
@@ -2654,11 +2649,12 @@ int vtkCGNSReader::GetUnstructuredZone(
                 sectionInfoList[lseSec].range[1] - sectionInfoList[lseSec].range[0] + 1;
             }
           }
+
           startNFaceArraySec[sec] = curNFaceArrayStart;
           startNFaceRangeSec[sec] = curRangeStart;
           cellElementsSize += sectionInfoList[curSec].eDataSize;
         }
-        //
+
         std::vector<vtkIdType> cellElementsArr;
         std::vector<vtkIdType> cellElementsIdx;
         cellElementsArr.resize(cellElementsSize);
@@ -2666,9 +2662,10 @@ int vtkCGNSReader::GetUnstructuredZone(
 
         if (hasNFace && numCells < zsize[1])
         {
-          vtkErrorMacro("number of NFACE_n cells is not coherent with Zone_t declaration \n");
+          vtkErrorMacro("Number of NFACE_n cells is not coherent with Zone_t declaration.\n");
           return 1;
         }
+
         // Load NFace_n connectivities
         for (std::size_t sec = 0; sec < nfaceSec.size(); sec++)
         {
@@ -2697,15 +2694,15 @@ int vtkCGNSReader::GetUnstructuredZone(
           memDim[0] = offsetDataSize;
           memDim[1] = 1;
 
-          if (0 !=
-            CGNSRead::get_section_start_offset(this->cgioNum, cgioSectionId, 1, srcStart, srcEnd,
-              srcStride, memStart, memEnd, memStride, memDim, localCellElementsIdx))
+          if (CGNSRead::get_section_start_offset(this->cgioNum, cgioSectionId, 1, srcStart, srcEnd,
+                srcStride, memStart, memEnd, memStride, memDim, localCellElementsIdx) != 0)
           {
-            // NOTE: the old polygonal layout was replaced in CGNS version 4.0
-            // NOTE: support for the old NFACE_n/NGON_n array layout may be deprecated in
-            // NOTE: a future version of ParaView.
+            // The old polygonal layout was replaced in CGNS version 4.0.
+            // Support for the old NFACE_n/NGON_n array layout may be deprecated in
+            // a future version of VTK.
             old_polygonal_layout = true;
           }
+
           if (startNFaceArraySec[sec] != 0)
           {
             // Add offset since it is not the first section
@@ -2728,9 +2725,8 @@ int vtkCGNSReader::GetUnstructuredZone(
           memDim[0] = eDataSize;
           memDim[1] = 1;
 
-          if (0 !=
-            CGNSRead::get_section_connectivity(this->cgioNum, cgioSectionId, 1, srcStart, srcEnd,
-              srcStride, memStart, memEnd, memStride, memDim, localCellElementsArr))
+          if (CGNSRead::get_section_connectivity(this->cgioNum, cgioSectionId, 1, srcStart, srcEnd,
+                srcStride, memStart, memEnd, memStride, memDim, localCellElementsArr) != 0)
           {
             vtkErrorMacro("FAILED to read NFACE_n cells\n");
             return 1;
@@ -2738,26 +2734,20 @@ int vtkCGNSReader::GetUnstructuredZone(
           cgio_release_id(this->cgioNum, cgioSectionId);
         }
 
-        // ok, now we have the face-to-node connectivity array and the cell-to-face connectivity
-        // array.
+        // We now have the face-to-node and cell-to-face connectivity arrays.
         // VTK, however, has no concept of faces, and uses cell-to-node connectivity, so the
-        // intermediate faces
-        // need to be taken out of the description.
-        // Basic CGNS 3.4 support
-
+        // intermediate faces need to be taken out of the description (basic CGNS 3.4 support).
         if (old_polygonal_layout)
         {
-          // Regenerate cellElementIdx lookupTable
+          // Regenerate cellElementIdx lookup table
           vtkIdType curCell = 0;
           vtkIdType curFaceInCell = 0;
-
           cellElementsIdx[0] = 0;
 
           for (vtkIdType idxCell = 0; idxCell < static_cast<vtkIdType>(cellElementsIdx.size() - 1);
                ++idxCell)
           {
             vtkIdType nFaceInCell = cellElementsArr[curCell];
-
             cellElementsIdx[idxCell + 1] = cellElementsIdx[idxCell] + nFaceInCell;
 
             for (vtkIdType idxFace = 0; idxFace < nFaceInCell; idxFace++)
@@ -2774,19 +2764,20 @@ int vtkCGNSReader::GetUnstructuredZone(
           int numCellFaces = cellElementsIdx[nc + 1] - cellElementsIdx[nc];
           vtkNew<vtkIdList> faces;
           faces->InsertNextId(numCellFaces);
+
           for (vtkIdType nf = 0; nf < numCellFaces; ++nf)
           {
             vtkIdType faceId = cellElementsArr[cellElementsIdx[nc] + nf];
             bool mustReverse = faceId > 0;
             faceId = std::abs(faceId);
 
-            // the following is needed because when the NGON_n face data do not precedes the
-            // NFACE_n cell data, the indices are continuous, so a "global-to-local" mapping must be
-            // done.
+            // The following is needed because when the NGON_n face data does not precede the
+            // NFACE_n cell data, the indices are continuous, so a "global-to-local" mapping
+            // must be done.
             for (std::size_t sec = 0; sec < ngonSec.size(); sec++)
             {
               int curSec = ngonSec[sec];
-              //
+
               if (faceId <= sectionInfoList[curSec].range[1] &&
                 faceId >= sectionInfoList[curSec].range[0])
               {
@@ -2794,20 +2785,22 @@ int vtkCGNSReader::GetUnstructuredZone(
                 break;
               }
             }
-            faceId -= 1; // CGNS uses FORTRAN ID style, starting at 1
+
+            // CGNS uses one-based indexing, so subtract 1 from face ID for zero-based indexing
+            faceId -= 1;
 
             vtkIdType startNode = faceElementsIdx[faceId];
             vtkIdType endNode = faceElementsIdx[faceId + 1];
             vtkIdType numNodes = endNode - startNode;
             faces->InsertNextId(numNodes);
-            /* Each face is composed of multiple vertex */
+
+            // Each face is composed of multiple vertices
             if (mustReverse)
             {
               for (vtkIdType nn = numNodes - 1; nn >= 0; --nn)
               {
-                vtkIdType nodeID =
-                  faceElementsArr[startNode + nn] - 1; // AGAIN subtract 1 from node ID
-
+                // Subtract 1 from node ID for zero-based indexing
+                vtkIdType nodeID = faceElementsArr[startNode + nn] - 1;
                 faces->InsertNextId(nodeID);
               }
             }
@@ -2815,8 +2808,8 @@ int vtkCGNSReader::GetUnstructuredZone(
             {
               for (vtkIdType nn = 0; nn < numNodes; ++nn)
               {
-                vtkIdType nodeID =
-                  faceElementsArr[startNode + nn] - 1; // AGAIN subtract 1 from node ID
+                // Subtract 1 from node ID for zero-based indexing
+                vtkIdType nodeID = faceElementsArr[startNode + nn] - 1;
                 faces->InsertNextId(nodeID);
               }
             }
@@ -2825,12 +2818,11 @@ int vtkCGNSReader::GetUnstructuredZone(
         }
       }
 
-      // If NGon_n but no NFace_n, or if FACE_MESH is requested, load polygons
-      if (!hasNFace || this->MeshType == vtkCGNSReader::FACE_MESH)
+      // If NGon_n but no NFace_n, or if FACE_DATA is requested, load polygons
+      if (!hasNFace || this->DataLocation == vtkCGNSReader::FACE_DATA)
       {
         for (vtkIdType nf = 0; nf < numFaces; ++nf)
         {
-
           vtkIdType startNode = faceElementsIdx[nf];
           vtkIdType endNode = faceElementsIdx[nf + 1];
           vtkIdType numNodes = endNode - startNode;
@@ -2844,7 +2836,7 @@ int vtkCGNSReader::GetUnstructuredZone(
           ugrid->InsertNextCell(VTK_POLYGON, nodes.GetPointer());
         }
 
-        if (this->MeshType == vtkCGNSReader::FACE_MESH)
+        if (this->DataLocation == vtkCGNSReader::FACE_DATA)
         {
           zsize[1] = numFaces;
         }
@@ -4345,7 +4337,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
     this->CreateEachSolutionAsBlock = 0;
   }
 
-  if (!this->Internals->Internal->Parse(this->FileName))
+  if (!this->Internals->Internal->Parse(this->FileName.c_str()))
   {
     return 0;
   }
@@ -4382,7 +4374,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "CGNSReader::RequestData: Reading from file <" << this->FileName << ">...");
 
   // Opening with cgio layer
-  ier = cgio_open_file(this->FileName, CGIO_MODE_READ, 0, &(this->cgioNum));
+  ier = cgio_open_file(this->FileName.c_str(), CGIO_MODE_READ, 0, &(this->cgioNum));
   if (ier != CG_OK)
   {
     vtkErrorMacro(<< "Error Reading file with cgio");
@@ -4663,7 +4655,7 @@ int vtkCGNSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   if (this->ProcRank == 0)
   {
-    if (!this->FileName)
+    if (this->FileName.empty())
     {
       vtkErrorMacro(<< "File name not set\n");
       return 0;
@@ -4681,7 +4673,7 @@ int vtkCGNSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
                   << " for fields and time steps");
 
     // Parse the file...
-    if (!this->Internals->Internal->Parse(this->FileName))
+    if (!this->Internals->Internal->Parse(this->FileName.c_str()))
     {
       vtkErrorMacro(<< "Failed to parse cgns file: " << this->FileName);
       return false;
@@ -4742,7 +4734,7 @@ int vtkCGNSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 void vtkCGNSReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "File Name: " << (this->FileName.empty() ? "(none)" : this->FileName) << endl;
   os << indent << "LoadBndPatch: " << this->LoadBndPatch << endl;
   os << indent << "LoadMesh: " << this->LoadMesh << endl;
   os << indent << "CreateEachSolutionAsBlock: " << this->CreateEachSolutionAsBlock << endl;

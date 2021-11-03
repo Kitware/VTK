@@ -765,6 +765,11 @@ bool vtkCGNSMetaData::Parse(const char* cgnsFileName)
     return false;
   }
 
+  if (this->LastReadFilename == cgnsFileName)
+  {
+    return true;
+  }
+
   int cgioNum;
   int ier;
   double rootId;

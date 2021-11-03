@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/BoxWithFaceData.cgns
   Data/Example_fields.cgns
   Data/Example_grids.cgns
   Data/Example_mixed.cgns

@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkIOCGNSReaderCxxTests tests
   NO_VALID NO_OUTPUT
+  TestCGNSFaceMesh.cxx
   TestCGNSReader.cxx
   TestReadCGNSSolution.cxx
   TestCGNSNoFlowSolutionPointers.cxx
