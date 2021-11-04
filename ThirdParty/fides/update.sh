@@ -8,15 +8,15 @@ readonly name="fides"
 readonly ownership="Fides Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/fides.git"
-readonly tag="for/vtk-20210827-master"
+readonly tag="for/vtk-20211104-master-g42f9688"
 readonly paths="
 .gitattributes
 CMakeLists.txt
-fides
+fides/
 cmake/FidesModule.cmake
 cmake/FidesExportHeaderTemplate.h.in
 cmake/fides_generate_export_header.cmake
-thirdparty
+thirdparty/
 LICENSE.txt
 README.md
 README.kitware.md
