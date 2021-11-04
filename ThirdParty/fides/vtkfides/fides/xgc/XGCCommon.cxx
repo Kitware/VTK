@@ -14,6 +14,8 @@
 
 #include <vtkm/cont/UnknownArrayHandle.h>
 
+#include <numeric>
+
 namespace fides
 {
 namespace datamodel

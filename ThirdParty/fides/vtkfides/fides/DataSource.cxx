@@ -20,7 +20,7 @@
 #include <iostream>
 
 #ifdef FIDES_USE_MPI
-#include <mpi.h>
+#include <vtk_mpi.h>
 #endif
 
 template <typename T>
