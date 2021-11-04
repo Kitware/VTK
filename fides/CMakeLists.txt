@@ -32,22 +32,23 @@ set(headers
   Keys.h
   MetaData.h
   Value.h
+  "${CMAKE_CURRENT_BINARY_DIR}/fides_export.h"
 )
 
 include(${FIDES_SOURCE_DIR}/cmake/fides_generate_export_header.cmake)
 
 if (FALSE) # XXX(kitware): use vtk_module system
 add_library(fides ${srcs})
-else()
-  vtk_module_add_module(VTK::fides
-    SOURCES ${srcs}
-    HEADERS ${headers}
-    HEADERS_SUBDIR "vtkfides/fides")
-endif()
+else ()
+vtk_module_add_module(VTK::fides
+  SOURCES ${srcs}
+  HEADERS ${headers}
+  HEADERS_SUBDIR "vtkfides/fides")
+endif ()
 
 fides_generate_export_header(fides)
 
-target_compile_definitions(fides PRIVATE ${MPI_DEFS})
+vtk_module_definitions(VTK::fides PRIVATE ${MPI_DEFS})
 
 if (FALSE) # XXX(kitware): use vtk_module system
 target_link_libraries(fides PUBLIC vtkm_cont adios2::adios2 PRIVATE
@@ -59,12 +60,15 @@ target_include_directories(fides PUBLIC
   $<INSTALL_INTERFACE:include>
   )
 else()
-target_link_libraries(fides PUBLIC VTK::vtkm PRIVATE
-  adios2::adios2 fides_rapidjson)
-target_include_directories(fides PUBLIC
-  $<BUILD_INTERFACE:${FIDES_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${FIDES_BINARY_DIR}/fides>
-  $<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkfides/fides>
+vtk_module_link(VTK::fides
+  PRIVATE
+    adios2::adios2
+    fides_rapidjson)
+vtk_module_include(VTK::fides
+  PUBLIC
+    $<BUILD_INTERFACE:${FIDES_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${FIDES_BINARY_DIR}/fides>
+    $<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkfides/fides>
   )
 
 include(GenerateExportHeader)
@@ -100,4 +104,4 @@ export(EXPORT ${FIDES_EXPORT_NAME}
 
 install(FILES ${headers} ${CMAKE_CURRENT_BINARY_DIR}/fides_export.h
   DESTINATION ${FIDES_INSTALL_INCLUDE_DIR})
-endif()
+endif ()
