@@ -155,6 +155,34 @@ void vtkUnicodeStringArray::InsertTuples(
 
 //------------------------------------------------------------------------------
 void vtkUnicodeStringArray::InsertTuples(
+  vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
+{
+  vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
+  if (!array)
+  {
+    vtkWarningMacro("Input and output array data types do not match.");
+    return;
+  }
+
+  // Find maximum destination id and resize if needed
+  vtkIdType maxDstId = dstStart + srcIds->GetNumberOfIds();
+
+  if (static_cast<vtkIdType>(this->Internal->Storage.size()) <= maxDstId)
+  {
+    this->Internal->Storage.resize(maxDstId + 1);
+  }
+
+  // Copy data
+  for (vtkIdType idIndex = 0; idIndex < srcIds->GetNumberOfIds(); ++idIndex)
+  {
+    this->Internal->Storage[dstStart + idIndex] = array->Internal->Storage[srcIds->GetId(idIndex)];
+  }
+
+  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
+void vtkUnicodeStringArray::InsertTuples(
   vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
 {
   vtkUnicodeStringArray* sa = vtkArrayDownCast<vtkUnicodeStringArray>(source);

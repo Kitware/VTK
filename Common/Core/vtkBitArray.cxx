@@ -435,6 +435,40 @@ void vtkBitArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source
 }
 
 //------------------------------------------------------------------------------
+void vtkBitArray::InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
+{
+  vtkBitArray* ba = vtkArrayDownCast<vtkBitArray>(source);
+  if (!ba)
+  {
+    vtkWarningMacro("Input and output arrays types do not match.");
+    return;
+  }
+
+  if (ba->NumberOfComponents != this->NumberOfComponents)
+  {
+    vtkWarningMacro("Number of components do not match.");
+    return;
+  }
+
+  vtkIdType previousMaxId = this->MaxId;
+  for (vtkIdType idIndex = 0; idIndex < srcIds->GetNumberOfIds(); ++idIndex)
+  {
+    vtkIdType numComp = this->NumberOfComponents;
+    vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+    vtkIdType dstLoc = (dstStart + idIndex) * this->NumberOfComponents;
+    while (numComp-- > 0)
+    {
+      this->InsertValue(dstLoc++, ba->GetValue(srcLoc++));
+    }
+  }
+  if (previousMaxId / 8 != this->MaxId / 8)
+  {
+    this->InitializeUnusedBitsInLastByte();
+  }
+  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
 void vtkBitArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source)
 {
   vtkBitArray* ba = vtkArrayDownCast<vtkBitArray>(source);

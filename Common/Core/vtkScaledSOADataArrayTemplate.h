@@ -247,6 +247,10 @@ public:
   {
     this->Superclass::InsertTuples(dstIds, srcIds, source);
   }
+  void InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override
+  {
+    this->Superclass::InsertTuples(dstStart, srcIds, source);
+  }
 
 protected:
   vtkScaledSOADataArrayTemplate();

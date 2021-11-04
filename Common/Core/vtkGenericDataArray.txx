@@ -604,6 +604,73 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
+  vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
+{
+  // First, check for the common case of typeid(source) == typeid(this). This
+  // way we don't waste time redoing the other checks in the superclass, and
+  // can avoid doing a dispatch for the most common usage of this method.
+  DerivedT* other = vtkArrayDownCast<DerivedT>(source);
+  if (!other)
+  {
+    // Let the superclass handle dispatch/fallback.
+    this->Superclass::InsertTuples(dstStart, srcIds, source);
+    return;
+  }
+
+  int numComps = this->GetNumberOfComponents();
+  if (other->GetNumberOfComponents() != numComps)
+  {
+    vtkErrorMacro("Number of components do not match: Source: "
+      << other->GetNumberOfComponents() << " Dest: " << this->GetNumberOfComponents());
+    return;
+  }
+
+  vtkIdType maxSrcTupleId = srcIds->GetId(0);
+  vtkIdType maxDstTupleId = dstStart + srcIds->GetNumberOfIds();
+  for (int i = 0; i < srcIds->GetNumberOfIds(); ++i)
+  {
+    // parenthesis around std::max prevent MSVC macro replacement when
+    // inlined:
+    maxSrcTupleId = (std::max)(maxSrcTupleId, srcIds->GetId(i));
+  }
+
+  if (maxSrcTupleId >= other->GetNumberOfTuples())
+  {
+    vtkErrorMacro("Source array too small, requested tuple at index "
+      << maxSrcTupleId << ", but there are only " << other->GetNumberOfTuples()
+      << " tuples in the array.");
+    return;
+  }
+
+  vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
+  if (this->Size < newSize)
+  {
+    if (!this->Resize(maxDstTupleId + 1))
+    {
+      vtkErrorMacro("Resize failed.");
+      return;
+    }
+  }
+
+  // parenthesis around std::max prevent MSVC macro replacement when
+  // inlined:
+  this->MaxId = (std::max)(this->MaxId, newSize - 1);
+
+  vtkIdType numTuples = srcIds->GetNumberOfIds();
+  for (vtkIdType t = 0; t < numTuples; ++t)
+  {
+    vtkIdType srcT = srcIds->GetId(t);
+    vtkIdType dstT = dstStart + t;
+    for (int c = 0; c < numComps; ++c)
+    {
+      this->SetTypedComponent(dstT, c, other->GetTypedComponent(srcT, c));
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
 void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuple(
   vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {

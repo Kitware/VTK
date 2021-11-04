@@ -795,6 +795,124 @@ void vtkDataSetAttributes::RemoveArray(int index)
   }
 }
 
+namespace
+{
+//==============================================================================
+// This worker copies tuples starting at index SourceStartId from a collection of source arrays into
+// target arrays, filling them starting at index DestStartId
+struct CopyDataImplicitToImplicitWorker
+{
+  CopyDataImplicitToImplicitWorker(vtkDataSetAttributes* source, vtkDataSetAttributes* dest,
+    vtkFieldData::BasicIterator& requiredArrays, const int* targetIndices, vtkIdType sourceStartId,
+    vtkIdType destStartId)
+    : Source(source)
+    , Dest(dest)
+    , RequiredArrays(requiredArrays)
+    , TargetIndices(targetIndices)
+    , SourceStartId(sourceStartId)
+    , DestStartId(destStartId)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    vtkIdType destStartId = this->DestStartId + startId - this->SourceStartId;
+    vtkIdType n = endId - startId;
+    for (const int i : this->RequiredArrays)
+    {
+      vtkAbstractArray* destArray = this->Dest->GetAbstractArray(this->TargetIndices[i]);
+      vtkAbstractArray* sourceArray = this->Source->GetAbstractArray(i);
+      destArray->InsertTuples(destStartId, n, startId, sourceArray);
+    }
+  }
+
+  vtkDataSetAttributes* Source;
+  vtkDataSetAttributes* Dest;
+  vtkFieldData::BasicIterator& RequiredArrays;
+  const int* TargetIndices;
+  vtkIdType SourceStartId;
+  vtkIdType DestStartId;
+};
+
+//==============================================================================
+// This worker copies tuples indexed explicitly from a collection of source arrays into
+// target arrays, filling them starting at index DestStartId
+struct CopyDataExplicitToImplicitWorker
+{
+  CopyDataExplicitToImplicitWorker(vtkDataSetAttributes* source, vtkDataSetAttributes* dest,
+    vtkFieldData::BasicIterator& requiredArrays, const int* targetIndices, vtkIdList* sourceIds,
+    vtkIdType destStartId)
+    : Source(source)
+    , Dest(dest)
+    , RequiredArrays(requiredArrays)
+    , TargetIndices(targetIndices)
+    , SourceIds(sourceIds)
+    , DestStartId(destStartId)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    vtkIdType destStartId = this->DestStartId + startId;
+    vtkNew<vtkIdList> sourceIds;
+    sourceIds->SetArray(this->SourceIds->GetPointer(startId), endId - startId, false /* save */);
+    for (const int i : this->RequiredArrays)
+    {
+      vtkAbstractArray* destArray = this->Dest->GetAbstractArray(this->TargetIndices[i]);
+      vtkAbstractArray* sourceArray = this->Source->GetAbstractArray(i);
+      destArray->InsertTuples(destStartId, sourceIds, sourceArray);
+    }
+  }
+
+  vtkDataSetAttributes* Source;
+  vtkDataSetAttributes* Dest;
+  vtkFieldData::BasicIterator& RequiredArrays;
+  const int* TargetIndices;
+  vtkIdList* SourceIds;
+  vtkIdType DestStartId;
+};
+
+//==============================================================================
+// This worker copies tuples indexed explicitly from a collection of source arrays into
+// target arrays, indexed explicitly as well.
+struct CopyDataExplicitToExplicitWorker
+{
+  CopyDataExplicitToExplicitWorker(vtkDataSetAttributes* source, vtkDataSetAttributes* dest,
+    vtkFieldData::BasicIterator& requiredArrays, const int* targetIndices, vtkIdList* sourceIds,
+    vtkIdList* destIds)
+    : Source(source)
+    , Dest(dest)
+    , RequiredArrays(requiredArrays)
+    , TargetIndices(targetIndices)
+    , SourceIds(sourceIds)
+    , DestIds(destIds)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    vtkNew<vtkIdList> sourceIds;
+    sourceIds->SetArray(this->SourceIds->GetPointer(startId), endId - startId, false /* save */);
+    vtkNew<vtkIdList> destIds;
+    destIds->SetArray(this->DestIds->GetPointer(startId), endId - startId, false /* save */);
+
+    for (const int i : this->RequiredArrays)
+    {
+      vtkAbstractArray* destArray = this->Dest->GetAbstractArray(this->TargetIndices[i]);
+      vtkAbstractArray* sourceArray = this->Source->GetAbstractArray(i);
+      destArray->InsertTuples(this->DestIds, this->SourceIds, sourceArray);
+    }
+  }
+
+  vtkDataSetAttributes* Source;
+  vtkDataSetAttributes* Dest;
+  vtkFieldData::BasicIterator& RequiredArrays;
+  const int* TargetIndices;
+  vtkIdList* SourceIds;
+  vtkIdList* DestIds;
+};
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 // Copy the attribute data from one id to another. Make sure CopyAllocate() has
 // been invoked before using this method.
