@@ -46,15 +46,54 @@
 
 vtkStandardNewMacro(vtkMeshQuality);
 
+namespace
+{
 typedef double (*CellQualityType)(vtkCell*);
 
-double TetVolume(vtkCell* cell);
+const char* QualityMeasureNames[] = { "EdgeRatio", "AspectRatio", "RadiusRatio", "AspectFrobenius",
+  "MedAspectFrobenius", "MaxAspectFrobenius", "MinAngle", "CollapseRatio", "MaxAngle", "Condition",
+  "ScaledJacobian", "Shear", "RelativeSizeSquared", "Shape", "ShapeAndSize", "Distortion",
+  "MaxEdgeRatio", "Skew", "Taper", "Volume", "Stretch", "Diagonal", "Dimension", "Oddy",
+  "ShearAndSize", "Jacobian", "Warpage", "AspectGamma", "Area", "AspectBeta" };
 
-static const char* QualityMeasureNames[] = { "EdgeRatio", "AspectRatio", "RadiusRatio",
-  "AspectFrobenius", "MedAspectFrobenius", "MaxAspectFrobenius", "MinAngle", "CollapseRatio",
-  "MaxAngle", "Condition", "ScaledJacobian", "Shear", "RelativeSizeSquared", "Shape",
-  "ShapeAndSize", "Distortion", "MaxEdgeRatio", "Skew", "Taper", "Volume", "Stretch", "Diagonal",
-  "Dimension", "Oddy", "ShearAndSize", "Jacobian", "Warpage", "AspectGamma", "Area", "AspectBeta" };
+//----------------------------------------------------------------------------
+void LinearizeCell(int& cellType)
+{
+  switch (cellType)
+  {
+    case VTK_QUADRATIC_TRIANGLE:
+    case VTK_BIQUADRATIC_TRIANGLE:
+    case VTK_HIGHER_ORDER_TRIANGLE:
+    case VTK_LAGRANGE_TRIANGLE:
+    case VTK_BEZIER_TRIANGLE:
+      cellType = VTK_TRIANGLE;
+      break;
+    case VTK_QUADRATIC_QUAD:
+    case VTK_QUADRATIC_LINEAR_QUAD:
+    case VTK_HIGHER_ORDER_QUAD:
+    case VTK_LAGRANGE_QUADRILATERAL:
+    case VTK_BEZIER_QUADRILATERAL:
+      cellType = VTK_QUAD;
+      break;
+    case VTK_QUADRATIC_TETRA:
+    case VTK_HIGHER_ORDER_TETRAHEDRON:
+    case VTK_LAGRANGE_TETRAHEDRON:
+    case VTK_BEZIER_TETRAHEDRON:
+      cellType = VTK_TETRA;
+      break;
+    case VTK_QUADRATIC_HEXAHEDRON:
+    case VTK_TRIQUADRATIC_HEXAHEDRON:
+    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+    case VTK_HIGHER_ORDER_HEXAHEDRON:
+    case VTK_LAGRANGE_HEXAHEDRON:
+    case VTK_BEZIER_HEXAHEDRON:
+      cellType = VTK_HEXAHEDRON;
+      break;
+    default:
+      break;
+  }
+}
+} // anonymous namespace
 
 double vtkMeshQuality::CurrentTriNormal[3];
 
@@ -86,6 +125,7 @@ vtkMeshQuality::vtkMeshQuality()
   this->HexQualityMeasure = VTK_QUALITY_MAX_ASPECT_FROBENIUS;
   this->Volume = 0;
   this->CompatibilityMode = 0;
+  this->LinearApproximation = false;
 }
 
 //----------------------------------------------------------------------------
@@ -102,6 +142,7 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
 
   CellQualityType TriangleQuality, QuadQuality, TetQuality, HexQuality;
   vtkDoubleArray* quality = nullptr;
+  vtkSmartPointer<vtkDoubleArray> approxQuality = nullptr;
   vtkDoubleArray* volume = nullptr;
   vtkIdType N = in->GetNumberOfCells();
   double qtrim, qtriM, Eqtri, Eqtri2;
@@ -410,6 +451,14 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
     out->GetCellData()->SetActiveAttribute("Quality", vtkDataSetAttributes::SCALARS);
     quality->Delete();
 
+    if (this->LinearApproximation)
+    {
+      approxQuality = vtkSmartPointer<vtkDoubleArray>::New();
+      approxQuality->SetNumberOfValues(N);
+      approxQuality->SetName("Quality (Linear Approx)");
+      out->GetCellData()->AddArray(approxQuality);
+    }
+
     if (!this->CompatibilityMode)
     {
       if (this->Volume)
@@ -476,7 +525,11 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
       {
         double a, v; // area and volume
         cell = out->GetCell(c);
-        switch (cell->GetCellType())
+
+        int cellType = cell->GetCellType();
+        LinearizeCell(cellType);
+
+        switch (cellType)
         {
           case VTK_TRIANGLE:
             a = TriangleArea(cell);
@@ -551,7 +604,7 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
             nhex++;
             break;
           default:
-            vtkWarningMacro("Cell not supported");
+            break;
         }
       }
       triAreaTuple[4] = ntri;
@@ -611,103 +664,123 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
     {
       cell = out->GetCell(c);
       V = 0.;
-      switch (cell->GetCellType())
+
+      int numberOfOutputQualities = this->LinearApproximation ? 2 : 1;
+      vtkDoubleArray* qualityArrays[2] = { quality, approxQuality };
+
+      int cellType = cell->GetCellType();
+
+      for (int qualityId = 0; qualityId < numberOfOutputQualities; ++qualityId)
       {
-        case VTK_TRIANGLE:
-          if (this->CellNormals)
-            this->CellNormals->GetTuple(c, vtkMeshQuality::CurrentTriNormal);
-          q = TriangleQuality(cell);
-          if (q > qtriM)
-          {
-            if (qtrim > qtriM)
+        switch (cellType)
+        {
+          case VTK_TRIANGLE:
+            if (this->CellNormals)
+              this->CellNormals->GetTuple(c, vtkMeshQuality::CurrentTriNormal);
+            q = TriangleQuality(cell);
+            if (q > qtriM)
+            {
+              if (qtrim > qtriM)
+              {
+                qtrim = q;
+              }
+              qtriM = q;
+            }
+            else if (q < qtrim)
             {
               qtrim = q;
             }
-            qtriM = q;
-          }
-          else if (q < qtrim)
-          {
-            qtrim = q;
-          }
-          Eqtri += q;
-          Eqtri2 += q * q;
-          ++ntri;
-          break;
-        case VTK_QUAD:
-          q = QuadQuality(cell);
-          if (q > qquaM)
-          {
-            if (qquam > qquaM)
+            Eqtri += q;
+            Eqtri2 += q * q;
+            ++ntri;
+            break;
+          case VTK_QUAD:
+            q = QuadQuality(cell);
+            if (q > qquaM)
+            {
+              if (qquam > qquaM)
+              {
+                qquam = q;
+              }
+              qquaM = q;
+            }
+            else if (q < qquam)
             {
               qquam = q;
             }
-            qquaM = q;
-          }
-          else if (q < qquam)
-          {
-            qquam = q;
-          }
-          Eqqua += q;
-          Eqqua2 += q * q;
-          ++nqua;
-          break;
-        case VTK_TETRA:
-          q = TetQuality(cell);
-          if (q > qtetM)
-          {
-            if (qtetm > qtetM)
+            Eqqua += q;
+            Eqqua2 += q * q;
+            ++nqua;
+            break;
+          case VTK_TETRA:
+            q = TetQuality(cell);
+            if (q > qtetM)
+            {
+              if (qtetm > qtetM)
+              {
+                qtetm = q;
+              }
+              qtetM = q;
+            }
+            else if (q < qtetm)
             {
               qtetm = q;
             }
-            qtetM = q;
-          }
-          else if (q < qtetm)
-          {
-            qtetm = q;
-          }
-          Eqtet += q;
-          Eqtet2 += q * q;
-          ++ntet;
-          if (this->Volume)
-          {
-            V = TetVolume(cell);
-            if (!this->CompatibilityMode)
+            Eqtet += q;
+            Eqtet2 += q * q;
+            ++ntet;
+            if (this->Volume)
             {
-              volume->SetTuple1(0, V);
+              V = TetVolume(cell);
+              if (!this->CompatibilityMode)
+              {
+                volume->SetTuple1(0, V);
+              }
             }
-          }
-          break;
-        case VTK_HEXAHEDRON:
-          q = HexQuality(cell);
-          if (q > qhexM)
-          {
-            if (qhexm > qhexM)
+            break;
+          case VTK_HEXAHEDRON:
+            q = HexQuality(cell);
+            if (q > qhexM)
+            {
+              if (qhexm > qhexM)
+              {
+                qhexm = q;
+              }
+              qhexM = q;
+            }
+            else if (q < qhexm)
             {
               qhexm = q;
             }
-            qhexM = q;
-          }
-          else if (q < qhexm)
-          {
-            qhexm = q;
-          }
-          Eqhex += q;
-          Eqhex2 += q * q;
-          ++nhex;
-          break;
-        default:
-          q = std::numeric_limits<double>::quiet_NaN();
-      }
-
-      if (this->SaveCellQuality)
-      {
-        if (this->CompatibilityMode && this->Volume)
-        {
-          quality->SetTuple2(c, V, q);
+            Eqhex += q;
+            Eqhex2 += q * q;
+            ++nhex;
+            break;
+          default:
+            q = std::numeric_limits<double>::quiet_NaN();
         }
-        else
+
+        if (this->SaveCellQuality)
         {
-          quality->SetTuple1(c, q);
+          if (this->CompatibilityMode && this->Volume)
+          {
+            double t[2] = { V, q };
+            qualityArrays[qualityId]->SetTypedTuple(c, t);
+          }
+          else
+          {
+            qualityArrays[qualityId]->SetTypedTuple(c, &q);
+          }
+        }
+
+        if (qualityId == 1)
+        {
+          break;
+        }
+
+        if (this->LinearApproximation)
+        {
+          LinearizeCell(cellType);
         }
       }
     }
