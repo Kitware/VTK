@@ -260,11 +260,11 @@ int vtkAMRBaseReader::RequestInformation(
   {
     double dataTime = this->Metadata->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
     info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &dataTime, 1);
-  }
 
-  vtkTimerLog::MarkStartEvent("vtkAMRBaseReader::GenerateParentChildInformation");
-  this->Metadata->GenerateParentChildInformation();
-  vtkTimerLog::MarkEndEvent("vtkAMRBaseReader::GenerateParentChildInformation");
+    vtkTimerLog::MarkStartEvent("vtkAMRBaseReader::GenerateParentChildInformation");
+    this->Metadata->GenerateParentChildInformation();
+    vtkTimerLog::MarkEndEvent("vtkAMRBaseReader::GenerateParentChildInformation");
+  }
 
   info->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
