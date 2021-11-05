@@ -1076,7 +1076,7 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRInteractorStyle::ShowBillboard(const std::string& text)
+void vtkOpenXRInteractorStyle::ShowBillboard(const std::string& vtkNotUsed(text))
 {
   vtkOpenXRRenderWindow* renWin =
     vtkOpenXRRenderWindow::SafeDownCast(this->Interactor->GetRenderWindow());
@@ -1195,8 +1195,8 @@ void vtkOpenXRInteractorStyle::AddTooltipForInput(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRInteractorStyle::AddTooltipForInput(
-  vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text)
+void vtkOpenXRInteractorStyle::AddTooltipForInput(vtkEventDataDevice vtkNotUsed(device),
+  vtkEventDataDeviceInput vtkNotUsed(input), const std::string& vtkNotUsed(text))
 {
   return;
 }
