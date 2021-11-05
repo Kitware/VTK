@@ -29,9 +29,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRendererCollection.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
+#include "vtkVRCamera.h"
 #include "vtkVRRay.h"
 
-#include "vtkVRCamera.h"
 #include "vtk_glew.h"
 
 //------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ bool vtkVRModel::Build(vtkOpenGLRenderWindow* win)
 }
 
 //------------------------------------------------------------------------------
-void vtkVRModel::Render(vtkOpenGLRenderWindow* win, const float poseInTrackingCoordinates[][4])
+void vtkVRModel::Render(vtkOpenGLRenderWindow* win, vtkMatrix4x4* poseInTrackingCoordinates)
 {
   if (this->FailedToLoad)
   {
@@ -146,7 +146,7 @@ void vtkVRModel::Render(vtkOpenGLRenderWindow* win, const float poseInTrackingCo
       {
         for (int i = 0; i < 4; i++)
         {
-          elems[j + i * 4] = poseInTrackingCoordinates[j][i];
+          elems[j + i * 4] = poseInTrackingCoordinates->GetElement(j, i);
         }
       }
       elems[3] = 0.0;
