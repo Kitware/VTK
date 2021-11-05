@@ -9,8 +9,13 @@
 
 #include "vtkMeshQuality.h"
 
+#include "vtkCellData.h"
+#include "vtkCellTypeSource.h"
 #include "vtkDebugLeaks.h"
+#include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
+#include "vtkLogger.h"
+#include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestErrorObserver.h"
@@ -19,6 +24,9 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
+namespace
+{
+//------------------------------------------------------------------------------
 static int DumpQualityStats(vtkMeshQuality* iq, const char* arrayname)
 {
   cout << "  cardinality: "
@@ -35,6 +43,59 @@ static int DumpQualityStats(vtkMeshQuality* iq, const char* arrayname)
   return 0;
 }
 
+//------------------------------------------------------------------------------
+bool TestNonLinearCells(int linearType, const int cellTypes[], int numberOfCellTypes)
+{
+  vtkNew<vtkCellTypeSource> ref, nonLinearCells;
+
+  ref->SetBlocksDimensions(1, 1, 1);
+  ref->SetCellType(linearType);
+
+  vtkNew<vtkMeshQuality> refQuality, nonLinearQuality;
+
+  refQuality->SetInputConnection(ref->GetOutputPort());
+  refQuality->Update();
+
+  auto refUG = vtkUnstructuredGrid::SafeDownCast(refQuality->GetOutputDataObject(0));
+  vtkCellData* refCD = refUG->GetCellData();
+  auto refQualityArray = vtkArrayDownCast<vtkDoubleArray>(refCD->GetAbstractArray("Quality"));
+
+  nonLinearCells->SetBlocksDimensions(1, 1, 1);
+  nonLinearQuality->SetInputConnection(nonLinearCells->GetOutputPort());
+  nonLinearQuality->LinearApproximationOn();
+
+  for (int id = 0; id < numberOfCellTypes; ++id)
+  {
+    nonLinearCells->SetCellType(cellTypes[id]);
+    nonLinearQuality->Update();
+
+    auto outUG = vtkUnstructuredGrid::SafeDownCast(nonLinearQuality->GetOutputDataObject(0));
+    vtkCellData* outCD = outUG->GetCellData();
+
+    auto NaNQuality = vtkArrayDownCast<vtkDoubleArray>(outCD->GetAbstractArray("Quality"));
+    auto approxQuality =
+      vtkArrayDownCast<vtkDoubleArray>(outCD->GetAbstractArray("Quality (Linear Approx)"));
+
+    for (vtkIdType cellId = 0; cellId < NaNQuality->GetNumberOfValues(); ++cellId)
+    {
+      if (NaNQuality->GetValue(cellId) == NaNQuality->GetValue(cellId))
+      {
+        vtkLog(ERROR, "Non linear cells should be tagged NaN");
+        return false;
+      }
+      if (approxQuality->GetValue(cellId) != refQualityArray->GetValue(cellId))
+      {
+        vtkLog(ERROR, "Linear approximation failed for non linear cells");
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
 int MeshQuality(int argc, char* argv[])
 {
   vtkUnstructuredGridReader* mr = vtkUnstructuredGridReader::New();
@@ -458,6 +519,28 @@ int MeshQuality(int argc, char* argv[])
     DumpQualityStats(iq, "Mesh Hexahedron Quality");
     cout << endl;
   }
+
+  constexpr int TriangleTypes[] = { VTK_QUADRATIC_TRIANGLE, VTK_BIQUADRATIC_TRIANGLE,
+    VTK_HIGHER_ORDER_TRIANGLE, VTK_LAGRANGE_TRIANGLE, VTK_BEZIER_TRIANGLE };
+
+  constexpr int QuadTypes[] = { VTK_QUADRATIC_QUAD, VTK_QUADRATIC_LINEAR_QUAD,
+    VTK_HIGHER_ORDER_QUAD, VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_QUADRILATERAL };
+
+  constexpr int TetraTypes[] = { VTK_QUADRATIC_TETRA, VTK_HIGHER_ORDER_TETRAHEDRON,
+    VTK_LAGRANGE_TETRAHEDRON, VTK_BEZIER_TETRAHEDRON };
+
+  constexpr int HexaTypes[] = { VTK_QUADRATIC_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON,
+    VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, VTK_HIGHER_ORDER_HEXAHEDRON, VTK_LAGRANGE_HEXAHEDRON,
+    VTK_BEZIER_HEXAHEDRON };
+
+  vtkLog(INFO, "Testing non linear triangles");
+  TestNonLinearCells(VTK_TRIANGLE, TriangleTypes, sizeof(TriangleTypes) / sizeof(int));
+  vtkLog(INFO, "Testing non linear quads");
+  TestNonLinearCells(VTK_QUAD, QuadTypes, sizeof(QuadTypes) / sizeof(int));
+  vtkLog(INFO, "Testing non linear tetras");
+  TestNonLinearCells(VTK_TETRA, TetraTypes, sizeof(TetraTypes) / sizeof(int));
+  vtkLog(INFO, "Testing non linear hexahedrons");
+  TestNonLinearCells(VTK_HEXAHEDRON, HexaTypes, sizeof(HexaTypes) / sizeof(int));
 
   // Exercise remaining methods for coverage
   iq->Print(cout);
