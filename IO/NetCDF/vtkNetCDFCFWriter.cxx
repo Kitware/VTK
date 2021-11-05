@@ -10,6 +10,7 @@
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkLongArray.h"
 #include "vtkNew.h"
