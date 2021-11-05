@@ -112,7 +112,7 @@ public:
   int AudioStreamIndex = -1;
   AVFrame* Frame = nullptr;
   AVFrame* AudioFrame = nullptr;
-  AVPacket* Packet;
+  AVPacket* Packet = nullptr;
   struct SwsContext* RGBContext = nullptr;
 };
 
