@@ -27,6 +27,7 @@ vtk_add_test_cxx(vtkFiltersExtractionCxxTests tests
   TestExtraction.cxx
   TestExtractionExpression.cxx
   TestExtractParticlesOverTime.cxx,NO_VALID,NO_DATA
+  TestExtractPolyDataGeometry.cxx,NO_VALID
   TestExtractRectilinearGrid.cxx,NO_VALID,NO_DATA
   TestExtractRows.cxx,NO_VALID,NO_DATA
   TestExtractSelectedArraysOverTime.cxx,NO_VALID
