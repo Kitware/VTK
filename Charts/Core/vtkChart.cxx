@@ -332,28 +332,32 @@ bool vtkChart::CalculateUnscaledPlotTransform(vtkAxis* x, vtkAxis* y, vtkTransfo
 //------------------------------------------------------------------------------
 void vtkChart::SetBottomBorder(int border)
 {
-  this->Point1[1] = border >= 0 ? border : 0;
+  this->Borders[1] = border >= 0 ? border : 0;
+  this->Point1[1] = this->Borders[1];
   this->Point1[1] += static_cast<int>(this->Size.GetY());
 }
 
 //------------------------------------------------------------------------------
 void vtkChart::SetTopBorder(int border)
 {
-  this->Point2[1] = border >= 0 ? this->Geometry[1] - border : this->Geometry[1];
+  this->Borders[2] = border >= 0 ? border : 0;
+  this->Point2[1] = this->Geometry[1] - this->Borders[2];
   this->Point2[1] += static_cast<int>(this->Size.GetY());
 }
 
 //------------------------------------------------------------------------------
 void vtkChart::SetLeftBorder(int border)
 {
-  this->Point1[0] = border >= 0 ? border : 0;
+  this->Borders[0] = border >= 0 ? border : 0;
+  this->Point1[0] = this->Borders[0];
   this->Point1[0] += static_cast<int>(this->Size.GetX());
 }
 
 //------------------------------------------------------------------------------
 void vtkChart::SetRightBorder(int border)
 {
-  this->Point2[0] = border >= 0 ? this->Geometry[0] - border : this->Geometry[0];
+  this->Borders[3] = border >= 0 ? border : 0;
+  this->Point2[0] = this->Geometry[0] - this->Borders[3];
   this->Point2[0] += static_cast<int>(this->Size.GetX());
 }
 

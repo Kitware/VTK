@@ -271,7 +271,7 @@ public:
    * width and height of the chart. The borders will be laid out within the
    * specified rectangle.
    */
-  void SetSize(const vtkRectf& rect);
+  virtual void SetSize(const vtkRectf& rect);
 
   /**
    * Get the current size of the chart.
@@ -416,6 +416,11 @@ protected:
    * The position of the upper right corner of the chart.
    */
   int Point2[2];
+
+  /**
+   * The borders around the chart.
+   */
+  int Borders[4];
 
   /**
    * Display the legend?

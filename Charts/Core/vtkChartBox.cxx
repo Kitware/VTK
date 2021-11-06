@@ -211,7 +211,7 @@ bool vtkChartBox::Paint(vtkContext2D* painter)
   if (this->GetShowLegend())
   {
     vtkRectf rect;
-    rect.Set(0, 2, 10, 20);
+    rect.Set(0, this->Size.GetY() + 2, 10, 20);
     this->Storage->Plot->PaintLegend(painter, rect, 0);
   }
 
@@ -393,11 +393,21 @@ void vtkChartBox::UpdateGeometry(vtkContext2D* painter)
 {
   vtkVector2i geometry(this->GetScene()->GetViewWidth(), this->GetScene()->GetViewHeight());
 
-  if (geometry.GetX() != this->Geometry[0] || geometry.GetY() != this->Geometry[1] ||
-    !this->GeometryValid)
+  if (this->LayoutStrategy == vtkChart::FILL_SCENE &&
+    (geometry.GetX() != this->Geometry[0] || geometry.GetY() != this->Geometry[1]))
+  {
+    this->SetSize(vtkRectf(0.0, 0.0, geometry[0], geometry[1]));
+  }
+
+  if (!this->GeometryValid)
   {
     vtkAxis* axis = this->Storage->YAxis;
 
+    // Retrieve correct Y coordinates of Point1 and Point2 based on the new size
+    vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+    this->SetBorders(0, 30 * tileScale.GetY(), 0, 20 * tileScale.GetY());
+
+    // Use these coordinates to update the axis and calculate the leftBorder
     axis->SetPoint1(0, this->Point1[1]);
     axis->SetPoint2(0, this->Point2[1]);
     if (axis->GetBehavior() == 0)
@@ -412,13 +422,9 @@ void vtkChartBox::UpdateGeometry(vtkContext2D* painter)
       vtkRectf bounds = axis->GetBoundingRect(painter);
       leftBorder = int(bounds.GetWidth());
     }
-    axis->SetPoint1(leftBorder, this->Point1[1]);
-    axis->SetPoint2(leftBorder, this->Point2[1]);
-
-    // Take up the entire window right now, this could be made configurable
-    this->SetGeometry(geometry.GetData());
-
-    vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+    // Update axis points and chart borders using calculated leftBorder
+    axis->SetPoint1(this->Point1[0] + leftBorder, this->Point1[1]);
+    axis->SetPoint2(this->Point1[0] + leftBorder, this->Point2[1]);
     this->SetBorders(leftBorder, 30 * tileScale.GetY(), 0, 20 * tileScale.GetY());
 
     int nbPlots = static_cast<int>(this->Storage->XPosition.size());
@@ -688,6 +694,25 @@ void vtkChartBox::SetTooltipInfo(const vtkContextMouseEvent& mouse, const vtkVec
   // Set the tooltip
   this->Tooltip->SetText(tooltipLabel);
   this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2, mouse.GetScreenPos()[1] + 2);
+}
+
+//------------------------------------------------------------------------------
+void vtkChartBox::SetSize(const vtkRectf& rect)
+{
+  this->Superclass::SetSize(rect);
+  this->GeometryValid = false;
+}
+
+void vtkChartBox::SetGeometry(int arg1, int arg2)
+{
+  this->Superclass::SetGeometry(arg1, arg2);
+  this->GeometryValid = false;
+}
+
+void vtkChartBox::SetLayoutStrategy(int strategy)
+{
+  this->Superclass::SetLayoutStrategy(strategy);
+  this->GeometryValid = false;
 }
 
 //------------------------------------------------------------------------------

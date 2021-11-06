@@ -161,6 +161,24 @@ public:
   virtual void SetTooltipInfo(const vtkContextMouseEvent&, const vtkVector2d&, vtkIdType, vtkPlot*,
     vtkIdType segmentIndex = -1);
 
+  /**
+   * Calls superclass implementation and sets GeometryValid to False, causing
+   * the chart's geometry to be updated on the next Paint call.
+   */
+  virtual void SetSize(const vtkRectf& rect) override;
+
+  /**
+   * Calls superclass implementation and sets GeometryValid to False, causing
+   * the chart's geometry to be updated on the next Paint call.
+   */
+  virtual void SetGeometry(int arg1, int arg2) override;
+
+  /**
+   * Calls superclass implementation and sets GeometryValid to False, causing
+   * the chart's geometry to be updated on the next Paint call.
+   */
+  virtual void SetLayoutStrategy(int strategy) override;
+
 protected:
   vtkChartBox();
   ~vtkChartBox() override;

@@ -123,6 +123,8 @@ bool vtkPlotPie::Paint(vtkContext2D* painter)
   }
 
   float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+  vtkNew<vtkBrush> brush;
+  painter->ApplyBrush(brush);
 
   for (int i = 0; i < this->Points->GetNumberOfPoints(); ++i)
   {
