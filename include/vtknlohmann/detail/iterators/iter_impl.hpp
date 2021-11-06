@@ -3,13 +3,13 @@
 #include <iterator> // iterator, random_access_iterator_tag, bidirectional_iterator_tag, advance, next
 #include <type_traits> // conditional, is_const, remove_const
 
-#include <nlohmann/detail/exceptions.hpp>
-#include <nlohmann/detail/iterators/internal_iterator.hpp>
-#include <nlohmann/detail/iterators/primitive_iterator.hpp>
-#include <nlohmann/detail/macro_scope.hpp>
-#include <nlohmann/detail/meta/cpp_future.hpp>
-#include <nlohmann/detail/meta/type_traits.hpp>
-#include <nlohmann/detail/value_t.hpp>
+#include VTK_NLOHMANN_JSON(detail/exceptions.hpp)
+#include VTK_NLOHMANN_JSON(detail/iterators/internal_iterator.hpp)
+#include VTK_NLOHMANN_JSON(detail/iterators/primitive_iterator.hpp)
+#include VTK_NLOHMANN_JSON(detail/macro_scope.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/cpp_future.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/type_traits.hpp)
+#include VTK_NLOHMANN_JSON(detail/value_t.hpp)
 
 namespace nlohmann
 {

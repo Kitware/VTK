@@ -48,33 +48,33 @@ SOFTWARE.
 #include <utility> // declval, forward, move, pair, swap
 #include <vector> // vector
 
-#include <nlohmann/adl_serializer.hpp>
-#include <nlohmann/byte_container_with_subtype.hpp>
-#include <nlohmann/detail/conversions/from_json.hpp>
-#include <nlohmann/detail/conversions/to_json.hpp>
-#include <nlohmann/detail/exceptions.hpp>
-#include <nlohmann/detail/hash.hpp>
-#include <nlohmann/detail/input/binary_reader.hpp>
-#include <nlohmann/detail/input/input_adapters.hpp>
-#include <nlohmann/detail/input/lexer.hpp>
-#include <nlohmann/detail/input/parser.hpp>
-#include <nlohmann/detail/iterators/internal_iterator.hpp>
-#include <nlohmann/detail/iterators/iter_impl.hpp>
-#include <nlohmann/detail/iterators/iteration_proxy.hpp>
-#include <nlohmann/detail/iterators/json_reverse_iterator.hpp>
-#include <nlohmann/detail/iterators/primitive_iterator.hpp>
-#include <nlohmann/detail/json_pointer.hpp>
-#include <nlohmann/detail/json_ref.hpp>
-#include <nlohmann/detail/macro_scope.hpp>
-#include <nlohmann/detail/string_escape.hpp>
-#include <nlohmann/detail/meta/cpp_future.hpp>
-#include <nlohmann/detail/meta/type_traits.hpp>
-#include <nlohmann/detail/output/binary_writer.hpp>
-#include <nlohmann/detail/output/output_adapters.hpp>
-#include <nlohmann/detail/output/serializer.hpp>
-#include <nlohmann/detail/value_t.hpp>
-#include <nlohmann/json_fwd.hpp>
-#include <nlohmann/ordered_map.hpp>
+#include VTK_NLOHMANN_JSON(adl_serializer.hpp)
+#include VTK_NLOHMANN_JSON(byte_container_with_subtype.hpp)
+#include VTK_NLOHMANN_JSON(detail/conversions/from_json.hpp)
+#include VTK_NLOHMANN_JSON(detail/conversions/to_json.hpp)
+#include VTK_NLOHMANN_JSON(detail/exceptions.hpp)
+#include VTK_NLOHMANN_JSON(detail/hash.hpp)
+#include VTK_NLOHMANN_JSON(detail/input/binary_reader.hpp)
+#include VTK_NLOHMANN_JSON(detail/input/input_adapters.hpp)
+#include VTK_NLOHMANN_JSON(detail/input/lexer.hpp)
+#include VTK_NLOHMANN_JSON(detail/input/parser.hpp)
+#include VTK_NLOHMANN_JSON(detail/iterators/internal_iterator.hpp)
+#include VTK_NLOHMANN_JSON(detail/iterators/iter_impl.hpp)
+#include VTK_NLOHMANN_JSON(detail/iterators/iteration_proxy.hpp)
+#include VTK_NLOHMANN_JSON(detail/iterators/json_reverse_iterator.hpp)
+#include VTK_NLOHMANN_JSON(detail/iterators/primitive_iterator.hpp)
+#include VTK_NLOHMANN_JSON(detail/json_pointer.hpp)
+#include VTK_NLOHMANN_JSON(detail/json_ref.hpp)
+#include VTK_NLOHMANN_JSON(detail/macro_scope.hpp)
+#include VTK_NLOHMANN_JSON(detail/string_escape.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/cpp_future.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/type_traits.hpp)
+#include VTK_NLOHMANN_JSON(detail/output/binary_writer.hpp)
+#include VTK_NLOHMANN_JSON(detail/output/output_adapters.hpp)
+#include VTK_NLOHMANN_JSON(detail/output/serializer.hpp)
+#include VTK_NLOHMANN_JSON(detail/value_t.hpp)
+#include VTK_NLOHMANN_JSON(json_fwd.hpp)
+#include VTK_NLOHMANN_JSON(ordered_map.hpp)
 
 #if defined(JSON_HAS_CPP_17)
     #include <string_view>
@@ -9071,6 +9071,6 @@ inline nlohmann::json::json_pointer operator "" _json_pointer(const char* s, std
     return nlohmann::json::json_pointer(std::string(s, n));
 }
 
-#include <nlohmann/detail/macro_unscope.hpp>
+#include VTK_NLOHMANN_JSON(detail/macro_unscope.hpp)
 
 #endif  // INCLUDE_NLOHMANN_JSON_HPP_
