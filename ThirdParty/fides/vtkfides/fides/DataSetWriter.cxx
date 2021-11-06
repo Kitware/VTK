@@ -14,6 +14,7 @@
 #include <fides/predefined/InternalMetadataSource.h>
 
 #include <ios>
+#include <numeric>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -40,7 +41,7 @@
 #include <fides/Field.h>
 
 #ifdef FIDES_USE_MPI
-#include <mpi.h>
+#include <vtk_mpi.h>
 #endif
 
 template <typename T>

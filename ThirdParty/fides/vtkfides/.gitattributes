@@ -15,6 +15,3 @@ data/* filter=lfs diff=lfs merge=lfs -text
 *.txt            whitespace=tab-in-indent
 
 thirdparty/rapidjson/fidesrapidjson/**           -format.clang-format -whitespace
-
-# XXX(kitware): Ignore whitespace issues.
-* -whitespace

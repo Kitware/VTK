@@ -1,6 +1,6 @@
 if (FALSE) # XXX(kitware): VTK handles CMake minimum versions
 cmake_minimum_required(VERSION 3.9)
-endif()
+endif ()
 project(FIDES LANGUAGES C CXX VERSION 0.1)
 
 list(INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake")
@@ -21,16 +21,16 @@ include(cmake/FidesSanitize.cmake)
 
 # Add options for performing code coverage tests
 include(cmake/FidesCoverage.cmake)
-endif()
+endif ()
 
 include(FidesModule)
 
 if (FALSE) # XXX(kitware): VTK handles VTK-m
 find_package(ADIOS2 REQUIRED)
 find_package(VTKm REQUIRED)
-else()
-  vtk_module_find_package(PACKAGE ADIOS2)
-endif()
+else ()
+vtk_module_find_package(PACKAGE ADIOS2)
+endif ()
 
 if (FALSE) # XXX(kitware): VTK handles building shared libs/testing and MPI
 option(BUILD_SHARED_LIBS "Build fides with shared libraries" ON)
@@ -44,15 +44,27 @@ if(ADIOS2_HAVE_MPI)
   set(MPI_LIBS MPI::MPI_CXX)
 endif()
 
-else()
-  set(FIDES_ENABLE_TESTING OFF)
-endif()
+else ()
+set(FIDES_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+set(FIDES_ENABLE_TESTING OFF)
+set(FIDES_ENABLE_EXAMPLES OFF)
 
+if (TARGET VTK::mpi)
+  set(FIDES_USE_MPI TRUE)
+  set(MPI_DEFS FIDES_USE_MPI)
+  set(MPI_LIBS VTK::mpi)
+endif ()
+endif ()
+
+if (FALSE) # XXX(kitware): VTK handles building shared libs/testing and MPI
 option(FIDES_USE_EXTERNAL_RAPIDJSON "Use external RapidJSON" OFF)
 mark_as_advanced(FIDES_USE_EXTERNAL_RAPIDJSON)
 if (FIDES_USE_EXTERNAL_RAPIDJSON)
   find_package(RapidJSON REQUIRED)
 endif()
+else ()
+set(FIDES_USE_EXTERNAL_RAPIDJSON OFF)
+endif ()
 
 if (NOT DEFINED FIDES_INSTALL_INCLUDE_DIR)
   set(FIDES_INSTALL_INCLUDE_DIR "include/fides")
@@ -64,14 +76,9 @@ endif()
 
 add_subdirectory(fides)
 
-if(VTK_USE_MPI)
-  set(MPI_DEFS FIDES_USE_MPI)
-endif()
-
 # add third party
 add_subdirectory(thirdparty/rapidjson)
 
-if (FALSE) # XXX(kitware): don't need testing related stuff
 if (FIDES_ENABLE_TESTING)
   enable_testing()
   include(CTest)
@@ -94,17 +101,22 @@ if (FIDES_ENABLE_COVERAGE)
   set(FIDES_COVERAGE_ENABLED ON)
 endif()
 
+if (FALSE) # XXX(kitware): not needed for VTK
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
   )
+endif ()
 
 if (FIDES_ENABLE_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
+if (FALSE) # XXX(kitware): VTK handles building shared libs/testing and MPI
 option(FIDES_BUILD_DOCS "Build Fides User Guide locally" OFF)
+else ()
+set(FIDES_BUILD_DOCS OFF)
+endif ()
 if (FIDES_BUILD_DOCS)
   add_subdirectory(docs)
-endif()
 endif()
