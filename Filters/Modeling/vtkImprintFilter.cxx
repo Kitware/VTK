@@ -508,7 +508,7 @@ struct vtkTriEdgeList : public std::vector<vtkTriEdge>
       vtkTriEdge& triEdge = triEdgeList[offset];
       vtkIdType currentId = triEdge.V0;
       currentOffset = offset;
-      while (triEdgeList[++currentOffset].V0 == currentId && currentOffset < numEdges)
+      while (++currentOffset < numEdges && triEdgeList[currentOffset].V0 == currentId)
         ; // advance
       vtkIdType num = currentOffset - offset;
       this->Map.emplace(currentId, vtkTriEdgeOffset(offset, num));
