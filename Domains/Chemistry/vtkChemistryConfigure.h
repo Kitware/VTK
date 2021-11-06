@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkChemistryConfigure.h.in
+  Module:    vtkChemistryConfigure.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,7 +16,14 @@
 #ifndef vtkDomainsChemistryConfigure_h
 #define vtkDomainsChemistryConfigure_h
 
-/* Where the Blue Obelisk Data Repository element.xml file is found. */
-#define VTK_BODR_DATA_PATH_BUILD "@VTK_SOURCE_DIR@/Domains/Chemistry"
+// VTK_DEPRECATED_IN_9_2_0
+
+#ifdef _MSC_VER
+#pragma message("vtkChemistryConfigure.h is deprecated. Just remove the `#include`.")
+#else
+#warning "vtkChemistryConfigure.h is deprecated. Just remove the `#include`."
+#endif
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkChemistryConfigure.h
