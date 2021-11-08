@@ -34,7 +34,6 @@ vtkImageMathematics::vtkImageMathematics()
   this->ConstantK = 1.0;
   this->ConstantC = 0.0;
   this->DivideByZeroToC = 0;
-  // this->SetNumberOfInputPorts(2);
 }
 
 //------------------------------------------------------------------------------
@@ -63,9 +62,25 @@ void vtkImageMathematics::ReplaceNthInputConnection(int idx, vtkAlgorithmOutput*
 // The default vtkImageAlgorithm semantics are that SetInput() puts
 // each input on a different port, we want all the image inputs to
 // go on the first port.
-void vtkImageMathematics::SetInputData(int idx, vtkDataObject* input)
+void vtkImageMathematics::SetInputData(int vtkNotUsed(idx), vtkDataObject* input)
 {
   this->AddInputDataInternal(0, input);
+}
+
+//------------------------------------------------------------------------------
+// The default vtkImageAlgorithm semantics are that SetInput() puts
+// each input on a different port, we want all the image inputs to
+// go on the first port.
+void vtkImageMathematics::SetInputConnection(int idx, vtkAlgorithmOutput* input)
+{
+  if (idx > 0)
+  {
+    this->AddInputConnection(0, input);
+  }
+  else
+  {
+    this->Superclass::SetInputConnection(idx, input);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -446,9 +461,7 @@ void vtkImageMathematics::ThreadedRequestData(vtkInformation* vtkNotUsed(request
 
   outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
-  int idx1;
-
-  for (idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
+  for (int idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
   {
     inPtr1 = inData[0][idx1]->GetScalarPointerForExtent(outExt);
     if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT ||

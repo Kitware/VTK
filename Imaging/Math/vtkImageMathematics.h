@@ -205,12 +205,15 @@ public:
   vtkBooleanMacro(DivideByZeroToC, vtkTypeBool);
   ///@}
 
+  ///@{
   /**
-   * Set the two inputs to this filter. For some operations, the second input
+   * Set the inputs to this filter. For some operations, the second input
    * is not used.
    */
   virtual void SetInput1Data(vtkDataObject* in) { this->SetInputData(0, in); }
-  virtual void SetInput2Data(vtkDataObject* in) { this->SetInputData(1, in); }
+  virtual void SetInput2Data(vtkDataObject* in) { this->AddInputData(0, in); }
+  virtual void SetInputConnection(int idx, vtkAlgorithmOutput* input) override;
+  ///@}
 
   /**
    * Replace one of the input connections with a new input.  You can
