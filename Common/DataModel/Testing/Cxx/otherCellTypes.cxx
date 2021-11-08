@@ -21,6 +21,7 @@
 
 #include "vtkCellType.h"
 #include "vtkCellTypes.h"
+#include "vtkIntArray.h"
 
 void TestOCT()
 {
