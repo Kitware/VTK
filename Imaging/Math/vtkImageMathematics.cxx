@@ -65,7 +65,7 @@ void vtkImageMathematics::ReplaceNthInputConnection(int idx, vtkAlgorithmOutput*
 // go on the first port.
 void vtkImageMathematics::SetInputData(int idx, vtkDataObject* input)
 {
-  this->SetInputDataInternal(idx, input);
+  this->AddInputDataInternal(0, input);
 }
 
 //------------------------------------------------------------------------------
