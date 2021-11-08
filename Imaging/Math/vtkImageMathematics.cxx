@@ -381,8 +381,11 @@ void vtkImageMathematicsExecute2(vtkImageMathematics* self, vtkImageData* inData
             }
             break;
           case VTK_COMPLEX_MULTIPLY:
-            outPtr[0] = outPtr[0] * inPtr[0] - outPtr[1] * inPtr[1];
-            outPtr[1] = outPtr[1] * inPtr[0] + outPtr[0] * inPtr[1];
+            double tmp[2];
+            tmp[0] = outPtr[0];
+            tmp[1] = outPtr[1];
+            outPtr[0] = tmp[0] * inPtr[0] - tmp[1] * inPtr[1];
+            outPtr[1] = tmp[1] * inPtr[0] + tmp[0] * inPtr[1];
             // Why bother trying to figure out the continuous increments.
             outPtr++;
             inPtr++;
