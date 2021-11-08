@@ -202,15 +202,15 @@ int vtkGhostCellsGenerator::RequestData(
                       << "Ghosts are not exchanged between data sets of different types.");
     }
 
-    retVal &= vtkDIYGhostUtilities::GenerateGhostCells(
+    retVal &= vtkDIYGhostUtilities::GenerateGhostCellsImageData(
                 inputsID, outputsID, numberOfGhostLayersToCompute, this->Controller) &&
-      vtkDIYGhostUtilities::GenerateGhostCells(
+      vtkDIYGhostUtilities::GenerateGhostCellsRectilinearGrid(
         inputsRG, outputsRG, numberOfGhostLayersToCompute, this->Controller) &&
-      vtkDIYGhostUtilities::GenerateGhostCells(
+      vtkDIYGhostUtilities::GenerateGhostCellsStructuredGrid(
         inputsSG, outputsSG, numberOfGhostLayersToCompute, this->Controller) &&
-      vtkDIYGhostUtilities::GenerateGhostCells(
+      vtkDIYGhostUtilities::GenerateGhostCellsUnstructuredGrid(
         inputsUG, outputsUG, numberOfGhostLayersToCompute, this->Controller) &&
-      vtkDIYGhostUtilities::GenerateGhostCells(
+      vtkDIYGhostUtilities::GenerateGhostCellsPolyData(
         inputsPD, outputsPD, numberOfGhostLayersToCompute, this->Controller);
   }
 
