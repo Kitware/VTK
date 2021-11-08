@@ -3,6 +3,7 @@ mark_as_advanced(VTK_ENABLE_VR_COLLABORATION)
 
 set(classes
   vtkOpenGLAvatar
+  vtkVRCamera
   vtkVRControlsHelper
   vtkVRFollower
   vtkVRHardwarePicker
@@ -16,9 +17,6 @@ set(classes
   vtkVRRenderer
   vtkVRRenderWindow
   vtkVRRenderWindowInteractor)
-
-set(headers
-  vtkVRCamera.h)
 
 set(geometry_sources)
 set(geometry_headers)
@@ -61,7 +59,6 @@ endif()
 
 vtk_module_add_module(VTK::RenderingVR
   CLASSES ${classes}
-  HEADERS ${headers}
   SOURCES ${vtk_object_factory_source} ${geometry_sources}
   PRIVATE_HEADERS ${vtk_object_factory_header} ${geometry_headers}
   )
