@@ -50,6 +50,8 @@ set(classes
   vtkContourWidget
   vtkCurveRepresentation
   vtkDijkstraImageContourLineInterpolator
+  vtkDisplaySizedImplicitPlaneWidget
+  vtkDisplaySizedImplicitPlaneRepresentation
   vtkDistanceRepresentation
   vtkDistanceRepresentation2D
   vtkDistanceRepresentation3D

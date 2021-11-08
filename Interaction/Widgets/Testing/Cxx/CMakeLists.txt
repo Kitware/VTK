@@ -21,6 +21,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestConstrainedHandleWidget.cxx
   TestContourWidget2.cxx
   TestDijkstraImageGeodesicPath.cxx
+  TestDisplaySizedImplicitPlaneWidget.cxx
   TestDistanceWidget.cxx
   TestDistanceWidget3D.cxx
   TestFinitePlaneWidget.cxx

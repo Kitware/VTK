@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImplicitPlaneRepresentation.cxx
+  Module:    vtkDisplaySizedImplicitPlaneRepresentation.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkImplicitPlaneRepresentation.h"
+
+#include "vtkDisplaySizedImplicitPlaneRepresentation.h"
 
 #include "vtkActor.h"
 #include "vtkAssemblyPath.h"
@@ -21,7 +22,7 @@
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
 #include "vtkConeSource.h"
-#include "vtkCutter.h"
+#include "vtkDiskSource.h"
 #include "vtkEventData.h"
 #include "vtkFeatureEdges.h"
 #include "vtkImageData.h"
@@ -30,10 +31,8 @@
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOutlineFilter.h"
 #include "vtkPickingManager.h"
 #include "vtkPlane.h"
-#include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -48,10 +47,12 @@
 
 #include <cfloat> //for FLT_EPSILON
 
-vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
+vtkStandardNewMacro(vtkDisplaySizedImplicitPlaneRepresentation);
+
+static constexpr double DefaultPickTol = 0.001;
 
 //------------------------------------------------------------------------------
-vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
+vtkDisplaySizedImplicitPlaneRepresentation::vtkDisplaySizedImplicitPlaneRepresentation()
 {
   this->NormalToXAxis = 0;
   this->NormalToYAxis = 0;
@@ -62,8 +63,6 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
 
   this->LockNormalToCamera = 0;
 
-  this->CropPlaneToBoundingBox = true;
-
   // Handle size is in pixels for this widget
   this->HandleSize = 5.0;
 
@@ -71,90 +70,54 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->BumpDistance = 0.01;
 
   // Build the representation of the widget
-  //
-  this->Plane = vtkPlane::New();
   this->Plane->SetNormal(0, 0, 1);
   this->Plane->SetOrigin(0, 0, 0);
 
-  this->Box = vtkImageData::New();
   this->Box->SetDimensions(2, 2, 2);
-  this->Outline = vtkOutlineFilter::New();
-  this->Outline->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-  this->Outline->SetInputData(this->Box);
-  this->OutlineMapper = vtkPolyDataMapper::New();
-  this->OutlineMapper->SetInputConnection(this->Outline->GetOutputPort());
-  this->OutlineActor = vtkActor::New();
-  this->OutlineActor->SetMapper(this->OutlineMapper);
-  this->OutlineTranslation = 1;
   this->ScaleEnabled = 1;
   this->OutsideBounds = 1;
-  this->ConstrainToWidgetBounds = 1;
+  this->ConstrainToWidgetBounds = 0;
 
-  this->Cutter = vtkCutter::New();
-  this->Cutter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-  this->Cutter->SetInputData(this->Box);
-  this->Cutter->SetCutFunction(this->Plane);
-  this->PlaneSource = vtkPlaneSource::New();
-  this->PlaneSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-  this->PlaneSource->SetResolution(1, 1);
-  this->CutMapper = vtkPolyDataMapper::New();
-  this->CutMapper->SetInputConnection(this->Cutter->GetOutputPort());
-  this->CutActor = vtkActor::New();
-  this->CutActor->SetMapper(this->CutMapper);
+  this->RadiusMultiplier = 1.0;
+  this->DiskPlaneSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+  this->DiskPlaneSource->SetCircumferentialResolution(64);
+  this->DiskPlaneSource->SetInnerRadius(0);
+  this->PlaneMapper->SetInputConnection(this->DiskPlaneSource->GetOutputPort());
+  this->PlaneActor->SetMapper(this->PlaneMapper);
   this->DrawPlane = 1;
-  this->DrawOutline = 1;
 
-  this->Edges = vtkFeatureEdges::New();
   this->Edges->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-  this->Edges->SetInputConnection(this->Cutter->GetOutputPort());
-  this->EdgesTuber = vtkTubeFilter::New();
+  this->Edges->SetInputConnection(this->DiskPlaneSource->GetOutputPort());
   this->EdgesTuber->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->EdgesTuber->SetInputConnection(this->Edges->GetOutputPort());
   this->EdgesTuber->SetNumberOfSides(12);
-  this->EdgesMapper = vtkPolyDataMapper::New();
   this->EdgesMapper->SetInputConnection(this->EdgesTuber->GetOutputPort());
-  this->EdgesActor = vtkActor::New();
   this->EdgesActor->SetMapper(this->EdgesMapper);
-  this->Tubing = 1; // control whether tubing is on
 
   // Create the +- plane normal
-  this->LineSource = vtkLineSource::New();
   this->LineSource->SetResolution(1);
   this->LineSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-  this->LineMapper = vtkPolyDataMapper::New();
   this->LineMapper->SetInputConnection(this->LineSource->GetOutputPort());
-  this->LineActor = vtkActor::New();
   this->LineActor->SetMapper(this->LineMapper);
 
-  this->ConeSource = vtkConeSource::New();
   this->ConeSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->ConeSource->SetResolution(12);
   this->ConeSource->SetAngle(25.0);
-  this->ConeMapper = vtkPolyDataMapper::New();
   this->ConeMapper->SetInputConnection(this->ConeSource->GetOutputPort());
-  this->ConeActor = vtkActor::New();
   this->ConeActor->SetMapper(this->ConeMapper);
 
-  this->ConeSource2 = vtkConeSource::New();
   this->ConeSource2->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->ConeSource2->SetResolution(12);
   this->ConeSource2->SetAngle(25.0);
-  this->ConeMapper2 = vtkPolyDataMapper::New();
   this->ConeMapper2->SetInputConnection(this->ConeSource2->GetOutputPort());
-  this->ConeActor2 = vtkActor::New();
   this->ConeActor2->SetMapper(this->ConeMapper2);
 
   // Create the origin handle
-  this->Sphere = vtkSphereSource::New();
   this->Sphere->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->Sphere->SetThetaResolution(16);
   this->Sphere->SetPhiResolution(8);
-  this->SphereMapper = vtkPolyDataMapper::New();
   this->SphereMapper->SetInputConnection(this->Sphere->GetOutputPort());
-  this->SphereActor = vtkActor::New();
   this->SphereActor->SetMapper(this->SphereMapper);
-
-  this->Transform = vtkTransform::New();
 
   // Define the point coordinates
   double bounds[6];
@@ -169,14 +132,13 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->PlaceWidget(bounds);
 
   // Manage the picking stuff
-  this->Picker = vtkCellPicker::New();
-  this->Picker->SetTolerance(0.005);
-  this->Picker->AddPickList(this->CutActor);
+  this->Picker->SetTolerance(DefaultPickTol);
+  this->Picker->AddPickList(this->PlaneActor);
+  this->Picker->AddPickList(this->EdgesActor);
   this->Picker->AddPickList(this->LineActor);
   this->Picker->AddPickList(this->ConeActor);
   this->Picker->AddPickList(this->ConeActor2);
   this->Picker->AddPickList(this->SphereActor);
-  this->Picker->AddPickList(this->OutlineActor);
   this->Picker->PickFromListOn();
 
   // Set up the initial properties
@@ -186,70 +148,21 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->LineActor->SetProperty(this->NormalProperty);
   this->ConeActor->SetProperty(this->NormalProperty);
   this->ConeActor2->SetProperty(this->NormalProperty);
-  this->SphereActor->SetProperty(this->NormalProperty);
-  this->CutActor->SetProperty(this->PlaneProperty);
-  this->OutlineActor->SetProperty(this->OutlineProperty);
+  this->SphereActor->SetProperty(this->SphereProperty);
+  this->PlaneActor->SetProperty(this->PlaneProperty);
+  this->HighlightEdges(0);
 
-  // The bounding box
-  this->BoundingBox = vtkBox::New();
-
-  this->RepresentationState = vtkImplicitPlaneRepresentation::Outside;
+  this->RepresentationState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
 
   this->TranslationAxis = Axis::NONE;
   this->AlwaysSnapToNearestAxis = false;
 }
 
 //------------------------------------------------------------------------------
-vtkImplicitPlaneRepresentation::~vtkImplicitPlaneRepresentation()
-{
-  this->Plane->Delete();
-  this->Box->Delete();
-  this->Outline->Delete();
-  this->OutlineMapper->Delete();
-  this->OutlineActor->Delete();
-
-  this->Cutter->Delete();
-  this->PlaneSource->Delete();
-  this->CutMapper->Delete();
-  this->CutActor->Delete();
-
-  this->Edges->Delete();
-  this->EdgesTuber->Delete();
-  this->EdgesMapper->Delete();
-  this->EdgesActor->Delete();
-
-  this->LineSource->Delete();
-  this->LineMapper->Delete();
-  this->LineActor->Delete();
-
-  this->ConeSource->Delete();
-  this->ConeMapper->Delete();
-  this->ConeActor->Delete();
-
-  this->ConeSource2->Delete();
-  this->ConeMapper2->Delete();
-  this->ConeActor2->Delete();
-
-  this->Sphere->Delete();
-  this->SphereMapper->Delete();
-  this->SphereActor->Delete();
-
-  this->Transform->Delete();
-
-  this->Picker->Delete();
-
-  this->NormalProperty->Delete();
-  this->SelectedNormalProperty->Delete();
-  this->PlaneProperty->Delete();
-  this->SelectedPlaneProperty->Delete();
-  this->OutlineProperty->Delete();
-  this->SelectedOutlineProperty->Delete();
-  this->EdgesProperty->Delete();
-  this->BoundingBox->Delete();
-}
+vtkDisplaySizedImplicitPlaneRepresentation::~vtkDisplaySizedImplicitPlaneRepresentation() = default;
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetLockNormalToCamera(vtkTypeBool lock)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetLockNormalToCamera(vtkTypeBool lock)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << LockNormalToCamera
                 << " to " << lock);
@@ -280,37 +193,17 @@ void vtkImplicitPlaneRepresentation::SetLockNormalToCamera(vtkTypeBool lock)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetCropPlaneToBoundingBox(bool val)
-{
-  if (this->CropPlaneToBoundingBox == val)
-  {
-    return;
-  }
-
-  this->CropPlaneToBoundingBox = val;
-  if (val)
-  {
-    this->CutMapper->SetInputConnection(this->Cutter->GetOutputPort());
-    this->Edges->SetInputConnection(this->Cutter->GetOutputPort());
-  }
-  else
-  {
-    this->CutMapper->SetInputConnection(this->PlaneSource->GetOutputPort());
-    this->Edges->SetInputConnection(this->PlaneSource->GetOutputPort());
-  }
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-int vtkImplicitPlaneRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+int vtkDisplaySizedImplicitPlaneRepresentation::ComputeInteractionState(
+  int X, int Y, int vtkNotUsed(modify))
 {
   // See if anything has been selected
+  this->ComputeAdaptivePickerTolerance();
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
   if (path == nullptr) // Not picking this widget
   {
-    this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
-    this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
+    this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Outside);
+    this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
     return this->InteractionState;
   }
 
@@ -319,58 +212,55 @@ int vtkImplicitPlaneRepresentation::ComputeInteractionState(int X, int Y, int vt
 
   // Depending on the interaction state (set by the widget) we modify
   // this state based on what is picked.
-  if (this->InteractionState == vtkImplicitPlaneRepresentation::Moving)
+  if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Moving)
   {
     vtkProp* prop = path->GetFirstNode()->GetViewProp();
     if (prop == this->ConeActor || prop == this->LineActor || prop == this->ConeActor2)
     {
-      this->InteractionState = vtkImplicitPlaneRepresentation::Rotating;
-      this->SetRepresentationState(vtkImplicitPlaneRepresentation::Rotating);
+      this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Rotating;
+      this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Rotating);
     }
-    else if (prop == this->CutActor)
+    else if (prop == this->EdgesActor)
+    {
+      this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::ResizeDiskRadius;
+      this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::ResizeDiskRadius);
+    }
+    else if (prop == this->PlaneActor)
     {
       if (this->LockNormalToCamera)
       { // Allow camera to work
-        this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
-        this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
+        this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
+        this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Outside);
       }
       else
       {
-        this->InteractionState = vtkImplicitPlaneRepresentation::Pushing;
-        this->SetRepresentationState(vtkImplicitPlaneRepresentation::Pushing);
+        this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Pushing;
+        this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Pushing);
       }
     }
     else if (prop == this->SphereActor)
     {
-      this->InteractionState = vtkImplicitPlaneRepresentation::MovingOrigin;
-      this->SetRepresentationState(vtkImplicitPlaneRepresentation::MovingOrigin);
+      this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::MovingOrigin;
+      this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::MovingOrigin);
     }
     else
     {
-      if (this->OutlineTranslation)
-      {
-        this->InteractionState = vtkImplicitPlaneRepresentation::MovingOutline;
-        this->SetRepresentationState(vtkImplicitPlaneRepresentation::MovingOutline);
-      }
-      else
-      {
-        this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
-        this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
-      }
+      this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
+      this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Outside);
     }
   }
 
   // We may add a condition to allow the camera to work IO scaling
-  else if (this->InteractionState != vtkImplicitPlaneRepresentation::Scaling)
+  else if (this->InteractionState != vtkDisplaySizedImplicitPlaneRepresentation::Scaling)
   {
-    this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
+    this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
   }
 
   return this->InteractionState;
 }
 
 //------------------------------------------------------------------------------
-int vtkImplicitPlaneRepresentation::ComputeComplexInteractionState(
+int vtkDisplaySizedImplicitPlaneRepresentation::ComputeComplexInteractionState(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata, int)
 {
   vtkEventData* edata = static_cast<vtkEventData*>(calldata);
@@ -379,24 +269,12 @@ int vtkImplicitPlaneRepresentation::ComputeComplexInteractionState(
   {
     double pos[3];
     edd->GetWorldPosition(pos);
-    if (this->DrawOutline)
-    {
-      this->Picker->DeletePickList(this->OutlineActor);
-    }
+    this->Picker->SetTolerance(DefaultPickTol);
     vtkAssemblyPath* path = this->GetAssemblyPath3DPoint(pos, this->Picker);
-    if (this->DrawOutline)
-    {
-      this->Picker->AddPickList(this->OutlineActor);
-      if (path == nullptr)
-      {
-        path = this->GetAssemblyPath3DPoint(pos, this->Picker);
-      }
-    }
-
     if (path == nullptr) // Not picking this widget
     {
-      this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
-      this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
+      this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Outside);
+      this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
       return this->InteractionState;
     }
 
@@ -405,51 +283,47 @@ int vtkImplicitPlaneRepresentation::ComputeComplexInteractionState(
 
     // Depending on the interaction state (set by the widget) we modify
     // this state based on what is picked.
-    if (this->InteractionState == vtkImplicitPlaneRepresentation::Moving)
+    if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Moving)
     {
       vtkProp* prop = path->GetFirstNode()->GetViewProp();
       if (prop == this->ConeActor || prop == this->LineActor || prop == this->ConeActor2)
       {
-        this->InteractionState = vtkImplicitPlaneRepresentation::Rotating;
-        this->SetRepresentationState(vtkImplicitPlaneRepresentation::Rotating);
+        this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Rotating;
+        this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Rotating);
       }
-      else if (prop == this->CutActor)
+      else if (prop == this->EdgesActor)
+      {
+        this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::ResizeDiskRadius;
+        this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::ResizeDiskRadius);
+      }
+      else if (prop == this->PlaneActor)
       {
         if (this->LockNormalToCamera)
         { // Allow camera to work
-          this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
-          this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
+          this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
+          this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Outside);
         }
         else
         {
-          this->InteractionState = vtkImplicitPlaneRepresentation::Pushing;
-          this->SetRepresentationState(vtkImplicitPlaneRepresentation::Pushing);
+          this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Pushing;
+          this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Pushing);
         }
       }
       else if (prop == this->SphereActor)
       {
-        this->InteractionState = vtkImplicitPlaneRepresentation::MovingOrigin;
-        this->SetRepresentationState(vtkImplicitPlaneRepresentation::MovingOrigin);
+        this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::MovingOrigin;
+        this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::MovingOrigin);
       }
       else
       {
-        if (this->OutlineTranslation)
-        {
-          this->InteractionState = vtkImplicitPlaneRepresentation::MovingOutline;
-          this->SetRepresentationState(vtkImplicitPlaneRepresentation::MovingOutline);
-        }
-        else
-        {
-          this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
-          this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
-        }
+        this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
+        this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Outside);
       }
     }
-
     // We may add a condition to allow the camera to work IO scaling
-    else if (this->InteractionState != vtkImplicitPlaneRepresentation::Scaling)
+    else if (this->InteractionState != vtkDisplaySizedImplicitPlaneRepresentation::Scaling)
     {
-      this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
+      this->InteractionState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
     }
   }
 
@@ -457,7 +331,7 @@ int vtkImplicitPlaneRepresentation::ComputeComplexInteractionState(
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetRepresentationState(int state)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetRepresentationState(int state)
 {
   if (this->RepresentationState == state)
   {
@@ -465,48 +339,61 @@ void vtkImplicitPlaneRepresentation::SetRepresentationState(int state)
   }
 
   // Clamp the state
-  state = (state < vtkImplicitPlaneRepresentation::Outside
-      ? vtkImplicitPlaneRepresentation::Outside
-      : (state > vtkImplicitPlaneRepresentation::Scaling ? vtkImplicitPlaneRepresentation::Scaling
-                                                         : state));
+  state = (state < vtkDisplaySizedImplicitPlaneRepresentation::Outside
+      ? vtkDisplaySizedImplicitPlaneRepresentation::Outside
+      : (state > vtkDisplaySizedImplicitPlaneRepresentation::Scaling
+            ? vtkDisplaySizedImplicitPlaneRepresentation::Scaling
+            : state));
 
   this->RepresentationState = state;
   this->Modified();
 
-  if (state == vtkImplicitPlaneRepresentation::Rotating)
+  if (state == vtkDisplaySizedImplicitPlaneRepresentation::Rotating)
   {
     this->HighlightNormal(1);
+    this->HighlightSphere(0);
     this->HighlightPlane(1);
+    this->HighlightEdges(0);
   }
-  else if (state == vtkImplicitPlaneRepresentation::Pushing)
+  else if (state == vtkDisplaySizedImplicitPlaneRepresentation::Pushing)
   {
-    this->HighlightNormal(1);
+    this->HighlightNormal(0);
+    this->HighlightSphere(0);
     this->HighlightPlane(1);
+    this->HighlightEdges(0);
   }
-  else if (state == vtkImplicitPlaneRepresentation::MovingOrigin)
+  else if (state == vtkDisplaySizedImplicitPlaneRepresentation::MovingOrigin)
   {
-    this->HighlightNormal(1);
-  }
-  else if (state == vtkImplicitPlaneRepresentation::MovingOutline)
-  {
-    this->HighlightOutline(1);
-  }
-  else if (state == vtkImplicitPlaneRepresentation::Scaling && this->ScaleEnabled)
-  {
-    this->HighlightNormal(1);
+    this->HighlightNormal(0);
+    this->HighlightSphere(1);
     this->HighlightPlane(1);
-    this->HighlightOutline(1);
+    this->HighlightEdges(0);
+  }
+  else if (state == vtkDisplaySizedImplicitPlaneRepresentation::ResizeDiskRadius)
+  {
+    this->HighlightNormal(0);
+    this->HighlightSphere(0);
+    this->HighlightPlane(1);
+    this->HighlightEdges(1);
+  }
+  else if (state == vtkDisplaySizedImplicitPlaneRepresentation::Scaling && this->ScaleEnabled)
+  {
+    this->HighlightNormal(1);
+    this->HighlightSphere(1);
+    this->HighlightPlane(1);
+    this->HighlightEdges(1);
   }
   else
   {
     this->HighlightNormal(0);
+    this->HighlightSphere(0);
     this->HighlightPlane(0);
-    this->HighlightOutline(0);
+    this->HighlightEdges(0);
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::StartWidgetInteraction(double e[2])
+void vtkDisplaySizedImplicitPlaneRepresentation::StartWidgetInteraction(double e[2])
 {
   this->StartEventPosition[0] = e[0];
   this->StartEventPosition[1] = e[1];
@@ -518,7 +405,7 @@ void vtkImplicitPlaneRepresentation::StartWidgetInteraction(double e[2])
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::StartComplexInteraction(
+void vtkDisplaySizedImplicitPlaneRepresentation::StartComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
   vtkEventData* edata = static_cast<vtkEventData*>(calldata);
@@ -541,7 +428,7 @@ void vtkImplicitPlaneRepresentation::StartComplexInteraction(
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
+void vtkDisplaySizedImplicitPlaneRepresentation::WidgetInteraction(double e[2])
 {
   // Do different things depending on state
   // Calculations everybody does
@@ -564,28 +451,30 @@ void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
   vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, e[0], e[1], z, pickPoint);
 
   // Process the motion
-  if (this->InteractionState == vtkImplicitPlaneRepresentation::MovingOutline)
-  {
-    this->TranslateOutline(prevPickPoint, pickPoint);
-  }
-  else if (this->InteractionState == vtkImplicitPlaneRepresentation::MovingOrigin)
+  if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::MovingOrigin)
   {
     this->TranslateOrigin(prevPickPoint, pickPoint);
   }
-  else if (this->InteractionState == vtkImplicitPlaneRepresentation::Pushing)
+  else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::ResizeDiskRadius)
+  {
+    camera->GetViewPlaneNormal(vpn);
+    this->ResizeRadius(prevPickPoint, pickPoint, vpn);
+  }
+  else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Pushing)
   {
     this->Push(prevPickPoint, pickPoint);
   }
-  else if (this->InteractionState == vtkImplicitPlaneRepresentation::Scaling && this->ScaleEnabled)
+  else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Scaling &&
+    this->ScaleEnabled)
   {
     this->Scale(prevPickPoint, pickPoint, e[0], e[1]);
   }
-  else if (this->InteractionState == vtkImplicitPlaneRepresentation::Rotating)
+  else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Rotating)
   {
     camera->GetViewPlaneNormal(vpn);
     this->Rotate(e[0], e[1], prevPickPoint, pickPoint, vpn);
   }
-  else if (this->InteractionState == vtkImplicitPlaneRepresentation::Outside &&
+  else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Outside &&
     this->LockNormalToCamera)
   {
     this->SetNormalToCamera();
@@ -597,7 +486,7 @@ void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::ComplexInteraction(
+void vtkDisplaySizedImplicitPlaneRepresentation::ComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
   vtkEventData* edata = static_cast<vtkEventData*>(calldata);
@@ -610,30 +499,28 @@ void vtkImplicitPlaneRepresentation::ComplexInteraction(
     edd->GetWorldOrientation(eventDir);
 
     // Process the motion
-    if (this->InteractionState == vtkImplicitPlaneRepresentation::MovingOutline)
-    {
-      // this->TranslateOutline(this->LastEventPosition, eventPos);
-      this->UpdatePose(this->LastEventPosition, this->LastEventOrientation, eventPos, eventDir);
-    }
-    else if (this->InteractionState == vtkImplicitPlaneRepresentation::MovingOrigin)
+    if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::MovingOrigin)
     {
       this->UpdatePose(this->LastEventPosition, this->LastEventOrientation, eventPos, eventDir);
     }
-    else if (this->InteractionState == vtkImplicitPlaneRepresentation::Pushing)
+    else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::ResizeDiskRadius)
     {
-      // this->Push(this->LastEventPosition, eventPos);
+      this->ResizeRadius3D(this->LastEventPosition, eventPos);
+    }
+    else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Pushing)
+    {
       this->UpdatePose(this->LastEventPosition, this->LastEventOrientation, eventPos, eventDir);
     }
-    else if (this->InteractionState == vtkImplicitPlaneRepresentation::Scaling &&
+    else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Scaling &&
       this->ScaleEnabled)
     {
-      this->Scale(this->LastEventPosition, eventPos, 0.0, 0.0); // todo handle this
+      this->Scale(this->LastEventPosition, eventPos, 0.0, 0.0);
     }
-    else if (this->InteractionState == vtkImplicitPlaneRepresentation::Rotating)
+    else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Rotating)
     {
       this->Rotate3D(this->LastEventPosition, eventPos);
     }
-    else if (this->InteractionState == vtkImplicitPlaneRepresentation::Outside &&
+    else if (this->InteractionState == vtkDisplaySizedImplicitPlaneRepresentation::Outside &&
       this->LockNormalToCamera)
     {
       this->SetNormalToCamera();
@@ -649,24 +536,23 @@ void vtkImplicitPlaneRepresentation::ComplexInteraction(
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::EndWidgetInteraction(double vtkNotUsed(e)[2])
+void vtkDisplaySizedImplicitPlaneRepresentation::EndWidgetInteraction(double vtkNotUsed(e)[2])
 {
-  this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
+  this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Outside);
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::EndComplexInteraction(
+void vtkDisplaySizedImplicitPlaneRepresentation::EndComplexInteraction(
   vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void*)
 {
-  this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
+  this->SetRepresentationState(vtkDisplaySizedImplicitPlaneRepresentation::Outside);
 }
 
 //------------------------------------------------------------------------------
-double* vtkImplicitPlaneRepresentation::GetBounds()
+double* vtkDisplaySizedImplicitPlaneRepresentation::GetBounds()
 {
   this->BuildRepresentation();
-  this->BoundingBox->SetBounds(this->OutlineActor->GetBounds());
-  this->BoundingBox->AddBounds(this->CutActor->GetBounds());
+  this->BoundingBox->AddBounds(this->PlaneActor->GetBounds());
   this->BoundingBox->AddBounds(this->EdgesActor->GetBounds());
   this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
   this->BoundingBox->AddBounds(this->LineActor->GetBounds());
@@ -677,12 +563,11 @@ double* vtkImplicitPlaneRepresentation::GetBounds()
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::GetActors(vtkPropCollection* pc)
+void vtkDisplaySizedImplicitPlaneRepresentation::GetActors(vtkPropCollection* pc)
 {
   if (this->Visibility)
   {
-    this->OutlineActor->GetActors(pc);
-    this->CutActor->GetActors(pc);
+    this->PlaneActor->GetActors(pc);
     this->EdgesActor->GetActors(pc);
     this->ConeActor->GetActors(pc);
     this->LineActor->GetActors(pc);
@@ -692,10 +577,9 @@ void vtkImplicitPlaneRepresentation::GetActors(vtkPropCollection* pc)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::ReleaseGraphicsResources(vtkWindow* w)
+void vtkDisplaySizedImplicitPlaneRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
-  this->OutlineActor->ReleaseGraphicsResources(w);
-  this->CutActor->ReleaseGraphicsResources(w);
+  this->PlaneActor->ReleaseGraphicsResources(w);
   this->EdgesActor->ReleaseGraphicsResources(w);
   this->ConeActor->ReleaseGraphicsResources(w);
   this->LineActor->ReleaseGraphicsResources(w);
@@ -704,15 +588,10 @@ void vtkImplicitPlaneRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 }
 
 //------------------------------------------------------------------------------
-int vtkImplicitPlaneRepresentation::RenderOpaqueGeometry(vtkViewport* v)
+int vtkDisplaySizedImplicitPlaneRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->DrawOutline)
-  {
-    count += this->OutlineActor->RenderOpaqueGeometry(v);
-  }
-  count += this->EdgesActor->RenderOpaqueGeometry(v);
   if (!this->LockNormalToCamera)
   {
     count += this->ConeActor->RenderOpaqueGeometry(v);
@@ -722,22 +601,18 @@ int vtkImplicitPlaneRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   }
   if (this->DrawPlane)
   {
-    count += this->CutActor->RenderOpaqueGeometry(v);
+    count += this->EdgesActor->RenderOpaqueGeometry(v);
+    count += this->PlaneActor->RenderOpaqueGeometry(v);
   }
 
   return count;
 }
 
 //------------------------------------------------------------------------------
-int vtkImplicitPlaneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
+int vtkDisplaySizedImplicitPlaneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->DrawOutline)
-  {
-    count += this->OutlineActor->RenderTranslucentPolygonalGeometry(v);
-  }
-  count += this->EdgesActor->RenderTranslucentPolygonalGeometry(v);
   if (!this->LockNormalToCamera)
   {
     count += this->ConeActor->RenderTranslucentPolygonalGeometry(v);
@@ -747,21 +622,17 @@ int vtkImplicitPlaneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewpo
   }
   if (this->DrawPlane)
   {
-    count += this->CutActor->RenderTranslucentPolygonalGeometry(v);
+    count += this->EdgesActor->RenderTranslucentPolygonalGeometry(v);
+    count += this->PlaneActor->RenderTranslucentPolygonalGeometry(v);
   }
 
   return count;
 }
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkImplicitPlaneRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkDisplaySizedImplicitPlaneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
-  if (this->DrawOutline)
-  {
-    result |= this->OutlineActor->HasTranslucentPolygonalGeometry();
-  }
-  result |= this->EdgesActor->HasTranslucentPolygonalGeometry();
   if (!this->LockNormalToCamera)
   {
     result |= this->ConeActor->HasTranslucentPolygonalGeometry();
@@ -771,14 +642,15 @@ vtkTypeBool vtkImplicitPlaneRepresentation::HasTranslucentPolygonalGeometry()
   }
   if (this->DrawPlane)
   {
-    result |= this->CutActor->HasTranslucentPolygonalGeometry();
+    result |= this->EdgesActor->HasTranslucentPolygonalGeometry();
+    result |= this->PlaneActor->HasTranslucentPolygonalGeometry();
   }
 
   return result;
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDisplaySizedImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -800,7 +672,22 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Selected Normal Property: (none)\n";
   }
-
+  if (this->SphereProperty)
+  {
+    os << indent << "Sphere Property: " << this->SphereProperty << "\n";
+  }
+  else
+  {
+    os << indent << "Sphere Property: (none)\n";
+  }
+  if (this->SelectedSphereProperty)
+  {
+    os << indent << "Selected Sphere Property: " << this->SelectedSphereProperty << "\n";
+  }
+  else
+  {
+    os << indent << "Selected Sphere Property: (none)\n";
+  }
   if (this->PlaneProperty)
   {
     os << indent << "Plane Property: " << this->PlaneProperty << "\n";
@@ -818,23 +705,6 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Plane Property: (none)\n";
   }
 
-  if (this->OutlineProperty)
-  {
-    os << indent << "Outline Property: " << this->OutlineProperty << "\n";
-  }
-  else
-  {
-    os << indent << "Outline Property: (none)\n";
-  }
-  if (this->SelectedOutlineProperty)
-  {
-    os << indent << "Selected Outline Property: " << this->SelectedOutlineProperty << "\n";
-  }
-  else
-  {
-    os << indent << "Selected Outline Property: (none)\n";
-  }
-
   if (this->EdgesProperty)
   {
     os << indent << "Edges Property: " << this->EdgesProperty << "\n";
@@ -843,9 +713,14 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Edges Property: (none)\n";
   }
-
-  os << indent << "Crop plane to bounding box: " << (this->CropPlaneToBoundingBox ? "On" : "Off")
-     << "\n";
+  if (this->SelectedEdgesProperty)
+  {
+    os << indent << "Selected Edges Property: " << this->SelectedEdgesProperty << "\n";
+  }
+  else
+  {
+    os << indent << "Selected Edges Property: (none)\n";
+  }
 
   os << indent << "Normal To X Axis: " << (this->NormalToXAxis ? "On" : "Off") << "\n";
   os << indent << "Normal To Y Axis: " << (this->NormalToYAxis ? "On" : "Off") << "\n";
@@ -856,13 +731,10 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << ", " << this->WidgetBounds[2] << ", " << this->WidgetBounds[3] << ", "
      << this->WidgetBounds[4] << ", " << this->WidgetBounds[5] << "\n";
 
-  os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
-  os << indent << "Outline Translation: " << (this->OutlineTranslation ? "On" : "Off") << "\n";
   os << indent << "Outside Bounds: " << (this->OutsideBounds ? "On" : "Off") << "\n";
   os << indent << "Constrain to Widget Bounds: " << (this->ConstrainToWidgetBounds ? "On" : "Off")
      << "\n";
   os << indent << "Scale Enabled: " << (this->ScaleEnabled ? "On" : "Off") << "\n";
-  os << indent << "Draw Outline: " << (this->DrawOutline ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
   os << indent << "Bump Distance: " << this->BumpDistance << "\n";
 
@@ -875,9 +747,6 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     case Moving:
       os << "Moving\n";
       break;
-    case MovingOutline:
-      os << "MovingOutline\n";
-      break;
     case MovingOrigin:
       os << "MovingOrigin\n";
       break;
@@ -887,6 +756,8 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     case Pushing:
       os << "Pushing\n";
       break;
+    case ResizeDiskRadius:
+      os << "ResizeDiskRadius\n";
     case Scaling:
       os << "Scaling\n";
       break;
@@ -897,52 +768,64 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::HighlightNormal(int highlight)
+void vtkDisplaySizedImplicitPlaneRepresentation::HighlightNormal(int highlight)
 {
   if (highlight)
   {
     this->LineActor->SetProperty(this->SelectedNormalProperty);
     this->ConeActor->SetProperty(this->SelectedNormalProperty);
     this->ConeActor2->SetProperty(this->SelectedNormalProperty);
-    this->SphereActor->SetProperty(this->SelectedNormalProperty);
   }
   else
   {
     this->LineActor->SetProperty(this->NormalProperty);
     this->ConeActor->SetProperty(this->NormalProperty);
     this->ConeActor2->SetProperty(this->NormalProperty);
-    this->SphereActor->SetProperty(this->NormalProperty);
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::HighlightPlane(int highlight)
+void vtkDisplaySizedImplicitPlaneRepresentation::HighlightSphere(int highlight)
 {
   if (highlight)
   {
-    this->CutActor->SetProperty(this->SelectedPlaneProperty);
+    this->SphereActor->SetProperty(this->SelectedSphereProperty);
   }
   else
   {
-    this->CutActor->SetProperty(this->PlaneProperty);
+    this->SphereActor->SetProperty(this->SphereProperty);
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::HighlightOutline(int highlight)
+void vtkDisplaySizedImplicitPlaneRepresentation::HighlightPlane(int highlight)
 {
   if (highlight)
   {
-    this->OutlineActor->SetProperty(this->SelectedOutlineProperty);
+    this->PlaneActor->SetProperty(this->SelectedPlaneProperty);
   }
   else
   {
-    this->OutlineActor->SetProperty(this->OutlineProperty);
+    this->PlaneActor->SetProperty(this->PlaneProperty);
   }
 }
 
+void vtkDisplaySizedImplicitPlaneRepresentation::HighlightEdges(int highlight)
+{
+  if (highlight)
+  {
+    this->EdgesActor->SetProperty(this->SelectedEdgesProperty);
+  }
+  else
+  {
+    this->EdgesActor->SetProperty(this->EdgesProperty);
+  }
+  this->SetEdgeColor(this->EdgesActor->GetProperty()->GetColor());
+}
+
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::Rotate(double X, double Y, double* p1, double* p2, double* vpn)
+void vtkDisplaySizedImplicitPlaneRepresentation::Rotate(
+  double X, double Y, double* p1, double* p2, double* vpn)
 {
   double v[3];    // vector of motion
   double axis[3]; // axis of rotation
@@ -980,7 +863,7 @@ void vtkImplicitPlaneRepresentation::Rotate(double X, double Y, double* p1, doub
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::Rotate3D(double* p1, double* p2)
+void vtkDisplaySizedImplicitPlaneRepresentation::Rotate3D(double* p1, double* p2)
 {
   if (p1[0] == p2[0] && p1[1] == p2[1] && p1[2] == p2[2])
   {
@@ -1024,46 +907,7 @@ void vtkImplicitPlaneRepresentation::Rotate3D(double* p1, double* p2)
 
 //------------------------------------------------------------------------------
 // Loop through all points and translate them
-void vtkImplicitPlaneRepresentation::TranslateOutline(double* p1, double* p2)
-{
-  // Get the motion vector
-  double v[3] = { 0, 0, 0 };
-
-  if (!this->IsTranslationConstrained())
-  {
-    v[0] = p2[0] - p1[0];
-    v[1] = p2[1] - p1[1];
-    v[2] = p2[2] - p1[2];
-  }
-  else
-  {
-    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
-      "this->TranslationAxis out of bounds");
-    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
-  }
-
-  // Translate the bounding box
-  double* origin = this->Box->GetOrigin();
-  double oNew[3];
-  oNew[0] = origin[0] + v[0];
-  oNew[1] = origin[1] + v[1];
-  oNew[2] = origin[2] + v[2];
-  this->Box->SetOrigin(oNew);
-  this->Box->GetBounds(this->WidgetBounds);
-
-  // Translate the plane
-  origin = this->Plane->GetOrigin();
-  oNew[0] = origin[0] + v[0];
-  oNew[1] = origin[1] + v[1];
-  oNew[2] = origin[2] + v[2];
-  this->Plane->SetOrigin(oNew);
-
-  this->BuildRepresentation();
-}
-
-//------------------------------------------------------------------------------
-// Loop through all points and translate them
-void vtkImplicitPlaneRepresentation::TranslateOrigin(double* p1, double* p2)
+void vtkDisplaySizedImplicitPlaneRepresentation::TranslateOrigin(double* p1, double* p2)
 {
   // Get the motion vector
   double v[3] = { 0, 0, 0 };
@@ -1126,7 +970,8 @@ bool snapToAxis(vtkVector3d& in, vtkVector3d& out, double snapAngle)
 
 //------------------------------------------------------------------------------
 // Loop through all points and translate and rotate them
-void vtkImplicitPlaneRepresentation::UpdatePose(double* p1, double* d1, double* p2, double* d2)
+void vtkDisplaySizedImplicitPlaneRepresentation::UpdatePose(
+  double* p1, double* d1, double* p2, double* d2)
 {
   double* origin = this->Plane->GetOrigin();
   double* normal = this->Plane->GetNormal();
@@ -1199,7 +1044,8 @@ void vtkImplicitPlaneRepresentation::UpdatePose(double* p1, double* d1, double* 
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::Scale(double* p1, double* p2, double vtkNotUsed(X), double Y)
+void vtkDisplaySizedImplicitPlaneRepresentation::Scale(
+  double* p1, double* p2, double vtkNotUsed(X), double Y)
 {
   // Get the motion vector
   double v[3];
@@ -1210,7 +1056,7 @@ void vtkImplicitPlaneRepresentation::Scale(double* p1, double* p2, double vtkNot
   double* o = this->Plane->GetOrigin();
 
   // Compute the scale factor
-  double sf = vtkMath::Norm(v) / this->Outline->GetOutput()->GetLength();
+  double sf = vtkMath::Norm(v) / vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.1, o);
   if (Y > this->LastEventPosition[1])
   {
     sf = 1.0 + sf;
@@ -1243,7 +1089,7 @@ void vtkImplicitPlaneRepresentation::Scale(double* p1, double* p2, double vtkNot
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::Push(double* p1, double* p2)
+void vtkDisplaySizedImplicitPlaneRepresentation::Push(double* p1, double* p2)
 {
   // Get the motion vector
   double v[3];
@@ -1256,55 +1102,116 @@ void vtkImplicitPlaneRepresentation::Push(double* p1, double* p2)
   this->BuildRepresentation();
 }
 
-//------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::CreateDefaultProperties()
+void vtkDisplaySizedImplicitPlaneRepresentation::ResizeRadius(
+  double* vtkNotUsed(p1), double* p2, double* vpn)
 {
-  // Normal properties
-  this->NormalProperty = vtkProperty::New();
-  this->NormalProperty->SetColor(1, 1, 1);
-  this->NormalProperty->SetLineWidth(2);
+  double* o = this->Plane->GetOrigin();
+  double p2Projected[3], p2Intersection[3];
+  double t, newRadius;
+  vtkPlane::ProjectPoint(p2, o, vpn, p2Projected);
+  int planeIsNotParallelToLine = this->Plane->IntersectWithLine(p2, p2Projected, t, p2Intersection);
+  if (planeIsNotParallelToLine != 0)
+  {
+    newRadius = std::sqrt(vtkMath::Distance2BetweenPoints(p2Intersection, o));
+  }
+  else
+  {
+    newRadius = std::sqrt(vtkMath::Distance2BetweenPoints(p2, o));
+  }
+  double oldRadius = vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.04, o);
+  this->RadiusMultiplier = newRadius / oldRadius;
+  this->RadiusMultiplierTimeStamp.Modified();
+  this->BuildRepresentation();
+}
 
-  this->SelectedNormalProperty = vtkProperty::New();
-  this->SelectedNormalProperty->SetColor(1, 0, 0);
-  this->NormalProperty->SetLineWidth(2);
+void vtkDisplaySizedImplicitPlaneRepresentation::ResizeRadius3D(double* vtkNotUsed(p1), double* p2)
+{
+  double* o = this->Plane->GetOrigin();
+  double p2Projected[3];
+  this->Plane->ProjectPoint(p2, p2Projected);
 
-  // Plane properties
-  this->PlaneProperty = vtkProperty::New();
-  this->PlaneProperty->SetAmbient(1.0);
-  this->PlaneProperty->SetAmbientColor(1.0, 1.0, 1.0);
-  this->PlaneProperty->SetOpacity(0.5);
-  this->CutActor->SetProperty(this->PlaneProperty);
-
-  this->SelectedPlaneProperty = vtkProperty::New();
-  this->SelectedPlaneProperty->SetAmbient(1.0);
-  this->SelectedPlaneProperty->SetAmbientColor(0.0, 1.0, 0.0);
-  this->SelectedPlaneProperty->SetOpacity(0.25);
-
-  // Outline properties
-  this->OutlineProperty = vtkProperty::New();
-  this->OutlineProperty->SetAmbient(1.0);
-  this->OutlineProperty->SetAmbientColor(1.0, 1.0, 1.0);
-
-  this->SelectedOutlineProperty = vtkProperty::New();
-  this->SelectedOutlineProperty->SetAmbient(1.0);
-  this->SelectedOutlineProperty->SetAmbientColor(0.0, 1.0, 0.0);
-
-  // Edge property
-  this->EdgesProperty = vtkProperty::New();
-  this->EdgesProperty->SetAmbient(1.0);
-  this->EdgesProperty->SetAmbientColor(1.0, 1.0, 1.0);
+  double oldRadius = vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.04, o);
+  double newRadius = std::sqrt(vtkMath::Distance2BetweenPoints(p2Projected, o));
+  this->RadiusMultiplier = newRadius / oldRadius;
+  this->RadiusMultiplierTimeStamp.Modified();
+  this->BuildRepresentation();
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetEdgeColor(vtkLookupTable* lut)
+void vtkDisplaySizedImplicitPlaneRepresentation::CreateDefaultProperties()
+{
+  static constexpr double unselectedColor[3] = { 1.0, 0.0, 0.0 }; // red
+  static constexpr double selectedColor[3] = { 0.0, 1.0, 0.0 };   // green
+
+  // Normal properties
+  this->NormalProperty->SetColor(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
+  this->NormalProperty->SetLineWidth(2);
+
+  this->SelectedNormalProperty->SetColor(selectedColor[0], selectedColor[1], selectedColor[2]);
+  this->SelectedNormalProperty->SetLineWidth(2);
+
+  // Normal properties
+  this->SphereProperty->SetColor(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
+
+  this->SelectedSphereProperty->SetColor(selectedColor[0], selectedColor[1], selectedColor[2]);
+
+  // Plane properties
+  this->PlaneProperty->SetAmbient(1.0);
+  this->PlaneProperty->SetColor(1.0, 1.0, 1.0);
+  this->PlaneProperty->SetOpacity(0.5);
+
+  this->SelectedPlaneProperty->SetAmbient(1.0);
+  this->SelectedPlaneProperty->SetColor(selectedColor[0], selectedColor[1], selectedColor[2]);
+  this->SelectedPlaneProperty->SetOpacity(0.25);
+
+  // Edge property
+  this->EdgesProperty->SetAmbient(1.0);
+  this->EdgesProperty->SetColor(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
+
+  this->SelectedEdgesProperty->SetAmbient(1.0);
+  this->SelectedEdgesProperty->SetColor(selectedColor[0], selectedColor[1], selectedColor[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetSelectedWidgetColor(
+  double r, double g, double b)
+{
+  this->SelectedNormalProperty->SetColor(r, g, b);
+  this->SelectedSphereProperty->SetColor(r, g, b);
+  this->SelectedEdgesProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetSelectedWidgetColor(double c[3])
+{
+  this->SetSelectedWidgetColor(c[0], c[1], c[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetUnselectedWidgetColor(
+  double r, double g, double b)
+{
+  this->NormalProperty->SetColor(r, g, b);
+  this->SphereProperty->SetColor(r, g, b);
+  this->EdgesProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetUnselectedWidgetColor(double c[3])
+{
+  this->SetUnselectedWidgetColor(c[0], c[1], c[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgeColor(vtkLookupTable* lut)
 {
   this->EdgesMapper->SetLookupTable(lut);
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetEdgeColor(double r, double g, double b)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgeColor(double r, double g, double b)
 {
-  vtkSmartPointer<vtkLookupTable> lookupTable = vtkSmartPointer<vtkLookupTable>::New();
+  vtkNew<vtkLookupTable> lookupTable;
 
   lookupTable->SetTableRange(0.0, 1.0);
   lookupTable->SetNumberOfTableValues(1);
@@ -1315,13 +1222,13 @@ void vtkImplicitPlaneRepresentation::SetEdgeColor(double r, double g, double b)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetEdgeColor(double c[3])
+void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgeColor(double c[3])
 {
   this->SetEdgeColor(c[0], c[1], c[2]);
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::PlaceWidget(double bds[6])
+void vtkDisplaySizedImplicitPlaneRepresentation::PlaceWidget(double bds[6])
 {
   int i;
   double bounds[6], origin[3];
@@ -1331,35 +1238,32 @@ void vtkImplicitPlaneRepresentation::PlaceWidget(double bds[6])
   // Set up the bounding box
   this->Box->SetOrigin(bounds[0], bounds[2], bounds[4]);
   this->Box->SetSpacing((bounds[1] - bounds[0]), (bounds[3] - bounds[2]), (bounds[5] - bounds[4]));
-  this->Outline->Update();
 
-  this->InitialLength = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
+  this->InitialLength = std::sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
     (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
     (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
 
   this->LineSource->SetPoint1(this->Plane->GetOrigin());
-  this->PlaneSource->SetOrigin(0, 0, 0);
   if (this->NormalToYAxis)
   {
     this->Plane->SetNormal(0, 1, 0);
     this->LineSource->SetPoint2(0, 1, 0);
-    this->PlaneSource->SetPoint1(this->InitialLength, 0, 0);
-    this->PlaneSource->SetPoint2(0, 0, this->InitialLength);
+    this->DiskPlaneSource->SetCenter(this->InitialLength / 3.0, 0, this->InitialLength / 3.0);
   }
   else if (this->NormalToZAxis)
   {
     this->Plane->SetNormal(0, 0, 1);
     this->LineSource->SetPoint2(0, 0, 1);
-    this->PlaneSource->SetPoint1(this->InitialLength, 0, 0);
-    this->PlaneSource->SetPoint2(0, this->InitialLength, 0);
+    this->DiskPlaneSource->SetCenter(this->InitialLength / 3.0, this->InitialLength / 3.0, 0);
   }
   else // default or x-normal
   {
     this->Plane->SetNormal(1, 0, 0);
     this->LineSource->SetPoint2(1, 0, 0);
-    this->PlaneSource->SetPoint1(0, this->InitialLength, 0);
-    this->PlaneSource->SetPoint2(0, 0, this->InitialLength);
+    this->DiskPlaneSource->SetCenter(0, this->InitialLength / 3.0, this->InitialLength / 3.0);
   }
+  this->DiskPlaneSource->SetNormal(this->Plane->GetNormal());
+  this->DiskPlaneSource->SetOuterRadius(this->InitialLength / 3.0);
 
   for (i = 0; i < 6; i++)
   {
@@ -1374,7 +1278,7 @@ void vtkImplicitPlaneRepresentation::PlaceWidget(double bds[6])
 //------------------------------------------------------------------------------
 // Description:
 // Set the origin of the plane.
-void vtkImplicitPlaneRepresentation::SetOrigin(double x, double y, double z)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetOrigin(double x, double y, double z)
 {
   double origin[3];
   origin[0] = x;
@@ -1388,7 +1292,7 @@ void vtkImplicitPlaneRepresentation::SetOrigin(double x, double y, double z)
 // Set the origin of the plane. Note that the origin is clamped slightly inside
 // the bounding box or the plane tends to disappear as it hits the boundary (and
 // when the plane is parallel to one of the faces of the bounding box).
-void vtkImplicitPlaneRepresentation::SetOrigin(double x[3])
+void vtkDisplaySizedImplicitPlaneRepresentation::SetOrigin(double x[3])
 {
   this->Plane->SetOrigin(x);
   this->BuildRepresentation();
@@ -1397,13 +1301,13 @@ void vtkImplicitPlaneRepresentation::SetOrigin(double x[3])
 //------------------------------------------------------------------------------
 // Description:
 // Get the origin of the plane.
-double* vtkImplicitPlaneRepresentation::GetOrigin()
+double* vtkDisplaySizedImplicitPlaneRepresentation::GetOrigin()
 {
   return this->Plane->GetOrigin();
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::GetOrigin(double xyz[3])
+void vtkDisplaySizedImplicitPlaneRepresentation::GetOrigin(double xyz[3])
 {
   this->Plane->GetOrigin(xyz);
 }
@@ -1411,7 +1315,7 @@ void vtkImplicitPlaneRepresentation::GetOrigin(double xyz[3])
 //------------------------------------------------------------------------------
 // Description:
 // Set the normal to the plane.
-void vtkImplicitPlaneRepresentation::SetNormal(double x, double y, double z)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetNormal(double x, double y, double z)
 {
   if (this->AlwaysSnapToNearestAxis)
   {
@@ -1440,7 +1344,7 @@ void vtkImplicitPlaneRepresentation::SetNormal(double x, double y, double z)
 //------------------------------------------------------------------------------
 // Description:
 // Set the normal to the plane.
-void vtkImplicitPlaneRepresentation::SetNormal(double n[3])
+void vtkDisplaySizedImplicitPlaneRepresentation::SetNormal(double n[3])
 {
   this->SetNormal(n[0], n[1], n[2]);
 }
@@ -1448,19 +1352,19 @@ void vtkImplicitPlaneRepresentation::SetNormal(double n[3])
 //------------------------------------------------------------------------------
 // Description:
 // Get the normal to the plane.
-double* vtkImplicitPlaneRepresentation::GetNormal()
+double* vtkDisplaySizedImplicitPlaneRepresentation::GetNormal()
 {
   return this->Plane->GetNormal();
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::GetNormal(double xyz[3])
+void vtkDisplaySizedImplicitPlaneRepresentation::GetNormal(double xyz[3])
 {
   this->Plane->GetNormal(xyz);
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetDrawPlane(vtkTypeBool drawPlane)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetDrawPlane(vtkTypeBool drawPlane)
 {
   if (drawPlane == this->DrawPlane)
   {
@@ -1473,28 +1377,7 @@ void vtkImplicitPlaneRepresentation::SetDrawPlane(vtkTypeBool drawPlane)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetDrawOutline(vtkTypeBool val)
-{
-  if (val == this->DrawOutline)
-  {
-    return;
-  }
-
-  if (val)
-  {
-    this->Picker->AddPickList(this->OutlineActor);
-  }
-  else
-  {
-    this->Picker->DeletePickList(this->OutlineActor);
-  }
-  this->Modified();
-  this->DrawOutline = val;
-  this->BuildRepresentation();
-}
-
-//------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetNormalToXAxis(vtkTypeBool var)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetNormalToXAxis(vtkTypeBool var)
 {
   if (this->NormalToXAxis != var)
   {
@@ -1509,7 +1392,7 @@ void vtkImplicitPlaneRepresentation::SetNormalToXAxis(vtkTypeBool var)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetNormalToYAxis(vtkTypeBool var)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetNormalToYAxis(vtkTypeBool var)
 {
   if (this->NormalToYAxis != var)
   {
@@ -1524,7 +1407,7 @@ void vtkImplicitPlaneRepresentation::SetNormalToYAxis(vtkTypeBool var)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetNormalToZAxis(vtkTypeBool var)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetNormalToZAxis(vtkTypeBool var)
 {
   if (this->NormalToZAxis != var)
   {
@@ -1539,19 +1422,19 @@ void vtkImplicitPlaneRepresentation::SetNormalToZAxis(vtkTypeBool var)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::GetPolyData(vtkPolyData* pd)
+void vtkDisplaySizedImplicitPlaneRepresentation::GetPolyData(vtkPolyData* pd)
 {
-  pd->ShallowCopy(this->Cutter->GetOutput());
+  pd->ShallowCopy(this->DiskPlaneSource->GetOutput());
 }
 
 //------------------------------------------------------------------------------
-vtkPolyDataAlgorithm* vtkImplicitPlaneRepresentation::GetPolyDataAlgorithm()
+vtkPolyDataAlgorithm* vtkDisplaySizedImplicitPlaneRepresentation::GetPolyDataAlgorithm()
 {
-  return this->Cutter;
+  return this->DiskPlaneSource;
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::GetPlane(vtkPlane* plane)
+void vtkDisplaySizedImplicitPlaneRepresentation::GetPlane(vtkPlane* plane)
 {
   if (plane == nullptr)
   {
@@ -1563,7 +1446,7 @@ void vtkImplicitPlaneRepresentation::GetPlane(vtkPlane* plane)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetPlane(vtkPlane* plane)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetPlane(vtkPlane* plane)
 {
   if (plane == nullptr)
   {
@@ -1575,16 +1458,13 @@ void vtkImplicitPlaneRepresentation::SetPlane(vtkPlane* plane)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::UpdatePlacement()
+void vtkDisplaySizedImplicitPlaneRepresentation::UpdatePlacement()
 {
-  this->Outline->Update();
-  this->Cutter->Update();
-  // this->Edges->Update();
   this->BuildRepresentation();
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::BumpPlane(int dir, double factor)
+void vtkDisplaySizedImplicitPlaneRepresentation::BumpPlane(int dir, double factor)
 {
   // Compute the distance
   double d = this->InitialLength * this->BumpDistance * factor;
@@ -1594,14 +1474,100 @@ void vtkImplicitPlaneRepresentation::BumpPlane(int dir, double factor)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::PushPlane(double d)
+void vtkDisplaySizedImplicitPlaneRepresentation::PushPlane(double d)
 {
   this->Plane->Push(d);
   this->BuildRepresentation();
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::BuildRepresentation()
+bool vtkDisplaySizedImplicitPlaneRepresentation::PickOrigin(int X, int Y)
+{
+  this->ComputeAdaptivePickerTolerance();
+  // first check if we touched the widget
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
+  if (path == nullptr) // widget actors were not touched
+  {
+    // disable picking of widget actors and enable picking of renderer actors
+    this->Picker->PickFromListOff();
+    path = this->GetAssemblyPath(X, Y, 0., this->Picker);
+    // enable picking of widget actors and disable picking of renderer actors
+    this->Picker->PickFromListOn();
+    if (path == nullptr) // actors of renderer were not touched
+    {
+      return false;
+    }
+    else
+    {
+      double pos[3];
+      this->Picker->GetPickPosition(pos);
+      this->SetOrigin(pos);
+      this->BuildRepresentation();
+      return true;
+    }
+  }
+  else
+  {
+    vtkProp* prop = path->GetFirstNode()->GetViewProp();
+    if (prop == this->PlaneActor) // if plane actor was touched
+    {
+      double pos[3];
+      this->Picker->GetPickPosition(pos);
+      this->SetOrigin(pos);
+      this->BuildRepresentation();
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+}
+
+bool vtkDisplaySizedImplicitPlaneRepresentation::PickNormal(int X, int Y)
+{
+  static constexpr double PI_2 = vtkMath::Pi() / 2.0f;
+  this->ComputeAdaptivePickerTolerance();
+  // disable picking of widget actors and enable picking of renderer actors
+  this->Picker->PickFromListOff();
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
+  // enable picking of widget actors and disable picking of renderer actors
+  this->Picker->PickFromListOn();
+  if (path == nullptr) // actors of renderer were not touched
+  {
+    return false;
+  }
+  else
+  {
+    vtkCamera* camera = this->Renderer->GetActiveCamera();
+    if (!camera)
+    {
+      return false;
+    }
+    double normal[3], vpn[3];
+    this->Picker->GetPickNormal(normal);
+    // Note: Fix normal direction in case the orientation of the picked cell is wrong.
+    // When you cast a ray to a 3d object from a specific view angle (camera normal), the angle
+    // between the camera normal and the normal of the cell surface that the ray intersected,
+    // can have an angle up to pi / 2. This is true because you can't see surface objects
+    // with a greater angle than pi / 2, therefore, you can't pick them. In case an angle greater
+    // than pi / 2 is computed, it must be a result of a wrong orientation of the picked cell.
+    // To solve this issue, we reverse the picked normal.
+    camera->GetViewPlaneNormal(vpn);
+    if (vtkMath::AngleBetweenVectors(normal, vpn) > PI_2)
+    {
+      normal[0] *= -1;
+      normal[1] *= -1;
+      normal[2] *= -1;
+    }
+    this->SetNormal(normal);
+    this->BuildRepresentation();
+    return true;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::BuildRepresentation()
 {
   if (!this->Renderer || !this->Renderer->GetRenderWindow())
   {
@@ -1609,8 +1575,7 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
   }
 
   vtkInformation* info = this->GetPropertyKeys();
-  this->OutlineActor->SetPropertyKeys(info);
-  this->CutActor->SetPropertyKeys(info);
+  this->PlaneActor->SetPropertyKeys(info);
   this->EdgesActor->SetPropertyKeys(info);
   this->ConeActor->SetPropertyKeys(info);
   this->LineActor->SetPropertyKeys(info);
@@ -1625,7 +1590,6 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
     double bounds[6];
     std::copy(this->WidgetBounds, this->WidgetBounds + 6, bounds);
 
-    double p2[3];
     if (!this->OutsideBounds)
     {
       // restrict the origin inside InitialBounds
@@ -1691,47 +1655,20 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
     this->Box->SetOrigin(bounds[0], bounds[2], bounds[4]);
     this->Box->SetSpacing(
       (bounds[1] - bounds[0]), (bounds[3] - bounds[2]), (bounds[5] - bounds[4]));
-    this->Outline->Update();
 
-    this->PlaneSource->SetCenter(origin);
-    this->PlaneSource->SetNormal(normal);
-
-    // Setup the plane normal
-    double d = this->Outline->GetOutput()->GetLength();
-
-    p2[0] = origin[0] + 0.30 * d * normal[0];
-    p2[1] = origin[1] + 0.30 * d * normal[1];
-    p2[2] = origin[2] + 0.30 * d * normal[2];
-
-    this->LineSource->SetPoint1(p2);
-    this->ConeSource->SetCenter(p2);
+    this->DiskPlaneSource->SetCenter(origin);
+    this->DiskPlaneSource->SetNormal(normal);
     this->ConeSource->SetDirection(normal);
-
-    p2[0] = origin[0] - 0.30 * d * normal[0];
-    p2[1] = origin[1] - 0.30 * d * normal[1];
-    p2[2] = origin[2] - 0.30 * d * normal[2];
-
-    this->LineSource->SetPoint2(p2);
-    this->ConeSource2->SetCenter(p2);
     this->ConeSource2->SetDirection(normal[0], normal[1], normal[2]);
 
     // Set up the position handle
     this->Sphere->SetCenter(origin[0], origin[1], origin[2]);
-
-    // Control the look of the edges
-    if (this->Tubing)
-    {
-      this->EdgesMapper->SetInputConnection(this->EdgesTuber->GetOutputPort());
-    }
-    else
-    {
-      this->EdgesMapper->SetInputConnection(this->Edges->GetOutputPort());
-    }
   }
 
   // we resize handles when rebuilt and when renderwindow changes
   if (this->GetMTime() > this->BuildTime || this->Plane->GetMTime() > this->BuildTime ||
-    this->Renderer->GetRenderWindow()->GetMTime() > this->BuildTime)
+    this->Renderer->GetRenderWindow()->GetMTime() > this->BuildTime ||
+    this->RadiusMultiplierTimeStamp.GetMTime() > this->BuildTime)
   {
     this->SizeHandles();
     this->BuildTime.Modified();
@@ -1739,10 +1676,34 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SizeHandles()
+void vtkDisplaySizedImplicitPlaneRepresentation::SizeHandles()
 {
-  double radius =
-    this->vtkWidgetRepresentation::SizeHandlesInPixels(1.5, this->Sphere->GetCenter());
+  double* origin = this->Plane->GetOrigin();
+  double* normal = this->Plane->GetNormal();
+
+  // set up plane disk radius
+  double diskRadius = vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.04, origin);
+  this->DiskPlaneSource->SetOuterRadius(diskRadius * this->RadiusMultiplier);
+
+  // set up the plane normal
+  double p2[3];
+  double d = vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.15, origin);
+  p2[0] = origin[0] + 0.30 * d * normal[0];
+  p2[1] = origin[1] + 0.30 * d * normal[1];
+  p2[2] = origin[2] + 0.30 * d * normal[2];
+
+  this->LineSource->SetPoint1(p2);
+  this->ConeSource->SetCenter(p2);
+
+  p2[0] = origin[0] - 0.30 * d * normal[0];
+  p2[1] = origin[1] - 0.30 * d * normal[1];
+  p2[2] = origin[2] - 0.30 * d * normal[2];
+
+  this->LineSource->SetPoint2(p2);
+  this->ConeSource2->SetCenter(p2);
+
+  // set up cones, sphere and edge tuber size
+  double radius = this->vtkWidgetRepresentation::SizeHandlesInPixels(3.0, origin);
 
   this->ConeSource->SetHeight(2.0 * radius);
   this->ConeSource->SetRadius(radius);
@@ -1751,11 +1712,11 @@ void vtkImplicitPlaneRepresentation::SizeHandles()
 
   this->Sphere->SetRadius(radius);
 
-  this->EdgesTuber->SetRadius(0.25 * radius);
+  this->EdgesTuber->SetRadius(0.5 * radius);
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetNormalToCamera()
+void vtkDisplaySizedImplicitPlaneRepresentation::SetNormalToCamera()
 {
   if (!this->Renderer)
   {
@@ -1768,7 +1729,7 @@ void vtkImplicitPlaneRepresentation::SetNormalToCamera()
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::RegisterPickers()
+void vtkDisplaySizedImplicitPlaneRepresentation::RegisterPickers()
 {
   vtkPickingManager* pm = this->GetPickingManager();
   if (!pm)
@@ -1776,4 +1737,13 @@ void vtkImplicitPlaneRepresentation::RegisterPickers()
     return;
   }
   pm->AddPicker(this->Picker, this);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::ComputeAdaptivePickerTolerance()
+{
+  double pickerCylinderRadius =
+    vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.000001, this->Plane->GetOrigin());
+  double tolerance = pickerCylinderRadius < DefaultPickTol ? pickerCylinderRadius : DefaultPickTol;
+  this->Picker->SetTolerance(tolerance);
 }

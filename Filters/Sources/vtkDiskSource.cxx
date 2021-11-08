@@ -18,9 +18,11 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkTransform.h"
 
 vtkStandardNewMacro(vtkDiskSource);
 
@@ -28,11 +30,46 @@ vtkDiskSource::vtkDiskSource()
 {
   this->InnerRadius = 0.25;
   this->OuterRadius = 0.5;
+  this->Center[0] = 0.0;
+  this->Center[1] = 0.0;
+  this->Center[2] = 0.0;
+  this->Normal[0] = 0.0;
+  this->Normal[1] = 0.0;
+  this->Normal[2] = 1.0;
   this->RadialResolution = 1;
   this->CircumferentialResolution = 6;
   this->OutputPointsPrecision = SINGLE_PRECISION;
 
   this->SetNumberOfInputPorts(0);
+}
+
+vtkSmartPointer<vtkTransform> vtkDiskSource::GetTransformation()
+{
+  double n[3] = { this->Normal[0], this->Normal[1], this->Normal[2] };
+  // normalize normal vector
+  if (vtkMath::Normalize(n) == 0.0)
+  {
+    vtkErrorMacro(<< "Specified zero normal");
+    return nullptr;
+  }
+
+  double rotationVector[3];
+  double defaultNormal[3] = { 0.0, 0.0, 1.0 };
+
+  // calculate angle and rotation vector
+  double dp = vtkMath::Dot(defaultNormal, n);
+  vtkMath::Cross(defaultNormal, n, rotationVector);
+  double angle = vtkMath::DegreesFromRadians(std::acos(dp));
+
+  // set up transformation
+  auto transform = vtkSmartPointer<vtkTransform>::New();
+  transform->PostMultiply();
+  transform->Translate(-this->Center[0], -this->Center[1], -this->Center[2]);
+  transform->RotateWXYZ(angle, rotationVector[0], rotationVector[1], rotationVector[2]);
+  transform->Translate(this->Center[0], this->Center[1], this->Center[2]);
+  transform->Update();
+
+  return transform;
 }
 
 int vtkDiskSource::RequestData(vtkInformation* vtkNotUsed(request),
@@ -50,14 +87,12 @@ int vtkDiskSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType pts[4];
   double theta, deltaRadius;
   double cosTheta, sinTheta;
-  vtkPoints* newPoints;
-  vtkCellArray* newPolys;
+  vtkNew<vtkPoints> newPoints;
+  vtkNew<vtkCellArray> newPolys;
 
   // Set things up; allocate memory
-  //
   numPts = (this->RadialResolution + 1) * (this->CircumferentialResolution + 1);
   numPolys = this->RadialResolution * this->CircumferentialResolution;
-  newPoints = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
@@ -70,29 +105,34 @@ int vtkDiskSource::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   newPoints->Allocate(numPts);
-  newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(numPolys, 4);
 
+  auto transform = this->GetTransformation();
+  // check if normal is zero
+  if (transform == nullptr)
+  {
+    return 1;
+  }
   // Create disk
-  //
   theta = 2.0 * vtkMath::Pi() / this->CircumferentialResolution;
   deltaRadius = (this->OuterRadius - this->InnerRadius) / this->RadialResolution;
 
   for (i = 0; i < this->CircumferentialResolution; i++)
   {
-    cosTheta = cos(i * theta);
-    sinTheta = sin(i * theta);
+    cosTheta = std::cos(i * theta);
+    sinTheta = std::sin(i * theta);
     for (j = 0; j <= this->RadialResolution; j++)
     {
-      x[0] = (this->InnerRadius + j * deltaRadius) * cosTheta;
-      x[1] = (this->InnerRadius + j * deltaRadius) * sinTheta;
-      x[2] = 0.0;
+      x[0] = this->Center[0] + (this->InnerRadius + j * deltaRadius) * cosTheta;
+      x[1] = this->Center[1] + (this->InnerRadius + j * deltaRadius) * sinTheta;
+      x[2] = this->Center[2];
+
+      transform->TransformPoint(x, x);
       newPoints->InsertNextPoint(x);
     }
   }
 
   //  Create connectivity
-  //
   for (i = 0; i < this->CircumferentialResolution; i++)
   {
     for (j = 0; j < this->RadialResolution; j++)
@@ -112,13 +152,9 @@ int vtkDiskSource::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  // Update ourselves and release memory
-  //
+  // Set points and polys
   output->SetPoints(newPoints);
-  newPoints->Delete();
-
   output->SetPolys(newPolys);
-  newPolys->Delete();
 
   return 1;
 }
