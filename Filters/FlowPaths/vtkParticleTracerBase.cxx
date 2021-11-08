@@ -380,7 +380,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
   vtkSmartPointer<vtkCompositeDataIterator> iterP;
   iterP.TakeReference(this->CachedData[0]->NewIterator());
   iterP->GoToFirstItem();
-  char* vecname = nullptr;
+  const char* vecname = nullptr;
   while (!iterP->IsDoneWithTraversal())
   {
     vtkDataArray* vectors = this->GetInputArrayToProcess(0, iterP->GetCurrentDataObject());

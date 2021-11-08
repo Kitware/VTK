@@ -970,7 +970,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps()
     vtkFieldData* fd = this->FlattenedInput[i]->GetFieldData();
     for (int j = 0; j < fd->GetNumberOfArrays(); j++)
     {
-      char* name = nullptr;
+      const char* name = nullptr;
       if (fd->GetAbstractArray(j))
       {
         name = fd->GetAbstractArray(j)->GetName();
@@ -1018,7 +1018,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps()
     vtkCellData* cd = this->FlattenedInput[i]->GetCellData();
     for (int j = 0; j < cd->GetNumberOfArrays(); j++)
     {
-      char* name = nullptr;
+      const char* name = nullptr;
       if (cd->GetArray(j))
       {
         name = cd->GetArray(j)->GetName();
@@ -1066,7 +1066,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps()
     vtkPointData* pd = this->FlattenedInput[i]->GetPointData();
     for (int j = 0; j < pd->GetNumberOfArrays(); j++)
     {
-      char* name = nullptr;
+      const char* name = nullptr;
       if (pd->GetArray(j))
       {
         name = pd->GetArray(j)->GetName();

@@ -82,7 +82,7 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(const char* name, bool& parall
   tester->SetFileName(name);
   if (tester->TestReadFile())
   {
-    char* cfileDataType = tester->GetFileDataType();
+    const char* cfileDataType = tester->GetFileDataType();
     if (cfileDataType != nullptr)
     {
       std::string fileDataType(cfileDataType);

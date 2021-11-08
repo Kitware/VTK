@@ -600,7 +600,7 @@ struct BinTree : public vtkBinTree
     vtkPointData* outPD = output->GetPointData();
     outPD->CopyAllocate(inPD, this->NumPts);
 
-    char* name;
+    const char* name;
     vtkDataArray *iArray, *oArray;
     void *iD, *oD;
     int i, numComp, numArrays = inPD->GetNumberOfArrays();

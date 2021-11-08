@@ -470,8 +470,8 @@ vtkIdType vtkOctreePointLocator::FindClosestPoint(double x, double y, double z, 
     double pt[3];
     this->Top->GetDistance2ToBoundary(x, y, z, pt, this->Top, 1);
 
-    double* min = this->Top->GetMinBounds();
-    double* max = this->Top->GetMaxBounds();
+    const double* min = this->Top->GetMinBounds();
+    const double* max = this->Top->GetMaxBounds();
 
     // GetDistance2ToBoundary will sometimes return a point *just*
     // *barely* outside the bounds of the region.  Move that point to
@@ -1066,8 +1066,8 @@ void vtkOctreePointLocator::AddPolys(
   vtkIdType idList[4];
   double x[3];
 
-  double* min = node->GetMinBounds();
-  double* max = node->GetMaxBounds();
+  const double* min = node->GetMinBounds();
+  const double* max = node->GetMaxBounds();
 
   x[0] = min[0];
   x[1] = max[1];
