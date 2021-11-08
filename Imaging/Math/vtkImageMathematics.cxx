@@ -444,13 +444,13 @@ void vtkImageMathematics::ThreadedRequestData(vtkInformation* vtkNotUsed(request
   void* inPtr1;
   void* outPtr;
 
-  inPtr1 = inData[0][0]->GetScalarPointerForExtent(outExt);
   outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   int idx1;
 
   for (idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
   {
+    inPtr1 = inData[0][idx1]->GetScalarPointerForExtent(outExt);
     if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT ||
       this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
       this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2 ||
