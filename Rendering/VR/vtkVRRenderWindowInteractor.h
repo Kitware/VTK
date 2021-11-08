@@ -34,12 +34,12 @@ class VTKRENDERINGVR_EXPORT vtkVRRenderWindowInteractor : public vtkRenderWindow
 {
 public:
   vtkTypeMacro(vtkVRRenderWindowInteractor, vtkRenderWindowInteractor3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the event handler.
    */
-  virtual void Initialize();
+  void Initialize() override;
 
   /**
    * Run the event loop and return. This is provided so that you can
@@ -66,17 +66,17 @@ public:
   /**
    * This method corresponds to the Exit callback, allowing for the style to invoke it.
    */
-  void ExitCallback();
+  void ExitCallback() override;
 
   ///@{
   /**
    * Set/Get the optional translation to map world coordinates into the
    * 3D physical space (meters, 0,0,0).
    */
-  void SetPhysicalTranslation(vtkCamera*, double, double, double);
-  double* GetPhysicalTranslation(vtkCamera*);
-  void SetPhysicalScale(double);
-  double GetPhysicalScale();
+  void SetPhysicalTranslation(vtkCamera*, double, double, double) override;
+  double* GetPhysicalTranslation(vtkCamera*) override;
+  void SetPhysicalScale(double) override;
+  double GetPhysicalScale() override;
   ///@}
 
   /*
@@ -122,18 +122,18 @@ protected:
 
   ///@{
   /**
-   * Win32-specific internal timer methods. See the superclass for detailed
+   * internal timer methods. See the superclass for detailed
    * documentation.
    */
-  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
-  virtual int InternalDestroyTimer(int platformTimerId);
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
+  int InternalDestroyTimer(int platformTimerId) override;
   ///@}
 
   /**
    * This will start up the event loop and never return. If you call this
    * method it will loop processing events until the application is exited.
    */
-  void StartEventLoop();
+  void StartEventLoop() override;
 
   ///@{
   /**
