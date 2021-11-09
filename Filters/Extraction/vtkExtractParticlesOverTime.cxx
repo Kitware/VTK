@@ -36,7 +36,7 @@ enum class State
 {
   NOT_EXTRACTED,
   EXTRACTING,
-  END_EXTRACTION,
+  EXTRACTION_ENDED,
   EXTRACTED
 };
 
@@ -101,7 +101,7 @@ double vtkExtractParticlesOverTimeInternals::GetProgress() const
       {
         return static_cast<double>(this->CurrentTimeIndex) / this->NumberOfTimeSteps;
       }
-    case State::END_EXTRACTION:
+    case State::EXTRACTION_ENDED:
     case State::EXTRACTED:
       return 1;
     default:
@@ -210,7 +210,7 @@ int vtkExtractParticlesOverTime::RequestUpdateExtent(vtkInformation* request,
       break;
 
     case State::EXTRACTING:
-      // Update time step for continue executing.
+      // Update time step to continue executing.
       timeSteps = inputInformation->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
       if (timeSteps && this->Internals->CurrentTimeIndex >= 0)
       {
@@ -220,7 +220,7 @@ int vtkExtractParticlesOverTime::RequestUpdateExtent(vtkInformation* request,
       }
       break;
 
-    case State::END_EXTRACTION:
+    case State::EXTRACTION_ENDED:
       // Restore requested time step for final extraction.
       inputInformation->Set(
         vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->Internals->RequestedTimeStep);
@@ -327,7 +327,7 @@ int vtkExtractParticlesOverTime::RequestData(
     if (this->Internals->CurrentTimeIndex == this->Internals->NumberOfTimeSteps)
     {
       this->Internals->CurrentTimeIndex = 0;
-      this->Internals->CurrentState = State::END_EXTRACTION;
+      this->Internals->CurrentState = State::EXTRACTION_ENDED;
     }
   }
 
