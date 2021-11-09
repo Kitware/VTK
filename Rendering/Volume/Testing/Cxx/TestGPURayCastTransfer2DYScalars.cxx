@@ -76,6 +76,7 @@ int TestGPURayCastTransfer2DYScalars(int argc, char* argv[])
 
   vtkNew<vtkVolumeProperty> property;
   property->SetTransferFunction2D(tfReader->GetOutput());
+  property->SetTransferFunctionModeTo2D();
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(resample->GetOutputPort());
   mapper->SetUseJittering(1);

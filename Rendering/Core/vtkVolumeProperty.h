@@ -239,6 +239,8 @@ public:
 
   vtkSetClampMacro(TransferFunctionMode, int, 0, 1);
   vtkGetMacro(TransferFunctionMode, int);
+  void SetTransferFunctionModeTo1D() { this->SetTransferFunctionMode(TF_1D); }
+  void SetTransferFunctionModeTo2D() { this->SetTransferFunctionMode(TF_2D); }
   ///@}
 
   /**
