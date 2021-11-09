@@ -82,7 +82,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPointData* outputPD = output->GetPointData();
   vtkCellData* outputCD = output->GetCellData();
   vtkPoints* inPts = input->GetPoints();
-  vtkIdType numPts, i, cellId = 0, newId, ptId, *pointMap = nullptr;
+  vtkIdType numPts, i, cellId = 0, newId = 0, ptId = 0, *pointMap = nullptr;
   float multiplier;
   vtkCellArray *inVerts = nullptr, *inLines = nullptr, *inPolys = nullptr, *inStrips = nullptr;
   vtkCellArray *newVerts = nullptr, *newLines = nullptr, *newPolys = nullptr, *newStrips = nullptr;
@@ -133,7 +133,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
     {
       if (newScalars->GetValue(ptId) <= 0.0)
       {
-        newId = this->InsertPointInMap(ptId, inPts, newPts, pointMap);
+        this->InsertPointInMap(ptId, inPts, newPts, pointMap);
       }
       else
       {
@@ -192,11 +192,11 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
       {
         if (this->PassPoints)
         {
-          newId = newVerts->InsertNextCell(npts, pts);
+          newVerts->InsertNextCell(npts, pts);
         }
         else
         {
-          newId = newVerts->InsertNextCell(npts);
+          newVerts->InsertNextCell(npts);
           for (i = 0; i < npts; i++)
           {
             if (pointMap[pts[i]] < 0)
@@ -211,6 +211,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
         outputCD->CopyData(cd, cellId, newId);
+        newId++;
       }
       cellId++;
     }
@@ -233,11 +234,11 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
       {
         if (this->PassPoints)
         {
-          newId = newLines->InsertNextCell(npts, pts);
+          newLines->InsertNextCell(npts, pts);
         }
         else
         {
-          newId = newLines->InsertNextCell(npts);
+          newLines->InsertNextCell(npts);
           for (i = 0; i < npts; i++)
           {
             if (pointMap[pts[i]] < 0)
@@ -252,6 +253,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
         outputCD->CopyData(cd, cellId, newId);
+        newId++;
       }
       cellId++;
     }
@@ -274,11 +276,11 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
       {
         if (this->PassPoints)
         {
-          newId = newPolys->InsertNextCell(npts, pts);
+          newPolys->InsertNextCell(npts, pts);
         }
         else
         {
-          newId = newPolys->InsertNextCell(npts);
+          newPolys->InsertNextCell(npts);
           for (i = 0; i < npts; i++)
           {
             if (pointMap[pts[i]] < 0)
@@ -293,6 +295,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
         outputCD->CopyData(cd, cellId, newId);
+        newId++;
       }
       cellId++;
     }
@@ -315,11 +318,11 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
       {
         if (this->PassPoints)
         {
-          newId = newStrips->InsertNextCell(npts, pts);
+          newStrips->InsertNextCell(npts, pts);
         }
         else
         {
-          newId = newStrips->InsertNextCell(npts);
+          newStrips->InsertNextCell(npts);
           for (i = 0; i < npts; i++)
           {
             if (pointMap[pts[i]] < 0)
@@ -334,6 +337,7 @@ int vtkExtractPolyDataGeometry::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
         outputCD->CopyData(cd, cellId, newId);
+        newId++;
       }
       cellId++;
     }
