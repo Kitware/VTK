@@ -155,6 +155,7 @@ int TestGPURayCastMultiVolumeCellData(int argc, char* argv[])
   // -----------------------------
   vtkNew<vtkVolume> vol1;
   auto tf2d = ConvertImageToFloat(reader2dtf->GetOutputDataObject(0));
+  vol1->GetProperty()->SetTransferFunctionModeTo2D();
   vol1->GetProperty()->SetTransferFunction2D(tf2d);
   vol1->GetProperty()->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
 

@@ -118,6 +118,7 @@ int TestGPURayCastTransfer2D(int argc, char* argv[])
   Transfer2DPtr tf2d = Create2DTransfer();
 
   volumeProperty->SetTransferFunction2D(tf2d);
+  volumeProperty->SetTransferFunctionMode(vtkVolumeProperty::TF_2D);
 
   // Setup rendering context
   vtkNew<vtkRenderWindow> renWin;

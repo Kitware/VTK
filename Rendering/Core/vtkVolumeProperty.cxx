@@ -549,7 +549,6 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
 
     this->TransferFunction2DMTime[index].Modified();
     this->Modified();
-    // this->TransferFunctionMode = vtkVolumeProperty::TF_2D;
   }
 }
 
