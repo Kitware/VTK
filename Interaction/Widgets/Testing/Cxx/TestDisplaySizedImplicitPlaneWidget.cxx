@@ -1278,7 +1278,7 @@ public:
   vtkActor* Actor;
 };
 
-int TestDisplaySizedImplicitPlaneWidget(int argc, char* argv[])
+int TestDisplaySizedImplicitPlaneWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create a mace out of filters.
   vtkNew<vtkSphereSource> sphere;
