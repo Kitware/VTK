@@ -60,6 +60,7 @@ int TestOpenXRInitialization(int argc, char* argv[])
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
+  delete[] fileName;
 
   vtkNew<vtkTransform> trans;
   trans->Translate(20.0, 0.0, 0.0);

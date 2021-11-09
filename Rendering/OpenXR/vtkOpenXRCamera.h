@@ -74,6 +74,7 @@ protected:
   vtkNew<vtkMatrix4x4> RightEyeView;
   vtkNew<vtkMatrix4x4> LeftEyeTCDCMatrix;
   vtkNew<vtkMatrix4x4> RightEyeTCDCMatrix;
+  vtkNew<vtkMatrix4x4> WorldToPhysicalMatrix; // used in calculations
 
   // used to translate the
   // View to the HMD space

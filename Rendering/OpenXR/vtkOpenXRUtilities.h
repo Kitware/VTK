@@ -46,10 +46,10 @@ public:
 
   //@{
   /**
-   * Given an XR pose (orientation quaternion + position vector), return equivalent
-   * matrix in result.
+   * Given an XR pose (orientation quaternion + position vector), set the provided
+   * matrix from it.
    */
-  static void CreateMatrixFromXrPose(vtkMatrix4x4* result, const XrPosef& xrPose);
+  static void SetMatrixFromXrPose(vtkMatrix4x4* result, const XrPosef& xrPose);
   //@}
 
   //@{
@@ -57,22 +57,6 @@ public:
    * Given a quaternion, return elements of equivalent matrix as an array.
    */
   static void CreateFromQuaternion(double result[16], const XrQuaternionf& quat);
-  //@}
-
-  //@{
-  /**
-   * Given an XR pose (orientation quaternion + position vector), return inverse
-   * transpose of the equivalent matrix in result.
-   */
-  static void CreateViewMatrix(vtkMatrix4x4* result, const XrPosef& xrPose);
-  //@}
-
-  //@{
-  /**
-   * Given an XR pose (orientation quaternion + position vector), return transpose
-   * of the equivalent matrix in result.
-   */
-  static void CreateModelMatrix(vtkMatrix4x4* result, const XrPosef& xrPose);
   //@}
 
   //@{
@@ -181,6 +165,7 @@ inline void vtkOpenXRUtilities::CreateProjectionFov(
 }
 
 //----------------------------------------------------------------------------
+// transpose of vtk standard
 inline void vtkOpenXRUtilities::CreateFromQuaternion(double result[16], const XrQuaternionf& quat)
 {
   const double x2 = quat.x + quat.x;
@@ -199,59 +184,42 @@ inline void vtkOpenXRUtilities::CreateFromQuaternion(double result[16], const Xr
   const double wy2 = quat.w * y2;
 
   result[0] = 1.0 - yy2 - zz2;
-  result[1] = xy2 + wz2;
-  result[2] = xz2 - wy2;
-  result[3] = 0.0;
-
-  result[4] = xy2 - wz2;
-  result[5] = 1.0 - xx2 - zz2;
-  result[6] = yz2 + wx2;
-  result[7] = 0.0;
-
-  result[8] = xz2 + wy2;
-  result[9] = yz2 - wx2;
-  result[10] = 1.0 - xx2 - yy2;
-  result[11] = 0.0;
-
+  result[4] = xy2 + wz2;
+  result[8] = xz2 - wy2;
   result[12] = 0.0;
+
+  result[1] = xy2 - wz2;
+  result[5] = 1.0 - xx2 - zz2;
+  result[9] = yz2 + wx2;
   result[13] = 0.0;
+
+  result[2] = xz2 + wy2;
+  result[6] = yz2 - wx2;
+  result[10] = 1.0 - xx2 - yy2;
   result[14] = 0.0;
+
+  result[3] = 0.0;
+  result[7] = 0.0;
+  result[11] = 0.0;
   result[15] = 1.0;
 }
 
 //----------------------------------------------------------------------------
-inline void vtkOpenXRUtilities::CreateMatrixFromXrPose(vtkMatrix4x4* result, const XrPosef& xrPose)
+// transpose of VTK standard
+inline void vtkOpenXRUtilities::SetMatrixFromXrPose(vtkMatrix4x4* result, const XrPosef& xrPose)
 {
   const XrQuaternionf& xrQuat = xrPose.orientation;
   const XrVector3f& xrPos = xrPose.position;
 
-  double elems[16];
+  double* elems = result->GetData();
   vtkOpenXRUtilities::CreateFromQuaternion(elems, xrQuat);
 
   // Add the translation
-  elems[12] = xrPos.x;
-  elems[13] = xrPos.y;
-  elems[14] = xrPos.z;
-  elems[15] = 1.0;
+  elems[3] = xrPos.x;
+  elems[7] = xrPos.y;
+  elems[11] = xrPos.z;
 
-  result->DeepCopy(elems);
-}
-
-//----------------------------------------------------------------------------
-inline void vtkOpenXRUtilities::CreateViewMatrix(vtkMatrix4x4* result, const XrPosef& xrPose)
-{
-  vtkOpenXRUtilities::CreateMatrixFromXrPose(result, xrPose);
-
-  result->Invert();
-  result->Transpose();
-}
-
-//----------------------------------------------------------------------------
-inline void vtkOpenXRUtilities::CreateModelMatrix(vtkMatrix4x4* result, const XrPosef& xrPose)
-{
-  vtkOpenXRUtilities::CreateMatrixFromXrPose(result, xrPose);
-
-  result->Transpose();
+  result->Modified();
 }
 
 //----------------------------------------------------------------------------
