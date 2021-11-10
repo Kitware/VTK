@@ -82,11 +82,11 @@ private:
   void operator=(const HashTableArray&);
 };
 
-class VTKCOMMONCORE_EXPORT ThreadSpecific
+class VTKCOMMONCORE_EXPORT ThreadSpecific final
 {
 public:
   explicit ThreadSpecific(unsigned numThreads);
-  virtual ~ThreadSpecific() final;
+  ~ThreadSpecific();
 
   StoragePointerType& GetStorage();
   size_t Size() const;
