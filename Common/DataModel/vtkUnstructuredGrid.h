@@ -30,6 +30,7 @@
 
 #include "vtkCellArray.h"             //inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For deprecation
 #include "vtkIdTypeArray.h"           //inline GetCellPoints()
 #include "vtkUnstructuredGridBase.h"
 
@@ -183,7 +184,21 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
+  VTK_DEPRECATED_IN_9_2_0("Please use GetDistinctCellTypesArray() instead.")
   void GetCellTypes(vtkCellTypes* types) override;
+
+  /**
+   * Get a list of types of cells in a dataset. The list consists of an array
+   * of types (not necessarily in any order), with a single entry per type.
+   * For example a dataset with 5 triangles, 3 lines, and 100 hexahedra would
+   * result in a list of three entries, corresponding to the types VTK_TRIANGLE,
+   * VTK_LINE, and VTK_HEXAHEDRON. This override implements an optimization that
+   * recomputes cell types only when the types of cells may have changed.
+   *
+   * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+   * THE DATASET IS NOT MODIFIED
+   */
+  vtkUnsignedCharArray* GetDistinctCellTypesArray();
 
   /**
    * A higher-performing variant of the virtual vtkDataSet::GetCellPoints()

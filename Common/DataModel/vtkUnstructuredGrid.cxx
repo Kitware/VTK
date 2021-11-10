@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_2_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkArrayDispatch.h"
@@ -1532,10 +1535,18 @@ public:
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes* types)
 {
+  VTK_LEGACY_BODY(vtkCellTypes::GetCellTypes, "VTK 9.2");
+  this->GetDistinctCellTypesArray();
+  types->DeepCopy(this->DistinctCellTypes);
+}
+
+//------------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
+{
   if (this->Types == nullptr)
   {
     // No cell types
-    return;
+    return nullptr;
   }
 
   if (this->DistinctCellTypes == nullptr ||
@@ -1565,7 +1576,7 @@ void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes* types)
     this->DistinctCellTypesUpdateMTime = this->Types->GetMTime();
   }
 
-  types->DeepCopy(this->DistinctCellTypes);
+  return this->DistinctCellTypes->GetCellTypesArray();
 }
 
 //------------------------------------------------------------------------------

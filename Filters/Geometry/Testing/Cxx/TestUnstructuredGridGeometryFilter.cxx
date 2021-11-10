@@ -98,6 +98,7 @@
 #include "vtkTriQuadraticPyramid.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
@@ -3807,11 +3808,10 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   grid->GetPointData()->SetScalars(scalars);
   grid->GetCellData()->SetScalars(cellIds);
 
-  vtkNew<vtkCellTypes> uniqueCells;
-  grid->GetCellTypes(uniqueCells);
-  for (vtkIdType j = 0; j < uniqueCells->GetNumberOfTypes(); ++j)
+  vtkUnsignedCharArray* uniqueCells = grid->GetDistinctCellTypesArray();
+  for (vtkIdType j = 0; j < uniqueCells->GetNumberOfValues(); ++j)
   {
-    unsigned char cellType = uniqueCells->GetCellType(j);
+    unsigned char cellType = uniqueCells->GetValue(j);
     std::cout << vtkCellTypes::GetClassNameFromTypeId(cellType) << ": "
               << static_cast<int>(cellType) << std::endl;
   }

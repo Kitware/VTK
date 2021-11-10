@@ -1637,16 +1637,17 @@ bool vtkContour3DLinearGrid::CanFullyProcessDataObject(
     }
 
     // Get list of cell types in the unstructured grid
-    vtkNew<vtkCellTypes> cellTypes;
-    ug->GetCellTypes(cellTypes);
-    for (vtkIdType i = 0; i < cellTypes->GetNumberOfTypes(); ++i)
+    if (vtkUnsignedCharArray* cellTypes = ug->GetDistinctCellTypesArray())
     {
-      unsigned char cellType = cellTypes->GetCellType(i);
-      if (cellType != VTK_VOXEL && cellType != VTK_TETRA && cellType != VTK_HEXAHEDRON &&
-        cellType != VTK_WEDGE && cellType != VTK_PYRAMID)
+      for (vtkIdType i = 0; i < cellTypes->GetNumberOfValues(); ++i)
       {
-        // Unsupported cell type, can't process data
-        return false;
+        unsigned char cellType = cellTypes->GetValue(i);
+        if (cellType != VTK_VOXEL && cellType != VTK_TETRA && cellType != VTK_HEXAHEDRON &&
+          cellType != VTK_WEDGE && cellType != VTK_PYRAMID)
+        {
+          // Unsupported cell type, can't process data
+          return false;
+        }
       }
     }
 
