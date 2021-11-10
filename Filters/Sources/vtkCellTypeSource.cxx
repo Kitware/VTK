@@ -701,7 +701,7 @@ void vtkCellTypeSource::GenerateTetras(vtkUnstructuredGrid* output, int extent[6
   const int xDim = extent[1] - extent[0];
   const int yDim = extent[3] - extent[2];
   const int zDim = extent[5] - extent[4];
-  output->Allocate(xDim * yDim * zDim * 6);
+  output->Allocate(xDim * yDim * zDim * 5);
   for (int k = 0; k < zDim; k++)
   {
     for (int j = 0; j < yDim; j++)
@@ -718,19 +718,45 @@ void vtkCellTypeSource::GenerateTetras(vtkUnstructuredGrid* output, int extent[6
           i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
           i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
         };
+        // add in center point
+        double point1[3], point2[3];
+        output->GetPoint(hexIds[0], point1);
+        output->GetPoint(hexIds[6], point2);
+        for (int l = 0; l < 3; l++)
+        {
+          point1[l] = .5 * (point1[l] + point2[l]);
+        }
+        vtkIdType middlePoint = output->GetPoints()->InsertNextPoint(point1);
 
-        vtkIdType pointIds0[4] = { hexIds[0], hexIds[1], hexIds[2], hexIds[4] };
-        vtkIdType pointIds1[4] = { hexIds[0], hexIds[2], hexIds[3], hexIds[7] };
-        vtkIdType pointIds2[4] = { hexIds[0], hexIds[7], hexIds[4], hexIds[2] };
-        vtkIdType pointIds3[4] = { hexIds[1], hexIds[5], hexIds[6], hexIds[4] };
-        vtkIdType pointIds4[5] = { hexIds[7], hexIds[4], hexIds[2], hexIds[6] };
-        vtkIdType pointIds5[5] = { hexIds[2], hexIds[4], hexIds[1], hexIds[6] };
-        output->InsertNextCell(VTK_TETRA, 4, pointIds0);
+        vtkIdType pointIds1[4] = { hexIds[0], hexIds[1], hexIds[2], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds1);
+        vtkIdType pointIds2[4] = { hexIds[0], hexIds[2], hexIds[3], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds2);
+
+        vtkIdType pointIds3[4] = { hexIds[6], hexIds[5], hexIds[4], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds3);
+        vtkIdType pointIds4[4] = { hexIds[6], hexIds[4], hexIds[7], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds4);
+
+        vtkIdType pointIds5[4] = { hexIds[1], hexIds[5], hexIds[6], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds5);
+        vtkIdType pointIds6[4] = { hexIds[1], hexIds[6], hexIds[2], middlePoint };
+        output->InsertNextCell(VTK_TETRA, 4, pointIds6);
+
+        vtkIdType pointIds7[4] = { hexIds[0], hexIds[4], hexIds[5], middlePoint };
+        output->InsertNextCell(VTK_TETRA, 4, pointIds7);
+        vtkIdType pointIds8[4] = { hexIds[0], hexIds[5], hexIds[1], middlePoint };
+        output->InsertNextCell(VTK_TETRA, 4, pointIds8);
+
+        vtkIdType pointIds9[4] = { hexIds[0], hexIds[3], hexIds[7], middlePoint };
+        output->InsertNextCell(VTK_TETRA, 4, pointIds9);
+        vtkIdType pointIds10[4] = { hexIds[0], hexIds[7], hexIds[4], middlePoint };
+        output->InsertNextCell(VTK_TETRA, 4, pointIds10);
+
+        vtkIdType pointIds11[4] = { hexIds[6], hexIds[7], hexIds[3], middlePoint };
+        output->InsertNextCell(VTK_TETRA, 4, pointIds11);
+        vtkIdType pointIds12[4] = { hexIds[6], hexIds[3], hexIds[2], middlePoint };
+        output->InsertNextCell(VTK_TETRA, 4, pointIds12);
       }
     }
   }
