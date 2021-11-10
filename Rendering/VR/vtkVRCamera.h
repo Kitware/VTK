@@ -22,6 +22,7 @@
 #ifndef vtkVRCamera_h
 #define vtkVRCamera_h
 
+#include "vtkNew.h" // for iavr
 #include "vtkOpenGLCamera.h"
 #include "vtkRenderingVRModule.h" // For export macro
 
@@ -72,9 +73,17 @@ public:
   // may change slightly through the end of 2021.
   void ApplyPoseToCamera(Pose* pose, vtkVRRenderWindow* win);
 
+  // Set the camera's ivars based on a user provided matrix. The goal here
+  // is to make it so that the camera is consistent with the provided matrix
+  // and when the world to pose/view matrix is requested would return the
+  // same matrix as provided.
+  void SetCameraFromWorldToPoseMatrix(vtkMatrix4x4* mat, double distance);
+
 protected:
   vtkVRCamera() = default;
   ~vtkVRCamera() override = default;
+
+  vtkNew<vtkMatrix4x4> TempMatrix4x4;
 
 private:
   vtkVRCamera(const vtkVRCamera&) = delete;

@@ -33,11 +33,6 @@
 
 vtkStandardNewMacro(vtkOpenXRRenderWindowInteractor);
 
-void (*vtkOpenXRRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*)) nullptr;
-void* vtkOpenXRRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
-void (*vtkOpenXRRenderWindowInteractor::ClassExitMethodArgDelete)(
-  void*) = (void (*)(void*)) nullptr;
-
 //------------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkOpenXRRenderWindowInteractor::vtkOpenXRRenderWindowInteractor()
@@ -70,33 +65,8 @@ vtkOpenXRRenderWindowInteractor::~vtkOpenXRRenderWindowInteractor()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindowInteractor::StartEventLoop()
-{
-  this->StartedMessageLoop = 1;
-  this->Done = false;
-
-  vtkOpenXRRenderWindow* renWin = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
-
-  vtkRenderer* ren = static_cast<vtkRenderer*>(renWin->GetRenderers()->GetItemAsObject(0));
-
-  while (!this->Done)
-  {
-    this->DoOneEvent(renWin, ren);
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindowInteractor::ProcessEvents()
-{
-  vtkOpenXRRenderWindow* renWin = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
-
-  vtkRenderer* ren = static_cast<vtkRenderer*>(renWin->GetRenderers()->GetItemAsObject(0));
-  this->DoOneEvent(renWin, ren);
-}
-
-//------------------------------------------------------------------------------
 void vtkOpenXRRenderWindowInteractor::DoOneEvent(
-  vtkOpenXRRenderWindow* renWin, vtkRenderer* vtkNotUsed(ren))
+  vtkVRRenderWindow* renWin, vtkRenderer* vtkNotUsed(ren))
 {
   this->ProcessXrEvents();
 
@@ -105,7 +75,12 @@ void vtkOpenXRRenderWindowInteractor::DoOneEvent(
     return;
   }
 
-  this->PollXrActions(renWin);
+  this->PollXrActions();
+
+  if (this->RecognizeGestures)
+  {
+    this->RecognizeComplexGesture(nullptr);
+  }
 
   // Start a render
   this->InvokeEvent(vtkCommand::RenderEvent);
@@ -237,7 +212,18 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindowInteractor::PollXrActions(vtkOpenXRRenderWindow* renWin)
+void vtkOpenXRRenderWindowInteractor::ConvertOpenXRPoseToWorldCoordinates(const XrPosef& xrPose,
+  double pos[3],  // Output world position
+  double wxyz[4], // Output world orientation quaternion
+  double ppos[3], // Output physical position
+  double wdir[3]) // Output world view direction (-Z)
+{
+  vtkOpenXRUtilities::SetMatrixFromXrPose(this->PoseToWorldMatrix, xrPose);
+  this->ConvertPoseToWorldCoordinates(this->PoseToWorldMatrix, pos, wxyz, ppos, wdir);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRRenderWindowInteractor::PollXrActions()
 {
   // Update the action states by syncing using the active action set
   vtkOpenXRManager::GetInstance()->SyncActions();
@@ -266,7 +252,7 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions(vtkOpenXRRenderWindow* renWi
     { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
   {
     XrPosef& handPose = this->GetHandPose(hand);
-    renWin->ConvertOpenXRPoseToWorldCoordinates(handPose, pos, wxyz, ppos, wdir);
+    this->ConvertOpenXRPoseToWorldCoordinates(handPose, pos, wxyz, ppos, wdir);
     auto edHand = vtkEventDataDevice3D::New();
     edHand->SetDevice(hand == vtkOpenXRManager::ControllerIndex::Right
         ? vtkEventDataDevice::RightController
@@ -438,201 +424,6 @@ void vtkOpenXRRenderWindowInteractor::HandleVector2fAction(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindowInteractor::HandleGripEvents(vtkEventData* ed)
-{
-  vtkEventDataDevice3D* edata = ed->GetAsEventDataDevice3D();
-  if (!edata)
-  {
-    return;
-  }
-
-  this->PointerIndex = static_cast<int>(edata->GetDevice());
-  if (edata->GetAction() == vtkEventDataAction::Press)
-  {
-    this->DeviceInputDownCount[this->PointerIndex] = 1;
-
-    this->StartingPhysicalEventPositions[this->PointerIndex][0] =
-      this->PhysicalEventPositions[this->PointerIndex][0];
-    this->StartingPhysicalEventPositions[this->PointerIndex][1] =
-      this->PhysicalEventPositions[this->PointerIndex][1];
-    this->StartingPhysicalEventPositions[this->PointerIndex][2] =
-      this->PhysicalEventPositions[this->PointerIndex][2];
-
-    vtkOpenXRRenderWindow* renWin = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
-    renWin->GetPhysicalToWorldMatrix(this->StartingPhysicalToWorldMatrix);
-
-    // Both controllers have the grip down, start multitouch
-    if (this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::LeftController)] &&
-      this->DeviceInputDownCount[static_cast<int>(vtkEventDataDevice::RightController)])
-    {
-      // we do not know what the gesture is yet
-      this->CurrentGesture = vtkCommand::StartEvent;
-    }
-    return;
-  }
-  // end the gesture if needed
-  if (edata->GetAction() == vtkEventDataAction::Release)
-  {
-    this->DeviceInputDownCount[this->PointerIndex] = 0;
-
-    if (edata->GetInput() == vtkEventDataDeviceInput::Grip)
-    {
-      if (this->CurrentGesture == vtkCommand::PinchEvent)
-      {
-        this->EndPinchEvent();
-      }
-      if (this->CurrentGesture == vtkCommand::PanEvent)
-      {
-        this->EndPanEvent();
-      }
-      if (this->CurrentGesture == vtkCommand::RotateEvent)
-      {
-        this->EndRotateEvent();
-      }
-      this->CurrentGesture = vtkCommand::NoEvent;
-      return;
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
-{
-  // Recognize gesture only if one button is pressed per controller
-  int lhand = static_cast<int>(vtkEventDataDevice::LeftController);
-  int rhand = static_cast<int>(vtkEventDataDevice::RightController);
-
-  if (this->DeviceInputDownCount[lhand] > 1 || this->DeviceInputDownCount[lhand] == 0 ||
-    this->DeviceInputDownCount[rhand] > 1 || this->DeviceInputDownCount[rhand] == 0)
-  {
-    this->CurrentGesture = vtkCommand::NoEvent;
-    return;
-  }
-
-  double* posVals[2];
-  double* startVals[2];
-  posVals[0] = this->PhysicalEventPositions[lhand];
-  posVals[1] = this->PhysicalEventPositions[rhand];
-
-  startVals[0] = this->StartingPhysicalEventPositions[lhand];
-  startVals[1] = this->StartingPhysicalEventPositions[rhand];
-
-  // The meat of the algorithm
-  // on move events we analyze them to determine what type
-  // of movement it is and then deal with it.
-  if (this->CurrentGesture != vtkCommand::NoEvent)
-  {
-    // calculate the distances
-    double originalDistance = sqrt(vtkMath::Distance2BetweenPoints(startVals[0], startVals[1]));
-    double newDistance = sqrt(vtkMath::Distance2BetweenPoints(posVals[0], posVals[1]));
-
-    // calculate the translations
-    double t0[3];
-    t0[0] = posVals[0][0] - startVals[0][0];
-    t0[1] = posVals[0][1] - startVals[0][1];
-    t0[2] = posVals[0][2] - startVals[0][2];
-
-    double t1[3];
-    t1[0] = posVals[1][0] - startVals[1][0];
-    t1[1] = posVals[1][1] - startVals[1][1];
-    t1[2] = posVals[1][2] - startVals[1][2];
-
-    double trans[3];
-    trans[0] = (t0[0] + t1[0]) / 2.0;
-    trans[1] = (t0[1] + t1[1]) / 2.0;
-    trans[2] = (t0[2] + t1[2]) / 2.0;
-
-    // calculate rotations
-    double originalAngle = vtkMath::DegreesFromRadians(
-      atan2((double)startVals[1][2] - startVals[0][2], (double)startVals[1][0] - startVals[0][0]));
-    double newAngle = vtkMath::DegreesFromRadians(
-      atan2((double)posVals[1][2] - posVals[0][2], (double)posVals[1][0] - posVals[0][0]));
-
-    // angles are cyclic so watch for that, -179 and 179 are only 2 apart :)
-    if (newAngle - originalAngle > 180.0)
-    {
-      newAngle -= 360;
-    }
-    if (newAngle - originalAngle < -180.0)
-    {
-      newAngle += 360;
-    }
-    double angleDeviation = newAngle - originalAngle;
-
-    // do we know what gesture we are doing yet? If not
-    // see if we can figure it out
-    if (this->CurrentGesture == vtkCommand::StartEvent)
-    {
-      // pinch is a move to/from the center point
-      // rotate is a move along the circumference
-      // pan is a move of the center point
-      // compute the distance along each of these axes in meters
-      // the first to break thresh wins
-      double thresh = 0.05; // in meters
-
-      double pinchDistance = fabs(newDistance - originalDistance);
-      double panDistance = sqrt(trans[0] * trans[0] + trans[1] * trans[1] + trans[2] * trans[2]);
-      double rotateDistance = originalDistance * 3.1415926 * fabs(angleDeviation) / 180.0;
-
-      if (pinchDistance > thresh && pinchDistance > panDistance && pinchDistance > rotateDistance)
-      {
-        this->CurrentGesture = vtkCommand::PinchEvent;
-        this->Scale = 1.0;
-        this->StartPinchEvent();
-      }
-      else if (rotateDistance > thresh && rotateDistance > panDistance)
-      {
-        this->CurrentGesture = vtkCommand::RotateEvent;
-        this->Rotation = 0.0;
-        this->StartRotateEvent();
-      }
-      else if (panDistance > thresh)
-      {
-        this->CurrentGesture = vtkCommand::PanEvent;
-        this->Translation3D[0] = 0.0;
-        this->Translation3D[1] = 0.0;
-        this->Translation3D[2] = 0.0;
-        this->StartPanEvent();
-      }
-    }
-    // if we have found a specific type of movement then
-    // handle it
-    if (this->CurrentGesture == vtkCommand::RotateEvent)
-    {
-      this->SetRotation(angleDeviation);
-      this->RotateEvent();
-    }
-    if (this->CurrentGesture == vtkCommand::PinchEvent)
-    {
-      this->SetScale(newDistance / originalDistance);
-      this->PinchEvent();
-    }
-    if (this->CurrentGesture == vtkCommand::PanEvent)
-    {
-      // HMD to world axes
-      vtkOpenXRRenderWindow* win = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
-      double* vup = win->GetPhysicalViewUp();
-      double* dop = win->GetPhysicalViewDirection();
-      double physicalScale = win->GetPhysicalScale();
-      double vright[3];
-      vtkMath::Cross(dop, vup, vright);
-      double wtrans[3];
-
-      // convert translation to world coordinates
-      // now adjust for scale
-      for (int i = 0; i < 3; i++)
-      {
-        wtrans[i] = trans[0] * vright[i] + trans[1] * vup[i] - trans[2] * dop[i];
-        wtrans[i] = wtrans[i] * physicalScale;
-      }
-
-      this->SetTranslation3D(wtrans);
-      this->PanEvent();
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkOpenXRRenderWindowInteractor::AddAction(
   const std::string& path, const vtkCommand::EventIds& eid)
 {
@@ -661,16 +452,13 @@ void vtkOpenXRRenderWindowInteractor::AddAction(
 //------------------------------------------------------------------------------
 void vtkOpenXRRenderWindowInteractor::Initialize()
 {
-  // make sure we have a RenderWindow and camera
-  if (!this->RenderWindow)
-  {
-    vtkErrorMacro(<< "No render window defined!");
-    return;
-  }
   if (this->Initialized)
   {
     return;
   }
+
+  // Start with superclass initialization
+  this->Superclass::Initialize();
 
   vtkOpenXRRenderWindow* renWin = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
 
@@ -681,16 +469,6 @@ void vtkOpenXRRenderWindowInteractor::Initialize()
   {
     return;
   }
-
-  this->Initialized = true;
-
-  // Get the info we need from the RenderingWindow
-  int* size;
-  size = renWin->GetSize();
-  renWin->GetPosition();
-  this->Enable();
-  this->Size[0] = size[0];
-  this->Size[1] = size[1];
 
   // Grip actions are handled by the interactor directly (why?)
   this->AddAction("leftgripaction", [this](vtkEventData* ed) { this->HandleGripEvents(ed); });
@@ -823,11 +601,14 @@ bool vtkOpenXRRenderWindowInteractor::LoadActions(const std::string& actionFilen
     return false;
   }
 
+  // look in the same directory as the actionFilename
+  std::string path = vtksys::SystemTools::GetFilenamePath(actionFilename);
+
   for (Json::Value::ArrayIndex i = 0; i < defaultBindings.size(); ++i)
   {
     Json::Value binding = defaultBindings[i];
     std::string bindingUrl = binding["binding_url"].asString();
-    std::string bindingFilename = vtksys::SystemTools::CollapseFullPath(bindingUrl.c_str());
+    std::string bindingFilename = vtksys::SystemTools::CollapseFullPath(path + "/" + bindingUrl);
     if (!this->LoadDefaultBinding(bindingFilename))
     {
       return false;
@@ -1001,93 +782,6 @@ vtkOpenXRRenderWindowInteractor::ActionData* vtkOpenXRRenderWindowInteractor::Ge
     return nullptr;
   }
   return this->MapActionStruct_Name[actionName];
-}
-
-//------------------------------------------------------------------------------
-int vtkOpenXRRenderWindowInteractor::InternalCreateTimer(
-  int vtkNotUsed(timerId), int vtkNotUsed(timerType), unsigned long vtkNotUsed(duration))
-{
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-int vtkOpenXRRenderWindowInteractor::InternalDestroyTimer(int vtkNotUsed(platformTimerId))
-{
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-// Specify the default function to be called when an interactor needs to exit.
-// This callback is overridden by an instance ExitMethod that is defined.
-void vtkOpenXRRenderWindowInteractor::SetClassExitMethod(void (*f)(void*), void* arg)
-{
-  if (f != vtkOpenXRRenderWindowInteractor::ClassExitMethod ||
-    arg != vtkOpenXRRenderWindowInteractor::ClassExitMethodArg)
-  {
-    // delete the current arg if there is a delete method
-    if ((vtkOpenXRRenderWindowInteractor::ClassExitMethodArg) &&
-      (vtkOpenXRRenderWindowInteractor::ClassExitMethodArgDelete))
-    {
-      (*vtkOpenXRRenderWindowInteractor::ClassExitMethodArgDelete)(
-        vtkOpenXRRenderWindowInteractor::ClassExitMethodArg);
-    }
-    vtkOpenXRRenderWindowInteractor::ClassExitMethod = f;
-    vtkOpenXRRenderWindowInteractor::ClassExitMethodArg = arg;
-
-    // no call to this->Modified() since this is a class member function
-  }
-}
-
-//------------------------------------------------------------------------------
-// Set the arg delete method.  This is used to free user memory.
-void vtkOpenXRRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void*))
-{
-  if (f != vtkOpenXRRenderWindowInteractor::ClassExitMethodArgDelete)
-  {
-    vtkOpenXRRenderWindowInteractor::ClassExitMethodArgDelete = f;
-
-    // no call to this->Modified() since this is a class member function
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindowInteractor::ExitCallback()
-{
-  if (this->HasObserver(vtkCommand::ExitEvent))
-  {
-    this->InvokeEvent(vtkCommand::ExitEvent, nullptr);
-  }
-  else if (this->ClassExitMethod)
-  {
-    (*this->ClassExitMethod)(this->ClassExitMethodArg);
-  }
-
-  this->TerminateApp();
-}
-
-//------------------------------------------------------------------------------
-vtkEventDataDevice vtkOpenXRRenderWindowInteractor::GetPointerDevice()
-{
-  if (this->PointerIndex == 0)
-  {
-    return vtkEventDataDevice::RightController;
-  }
-  if (this->PointerIndex == 1)
-  {
-    return vtkEventDataDevice::LeftController;
-  }
-  return vtkEventDataDevice::Unknown;
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindowInteractor::GetStartingPhysicalToWorldMatrix(
-  vtkMatrix4x4* startingPhysicalToWorldMatrix)
-{
-  if (!startingPhysicalToWorldMatrix)
-  {
-    return;
-  }
-  startingPhysicalToWorldMatrix->DeepCopy(this->StartingPhysicalToWorldMatrix);
 }
 
 //------------------------------------------------------------------------------

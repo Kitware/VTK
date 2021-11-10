@@ -117,7 +117,11 @@ bool vtkOpenXRRenderWindow::GetPoseMatrixWorldFromDevice(
   const XrPosef* viewPose = xrManager->GetViewPose(vtkVRRenderWindow::LeftEye);
   if (viewPose)
   {
-    this->ConvertOpenXRPoseToMatrices(*viewPose, poseMatrixWorld);
+    vtkOpenXRUtilities::SetMatrixFromXrPose(poseMatrixWorld, *viewPose);
+
+    // Transform from physical to world space
+    this->GetPhysicalToWorldMatrix(this->TempMatrix4x4);
+    vtkMatrix4x4::Multiply4x4(poseMatrixWorld, this->TempMatrix4x4, poseMatrixWorld);
     return true;
   }
   return false;
@@ -284,17 +288,13 @@ void vtkOpenXRRenderWindow::RenderModels()
   vtkOpenGLState* ostate = this->GetState();
   ostate->vtkglEnable(GL_DEPTH_TEST);
 
-  vtkNew<vtkMatrix4x4> poseMatrix;
   auto iren = vtkOpenXRRenderWindowInteractor::SafeDownCast(this->Interactor);
   for (uint32_t hand :
     { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
   {
     XrPosef handPose = iren->GetHandPose(hand);
-
-    // this could be done without a new every time
-    vtkNew<vtkMatrix4x4> poseMatrixPhysical;
-    vtkOpenXRUtilities::CreateModelMatrix(poseMatrixPhysical, handPose);
-    this->Models[hand]->Render(this, poseMatrixPhysical);
+    vtkOpenXRUtilities::SetMatrixFromXrPose(this->TempMatrix4x4, handPose);
+    this->Models[hand]->Render(this, this->TempMatrix4x4);
   }
 }
 
@@ -364,55 +364,6 @@ void vtkOpenXRRenderWindow::RenderFramebuffer(FramebufferDesc& framebufferDesc)
   }
 
   this->GetState()->PopDrawFramebufferBinding();
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::ConvertOpenXRPoseToWorldCoordinates(const XrPosef& xrPose,
-  double pos[3],  // Output world position
-  double wxyz[4], // Output world orientation quaternion
-  double ppos[3], // Output physical position
-  double wdir[3]) // Output world view direction (-Z)
-{
-  vtkNew<vtkMatrix4x4> poseMatrixPhysical;
-  vtkNew<vtkMatrix4x4> poseMatrixWorld;
-  this->ConvertOpenXRPoseToMatrices(xrPose, poseMatrixWorld, poseMatrixPhysical);
-
-  ppos[0] = poseMatrixPhysical->Element[0][3];
-  ppos[1] = poseMatrixPhysical->Element[1][3];
-  ppos[2] = poseMatrixPhysical->Element[2][3];
-
-  vtkNew<vtkTransform> worldT;
-  worldT->SetMatrix(poseMatrixWorld);
-
-  worldT->GetPosition(pos);
-  worldT->GetOrientationWXYZ(wxyz);
-  worldT->GetOrientation(wdir);
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::ConvertOpenXRPoseToMatrices(const XrPosef& xrPose,
-  vtkMatrix4x4* poseMatrixWorld, vtkMatrix4x4* poseMatrixPhysical /*=nullptr*/)
-{
-  if (!poseMatrixWorld && !poseMatrixPhysical)
-  {
-    return;
-  }
-
-  vtkNew<vtkMatrix4x4> modelMatrix;
-  vtkOpenXRUtilities::CreateModelMatrix(modelMatrix, xrPose);
-
-  if (poseMatrixPhysical)
-  {
-    poseMatrixPhysical->DeepCopy(modelMatrix);
-  }
-
-  if (poseMatrixWorld)
-  {
-    // Transform from physical to world space
-    vtkNew<vtkMatrix4x4> physicalToWorldMatrix;
-    this->GetPhysicalToWorldMatrix(physicalToWorldMatrix);
-    vtkMatrix4x4::Multiply4x4(modelMatrix, physicalToWorldMatrix, poseMatrixWorld);
-  }
 }
 
 //------------------------------------------------------------------------------

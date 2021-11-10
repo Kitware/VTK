@@ -427,7 +427,7 @@ bool vtkOpenXRInteractorStyle::HardwareSelect(vtkEventDataDevice controller, boo
   double dummy_ppos[3];
   double wdir[3];
   XrPosef tdPose = iren->GetHandPose(trackedDeviceIndex);
-  renWin->ConvertOpenXRPoseToWorldCoordinates(tdPose, p0, wxyz, dummy_ppos, wdir);
+  iren->ConvertOpenXRPoseToWorldCoordinates(tdPose, p0, wxyz, dummy_ppos, wdir);
 
   this->HardwarePicker->PickProp(p0, wxyz, ren, ren->GetViewProps(), actorPassOnly);
 
@@ -1051,7 +1051,7 @@ void vtkOpenXRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
   double dummy_ppos[3];
   double wdir[3];
   XrPosef tdPose = iren->GetHandPose(trackedDeviceIndex);
-  renWin->ConvertOpenXRPoseToWorldCoordinates(tdPose, p0, wxyz, dummy_ppos, wdir);
+  iren->ConvertOpenXRPoseToWorldCoordinates(tdPose, p0, wxyz, dummy_ppos, wdir);
 
   // Compute ray length.
   this->InteractionPicker->Pick3DRay(p0, wxyz, ren);

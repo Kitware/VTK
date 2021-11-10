@@ -149,28 +149,6 @@ public:
 
   //@{
   /*
-   * Convert a device pose to pose matrices
-   * \param poseMatrixPhysical Optional output pose matrix in physical space
-   * \param poseMatrixWorld    Optional output pose matrix in world space
-   */
-  void ConvertOpenXRPoseToMatrices(const XrPosef& xrPose, vtkMatrix4x4* poseMatrixWorld,
-    vtkMatrix4x4* poseMatrixPhysical = nullptr);
-  //@}
-
-  //@{
-  /*
-   * Convert a device pose to a world coordinate position and orientation
-   * \param pos  Output world position
-   * \param wxyz Output world orientation quaternion
-   * \param ppos Output physical position
-   * \param wdir Output world view direction (-Z)
-   */
-  void ConvertOpenXRPoseToWorldCoordinates(
-    const XrPosef& xrPose, double pos[3], double wxyz[4], double ppos[3], double wdir[3]);
-  //@}
-
-  //@{
-  /*
    * Get the index corresponding to this EventDataDevice
    */
   uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index = 0) override;
@@ -213,6 +191,7 @@ protected:
 
   // Controller models
   std::array<vtkSmartPointer<vtkVRModel>, 2> Models;
+  vtkNew<vtkMatrix4x4> TempMatrix4x4;
 
   // Store if a model is active or not here as openxr do not have a concept
   // of active/inactive controller
