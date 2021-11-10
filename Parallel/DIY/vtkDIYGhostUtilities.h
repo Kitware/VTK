@@ -723,6 +723,29 @@ public:
   static int GenerateGhostCells(std::vector<DataSetT*>& inputsDS, std::vector<DataSetT*>& outputsDS,
     int outputGhostLevels, vtkMultiProcessController* controller);
 
+  ///@{
+  /**
+   * Method that can be used to avoid the compile-time overhead of the templated method
+   * `GenerateGhostCells`. All this method does is call `GenerateGhostCells` with the appropriate
+   * template parameter.
+   */
+  static int GenerateGhostCellsImageData(std::vector<vtkImageData*>& inputs,
+    std::vector<vtkImageData*>& outputs, int outputGhostLevels,
+    vtkMultiProcessController* controller);
+  static int GenerateGhostCellsRectilinearGrid(std::vector<vtkRectilinearGrid*>& inputs,
+    std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels,
+    vtkMultiProcessController* controller);
+  static int GenerateGhostCellsStructuredGrid(std::vector<vtkStructuredGrid*>& inputs,
+    std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels,
+    vtkMultiProcessController* controller);
+  static int GenerateGhostCellsPolyData(std::vector<vtkPolyData*>& inputs,
+    std::vector<vtkPolyData*>& outputs, int outputGhostLevels,
+    vtkMultiProcessController* controller);
+  static int GenerateGhostCellsUnstructuredGrid(std::vector<vtkUnstructuredGrid*>& inputs,
+    std::vector<vtkUnstructuredGrid*>& outputs, int outputGhostLevels,
+    vtkMultiProcessController* controller);
+  ///@}
+
 protected:
   vtkDIYGhostUtilities();
   ~vtkDIYGhostUtilities() override;

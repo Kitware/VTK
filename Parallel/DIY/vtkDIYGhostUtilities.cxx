@@ -6087,3 +6087,43 @@ void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
 {
   FillReceivedGhosts(master, outputs);
 }
+
+//----------------------------------------------------------------------------
+int vtkDIYGhostUtilities::GenerateGhostCellsImageData(
+  std::vector<vtkImageData*>& inputs, std::vector<vtkImageData*>& outputs,
+  int outputGhostLevels, vtkMultiProcessController* controller)
+{
+  return vtkDIYGhostUtilities::GenerateGhostCells(inputs, outputs, outputGhostLevels, controller);
+}
+
+//----------------------------------------------------------------------------
+int vtkDIYGhostUtilities::GenerateGhostCellsRectilinearGrid(
+  std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs,
+  int outputGhostLevels, vtkMultiProcessController* controller)
+{
+  return vtkDIYGhostUtilities::GenerateGhostCells(inputs, outputs, outputGhostLevels, controller);
+}
+
+//----------------------------------------------------------------------------
+int vtkDIYGhostUtilities::GenerateGhostCellsStructuredGrid(
+  std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs,
+  int outputGhostLevels, vtkMultiProcessController* controller)
+{
+  return vtkDIYGhostUtilities::GenerateGhostCells(inputs, outputs, outputGhostLevels, controller);
+}
+
+//----------------------------------------------------------------------------
+int vtkDIYGhostUtilities::GenerateGhostCellsPolyData(
+  std::vector<vtkPolyData*>& inputs, std::vector<vtkPolyData*>& outputs,
+  int outputGhostLevels, vtkMultiProcessController* controller)
+{
+  return vtkDIYGhostUtilities::GenerateGhostCells(inputs, outputs, outputGhostLevels, controller);
+}
+
+//----------------------------------------------------------------------------
+int vtkDIYGhostUtilities::GenerateGhostCellsUnstructuredGrid(
+  std::vector<vtkUnstructuredGrid*>& inputs, std::vector<vtkUnstructuredGrid*>& outputs,
+  int outputGhostLevels, vtkMultiProcessController* controller)
+{
+  return vtkDIYGhostUtilities::GenerateGhostCells(inputs, outputs, outputGhostLevels, controller);
+}
