@@ -10204,8 +10204,7 @@ FileInfo* vtkParse_ParseFile(const char* filename, FILE* ifile, FILE* errfile)
   /* "data" is a global variable used by the parser */
   data = (FileInfo*)malloc(sizeof(FileInfo));
   vtkParse_InitFile(data);
-  data->Strings = (StringCache*)malloc(sizeof(StringCache));
-  vtkParse_InitStringCache(data->Strings);
+  data->Strings = &system_strings;
 
   /* "preprocessor" is a global struct used by the parser */
   preprocessor = (PreprocessInfo*)malloc(sizeof(PreprocessInfo));
@@ -10444,8 +10443,12 @@ void vtkParse_FinalCleanup(void)
 void vtkParse_Free(FileInfo* file_info)
 {
   vtkParse_FreeFile(file_info);
-  vtkParse_FreeStringCache(file_info->Strings);
-  free(file_info->Strings);
+  // system_strings will be released at program exit
+  if (file_info->Strings && file_info->Strings != &system_strings)
+  {
+    vtkParse_FreeStringCache(file_info->Strings);
+    free(file_info->Strings);
+  }
   free(file_info);
 }
 
