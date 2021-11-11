@@ -15,11 +15,14 @@
 
 #include "vtkIdList.h"
 #include "vtkKdTreePointLocator.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 #include "vtkPoissonDiskSampler.h"
 #include "vtkSphereSource.h"
+
+#include "vtkXMLPolyDataWriter.h"
 
 //------------------------------------------------------------------------------
 int TestPoissonDiskSampler(int, char*[])
@@ -31,26 +34,44 @@ int TestPoissonDiskSampler(int, char*[])
   sphere->SetPhiResolution(100);
   sphere->SetRadius(1.0);
 
-  vtkNew<vtkPoissonDiskSampler> sampler;
-  sampler->SetInputConnection(sphere->GetOutputPort());
-  sampler->SetRadius(radius);
-  sampler->Update();
-
-  vtkPointSet* output = vtkPointSet::SafeDownCast(sampler->GetOutputDataObject(0));
-
-  vtkNew<vtkKdTreePointLocator> locator;
-  locator->SetDataSet(output);
-  locator->BuildLocator();
-
-  vtkPoints* points = output->GetPoints();
-  vtkNew<vtkIdList> ids;
-
-  for (vtkIdType pointId = 0; pointId < output->GetNumberOfPoints(); ++pointId)
+  // We run the test 100 times to make failure more likely if there is a bug
+  for (int i = 0; i < 100; ++i)
   {
-    locator->FindPointsWithinRadius(radius, points->GetPoint(pointId), ids);
-    if (ids->GetNumberOfIds() > 1)
+    vtkNew<vtkPoissonDiskSampler> sampler;
+    sampler->SetInputConnection(sphere->GetOutputPort());
+    sampler->SetRadius(radius);
+    sampler->Update();
+
+    vtkPointSet* output = vtkPointSet::SafeDownCast(sampler->GetOutputDataObject(0));
+
+    vtkNew<vtkKdTreePointLocator> locator;
+    locator->SetDataSet(output);
+    locator->BuildLocator();
+
+    vtkPoints* points = output->GetPoints();
+    vtkNew<vtkIdList> ids;
+
+    for (vtkIdType pointId = 0; pointId < output->GetNumberOfPoints(); ++pointId)
     {
-      return EXIT_FAILURE;
+      locator->FindPointsWithinRadius(radius, points->GetPoint(pointId), ids);
+      if (ids->GetNumberOfIds() > 1)
+      {
+        vtkLog(ERROR, "Criterion for poisson disk sampling is not met.");
+        vtkLog(INFO, << i << "pointIds " << pointId);
+        for (vtkIdType id = 0; id < ids->GetNumberOfIds(); ++id)
+        {
+          vtkLog(INFO, << ids->GetId(id));
+        }
+
+        vtkNew<vtkPolyData> outputPD;
+        outputPD->ShallowCopy(output);
+        vtkNew<vtkXMLPolyDataWriter> writer;
+        writer->SetFileName("/home/yohann/Documents/ParaView/build/poisson.vtp");
+        writer->SetDataModeToAscii();
+        writer->SetInputData(outputPD);
+        writer->Write();
+        return EXIT_FAILURE;
+      }
     }
   }
 
