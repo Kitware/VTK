@@ -51,4 +51,4 @@ vtk_module_include(VTK::nlohmannjson
   INTERFACE
     # Required because the files are included via `<nlohmannjson/…>` names.
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:${_vtk_module_HEADER_DESTINATION}/vtknlohmannjson/include>")
+    "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtknlohmannjson/include>")

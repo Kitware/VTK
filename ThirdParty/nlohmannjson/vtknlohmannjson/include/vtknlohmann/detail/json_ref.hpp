@@ -3,7 +3,7 @@
 #include <initializer_list>
 #include <utility>
 
-#include <nlohmann/detail/meta/type_traits.hpp>
+#include VTK_NLOHMANN_JSON(detail/meta/type_traits.hpp)
 
 namespace nlohmann
 {

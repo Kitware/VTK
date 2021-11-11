@@ -3,10 +3,10 @@
 #include <type_traits>
 #include <utility>
 
-#include <nlohmann/detail/conversions/from_json.hpp>
-#include <nlohmann/detail/conversions/to_json.hpp>
-#include <nlohmann/detail/meta/identity_tag.hpp>
-#include <nlohmann/detail/meta/type_traits.hpp>
+#include VTK_NLOHMANN_JSON(detail/conversions/from_json.hpp)
+#include VTK_NLOHMANN_JSON(detail/conversions/to_json.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/identity_tag.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/type_traits.hpp)
 
 namespace nlohmann
 {

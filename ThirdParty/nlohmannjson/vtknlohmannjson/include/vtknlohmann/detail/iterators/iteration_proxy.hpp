@@ -6,8 +6,8 @@
 #include <tuple> // tuple_size, get, tuple_element
 #include <utility> // move
 
-#include <nlohmann/detail/meta/type_traits.hpp>
-#include <nlohmann/detail/value_t.hpp>
+#include VTK_NLOHMANN_JSON(detail/meta/type_traits.hpp)
+#include VTK_NLOHMANN_JSON(detail/value_t.hpp)
 
 namespace nlohmann
 {

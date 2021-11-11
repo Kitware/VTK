@@ -4,8 +4,8 @@
 #include <cstddef> // size_t
 #include <functional> // hash
 
-#include <nlohmann/detail/macro_scope.hpp>
-#include <nlohmann/detail/value_t.hpp>
+#include VTK_NLOHMANN_JSON(detail/macro_scope.hpp)
+#include VTK_NLOHMANN_JSON(detail/value_t.hpp)
 
 namespace nlohmann
 {

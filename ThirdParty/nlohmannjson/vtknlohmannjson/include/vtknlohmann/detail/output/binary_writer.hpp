@@ -9,9 +9,9 @@
 #include <string> // string
 #include <utility> // move
 
-#include <nlohmann/detail/input/binary_reader.hpp>
-#include <nlohmann/detail/macro_scope.hpp>
-#include <nlohmann/detail/output/output_adapters.hpp>
+#include VTK_NLOHMANN_JSON(detail/input/binary_reader.hpp)
+#include VTK_NLOHMANN_JSON(detail/macro_scope.hpp)
+#include VTK_NLOHMANN_JSON(detail/output/output_adapters.hpp)
 
 namespace nlohmann
 {
