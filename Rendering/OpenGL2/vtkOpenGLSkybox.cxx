@@ -131,11 +131,19 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
 
     if (this->Projection == vtkSkybox::Cube)
     {
-      vtkShaderProgram::Substitute(
-        str, "//VTK::Projection::Dec", "uniform samplerCube actortexture;\n");
+      vtkShaderProgram::Substitute(str, "//VTK::Projection::Dec",
+        "uniform samplerCube actortexture;\n"
+        "uniform vec4 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+      );
 
       vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
-        "  vec4 color = texture(actortexture, normalize(TexCoords - cameraPos));\n"
+        "  vec3 diri = normalize(TexCoords - cameraPos);\n"
+        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
+        "    dot(diri,floorPlane.xyz),\n"
+        "    dot(diri,floorFront));\n"
+        "  vec4 color = texture(actortexture, dirv);\n"
         "//VTK::Gamma::Impl\n");
     }
     if (this->Projection == vtkSkybox::Sphere)

@@ -128,11 +128,19 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
 
     if (this->InputTexture->GetCubeMap())
     {
-      vtkShaderProgram::Substitute(
-        FSSource, "//VTK::TEXTUREINPUT::Decl", "uniform samplerCube inputTex;");
+      vtkShaderProgram::Substitute(FSSource, "//VTK::TEXTUREINPUT::Decl",
+        "uniform samplerCube inputTex;\n"
+        "uniform vec3 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+      );
 
-      vtkShaderProgram::Substitute(
-        FSSource, "//VTK::SAMPLING::Decl", "vec3 col = texture(inputTex, dir).rgb;");
+      vtkShaderProgram::Substitute(FSSource, "//VTK::SAMPLING::Decl",
+        "  dir = normalize(dir);\n"
+        "  vec3 dirv = vec3(dot(dir,floorRight),\n"
+        "    dot(dir,floorPlane),\n"
+        "    dot(dir,floorFront));\n"
+        "  vec3 col = texture(inputTex, dirv).rgb;\n");
     }
     else
     {
@@ -192,6 +200,21 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
     {
       this->InputTexture->GetTextureObject()->Activate();
       quadHelper.Program->SetUniformi("inputTex", this->InputTexture->GetTextureUnit());
+
+      if (this->InputTexture->GetCubeMap())
+      {
+        float plane[3], right[3];
+        for (unsigned int i = 0; i < 3; i++)
+        {
+          plane[i] = ren->GetEnvironmentUp()[i];
+          right[i] = ren->GetEnvironmentRight()[i];
+        }
+        quadHelper.Program->SetUniform3f("floorPlane", plane);
+        quadHelper.Program->SetUniform3f("floorRight", right);
+        float front[3];
+        vtkMath::Cross(plane, right, front);
+        quadHelper.Program->SetUniform3f("floorFront", front);
+      }
 
       float shift[6][3] = { { 1.f, 1.f, 1.f }, { -1.f, 1.f, -1.f }, { -1.f, 1.f, -1.f },
         { -1.f, -1.f, 1.f }, { -1.f, 1.f, 1.f }, { 1.f, 1.f, -1.f } };
