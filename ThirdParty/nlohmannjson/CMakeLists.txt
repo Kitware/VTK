@@ -3,6 +3,7 @@ vtk_module_third_party(
     INTERFACE
     LICENSE_FILES "vtknlohmannjson/LICENSE.MIT"
     VERSION       "3.10.4"
+    STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE nlohmann_json
     TARGETS nlohmann_json::nlohmann_json

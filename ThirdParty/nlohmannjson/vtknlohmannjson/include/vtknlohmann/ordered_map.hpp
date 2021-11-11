@@ -9,7 +9,7 @@
 #include <utility> // pair
 #include <vector> // vector
 
-#include <nlohmann/detail/macro_scope.hpp>
+#include VTK_NLOHMANN_JSON(detail/macro_scope.hpp)
 
 namespace nlohmann
 {

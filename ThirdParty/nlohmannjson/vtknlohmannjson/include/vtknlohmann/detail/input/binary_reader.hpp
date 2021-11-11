@@ -13,14 +13,14 @@
 #include <utility> // make_pair, move
 #include <vector> // vector
 
-#include <nlohmann/detail/exceptions.hpp>
-#include <nlohmann/detail/input/input_adapters.hpp>
-#include <nlohmann/detail/input/json_sax.hpp>
-#include <nlohmann/detail/input/lexer.hpp>
-#include <nlohmann/detail/macro_scope.hpp>
-#include <nlohmann/detail/meta/is_sax.hpp>
-#include <nlohmann/detail/meta/type_traits.hpp>
-#include <nlohmann/detail/value_t.hpp>
+#include VTK_NLOHMANN_JSON(detail/exceptions.hpp)
+#include VTK_NLOHMANN_JSON(detail/input/input_adapters.hpp)
+#include VTK_NLOHMANN_JSON(detail/input/json_sax.hpp)
+#include VTK_NLOHMANN_JSON(detail/input/lexer.hpp)
+#include VTK_NLOHMANN_JSON(detail/macro_scope.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/is_sax.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/type_traits.hpp)
+#include VTK_NLOHMANN_JSON(detail/value_t.hpp)
 
 namespace nlohmann
 {

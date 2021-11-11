@@ -325,6 +325,12 @@ if ("VTK::Python" IN_LIST vtk_modules)
   endif ()
 endif ()
 
+# Handle the requirement of `sqlitebin` for `proj`.
+set(vtk_sqlite_build_binary 0)
+if ("VTK::libproj" IN_LIST vtk_modules)
+  set(vtk_sqlite_build_binary 1)
+endif ()
+
 cmake_dependent_option(VTK_ENABLE_KITS "Enable kits compilation" OFF
   # Static builds don't make sense with kits. Ignore the flag if shared
   # libraries aren't being built.

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <utility> // declval, pair
-#include <nlohmann/thirdparty/hedley/hedley.hpp>
-#include <nlohmann/detail/meta/detected.hpp>
+#include VTK_NLOHMANN_JSON(thirdparty/hedley/hedley.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/detected.hpp)
 
 // This file contains all internal macro definitions
 // You MUST include macro_unscope.hpp at the end of json.hpp to undef all of them

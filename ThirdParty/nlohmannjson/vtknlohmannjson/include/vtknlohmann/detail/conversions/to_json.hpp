@@ -9,11 +9,11 @@
 #include <valarray> // valarray
 #include <vector> // vector
 
-#include <nlohmann/detail/macro_scope.hpp>
-#include <nlohmann/detail/iterators/iteration_proxy.hpp>
-#include <nlohmann/detail/meta/cpp_future.hpp>
-#include <nlohmann/detail/meta/type_traits.hpp>
-#include <nlohmann/detail/value_t.hpp>
+#include VTK_NLOHMANN_JSON(detail/macro_scope.hpp)
+#include VTK_NLOHMANN_JSON(detail/iterators/iteration_proxy.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/cpp_future.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/type_traits.hpp)
+#include VTK_NLOHMANN_JSON(detail/value_t.hpp)
 
 #ifdef JSON_HAS_CPP_17
     #include <filesystem>

@@ -5,14 +5,14 @@
 #include <utility> // declval
 #include <tuple> // tuple
 
-#include <nlohmann/detail/macro_scope.hpp>
+#include VTK_NLOHMANN_JSON(detail/macro_scope.hpp)
 
-#include <nlohmann/detail/iterators/iterator_traits.hpp>
-#include <nlohmann/detail/meta/call_std/begin.hpp>
-#include <nlohmann/detail/meta/call_std/end.hpp>
-#include <nlohmann/detail/meta/cpp_future.hpp>
-#include <nlohmann/detail/meta/detected.hpp>
-#include <nlohmann/json_fwd.hpp>
+#include VTK_NLOHMANN_JSON(detail/iterators/iterator_traits.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/call_std/begin.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/call_std/end.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/cpp_future.hpp)
+#include VTK_NLOHMANN_JSON(detail/meta/detected.hpp)
+#include VTK_NLOHMANN_JSON(json_fwd.hpp)
 
 namespace nlohmann
 {
