@@ -109,14 +109,11 @@ void vtkVRRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
   {
     glDeleteFramebuffers(1, &fbo.ResolveFramebufferId);
   }
-
-  for (std::vector<vtkSmartPointer<vtkVRModel>>::iterator i =
-         this->TrackedDeviceToRenderModel.begin();
-       i != this->TrackedDeviceToRenderModel.end(); ++i)
+  for (auto& model : this->DeviceHandleToDeviceDataMap)
   {
-    if (*i)
+    if (model.second.Model)
     {
-      (*i)->ReleaseGraphicsResources(renWin);
+      model.second.Model->ReleaseGraphicsResources(renWin);
     }
   }
 }
@@ -144,58 +141,103 @@ void vtkVRRenderWindow::SetHelperWindow(vtkOpenGLRenderWindow* win)
   this->Modified();
 }
 
-//------------------------------------------------------------------------------
-vtkVRModel* vtkVRRenderWindow::GetTrackedDeviceModel(vtkEventDataDevice idx)
+void vtkVRRenderWindow::AddDeviceHandle(uint32_t handle)
 {
-  uint32_t index = this->GetTrackedDeviceIndexForDevice(idx);
-
-  // Invalid index
-  if (index == this->InvalidDeviceIndex || index >= this->TrackedDeviceToRenderModel.size())
+  auto found = this->DeviceHandleToDeviceDataMap.find(handle);
+  if (found == this->DeviceHandleToDeviceDataMap.end())
   {
-    return nullptr;
-  }
-
-  return this->TrackedDeviceToRenderModel[index];
-}
-
-//------------------------------------------------------------------------------
-vtkVRModel* vtkVRRenderWindow::GetTrackedDeviceModel(uint32_t idx)
-{
-  if (idx < this->TrackedDeviceToRenderModel.size())
-  {
-    return this->TrackedDeviceToRenderModel[idx];
-  }
-  else
-  {
-    return nullptr;
+    this->DeviceHandleToDeviceDataMap[handle] = {};
   }
 }
 
-//------------------------------------------------------------------------------
-vtkMatrix4x4* vtkVRRenderWindow::GetTrackedDevicePose(vtkEventDataDevice idx)
+void vtkVRRenderWindow::AddDeviceHandle(uint32_t handle, vtkEventDataDevice device)
 {
-  uint32_t index = this->GetTrackedDeviceIndexForDevice(idx);
-
-  // Invalid index
-  if (index == this->InvalidDeviceIndex || index >= this->TrackedDevicePoses.size())
+  auto found = this->DeviceHandleToDeviceDataMap.find(handle);
+  if (found == this->DeviceHandleToDeviceDataMap.end())
   {
-    return nullptr;
+    this->DeviceHandleToDeviceDataMap[handle] = {};
+    found = this->DeviceHandleToDeviceDataMap.find(handle);
   }
-
-  return this->TrackedDevicePoses[index];
+  found->second.Device = device;
 }
 
-//------------------------------------------------------------------------------
-vtkMatrix4x4* vtkVRRenderWindow::GetTrackedDevicePose(uint32_t idx)
+void vtkVRRenderWindow::SetModelForDeviceHandle(uint32_t handle, vtkVRModel* model)
 {
-  if (idx < this->TrackedDevicePoses.size())
+  auto found = this->DeviceHandleToDeviceDataMap.find(handle);
+  if (found == this->DeviceHandleToDeviceDataMap.end())
   {
-    return this->TrackedDevicePoses[idx];
+    this->DeviceHandleToDeviceDataMap[handle] = {};
+    found = this->DeviceHandleToDeviceDataMap.find(handle);
   }
-  else
+  found->second.Model = model;
+}
+
+vtkVRModel* vtkVRRenderWindow::GetModelForDevice(vtkEventDataDevice idx)
+{
+  auto handle = this->GetDeviceHandleForDevice(idx);
+  return this->GetModelForDeviceHandle(handle);
+}
+
+vtkVRModel* vtkVRRenderWindow::GetModelForDeviceHandle(uint32_t handle)
+{
+  auto found = this->DeviceHandleToDeviceDataMap.find(handle);
+  if (found == this->DeviceHandleToDeviceDataMap.end())
   {
     return nullptr;
   }
+  return found->second.Model;
+}
+
+vtkMatrix4x4* vtkVRRenderWindow::GetDeviceToPhysicalMatrixForDevice(vtkEventDataDevice idx)
+{
+  auto handle = this->GetDeviceHandleForDevice(idx);
+  return this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
+}
+
+vtkMatrix4x4* vtkVRRenderWindow::GetDeviceToPhysicalMatrixForDeviceHandle(uint32_t handle)
+{
+  auto found = this->DeviceHandleToDeviceDataMap.find(handle);
+  if (found == this->DeviceHandleToDeviceDataMap.end())
+  {
+    return nullptr;
+  }
+  return found->second.Pose;
+}
+
+uint32_t vtkVRRenderWindow::GetDeviceHandleForDevice(vtkEventDataDevice idx, uint32_t index)
+{
+  for (auto& deviceData : this->DeviceHandleToDeviceDataMap)
+  {
+    if (deviceData.second.Device == idx && deviceData.second.Index == index)
+    {
+      return deviceData.first;
+    }
+  }
+  return InvalidDeviceIndex;
+}
+
+uint32_t vtkVRRenderWindow::GetNumberOfDeviceHandlesForDevice(vtkEventDataDevice dev)
+{
+  uint32_t count = 0;
+  for (auto& deviceData : this->DeviceHandleToDeviceDataMap)
+  {
+    if (deviceData.second.Device == dev)
+    {
+      count++;
+    }
+  }
+  return count;
+}
+
+// default implementation just uses the vtkEventDataDevice
+vtkEventDataDevice vtkVRRenderWindow::GetDeviceForDeviceHandle(uint32_t handle)
+{
+  auto found = this->DeviceHandleToDeviceDataMap.find(handle);
+  if (found == this->DeviceHandleToDeviceDataMap.end())
+  {
+    return vtkEventDataDevice::Unknown;
+  }
+  return found->second.Device;
 }
 
 //------------------------------------------------------------------------------
@@ -343,7 +385,7 @@ void vtkVRRenderWindow::Initialize()
 void vtkVRRenderWindow::Finalize()
 {
   this->ReleaseGraphicsResources(this);
-  this->TrackedDeviceToRenderModel.clear();
+  this->DeviceHandleToDeviceDataMap.clear();
 
   if (this->HelperWindow && this->HelperWindow->GetGenericContext())
   {
@@ -378,27 +420,19 @@ void vtkVRRenderWindow::RenderFramebuffer(FramebufferDesc& framebufferDesc)
 }
 
 //------------------------------------------------------------------------------
-void vtkVRRenderWindow::ConvertPoseToWorldMatrix(vtkMatrix4x4* pose, vtkMatrix4x4* poseMatrixWorld)
+bool vtkVRRenderWindow::GetDeviceToWorldMatrixForDevice(
+  vtkEventDataDevice device, vtkMatrix4x4* deviceToWorldMatrix)
 {
-  if (!poseMatrixWorld)
+  vtkMatrix4x4* deviceToPhysicalMatrix = this->GetDeviceToPhysicalMatrixForDevice(device);
+
+  if (deviceToPhysicalMatrix)
   {
-    return;
-  }
-
-  vtkNew<vtkMatrix4x4> physicalToWorldMatrix;
-  this->GetPhysicalToWorldMatrix(physicalToWorldMatrix);
-  vtkMatrix4x4::Multiply4x4(physicalToWorldMatrix, pose, poseMatrixWorld);
-}
-
-//------------------------------------------------------------------------------
-bool vtkVRRenderWindow::GetPoseMatrixWorldFromDevice(
-  vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld)
-{
-  vtkMatrix4x4* tdPose = this->GetTrackedDevicePose(device);
-
-  if (tdPose)
-  {
-    this->ConvertPoseToWorldMatrix(tdPose, poseMatrixWorld);
+    // we use deviceToWorldMatrix here to temporarily store physicalToWorld
+    // to avoid having to use a temp matrix. We use a new pointer just to
+    // keep the code easier to read.
+    vtkMatrix4x4* physicalToWorldMatrix = deviceToWorldMatrix;
+    this->GetPhysicalToWorldMatrix(physicalToWorldMatrix);
+    vtkMatrix4x4::Multiply4x4(physicalToWorldMatrix, deviceToPhysicalMatrix, deviceToWorldMatrix);
     return true;
   }
   return false;

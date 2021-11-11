@@ -152,24 +152,12 @@ public:
   vr::IVRRenderModels* GetOpenVRRenderModels() { return this->OpenVRRenderModels; }
 
   /**
-   * Get the EventDataDevice corresponding to the OpenVR index
-   */
-  vtkEventDataDevice GetDeviceFromDeviceIndex(vr::TrackedDeviceIndex_t index);
-
-  /**
-   * Get the index corresponding to the tracked device.
-   */
-  uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index = 0) override;
-
-  /**
-   * Get the number of tracked devices of the given device type.
-   */
-  uint32_t GetNumberOfTrackedDevicesForDevice(vtkEventDataDevice dev);
-
-  /**
    * Render the controller and base station models.
    */
   void RenderModels() override;
+
+  uint32_t GetDeviceHandleForOpenVRHandle(vr::TrackedDeviceIndex_t index);
+  vtkEventDataDevice GetDeviceForOpenVRHandle(vr::TrackedDeviceIndex_t ohandle);
 
 protected:
   vtkOpenVRRenderWindow();

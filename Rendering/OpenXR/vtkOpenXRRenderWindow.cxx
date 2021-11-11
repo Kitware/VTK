@@ -57,14 +57,6 @@ vtkOpenXRRenderWindow::vtkOpenXRRenderWindow()
   this->Size[1] = 720;
   this->Position[0] = 100;
   this->Position[1] = 100;
-
-  // Initialize the models
-  // For instance models are only a ray
-  // But for the future, we should create a vtkOpenXRModel
-  // That contain a ray and a mesh for a controller
-  // (mesh loaded using the XR_MSFT_controller_model OpenXR extension)
-  this->Models[0] = vtkSmartPointer<vtkOpenXRModel>::New();
-  this->Models[1] = vtkSmartPointer<vtkOpenXRModel>::New();
 }
 
 //------------------------------------------------------------------------------
@@ -82,49 +74,12 @@ vtkOpenXRRenderWindow::~vtkOpenXRRenderWindow()
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenXRRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
-{
-  this->Superclass::ReleaseGraphicsResources(renWin);
-
-  for (FramebufferDesc& fbo : this->FramebufferDescs)
-  {
-    glDeleteFramebuffers(1, &fbo.ResolveFramebufferId);
-  }
-}
-
-//------------------------------------------------------------------------------
 // Create an interactor that will work with this renderer.
 vtkRenderWindowInteractor* vtkOpenXRRenderWindow::MakeRenderWindowInteractor()
 {
   this->Interactor = vtkOpenXRRenderWindowInteractor::New();
   this->Interactor->SetRenderWindow(this);
   return this->Interactor;
-}
-
-//------------------------------------------------------------------------------
-bool vtkOpenXRRenderWindow::GetPoseMatrixWorldFromDevice(
-  vtkEventDataDevice vtkNotUsed(device), vtkMatrix4x4* poseMatrixWorld)
-{
-  vtkOpenXRManager* xrManager = vtkOpenXRManager::GetInstance();
-  // Not sure if LeftEye should be used here. Probably should have some midpoint eye
-  // or something.
-  const XrPosef* viewPose = xrManager->GetViewPose(vtkVRRenderWindow::LeftEye);
-  if (viewPose)
-  {
-    vtkOpenXRUtilities::SetMatrixFromXrPose(poseMatrixWorld, *viewPose);
-
-    // Transform from physical to world space
-    this->GetPhysicalToWorldMatrix(this->TempMatrix4x4);
-    vtkMatrix4x4::Multiply4x4(poseMatrixWorld, this->TempMatrix4x4, poseMatrixWorld);
-    return true;
-  }
-  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -292,9 +247,26 @@ void vtkOpenXRRenderWindow::RenderModels()
   for (uint32_t hand :
     { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
   {
-    XrPosef handPose = iren->GetHandPose(hand);
-    vtkOpenXRUtilities::SetMatrixFromXrPose(this->TempMatrix4x4, handPose);
-    this->Models[hand]->Render(this, this->TempMatrix4x4);
+    // do we not have a model loaded yet? try loading one
+    auto handle = this->GetDeviceHandleForOpenXRHandle(hand);
+    auto device = this->GetDeviceForOpenXRHandle(hand);
+    this->AddDeviceHandle(handle, device);
+    auto* pRenderModel = this->GetModelForDeviceHandle(handle);
+    if (!pRenderModel)
+    {
+      vtkNew<vtkOpenXRModel> newModel;
+      this->SetModelForDeviceHandle(handle, newModel);
+      pRenderModel = newModel;
+    }
+
+    // if we have a model and it is visible
+    if (pRenderModel && pRenderModel->GetVisibility())
+    {
+      XrPosef handPose = iren->GetHandPose(hand);
+      vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
+      vtkOpenXRUtilities::SetMatrixFromXrPose(tdPose, handPose);
+      pRenderModel->Render(this, tdPose);
+    }
   }
 }
 
@@ -367,48 +339,21 @@ void vtkOpenXRRenderWindow::RenderFramebuffer(FramebufferDesc& framebufferDesc)
 }
 
 //------------------------------------------------------------------------------
-uint32_t vtkOpenXRRenderWindow::GetTrackedDeviceIndexForDevice(
-  vtkEventDataDevice controller, uint32_t vtkNotUsed(index))
+uint32_t vtkOpenXRRenderWindow::GetDeviceHandleForOpenXRHandle(uint32_t index)
 {
-  if (controller == vtkEventDataDevice::HeadMountedDisplay)
-  {
-    vtkWarningMacro(<< "Controller is a HeadMountedDisplay, not supported yet");
-    return static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Inactive);
-  }
-  if (controller == vtkEventDataDevice::LeftController)
-  {
-    return static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Left);
-  }
-  if (controller == vtkEventDataDevice::RightController)
-  {
-    return static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Right);
-  }
-  if (controller == vtkEventDataDevice::GenericTracker)
-  {
-    vtkWarningMacro(<< "Controller is a GenericTracker, not supported yet");
-    return static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Inactive);
-  }
-
-  return this->InvalidDeviceIndex;
+  return index;
 }
 
-//------------------------------------------------------------------------------
-vtkVRModel* vtkOpenXRRenderWindow::GetTrackedDeviceModel(uint32_t idx)
+vtkEventDataDevice vtkOpenXRRenderWindow::GetDeviceForOpenXRHandle(uint32_t ohandle)
 {
-  if (idx == vtkOpenXRManager::ControllerIndex::Inactive)
+  if (ohandle == vtkOpenXRManager::ControllerIndex::Left)
   {
-    return nullptr;
+    return vtkEventDataDevice::LeftController;
   }
-  if (idx > vtkOpenXRManager::ControllerIndex::Right)
+  if (ohandle == vtkOpenXRManager::ControllerIndex::Right)
   {
-    vtkWarningMacro(<< "Unsupported tracked device index");
-    return nullptr;
+    return vtkEventDataDevice::RightController;
   }
 
-  // Now, check if the model is active and return nullptr if not
-  if (!this->ModelsActiveState[idx])
-  {
-    return nullptr;
-  }
-  return this->Models[idx];
+  return vtkEventDataDevice::Unknown;
 }

@@ -876,7 +876,7 @@ void vtkVRInteractorStyle::ShowRay(vtkEventDataDevice controller)
     return;
   }
 
-  vtkVRModel* cmodel = renWin->GetTrackedDeviceModel(controller);
+  vtkVRModel* cmodel = renWin->GetModelForDevice(controller);
   if (cmodel)
   {
     cmodel->SetShowRay(true);
@@ -894,7 +894,7 @@ void vtkVRInteractorStyle::HideRay(vtkEventDataDevice controller)
     return;
   }
 
-  vtkVRModel* cmodel = renWin->GetTrackedDeviceModel(controller);
+  vtkVRModel* cmodel = renWin->GetModelForDevice(controller);
   if (cmodel)
   {
     cmodel->SetShowRay(false);
@@ -918,7 +918,7 @@ void vtkVRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
     return;
   }
 
-  vtkVRModel* mod = renWin->GetTrackedDeviceModel(controller);
+  vtkVRModel* mod = renWin->GetModelForDevice(controller);
   if (!mod)
   {
     return;
@@ -973,7 +973,7 @@ void vtkVRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
   double dummy_ppos[3];
   double wdir[3];
 
-  vtkMatrix4x4* devicePose = renWin->GetTrackedDevicePose(mod->TrackedDevice);
+  vtkMatrix4x4* devicePose = renWin->GetDeviceToPhysicalMatrixForDevice(controller);
 
   if (!devicePose)
   {
@@ -1321,7 +1321,7 @@ bool vtkVRInteractorStyle::HardwareSelect(vtkEventDataDevice controller, bool ac
     return false;
   }
 
-  vtkVRModel* cmodel = vtkVRModel::SafeDownCast(renWin->GetTrackedDeviceModel(controller));
+  vtkVRModel* cmodel = renWin->GetModelForDevice(controller);
 
   if (!cmodel)
   {
@@ -1336,7 +1336,7 @@ bool vtkVRInteractorStyle::HardwareSelect(vtkEventDataDevice controller, bool ac
   double dummy_ppos[3];
   double wdir[3];
 
-  vtkMatrix4x4* devicePose = renWin->GetTrackedDevicePose(cmodel->TrackedDevice);
+  vtkMatrix4x4* devicePose = renWin->GetDeviceToPhysicalMatrixForDevice(controller);
 
   if (!devicePose)
   {

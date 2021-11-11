@@ -68,23 +68,16 @@ class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkVRRenderWindow
 public:
   static vtkOpenXRRenderWindow* New();
   vtkTypeMacro(vtkOpenXRRenderWindow, vtkVRRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create an interactor to control renderers in this window.
    */
-  vtkRenderWindowInteractor* MakeRenderWindowInteractor() override;
+  VTK_NEWINSTANCE vtkRenderWindowInteractor* MakeRenderWindowInteractor() override;
 
   /**
    * Add a renderer to the list of renderers.
    */
   void AddRenderer(vtkRenderer*) override;
-
-  /**
-   * Free up any graphics resources associated with this window
-   * a value of nullptr means the context may already be destroyed
-   */
-  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * Update the system, if needed, due to stereo rendering. For some stereo
@@ -144,23 +137,6 @@ public:
    */
   vtkTypeBool GetEventPending() override { return 0; }
 
-  bool GetPoseMatrixWorldFromDevice(
-    vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld) override;
-
-  //@{
-  /*
-   * Get the index corresponding to this EventDataDevice
-   */
-  uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index = 0) override;
-  //@}
-
-  //@{
-  /*
-   * Get the OpenXRModel corresponding to the device index.
-   */
-  vtkVRModel* GetTrackedDeviceModel(uint32_t idx) override;
-  //@}
-
   //@{
   /**
    * True if the window has been initialized successfully.
@@ -174,6 +150,9 @@ public:
    */
   void SetModelActiveState(const int hand, bool state) { this->ModelsActiveState[hand] = state; }
   //@}
+
+  uint32_t GetDeviceHandleForOpenXRHandle(uint32_t index);
+  vtkEventDataDevice GetDeviceForOpenXRHandle(uint32_t ohandle);
 
 protected:
   vtkOpenXRRenderWindow();
@@ -189,8 +168,6 @@ protected:
 
   void RenderModels();
 
-  // Controller models
-  std::array<vtkSmartPointer<vtkVRModel>, 2> Models;
   vtkNew<vtkMatrix4x4> TempMatrix4x4;
 
   // Store if a model is active or not here as openxr do not have a concept

@@ -163,7 +163,7 @@ void vtkVRControlsHelper::UpdateRepresentation()
     vtkEventDataDevice controller = this->Device;
 
     // Hide controls tooltips if the controller is off
-    vtkVRModel* mod = renWin->GetTrackedDeviceModel(controller);
+    vtkVRModel* mod = renWin->GetModelForDevice(controller);
     if (!mod)
     {
       this->LabelVisible = false;
