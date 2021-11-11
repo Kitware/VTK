@@ -1,18 +1,19 @@
 
-All source, data files and other contents of the PROJ.4 package are 
+All source, data files and other contents of the PROJ package are 
 available under the following terms.  Note that the PROJ 4.3 and earlier
 was "public domain" as is common with US government work, but apparently
-this is not a well defined legal term in many countries.  I am placing 
-everything under the following MIT style license because I believe it is
+this is not a well defined legal term in many countries. Frank Warmerdam placed
+everything under the following MIT style license because he believed it is
 effectively the same as public domain, allowing anyone to use the code as
-they wish, including making proprietary derivatives. 
+they wish, including making proprietary derivatives.
 
-Though I have put my own name as copyright holder, I don't mean to imply
-I did the work.  Essentially all work was done by Gerald Evenden. 
+Initial PROJ 4.3 public domain code was put as Frank Warmerdam as copyright
+holder, but he didn't mean to imply he did the work. Essentially all work was
+done by Gerald Evenden.
+
+Copyright information can be found in source files.
 
  --------------
-
- Copyright (c) 2000, Frank Warmerdam
 
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the "Software"),
@@ -31,4 +32,3 @@ I did the work.  Essentially all work was done by Gerald Evenden.
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
-
