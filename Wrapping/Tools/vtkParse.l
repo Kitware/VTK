@@ -73,6 +73,7 @@ static const char* raw_string(const char* begin);
 static void preprocessor_directive(const char* text, size_t l);
 static void print_preprocessor_error(int result, const char* cp, size_t n);
 static char* get_macro_arguments(void);
+static char* skip_macro_arguments(void);
 
 static void push_buffer(void);
 static int pop_buffer(void);
@@ -302,13 +303,13 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       return(QT_ID);
     }
 
-"static_assert"  get_macro_arguments(); /* C++11 */
+"static_assert"  skip_macro_arguments(); /* C++11 */
 
-"alignas"  get_macro_arguments(); /* C++11 */
+"alignas"  skip_macro_arguments(); /* C++11 */
 
-"_Alignas" get_macro_arguments(); /* C11 */
+"_Alignas" skip_macro_arguments(); /* C11 */
 
-"_Generic" get_macro_arguments(); /* C11 */
+"_Generic" skip_macro_arguments(); /* C11 */
 
 "_Thread_local" return(THREAD_LOCAL); /* C11 */
 
@@ -316,13 +317,13 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "_Noreturn"  /* C11 */
 
-"_Pragma"  get_macro_arguments(); /* C99 */
+"_Pragma"  skip_macro_arguments(); /* C99 */
 
-"__pragma"  get_macro_arguments(); /* MSVC */
+"__pragma"  skip_macro_arguments(); /* MSVC */
 
-"__attribute__"  get_macro_arguments(); /* gcc attributes */
+"__attribute__"  skip_macro_arguments(); /* gcc attributes */
 
-"__declspec"  get_macro_arguments(); /* Windows linkage */
+"__declspec"  skip_macro_arguments(); /* Windows linkage */
 
 ("__cdecl"|"__clrcall"|"__stdcall"|"__fastcall"|"__thiscall") /* Windows */
 
@@ -689,6 +690,12 @@ char* get_macro_arguments()
   }
 
   return cp;
+}
+
+void skip_macro_arguments()
+{
+  char* p = get_macro_arguments();
+  free(p);
 }
 
 /*

@@ -1273,6 +1273,7 @@ static const char* raw_string(const char* begin);
 static void preprocessor_directive(const char* text, size_t l);
 static void print_preprocessor_error(int result, const char* cp, size_t n);
 static char* get_macro_arguments(void);
+static void skip_macro_arguments(void);
 
 static void push_buffer(void);
 static int pop_buffer(void);
@@ -2103,19 +2104,19 @@ YY_DECL
           YY_BREAK
         case 103:
           YY_RULE_SETUP
-          get_macro_arguments(); /* C++11 */
+          skip_macro_arguments(); /* C++11 */
           YY_BREAK
         case 104:
           YY_RULE_SETUP
-          get_macro_arguments(); /* C++11 */
+          skip_macro_arguments(); /* C++11 */
           YY_BREAK
         case 105:
           YY_RULE_SETUP
-          get_macro_arguments(); /* C11 */
+          skip_macro_arguments(); /* C11 */
           YY_BREAK
         case 106:
           YY_RULE_SETUP
-          get_macro_arguments(); /* C11 */
+          skip_macro_arguments(); /* C11 */
           YY_BREAK
         case 107:
           YY_RULE_SETUP
@@ -2131,19 +2132,19 @@ YY_DECL
           YY_BREAK
         case 110:
           YY_RULE_SETUP
-          get_macro_arguments(); /* C99 */
+          skip_macro_arguments(); /* C99 */
           YY_BREAK
         case 111:
           YY_RULE_SETUP
-          get_macro_arguments(); /* MSVC */
+          skip_macro_arguments(); /* MSVC */
           YY_BREAK
         case 112:
           YY_RULE_SETUP
-          get_macro_arguments(); /* gcc attributes */
+          skip_macro_arguments(); /* gcc attributes */
           YY_BREAK
         case 113:
           YY_RULE_SETUP
-          get_macro_arguments(); /* Windows linkage */
+          skip_macro_arguments(); /* Windows linkage */
           YY_BREAK
         case 114:
           YY_RULE_SETUP
@@ -3663,6 +3664,12 @@ char* get_macro_arguments()
   }
 
   return cp;
+}
+
+void skip_macro_arguments()
+{
+  char* p = get_macro_arguments();
+  free(p);
 }
 
 /*
