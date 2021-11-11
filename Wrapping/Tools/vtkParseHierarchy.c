@@ -730,7 +730,14 @@ void vtkParseHierarchy_Free(HierarchyInfo* info)
     {
       free((char**)entry->Properties);
     }
+    if (entry->Typedef)
+    {
+      vtkParse_FreeValue(entry->Typedef);
+    }
   }
+
+  vtkParse_FreeStringCache(info->Strings);
+  free(info->Strings);
 
   free(info->Entries);
   free(info);
