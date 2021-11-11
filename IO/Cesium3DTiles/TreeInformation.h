@@ -43,9 +43,8 @@ class TreeInformation
 public:
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
     const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
-    const std::array<double, 3>& offset, const std::string& outputDir,
-    const std::string& texturePath, bool saveTextures, const char* crs, int utmZone,
-    char utmHemisphere);
+    const std::string& outputDir, const std::string& texturePath, bool saveTextures,
+    const char* crs);
 
   void PrintNode(vtkIncrementalOctreeNode* node);
 
@@ -100,13 +99,10 @@ private:
   vtkIncrementalOctreeNode* Root;
   // buildings indexed by building ID
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& Buildings;
-  const std::array<double, 3>& Offset;
   std::string OutputDir;
   std::string TexturePath;
   bool SaveTextures;
   const char* CRS;
-  int UTMZone;
-  char UTMHemisphere;
   // tight bounds indexed by tile ID
   std::vector<std::array<double, 6>> NodeBounds;
   std::vector<bool> EmptyNode;

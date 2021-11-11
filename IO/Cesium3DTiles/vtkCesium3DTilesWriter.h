@@ -51,13 +51,13 @@ public:
   //@{
   /**
    * Data coordinates are relative to this origin. To get the actuall
-   * coordinates data has to be translated with the Origin.  Note this
+   * coordinates data has to be translated with the Offset.  Note this
    * is an input / output parameter. The value passed as input
    * parameter is modified and the data is translated such that the
    * min corner of the data bounding box is at position 0.
    */
-  vtkSetVector3Macro(Origin, double);
-  vtkGetVector3Macro(Origin, double);
+  vtkSetVector3Macro(Offset, double);
+  vtkGetVector3Macro(Offset, double);
   //@}
 
   //@{
@@ -90,20 +90,11 @@ public:
   vtkBooleanMacro(NumberOfBuildingsPerTile, int);
   //@
 
-  //@{
-  /**
-   * Set the UTM zone and hemisphere.
-   */
-  vtkSetMacro(UTMZone, int);
-  vtkSetMacro(UTMHemisphere, char);
-  vtkGetMacro(UTMZone, int);
-  vtkGetMacro(UTMHemisphere, char);
-  //@
-
   ///@{
   /**
    * Set the coordinate reference system (CRS) also known as spatial reference system (SRC),
-   * such as EPSG:2263. This takes precedence over the UTM zone and hemisphere.
+   * such as EPSG:2263. This string can also be a proj string such as
+   * "+proj=utm +zone=17 +datum=WGS84"
    */
   vtkSetStringMacro(CRS);
   vtkGetStringMacro(CRS);
@@ -121,12 +112,10 @@ protected:
 
   char* DirectoryName;
   char* TexturePath;
-  double Origin[3];
+  double Offset[3];
   bool SaveTextures;
   bool SaveGLTF;
   int NumberOfBuildingsPerTile;
-  int UTMZone;
-  char UTMHemisphere;
   char* CRS;
 
 private:

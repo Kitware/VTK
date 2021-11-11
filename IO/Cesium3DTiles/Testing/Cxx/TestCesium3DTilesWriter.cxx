@@ -196,17 +196,15 @@ struct Input
   Input()
   {
     this->Data = nullptr;
-    std::fill(InputOrigin.begin(), InputOrigin.end(), 0);
-    std::fill(OutputOrigin.begin(), OutputOrigin.end(), 0);
+    std::fill(Offset.begin(), Offset.end(), 0);
   }
   vtkSmartPointer<vtkMultiBlockDataSet> Data;
-  std::array<double, 3> InputOrigin;
-  std::array<double, 3> OutputOrigin;
+  std::array<double, 3> Offset;
 };
 
 Input tiler(const std::vector<std::string>& input, const std::string& output, int numberOfBuildings,
   int buildingsPerTile, int lod, const std::vector<double>& inputOffset, bool saveGLTF,
-  bool saveTextures, const std::string& crs, const int utmZone, char utmHemisphere)
+  bool saveTextures, std::string crs, const int utmZone, char utmHemisphere)
 {
   Input ret;
   std::vector<std::string> files = getFiles(input);
@@ -223,7 +221,7 @@ Input tiler(const std::vector<std::string>& input, const std::string& output, in
     READER[SystemTools::GetFilenameExtension(files[0])](numberOfBuildings, lod, files, fileOffset);
   std::transform(fileOffset.begin(), fileOffset.end(), inputOffset.begin(), fileOffset.begin(),
     std::plus<double>());
-  ret.InputOrigin = fileOffset;
+  ret.Offset = fileOffset;
 
   std::string texturePath = SystemTools::GetFilenamePath(files[0]);
 
@@ -231,21 +229,18 @@ Input tiler(const std::vector<std::string>& input, const std::string& output, in
   writer->SetInputDataObject(ret.Data);
   writer->SetDirectoryName(output.c_str());
   writer->SetTexturePath(texturePath.c_str());
-  writer->SetOrigin(&fileOffset[0]);
+  writer->SetOffset(&fileOffset[0]);
   writer->SetSaveTextures(saveTextures);
   writer->SetNumberOfBuildingsPerTile(buildingsPerTile);
   writer->SetSaveGLTF(saveGLTF);
   if (crs.empty())
   {
-    writer->SetUTMZone(utmZone);
-    writer->SetUTMHemisphere(utmHemisphere);
+    std::ostringstream ostr;
+    ostr << "+proj=utm +zone=" << utmZone << (utmHemisphere == 'S' ? "+south" : "");
+    crs = ostr.str();
   }
-  else
-  {
-    writer->SetCRS(crs.c_str());
-  }
+  writer->SetCRS(crs.c_str());
   writer->Write();
-  std::copy(writer->GetOrigin(), writer->GetOrigin() + 3, ret.OutputOrigin.begin());
   return ret;
 }
 
@@ -275,12 +270,10 @@ bool TrianglesDiffer(Input& in, std::string gltfFileName)
   {
     std::array<double, 3> inputPoint;
     inputPoints->GetPoint(i, &inputPoint[0]);
-    std::transform(in.InputOrigin.begin(), in.InputOrigin.end(), inputPoint.begin(),
-      inputPoint.begin(), std::plus<double>());
+    std::transform(in.Offset.begin(), in.Offset.end(), inputPoint.begin(), inputPoint.begin(),
+      std::plus<double>());
     std::array<double, 3> outputPoint;
     outputPoints->GetPoint(i, &outputPoint[0]);
-    std::transform(in.OutputOrigin.begin(), in.OutputOrigin.end(), outputPoint.begin(),
-      outputPoint.begin(), std::plus<double>());
     for (size_t j = 0; j < inputPoint.size(); ++j)
     {
       if (!vtkMathUtilities::NearlyEqual(inputPoint[j], outputPoint[j], 0.001))

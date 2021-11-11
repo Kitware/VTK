@@ -81,18 +81,16 @@ vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctree(
 
 //------------------------------------------------------------------------------
 std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* root, const double* fileOffset,
-
-  std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings, std::array<double, 3>& offset)
+  std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings)
 {
   std::array<double, 6> wholeBB;
   root->GetBounds(&wholeBB[0]);
 
   // translate the buildings so that the minimum wholeBB is at 0,0,0
-  offset = { { wholeBB[0], wholeBB[2], wholeBB[4] } };
   vtkNew<vtkTransformFilter> f;
   vtkNew<vtkTransform> t;
   t->Identity();
-  t->Translate(-offset[0], -offset[1], -offset[2]);
+  t->Translate(fileOffset);
   f->SetTransform(t);
   f->SetInputData(root);
   f->Update();
@@ -118,9 +116,6 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* root, const doubl
     }
     buildings.push_back(building);
   }
-
-  std::transform(offset.begin(), offset.end(), fileOffset, offset.begin(), std::plus<double>());
-
   return wholeBB;
 }
 };
@@ -130,12 +125,10 @@ vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
 {
   this->DirectoryName = nullptr;
   this->TexturePath = nullptr;
-  std::fill(this->Origin, this->Origin + 3, 0);
+  std::fill(this->Offset, this->Offset + 3, 0);
   this->SaveTextures = true;
   this->SaveGLTF = true;
   this->NumberOfBuildingsPerTile = 100;
-  this->UTMZone = 1;
-  this->UTMHemisphere = 'N';
   this->CRS = nullptr;
 }
 
@@ -170,11 +163,9 @@ void vtkCesium3DTilesWriter::WriteData()
   {
     auto root = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
     std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
-    std::array<double, 3> offset = { 0, 0, 0 };
 
     vtkLog(INFO, "Translate buildings...");
-    auto wholeBB = TranslateBuildings(root, this->Origin, buildings, offset);
-    std::copy(offset.begin(), offset.end(), this->Origin);
+    auto wholeBB = TranslateBuildings(root, this->Offset, buildings);
     if (buildings.empty())
     {
       vtkLog(ERROR,
@@ -188,8 +179,7 @@ void vtkCesium3DTilesWriter::WriteData()
     vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
       BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
     TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), buildings,
-      offset, this->DirectoryName, this->TexturePath, this->SaveTextures, this->CRS, this->UTMZone,
-      this->UTMHemisphere);
+      this->DirectoryName, this->TexturePath, this->SaveTextures, this->CRS);
     treeInformation.Compute();
     vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
     treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
