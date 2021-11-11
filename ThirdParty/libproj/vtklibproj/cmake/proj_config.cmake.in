@@ -1,8 +1,11 @@
+/* Define to 1 if you have the `dl' library (-ldl). */
+#cmakedefine HAVE_LIBDL 1
+
 /* Define to 1 if you have localeconv */
 #cmakedefine HAVE_LOCALECONV 1
 
-/* Enabled for Java/JNI Support */
-#cmakedefine JNI_ENABLED 1
+/* Define to 1 if you have the `strerror' function. */
+#cmakedefine HAVE_STRERROR 1
 
 /* Name of package */
 #cmakedefine PACKAGE "${PACKAGE}"

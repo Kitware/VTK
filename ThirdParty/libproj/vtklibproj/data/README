@@ -1,0 +1,18 @@
+The files in this directory are support data for PROJ programs.
+
+File Contents:
+
+README  --- This file
+
+nad27   --- North American Datum 1927 for "init=" definition of
+			State Plane Coordinate Systems (SPCS).
+
+nad83   --- North American Datum 1983 for "init=" definition of SPCS.
+
+GL27    --- Great Lakes Survey grids, NAD27
+
+world   --- Proj specifications for several international grid systems.
+
+nad.lst --- Reference list of SPCS States and NGS datum identifiers
+
+Additional data files are available in https://github.com/OSGeo/PROJ-data
