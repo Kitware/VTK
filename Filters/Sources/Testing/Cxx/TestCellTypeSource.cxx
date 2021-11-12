@@ -174,15 +174,14 @@ int TestCellTypeSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   // test 3D cells
-  size[0] = size[1] = 1. / 6.;
+  size[0] = size[1] = 1. / 12.;
   if (CheckCells(VTK_TETRA, dims, vtkAlgorithm::DOUBLE_PRECISION,
-        (dims[0] + 1) * (dims[1] + 1) * (dims[2] + 1), dims[0] * dims[1] * dims[2] * 6, size,
-        4.387482193696061, 16.) == EXIT_FAILURE)
+        (dims[0] + 1) * (dims[1] + 1) * (dims[2] + 1) + dims[0] * dims[1] * dims[2],
+        dims[0] * dims[1] * dims[2] * 12, size, 4.387482193696061, 16.) == EXIT_FAILURE)
   {
     cerr << "Error with VTK_TETRA\n";
     return EXIT_FAILURE;
   }
-  size[0] = size[1] = 1. / 12.;
   if (CheckCells(VTK_QUADRATIC_TETRA, dims, vtkAlgorithm::DOUBLE_PRECISION, 2247,
         dims[0] * dims[1] * dims[2] * 12, size, 4.387482193696061, 16.) == EXIT_FAILURE)
   {

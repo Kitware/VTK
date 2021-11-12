@@ -67,6 +67,7 @@
 
 class vtkCell;
 class vtkDataArray;
+class vtkDoubleArray;
 
 #define VTK_QUALITY_EDGE_RATIO 0
 #define VTK_QUALITY_ASPECT_RATIO 1
@@ -116,6 +117,19 @@ public:
   vtkSetMacro(SaveCellQuality, vtkTypeBool);
   vtkGetMacro(SaveCellQuality, vtkTypeBool);
   vtkBooleanMacro(SaveCellQuality, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * If set to true, then this filter will output 2 quality arrays instead of one.
+   * The second array is names "Quality (Linear Approx)" and features measure for all non-linear
+   * cells in addition to the linear ones, but treated like if they were linear.
+   *
+   * @note In the array "Quality", any non-linear cell quality is set to NaN.
+   */
+  vtkSetMacro(LinearApproximation, bool);
+  vtkGetMacro(LinearApproximation, bool);
+  vtkBooleanMacro(LinearApproximation, bool);
   ///@}
 
   ///@{
@@ -803,7 +817,7 @@ public:
 
 protected:
   vtkMeshQuality();
-  ~vtkMeshQuality() override;
+  ~vtkMeshQuality() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
@@ -817,6 +831,7 @@ protected:
   int QuadQualityMeasure;
   int TetQualityMeasure;
   int HexQualityMeasure;
+  bool LinearApproximation;
 
   vtkTypeBool CompatibilityMode;
   vtkTypeBool Volume;
