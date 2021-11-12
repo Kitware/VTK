@@ -56,7 +56,7 @@ void vtkOpenVRControlsHelper::InitControlPosition()
   vtkEventDataDevice controller = this->Device;
 
   // Get the active controller model
-  vtkVRModel* mod = renWin->GetTrackedDeviceModel(controller);
+  vtkVRModel* mod = renWin->GetModelForDevice(controller);
 
   // Hide controls tooltips if the controller is off
   if (!mod)
@@ -86,7 +86,7 @@ void vtkOpenVRControlsHelper::InitControlPosition()
 
       // Get the controller state
       renWin->GetHMD()->GetControllerState(
-        renWin->GetTrackedDeviceIndexForDevice(controller), &cstate, sizeof(cstate));
+        renWin->GetDeviceHandleForDevice(controller), &cstate, sizeof(cstate));
 
       // Get the component state
       renWin->GetOpenVRRenderModels()->GetComponentState(

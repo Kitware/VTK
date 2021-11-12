@@ -57,8 +57,6 @@ vtkStandardNewMacro(vtkOpenVRRenderWindow);
 //------------------------------------------------------------------------------
 vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
 {
-  this->TrackedDeviceToRenderModel.resize(vr::k_unMaxTrackedDeviceCount);
-  this->TrackedDevicePoses.resize(vr::k_unMaxTrackedDeviceCount);
   this->DashboardOverlay = vtkSmartPointer<vtkOpenVRDefaultOverlay>::New();
 }
 
@@ -141,29 +139,25 @@ void vtkOpenVRRenderWindow::RenderModels()
     }
 
     // do we not have a model loaded yet? try loading one
-    if (!this->TrackedDeviceToRenderModel[unTrackedDevice])
+    auto handle = this->GetDeviceHandleForOpenVRHandle(unTrackedDevice);
+    auto* pRenderModel = this->GetModelForDeviceHandle(handle);
+    if (!pRenderModel)
     {
       std::string sRenderModelName =
         this->GetTrackedDeviceString(this->HMD, unTrackedDevice, vr::Prop_RenderModelName_String);
-      vtkOpenVRModel* pRenderModel = this->FindOrLoadRenderModel(sRenderModelName.c_str());
-      if (pRenderModel)
+      vtkSmartPointer<vtkOpenVRModel> newModel;
+      newModel.TakeReference(this->FindOrLoadRenderModel(sRenderModelName.c_str()));
+      if (newModel)
       {
-        this->TrackedDeviceToRenderModel[unTrackedDevice] =
-          vtkSmartPointer<vtkVRModel>::Take(pRenderModel);
-        pRenderModel->TrackedDevice = this->GetDeviceFromDeviceIndex(unTrackedDevice);
+        this->SetModelForDeviceHandle(handle, newModel);
       }
+      pRenderModel = newModel;
     }
-    // if we still have no model or it is not set to show
-    if (this->TrackedDeviceToRenderModel[unTrackedDevice] &&
-      this->TrackedDeviceToRenderModel[unTrackedDevice]->GetVisibility())
+    // if we have a model and it is visible
+    if (pRenderModel && pRenderModel->GetVisibility())
     {
-      vtkMatrix4x4* tdPose = this->TrackedDevicePoses[unTrackedDevice];
-
-      // Render model if pose is valid
-      if (tdPose)
-      {
-        this->TrackedDeviceToRenderModel[unTrackedDevice]->Render(this, tdPose);
-      }
+      vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
+      pRenderModel->Render(this, tdPose);
     }
   }
 }
@@ -184,97 +178,101 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
   // Store poses with generic type
   for (uint32_t deviceIdx = 0; deviceIdx < vr::k_unMaxTrackedDeviceCount; ++deviceIdx)
   {
-    vtkMatrix4x4* tdPose = this->TrackedDevicePoses[deviceIdx];
-    this->CreateMatrixFromVrPose(tdPose, OpenVRTrackedDevicePoses[deviceIdx]);
+    if (OpenVRTrackedDevicePoses[deviceIdx].bPoseIsValid)
+    {
+      auto handle = this->GetDeviceHandleForOpenVRHandle(deviceIdx);
+      auto device = this->GetDeviceForOpenVRHandle(deviceIdx);
+      this->AddDeviceHandle(handle, device);
+      vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
+      this->CreateMatrixFromVrPose(tdPose, OpenVRTrackedDevicePoses[deviceIdx]);
+    }
   }
 
   // update the camera values based on the pose
-  if (this->TrackedDevicePoses[vr::k_unTrackedDeviceIndex_Hmd])
+  auto hmdHandle = this->GetDeviceHandleForOpenVRHandle(vr::k_unTrackedDeviceIndex_Hmd);
+
+  vtkRenderer* ren;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ((ren = this->Renderers->GetNextRenderer(rit)))
   {
-    vtkRenderer* ren;
-    vtkCollectionSimpleIterator rit;
-    this->Renderers->InitTraversal(rit);
-    while ((ren = this->Renderers->GetNextRenderer(rit)))
+    vtkOpenVRCamera* cam = vtkOpenVRCamera::SafeDownCast(ren->GetActiveCamera());
+
+    // get the position and orientation of the HMD
+    vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(hmdHandle);
+
+    // Note: Scaling is applied through moving the camera closer to the focal point, because
+    // scaling of all actors is not feasible, and vtkCamera::ModelTransformMatrix is not supported
+    // throughout VTK (clipping issues etc.). To achieve this, a new coordinate system called
+    // NonScaledWorld is introduced. The relationship between Physical (in which the HMD pose
+    // is given by OpenVR) and NonScaledWorld is described by the PhysicalViewUp etc. member
+    // variables. After getting the HMD pose in Physical, those coordinates and axes are converted
+    // to the NonScaledWorld coordinate system, on which the PhysicalScaling trick of modifying
+    // the camera position is applied, resulting the World coordinate system.
+
+    // construct physical to non-scaled world axes (scaling is used later to move camera closer)
+    double physicalZ_NonscaledWorld[3] = { -this->PhysicalViewDirection[0],
+      -this->PhysicalViewDirection[1], -this->PhysicalViewDirection[2] };
+    double* physicalY_NonscaledWorld = this->PhysicalViewUp;
+    double physicalX_NonscaledWorld[3] = { 0.0 };
+    vtkMath::Cross(physicalY_NonscaledWorld, physicalZ_NonscaledWorld, physicalX_NonscaledWorld);
+
+    // extract HMD axes and position
+    double hmdX_Physical[3] = { tdPose->GetElement(0, 0), tdPose->GetElement(1, 0),
+      tdPose->GetElement(2, 0) };
+    double hmdY_Physical[3] = { tdPose->GetElement(0, 1), tdPose->GetElement(1, 1),
+      tdPose->GetElement(2, 1) };
+    double hmdPosition_Physical[3] = { tdPose->GetElement(0, 3), tdPose->GetElement(1, 3),
+      tdPose->GetElement(2, 3) };
+
+    // convert position to non-scaled world coordinates
+    double hmdPosition_NonscaledWorld[3];
+    hmdPosition_NonscaledWorld[0] = hmdPosition_Physical[0] * physicalX_NonscaledWorld[0] +
+      hmdPosition_Physical[1] * physicalY_NonscaledWorld[0] +
+      hmdPosition_Physical[2] * physicalZ_NonscaledWorld[0];
+    hmdPosition_NonscaledWorld[1] = hmdPosition_Physical[0] * physicalX_NonscaledWorld[1] +
+      hmdPosition_Physical[1] * physicalY_NonscaledWorld[1] +
+      hmdPosition_Physical[2] * physicalZ_NonscaledWorld[1];
+    hmdPosition_NonscaledWorld[2] = hmdPosition_Physical[0] * physicalX_NonscaledWorld[2] +
+      hmdPosition_Physical[1] * physicalY_NonscaledWorld[2] +
+      hmdPosition_Physical[2] * physicalZ_NonscaledWorld[2];
+    // now adjust for scale and translation
+    double hmdPosition_World[3] = { 0.0 };
+    for (int i = 0; i < 3; i++)
     {
-      vtkOpenVRCamera* cam = vtkOpenVRCamera::SafeDownCast(ren->GetActiveCamera());
-      this->HMDTransform->Identity();
-
-      // get the position and orientation of the HMD
-      vtkMatrix4x4* tdPose = this->TrackedDevicePoses[vr::k_unTrackedDeviceIndex_Hmd];
-
-      // Note: Scaling is applied through moving the camera closer to the focal point, because
-      // scaling of all actors is not feasible, and vtkCamera::ModelTransformMatrix is not supported
-      // throughout VTK (clipping issues etc.). To achieve this, a new coordinate system called
-      // NonScaledWorld is introduced. The relationship between Physical (in which the HMD pose
-      // is given by OpenVR) and NonScaledWorld is described by the PhysicalViewUp etc. member
-      // variables. After getting the HMD pose in Physical, those coordinates and axes are converted
-      // to the NonScaledWorld coordinate system, on which the PhysicalScaling trick of modifying
-      // the camera position is applied, resulting the World coordinate system.
-
-      // construct physical to non-scaled world axes (scaling is used later to move camera closer)
-      double physicalZ_NonscaledWorld[3] = { -this->PhysicalViewDirection[0],
-        -this->PhysicalViewDirection[1], -this->PhysicalViewDirection[2] };
-      double* physicalY_NonscaledWorld = this->PhysicalViewUp;
-      double physicalX_NonscaledWorld[3] = { 0.0 };
-      vtkMath::Cross(physicalY_NonscaledWorld, physicalZ_NonscaledWorld, physicalX_NonscaledWorld);
-
-      // extract HMD axes and position
-      double hmdX_Physical[3] = { tdPose->GetElement(0, 0), tdPose->GetElement(1, 0),
-        tdPose->GetElement(2, 0) };
-      double hmdY_Physical[3] = { tdPose->GetElement(0, 1), tdPose->GetElement(1, 1),
-        tdPose->GetElement(2, 1) };
-      double hmdPosition_Physical[3] = { tdPose->GetElement(0, 3), tdPose->GetElement(1, 3),
-        tdPose->GetElement(2, 3) };
-
-      // convert position to non-scaled world coordinates
-      double hmdPosition_NonscaledWorld[3];
-      hmdPosition_NonscaledWorld[0] = hmdPosition_Physical[0] * physicalX_NonscaledWorld[0] +
-        hmdPosition_Physical[1] * physicalY_NonscaledWorld[0] +
-        hmdPosition_Physical[2] * physicalZ_NonscaledWorld[0];
-      hmdPosition_NonscaledWorld[1] = hmdPosition_Physical[0] * physicalX_NonscaledWorld[1] +
-        hmdPosition_Physical[1] * physicalY_NonscaledWorld[1] +
-        hmdPosition_Physical[2] * physicalZ_NonscaledWorld[1];
-      hmdPosition_NonscaledWorld[2] = hmdPosition_Physical[0] * physicalX_NonscaledWorld[2] +
-        hmdPosition_Physical[1] * physicalY_NonscaledWorld[2] +
-        hmdPosition_Physical[2] * physicalZ_NonscaledWorld[2];
-      // now adjust for scale and translation
-      double hmdPosition_World[3] = { 0.0 };
-      for (int i = 0; i < 3; i++)
-      {
-        hmdPosition_World[i] =
-          hmdPosition_NonscaledWorld[i] * this->PhysicalScale - this->PhysicalTranslation[i];
-      }
-
-      // convert axes to non-scaled world coordinate system
-      double hmdX_NonscaledWorld[3] = { hmdX_Physical[0] * physicalX_NonscaledWorld[0] +
-          hmdX_Physical[1] * physicalY_NonscaledWorld[0] +
-          hmdX_Physical[2] * physicalZ_NonscaledWorld[0],
-        hmdX_Physical[0] * physicalX_NonscaledWorld[1] +
-          hmdX_Physical[1] * physicalY_NonscaledWorld[1] +
-          hmdX_Physical[2] * physicalZ_NonscaledWorld[1],
-        hmdX_Physical[0] * physicalX_NonscaledWorld[2] +
-          hmdX_Physical[1] * physicalY_NonscaledWorld[2] +
-          hmdX_Physical[2] * physicalZ_NonscaledWorld[2] };
-      double hmdY_NonscaledWorld[3] = { hmdY_Physical[0] * physicalX_NonscaledWorld[0] +
-          hmdY_Physical[1] * physicalY_NonscaledWorld[0] +
-          hmdY_Physical[2] * physicalZ_NonscaledWorld[0],
-        hmdY_Physical[0] * physicalX_NonscaledWorld[1] +
-          hmdY_Physical[1] * physicalY_NonscaledWorld[1] +
-          hmdY_Physical[2] * physicalZ_NonscaledWorld[1],
-        hmdY_Physical[0] * physicalX_NonscaledWorld[2] +
-          hmdY_Physical[1] * physicalY_NonscaledWorld[2] +
-          hmdY_Physical[2] * physicalZ_NonscaledWorld[2] };
-      double hmdZ_NonscaledWorld[3] = { 0.0 };
-      vtkMath::Cross(hmdY_NonscaledWorld, hmdX_NonscaledWorld, hmdZ_NonscaledWorld);
-
-      cam->SetPosition(hmdPosition_World);
-      cam->SetFocalPoint(hmdPosition_World[0] + hmdZ_NonscaledWorld[0] * this->PhysicalScale,
-        hmdPosition_World[1] + hmdZ_NonscaledWorld[1] * this->PhysicalScale,
-        hmdPosition_World[2] + hmdZ_NonscaledWorld[2] * this->PhysicalScale);
-      cam->SetViewUp(hmdY_NonscaledWorld);
-
-      ren->UpdateLightsGeometryToFollowCamera();
+      hmdPosition_World[i] =
+        hmdPosition_NonscaledWorld[i] * this->PhysicalScale - this->PhysicalTranslation[i];
     }
+
+    // convert axes to non-scaled world coordinate system
+    double hmdX_NonscaledWorld[3] = { hmdX_Physical[0] * physicalX_NonscaledWorld[0] +
+        hmdX_Physical[1] * physicalY_NonscaledWorld[0] +
+        hmdX_Physical[2] * physicalZ_NonscaledWorld[0],
+      hmdX_Physical[0] * physicalX_NonscaledWorld[1] +
+        hmdX_Physical[1] * physicalY_NonscaledWorld[1] +
+        hmdX_Physical[2] * physicalZ_NonscaledWorld[1],
+      hmdX_Physical[0] * physicalX_NonscaledWorld[2] +
+        hmdX_Physical[1] * physicalY_NonscaledWorld[2] +
+        hmdX_Physical[2] * physicalZ_NonscaledWorld[2] };
+    double hmdY_NonscaledWorld[3] = { hmdY_Physical[0] * physicalX_NonscaledWorld[0] +
+        hmdY_Physical[1] * physicalY_NonscaledWorld[0] +
+        hmdY_Physical[2] * physicalZ_NonscaledWorld[0],
+      hmdY_Physical[0] * physicalX_NonscaledWorld[1] +
+        hmdY_Physical[1] * physicalY_NonscaledWorld[1] +
+        hmdY_Physical[2] * physicalZ_NonscaledWorld[1],
+      hmdY_Physical[0] * physicalX_NonscaledWorld[2] +
+        hmdY_Physical[1] * physicalY_NonscaledWorld[2] +
+        hmdY_Physical[2] * physicalZ_NonscaledWorld[2] };
+    double hmdZ_NonscaledWorld[3] = { 0.0 };
+    vtkMath::Cross(hmdY_NonscaledWorld, hmdX_NonscaledWorld, hmdZ_NonscaledWorld);
+
+    cam->SetPosition(hmdPosition_World);
+    cam->SetFocalPoint(hmdPosition_World[0] + hmdZ_NonscaledWorld[0] * this->PhysicalScale,
+      hmdPosition_World[1] + hmdZ_NonscaledWorld[1] * this->PhysicalScale,
+      hmdPosition_World[2] + hmdZ_NonscaledWorld[2] * this->PhysicalScale);
+    cam->SetViewUp(hmdY_NonscaledWorld);
+
+    ren->UpdateLightsGeometryToFollowCamera();
   }
 }
 
@@ -316,8 +314,14 @@ void vtkOpenVRRenderWindow::Render()
     // Store poses with generic type
     for (uint32_t deviceIdx = 0; deviceIdx < vr::k_unMaxTrackedDeviceCount; ++deviceIdx)
     {
-      vtkMatrix4x4* tdPose = this->TrackedDevicePoses[deviceIdx];
-      this->CreateMatrixFromVrPose(tdPose, OpenVRTrackedDevicePoses[deviceIdx]);
+      if (OpenVRTrackedDevicePoses[deviceIdx].bPoseIsValid)
+      {
+        auto handle = this->GetDeviceHandleForOpenVRHandle(deviceIdx);
+        auto device = this->GetDeviceForOpenVRHandle(deviceIdx);
+        this->AddDeviceHandle(handle, device);
+        vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
+        this->CreateMatrixFromVrPose(tdPose, OpenVRTrackedDevicePoses[deviceIdx]);
+      }
     }
   }
 
@@ -525,51 +529,28 @@ void vtkOpenVRRenderWindow::RenderOverlay()
 }
 
 //------------------------------------------------------------------------------
-vtkEventDataDevice vtkOpenVRRenderWindow::GetDeviceFromDeviceIndex(vr::TrackedDeviceIndex_t index)
+uint32_t vtkOpenVRRenderWindow::GetDeviceHandleForOpenVRHandle(vr::TrackedDeviceIndex_t index)
 {
-  if (index == vr::k_unTrackedDeviceIndex_Hmd)
+  return static_cast<uint32_t>(index);
+}
+
+vtkEventDataDevice vtkOpenVRRenderWindow::GetDeviceForOpenVRHandle(vr::TrackedDeviceIndex_t ohandle)
+{
+  if (ohandle == vr::k_unTrackedDeviceIndex_Hmd)
   {
     return vtkEventDataDevice::HeadMountedDisplay;
   }
-  else if (index ==
+  if (ohandle ==
     this->HMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand))
   {
     return vtkEventDataDevice::LeftController;
   }
-  else if (index ==
+  if (ohandle ==
     this->HMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_RightHand))
   {
     return vtkEventDataDevice::RightController;
   }
-  else if (index == vr::k_unTrackedDeviceIndexInvalid)
-  {
-    return vtkEventDataDevice::Unknown;
-  }
-  else
-  {
-    return vtkEventDataDevice::GenericTracker;
-  }
-}
 
-//------------------------------------------------------------------------------
-uint32_t vtkOpenVRRenderWindow::GetTrackedDeviceIndexForDevice(
-  vtkEventDataDevice dev, uint32_t index)
-{
-  if (dev == vtkEventDataDevice::HeadMountedDisplay)
-  {
-    return static_cast<uint32_t>(vr::k_unTrackedDeviceIndex_Hmd);
-  }
-  if (dev == vtkEventDataDevice::LeftController)
-  {
-    return static_cast<uint32_t>(
-      this->HMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand));
-  }
-  if (dev == vtkEventDataDevice::RightController)
-  {
-    return static_cast<uint32_t>(
-      this->HMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_RightHand));
-  }
-  if (dev == vtkEventDataDevice::GenericTracker)
   {
     bool notDone = true;
     uint32_t arraySize(1024);
@@ -592,25 +573,16 @@ uint32_t vtkOpenVRRenderWindow::GetTrackedDeviceIndexForDevice(
       }
     }
 
-    uint32_t devIndex = devices[index];
-    delete[] devices;
-
-    if (index > deviceCount)
+    for (uint32_t i = 0; i < arraySize; i++)
     {
-      return this->InvalidDeviceIndex;
+      if (devices[i] == ohandle)
+      {
+        delete[] devices;
+        return vtkEventDataDevice::GenericTracker;
+      }
     }
-
-    return devIndex;
+    delete[] devices;
   }
 
-  return this->InvalidDeviceIndex;
-}
-
-//------------------------------------------------------------------------------
-uint32_t vtkOpenVRRenderWindow::GetNumberOfTrackedDevicesForDevice(
-  vtkEventDataDevice vtkNotUsed(dev))
-{
-  vr::TrackedDeviceIndex_t devices[1];
-  return this->HMD->GetSortedTrackedDeviceIndicesOfClass(
-    vr::TrackedDeviceClass_GenericTracker, devices, 1);
+  return vtkEventDataDevice::Unknown;
 }

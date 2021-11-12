@@ -20,17 +20,32 @@ PURPOSE.  See the above copyright notice for more information.
  * vtkVRRenderWindow is a abstract class to define a RenderWindow in a
  * VR context.
  *
- * VR provides HMD and controller positions in "Physical" coordinate
- * system.
- * Origin: user's eye position at the time of calibration.
- * Axis directions: x = user's right; y = user's up; z = user's back.
- * Unit: meter.
+ * VR provides HMD and controller positions in the "Physical" coordinate
+ * system. For room scale VR this is based on the room setup
+ * per the underlying VR API being used. Units are in meters.
  *
- * Renderer shows actors in World coordinate system. Transformation between
+ * Renderer shows actors in the World coordinate system. Transformation between
  * Physical and World coordinate systems is defined by PhysicalToWorldMatrix.
  * This matrix determines the user's position and orientation in the rendered
  * scene and scaling (magnification) of rendered actors.
  *
+ * This class introduces the notion of DeviceHandles. A DeviceHandle is
+ * a uint32_t handle that represents a device in the underlying VR API
+ * such as OpenVR or OpenXR. Implementations of this class are responsible
+ * for mapping the actual devices from that API into unique DeviceHandles.
+ * Typically these devices are handheld controllers, HMDs, stylus etc.
+ * The subclass should call AddDeviceHandle when it first sees a new device.
+ *
+ * This class also uses the term Device from vtkEventDataDevice to represent
+ * a generic device type that is used in the event handling system. Multiple
+ * DeviceHandles could point to the same Device though most often there is a
+ * one to one mapping. For example vtkEventDataDevice::LeftController will
+ * typically have one or zero DeviceHandles that map to it.
+ *
+ * Most event processing works with generic devices and this class provides a
+ * number of methods to support that. This class also provides a number of methods
+ * that work on DeviceHandles which are typically used by VR classes and their
+ * subclasses.
  */
 
 #ifndef vtkVRRenderWindow_h
@@ -69,8 +84,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Create an interactor to control renderers in this window.
-   * Must be overriden to instantiate a specific interactor depending on the API
+   * Create an interactor to control renderers in this window. Must be
+   * overriden to instantiate a specific interactor depending on the API
    */
   vtkRenderWindowInteractor* MakeRenderWindowInteractor() override = 0;
 
@@ -87,42 +102,80 @@ public:
   }
   ///@}
 
-  /**
-   * Get the index corresponding to the tracked device.
-   * Used to retrieve models and poses.
-   */
-  virtual uint32_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice idx, uint32_t index = 0) = 0;
-
   ///@{
   /**
-   * Get the VRModel corresponding to the tracked device
+   * Get the VRModel corresponding to the device or device handle.
    */
-  vtkVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx);
-  virtual vtkVRModel* GetTrackedDeviceModel(uint32_t idx);
+  vtkVRModel* GetModelForDevice(vtkEventDataDevice idx);
+  vtkVRModel* GetModelForDeviceHandle(uint32_t handle);
   ///@}
 
   ///@{
   /**
-   * Get the pose matrix corresponding to the tracked device.
+   * Set the VRModel corresponding to the device handle
    */
-  vtkMatrix4x4* GetTrackedDevicePose(vtkEventDataDevice idx);
-  vtkMatrix4x4* GetTrackedDevicePose(uint32_t idx);
+  void SetModelForDeviceHandle(uint32_t handle, vtkVRModel* model);
   ///@}
 
+  ///@{
   /**
-   * Initialize the HMD to World setting and camera settings so
-   * that the VR world view most closely matched the view from
-   * the provided camera. This method is useful for initialing
-   * a VR world from an existing on screen window and camera.
-   * The Renderer and its camera must already be created and
-   * set when this is called.
+   * Get the DeviceToPhysical matrix corresponding to the device or device handle.
+   * e.g. 0,0,0,1 pushed through this matrix will give you the location of the
+   * device in physical coordinates.
+   */
+  vtkMatrix4x4* GetDeviceToPhysicalMatrixForDevice(vtkEventDataDevice idx);
+  vtkMatrix4x4* GetDeviceToPhysicalMatrixForDeviceHandle(uint32_t handle);
+  ///@}
+
+  //@{
+  /*
+   * This method gets a device handle for a given device. index is used to
+   * disambiguate when there are multiple device handles that map to a
+   * device.
+   */
+  uint32_t GetDeviceHandleForDevice(vtkEventDataDevice dev, uint32_t index = 0);
+  //@}
+
+  //@{
+  /*
+   * This method returns how many device handles map to a device.
+   */
+  uint32_t GetNumberOfDeviceHandlesForDevice(vtkEventDataDevice dev);
+  //@}
+
+  //@{
+  /*
+   * This method adds a device handle if not already present. The second
+   * signature also sets the device associated with the device handle.
+   */
+  void AddDeviceHandle(uint32_t handle);
+  void AddDeviceHandle(uint32_t handle, vtkEventDataDevice device);
+  //@}
+
+  //@{
+  /*
+   * This method gets a device for a given device handle.
+   */
+  vtkEventDataDevice GetDeviceForDeviceHandle(uint32_t handle);
+  //@}
+
+  /**
+   * Store in \p deviceToWorldMatrix the matrix that goes from device coordinates
+   * to world coordinates. e.g. if you push 0,0,0,1 through this matrix you will get
+   * the location of the device in world coordinates.
+   * Return true if the query is valid, else false.
+   */
+  virtual bool GetDeviceToWorldMatrixForDevice(
+    vtkEventDataDevice device, vtkMatrix4x4* deviceToWorldMatrix);
+
+  /**
+   * Initialize the HMD to World setting and camera settings so that the VR
+   * world view most closely matched the view from the provided camera. This
+   * method is useful for initialing a VR world from an existing on screen
+   * window and camera. The Renderer and its camera must already be created
+   * and set when this is called.
    */
   virtual void InitializeViewFromCamera(vtkCamera* cam);
-
-  /**
-   * Get the world matrix corresponding to the given pose.
-   */
-  void ConvertPoseToWorldMatrix(vtkMatrix4x4* pose, vtkMatrix4x4* poseMatrixWorld);
 
   ///@{
   /**
@@ -310,13 +363,6 @@ public:
    */
   virtual void RenderModels() = 0;
 
-  /**
-   * Store in \p poseMatrixWorld the pose matrix in world coordinate from an event data device.
-   * Return true if the pose is valid, else false.
-   */
-  virtual bool GetPoseMatrixWorldFromDevice(
-    vtkEventDataDevice device, vtkMatrix4x4* poseMatrixWorld);
-
   ///@{
   /**
    * When on the camera will track the HMD position.
@@ -362,13 +408,18 @@ protected:
   // One per view (typically one per eye)
   std::vector<FramebufferDesc> FramebufferDescs;
 
-  // These vectors must be resized in subclass with the maximum number of devices
-  std::vector<vtkSmartPointer<vtkVRModel>> TrackedDeviceToRenderModel;
-  std::vector<vtkNew<vtkMatrix4x4>> TrackedDevicePoses;
+  class DeviceData
+  {
+  public:
+    vtkSmartPointer<vtkVRModel> Model;
+    vtkNew<vtkMatrix4x4> Pose;
+    vtkEventDataDevice Device = vtkEventDataDevice::Unknown;
+    uint32_t Index = 0;
+  };
+
+  std::map<uint32_t, DeviceData> DeviceHandleToDeviceDataMap;
   uint32_t InvalidDeviceIndex = UINT32_MAX;
 
-  // used in computing the pose
-  vtkNew<vtkTransform> HMDTransform;
   // -Z axis of the Physical to World matrix
   double PhysicalViewDirection[3] = { 0.0, 0.0, -1.0 };
   // Y axis of the Physical to World matrix

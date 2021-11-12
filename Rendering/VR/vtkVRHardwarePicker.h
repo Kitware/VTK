@@ -28,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkPropPicker.h"
 #include "vtkRenderingVRModule.h" // For export macro
+#include "vtkSmartPointer.h"      // for ivar
 
 class vtkSelection;
 
@@ -46,14 +47,15 @@ public:
   virtual int PickProp(double selectionPt[3], double eventWorldOrientation[4],
     vtkRenderer* renderer, vtkPropCollection* pickfrom, bool actorPassOnly);
 
-  vtkGetObjectMacro(Selection, vtkSelection);
+  // return the latest selection
+  vtkSelection* GetSelection();
 
 protected:
   vtkVRHardwarePicker() = default;
   ~vtkVRHardwarePicker() override = default;
 
   void Initialize() override;
-  vtkSelection* Selection = nullptr;
+  vtkSmartPointer<vtkSelection> Selection;
 
 private:
   vtkVRHardwarePicker(const vtkVRHardwarePicker&) = delete;

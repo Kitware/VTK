@@ -478,7 +478,7 @@ protected:
   // Three available types: VIEW, LOCAL and STAGE.  We use LOCAL space which
   // establishes a world-locked origin, rather than VIEW space, which tracks the
   // view origin.
-  constexpr static XrReferenceSpaceType ReferenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
+  constexpr static XrReferenceSpaceType ReferenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
 
   // Communication with the runtime happens through this instance
   XrInstance Instance;

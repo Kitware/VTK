@@ -371,10 +371,11 @@ void vtkVRPanelRepresentation::ComputeMatrix(vtkRenderer* ren)
       ? vtkEventDataDevice::LeftController
       : vtkEventDataDevice::RightController;
 
-    vtkNew<vtkMatrix4x4> poseMatrixWorld;
-    if (rw->GetPoseMatrixWorldFromDevice(device, poseMatrixWorld))
+    vtkNew<vtkMatrix4x4> deviceToWorldMatrix;
+    if (rw->GetDeviceToWorldMatrixForDevice(device, deviceToWorldMatrix))
     {
-      this->TextActor->GetUserMatrix()->DeepCopy(poseMatrixWorld);
+      // transform the text to the devices location in world coordinates
+      this->TextActor->GetUserMatrix()->DeepCopy(deviceToWorldMatrix);
     }
   }
 }

@@ -62,9 +62,6 @@ public:
 
   void ReleaseGraphicsResources(vtkWindow* win);
 
-  // The tracked device this model represents if any
-  vtkEventDataDevice TrackedDevice = vtkEventDataDevice::Unknown;
-
 protected:
   vtkVRModel();
   ~vtkVRModel() override;

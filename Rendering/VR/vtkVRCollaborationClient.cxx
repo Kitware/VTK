@@ -823,12 +823,12 @@ vtkSmartPointer<vtkOpenGLAvatar> vtkVRCollaborationClient::GetAvatar(std::string
       auto ovrrw = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
       if (ovrrw)
       {
-        vtkVRModel* cmodel = ovrrw->GetTrackedDeviceModel(vtkEventDataDevice::LeftController);
+        vtkVRModel* cmodel = ovrrw->GetModelForDevice(vtkEventDataDevice::LeftController);
         if (cmodel)
         {
           cmodel->SetVisibility(false);
         }
-        cmodel = ovrrw->GetTrackedDeviceModel(vtkEventDataDevice::RightController);
+        cmodel = ovrrw->GetModelForDevice(vtkEventDataDevice::RightController);
         if (cmodel)
         {
           cmodel->SetVisibility(false);
