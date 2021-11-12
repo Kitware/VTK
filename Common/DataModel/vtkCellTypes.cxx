@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_2_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkCellTypes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -148,6 +151,7 @@ vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, vtkIdType loc)
 void vtkCellTypes::SetCellTypes(
   vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIntArray* cellLocations)
 {
+  VTK_LEGACY_BODY(vtkCellTypes::SetCellTypes, "VTK 9.2");
   this->TypeArray = cellTypes;
   if (!this->LocationArray)
   {
@@ -159,9 +163,18 @@ void vtkCellTypes::SetCellTypes(
 
 //------------------------------------------------------------------------------
 // Specify a group of cell types.
+void vtkCellTypes::SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray* cellTypes)
+{
+  this->TypeArray = cellTypes;
+  this->MaxId = ncells - 1;
+}
+
+//------------------------------------------------------------------------------
+// Specify a group of cell types.
 void vtkCellTypes::SetCellTypes(
   vtkIdType ncells, vtkUnsignedCharArray* cellTypes, vtkIdTypeArray* cellLocations)
 {
+  VTK_LEGACY_BODY(vtkCellTypes::SetCellTypes, "VTK 9.2");
   this->TypeArray = cellTypes;
   this->LocationArray = cellLocations;
   this->MaxId = ncells - 1;

@@ -31,6 +31,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkType.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridAlgorithm.h"
 
@@ -194,10 +195,9 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkUnstructuredGrid* usgOut
     vtkQuadratureSchemeDefinition::DICTIONARY();
 
   // Get the cell types used by the data set.
-  vtkCellTypes* cellTypes = vtkCellTypes::New();
-  usgOut->GetCellTypes(cellTypes);
+  vtkUnsignedCharArray* cellTypes = usgOut->GetCellTypesArray();
   // add a definition to the dictionary for each cell type.
-  int nCellTypes = cellTypes->GetNumberOfTypes();
+  int nCellTypes = cellTypes ? cellTypes->GetNumberOfValues() : 0;
 
   // create the offset array and store the dictionary within
   vtkIdTypeArray* offsets = vtkIdTypeArray::New();
@@ -220,7 +220,7 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkUnstructuredGrid* usgOut
 
   for (int typeId = 0; typeId < nCellTypes; ++typeId)
   {
-    int cellType = cellTypes->GetCellType(typeId);
+    int cellType = cellTypes->GetValue(typeId);
     // Initiaze a definition for this particular cell type.
     vtkSmartPointer<vtkQuadratureSchemeDefinition> def =
       vtkSmartPointer<vtkQuadratureSchemeDefinition>::New();
@@ -271,7 +271,6 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkUnstructuredGrid* usgOut
     offset += celldef->GetNumberOfQuadraturePoints();
   }
   offsets->Delete();
-  cellTypes->Delete();
   delete[] dict;
   return 1;
 }
