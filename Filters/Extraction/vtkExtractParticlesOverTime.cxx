@@ -189,7 +189,7 @@ int vtkExtractParticlesOverTime::RequestInformation(vtkInformation* vtkNotUsed(r
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractParticlesOverTime::RequestUpdateExtent(vtkInformation* request,
+int vtkExtractParticlesOverTime::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   vtkInformation* inputInformation = inputVector[0]->GetInformationObject(0);
