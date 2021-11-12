@@ -631,6 +631,7 @@ void vtkParseMerge_MergeHelper(FileInfo* finfo, const NamespaceInfo* data,
   FILE* hintfile = NULL;
   int ihintfiles = 0;
   const char* hintfilename = NULL;
+  FileInfo* new_finfo = NULL;
 
   /* Note: this method does not deal with scoping yet.
    * "classname" might be a scoped name, in which case the
@@ -697,10 +698,10 @@ void vtkParseMerge_MergeHelper(FileInfo* finfo, const NamespaceInfo* data,
       exit(1);
     }
 
-    finfo = vtkParse_ParseFile(filename, fp, stderr);
+    new_finfo = vtkParse_ParseFile(filename, fp, stderr);
     fclose(fp);
 
-    if (!finfo)
+    if (!new_finfo)
     {
       exit(1);
     }
@@ -715,17 +716,18 @@ void vtkParseMerge_MergeHelper(FileInfo* finfo, const NamespaceInfo* data,
           if (!(hintfile = fopen(hintfilename, "r")))
           {
             fprintf(stderr, "Error opening hint file %s\n", hintfilename);
-            vtkParse_FreeFile(finfo);
+            vtkParse_FreeFile(new_finfo);
+            free(new_finfo);
             exit(1);
           }
 
-          vtkParse_ReadHints(finfo, hintfile, stderr);
+          vtkParse_ReadHints(new_finfo, hintfile, stderr);
           fclose(hintfile);
         }
       }
     }
 
-    data = finfo->Contents;
+    data = new_finfo->Contents;
     if (nspacename)
     {
       m = data->NumberOfNamespaces;
@@ -767,25 +769,26 @@ void vtkParseMerge_MergeHelper(FileInfo* finfo, const NamespaceInfo* data,
 
   if (cinfo)
   {
+    FileInfo* cfinfo = (new_finfo == NULL) ? finfo : new_finfo;
     /* create a duplicate to avoid modifying the original */
     new_cinfo = (ClassInfo*)malloc(sizeof(ClassInfo));
     vtkParse_CopyClass(new_cinfo, cinfo);
     if (template_args)
     {
       vtkParse_InstantiateClassTemplate(
-        new_cinfo, finfo->Strings, template_arg_count, template_args);
+        new_cinfo, cfinfo->Strings, template_arg_count, template_args);
     }
     cinfo = new_cinfo;
 
     recurse = 0;
     if (info)
     {
-      vtkParseMerge_Merge(finfo, info, merge, cinfo);
+      vtkParseMerge_Merge(cfinfo, info, merge, cinfo);
       recurse = 1;
     }
     else
     {
-      vtkParseMerge_MergeUsing(finfo, info, merge, cinfo, 0);
+      vtkParseMerge_MergeUsing(cfinfo, info, merge, cinfo, 0);
       n = merge->NumberOfUsings;
       for (i = 0; i < n; i++)
       {
@@ -802,10 +805,15 @@ void vtkParseMerge_MergeHelper(FileInfo* finfo, const NamespaceInfo* data,
       for (i = 0; i < n; i++)
       {
         vtkParseMerge_MergeHelper(
-          finfo, data, hinfo, cinfo->SuperClasses[i], nhintfiles, hintfiles, info, merge);
+          cfinfo, data, hinfo, cinfo->SuperClasses[i], nhintfiles, hintfiles, info, merge);
       }
     }
     vtkParse_FreeClass(cinfo);
+    if (cfinfo != finfo)
+    {
+      vtkParse_FreeFile(cfinfo);
+      free(cfinfo);
+    }
   }
 
   if (template_arg_count > 0)
