@@ -114,6 +114,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestStackedPlot.cxx
   TestSurfacePlot.cxx
   TestZoomAxis.cxx
+  TestZoomIndividualAxis.cxx
   )
 vtk_test_cxx_executable(vtkChartsCoreCxxTests tests
   RENDERING_FACTORY
