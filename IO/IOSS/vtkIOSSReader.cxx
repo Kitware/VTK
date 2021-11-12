@@ -29,6 +29,7 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLagrangeHexahedron.h"
+#include "vtkLagrangeInterpolation.h"
 #include "vtkLagrangeQuadrilateral.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
@@ -1726,6 +1727,7 @@ bool vtkIOSSReader::vtkInternals::ExplodeDGMesh(vtkUnstructuredGrid* dataset,
   }
 
   bool isDGLinear = field_props[3] == "C1";
+  int fieldOrder = field_props[3].at(1) - '0';
   std::string DGCellType = field_props[2];
 
   // if the DG basis used is linear, then we don't need to interpolate new mesh points
@@ -1762,22 +1764,26 @@ bool vtkIOSSReader::vtkInternals::ExplodeDGMesh(vtkUnstructuredGrid* dataset,
   }
   else // higher order elements (only quadratic is supported)
   {
-    if (DGCellType == "HEX")
+    if (DGCellType == "HEX" && type == VTK_HEXAHEDRON)
     {
       type = VTK_LAGRANGE_HEXAHEDRON;
-      const vtkIdType nPtsPerCell = 27; // quadratic hexahedron
+      const vtkIdType nPtsPerCell = 27;
       nPts = nCells * nPtsPerCell;
       exploded_points->SetNumberOfPoints(nPts);
       exploded_cells->AllocateExact(nCells, nPtsPerCell);
       original_ids->SetNumberOfIds(nPts);
 
-      // get parametric coords of nodes on edges/faces/volume
-      std::vector<double> pcoords = { 0.5, 0, 0, 1, 0.5, 0, 0.5, 1, 0, 0, 0.5, 0, 0.5, 0, 1, 1, 0.5,
-        1, 0.5, 1, 1, 0, 0.5, 1, 0, 0, 0.5, 1, 0, 0.5, 1, 1, 0.5, 0, 1, 0.5,
+      // get parametric coords of a quadratic hex element
+      std::vector<double> pcoords{ // vertices
+        0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1,
+        // edges
+        0.5, 0, 0, 1, 0.5, 0, 0.5, 1, 0, 0, 0.5, 0, 0.5, 0, 1, 1, 0.5, 1, 0.5, 1, 1, 0, 0.5, 1, 0,
+        0, 0.5, 1, 0, 0.5, 1, 1, 0.5, 0, 1, 0.5,
         // faces
         0, 0.5, 0.5, 1, 0.5, 0.5, 0.5, 0, 0.5, 0.5, 1, 0.5, 0.5, 0.5, 0, 0.5, 0.5, 1,
         // volume
-        0.5, 0.5, 0.5 };
+        0.5, 0.5, 0.5
+      };
 
       // loop over cell connectivity, redo the connectivity so that each cell is
       // disconnected from other cells and then copy associated points into the
@@ -1785,48 +1791,49 @@ bool vtkIOSSReader::vtkInternals::ExplodeDGMesh(vtkUnstructuredGrid* dataset,
       vtkIdType ind = 0;
       double weights[4];
       int subId = 0;
-      auto iter = vtk::TakeSmartPointer(dataset->GetCells()->NewIterator());
-      for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+      vtkVector3d coord{ 0.0 };
+      vtkIdType o_id = 0;
+
+      vtkCellArray* cells = dataset->GetCells();
+      vtkIdType npts;
+      const vtkIdType* idx;
+      for (vtkIdType cc = 0; cc < nCells; ++cc)
       {
         // get next cell in original dataset
-        vtkIdList* cellIds = iter->GetCurrentCell();
+        cells->GetCellAtId(cc, npts, idx);
         exploded_cells->InsertNextCell(nPtsPerCell);
-        vtkVector3d coord{ 0.0 };
-        vtkIdType o_id = 0;
 
-        // build a vtkQuad to evaluate new points on
+        // build a vtkHexahedron to evaluate new points on
         vtkNew<vtkHexahedron> element;
-        element->Initialize(8, cellIds->begin(), old_points);
+        element->Initialize(8, idx, old_points);
 
-        // insert points on corners read from original mesh
         for (vtkIdType i = 0; i < 8; ++i)
         {
-          o_id = cellIds->GetId(i);
+          o_id = idx[i];
           old_points->GetPoint(o_id, coord.GetData());
           exploded_points->InsertPoint(ind, coord.GetData());
-          // newCellIds[i] = ind;
           exploded_cells->InsertCellPoint(ind);
           original_ids->SetId(ind, o_id);
           ind++;
         }
 
         // loop over edge/face/volume nodes
-        for (vtkIdType i = 0; i < 19; ++i)
+        for (vtkIdType i = 8; i < nPtsPerCell; ++i)
         {
           element->EvaluateLocation(subId, &pcoords[3 * i], coord.GetData(), weights);
           exploded_points->InsertPoint(ind, coord.GetData());
           exploded_cells->InsertCellPoint(ind);
-          original_ids->SetId(ind, 0);
+          original_ids->SetId(ind, -1);
           ind++;
         }
       }
     }
-    else if (DGCellType == "TET")
+    else if (DGCellType == "TET" && type == VTK_TETRA)
     {
-      // not implemented
+      vtkErrorWithObjectMacro(this->IOSSReader, "High order tetrahedra not currently supported.");
       return false;
     }
-    else if (DGCellType == "QUAD")
+    else if (DGCellType == "QUAD" && type == VTK_QUAD)
     {
       type = VTK_LAGRANGE_QUADRILATERAL;
       const vtkIdType nPtsPerCell = 9; // quadratic quadrilateral
@@ -1920,7 +1927,7 @@ bool vtkIOSSReader::vtkInternals::ExplodeDGMesh(vtkUnstructuredGrid* dataset,
         ind++;
       }
     }
-    else if (DGCellType == "TRI")
+    else if (DGCellType == "TRI" && type == VTK_TRIANGLE)
     {
       type = VTK_LAGRANGE_TRIANGLE;
       const vtkIdType nPtsPerCell = 6; // quadratic triangle
@@ -1993,8 +2000,15 @@ bool vtkIOSSReader::vtkInternals::ExplodeDGMesh(vtkUnstructuredGrid* dataset,
         ind++;
       }
     }
+    else
+    {
+      vtkErrorWithObjectMacro(
+        this->IOSSReader, "Unexpected high order element not currently supported.");
+      return false;
+    }
   }
 
+  dataset->Reset();
   dataset->SetPoints(exploded_points);
   dataset->SetCells(type, exploded_cells);
 
@@ -2491,20 +2505,43 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
 // rule <in>: this string indicates what element type is being used in this
 //            DG block
 void interpolateDGFieldToNodes(
-  vtkDataArray* nodalData, vtkDataArray* dgData, const std::string& rule)
+  vtkDataArray* nodalData, vtkDataArray* dgData, const std::string& dg_field_name)
 {
+  std::vector<std::string> field_props = split(dg_field_name, "_");
+
+  // naive check to make sure we have all the properties in expected order
+  // i.e. Intrepid2_HGRAD_QUAD_C2_FEM
+  if (field_props.size() != 5)
+  {
+    return;
+  }
+
+  int fieldOrder = field_props[3].at(1) - '0';
+  std::string DGCellType = field_props[2];
+
   const vtkIdType nNodes = dgData->GetNumberOfComponents();
   const vtkIdType nCells = dgData->GetNumberOfTuples();
 
-  if (rule == "HGRAD")
+  // get the ordering of the nodes for special cases
+  std::vector<int> intrepid2vtk;
+  if (DGCellType == "HEX" && fieldOrder == 2)
   {
-    for (vtkIdType i = 0; i < nNodes; ++i)
+    intrepid2vtk = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19, 12, 13, 14, 15, 26, 24,
+      25, 20, 21, 22, 23 };
+  }
+  else
+  {
+    intrepid2vtk.resize(nNodes);
+    std::iota(intrepid2vtk.begin(), intrepid2vtk.end(), 0);
+  }
+
+  for (vtkIdType i = 0; i < nNodes; ++i)
+  {
+    int ii = intrepid2vtk[i];
+    for (vtkIdType j = 0; j < nCells; ++j)
     {
-      for (vtkIdType j = 0; j < nCells; ++j)
-      {
-        const vtkIdType ptId = i + nNodes * j;
-        nodalData->SetTuple1(ptId, dgData->GetComponent(j, i));
-      }
+      const vtkIdType ptId = ii + nNodes * j;
+      nodalData->SetTuple1(ptId, dgData->GetComponent(j, i));
     }
   }
 }
@@ -2524,7 +2561,7 @@ bool vtkIOSSReader::vtkInternals::FieldIsDG(std::string blockname, std::string f
     std::string lowerCaseField = field;
     std::transform(lowerCaseField.begin(), lowerCaseField.end(), lowerCaseField.begin(),
       [](unsigned char c) { return std::tolower(c); });
-    if (lowerCaseField.find(field) != std::string::npos)
+    if (fieldname.find(lowerCaseField) != std::string::npos)
     {
       return true;
     }
@@ -2538,7 +2575,6 @@ bool vtkIOSSReader::vtkInternals::GetDGFields(vtkUnstructuredGrid* ds,
   const DatabaseHandle& handle, int timestep)
 {
   std::vector<std::string> fieldnames;
-
   for (int cc = 0; selection != nullptr && cc < selection->GetNumberOfArrays(); ++cc)
   {
     if (selection->GetArraySetting(cc) &&
@@ -2554,10 +2590,6 @@ bool vtkIOSSReader::vtkInternals::GetDGFields(vtkUnstructuredGrid* ds,
       this->GetField(fieldname, region, group_entity, handle, timestep, nullptr, std::string()));
     if (dgData != nullptr)
     {
-      // hard coding the rule until we have example of other exotic element flavors
-      // TO DO: interpret rule from DGInformation::elementTypes
-      const std::string rule = "HGRAD";
-
       // create a new vtkDataArray to store the single processed DG field
       vtkNew<vtkDoubleArray> nodalData;
       // each dgData field has nNodes components and components of
@@ -2567,7 +2599,7 @@ bool vtkIOSSReader::vtkInternals::GetDGFields(vtkUnstructuredGrid* ds,
       nodalData->SetNumberOfTuples(ds->GetNumberOfPoints());
       nodalData->SetName(fieldname.c_str());
       // interpolate the dg data onto the nodes
-      interpolateDGFieldToNodes(nodalData, dgData, rule);
+      interpolateDGFieldToNodes(nodalData, dgData, this->DGInfo.elementTypes[group_entity->name()]);
 
       // add the nodal field array
       ds->GetPointData()->AddArray(nodalData);
