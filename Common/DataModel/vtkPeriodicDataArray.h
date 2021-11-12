@@ -198,6 +198,11 @@ public:
   /**
    * Read only container, not supported.
    */
+  void InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override;
+
+  /**
+   * Read only container, not supported.
+   */
   void InsertTuples(
     vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source) override;
 

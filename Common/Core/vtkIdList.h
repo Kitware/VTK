@@ -137,7 +137,7 @@ public:
    * underlying array. This instance of vtkIdList takes ownership of the
    * array, meaning that it deletes it on destruction (using delete[]).
    */
-  void SetArray(vtkIdType* array, vtkIdType size);
+  void SetArray(vtkIdType* array, vtkIdType size, bool save = true);
 
   /**
    * Reset to an empty state but retain previously allocated memory.
@@ -208,6 +208,7 @@ protected:
   vtkIdType NumberOfIds;
   vtkIdType Size;
   vtkIdType* Ids;
+  bool ManageMemory;
 
 private:
   vtkIdList(const vtkIdList&) = delete;

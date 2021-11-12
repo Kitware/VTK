@@ -331,6 +331,15 @@ void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertTuples(
 //------------------------------------------------------------------------------
 template <class Scalar>
 void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertTuples(
+  vtkIdType, vtkIdList*, vtkAbstractArray*)
+{
+  vtkErrorMacro("Read only container.");
+  return;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertTuples(
   vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray*)
 {
   vtkErrorMacro("Read only container.");

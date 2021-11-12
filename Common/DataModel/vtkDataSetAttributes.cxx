@@ -18,8 +18,10 @@
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkDataArrayRange.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
 #include "vtkStructuredExtent.h"
 
+#include <algorithm>
 #include <vector>
 
 vtkStandardNewMacro(vtkDataSetAttributes);
@@ -795,6 +797,122 @@ void vtkDataSetAttributes::RemoveArray(int index)
   }
 }
 
+namespace
+{
+//==============================================================================
+// This worker copies tuples starting at index SourceStartId from a collection of source arrays into
+// target arrays, filling them starting at index DestStartId
+struct CopyDataImplicitToImplicitWorker
+{
+  CopyDataImplicitToImplicitWorker(vtkDataSetAttributes* source, vtkDataSetAttributes* dest,
+    vtkFieldData::BasicIterator& requiredArrays, const int* targetIndices, vtkIdType sourceStartId,
+    vtkIdType destStartId)
+    : Source(source)
+    , Dest(dest)
+    , RequiredArrays(requiredArrays)
+    , TargetIndices(targetIndices)
+    , SourceStartId(sourceStartId)
+    , DestStartId(destStartId)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    vtkIdType destStartId = this->DestStartId + startId - this->SourceStartId;
+    for (const int i : this->RequiredArrays)
+    {
+      vtkAbstractArray* target = this->Dest->GetAbstractArray(this->TargetIndices[i]);
+      vtkAbstractArray* source = this->Source->GetAbstractArray(i);
+      target->InsertTuples(destStartId, endId - startId, startId, source);
+    }
+  }
+
+  vtkDataSetAttributes* Source;
+  vtkDataSetAttributes* Dest;
+  vtkFieldData::BasicIterator& RequiredArrays;
+  const int* TargetIndices;
+  vtkIdType SourceStartId;
+  vtkIdType DestStartId;
+};
+
+//==============================================================================
+// This worker copies tuples indexed explicitly from a collection of source arrays into
+// target arrays, filling them starting at index DestStartId
+struct CopyDataExplicitToImplicitWorker
+{
+  CopyDataExplicitToImplicitWorker(vtkDataSetAttributes* source, vtkDataSetAttributes* dest,
+    vtkFieldData::BasicIterator& requiredArrays, const int* targetIndices, vtkIdList* sourceIds,
+    vtkIdType destStartId)
+    : Source(source)
+    , Dest(dest)
+    , RequiredArrays(requiredArrays)
+    , TargetIndices(targetIndices)
+    , SourceIds(sourceIds)
+    , DestStartId(destStartId)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    vtkNew<vtkIdList> sourceIds;
+    sourceIds->SetArray(this->SourceIds->GetPointer(startId), endId - startId, false /* save */);
+    for (const int i : this->RequiredArrays)
+    {
+      vtkAbstractArray* target = this->Dest->GetAbstractArray(this->TargetIndices[i]);
+      vtkAbstractArray* source = this->Source->GetAbstractArray(i);
+      target->InsertTuples(this->DestStartId + startId, sourceIds, source);
+    }
+  }
+
+  vtkDataSetAttributes* Source;
+  vtkDataSetAttributes* Dest;
+  vtkFieldData::BasicIterator& RequiredArrays;
+  const int* TargetIndices;
+  vtkIdList* SourceIds;
+  vtkIdType DestStartId;
+};
+
+//==============================================================================
+// This worker copies tuples indexed explicitly from a collection of source arrays into
+// target arrays, indexed explicitly as well.
+struct CopyDataExplicitToExplicitWorker
+{
+  CopyDataExplicitToExplicitWorker(vtkDataSetAttributes* source, vtkDataSetAttributes* dest,
+    vtkFieldData::BasicIterator& requiredArrays, const int* targetIndices, vtkIdList* sourceIds,
+    vtkIdList* destIds)
+    : Source(source)
+    , Dest(dest)
+    , RequiredArrays(requiredArrays)
+    , TargetIndices(targetIndices)
+    , SourceIds(sourceIds)
+    , DestIds(destIds)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    vtkNew<vtkIdList> sourceIds;
+    sourceIds->SetArray(this->SourceIds->GetPointer(startId), endId - startId, false /* save */);
+    vtkNew<vtkIdList> destIds;
+    destIds->SetArray(this->DestIds->GetPointer(startId), endId - startId, false /* save */);
+
+    for (const int i : this->RequiredArrays)
+    {
+      vtkAbstractArray* target = this->Dest->GetAbstractArray(this->TargetIndices[i]);
+      vtkAbstractArray* source = this->Source->GetAbstractArray(i);
+      target->InsertTuples(destIds, sourceIds, source);
+    }
+  }
+
+  vtkDataSetAttributes* Source;
+  vtkDataSetAttributes* Dest;
+  vtkFieldData::BasicIterator& RequiredArrays;
+  const int* TargetIndices;
+  vtkIdList* SourceIds;
+  vtkIdList* DestIds;
+};
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 // Copy the attribute data from one id to another. Make sure CopyAllocate() has
 // been invoked before using this method.
@@ -810,20 +928,63 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, vtkIdType from
 void vtkDataSetAttributes::CopyData(
   vtkDataSetAttributes* fromPd, vtkIdList* fromIds, vtkIdList* toIds)
 {
-  for (const auto& i : this->RequiredArrays)
+  vtkIdType numberOfTuples = 1 + *std::max_element(toIds->begin(), toIds->end());
+  for (const int i : this->RequiredArrays)
   {
-    this->CopyTuples(fromPd->Data[i], this->Data[this->TargetIndices[i]], fromIds, toIds);
+    // This ensures thread safetiness in `InsertTuples` calls that will be performed in parallel.
+    vtkAbstractArray* array = this->GetAbstractArray(this->TargetIndices[i]);
+    if (numberOfTuples > array->GetNumberOfTuples())
+    {
+      array->Resize(numberOfTuples);            // this preserves already existing data
+      array->SetNumberOfTuples(numberOfTuples); // this sets MaxId
+    }
   }
+
+  CopyDataExplicitToExplicitWorker worker(
+    fromPd, this, this->RequiredArrays, this->TargetIndices, fromIds, toIds);
+  vtkSMPTools::For(0, fromIds->GetNumberOfIds(), worker);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataSetAttributes::CopyData(
+  vtkDataSetAttributes* fromPd, vtkIdList* fromIds, vtkIdType destStart)
+{
+  vtkIdType numberOfTuples = destStart + fromIds->GetNumberOfIds();
+  for (const int i : this->RequiredArrays)
+  {
+    // This ensures thread safetiness in `InsertTuples` calls that will be performed in parallel.
+    vtkAbstractArray* array = this->GetAbstractArray(this->TargetIndices[i]);
+    if (numberOfTuples > array->GetNumberOfTuples())
+    {
+      array->Resize(numberOfTuples);            // this preserves already existing data
+      array->SetNumberOfTuples(numberOfTuples); // this sets MaxId
+    }
+  }
+
+  CopyDataExplicitToImplicitWorker worker(
+    fromPd, this, this->RequiredArrays, this->TargetIndices, fromIds, destStart);
+  vtkSMPTools::For(0, fromIds->GetNumberOfIds(), worker);
 }
 
 //------------------------------------------------------------------------------
 void vtkDataSetAttributes::CopyData(
   vtkDataSetAttributes* fromPd, vtkIdType dstStart, vtkIdType n, vtkIdType srcStart)
 {
-  for (const auto& i : this->RequiredArrays)
+  vtkIdType numberOfTuples = dstStart + n;
+  for (const int i : this->RequiredArrays)
   {
-    this->CopyTuples(fromPd->Data[i], this->Data[this->TargetIndices[i]], dstStart, n, srcStart);
+    // This ensures thread safetiness in `InsertTuples` calls that will be performed in parallel.
+    vtkAbstractArray* array = this->GetAbstractArray(this->TargetIndices[i]);
+    if (numberOfTuples > array->GetNumberOfTuples())
+    {
+      array->Resize(numberOfTuples);            // this preserves already existing data
+      array->SetNumberOfTuples(numberOfTuples); // this sets MaxId
+    }
   }
+
+  CopyDataImplicitToImplicitWorker worker(
+    fromPd, this, this->RequiredArrays, this->TargetIndices, srcStart, dstStart);
+  vtkSMPTools::For(srcStart, srcStart + n, worker);
 }
 
 //------------------------------------------------------------------------------

@@ -273,6 +273,63 @@ void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* so
 }
 
 //------------------------------------------------------------------------------
+void vtkVariantArray::InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
+{
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+  {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+  }
+
+  vtkIdType numIds = srcIds->GetNumberOfIds();
+
+  if (vtkVariantArray* va = vtkArrayDownCast<vtkVariantArray>(source))
+  {
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+      vtkIdType numComp = this->NumberOfComponents;
+      vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+      vtkIdType dstLoc = (dstStart + idIndex) * this->NumberOfComponents;
+      while (numComp-- > 0)
+      {
+        this->InsertValue(dstLoc++, va->GetValue(srcLoc++));
+      }
+    }
+  }
+  else if (vtkDataArray* da = vtkDataArray::FastDownCast(source))
+  {
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+      vtkIdType numComp = this->NumberOfComponents;
+      vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+      vtkIdType dstLoc = (dstStart + idIndex) * this->NumberOfComponents;
+      while (numComp-- > 0)
+      {
+        this->InsertValue(dstLoc++, da->GetVariantValue(srcLoc++));
+      }
+    }
+  }
+  else if (vtkStringArray* sa = vtkArrayDownCast<vtkStringArray>(source))
+  {
+    for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+    {
+      vtkIdType numComp = this->NumberOfComponents;
+      vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+      vtkIdType dstLoc = (dstStart + idIndex) * this->NumberOfComponents;
+      while (numComp-- > 0)
+      {
+        this->InsertValue(dstLoc++, sa->GetVariantValue(srcLoc++));
+      }
+    }
+  }
+  else
+  {
+    vtkWarningMacro("Unrecognized type is incompatible with vtkVariantArray.");
+  }
+  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
 void vtkVariantArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source)
 {
 

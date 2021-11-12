@@ -608,6 +608,38 @@ void vtkStringArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstr
 }
 
 //------------------------------------------------------------------------------
+void vtkStringArray::InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
+{
+  vtkStringArray* sa = vtkArrayDownCast<vtkStringArray>(source);
+  if (!sa)
+  {
+    vtkWarningMacro("Input and outputs array data types do not match.");
+    return;
+  }
+
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+  {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+  }
+
+  vtkIdType numIds = srcIds->GetNumberOfIds();
+
+  for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
+  {
+    vtkIdType numComp = this->NumberOfComponents;
+    vtkIdType srcLoc = srcIds->GetId(idIndex) * this->NumberOfComponents;
+    vtkIdType dstLoc = (dstStart + idIndex) * this->NumberOfComponents;
+    while (numComp-- > 0)
+    {
+      this->InsertValue(dstLoc++, sa->GetValue(srcLoc++));
+    }
+  }
+
+  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
 void vtkStringArray::InsertTuples(
   vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
 {
