@@ -120,23 +120,23 @@ bool vtkExtractParticlesOverTimeInternals::GenerateOutput(
   vtkDataSet* inputDataSet, const std::string& IdChannelArray)
 {
   vtkNew<vtkSelectionNode> particleSelectionNode;
-  vtkDataArray* array = nullptr;
+  vtkSmartPointer<vtkDataArray> array;
   particleSelectionNode->SetFieldType(vtkSelectionNode::POINT);
   switch (this->LastIdChannelArrayType)
   {
     case IdChannelArrayType::GLOBAL_IDS:
       particleSelectionNode->SetContentType(vtkSelectionNode::GLOBALIDS);
-      array = vtkIdTypeArray::New();
+      array.TakeReference(vtkIdTypeArray::New());
       array->SetName("Extracted Point Ids");
       break;
     case IdChannelArrayType::VALID_ID_CHANNEL_ARRAY:
       particleSelectionNode->SetContentType(vtkSelectionNode::VALUES);
-      array = ::GetIds(inputDataSet->GetPointData(), IdChannelArray)->NewInstance();
+      array.TakeReference(::GetIds(inputDataSet->GetPointData(), IdChannelArray)->NewInstance());
       array->SetName(IdChannelArray.c_str());
       break;
     case IdChannelArrayType::NO_ID_CHANNEL_ARRAY:
       particleSelectionNode->SetContentType(vtkSelectionNode::INDICES);
-      array = vtkIdTypeArray::New();
+      array.TakeReference(vtkIdTypeArray::New());
       array->SetName("Extracted Point Ids");
       break;
   }
@@ -150,7 +150,6 @@ bool vtkExtractParticlesOverTimeInternals::GenerateOutput(
   }
 
   particleSelectionNode->SetSelectionList(array);
-  array->Delete();
 
   vtkNew<vtkSelection> particleSelection;
   particleSelection->AddNode(particleSelectionNode);
