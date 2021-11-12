@@ -590,9 +590,9 @@ int vtkParseMerge_Merge(FileInfo* finfo, MergeInfo* info, ClassInfo* merge, Clas
           vtkParse_AddFunctionToClass(merge, f1);
           vtkParseMerge_PushFunction(info, depth);
           m++;
+          /* remove from future consideration */
+          super->Functions[ii] = NULL;
         }
-        /* remove from future consideration */
-        super->Functions[ii] = NULL;
       }
     }
   }
@@ -601,7 +601,7 @@ int vtkParseMerge_Merge(FileInfo* finfo, MergeInfo* info, ClassInfo* merge, Clas
   j = 0;
   for (i = 0; i < n; i++)
   {
-    if (i != j && super->Functions[i] != NULL)
+    if (super->Functions[i] != NULL)
     {
       super->Functions[j++] = super->Functions[i];
     }
