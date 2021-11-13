@@ -661,6 +661,17 @@ void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int st
   }
 
   fprintf(fp, "    }\n");
+
+  if (vtkWrap_IsVTKObject(val) && vtkWrap_IsNewInstance(val))
+  {
+    /* called if PyErr_Occurred() (or, equivalently, if ap.ErrorOccurred()) */
+    fprintf(fp,
+      "    else if (tempr != nullptr)\n"
+      "    {\n"
+      "      %sDeleteVTKObject(tempr);\n"
+      "    }\n",
+      prefix);
+  }
 }
 
 /* -------------------------------------------------------------------- */

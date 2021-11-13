@@ -604,6 +604,12 @@ public:
   ///@}
 
   /**
+   * Delete a vtkObjectBase object, given just a void pointer.
+   * This can be used when conversion of the object to Python fails.
+   */
+  static void DeleteVTKObject(void* v);
+
+  /**
    * Copy an array.
    */
   template <class T>
@@ -991,6 +997,14 @@ inline PyObject* vtkPythonArgs::BuildBytes(const char* a, size_t n)
 #if defined(VTK_USE_EXTERN_TEMPLATE) && !defined(vtkPythonArgs_cxx)
 vtkPythonArgsTemplateMacro(extern template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array);
 #endif
+
+//--------------------------------------------------------------------
+// Inline method for deleting a vtkObjectBase* via void*
+//
+inline void vtkPythonArgs::DeleteVTKObject(void* v)
+{
+  return static_cast<vtkObjectBase*>(v)->Delete();
+}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkPythonArgs.h
