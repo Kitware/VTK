@@ -43,7 +43,8 @@ public:
    * name and a location. This method is provided for wrappers. Use the
    * constructor directly from C++ instead.
    */
-  static vtkInformationDataObjectMetaDataKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationDataObjectMetaDataKey* MakeKey(
+    const char* name, const char* location)
   {
     return new vtkInformationDataObjectMetaDataKey(name, location);
   }

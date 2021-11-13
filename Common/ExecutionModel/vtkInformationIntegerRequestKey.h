@@ -53,7 +53,8 @@ public:
    * given a name and a location. This method is provided for wrappers. Use
    * the constructor directly from C++ instead.
    */
-  static vtkInformationIntegerRequestKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationIntegerRequestKey* MakeKey(
+    const char* name, const char* location)
   {
     return new vtkInformationIntegerRequestKey(name, location);
   }

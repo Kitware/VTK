@@ -46,7 +46,7 @@ public:
    * which class types can be set with this key). This method is provided
    * for wrappers. Use the constructor directly from C++ instead.
    */
-  static vtkInformationObjectBaseKey* MakeKey(
+  static VTK_NEWINSTANCE vtkInformationObjectBaseKey* MakeKey(
     const char* name, const char* location, const char* requiredClass = nullptr)
   {
     return new vtkInformationObjectBaseKey(name, location, requiredClass);

@@ -42,7 +42,7 @@ public:
    * name and a location. This method is provided for wrappers. Use the
    * constructor directly from C++ instead.
    */
-  static vtkInformationKeyVectorKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationKeyVectorKey* MakeKey(const char* name, const char* location)
   {
     return new vtkInformationKeyVectorKey(name, location);
   }
