@@ -281,7 +281,8 @@ int vtkProbeLineFilter::RequestData(
     vtkErrorMacro("No input or output information");
   }
 
-  const double tolerance = this->ComputeTolerance
+  bool computeTolerance = this->ComputeTolerance;
+  double tolerance = this->ComputeTolerance
     ? VTK_TOL * (vtkVector3d(this->Point2) - vtkVector3d(this->Point1)).Norm()
     : this->Tolerance;
 
@@ -295,8 +296,14 @@ int vtkProbeLineFilter::RequestData(
     case SAMPLE_LINE_AT_CELL_BOUNDARIES:
     case SAMPLE_LINE_AT_SEGMENT_CENTERS:
       sampledLine = this->SampleLineAtEachCell(vtkCompositeDataSet::GetDataSets(input), tolerance);
+      // We already shift samples so they lie strictly inside cells. We do not need
+      // to use any tolerance, which could actually probe the wrong cells if
+      // vtkPProbeFilter has a looser tolerance definition than us.
+      tolerance = 0.0;
+      computeTolerance = false;
       break;
     case SAMPLE_LINE_UNIFORMLY:
+      tolerance = this->Tolerance;
       sampledLine = this->SampleLineUniformly();
       break;
     default:
@@ -310,8 +317,8 @@ int vtkProbeLineFilter::RequestData(
   prober->SetPassCellArrays(this->PassCellArrays);
   prober->SetPassPointArrays(this->PassPointArrays);
   prober->SetPassFieldArrays(this->PassFieldArrays);
-  prober->SetComputeTolerance(false);
-  prober->SetTolerance(0.0);
+  prober->SetComputeTolerance(computeTolerance);
+  prober->SetTolerance(tolerance);
   prober->SetSourceData(input);
   prober->SetFindCellStrategyMap(this->Internal->Strategies);
   prober->SetInputData(sampledLine);
@@ -395,9 +402,9 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
 
     // We process p1 and p2 a bit differently so in the case of their intersection with a cell
     // they are not duplicated
-    auto AddLimitPointToIntersections = [&](const vtkVector3d& p1, const vtkVector3d& p2, bool inverse, HitCellInfo& hit)
+    auto AddLimitPointToIntersections = [&](const vtkVector3d& P1, const vtkVector3d& P2, bool inverse, HitCellInfo& hit)
     {
-      auto processed = ::ProcessLimitPoint(p1, p2, this->SamplingPattern, input, locator, tolerance);
+      auto processed = ::ProcessLimitPoint(P1, P2, this->SamplingPattern, input, locator, tolerance);
 
       if (processed.OutT >= 0.0)
       {
