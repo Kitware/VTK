@@ -81,13 +81,13 @@ For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
 #include <fcntl.h>
 #include <vtk_hdf5.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h>
-#else /* WIN32 */
+#else /* _WIN32 */
 #include <io.h>
 #define open  _open
 #define close _close
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
 #include "H5Part.h"
 #include "H5PartPrivate.h"
