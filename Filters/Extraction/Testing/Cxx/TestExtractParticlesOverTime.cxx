@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkExtractParticlesOverTime.h"
 
+#include "vtkArrayCalculator.h"
 #include "vtkDelaunay3D.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
@@ -27,13 +28,20 @@ int TestExtractParticlesOverTime(int, char*[])
   timeSource->SetXAmplitude(10);
   timeSource->SetYAmplitude(0);
 
+  vtkNew<vtkArrayCalculator> calculator;
+  calculator->SetInputConnection(timeSource->GetOutputPort());
+  calculator->SetAttributeTypeToPointData();
+  calculator->AddScalarArrayName("Point Label");
+  calculator->SetFunction("\"Point Label\" * 10");
+  calculator->SetResultArrayName("point_id");
+
   vtkNew<vtkSphereSource> sphere;
   sphere->SetCenter(10, 0, 0);
   vtkNew<vtkDelaunay3D> delaunay;
   delaunay->SetInputConnection(sphere->GetOutputPort());
 
   vtkNew<vtkExtractParticlesOverTime> particleExtraction;
-  particleExtraction->SetInputConnection(0, timeSource->GetOutputPort());
+  particleExtraction->SetInputConnection(0, calculator->GetOutputPort());
   particleExtraction->SetInputConnection(1, delaunay->GetOutputPort());
 
   double initialTimeStep = 0.5;
@@ -76,6 +84,41 @@ int TestExtractParticlesOverTime(int, char*[])
   if (numberOfPoints != 2)
   {
     vtkLog(ERROR, "wrong number of points");
+    return EXIT_FAILURE;
+  }
+
+  double expectedFirstCoordinates[3] = { 3.4202, 0, 0 };
+  double* firstPointCoordinates = resultDataSet->GetPoint(0);
+  for (size_t index = 0; index < 3; ++index)
+  {
+    if (std::abs(firstPointCoordinates[index] - expectedFirstCoordinates[index]) > 1e-4)
+    {
+      vtkLog(ERROR,
+        "Wrong extracted coordinates, index: " << index
+                                               << " expected: " << expectedFirstCoordinates[index]
+                                               << " got: " << firstPointCoordinates[index]);
+    }
+  }
+
+  // Move the sphere and update.
+  sphere->SetCenter(0, 0, 0);
+  particleExtraction->Update();
+  vtkIdType updatedNumberOfPoints =
+    vtkDataSet::SafeDownCast(particleExtraction->GetOutputDataObject(0))->GetNumberOfPoints();
+  if (updatedNumberOfPoints != 1)
+  {
+    vtkLog(ERROR, "wrong number of points after source update.");
+    return EXIT_FAILURE;
+  }
+
+  // Compute with a channel array.
+  particleExtraction->SetIdChannelArray("point_id");
+  particleExtraction->Update();
+  vtkIdType channelNumberOfPoints =
+    vtkDataSet::SafeDownCast(particleExtraction->GetOutputDataObject(0))->GetNumberOfPoints();
+  if (channelNumberOfPoints != 1)
+  {
+    vtkLog(ERROR, "wrong number of points with Id Channel Array.");
     return EXIT_FAILURE;
   }
 

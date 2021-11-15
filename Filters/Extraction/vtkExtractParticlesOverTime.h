@@ -68,7 +68,8 @@ protected:
   /**
    * The necessary parts of the standard pipeline update mechanism
    */
-  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,

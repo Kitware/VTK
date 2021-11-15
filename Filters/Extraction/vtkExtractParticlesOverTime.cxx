@@ -34,13 +34,21 @@ namespace
 {
 enum class State
 {
-  NOT_PROCESSED,
-  PROCESSING,
-  PROCESSING_DONE
+  NOT_EXTRACTED,
+  EXTRACTING,
+  EXTRACTION_ENDED,
+  EXTRACTED
+};
+
+enum class IdChannelArrayType
+{
+  VALID_ID_CHANNEL_ARRAY,
+  GLOBAL_IDS,
+  NO_ID_CHANNEL_ARRAY
 };
 
 //------------------------------------------------------------------------------
-const vtkIdTypeArray* GetIds(vtkPointData* particlePointData, const std::string& IdChannelArray)
+vtkDataArray* GetIds(vtkPointData* particlePointData, const std::string& IdChannelArray)
 {
   vtkDataArray* dataArray = nullptr;
   if (!IdChannelArray.empty())
@@ -54,7 +62,7 @@ const vtkIdTypeArray* GetIds(vtkPointData* particlePointData, const std::string&
     dataArray = particlePointData->GetGlobalIds();
   }
 
-  return vtkIdTypeArray::SafeDownCast(dataArray);
+  return dataArray;
 }
 
 } // anonymous namespace
@@ -71,9 +79,10 @@ public:
   vtkMTimeType LastModificationTime = 0;
   int CurrentTimeIndex = 0;
   std::set<vtkIdType> ExtractedPoints;
-  double TimeStepBeforeExecuting = 0;
+  double RequestedTimeStep = 0;
   vtkNew<vtkExtractSelection> SelectionExtractor;
-  State CurrentState = State::NOT_PROCESSED;
+  State CurrentState = State::NOT_EXTRACTED;
+  IdChannelArrayType LastIdChannelArrayType = IdChannelArrayType::NO_ID_CHANNEL_ARRAY;
 };
 
 //------------------------------------------------------------------------------
@@ -81,9 +90,9 @@ double vtkExtractParticlesOverTimeInternals::GetProgress() const
 {
   switch (this->CurrentState)
   {
-    case State::NOT_PROCESSED:
+    case State::NOT_EXTRACTED:
       return 0;
-    case State::PROCESSING:
+    case State::EXTRACTING:
       if (this->NumberOfTimeSteps <= 0 || this->CurrentTimeIndex < 0)
       {
         return 0;
@@ -92,7 +101,8 @@ double vtkExtractParticlesOverTimeInternals::GetProgress() const
       {
         return static_cast<double>(this->CurrentTimeIndex) / this->NumberOfTimeSteps;
       }
-    case State::PROCESSING_DONE:
+    case State::EXTRACTION_ENDED:
+    case State::EXTRACTED:
       return 1;
     default:
       return 0;
@@ -102,7 +112,7 @@ double vtkExtractParticlesOverTimeInternals::GetProgress() const
 //------------------------------------------------------------------------------
 bool vtkExtractParticlesOverTimeInternals::ShouldRestart(vtkMTimeType modifiedTime) const
 {
-  return this->CurrentState == State::NOT_PROCESSED || this->LastModificationTime < modifiedTime;
+  return this->CurrentState == State::NOT_EXTRACTED || this->LastModificationTime < modifiedTime;
 }
 
 //------------------------------------------------------------------------------
@@ -110,24 +120,32 @@ bool vtkExtractParticlesOverTimeInternals::GenerateOutput(
   vtkDataSet* inputDataSet, const std::string& IdChannelArray)
 {
   vtkNew<vtkSelectionNode> particleSelectionNode;
-  vtkNew<vtkIdTypeArray> array;
+  vtkSmartPointer<vtkDataArray> array;
   particleSelectionNode->SetFieldType(vtkSelectionNode::POINT);
-  if (IdChannelArray.empty())
+  switch (this->LastIdChannelArrayType)
   {
-    particleSelectionNode->SetContentType(vtkSelectionNode::GLOBALIDS);
-    array->SetName("Extracted Point Ids");
-  }
-  else
-  {
-    particleSelectionNode->SetContentType(vtkSelectionNode::VALUES);
-    array->SetName(IdChannelArray.c_str());
+    case IdChannelArrayType::GLOBAL_IDS:
+      particleSelectionNode->SetContentType(vtkSelectionNode::GLOBALIDS);
+      array.TakeReference(vtkIdTypeArray::New());
+      array->SetName("Extracted Point Ids");
+      break;
+    case IdChannelArrayType::VALID_ID_CHANNEL_ARRAY:
+      particleSelectionNode->SetContentType(vtkSelectionNode::VALUES);
+      array.TakeReference(::GetIds(inputDataSet->GetPointData(), IdChannelArray)->NewInstance());
+      array->SetName(IdChannelArray.c_str());
+      break;
+    case IdChannelArrayType::NO_ID_CHANNEL_ARRAY:
+      particleSelectionNode->SetContentType(vtkSelectionNode::INDICES);
+      array.TakeReference(vtkIdTypeArray::New());
+      array->SetName("Extracted Point Ids");
+      break;
   }
 
-  array->SetNumberOfTuples(2);
+  array->SetNumberOfTuples(this->ExtractedPoints.size());
   vtkIdType pointIndex = 0;
   for (const auto& pointId : this->ExtractedPoints)
   {
-    array->SetValue(pointIndex, pointId);
+    array->SetTuple1(pointIndex, pointId);
     ++pointIndex;
   }
 
@@ -165,30 +183,48 @@ int vtkExtractParticlesOverTime::RequestInformation(vtkInformation* vtkNotUsed(r
     this->Internals->NumberOfTimeSteps = 0;
   }
 
+  this->Internals->CurrentState = State::NOT_EXTRACTED;
+
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractParticlesOverTime::RequestUpdateExtent(vtkInformation*,
+int vtkExtractParticlesOverTime::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   vtkInformation* inputInformation = inputVector[0]->GetInformationObject(0);
+  double* timeSteps = nullptr;
 
-  if (this->Internals->CurrentState != State::PROCESSING)
+  switch (this->Internals->CurrentState)
   {
-    this->Internals->TimeStepBeforeExecuting = 0;
-    if (inputInformation->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
-    {
-      this->Internals->TimeStepBeforeExecuting =
-        inputInformation->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    }
-  }
+    case State::NOT_EXTRACTED:
+    case State::EXTRACTED:
+      // Save the requested time step.
+      this->Internals->RequestedTimeStep = 0;
+      if (inputInformation->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+      {
+        this->Internals->RequestedTimeStep =
+          inputInformation->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+      }
+      break;
 
-  const double* timeSteps = inputInformation->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  if (timeSteps && this->Internals->CurrentTimeIndex >= 0)
-  {
-    double currentTimeStep = timeSteps[this->Internals->CurrentTimeIndex];
-    inputInformation->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), currentTimeStep);
+    case State::EXTRACTING:
+      // Update time step to continue executing.
+      timeSteps = inputInformation->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+      if (timeSteps && this->Internals->CurrentTimeIndex >= 0)
+      {
+        double currentTimeStep = timeSteps[this->Internals->CurrentTimeIndex];
+        inputInformation->Set(
+          vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), currentTimeStep);
+      }
+      break;
+
+    case State::EXTRACTION_ENDED:
+      // Restore requested time step for final extraction.
+      inputInformation->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->Internals->RequestedTimeStep);
+      this->Internals->CurrentState = State::EXTRACTED;
+      break;
   }
 
   return 1;
@@ -214,7 +250,7 @@ int vtkExtractParticlesOverTime::RequestData(
   if (this->Internals->NumberOfTimeSteps <= 0)
   {
     vtkLog(ERROR, "No time steps in input data!");
-    return false;
+    return 0;
   }
 
   if (this->Internals->ShouldRestart(this->GetMTime()))
@@ -223,18 +259,26 @@ int vtkExtractParticlesOverTime::RequestData(
     this->Internals->CurrentTimeIndex = 0;
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
     this->Internals->ExtractedPoints.clear();
-    this->Internals->CurrentState = State::PROCESSING;
+    this->Internals->CurrentState = State::EXTRACTING;
+    return 1;
   }
 
-  if (this->Internals->CurrentState == State::PROCESSING)
+  if (this->Internals->CurrentState == State::EXTRACTING)
   {
-    vtkPointData* particlePointData = particleDataSet->GetPointData();
-    const vtkIdTypeArray* ids = ::GetIds(particlePointData, IdChannelArray);
-    if (!ids)
+    auto* particlePointData = particleDataSet->GetPointData();
+    auto* ids = ::GetIds(particlePointData, this->IdChannelArray);
+
+    this->Internals->LastIdChannelArrayType = IdChannelArrayType::NO_ID_CHANNEL_ARRAY;
+    if (ids)
     {
-      vtkLog(ERROR, "Invalid Ids array in particle input: " << IdChannelArray);
-      this->Internals->CurrentState = State::NOT_PROCESSED;
-      return false;
+      if (this->IdChannelArray.empty())
+      {
+        this->Internals->LastIdChannelArrayType = IdChannelArrayType::GLOBAL_IDS;
+      }
+      else
+      {
+        this->Internals->LastIdChannelArrayType = IdChannelArrayType::VALID_ID_CHANNEL_ARRAY;
+      }
     }
 
     vtkNew<vtkStaticCellLocator> locator;
@@ -247,14 +291,27 @@ int vtkExtractParticlesOverTime::RequestData(
     std::array<double, VTK_CELL_SIZE> resultWeights = {};
     double tolerance = 0;
 
-    vtkIdType numberOfPoints = ids->GetNumberOfTuples();
+    vtkIdType numberOfPoints = 0;
+    if (ids)
+    {
+      numberOfPoints = ids->GetNumberOfTuples();
+    }
+    else
+    {
+      numberOfPoints = particleDataSet->GetNumberOfPoints();
+    }
+
     for (vtkIdType index = 0; index < numberOfPoints; ++index)
     {
-      vtkIdType pointId = 0;
-      ids->GetTypedTuple(index, &pointId);
+      vtkIdType pointId = index;
+      if (ids)
+      {
+        pointId = static_cast<vtkIdType>(ids->GetTuple1(index));
+      }
+
       if (this->Internals->ExtractedPoints.count(pointId) == 0)
       {
-        double* pointCoordinates = particleDataSet->GetPoint(pointId);
+        double* pointCoordinates = particleDataSet->GetPoint(index);
         vtkIdType findResult = locator->FindCell(
           pointCoordinates, tolerance, resultCell, resultPointCoords.data(), resultWeights.data());
         if (findResult != -1)
@@ -268,24 +325,25 @@ int vtkExtractParticlesOverTime::RequestData(
 
     if (this->Internals->CurrentTimeIndex == this->Internals->NumberOfTimeSteps)
     {
-      request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->Internals->CurrentTimeIndex = 0;
-
-      if (!this->Internals->GenerateOutput(particleDataSet, IdChannelArray))
-      {
-        this->Internals->CurrentState = State::NOT_PROCESSED;
-        return false;
-      }
-
-      inputInformation->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-        this->Internals->TimeStepBeforeExecuting);
-      this->Internals->CurrentState = State::PROCESSING_DONE;
+      this->Internals->CurrentState = State::EXTRACTION_ENDED;
     }
   }
 
-  if (this->Internals->CurrentState == State::PROCESSING_DONE)
+  if (this->Internals->CurrentState == State::EXTRACTED)
   {
+    if (!this->Internals->GenerateOutput(particleDataSet, IdChannelArray))
+    {
+      this->Internals->CurrentState = State::NOT_EXTRACTED;
+      return 0;
+    }
+
     outputDataSet->ShallowCopy(this->Internals->SelectionExtractor->GetOutputDataObject(0));
+
+    if (request->Has(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING()))
+    {
+      request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+    }
   }
 
   this->UpdateProgress(this->Internals->GetProgress());
