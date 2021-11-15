@@ -292,6 +292,16 @@ public:
 
   ///@{
   /**
+   * Set the behavior of the mouse wheel for individual axes. ZoomWithMouseWheel
+   * must be enabled to allow zooming; individual axes can be set to ignore zoom.
+   * The default value for all axes is true.
+   */
+  void SetAxisZoom(int index, bool v);
+  bool GetAxisZoom(int index);
+  ///@}
+
+  ///@{
+  /**
    * Adjust the minimum of a logarithmic axis to be greater than 0, regardless
    * of the minimum data value.
    * False by default.
@@ -546,6 +556,12 @@ protected:
    * True by default.
    */
   bool ZoomWithMouseWheel;
+
+  /**
+   * Property to enable zooming of individual axes with the mouse wheel.
+   * True by default.
+   */
+  bool AxisZoom[4];
 
   /**
    * Property to adjust the minimum of a logarithmic axis to be greater than 0,
