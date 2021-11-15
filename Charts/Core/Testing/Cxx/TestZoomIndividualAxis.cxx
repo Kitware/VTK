@@ -73,9 +73,6 @@ int TestZoomIndividualAxis(int, char*[])
   // Disable zooming for x axis with mouse wheel
   chart->SetAxisZoom(vtkAxis::BOTTOM, false);
 
-  // Disable zooming for x axis with mouse wheel
-  chart->SetAxisZoom(vtkAxis::BOTTOM, false);
-
   // Inject some mouse wheel event to perform zooming
   vtkContextMouseEvent event;
   event.SetScreenPos(vtkVector2i(350, 250));
