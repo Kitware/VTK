@@ -87,10 +87,10 @@ foreach (_vtk_build_test IN LISTS vtk_test_modules)
     PROPERTY  "_vtk_module_${_vtk_build_test}_file")
 
   get_filename_component(_vtk_build_module_dir "${_vtk_build_module_file}" DIRECTORY)
-  file(RELATIVE_PATH _vtk_build_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_build_module_dir}")
-  if (EXISTS "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}/Testing")
+  file(RELATIVE_PATH _vtk_build_module_subdir "${VTK_TOP_DIR}" "${_vtk_build_module_dir}")
+  if (EXISTS "${VTK_TOP_DIR}/${_vtk_build_module_subdir}/Testing")
     add_subdirectory(
-      "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}/Testing"
+      "${VTK_TOP_DIR}/${_vtk_build_module_subdir}/Testing"
       "${CMAKE_BINARY_DIR}/${_vtk_build_module_subdir}/Testing")
   endif ()
 endforeach ()
