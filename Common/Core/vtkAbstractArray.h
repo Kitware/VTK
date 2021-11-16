@@ -58,10 +58,9 @@
 #define vtkAbstractArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkIdList.h"           // For InsertTuples
 #include "vtkObject.h"
 #include "vtkVariant.h" // for variant arguments
-
-#include <type_traits> // For InsertTuples
 
 class vtkArrayIterator;
 class vtkDataArray;
@@ -209,18 +208,8 @@ public:
    * locations starting at index dstStart.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  virtual void InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) = 0;
-
-  /**
-   * This method is only here to handle calls to `InsertTuples(0, ...)`.
-   * Without this method, `InserTuples(0, ...)` produces an ambiguous call. This method can be
-   * disregarded.
-   */
-  template <class T, class EnableT = typename std::enable_if<std::is_scalar<T>::value, T>::type>
-  void InsertTuples(T dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
-  {
-    this->InsertTuples(static_cast<vtkIdType>(dstStart), srcIds, source);
-  }
+  virtual void InsertTuplesStartingAt(
+    vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) = 0;
 
   /**
    * Copy n consecutive tuples starting at srcStart from the source array to

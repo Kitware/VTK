@@ -456,7 +456,7 @@ void vtkPeriodicDataArray<Scalar>::InsertTuples(vtkIdList*, vtkIdList*, vtkAbstr
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-void vtkPeriodicDataArray<Scalar>::InsertTuples(vtkIdType, vtkIdList*, vtkAbstractArray*)
+void vtkPeriodicDataArray<Scalar>::InsertTuplesStartingAt(vtkIdType, vtkIdList*, vtkAbstractArray*)
 {
   vtkErrorMacro("Read only container.");
 }

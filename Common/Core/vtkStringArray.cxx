@@ -608,7 +608,8 @@ void vtkStringArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstr
 }
 
 //------------------------------------------------------------------------------
-void vtkStringArray::InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
+void vtkStringArray::InsertTuplesStartingAt(
+  vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
 {
   vtkStringArray* sa = vtkArrayDownCast<vtkStringArray>(source);
   if (!sa)

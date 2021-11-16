@@ -675,7 +675,8 @@ void vtkDataArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstrac
 }
 
 //------------------------------------------------------------------------------
-void vtkDataArray::InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* src)
+void vtkDataArray::InsertTuplesStartingAt(
+  vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* src)
 {
   if (src->GetNumberOfComponents() != this->GetNumberOfComponents())
   {

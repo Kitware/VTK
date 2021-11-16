@@ -55,7 +55,8 @@ public:
   void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
   void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
   void InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source) override;
-  void InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override;
+  void InsertTuplesStartingAt(
+    vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override;
   void InsertTuples(
     vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source) override;
   vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) override;

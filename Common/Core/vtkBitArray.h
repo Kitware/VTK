@@ -92,7 +92,13 @@ public:
    */
   void InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source) override;
 
-  void InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override;
+  /**
+   * Copy the tuples indexed in srcIds from the source array to the tuple
+   * locations starting at index dstStart.
+   * Note that memory allocation is performed as necessary to hold the data.
+   */
+  void InsertTuplesStartingAt(
+    vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override;
 
   /**
    * Copy n consecutive tuples starting at srcStart from the source array to
