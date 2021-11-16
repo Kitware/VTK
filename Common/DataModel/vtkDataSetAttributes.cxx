@@ -860,7 +860,7 @@ struct CopyDataExplicitToImplicitWorker
     {
       vtkAbstractArray* target = this->Dest->GetAbstractArray(this->TargetIndices[i]);
       vtkAbstractArray* source = this->Source->GetAbstractArray(i);
-      target->InsertTuples(this->DestStartId + startId, sourceIds, source);
+      target->InsertTuplesStartingAt(this->DestStartId + startId, sourceIds, source);
     }
   }
 

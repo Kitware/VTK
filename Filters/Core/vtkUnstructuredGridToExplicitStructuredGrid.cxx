@@ -124,7 +124,7 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(
   {
     for (vtkIdType i = 0; i < expectedCells; i++)
     {
-      output->GetCellData()->CopyData(input->GetCellData(), 0, i);
+      output->GetCellData()->CopyData(input->GetCellData(), vtkIdType(0), i);
       // Blank after copying the cell data to ensure it is not overwritten
       output->BlankCell(i);
     }

@@ -58,7 +58,7 @@ inline void SwapPoint(
 
   // temp -> b
   points->SetPoint(b, ta);
-  data->CopyData(temp, 0, b);
+  data->CopyData(temp, vtkIdType(0), b);
 }
 
 //------------------------------------------------------------------------------
