@@ -10,8 +10,8 @@ endif()
 include(CTest)
 
 # Find the top of the main VTK source tree.
-get_filename_component(VTK_TOP_DIR ${VTKTestExternal_SOURCE_DIR}/../.. ABSOLUTE)
-set(ExternalData_SOURCE_ROOT ${VTK_TOP_DIR})
+get_filename_component(VTK_TOP_DIR "${VTKTestExternal_SOURCE_DIR}/../.." ABSOLUTE)
+set(ExternalData_SOURCE_ROOT "${VTK_TOP_DIR}")
 set(VTK_SOURCE_DIR "${VTK_TOP_DIR}")
 
 # Find the VTK build or install tree.  Assume the version matches exactly.
