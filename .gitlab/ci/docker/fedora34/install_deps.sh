@@ -45,7 +45,7 @@ dnf install -y --setopt=install_weak_deps=False \
     python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib
 
 # wslink will bring aiohttp>=3.7.4
-python3 -m pip install wslink>=1.0.4
+python3 -m pip install 'wslink>=1.0.4'
 
 # Java dependencies
 dnf install -y --setopt=install_weak_deps=False \
