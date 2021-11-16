@@ -298,6 +298,8 @@ int vtkProbeLineFilter::RequestData(
     return 0;
   }
 
+  bool computeTolerance = this->ComputeTolerance;
+
   // The probe locations source need to be the same on all ranks : always take rank 0 source
   auto sampler = vtkSmartPointer<vtkPointSet>::Take(samplerLocal->NewInstance());
   if (this->Controller->GetLocalProcessId() == 0)
@@ -350,14 +352,28 @@ int vtkProbeLineFilter::RequestData(
         continue;
       }
 
+      switch (this->SamplingPattern)
+      {
+        case SAMPLE_LINE_AT_CELL_BOUNDARIES:
+        case SAMPLE_LINE_AT_SEGMENT_CENTERS:
+          // We already shift samples so they lie strictly inside cells. We do not need
+          // to use any tolerance, which could actually probe the wrong cells if
+          // vtkPProbeFilter has a looser tolerance definition than us.
+          tolerance = 0;
+          computeTolerance = false;
+          break;
+        default:
+          break;
+      }
+
       vtkNew<vtkPProbeFilter> prober;
       prober->SetController(this->Controller);
       prober->SetPassPartialArrays(this->PassPartialArrays);
       prober->SetPassCellArrays(this->PassCellArrays);
       prober->SetPassPointArrays(this->PassPointArrays);
       prober->SetPassFieldArrays(this->PassFieldArrays);
-      prober->SetComputeTolerance(false);
-      prober->SetTolerance(0.0);
+      prober->SetComputeTolerance(computeTolerance);
+      prober->SetTolerance(tolerance);
       prober->SetSourceData(input);
       prober->SetFindCellStrategyMap(this->Internal->Strategies);
       prober->SetInputData(polyline);
