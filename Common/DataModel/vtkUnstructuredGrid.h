@@ -194,6 +194,7 @@ public:
    * result in a list of three entries, corresponding to the types VTK_TRIANGLE,
    * VTK_LINE, and VTK_HEXAHEDRON. This override implements an optimization that
    * recomputes cell types only when the types of cells may have changed.
+   * This method never returns `nullptr`.
    *
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED

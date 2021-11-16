@@ -1545,8 +1545,11 @@ vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
 {
   if (this->Types == nullptr)
   {
-    // No cell types
-    return nullptr;
+    if (this->DistinctCellTypes == nullptr)
+    {
+      this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
+    }
+    return this->DistinctCellTypes->GetCellTypesArray();
   }
 
   if (this->DistinctCellTypes == nullptr ||
