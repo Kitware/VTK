@@ -30,6 +30,7 @@
 
 #include <array>
 #include <memory>
+#include <string>
 #include <vector>
 
 class vtkOpenGLRenderWindow;
