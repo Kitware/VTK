@@ -80,6 +80,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   otherRectilinearGrid.cxx
   otherStructuredGrid.cxx
   otherUniformGrid.cxx
+  otherUnstructuredGrid.cxx
   quadCellConsistency.cxx
   quadraticEvaluation.cxx
   TestBoundingBox.cxx
