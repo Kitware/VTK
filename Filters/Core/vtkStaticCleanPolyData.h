@@ -35,12 +35,10 @@
  *   && ConvertLinesToPoints)
  *
  * Internally this class uses vtkStaticPointLocator, which is a threaded, and
- * much faster locator than the incremental locators that vtkCleanPolyData
- * uses. Note because of these and other differences, the output of this
- * filter may be different than vtkCleanPolyData.
- *
- * Note that if you want to remove points that aren't used by any cells
- * (i.e., disable point merging), then use vtkCleanPolyData.
+ * much faster locator (especially for large data) than the incremental
+ * locators that vtkCleanPolyData uses. Note because of these and other
+ * differences, the output of this filter may be different than
+ * vtkCleanPolyData.
  *
  * @warning
  * Merging points can alter topology, including introducing non-manifold
@@ -48,15 +46,20 @@
  * Large tolerances (of size > locator bin width) may generate poor results.
  *
  * @warning
- * Merging close points with tolerance >0.0 is inherently an unstable problem
- * because the results are order dependent (e.g., the order in which points
- * are processed). When parallel computing, the order of processing points is
- * unpredictable, hence the results may vary between runs.
+ * Unlike vtkCleanPolyData, point merging is always performed (i.e., there
+ * is no PointMergingOff()).
  *
  * @warning
- * If you wish to operate on a set of coordinates that has no cells, you must
- * add a vtkPolyVertex cell with all of the points to the PolyData (or use a
- * vtkVertexGlyphFilter) before using the vtkStaticCleanPolyData filter.
+ * Unlike vtkCleanPolyData, conversion from one cell type to another is
+ * disabled/off. This produces more predictable behavior in many applications.
+ *
+ * @warning
+ * The vtkStaticCleanPolyData filter is similar in operation to
+ * vtkCleanPolyData. However, vtkStaticCleanPolyData is non-incremental and
+ * uses a much faster (especially for larger datasets) threading approach and
+ * when merging points with a non-zero tolerance. However because of the
+ * difference in the traveral order in the point merging process, the output
+ * of the filters may be different.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -64,7 +67,7 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkCleanPolyData
+ * vtkCleanPolyData vtkStaticCleanUnstructuredGrid
  */
 
 #ifndef vtkStaticCleanPolyData_h
@@ -72,8 +75,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-
-class vtkStaticPointLocator;
+#include "vtkStaticPointLocator.h" // For enums
 
 class VTKFILTERSCORE_EXPORT vtkStaticCleanPolyData : public vtkPolyDataAlgorithm
 {
@@ -93,9 +95,9 @@ public:
    * a fraction of Bounding box diagonal, if true, AbsoluteTolerance is
    * used when adding points to locator (merging)
    */
-  vtkSetMacro(ToleranceIsAbsolute, vtkTypeBool);
-  vtkBooleanMacro(ToleranceIsAbsolute, vtkTypeBool);
-  vtkGetMacro(ToleranceIsAbsolute, vtkTypeBool);
+  vtkSetMacro(ToleranceIsAbsolute, bool);
+  vtkBooleanMacro(ToleranceIsAbsolute, bool);
+  vtkGetMacro(ToleranceIsAbsolute, bool);
   ///@}
 
   ///@{
@@ -117,39 +119,69 @@ public:
 
   ///@{
   /**
-   * Turn on/off conversion of degenerate lines to points. Default is On.
+   * Turn on/off conversion of degenerate lines to points. Default is Off.
    */
-  vtkSetMacro(ConvertLinesToPoints, vtkTypeBool);
-  vtkBooleanMacro(ConvertLinesToPoints, vtkTypeBool);
-  vtkGetMacro(ConvertLinesToPoints, vtkTypeBool);
+  vtkSetMacro(ConvertLinesToPoints, bool);
+  vtkBooleanMacro(ConvertLinesToPoints, bool);
+  vtkGetMacro(ConvertLinesToPoints, bool);
   ///@}
 
   ///@{
   /**
-   * Turn on/off conversion of degenerate polys to lines. Default is On.
+   * Turn on/off conversion of degenerate polys to lines. Default is Off.
    */
-  vtkSetMacro(ConvertPolysToLines, vtkTypeBool);
-  vtkBooleanMacro(ConvertPolysToLines, vtkTypeBool);
-  vtkGetMacro(ConvertPolysToLines, vtkTypeBool);
+  vtkSetMacro(ConvertPolysToLines, bool);
+  vtkBooleanMacro(ConvertPolysToLines, bool);
+  vtkGetMacro(ConvertPolysToLines, bool);
   ///@}
 
   ///@{
   /**
-   * Turn on/off conversion of degenerate strips to polys. Default is On.
+   * Turn on/off conversion of degenerate strips to polys. Default is Off.
    */
-  vtkSetMacro(ConvertStripsToPolys, vtkTypeBool);
-  vtkBooleanMacro(ConvertStripsToPolys, vtkTypeBool);
-  vtkGetMacro(ConvertStripsToPolys, vtkTypeBool);
+  vtkSetMacro(ConvertStripsToPolys, bool);
+  vtkBooleanMacro(ConvertStripsToPolys, bool);
+  vtkGetMacro(ConvertStripsToPolys, bool);
   ///@}
 
-  // This filter is difficult to stream.
-  // To get invariant results, the whole input must be processed at once.
-  // This flag allows the user to select whether strict piece invariance
-  // is required.  By default it is on.  When off, the filter can stream,
-  // but results may change.
-  vtkSetMacro(PieceInvariant, vtkTypeBool);
-  vtkGetMacro(PieceInvariant, vtkTypeBool);
-  vtkBooleanMacro(PieceInvariant, vtkTypeBool);
+  ///@{
+  /**
+   * Indicate whether points unused by any cell are removed from the output.
+   * By default this point removal is on. Note that when this is off, the
+   * filter can successfully process datasets with no cells (and just
+   * points). If on, and there are no cells, than the output will be empty.
+   */
+  vtkSetMacro(RemoveUnusedPoints, bool);
+  vtkBooleanMacro(RemoveUnusedPoints, bool);
+  vtkGetMacro(RemoveUnusedPoints, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Indicate whether a merge map should be produced on output. The merge
+   * map, if requested, maps each input point to its output point id, or
+   * provides a value of -1 if the input point is not used in the output.
+   * The merge map is associated with the filter's output field data and
+   * is named "PointMergeMap". By default, ProduceMergeMap is disabled.
+   */
+  vtkSetMacro(ProduceMergeMap, bool);
+  vtkBooleanMacro(ProduceMergeMap, bool);
+  vtkGetMacro(ProduceMergeMap, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Indicate whether point coordinates and point data of merged points are
+   * averaged. By default, the point coordinates and attribute data are not
+   * averaged, and the point coordinate and data of the single, remaining
+   * merged point is retained. Otherwise, the data coordinates and attribute
+   * values of all merged points are averaged. By default this feature is
+   * disabled.
+   */
+  vtkSetMacro(AveragePointData, bool);
+  vtkBooleanMacro(AveragePointData, bool);
+  vtkGetMacro(AveragePointData, bool);
+  ///@}
 
   ///@{
   /**
@@ -161,13 +193,21 @@ public:
   vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
-  ///@{
   /**
    * Retrieve the internal locator to manually configure it, for example
-   * specifying the number of points per bucket. This method is generally
-   * used for debugging or testing purposes.
+   * specifying the number of points per bucket, or controlling the traversal
+   * order. This method is generally used for debugging or testing purposes.
    */
-  vtkStaticPointLocator* GetLocator() { return this->Locator; }
+  vtkGetObjectMacro(Locator, vtkStaticPointLocator);
+
+  ///@{
+  // This filter is difficult to stream.  To produce invariant results, the
+  // whole input must be processed at once.  This flag allows the user to
+  // select whether strict piece invariance is required.  By default it is
+  // on.  When off, the filter can stream, but results may change.
+  vtkSetMacro(PieceInvariant, bool);
+  vtkGetMacro(PieceInvariant, bool);
+  vtkBooleanMacro(PieceInvariant, bool);
   ///@}
 
   /**
@@ -177,7 +217,7 @@ public:
 
 protected:
   vtkStaticCleanPolyData();
-  ~vtkStaticCleanPolyData() override;
+  ~vtkStaticCleanPolyData() = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -185,14 +225,18 @@ protected:
 
   double Tolerance;
   double AbsoluteTolerance;
-  vtkTypeBool ConvertLinesToPoints;
-  vtkTypeBool ConvertPolysToLines;
-  vtkTypeBool ConvertStripsToPolys;
-  vtkTypeBool ToleranceIsAbsolute;
-  vtkStaticPointLocator* Locator;
-
-  vtkTypeBool PieceInvariant;
+  bool ConvertLinesToPoints;
+  bool ConvertPolysToLines;
+  bool ConvertStripsToPolys;
+  bool ToleranceIsAbsolute;
+  bool RemoveUnusedPoints;
+  bool ProduceMergeMap;
+  bool AveragePointData;
   int OutputPointsPrecision;
+  bool PieceInvariant;
+
+  // Internal locator for performing point merging
+  vtkSmartPointer<vtkStaticPointLocator> Locator;
 
 private:
   vtkStaticCleanPolyData(const vtkStaticCleanPolyData&) = delete;

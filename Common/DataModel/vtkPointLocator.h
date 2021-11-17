@@ -32,6 +32,13 @@
  * octrees and kd-trees. These are often more efficient for the
  * operations described here.
  *
+ * @warning
+ * Frequently vtkStaticPointLocator is used in lieu of vtkPointLocator.
+ * They are very similar in terms of algorithmic approach, however
+ * vtkStaticCellLocator is threaded and is typically much faster for
+ * a large number of points (on the order of 3-5x faster). For small numbers
+ * of points, vtkPointLocator is just as fast as vtkStaticPointLocator.
+ *
  * @sa
  * vtkCellPicker vtkPointPicker vtkStaticPointLocator
  */

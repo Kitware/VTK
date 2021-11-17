@@ -59,6 +59,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID
   TestSlicePlanePrecision.cxx,NO_VALID
+  TestStaticCleanPolyData.cxx,NO_VALID
   TestStripper.cxx,NO_VALID
   TestStructuredGridAppend.cxx,NO_VALID
   TestThreshold.cxx,NO_VALID
