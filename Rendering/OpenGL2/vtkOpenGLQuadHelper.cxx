@@ -21,7 +21,7 @@
 #include "vtk_glew.h"
 
 vtkOpenGLQuadHelper::vtkOpenGLQuadHelper(
-  vtkOpenGLRenderWindow* renWin, const char* vs, const char* fs, const char* gs)
+  vtkOpenGLRenderWindow* renWin, const char* vs, const char* fs, const char* gs, bool flipY)
   : Program(nullptr)
   , VAO(nullptr)
   , ResourceCallback(new vtkOpenGLResourceFreeCallback<vtkOpenGLQuadHelper>(
@@ -43,10 +43,18 @@ vtkOpenGLQuadHelper::vtkOpenGLQuadHelper(
                                  "{\n"
                                  "  gl_Position = ndCoordIn;\n"
                                  "  texCoord = texCoordIn;\n"
+                                 "  //VTK::TCoord::Flip\n"
                                  "}\n";
 
-  this->Program =
-    renWin->GetShaderCache()->ReadyShaderProgram((vs ? vs : defaultVS), fs, (gs ? gs : ""));
+  std::string VS = (vs ? vs : defaultVS);
+
+  if (flipY)
+  {
+    vtkShaderProgram::Substitute(
+      VS, "//VTK::TCoord::Flip\n", "texCoord.y = 1.0 - texCoord.y;\n", true);
+  }
+
+  this->Program = renWin->GetShaderCache()->ReadyShaderProgram(VS.c_str(), fs, (gs ? gs : ""));
 
   this->VAO = vtkOpenGLVertexArrayObject::New();
   this->ShaderChangeValue = 0;
