@@ -154,6 +154,13 @@ public:
   uint32_t GetDeviceHandleForOpenXRHandle(uint32_t index);
   vtkEventDataDevice GetDeviceForOpenXRHandle(uint32_t ohandle);
 
+  /**
+   * Update the HMD pose based on hardware pose and physical to world transform.
+   * VR camera properties are directly modified based on physical to world to
+   * simulate \sa PhysicalTranslation, \sa PhysicalScale, etc.
+   */
+  void UpdateHMDMatrixPose() override;
+
 protected:
   vtkOpenXRRenderWindow();
   ~vtkOpenXRRenderWindow() override;

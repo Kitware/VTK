@@ -193,7 +193,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkVRRenderWindow* renWin, vtkR
         double wdir[3] = { 0.0 };
 
         vtkNew<vtkMatrix4x4> lastPose;
-        oRenWin->CreateMatrixFromVrPose(lastPose, this->Trackers[tracker].LastPose);
+        oRenWin->SetMatrixFromOpenVRPose(lastPose, this->Trackers[tracker].LastPose);
         this->ConvertPoseToWorldCoordinates(lastPose, pos, wxyz, ppos, wdir);
         vtkNew<vtkEventDataDevice3D> ed;
         ed->SetWorldPosition(pos);
@@ -308,7 +308,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkVRRenderWindow* renWin, vtkR
             edp->SetDevice(vtkEventDataDevice::LeftController);
 
             vtkNew<vtkMatrix4x4> lastPose;
-            oRenWin->CreateMatrixFromVrPose(lastPose, this->Trackers[0].LastPose);
+            oRenWin->SetMatrixFromOpenVRPose(lastPose, this->Trackers[0].LastPose);
             this->ConvertPoseToWorldCoordinates(lastPose, pos, wxyz, ppos, wdir);
           }
           if (originInfo.devicePath ==
@@ -317,7 +317,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkVRRenderWindow* renWin, vtkR
             edp->SetDevice(vtkEventDataDevice::RightController);
 
             vtkNew<vtkMatrix4x4> lastPose;
-            oRenWin->CreateMatrixFromVrPose(lastPose, this->Trackers[1].LastPose);
+            oRenWin->SetMatrixFromOpenVRPose(lastPose, this->Trackers[1].LastPose);
             this->ConvertPoseToWorldCoordinates(lastPose, pos, wxyz, ppos, wdir);
           }
         }

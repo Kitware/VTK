@@ -22,7 +22,8 @@
 #ifndef vtkVRCamera_h
 #define vtkVRCamera_h
 
-#include "vtkNew.h" // for iavr
+#include "vtkDeprecation.h" // for old method sig
+#include "vtkNew.h"         // for iavr
 #include "vtkOpenGLCamera.h"
 #include "vtkRenderingVRModule.h" // For export macro
 
@@ -35,10 +36,16 @@ public:
   vtkTypeMacro(vtkVRCamera, vtkOpenGLCamera);
 
   /**
-   * Provides a matrix to go from absolute VR tracking coordinates
-   * to device coordinates. Used for rendering devices.
+   * Provides a matrix to go from physical coordinates to projection coordinates
+   * for the eye currently being rendered. Just e.g. LeftEyeToProjection *
+   * PhysicalToLeftEye
    */
-  virtual void GetTrackingToDCMatrix(vtkMatrix4x4*& TCDCMatrix) = 0;
+  VTK_DEPRECATED_IN_9_2_0("use GetPhysicalToProjectionMatrix instead")
+  virtual void GetTrackingToDCMatrix(vtkMatrix4x4*& physicalToProjectionMatrix)
+  {
+    this->GetPhysicalToProjectionMatrix(physicalToProjectionMatrix);
+  };
+  virtual void GetPhysicalToProjectionMatrix(vtkMatrix4x4*& physicalToProjectionMatrix) = 0;
 
   // A pose in VR includes more than just the basic camera values.
   // It includes all the properties needed to reproduce a view
@@ -77,11 +84,12 @@ public:
   // is to make it so that the camera is consistent with the provided matrix
   // and when the world to pose/view matrix is requested would return the
   // same matrix as provided.
-  void SetCameraFromWorldToPoseMatrix(vtkMatrix4x4* mat, double distance);
+  void SetCameraFromWorldToDeviceMatrix(vtkMatrix4x4* mat, double distance);
+  void SetCameraFromDeviceToWorldMatrix(vtkMatrix4x4* mat, double distance);
 
 protected:
-  vtkVRCamera() = default;
-  ~vtkVRCamera() override = default;
+  vtkVRCamera();
+  ~vtkVRCamera() override;
 
   vtkNew<vtkMatrix4x4> TempMatrix4x4;
 

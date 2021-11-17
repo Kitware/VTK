@@ -12,10 +12,15 @@
 
 =========================================================================*/
 #include "vtkVRCamera.h"
+#include "vtkMatrix4x4.h"
 #include "vtkVRInteractorStyle.h"
 #include "vtkVRRenderWindow.h"
 #include "vtkVRRenderWindowInteractor.h"
 #include "vtkVectorOperators.h"
+
+// not default due to vtkNew
+vtkVRCamera::vtkVRCamera(){};
+vtkVRCamera::~vtkVRCamera(){};
 
 namespace
 {
@@ -146,13 +151,18 @@ void vtkVRCamera::ApplyPoseToCamera(vtkVRCamera::Pose* pose, vtkVRRenderWindow* 
   is->SetDollyPhysicalSpeed(pose->MotionFactor);
 }
 
-// extract the camera ivars from the provided pose/view matrix
-void vtkVRCamera::SetCameraFromWorldToPoseMatrix(vtkMatrix4x4* mat, double distance)
+// extract the camera ivars from the provided device/view matrix
+void vtkVRCamera::SetCameraFromWorldToDeviceMatrix(vtkMatrix4x4* mat, double distance)
 {
   // the input matrix should be a pose/view matrix without projection
   this->TempMatrix4x4->DeepCopy(mat);
   this->TempMatrix4x4->Invert();
-  double* ele = this->TempMatrix4x4->GetData();
+  this->SetCameraFromDeviceToWorldMatrix(this->TempMatrix4x4, distance);
+}
+
+void vtkVRCamera::SetCameraFromDeviceToWorldMatrix(vtkMatrix4x4* mat, double distance)
+{
+  double* ele = mat->GetData();
 
   // position is the last column of the matrix
   this->SetPosition(ele[3], ele[7], ele[11]);

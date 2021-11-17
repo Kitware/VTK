@@ -156,8 +156,8 @@ void vtkOpenVRRenderWindow::RenderModels()
     // if we have a model and it is visible
     if (pRenderModel && pRenderModel->GetVisibility())
     {
-      vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
-      pRenderModel->Render(this, tdPose);
+      vtkMatrix4x4* deviceToPhysical = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
+      pRenderModel->Render(this, deviceToPhysical);
     }
   }
 }
@@ -184,100 +184,31 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
       auto device = this->GetDeviceForOpenVRHandle(deviceIdx);
       this->AddDeviceHandle(handle, device);
       vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
-      this->CreateMatrixFromVrPose(tdPose, OpenVRTrackedDevicePoses[deviceIdx]);
+      this->SetMatrixFromOpenVRPose(tdPose, OpenVRTrackedDevicePoses[deviceIdx]);
     }
   }
 
   // update the camera values based on the pose
   auto hmdHandle = this->GetDeviceHandleForOpenVRHandle(vr::k_unTrackedDeviceIndex_Hmd);
+  vtkNew<vtkMatrix4x4> d2wMat;
+  this->GetDeviceToWorldMatrixForDeviceHandle(hmdHandle, d2wMat);
 
   vtkRenderer* ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
   while ((ren = this->Renderers->GetNextRenderer(rit)))
   {
-    vtkOpenVRCamera* cam = vtkOpenVRCamera::SafeDownCast(ren->GetActiveCamera());
-
-    // get the position and orientation of the HMD
-    vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(hmdHandle);
-
-    // Note: Scaling is applied through moving the camera closer to the focal point, because
-    // scaling of all actors is not feasible, and vtkCamera::ModelTransformMatrix is not supported
-    // throughout VTK (clipping issues etc.). To achieve this, a new coordinate system called
-    // NonScaledWorld is introduced. The relationship between Physical (in which the HMD pose
-    // is given by OpenVR) and NonScaledWorld is described by the PhysicalViewUp etc. member
-    // variables. After getting the HMD pose in Physical, those coordinates and axes are converted
-    // to the NonScaledWorld coordinate system, on which the PhysicalScaling trick of modifying
-    // the camera position is applied, resulting the World coordinate system.
-
-    // construct physical to non-scaled world axes (scaling is used later to move camera closer)
-    double physicalZ_NonscaledWorld[3] = { -this->PhysicalViewDirection[0],
-      -this->PhysicalViewDirection[1], -this->PhysicalViewDirection[2] };
-    double* physicalY_NonscaledWorld = this->PhysicalViewUp;
-    double physicalX_NonscaledWorld[3] = { 0.0 };
-    vtkMath::Cross(physicalY_NonscaledWorld, physicalZ_NonscaledWorld, physicalX_NonscaledWorld);
-
-    // extract HMD axes and position
-    double hmdX_Physical[3] = { tdPose->GetElement(0, 0), tdPose->GetElement(1, 0),
-      tdPose->GetElement(2, 0) };
-    double hmdY_Physical[3] = { tdPose->GetElement(0, 1), tdPose->GetElement(1, 1),
-      tdPose->GetElement(2, 1) };
-    double hmdPosition_Physical[3] = { tdPose->GetElement(0, 3), tdPose->GetElement(1, 3),
-      tdPose->GetElement(2, 3) };
-
-    // convert position to non-scaled world coordinates
-    double hmdPosition_NonscaledWorld[3];
-    hmdPosition_NonscaledWorld[0] = hmdPosition_Physical[0] * physicalX_NonscaledWorld[0] +
-      hmdPosition_Physical[1] * physicalY_NonscaledWorld[0] +
-      hmdPosition_Physical[2] * physicalZ_NonscaledWorld[0];
-    hmdPosition_NonscaledWorld[1] = hmdPosition_Physical[0] * physicalX_NonscaledWorld[1] +
-      hmdPosition_Physical[1] * physicalY_NonscaledWorld[1] +
-      hmdPosition_Physical[2] * physicalZ_NonscaledWorld[1];
-    hmdPosition_NonscaledWorld[2] = hmdPosition_Physical[0] * physicalX_NonscaledWorld[2] +
-      hmdPosition_Physical[1] * physicalY_NonscaledWorld[2] +
-      hmdPosition_Physical[2] * physicalZ_NonscaledWorld[2];
-    // now adjust for scale and translation
-    double hmdPosition_World[3] = { 0.0 };
-    for (int i = 0; i < 3; i++)
+    vtkVRCamera* cam = vtkVRCamera::SafeDownCast(ren->GetActiveCamera());
+    cam->SetCameraFromDeviceToWorldMatrix(d2wMat, this->GetPhysicalScale());
+    if (ren->GetLightFollowCamera())
     {
-      hmdPosition_World[i] =
-        hmdPosition_NonscaledWorld[i] * this->PhysicalScale - this->PhysicalTranslation[i];
+      ren->UpdateLightsGeometryToFollowCamera();
     }
-
-    // convert axes to non-scaled world coordinate system
-    double hmdX_NonscaledWorld[3] = { hmdX_Physical[0] * physicalX_NonscaledWorld[0] +
-        hmdX_Physical[1] * physicalY_NonscaledWorld[0] +
-        hmdX_Physical[2] * physicalZ_NonscaledWorld[0],
-      hmdX_Physical[0] * physicalX_NonscaledWorld[1] +
-        hmdX_Physical[1] * physicalY_NonscaledWorld[1] +
-        hmdX_Physical[2] * physicalZ_NonscaledWorld[1],
-      hmdX_Physical[0] * physicalX_NonscaledWorld[2] +
-        hmdX_Physical[1] * physicalY_NonscaledWorld[2] +
-        hmdX_Physical[2] * physicalZ_NonscaledWorld[2] };
-    double hmdY_NonscaledWorld[3] = { hmdY_Physical[0] * physicalX_NonscaledWorld[0] +
-        hmdY_Physical[1] * physicalY_NonscaledWorld[0] +
-        hmdY_Physical[2] * physicalZ_NonscaledWorld[0],
-      hmdY_Physical[0] * physicalX_NonscaledWorld[1] +
-        hmdY_Physical[1] * physicalY_NonscaledWorld[1] +
-        hmdY_Physical[2] * physicalZ_NonscaledWorld[1],
-      hmdY_Physical[0] * physicalX_NonscaledWorld[2] +
-        hmdY_Physical[1] * physicalY_NonscaledWorld[2] +
-        hmdY_Physical[2] * physicalZ_NonscaledWorld[2] };
-    double hmdZ_NonscaledWorld[3] = { 0.0 };
-    vtkMath::Cross(hmdY_NonscaledWorld, hmdX_NonscaledWorld, hmdZ_NonscaledWorld);
-
-    cam->SetPosition(hmdPosition_World);
-    cam->SetFocalPoint(hmdPosition_World[0] + hmdZ_NonscaledWorld[0] * this->PhysicalScale,
-      hmdPosition_World[1] + hmdZ_NonscaledWorld[1] * this->PhysicalScale,
-      hmdPosition_World[2] + hmdZ_NonscaledWorld[2] * this->PhysicalScale);
-    cam->SetViewUp(hmdY_NonscaledWorld);
-
-    ren->UpdateLightsGeometryToFollowCamera();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRRenderWindow::CreateMatrixFromVrPose(
+void vtkOpenVRRenderWindow::SetMatrixFromOpenVRPose(
   vtkMatrix4x4* result, const vr::TrackedDevicePose_t& vrPose)
 {
   const float(*openVRPose)[4] = vrPose.mDeviceToAbsoluteTracking.m;
@@ -320,7 +251,7 @@ void vtkOpenVRRenderWindow::Render()
         auto device = this->GetDeviceForOpenVRHandle(deviceIdx);
         this->AddDeviceHandle(handle, device);
         vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
-        this->CreateMatrixFromVrPose(tdPose, OpenVRTrackedDevicePoses[deviceIdx]);
+        this->SetMatrixFromOpenVRPose(tdPose, OpenVRTrackedDevicePoses[deviceIdx]);
       }
     }
   }
@@ -355,13 +286,6 @@ void vtkOpenVRRenderWindow::StereoRenderComplete()
   this->RenderModels();
 
   // reset the camera to a neutral position
-  vtkRenderer* ren = vtkRenderer::SafeDownCast(this->GetRenderers()->GetItemAsObject(0));
-  if (ren && !ren->GetSelector())
-  {
-    vtkOpenVRCamera* cam = vtkOpenVRCamera::SafeDownCast(ren->GetActiveCamera());
-    cam->ApplyEyePose(this, false, -1.0);
-  }
-
   this->GetState()->vtkglDisable(GL_MULTISAMPLE);
 
   // for now as fast as possible
