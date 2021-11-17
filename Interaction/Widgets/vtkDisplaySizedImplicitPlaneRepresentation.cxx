@@ -599,9 +599,9 @@ int vtkDisplaySizedImplicitPlaneRepresentation::RenderOpaqueGeometry(vtkViewport
     count += this->ConeActor2->RenderOpaqueGeometry(v);
     count += this->SphereActor->RenderOpaqueGeometry(v);
   }
+  count += this->EdgesActor->RenderOpaqueGeometry(v);
   if (this->DrawPlane)
   {
-    count += this->EdgesActor->RenderOpaqueGeometry(v);
     count += this->PlaneActor->RenderOpaqueGeometry(v);
   }
 
@@ -620,9 +620,9 @@ int vtkDisplaySizedImplicitPlaneRepresentation::RenderTranslucentPolygonalGeomet
     count += this->ConeActor2->RenderTranslucentPolygonalGeometry(v);
     count += this->SphereActor->RenderTranslucentPolygonalGeometry(v);
   }
+  count += this->EdgesActor->RenderTranslucentPolygonalGeometry(v);
   if (this->DrawPlane)
   {
-    count += this->EdgesActor->RenderTranslucentPolygonalGeometry(v);
     count += this->PlaneActor->RenderTranslucentPolygonalGeometry(v);
   }
 
@@ -640,9 +640,9 @@ vtkTypeBool vtkDisplaySizedImplicitPlaneRepresentation::HasTranslucentPolygonalG
     result |= this->ConeActor2->HasTranslucentPolygonalGeometry();
     result |= this->SphereActor->HasTranslucentPolygonalGeometry();
   }
+  result |= this->EdgesActor->HasTranslucentPolygonalGeometry();
   if (this->DrawPlane)
   {
-    result |= this->EdgesActor->HasTranslucentPolygonalGeometry();
     result |= this->PlaneActor->HasTranslucentPolygonalGeometry();
   }
 
