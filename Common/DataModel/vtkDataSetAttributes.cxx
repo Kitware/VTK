@@ -928,6 +928,11 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, vtkIdType from
 void vtkDataSetAttributes::CopyData(
   vtkDataSetAttributes* fromPd, vtkIdList* fromIds, vtkIdList* toIds)
 {
+  if (toIds->GetNumberOfIds() == 0)
+  {
+    return;
+  }
+
   vtkIdType numberOfTuples = 1 + *std::max_element(toIds->begin(), toIds->end());
   for (const int i : this->RequiredArrays)
   {
@@ -949,6 +954,11 @@ void vtkDataSetAttributes::CopyData(
 void vtkDataSetAttributes::CopyData(
   vtkDataSetAttributes* fromPd, vtkIdList* fromIds, vtkIdType destStart)
 {
+  if (fromIds->GetNumberOfIds() == 0)
+  {
+    return;
+  }
+
   vtkIdType numberOfTuples = destStart + fromIds->GetNumberOfIds();
   for (const int i : this->RequiredArrays)
   {
@@ -970,6 +980,11 @@ void vtkDataSetAttributes::CopyData(
 void vtkDataSetAttributes::CopyData(
   vtkDataSetAttributes* fromPd, vtkIdType dstStart, vtkIdType n, vtkIdType srcStart)
 {
+  if (n == 0)
+  {
+    return;
+  }
+
   vtkIdType numberOfTuples = dstStart + n;
   for (const int i : this->RequiredArrays)
   {
