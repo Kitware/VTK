@@ -117,7 +117,6 @@ struct CopyPointsWorklet
   void operator()(
     InArrayT* inPts, OutArrayT* outPts, vtkIdType* ptMap, vtkPointData* inPD, vtkPointData* outPD)
   {
-    const vtkIdType numPts = inPts->GetNumberOfTuples();
     const vtkIdType numNewPts = outPts->GetNumberOfTuples();
 
     CopyPointsAlgorithm<InArrayT, OutArrayT> algo{ ptMap, inPts, inPD, numNewPts, outPts, outPD };
@@ -289,7 +288,6 @@ struct AverageWorklet
   void operator()(InArrayT* inPts, OutArrayT* outPts, vtkPointData* inPD, vtkPointData* outPD,
     vtkIdType* ptMap, vtkIdType* links, vtkIdType* offsets, double tol)
   {
-    const vtkIdType numPts = inPts->GetNumberOfTuples();
     const vtkIdType numNewPts = outPts->GetNumberOfTuples();
 
     AverageAlgorithm<InArrayT, OutArrayT> algo(
