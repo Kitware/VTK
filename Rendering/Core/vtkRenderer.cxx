@@ -156,6 +156,15 @@ vtkRenderer::vtkRenderer()
   this->EnvironmentRight[0] = 1.0;
   this->EnvironmentRight[1] = 0.0;
   this->EnvironmentRight[2] = 0.0;
+
+  vtkMatrix4x4::Identity(this->CompositeProjectionTransformationMatrix.data());
+  this->LastCompositeProjectionTransformationMatrixTiledAspectRatio = VTK_DOUBLE_MIN;
+  this->LastCompositeProjectionTransformationMatrixCameraModified = 0;
+  vtkMatrix4x4::Identity(this->ProjectionTransformationMatrix.data());
+  this->LastProjectionTransformationMatrixTiledAspectRatio = VTK_DOUBLE_MIN;
+  this->LastProjectionTransformationMatrixCameraModified = 0;
+  vtkMatrix4x4::Identity(this->ViewTransformMatrix.data());
+  this->LastViewTransformCameraModified = 0;
 }
 
 vtkRenderer::~vtkRenderer()
