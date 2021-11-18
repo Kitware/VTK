@@ -29,7 +29,7 @@
  * definitely cause problems, especially in severely warped situations.
  *
  * @sa
- * vtkCell3D vtkConvecPointSet vtkMeanValueCoordinatesInterpolator
+ * vtkCell3D vtkConvexPointSet vtkMeanValueCoordinatesInterpolator
  */
 
 #ifndef vtkPolyhedron_h
