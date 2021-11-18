@@ -31,6 +31,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkCesium3DTilesWriter, vtkWriter);
 
+  enum ContentType
+  {
+    B3DM,
+    GLB,
+    GLTF
+  };
+
   ///@{
   /**
    * Accessor for name of the directory where Cesium3DTiles data is written
@@ -72,9 +79,22 @@ public:
 
   //@{
   /**
+   * What is the ContentType used for tiles. Default is B3DM.
+   * For ContentType GLB and GLTF we use 3DTILES_content_gltf extension.
+   * For ContentType B3DM and GLB, external programs are needed to convert
+   * GLTF -> GLB -> B3DM.
+   *
+   */
+  vtkSetMacro(ContentType, int);
+  vtkGetMacro(ContentType, int);
+  vtkBooleanMacro(ContentType, int);
+  //@
+
+  //@{
+  /**
    * Save GLTF (B3DM) files as part of the 3D Tiles dataset. Default true.
    * Otherwise save only the tileset (JSON) file. This is mainly used for
-   * debugging.
+   * debugging. Default true.
    */
   vtkSetMacro(SaveGLTF, bool);
   vtkGetMacro(SaveGLTF, bool);
@@ -114,6 +134,7 @@ protected:
   char* TexturePath;
   double Offset[3];
   bool SaveTextures;
+  int ContentType;
   bool SaveGLTF;
   int NumberOfBuildingsPerTile;
   char* CRS;

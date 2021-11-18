@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "TreeInformation.h"
 
+#include "vtkCesium3DTilesWriter.h"
 #include "vtkGLTFWriter.h"
 #include "vtkMultiBlockDataSet.h"
 #include <vtkActor.h>
@@ -108,77 +109,13 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
   return lonlatheight;
 }
 
-//------------------------------------------------------------------------------
-vtkSmartPointer<vtkMatrix4x4> ComputeTransformCartesian(
-  const std::array<double, 3>& originLonLatDegreesHeight, const std::array<double, 3>& origin)
-{
-  auto m = vtkSmartPointer<vtkMatrix4x4>::New();
-  m->Identity();
-  vtkNew<vtkTransform> t;
-  std::ostringstream ostr;
-  PJ* P;
-  PJ_COORD c, c_out;
-
-  std::cout << "originDegreesHeight: " << originLonLatDegreesHeight[0] << ", "
-            << originLonLatDegreesHeight[1] << ", " << originLonLatDegreesHeight[2] << ", "
-            << std::endl;
-
-  // transform from geodetic lon, lat, height to geocentric coordinates (proj >= 5.0)
-  P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, "+proj=longlat +ellps=WGS84", "+proj=cart", NULL);
-  if (P == 0)
-  {
-    vtkLog(ERROR, "proj_create_crs_to_crs failed:" << proj_errno_string(proj_errno(0)));
-    return m;
-  }
-  {
-    /* For that particular use case, this is not needed. */
-    /* proj_normalize_for_visualization() ensures that the coordinate */
-    /* order expected and returned by proj_trans() will be longitude, */
-    /* latitude for geographic CRS, and easting, northing for projected */
-    /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
-    /* had been used, this might had been necessary. */
-    PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
-    if (0 == P_for_GIS)
-    {
-      proj_destroy(P);
-      vtkLog(
-        ERROR, "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(0)));
-      return m;
-    }
-    proj_destroy(P);
-    P = P_for_GIS;
-  }
-  c.lpz.lam = originLonLatDegreesHeight[0];
-  c.lpz.phi = originLonLatDegreesHeight[1];
-  c.lpz.z = originLonLatDegreesHeight[2];
-  c_out = proj_trans(P, PJ_FWD, c);
-  proj_destroy(P);
-
-  double ecefOrigin[3];
-  ecefOrigin[0] = c_out.xyz.x;
-  ecefOrigin[1] = c_out.xyz.y;
-  ecefOrigin[2] = c_out.xyz.z;
-  // std::cout << "ecefOrigin: "
-  //           << ecefOrigin[0] << " "
-  //           << ecefOrigin[1] << " "
-  //           << ecefOrigin[2]
-  //           << std::endl;
-  t->Identity();
-  t->Translate(ecefOrigin);
-  t->RotateZ(90.0 + originLonLatDegreesHeight[0]);
-  t->RotateX(-originLonLatDegreesHeight[1]);
-  // t->Translate(-origin[0], -origin[1], -origin[2]);
-
-  t->GetTranspose(m);
-  return m;
-}
-
+std::array<std::string, 3> ContentTypeExtension = { ".b3dm", ".glb", ".gltf" };
 }
 
 //------------------------------------------------------------------------------
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings, const std::string& output,
-  const std::string& texturePath, bool saveTextures, const char* crs)
+  const std::string& texturePath, bool saveTextures, int contentType, const char* crs)
   :
 
   Root(root)
@@ -186,6 +123,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , OutputDir(output)
   , TexturePath(texturePath)
   , SaveTextures(saveTextures)
+  , ContentType(contentType)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -360,8 +298,21 @@ void TreeInformation::SaveTileset(const std::string& output)
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output)
 {
-
+  Json::Value v;
   this->RootJson["asset"]["version"] = "1.0";
+  if (this->ContentType != vtkCesium3DTilesWriter::B3DM)
+  {
+    std::string content_gltf = "3DTILES_content_gltf";
+    std::string mesh_gpu_instancing = "EXT_mesh_gpu_instancing";
+    std::string extensionsUsed = "extensionsUsed";
+    std::string extensionsRequired = "extensionsRequired";
+    v[0] = content_gltf;
+    this->RootJson[extensionsUsed] = v;
+    this->RootJson[extensionsRequired] = v;
+    v[0] = mesh_gpu_instancing;
+    this->RootJson["extensions"][content_gltf][extensionsUsed] = v;
+    this->RootJson["extensions"][content_gltf][extensionsRequired] = v;
+  }
   this->RootJson["geometricError"] = this->ComputeTilesetGeometricError();
   this->RootJson["root"] = this->GenerateTileJson(root);
   std::ofstream file(output);
@@ -400,25 +351,14 @@ Json::Value TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
   if (node == this->Root)
   {
     tree["refine"] = "REPLACE";
-    /*
-    ostr.str();
-    ostr << std::string("NodeBounds(") << node->GetID() << ")";
-    PrintBounds(ostr.str(), &nodeBounds[0]);
-    std::array<double, 3> originLonLatDegreesHeight = {{
-        vtkMath::DegreesFromRadians(lonLatRadiansHeight[0]),
-        vtkMath::DegreesFromRadians(lonLatRadiansHeight[1]),
-        lonLatRadiansHeight[4]}};
-    std::array<double, 3> origin = {{nodeBounds[0], nodeBounds[2], nodeBounds[4]}};
-    vtkSmartPointer<vtkMatrix4x4> m = ::ComputeTransformCartesian(
-      originLonLatDegreesHeight, origin);
-    double* t = m->GetData();
+    std::array<double, 16> t = { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 1.0 };
     v.clear();
     for (int i = 0; i < 16; ++i)
     {
       v[i] = t[i];
     }
     tree["transform"] = v;
-    */
   }
   // generate json for the node
   if (!node->IsLeaf())
@@ -524,7 +464,7 @@ Json::Value TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
       proj_destroy(P);
 
       ostr.str("");
-      ostr << node->GetID() << "/" << node->GetID() << ".b3dm";
+      ostr << node->GetID() << "/" << node->GetID() << ContentTypeExtension[this->ContentType];
       tree["content"]["uri"] = ostr.str();
     }
   }
