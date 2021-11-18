@@ -769,7 +769,7 @@ public:
   }
   VTK_DEPRECATED_IN_9_2_0("Part of deprecating compatibility mode for this filter")
   vtkTypeBool GetVolume() { return this->Volume; }
-  VTK_DEPRECATED_IN_9_2_0("Part of eprecating compatibility mode for this filter")
+  VTK_DEPRECATED_IN_9_2_0("Part of deprecating compatibility mode for this filter")
   void VolumeOn()
   {
     if (!this->Volume)
@@ -778,7 +778,7 @@ public:
       this->Modified();
     }
   }
-  VTK_DEPRECATED_IN_9_2_0("Part of eprecating compatibility mode for this filter")
+  VTK_DEPRECATED_IN_9_2_0("Part of deprecating compatibility mode for this filter")
   void VolumeOff()
   {
     if (this->Volume)
@@ -843,7 +843,7 @@ public:
       this->Modified();
     }
   }
-  VTK_DEPRECATED_IN_9_2_0("Part of eprecating compatibility mode for this filter")
+  VTK_DEPRECATED_IN_9_2_0("Part of deprecating compatibility mode for this filter")
   void CompatibilityModeOff()
   {
     if (this->CompatibilityMode)
