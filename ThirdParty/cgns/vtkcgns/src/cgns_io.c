@@ -61,10 +61,12 @@ MPI_Info pcg_mpi_info;
 
 #if CG_HAVE_STAT64_STRUCT
 #ifdef _WIN32
-#define stat _stat64
+#define cgns_stat _stat64
 #else
-#define stat stat64
+#define cgns_stat stat64
 #endif
+#else
+#define cgns_stat stat
 #endif
 
 /* Flag for contiguous or compact HDF5 storage */
@@ -216,7 +218,7 @@ static int rewrite_file (int cginp, const char *filename)
     cgns_io *input, *output;
     char *tmpfile, *linkfile = NULL;
 #ifdef S_IFLNK
-    struct stat st;
+    struct cgns_stat st;
 #endif
 
     input = get_cgnsio(cginp, 0);
@@ -577,11 +579,11 @@ int cgio_check_file (const char *filename, int *file_type)
     char buf[32];
     FILE *fp;
     static char *HDF5sig = "\211HDF\r\n\032\n";
-    struct stat st;
+    struct cgns_stat st;
 
     int mpibuf[2], err = CGIO_ERR_NONE;
 
-    if (ACCESS (filename, 0) || stat (filename, &st) ||
+    if (ACCESS (filename, 0) || cgns_stat (filename, &st) ||
         S_IFREG != (st.st_mode & S_IFREG)) {
         last_err = CGIO_ERR_NOT_FOUND;
         return last_err;
