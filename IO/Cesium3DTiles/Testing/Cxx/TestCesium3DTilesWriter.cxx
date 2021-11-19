@@ -244,41 +244,29 @@ Input tiler(const std::vector<std::string>& input, const std::string& output, in
   return ret;
 }
 
-bool TrianglesDiffer(Input& in, std::string gltfFileName)
+bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfFileName)
 {
-  auto it = vtk::TakeSmartPointer(in.Data->NewIterator());
-  vtkPolyData* input = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
-  if (!input)
-  {
-    std::cerr << "Cannot read input data" << std::endl;
-    return true;
-  }
   vtkNew<vtkGLTFReader> reader;
   reader->SetFileName(gltfFileName.c_str());
   reader->Update();
   vtkMultiBlockDataSet* mbOutput = reader->GetOutput();
-  it = vtk::TakeSmartPointer(mbOutput->NewIterator());
+  auto it = vtk::TakeSmartPointer(mbOutput->NewIterator());
   vtkPolyData* output = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
   if (!output)
   {
     std::cerr << "Cannot read output data" << std::endl;
     return true;
   }
-  vtkPoints* inputPoints = input->GetPoints();
   vtkPoints* outputPoints = output->GetPoints();
   for (int i = 0; i < 3; ++i)
   {
-    std::array<double, 3> inputPoint;
-    inputPoints->GetPoint(i, &inputPoint[0]);
-    std::transform(in.Offset.begin(), in.Offset.end(), inputPoint.begin(), inputPoint.begin(),
-      std::plus<double>());
     std::array<double, 3> outputPoint;
     outputPoints->GetPoint(i, &outputPoint[0]);
-    for (size_t j = 0; j < inputPoint.size(); ++j)
+    for (size_t j = 0; j < in[i].size(); ++j)
     {
-      if (!vtkMathUtilities::NearlyEqual(inputPoint[j], outputPoint[j], 0.001))
+      if (!vtkMathUtilities::NearlyEqual(in[i][j], outputPoint[j], 0.001))
       {
-        std::cerr << "input point: " << inputPoint[j]
+        std::cerr << "input point: " << std::fixed << std::setprecision(16) << in[i][j]
                   << " differ than output point: " << outputPoint[j] << " at position: " << j
                   << std::endl;
         return true;
@@ -306,14 +294,19 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   std::string dataRoot = testHelper->GetDataRoot();
   std::string tempDirectory = testHelper->GetTempDirectory();
 
-  Input in =
+  auto ret =
     tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
       tempDirectory + "/jacksonville-3dtiles", 1, 1, 2, std::vector<double>{ { 0, 0, 0 } },
       true /*saveGLTF*/, false /*saveTextures*/, "", 17, 'N');
-  if (!in.Data)
+  if (!ret.Data)
   {
     return EXIT_FAILURE;
   }
+  std::array<std::array<double, 3>, 3> in = {
+    { { { 799099.7216079829959199, -5452032.6613515587523580, 3201501.3033391013741493 } },
+      { { 797899.9930383440805599, -5452124.7368548354133964, 3201444.7161126118153334 } },
+      { { 797971.0970941731939092, -5452573.6701772613450885, 3200667.5626786206848919 } } }
+  };
   if (TrianglesDiffer(in, tempDirectory + "/jacksonville-3dtiles/0/0.gltf"))
   {
     return EXIT_FAILURE;
@@ -321,16 +314,21 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   if (SystemTools::TextFilesDiffer(dataRoot + "/Data/3DTiles/jacksonville-tileset.json",
         tempDirectory + "/jacksonville-3dtiles/tileset.json"))
   {
-    std::cerr << "Jacksonville data produced a different tileset than expected" << std::endl;
+    std::cerr << "Jacksonville data produced a different tileset than expected:" << std::endl
+              << dataRoot + "/Data/3DTiles/jacksonville-tileset.json" << std::endl
+              << tempDirectory + "/jacksonville-3dtiles/tileset.json" << std::endl;
     return EXIT_FAILURE;
   }
-  in = tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
+  ret = tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
     tempDirectory + "/berlin-3dtiles", 1, 1, 2, std::vector<double>{ { 0, 0, 0 } },
     true /*saveGLTF*/, false /*saveTextures*/, "", 33, 'N');
-  if (!in.Data)
+  if (!ret.Data)
   {
     return EXIT_FAILURE;
   }
+  in = { { { { 3782648.3888294636271894, 894381.1232001162134111, 5039949.8578473944216967 } },
+    { { 3782647.9758559409528971, 894384.6010377000784501, 5039955.8512009736150503 } },
+    { { 3782645.8996075680479407, 894380.4562150554265827, 5039951.8311523543670774 } } } };
   if (TrianglesDiffer(in, tempDirectory + "/berlin-3dtiles/0/0.gltf"))
   {
     return EXIT_FAILURE;
@@ -338,7 +336,9 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   if (SystemTools::TextFilesDiffer(dataRoot + "/Data/3DTiles/berlin-tileset.json",
         tempDirectory + "/berlin-3dtiles/tileset.json"))
   {
-    std::cerr << "Berlin data produced a different tileset than expected" << std::endl;
+    std::cerr << "Berlin data produced a different tileset than expected" << std::endl
+              << dataRoot + "/Data/3DTiles/berlin-tileset.json" << std::endl
+              << tempDirectory + "/berlin-3dtiles/tileset.json" << std::endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

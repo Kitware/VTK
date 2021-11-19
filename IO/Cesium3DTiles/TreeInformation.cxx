@@ -454,6 +454,27 @@ Json::Value TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
             d[3 * i] = c_out.xyz.x;
             d[3 * i + 1] = c_out.xyz.y;
             d[3 * i + 2] = c_out.xyz.z;
+            /*
+            // look at errors caused by double to float conversion.
+            std::cout
+              << "point double "
+              << i << ": " << std::fixed << std::setprecision(16)
+              << c_out.xyz.x << ", "
+              << c_out.xyz.y << ", "
+              << c_out.xyz.z << std::endl
+              << "point float "
+              << i << ": " << std::fixed << std::setprecision(16)
+              << (float)c_out.xyz.x << ", "
+              << (float)c_out.xyz.y << ", "
+              << (float)c_out.xyz.z << std::endl;
+            double md = 6384400; // max earth radius
+            float mf = md;
+            int32_t* ip = (int32_t*)&mf;
+            std::cout
+              << "max double: " << std::fixed << std::setprecision(16) << md << std::endl
+              << "prev double to float: " << (float)((*((int64_t*)&md))--, md) << std::endl
+              << "max float: " << mf << " prev: " << ((*ip)--,mf) << std::endl;
+            */
           }
           if (conversion)
           {
