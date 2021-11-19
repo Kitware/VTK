@@ -24,6 +24,11 @@
  * create the instance where used and delete it in ReleaseGraphicsResources
  * and the destructor.
  *
+ * It is possible to flip the Y direction of the quad texture coordinate by
+ * turning on the flipY option in the constructor. This can be useful when
+ * rendering in an external context having a different convention than OpenGL
+ * e.g. OpenGL-D3D shared textures. Off by default if unspecified.
+ *
  * Example usage:
  * @code
  * if (!this->QuadHelper)
@@ -62,12 +67,15 @@ public:
   vtkOpenGLVertexArrayObject* VAO;
   unsigned int ShaderChangeValue;
 
-  // create a quadhelper with the provided shaders
-  // if the vertex is nullptr
-  // then the default is used. Note that this
-  // class should be destroyed upon
-  // ReleaseGraphicsResources
-  vtkOpenGLQuadHelper(vtkOpenGLRenderWindow*, const char* vs, const char* fs, const char* gs);
+  /**
+   * Create a quadhelper with the provided shaders.
+   * If the vertex is nullptr then the default is used.
+   * Turning on the flipY option reverts the y component of the quad texture coordinates in
+   * order to flip the rendered texture.
+   * Note that this class should be destroyed upon ReleaseGraphicsResources.
+   */
+  vtkOpenGLQuadHelper(
+    vtkOpenGLRenderWindow*, const char* vs, const char* fs, const char* gs, bool flipY = false);
 
   ~vtkOpenGLQuadHelper();
 

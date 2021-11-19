@@ -131,6 +131,19 @@ const char* DepthBlitShader =
   }
   )***";
 
+const char* FlipShader =
+  R"***(
+  //VTK::System::Dec
+  in vec2 texCoord;
+  uniform sampler2D tex;
+  //VTK::Output::Dec
+
+  void main()
+  {
+    gl_FragData[0] = texture(tex, texCoord);
+  }
+  )***";
+
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
 {
@@ -160,6 +173,8 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->FrameBlitMode = BlitToHardware;
   this->ResolveQuad = nullptr;
   this->DepthBlitQuad = nullptr;
+  this->FlipQuad = nullptr;
+  this->FramebufferFlipY = false;
 
   this->Initialized = false;
   this->GlewInitValid = false;
@@ -294,6 +309,9 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
 
   delete this->DepthBlitQuad;
   this->DepthBlitQuad = nullptr;
+
+  delete this->FlipQuad;
+  this->FlipQuad = nullptr;
 
   this->RenderFramebuffer->ReleaseGraphicsResources(renWin);
   this->DisplayFramebuffer->ReleaseGraphicsResources(renWin);
@@ -926,7 +944,8 @@ void vtkOpenGLRenderWindow::TextureDepthBlit(
 
   if (!this->DepthBlitQuad)
   {
-    this->DepthBlitQuad = new vtkOpenGLQuadHelper(this, nullptr, DepthBlitShader, "");
+    this->DepthBlitQuad =
+      new vtkOpenGLQuadHelper(this, nullptr, DepthBlitShader, "", this->FramebufferFlipY);
     if (!this->DepthBlitQuad->Program || !this->DepthBlitQuad->Program->GetCompiled())
     {
       vtkErrorMacro("Couldn't build the shader program for depth blits");
@@ -984,64 +1003,9 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
     this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
     this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
 
-    bool copiedColor = false;
-
-    // Some linux drivers have issues reading a multisampled texture
-    bool useTexture = false;
-    if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
-    {
-      useTexture = true;
-      const std::string& vendorString = this->GetState()->GetVendor();
-      const std::string& versionString = this->GetState()->GetVersion();
-      const std::string& rendererString = this->GetState()->GetRenderer();
-      size_t numExceptions =
-        sizeof(vtkOpenGLRenderWindowMSAATextureBug) / sizeof(vtkOpenGLRenderWindowDriverInfo);
-      for (size_t i = 0; i < numExceptions; i++)
-      {
-        if (vendorString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Vendor) == 0 &&
-          versionString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Version) == 0 &&
-          rendererString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Renderer) == 0)
-        {
-          useTexture = false;
-          break;
-        }
-      }
-    }
-
-    // if we have a MSAA buffer we have to resolve it using a shader as opposed to
-    // a normal blit due to linear/gamma colorspace issues
-    if (useTexture)
-    {
-      if (!this->ResolveQuad)
-      {
-        this->ResolveQuad = new vtkOpenGLQuadHelper(this, nullptr, ResolveShader, "");
-        if (!this->ResolveQuad->Program || !this->ResolveQuad->Program->GetCompiled())
-        {
-          vtkErrorMacro("Couldn't build the shader program for resolving msaa.");
-        }
-      }
-      else
-      {
-        this->GetShaderCache()->ReadyShaderProgram(this->ResolveQuad->Program);
-      }
-
-      this->GetState()->vtkglDisable(GL_DEPTH_TEST);
-
-      if (this->ResolveQuad->Program && this->ResolveQuad->Program->GetCompiled())
-      {
-        this->GetState()->vtkglDisable(GL_DEPTH_TEST);
-        this->GetState()->vtkglDisable(GL_BLEND);
-        auto tex = this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0);
-        tex->Activate();
-        this->ResolveQuad->Program->SetUniformi("samplecount", this->MultiSamples);
-        this->ResolveQuad->Program->SetUniformi("tex", tex->GetTextureUnit());
-        this->ResolveQuad->Render();
-        tex->Deactivate();
-        copiedColor = true;
-        this->GetState()->vtkglEnable(GL_DEPTH_TEST);
-        this->GetState()->vtkglEnable(GL_BLEND);
-      }
-    }
+    // resolve and flip renderframebuffer if needed. If true is returned then the color buffer has
+    // already been copied to the displayframebuffer.
+    bool copiedColor = this->ResolveFlipRenderFramebuffer();
 
     this->RenderFramebuffer->Bind(GL_READ_FRAMEBUFFER);
     this->RenderFramebuffer->ActivateReadBuffer(0);
@@ -1058,7 +1022,6 @@ void vtkOpenGLRenderWindow::Frame()
 {
   if (this->SwapBuffers)
   {
-    bool copiedColor = false;
     this->GetState()->PushFramebufferBindings();
     this->DisplayFramebuffer->Bind();
     this->DisplayFramebuffer->ActivateDrawBuffer(
@@ -1068,60 +1031,9 @@ void vtkOpenGLRenderWindow::Frame()
     this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
     this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
 
-    // Some linux drivers have issues reading a multisampled texture
-    bool useTexture = false;
-    if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
-    {
-      useTexture = true;
-      const std::string& vendorString = this->GetState()->GetVendor();
-      const std::string& versionString = this->GetState()->GetVersion();
-      const std::string& rendererString = this->GetState()->GetRenderer();
-      size_t numExceptions =
-        sizeof(vtkOpenGLRenderWindowMSAATextureBug) / sizeof(vtkOpenGLRenderWindowDriverInfo);
-      for (size_t i = 0; i < numExceptions; i++)
-      {
-        if (vendorString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Vendor) == 0 &&
-          versionString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Version) == 0 &&
-          rendererString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Renderer) == 0)
-        {
-          useTexture = false;
-          break;
-        }
-      }
-    }
-
-    // if we have a MSAA buffer we have to resolve it using a shader as opposed to
-    // a normal blit due to linear/gamma colorspace issues
-    if (useTexture)
-    {
-      if (!this->ResolveQuad)
-      {
-        this->ResolveQuad = new vtkOpenGLQuadHelper(this, nullptr, ResolveShader, "");
-        if (!this->ResolveQuad->Program || !this->ResolveQuad->Program->GetCompiled())
-        {
-          vtkErrorMacro("Couldn't build the shader program for resolving msaa.");
-        }
-      }
-      else
-      {
-        this->GetShaderCache()->ReadyShaderProgram(this->ResolveQuad->Program);
-      }
-
-      if (this->ResolveQuad->Program && this->ResolveQuad->Program->GetCompiled())
-      {
-        this->GetState()->vtkglDisable(GL_DEPTH_TEST);
-        this->GetState()->vtkglDisable(GL_BLEND);
-        auto tex = this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0);
-        tex->Activate();
-        this->ResolveQuad->Program->SetUniformi("samplecount", this->MultiSamples);
-        this->ResolveQuad->Program->SetUniformi("tex", tex->GetTextureUnit());
-        this->ResolveQuad->Render();
-        tex->Deactivate();
-        copiedColor = true;
-        this->GetState()->vtkglEnable(GL_DEPTH_TEST);
-        this->GetState()->vtkglEnable(GL_BLEND);
-      }
-    }
+    // resolve and flip renderframebuffer if needed. If true is returned then the color buffer has
+    // already been copied to the displayframebuffer.
+    bool copiedColor = this->ResolveFlipRenderFramebuffer();
 
     this->RenderFramebuffer->Bind(GL_READ_FRAMEBUFFER);
     this->RenderFramebuffer->ActivateReadBuffer(0);
@@ -1145,6 +1057,104 @@ void vtkOpenGLRenderWindow::Frame()
       }
     }
   }
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLRenderWindow::ResolveFlipRenderFramebuffer()
+{
+  bool copiedColor = false;
+
+  // Some linux drivers have issues reading a multisampled texture
+  bool useTexture = false;
+  if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
+  {
+    useTexture = true;
+    const std::string& vendorString = this->GetState()->GetVendor();
+    const std::string& versionString = this->GetState()->GetVersion();
+    const std::string& rendererString = this->GetState()->GetRenderer();
+    size_t numExceptions =
+      sizeof(vtkOpenGLRenderWindowMSAATextureBug) / sizeof(vtkOpenGLRenderWindowDriverInfo);
+    for (size_t i = 0; i < numExceptions; i++)
+    {
+      if (vendorString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Vendor) == 0 &&
+        versionString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Version) == 0 &&
+        rendererString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Renderer) == 0)
+      {
+        useTexture = false;
+        break;
+      }
+    }
+  }
+
+  // if we have a MSAA buffer we have to resolve it using a shader as opposed to
+  // a normal blit due to linear/gamma colorspace issues
+  if (useTexture)
+  {
+    if (!this->ResolveQuad)
+    {
+      this->ResolveQuad =
+        new vtkOpenGLQuadHelper(this, nullptr, ResolveShader, "", this->FramebufferFlipY);
+      if (!this->ResolveQuad->Program || !this->ResolveQuad->Program->GetCompiled())
+      {
+        vtkErrorMacro("Couldn't build the shader program for resolving msaa.");
+      }
+    }
+    else
+    {
+      this->GetShaderCache()->ReadyShaderProgram(this->ResolveQuad->Program);
+    }
+
+    if (this->ResolveQuad->Program && this->ResolveQuad->Program->GetCompiled())
+    {
+      this->GetState()->vtkglDisable(GL_DEPTH_TEST);
+      this->GetState()->vtkglDisable(GL_BLEND);
+      auto tex = this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0);
+      tex->Activate();
+      this->ResolveQuad->Program->SetUniformi("samplecount", this->MultiSamples);
+      this->ResolveQuad->Program->SetUniformi("tex", tex->GetTextureUnit());
+      this->ResolveQuad->Render();
+      tex->Deactivate();
+      copiedColor = true;
+      this->GetState()->vtkglEnable(GL_DEPTH_TEST);
+      this->GetState()->vtkglEnable(GL_BLEND);
+    }
+  }
+
+  if (!this->MultiSamples && this->FramebufferFlipY &&
+    this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
+  {
+    if (!this->FlipQuad)
+    {
+      this->FlipQuad =
+        new vtkOpenGLQuadHelper(this, nullptr, FlipShader, "", this->FramebufferFlipY);
+      if (!this->FlipQuad->Program || !this->FlipQuad->Program->GetCompiled())
+      {
+        vtkErrorMacro("Couldn't build the shader program for flipping render framebuffer.");
+      }
+    }
+    else
+    {
+      this->GetShaderCache()->ReadyShaderProgram(this->FlipQuad->Program);
+    }
+
+    this->GetState()->vtkglDisable(GL_DEPTH_TEST);
+
+    if (this->FlipQuad->Program && this->FlipQuad->Program->GetCompiled())
+    {
+      this->GetState()->vtkglDisable(GL_DEPTH_TEST);
+      this->GetState()->vtkglDisable(GL_BLEND);
+      auto tex = this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0);
+      tex->Activate();
+      this->FlipQuad->Program->SetUniformi("tex", tex->GetTextureUnit());
+      this->FlipQuad->Render();
+      tex->Deactivate();
+      copiedColor = true;
+      this->GetState()->vtkglEnable(GL_DEPTH_TEST);
+      this->GetState()->vtkglEnable(GL_BLEND);
+    }
+  }
+
+  return copiedColor;
 }
 
 void vtkOpenGLRenderWindow::BlitDisplayFramebuffersToHardware()
