@@ -252,6 +252,8 @@ XdmfTopology::GetTopologyTypeAsString( void ) {
       return("Wedge");
     case  XDMF_HEX :
       return("Hexahedron");
+    case  XDMF_POLYHEDRON :
+      return("Polyhedron");
     case  XDMF_EDGE_3 :
       return("Edge_3");
     case  XDMF_TRI_6 :

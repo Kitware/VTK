@@ -499,6 +499,8 @@ int vtkXdmfHeavyData::GetVTKCellType(XdmfInt32 topologyType)
       return VTK_WEDGE;
     case XDMF_HEX:
       return VTK_HEXAHEDRON;
+    case XDMF_POLYHEDRON:
+      return VTK_POLYHEDRON;
     case XDMF_EDGE_3:
       return VTK_QUADRATIC_EDGE;
     case XDMF_TRI_6:
@@ -626,27 +628,60 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
     for (vtkIdType cc = 0; cc < numCells; cc++)
     {
       int vtk_cell_typeI = this->GetVTKCellType(xmfConnections[index++]);
-      XdmfInt32 numPointsPerCell = this->GetNumberOfPointsPerCell(vtk_cell_typeI);
-      if (numPointsPerCell == -1)
+      if (vtk_cell_typeI != VTK_POLYHEDRON)
       {
-        // encountered an unknown cell.
-        return nullptr;
+        XdmfInt32 numPointsPerCell = this->GetNumberOfPointsPerCell(vtk_cell_typeI);
+        if (numPointsPerCell == -1)
+        {
+          // encountered an unknown cell.
+          return nullptr;
+        }
+
+        if (numPointsPerCell == 0)
+        {
+          // cell type does not have a fixed number of points in which case the
+          // next entry in xmfConnections tells us the number of points.
+          numPointsPerCell = xmfConnections[index++];
+        }
+
+        cell_types->SetValue(cc, static_cast<unsigned char>(vtk_cell_typeI));
+        offsets->SetValue(cc, offset);
+        offset += numPointsPerCell;
+
+        for (vtkIdType i = 0; i < numPointsPerCell; i++)
+        {
+          conn->SetValue(connIndex++, xmfConnections[index++]);
+        }
       }
-
-      if (numPointsPerCell == 0)
+      else
       {
-        // cell type does not have a fixed number of points in which case the
-        // next entry in xmfConnections tells us the number of points.
-        numPointsPerCell = xmfConnections[index++];
-      }
+        // The polyhedron reader was copied from the Xdmf3 implementation.
+        // polyhedrons do not have a fixed number of faces in which case the
+        // next entry in xmfConnections tells us the number of faces.
+        const unsigned int numFacesPerCell = xmfConnections[index++];
 
-      cell_types->SetValue(cc, static_cast<unsigned char>(vtk_cell_typeI));
-      offsets->SetValue(cc, offset);
-      offset += numPointsPerCell;
+        // polyhedrons do not have a fixed number of points in which case the
+        // the number of points needs to be obtained from the data.
+        unsigned int numPointsPerCell = 0;
+        for (vtkIdType i = 0; i < static_cast<vtkIdType>(numFacesPerCell); i++)
+        {
+          // faces do not have a fixed number of points in which case the next
+          // entry in xmfConnections tells us the number of points.
+          numPointsPerCell += xmfConnections[index + numPointsPerCell + i];
+        }
 
-      for (vtkIdType i = 0; i < numPointsPerCell; i++)
-      {
-        conn->SetValue(connIndex++, xmfConnections[index++]);
+        // add cell entry to the array, which for polyhedrons is in the format:
+        // [cellLength, nCellFaces, nFace0Pts, id0_0, id0_1, ...,
+        //                          nFace1Pts, id1_0, id1_1, ...,
+        //                          ...]
+        cell_types->SetValue(cc, static_cast<unsigned char>(vtk_cell_typeI));
+        offsets->SetValue(cc, offset);
+        offset += numPointsPerCell + numFacesPerCell + 1;
+        conn->SetValue(connIndex++, numFacesPerCell);
+        for (vtkIdType i = 0; i < static_cast<vtkIdType>(numPointsPerCell + numFacesPerCell); i++)
+        {
+          conn->SetValue(connIndex++, xmfConnections[index++]);
+        }
       }
     }
     offsets->SetValue(numCells, offset); // final offset value
