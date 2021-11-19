@@ -323,17 +323,26 @@ void UpdateCellArrayConnectivity(vtkCellArray* ca, vtkIdType* ptMap)
   }
 }
 
-//  Update the cell connectivity array.
-void UpdateConnectivity(vtkIdTypeArray* a, vtkIdType* ptMap)
+//  Update the polyhedra face connectivity array.
+void UpdatePolyhedraFaces(vtkIdTypeArray* a, vtkIdType* ptMap)
 {
   vtkIdType num = a->GetNumberOfTuples();
   vtkIdType* c = a->GetPointer(0);
-  vtkSMPTools::For(0, num, [&, c, ptMap](vtkIdType id, vtkIdType endId) {
-    for (; id < endId; ++id)
+
+  for (vtkIdType idx = 0; idx < num;)
+  {
+    vtkIdType numFaces = c[idx++];
+    vtkIdType npts;
+    for (vtkIdType faceNum = 0; faceNum < numFaces; ++faceNum)
     {
-      c[id] = ptMap[c[id]];
+      npts = c[idx++];
+      for (vtkIdType i = 0; i < npts; ++i)
+      {
+        c[idx + i] = ptMap[c[idx + i]];
+      }
+      idx += npts;
     }
-  }); // end lambda
+  }
 }
 
 } // anonymous namespace
@@ -511,7 +520,7 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
   vtkIdTypeArray* faces = input->GetFaces();
   if (faces != nullptr)
   {
-    UpdateConnectivity(faces, pmap);
+    UpdatePolyhedraFaces(faces, pmap);
   }
 
   // Finally, assemble the filter output.

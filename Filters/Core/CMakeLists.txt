@@ -27,6 +27,7 @@ set(classes
   vtkContourHelper
   vtkConvertToMultiBlockDataSet
   vtkConvertToPartitionedDataSetCollection
+  vtkConvertToPolyhedra
   vtkCutter
   vtkDataObjectGenerator
   vtkDataObjectToDataSetFilter

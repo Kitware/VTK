@@ -21,6 +21,7 @@ vtk_add_test_python(
   Test3DLinearGridPlaneCutter.py
   TestBinnedDecimation.py
   TestCalculatorDataTypes.py,NO_VALID
+  TestCleanPolyhedraGrid.py
   TestCleanUnstructuredGrid.py
   TestCompositeDataSetPlaneCutter.py
   TestContour3DLinearGrid.py
@@ -28,6 +29,7 @@ vtk_add_test_python(
   TestContour3DLinearGridCompositeInput.py
   TestContour3DLinearGridInterpolateAttributes.py,NO_VALID
   TestContour3DLinearGridScalarTree.py
+  TestConvertToPolyhedra.py
   TestDecimatePolylineMaximumError.py
   TestElevationFilter.py
   TestFlyingEdges2D.py
