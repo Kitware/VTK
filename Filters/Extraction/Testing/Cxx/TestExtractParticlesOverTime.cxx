@@ -122,5 +122,16 @@ int TestExtractParticlesOverTime(int, char*[])
     return EXIT_FAILURE;
   }
 
+  // Compute with an unknown channel array, should use the Global Ids.
+  particleExtraction->SetIdChannelArray("unknown_channel_name");
+  particleExtraction->Update();
+  vtkIdType unknownChannelNumberOfPoints =
+    vtkDataSet::SafeDownCast(particleExtraction->GetOutputDataObject(0))->GetNumberOfPoints();
+  if (unknownChannelNumberOfPoints != 1)
+  {
+    vtkLog(ERROR, "wrong number of points with unknown Id Channel Array.");
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }

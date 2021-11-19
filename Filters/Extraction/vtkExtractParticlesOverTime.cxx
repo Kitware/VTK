@@ -266,18 +266,25 @@ int vtkExtractParticlesOverTime::RequestData(
   if (this->Internals->CurrentState == State::EXTRACTING)
   {
     auto* particlePointData = particleDataSet->GetPointData();
-    auto* ids = ::GetIds(particlePointData, this->IdChannelArray);
 
+    vtkDataArray* ids = nullptr;
     this->Internals->LastIdChannelArrayType = IdChannelArrayType::NO_ID_CHANNEL_ARRAY;
+    if (!IdChannelArray.empty())
+    {
+      ids = particlePointData->GetArray(IdChannelArray.c_str());
+    }
+
     if (ids)
     {
-      if (this->IdChannelArray.empty())
+      this->Internals->LastIdChannelArrayType = IdChannelArrayType::VALID_ID_CHANNEL_ARRAY;
+    }
+    else
+    {
+      // Try loading the global ids.
+      ids = particlePointData->GetGlobalIds();
+      if (ids)
       {
         this->Internals->LastIdChannelArrayType = IdChannelArrayType::GLOBAL_IDS;
-      }
-      else
-      {
-        this->Internals->LastIdChannelArrayType = IdChannelArrayType::VALID_ID_CHANNEL_ARRAY;
       }
     }
 
