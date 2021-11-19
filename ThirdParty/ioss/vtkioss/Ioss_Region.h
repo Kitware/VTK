@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -162,39 +162,39 @@ namespace Ioss {
     // Special purpose...
     bool remove(Assembly *removal);
 
-    const NodeBlockContainer &      get_node_blocks() const;
-    const EdgeBlockContainer &      get_edge_blocks() const;
-    const FaceBlockContainer &      get_face_blocks() const;
-    const ElementBlockContainer &   get_element_blocks() const;
-    const SideSetContainer &        get_sidesets() const;
-    const NodeSetContainer &        get_nodesets() const;
-    const EdgeSetContainer &        get_edgesets() const;
-    const FaceSetContainer &        get_facesets() const;
-    const ElementSetContainer &     get_elementsets() const;
-    const CommSetContainer &        get_commsets() const;
+    const NodeBlockContainer       &get_node_blocks() const;
+    const EdgeBlockContainer       &get_edge_blocks() const;
+    const FaceBlockContainer       &get_face_blocks() const;
+    const ElementBlockContainer    &get_element_blocks() const;
+    const SideSetContainer         &get_sidesets() const;
+    const NodeSetContainer         &get_nodesets() const;
+    const EdgeSetContainer         &get_edgesets() const;
+    const FaceSetContainer         &get_facesets() const;
+    const ElementSetContainer      &get_elementsets() const;
+    const CommSetContainer         &get_commsets() const;
     const StructuredBlockContainer &get_structured_blocks() const;
-    const AssemblyContainer &       get_assemblies() const;
-    const BlobContainer &           get_blobs() const;
+    const AssemblyContainer        &get_assemblies() const;
+    const BlobContainer            &get_blobs() const;
     const CoordinateFrameContainer &get_coordinate_frames() const;
 
     // Retrieve the Grouping Entity with the specified name.
     // Returns nullptr if the entity does not exist
-    GroupingEntity * get_entity(const std::string &my_name, EntityType io_type) const;
-    GroupingEntity * get_entity(const std::string &my_name) const;
-    NodeBlock *      get_node_block(const std::string &my_name) const;
-    EdgeBlock *      get_edge_block(const std::string &my_name) const;
-    FaceBlock *      get_face_block(const std::string &my_name) const;
-    ElementBlock *   get_element_block(const std::string &my_name) const;
-    SideSet *        get_sideset(const std::string &my_name) const;
-    SideBlock *      get_sideblock(const std::string &my_name) const;
-    NodeSet *        get_nodeset(const std::string &my_name) const;
-    EdgeSet *        get_edgeset(const std::string &my_name) const;
-    FaceSet *        get_faceset(const std::string &my_name) const;
-    ElementSet *     get_elementset(const std::string &my_name) const;
-    CommSet *        get_commset(const std::string &my_name) const;
+    GroupingEntity  *get_entity(const std::string &my_name, EntityType io_type) const;
+    GroupingEntity  *get_entity(const std::string &my_name) const;
+    NodeBlock       *get_node_block(const std::string &my_name) const;
+    EdgeBlock       *get_edge_block(const std::string &my_name) const;
+    FaceBlock       *get_face_block(const std::string &my_name) const;
+    ElementBlock    *get_element_block(const std::string &my_name) const;
+    SideSet         *get_sideset(const std::string &my_name) const;
+    SideBlock       *get_sideblock(const std::string &my_name) const;
+    NodeSet         *get_nodeset(const std::string &my_name) const;
+    EdgeSet         *get_edgeset(const std::string &my_name) const;
+    FaceSet         *get_faceset(const std::string &my_name) const;
+    ElementSet      *get_elementset(const std::string &my_name) const;
+    CommSet         *get_commset(const std::string &my_name) const;
     StructuredBlock *get_structured_block(const std::string &my_name) const;
-    Assembly *       get_assembly(const std::string &my_name) const;
-    Blob *           get_blob(const std::string &my_name) const;
+    Assembly        *get_assembly(const std::string &my_name) const;
+    Blob            *get_blob(const std::string &my_name) const;
 
     // Not guaranteed to be efficient...
     // Note that not all GroupingEntity's are guaranteed to have an 'id'...
@@ -205,15 +205,16 @@ namespace Ioss {
     // Add the name 'alias' as an alias for the database entity with the
     // name 'db_name'. Returns true if alias added; false if problems
     // adding alias.
-    bool        add_alias(const std::string &db_name, const std::string &alias);
+    bool        add_alias(const std::string &db_name, const std::string &alias, EntityType type);
     bool        add_alias(const GroupingEntity *ge);
-    std::string get_alias(const std::string &alias) const;
-    std::string get_alias__(const std::string &alias) const; // Not locked by mutex
+    std::string get_alias(const std::string &alias, EntityType type) const;
+    std::string get_alias__(const std::string &alias, EntityType type) const; // Not locked by mutex
 
-    const AliasMap &get_alias_map() const;
+    const AliasMap &get_alias_map(EntityType entity_type) const;
 
-    /// Get a map containing all aliases defined for the entity with basename 'name'
-    int get_aliases(const std::string &my_name, std::vector<std::string> &aliases) const;
+    /// Get a map containing all aliases defined for the entity with basename 'my_name'
+    int get_aliases(const std::string &my_name, EntityType type,
+                    std::vector<std::string> &aliases) const;
 
     // This routine transfers all relevant aliases from the 'this'
     // region and applies them to the 'to' file.
@@ -231,6 +232,8 @@ namespace Ioss {
     // code is repeated here instead of something more generic.
     bool is_valid_io_entity(const std::string &my_name, unsigned int io_type,
                             std::string *my_type = nullptr) const;
+
+    void check_for_duplicate_names(const Ioss::GroupingEntity *entity) const;
 
     // Retrieve the element block that contains the specified element
     // The 'local_id' is the local database id (1-based), not the global id.
@@ -268,7 +271,7 @@ namespace Ioss {
     // Add the name 'alias' as an alias for the database entity with the
     // name 'db_name'. Returns true if alias added; false if problems
     // adding alias. Not protected by mutex -- call internally only.
-    bool add_alias__(const std::string &db_name, const std::string &alias);
+    bool add_alias__(const std::string &db_name, const std::string &alias, EntityType type);
     bool add_alias__(const GroupingEntity *ge);
 
     bool begin_mode__(State new_state);
@@ -276,7 +279,7 @@ namespace Ioss {
 
     void delete_database() override;
 
-    AliasMap aliases_; ///< Stores alias mappings
+    mutable std::map<EntityType, AliasMap> aliases_; ///< Stores alias mappings
 
     // Containers for all grouping entities
     NodeBlockContainer    nodeBlocks;

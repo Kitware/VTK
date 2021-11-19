@@ -61,6 +61,7 @@ set(classes
   Ioss_Hex32
   Ioss_Hex64
   Ioss_Hex8
+  Ioss_Hex9
   Ioss_Initializer
   Ioss_IOFactory
   Ioss_Map
@@ -170,9 +171,8 @@ set(classes
 if (SEACAS_HAVE_MPI)
   list(APPEND classes
     Ioss_Decomposition
-    # For now, we don't support MPI-enabled CGNS.
-    # cgns/Iocgns_DecompositionData
-    # cgns/Iocgns_ParallelDatabaseIO
+    cgns/Iocgns_DecompositionData
+    cgns/Iocgns_ParallelDatabaseIO
     exodus/Ioex_DecompositionData
     exodus/Ioex_ParallelDatabaseIO)
 endif ()
@@ -340,6 +340,22 @@ list(APPEND headers
   robin_map.h
   robin_set.h
   tokenize.h
+
+  private_copy_fmt/fmt/args.h
+  private_copy_fmt/fmt/chrono.h
+  private_copy_fmt/fmt/color.h
+  private_copy_fmt/fmt/compile.h
+  private_copy_fmt/fmt/core.h
+  private_copy_fmt/fmt/format-inl.h
+  private_copy_fmt/fmt/format.h
+  private_copy_fmt/fmt/locale.h
+  private_copy_fmt/fmt/os.h
+  private_copy_fmt/fmt/ostream.h
+  private_copy_fmt/fmt/posix.h
+  private_copy_fmt/fmt/printf.h
+  private_copy_fmt/fmt/ranges.h
+  private_copy_fmt/fmt/xchar.h
+
   vtk_ioss_mangle.h)
 
 vtk_module_find_package(PACKAGE Threads)

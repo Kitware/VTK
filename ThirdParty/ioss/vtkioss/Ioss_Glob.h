@@ -72,7 +72,7 @@ namespace glob {
 
   private:
     StateType           type_;
-    Automata<charT> &   states_;
+    Automata<charT>    &states_;
     std::vector<size_t> next_states_;
     String<charT>       matched_str_;
   };
@@ -426,27 +426,23 @@ namespace glob {
 
     bool Check(const String<charT> &str, size_t pos) override
     {
+      bool r = false;
       switch (type_) {
       case Type::BASIC:
       case Type::AT:
       case Type::ANY:
       case Type::STAR:
       case Type::PLUS: {
-        bool r;
         std::tie(r, std::ignore) = BasicCheck(str, pos);
-        return r;
         break;
       }
 
       case Type::NEG: {
-        bool r;
         std::tie(r, std::ignore) = BasicCheck(str, pos);
-        return !r;
         break;
       }
-
-      default: return false; break;
       }
+      return r;
     }
 
     std::tuple<size_t, size_t> Next(const String<charT> &str, size_t pos) override
@@ -457,27 +453,22 @@ namespace glob {
       case Type::BASIC:
       case Type::AT: {
         return NextBasic(str, pos);
-        break;
       }
 
       case Type::ANY: {
         return NextAny(str, pos);
-        break;
       }
 
       case Type::STAR: {
         return NextStar(str, pos);
-        break;
       }
 
       case Type::PLUS: {
         return NextPlus(str, pos);
-        break;
       }
 
       case Type::NEG: {
         return NextNeg(str, pos);
-        break;
       }
       }
       return std::tuple<size_t, size_t>(0, 0);
@@ -1110,41 +1101,32 @@ namespace glob {
       Token<charT> &tk = GetToken();
 
       switch (tk.Kind()) {
-      case TokenKind::QUESTION:
-        Advance();
-        return AstNodePtr<charT>(new AnyNode<charT>());
-        break;
+      case TokenKind::QUESTION: Advance(); return AstNodePtr<charT>(new AnyNode<charT>());
 
-      case TokenKind::STAR:
-        Advance();
-        return AstNodePtr<charT>(new StarNode<charT>());
-        break;
+      case TokenKind::STAR: Advance(); return AstNodePtr<charT>(new StarNode<charT>());
 
-      case TokenKind::SUB:
-        Advance();
-        return AstNodePtr<charT>(new CharNode<charT>('-'));
-        break;
+      case TokenKind::SUB: Advance(); return AstNodePtr<charT>(new CharNode<charT>('-'));
 
-      case TokenKind::CHAR: return ParserChar(); break;
+      case TokenKind::CHAR: return ParserChar();
 
       case TokenKind::LBRACKET:
-      case TokenKind::NEGLBRACKET: return ParserSet(); break;
+      case TokenKind::NEGLBRACKET: return ParserSet();
 
       case TokenKind::LPAREN:
       case TokenKind::QUESTLPAREN:
       case TokenKind::STARLPAREN:
       case TokenKind::PLUSLPAREN:
       case TokenKind::NEGLPAREN:
-      case TokenKind::ATLPAREN: return ParserGroup(); break;
+      case TokenKind::ATLPAREN: return ParserGroup();
 
-      default: throw Error("basic glob expected"); break;
+      default: throw Error("basic glob expected");
       }
     }
 
     AstNodePtr<charT> ParserGroup()
     {
       typename GroupNode<charT>::GroupType type;
-      Token<charT> &                       tk = NextToken();
+      Token<charT>                        &tk = NextToken();
 
       switch (tk.Kind()) {
       case TokenKind::LPAREN: type = GroupNode<charT>::GroupType::BASIC; break;
@@ -1179,9 +1161,9 @@ namespace glob {
         switch (tk.Kind()) {
         case TokenKind::EOS:
         case TokenKind::RPAREN:
-        case TokenKind::UNION: return true; break;
+        case TokenKind::UNION: return true;
 
-        default: return false; break;
+        default: return false;
         }
       };
 
@@ -1276,7 +1258,7 @@ namespace glob {
   private:
     void ExecConcat(AstNode<charT> *node, Automata<charT> &automata)
     {
-      ConcatNode<charT> *             concat_node = static_cast<ConcatNode<charT> *>(node);
+      ConcatNode<charT>              *concat_node = static_cast<ConcatNode<charT> *>(node);
       std::vector<AstNodePtr<charT>> &basic_globs = concat_node->GetBasicGlobs();
 
       for (auto &basic_glob : basic_globs) {
@@ -1341,7 +1323,7 @@ namespace glob {
     {
       SetItemsNode<charT> *set_node = static_cast<SetItemsNode<charT> *>(node);
       std::vector<std::unique_ptr<SetItem<charT>>> vec;
-      auto &                                       items = set_node->GetItems();
+      auto                                        &items = set_node->GetItems();
       for (auto &item : items) {
         vec.push_back(std::move(ProcessSetItem(item.get())));
       }
@@ -1358,7 +1340,7 @@ namespace glob {
       }
       else if (node->GetType() == AstNode<charT>::Type::RANGE) {
         RangeNode<charT> *range_node = static_cast<RangeNode<charT> *>(node);
-        CharNode<charT> * start_node = static_cast<CharNode<charT> *>(range_node->GetStart());
+        CharNode<charT>  *start_node = static_cast<CharNode<charT> *>(range_node->GetStart());
 
         CharNode<charT> *end_node = static_cast<CharNode<charT> *>(range_node->GetEnd());
 
@@ -1374,7 +1356,7 @@ namespace glob {
     void ExecGroup(AstNode<charT> *node, Automata<charT> &automata)
     {
       GroupNode<charT> *group_node = static_cast<GroupNode<charT> *>(node);
-      AstNode<charT> *  union_node = group_node->GetGlob();
+      AstNode<charT>   *union_node = group_node->GetGlob();
       std::vector<std::unique_ptr<Automata<charT>>> automatas = ExecUnion(union_node);
 
       typename StateGroup<charT>::Type state_group_type{};
@@ -1405,7 +1387,7 @@ namespace glob {
     std::vector<std::unique_ptr<Automata<charT>>> ExecUnion(AstNode<charT> *node)
     {
       UnionNode<charT> *union_node = static_cast<UnionNode<charT> *>(node);
-      auto &            items      = union_node->GetItems();
+      auto             &items      = union_node->GetItems();
       std::vector<std::unique_ptr<Automata<charT>>> vec_automatas;
       for (auto &item : items) {
         std::unique_ptr<Automata<charT>> automata_ptr(new Automata<charT>);

@@ -179,7 +179,7 @@ namespace Iohb {
     time_t timeLastFlush_{0};
     time_t flushInterval_{10};
 
-    std::ostream *          logStream{nullptr};
+    std::ostream           *logStream{nullptr};
     std::unique_ptr<Layout> layout_{};
     std::unique_ptr<Layout> legend_{};
 

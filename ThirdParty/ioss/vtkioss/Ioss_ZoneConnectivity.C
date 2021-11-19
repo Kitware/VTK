@@ -20,6 +20,17 @@ namespace {
   {
     return ((beg - offset > 0) && (end - offset > 0));
   }
+
+  char get_constant_face(const Ioss::IJK_t &beg, const Ioss::IJK_t &end)
+  {
+    std::array<char, 6> tf{{'i', 'j', 'k', 'I', 'J', 'K'}};
+    for (int i = 0; i < 3; i++) {
+      if (beg[i] == end[i]) {
+        return (beg[i] == 1) ? tf[i] : tf[i + 3];
+      }
+    }
+    return ' ';
+  }
 } // namespace
 
 namespace Ioss {
@@ -45,18 +56,22 @@ namespace Ioss {
 #endif
 
 #if 1
+    auto owner_face = get_constant_face(zgc.m_ownerRangeBeg, zgc.m_ownerRangeEnd);
+    auto donor_face = get_constant_face(zgc.m_donorRangeBeg, zgc.m_donorRangeEnd);
+
     fmt::print(os,
-               "\t\t{}[P{}]:\tDZ {}\tName '{}' shares {:L} nodes."
+               "\t\t{}[P{}]:\tDZ {}\tName '{}' shares {:L} nodes on face {}:{} Decomp: {}."
                "\n\t\t\t\t      Range: [{}..{}, {}..{}, {}..{}]\t      Donor Range: [{}..{}, "
                "{}..{}, {}..{}]"
                "\n\t\t\t\tLocal Range: [{}..{}, {}..{}, {}..{}]\tDonor Local Range: [{}..{}, "
                "{}..{}, {}..{}]",
                zgc.m_donorName, zgc.m_donorProcessor, zgc.m_donorZone, zgc.m_connectionName,
-               zgc.get_shared_node_count(), zgc.m_ownerRangeBeg[0], zgc.m_ownerRangeEnd[0],
-               zgc.m_ownerRangeBeg[1], zgc.m_ownerRangeEnd[1], zgc.m_ownerRangeBeg[2],
-               zgc.m_ownerRangeEnd[2], zgc.m_donorRangeBeg[0], zgc.m_donorRangeEnd[0],
-               zgc.m_donorRangeBeg[1], zgc.m_donorRangeEnd[1], zgc.m_donorRangeBeg[2],
-               zgc.m_donorRangeEnd[2], zgc.m_ownerRangeBeg[0] - zgc.m_ownerOffset[0],
+               zgc.get_shared_node_count(), owner_face, donor_face, zgc.m_fromDecomp,
+               zgc.m_ownerRangeBeg[0], zgc.m_ownerRangeEnd[0], zgc.m_ownerRangeBeg[1],
+               zgc.m_ownerRangeEnd[1], zgc.m_ownerRangeBeg[2], zgc.m_ownerRangeEnd[2],
+               zgc.m_donorRangeBeg[0], zgc.m_donorRangeEnd[0], zgc.m_donorRangeBeg[1],
+               zgc.m_donorRangeEnd[1], zgc.m_donorRangeBeg[2], zgc.m_donorRangeEnd[2],
+               zgc.m_ownerRangeBeg[0] - zgc.m_ownerOffset[0],
                zgc.m_ownerRangeEnd[0] - zgc.m_ownerOffset[0],
                zgc.m_ownerRangeBeg[1] - zgc.m_ownerOffset[1],
                zgc.m_ownerRangeEnd[1] - zgc.m_ownerOffset[1],
@@ -85,13 +100,12 @@ namespace Ioss {
     return os;
   }
 
-#define IJK_list(v) v[0], v[1], v[2]
   bool ZoneConnectivity::equal_(const Ioss::ZoneConnectivity &rhs, bool quiet) const
   {
     if (this->m_connectionName != rhs.m_connectionName) {
       if (!quiet) {
         fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_connectionName MISMATCH ({} vs {})\n",
-                   this->m_connectionName.c_str(), rhs.m_connectionName.c_str());
+                   this->m_connectionName, rhs.m_connectionName);
       }
       return false;
     }
@@ -99,70 +113,63 @@ namespace Ioss {
     if (this->m_donorName != rhs.m_donorName) {
       if (!quiet) {
         fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorName MISMATCH ({} vs {})\n",
-                   this->m_donorName.c_str(), rhs.m_donorName.c_str());
+                   this->m_donorName, rhs.m_donorName);
       }
       return false;
     }
 
     if (this->m_transform != rhs.m_transform) {
       if (!quiet) {
-        fmt::print(Ioss::OUTPUT(),
-                   "ZoneConnectivity : m_transform MISMATCH!  ({}:{}:{} vs {}:{}:{})\n",
-                   IJK_list(this->m_transform), IJK_list(rhs.m_transform));
+        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_transform MISMATCH!  ({} vs {})\n",
+                   fmt::join(this->m_transform, ":"), fmt::join(rhs.m_transform, ":"));
       }
       return false;
     }
 
     if (this->m_ownerRangeBeg != rhs.m_ownerRangeBeg) {
       if (!quiet) {
-        fmt::print(Ioss::OUTPUT(),
-                   "ZoneConnectivity : m_ownerRangeBeg MISMATCH ({}:{}:{} vs {}:{}:{})\n",
-                   IJK_list(this->m_ownerRangeBeg), IJK_list(rhs.m_ownerRangeBeg));
+        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerRangeBeg MISMATCH ({} vs {})\n",
+                   fmt::join(this->m_ownerRangeBeg, ":"), fmt::join(rhs.m_ownerRangeBeg, ":"));
       }
       return false;
     }
 
     if (this->m_ownerRangeEnd != rhs.m_ownerRangeEnd) {
       if (!quiet) {
-        fmt::print(Ioss::OUTPUT(),
-                   "ZoneConnectivity : m_ownerRangeEnd MISMATCH ({}:{}:{} vs {}:{}:{})\n",
-                   IJK_list(this->m_ownerRangeEnd), IJK_list(rhs.m_ownerRangeEnd));
+        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerRangeEnd MISMATCH ({} vs {})\n",
+                   fmt::join(this->m_ownerRangeEnd, ":"), fmt::join(rhs.m_ownerRangeEnd, ":"));
       }
       return false;
     }
 
     if (this->m_ownerOffset != rhs.m_ownerOffset) {
       if (!quiet) {
-        fmt::print(Ioss::OUTPUT(),
-                   "ZoneConnectivity : m_ownerOffset MISMATCH ({}:{}:{} vs {}:{}:{})\n",
-                   IJK_list(this->m_ownerOffset), IJK_list(rhs.m_ownerOffset));
+        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_ownerOffset MISMATCH ({} vs {})\n",
+                   fmt::join(this->m_ownerOffset, ":"), fmt::join(rhs.m_ownerOffset, ":"));
       }
       return false;
     }
 
     if (this->m_donorRangeBeg != rhs.m_donorRangeBeg) {
       if (!quiet) {
-        fmt::print(Ioss::OUTPUT(),
-                   "ZoneConnectivity : m_donorRangeBeg MISMATCH ({}:{}:{} vs {}:{}:{})\n",
-                   IJK_list(this->m_donorRangeBeg), IJK_list(rhs.m_donorRangeBeg));
+        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorRangeBeg MISMATCH ({} vs {})\n",
+                   fmt::join(this->m_donorRangeBeg, ":"), fmt::join(rhs.m_donorRangeBeg, ":"));
       }
       return false;
     }
 
     if (this->m_donorRangeEnd != rhs.m_donorRangeEnd) {
       if (!quiet) {
-        fmt::print(Ioss::OUTPUT(),
-                   "ZoneConnectivity : m_donorRangeEnd MISMATCH ({}:{}:{} vs {}:{}:{})\n",
-                   IJK_list(this->m_donorRangeEnd), IJK_list(rhs.m_donorRangeEnd));
+        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorRangeEnd MISMATCH ({} vs {})\n",
+                   fmt::join(this->m_donorRangeEnd, ":"), fmt::join(rhs.m_donorRangeEnd, ":"));
       }
       return false;
     }
 
     if (this->m_donorOffset != rhs.m_donorOffset) {
       if (!quiet) {
-        fmt::print(Ioss::OUTPUT(),
-                   "ZoneConnectivity : m_donorOffset MISMATCH ({}:{}:{} vs {}:{}:{})\n",
-                   IJK_list(this->m_donorOffset), IJK_list(rhs.m_donorOffset));
+        fmt::print(Ioss::OUTPUT(), "ZoneConnectivity : m_donorOffset MISMATCH ({} vs {})\n",
+                   fmt::join(this->m_donorOffset, ":"), fmt::join(rhs.m_donorOffset, ":"));
       }
       return false;
     }
@@ -355,9 +362,9 @@ namespace Ioss {
     return range;
   }
 
-  std::array<INT, 9> ZoneConnectivity::transform_matrix() const
+  std::array<IOSS_ZC_INT, 9> ZoneConnectivity::transform_matrix() const
   {
-    std::array<INT, 9> t_matrix{};
+    std::array<IOSS_ZC_INT, 9> t_matrix{};
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         t_matrix[3 * i + j] = sign(m_transform[j]) * del(m_transform[j], i + 1);

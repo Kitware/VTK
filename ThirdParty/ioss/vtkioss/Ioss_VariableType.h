@@ -64,7 +64,7 @@ namespace Ioss {
   public:
     static void alias(const std::string &base, const std::string &syn);
     static int  describe(NameList *names);
-    static bool create_named_suffix_field_type(const std::string &             type_name,
+    static bool create_named_suffix_field_type(const std::string              &type_name,
                                                const std::vector<std::string> &suffices);
     static bool get_field_type_mapping(const std::string &field, std::string *type);
     static bool add_field_type_mapping(const std::string &raw_field, const std::string &raw_type);

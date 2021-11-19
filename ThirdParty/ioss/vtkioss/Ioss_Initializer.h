@@ -3,6 +3,8 @@
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
+#ifndef IOSS_INITIALIZER_H
+#define IOSS_INITIALIZER_H
 
 #include "vtk_ioss_mangle.h"
 
@@ -15,3 +17,4 @@ namespace Ioss {
     // Copy constructor
   };
 } // namespace Ioss
+#endif
