@@ -107,7 +107,7 @@ Ioss::ElementTopology *Ioss::Quad8::face_type(int /* face_number */) const
 
 Ioss::ElementTopology *Ioss::Quad8::edge_type(int edge_number) const
 {
-  (void) edge_number;
+  (void)edge_number;
   assert(edge_number >= 0 && edge_number <= number_edges());
   return Ioss::ElementTopology::factory("edge3");
 }

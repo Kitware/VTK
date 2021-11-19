@@ -10,7 +10,6 @@
 #include <Ioss_Utils.h>
 #include <algorithm>
 #include <cassert>
-#include <chrono>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -25,8 +24,6 @@
 #endif
 
 namespace {
-  auto initial_time = std::chrono::steady_clock::now();
-
 #ifdef SEACAS_HAVE_MPI
   MPI_Op which_reduction(Ioss::ParallelUtils::MinMax which)
   {
@@ -100,7 +97,7 @@ bool Ioss::ParallelUtils::get_environment(const std::string &name, std::string &
 {
   PAR_UNUSED(sync_parallel);
 #ifdef SEACAS_HAVE_MPI
-  char *            result_string = nullptr;
+  char             *result_string = nullptr;
   std::vector<char> broadcast_string;
 
   int string_length = 0;
@@ -303,7 +300,7 @@ void Ioss::ParallelUtils::barrier() const
 }
 
 void Ioss::ParallelUtils::global_count(const IntVector &local_counts,
-                                       IntVector &      global_counts) const
+                                       IntVector       &global_counts) const
 {
   // Vector 'local_counts' contains the number of objects
   // local to this processor.  On exit, global_counts
@@ -337,7 +334,7 @@ void Ioss::ParallelUtils::global_count(const IntVector &local_counts,
 }
 
 void Ioss::ParallelUtils::global_count(const Int64Vector &local_counts,
-                                       Int64Vector &      global_counts) const
+                                       Int64Vector       &global_counts) const
 {
   // Vector 'local_counts' contains the number of objects
   // local to this processor.  On exit, global_counts
@@ -374,7 +371,7 @@ template int Ioss::ParallelUtils::global_minmax(int, Ioss::ParallelUtils::MinMax
 template unsigned int Ioss::ParallelUtils::global_minmax(unsigned int,
                                                          Ioss::ParallelUtils::MinMax which) const;
 template int64_t      Ioss::ParallelUtils::global_minmax(int64_t,
-                                                    Ioss::ParallelUtils::MinMax which) const;
+                                                         Ioss::ParallelUtils::MinMax which) const;
 template double Ioss::ParallelUtils::global_minmax(double, Ioss::ParallelUtils::MinMax which) const;
 
 template <typename T>

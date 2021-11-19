@@ -16,3 +16,5 @@
 #cmakedefine SEACAS_HAVE_PAMGEN
 
 #cmakedefine HAVE_SEACASIOSS_ADIOS2
+
+#cmakedefine SEACAS_HAVE_CATALYST2

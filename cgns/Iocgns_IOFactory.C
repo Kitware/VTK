@@ -8,17 +8,13 @@
 #include <cgns/Iocgns_IOFactory.h>
 #include <cgns/Iocgns_Utils.h>
 #include <cstddef> // for nullptr
-
 #include "Ioss_DBUsage.h"   // for DatabaseUsage
 #include "Ioss_IOFactory.h" // for IOFactory
 #include <string>           // for string
 #include <tokenize.h>
 
-// .clang-format off
-#include <vtk_cgns.h>
+#include <vtk_cgns.h> // xxx(kitware)
 #include VTK_CGNS(cgnsconfig.h)
-// .clang-format on
-
 #if CG_BUILD_PARALLEL
 #include <cgns/Iocgns_ParallelDatabaseIO.h> // for DatabaseIO -- parallel
 #endif

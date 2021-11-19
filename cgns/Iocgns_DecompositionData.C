@@ -4,6 +4,9 @@
 //
 // See packages/seacas/LICENSE for details
 
+#include <vtk_cgns.h> // xxx(kitware)
+#include VTK_CGNS(cgnsconfig.h)
+#if CG_BUILD_PARALLEL
 #include <cgns/Iocgns_Defines.h>
 
 #include <Ioss_CodeTypes.h>
@@ -19,12 +22,7 @@
 #include <fmt/ostream.h>
 #include <tokenize.h>
 
-#include <vtk_cgns.h> // xxx(kitware)
-#ifdef SEACAS_HAVE_MPI
 #include VTK_CGNS(pcgnslib.h)
-#else
-#include VTK_CGNS(cgnslib.h)
-#endif
 
 #include <algorithm>
 #include <cassert>
@@ -262,7 +260,7 @@ namespace Iocgns {
           char ordinal = sub[i];
           ord |= ordinal == 'i' ? Ordinal::I : ordinal == 'j' ? Ordinal::J : Ordinal::K;
         }
-        for (auto zone : m_structuredZones) {
+        for (auto &zone : m_structuredZones) {
           if (zone->is_active()) {
             zone->m_lineOrdinal |= ord;
           }
@@ -283,7 +281,7 @@ namespace Iocgns {
                  return a->m_zone < b->m_zone;
                });
 
-    for (auto zone : m_structuredZones) {
+    for (auto &zone : m_structuredZones) {
       if (zone->is_active()) {
         zone->resolve_zgc_split_donor(m_structuredZones);
       }
@@ -512,16 +510,16 @@ namespace Iocgns {
       int nconn = 0;
       CGCHECK2(cg_nconns(filePtr, base, zone, &nconn));
       for (int i = 0; i < nconn; i++) {
-        char                      connectname[CGNS_MAX_NAME_LENGTH + 1];
-        CGNS_ENUMT(GridLocation_t)         location;
+        char connectname[CGNS_MAX_NAME_LENGTH + 1];
+        CGNS_ENUMT(GridLocation_t) location;
         CGNS_ENUMT(GridConnectivityType_t) connect_type;
-        CGNS_ENUMT(PointSetType_t)         ptset_type;
-        cgsize_t                  npnts = 0;
-        char                      donorname[CGNS_MAX_NAME_LENGTH + 1];
-        CGNS_ENUMT(ZoneType_t)             donor_zonetype;
-        CGNS_ENUMT(PointSetType_t)         donor_ptset_type;
-        CGNS_ENUMT(DataType_t)             donor_datatype;
-        cgsize_t                  ndata_donor;
+        CGNS_ENUMT(PointSetType_t) ptset_type;
+        cgsize_t npnts = 0;
+        char     donorname[CGNS_MAX_NAME_LENGTH + 1];
+        CGNS_ENUMT(ZoneType_t) donor_zonetype;
+        CGNS_ENUMT(PointSetType_t) donor_ptset_type;
+        CGNS_ENUMT(DataType_t) donor_datatype;
+        cgsize_t ndata_donor;
 
         CGCHECK2(cg_conn_info(filePtr, base, zone, i + 1, connectname, &location, &connect_type,
                               &ptset_type, &npnts, donorname, &donor_zonetype, &donor_ptset_type,
@@ -642,12 +640,12 @@ namespace Iocgns {
 
       size_t last_blk_location = 0;
       for (int is = 1; is <= num_sections; is++) {
-        char             section_name[CGNS_MAX_NAME_LENGTH + 1];
+        char section_name[CGNS_MAX_NAME_LENGTH + 1];
         CGNS_ENUMT(ElementType_t) e_type;
-        cgsize_t         el_start    = 0;
-        cgsize_t         el_end      = 0;
-        int              num_bndry   = 0;
-        int              parent_flag = 0;
+        cgsize_t el_start    = 0;
+        cgsize_t el_end      = 0;
+        int      num_bndry   = 0;
+        int      parent_flag = 0;
 
         // Get the type of elements in this section...
         CGCHECK2(cg_section_read(filePtr, base, zone, is, section_name, &e_type, &el_start, &el_end,
@@ -724,7 +722,7 @@ namespace Iocgns {
     // if global_block_index[B] <= I && global_block_index[B+1] < I
     // allocate and TODO: Fill
     m_decomposition.m_fileBlockIndex.reserve(block_count + 1);
-    for (auto block : m_elementBlocks) {
+    for (auto &block : m_elementBlocks) {
       m_decomposition.m_fileBlockIndex.push_back(block.file_count());
     }
     m_decomposition.m_fileBlockIndex.push_back(0);
@@ -755,8 +753,8 @@ namespace Iocgns {
       offset += block.file_count();
       size_t b_end = b_start + block.file_count();
 
-      ssize_t overlap      = std::min(b_end, p_end) - std::max(b_start, p_start);
-      overlap              = std::max(overlap, (ssize_t)0);
+      ioss_ssize_t overlap = std::min(b_end, p_end) - std::max(b_start, p_start);
+      overlap              = std::max(overlap, (ioss_ssize_t)0);
       block.fileCount      = overlap;
       size_t element_nodes = block.nodesPerEntity;
       int    zone          = block.zone_;
@@ -780,7 +778,7 @@ namespace Iocgns {
       size_t el          = 0;
       INT    zone_offset = block.zoneNodeOffset;
 
-      for (ssize_t elem = 0; elem < overlap; elem++) {
+      for (ioss_ssize_t elem = 0; elem < overlap; elem++) {
         decomposition.m_pointer.push_back(decomposition.m_adjacency.size());
         for (size_t k = 0; k < element_nodes; k++) {
           INT node = connectivity[el++] - 1 + zone_offset; // 0-based node
@@ -794,8 +792,6 @@ namespace Iocgns {
 
   template <typename INT> void DecompositionData<INT>::get_sideset_data(int filePtr)
   {
-    int base = 1; // Only single base supported so far.
-
     // NOTE: Not currently used; assume can read all on single processor...
     // Calculate the max "buffer" size usable for storing sideset
     // elemlists. This is basically the space used to store the file
@@ -825,6 +821,7 @@ namespace Iocgns {
         // *  num_to_get zeros (face on other parent element)
         CGNSIntVector parent(4 * sset.file_count());
 
+        int base = 1; // Only single base supported so far.
         CGCHECK2(cg_elements_read(filePtr, base, sset.zone(), sset.section(), nodes.data(),
                                   parent.data()));
 
@@ -863,7 +860,7 @@ namespace Iocgns {
           // Now, iterate the face connectivity vector and see if
           // there is a match in `m_boundaryFaces`
           size_t offset           = 0;
-          auto & boundary         = m_boundaryFaces[sset.zone()];
+          auto  &boundary         = m_boundaryFaces[sset.zone()];
           int    num_corner_nodes = topology->number_corner_nodes();
           SMART_ASSERT(num_corner_nodes == 3 || num_corner_nodes == 4)(num_corner_nodes);
 
@@ -1042,7 +1039,8 @@ namespace Iocgns {
     for (int zone = 1; zone <= num_zones; zone++) {
       end += m_zones[zone].m_nodeCount;
 
-      int solution_index = Utils::find_solution_index(filePtr, base, zone, step, CGNS_ENUMV(Vertex));
+      int solution_index =
+          Utils::find_solution_index(filePtr, base, zone, step, CGNS_ENUMV(Vertex));
 
       cgsize_t start  = std::max(node_offset, beg);
       cgsize_t finish = std::min(end, node_offset + node_count);
@@ -1052,7 +1050,7 @@ namespace Iocgns {
       start  = (count == 0) ? 0 : start - beg + 1;
       finish = (count == 0) ? 0 : finish - beg;
 
-      double * data         = (count > 0) ? &tmp[offset] : nullptr;
+      double  *data         = (count > 0) ? &tmp[offset] : nullptr;
       cgsize_t range_min[1] = {start};
       cgsize_t range_max[1] = {finish};
 
@@ -1297,7 +1295,7 @@ namespace Iocgns {
     }
   }
 
-  void DecompositionDataBase::get_node_entity_proc_data(void *                    entity_proc,
+  void DecompositionDataBase::get_node_entity_proc_data(void                     *entity_proc,
                                                         const Ioss::MapContainer &node_map,
                                                         bool                      do_map) const
   {
@@ -1364,7 +1362,7 @@ namespace Iocgns {
 
   void DecompositionDataBase::get_sideset_element_side(int                               filePtr,
                                                        const Ioss::SetDecompositionData &sset,
-                                                       void *                            data) const
+                                                       void                             *data) const
   {
     if (int_size() == sizeof(int)) {
       const DecompositionData<int> *this32 = dynamic_cast<const DecompositionData<int> *>(this);
@@ -1379,3 +1377,10 @@ namespace Iocgns {
     }
   }
 } // namespace Iocgns
+#else
+/*
+ * Prevent warning in some versions of ranlib(1) because the object
+ * file has no symbols.
+ */
+const char ioss_cgns_decomposition_data_unused_symbol_dummy = '\0';
+#endif

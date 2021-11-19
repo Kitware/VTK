@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -48,14 +48,14 @@ namespace Ioss {
     Property(const GroupingEntity *ge, std::string name, BasicType type);
 
     Property(const Property &from);
-    Property &operator=(Property const& rhs);
+    Property &operator=(Property rhs);
 
     ~Property();
 
     std::string         get_string() const;
     int64_t             get_int() const;
     double              get_real() const;
-    void *              get_pointer() const;
+    void               *get_pointer() const;
     std::vector<double> get_vec_double() const;
     std::vector<int>    get_vec_int() const;
 
@@ -99,8 +99,8 @@ namespace Ioss {
      */
     BasicType get_type() const { return type_; }
 
-    bool operator!=(const Ioss::Property rhs) const;
-    bool operator==(const Ioss::Property rhs) const;
+    bool operator!=(const Ioss::Property &rhs) const;
+    bool operator==(const Ioss::Property &rhs) const;
 
   private:
     std::string name_{};
@@ -120,13 +120,13 @@ namespace Ioss {
     /// The actual value of the property.  Use 'type_' to
     /// discriminate the actual type of the property.
     union Data {
-      std::string *         sval;
-      void *                pval{nullptr};
+      std::string          *sval;
+      void                 *pval{nullptr};
       const GroupingEntity *ge;
       double                rval;
       int64_t               ival;
-      std::vector<double> * dvec;
-      std::vector<int> *    ivec;
+      std::vector<double>  *dvec;
+      std::vector<int>     *ivec;
     };
     Data data_{};
   };

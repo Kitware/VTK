@@ -42,10 +42,10 @@ namespace Ioss {
     };
 
   private:
-    Cell *      table{nullptr};        // option table
+    Cell       *table{nullptr};        // option table
     const char *ustring{nullptr};      // usage message
-    char *      pname{nullptr};        // program basename
-    Cell *      last{nullptr};         // last entry in option table
+    char       *pname{nullptr};        // program basename
+    Cell       *last{nullptr};         // last entry in option table
     char        optmarker;             // option marker
     bool        options_parsed{false}; // parsed options, cannot enroll anymore options
 

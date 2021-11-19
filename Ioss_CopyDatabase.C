@@ -12,6 +12,7 @@
 #include <Ioss_SubSystem.h>
 
 #include <fmt/ostream.h>
+#include <limits>
 
 // For Sleep...
 #include <chrono>
@@ -19,11 +20,9 @@
 
 // For copy_database...
 namespace {
-  auto initial_time = std::chrono::steady_clock::now();
-
   std::vector<int> get_selected_steps(Ioss::Region &region, const Ioss::MeshCopyOptions &options);
   void show_step(int istep, double time, const Ioss::MeshCopyOptions &options, int rank);
-  std::vector<Ioss::Face> generate_boundary_faces(Ioss::Region &               region,
+  std::vector<Ioss::Face> generate_boundary_faces(Ioss::Region                &region,
                                                   const Ioss::MeshCopyOptions &options);
   void define_model(Ioss::Region &region, Ioss::Region &output_region, DataPool &data_pool,
                     const std::vector<Ioss::Face> &boundary, const Ioss::MeshCopyOptions &options,
@@ -89,37 +88,43 @@ namespace {
   void set_owned_node_count(Ioss::Region &region, int my_processor, INT dummy);
 
   template <typename T>
-  size_t calculate_maximum_field_size(const std::vector<T> &entities, size_t max_field_size)
+  std::pair<size_t, std::string>
+  calculate_maximum_field_size(const std::vector<T>           &entities,
+                               std::pair<size_t, std::string> &max_field)
   {
-    size_t max_size = max_field_size;
+    size_t      max_size = max_field.first;
+    std::string max_name = max_field.second;
     for (const auto &entity : entities) {
       Ioss::NameList fields;
       entity->field_describe(&fields);
       for (const auto &field_name : fields) {
         Ioss::Field field = entity->get_field(field_name);
-        max_size          = std::max(field.get_size(), max_size);
+        if (field.get_size() > max_size) {
+          max_size = field.get_size();
+          max_name = field_name;
+        }
       }
     }
-    return max_size;
+    return std::make_pair(max_size, max_name);
   }
 
-  size_t calculate_maximum_field_size(const Ioss::Region &region)
+  std::pair<size_t, std::string> calculate_maximum_field_size(const Ioss::Region &region)
   {
-    size_t max_field_size = 0;
-    max_field_size        = calculate_maximum_field_size(region.get_node_blocks(), max_field_size);
-    max_field_size        = calculate_maximum_field_size(region.get_edge_blocks(), max_field_size);
-    max_field_size        = calculate_maximum_field_size(region.get_face_blocks(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_element_blocks(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_sidesets(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_nodesets(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_edgesets(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_facesets(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_elementsets(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_commsets(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_structured_blocks(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_assemblies(), max_field_size);
-    max_field_size = calculate_maximum_field_size(region.get_blobs(), max_field_size);
-    return max_field_size;
+    std::pair<size_t, std::string> max_field{};
+    max_field = calculate_maximum_field_size(region.get_node_blocks(), max_field);
+    max_field = calculate_maximum_field_size(region.get_edge_blocks(), max_field);
+    max_field = calculate_maximum_field_size(region.get_face_blocks(), max_field);
+    max_field = calculate_maximum_field_size(region.get_element_blocks(), max_field);
+    max_field = calculate_maximum_field_size(region.get_sidesets(), max_field);
+    max_field = calculate_maximum_field_size(region.get_nodesets(), max_field);
+    max_field = calculate_maximum_field_size(region.get_edgesets(), max_field);
+    max_field = calculate_maximum_field_size(region.get_facesets(), max_field);
+    max_field = calculate_maximum_field_size(region.get_elementsets(), max_field);
+    max_field = calculate_maximum_field_size(region.get_commsets(), max_field);
+    max_field = calculate_maximum_field_size(region.get_structured_blocks(), max_field);
+    max_field = calculate_maximum_field_size(region.get_assemblies(), max_field);
+    max_field = calculate_maximum_field_size(region.get_blobs(), max_field);
+    return max_field;
   }
 
   template <typename INT>
@@ -218,13 +223,20 @@ void Ioss::copy_database(Ioss::Region &region, Ioss::Region &output_region,
   int               rank = dbi->util().parallel_rank();
 
   // Minimize number of times that we grow the memory buffer used for transferring field data.
-  size_t max_field_size = calculate_maximum_field_size(region);
+  auto max_field = calculate_maximum_field_size(region);
   if (options.verbose && rank == 0) {
-    fmt::print(Ioss::DEBUG(), "\n Maximum Field size = {:L} bytes.\n", max_field_size);
+    std::string label = "MiB";
+    double      size  = (double)max_field.first / 1024 / 1024;
+    if (size > 1024.0) {
+      label = "GiB";
+      size /= 1024.0;
+    }
+    fmt::print(Ioss::DEBUG(), "\n Maximum Field size = {:L} bytes ({:.3} {}) for field '{}'.\n",
+               max_field.first, size, label, max_field.second);
   }
 
   DataPool data_pool;
-  data_pool.data.resize(max_field_size);
+  data_pool.data.resize(max_field.first);
   if (options.verbose && rank == 0) {
     fmt::print(Ioss::DEBUG(), " Resize finished...\n");
   }
@@ -266,6 +278,17 @@ void Ioss::copy_database(Ioss::Region &region, Ioss::Region &output_region,
   std::vector<int> selected_steps = get_selected_steps(region, options);
 
   int step_count = region.get_property("state_count").get_int();
+#ifdef SEACAS_HAVE_MPI
+  int min_step_count = dbi->util().global_minmax(step_count, Ioss::ParallelUtils::DO_MIN);
+  int max_step_count = dbi->util().global_minmax(step_count, Ioss::ParallelUtils::DO_MAX);
+  if (min_step_count != max_step_count) {
+    std::ostringstream errmsg;
+    fmt::print(errmsg,
+               "ERROR: Number of timesteps does not match on all ranks.  Range from {} to {}.\n",
+               min_step_count, max_step_count);
+    IOSS_ERROR(errmsg);
+  }
+#endif
   for (int istep = 1; istep <= step_count; istep++) {
     if (selected_steps[istep] == 1) {
       transfer_step(region, output_region, data_pool, istep, options, rank);
@@ -345,7 +368,7 @@ namespace {
     transfer_fields(input, output, Ioss::Field::MESH_REDUCTION);
   }
 
-  std::vector<Ioss::Face> generate_boundary_faces(Ioss::Region &               region,
+  std::vector<Ioss::Face> generate_boundary_faces(Ioss::Region                &region,
                                                   const Ioss::MeshCopyOptions &options)
   {
     std::vector<Ioss::Face> boundary;
@@ -650,7 +673,7 @@ namespace {
       for (const auto &isb : sbs) {
 
         // Find matching output structured block
-        const std::string &    name = isb->name();
+        const std::string     &name = isb->name();
         Ioss::StructuredBlock *osb  = output_region.get_structured_block(name);
         if (osb != nullptr) {
           transfer_fields(isb, osb, Ioss::Field::TRANSIENT);
@@ -761,7 +784,8 @@ namespace {
     output_region.end_state(ostep);
 
     if (options.delay > 0.0) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(options.delay * 1000)));
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(static_cast<int>(options.delay * 1000)));
     }
   }
 
@@ -875,7 +899,7 @@ namespace {
   void transfer_structuredblocks(Ioss::Region &region, Ioss::Region &output_region,
                                  const Ioss::MeshCopyOptions &options, int rank)
   {
-    auto blocks = region.get_structured_blocks();
+    const auto &blocks = region.get_structured_blocks();
     if (!blocks.empty()) {
       size_t total_entities = 0;
       if (options.reverse) {
@@ -884,7 +908,7 @@ namespace {
         // testing to verify that we handle zone reordering
         // correctly.
         for (int i = blocks.size() - 1; i >= 0; i--) {
-          const auto &       iblock = blocks[i];
+          const auto        &iblock = blocks[i];
           const std::string &name   = iblock->name();
           if (options.debug && rank == 0) {
             fmt::print(Ioss::DEBUG(), "{}, ", name);
@@ -964,8 +988,7 @@ namespace {
   void transfer_sidesets(Ioss::Region &region, Ioss::Region &output_region,
                          const Ioss::MeshCopyOptions &options, int rank)
   {
-    const auto &fss         = region.get_sidesets();
-    size_t      total_sides = 0;
+    const auto &fss = region.get_sidesets();
     for (const auto &ss : fss) {
       const std::string &name = ss->name();
       if (options.debug && rank == 0) {
@@ -979,7 +1002,12 @@ namespace {
       for (const auto &ifb : fbs) {
         if (ifb->parent_block() != nullptr) {
           auto  fb_name = ifb->parent_block()->name();
-          auto *parent  = dynamic_cast<Ioss::EntityBlock *>(output_region.get_entity(fb_name));
+          auto *parent  = dynamic_cast<Ioss::EntityBlock *>(
+              output_region.get_entity(fb_name, Ioss::ELEMENTBLOCK));
+          if (parent == nullptr) {
+            parent = dynamic_cast<Ioss::EntityBlock *>(
+                output_region.get_entity(fb_name, Ioss::STRUCTUREDBLOCK));
+          }
 
           auto *ofb = surf->get_side_block(ifb->name());
           ofb->set_parent_block(parent);
@@ -990,8 +1018,6 @@ namespace {
     if (options.verbose && rank == 0 && !fss.empty()) {
       fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n", (*fss.begin())->type_string() + "s",
                  fss.size());
-      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
-                 (*fss.begin())->contains_string() + "s", total_sides);
     }
     if (options.debug && rank == 0) {
       fmt::print(Ioss::DEBUG(), "\n");
@@ -1095,15 +1121,6 @@ namespace {
                            Ioss::Field::RoleType role, const Ioss::MeshCopyOptions &options,
                            const std::string &prefix)
   {
-    // !!!! WARNING !!!!  This is a hack.  It assumes that all NodeBlocks that have "_nodes" in
-    // their name belong to a StructuredBlock (m_nodeBlock).  Further, it assumes that the
-    // NodeBlocks that belong to a StructuredBlock have no field data that needs to be transferred.
-    // A permanent and comprehensive fix that handles this issue still needs to be developed.
-    // --sll 21aug20
-    if (ige->type() == Ioss::NODEBLOCK && ige->name().find("_nodes") != std::string::npos) {
-      return;
-    }
-
     // Iterate through the TRANSIENT-role fields of the input
     // database and transfer to output database.
     Ioss::NameList state_fields;
@@ -1427,7 +1444,7 @@ namespace {
 
       // Set locally_owned_count property on all nodesets...
       const Ioss::NodeSetContainer &nss = region.get_nodesets();
-      for (auto ns : nss) {
+      for (const auto &ns : nss) {
 
         std::vector<INT> ids;
         ns->get_field_data("ids_raw", ids);

@@ -180,29 +180,13 @@ Ioss::Property::~Property()
   }
 }
 
-Ioss::Property &Ioss::Property::operator=(Ioss::Property const& rhs)
+Ioss::Property &Ioss::Property::operator=(Ioss::Property rhs)
 {
-  if (this == &rhs) {
-    return *this;
-  }
-  name_ = rhs.name_;
-  type_ = rhs.type_;
-  origin_ = rhs.origin_;
-
-  if (!is_implicit() && type_ == STRING) {
-    data_.sval = new std::string(*rhs.data_.sval);
-  } else if (!is_implicit() && type_ == VEC_DOUBLE) {
-    data_.dvec = new std::vector<double>(*rhs.data_.dvec);
-  } else if (!is_implicit() && type_ == VEC_INTEGER) {
-    data_.ivec = new std::vector<int>(*rhs.data_.ivec);
-  } else {
-    data_ = rhs.data_;
-  }
-
+  std::swap(*this, rhs);
   return *this;
 }
 
-bool Ioss::Property::operator==(const Ioss::Property rhs) const
+bool Ioss::Property::operator==(const Ioss::Property &rhs) const
 {
   if (this->name_.compare(rhs.name_) != 0) {
     return false;
@@ -265,7 +249,7 @@ bool Ioss::Property::operator==(const Ioss::Property rhs) const
   return true;
 }
 
-bool Ioss::Property::operator!=(const Ioss::Property rhs) const { return !(*this == rhs); }
+bool Ioss::Property::operator!=(const Ioss::Property &rhs) const { return !(*this == rhs); }
 
 /** \brief Get the property value if it is of type STRING.
  *

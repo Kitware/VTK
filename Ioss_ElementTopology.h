@@ -106,7 +106,7 @@ namespace Ioss {
     virtual IntVector face_edge_connectivity(int face_number) const;
     IntVector         element_edge_connectivity() const;
 
-    ElementTopology *        boundary_type(int face_number = 0) const;
+    ElementTopology         *boundary_type(int face_number = 0) const;
     virtual ElementTopology *face_type(int face_number = 0) const = 0;
     virtual ElementTopology *edge_type(int edge_number = 0) const = 0;
 

@@ -80,7 +80,7 @@ namespace Ioss {
 
     State get_state() const;
 
-    DatabaseIO * get_database() const;
+    DatabaseIO  *get_database() const;
     void         set_database(DatabaseIO *io_database);
     void         reset_database(DatabaseIO *io_database);
     virtual void delete_database();
@@ -370,7 +370,7 @@ inline int Ioss::GroupingEntity::property_describe(NameList *names) const
 }
 
 inline int Ioss::GroupingEntity::property_describe(Ioss::Property::Origin origin,
-                                                   NameList *             names) const
+                                                   NameList              *names) const
 {
   return properties.describe(origin, names);
 }
@@ -465,7 +465,7 @@ inline size_t Ioss::GroupingEntity::field_count() const { return fields.count();
  */
 template <typename T>
 int64_t Ioss::GroupingEntity::get_field_data(const std::string &field_name,
-                                             std::vector<T> &   data) const
+                                             std::vector<T>    &data) const
 {
   verify_field_exists(field_name, "input");
 
@@ -492,7 +492,7 @@ int64_t Ioss::GroupingEntity::get_field_data(const std::string &field_name,
  *
  */
 template <typename T>
-int64_t Ioss::GroupingEntity::put_field_data(const std::string &   field_name,
+int64_t Ioss::GroupingEntity::put_field_data(const std::string    &field_name,
                                              const std::vector<T> &data) const
 {
   verify_field_exists(field_name, "output");
@@ -513,14 +513,14 @@ int64_t Ioss::GroupingEntity::put_field_data(const std::string &   field_name,
 
 template <typename T>
 int64_t Ioss::GroupingEntity::put_field_data(const std::string &field_name,
-                                             std::vector<T> &   data) const
+                                             std::vector<T>    &data) const
 {
   verify_field_exists(field_name, "output");
 
   Ioss::Field field = get_field(field_name);
   field.check_type(Ioss::Field::get_field_type(T(0)));
   size_t data_size = data.size() * sizeof(T);
-  T *    my_data   = const_cast<T *>(data.data());
+  T     *my_data   = const_cast<T *>(data.data());
   field.transform(my_data);
   return internal_put_field_data(field, my_data, data_size);
 }
@@ -537,7 +537,7 @@ int64_t Ioss::GroupingEntity::put_field_data(const std::string &field_name,
  *
  */
 template <typename T, typename... Args>
-int64_t Ioss::GroupingEntity::get_field_data(const std::string &         field_name,
+int64_t Ioss::GroupingEntity::get_field_data(const std::string          &field_name,
                                              Kokkos::View<T *, Args...> &data) const
 {
   typedef Kokkos::View<T *, Args...> ViewType;
@@ -580,7 +580,7 @@ int64_t Ioss::GroupingEntity::get_field_data(const std::string &         field_n
  *
  */
 template <typename T, typename... Args>
-int64_t Ioss::GroupingEntity::get_field_data(const std::string &          field_name,
+int64_t Ioss::GroupingEntity::get_field_data(const std::string           &field_name,
                                              Kokkos::View<T **, Args...> &data) const
 {
   typedef Kokkos::View<T **, Args...> ViewType;
@@ -642,7 +642,7 @@ int64_t Ioss::GroupingEntity::get_field_data(const std::string &          field_
  *
  */
 template <typename T, typename... Args>
-int64_t Ioss::GroupingEntity::put_field_data(const std::string &         field_name,
+int64_t Ioss::GroupingEntity::put_field_data(const std::string          &field_name,
                                              Kokkos::View<T *, Args...> &data) const
 {
   typedef Kokkos::View<T *, Args...> ViewType;
@@ -678,7 +678,7 @@ int64_t Ioss::GroupingEntity::put_field_data(const std::string &         field_n
  *
  */
 template <typename T, typename... Args>
-int64_t Ioss::GroupingEntity::put_field_data(const std::string &          field_name,
+int64_t Ioss::GroupingEntity::put_field_data(const std::string           &field_name,
                                              Kokkos::View<T **, Args...> &data) const
 {
   typedef Kokkos::View<T **, Args...> ViewType;

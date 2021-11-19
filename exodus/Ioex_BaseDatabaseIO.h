@@ -125,7 +125,7 @@ namespace Ioex {
                             Ioss::Map &entity_map, void *ids, size_t num_to_get,
                             size_t offset) const;
 
-    void compute_block_membership__(Ioss::SideBlock *         efblock,
+    void compute_block_membership__(Ioss::SideBlock          *efblock,
                                     std::vector<std::string> &block_membership) const override;
 
     int  int_byte_size_db() const override;
@@ -241,7 +241,7 @@ namespace Ioex {
 
     int64_t internal_add_results_fields(ex_entity_type type, Ioss::GroupingEntity *entity,
                                         int64_t position, int64_t block_count,
-                                        Ioss::IntVector &      truth_table,
+                                        Ioss::IntVector       &truth_table,
                                         Ioex::VariableNameMap &variables);
     int64_t add_results_fields(ex_entity_type type, Ioss::GroupingEntity *entity,
                                int64_t position = 0);

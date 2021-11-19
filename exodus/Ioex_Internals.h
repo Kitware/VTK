@@ -360,7 +360,7 @@ namespace Ioex {
   class Internals
   {
   public:
-    Internals(int exoid, size_t maximum_name_length, const Ioss::ParallelUtils &util);
+    Internals(int exoid, int maximum_name_length, const Ioss::ParallelUtils &util);
     Internals(const Internals &from) = delete;
     Internals &operator=(const Internals &from) = delete;
 
@@ -407,14 +407,14 @@ namespace Ioex {
 
     int put_non_define_data(const std::vector<SideSet> &sidesets, bool output_global_data);
 
-    size_t max_name_length() const { return maximumNameLength; }
+    int max_name_length() const { return maximumNameLength; }
 
     int                 exodusFilePtr{0};
     int                 nodeMapVarID[3];
     int                 elementMapVarID[2];
     int                 commIndexVar{0};
     int                 elemCommIndexVar{0};
-    size_t              maximumNameLength{32};
+    int                 maximumNameLength{32};
     Ioss::ParallelUtils parallelUtil;
   };
 } // namespace Ioex

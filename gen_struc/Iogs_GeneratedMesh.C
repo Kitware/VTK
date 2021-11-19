@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -15,7 +15,6 @@
 #include <gen_struc/Iogs_GeneratedMesh.h>
 #include <numeric>
 #include <string>
-#include <sys/types.h> // for ssize_t
 #include <tokenize.h>  // for tokenize
 #include <vector>      // for vector
 
@@ -673,37 +672,29 @@ namespace Iogs {
     size_t count = node_count_proc();
     xyz.reserve(count);
 
-    double offset = 0;
-    double scale  = 1;
     if (component == 1) {
-      offset = offX;
-      scale  = sclX;
       for (size_t m = myStartZ; m < myStartZ + myNumZ + 1; m++) {
         for (size_t i = 0; i < numY + 1; i++) {
           for (size_t j = 0; j < numX + 1; j++) {
-            xyz.push_back(scale * static_cast<double>(j) + offset);
+            xyz.push_back(sclX * static_cast<double>(j) + offX);
           }
         }
       }
     }
     else if (component == 2) {
-      offset = offY;
-      scale  = sclY;
       for (size_t m = myStartZ; m < myStartZ + myNumZ + 1; m++) {
         for (size_t i = 0; i < numY + 1; i++) {
           for (size_t j = 0; j < numX + 1; j++) {
-            xyz.push_back(scale * static_cast<double>(i) + offset);
+            xyz.push_back(sclY * static_cast<double>(i) + offY);
           }
         }
       }
     }
     else if (component == 3) {
-      offset = offZ;
-      scale  = sclZ;
       for (size_t m = myStartZ; m < myStartZ + myNumZ + 1; m++) {
         for (size_t i = 0; i < numY + 1; i++) {
           for (size_t j = 0; j < numX + 1; j++) {
-            xyz.push_back(scale * static_cast<double>(m) + offset);
+            xyz.push_back(sclZ * static_cast<double>(m) + offZ);
           }
         }
       }

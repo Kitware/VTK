@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -96,7 +96,7 @@ namespace Ioss {
     return registry().customFieldTypes.insert(std::make_pair(field, type)).second;
   }
 
-  bool VariableType::create_named_suffix_field_type(const std::string &             type_name,
+  bool VariableType::create_named_suffix_field_type(const std::string              &type_name,
                                                     const std::vector<std::string> &suffices)
   {
     size_t count = suffices.size();
@@ -165,10 +165,10 @@ namespace Ioss {
 
   const VariableType *VariableType::factory(const std::vector<Suffix> &suffices)
   {
-    size_t size = suffices.size();
+    size_t              size = suffices.size();
+    const VariableType *ivt  = nullptr;
     // Maximum suffix size is currently 5.
     assert(size < 100000);
-    const VariableType *ivt = nullptr;
     if (size <= 1) {
       return nullptr; // All storage types must have at least 2 components.
     }

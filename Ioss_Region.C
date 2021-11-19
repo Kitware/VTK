@@ -4,8 +4,11 @@
 //
 // See packages/seacas/LICENSE for details
 
+#include <Ioss_CodeTypes.h>
+
 #include <Ioss_Assembly.h>
 #include <Ioss_Blob.h>
+#include <Ioss_CodeTypes.h>
 #include <Ioss_CommSet.h>
 #include <Ioss_CoordinateFrame.h>
 #include <Ioss_DBUsage.h>
@@ -57,7 +60,7 @@ namespace {
   template <typename T>
   Ioss::GroupingEntity *get_entity_internal(int64_t id, const std::vector<T> &entities)
   {
-    for (auto ent : entities) {
+    for (auto &ent : entities) {
       if (ent->property_exists(id_str())) {
         if (id == ent->get_property(id_str()).get_int()) {
           return ent;
@@ -71,7 +74,7 @@ namespace {
   size_t internal_get_variable_count(const std::vector<T> &entities, Ioss::Field::RoleType role)
   {
     Ioss::NameList names;
-    for (auto ent : entities) {
+    for (auto &ent : entities) {
       ent->field_describe(role, &names);
     }
     Ioss::Utils::uniquify(names);
@@ -91,7 +94,7 @@ namespace {
   template <typename T> int64_t get_entity_count(const std::vector<T> &entities)
   {
     int64_t count = 0;
-    for (auto ent : entities) {
+    for (auto &ent : entities) {
       count += ent->entity_count();
     }
     return count;
@@ -111,33 +114,6 @@ namespace {
     }
   }
 
-  void check_for_duplicate_names(const Ioss::Region *region, const Ioss::GroupingEntity *entity)
-  {
-    const std::string &name = entity->name();
-
-    // See if any alias with this name...
-    std::string alias = region->get_alias__(name);
-
-    if (!alias.empty()) {
-      // There is an entity with this name...
-      const Ioss::GroupingEntity *old_ge = region->get_entity(name);
-
-      if (old_ge != nullptr &&
-          !(old_ge->type() == Ioss::SIDEBLOCK || old_ge->type() == Ioss::SIDESET)) {
-        std::string        filename = region->get_database()->get_filename();
-        int64_t            id1      = entity->get_optional_property(id_str(), 0);
-        int64_t            id2      = old_ge->get_optional_property(id_str(), 0);
-        std::ostringstream errmsg;
-        fmt::print(errmsg,
-                   "ERROR: There are multiple blocks or sets with the same name defined in the "
-                   "database file '{}'.\n"
-                   "\tBoth {} {} and {} {} are named '{}'.  All names must be unique.",
-                   filename, entity->type_string(), id1, old_ge->type_string(), id2, name);
-        IOSS_ERROR(errmsg);
-      }
-    }
-  }
-
   constexpr unsigned numberOfBits(unsigned x) { return x < 2 ? x : 1 + numberOfBits(x >> 1); }
 
   size_t compute_hash(Ioss::GroupingEntity *entity, size_t which)
@@ -152,7 +128,7 @@ namespace {
   }
 
   template <typename T>
-  void compute_hashes(const std::vector<T> &                     entities,
+  void compute_hashes(const std::vector<T>                      &entities,
                       std::array<size_t, Ioss::entityTypeCount> &hashes, Ioss::EntityType type)
   {
     auto index = numberOfBits(type) - 1;
@@ -379,55 +355,55 @@ namespace Ioss {
     // Region owns all sub-grouping entities it contains...
     try {
       IOSS_FUNC_ENTER(m_);
-      for (auto nb : nodeBlocks) {
+      for (auto &nb : nodeBlocks) {
         delete (nb);
       }
 
-      for (auto eb : edgeBlocks) {
+      for (auto &eb : edgeBlocks) {
         delete (eb);
       }
 
-      for (auto fb : faceBlocks) {
+      for (auto &fb : faceBlocks) {
         delete (fb);
       }
 
-      for (auto eb : elementBlocks) {
+      for (auto &eb : elementBlocks) {
         delete (eb);
       }
 
-      for (auto sb : structuredBlocks) {
+      for (auto &sb : structuredBlocks) {
         delete (sb);
       }
 
-      for (auto ss : sideSets) {
+      for (auto &ss : sideSets) {
         delete (ss);
       }
 
-      for (auto ns : nodeSets) {
+      for (auto &ns : nodeSets) {
         delete (ns);
       }
 
-      for (auto es : edgeSets) {
+      for (auto &es : edgeSets) {
         delete (es);
       }
 
-      for (auto fs : faceSets) {
+      for (auto &fs : faceSets) {
         delete (fs);
       }
 
-      for (auto es : elementSets) {
+      for (auto &es : elementSets) {
         delete (es);
       }
 
-      for (auto cs : commSets) {
+      for (auto &cs : commSets) {
         delete (cs);
       }
 
-      for (auto as : assemblies) {
+      for (auto &as : assemblies) {
         delete (as);
       }
 
-      for (auto bl : blobs) {
+      for (auto &bl : blobs) {
         delete (bl);
       }
 
@@ -484,7 +460,7 @@ namespace Ioss {
 
     int64_t                       total_sides = 0;
     const Ioss::SideSetContainer &sss         = get_sidesets();
-    for (auto fs : sss) {
+    for (auto &fs : sss) {
       total_sides += get_entity_count(fs->get_side_blocks());
     }
 
@@ -495,7 +471,7 @@ namespace Ioss {
 
     int64_t num_ts = get_property("state_count").get_int();
     auto    max_sb = std::max(
-        {get_property("spatial_dimension").get_int(), get_property("node_block_count").get_int(),
+           {get_property("spatial_dimension").get_int(), get_property("node_block_count").get_int(),
          get_property("edge_block_count").get_int(), get_property("face_block_count").get_int(),
          get_property("element_block_count").get_int(),
          get_property("structured_block_count").get_int(), get_property("node_set_count").get_int(),
@@ -532,7 +508,7 @@ namespace Ioss {
 
     size_t                       num_ss_vars = 0;
     const Ioss::SideSetContainer fss         = get_sidesets();
-    for (auto fs : fss) {
+    for (auto &fs : fss) {
       num_ss_vars += get_variable_count(fs->get_side_blocks());
     }
 
@@ -664,15 +640,14 @@ namespace Ioss {
    */
   bool Region::end_mode(State current_state)
   {
-    bool success = true;
     {
       IOSS_FUNC_ENTER(m_);
-      success = end_mode__(current_state);
+      end_mode__(current_state);
     }
 
     // Pass the 'end state' message on to the database so it can do any
     // cleanup/data checking/manipulations it needs to do.
-    success = get_database()->end(current_state);
+    bool success = get_database()->end(current_state);
     begin_mode(STATE_CLOSED);
     return success;
   }
@@ -717,21 +692,21 @@ namespace Ioss {
         // Now update the block offsets based on this new order...
         {
           int64_t offset = 0;
-          for (auto eb : elementBlocks) {
+          for (auto &eb : elementBlocks) {
             eb->set_offset(offset);
             offset += eb->entity_count();
           }
         }
         {
           int64_t offset = 0;
-          for (auto fb : faceBlocks) {
+          for (auto &fb : faceBlocks) {
             fb->set_offset(offset);
             offset += fb->entity_count();
           }
         }
         {
           int64_t offset = 0;
-          for (auto eb : edgeBlocks) {
+          for (auto &eb : edgeBlocks) {
             eb->set_offset(offset);
             offset += eb->entity_count();
           }
@@ -777,12 +752,12 @@ namespace Ioss {
    */
   int Region::add_state__(double time)
   {
-    static bool warning_output = false;
 
     // NOTE:  For restart input databases, it is possible that the time
     //        is not monotonically increasing...
     if (!get_database()->is_input() && !stateTimes.empty() && time <= stateTimes.back()) {
       // Check that time is increasing...
+      static bool warning_output = false;
       if (!warning_output) {
         fmt::print(Ioss::WARNING(),
                    "Current time {} is not greater than previous time {} in\n\t{}.\n"
@@ -1026,7 +1001,7 @@ namespace Ioss {
    */
   bool Region::add(StructuredBlock *structured_block)
   {
-    check_for_duplicate_names(this, structured_block);
+    check_for_duplicate_names(structured_block);
     update_database(this, structured_block);
     IOSS_FUNC_ENTER(m_);
 
@@ -1077,7 +1052,7 @@ namespace Ioss {
    */
   bool Region::add(NodeBlock *node_block)
   {
-    check_for_duplicate_names(this, node_block);
+    check_for_duplicate_names(node_block);
     update_database(this, node_block);
     IOSS_FUNC_ENTER(m_);
 
@@ -1133,7 +1108,7 @@ namespace Ioss {
    */
   bool Region::add(Assembly *assembly)
   {
-    check_for_duplicate_names(this, assembly);
+    check_for_duplicate_names(assembly);
     update_database(this, assembly);
     IOSS_FUNC_ENTER(m_);
 
@@ -1155,7 +1130,7 @@ namespace Ioss {
    */
   bool Region::add(Blob *blob)
   {
-    check_for_duplicate_names(this, blob);
+    check_for_duplicate_names(blob);
     update_database(this, blob);
     IOSS_FUNC_ENTER(m_);
 
@@ -1193,7 +1168,7 @@ namespace Ioss {
    */
   bool Region::add(ElementBlock *element_block)
   {
-    check_for_duplicate_names(this, element_block);
+    check_for_duplicate_names(element_block);
     update_database(this, element_block);
     IOSS_FUNC_ENTER(m_);
 
@@ -1255,7 +1230,7 @@ namespace Ioss {
    */
   bool Region::add(FaceBlock *face_block)
   {
-    check_for_duplicate_names(this, face_block);
+    check_for_duplicate_names(face_block);
     update_database(this, face_block);
     IOSS_FUNC_ENTER(m_);
 
@@ -1291,7 +1266,7 @@ namespace Ioss {
    */
   bool Region::add(EdgeBlock *edge_block)
   {
-    check_for_duplicate_names(this, edge_block);
+    check_for_duplicate_names(edge_block);
     update_database(this, edge_block);
     IOSS_FUNC_ENTER(m_);
 
@@ -1327,7 +1302,7 @@ namespace Ioss {
    */
   bool Region::add(SideSet *sideset)
   {
-    check_for_duplicate_names(this, sideset);
+    check_for_duplicate_names(sideset);
     update_database(this, sideset);
     IOSS_FUNC_ENTER(m_);
     // Check that region is in correct state for adding entities
@@ -1347,7 +1322,7 @@ namespace Ioss {
    */
   bool Region::add(NodeSet *nodeset)
   {
-    check_for_duplicate_names(this, nodeset);
+    check_for_duplicate_names(nodeset);
     update_database(this, nodeset);
     IOSS_FUNC_ENTER(m_);
     // Check that region is in correct state for adding entities
@@ -1367,7 +1342,7 @@ namespace Ioss {
    */
   bool Region::add(EdgeSet *edgeset)
   {
-    check_for_duplicate_names(this, edgeset);
+    check_for_duplicate_names(edgeset);
     update_database(this, edgeset);
     IOSS_FUNC_ENTER(m_);
     // Check that region is in correct state for adding entities
@@ -1387,7 +1362,7 @@ namespace Ioss {
    */
   bool Region::add(FaceSet *faceset)
   {
-    check_for_duplicate_names(this, faceset);
+    check_for_duplicate_names(faceset);
     update_database(this, faceset);
     IOSS_FUNC_ENTER(m_);
     // Check that region is in correct state for adding entities
@@ -1407,7 +1382,7 @@ namespace Ioss {
    */
   bool Region::add(ElementSet *elementset)
   {
-    check_for_duplicate_names(this, elementset);
+    check_for_duplicate_names(elementset);
     update_database(this, elementset);
     IOSS_FUNC_ENTER(m_);
     // Check that region is in correct state for adding entities
@@ -1427,7 +1402,7 @@ namespace Ioss {
    */
   bool Region::add(CommSet *commset)
   {
-    check_for_duplicate_names(this, commset);
+    check_for_duplicate_names(commset);
     update_database(this, commset);
     IOSS_FUNC_ENTER(m_);
     // Check that region is in correct state for adding entities
@@ -1537,17 +1512,17 @@ namespace Ioss {
 
   bool Region::add_alias__(const GroupingEntity *ge)
   {
-    // See if an entity with this name already exists...
-    const std::string &db_name = ge->name();
-    std::string        alias   = get_alias__(db_name);
+    // See if an entity with this name and type already exists...
+    const auto       &db_name = ge->name();
+    const std::string alias   = get_alias__(db_name, ge->type());
 
     if (!alias.empty()) {
-      const GroupingEntity *old_ge = get_entity(db_name);
+      const GroupingEntity *old_ge = get_entity(db_name, ge->type());
       if (old_ge != nullptr && ge != old_ge) {
         if (!((old_ge->type() == SIDEBLOCK && ge->type() == SIDESET) ||
               (ge->type() == SIDEBLOCK && old_ge->type() == SIDESET))) {
-          ssize_t            old_id = old_ge->get_optional_property(id_str(), -1);
-          ssize_t            new_id = ge->get_optional_property(id_str(), -1);
+          ioss_ssize_t       old_id = old_ge->get_optional_property(id_str(), -1);
+          ioss_ssize_t       new_id = ge->get_optional_property(id_str(), -1);
           std::ostringstream errmsg;
           fmt::print(errmsg,
                      "\n\nERROR: Duplicate names detected.\n"
@@ -1558,13 +1533,13 @@ namespace Ioss {
         }
       }
     }
-    bool success = add_alias__(db_name, db_name);
+    bool success = add_alias__(db_name, db_name, ge->type());
 
     // "db_name" property is used with the canonical name setting.
     if (success && ge->property_exists("db_name")) {
       std::string canon_name = ge->get_property("db_name").get_string();
       if (canon_name != db_name) {
-        success = add_alias__(db_name, canon_name);
+        success = add_alias__(db_name, canon_name, ge->type());
       }
     }
 
@@ -1580,29 +1555,29 @@ namespace Ioss {
    *  \param[in] alias the alias
    *  \returns True if successful
    */
-  bool Region::add_alias(const std::string &db_name, const std::string &alias)
+  bool Region::add_alias(const std::string &db_name, const std::string &alias, EntityType type)
   {
     IOSS_FUNC_ENTER(m_);
-    return add_alias__(db_name, alias);
+    return add_alias__(db_name, alias, type);
   }
 
-  bool Region::add_alias__(const std::string &db_name, const std::string &alias)
+  bool Region::add_alias__(const std::string &db_name, const std::string &alias, EntityType type)
   {
     // Possible that 'db_name' is itself an alias, resolve down to "canonical"
     // name...
     std::string canon = db_name;
     if (db_name != alias) {
-      canon = get_alias__(db_name);
+      canon = get_alias__(db_name, type);
     }
 
     if (!canon.empty()) {
       std::string uname = Ioss::Utils::uppercase(alias);
       if (uname != alias) {
-        aliases_.insert(std::make_pair(uname, canon));
+        aliases_[type].insert(std::make_pair(uname, canon));
       }
 
       bool result;
-      std::tie(std::ignore, result) = aliases_.insert(std::make_pair(alias, canon));
+      std::tie(std::ignore, result) = aliases_[type].insert(std::make_pair(alias, canon));
       return result;
     }
     std::ostringstream errmsg;
@@ -1618,17 +1593,17 @@ namespace Ioss {
    *  \param[in] alias The alias name.
    *  \returns The original name.
    */
-  std::string Region::get_alias(const std::string &alias) const
+  std::string Region::get_alias(const std::string &alias, EntityType type) const
   {
     IOSS_FUNC_ENTER(m_);
-    return get_alias__(alias);
+    return get_alias__(alias, type);
   }
 
-  std::string Region::get_alias__(const std::string &alias) const
+  std::string Region::get_alias__(const std::string &alias, EntityType type) const
   {
     std::string ci_alias = Ioss::Utils::uppercase(alias);
-    auto        I        = aliases_.find(ci_alias);
-    if (I == aliases_.end()) {
+    auto        I        = aliases_[type].find(ci_alias);
+    if (I == aliases_[type].end()) {
       return "";
     }
     return (*I).second;
@@ -1642,11 +1617,12 @@ namespace Ioss {
    *  \returns The number of aliases that were appended.
    *
    */
-  int Region::get_aliases(const std::string &my_name, std::vector<std::string> &aliases) const
+  int Region::get_aliases(const std::string &my_name, EntityType type,
+                          std::vector<std::string> &aliases) const
   {
     IOSS_FUNC_ENTER(m_);
     size_t size = aliases.size();
-    for (const auto &alias_pair : aliases_) {
+    for (const auto &alias_pair : aliases_[type]) {
       std::string alias = alias_pair.first;
       std::string base  = alias_pair.second;
       if (base == my_name) {
@@ -1660,7 +1636,7 @@ namespace Ioss {
    *
    *  \returns All original name / alias pairs for the region.
    */
-  const AliasMap &Region::get_alias_map() const { return aliases_; }
+  const AliasMap &Region::get_alias_map(EntityType type) const { return aliases_[type]; }
 
   /** \brief Get an entity of a known EntityType
    *
@@ -1726,63 +1702,91 @@ namespace Ioss {
    */
   GroupingEntity *Region::get_entity(const std::string &my_name) const
   {
-    GroupingEntity *entity = get_node_block(my_name);
-    if (entity != nullptr) {
-      return entity;
+    int             nfound = 0;
+    GroupingEntity *entity = nullptr;
+    GroupingEntity *nb     = get_node_block(my_name);
+    if (nb != nullptr) {
+      entity = nb;
+      nfound++;
     }
-    entity = get_element_block(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *eb = get_element_block(my_name);
+    if (eb != nullptr) {
+      entity = eb;
+      nfound++;
     }
-    entity = get_structured_block(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *sb = get_structured_block(my_name);
+    if (sb != nullptr) {
+      entity = sb;
+      nfound++;
     }
-    entity = get_face_block(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *fb = get_face_block(my_name);
+    if (fb != nullptr) {
+      entity = fb;
+      nfound++;
     }
-    entity = get_edge_block(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *edb = get_edge_block(my_name);
+    if (edb != nullptr) {
+      entity = edb;
+      nfound++;
     }
-    entity = get_sideset(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *ss = get_sideset(my_name);
+    if (ss != nullptr) {
+      entity = ss;
+      nfound++;
     }
-    entity = get_nodeset(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *ns = get_nodeset(my_name);
+    if (ns != nullptr) {
+      entity = ns;
+      nfound++;
     }
-    entity = get_edgeset(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *es = get_edgeset(my_name);
+    if (es != nullptr) {
+      entity = es;
+      nfound++;
     }
-    entity = get_faceset(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *fs = get_faceset(my_name);
+    if (fs != nullptr) {
+      entity = fs;
+      nfound++;
     }
-    entity = get_elementset(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *els = get_elementset(my_name);
+    if (els != nullptr) {
+      entity = els;
+      nfound++;
     }
-    entity = get_commset(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *cs = get_commset(my_name);
+    if (cs != nullptr) {
+      entity = cs;
+      nfound++;
     }
-    entity = get_sideblock(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *sib = get_sideblock(my_name);
+    if (sib != nullptr) {
+      entity = sib;
+      nfound++;
     }
-    entity = get_assembly(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *as = get_assembly(my_name);
+    if (as != nullptr) {
+      entity = as;
+      nfound++;
     }
-    entity = get_blob(my_name);
-    if (entity != nullptr) {
-      return entity;
+    GroupingEntity *bl = get_blob(my_name);
+    if (bl != nullptr) {
+      entity = bl;
+      nfound++;
     }
-
+    if (nfound > 0) {
+      std::string        filename = get_database()->get_filename();
+      std::ostringstream errmsg;
+      fmt::print(
+          errmsg,
+          "ERROR: There are multiple ({}) blocks and/or sets with the name '{}' defined in the "
+          "database file '{}'.\n"
+          "\tThis is allowed in general, but this application uses an API function that does not "
+          "support duplicate names.",
+          nfound, my_name, filename);
+      IOSS_ERROR(errmsg);
+      return nullptr;
+    }
     return entity;
   }
 
@@ -1845,11 +1849,11 @@ namespace Ioss {
   Assembly *Region::get_assembly(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, ASSEMBLY);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     Assembly *ge = nullptr;
-    for (auto as : assemblies) {
+    for (auto &as : assemblies) {
       if (db_hash == as->hash() && as->name() == db_name) {
         ge = as;
         break;
@@ -1866,11 +1870,11 @@ namespace Ioss {
   Blob *Region::get_blob(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, BLOB);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     Blob *ge = nullptr;
-    for (auto bl : blobs) {
+    for (auto &bl : blobs) {
       if (db_hash == bl->hash() && bl->name() == db_name) {
         ge = bl;
         break;
@@ -1887,11 +1891,11 @@ namespace Ioss {
   NodeBlock *Region::get_node_block(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, NODEBLOCK);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     NodeBlock *ge = nullptr;
-    for (auto nb : nodeBlocks) {
+    for (auto &nb : nodeBlocks) {
       if (db_hash == nb->hash() && nb->name() == db_name) {
         ge = nb;
         break;
@@ -1908,11 +1912,11 @@ namespace Ioss {
   EdgeBlock *Region::get_edge_block(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, EDGEBLOCK);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     EdgeBlock *ge = nullptr;
-    for (auto eb : edgeBlocks) {
+    for (auto &eb : edgeBlocks) {
       if (db_hash == eb->hash() && eb->name() == db_name) {
         ge = eb;
         break;
@@ -1929,11 +1933,11 @@ namespace Ioss {
   FaceBlock *Region::get_face_block(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, FACEBLOCK);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     FaceBlock *ge = nullptr;
-    for (auto fb : faceBlocks) {
+    for (auto &fb : faceBlocks) {
       if (db_hash == fb->hash() && fb->name() == db_name) {
         ge = fb;
         break;
@@ -1950,11 +1954,11 @@ namespace Ioss {
   ElementBlock *Region::get_element_block(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, ELEMENTBLOCK);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     ElementBlock *ge = nullptr;
-    for (auto eb : elementBlocks) {
+    for (auto &eb : elementBlocks) {
       if (db_hash == eb->hash() && eb->name() == db_name) {
         ge = eb;
         break;
@@ -1971,11 +1975,11 @@ namespace Ioss {
   StructuredBlock *Region::get_structured_block(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, STRUCTUREDBLOCK);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     StructuredBlock *ge = nullptr;
-    for (auto sb : structuredBlocks) {
+    for (auto &sb : structuredBlocks) {
       if (db_hash == sb->hash() && sb->name() == db_name) {
         ge = sb;
         break;
@@ -1992,11 +1996,11 @@ namespace Ioss {
   SideSet *Region::get_sideset(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, SIDESET);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     SideSet *ge = nullptr;
-    for (auto ss : sideSets) {
+    for (auto &ss : sideSets) {
       if (db_hash == ss->hash() && ss->name() == db_name) {
         ge = ss;
         break;
@@ -2014,7 +2018,7 @@ namespace Ioss {
   {
     IOSS_FUNC_ENTER(m_);
     SideBlock *ge = nullptr;
-    for (auto ss : sideSets) {
+    for (auto &ss : sideSets) {
       ge = ss->get_side_block(my_name);
       if (ge != nullptr) {
         break;
@@ -2031,11 +2035,11 @@ namespace Ioss {
   NodeSet *Region::get_nodeset(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, NODESET);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     NodeSet *ge = nullptr;
-    for (auto ns : nodeSets) {
+    for (auto &ns : nodeSets) {
       if (db_hash == ns->hash() && ns->name() == db_name) {
         ge = ns;
         break;
@@ -2052,11 +2056,11 @@ namespace Ioss {
   EdgeSet *Region::get_edgeset(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, EDGESET);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     EdgeSet *ge = nullptr;
-    for (auto es : edgeSets) {
+    for (auto &es : edgeSets) {
       if (db_hash == es->hash() && es->name() == db_name) {
         ge = es;
         break;
@@ -2073,11 +2077,11 @@ namespace Ioss {
   FaceSet *Region::get_faceset(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, FACESET);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     FaceSet *ge = nullptr;
-    for (auto fs : faceSets) {
+    for (auto &fs : faceSets) {
       if (db_hash == fs->hash() && fs->name() == db_name) {
         ge = fs;
         break;
@@ -2094,11 +2098,11 @@ namespace Ioss {
   ElementSet *Region::get_elementset(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, ELEMENTSET);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     ElementSet *ge = nullptr;
-    for (auto es : elementSets) {
+    for (auto &es : elementSets) {
       if (db_hash == es->hash() && es->name() == db_name) {
         ge = es;
         break;
@@ -2115,11 +2119,11 @@ namespace Ioss {
   CommSet *Region::get_commset(const std::string &my_name) const
   {
     IOSS_FUNC_ENTER(m_);
-    const std::string db_name = get_alias__(my_name);
+    const std::string db_name = get_alias__(my_name, COMMSET);
     unsigned int      db_hash = Ioss::Utils::hash(db_name);
 
     CommSet *ge = nullptr;
-    for (auto cs : commSets) {
+    for (auto &cs : commSets) {
       if (db_hash == cs->hash() && cs->name() == db_name) {
         ge = cs;
         break;
@@ -2254,7 +2258,7 @@ namespace Ioss {
   ElementBlock *Region::get_element_block(size_t local_id) const
   {
     IOSS_FUNC_ENTER(m_);
-    for (auto eb : elementBlocks) {
+    for (auto &eb : elementBlocks) {
       if (eb->contains(local_id)) {
         return eb;
       }
@@ -2277,7 +2281,7 @@ namespace Ioss {
   StructuredBlock *Region::get_structured_block(size_t global_offset) const
   {
     IOSS_FUNC_ENTER(m_);
-    for (auto sb : structuredBlocks) {
+    for (auto &sb : structuredBlocks) {
       if (sb->contains(global_offset)) {
         return sb;
       }
@@ -2375,7 +2379,7 @@ namespace Ioss {
 
     if (my_name == "element_count") {
       int64_t count = 0;
-      for (auto eb : elementBlocks) {
+      for (auto &eb : elementBlocks) {
         count += eb->entity_count();
       }
       return Property(my_name, count);
@@ -2383,7 +2387,7 @@ namespace Ioss {
 
     if (my_name == "cell_count") {
       int64_t count = 0;
-      for (auto eb : structuredBlocks) {
+      for (auto &eb : structuredBlocks) {
         count += eb->get_property("cell_count").get_int();
       }
       return Property(my_name, count);
@@ -2391,7 +2395,7 @@ namespace Ioss {
 
     if (my_name == "face_count") {
       int64_t count = 0;
-      for (auto fb : faceBlocks) {
+      for (auto &fb : faceBlocks) {
         count += fb->entity_count();
       }
       return Property(my_name, count);
@@ -2399,7 +2403,7 @@ namespace Ioss {
 
     if (my_name == "edge_count") {
       int64_t count = 0;
-      for (auto eb : edgeBlocks) {
+      for (auto &eb : edgeBlocks) {
         count += eb->entity_count();
       }
       return Property(my_name, count);
@@ -2407,7 +2411,7 @@ namespace Ioss {
 
     if (my_name == "node_count") {
       int64_t count = 0;
-      for (auto nb : nodeBlocks) {
+      for (auto &nb : nodeBlocks) {
         count += nb->entity_count();
       }
       return Property(my_name, count);
@@ -2443,11 +2447,13 @@ namespace Ioss {
     // Iterate through list, [ returns <alias, base_entity_name> ], if
     // 'base_entity_name' is defined on the restart file, add 'alias' as
     // an alias for it...
-    for (const auto &alias_pair : aliases_) {
-      std::string alias = alias_pair.first;
-      std::string base  = alias_pair.second;
-      if (alias != base && to->get_entity(base) != nullptr) {
-        to->add_alias__(base, alias);
+    for (const auto &alias_map : aliases_) {
+      for (const auto &alias_pair : alias_map.second) {
+        std::string alias = alias_pair.first;
+        std::string base  = alias_pair.second;
+        if (alias != base && to->get_entity(base) != nullptr) {
+          to->add_alias__(base, alias, alias_map.first);
+        }
       }
     }
   }
@@ -2492,89 +2498,91 @@ namespace Ioss {
    */
   void Region::synchronize_id_and_name(const Region *from, bool sync_attribute_field_names)
   {
-    for (const auto &alias_pair : aliases_) {
-      std::string alias = alias_pair.first;
-      std::string base  = alias_pair.second;
+    for (const auto &alias_map : aliases_) {
+      for (const auto &alias_pair : alias_map.second) {
+        std::string alias = alias_pair.first;
+        std::string base  = alias_pair.second;
 
-      if (alias == base) {
+        if (alias == base) {
 
-        // Query the 'from' database to get the entity (if any) referred
-        // to by the 'alias'
-        GroupingEntity *ge = from->get_entity(base);
+          // Query the 'from' database to get the entity (if any) referred
+          // to by the 'alias'
+          GroupingEntity *ge = from->get_entity(base);
 
-        if (ge != nullptr) {
-          // Get the entity from this region... Must be non-nullptr
-          GroupingEntity *this_ge = get_entity(base);
-          if (this_ge == nullptr) {
-            std::ostringstream errmsg;
-            fmt::print(errmsg,
-                       "INTERNAL ERROR: Could not find entity '{}' in synchronize_id_and_name() "
-                       "                [{}]\n",
-                       base, get_database()->get_filename());
-            IOSS_ERROR(errmsg);
-          }
-
-          // See if there is an 'id' property...
-          if (ge->property_exists(id_str())) {
-            int64_t id = ge->get_property(id_str()).get_int();
-            this_ge->property_update(id_str(), id);
-          }
-          else {
-            // No id, make sure the base name matches in both databases...
-            // There is always a 'name' property on an entity
-            if (this_ge->name() != base) {
-              this_ge->set_name(base);
+          if (ge != nullptr) {
+            // Get the entity from this region... Must be non-nullptr
+            GroupingEntity *this_ge = get_entity(base);
+            if (this_ge == nullptr) {
+              std::ostringstream errmsg;
+              fmt::print(errmsg,
+                         "INTERNAL ERROR: Could not find entity '{}' in synchronize_id_and_name() "
+                         "                [{}]\n",
+                         base, get_database()->get_filename());
+              IOSS_ERROR(errmsg);
             }
-          }
 
-          // See if there is an 'db_name' property...
-          if (ge->property_exists(db_name_str())) {
-            std::string db_name = ge->get_property(db_name_str()).get_string();
-            // Set the new property
-            this_ge->property_update(db_name_str(), db_name);
-          }
-
-          // See if there is a 'original_topology_type' property...
-          if (ge->property_exists(orig_topo_str())) {
-            std::string oes = ge->get_property(orig_topo_str()).get_string();
-            this_ge->property_update(orig_topo_str(), oes);
-          }
-
-          // Specific to entity blocks. Transfer the "original_block_order"
-          // property.
-          if (ge->property_exists(orig_block_order())) {
-            int64_t offset = ge->get_property(orig_block_order()).get_int();
-            this_ge->property_update(orig_block_order(), offset);
-          }
-
-          if (sync_attribute_field_names) {
-            // If there are any attribute fields, then copy those over
-            // to the new entity in order to maintain the same order
-            // since some codes access attributes by implicit order and
-            // not name... (typically, element blocks only)
-            size_t count = this_ge->entity_count();
-
-            Ioss::NameList attr_fields;
-            ge->field_describe(Ioss::Field::ATTRIBUTE, &attr_fields);
-            for (auto &field_name : attr_fields) {
-              const Ioss::Field &field = ge->get_fieldref(field_name);
-              if (this_ge->field_exists(field_name)) {
-                // If the field is already defined on the entity, make
-                // sure that the attribute index matches...
-                size_t             index      = field.get_index();
-                const Ioss::Field &this_field = this_ge->get_fieldref(field_name);
-                this_field.set_index(index);
+            // See if there is an 'id' property...
+            if (ge->property_exists(id_str())) {
+              int64_t id = ge->get_property(id_str()).get_int();
+              this_ge->property_update(id_str(), id);
+            }
+            else {
+              // No id, make sure the base name matches in both databases...
+              // There is always a 'name' property on an entity
+              if (this_ge->name() != base) {
+                this_ge->set_name(base);
               }
-              else {
-                // If the field does not already exist, add it to the
-                // output node block
-                if (field.raw_count() != count) {
-                  Ioss::Field new_field(field);
-                  new_field.reset_count(count);
-                  this_ge->field_add(new_field);
+            }
+
+            // See if there is an 'db_name' property...
+            if (ge->property_exists(db_name_str())) {
+              std::string db_name = ge->get_property(db_name_str()).get_string();
+              // Set the new property
+              this_ge->property_update(db_name_str(), db_name);
+            }
+
+            // See if there is a 'original_topology_type' property...
+            if (ge->property_exists(orig_topo_str())) {
+              std::string oes = ge->get_property(orig_topo_str()).get_string();
+              this_ge->property_update(orig_topo_str(), oes);
+            }
+
+            // Specific to entity blocks. Transfer the "original_block_order"
+            // property.
+            if (ge->property_exists(orig_block_order())) {
+              int64_t offset = ge->get_property(orig_block_order()).get_int();
+              this_ge->property_update(orig_block_order(), offset);
+            }
+
+            if (sync_attribute_field_names) {
+              // If there are any attribute fields, then copy those over
+              // to the new entity in order to maintain the same order
+              // since some codes access attributes by implicit order and
+              // not name... (typically, element blocks only)
+              size_t count = this_ge->entity_count();
+
+              Ioss::NameList attr_fields;
+              ge->field_describe(Ioss::Field::ATTRIBUTE, &attr_fields);
+              for (auto &field_name : attr_fields) {
+                const Ioss::Field &field = ge->get_fieldref(field_name);
+                if (this_ge->field_exists(field_name)) {
+                  // If the field is already defined on the entity, make
+                  // sure that the attribute index matches...
+                  size_t             index      = field.get_index();
+                  const Ioss::Field &this_field = this_ge->get_fieldref(field_name);
+                  this_field.set_index(index);
                 }
                 else {
-                  this_ge->field_add(field);
+                  // If the field does not already exist, add it to the
+                  // output node block
+                  if (field.raw_count() != count) {
+                    Ioss::Field new_field(field);
+                    new_field.reset_count(count);
+                    this_ge->field_add(new_field);
+                  }
+                  else {
+                    this_ge->field_add(field);
+                  }
                 }
               }
             }
@@ -2583,16 +2591,46 @@ namespace Ioss {
       }
     }
 
-    for (const auto &alias_pair : aliases_) {
-      std::string alias = alias_pair.first;
-      std::string base  = alias_pair.second;
+    for (const auto &alias_map : aliases_) {
+      for (const auto &alias_pair : alias_map.second) {
+        std::string alias = alias_pair.first;
+        std::string base  = alias_pair.second;
 
-      if (alias != base) {
-        GroupingEntity *ge = get_entity(base);
-        if (ge != nullptr) {
-          add_alias__(base, alias);
+        if (alias != base) {
+          GroupingEntity *ge = get_entity(base);
+          if (ge != nullptr) {
+            add_alias__(base, alias, alias_map.first);
+          }
         }
       }
     }
   }
+
+  void Region::check_for_duplicate_names(const Ioss::GroupingEntity *entity) const
+  {
+    const std::string &name = entity->name();
+
+    // See if any alias with this name...
+    std::string alias = get_alias__(name, entity->type());
+
+    if (!alias.empty()) {
+      // There is an entity with this name...
+      const Ioss::GroupingEntity *old_ge = get_entity(name);
+
+      if (old_ge != nullptr &&
+          !(old_ge->type() == Ioss::SIDEBLOCK || old_ge->type() == Ioss::SIDESET)) {
+        std::string        filename = get_database()->get_filename();
+        int64_t            id1      = entity->get_optional_property(id_str(), 0);
+        int64_t            id2      = old_ge->get_optional_property(id_str(), 0);
+        std::ostringstream errmsg;
+        fmt::print(errmsg,
+                   "ERROR: There are multiple blocks or sets with the same name defined in the "
+                   "database file '{}'.\n"
+                   "\tBoth {} {} and {} {} are named '{}'.  All names must be unique.",
+                   filename, entity->type_string(), id1, old_ge->type_string(), id2, name);
+        IOSS_ERROR(errmsg);
+      }
+    }
+  }
+
 } // namespace Ioss
