@@ -123,15 +123,6 @@ public:
    */
   vtkGetSmartPointerMacro(DashboardOverlay, vtkOpenVROverlay);
 
-  //@{
-  /**
-   * Set/Get the visibility of the base stations. Defaults to false
-   */
-  vtkGetMacro(BaseStationVisibility, bool);
-  vtkSetMacro(BaseStationVisibility, bool);
-  vtkBooleanMacro(BaseStationVisibility, bool);
-  //@}
-
   /**
    * Update the HMD pose based on hardware pose and physical to world transform.
    * VR camera properties are directly modified based on physical to world to
@@ -178,7 +169,6 @@ protected:
    */
   vtkOpenVRModel* FindOrLoadRenderModel(const char* modelName);
 
-  bool BaseStationVisibility = false;
   vtkSmartPointer<vtkOpenVROverlay> DashboardOverlay;
   vr::IVRSystem* HMD = nullptr;
   vr::IVRRenderModels* OpenVRRenderModels = nullptr;
