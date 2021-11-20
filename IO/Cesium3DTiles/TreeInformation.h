@@ -25,8 +25,8 @@
 
 #include <vtkSmartPointer.h>
 
-#include <nlohmann/json.hpp>
 #include <vtk_nlohmannjson.h>
+#include VTK_NLOHMANN_JSON(json.hpp)
 
 #include <array>
 #include <vector>
