@@ -25,7 +25,8 @@
 
 #include <vtkSmartPointer.h>
 
-#include <vtk_jsoncpp.h>
+#include <nlohmann/json.hpp>
+#include <vtk_nlohmannjson.h>
 
 #include <array>
 #include <vector>
@@ -85,7 +86,7 @@ protected:
   void PostOrderTraversal(
     void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node), vtkIncrementalOctreeNode* node);
   void SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output);
-  Json::Value GenerateTileJson(vtkIncrementalOctreeNode* node);
+  nlohmann::json GenerateTileJson(vtkIncrementalOctreeNode* node);
   /**
    * Computes the additional information for 'node'. This includes
    * the tight bounding box around the buildings, if the node is empty or not,
@@ -112,7 +113,7 @@ private:
   // volume difference between rendering this node and rendering the most detailed model.
   // indexed by node ID
   std::vector<double> VolumeError;
-  Json::Value RootJson;
+  nlohmann::json RootJson;
 };
 
 #endif

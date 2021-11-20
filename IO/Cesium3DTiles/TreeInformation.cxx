@@ -32,6 +32,8 @@
 
 #include <vtk_libproj.h>
 
+#include <sstream>
+
 namespace
 {
 //------------------------------------------------------------------------------
@@ -298,7 +300,7 @@ void TreeInformation::SaveTileset(const std::string& output)
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output)
 {
-  Json::Value v;
+  vtknlohmann::json v;
   this->RootJson["asset"]["version"] = "1.0";
   if (this->ContentType != vtkCesium3DTilesWriter::B3DM)
   {
@@ -306,10 +308,10 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
     std::string mesh_gpu_instancing = "EXT_mesh_gpu_instancing";
     std::string extensionsUsed = "extensionsUsed";
     std::string extensionsRequired = "extensionsRequired";
-    v[0] = content_gltf;
+    v = { content_gltf };
     this->RootJson[extensionsUsed] = v;
     this->RootJson[extensionsRequired] = v;
-    v[0] = mesh_gpu_instancing;
+    v = { mesh_gpu_instancing };
     this->RootJson["extensions"][content_gltf][extensionsUsed] = v;
     this->RootJson["extensions"][content_gltf][extensionsRequired] = v;
   }
@@ -321,18 +323,14 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
     vtkLog(ERROR, "Cannot open " << output << " for writing");
     return;
   }
-  Json::StreamWriterBuilder builder;
-  builder["commentStyle"] = "None";
-  builder["indentation"] = "  ";
-  std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-  writer->write(this->RootJson, &file);
+  file << std::setw(4) << this->RootJson << std::endl;
 }
 
 //------------------------------------------------------------------------------
-Json::Value TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
+nlohmann::json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
 {
-  Json::Value tree;
-  Json::Value v;
+  nlohmann::json tree;
+  nlohmann::json v;
   std::array<double, 6> nodeBounds = this->NodeBounds[node->GetID()];
   std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(this->CRS, nodeBounds);
   std::ostringstream ostr;
