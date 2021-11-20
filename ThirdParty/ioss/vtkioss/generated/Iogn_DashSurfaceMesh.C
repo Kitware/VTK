@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -30,11 +30,11 @@ namespace Iogn {
     throw std::exception();
   }
 
-  int64_t DashSurfaceMesh::block_count() const { return NUMBER_OF_SURFACES; }
+  int DashSurfaceMesh::block_count() const { return NUMBER_OF_SURFACES; }
 
-  int64_t DashSurfaceMesh::nodeset_count() const { return 0; }
+  int DashSurfaceMesh::nodeset_count() const { return 0; }
 
-  int64_t DashSurfaceMesh::sideset_count() const { return NUMBER_OF_SURFACES; }
+  int DashSurfaceMesh::sideset_count() const { return NUMBER_OF_SURFACES; }
 
   int64_t DashSurfaceMesh::element_count_proc() const
   {
@@ -270,14 +270,17 @@ namespace Iogn {
     return mExodusData.globalNumberOfElementsInBlock[blockNumber - 1];
   }
 
-  int64_t ExodusMesh::block_count() const
+  int ExodusMesh::block_count() const
   {
-    return mExodusData.globalNumberOfElementsInBlock.size();
+    return static_cast<int>(mExodusData.globalNumberOfElementsInBlock.size());
   }
 
-  int64_t ExodusMesh::nodeset_count() const { return 0; }
+  int ExodusMesh::nodeset_count() const { return 0; }
 
-  int64_t ExodusMesh::sideset_count() const { return mExodusData.sidesetConnectivity.size(); }
+  int ExodusMesh::sideset_count() const
+  {
+    return static_cast<int>(mExodusData.sidesetConnectivity.size());
+  }
 
   int64_t ExodusMesh::element_count_proc() const { return mLocalNumberOfElements; }
 

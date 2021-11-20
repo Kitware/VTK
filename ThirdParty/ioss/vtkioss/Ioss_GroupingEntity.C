@@ -89,7 +89,7 @@ std::string Ioss::GroupingEntity::generic_name() const
 bool Ioss::GroupingEntity::is_alias(const std::string &my_name) const
 {
   Region *region = database_->get_region();
-  return region->get_alias(my_name) == entityName;
+  return region->get_alias(my_name, type()) == entityName;
 }
 
 Ioss::DatabaseIO *Ioss::GroupingEntity::get_database() const
@@ -333,7 +333,7 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
   if (this->entityName.compare(rhs.entityName) != 0) {
     if (!quiet) {
       fmt::print(Ioss::OUTPUT(), "GroupingEntity: entityName mismatch ({} vs. {})\n",
-                 this->entityName.c_str(), rhs.entityName.c_str());
+                 this->entityName, rhs.entityName);
     }
     return false;
   }
@@ -389,7 +389,7 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
       if (!quiet) {
         fmt::print(Ioss::OUTPUT(),
                    "WARNING: GroupingEntity: INPUT property ({}) not found in OUTPUT\n",
-                   lhs_property.c_str());
+                   lhs_property);
       }
       continue;
     }
@@ -407,8 +407,7 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
       }
       else {
         if (!quiet) {
-          fmt::print(Ioss::OUTPUT(), "GroupingEntity: PROPERTY ({}) mismatch\n",
-                     lhs_property.c_str());
+          fmt::print(Ioss::OUTPUT(), "GroupingEntity: PROPERTY ({}) mismatch\n", lhs_property);
         }
         return false;
       }
@@ -421,7 +420,7 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
       if (it == lhs_properties.end()) {
         fmt::print(Ioss::OUTPUT(),
                    "WARNING: GroupingEntity: OUTPUT property ({}) not found in INPUT\n",
-                   rhs_property.c_str());
+                   rhs_property);
       }
     }
   }
@@ -442,7 +441,7 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
   for (auto &field : lhs_fields) {
     if (!quiet) {
       if (!this->fields.get(field).equal(rhs.fields.get(field))) {
-        fmt::print(Ioss::OUTPUT(), "GroupingEntity: FIELD ({}) mismatch\n", field.c_str());
+        fmt::print(Ioss::OUTPUT(), "GroupingEntity: FIELD ({}) mismatch\n", field);
         return false;
       }
     }

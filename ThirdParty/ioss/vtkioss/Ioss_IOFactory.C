@@ -129,6 +129,12 @@ std::string Ioss::IOFactory::show_configuration()
 #if defined(SEACAS_HAVE_MPI)
   fmt::print(config, "\nSupported decomposition methods:\n\t{}\n",
              fmt::join(Ioss::valid_decomp_methods(), ", "));
+  {
+    char version[MPI_MAX_LIBRARY_VERSION_STRING];
+    int  length = 0;
+    MPI_Get_library_version(version, &length);
+    fmt::print(config, "MPI Version: {}\n", version);
+  }
 #endif
 
   fmt::print(config, "\nThird-Party Library Configuration Information:\n\n");

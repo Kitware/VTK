@@ -19,6 +19,10 @@
 #include <adios/Ioad_Initializer.h>
 #endif
 
+#if defined(SEACAS_HAVE_CATALYST2)
+#include <catalyst/Iocatalyst_Initializer.h>
+#endif
+
 #if defined(SEACAS_HAVE_PAMGEN)
 #include <pamgen/Iopg_DatabaseIO.h>
 #endif
@@ -34,10 +38,8 @@
 #include <Ioss_ConcreteVariableType.h>
 #include <Ioss_Initializer.h>
 #include <transform/Iotr_Initializer.h>
-#ifndef _MSC_VER
-// #include <visualization/exodus/Iovs_exodus_IOFactory.h>
 // #include <visualization/cgns/Iovs_cgns_IOFactory.h>
-#endif
+// #include <visualization/exodus/Iovs_exodus_IOFactory.h>
 
 namespace {
 #if defined(IOSS_THREADSAFE)
@@ -77,7 +79,7 @@ namespace Ioss {
 #endif
 
 #ifndef _MSC_VER
-      // Iovs_cgns::IOFactory::factory(); // Visualization Catalyst CGNS
+      // Iovs_cgns::IOFactory::factory();   // Visualization Catalyst CGNS
       // Iovs_exodus::IOFactory::factory(); // Visualization Catalyst Exodus
 #endif
       Iohb::IOFactory::factory(); // HeartBeat
@@ -88,6 +90,9 @@ namespace Ioss {
       Iotr::Initializer();
 #ifdef HAVE_SEACASIOSS_ADIOS2
       Ioad::Initializer(); // ADIOS2
+#endif
+#if defined(SEACAS_HAVE_CATALYST2)
+      Iocatalyst::Initializer(); // Catalyst 2
 #endif
     }
 

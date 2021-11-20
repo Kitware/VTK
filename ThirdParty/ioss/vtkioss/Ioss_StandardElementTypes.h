@@ -22,6 +22,7 @@
 #include <Ioss_Hex32.h>
 #include <Ioss_Hex64.h>
 #include <Ioss_Hex8.h>
+#include <Ioss_Hex9.h>
 #include <Ioss_Initializer.h>
 #include <Ioss_Node.h>
 #include <Ioss_Pyramid13.h>

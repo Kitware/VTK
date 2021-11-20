@@ -5,12 +5,12 @@
 // See packages/seacas/LICENSE for details
 
 #include <heartbeat/Iohb_Layout.h>
-#include <string>  // for operator<<, string, etc
-#include <vector>  // for vector, vector<>::size_type
+#include <string> // for operator<<, string, etc
+#include <vector> // for vector, vector<>::size_type
 
 namespace Iohb {
   Layout::Layout(bool show_labels, int precision, std::string separator, int field_width)
-      : layout_(), separator_(std::move(separator)), precision_(precision), 
+      : layout_(), separator_(std::move(separator)), precision_(precision),
         fieldWidth_(field_width), showLabels(show_labels)
   {
   }

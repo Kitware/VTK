@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -16,6 +16,7 @@
 #include <vtk_exodusII.h>
 #include <fmt/ostream.h>
 #include <string> // for string
+#include <vtk_zlib.h>
 
 #include "Ioss_CodeTypes.h" // for MPI_Comm
 #include "Ioss_DBUsage.h"   // for DatabaseUsage
@@ -115,6 +116,10 @@ namespace Ioex {
     fmt::print(config, "\tZoltan Library is Available for Parallel Decomposition.\n\n");
 #else
     fmt::print(config, "\tZoltan Library is NOT Available for Parallel Decomposition.\n\n");
+#endif
+#if defined(ZLIBNG_VERSION)
+    fmt::print(config, "\tZlib-NG library version {} being used for accelerated compression.\n\n",
+               ZLIBNG_VERSION);
 #endif
     return config.str();
   }

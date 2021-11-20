@@ -270,8 +270,8 @@ namespace tsl {
       void set_as_last_bucket() noexcept { m_last_bucket = true; }
 
       template <typename... Args>
-      void set_value_of_empty_bucket(distance_type dist_from_ideal_bucket, truncated_hash_type my_hash,
-                                     Args &&...value_type_args)
+      void set_value_of_empty_bucket(distance_type       dist_from_ideal_bucket,
+                                     truncated_hash_type my_hash, Args &&...value_type_args)
       {
         tsl_rh_assert(dist_from_ideal_bucket >= 0);
         tsl_rh_assert(empty());
@@ -284,7 +284,7 @@ namespace tsl {
         tsl_rh_assert(!empty());
       }
 
-      void swap_with_value_in_bucket(distance_type &      dist_from_ideal_bucket,
+      void swap_with_value_in_bucket(distance_type       &dist_from_ideal_bucket,
                                      truncated_hash_type &my_hash, value_type &value)
       {
         tsl_rh_assert(!empty());
@@ -607,7 +607,7 @@ namespace tsl {
       robin_hash(robin_hash &&other) noexcept(
           std::is_nothrow_move_constructible<Hash>::value &&std::is_nothrow_move_constructible<
               KeyEqual>::value &&std::is_nothrow_move_constructible<GrowthPolicy>::value
-              &&                 std::is_nothrow_move_constructible<buckets_container_type>::value)
+                               &&std::is_nothrow_move_constructible<buckets_container_type>::value)
           : Hash(std::move(static_cast<Hash &>(other))),
             KeyEqual(std::move(static_cast<KeyEqual &>(other))),
             GrowthPolicy(std::move(static_cast<GrowthPolicy &>(other))),
@@ -998,7 +998,8 @@ namespace tsl {
         return equal_range(key, hash_key(key));
       }
 
-      template <class K> std::pair<iterator, iterator> equal_range(const K &key, std::size_t my_hash)
+      template <class K>
+      std::pair<iterator, iterator> equal_range(const K &key, std::size_t my_hash)
       {
         iterator it = find(key, my_hash);
         return std::make_pair(it, (it == end()) ? it : std::next(it));
@@ -1289,8 +1290,8 @@ namespace tsl {
           }
 
           const std::size_t my_hash = use_stored_hash
-                                       ? bucket.truncated_hash()
-                                       : new_table.hash_key(KeySelect()(bucket.value()));
+                                          ? bucket.truncated_hash()
+                                          : new_table.hash_key(KeySelect()(bucket.value()));
 
           new_table.insert_value_on_rehash(new_table.bucket_for_hash(my_hash), 0,
                                            bucket_entry::truncate_hash(my_hash),
