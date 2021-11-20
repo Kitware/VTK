@@ -424,7 +424,6 @@ Json::Value TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
             if (fa)
             {
               vtkLog(WARNING, "Converting float to double points.");
-              int n = fa->GetNumberOfTuples();
               newPoints->DeepCopy(fa);
               da = newPoints;
               conversion = true;
@@ -437,45 +436,8 @@ Json::Value TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
           }
           double* d = da->GetPointer(0);
           int n = da->GetNumberOfTuples();
-          /*
-          proj_trans_generic(P, PJ_FWD,
-                             d, sizeof(d[0])*3, n,
-                             d + 1, sizeof(d[0])*3, n,
-                             d + 2, sizeof(d[0])*3, n,
-                             nullptr, 0, 0);
-          */
-          PJ_COORD c, c_out;
-          for (int i = 0; i < n; ++i)
-          {
-            c.xyz.x = d[3 * i];
-            c.xyz.y = d[3 * i + 1];
-            c.xyz.z = d[3 * i + 2];
-            c_out = proj_trans(P, PJ_FWD, c);
-            d[3 * i] = c_out.xyz.x;
-            d[3 * i + 1] = c_out.xyz.y;
-            d[3 * i + 2] = c_out.xyz.z;
-            /*
-            // look at errors caused by double to float conversion.
-            std::cout
-              << "point double "
-              << i << ": " << std::fixed << std::setprecision(16)
-              << c_out.xyz.x << ", "
-              << c_out.xyz.y << ", "
-              << c_out.xyz.z << std::endl
-              << "point float "
-              << i << ": " << std::fixed << std::setprecision(16)
-              << (float)c_out.xyz.x << ", "
-              << (float)c_out.xyz.y << ", "
-              << (float)c_out.xyz.z << std::endl;
-            double md = 6384400; // max earth radius
-            float mf = md;
-            int32_t* ip = (int32_t*)&mf;
-            std::cout
-              << "max double: " << std::fixed << std::setprecision(16) << md << std::endl
-              << "prev double to float: " << (float)((*((int64_t*)&md))--, md) << std::endl
-              << "max float: " << mf << " prev: " << ((*ip)--,mf) << std::endl;
-            */
-          }
+          proj_trans_generic(P, PJ_FWD, d, sizeof(d[0]) * 3, n, d + 1, sizeof(d[0]) * 3, n, d + 2,
+            sizeof(d[0]) * 3, n, nullptr, 0, 0);
           if (conversion)
           {
             pd->GetPoints()->SetData(newPoints);
