@@ -7,6 +7,10 @@
 #ifndef IOSS_Iocgns_ParallelDatabaseIO_h
 #define IOSS_Iocgns_ParallelDatabaseIO_h
 
+#include <vtk_cgns.h> // xxx(kitware)
+#include VTK_CGNS(cgnsconfig.h)
+#if CG_BUILD_PARALLEL
+
 #include <Ioss_CodeTypes.h>
 #include <Ioss_DBUsage.h>    // for DatabaseUsage
 #include <Ioss_DatabaseIO.h> // for DatabaseIO
@@ -23,7 +27,7 @@
 #include <cgns/Iocgns_DecompositionData.h>
 #include <cgns/Iocgns_Defines.h>
 
-#include <cgnslib.h>
+#include VTK_CGNS(cgnslib.h)
 
 namespace Ioss {
   class Assembly;
@@ -228,4 +232,5 @@ namespace Iocgns {
         m_elemGlobalImplicitMap; // Position of this element in the global-implicit ordering
   };
 } // namespace Iocgns
+#endif
 #endif

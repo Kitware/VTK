@@ -1269,7 +1269,7 @@ namespace Ioex {
 
       offset += local_X_count[iblk];
 
-      get_region()->add_alias(block_name, alias);
+      get_region()->add_alias(block_name, alias, block->type());
 
       // Check for additional variables.
       add_attribute_fields(entity_type, block, attributes, type);
@@ -1453,7 +1453,7 @@ namespace Ioex {
 
         Ioss::SurfaceSplitType split_type = splitType;
         std::string            side_set_name;
-        Ioss::SideSet *        side_set = nullptr;
+        Ioss::SideSet         *side_set = nullptr;
 
         {
           Ioss::SerializeIO serializeIO__(this);
@@ -1499,8 +1499,9 @@ namespace Ioex {
 
             get_region()->add(side_set);
 
-            get_region()->add_alias(side_set_name, alias);
-            get_region()->add_alias(side_set_name, Ioss::Utils::encode_entity_name("sideset", id));
+            get_region()->add_alias(side_set_name, alias, Ioss::SIDESET);
+            get_region()->add_alias(side_set_name, Ioss::Utils::encode_entity_name("sideset", id),
+                                    Ioss::SIDESET);
           }
 
           //      split_type = SPLIT_BY_ELEMENT_BLOCK;
@@ -1924,8 +1925,9 @@ void DatabaseIO::get_sets(ex_entity_type type, int64_t count, const std::string 
           activeNodeSetNodesIndex[Xset_name].swap(active_node_index);
         }
         get_region()->add(Xset);
-        get_region()->add_alias(Xset_name, alias);
-        get_region()->add_alias(Xset_name, Ioss::Utils::encode_entity_name(base + "set", id));
+        get_region()->add_alias(Xset_name, alias, Xset->type());
+        get_region()->add_alias(Xset_name, Ioss::Utils::encode_entity_name(base + "set", id),
+                                Xset->type());
       }
     }
 
@@ -2173,7 +2175,7 @@ int64_t DatabaseIO::get_field_internal(const Ioss::NodeBlock *nb, const Ioss::Fi
           // owning_processor field is always 32-bit.
           if (isParallel) {
             Ioss::CommSet *css   = get_region()->get_commset("commset_node");
-            int *          idata = static_cast<int *>(data);
+            int           *idata = static_cast<int *>(data);
             for (int64_t i = 0; i < nodeCount; i++) {
               idata[i] = myProcessor;
             }
@@ -2440,7 +2442,7 @@ int64_t DatabaseIO::get_field_internal(const Ioss::ElementBlock *eb, const Ioss:
           if (field.is_type(Ioss::Field::INTEGER)) {
             Ioss::IntVector element(my_element_count);
             Ioss::IntVector side(my_element_count);
-            int *           el_side = reinterpret_cast<int *>(data);
+            int            *el_side = reinterpret_cast<int *>(data);
 
             // FIX: Hardwired map ids....
             size_t eb_offset = eb->get_offset();
@@ -2458,7 +2460,7 @@ int64_t DatabaseIO::get_field_internal(const Ioss::ElementBlock *eb, const Ioss:
           else {
             Ioss::Int64Vector element(my_element_count);
             Ioss::Int64Vector side(my_element_count);
-            auto *            el_side = reinterpret_cast<int64_t *>(data);
+            auto             *el_side = reinterpret_cast<int64_t *>(data);
 
             // FIX: Hardwired map ids....
             size_t eb_offset = eb->get_offset();
@@ -2971,14 +2973,14 @@ int64_t DatabaseIO::get_field_internal(const Ioss::CommSet *cs, const Ioss::Fiel
             if (field.get_name() == "entity_processor") {
               const Ioss::MapContainer &map = get_map(EX_ELEM_BLOCK).map();
 
-              for (ssize_t i = 0; i < entity_count; i++) {
+              for (ioss_ssize_t i = 0; i < entity_count; i++) {
                 entity_proc[j++] = map[ents[i]];
                 entity_proc[j++] = sids[i];
                 entity_proc[j++] = pros[i];
               }
             }
             else { // "entity_processor_raw"
-              for (ssize_t i = 0; i < entity_count; i++) {
+              for (ioss_ssize_t i = 0; i < entity_count; i++) {
                 entity_proc[j++] = ents[i];
                 entity_proc[j++] = sids[i];
                 entity_proc[j++] = pros[i];
@@ -2995,14 +2997,14 @@ int64_t DatabaseIO::get_field_internal(const Ioss::CommSet *cs, const Ioss::Fiel
             if (field.get_name() == "entity_processor") {
               const Ioss::MapContainer &map = get_map(EX_ELEM_BLOCK).map();
 
-              for (ssize_t i = 0; i < entity_count; i++) {
+              for (ioss_ssize_t i = 0; i < entity_count; i++) {
                 entity_proc[j++] = map[ents[i]];
                 entity_proc[j++] = sids[i];
                 entity_proc[j++] = pros[i];
               }
             }
             else { // "entity_processor_raw"
-              for (ssize_t i = 0; i < entity_count; i++) {
+              for (ioss_ssize_t i = 0; i < entity_count; i++) {
                 entity_proc[j++] = ents[i];
                 entity_proc[j++] = sids[i];
                 entity_proc[j++] = pros[i];
@@ -3031,7 +3033,7 @@ int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
                                        void *data, size_t data_size) const
 {
   Ioss::SerializeIO serializeIO__(this);
-  ssize_t           num_to_get = field.verify(data_size);
+  ioss_ssize_t      num_to_get = field.verify(data_size);
   if (num_to_get > 0) {
 
     int64_t id           = Ioex::get_id(fb, EX_SIDE_SET, &ids_);
@@ -3087,14 +3089,14 @@ int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
           if (field.get_type() == Ioss::Field::INTEGER) {
             // Need to convert 'double' to 'int' for Sierra use...
             int *ids = static_cast<int *>(data);
-            for (ssize_t i = 0; i < num_to_get; i++) {
+            for (ioss_ssize_t i = 0; i < num_to_get; i++) {
               ids[i] = static_cast<int>(real_ids[i]);
             }
           }
           else {
             // Need to convert 'double' to 'int' for Sierra use...
             auto *ids = static_cast<int64_t *>(data);
-            for (ssize_t i = 0; i < num_to_get; i++) {
+            for (ioss_ssize_t i = 0; i < num_to_get; i++) {
               ids[i] = static_cast<int64_t>(real_ids[i]);
             }
           }
@@ -3124,10 +3126,10 @@ int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
         // through to generate the ids...
         if (int_byte_size_api() == 4) {
           int64_t int_max = std::numeric_limits<int>::max();
-          int *   ids     = static_cast<int *>(data);
-          int *   els     = reinterpret_cast<int *>(element_side.data());
+          int    *ids     = static_cast<int *>(data);
+          int    *els     = reinterpret_cast<int *>(element_side.data());
           size_t  idx     = 0;
-          for (ssize_t iel = 0; iel < 2 * entity_count; iel += 2) {
+          for (ioss_ssize_t iel = 0; iel < 2 * entity_count; iel += 2) {
             int64_t new_id = static_cast<int64_t>(10) * els[iel] + els[iel + 1];
             if (new_id > int_max) {
               std::ostringstream errmsg;
@@ -3143,16 +3145,16 @@ int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
           }
         }
         else {
-          auto * ids = static_cast<int64_t *>(data);
-          auto * els = reinterpret_cast<int64_t *>(element_side.data());
+          auto  *ids = static_cast<int64_t *>(data);
+          auto  *els = reinterpret_cast<int64_t *>(element_side.data());
           size_t idx = 0;
-          for (ssize_t iel = 0; iel < 2 * entity_count; iel += 2) {
+          for (ioss_ssize_t iel = 0; iel < 2 * entity_count; iel += 2) {
             int64_t new_id = 10 * els[iel] + els[iel + 1];
             ids[idx++]     = new_id;
           }
         }
       }
-      else if (field.get_name() == "element_side") {
+      else if (field.get_name() == "element_side" || field.get_name() == "element_side_raw") {
         // In exodus, the 'side set' is stored as a sideset.  A sideset
         // has a list of elements and a corresponding local element side
         // (1-based)
@@ -3163,7 +3165,13 @@ int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
         // map from local_to_global prior to generating the side  id...
 
         // Get the element number map (1-based)...
+        // Not used for "element_side_raw", but reduces code duplication...
+        // Although combining code for raw and regular introduces an if in the
+        // middle of a loop, we rely on the branch predictor to learn that
+        // `do_map` does not change during the iteration...
         const Ioss::MapContainer &map = get_map(EX_ELEM_BLOCK).map();
+
+        bool do_map = field.get_name() == "element_side";
 
         // Allocate space for local side number and element numbers
         // numbers.
@@ -3180,90 +3188,18 @@ int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
         }
 
         if (number_sides == entity_count) {
-          ssize_t index = 0;
+          ioss_ssize_t index = 0;
           if (int_byte_size_api() == 4) {
             auto *element_side = static_cast<int *>(data);
             auto *element32    = reinterpret_cast<int *>(element.data());
             auto *sides32      = reinterpret_cast<int *>(sides.data());
-            for (ssize_t iel = 0; iel < entity_count; iel++) {
-              element_side[index++] = map[element32[iel]];
-              element_side[index++] = sides32[iel] - side_offset;
-            }
-          }
-          else {
-            auto *element_side = static_cast<int64_t *>(data);
-            auto *element64    = reinterpret_cast<int64_t *>(element.data());
-            auto *sides64      = reinterpret_cast<int64_t *>(sides.data());
-            for (ssize_t iel = 0; iel < entity_count; iel++) {
-              element_side[index++] = map[element64[iel]];
-              element_side[index++] = sides64[iel] - side_offset;
-            }
-          }
-          assert(index / 2 == entity_count);
-        }
-        else {
-          Ioss::IntVector is_valid_side;
-          Ioss::Utils::calculate_sideblock_membership(is_valid_side, fb, int_byte_size_api(),
-                                                      element.data(), sides.data(), number_sides,
-                                                      get_region());
-
-          ssize_t index = 0;
-          if (int_byte_size_api() == 4) {
-            auto *element_side = static_cast<int *>(data);
-            auto *element32    = reinterpret_cast<int *>(element.data());
-            auto *sides32      = reinterpret_cast<int *>(sides.data());
-            for (int64_t iel = 0; iel < number_sides; iel++) {
-              if (is_valid_side[iel] == 1) {
-                // This side  belongs in the side block
+            for (ioss_ssize_t iel = 0; iel < entity_count; iel++) {
+              if (do_map) {
                 element_side[index++] = map[element32[iel]];
-                element_side[index++] = sides32[iel] - side_offset;
               }
-            }
-          }
-          else {
-            auto *element_side = static_cast<int64_t *>(data);
-            auto *element64    = reinterpret_cast<int64_t *>(element.data());
-            auto *sides64      = reinterpret_cast<int64_t *>(sides.data());
-            for (int64_t iel = 0; iel < number_sides; iel++) {
-              if (is_valid_side[iel] == 1) {
-                // This side  belongs in the side block
-                element_side[index++] = map[element64[iel]];
-                element_side[index++] = sides64[iel] - side_offset;
+              else {
+                element_side[index++] = element32[iel];
               }
-            }
-          }
-          assert(index / 2 == entity_count);
-        }
-      }
-      else if (field.get_name() == "element_side_raw") {
-        // In exodus, the 'side set' is stored as a sideset.  A sideset
-        // has a list of elements and a corresponding local element side
-        // (1-based)
-
-        // Since we only have a single array, we need to allocate an extra
-        // array to store all of the data.  Note also that the
-        // element_id for the "raw" field is the local id, not the
-        // global id.
-
-        // See if edges or faces...
-        int64_t side_offset = Ioss::Utils::get_side_offset(fb);
-
-        std::vector<char> element(number_sides * int_byte_size_api());
-        std::vector<char> sides(number_sides * int_byte_size_api());
-
-        ierr = ex_get_set(get_file_pointer(), EX_SIDE_SET, id, element.data(), sides.data());
-        if (ierr < 0) {
-          Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
-        }
-
-        if (number_sides == entity_count) {
-          ssize_t index = 0;
-          if (int_byte_size_api() == 4) {
-            auto *element_side = static_cast<int *>(data);
-            auto *element32    = reinterpret_cast<int *>(element.data());
-            auto *sides32      = reinterpret_cast<int *>(sides.data());
-            for (ssize_t iel = 0; iel < entity_count; iel++) {
-              element_side[index++] = element32[iel];
               element_side[index++] = sides32[iel] - side_offset;
             }
           }
@@ -3271,8 +3207,13 @@ int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
             auto *element_side = static_cast<int64_t *>(data);
             auto *element64    = reinterpret_cast<int64_t *>(element.data());
             auto *sides64      = reinterpret_cast<int64_t *>(sides.data());
-            for (ssize_t iel = 0; iel < entity_count; iel++) {
-              element_side[index++] = element64[iel];
+            for (ioss_ssize_t iel = 0; iel < entity_count; iel++) {
+              if (do_map) {
+                element_side[index++] = map[element64[iel]];
+              }
+              else {
+                element_side[index++] = element64[iel];
+              }
               element_side[index++] = sides64[iel] - side_offset;
             }
           }
@@ -3284,15 +3225,20 @@ int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
                                                       element.data(), sides.data(), number_sides,
                                                       get_region());
 
-          ssize_t index = 0;
+          ioss_ssize_t index = 0;
           if (int_byte_size_api() == 4) {
-            int *element_side = static_cast<int *>(data);
-            int *element32    = reinterpret_cast<int *>(element.data());
-            int *sides32      = reinterpret_cast<int *>(sides.data());
+            auto *element_side = static_cast<int *>(data);
+            auto *element32    = reinterpret_cast<int *>(element.data());
+            auto *sides32      = reinterpret_cast<int *>(sides.data());
             for (int64_t iel = 0; iel < number_sides; iel++) {
               if (is_valid_side[iel] == 1) {
                 // This side  belongs in the side block
-                element_side[index++] = element32[iel];
+                if (do_map) {
+                  element_side[index++] = map[element32[iel]];
+                }
+                else {
+                  element_side[index++] = element32[iel];
+                }
                 element_side[index++] = sides32[iel] - side_offset;
               }
             }
@@ -3304,7 +3250,12 @@ int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
             for (int64_t iel = 0; iel < number_sides; iel++) {
               if (is_valid_side[iel] == 1) {
                 // This side  belongs in the side block
-                element_side[index++] = element64[iel];
+                if (do_map) {
+                  element_side[index++] = map[element64[iel]];
+                }
+                else {
+                  element_side[index++] = element64[iel];
+                }
                 element_side[index++] = sides64[iel] - side_offset;
               }
             }
@@ -3383,8 +3334,8 @@ int64_t DatabaseIO::write_attribute_field(ex_entity_type type, const Ioss::Field
                                           const Ioss::GroupingEntity *ge, void *data) const
 {
   std::string att_name   = ge->name() + SEP() + field.get_name();
-  ssize_t     num_entity = ge->entity_count();
-  ssize_t     fld_offset = field.get_index();
+  ioss_ssize_t     num_entity = ge->entity_count();
+  ioss_ssize_t     fld_offset = field.get_index();
 
   int64_t id              = Ioex::get_id(ge, type, &ids_);
   int     attribute_count = ge->get_property("attribute_count").get_int();
@@ -3398,7 +3349,7 @@ int64_t DatabaseIO::write_attribute_field(ex_entity_type type, const Ioss::Field
   if (fld_offset == 1 && field.raw_storage()->component_count() == attribute_count) {
     // Write all attributes in one big chunk...
     std::vector<double> temp;
-    double *            rdata = nullptr;
+    double             *rdata = nullptr;
     if (ioss_type == Ioss::Field::INTEGER) {
       int *idata = static_cast<int *>(data);
       extract_data(temp, idata, attribute_count * num_entity, 1, 0);
@@ -3423,7 +3374,7 @@ int64_t DatabaseIO::write_attribute_field(ex_entity_type type, const Ioss::Field
     // if higher-order (vector3d, ..) write each component.
     if (field.raw_storage()->component_count() == 1) {
       std::vector<double> temp;
-      double *            rdata = nullptr;
+      double             *rdata = nullptr;
       if (ioss_type == Ioss::Field::INTEGER) {
         int *idata = static_cast<int *>(data);
         extract_data(temp, idata, num_entity, 1, 0);
@@ -3495,7 +3446,7 @@ int64_t DatabaseIO::read_attribute_field(ex_entity_type type, const Ioss::Field 
   int64_t id              = Ioex::get_id(ge, type, &ids_);
 
   std::string att_name = ge->name() + SEP() + field.get_name();
-  ssize_t     offset   = field.get_index();
+  ioss_ssize_t     offset   = field.get_index();
   assert(offset - 1 + field.raw_storage()->component_count() <= attribute_count);
   if (offset == 1 && field.raw_storage()->component_count() == attribute_count) {
     // Read all attributes in one big chunk...
@@ -3520,7 +3471,7 @@ int64_t DatabaseIO::read_attribute_field(ex_entity_type type, const Ioss::Field 
       // then push that into the user-supplied data block...
       std::vector<double> local_data(num_entity);
       int                 comp_count = field.raw_storage()->component_count();
-      auto *              rdata      = static_cast<double *>(data);
+      auto               *rdata      = static_cast<double *>(data);
       for (int i = 0; i < comp_count; i++) {
         int ierr = ex_get_one_attr(get_file_pointer(), type, id, offset + i, local_data.data());
         if (ierr < 0) {
@@ -3528,7 +3479,7 @@ int64_t DatabaseIO::read_attribute_field(ex_entity_type type, const Ioss::Field 
         }
 
         size_t k = i;
-        for (ssize_t j = 0; j < num_entity; j++) {
+        for (ioss_ssize_t j = 0; j < num_entity; j++) {
           rdata[k] = local_data[j];
           k += comp_count;
         }
@@ -3557,6 +3508,8 @@ int64_t DatabaseIO::read_transient_field(ex_entity_type               type,
   size_t comp_count = var_type->component_count();
 
   char field_suffix_separator = get_field_separator();
+  bool field_strip_trailing_  = get_field_strip_trailing_();
+
   if (comp_count == 1 && field.get_type() == Ioss::Field::REAL) {
     std::string var_name = var_type->label_name(field.get_name(), 1, field_suffix_separator);
 
@@ -3585,6 +3538,13 @@ int64_t DatabaseIO::read_transient_field(ex_entity_type               type,
       int64_t id       = Ioex::get_id(ge, type, &ids_);
       int     ierr     = 0;
       auto    var_iter = variables.find(var_name);
+      if (var_iter == variables.end()) {
+        if (field_strip_trailing_ && field_suffix_separator == '\0') {
+          // Try again using '_' as the field_suffix_separator...
+          std::string tmp_var_name = var_type->label_name(field.get_name(), i + 1, '_');
+          var_iter                 = variables.find(tmp_var_name);
+        }
+      }
       if (var_iter == variables.end()) {
         std::ostringstream errmsg;
         fmt::print(errmsg, "ERROR: Could not find field '{}'\n", var_name);
@@ -3712,7 +3672,7 @@ int64_t DatabaseIO::read_ss_transient_field(const Ioss::Field &field, int64_t id
 
 template <typename INT>
 int64_t DatabaseIO::get_side_connectivity_internal(const Ioss::SideBlock *fb, int64_t id,
-                                                   int64_t /*unused*/, INT *          fconnect,
+                                                   int64_t /*unused*/, INT           *fconnect,
                                                    bool map_ids) const
 {
   // Get size of data stored on the file...
@@ -3762,7 +3722,7 @@ int64_t DatabaseIO::get_side_connectivity_internal(const Ioss::SideBlock *fb, in
   int     nfnodes      = 0;
   int     ieb          = 0;
   size_t  offset       = 0;
-  for (ssize_t iel = 0; iel < number_sides; iel++) {
+  for (ioss_ssize_t iel = 0; iel < number_sides; iel++) {
     if (is_valid_side[iel] == 1) {
 
       int64_t elem_id = element[iel];
@@ -3771,7 +3731,7 @@ int64_t DatabaseIO::get_side_connectivity_internal(const Ioss::SideBlock *fb, in
       block = get_region()->get_element_block(elem_id);
       assert(block != nullptr);
       if (conn_block != block) {
-        ssize_t nelem = block->entity_count();
+        ioss_ssize_t nelem = block->entity_count();
         nelnode       = block->topology()->number_nodes();
         // Used to map element number into position in connectivity array.
         // E.g., element 97 is the (97-offset)th element in this block and
@@ -3900,7 +3860,7 @@ int64_t DatabaseIO::get_side_distributions(const Ioss::SideBlock *fb, int64_t id
       if (value == 0.0) {
         value = 1.0; // Take care of some buggy mesh generators
       }
-      for (ssize_t j = 0; j < my_side_count * nfnodes; j++) {
+      for (ioss_ssize_t j = 0; j < my_side_count * nfnodes; j++) {
         dist_fact[j] = value;
       }
       return 0;
@@ -3933,9 +3893,9 @@ int64_t DatabaseIO::get_side_distributions(const Ioss::SideBlock *fb, int64_t id
   int64_t             idb   = 0; // counter for distribution factors read from database
   Ioss::ElementBlock *block = nullptr;
 
-  int *    element32 = nullptr;
+  int     *element32 = nullptr;
   int64_t *element64 = nullptr;
-  int *    side32    = nullptr;
+  int     *side32    = nullptr;
   int64_t *side64    = nullptr;
 
   if (int_byte_size_api() == 4) {
@@ -4722,8 +4682,8 @@ void DatabaseIO::write_entity_transient_field(ex_entity_type type, const Ioss::F
   int step = get_current_state();
   step     = get_database_step(step);
 
-  Ioss::Map *map       = nullptr;
-  ssize_t    eb_offset = 0;
+  Ioss::Map *map         = nullptr;
+  ioss_ssize_t eb_offset = 0;
   if (ge->type() == Ioss::ELEMENTBLOCK) {
     const auto *elb = dynamic_cast<const Ioss::ElementBlock *>(ge);
     Ioss::Utils::check_dynamic_cast(elb);
@@ -4804,8 +4764,8 @@ void DatabaseIO::write_entity_transient_field(ex_entity_type type, const Ioss::F
       // beg_offset = (re_im*i)+complex_comp
       // number_values = count
       // stride = re_im*comp_count
-      ssize_t begin_offset = (re_im * i) + complex_comp;
-      ssize_t stride       = re_im * comp_count;
+      ioss_ssize_t begin_offset = (re_im * i) + complex_comp;
+      ioss_ssize_t stride       = re_im * comp_count;
 
       if (ioss_type == Ioss::Field::REAL || ioss_type == Ioss::Field::COMPLEX) {
         map->map_field_to_db_scalar_order(static_cast<double *>(variables), temp, begin_offset,
@@ -4970,9 +4930,9 @@ int64_t DatabaseIO::put_field_internal(const Ioss::CommSet *cs, const Ioss::Fiel
         }
       }
       else {
-        auto *  entity_proc = static_cast<int64_t *>(data);
-        auto *  ent         = reinterpret_cast<int64_t *>(&entities[0]);
-        auto *  pro         = reinterpret_cast<int64_t *>(&procs[0]);
+        auto   *entity_proc = static_cast<int64_t *>(data);
+        auto   *ent         = reinterpret_cast<int64_t *>(&entities[0]);
+        auto   *pro         = reinterpret_cast<int64_t *>(&procs[0]);
         int64_t j           = 0;
         for (size_t i = 0; i < entity_count; i++) {
           int64_t global_id = entity_proc[j++];
@@ -5041,10 +5001,10 @@ int64_t DatabaseIO::put_field_internal(const Ioss::CommSet *cs, const Ioss::Fiel
         }
       }
       else {
-        auto *  entity_proc = static_cast<int64_t *>(data);
-        auto *  ent         = reinterpret_cast<int64_t *>(&entities[0]);
-        auto *  sid         = reinterpret_cast<int64_t *>(&sides[0]);
-        auto *  pro         = reinterpret_cast<int64_t *>(&procs[0]);
+        auto   *entity_proc = static_cast<int64_t *>(data);
+        auto   *ent         = reinterpret_cast<int64_t *>(&entities[0]);
+        auto   *sid         = reinterpret_cast<int64_t *>(&sides[0]);
+        auto   *pro         = reinterpret_cast<int64_t *>(&procs[0]);
         int64_t j           = 0;
         for (size_t i = 0; i < entity_count; i++) {
           ent[i] = elemMap.global_to_local(entity_proc[j++]);
@@ -5135,7 +5095,7 @@ int64_t DatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
         // Need to convert 'ints' to 'double' for storage on mesh...
         // FIX 64
         if (field.get_type() == Ioss::Field::INTEGER) {
-          int *               ids = static_cast<int *>(data);
+          int                *ids = static_cast<int *>(data);
           std::vector<double> real_ids(num_to_get);
           for (size_t i = 0; i < num_to_get; i++) {
             real_ids[i] = static_cast<double>(ids[i]);
@@ -5147,7 +5107,7 @@ int64_t DatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
           }
         }
         else {
-          auto *              ids = static_cast<int64_t *>(data);
+          auto               *ids = static_cast<int64_t *>(data);
           std::vector<double> real_ids(num_to_get);
           for (size_t i = 0; i < num_to_get; i++) {
             real_ids[i] = static_cast<double>(ids[i]);
@@ -5206,7 +5166,7 @@ int64_t DatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
         if (field.get_type() == Ioss::Field::INTEGER) {
           Ioss::IntVector element(num_to_get);
           Ioss::IntVector side(num_to_get);
-          int *           el_side = reinterpret_cast<int *>(data);
+          int            *el_side = reinterpret_cast<int *>(data);
 
           try {
             for (size_t i = 0; i < num_to_get; i++) {
@@ -5230,7 +5190,7 @@ int64_t DatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
         else {
           Ioss::Int64Vector element(num_to_get);
           Ioss::Int64Vector side(num_to_get);
-          auto *            el_side = reinterpret_cast<int64_t *>(data);
+          auto             *el_side = reinterpret_cast<int64_t *>(data);
 
           try {
             for (size_t i = 0; i < num_to_get; i++) {
@@ -5272,7 +5232,7 @@ int64_t DatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
         if (field.get_type() == Ioss::Field::INTEGER) {
           Ioss::IntVector element(num_to_get);
           Ioss::IntVector side(num_to_get);
-          int *           el_side = reinterpret_cast<int *>(data);
+          int            *el_side = reinterpret_cast<int *>(data);
 
           for (size_t i = 0; i < num_to_get; i++) {
             element[i] = el_side[index++];
@@ -5288,7 +5248,7 @@ int64_t DatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const Ioss::Fi
         else {
           Ioss::Int64Vector element(num_to_get);
           Ioss::Int64Vector side(num_to_get);
-          auto *            el_side = reinterpret_cast<int64_t *>(data);
+          auto             *el_side = reinterpret_cast<int64_t *>(data);
 
           for (size_t i = 0; i < num_to_get; i++) {
             element[i] = el_side[index++];

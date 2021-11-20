@@ -117,7 +117,7 @@ namespace {
   }
 
   void zgc_subset_donor_ranges(const Iocgns::StructuredZoneData *don_zone,
-                               Ioss::ZoneConnectivity &          zgc)
+                               Ioss::ZoneConnectivity           &zgc)
   {
     // NOTE: Updates the range and donor_range in zgc
 
@@ -294,7 +294,6 @@ namespace Iocgns {
     }
     if (delta2 < min_delta) {
       min_ordinal = 2;
-      min_delta   = delta2;
     }
 
     unsigned int ordinal = min_ordinal;

@@ -21,7 +21,9 @@
 #include <string> // for string
 
 #include <cgns/Iocgns_Defines.h>
-#include <cgnslib.h>
+
+#include <vtk_cgns.h> // xxx(kitware)
+#include VTK_CGNS(cgnslib.h)
 
 namespace Ioss {
   class Assembly;

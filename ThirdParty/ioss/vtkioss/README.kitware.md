@@ -6,6 +6,9 @@ another source tree as well as a header to facilitate mangling of the symbols
 to avoid conflicts with other copies of the library within a single process.
 
   * Ignore whitespace for VTK's commit checks.
-  * Use VTK's exodus & cgns library.
+  * Use VTK's Exodus library.
+  * Use VTK's CGNS library.
+  * Use VTK's NetCDF library.
+  * Use VTK's zlib library.
   * Integrate the CMake build with VTK's module system.
   * Mangle all exported symbols to have a `vtkioss_` prefix.
