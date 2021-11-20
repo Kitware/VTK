@@ -128,6 +128,40 @@ namespace {
       ymin = ymax = 0.0;
     }
   }
+
+  void calc_bounding_box(size_t ndim, size_t node_count, std::vector<double> &coordinates,
+                         double &xmin, double &ymin, double &zmin, double &xmax, double &ymax,
+                         double &zmax)
+  {
+    xmin = DBL_MAX;
+    ymin = DBL_MAX;
+    zmin = DBL_MAX;
+
+    xmax = -DBL_MAX;
+    ymax = -DBL_MAX;
+    zmax = -DBL_MAX;
+
+    for (size_t i = 0; i < node_count; i++) {
+      xmin = my_min(xmin, coordinates[ndim * i + 0]);
+      xmax = my_max(xmax, coordinates[ndim * i + 0]);
+
+      if (ndim > 1) {
+        ymin = my_min(ymin, coordinates[ndim * i + 1]);
+        ymax = my_max(ymax, coordinates[ndim * i + 1]);
+      }
+
+      if (ndim > 2) {
+        zmin = my_min(zmin, coordinates[ndim * i + 2]);
+        zmax = my_max(zmax, coordinates[ndim * i + 2]);
+      }
+    }
+    if (ndim < 3) {
+      zmin = zmax = 0.0;
+    }
+    if (ndim < 2) {
+      ymin = ymax = 0.0;
+    }
+  }
 } // namespace
 
 namespace Ioss {
@@ -342,7 +376,7 @@ namespace Ioss {
   void DatabaseIO::closeDW() const
   {
     if (using_dw()) {
-      if (!using_parallel_io() || (using_parallel_io() && myProcessor == 0)) {
+      if (!using_parallel_io() || myProcessor == 0) {
 #if defined SEACAS_HAVE_DATAWARP
         int complete = 0, pending = 0, deferred = 0, failed = 0;
         dw_query_file_stage(get_dwname().c_str(), &complete, &pending, &deferred, &failed);
@@ -555,7 +589,7 @@ namespace Ioss {
         for (auto &sbold : side_blocks) {
           size_t  side_count = sbold->entity_count();
           auto    sbnew      = new SideBlock(this, sbold->name(), sbold->topology()->name(),
-                                     sbold->parent_element_topology()->name(), side_count);
+                                             sbold->parent_element_topology()->name(), side_count);
           int64_t id         = sbold->get_property("id").get_int();
           sbnew->property_add(Property("set_offset", entity_count));
           sbnew->property_add(Property("set_df_offset", df_count));
@@ -682,7 +716,6 @@ namespace Ioss {
     // This is used in other code speed up some tests.
 
     // Spheres and Circle have no faces/edges, so handle them special...
-    bool all_sphere = true;
 
     if (sideTopology.empty()) {
       // Set contains (parent_element, boundary_topology) pairs...
@@ -690,6 +723,7 @@ namespace Ioss {
 
       const ElementBlockContainer &element_blocks = get_region()->get_element_blocks();
 
+      bool all_sphere = true;
       for (auto &block : element_blocks) {
         const ElementTopology *elem_type = block->topology();
         const ElementTopology *side_type = elem_type->boundary_type();
@@ -809,7 +843,7 @@ namespace Ioss {
         if (int_byte_size_api() == 8) {
           std::vector<int64_t> conn;
           eb->get_field_data("connectivity_raw", conn);
-          for (auto node : conn) {
+          for (auto &node : conn) {
             assert(node > 0 && node - 1 < nodeCount);
             node_used[node - 1] = blk_position + 1;
           }
@@ -817,7 +851,7 @@ namespace Ioss {
         else {
           std::vector<int> conn;
           eb->get_field_data("connectivity_raw", conn);
-          for (auto node : conn) {
+          for (auto &node : conn) {
             assert(node > 0 && node - 1 < nodeCount);
             node_used[node - 1] = blk_position + 1;
           }
@@ -1042,10 +1076,10 @@ namespace Ioss {
     if (elementBlockBoundingBoxes.empty()) {
       // Calculate the bounding boxes for all element blocks...
       std::vector<double> coordinates;
-      Ioss::NodeBlock *   nb = get_region()->get_node_blocks()[0];
+      Ioss::NodeBlock    *nb = get_region()->get_node_blocks()[0];
       nb->get_field_data("mesh_model_coordinates", coordinates);
-      ssize_t nnode = nb->entity_count();
-      ssize_t ndim  = nb->get_property("component_degree").get_int();
+      ioss_ssize_t nnode = nb->entity_count();
+      ioss_ssize_t ndim  = nb->get_property("component_degree").get_int();
 
       const Ioss::ElementBlockContainer &element_blocks = get_region()->get_element_blocks();
       size_t                             nblock         = element_blocks.size();
@@ -1078,8 +1112,8 @@ namespace Ioss {
       util().global_array_minmax(minmax, Ioss::ParallelUtils::DO_MIN);
 
       for (size_t i = 0; i < element_blocks.size(); i++) {
-        Ioss::ElementBlock *   block = element_blocks[i];
-        const std::string &    name  = block->name();
+        Ioss::ElementBlock    *block = element_blocks[i];
+        const std::string     &name  = block->name();
         AxisAlignedBoundingBox bbox(minmax[6 * i + 0], minmax[6 * i + 1], minmax[6 * i + 2],
                                     -minmax[6 * i + 3], -minmax[6 * i + 4], -minmax[6 * i + 5]);
         elementBlockBoundingBoxes[name] = bbox;
@@ -1088,9 +1122,35 @@ namespace Ioss {
     return elementBlockBoundingBoxes[eb->name()];
   }
 
+  AxisAlignedBoundingBox DatabaseIO::get_bounding_box(const Ioss::NodeBlock *nb) const
+  {
+    std::vector<double> coordinates;
+    nb->get_field_data("mesh_model_coordinates", coordinates);
+    ioss_ssize_t nnode = nb->entity_count();
+    ioss_ssize_t ndim  = nb->get_property("component_degree").get_int();
+
+    double xmin, ymin, zmin, xmax, ymax, zmax;
+    calc_bounding_box(ndim, nnode, coordinates, xmin, ymin, zmin, xmax, ymax, zmax);
+
+    std::vector<double> minmax;
+    minmax.reserve(6);
+    minmax.push_back(xmin);
+    minmax.push_back(ymin);
+    minmax.push_back(zmin);
+    minmax.push_back(-xmax);
+    minmax.push_back(-ymax);
+    minmax.push_back(-zmax);
+
+    util().global_array_minmax(minmax, Ioss::ParallelUtils::DO_MIN);
+
+    AxisAlignedBoundingBox bbox(minmax[0], minmax[1], minmax[2], -minmax[3], -minmax[4],
+                                -minmax[5]);
+    return bbox;
+  }
+
   AxisAlignedBoundingBox DatabaseIO::get_bounding_box(const Ioss::StructuredBlock *sb) const
   {
-    ssize_t ndim = sb->get_property("component_degree").get_int();
+    ioss_ssize_t ndim = sb->get_property("component_degree").get_int();
 
     std::pair<double, double> xx;
     std::pair<double, double> yy;
@@ -1177,7 +1237,7 @@ namespace {
       }
 
       if (util.parallel_rank() == 0 || single_proc_only) {
-        const std::string &           name = entity->name();
+        const std::string            &name = entity->name();
         std::ostringstream            strm;
         auto                          now  = std::chrono::steady_clock::now();
         std::chrono::duration<double> diff = now - initial_time;

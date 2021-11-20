@@ -87,7 +87,7 @@ namespace Ioss {
                                         size_t offset);
 
     const MapContainer &map() const { return m_map; }
-    MapContainer &      map() { return m_map; }
+    MapContainer       &map() { return m_map; }
 
     bool defined() const { return m_defined; }
     void set_defined(bool yes_no) { m_defined = yes_no; }

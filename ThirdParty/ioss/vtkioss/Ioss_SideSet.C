@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -71,7 +71,7 @@ Ioss::SideSet::SideSet(const Ioss::SideSet &other) : Ioss::GroupingEntity(other)
 Ioss::SideSet::~SideSet()
 {
   try {
-    for (auto sb : sideBlocks) {
+    for (auto &sb : sideBlocks) {
       delete sb;
     }
   }
@@ -95,7 +95,7 @@ Ioss::SideBlock *Ioss::SideSet::get_side_block(const std::string &my_name) const
 {
   IOSS_FUNC_ENTER(m_);
   Ioss::SideBlock *ge = nullptr;
-  for (auto sb : sideBlocks) {
+  for (auto &sb : sideBlocks) {
     if (sb->name() == my_name) {
       ge = sb;
       break;
@@ -141,7 +141,7 @@ int Ioss::SideSet::max_parametric_dimension() const
 {
   IOSS_FUNC_ENTER(m_);
   int max_par_dim = 0;
-  for (auto sideblock : sideBlocks) {
+  for (auto &sideblock : sideBlocks) {
     int parametric_dim = sideblock->topology()->parametric_dimension();
     if (parametric_dim > max_par_dim) {
       max_par_dim = parametric_dim;
@@ -171,7 +171,7 @@ void Ioss::SideSet::block_membership(std::vector<std::string> &block_members)
   block_members = blockMembership;
 }
 
-bool Ioss::SideSet::equal_(const SideSet &rhs, const bool quiet) const
+bool Ioss::SideSet::equal_(const SideSet &rhs, const bool /* quiet */) const
 {
   std::vector<SideBlock *> lhs_side_blocks = this->sideBlocks;
   std::vector<SideBlock *> rhs_side_blocks = rhs.sideBlocks;

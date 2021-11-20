@@ -47,7 +47,7 @@ namespace Ioss {
     std::string contains_string() const override { return "Element/Side pair"; }
     EntityType  type() const override { return SIDEBLOCK; }
 
-    const SideSet *             owner() const { return owner_; }
+    const SideSet              *owner() const { return owner_; }
     const Ioss::GroupingEntity *contained_in() const override { return owner_; }
 
     void block_membership(std::vector<std::string> &block_members) override;
@@ -97,8 +97,8 @@ namespace Ioss {
   private:
     bool equal_(const SideBlock &, bool quiet) const;
 
-    const SideSet *    owner_{nullptr};
-    ElementTopology *  parentTopology_{nullptr}; // Topology of parent element (if any)
+    const SideSet     *owner_{nullptr};
+    ElementTopology   *parentTopology_{nullptr}; // Topology of parent element (if any)
     const EntityBlock *parentBlock_{nullptr};
 
     // Pointer to the SideSet (if any) that contains this side block.

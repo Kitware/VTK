@@ -647,8 +647,8 @@ namespace Ioss {
     std::vector<INT> exportNodeCount;
     std::vector<INT> exportNodeIndex;
 
-    std::vector<INT>
-        importNodeMap; // Where to put each imported nodes data in the list of all data...
+    // Where to put each imported nodes data in the list of all data...
+    std::vector<INT> importNodeMap;
     std::vector<INT> importNodeCount;
     std::vector<INT> importNodeIndex;
 

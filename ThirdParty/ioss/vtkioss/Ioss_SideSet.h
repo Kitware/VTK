@@ -40,7 +40,7 @@ namespace Ioss {
 
     bool                      add(SideBlock *side_block);
     const SideBlockContainer &get_side_blocks() const;
-    SideBlock *               get_side_block(const std::string &my_name) const;
+    SideBlock                *get_side_block(const std::string &my_name) const;
     size_t                    side_block_count() const { return sideBlocks.size(); }
 
     size_t     block_count() const { return sideBlocks.size(); }

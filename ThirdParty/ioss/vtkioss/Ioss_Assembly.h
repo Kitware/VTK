@@ -48,7 +48,7 @@ namespace Ioss {
     bool                   add(const GroupingEntity *member);
     bool                   remove(const GroupingEntity *member);
     const EntityContainer &get_members() const;
-    const GroupingEntity * get_member(const std::string &my_name) const;
+    const GroupingEntity  *get_member(const std::string &my_name) const;
     void                   remove_members();
     size_t                 member_count() const { return m_members.size(); }
 

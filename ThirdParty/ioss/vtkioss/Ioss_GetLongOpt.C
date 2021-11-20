@@ -237,7 +237,7 @@ namespace Ioss {
   int GetLongOption::parse(char *const str, char *const p)
   {
     options_parsed    = true;
-    char *      token = strtok(str, " \t");
+    char       *token = strtok(str, " \t");
     const char *name  = p != nullptr ? p : "GetLongOption";
 
     while (token != nullptr) {

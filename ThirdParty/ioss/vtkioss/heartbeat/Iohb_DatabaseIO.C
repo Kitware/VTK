@@ -492,7 +492,7 @@ namespace Iohb {
         if (field.get_type() == Ioss::Field::INTEGER) {
           assert(field.transformed_count() == 1);
 
-          int *            i_data = reinterpret_cast<int *>(data);
+          int             *i_data = reinterpret_cast<int *>(data);
           std::vector<int> idata(ncomp);
           for (int i = 0; i < ncomp; i++) {
             idata[i] = i_data[i];
@@ -501,7 +501,7 @@ namespace Iohb {
         }
         else {
           std::vector<double> rdata(ncomp);
-          auto *              r_data = reinterpret_cast<double *>(data);
+          auto               *r_data = reinterpret_cast<double *>(data);
           for (int i = 0; i < ncomp; i++) {
             rdata[i] = r_data[i];
           }

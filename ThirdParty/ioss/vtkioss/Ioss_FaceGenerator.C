@@ -5,6 +5,7 @@
 // See packages/seacas/LICENSE for details
 
 #include <Ioss_CodeTypes.h>
+
 #include <Ioss_CommSet.h>
 #include <Ioss_DBUsage.h>
 #include <Ioss_DatabaseIO.h>
@@ -303,7 +304,7 @@ namespace {
 namespace Ioss {
   Face::Face(std::array<size_t, 4> conn) : connectivity_(conn)
   {
-    for (auto node : connectivity_) {
+    for (auto &node : connectivity_) {
       hashId_ += Ioss::FaceGenerator::id_hash(node);
     }
   }
@@ -353,7 +354,7 @@ namespace Ioss {
   template <typename INT> void FaceGenerator::hash_node_ids(const std::vector<INT> &node_ids)
   {
     hashIds_.reserve(node_ids.size());
-    for (auto id : node_ids) {
+    for (auto &id : node_ids) {
       hashIds_.push_back(id_hash(id));
     }
   }
@@ -379,8 +380,8 @@ namespace Ioss {
     auto endh = std::chrono::steady_clock::now();
 #endif
 
-    const Ioss::ElementBlockContainer &ebs = region_.get_element_blocks();
-    for (auto eb : ebs) {
+    const auto &ebs = region_.get_element_blocks();
+    for (auto &eb : ebs) {
       const std::string &name    = eb->name();
       size_t             numel   = eb->entity_count();
       size_t             reserve = 3.2 * numel;
@@ -392,7 +393,7 @@ namespace Ioss {
     auto endf = std::chrono::steady_clock::now();
 #endif
     size_t face_count = 0;
-    for (auto eb : ebs) {
+    for (auto &eb : ebs) {
       resolve_parallel_faces(region_, faces_[eb->name()], hashIds_, (INT)0);
       face_count += faces_[eb->name()].size();
     }
@@ -442,13 +443,13 @@ namespace Ioss {
     auto endh = std::chrono::steady_clock::now();
 #endif
 
-    auto & my_faces = faces_["ALL"];
+    auto  &my_faces = faces_["ALL"];
     size_t numel    = region_.get_property("element_count").get_int();
 
     size_t reserve = 3.2 * numel;
     my_faces.reserve(reserve);
-    const Ioss::ElementBlockContainer &ebs = region_.get_element_blocks();
-    for (auto eb : ebs) {
+    const auto &ebs = region_.get_element_blocks();
+    for (auto &eb : ebs) {
       internal_generate_faces(eb, my_faces, ids, hashIds_, local_ids, (INT)0);
     }
 
