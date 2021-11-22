@@ -300,7 +300,7 @@ void TreeInformation::SaveTileset(const std::string& output)
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output)
 {
-  vtknlohmann::json v;
+  nlohmann::json v;
   this->RootJson["asset"]["version"] = "1.0";
   if (this->ContentType != vtkCesium3DTilesWriter::B3DM)
   {
