@@ -114,7 +114,7 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* root, const doubl
       buildings.clear();
       return wholeBB;
     }
-    buildings.push_back(building);
+    buildings.emplace_back(building);
   }
   return wholeBB;
 }

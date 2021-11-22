@@ -70,10 +70,10 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
   lonlatheight[5] = bb[5];
   std::ostringstream ostr;
   PJ* P;
-  P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, crs, "+proj=longlat +ellps=WGS84", NULL);
-  if (P == 0)
+  P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, crs, "+proj=longlat +ellps=WGS84", nullptr);
+  if (P == nullptr)
   {
-    vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(0)));
+    vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(nullptr)));
     return lonlatheight;
   }
   {
@@ -84,11 +84,11 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
     /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
     /* had been used, this might had been necessary. */
     PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
-    if (0 == P_for_GIS)
+    if (P_for_GIS == nullptr)
     {
       proj_destroy(P);
-      vtkLog(
-        ERROR, "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(0)));
+      vtkLog(ERROR,
+        "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(nullptr)));
       return lonlatheight;
     }
     proj_destroy(P);
@@ -377,10 +377,10 @@ nlohmann::json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
     {
 
       PJ* P;
-      P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, this->CRS, "+proj=cart", NULL);
-      if (P == 0)
+      P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, this->CRS, "+proj=cart", nullptr);
+      if (P == nullptr)
       {
-        vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(0)));
+        vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(nullptr)));
         return tree;
       }
       /* For that particular use case, this is not needed. */
@@ -390,11 +390,11 @@ nlohmann::json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
       /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
       /* had been used, this might had been necessary. */
       PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
-      if (0 == P_for_GIS)
+      if (P_for_GIS == nullptr)
       {
         proj_destroy(P);
-        vtkLog(
-          ERROR, "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(0)));
+        vtkLog(ERROR,
+          "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(nullptr)));
         return tree;
       }
       proj_destroy(P);
