@@ -435,7 +435,8 @@ void vtkBitArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source
 }
 
 //------------------------------------------------------------------------------
-void vtkBitArray::InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
+void vtkBitArray::InsertTuplesStartingAt(
+  vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
 {
   vtkBitArray* ba = vtkArrayDownCast<vtkBitArray>(source);
   if (!ba)

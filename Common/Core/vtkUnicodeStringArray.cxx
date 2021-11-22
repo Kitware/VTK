@@ -154,7 +154,7 @@ void vtkUnicodeStringArray::InsertTuples(
 }
 
 //------------------------------------------------------------------------------
-void vtkUnicodeStringArray::InsertTuples(
+void vtkUnicodeStringArray::InsertTuplesStartingAt(
   vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
 {
   vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);

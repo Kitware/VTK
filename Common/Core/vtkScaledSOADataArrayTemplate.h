@@ -247,9 +247,10 @@ public:
   {
     this->Superclass::InsertTuples(dstIds, srcIds, source);
   }
-  void InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override
+  void InsertTuplesStartingAt(
+    vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source) override
   {
-    this->Superclass::InsertTuples(dstStart, srcIds, source);
+    this->Superclass::InsertTuplesStartingAt(dstStart, srcIds, source);
   }
 
 protected:

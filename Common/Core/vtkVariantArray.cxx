@@ -273,7 +273,8 @@ void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* so
 }
 
 //------------------------------------------------------------------------------
-void vtkVariantArray::InsertTuples(vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
+void vtkVariantArray::InsertTuplesStartingAt(
+  vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
 {
   if (this->NumberOfComponents != source->GetNumberOfComponents())
   {

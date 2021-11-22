@@ -604,7 +604,7 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
+void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuplesStartingAt(
   vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
 {
   // First, check for the common case of typeid(source) == typeid(this). This
@@ -614,7 +614,7 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
   if (!other)
   {
     // Let the superclass handle dispatch/fallback.
-    this->Superclass::InsertTuples(dstStart, srcIds, source);
+    this->Superclass::InsertTuplesStartingAt(dstStart, srcIds, source);
     return;
   }
 

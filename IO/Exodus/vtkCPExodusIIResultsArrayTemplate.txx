@@ -351,7 +351,7 @@ void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertTuples(
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertTuples(
+void vtkCPExodusIIResultsArrayTemplate<Scalar>::InsertTuplesStartingAt(
   vtkIdType, vtkIdList*, vtkAbstractArray*)
 {
   vtkErrorMacro("Read only container.");
