@@ -52,7 +52,7 @@ void vtkIdList::Initialize()
   {
     delete[] this->Ids;
   }
-  this->ManageMemory = false;
+  this->ManageMemory = true;
   this->Ids = nullptr;
   this->NumberOfIds = 0;
   this->Size = 0;
@@ -116,6 +116,19 @@ void vtkIdList::SetArray(vtkIdType* array, vtkIdType size, bool save)
   if (this->ManageMemory)
   {
     delete[] this->Ids;
+  }
+  if (!array)
+  {
+    if (size)
+    {
+      vtkWarningMacro(<< "Passed a nullptr with a non-zero size... Setting size to 0.");
+      size = 0;
+    }
+    if (!save)
+    {
+      vtkWarningMacro(<< "Passed a nullptr while setting save to false... Setting save to true.");
+      save = true;
+    }
   }
   this->ManageMemory = save;
   this->Ids = array;
@@ -203,8 +216,8 @@ vtkIdType* vtkIdList::Resize(const vtkIdType sz)
     {
       delete[] this->Ids;
     }
-    this->ManageMemory = false;
   }
+  this->ManageMemory = true;
 
   this->Size = newSize;
   this->Ids = newIds;
