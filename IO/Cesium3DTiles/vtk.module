@@ -24,3 +24,4 @@ TEST_DEPENDS
   VTK::IOGeometry
   VTK::TestingCore
   VTK::TestingRendering
+  VTK::nlohmannjson

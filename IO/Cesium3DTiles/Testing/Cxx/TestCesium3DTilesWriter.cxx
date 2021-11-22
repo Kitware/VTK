@@ -41,6 +41,9 @@
 
 using namespace vtksys;
 
+#include <vtk_nlohmannjson.h>
+#include VTK_NLOHMANN_JSON(json.hpp)
+
 //------------------------------------------------------------------------------
 void SetField(vtkDataObject* obj, const char* name, const char* value)
 {
@@ -277,6 +280,77 @@ bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfF
   return false;
 }
 
+bool jsonEqual(nlohmann::json& l, nlohmann::json& r) noexcept
+{
+  if (l.is_null() && r.is_null())
+  {
+    return true;
+  }
+  else if (l.is_boolean() && r.is_boolean())
+  {
+    return l == r;
+  }
+  else if (l.is_string() && r.is_string())
+  {
+    return l == r;
+  }
+  else if (l.is_number() && r.is_number())
+  {
+    if (l.type() == nlohmann::json::value_t::number_float ||
+      r.type() == nlohmann::json::value_t::number_float)
+    {
+      return vtkMathUtilities::NearlyEqual(l.get<double>(), r.get<double>());
+    }
+    else
+    {
+      return l == r;
+    }
+  }
+  else if (l.is_object() && r.is_object())
+  {
+    nlohmann::json::iterator itL = l.begin();
+    nlohmann::json::iterator itR = r.begin();
+    while (itL != l.end() && itR != r.end())
+    {
+      if (itL.key() != itR.key())
+      {
+        return false;
+      }
+      if (!jsonEqual(itL.value(), itR.value()))
+      {
+        return false;
+      }
+      ++itL;
+      ++itR;
+    }
+    if (itL != l.end() || itR != r.end())
+    {
+      return false;
+    }
+    return true;
+  }
+  else if (l.is_array() && r.is_array())
+  {
+    nlohmann::json::iterator itL = l.begin();
+    nlohmann::json::iterator itR = r.begin();
+    while (itL != l.end() && itR != r.end())
+    {
+      if (!jsonEqual(*itL, *itR))
+      {
+        return false;
+      }
+      ++itL;
+      ++itR;
+    }
+    if (itL != l.end() || itR != r.end())
+    {
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+
 int TestCesium3DTilesWriter(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;
@@ -312,8 +386,23 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
-  if (SystemTools::TextFilesDiffer(dataRoot + "/Data/3DTiles/jacksonville-tileset.json",
-        tempDirectory + "/jacksonville-3dtiles/tileset.json"))
+  std::ifstream baselineFile(dataRoot + "/Data/3DTiles/jacksonville-tileset.json");
+  if (baselineFile.fail())
+  {
+    std::cerr << "Cannot open: " << dataRoot << "/Data/3DTiles/jacksonville-tileset.json"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+  nlohmann::json baseline = nlohmann::json::parse(baselineFile);
+  std::ifstream testFile(tempDirectory + "/jacksonville-3dtiles/tileset.json");
+  if (testFile.fail())
+  {
+    std::cerr << "Cannot open: " << tempDirectory << "/jacksonville-3dtiles/tileset.json"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+  nlohmann::json test = nlohmann::json::parse(testFile);
+  if (!jsonEqual(baseline, test))
   {
     std::cerr << "Jacksonville data produced a different tileset than expected:" << std::endl
               << dataRoot + "/Data/3DTiles/jacksonville-tileset.json" << std::endl
@@ -334,8 +423,23 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
-  if (SystemTools::TextFilesDiffer(dataRoot + "/Data/3DTiles/berlin-tileset.json",
-        tempDirectory + "/berlin-3dtiles/tileset.json"))
+  baselineFile.close();
+  baselineFile.open(dataRoot + "/Data/3DTiles/berlin-tileset.json");
+  if (baselineFile.fail())
+  {
+    std::cerr << "Cannot open: " << dataRoot << "/Data/3DTiles/berlin-tileset.json" << std::endl;
+    return EXIT_FAILURE;
+  }
+  baseline = nlohmann::json::parse(baselineFile);
+  testFile.close();
+  testFile.open(tempDirectory + "/berlin-3dtiles/tileset.json");
+  if (testFile.fail())
+  {
+    std::cerr << "Cannot open: " << tempDirectory << "/berlin-3dtiles/tileset.json" << std::endl;
+    return EXIT_FAILURE;
+  }
+  test = nlohmann::json::parse(testFile);
+  if (!jsonEqual(baseline, test))
   {
     std::cerr << "Berlin data produced a different tileset than expected" << std::endl
               << dataRoot + "/Data/3DTiles/berlin-tileset.json" << std::endl
