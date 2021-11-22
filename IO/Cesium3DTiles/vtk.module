@@ -18,6 +18,7 @@ PRIVATE_DEPENDS
   VTK::RenderingCore
   VTK::vtksys
   VTK::libproj
+  VTK::nlohmannjson
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::IOCityGML
