@@ -552,7 +552,9 @@ void vtkDisplaySizedImplicitPlaneRepresentation::EndComplexInteraction(
 double* vtkDisplaySizedImplicitPlaneRepresentation::GetBounds()
 {
   this->BuildRepresentation();
-  this->BoundingBox->AddBounds(this->PlaneActor->GetBounds());
+  // bounds need to be reset because the size of the widget changes overtime
+  this->BoundingBox->SetBounds(
+    VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN);
   this->BoundingBox->AddBounds(this->EdgesActor->GetBounds());
   this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
   this->BoundingBox->AddBounds(this->LineActor->GetBounds());
