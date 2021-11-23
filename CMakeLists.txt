@@ -40,3 +40,7 @@ endif ()
 target_include_directories(kissfft
   PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>")
+
+if (UNIX)
+  vtk_module_link(VTK::kissfft PRIVATE m)
+endif ()
