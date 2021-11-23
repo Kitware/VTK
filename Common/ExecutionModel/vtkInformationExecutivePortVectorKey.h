@@ -45,7 +45,8 @@ public:
    * given a name and a location. This method is provided for wrappers. Use
    * the constructor directly from C++ instead.
    */
-  static vtkInformationExecutivePortVectorKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationExecutivePortVectorKey* MakeKey(
+    const char* name, const char* location)
   {
     return new vtkInformationExecutivePortVectorKey(name, location);
   }

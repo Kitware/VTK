@@ -763,19 +763,31 @@ void vtkWrap_FindNewInstanceMethods(ClassInfo* data, HierarchyInfo* hinfo)
   {
     theFunc = data->Functions[i];
     if (theFunc->Name && theFunc->ReturnValue && vtkWrap_IsVTKObject(theFunc->ReturnValue) &&
+      (theFunc->ReturnValue->Attributes & VTK_PARSE_NEWINSTANCE) == 0 &&
       vtkWrap_IsVTKObjectBaseType(hinfo, theFunc->ReturnValue->Class))
     {
-      if (strcmp(theFunc->Name, "NewInstance") == 0 || strcmp(theFunc->Name, "NewIterator") == 0 ||
-        strcmp(theFunc->Name, "CreateInstance") == 0)
+      int needsNewInstance = 0;
+      if (strcmp(theFunc->Name, "NewInstance") == 0 || strcmp(theFunc->Name, "CreateInstance") == 0)
       {
-        if ((theFunc->ReturnValue->Attributes & VTK_PARSE_NEWINSTANCE) == 0)
-        {
-          /* get the command-line options */
-          options = vtkParse_GetCommandLineOptions();
-          fprintf(stderr, "Warning: %s without VTK_NEWINSTANCE hint in %s\n", theFunc->Name,
-            options->InputFileName);
-          theFunc->ReturnValue->Attributes |= VTK_PARSE_NEWINSTANCE;
-        }
+        needsNewInstance = 1;
+      }
+      else if (strcmp(theFunc->Name, "NewIterator") == 0)
+      {
+        needsNewInstance = 1;
+      }
+      else if (strcmp(theFunc->Name, "MakeKey") == 0 &&
+        vtkWrap_IsTypeOf(hinfo, data->Name, "vtkInformationKey"))
+      {
+        needsNewInstance = 1;
+      }
+
+      if (needsNewInstance)
+      {
+        /* get the command-line options */
+        options = vtkParse_GetCommandLineOptions();
+        fprintf(stderr, "Warning: %s without VTK_NEWINSTANCE hint in %s\n", theFunc->Name,
+          options->InputFileName);
+        theFunc->ReturnValue->Attributes |= VTK_PARSE_NEWINSTANCE;
       }
     }
   }

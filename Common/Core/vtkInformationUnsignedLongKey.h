@@ -42,7 +42,8 @@ public:
    * name and a location. This method is provided for wrappers. Use the
    * constructor directly from C++ instead.
    */
-  static vtkInformationUnsignedLongKey* MakeKey(const char* name, const char* location)
+  static VTK_NEWINSTANCE vtkInformationUnsignedLongKey* MakeKey(
+    const char* name, const char* location)
   {
     return new vtkInformationUnsignedLongKey(name, location);
   }
