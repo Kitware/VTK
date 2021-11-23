@@ -165,7 +165,7 @@ void vtkUnicodeStringArray::InsertTuplesStartingAt(
   }
 
   // Find maximum destination id and resize if needed
-  vtkIdType maxDstId = dstStart + srcIds->GetNumberOfIds();
+  vtkIdType maxDstId = dstStart + srcIds->GetNumberOfIds() - 1;
 
   if (static_cast<vtkIdType>(this->Internal->Storage.size()) <= maxDstId)
   {
