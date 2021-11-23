@@ -57,7 +57,7 @@ int TestLibProj(int, char*[])
     if (expectedProjStrings.find(projString) == expectedProjStrings.end())
     {
       std::cerr << "Error: Proj string " << projString << " not expected:" << std::endl;
-      for (auto s : expectedProjStrings)
+      for (const std::string& s : expectedProjStrings)
       {
         std::cerr << s << std::endl;
       }
