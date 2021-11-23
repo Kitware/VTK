@@ -1290,10 +1290,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
           [&extensionRequiredByModel](
             const std::string& value) { return value == extensionRequiredByModel.asString(); }))
     {
-      vtkWarningWithObjectMacro(this->Self,
-        "glTF extension " << extensionRequiredByModel.asString()
-                          << " is required in this model, but not supported by this loader. The "
-                             "extension will be ignored.");
+      vtkErrorWithObjectMacro(this->Self,
+        "glTF extension "
+          << extensionRequiredByModel.asString()
+          << " is required in this model, but not supported by this loader. Aborting");
+      return false;
     }
   }
   for (const auto& extensionUsedByModel : root["extensionsUsed"])
