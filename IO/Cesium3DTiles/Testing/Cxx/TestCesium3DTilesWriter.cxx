@@ -39,11 +39,11 @@
 #include <set>
 #include <sstream>
 
-using namespace vtksys;
-
 #include <vtk_nlohmannjson.h>
 #include VTK_NLOHMANN_JSON(json.hpp)
 
+using namespace vtksys;
+using namespace nlohmann;
 //------------------------------------------------------------------------------
 void SetField(vtkDataObject* obj, const char* name, const char* value)
 {
@@ -160,7 +160,7 @@ bool isSupported(const char* file)
 std::vector<std::string> getFiles(const std::vector<std::string>& input)
 {
   std::vector<std::string> files;
-  for (std::string name : input)
+  for (const std::string& name : input)
   {
     if (SystemTools::FileExists(name.c_str(), false /*isFile*/))
     {
@@ -280,73 +280,79 @@ bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfF
   return false;
 }
 
-bool jsonEqual(nlohmann::json& l, nlohmann::json& r) noexcept
+bool jsonEqual(json& l, json& r) noexcept
 {
-  if (l.is_null() && r.is_null())
+  try
   {
-    return true;
-  }
-  else if (l.is_boolean() && r.is_boolean())
-  {
-    return l == r;
-  }
-  else if (l.is_string() && r.is_string())
-  {
-    return l == r;
-  }
-  else if (l.is_number() && r.is_number())
-  {
-    if (l.type() == nlohmann::json::value_t::number_float ||
-      r.type() == nlohmann::json::value_t::number_float)
+    if (l.is_null() && r.is_null())
     {
-      return vtkMathUtilities::NearlyEqual(l.get<double>(), r.get<double>());
+      return true;
     }
-    else
+    else if (l.is_boolean() && r.is_boolean())
     {
       return l == r;
     }
+    else if (l.is_string() && r.is_string())
+    {
+      return l == r;
+    }
+    else if (l.is_number() && r.is_number())
+    {
+      if (l.type() == json::value_t::number_float || r.type() == json::value_t::number_float)
+      {
+        return vtkMathUtilities::NearlyEqual(l.get<double>(), r.get<double>());
+      }
+      else
+      {
+        return l == r;
+      }
+    }
+    else if (l.is_object() && r.is_object())
+    {
+      json::iterator itL = l.begin();
+      json::iterator itR = r.begin();
+      while (itL != l.end() && itR != r.end())
+      {
+        if (itL.key() != itR.key())
+        {
+          return false;
+        }
+        if (!jsonEqual(itL.value(), itR.value()))
+        {
+          return false;
+        }
+        ++itL;
+        ++itR;
+      }
+      if (itL != l.end() || itR != r.end())
+      {
+        return false;
+      }
+      return true;
+    }
+    else if (l.is_array() && r.is_array())
+    {
+      json::iterator itL = l.begin();
+      json::iterator itR = r.begin();
+      while (itL != l.end() && itR != r.end())
+      {
+        if (!jsonEqual(*itL, *itR))
+        {
+          return false;
+        }
+        ++itL;
+        ++itR;
+      }
+      if (itL != l.end() || itR != r.end())
+      {
+        return false;
+      }
+      return true;
+    }
   }
-  else if (l.is_object() && r.is_object())
+  catch (json::exception& e)
   {
-    nlohmann::json::iterator itL = l.begin();
-    nlohmann::json::iterator itR = r.begin();
-    while (itL != l.end() && itR != r.end())
-    {
-      if (itL.key() != itR.key())
-      {
-        return false;
-      }
-      if (!jsonEqual(itL.value(), itR.value()))
-      {
-        return false;
-      }
-      ++itL;
-      ++itR;
-    }
-    if (itL != l.end() || itR != r.end())
-    {
-      return false;
-    }
-    return true;
-  }
-  else if (l.is_array() && r.is_array())
-  {
-    nlohmann::json::iterator itL = l.begin();
-    nlohmann::json::iterator itR = r.begin();
-    while (itL != l.end() && itR != r.end())
-    {
-      if (!jsonEqual(*itL, *itR))
-      {
-        return false;
-      }
-      ++itL;
-      ++itR;
-    }
-    if (itL != l.end() || itR != r.end())
-    {
-      return false;
-    }
-    return true;
+    std::cerr << "json::exception: " << e.what() << std::endl;
   }
   return false;
 }
@@ -393,7 +399,7 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
               << std::endl;
     return EXIT_FAILURE;
   }
-  nlohmann::json baseline = nlohmann::json::parse(baselineFile);
+  json baseline = json::parse(baselineFile);
   std::ifstream testFile(tempDirectory + "/jacksonville-3dtiles/tileset.json");
   if (testFile.fail())
   {
@@ -401,7 +407,7 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
               << std::endl;
     return EXIT_FAILURE;
   }
-  nlohmann::json test = nlohmann::json::parse(testFile);
+  json test = json::parse(testFile);
   if (!jsonEqual(baseline, test))
   {
     std::cerr << "Jacksonville data produced a different tileset than expected:" << std::endl
@@ -430,7 +436,7 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
     std::cerr << "Cannot open: " << dataRoot << "/Data/3DTiles/berlin-tileset.json" << std::endl;
     return EXIT_FAILURE;
   }
-  baseline = nlohmann::json::parse(baselineFile);
+  baseline = json::parse(baselineFile);
   testFile.close();
   testFile.open(tempDirectory + "/berlin-3dtiles/tileset.json");
   if (testFile.fail())
@@ -438,7 +444,7 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
     std::cerr << "Cannot open: " << tempDirectory << "/berlin-3dtiles/tileset.json" << std::endl;
     return EXIT_FAILURE;
   }
-  test = nlohmann::json::parse(testFile);
+  test = json::parse(testFile);
   if (!jsonEqual(baseline, test))
   {
     std::cerr << "Berlin data produced a different tileset than expected" << std::endl

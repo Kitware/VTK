@@ -34,6 +34,8 @@
 
 #include <sstream>
 
+using namespace nlohmann;
+
 namespace
 {
 //------------------------------------------------------------------------------
@@ -300,7 +302,7 @@ void TreeInformation::SaveTileset(const std::string& output)
 //------------------------------------------------------------------------------
 void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output)
 {
-  nlohmann::json v;
+  json v;
   this->RootJson["asset"]["version"] = "1.0";
   if (this->ContentType != vtkCesium3DTilesWriter::B3DM)
   {
@@ -327,10 +329,10 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
 }
 
 //------------------------------------------------------------------------------
-nlohmann::json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
+json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
 {
-  nlohmann::json tree;
-  nlohmann::json v;
+  json tree;
+  json v;
   std::array<double, 6> nodeBounds = this->NodeBounds[node->GetID()];
   std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(this->CRS, nodeBounds);
   std::ostringstream ostr;
