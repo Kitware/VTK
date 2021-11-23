@@ -64,7 +64,7 @@ int TestPWindBladeReader(int argc, char* argv[])
 
   // Create the reader.
   vtkSmartPointer<vtkWindBladeReader> reader = vtkSmartPointer<vtkWindBladeReader>::New();
-  if (reader->IsA("vtkPWindBladeReader") == false)
+  if (!reader->IsA("vtkPWindBladeReader"))
   {
     vtkGenericWarningMacro(
       "Tried to make a vtkPWindBladeReader but got a vtkWindBladeReader instead.");

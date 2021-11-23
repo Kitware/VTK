@@ -261,7 +261,7 @@ void vtkResliceCursorActor::UpdateViewProps(vtkViewport* v)
   this->CursorCenterlineMapper[axis1]->SetInputConnection(this->CursorAlgorithm->GetOutputPort(0));
   this->CursorCenterlineMapper[axis2]->SetInputConnection(this->CursorAlgorithm->GetOutputPort(1));
 
-  const bool thickMode = this->CursorAlgorithm->GetResliceCursor()->GetThickMode() ? true : false;
+  const bool thickMode = this->CursorAlgorithm->GetResliceCursor()->GetThickMode() != 0;
 
   if (thickMode)
   {

@@ -251,7 +251,7 @@ bool TestShapeFunctionImage(T& tab, int argc, char* argv[], const std::string& t
       view->GetRenderWindow()->SetMultiSamples(8);
       view->GetInteractor()->Start();
     }
-    return retVal ? true : false;
+    return retVal != 0;
   }
   if (interact)
   {

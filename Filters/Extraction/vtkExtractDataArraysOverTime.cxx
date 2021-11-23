@@ -613,7 +613,7 @@ vtkExtractDataArraysOverTime::vtkInternal::GetOutput(
     }
 
     if (this->Self->GetFieldAssociation() == vtkDataObject::POINT &&
-      this->Self->GetReportStatisticsOnly() == false)
+      !this->Self->GetReportStatisticsOnly())
     {
       // These are the point coordinates of the original data
       vtkDoubleArray* coordsArray = vtkDoubleArray::New();

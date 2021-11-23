@@ -131,7 +131,7 @@ void vtkHigherOrderHexahedron::SetFaceIdsAndPoints(vtkHigherOrderQuadrilateral* 
   }
 
   // Do we need to flip the face to get an outward-pointing normal?
-  bool flipFace = (faceId % 2 == ((faceId / 2) % 2) ? true : false);
+  bool flipFace = faceId % 2 == ((faceId / 2) % 2);
 
   const int* order = this->GetOrder();
   vtkVector2i faceParams = vtkHigherOrderInterpolation::GetVaryingParametersOfHexFace(faceId);

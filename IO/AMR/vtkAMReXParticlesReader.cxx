@@ -823,7 +823,7 @@ bool vtkAMReXParticlesReader::ReadLevel(
   for (int cc = start_grid_idx; cc < start_grid_idx + grids_count; ++cc)
   {
     vtkNew<vtkPolyData> pd;
-    if (header.ReadGrid(level, cc, pd, this) == false)
+    if (!header.ReadGrid(level, cc, pd, this))
     {
       vtkGenericWarningMacro("Failed to read grid for level " << level << ", index " << cc);
       return false;

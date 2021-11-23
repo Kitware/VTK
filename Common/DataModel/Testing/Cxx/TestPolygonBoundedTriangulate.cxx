@@ -66,10 +66,10 @@ bool ValidTessellation(vtkPolygon* polygon, vtkIdList* outTris)
           break;
         }
       }
-      if (edges[i] == true)
+      if (edges[i])
         break;
     }
-    if (edges[i] == false)
+    if (!edges[i])
       break;
   }
 

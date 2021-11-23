@@ -1235,8 +1235,7 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
   // exist and the user requests it.
   algo.NeedGradients = (newGradients || newNormals);
   algo.InterpolateAttributes =
-    (self->GetInterpolateAttributes() && input->GetPointData()->GetNumberOfArrays() > 1) ? true
-                                                                                         : false;
+    self->GetInterpolateAttributes() && input->GetPointData()->GetNumberOfArrays() > 1;
 
   // Loop across each contour value. This encompasses all three passes.
   for (vidx = 0; vidx < numContours; vidx++)

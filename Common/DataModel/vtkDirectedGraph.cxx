@@ -93,7 +93,7 @@ bool vtkDirectedGraph::IsStructureValid(vtkGraph* g)
   }
   for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
   {
-    if (in[i] == false || out[i] == false)
+    if (!in[i] || !out[i])
     {
       return false;
     }

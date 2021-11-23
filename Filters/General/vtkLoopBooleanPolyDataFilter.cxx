@@ -1028,7 +1028,7 @@ void vtkLoopBooleanPolyDataFilter::Impl::DetermineIntersection(std::vector<simLo
 
   for (vtkIdType interPt = 0; interPt < numInterPts; interPt++)
   {
-    if (usedPt[interPt] == false)
+    if (!usedPt[interPt])
     {
       simLoop newloop;
       vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
@@ -1230,11 +1230,11 @@ int vtkLoopBooleanPolyDataFilter::Impl::RunLoopTest(
       nextPt = pointIds->GetId(0);
     }
 
-    if (usedPt[nextPt] == true)
+    if (usedPt[nextPt])
     {
       vtkDebugWithObjectMacro(this->ParentFilter, << "Bad One");
     }
-    if (cellId != stopCell && usedPt[nextPt] != true)
+    if (cellId != stopCell && !usedPt[nextPt])
     {
       simLine newline;
       newline.id = cellId;

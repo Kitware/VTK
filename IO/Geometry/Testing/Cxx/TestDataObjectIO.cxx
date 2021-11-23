@@ -56,10 +56,7 @@ void InitializeData(vtkRectilinearGrid* Data)
 
 bool CompareData(vtkRectilinearGrid* Output, vtkRectilinearGrid* Input)
 {
-  if (memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)) != 0)
-    return false;
-
-  return true;
+  return memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)) == 0;
 }
 
 void InitializeData(vtkStructuredGrid* Data)
@@ -69,10 +66,7 @@ void InitializeData(vtkStructuredGrid* Data)
 
 bool CompareData(vtkStructuredGrid* Output, vtkStructuredGrid* Input)
 {
-  if (memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)) != 0)
-    return false;
-
-  return true;
+  return memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)) == 0;
 }
 
 void InitializeData(vtkTable* Data)

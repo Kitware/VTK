@@ -111,13 +111,8 @@ bool vtkInteractiveArea::Hit(const vtkContextMouseEvent& mouse)
   vtkVector2i const bottomLeft = this->DrawAreaGeometry.GetBottomLeft();
   vtkVector2i const topRight = this->DrawAreaGeometry.GetTopRight();
 
-  if (pos[0] > bottomLeft[0] && pos[0] < topRight[0] && pos[1] > bottomLeft[1] &&
-    pos[1] < topRight[1])
-  {
-    return true;
-  }
-
-  return false;
+  return pos[0] > bottomLeft[0] && pos[0] < topRight[0] && pos[1] > bottomLeft[1] &&
+    pos[1] < topRight[1];
 }
 
 //------------------------------------------------------------------------------

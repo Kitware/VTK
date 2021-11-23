@@ -446,7 +446,7 @@ void vtkPKdTree::BuildLocator()
     this->AllCheckParameters(); // global operation to ensure same parameters
 
     double volBounds[6];
-    if (this->VolumeBounds(volBounds) == false) // global operation to get bounds
+    if (!this->VolumeBounds(volBounds)) // global operation to get bounds
     {
       goto doneError;
     }

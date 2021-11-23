@@ -241,7 +241,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset, do
       }
     }
 
-    if (this->NormalizeVector == true)
+    if (this->NormalizeVector)
     {
       vtkMath::Normalize(f);
     }

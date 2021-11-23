@@ -239,7 +239,7 @@ vtkPolyData* vtkGeoJSONFeature::ExtractPolygon(
     return nullptr;
   }
 
-  bool POLYGON_WITH_HOLES = coordinate.size() > 1 ? true : false;
+  bool POLYGON_WITH_HOLES = coordinate.size() > 1;
 
   vtkPoints* points = outputData->GetPoints();
   vtkAbstractArray* array = outputData->GetCellData()->GetAbstractArray("feature-id");

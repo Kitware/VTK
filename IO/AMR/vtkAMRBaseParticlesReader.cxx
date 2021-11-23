@@ -161,11 +161,7 @@ void vtkAMRBaseParticlesReader::SetFileName(const char* fileName)
 //------------------------------------------------------------------------------
 bool vtkAMRBaseParticlesReader::IsParallel()
 {
-  if (this->Controller != nullptr && this->Controller->GetNumberOfProcesses() > 1)
-  {
-    return true;
-  }
-  return false;
+  return this->Controller != nullptr && this->Controller->GetNumberOfProcesses() > 1;
 }
 
 //------------------------------------------------------------------------------
@@ -177,11 +173,7 @@ bool vtkAMRBaseParticlesReader::IsBlockMine(const int blkIdx)
   }
 
   int myRank = this->Controller->GetLocalProcessId();
-  if (myRank == this->GetBlockProcessId(blkIdx))
-  {
-    return true;
-  }
-  return false;
+  return myRank == this->GetBlockProcessId(blkIdx);
 }
 
 //------------------------------------------------------------------------------

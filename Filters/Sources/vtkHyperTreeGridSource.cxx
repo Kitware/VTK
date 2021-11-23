@@ -1306,7 +1306,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
   } // v
 
   // Subdivide iff quadric changes sign within cell
-  bool subdivide = (nPos != nVert && nNeg != nVert) ? true : false;
+  bool subdivide = nPos != nVert && nNeg != nVert;
 
   // Assign cell value
   if (subdivide && level + 1 == this->MaxDepth)
@@ -1441,7 +1441,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
   {
     if (this->UseMask)
     {
-      cursor->SetMask((nPos > 0) ? true : false);
+      cursor->SetMask(nPos > 0);
     }
 
     // Cell values

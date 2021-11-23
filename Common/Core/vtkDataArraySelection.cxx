@@ -324,7 +324,7 @@ void vtkDataArraySelection::SetArraysWithDefault(
   {
     // Fill in the setting.  Use the old value if available.
     // Otherwise, use the given default.
-    bool setting = defaultStatus ? true : false;
+    bool setting = defaultStatus != 0;
     auto iter = this->Internal->Find(names[i]);
     if (iter != this->Internal->Arrays.end())
     {

@@ -223,7 +223,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
       renWin->GetShaderCache()->ReadyShaderProgram(this->BlurProgram->Program);
     }
 
-    if (!this->BlurProgram->Program || this->BlurProgram->Program->GetCompiled() != true)
+    if (!this->BlurProgram->Program || !this->BlurProgram->Program->GetCompiled())
     {
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a "
                     "shader or a driver bug.");

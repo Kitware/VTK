@@ -142,7 +142,7 @@ void vtkProjectSphereFilter::TransformPointInformation(
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(input->GetNumberOfPoints());
 
-  double zTranslation = (this->TranslateZ == true ? this->GetZTranslation(input) : 0.);
+  double zTranslation = (this->TranslateZ ? this->GetZTranslation(input) : 0.);
 
   output->SetPoints(points.GetPointer());
   vtkIdType numberOfPoints = input->GetNumberOfPoints();
@@ -276,7 +276,7 @@ void vtkProjectSphereFilter::TransformCellInformation(
       {
         middleInterior = true;
       }
-      if (polePointIds->IsId(cellPoints->GetId(pt)) != -1 && this->KeepPolePoints == false)
+      if (polePointIds->IsId(cellPoints->GetId(pt)) != -1 && !this->KeepPolePoints)
       {
         skipCell = true;
         skippedCells->InsertNextId(cellId);

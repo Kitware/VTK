@@ -395,7 +395,7 @@ void DICOMParser::ReadNextRecord(
     }
     else
     {
-      if (this->DataFile->GetPlatformIsBigEndian() == true)
+      if (this->DataFile->GetPlatformIsBigEndian())
       {
         size_t uLength = static_cast<size_t>(length);
         switch (callbackType)

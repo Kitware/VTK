@@ -131,7 +131,7 @@ void ReadEndianOrderMark(istream& stream, bool& swap_endian)
   vtkTypeUInt32 endian_order = 0;
   stream.read(reinterpret_cast<char*>(&endian_order), sizeof(endian_order));
 
-  swap_endian = endian_order == 0x12345678 ? false : true;
+  swap_endian = endian_order != 0x12345678;
 }
 
 template <typename ValueT>

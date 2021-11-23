@@ -1157,8 +1157,7 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
   // Configure the interpolation of attribute data. Scalars are required and
   // always interpolated, other attributes are optional.
   algo.InterpolateAttributes =
-    (self->GetInterpolateAttributes() && input->GetPointData()->GetNumberOfArrays() > 1) ? true
-                                                                                         : false;
+    self->GetInterpolateAttributes() && input->GetPointData()->GetNumberOfArrays() > 1;
   // PASS 1: Traverse all x-rows building edge cases and counting number of
   // intersections (i.e., accumulate information necessary for later output
   // memory allocation, e.g., the number of output points along the x-rows

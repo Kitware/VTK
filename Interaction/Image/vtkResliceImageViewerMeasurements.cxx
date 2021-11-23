@@ -267,7 +267,7 @@ bool vtkResliceImageViewerMeasurements ::IsWidgetOnReslicedPlane(vtkContourWidge
     {
       double p[3];
       rep->GetNthNodeWorldPosition(i, p);
-      if (this->IsPositionOnReslicedPlane(p) == false)
+      if (!this->IsPositionOnReslicedPlane(p))
       {
         return false;
       }

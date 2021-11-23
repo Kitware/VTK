@@ -130,7 +130,7 @@ bool computeVortexCriteria(const double s[9], const double omega[9], double vort
     return false;
   }
 
-  if (computeAdditionalTerms == false)
+  if (!computeAdditionalTerms)
   {
     return true;
   }
@@ -329,12 +329,7 @@ bool vtkParallelVectorsForVortexCore::ComputeAdditionalCriteria(
   }
 
   // If any of the criteria fail, do not add this point
-  if (!computeVortexCriteria(S, Omega, criterionArrayValues.data()))
-  {
-    return false;
-  }
-
-  return true;
+  return computeVortexCriteria(S, Omega, criterionArrayValues.data());
 }
 
 //------------------------------------------------------------------------------

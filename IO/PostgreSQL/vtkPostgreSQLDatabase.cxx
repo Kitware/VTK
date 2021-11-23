@@ -337,7 +337,7 @@ bool vtkPostgreSQLDatabase::HasError()
   // Assume that an unopened connection is not a symptom of failure.
   if (this->Connection)
   {
-    return this->LastErrorText ? true : false;
+    return this->LastErrorText != nullptr;
   }
   else
   {
@@ -570,7 +570,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase(const char* dbName, bool dropExisting
     bool err = true;
     if (this->DatabaseName && this->HostName)
     {
-      err = this->Open() ? false : true;
+      err = !this->Open();
     }
     if (err)
     {
@@ -589,7 +589,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase(const char* dbName, bool dropExisting
   qstr += "\"";
   vtkSQLQuery* query = this->GetQueryInstance();
   query->SetQuery(qstr.c_str());
-  if (query->Execute() == false)
+  if (!query->Execute())
   {
     this->SetLastErrorText(query->GetLastErrorText());
     vtkErrorMacro(
@@ -628,7 +628,7 @@ bool vtkPostgreSQLDatabase::DropDatabase(const char* dbName)
     bool err = true;
     if (this->DatabaseName && this->HostName)
     {
-      err = this->Open() ? false : true;
+      err = !this->Open();
     }
     if (err)
     {
@@ -642,7 +642,7 @@ bool vtkPostgreSQLDatabase::DropDatabase(const char* dbName)
   qstr += "\"";
   vtkSQLQuery* query = this->GetQueryInstance();
   query->SetQuery(qstr.c_str());
-  if (query->Execute() == false)
+  if (!query->Execute())
   {
     this->SetLastErrorText(query->GetLastErrorText());
     vtkErrorMacro(<< "Could not drop database \"" << dbName << "\".  "

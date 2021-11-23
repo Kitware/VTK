@@ -102,7 +102,7 @@ public:
     if (fmt.testOption(QSurfaceFormat::DebugContext))
     {
       this->Logger.reset(new QOpenGLDebugLogger());
-      if (this->Logger->initialize() == false)
+      if (!this->Logger->initialize())
       {
         // initialize failure means OpenGL doesn't have appropriate extension so
         // just don't log.

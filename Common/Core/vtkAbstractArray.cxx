@@ -582,9 +582,8 @@ void vtkAbstractArray::GetProminentComponentValues(
     }
     // Are parameter values requesting more certainty in reporting or
     // that less-prominent values be reported? If so, recompute.
-    bool tighterParams = lastParams
-      ? (lastParams[0] > uncertainty || lastParams[1] > minimumProminence ? true : false)
-      : true;
+    bool tighterParams =
+      lastParams ? (lastParams[0] > uncertainty || lastParams[1] > minimumProminence) : true;
     // Recompute discrete value set when the array has been
     // modified since the information was written.
     if (!info->Has(DISCRETE_VALUES()) || tighterParams || this->GetMTime() > info->GetMTime() ||

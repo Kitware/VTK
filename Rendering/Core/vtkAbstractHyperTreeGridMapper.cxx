@@ -299,7 +299,7 @@ vtkMTimeType vtkAbstractHyperTreeGridMapper::GetMTime()
     if (camera)
     {
       // Update parallel projection if needed
-      bool usePP = camera->GetParallelProjection() ? true : false;
+      bool usePP = camera->GetParallelProjection() != 0;
       if (this->ParallelProjection != usePP)
       {
         this->ParallelProjection = usePP;

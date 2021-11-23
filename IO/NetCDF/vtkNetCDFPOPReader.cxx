@@ -250,7 +250,7 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
         this->Internals->VariableArraySelection->GetArrayName(this->Internals->VariableMap[i]),
         &varidp);
 
-      if (firstPass == true)
+      if (firstPass)
       {
         int dimidsp[3];
         nc_inq_vardimid(this->NCDFFD, varidp, dimidsp);

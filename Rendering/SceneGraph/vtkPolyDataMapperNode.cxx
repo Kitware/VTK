@@ -69,7 +69,7 @@ void vtkPolyDataMapperNode::TransformPoints(
       {
         pos = poly->GetPoints()->GetPoint(fixIndex--);
       }
-    } while (wasNan == true && fixIndex >= 0);
+    } while (wasNan && fixIndex >= 0);
     if (ident)
     {
       _vertices.push_back(pos[0]);

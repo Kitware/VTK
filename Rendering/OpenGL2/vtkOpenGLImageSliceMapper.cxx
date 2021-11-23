@@ -597,13 +597,8 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2], vtkRenderer* re
   // First ask OpenGL what the max texture size is
   GLint maxSize;
   ostate->vtkglGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
-  if (size[0] > maxSize || size[1] > maxSize)
-  {
-    return false;
-  }
-
   // if it does fit, we will render it later
-  return true;
+  return size[0] <= maxSize && size[1] <= maxSize;
 }
 
 //------------------------------------------------------------------------------

@@ -177,7 +177,7 @@ types::DataSet XMLInitDataSet(
     // handle special names
     const std::string name(xmlName.value());
     auto itSpecialName = specialNames.find(name);
-    const bool isSpecialName = (itSpecialName != specialNames.end()) ? true : false;
+    const bool isSpecialName = itSpecialName != specialNames.end();
     if (isSpecialName)
     {
       const std::string specialName = *itSpecialName;

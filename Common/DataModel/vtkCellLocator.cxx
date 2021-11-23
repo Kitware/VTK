@@ -1647,10 +1647,8 @@ double vtkCellLocator::Distance2ToBounds(const double x[3], double bounds[6])
 //------------------------------------------------------------------------------
 static bool vtkCellLocator_Inside(const double bounds[6], const double point[3])
 {
-  if (point[0] < bounds[0] || point[0] > bounds[1] || point[1] < bounds[2] ||
-    point[1] > bounds[3] || point[2] < bounds[4] || point[2] > bounds[5])
-    return false;
-  return true;
+  return bounds[0] <= point[0] && point[0] <= bounds[1] && bounds[2] <= point[1] &&
+    point[1] <= bounds[3] && bounds[4] <= point[2] && point[2] <= bounds[5];
 }
 //------------------------------------------------------------------------------
 vtkIdType vtkCellLocator::FindCell(

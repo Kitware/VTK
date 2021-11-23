@@ -109,7 +109,7 @@ public:
   {
     // We either probed and allocated a VAO, or are falling back as the current
     // hardware does not support VAOs.
-    return (this->HandleVAO != 0 || this->Supported == false);
+    return (this->HandleVAO != 0 || !this->Supported);
   }
 
   void ReleaseGraphicsResources()

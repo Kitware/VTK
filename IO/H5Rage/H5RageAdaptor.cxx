@@ -508,7 +508,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
   int numTotalHDFFiles = 0;
   for (size_t dir = 0; dir < hdfDirectory.size(); dir++)
   {
-    if (directory->Open(hdfDirectory[dir].c_str()) == false)
+    if (!static_cast<bool>(directory->Open(hdfDirectory[dir].c_str())))
     {
       vtkGenericWarningMacro("HDF directory does not exist: " << hdfDirectory[dir]);
     }

@@ -322,11 +322,7 @@ inline bool vtkPythonGetValue(PyObject* o, const char*& a)
 
 inline bool vtkPythonGetValue(PyObject* o, std::string& a)
 {
-  if (vtkPythonGetStdStringValue(o, a, "string is required"))
-  {
-    return true;
-  }
-  return false;
+  return vtkPythonGetStdStringValue(o, a, "string is required");
 }
 
 inline bool vtkPythonGetValue(PyObject* o, vtkUnicodeString& a)

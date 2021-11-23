@@ -454,14 +454,7 @@ bool vtkFLUENTReader::OpenCaseFile(const char* filename)
   mode |= ios::binary;
 #endif
   this->FluentCaseFile = new vtksys::ifstream(filename, mode);
-  if (!this->FluentCaseFile->fail())
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return !this->FluentCaseFile->fail();
 }
 
 //------------------------------------------------------------------------------

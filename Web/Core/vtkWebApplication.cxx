@@ -177,7 +177,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   vtkInternals::ImageCacheValueType& value = this->Internals->ImageCache[view];
   value.SetListener(view);
 
-  if (value.NeedsRender == false &&
+  if (!value.NeedsRender &&
     value.Data != nullptr /* FIXME SEB &&
     view->HasDirtyRepresentation() == false */)
   {

@@ -54,11 +54,7 @@ bool FloatNumberEquals(double a, double b, double TOL)
   double adiff = std::abs(a - b);
   double d1 = SafeDivision(adiff, std::abs(a));
   double d2 = SafeDivision(adiff, std::abs(b));
-  if ((d1 <= TOL) || (d2 <= TOL))
-  {
-    return true;
-  }
-  return false;
+  return d1 <= TOL || d2 <= TOL;
 }
 
 // Description:

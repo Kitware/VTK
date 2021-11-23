@@ -356,14 +356,7 @@ public:
 vtkNetCDFCFReader::vtkDependentDimensionInfo::vtkDependentDimensionInfo(
   int ncFD, int varId, vtkNetCDFCFReader* parent)
 {
-  if (this->LoadMetaData(ncFD, varId, parent))
-  {
-    this->Valid = true;
-  }
-  else
-  {
-    this->Valid = false;
-  }
+  this->Valid = this->LoadMetaData(ncFD, varId, parent) != 0;
 }
 
 //------------------------------------------------------------------------------

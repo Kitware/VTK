@@ -1390,14 +1390,14 @@ void vtkContour3DLinearGrid::ProcessPiece(
     // Determine the size/type of point and cell ids needed to index points
     // and cells. Using smaller ids results in a greatly reduced memory footprint
     // and faster processing.
-    this->LargeIds = (numPts >= VTK_INT_MAX || numCells >= VTK_INT_MAX ? true : false);
+    this->LargeIds = numPts >= VTK_INT_MAX || numCells >= VTK_INT_MAX;
 
     // Generate all of the merged points and triangles at once (for multiple
     // contours) and then produce the normals if requested.
     for (int vidx = 0; vidx < numContours; vidx++)
     {
       value = values[vidx];
-      if (this->LargeIds == false)
+      if (!this->LargeIds)
       {
         if (!ProcessMerged<int>(numCells, inPts, cellIter, sType, sPtr, value, outPts, newPolys,
               this->InterpolateAttributes, this->ComputeScalars, inScalars, inPD, outPD, &arrays,

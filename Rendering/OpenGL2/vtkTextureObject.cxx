@@ -1439,12 +1439,10 @@ bool vtkTextureObject::AllocateProxyTexture3D(unsigned int const width, unsigned
   vtkOpenGLCheckErrorMacro("Failed after glTexImage3D with PROXY target");
   this->Deactivate();
 
-  if (testWidth == 0)
-  {
-    return false;
-  }
-#endif
+  return testWidth != 0;
+#else
   return true;
+#endif
 }
 
 //------------------------------------------------------------------------------

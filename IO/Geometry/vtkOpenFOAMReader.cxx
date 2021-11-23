@@ -4242,7 +4242,7 @@ void vtkFoamEntryValue::ReadDimensionSet(vtkFoamIOobject& io)
     {
       // Some unknown token type (eg, encountered human-readable units)
       // - skip until ']'
-      while ((goodInput = io.Read(tok)) == true)
+      while ((goodInput = io.Read(tok)))
       {
         if (tok.IsPunctuation() && (tok == expectEnding))
         {

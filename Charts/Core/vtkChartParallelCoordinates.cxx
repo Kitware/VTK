@@ -443,15 +443,8 @@ void vtkChartParallelCoordinates::RecalculateBounds() {}
 bool vtkChartParallelCoordinates::Hit(const vtkContextMouseEvent& mouse)
 {
   vtkVector2i pos(mouse.GetScreenPos());
-  if (pos[0] > this->Point1[0] - 10 && pos[0] < this->Point2[0] + 10 && pos[1] > this->Point1[1] &&
-    pos[1] < this->Point2[1])
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return pos[0] > this->Point1[0] - 10 && pos[0] < this->Point2[0] + 10 &&
+    pos[1] > this->Point1[1] && pos[1] < this->Point2[1];
 }
 
 //------------------------------------------------------------------------------

@@ -169,7 +169,7 @@ void vtkSurfaceLICMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor)
 
   this->CurrentInput = this->GetInput();
   vtkDataArray* vectors = this->GetInputArrayToProcess(0, this->CurrentInput);
-  this->LICInterface->SetHasVectors(vectors != nullptr ? true : false);
+  this->LICInterface->SetHasVectors(vectors != nullptr);
 
   if (!this->LICInterface->CanRenderSurfaceLIC(actor))
   {

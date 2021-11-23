@@ -504,8 +504,7 @@ void vtkRenderView::UpdateHoverWidgetState()
   this->RenderWindow->MakeCurrent();
   if (this->RenderWindow->IsCurrent())
   {
-    if (!this->Interacting &&
-      (this->HoverWidget->GetEnabled() ? true : false) != this->DisplayHoverText)
+    if (!this->Interacting && (this->HoverWidget->GetEnabled() != 0) != this->DisplayHoverText)
     {
       vtkDebugMacro(<< "turning " << (this->DisplayHoverText ? "on" : "off") << " hover widget");
       this->HoverWidget->SetEnabled(this->DisplayHoverText);

@@ -147,11 +147,7 @@ bool OMFFile::OpenStream(const char* filename)
 {
   this->Impl->FileName = filename;
   this->Impl->Stream = new vtksys::ifstream(filename, std::ios::binary);
-  if (!this->Impl->Stream)
-  {
-    return false;
-  }
-  return true;
+  return static_cast<bool>(this->Impl->Stream);
 }
 
 std::string OMFFile::GetFileName()

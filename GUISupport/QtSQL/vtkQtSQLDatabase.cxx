@@ -114,12 +114,8 @@ bool vtkQtSQLDatabase::Open(const char* password)
   {
     this->QtDatabase.setPort(this->DbPort);
   }
-  if (this->QtDatabase.open(this->UserName, password))
-  {
-    return true;
-  }
 
-  return false;
+  return this->QtDatabase.open(this->UserName, password);
 }
 
 void vtkQtSQLDatabase::Close()

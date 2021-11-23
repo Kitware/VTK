@@ -202,7 +202,7 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues(
       f[2] += vector[2] * this->Weights[i];
     }
 
-    if (this->NormalizeVector == true)
+    if (this->NormalizeVector)
     {
       vtkMath::Normalize(f);
     }

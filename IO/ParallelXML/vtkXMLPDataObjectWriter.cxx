@@ -143,7 +143,7 @@ int vtkXMLPDataObjectWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
 //------------------------------------------------------------------------------
 int vtkXMLPDataObjectWriter::WriteInternal()
 {
-  bool beginning = this->ContinuingExecution == false;
+  bool beginning = !this->ContinuingExecution;
   bool end = true;
 
   this->ContinuingExecution = false;
@@ -200,7 +200,7 @@ int vtkXMLPDataObjectWriter::WriteInternal()
     }
   }
 
-  if (end == false)
+  if (!end)
   {
     this->CurrentPiece++;
     assert(this->CurrentPiece <= this->EndPiece);

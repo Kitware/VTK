@@ -2322,7 +2322,7 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
         }
       }
       // Remove intermediate results, if requested.
-      if (this->PreserveIntermediateFunctions == false)
+      if (!this->PreserveIntermediateFunctions)
       {
         this->RemoveIntermediateFunctions(nthOutput->GetPointData());
         this->RemoveIntermediateFunctions(nthOutput->GetCellData());

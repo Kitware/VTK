@@ -156,7 +156,7 @@ void vtkSynchronizedRenderers::HandleStartRender()
 {
   if (!this->Renderer || !this->ParallelRendering || !this->ParallelController)
   {
-    if (this->CaptureDelegate && this->CaptureDelegate->GetAutomaticEventHandling() == false)
+    if (this->CaptureDelegate && !this->CaptureDelegate->GetAutomaticEventHandling())
     {
       this->CaptureDelegate->HandleStartRender();
     }
@@ -201,7 +201,7 @@ void vtkSynchronizedRenderers::HandleStartRender()
       this->LastViewport[3] / this->ImageReductionFactor);
   }
 
-  if (this->CaptureDelegate && this->CaptureDelegate->GetAutomaticEventHandling() == false)
+  if (this->CaptureDelegate && !this->CaptureDelegate->GetAutomaticEventHandling())
   {
     this->CaptureDelegate->HandleStartRender();
   }
@@ -234,7 +234,7 @@ void vtkSynchronizedRenderers::SlaveStartRender()
 //------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::HandleEndRender()
 {
-  if (this->CaptureDelegate && this->CaptureDelegate->GetAutomaticEventHandling() == false)
+  if (this->CaptureDelegate && !this->CaptureDelegate->GetAutomaticEventHandling())
   {
     this->CaptureDelegate->HandleEndRender();
   }

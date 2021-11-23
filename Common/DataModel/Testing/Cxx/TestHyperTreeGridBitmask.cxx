@@ -39,7 +39,7 @@ bool compareMask(vtkBitArray* bm, const std::vector<bool>& ref_bm)
   {
     const bool ref_val = ref_bm.at(i);
     const vtkIdType vtkIdx = static_cast<vtkIdType>(i);
-    const bool act_val = bm->GetValue(vtkIdx) == 0 ? false : true;
+    const bool act_val = bm->GetValue(vtkIdx) != 0;
     if (ref_val != act_val)
     {
       std::cout << "Mask value different for idx " << i << ": " << ref_val << "[REF] vs " << act_val

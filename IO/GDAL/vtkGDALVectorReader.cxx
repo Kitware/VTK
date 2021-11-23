@@ -229,7 +229,7 @@ public:
       pd->FastDelete();
     }
 
-    return nTotPoly ? true : false;
+    return nTotPoly != 0;
   }
 
   vtkIdType insertGeometryRecursive(

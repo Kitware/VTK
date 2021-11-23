@@ -73,9 +73,7 @@ void vtkResampleWithDataSet::SetCategoricalData(bool arg)
 
 bool vtkResampleWithDataSet::GetCategoricalData()
 {
-  // work around for Visual Studio warning C4800:
-  // 'int' : forcing value to bool 'true' or 'false' (performance warning)
-  return this->Prober->GetCategoricalData() ? true : false;
+  return this->Prober->GetCategoricalData() != 0;
 }
 
 void vtkResampleWithDataSet::SetPassCellArrays(bool arg)
@@ -85,9 +83,7 @@ void vtkResampleWithDataSet::SetPassCellArrays(bool arg)
 
 bool vtkResampleWithDataSet::GetPassCellArrays()
 {
-  // work around for Visual Studio warning C4800:
-  // 'int' : forcing value to bool 'true' or 'false' (performance warning)
-  return this->Prober->GetPassCellArrays() ? true : false;
+  return this->Prober->GetPassCellArrays() != 0;
 }
 
 void vtkResampleWithDataSet::SetPassPointArrays(bool arg)
@@ -97,7 +93,7 @@ void vtkResampleWithDataSet::SetPassPointArrays(bool arg)
 
 bool vtkResampleWithDataSet::GetPassPointArrays()
 {
-  return this->Prober->GetPassPointArrays() ? true : false;
+  return this->Prober->GetPassPointArrays() != 0;
 }
 
 void vtkResampleWithDataSet::SetPassFieldArrays(bool arg)
@@ -107,7 +103,7 @@ void vtkResampleWithDataSet::SetPassFieldArrays(bool arg)
 
 bool vtkResampleWithDataSet::GetPassFieldArrays()
 {
-  return this->Prober->GetPassFieldArrays() ? true : false;
+  return this->Prober->GetPassFieldArrays() != 0;
 }
 
 void vtkResampleWithDataSet::SetPassPartialArrays(bool arg)

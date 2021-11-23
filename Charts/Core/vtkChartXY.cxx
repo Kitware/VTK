@@ -181,7 +181,7 @@ vtkChartXY::vtkChartXY()
   {
     this->ChartPrivate->axes.push_back(vtkAxis::New());
     // By default just show the left and bottom axes
-    this->ChartPrivate->axes.back()->SetVisible(i < 2 ? true : false);
+    this->ChartPrivate->axes.back()->SetVisible(i < 2);
     this->AttachAxisRangeListener(this->ChartPrivate->axes.back());
     this->AddItem(this->ChartPrivate->axes.back());
   }
@@ -737,7 +737,7 @@ void vtkChartXY::RecalculatePlotBounds()
   double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
   for (it = this->ChartPrivate->plots.begin(); it != this->ChartPrivate->plots.end(); ++it)
   {
-    if ((*it)->GetVisible() == false)
+    if (!(*it)->GetVisible())
     {
       continue;
     }
@@ -1672,15 +1672,8 @@ bool vtkChartXY::Hit(const vtkContextMouseEvent& mouse)
     return false;
   }
   vtkVector2i pos(mouse.GetScreenPos());
-  if (pos[0] > this->Point1[0] && pos[0] < this->Point2[0] && pos[1] > this->Point1[1] &&
-    pos[1] < this->Point2[1])
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return pos[0] > this->Point1[0] && pos[0] < this->Point2[0] && pos[1] > this->Point1[1] &&
+    pos[1] < this->Point2[1];
 }
 
 //------------------------------------------------------------------------------

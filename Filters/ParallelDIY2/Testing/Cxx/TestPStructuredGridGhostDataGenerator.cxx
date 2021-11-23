@@ -301,11 +301,7 @@ int CheckFields(vtkMultiBlockDataSet* mbds, bool hasNodeData, bool hasCellData)
 //------------------------------------------------------------------------------
 bool ProcessOwnsBlock(const int block)
 {
-  if (Rank == static_cast<int>(block % NumberOfProcessors))
-  {
-    return true;
-  }
-  return false;
+  return Rank == static_cast<int>(block % NumberOfProcessors);
 }
 
 //------------------------------------------------------------------------------

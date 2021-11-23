@@ -212,14 +212,7 @@ bool vtkAMREnzoParticlesReader::CheckParticleType(const int idx, vtkIntArray* pt
     this->ParticleDataArraySelection->ArrayExists("particle_type"))
   {
     int ptype = ptypes->GetValue(idx);
-    if ((this->ParticleType == 0) || (ptype == this->ParticleType))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+    return this->ParticleType == 0 || ptype == this->ParticleType;
   }
   else
   {

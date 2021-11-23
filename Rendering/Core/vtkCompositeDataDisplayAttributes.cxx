@@ -323,7 +323,7 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
         cda, child, bbox, blockVisible);
     }
   }
-  else if (dobj && blockVisible == true)
+  else if (dobj && blockVisible)
   {
     vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
     vtkPolyData* pd = vtkPolyData::SafeDownCast(ds);

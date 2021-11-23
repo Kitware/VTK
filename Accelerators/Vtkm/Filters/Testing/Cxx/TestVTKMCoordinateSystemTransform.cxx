@@ -36,11 +36,7 @@ bool ArePointsWithinTolerance(double v1, double v2)
 
   if (v1 == 0.0)
   {
-    if (fabs(v2) < tolerance)
-    {
-      return true;
-    }
-    return false;
+    return fabs(v2) < tolerance;
   }
   if (fabs(fabs(v1) - fabs(v2)) < tolerance)
   {
@@ -127,7 +123,7 @@ void ValidateCoordTransform(vtkPolyData* pd, vtkPolyData* pdTrans, const std::ve
       {
         isEqual &= ArePointsWithinTolerance(point[j], pointTrans[j]);
       }
-      if (isEqual == false)
+      if (!isEqual)
       {
         std::cerr << "i=" << i << " is wrong! result value=" << pointTrans[j]
                   << " target value=" << point[j] << std::endl;

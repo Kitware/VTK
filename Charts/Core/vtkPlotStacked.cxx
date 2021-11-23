@@ -45,14 +45,7 @@ namespace
 // Compare the two vectors, in X component only
 bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
 {
-  if (v1.GetX() < v2.GetX())
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return v1.GetX() < v2.GetX();
 }
 
 // Copy the two arrays into the points array

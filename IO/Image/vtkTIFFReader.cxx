@@ -319,14 +319,8 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
     // set for this image, but that's a required field so we set a warning flag.
     // (Because the "Photometrics" field is an enum, we can't rely on setting
     // this->Photometrics to some signal value.)
-    if (TIFFGetField(this->Image, TIFFTAG_PHOTOMETRIC, &this->Photometrics))
-    {
-      this->HasValidPhotometricInterpretation = true;
-    }
-    else
-    {
-      this->HasValidPhotometricInterpretation = false;
-    }
+    this->HasValidPhotometricInterpretation =
+      TIFFGetField(this->Image, TIFFTAG_PHOTOMETRIC, &this->Photometrics) != 0;
     if (!TIFFGetField(this->Image, TIFFTAG_TILEDEPTH, &this->TileDepth))
     {
       this->TileDepth = 0;
@@ -867,8 +861,8 @@ void vtkTIFFReader::ReadTiles(void* buffer)
   const unsigned int tileWidth = this->InternalImage->TileWidth;
   const unsigned int tileHeight = this->InternalImage->TileHeight;
   const unsigned int pixelSize = this->InternalImage->SamplesPerPixel;
-  const bool rowMultiple = (height % tileHeight == 0) ? true : false;
-  const bool colMultiple = (width % tileWidth == 0) ? true : false;
+  const bool rowMultiple = height % tileHeight == 0;
+  const bool colMultiple = width % tileWidth == 0;
   const bool flip = this->InternalImage->Orientation != ORIENTATION_TOPLEFT;
 
   for (unsigned int slice = 0; slice < this->InternalImage->NumberOfPages; ++slice)

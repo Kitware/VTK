@@ -254,11 +254,7 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D* painter)
 bool vtkPiecewisePointHandleItem::Hit(const vtkContextMouseEvent& mouse)
 {
   float pos[2] = { mouse.GetScenePos().GetX(), mouse.GetScenePos().GetY() };
-  if (this->IsOverHandle(pos) >= 0)
-  {
-    return true;
-  }
-  return false;
+  return this->IsOverHandle(pos) >= 0;
 }
 
 //------------------------------------------------------------------------------
@@ -349,11 +345,7 @@ bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent& mou
 //------------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::MouseButtonPressEvent(const vtkContextMouseEvent&)
 {
-  if (this->MouseOverHandleIndex >= 0)
-  {
-    return true;
-  }
-  return false;
+  return this->MouseOverHandleIndex >= 0;
 }
 
 //------------------------------------------------------------------------------

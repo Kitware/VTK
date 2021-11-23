@@ -138,11 +138,7 @@ const char* myFragShader = "//VTK::Output::Dec\n"
 bool SkipDraw()
 {
   vtkOpenGLGL2PSHelper* gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Background)
-  {
-    return true;
-  }
-  return false;
+  return gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Background;
 }
 
 //------------------------------------------------------------------------------

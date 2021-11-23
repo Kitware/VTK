@@ -506,14 +506,13 @@ bool vtkPParticleTracerBase::IsPointDataValid(vtkDataObject* input)
       retVal = (int)this->Superclass::IsPointDataValid(cdInput, tempNames);
       if (retVal)
       {
-        retVal =
-          (std::equal(tempNames.begin(), tempNames.end(), arrayNames.begin()) == true ? 1 : 0);
+        retVal = std::equal(tempNames.begin(), tempNames.end(), arrayNames.begin()) ? 1 : 0;
       }
     }
     else
     {
       this->GetPointDataArrayNames(vtkDataSet::SafeDownCast(input), tempNames);
-      retVal = (std::equal(tempNames.begin(), tempNames.end(), arrayNames.begin()) == true ? 1 : 0);
+      retVal = std::equal(tempNames.begin(), tempNames.end(), arrayNames.begin()) ? 1 : 0;
     }
   }
   else if (retVal == 0)

@@ -1140,12 +1140,7 @@ void vtkChartXYZ::LegacyDetermineWhichAxesToLabel()
 //------------------------------------------------------------------------------
 bool vtkChartXYZ::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
-  if (!this->Interactive || !this->Visible || this->AutoRotate)
-  {
-    return false;
-  }
-
-  return true;
+  return this->Interactive && this->Visible && !this->AutoRotate;
 }
 
 //------------------------------------------------------------------------------

@@ -285,7 +285,7 @@ int vtkLegendScaleActor::RenderOverlay(vtkViewport* viewport)
 //------------------------------------------------------------------------------
 void vtkLegendScaleActor::BuildRepresentation(vtkViewport* viewport)
 {
-  if (true) // it's probably best just to rerender every time
+  // it's probably best just to rerender every time
   //   if ( this->GetMTime() > this->BuildTime ||
   //        (this->Renderer && this->Renderer->GetVTKWindow() &&
   //         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )

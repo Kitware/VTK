@@ -312,14 +312,14 @@ int readBaseIteration(int cgioNum, double nodeId, CGNSRead::BaseInformation& bas
     }
   }
 
-  if (createIterStates == true)
+  if (createIterStates)
   {
     for (int i = 0; i < nstates; ++i)
     {
       baseInfo.steps.push_back(i);
     }
   }
-  if (createTimeStates == true)
+  if (createTimeStates)
   {
     for (int i = 0; i < nstates; ++i)
     {
@@ -481,7 +481,7 @@ int readSolInfo(int cgioNum, double nodeId, CGNSRead::BaseInformation& baseInfo)
 
   for (std::size_t ii = 0; ii < cgnsVars.size(); ++ii)
   {
-    if (cgnsVars[ii].isComponent == true)
+    if (cgnsVars[ii].isComponent)
     {
       continue;
     }

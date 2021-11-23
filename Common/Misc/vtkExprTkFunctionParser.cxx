@@ -799,7 +799,7 @@ int vtkExprTkFunctionParser::IsScalarResult()
   if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
     this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
   {
-    if (this->Evaluate() == false)
+    if (!this->Evaluate())
       return 0;
   }
   return (this->ResultType == ExprTkResultType::e_scalar);
@@ -822,7 +822,7 @@ int vtkExprTkFunctionParser::IsVectorResult()
   if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
     this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
   {
-    if (this->Evaluate() == false)
+    if (!this->Evaluate())
       return 0;
   }
   return (this->ResultType == ExprTkResultType::e_vector);

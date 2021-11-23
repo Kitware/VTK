@@ -178,7 +178,7 @@ bool TestSquashPDS0(vtkPartitionedDataSet* outPDS0, int rank)
           << ", DS2 == " << outDS2);
       retVal = false;
     }
-    if (retVal != false &&
+    if (retVal &&
       (!outDS0->GetFieldData()->GetAbstractArray(names[0][0]) ||
         !outDS1->GetFieldData()->GetAbstractArray(names[0][1]) ||
         !outDS2->GetFieldData()->GetAbstractArray(names[0][2])))
@@ -201,7 +201,7 @@ bool TestSquashPDS0(vtkPartitionedDataSet* outPDS0, int rank)
           << ", DS4 == " << outDS4);
       retVal = false;
     }
-    if (retVal != false &&
+    if (retVal &&
       (!outDS3->GetFieldData()->GetAbstractArray(names[1][0]) ||
         !outDS4->GetFieldData()->GetAbstractArray(names[1][1])))
     {

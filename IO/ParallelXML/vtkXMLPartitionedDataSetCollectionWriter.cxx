@@ -246,11 +246,7 @@ bool vtkXMLPartitionedDataSetCollectionWriter::WriteSummaryXML(
 
   helper->AddXML(root);
   helper->AddGlobalFieldData(input);
-  if (!helper->EndWriting())
-  {
-    return false;
-  }
-  return true;
+  return helper->EndWriting() != 0;
 }
 
 //------------------------------------------------------------------------------

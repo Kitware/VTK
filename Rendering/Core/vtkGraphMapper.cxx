@@ -278,7 +278,7 @@ void vtkGraphMapper::SetColorVertices(bool vis)
 //------------------------------------------------------------------------------
 bool vtkGraphMapper::GetColorVertices()
 {
-  return this->VertexMapper->GetScalarVisibility() ? true : false;
+  return this->VertexMapper->GetScalarVisibility() != 0;
 }
 
 //------------------------------------------------------------------------------
@@ -302,7 +302,7 @@ void vtkGraphMapper::SetIconVisibility(bool vis)
 //------------------------------------------------------------------------------
 bool vtkGraphMapper::GetIconVisibility()
 {
-  return this->IconActor->GetVisibility() ? true : false;
+  return this->IconActor->GetVisibility() != 0;
 }
 
 //------------------------------------------------------------------------------
@@ -328,7 +328,7 @@ void vtkGraphMapper::SetColorEdges(bool vis)
 //------------------------------------------------------------------------------
 bool vtkGraphMapper::GetColorEdges()
 {
-  return this->EdgeMapper->GetScalarVisibility() ? true : false;
+  return this->EdgeMapper->GetScalarVisibility() != 0;
 }
 
 //------------------------------------------------------------------------------
@@ -379,7 +379,7 @@ void vtkGraphMapper::SetEdgeVisibility(bool vis)
 //------------------------------------------------------------------------------
 bool vtkGraphMapper::GetEdgeVisibility()
 {
-  return this->EdgeActor->GetVisibility() ? true : false;
+  return this->EdgeActor->GetVisibility() != 0;
 }
 
 //------------------------------------------------------------------------------

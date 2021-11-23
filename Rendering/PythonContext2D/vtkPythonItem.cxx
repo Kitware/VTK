@@ -129,12 +129,7 @@ bool vtkPythonItem::CheckResult(const char* method, const vtkSmartPyObject& res)
     return false;
   }
 
-  if (res == Py_False)
-  {
-    return false;
-  }
-
-  return true;
+  return res != Py_False;
 }
 
 //------------------------------------------------------------------------------

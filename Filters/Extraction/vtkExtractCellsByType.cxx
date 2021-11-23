@@ -103,15 +103,8 @@ void vtkExtractCellsByType::AddAllCellTypes()
 //------------------------------------------------------------------------------
 bool vtkExtractCellsByType::ExtractCellType(unsigned int cellType)
 {
-  if (this->CellTypes->find(cellType) != this->CellTypes->end() ||
-    this->CellTypes->find(VTK_ANY_CELL_TYPE) != this->CellTypes->end())
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return this->CellTypes->find(cellType) != this->CellTypes->end() ||
+    this->CellTypes->find(VTK_ANY_CELL_TYPE) != this->CellTypes->end();
 }
 
 //------------------------------------------------------------------------------

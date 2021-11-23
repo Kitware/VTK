@@ -58,11 +58,11 @@ void vtkArrayDataWriter::WriteData()
 {
   if (this->WriteToOutputString)
   {
-    this->OutputString = this->Write(this->Binary > 0 ? true : false);
+    this->OutputString = this->Write(this->Binary > 0);
   }
   else
   {
-    this->Write(this->FileName ? this->FileName : "", this->Binary > 0 ? true : false);
+    this->Write(this->FileName ? this->FileName : "", this->Binary > 0);
   }
 }
 

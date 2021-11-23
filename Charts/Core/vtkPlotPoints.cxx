@@ -306,28 +306,14 @@ namespace
 
 bool compVector3fX(const vtkIndexedVector2f& v1, const vtkIndexedVector2f& v2)
 {
-  if (v1.pos.GetX() < v2.pos.GetX())
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return v1.pos.GetX() < v2.pos.GetX();
 }
 
 // See if the point is within tolerance.
 bool inRange(const vtkVector2f& point, const vtkVector2f& tol, const vtkVector2f& current)
 {
-  if (current.GetX() > point.GetX() - tol.GetX() && current.GetX() < point.GetX() + tol.GetX() &&
-    current.GetY() > point.GetY() - tol.GetY() && current.GetY() < point.GetY() + tol.GetY())
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return current.GetX() > point.GetX() - tol.GetX() && current.GetX() < point.GetX() + tol.GetX() &&
+    current.GetY() > point.GetY() - tol.GetY() && current.GetY() < point.GetY() + tol.GetY();
 }
 
 }

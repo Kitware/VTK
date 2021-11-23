@@ -158,19 +158,6 @@ int TestIOADIOS2VTX_VTI3DRendering(int argc, char* argv[])
   vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::SafeDownCast(multiBlock->GetBlock(0));
   vtkImageData* imageData = vtkImageData::SafeDownCast(mp->GetPiece(rank));
 
-  if (false)
-  {
-    double* data =
-      reinterpret_cast<double*>(imageData->GetCellData()->GetArray("T")->GetVoidPointer(0));
-
-    for (size_t i = 0; i < 128; ++i)
-    {
-      if (data[i] != static_cast<double>(i))
-      {
-        throw std::invalid_argument("ERROR: invalid source data for rendering\n");
-      }
-    }
-  }
   // set color table
   vtkSmartPointer<vtkLookupTable> lookupTable = vtkSmartPointer<vtkLookupTable>::New();
   lookupTable->SetNumberOfTableValues(10);

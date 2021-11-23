@@ -438,7 +438,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
       {
         // if has_block_requests==false, then we don't read any blocks greater
         // than the MaximumLevelsToReadByDefault.
-        if (has_block_requests == false && this->MaximumLevelsToReadByDefault > 0 &&
+        if (!has_block_requests && this->MaximumLevelsToReadByDefault > 0 &&
           static_cast<unsigned int>(level) >= this->MaximumLevelsToReadByDefault)
         {
           // don't actually read the data.

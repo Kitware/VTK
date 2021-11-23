@@ -164,8 +164,8 @@ bool vtkDataObjectAlgorithm::SetOutputDataObject(
 
   auto dobj = vtkDataObject::GetData(outInfo);
   if (dobj == nullptr ||
-    (exact == false && vtkDataObjectTypes::TypeIdIsA(dobj->GetDataObjectType(), dataType)) ||
-    (exact == true && dobj->GetDataObjectType() != dataType))
+    (!exact && vtkDataObjectTypes::TypeIdIsA(dobj->GetDataObjectType(), dataType)) ||
+    (exact && dobj->GetDataObjectType() != dataType))
   {
     dobj = vtkDataObjectTypes::NewDataObject(dataType);
     if (!dobj)

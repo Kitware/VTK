@@ -56,11 +56,7 @@ bool GetMetrics(
   vtkNew<vtkTextProperty> tpropTmp;
   tpropTmp->ShallowCopy(tprop);
   tpropTmp->SetOrientation(0.);
-  if (!tren->GetMetrics(tpropTmp, str, m, dpi))
-  {
-    return false;
-  }
-  return true;
+  return tren->GetMetrics(tpropTmp, str, m, dpi);
 }
 
 // replace \n with space as PS treats it as a space but PDF just removes them.

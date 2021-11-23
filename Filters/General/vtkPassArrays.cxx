@@ -144,7 +144,7 @@ void vtkPassArrays::RemoveFieldDataArray(const char* name)
 
 void vtkPassArrays::ClearArrays()
 {
-  if (this->Implementation->Arrays.empty() == false)
+  if (!this->Implementation->Arrays.empty())
   {
     this->Modified();
   }
@@ -153,7 +153,7 @@ void vtkPassArrays::ClearArrays()
 
 void vtkPassArrays::ClearPointDataArrays()
 {
-  if (ClearArraysOfType(vtkDataObject::POINT, this->Implementation->Arrays) == true)
+  if (ClearArraysOfType(vtkDataObject::POINT, this->Implementation->Arrays))
   {
     this->Modified();
   }
@@ -161,7 +161,7 @@ void vtkPassArrays::ClearPointDataArrays()
 
 void vtkPassArrays::ClearCellDataArrays()
 {
-  if (ClearArraysOfType(vtkDataObject::CELL, this->Implementation->Arrays) == true)
+  if (ClearArraysOfType(vtkDataObject::CELL, this->Implementation->Arrays))
   {
     this->Modified();
   }
@@ -169,7 +169,7 @@ void vtkPassArrays::ClearCellDataArrays()
 
 void vtkPassArrays::ClearFieldDataArrays()
 {
-  if (ClearArraysOfType(vtkDataObject::FIELD, this->Implementation->Arrays) == true)
+  if (ClearArraysOfType(vtkDataObject::FIELD, this->Implementation->Arrays))
   {
     this->Modified();
   }

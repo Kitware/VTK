@@ -407,8 +407,8 @@ void vtkDiscretizableColorTransferFunction::MapScalarsThroughTable2(void* input,
   }
 
   // Calculate alpha values
-  if (this->IndexedLookup == false && // don't change alpha for IndexedLookup.
-    this->EnableOpacityMapping == true && this->ScalarOpacityFunction.GetPointer() != nullptr)
+  if (!this->IndexedLookup && // don't change alpha for IndexedLookup.
+    this->EnableOpacityMapping && this->ScalarOpacityFunction.GetPointer() != nullptr)
   {
     switch (inputDataType)
     {
@@ -424,7 +424,7 @@ void vtkDiscretizableColorTransferFunction::MapScalarsThroughTable2(void* input,
 //------------------------------------------------------------------------------
 vtkIdType vtkDiscretizableColorTransferFunction::GetNumberOfAvailableColors()
 {
-  if (this->Discretize == false)
+  if (!this->Discretize)
   {
     return 16777216; // 2^24
   }

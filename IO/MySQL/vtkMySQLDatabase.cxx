@@ -105,15 +105,8 @@ bool vtkMySQLDatabase::IsSupported(int feature)
 
     case VTK_SQL_FEATURE_PREPARED_QUERIES:
     {
-      if (mysql_get_client_version() >= 40108 &&
-        mysql_get_server_version(&this->Private->NullConnection) >= 40100)
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
+      return mysql_get_client_version() >= 40108 &&
+        mysql_get_server_version(&this->Private->NullConnection) >= 40100;
     };
 
     case VTK_SQL_FEATURE_QUERY_SIZE:

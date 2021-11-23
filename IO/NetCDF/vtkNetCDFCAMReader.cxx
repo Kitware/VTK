@@ -55,11 +55,7 @@ bool IsCellInverted(double points[4][3])
     return true;
   }
   vtkPolygon::ComputeNormal(3, points[1], normal);
-  if (normal[2] > 0)
-  {
-    return true;
-  }
-  return false;
+  return normal[2] > 0;
 }
 
 template <class T>
@@ -778,7 +774,7 @@ int vtkNetCDFCAMReader::RequestData(
       pointIds[j] = cellConnectivity[i + j * numLocalCells] - 1;
       points->GetPoint(pointIds[j], coords[j]);
     }
-    if (IsCellInverted(coords) == true)
+    if (IsCellInverted(coords))
     {
       // First decide whether we're putting this cell on the 360 side (right) or on the
       // 0 side (left). We decide this based on which side will have the
@@ -1238,7 +1234,7 @@ bool vtkNetCDFCAMReader::GetPartitioning(size_t piece, size_t numPieces, size_t 
   }
   else // underworked pieces
   {
-    if (evenOverworked == false &&
+    if (!evenOverworked &&
       piece - numOverworkedPieces < 2 * numOverworkedPieces / (piecesPerLevel - 1))
     { // fillers for levels that also have overworked pieces working on them
       beginLevel = inputBeginLevel + piece - numOverworkedPieces;

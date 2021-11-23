@@ -958,7 +958,7 @@ struct vtkQuadtreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return (da < db ? true : (da == db ? (a < b ? true : false) : false));
+    return da < db ? true : (da == db ? (a < b) : false);
   }
 };
 
@@ -1039,12 +1039,7 @@ bool vtkLabelHierarchyQuadtreeIterator::IsNodeInFrustum(NodePointer node)
     double dx = (eye[i] - x[i]);
     d += dx * dx;
   }
-  if (nodeSize * nodeSize < d * this->SizeLimit)
-  {
-    return false;
-  }
-
-  return true;
+  return nodeSize * nodeSize >= d * this->SizeLimit;
 }
 
 /**\brief Queue octree children for traversal after the current level has been traversed.
@@ -1301,7 +1296,7 @@ struct vtkOctreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return (da < db ? true : (da == db ? (a < b ? true : false) : false));
+    return da < db ? true : (da == db ? (a < b) : false);
   }
 };
 
@@ -1420,12 +1415,7 @@ bool vtkLabelHierarchyOctreeQueueIterator::IsNodeInFrustum(NodePointer node)
     double dx = (eye[i] - x[i]);
     d += dx * dx;
   }
-  if (nodeSize * nodeSize < d * this->SizeLimit)
-  {
-    return false;
-  }
-
-  return true;
+  return nodeSize * nodeSize >= d * this->SizeLimit;
 }
 
 /**\brief Queue octree children for traversal after the current level has been traversed.
@@ -1767,12 +1757,7 @@ bool vtkLabelHierarchy3DepthFirstIterator::IsNodeInFrustum()
     double dx = (eye[i] - x[i]);
     d += dx * dx;
   }
-  if (nodeSize * nodeSize < d * this->SizeLimit)
-  {
-    return false;
-  }
-
-  return true;
+  return nodeSize * nodeSize >= d * this->SizeLimit;
 }
 
 struct vtkDistNodeStruct

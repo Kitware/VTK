@@ -385,11 +385,7 @@ void vtkXYPlotActor::InitializeEntries()
 bool vtkXYPlotActor::DoesConnectionMatch(int i, vtkAlgorithmOutput* in)
 {
   vtkAlgorithmOutput* conn = this->InputConnectionHolder->GetInputConnection(0, i);
-  if (conn->GetProducer() == in->GetProducer() && conn->GetIndex() == in->GetIndex())
-  {
-    return true;
-  }
-  return false;
+  return conn->GetProducer() == in->GetProducer() && conn->GetIndex() == in->GetIndex();
 }
 
 //------------------------------------------------------------------------------

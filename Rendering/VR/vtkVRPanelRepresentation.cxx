@@ -389,7 +389,7 @@ int vtkVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport* v)
   }
 
   // make sure the device has the same matrix
-  if (true /* HMD coords */)
+  // if (true /* HMD coords * /)
   {
     vtkRenderer* ren = static_cast<vtkRenderer*>(v);
     this->ComputeMatrix(ren);

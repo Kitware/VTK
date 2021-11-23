@@ -392,7 +392,6 @@ public:
       for (; slice < end; ++slice)
       {
         // It's possible to skip entire slices if there is nothing to generate
-        if (true)
         //          if ( eMD1[3] > eMD0[3] ) //there are triangle primitives!
         {
           for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1] - 1; ++row)

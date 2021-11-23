@@ -1481,7 +1481,7 @@ bool BucketList2D<TIds>::BucketIntersectsCircle(int i, int j, const double cente
       break;
   }
 
-  return ((delX * delX + delY * delY) <= R2 ? true : false);
+  return (delX * delX + delY * delY) <= R2;
 }
 
 //------------------------------------------------------------------------------

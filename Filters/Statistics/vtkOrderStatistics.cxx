@@ -742,7 +742,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
       // Update empirical CDF if new value found (with unknown ECDF)
       std::pair<CDF::iterator, bool> result =
         cdfEmpirical.insert(std::pair<vtkStdString, double>(quantiles[i], -1));
-      if (result.second == true)
+      if (result.second)
       {
         CDF::iterator eit = result.first;
         // Check if new value has no predecessor, in which case CDF = 0

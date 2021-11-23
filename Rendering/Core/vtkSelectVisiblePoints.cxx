@@ -114,7 +114,7 @@ int vtkSelectVisiblePoints::RequestData(vtkInformation* vtkNotUsed(request),
   outputVertices->Delete();
 
   const int SimpleQueryLimit = 25;
-  bool getZbuff = numPts > SimpleQueryLimit ? true : false;
+  bool getZbuff = numPts > SimpleQueryLimit;
 
   float* zPtr = this->Initialize(getZbuff);
 

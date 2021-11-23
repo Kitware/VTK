@@ -473,7 +473,7 @@ std::vector<std::string> vtkFileSeriesHelper::GetActiveFiles(vtkInformation* out
     }
   }
 
-  if (this->PartitionedFiles == false)
+  if (!this->PartitionedFiles)
   {
     // This means the file series is a temporal file series. If so,
     // all files providing the timestep requested are processed by the current
