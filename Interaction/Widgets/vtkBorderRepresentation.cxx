@@ -814,6 +814,55 @@ void vtkBorderRepresentation::GetPolygonRGBA(double& r, double& g, double& b, do
 }
 
 //------------------------------------------------------------------------------
+void vtkBorderRepresentation::UpdateWindowLocation()
+{
+  if (this->WindowLocation != vtkBorderRepresentation::AnyLocation)
+  {
+    double* pos2 = this->Position2Coordinate->GetValue();
+    switch (this->WindowLocation)
+    {
+      case vtkBorderRepresentation::LowerLeftCorner:
+        this->SetPosition(0.01, 0.01);
+        break;
+      case vtkBorderRepresentation::LowerRightCorner:
+        this->SetPosition(0.99 - pos2[0], 0.01);
+        break;
+      case vtkBorderRepresentation::LowerCenter:
+        this->SetPosition((1 - pos2[0]) / 2.0, 0.01);
+        break;
+      case vtkBorderRepresentation::UpperLeftCorner:
+        this->SetPosition(0.01, 0.99 - pos2[1]);
+        break;
+      case vtkBorderRepresentation::UpperRightCorner:
+        this->SetPosition(0.99 - pos2[0], 0.99 - pos2[1]);
+        break;
+      case vtkBorderRepresentation::UpperCenter:
+        this->SetPosition((1 - pos2[0]) / 2.0, 0.99 - pos2[1]);
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkBorderRepresentation::SetWindowLocation(int enumLocation)
+{
+  if (this->WindowLocation == enumLocation)
+  {
+    return;
+  }
+
+  this->WindowLocation = enumLocation;
+
+  if (this->WindowLocation != vtkBorderRepresentation::AnyLocation)
+  {
+    this->UpdateWindowLocation();
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -889,4 +938,30 @@ void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PolygonColor: (" << this->PolygonColor[0] << ", " << this->PolygonColor[1]
      << ", " << this->PolygonColor[2] << ")" << endl;
   os << indent << "PolygonOpacity: " << this->PolygonOpacity << endl;
+
+  os << indent << "Window Location: ";
+  switch (this->WindowLocation)
+  {
+    case vtkBorderRepresentation::LowerLeftCorner:
+      os << "LowerLeftCorner\n";
+      break;
+    case vtkBorderRepresentation::LowerRightCorner:
+      os << "LowerRightCorner\n";
+      break;
+    case vtkBorderRepresentation::LowerCenter:
+      os << "LowerCenter\n";
+      break;
+    case vtkBorderRepresentation::UpperLeftCorner:
+      os << "UpperLeftCorner\n";
+      break;
+    case vtkBorderRepresentation::UpperRightCorner:
+      os << "UpperRightCorner\n";
+      break;
+    case vtkBorderRepresentation::UpperCenter:
+      os << "UpperCenter\n";
+      break;
+    case vtkBorderRepresentation::AnyLocation:
+      os << "Any Location\n";
+      break;
+  }
 }
