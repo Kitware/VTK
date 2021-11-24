@@ -1,0 +1,28 @@
+NAME
+  VTK::IOCesium3DTiles
+LIBRARY_NAME
+  vtkIOCesium3DTiles
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonTransforms
+  VTK::CommonSystem
+  VTK::IOImage
+  VTK::IOGeometry
+  VTK::FiltersGeneral
+  VTK::RenderingCore
+  VTK::vtksys
+  VTK::libproj
+  VTK::nlohmannjson
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::IOCityGML
+  VTK::IOGeometry
+  VTK::TestingCore
+  VTK::TestingRendering
+  VTK::nlohmannjson

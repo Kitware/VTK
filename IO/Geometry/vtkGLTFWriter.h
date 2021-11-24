@@ -73,10 +73,9 @@ public:
 
   ///@{
   /**
-   * It looks for a point array called
-   * NORMAL in the data and it saves it in the
-   * GLTF file if found.
-   * NORMAL is the vertex normal. Cesium needs this to render buildings correctly
+   * It looks for the normals point attribute and saves it in the
+   * GLTF file if found with the name NORMAL
+   * Cesium needs this to render buildings correctly
    * if there is no texture.
    */
   vtkGetMacro(SaveNormal, bool);
