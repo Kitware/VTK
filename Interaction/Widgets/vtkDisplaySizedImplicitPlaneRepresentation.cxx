@@ -552,7 +552,9 @@ void vtkDisplaySizedImplicitPlaneRepresentation::EndComplexInteraction(
 double* vtkDisplaySizedImplicitPlaneRepresentation::GetBounds()
 {
   this->BuildRepresentation();
-  this->BoundingBox->AddBounds(this->PlaneActor->GetBounds());
+  // bounds need to be reset because the size of the widget changes overtime
+  this->BoundingBox->SetBounds(
+    VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN);
   this->BoundingBox->AddBounds(this->EdgesActor->GetBounds());
   this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
   this->BoundingBox->AddBounds(this->LineActor->GetBounds());
@@ -1665,9 +1667,10 @@ void vtkDisplaySizedImplicitPlaneRepresentation::BuildRepresentation()
     this->Sphere->SetCenter(origin[0], origin[1], origin[2]);
   }
 
-  // we resize handles when rebuilt and when renderwindow changes
+  // we resize handles when we rebuilt, when the camera changes and when the radius changes
   if (this->GetMTime() > this->BuildTime || this->Plane->GetMTime() > this->BuildTime ||
-    this->Renderer->GetRenderWindow()->GetMTime() > this->BuildTime ||
+    (this->Renderer->GetActiveCamera() &&
+      this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime) ||
     this->RadiusMultiplierTimeStamp.GetMTime() > this->BuildTime)
   {
     this->SizeHandles();
