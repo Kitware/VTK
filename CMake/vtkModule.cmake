@@ -964,7 +964,7 @@ function (vtk_module_scan)
     endif ()
 
     if (NOT DEFINED "_vtk_scan_provide_${_vtk_scan_module}")
-      _vtk_module_debug(provide "@_vtk_scan_module@ is indeterminite (${_vtk_scan_enable_${_vtk_scan_module}})")
+      _vtk_module_debug(provide "@_vtk_scan_module@ is indeterminate (${_vtk_scan_enable_${_vtk_scan_module}})")
     endif ()
   endforeach ()
 
