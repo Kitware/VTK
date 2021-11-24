@@ -784,7 +784,7 @@ function (vtk_module_scan)
         set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
           "via `WANT_BY_DEFAULT=${_vtk_scan_WANT_BY_DEFAULT}`")
       endif ()
-      _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using `WANT_BY_DEFAULT`: ${_vtk_scan_enable_${_vtk_scan_module_name}}")
+      _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using `WANT_BY_DEFAULT`: ${_vtk_scan_enable_reason_${_vtk_scan_module_name}}")
     endif ()
 
     list(APPEND _vtk_scan_all_modules
@@ -877,7 +877,7 @@ function (vtk_module_scan)
       set("_vtk_scan_provide_reason_${_vtk_scan_request_module}"
         "via `REQUEST_MODULES`")
     endif ()
-    _vtk_module_debug(provide "@_vtk_scan_request_module@ is provided via `REQUEST_MODULES`")
+    _vtk_module_debug(provide "@_vtk_scan_request_module@ is provided ${_vtk_scan_provide_reason_${_vtk_scan_request_module}}")
   endforeach ()
   foreach (_vtk_scan_reject_module IN LISTS _vtk_scan_REJECT_MODULES)
     set("_vtk_scan_provide_${_vtk_scan_reject_module}" OFF)
@@ -888,7 +888,7 @@ function (vtk_module_scan)
       set("_vtk_scan_provide_reason_${_vtk_scan_reject_module}"
         "via `REJECT_MODULES`")
     endif ()
-    _vtk_module_debug(provide "@_vtk_scan_reject_module@ is not provided via `REJECT_MODULES`")
+    _vtk_module_debug(provide "@_vtk_scan_reject_module@ is not provided ${_vtk_scan_provide_reason_${_vtk_scan_reject_module}}")
   endforeach ()
 
   # Traverse the graph classifying the quad-state for enabling modules into a
