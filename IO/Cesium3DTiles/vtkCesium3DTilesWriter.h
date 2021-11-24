@@ -42,8 +42,8 @@ public:
   /**
    * Accessor for name of the directory where Cesium3DTiles data is written
    */
-  vtkSetStringMacro(DirectoryName);
-  vtkGetStringMacro(DirectoryName);
+  vtkSetFilePathMacro(DirectoryName);
+  vtkGetFilePathMacro(DirectoryName);
   ///@}
 
   ///@{
@@ -51,8 +51,8 @@ public:
    * Path used to prefix all texture paths stored as fields in the input data.
    * @see vtkCityGMLReader
    */
-  vtkSetStringMacro(TexturePath);
-  vtkGetStringMacro(TexturePath);
+  vtkSetFilePathMacro(TexturePath);
+  vtkGetFilePathMacro(TexturePath);
   ///@}
 
   //@{
