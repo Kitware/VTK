@@ -8,7 +8,7 @@ readonly name="ioss"
 readonly ownership="Seacas Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/seacas.git"
-readonly tag="ioss/for/vtk-20211119-master-gecbc2199bc"
+readonly tag="ioss/for/vtk-20220106-master-gfc9b3e22e7"
 readonly paths="
 packages/seacas/libraries/ioss/src/CMakeLists.vtk.txt
 packages/seacas/libraries/ioss/cmake/SEACASIoss_config.h.in
@@ -40,6 +40,9 @@ packages/seacas/libraries/ioss/src/heartbeat/*.C
 
 packages/seacas/libraries/ioss/src/init/*.h
 packages/seacas/libraries/ioss/src/init/*.C
+
+packages/seacas/libraries/ioss/src/text_mesh/*.h
+packages/seacas/libraries/ioss/src/text_mesh/*.C
 
 packages/seacas/libraries/ioss/src/transform/*.h
 packages/seacas/libraries/ioss/src/transform/*.C
