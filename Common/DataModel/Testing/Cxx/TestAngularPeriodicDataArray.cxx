@@ -78,6 +78,33 @@ int TestAngularPeriodicDataArray(int, char*[])
     return 1;
   }
 
+  angularPeriodicDataArray->GetFiniteRange(range, 0);
+  angularPeriodicDataArray->GetFiniteRange(range + 2, 1);
+  angularPeriodicDataArray->GetFiniteRange(range + 4, 2);
+
+  if (std::abs(pTmp[0] - 7.77777777777) >= dEpsilon ||
+    std::abs(pTmp[1] - 9.1344434349507945825) >= dEpsilon ||
+    std::abs(pTmp[2] - 8.29182990260197883) >= dEpsilon ||
+    std::abs(pTmp2[0] - 5.18041563034058) >= fEpsilon || std::abs(pTmp2[1] - 12.3) >= fEpsilon ||
+    std::abs(pTmp2[2] - -5.87874317169189) >= fEpsilon ||
+    std::abs(range[0] - 7.77777777777) >= dEpsilon ||
+    std::abs(range[2] - 9.1344434349507945825) >= dEpsilon ||
+    std::abs(range[4] - 8.29182990260197883) >= dEpsilon)
+  {
+    cerr.precision(20);
+    cerr << "Error in vtkAngularPeriodicDataArray : " << endl
+         << "Double Array : " << endl
+         << std::abs(pTmp[0] - 7.77777777777) << " " << std::abs(pTmp[1] - 9.13444343495079) << " "
+         << std::abs(pTmp[2] - 8.29182990260198) << endl
+         << "Float Array : " << std::abs(pTmp2[0] - 5.180415) << " " << std::abs(pTmp2[1] - 12.3)
+         << " " << std::abs(pTmp2[2] - -5.878743) << endl
+         << "Range : " << endl
+         << std::abs(range[0] - 7.77777777777) << std::abs(range[2] - 9.13444343495079) << " "
+         << std::abs(range[4] - 8.29182990260198) << endl
+         << "Epsilon : " << fEpsilon << " " << dEpsilon << endl;
+    return 1;
+  }
+
   tmp[0] = 1.;
   tmp[1] = 1.;
   tmp[2] = 1.;

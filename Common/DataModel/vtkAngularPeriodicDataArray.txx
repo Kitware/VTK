@@ -53,7 +53,7 @@ void vtkAngularPeriodicDataArray<Scalar>::InitializeArray(vtkAOSDataArrayTemplat
     data->GetNumberOfComponents() != 9)
   {
     vtkWarningMacro(<< "Original data has " << data->GetNumberOfComponents()
-                    << " components, Expecting 3 or 9.");
+                    << " components, Expecting 3, 6 or 9.");
     return;
   }
 
