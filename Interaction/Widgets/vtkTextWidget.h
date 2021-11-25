@@ -76,12 +76,6 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
-  /**
-   * This allows us to set interactivity in the widget
-   * since this method can block vtkAbstractWidget::ProcessEventsHandler
-   */
-  vtkTypeBool GetProcessEvents() override;
-
 protected:
   vtkTextWidget();
   ~vtkTextWidget() override;

@@ -140,6 +140,12 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
+  /**
+   * Reimplement ProcessEvents to disable it when using relative location with
+   * windowLocation. When using exact location this override has no effect.
+   */
+  vtkTypeBool GetProcessEvents() override;
+
 protected:
   vtkBorderWidget();
   ~vtkBorderWidget() override;

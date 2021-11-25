@@ -308,6 +308,27 @@ void vtkBorderWidget::SelectRegion(double* vtkNotUsed(eventPos[2]))
 }
 
 //------------------------------------------------------------------------------
+vtkTypeBool vtkBorderWidget::GetProcessEvents()
+{
+  auto representation = this->GetRepresentation();
+  if (representation)
+  {
+    auto borderRepresentation = vtkBorderRepresentation::SafeDownCast(representation);
+    if (borderRepresentation)
+    {
+      bool isRelativeLocation =
+        borderRepresentation->GetWindowLocation() != vtkBorderRepresentation::AnyLocation;
+
+      if (isRelativeLocation)
+      {
+        return false;
+      }
+    }
+  }
+  return this->Superclass::GetProcessEvents();
+}
+
+//------------------------------------------------------------------------------
 void vtkBorderWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -225,6 +225,33 @@ public:
   vtkBooleanMacro(Moving, vtkTypeBool);
   ///@}
 
+  enum
+  {
+    AnyLocation = 0,
+    LowerLeftCorner,
+    LowerRightCorner,
+    LowerCenter,
+    UpperLeftCorner,
+    UpperRightCorner,
+    UpperCenter
+  };
+
+  ///@{
+  /**
+   * Set the representation position, by enumeration (
+   * AnyLocation = 0,
+   * LowerLeftCorner,
+   * LowerRightCorner,
+   * LowerCenter,
+   * UpperLeftCorner,
+   * UpperRightCorner,
+   * UpperCenter)
+   * related to the render window
+   */
+  virtual void SetWindowLocation(int enumLocation);
+  vtkGetMacro(WindowLocation, int);
+  ///@}
+
   /**
    * Define the various states that the representation can be in.
    */
@@ -371,6 +398,10 @@ protected:
   // Layout (position of lower left and upper right corners of border)
   vtkNew<vtkCoordinate> PositionCoordinate;
   vtkNew<vtkCoordinate> Position2Coordinate;
+
+  // Window location by enumeration
+  int WindowLocation = AnyLocation;
+  virtual void UpdateWindowLocation();
 
   // Sometimes subclasses must negotiate with their superclasses
   // to achieve the correct layout.

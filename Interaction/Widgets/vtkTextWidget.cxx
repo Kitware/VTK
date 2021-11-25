@@ -62,34 +62,6 @@ vtkTextActor* vtkTextWidget::GetTextActor()
   }
 }
 
-/**
- * This disables ProcessEvents when we are using relative location in
- * our TextWidgets. When using exact location this override has no effect.
- *
- * We can achieve this since this method is an override of
- * vtkAbstractWidget:GetProcessEvent() which determines if we can process
- * events in this widget.
- */
-vtkTypeBool vtkTextWidget::GetProcessEvents()
-{
-  auto representation = this->GetRepresentation();
-  if (representation)
-  {
-    auto textRepresentation = vtkTextRepresentation::SafeDownCast(representation);
-    if (textRepresentation)
-    {
-      bool isRelativeLocation =
-        textRepresentation->GetWindowLocation() != vtkTextRepresentation::AnyLocation;
-
-      if (isRelativeLocation)
-      {
-        return false;
-      }
-    }
-  }
-  return this->Superclass::GetProcessEvents();
-}
-
 //------------------------------------------------------------------------------
 void vtkTextWidget::CreateDefaultRepresentation()
 {
