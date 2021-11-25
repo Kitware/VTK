@@ -321,9 +321,9 @@ if (NOT DEFINED "${CMAKE_FIND_PACKAGE_NAME}_FOUND")
       ${${CMAKE_FIND_PACKAGE_NAME}_AVAILABLE_COMPONENTS})
   endif ()
   list(REMOVE_ITEM _vtk_found_components
-    # This component needs to always be requested explicitly (it is not a
-    # module).
-    vtkjava)
+    # These components need to always be requested explicitly since they are
+    # not modules.
+    @_vtk_non_module_components@)
   # Build the `_LIBRARIES` variable.
   foreach (_vtk_component IN LISTS _vtk_found_components)
     if (TARGET "${CMAKE_FIND_PACKAGE_NAME}::${_vtk_component}")

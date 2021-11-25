@@ -14,12 +14,24 @@ if (TARGET VTK::catalyst-vtk)
     PROPERTY vtk_catalyst_directory)
 endif ()
 
+string(REPLACE "VTK::" "" vtk_all_components "${vtk_modules}")
+# Components that are not modules.
+set(_vtk_non_module_components
+  WrapHierarchy
 
-set(vtk_all_components)
-foreach (vtk_module IN LISTS vtk_modules)
-  string(REPLACE "VTK::" "" vtk_component "${vtk_module}")
-  list(APPEND vtk_all_components
-    "${vtk_component}")
+  vtkpython
+  pvtkpython
+  WrapPython
+  WrapPythonInit
+
+  vtkjava
+  ParseJava
+  WrapJava)
+foreach (_vtk_non_module_component IN LISTS _vtk_non_module_components)
+  if (TARGET "VTK::${_vtk_non_module_component}")
+    list(APPEND vtk_all_components
+      "${_vtk_non_module_component}")
+  endif ()
 endforeach ()
 
 if (TARGET "VTK::vtkm")
