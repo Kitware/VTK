@@ -76,7 +76,7 @@ foreach (_vtk_component IN LISTS "${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS")
           "The new name for the '${_vtk_component}' component is "
           "'${_vtk_actual_component}'")
       endif ()
-    elseif (${CMAKE_FIND_PACKAGE_NAME}_FIND_VERSION VERSION_LESS 8.90)
+    elseif (${CMAKE_FIND_PACKAGE_NAME}_FIND_VERSION VERSION_LESS "8.90")
       # Ignore for compatibility.
     else ()
       message(FATAL_ERROR
@@ -343,7 +343,7 @@ unset(_vtk_temp_variables)
 # Compatibility with old code.
 if (NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_VERSION)
   set(VTK_USE_FILE "${CMAKE_CURRENT_LIST_DIR}/vtk-use-file-deprecated.cmake")
-elseif (${CMAKE_FIND_PACKAGE_NAME}_FIND_VERSION VERSION_LESS 8.90)
+elseif (${CMAKE_FIND_PACKAGE_NAME}_FIND_VERSION VERSION_LESS "8.90")
   set(VTK_USE_FILE "${CMAKE_CURRENT_LIST_DIR}/vtk-use-file-compat.cmake")
 else ()
   set(VTK_USE_FILE "${CMAKE_CURRENT_LIST_DIR}/vtk-use-file-error.cmake")
