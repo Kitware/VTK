@@ -199,9 +199,9 @@ list(APPEND vtk_requested_modules
   VTK::CommonCore
   VTK::CommonDataModel)
 set("_vtk_module_reason_VTK::CommonCore"
-  "all VTK builds require VTK::CommonCore")
+  "because all VTK builds require VTK::CommonCore")
 set("_vtk_module_reason_VTK::CommonDataModel"
-  "all VTK builds require VTK::CommonDataModel")
+  "because all VTK builds require VTK::CommonDataModel")
 
 if (VTK_ENABLE_WRAPPING)
   list(APPEND vtk_requested_modules
