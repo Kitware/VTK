@@ -63,9 +63,17 @@ endif ()
 cmake_policy(PUSH)
 cmake_policy(VERSION 3.12)
 
+set("${CMAKE_FIND_PACKAGE_NAME}_AVAILABLE_COMPONENTS" "@vtk_all_components@")
+
 set(_vtk_temp_variables)
 set(_vtk_real_components)
 foreach (_vtk_component IN LISTS "${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS")
+  # Handle component requests that are not VTK.
+  if (NOT _vtk_component IN_LIST "${CMAKE_FIND_PACKAGE_NAME}_AVAILABLE_COMPONENTS")
+    set("${CMAKE_FIND_PACKAGE_NAME}_${_vtk_component}_FOUND" 0)
+    list(APPEND "${CMAKE_FIND_PACKAGE_NAME}_${_vtk_component}_NOT_FOUND_MESSAGE"
+      "The ${_vtk_component} component is not recognized.")
+  endif ()
   if (_vtk_component MATCHES "^vtk" AND
       NOT _vtk_component STREQUAL "vtksys" AND
       NOT _vtk_component STREQUAL "vtkjava")
@@ -120,8 +128,6 @@ set("${CMAKE_FIND_PACKAGE_NAME}_BUILD_VERSION" "@VTK_BUILD_VERSION@")
 set("${CMAKE_FIND_PACKAGE_NAME}_LEGACY_REMOVE" "@VTK_LEGACY_REMOVE@")
 set("${CMAKE_FIND_PACKAGE_NAME}_AUTOINIT_INCLUDE" "\"vtkAutoInit.h\"")
 set("${CMAKE_FIND_PACKAGE_NAME}_SMP_BACKENDS" "@vtk_smp_backends@")
-
-set("${CMAKE_FIND_PACKAGE_NAME}_AVAILABLE_COMPONENTS" "@vtk_all_components@")
 
 unset("${CMAKE_FIND_PACKAGE_NAME}_FOUND")
 set("${CMAKE_FIND_PACKAGE_NAME}_HAS_VTKm" "@vtk_has_vtkm@")
