@@ -53,13 +53,13 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkPen.h"          // For vtkPen
 #include "vtkRect.h"         // For bounding rect
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkStdString.h"    // For vtkStdString ivars
 #include "vtkVector.h"       // For position variables
 
 class vtkContext2D;
-class vtkPen;
 class vtkFloatArray;
 class vtkDoubleArray;
 class vtkStringArray;
@@ -480,15 +480,17 @@ public:
 
   ///@{
   /**
-   * Get a pointer to the vtkPen object that controls the way this axis is drawn.
+   * Set/get the vtkPen object that controls the way this axis is drawn.
    */
+  vtkSetSmartPointerMacro(Pen, vtkPen);
   vtkGetObjectMacro(Pen, vtkPen);
   ///@}
 
   ///@{
   /**
-   * Get a pointer to the vtkPen object that controls the way this axis is drawn.
+   * Set/get the vtkPen object that controls the way this axis is drawn.
    */
+  vtkSetSmartPointerMacro(GridPen, vtkPen);
   vtkGetObjectMacro(GridPen, vtkPen);
   ///@}
 
@@ -734,12 +736,12 @@ protected:
   /**
    * This object stores the vtkPen that controls how the axis is drawn.
    */
-  vtkPen* Pen;
+  vtkSmartPointer<vtkPen> Pen;
 
   /**
    * This object stores the vtkPen that controls how the grid lines are drawn.
    */
-  vtkPen* GridPen;
+  vtkSmartPointer<vtkPen> GridPen;
 
   /**
    * Position of tick marks in screen coordinates

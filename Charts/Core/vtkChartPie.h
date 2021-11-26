@@ -30,6 +30,7 @@
 class vtkChartLegend;
 class vtkTooltipItem;
 class vtkChartPiePrivate;
+class vtkPlotPie;
 
 class VTKCHARTSCORE_EXPORT vtkChartPie : public vtkChart
 {
@@ -60,9 +61,10 @@ public:
   vtkPlot* AddPlot(int type) override;
 
   /**
-   * Add a plot to the chart. Return the index of the plot, -1 if it failed.
+   * Set plot to use for the chart. Since this type of chart can
+   * only contain one plot, this will replace the previous plot.
    */
-  vtkIdType AddPlot(vtkPlot* plot) override { return Superclass::AddPlot(plot); }
+  virtual void SetPlot(vtkPlotPie* plot);
 
   /**
    * Get the plot at the specified index, returns null if the index is invalid.

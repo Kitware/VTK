@@ -250,6 +250,25 @@ vtkChartXY::~vtkChartXY()
 void vtkChartXY::Update()
 {
   // Perform any necessary updates that are not graphical
+  // Check all plot bounds for nans and disable log scale for corresponding axis.
+  double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
+  for (vtkPlot* plot : this->ChartPrivate->plots)
+  {
+    plot->Update();
+    plot->GetBounds(bounds);
+    if (std::isnan(bounds[0] * bounds[1]))
+    {
+      // Disable log scale of X axis.
+      this->GetAxis(vtkAxis::BOTTOM)->SetLogScale(false);
+      this->GetAxis(vtkAxis::TOP)->SetLogScale(false);
+    }
+    if (std::isnan(bounds[2] * bounds[3]))
+    {
+      // Disable log scale of Y axis.
+      this->GetAxis(vtkAxis::LEFT)->SetLogScale(false);
+      this->GetAxis(vtkAxis::RIGHT)->SetLogScale(false);
+    }
+  }
   // Update the plots if necessary
   for (size_t i = 0; i < this->ChartPrivate->plots.size(); ++i)
   {
@@ -461,15 +480,20 @@ bool vtkChartXY::Paint(vtkContext2D* painter)
   }
 
   // Update the clipping if necessary
-  this->ChartPrivate->Clip->SetClip(this->Point1[0], this->Point1[1],
-    this->Point2[0] - this->Point1[0], this->Point2[1] - this->Point1[1]);
+  // An extra padding of 1 pixel is taken into account such that lines near
+  // the edge of the chart's patch are correctly shown.
+  const double pad = 1;
+  this->ChartPrivate->Clip->SetClip(this->Point1[0] - pad, this->Point1[1] - pad,
+    this->Point2[0] - this->Point1[0] + 2 * pad, this->Point2[1] - this->Point1[1] + 2 * pad);
 
   // draw background
   if (this->BackgroundBrush)
   {
     painter->GetPen()->SetLineType(vtkPen::NO_PEN);
     painter->ApplyBrush(this->BackgroundBrush);
-    painter->DrawRect(this->Point1[0], this->Point1[1], this->Geometry[0], this->Geometry[1]);
+    // Take borders into account:
+    painter->DrawRect(this->Point1[0] - this->Borders[0], this->Point1[1] - this->Borders[1],
+      this->Geometry[0], this->Geometry[1]);
   }
 
   // Use the scene to render most of the chart.
@@ -1557,11 +1581,19 @@ void vtkChartXY::SetAxis(int axisIndex, vtkAxis* axis)
 {
   if ((axisIndex < 4) && (axisIndex >= 0))
   {
+    // Retrieve plot corners for all plots.
+    std::vector<int> corners;
+    corners.reserve(this->GetNumberOfPlots());
+    std::transform(this->ChartPrivate->plots.begin(), this->ChartPrivate->plots.end(),
+      std::back_inserter(corners),
+      [this](vtkPlot* plot) -> int { return this->GetPlotCorner(plot); });
+
     vtkAxis* old_axis = this->ChartPrivate->axes[axisIndex];
     this->ChartPrivate->axes[axisIndex] = axis;
     this->ChartPrivate->axes[axisIndex]->SetVisible(old_axis->GetVisible());
 
     // remove the old axis
+    old_axis->RemoveObservers(vtkChartXY::UpdateRange);
     this->RemoveItem(old_axis);
 
     this->AttachAxisRangeListener(this->ChartPrivate->axes[axisIndex]);
@@ -1585,6 +1617,12 @@ void vtkChartXY::SetAxis(int axisIndex, vtkAxis* axis)
       case vtkAxis::RIGHT:
         grid2->SetYAxis(this->ChartPrivate->axes[vtkAxis::RIGHT]);
         break;
+    }
+
+    // Reset plot corner for all plots (which will update the plot's reference to the new axis)
+    for (int i = 0; i < this->GetNumberOfPlots(); i++)
+    {
+      this->SetPlotCorner(this->ChartPrivate->plots[i], corners[i]);
     }
   }
 }

@@ -90,24 +90,26 @@ bool vtkChartPie::Paint(vtkContext2D* painter)
 
   this->Update();
 
-  if (geometry[0] != this->Geometry[0] || geometry[1] != this->Geometry[1])
+  if (this->LayoutStrategy == vtkChart::FILL_SCENE &&
+    (geometry[0] != this->Geometry[0] || geometry[1] != this->Geometry[1]))
   {
-    // Take up the entire window right now, this could be made configurable
-    this->SetGeometry(geometry);
+    this->SetSize(vtkRectf(0.0, 0.0, geometry[0], geometry[1]));
+  }
 
-    vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
-    this->SetBorders(
-      20 * tileScale.GetX(), 20 * tileScale.GetY(), 20 * tileScale.GetX(), 20 * tileScale.GetY());
+  vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+  this->SetBorders(
+    20 * tileScale.GetX(), 20 * tileScale.GetY(), 20 * tileScale.GetX(), 20 * tileScale.GetY());
 
-    // Put the legend in the top corner of the chart
-    vtkRectf rect = this->Legend->GetBoundingRect(painter);
-    this->Legend->SetPoint(this->Point2[0] - rect.GetWidth(), this->Point2[1] - rect.GetHeight());
+  // Put the legend in the top corner of the chart
+  vtkRectf legendRect = this->Legend->GetBoundingRect(painter);
+  this->Legend->SetPoint(
+    this->Point2[0] - legendRect.GetWidth(), this->Point2[1] - legendRect.GetHeight());
 
-    // Set the dimensions of the Plot
-    if (this->Private->Plot)
-    {
-      this->Private->Plot->SetDimensions(20, 20, this->Geometry[0] - 40, this->Geometry[1] - 40);
-    }
+  // Set the dimensions of the Plot
+  if (this->Private->Plot)
+  {
+    this->Private->Plot->SetDimensions(this->Size.GetX() + 20, this->Size.GetY() + 20,
+      this->Geometry[0] - 40, this->Geometry[1] - 40);
   }
 
   this->PaintChildren(painter);
@@ -143,6 +145,18 @@ vtkPlot* vtkChartPie::AddPlot(int /* type */)
     this->AddItem(this->Private->Plot);
   }
   return this->Private->Plot;
+}
+
+//------------------------------------------------------------------------------
+void vtkChartPie::SetPlot(vtkPlotPie* plot)
+{
+  if (this->Private->Plot)
+  {
+    this->RemoveItem(this->Private->Plot);
+  }
+  this->Private->Plot = plot;
+  this->AddItem(this->Private->Plot);
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
