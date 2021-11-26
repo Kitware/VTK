@@ -340,9 +340,19 @@ protected:
   bool ComputeVectorRange(double range[2]) override;
 
   /**
+   * Get the finite transformed range by components
+   */
+  bool ComputeFiniteScalarRange(double* range) override;
+
+  /**
+   * Get the transformed finite range on all components
+   */
+  bool ComputeFiniteVectorRange(double range[2]) override;
+
+  /**
    * Update the transformed periodic range
    */
-  virtual void ComputePeriodicRange();
+  virtual void ComputePeriodicRange(bool finite = false);
 
   /**
    * Set the invalid range flag to false
@@ -362,8 +372,10 @@ private:
   vtkIdType TempTupleIdx;                // Location of currently stored Temp Tuple to use as cache
   vtkAOSDataArrayTemplate<Scalar>* Data; // Original data
 
-  bool InvalidRange;
+  bool InvalidRange = true;
   double PeriodicRange[6]; // Transformed periodic range
+  bool InvalidFiniteRange = true;
+  double PeriodicFiniteRange[6]; // Transformed periodic finite range
 };
 
 #include "vtkPeriodicDataArray.txx"

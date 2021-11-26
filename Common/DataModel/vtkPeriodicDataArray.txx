@@ -45,7 +45,6 @@ void vtkPeriodicDataArray<Scalar>::Initialize()
 
   this->MaxId = -1;
   this->Size = 0;
-  this->InvalidRange = true;
   this->Normalize = false;
   this->Modified();
 }
@@ -117,72 +116,136 @@ bool vtkPeriodicDataArray<Scalar>::ComputeVectorRange(double range[2])
   }
   return true;
 }
+
 //------------------------------------------------------------------------------
 template <class Scalar>
-void vtkPeriodicDataArray<Scalar>::ComputePeriodicRange()
+bool vtkPeriodicDataArray<Scalar>::ComputeFiniteScalarRange(double* range)
 {
+  if (this->NumberOfComponents == 3)
+  {
+    if (this->InvalidFiniteRange)
+    {
+      this->ComputePeriodicRange(true);
+    }
+    for (int i = 0; i < 3; i++)
+    {
+      range[i * 2] = this->PeriodicFiniteRange[i * 2 + 0];
+      range[i * 2 + 1] = this->PeriodicFiniteRange[i * 2 + 1];
+    }
+  }
+  else
+  {
+    // Not implemented for tensor
+    for (int i = 0; i < this->NumberOfComponents; i++)
+    {
+      range[i * 2] = 0;
+      range[i * 2 + 1] = 1;
+    }
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+bool vtkPeriodicDataArray<Scalar>::ComputeFiniteVectorRange(double range[2])
+{
+  if (this->NumberOfComponents == 3 && this->Data)
+  {
+    this->Data->GetFiniteRange(range, -1);
+  }
+  else
+  {
+    // Not implemented for tensor
+    range[0] = 0;
+    range[1] = 1;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::ComputePeriodicRange(bool finite)
+{
+  double* range = finite ? this->PeriodicFiniteRange : this->PeriodicRange;
+
   if (this->Data)
   {
-    this->Data->GetRange(this->PeriodicRange, 0);
-    this->Data->GetRange(this->PeriodicRange + 2, 1);
-    this->Data->GetRange(this->PeriodicRange + 4, 2);
+    if (finite)
+    {
+      this->Data->GetFiniteRange(range, 0);
+      this->Data->GetFiniteRange(range + 2, 1);
+      this->Data->GetFiniteRange(range + 4, 2);
+    }
+    else
+    {
+      this->Data->GetRange(range, 0);
+      this->Data->GetRange(range + 2, 1);
+      this->Data->GetRange(range + 4, 2);
+    }
+
     Scalar boxPoints[8][3];
+    boxPoints[0][0] = range[0];
+    boxPoints[0][1] = range[2];
+    boxPoints[0][2] = range[4];
 
-    boxPoints[0][0] = this->PeriodicRange[0];
-    boxPoints[0][1] = this->PeriodicRange[2];
-    boxPoints[0][2] = this->PeriodicRange[4];
+    boxPoints[1][0] = range[0];
+    boxPoints[1][1] = range[3];
+    boxPoints[1][2] = range[4];
 
-    boxPoints[1][0] = this->PeriodicRange[0];
-    boxPoints[1][1] = this->PeriodicRange[3];
-    boxPoints[1][2] = this->PeriodicRange[4];
+    boxPoints[2][0] = range[1];
+    boxPoints[2][1] = range[3];
+    boxPoints[2][2] = range[4];
 
-    boxPoints[2][0] = this->PeriodicRange[1];
-    boxPoints[2][1] = this->PeriodicRange[3];
-    boxPoints[2][2] = this->PeriodicRange[4];
+    boxPoints[3][0] = range[1];
+    boxPoints[3][1] = range[2];
+    boxPoints[3][2] = range[4];
 
-    boxPoints[3][0] = this->PeriodicRange[1];
-    boxPoints[3][1] = this->PeriodicRange[2];
-    boxPoints[3][2] = this->PeriodicRange[4];
+    boxPoints[4][0] = range[0];
+    boxPoints[4][1] = range[2];
+    boxPoints[4][2] = range[5];
 
-    boxPoints[4][0] = this->PeriodicRange[0];
-    boxPoints[4][1] = this->PeriodicRange[2];
-    boxPoints[4][2] = this->PeriodicRange[5];
+    boxPoints[5][0] = range[0];
+    boxPoints[5][1] = range[3];
+    boxPoints[5][2] = range[5];
 
-    boxPoints[5][0] = this->PeriodicRange[0];
-    boxPoints[5][1] = this->PeriodicRange[3];
-    boxPoints[5][2] = this->PeriodicRange[5];
+    boxPoints[6][0] = range[1];
+    boxPoints[6][1] = range[3];
+    boxPoints[6][2] = range[5];
 
-    boxPoints[6][0] = this->PeriodicRange[1];
-    boxPoints[6][1] = this->PeriodicRange[3];
-    boxPoints[6][2] = this->PeriodicRange[5];
-
-    boxPoints[7][0] = this->PeriodicRange[1];
-    boxPoints[7][1] = this->PeriodicRange[2];
-    boxPoints[7][2] = this->PeriodicRange[5];
+    boxPoints[7][0] = range[1];
+    boxPoints[7][1] = range[2];
+    boxPoints[7][2] = range[5];
 
     for (int i = 0; i < 8; i++)
     {
       this->Transform(boxPoints[i]);
     }
 
-    this->PeriodicRange[0] = this->PeriodicRange[2] = this->PeriodicRange[4] = VTK_DOUBLE_MAX;
-    this->PeriodicRange[1] = this->PeriodicRange[3] = this->PeriodicRange[5] = -VTK_DOUBLE_MAX;
+    range[0] = range[2] = range[4] = VTK_DOUBLE_MAX;
+    range[1] = range[3] = range[5] = -VTK_DOUBLE_MAX;
 
     for (int i = 0; i < 8; i++)
     {
       for (int j = 0; j < 3; j++)
       {
-        if (boxPoints[i][j] < this->PeriodicRange[2 * j])
+        if (boxPoints[i][j] < range[2 * j])
         {
-          this->PeriodicRange[2 * j] = boxPoints[i][j];
+          range[2 * j] = boxPoints[i][j];
         }
-        if (boxPoints[i][j] > this->PeriodicRange[2 * j + 1])
+        if (boxPoints[i][j] > range[2 * j + 1])
         {
-          this->PeriodicRange[2 * j + 1] = boxPoints[i][j];
+          range[2 * j + 1] = boxPoints[i][j];
         }
       }
     }
-    this->InvalidRange = false;
+    if (finite)
+    {
+      this->InvalidFiniteRange = false;
+    }
+    else
+    {
+      this->InvalidRange = false;
+    }
   }
 }
 
