@@ -17,19 +17,13 @@
 /**
  * @class   vtkCGNSReader
  *
- * vtkCGNSReader creates a multi-block dataset and reads unstructured grids,
+ * vtkCGNSReader creates a multi-block dataset and reads unstructured grids
  * and structured meshes from binary files stored in CGNS file format,
- * with data stored at the nodes or at the cells.
+ * with data stored at the nodes, cells or faces.
  *
  * vtkCGNSReader is inspired by the VisIt CGNS reader originally written by
- * B. Whitlock. vtkCGNSReader relies on the low level CGNS API to load DataSet
+ * B. Whitlock. vtkCGNSReader relies on the low level CGNS API to load data sets
  * and reduce memory footprint.
- *
- * @warning
- *   ...
- *
- * @par Thanks:
- * Thanks to .
  */
 
 #ifndef vtkCGNSReader_h
@@ -39,11 +33,9 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // for vtkNew.
 
-class vtkDataSet;
+#include <string> // for std::string
+
 class vtkDataArraySelection;
-class vtkCGNSSubsetInclusionLattice;
-class vtkPoints;
-class vtkUnstructuredGrid;
 class vtkInformationStringKey;
 
 namespace CGNSRead
@@ -59,12 +51,33 @@ public:
   vtkTypeMacro(vtkCGNSReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  enum DataArrayLocation
+  {
+    CELL_DATA = 0,
+    FACE_DATA
+  };
+
+  ///@{
+  /**
+   * Set/get the location of the data arrays to read. Possible values for the data location are:
+   * - CELL_DATA - Read CellCenter data arrays from the CGNS file. Construct 3D meshes with 3D cells
+   * (e.g. a cube is defined as 1 cell).
+   * - FACE_DATA - Read FaceCenter data arrays from the CGNS file. Construct 3D meshes with 2D
+   * cells/faces (e.g. a cube is defined as 6 quad cells). Element connectivity must be defined with
+   * element type NGON_n.
+   *
+   * Default is CELL_DATA.
+   */
+  vtkSetClampMacro(DataLocation, int, vtkCGNSReader::CELL_DATA, vtkCGNSReader::FACE_DATA);
+  vtkGetMacro(DataLocation, int);
+  ///@}
+
   ///@{
   /**
    * Specify file name of CGNS datafile to read
    */
-  vtkSetFilePathMacro(FileName);
-  vtkGetFilePathMacro(FileName);
+  vtkSetStdStringFromCharMacro(FileName);
+  vtkGetCharFromStdStringMacro(FileName);
   ///@}
 
   /**
@@ -134,6 +147,19 @@ public:
   void SetCellArrayStatus(const char* name, int status);
   void DisableAllCellArrays();
   void EnableAllCellArrays();
+  ///@}
+
+  ///@{
+  /**
+   * API to get information of face arrays and enable/disable loading of
+   * a particular arrays.
+   */
+  int GetNumberOfFaceArrays();
+  const char* GetFaceArrayName(int index);
+  int GetFaceArrayStatus(const char* name);
+  void SetFaceArrayStatus(const char* name, int status);
+  void DisableAllFaceArrays();
+  void EnableAllFaceArrays();
   ///@}
 
   vtkSetMacro(DoublePrecisionMesh, int);
@@ -228,7 +254,7 @@ public:
 
   ///@{
   /**
-   * This reader can cache the meshconnectivities if they are time invariant.
+   * This reader can cache the mesh connectivities if they are time invariant.
    * They will be stored with a unique reference to their /base/zonename
    * and not be read in the file when doing unsteady analysis.
    */
@@ -265,44 +291,47 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkNew<vtkDataArraySelection> BaseSelection;
-  vtkNew<vtkDataArraySelection> FamilySelection;
-
-  vtkNew<vtkDataArraySelection> CellDataArraySelection;
-  vtkNew<vtkDataArraySelection> PointDataArraySelection;
-
   int GetCurvilinearZone(
     int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
 
   int GetUnstructuredZone(
     int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
-  vtkMultiProcessController* Controller;
-  vtkIdType ProcRank;
-  vtkIdType ProcSize;
+
+  vtkMultiProcessController* Controller = nullptr;
+  vtkIdType ProcRank = 0;
+  vtkIdType ProcSize = 1;
+
+  vtkNew<vtkDataArraySelection> BaseSelection;
+  vtkNew<vtkDataArraySelection> FamilySelection;
+
+  vtkNew<vtkDataArraySelection> CellDataArraySelection;
+  vtkNew<vtkDataArraySelection> FaceDataArraySelection;
+  vtkNew<vtkDataArraySelection> PointDataArraySelection;
 
 private:
   vtkCGNSReader(const vtkCGNSReader&) = delete;
   void operator=(const vtkCGNSReader&) = delete;
 
-  char* FileName;                // cgns file name
-  bool LoadBndPatch;             // option to set section loading for unstructured grid
-  bool LoadMesh;                 // option to enable/disable mesh loading
-  int DoublePrecisionMesh;       // option to set mesh loading to double precision
-  int CreateEachSolutionAsBlock; // debug option to create
-  bool IgnoreFlowSolutionPointers;
-  bool UseUnsteadyPattern;
-  bool DistributeBlocks;
-  bool CacheMesh;
-  bool CacheConnectivity;
-  bool Use3DVector;
+  std::string FileName = "";
+  int DataLocation = vtkCGNSReader::CELL_DATA;
+  bool LoadBndPatch = false;         // option to set section loading for unstructured grid
+  bool LoadMesh = true;              // option to enable/disable mesh loading
+  int DoublePrecisionMesh = 1;       // option to set mesh loading to double precision
+  int CreateEachSolutionAsBlock = 0; // debug option to create
+  bool IgnoreFlowSolutionPointers = false;
+  bool UseUnsteadyPattern = false;
+  bool DistributeBlocks = true;
+  bool CacheMesh = false;
+  bool CacheConnectivity = false;
+  bool Use3DVector = true;
 
   // For internal cgio calls (low level IO)
   int cgioNum;      // cgio file reference
   double rootId;    // id of root node
   double currentId; // id of node currently being read (zone)
-  //
-  unsigned int NumberOfBases;
-  int ActualTimeStep;
+
+  unsigned int NumberOfBases = 0;
+  int ActualTimeStep = 0;
 
   class vtkPrivate;
   vtkPrivate* Internals;

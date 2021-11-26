@@ -20,10 +20,7 @@
  *     parse a file in "CGNS" format
  *
  * @warning
- *     Only Cell/Vertex data are supported.
- *
- * @par Thanks:
- * Thanks to .
+ *     Only Cell/Face/Vertex data are supported.
  */
 
 #ifndef vtkCGNSReaderInternal_h
@@ -285,6 +282,7 @@ public:
   // std::vector<CGNSRead::zone> zone;
   vtkCGNSArraySelection PointDataArraySelection;
   vtkCGNSArraySelection CellDataArraySelection;
+  vtkCGNSArraySelection FaceDataArraySelection;
 };
 
 //==============================================================================
