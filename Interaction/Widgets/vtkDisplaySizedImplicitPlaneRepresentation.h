@@ -50,6 +50,7 @@ class vtkFeatureEdges;
 class vtkImageData;
 class vtkLineSource;
 class vtkLookupTable;
+class vtkOutlineFilter;
 class vtkPlane;
 class vtkPolyData;
 class vtkPolyDataAlgorithm;
@@ -137,6 +138,25 @@ public:
   void SetDrawPlane(vtkTypeBool plane);
   vtkGetMacro(DrawPlane, vtkTypeBool);
   vtkBooleanMacro(DrawPlane, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Enable/disable the drawing of the outline. Default is off.
+   */
+  void SetDrawOutline(vtkTypeBool plane);
+  vtkGetMacro(DrawOutline, vtkTypeBool);
+  vtkBooleanMacro(DrawOutline, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off the ability to translate the bounding box by grabbing it
+   * with the left mouse button.
+   */
+  vtkSetMacro(OutlineTranslation, vtkTypeBool);
+  vtkGetMacro(OutlineTranslation, vtkTypeBool);
+  vtkBooleanMacro(OutlineTranslation, vtkTypeBool);
   ///@}
 
   ///@{
@@ -262,6 +282,14 @@ public:
 
   ///@{
   /**
+   * Get the property of the outline.
+   */
+  vtkGetObjectMacro(OutlineProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
+  ///@}
+
+  ///@{
+  /**
    * Get the property of the disk edges. The properties of the edges when selected
    * and unselected can be manipulated.
    */
@@ -360,6 +388,7 @@ public:
   {
     Outside = 0,
     Moving,
+    MovingOutline,
     MovingOrigin,
     Rotating,
     Pushing,
@@ -450,19 +479,24 @@ protected:
 
   // The bounding box is represented by a single voxel image data
   vtkNew<vtkImageData> Box;
-  vtkTypeBool ScaleEnabled;  // whether the widget can be scaled
-  vtkTypeBool OutsideBounds; // whether the widget can be moved outside input's bounds
+  vtkNew<vtkOutlineFilter> Outline;
+  vtkNew<vtkPolyDataMapper> OutlineMapper;
+  vtkNew<vtkActor> OutlineActor;
+  void HighlightOutline(int highlight);
+  vtkTypeBool OutlineTranslation; // whether the outline can be moved
+  vtkTypeBool ScaleEnabled;       // whether the widget can be scaled
+  vtkTypeBool OutsideBounds;      // whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
   vtkTypeBool ConstrainToWidgetBounds;
 
   // The plane
   double RadiusMultiplier;
-  vtkTimeStamp RadiusMultiplierTimeStamp;
   vtkNew<vtkPlane> Plane;
   vtkNew<vtkDiskSource> DiskPlaneSource;
   vtkNew<vtkPolyDataMapper> PlaneMapper;
   vtkNew<vtkActor> PlaneActor;
   vtkTypeBool DrawPlane;
+  vtkTypeBool DrawOutline;
   void HighlightPlane(int highlight);
 
   // plane boundary edges are represented as tubes
@@ -517,6 +551,7 @@ protected:
   // Methods to manipulate the plane
   void Rotate(double X, double Y, double* p1, double* p2, double* vpn);
   void Rotate3D(double* p1, double* p2);
+  void TranslateOutline(double* p1, double* p2);
   void TranslateOrigin(double* p1, double* p2);
   void UpdatePose(double* p1, double* d1, double* p2, double* d2);
   void Push(double* p1, double* p2);
@@ -533,6 +568,8 @@ protected:
   vtkNew<vtkProperty> SelectedSphereProperty;
   vtkNew<vtkProperty> PlaneProperty;
   vtkNew<vtkProperty> SelectedPlaneProperty;
+  vtkNew<vtkProperty> OutlineProperty;
+  vtkNew<vtkProperty> SelectedOutlineProperty;
   vtkNew<vtkProperty> EdgesProperty;
   vtkNew<vtkProperty> SelectedEdgesProperty;
   virtual void CreateDefaultProperties();

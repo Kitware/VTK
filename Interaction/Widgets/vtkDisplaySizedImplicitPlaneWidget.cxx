@@ -564,6 +564,10 @@ int vtkDisplaySizedImplicitPlaneWidget::UpdateCursorShape(int state)
     {
       return this->RequestCursorShape(VTK_CURSOR_DEFAULT);
     }
+    else if (state == vtkDisplaySizedImplicitPlaneRepresentation::MovingOutline)
+    {
+      return this->RequestCursorShape(VTK_CURSOR_SIZEALL);
+    }
     else
     {
       return this->RequestCursorShape(VTK_CURSOR_HAND);
