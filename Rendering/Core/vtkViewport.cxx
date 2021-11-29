@@ -93,6 +93,10 @@ vtkViewport::vtkViewport()
 
   this->Props = vtkPropCollection::New();
   this->Actors2D = vtkActor2DCollection::New();
+
+  this->LastComputeAspectSize.fill(-1);
+  this->LastComputeAspectVPort.fill(-1);
+  this->LastComputeAspectPixelAspect.fill(-1);
 }
 
 //------------------------------------------------------------------------------
