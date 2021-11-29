@@ -194,6 +194,11 @@ protected:
   bool GetDataArrays(vtkTable* table, vtkDataArray* array[2]);
 
   /**
+   * Update the table cache if necessary.
+   */
+  virtual void UpdateCache() override;
+
+  /**
    * Update the table cache.
    */
   bool UpdateTableCache(vtkTable* table);

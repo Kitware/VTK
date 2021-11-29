@@ -638,6 +638,14 @@ bool vtkPlotPoints::GetDataArrays(vtkTable* table, vtkDataArray* array[2])
 }
 
 //------------------------------------------------------------------------------
+void vtkPlotPoints::UpdateCache()
+{
+  // Update has the necessary checks in place and will update the
+  // ValidPointMask and TableCache when necessary.
+  this->Update();
+}
+
+//------------------------------------------------------------------------------
 bool vtkPlotPoints::UpdateTableCache(vtkTable* table)
 {
   vtkDataArray* array[2] = { nullptr, nullptr };
