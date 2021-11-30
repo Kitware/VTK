@@ -523,20 +523,21 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
 
     if (blankCells)
     {
+      int isPointData = this->IsCellData ? 0 : 1;
       int comp = blankPoints ? 1 : 0;
-      int d0 = (blockSize[0] - 1) * (blockSize[1] - 1);
-      int d01 = (blockSize[0] - this->IsCellData) * (blockSize[1] - this->IsCellData);
+      int d0 = (blockSize[0] - isPointData) * (blockSize[1] - isPointData);
+      int d01 = (blockSize[0]) * (blockSize[1]);
       const auto blankCellsRange = vtk::DataArrayValueRange<1>(ugCellBlankArray);
       int ptId, cellId;
-      for (int k = 0; k < blockSize[2] - this->IsCellData; ++k)
+      for (int k = 0; k < blockSize[2] - isPointData; ++k)
       {
-        for (int j = 0; j < blockSize[1] - this->IsCellData; ++j)
+        for (int j = 0; j < blockSize[1] - isPointData; ++j)
         {
-          for (int i = 0; i < blockSize[0] - this->IsCellData; ++i)
+          for (int i = 0; i < blockSize[0] - isPointData; ++i)
           {
-            ptId = k * d01 + j * (blockSize[0] - this->IsCellData) + i;
-            cellId = k * d0 + j * (blockSize[0] - 1) + i;
-            if (!this->IsCellData)
+            ptId = k * d01 + j * (blockSize[0]) + i;
+            cellId = k * d0 + j * (blockSize[0] - isPointData) + i;
+            if (isPointData)
             {
               auto kc = (k >= (blockSize[2] - 1) ? blockSize[2] - 2 : k);
               auto jc = (j >= (blockSize[1] - 1) ? blockSize[1] - 2 : j);
