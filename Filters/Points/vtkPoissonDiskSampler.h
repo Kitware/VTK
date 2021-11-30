@@ -27,8 +27,6 @@
  * Dipp\'e and Wold in 1986</a>. Points are drawn randomly one by one and added
  * in the output. Points withing a range of `Radius` (input parameter) are discarded from the
  * output. This process is repeated until there are no more points unprocessed.
- *
- * This filter works in parallel using SMP tools.
  */
 
 #ifndef vtkPoissonDiskSampler_h

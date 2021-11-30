@@ -39,115 +39,59 @@ vtkCxxSetObjectMacro(vtkPoissonDiskSampler, Locator, vtkAbstractPointLocator);
 
 namespace
 {
-//==============================================================================
-struct DartThrowerWorker
+//------------------------------------------------------------------------------
+void DartThrower(
+  vtkPointSet* input, vtkAbstractPointLocator* locator, vtkPointSet* output, double radius)
 {
-  DartThrowerWorker(
-    vtkPointSet* input, vtkAbstractPointLocator* locator, vtkPointSet* output, double radius)
-    : Input(input)
-    , Locator(locator)
-    , Output(output)
-    , Radius(radius)
+  if (!input->GetNumberOfPoints())
   {
-    this->AlreadyProcessed->SetNumberOfComponents(1);
-    this->AlreadyProcessed->SetNumberOfValues(input->GetNumberOfPoints());
-    this->AlreadyProcessed->Fill(false);
+    return;
   }
 
-  void operator()(vtkIdType startId, vtkIdType endId)
+  std::vector<vtkIdType> candidates(input->GetNumberOfPoints());
+  std::iota(candidates.begin(), candidates.end(), 0);
+  auto rng = std::default_random_engine{};
+  std::shuffle(candidates.begin(), candidates.end(), rng);
+
+  vtkNew<vtkIdList> pickedPoints;
+  pickedPoints->Allocate(candidates.size());
+  vtkNew<vtkBitArray> alreadyProcessed;
+  alreadyProcessed->SetNumberOfValues(candidates.size());
+  alreadyProcessed->Fill(false);
+
+  vtkNew<vtkIdList> neighbors;
+  double p[3];
+
+  vtkPoints* inputPoints = input->GetPoints();
+
+  for (vtkIdType candidate : candidates)
   {
-    if (!this->Input->GetNumberOfPoints())
+    bool processed = alreadyProcessed->GetValue(candidate);
+    if (!processed)
     {
-      return;
-    }
-
-    std::vector<vtkIdType> candidates(endId - startId);
-    std::iota(candidates.begin(), candidates.end(), startId);
-    auto rng = std::default_random_engine{};
-    std::shuffle(candidates.begin(), candidates.end(), rng);
-
-    vtkNew<vtkIdList> neighbors;
-    double p[3], lockedP[3];
-    double squaredRadius = this->Radius * this->Radius;
-
-    vtkPointData* inputPointData = this->Input->GetPointData();
-    vtkPointData* outputPointData = this->Output->GetPointData();
-    outputPointData->CopyAllOn();
-
-    vtkPoints* inputPoints = this->Input->GetPoints();
-    vtkPoints* outputPoints = this->Output->GetPoints();
-
-    for (vtkIdType candidate : candidates)
-    {
-      this->Mutex.lock();
-      bool alreadyProcessed = this->AlreadyProcessed->GetValue(candidate);
-      if (!alreadyProcessed)
+      inputPoints->GetPoint(candidate, p);
+      pickedPoints->InsertNextId(candidate);
+      locator->FindPointsWithinRadius(radius, p, neighbors);
+      for (vtkIdType i = 0; i < neighbors->GetNumberOfIds(); ++i)
       {
-        inputPoints->GetPoint(candidate, p);
-        bool locked = false;
-        for (vtkIdType lockedId : this->LockedIds)
-        {
-          inputPoints->GetPoint(lockedId, lockedP);
-          if (vtkMath::Distance2BetweenPoints(p, lockedP) < squaredRadius)
-          {
-            locked = true;
-            break;
-          }
-        }
-        if (locked)
-        {
-          this->Mutex.unlock();
-          continue;
-        }
-        this->LockedIds.insert(candidate);
-        this->Mutex.unlock();
-        this->OutputMutex.lock();
-        outputPoints->InsertNextPoint(p);
-        outputPointData->InsertNextTuple(candidate, inputPointData);
-        this->OutputMutex.unlock();
-        this->Locator->FindPointsWithinRadius(this->Radius, p, neighbors);
-        for (vtkIdType i = 0; i < neighbors->GetNumberOfIds(); ++i)
-        {
-          if (!this->AlreadyProcessed->GetValue(neighbors->GetId(i)))
-          {
-            this->AlreadyProcessed->SetValue(neighbors->GetId(i), true);
-          }
-        }
-        this->Mutex.lock();
-        this->LockedIds.erase(candidate);
-        this->Mutex.unlock();
-      }
-      else
-      {
-        this->Mutex.unlock();
+        alreadyProcessed->SetValue(neighbors->GetId(i), true);
       }
     }
   }
 
-  vtkPointSet* Input;
-  vtkAbstractPointLocator* Locator;
-  vtkPointSet* Output;
-  double Radius;
+  // This avoids shuffling the output points ordering inside a multithreaded environment.
+  std::sort(pickedPoints->begin(), pickedPoints->end());
 
-  /**
-   * This bit array keeps track of which points are already been processed
-   */
-  vtkNew<vtkBitArray> AlreadyProcessed;
+  vtkNew<vtkPoints> outputPoints;
+  output->SetPoints(outputPoints);
+  outputPoints->GetData()->InsertTuplesStartingAt(0, pickedPoints, inputPoints->GetData());
 
-  /**
-   * Lock on points being treated by on thread.
-   * Any point within Radius of being treated points are not processed and skipped.
-   */
-  std::unordered_set<vtkIdType> LockedIds;
-
-  //@{
-  /**
-   * Mutices used to ensure atomic read and write.
-   */
-  std::mutex Mutex;
-  std::mutex OutputMutex;
-  //@}
-};
+  vtkPointData* inputPD = input->GetPointData();
+  vtkPointData* outputPD = output->GetPointData();
+  outputPD->CopyAllOn();
+  outputPD->CopyAllocate(inputPD);
+  outputPD->CopyData(inputPD, pickedPoints);
+}
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -201,14 +145,7 @@ int vtkPoissonDiskSampler::RequestData(vtkInformation* vtkNotUsed(request),
     this->Locator->BuildLocator();
   }
 
-  output->SetPoints(vtkNew<vtkPoints>());
-  output->GetPointData()->CopyStructure(input->GetPointData());
-
-  DartThrowerWorker worker(input, this->Locator, output, this->Radius);
-  vtkSMPTools::For(0, input->GetNumberOfPoints(), worker);
-
-  output->GetPointData()->SetNormals(
-    output->GetPointData()->GetArray(input->GetPointData()->GetNormals()->GetName()));
+  ::DartThrower(input, this->Locator, output, this->Radius);
 
   return 1;
 }
