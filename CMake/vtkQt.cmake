@@ -4,6 +4,9 @@
 # found, Qt6 is preferred.
 
 set(vtk_supported_qt_versions "Auto" 5 6)
+
+# The following `if` check can be removed once CMake 3.21 is required and
+# the policy CMP0126 is set to NEW for ParaView and other superbuilds.
 if (NOT DEFINED VTK_QT_VERSION)
   set(VTK_QT_VERSION "Auto" CACHE
     STRING "Expected Qt major version. Valid values are Auto, 5, 6.")
