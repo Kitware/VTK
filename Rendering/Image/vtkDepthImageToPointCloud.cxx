@@ -156,7 +156,8 @@ struct MapScalars
     , OutColors(nullptr)
   {
     vtkStdString outName = "DepthColors";
-    this->OutColors = Colors.AddArrayPair(this->NumColors, this->InColors, outName, 0.0, false);
+    this->OutColors = vtkArrayDownCast<vtkDataArray>(
+      Colors.AddArrayPair(this->NumColors, this->InColors, outName, 0.0, false));
   }
 
   void operator()(vtkIdType id, vtkIdType end)

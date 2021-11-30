@@ -24,7 +24,7 @@
 // Sort of a little object factory (in conjunction w/ vtkTemplateMacro())
 template <typename T>
 void CreateArrayPair(ArrayList* list, T* inData, T* outData, vtkIdType numTuples, int numComp,
-  vtkDataArray* outArray, T nullValue)
+  vtkAbstractArray* outArray, T nullValue)
 {
   ArrayPair<T>* pair = new ArrayPair<T>(inData, outData, numTuples, numComp, outArray, nullValue);
   list->Arrays.push_back(pair);
@@ -34,7 +34,7 @@ void CreateArrayPair(ArrayList* list, T* inData, T* outData, vtkIdType numTuples
 // Sort of a little object factory (in conjunction w/ vtkTemplateMacro())
 template <typename T>
 void CreateRealArrayPair(ArrayList* list, T* inData, float* outData, vtkIdType numTuples,
-  int numComp, vtkDataArray* outArray, float nullValue)
+  int numComp, vtkAbstractArray* outArray, float nullValue)
 {
   RealArrayPair<T, float>* pair =
     new RealArrayPair<T, float>(inData, outData, numTuples, numComp, outArray, nullValue);
@@ -43,14 +43,14 @@ void CreateRealArrayPair(ArrayList* list, T* inData, float* outData, vtkIdType n
 
 //----------------------------------------------------------------------------
 // Indicate arrays not to process
-inline void ArrayList::ExcludeArray(vtkDataArray* da)
+inline void ArrayList::ExcludeArray(vtkAbstractArray* da)
 {
   ExcludedArrays.push_back(da);
 }
 
 //----------------------------------------------------------------------------
 // Has the specified array been excluded?
-inline vtkTypeBool ArrayList::IsExcluded(vtkDataArray* da)
+inline vtkTypeBool ArrayList::IsExcluded(vtkAbstractArray* da)
 {
   return (std::find(ExcludedArrays.begin(), ExcludedArrays.end(), da) != ExcludedArrays.end());
 }
@@ -58,7 +58,7 @@ inline vtkTypeBool ArrayList::IsExcluded(vtkDataArray* da)
 //----------------------------------------------------------------------------
 // Add an array pair (input,output) using the name provided for the output. The
 // numTuples is the number of output tuples allocated.
-inline vtkDataArray* ArrayList::AddArrayPair(vtkIdType numTuples, vtkDataArray* inArray,
+inline vtkAbstractArray* ArrayList::AddArrayPair(vtkIdType numTuples, vtkAbstractArray* inArray,
   vtkStdString& outArrayName, double nullValue, vtkTypeBool promote)
 {
   if (this->IsExcluded(inArray))
@@ -67,7 +67,7 @@ inline vtkDataArray* ArrayList::AddArrayPair(vtkIdType numTuples, vtkDataArray* 
   }
 
   int iType = inArray->GetDataType();
-  vtkDataArray* outArray;
+  vtkAbstractArray* outArray;
   if (promote && iType != VTK_FLOAT && iType != VTK_DOUBLE)
   {
     outArray = vtkFloatArray::New();
@@ -112,7 +112,7 @@ inline void ArrayList::AddArrays(vtkIdType numOutPts, vtkDataSetAttributes* inPD
   // Build the vector of interpolation pairs. Note that
   // vtkDataSetAttributes::InterpolateAllocate or CopyAllocate() should have
   // been called at this point (i.e., output arrays created and allocated).
-  vtkDataArray *iArray, *oArray;
+  vtkAbstractArray *iArray, *oArray;
   int iType, oType;
   void *iD, *oD;
   int iNumComp, oNumComp;
@@ -121,8 +121,8 @@ inline void ArrayList::AddArrays(vtkIdType numOutPts, vtkDataSetAttributes* inPD
   for (i = outPD->RequiredArrays.BeginIndex(); !outPD->RequiredArrays.End();
        i = outPD->RequiredArrays.NextIndex())
   {
-    iArray = vtkArrayDownCast<vtkDataArray>(inPD->Data[i]);
-    oArray = vtkArrayDownCast<vtkDataArray>(outPD->Data[outPD->TargetIndices[i]]);
+    iArray = inPD->Data[i];
+    oArray = outPD->Data[outPD->TargetIndices[i]];
 
     if (iArray && oArray && !this->IsExcluded(oArray) && !this->IsExcluded(iArray))
     {
@@ -176,7 +176,7 @@ inline void ArrayList::AddSelfInterpolatingArrays(
 {
   // Build the vector of interpolation pairs. Note that CopyAllocate/InterpolateAllocate should have
   // been called at this point (output arrays created and allocated).
-  vtkDataArray* iArray;
+  vtkAbstractArray* iArray;
   int iType, iNumComp;
   void* iD;
   int i, numArrays = attr->GetNumberOfArrays();
@@ -188,7 +188,7 @@ inline void ArrayList::AddSelfInterpolatingArrays(
     {
       iType = iArray->GetDataType();
       iNumComp = iArray->GetNumberOfComponents();
-      iArray->WriteVoidPointer(0, numOutPts * iNumComp); // allocates memory, preserves data
+      iArray->Resize(numOutPts);
       iD = iArray->GetVoidPointer(0);
       switch (iType)
       {
