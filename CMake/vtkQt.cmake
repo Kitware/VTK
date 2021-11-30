@@ -3,10 +3,12 @@
 # version installed on the system. If both versions are
 # found, Qt6 is preferred.
 
-set(VTK_QT_VERSION "Auto" CACHE
-  STRING "Expected Qt major version. Valid values are Auto, 5, 6.")
 set(vtk_supported_qt_versions "Auto" 5 6)
-set_property(CACHE VTK_QT_VERSION PROPERTY STRINGS "${vtk_supported_qt_versions}")
+if (NOT DEFINED VTK_QT_VERSION)
+  set(VTK_QT_VERSION "Auto" CACHE
+    STRING "Expected Qt major version. Valid values are Auto, 5, 6.")
+  set_property(CACHE VTK_QT_VERSION PROPERTY STRINGS "${vtk_supported_qt_versions}")
+endif()
 
 if (NOT VTK_QT_VERSION STREQUAL "Auto")
   if (NOT VTK_QT_VERSION IN_LIST vtk_supported_qt_versions)
