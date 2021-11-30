@@ -1304,6 +1304,28 @@ static std::string pj_get_relative_share_proj_internal_no_check() {
         return out;
     }
     out.resize(pos);
+    // account for <build_dir>/lib/python3.8/site-packages/vtkmodules/../../..
+    int dirsUp = 0;
+    while(out.size() > 3 &&
+          out[out.size() - 1] == '.' && out[out.size() - 2] == '.' &&
+          out[out.size() - 3] == dir_sep)
+    {
+      ++dirsUp;
+      out.resize(out.size() - 3);
+    }
+    while (dirsUp)
+    {
+      pos = out.find_last_of(dir_sep);
+      if (pos == std::string::npos)
+      {
+        pj_log(PJ_DEFAULT_CTX, PJ_LOG_DEBUG, "need to go up (%d) directories in %s", dirsUp,
+               out.c_str());
+        break;
+      }
+      out.resize(pos);
+      --dirsUp;
+    }
+
     pos = out.find_last_of(dir_sep);
     if (pos == std::string::npos) {
         // The initial path was something like bin/libproj.so"
