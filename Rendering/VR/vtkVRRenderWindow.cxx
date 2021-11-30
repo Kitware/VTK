@@ -201,7 +201,7 @@ vtkMatrix4x4* vtkVRRenderWindow::GetDeviceToPhysicalMatrixForDeviceHandle(uint32
   {
     return nullptr;
   }
-  return found->second.Pose;
+  return found->second.DeviceToPhysicalMatrix;
 }
 
 uint32_t vtkVRRenderWindow::GetDeviceHandleForDevice(vtkEventDataDevice idx, uint32_t index)
@@ -424,6 +424,24 @@ bool vtkVRRenderWindow::GetDeviceToWorldMatrixForDevice(
   vtkEventDataDevice device, vtkMatrix4x4* deviceToWorldMatrix)
 {
   vtkMatrix4x4* deviceToPhysicalMatrix = this->GetDeviceToPhysicalMatrixForDevice(device);
+
+  if (deviceToPhysicalMatrix)
+  {
+    // we use deviceToWorldMatrix here to temporarily store physicalToWorld
+    // to avoid having to use a temp matrix. We use a new pointer just to
+    // keep the code easier to read.
+    vtkMatrix4x4* physicalToWorldMatrix = deviceToWorldMatrix;
+    this->GetPhysicalToWorldMatrix(physicalToWorldMatrix);
+    vtkMatrix4x4::Multiply4x4(physicalToWorldMatrix, deviceToPhysicalMatrix, deviceToWorldMatrix);
+    return true;
+  }
+  return false;
+}
+
+bool vtkVRRenderWindow::GetDeviceToWorldMatrixForDeviceHandle(
+  uint32_t handle, vtkMatrix4x4* deviceToWorldMatrix)
+{
+  vtkMatrix4x4* deviceToPhysicalMatrix = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
 
   if (deviceToPhysicalMatrix)
   {

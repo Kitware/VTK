@@ -7,6 +7,7 @@ set(classes
   vtkVRControlsHelper
   vtkVRFollower
   vtkVRHardwarePicker
+  vtkVRHMDCamera
   vtkVRInteractorStyle
   vtkVRMenuRepresentation
   vtkVRMenuWidget

@@ -170,6 +170,11 @@ void vtkOpenXRRenderWindow::Render()
     return;
   }
 
+  if (this->TrackHMD)
+  {
+    this->UpdateHMDMatrixPose();
+  }
+
   if (xrManager->GetShouldRenderCurrentFrame())
   {
     // Start rendering
@@ -181,6 +186,44 @@ void vtkOpenXRRenderWindow::Render()
   }
 
   xrManager->EndFrame();
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRRenderWindow::UpdateHMDMatrixPose()
+{
+  auto handle = this->GetDeviceHandleForOpenXRHandle(vtkOpenXRManager::ControllerIndex::Head);
+  auto device = this->GetDeviceForOpenXRHandle(vtkOpenXRManager::ControllerIndex::Head);
+  this->AddDeviceHandle(handle, device);
+
+  // use left eye as stand in for HMD right now
+  // todo add event for head pose
+
+  const XrPosef* xrPose = vtkOpenXRManager::GetInstance()->GetViewPose(LEFT_EYE);
+  if (xrPose == nullptr)
+  {
+    vtkErrorMacro(<< "No pose for left eye");
+    return;
+  }
+  // Convert a XrPosef to a vtk view matrix
+  vtkMatrix4x4* hmdToPhysicalMatrix = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
+  vtkOpenXRUtilities::SetMatrixFromXrPose(hmdToPhysicalMatrix, *xrPose);
+
+  // update the camera values based on the pose
+  vtkNew<vtkMatrix4x4> d2wMat;
+  this->GetDeviceToWorldMatrixForDeviceHandle(handle, d2wMat);
+
+  vtkRenderer* ren;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ((ren = this->Renderers->GetNextRenderer(rit)))
+  {
+    vtkVRCamera* cam = vtkVRCamera::SafeDownCast(ren->GetActiveCamera());
+    cam->SetCameraFromDeviceToWorldMatrix(d2wMat, this->GetPhysicalScale());
+    if (ren->GetLightFollowCamera())
+    {
+      ren->UpdateLightsGeometryToFollowCamera();
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -353,6 +396,10 @@ vtkEventDataDevice vtkOpenXRRenderWindow::GetDeviceForOpenXRHandle(uint32_t ohan
   if (ohandle == vtkOpenXRManager::ControllerIndex::Right)
   {
     return vtkEventDataDevice::RightController;
+  }
+  if (ohandle == vtkOpenXRManager::ControllerIndex::Head)
+  {
+    return vtkEventDataDevice::HeadMountedDisplay;
   }
 
   return vtkEventDataDevice::Unknown;

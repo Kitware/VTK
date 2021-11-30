@@ -144,7 +144,7 @@ public:
   /**
    * Convert an OpenVR pose struct to a vtkMatrix4x4 object.
    */
-  void CreateMatrixFromVrPose(vtkMatrix4x4* result, const vr::TrackedDevicePose_t& vrPose);
+  void SetMatrixFromOpenVRPose(vtkMatrix4x4* result, const vr::TrackedDevicePose_t& vrPose);
 
   /**
    * Get the openVR Render Models

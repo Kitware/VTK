@@ -80,7 +80,7 @@ protected:
   vtkOpenGLHelper ModelHelper;
   vtkOpenGLVertexBufferObject* ModelVBO;
   vtkNew<vtkTextureObject> TextureObject;
-  vtkNew<vtkMatrix4x4> PoseMatrix;
+  vtkNew<vtkMatrix4x4> ModelToProjectionMatrix;
 
   // Controller ray
   vtkNew<vtkVRRay> Ray;

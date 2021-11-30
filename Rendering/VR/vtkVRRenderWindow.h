@@ -167,6 +167,8 @@ public:
    */
   virtual bool GetDeviceToWorldMatrixForDevice(
     vtkEventDataDevice device, vtkMatrix4x4* deviceToWorldMatrix);
+  virtual bool GetDeviceToWorldMatrixForDeviceHandle(
+    uint32_t handle, vtkMatrix4x4* deviceToWorldMatrix);
 
   /**
    * Initialize the HMD to World setting and camera settings so that the VR
@@ -412,7 +414,7 @@ protected:
   {
   public:
     vtkSmartPointer<vtkVRModel> Model;
-    vtkNew<vtkMatrix4x4> Pose;
+    vtkNew<vtkMatrix4x4> DeviceToPhysicalMatrix;
     vtkEventDataDevice Device = vtkEventDataDevice::Unknown;
     uint32_t Index = 0;
   };

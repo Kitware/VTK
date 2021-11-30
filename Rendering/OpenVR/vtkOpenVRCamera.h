@@ -24,42 +24,21 @@
 
 #include "vtkNew.h"                   // ivars
 #include "vtkRenderingOpenVRModule.h" // For export macro
-#include "vtkTransform.h"             // ivars
-#include "vtkVRCamera.h"
+#include "vtkVRHMDCamera.h"
 
 class vtkRenderer;
-class vtkVRRenderWindow;
-class vtkMatrix3x3;
 class vtkMatrix4x4;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRCamera : public vtkVRCamera
+class VTKRENDERINGOPENVR_EXPORT vtkOpenVRCamera : public vtkVRHMDCamera
 {
 public:
   static vtkOpenVRCamera* New();
-  vtkTypeMacro(vtkOpenVRCamera, vtkVRCamera);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
+  vtkTypeMacro(vtkOpenVRCamera, vtkVRHMDCamera);
 
   /**
    * Implement base class method.
    */
   void Render(vtkRenderer* ren) override;
-
-  void GetKeyMatrices(vtkRenderer* ren, vtkMatrix4x4*& WCVCMatrix, vtkMatrix3x3*& normalMatrix,
-    vtkMatrix4x4*& VCDCMatrix, vtkMatrix4x4*& WCDCMatrix) override;
-
-  /**
-   * Provides a matrix to go from absolute OpenVR tracking coordinates
-   * to device coordinates. Used for rendering devices.
-   */
-  void GetTrackingToDCMatrix(vtkMatrix4x4*& TCDCMatrix) override;
-
-  // apply the left or right eye pose to the camera
-  // position and focal point.  Factor is typically
-  // 1.0 to add or -1.0 to subtract
-  void ApplyEyePose(vtkVRRenderWindow*, bool left, double factor);
-
-  // Get the VR Physical Space to World coordinate matrix
-  vtkTransform* GetPhysicalToWorldTransform() { return this->PoseTransform.Get(); }
 
 protected:
   vtkOpenVRCamera();
@@ -67,20 +46,19 @@ protected:
 
   // gets the pose and projections for the left and right eyes from
   // the openvr library
-  void GetHMDEyePoses(vtkRenderer*);
-  void GetHMDEyeProjections(vtkRenderer*);
+  void UpdateHMDToEyeMatrices(vtkRenderer*);
+  void UpdateWorldToEyeMatrices(vtkRenderer*) override;
+  void UpdateEyeToProjectionMatrices(vtkRenderer*) override;
 
-  double LeftEyePose[3];
-  double RightEyePose[3];
-  vtkMatrix4x4* LeftEyeProjection;
-  vtkMatrix4x4* RightEyeProjection;
+  // all the matrices below are stored in VTK convention
+  // as A = Mx where x is a column vector.
 
-  vtkMatrix4x4* LeftEyeTCDCMatrix;
-  vtkMatrix4x4* RightEyeTCDCMatrix;
+  // we get these from OpenVR
+  vtkNew<vtkMatrix4x4> HMDToLeftEyeMatrix;
+  vtkNew<vtkMatrix4x4> HMDToRightEyeMatrix;
 
-  // used to translate the
-  // View to the HMD space
-  vtkNew<vtkTransform> PoseTransform;
+  // used as part of the calculation
+  vtkNew<vtkMatrix4x4> PhysicalToHMDMatrix;
 
 private:
   vtkOpenVRCamera(const vtkOpenVRCamera&) = delete;
