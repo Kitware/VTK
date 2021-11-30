@@ -45,6 +45,8 @@
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <atomic> // For std::atomic
+#include <memory> // for std::weak_ptr
+#include <mutex>  // for std::mutex
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -52,6 +54,8 @@ class vtkGarbageCollector;
 class vtkGarbageCollectorToObjectBaseFriendship;
 class vtkWeakPointerBase;
 class vtkWeakPointerBaseToObjectBaseFriendship;
+template <typename T>
+class vtkWeakPtr;
 
 // typedefs for malloc and free compatible replacement functions
 typedef void* (*vtkMallocingFunction)(size_t);
@@ -195,7 +199,7 @@ public:
    * has the same effect as invoking Delete() (i.e., it reduces the
    * reference count by 1).
    */
-  // XXX(virtual): VTK_DEPRECATED_IN_9_2_0("Override `UsesGarbageCollector()` instead")
+  // XXX(virtual): VTK_DEPRECATED_IN_9_7_0("Override `UsesGarbageCollector()` instead")
   virtual void UnRegister(vtkObjectBase* o);
 
   /// @{
@@ -305,6 +309,25 @@ private:
   static void SetUsingMemkind(bool);
   bool IsInMemkind;
   void SetIsInMemkind(bool);
+
+  ///@{
+  template <typename T>
+  friend class vtkWeakPtr;
+  struct WeakControlBlock
+  {
+    WeakControlBlock(vtkObjectBase* obj)
+      : Object(obj)
+    {
+    }
+
+    vtkObjectBase* Object;
+    std::mutex Mutex;
+  };
+  bool TryUpgradeRegister(vtkObjectBase* o);
+  std::shared_ptr<WeakControlBlock> GetWeakControlBlock();
+  std::mutex WeakBlockMutex;
+  std::weak_ptr<WeakControlBlock> WeakBlock;
+  ///@}
 
   ///@{
   /**

@@ -31,6 +31,7 @@ public:
   {
     return vtkGarbageCollector::TakeReference(obj);
   }
+  static std::mutex* WeakPtrMutex() { return vtkGarbageCollector::WeakPtrMutex(); }
 };
 
 class vtkObjectBaseToWeakPointerBaseFriendship
@@ -297,8 +298,84 @@ void vtkObjectBase::RegisterInternal(vtkObjectBase*, vtkTypeBool check)
   // count.
   if (!(check && vtkObjectBaseToGarbageCollectorFriendship::TakeReference(this)))
   {
+    // Unlike `vtkObjectBase::TryUpgradeRegister`, here it is assumed that the
+    // caller has a strong reference, so adding a new one is safe. That is,
+    // this never increments with a present value of `0`.
     this->ReferenceCount++;
   }
+}
+
+class vtkGarbageCollectorWeakMutexGuard
+{
+public:
+  vtkGarbageCollectorWeakMutexGuard() = default;
+  ~vtkGarbageCollectorWeakMutexGuard()
+  {
+    if (this->mtx)
+    {
+      this->mtx->unlock();
+    }
+  }
+
+  void Guard(std::mutex* mutex)
+  {
+    if (this->mtx)
+    {
+      // Logic error; this is never supposed to happen.
+      assert(false);
+      return;
+    }
+
+    if (!mutex)
+    {
+      return;
+    }
+
+    this->mtx = mutex;
+    this->mtx->lock();
+  }
+
+private:
+  std::mutex* mtx{ nullptr };
+};
+
+//------------------------------------------------------------------------------
+// Only called from `vtkWeakPtr::Lock` to craft a strong reference from any
+// existing reference, but give up if all other strong references are gone.
+//
+// Coordinates with the `this->WeakBlock` manipulation lock in
+// `vtkObjectBase::UnRegisterInternal` with `vtkWeakPtr::Lock`.
+bool vtkObjectBase::TryUpgradeRegister(vtkObjectBase* o)
+{
+  vtkGarbageCollectorWeakMutexGuard guard;
+  if (this->UsesGarbageCollector())
+  {
+    guard.Guard(vtkObjectBaseToGarbageCollectorFriendship::WeakPtrMutex());
+  }
+
+  auto current = this->ReferenceCount.load(std::memory_order_relaxed);
+  while (current != 0 // Do not craft a reference on a doomed object.
+    && !this->ReferenceCount.compare_exchange_weak(
+         current, current + 1, std::memory_order_acquire, std::memory_order_relaxed))
+  {
+  }
+
+  if (!current)
+  {
+    // A new reference has to come from somewhere, but none exists, so it is
+    // not possible.
+    return false;
+  }
+
+  // Use the from-thin-air reference we made to make a *proper* reference
+  // letting subclasses that are interested know.
+  this->Register(o);
+
+  // Remove the from-thin-air reference we created above.
+  --this->ReferenceCount;
+
+  // A new reference was successfully created.
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -328,6 +405,21 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
       }
       delete[] this->WeakPointers;
     }
+
+    // This does not need to occur under the `WeakBlockMutex` because the only
+    // instance where we're here is where the last strong reference is going
+    // away. Any accessors trying to make a `vtkWeakPtr` from this instance has
+    // an unowned pointer to this object which is not allowed. Leave such
+    // situations with all the pieces they deserve.
+    if (auto block = this->WeakBlock.lock())
+    {
+      std::lock_guard<std::mutex> block_guard(block->Mutex);
+      (void)block_guard;
+
+      // We're going down, so inject `nullptr` into the control block.
+      block->Object = nullptr;
+    }
+
 #ifdef VTK_DEBUG_LEAKS
     vtkDebugLeaks::DestructClass(this);
 #endif
@@ -515,5 +607,21 @@ void vtkObjectBase::vtkMemkindRAII::Restore()
 #ifdef VTK_USE_MEMKIND
   vtkObjectBase::SetUsingMemkind(this->OriginalValue);
 #endif
+}
+
+//------------------------------------------------------------------------------
+std::shared_ptr<vtkObjectBase::WeakControlBlock> vtkObjectBase::GetWeakControlBlock()
+{
+  std::lock_guard<std::mutex> guard(this->WeakBlockMutex);
+  (void)guard;
+
+  auto block = this->WeakBlock.lock();
+  if (!block)
+  {
+    block = std::make_shared<WeakControlBlock>(this);
+    this->WeakBlock = block;
+  }
+
+  return block;
 }
 VTK_ABI_NAMESPACE_END
