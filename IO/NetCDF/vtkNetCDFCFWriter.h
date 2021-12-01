@@ -90,6 +90,18 @@ public:
   /**
    * Add/clear attributes that define the grid mapping (or the coordinate
    * reference system (CRS))
+   *
+   * To obtain the correct CF conventions attribute names and values
+   * when knowing the EPSG code use projinfo <epsg_code> This will
+   * print the WKT string. From that you can get the attribute names
+   * and values you need for CF convention.. The WKT attribute names
+   * are fairly close to CF convention attribute names.  The following
+   * link also helps with the conversion.
+   * <a
+   * href="https://github.com/cf-convention/cf-conventions/wiki/Mapping-from-CF-Grid-Mapping-Attributes-to-CRS-WKT-Elements">CF
+   * Grid Mapping to WKT</a> See also <a
+   * href="http://cfconventions.org/Data/cf-conventions/cf-conventions-1.9/cf-conventions.html#appendix-grid-mappings">CF
+   * Grid Mapping</a> for the attributes needed for each projection.
    */
   void AddGridMappingAttribute(const char* name, const char* value);
   void AddGridMappingAttribute(const char* name, double value);
