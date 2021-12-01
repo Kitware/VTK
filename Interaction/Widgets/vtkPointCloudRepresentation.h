@@ -150,6 +150,7 @@ public:
    * These methods are necessary to make this representation behave as
    * a vtkProp (i.e., support rendering).
    */
+  void GetActors(vtkPropCollection* pc) override;
   void GetActors2D(vtkPropCollection* pc) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
