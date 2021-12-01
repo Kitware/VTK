@@ -540,7 +540,11 @@ static int vtkWrapPython_IsValueWrappable(
     {
       return 1;
     }
-    if (vtkWrap_IsObject(val) && vtkWrap_IsClassWrapped(hinfo, aClass))
+    if (vtkWrap_IsVTKSmartPointer(val))
+    {
+      return 1;
+    }
+    else if (vtkWrap_IsObject(val) && vtkWrap_IsClassWrapped(hinfo, aClass))
     {
       return 1;
     }

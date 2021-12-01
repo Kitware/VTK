@@ -31,7 +31,6 @@ resulting in wrapper code that is faster and more compact.
 #include "PyVTKEnum.h"
 #include "PyVTKObject.h"
 #include "PyVTKTemplate.h"
-#include "vtkObjectBase.h"
 #include "vtkPythonUtil.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 
@@ -195,6 +194,15 @@ public:
     v = (T*)vtkPythonArgs::GetArgAsVTKObject(o, classname, b);
     return b;
   }
+  ///@}
+
+  ///@{
+  /**
+   * Get the next argument as a vtkObjectBase derived type,
+   * and put into a smart pointer.
+   */
+  bool GetVTKObject(vtkSmartPointerBase& v, const char* classname);
+  bool GetVTKObject(PyObject* o, vtkSmartPointerBase& v, const char* classname);
   ///@}
 
   ///@{
@@ -518,6 +526,12 @@ public:
    * If a null pointer is given, then None will be returned.
    */
   static PyObject* BuildVTKObject(const void* v);
+
+  /**
+   * Build a vtkObjectBase object from a smart pointer.
+   * If pointer is empty, then None will be returned.
+   */
+  static PyObject* BuildVTKObject(vtkSmartPointerBase& v);
 
   /**
    * Build a non-vtkObjectBase object of the specified type.
