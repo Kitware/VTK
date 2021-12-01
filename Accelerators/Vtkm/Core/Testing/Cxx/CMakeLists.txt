@@ -11,7 +11,13 @@ if (TARGET vtkm::cuda)
   #cuda in the test directory
   enable_language(CUDA)
   foreach(src IN LISTS tests)
-    set_source_files_properties(${src}.cxx PROPERTIES LANGUAGE "CUDA")
+    string(REPLACE "," ";" src ${src})
+    list(GET src 0 src)
+
+    set_source_files_properties(${src} PROPERTIES
+      LANGUAGE CUDA
+      CUDA_SOURCE_PROPERTY_FORMAT OBJ
+      CUDA_SEPARABLE_COMPILATION ON)
   endforeach()
 
   #the tests aren't scoped as a child directory of vtkAcceleratorsVTKmCore
@@ -32,5 +38,8 @@ vtk_test_cxx_executable(vtkAcceleratorsVTKmCoreCxxTests tests
 if (TARGET vtkm::cuda)
   # When cuda is enabled VTK::AcceleratorsVTKmCore is built statically but with fpic
   # enabled so the tests are also built with fpic enabled
-  set_target_properties(vtkAcceleratorsVTKmCoreCxxTests PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(vtkAcceleratorsVTKmCoreCxxTests PROPERTIES
+    CUDA_ARCHITECTURES OFF
+    POSITION_INDEPENDENT_CODE ON
+    )
 endif()

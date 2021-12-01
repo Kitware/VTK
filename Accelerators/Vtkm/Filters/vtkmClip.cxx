@@ -38,7 +38,6 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/RuntimeDeviceTracker.h>
 
 #include <algorithm>
 
@@ -124,9 +123,6 @@ vtkImplicitFunction* vtkmClip::GetClipFunction()
 int vtkmClip::RequestData(
   vtkInformation*, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
-  vtkm::cont::ScopedRuntimeDeviceTracker tracker(
-    vtkm::cont::DeviceAdapterTagCuda{}, vtkm::cont::RuntimeDeviceTrackerMode::Disable);
-
   vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
   vtkInformation* outInfo = outInfoVec->GetInformationObject(0);
 

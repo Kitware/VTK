@@ -14,6 +14,8 @@
 ##
 ##=============================================================================
 
+set(VTKm_NO_DEPRECATED_VIRTUAL ON)
+
 list(INSERT CMAKE_MODULE_PATH 0
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
@@ -63,13 +65,7 @@ if (TARGET vtkm::cuda)
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 endif ()
 
-set(force_static)
-if (TARGET vtkm::cuda AND BUILD_SHARED_LIBS)
-  set(force_static FORCE_STATIC)
-endif ()
-
 vtk_module_add_module(VTK::AcceleratorsVTKmFilters
-  ${force_static}
   SOURCES ${sources}
   HEADERS ${headers}
   CLASSES ${classes})
@@ -88,9 +84,16 @@ vtk_module_link(VTK::AcceleratorsVTKmFilters
     vtkm_filter)
 
 if (TARGET vtkm::cuda)
-  vtk_module_set_property(VTK::AcceleratorsVTKmFilters
-    PROPERTY  CUDA_SEPARABLE_COMPILATION
-    VALUE     ON)
+  list(TRANSFORM classes APPEND ".cxx" OUTPUT_VARIABLE cuda_impl)
+  set_source_files_properties(${cuda_impl} PROPERTIES
+    LANGUAGE CUDA
+    CUDA_SOURCE_PROPERTY_FORMAT OBJ
+    CUDA_SEPARABLE_COMPILATION ON)
+
+  vtk_module_set_properties(VTK::AcceleratorsVTKmFilters
+    LANGUAGE CUDA
+    CUDA_SEPARABLE_COMPILATION ON)
+
   vtk_module_compile_options(VTK::AcceleratorsVTKmFilters
     PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
 endif ()

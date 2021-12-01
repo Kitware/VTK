@@ -120,5 +120,7 @@ int TestVTKMNDHistogram(int, char*[])
     }
     assert(resultFrequency[n] == sa->GetValue(coordinates));
   }
+
+  (void)resultFrequency; // Avoid unused-variable warning when NDEBUG is defined
   return 0;
 }

@@ -31,7 +31,6 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/cont/RuntimeDeviceTracker.h>
 #include <vtkm/filter/Contour.h>
 
 vtkStandardNewMacro(vtkmContour);
@@ -52,9 +51,6 @@ void vtkmContour::PrintSelf(ostream& os, vtkIndent indent)
 int vtkmContour::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkm::cont::ScopedRuntimeDeviceTracker tracker(
-    vtkm::cont::DeviceAdapterTagCuda{}, vtkm::cont::RuntimeDeviceTrackerMode::Disable);
-
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
