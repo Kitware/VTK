@@ -121,6 +121,12 @@ int vtkExplicitStructuredGrid::GetCellType(vtkIdType cellId)
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkExplicitStructuredGrid::GetCellSize(vtkIdType cellId)
+{
+  return this->IsCellVisible(cellId) ? 8 : 0;
+}
+
+//------------------------------------------------------------------------------
 vtkIdType vtkExplicitStructuredGrid::GetNumberOfCells()
 {
   return vtkStructuredData::GetNumberOfCells(this->Extent);

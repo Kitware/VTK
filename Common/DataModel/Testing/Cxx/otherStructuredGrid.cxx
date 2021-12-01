@@ -46,6 +46,14 @@ int TestOSG_0d(ostream& strm)
   sg0D->SetDimensions(1, 1, 1);
   sg0D->SetPoints(onepoints);
 
+  if (sg0D->GetCellSize(0) != 1)
+  {
+    std::cerr << "vtkStructuredGrid::GetCellSize(cellId) wrong for 0D structured grid.\n";
+    return 1;
+  }
+
+  vtkNew<vtkShortArray> shortScalars3D;
+
   vtkNew<vtkShortArray> shortScalars0D;
   shortScalars0D->SetNumberOfComponents(1);
   shortScalars0D->SetNumberOfTuples(1);
@@ -139,6 +147,12 @@ int TestOSG_1dx(ostream& strm)
   }
   sg1Dx->SetDimensions(20, 1, 1);
   sg1Dx->SetPoints(xpoints);
+
+  if (sg1Dx->GetCellSize(0) != 2)
+  {
+    std::cerr << "vtkStructuredGrid::GetCellSize(cellId) wrong for 1D structured grid.\n";
+    return 1;
+  }
 
   vtkNew<vtkShortArray> shortScalars1D;
   shortScalars1D->SetNumberOfComponents(1);
@@ -284,6 +298,12 @@ int TestOSG_1dy(ostream& strm)
   sg1Dy->SetPoints(ypoints);
   strm << *sg1Dy;
 
+  if (sg1Dy->GetCellSize(0) != 2)
+  {
+    std::cerr << "vtkStructuredGrid::GetCellSize(cellId) wrong for 1D structured grid.\n";
+    return 1;
+  }
+
   vtkNew<vtkShortArray> shortScalars1D;
   shortScalars1D->SetNumberOfComponents(1);
   shortScalars1D->SetNumberOfTuples(20);
@@ -426,6 +446,12 @@ int TestOSG_1dz(ostream& strm)
   }
   sg1Dz->SetDimensions(1, 1, 20);
   sg1Dz->SetPoints(zpoints);
+
+  if (sg1Dz->GetCellSize(0) != 2)
+  {
+    std::cerr << "vtkStructuredGrid::GetCellSize(cellId) wrong for 1D structured grid.\n";
+    return 1;
+  }
 
   vtkNew<vtkShortArray> shortScalars1D;
   shortScalars1D->SetNumberOfComponents(1);
@@ -572,6 +598,12 @@ int TestOSG_2dxy(ostream& strm)
   }
   sg2Dxy->SetDimensions(20, 20, 1);
   sg2Dxy->SetPoints(xypoints);
+
+  if (sg2Dxy->GetCellSize(0) != 4)
+  {
+    std::cerr << "vtkStructuredGrid::GetCellSize(cellId) wrong for 2D structured grid.\n";
+    return 1;
+  }
 
   vtkNew<vtkShortArray> shortScalars2D;
   shortScalars2D->SetNumberOfComponents(2);
@@ -723,6 +755,12 @@ int TestOSG_2dxz(ostream& strm)
   sg2Dxz->SetDimensions(20, 1, 20);
   sg2Dxz->SetPoints(xzpoints);
 
+  if (sg2Dxz->GetCellSize(0) != 4)
+  {
+    std::cerr << "vtkStructuredGrid::GetCellSize(cellId) wrong for 2D structured grid.\n";
+    return 1;
+  }
+
   vtkNew<vtkShortArray> shortScalars2D;
   shortScalars2D->SetNumberOfComponents(2);
   shortScalars2D->SetNumberOfTuples(20 * 20);
@@ -873,6 +911,12 @@ int TestOSG_2dyz(ostream& strm)
   }
   sg2Dyz->SetDimensions(1, 20, 20);
   sg2Dyz->SetPoints(yzpoints);
+
+  if (sg2Dyz->GetCellSize(0) != 4)
+  {
+    std::cerr << "vtkStructuredGrid::GetCellSize(cellId) wrong for 2D structured grid.\n";
+    return 1;
+  }
 
   vtkNew<vtkShortArray> shortScalars2D;
   shortScalars2D->SetNumberOfComponents(2);
@@ -1027,6 +1071,12 @@ int TestOSG_3d(ostream& strm)
   }
   sg3D->SetDimensions(20, 20, 20);
   sg3D->SetPoints(xyzpoints);
+
+  if (sg3D->GetCellSize(0) != 8)
+  {
+    std::cerr << "vtkStructuredGrid::GetCellSize(cellId) wrong for 3D structured grid.\n";
+    return 1;
+  }
 
   vtkNew<vtkShortArray> shortScalars3D;
   shortScalars3D->SetNumberOfComponents(3);

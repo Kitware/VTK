@@ -174,6 +174,11 @@ public:
   int GetCellType(vtkIdType cellId) override;
 
   /**
+   * Get the size of the cell with given cellId.
+   */
+  vtkIdType GetCellSize(vtkIdType cellId) override;
+
+  /**
    * Get a list of types of cells in a dataset. The list consists of an array
    * of types (not necessarily in any order), with a single entry per type.
    * For example a dataset with 5 triangles, 3 lines, and 100 hexahedra would

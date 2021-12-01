@@ -54,6 +54,12 @@ int test_rg3d(ostream& strm)
   rg3D->SetYCoordinates(ydata);
   rg3D->SetZCoordinates(zdata);
 
+  if (rg3D->GetCellSize(0) != 8)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCellSize(cellId) wrong for 3D rectilinear grids.\n";
+    return 1;
+  }
+
   vtkNew<vtkShortArray> shortScalars3D;
   shortScalars3D->SetNumberOfComponents(3);
   shortScalars3D->SetNumberOfTuples(20 * 20 * 20);
@@ -209,6 +215,14 @@ int test_rg2d_xy(ostream& strm)
   rg2Dxy->SetXCoordinates(xdata);
   rg2Dxy->SetYCoordinates(ydata);
 
+  if (rg2Dxy->GetCellSize(0) != 4)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCellSize(cellId) wrong for 2D rectilinear grids.\n";
+    return 1;
+  }
+
+  vtkNew<vtkShortArray> shortScalars3D;
+
   vtkNew<vtkShortArray> shortScalars2D;
   shortScalars2D->SetNumberOfComponents(2);
   shortScalars2D->SetNumberOfTuples(20 * 20);
@@ -363,6 +377,14 @@ int test_rg2d_xz(ostream& strm)
   rg2Dxz->SetDimensions(20, 1, 20);
   rg2Dxz->SetXCoordinates(xdata);
   rg2Dxz->SetZCoordinates(zdata);
+
+  if (rg2Dxz->GetCellSize(0) != 4)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCellSize(cellId) wrong for 2D rectilinear grids.\n";
+    return 1;
+  }
+
+  vtkNew<vtkShortArray> shortScalars3D;
 
   vtkNew<vtkShortArray> shortScalars2D;
   shortScalars2D->SetNumberOfComponents(2);
@@ -520,6 +542,14 @@ int test_rg2d_yz(ostream& strm)
   rg2Dyz->SetYCoordinates(ydata);
   rg2Dyz->SetZCoordinates(zdata);
 
+  if (rg2Dyz->GetCellSize(0) != 4)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCellSize(cellId) wrong for 2D rectilinear grids.\n";
+    return 1;
+  }
+
+  vtkNew<vtkShortArray> shortScalars3D;
+
   vtkNew<vtkShortArray> shortScalars2D;
   shortScalars2D->SetNumberOfComponents(2);
   shortScalars2D->SetNumberOfTuples(20 * 20);
@@ -673,6 +703,14 @@ int test_rg1d_x(ostream& strm)
   rg1Dx->SetDimensions(20, 1, 1);
   rg1Dx->SetXCoordinates(xdata);
 
+  if (rg1Dx->GetCellSize(0) != 2)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCellSize(cellId) wrong for 1D rectilinear grids.\n";
+    return 1;
+  }
+
+  vtkNew<vtkShortArray> shortScalars3D;
+
   vtkNew<vtkShortArray> shortScalars1D;
   shortScalars1D->SetNumberOfComponents(1);
   shortScalars1D->SetNumberOfTuples(20);
@@ -822,6 +860,14 @@ int test_rg1d_y(ostream& strm)
   rg1Dy->SetYCoordinates(ydata);
   strm << *rg1Dy;
 
+  if (rg1Dy->GetCellSize(0) != 2)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCellSize(cellId) wrong for 1D rectilinear grids.\n";
+    return 1;
+  }
+
+  vtkNew<vtkShortArray> shortScalars3D;
+
   vtkNew<vtkShortArray> shortScalars1D;
   shortScalars1D->SetNumberOfComponents(1);
   shortScalars1D->SetNumberOfTuples(20);
@@ -970,6 +1016,14 @@ int test_rg1d_z(ostream& strm)
   rg1Dz->SetDimensions(1, 1, 20);
   rg1Dz->SetZCoordinates(zdata);
 
+  if (rg1Dz->GetCellSize(0) != 2)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCellSize(cellId) wrong for 1D rectilinear grids.\n";
+    return 1;
+  }
+
+  vtkNew<vtkShortArray> shortScalars3D;
+
   vtkNew<vtkShortArray> shortScalars1D;
   shortScalars1D->SetNumberOfComponents(1);
   shortScalars1D->SetNumberOfTuples(20);
@@ -1109,6 +1163,14 @@ int test_rg0d(ostream& strm)
   vtkNew<vtkRectilinearGrid> rg0D;
 
   rg0D->SetDimensions(1, 1, 1);
+
+  if (rg0D->GetCellSize(0) != 1)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCellSize(cellId) wrong for 0D rectilinear grids.\n";
+    return 1;
+  }
+
+  vtkNew<vtkShortArray> shortScalars3D;
 
   vtkNew<vtkShortArray> shortScalars0D;
   shortScalars0D->SetNumberOfComponents(1);

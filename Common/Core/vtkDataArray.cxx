@@ -641,7 +641,7 @@ void vtkDataArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstrac
 
   vtkIdType maxSrcTupleId = srcIds->GetId(0);
   vtkIdType maxDstTupleId = dstIds->GetId(0);
-  for (int i = 1; i < dstIds->GetNumberOfIds(); ++i)
+  for (vtkIdType i = 1; i < dstIds->GetNumberOfIds(); ++i)
   {
     maxSrcTupleId = std::max(maxSrcTupleId, srcIds->GetId(i));
     maxDstTupleId = std::max(maxDstTupleId, dstIds->GetId(i));
@@ -692,8 +692,8 @@ void vtkDataArray::InsertTuplesStartingAt(
   }
 
   vtkIdType maxSrcTupleId = srcIds->GetId(0);
-  vtkIdType maxDstTupleId = dstStart + srcIds->GetNumberOfIds();
-  for (int i = 1; i < srcIds->GetNumberOfIds(); ++i)
+  vtkIdType maxDstTupleId = dstStart + srcIds->GetNumberOfIds() - 1;
+  for (vtkIdType i = 1; i < srcIds->GetNumberOfIds(); ++i)
   {
     maxSrcTupleId = std::max(maxSrcTupleId, srcIds->GetId(i));
   }

@@ -868,6 +868,15 @@ vtkIdType vtkDataSet::GetNumberOfElements(int type)
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkDataSet::GetCellSize(vtkIdType cellId)
+{
+  // We allocate a new id list each time so this method is thread-safe
+  vtkNew<vtkIdList> pointIds;
+  this->GetCellPoints(cellId, pointIds);
+  return pointIds->GetNumberOfIds();
+}
+
+//------------------------------------------------------------------------------
 void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
