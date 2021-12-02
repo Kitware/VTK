@@ -250,25 +250,6 @@ vtkChartXY::~vtkChartXY()
 void vtkChartXY::Update()
 {
   // Perform any necessary updates that are not graphical
-  // Check all plot bounds for nans and disable log scale for corresponding axis.
-  double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
-  for (vtkPlot* plot : this->ChartPrivate->plots)
-  {
-    plot->Update();
-    plot->GetBounds(bounds);
-    if (std::isnan(bounds[0] * bounds[1]))
-    {
-      // Disable log scale of X axis.
-      this->GetAxis(vtkAxis::BOTTOM)->SetLogScale(false);
-      this->GetAxis(vtkAxis::TOP)->SetLogScale(false);
-    }
-    if (std::isnan(bounds[2] * bounds[3]))
-    {
-      // Disable log scale of Y axis.
-      this->GetAxis(vtkAxis::LEFT)->SetLogScale(false);
-      this->GetAxis(vtkAxis::RIGHT)->SetLogScale(false);
-    }
-  }
   // Update the plots if necessary
   for (size_t i = 0; i < this->ChartPrivate->plots.size(); ++i)
   {
