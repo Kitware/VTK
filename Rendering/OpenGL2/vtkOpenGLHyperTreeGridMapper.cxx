@@ -30,5 +30,4 @@ vtkOpenGLHyperTreeGridMapper::vtkOpenGLHyperTreeGridMapper()
 void vtkOpenGLHyperTreeGridMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << "internal mapper: " << indent << this->PDMapper;
 }

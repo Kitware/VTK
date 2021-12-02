@@ -14,22 +14,17 @@
 =========================================================================*/
 #include "vtkHyperTreeGridMapper.h"
 
+#include "vtkActor.h"
 #include "vtkAdaptiveDataSetSurfaceFilter.h"
-#include "vtkExecutive.h"
+#include "vtkCamera.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderWindow.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-
-#include "vtkActor.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 vtkObjectFactoryNewMacro(vtkHyperTreeGridMapper);
 
@@ -42,8 +37,29 @@ vtkHyperTreeGridMapper::~vtkHyperTreeGridMapper() = default;
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
+
   if (this->GetMTime() > this->PDMapper->GetMTime())
-  { // forward common internal properties
+  {
+    bool renderAdaptiveGeo = this->UseCameraFrustum;
+    if (renderAdaptiveGeo && !ren->GetActiveCamera()->GetParallelProjection())
+    {
+      // This Adaptive2DGeometryFilter only support ParallelProjection from now on.
+      renderAdaptiveGeo = false;
+      vtkWarningMacro("The UseCameraFrustum requires the camera to use ParallelProjection.");
+    }
+
+    if (renderAdaptiveGeo)
+    {
+      // ensure the camera is accessible in the Adaptive2DGeometryFilter
+      // if we need to cut the geometry using its frustum
+      this->Adaptive2DGeometryFilter->SetRenderer(ren);
+    }
+    else
+    {
+      this->Adaptive2DGeometryFilter->SetRenderer(nullptr);
+    }
+
+    // forward common internal properties
     this->PDMapper->ShallowCopy(this);
     this->PDMapper->SetInputData(this->GetSurfaceFilterInput());
   }

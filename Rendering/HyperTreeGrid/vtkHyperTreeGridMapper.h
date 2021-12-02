@@ -15,12 +15,17 @@
 /**
  * @class   vtkHyperTreeGridMapper
  * @brief   map vtkHyperTreeGrid to graphics primitives
- *
+
  * vtkHyperTreeGridMapper is a class that maps polygonal data (i.e., vtkHyperTreeGrid)
  * to graphics primitives. vtkHyperTreeGridMapper serves as a superclass for
  * device-specific poly data mappers, that actually do the mapping to the
  * rendering/graphics hardware/software.
- *
+
+ * By default, this class use an Adaptive GeometryFilter that extract only
+ * the part of the geometry to render. Be careful as this implies that new
+ * render my trigger an update of the pipeline to get the new part of the
+ * geometry to render.
+
  * Note: this class has its own module to avoid cyclic dependency between Rendering Core
  * and Filters Hybrid
  * * It need Filters Hybrid for Adaptive2DGeometryFilter
@@ -105,7 +110,6 @@ public:
   //@{
   /**
    * Bring this algorithm's outputs up-to-date.
-
    * \link vtkAlgorithm
    */
   using Superclass::Update;
@@ -116,13 +120,12 @@ public:
    * Fill the input port information objects for this algorithm.  This
    * is invoked by the first call to GetInputPortInformation for each
    * port so subclasses can specify what they can handle.
-
    * \link vtkAlgorithm
    */
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
-   * Get the underlingin suface fileter, used to transfom the input HTG
+   * Get the underlying suface filter, used to transfom the input HTG
    * to a PolyData that will be rendered using the PDMapper.
    */
   vtkAlgorithm* GetSurfaceFilter();
