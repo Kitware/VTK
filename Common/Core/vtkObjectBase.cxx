@@ -271,6 +271,14 @@ void vtkObjectBase::SetReferenceCount(int ref)
 }
 
 //------------------------------------------------------------------------------
+// Only meant to be called by specific subclasses for their own reasons.
+void vtkObjectBase::ClearReferenceCounts()
+{
+  this->ReferenceCount = 0;
+  vtkBaseDebugMacro(<< "Reference Count cleared");
+}
+
+//------------------------------------------------------------------------------
 void vtkObjectBase::Register(vtkObjectBase* o)
 {
   // Do not participate in garbage collection by default.

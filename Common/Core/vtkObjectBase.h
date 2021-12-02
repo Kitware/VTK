@@ -288,6 +288,16 @@ private:
   bool IsInMemkind;
   void SetIsInMemkind(bool);
 
+  ///@{
+  /**
+   * Some classes need to clear the reference counts manually due to the way
+   * they work.
+   */
+  friend class vtkInformationKey;
+  friend class vtkGarbageCollector;
+  void ClearReferenceCounts();
+  ///@}
+
 protected:
   vtkObjectBase(const vtkObjectBase&) {}
   void operator=(const vtkObjectBase&) {}

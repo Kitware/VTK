@@ -57,7 +57,8 @@ vtkInformationKey::vtkInformationKey(const char* name, const char* location)
 //------------------------------------------------------------------------------
 vtkInformationKey::~vtkInformationKey()
 {
-  this->SetReferenceCount(0);
+  // Avoid warnings from `vtkObjectBase` destructor.
+  this->ClearReferenceCounts();
   this->SetName(nullptr);
   this->SetLocation(nullptr);
 }
