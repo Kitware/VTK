@@ -313,6 +313,8 @@ The wrappable parameter types are:
 * `T[N][M]` where `T` is a fundamental type, as nested `tuple` or `list`
 * `T*` where `T` is a fundamental type, as `tuple` or `list`
 * `vtkObjectBase*` and derived types, as their respective Python type
+* `vtkSmartPointer<T>` as the Python vtkObjectBase-derived type `T`
+* `std::vector<vtkSmartPointer<T>>` as a sequence of objects of type `T`
 * other wrapped classes (like `vtkVariant`), but not pointers to these types
 * `char*`, as Python `str` via utf-8 encoding/decoding
 * `void*`, as Python buffer (e.g. `bytes` or `bytearray`)
@@ -456,6 +458,30 @@ then the Python method can be passed a mutable sequence (e.g. `list`):
 The value type of the `std::vector<T>` must be `std::string` or a
 fundamental numeric type such as `double` or `int` (including
 `signed char` and `unsigned char` but excluding `char`).
+
+## Smart pointers {#smart-pointers}
+
+The wrappers will automatically convert between C++ `vtkSmartPointer<T>`
+and objects of type `T` (or `None`, if the smart pointer is empty):
+
+    C++: vtkSmartPointer<vtkObject> TakeObject()
+    Python: TakeObject() -> vtkObject
+
+In other words, in Python the smart pointer doesn't look any different
+from the object it points to.  Under the hood, however, the wrappers
+understand that the smart pointer carries a reference to the object and
+will take responsibility for deleting that reference.
+
+A C++ method can return a vector of smart pointers, which will be seen in
+Python as a tuple of objects:
+
+    C++: std::vector<vtkSmartPointer<vtkObject>> GetObjects()
+    Python: GetObject() -> Tuple[vtkObject]
+
+If a C++ method expects `std::vector<vtkSmartPointer<T>>` as a parameter,
+the wrappers will automatically construct the vector from any sequence that
+is passed from Python.  The objects in the sequence must be of type `T` (or
+a subclass of `T`, or `None`).  If not, a `TypeError` will be raised.
 
 ## Pass by Reference {#pass-by-reference}
 
