@@ -61,6 +61,17 @@ int TestNetCDFCFWriter(int argc, char* argv[])
   vtkNew<vtkNetCDFCFWriter> writer;
   writer->SetFileName((tempDirectory + "/okanagan.nc").c_str());
   writer->SetInputConnection(reader->GetOutputPort());
+  writer->AddGridMappingAttribute("grid_mapping_name", "lambert_conformal_conic");
+  writer->AddGridMappingAttribute("standard_parallel", 49);
+  writer->AddGridMappingAttribute("longitude_of_central_meridian", -95);
+  writer->AddGridMappingAttribute("latitude_of_projection_origin", 49);
+  writer->AddGridMappingAttribute("crs_wkt",
+    "PROJCS[\"NAD_1983_Canada_Atlas_Lambert\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_"
+    "American_1983\",SPHEROID[\"GRS_1980\",6378137.0,298.257222101]],PRIMEM[\"Greenwich\",0.0],"
+    "UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Lambert_Conformal_Conic\"],PARAMETER["
+    "\"False_Easting\",0.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-95.0]"
+    ",PARAMETER[\"Standard_Parallel_1\",49.0],PARAMETER[\"Standard_Parallel_2\",77.0],PARAMETER["
+    "\"Latitude_Of_Origin\",49.0],UNIT[\"Meter\",1.0]]");
   writer->SetFillValue(-9999);
   writer->SetAttributeType(vtkDataObject::POINT);
   writer->FillBlankedAttributesOn();
