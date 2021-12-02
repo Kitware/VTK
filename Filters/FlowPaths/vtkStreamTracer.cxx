@@ -99,6 +99,8 @@ vtkStreamTracer::vtkStreamTracer()
 
   this->ForceSerialExecution = false;
   this->SerialExecution = false;
+
+  this->UseLocalSeedSource = true;
 }
 
 //------------------------------------------------------------------------------
@@ -1861,6 +1863,7 @@ void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Force Serial Execution: " << (this->ForceSerialExecution ? " On" : " Off")
      << endl;
+  os << indent << "UseLocalSeedSource: " << (this->UseLocalSeedSource ? "On" : "Off") << endl;
 }
 
 //------------------------------------------------------------------------------

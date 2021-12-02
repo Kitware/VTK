@@ -1385,8 +1385,6 @@ vtkPStreamTracer::vtkPStreamTracer()
     this->Controller->Register(this);
   }
 
-  this->UseLocalSeedSource = true;
-
   this->Interpolator = nullptr;
   this->GenerateNormalsInIntegrate = false;
 

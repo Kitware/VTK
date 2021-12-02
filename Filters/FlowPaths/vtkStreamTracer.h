@@ -456,6 +456,22 @@ public:
     vtkGenericCell* cell, double pcoords[3], vtkDoubleArray* cellVectors, double vorticity[3]);
   ///@}
 
+  ///@{
+  /**
+   * If true the filter considers that the whole seed source is available on all ranks.
+   * Else the filter will aggregate all seed sources from all ranks and merge their points.
+   *
+   * This property only makes sense when the filter is parallelized and is a no-op for its
+   * sequential version. However, this member function needs to be defined in this class to
+   * maintain a uniform interface between vtkStreamTracer and its parallel override class,
+   * vtkPStreamTracer.
+   * Default is true.
+   */
+  vtkSetMacro(UseLocalSeedSource, bool);
+  vtkGetMacro(UseLocalSeedSource, bool);
+  vtkBooleanMacro(UseLocalSeedSource, bool);
+  ///@}
+
 protected:
   vtkStreamTracer();
   ~vtkStreamTracer() override;
@@ -536,6 +552,11 @@ protected:
   std::vector<CustomTerminationCallbackType> CustomTerminationCallback;
   std::vector<void*> CustomTerminationClientData;
   std::vector<int> CustomReasonForTermination;
+
+  // Only relevant for this derived parallel version of vtkStreamTracer,
+  // but needs to be defined in this class to have a uniform interface
+  // betwen this class and the parallel override vtkPStreamTracer
+  bool UseLocalSeedSource;
 
   friend class PStreamTracerUtils;
 
