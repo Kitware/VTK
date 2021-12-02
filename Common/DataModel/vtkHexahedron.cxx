@@ -77,7 +77,7 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
   // Efficient point access
   vtkDoubleArray* ptArray = static_cast<vtkDoubleArray*>(this->Points->GetData());
   const double* pts = ptArray->GetPointer(0);
-  const double *pt0, *pt1, *pt;
+  const double *pt0, *pt1;
 
   // compute a bound on the volume to get a scale for an acceptable determinant
   vtkIdType diagonals[4][2] = { { 0, 6 }, { 1, 7 }, { 2, 4 }, { 3, 5 } };
@@ -113,13 +113,13 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
            tcol[3] = { 0, 0, 0 };
     for (int i = 0; i < 8; i++)
     {
-      pt = pts + 3 * i;
       for (int j = 0; j < 3; j++)
       {
-        fcol[j] += pt[j] * weights[i];
-        rcol[j] += pt[j] * derivs[i];
-        scol[j] += pt[j] * derivs[i + 8];
-        tcol[j] += pt[j] * derivs[i + 16];
+        const double coord = pts[3 * i + j];
+        fcol[j] += coord * weights[i];
+        rcol[j] += coord * derivs[i];
+        scol[j] += coord * derivs[i + 8];
+        tcol[j] += coord * derivs[i + 16];
       }
     }
 

@@ -245,7 +245,7 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3], int&
   // Efficient point access
   vtkDoubleArray* pointArray = static_cast<vtkDoubleArray*>(this->Points->GetData());
   const double* pts = pointArray->GetPointer(0);
-  const double *pt0, *pt1, *pt, *tmp;
+  const double *pt0, *pt1, *tmp;
 
   // There are problems searching for the apex point so we check if
   // we are there first before doing the full parametric inversion.
@@ -319,13 +319,13 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3], int&
            tcol[3] = { 0, 0, 0 };
     for (int i = 0; i < 5; i++)
     {
-      pt = pts + 3 * i;
       for (int j = 0; j < 3; j++)
       {
-        fcol[j] += pt[j] * weights[i];
-        rcol[j] += pt[j] * derivs[i];
-        scol[j] += pt[j] * derivs[i + 5];
-        tcol[j] += pt[j] * derivs[i + 10];
+        const double coord = pts[3 * i + j];
+        fcol[j] += coord * weights[i];
+        rcol[j] += coord * derivs[i];
+        scol[j] += coord * derivs[i + 5];
+        tcol[j] += coord * derivs[i + 10];
       }
     }
 
