@@ -893,18 +893,18 @@ void vtkObject::UnRegisterInternal(vtkObjectBase* o, vtkTypeBool check)
                   << (this->GetReferenceCount() - 1));
   }
 
-  if (this->ReferenceCount == 1)
-  {
-    // The reference count is 1, so the object is about to be deleted.
-    // Invoke the delete event.
-    this->InvokeEvent(vtkCommand::DeleteEvent, nullptr);
-
-    // Clean out observers prior to entering destructor
-    this->RemoveAllObservers();
-  }
-
   // Decrement the reference count.
   this->Superclass::UnRegisterInternal(o, check);
+}
+
+//------------------------------------------------------------------------------
+void vtkObject::ObjectFinalize()
+{
+  // The object is about to be deleted. Invoke the delete event.
+  this->InvokeEvent(vtkCommand::DeleteEvent, nullptr);
+
+  // Clean out observers prior to entering destructor
+  this->RemoveAllObservers();
 }
 
 //------------------------------------------------------------------------------

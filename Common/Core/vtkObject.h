@@ -385,6 +385,14 @@ private:
 
   ///@{
   /**
+   * Hook into the destruction process to send out `DeleteEvent` and remove
+   * observers.
+   */
+  void ObjectFinalize() final;
+  ///@}
+
+  ///@{
+  /**
    * Called by templated variants of AddObserver.
    */
   unsigned long AddTemplatedObserver(
