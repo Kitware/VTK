@@ -58,10 +58,7 @@ public:
   //@{
   /**
    * Data coordinates are relative to this origin. To get the actuall
-   * coordinates data has to be translated with the Offset.  Note this
-   * is an input / output parameter. The value passed as input
-   * parameter is modified and the data is translated such that the
-   * min corner of the data bounding box is at position 0.
+   * coordinates data has to be translated with the Offset.
    */
   vtkSetVector3Macro(Offset, double);
   vtkGetVector3Macro(Offset, double);
@@ -79,6 +76,31 @@ public:
 
   //@{
   /**
+   * Save the tiles (B3DMs) as part of the 3D Tiles dataset. Default true.
+   * Otherwise save only the tileset (JSON) file. This is mainly used for
+   * debugging. Default true.
+   */
+  vtkSetMacro(SaveTiles, bool);
+  vtkGetMacro(SaveTiles, bool);
+  vtkBooleanMacro(SaveTiles, bool);
+  //@
+
+  //@{
+  /**
+   * Merge all meshes in each tile to end up with one mesh per tile.
+   * Default is false which means that we expect an external program to merge
+   * the meshes in each tile to improve performance (such as meshoptimizer).
+   * otherwise we merge the polydata in VTK.
+   * @see
+   * https://meshoptimizer.org/
+   */
+  vtkSetMacro(MergeTilePolyData, bool);
+  vtkGetMacro(MergeTilePolyData, bool);
+  vtkBooleanMacro(MergeTilePolyData, bool);
+  //@
+
+  //@{
+  /**
    * What is the ContentType used for tiles. Default is B3DM.
    * For ContentType GLB and GLTF we use 3DTILES_content_gltf extension.
    * For ContentType B3DM and GLB, external programs are needed to convert
@@ -88,17 +110,6 @@ public:
   vtkSetMacro(ContentType, int);
   vtkGetMacro(ContentType, int);
   vtkBooleanMacro(ContentType, int);
-  //@
-
-  //@{
-  /**
-   * Save GLTF (B3DM) files as part of the 3D Tiles dataset. Default true.
-   * Otherwise save only the tileset (JSON) file. This is mainly used for
-   * debugging. Default true.
-   */
-  vtkSetMacro(SaveGLTF, bool);
-  vtkGetMacro(SaveGLTF, bool);
-  vtkBooleanMacro(SaveGLTF, bool);
   //@
 
   //@{
@@ -135,7 +146,8 @@ protected:
   double Offset[3];
   bool SaveTextures;
   int ContentType;
-  bool SaveGLTF;
+  bool SaveTiles;
+  bool MergeTilePolyData;
   int NumberOfBuildingsPerTile;
   char* CRS;
 

@@ -127,7 +127,8 @@ vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
   this->TexturePath = nullptr;
   std::fill(this->Offset, this->Offset + 3, 0);
   this->SaveTextures = true;
-  this->SaveGLTF = true;
+  this->SaveTiles = true;
+  this->MergeTilePolyData = false;
   this->ContentType = B3DM;
   this->NumberOfBuildingsPerTile = 100;
   this->CRS = nullptr;
@@ -185,9 +186,9 @@ void vtkCesium3DTilesWriter::WriteData()
     vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
     treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
 
-    if (this->SaveGLTF)
+    if (this->SaveTiles)
     {
-      treeInformation.SaveGLTF();
+      treeInformation.SaveTiles(this->MergeTilePolyData);
     }
     vtkLog(INFO, "Deleting objects ...");
   }
