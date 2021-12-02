@@ -14,13 +14,11 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkOpenVRInteractorStyle.h"
 
-#include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenVRControlsHelper.h"
 #include "vtkOpenVROverlay.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
-#include "vtkVRControlsHelper.h"
 
 vtkStandardNewMacro(vtkOpenVRInteractorStyle);
 

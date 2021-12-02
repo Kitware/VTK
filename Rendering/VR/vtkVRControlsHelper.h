@@ -32,18 +32,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include <string>                 // for std::string
 
 class vtkActor;
-class vtkProperty;
-class vtkPolyData;
-class vtkPolyDataMapper;
-class vtkCellArray;
-class vtkPoints;
-class vtkTextActor3D;
-class vtkTransform;
-
+class vtkCallbackCommand;
 class vtkLineSource;
 class vtkPolyDataMapper;
 class vtkRenderer;
-class vtkCallbackCommand;
+class vtkTextActor3D;
+class vtkTransform;
 
 class VTKRENDERINGVR_EXPORT vtkVRControlsHelper : public vtkProp
 {

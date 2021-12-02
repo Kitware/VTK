@@ -18,13 +18,8 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 =========================================================================*/
 #include "vtkVRRenderer.h"
 
-#include "vtkObjectFactory.h"
-
-#include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkImageCanvasSource2D.h"
-#include "vtkInformation.h"
-#include "vtkNew.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkTexture.h"

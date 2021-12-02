@@ -17,20 +17,10 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 
 =========================================================================*/
 #include "vtkOpenXRRenderer.h"
-#include "vtkOpenXRCamera.h"
 
+#include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-
-#include "vtkActor.h"
-#include "vtkImageCanvasSource2D.h"
-#include "vtkInformation.h"
-#include "vtkNew.h"
-#include "vtkPlaneSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkTexture.h"
-#include "vtkTransform.h"
-
-#include "vtkOpenXRRenderWindow.h"
+#include "vtkOpenXRCamera.h"
 
 vtkStandardNewMacro(vtkOpenXRRenderer);
 

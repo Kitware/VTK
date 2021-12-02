@@ -23,7 +23,6 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRModel_h
 #define vtkOpenVRModel_h
 
-#include "vtkNew.h"                   // for ivar
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkVRModel.h"
 #include <openvr.h> // for ivars

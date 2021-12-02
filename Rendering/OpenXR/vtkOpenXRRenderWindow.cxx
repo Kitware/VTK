@@ -18,21 +18,15 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 =========================================================================*/
 #include "vtkOpenXRRenderWindow.h"
 
-#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLError.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
-#include "vtkOpenXRCamera.h"
 #include "vtkOpenXRManager.h"
 #include "vtkOpenXRModel.h"
 #include "vtkOpenXRRenderWindowInteractor.h"
 #include "vtkOpenXRRenderer.h"
 #include "vtkOpenXRUtilities.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkTransform.h"
+#include "vtkVRCamera.h"
 
 // include what we need for the helper window
 #ifdef _WIN32

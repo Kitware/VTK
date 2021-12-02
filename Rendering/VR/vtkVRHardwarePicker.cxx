@@ -16,7 +16,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkCamera.h"
 #include "vtkCommand.h"
-#include "vtkDataObject.h"
 #include "vtkHardwareSelector.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"

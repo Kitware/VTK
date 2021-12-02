@@ -14,20 +14,12 @@
 #include "vtkOpenVRDefaultOverlay.h"
 
 #include "vtkCallbackCommand.h"
-#include "vtkInteractorStyle3D.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenVRCamera.h"
-#include "vtkOpenVRRenderWindow.h"
-#include "vtkOpenVRRenderWindowInteractor.h"
+#include "vtkOpenVROverlayInternal.h"
 #include "vtkOpenVRRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkTextureObject.h"
 
-#include <cmath>
 #include <sstream>
-
-#include "vtkOpenVROverlayInternal.h"
 
 vtkStandardNewMacro(vtkOpenVRDefaultOverlay);
 

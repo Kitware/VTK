@@ -13,19 +13,12 @@
 
 =========================================================================*/
 #include "vtkOpenXRRenderWindowInteractor.h"
-#include "vtkNew.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
-#include "vtkOpenXR.h"
 #include "vtkOpenXRInteractorStyle.h"
-#include "vtkOpenXRManager.h"
 #include "vtkOpenXRRenderWindow.h"
-#include "vtkRendererCollection.h"
-
-#include "vtkEventData.h"
-
 #include "vtkOpenXRUtilities.h"
-#include "vtkTransform.h"
 
 #include "vtk_jsoncpp.h"
 #include <vtksys/FStream.hxx>

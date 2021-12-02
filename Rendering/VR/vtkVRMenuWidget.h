@@ -29,8 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkEventData;
 class vtkVRMenuRepresentation;
-class vtkPropMap;
-class vtkProp;
 
 class VTKRENDERINGVR_EXPORT vtkVRMenuWidget : public vtkAbstractWidget
 {

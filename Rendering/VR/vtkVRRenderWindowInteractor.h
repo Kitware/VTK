@@ -21,13 +21,13 @@
 #define vtkVRRenderWindowInteractor_h
 
 #include "vtkEventData.h" // for ivar
-#include "vtkMatrix4x4.h" // for ivar
 #include "vtkNew.h"       // for ivar
 #include "vtkRenderWindowInteractor3D.h"
 #include "vtkRenderingVRModule.h" // for export macro
 
 #include <string> // for ivar
 
+class vtkMatrix4x4;
 class vtkVRRenderWindow;
 
 class VTKRENDERINGVR_EXPORT vtkVRRenderWindowInteractor : public vtkRenderWindowInteractor3D
@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkVRRenderWindowInteractor();
-  ~vtkVRRenderWindowInteractor() override = default;
+  ~vtkVRRenderWindowInteractor() override;
 
   ///@{
   /**

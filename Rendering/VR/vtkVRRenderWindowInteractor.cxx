@@ -14,24 +14,9 @@
 =========================================================================*/
 #include "vtkVRRenderWindowInteractor.h"
 
-#include "vtkActor.h"
-#include "vtkCommand.h"
-#include "vtkEventData.h"
 #include "vtkMatrix4x4.h"
-#include "vtkNew.h"
-#include "vtkObjectFactory.h"
-#include "vtkOpenGLState.h"
 #include "vtkRendererCollection.h"
-#include "vtkTextureObject.h"
-#include "vtkTransform.h"
-#include "vtkVRInteractorStyle.h"
 #include "vtkVRRenderWindow.h"
-
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <vtksys/SystemTools.hxx>
 
 void (*vtkVRRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*)) nullptr;
 void* vtkVRRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
@@ -45,6 +30,9 @@ vtkVRRenderWindowInteractor::vtkVRRenderWindowInteractor()
     this->DeviceInputDownCount[i] = 0;
   }
 }
+
+// not default due to vtkNew
+vtkVRRenderWindowInteractor::~vtkVRRenderWindowInteractor(){};
 
 //------------------------------------------------------------------------------
 void vtkVRRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)

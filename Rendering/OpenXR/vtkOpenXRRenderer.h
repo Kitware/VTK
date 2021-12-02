@@ -25,8 +25,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenXRModule.h" // For export macro
 #include "vtkVRRenderer.h"
 
-class vtkActor;
-
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderer : public vtkVRRenderer
 {
 public:

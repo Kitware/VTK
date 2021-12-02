@@ -14,22 +14,13 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkVRRenderWindow.h"
 
-#include "vtkMatrix4x4.h"
-#include "vtkObjectFactory.h"
-#include "vtkOpenGLError.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
-#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 #include "vtkVRCamera.h"
 #include "vtkVRModel.h"
 #include "vtkVRRenderer.h"
-
-#include <cstring>
-#include <memory>
 
 // include what we need for the helper window
 #ifdef WIN32

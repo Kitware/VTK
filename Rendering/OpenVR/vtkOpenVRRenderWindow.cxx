@@ -18,39 +18,14 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 =========================================================================*/
 #include "vtkOpenVRRenderWindow.h"
 
-#include "vtkCommand.h"
-#include "vtkFloatArray.h"
-#include "vtkIdList.h"
-#include "vtkMath.h"
 #include "vtkMatrix4x4.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLError.h"
-#include "vtkOpenGLIndexBufferObject.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkOpenGLVertexArrayObject.h"
-#include "vtkOpenGLVertexBufferObject.h"
-#include "vtkOpenVRCamera.h"
 #include "vtkOpenVRDefaultOverlay.h"
 #include "vtkOpenVRModel.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
-#include "vtkOpenVRRenderer.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
-#include "vtkShaderProgram.h"
-#include "vtkSmartPointer.h"
-#include "vtkTextureObject.h"
-#include "vtkTransform.h"
-
-#include <cmath>
-#include <sstream>
+#include "vtkVRCamera.h"
 
 vtkStandardNewMacro(vtkOpenVRRenderWindow);
 
