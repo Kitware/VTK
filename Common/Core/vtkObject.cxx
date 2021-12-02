@@ -171,7 +171,7 @@ vtkObject::~vtkObject()
 
   // warn user if reference counting is on and the object is being referenced
   // by another object
-  if (this->ReferenceCount > 0)
+  if (this->GetReferenceCount() > 0)
   {
     vtkErrorMacro(<< "Trying to delete object with non-zero reference count.");
   }
@@ -867,11 +867,11 @@ void vtkObject::RegisterInternal(vtkObjectBase* o, vtkTypeBool check)
   if (o)
   {
     vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o
-                  << "), ReferenceCount = " << this->ReferenceCount + 1);
+                  << "), ReferenceCount = " << this->GetReferenceCount() + 1);
   }
   else
   {
-    vtkDebugMacro(<< "Registered by nullptr, ReferenceCount = " << this->ReferenceCount + 1);
+    vtkDebugMacro(<< "Registered by nullptr, ReferenceCount = " << this->GetReferenceCount() + 1);
   }
 
   // Increment the reference count.
@@ -885,11 +885,12 @@ void vtkObject::UnRegisterInternal(vtkObjectBase* o, vtkTypeBool check)
   if (o)
   {
     vtkDebugMacro(<< "UnRegistered by " << o->GetClassName() << " (" << o
-                  << "), ReferenceCount = " << (this->ReferenceCount - 1));
+                  << "), ReferenceCount = " << (this->GetReferenceCount() - 1));
   }
   else
   {
-    vtkDebugMacro(<< "UnRegistered by nullptr, ReferenceCount = " << (this->ReferenceCount - 1));
+    vtkDebugMacro(<< "UnRegistered by nullptr, ReferenceCount = "
+                  << (this->GetReferenceCount() - 1));
   }
 
   if (this->ReferenceCount == 1)
