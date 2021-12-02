@@ -143,6 +143,8 @@ vtkPlot* vtkChartPie::AddPlot(int /* type */)
   {
     this->Private->Plot = vtkSmartPointer<vtkPlotPie>::New();
     this->AddItem(this->Private->Plot);
+    // Ensure legend remains on top
+    this->Raise(this->GetItemIndex(this->Legend));
   }
   return this->Private->Plot;
 }
@@ -156,6 +158,8 @@ void vtkChartPie::SetPlot(vtkPlotPie* plot)
   }
   this->Private->Plot = plot;
   this->AddItem(this->Private->Plot);
+  // Ensure legend remains on top
+  this->Raise(this->GetItemIndex(this->Legend));
   this->Modified();
 }
 
