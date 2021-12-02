@@ -296,7 +296,7 @@ vtkMultiBlockDataSet* GetDataSet(const int dimension, const int numPartitions, c
   //  mbds->ShallowCopy( gridPartitioner->GetOutput() );
 
   vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(gridPartitioner->GetOutput());
-  mbds->SetReferenceCount(mbds->GetReferenceCount() + 1);
+  mbds->Register(nullptr);
   ApplyFieldsToDataSet(mbds, "COMPUTED");
 
   wholeGrid->Delete();
