@@ -480,15 +480,13 @@ static int vtkWrapPython_IsValueWrappable(
   /* wrap std::vector<T> (IsScalar means "not pointer or array") */
   if (vtkWrap_IsStdVector(val) && vtkWrap_IsScalar(val))
   {
-    size_t l, n;
-    const char* tname;
-    const char** args;
-    const char* defaults[2] = { NULL, "" };
     int wrappable = 0;
-    vtkParse_DecomposeTemplatedType(val->Class, &tname, 2, &args, defaults);
-    l = vtkParse_BasicTypeFromString(args[0], &baseType, &aClass, &n);
-    /* check that type has no following '*', '[]', or '<>' decorators */
-    if (args[0][l] == '\0')
+    char* arg = vtkWrap_TemplateArg(val->Class);
+    size_t n;
+    size_t l = vtkParse_BasicTypeFromString(arg, &baseType, &aClass, &n);
+
+    /* check that type has no following '*' or '[]' decorators */
+    if (arg[l] == '\0')
     {
       if (baseType != VTK_PARSE_UNKNOWN && baseType != VTK_PARSE_OBJECT &&
         baseType != VTK_PARSE_QOBJECT && baseType != VTK_PARSE_CHAR)
@@ -502,8 +500,16 @@ static int vtkWrapPython_IsValueWrappable(
           }
         }
       }
+      else if (strncmp(arg, "vtkSmartPointer<", 16) == 0)
+      {
+        if (arg[strlen(arg) - 1] == '>')
+        {
+          wrappable = 1;
+        }
+      }
     }
-    vtkParse_FreeTemplateDecomposition(tname, 2, args);
+
+    free(arg);
     return wrappable;
   }
 

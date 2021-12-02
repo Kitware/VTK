@@ -320,7 +320,19 @@ void vtkWrapPython_GetSingleArgument(
   }
   else if (vtkWrap_IsStdVector(arg))
   {
-    fprintf(fp, "%sGetArray(%stemp%d.data(), temp%d.size())", prefix, argname, i, i);
+    char* valuetype = vtkWrap_TemplateArg(arg->Class);
+    if (strncmp(valuetype, "vtkSmartPointer<", 16) == 0)
+    {
+      char* classname = vtkWrap_TemplateArg(valuetype);
+      fprintf(
+        fp, "%sGetArray(%stemp%d.data(), temp%d.size(), \"%s\")", prefix, argname, i, i, classname);
+      free(classname);
+    }
+    else
+    {
+      fprintf(fp, "%sGetArray(%stemp%d.data(), temp%d.size())", prefix, argname, i, i);
+    }
+    free(valuetype);
   }
 }
 
