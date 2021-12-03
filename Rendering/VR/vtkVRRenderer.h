@@ -63,7 +63,7 @@ public:
   /**
    * Abstract function that creates a new Camera suitable for use with this type of Renderer.
    */
-  vtkCamera* MakeCamera() override = 0;
+  VTK_NEWINSTANCE vtkCamera* MakeCamera() override = 0;
 
   /**
    * Store in \p transform the floor transform.
