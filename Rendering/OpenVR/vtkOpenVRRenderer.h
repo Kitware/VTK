@@ -34,7 +34,7 @@ public:
   /**
    * Create a new Camera suitable for use with this type of Renderer.
    */
-  vtkCamera* MakeCamera() override;
+  VTK_NEWINSTANCE vtkCamera* MakeCamera() override;
 
 protected:
   vtkOpenVRRenderer() = default;
