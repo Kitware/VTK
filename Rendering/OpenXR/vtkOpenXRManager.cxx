@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenXRUtilities.h"
+#include "vtkWindows.h" // Does nothing if we are not on windows
 
 // include what we need for the helper window
 #ifdef VTK_USE_X
@@ -855,8 +856,8 @@ bool vtkOpenXRManager::CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow
     });
   this->GraphicsBinding = graphicsBindingGLWin32;
 
-  graphicsBindingGLWin32->hDC = reinterpret_cast<HDC>(helperWindow->GetGenericContext());
-  graphicsBindingGLWin32->hGLRC = reinterpret_cast<HGLRC>(helperWindow->GetGenericDisplayId());
+  graphicsBindingGLWin32->hDC = wglGetCurrentDC();
+  graphicsBindingGLWin32->hGLRC = wglGetCurrentContext();
 
 #else
   vtkErrorMacro(<< "Only X11 and Win32 are supported at the moment.");
