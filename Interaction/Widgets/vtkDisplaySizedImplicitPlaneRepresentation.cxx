@@ -61,6 +61,7 @@ vtkDisplaySizedImplicitPlaneRepresentation::vtkDisplaySizedImplicitPlaneRepresen
 
   this->SnappedOrientation = false;
   this->SnapToAxes = false;
+  this->PickCameraFocalInfo = false;
 
   this->LockNormalToCamera = 0;
 
@@ -1591,46 +1592,53 @@ void vtkDisplaySizedImplicitPlaneRepresentation::PushPlane(double d)
 bool vtkDisplaySizedImplicitPlaneRepresentation::PickOrigin(int X, int Y)
 {
   this->ComputeAdaptivePickerTolerance();
-  // first check if we touched the widget
+  // disable picking of widget actors and enable picking of renderer actors
+  this->Picker->PickFromListOff();
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
-  if (path == nullptr) // widget actors were not touched
+  // enable picking of widget actors and disable picking of renderer actors
+  this->Picker->PickFromListOn();
+  if (path == nullptr) // actors of renderer were not touched
   {
-    // disable picking of widget actors and enable picking of renderer actors
-    this->Picker->PickFromListOff();
-    path = this->GetAssemblyPath(X, Y, 0., this->Picker);
-    // enable picking of widget actors and disable picking of renderer actors
-    this->Picker->PickFromListOn();
-    if (path == nullptr) // actors of renderer were not touched
+    if (this->PickCameraFocalInfo)
     {
-      return false;
-    }
-    else
-    {
-      double pos[3];
-      this->Picker->GetPickPosition(pos);
-      this->SetOrigin(pos);
+      vtkCamera* camera = this->Renderer->GetActiveCamera();
+      if (!camera)
+      {
+        return false;
+      }
+      double cameraFP[4];
+      camera->GetFocalPoint(cameraFP);
+      cameraFP[3] = 1.0;
+      this->Renderer->SetWorldPoint(cameraFP);
+      this->Renderer->WorldToDisplay();
+      double* displayCoord = this->Renderer->GetDisplayPoint();
+
+      // Handle display to world conversion
+      double display[3] = { (double)X, (double)Y, displayCoord[2] };
+      this->Renderer->SetDisplayPoint(display);
+      this->Renderer->DisplayToWorld();
+      const double* world = this->Renderer->GetWorldPoint();
+      double newOrigin[3];
+      for (int i = 0; i < 3; i++)
+      {
+        newOrigin[i] = world[i] / world[3];
+      }
+      this->SetOrigin(newOrigin);
       this->BuildRepresentation();
-      return true;
     }
+    return this->PickCameraFocalInfo;
   }
   else
   {
-    vtkProp* prop = path->GetFirstNode()->GetViewProp();
-    if (prop == this->PlaneActor) // if plane actor was touched
-    {
-      double pos[3];
-      this->Picker->GetPickPosition(pos);
-      this->SetOrigin(pos);
-      this->BuildRepresentation();
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+    double pos[3];
+    this->Picker->GetPickPosition(pos);
+    this->SetOrigin(pos);
+    this->BuildRepresentation();
+    return true;
   }
 }
 
+//------------------------------------------------------------------------------
 bool vtkDisplaySizedImplicitPlaneRepresentation::PickNormal(int X, int Y)
 {
   static constexpr double PI_2 = vtkMath::Pi() / 2.0f;
@@ -1642,7 +1650,19 @@ bool vtkDisplaySizedImplicitPlaneRepresentation::PickNormal(int X, int Y)
   this->Picker->PickFromListOn();
   if (path == nullptr) // actors of renderer were not touched
   {
-    return false;
+    if (this->PickCameraFocalInfo)
+    {
+      vtkCamera* camera = this->Renderer->GetActiveCamera();
+      if (!camera)
+      {
+        return false;
+      }
+      double vpn[3];
+      camera->GetViewPlaneNormal(vpn);
+      this->SetNormal(vpn);
+      this->BuildRepresentation();
+    }
+    return this->PickCameraFocalInfo;
   }
   else
   {

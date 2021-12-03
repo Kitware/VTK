@@ -71,16 +71,14 @@ vtkDisplaySizedImplicitPlaneWidget::vtkDisplaySizedImplicitPlaneWidget()
     vtkWidgetEvent::EndScale, this, vtkDisplaySizedImplicitPlaneWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this,
     vtkDisplaySizedImplicitPlaneWidget::MoveAction);
-  // vtkWidgetEvent::AddPoint was used as a placeholder because ModifyEvent was not sufficient
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'o', 1,
-    "o", vtkWidgetEvent::AddPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickOriginAction);
+    "o", vtkWidgetEvent::PickPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickOriginAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'O', 1,
-    "O", vtkWidgetEvent::AddPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickOriginAction);
-  // vtkWidgetEvent::AddFinalPoint was used as a placeholder because ModifyEvent was not sufficient
+    "O", vtkWidgetEvent::PickPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickOriginAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'n', 1,
-    "n", vtkWidgetEvent::AddFinalPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickNormalAction);
+    "n", vtkWidgetEvent::PickNormal, this, vtkDisplaySizedImplicitPlaneWidget::PickNormalAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'N', 1,
-    "N", vtkWidgetEvent::AddFinalPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickNormalAction);
+    "N", vtkWidgetEvent::PickNormal, this, vtkDisplaySizedImplicitPlaneWidget::PickNormalAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 30, 1,
     "Up", vtkWidgetEvent::Up, this, vtkDisplaySizedImplicitPlaneWidget::MovePlaneAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 28, 1,
@@ -202,7 +200,7 @@ void vtkDisplaySizedImplicitPlaneWidget::PickOriginAction(vtkAbstractWidget* w)
 
   // Invoke all the events associated with moving the plane
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
-  auto newOriginPicked = self->GetDisplaySizedImplicitPlaneRepresentation()->PickOrigin(X, Y);
+  bool newOriginPicked = self->GetDisplaySizedImplicitPlaneRepresentation()->PickOrigin(X, Y);
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
@@ -223,7 +221,7 @@ void vtkDisplaySizedImplicitPlaneWidget::PickNormalAction(vtkAbstractWidget* w)
 
   // Invoke all the events associated with moving the plane
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
-  auto newNormalPicked = self->GetDisplaySizedImplicitPlaneRepresentation()->PickNormal(X, Y);
+  bool newNormalPicked = self->GetDisplaySizedImplicitPlaneRepresentation()->PickNormal(X, Y);
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);

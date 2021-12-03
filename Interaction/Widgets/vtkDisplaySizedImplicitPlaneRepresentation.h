@@ -152,7 +152,7 @@ public:
   ///@{
   /**
    * Turn on/off the ability to translate the bounding box by grabbing it
-   * with the left mouse button.
+   * with the left mouse button. Default is off.
    */
   vtkSetMacro(OutlineTranslation, vtkTypeBool);
   vtkGetMacro(OutlineTranslation, vtkTypeBool);
@@ -336,9 +336,22 @@ public:
    */
   void PushPlane(double distance);
 
+  ///@{
+  /**
+   * Enable/Disable picking camera focal info if no result is available for PickOrigin and
+   * PickNormal. The default is disabled.
+   */
+  vtkGetMacro(PickCameraFocalInfo, bool);
+  vtkSetMacro(PickCameraFocalInfo, bool);
+  vtkBooleanMacro(PickCameraFocalInfo, bool);
+  ///@}
+
   /**
    * Given the X, Y display coordinates, pick a new origin for the plane
-   * from a point that is either on the objects rendered by the renderer or the plane.
+   * from a point that is on the objects rendered by the renderer.
+   *
+   * Note: if a point from a rendered object is not picked, the camera focal point can optionally be
+   * set.
    */
   bool PickOrigin(int X, int Y);
 
@@ -346,8 +359,8 @@ public:
    * Given the X, Y display coordinates, pick a new normal for the plane
    * from a point that is on the objects rendered by the renderer.
    *
-   * Note: when picking a normal, widget actors are ignored, so that we can combine
-   * PickOrigin and PickNormal.
+   * Note: if a normal from a rendered object is not picked, the camera plane normal can optionally
+   * be set.
    */
   bool PickNormal(int X, int Y);
 
@@ -468,6 +481,8 @@ protected:
   bool SnapToAxes;
 
   bool AlwaysSnapToNearestAxis;
+
+  bool PickCameraFocalInfo;
 
   // Locking normal to camera
   vtkTypeBool LockNormalToCamera;
