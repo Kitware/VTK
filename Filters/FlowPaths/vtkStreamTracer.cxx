@@ -1629,8 +1629,9 @@ void vtkStreamTracer::Integrate(vtkPointData* input0Data, vtkPolyData* output,
   const int VTK_ST_THREADING_THRESHOLD = 8;
   if (numSeeds < VTK_ST_THREADING_THRESHOLD || this->SerialExecution)
   { // Serial
-    vtkSMPTools::LocalScope(vtkSMPTools::Config{ static_cast<std::string>("Sequential") },
-      [&]() { vtkSMPTools::For(0, numSeeds, ti); });
+    ti.Initialize();
+    ti(0, numSeeds);
+    ti.Reduce();
   }
   else
   {
