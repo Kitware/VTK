@@ -22,7 +22,7 @@
 #ifndef vtkDeprecation_h
 #define vtkDeprecation_h
 
-#include "vtkVersion.h"
+#include "vtkVersionMacros.h"
 
 //----------------------------------------------------------------------------
 // These macros may be used to deprecate APIs in VTK. They act as attributes on
