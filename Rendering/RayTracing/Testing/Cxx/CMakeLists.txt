@@ -56,6 +56,7 @@ if (VTK_ENABLE_OSPRAY)
     TestOSPRayBoxWidget2.cxx
     TestOSPRayImplicitPlaneWidget2.cxx
     TestOSPRayPointCloudWidget.cxx
+    TestOSPRayPointHandleRepresentation3D.cxx
     TestOSPRaySplineWidget2.cxx
   )
 endif()
