@@ -115,3 +115,8 @@ bool vtkCommand::EventHasData(unsigned long event)
       return false;
   }
 }
+
+const char* vtkCommand::GetDebugClassName() const
+{
+  return "vtkCommand or subclass";
+}

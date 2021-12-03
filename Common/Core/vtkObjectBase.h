@@ -159,7 +159,7 @@ public:
   }
 
   // Called by implementations of vtkObject::New(). Centralized location for
-  // vtkDebugLeaks registration:
+  // vtkDebugLeaks registration.
   void InitializeObjectBase();
 
 #if defined(_WIN32) || defined(VTK_USE_MEMKIND)
@@ -297,6 +297,9 @@ private:
   friend class vtkGarbageCollector;
   void ClearReferenceCounts();
   ///@}
+
+  friend class vtkDebugLeaks;
+  virtual const char* GetDebugClassName() const;
 
 protected:
   vtkObjectBase(const vtkObjectBase&) {}

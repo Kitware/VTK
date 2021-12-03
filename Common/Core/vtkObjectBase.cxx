@@ -344,6 +344,12 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
 }
 
 //------------------------------------------------------------------------------
+const char* vtkObjectBase::GetDebugClassName() const
+{
+  return this->GetClassName();
+}
+
+//------------------------------------------------------------------------------
 void vtkObjectBase::ReportReferences(vtkGarbageCollector*)
 {
   // vtkObjectBase has no references to report.

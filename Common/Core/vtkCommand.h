@@ -475,6 +475,9 @@ protected:
   {
   }
   void operator=(const vtkCommand&) {}
+
+private:
+  const char* GetDebugClassName() const final;
 };
 
 #endif /* vtkCommand_h */
