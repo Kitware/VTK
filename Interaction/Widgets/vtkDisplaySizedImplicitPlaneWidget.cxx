@@ -71,10 +71,10 @@ vtkDisplaySizedImplicitPlaneWidget::vtkDisplaySizedImplicitPlaneWidget()
     vtkWidgetEvent::EndScale, this, vtkDisplaySizedImplicitPlaneWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this,
     vtkDisplaySizedImplicitPlaneWidget::MoveAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'o', 1,
-    "o", vtkWidgetEvent::PickPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickOriginAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'O', 1,
-    "O", vtkWidgetEvent::PickPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickOriginAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'p', 1,
+    "p", vtkWidgetEvent::PickPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickOriginAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'P', 1,
+    "P", vtkWidgetEvent::PickPoint, this, vtkDisplaySizedImplicitPlaneWidget::PickOriginAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'n', 1,
     "n", vtkWidgetEvent::PickNormal, this, vtkDisplaySizedImplicitPlaneWidget::PickNormalAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent, vtkEvent::AnyModifier, 'N', 1,

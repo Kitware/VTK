@@ -49,7 +49,7 @@
  * If the keypress characters are used
  *   'Down/Left' Move plane down
  *   'Up/Right' Move plane up
- *   'O/o' Pick a new origin
+ *   'P/p' Pick a new origin
  *   'N/n' Pick a new normal.
  * In all the cases, independent of what is picked, the widget responds to the following VTK events:
  *   MiddleButtonPressEvent - move the plane
