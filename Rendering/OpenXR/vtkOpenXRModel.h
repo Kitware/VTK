@@ -23,7 +23,6 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenXRModel_h
 #define vtkOpenXRModel_h
 
-#include "vtkNew.h"                   // for ivar
 #include "vtkRenderingOpenXRModule.h" // For export macro
 #include "vtkVRModel.h"
 #include <atomic> // for ivars

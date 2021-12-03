@@ -32,14 +32,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWidgetRepresentation.h"
 #include <deque> // for ivar
 
-class vtkActor;
-class vtkProperty;
-class vtkPolyData;
-class vtkPolyDataMapper;
-class vtkCellArray;
-class vtkPoints;
-class vtkTextActor3D;
-
 class VTKRENDERINGVR_EXPORT vtkVRMenuRepresentation : public vtkWidgetRepresentation
 {
 public:

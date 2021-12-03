@@ -31,7 +31,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWidgetRepresentation.h"
 #include <string> // for ivar
 
-class vtkPicker;
 class vtkTextActor3D;
 
 class VTKRENDERINGVR_EXPORT vtkVRPanelRepresentation : public vtkWidgetRepresentation

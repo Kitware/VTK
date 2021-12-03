@@ -13,12 +13,11 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkVRPanelWidget.h"
-#include "vtkVRPanelRepresentation.h"
 
 #include "vtkCallbackCommand.h"
 #include "vtkEventData.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkVRPanelRepresentation.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 

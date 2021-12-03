@@ -23,8 +23,6 @@
 #include "vtkAvatarRightUpperArm.h" // geometry for arm
 #include "vtkAvatarTorso.h"         // geometry for torso
 #include "vtkBoundingBox.h"
-#include "vtkCamera.h"
-#include "vtkCommand.h"
 #include "vtkFlagpoleLabel.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
@@ -33,14 +31,8 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLState.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
-#include "vtkShaderProgram.h"
 #include "vtkTextProperty.h"
-#include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkVRRay.h"
 #include "vtkVectorOperators.h"

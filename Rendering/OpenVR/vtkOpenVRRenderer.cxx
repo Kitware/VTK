@@ -17,10 +17,10 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 
 =========================================================================*/
 #include "vtkOpenVRRenderer.h"
-#include "vtkOpenVRCamera.h"
 
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenVRCamera.h"
 
 vtkStandardNewMacro(vtkOpenVRRenderer);
 

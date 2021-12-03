@@ -53,14 +53,12 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkOpenVRRenderWindow_h
 
 #include "vtkEventData.h"             // for enums
-#include "vtkOpenGLHelper.h"          // used for ivars
 #include "vtkOpenVROverlay.h"         // used for ivars
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkSmartPointer.h"          // used for ivars
 #include "vtkVRRenderWindow.h"
 
-#include "vtk_glew.h" // used for methods
-#include <openvr.h>   // for ivars
+#include <openvr.h> // for ivars
 
 class vtkMatrix4x4;
 class vtkOpenVRModel;

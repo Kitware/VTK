@@ -31,9 +31,6 @@
 #include <functional> // for std::function
 #include <map>        // for std::map
 
-class vtkOpenXRBooleanActionData;
-class vtkEventData;
-class vtkOpenXRRenderWindow;
 typedef vtkOpenXRManager::Action_t Action_t;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindowInteractor : public vtkVRRenderWindowInteractor

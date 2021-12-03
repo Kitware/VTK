@@ -13,18 +13,13 @@
 =========================================================================*/
 #include "vtkOpenVROverlay.h"
 
-#include "vtkCallbackCommand.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
-#include "vtkInteractorStyle3D.h"
 #include "vtkJPEGReader.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenVRCamera.h"
+#include "vtkOpenVROverlayInternal.h"
 #include "vtkOpenVRRenderWindow.h"
-#include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkPointData.h"
-#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkTextureObject.h"
 #include "vtkXMLDataElement.h"
@@ -32,11 +27,7 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
-#include "vtkOpenVROverlayInternal.h"
-
 #include "OpenVRDashboard.h"
-
-#include <cmath>
 
 vtkStandardNewMacro(vtkOpenVROverlay);
 

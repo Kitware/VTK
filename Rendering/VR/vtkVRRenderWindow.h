@@ -51,9 +51,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkVRRenderWindow_h
 #define vtkVRRenderWindow_h
 
-#include "vtkEventData.h"    // for enums
-#include "vtkNew.h"          // for vtkNew
-#include "vtkOpenGLHelper.h" // used for ivars
+#include "vtkEventData.h" // for enums
+#include "vtkNew.h"       // for vtkNew
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingVRModule.h" // For export macro
 #include "vtkSmartPointer.h"      // for vtkSmartPointer
@@ -63,7 +62,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkCamera;
 class vtkMatrix4x4;
-class vtkTransform;
 class vtkVRModel;
 
 class VTKRENDERINGVR_EXPORT vtkVRRenderWindow : public vtkOpenGLRenderWindow

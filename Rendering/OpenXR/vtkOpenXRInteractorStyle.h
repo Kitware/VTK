@@ -21,10 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkOpenXRInteractorStyle_h
 
 #include "vtkRenderingOpenXRModule.h" // For export macro
-
-#include "vtkEventData.h"          // for enums
-#include "vtkNew.h"                // for ivars
-#include "vtkOpenXRRenderWindow.h" // for enums
 #include "vtkVRInteractorStyle.h"
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRInteractorStyle : public vtkVRInteractorStyle

@@ -23,7 +23,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkVRRenderWindow.h"
-#include "vtkVectorOperators.h"
 
 // TODO
 // - add option to remove crop planes

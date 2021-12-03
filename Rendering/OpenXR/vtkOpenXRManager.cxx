@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkOpenXRManager.h"
-#include "vtkObjectFactory.h"
 
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenXRUtilities.h"
 
@@ -32,11 +32,6 @@ struct vtkXVisualInfo : public XVisualInfo
 {
 };
 #endif // VTK_USE_X
-
-#include <cstring>
-#include <iostream>
-#include <string>
-#include <tuple>
 
 #define VTK_CHECK_NULL_XRHANDLE(handle, msg)                                                       \
   if (handle == XR_NULL_HANDLE)                                                                    \

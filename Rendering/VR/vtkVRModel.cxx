@@ -14,18 +14,13 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkVRModel.h"
 
-#include "vtkInteractorObserver.h"
 #include "vtkMatrix4x4.h"
-#include "vtkObjectFactory.h"
-#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"

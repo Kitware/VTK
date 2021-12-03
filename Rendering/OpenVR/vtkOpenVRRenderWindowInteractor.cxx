@@ -14,24 +14,14 @@
 =========================================================================*/
 #include "vtkOpenVRRenderWindowInteractor.h"
 
-#include "vtkActor.h"
-#include "vtkCommand.h"
-#include "vtkEventData.h"
-#include "vtkNew.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenVRInteractorStyle.h"
 #include "vtkOpenVROverlay.h"
 #include "vtkOpenVRRenderWindow.h"
-#include "vtkRendererCollection.h"
 #include "vtkTextureObject.h"
-#include "vtkTransform.h"
-#include "vtkVRRenderWindow.h"
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkOpenVRRenderWindowInteractor);

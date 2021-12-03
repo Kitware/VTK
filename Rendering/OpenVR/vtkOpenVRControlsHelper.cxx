@@ -14,26 +14,10 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkOpenVRControlsHelper.h"
 
-#include "vtkActor.h"
-#include "vtkCallbackCommand.h"
-#include "vtkCamera.h"
-#include "vtkCellArray.h"
-#include "vtkLineSource.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenVRModel.h"
 #include "vtkOpenVRRenderWindow.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
-#include "vtkTextActor3D.h"
-#include "vtkTextProperty.h"
-#include "vtkTransform.h"
-#include "vtkWindow.h"
-
-#include <string>
 
 vtkStandardNewMacro(vtkOpenVRControlsHelper);
 

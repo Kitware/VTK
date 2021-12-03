@@ -25,8 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkVRModel_h
 #define vtkVRModel_h
 
-#include "vtkEventData.h" // for vtkEventDataDevice
-#include "vtkNew.h"       // for ivar
+#include "vtkNew.h" // for ivar
 #include "vtkObject.h"
 #include "vtkOpenGLHelper.h"      // ivar
 #include "vtkRenderingVRModule.h" // For export macro

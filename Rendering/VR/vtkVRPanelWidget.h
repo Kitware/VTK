@@ -29,8 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingVRModule.h" // For export macro
 
 class vtkVRPanelRepresentation;
-class vtkPropMap;
-class vtkProp;
 
 class VTKRENDERINGVR_EXPORT vtkVRPanelWidget : public vtkAbstractWidget
 {

@@ -52,16 +52,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenXRModule.h" // For export macro
 #include "vtkVRRenderWindow.h"
 
-#include "vtkEventData.h"
-#include "vtkOpenGLHelper.h"
+#include "vtkEventData.h" // for method sig
 #include "vtkOpenXR.h"
-#include "vtkVRRay.h"
 
-#include <array>  // array
-#include <vector> // vector
+#include <array> // array
 
 class vtkMatrix4x4;
-class vtkVRModel;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRRenderWindow : public vtkVRRenderWindow
 {

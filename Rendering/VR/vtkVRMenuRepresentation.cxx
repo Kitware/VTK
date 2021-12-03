@@ -14,30 +14,14 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkVRMenuRepresentation.h"
 
-#include "vtkEventData.h"
-#include "vtkMatrix4x4.h"
-#include "vtkTransform.h"
-#include "vtkVRRenderWindow.h"
-
-#include "vtkActor.h"
-#include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
-#include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
-#include "vtkPickingManager.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor3D.h"
 #include "vtkRenderer.h"
 #include "vtkTextActor3D.h"
 #include "vtkTextProperty.h"
-#include "vtkWindow.h"
-
-#include "vtkSmartPointer.h"
-
+#include "vtkTransform.h"
+#include "vtkVRRenderWindow.h"
 #include "vtkWidgetEvent.h"
 
 vtkStandardNewMacro(vtkVRMenuRepresentation);
