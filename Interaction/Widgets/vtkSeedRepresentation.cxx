@@ -286,3 +286,13 @@ void vtkSeedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Number of Seeds: " << this->GetNumberOfSeeds() << "\n";
 }
+
+//------------------------------------------------------------------------------
+void vtkSeedRepresentation::GetActors(vtkPropCollection* pc)
+{
+  vtkHandleListIterator iter = this->Handles->begin();
+  for (iter; iter != this->Handles->end(); ++iter)
+  {
+    pc->AddItem(*iter);
+  }
+}
