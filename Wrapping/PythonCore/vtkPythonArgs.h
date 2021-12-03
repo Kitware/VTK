@@ -34,7 +34,8 @@ resulting in wrapper code that is faster and more compact.
 #include "vtkPythonUtil.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 
-#include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkCompiler.h"   // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkObjectBase.h" // for vtkObjectBase
 #include "vtkUnicodeString.h"
 
 #include <cassert>
