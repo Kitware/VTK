@@ -401,7 +401,7 @@ public:
    * count by 1).
    */
   void UnRegister();
-  void UnRegister(vtkObjectBase*) override { this->UnRegister(); }
+  using Superclass::UnRegister;
 
   /**
    * All derived classes of vtkCommand must implement this
