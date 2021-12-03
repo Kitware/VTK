@@ -44,6 +44,12 @@ int vtkFindCellStrategy::Initialize(vtkPointSet* ps)
 }
 
 //------------------------------------------------------------------------------
+void vtkFindCellStrategy::CopyParameters(vtkFindCellStrategy* from)
+{
+  this->PointSet = from->PointSet;
+}
+
+//------------------------------------------------------------------------------
 void vtkFindCellStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

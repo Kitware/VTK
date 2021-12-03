@@ -43,8 +43,15 @@ class AbstractPStreamTracerUtils;
 class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
+  ///@{
+  /**
+   * Standard methods to instantiate the class, obtain type information and
+   * print object state.
+   */
+  static vtkPStreamTracer* New();
   vtkTypeMacro(vtkPStreamTracer, vtkStreamTracer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   ///@{
   /**
@@ -55,8 +62,6 @@ public:
   virtual void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
-
-  static vtkPStreamTracer* New();
 
 protected:
   vtkPStreamTracer();

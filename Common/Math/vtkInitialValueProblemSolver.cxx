@@ -16,6 +16,7 @@
 
 #include "vtkFunctionSet.h"
 
+//------------------------------------------------------------------------------
 vtkInitialValueProblemSolver::vtkInitialValueProblemSolver()
 {
   this->FunctionSet = nullptr;
@@ -25,6 +26,7 @@ vtkInitialValueProblemSolver::vtkInitialValueProblemSolver()
   this->Adaptive = 0;
 }
 
+//------------------------------------------------------------------------------
 vtkInitialValueProblemSolver::~vtkInitialValueProblemSolver()
 {
   this->SetFunctionSet(nullptr);
@@ -35,6 +37,7 @@ vtkInitialValueProblemSolver::~vtkInitialValueProblemSolver()
   this->Initialized = 0;
 }
 
+//------------------------------------------------------------------------------
 void vtkInitialValueProblemSolver::SetFunctionSet(vtkFunctionSet* fset)
 {
   if (this->FunctionSet != fset)
@@ -60,6 +63,7 @@ void vtkInitialValueProblemSolver::SetFunctionSet(vtkFunctionSet* fset)
   this->Initialize();
 }
 
+//------------------------------------------------------------------------------
 void vtkInitialValueProblemSolver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -69,6 +73,7 @@ void vtkInitialValueProblemSolver::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Initialized: " << (this->Initialized ? "Yes" : "No") << endl;
 }
 
+//------------------------------------------------------------------------------
 void vtkInitialValueProblemSolver::Initialize()
 {
   if (!this->FunctionSet)

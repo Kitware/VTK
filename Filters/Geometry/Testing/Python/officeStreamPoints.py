@@ -267,4 +267,4 @@ ren1.SetActiveCamera(aCamera)
 renWin.SetSize(500, 300)
 
 iren.Initialize()
-#iren.Start()
+iren.Start()

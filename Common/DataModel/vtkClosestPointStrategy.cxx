@@ -244,7 +244,7 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
     return foundCell;
   }
 
-  // It is possible that the toplogy is not fully connected as points are
+  // It is possible that the toplogy is not fully connected as points may be
   // coincident.  Handle this by looking at every point within the tolerance
   // and consider all cells connected.  It has been suggested that we should
   // really do this coincident point check at every point as we walk through
@@ -271,6 +271,20 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
   // points (if using a point locator approach). In this latter case, a cell
   // locator is necessary.
   return -1;
+}
+
+//------------------------------------------------------------------------------
+void vtkClosestPointStrategy::CopyParameters(vtkFindCellStrategy* from)
+{
+
+  this->Superclass::CopyParameters(from);
+
+  vtkClosestPointStrategy* strategy = vtkClosestPointStrategy::SafeDownCast(from);
+  if (strategy)
+  {
+    this->PointLocator = strategy->PointLocator;
+    this->OwnsLocator = false;
+  }
 }
 
 //------------------------------------------------------------------------------

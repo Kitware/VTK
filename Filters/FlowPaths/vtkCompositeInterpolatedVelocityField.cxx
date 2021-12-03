@@ -36,6 +36,28 @@ vtkCompositeInterpolatedVelocityField::~vtkCompositeInterpolatedVelocityField()
 }
 
 //------------------------------------------------------------------------------
+// Copy the list of datasets to copy from.
+void vtkCompositeInterpolatedVelocityField::CopyParameters(
+  vtkAbstractInterpolatedVelocityField* from)
+{
+  this->Superclass::CopyParameters(from);
+
+  // See if we need to copy our parameters
+  vtkCompositeInterpolatedVelocityField* obj =
+    vtkCompositeInterpolatedVelocityField::SafeDownCast(from);
+  if (!obj)
+  {
+    return;
+  }
+  *(this->DataSets) = *(obj->DataSets);
+
+  // The weights must be copied as well
+  this->WeightsSize = obj->WeightsSize;
+  delete[] this->Weights;
+  this->Weights = new double[obj->WeightsSize];
+}
+
+//------------------------------------------------------------------------------
 void vtkCompositeInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

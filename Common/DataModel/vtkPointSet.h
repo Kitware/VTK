@@ -201,7 +201,7 @@ public:
   ///@{
   /**
    * Set / get an instance of vtkAbstractCellLocator which may be used
-   * when a vtkCellLocatorStrategy is used during a FindCelloperation.
+   * when a vtkCellLocatorStrategy is used during a FindCell() operation.
    */
   virtual void SetCellLocator(vtkAbstractCellLocator*);
   vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);

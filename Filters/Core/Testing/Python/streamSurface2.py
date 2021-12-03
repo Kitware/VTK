@@ -78,3 +78,4 @@ cam.SetPosition( -12.3332, 31.7479, 41.2387 )
 cam.SetViewUp( 0.060772, -0.319905, 0.945498 )
 
 renWin.Render()
+iren.Start()

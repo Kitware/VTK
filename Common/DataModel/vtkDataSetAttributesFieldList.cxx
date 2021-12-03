@@ -301,7 +301,7 @@ void remove_if(Container& cont, ForwardIt first, ForwardIt second, UnaryPredicat
     }
   }
 }
-}
+} // namespace detail
 
 class vtkDataSetAttributesFieldList::vtkInternals
 {
@@ -365,7 +365,26 @@ public:
 
     return nullptr;
   }
-};
+
+  /**
+   * This method can be used to determine if an array with the specified name
+   * exists after intersection or union operations.
+   */
+  detail::FieldInfo* HasArray(const char* name)
+  {
+    for (auto& pair : this->Fields)
+    {
+      auto& fieldInfo = pair.second;
+      if (name != nullptr && fieldInfo.Name == name)
+      {
+        return &fieldInfo;
+      }
+    }
+
+    return nullptr;
+  }
+
+}; // vtkInternals
 
 //------------------------------------------------------------------------------
 vtkDataSetAttributesFieldList::vtkDataSetAttributesFieldList(int vtkNotUsed(number_of_inputs))
@@ -736,6 +755,66 @@ void vtkDataSetAttributesFieldList::TransformData(int inputIndex, vtkDataSetAttr
 vtkSmartPointer<vtkAbstractArray> vtkDataSetAttributesFieldList::CreateArray(int type) const
 {
   return vtkSmartPointer<vtkAbstractArray>::Take(vtkAbstractArray::CreateArray(type));
+}
+
+//------------------------------------------------------------------------------
+int vtkDataSetAttributesFieldList::GetNumberOfArrays()
+{
+  auto& internals = *this->Internals;
+  return static_cast<int>(internals.Fields.size());
+}
+
+//------------------------------------------------------------------------------
+void vtkDataSetAttributesFieldList::BuildPrototype(
+  vtkDataSetAttributes* proto, vtkDataSetAttributes* ordering)
+{
+  // Create data arrays present in this field list and associate them with
+  // the prototype.
+  auto& internals = *this->Internals;
+
+  // Check whether ordering is required.
+  if (ordering == nullptr)
+  {
+    for (auto& pair : internals.Fields)
+    {
+      auto& fieldInfo = pair.second;
+      auto array = this->CreateArray(fieldInfo.Type);
+      array->SetName(fieldInfo.Name.c_str());
+      array->SetNumberOfComponents(fieldInfo.NumberOfComponents);
+      int idx = proto->AddArray(array);
+      for (int attrType = 0; attrType < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attrType)
+      {
+        if (fieldInfo.AttributeTypes[0][attrType])
+        {
+          proto->SetActiveAttribute(idx, attrType);
+          break;
+        }
+      }
+    } // for all fields
+  }
+  else // an ordering of the data arrays is specified
+  {
+    vtkIdType numArrays = ordering->GetNumberOfArrays();
+    for (auto arrayNum = 0; arrayNum < numArrays; ++arrayNum)
+    {
+      detail::FieldInfo* fieldInfo;
+      if ((fieldInfo = this->Internals->HasArray(ordering->GetArrayName(arrayNum))) != nullptr)
+      {
+        auto array = this->CreateArray(fieldInfo->Type);
+        array->SetName(fieldInfo->Name.c_str());
+        array->SetNumberOfComponents(fieldInfo->NumberOfComponents);
+        int idx = proto->AddArray(array);
+        for (int attrType = 0; attrType < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attrType)
+        {
+          if (fieldInfo->AttributeTypes[0][attrType])
+          {
+            proto->SetActiveAttribute(idx, attrType);
+            break;
+          }
+        }
+      }
+    }
+  } // ordering of data arrays
 }
 
 //------------------------------------------------------------------------------
