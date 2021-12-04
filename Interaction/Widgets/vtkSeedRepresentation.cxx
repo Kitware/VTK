@@ -291,7 +291,7 @@ void vtkSeedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 void vtkSeedRepresentation::GetActors(vtkPropCollection* pc)
 {
   vtkHandleListIterator iter = this->Handles->begin();
-  for (iter; iter != this->Handles->end(); ++iter)
+  for (; iter != this->Handles->end(); ++iter)
   {
     pc->AddItem(*iter);
   }
