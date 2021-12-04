@@ -521,7 +521,6 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
               newBounds[2 * i + 1] = bounds[2 * i + 1] + v[i];
             }
 
-            this->Cursor3D->SetModelBounds(newBounds);
             this->SetWorldPosition(newCenterPoint);
           }
         }
