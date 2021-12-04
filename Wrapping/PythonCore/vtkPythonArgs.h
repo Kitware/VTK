@@ -31,6 +31,7 @@ resulting in wrapper code that is faster and more compact.
 #include "PyVTKEnum.h"
 #include "PyVTKObject.h"
 #include "PyVTKTemplate.h"
+#include "vtkObjectBase.h"
 #include "vtkPythonUtil.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 

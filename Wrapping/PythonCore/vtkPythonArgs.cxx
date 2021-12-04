@@ -31,8 +31,6 @@ resulting in wrapper code that is faster and more compact.
 #include "PyVTKReference.h"
 #include "vtkPythonUtil.h"
 
-#include "vtkObjectBase.h"
-
 //------------------------------------------------------------------------------
 // Extract various C++ types from python objects.  The rules are
 // identical to PyArg_ParseTuple except that range checking is done
