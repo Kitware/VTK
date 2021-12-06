@@ -2687,7 +2687,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
   }
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 
-  if ((this->HaveCellScalars) && cellBO.Program->IsUniformUsed("textureC"))
+  if (this->HaveCellScalars && cellBO.Program->IsUniformUsed("textureC"))
   {
     int tunit = this->CellScalarTexture->GetTextureUnit();
     cellBO.Program->SetUniformi("textureC", tunit);

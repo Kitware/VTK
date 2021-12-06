@@ -302,22 +302,6 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
     this->WindowBounds[1] = this->LastCameraFocalPoint[0] + cam->GetParallelScale() * ratio;
     this->WindowBounds[2] = this->LastCameraFocalPoint[1] - cam->GetParallelScale();
     this->WindowBounds[3] = this->LastCameraFocalPoint[1] + cam->GetParallelScale();
-
-#ifndef NDEBUG
-    this->NbRejectByCircle = 0;
-    this->NbRejectByBB = 0;
-
-    std::cerr << "LevelMax        " << this->LevelMax << std::endl;
-    std::cerr << "CircleSelection " << this->CircleSelection << std::endl;
-    std::cerr << "Circle R        " << this->Radius << std::endl;
-    std::cerr << "       CX       " << this->LastCameraFocalPoint[this->Axis1] << std::endl;
-    std::cerr << "       CY       " << this->LastCameraFocalPoint[this->Axis2] << std::endl;
-    std::cerr << "BBSelection     " << this->BBSelection << std::endl;
-    std::cerr << "Bounds X        " << this->WindowBounds[0] << " : " << this->WindowBounds[1]
-              << std::endl;
-    std::cerr << "       Y        " << this->WindowBounds[2] << " : " << this->WindowBounds[3]
-              << std::endl;
-#endif
   }
   else
   {
@@ -423,25 +407,6 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
     output->SetPolys(this->Cells);
   }
 
-#ifndef NDEBUG
-  std::cerr << "vtkAdaptiveDataSetSurfaceFilter #Points            "
-            << this->Points->GetNumberOfPoints() << std::endl;
-  std::cerr << "                                #Cells             "
-            << this->Cells->GetNumberOfCells() << std::endl;
-  std::cerr << "                                #Type&Connectivity "
-            << this->Cells->GetNumberOfConnectivityIds() << std::endl;
-  std::cerr << "                          Cells #NbRejectByBB      " << this->NbRejectByBB
-            << std::endl;
-  std::cerr << "                                #NbRejectByCircle  " << this->NbRejectByCircle
-            << std::endl;
-#endif
-  std::cerr << "vtkAdaptiveDataSetSurfaceFilter #Points            "
-            << this->Points->GetNumberOfPoints() << std::endl;
-  std::cerr << "                                #Cells             "
-            << this->Cells->GetNumberOfCells() << std::endl;
-  std::cerr << "                                #Type&Connectivity "
-            << this->Cells->GetNumberOfConnectivityIds() << std::endl;
-
   this->Points->Delete();
   this->Points = nullptr;
   this->Cells->Delete();
@@ -499,16 +464,6 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTreeNot3D(
         (originAxis1 <= this->WindowBounds[1]) &&
         (originAxis2 + 2 * halfAxis2 >= this->WindowBounds[2]) &&
         (originAxis2 <= this->WindowBounds[3]));
-#ifndef NDEBUG
-      if (!insideBB)
-      {
-        this->NbRejectByBB++;
-      }
-    }
-    else
-    {
-      this->NbRejectByCircle++;
-#endif
     }
   }
   if (insideBB)
