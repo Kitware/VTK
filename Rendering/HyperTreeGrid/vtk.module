@@ -3,10 +3,6 @@ NAME
 LIBRARY_NAME
   vtkRenderingHyperTreeGrid
 IMPLEMENTABLE
-KIT
-  VTK::Rendering
-GROUPS
-  Rendering
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
