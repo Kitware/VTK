@@ -93,7 +93,6 @@
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
 #include <vtkVolumeTexture.h>
-#include <vtkWeakPointer.h>
 
 // C/C++ includes
 #include <cassert>
