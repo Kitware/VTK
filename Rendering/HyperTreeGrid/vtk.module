@@ -12,6 +12,7 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::CommonMath
+  VTK::RenderingCore
+PRIVATE_DEPENDS
   VTK::FiltersHybrid
   VTK::FiltersHyperTree
-  VTK::RenderingCore
