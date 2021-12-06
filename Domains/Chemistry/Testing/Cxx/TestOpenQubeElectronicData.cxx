@@ -20,7 +20,6 @@
 #include "vtkOpenQubeElectronicData.h"
 #include "vtkOpenQubeMoleculeSource.h"
 #include "vtkTestUtilities.h"
-#include "vtkWeakPointer.h"
 
 #include <openqube/basissetloader.h>
 
@@ -32,8 +31,8 @@ int TestOpenQubeElectronicData(int argc, char* argv[])
   oq->SetFileName(fname);
   oq->Update();
 
-  vtkWeakPointer<vtkOpenQubeElectronicData> oqed;
-  oqed = vtkOpenQubeElectronicData::SafeDownCast(oq->GetOutput()->GetElectronicData());
+  vtkOpenQubeElectronicData* oqed =
+    vtkOpenQubeElectronicData::SafeDownCast(oq->GetOutput()->GetElectronicData());
 
   if (!oqed)
   {
