@@ -197,6 +197,7 @@ PlyFile* vtkPLY::ply_open_for_writing(
   if (!ofs->is_open())
   {
     delete ofs;
+    plyCleanUp();
     return (nullptr);
   }
 
@@ -207,6 +208,7 @@ PlyFile* vtkPLY::ply_open_for_writing(
   {
     ofs->close();
     delete ofs;
+    plyCleanUp();
     return (nullptr);
   }
 
