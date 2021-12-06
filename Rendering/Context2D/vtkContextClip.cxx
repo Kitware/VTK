@@ -21,8 +21,6 @@
 #include "vtkTransform2D.h"
 #include "vtkVector.h"
 
-#include <cassert>
-
 vtkStandardNewMacro(vtkContextClip);
 
 //------------------------------------------------------------------------------
@@ -62,9 +60,9 @@ void vtkContextClip::SetClip(float x, float y, float width, float height)
 {
   this->Dims[0] = x;
   this->Dims[1] = y;
-  this->Dims[2] = width;
-  this->Dims[3] = height;
-  assert(width >= 0 && height >= 0);
+  // assure stored width, height are >= 0
+  this->Dims[2] = std::max<float>(0.0, width);
+  this->Dims[3] = std::max<float>(0.0, height);
 }
 
 //------------------------------------------------------------------------------
