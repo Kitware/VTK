@@ -24,9 +24,9 @@
 #ifndef vtkOpenGLHyperTreeGridMapper_h
 #define vtkOpenGLHyperTreeGridMapper_h
 
-#include "vtkHyperTreeGridMapper.h" // Base class
-#include "vtkSetGet.h"              // Get macro
-#include "vtkSmartPointer.h"        // For vtkSmartPointer
+#include "vtkHyperTreeGridMapper.h"
+#include "vtkSetGet.h"       // Get macro
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 

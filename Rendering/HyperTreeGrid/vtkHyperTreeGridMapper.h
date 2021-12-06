@@ -35,7 +35,7 @@
 #ifndef vtkHyperTreeGridMapper_h
 #define vtkHyperTreeGridMapper_h
 
-#include "vtkMapper.h"       // For internal mapper
+#include "vtkMapper.h"
 #include "vtkSetGet.h"       // Get macro
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
