@@ -171,7 +171,7 @@ vtkObject::~vtkObject()
 
   // warn user if reference counting is on and the object is being referenced
   // by another object
-  if (this->ReferenceCount > 0)
+  if (this->GetReferenceCount() > 0)
   {
     vtkErrorMacro(<< "Trying to delete object with non-zero reference count.");
   }
@@ -867,11 +867,11 @@ void vtkObject::RegisterInternal(vtkObjectBase* o, vtkTypeBool check)
   if (o)
   {
     vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o
-                  << "), ReferenceCount = " << this->ReferenceCount + 1);
+                  << "), ReferenceCount = " << this->GetReferenceCount() + 1);
   }
   else
   {
-    vtkDebugMacro(<< "Registered by nullptr, ReferenceCount = " << this->ReferenceCount + 1);
+    vtkDebugMacro(<< "Registered by nullptr, ReferenceCount = " << this->GetReferenceCount() + 1);
   }
 
   // Increment the reference count.
@@ -885,25 +885,26 @@ void vtkObject::UnRegisterInternal(vtkObjectBase* o, vtkTypeBool check)
   if (o)
   {
     vtkDebugMacro(<< "UnRegistered by " << o->GetClassName() << " (" << o
-                  << "), ReferenceCount = " << (this->ReferenceCount - 1));
+                  << "), ReferenceCount = " << (this->GetReferenceCount() - 1));
   }
   else
   {
-    vtkDebugMacro(<< "UnRegistered by nullptr, ReferenceCount = " << (this->ReferenceCount - 1));
-  }
-
-  if (this->ReferenceCount == 1)
-  {
-    // The reference count is 1, so the object is about to be deleted.
-    // Invoke the delete event.
-    this->InvokeEvent(vtkCommand::DeleteEvent, nullptr);
-
-    // Clean out observers prior to entering destructor
-    this->RemoveAllObservers();
+    vtkDebugMacro(<< "UnRegistered by nullptr, ReferenceCount = "
+                  << (this->GetReferenceCount() - 1));
   }
 
   // Decrement the reference count.
   this->Superclass::UnRegisterInternal(o, check);
+}
+
+//------------------------------------------------------------------------------
+void vtkObject::ObjectFinalize()
+{
+  // The object is about to be deleted. Invoke the delete event.
+  this->InvokeEvent(vtkCommand::DeleteEvent, nullptr);
+
+  // Clean out observers prior to entering destructor
+  this->RemoveAllObservers();
 }
 
 //------------------------------------------------------------------------------

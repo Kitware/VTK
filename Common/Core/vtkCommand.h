@@ -401,7 +401,7 @@ public:
    * count by 1).
    */
   void UnRegister();
-  void UnRegister(vtkObjectBase*) override { this->UnRegister(); }
+  using Superclass::UnRegister;
 
   /**
    * All derived classes of vtkCommand must implement this
@@ -475,6 +475,9 @@ protected:
   {
   }
   void operator=(const vtkCommand&) {}
+
+private:
+  const char* GetDebugClassName() const final;
 };
 
 #endif /* vtkCommand_h */

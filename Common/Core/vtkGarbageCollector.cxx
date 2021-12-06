@@ -81,7 +81,8 @@ vtkGarbageCollector::vtkGarbageCollector() = default;
 //------------------------------------------------------------------------------
 vtkGarbageCollector::~vtkGarbageCollector()
 {
-  this->SetReferenceCount(0);
+  // Avoid warnings from `vtkObject` destructor about a non-zero reference count.
+  this->ClearReferenceCounts();
 }
 
 //------------------------------------------------------------------------------

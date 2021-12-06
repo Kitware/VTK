@@ -271,6 +271,14 @@ void vtkObjectBase::SetReferenceCount(int ref)
 }
 
 //------------------------------------------------------------------------------
+// Only meant to be called by specific subclasses for their own reasons.
+void vtkObjectBase::ClearReferenceCounts()
+{
+  this->ReferenceCount = 0;
+  vtkBaseDebugMacro(<< "Reference Count cleared");
+}
+
+//------------------------------------------------------------------------------
 void vtkObjectBase::Register(vtkObjectBase* o)
 {
   // Do not participate in garbage collection by default.
@@ -310,6 +318,9 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
   // Decrement the reference count, delete object if count goes to zero.
   if (--this->ReferenceCount <= 0)
   {
+    // Let subclasses know the object is on its way out.
+    this->ObjectFinalize();
+
     // Clear all weak pointers to the object before deleting it.
     if (this->WeakPointers)
     {
@@ -333,6 +344,15 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
     // or the collector has decided it is time to do a check.
     vtkGarbageCollector::Collect(this);
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkObjectBase::ObjectFinalize() {}
+
+//------------------------------------------------------------------------------
+const char* vtkObjectBase::GetDebugClassName() const
+{
+  return this->GetClassName();
 }
 
 //------------------------------------------------------------------------------

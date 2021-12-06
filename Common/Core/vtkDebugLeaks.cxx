@@ -196,7 +196,7 @@ void vtkDebugLeaksTraceManager::PrintObjects(std::ostream& vtkNotUsed(os)) {}
 void vtkDebugLeaks::ConstructClass(vtkObjectBase* object)
 {
   vtkDebugLeaks::CriticalSection->lock();
-  vtkDebugLeaks::MemoryTable->IncrementCount(object->GetClassName());
+  vtkDebugLeaks::MemoryTable->IncrementCount(object->GetDebugClassName());
   vtkDebugLeaks::TraceManager->RegisterObject(object);
   vtkDebugLeaks::CriticalSection->unlock();
 }
@@ -230,12 +230,21 @@ void vtkDebugLeaks::DestructClass(vtkObjectBase* object)
 
   // Due to globals being deleted, this table may already have
   // been deleted.
+  bool need_warning = false;
   if (vtkDebugLeaks::MemoryTable &&
-    !vtkDebugLeaks::MemoryTable->DecrementCount(object->GetClassName()))
+    !vtkDebugLeaks::MemoryTable->DecrementCount(object->GetDebugClassName()))
+  {
+    // The warning must be deferred until after the critical section because
+    // creating a new instance of `vtkOutputWindow` ends up deadlocking when it
+    // calls `vtkDebugLeaks::ConstructClass`.
+    need_warning = true;
+  }
+  vtkDebugLeaks::CriticalSection->unlock();
+
+  if (need_warning)
   {
     vtkGenericWarningMacro("Deleting unknown object: " << object->GetClassName());
   }
-  vtkDebugLeaks::CriticalSection->unlock();
 }
 #else
 void vtkDebugLeaks::DestructClass(vtkObjectBase* vtkNotUsed(object)) {}
@@ -249,11 +258,20 @@ void vtkDebugLeaks::DestructClass(const char* className)
 
   // Due to globals being deleted, this table may already have
   // been deleted.
+  bool need_warning = false;
   if (vtkDebugLeaks::MemoryTable && !vtkDebugLeaks::MemoryTable->DecrementCount(className))
+  {
+    // The warning must be deferred until after the critical section because
+    // creating a new instance of `vtkOutputWindow` ends up deadlocking when it
+    // calls `vtkDebugLeaks::ConstructClass`.
+    need_warning = true;
+  }
+  vtkDebugLeaks::CriticalSection->unlock();
+
+  if (need_warning)
   {
     vtkGenericWarningMacro("Deleting unknown object: " << className);
   }
-  vtkDebugLeaks::CriticalSection->unlock();
 }
 #else
 void vtkDebugLeaks::DestructClass(const char* vtkNotUsed(className)) {}

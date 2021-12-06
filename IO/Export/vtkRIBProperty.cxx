@@ -48,12 +48,8 @@ vtkRIBProperty::~vtkRIBProperty()
 
 void vtkRIBProperty::Render(vtkActor* anActor, vtkRenderer* ren)
 {
-  int ref;
-
   // Copy this property's ivars into the property to be rendered
-  ref = this->Property->GetReferenceCount();
   this->Property->DeepCopy(this);
-  this->Property->SetReferenceCount(ref);
 
   // Render the property
   this->Property->Render(anActor, ren);

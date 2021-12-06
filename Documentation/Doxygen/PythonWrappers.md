@@ -950,9 +950,7 @@ be extracted before the deletion occurs:
     DeleteEvent <vtkmodules.vtkCommonCore.vtkObject(0x55783870f970) at 0x7f1e61678be0>
 
 In cases where you need to track down tricky memory issues, you might find
-it useful to call the `SetReferenceCount()` and `GetReferenceCount()` methods
-of the object directly.  Of course, direct manipulation of the reference count
-should never be done in production code.
+it useful to call the `GetReferenceCount()` method of the object directly.
 
 ## Ghosts {#ghosts}
 

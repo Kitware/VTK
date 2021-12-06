@@ -16,32 +16,22 @@
 #include "vtkDebug.h"
 #include "vtkDebugLeaks.h"
 
-#ifdef VTK_DEBUG_LEAKS
-static const char* leakname = "vtkCommand or subclass";
-#endif
-
 //----------------------------------------------------------------
 vtkCommand::vtkCommand()
   : AbortFlag(0)
   , PassiveObserver(0)
 {
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass(leakname);
-#endif
+  // This is "too early" to call this because `this->GetClassName()` is not set
+  // up for the subclasses yet. Instead, because `vtkCommand` has a public
+  // constructor, `GetDebugClassName` is implemented to handle this usage
+  // pattern.
+  this->InitializeObjectBase();
 }
 
 //----------------------------------------------------------------
 void vtkCommand::UnRegister()
 {
-  int refcount = this->GetReferenceCount() - 1;
-  this->SetReferenceCount(refcount);
-  if (refcount <= 0)
-  {
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::DestructClass(leakname);
-#endif
-    delete this;
-  }
+  this->UnRegister(nullptr);
 }
 
 //----------------------------------------------------------------
@@ -114,4 +104,9 @@ bool vtkCommand::EventHasData(unsigned long event)
     default:
       return false;
   }
+}
+
+const char* vtkCommand::GetDebugClassName() const
+{
+  return "vtkCommand or subclass";
 }

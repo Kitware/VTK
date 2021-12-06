@@ -159,7 +159,7 @@ public:
   }
 
   // Called by implementations of vtkObject::New(). Centralized location for
-  // vtkDebugLeaks registration:
+  // vtkDebugLeaks registration.
   void InitializeObjectBase();
 
 #if defined(_WIN32) || defined(VTK_USE_MEMKIND)
@@ -277,6 +277,8 @@ protected:
   // Call this to unconditionally call memkind_free
   static vtkFreeingFunction GetAlternateFreeFunction();
 
+  virtual void ObjectFinalize();
+
 private:
   friend VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, vtkObjectBase& o);
   friend class vtkGarbageCollectorToObjectBaseFriendship;
@@ -287,6 +289,19 @@ private:
   static void SetUsingMemkind(bool);
   bool IsInMemkind;
   void SetIsInMemkind(bool);
+
+  ///@{
+  /**
+   * Some classes need to clear the reference counts manually due to the way
+   * they work.
+   */
+  friend class vtkInformationKey;
+  friend class vtkGarbageCollector;
+  void ClearReferenceCounts();
+  ///@}
+
+  friend class vtkDebugLeaks;
+  virtual const char* GetDebugClassName() const;
 
 protected:
   vtkObjectBase(const vtkObjectBase&) {}

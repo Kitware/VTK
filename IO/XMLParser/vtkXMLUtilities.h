@@ -87,9 +87,12 @@ public:
    * Note that you have to call Delete() on the element returned by that
    * function to ensure it is freed properly.
    */
+  VTK_NEWINSTANCE
   static vtkXMLDataElement* ReadElementFromStream(istream&, int encoding = VTK_ENCODING_NONE);
+  VTK_NEWINSTANCE
   static vtkXMLDataElement* ReadElementFromString(
     const char* str, int encoding = VTK_ENCODING_NONE);
+  VTK_NEWINSTANCE
   static vtkXMLDataElement* ReadElementFromFile(
     VTK_FILEPATH const char* filename, int encoding = VTK_ENCODING_NONE);
   ///@}

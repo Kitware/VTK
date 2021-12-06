@@ -394,7 +394,7 @@ vtkXMLDataElement* vtkXMLUtilities::ReadElementFromStream(istream& is, int encod
     res = xml_parser->GetRootElement();
     // Bump up the ref count since we are going to delete the parser
     // which actually owns the element
-    res->SetReferenceCount(res->GetReferenceCount() + 1);
+    res->Register(nullptr);
     vtkXMLUtilities::UnFactorElements(res);
   }
 

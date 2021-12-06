@@ -285,7 +285,7 @@ vtkMultiBlockDataSet* GetDataSet(double globalOrigin[3], int WholeExtent[6], dou
 
   // STEP 3: Get the partitioned dataset
   vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(gridPartitioner->GetOutput());
-  mbds->SetReferenceCount(mbds->GetReferenceCount() + 1);
+  mbds->Register(nullptr);
 
   // STEP 4: Delete temporary data
   wholeGrid->Delete();
