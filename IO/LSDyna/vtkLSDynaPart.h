@@ -183,4 +183,4 @@ private:
   void operator=(const vtkLSDynaPart&) = delete;
 };
 
-#endif // VTKLSDYNAPART
+#endif // vtkLSDynaPart_h

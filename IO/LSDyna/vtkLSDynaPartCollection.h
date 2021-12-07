@@ -157,4 +157,4 @@ private:
   LSDynaPartStorage* Storage;
 };
 
-#endif // LSDYNAPARTS_H
+#endif // vtkLSDynaPartCollection_h
