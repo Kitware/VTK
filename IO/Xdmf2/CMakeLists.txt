@@ -1,10 +1,13 @@
 set(classes
   vtkSILBuilder
   vtkXdmfDataArray
-  vtkXdmfHeavyData
   vtkXdmfReader
-  vtkXdmfReaderInternal
   vtkXdmfWriter)
 
+set(nowrap_classes
+  vtkXdmfHeavyData
+  vtkXdmfReaderInternal)
+
 vtk_module_add_module(VTK::IOXdmf2
-  CLASSES ${classes})
+  CLASSES ${classes}
+  NOWRAP_CLASSES ${nowrap_classes})

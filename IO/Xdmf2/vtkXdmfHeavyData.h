@@ -14,8 +14,6 @@
 =========================================================================*/
 #ifndef vtkXdmfHeavyData_h
 #define vtkXdmfHeavyData_h
-#ifndef __VTK_WRAP__
-#ifndef VTK_WRAPPING_CXX
 
 #include "vtk_xdmf2.h"
 #include VTKXDMF2_HEADER(XdmfDataItem.h)
@@ -157,8 +155,6 @@ private:
   vtkDataSet* ExtractEdges(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 };
 
-#endif
-#endif
 #endif
 
 // VTK-HeaderTest-Exclude: vtkXdmfHeavyData.h
