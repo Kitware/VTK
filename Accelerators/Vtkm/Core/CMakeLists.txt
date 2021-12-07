@@ -18,6 +18,7 @@ list(INSERT CMAKE_MODULE_PATH 0
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
 set(private_headers
+  vtkmFilterPolicy.h
   vtkmlib/DataArrayConverters.hxx
   vtkmlib/Portals.hxx
   vtkmlib/PortalTraits.h)
