@@ -3,6 +3,9 @@ set(classes
   vtkGenericRenderWindowInteractor
 )
 
+set(headers)
+set(nowrap_headers)
+
 # Setup factory overrides and add window system specific render windows.
 if (VTK_USE_X)
   # Add some custom overrides
@@ -32,7 +35,8 @@ elseif (VTK_USE_COCOA)
   endif ()
   list(APPEND sources vtkCocoaRenderWindowInteractor.mm)
   list(APPEND headers
-    vtkCocoaRenderWindowInteractor.h
+    vtkCocoaRenderWindowInteractor.h)
+  list(APPEND nowrap_headers
     vtkCocoaMacOSXSDKCompatibility.h)
   # Set specified Objective-C++ flags, if any.
   if (VTK_REQUIRED_OBJCXX_FLAGS)
@@ -81,6 +85,7 @@ endif ()
 vtk_module_add_module(VTK::RenderingUI
   CLASSES ${classes}
   HEADERS ${headers}
+  NOWRAP_HEADERS ${nowrap_headers}
   SOURCES ${sources} ${vtk_object_factory_source}
   PRIVATE_HEADERS ${vtk_object_factory_header}
   )
