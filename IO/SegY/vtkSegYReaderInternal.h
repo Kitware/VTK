@@ -15,7 +15,6 @@
 
 #ifndef vtkSegYReaderInternal_h
 #define vtkSegYReaderInternal_h
-#ifndef __VTK_WRAP__
 
 #include <fstream>
 #include <string>
@@ -65,6 +64,5 @@ private:
   int SampleCountPerTrace;
 };
 
-#endif
 #endif // vtkSegYReaderInternal_h
 // VTK-HeaderTest-Exclude: vtkSegYReaderInternal.h
