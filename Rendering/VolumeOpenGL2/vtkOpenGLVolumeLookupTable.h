@@ -23,7 +23,6 @@ Copyright and License information
 
 #ifndef vtkOpenGLVolumeLookupTable_h
 #define vtkOpenGLVolumeLookupTable_h
-#ifndef __VTK_WRAP__
 
 #include "vtkObject.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
@@ -121,5 +120,4 @@ private:
   void operator=(const vtkOpenGLVolumeLookupTable&) = delete;
 };
 
-#endif //__VTK_WRAP__
 #endif // vtkOpenGLVolumeLookupTable_h

@@ -15,7 +15,6 @@
 
 #ifndef vtkOpenGLVolumeGradientOpacityTable_h
 #define vtkOpenGLVolumeGradientOpacityTable_h
-#ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
@@ -48,5 +47,4 @@ private:
   void operator=(const vtkOpenGLVolumeGradientOpacityTable&) = delete;
 };
 
-#endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeGradientOpacityTable_h

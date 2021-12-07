@@ -15,7 +15,6 @@
 
 #ifndef vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D_h
 #define vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D_h
-#ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
@@ -64,5 +63,4 @@ private:
   void operator=(const vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D&) = delete;
 };
 
-#endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeMaskTransferFunction2D_h

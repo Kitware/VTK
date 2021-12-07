@@ -15,7 +15,6 @@
 
 #ifndef vtkOpenGLVolumeTransferFunction2D_h
 #define vtkOpenGLVolumeTransferFunction2D_h
-#ifndef __VTK_WRAP__
 
 #include "vtkImageResize.h" // for vtkImageResize
 #include "vtkOpenGLVolumeLookupTable.h"
@@ -74,5 +73,4 @@ private:
   void operator=(const vtkOpenGLVolumeTransferFunction2D&) = delete;
 };
 
-#endif // __VTK_WRAP__
 #endif // vtkOpenGLTransferFunction2D_h

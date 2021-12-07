@@ -24,7 +24,6 @@ Copyright and License information
 
 #ifndef vtkOpenGLVolumeLookupTables_h
 #define vtkOpenGLVolumeLookupTables_h
-#ifndef __VTK_WRAP__
 
 #include "vtkObject.h"
 
@@ -75,6 +74,5 @@ private:
 
 #include "vtkOpenGLVolumeLookupTables.txx" // template implementations
 
-#endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeLookupTables_h
 // VTK-HeaderTest-Exclude: vtkOpenGLVolumeLookupTables.h
