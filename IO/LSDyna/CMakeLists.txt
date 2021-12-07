@@ -1,11 +1,13 @@
 set(classes
   LSDynaFamily
   LSDynaMetaData
-  vtkLSDynaPart
-  vtkLSDynaPartCollection
   vtkLSDynaReader
   vtkLSDynaSummaryParser)
 
+set(nowrap_classes
+  vtkLSDynaPart
+  vtkLSDynaPartCollection)
+
 vtk_module_add_module(VTK::IOLSDyna
   CLASSES ${classes}
-  SOURCES ${sources})
+  NOWRAP_CLASSES ${nowrap_classes})
