@@ -112,8 +112,9 @@ void vtkOpenVRCamera::UpdateEyeToProjectionMatrices(vtkRenderer* ren)
 
   vr::IVRSystem* hMD = win->GetHMD();
 
-  double znear = this->ClippingRange[0];
-  double zfar = this->ClippingRange[1];
+  double scale = win->GetPhysicalScale();
+  double znear = this->ClippingRange[0] / scale;
+  double zfar = this->ClippingRange[1] / scale;
 
   float fxmin, fxmax, fymin, fymax;
   double xmin, xmax, ymin, ymax;

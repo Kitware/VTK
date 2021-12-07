@@ -79,10 +79,13 @@ void vtkOpenXRCamera::UpdateWorldToEyeMatrices(vtkRenderer* ren)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenXRCamera::UpdateEyeToProjectionMatrices(vtkRenderer*)
+void vtkOpenXRCamera::UpdateEyeToProjectionMatrices(vtkRenderer* ren)
 {
-  double znear = this->ClippingRange[0];
-  double zfar = this->ClippingRange[1];
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
+
+  double scale = win->GetPhysicalScale();
+  double znear = this->ClippingRange[0] / scale;
+  double zfar = this->ClippingRange[1] / scale;
 
   XrFovf const* xrFov = vtkOpenXRManager::GetInstance()->GetProjectionFov(LEFT_EYE);
   if (xrFov == nullptr)
