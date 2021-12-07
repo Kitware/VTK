@@ -130,8 +130,11 @@ bool vtkPlotPie::Paint(vtkContext2D* painter)
   {
     painter->GetBrush()->SetColor(this->ColorSeries->GetColorRepeating(i).GetData());
 
-    painter->DrawEllipseWedge(this->Private->CenterX, this->Private->CenterY, this->Private->Radius,
-      this->Private->Radius, 0.0, 0.0, data[2 * i], data[2 * i + 1]);
+    if (data[2 * i + 1] != data[2 * i])
+    {
+      painter->DrawEllipseWedge(this->Private->CenterX, this->Private->CenterY,
+        this->Private->Radius, this->Private->Radius, 0.0, 0.0, data[2 * i], data[2 * i + 1]);
+    }
   }
 
   this->PaintChildren(painter);
