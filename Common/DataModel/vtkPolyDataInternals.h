@@ -57,8 +57,6 @@
 #ifndef vtkPolyDataInternals_h
 #define vtkPolyDataInternals_h
 
-#ifndef __VTK_WRAP__ // Don't wrap this class.
-
 #include "vtkCommonDataModelModule.h" // For export macro
 
 #include "vtkCellType.h"
@@ -286,7 +284,6 @@ private:
 
 } // end namespace vtkPolyData_detail
 
-#endif // __VTK_WRAP__
 #endif // vtkPolyDataInternals.h
 
 // VTK-HeaderTest-Exclude: vtkPolyDataInternals.h

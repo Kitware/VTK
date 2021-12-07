@@ -25,8 +25,6 @@
 
 #include <cassert>
 
-#ifndef __VTK_WRAP__
-
 namespace vtk
 {
 
@@ -269,8 +267,6 @@ private:
 
 }
 } // end namespace vtk::detail
-
-#endif // __VTK_WRAP__
 
 #endif // vtkDataObjectTreeRange_h
 
