@@ -53,7 +53,6 @@ SOFTWARE.
  */
 #ifndef vtkCIEDE2000_h
 #define vtkCIEDE2000_h
-#ifndef __VTK_WRAP__
 
 #include <vector> // needed for std::vector
 
@@ -87,6 +86,5 @@ double GetColorPath(const double rgb1[3], const double rgb2[3], std::vector<Node
   bool forceExactSupportColors);
 }
 
-#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkCIEDE2000.h

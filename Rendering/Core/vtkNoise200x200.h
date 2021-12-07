@@ -15,9 +15,6 @@
 #ifndef vtkNoise200x200_h
 #define vtkNoise200x200_h
 
-#ifndef __VTK_WRAP__
-#ifndef VTK_WRAPPING_CXX
-
 /*
  * Resource generated for file:
  *    noise.vtk (base64) (binary file)
@@ -1565,9 +1562,6 @@ static const unsigned char* file_noise200x200_vtk_sections[4] = { file_noise200x
   file_noise200x200_vtk_section_4 };
 
 static const unsigned int file_noise200x200_vtk_nb_sections = 4;
-
-#endif
-#endif
 
 #endif
 // VTK-HeaderTest-Exclude: vtkNoise200x200.h
