@@ -34,8 +34,6 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkStatisticsAlgorithmPrivate_h
 #define vtkStatisticsAlgorithmPrivate_h
 
-#ifndef __VTK_WRAP__
-
 #include "vtkStdString.h"
 
 #include <set> // used to iterate over internal organs
@@ -180,8 +178,6 @@ public:
   std::set<std::set<vtkStdString>> Requests;
   std::set<vtkStdString> Buffer;
 };
-
-#endif // __VTK_WRAP__
 
 #endif // vtkStatisticsAlgorithmPrivate_h
 
