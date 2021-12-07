@@ -25,9 +25,6 @@
 
 #include <vtksys/SystemTools.hxx>
 
-// Defines VTK_BODR_DATA_PATH
-#include "vtkChemistryConfigure.h"
-
 #include <locale>
 #include <sstream>
 #include <string>

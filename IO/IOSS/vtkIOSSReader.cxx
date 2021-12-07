@@ -1727,7 +1727,6 @@ bool vtkIOSSReader::vtkInternals::ExplodeDGMesh(vtkUnstructuredGrid* dataset,
   }
 
   bool isDGLinear = field_props[3] == "C1";
-  int fieldOrder = field_props[3].at(1) - '0';
   std::string DGCellType = field_props[2];
 
   // if the DG basis used is linear, then we don't need to interpolate new mesh points
