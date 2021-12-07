@@ -184,7 +184,7 @@ HitCellInfo ProcessLimitPoint(vtkVector3d p1, vtkVector3d p2, int pattern, vtkDa
       result.OutT = 0.0;
     }
   }
-  else if (pattern == vtkProbeLineFilter::SamplingPattern::SAMPLE_LINE_AT_CELL_BOUNDARIES)
+  else if (pattern == vtkProbeLineFilter::SAMPLE_LINE_AT_CELL_BOUNDARIES)
   {
     double t, x[3], pcoords[3];
     int id;
