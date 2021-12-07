@@ -204,7 +204,6 @@
 #include "vtkTypeUInt8Array.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
-#include "vtkWeakPointer.h"
 #include "vtkWedge.h"
 
 #if !(defined(_WIN32) && !defined(__CYGWIN__) || defined(__LIBCATAMOUNT__))
@@ -10572,7 +10571,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   if (createEulerians && recreateInternalMesh && this->Parent->GetReadZones())
   {
     vtkSmartPointer<vtkPoints> tmpPoints; // Localized vtkPoints storage
-    vtkWeakPointer<vtkPoints> points;
+    vtkPoints* points;
 
     if (this->InternalMesh != nullptr)
     {
@@ -10667,7 +10666,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   if (createEulerians && moveInternalPoints)
   {
     vtkSmartPointer<vtkPoints> tmpPoints; // Localized vtkPoints storage
-    vtkWeakPointer<vtkPoints> points;
+    vtkPoints* points;
 
     if (this->InternalMesh != nullptr)
     {
