@@ -3,7 +3,9 @@ set(classes
   vtkGLTFImporter
   vtkImporter
   vtkVRMLImporter
-  vtkOBJImporter
+  vtkOBJImporter)
+
+set(nowrap_classes
   vtkOBJImporterInternals)
 
 set(headers
@@ -11,4 +13,5 @@ set(headers
 
 vtk_module_add_module(VTK::IOImport
   CLASSES ${classes}
+  NOWRAP_CLASSES  ${nowrap_classes}
   HEADERS ${headers})
