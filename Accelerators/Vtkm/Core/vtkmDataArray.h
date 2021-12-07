@@ -17,9 +17,6 @@
 //  Laboratory (LANL), the U.S. Government retains certain rights in
 //  this software.
 //============================================================================
-#ifndef __VTK_WRAP__
-#ifndef VTK_WRAPPING_CXX
-
 #ifndef vtkmDataArray_h
 #define vtkmDataArray_h
 
@@ -123,6 +120,4 @@ extern template class VTKACCELERATORSVTKMCORE_TEMPLATE_EXPORT vtkmDataArray<unsi
 
 #include "vtkmlib/vtkmDataArray.hxx"
 
-#endif
-#endif
 // VTK-HeaderTest-Exclude: vtkmDataArray.h

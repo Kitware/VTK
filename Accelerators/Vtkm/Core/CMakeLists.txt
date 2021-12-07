@@ -22,11 +22,8 @@ set(private_headers
   vtkmlib/Portals.hxx
   vtkmlib/PortalTraits.h)
 
-set(impl_classes
-  vtkmDataArray
-  )
-
 set(nowrap_classes
+  vtkmDataArray
   vtkmlib/DataArrayConverters
   vtkmlib/Portals)
 
@@ -38,7 +35,7 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigCore.h"
   @ONLY)
 
-list(APPEND headers
+set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigCore.h")
 
 if (TARGET vtkm::cuda)
@@ -61,7 +58,6 @@ vtk_module_add_module(VTK::AcceleratorsVTKmCore
   HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  CLASSES ${impl_classes}
   NOWRAP_HEADERS  ${nowrap_headers}
   NOWRAP_CLASSES  ${nowrap_classes}
   PRIVATE_HEADERS ${private_headers})
