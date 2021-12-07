@@ -23,8 +23,6 @@
 #ifndef vtkLagrangianThreadedData_h
 #define vtkLagrangianThreadedData_h
 
-#ifndef __VTK_WRAP__
-
 #include "vtkBilinearQuadIntersection.h"
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkGenericCell.h"
@@ -58,8 +56,6 @@ struct VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianThreadedData
 
   ~vtkLagrangianThreadedData() { delete this->BilinearQuadIntersection; }
 };
-
-#endif // __VTK_WRAP__
 
 #endif // vtkLagrangianThreadedData_h
 // VTK-HeaderTest-Exclude: vtkLagrangianThreadedData.h
