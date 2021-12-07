@@ -29,8 +29,6 @@
 #include <iterator>
 #include <type_traits>
 
-#ifndef __VTK_WRAP__
-
 VTK_ITER_OPTIMIZE_START
 
 namespace vtk
@@ -1751,6 +1749,5 @@ TupleRange<ArrayType, TupleSize> DeclareTupleRangeSpecialization(vtkDataArray*);
 VTK_ITER_OPTIMIZE_END
 
 #endif // __VTK_WRAP__
-#endif // vtkDataArrayTupleRange_Generic_h
 
 // VTK-HeaderTest-Exclude: vtkDataArrayTupleRange_Generic.h

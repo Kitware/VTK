@@ -41,7 +41,6 @@
 #include <type_traits> // For std:::enable_if
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-#ifndef __VTK_WRAP__
 namespace vtk
 {
 namespace detail
@@ -223,7 +222,6 @@ using resolvedNotInt = typename std::enable_if<!std::is_integral<T>::value, void
 } // namespace smp
 } // namespace detail
 } // namespace vtk
-#endif // __VTK_WRAP__
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 class VTKCOMMONCORE_EXPORT vtkSMPTools

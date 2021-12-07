@@ -100,8 +100,6 @@
 #ifndef vtkDataArrayAccessor_h
 #define vtkDataArrayAccessor_h
 
-#ifndef __VTK_WRAP__
-
 // Generic form for all (non-bit) vtkDataArray subclasses.
 template <typename ArrayT>
 struct vtkDataArrayAccessor
@@ -200,8 +198,6 @@ struct vtkDataArrayAccessor<vtkDataArray>
     this->Array->InsertTuple(tupleIdx, tuple);
   }
 };
-
-#endif
 
 #endif // vtkDataArrayAccessor_h
 // VTK-HeaderTest-Exclude: vtkDataArrayAccessor.h
