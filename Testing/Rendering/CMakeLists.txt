@@ -4,9 +4,12 @@ set(classes
   vtkTestingObjectFactory)
 
 set(headers
-  vtkMultiBaselineRegressionTest.h
+  vtkMultiBaselineRegressionTest.h)
+
+set(nowrap_headers
   vtkRegressionTestImage.h)
 
 vtk_module_add_module(VTK::TestingRendering
   CLASSES ${classes}
-  HEADERS ${headers})
+  HEADERS ${headers}
+  NOWRAP_HEADERS ${nowrap_headers})
