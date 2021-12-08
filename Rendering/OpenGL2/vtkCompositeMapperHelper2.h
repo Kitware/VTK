@@ -15,8 +15,6 @@
 #ifndef vtkCompositeMapperHelper2_h
 #define vtkCompositeMapperHelper2_h
 
-#ifndef __VTK_WRAP__
-
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 
@@ -173,7 +171,5 @@ private:
   vtkCompositeMapperHelper2(const vtkCompositeMapperHelper2&) = delete;
   void operator=(const vtkCompositeMapperHelper2&) = delete;
 };
-
-#endif
 
 #endif

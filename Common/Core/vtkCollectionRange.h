@@ -16,8 +16,6 @@
 #ifndef vtkCollectionRange_h
 #define vtkCollectionRange_h
 
-#ifndef __VTK_WRAP__
-
 #include "vtkCollection.h"
 #include "vtkMeta.h"
 #include "vtkRange.h"
@@ -236,8 +234,6 @@ private:
 
 }
 } // end namespace vtk::detail
-
-#endif // __VTK_WRAP__
 
 #endif // vtkCollectionRange_h
 

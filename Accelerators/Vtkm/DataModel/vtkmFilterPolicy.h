@@ -16,8 +16,6 @@
 
 #ifndef vtkmFilterPolicy_h
 #define vtkmFilterPolicy_h
-#ifndef __VTK_WRAP__
-#ifndef VTK_WRAPPING_CXX
 
 #include "vtkmConfigDataModel.h" //required for general vtkm setup
 
@@ -42,7 +40,5 @@ public:
   using AllCellSetList = tovtkm::CellListAllOutVTK;
 };
 
-#endif
-#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkmFilterPolicy.h

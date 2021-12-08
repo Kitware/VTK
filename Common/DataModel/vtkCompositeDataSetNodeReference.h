@@ -23,8 +23,6 @@
 #include <cassert>
 #include <type_traits>
 
-#ifndef __VTK_WRAP__
-
 namespace vtk
 {
 
@@ -268,8 +266,6 @@ public:
 };
 
 } // end namespace vtk
-
-#endif // __VTK_WRAP__
 
 #endif // vtkCompositeDataSetNodeReference_h
 

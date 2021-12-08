@@ -15,7 +15,6 @@
 
 #ifndef vtkMPI_h
 #define vtkMPI_h
-#ifndef __VTK_WRAP__
 
 #ifndef USE_STDARG
 #define USE_STDARG
@@ -68,6 +67,5 @@ public:
   MPI_Request Handle;
 };
 
-#endif
 #endif // vtkMPI_h
 // VTK-HeaderTest-Exclude: vtkMPI.h

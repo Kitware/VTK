@@ -1,8 +1,6 @@
 #ifndef vtkScalarBarActorInternal_h
 #define vtkScalarBarActorInternal_h
 
-#ifndef __VTK_WRAP__
-
 #include "vtkColor.h"                     // for AnnotationColors, LabelColorMap, and tuples
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // for "smart vectors"
@@ -189,8 +187,6 @@ public:
   vtkActor2D* AboveRangeSwatchActor;
   ///@}
 };
-
-#endif
 
 #endif // vtkScalarBarActorInternal_h
 // VTK-HeaderTest-Exclude: vtkScalarBarActorInternal.h

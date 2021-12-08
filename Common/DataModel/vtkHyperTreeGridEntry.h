@@ -64,8 +64,6 @@
 #ifndef vtkHyperTreeGridEntry_h
 #define vtkHyperTreeGridEntry_h
 
-#ifndef __VTK_WRAP__
-
 #include "vtkObject.h"
 
 class vtkHyperTree;
@@ -194,8 +192,6 @@ protected:
    */
   vtkIdType Index;
 };
-
-#endif // __VTK_WRAP__
 
 #endif // vtkHyperTreeGridEntry_h
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridEntry.h

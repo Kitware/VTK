@@ -14,7 +14,6 @@
 =========================================================================*/
 #ifndef vtkRegressionTestImage_h
 #define vtkRegressionTestImage_h
-#ifndef __VTK_WRAP__
 
 // Includes and a macro necessary for saving the image produced by a cxx
 // example program. This capability is critical for regression testing.
@@ -40,6 +39,5 @@ private:
 
 #define vtkRegressionTestImageThreshold(rw, t) vtkTesting::Test(argc, argv, rw, t)
 
-#endif
 #endif // vtkRegressionTestImage_h
 // VTK-HeaderTest-Exclude: vtkRegressionTestImage.h

@@ -23,9 +23,10 @@ set(sources
   vtkmlib/ArrayConvertersUnsigned.cxx)
 
 set(private_headers
+  vtkmFilterPolicy.h
   vtkmlib/ArrayConverters.hxx)
 
-set(impl_classes
+set(classes
   vtkmDataSet
   )
 
@@ -66,7 +67,7 @@ vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
   HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  CLASSES ${impl_classes}
+  CLASSES ${classes}
   NOWRAP_CLASSES  ${nowrap_classes}
   PRIVATE_HEADERS ${private_headers})
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmDataModel)

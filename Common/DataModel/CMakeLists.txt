@@ -97,10 +97,6 @@ set(classes
   vtkHyperTree
   vtkHyperTreeCursor
   vtkHyperTreeGrid
-  vtkHyperTreeGridEntry
-  vtkHyperTreeGridGeometryEntry
-  vtkHyperTreeGridGeometryLevelEntry
-  vtkHyperTreeGridLevelEntry
   vtkHyperTreeGridNonOrientedCursor
   vtkHyperTreeGridNonOrientedGeometryCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursor
@@ -255,21 +251,29 @@ set(template_classes
   vtkStaticCellLinksTemplate
   vtkStaticEdgeLocatorTemplate)
 
+set(nowrap_classes
+  vtkHyperTreeGridEntry
+  vtkHyperTreeGridGeometryEntry
+  vtkHyperTreeGridGeometryLevelEntry
+  vtkHyperTreeGridLevelEntry)
+
 set(headers
   vtkCellType.h
   vtkColor.h
-  vtkCompositeDataSetNodeReference.h
-  vtkCompositeDataSetRange.h
   vtkDataAssemblyVisitor.h
   vtkDataObjectTreeInternals.h
-  vtkDataObjectTreeRange.h
   vtkHyperTreeGridScales.h
   vtkHyperTreeGridTools.h
   vtkIntersectionCounter.h
-  vtkPolyDataInternals.h
   vtkRect.h
   vtkVector.h
   vtkVectorOperators.h)
+
+set(nowrap_headers
+  vtkCompositeDataSetNodeReference.h
+  vtkCompositeDataSetRange.h
+  vtkDataObjectTreeRange.h
+  vtkPolyDataInternals.h)
 
 set(templates
   vtkCompositeDataSet.txx)
@@ -279,7 +283,9 @@ set(private_templates
 
 vtk_module_add_module(VTK::CommonDataModel
   CLASSES           ${classes}
+  NOWRAP_CLASSES    ${nowrap_classes}
   TEMPLATES         ${templates}
   TEMPLATE_CLASSES  ${template_classes}
   HEADERS           ${headers}
+  NOWRAP_HEADERS    ${nowrap_headers}
   PRIVATE_TEMPLATES ${private_templates})

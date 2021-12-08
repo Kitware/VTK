@@ -49,8 +49,6 @@
 
 #ifndef vtkCocoaGLView_h
 #define vtkCocoaGLView_h
-#ifndef __VTK_WRAP__
-#ifndef VTK_WRAPPING_CXX
 
 #import "vtkRenderingOpenGL2Module.h" // For export macro
 #import <Cocoa/Cocoa.h>
@@ -86,7 +84,5 @@ VTKRENDERINGOPENGL2_EXPORT
 
 @end
 
-#endif
-#endif
 #endif /* vtkCocoaGLView_h */
 // VTK-HeaderTest-Exclude: vtkCocoaGLView.h

@@ -15,7 +15,6 @@
 
 #ifndef vtkOpenGLVolumeMaskTransferFunction2D_h
 #define vtkOpenGLVolumeMaskTransferFunction2D_h
-#ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
@@ -65,5 +64,4 @@ private:
   void operator=(const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
 };
 
-#endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeMaskTransferFunction2D_h

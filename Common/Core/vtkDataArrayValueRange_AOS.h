@@ -29,8 +29,6 @@
 #include <iterator>
 #include <type_traits>
 
-#ifndef __VTK_WRAP__
-
 // Disable this specialization when iterator debugging is requested:
 #ifndef VTK_DEBUG_RANGE_ITERATORS
 
@@ -163,7 +161,6 @@ ValueRange<AOSArrayType, TupleSize> DeclareValueRangeSpecialization(ArrayType*);
 VTK_ITER_OPTIMIZE_END
 
 #endif // VTK_DEBUG_RANGE_ITERATORS
-#endif // __VTK_WRAP__
 #endif // vtkDataArrayValueRange_AOS_h
 
 // VTK-HeaderTest-Exclude: vtkDataArrayValueRange_AOS.h

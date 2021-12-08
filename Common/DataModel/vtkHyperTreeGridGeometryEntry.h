@@ -38,8 +38,6 @@ JB
 #ifndef vtkHyperTreeGridGeometryEntry_h
 #define vtkHyperTreeGridGeometryEntry_h
 
-#ifndef __VTK_WRAP__
-
 #include "vtkObject.h"
 
 class vtkHyperTree;
@@ -226,8 +224,6 @@ private:
    */
   double Origin[3];
 };
-
-#endif // __VTK_WRAP__
 
 #endif // vtkHyperTreeGridGeometryEntry_h
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridGeometryEntry.h

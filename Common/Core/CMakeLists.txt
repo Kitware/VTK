@@ -258,7 +258,9 @@ set(template_classes
   vtkSOADataArrayTemplate
   vtkSparseArray
   vtkTypedArray
-  vtkTypedDataArray
+  vtkTypedDataArray)
+
+set(nowrap_template_classes
   vtkTypeList)
 
 set(sources
@@ -285,16 +287,10 @@ set(headers
   vtkAssume.h
   vtkAutoInit.h
   vtkBuffer.h
-  vtkCollectionRange.h
   vtkCompiler.h
-  vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayMeta.h
   vtkDataArrayRange.h
-  vtkDataArrayTupleRange_AOS.h
-  vtkDataArrayTupleRange_Generic.h
-  vtkDataArrayValueRange_AOS.h
-  vtkDataArrayValueRange_Generic.h
   vtkDeprecation.h
   vtkEventData.h
   vtkGenericDataArrayLookupHelper.h
@@ -323,7 +319,6 @@ set(headers
   vtkWin32Header.h
   vtkWindows.h
   vtkWrappingHints.h
-  ${vtk_smp_headers}
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
@@ -425,8 +420,15 @@ foreach (smp_backend IN LISTS smp_backends)
 endforeach ()
 
 set(nowrap_headers
+  vtkCollectionRange.h
+  vtkDataArrayAccessor.h
+  vtkDataArrayTupleRange_AOS.h
+  vtkDataArrayTupleRange_Generic.h
+  vtkDataArrayValueRange_AOS.h
+  vtkDataArrayValueRange_Generic.h
   vtkMathPrivate.hxx
-  ${vtk_smp_nowrap_headers})
+  ${vtk_smp_nowrap_headers}
+  ${vtk_smp_headers})
 set(generated_headers
   vtkBuild.h
   vtkDebug.h
@@ -551,6 +553,7 @@ vtk_module_add_module(VTK::CommonCore
   HEADER_DIRECTORIES
   CLASSES           ${classes}
   TEMPLATE_CLASSES  ${template_classes}
+  NOWRAP_TEMPLATE_CLASSES ${nowrap_template_classes}
   SOURCES           ${sources}
   TEMPLATES         ${templates}
   HEADERS           ${headers}

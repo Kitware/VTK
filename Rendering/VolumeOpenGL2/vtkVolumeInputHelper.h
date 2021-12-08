@@ -29,7 +29,6 @@
  */
 #ifndef vtkVolumeInputHelper_h
 #define vtkVolumeInputHelper_h
-#ifndef __VTK_WRAP__
 #include <map>
 
 #include "vtkOpenGLVolumeLookupTables.h"
@@ -132,6 +131,5 @@ protected:
   bool InitializeTransfer = true;
 };
 
-#endif
 #endif // vtkVolumeInputHelper_h
 // VTK-HeaderTest-Exclude: vtkVolumeInputHelper.h

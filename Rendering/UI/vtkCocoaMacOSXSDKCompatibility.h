@@ -21,7 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
  * SDKs by adding workarounds to still support the minimum SDK.
  * It is safe to include this header multiple times.
  */
-#ifndef __VTK_WRAP__
 
 #include <AvailabilityMacros.h>
 
@@ -76,5 +75,4 @@ PURPOSE.  See the above copyright notice for more information.
 #error VTK does not yet support ARC memory management
 #endif
 
-#endif
 // VTK-HeaderTest-Exclude: vtkCocoaMacOSXSDKCompatibility.h

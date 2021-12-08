@@ -22,7 +22,6 @@
 
 #ifndef vtkAMReXGridReaderInternal_h
 #define vtkAMReXGridReaderInternal_h
-#ifndef __VTK_WRAP__
 
 #include <map>
 #include <string>
@@ -287,6 +286,5 @@ void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkAOSDataArrayTemplate
 // ----------------------------------------------------------------------------
 //                     Class  vtkAMReXGridReaderInternal ( end )
 // ----------------------------------------------------------------------------
-#endif
 #endif /* vtkAMReXGridReaderInternal_h */
 // VTK-HeaderTest-Exclude: vtkAMReXGridReaderInternal.h

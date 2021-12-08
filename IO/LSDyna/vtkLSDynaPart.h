@@ -14,7 +14,6 @@
 
 #ifndef vtkLSDynaPart_h
 #define vtkLSDynaPart_h
-#ifndef __VTK_WRAP__
 
 #include "LSDynaMetaData.h"    //needed for lsdyna types
 #include "vtkIOLSDynaModule.h" // For export macro
@@ -184,5 +183,4 @@ private:
   void operator=(const vtkLSDynaPart&) = delete;
 };
 
-#endif
-#endif // VTKLSDYNAPART
+#endif // vtkLSDynaPart_h

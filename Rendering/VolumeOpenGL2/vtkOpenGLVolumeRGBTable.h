@@ -15,7 +15,6 @@
 
 #ifndef vtkOpenGLVolumeRGBTable_h
 #define vtkOpenGLVolumeRGBTable_h
-#ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
@@ -46,5 +45,4 @@ private:
   void operator=(const vtkOpenGLVolumeRGBTable&) = delete;
 };
 
-#endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeRGBTable_h

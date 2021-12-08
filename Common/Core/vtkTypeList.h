@@ -50,8 +50,6 @@
 #ifndef vtkTypeList_h
 #define vtkTypeList_h
 
-#ifndef __VTK_WRAP__
-
 #include "vtkTypeListMacros.h"
 
 namespace vtkTypeList
@@ -176,8 +174,6 @@ template <typename... Ts>
 using Create = typename vtkTypeList::detail::CreateImpl<Ts...>::type;
 
 } // end namespace vtkTypeList
-
-#endif // __VTK_WRAP__
 
 #endif // vtkTypeList_h
 // VTK-HeaderTest-Exclude: vtkTypeList.h

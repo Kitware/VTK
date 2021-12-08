@@ -3311,6 +3311,7 @@ vtk_module_add_module(<name>
   [CLASSES                  <class>...]
   [TEMPLATE_CLASSES         <template class>...]
   [NOWRAP_CLASSES           <nowrap class>...]
+  [NOWRAP_TEMPLATE_CLASSES  <nowrap template class>...]
   [SOURCES                  <source>...]
   [HEADERS                  <header>...]
   [NOWRAP_HEADERS           <header>...]
@@ -3348,6 +3349,10 @@ always private, so there is no `PRIVATE_` variant for that argument).
   * `NOWRAP_CLASSES`: A list of classes which will not be available for
     wrapping but installed. This is a shortcut for adding `<class>.cxx` to
     `SOURCES` and `<class>.h` to `NOWRAP_HEADERS`.
+  * `NOWRAP_TEMPLATE_CLASSES`: A list of template classes which will not be
+  * available for
+    wrapping but installed. This is a shortcut for adding `<class>.txx` to
+    `TEMPLATES` and `<class>.h` to `NOWRAP_HEADERS`.
   * `NOWRAP_HEADERS`: A list of header files which will not be available for
     wrapping but installed.
   * `TEMPLATES`: A list of template files which will be installed.
@@ -3368,7 +3373,7 @@ function (vtk_module_add_module name)
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_module
     "FORCE_STATIC;HEADER_ONLY;HEADER_DIRECTORIES"
     "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX"
-    "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_CLASSES;NOWRAP_HEADERS")
+    "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_CLASSES;NOWRAP_TEMPLATE_CLASSES;NOWRAP_HEADERS")
 
   if (_vtk_add_module_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -3403,6 +3408,13 @@ function (vtk_module_add_module name)
   foreach (_vtk_add_module_class IN LISTS _vtk_add_module_NOWRAP_CLASSES)
     list(APPEND _vtk_add_module_SOURCES
       "${_vtk_add_module_class}.cxx")
+    list(APPEND _vtk_add_module_NOWRAP_HEADERS
+      "${_vtk_add_module_class}.h")
+  endforeach ()
+
+  foreach (_vtk_add_module_class IN LISTS _vtk_add_module_NOWRAP_TEMPLATE_CLASSES)
+    list(APPEND _vtk_add_module_TEMPLATES
+      "${_vtk_add_module_class}.txx")
     list(APPEND _vtk_add_module_NOWRAP_HEADERS
       "${_vtk_add_module_class}.h")
   endforeach ()
