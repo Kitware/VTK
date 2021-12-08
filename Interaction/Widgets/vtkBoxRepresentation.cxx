@@ -1774,6 +1774,10 @@ void vtkBoxRepresentation::RegisterPickers()
 //------------------------------------------------------------------------------
 void vtkBoxRepresentation::GetActors(vtkPropCollection* pc)
 {
+  if (!pc)
+  {
+    return;
+  }
   pc->AddItem(this->HexActor);
   pc->AddItem(this->HexFace);
   pc->AddItem(this->HexOutline);

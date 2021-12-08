@@ -375,6 +375,10 @@ int vtkPointCloudRepresentation::ComputeInteractionState(int X, int Y, int vtkNo
 //------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::GetActors2D(vtkPropCollection* pc)
 {
+  if (!pc)
+  {
+    return;
+  }
   pc->AddItem(this->SelectionActor);
   this->Superclass::GetActors2D(pc);
 }
@@ -382,10 +386,15 @@ void vtkPointCloudRepresentation::GetActors2D(vtkPropCollection* pc)
 //------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::GetActors(vtkPropCollection* pc)
 {
+  if (!pc)
+  {
+    return;
+  }
   if (this->PointCloudActor)
   {
     pc->AddItem(this->PointCloudActor);
   }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------

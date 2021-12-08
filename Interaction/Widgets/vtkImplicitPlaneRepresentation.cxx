@@ -679,6 +679,10 @@ double* vtkImplicitPlaneRepresentation::GetBounds()
 //------------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::GetActors(vtkPropCollection* pc)
 {
+  if (!pc)
+  {
+    return;
+  }
   pc->AddItem(this->OutlineActor);
   pc->AddItem(this->CutActor);
   pc->AddItem(this->EdgesActor);

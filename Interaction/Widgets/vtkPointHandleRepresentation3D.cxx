@@ -817,7 +817,12 @@ void vtkPointHandleRepresentation3D::DeepCopy(vtkProp* prop)
 //------------------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::GetActors(vtkPropCollection* pc)
 {
+  if (!pc)
+  {
+    return;
+  }
   pc->AddItem(this->Actor);
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------

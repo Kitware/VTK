@@ -974,6 +974,7 @@ void vtkCurveRepresentation::GetActors(vtkPropCollection* pc)
   {
     pc->AddItem(this->GetHandleActor(i));
   }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------
