@@ -152,7 +152,7 @@ public:
   /**
    * Sampling pattern enumeration. Please refer to class description.
    */
-  enum SamplingPattern
+  enum SamplingPatternEnum
   {
     SAMPLE_LINE_AT_CELL_BOUNDARIES = 0,
     SAMPLE_LINE_AT_SEGMENT_CENTERS = 1,
