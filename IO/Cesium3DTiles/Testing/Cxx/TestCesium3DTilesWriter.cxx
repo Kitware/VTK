@@ -207,7 +207,7 @@ struct Input
 };
 
 Input tiler(const std::vector<std::string>& input, const std::string& output, int numberOfBuildings,
-  int buildingsPerTile, int lod, const std::vector<double>& inputOffset, bool saveGLTF,
+  int buildingsPerTile, int lod, const std::vector<double>& inputOffset, bool saveTiles,
   bool saveTextures, std::string crs, const int utmZone, char utmHemisphere)
 {
   Input ret;
@@ -236,7 +236,7 @@ Input tiler(const std::vector<std::string>& input, const std::string& output, in
   writer->SetOffset(&fileOffset[0]);
   writer->SetSaveTextures(saveTextures);
   writer->SetNumberOfBuildingsPerTile(buildingsPerTile);
-  writer->SetSaveGLTF(saveGLTF);
+  writer->SetSaveTiles(saveTiles);
   if (crs.empty())
   {
     std::ostringstream ostr;
@@ -378,7 +378,7 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   auto ret =
     tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
       tempDirectory + "/jacksonville-3dtiles", 1, 1, 2, std::vector<double>{ { 0, 0, 0 } },
-      true /*saveGLTF*/, false /*saveTextures*/, "", 17, 'N');
+      true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
   if (!ret.Data)
   {
     return EXIT_FAILURE;
@@ -417,7 +417,7 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   }
   ret = tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
     tempDirectory + "/berlin-3dtiles", 1, 1, 2, std::vector<double>{ { 0, 0, 0 } },
-    true /*saveGLTF*/, false /*saveTextures*/, "", 33, 'N');
+    true /*saveTiles*/, false /*saveTextures*/, "", 33, 'N');
   if (!ret.Data)
   {
     return EXIT_FAILURE;

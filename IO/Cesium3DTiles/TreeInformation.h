@@ -73,7 +73,7 @@ public:
    * and the geometric error.
    */
   void Compute();
-  void SaveGLTF();
+  void SaveTiles(bool mergeTilePolyData);
   void SaveTileset(const std::string& output);
   static void PrintBounds(const char* name, const double* bounds);
   static void PrintBounds(const std::string& name, const double* bounds)
@@ -83,8 +83,8 @@ public:
   static std::array<double, 6> ExpandBounds(double* first, double* second);
 
 protected:
-  void PostOrderTraversal(
-    void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node), vtkIncrementalOctreeNode* node);
+  void PostOrderTraversal(void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node, void* aux),
+    vtkIncrementalOctreeNode* node, void* aux);
   void SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output);
   nlohmann::json GenerateTileJson(vtkIncrementalOctreeNode* node);
   /**
@@ -92,8 +92,8 @@ protected:
    * the tight bounding box around the buildings, if the node is empty or not,
    * and the geometric error.
    */
-  void Compute(vtkIncrementalOctreeNode* node);
-  void SaveGLTF(vtkIncrementalOctreeNode* node);
+  void Compute(vtkIncrementalOctreeNode* node, void* aux);
+  void SaveTile(vtkIncrementalOctreeNode* node, void* aux);
   double ComputeTilesetGeometricError();
 
 private:

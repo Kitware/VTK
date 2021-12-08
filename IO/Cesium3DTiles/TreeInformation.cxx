@@ -18,6 +18,7 @@
 #include "vtkGLTFWriter.h"
 #include "vtkMultiBlockDataSet.h"
 #include <vtkActor.h>
+#include <vtkAppendPolyData.h>
 #include <vtkCellData.h>
 #include <vtkCompositeDataSet.h>
 #include <vtkDirectory.h>
@@ -177,44 +178,69 @@ void TreeInformation::PrintNode(vtkIncrementalOctreeNode* node)
 //------------------------------------------------------------------------------
 void TreeInformation::Compute()
 {
-  this->PostOrderTraversal(&TreeInformation::Compute, this->Root);
+  this->PostOrderTraversal(&TreeInformation::Compute, this->Root, nullptr);
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveGLTF()
+void TreeInformation::SaveTiles(bool mergeTilePolyData)
 {
-  this->PostOrderTraversal(&TreeInformation::SaveGLTF, this->Root);
+  this->PostOrderTraversal(&TreeInformation::SaveTile, this->Root, &mergeTilePolyData);
 }
 
 //------------------------------------------------------------------------------
 void TreeInformation::PostOrderTraversal(
-  void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node), vtkIncrementalOctreeNode* node)
+  void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node, void* aux),
+  vtkIncrementalOctreeNode* node, void* aux)
 {
   if (!node->IsLeaf())
   {
     for (int i = 0; i < 8; i++)
     {
-      this->PostOrderTraversal(Visit, node->GetChild(i));
+      this->PostOrderTraversal(Visit, node->GetChild(i), aux);
     }
   }
-  (this->*Visit)(node);
+  (this->*Visit)(node, aux);
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveGLTF(vtkIncrementalOctreeNode* node)
+void TreeInformation::SaveTile(vtkIncrementalOctreeNode* node, void* aux)
 {
+  bool mergeTilePolyData = *static_cast<bool*>(aux);
   if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
   {
     std::ostringstream ostr;
     vtkIdList* pointIds = node->GetPointIds();
     // ostr << "Rendering buildings for node " << node->GetID() << ": ";
     vtkNew<vtkMultiBlockDataSet> tile;
-    for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
+    if (mergeTilePolyData)
     {
-      int buildingId = pointIds->GetId(i);
-      // add all buildings to the tile
-      tile->SetBlock(i, this->Buildings[buildingId]);
-      // ostr << buildingId << " ";
+      vtkNew<vtkAppendPolyData> append;
+      vtkNew<vtkMultiBlockDataSet> b;
+      for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
+      {
+        int buildingId = pointIds->GetId(i);
+        vtkCompositeDataSet* building = this->Buildings[buildingId];
+        auto it = vtk::TakeSmartPointer(building->NewIterator());
+        // for each poly data in the building
+        for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+        {
+          vtkPolyData* pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+          append->AddInputDataObject(pd);
+        }
+        append->Update();
+        b->SetBlock(0, append->GetOutput());
+        tile->SetBlock(0, b);
+      }
+    }
+    else
+    {
+      for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
+      {
+        int buildingId = pointIds->GetId(i);
+        // add all buildings to the tile
+        tile->SetBlock(i, this->Buildings[buildingId]);
+        // ostr << buildingId << " ";
+      }
     }
 
     vtkLog(INFO, "Saving GLTF file for " << pointIds->GetNumberOfIds() << " buildings...");
@@ -254,7 +280,7 @@ double TreeInformation::ComputeTilesetGeometricError()
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::Compute(vtkIncrementalOctreeNode* node)
+void TreeInformation::Compute(vtkIncrementalOctreeNode* node, void*)
 {
   vtkIdList* nodeBuildings = node->GetPointIdSet();
   // compute the bounding box for the current node
