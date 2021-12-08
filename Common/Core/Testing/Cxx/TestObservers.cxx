@@ -56,6 +56,17 @@ public:
 int OtherHandler::VoidEventCounts = 0;
 std::map<int, int> OtherHandler::EventCounts;
 
+class NestedHandler1
+{
+public:
+  void CallbackWithArguments(vtkObject* self, unsigned long, void*) { self->InvokeEvent(1001); }
+};
+class NestedHandler2
+{
+public:
+  void CallbackWithArguments(vtkObject* self, unsigned long, void*) { self->RemoveAllObservers(); }
+};
+
 int TestObservers(int, char*[])
 {
   unsigned long event0 = 0;
@@ -64,7 +75,17 @@ int TestObservers(int, char*[])
 
   vtkObject* volcano = vtkObject::New();
 
-  // First the base test, with a vtkObject pointer
+  // Test nested callbacks invalidating iteration of observers
+  // This will seg fault if the iterators are not handled properly
+  NestedHandler1* handlerNested1 = new NestedHandler1();
+  event0 = volcano->AddObserver(1000, handlerNested1, &NestedHandler1::CallbackWithArguments);
+  NestedHandler2* handlerNested2 = new NestedHandler2();
+  event1 = volcano->AddObserver(1001, handlerNested2, &NestedHandler2::CallbackWithArguments);
+  volcano->InvokeEvent(1000);
+  delete handlerNested1;
+  delete handlerNested2;
+
+  // Handle the base test, with a vtkObject pointer
   vtkHandler* handler = vtkHandler::New();
 
   event0 = volcano->AddObserver(1000, handler, &vtkHandler::VoidCallback);
