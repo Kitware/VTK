@@ -86,10 +86,9 @@ struct ExchangeBoundsWorker : public WorkerBase
   bool Execute(const double bounds[6], const vtkSmartPointer<vtkDataArray>& allBoundsArray)
   {
     memcpy(this->Bounds, bounds, 6 * sizeof(double));
-    this->AllBoundsArray = allBoundsArray;
 
     using Dispatcher = vtkArrayDispatch::DispatchByArray<PointArrayTypes>;
-    return Dispatcher::Execute(this->AllBoundsArray, *this);
+    return Dispatcher::Execute(allBoundsArray, *this);
   }
 
   template <class TArray>
@@ -116,9 +115,6 @@ struct ExchangeBoundsWorker : public WorkerBase
 protected:
   // Input - Local data bounds
   double Bounds[6];
-
-  // Output - Bounds on all ranks
-  vtkWeakPointer<vtkDataArray> AllBoundsArray;
 };
 
 /**

@@ -34,7 +34,6 @@
 #include "vtkSplitColumnComponents.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
-#include "vtkWeakPointer.h"
 
 #include <algorithm>
 #include <cassert>
@@ -121,7 +120,7 @@ private:
   typedef std::map<vtkKey, vtkValue> MapType;
   MapType OutputGrids;
   int NumberOfTimeSteps;
-  vtkWeakPointer<vtkExtractDataArraysOverTime> Self;
+  vtkExtractDataArraysOverTime* const Self;
   // We use the same time array for all extracted time lines, since that doesn't
   // change.
   vtkSmartPointer<vtkDoubleArray> TimeArray;
