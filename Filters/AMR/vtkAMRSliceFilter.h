@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkAMRSliceFilter, vtkOverlappingAMRAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Inline Gettters & Setters
+  // Inline Getters & Setters
 
   ///@{
   /**
