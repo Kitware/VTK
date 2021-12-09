@@ -24,9 +24,12 @@
 
 #include <cassert>
 
+vtkCxxSetObjectMacro(vtkAMRBaseParticlesReader, Controller, vtkMultiProcessController);
+
 vtkAMRBaseParticlesReader::vtkAMRBaseParticlesReader()
 {
   this->FileName = nullptr;
+  this->Controller = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -38,6 +41,8 @@ vtkAMRBaseParticlesReader::~vtkAMRBaseParticlesReader()
 
   delete[] this->FileName;
   this->FileName = nullptr;
+
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -108,7 +113,7 @@ void vtkAMRBaseParticlesReader::Initialize()
   this->Initialized = false;
   this->InitialRequest = true;
   this->FileName = nullptr;
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 
   for (int i = 0; i < 3; ++i)
   {
