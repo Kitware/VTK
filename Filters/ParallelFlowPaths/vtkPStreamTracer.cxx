@@ -448,7 +448,7 @@ public:
   static ProcessLocator* New();
   void Initialize(vtkCompositeDataSet* data)
   {
-    this->Controller = vtkMultiProcessController::GetGlobalController();
+    this->SetController(vtkMultiProcessController::GetGlobalController());
     this->Rank = this->Controller->GetLocalProcessId();
     this->NumProcs = this->Controller->GetNumberOfProcesses();
     this->InitBoundingBoxes(this->NumProcs);
@@ -485,6 +485,23 @@ public:
 #endif
   }
 
+  void SetController(vtkMultiProcessController* controller)
+  {
+    if (this->Controller != controller)
+    {
+      vtkMultiProcessController* temp = this->Controller;
+      this->Controller = controller;
+      if (this->Controller != nullptr)
+      {
+        this->Controller->Register(nullptr);
+      }
+      if (temp != nullptr)
+      {
+        temp->UnRegister(nullptr);
+      }
+    }
+  }
+
   bool InCurrentProcess(double* p) { return InBB(p, GetBoundingBox(Rank)); }
   int FindNextProcess(double* p)
   {
@@ -506,6 +523,7 @@ private:
     this->NumProcs = 0;
     this->Rank = 0;
   }
+  ~ProcessLocator() override { this->SetController(nullptr); }
   vtkMultiProcessController* Controller;
   int Rank;
   int NumProcs;
@@ -1000,8 +1018,9 @@ public:
     : Locator(locator)
     , Proto(proto)
   {
-    this->Controller =
-      vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController());
+    this->Controller = nullptr;
+    this->SetController(
+      vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController()));
     AssertNe(this->Controller, nullptr);
     this->NumProcs = this->Controller->GetNumberOfProcesses();
     this->Rank = this->Controller->GetLocalProcessId();
@@ -1193,6 +1212,24 @@ public:
       this->ReceiveBuffer->GetRequest().Cancel();
       delete ReceiveBuffer;
     }
+    this->SetController(nullptr);
+  }
+
+  void SetController(vtkMPIController* controller)
+  {
+    if (this->Controller != controller)
+    {
+      vtkMPIController* temp = this->Controller;
+      this->Controller = controller;
+      if (this->Controller != nullptr)
+      {
+        this->Controller->Register(nullptr);
+      }
+      if (temp != nullptr)
+      {
+        temp->UnRegister(nullptr);
+      }
+    }
   }
 
 private:
@@ -1379,11 +1416,8 @@ vtkStandardNewMacro(vtkPStreamTracer);
 //------------------------------------------------------------------------------
 vtkPStreamTracer::vtkPStreamTracer()
 {
-  this->Controller = vtkMultiProcessController::GetGlobalController();
-  if (this->Controller)
-  {
-    this->Controller->Register(this);
-  }
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->Interpolator = nullptr;
   this->GenerateNormalsInIntegrate = false;
@@ -1398,11 +1432,7 @@ vtkPStreamTracer::vtkPStreamTracer()
 //------------------------------------------------------------------------------
 vtkPStreamTracer::~vtkPStreamTracer()
 {
-  if (this->Controller)
-  {
-    this->Controller->UnRegister(this);
-    this->Controller = nullptr;
-  }
+  this->SetController(nullptr);
   this->SetInterpolator(nullptr);
 }
 
