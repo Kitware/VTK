@@ -203,7 +203,7 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
 
   if (!this->Controller)
   {
-    this->Controller = vtkMultiProcessController::GetGlobalController();
+    this->SetController(vtkMultiProcessController::GetGlobalController());
   }
 
   int reqGhostLevel =
