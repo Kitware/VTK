@@ -44,10 +44,11 @@ public:
 
 protected:
   vtkPTextureMapToSphere();
-  ~vtkPTextureMapToSphere() override = default;
+  ~vtkPTextureMapToSphere() override;
 
   void ComputeCenter(vtkDataSet* dataSet) override;
 
+  void SetController(vtkMultiProcessController*);
   vtkMultiProcessController* Controller;
 
 private:

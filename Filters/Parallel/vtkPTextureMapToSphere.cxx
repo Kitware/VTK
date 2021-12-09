@@ -23,12 +23,19 @@
 #include "vtkTextureMapToSphere.h"
 
 vtkStandardNewMacro(vtkPTextureMapToSphere);
+vtkCxxSetObjectMacro(vtkPTextureMapToSphere, Controller, vtkMultiProcessController);
 
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The
 // sphere center is automatically computed.
 vtkPTextureMapToSphere::vtkPTextureMapToSphere()
 {
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
+}
+
+vtkPTextureMapToSphere::~vtkPTextureMapToSphere()
+{
+  this->SetController(nullptr);
 }
 
 void vtkPTextureMapToSphere::ComputeCenter(vtkDataSet* dataSet)
