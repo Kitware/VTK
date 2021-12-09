@@ -886,6 +886,9 @@ void vtkObject::Modified()
 void vtkObject::RegisterInternal(vtkObjectBase* o, vtkTypeBool check)
 {
   // Print debugging messages.
+  // TODO: This debug print is the only reason `RegisterInternal` is virtual.
+  // Look into moving this into `vtkObjectBase` or to some other mechanism and
+  // making the method non-virtual in the future.
   if (o)
   {
     vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o
@@ -904,6 +907,9 @@ void vtkObject::RegisterInternal(vtkObjectBase* o, vtkTypeBool check)
 void vtkObject::UnRegisterInternal(vtkObjectBase* o, vtkTypeBool check)
 {
   // Print debugging messages.
+  // TODO: This debug print is the only reason `UnRegisterInternal` is virtual.
+  // Look into moving this into `vtkObjectBase` or to some other mechanism and
+  // making the method non-virtual in the future.
   if (o)
   {
     vtkDebugMacro(<< "UnRegistered by " << o->GetClassName() << " (" << o
