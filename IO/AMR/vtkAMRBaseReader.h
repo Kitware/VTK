@@ -63,8 +63,8 @@ public:
    * Set/Get a multiprocess-controller for reading in parallel.
    * By default this parameter is set to nullptr by the constructor.
    */
-  vtkSetMacro(Controller, vtkMultiProcessController*);
-  vtkGetMacro(Controller, vtkMultiProcessController*);
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
   ///@{
