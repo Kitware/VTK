@@ -64,6 +64,8 @@ public:
     AddPoint,
     AddFinalPoint,
     Completed,
+    PickPoint,
+    PickNormal,
     TimedOut,
     ModifyEvent,
     Reset,

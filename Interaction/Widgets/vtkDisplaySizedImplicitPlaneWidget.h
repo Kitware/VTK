@@ -49,9 +49,8 @@
  * If the keypress characters are used
  *   'Down/Left' Move plane down
  *   'Up/Right' Move plane up
- *   'O/o' Pick new origin from a point either on the widget's plane or an object rendered by the
- *   renderer
- *   'N/n' Pick new normal from a point on an object rendered by the renderer.
+ *   'P/p' Pick a new origin
+ *   'N/n' Pick a new normal.
  * In all the cases, independent of what is picked, the widget responds to the following VTK events:
  *   MiddleButtonPressEvent - move the plane
  *   MiddleButtonReleaseEvent - release the plane
@@ -69,7 +68,8 @@
  *   vtkWidgetEvent::EndSelect -- the selection process has completed
  *   vtkWidgetEvent::Move -- a request for widget motion has been invoked
  *   vtkWidgetEvent::Up and vtkWidgetEvent::Down -- MovePlaneAction
- *   vtkWidgetEvent::AddPoint -- PickOriginAction
+ *   vtkWidgetEvent::PickPoint -- PickOriginAction
+ *   vtkWidgetEvent::PickNormal -- PickNormalAction
  * </pre>
  *
  * @par Event Bindings:
