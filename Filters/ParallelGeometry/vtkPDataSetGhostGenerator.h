@@ -47,8 +47,8 @@ public:
    * Get/Set macro for the multi-process controller. If a controller is not
    * supplied, then, the global controller is assumed.
    */
-  vtkSetMacro(Controller, vtkMultiProcessController*);
-  vtkGetMacro(Controller, vtkMultiProcessController*);
+  void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
   /**
