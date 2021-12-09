@@ -450,9 +450,9 @@ void vtkBillboardTextActor3D::GetActors(vtkPropCollection* props)
         this->UpdateGeometry(vp);
       }
     }
+    // only add the sub actor if we are visible
+    props->AddItem(this->QuadActor.Get());
   }
-
-  props->AddItem(this->QuadActor.Get());
 }
 
 //------------------------------------------------------------------------------
