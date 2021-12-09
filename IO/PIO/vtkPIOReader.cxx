@@ -37,6 +37,7 @@
 #include <set>
 
 vtkStandardNewMacro(vtkPIOReader);
+vtkCxxSetObjectMacro(vtkPIOReader, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 // Constructor for PIO Reader
@@ -67,7 +68,8 @@ vtkPIOReader::vtkPIOReader()
   // External PIO_DATA for actually reading files
   this->pioAdaptor = nullptr;
 
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   if (this->Controller)
   {
     this->Rank = this->Controller->GetLocalProcessId();
@@ -96,8 +98,7 @@ vtkPIOReader::~vtkPIOReader()
   this->TimeDataStringArray->Delete();
   this->SetActiveTimeDataArrayName(nullptr);
 
-  // Do not delete the Controller which is a singleton
-  this->Controller = nullptr;
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
