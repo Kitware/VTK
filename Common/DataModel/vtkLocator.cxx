@@ -75,18 +75,6 @@ void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkLocator::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
-void vtkLocator::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
 void vtkLocator::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

@@ -252,8 +252,7 @@ public:
   /**
    * Overwritten to handle the data/locator loop
    */
-  void Register(vtkObjectBase* o) override;
-  void UnRegister(vtkObjectBase* o) override;
+  bool UsesGarbageCollector() const override { return true; }
   ///@}
 
   ///@{

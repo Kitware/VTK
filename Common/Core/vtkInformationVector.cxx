@@ -219,18 +219,6 @@ void vtkInformationVector::Copy(vtkInformationVector* from, int deep)
 }
 
 //------------------------------------------------------------------------------
-void vtkInformationVector::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
-void vtkInformationVector::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
 void vtkInformationVector::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

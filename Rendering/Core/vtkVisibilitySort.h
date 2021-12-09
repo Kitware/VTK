@@ -134,8 +134,7 @@ public:
   /**
    * Overwritten to enable garbage collection.
    */
-  void Register(vtkObjectBase* o) override;
-  void UnRegister(vtkObjectBase* o) override;
+  bool UsesGarbageCollector() const override { return true; }
   ///@}
 
 protected:

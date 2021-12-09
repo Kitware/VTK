@@ -74,8 +74,7 @@ public:
   /**
    * Initiate garbage collection when a reference is removed.
    */
-  void Register(vtkObjectBase* o) override;
-  void UnRegister(vtkObjectBase* o) override;
+  bool UsesGarbageCollector() const override { return true; }
   ///@}
 
   /**
