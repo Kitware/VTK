@@ -119,6 +119,8 @@ protected:
    */
   vtkGetMacro(ParticleCounter, vtkIdType);
 
+  void SetController(vtkMPIController*);
+
   vtkNew<vtkUnstructuredGrid> TmpSurfaceInput;
   vtkNew<vtkMultiBlockDataSet> TmpSurfaceInputMB;
   vtkMPIController* Controller;
