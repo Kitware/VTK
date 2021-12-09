@@ -66,16 +66,21 @@
 #endif // DEBUG
 
 vtkStandardNewMacro(vtkPExtractRectilinearGrid);
+vtkCxxSetObjectMacro(vtkPExtractRectilinearGrid, Controller, vtkMPIController);
 
 //------------------------------------------------------------------------------
 vtkPExtractRectilinearGrid::vtkPExtractRectilinearGrid()
 {
-  this->Controller =
-    vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController());
+  this->Controller = nullptr;
+  this->SetController(
+    vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController()));
 }
 
 //------------------------------------------------------------------------------
-vtkPExtractRectilinearGrid::~vtkPExtractRectilinearGrid() = default;
+vtkPExtractRectilinearGrid::~vtkPExtractRectilinearGrid()
+{
+  this->SetController(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkPExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
