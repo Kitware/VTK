@@ -119,7 +119,7 @@ void vtkWebUtilities::ProcessRMIs()
 //------------------------------------------------------------------------------
 void vtkWebUtilities::ProcessRMIs(int reportError, int dont_loop)
 {
-  Py_BEGIN_ALLOW_THREADS vtkMultiProcessController::GetGlobalController()->ProcessRMIs(
-    reportError, dont_loop);
-  Py_END_ALLOW_THREADS
+  Py_BEGIN_ALLOW_THREADS;
+  vtkMultiProcessController::GetGlobalController()->ProcessRMIs(reportError, dont_loop);
+  Py_END_ALLOW_THREADS;
 }
