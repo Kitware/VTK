@@ -305,8 +305,7 @@ void vtkADIOS2CoreImageReader::SetController(vtkMultiProcessController* controll
   }
 #endif
 
-  this->Controller = controller;
-  this->Modified();
+  vtkSetObjectBodyMacro(Controller, vtkMultiProcessController, controller);
 }
 
 //------------------------------------------------------------------------------

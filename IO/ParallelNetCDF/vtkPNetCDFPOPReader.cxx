@@ -737,12 +737,10 @@ bool vtkPNetCDFPOPReader::IsFirstReaderRank()
 //
 void vtkPNetCDFPOPReader::SetController(vtkMPIController* controller)
 {
-  if (this->Controller != controller)
+  vtkSetObjectBodyMacro(Controller, vtkMultiProcessController, controller);
+
+  if (this->Controller != nullptr)
   {
-    this->Controller = controller;
-    if (this->Controller != nullptr)
-    {
-      this->SetReaderRanks(nullptr);
-    }
+    this->SetReaderRanks(nullptr);
   }
 }

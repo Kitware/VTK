@@ -91,29 +91,13 @@ void vtkPLSDynaReader::SetController(vtkMultiProcessController* c)
     this->Internal->ProcessRank = 0;
   }
 
-  if (this->Controller == c)
+  vtkSetObjectBodyMacro(Controller, vtkMultiProcessController, c);
+
+  if (c)
   {
-    return;
+    this->Internal->NumProcesses = c->GetNumberOfProcesses();
+    this->Internal->ProcessRank = c->GetLocalProcessId();
   }
-
-  this->Modified();
-
-  if (this->Controller)
-  {
-    this->Controller->UnRegister(this);
-    this->Controller = nullptr;
-  }
-
-  if (c == nullptr)
-  {
-    return;
-  }
-
-  this->Controller = c;
-
-  c->Register(this);
-  this->Internal->NumProcesses = c->GetNumberOfProcesses();
-  this->Internal->ProcessRank = c->GetLocalProcessId();
 }
 
 //------------------------------------------------------------------------------

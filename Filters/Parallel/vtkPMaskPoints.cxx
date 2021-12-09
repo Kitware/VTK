@@ -23,6 +23,8 @@
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPMaskPoints);
 
+vtkCxxSetObjectMacro(vtkPMaskPoints, Controller, vtkMultiProcessController);
+
 //------------------------------------------------------------------------------
 vtkPMaskPoints::vtkPMaskPoints()
 {
@@ -56,31 +58,6 @@ void vtkPMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Controller: (null)" << std::endl;
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkPMaskPoints::SetController(vtkMultiProcessController* c)
-{
-  if (this->Controller == c)
-  {
-    return;
-  }
-
-  this->Modified();
-
-  if (this->Controller != nullptr)
-  {
-    this->Controller->UnRegister(this);
-    this->Controller = nullptr;
-  }
-
-  if (c == nullptr)
-  {
-    return;
-  }
-
-  this->Controller = c;
-  c->Register(this);
 }
 
 //------------------------------------------------------------------------------

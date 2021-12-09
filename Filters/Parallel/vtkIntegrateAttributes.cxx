@@ -37,6 +37,8 @@
 
 vtkStandardNewMacro(vtkIntegrateAttributes);
 
+vtkCxxSetObjectMacro(vtkIntegrateAttributes, Controller, vtkMultiProcessController);
+
 class vtkIntegrateAttributes::vtkFieldList : public vtkDataSetAttributes::FieldList
 {
   typedef vtkDataSetAttributes::FieldList Superclass;
@@ -84,22 +86,6 @@ vtkIntegrateAttributes::vtkIntegrateAttributes()
 vtkIntegrateAttributes::~vtkIntegrateAttributes()
 {
   this->SetController(nullptr);
-}
-
-//------------------------------------------------------------------------------
-void vtkIntegrateAttributes::SetController(vtkMultiProcessController* controller)
-{
-  if (this->Controller)
-  {
-    this->Controller->UnRegister(this);
-  }
-
-  this->Controller = controller;
-
-  if (this->Controller)
-  {
-    this->Controller->Register(this);
-  }
 }
 
 //------------------------------------------------------------------------------

@@ -627,23 +627,10 @@ vtkCGNSReader::~vtkCGNSReader()
 //----------------------------------------------------------------------------
 void vtkCGNSReader::SetController(vtkMultiProcessController* c)
 {
-  if (this->Controller == c)
-  {
-    return;
-  }
-
-  this->Modified();
+  vtkSetObjectBodyMacro(Controller, vtkMultiProcessController, c);
 
   if (this->Controller)
   {
-    this->Controller->UnRegister(this);
-  }
-
-  this->Controller = c;
-
-  if (this->Controller)
-  {
-    this->Controller->Register(this);
     this->ProcRank = this->Controller->GetLocalProcessId();
     this->ProcSize = this->Controller->GetNumberOfProcesses();
   }
