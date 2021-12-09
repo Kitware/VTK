@@ -31,23 +31,16 @@
  * \code
  *
  *  public:
- *   void Register(vtkObjectBase* o) override
- *     {
- *     this->RegisterInternal(o, true);
- *     }
- *   void UnRegister(vtkObjectBase* o) override
- *     {
- *     this->UnRegisterInternal(o, true);
- *     }
+ *   bool UsesGarbageCollector() const override { return true; }
  *
  *  protected:
  *
  *   void ReportReferences(vtkGarbageCollector* collector) override
- *     {
+ *   {
  *     // Report references held by this object that may be in a loop.
  *     this->Superclass::ReportReferences(collector);
  *     vtkGarbageCollectorReport(collector, this->OtherObject, "Other Object");
- *     }
+ *   }
  * \endcode
  *
  * The implementations should be in the .cxx file in practice.
