@@ -18,6 +18,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkDataObjectTreeRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
@@ -178,7 +179,9 @@ int vtkParticleTracerBase::FillInputPortInformation(int port, vtkInformation* in
   }
   else if (port == 1)
   {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObjectTree");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   }
   return 1;
@@ -492,8 +495,29 @@ std::vector<vtkDataSet*> vtkParticleTracerBase::GetSeedSources(
   {
     if (vtkInformation* inInfo = inputVector->GetInformationObject(idx))
     {
-      vtkDataObject* dobj = inInfo->Get(vtkDataObject::DATA_OBJECT());
-      seedSources.push_back(vtkDataSet::SafeDownCast(dobj));
+      vtkDataSet* dataSet = vtkDataSet::GetData(inInfo);
+      if (dataSet)
+      {
+        seedSources.push_back(dataSet);
+        continue;
+      }
+
+      vtkDataObjectTree* dot = vtkDataObjectTree::GetData(inInfo);
+      if (dot)
+      {
+        // Add invididual blocks as seed sources to handle composite data seed sources
+        using Opts = vtk::DataObjectTreeOptions;
+        auto range =
+          vtk::Range(dot, Opts::TraverseSubTree | Opts::VisitOnlyLeaves | Opts::SkipEmptyNodes);
+        for (auto treeDobj : range)
+        {
+          vtkDataSet* treeDataSet = vtkDataSet::SafeDownCast(treeDobj);
+          if (treeDataSet)
+          {
+            seedSources.push_back(treeDataSet);
+          }
+        }
+      }
     }
   }
   return seedSources;
