@@ -44,6 +44,7 @@
 #include <sstream>
 
 vtkStandardNewMacro(vtkAMRResampleFilter);
+vtkCxxSetObjectMacro(vtkAMRResampleFilter, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 vtkAMRResampleFilter::vtkAMRResampleFilter()
@@ -54,7 +55,8 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
   this->LevelOfResolution = 0;
   this->AMRMetaData = nullptr;
   this->NumberOfSamples[0] = this->NumberOfSamples[1] = this->NumberOfSamples[2] = 10;
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   this->ROI = vtkMultiBlockDataSet::New();
 
   for (int i = 0; i < 3; ++i)
@@ -72,6 +74,7 @@ vtkAMRResampleFilter::vtkAMRResampleFilter()
 vtkAMRResampleFilter::~vtkAMRResampleFilter()
 {
   this->BlocksToLoad.clear();
+  this->SetController(nullptr);
 
   if (this->ROI != nullptr)
   {
