@@ -354,6 +354,10 @@ vtkStaticCleanUnstructuredGrid::vtkStaticCleanUnstructuredGrid()
   this->ToleranceIsAbsolute = false;
   this->Tolerance = 0.0;
   this->AbsoluteTolerance = 0.0;
+
+  this->MergingArray = nullptr;
+  this->SetMergingArray("");
+
   this->RemoveUnusedPoints = true;
   this->ProduceMergeMap = false;
   this->AveragePointData = false;
@@ -440,7 +444,18 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
 
   // Now merge the points to create a merge map.
   std::vector<vtkIdType> mergeMap(numPts);
-  this->Locator->MergePoints(tol, mergeMap.data());
+  vtkDataArray* mergingData = nullptr;
+  if (this->MergingArray)
+  {
+    if ((mergingData = inPD->GetArray(this->MergingArray)))
+    {
+      this->Locator->MergePointsWithData(mergingData, mergeMap.data());
+    }
+  }
+  if (!mergingData)
+  {
+    this->Locator->MergePoints(tol, mergeMap.data());
+  }
 
   // If removing unused points, traverse the connectivity array to mark the
   // points that are used by one or more cells.
@@ -667,6 +682,16 @@ void vtkStaticCleanUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tolerance Is Absolute: " << (this->ToleranceIsAbsolute ? "On\n" : "Off\n");
   os << indent << "Tolerance: " << (this->Tolerance ? "On\n" : "Off\n");
   os << indent << "Absolute Tolerance: " << (this->AbsoluteTolerance ? "On\n" : "Off\n");
+
+  if (this->MergingArray)
+  {
+    os << indent << "Merging Array: " << this->MergingArray << "\n";
+  }
+  else
+  {
+    os << indent << "Merging Array: (none)\n";
+  }
+
   if (this->Locator)
   {
     os << indent << "Locator: " << this->Locator << "\n";
@@ -675,6 +700,7 @@ void vtkStaticCleanUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Locator: (none)\n";
   }
+
   os << indent << "Remove Unused Points: " << (this->RemoveUnusedPoints ? "On\n" : "Off\n");
   os << indent << "Produce Merge Map: " << (this->ProduceMergeMap ? "On\n" : "Off\n");
   os << indent << "Average Point Data: " << (this->AveragePointData ? "On\n" : "Off\n");

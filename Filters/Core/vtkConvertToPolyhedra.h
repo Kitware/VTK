@@ -71,7 +71,7 @@ public:
 
 protected:
   vtkConvertToPolyhedra();
-  ~vtkConvertToPolyhedra() = default;
+  ~vtkConvertToPolyhedra() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

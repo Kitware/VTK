@@ -4,4 +4,6 @@ vtk_add_test_python(
   socbal.py
   textureThreshold.py
   triangularTCoords.py
+  TestMergePointsWithTCoords.py
+  TestMergeUGridPointsWithTCoords.py
   )
