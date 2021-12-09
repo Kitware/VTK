@@ -66,16 +66,21 @@
 #endif // DEBUG
 
 vtkStandardNewMacro(vtkPExtractVOI);
+vtkCxxSetObjectMacro(vtkPExtractVOI, Controller, vtkMPIController);
 
 //------------------------------------------------------------------------------
 vtkPExtractVOI::vtkPExtractVOI()
 {
-  this->Controller =
-    vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController());
+  this->Controller = nullptr;
+  this->SetController(
+    vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController()));
 }
 
 //------------------------------------------------------------------------------
-vtkPExtractVOI::~vtkPExtractVOI() = default;
+vtkPExtractVOI::~vtkPExtractVOI()
+{
+  this->SetController(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkPExtractVOI::PrintSelf(ostream& os, vtkIndent indent)
