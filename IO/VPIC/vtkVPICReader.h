@@ -149,6 +149,7 @@ protected:
   int ghostLevel1;         // Right plane number of ghosts
 
   // Controls initializing and querrying MPI
+  void SetMPIController(vtkMultiProcessController*);
   vtkMultiProcessController* MPIController;
 
   // Selected field of interest
