@@ -738,8 +738,15 @@ void DICOMAppHelper::PixelSpacingCallback(DICOMParser* parser, doublebyte group,
   }
   else if (group == 0x0018 && element == 0x0050)
   {
-    this->PixelSpacing[2] =
-      DICOMFile::ReturnAsFloat(val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
+    if (!val)
+    {
+      this->PixelSpacing[2] = 0.0;
+    }
+    else
+    {
+      this->PixelSpacing[2] =
+        DICOMFile::ReturnAsFloat(val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
+    }
   }
 }
 
