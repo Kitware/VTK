@@ -53,6 +53,24 @@ public:
   bool MathTextIsSupported() override;
   ///@}
 
+  /**
+   * Set the visibility of the interior lines when Matplotlib is used for the rendering.
+   * Transfer call to vtkMatplotlibMathTextUtilities. Default is false.
+   */
+  void SetInteriorLinesVisibility(bool visibility);
+
+  /**
+   * Set the width (in pixels) of the interior lines when Matplotlib is used for the rendering.
+   * Transfer call to vtkMatplotlibMathTextUtilities. Default is 1.
+   */
+  void SetInteriorLinesWidth(int width);
+
+  /**
+   * Set the color of the interior lines when Matplotlib is used for the rendering.
+   * Transfer call to vtkMatplotlibMathTextUtilities. Default is black (0.0, 0.0, 0.0).
+   */
+  void SetInteriorLinesColor(double colorR, double colorG, double colorB);
+
 protected:
   vtkMathTextFreeTypeTextRenderer();
   ~vtkMathTextFreeTypeTextRenderer() override;

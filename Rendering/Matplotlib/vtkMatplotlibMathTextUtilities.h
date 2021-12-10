@@ -40,8 +40,7 @@
  *
  * The horizontal space between two cells can be set with vtkTextProperty::SetCellOffset
  *
- * Currently, it is not possible to draw separators between grid cells. Only exterior
- * edges can be drawn with vtkTextProperty::SetFrame
+ * Line separators between grid cells can also be drawn.
  */
 
 #ifndef vtkMatplotlibMathTextUtilities_h
@@ -116,6 +115,21 @@ public:
   bool GetScaleToPowerOfTwo() override;
   ///@}
 
+  /**
+   * Set the visibility of the interior lines between cells. Default is false.
+   */
+  vtkSetMacro(InteriorLinesVisibility, bool);
+
+  /**
+   * Set the width (in pixels) of the interior lines between cells. Default is 1.
+   */
+  vtkSetMacro(InteriorLinesWidth, int);
+
+  /**
+   * Set the color of the interior lines between cells. Default is black (0.0, 0.0, 0.0).
+   */
+  vtkSetVector3Macro(InteriorLinesColor, unsigned char);
+
 protected:
   vtkMatplotlibMathTextUtilities();
   ~vtkMatplotlibMathTextUtilities() override;
@@ -174,6 +188,13 @@ protected:
 
   bool ScaleToPowerOfTwo;
   bool PrepareImageData(vtkImageData* data, int bbox[4]);
+
+  std::vector<int> VerticalLinesPosition;
+  std::vector<int> HorizontalLinesPosition;
+
+  bool InteriorLinesVisibility = false;
+  int InteriorLinesWidth = 1;
+  unsigned char InteriorLinesColor[3] = { 0, 0, 0 };
 
 private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&) = delete;
@@ -242,6 +263,11 @@ private:
     const std::int64_t colStart, vtkSmartPyObject& pythonData, const std::uint64_t pythonRows,
     const std::uint64_t pythonCols, const std::uint64_t cellRows, const std::uint64_t cellCols,
     vtkTextProperty* tprop, const TextColors& tcolors);
+
+  /**
+   * Draw interior borders between cells.
+   */
+  bool DrawInteriorLines(vtkImageData* image, int bbox[4]);
 };
 
 #endif

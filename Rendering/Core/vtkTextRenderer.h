@@ -23,8 +23,11 @@
  * objects that represent text. The advantage of using this class is to easily
  * integrate mathematical expressions into renderings by automatically switching
  * between FreeType and MathText backends. If the input string contains at least
- * two "$" symbols separated by text, the MathText backend will be used. If
- * the string does not meet this criteria, or if no MathText implementation is
+ * two "$" symbols separated by text, the MathText backend will be used.
+ * Alternatively, the presence of unescaped "|" symbols defines multicolumn lines,
+ * which are processed with the MathText backend.
+ *
+ * If the string does not meet these criteria, or if no MathText implementation is
  * available, the faster FreeType rendering facilities are used. Literal $
  * symbols can be used by escaping them with backslashes, "\$" (or "\\$" if the
  * string is set programmatically).
