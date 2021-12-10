@@ -981,7 +981,7 @@ bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(vtkImageData* image, int 
 
     for (int extraLineIdx = extraLinesMin; extraLineIdx < extraLinesMax; ++extraLineIdx)
     {
-      for (std::size_t colIdx = bbox[0]; colIdx <= bbox[1]; ++colIdx)
+      for (int colIdx = bbox[0]; colIdx <= bbox[1]; ++colIdx)
       {
         unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(
           colIdx, bbox[2] + this->HorizontalLinesPosition[lineIdx] + extraLineIdx, 0));
@@ -1007,7 +1007,7 @@ bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(vtkImageData* image, int 
 
     for (int extraLineIdx = extraLinesMin; extraLineIdx < extraLinesMax; ++extraLineIdx)
     {
-      for (std::size_t rowIdx = bbox[2]; rowIdx <= bbox[3]; ++rowIdx)
+      for (int rowIdx = bbox[2]; rowIdx <= bbox[3]; ++rowIdx)
       {
         unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(
           bbox[0] + this->VerticalLinesPosition[lineIdx] + extraLineIdx, rowIdx, 0));
