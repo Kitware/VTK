@@ -129,9 +129,9 @@ void vtkOpenVRRenderWindow::RenderModels()
       pRenderModel = newModel;
     }
     // if we have a model and it is visible
-    if (pRenderModel && pRenderModel->GetVisibility())
+    vtkMatrix4x4* deviceToPhysical = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
+    if (deviceToPhysical && pRenderModel && pRenderModel->GetVisibility())
     {
-      vtkMatrix4x4* deviceToPhysical = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
       pRenderModel->Render(this, deviceToPhysical);
     }
   }

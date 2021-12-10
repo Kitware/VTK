@@ -85,7 +85,12 @@ void vtkOpenVRCamera::UpdateWorldToEyeMatrices(vtkRenderer* ren)
   auto hmdHandle = win->GetDeviceHandleForOpenVRHandle(vr::k_unTrackedDeviceIndex_Hmd);
 
   // first we get the physicalToHMDMatrix (by inverting deviceToPhysical for the HMD)
-  this->PhysicalToHMDMatrix->DeepCopy(win->GetDeviceToPhysicalMatrixForDeviceHandle(hmdHandle));
+  auto* deviceToPhysical = win->GetDeviceToPhysicalMatrixForDeviceHandle(hmdHandle);
+  if (!deviceToPhysical)
+  {
+    return;
+  }
+  this->PhysicalToHMDMatrix->DeepCopy(deviceToPhysical);
   this->PhysicalToHMDMatrix->Invert();
 
   // compute the physicalToEye matrices
