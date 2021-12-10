@@ -189,6 +189,7 @@ public:
   /**
    * Increase the reference count (mark as used by another object).
    */
+  // XXX(virtual): VTK_DEPRECATED_IN_9_2_0("Override `UsesGarbageCollector()` instead")
   virtual void Register(vtkObjectBase* o);
 
   /**
@@ -196,7 +197,22 @@ public:
    * has the same effect as invoking Delete() (i.e., it reduces the
    * reference count by 1).
    */
+  // XXX(virtual): VTK_DEPRECATED_IN_9_2_0("Override `UsesGarbageCollector()` instead")
   virtual void UnRegister(vtkObjectBase* o);
+
+  /// @{
+  /**
+   * Indicate whether the class uses `vtkGarbageCollector` or not.
+   *
+   * Most classes will not need to do this, but if the class participates in a
+   * strongly-connected reference count cycle, participation can resolve these
+   * cycles.
+   *
+   * If overriding this method to return true, the `ReportReferences` method
+   * should be overridden to report references that may be in cycles.
+   */
+  virtual bool UsesGarbageCollector() const { return false; }
+  /// @}
 
   /**
    * Return the current reference count of this object.

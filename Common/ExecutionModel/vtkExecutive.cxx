@@ -148,18 +148,6 @@ void vtkExecutive::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkExecutive::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
-void vtkExecutive::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
 void vtkExecutive::SetAlgorithm(vtkAlgorithm* newAlgorithm)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Algorithm to "

@@ -336,18 +336,6 @@ vtkCollectionIterator* vtkCollection::NewIterator()
 }
 
 //------------------------------------------------------------------------------
-void vtkCollection::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
-void vtkCollection::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
 void vtkCollection::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

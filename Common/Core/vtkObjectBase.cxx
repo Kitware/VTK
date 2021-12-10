@@ -281,15 +281,13 @@ void vtkObjectBase::ClearReferenceCounts()
 //------------------------------------------------------------------------------
 void vtkObjectBase::Register(vtkObjectBase* o)
 {
-  // Do not participate in garbage collection by default.
-  this->RegisterInternal(o, 0);
+  this->RegisterInternal(o, this->UsesGarbageCollector());
 }
 
 //------------------------------------------------------------------------------
 void vtkObjectBase::UnRegister(vtkObjectBase* o)
 {
-  // Do not participate in garbage collection by default.
-  this->UnRegisterInternal(o, 0);
+  this->UnRegisterInternal(o, this->UsesGarbageCollector());
 }
 
 //------------------------------------------------------------------------------

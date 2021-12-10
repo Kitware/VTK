@@ -32,8 +32,7 @@ public:
   }
   vtkTypeMacro(vtkTestReferenceLoop, vtkObject);
 
-  void Register(vtkObjectBase* o) override { this->RegisterInternal(o, 1); }
-  void UnRegister(vtkObjectBase* o) override { this->UnRegisterInternal(o, 1); }
+  bool UsesGarbageCollector() const override { return true; }
 
 protected:
   vtkTestReferenceLoop()

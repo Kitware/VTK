@@ -132,18 +132,6 @@ void vtkImplicitWindowFunction::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitWindowFunction::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
-void vtkImplicitWindowFunction::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
 void vtkImplicitWindowFunction ::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

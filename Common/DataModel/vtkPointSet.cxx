@@ -361,15 +361,3 @@ void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointLocator: " << this->PointLocator << "\n";
   os << indent << "CellLocator: " << this->CellLocator << "\n";
 }
-
-//------------------------------------------------------------------------------
-void vtkPointSet::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
-void vtkPointSet::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}

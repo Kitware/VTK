@@ -919,18 +919,6 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationVariantVectorKey* key)
 }
 
 //------------------------------------------------------------------------------
-void vtkInformation::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
-void vtkInformation::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
 void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

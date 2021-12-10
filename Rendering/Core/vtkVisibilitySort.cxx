@@ -64,16 +64,6 @@ vtkVisibilitySort::~vtkVisibilitySort()
 
 //------------------------------------------------------------------------------
 
-void vtkVisibilitySort::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-void vtkVisibilitySort::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
 void vtkVisibilitySort::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);

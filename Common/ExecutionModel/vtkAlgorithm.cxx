@@ -926,18 +926,6 @@ vtkExecutive* vtkAlgorithm::CreateDefaultExecutive()
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
-void vtkAlgorithm::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
-//------------------------------------------------------------------------------
 void vtkAlgorithm::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
