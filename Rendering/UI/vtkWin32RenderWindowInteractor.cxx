@@ -310,6 +310,11 @@ void vtkWin32RenderWindowInteractor::Disable()
 //------------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::TerminateApp(void)
 {
+  if (this->Done)
+  {
+    return;
+  }
+
   this->Done = true;
 
   // Only post a quit message if Start was called...
