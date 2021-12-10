@@ -7,7 +7,7 @@
         GIT_CLONE_PATH: "$CI_BUILDS_DIR/vtk-ci-ext/$CI_CONCURRENT_ID"
         # TODO: Factor this out so that each job selects the Xcode version to
         # use so that different versions can be tested in a single pipeline.
-        DEVELOPER_DIR: "/Applications/Xcode-12.4.app/Contents/Developer"
+        DEVELOPER_DIR: "/Applications/Xcode-13.1.app/Contents/Developer"
 
 .wheel_macos_arm64:
     extends: .macos
@@ -97,7 +97,7 @@
         - vtk
         - macos
         - shell
-        - xcode-12.4
+        - xcode-13.1
         - nonconcurrent
 
 .macos_wheel_builder_tags:
@@ -105,7 +105,7 @@
         - vtk
         - macos
         - shell
-        - xcode-12.4
+        - xcode-13.1
         - concurrent
 
 .macos_ext_builder_tags:
@@ -113,7 +113,7 @@
         - vtk
         - macos
         - shell
-        - xcode-12.4
+        - xcode-13.1
         - concurrent
 
 .macos_arm64_builder_tags:
@@ -121,7 +121,7 @@
         - vtk
         - macos-arm64
         - shell
-        - xcode-12.4
+        - xcode-13.1
         - nonconcurrent
 
 .macos_arm64_wheel_builder_tags:
@@ -129,7 +129,7 @@
         - vtk
         - macos-arm64
         - shell
-        - xcode-12.4
+        - xcode-13.1
         - concurrent
 
 ## macOS-specific scripts
