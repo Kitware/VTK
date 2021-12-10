@@ -60,6 +60,7 @@ set(classes
   vtkInterpolateDataSetAttributes
   vtkInterpolatingSubdivisionFilter
   vtkIntersectionPolyDataFilter
+  vtkJoinTables
   vtkLevelIdScalars
   vtkLinkEdgels
   vtkLoopBooleanPolyDataFilter
@@ -128,5 +129,9 @@ set(classes
   vtkWarpVector
   vtkYoungsMaterialInterface)
 
+set(templates
+  vtkJoinTables.txx)
+
 vtk_module_add_module(VTK::FiltersGeneral
-  CLASSES ${classes})
+  CLASSES ${classes}
+  TEMPLATES ${templates})
