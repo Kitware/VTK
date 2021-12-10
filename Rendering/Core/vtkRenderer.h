@@ -583,7 +583,7 @@ public:
    * at the given x, y position in the viewport.  Basically, the top most
    * prop that renders the pixel at selectionX, selectionY will be returned.
    * If nothing was picked then NULL is returned.  This method selects from
-   * the renderers Prop list.
+   * the renderer's Prop list.
    */
   vtkAssemblyPath* PickProp(double selectionX, double selectionY) override
   {
@@ -591,6 +591,26 @@ public:
   }
   vtkAssemblyPath* PickProp(
     double selectionX1, double selectionY1, double selectionX2, double selectionY2) override;
+  ////@}
+
+  ////@{
+  /**
+   * Return the prop (via a vtkAssemblyPath) that has the highest z value
+   * at the given x, y position in the viewport.  Basically, the top most
+   * prop that renders the pixel at selectionX, selectionY will be returned.
+   * If nothing was picked then NULL is returned.  This method selects from
+   * the renderer's Prop list. Additionally, you can set the field
+   * association of the hardware selector used internally, and get its selection
+   * result by passing a non-null vtkSmartPointer<vtkSelection>.
+   */
+  vtkAssemblyPath* PickProp(double selectionX, double selectionY, int fieldAssociation,
+    vtkSmartPointer<vtkSelection> selection) override
+  {
+    return this->PickProp(
+      selectionX, selectionY, selectionX, selectionY, fieldAssociation, selection);
+  }
+  vtkAssemblyPath* PickProp(double selectionX1, double selectionY1, double selectionX2,
+    double selectionY2, int fieldAssociation, vtkSmartPointer<vtkSelection> selection) override;
   ////@}
 
   /**

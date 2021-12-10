@@ -35,6 +35,9 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+#include "vtkSelection.h"    // Needed for selection
+#include "vtkSmartPointer.h" // Needed for assigning default nullptr value
+
 #include <array> // To store matrices
 
 class vtkActor2DCollection;
@@ -288,7 +291,7 @@ public:
   ///@}
 
   // The following methods describe the public pick interface for picking
-  // Props in a viewport.
+  // Props in a viewport without/with setting fieldAssociation and selection.
 
   /**
    * Return the Prop that has the highest z value at the given x, y position
@@ -322,6 +325,50 @@ public:
    */
   vtkAssemblyPath* PickPropFrom(double selectionX1, double selectionY1, double selectionX2,
     double selectionY2, vtkPropCollection*);
+
+  /**
+   * Return the Prop that has the highest z value at the given x, y position
+   * in the viewport.  Basically, the top most prop that renders the pixel at
+   * selectionX, selectionY will be returned.  If no Props are there, NULL is
+   * returned.  This method selects from the Viewports Prop list. Additionally,
+   * you can set the field association of the hardware selector used internally,
+   * and get its selection result by passing a non-null vtkSmartPointer<vtkSelection>.
+   */
+  virtual vtkAssemblyPath* PickProp(double selectionX, double selectionY, int fieldAssociation,
+    vtkSmartPointer<vtkSelection> selection) = 0;
+
+  /**
+   * Return the Prop that has the highest z value at the given x1, y1
+   * and x2,y2 positions in the viewport.  Basically, the top most prop that
+   * renders the pixel at selectionX1, selectionY1, selectionX2, selectionY2
+   * will be returned.  If no Props are there, NULL is returned.  This method
+   * selects from the Viewports Prop list. Additionally, you can set the field
+   * association of the hardware selector used internally, and get its selection
+   * result by passing a non-null vtkSmartPointer<vtkSelection>.
+   */
+  virtual vtkAssemblyPath* PickProp(double selectionX1, double selectionY1, double selectionX2,
+    double selectionY2, int fieldAssociation, vtkSmartPointer<vtkSelection> selection) = 0;
+
+  /**
+   * Same as PickProp with two arguments, but selects from the given
+   * collection of Props instead of the Renderers props.  Make sure
+   * the Props in the collection are in this renderer. Additionally, you can set
+   * the field association of the hardware selector used internally, and get its
+   * selection result by passing a non-null vtkSmartPointer<vtkSelection>.
+   */
+  vtkAssemblyPath* PickPropFrom(double selectionX, double selectionY, vtkPropCollection*,
+    int fieldAssociation, vtkSmartPointer<vtkSelection> selection);
+
+  /**
+   * Same as PickProp with four arguments, but selects from the given
+   * collection of Props instead of the Renderers props.  Make sure
+   * the Props in the collection are in this renderer. Additionally, you can set
+   * the field association of the hardware selector used internally, and get its
+   * selection result by passing a non-null vtkSmartPointer<vtkSelection>.
+   */
+  vtkAssemblyPath* PickPropFrom(double selectionX1, double selectionY1, double selectionX2,
+    double selectionY2, vtkPropCollection*, int fieldAssociation,
+    vtkSmartPointer<vtkSelection> selection);
 
   ///@{
   /**
