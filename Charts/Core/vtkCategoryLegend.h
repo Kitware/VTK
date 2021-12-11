@@ -83,8 +83,8 @@ public:
    * Each value in this array will be drawn as a separate entry within this
    * legend.
    */
-  vtkGetMacro(Values, vtkVariantArray*);
-  vtkSetMacro(Values, vtkVariantArray*);
+  vtkGetObjectMacro(Values, vtkVariantArray);
+  virtual void SetValues(vtkVariantArray*);
   ///@}
 
   ///@{
