@@ -52,6 +52,12 @@
     extends: .linux
     image: "kitware/vtk:ci-fedora34-20211020"
 
+.fedora_cuda_addon:
+    image: "kitware/vtk:ci-fedora34-20210824"
+    variables:
+        CUDACC: "/usr/local/cuda-11.4/bin/nvcc"
+        CUDACXX: "/usr/local/cuda-11.4/bin/nvcc"
+
 .fedora_mpich_addon:
     variables:
         MODULES: mpi/mpich-x86_64
@@ -74,6 +80,25 @@
 
     variables:
         CMAKE_CONFIGURATION: fedora34_doxygen_mpi_python_qt_tbb
+
+.fedora34_cuda_mpi:
+    extends:
+        - .fedora34
+        - .fedora_cuda_addon
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora34_mpi_cuda_offscreen_osmesa
+        VTK_INSTALL: 1
+
+.fedora34_cuda_mpi_ext_vtk:
+    extends:
+        - .fedora34
+        - .fedora_cuda_addon
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora34_mpi_cuda_offscreen_osmesa_ext_vtk
 
 .fedora34_mpi_offscreen_osmesa_python:
     extends:
@@ -216,6 +241,13 @@
         - linux
         - vtk
 
+.linux_cuda_builder_tags:
+    tags:
+        - build
+        - docker
+        - large-memory
+        - linux
+
 .linux_qt_builder_tags:
     tags:
         - build
@@ -230,6 +262,12 @@
         - linux
         - x11
         - vtk
+
+.linux_cuda_tester_tags:
+    tags:
+        - cuda-rt
+        - docker
+        - linux
 
 .linux_qt_tester_tags:
     tags:

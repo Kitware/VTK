@@ -46,7 +46,7 @@ configuration_flag(VTK_WRAP_PYTHON "python")
 configuration_flag(VTK_WRAP_JAVA "java")
 
 # qt
-configuration_flag_module(VTK_GROUP_ENABLE_QT "qt")
+configuration_flag_module(VTK_GROUP_ENABLE_Qt "qt")
 
 # "nogl" builds
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "renderless")

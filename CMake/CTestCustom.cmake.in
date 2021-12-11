@@ -202,6 +202,9 @@ if (NOT cdash_show_third_party_warnings)
 
     # Warnings from template instantiations. Remove once cmake/cmake!4766 is releasted.
     "x(memory0|utility)\\([0-9]+\\): warning C4244"
+
+    # Timeout errors of SCCACHE are common cases for long builds such as VTK+VTKm+CUDA
+    "sccache: warning: The server looks like it shut down unexpectedly, compiling locally instead"
   )
 endif ()
 
