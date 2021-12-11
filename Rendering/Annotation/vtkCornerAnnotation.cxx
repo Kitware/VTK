@@ -31,8 +31,8 @@
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
 
-vtkSetObjectImplementationMacro(vtkCornerAnnotation, ImageActor, vtkImageActor);
-vtkSetObjectImplementationMacro(vtkCornerAnnotation, WindowLevel, vtkImageMapToWindowLevelColors);
+vtkCxxSetObjectMacro(vtkCornerAnnotation, ImageActor, vtkImageActor);
+vtkCxxSetObjectMacro(vtkCornerAnnotation, WindowLevel, vtkImageMapToWindowLevelColors);
 vtkCxxSetObjectMacro(vtkCornerAnnotation, TextProperty, vtkTextProperty);
 
 //------------------------------------------------------------------------------

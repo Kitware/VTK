@@ -36,8 +36,7 @@
 static const int HISTOGRAM_SIZE = 1024;
 
 vtkStandardNewMacro(vtkDistributedPointCloudFilter);
-vtkSetObjectImplementationMacro(
-  vtkDistributedPointCloudFilter, Controller, vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkDistributedPointCloudFilter, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 vtkDistributedPointCloudFilter::vtkDistributedPointCloudFilter()

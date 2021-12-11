@@ -35,7 +35,7 @@
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotBag);
 
-vtkSetObjectImplementationMacro(vtkPlotBag, LinePen, vtkPen);
+vtkCxxSetObjectMacro(vtkPlotBag, LinePen, vtkPen);
 
 //------------------------------------------------------------------------------
 vtkPlotBag::vtkPlotBag()
