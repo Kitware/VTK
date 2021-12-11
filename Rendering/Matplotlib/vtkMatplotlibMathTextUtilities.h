@@ -118,17 +118,17 @@ public:
   /**
    * Set the visibility of the interior lines between cells. Default is false.
    */
-  vtkSetMacro(InteriorLinesVisibility, bool);
+  vtkSetMacroOverride(InteriorLinesVisibility, bool);
 
   /**
    * Set the width (in pixels) of the interior lines between cells. Default is 1.
    */
-  vtkSetMacro(InteriorLinesWidth, int);
+  vtkSetMacroOverride(InteriorLinesWidth, int);
 
   /**
    * Set the color of the interior lines between cells. Default is black (0.0, 0.0, 0.0).
    */
-  vtkSetVector3Macro(InteriorLinesColor, unsigned char);
+  vtkSetVector3MacroOverride(InteriorLinesColor, unsigned char);
 
 protected:
   vtkMatplotlibMathTextUtilities();
