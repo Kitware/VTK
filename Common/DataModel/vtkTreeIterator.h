@@ -47,7 +47,7 @@ public:
    * Set/get the graph to iterate over.
    */
   void SetTree(vtkTree* tree);
-  vtkGetMacro(Tree, vtkTree*);
+  vtkGetObjectMacro(Tree, vtkTree);
   ///@}
 
   ///@{

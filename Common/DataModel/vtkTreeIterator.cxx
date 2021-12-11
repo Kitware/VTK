@@ -28,7 +28,7 @@ vtkTreeIterator::~vtkTreeIterator()
 {
   if (this->Tree)
   {
-    this->Tree->Delete();
+    this->Tree->UnRegister(this);
     this->Tree = nullptr;
   }
 }
