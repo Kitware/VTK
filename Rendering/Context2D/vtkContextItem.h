@@ -54,11 +54,11 @@ public:
   /**
    * Set the transform of the item.
    */
-  vtkSetMacro(Transform, vtkContextTransform*);
+  virtual void SetTransform(vtkContextTransform*);
 
 protected:
   vtkContextItem() = default;
-  ~vtkContextItem() override = default;
+  ~vtkContextItem() override;
 
   double Opacity = 1.0;
   vtkContextTransform* Transform = nullptr;

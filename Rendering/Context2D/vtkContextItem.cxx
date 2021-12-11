@@ -14,6 +14,15 @@
 =========================================================================*/
 
 #include "vtkContextItem.h"
+#include "vtkContextTransform.h"
+
+vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkContextTransform);
+
+//------------------------------------------------------------------------------
+vtkContextItem::~vtkContextItem()
+{
+  this->SetTransform(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkContextItem::PrintSelf(ostream& os, vtkIndent indent)
