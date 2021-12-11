@@ -17,6 +17,7 @@
 #include "vtkBoundingBox.h"
 #include "vtkBox.h"
 #include "vtkCellArray.h"
+#include "vtkDataArray.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkLine.h"
@@ -24,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStructuredData.h"
@@ -492,6 +494,7 @@ struct BucketList : public vtkBucketList
   int IntersectWithLine(double a0[3], double a1[3], double tol, double& t, double lineX[3],
     double ptX[3], vtkIdType& ptId);
   void MergePoints(double tol, vtkIdType* pointMap, int orderingMode);
+  void MergePointsWithData(vtkDataArray* data, vtkIdType* pointMap);
   void GenerateRepresentation(int vtkNotUsed(level), vtkPolyData* pd);
 
   // Internal methods
@@ -903,6 +906,96 @@ struct BucketList : public vtkBucketList
     } // Execute()
 
   }; // MergeBinOrder
+
+  // Merge points that are geometrically coincident and have matching data
+  // values. Operates in parallel on locator buckets. Does not need to check
+  // neighbor buckets.
+  template <typename T>
+  struct MergePointsAndData
+  {
+    BucketList<T>* BList;
+    vtkDataSet* DataSet;
+    vtkDataArray* DataArray;
+    vtkIdType* MergeMap;
+    vtkSMPThreadLocal<std::vector<double>> Tuple;
+    vtkSMPThreadLocal<std::vector<double>> Tuple2;
+
+    MergePointsAndData(BucketList<T>* blist, vtkDataArray* da, vtkIdType* mergeMap)
+      : BList(blist)
+      , DataArray(da)
+      , MergeMap(mergeMap)
+    {
+      this->DataSet = blist->DataSet;
+    }
+
+    bool TuplesEqual(int tupleSize, double* t1, double* t2)
+    {
+      for (auto i = 0; i < tupleSize; ++i)
+      {
+        if (t1[i] != t2[i])
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    void Initialize()
+    {
+      vtkIdType numComp = this->DataArray->GetNumberOfComponents();
+      this->Tuple.Local().resize(numComp);
+      this->Tuple2.Local().resize(numComp);
+    }
+
+    void operator()(vtkIdType bucket, vtkIdType endBucket)
+    {
+      BucketList<T>* bList = this->BList;
+      vtkIdType* mergeMap = this->MergeMap;
+      int i, j;
+      const LocatorTuple<TIds>* ids;
+      double p[3], p2[3];
+      vtkIdType ptId, ptId2, numIds;
+      int tupleSize = static_cast<int>(this->Tuple.Local().size());
+      double* t = this->Tuple.Local().data();
+      double* t2 = this->Tuple2.Local().data();
+
+      for (; bucket < endBucket; ++bucket)
+      {
+        if ((numIds = bList->GetNumberOfIds(bucket)) > 0)
+        {
+          ids = bList->GetIds(bucket);
+          for (i = 0; i < numIds; i++)
+          {
+            ptId = ids[i].PtId;
+            if (mergeMap[ptId] < 0)
+            {
+              mergeMap[ptId] = ptId;
+              this->DataSet->GetPoint(ptId, p);
+              this->DataArray->GetTuple(ptId, t);
+              for (j = i + 1; j < numIds; j++)
+              {
+                ptId2 = ids[j].PtId;
+                if (mergeMap[ptId2] < 0)
+                {
+                  this->DataSet->GetPoint(ptId2, p2);
+                  if (p[0] == p2[0] && p[1] == p2[1] && p[2] == p2[2])
+                  {
+                    this->DataArray->GetTuple(ptId2, t2);
+                    if (this->TuplesEqual(tupleSize, t, t2))
+                    {
+                      mergeMap[ptId2] = ptId;
+                    } // if point's data match
+                  }   // if points geometrically coincident
+                }     // if point not yet visited
+              }       // for the remaining points in the bin
+            }         // if point not yet merged
+          }           // for all points in bucket
+        }             // if bucket contains points
+      }               // for all buckets
+    }                 // operator()
+
+    void Reduce() {}
+  }; // MergePointsWithData
 
   // Build the map and other structures to support locator operations
   void BuildLocator() override
@@ -1594,6 +1687,18 @@ void BucketList<TIds>::MergePoints(double tol, vtkIdType* mergeMap, int ordering
 }
 
 //------------------------------------------------------------------------------
+// Merge points with precisely equal position and data values.
+template <typename TIds>
+void BucketList<TIds>::MergePointsWithData(vtkDataArray* data, vtkIdType* mergeMap)
+{
+  // First mark all points as uninitialized
+  std::fill_n(mergeMap, this->NumPts, (-1));
+
+  MergePointsAndData<TIds> merge(this, data, mergeMap);
+  vtkSMPTools::For(0, this->NumBuckets, merge);
+}
+
+//------------------------------------------------------------------------------
 // Internal method to find those buckets that are within distance specified
 // only those buckets outside of level radiuses of ijk are returned
 template <typename TIds>
@@ -2235,6 +2340,26 @@ void vtkStaticPointLocator::MergePoints(double tol, vtkIdType* pointMap)
   {
     return static_cast<BucketList<int>*>(this->Buckets)
       ->MergePoints(tol, pointMap, this->TraversalOrder);
+  }
+}
+
+//------------------------------------------------------------------------------
+// Merge the points and data in the locator, return a merge map.
+void vtkStaticPointLocator::MergePointsWithData(vtkDataArray* data, vtkIdType* pointMap)
+{
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+  if (!this->Buckets)
+  {
+    return;
+  }
+
+  if (this->LargeIds)
+  {
+    return static_cast<BucketList<vtkIdType>*>(this->Buckets)->MergePointsWithData(data, pointMap);
+  }
+  else
+  {
+    return static_cast<BucketList<int>*>(this->Buckets)->MergePointsWithData(data, pointMap);
   }
 }
 

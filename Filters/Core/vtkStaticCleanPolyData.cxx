@@ -45,6 +45,9 @@ vtkStaticCleanPolyData::vtkStaticCleanPolyData()
   this->Tolerance = 0.0;
   this->AbsoluteTolerance = 0.0;
 
+  this->MergingArray = nullptr;
+  this->SetMergingArray("");
+
   this->ConvertPolysToLines = false;
   this->ConvertLinesToPoints = false;
   this->ConvertStripsToPolys = false;
@@ -145,10 +148,22 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   double tol =
     (this->ToleranceIsAbsolute ? this->AbsoluteTolerance : this->Tolerance * input->GetLength());
 
-  // Now merge the points to create a merge map. The order of traversal
-  // can be specified through the locator, the default is BIN_ORDER.
+  // Now merge the points to create a merge map. The order of traversal can
+  // be specified through the locator, the default is BIN_ORDER when the
+  // tolerance is non-zero. Also, check whether merging data is enabled.
   std::vector<vtkIdType> mergeMap(numPts);
-  this->Locator->MergePoints(tol, mergeMap.data());
+  vtkDataArray* mergingData = nullptr;
+  if (this->MergingArray)
+  {
+    if ((mergingData = inPD->GetArray(this->MergingArray)))
+    {
+      this->Locator->MergePointsWithData(mergingData, mergeMap.data());
+    }
+  }
+  if (!mergingData)
+  {
+    this->Locator->MergePoints(tol, mergeMap.data());
+  }
   this->UpdateProgress(0.5);
 
   // If removing unused points, traverse the connectivity array to mark the
@@ -492,9 +507,20 @@ void vtkStaticCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ToleranceIsAbsolute: " << (this->ToleranceIsAbsolute ? "On\n" : "Off\n");
   os << indent << "Tolerance: " << (this->Tolerance ? "On\n" : "Off\n");
   os << indent << "AbsoluteTolerance: " << (this->AbsoluteTolerance ? "On\n" : "Off\n");
+
+  if (this->MergingArray)
+  {
+    os << indent << "Merging Array: " << this->MergingArray << "\n";
+  }
+  else
+  {
+    os << indent << "Merging Array: (none)\n";
+  }
+
   os << indent << "ConvertPolysToLines: " << (this->ConvertPolysToLines ? "On\n" : "Off\n");
   os << indent << "ConvertLinesToPoints: " << (this->ConvertLinesToPoints ? "On\n" : "Off\n");
   os << indent << "ConvertStripsToPolys: " << (this->ConvertStripsToPolys ? "On\n" : "Off\n");
+
   if (this->Locator)
   {
     os << indent << "Locator: " << this->Locator << "\n";

@@ -62,6 +62,7 @@
 
 class vtkIdList;
 struct vtkBucketList;
+class vtkDataArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStaticPointLocator : public vtkAbstractPointLocator
 {
@@ -172,6 +173,18 @@ public:
    * order).
    */
   void MergePoints(double tol, vtkIdType* mergeMap);
+
+  /**
+   * Merge points and associated data in the locator. Return a merge map
+   * which maps all points to the points to which they were merged. Note the
+   * number of points in the merge map is the number of points the locator
+   * was built with. Merging occurs when both the points and the associated
+   * point data (represented by the data array) are equal. The user is
+   * expected to pass in an allocated mergeMap, and the size of the data
+   * array should be number of points in the locator. The data array may
+   * have an arbitrary number of components.
+   */
+  void MergePointsWithData(vtkDataArray* data, vtkIdType* mergeMap);
 
   ///@{
   /**

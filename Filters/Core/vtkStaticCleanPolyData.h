@@ -119,6 +119,22 @@ public:
 
   ///@{
   /**
+   * Specify the name of a point data array associated with the point merging
+   * process. If a data array is specified, and exists in the input point
+   * data, then point merging will switch into a mode where merged points
+   * must be both geometrically coincident and have matching point data
+   * (i.e., an exact match of position and data - tolerances have no
+   * effect). Note that the number of tuples in the merging data array must
+   * be equal to the number of points in the input. By default, no data array
+   * is associated with the input points (i.e., the name of the data array is
+   * empty).
+   */
+  vtkSetStringMacro(MergingArray);
+  vtkGetStringMacro(MergingArray);
+  ///@}
+
+  ///@{
+  /**
    * Turn on/off conversion of degenerate lines to points. Default is Off.
    */
   vtkSetMacro(ConvertLinesToPoints, bool);
@@ -217,7 +233,7 @@ public:
 
 protected:
   vtkStaticCleanPolyData();
-  ~vtkStaticCleanPolyData() = default;
+  ~vtkStaticCleanPolyData() override = default;
 
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -225,6 +241,7 @@ protected:
 
   double Tolerance;
   double AbsoluteTolerance;
+  char* MergingArray;
   bool ConvertLinesToPoints;
   bool ConvertPolysToLines;
   bool ConvertStripsToPolys;
