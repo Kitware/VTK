@@ -129,6 +129,7 @@ void vtkGenericDataObjectWriter::WriteData()
     case VTK_UNIFORM_GRID:
       vtkErrorMacro(<< "Cannot write uniform grid");
       return;
+    case VTK_UNSTRUCTURED_GRID_BASE:
     case VTK_UNSTRUCTURED_GRID:
       writer = CreateWriter<vtkUnstructuredGridWriter>(input);
       break;

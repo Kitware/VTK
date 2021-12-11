@@ -20,4 +20,5 @@ TEST_DEPENDS
   VTK::ImagingCore
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
+  VTK::TestingDataModel
   VTK::TestingRendering
