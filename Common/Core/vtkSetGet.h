@@ -352,15 +352,15 @@
 // The first one is just for people who already used it.
 #define vtkSetObjectImplementationMacro(class, name, type) vtkCxxSetObjectMacro(class, name, type)
 
-#define vtkCxxSetObjectMacro(class, name, type)                                                    \
-  void class ::Set##name(type* _arg) { vtkSetObjectBodyMacro(name, type, _arg); }
+#define vtkCxxSetObjectMacro(cls, name, type)                                                      \
+  void cls::Set##name(type* _arg) { vtkSetObjectBodyMacro(name, type, _arg); }
 
 //
 // Set pointer to smart pointer.
 // This macro is used to define the implementation.
 //
-#define vtkCxxSetSmartPointerMacro(class, name, type)                                              \
-  void class ::Set##name(type* _arg) { vtkSetSmartPointerBodyMacro(name, type, _arg); }
+#define vtkCxxSetSmartPointerMacro(cls, name, type)                                                \
+  void cls::Set##name(type* _arg) { vtkSetSmartPointerBodyMacro(name, type, _arg); }
 
 //
 // Get pointer to object wrapped in vtkNew.  Creates member Get"name"
