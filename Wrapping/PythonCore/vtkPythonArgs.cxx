@@ -28,6 +28,7 @@ resulting in wrapper code that is faster and more compact.
 #include "PyVTKReference.h"
 #include "vtkPythonUtil.h"
 
+#include "vtkObject.h"
 #include "vtkSmartPointerBase.h"
 
 //------------------------------------------------------------------------------
@@ -974,6 +975,16 @@ PyObject* vtkPythonArgs::BuildTuple(vtkSmartPointerBase* a, size_t n)
 }
 
 //------------------------------------------------------------------------------
+
+void vtkPythonArgs::DeleteVTKObject(void* v)
+{
+  return static_cast<vtkObjectBase*>(v)->Delete();
+}
+
+PyObject* vtkPythonArgs::BuildVTKObject(const void* v)
+{
+  return vtkPythonUtil::GetObjectFromPointer(static_cast<vtkObjectBase*>(const_cast<void*>(v)));
+}
 
 PyObject* vtkPythonArgs::BuildVTKObject(vtkSmartPointerBase& v)
 {

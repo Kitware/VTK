@@ -34,13 +34,13 @@ resulting in wrapper code that is faster and more compact.
 #include "vtkPythonUtil.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 
-#include "vtkCompiler.h"   // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkObjectBase.h" // for vtkObjectBase
+#include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
 
 #include <cassert>
 #include <cstring>
 #include <string>
 
+class vtkObjectBase;
 class vtkSmartPointerBase;
 
 class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs
@@ -857,11 +857,6 @@ inline PyObject* vtkPythonArgs::BuildNone()
   return Py_None;
 }
 
-inline PyObject* vtkPythonArgs::BuildVTKObject(const void* v)
-{
-  return vtkPythonUtil::GetObjectFromPointer(static_cast<vtkObjectBase*>(const_cast<void*>(v)));
-}
-
 inline PyObject* vtkPythonArgs::BuildSpecialObject(const void* v, const char* classname)
 {
   return PyVTKSpecialObject_CopyNew(classname, v);
@@ -997,14 +992,6 @@ inline PyObject* vtkPythonArgs::BuildBytes(const char* a, size_t n)
 #if defined(VTK_USE_EXTERN_TEMPLATE) && !defined(vtkPythonArgs_cxx)
 vtkPythonArgsTemplateMacro(extern template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array);
 #endif
-
-//--------------------------------------------------------------------
-// Inline method for deleting a vtkObjectBase* via void*
-//
-inline void vtkPythonArgs::DeleteVTKObject(void* v)
-{
-  return static_cast<vtkObjectBase*>(v)->Delete();
-}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkPythonArgs.h
