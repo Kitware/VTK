@@ -39,6 +39,12 @@
     variables:
         CMAKE_CONFIGURATION: wheel_windows39_x86_64
 
+.wheel_windows310_x86_64:
+    extends: .wheel_windows_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_windows310_x86_64
+
 ### Build and test
 
 .windows_build:
