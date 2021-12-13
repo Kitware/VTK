@@ -66,6 +66,7 @@ public:
     Completed,
     PickPoint,
     PickNormal,
+    PickDirectionPoint,
     TimedOut,
     ModifyEvent,
     Reset,

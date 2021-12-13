@@ -783,6 +783,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkInden
       break;
     case ResizeDiskRadius:
       os << "ResizeDiskRadius\n";
+      break;
     case Scaling:
       os << "Scaling\n";
       break;
