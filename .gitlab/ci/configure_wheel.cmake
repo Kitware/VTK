@@ -10,7 +10,11 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "x86_64")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "")
+    if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "python31.") # 3.10+ binaries target at least 11.0
+      set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
+    else ()
+      set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "")
+    endif ()
   elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
   endif ()
