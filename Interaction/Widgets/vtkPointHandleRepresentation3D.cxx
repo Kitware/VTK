@@ -521,7 +521,6 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
               newBounds[2 * i + 1] = bounds[2 * i + 1] + v[i];
             }
 
-            this->Cursor3D->SetModelBounds(newBounds);
             this->SetWorldPosition(newCenterPoint);
           }
         }
@@ -818,7 +817,12 @@ void vtkPointHandleRepresentation3D::DeepCopy(vtkProp* prop)
 //------------------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::GetActors(vtkPropCollection* pc)
 {
-  this->Actor->GetActors(pc);
+  if (!pc)
+  {
+    return;
+  }
+  pc->AddItem(this->Actor);
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------

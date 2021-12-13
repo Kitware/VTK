@@ -31,7 +31,6 @@
 #include "vtkPicker.h"
 #include "vtkPickingManager.h"
 #include "vtkPointData.h"
-#include "vtkPointGaussianMapper.h"
 #include "vtkPointPicker.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
@@ -39,6 +38,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkPropCollection.h"
+#include "vtkProperty.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkSelection.h"
@@ -273,6 +273,7 @@ void vtkPointCloudRepresentation::PlacePointCloud(vtkActor* a)
   this->PointCloud->Register(this);
   this->PointCloudMapper->Register(this);
   this->PointCloudActor->Register(this);
+  this->PointCloudActor->GetProperty()->SetRepresentationToPoints();
 
   this->OutlinePicker->InitializePickList();
   this->OutlinePicker->AddPickList(a);
@@ -302,9 +303,7 @@ void vtkPointCloudRepresentation::PlacePointCloud(vtkPointSet* pc)
 
   if (vtkPolyData::SafeDownCast(pc))
   {
-    vtkNew<vtkPointGaussianMapper> mapper;
-    mapper->EmissiveOff();
-    mapper->SetScaleFactor(0.0);
+    vtkNew<vtkPolyDataMapper> mapper;
     mapper->SetInputData(vtkPolyData::SafeDownCast(pc));
     actor->SetMapper(mapper);
   }
@@ -376,8 +375,26 @@ int vtkPointCloudRepresentation::ComputeInteractionState(int X, int Y, int vtkNo
 //------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::GetActors2D(vtkPropCollection* pc)
 {
+  if (!pc)
+  {
+    return;
+  }
   pc->AddItem(this->SelectionActor);
   this->Superclass::GetActors2D(pc);
+}
+
+//------------------------------------------------------------------------------
+void vtkPointCloudRepresentation::GetActors(vtkPropCollection* pc)
+{
+  if (!pc)
+  {
+    return;
+  }
+  if (this->PointCloudActor)
+  {
+    pc->AddItem(this->PointCloudActor);
+  }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------

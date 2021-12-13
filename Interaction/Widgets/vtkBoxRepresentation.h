@@ -303,6 +303,13 @@ public:
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
   ///@}
 
+  /**
+   * These methods are necessary to make this representation behave as
+   * a vtkProp (i.e., support rendering).
+   * GetActors adds all the internal props used by this representation to the supplied collection.
+   */
+  void GetActors(vtkPropCollection*) override;
+
 protected:
   vtkBoxRepresentation();
   ~vtkBoxRepresentation() override;

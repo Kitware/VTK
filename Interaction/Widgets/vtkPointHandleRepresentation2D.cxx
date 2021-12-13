@@ -341,7 +341,12 @@ void vtkPointHandleRepresentation2D::DeepCopy(vtkProp* prop)
 //------------------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::GetActors2D(vtkPropCollection* pc)
 {
-  this->Actor->GetActors2D(pc);
+  if (!pc)
+  {
+    return;
+  }
+  pc->AddItem(this->Actor);
+  this->Superclass::GetActors2D(pc);
 }
 
 //------------------------------------------------------------------------------

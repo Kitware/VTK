@@ -963,6 +963,21 @@ void vtkCurveRepresentation::SetLineColor(double r, double g, double b)
 }
 
 //------------------------------------------------------------------------------
+void vtkCurveRepresentation::GetActors(vtkPropCollection* pc)
+{
+  if (!pc)
+  {
+    return;
+  }
+  pc->AddItem(this->LineActor);
+  for (int i = 0; i < this->GetNumberOfHandles(); ++i)
+  {
+    pc->AddItem(this->GetHandleActor(i));
+  }
+  this->Superclass::GetActors(pc);
+}
+
+//------------------------------------------------------------------------------
 void vtkCurveRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

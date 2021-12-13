@@ -21,6 +21,8 @@ PRIVATE_DEPENDS
   VTK::jsoncpp
   VTK::vtksys
 TEST_DEPENDS
+  #VTK::ParallelMPI
+  #VTK::RenderingParallel
   VTK::CommonColor
   VTK::CommonSystem
   VTK::FiltersAMR
@@ -36,16 +38,15 @@ TEST_DEPENDS
   VTK::IOImport
   VTK::IOLegacy
   VTK::IOPLY
+  VTK::IOParallel
   VTK::IOXML
   VTK::ImagingGeneral
   VTK::ImagingHybrid
   VTK::ImagingSources
   VTK::InteractionStyle
-  VTK::InteractionStyle
-  #VTK::ParallelMPI
+  VTK::InteractionWidgets
   VTK::RenderingAnnotation
   VTK::RenderingFreeType
-  #VTK::RenderingParallel
   VTK::RenderingVolume
   VTK::RenderingVolumeAMR
   VTK::RenderingVolumeOpenGL2

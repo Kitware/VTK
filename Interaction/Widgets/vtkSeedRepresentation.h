@@ -135,6 +135,7 @@ public:
    */
   void BuildRepresentation() override;
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
+  void GetActors(vtkPropCollection*);
   ///@}
 
 protected:
