@@ -934,32 +934,38 @@ struct RectilinearGridFittingWorker
   void operator()(ArrayT* localArray)
   {
     ArrayT* array = ArrayT::SafeDownCast(this->Array);
-    if (localArray->GetValue(localArray->GetNumberOfTuples() - 1) >
-        array->GetValue(array->GetNumberOfTuples() - 1))
+
+    auto localArrayRange = vtk::DataArrayValueRange(localArray);
+    auto arrayRange = vtk::DataArrayValueRange(array);
+
+    if (localArrayRange[localArrayRange.size() - 1] >
+        arrayRange[arrayRange.size() - 1])
     {
-      this->FitArrays(array, localArray);
+      this->FitArrays(arrayRange, localArrayRange);
     }
     else
     {
-      this->FitArrays(localArray, array);
+      this->FitArrays(localArrayRange, arrayRange);
       std::swap(this->MinId, this->LocalMinId);
       std::swap(this->MaxId, this->LocalMaxId);
     }
   }
 
-  template <class ArrayT>
-  void FitArrays(ArrayT* lowerMaxArray, ArrayT* upperMaxArray)
+  template <class RangeT>
+  void FitArrays(const RangeT& lowerMaxArray, const RangeT& upperMaxArray)
   {
-    using ValueType = typename ArrayT::ValueType;
+    using ValueType = typename RangeT::ValueType;
     constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
-    const auto& lowerMinArray = lowerMaxArray->GetValue(0) > upperMaxArray->GetValue(0)
+
+    const auto& lowerMinArray = lowerMaxArray[0] > upperMaxArray[0]
     ? upperMaxArray : lowerMaxArray;
-    const auto& upperMinArray = lowerMaxArray->GetValue(0) < upperMaxArray->GetValue(0)
+    const auto& upperMinArray = lowerMaxArray[0] < upperMaxArray[0]
     ? upperMaxArray : lowerMaxArray;
     vtkIdType id = 0;
-    while (id < lowerMinArray->GetNumberOfTuples() &&
-      (lowerMinArray->GetValue(id) < upperMinArray->GetValue(0) &&
-        !Comparator<IsInteger>::Equals(lowerMinArray->GetValue(id), upperMinArray->GetValue(0))))
+
+    while (id < lowerMinArray.size() &&
+      (lowerMinArray[id] < upperMinArray[0] &&
+       !Comparator<IsInteger>::Equals(lowerMinArray[id], upperMinArray[0])))
     {
       ++id;
     }
@@ -967,26 +973,26 @@ struct RectilinearGridFittingWorker
     {
       this->LocalMinId = 0;
       this->MinId = id;
-      if (lowerMaxArray->GetValue(0) > upperMaxArray->GetValue(0))
+      if (lowerMaxArray[0] > upperMaxArray[0])
       {
         std::swap(this->MaxId, this->LocalMaxId);
       }
     }
   }
 
-  template <class ArrayT>
-  bool SubArraysAreEqual(ArrayT* lowerArray, ArrayT* upperArray, vtkIdType lowerId)
+  template <class RangeT>
+  bool SubArraysAreEqual(const RangeT& lowerArray, const RangeT& upperArray, vtkIdType lowerId)
   {
     vtkIdType upperId = 0;
-    using ValueType = typename ArrayT::ValueType;
+    using ValueType = typename RangeT::ValueType;
     constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
-    while (lowerId < lowerArray->GetNumberOfTuples() && upperId < upperArray->GetNumberOfTuples() &&
-      Comparator<IsInteger>::Equals(lowerArray->GetValue(lowerId), upperArray->GetValue(upperId)))
+    while (lowerId < lowerArray.size() && upperId < upperArray.size() &&
+      Comparator<IsInteger>::Equals(lowerArray[lowerId], upperArray[upperId]))
     {
       ++lowerId;
       ++upperId;
     }
-    if (lowerId == lowerArray->GetNumberOfTuples())
+    if (lowerId == lowerArray.size())
     {
       this->MaxId = lowerId - 1;
       this->LocalMaxId = upperId - 1;
@@ -1028,9 +1034,18 @@ bool SynchronizeGridExtents(const ::RectilinearGridBlockStructure& localBlockStr
   using Dispatcher = vtkArrayDispatch::Dispatch;
   RectilinearGridFittingWorker xWorker(xCoordinates), yWorker(yCoordinates), zWorker(zCoordinates);
 
-  Dispatcher::Execute(localXCoordinates, xWorker);
-  Dispatcher::Execute(localYCoordinates, yWorker);
-  Dispatcher::Execute(localZCoordinates, zWorker);
+  if (!Dispatcher::Execute(localXCoordinates, xWorker))
+  {
+    xWorker(localXCoordinates.GetPointer());
+  }
+  if (!Dispatcher::Execute(localYCoordinates, yWorker))
+  {
+    yWorker(localYCoordinates.GetPointer());
+  }
+  if (!Dispatcher::Execute(localZCoordinates, zWorker))
+  {
+    zWorker(localZCoordinates.GetPointer());
+  }
 
   // The overlap between the 2 grids needs to have at least one degenerate dimension in order
   // for them to be adjacent.
@@ -1100,6 +1115,8 @@ struct StructuredGridFittingWorker
   template<class ArrayT>
   void operator()(ArrayT* localPoints)
   {
+    auto localPointsRange = vtk::DataArrayTupleRange<3>(localPoints);
+
     for (int dim = 0; dim < 3; ++dim)
     {
       if (this->Extent[2 * dim] == this->Extent[2 * dim + 1])
@@ -1110,13 +1127,15 @@ struct StructuredGridFittingWorker
       for (int sideId = 2 * dim; sideId <= 2 * dim + 1; ++sideId)
       {
         ArrayT* points = vtkArrayDownCast<ArrayT>(this->Points[sideId]);
-        if (this->GridsFit(localPoints, this->LocalExtent, this->LocalExtentIndex,
-              points, this->Locator[sideId], this->Extent[sideId], sideId))
+        auto pointsRange = vtk::DataArrayTupleRange<3>(points);
+
+        if (this->GridsFit(localPointsRange, this->LocalExtent, this->LocalExtentIndex,
+              pointsRange, this->Locator[sideId], this->Extent[sideId], sideId))
         {
           this->Connected = true;
         }
-        else if (this->GridsFit(points, this->Extent[sideId], sideId,
-              localPoints, this->LocalLocator, this->LocalExtent, this->LocalExtentIndex))
+        else if (this->GridsFit(pointsRange, this->Extent[sideId], sideId,
+              localPointsRange, this->LocalLocator, this->LocalExtent, this->LocalExtentIndex))
         {
           this->Connected = true;
           std::swap(this->Grid, this->LocalGrid);
@@ -1160,11 +1179,13 @@ struct StructuredGridFittingWorker
    * Indeed, one can catch an edge on one face, while an entire face fits elsewhere, so this method
    * might be called even if a match has been found.
    */
-  template<class ArrayT>
-  bool GridsFit(ArrayT* queryPoints, const ::ExtentType& queryExtent, int queryExtentId,
-      ArrayT* points, vtkAbstractPointLocator* locator, const ::ExtentType& extent, int extentId)
+  template<class PointRangeT>
+  bool GridsFit(const PointRangeT& queryPoints, const ::ExtentType& queryExtent, int queryExtentId,
+      const PointRangeT& points, vtkAbstractPointLocator* locator,
+      const ::ExtentType& extent, int extentId)
   {
-    using ValueType = typename ArrayT::ValueType;
+    using ConstPointRef = typename PointRangeT::ConstTupleReferenceType;
+    using ValueType = typename ConstPointRef::value_type;
 
     bool retVal = false;
 
@@ -1191,8 +1212,7 @@ struct StructuredGridFittingWorker
         queryijk[queryYDim / 2] = yCorners[yCornerId];
         vtkIdType queryPointId = vtkStructuredData::ComputePointIdForExtent(
             queryExtent.data(), queryijk);
-        ValueType queryPoint[3];
-        queryPoints->GetTypedTuple(queryPointId, queryPoint);
+        ConstPointRef queryPoint = queryPoints[queryPointId];
 
         double tmp[3] = { static_cast<double>(queryPoint[0]), static_cast<double>(queryPoint[1]),
           static_cast<double>(queryPoint[2]) };
@@ -1224,13 +1244,15 @@ struct StructuredGridFittingWorker
    * are connected. If grids are connected, if the grid overlapping is larger than any previous
    * computed one, its extents and the id of the face are saved.
    */
-  template<class ArrayT>
-  bool SweepGrids(ArrayT* queryPoints, int queryExtentId, const ::ExtentType& queryExtent,
-      int queryXDim, int queryXBegin, int queryXEnd, int directionX, int queryYDim, int queryYBegin,
-      int queryYEnd, int directionY, ArrayT* points, int pointId, int extentId,
+  template<class PointRangeT>
+  bool SweepGrids(const PointRangeT& queryPoints, int queryExtentId,
+      const ::ExtentType& queryExtent, int queryXDim, int queryXBegin, int queryXEnd,
+      int directionX, int queryYDim, int queryYBegin,
+      int queryYEnd, int directionY, const PointRangeT& points, int pointId, int extentId,
       const ::ExtentType& extent)
   {
-    using ValueType = typename ArrayT::ValueType;
+    using ConstPointRef = typename PointRangeT::ConstTupleReferenceType;
+    using ValueType = typename ConstPointRef::value_type;
     constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
     constexpr int sweepDirection[2] = { 1, -1 };
 
@@ -1280,10 +1302,8 @@ struct StructuredGridFittingWorker
                 queryExtent.data(), queryijk);
             vtkIdType id = vtkStructuredData::ComputePointIdForExtent(extent.data(), ijk);
 
-            ValueType queryPoint[3];
-            queryPoints->GetTypedTuple(queryPointId, queryPoint);
-            ValueType point[3];
-            points->GetTypedTuple(id, point);
+            ConstPointRef queryPoint = queryPoints[queryPointId];
+            ConstPointRef point = points[id];
 
             if (!Comparator<IsInteger>::Equals(point[0], queryPoint[0]) ||
                 !Comparator<IsInteger>::Equals(point[1], queryPoint[1]) ||
@@ -1421,7 +1441,12 @@ bool SynchronizeGridExtents(::StructuredGridBlockStructure& localBlockStructure,
       worker.LocalExtent[worker.LocalExtentIndex + (worker.LocalExtentIndex % 2 ? -1 : 1)] =
         localExtent[worker.LocalExtentIndex];
 
-      Dispatcher::Execute(localPoints[worker.LocalExtentIndex]->GetData(), worker);
+      vtkDataArray* localPointsArray = localPoints[worker.LocalExtentIndex]->GetData();
+
+      if (!Dispatcher::Execute(localPointsArray, worker))
+      {
+        worker(localPointsArray);
+      }
     }
   }
 
@@ -2261,8 +2286,6 @@ struct MatchingPointExtractor
   template<class PointArrayT>
   void operator()(PointArrayT* points, vtkIdTypeArray* globalPointIds)
   {
-    using ValueType = typename PointArrayT::ValueType;
-
     if ((globalPointIds == nullptr) != this->SourceGlobalPointIds.empty())
     {
       vtkLog(ERROR, "Inconsistency in the presence of global point ids across partitions. "
@@ -2301,6 +2324,7 @@ struct MatchingPointExtractor
       this->MatchingSourcePointIds->Allocate(pointsRange.size());
 
       using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
+      using ValueType = typename ConstPointRef::value_type;
       double p[3];
       double dist2;
 
@@ -2971,9 +2995,14 @@ template<class PointSetT>
       matchingPointExtractor.MatchingSourcePointIds = matchingReceivedPointIds;
       matchingPointExtractor.RemappedMatchingReceivedPointIdsSortedLikeTarget =
         blockStructure.RemappedMatchingReceivedPointIdsSortedLikeTarget;
+      vtkDataArray* interfacingPointsArray = blockStructure.InterfacingPoints->GetData();
+      vtkIdTypeArray* interfacingGlobalPointIds = blockStructure.InterfacingGlobalPointIds;
 
-      Dispatcher::Execute(blockStructure.InterfacingPoints->GetData(), matchingPointExtractor,
-          blockStructure.InterfacingGlobalPointIds);
+      if (!Dispatcher::Execute(interfacingPointsArray, matchingPointExtractor,
+            interfacingGlobalPointIds))
+      {
+        matchingPointExtractor(interfacingPointsArray, interfacingGlobalPointIds);
+      }
 
       // Blocks are connected if there is at least one point that is in both blocks.
       // If there are none, we delete the block in BlockStructures.
@@ -4371,11 +4400,11 @@ struct QueryPointWorker
   {
   }
 
-  template<class ArrayT>
+  template<class ArrayT, class ValueT = typename ArrayT::ValueType>
   void operator()(ArrayT* vtkNotUsed(array), double p[3])
   {
     this->TargetPointId = this->Locator->FindClosestPointWithinRadius(
-        detail::ComputePrecision<typename ArrayT::ValueType>(
+        detail::ComputePrecision<ValueT>(
           std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) })),
           p, this->Dist2);
   }
@@ -4683,7 +4712,11 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredData(const diy::Master& maste
           }
 
           using Dispatcher = vtkArrayDispatch::Dispatch;
-          Dispatcher::Execute(receivedPoints->GetData(), queryPointWorker, p);
+          vtkDataArray* receivedPointsArray = receivedPoints->GetData();
+          if (!Dispatcher::Execute(receivedPoints->GetData(), queryPointWorker, p))
+          {
+            queryPointWorker.template operator()<vtkDataArray, double>(receivedPointsArray, p);
+          }
 
           if (queryPointWorker.TargetPointId != -1)
           {
@@ -5303,7 +5336,11 @@ void InflateBoundingBoxIfNecessaryImpl(
     double eps;
     using Dispatch = vtkArrayDispatch::Dispatch;
     vtkDIYGhostUtilities_detail::ComputeBoundingBoxPrecisionWorker worker;
-    Dispatch::Execute(points->GetData(), worker, bounds, eps);
+    vtkDataArray* pointsArray = points->GetData();
+    if (!Dispatch::Execute(points->GetData(), worker, bounds, eps))
+    {
+      worker.template operator()<vtkDataArray, double>(pointsArray, bounds, eps);
+    }
     bb.Inflate(eps);
   }
 }
