@@ -17,7 +17,7 @@ touch requirements.txt
 ./make_relocatable_python_framework.py \
     --destination="$dirname" \
     --python-version="$version" \
-    --os-version="macos11.0" \
+    --os-version="11" \
     --pip-requirements=requirements.txt
 
 tar cJf "$dirname.tar.xz" "$dirname"
