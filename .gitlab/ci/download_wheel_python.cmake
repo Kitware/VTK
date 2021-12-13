@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.12)
 set(python_url_root "https://www.paraview.org/files/dependencies/python-for-wheels")
 
 # Python version specifics.
-set(python36_version "3.6.8")
-set(python37_version "3.7.9")
+set(python36_version "3.6.8") # Source-only releases after this.
+set(python37_version "3.7.9") # Source-only releases after this.
 set(python38_version "3.8.8")
 set(python39_version "3.9.4")
 
