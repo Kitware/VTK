@@ -117,6 +117,16 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
   endif ()
 endif ()
 
+# We build CUDA without Qt, the following tests insist in using Qt
+# binaries/libs which in turns fails for obscure reasons.
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "cuda")
+  list(APPEND test_exclusions
+    "^VTKExample-GUI/Qt"
+    "^VTKExample-Infovis/Cxx"
+    "^VTK::IOExportCxx.*PNG$"
+    )
+endif ()
+
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   list(APPEND test_exclusions
     # Failed to open the display

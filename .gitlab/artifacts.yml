@@ -71,6 +71,11 @@
             # proj.db
             - build/share/vtk-*/proj/proj.db
 
+            # CMake logs
+            - build/CMakeFiles/CMakeError.log
+            - build/CMakeFiles/CMakeOutput.log
+            - build/CMakeFiles/rules.ninja
+
 .cmake_junit_artifacts:
     artifacts:
         expire_in: 1d

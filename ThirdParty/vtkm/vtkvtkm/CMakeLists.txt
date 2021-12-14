@@ -57,10 +57,7 @@ set(VTKm_SKIP_LIBRARY_VERSIONS "${VTK_WHEEL_BUILD}")
 # is enabled.
 # Disable VTK-m warning flags and just rely on VTK's warning flags.
 set(VTKm_ENABLE_DEVELOPER_FLAGS OFF)
-
-if(VTKm_ENABLE_CUDA)
-  set(BUILD_SHARED_LIBS OFF)
-endif()
+set(VTKm_NO_DEPRECATED_VIRTUAL ON)
 
 add_subdirectory(vtk-m)
 vtkm_setup_job_pool()

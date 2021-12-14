@@ -38,6 +38,12 @@
 #include "vtkNew.h"
 #include "vtkUnsignedCharArray.h"
 
+#if defined(VTKM_CUDA)
+#define FUNC_SCOPE __device__
+#else
+#define FUNC_SCOPE
+#endif
+
 namespace tovtkm
 {
 
@@ -48,7 +54,7 @@ struct ReorderHex : vtkm::worklet::WorkletMapField
 {
   using ControlSignature = void(FieldInOut);
 
-  void operator()(vtkm::Vec<vtkm::Id, 8>& indices) const
+  FUNC_SCOPE void operator()(vtkm::Vec<vtkm::Id, 8>& indices) const
   {
     auto doSwap = [&](vtkm::IdComponent id1, vtkm::IdComponent id2) {
       const auto t = indices[id1];
