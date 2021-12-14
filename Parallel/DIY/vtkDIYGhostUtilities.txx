@@ -122,11 +122,11 @@ ValueT ComputePrecision(ValueT val)
 //============================================================================
 struct ComputeBoundingBoxPrecisionWorker
 {
-  template <class ArrayT>
+  template <class ArrayT, class ValueT = typename ArrayT::ValueType>
   void operator()(ArrayT*, const double* bounds, double& eps)
   {
     eps = 2 *
-      ComputePrecision<typename ArrayT::ValueType>(
+      ComputePrecision<ValueT>(
         std::max({ bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] }));
   }
 };

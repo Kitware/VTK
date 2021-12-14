@@ -145,7 +145,7 @@ protected:
     /**
      * Extent of neighboring block with no ghosts.
      */
-    ExtentType Extent;
+    ExtentType Extent = ExtentType{ 1, -1, 1, -1, 1, -1 };
 
     /**
      * Extent of neighboring block that include ghost layers, shifted to match our mapping of the
@@ -178,7 +178,7 @@ protected:
     /**
      * Extent without ghost layers.
      */
-    ExtentType Extent;
+    ExtentType Extent = ExtentType{ 1, -1, 1, -1, 1, -1 };
 
     ExtentType ExtentGhostThickness;
   };
