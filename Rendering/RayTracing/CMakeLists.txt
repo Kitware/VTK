@@ -9,6 +9,7 @@ set(classes
   vtkOSPRayMoleculeMapperNode
   vtkOSPRayPass
   vtkOSPRayPolyDataMapperNode
+  vtkOSPRayPointGaussianMapperNode
   vtkOSPRayRendererNode
   vtkOSPRayUnstructuredVolumeMapperNode
   vtkOSPRayViewNodeFactory
