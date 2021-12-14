@@ -145,6 +145,10 @@ public:
    */
   virtual void SetInteriorLinesColor(
     unsigned char colorR, unsigned char colorG, unsigned char colorB) = 0;
+  virtual void SetInteriorLinesColor(const unsigned char color[3])
+  {
+    this->SetInteriorLinesColor(color[0], color[1], color[2]);
+  }
 
 protected:
   vtkMathTextUtilities();
