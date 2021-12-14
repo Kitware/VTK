@@ -480,7 +480,7 @@ int vtkRedistributeDataSetFilter::RequestData(
 
     const auto inCount = inputPTD->GetNumberOfPartitions();
     const auto outCount = outputPTD->GetNumberOfPartitions();
-    if (preserve_input_hierarchy && inCount != outCount)
+    if (preserve_input_hierarchy && inCount > outCount)
     {
       detail::SetPartitionCount(outputPTD, inCount);
     }

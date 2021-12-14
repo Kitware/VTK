@@ -20,6 +20,7 @@
 #include "vtkCompositeRenderManager.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkExodusIIReader.h"
+#include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPartitionedDataSet.h"
@@ -45,6 +46,38 @@
 
 namespace
 {
+bool TestMultiBlockEmptyOnAllRanksButZero(vtkMultiProcessController* controller)
+{
+  // See !8745
+  int myrank = controller->GetLocalProcessId();
+  vtkNew<vtkMultiBlockDataSet> mb;
+  mb->SetNumberOfBlocks(1);
+  if (myrank == 0)
+  {
+    vtkNew<vtkImageData> im;
+    im->SetDimensions(10, 10, 10);
+    mb->SetBlock(0, im);
+  }
+
+  vtkNew<vtkRedistributeDataSetFilter> filter;
+  filter->SetInputData(mb);
+  filter->SetController(controller);
+  filter->Update();
+
+  auto output = vtkMultiBlockDataSet::SafeDownCast(filter->GetOutputDataObject(0));
+  if (output->GetNumberOfBlocks() != 1)
+  {
+    vtkLog(ERROR, "Wrong number of blocks in output");
+    return false;
+  }
+  if (!output->GetBlock(0))
+  {
+    vtkLog(ERROR, "Output block should not be nullptr in rank " << myrank);
+    return false;
+  }
+  return true;
+}
+
 bool ValidateDataset(
   vtkUnstructuredGrid* input, vtkPartitionedDataSet* output, vtkMultiProcessController* controller)
 {
@@ -73,7 +106,6 @@ bool ValidateDataset(
 
   return true;
 }
-
 }
 
 int TestRedistributeDataSetFilter(int argc, char* argv[])
@@ -85,6 +117,11 @@ int TestRedistributeDataSetFilter(int argc, char* argv[])
 #endif
   controller->Initialize(&argc, &argv);
   vtkMultiProcessController::SetGlobalController(controller);
+
+  if (!TestMultiBlockEmptyOnAllRanksButZero(controller))
+  {
+    return EXIT_FAILURE;
+  }
 
   const int rank = controller->GetLocalProcessId();
   vtkLogger::SetThreadName("rank:" + std::to_string(rank));
