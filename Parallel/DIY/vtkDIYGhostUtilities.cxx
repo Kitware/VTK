@@ -3341,6 +3341,10 @@ void UpdateOutputGridPoints(vtkStructuredGrid* output,
   const ::ExtentType& inputExtent = blockInformation.Extent;
   const int* extent = output->GetExtent();
 
+  if (inputPoints)
+  {
+    points->SetDataType(inputPoints->GetDataType());
+  }
   points->SetNumberOfPoints((extent[1] - extent[0] + 1) * (extent[3] - extent[2] + 1) *
       (extent[5] - extent[4] + 1));
 
@@ -4413,7 +4417,12 @@ void DeepCopyInputsAndAllocateGhosts(vtkUnstructuredGrid* input, vtkUnstructured
     facesSize += faces ? faces->GetNumberOfValues() : 0;
   }
 
+  vtkPoints* inputPoints = input->GetPoints();
   vtkNew<vtkPoints> outputPoints;
+  if (inputPoints)
+  {
+    outputPoints->SetDataType(inputPoints->GetDataType());
+  }
   outputPoints->SetNumberOfPoints(numberOfPoints);
   output->SetPoints(outputPoints);
 
@@ -4508,8 +4517,13 @@ void DeepCopyInputsAndAllocateGhosts(vtkPolyData* input, vtkPolyData* output,
   stripOffsetsSize += (stripOffsetsSize != 0);
   lineOffsetsSize += (lineOffsetsSize != 0);
 
+  vtkPoints* inputPoints = input->GetPoints();
   vtkNew<vtkPoints> outputPoints;
   outputPoints->SetNumberOfPoints(numberOfPoints);
+  if (inputPoints)
+  {
+    outputPoints->SetDataType(inputPoints->GetDataType());
+  }
   output->SetPoints(outputPoints);
 
   vtkNew<vtkCellArray> outputPolys, outputStrips, outputLines;
