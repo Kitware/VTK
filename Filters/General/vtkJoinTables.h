@@ -31,8 +31,8 @@
 #include "vtkDataArray.h"            // For numeric key columns
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStringArray.h"          // For string key columns
+#include "vtkTable.h"                // For table inputs
 #include "vtkTableAlgorithm.h"
-#include "vtkVariant.h" // For retrieving values in a given column
 
 #include <map>    // For left and right key maps
 #include <string> // For LeftKey and RightKey

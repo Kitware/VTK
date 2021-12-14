@@ -13,16 +13,9 @@
 
 =========================================================================*/
 
-#include "vtkNew.h"
-#include "vtkSetGet.h"
-#include "vtkSmartPointer.h"
-#include "vtkTable.h"
-
-#include <map>
-
 //------------------------------------------------------------------------------
 template <typename KeyColType, typename KeyValues>
-KeyValues* GetCell(KeyColType*, int);
+KeyValues GetCell(KeyColType*, int);
 
 //------------------------------------------------------------------------------
 template <typename KeyColType, typename KeyValues>
@@ -30,30 +23,30 @@ void InsertNext(KeyColType*, KeyValues);
 
 //------------------------------------------------------------------------------
 template <>
-void InsertNext<vtkDataArray, double>(vtkDataArray* col, double val)
+inline void InsertNext<vtkDataArray, double>(vtkDataArray* col, double val)
 {
   col->InsertNextTuple(&val);
 }
 
 //------------------------------------------------------------------------------
 template <>
-void InsertNext<vtkStringArray, vtkStdString>(vtkStringArray* col, vtkStdString val)
+inline void InsertNext<vtkStringArray, vtkStdString>(vtkStringArray* col, vtkStdString val)
 {
   col->InsertNextValue(val);
 }
 
 //------------------------------------------------------------------------------
 template <>
-double* GetCell<vtkDataArray, double>(vtkDataArray* col, int index)
+inline double GetCell<vtkDataArray, double>(vtkDataArray* col, int index)
 {
-  return col->GetTuple(index);
+  return col->GetTuple(index)[0];
 }
 
 //------------------------------------------------------------------------------
 template <>
-vtkStdString* GetCell<vtkStringArray, vtkStdString>(vtkStringArray* col, int index)
+inline vtkStdString GetCell<vtkStringArray, vtkStdString>(vtkStringArray* col, int index)
 {
-  return &(col->GetValue(index));
+  return (col->GetValue(index));
 }
 
 //------------------------------------------------------------------------------
@@ -67,13 +60,13 @@ void vtkJoinTables::MergeColumn(ColType* outputColumn, ColType* Column, KeyColTy
   // Loop over numeric tuples
   for (int i = 0; i < outputKeyCol->GetNumberOfValues(); i++)
   {
-    KeyValues* id = GetCell<KeyColType, KeyValues>(outputKeyCol, i);
+    KeyValues id = GetCell<KeyColType, KeyValues>(outputKeyCol, i);
     if (auto numericColumn = vtkDataArray::SafeDownCast(Column))
     {
       auto outputNumericColumn = vtkDataArray::SafeDownCast(outputColumn);
-      if (map.count(*id))
+      if (map.count(id))
       {
-        double* val = numericColumn->GetTuple(map.find(*id)->second);
+        double* val = numericColumn->GetTuple(map.find(id)->second);
         outputNumericColumn->InsertNextTuple(val);
       }
       else
@@ -85,9 +78,9 @@ void vtkJoinTables::MergeColumn(ColType* outputColumn, ColType* Column, KeyColTy
     else if (auto stringColumn = vtkStringArray::SafeDownCast(Column))
     {
       auto outputStringColumn = vtkStringArray::SafeDownCast(outputColumn);
-      if (map.count(*id))
+      if (map.count(id))
       {
-        auto val = stringColumn->GetValue(map.find(*id)->second);
+        auto val = stringColumn->GetValue(map.find(id)->second);
         outputStringColumn->InsertNextValue(val);
       }
       else
@@ -125,13 +118,13 @@ void vtkJoinTables::JoinAlgorithm(vtkTable* left, vtkTable* right, vtkTable* out
       {
         for (int j = 0; j < rightSize; j++)
         {
-          if (*(GetCell<KeyColType, KeyValues>(leftKeyCol, i)) ==
-            *(GetCell<KeyColType, KeyValues>(rightKeyCol, j)))
+          if (GetCell<KeyColType, KeyValues>(leftKeyCol, i) ==
+            GetCell<KeyColType, KeyValues>(rightKeyCol, j))
           {
             auto val = GetCell<KeyColType, KeyValues>(leftKeyCol, i);
-            InsertNext<KeyColType, KeyValues>(outputKeyCol, *val);
-            maps->left.insert(std::make_pair(*val, i));
-            maps->right.insert(std::make_pair(*val, j));
+            InsertNext<KeyColType, KeyValues>(outputKeyCol, val);
+            maps->left.insert(std::make_pair(val, i));
+            maps->right.insert(std::make_pair(val, j));
             break;
           }
         }
@@ -144,20 +137,20 @@ void vtkJoinTables::JoinAlgorithm(vtkTable* left, vtkTable* right, vtkTable* out
       for (int i = 0; i < rightSize; i++)
       {
         auto val = GetCell<KeyColType, KeyValues>(rightKeyCol, i);
-        maps->right.insert(std::make_pair(*val, i));
+        maps->right.insert(std::make_pair(val, i));
         bool existsInLeftKeyCol = false;
         for (int j = 0; j < leftSize; j++)
         {
           if (i == 0)
           {
             auto val0 = GetCell<KeyColType, KeyValues>(leftKeyCol, j);
-            InsertNext<KeyColType, KeyValues>(outputKeyCol, *val0);
-            maps->left.insert(std::make_pair(*val0, j));
+            InsertNext<KeyColType, KeyValues>(outputKeyCol, val0);
+            maps->left.insert(std::make_pair(val0, j));
           }
 
           if (!existsInLeftKeyCol &&
-            *(GetCell<KeyColType, KeyValues>(leftKeyCol, j)) ==
-              *(GetCell<KeyColType, KeyValues>(rightKeyCol, i)))
+            GetCell<KeyColType, KeyValues>(leftKeyCol, j) ==
+              GetCell<KeyColType, KeyValues>(rightKeyCol, i))
           {
             // Flag the value from the right table when it's a duplicate from the
             // left table
@@ -167,7 +160,7 @@ void vtkJoinTables::JoinAlgorithm(vtkTable* left, vtkTable* right, vtkTable* out
         if (!existsInLeftKeyCol)
         {
           // Insert only the values of right that do not exist in left
-          InsertNext<KeyColType, KeyValues>(outputKeyCol, *val);
+          InsertNext<KeyColType, KeyValues>(outputKeyCol, val);
         }
       }
       break;
@@ -178,13 +171,13 @@ void vtkJoinTables::JoinAlgorithm(vtkTable* left, vtkTable* right, vtkTable* out
       for (int i = 0; i < leftSize; i++)
       {
         auto val = GetCell<KeyColType, KeyValues>(leftKeyCol, i);
-        InsertNext<KeyColType, KeyValues>(outputKeyCol, *val);
-        maps->left.insert(std::make_pair(*val, i));
+        InsertNext<KeyColType, KeyValues>(outputKeyCol, val);
+        maps->left.insert(std::make_pair(val, i));
       }
       for (int j = 0; j < rightSize; j++)
       {
         auto val = GetCell<KeyColType, KeyValues>(rightKeyCol, j);
-        maps->right.insert(std::make_pair(*val, j));
+        maps->right.insert(std::make_pair(val, j));
       }
       break;
     }
@@ -194,13 +187,13 @@ void vtkJoinTables::JoinAlgorithm(vtkTable* left, vtkTable* right, vtkTable* out
       for (int i = 0; i < leftSize; i++)
       {
         auto val = GetCell<KeyColType, KeyValues>(leftKeyCol, i);
-        maps->left.insert(std::make_pair(*val, i));
+        maps->left.insert(std::make_pair(val, i));
       }
       for (int j = 0; j < rightSize; j++)
       {
         auto val = GetCell<KeyColType, KeyValues>(rightKeyCol, j);
-        InsertNext<KeyColType, KeyValues>(outputKeyCol, *val);
-        maps->right.insert(std::make_pair(*val, j));
+        InsertNext<KeyColType, KeyValues>(outputKeyCol, val);
+        maps->right.insert(std::make_pair(val, j));
       }
       break;
     }
