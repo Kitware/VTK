@@ -247,6 +247,7 @@
         - docker
         - large-memory
         - linux
+        - vtk
 
 .linux_qt_builder_tags:
     tags:
@@ -268,6 +269,7 @@
         - cuda-rt
         - docker
         - linux
+        - vtk
 
 .linux_qt_tester_tags:
     tags:
