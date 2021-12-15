@@ -1291,10 +1291,11 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
     baseName = originalFile.substr(dirseppos + 1);
   }
 
+  std::vector<std::string> fileNames;
   vtksys::RegularExpression regEx("^([^0-9]*)([0-9]*)[_]?(.*).h5$");
   if (!regEx.find(baseName))
   {
-    this->FileNames.emplace_back(originalFile);
+    fileNames.emplace_back(originalFile);
     return;
   }
 
@@ -1306,7 +1307,7 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
   {
     vtkWarningMacro(<< "Could not open directory " << originalFile.c_str()
                     << " is supposed to be from (" << path.c_str() << ")");
-    this->FileNames.emplace_back(originalFile);
+    fileNames.emplace_back(originalFile);
     return;
   }
 
@@ -1321,27 +1322,38 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
     {
       continue;
     }
-    this->FileNames.emplace_back(path + file);
+    fileNames.emplace_back(path + file);
   }
 
-  std::vector<double> times;
-  double timeRange[2] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
-  for (const auto& file : this->FileNames)
+  std::vector<std::pair<double, std::string>> timesAndFiles;
+  for (const auto& file : fileNames)
   {
     double time = 0.0;
     bool timeRead = this->ReadOutputTime(file, time);
     if (timeRead)
     {
-      timeRange[0] = std::min(timeRange[0], time);
-      timeRange[1] = std::max(timeRange[1], time);
-      times.emplace_back(time);
+      timesAndFiles.emplace_back(std::make_pair(time, file));
     }
   }
 
-  std::sort(times.begin(), times.end());
+  // Sort files and times by time
+  std::sort(timesAndFiles.begin(), timesAndFiles.end(),
+    [](const std::pair<double, std::string>& left, const std::pair<double, std::string>& right) {
+      return left.first < right.first;
+    });
+
+  std::vector<double> times;
+  // Reset the FileNames vector in chronological order
+  this->FileNames.clear();
+  for (const auto& pair : timesAndFiles)
+  {
+    times.emplace_back(pair.first);
+    this->FileNames.emplace_back(pair.second);
+  }
 
   if (!times.empty())
   {
+    double timeRange[2] = { times[0], times[times.size() - 1] };
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
     outInfo->Set(
       vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], static_cast<int>(times.size()));
