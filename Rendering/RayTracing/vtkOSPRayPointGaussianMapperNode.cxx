@@ -15,7 +15,9 @@
 #include "vtkOSPRayPointGaussianMapperNode.h"
 
 #include "vtkActor.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkImageExtractComponents.h"
@@ -31,8 +33,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
+#include "vtkPointGaussianMapper.h"
 #include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
@@ -1363,21 +1365,33 @@ void vtkOSPRayPointGaussianMapperNode::Render(bool prepass)
     this->RenderTime = inTime;
     this->ClearGeometricModels();
 
-    vtkPolyData* poly = nullptr;
-    vtkPolyDataMapper* mapper = vtkPolyDataMapper::SafeDownCast(act->GetMapper());
+    vtkCompositeDataSet* input = nullptr;
+    vtkPointGaussianMapper* mapper = vtkPointGaussianMapper::SafeDownCast(act->GetMapper());
     if (mapper && mapper->GetNumberOfInputPorts() > 0)
     {
-      poly = mapper->GetInput();
+      input = vtkCompositeDataSet::SafeDownCast(mapper->GetInputDataObject(0, 0));
     }
-    if (poly)
+    if (input)
     {
+      vtkNew<vtkDataObjectTreeIterator> iter;
+      iter->SetDataSet(input);
+      iter->SkipEmptyNodesOn();
+      iter->VisitOnlyLeavesOn();
       vtkProperty* property = act->GetProperty();
       double ambient[3];
       double diffuse[3];
       property->GetAmbientColor(ambient);
       property->GetDiffuseColor(diffuse);
-      this->ORenderPoly(
-        orn->GetORenderer(), aNode, poly, ambient, diffuse, property->GetOpacity(), "");
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+      {
+        vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
+        if (!pd || !pd->GetPoints())
+        {
+          continue;
+        }
+        this->ORenderPoly(
+          orn->GetORenderer(), aNode, pd, ambient, diffuse, property->GetOpacity(), "");
+      }
     }
     this->RenderGeometricModels();
   }
