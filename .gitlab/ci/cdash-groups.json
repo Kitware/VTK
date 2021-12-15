@@ -8,12 +8,12 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora34_mpi_cuda_offscreen_osmesa]"
+            "buildname": "[fedora34_cuda_mpi_offscreen_osmesa]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[fedora34_mpi_cuda_offscreen_osmesa_ext_vtk]"
+            "buildname": "[fedora34_cuda_mpi_offscreen_osmesa_ext_vtk]"
         },
         {
             "group": "master",
