@@ -1,19 +1,16 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(python_url_root "https://www.paraview.org/files/dependencies")
+set(python_url_root "https://www.paraview.org/files/dependencies/python-for-wheels")
 
-set(python_version "3.8.6")
-#set(python_version "3.9.0") # Twisted needs Cython regenerated for 3.9.0.
+set(python_version "3.10.1")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
-  set(python_subdir "python-win64-${python_version}")
-  set(sha256sum "fb7342d5c4fa5a83875bf3d5b8f5ff7b3153d901d27c949c1508e86770463ac3")
-  # 3.9.0
-  #set(sha256sum "858061fbfb0a53387c1278a535bcd4abeae4ab07187be6042bfb02ca222c229f")
+  set(python_subdir "python-${python_version}-windows-x86_64")
+  set(sha256sum "4c61e26989fdfac974309e77bc855c843b1f5b438a8a81b762095c0d838581de")
 else ()
   message(FATAL_ERROR
     "Unknown platform for Python")
 endif ()
-set(filename "${python_subdir}.tar.xz")
+set(filename "${python_subdir}.zip")
 
 # Download the file.
 file(DOWNLOAD
