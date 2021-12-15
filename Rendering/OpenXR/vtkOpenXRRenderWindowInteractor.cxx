@@ -244,22 +244,25 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
   for (const uint32_t hand :
     { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
   {
-    XrPosef& handPose = this->GetHandPose(hand);
-    this->ConvertOpenXRPoseToWorldCoordinates(handPose, pos, wxyz, ppos, wdir);
-    auto edHand = vtkEventDataDevice3D::New();
-    edHand->SetDevice(hand == vtkOpenXRManager::ControllerIndex::Right
-        ? vtkEventDataDevice::RightController
-        : vtkEventDataDevice::LeftController);
-    edHand->SetWorldPosition(pos);
-    edHand->SetWorldOrientation(wxyz);
-    edHand->SetWorldDirection(wdir);
-    eventDatas[hand].TakeReference(edHand);
+    XrPosef* handPose = this->GetHandPose(hand);
+    if (handPose)
+    {
+      this->ConvertOpenXRPoseToWorldCoordinates(*handPose, pos, wxyz, ppos, wdir);
+      auto edHand = vtkEventDataDevice3D::New();
+      edHand->SetDevice(hand == vtkOpenXRManager::ControllerIndex::Right
+          ? vtkEventDataDevice::RightController
+          : vtkEventDataDevice::LeftController);
+      edHand->SetWorldPosition(pos);
+      edHand->SetWorldOrientation(wxyz);
+      edHand->SetWorldDirection(wdir);
+      eventDatas[hand].TakeReference(edHand);
 
-    // We should remove this and use event data directly
-    int pointerIndex = static_cast<int>(edHand->GetDevice());
-    this->SetPhysicalEventPosition(ppos[0], ppos[1], ppos[2], pointerIndex);
-    this->SetWorldEventPosition(pos[0], pos[1], pos[2], pointerIndex);
-    this->SetWorldEventOrientation(wxyz[0], wxyz[1], wxyz[2], wxyz[3], pointerIndex);
+      // We should remove this and use event data directly
+      int pointerIndex = static_cast<int>(edHand->GetDevice());
+      this->SetPhysicalEventPosition(ppos[0], ppos[1], ppos[2], pointerIndex);
+      this->SetWorldEventPosition(pos[0], pos[1], pos[2], pointerIndex);
+      this->SetWorldEventOrientation(wxyz[0], wxyz[1], wxyz[2], wxyz[3], pointerIndex);
+    }
   }
 
   // All actions are now updated, handle them now
@@ -272,20 +275,27 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
     {
       vtkEventDataDevice3D* eventData = eventDatas[hand];
 
-      eventData->SetInput(actionData->DeviceInput);
-      eventData->SetType(actionData->EventId);
+      if (eventData)
+      {
+        eventData->SetInput(actionData->DeviceInput);
+        eventData->SetType(actionData->EventId);
 
-      this->HandleAction(*actionData, hand, eventData);
+        this->HandleAction(*actionData, hand, eventData);
+      }
     }
   }
 }
 
 //------------------------------------------------------------------------------
-XrPosef& vtkOpenXRRenderWindowInteractor::GetHandPose(const uint32_t hand)
+XrPosef* vtkOpenXRRenderWindowInteractor::GetHandPose(const uint32_t hand)
 {
-  ActionData* adHandPose = this->MapActionStruct_Name["handpose"];
+  if (this->MapActionStruct_Name.count("handpose") == 0)
+  {
+    return nullptr;
+  }
 
-  return adHandPose->ActionStruct.PoseLocations[hand].pose;
+  ActionData* adHandPose = this->MapActionStruct_Name["handpose"];
+  return &(adHandPose->ActionStruct.PoseLocations[hand].pose);
 }
 
 //------------------------------------------------------------------------------

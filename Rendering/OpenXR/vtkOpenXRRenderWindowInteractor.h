@@ -48,9 +48,10 @@ public:
 
   /**
    * Return the XrPosef for the action named "handpose"
-   * and the hand \p hand
+   * and the hand \p hand or return nullptr if "handpose"
+   * does not exist in the map.
    */
-  XrPosef& GetHandPose(const uint32_t hand);
+  XrPosef* GetHandPose(const uint32_t hand);
 
   //@{
   /**
