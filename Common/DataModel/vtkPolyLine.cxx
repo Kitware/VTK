@@ -238,10 +238,6 @@ void SlidingNormalsOnLine(vtkPoints* pts, vtkIdType npts, const vtkIdType* lineP
 int vtkPolyLine::GenerateSlidingNormals(
   vtkPoints* pts, vtkCellArray* lines, vtkDataArray* normals, double* firstNormal, bool threading)
 {
-  vtkSmartPointer<vtkCellArrayIterator> cellIter;
-  cellIter.TakeReference(lines->NewIterator());
-  vtkIdType npts;
-  const vtkIdType* linePts;
   vtkIdType numLines = lines->GetNumberOfCells();
 
   // Use threading to compute normals on each line independently.
@@ -250,6 +246,11 @@ int vtkPolyLine::GenerateSlidingNormals(
   if (threading)
   {
     vtkSMPTools::For(0, numLines, [&](vtkIdType lineId, vtkIdType endLineId) {
+      vtkSmartPointer<vtkCellArrayIterator> cellIter;
+      cellIter.TakeReference(lines->NewIterator());
+      vtkIdType npts;
+      const vtkIdType* linePts;
+
       vtkVector3d normal(0.0, 0.0, 1.0); // arbitrary default value
       for (; lineId < endLineId; ++lineId)
       {
@@ -260,6 +261,11 @@ int vtkPolyLine::GenerateSlidingNormals(
   }
   else
   {
+    vtkSmartPointer<vtkCellArrayIterator> cellIter;
+    cellIter.TakeReference(lines->NewIterator());
+    vtkIdType npts;
+    const vtkIdType* linePts;
+
     vtkVector3d normal(0.0, 0.0, 1.0); // arbitrary default value
     for (vtkIdType lineId = 0; lineId < numLines; ++lineId)
     {
