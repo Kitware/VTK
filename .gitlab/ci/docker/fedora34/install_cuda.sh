@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # Install tools to manage repositories.
 dnf install -y --setopt=install_weak_deps=False \
     'dnf-command(config-manager)'
