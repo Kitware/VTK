@@ -617,6 +617,11 @@ void vtkTextActor::ComputeScaledFont(vtkViewport* viewport)
     this->ScaledTextProperty->ShallowCopy(this->TextProperty);
   }
 
+  vtkWindow* renWin = viewport->GetVTKWindow();
+  int tileScaleXY[2];
+  renWin->GetTileScale(tileScaleXY);
+  int tileScale = std::max(tileScaleXY[0], tileScaleXY[1]);
+
   // Combine this actor's orientation with the set text property's rotation
   double rotAngle = this->TextProperty->GetOrientation() + this->Orientation;
   this->ScaledTextProperty->SetOrientation(rotAngle);
@@ -625,7 +630,7 @@ void vtkTextActor::ComputeScaledFont(vtkViewport* viewport)
   {
     if (this->TextProperty)
     {
-      this->ScaledTextProperty->SetFontSize(this->TextProperty->GetFontSize());
+      this->ScaledTextProperty->SetFontSize(tileScale * this->TextProperty->GetFontSize());
     }
     return;
   }
@@ -642,7 +647,7 @@ void vtkTextActor::ComputeScaledFont(vtkViewport* viewport)
       // Apply non-linear scaling
       int fsize = static_cast<int>(pow(targetSize, this->FontScaleExponent) *
         pow(requestedSize, 1.0 - this->FontScaleExponent));
-      this->ScaledTextProperty->SetFontSize(fsize);
+      this->ScaledTextProperty->SetFontSize(tileScale * fsize);
     }
     return;
   }
@@ -749,7 +754,7 @@ void vtkTextActor::ComputeScaledFont(vtkViewport* viewport)
           pow(
             static_cast<double>(this->TextProperty->GetFontSize()), 1.0 - this->FontScaleExponent));
         // and set the new font size
-        this->ScaledTextProperty->SetFontSize(fsize);
+        this->ScaledTextProperty->SetFontSize(tileScale * fsize);
       }
     }
     return;
