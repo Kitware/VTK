@@ -43,6 +43,9 @@ vtkStreamSurface::vtkStreamSurface()
   vtkObjectFactory::SetAllEnableFlags(false, "vtkStreamTracer"); // this will need to be discussed
   this->RuledSurface->SetInputConnection(this->StreamTracer->GetOutputPort());
   this->RuledSurface->SetRuledModeToResample();
+  // by default process active point vectors
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
 }
 
 //----------------------------------------------------------------------------
@@ -72,18 +75,18 @@ int vtkStreamSurface::AdvectIterative(
 
   if (field->IsA("vtkDataSet"))
   {
+    dataset = vtkDataSet::SafeDownCast(field);
     if (this->IntegrationStepUnit == CELL_LENGTH_UNIT)
     {
-      dataset = vtkDataSet::SafeDownCast(field);
       distThreshold *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
     }
   }
   else if (field->IsA("vtkUniformGridAMR"))
   {
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    dataset = data->GetDataSet(0, 0);
     if (this->IntegrationStepUnit == CELL_LENGTH_UNIT)
     {
-      vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
-      dataset = data->GetDataSet(0, 0);
       distThreshold *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
     }
   }
@@ -111,7 +114,8 @@ int vtkStreamSurface::AdvectIterative(
     this->StreamTracer->SetIntegrationDirection(integrationDirection);
     int vecType(0);
     vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, dataset, vecType);
-    this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vecType, vectors->GetName());
+    // this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vecType, vectors->GetName());
+    this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vecType, "resultArray");
     // setting this to zero makes the tracer do 1 step
     this->StreamTracer->SetMaximumNumberOfSteps(0);
     this->StreamTracer->Update();
