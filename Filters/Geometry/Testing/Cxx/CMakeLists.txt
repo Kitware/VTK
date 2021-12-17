@@ -16,6 +16,7 @@ vtk_add_test_cxx(vtkFiltersGeometryCxxTests tests
 vtk_add_test_cxx(vtkFiltersGeometryCxxTests no_data_tests
   NO_DATA NO_VALID NO_OUTPUT
   TestGeometryFilterCellData.cxx
+  TestMappedUnstructuredGrid.cxx
   TestStructuredAMRGridConnectivity.cxx
   TestStructuredGridConnectivity.cxx
   UnitTestDataSetSurfaceFilter.cxx
