@@ -422,6 +422,8 @@ void vtkOBJExporter::WriteAnActor(
           else
           {
             // treating vtkIdType as int
+            fpObj << "f " << static_cast<int>(indx[i1]) + idStart << "//"
+                  << static_cast<int>(indx[i1]) + idStart << " ";
             fpObj << static_cast<int>(indx[i2]) + idStart << "//"
                   << static_cast<int>(indx[i2]) + idStart << " ";
             fpObj << static_cast<int>(indx[i]) + idStart << "//"
