@@ -27,7 +27,7 @@
  * Contains the paths to all files that have been discoved on the file
  * system. This is used to accelerate searches for header files.
  */
-typedef struct _SystemInfo
+typedef struct SystemInfo_
 {
   StringCache* Strings;        /* to accelerate string allocation */
   const char*** FileHashTable; /* paths to all discovered files */
@@ -37,7 +37,7 @@ typedef struct _SystemInfo
 /**
  * An enum to identify the types of discovered files
  */
-typedef enum _system_filetype_t
+typedef enum system_filetype_t_
 {
   VTK_PARSE_NOFILE = 0,
   VTK_PARSE_ISFILE = 1,

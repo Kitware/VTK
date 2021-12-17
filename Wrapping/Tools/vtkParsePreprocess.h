@@ -61,7 +61,7 @@ typedef unsigned long long preproc_uint_t;
 /**
  * Struct to describe a preprocessor symbol.
  */
-typedef struct _MacroInfo
+typedef struct MacroInfo_
 {
   const char* Name;
   const char* Definition;
@@ -79,7 +79,7 @@ typedef struct _MacroInfo
  * Contains all symbols defined thus far (including those defined
  * in any included header files).
  */
-typedef struct _PreprocessInfo
+typedef struct PreprocessInfo_
 {
   const char* FileName;        /* the file that is being parsed */
   MacroInfo*** MacroHashTable; /* hash table for macro lookup */
@@ -100,7 +100,7 @@ typedef struct _PreprocessInfo
 /**
  * Platforms.  Always choose native unless crosscompiling.
  */
-typedef enum _preproc_platform_t
+typedef enum preproc_platform_t_
 {
   VTK_PARSE_NATIVE,
   VTK_PARSE_UNDEF
@@ -109,7 +109,7 @@ typedef enum _preproc_platform_t
 /**
  * Search methods for include files.
  */
-typedef enum _preproc_search_t
+typedef enum preproc_search_t_
 {
   VTK_PARSE_CURDIR_INCLUDE, /* look in current directory first */
   VTK_PARSE_SOURCE_INCLUDE, /* look in source directory first */
@@ -119,7 +119,7 @@ typedef enum _preproc_search_t
 /**
  * Directive return values.
  */
-enum _preproc_return_t
+typedef enum preproc_return_t_
 {
   VTK_PARSE_OK = 0,
   VTK_PARSE_SKIP = 1,            /* skip next block */
@@ -134,7 +134,7 @@ enum _preproc_return_t
   VTK_PARSE_MACRO_NUMARGS = 10,  /* wrong number of args to func macro */
   VTK_PARSE_SYNTAX_ERROR = 11,   /* any and all syntax errors */
   VTK_PARSE_OUT_OF_MEMORY = 12   /* out-of-memory */
-};
+} preproc_return_t;
 
 /**
  * Bitfield for fatal errors.
