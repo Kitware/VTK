@@ -49,8 +49,10 @@
  * If the keypress characters are used
  *   'Down/Left' Move plane down
  *   'Up/Right' Move plane up
- *   'P/p' Pick a new origin
- *   'N/n' Pick a new normal.
+ *   'P/p' Pick a new origin from the intersection with a mesh cell rendered by the renderer
+ *   'Ctrl' + 'P/p' Snap to a new origin from the closest mesh point rendered by the renderer
+ *   'N/n' Pick a new normal from the intersection with a mesh cell rendered by the renderer
+ *   'Ctrl' + 'N/n' Snap to a new normal from the closest mesh point rendered by the renderer
  * In all the cases, independent of what is picked, the widget responds to the following VTK events:
  *   MiddleButtonPressEvent - move the plane
  *   MiddleButtonReleaseEvent - release the plane
