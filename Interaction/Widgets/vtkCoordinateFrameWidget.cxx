@@ -176,7 +176,8 @@ void vtkCoordinateFrameWidget::PickOriginAction(vtkAbstractWidget* w)
   int Y = self->Interactor->GetEventPosition()[1];
 
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
-  bool newOriginPicked = self->GetCoordinateFrameRepresentation()->PickOrigin(X, Y);
+  bool newOriginPicked = self->GetCoordinateFrameRepresentation()->PickOrigin(
+    X, Y, self->Interactor->GetControlKey() == 1);
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
@@ -195,7 +196,8 @@ void vtkCoordinateFrameWidget::PickNormalAction(vtkAbstractWidget* w)
   int Y = self->Interactor->GetEventPosition()[1];
 
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
-  bool newNormalPicked = self->GetCoordinateFrameRepresentation()->PickNormal(X, Y);
+  bool newNormalPicked = self->GetCoordinateFrameRepresentation()->PickNormal(
+    X, Y, self->Interactor->GetControlKey() == 1);
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
@@ -214,7 +216,8 @@ void vtkCoordinateFrameWidget::PickDirectionPointAction(vtkAbstractWidget* w)
   int Y = self->Interactor->GetEventPosition()[1];
 
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
-  bool newDirectionPointPicked = self->GetCoordinateFrameRepresentation()->PickDirectionPoint(X, Y);
+  bool newDirectionPointPicked = self->GetCoordinateFrameRepresentation()->PickDirectionPoint(
+    X, Y, self->Interactor->GetControlKey() == 1);
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);

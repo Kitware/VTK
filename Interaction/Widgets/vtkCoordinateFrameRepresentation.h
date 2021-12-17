@@ -43,6 +43,7 @@ class vtkCellPicker;
 class vtkConeSource;
 class vtkFeatureEdges;
 class vtkGenericCell;
+class vtkHardwarePicker;
 class vtkLineSource;
 class vtkPlane;
 class vtkPolyData;
@@ -272,7 +273,7 @@ public:
    * Note: if a point from a rendered object is not picked, the camera focal point can optionally be
    * set.
    */
-  bool PickOrigin(int X, int Y);
+  bool PickOrigin(int X, int Y, bool snapToMeshPoint = false);
 
   /**
    * Given the X, Y display coordinates, pick a new normal for the coordinate frame
@@ -281,7 +282,7 @@ public:
    * Note: if a normal from a rendered object is not picked, the camera plane normal can optionally
    * be set.
    */
-  bool PickNormal(int X, int Y);
+  bool PickNormal(int X, int Y, bool snapToMeshPoint = false);
 
   /**
    * Given the X, Y display coordinates, pick a point and using the origin define normal for the
@@ -290,7 +291,7 @@ public:
    * Note: if a point from a rendered object is not picked, the camera focal point can optionally be
    * set.
    */
-  bool PickDirectionPoint(int X, int Y);
+  bool PickDirectionPoint(int X, int Y, bool snapToMeshPoint = false);
 
   /**
    * Get/set which axis (if any) is locked.
@@ -464,7 +465,8 @@ protected:
   void HighlightLockerZVector(int highlight);
 
   // Do the picking
-  vtkNew<vtkCellPicker> Picker;
+  vtkNew<vtkHardwarePicker> HardwarePicker; // Used for picking rendered props
+  vtkNew<vtkCellPicker> CellPicker;         // Used for picking widget props
   // Compute Picker tolerance
   void ComputeAdaptivePickerTolerance();
 

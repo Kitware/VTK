@@ -23,6 +23,7 @@
 #include "vtkCellPicker.h"
 #include "vtkConeSource.h"
 #include "vtkGenericCell.h"
+#include "vtkHardwarePicker.h"
 #include "vtkImageData.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLineSource.h"
@@ -134,21 +135,23 @@ vtkCoordinateFrameRepresentation::vtkCoordinateFrameRepresentation()
   this->PlaceWidget(bounds);
 
   // Manage the picking stuff
-  this->Picker->SetTolerance(DefaultPickTol);
-  this->Picker->PickFromListOn();
-  this->Picker->AddPickList(this->OriginSphereActor);
+  this->CellPicker->SetTolerance(DefaultPickTol);
+  this->CellPicker->PickFromListOn();
+  this->CellPicker->AddPickList(this->OriginSphereActor);
 
-  this->Picker->AddPickList(this->XVectorLineActor);
-  this->Picker->AddPickList(this->XVectorConeActor);
-  this->Picker->AddPickList(this->LockerXVectorConeActor);
+  this->CellPicker->AddPickList(this->XVectorLineActor);
+  this->CellPicker->AddPickList(this->XVectorConeActor);
+  this->CellPicker->AddPickList(this->LockerXVectorConeActor);
 
-  this->Picker->AddPickList(this->YVectorLineActor);
-  this->Picker->AddPickList(this->YVectorConeActor);
-  this->Picker->AddPickList(this->LockerYVectorConeActor);
+  this->CellPicker->AddPickList(this->YVectorLineActor);
+  this->CellPicker->AddPickList(this->YVectorConeActor);
+  this->CellPicker->AddPickList(this->LockerYVectorConeActor);
 
-  this->Picker->AddPickList(this->ZVectorLineActor);
-  this->Picker->AddPickList(this->ZVectorConeActor);
-  this->Picker->AddPickList(this->LockerZVectorConeActor);
+  this->CellPicker->AddPickList(this->ZVectorLineActor);
+  this->CellPicker->AddPickList(this->ZVectorConeActor);
+  this->CellPicker->AddPickList(this->LockerZVectorConeActor);
+
+  this->HardwarePicker->PickFromListOff();
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -250,25 +253,25 @@ void vtkCoordinateFrameRepresentation::SetLockNormalToCamera(vtkTypeBool lock)
 
   if (lock)
   {
-    this->Picker->DeletePickList(this->OriginSphereActor);
-    this->Picker->DeletePickList(this->XVectorLineActor);
-    this->Picker->DeletePickList(this->XVectorConeActor);
-    this->Picker->DeletePickList(this->YVectorLineActor);
-    this->Picker->DeletePickList(this->YVectorConeActor);
-    this->Picker->DeletePickList(this->ZVectorLineActor);
-    this->Picker->DeletePickList(this->ZVectorConeActor);
+    this->CellPicker->DeletePickList(this->OriginSphereActor);
+    this->CellPicker->DeletePickList(this->XVectorLineActor);
+    this->CellPicker->DeletePickList(this->XVectorConeActor);
+    this->CellPicker->DeletePickList(this->YVectorLineActor);
+    this->CellPicker->DeletePickList(this->YVectorConeActor);
+    this->CellPicker->DeletePickList(this->ZVectorLineActor);
+    this->CellPicker->DeletePickList(this->ZVectorConeActor);
 
     this->SetNormalToCamera();
   }
   else
   {
-    this->Picker->AddPickList(this->OriginSphereActor);
-    this->Picker->AddPickList(this->XVectorLineActor);
-    this->Picker->AddPickList(this->XVectorConeActor);
-    this->Picker->AddPickList(this->YVectorLineActor);
-    this->Picker->AddPickList(this->YVectorConeActor);
-    this->Picker->AddPickList(this->ZVectorLineActor);
-    this->Picker->AddPickList(this->ZVectorConeActor);
+    this->CellPicker->AddPickList(this->OriginSphereActor);
+    this->CellPicker->AddPickList(this->XVectorLineActor);
+    this->CellPicker->AddPickList(this->XVectorConeActor);
+    this->CellPicker->AddPickList(this->YVectorLineActor);
+    this->CellPicker->AddPickList(this->YVectorConeActor);
+    this->CellPicker->AddPickList(this->ZVectorLineActor);
+    this->CellPicker->AddPickList(this->ZVectorConeActor);
   }
 
   this->LockNormalToCamera = lock;
@@ -280,7 +283,7 @@ int vtkCoordinateFrameRepresentation::ComputeInteractionState(int X, int Y, int 
 {
   // See if anything has been selected
   this->ComputeAdaptivePickerTolerance();
-  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CellPicker);
 
   if (path == nullptr) // Not picking this widget
   {
@@ -470,7 +473,7 @@ void vtkCoordinateFrameRepresentation::WidgetInteraction(double e[2])
 
   // Compute the two points defining the motion vector
   double pos[3];
-  this->Picker->GetPickPosition(pos);
+  this->CellPicker->GetPickPosition(pos);
   vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, pos[0], pos[1], pos[2], focalPoint);
   z = focalPoint[2];
   vtkInteractorObserver::ComputeDisplayToWorld(
@@ -1351,155 +1354,99 @@ void vtkCoordinateFrameRepresentation::ResetAxes()
 }
 
 //------------------------------------------------------------------------------
-bool vtkCoordinateFrameRepresentation::PickOrigin(int X, int Y)
+bool vtkCoordinateFrameRepresentation::PickOrigin(int X, int Y, bool snapToMeshPoint)
 {
-  this->ComputeAdaptivePickerTolerance();
-  // disable picking of widget actors and enable picking of renderer actors
-  this->Picker->PickFromListOff();
-  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
-  // enable picking of widget actors and disable picking of renderer actors
-  this->Picker->PickFromListOn();
+  this->HardwarePicker->SetSnapToMeshPoint(snapToMeshPoint);
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HardwarePicker);
   if (path == nullptr) // actors of renderer were not touched
   {
     if (this->PickCameraFocalInfo)
     {
-      vtkCamera* camera = this->Renderer->GetActiveCamera();
-      if (!camera)
-      {
-        return false;
-      }
-      double cameraFP[4];
-      camera->GetFocalPoint(cameraFP);
-      cameraFP[3] = 1.0;
-      this->Renderer->SetWorldPoint(cameraFP);
-      this->Renderer->WorldToDisplay();
-      double* displayCoord = this->Renderer->GetDisplayPoint();
-
-      // Handle display to world conversion
-      double display[3] = { (double)X, (double)Y, displayCoord[2] };
-      this->Renderer->SetDisplayPoint(display);
-      this->Renderer->DisplayToWorld();
-      const double* world = this->Renderer->GetWorldPoint();
-      double newOrigin[3];
-      for (int i = 0; i < 3; i++)
-      {
-        newOrigin[i] = world[i] / world[3];
-      }
-      this->SetOrigin(newOrigin);
+      double pos[3];
+      this->HardwarePicker->GetPickPosition(pos);
+      this->SetOrigin(pos);
       this->BuildRepresentation();
     }
     return this->PickCameraFocalInfo;
   }
-  else
+  else // actors of renderer were touched
   {
     double pos[3];
-    this->Picker->GetPickPosition(pos);
-    this->SetOrigin(pos);
-    this->BuildRepresentation();
-    return true;
-  }
-}
-
-//------------------------------------------------------------------------------
-bool vtkCoordinateFrameRepresentation::PickNormal(int X, int Y)
-{
-  static constexpr double PI_2 = vtkMath::Pi() / 2.0f;
-  this->ComputeAdaptivePickerTolerance();
-  // disable picking of widget actors and enable picking of renderer actors
-  this->Picker->PickFromListOff();
-  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
-  // enable picking of widget actors and disable picking of renderer actors
-  this->Picker->PickFromListOn();
-  if (path == nullptr) // actors of renderer were not touched
-  {
-    if (this->PickCameraFocalInfo)
+    this->HardwarePicker->GetPickPosition(pos);
+    if (!std::isnan(pos[0]) || !std::isnan(pos[1]) || !std::isnan(pos[2]))
     {
-      vtkCamera* camera = this->Renderer->GetActiveCamera();
-      if (!camera)
-      {
-        return false;
-      }
-      double vpn[3];
-      camera->GetViewPlaneNormal(vpn);
-      this->SetNormal(vpn);
+      this->SetOrigin(pos);
       this->BuildRepresentation();
+      return true;
     }
-    return this->PickCameraFocalInfo;
-  }
-  else
-  {
-    vtkCamera* camera = this->Renderer->GetActiveCamera();
-    if (!camera)
+    else
     {
       return false;
     }
-    double normal[3], vpn[3];
-    this->Picker->GetPickNormal(normal);
-    // Note: Fix normal direction in case the orientation of the picked cell is wrong.
-    // When you cast a ray to a 3d object from a specific view angle (camera normal), the angle
-    // between the camera normal and the normal of the cell surface that the ray intersected,
-    // can have an angle up to pi / 2. This is true because you can't see surface objects
-    // with a greater angle than pi / 2, therefore, you can't pick them. In case an angle greater
-    // than pi / 2 is computed, it must be a result of a wrong orientation of the picked cell.
-    // To solve this issue, we reverse the picked normal.
-    camera->GetViewPlaneNormal(vpn);
-    if (vtkMath::AngleBetweenVectors(normal, vpn) > PI_2)
-    {
-      normal[0] *= -1;
-      normal[1] *= -1;
-      normal[2] *= -1;
-    }
-    this->SetNormal(normal);
-    this->BuildRepresentation();
-    return true;
   }
 }
 
 //------------------------------------------------------------------------------
-bool vtkCoordinateFrameRepresentation::PickDirectionPoint(int X, int Y)
+bool vtkCoordinateFrameRepresentation::PickNormal(int X, int Y, bool snapToMeshPoint)
 {
-  this->ComputeAdaptivePickerTolerance();
-  // disable picking of widget actors and enable picking of renderer actors
-  this->Picker->PickFromListOff();
-  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
-  // enable picking of widget actors and disable picking of renderer actors
-  this->Picker->PickFromListOn();
+  this->HardwarePicker->SetSnapToMeshPoint(snapToMeshPoint);
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HardwarePicker);
   if (path == nullptr) // actors of renderer were not touched
   {
     if (this->PickCameraFocalInfo)
     {
-      vtkCamera* camera = this->Renderer->GetActiveCamera();
-      if (!camera)
-      {
-        return false;
-      }
-      double cameraFP[4];
-      camera->GetFocalPoint(cameraFP);
-      cameraFP[3] = 1.0;
-      this->Renderer->SetWorldPoint(cameraFP);
-      this->Renderer->WorldToDisplay();
-      double* displayCoord = this->Renderer->GetDisplayPoint();
+      double normal[3];
+      this->HardwarePicker->GetPickNormal(normal);
+      this->SetNormal(normal);
+      this->BuildRepresentation();
+    }
+    return this->PickCameraFocalInfo;
+  }
+  else // actors of renderer were touched
+  {
+    double normal[3];
+    this->HardwarePicker->GetPickNormal(normal);
+    if (!std::isnan(normal[0]) || !std::isnan(normal[1]) || !std::isnan(normal[2]))
+    {
+      this->SetNormal(normal);
+      this->BuildRepresentation();
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+}
 
-      // Handle display to world conversion
-      double display[3] = { (double)X, (double)Y, displayCoord[2] };
-      this->Renderer->SetDisplayPoint(display);
-      this->Renderer->DisplayToWorld();
-      const double* world = this->Renderer->GetWorldPoint();
+//------------------------------------------------------------------------------
+bool vtkCoordinateFrameRepresentation::PickDirectionPoint(int X, int Y, bool snapToMeshPoint)
+{
+  this->HardwarePicker->SetSnapToMeshPoint(snapToMeshPoint);
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HardwarePicker);
+  if (path == nullptr) // actors of renderer were not touched
+  {
+    if (this->PickCameraFocalInfo)
+    {
       double pickPoint[3];
-      for (int i = 0; i < 3; i++)
-      {
-        pickPoint[i] = world[i] / world[3];
-      }
+      this->HardwarePicker->GetPickPosition(pickPoint);
       this->SetDirection(pickPoint);
     }
     return this->PickCameraFocalInfo;
   }
-  else
+  else // actors of renderer were touched
   {
     double pickPoint[3];
-    this->Picker->GetPickPosition(pickPoint);
-    this->SetDirection(pickPoint);
-    return true;
+    this->HardwarePicker->GetPickPosition(pickPoint);
+    if (!std::isnan(pickPoint[0]) || !std::isnan(pickPoint[1]) || !std::isnan(pickPoint[2]))
+    {
+      this->SetDirection(pickPoint);
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
 }
 
@@ -1674,7 +1621,8 @@ void vtkCoordinateFrameRepresentation::RegisterPickers()
   {
     return;
   }
-  pm->AddPicker(this->Picker, this);
+  pm->AddPicker(this->CellPicker, this);
+  pm->AddPicker(this->HardwarePicker, this);
 }
 
 //------------------------------------------------------------------------------
@@ -1683,5 +1631,5 @@ void vtkCoordinateFrameRepresentation::ComputeAdaptivePickerTolerance()
   double pickerCylinderRadius =
     vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.000001, this->GetOrigin());
   double tolerance = pickerCylinderRadius < DefaultPickTol ? pickerCylinderRadius : DefaultPickTol;
-  this->Picker->SetTolerance(tolerance);
+  this->CellPicker->SetTolerance(tolerance);
 }
