@@ -762,9 +762,13 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty* tprop, size_t* id)
   // We're dropping a bit here, but that should be okay.
   *id |= hash << 1;
 
-  // Insert the TextProperty into the lookup table
+  // Insert a copy of the TextProperty into the lookup table
   if (!this->TextPropertyLookup->contains(*id))
-    (*this->TextPropertyLookup)[*id] = tprop;
+  {
+    vtkNew<vtkTextProperty> cprop;
+    cprop->ShallowCopy(tprop);
+    (*this->TextPropertyLookup)[*id] = cprop;
+  }
 }
 
 //------------------------------------------------------------------------------
