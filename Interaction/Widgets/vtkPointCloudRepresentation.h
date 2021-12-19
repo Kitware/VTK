@@ -183,11 +183,15 @@ public:
    * (Note also that the pickers may return slighty different results, this
    * is expected due to the different way tolerancing works.)
    */
-  enum _Picking_Mode
+  enum PickingModeType
   {
     HARDWARE_PICKING = 0,
     SOFTWARE_PICKING
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef PickingModeType _Picking_Mode;
+#endif
   vtkSetClampMacro(PickingMode, int, HARDWARE_PICKING, SOFTWARE_PICKING);
   vtkGetMacro(PickingMode, int);
   void SetPickingModeToHardware() { this->SetPickingMode(HARDWARE_PICKING); }

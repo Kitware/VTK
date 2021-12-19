@@ -98,12 +98,16 @@ public:
    * Otherwise, the HighlightNormal is used. The Highlight() method will throw
    * a vtkCommand::HighlightEvent.
    */
-  enum _HighlightState
+  enum HighlightStateType
   {
     HighlightNormal,
     HighlightHovering,
     HighlightSelecting
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef HighlightStateType _HighlightState;
+#endif
   void Highlight(int) override;
   vtkGetMacro(HighlightState, int);
   ///@}
