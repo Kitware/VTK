@@ -725,7 +725,7 @@ size_t vtkParse_ValueInfoFromString(ValueInfo* data, StringCache* cache, const c
 {
   const char* cp = text;
   size_t n;
-  int m, count;
+  int m;
   unsigned int base_bits = 0;
   unsigned int pointer_bits = 0;
   unsigned int ref_bits = 0;
@@ -794,8 +794,6 @@ size_t vtkParse_ValueInfoFromString(ValueInfo* data, StringCache* cache, const c
   /* (should also look for parenthesized parameter list, for func types) */
   if (*cp == '[')
   {
-    count = 1;
-
     while (*cp == '[')
     {
       n = vtkparse_bracket_len(cp);
@@ -820,7 +818,6 @@ size_t vtkParse_ValueInfoFromString(ValueInfo* data, StringCache* cache, const c
       {
         m = (int)strtol(cp, NULL, 0);
       }
-      count *= m;
 
       cp += n;
       while (vtkParse_CharType(*cp, CPRE_HSPACE))
