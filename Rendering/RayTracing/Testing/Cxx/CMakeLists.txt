@@ -15,6 +15,7 @@ if (VTK_ENABLE_OSPRAY)
     TestOSPRayMultiBlockPartialArrayFieldData.cxx
     TestOSPRayOrthographic.cxx
     TestOSPRayPass.cxx
+    TestOSPRayPointGaussianMapper.cxx
     TestOSPRayRenderMesh.cxx
     TestOSPRayRotatedNormals.cxx
     TestOSPRayScalarBar.cxx
