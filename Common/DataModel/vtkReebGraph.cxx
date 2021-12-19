@@ -597,27 +597,27 @@ void vtkReebGraph::Implementation::CollapseVertex(vtkIdType N, vtkReebNode* n)
   int Lb, Lnext, La;
   vtkReebLabel* lb;
 
-  int _A0 = n->ArcDownId;
-  int _A1 = n->ArcUpId;
+  int A0 = n->ArcDownId;
+  int A1 = n->ArcUpId;
 
-  vtkReebArc* _a0 = this->GetArc(_A0);
-  vtkReebArc* _a1 = this->GetArc(_A1);
+  vtkReebArc* a0 = this->GetArc(A0);
+  vtkReebArc* a1 = this->GetArc(A1);
 
-  _a0->NodeId1 = _a1->NodeId1;
-  _a0->ArcUpId1 = _a1->ArcUpId1;
+  a0->NodeId1 = a1->NodeId1;
+  a0->ArcUpId1 = a1->ArcUpId1;
 
-  if (_a1->ArcUpId1)
-    this->GetArc(_a1->ArcUpId1)->ArcDwId1 = _A0;
+  if (a1->ArcUpId1)
+    this->GetArc(a1->ArcUpId1)->ArcDwId1 = A0;
 
-  _a0->ArcDwId1 = _a1->ArcDwId1;
+  a0->ArcDwId1 = a1->ArcDwId1;
 
-  if (_a1->ArcDwId1)
-    this->GetArc(_a1->ArcDwId1)->ArcUpId1 = _A0;
+  if (a1->ArcDwId1)
+    this->GetArc(a1->ArcDwId1)->ArcUpId1 = A0;
 
-  if (this->GetNode(_a1->NodeId1)->ArcDownId == _A1)
-    this->GetNode(_a1->NodeId1)->ArcDownId = _A0;
+  if (this->GetNode(a1->NodeId1)->ArcDownId == A1)
+    this->GetNode(a1->NodeId1)->ArcDownId = A0;
 
-  for (Lb = _a1->LabelId0; Lb; Lb = Lnext)
+  for (Lb = a1->LabelId0; Lb; Lb = Lnext)
   {
     lb = this->GetLabel(Lb);
     Lnext = lb->HNext;
@@ -639,9 +639,9 @@ void vtkReebGraph::Implementation::CollapseVertex(vtkIdType N, vtkReebNode* n)
   }
 
   // delete the arc from the graph...
-  this->GetArc(_A1)->LabelId1 = ((int)-2);
-  this->GetArc(_A1)->LabelId0 = this->MainArcTable.FreeZone;
-  this->MainArcTable.FreeZone = (_A1);
+  this->GetArc(A1)->LabelId1 = ((int)-2);
+  this->GetArc(A1)->LabelId0 = this->MainArcTable.FreeZone;
+  this->MainArcTable.FreeZone = (A1);
   --(this->MainArcTable.Number);
 
   // delete the node from the graph...

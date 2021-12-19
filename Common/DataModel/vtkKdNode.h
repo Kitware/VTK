@@ -278,7 +278,7 @@ protected:
   ~vtkKdNode() override;
 
 private:
-  double _GetDistance2ToBoundary(
+  double GetDistance2ToBoundaryPrivate(
     double x, double y, double z, double* boundaryPt, int innerBoundaryOnly, int useDataBounds);
 
   double Min[3];    // spatial bounds of node

@@ -251,7 +251,7 @@ double vtkKdNode::GetDivisionPosition()
 //
 double vtkKdNode::GetDistance2ToBoundary(double x, double y, double z, int useDataBounds = 0)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, nullptr, 0, useDataBounds);
+  return this->GetDistance2ToBoundaryPrivate(x, y, z, nullptr, 0, useDataBounds);
 }
 
 //------------------------------------------------------------------------------
@@ -261,7 +261,7 @@ double vtkKdNode::GetDistance2ToBoundary(double x, double y, double z, int useDa
 double vtkKdNode::GetDistance2ToBoundary(
   double x, double y, double z, double* p, int useDataBounds = 0)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, p, 0, useDataBounds);
+  return this->GetDistance2ToBoundaryPrivate(x, y, z, p, 0, useDataBounds);
 }
 
 //------------------------------------------------------------------------------
@@ -272,10 +272,10 @@ double vtkKdNode::GetDistance2ToBoundary(
 
 double vtkKdNode::GetDistance2ToInnerBoundary(double x, double y, double z)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, nullptr, 1, 0);
+  return this->GetDistance2ToBoundaryPrivate(x, y, z, nullptr, 1, 0);
 }
 
-double vtkKdNode::_GetDistance2ToBoundary(double x, double y, double z, // from this point
+double vtkKdNode::GetDistance2ToBoundaryPrivate(double x, double y, double z, // from this point
   double* p,             // set to point on boundary that is closest
   int innerBoundaryOnly, // ignore boundaries on "outside"
   int useDataBounds = 0) // use bounds of data within region instead
