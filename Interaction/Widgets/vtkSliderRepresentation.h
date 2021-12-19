@@ -29,6 +29,7 @@
 #ifndef vtkSliderRepresentation_h
 #define vtkSliderRepresentation_h
 
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -170,7 +171,7 @@ public:
   virtual double GetPickedT() { return this->PickedT; }
 
   // Enums are used to describe what is selected
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     Tube,
@@ -178,6 +179,10 @@ public:
     RightCap,
     Slider
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
 protected:
   vtkSliderRepresentation();

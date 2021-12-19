@@ -25,6 +25,7 @@
 #ifndef vtkQWidgetRepresentation_h
 #define vtkQWidgetRepresentation_h
 
+#include "vtkDeprecation.h"        // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -88,11 +89,15 @@ public:
   ///@}
 
   // Manage the state of the widget
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     Inside
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
   ///@{
   /**

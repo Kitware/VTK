@@ -30,6 +30,7 @@
 #define vtkMagnifierRepresentation_h
 
 #include "vtkCoordinate.h"               //Because of the viewport coordinate macro
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -118,11 +119,15 @@ public:
   /**
    * Define the various states that the representation can be in.
    */
-  enum _InteractionState
+  enum InteractionStateType
   {
     Invisible = 0,
     Visible
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
   ///@{
   /**

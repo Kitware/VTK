@@ -54,6 +54,7 @@
 #ifndef vtkBalloonRepresentation_h
 #define vtkBalloonRepresentation_h
 
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -210,12 +211,16 @@ public:
   /**
    * State is either outside, or inside (on the text portion of the image).
    */
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     OnText,
     OnImage
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
 protected:
   vtkBalloonRepresentation();

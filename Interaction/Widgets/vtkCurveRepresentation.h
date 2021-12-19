@@ -28,6 +28,7 @@
 #ifndef vtkCurveRepresentation_h
 #define vtkCurveRepresentation_h
 
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"        // needed for vtkPolyDataAlgorithm
 #include "vtkWidgetRepresentation.h"
@@ -54,7 +55,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Used to manage the InteractionState of the widget
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     OnHandle,
@@ -66,6 +67,10 @@ public:
     Erasing,
     Pushing
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
   ///@{
   /**

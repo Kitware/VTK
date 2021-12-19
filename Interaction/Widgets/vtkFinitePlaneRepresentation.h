@@ -31,6 +31,7 @@
 #ifndef vtkFinitePlaneRepresentation_h
 #define vtkFinitePlaneRepresentation_h
 
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -206,7 +207,7 @@ public:
   void Push(double* p1, double* p2);
   void Rotate(int X, int Y, double* p1, double* p2, double* vpn);
 
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     MoveOrigin,
@@ -216,6 +217,10 @@ public:
     Rotating,
     Pushing
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
   /*
    * Register internal Pickers within PickingManager

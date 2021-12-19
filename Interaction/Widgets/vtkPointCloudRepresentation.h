@@ -27,6 +27,7 @@
 #ifndef vtkPointCloudRepresentation_h
 #define vtkPointCloudRepresentation_h
 
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -116,13 +117,17 @@ public:
   // Enums define the state of the representation relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
   // widget.
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0, // no points nor outline selected
     OverOutline, // mouse is over the bounding box of the point cloud
     Over,        // mouse is over a point
     Selecting    // user has selected the point
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
   ///@{
   /**
