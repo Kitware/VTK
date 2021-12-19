@@ -22,18 +22,18 @@
 #ifndef vtkOSPRayPointGaussianMapperNode_h
 #define vtkOSPRayPointGaussianMapperNode_h
 
-#include "vtkOSPRayCache.h" // For common cache infrastructure
-#include "vtkPolyDataMapperNode.h"
+#include "vtkOSPRayPolyDataMapperNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
 class vtkOSPRayActorNode;
 class vtkPolyData;
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayPointGaussianMapperNode : public vtkPolyDataMapperNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayPointGaussianMapperNode
+  : public vtkOSPRayPolyDataMapperNode
 {
 public:
   static vtkOSPRayPointGaussianMapperNode* New();
-  vtkTypeMacro(vtkOSPRayPointGaussianMapperNode, vtkPolyDataMapperNode);
+  vtkTypeMacro(vtkOSPRayPointGaussianMapperNode, vtkOSPRayPolyDataMapperNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -41,17 +41,12 @@ public:
    */
   void Render(bool prepass) override;
 
-  /**
-   * Invalidates cached rendering data.
-   */
-  void Invalidate(bool prepass) override;
-
 protected:
   vtkOSPRayPointGaussianMapperNode();
   ~vtkOSPRayPointGaussianMapperNode() override;
 
-  void ORenderPoly(void* renderer, vtkOSPRayActorNode* aNode, vtkPolyData* poly,
-    double* ambientColor, double* diffuseColor, double opacity, std::string material);
+  void InternalRender(void* renderer, vtkOSPRayActorNode* aNode, vtkPolyData* poly,
+    double* diffuseColor, double opacity, std::string material);
 
   std::vector<OSPVolume> OSPRayVolumes;
   std::vector<OSPVolumetricModel> VolumetricModels;
@@ -62,6 +57,20 @@ protected:
    * @brief add precomputed ospray geometries to renderer model.
    */
   void RenderVolumetricModels();
+
+  /**
+   * Member variables
+   */
+  int ScaleTableSize = 1024;
+  float* ScaleTable = nullptr;
+  double ScaleScale = 1.0;
+  double ScaleOffset = 0.0;
+  int OpacityTableSize = 1024;
+  float* OpacityTable = nullptr;
+  double OpacityScale = 1.0;
+  double OpacityOffset = 0.0;
+  vtkTimeStamp ScaleTableUpdateTime;
+  vtkTimeStamp OpacityTableUpdateTime;
 
 private:
   vtkOSPRayPointGaussianMapperNode(const vtkOSPRayPointGaussianMapperNode&) = delete;
