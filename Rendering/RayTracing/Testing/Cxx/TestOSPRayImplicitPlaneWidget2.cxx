@@ -21,7 +21,6 @@
 #include "vtkGlyph3D.h"
 #include "vtkImplicitPlaneRepresentation.h"
 #include "vtkImplicitPlaneWidget2.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkPlane.h"
@@ -32,6 +31,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkTesting.h"
 
 #include "vtkOSPRayTestInteractor.h"
 
@@ -483,16 +483,16 @@ int TestOSPRayImplicitPlaneWidget2(int argc, char* argv[])
 
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkNew<vtkRenderer> ren1;
+  vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren1);
-  vtkOSPRayRendererNode::SetSamplesPerPixel(16, ren1);
+  renWin->AddRenderer(renderer);
+  vtkOSPRayRendererNode::SetSamplesPerPixel(16, renderer);
 
   for (int i = 0; i < argc; ++i)
   {
     if (!strcmp(argv[i], "--OptiX"))
     {
-      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", ren1);
+      vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
       break;
     }
   }
@@ -516,39 +516,27 @@ int TestOSPRayImplicitPlaneWidget2(int argc, char* argv[])
   planeWidget->SetRepresentation(rep);
   planeWidget->AddObserver(vtkCommand::InteractionEvent, myCallback);
 
-  ren1->AddActor(maceActor);
-  ren1->AddActor(selectActor);
+  renderer->AddActor(maceActor);
+  renderer->AddActor(selectActor);
 
   // Add the actors to the renderer, set the background and size
   //
-  ren1->SetBackground(0.1, 0.2, 0.4);
+  renderer->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300, 300);
   vtkNew<vtkOSPRayPass> ospray;
-  ren1->SetPass(ospray);
+  renderer->SetPass(ospray);
 
   vtkNew<vtkOSPRayTestInteractor> style;
-  style->SetPipelineControlPoints(ren1, ospray, nullptr);
+  style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
-  style->SetCurrentRenderer(ren1);
+  style->SetCurrentRenderer(renderer);
 
-  // record events
-  vtkNew<vtkInteractorEventRecorder> recorder;
-  recorder->SetInteractor(iren);
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestOSPRayIPWLog);
-
+  // interact with data
   // render the image
   //
-  renWin->SetMultiSamples(0);
+  renderer->ResetCamera();
   iren->Initialize();
   renWin->Render();
-  recorder->Play();
 
-  // Remove the observers so we can go interactive. Without this the "-I"
-  // testing option fails.
-  recorder->Off();
-
-  iren->Start();
-
-  return EXIT_SUCCESS;
+  return vtkTesting::InteractorEventLoop(argc, argv, iren, TestOSPRayIPWLog);
 }
