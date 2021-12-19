@@ -234,7 +234,7 @@ protected:
    * Given a leaf node id and point, return the local id and the squared distance
    * between the closest point and the given point.
    */
-  int _FindClosestPointInRegion(int leafNodeId, double x, double y, double z, double& dist2);
+  int FindClosestPointInRegion_(int leafNodeId, double x, double y, double z, double& dist2);
 
   /**
    * Given a location and a radiues, find the closest point within
