@@ -11,6 +11,7 @@ vtk_add_test_cxx(vtkRenderingFreeTypeCxxTests tests
   TestFreeTypeTools.cxx,NO_VALID
   TestMathTextFreeTypeTextRendererNoMath.cxx
   TestTextActor.cxx
+  TestTextActorTileScaling.cxx
   TestTextActor3D.cxx
   TestTextActorAlphaBlending.cxx
   TestTextActorDepthPeeling.cxx
