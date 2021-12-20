@@ -45,6 +45,7 @@
 #ifndef vtkHandleRepresentation_h
 #define vtkHandleRepresentation_h
 
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -105,7 +106,7 @@ public:
   // position. Used by ComputeInteractionState() to communicate with the
   // widget. Note that ComputeInteractionState() and several other methods
   // must be implemented by subclasses.
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     Nearby,
@@ -113,6 +114,10 @@ public:
     Translating,
     Scaling
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
   ///@{
   /**

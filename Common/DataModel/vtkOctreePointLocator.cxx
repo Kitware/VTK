@@ -504,7 +504,7 @@ vtkIdType vtkOctreePointLocator::FindClosestPoint(double x, double y, double z, 
 
     regionId = this->GetRegionContainingPoint(pt[0], pt[1], pt[2]);
 
-    closeId = this->_FindClosestPointInRegion(regionId, x, y, z, dist2);
+    closeId = this->FindClosestPointInRegion_(regionId, x, y, z, dist2);
 
     closePointId = static_cast<vtkIdType>(this->LocatorIds[closeId]);
 
@@ -521,7 +521,7 @@ vtkIdType vtkOctreePointLocator::FindClosestPoint(double x, double y, double z, 
   }
   else // Point is inside an octree region
   {
-    closeId = this->_FindClosestPointInRegion(regionId, x, y, z, dist2);
+    closeId = this->FindClosestPointInRegion_(regionId, x, y, z, dist2);
     closePointId = static_cast<vtkIdType>(this->LocatorIds[closeId]);
 
     if (dist2 > 0.0)
@@ -571,7 +571,7 @@ vtkIdType vtkOctreePointLocator::FindClosestPointInRegion(
     vtkErrorMacro("vtkOctreePointLocator::FindClosestPointInRegion - must build locator first");
     return -1;
   }
-  int localId = this->_FindClosestPointInRegion(regionId, x, y, z, dist2);
+  int localId = this->FindClosestPointInRegion_(regionId, x, y, z, dist2);
 
   vtkIdType originalId = -1;
 
@@ -584,7 +584,7 @@ vtkIdType vtkOctreePointLocator::FindClosestPointInRegion(
 }
 
 //------------------------------------------------------------------------------
-int vtkOctreePointLocator::_FindClosestPointInRegion(
+int vtkOctreePointLocator::FindClosestPointInRegion_(
   int leafNodeId, double x, double y, double z, double& dist2)
 {
   int minId = 0;
@@ -657,7 +657,7 @@ int vtkOctreePointLocator::FindClosestPointInSphere(
     else
     {
       double tempDist2 = dist2;
-      int tempId = this->_FindClosestPointInRegion(region->GetID(), x, y, z, tempDist2);
+      int tempId = this->FindClosestPointInRegion_(region->GetID(), x, y, z, tempDist2);
 
       if (tempDist2 < dist2)
       {

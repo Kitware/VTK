@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkOpenGLHyperTreeGridMapper();
-  virtual ~vtkOpenGLHyperTreeGridMapper() = default;
+  virtual ~vtkOpenGLHyperTreeGridMapper() override = default;
 
 private:
   vtkOpenGLHyperTreeGridMapper(const vtkOpenGLHyperTreeGridMapper&) = delete;

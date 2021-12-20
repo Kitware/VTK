@@ -260,7 +260,7 @@ void vtkOctreePointLocatorNode::GetDataBounds(double* b) const
 double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
   double x, double y, double z, vtkOctreePointLocatorNode* top, int useDataBounds = 0)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, nullptr, 0, top, useDataBounds);
+  return this->GetDistance2ToBoundaryPrivate(x, y, z, nullptr, 0, top, useDataBounds);
 }
 
 //------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
 double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
   double x, double y, double z, double* p, vtkOctreePointLocatorNode* top, int useDataBounds = 0)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, p, 0, top, useDataBounds);
+  return this->GetDistance2ToBoundaryPrivate(x, y, z, p, 0, top, useDataBounds);
 }
 
 //------------------------------------------------------------------------------
@@ -281,11 +281,11 @@ double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
 double vtkOctreePointLocatorNode::GetDistance2ToInnerBoundary(
   double x, double y, double z, vtkOctreePointLocatorNode* top)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, nullptr, 1, top, 0);
+  return this->GetDistance2ToBoundaryPrivate(x, y, z, nullptr, 1, top, 0);
 }
 
 //------------------------------------------------------------------------------
-double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(double x, double y,
+double vtkOctreePointLocatorNode::GetDistance2ToBoundaryPrivate(double x, double y,
   double z,                       // from this point
   double* p,                      // set to point on boundary that is closest
   int innerBoundaryOnly,          // ignore boundaries on "outside"

@@ -38,6 +38,7 @@
 #ifndef vtkButtonRepresentation_h
 #define vtkButtonRepresentation_h
 
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -78,11 +79,15 @@ public:
   virtual void PreviousState();
   ///@}
 
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     Inside
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
   ///@{
   /**
@@ -93,12 +98,16 @@ public:
    * Otherwise, the HighlightNormal is used. The Highlight() method will throw
    * a vtkCommand::HighlightEvent.
    */
-  enum _HighlightState
+  enum HighlightStateType
   {
     HighlightNormal,
     HighlightHovering,
     HighlightSelecting
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef HighlightStateType _HighlightState;
+#endif
   void Highlight(int) override;
   vtkGetMacro(HighlightState, int);
   ///@}

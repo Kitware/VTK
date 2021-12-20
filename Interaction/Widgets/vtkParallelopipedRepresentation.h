@@ -31,6 +31,7 @@
 #ifndef vtkParallelopipedRepresentation_h
 #define vtkParallelopipedRepresentation_h
 
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -178,7 +179,7 @@ public:
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
 
   // Manage the state of the widget
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     Inside,
@@ -195,6 +196,10 @@ public:
     ScalingParallelopiped,
     RotatingParallelopiped
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
   // Methods to manipulate the piped.
   virtual void Translate(double translation[3]);

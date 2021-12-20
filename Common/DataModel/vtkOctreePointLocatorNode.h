@@ -244,7 +244,7 @@ protected:
   ~vtkOctreePointLocatorNode() override;
 
 private:
-  double _GetDistance2ToBoundary(double x, double y, double z, double* boundaryPt,
+  double GetDistance2ToBoundaryPrivate(double x, double y, double z, double* boundaryPt,
     int innerBoundaryOnly, vtkOctreePointLocatorNode* top, int useDataBounds);
 
   /**

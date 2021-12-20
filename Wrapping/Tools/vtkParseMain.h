@@ -50,7 +50,7 @@
 /**
  * Options for the wrappers
  */
-typedef struct _OptionInfo
+typedef struct OptionInfo_
 {
   int NumberOfFiles;              /* the total number of file arguments */
   char** Files;                   /* all of the file arguments */

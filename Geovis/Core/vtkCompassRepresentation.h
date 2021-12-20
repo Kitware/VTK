@@ -32,6 +32,7 @@
 #include "vtkCenteredSliderRepresentation.h" // to use in a SP
 #include "vtkContinuousValueWidgetRepresentation.h"
 #include "vtkCoordinate.h"       // For vtkViewportCoordinateMacro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"     // used for SmartPointers
 
@@ -148,7 +149,7 @@ public:
   void SetRenderer(vtkRenderer* ren) override;
 
   // Enums are used to describe what is selected
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     Inside,
@@ -160,6 +161,10 @@ public:
     DistanceIn,
     DistanceAdjusting
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
 protected:
   vtkCompassRepresentation();

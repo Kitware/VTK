@@ -27,6 +27,7 @@
 #include "vtkInformationKey.h"
 #include "vtkObjectBase.h"
 
+#include <cstdint>
 #define VTK_INFORMATION_USE_HASH_MAP
 #ifdef VTK_INFORMATION_USE_HASH_MAP
 #include <unordered_map>
@@ -43,7 +44,10 @@ public:
 #ifdef VTK_INFORMATION_USE_HASH_MAP
   struct HashFun
   {
-    size_t operator()(KeyType key) const { return static_cast<size_t>(key - KeyType(nullptr)); }
+    size_t operator()(KeyType key) const
+    {
+      return reinterpret_cast<uintptr_t>(key) / sizeof(vtkInformationKey);
+    }
   };
   typedef std::unordered_map<KeyType, DataType, HashFun> MapType;
 #else

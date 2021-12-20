@@ -35,7 +35,7 @@
  * This struct is meant to supplement ClassInfo, it gives information
  * about which class (or classes) each method was inherited from
  */
-typedef struct _MergeInfo
+typedef struct MergeInfo_
 {
   int NumberOfClasses;     /* number of classes in genealogy */
   const char** ClassNames; /* class name */

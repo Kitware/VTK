@@ -30,6 +30,7 @@
 #ifndef vtkContinuousValueWidgetRepresentation_h
 #define vtkContinuousValueWidgetRepresentation_h
 
+#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
@@ -59,12 +60,16 @@ public:
   ///@}
 
   // Enums are used to describe what is selected
-  enum _InteractionState
+  enum InteractionStateType
   {
     Outside = 0,
     Inside,
     Adjusting
   };
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_2_0("because leading underscore is reserved")
+  typedef InteractionStateType _InteractionState;
+#endif
 
   // Set/Get the value
   virtual void SetValue(double value);

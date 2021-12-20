@@ -756,7 +756,7 @@ protected:
   // (this->ProgressOffset + this->ProgressScale* amount).
   void UpdateSubOperationProgress(double amount);
 
-  static void _SetNewBounds(vtkKdNode* kd, double* b, int* fixDim);
+  static void SetNewBounds_(vtkKdNode* kd, double* b, int* fixDim);
   static void CopyChildNodes(vtkKdNode* to, vtkKdNode* from);
   static void CopyKdNode(vtkKdNode* to, vtkKdNode* from);
   static void SetDataBoundsToSpatialBounds(vtkKdNode* kd);
@@ -780,7 +780,7 @@ protected:
 
   void SelfRegister(vtkKdNode* kd);
 
-  struct _cellList
+  struct cellList_
   {
     vtkDataSet* dataSet; // cell lists for which data set
     int* regionIds;      // nullptr if listing all regions
@@ -805,51 +805,51 @@ protected:
 
   void AddPolys(vtkKdNode* kd, vtkPoints* pts, vtkCellArray* polys);
 
-  void _printTree(int verbose);
+  void printTree_(int verbose);
 
   int SearchNeighborsForDuplicate(
     int regionId, float* point, int** pointsSoFar, int* len, float tolerance, float tolerance2);
 
   int SearchRegionForDuplicate(float* point, int* pointsSoFar, int len, float tolerance2);
 
-  int _FindClosestPointInRegion(int regionId, double x, double y, double z, double& dist2);
+  int FindClosestPointInRegion_(int regionId, double x, double y, double z, double& dist2);
 
   int FindClosestPointInSphere(
     double x, double y, double z, double radius, int skipRegion, double& dist2);
 
-  int _ViewOrderRegionsInDirection(
+  int ViewOrderRegionsInDirection_(
     vtkIntArray* IdsOfInterest, const double dop[3], vtkIntArray* orderedList);
 
-  static int __ViewOrderRegionsInDirection(vtkKdNode* node, vtkIntArray* list,
+  static int ViewOrderRegionsInDirection_P(vtkKdNode* node, vtkIntArray* list,
     vtkIntArray* IdsOfInterest, const double dir[3], int nextId);
 
-  int _ViewOrderRegionsFromPosition(
+  int ViewOrderRegionsFromPosition_(
     vtkIntArray* IdsOfInterest, const double pos[3], vtkIntArray* orderedList);
 
-  static int __ViewOrderRegionsFromPosition(vtkKdNode* node, vtkIntArray* list,
+  static int ViewOrderRegionsFromPosition_P(vtkKdNode* node, vtkIntArray* list,
     vtkIntArray* IdsOfInterest, const double pos[3], int nextId);
 
-  static int __ConvexSubRegions(int* ids, int len, vtkKdNode* tree, vtkKdNode** nodes);
+  static int ConvexSubRegions_(int* ids, int len, vtkKdNode* tree, vtkKdNode** nodes);
   static int FoundId(vtkIntArray* idArray, int id);
 
   void SetInputDataInfo(int i, int dims[3], double origin[3], double spacing[3]);
   int CheckInputDataInfo(int i, int dims[3], double origin[3], double spacing[3]);
   void ClearLastBuildCache();
 
-  static void __printTree(vtkKdNode* kd, int depth, int verbose);
+  static void printTree_P(vtkKdNode* kd, int depth, int verbose);
 
   static int MidValue(int dim, float* c1, int nvals, double& coord);
 
   static int Select(int dim, float* c1, int* ids, int nvals, double& coord);
   static float FindMaxLeftHalf(int dim, float* c1, int K);
-  static void _Select(int dim, float* X, int* ids, int L, int R, int K);
+  static void Select_(int dim, float* X, int* ids, int L, int R, int K);
 
   static int ComputeLevel(vtkKdNode* kd);
   static int SelfOrder(int id, vtkKdNode* kd);
   static int findRegion(vtkKdNode* node, float x, float y, float z);
   static int findRegion(vtkKdNode* node, double x, double y, double z);
 
-  static vtkKdNode** _GetRegionsAtLevel(int level, vtkKdNode** nodes, vtkKdNode* kd);
+  static vtkKdNode** GetRegionsAtLevel_(int level, vtkKdNode** nodes, vtkKdNode* kd);
 
   static void AddNewRegions(vtkKdNode* kd, float* c1, int midpt, int dim, double coord);
 
@@ -863,7 +863,7 @@ protected:
 
   vtkTypeBool GenerateRepresentationUsingDataBounds;
 
-  struct _cellList CellList;
+  struct cellList_ CellList;
 
   // Region Ids, by data set by cell id - this list is large (one
   // int per cell) but accelerates creation of cell lists
