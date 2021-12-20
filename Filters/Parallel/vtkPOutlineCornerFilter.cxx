@@ -48,7 +48,7 @@ vtkPOutlineCornerFilter::vtkPOutlineCornerFilter()
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->CornerFactor = 0.2;
   this->Internals = new vtkPOutlineFilterInternals;
-  this->Internals->SetController(vtkMultiProcessController::GetGlobalController());
+  this->Internals->SetController(this->Controller);
 }
 
 vtkPOutlineCornerFilter::~vtkPOutlineCornerFilter()

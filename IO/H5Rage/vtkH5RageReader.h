@@ -99,6 +99,7 @@ protected:
   int CurrentTimeStep; // Time currently displayed
 
   // Controls initializing and querying MPI
+  void SetController(vtkMultiProcessController*);
   vtkMultiProcessController* Controller;
 
   // Selected field of interest

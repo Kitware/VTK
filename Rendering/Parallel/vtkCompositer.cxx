@@ -43,20 +43,12 @@ vtkCompositer::~vtkCompositer()
 //------------------------------------------------------------------------------
 void vtkCompositer::SetController(vtkMultiProcessController* mpc)
 {
-  if (this->Controller == mpc)
-  {
-    return;
-  }
+  vtkSetObjectBodyMacro(Controller, vtkMultiProcessController, mpc);
+
   if (mpc)
   {
-    mpc->Register(this);
     this->NumberOfProcesses = mpc->GetNumberOfProcesses();
   }
-  if (this->Controller)
-  {
-    this->Controller->UnRegister(this);
-  }
-  this->Controller = mpc;
 }
 
 //------------------------------------------------------------------------------

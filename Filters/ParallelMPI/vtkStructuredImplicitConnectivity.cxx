@@ -836,6 +836,7 @@ void CommunicationManager::Exchange(vtkMPIController* comm)
 //==============================================================================
 
 vtkStandardNewMacro(vtkStructuredImplicitConnectivity);
+vtkCxxSetObjectMacro(vtkStructuredImplicitConnectivity, Controller, vtkMPIController);
 
 //------------------------------------------------------------------------------
 vtkStructuredImplicitConnectivity::vtkStructuredImplicitConnectivity()
@@ -844,8 +845,9 @@ vtkStructuredImplicitConnectivity::vtkStructuredImplicitConnectivity()
   this->InputGrid = nullptr;
   this->OutputGrid = nullptr;
   this->CommManager = nullptr;
-  this->Controller =
-    vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController());
+  this->Controller = nullptr;
+  this->SetController(
+    vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController()));
 }
 
 //------------------------------------------------------------------------------
@@ -875,7 +877,7 @@ vtkStructuredImplicitConnectivity::~vtkStructuredImplicitConnectivity()
     this->CommManager = nullptr;
   }
 
-  this->Controller = nullptr;
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------

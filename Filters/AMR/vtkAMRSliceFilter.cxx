@@ -44,6 +44,7 @@
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAMRSliceFilter);
+vtkCxxSetObjectMacro(vtkAMRSliceFilter, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 vtkAMRSliceFilter::vtkAMRSliceFilter()
@@ -52,8 +53,15 @@ vtkAMRSliceFilter::vtkAMRSliceFilter()
   this->SetNumberOfOutputPorts(1);
   this->OffsetFromOrigin = 0.0;
   this->Normal = X_NORMAL;
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   this->MaxResolution = 1;
+}
+
+//------------------------------------------------------------------------------
+vtkAMRSliceFilter::~vtkAMRSliceFilter()
+{
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------

@@ -128,8 +128,8 @@ public:
   /**
    * Set & Get macro for the multi-process controller
    */
-  vtkSetMacro(Controller, vtkMultiProcessController*);
-  vtkGetMacro(Controller, vtkMultiProcessController*);
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
   // Standard pipeline routines

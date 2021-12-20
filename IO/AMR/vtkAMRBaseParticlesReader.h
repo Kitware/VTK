@@ -50,8 +50,8 @@ public:
   /**
    * Set & Get the multi-process controller.
    */
-  vtkGetMacro(Controller, vtkMultiProcessController*);
-  vtkSetMacro(Controller, vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  virtual void SetController(vtkMultiProcessController*);
   ///@}
 
   ///@{

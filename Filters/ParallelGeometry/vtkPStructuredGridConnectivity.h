@@ -57,8 +57,8 @@ public:
   /**
    * Set & Get the process controller
    */
-  vtkSetMacro(Controller, vtkMultiProcessController*);
-  vtkGetMacro(Controller, vtkMultiProcessController*);
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
   /**

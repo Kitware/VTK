@@ -153,7 +153,7 @@ const int UGGCG_DATA_EXCHANGE_TAG = 9001;
 //------------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkPUnstructuredGridGhostCellsGenerator);
-vtkSetObjectImplementationMacro(
+vtkCxxSetObjectMacro(
   vtkPUnstructuredGridGhostCellsGenerator, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
 
   if (!this->Controller)
   {
-    this->Controller = vtkMultiProcessController::GetGlobalController();
+    this->SetController(vtkMultiProcessController::GetGlobalController());
   }
 
   int reqGhostLevel =

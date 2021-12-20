@@ -67,16 +67,21 @@
 #endif // DEBUG
 
 vtkStandardNewMacro(vtkPExtractGrid);
+vtkCxxSetObjectMacro(vtkPExtractGrid, Controller, vtkMPIController);
 
 //------------------------------------------------------------------------------
 vtkPExtractGrid::vtkPExtractGrid()
 {
-  this->Controller =
-    vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController());
+  this->Controller = nullptr;
+  this->SetController(
+    vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController()));
 }
 
 //------------------------------------------------------------------------------
-vtkPExtractGrid::~vtkPExtractGrid() = default;
+vtkPExtractGrid::~vtkPExtractGrid()
+{
+  this->SetController(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkPExtractGrid::PrintSelf(ostream& os, vtkIndent indent)

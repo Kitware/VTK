@@ -25,15 +25,20 @@
 #include <cassert>
 
 vtkStandardNewMacro(vtkAMRToMultiBlockFilter);
+vtkCxxSetObjectMacro(vtkAMRToMultiBlockFilter, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 vtkAMRToMultiBlockFilter::vtkAMRToMultiBlockFilter()
 {
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
-vtkAMRToMultiBlockFilter::~vtkAMRToMultiBlockFilter() = default;
+vtkAMRToMultiBlockFilter::~vtkAMRToMultiBlockFilter()
+{
+  this->SetController(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkAMRToMultiBlockFilter::PrintSelf(std::ostream& oss, vtkIndent indent)

@@ -34,6 +34,7 @@
 #include "vtkvpic/VPICView.h"
 
 vtkStandardNewMacro(vtkVPICReader);
+vtkCxxSetObjectMacro(vtkVPICReader, MPIController, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 // Constructor for VPIC Reader
@@ -78,7 +79,8 @@ vtkVPICReader::vtkVPICReader()
   this->YLayout[1] = -1;
   this->ZLayout[1] = -1;
 
-  this->MPIController = vtkMultiProcessController::GetGlobalController();
+  this->MPIController = nullptr;
+  this->SetMPIController(vtkMultiProcessController::GetGlobalController());
 
   if (this->MPIController)
   {
@@ -130,9 +132,7 @@ vtkVPICReader::~vtkVPICReader()
 
   this->SelectionObserver->Delete();
 
-  // Do not delete the MPIController it is Singleton like and will
-  // cleanup itself;
-  this->MPIController = nullptr;
+  this->SetMPIController(nullptr);
 }
 
 //------------------------------------------------------------------------------

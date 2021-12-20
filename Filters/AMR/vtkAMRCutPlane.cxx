@@ -39,6 +39,7 @@
 
 vtkStandardNewMacro(vtkAMRCutPlane);
 
+vtkCxxSetObjectMacro(vtkAMRCutPlane, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
 vtkAMRCutPlane::vtkAMRCutPlane()
 {
@@ -51,13 +52,14 @@ vtkAMRCutPlane::vtkAMRCutPlane()
     this->Center[i] = 0.0;
     this->Normal[i] = 0.0;
   }
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   this->UseNativeCutter = true;
 }
 
 //------------------------------------------------------------------------------
 vtkAMRCutPlane::~vtkAMRCutPlane()
 {
+  this->SetController(nullptr);
   this->BlocksToLoad.clear();
 }
 

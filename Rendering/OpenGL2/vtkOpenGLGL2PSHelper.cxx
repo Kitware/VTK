@@ -16,12 +16,14 @@
 #include "vtkOpenGLGL2PSHelper.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
 
 // Static allocation:
 vtkOpenGLGL2PSHelper* vtkOpenGLGL2PSHelper::Instance = nullptr;
 
 //------------------------------------------------------------------------------
 vtkAbstractObjectFactoryNewMacro(vtkOpenGLGL2PSHelper);
+vtkCxxSetObjectMacro(vtkOpenGLGL2PSHelper, RenderWindow, vtkRenderWindow);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLGL2PSHelper::PrintSelf(std::ostream& os, vtkIndent indent)
@@ -70,4 +72,7 @@ vtkOpenGLGL2PSHelper::vtkOpenGLGL2PSHelper()
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLGL2PSHelper::~vtkOpenGLGL2PSHelper() = default;
+vtkOpenGLGL2PSHelper::~vtkOpenGLGL2PSHelper()
+{
+  this->SetRenderWindow(nullptr);
+}

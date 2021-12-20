@@ -23,16 +23,19 @@ vtkProcess::vtkProcess()
 }
 
 //------------------------------------------------------------------------------
+vtkProcess::~vtkProcess()
+{
+  this->SetController(nullptr);
+}
+
+//------------------------------------------------------------------------------
 vtkMultiProcessController* vtkProcess::GetController()
 {
   return this->Controller;
 }
 
 //------------------------------------------------------------------------------
-void vtkProcess::SetController(vtkMultiProcessController* aController)
-{
-  this->Controller = aController;
-}
+vtkCxxSetObjectMacro(vtkProcess, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 int vtkProcess::GetReturnValue()

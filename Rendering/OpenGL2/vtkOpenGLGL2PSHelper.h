@@ -59,7 +59,7 @@ public:
   /**
    * Get the renderwindow that's being exported.
    */
-  vtkGetMacro(RenderWindow, vtkRenderWindow*);
+  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
   ///@}
 
   enum State
@@ -170,7 +170,7 @@ protected:
 
   vtkSetMacro(ActiveState, State);
   vtkSetMacro(TextAsPath, bool);
-  vtkSetMacro(RenderWindow, vtkRenderWindow*); // Doesn't ref count, not needed.
+  virtual void SetRenderWindow(vtkRenderWindow*);
   vtkSetMacro(PointSizeFactor, float);
   vtkSetMacro(LineWidthFactor, float);
 

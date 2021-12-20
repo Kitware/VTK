@@ -448,7 +448,7 @@ public:
   static ProcessLocator* New();
   void Initialize(vtkCompositeDataSet* data)
   {
-    this->Controller = vtkMultiProcessController::GetGlobalController();
+    this->SetController(vtkMultiProcessController::GetGlobalController());
     this->Rank = this->Controller->GetLocalProcessId();
     this->NumProcs = this->Controller->GetNumberOfProcesses();
     this->InitBoundingBoxes(this->NumProcs);
@@ -485,6 +485,8 @@ public:
 #endif
   }
 
+  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+
   bool InCurrentProcess(double* p) { return InBB(p, GetBoundingBox(Rank)); }
   int FindNextProcess(double* p)
   {
@@ -506,6 +508,7 @@ private:
     this->NumProcs = 0;
     this->Rank = 0;
   }
+  ~ProcessLocator() override { this->SetController(nullptr); }
   vtkMultiProcessController* Controller;
   int Rank;
   int NumProcs;
@@ -531,7 +534,7 @@ public:
 
   vtkGetMacro(VecName, char*);
   vtkGetMacro(VecType, int);
-  vtkGetMacro(Input0, vtkDataSet*);
+  vtkGetObjectMacro(Input0, vtkDataSet);
 
   virtual ProcessLocator* GetProcessLocator() { return nullptr; }
 
@@ -728,7 +731,7 @@ class AMRPStreamTracerUtils : public AbstractPStreamTracerUtils
 public:
   vtkTypeMacro(AMRPStreamTracerUtils, AbstractPStreamTracerUtils);
   static AMRPStreamTracerUtils* New();
-  vtkSetMacro(AMR, vtkOverlappingAMR*);
+  vtkSetObjectMacro(AMR, vtkOverlappingAMR);
 
   void InitializeVelocityFunction(
     PStreamTracerPoint* point, vtkAbstractInterpolatedVelocityField* func) override
@@ -826,7 +829,7 @@ public:
   {
     this->Superclass::Initialize(tracer);
     AssertNe(this->InputData, nullptr);
-    this->AMR = vtkOverlappingAMR::SafeDownCast(this->InputData);
+    this->SetAMR(vtkOverlappingAMR::SafeDownCast(this->InputData));
 
     vtkParallelAMRUtilities::DistributeProcessInformation(
       this->AMR, this->Controller, BlockProcess);
@@ -835,6 +838,7 @@ public:
 
 protected:
   AMRPStreamTracerUtils() { this->AMR = nullptr; }
+  ~AMRPStreamTracerUtils() { this->SetAMR(nullptr); }
   vtkOverlappingAMR* AMR;
 
   std::vector<int> BlockProcess; // stores block->process information
@@ -1000,8 +1004,9 @@ public:
     : Locator(locator)
     , Proto(proto)
   {
-    this->Controller =
-      vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController());
+    this->Controller = nullptr;
+    this->SetController(
+      vtkMPIController::SafeDownCast(vtkMultiProcessController::GetGlobalController()));
     AssertNe(this->Controller, nullptr);
     this->NumProcs = this->Controller->GetNumberOfProcesses();
     this->Rank = this->Controller->GetLocalProcessId();
@@ -1193,6 +1198,24 @@ public:
       this->ReceiveBuffer->GetRequest().Cancel();
       delete ReceiveBuffer;
     }
+    this->SetController(nullptr);
+  }
+
+  void SetController(vtkMPIController* controller)
+  {
+    if (this->Controller != controller)
+    {
+      vtkMPIController* temp = this->Controller;
+      this->Controller = controller;
+      if (this->Controller != nullptr)
+      {
+        this->Controller->Register(nullptr);
+      }
+      if (temp != nullptr)
+      {
+        temp->UnRegister(nullptr);
+      }
+    }
   }
 
 private:
@@ -1379,11 +1402,8 @@ vtkStandardNewMacro(vtkPStreamTracer);
 //------------------------------------------------------------------------------
 vtkPStreamTracer::vtkPStreamTracer()
 {
-  this->Controller = vtkMultiProcessController::GetGlobalController();
-  if (this->Controller)
-  {
-    this->Controller->Register(this);
-  }
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->Interpolator = nullptr;
   this->GenerateNormalsInIntegrate = false;
@@ -1398,11 +1418,7 @@ vtkPStreamTracer::vtkPStreamTracer()
 //------------------------------------------------------------------------------
 vtkPStreamTracer::~vtkPStreamTracer()
 {
-  if (this->Controller)
-  {
-    this->Controller->UnRegister(this);
-    this->Controller = nullptr;
-  }
+  this->SetController(nullptr);
   this->SetInterpolator(nullptr);
 }
 

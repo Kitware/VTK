@@ -23,9 +23,10 @@
 #include "vtkSmartPointer.h"
 
 vtkObjectFactoryNewMacro(vtkPConvertToMultiBlockDataSet);
-vtkCxxSetObjectMacro(vtkPConvertToMultiBlockDataSet, Controller, vtkMultiProcessController)
-  //----------------------------------------------------------------------------
-  vtkPConvertToMultiBlockDataSet::vtkPConvertToMultiBlockDataSet()
+vtkCxxSetObjectMacro(vtkPConvertToMultiBlockDataSet, Controller, vtkMultiProcessController);
+
+//----------------------------------------------------------------------------
+vtkPConvertToMultiBlockDataSet::vtkPConvertToMultiBlockDataSet()
   : Controller(nullptr)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());

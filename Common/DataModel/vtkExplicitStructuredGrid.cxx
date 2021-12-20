@@ -59,7 +59,7 @@ static int MIRROR_HEXAHEDRON_POINT_MAP[] = {
 };
 
 vtkStandardNewMacro(vtkExplicitStructuredGrid);
-vtkSetObjectImplementationMacro(vtkExplicitStructuredGrid, Cells, vtkCellArray);
+vtkCxxSetObjectMacro(vtkExplicitStructuredGrid, Cells, vtkCellArray);
 
 #define vtkAdjustBoundsMacro(A, B)                                                                 \
   A[0] = (B[0] < A[0] ? B[0] : A[0]);                                                              \

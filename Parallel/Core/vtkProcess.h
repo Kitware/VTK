@@ -74,6 +74,7 @@ public:
 
 protected:
   vtkProcess();
+  ~vtkProcess() override;
 
   vtkMultiProcessController* Controller;
   int ReturnValue;

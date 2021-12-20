@@ -102,29 +102,13 @@ void vtkDistributedDataFilter::SetController(vtkMultiProcessController* c)
     this->MyId = 0;
   }
 
-  if (this->Controller == c)
+  vtkSetObjectBodyMacro(Controller, vtkMultiProcessController, c);
+
+  if (c)
   {
-    return;
+    this->NumProcesses = c->GetNumberOfProcesses();
+    this->MyId = c->GetLocalProcessId();
   }
-
-  this->Modified();
-
-  if (this->Controller != nullptr)
-  {
-    this->Controller->UnRegister(this);
-    this->Controller = nullptr;
-  }
-
-  if (c == nullptr)
-  {
-    return;
-  }
-
-  this->Controller = c;
-
-  c->Register(this);
-  this->NumProcesses = c->GetNumberOfProcesses();
-  this->MyId = c->GetLocalProcessId();
 }
 
 //------------------------------------------------------------------------------

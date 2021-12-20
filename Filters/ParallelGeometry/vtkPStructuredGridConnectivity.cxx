@@ -24,11 +24,13 @@
 #include <sstream>
 
 vtkStandardNewMacro(vtkPStructuredGridConnectivity);
+vtkCxxSetObjectMacro(vtkPStructuredGridConnectivity, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 vtkPStructuredGridConnectivity::vtkPStructuredGridConnectivity()
 {
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   this->Initialized = false;
   this->MPIRequests = nullptr;
   this->TotalNumberOfSends = 0;
@@ -47,6 +49,8 @@ vtkPStructuredGridConnectivity::~vtkPStructuredGridConnectivity()
 
   // STEP 2: Clear all raw buffers
   this->ClearRawBuffers();
+
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------

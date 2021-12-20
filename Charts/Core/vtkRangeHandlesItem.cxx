@@ -29,8 +29,7 @@
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkRangeHandlesItem);
-vtkSetObjectImplementationMacro(
-  vtkRangeHandlesItem, ColorTransferFunction, vtkColorTransferFunction);
+vtkCxxSetObjectMacro(vtkRangeHandlesItem, ColorTransferFunction, vtkColorTransferFunction);
 
 //------------------------------------------------------------------------------
 vtkRangeHandlesItem::vtkRangeHandlesItem()

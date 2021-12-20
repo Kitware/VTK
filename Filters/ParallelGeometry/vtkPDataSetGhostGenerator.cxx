@@ -20,17 +20,24 @@
 
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 
 #include <cassert>
+
+vtkCxxSetObjectMacro(vtkPDataSetGhostGenerator, Controller, vtkMultiProcessController);
 
 vtkPDataSetGhostGenerator::vtkPDataSetGhostGenerator()
 {
   this->Initialized = false;
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
-vtkPDataSetGhostGenerator::~vtkPDataSetGhostGenerator() = default;
+vtkPDataSetGhostGenerator::~vtkPDataSetGhostGenerator()
+{
+  this->SetController(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkPDataSetGhostGenerator::PrintSelf(ostream& os, vtkIndent indent)

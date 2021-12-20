@@ -23,6 +23,7 @@
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCategoryLegend);
+vtkCxxSetObjectMacro(vtkCategoryLegend, Values, vtkVariantArray);
 
 //------------------------------------------------------------------------------
 vtkCategoryLegend::vtkCategoryLegend()
@@ -47,7 +48,10 @@ vtkCategoryLegend::vtkCategoryLegend()
 }
 
 //------------------------------------------------------------------------------
-vtkCategoryLegend::~vtkCategoryLegend() = default;
+vtkCategoryLegend::~vtkCategoryLegend()
+{
+  this->SetValues(nullptr);
+}
 
 //------------------------------------------------------------------------------
 bool vtkCategoryLegend::Paint(vtkContext2D* painter)
