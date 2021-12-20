@@ -50,6 +50,13 @@
  * already exists, "inserting" will overwrite existing values, rather than shift
  * the array contents and insert the new data at the specified location.
  *
+ * If code is modifying contents of an existing array, it is
+ * required that one calls `vtkAbstractArray::Modified()` explicitly
+ * after the modifications to the contents are completed.
+ * APIs like `SetTuple` etc. don't call `Modified` to avoid performance hits.
+ * Unless `Modified` is called, various cached entities, like array range,
+ * map created for `LookupValue` may become obsolete and yield incorrect results.
+ *
  * @sa
  * vtkDataArray vtkStringArray vtkCellArray
  */
@@ -441,6 +448,10 @@ public:
   ///@{
   /**
    * Return the value indices where a specific value appears.
+   *
+   * @warning Make sure that the lookup structure is not outdated. Calls
+   * to `Modified` should be done appropriately so the array knows
+   * when to update its lookup structure.
    */
   virtual vtkIdType LookupValue(vtkVariant value) = 0;
   virtual void LookupValue(vtkVariant value, vtkIdList* valueIds) = 0;
