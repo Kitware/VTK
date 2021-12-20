@@ -466,7 +466,7 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
     uPtUses = std::unique_ptr<PointUses[]>(new PointUses[numPts]);
     ptUses = uPtUses.get();
     std::fill_n(ptUses, numPts, 0);
-    this->MarkPointUses(inCells, mergeMap.data(), ptUses);
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inCells, mergeMap.data(), ptUses);
   }
 
   // Create a map that maps old point ids into new, renumbered point
@@ -481,7 +481,8 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
   }
 
   // Build the map from old points to new points.
-  vtkIdType numNewPts = this->BuildPointMap(numPts, pmap, ptUses, mergeMap);
+  vtkIdType numNewPts =
+    vtkStaticCleanUnstructuredGrid::BuildPointMap(numPts, pmap, ptUses, mergeMap);
 
   // Create new points of the appropriate type
   vtkNew<vtkPoints> newPts;
@@ -508,11 +509,11 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
   outPD->CopyAllocate(inPD);
   if (this->AveragePointData)
   {
-    this->AveragePoints(inPts, inPD, newPts, outPD, pmap, tol);
+    vtkStaticCleanUnstructuredGrid::AveragePoints(inPts, inPD, newPts, outPD, pmap, tol);
   }
   else
   {
-    this->CopyPoints(inPts, inPD, newPts, outPD, pmap);
+    vtkStaticCleanUnstructuredGrid::CopyPoints(inPts, inPD, newPts, outPD, pmap);
   }
 
   // At this point, we need to construct the unstructured grid topology using
