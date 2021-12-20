@@ -33,8 +33,7 @@ vtkVRHMDCamera::vtkVRHMDCamera()
   this->SetViewAngle(110.0);
 }
 
-// not default due to vtkNew
-vtkVRHMDCamera::~vtkVRHMDCamera(){};
+vtkVRHMDCamera::~vtkVRHMDCamera() = default;
 
 // a reminder, with vtk order matrices multiplcation goes right to left
 // e.g. vtkMatrix4x4::Multiply(BtoC, AtoB, AtoC);

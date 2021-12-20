@@ -753,7 +753,7 @@ vtkExtractCellsAlongPolyLine::vtkExtractCellsAlongPolyLine()
 }
 
 //------------------------------------------------------------------------------
-vtkExtractCellsAlongPolyLine::~vtkExtractCellsAlongPolyLine() {}
+vtkExtractCellsAlongPolyLine::~vtkExtractCellsAlongPolyLine() = default;
 
 //------------------------------------------------------------------------------
 int vtkExtractCellsAlongPolyLine::RequestData(

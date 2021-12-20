@@ -18,9 +18,8 @@
 #include "vtkVRRenderWindowInteractor.h"
 #include "vtkVectorOperators.h"
 
-// not default due to vtkNew
-vtkVRCamera::vtkVRCamera(){};
-vtkVRCamera::~vtkVRCamera(){};
+vtkVRCamera::vtkVRCamera() = default;
+vtkVRCamera::~vtkVRCamera() = default;
 
 namespace
 {
