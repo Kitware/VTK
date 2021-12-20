@@ -838,7 +838,7 @@ public:
 
 protected:
   AMRPStreamTracerUtils() { this->AMR = nullptr; }
-  ~AMRPStreamTracerUtils() { this->SetAMR(nullptr); }
+  ~AMRPStreamTracerUtils() override { this->SetAMR(nullptr); }
   vtkOverlappingAMR* AMR;
 
   std::vector<int> BlockProcess; // stores block->process information
