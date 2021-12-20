@@ -112,6 +112,36 @@ public:
   vtkResliceCursorWidget* RCW[3];
 };
 
+static const char* TestResliceCursorWidget2Events =
+  "# StreamVersion 1.1\n"
+  // Camera spin (Ctrl + Left button click outside image)
+  "LeftButtonPressEvent 273 86 2 0 0 Control_L\n"
+  "MouseMoveEvent 273 86 2 0 0 Control_L\n"
+  "MouseMoveEvent 271 81 2 0 0 Control_L\n"
+  "MouseMoveEvent 268 68 2 0 0 Control_L\n"
+  "MouseMoveEvent 264 55 2 0 0 Control_L\n"
+  "MouseMoveEvent 260 48 2 0 0 Control_L\n"
+  "MouseMoveEvent 254 39 2 0 0 Control_L\n"
+  "MouseMoveEvent 248 33 2 0 0 Control_L\n"
+  "LeftButtonReleaseEvent 248 33 2 0 0 Control_L\n"
+  // Widget translation (Left button click on center)
+  "LeftButtonPressEvent 454 148 0 0 0 0\n"
+  "MouseMoveEvent 454 148 0 0 0 Control_L\n"
+  "MouseMoveEvent 445 148 0 0 0 Control_L\n"
+  "MouseMoveEvent 424 146 0 0 0 Control_L\n"
+  "MouseMoveEvent 416 146 0 0 0 Control_L\n"
+  "LeftButtonReleaseEvent 416 146 0 0 0 0\n"
+  // Widget rotation (Ctrl + Left button click on axis)
+  "LeftButtonPressEvent 368 147 2 0 0 Control_L\n"
+  "MouseMoveEvent 367 147 2 0 0 Control_L\n"
+  "MouseMoveEvent 367 137 2 0 0 Control_L\n"
+  "MouseMoveEvent 395 89 2 0 0 Control_L\n"
+  "MouseMoveEvent 492 100 2 0 0 Control_L\n"
+  "MouseMoveEvent 511 175 2 0 0 Control_L\n"
+  "MouseMoveEvent 492 206 2 0 0 Control_L\n"
+  "MouseMoveEvent 491 219 2 0 0 Control_L\n"
+  "LeftButtonReleaseEvent 491 219 2 0 0 Control_L\n";
+
 //------------------------------------------------------------------------------
 int TestResliceCursorWidget2(int argc, char* argv[])
 {
@@ -123,7 +153,6 @@ int TestResliceCursorWidget2(int argc, char* argv[])
   reader->SetImageRange(1, 93);
   reader->SetDataSpacing(3.2, 3.2, 1.5);
   reader->SetFilePrefix(fname);
-  reader->ReleaseDataFlagOn();
   reader->SetDataMask(0x7fff);
   reader->Update();
   delete[] fname;
@@ -245,6 +274,25 @@ int TestResliceCursorWidget2(int argc, char* argv[])
     // Make them all share the same color map.
     resliceCursorRep[i]->SetLookupTable(resliceCursorRep[0]->GetLookupTable());
     planeWidget[i]->GetColorMap()->SetLookupTable(resliceCursorRep[0]->GetLookupTable());
+
+    // clang-format off
+    // Workaround VTK issue #18441
+    // Make sure vtkResliceCursorActor is visible by forcing its representation to wireframe.
+    // vtkResliceCursorActor is a quad with a normal parallel to the camera view up vector.
+    // When represented as a surface, it has a thickness of 0 pixels. The class internally turns
+    // edge visibility on to workaround the problem, which does not seem to be enough.
+    resliceCursorRep[i]->GetResliceCursorActor()->GetCenterlineProperty(0)->SetRepresentationToWireframe();
+    resliceCursorRep[i]->GetResliceCursorActor()->GetCenterlineProperty(1)->SetRepresentationToWireframe();
+    resliceCursorRep[i]->GetResliceCursorActor()->GetCenterlineProperty(2)->SetRepresentationToWireframe();
+    // Workaround rendering artefacts with Intel chipsets and osmesa, where lines are rendered
+    // black if perfectly aligned with the camera viewup (see #18453)
+    resliceCursorRep[i]->GetResliceCursorActor()->GetCenterlineProperty(0)->RenderLinesAsTubesOn();
+    resliceCursorRep[i]->GetResliceCursorActor()->GetCenterlineProperty(1)->RenderLinesAsTubesOn();
+    resliceCursorRep[i]->GetResliceCursorActor()->GetCenterlineProperty(2)->RenderLinesAsTubesOn();
+    resliceCursorRep[i]->GetResliceCursorActor()->GetCenterlineProperty(0)->SetLineWidth(2);
+    resliceCursorRep[i]->GetResliceCursorActor()->GetCenterlineProperty(1)->SetLineWidth(2);
+    resliceCursorRep[i]->GetResliceCursorActor()->GetCenterlineProperty(2)->SetLineWidth(2);
+    // clang-format on
   }
 
   // Add the actors
@@ -274,8 +322,14 @@ int TestResliceCursorWidget2(int argc, char* argv[])
 
   vtkSmartPointer<vtkInteractorStyleImage> style = vtkSmartPointer<vtkInteractorStyleImage>::New();
   iren->SetInteractorStyle(style);
-
   iren->Initialize();
+
+  vtkNew<vtkInteractorEventRecorder> recorder;
+  recorder->ReadFromInputStringOn();
+  recorder->SetInputString(TestResliceCursorWidget2Events);
+  recorder->SetInteractor(iren);
+  recorder->Play();
+  recorder->Off();
 
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

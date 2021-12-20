@@ -424,11 +424,16 @@ void vtkResliceCursorLineRepresentation::BuildRepresentation()
     (this->Renderer && this->Renderer->GetVTKWindow() &&
       this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime))
   {
-
+    this->Superclass::BuildRepresentation();
     this->BuildTime.Modified();
   }
 
-  this->Superclass::BuildRepresentation();
+  if (this->Renderer)
+  {
+    const int planeOrientation = this->GetCursorAlgorithm()->GetReslicePlaneNormal();
+    double* viewUp = this->GetResliceCursor()->GetViewUp(planeOrientation);
+    this->Renderer->GetActiveCamera()->GetViewUp(viewUp);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -473,31 +478,7 @@ int vtkResliceCursorLineRepresentation ::RenderOpaqueGeometry(vtkViewport* viewp
 {
   this->BuildRepresentation();
 
-  const int normalAxis = this->ResliceCursorActor->GetCursorAlgorithm()->GetReslicePlaneNormal();
-
-  // When the reslice plane is changed, update the camera to look at the
-  // normal to the reslice plane always.
-
-  double fp[3], cp[3], n[3];
-  this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
-  this->Renderer->GetActiveCamera()->GetPosition(cp);
-  this->GetResliceCursor()->GetPlane(normalAxis)->GetNormal(n);
-
-  const double d = sqrt(vtkMath::Distance2BetweenPoints(cp, fp));
-  double newCamPos[3] = { fp[0] + (d * n[0]), fp[1] + (d * n[1]), fp[2] + (d * n[2]) };
-  this->Renderer->GetActiveCamera()->SetPosition(newCamPos);
-
-  // intersect with the plane to get updated focal point
-  double intersectionPos[3], t;
-  this->GetResliceCursor()
-    ->GetPlane(normalAxis)
-    ->IntersectWithLine(fp, newCamPos, t, intersectionPos);
-  this->Renderer->GetActiveCamera()->SetFocalPoint(intersectionPos);
-
-  // Don't clip away any part of the data.
-  this->Renderer->ResetCameraClippingRange();
-
-  // Now Render all the actors.
+  // Render all the actors.
 
   int count = 0;
   if (this->TexturePlaneActor->GetVisibility() && !this->UseImageActor)

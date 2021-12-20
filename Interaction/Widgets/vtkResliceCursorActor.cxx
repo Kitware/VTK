@@ -229,7 +229,11 @@ void vtkResliceCursorActor::UpdateHoleSize(vtkViewport* v)
 
     const double holeWidth =
       2.0 * sqrt(vtkMath::Distance2BetweenPoints(wCenter, wCenterHoleWidthAway));
-    r->SetHoleWidth(holeWidth);
+
+    if (fabs(r->GetHoleWidth() - holeWidth) > 1e-5)
+    {
+      r->SetHoleWidth(holeWidth);
+    }
 
     // MTime checks ensure that this will update only if the hole width
     // has actually changed.

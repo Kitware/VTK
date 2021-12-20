@@ -271,19 +271,63 @@ void vtkResliceCursorRepresentation::ResetCamera()
   {
     const int planeOrientation = this->GetCursorAlgorithm()->GetReslicePlaneNormal();
     double* normal = this->GetResliceCursor()->GetPlane(planeOrientation)->GetNormal();
-    double* viewUp = this->GetResliceCursor()->GetViewUp(planeOrientation);
 
     double center[3], focalPoint[3], cameraPosition[3];
     this->GetResliceCursor()->GetCenter(center);
     this->Renderer->GetActiveCamera()->GetFocalPoint(focalPoint);
     this->Renderer->GetActiveCamera()->GetPosition(cameraPosition);
 
-    double distance = sqrt(vtkMath::Distance2BetweenPoints(cameraPosition, focalPoint));
+    this->Renderer->SetWorldPoint(focalPoint[0], focalPoint[1], focalPoint[2], 1.0);
+    this->Renderer->WorldToDisplay();
+    double displayFocalPoint[3];
+    this->Renderer->GetDisplayPoint(displayFocalPoint);
+
+    this->Renderer->SetWorldPoint(center[0], center[1], center[2], 1.0);
+    this->Renderer->WorldToDisplay();
+    double displayResliceCenter[3];
+    this->Renderer->GetDisplayPoint(displayResliceCenter);
+
+    double centerOffset[3];
+    vtkMath::Subtract(displayFocalPoint, displayResliceCenter, centerOffset);
+
+    double distance = this->Renderer->GetActiveCamera()->GetDistance();
 
     double newCameraPosition[3] = { focalPoint[0] + normal[0] * distance,
       focalPoint[1] + normal[1] * distance, focalPoint[2] + normal[2] * distance };
     this->Renderer->GetActiveCamera()->SetPosition(newCameraPosition);
+
+    double* viewUp = this->GetResliceCursor()->GetViewUp(planeOrientation);
     this->Renderer->GetActiveCamera()->SetViewUp(viewUp);
+
+    this->Renderer->SetWorldPoint(center[0], center[1], center[2], 1.0);
+    this->Renderer->WorldToDisplay();
+    this->Renderer->GetDisplayPoint(displayResliceCenter);
+    vtkMath::Add(displayResliceCenter, centerOffset, displayFocalPoint);
+
+    this->Renderer->SetDisplayPoint(displayFocalPoint);
+    this->Renderer->DisplayToWorld();
+    double worldFocalPoint[3];
+    this->Renderer->GetWorldPoint(worldFocalPoint);
+
+    vtkNew<vtkPlane> plane;
+    plane->SetNormal(normal);
+    plane->SetOrigin(center);
+    double t;
+    double x[3];
+    if (plane->IntersectWithLine(newCameraPosition, worldFocalPoint, t, x))
+    {
+      this->Renderer->GetActiveCamera()->SetFocalPoint(x);
+    }
+    else
+    {
+      this->Renderer->GetActiveCamera()->SetFocalPoint(worldFocalPoint);
+    }
+
+    this->Renderer->GetActiveCamera()->GetFocalPoint(focalPoint);
+    this->Renderer->GetActiveCamera()->SetPosition(focalPoint[0] + normal[0] * distance,
+      focalPoint[1] + normal[1] * distance, focalPoint[2] + normal[2] * distance);
+
+    this->Renderer->ResetCameraClippingRange();
   }
 }
 
