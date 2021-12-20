@@ -41,7 +41,7 @@ using PointUses = unsigned char;
 // Construct object with initial Tolerance of 0.0
 vtkStaticCleanPolyData::vtkStaticCleanPolyData()
 {
-  this->ToleranceIsAbsolute = 0;
+  this->ToleranceIsAbsolute = false;
   this->Tolerance = 0.0;
   this->AbsoluteTolerance = 0.0;
 
