@@ -266,7 +266,7 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
         }
       } // for all points of vertex cell
 
-      if (cellIds.size() > 0)
+      if (!cellIds.empty())
       {
         newId = newVerts->InsertNextCell(cellIds.size(), cellIds.data());
         outCD->CopyData(inCD, inCellID, newId);

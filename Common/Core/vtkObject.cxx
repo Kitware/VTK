@@ -360,7 +360,7 @@ void vtkSubjectHelper::RemoveObserver(unsigned long tag)
     }
   }
 
-  if (this->ListModified.size())
+  if (!this->ListModified.empty())
   {
     this->ListModified.assign(this->ListModified.size(), true);
   }
@@ -399,7 +399,7 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event)
     }
   }
 
-  if (this->ListModified.size())
+  if (!this->ListModified.empty())
   {
     this->ListModified.assign(this->ListModified.size(), true);
   }
@@ -438,7 +438,7 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event, vtkCommand* cmd)
     }
   }
 
-  if (this->ListModified.size())
+  if (!this->ListModified.empty())
   {
     this->ListModified.assign(this->ListModified.size(), true);
   }
@@ -457,7 +457,7 @@ void vtkSubjectHelper::RemoveAllObservers()
   }
   this->Start = nullptr;
 
-  if (this->ListModified.size())
+  if (!this->ListModified.empty())
   {
     this->ListModified.assign(this->ListModified.size(), true);
   }
