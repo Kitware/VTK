@@ -219,6 +219,7 @@ void vtkXRenderWindowInteractor::ProcessEvents()
   minTv.tv_usec = 1000;
   XEvent event;
 
+  rwiFileDescriptors.reserve(vtkXRenderWindowInteractorInternals::Instances.size());
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
     rwiFileDescriptors.push_back(ConnectionNumber(rwi->DisplayId));
