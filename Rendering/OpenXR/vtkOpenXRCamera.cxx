@@ -37,9 +37,8 @@
 
 vtkStandardNewMacro(vtkOpenXRCamera);
 
-// not default due to vtkNew
-vtkOpenXRCamera::vtkOpenXRCamera(){};
-vtkOpenXRCamera::~vtkOpenXRCamera(){};
+vtkOpenXRCamera::vtkOpenXRCamera() = default;
+vtkOpenXRCamera::~vtkOpenXRCamera() = default;
 
 //------------------------------------------------------------------------------
 void vtkOpenXRCamera::UpdateWorldToEyeMatrices(vtkRenderer* ren)

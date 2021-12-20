@@ -849,13 +849,10 @@ struct TracerIntegrator
   double MaximumError;
   vtkIdType MaximumNumberOfSteps;
   double MaximumPropagation;
-  bool ComputeVorticity;
   double RotationScale;
   double TerminalSpeed;
-  bool SurfaceStreamlines;
   double LastUsedStepSize;
 
-  bool HasMatchingPointAttributes;
   vtkDataSetAttributes* ProtoPD;
   vtkDataArray* SeedSource;
   vtkIdList* SeedIds;
@@ -863,21 +860,25 @@ struct TracerIntegrator
   TracerOffsets& Offsets;
   vtkAbstractInterpolatedVelocityField* FuncPrototype;
   vtkSmartPointer<vtkInitialValueProblemSolver> Integrator;
-  int MaxCellSize;
   double InPropagation;     // only applicable to streamline 0
   vtkIdType InNumSteps;     // only applicable to streamline 0
   double InIntegrationTime; // only applicable to streamline 0
-  int VecType;
   const char* VecName;
-  bool GenerateNormalsInIntegrate;
   vtkPolyData* Output;
   std::vector<CustomTerminationCallbackType> CustomTerminationCallback;
   std::vector<void*> CustomTerminationClientData;
   std::vector<int> CustomReasonForTermination;
 
-  // The following data are collected on a per-thread basis. Each thread
-  // generates one or more streamlines.
+  // The `LocalThreadOutput` data is collected on a per-thread basis. Each
+  // thread generates one or more streamlines.
   vtkSMPThreadLocal<vtkLocalThreadOutput> LocalThreadOutput;
+
+  int MaxCellSize;
+  int VecType;
+  bool ComputeVorticity;
+  bool SurfaceStreamlines;
+  bool HasMatchingPointAttributes;
+  bool GenerateNormalsInIntegrate;
 
   TracerIntegrator(vtkStreamTracer* streamTracer, vtkCompositeDataSet* inputData, bool matchingAttr,
     vtkDataSetAttributes* protoPD, vtkDataArray* seedSource, vtkIdList* seedIds,
@@ -889,7 +890,6 @@ struct TracerIntegrator
     std::vector<void*>& customTerminationClientData, std::vector<int>& customReasonForTermination)
     : StreamTracer(streamTracer)
     , InputData(inputData)
-    , HasMatchingPointAttributes(matchingAttr)
     , ProtoPD(protoPD)
     , SeedSource(seedSource)
     , SeedIds(seedIds)
@@ -897,17 +897,18 @@ struct TracerIntegrator
     , Offsets(offsets)
     , FuncPrototype(func)
     , Integrator(integrator)
-    , MaxCellSize(maxCellSize)
     , InPropagation(inPropagation)
     , InNumSteps(inNumSteps)
     , InIntegrationTime(inIntegrationTime)
-    , VecType(vecType)
     , VecName(vecName)
-    , GenerateNormalsInIntegrate(genNormals)
     , Output(output)
     , CustomTerminationCallback(customTerminationCallback)
     , CustomTerminationClientData(customTerminationClientData)
     , CustomReasonForTermination(customReasonForTermination)
+    , MaxCellSize(maxCellSize)
+    , VecType(vecType)
+    , HasMatchingPointAttributes(matchingAttr)
+    , GenerateNormalsInIntegrate(genNormals)
   {
     this->MaximumError = this->StreamTracer->GetMaximumError();
     this->MaximumNumberOfSteps = this->StreamTracer->GetMaximumNumberOfSteps();

@@ -41,7 +41,7 @@ using PointUses = unsigned char;
 // Construct object with initial Tolerance of 0.0
 vtkStaticCleanPolyData::vtkStaticCleanPolyData()
 {
-  this->ToleranceIsAbsolute = 0;
+  this->ToleranceIsAbsolute = false;
   this->Tolerance = 0.0;
   this->AbsoluteTolerance = 0.0;
 
@@ -266,7 +266,7 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
         }
       } // for all points of vertex cell
 
-      if (cellIds.size() > 0)
+      if (!cellIds.empty())
       {
         newId = newVerts->InsertNextCell(cellIds.size(), cellIds.data());
         outCD->CopyData(inCD, inCellID, newId);

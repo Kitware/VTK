@@ -21,7 +21,6 @@ vtkObjectFactoryNewMacro(vtkOpenGLHyperTreeGridMapper);
 
 //------------------------------------------------------------------------------
 vtkOpenGLHyperTreeGridMapper::vtkOpenGLHyperTreeGridMapper()
-  : vtkHyperTreeGridMapper()
 {
   this->PDMapper = vtkSmartPointer<vtkOpenGLPolyDataMapper>::New();
 }

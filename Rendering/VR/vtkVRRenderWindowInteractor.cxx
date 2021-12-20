@@ -31,8 +31,7 @@ vtkVRRenderWindowInteractor::vtkVRRenderWindowInteractor()
   }
 }
 
-// not default due to vtkNew
-vtkVRRenderWindowInteractor::~vtkVRRenderWindowInteractor(){};
+vtkVRRenderWindowInteractor::~vtkVRRenderWindowInteractor() = default;
 
 //------------------------------------------------------------------------------
 void vtkVRRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
