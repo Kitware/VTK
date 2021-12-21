@@ -240,7 +240,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
 
   newPts->Allocate(numPts / 10, numPts);
   newLines = vtkCellArray::New();
-  newLines->AllocateEstimate(numLines + numPts / 20, 2 * (numLines + numPts / 20));
+  newLines->AllocateEstimate(numPts / 20, 2);
   if (this->Coloring)
   {
     newScalars = vtkFloatArray::New();
