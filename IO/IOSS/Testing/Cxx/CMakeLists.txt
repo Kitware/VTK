@@ -6,6 +6,8 @@ vtk_add_test_cxx(vtkIOIOSSCxxTests tests
   TestIOSSExodus.cxx,NO_VALID
   TestIOSSExodusRestarts.cxx,NO_VALID
   TestIOSSExodusSetArrays.cxx
+  TestIOSSExodusWriterCrinkleClip.cxx
+  TestIOSSExodusWriter.cxx
   TestIOSSFilePatternMatching.cxx,NO_VALID
   TestIOSSNoElementBlocks.cxx,NO_VALID
   TestIOSSTri6.cxx

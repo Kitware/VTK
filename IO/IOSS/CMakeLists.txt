@@ -1,9 +1,11 @@
 set(classes
-  vtkIOSSReader)
+  vtkIOSSReader
+  vtkIOSSWriter)
 
 set(private_classes
   vtkIOSSFilesScanner
-  vtkIOSSUtilities)
+  vtkIOSSUtilities
+  vtkIOSSModel)
 
 vtk_module_add_module(VTK::IOIOSS
   CLASSES ${classes}
