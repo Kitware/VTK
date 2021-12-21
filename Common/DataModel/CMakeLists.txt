@@ -44,6 +44,7 @@ set(classes
   vtkCompositeDataSet
   vtkCone
   vtkConvexPointSet
+  vtkCoordinateFrame
   vtkCubicLine
   vtkCylinder
   vtkDataAssembly
