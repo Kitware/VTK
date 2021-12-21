@@ -130,6 +130,140 @@ public:
     }
   }
 
+  int GetPlotCorner(vtkPlot* plot)
+  {
+    vtkAxis* x = plot->GetXAxis();
+    vtkAxis* y = plot->GetYAxis();
+    if (x == this->axes[vtkAxis::BOTTOM] && y == this->axes[vtkAxis::LEFT])
+    {
+      return 0;
+    }
+    else if (x == this->axes[vtkAxis::BOTTOM] && y == this->axes[vtkAxis::RIGHT])
+    {
+      return 1;
+    }
+    else if (x == this->axes[vtkAxis::TOP] && y == this->axes[vtkAxis::RIGHT])
+    {
+      return 2;
+    }
+    else if (x == this->axes[vtkAxis::TOP] && y == this->axes[vtkAxis::LEFT])
+    {
+      return 3;
+    }
+    else
+    {
+      // Should never happen.
+      return 4;
+    }
+  }
+
+  void SetPlotCorner(vtkPlot* plot, int corner)
+  {
+    if (this->GetPlotCorner(plot) == corner)
+    {
+      return;
+    }
+    this->RemovePlotFromCorners(plot);
+    // Grow the plot corners if necessary
+    while (static_cast<int>(this->PlotCorners.size() - 1) < corner)
+    {
+      vtkNew<vtkContextTransform> transform;
+      this->PlotCorners.push_back(transform);
+      this->Clip->AddItem(transform); // Clip maintains ownership.
+    }
+    this->PlotCorners[corner]->AddItem(plot);
+    if (corner != 4)
+    {
+      int xAxis = (corner == 0 || corner == 1) ? vtkAxis::BOTTOM : vtkAxis::TOP;
+      int yAxis = (corner == 0 || corner == 3) ? vtkAxis::LEFT : vtkAxis::RIGHT;
+      plot->SetXAxis(this->axes[xAxis]);
+      plot->SetYAxis(this->axes[yAxis]);
+    }
+  }
+
+  bool RemovePlotFromCorners(vtkPlot* plot)
+  {
+    // We know the plot will only ever be in one of the corners
+    for (size_t i = 0; i < this->PlotCorners.size(); ++i)
+    {
+      if (this->PlotCorners[i]->RemoveItem(plot))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  std::map<int, std::array<double, 2>> GetPlotBounds(const bool ignoreNan)
+  {
+    // bounds contains the range for the left, bottom, right and top axis.
+    // If the axis is not initialized (no plots assigned to their corners),
+    // there is no corresponding range in the map.
+    std::map<int, std::array<double, 2>> bounds; // TODO: left axis range stored in right entry!
+    double* range;
+
+    std::vector<vtkPlot*>::iterator it;
+    double plotBounds[4] = { 0.0, 0.0, 0.0, 0.0 };
+    for (it = this->plots.begin(); it != this->plots.end(); ++it)
+    {
+      if (!(*it)->GetVisible())
+      {
+        continue;
+      }
+      (*it)->GetBounds(plotBounds);
+      if (plotBounds[1] - plotBounds[0] < 0.0)
+      {
+        // skip uninitialized bounds.
+        continue;
+      }
+      int corner = this->GetPlotCorner(*it);
+      if (corner != 4)
+      {
+        // Store location of vertical and horizontal axis for this plot
+        int plotAxes[2];
+        plotAxes[0] = (corner == 0 || corner == 1) ? vtkAxis::BOTTOM : vtkAxis::TOP;
+        plotAxes[1] = (corner == 0 || corner == 3) ? vtkAxis::LEFT : vtkAxis::RIGHT;
+
+        // Iterate over both axes (i=0: horizontal; i=1: vertical)
+        for (int i = 0; i < 2; i++)
+        {
+          // Initialize the appropriate ranges, or push out the ranges
+          if (bounds.count(plotAxes[i]))
+          {
+            range = bounds[plotAxes[i]].data();
+            if (ignoreNan)
+            {
+              if (range[0] > plotBounds[2 * i] || std::isnan(range[0])) // min
+              {
+                range[0] = plotBounds[2 * i];
+              }
+              if (range[1] < plotBounds[2 * i + 1] || std::isnan(range[1])) // max
+              {
+                range[1] = plotBounds[2 * i + 1];
+              }
+            }
+            else
+            {
+              if (range[0] > plotBounds[2 * i] || std::isnan(plotBounds[2 * i])) // min
+              {
+                range[0] = plotBounds[2 * i];
+              }
+              if (range[1] < plotBounds[2 * i + 1] || std::isnan(plotBounds[2 * i + 1])) // max
+              {
+                range[1] = plotBounds[2 * i + 1];
+              }
+            }
+          }
+          else
+          {
+            bounds[plotAxes[i]] = { plotBounds[2 * i], plotBounds[2 * i + 1] };
+          }
+        }
+      }
+    }
+    return bounds;
+  }
+
   std::vector<vtkPlot*> plots;                   // Charts can contain multiple plots of data
   std::vector<vtkContextTransform*> PlotCorners; // Stored by corner...
   std::vector<vtkAxis*> axes;                    // Charts can contain multiple axes
@@ -251,6 +385,23 @@ void vtkChartXY::Update()
 {
   // Perform any necessary updates that are not graphical
   // Update the plots if necessary
+  for (size_t i = 0; i < this->ChartPrivate->plots.size(); ++i)
+  {
+    this->ChartPrivate->plots[i]->Update();
+  }
+  // Calculate the plot bounds
+  auto bounds = this->ChartPrivate->GetPlotBounds(this->IgnoreNanInBounds);
+  for (const auto& pair : bounds)
+  {
+    vtkAxis* axis = this->ChartPrivate->axes[pair.first];
+    auto range = pair.second;
+    // Disable log scale on the axis if auto scaling is enabled and any of the bounds is NaN.
+    if (axis->GetBehavior() == vtkAxis::AUTO && std::isnan(range[0] * range[1]))
+    {
+      axis->SetLogScale(false);
+    }
+  }
+  // Update the plots once more to account for any changes in the axis log scale.
   for (size_t i = 0; i < this->ChartPrivate->plots.size(); ++i)
   {
     this->ChartPrivate->plots[i]->Update();
@@ -654,33 +805,7 @@ void vtkChartXY::RecalculatePlotTransforms()
 //------------------------------------------------------------------------------
 int vtkChartXY::GetPlotCorner(vtkPlot* plot)
 {
-  vtkAxis* x = plot->GetXAxis();
-  vtkAxis* y = plot->GetYAxis();
-  if (x == this->ChartPrivate->axes[vtkAxis::BOTTOM] &&
-    y == this->ChartPrivate->axes[vtkAxis::LEFT])
-  {
-    return 0;
-  }
-  else if (x == this->ChartPrivate->axes[vtkAxis::BOTTOM] &&
-    y == this->ChartPrivate->axes[vtkAxis::RIGHT])
-  {
-    return 1;
-  }
-  else if (x == this->ChartPrivate->axes[vtkAxis::TOP] &&
-    y == this->ChartPrivate->axes[vtkAxis::RIGHT])
-  {
-    return 2;
-  }
-  else if (x == this->ChartPrivate->axes[vtkAxis::TOP] &&
-    y == this->ChartPrivate->axes[vtkAxis::LEFT])
-  {
-    return 3;
-  }
-  else
-  {
-    // Should never happen.
-    return 4;
-  }
+  return this->ChartPrivate->GetPlotCorner(plot);
 }
 
 //------------------------------------------------------------------------------
@@ -691,229 +816,29 @@ void vtkChartXY::SetPlotCorner(vtkPlot* plot, int corner)
     vtkWarningMacro("Invalid corner specified, should be between 0 and 3: " << corner);
     return;
   }
-  if (this->GetPlotCorner(plot) == corner)
-  {
-    return;
-  }
-  this->RemovePlotFromCorners(plot);
-  // Grow the plot corners if necessary
-  while (static_cast<int>(this->ChartPrivate->PlotCorners.size() - 1) < corner)
-  {
-    vtkNew<vtkContextTransform> transform;
-    this->ChartPrivate->PlotCorners.push_back(transform);
-    this->ChartPrivate->Clip->AddItem(transform); // Clip maintains ownership.
-  }
-  this->ChartPrivate->PlotCorners[corner]->AddItem(plot);
-  if (corner == 0)
-  {
-    plot->SetXAxis(this->ChartPrivate->axes[vtkAxis::BOTTOM]);
-    plot->SetYAxis(this->ChartPrivate->axes[vtkAxis::LEFT]);
-  }
-  else if (corner == 1)
-  {
-    plot->SetXAxis(this->ChartPrivate->axes[vtkAxis::BOTTOM]);
-    plot->SetYAxis(this->ChartPrivate->axes[vtkAxis::RIGHT]);
-  }
-  else if (corner == 2)
-  {
-    plot->SetXAxis(this->ChartPrivate->axes[vtkAxis::TOP]);
-    plot->SetYAxis(this->ChartPrivate->axes[vtkAxis::RIGHT]);
-  }
-  else if (corner == 3)
-  {
-    plot->SetXAxis(this->ChartPrivate->axes[vtkAxis::TOP]);
-    plot->SetYAxis(this->ChartPrivate->axes[vtkAxis::LEFT]);
-  }
+  this->ChartPrivate->SetPlotCorner(plot, corner);
   this->PlotTransformValid = false;
 }
 
 //------------------------------------------------------------------------------
 void vtkChartXY::RecalculatePlotBounds()
 {
-  // Get the bounds of each plot, and each axis  - ordering as laid out below
-  double y1[] = { 0.0, 0.0 }; // left -> 0
-  double x1[] = { 0.0, 0.0 }; // bottom -> 1
-  double y2[] = { 0.0, 0.0 }; // right -> 2
-  double x2[] = { 0.0, 0.0 }; // top -> 3
-  // Store whether the ranges have been initialized - follows same order
-  bool initialized[] = { false, false, false, false };
-
-  std::vector<vtkPlot*>::iterator it;
-  double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
-  for (it = this->ChartPrivate->plots.begin(); it != this->ChartPrivate->plots.end(); ++it)
-  {
-    if (!(*it)->GetVisible())
-    {
-      continue;
-    }
-    (*it)->GetBounds(bounds);
-    if (bounds[1] - bounds[0] < 0.0)
-    {
-      // skip uninitialized bounds.
-      continue;
-    }
-    int corner = this->GetPlotCorner(*it);
-
-    // Initialize the appropriate ranges, or push out the ranges
-    if ((corner == 0 || corner == 3)) // left
-    {
-      if (!initialized[0])
-      {
-        y1[0] = bounds[2];
-        y1[1] = bounds[3];
-        initialized[0] = true;
-      }
-      else
-      {
-        if (this->IgnoreNanInBounds)
-        {
-          if (y1[0] > bounds[2] || std::isnan(y1[0])) // min
-          {
-            y1[0] = bounds[2];
-          }
-          if (y1[1] < bounds[3] || std::isnan(y1[1])) // max
-          {
-            y1[1] = bounds[3];
-          }
-        }
-        else
-        {
-          if (y1[0] > bounds[2] || std::isnan(bounds[2])) // min
-          {
-            y1[0] = bounds[2];
-          }
-          if (y1[1] < bounds[3] || std::isnan(bounds[3])) // max
-          {
-            y1[1] = bounds[3];
-          }
-        }
-      }
-    }
-    if ((corner == 0 || corner == 1)) // bottom
-    {
-      if (!initialized[1])
-      {
-        x1[0] = bounds[0];
-        x1[1] = bounds[1];
-        initialized[1] = true;
-      }
-      else
-      {
-        if (this->IgnoreNanInBounds)
-        {
-          if (x1[0] > bounds[0] || std::isnan(x1[0])) // min
-          {
-            x1[0] = bounds[0];
-          }
-          if (x1[1] < bounds[1] || std::isnan(x1[1])) // max
-          {
-            x1[1] = bounds[1];
-          }
-        }
-        else
-        {
-          if (x1[0] > bounds[0] || std::isnan(bounds[0])) // min
-          {
-            x1[0] = bounds[0];
-          }
-          if (x1[1] < bounds[1] || std::isnan(bounds[1])) // max
-          {
-            x1[1] = bounds[1];
-          }
-        }
-      }
-    }
-    if ((corner == 1 || corner == 2)) // right
-    {
-      if (!initialized[2])
-      {
-        y2[0] = bounds[2];
-        y2[1] = bounds[3];
-        initialized[2] = true;
-      }
-      else
-      {
-        if (this->IgnoreNanInBounds)
-        {
-          if (y2[0] > bounds[2] || std::isnan(y2[0])) // min
-          {
-            y2[0] = bounds[2];
-          }
-          if (y2[1] < bounds[3] || std::isnan(y2[1])) // max
-          {
-            y2[1] = bounds[3];
-          }
-        }
-        else
-        {
-          if (y2[0] > bounds[2] || std::isnan(bounds[2])) // min
-          {
-            y2[0] = bounds[2];
-          }
-          if (y2[1] < bounds[3] || std::isnan(bounds[3])) // max
-          {
-            y2[1] = bounds[3];
-          }
-        }
-      }
-    }
-    if ((corner == 2 || corner == 3)) // top
-    {
-      if (!initialized[3])
-      {
-        x2[0] = bounds[0];
-        x2[1] = bounds[1];
-        initialized[3] = true;
-      }
-      else
-      {
-        if (this->IgnoreNanInBounds)
-        {
-          if (x2[0] > bounds[0] || std::isnan(x2[0])) // min
-          {
-            x2[0] = bounds[0];
-          }
-          if (x2[1] < bounds[1] || std::isnan(x2[1])) // max
-          {
-            x2[1] = bounds[1];
-          }
-        }
-        else
-        {
-          if (x2[0] > bounds[0] || std::isnan(bounds[0])) // min
-          {
-            x2[0] = bounds[0];
-          }
-          if (x2[1] < bounds[1] || std::isnan(bounds[1])) // max
-          {
-            x2[1] = bounds[1];
-          }
-        }
-      }
-    }
-  }
+  // Get the bounds of each plot for each axis
+  auto bounds = this->ChartPrivate->GetPlotBounds(this->IgnoreNanInBounds);
+  std::array<double, 2> range;
 
   // Now set the newly calculated bounds on the axes
   for (int i = 0; i < 4; ++i)
   {
     vtkAxis* axis = this->ChartPrivate->axes[i];
-    double* range = nullptr;
-    switch (i)
+    bool initialized = bounds.count(i);
+    if (initialized)
     {
-      case 0:
-        range = y1;
-        break;
-      case 1:
-        range = x1;
-        break;
-      case 2:
-        range = y2;
-        break;
-      case 3:
-        range = x2;
-        break;
-      default:
-        return;
+      range = bounds[i];
+    }
+    else
+    {
+      range = { 0, 0 };
     }
 
     if (this->AdjustLowerBoundForLogPlot && axis->GetLogScale() &&
@@ -946,7 +871,7 @@ void vtkChartXY::RecalculatePlotBounds()
       axis->SetMinimumLimit(range[0]);
       axis->SetMaximumLimit(range[1]);
     }
-    if (axis->GetBehavior() == vtkAxis::AUTO && initialized[i])
+    if (axis->GetBehavior() == vtkAxis::AUTO && initialized)
     {
       axis->SetRange(range[0], range[1]);
       axis->AutoScale();
@@ -2545,15 +2470,7 @@ const std::vector<vtkContextTransform*>& vtkChartXY::GetTransforms() const
 //------------------------------------------------------------------------------
 bool vtkChartXY::RemovePlotFromCorners(vtkPlot* plot)
 {
-  // We know the plot will only ever be in one of the corners
-  for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
-  {
-    if (this->ChartPrivate->PlotCorners[i]->RemoveItem(plot))
-    {
-      return true;
-    }
-  }
-  return false;
+  return this->ChartPrivate->RemovePlotFromCorners(plot);
 }
 
 //------------------------------------------------------------------------------
