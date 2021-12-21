@@ -187,13 +187,13 @@ int TestPlaneCutter(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (!TestPlaneCutterUnmapped(4))
+  if (!TestPlaneCutterUnmapped(6))
   {
     cerr << "Cutting Mapped Unstructured failed" << endl;
     return EXIT_FAILURE;
   }
 
-  if (!TestPlaneCutterMapped(4))
+  if (!TestPlaneCutterMapped(6))
   {
     cerr << "Cutting Mapped Unstructured failed" << endl;
     return EXIT_FAILURE;

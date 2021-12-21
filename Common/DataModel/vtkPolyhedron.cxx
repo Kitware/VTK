@@ -102,6 +102,30 @@ struct equal_fn
   }
 };
 
+struct point
+{
+public:
+  point()
+    : x(0)
+    , y(0)
+    , z(0)
+  {
+    // empty
+  }
+
+  point(const double _x, const double _y, const double _z)
+    : x(_x)
+    , y(_y)
+    , z(_z)
+  {
+    // empty
+  }
+
+  double x;
+  double y;
+  double z;
+};
+
 // these typedefs are for the contouoring code. There the order of two edges does not matter
 // so we use the specially crafted equals and hash functions defined above.
 
@@ -109,6 +133,8 @@ typedef std::vector<Edge> EdgeVector;
 
 typedef std::vector<EdgeVector> FaceEdgesVector;
 typedef std::unordered_map<Edge, std::set<vtkIdType>, hash_fn, equal_fn> EdgeFaceSetMap;
+
+typedef std::unordered_map<vtkIdType, point> PointIndexLocationMap;
 
 typedef std::unordered_multimap<vtkIdType, Edge> PointIndexEdgeMultiMap;
 typedef std::unordered_map<Edge, vtkIdType, hash_fn, equal_fn> EdgePointIndexMap;
@@ -1639,8 +1665,8 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
   FaceEdgesVector& faceEdgesVector, EdgeFaceSetMap& edgeFaceMap, EdgeSet& originalEdges,
   std::vector<std::vector<vtkIdType>>& oririginalFaceTriFaceMap,
   PointIndexEdgeMultiMap& contourPointEdgeMultiMap, EdgePointIndexMap& edgeContourPointMap,
-  vtkIncrementalPointLocator* locator, vtkDataArray* pointScalars, vtkPointData* inPd,
-  vtkPointData* outPd)
+  PointIndexLocationMap& pointLocationMap, vtkIncrementalPointLocator* locator,
+  vtkDataArray* pointScalars, vtkPointData* inPd, vtkPointData* outPd)
 {
 
   vtkIdType nFaces = cell->GetNumberOfFaces();
@@ -1780,6 +1806,9 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
       vtkIdType ptId(-1);
       locator->InsertUniquePoint(cp, ptId);
 
+      point xyz(cp[0], cp[1], cp[2]);
+      pointLocationMap.insert(std::make_pair(ptId, xyz));
+
       // after point addition, also add the interpolated point value
       outPd->InterpolateEdge(inPd, ptId, edge.first, edge.second, f);
 
@@ -1895,12 +1924,13 @@ void vtkPolyhedron::Contour(double value, vtkDataArray* pointScalars,
   FaceEdgesVector faceEdgesVector;
   PointIndexEdgeMultiMap contourPointEdgeMultiMap;
   EdgePointIndexMap edgeContourPointMap;
+  PointIndexLocationMap pointLocationMap;
   EdgeSet originalEdges;
   std::vector<std::vector<vtkIdType>> oririginalFaceTriFaceMap;
 
   if (!GetContourPoints(value, this, this->PointIdMap, faceEdgesVector, edgeFaceMap, originalEdges,
-        oririginalFaceTriFaceMap, contourPointEdgeMultiMap, edgeContourPointMap, locator,
-        pointScalars, inPd, outPd))
+        oririginalFaceTriFaceMap, contourPointEdgeMultiMap, edgeContourPointMap, pointLocationMap,
+        locator, pointScalars, inPd, outPd))
   {
     return;
   }
@@ -1925,9 +1955,43 @@ void vtkPolyhedron::Contour(double value, vtkDataArray* pointScalars,
     if (!poly)
       return;
 
-    vtkIdType newCellId =
-      offset + polys->InsertNextCell(poly->GetNumberOfIds(), poly->GetPointer(0));
-    outCd->CopyData(inCd, cellId, newCellId);
+    vtkIdType npts = poly->GetNumberOfIds();
+    // triangulate polygon if needed
+    if (npts > 3)
+    {
+      vtkNew<vtkPolygon> polygon;
+      // initialize polygon
+      polygon->PointIds->SetNumberOfIds(npts);
+      polygon->Points->SetNumberOfPoints(npts);
+      for (vtkIdType i = 0; i < npts; i++)
+      {
+        vtkIdType id = poly->GetId(i);
+        polygon->PointIds->SetId(i, id);
+        point pt = pointLocationMap.find(id)->second;
+        double xyz[] = { pt.x, pt.y, pt.z };
+        polygon->Points->SetPoint(i, xyz);
+      }
+      vtkNew<vtkIdList> ptIds;
+      polygon->Triangulate(ptIds);
+      vtkIdType numPts = ptIds->GetNumberOfIds();
+      vtkIdType numSimplices = numPts / 3;
+      vtkIdType triPts[3];
+      for (vtkIdType i = 0; i < numSimplices; i++)
+      {
+        for (vtkIdType j = 0; j < 3; j++)
+        {
+          triPts[j] = polygon->PointIds->GetId(ptIds->GetId(3 * i + j));
+        }
+        vtkIdType newCellId = offset + polys->InsertNextCell(3, triPts);
+        outCd->CopyData(inCd, cellId, newCellId);
+      } // for each simplex
+    }   // triangulate polygon
+    else
+    {
+      vtkIdType newCellId =
+        offset + polys->InsertNextCell(poly->GetNumberOfIds(), poly->GetPointer(0));
+      outCd->CopyData(inCd, cellId, newCellId);
+    }
   };
 
   CreateContours(edgeFaceMap, faceEdgesVector, edgeContourPointMap, originalEdges, cb);
@@ -2227,12 +2291,13 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
   FaceEdgesVector faceEdgesVector;
   PointIndexEdgeMultiMap contourPointEdgeMultiMap;
   EdgePointIndexMap edgeContourPointMap;
+  PointIndexLocationMap pointLocationMap;
   EdgeSet originalEdges;
   std::vector<std::vector<vtkIdType>> oririginalFaceTriFaceMap;
 
   if (!GetContourPoints(value, this, this->PointIdMap, faceEdgesVector, edgeFaceMap, originalEdges,
-        oririginalFaceTriFaceMap, contourPointEdgeMultiMap, edgeContourPointMap, locator,
-        pointScalars, inPd, outPd))
+        oririginalFaceTriFaceMap, contourPointEdgeMultiMap, edgeContourPointMap, pointLocationMap,
+        locator, pointScalars, inPd, outPd))
   {
     return;
   }

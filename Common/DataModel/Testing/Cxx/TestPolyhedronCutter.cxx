@@ -46,6 +46,7 @@ int TestPolyhedronCutter(int argc, char* argv[])
   vtkNew<vtkPlane> cutPlane;
   cutPlane->SetOrigin(0, 0, 350);
   cutPlane->SetNormal(1, 0, 0);
+  cut->GenerateTrianglesOff();
   cut->SetCutFunction(cutPlane);
 
   cut->AddInputConnection(r->GetOutputPort());

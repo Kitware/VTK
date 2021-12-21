@@ -26,6 +26,7 @@ int TestPolyhedronContouring(int argc, char* argv[])
   vtkObject::GlobalWarningDisplayOff();
   vtkNew<vtkXMLUnstructuredGridReader> r;
   vtkNew<vtkContourFilter> cf;
+  cf->GenerateTrianglesOff();
 
   if (argc < 3)
   {
@@ -49,6 +50,15 @@ int TestPolyhedronContouring(int argc, char* argv[])
     if (polys->GetNumberOfCells() != 2)
     {
       cerr << "Number of polys not 2 (as expected), but " << polys->GetNumberOfCells() << endl;
+      return EXIT_FAILURE;
+    }
+    cf->GenerateTrianglesOn();
+    cf->Update();
+    vtkPolyData* triangles = cf->GetOutput();
+    if (triangles->GetNumberOfCells() != 4)
+    {
+      cerr << "Number of triangles is not 4 (as expected), but " << triangles->GetNumberOfCells()
+           << endl;
       return EXIT_FAILURE;
     }
 
@@ -150,6 +160,7 @@ int TestPolyhedronContouring(int argc, char* argv[])
     cf->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
     cf->SetInputData(p);
+    cf->GenerateTrianglesOff();
     cf->SetValue(0, 0.5);
     cf->Update();
 
@@ -164,6 +175,15 @@ int TestPolyhedronContouring(int argc, char* argv[])
     if (contour->GetNumberOfPoints() != 7)
     {
       cerr << "Expected 7 contour points, got " << contour->GetNumberOfPoints() << endl;
+      return EXIT_FAILURE;
+    }
+
+    cf->GenerateTrianglesOn();
+    cf->Update();
+    vtkPolyData* triangles = cf->GetOutput();
+    if (triangles->GetNumberOfCells() != 5)
+    {
+      cerr << "Expected 5 contour triangles, got " << triangles->GetNumberOfCells() << endl;
       return EXIT_FAILURE;
     }
 
@@ -234,6 +254,7 @@ int TestPolyhedronContouring(int argc, char* argv[])
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
     cf->SetInputData(ba);
     cf->SetValue(0, 0.5);
+    cf->GenerateTrianglesOff();
     cf->Update();
 
     vtkPolyData* result = cf->GetOutput();
