@@ -84,9 +84,9 @@ public:
    * 2) Otherwise, the axis closest to the picked normal (i.e., with the largest dot product) is
    * reset to the picked normal.
    *
-   * In both cases, the remaining normals are re-orthogonalized using the Gram-Schmidt
-   * procedure.
-   * @cite https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
+   * In both cases, the remaining normals are re-orthogonalized using the
+   * <a href="https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process">
+   * Gram-Schmidt procedure</a>.
    */
   void SetNormal(double x, double y, double z);
   void SetNormal(double n[3]);

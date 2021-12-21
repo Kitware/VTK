@@ -21,7 +21,7 @@
  *
  * The function evaluates to a combination of quartic spherical harmonic
  * basis functions:
- * $$\sqrt(\frac{7}{12})*Y_{4,0} + \sqrt(\frac{5}{12})*Y_{4,4}$$
+ * \f$\sqrt(\frac{7}{12})*Y_{4,0} + \sqrt(\frac{5}{12})*Y_{4,4}\f$
  * that – when evaluated on a unit sphere centered at the coordinate frame's
  * origin – form a 6-lobed function with a maximum along each of the
  * 6 axes (3 positive, 3 negative).
