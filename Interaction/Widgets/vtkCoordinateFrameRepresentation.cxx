@@ -1237,8 +1237,94 @@ void vtkCoordinateFrameRepresentation::SetNormalToCamera()
 }
 
 //------------------------------------------------------------------------------
+void vtkCoordinateFrameRepresentation::SetXAxisVector(const double v[3])
+{
+  if (v[0] == 0. && v[1] == 0. && v[2] == 0.)
+  {
+    return;
+  }
+  const double* yNormal = this->GetYVectorNormal();
+  const double* zNormal = this->GetZVectorNormal();
+  double newXNormal[3], newYNormal[3], newZNormal[3];
+
+  GramSchmidt(v, yNormal, zNormal, newXNormal, newYNormal, newZNormal);
+  this->SetXVectorNormal(newXNormal);
+  this->SetYVectorNormal(newYNormal);
+  this->SetZVectorNormal(newZNormal);
+}
+
+void vtkCoordinateFrameRepresentation::SetXAxisVector(double x, double y, double z)
+{
+  double vec[3] = { x, y, z };
+  this->SetXAxisVector(vec);
+}
+
+//------------------------------------------------------------------------------
+void vtkCoordinateFrameRepresentation::SetYAxisVector(const double v[3])
+{
+  if (v[0] == 0. && v[1] == 0. && v[2] == 0.)
+  {
+    return;
+  }
+  const double* xNormal = this->GetXVectorNormal();
+  const double* zNormal = this->GetZVectorNormal();
+  double newXNormal[3], newYNormal[3], newZNormal[3];
+
+  GramSchmidt(v, zNormal, xNormal, newYNormal, newZNormal, newXNormal);
+  this->SetXVectorNormal(newXNormal);
+  this->SetYVectorNormal(newYNormal);
+  this->SetZVectorNormal(newZNormal);
+}
+
+void vtkCoordinateFrameRepresentation::SetYAxisVector(double x, double y, double z)
+{
+  double vec[3] = { x, y, z };
+  this->SetYAxisVector(vec);
+}
+
+//------------------------------------------------------------------------------
+void vtkCoordinateFrameRepresentation::SetZAxisVector(const double v[3])
+{
+  if (v[0] == 0. && v[1] == 0. && v[2] == 0.)
+  {
+    return;
+  }
+  const double* xNormal = this->GetXVectorNormal();
+  const double* yNormal = this->GetYVectorNormal();
+  double newXNormal[3], newYNormal[3], newZNormal[3];
+
+  GramSchmidt(v, xNormal, yNormal, newZNormal, newXNormal, newYNormal);
+  this->SetXVectorNormal(newXNormal);
+  this->SetYVectorNormal(newYNormal);
+  this->SetZVectorNormal(newZNormal);
+}
+
+void vtkCoordinateFrameRepresentation::SetZAxisVector(double x, double y, double z)
+{
+  double vec[3] = { x, y, z };
+  this->SetZAxisVector(vec);
+}
+
+//------------------------------------------------------------------------------
 void vtkCoordinateFrameRepresentation::UpdatePlacement()
 {
+  this->BuildRepresentation();
+}
+
+//------------------------------------------------------------------------------
+void vtkCoordinateFrameRepresentation::Reset()
+{
+  this->SetOrigin(0., 0., 0.);
+  this->ResetAxes(); // Calls BuildRepresentation().
+}
+
+//------------------------------------------------------------------------------
+void vtkCoordinateFrameRepresentation::ResetAxes()
+{
+  this->SetXVectorNormal(1.0, 0.0, 0.0);
+  this->SetYVectorNormal(0.0, 1.0, 0.0);
+  this->SetZVectorNormal(0.0, 0.0, 1.0);
+  this->Modified();
   this->BuildRepresentation();
 }
 
@@ -1408,6 +1494,38 @@ bool vtkCoordinateFrameRepresentation::PickDirectionPoint(int X, int Y)
     this->SetNormal(newNormal);
     this->BuildRepresentation();
     return true;
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkCoordinateFrameRepresentation::GetLockedAxis() const
+{
+  if (this->XVectorIsLocked)
+  {
+    return Axis::XAxis;
+  }
+  if (this->YVectorIsLocked)
+  {
+    return Axis::YAxis;
+  }
+  if (this->ZVectorIsLocked)
+  {
+    return Axis::ZAxis;
+  }
+  return Axis::NONE;
+}
+
+void vtkCoordinateFrameRepresentation::SetLockedAxis(int axis)
+{
+  if (axis < -1 || axis > 3)
+  {
+    return;
+  }
+
+  Axis aa = static_cast<Axis>(axis);
+  if (aa != this->GetLockedAxis())
+  {
+    this->ModifyingLocker(axis);
   }
 }
 
