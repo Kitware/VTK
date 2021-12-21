@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 2.4 with the flags below.
+// at least on macOS with cppcheck 2.6 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
@@ -49,6 +49,9 @@ preprocessorErrorDirective
 
 // strdup() is more portable than the suggested _strdup().
 strdupCalled
+
+// The suggested readdir_r isn't recommended either.
+readdirCalled
 
 // Can't fix in portable way for all VTK-supported platforms.
 duplicateExpression:*/IO/PostgreSQL/vtkPostgreSQLQuery.cxx
@@ -592,6 +595,9 @@ noCopyConstructor:*/Rendering/LICOpenGL2/vtkSurfaceLICHelper.cxx
 noCopyConstructor:*/Rendering/LICOpenGL2/vtkSurfaceLICHelper.h
 noCopyConstructor:*/Rendering/Volume/vtkUnstructuredGridVolumeZSweepMapper.cxx
 
+// This is a generated file.
+constParameter:*/vtkParse.tab.c
+
 // 18 warnings
 redundantAssignment:*/Filters/General/vtkBoxClipDataSet.cxx
 
@@ -626,23 +632,8 @@ duplicateCondition:*/Common/ExecutionModel/vtkSpanSpace.cxx
 // changes
 uselessAssignmentArg:*/Common/DataModel/vtkReebGraph.cxx
 
-// False positive: this file is .c but has guarded C++
-syntaxError:*/CMake/patches/3.16/FindMPI/test_mpi.c
-
 // False positive: Condition '*((unsigned char*)&a)==18' is always false
 knownConditionTrueFalse:*/IO/SegY/vtkSegYIOUtils.h
-
-// False positive, I think, there are casts to char*
-comparePointers:*/Utilities/OutputWindowProcess/vtkWin32OutputWindowProcess.c
-
-// False positive: Parameter '*' can be declared with const.
-constParameter:*/Rendering/RayTracing/RTWrapper/VisRTX/Object.h
-
-// False positive: Assignment of function parameter has no effect outside the function. Did you forget dereferencing it?
-uselessAssignmentPtrArg:*/Wrapping/Tools/vtkParse.tab.c
-
-// False positive
-nullPointerArithmeticRedundantCheck:*/Wrapping/Tools/vtkParse.tab.c
 
 // False positive: Either the condition 'm+1>outputsize' is redundant or the array 'output[16]' is accessed at index 16, which is out of bounds.
 arrayIndexOutOfBoundsCond:*/Wrapping/Tools/vtkParsePreprocess.c
@@ -650,11 +641,9 @@ arrayIndexOutOfBoundsCond:*/Wrapping/Tools/vtkParsePreprocess.c
 // False positives
 knownConditionTrueFalse:*/Wrapping/Tools/vtkWrapJava.c
 knownConditionTrueFalse:*/Wrapping/Tools/vtkParseJava.c
-objectIndex:*/Wrapping/Tools/vtkParsePreprocess.c
-objectIndex:*/Wrapping/Tools/vtkParseMain.c
 
 // Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
-constArgument:*/Wrapping/Tools/vtkParsePreprocess.c
+constParameter:*/Wrapping/Tools/vtkWrapPythonOverload.c
 duplicateCondition:*/Wrapping/Tools/vtkParse.tab.c
 knownConditionTrueFalse:*/Utilities/KWIML/vtkkwiml/test/test.c
 knownConditionTrueFalse:*/Wrapping/Tools/vtkParsePreprocess.c
@@ -703,10 +692,3 @@ noConstructor:*/Examples/GUI/Win32/vtkMFC/vtkSDI/vtkSDIView.h
 noConstructor:*/Filters/ParallelDIY2/vtkPResampleToImage.cxx
 noConstructor:*/Filters/ParallelDIY2/vtkPResampleWithDataSet.cxx
 noConstructor:*/Rendering/Core/Testing/Cxx/TestInteractorTimers.cxx
-
-// Need someone that knows this code...
-syntaxError:*/Examples/GUI/Win32/vtkBorland/ProjectDemo/Project_vtkDemo.cpp
-memleak:*/Wrapping/Tools/vtkParsePreprocess.c
-duplicateAssignExpression:*/Wrapping/Tools/vtkWrapText.c
-nullPointer:*/Wrapping/Tools/lex.yy.c
-nullPointerArithmeticRedundantCheck:*/Wrapping/Tools/vtkParse.tab.c:7649,warning,Either the condition '!yynewItems' is redundant or there is pointer arithmetic with NULL pointer.

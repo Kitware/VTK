@@ -222,7 +222,7 @@ extern "C"
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParsePreprocess_FreeMacroExpansion(
-    PreprocessInfo* info, MacroInfo* macro, const char* text);
+    const PreprocessInfo* info, MacroInfo* macro, const char* text);
 
   /**
    * Fully process a string with the preprocessor, and
@@ -238,7 +238,7 @@ extern "C"
    * return the original string if no processing was needed.
    */
   VTKWRAPPINGTOOLS_EXPORT
-  void vtkParsePreprocess_FreeProcessedString(PreprocessInfo* info, const char* text);
+  void vtkParsePreprocess_FreeProcessedString(const PreprocessInfo* info, const char* text);
 
   /**
    * Add an include directory.  The directories that were added
