@@ -141,16 +141,18 @@ bool vtkPlotBag::UpdateCache()
   }
 
   double sum = 0.0;
+  double const medianDensity = 0.5 * densitySum;
+  double const q3Density = 0.99 * densitySum;
   for (vtkIdType i = 0; i < nbPoints; i++)
   {
     double x[3];
     points->GetPoint(ids[i].Id, x);
     sum += ids[i].Density;
-    if (sum < 0.5 * densitySum)
+    if (sum < medianDensity)
     {
       medianPoints->InsertNextPoint(x);
     }
-    if (sum < 0.99 * densitySum)
+    if (sum < q3Density)
     {
       q3Points->InsertNextPoint(x);
     }
