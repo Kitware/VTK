@@ -163,7 +163,10 @@ private:
       this->Iterator->SetDataSet(source->GetDataSet());
       this->Iterator->SetSkipEmptyNodes(source->GetSkipEmptyNodes());
       this->Iterator->InitTraversal();
-      assert(!source->IsDoneWithTraversal());
+      // XXX(empty iteration): This assert fires for some iterator
+      // implementations if iterating over an empty dataset (because in this
+      // case, `begin() == end()`. This assert needs work.
+      // assert(!source->IsDoneWithTraversal());
       this->AdvanceTo(source->GetCurrentFlatIndex());
     }
   }
