@@ -371,22 +371,22 @@ protected:
   vtkCoordinateFrameRepresentation();
   ~vtkCoordinateFrameRepresentation() override;
 
-  int RepresentationState;
+  int RepresentationState = Outside;
 
   // Keep track of event positions
   double LastEventPosition[3];
 
-  bool PickCameraFocalInfo;
+  bool PickCameraFocalInfo = false;
 
   // Locking normal to camera
-  vtkTypeBool LockNormalToCamera;
+  vtkTypeBool LockNormalToCamera = false;
 
-  int TranslationAxis;
+  int TranslationAxis = Axis::NONE;
 
-  double Origin[3];
-  double XVectorNormal[3];
-  double YVectorNormal[3];
-  double ZVectorNormal[3];
+  double Origin[3] = { 0, 0, 0 };
+  double XVectorNormal[3] = { 1, 0, 0 };
+  double YVectorNormal[3] = { 0, 1, 0 };
+  double ZVectorNormal[3] = { 0, 0, 1 };
   vtkSetVector3Macro(XVectorNormal, double);
   vtkSetVector3Macro(YVectorNormal, double);
   vtkSetVector3Macro(ZVectorNormal, double);
@@ -407,7 +407,7 @@ protected:
   vtkNew<vtkActor> XVectorConeActor;
   void HighlightXVector(int highlight);
   // The lock XVector cone source
-  bool XVectorIsLocked;
+  bool XVectorIsLocked = false;
   vtkNew<vtkConeSource> LockerXVectorConeSource;
   vtkNew<vtkPolyDataMapper> LockerXVectorConeMapper;
   vtkNew<vtkActor> LockerXVectorConeActor;
@@ -423,7 +423,7 @@ protected:
   vtkNew<vtkActor> YVectorConeActor;
   void HighlightYVector(int highlight);
   // The lock YVector cone source
-  bool YVectorIsLocked;
+  bool YVectorIsLocked = false;
   vtkNew<vtkConeSource> LockerYVectorConeSource;
   vtkNew<vtkPolyDataMapper> LockerYVectorConeMapper;
   vtkNew<vtkActor> LockerYVectorConeActor;
@@ -439,7 +439,7 @@ protected:
   vtkNew<vtkActor> ZVectorConeActor;
   void HighlightZVector(int highlight);
   // The lock Vector Z cone source
-  bool ZVectorIsLocked;
+  bool ZVectorIsLocked = false;
   vtkNew<vtkConeSource> LockerZVectorConeSource;
   vtkNew<vtkPolyDataMapper> LockerZVectorConeMapper;
   vtkNew<vtkActor> LockerZVectorConeActor;

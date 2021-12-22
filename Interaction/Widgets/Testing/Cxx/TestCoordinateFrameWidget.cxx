@@ -396,14 +396,14 @@ int TestCoordinateFrameWidget(int argc, char* argv[])
   rep->PlaceWidget(selectActor->GetBounds());
   rep->SetNormal(plane->GetNormal());
 
-  vtkNew<vtkCoordinateFrameWidget> planeWidget;
-  planeWidget->SetInteractor(iren);
-  planeWidget->SetRepresentation(rep);
+  vtkNew<vtkCoordinateFrameWidget> frameWidget;
+  frameWidget->SetInteractor(iren);
+  frameWidget->SetRepresentation(rep);
 
   // Render
   iren->Initialize();
   renWin->Render();
-  planeWidget->On();
+  frameWidget->On();
 
   return vtkTesting::InteractorEventLoop(argc, argv, iren, TestCoordinateFrameWidgetLog);
 }
