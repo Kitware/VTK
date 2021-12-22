@@ -71,6 +71,7 @@ using LinkMap = vtkDIYGhostUtilities::LinkMap;
 template<class DataSetT>
 using DataSetTypeToBlockTypeConverter =
     vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<DataSetT>;
+namespace detail = vtkDIYGhostUtilities_detail;
 //@}
 
 //@{
@@ -201,15 +202,15 @@ vtkSmartPointer<vtkIdList> ExtractPointIdsInsideBoundingBox(vtkPoints* inputPoin
     return pointIds;
   }
 
-  auto inputPointsRange = vtk::DataArrayTupleRange<3>(inputPoints->GetData());
-  using ConstPointRef = typename decltype(inputPointsRange)::ConstTupleReferenceType;
-
   pointIds->Allocate(inputPoints->GetNumberOfPoints());
 
-  for (vtkIdType pointId = 0; pointId < inputPointsRange.size(); ++pointId)
+  double p[3];
+
+  for (vtkIdType pointId = 0; pointId < inputPoints->GetNumberOfPoints(); ++pointId)
   {
-    ConstPointRef point = inputPointsRange[pointId];
-    if (bb.ContainsPoint(point))
+    inputPoints->GetPoint(pointId, p);
+
+    if (bb.ContainsPoint(p))
     {
       pointIds->InsertNextId(pointId);
     }
@@ -229,6 +230,7 @@ void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
     BlockInformationType& info = block->Information;
     vtkPointSet* interfacePoints = vtkPointSet::SafeDownCast(
         info.InterfaceExtractor->GetOutputDataObject(0));
+    vtkIdTypeArray* interfaceGlobalPointIds = info.InterfaceGlobalPointIds;
 
     for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
     {
@@ -244,14 +246,13 @@ void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
       }
 
       // If we use global ids to match interfacing points, no need to send points
-      if (vtkIdTypeArray* globalIds = vtkArrayDownCast<vtkIdTypeArray>(
-            interfacePoints->GetPointData()->GetGlobalIds()))
+      if (interfaceGlobalPointIds)
       {
         vtkNew<vtkIdTypeArray> gids;
         gids->SetNumberOfValues(ids->GetNumberOfIds());
-        globalIds->GetTuples(ids, gids);
+        interfaceGlobalPointIds->GetTuples(ids, gids);
 
-        cp.enqueue<vtkDataArray*>(blockId, interfacePoints->GetPointData()->GetGlobalIds());
+        cp.enqueue<vtkDataArray*>(blockId, gids);
       }
       else
       {
@@ -916,29 +917,9 @@ struct Comparator<false>
   {
     using Scalar = typename ValueToScalar<ValueT1>::Type;
 
-    return std::fabs(val1 - val2) <
-      std::max<Scalar>(std::numeric_limits<Scalar>::epsilon() *
-            std::max(std::fabs(val1), std::fabs(val2)),
-        std::numeric_limits<Scalar>::min());
+    return std::fabs(val1 - val2) < detail::ComputePrecision<Scalar>(
+        std::max(std::fabs(val1), std::fabs(val2)));
   }
-};
-
-//============================================================================
-template<class ValueT, bool IsIntegerT = std::numeric_limits<ValueT>::is_integer>
-struct Epsilon;
-
-//============================================================================
-template<class ValueT>
-struct Epsilon<ValueT, true>
-{
-  static constexpr ValueT Value = 0;
-};
-
-//============================================================================
-template<class ValueT>
-struct Epsilon<ValueT, false>
-{
-  static constexpr ValueT Value = std::numeric_limits<ValueT>::epsilon();
 };
 
 //============================================================================
@@ -1184,7 +1165,6 @@ struct StructuredGridFittingWorker
       ArrayT* points, vtkAbstractPointLocator* locator, const ExtentType& extent, int extentId)
   {
     using ValueType = typename ArrayT::ValueType;
-    constexpr ValueType Eps = Epsilon<ValueType>::Value;
 
     bool retVal = false;
 
@@ -1218,8 +1198,8 @@ struct StructuredGridFittingWorker
           static_cast<double>(queryPoint[2]) };
 
         vtkIdType pointId = locator->FindClosestPointWithinRadius(
-            std::max({ std::fabs(tmp[0]), std::fabs(tmp[1]), std::fabs(tmp[2]) }) * Eps,
-            tmp, dist2);
+            detail::ComputePrecision<ValueType>(
+              std::max({ std::fabs(tmp[0]), std::fabs(tmp[1]), std::fabs(tmp[2]) })), tmp, dist2);
 
         if (pointId == -1)
         {
@@ -1651,12 +1631,22 @@ vtkAlgorithm* InstantiateInterfaceExtractor<vtkUnstructuredGrid>(vtkUnstructured
 {
   vtkDataSetSurfaceFilter* extractor = vtkDataSetSurfaceFilter::New();
 
+  // This part is a hack to keep global point ids on the output of the surface filter.
+  // It would be too messy to change its behavior, so what we do is we untag the global id
+  // array so it gets copied in the output.
+  vtkNew<vtkUnstructuredGrid> untaggedGIDInput;
+  untaggedGIDInput->ShallowCopy(input);
+  auto globalIds = vtkArrayDownCast<vtkIdTypeArray>(input->GetPointData()->GetGlobalIds());
+  vtkPointData* untaggedGIDInputPD = untaggedGIDInput->GetPointData();
+  untaggedGIDInputPD->SetGlobalIds(nullptr);
+  untaggedGIDInputPD->AddArray(globalIds);
+
   if (vtkUnsignedCharArray* inputGhosts = input->GetCellGhostArray())
   {
     // We create a temporary unstructured grid in which we replace the ghost cell array.
     // Every ghost marked as duplicate is replaced by a ghost marked as hidden.
     vtkNew<vtkUnstructuredGrid> tmp;
-    tmp->CopyStructure(input);
+    tmp->CopyStructure(untaggedGIDInput);
 
     vtkIdType numberOfCells = input->GetNumberOfCells();
 
@@ -1664,10 +1654,11 @@ vtkAlgorithm* InstantiateInterfaceExtractor<vtkUnstructuredGrid>(vtkUnstructured
     vtkPointData* pd = tmp->GetPointData();
     vtkFieldData* fd = tmp->GetFieldData();
 
-    vtkCellData* inputCD = input->GetCellData();
+    vtkCellData* inputCD = untaggedGIDInput->GetCellData();
 
-    pd->ShallowCopy(input->GetPointData());
-    fd->ShallowCopy(input->GetFieldData());
+    pd->CopyAllOn();
+    pd->ShallowCopy(untaggedGIDInputPD);
+    fd->ShallowCopy(untaggedGIDInput->GetFieldData());
     cd->CopyStructure(inputCD);
 
     for (int arrayId = 0; arrayId < cd->GetNumberOfArrays(); ++arrayId)
@@ -1692,7 +1683,7 @@ vtkAlgorithm* InstantiateInterfaceExtractor<vtkUnstructuredGrid>(vtkUnstructured
   }
   else
   {
-    extractor->SetInputData(input);
+    extractor->SetInputData(untaggedGIDInput);
   }
 
   return extractor;
@@ -2312,8 +2303,14 @@ void InitializeBlocksForUnstructuredData(diy::Master& master,
       : nullptr;
     information.InterfacePointIds = vtkArrayDownCast<vtkIdTypeArray>(
         surface->GetPointData()->GetAbstractArray(LOCAL_POINT_IDS_ARRAY_NAME));
-    information.InterfaceGlobalPointIds = vtkArrayDownCast<vtkIdTypeArray>(
-        surface->GetPointData()->GetGlobalIds());
+
+    auto inputGlobalPointIds = vtkArrayDownCast<vtkIdTypeArray>(
+        input->GetPointData()->GetGlobalIds());
+
+    information.InterfaceGlobalPointIds = inputGlobalPointIds
+      ? vtkArrayDownCast<vtkIdTypeArray>(
+          surface->GetPointData()->GetAbstractArray(inputGlobalPointIds->GetName()))
+      : nullptr;
 
     InitializeInformationIdsForUnstructuredData(input, information);
   }
@@ -2358,6 +2355,8 @@ struct MatchingPointExtractor
   template<class PointArrayT>
   void operator()(PointArrayT* points, vtkIdTypeArray* globalPointIds)
   {
+    using ValueType = typename PointArrayT::ValueType;
+
     if ((globalPointIds == nullptr) != this->SourceGlobalPointIds.empty())
     {
       vtkLog(ERROR, "Inconsistency in the presence of global point ids across partitions. "
@@ -2396,8 +2395,6 @@ struct MatchingPointExtractor
       this->MatchingSourcePointIds->Allocate(pointsRange.size());
 
       using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
-      using ValueType = typename PointArrayT::ValueType;
-      constexpr ValueType Eps = Epsilon<ValueType>::Value;
       double p[3];
       double dist2;
 
@@ -2405,7 +2402,10 @@ struct MatchingPointExtractor
       {
         vtkMath::Assign(point, p);
         vtkIdType closestPointId = this->KdTree->FindClosestPointWithinRadius(
-            std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) }) * Eps, p, dist2);
+            detail::ComputePrecision<ValueType>(
+              std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) })),
+
+            p, dist2);
 
         if (closestPointId == -1)
         {
@@ -3496,6 +3496,7 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
 
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* gridCellData = grid->GetCellData();
+  cloneCellData->CopyAllOn();
   cloneCellData->CopyAllocate(gridCellData, clone->GetNumberOfCells());
   cloneCellData->SetNumberOfTuples(clone->GetNumberOfCells());
 
@@ -3527,6 +3528,7 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
 
   vtkPointData* clonePointData = clone->GetPointData();
   vtkPointData* gridPointData = grid->GetPointData();
+  clonePointData->CopyAllOn();
   clonePointData->CopyAllocate(gridPointData, clone->GetNumberOfPoints());
   clonePointData->SetNumberOfTuples(clone->GetNumberOfPoints());
 
@@ -3552,6 +3554,7 @@ void CloneCellData(vtkPointSet* ps, vtkPointSet* clone, UnstructuredDataInformat
 {
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* psCellData = ps->GetCellData();
+  cloneCellData->CopyAllOn();
   cloneCellData->CopyAllocate(psCellData, clone->GetNumberOfCells());
   cloneCellData->SetNumberOfTuples(clone->GetNumberOfCells());
 
@@ -3579,6 +3582,7 @@ void ClonePointData(vtkPointSet* ps, vtkPointSet* clone, UnstructuredDataInforma
 {
   vtkPointData* clonePointData = clone->GetPointData();
   vtkPointData* psPointData = ps->GetPointData();
+  clonePointData->CopyAllOn();
   clonePointData->CopyAllocate(psPointData, clone->GetNumberOfPoints());
   clonePointData->SetNumberOfTuples(clone->GetNumberOfPoints());
 
@@ -3814,6 +3818,7 @@ void ClonePolyData(vtkPolyData* pd, vtkPolyData* clone, PolyDataInformation& inf
   // We cannot use CloneCellData here because the cell data gets all stirred up in a vtkPolyData
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* pdCellData = pd->GetCellData();
+  cloneCellData->CopyAllOn();
   cloneCellData->CopyAllocate(pdCellData, clone->GetNumberOfCells());
   cloneCellData->SetNumberOfTuples(clone->GetNumberOfCells());
 
@@ -4463,11 +4468,10 @@ struct QueryPointWorker
   template<class ArrayT>
   void operator()(ArrayT* vtkNotUsed(array), double p[3])
   {
-    using ValueType = typename ArrayT::ValueType;
-    constexpr ValueType Eps = Epsilon<ValueType>::Value;
-
     this->TargetPointId = this->Locator->FindClosestPointWithinRadius(
-        std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) }) * Eps, p, this->Dist2);
+        detail::ComputePrecision<typename ArrayT::ValueType>(
+          std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) })),
+          p, this->Dist2);
   }
 
   vtkAbstractPointLocator* Locator;
@@ -5381,7 +5385,43 @@ void CopyOuterLayerGridPoints(vtkStructuredGrid* input, vtkSmartPointer<vtkPoint
     }
   }
 }
+
+//----------------------------------------------------------------------------
+void InflateBoundingBoxIfNecessaryImpl(
+  vtkPointSet* input, const double* bounds, vtkBoundingBox& bb)
+{
+  vtkPoints* points = input->GetPoints();
+
+  if (points && points->GetData())
+  {
+    double eps;
+    using Dispatch = vtkArrayDispatch::Dispatch;
+    vtkDIYGhostUtilities_detail::ComputeBoundingBoxPrecisionWorker worker;
+    Dispatch::Execute(points->GetData(), worker, bounds, eps);
+    bb.Inflate(eps);
+  }
+}
 } // anonymous namespace
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
+  vtkDataSet* vtkNotUsed(input), const double* vtkNotUsed(bounds), vtkBoundingBox& vtkNotUsed(bb))
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
+    vtkPolyData* input, const double* bounds, vtkBoundingBox& bb)
+{
+  InflateBoundingBoxIfNecessaryImpl(input, bounds, bb);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
+  vtkUnstructuredGrid* input, const double* bounds, vtkBoundingBox& bb)
+{
+  InflateBoundingBoxIfNecessaryImpl(input, bounds, bb);
+}
 
 //----------------------------------------------------------------------------
 vtkDIYGhostUtilities::GridBlockStructure::GridBlockStructure(const int* extent, int dim)

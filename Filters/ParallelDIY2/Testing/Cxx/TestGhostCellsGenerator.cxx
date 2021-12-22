@@ -2769,6 +2769,68 @@ bool TestPartitionedDataSetCollection(int myrank, int numberOfGhostLayers)
 
   return retVal;
 }
+
+//----------------------------------------------------------------------------
+bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
+{
+  vtkNew<vtkUnstructuredGrid> ug;
+  vtkNew<vtkPoints> points;
+  points->SetDataType(VTK_DOUBLE);
+  points->SetNumberOfPoints(2);
+  ug->SetPoints(points);
+
+  vtkNew<vtkIdTypeArray> connectivity;
+  connectivity->SetNumberOfValues(2);
+  connectivity->SetValue(0, 0);
+  connectivity->SetValue(1, 1);
+
+  vtkNew<vtkIdTypeArray> offsets;
+  offsets->SetNumberOfValues(2);
+  offsets->SetValue(0, 0);
+  offsets->SetValue(1, 2);
+
+  vtkNew<vtkUnsignedCharArray> types;
+  types->SetNumberOfValues(1);
+  types->SetValue(0, VTK_LINE);
+
+  vtkNew<vtkCellArray> cells;
+  cells->SetData(offsets, connectivity);
+  ug->SetCells(types, cells);
+
+  if (myrank == 0)
+  {
+    double p[3] = { 0.0, 0.0, 0.0 };
+    points->SetPoint(0, p);
+    p[0] = 1.0;
+    points->SetPoint(1, p);
+  }
+  else if (myrank == 1)
+  {
+    // double p[3] = { 1.0, 0.0, 0.0 };
+    double p[3] = { 1.0 + VTK_DBL_EPSILON, 0.0, 0.0 };
+    points->SetPoint(0, p);
+    p[0] = 2.0;
+    points->SetPoint(1, p);
+  }
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputData(ug);
+  generator->SetNumberOfGhostLayers(1);
+  generator->SetController(controller);
+  generator->BuildIfRequiredOff();
+  generator->Update();
+
+  auto output = vtkUnstructuredGrid::SafeDownCast(generator->GetOutputDataObject(0));
+
+  // The ghost cells generator would output one cell if it was sensitive to point precision.
+  if (output->GetNumberOfCells() != 2)
+  {
+    vtkLog(ERROR, "Ghost cells generator is too sensitive to point precision");
+    return false;
+  }
+
+  return true;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -2786,6 +2848,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   int retVal = EXIT_SUCCESS;
   int myrank = contr->GetLocalProcessId();
   int numberOfGhostLayers = 2;
+
+  if (!TestPointPrecision(contr, myrank))
+  {
+    retVal = EXIT_FAILURE;
+  }
 
   if (!TestDeepMultiBlock())
   {
