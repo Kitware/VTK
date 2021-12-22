@@ -49,6 +49,8 @@ static constexpr double DefaultPickTol = 0.001;
 //------------------------------------------------------------------------------
 vtkCoordinateFrameRepresentation::vtkCoordinateFrameRepresentation()
 {
+  this->RepresentationState = vtkCoordinateFrameRepresentation::Outside;
+
   // Handle size is in pixels for this widget
   this->HandleSize = 5.0;
 
