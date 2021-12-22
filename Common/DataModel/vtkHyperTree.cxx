@@ -271,6 +271,8 @@ public:
     if (nbCoarses)
     {
       vtkIdType off = 1;
+      this->CompactDatas->ParentToElderChild_stl.resize(
+        std::max(static_cast<vtkIdType>(1), firstOffsetLastdepth));
       this->CompactDatas->ParentToElderChild_stl[0] = off;
       for (vtkIdType i = 1; i < firstOffsetLastdepth; ++i)
       {
@@ -288,6 +290,7 @@ public:
     }
     else
     {
+      this->CompactDatas->ParentToElderChild_stl.resize(1);
       this->CompactDatas->ParentToElderChild_stl[0] = UINT_MAX;
     }
 
