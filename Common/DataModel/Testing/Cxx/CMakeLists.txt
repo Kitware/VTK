@@ -15,6 +15,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestArrayListTemplate.cxx
   TestCellInflation.cxx
   TestColor.cxx
+  TestCoordinateFrame.cxx
   TestVector.cxx
   TestVectorOperators.cxx
   TestAMRBox.cxx

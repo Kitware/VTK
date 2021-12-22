@@ -48,6 +48,7 @@
  *   'P/p' Pick new origin
  *   'N/n' Pick new normal
  *   'D/d' Pick a new point to define the direction normal which will be the new normal
+ * </pre>
  *
  * @par Event Bindings:
  * Note that the event bindings described above can be changed using this

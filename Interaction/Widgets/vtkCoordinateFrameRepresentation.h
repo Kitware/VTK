@@ -84,9 +84,9 @@ public:
    * 2) Otherwise, the axis closest to the picked normal (i.e., with the largest dot product) is
    * reset to the picked normal.
    *
-   * In both cases, the remaining normals are re-orthogonalized using the Gram-Schmidt
-   * procedure.
-   * @cite https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
+   * In both cases, the remaining normals are re-orthogonalized using the
+   * <a href="https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process">
+   * Gram-Schmidt procedure</a>.
    */
   void SetNormal(double x, double y, double z);
   void SetNormal(double n[3]);
@@ -94,6 +94,21 @@ public:
   vtkGetVector3Macro(XVectorNormal, double);
   vtkGetVector3Macro(YVectorNormal, double);
   vtkGetVector3Macro(ZVectorNormal, double);
+  ///@}
+
+  ///@{
+  /**
+   * Force an axis to be aligned with the vector \a v, regardless of whether any axis is locked.
+   *
+   * This will normalize \a v and re-orthogonalize the remaining axes using the Gram-Schmidt
+   * procedure. Passing in a degenerate (zero-length) vector will be ignored.
+   */
+  void SetXAxisVector(const double v[3]);
+  void SetXAxisVector(double x, double y, double z);
+  void SetYAxisVector(const double v[3]);
+  void SetYAxisVector(double x, double y, double z);
+  void SetZAxisVector(const double v[3]);
+  void SetZAxisVector(double x, double y, double z);
   ///@}
 
   ///@{
@@ -129,6 +144,17 @@ public:
    * to match changes that have been made to the underlying PolyDataSource
    */
   void UpdatePlacement();
+
+  /**
+   * Reset the origin (by calling update placement) and the axes (to be aligned
+   * with the world coordinate X, Y, and Z axes).
+   */
+  void Reset();
+
+  /**
+   * Reset only the axis orientations (not the origin).
+   */
+  void ResetAxes();
 
   ///@{
   /**
@@ -256,6 +282,26 @@ public:
    * set.
    */
   bool PickDirectionPoint(int X, int Y);
+
+  /**
+   * Get/set which axis (if any) is locked.
+   *
+   * At most, a single axis can be locked at a time.
+   *
+   * The axis must be one of the following values: { -1, 0, 1, 2 }.
+   * -1 indicates that no axis is locked; 0 corresponds to the X axis; 1 to Y; and 2 to Z.
+   *
+   * In terms of mouse interactions, locking an axis prevents its direction from being
+   * modified by rotation (so only rotations about that axis are possible) and
+   * prevents the origin from translating along it (so all translations must be in the
+   * plane using it as a normal).
+   *
+   * In terms of picking interactions, locking an axis selects it as the target axis
+   * to be modified (i.e., the locked axis will be overwritten with a normal vector
+   * or direction vector).
+   */
+  int GetLockedAxis() const;
+  void SetLockedAxis(int axis);
 
   ///@{
   /**
