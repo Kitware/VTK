@@ -1314,21 +1314,21 @@ REDO:
     else if (!n->ArcDownId)
     {
       // insert into stack branches to simplify
-      for (int _A_ = n->ArcUpId; _A_; _A_ = this->GetArc(_A_)->ArcDwId0)
+      for (int A_ = n->ArcUpId; A_; A_ = this->GetArc(A_)->ArcDwId0)
       {
-        vtkReebArc* _a_ = this->GetArc(_A_);
+        vtkReebArc* a_ = this->GetArc(A_);
         if ((!inputMesh) || (!simplificationMetric))
         {
-          if (vtkReebGraphGetArcPersistence(this, _a_) < simplificationThreshold)
+          if (vtkReebGraphGetArcPersistence(this, a_) < simplificationThreshold)
           {
-            vtkReebGraphStackPush(_A_);
+            vtkReebGraphStackPush(A_);
           }
         }
         else
         {
-          if (this->ComputeCustomMetric(simplificationMetric, _a_) < simplificationThreshold)
+          if (this->ComputeCustomMetric(simplificationMetric, a_) < simplificationThreshold)
           {
-            vtkReebGraphStackPush(_A_);
+            vtkReebGraphStackPush(A_);
           }
         }
       }
@@ -1336,12 +1336,12 @@ REDO:
     else if (!n->ArcUpId)
     {
       // insert into stack branches to simplify
-      for (int _A_ = n->ArcDownId; _A_; _A_ = this->GetArc(_A_)->ArcDwId1)
+      for (int A_ = n->ArcDownId; A_; A_ = this->GetArc(A_)->ArcDwId1)
       {
-        vtkReebArc* _a_ = this->GetArc(_A_);
-        if (vtkReebGraphGetArcPersistence(this, _a_) < simplificationThreshold)
+        vtkReebArc* a_ = this->GetArc(A_);
+        if (vtkReebGraphGetArcPersistence(this, a_) < simplificationThreshold)
         {
-          vtkReebGraphStackPush(_A_);
+          vtkReebGraphStackPush(A_);
         }
       }
     }
@@ -1471,21 +1471,21 @@ REDO:
 
         if (!this->GetNode(Down)->ArcDownId) // minimum
         {
-          for (vtkIdType _A_ = this->GetNode(Down)->ArcUpId; _A_; _A_ = this->GetArc(_A_)->ArcDwId0)
+          for (vtkIdType A_ = this->GetNode(Down)->ArcUpId; A_; A_ = this->GetArc(A_)->ArcDwId0)
           {
-            vtkReebArc* _a_ = this->GetArc(_A_);
+            vtkReebArc* a_ = this->GetArc(A_);
             if ((!inputMesh) || (!simplificationMetric))
             {
-              if (vtkReebGraphGetArcPersistence(this, _a_) < simplificationThreshold)
+              if (vtkReebGraphGetArcPersistence(this, a_) < simplificationThreshold)
               {
-                vtkReebGraphStackPush(_A_);
+                vtkReebGraphStackPush(A_);
               }
             }
             else
             {
-              if (this->ComputeCustomMetric(simplificationMetric, _a_) < simplificationThreshold)
+              if (this->ComputeCustomMetric(simplificationMetric, a_) < simplificationThreshold)
               {
-                vtkReebGraphStackPush(_A_);
+                vtkReebGraphStackPush(A_);
               }
             }
           }
@@ -1498,21 +1498,21 @@ REDO:
 
         if (!this->GetNode(Up)->ArcUpId)
         {
-          for (int _A_ = this->GetNode(Up)->ArcDownId; _A_; _A_ = this->GetArc(_A_)->ArcDwId1)
+          for (int A_ = this->GetNode(Up)->ArcDownId; A_; A_ = this->GetArc(A_)->ArcDwId1)
           {
-            vtkReebArc* _a_ = this->GetArc(_A_);
+            vtkReebArc* a_ = this->GetArc(A_);
             if ((!inputMesh) || (!simplificationMetric))
             {
-              if (vtkReebGraphGetArcPersistence(this, _a_) < simplificationThreshold)
+              if (vtkReebGraphGetArcPersistence(this, a_) < simplificationThreshold)
               {
-                vtkReebGraphStackPush(_A_);
+                vtkReebGraphStackPush(A_);
               }
             }
             else
             {
-              if (this->ComputeCustomMetric(simplificationMetric, _a_) < simplificationThreshold)
+              if (this->ComputeCustomMetric(simplificationMetric, a_) < simplificationThreshold)
               {
-                vtkReebGraphStackPush(_A_);
+                vtkReebGraphStackPush(A_);
               }
             }
           }

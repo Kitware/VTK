@@ -608,7 +608,7 @@ void vtkPKdTree::SingleProcessBuildLocator()
   }
 }
 
-typedef struct _vtkNodeInfo
+typedef struct vtkNodeInfo_
 {
   vtkKdNode* kd;
   int L;
@@ -618,7 +618,7 @@ typedef struct _vtkNodeInfo
 
 #define ENQUEUE(a, b, c, d)                                                                        \
   {                                                                                                \
-    vtkNodeInfo rec = new struct _vtkNodeInfo;                                                     \
+    vtkNodeInfo rec = new struct vtkNodeInfo_;                                                     \
     rec->kd = a;                                                                                   \
     rec->L = b;                                                                                    \
     rec->level = c;                                                                                \
