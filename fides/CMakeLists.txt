@@ -48,9 +48,8 @@ endif ()
 
 fides_generate_export_header(fides)
 
-vtk_module_definitions(VTK::fides PRIVATE ${MPI_DEFS})
-
 if (FALSE) # XXX(kitware): use vtk_module system
+target_compile_definitions(fides PRIVATE ${MPI_DEFS})
 target_link_libraries(fides PUBLIC vtkm_cont adios2::adios2 PRIVATE
   fides_rapidjson)
 
@@ -60,6 +59,9 @@ target_include_directories(fides PUBLIC
   $<INSTALL_INTERFACE:include>
   )
 else()
+if (${MPI_DEFS})
+vtk_module_definitions(VTK::fides PRIVATE ${MPI_DEFS})
+endif()
 vtk_module_link(VTK::fides
   PRIVATE
     adios2::adios2
