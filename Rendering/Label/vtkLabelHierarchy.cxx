@@ -453,8 +453,8 @@ void vtkLabelHierarchyFrustumIterator::Next()
             {
               vtkDebugMacro("l: " << this->Level << " i: " << this->IjkG[0]
                                   << " j: " << this->IjkG[1] << " k: " << this->IjkG[2] << " (");
-              for (std::vector<int>::iterator cit = this->Cursor._M_indices.begin();
-                   cit != this->Cursor._M_indices.end(); ++cit)
+              for (std::vector<int>::iterator cit = this->Cursor.m_indices.begin();
+                   cit != this->Cursor.m_indices.end(); ++cit)
               {
                 vtkDebugMacro(" " << *cit);
               }

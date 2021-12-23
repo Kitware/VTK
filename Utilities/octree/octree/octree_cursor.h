@@ -1,5 +1,5 @@
-#ifndef __octree_cursor
-#define __octree_cursor
+#ifndef octree_cursor_
+#define octree_cursor_
 // Included by octree
 
 /**\brief An octree cursor.
@@ -52,4 +52,4 @@ public:
   self_path& operator=(const const_path& it);
 };
 
-#endif // __octree_cursor
+#endif // octree_cursor_

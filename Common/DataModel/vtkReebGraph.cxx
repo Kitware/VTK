@@ -1376,22 +1376,22 @@ REDO:
     if (persistence >= simplificationThreshold)
       continue;
 
-    int _A, Mdown = 0, Nup = 0, Ndown = 0, Mup = 0;
+    int A_, Mdown = 0, Nup = 0, Ndown = 0, Mup = 0;
 
     // get the 'down' degree for M
-    for (_A = this->GetNode(M)->ArcDownId; _A; _A = this->GetArc(_A)->ArcDwId1)
+    for (A_ = this->GetNode(M)->ArcDownId; A_; A_ = this->GetArc(A_)->ArcDwId1)
       ++Mdown;
 
     // Get the 'up' degree for N
-    for (_A = this->GetNode(N)->ArcUpId; _A; _A = this->GetArc(_A)->ArcDwId0)
+    for (A_ = this->GetNode(N)->ArcUpId; A_; A_ = this->GetArc(A_)->ArcDwId0)
       ++Nup;
 
     // get the 'down' degree for N
-    for (_A = this->GetNode(N)->ArcDownId; _A; _A = this->GetArc(_A)->ArcDwId1)
+    for (A_ = this->GetNode(N)->ArcDownId; A_; A_ = this->GetArc(A_)->ArcDwId1)
       ++Ndown;
 
     // get the 'up' degree for M
-    for (_A = this->GetNode(M)->ArcUpId; _A; _A = this->GetArc(_A)->ArcDwId0)
+    for (A_ = this->GetNode(M)->ArcUpId; A_; A_ = this->GetArc(A_)->ArcDwId0)
       ++Mup;
 
     // isolated arc

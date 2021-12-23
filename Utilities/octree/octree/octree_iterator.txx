@@ -45,11 +45,11 @@
  */
 
 /**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
- *     bool octree_iterator<T_,R_,P_,O_,OP_,d_>::_M_immediate_family
+ *     bool octree_iterator<T_,R_,P_,O_,OP_,d_>::m_immediate_family
  *\brief Iterate over all the subnodes or just the direct children?
  */
 /**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
- *     bool octree_iterator<T_,R_,P_,O_,OP_,d_>::_M_only_leaf_nodes
+ *     bool octree_iterator<T_,R_,P_,O_,OP_,d_>::m_only_leaf_nodes
  *\brief Should the iterator visit all nodes or only leaf nodes?
  */
 
@@ -58,8 +58,8 @@
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 octree_iterator<T_, R_, P_, O_, OP_, d_>::octree_iterator()
 {
-  this->_M_only_leaf_nodes = true;
-  this->_M_immediate_family = false;
+  this->m_only_leaf_nodes = true;
+  this->m_immediate_family = false;
 }
 
 /**\brief Constructor for use by octree_type's begin() and end() methods.
@@ -72,17 +72,17 @@ octree_iterator<T_, R_, P_, O_, OP_, d_>::octree_iterator(
 {
   // WARNING: This method assumes onode is either the root node of the tree or the "tail" of the
   // sequence. In order to be completely general, this method would have to search the entire octree
-  // for onode and maintain _M_indices & _M_current_index as it searched.
-  this->_M_only_leaf_nodes = only_leaves;
-  this->_M_immediate_family = false;
-  this->_M_current_node = onode;
-  if (this->_M_only_leaf_nodes)
+  // for onode and maintain m_indices & _M_current_index as it searched.
+  this->m_only_leaf_nodes = only_leaves;
+  this->m_immediate_family = false;
+  this->m_current_node = onode;
+  if (this->m_only_leaf_nodes)
   {
-    while (this->_M_current_node && this->_M_current_node->_M_children)
+    while (this->m_current_node && this->m_current_node->m_children)
     {
-      this->_M_indices.push_back(0);
-      this->_M_parents.push_back(this->_M_current_node);
-      this->_M_current_node = this->_M_current_node->_M_children;
+      this->m_indices.push_back(0);
+      this->m_parents.push_back(this->m_current_node);
+      this->m_current_node = this->m_current_node->m_children;
     }
   }
 }
@@ -93,12 +93,12 @@ octree_iterator<T_, R_, P_, O_, OP_, d_>::octree_iterator(
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 octree_iterator<T_, R_, P_, O_, OP_, d_>::octree_iterator(const const_iterator& it)
 {
-  this->_M_root = it._M_root;
-  this->_M_immediate_family = it._M_immediate_family;
-  this->_M_only_leaf_nodes = it._M_only_leaf_nodes;
-  this->_M_indices = it._M_indices;
-  this->_M_parents = it._M_parents;
-  this->_M_current_node = it._M_current_node;
+  this->m_root = it.m_root;
+  this->m_immediate_family = it.m_immediate_family;
+  this->m_only_leaf_nodes = it.m_only_leaf_nodes;
+  this->m_indices = it.m_indices;
+  this->m_parents = it.m_parents;
+  this->m_current_node = it.m_current_node;
 }
 
 /**\brief Utility routine used to advance the iterator if possible.
@@ -108,45 +108,45 @@ template <typename T_, typename R_, typename P_, typename O_, typename OP_, int 
 typename octree_iterator<T_, R_, P_, O_, OP_, d_>::octree_node_pointer
 octree_iterator<T_, R_, P_, O_, OP_, d_>::check_incr()
 {
-  if (!this->_M_root)
+  if (!this->m_root)
   {
     throw std::logic_error("Can't increment iterator with null octree pointer.");
   }
   // Oldtown. (We're at the end)
-  if (!this->_M_current_node)
+  if (!this->m_current_node)
   {
     return nullptr;
   }
   int child = 0;
   // Uptown. (Climb upwards to the first non-traversed, non-leaf node)
-  if (this->_M_immediate_family)
+  if (this->m_immediate_family)
   {
-    if (this->_M_indices.empty())
+    if (this->m_indices.empty())
     {
       return nullptr;
     }
-    this->_M_current_node = this->_M_parents.back();
-    child = this->_M_indices.back() + 1;
-    this->_M_parents.pop_back();
-    this->_M_indices.pop_back();
+    this->m_current_node = this->m_parents.back();
+    child = this->m_indices.back() + 1;
+    this->m_parents.pop_back();
+    this->m_indices.pop_back();
     if (child >= (1 << d_))
     {
-      this->_M_current_node = nullptr; // move to the end, but don't clear out parents/indices
+      this->m_current_node = nullptr; // move to the end, but don't clear out parents/indices
       return nullptr;
     }
   }
-  else if (this->_M_current_node->is_leaf_node())
+  else if (this->m_current_node->is_leaf_node())
   {
     while (1)
     {
-      if (this->_M_indices.empty())
+      if (this->m_indices.empty())
       {
         return nullptr;
       }
-      this->_M_current_node = this->_M_parents.back();
-      child = this->_M_indices.back() + 1;
-      this->_M_parents.pop_back();
-      this->_M_indices.pop_back();
+      this->m_current_node = this->m_parents.back();
+      child = this->m_indices.back() + 1;
+      this->m_parents.pop_back();
+      this->m_indices.pop_back();
       if (child < (1 << d_))
       {
         break;
@@ -154,16 +154,16 @@ octree_iterator<T_, R_, P_, O_, OP_, d_>::check_incr()
     }
   }
   // Downtown. (Climb down to the next node)
-  while (!this->_M_current_node->is_leaf_node())
+  while (!this->m_current_node->is_leaf_node())
   {
-    this->_M_parents.push_back(this->_M_current_node);
-    this->_M_indices.push_back(child);
-    this->_M_current_node = this->_M_current_node->_M_children + child;
+    this->m_parents.push_back(this->m_current_node);
+    this->m_indices.push_back(child);
+    this->m_current_node = this->m_current_node->m_children + child;
     child = 0;
-    if (!this->_M_only_leaf_nodes || this->_M_immediate_family)
+    if (!this->m_only_leaf_nodes || this->m_immediate_family)
       break;
   }
-  return this->_M_current_node;
+  return this->m_current_node;
 }
 
 /**\brief Utility routine used to back up the iterator if possible.
@@ -173,54 +173,54 @@ template <typename T_, typename R_, typename P_, typename O_, typename OP_, int 
 typename octree_iterator<T_, R_, P_, O_, OP_, d_>::octree_node_pointer
 octree_iterator<T_, R_, P_, O_, OP_, d_>::check_decr()
 {
-  if (!this->_M_root)
+  if (!this->m_root)
   {
     throw std::logic_error("Can't decrement iterator with null octree pointer.");
   }
   // Oldtown. (We're at the end)
-  if (!this->_M_current_node)
+  if (!this->m_current_node)
   { // Descend to last leaf
-    this->_M_current_node = this->_M_root;
-    while (this->_M_current_node && this->_M_current_node->_M_children)
+    this->m_current_node = this->m_root;
+    while (this->m_current_node && this->m_current_node->m_children)
     {
       int child = (1 << d_) - 1;
-      this->_M_indices.push_back(child);
-      this->_M_parents.push_back(this->_M_current_node);
-      this->_M_current_node = this->_M_current_node->_M_children + child;
+      this->m_indices.push_back(child);
+      this->m_parents.push_back(this->m_current_node);
+      this->m_current_node = this->m_current_node->m_children + child;
     }
-    return this->_M_current_node;
+    return this->m_current_node;
   }
-  else if (this->_M_current_node == this->_M_root)
+  else if (this->m_current_node == this->m_root)
   { // We're at the beginning node... can't go back any more
     // FIXME: What do we do when traversing only leaf nodes? The root isn't the beginning any
     // more...
-    octree_node_pointer tmp = this->_M_current_node;
-    // this->_M_current_node = 0; // go back to "end" after reporting the beginning node.
+    octree_node_pointer tmp = this->m_current_node;
+    // this->m_current_node = 0; // go back to "end" after reporting the beginning node.
     return tmp;
   }
   int child = (1 << d_) - 1;
   // Uptown. (Climb upwards to the first non-traversed node)
   while (1)
   {
-    if (this->_M_indices.empty())
+    if (this->m_indices.empty())
     { // Last node is root node. Report it if we should.
-      if ((this->_M_only_leaf_nodes && this->_M_current_node->is_leaf_node()) ||
-        (!this->_M_only_leaf_nodes))
+      if ((this->m_only_leaf_nodes && this->m_current_node->is_leaf_node()) ||
+        (!this->m_only_leaf_nodes))
       {
-        return this->_M_current_node;
+        return this->m_current_node;
       }
       else
       { // Oops, we were already at "begin()"... go past end.
-        octree_node_pointer tmp = this->_M_current_node;
-        // this->_M_current_node = 0; // go back to "end" after reporting the beginning node.
+        octree_node_pointer tmp = this->m_current_node;
+        // this->m_current_node = 0; // go back to "end" after reporting the beginning node.
         return tmp;
       }
     }
-    this->_M_current_node = this->_M_parents.back();
-    child = this->_M_indices.back() - 1;
-    this->_M_parents.pop_back();
-    this->_M_indices.pop_back();
-    if (this->_M_only_leaf_nodes)
+    this->m_current_node = this->m_parents.back();
+    child = this->m_indices.back() - 1;
+    this->m_parents.pop_back();
+    this->m_indices.pop_back();
+    if (this->m_only_leaf_nodes)
     {
       if (child >= 0)
       {
@@ -238,17 +238,17 @@ octree_iterator<T_, R_, P_, O_, OP_, d_>::check_decr()
   // Midtown. (Stop at non-leaf nodes if so ordered)
   if (child < 0)
   {
-    return this->_M_current_node;
+    return this->m_current_node;
   }
   // Downtown. (Climb down to the next node)
-  while (!this->_M_current_node->is_leaf_node())
+  while (!this->m_current_node->is_leaf_node())
   {
-    this->_M_parents.push_back(this->_M_current_node);
-    this->_M_indices.push_back(child);
-    this->_M_current_node = this->_M_current_node->_M_children + child;
+    this->m_parents.push_back(this->m_current_node);
+    this->m_indices.push_back(child);
+    this->m_current_node = this->m_current_node->m_children + child;
     child = (1 << d_) - 1;
   }
-  return this->_M_current_node;
+  return this->m_current_node;
 }
 
 /**\brief Force the iterator to traverse only siblings and not children or parent nodes.
@@ -257,7 +257,7 @@ octree_iterator<T_, R_, P_, O_, OP_, d_>::check_decr()
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 void octree_iterator<T_, R_, P_, O_, OP_, d_>::immediate_family(bool val)
 {
-  this->_M_immediate_family = val;
+  this->m_immediate_family = val;
 }
 
 /**\fn template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
