@@ -288,13 +288,13 @@ int vtkBSPIntersections::IntersectsBox(
 
   if (len > 0)
   {
-    nnodes = this->_IntersectsBox(this->Cuts->GetKdNodeTree(), ids, len, x0, x1, y0, y1, z0, z1);
+    nnodes = this->IntersectsBox_(this->Cuts->GetKdNodeTree(), ids, len, x0, x1, y0, y1, z0, z1);
   }
   return nnodes;
 }
 
 //------------------------------------------------------------------------------
-int vtkBSPIntersections::_IntersectsBox(vtkKdNode* node, int* ids, int len, double x0, double x1,
+int vtkBSPIntersections::IntersectsBox_(vtkKdNode* node, int* ids, int len, double x0, double x1,
   double y0, double y1, double z0, double z1)
 {
   int result, nnodes1, nnodes2, listlen;
@@ -313,14 +313,14 @@ int vtkBSPIntersections::_IntersectsBox(vtkKdNode* node, int* ids, int len, doub
     return 1;
   }
 
-  nnodes1 = _IntersectsBox(node->GetLeft(), ids, len, x0, x1, y0, y1, z0, z1);
+  nnodes1 = IntersectsBox_(node->GetLeft(), ids, len, x0, x1, y0, y1, z0, z1);
 
   idlist = ids + nnodes1;
   listlen = len - nnodes1;
 
   if (listlen > 0)
   {
-    nnodes2 = _IntersectsBox(node->GetRight(), idlist, listlen, x0, x1, y0, y1, z0, z1);
+    nnodes2 = IntersectsBox_(node->GetRight(), idlist, listlen, x0, x1, y0, y1, z0, z1);
   }
   else
   {
@@ -353,13 +353,13 @@ int vtkBSPIntersections::IntersectsSphere2(
 
   if (len > 0)
   {
-    nnodes = this->_IntersectsSphere2(this->Cuts->GetKdNodeTree(), ids, len, x, y, z, rSquared);
+    nnodes = this->IntersectsSphere2_(this->Cuts->GetKdNodeTree(), ids, len, x, y, z, rSquared);
   }
   return nnodes;
 }
 
 //------------------------------------------------------------------------------
-int vtkBSPIntersections::_IntersectsSphere2(
+int vtkBSPIntersections::IntersectsSphere2_(
   vtkKdNode* node, int* ids, int len, double x, double y, double z, double rSquared)
 {
   int result, nnodes1, nnodes2, listlen;
@@ -378,14 +378,14 @@ int vtkBSPIntersections::_IntersectsSphere2(
     return 1;
   }
 
-  nnodes1 = _IntersectsSphere2(node->GetLeft(), ids, len, x, y, z, rSquared);
+  nnodes1 = IntersectsSphere2_(node->GetLeft(), ids, len, x, y, z, rSquared);
 
   idlist = ids + nnodes1;
   listlen = len - nnodes1;
 
   if (listlen > 0)
   {
-    nnodes2 = _IntersectsSphere2(node->GetRight(), idlist, listlen, x, y, z, rSquared);
+    nnodes2 = IntersectsSphere2_(node->GetRight(), idlist, listlen, x, y, z, rSquared);
   }
   else
   {
@@ -422,10 +422,10 @@ int vtkBSPIntersections::IntersectsCell(int* ids, int len, vtkCell* cell, int ce
 
   vtkBSPIntersections::SetCellBounds(cell, this->CellBoundsCache);
 
-  return this->_IntersectsCell(this->Cuts->GetKdNodeTree(), ids, len, cell, cellRegion);
+  return this->IntersectsCell_(this->Cuts->GetKdNodeTree(), ids, len, cell, cellRegion);
 }
 //------------------------------------------------------------------------------
-int vtkBSPIntersections::_IntersectsCell(
+int vtkBSPIntersections::IntersectsCell_(
   vtkKdNode* node, int* ids, int len, vtkCell* cell, int cellRegion)
 {
   int result, nnodes1, nnodes2, listlen, intersects;
@@ -438,14 +438,14 @@ int vtkBSPIntersections::_IntersectsCell(
   {
     if (node->GetLeft())
     {
-      nnodes1 = this->_IntersectsCell(node->GetLeft(), ids, len, cell, cellRegion);
+      nnodes1 = this->IntersectsCell_(node->GetLeft(), ids, len, cell, cellRegion);
 
       idlist = ids + nnodes1;
       listlen = len - nnodes1;
 
       if (listlen > 0)
       {
-        nnodes2 = this->_IntersectsCell(node->GetRight(), idlist, listlen, cell, cellRegion);
+        nnodes2 = this->IntersectsCell_(node->GetRight(), idlist, listlen, cell, cellRegion);
       }
       else
       {

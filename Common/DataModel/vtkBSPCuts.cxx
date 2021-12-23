@@ -571,17 +571,17 @@ void vtkBSPCuts::PrintTree()
     return;
   }
 
-  vtkBSPCuts::_PrintTree(this->Top, 0);
+  vtkBSPCuts::PrintTree_(this->Top, 0);
 }
 //------------------------------------------------------------------------------
-void vtkBSPCuts::_PrintTree(vtkKdNode* kd, int depth)
+void vtkBSPCuts::PrintTree_(vtkKdNode* kd, int depth)
 {
   kd->PrintNode(depth);
 
   if (kd->GetLeft())
   {
-    vtkBSPCuts::_PrintTree(kd->GetLeft(), depth + 1);
-    vtkBSPCuts::_PrintTree(kd->GetRight(), depth + 1);
+    vtkBSPCuts::PrintTree_(kd->GetLeft(), depth + 1);
+    vtkBSPCuts::PrintTree_(kd->GetRight(), depth + 1);
   }
 }
 

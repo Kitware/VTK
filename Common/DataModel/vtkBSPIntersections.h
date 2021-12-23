@@ -178,13 +178,13 @@ private:
 
   static void SetCellBounds(vtkCell* cell, double* bounds);
 
-  int _IntersectsBox(vtkKdNode* node, int* ids, int len, double x0, double x1, double y0, double y1,
+  int IntersectsBox_(vtkKdNode* node, int* ids, int len, double x0, double x1, double y0, double y1,
     double z0, double z1);
 
-  int _IntersectsSphere2(
+  int IntersectsSphere2_(
     vtkKdNode* node, int* ids, int len, double x, double y, double z, double rSquared);
 
-  int _IntersectsCell(vtkKdNode* node, int* ids, int len, vtkCell* cell, int cellRegion = -1);
+  int IntersectsCell_(vtkKdNode* node, int* ids, int len, vtkCell* cell, int cellRegion = -1);
 
   vtkBSPCuts* Cuts;
 

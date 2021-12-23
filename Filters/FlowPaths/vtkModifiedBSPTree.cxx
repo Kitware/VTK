@@ -112,7 +112,7 @@ public:
   }
 };
 
-extern "C" int _compareMin(const void* pA, const void* B)
+extern "C" int CompareMin(const void* pA, const void* B)
 {
   const cell_extents* tA = static_cast<const cell_extents*>(pA);
   const cell_extents* tB = static_cast<const cell_extents*>(B);
@@ -126,7 +126,7 @@ extern "C" int _compareMin(const void* pA, const void* B)
   }
 }
 
-extern "C" int _compareMax(const void* pA, const void* B)
+extern "C" int CompareMax(const void* pA, const void* B)
 {
   const cell_extents* tA = static_cast<const cell_extents*>(pA);
   const cell_extents* tB = static_cast<const cell_extents*>(B);
@@ -227,8 +227,8 @@ void vtkModifiedBSPTree::BuildLocatorInternal()
       lists->Maxs[i][j].cell_ID = j;
     }
     // Sort
-    qsort(lists->Mins[i], numCells, sizeof(cell_extents), _compareMin);
-    qsort(lists->Maxs[i], numCells, sizeof(cell_extents), _compareMax);
+    qsort(lists->Mins[i], numCells, sizeof(cell_extents), CompareMin);
+    qsort(lists->Maxs[i], numCells, sizeof(cell_extents), CompareMax);
   }
   //
   // call the recursive subdivision routine

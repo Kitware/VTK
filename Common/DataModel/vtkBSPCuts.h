@@ -139,7 +139,7 @@ protected:
 
   static int CountNodes(vtkKdNode* kd);
   static void SetMinMaxId(vtkKdNode* kd);
-  static void _PrintTree(vtkKdNode* kd, int depth);
+  static void PrintTree_(vtkKdNode* kd, int depth);
 
   void BuildTree(vtkKdNode* kd, int idx);
   int WriteArray(vtkKdNode* kd, int loc);
