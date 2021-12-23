@@ -463,16 +463,11 @@ int vtkFidesReader::RequestData(
   vtkm::cont::PartitionedDataSet datasets;
   try
   {
+    vtkDebugMacro(<< "RequestData() calling ReadDataSet");
+    datasets = this->Impl->Reader->ReadDataSet(this->Impl->Paths, selections);
     if (this->StreamSteps)
     {
-      vtkDebugMacro(<< "RequestData() calling ReadStep");
-      datasets = this->Impl->Reader->ReadStep(this->Impl->Paths, selections);
       this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
-    }
-    else
-    {
-      vtkDebugMacro(<< "RequestData() calling ReadDataSet");
-      datasets = this->Impl->Reader->ReadDataSet(this->Impl->Paths, selections);
     }
   }
   catch (std::invalid_argument& e)
