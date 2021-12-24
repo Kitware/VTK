@@ -179,19 +179,19 @@ void vtkCoordinateFrameRepresentation::CreateDefaultProperties()
   static constexpr double red[3] = { 1.0, 0.0, 0.0 };
   static constexpr double yellow[3] = { 1.0, 1.0, 0.0 };
   static constexpr double green[3] = { 0.0, 1.0, 0.0 };
-  static constexpr double blue[3] = { 0.0, 0.0, 1.0 };
+  static constexpr double white[3] = { 0.9, 0.9, 0.9 };
 
   // origin properties
-  this->OriginProperty->SetColor(blue[0], blue[1], blue[2]);
+  this->OriginProperty->SetColor(white[0], white[1], white[2]);
   this->SelectedOriginProperty->SetAmbient(1.0);
-  this->SelectedOriginProperty->SetColor(blue[0], blue[1], blue[2]);
+  this->SelectedOriginProperty->SetColor(white[0], white[1], white[2]);
 
   // XVector properties
   this->XVectorProperty->SetColor(red[0], red[1], red[2]);
-  this->XVectorProperty->SetLineWidth(2);
+  this->XVectorProperty->SetLineWidth(5);
   this->SelectedXVectorProperty->SetAmbient(1.0);
   this->SelectedXVectorProperty->SetColor(red[0], red[1], red[2]);
-  this->SelectedXVectorProperty->SetLineWidth(2);
+  this->SelectedXVectorProperty->SetLineWidth(5);
   // LockedXVector properties
   this->LockedXVectorProperty->SetColor(red[0], red[1], red[2]);
   this->SelectedLockedXVectorProperty->SetAmbient(1.0);
@@ -205,10 +205,10 @@ void vtkCoordinateFrameRepresentation::CreateDefaultProperties()
 
   // YVector properties
   this->YVectorProperty->SetColor(yellow[0], yellow[1], yellow[2]);
-  this->YVectorProperty->SetLineWidth(2);
+  this->YVectorProperty->SetLineWidth(5);
   this->SelectedYVectorProperty->SetAmbient(1.0);
   this->SelectedYVectorProperty->SetColor(yellow[0], yellow[1], yellow[2]);
-  this->SelectedYVectorProperty->SetLineWidth(2);
+  this->SelectedYVectorProperty->SetLineWidth(5);
   // LockedYVector properties
   this->LockedYVectorProperty->SetColor(yellow[0], yellow[1], yellow[2]);
   this->SelectedLockedYVectorProperty->SetAmbient(1.0);
@@ -222,10 +222,10 @@ void vtkCoordinateFrameRepresentation::CreateDefaultProperties()
 
   // ZVector properties
   this->ZVectorProperty->SetColor(green[0], green[1], green[2]);
-  this->ZVectorProperty->SetLineWidth(2);
+  this->ZVectorProperty->SetLineWidth(5);
   this->SelectedZVectorProperty->SetAmbient(1.0);
   this->SelectedZVectorProperty->SetColor(green[0], green[1], green[2]);
-  this->SelectedZVectorProperty->SetLineWidth(2);
+  this->SelectedZVectorProperty->SetLineWidth(5);
   // LockNormalZ properties
   this->LockedZVectorProperty->SetColor(green[0], green[1], green[2]);
   this->SelectedLockedZVectorProperty->SetAmbient(1.0);
@@ -1217,6 +1217,7 @@ void vtkCoordinateFrameRepresentation::SetNormal(double x, double y, double z)
   this->SetXVectorNormal(newXNormal);
   this->SetYVectorNormal(newYNormal);
   this->SetZVectorNormal(newZNormal);
+  this->BuildRepresentation();
 }
 
 //------------------------------------------------------------------------------
@@ -1236,6 +1237,25 @@ void vtkCoordinateFrameRepresentation::SetNormalToCamera()
   double normal[3];
   this->Renderer->GetActiveCamera()->GetViewPlaneNormal(normal);
   this->SetNormal(normal);
+}
+
+//------------------------------------------------------------------------------
+void vtkCoordinateFrameRepresentation::SetDirection(double x, double y, double z)
+{
+  double* o = this->GetOrigin();
+  double newNormal[3];
+  newNormal[0] = x - o[0];
+  newNormal[1] = y - o[1];
+  newNormal[2] = z - o[2];
+  vtkMath::Normalize(newNormal);
+  this->SetNormal(newNormal);
+  this->BuildRepresentation();
+}
+
+//------------------------------------------------------------------------------
+void vtkCoordinateFrameRepresentation::SetDirection(double point[3])
+{
+  this->SetDirection(point[0], point[1], point[2]);
 }
 
 //------------------------------------------------------------------------------
@@ -1470,15 +1490,7 @@ bool vtkCoordinateFrameRepresentation::PickDirectionPoint(int X, int Y)
       {
         pickPoint[i] = world[i] / world[3];
       }
-
-      double* o = this->GetOrigin();
-      double newNormal[3];
-      newNormal[0] = pickPoint[0] - o[0];
-      newNormal[1] = pickPoint[1] - o[1];
-      newNormal[2] = pickPoint[2] - o[2];
-      vtkMath::Normalize(newNormal);
-      this->SetNormal(newNormal);
-      this->BuildRepresentation();
+      this->SetDirection(pickPoint);
     }
     return this->PickCameraFocalInfo;
   }
@@ -1486,15 +1498,7 @@ bool vtkCoordinateFrameRepresentation::PickDirectionPoint(int X, int Y)
   {
     double pickPoint[3];
     this->Picker->GetPickPosition(pickPoint);
-
-    double* o = this->GetOrigin();
-    double newNormal[3];
-    newNormal[0] = pickPoint[0] - o[0];
-    newNormal[1] = pickPoint[1] - o[1];
-    newNormal[2] = pickPoint[2] - o[2];
-    vtkMath::Normalize(newNormal);
-    this->SetNormal(newNormal);
-    this->BuildRepresentation();
+    this->SetDirection(pickPoint);
     return true;
   }
 }
@@ -1524,10 +1528,20 @@ void vtkCoordinateFrameRepresentation::SetLockedAxis(int axis)
     return;
   }
 
-  Axis aa = static_cast<Axis>(axis);
-  if (aa != this->GetLockedAxis())
+  auto aa = static_cast<Axis>(axis);
+  auto current = static_cast<Axis>(this->GetLockedAxis());
+  if (aa != current)
   {
-    this->ModifyingLocker(axis);
+    if (aa == Axis::NONE)
+    {
+      // Unlock the currently-locked axis.
+      this->ModifyingLocker(current);
+    }
+    else
+    {
+      // Lock a different axis.
+      this->ModifyingLocker(axis);
+    }
   }
 }
 
@@ -1587,7 +1601,8 @@ void vtkCoordinateFrameRepresentation::SizeHandles()
   double* yNormal = this->GetYVectorNormal();
   double* zNormal = this->GetZVectorNormal();
 
-  const double d = vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.04, origin);
+  const double d =
+    vtkWidgetRepresentation::SizeHandlesRelativeToViewport(this->LengthFactor, origin);
   const double radius = this->vtkWidgetRepresentation::SizeHandlesInPixels(3.0, origin);
 
   // set up origin
