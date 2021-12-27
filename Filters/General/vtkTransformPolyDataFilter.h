@@ -45,9 +45,15 @@ class vtkAbstractTransform;
 class VTKFILTERSGENERAL_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
+  ///@{
+  /**
+   * Standard methods for instantiation, obtaining type information, and
+   * printing.
+   */
   static vtkTransformPolyDataFilter* New();
   vtkTypeMacro(vtkTransformPolyDataFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   /**
    * Return the MTime also considering the transform.

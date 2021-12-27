@@ -23,21 +23,25 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
 vtkCxxSetObjectMacro(vtkTransformPolyDataFilter, Transform, vtkAbstractTransform);
 
+//------------------------------------------------------------------------------
 vtkTransformPolyDataFilter::vtkTransformPolyDataFilter()
 {
   this->Transform = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
+//------------------------------------------------------------------------------
 vtkTransformPolyDataFilter::~vtkTransformPolyDataFilter()
 {
   this->SetTransform(nullptr);
 }
 
+//------------------------------------------------------------------------------
 int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -50,11 +54,8 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkPoints* inPts;
-  vtkPoints* newPts;
   vtkDataArray *inVectors, *inCellVectors;
-  vtkFloatArray *newVectors = nullptr, *newCellVectors = nullptr;
   vtkDataArray *inNormals, *inCellNormals;
-  vtkFloatArray *newNormals = nullptr, *newCellNormals = nullptr;
   vtkIdType numPts, numCells;
   vtkPointData *pd = input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData *cd = input->GetCellData(), *outCD = output->GetCellData();
@@ -84,8 +85,8 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   numPts = inPts->GetNumberOfPoints();
   numCells = input->GetNumberOfCells();
 
-  newPts = vtkPoints::New();
-
+  // Allocate transformed points
+  vtkNew<vtkPoints> newPts;
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
   {
@@ -99,18 +100,20 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPts->SetDataType(VTK_DOUBLE);
   }
-
   newPts->Allocate(numPts);
+
+  vtkSmartPointer<vtkFloatArray> newVectors;
   if (inVectors)
   {
-    newVectors = vtkFloatArray::New();
+    newVectors.TakeReference(vtkFloatArray::New());
     newVectors->SetNumberOfComponents(3);
     newVectors->Allocate(3 * numPts);
     newVectors->SetName(inVectors->GetName());
   }
+  vtkSmartPointer<vtkFloatArray> newNormals;
   if (inNormals)
   {
-    newNormals = vtkFloatArray::New();
+    newNormals.TakeReference(vtkFloatArray::New());
     newNormals->SetNumberOfComponents(3);
     newNormals->Allocate(3 * numPts);
     newNormals->SetName(inNormals->GetName());
@@ -135,11 +138,13 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Can only transform cell normals/vectors if the transform
   // is linear.
   vtkLinearTransform* lt = vtkLinearTransform::SafeDownCast(this->Transform);
+  vtkSmartPointer<vtkFloatArray> newCellVectors;
+  vtkSmartPointer<vtkFloatArray> newCellNormals;
   if (lt)
   {
     if (inCellVectors)
     {
-      newCellVectors = vtkFloatArray::New();
+      newCellVectors.TakeReference(vtkFloatArray::New());
       newCellVectors->SetNumberOfComponents(3);
       newCellVectors->Allocate(3 * numCells);
       newCellVectors->SetName(inCellVectors->GetName());
@@ -147,7 +152,7 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     if (inCellNormals)
     {
-      newCellNormals = vtkFloatArray::New();
+      newCellNormals.TakeReference(vtkFloatArray::New());
       newCellNormals->SetNumberOfComponents(3);
       newCellNormals->Allocate(3 * numCells);
       newCellNormals->SetName(inCellNormals->GetName());
@@ -160,7 +165,6 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);
-  newPts->Delete();
 
   output->SetVerts(input->GetVerts());
   output->SetLines(input->GetLines());
@@ -170,28 +174,24 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   if (newNormals)
   {
     outPD->SetNormals(newNormals);
-    newNormals->Delete();
     outPD->CopyNormalsOff();
   }
 
   if (newVectors)
   {
     outPD->SetVectors(newVectors);
-    newVectors->Delete();
     outPD->CopyVectorsOff();
   }
 
   if (newCellNormals)
   {
     outCD->SetNormals(newCellNormals);
-    newCellNormals->Delete();
     outCD->CopyNormalsOff();
   }
 
   if (newCellVectors)
   {
     outCD->SetVectors(newCellVectors);
-    newCellVectors->Delete();
     outCD->CopyVectorsOff();
   }
 
@@ -201,6 +201,7 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//------------------------------------------------------------------------------
 vtkMTimeType vtkTransformPolyDataFilter::GetMTime()
 {
   vtkMTimeType mTime = this->MTime.GetMTime();
@@ -215,6 +216,7 @@ vtkMTimeType vtkTransformPolyDataFilter::GetMTime()
   return mTime;
 }
 
+//------------------------------------------------------------------------------
 void vtkTransformPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
