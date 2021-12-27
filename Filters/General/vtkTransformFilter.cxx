@@ -201,20 +201,20 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->TransformAllInputVectors)
   {
+    vtkSmartPointer<vtkDataArray> tmpOutArray;
     for (int i = 0; i < nArrays; i++)
     {
       vtkDataArray* tmpArray = pd->GetArray(i);
       if (tmpArray != inVectors && tmpArray != inNormals && tmpArray->GetNumberOfComponents() == 3)
       {
         inVrsArr[nInputVectors] = tmpArray;
-        vtkDataArray* tmpOutArray = this->CreateNewDataArray(tmpArray);
+        tmpOutArray.TakeReference(this->CreateNewDataArray(tmpArray));
         tmpOutArray->SetNumberOfComponents(3);
         tmpOutArray->Allocate(3 * numPts);
         tmpOutArray->SetName(tmpArray->GetName());
         outVrsArr[nInputVectors] = tmpOutArray;
         outPD->AddArray(tmpOutArray);
         nInputVectors++;
-        tmpOutArray->Delete();
       }
     }
   }
