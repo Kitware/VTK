@@ -160,7 +160,10 @@ elseif (APPLE)
     OPENGL_glu_LIBRARY
     )
 else()
-  if (CMAKE_SYSTEM_NAME MATCHES "HP-UX")
+  if (ANDROID)
+    set(_OPENGL_INCLUDE_PATH ${CMAKE_ANDROID_NDK}/sysroot/usr/include)
+    set(_OPENGL_LIB_PATH ${CMAKE_ANDROID_NDK}/platforms/android-${CMAKE_SYSTEM_VERSION}/arch-${CMAKE_ANDROID_ARCH}/usr/lib)
+  elseif (CMAKE_SYSTEM_NAME MATCHES "HP-UX")
     # Handle HP-UX cases where we only want to find OpenGL in either hpux64
     # or hpux32 depending on if we're doing a 64 bit build.
     if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -421,7 +424,11 @@ else()
   endif()
 
   # We always need the 'gl.h' include dir.
-  list(APPEND _OpenGL_REQUIRED_VARS OPENGL_INCLUDE_DIR)
+  if(OPENGL_USE_EGL)
+    list(APPEND _OpenGL_REQUIRED_VARS OPENGL_EGL_INCLUDE_DIR)
+  else()
+    list(APPEND _OpenGL_REQUIRED_VARS OPENGL_INCLUDE_DIR)
+  endif()
 
   unset(_OPENGL_INCLUDE_PATH)
   unset(_OPENGL_LIB_PATH)
