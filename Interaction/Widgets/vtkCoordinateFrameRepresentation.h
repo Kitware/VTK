@@ -98,6 +98,15 @@ public:
 
   ///@{
   /**
+   * Set the direction of the locked (or absent a locked axis, the nearest
+   * axis) to point from the frame's origin toward the given (x,y,z) location.
+   */
+  void SetDirection(double x, double y, double z);
+  void SetDirection(double d[3]);
+  ///@}
+
+  ///@{
+  /**
    * Force an axis to be aligned with the vector \a v, regardless of whether any axis is locked.
    *
    * This will normalize \a v and re-orthogonalize the remaining axes using the Gram-Schmidt
@@ -367,6 +376,15 @@ public:
   vtkGetMacro(RepresentationState, int);
   ///@}
 
+  ///@{
+  /**
+   * Set/get the length of the axis glyphs relative to screen size.
+   * The default is 0.04.
+   */
+  vtkSetClampMacro(LengthFactor, double, 0, 1);
+  vtkGetMacro(LengthFactor, double);
+  ///@}
+
 protected:
   vtkCoordinateFrameRepresentation();
   ~vtkCoordinateFrameRepresentation() override;
@@ -489,6 +507,8 @@ protected:
   // Support GetBounds() method
   vtkNew<vtkBox> BoundingBox;
   vtkNew<vtkGenericCell> Cell;
+
+  double LengthFactor = 0.04;
 
 private:
   vtkCoordinateFrameRepresentation(const vtkCoordinateFrameRepresentation&) = delete;
