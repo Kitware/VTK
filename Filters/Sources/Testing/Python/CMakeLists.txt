@@ -1,15 +1,16 @@
 vtk_add_test_python(
+  coneResolution.py
+  glyph2D.py
   Disk.py
   OSCone.py
   TestButtonSource.py
+  TestEllipseArcSourceResolution.py
+  TestExponentialPointSource.py
+  TestGlyphScaling.py
+  TestPlatonicSolids.py,NO_RT
+  TestRegularPolygonSource.py
   TestStaticCellLocatorLineIntersection.py
   TestStaticPointLocatorLineIntersection.py
-  TestRegularPolygonSource.py
-  coneResolution.py
-  glyph2D.py
-  TestPlatonicSolids.py,NO_RT
-  TestGlyphScaling.py
-  TestEllipseArcSourceResolution.py
   )
 if(TARGET VTK::RenderingTk)
   vtk_add_test_python(
