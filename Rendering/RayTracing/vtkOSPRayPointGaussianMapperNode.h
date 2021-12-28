@@ -53,14 +53,15 @@ protected:
   void ORenderPoly(void* renderer, vtkOSPRayActorNode* aNode, vtkPolyData* poly,
     double* ambientColor, double* diffuseColor, double opacity, std::string material);
 
-  std::vector<OSPGeometricModel> GeometricModels;
+  std::vector<OSPVolume> OSPRayVolumes;
+  std::vector<OSPVolumetricModel> VolumetricModels;
   std::vector<OSPInstance> Instances;
-  void ClearGeometricModels();
+  void ClearVolumetricModels();
 
   /**
    * @brief add precomputed ospray geometries to renderer model.
    */
-  void RenderGeometricModels();
+  void RenderVolumetricModels();
 
 private:
   vtkOSPRayPointGaussianMapperNode(const vtkOSPRayPointGaussianMapperNode&) = delete;
