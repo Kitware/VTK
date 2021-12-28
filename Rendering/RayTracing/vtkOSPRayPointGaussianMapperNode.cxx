@@ -530,13 +530,12 @@ void vtkOSPRayPointGaussianMapperNode::Render(bool prepass)
       static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
     // if there are no changes, just reuse last result
-    vtkMTimeType inTime = aNode->GetMTime();
-    if (this->RenderTime >= inTime)
+    if (!this->GetNeedToRebuild(aNode))
     {
       this->RenderVolumetricModels();
       return;
     }
-    this->RenderTime = inTime;
+    this->RenderTime = aNode->GetMTime();
     this->ClearVolumetricModels();
 
     vtkCompositeDataSet* input = nullptr;
@@ -593,4 +592,26 @@ void vtkOSPRayPointGaussianMapperNode::ClearVolumetricModels()
     ospRelease(instance);
   }
   this->Instances.clear();
+}
+
+//----------------------------------------------------------------------------
+bool vtkOSPRayPointGaussianMapperNode::GetNeedToRebuild(vtkOSPRayActorNode* aNode)
+{
+  if (!aNode)
+  {
+    return false;
+  }
+  vtkActor* act = vtkActor::SafeDownCast(aNode->GetRenderable());
+  vtkPointGaussianMapper* mapper = vtkPointGaussianMapper::SafeDownCast(act->GetMapper());
+  if ((aNode->GetMTime() > this->RenderTime) ||
+    mapper &&
+      ((mapper->GetInput() && (mapper->GetInput()->GetMTime() > this->RenderTime)) ||
+        (mapper->GetScaleFunction() &&
+          mapper->GetScaleFunction()->GetMTime() > this->ScaleTableUpdateTime) ||
+        (mapper->GetScalarOpacityFunction() &&
+          mapper->GetScalarOpacityFunction()->GetMTime() > this->OpacityTableUpdateTime)))
+  {
+    return true;
+  }
+  return false;
 }

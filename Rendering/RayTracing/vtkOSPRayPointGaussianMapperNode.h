@@ -59,6 +59,11 @@ protected:
   void RenderVolumetricModels();
 
   /**
+   * @brief Do frame need to be rebuilt
+   */
+  bool GetNeedToRebuild(vtkOSPRayActorNode*);
+
+  /**
    * Member variables
    */
   int NumColors = 128;
