@@ -18,7 +18,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
+#include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
@@ -37,11 +37,11 @@ int TestOSPRayPointGaussianMapper(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  int desiredPoints = 1.0e4;
+  int desiredPoints = 1.0e3;
 
   // Create the RenderWindow, Renderer and both Actors
   vtkNew<vtkRenderer> renderer;
-  renderer->SetBackground(0.0, 0.0, 0.0);
+  renderer->SetBackground(0.1, 0.2, 0.2);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 300);
   renderWindow->SetMultiSamples(0);
@@ -70,9 +70,11 @@ int TestOSPRayPointGaussianMapper(int argc, char* argv[])
   randomAttr->Update();
 
   mapper->SetInputConnection(randomAttr->GetOutputPort());
+  mapper->SetTriangleScale(3.0);
+  mapper->SetScaleFactor(0.75);
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarModeToUsePointFieldData();
-  mapper->SelectColorArray("RandomPointVectors");
+  mapper->SelectColorArray("RandomPointScalars");
   mapper->SetInterpolateScalarsBeforeMapping(0);
   mapper->SetScaleArray("RandomPointVectors");
   mapper->SetScaleArrayComponent(3);
@@ -81,16 +83,12 @@ int TestOSPRayPointGaussianMapper(int argc, char* argv[])
   // ColorTransferFunction. So if you have a choice
   // Usa a lut instead.
   //
-  // vtkNew<vtkLookupTable> lut;
-  // lut->SetHueRange(0.1,0.2);
-  // lut->SetSaturationRange(1.0,0.5);
-  // lut->SetValueRange(0.8,1.0);
-  // mapper->SetLookupTable(lut);
-
-  vtkNew<vtkColorTransferFunction> ctf;
-  ctf->AddHSVPoint(0.0, 0.1, 1.0, 0.8);
-  ctf->AddHSVPoint(1.0, 0.2, 0.5, 1.0);
-  ctf->SetColorSpaceToRGB();
+  vtkNew<vtkLookupTable> lut;
+  lut->SetHueRange(0.1, 0.2);
+  lut->SetSaturationRange(1.0, 0.5);
+  lut->SetValueRange(0.8, 1.0);
+  lut->Build();
+  mapper->SetLookupTable(lut);
 
   vtkNew<vtkOSPRayPass> ospray;
   renderer->SetPass(ospray);
@@ -103,7 +101,7 @@ int TestOSPRayPointGaussianMapper(int argc, char* argv[])
   renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
   renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
-  renderer->GetActiveCamera()->Zoom(10.0);
+  renderer->GetActiveCamera()->Zoom(2.0);
   renderWindow->Render();
 
   int retVal = vtkRegressionTestImage(renderWindow);
