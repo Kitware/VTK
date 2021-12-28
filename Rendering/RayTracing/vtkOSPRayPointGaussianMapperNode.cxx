@@ -100,6 +100,48 @@ void BuildTableFromFunction(
 }
 
 //----------------------------------------------------------------------------
+/**
+ * Generate an interpolated table of color values from a lookup table.
+ * The method populates the table based on the function.
+ */
+void BuildLookupTable(vtkScalarsToColors* cf, float* table, int size, double scalarRange[2])
+{
+  if (cf)
+  {
+    double* range = nullptr;
+    range = cf->GetRange();
+    double scale = (size - 1.0) / (range[1] - range[0]);
+    double offset = range[0];
+    double scalarScale = (scalarRange[1] - scalarRange[0]) / (size - 1.0);
+    double scalarOffset = scalarRange[0];
+    float* tptr = nullptr;
+    double* c = nullptr;
+    for (int i = 0; i < size; ++i)
+    {
+      double val = scalarOffset + i * scalarScale;
+      double cid = (val - offset) * scale;
+      int icid = static_cast<int>(cid);
+      tptr = table + 3 * i;
+      if (icid >= size - 1)
+      {
+        c = cf->GetColor(range[1]);
+      }
+      else if (icid < 0)
+      {
+        c = cf->GetColor(range[0]);
+      }
+      else
+      {
+        c = cf->GetColor(val);
+      }
+      tptr[0] = static_cast<float>(c[0]);
+      tptr[1] = static_cast<float>(c[1]);
+      tptr[2] = static_cast<float>(c[2]);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
 float GetScaledRadius(double radius, float* scaleTable, int scaleTableSize, double scaleScale,
   double scaleOffset, double scaleFactor, double triangleScale)
 {
@@ -138,8 +180,8 @@ OSPVolumetricModel RenderAsParticles(osp::vec3f* vertices, std::vector<unsigned 
   double pointSize, double scaleFactor, double triangleScale, vtkDataArray* scaleArray,
   int scaleArrayComponent, float* scaleTable, int scaleTableSize, double scaleScale,
   double scaleOffset, vtkDataArray* opacityArray, float* opacityTable, int opacityTableSize,
-  double opacityScale, double opacityOffset, vtkDataArray* scalarArray, int numPointColors,
-  osp::vec4f* PointColors, RTW::Backend* backend)
+  double opacityScale, double opacityOffset, vtkDataArray* scalarArray, vtkScalarsToColors* lut,
+  int numColors, RTW::Backend* backend)
 {
   if (backend == nullptr)
     return OSPVolumetricModel();
@@ -220,50 +262,47 @@ OSPVolumetricModel RenderAsParticles(osp::vec3f* vertices, std::vector<unsigned 
   ospSetFloat(ospMesh, "radiusSupportFactor", radiusSupportFactor);
 
   // colors
-  OSPData _PointColors = nullptr;
+  std::vector<float> tfCVals;
+  OSPData _Colors = nullptr;
+  if (lut)
+  {
+    tfCVals.resize(numColors * 3);
+    vtkosp::BuildLookupTable(lut, &tfCVals[0], numColors, wRange);
+    _Colors = ospNewCopyData1D(&tfCVals[0], OSP_VEC3F, numColors);
+  }
+  else
+  {
+    // black to white color function
+    tfCVals.resize(2 * 3);
+    tfCVals[0] = 0.0f;
+    tfCVals[1] = 0.0f;
+    tfCVals[2] = 0.0f;
+    tfCVals[3] = 1.0f;
+    tfCVals[4] = 1.0f;
+    tfCVals[5] = 1.0f;
+    _Colors = ospNewCopyData1D(&tfCVals[0], OSP_VEC3F, 2);
+  }
+  ospCommit(_Colors);
+
+  // alpha
   std::vector<float> tfOVals;
   OSPData _AlphaData = nullptr;
-  if (numPointColors)
-  {
-    std::vector<osp::vec3f> perPointColors;
-    for (size_t i = 0; i < numParticles; i++)
-    {
-      unsigned int ii = indexArray[i];
-      osp::vec3f p = { PointColors[ii].x, PointColors[ii].y, PointColors[ii].z };
-      perPointColors.push_back(p);
-      // tfOVals.push_back(PointColors[ii].w);
-    }
-    _PointColors = ospNewCopyData1D(&perPointColors[0], OSP_VEC3F, numParticles);
-    // _AlphaData = ospNewCopyData1D(&tfOVals[0], OSP_FLOAT, numParticles);
-    tfOVals.emplace_back(0.f);
-    tfOVals.emplace_back(1.f);
-    _AlphaData = ospNewCopyData1D(&tfOVals[0], OSP_FLOAT, 2);
-  }
 
-  if (numPointColors == 0)
-  {
-    std::vector<osp::vec3f> perPointColors;
-    // perPointColors.emplace_back(osp::vec3f({ 0.0f, 0.0f, 0.0f }));
-    // perPointColors.emplace_back(osp::vec3f({ 1.0f, 1.0f, 1.0f }));
-    perPointColors.emplace_back(osp::vec3f({ 0, 0, 0.562493 }));
-    perPointColors.emplace_back(osp::vec3f({ 0, 0, 1 }));
-    perPointColors.emplace_back(osp::vec3f({ 0, 1, 1 }));
-    perPointColors.emplace_back(osp::vec3f({ 0.500008, 1, 0.500008 }));
-    perPointColors.emplace_back(osp::vec3f({ 1, 1, 0 }));
-    perPointColors.emplace_back(osp::vec3f({ 1, 0, 0 }));
-    perPointColors.emplace_back(osp::vec3f({ 0.500008, 0, 0 }));
-    _PointColors = ospNewCopyData1D(&perPointColors[0], OSP_VEC3F, 7);
-    tfOVals.emplace_back(0.f);
-    tfOVals.emplace_back(1.f);
-    _AlphaData = ospNewCopyData1D(&tfOVals[0], OSP_FLOAT, 2);
-  }
+  // irrespective of color, opacity function remains the same to ensure  a point gaussian
+  // appearance for each particle.
+  tfOVals.resize(2);
+  tfOVals[0] = 0.0f;
+  tfOVals[1] = 1.f;
+  _AlphaData = ospNewCopyData1D(&tfOVals[0], OSP_FLOAT, 2);
+  ospCommit(_AlphaData);
 
   auto oTF = ospNewTransferFunction("piecewiseLinear");
-  ospSetObject(oTF, "color", _PointColors);
+  ospSetObject(oTF, "color", _Colors);
   ospSetObject(oTF, "opacity", _AlphaData);
   ospSetVec2f(oTF, "valueRange", static_cast<float>(wRange[0]), static_cast<float>(wRange[1]));
-  // oTF, "valueRange", 0.0f, 1.0f);
   ospCommit(oTF);
+  ospRelease(_Colors);
+  ospRelease(_AlphaData);
   ospSetObject(ospVolModel, "transferFunction", oTF);
   ospCommit(ospMesh);
   ospRelease(positionData);
@@ -427,58 +466,30 @@ void vtkOSPRayPointGaussianMapperNode::InternalRender(void* vtkNotUsed(renderer)
     vtkDataArray::SafeDownCast(mapper->GetAbstractScalars(poly, mapper->GetScalarMode(),
       mapper->GetArrayAccessMode(), mapper->GetArrayId(), mapper->GetArrayName(), cflag));
 
-  // now ask mapper to do most of the work and provide us with
-  // colors and/or texture coordinates per point
-  vtkUnsignedCharArray* vColors = nullptr;
-  int cellFlag = -1; // mapper tells us which
-  if (mapper)
+  if (!mapper->GetScalarVisibility() || cflag == 1)
   {
-    mapper->MapScalars(poly, 1.0, cellFlag);
-    vColors = mapper->GetColorMapColors();
+    scalarArray = nullptr;
   }
 
-  if (vColors)
+  // now ask mapper to do most of the work and provide us with colors
+  vtkScalarsToColors* lut = nullptr;
+  if (scalarArray && poly)
+  {
+    lut = mapper->GetLookupTable();
+  }
+
+  if (lut)
   {
     // OSPRay scales the color mapping with the solid color but OpenGL backend does not do it.
     // set back to white to workaround this difference.
     std::fill(diffuseColor, diffuseColor + 3, 1.0);
   }
 
-  // colors from point and cell arrays
-  int numPointColors = 0;
-  std::vector<osp::vec4f> pointColors;
-  if (vColors)
-  {
-    if (cellFlag == 0)
-    {
-      // color on point interpolated RGB
-      numPointColors = vColors->GetNumberOfTuples();
-      pointColors.resize(numPointColors);
-      for (int i = 0; i < numPointColors; i++)
-      {
-        unsigned char* color = vColors->GetPointer(4 * i);
-        pointColors[i] = osp::vec4f{ color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f,
-          (color[3] / 255.0f) * static_cast<float>(opacity) };
-      }
-    }
-  }
-
-  double scaleFactor = mapper->GetScaleFactor();
-  double triangleScale = mapper->GetTriangleScale();
-  std::cout << "Scale Factor: " << scaleFactor << " TriangleScale " << triangleScale << std::endl;
-  //  if (scalingMode != vtkOSPRayActorNode::ALL_EXACT)
-  //  {
-  //    scaleFactor *= 500 * length;
-  //  }
-  // create an ospray mesh for the vertex cells
-  // if (!conn.vertex_index.empty())
-  // {
   this->VolumetricModels.emplace_back(vtkosp::RenderAsParticles(vertices.data(), conn.vertex_index,
-    pointSize, scaleFactor, triangleScale, scaleArray, mapper->GetScaleArrayComponent(),
-    this->ScaleTable, this->ScaleTableSize, this->ScaleScale, this->ScaleOffset, opacityArray,
-    this->OpacityTable, this->OpacityTableSize, this->OpacityScale, this->OpacityOffset,
-    scalarArray, numPointColors, pointColors.data(), backend));
-  // }
+    pointSize, mapper->GetScaleFactor(), mapper->GetTriangleScale(), scaleArray,
+    mapper->GetScaleArrayComponent(), this->ScaleTable, this->ScaleTableSize, this->ScaleScale,
+    this->ScaleOffset, opacityArray, this->OpacityTable, this->OpacityTableSize, this->OpacityScale,
+    this->OpacityOffset, scalarArray, lut, this->NumColors, backend));
 
   ospRelease(position);
 

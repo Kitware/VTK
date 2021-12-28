@@ -61,6 +61,7 @@ protected:
   /**
    * Member variables
    */
+  int NumColors = 128;
   int ScaleTableSize = 1024;
   float* ScaleTable = nullptr;
   double ScaleScale = 1.0;
