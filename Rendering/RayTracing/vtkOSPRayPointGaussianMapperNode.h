@@ -45,8 +45,8 @@ protected:
   vtkOSPRayPointGaussianMapperNode();
   ~vtkOSPRayPointGaussianMapperNode() override;
 
-  void InternalRender(void* renderer, vtkOSPRayActorNode* aNode, vtkPolyData* poly,
-    double* diffuseColor, double opacity, std::string material);
+  void InternalRender(void* renderer, vtkOSPRayActorNode* aNode, vtkPolyData* poly, double opacity,
+    std::string material);
 
   std::vector<OSPVolume> OSPRayVolumes;
   std::vector<OSPVolumetricModel> VolumetricModels;

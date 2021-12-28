@@ -347,8 +347,7 @@ void vtkOSPRayPointGaussianMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 void vtkOSPRayPointGaussianMapperNode::InternalRender(void* vtkNotUsed(renderer),
-  vtkOSPRayActorNode* aNode, vtkPolyData* poly, double* diffuseColor, double opacity,
-  std::string materialName)
+  vtkOSPRayActorNode* aNode, vtkPolyData* poly, double opacity, std::string materialName)
 {
   vtkOSPRayRendererNode* orn =
     static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
@@ -479,13 +478,6 @@ void vtkOSPRayPointGaussianMapperNode::InternalRender(void* vtkNotUsed(renderer)
     lut = mapper->GetLookupTable();
   }
 
-  if (lut)
-  {
-    // OSPRay scales the color mapping with the solid color but OpenGL backend does not do it.
-    // set back to white to workaround this difference.
-    std::fill(diffuseColor, diffuseColor + 3, 1.0);
-  }
-
   this->VolumetricModels.emplace_back(vtkosp::RenderAsParticles(vertices.data(), conn.vertex_index,
     pointSize, mapper->GetScaleFactor(), mapper->GetTriangleScale(), scaleArray,
     mapper->GetScaleArrayComponent(), this->ScaleTable, this->ScaleTableSize, this->ScaleScale,
@@ -551,8 +543,6 @@ void vtkOSPRayPointGaussianMapperNode::Render(bool prepass)
       iter->SkipEmptyNodesOn();
       iter->VisitOnlyLeavesOn();
       vtkProperty* property = act->GetProperty();
-      double diffuse[3];
-      property->GetDiffuseColor(diffuse);
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
         vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
@@ -560,7 +550,7 @@ void vtkOSPRayPointGaussianMapperNode::Render(bool prepass)
         {
           continue;
         }
-        this->InternalRender(orn->GetORenderer(), aNode, pd, diffuse, property->GetOpacity(), "");
+        this->InternalRender(orn->GetORenderer(), aNode, pd, property->GetOpacity(), "");
       }
     }
     this->RenderVolumetricModels();
