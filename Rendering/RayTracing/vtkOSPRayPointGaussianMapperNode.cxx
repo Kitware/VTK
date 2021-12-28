@@ -518,6 +518,7 @@ void vtkOSPRayPointGaussianMapperNode::Render(bool prepass)
     this->ClearVolumetricModels();
 
     vtkCompositeDataSet* input = nullptr;
+    vtkProperty* property = act->GetProperty();
     vtkPointGaussianMapper* mapper = vtkPointGaussianMapper::SafeDownCast(act->GetMapper());
     if (mapper && mapper->GetNumberOfInputPorts() > 0)
     {
@@ -529,7 +530,6 @@ void vtkOSPRayPointGaussianMapperNode::Render(bool prepass)
       iter->SetDataSet(input);
       iter->SkipEmptyNodesOn();
       iter->VisitOnlyLeavesOn();
-      vtkProperty* property = act->GetProperty();
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
         vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
@@ -537,6 +537,14 @@ void vtkOSPRayPointGaussianMapperNode::Render(bool prepass)
         {
           continue;
         }
+        this->InternalRender(orn->GetORenderer(), aNode, pd, property->GetOpacity(), "");
+      }
+    }
+    else
+    {
+      vtkPolyData* pd = vtkPolyData::SafeDownCast(mapper->GetInputDataObject(0, 0));
+      if (pd && pd->GetPoints())
+      {
         this->InternalRender(orn->GetORenderer(), aNode, pd, property->GetOpacity(), "");
       }
     }
