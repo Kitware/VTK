@@ -95,7 +95,6 @@ void BuildTableFromFunction(
     table[size] = table[size - 1];
     scale = (size - 1.0) / (range[1] - range[0]);
     offset = range[0];
-    std::cout << "scale build: " << scale << " Offset: " << offset << std::endl;
   }
 }
 
@@ -180,8 +179,9 @@ float GetScaledRadius(double radius, float* scaleTable, int scaleTableSize, doub
 OSPVolumetricModel RenderAsParticles(osp::vec3f* vertices, std::vector<unsigned int>& indexArray,
   double pointSize, double scaleFactor, double triangleScale, vtkDataArray* scaleArray,
   int scaleArrayComponent, float* scaleTable, int scaleTableSize, double scaleScale,
-  double scaleOffset, vtkDataArray* opacityArray, float* opacityTable, int opacityTableSize,
-  double opacityScale, double opacityOffset, vtkDataArray* scalarArray, vtkScalarsToColors* lut,
+  double scaleOffset, vtkDataArray* vtkNotUsed(opacityArray), float* vtkNotUsed(opacityTable),
+  int vtkNotUsed(opacityTableSize), double vtkNotUsed(opacityScale),
+  double vtkNotUsed(opacityOffset), vtkDataArray* scalarArray, vtkScalarsToColors* lut,
   int numColors, RTW::Backend* backend)
 {
   if (backend == nullptr)
@@ -199,7 +199,7 @@ OSPVolumetricModel RenderAsParticles(osp::vec3f* vertices, std::vector<unsigned 
   }
 
   std::vector<float> weights;
-  if (opacityArray != nullptr)
+  if (scalarArray != nullptr)
   {
     weights.reserve(indexArray.size());
   }
@@ -235,15 +235,6 @@ OSPVolumetricModel RenderAsParticles(osp::vec3f* vertices, std::vector<unsigned 
       // }
     }
     weights.emplace_back(static_cast<float>(weight * wscale));
-    std::cout << "radius: " << r << " weight: " << weight * wscale << std::endl;
-    // weights.emplace_back(static_cast<float>(1.f));
-    // radii.emplace_back(0.01f);
-    //    if (scaleArray != nullptr)
-    //    {
-    //      radii.emplace_back(MapThroughPWF(*scaleArray->GetTuple(indexArray[i]), scaleFunction));
-    //    }
-
-    // weights.emplace_back(1.0f);
   }
 
   OSPData positionData = ospNewCopyData1D(vdata.data(), OSP_VEC3F, vdata.size());
@@ -419,12 +410,8 @@ void vtkOSPRayPointGaussianMapperNode::InternalRender(void* vtkNotUsed(renderer)
         this->ScaleTable = nullptr;
       }
       this->ScaleTable = new float[this->ScaleTableSize + 1];
-      std::cout << "this->ScaleScale: " << this->ScaleScale
-                << " this->ScaleOffset: " << this->ScaleOffset << std::endl;
       vtkosp::BuildTableFromFunction(mapper->GetScaleFunction(), this->ScaleTable,
         this->ScaleTableSize, this->ScaleScale, this->ScaleOffset);
-      std::cout << "this->ScaleScale: " << this->ScaleScale
-                << " this->ScaleOffset: " << this->ScaleOffset << std::endl;
       this->ScaleTableUpdateTime.Modified();
     }
   }
