@@ -170,7 +170,8 @@ float GetScaledRadius(double radius, float* scaleTable, int scaleTableSize, doub
   {
     radius *= 1e2;
   }
-  radius = radius < 1e-6 ? 1e-3 : radius;
+  // Ensure that the radius is never 0.0
+  radius = radius < 1e-3 ? 1e-3 : radius;
 
   return static_cast<float>(radius);
 }
