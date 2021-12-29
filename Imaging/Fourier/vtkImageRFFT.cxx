@@ -90,8 +90,16 @@ void vtkImageRFFTExecute(vtkImageRFFT* self, vtkImageData* inData, int inExt[6],
   // Reorder axes (The outs here are just placeholders)
   self->PermuteExtent(inExt, inMin0, inMax0, outMin1, outMax1, outMin2, outMax2);
   self->PermuteExtent(outExt, outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
-  self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
-  self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
+
+  // Compute the increments into a local array as `GetIncrements()` introduces
+  // a data race on `vtkImageData::Increments`.
+  vtkIdType inIncrements[3];
+  vtkIdType outIncrements[3];
+  inData->GetIncrements(inIncrements);
+  outData->GetIncrements(outIncrements);
+
+  self->PermuteIncrements(inIncrements, inInc0, inInc1, inInc2);
+  self->PermuteIncrements(outIncrements, outInc0, outInc1, outInc2);
 
   inSize0 = inMax0 - inMin0 + 1;
 

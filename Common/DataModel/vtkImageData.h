@@ -285,6 +285,11 @@ public:
    * GetIncrements() calls ComputeIncrements() to ensure the increments are
    * up to date.  The first three methods compute the increments based on the
    * active scalar field while the next three, the scalar field is passed in.
+   *
+   * Note that all methods which do not have the increments passed in are not
+   * thread-safe. When working on a given `vtkImageData` instance on multiple
+   * threads, each thread should use the `inc*` overloads to compute the
+   * increments to avoid racing with other threads.
    */
   virtual vtkIdType* GetIncrements() VTK_SIZEHINT(3);
   virtual void GetIncrements(vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
