@@ -31,7 +31,6 @@
 
 #include <algorithm>
 #include <csignal>
-#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -239,64 +238,16 @@ void vtkPythonInterpreter::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
 {
-  return vtkPythonInterpreter::InitializeWithArgs(initsigs, 0, nullptr);
-}
-
-//------------------------------------------------------------------------------
-bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv[])
-{
   if (Py_IsInitialized() == 0)
   {
     // guide the mechanism to locate Python standard library, if possible.
     vtkPythonInterpreter::SetupPythonPrefix();
-    bool signals_installed = initsigs != 0;
 
-#if PY_VERSION_HEX < 0x03080000
     Py_InitializeEx(initsigs);
-
-    // Need two copies of args, because programs might modify the first
-    using OwnedWideString = std::unique_ptr<wchar_t, decltype(&PyMem_Free)>;
-    std::vector<wchar_t*> argvForPython;
-    std::vector<OwnedWideString> argvCleanup;
-    for (int i = 0; i < argc; i++)
-    {
-      OwnedWideString argCopy(vtk_Py_DecodeLocale(argv[i], nullptr), &PyMem_Free);
-      if (argCopy == nullptr)
-      {
-        fprintf(stderr,
-          "Fatal vtkpython error: "
-          "unable to decode the command line argument #%i\n",
-          i + 1);
-        return 1;
-      }
-
-      argvForPython.push_back(argCopy.get());
-      argvCleanup.emplace_back(std::move(argCopy));
-    }
 
     // setup default argv. Without this, code snippets that check `sys.argv` may
     // fail when run in embedded VTK Python environment.
-    PySys_SetArgvEx(static_cast<int>(argvForPython.size()), argvForPython.data(), 0);
-#else
-    PyConfig config;
-    PyStatus status;
-    PyConfig_InitPythonConfig(&config);
-    config.install_signal_handlers = initsigs;
-    status = PyConfig_SetBytesArgv(&config, argc, argv);
-    if (PyStatus_IsError(status))
-    {
-      PyConfig_Clear(&config);
-      return false;
-    }
-
-    status = Py_InitializeFromConfig(&config);
-    if (PyStatus_IsError(status))
-    {
-      PyConfig_Clear(&config);
-      return false;
-    }
-    PyConfig_Clear(&config);
-#endif
+    PySys_SetArgvEx(0, nullptr, 0);
 
 #ifdef VTK_PYTHON_FULL_THREADSAFE
 #if PY_VERSION_HEX < 0x03090000
@@ -315,11 +266,8 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
 #endif
 
 #ifdef SIGINT
-    if (signals_installed)
-    {
-      // Put default SIGINT handler back after Py_Initialize/Py_InitializeEx.
-      signal(SIGINT, SIG_DFL);
-    }
+    // Put default SIGINT handler back after Py_Initialize/Py_InitializeEx.
+    signal(SIGINT, SIG_DFL);
 #endif
   }
 
@@ -512,44 +460,9 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   vtkLogger::Init(argc, argv, nullptr); // since `-v` and `-vv` are parsed as Python verbosity flags
                                         // and not log verbosity flags.
 
-  // Need two copies of args, because the first array may be modified elsewhere.
-  using OwnedCString = std::unique_ptr<char, decltype(&std::free)>;
-  std::vector<char*> argvForPython;
-  std::vector<OwnedCString> argvCleanup;
-  for (int i = 0; i < argc; i++)
-  {
-    if (!argv[i])
-    {
-      continue;
-    }
-    if (strcmp(argv[i], "--enable-bt") == 0)
-    {
-      vtksys::SystemInformation::SetStackTraceOnError(1);
-      continue;
-    }
-    if (strcmp(argv[i], "-V") == 0)
-    {
-      // print out VTK version and let argument pass to Py_RunMain(). At which
-      // point, Python will print its version and exit.
-      cout << vtkVersion::GetVTKSourceVersion() << endl;
-    }
+  vtkPythonInterpreter::Initialize(1);
 
-    OwnedCString argCopy(strdup(argv[i]), &std::free);
-    if (argCopy == nullptr)
-    {
-      fprintf(stderr,
-        "Fatal vtkpython error: "
-        "unable to copy the command line argument #%i\n",
-        i + 1);
-      return 1;
-    }
-
-    argvForPython.push_back(argCopy.get());
-    argvCleanup.emplace_back(std::move(argCopy));
-  }
-
-  vtkPythonInterpreter::InitializeWithArgs(
-    1, static_cast<int>(argvForPython.size()), argvForPython.data());
+#if PY_VERSION_HEX >= 0x03000000
 
 #if PY_VERSION_HEX >= 0x03070000 && PY_VERSION_HEX < 0x03080000
   // Python 3.7.0 has a bug where Py_InitializeEx (called above) followed by
@@ -601,32 +514,73 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   }
 #endif
 
-#if PY_VERSION_HEX < 0x03080000
   // Need two copies of args, because programs might modify the first
-  using OwnedWideString = std::unique_ptr<wchar_t, decltype(&PyMem_Free)>;
-  std::vector<wchar_t*> argvForPythonWide;
-  std::vector<OwnedWideString> argvCleanupWide;
+  wchar_t** argvWide = new wchar_t*[argc];
+  wchar_t** argvWide2 = new wchar_t*[argc];
+  int argcWide = 0;
   for (int i = 0; i < argc; i++)
   {
-    OwnedWideString argCopy(vtk_Py_DecodeLocale(argv[i], nullptr), &PyMem_Free);
-    if (argCopy == nullptr)
+    if (argv[i] && strcmp(argv[i], "--enable-bt") == 0)
+    {
+      vtksys::SystemInformation::SetStackTraceOnError(1);
+      continue;
+    }
+    if (argv[i] && strcmp(argv[i], "-V") == 0)
+    {
+      // print out VTK version and let argument pass to Py_Main(). At which point,
+      // Python will print its version and exit.
+      cout << vtkVersion::GetVTKSourceVersion() << endl;
+    }
+
+    argvWide[argcWide] = vtk_Py_DecodeLocale(argv[i], nullptr);
+    argvWide2[argcWide] = argvWide[argcWide];
+    if (argvWide[argcWide] == nullptr)
     {
       fprintf(stderr,
         "Fatal vtkpython error: "
         "unable to decode the command line argument #%i\n",
         i + 1);
+      for (int k = 0; k < argcWide; k++)
+      {
+        PyMem_Free(argvWide2[k]);
+      }
+      delete[] argvWide;
+      delete[] argvWide2;
       return 1;
     }
+    argcWide++;
+  }
+  vtkPythonScopeGilEnsurer gilEnsurer(false, true);
+  int res = Py_Main(argcWide, argvWide);
+  for (int i = 0; i < argcWide; i++)
+  {
+    PyMem_Free(argvWide2[i]);
+  }
+  delete[] argvWide;
+  delete[] argvWide2;
+  return res;
+#else
 
-    argvForPythonWide.push_back(argCopy.get());
-    argvCleanupWide.emplace_back(std::move(argCopy));
+  // process command line arguments to remove unhandled args.
+  std::vector<char*> newargv;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (argv[i] && strcmp(argv[i], "--enable-bt") == 0)
+    {
+      vtksys::SystemInformation::SetStackTraceOnError(1);
+      continue;
+    }
+    if (argv[i] && strcmp(argv[i], "-V") == 0)
+    {
+      // print out VTK version and let argument pass to Py_Main(). At which point,
+      // Python will print its version and exit.
+      cout << vtkVersion::GetVTKSourceVersion() << endl;
+    }
+    newargv.push_back(argv[i]);
   }
 
   vtkPythonScopeGilEnsurer gilEnsurer(false, true);
-  return Py_Main(static_cast<int>(argvForPythonWide.size()), argvForPythonWide.data());
-#else
-  vtkPythonScopeGilEnsurer gilEnsurer(false, true);
-  return Py_RunMain();
+  return Py_Main(static_cast<int>(newargv.size()), &newargv[0]);
 #endif
 }
 
