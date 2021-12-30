@@ -23,10 +23,6 @@
 
 vtkStandardNewMacro(vtkCoordinateFrame);
 
-vtkCoordinateFrame::vtkCoordinateFrame() {}
-
-vtkCoordinateFrame::~vtkCoordinateFrame() {}
-
 double vtkCoordinateFrame::EvaluateFunction(double x[3])
 {
   using std::signbit;
