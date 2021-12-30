@@ -182,7 +182,7 @@ namespace RTW
     RTWData NewSharedData3D(const void* sharedData, RTWDataType type, uint32_t numItems1, uint32_t numItems2,
       uint32_t numItems3) override
     {
-      return reinterpret_cast<RTWData>(ospNewSharedData3D(sharedData, (OSPDataType)((int)type), 
+      return reinterpret_cast<RTWData>(ospNewSharedData3D(sharedData, (OSPDataType)((int)type),
         numItems1, numItems2, numItems3));
     }
 
@@ -324,7 +324,7 @@ namespace RTW
 
     float RenderFrame(RTWFrameBuffer frameBuffer, RTWRenderer renderer, RTWCamera camera, RTWWorld world) override
     {
-      return ospRenderFrameBlocking(reinterpret_cast<OSPFrameBuffer>(frameBuffer), reinterpret_cast<OSPRenderer>(renderer), 
+      return ospRenderFrameBlocking(reinterpret_cast<OSPFrameBuffer>(frameBuffer), reinterpret_cast<OSPRenderer>(renderer),
       reinterpret_cast<OSPCamera>(camera), reinterpret_cast<OSPWorld>(world));
     }
 

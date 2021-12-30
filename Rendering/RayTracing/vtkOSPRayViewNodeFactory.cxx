@@ -21,6 +21,7 @@
 #include "vtkOSPRayCompositePolyDataMapper2Node.h"
 #include "vtkOSPRayLightNode.h"
 #include "vtkOSPRayMoleculeMapperNode.h"
+#include "vtkOSPRayPointGaussianMapperNode.h"
 #include "vtkOSPRayPolyDataMapperNode.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayUnstructuredVolumeMapperNode.h"
@@ -92,6 +93,12 @@ vtkViewNode* tetm_maker()
   return vn;
 }
 
+vtkViewNode* particle_maker()
+{
+  vtkOSPRayPointGaussianMapperNode* vn = vtkOSPRayPointGaussianMapperNode::New();
+  return vn;
+}
+
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayViewNodeFactory);
 
@@ -120,6 +127,7 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkUnstructuredGridVolumeRayCastMapper", tetm_maker);
   this->RegisterOverride("vtkAMRVolumeMapper", amrm_maker);
   this->RegisterOverride("vtkMoleculeMapper", molecule_maker);
+  this->RegisterOverride("vtkOpenGLPointGaussianMapper", particle_maker);
 }
 
 //------------------------------------------------------------------------------
