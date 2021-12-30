@@ -48,6 +48,7 @@ bool TestCreate()
   }
 
   std::vector<vtkSmartPointer<vtkDataEncoder>> encoders;
+  encoders.reserve(100);
   for (int cc = 0; cc < 100; cc++)
   {
     encoders.push_back(vtk::TakeSmartPointer(vtkDataEncoder::New()));

@@ -27,7 +27,7 @@
 namespace
 {
 //------------------------------------------------------------------------------
-static int DumpQualityStats(vtkMeshQuality* iq, const char* arrayname)
+int DumpQualityStats(vtkMeshQuality* iq, const char* arrayname)
 {
   cout << "  cardinality: "
        << iq->GetOutput()->GetFieldData()->GetArray(arrayname)->GetComponent(0, 4)

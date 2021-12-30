@@ -91,8 +91,8 @@ public:
   ///@}
 
 protected:
-  vtkCoordinateFrame();
-  ~vtkCoordinateFrame() override;
+  vtkCoordinateFrame() = default;
+  ~vtkCoordinateFrame() override = default;
 
   double Origin[3] = { 0, 0, 0 };
   double XAxis[3] = { 1, 0, 0 };
