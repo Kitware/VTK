@@ -377,6 +377,8 @@ int vtkPlane::IntersectWithFinitePlane(double n[3], double o[3], double pOrigin[
 }
 
 //------------------------------------------------------------------------------
+// TODO: Thread the method. There are two for loops that could be sped up for
+// large data.
 bool vtkPlane::ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* normal)
 {
   //
@@ -400,9 +402,11 @@ bool vtkPlane::ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* n
 
   // 1. Calculate the centroid of the points; this will become origin
   double sum[3] = { 0, 0, 0 };
+  double x[3];
   for (vtkIdType i = 0; i < npts; i++)
   {
-    vtkMath::Add(sum, pts->GetPoint(i), sum);
+    pts->GetPoint(i, x);
+    vtkMath::Add(sum, x, sum);
   }
 
   vtkMath::Add(origin, sum, origin);
@@ -419,7 +423,8 @@ bool vtkPlane::ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* n
   double r[3];
   for (vtkIdType i = 0; i < npts; i++)
   {
-    vtkMath::Subtract(pts->GetPoint(i), origin, r);
+    pts->GetPoint(i, x);
+    vtkMath::Subtract(x, origin, r);
     xx += r[0] * r[0];
     xy += r[0] * r[1];
     xz += r[0] * r[2];

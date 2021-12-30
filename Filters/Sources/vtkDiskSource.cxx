@@ -26,6 +26,7 @@
 
 vtkStandardNewMacro(vtkDiskSource);
 
+//------------------------------------------------------------------------------
 vtkDiskSource::vtkDiskSource()
 {
   this->InnerRadius = 0.25;
@@ -43,6 +44,7 @@ vtkDiskSource::vtkDiskSource()
   this->SetNumberOfInputPorts(0);
 }
 
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkTransform> vtkDiskSource::GetTransformation()
 {
   double n[3] = { this->Normal[0], this->Normal[1], this->Normal[2] };
@@ -72,6 +74,7 @@ vtkSmartPointer<vtkTransform> vtkDiskSource::GetTransformation()
   return transform;
 }
 
+//------------------------------------------------------------------------------
 int vtkDiskSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -159,6 +162,7 @@ int vtkDiskSource::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//------------------------------------------------------------------------------
 void vtkDiskSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

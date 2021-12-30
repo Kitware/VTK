@@ -19,7 +19,10 @@
  * vtkDiskSource creates a polygonal disk with a hole in the center. The
  * disk has zero height. The user can specify the inner and outer radius
  * of the disk, the radial and circumferential resolution of the
- * polygonal representation, and the center and plane normal of the disk.
+ * polygonal representation, and the center and plane normal of the disk
+ * (i.e., the center and disk normal control the position and orientation
+ * of the disk).
+ *
  * @sa
  * vtkLinearExtrusionFilter
  */
@@ -35,13 +38,19 @@ class vtkTransform;
 class VTKFILTERSSOURCES_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm
 {
 public:
+  ///@{
+  /**
+   * Standard methods to  instantiate the class, obtain type information,
+   * and print the state of the object.
+   */
   static vtkDiskSource* New();
   vtkTypeMacro(vtkDiskSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   ///@{
   /**
-   * Specify inner radius of hole in disc.
+   * Specify inner radius of hole in disk.
    */
   vtkSetClampMacro(InnerRadius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(InnerRadius, double);
@@ -49,7 +58,7 @@ public:
 
   ///@{
   /**
-   * Specify outer radius of disc.
+   * Specify outer radius of disk.
    */
   vtkSetClampMacro(OuterRadius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(OuterRadius, double);

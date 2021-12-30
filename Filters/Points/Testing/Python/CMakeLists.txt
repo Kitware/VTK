@@ -23,6 +23,7 @@ vtk_add_test_python(
   TestPointSmoothingFilter.py
   TestPointSmoothingFilter2.py
   TestPointSmoothingFilter3.py
+  TestProjectPointsToPlane.py
   TestRadiusOutlierRemoval.py
   TestSPHInterpolator.py
   TestSPHInterpolator2D.py
