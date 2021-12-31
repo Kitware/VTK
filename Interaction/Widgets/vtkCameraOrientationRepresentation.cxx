@@ -46,6 +46,7 @@
 #include "vtkVectorText.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <type_traits>
 
 #define GETLABELPROPERTY(DIM, DIR)                                                                 \
@@ -173,7 +174,7 @@ void vtkCameraOrientationRepresentation::PositionHandles()
       const auto& handleSrc = this->HandleSources[ax][dir];
       handleSrc->SetWidth(this->NormalizedHandleDia);
       handleSrc->SetHeight(this->NormalizedHandleDia);
-      handleSrc->SetCenter(points + ptId * 3);
+      handleSrc->SetCenter(points + static_cast<std::ptrdiff_t>(ptId * 3));
     }
   }
 
@@ -185,7 +186,7 @@ void vtkCameraOrientationRepresentation::PositionHandles()
   const double* xyzHandles[3] = { nullptr, nullptr, nullptr };
   for (int i = 0, j = 1; i < 3 && j < 7; ++i, j += 2)
   {
-    xyzHandles[i] = points + j * 3;
+    xyzHandles[i] = points + static_cast<std::ptrdiff_t>(j * 3);
     this->Back[i] = vtkMath::Dot(xyzHandles[i], back);
     this->Up[i] = vtkMath::Dot(xyzHandles[i], up);
   }
@@ -498,9 +499,9 @@ void vtkCameraOrientationRepresentation::FinalizeHandlePicks()
   if (this->InteractionState ==
     to_underlying(vtkCameraOrientationRepresentation::InteractionStateType::Hovering))
   {
-    if (this->LastPickedAx == this->PickedAxis)
+    if ((this->LastPickedAx == this->PickedAxis) && (this->LastPickedAx != -1))
     {
-      if (this->LastPickedDir == this->PickedDir)
+      if ((this->LastPickedDir == this->PickedDir) && (this->LastPickedDir != -1))
       {
         // Decent UX. Select the other direction grabber when +, - grabbers for same axis
         // overlap.

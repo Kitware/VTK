@@ -223,8 +223,9 @@ void vtkCameraOrientationWidget::EndSelectAction(vtkAbstractWidget* w)
   self->WidgetState = WidgetStateType::Inactive;
 
   // synchronize orientations
-  if (rep->GetInteractionStateAsEnum() ==
-    vtkCameraOrientationRepresentation::InteractionStateType::Hovering)
+  if (rep->IsAnyHandleSelected() &&
+    (rep->GetInteractionStateAsEnum() ==
+      vtkCameraOrientationRepresentation::InteractionStateType::Hovering))
   {
     double back[3], up[3];
     rep->GetBack(back);
