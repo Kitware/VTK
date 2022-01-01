@@ -77,7 +77,7 @@ void ProjectToCoordinatePlane(
 
 // Given an input set of points, fit a plane to the points. This means producing a plane
 // origin and normal.
-void FitPlane(vtkIdType numPts, vtkPoints* inPts, double o[3], double n[3])
+void FitPlane(vtkPoints* inPts, double o[3], double n[3])
 {
   vtkPlane::ComputeBestFittingPlane(inPts, o, n);
 }
@@ -261,14 +261,14 @@ int vtkProjectPointsToPlane::RequestData(vtkInformation* vtkNotUsed(request),
         break;
 
       case BEST_FIT_PLANE:
-        FitPlane(numPts, inPts, o, n);
+        FitPlane(inPts, o, n);
         std::copy_n(o, 3, this->Origin);
         std::copy_n(n, 3, this->Normal);
         ProjectToPlane(numPts, inPts, newPts, o, n);
         break;
 
       case BEST_COORDINATE_PLANE:
-        FitPlane(numPts, inPts, o, n);
+        FitPlane(inPts, o, n);
         std::copy_n(o, 3, this->Origin);
         ComputeNormalAxis(n, idx);
         this->Normal[idx[0]] = this->Normal[idx[1]] = 0.0;
