@@ -19,9 +19,9 @@
  * vtkTransformFilter is a filter to transform point coordinates, and
  * associated point normals and vectors, as well as cell normals and vectors.
  * Transformed data array will be stored in a float array or a double array.
- * Other point and cel data are passed through the filter, unless TransformAllInputVectors
- * is set to true, in this case all other 3 components arrays from point and cell data
- * will be transformed as well.
+ * Other point and cell data are passed through the filter, unless
+ * TransformAllInputVectors is set to true, in this case all other 3
+ * components arrays from point and cell data will be transformed as well.
  *
  * An alternative method of transformation is to use vtkActor's methods
  * to scale, rotate, and translate objects. The difference between the
@@ -46,9 +46,15 @@ class vtkAbstractTransform;
 class VTKFILTERSGENERAL_EXPORT vtkTransformFilter : public vtkPointSetAlgorithm
 {
 public:
+  ///@{
+  /**
+   * Standard methods for instantiation, obtaining type information, and
+   * printing.
+   */
   static vtkTransformFilter* New();
   vtkTypeMacro(vtkTransformFilter, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   /**
    * Return the MTime also considering the transform.
@@ -63,8 +69,6 @@ public:
   vtkGetObjectMacro(Transform, vtkAbstractTransform);
   ///@}
 
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-
   ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
@@ -77,9 +81,10 @@ public:
 
   ///@{
   /**
-   * If off (the default), only Vectors and Normals will be transformed.
-   * If on, all 3-component data arrays ( considered as 3D vectors) will be transformed
-   * All other won't be flipped and will only be copied.
+   * If off (the default), only Vectors and Normals will be transformed.  If
+   * on, all 3-component data arrays (treated as 3D vectors) will be
+   * transformed, while other non-3-component data arrays will be passed
+   * through to the output unchanged.
    */
   vtkSetMacro(TransformAllInputVectors, bool);
   vtkGetMacro(TransformAllInputVectors, bool);
@@ -93,6 +98,10 @@ protected:
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  // Specifies that the filter only takes input dataset types of vtkPointSet, vtkImageData,
+  // and vtkRectilinearGrid.
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkDataArray* CreateNewDataArray(vtkDataArray* input = nullptr);
 
