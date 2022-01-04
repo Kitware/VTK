@@ -106,7 +106,7 @@ void DataSource::SetupEngine()
   }
 }
 
-void DataSource::OpenSource(const std::string& fname)
+void DataSource::OpenSource(const std::string& fname, bool useMPI /* = true */)
 {
   //if the reader (ADIOS engine) is already been set, do nothing
   if (this->Reader)
@@ -121,7 +121,14 @@ void DataSource::OpenSource(const std::string& fname)
       //if the factory pointer and the specific IO is empty
       //reset the implementation
 #ifdef FIDES_USE_MPI
-      this->Adios.reset(new adios2::ADIOS(MPI_COMM_WORLD));
+      if (useMPI)
+      {
+        this->Adios.reset(new adios2::ADIOS(MPI_COMM_WORLD));
+      }
+      else
+      {
+        this->Adios.reset(new adios2::ADIOS);
+      }
 #else
       // The ADIOS2 docs say "do not use () for the empty constructor"
       // See here: https://adios2.readthedocs.io/en/latest/components/components.html#components-overview
@@ -807,21 +814,29 @@ StepStatus DataSource::BeginStep()
     throw std::runtime_error("Cannot read variables without setting the adios engine.");
   }
 
-  auto retVal = this->Reader.BeginStep();
-  switch (retVal)
+  if (this->MostRecentStepStatus != StepStatus::EndOfStream)
   {
-    case adios2::StepStatus::OK:
-      this->Refresh();
-      return StepStatus::OK;
-    case adios2::StepStatus::NotReady:
-      return StepStatus::NotReady;
-    case adios2::StepStatus::EndOfStream:
-      return StepStatus::EndOfStream;
-    case adios2::StepStatus::OtherError:
-      return StepStatus::NotReady;
-    default:
-      throw std::runtime_error("DataSource::BeginStep received unknown StepStatus from ADIOS");
+    auto retVal = this->Reader.BeginStep();
+    switch (retVal)
+    {
+      case adios2::StepStatus::OK:
+        this->Refresh();
+        this->MostRecentStepStatus = StepStatus::OK;
+        break;
+      case adios2::StepStatus::NotReady:
+        this->MostRecentStepStatus = StepStatus::NotReady;
+        break;
+      case adios2::StepStatus::EndOfStream:
+        this->MostRecentStepStatus = StepStatus::EndOfStream;
+        break;
+      case adios2::StepStatus::OtherError:
+        this->MostRecentStepStatus = StepStatus::NotReady;
+        break;
+      default:
+        throw std::runtime_error("DataSource::BeginStep received unknown StepStatus from ADIOS");
+    }
   }
+  return this->MostRecentStepStatus;
 }
 
 size_t DataSource::CurrentStep()
@@ -841,7 +856,10 @@ void DataSource::EndStep()
     throw std::runtime_error("Cannot read variables without setting the adios engine.");
   }
 
-  this->Reader.EndStep();
+  if (this->MostRecentStepStatus == StepStatus::OK)
+  {
+    this->Reader.EndStep();
+  }
 }
 
 std::vector<size_t> DataSource::GetVariableShape(std::string& varName)

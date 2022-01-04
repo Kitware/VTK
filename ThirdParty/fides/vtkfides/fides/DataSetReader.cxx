@@ -541,6 +541,7 @@ public:
   using FieldsKeyType = std::pair<std::string, vtkm::cont::Field::Association>;
   std::map<FieldsKeyType, std::shared_ptr<fides::datamodel::Field>> Fields;
   std::string StepSource;
+  bool StreamingMode = false;
 };
 
 bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
@@ -550,7 +551,12 @@ bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
   auto source = std::make_shared<DataSourceType>();
   source->Mode = fides::io::FileNameMode::Relative;
   source->FileName = filename;
-  source->OpenSource(filename);
+
+  // Here we want to make sure when creating a data source that we don't start ADIOS in
+  // MPI mode. vtkFidesReader::CanReadFile uses this function to see if it can read
+  // a given ADIOS file. When running in parallel, only rank 0 will execute this, so we need
+  // to make sure that we don't do collective calls.
+  source->OpenSource(filename, false);
   if (source->GetAttributeType(attrName) == "string")
   {
     std::vector<std::string> result = source->ReadAttribute<std::string>(attrName);
@@ -631,7 +637,14 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
   const fides::metadata::MetaData& selections)
 {
   auto ds = this->ReadDataSetInternal(paths, selections);
-  this->Impl->DoAllReads();
+  if (this->Impl->StreamingMode)
+  {
+    this->Impl->EndStep();
+  }
+  else
+  {
+    this->Impl->DoAllReads();
+  }
   this->Impl->PostRead(ds, selections);
 
   // for(size_t i=0; i<ds.GetNumberOfPartitions(); i++)
@@ -646,6 +659,7 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
 
 StepStatus DataSetReader::PrepareNextStep(const std::unordered_map<std::string, std::string>& paths)
 {
+  this->Impl->StreamingMode = true;
   return this->Impl->BeginStep(paths);
 }
 
@@ -653,11 +667,7 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadStep(
   const std::unordered_map<std::string, std::string>& paths,
   const fides::metadata::MetaData& selections)
 {
-  auto ds = this->ReadDataSetInternal(paths, selections);
-  this->Impl->EndStep();
-  this->Impl->PostRead(ds, selections);
-
-  return vtkm::cont::PartitionedDataSet(ds);
+  return this->ReadDataSet(paths, selections);
 }
 
 // Returning vector of DataSets instead of PartitionedDataSet because
