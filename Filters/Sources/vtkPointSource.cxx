@@ -70,12 +70,10 @@ int vtkPointSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType i;
   double theta, rho, cosphi, sinphi, radius;
   double x[3];
-  vtkPoints* newPoints;
-  vtkCellArray* newVerts;
 
-  newPoints = vtkPoints::New();
-
+  // Create the output points.
   // Set the desired precision for the points in the output.
+  vtkNew<vtkPoints> newPoints;
   if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPoints->SetDataType(VTK_DOUBLE);
@@ -84,13 +82,19 @@ int vtkPointSource::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPoints->SetDataType(VTK_FLOAT);
   }
-
   newPoints->Allocate(this->NumberOfPoints);
-  newVerts = vtkCellArray::New();
-  newVerts->AllocateEstimate(1, this->NumberOfPoints);
 
+  // Create the output poly vertices. These are needed for rendering and
+  // some filters only operate on vertex cells.
+  vtkNew<vtkCellArray> newVerts;
+  newVerts->AllocateEstimate(1, this->NumberOfPoints);
   newVerts->InsertNextCell(this->NumberOfPoints);
 
+  // TODO: This could be threaded if the number of points
+  // became large enough to warrant the effort.
+
+  // Randomly compute spherical coordinates satisfying the
+  // distribution constraints.
   if (this->Distribution == VTK_POINT_SHELL)
   { // only produce points on the surface of the sphere
     for (i = 0; i < this->NumberOfPoints; i++)
@@ -105,8 +109,26 @@ int vtkPointSource::RequestData(vtkInformation* vtkNotUsed(request),
       newVerts->InsertCellPoint(newPoints->InsertNextPoint(x));
     }
   }
-  else
-  { // uniform distribution throughout the sphere volume
+  else if (this->Distribution == VTK_POINT_EXPONENTIAL && this->Lambda != 0)
+  { // exponential distribution throughout the sphere volume if lambda!=0
+    for (i = 0; i < this->NumberOfPoints; i++)
+    {
+      cosphi = 1 - 2 * this->Random();
+      sinphi = sqrt(1 - cosphi * cosphi);
+      // Compute radius with exponential distribution between [0,this->Radius]
+      double u = this->Random(); // uniformally distributed random number
+      rho = log(1 - u * (1 - exp(-this->Lambda * this->Radius))) /
+        this->Lambda; // exp distribution [0,Radius]
+      radius = rho * sinphi;
+      theta = 2.0 * vtkMath::Pi() * this->Random();
+      x[0] = this->Center[0] + radius * cos(theta);
+      x[1] = this->Center[1] + radius * sin(theta);
+      x[2] = this->Center[2] + rho * cosphi;
+      newVerts->InsertCellPoint(newPoints->InsertNextPoint(x));
+    }
+  }
+  else // Uniform distribution
+  {
     for (i = 0; i < this->NumberOfPoints; i++)
     {
       cosphi = 1 - 2 * this->Random();
@@ -120,14 +142,11 @@ int vtkPointSource::RequestData(vtkInformation* vtkNotUsed(request),
       newVerts->InsertCellPoint(newPoints->InsertNextPoint(x));
     }
   }
-  //
+
   // Update ourselves and release memory
   //
   output->SetPoints(newPoints);
-  newPoints->Delete();
-
   output->SetVerts(newVerts);
-  newVerts->Delete();
 
   return 1;
 }
@@ -153,7 +172,21 @@ void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Center: (" << this->Center[0] << ", " << this->Center[1] << ", "
      << this->Center[2] << ")\n";
-  os << indent
-     << "Distribution: " << ((this->Distribution == VTK_POINT_SHELL) ? "Shell\n" : "Uniform\n");
+
+  os << indent << "Distribution: ";
+  switch (this->Distribution)
+  {
+    case VTK_POINT_UNIFORM:
+      os << "Uniform\n";
+      break;
+    case VTK_POINT_SHELL:
+      os << "Shell\n";
+      break;
+    case VTK_POINT_EXPONENTIAL:
+      os << "Exponential\n";
+      break;
+  }
+
+  os << indent << "Lambda: " << this->Lambda << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
