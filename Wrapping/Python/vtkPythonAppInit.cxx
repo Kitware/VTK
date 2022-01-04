@@ -70,8 +70,17 @@ static void AtExitCallback()
 }
 #endif // VTK_COMPILED_USING_MPI
 
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
+int wmain(int argc, wchar_t* wargv[])
+#else
 int main(int argc, char** argv)
+#endif
 {
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
+  vtkPythonArgConverter converter(argc, wargv);
+  char** argv = converter.getArgs();
+#endif
+
 #ifdef VTK_COMPILED_USING_MPI
   VTKMPICleanup.Initialize(&argc, &argv);
   Py_AtExit(::AtExitCallback);

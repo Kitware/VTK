@@ -26,6 +26,7 @@
 #include "vtkVersion.h"
 #include "vtkWeakPointer.h"
 
+#include <vtksys/Encoding.hxx>
 #include <vtksys/SystemInformation.hxx>
 #include <vtksys/SystemTools.hxx>
 
@@ -35,15 +36,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-#if PY_VERSION_HEX >= 0x03000000
-#if defined(__APPLE__) && PY_VERSION_HEX < 0x03050000
-extern "C"
-{
-  extern wchar_t* _Py_DecodeUTF8_surrogateescape(const char* s, Py_ssize_t size);
-}
-#endif
-#endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define VTK_PATH_SEPARATOR "\\"
@@ -106,28 +98,26 @@ using WCharStringPool = PoolT<wchar_t>;
 #endif
 
 #if PY_VERSION_HEX >= 0x03000000
-wchar_t* vtk_Py_DecodeLocale(const char* arg, size_t* size)
+wchar_t* vtk_Py_DecodeUTF8(const char* arg)
 {
-  (void)size;
-#if PY_VERSION_HEX >= 0x03050000
-  return Py_DecodeLocale(arg, size);
-#elif defined(__APPLE__)
-  return _Py_DecodeUTF8_surrogateescape(arg, strlen(arg));
-#else
-  return _Py_char2wchar(arg, size);
-#endif
-}
-#endif
+  wchar_t* result = nullptr;
+  if (arg != nullptr)
+  {
+    size_t length = strlen(arg);
+    result = new wchar_t[length + 1];
+    PyObject* str = PyUnicode_FromString(arg);
+    Py_ssize_t last_index = PyUnicode_AsWideChar(str, result, length);
+    result[last_index] = '\0';
+  }
 
-#if PY_VERSION_HEX >= 0x03000000
-char* vtk_Py_EncodeLocale(const wchar_t* arg, size_t* size)
+  return result;
+}
+
+std::string vtk_Py_EncodeUTF8(const wchar_t* arg)
 {
-  (void)size;
-#if PY_VERSION_HEX >= 0x03050000
-  return Py_EncodeLocale(arg, size);
-#else
-  return _Py_wchar2char(arg, size);
-#endif
+  PyObject* str = PyUnicode_FromWideChar(arg, wcslen(arg));
+  PyObject* bytes = PyUnicode_AsUTF8String(str);
+  return std::string(PyBytes_AsString(bytes));
 }
 #endif
 
@@ -260,7 +250,7 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
     std::vector<OwnedWideString> argvCleanup;
     for (int i = 0; i < argc; i++)
     {
-      OwnedWideString argCopy(vtk_Py_DecodeLocale(argv[i], nullptr), &PyMem_Free);
+      OwnedWideString argCopy(vtk_Py_DecodeUTF8(argv[i]), &PyMem_Free);
       if (argCopy == nullptr)
       {
         fprintf(stderr,
@@ -407,7 +397,7 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
 // the program's execution. No code in the Python interpreter will change the
 // contents of this storage.
 #if PY_VERSION_HEX >= 0x03000000
-    wchar_t* argv0 = vtk_Py_DecodeLocale(programname, nullptr);
+    wchar_t* argv0 = vtk_Py_DecodeUTF8(programname);
     if (argv0 == nullptr)
     {
       fprintf(stderr,
@@ -608,7 +598,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   std::vector<OwnedWideString> argvCleanupWide;
   for (int i = 0; i < argc; i++)
   {
-    OwnedWideString argCopy(vtk_Py_DecodeLocale(argv[i], nullptr), &PyMem_Free);
+    OwnedWideString argCopy(vtk_Py_DecodeUTF8(argv[i]), &PyMem_Free);
     if (argCopy == nullptr)
     {
       fprintf(stderr,
@@ -766,7 +756,7 @@ void vtkPythonInterpreter::SetupPythonPrefix()
     "calling Py_SetProgramName(" << newprogramname << ") to aid in setup of Python prefix.");
 #if PY_VERSION_HEX >= 0x03000000
   static WCharStringPool wpool;
-  Py_SetProgramName(wpool.push_back(vtk_Py_DecodeLocale(newprogramname.c_str(), nullptr)));
+  Py_SetProgramName(wpool.push_back(vtk_Py_DecodeUTF8(newprogramname.c_str())));
 #else
   static StringPool pool;
   Py_SetProgramName(pool.push_back(systools::DuplicateString(newprogramname.c_str())));
@@ -795,9 +785,7 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
   if (vtklib.empty())
   {
 #if PY_VERSION_HEX >= 0x03000000
-    auto tmp = vtk_Py_EncodeLocale(Py_GetProgramName(), nullptr);
-    vtklib = tmp;
-    PyMem_Free(tmp);
+    vtklib = vtk_Py_EncodeUTF8(Py_GetProgramName());
 #else
     vtklib = Py_GetProgramName();
 #endif
@@ -866,3 +854,27 @@ int vtkPythonInterpreter::GetLogVerbosity()
 {
   return vtkPythonInterpreter::LogVerbosity;
 }
+
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
+//------------------------------------------------------------------------------
+vtkPythonArgConverter::vtkPythonArgConverter(int argc, wchar_t* wargv[])
+{
+  for (int i = 0; i < argc; i++)
+  {
+    std::string str = vtksys::Encoding::ToNarrow(wargv[i]);
+    char* cstr = vtksys::SystemTools::DuplicateString(str.c_str());
+    args.push_back(cstr);
+    memcache.push_back(cstr);
+  }
+  args.push_back(nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkPythonArgConverter::~vtkPythonArgConverter()
+{
+  for (auto cstr : memcache)
+  {
+    delete[] cstr;
+  }
+}
+#endif
