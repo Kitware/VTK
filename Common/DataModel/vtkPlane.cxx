@@ -20,6 +20,7 @@
 #include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 
 #include <algorithm>
@@ -376,7 +377,132 @@ int vtkPlane::IntersectWithFinitePlane(double n[3], double o[3], double pOrigin[
   return 0;
 }
 
+namespace
+{ // anonymous
+// This code supports the method ComputeBestFittingPlane()
+
+// This empirically determined constant is used to switch between
+// serial and threaded execution. There is a startup cost to
+// threading which is not worth it for small numbers of points.
+constexpr int VTK_SMP_THRESHOLD = 100000;
+
+// Determine the origin of the points.
+struct ComputeOrigin
+{
+  vtkPoints* Points;
+  double Origin[3];
+  vtkSMPThreadLocal<std::array<double, 3>> Sum;
+
+  ComputeOrigin(vtkPoints* pts)
+    : Points(pts)
+    , Origin{ 0, 0, 0 }
+  {
+  }
+  void GetOrigin(double origin[3]) { std::copy_n(this->Origin, 3, origin); }
+
+  // Initialize thread average
+  void Initialize() { this->Sum.Local().fill(0); }
+
+  // Sum up coordinates
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  {
+    double* sum = this->Sum.Local().data();
+    double x[3];
+    for (; ptId < endPtId; ++ptId)
+    {
+      this->Points->GetPoint(ptId, x);
+      vtkMath::Add(sum, x, sum);
+    }
+  }
+
+  // Compose the coordinate sums and then average them (to
+  // compute the origin).
+  void Reduce()
+  {
+    double sum[3] = { 0, 0, 0 };
+    auto iEnd = this->Sum.end();
+    for (auto itr = this->Sum.begin(); itr != iEnd; ++itr)
+    {
+      vtkMath::Add(sum, (*itr).data(), sum);
+    }
+
+    vtkIdType npts = this->Points->GetNumberOfPoints();
+    vtkMath::Add(this->Origin, sum, this->Origin);
+    vtkMath::MultiplyScalar(this->Origin, (1.0 / npts));
+  }
+};
+
+// Determine the points covariance matrix
+struct ComputeCovariance
+{
+  vtkPoints* Points;
+  const double Origin[3];
+  double Covariance[6];
+  vtkSMPThreadLocal<std::array<double, 6>> Sum;
+
+  ComputeCovariance(vtkPoints* pts, double origin[3])
+    : Points(pts)
+    , Origin{ origin[0], origin[1], origin[2] }
+    , Covariance{ 0, 0, 0, 0, 0, 0 }
+  {
+  }
+
+  void GetCovariance(double& xx, double& xy, double& xz, double& yy, double& yz, double& zz)
+  {
+    xx = this->Covariance[0];
+    xy = this->Covariance[1];
+    xz = this->Covariance[2];
+    yy = this->Covariance[3];
+    yz = this->Covariance[4];
+    zz = this->Covariance[5];
+  }
+
+  void Initialize() { this->Sum.Local().fill(0); }
+
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  {
+    const double* origin = this->Origin;
+    double r[3], x[3];
+    double* sum = this->Sum.Local().data();
+
+    for (; ptId < endPtId; ++ptId)
+    {
+      this->Points->GetPoint(ptId, x);
+      vtkMath::Subtract(x, origin, r);
+      sum[0] += r[0] * r[0];
+      sum[1] += r[0] * r[1];
+      sum[2] += r[0] * r[2];
+      sum[3] += r[1] * r[1];
+      sum[4] += r[1] * r[2];
+      sum[5] += r[2] * r[2];
+    }
+  }
+
+  void Reduce()
+  {
+    double cov[6] = { 0, 0, 0, 0, 0, 0 };
+    auto iEnd = this->Sum.end();
+    for (auto itr = this->Sum.begin(); itr != iEnd; ++itr)
+    {
+      double* sum = (*itr).data();
+      for (auto i = 0; i < 6; ++i)
+      {
+        cov[i] += sum[i];
+      }
+    }
+
+    vtkIdType npts = this->Points->GetNumberOfPoints();
+    for (auto i = 0; i < 6; ++i)
+    {
+      this->Covariance[i] = cov[i] / npts;
+    }
+  }
+};
+
+} // anonymous
+
 //------------------------------------------------------------------------------
+// Threaded implementation to fit plane to set of points.
 bool vtkPlane::ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* normal)
 {
   //
@@ -398,42 +524,35 @@ bool vtkPlane::ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* n
     return false;
   }
 
-  // 1. Calculate the centroid of the points; this will become origin
-  double sum[3] = { 0, 0, 0 };
-  for (vtkIdType i = 0; i < npts; i++)
+  // 1. Calculate the centroid of the points; this will become origin. Thread the
+  // operation of the number of points is large.
+  ComputeOrigin computeOrigin(pts);
+  if (npts > VTK_SMP_THRESHOLD)
   {
-    vtkMath::Add(sum, pts->GetPoint(i), sum);
+    vtkSMPTools::For(0, npts, computeOrigin);
   }
-
-  vtkMath::Add(origin, sum, origin);
-  vtkMath::MultiplyScalar(origin, 1.0 / npts);
-
-  // 2. Calculate the covariance matrix of the points relative to the centroid
-  double xx = 0;
-  double xy = 0;
-  double xz = 0;
-  double yy = 0;
-  double yz = 0;
-  double zz = 0;
-
-  double r[3];
-  for (vtkIdType i = 0; i < npts; i++)
+  else
   {
-    vtkMath::Subtract(pts->GetPoint(i), origin, r);
-    xx += r[0] * r[0];
-    xy += r[0] * r[1];
-    xz += r[0] * r[2];
-    yy += r[1] * r[1];
-    yz += r[1] * r[2];
-    zz += r[2] * r[2];
+    computeOrigin.Initialize();
+    computeOrigin(0, npts);
+    computeOrigin.Reduce();
   }
+  computeOrigin.GetOrigin(origin);
 
-  xx /= npts;
-  xy /= npts;
-  xz /= npts;
-  yy /= npts;
-  yz /= npts;
-  zz /= npts;
+  // 2. Calculate the covariance matrix of the points relative to the centroid.
+  ComputeCovariance computeCovariance(pts, origin);
+  if (npts > VTK_SMP_THRESHOLD)
+  {
+    vtkSMPTools::For(0, npts, computeCovariance);
+  }
+  else
+  {
+    computeCovariance.Initialize();
+    computeCovariance(0, npts);
+    computeCovariance.Reduce();
+  }
+  double xx, xy, xz, yy, yz, zz;
+  computeCovariance.GetCovariance(xx, xy, xz, yy, yz, zz);
 
   // 3. Do linear regression along the X, Y and Z axis
   // 4. Weight he result of the linear regressions based on the square of the determinant

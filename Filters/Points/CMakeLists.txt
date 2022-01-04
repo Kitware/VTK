@@ -27,6 +27,7 @@ set(classes
   vtkPointSmoothingFilter
   vtkPoissonDiskSampler
   vtkProbabilisticVoronoiKernel
+  vtkProjectPointsToPlane
   vtkRadiusOutlierRemoval
   vtkSPHCubicKernel
   vtkSPHInterpolator
