@@ -59,7 +59,7 @@ static int vtkWrapPython_IsValueWrappable(
 
 /* weed out methods that will never be called */
 static void vtkWrapPython_RemovePrecededMethods(
-  FunctionInfo* wrappedFunctions[], int numberOfWrappedFunctions, int fnum);
+  FunctionInfo* const wrappedFunctions[], int numberOfWrappedFunctions, int fnum);
 
 /* -------------------------------------------------------------------- */
 /* Check for type precedence. Some method signatures will just never
@@ -71,9 +71,9 @@ static void vtkWrapPython_RemovePrecededMethods(
  */
 
 static void vtkWrapPython_RemovePrecededMethods(
-  FunctionInfo* wrappedFunctions[], int numberOfWrappedFunctions, int fnum)
+  FunctionInfo* const wrappedFunctions[], int numberOfWrappedFunctions, int fnum)
 {
-  FunctionInfo* theFunc = wrappedFunctions[fnum];
+  const FunctionInfo* theFunc = wrappedFunctions[fnum];
   const char* name = theFunc->Name;
   FunctionInfo* sig1;
   FunctionInfo* sig2;
@@ -453,7 +453,7 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassI
 static int vtkWrapPython_IsValueWrappable(
   ClassInfo* data, ValueInfo* val, HierarchyInfo* hinfo, int flags)
 {
-  static unsigned int wrappableTypes[] = { VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT,
+  static const unsigned int wrappableTypes[] = { VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT,
     VTK_PARSE_DOUBLE, VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, VTK_PARSE_INT,
     VTK_PARSE_UNSIGNED_INT, VTK_PARSE_SHORT, VTK_PARSE_UNSIGNED_SHORT, VTK_PARSE_LONG,
     VTK_PARSE_UNSIGNED_LONG, VTK_PARSE_SSIZE_T, VTK_PARSE_SIZE_T, VTK_PARSE_UNKNOWN,

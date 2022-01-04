@@ -22,11 +22,11 @@
 
 /* output the method table for all overloads of a particular method */
 void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, ClassInfo* data,
-  int* overloadMap, FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum,
+  const int* overloadMap, FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int numberOfOccurrences);
 
 /* a master method to choose which overload to call */
-void vtkWrapPython_OverloadMasterMethod(FILE* fp, const char* classname, int* overloadMap,
+void vtkWrapPython_OverloadMasterMethod(FILE* fp, const char* classname, const int* overloadMap,
   int maxArgs, FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int is_vtkobject);
 
