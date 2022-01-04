@@ -329,6 +329,8 @@ void vtkExtractCellsByType::ExtractUnstructuredGridCells(
   vtkIdList* ptIds = vtkIdList::New();
   int cellType;
   output->Allocate(numCells);
+  outCD->CopyAllocate(inCD);
+
   for (cellId = 0; cellId < numCells; ++cellId)
   {
     cellType = input->GetCellType(cellId);
