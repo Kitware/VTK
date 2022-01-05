@@ -1,5 +1,5 @@
-#ifndef __octree_node
-#define __octree_node
+#ifndef octree_node_
+#define octree_node_
 
 #include <iterator>
 
@@ -33,28 +33,28 @@ struct octree_node
   typedef const T_* const_pointer;
   typedef const T_& const_reference;
 
-  octree_node_pointer _M_parent;
-  octree_node_pointer _M_children;
-  value_type _M_data;
+  octree_node_pointer m_parent;
+  octree_node_pointer m_children;
+  value_type m_data;
 
   octree_node();
   octree_node(octree_node_pointer parent, const value_type& data);
   ~octree_node();
 
-  bool is_leaf_node() { return this->_M_children == nullptr; }
-  int num_children() { return this->_M_children ? (1 << d_) : 0; }
+  bool is_leaf_node() { return this->m_children == nullptr; }
+  int num_children() { return this->m_children ? (1 << d_) : 0; }
   bool add_children();
   bool add_children(const T_& child_initializer);
   bool remove_children();
 
-  reference value() { return this->_M_data; }
-  reference value() const { return this->_M_data; }
+  reference value() { return this->m_data; }
+  reference value() const { return this->m_data; }
 
   const_octree_node_reference operator[](int child) const;
   octree_node_reference operator[](int child);
 
-  reference operator*() { return _M_data; }
-  const_reference operator*() const { return _M_data; }
+  reference operator*() { return m_data; }
+  const_reference operator*() const { return m_data; }
 };
 
-#endif // __octree_node
+#endif // octree_node_

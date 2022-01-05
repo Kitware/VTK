@@ -47,22 +47,22 @@
  */
 
 /**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
- *     octree_node_pointer octree_path<T_,R_,P_,O_,OP_,d_>::_M_root
+ *     octree_node_pointer octree_path<T_,R_,P_,O_,OP_,d_>::m_root
  *\brief The root of the octree we are iterating over.
  */
 
 /**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
- *     std::vector<octree_node_pointer> octree_path<T_,R_,P_,O_,OP_,d_>::_M_parents
+ *     std::vector<octree_node_pointer> octree_path<T_,R_,P_,O_,OP_,d_>::m_parents
  *\brief List of parent nodes
  */
 
 /**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
- *     std::vector<int> octree_path<T_,R_,P_,O_,OP_,d_>::_M_indices
+ *     std::vector<int> octree_path<T_,R_,P_,O_,OP_,d_>::m_indices
  *\brief List of parent child indices
  */
 
 /**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
- *     octree_node_pointer octree_path<T_,R_,P_,O_,OP_,d_>::_M_current_node
+ *     octree_node_pointer octree_path<T_,R_,P_,O_,OP_,d_>::m_current_node
  *\brief Current node at the head of the path
  */
 
@@ -71,8 +71,8 @@
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 octree_path<T_, R_, P_, O_, OP_, d_>::octree_path()
 {
-  this->_M_root = nullptr;
-  this->_M_current_node = nullptr;
+  this->m_root = nullptr;
+  this->m_current_node = nullptr;
 }
 
 /**\brief Simplest valid constructor.
@@ -82,8 +82,8 @@ octree_path<T_, R_, P_, O_, OP_, d_>::octree_path()
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 octree_path<T_, R_, P_, O_, OP_, d_>::octree_path(octree_pointer tree)
 {
-  this->_M_root = tree->root();
-  this->_M_current_node = tree->root();
+  this->m_root = tree->root();
+  this->m_current_node = tree->root();
 }
 
 /**\brief Simplest valid constructor.
@@ -93,8 +93,8 @@ octree_path<T_, R_, P_, O_, OP_, d_>::octree_path(octree_pointer tree)
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 octree_path<T_, R_, P_, O_, OP_, d_>::octree_path(octree_node_pointer root)
 {
-  this->_M_root = root;
-  this->_M_current_node = root;
+  this->m_root = root;
+  this->m_current_node = root;
 }
 
 /**\brief Flexible constructor.
@@ -106,13 +106,13 @@ template <typename T_, typename R_, typename P_, typename O_, typename OP_, int 
 octree_path<T_, R_, P_, O_, OP_, d_>::octree_path(
   octree_node_pointer root, std::vector<int>& children)
 {
-  this->_M_root = root;
-  this->_M_current_node = root;
+  this->m_root = root;
+  this->m_current_node = root;
   for (std::vector<int>::iterator cit = children.begin(); cit != children.end(); ++cit)
   {
-    this->_M_parents.push_back(this->_M_current_node);
-    this->_M_indices.push_back(*cit);
-    this->_M_current_node = (*this->_M_current_node)[*cit];
+    this->m_parents.push_back(this->m_current_node);
+    this->m_indices.push_back(*cit);
+    this->m_current_node = (*this->m_current_node)[*cit];
   }
 }
 

@@ -1,5 +1,5 @@
-#ifndef __octree_iterator
-#define __octree_iterator
+#ifndef octree_iterator_
+#define octree_iterator_
 
 // Included by octree
 
@@ -31,8 +31,8 @@ public:
   typedef octree_iterator<T_, const T_&, const T_*, O_, const O_*, d_> const_iterator;
   typedef octree_iterator<T_, R_, P_, O_, OP_, d_> self_iterator;
 
-  bool _M_immediate_family; // Iterate over all the subnodes or just the direct children?
-  bool _M_only_leaf_nodes;  // Should the iterator visit all nodes or only leaf nodes?
+  bool m_immediate_family; // Iterate over all the subnodes or just the direct children?
+  bool m_only_leaf_nodes;  // Should the iterator visit all nodes or only leaf nodes?
 
   octree_iterator();
   octree_iterator(octree_node_pointer oroot, octree_node_pointer onode, bool only_leaves = true);
@@ -41,32 +41,32 @@ public:
   octree_node_pointer check_incr();
   octree_node_pointer check_decr();
   void immediate_family(bool state);
-  bool immediate_family() const { return this->_M_immediate_family; }
-  bool& immediate_family() { return this->_M_immediate_family; }
+  bool immediate_family() const { return this->m_immediate_family; }
+  bool& immediate_family() { return this->m_immediate_family; }
 
   self_iterator& operator++()
   {
-    this->_M_current_node = check_incr();
+    this->m_current_node = check_incr();
     return *this;
   }
   self_iterator operator++(int)
   {
     self_iterator tmp = *this;
-    this->_M_current_node = check_incr();
+    this->m_current_node = check_incr();
     return tmp;
   }
 
   self_iterator& operator--()
   {
-    this->_M_current_node = check_decr();
+    this->m_current_node = check_decr();
     return *this;
   }
   self_iterator operator--(int)
   {
     self_iterator tmp = *this;
-    this->_M_current_node = check_decr();
+    this->m_current_node = check_decr();
     return tmp;
   }
 };
 
-#endif // __octree_iterator
+#endif // octree_iterator_

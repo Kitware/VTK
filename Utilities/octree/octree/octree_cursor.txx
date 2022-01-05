@@ -93,10 +93,10 @@ octree_cursor<T_, R_, P_, O_, OP_, d_>::octree_cursor(octree_node_pointer oroot)
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 octree_cursor<T_, R_, P_, O_, OP_, d_>::octree_cursor(const const_path& src)
 {
-  this->_M_root = src._M_root;
-  this->_M_indices = src._M_indices;
-  this->_M_parents = src._M_parents;
-  this->_M_current_node = src._M_current_node;
+  this->m_root = src.m_root;
+  this->m_indices = src.m_indices;
+  this->m_parents = src.m_parents;
+  this->m_current_node = src.m_current_node;
 }
 
 /**\brief Move the cursor up one level.
@@ -106,11 +106,11 @@ octree_cursor<T_, R_, P_, O_, OP_, d_>::octree_cursor(const const_path& src)
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 void octree_cursor<T_, R_, P_, O_, OP_, d_>::up()
 {
-  if (this->_M_indices.size())
+  if (this->m_indices.size())
   {
-    this->_M_current_node = this->_M_parents.back();
-    this->_M_indices.pop_back();
-    this->_M_parents.pop_back();
+    this->m_current_node = this->m_parents.back();
+    this->m_indices.pop_back();
+    this->m_parents.pop_back();
   }
 }
 
@@ -121,7 +121,7 @@ void octree_cursor<T_, R_, P_, O_, OP_, d_>::up()
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 void octree_cursor<T_, R_, P_, O_, OP_, d_>::down(int child_of_this_node)
 {
-  if (this->_M_current_node->is_leaf_node())
+  if (this->m_current_node->is_leaf_node())
   {
     return;
   }
@@ -129,9 +129,9 @@ void octree_cursor<T_, R_, P_, O_, OP_, d_>::down(int child_of_this_node)
   {
     throw std::range_error("Invalid child node specified.");
   }
-  this->_M_parents.push_back(this->_M_current_node);
-  this->_M_indices.push_back(child_of_this_node);
-  this->_M_current_node = &((*this->_M_current_node)[child_of_this_node]);
+  this->m_parents.push_back(this->m_current_node);
+  this->m_indices.push_back(child_of_this_node);
+  this->m_current_node = &((*this->m_current_node)[child_of_this_node]);
 }
 
 /**\brief Return where in the current level() the cursor is located.
@@ -144,11 +144,11 @@ void octree_cursor<T_, R_, P_, O_, OP_, d_>::down(int child_of_this_node)
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 int octree_cursor<T_, R_, P_, O_, OP_, d_>::where() const
 {
-  if (this->_M_indices.size() <= 0)
+  if (this->m_indices.size() <= 0)
   {
     return -1;
   }
-  return this->_M_indices.back();
+  return this->m_indices.back();
 }
 
 /**\brief Move to a different child with the same parent.
@@ -162,7 +162,7 @@ int octree_cursor<T_, R_, P_, O_, OP_, d_>::where() const
 template <typename T_, typename R_, typename P_, typename O_, typename OP_, int d_>
 void octree_cursor<T_, R_, P_, O_, OP_, d_>::over(int child_of_shared_parent)
 {
-  if (this->_M_indices.size() <= 0)
+  if (this->m_indices.size() <= 0)
   {
     return;
   }
@@ -172,8 +172,8 @@ void octree_cursor<T_, R_, P_, O_, OP_, d_>::over(int child_of_shared_parent)
     throw std::range_error("Invalid sibling specified.");
   }
 
-  this->_M_indices.back() = child_of_shared_parent;
-  this->_M_current_node = &((*this->_M_parents.back())[child_of_shared_parent]);
+  this->m_indices.back() = child_of_shared_parent;
+  this->m_current_node = &((*this->m_parents.back())[child_of_shared_parent]);
 }
 
 /**\brief Move to the other sibling node along a given \a axis.
@@ -200,8 +200,8 @@ void octree_cursor<T_, R_, P_, O_, OP_, d_>::axis_partner(int axis)
   }
 
   bitcode = (bitcode & ~(1 << axis)) | (bitcode ^ (1 << axis));
-  this->_M_indices.back() = bitcode;
-  this->_M_current_node = &((*this->_M_parents.back())[bitcode]);
+  this->m_indices.back() = bitcode;
+  this->m_current_node = &((*this->m_parents.back())[bitcode]);
 }
 
 /**\brief Determine whether the cursor is pointing to a lower or upper quadrant/octant/... of its
@@ -244,7 +244,7 @@ bool octree_cursor<T_, R_, P_, O_, OP_, d_>::visit(const std::vector<int>& pathS
 {
   std::vector<int>::const_iterator it;
   std::vector<octree_node_pointer> parents;
-  octree_node_pointer head = this->_M_root;
+  octree_node_pointer head = this->m_root;
   for (it = pathSpec.begin(); it != pathSpec.end(); ++it)
   {
     parents.push_back(head);
@@ -252,12 +252,12 @@ bool octree_cursor<T_, R_, P_, O_, OP_, d_>::visit(const std::vector<int>& pathS
     { // Oops, missing a node.
       return false;
     }
-    head = head->_M_children + *it;
+    head = head->m_children + *it;
   }
   // Made it all the way through the path as specified.
-  this->_M_parents = parents;
-  this->_M_indices = pathSpec;
-  this->_M_current_node = head;
+  this->m_parents = parents;
+  this->m_indices = pathSpec;
+  this->m_current_node = head;
   return true;
 }
 

@@ -46,15 +46,15 @@
  */
 
 /**\var  template<typename T_, int d_=3, class A_> octree_node_pointer
- *octree_node<T_,d_,A_>::_M_parent \brief The parent octree node that owns this node.
+ *octree_node<T_,d_,A_>::m_parent \brief The parent octree node that owns this node.
  */
 
 /**\var  template<typename T_, int d_=3, class A_> octree_node_pointer
- *octree_node<T_,d_,A_>::_M_children \brief A pointer to an array of \f$2^{\mathrm{\texttt{\d_}}}\f$
+ *octree_node<T_,d_,A_>::m_children \brief A pointer to an array of \f$2^{\mathrm{\texttt{\d_}}}\f$
  *children, or NULL if the node is a leaf node.
  */
 
-/**\var  template<typename T_, int d_=3, class A_> value_type octree_node<T_,d_,A_>::_M_data
+/**\var  template<typename T_, int d_=3, class A_> value_type octree_node<T_,d_,A_>::m_data
  *\brief Application-specific data.
  */
 
@@ -68,8 +68,8 @@
 template <typename T_, int d_, typename A_>
 octree_node<T_, d_, A_>::octree_node()
 {
-  this->_M_parent = nullptr;
-  this->_M_children = nullptr;
+  this->m_parent = nullptr;
+  this->m_children = nullptr;
 }
 
 /**\brief Root node constructor.
@@ -83,10 +83,10 @@ octree_node<T_, d_, A_>::octree_node()
  */
 template <typename T_, int d_, typename A_>
 octree_node<T_, d_, A_>::octree_node(octree_node_pointer parent, const value_type& data)
-  : _M_parent(parent)
-  , _M_data(data)
+  : m_parent(parent)
+  , m_data(data)
 {
-  this->_M_children = nullptr;
+  this->m_children = nullptr;
 }
 
 /**\brief Destructor.
@@ -94,7 +94,7 @@ octree_node<T_, d_, A_>::octree_node(octree_node_pointer parent, const value_typ
 template <typename T_, int d_, typename A_>
 octree_node<T_, d_, A_>::~octree_node()
 {
-  if (this->_M_children)
+  if (this->m_children)
     this->remove_children();
 }
 
@@ -122,15 +122,15 @@ octree_node<T_, d_, A_>::~octree_node()
 template <typename T_, int d_, typename A_>
 bool octree_node<T_, d_, A_>::add_children()
 {
-  if (this->_M_children)
+  if (this->m_children)
   {
     return false;
   }
-  this->_M_children = new octree_node<T_, d_, A_>[1 << d_];
+  this->m_children = new octree_node<T_, d_, A_>[1 << d_];
   for (int i = 0; i < (1 << d_); ++i)
   {
-    octree_node_pointer child = this->_M_children + i;
-    child->_M_parent = this;
+    octree_node_pointer child = this->m_children + i;
+    child->m_parent = this;
   }
   return true;
 }
@@ -146,16 +146,16 @@ bool octree_node<T_, d_, A_>::add_children()
 template <typename T_, int d_, typename A_>
 bool octree_node<T_, d_, A_>::add_children(const T_& child_initializer)
 {
-  if (this->_M_children)
+  if (this->m_children)
   {
     return false;
   }
-  this->_M_children = new octree_node<T_, d_, A_>[1 << d_];
+  this->m_children = new octree_node<T_, d_, A_>[1 << d_];
   for (int i = 0; i < (1 << d_); ++i)
   {
-    octree_node_pointer child = this->_M_children + i;
-    child->_M_parent = this->_M_parent;
-    child->_M_data = child_initializer;
+    octree_node_pointer child = this->m_children + i;
+    child->m_parent = this->m_parent;
+    child->m_data = child_initializer;
   }
   return true;
 }
@@ -167,17 +167,17 @@ bool octree_node<T_, d_, A_>::add_children(const T_& child_initializer)
 template <typename T_, int d_, typename A_>
 bool octree_node<T_, d_, A_>::remove_children()
 {
-  if (this->_M_children)
+  if (this->m_children)
   {
     int i;
     for (i = 0; i < (1 << d_); ++i)
     {
-      this->_M_children[i]._M_parent =
+      this->m_children[i].m_parent =
         nullptr; // prevent updates from propagating up the portion of the tree being deleted.
-      this->_M_children[i].remove_children();
+      this->m_children[i].remove_children();
     }
-    delete[] this->_M_children;
-    this->_M_children = nullptr;
+    delete[] this->m_children;
+    this->m_children = nullptr;
     return true;
   }
   return false;
@@ -203,7 +203,7 @@ bool octree_node<T_, d_, A_>::remove_children()
 template <typename T_, int d_, typename A_>
 const octree_node<T_, d_, A_>& octree_node<T_, d_, A_>::operator[](int child) const
 {
-  if (!this->_M_children)
+  if (!this->m_children)
   {
     throw std::domain_error("Attempt to access children of an octree leaf node.");
   }
@@ -218,11 +218,11 @@ const octree_node<T_, d_, A_>& octree_node<T_, d_, A_>::operator[](int child) co
 template <typename T_, int d_, typename A_>
 octree_node<T_, d_, A_>& octree_node<T_, d_, A_>::operator[](int child)
 {
-  if (!this->_M_children)
+  if (!this->m_children)
   {
     throw std::domain_error("Attempt to access children of an octree leaf node.");
   }
-  return this->_M_children[child];
+  return this->m_children[child];
 }
 
 /**\fn  template<typename T_, int d_=3, class A_> reference octree_node<T_,d_,A_>::operator * ()
