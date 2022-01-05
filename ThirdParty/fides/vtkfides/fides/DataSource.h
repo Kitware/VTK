@@ -97,7 +97,11 @@ struct DataSource
 
   /// Prepare data source for reading. This needs to be called before
   /// any meta-data or heavy-data operations can be performed.
-  void OpenSource(const std::string& fname);
+  /// In most cases, useMPI should be true (the default value), but in some
+  /// cases it is useful to open a source without using MPI
+  /// (See DataSetReader::CheckForDataModelAttribute for details).
+  /// useMPI is ignored if Fides is built without MPI support.
+  void OpenSource(const std::string& fname, bool useMPI = true);
 
   /// Returns the number of blocks (partitions) available from the
   /// data source for the given variable name.
@@ -176,6 +180,7 @@ private:
   EngineType AdiosEngineType = EngineType::BPFile;
   DataSourceParams SourceParams;
   std::string ReaderID = "inline-reader"; // Only used for Inline Engine
+  StepStatus MostRecentStepStatus = StepStatus::NotReady;
 
   enum class VarType
   {

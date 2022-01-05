@@ -121,8 +121,11 @@ public:
   /// the paths (filenames usually) corresponding to each data source.
   /// \param selections provides support for reading a subset of
   /// the data by providing choices for things such as time and blocks.
+  FIDES_DEPRECATED_SUPPRESS_BEGIN
+  FIDES_DEPRECATED(1.2, "ReadDataSet() will now handle both streaming and random access modes.")
   vtkm::cont::PartitionedDataSet ReadStep(const std::unordered_map<std::string, std::string>& paths,
                                           const fides::metadata::MetaData& selections);
+  FIDES_DEPRECATED_SUPPRESS_END
 
   /// Get a pointer to the field data manager
   /// \sa FieldDataManager, FieldData
