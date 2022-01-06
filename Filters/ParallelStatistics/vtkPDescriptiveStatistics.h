@@ -25,6 +25,13 @@
  * It learns and derives the global statistical model on each node, but assesses each
  * individual data points on the node that owns it.
  *
+ * @note Kurtosis formula in "Formulas for robust, one-pass parallel computation
+ * of covariances and Arbitrary-Order Statistical Moments", P. Pébay, 2008,  has an error
+ * (equation 1.6 in the paper). A correct formula can be found in
+ * "Formulas for the Computation of Higher-
+ * Order Central Moments", P. Pébay, T.B. Terriberry, H. Kolla, J. Bennett, 2016, at equation 3.6.
+ * The latter one is being used to compute the 4th moment from partial ones across ranks.
+ *
  * @par Thanks:
  * Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
  */
@@ -65,6 +72,8 @@ protected:
   ~vtkPDescriptiveStatistics() override;
 
   vtkMultiProcessController* Controller;
+
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkPDescriptiveStatistics(const vtkPDescriptiveStatistics&) = delete;

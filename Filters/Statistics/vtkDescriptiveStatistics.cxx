@@ -106,6 +106,17 @@ void vtkDescriptiveStatistics::Aggregate(
   vtkTable* aggregatedTab = vtkTable::New();
   aggregatedTab->DeepCopy(primaryTab);
 
+  vtkDataArray* aggCardinality =
+    vtkArrayDownCast<vtkDataArray>(aggregatedTab->GetColumnByName("Cardinality"));
+  vtkDataArray* aggMinimum =
+    vtkArrayDownCast<vtkDataArray>(aggregatedTab->GetColumnByName("Minimum"));
+  vtkDataArray* aggMaximum =
+    vtkArrayDownCast<vtkDataArray>(aggregatedTab->GetColumnByName("Maximum"));
+  vtkDataArray* aggMean = vtkArrayDownCast<vtkDataArray>(aggregatedTab->GetColumnByName("Mean"));
+  vtkDataArray* aggM2 = vtkArrayDownCast<vtkDataArray>(aggregatedTab->GetColumnByName("M2"));
+  vtkDataArray* aggM3 = vtkArrayDownCast<vtkDataArray>(aggregatedTab->GetColumnByName("M3"));
+  vtkDataArray* aggM4 = vtkArrayDownCast<vtkDataArray>(aggregatedTab->GetColumnByName("M4"));
+
   // Now, loop over all remaining models and update aggregated each time
   while ((inMetaDO = inMetaColl->GetNextDataObject(it)))
   {
@@ -120,6 +131,18 @@ void vtkDescriptiveStatistics::Aggregate(
 
     // Verify that the current primary statistics are indeed contained in a table
     primaryTab = vtkTable::SafeDownCast(inMeta->GetBlock(0));
+
+    vtkDataArray* primCardinality =
+      vtkArrayDownCast<vtkDataArray>(primaryTab->GetColumnByName("Cardinality"));
+    vtkDataArray* primMinimum =
+      vtkArrayDownCast<vtkDataArray>(primaryTab->GetColumnByName("Minimum"));
+    vtkDataArray* primMaximum =
+      vtkArrayDownCast<vtkDataArray>(primaryTab->GetColumnByName("Maximum"));
+    vtkDataArray* primMean = vtkArrayDownCast<vtkDataArray>(primaryTab->GetColumnByName("Mean"));
+    vtkDataArray* primM2 = vtkArrayDownCast<vtkDataArray>(primaryTab->GetColumnByName("M2"));
+    vtkDataArray* primM3 = vtkArrayDownCast<vtkDataArray>(primaryTab->GetColumnByName("M3"));
+    vtkDataArray* primM4 = vtkArrayDownCast<vtkDataArray>(primaryTab->GetColumnByName("M4"));
+
     if (!primaryTab)
     {
       aggregatedTab->Delete();
@@ -147,26 +170,29 @@ void vtkDescriptiveStatistics::Aggregate(
         return;
       }
 
+      // It is important for n and n_c to be double, as later on they are multiplied by themselves,
+      // which can produce an overflow if they were integer types.
+
       // Get aggregated statistics
-      int n = aggregatedTab->GetValueByName(r, "Cardinality").ToInt();
-      double min = aggregatedTab->GetValueByName(r, "Minimum").ToDouble();
-      double max = aggregatedTab->GetValueByName(r, "Maximum").ToDouble();
-      double mean = aggregatedTab->GetValueByName(r, "Mean").ToDouble();
-      double M2 = aggregatedTab->GetValueByName(r, "M2").ToDouble();
-      double M3 = aggregatedTab->GetValueByName(r, "M3").ToDouble();
-      double M4 = aggregatedTab->GetValueByName(r, "M4").ToDouble();
+      double n = aggCardinality->GetComponent(r, 0);
+      double min = aggMinimum->GetComponent(r, 0);
+      double max = aggMaximum->GetComponent(r, 0);
+      double mean = aggMean->GetComponent(r, 0);
+      double M2 = aggM2->GetComponent(r, 0);
+      double M3 = aggM3->GetComponent(r, 0);
+      double M4 = aggM4->GetComponent(r, 0);
 
       // Get current model statistics
-      int n_c = primaryTab->GetValueByName(r, "Cardinality").ToInt();
-      double min_c = primaryTab->GetValueByName(r, "Minimum").ToDouble();
-      double max_c = primaryTab->GetValueByName(r, "Maximum").ToDouble();
-      double mean_c = primaryTab->GetValueByName(r, "Mean").ToDouble();
-      double M2_c = primaryTab->GetValueByName(r, "M2").ToDouble();
-      double M3_c = primaryTab->GetValueByName(r, "M3").ToDouble();
-      double M4_c = primaryTab->GetValueByName(r, "M4").ToDouble();
+      double n_c = primCardinality->GetComponent(r, 0);
+      double min_c = primMinimum->GetComponent(r, 0);
+      double max_c = primMaximum->GetComponent(r, 0);
+      double mean_c = primMean->GetComponent(r, 0);
+      double M2_c = primM2->GetComponent(r, 0);
+      double M3_c = primM3->GetComponent(r, 0);
+      double M4_c = primM4->GetComponent(r, 0);
 
       // Update global statics
-      int N = n + n_c;
+      double N = n + n_c;
 
       if (min_c < min)
       {
@@ -179,12 +205,12 @@ void vtkDescriptiveStatistics::Aggregate(
       }
 
       double delta = mean_c - mean;
-      double delta_sur_N = delta / static_cast<double>(N);
+      double delta_sur_N = delta / N;
       double delta2_sur_N2 = delta_sur_N * delta_sur_N;
 
-      int n2 = n * n;
-      int n_c2 = n_c * n_c;
-      int prod_n = n * n_c;
+      double n2 = n * n;
+      double n_c2 = n_c * n_c;
+      double prod_n = n * n_c;
 
       M4 += M4_c + prod_n * (n2 - prod_n + n_c2) * delta * delta_sur_N * delta2_sur_N2 +
         6. * (n2 * M2_c + n_c2 * M2) * delta2_sur_N2 + 4. * (n * M3_c - n_c * M3) * delta_sur_N;
@@ -391,7 +417,7 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     double mom3 = primaryTab->GetValueByName(i, "M3").ToDouble();
     double mom4 = primaryTab->GetValueByName(i, "M4").ToDouble();
 
-    int numSamples = primaryTab->GetValueByName(i, "Cardinality").ToInt();
+    vtkTypeInt64 numSamples = primaryTab->GetValueByName(i, "Cardinality").ToTypeInt64();
 
     if (numSamples == 1 || mom2 < 1.e-150)
     {
@@ -403,6 +429,7 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     }
     else
     {
+
       double n = static_cast<double>(numSamples);
       double inv_n = 1. / n;
       double nm1 = n - 1.;
@@ -424,7 +451,7 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
       double var_inv = nm1 / mom2;
       double nvar_inv = var_inv * inv_n;
       derivedVals[2] = nvar_inv * sqrt(var_inv) * mom3;
-      derivedVals[3] = nvar_inv * var_inv * mom4 - 3.;
+      derivedVals[3] = n * mom4 / (mom2 * mom2) - 3.;
 
       if (this->G1Skewness && n > 2)
       {
@@ -435,7 +462,7 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
       if (this->G2Kurtosis && n > 3)
       {
         // G2 kurtosis estimate
-        derivedVals[3] *= ((n + 1.) * derivedVals[4] + 6.) * nm1 / ((nm1 - 1.) * (nm1 - 2.));
+        derivedVals[3] = ((n + 1.) * derivedVals[3] + 6.) * nm1 / ((nm1 - 1.) * (nm1 - 2.));
       }
     }
 
@@ -611,7 +638,7 @@ public:
   void operator()(vtkDoubleArray* result, vtkIdType id) override
   {
     result->SetNumberOfValues(1);
-    result->SetValue(0, (this->Data->GetTuple1(id) == this->Nominal) ? 0. : 1.);
+    result->SetValue(0, (this->Data->GetComponent(id, 0) == this->Nominal) ? 0. : 1.);
   }
 };
 
@@ -628,7 +655,7 @@ public:
   void operator()(vtkDoubleArray* result, vtkIdType id) override
   {
     result->SetNumberOfValues(1);
-    result->SetValue(0, (this->Data->GetTuple1(id) - this->Nominal) / this->Deviation);
+    result->SetValue(0, (this->Data->GetComponent(id, 0) - this->Nominal) / this->Deviation);
   }
 };
 
@@ -645,7 +672,7 @@ public:
   void operator()(vtkDoubleArray* result, vtkIdType id) override
   {
     result->SetNumberOfValues(1);
-    result->SetValue(0, fabs(this->Data->GetTuple1(id) - this->Nominal) / this->Deviation);
+    result->SetValue(0, fabs(this->Data->GetComponent(id, 0) - this->Nominal) / this->Deviation);
   }
 };
 

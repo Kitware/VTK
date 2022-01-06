@@ -512,7 +512,7 @@ int TestDescriptiveStatistics(int, char*[])
   double mean = 4.5;
   double variance = 9.16666666666667;
   double skewness = 0.;
-  double kurtosis = -1.56163636363636;
+  double kurtosis = -1.224242424;
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds3 = vtkDescriptiveStatistics::New();

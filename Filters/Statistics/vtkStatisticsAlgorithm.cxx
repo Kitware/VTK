@@ -370,15 +370,10 @@ void vtkStatisticsAlgorithm::Assess(
     }
 
     // Select assess functor
-    AssessFunctor* dfunc;
+    AssessFunctor* dfunc = nullptr;
     this->SelectAssessFunctor(outData, inMeta, varNames, dfunc);
 
-    if (!dfunc)
-    {
-      // Functor selection did not work. Do nothing.
-      vtkWarningMacro("AssessFunctors could not be allocated. Ignoring request.");
-    }
-    else
+    if (dfunc)
     {
       // Assess each entry of the column
       vtkDoubleArray* assessResult = vtkDoubleArray::New();
