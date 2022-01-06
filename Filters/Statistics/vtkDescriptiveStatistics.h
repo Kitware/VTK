@@ -40,6 +40,55 @@ PURPOSE.  See the above copyright notice for more information.
  * * Test: calculate Jarque-Bera statistic and, if VTK to R interface is available,
  *   retrieve corresponding p-value for normality testing.
  *
+ * Among the derived statistics, the variance, the standard deviation, the skewness
+ * and the kurtosis can be estimated in two ways: using the sample version of those
+ * statistics, or the population version. Specify whether a sample estimate or population
+ * estimate is done by setting `SampleEstimate`. By default, `SampleEstimate == true`, hence
+ * the sample version of the statistics is estimated,
+ * which produces unbiased estimators (except for the sample standard deviation).
+ * The sample estimate should be used for input that represent a subset of the whole
+ * population of study. On the other hand, when `SampleEstimate == false`, the population
+ * version of the statistics is estimated. If the input doesn't contain all the samples
+ * from the population of study, then a bias is induced (the variance is slightly bigger than it
+ * should be). One can read about Bessel's correction to understand better where this comes from.
+ * That being said, on very large data, the difference between the 2 estimation formulas
+ * becomes very low, so in those instances,
+ * either state of `SampleEstimate` should yield very similar results
+ * (see explicit formulas below).
+ *
+ * The formulas used are as follows, writing \f( \bar{X} \f) the mean of \f( X \f) and \f( N \f)
+ * the number of samples:
+ * - Sample estimate:
+ *   \f[
+ *    Var{X} = s^2 = \frac{\sum_{k=1}^N \left(x_k - \bar{x}\right)^2 }{N - 1}
+ *   \f]
+ *   \f[
+ *    Skew{X} = \frac{n}{(n - 1)(n - 2)}
+ *    \frac{\sum_{k=1}^N \left(x_k - \bar{x}\right)^3 }{s^3}
+ *   \f]
+ *   \f[
+ *    Kurt{X} = \frac{n(n + 1)}{(n - 1)(n - 2)(n - 3)}
+ *    \frac{\sum_{k=1}^N \left(x_k - \bar{x}\right)^3 }{s^4}
+ *    - 3 \frac{(n - 1)^2}{(n - 2)(n - 3)}
+ *   \f]
+ * - Population estimate:
+ *   \f[
+ *    Var{X} = \sigma^2 = \frac{\sum_{k=1}^N \left(x_k - \bar{x}\right)^2 }{N}
+ *   \f]
+ *   \f[
+ *    Skew{X} = \frac{1}{N}\frac{\sum_{k=1}^N \left(x_k - \bar{x}\right)^3 }{\sigma^3}
+ *   \f]
+ *   \f[
+ *    Kurt{X} = \frac{1}{N}\frac{\sum_{k=1}^N \left(x_k - \bar{x}\right)^3 }{\sigma^4} - 3
+ *   \f]
+ *
+ * \f(\sigma\f) is the population standard deviation, and \f(s\f) is the sample standard deviation.
+ * Note that the kurtosis is corrected so the kurtosis of a gaussian distribution should yield 0.
+ *
+ * In the instance where \f(\sigma = 0\f) or \f(s = 0\f), the skewness and kurtosis are undefined.
+ * Thus they output a `NaN`. Similarly, if there are no samples, then all derived statistics
+ * yield a `NaN`.
+ *
  * @par Thanks:
  * Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
  * for implementing this class.
@@ -49,6 +98,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkDescriptiveStatistics_h
 #define vtkDescriptiveStatistics_h
 
+#include "vtkDeprecation.h"             // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
 
@@ -67,35 +117,75 @@ public:
 
   ///@{
   /**
-   * Set/get whether the unbiased estimator for the variance should be used, or if
-   * the population variance will be calculated.
-   * The default is that the unbiased estimator will be used.
+   * @warning THIS METHOD DOES NOTHING AND IS DEPRECATED.
+   *
+   * To compute an unbiased variance, please set `SampleEstimate` instead. When set to true,
+   * the sample variance is computed, which is unbiased.
    */
-  vtkSetMacro(UnbiasedVariance, vtkTypeBool);
-  vtkGetMacro(UnbiasedVariance, vtkTypeBool);
-  vtkBooleanMacro(UnbiasedVariance, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
+  virtual void SetUnbiasedVariance(vtkTypeBool);
+  VTK_DEPRECATED_IN_9_2_0("Please use GetSampleEstimate instead")
+  virtual vtkTypeBool GetUnbiasedVariance();
+  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
+  virtual void UnbiasedVarianceOn();
+  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
+  virtual void UnbiasedVarianceOff();
   ///@}
 
   ///@{
   /**
-   * Set/get whether the G1 estimator for the skewness should be used, or if
-   * the g1 skewness will be calculated.
-   * The default is that the g1 skewness estimator will be used.
+   * @warning THIS METHOD DOES NOTHING AND IS DEPRECATED.
+   *
+   * Skewness estimator is picked depending on the state of `SampleEstimate`.
    */
-  vtkSetMacro(G1Skewness, vtkTypeBool);
-  vtkGetMacro(G1Skewness, vtkTypeBool);
-  vtkBooleanMacro(G1Skewness, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
+  virtual void SetG1Skewness(vtkTypeBool);
+  VTK_DEPRECATED_IN_9_2_0("Please use GetSampleEstimate instead")
+  virtual vtkTypeBool GetG1Skewness();
+  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
+  virtual void G1SkewnessOn();
+  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
+  virtual void G1SkewnessOff();
   ///@}
 
   ///@{
   /**
-   * Set/get whether the G2 estimator for the kurtosis should be used, or if
-   * the g2 kurtosis will be calculated.
-   * The default is that the g2 kurtosis estimator will be used.
+   * @warning THIS METHOD DOES NOTHING AND IS DEPRECATED.
+   *
+   * Kurtosis estimator is picked depending on the state of `SampleEstimate`.
    */
-  vtkSetMacro(G2Kurtosis, vtkTypeBool);
-  vtkGetMacro(G2Kurtosis, vtkTypeBool);
-  vtkBooleanMacro(G2Kurtosis, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
+  virtual void SetG2Kurtosis(vtkTypeBool);
+  VTK_DEPRECATED_IN_9_2_0("Please use GetSampleEstimate instead")
+  virtual vtkTypeBool GetG2Kurtosis();
+  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
+  virtual void G2KurtosisOn();
+  VTK_DEPRECATED_IN_9_2_0("Please use SetSampleEstimate instead")
+  virtual void G2KurtosisOff();
+  ///@}
+
+  ///@{
+  /**
+   * Getter / Setter on `SampleEstimate`. When turned on, descriptive statistics
+   * computed by this filter assume that the input data only holds a sample of the whole
+   * population of study. In effect, the sample variance, the sample standard deviation,
+   * the sample skewness and the sample kurtosis are estimated. When turned off, the population
+   * variance, the population standard deviation, the population skewness and the population
+   * kurtosis are estimated instead.
+   *
+   * In short, if the input data is a full description of the population being studied,
+   * `SampleEstimate` should be turned off. If the input data is a sample of the population being
+   * studied, then `SampleEstimate` should be turned on. By default, `SampleEstimate` is turned
+   * on, as it is the most likely case.
+   *
+   * Please see class description for a full description of the formulas.
+   *
+   * @note For large data, the difference between the population estimate and the sample
+   * estimate becomes thin, so this parameter becomes of less worry.
+   */
+  vtkSetMacro(SampleEstimate, bool);
+  vtkGetMacro(SampleEstimate, bool);
+  vtkBooleanMacro(SampleEstimate, bool);
   ///@}
 
   ///@{
@@ -154,9 +244,7 @@ protected:
   void SelectAssessFunctor(vtkTable* outData, vtkDataObject* inMeta, vtkStringArray* rowNames,
     AssessFunctor*& dfunc) override;
 
-  vtkTypeBool UnbiasedVariance;
-  vtkTypeBool G1Skewness;
-  vtkTypeBool G2Kurtosis;
+  bool SampleEstimate;
   vtkTypeBool SignedDeviations;
 
 private:
