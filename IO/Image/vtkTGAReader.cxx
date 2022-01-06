@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#include <fstream>
+#include <vtksys/FStream.hxx>
 
 vtkStandardNewMacro(vtkTGAReader);
 
@@ -48,7 +48,7 @@ void vtkTGAReader::ExecuteInformation()
   else
   {
     this->ComputeInternalFileName(0);
-    std::ifstream file(this->InternalFileName, std::ios::binary);
+    vtksys::ifstream file(this->InternalFileName, std::ios::binary);
 
     file.read(header, ::HeaderSize * sizeof(char));
 
@@ -97,7 +97,7 @@ void vtkTGAReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
   }
   else
   {
-    std::ifstream imageFile(this->InternalFileName, std::ios::binary);
+    vtksys::ifstream imageFile(this->InternalFileName, std::ios::binary);
     content.assign(std::istreambuf_iterator<char>(imageFile), std::istreambuf_iterator<char>());
   }
 
@@ -175,7 +175,7 @@ void vtkTGAReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
 //----------------------------------------------------------------------------
 int vtkTGAReader::CanReadFile(const char* fname)
 {
-  std::ifstream file(fname, std::ios::binary);
+  vtksys::ifstream file(fname, std::ios::binary);
 
   if (!file.is_open())
   {

@@ -31,6 +31,7 @@
 #include "vtkPoints.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
+#include "vtksys/FStream.hxx"
 
 #include <cctype>
 #include <float.h>
@@ -375,8 +376,7 @@ int H5RageAdaptor::CollectMetaData(const char* H5RageFileName)
 int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
 {
   // Read the global descriptor file (name.hrage)
-  std::string hdfRageFileName = H5RageFileName;
-  std::ifstream ifStr(hdfRageFileName);
+  vtksys::ifstream ifStr(H5RageFileName);
   if (!ifStr)
   {
     vtkGenericWarningMacro(
@@ -385,6 +385,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
   }
 
   // Get the directory name from the full path in GUI or use current directory
+  std::string hdfRageFileName = H5RageFileName;
   std::string::size_type dirPos = hdfRageFileName.find_last_of(Slash);
   std::string dirName;
   if (dirPos == std::string::npos)

@@ -57,8 +57,6 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
-#include <fstream>
-
 vtkStandardNewMacro(vtkGLTFWriter);
 
 vtkGLTFWriter::vtkGLTFWriter()
@@ -250,7 +248,7 @@ std::string WriteBufferAndView(const char* gltfRelativeTexturePath, const char* 
     // otherwise we only refer to the image file.
     result = gltfRelativeTexturePath;
     // byte length
-    std::ifstream textureStream(texturePath, ios::binary);
+    vtksys::ifstream textureStream(texturePath, ios::binary);
     if (textureStream.fail())
     {
       return mimeType; /* empty mimeType signals error*/

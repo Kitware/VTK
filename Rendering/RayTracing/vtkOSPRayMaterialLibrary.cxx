@@ -737,8 +737,7 @@ void vtkOSPRayMaterialLibrary::WriteFile(const std::string& filename, bool write
 
   if (!rstring.empty())
   {
-    std::ofstream fstream;
-    fstream.open(filename, std::ofstream::out | std::ofstream::trunc);
+    vtksys::ofstream fstream(filename.c_str(), std::ios::out | std::ios::trunc);
     fstream << rstring;
     fstream.close();
   }
