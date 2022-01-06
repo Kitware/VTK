@@ -94,7 +94,8 @@
 static const char* wsaStrerror(int wsaeid)
 {
   wchar_t wbuf[256];
-  int ok = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, 0, wsaeid, 0, wbuf, sizeof(wbuf), 0);
+  int ok = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 0, wsaeid, 0,
+    wbuf, sizeof(wbuf), 0);
   if (!ok)
   {
     return nullptr;
