@@ -350,7 +350,7 @@ build:fedora33-tidy:
     extends:
         - .fedora33_tidy
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_tidy_artifacts
         - .run_manually
     # clang-tidy really hampers compilation cache improvements, so it takes
