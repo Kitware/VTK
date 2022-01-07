@@ -2,10 +2,8 @@
 # we are actually testing at any given point.
 
 # numpy
-# Note that Linux will need 1.19.4
-# See https://developercommunity.visualstudio.com/content/problem/1207405/fmod-after-an-update-to-windows-2004-is-causing-a.html
-numpy==1.19.3
+numpy==1.21.4
 
 # Web modules
-aiohttp==3.7.4.post0
-wslink==1.0.4
+aiohttp==3.8.1
+wslink==1.2.1
