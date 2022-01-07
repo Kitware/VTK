@@ -1,7 +1,7 @@
 #include "vtkEmbeddedFonts.h"
 
 // VTK: Arial Normal
-// URW Gothic L Book (uagk8a.pfb)
+// URW Gothic L Book
 // Contributed by URW
 
 size_t face_arial_buffer_length = 34871;

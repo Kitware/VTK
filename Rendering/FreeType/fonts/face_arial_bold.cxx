@@ -1,7 +1,7 @@
 #include "vtkEmbeddedFonts.h"
 
 // VTK: Arial Bold
-// URW Gothic L Demi (uagd8a.pfb)
+// URW Gothic L Demi
 // Contributed by URW
 
 size_t face_arial_bold_buffer_length = 36354;

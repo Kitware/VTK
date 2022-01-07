@@ -1,7 +1,7 @@
 #include "vtkEmbeddedFonts.h"
 
 // VTK: Arial Bold Italic
-// URW Gothic L Demi Oblique (uagdo8a.pfb)
+// URW Gothic L Demi Oblique
 // Contributed by URW
 
 size_t face_arial_bold_italic_buffer_length = 36128;
