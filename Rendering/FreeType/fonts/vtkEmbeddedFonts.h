@@ -20,28 +20,28 @@
 
 // -----------------------------------------------------------------------
 // VTK: Arial Normal
-// Gothic L Book (uagk8a.pfb)
+// Gothic L Book
 // Contributed by URW
 
 extern size_t face_arial_buffer_length;
 extern unsigned char face_arial_buffer[];
 
 // VTK: Arial Bold
-// Gothic L Demi (uagd8a.pfb)
+// Gothic L Demi
 // Contributed by URW
 
 extern size_t face_arial_bold_buffer_length;
 extern unsigned char face_arial_bold_buffer[];
 
 // VTK: Arial Bold Italic
-// Gothic L Demi Oblique (uagdo8a.pfb)
+// Gothic L Demi Oblique
 // Contributed by URW
 
 extern size_t face_arial_bold_italic_buffer_length;
 extern unsigned char face_arial_bold_italic_buffer[];
 
 // VTK: Arial Italic
-// Gothic L Book Oblique (uagko8a.pfb)
+// Gothic L Book Oblique
 // Contributed by URW
 
 extern size_t face_arial_italic_buffer_length;
