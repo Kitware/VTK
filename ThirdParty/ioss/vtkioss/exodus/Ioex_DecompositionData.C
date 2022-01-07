@@ -485,14 +485,14 @@ namespace Ioex {
     std::vector<INT> entitylist(max_size);
     std::vector<INT> set_entities_read(set_count);
 
-    size_t  offset      = 0;        // What position are we filling in entitylist.
-    ioss_ssize_t remain = max_size; // Amount of space left in entitylist.
-    size_t  ibeg        = 0;
-    size_t  total_read  = 0;
+    size_t offset     = 0;        // What position are we filling in entitylist.
+    int64_t remain     = max_size; // Amount of space left in entitylist.
+    size_t ibeg       = 0;
+    size_t total_read = 0;
     for (size_t i = 0; i < set_count; i++) {
-      ioss_ssize_t entitys_to_read = sets[i].num_entry;
+      int64_t entitys_to_read = sets[i].num_entry;
       do {
-        ioss_ssize_t to_read = std::min(remain, entitys_to_read);
+        int64_t to_read = std::min(remain, entitys_to_read);
         if (m_processor == root) {
 #if IOSS_DEBUG_OUTPUT
           fmt::print(Ioss::DEBUG(), "{} {} reading {} entities from offset {}\n", set_type_name,
@@ -795,8 +795,8 @@ namespace Ioex {
     int ierr = 0;
     if (field.get_name() == "mesh_model_coordinates_x") {
       m_decomposition.show_progress("\tex_get_partial_coord X");
-      int ierr = ex_get_partial_coord_component(filePtr, decomp_node_offset() + 1,
-                                                decomp_node_count(), 1, tmp.data());
+      ierr = ex_get_partial_coord_component(filePtr, decomp_node_offset() + 1,
+					    decomp_node_count(), 1, tmp.data());
       if (ierr >= 0) {
         communicate_node_data(tmp.data(), ioss_data, 1);
       }

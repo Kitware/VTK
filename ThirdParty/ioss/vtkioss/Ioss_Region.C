@@ -8,7 +8,6 @@
 
 #include <Ioss_Assembly.h>
 #include <Ioss_Blob.h>
-#include <Ioss_CodeTypes.h>
 #include <Ioss_CommSet.h>
 #include <Ioss_CoordinateFrame.h>
 #include <Ioss_DBUsage.h>
@@ -1521,8 +1520,8 @@ namespace Ioss {
       if (old_ge != nullptr && ge != old_ge) {
         if (!((old_ge->type() == SIDEBLOCK && ge->type() == SIDESET) ||
               (ge->type() == SIDEBLOCK && old_ge->type() == SIDESET))) {
-          ioss_ssize_t       old_id = old_ge->get_optional_property(id_str(), -1);
-          ioss_ssize_t       new_id = ge->get_optional_property(id_str(), -1);
+          auto               old_id = old_ge->get_optional_property(id_str(), -1);
+          auto               new_id = ge->get_optional_property(id_str(), -1);
           std::ostringstream errmsg;
           fmt::print(errmsg,
                      "\n\nERROR: Duplicate names detected.\n"
@@ -1553,6 +1552,7 @@ namespace Ioss {
    *
    *  \param[in] db_name The original name.
    *  \param[in] alias the alias
+   *  \param[in] type  the entity type
    *  \returns True if successful
    */
   bool Region::add_alias(const std::string &db_name, const std::string &alias, EntityType type)
@@ -1582,15 +1582,27 @@ namespace Ioss {
     }
     std::ostringstream errmsg;
     fmt::print(errmsg,
-               "\n\nERROR: The entity named '{}' which is being aliased to '{}' does not exist in "
+               "\n\nERROR: The entity named '{}' of type {} which is being aliased to '{}' does "
+               "not exist in "
                "region '{}'.\n",
-               db_name, alias, name());
+               db_name, type, alias, name());
     IOSS_ERROR(errmsg);
+  }
+
+  bool Region::add_alias(const std::string &db_name, const std::string &alias)
+  {
+    auto entity = get_entity(db_name);
+    IOSS_FUNC_ENTER(m_);
+    if (entity != nullptr) {
+      return add_alias__(db_name, alias, entity->type());
+    }
+    return false;
   }
 
   /** \brief Get the original name for an alias.
    *
    *  \param[in] alias The alias name.
+   *  \param[in] type  the entity type
    *  \returns The original name.
    */
   std::string Region::get_alias(const std::string &alias, EntityType type) const
@@ -1604,6 +1616,12 @@ namespace Ioss {
     std::string ci_alias = Ioss::Utils::uppercase(alias);
     auto        I        = aliases_[type].find(ci_alias);
     if (I == aliases_[type].end()) {
+      if (type == Ioss::SIDEBLOCK) {
+	I = aliases_[Ioss::SIDESET].find(ci_alias);
+	if (I != aliases_[Ioss::SIDESET].end()) {
+	  return (*I).second;
+	}
+      }
       return "";
     }
     return (*I).second;
@@ -1612,6 +1630,7 @@ namespace Ioss {
   /** \brief Get all aliases for a name in the region.
    *
    *  \param[in] my_name The original name.
+   *  \param[in] type  the entity type
    *  \param[in,out] aliases On input, any vector of strings.
    *                         On output, all aliases for my_name are appended.
    *  \returns The number of aliases that were appended.
@@ -1729,11 +1748,6 @@ namespace Ioss {
       entity = edb;
       nfound++;
     }
-    GroupingEntity *ss = get_sideset(my_name);
-    if (ss != nullptr) {
-      entity = ss;
-      nfound++;
-    }
     GroupingEntity *ns = get_nodeset(my_name);
     if (ns != nullptr) {
       entity = ns;
@@ -1759,8 +1773,15 @@ namespace Ioss {
       entity = cs;
       nfound++;
     }
+    GroupingEntity *ss = get_sideset(my_name);
+    if (ss != nullptr) {
+      entity = ss;
+      nfound++;
+    }
     GroupingEntity *sib = get_sideblock(my_name);
-    if (sib != nullptr) {
+    if (ss == nullptr && sib != nullptr) {
+      // Allowable for sideset and a contained sideblock to have
+      // same name. Historically, the sideset is returned in this case
       entity = sib;
       nfound++;
     }
@@ -1774,15 +1795,15 @@ namespace Ioss {
       entity = bl;
       nfound++;
     }
-    if (nfound > 0) {
+    if (nfound > 1) {
       std::string        filename = get_database()->get_filename();
       std::ostringstream errmsg;
       fmt::print(
           errmsg,
           "ERROR: There are multiple ({}) blocks and/or sets with the name '{}' defined in the "
           "database file '{}'.\n"
-          "\tThis is allowed in general, but this application uses an API function that does not "
-          "support duplicate names.",
+          "\tThis is allowed in general, but this application uses an API function (get_entity) "
+          "that does not support duplicate names.",
           nfound, my_name, filename);
       IOSS_ERROR(errmsg);
       return nullptr;
@@ -2561,8 +2582,7 @@ namespace Ioss {
               // not name... (typically, element blocks only)
               size_t count = this_ge->entity_count();
 
-              Ioss::NameList attr_fields;
-              ge->field_describe(Ioss::Field::ATTRIBUTE, &attr_fields);
+              Ioss::NameList attr_fields = ge->field_describe(Ioss::Field::ATTRIBUTE);
               for (auto &field_name : attr_fields) {
                 const Ioss::Field &field = ge->get_fieldref(field_name);
                 if (this_ge->field_exists(field_name)) {

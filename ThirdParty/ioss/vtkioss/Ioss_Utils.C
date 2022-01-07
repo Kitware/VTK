@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -44,7 +44,9 @@
 // For memory utilities...
 #if defined(__IOSS_WINDOWS__)
 #define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #if 0
 #include <psapi.h>
 #endif
@@ -289,7 +291,7 @@ std::string Ioss::Utils::fixup_type(const std::string &base, int nodes_per_eleme
   // nodes.  To fix this, check the block type name and see if it
   // ends with a number.  If it does, assume it is OK; if not, append
   // the 'nodes_per_element'.
-  if (isdigit(*(type.rbegin())) == 0) {
+  if (type.empty() || isdigit(*(type.rbegin())) == 0) {
     if (nodes_per_element > 1) {
       type += std::to_string(nodes_per_element);
     }
@@ -388,8 +390,7 @@ namespace {
 
     char suffix[2] = {suffix_separator, '\0'};
 
-    std::vector<std::string> tokens =
-        Ioss::tokenize(names[which_names[which_names.size() - 1]], suffix);
+    std::vector<std::string> tokens = Ioss::tokenize(names[which_names.back()], suffix);
 
     if (tokens.size() <= 2) {
       return nullptr;
@@ -398,7 +399,7 @@ namespace {
     assert(tokens.size() > 2);
 
     // Check that suffix is a number -- all digits
-    int N = Ioss::Utils::get_number(tokens[tokens.size() - 1]);
+    int N = Ioss::Utils::get_number(tokens.back());
 
     if (N == 0) {
       return nullptr;
@@ -587,6 +588,9 @@ namespace {
         assert(type->component_count() == static_cast<int>(which_names.size()));
         Ioss::Field field(base_name.substr(0, bn_len - 1), Ioss::Field::REAL, type, fld_role,
                           count);
+        if (suffix_separator != '_') {
+          field.set_suffix_separator(suffix_separator);
+        }
         field.set_index(index);
         for (const auto &which_name : which_names) {
           names[which_name][0] = '\0';
@@ -609,7 +613,7 @@ namespace {
   bool define_field(size_t nmatch, size_t match_length, char **names,
                     std::vector<Ioss::Suffix> &suffices, size_t entity_count,
                     Ioss::Field::RoleType fld_role, std::vector<Ioss::Field> &fields,
-                    bool strip_trailing_)
+                    bool strip_trailing_, char suffix_separator)
   {
     // Try to define a field of size 'nmatch' with the suffices in 'suffices'.
     // If this doesn't define a known field, then assume it is a scalar instead
@@ -622,7 +626,17 @@ namespace {
       else {
         char *name         = names[0];
         name[match_length] = '\0';
+        auto suffix        = suffix_separator;
+        if (strip_trailing_ && name[match_length - 1] == '_') {
+          name[match_length - 1] = '\0';
+          suffix                 = '_';
+        }
         Ioss::Field field(name, Ioss::Field::REAL, type, fld_role, entity_count);
+        if (suffix != suffix_separator) {
+          field.set_suffix_separator(suffix);
+        }
+        // Are suffices upper or lowercase...
+        field.set_suffices_uppercase(suffices[0].is_uppercase());
         if (field.is_valid()) {
           fields.push_back(field);
         }
@@ -646,11 +660,9 @@ namespace {
     return false; // Can't get here...  Quiet the compiler
   }
 } // namespace
+
 // Read scalar fields off an input database and determine whether
 // they are components of a higher order type (vector, tensor, ...).
-// This routine is used if there is no field component separator.  E.g.,
-// fieldx, fieldy, fieldz instead of field_x field_y field_z
-
 void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in this entity.
                              char  **names,        // Raw list of field names from exodus
                              int     num_names,    // Number of names in list
@@ -688,6 +700,8 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
     }
   }
   else {
+    // This routine is used if there is no field component separator.  E.g.,
+    // fieldx, fieldy, fieldz instead of field_x field_y field_z
     int                       nmatch = 1;
     int                       ibeg   = 0;
     int                       pmat   = 0;
@@ -732,7 +746,7 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
         else {
 
           bool multi_component = define_field(nmatch, pmat, &names[ibeg], suffices, entity_count,
-                                              fld_role, fields, strip_trailing_);
+                                              fld_role, fields, strip_trailing_, suffix_separator);
           if (!multi_component) {
             // Although we matched multiple suffices, it wasn't a
             // higher-order field, so we only used 1 name instead of
@@ -758,7 +772,7 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
     if (ibeg < num_names) {
       if (local_truth == nullptr || local_truth[ibeg] == 1) {
         bool multi_component = define_field(nmatch, pmat, &names[ibeg], suffices, entity_count,
-                                            fld_role, fields, strip_trailing_);
+                                            fld_role, fields, strip_trailing_, suffix_separator);
         clear(suffices);
         if (nmatch > 1 && !multi_component) {
           ibeg++;
@@ -1347,8 +1361,7 @@ std::string Ioss::Utils::get_type_from_file(const std::string &filename)
 void Ioss::Utils::info_fields(const Ioss::GroupingEntity *ige, Ioss::Field::RoleType role,
                               const std::string &header, const std::string &suffix)
 {
-  Ioss::NameList fields;
-  ige->field_describe(role, &fields);
+  Ioss::NameList fields = ige->field_describe(role);
 
   if (fields.empty()) {
     return;
@@ -1357,9 +1370,7 @@ void Ioss::Utils::info_fields(const Ioss::GroupingEntity *ige, Ioss::Field::Role
   if (!header.empty()) {
     fmt::print("{}{}", header, suffix);
   }
-  // Iterate through results fields and transfer to output
-  // database...
-  // Get max width of a name...
+  // Iterate through results fields. Get max width of a name...
   size_t max_width = 0;
   for (const auto &field_name : fields) {
     max_width = max_width > field_name.length() ? max_width : field_name.length();
@@ -1392,8 +1403,7 @@ void Ioss::Utils::info_property(const Ioss::GroupingEntity *ige, Ioss::Property:
                                 const std::string &header, const std::string &suffix,
                                 bool print_empty)
 {
-  Ioss::NameList properties;
-  ige->property_describe(origin, &properties);
+  Ioss::NameList properties = ige->property_describe(origin);
 
   if (properties.empty()) {
     if (print_empty && !header.empty()) {

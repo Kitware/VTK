@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -59,6 +59,13 @@ namespace Ioss {
   void ElementBlock::get_block_adjacencies(std::vector<std::string> &block_adjacency) const
   {
     get_database()->get_block_adjacencies(this, block_adjacency);
+  }
+
+  std::vector<std::string> ElementBlock::get_block_adjacencies() const
+  {
+    std::vector<std::string> block_adjacency;
+    get_database()->get_block_adjacencies(this, block_adjacency);
+    return block_adjacency;
   }
 
   AxisAlignedBoundingBox ElementBlock::get_bounding_box() const

@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -188,9 +188,17 @@ namespace Ioss {
     Utils::check_set_bool_property(properties, "ENABLE_FIELD_RECOGNITION", enableFieldRecognition);
 
     if (properties.exists("FIELD_SUFFIX_SEPARATOR")) {
-      std::string tmp = properties.get("FIELD_SUFFIX_SEPARATOR").get_string();
-      fieldSeparator  = tmp[0];
+      std::string tmp         = properties.get("FIELD_SUFFIX_SEPARATOR").get_string();
+      fieldSeparator          = tmp[0];
+      fieldSeparatorSpecified = true;
     }
+
+    // If `FIELD_SUFFIX_SEPARATOR` is empty and there are fields that
+    // end with an underscore, then strip the underscore. This will
+    // cause d_x, d_y, d_z to be a 3-component field 'd' and vx, vy,
+    // vz to be a 3-component field 'v'.
+    Utils::check_set_bool_property(properties, "FIELD_STRIP_TRAILING_UNDERSCORE",
+                                   fieldStripTrailing_);
 
     if (properties.exists("INTEGER_SIZE_API")) {
       int isize = properties.get("INTEGER_SIZE_API").get_int();
@@ -281,7 +289,19 @@ namespace Ioss {
     }
     char tmp[2] = {separator, '\0'};
     properties.add(Property("FIELD_SUFFIX_SEPARATOR", tmp));
-    fieldSeparator = separator;
+    fieldSeparator          = separator;
+    fieldSeparatorSpecified = true;
+  }
+
+  std::string DatabaseIO::get_component_name(const Ioss::Field &field, Ioss::Field::InOut in_out,
+                                             int component) const
+  {
+    // If the user has explicitly set the suffix separator for this database,
+    // then use it for all fields.
+    // If it was not explicity set, then use whatever the field has defined,
+    // of if field also has nothing explicitly set, use '_'
+    char suffix = fieldSeparatorSpecified ? get_field_separator() : 1;
+    return field.get_component_name(component, in_out, suffix);
   }
 
   /**
@@ -1078,8 +1098,8 @@ namespace Ioss {
       std::vector<double> coordinates;
       Ioss::NodeBlock    *nb = get_region()->get_node_blocks()[0];
       nb->get_field_data("mesh_model_coordinates", coordinates);
-      ioss_ssize_t nnode = nb->entity_count();
-      ioss_ssize_t ndim  = nb->get_property("component_degree").get_int();
+      auto nnode = nb->entity_count();
+      auto ndim  = nb->get_property("component_degree").get_int();
 
       const Ioss::ElementBlockContainer &element_blocks = get_region()->get_element_blocks();
       size_t                             nblock         = element_blocks.size();
@@ -1126,8 +1146,8 @@ namespace Ioss {
   {
     std::vector<double> coordinates;
     nb->get_field_data("mesh_model_coordinates", coordinates);
-    ioss_ssize_t nnode = nb->entity_count();
-    ioss_ssize_t ndim  = nb->get_property("component_degree").get_int();
+    auto nnode = nb->entity_count();
+    auto ndim  = nb->get_property("component_degree").get_int();
 
     double xmin, ymin, zmin, xmax, ymax, zmax;
     calc_bounding_box(ndim, nnode, coordinates, xmin, ymin, zmin, xmax, ymax, zmax);
@@ -1150,7 +1170,7 @@ namespace Ioss {
 
   AxisAlignedBoundingBox DatabaseIO::get_bounding_box(const Ioss::StructuredBlock *sb) const
   {
-    ioss_ssize_t ndim = sb->get_property("component_degree").get_int();
+    auto ndim = sb->get_property("component_degree").get_int();
 
     std::pair<double, double> xx;
     std::pair<double, double> yy;
