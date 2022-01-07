@@ -58,8 +58,8 @@ int TestIOSSAttributes(int argc, char* argv[])
   auto ds = pd ? pd->GetPartition(0) : nullptr;
   VERIFY((ds != nullptr), "expected block");
   VERIFY(ds->GetCellData()->GetArray("attribute") != nullptr, "expected 'attribute' array");
-  VERIFY(ds->GetCellData()->GetArray("rotation_matrix_") != nullptr,
-    "expected 'rotation_matrix_' array");
+  VERIFY(
+    ds->GetCellData()->GetArray("rotation_matrix") != nullptr, "expected 'rotation_matrix' array");
 
   reader0->ClearFileNames();
   reader0->AddFileName(::GetFileName(argc, argv, "Data/Exodus/block_with_attributes.g").c_str());

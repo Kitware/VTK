@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -20,7 +20,7 @@ namespace Ioss {
     static const char *name;
 
     static void factory();
-    ~Hex9() override;
+    ~Hex9() override = default;
 
     ElementShape shape() const override { return ElementShape::HEX; }
     int          spatial_dimension() const override;

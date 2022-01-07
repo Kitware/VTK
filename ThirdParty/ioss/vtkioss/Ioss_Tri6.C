@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -56,8 +56,6 @@ Ioss::Tri6::Tri6() : Ioss::ElementTopology(Ioss::Tri6::name, "Triangle_6")
   Ioss::ElementTopology::alias(Ioss::Tri6::name, "TRIANGLE_6_2D");
   Ioss::ElementTopology::alias(Ioss::Tri6::name, "triface6");
 }
-
-Ioss::Tri6::~Tri6() = default;
 
 int Ioss::Tri6::parametric_dimension() const { return 2; }
 int Ioss::Tri6::spatial_dimension() const { return 2; }

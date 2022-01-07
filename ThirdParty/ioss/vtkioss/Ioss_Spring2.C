@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -44,8 +44,6 @@ void Ioss::Spring2::factory()
 }
 
 Ioss::Spring2::Spring2() : Ioss::ElementTopology(Ioss::Spring2::name, "Spring_2") {}
-
-Ioss::Spring2::~Spring2() = default;
 
 int Ioss::Spring2::parametric_dimension() const { return 1; }
 int Ioss::Spring2::spatial_dimension() const { return 3; }

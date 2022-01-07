@@ -202,10 +202,11 @@ namespace Ioss {
 
     const CoordinateFrame &get_coordinate_frame(int64_t id) const;
 
-    // Add the name 'alias' as an alias for the database entity with the
-    // name 'db_name'. Returns true if alias added; false if problems
-    // adding alias.
+    // Add the name 'alias' as an alias for the database entity of
+    // type 'type' with the name 'db_name'. Returns true if alias
+    // added; false if problems adding alias.
     bool        add_alias(const std::string &db_name, const std::string &alias, EntityType type);
+    bool        add_alias(const std::string &db_name, const std::string &alias);
     bool        add_alias(const GroupingEntity *ge);
     std::string get_alias(const std::string &alias, EntityType type) const;
     std::string get_alias__(const std::string &alias, EntityType type) const; // Not locked by mutex

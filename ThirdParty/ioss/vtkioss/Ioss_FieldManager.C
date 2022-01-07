@@ -91,6 +91,18 @@ void Ioss::FieldManager::erase(const std::string &field_name)
 
 /** \brief Get the names of all fields in the field manager.
  *
+ * \returns names All field names in the field manager.
+ *
+ */
+Ioss::NameList Ioss::FieldManager::describe() const
+{
+  Ioss::NameList names;
+  describe(&names);
+  return names;
+}
+
+/** \brief Get the names of all fields in the field manager.
+ *
  * \param[out] names All field names in the field manager.
  * \returns The number of fields extracted from the field manager.
  *
@@ -107,6 +119,19 @@ int Ioss::FieldManager::describe(NameList *names) const
     Ioss::sort(names->begin(), names->end());
   }
   return the_count;
+}
+
+/** \brief Get the names of all fields of a specified RoleType in the field manager.
+ *
+ * \param[in] role The role type (MESH, ATTRIBUTE, TRANSIENT, REDUCTION, etc.)
+ * \returns names All field names of the specified RoleType in the field manager.
+ *
+ */
+Ioss::NameList Ioss::FieldManager::describe(Ioss::Field::RoleType role) const
+{
+  Ioss::NameList names;
+  describe(role, &names);
+  return names;
 }
 
 /** \brief Get the names of all fields of a specified RoleType in the field manager.

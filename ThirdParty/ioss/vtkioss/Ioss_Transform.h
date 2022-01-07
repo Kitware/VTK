@@ -50,7 +50,8 @@ namespace Iotr {
     virtual ~Factory() = default;
     static Ioss::Transform *create(const std::string &type);
 
-    static int describe(Ioss::NameList *names);
+    static int            describe(Ioss::NameList *names);
+    static Ioss::NameList describe();
 
   protected:
     explicit Factory(const std::string &type);
@@ -58,7 +59,7 @@ namespace Iotr {
     static void              alias(const std::string &base, const std::string &syn);
 
   private:
-    static FactoryMap *registry();
+    static FactoryMap &registry();
   };
 } // namespace Iotr
 

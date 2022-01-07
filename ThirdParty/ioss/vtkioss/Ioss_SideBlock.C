@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <fmt/ostream.h>
 #include <string>
+#include <tokenize.h>
 #include <vector>
 
 #include "Ioss_FieldManager.h"
@@ -56,6 +57,54 @@ Ioss::SideBlock::SideBlock(const Ioss::SideBlock &other)
     : EntityBlock(other), parentTopology_(other.parentTopology_),
       consistentSideNumber(other.consistentSideNumber)
 {
+}
+
+std::string Ioss::SideBlock::generate_sideblock_name(const std::string &sideset_name,
+                                                     const std::string &block_or_element,
+                                                     const std::string &face_topology_name)
+{
+  // The naming of sideblocks is:
+  // * If name is of form surface_{id},
+  //   * then {surface} + _ + block-or-element-topology + _ + side_topology + _ + {id}
+  //   * Eg – surface_1 would have sideblocks surface_block_1_quad_1
+  //
+  // * If name is not of that form (e.g. surface_1_foam or “gregs_liner”) then:
+  //   * Name + _ + block-or-element-topology + _ + side_topology
+  //   * Eg surface_1_foam_block_1_edge2, surface_1_foam_quad4_edge2
+  //   * Eg gregs_liner_block_1_edge2, gregs_liner_quad4_edge2
+
+  // Check whether the `block_or_element` portion of the name names a valid element topology...
+  std::string tmp_block_or_element = block_or_element;
+  auto       *element_topology     = ElementTopology::factory(block_or_element);
+  if (element_topology != nullptr) {
+    tmp_block_or_element = element_topology->name();
+  }
+
+  // Verify that `face_topology_name` is a valid topology and Get its "non-aliased" name.
+  std::string tmp_face_topology = face_topology_name;
+  auto       *face_topology     = ElementTopology::factory(face_topology_name);
+  if (face_topology != nullptr) {
+    tmp_face_topology = face_topology->name();
+  }
+  else {
+    std::ostringstream errmsg;
+    fmt::print(errmsg, "ERROR: Invalid face topology '{}' in function {}.\n", face_topology_name,
+               __func__);
+    IOSS_ERROR(errmsg);
+  }
+
+  std::vector<std::string> tokens = Ioss::tokenize(sideset_name, "_");
+  if (tokens.size() == 2) {
+    bool all_dig = tokens[1].find_first_not_of("0123456789") == std::string::npos;
+    if (all_dig && Ioss::Utils::str_equal(tokens[0], "surface")) {
+      std::string sideblock_name =
+          tokens[0] + "_" + tmp_block_or_element + "_" + tmp_face_topology + "_" + tokens[1];
+      return sideblock_name;
+    }
+  }
+
+  std::string sideblock_name = sideset_name + "_" + tmp_block_or_element + "_" + tmp_face_topology;
+  return sideblock_name;
 }
 
 int64_t Ioss::SideBlock::internal_get_field_data(const Ioss::Field &field, void *data,
