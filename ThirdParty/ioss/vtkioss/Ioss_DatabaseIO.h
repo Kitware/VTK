@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -415,12 +415,14 @@ namespace Ioss {
     virtual void set_maximum_symbol_length(int /* requested_symbol_size */) {
     } // Default does nothing...
 
-    char get_field_separator() const { return fieldSeparator; }
-    bool get_field_recognition() const { return enableFieldRecognition; }
-    bool get_field_strip_trailing_() const { return fieldStripTrailing_; }
-    void set_field_separator(char separator);
-    void set_field_recognition(bool yes_no) { enableFieldRecognition = yes_no; }
-    void set_field_strip_trailing_(bool yes_no) { fieldStripTrailing_ = yes_no; }
+    std::string get_component_name(const Ioss::Field &field, Ioss::Field::InOut in_out,
+                                   int component) const;
+    char        get_field_separator() const { return fieldSeparator; }
+    bool        get_field_recognition() const { return enableFieldRecognition; }
+    bool        get_field_strip_trailing_() const { return fieldStripTrailing_; }
+    void        set_field_separator(char separator);
+    void        set_field_recognition(bool yes_no) { enableFieldRecognition = yes_no; }
+    void        set_field_strip_trailing_(bool yes_no) { fieldStripTrailing_ = yes_no; }
 
     void set_lower_case_variable_names(bool true_false) const
     {
@@ -809,6 +811,7 @@ namespace Ioss {
 #endif
     Region *region_{nullptr};
     char    fieldSeparator{'_'};
+    bool    fieldSeparatorSpecified{false};
     bool    enableFieldRecognition{true};
     bool    fieldStripTrailing_{false};
     bool    isInput;

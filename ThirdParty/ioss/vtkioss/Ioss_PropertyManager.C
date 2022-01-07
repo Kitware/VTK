@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -115,6 +115,17 @@ void Ioss::PropertyManager::erase(const std::string &property_name)
 
 /** \brief Get the names of all properties in the property manager
  *
+ *  \returns All the property names in the property manager.
+ */
+Ioss::NameList Ioss::PropertyManager::describe() const
+{
+  Ioss::NameList names;
+  describe(&names);
+  return names;
+}
+
+/** \brief Get the names of all properties in the property manager
+ *
  *  \param[out] names All the property names in the property manager.
  *  \returns The number of properties extracted from the property manager.
  */
@@ -128,6 +139,18 @@ int Ioss::PropertyManager::describe(NameList *names) const
     the_count++;
   }
   return the_count;
+}
+
+/** \brief Get the names of all properties in the property manager that have the origin `origin`
+ *
+ *  \param[in]  origin The origin of the property: IMPLICIT, EXTERNAL, ATTRIBUTE
+ *  \returns The number of properties extracted from the property manager.
+ */
+Ioss::NameList Ioss::PropertyManager::describe(Ioss::Property::Origin origin) const
+{
+  Ioss::NameList names;
+  describe(origin, &names);
+  return names;
 }
 
 /** \brief Get the names of all properties in the property manager that have the origin `origin`

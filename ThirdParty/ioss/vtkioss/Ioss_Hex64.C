@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -78,8 +78,6 @@ Ioss::Hex64::Hex64() : Ioss::ElementTopology(Ioss::Hex64::name, "Hexahedron_64")
 {
   Ioss::ElementTopology::alias(Ioss::Hex64::name, "Solid_Hex_64_3D");
 }
-
-Ioss::Hex64::~Hex64() = default;
 
 int Ioss::Hex64::parametric_dimension() const { return 3; }
 int Ioss::Hex64::spatial_dimension() const { return 3; }

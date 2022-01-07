@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -46,8 +46,6 @@ Ioss::Unknown::Unknown() : Ioss::ElementTopology(Ioss::Unknown::name, Ioss::Unkn
 {
   Ioss::ElementTopology::alias(Ioss::Unknown::name, "invalid_topology");
 }
-
-Ioss::Unknown::~Unknown() = default;
 
 int Ioss::Unknown::parametric_dimension() const { return 0; }
 int Ioss::Unknown::spatial_dimension() const { return 3; }

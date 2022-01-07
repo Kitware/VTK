@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -80,6 +80,17 @@ namespace Ioss {
       count++;
     }
     return count;
+  }
+
+  /** \brief Get the names of variable types known to IOSS.
+   *
+   *  \returns The list of known variable type names.
+   */
+  Ioss::NameList VariableType::describe()
+  {
+    Ioss::NameList names;
+    describe(&names);
+    return names;
   }
 
   bool VariableType::add_field_type_mapping(const std::string &raw_field,
@@ -167,8 +178,6 @@ namespace Ioss {
   {
     size_t              size = suffices.size();
     const VariableType *ivt  = nullptr;
-    // Maximum suffix size is currently 5.
-    assert(size < 100000);
     if (size <= 1) {
       return nullptr; // All storage types must have at least 2 components.
     }
@@ -193,7 +202,7 @@ namespace Ioss {
       size_t width = Ioss::Utils::number_width(size);
       for (size_t i = 0; i < size; i++) {
         std::string digits = fmt::format("{:0{}}", i + 1, width);
-        if (!Ioss::Utils::str_equal(&suffices[i].m_data[0], digits)) {
+        if (!Ioss::Utils::str_equal(suffices[i].m_data, digits)) {
           match = false;
           break;
         }
@@ -230,8 +239,8 @@ namespace Ioss {
     return result;
   }
 
-  std::string VariableType::label_name(const std::string &base, int which,
-                                       const char suffix_sep) const
+  std::string VariableType::label_name(const std::string &base, int which, const char suffix_sep,
+                                       bool suffices_uppercase) const
   {
     std::string my_name = base;
     std::string suffix  = label(which, suffix_sep);
@@ -239,7 +248,12 @@ namespace Ioss {
       if (suffix_sep != 0) {
         my_name += suffix_sep;
       }
-      my_name += suffix;
+      if (suffices_uppercase) {
+        my_name += Ioss::Utils::uppercase(suffix);
+      }
+      else {
+        my_name += suffix;
+      }
     }
     return my_name;
   }

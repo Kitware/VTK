@@ -139,7 +139,7 @@ namespace Iogn {
 
   void DashSurfaceMesh::nodeset_nodes(int64_t /*nset_id*/, Ioss::Int64Vector & /*nodes*/) const {}
 
-  void DashSurfaceMesh::node_communication_map(MapVector &map, std::vector<int> &proc)
+  void DashSurfaceMesh::node_communication_map(Ioss::Int64Vector &map, std::vector<int> &proc)
   {
     if (mDashSurfaceData.sharedNodes.empty()) {
       return;
@@ -162,7 +162,7 @@ namespace Iogn {
     }
   }
 
-  void DashSurfaceMesh::node_map(MapVector &map) const
+  void DashSurfaceMesh::node_map(Ioss::Int64Vector &map) const
   {
     int size = node_count_proc();
     map.resize(size);
@@ -192,7 +192,7 @@ namespace Iogn {
     }
   }
 
-  void DashSurfaceMesh::element_map(int64_t block_number, MapVector &map) const
+  void DashSurfaceMesh::element_map(int64_t block_number, Ioss::Int64Vector &map) const
   {
     size_t numElementsInSurface1 = element_count_proc(1);
     size_t numElementsInSurface2 = element_count_proc(2);
@@ -212,7 +212,7 @@ namespace Iogn {
     }
   }
 
-  void DashSurfaceMesh::element_map(MapVector &map) const
+  void DashSurfaceMesh::element_map(Ioss::Int64Vector &map) const
   {
     size_t count = element_count_proc();
     map.resize(count);
@@ -357,7 +357,7 @@ namespace Iogn {
 
   void ExodusMesh::nodeset_nodes(int64_t /*nset_id*/, Ioss::Int64Vector & /*nodes*/) const {}
 
-  void ExodusMesh::node_communication_map(MapVector &map, std::vector<int> &proc)
+  void ExodusMesh::node_communication_map(Ioss::Int64Vector &map, std::vector<int> &proc)
   {
     for (size_t i = 0; i < mExodusData.sharedNodes.size(); i++) {
       map[i]  = mExodusData.sharedNodes[i].nodeId;
@@ -375,7 +375,7 @@ namespace Iogn {
     }
   }
 
-  void ExodusMesh::node_map(MapVector &map) const
+  void ExodusMesh::node_map(Ioss::Int64Vector &map) const
   {
     int size = node_count_proc();
     map.resize(size);
@@ -393,7 +393,7 @@ namespace Iogn {
     }
   }
 
-  void ExodusMesh::element_map(int64_t blockNumber, MapVector &map) const
+  void ExodusMesh::element_map(int64_t blockNumber, Ioss::Int64Vector &map) const
   {
     int64_t offset = mElementOffsetForBlock[blockNumber - 1];
     for (int64_t i = 0; i < mExodusData.localNumberOfElementsInBlock[blockNumber - 1]; i++) {
@@ -401,7 +401,7 @@ namespace Iogn {
     }
   }
 
-  void ExodusMesh::element_map(MapVector &map) const
+  void ExodusMesh::element_map(Ioss::Int64Vector &map) const
   {
     int64_t count = element_count_proc();
     map.resize(count);

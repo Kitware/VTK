@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -55,8 +55,6 @@ Ioss::Sphere::Sphere() : Ioss::ElementTopology(Ioss::Sphere::name, "Particle")
   Ioss::ElementTopology::alias(Ioss::Sphere::name, "point");
   Ioss::ElementTopology::alias(Ioss::Sphere::name, "point1");
 }
-
-Ioss::Sphere::~Sphere() = default;
 
 int Ioss::Sphere::parametric_dimension() const { return 0; }
 int Ioss::Sphere::spatial_dimension() const { return 3; }

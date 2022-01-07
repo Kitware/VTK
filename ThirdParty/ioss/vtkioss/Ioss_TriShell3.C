@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -73,8 +73,6 @@ Ioss::TriShell3::TriShell3() : Ioss::ElementTopology(Ioss::TriShell3::name, "She
   Ioss::ElementTopology::alias(Ioss::TriShell3::name, "SHELL_TRIANGLE_3");
   Ioss::ElementTopology::alias(Ioss::TriShell3::name, "shell3");
 }
-
-Ioss::TriShell3::~TriShell3() = default;
 
 int Ioss::TriShell3::parametric_dimension() const { return 2; }
 int Ioss::TriShell3::spatial_dimension() const { return 3; }
