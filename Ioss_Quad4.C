@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -56,8 +56,6 @@ Ioss::Quad4::Quad4() : Ioss::ElementTopology(Ioss::Quad4::name, "Quadrilateral_4
   Ioss::ElementTopology::alias(Ioss::Quad4::name, "Face_Quad_4_3D");
   Ioss::ElementTopology::alias(Ioss::Quad4::name, "quadface4");
 }
-
-Ioss::Quad4::~Quad4() = default;
 
 int Ioss::Quad4::parametric_dimension() const { return 2; }
 int Ioss::Quad4::spatial_dimension() const { return 2; }

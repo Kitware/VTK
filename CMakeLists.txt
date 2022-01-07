@@ -159,6 +159,9 @@ set(classes
 
   init/Ionit_Initializer
 
+  text_mesh/Iotm_DatabaseIO
+  text_mesh/Iotm_TextMesh
+
   transform/Iotr_Initializer
   transform/Iotr_MinMax
   transform/Iotr_Offset3D
@@ -351,10 +354,11 @@ list(APPEND headers
   private_copy_fmt/fmt/locale.h
   private_copy_fmt/fmt/os.h
   private_copy_fmt/fmt/ostream.h
-  private_copy_fmt/fmt/posix.h
   private_copy_fmt/fmt/printf.h
   private_copy_fmt/fmt/ranges.h
   private_copy_fmt/fmt/xchar.h
+
+  text_mesh/Iotm_TextMeshUtils.h
 
   vtk_ioss_mangle.h)
 

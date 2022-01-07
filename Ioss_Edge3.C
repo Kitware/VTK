@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -48,8 +48,6 @@ Ioss::Edge3::Edge3() : Ioss::ElementTopology(Ioss::Edge3::name, "Line_3")
   Ioss::ElementTopology::alias(Ioss::Edge3::name, "edge3d3");
   Ioss::ElementTopology::alias(Ioss::Edge3::name, "LINE_3_1D");
 }
-
-Ioss::Edge3::~Edge3() = default;
 
 int Ioss::Edge3::parametric_dimension() const { return 1; }
 int Ioss::Edge3::spatial_dimension() const { return 3; }

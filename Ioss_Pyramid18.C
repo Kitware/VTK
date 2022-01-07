@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -80,8 +80,6 @@ Ioss::Pyramid18::Pyramid18() : Ioss::ElementTopology(Ioss::Pyramid18::name, "Pyr
   Ioss::ElementTopology::alias(Ioss::Pyramid18::name, "Solid_Pyramid_18_3D");
   Ioss::ElementTopology::alias(Ioss::Pyramid18::name, "pyra18");
 }
-
-Ioss::Pyramid18::~Pyramid18() = default;
 
 int Ioss::Pyramid18::parametric_dimension() const { return 3; }
 int Ioss::Pyramid18::spatial_dimension() const { return 3; }

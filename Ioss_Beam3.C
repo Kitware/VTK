@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -53,8 +53,6 @@ Ioss::Beam3::Beam3() : Ioss::ElementTopology(Ioss::Beam3::name, "Beam_3")
   Ioss::ElementTopology::alias(Ioss::Beam3::name, "Rod_3_2D");
   Ioss::ElementTopology::alias(Ioss::Beam3::name, "rod2d3");
 }
-
-Ioss::Beam3::~Beam3() = default;
 
 int Ioss::Beam3::parametric_dimension() const { return 1; }
 int Ioss::Beam3::spatial_dimension() const { return 3; }

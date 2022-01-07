@@ -257,8 +257,7 @@ int64_t Ioss::GroupingEntity::put_field_data(const std::string &field_name, void
 size_t Ioss::GroupingEntity::field_count(Ioss::Field::RoleType role) const
 {
   IOSS_FUNC_ENTER(m_);
-  Ioss::NameList names;
-  fields.describe(role, &names);
+  Ioss::NameList names = field_describe(role);
   return names.size();
 }
 
@@ -270,8 +269,7 @@ void Ioss::GroupingEntity::count_attributes() const
 
   // If the set has a field named "attribute", then the number of
   // attributes is equal to the component count of that field...
-  NameList results_fields;
-  field_describe(Ioss::Field::ATTRIBUTE, &results_fields);
+  Ioss::NameList results_fields = field_describe(Ioss::Field::ATTRIBUTE);
 
   Ioss::NameList::const_iterator IF;
   int64_t                        attribute_count = 0;
@@ -371,9 +369,8 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
   }
 
   /* COMPARE properties */
-  Ioss::NameList lhs_properties, rhs_properties;
-  this->properties.describe(&lhs_properties);
-  rhs.properties.describe(&rhs_properties);
+  Ioss::NameList lhs_properties = this->property_describe();
+  Ioss::NameList rhs_properties = rhs.property_describe();
 
   if (lhs_properties.size() != rhs_properties.size()) {
     if (!quiet) {
@@ -387,8 +384,7 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
     auto it = std::find(rhs_properties.begin(), rhs_properties.end(), lhs_property);
     if (it == rhs_properties.end()) {
       if (!quiet) {
-        fmt::print(Ioss::OUTPUT(),
-                   "WARNING: GroupingEntity: INPUT property ({}) not found in OUTPUT\n",
+        fmt::print(Ioss::OUTPUT(), "WARNING: {}: INPUT property ({}) not found in OUTPUT\n", name(),
                    lhs_property);
       }
       continue;
@@ -400,14 +396,14 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
       if (lhs_property.compare("original_block_order") == 0) {
         if (!quiet) {
           fmt::print(Ioss::OUTPUT(),
-                     "WARNING: values for \"original_block_order\" DIFFER ({} vs. {})\n",
-                     this->properties.get(lhs_property).get_int(),
+                     "WARNING: {}: values for \"original_block_order\" DIFFER ({} vs. {})\n",
+                     name(), this->properties.get(lhs_property).get_int(),
                      rhs.properties.get(lhs_property).get_int());
         }
       }
       else {
         if (!quiet) {
-          fmt::print(Ioss::OUTPUT(), "GroupingEntity: PROPERTY ({}) mismatch\n", lhs_property);
+          fmt::print(Ioss::OUTPUT(), "{}: PROPERTY ({}) mismatch\n", name(), lhs_property);
         }
         return false;
       }
@@ -418,31 +414,41 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
     for (auto &rhs_property : rhs_properties) {
       auto it = std::find(lhs_properties.begin(), lhs_properties.end(), rhs_property);
       if (it == lhs_properties.end()) {
-        fmt::print(Ioss::OUTPUT(),
-                   "WARNING: GroupingEntity: OUTPUT property ({}) not found in INPUT\n",
+        fmt::print(Ioss::OUTPUT(), "WARNING: {}: OUTPUT property ({}) not found in INPUT\n", name(),
                    rhs_property);
       }
     }
   }
 
   /* COMPARE fields */
-  Ioss::NameList lhs_fields, rhs_fields;
-  this->fields.describe(&lhs_fields);
-  rhs.fields.describe(&rhs_fields);
+  Ioss::NameList lhs_fields = this->field_describe();
+  Ioss::NameList rhs_fields = rhs.field_describe();
 
+  bool the_same = true;
   if (lhs_fields.size() != rhs_fields.size()) {
     if (!quiet) {
-      fmt::print(Ioss::OUTPUT(), "GroupingEntity: NUMBER of fields are different ({} vs. {})\n",
+      fmt::print(Ioss::OUTPUT(), "\n{}: NUMBER of fields are different ({} vs. {})\n", name(),
                  lhs_fields.size(), rhs_fields.size());
+      the_same = false;
     }
-    return false;
+    else {
+      return false;
+    }
   }
 
   for (auto &field : lhs_fields) {
     if (!quiet) {
-      if (!this->fields.get(field).equal(rhs.fields.get(field))) {
-        fmt::print(Ioss::OUTPUT(), "GroupingEntity: FIELD ({}) mismatch\n", field);
-        return false;
+      const auto &f1 = this->fields.get(field);
+      if (rhs.field_exists(field)) {
+        const auto &f2 = rhs.fields.get(field);
+        if (!f1.equal(f2)) {
+          fmt::print(Ioss::OUTPUT(), "{}: FIELD ({}) mismatch\n", name(), field);
+          the_same = false;
+        }
+      }
+      else {
+        fmt::print(Ioss::OUTPUT(), "{}: FIELD ({}) not found in input #2\n", name(), field);
+        the_same = false;
       }
     }
     else {
@@ -452,7 +458,16 @@ bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool qu
     }
   }
 
-  return true;
+  if (rhs_fields.size() > lhs_fields.size()) {
+    // See which fields are missing from input #1...
+    for (auto &field : rhs_fields) {
+      if (!this->field_exists(field)) {
+        fmt::print(Ioss::OUTPUT(), "{}: FIELD ({}) not found in input #1\n", name(), field);
+        the_same = false;
+      }
+    }
+  }
+  return the_same;
 }
 
 bool Ioss::GroupingEntity::operator==(const Ioss::GroupingEntity &rhs) const

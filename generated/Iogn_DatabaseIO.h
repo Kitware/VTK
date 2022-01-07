@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -70,7 +70,7 @@ namespace Iogn {
     DatabaseIO(const DatabaseIO &from) = delete;
     DatabaseIO &operator=(const DatabaseIO &from) = delete;
 
-    ~DatabaseIO() override = default;
+    ~DatabaseIO() override;
 
     const std::string get_format() const override { return "Generated"; }
 
@@ -82,7 +82,9 @@ namespace Iogn {
 
     int int_byte_size_db() const override { return int_byte_size_api(); }
 
-    void setGeneratedMesh(Iogn::GeneratedMesh *generatedMesh);
+    const GeneratedMesh *get_generated_mesh() const { return m_generatedMesh; }
+
+    void setGeneratedMesh(Iogn::GeneratedMesh *generatedMesh) { m_generatedMesh = generatedMesh; }
 
     const std::vector<std::string> &get_sideset_names() const { return m_sideset_names; }
 
@@ -192,8 +194,8 @@ namespace Iogn {
 
     void add_transient_fields(Ioss::GroupingEntity *entity);
 
-    std::unique_ptr<GeneratedMesh> m_generatedMesh;
-    std::vector<std::string>       m_sideset_names{};
+    GeneratedMesh *          m_generatedMesh{nullptr};
+    std::vector<std::string> m_sideset_names{};
 
     double currentTime{0.0};
     int    spatialDimension{3};

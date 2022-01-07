@@ -125,10 +125,7 @@ namespace Iogn {
     }
   }
 
-  void DatabaseIO::setGeneratedMesh(Iogn::GeneratedMesh *generatedMesh)
-  {
-    m_generatedMesh.reset(generatedMesh);
-  }
+  DatabaseIO::~DatabaseIO() { delete m_generatedMesh; }
 
   void DatabaseIO::read_meta_data__()
   {
@@ -140,8 +137,8 @@ namespace Iogn {
         IOSS_ERROR(errmsg);
       }
       else {
-        m_generatedMesh.reset(new Iogn::GeneratedMesh(
-            get_filename(), util().parallel_size(), util().parallel_rank()));
+        m_generatedMesh =
+	  new GeneratedMesh(get_filename(), util().parallel_size(), util().parallel_rank());
       }
     }
 

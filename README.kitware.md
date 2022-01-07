@@ -9,6 +9,5 @@ to avoid conflicts with other copies of the library within a single process.
   * Use VTK's Exodus library.
   * Use VTK's CGNS library.
   * Use VTK's NetCDF library.
-  * Use VTK's zlib library.
   * Integrate the CMake build with VTK's module system.
   * Mangle all exported symbols to have a `vtkioss_` prefix.

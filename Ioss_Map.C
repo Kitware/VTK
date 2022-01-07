@@ -1,10 +1,9 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_CodeTypes.h> // for ioss_ssize_t
 #include <Ioss_Field.h> // for Field, etc
 #include <Ioss_Map.h>
 #include <Ioss_SmartAssert.h>
@@ -16,7 +15,7 @@
 #include <numeric>
 #include <sstream>
 #include <string>
-#include <vector>      // for vector, vector<>::iterator, etc
+#include <vector> // for vector, vector<>::iterator, etc
 
 namespace {
   template <typename INT> bool is_one2one(INT *ids, size_t num_to_get, size_t offset)
@@ -364,9 +363,9 @@ size_t Ioss::Map::map_field_to_db_scalar_order(T *variables, std::vector<double>
     size_t k = offset;
     for (size_t j = begin_offset; j < count * stride; j += stride) {
       // Map to storage location.
-      ioss_ssize_t where = m_reorder[k++] - offset;
+      int64_t where = m_reorder[k++] - offset;
       if (where >= 0) {
-        SMART_ASSERT(where < (ioss_ssize_t)count)(where)(count);
+        SMART_ASSERT(where < (int64_t)count)(where)(count);
         db_var[where] = variables[j];
         num_out++;
       }

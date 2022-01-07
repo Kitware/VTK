@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -41,6 +41,34 @@ namespace Ioss {
               const std::string &element_type, size_t side_count);
 
     SideBlock(const SideBlock &other);
+
+    /**
+     *
+     * For externally defined sidesets/sideblocks, attempt to provide
+     * the sideblock name that will be generated if the database is
+     * read and the sideblocks are generated from the sideset at the
+     * read phase.  Since sideblocks are not explicitly stored on some
+     * of the database types (e.g. exodus), the IOSS code generates
+     * the sideblocks from the sidesets when reading the database.  We
+     * want to maximize the possibility that the same sideblock names
+     * will be generated at that read step as the application is using
+     * for sideblocks that it generates internally to be output to a
+     * restart file that is later read...
+     *
+     * \param[in] sideset_name The name of the sideset that this sideblock will be a member of.
+     * \param[in] block_or_element Depending on the `SurfaceSplitType`
+     * behavior for this database, this is either the name of the
+     * element block that the sideblock is applied to
+     * (SPLIT_BY_ELEMENT_BLOCK) or the topology name of the elements
+     * that the sideblock faces are part of (SPLIT_BY_TOPOLOGIES) or
+     * "UNKNOWN" if mixed topology (SPLIT_BY_DONT_SPLIT)
+     * \param[in] face_topology_name The name of the topology of the
+     * sideblock faces. "UNKNOWN" if not homogeneous.
+     * \returns The generated sideblock name.
+     */
+    static std::string generate_sideblock_name(const std::string &sideset_name,
+                                               const std::string &block_or_element,
+                                               const std::string &face_topology_name);
 
     std::string type_string() const override { return "SideBlock"; }
     std::string short_type_string() const override { return "sideblock"; }

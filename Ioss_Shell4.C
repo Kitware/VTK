@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -72,8 +72,6 @@ Ioss::Shell4::Shell4() : Ioss::ElementTopology(Ioss::Shell4::name, "ShellQuadril
   Ioss::ElementTopology::alias(Ioss::Shell4::name, "Shell_Quad_4_3D");
   Ioss::ElementTopology::alias(Ioss::Shell4::name, "SHELL_QUADRILATERAL_4");
 }
-
-Ioss::Shell4::~Shell4() = default;
 
 int Ioss::Shell4::parametric_dimension() const { return 2; }
 int Ioss::Shell4::spatial_dimension() const { return 3; }

@@ -171,7 +171,9 @@ namespace Ioss {
     int64_t     get_optional_property(const std::string &property, int64_t optional_value) const;
     std::string get_optional_property(const std::string &property_name,
                                       const std::string &optional_value) const;
+    NameList    property_describe() const;
     int         property_describe(NameList *names) const;
+    NameList    property_describe(Ioss::Property::Origin origin) const;
     int         property_describe(Ioss::Property::Origin origin, NameList *names) const;
     size_t      property_count() const;
     /** Add a property, or change its value if it already exists with
@@ -189,7 +191,9 @@ namespace Ioss {
     Field        get_field(const std::string &field_name) const;
     const Field &get_fieldref(const std::string &field_name) const;
     int          field_describe(NameList *names) const;
+    NameList     field_describe() const;
     int          field_describe(Field::RoleType role, NameList *names) const;
+    NameList     field_describe(Field::RoleType role) const;
     size_t       field_count() const;
     size_t       field_count(Field::RoleType role) const;
 
@@ -361,12 +365,26 @@ Ioss::GroupingEntity::get_optional_property(const std::string &property_name,
 
 /** \brief Get the names of all properties in the property manager for this entity.
  *
+ * \returns The property names in the property manager.
+ */
+inline Ioss::NameList Ioss::GroupingEntity::property_describe() const
+{
+  return properties.describe();
+}
+
+/** \brief Get the names of all properties in the property manager for this entity.
+ *
  * \param[out] names All the property names in the property manager.
  * \returns The number of properties extracted from the property manager.
  */
 inline int Ioss::GroupingEntity::property_describe(NameList *names) const
 {
   return properties.describe(names);
+}
+
+inline Ioss::NameList Ioss::GroupingEntity::property_describe(Ioss::Property::Origin origin) const
+{
+  return properties.describe(origin);
 }
 
 inline int Ioss::GroupingEntity::property_describe(Ioss::Property::Origin origin,
@@ -429,6 +447,13 @@ inline const Ioss::Field &Ioss::GroupingEntity::get_fieldref(const std::string &
 
 /** \brief Get the names of all fields in the entity's field manager.
  *
+ * \returns All field names in the entity's field manager.
+ *
+ */
+inline Ioss::NameList Ioss::GroupingEntity::field_describe() const { return fields.describe(); }
+
+/** \brief Get the names of all fields in the entity's field manager.
+ *
  * \param[out] names All field names in the entity's field manager.
  * \returns The number of fields extracted from the entity's field manager.
  *
@@ -436,6 +461,17 @@ inline const Ioss::Field &Ioss::GroupingEntity::get_fieldref(const std::string &
 inline int Ioss::GroupingEntity::field_describe(NameList *names) const
 {
   return fields.describe(names);
+}
+
+/** \brief Get the names of all fields of a specified RoleType in the entity's field manager.
+ *
+ * \param[in] role The role type (MESH, ATTRIBUTE, TRANSIENT, REDUCTION, etc.)
+ * \returns All field names of the specified RoleType in the entity's field manager.
+ *
+ */
+inline Ioss::NameList Ioss::GroupingEntity::field_describe(Ioss::Field::RoleType role) const
+{
+  return fields.describe(role);
 }
 
 /** \brief Get the names of all fields of a specified RoleType in the entity's field manager.
