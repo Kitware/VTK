@@ -4500,7 +4500,6 @@ void DeepCopyInputsAndAllocateGhosts(vtkPolyData* input, vtkPolyData* output,
   BlockInformationType& info = block->Information;
 
   vtkIdType numberOfPoints = info.NumberOfInputPoints;
-  vtkIdType numberOfCells = info.NumberOfInputCells;
 
   vtkIdType polyConnectivitySize = info.InputPolyConnectivitySize;
   vtkIdType stripConnectivitySize = info.InputStripConnectivitySize;
@@ -4529,8 +4528,6 @@ void DeepCopyInputsAndAllocateGhosts(vtkPolyData* input, vtkPolyData* output,
     vtkIdType numberOfPolys = numberOfPolyOffsets ? numberOfPolyOffsets - 1 : 0;
     vtkIdType numberOfStrips = numberOfStripOffsets ? numberOfStripOffsets - 1 : 0;
     vtkIdType numberOfLines = numberOfLineOffsets ? numberOfLineOffsets - 1 : 0;
-
-    numberOfCells += numberOfPolys + numberOfStrips + numberOfLines;
 
     polyOffsetsSize += numberOfPolys;
     stripOffsetsSize += numberOfStrips;

@@ -1041,7 +1041,6 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
   this->LevelBitsIndex.clear();
   this->LevelBitsIndex.push_back(0);
   vtkIdType nRefined = 0;
-  vtkIdType nLeaves = 0;
   vtkIdType nNextLevel = nTotal;
   vtkIdType nCurrentLevelCount = 0;
   vtkIdType descSize = this->DescriptorBits->GetNumberOfTuples();
@@ -1053,13 +1052,11 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
     {
       nNextLevel = nRefined * this->BlockSize;
       nRefined = 0;
-      nLeaves = 0;
       nCurrentLevelCount = 0;
       ++nCurrentLevel;
       this->LevelBitsIndex.push_back(i);
     }
     nRefined += this->DescriptorBits->GetValue(i);
-    nLeaves += this->DescriptorBits->GetValue(i) == 0 ? 1 : 0;
 
     ++nCurrentLevelCount;
   }
