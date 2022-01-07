@@ -1375,6 +1375,11 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
     // see paraview/paraview#20873.
     properties.add(Ioss::Property("RETAIN_EMPTY_BLOCKS", "on"));
 
+    // strip trailing underscores in CGNS files to turn separate fields into
+    // vectors with components.
+    // see https://github.com/gsjaardema/seacas/issues/265
+    properties.add(Ioss::Property("FIELD_STRIP_TRAILING_UNDERSCORE", "on"));
+
     // Fillup with user-specified properties.
     Ioss::NameList names;
     this->DatabaseProperties.describe(&names);

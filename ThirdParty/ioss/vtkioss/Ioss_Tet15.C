@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -77,8 +77,6 @@ Ioss::Tet15::Tet15() : Ioss::ElementTopology(Ioss::Tet15::name, "Tetrahedron_15"
   Ioss::ElementTopology::alias(Ioss::Tet15::name, "tet15");
   Ioss::ElementTopology::alias(Ioss::Tet15::name, "Solid_Tet_15_3D");
 }
-
-Ioss::Tet15::~Tet15() = default;
 
 int Ioss::Tet15::parametric_dimension() const { return 3; }
 int Ioss::Tet15::spatial_dimension() const { return 3; }

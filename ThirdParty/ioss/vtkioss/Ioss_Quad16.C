@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -55,8 +55,6 @@ Ioss::Quad16::Quad16() : Ioss::ElementTopology(Ioss::Quad16::name, "Quadrilatera
   Ioss::ElementTopology::alias(Ioss::Quad16::name, "Face_Quad_16_3D");
   Ioss::ElementTopology::alias(Ioss::Quad16::name, "quadface16");
 }
-
-Ioss::Quad16::~Quad16() = default;
 
 int Ioss::Quad16::parametric_dimension() const { return 2; }
 int Ioss::Quad16::spatial_dimension() const { return 2; }

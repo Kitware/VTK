@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -452,16 +452,15 @@ namespace Iohb {
 
     if ((role == Ioss::Field::TRANSIENT || role == Ioss::Field::REDUCTION) && num_to_get == 1) {
 
-      int ncomp = field.transformed_storage()->component_count();
+      int ncomp = field.get_component_count(Ioss::Field::InOut::OUTPUT);
 
       if (legend_ != nullptr && layout_ != nullptr) {
         if (ncomp == 1) {
           legend_->add_legend(field.get_name());
         }
         else {
-          const Ioss::VariableType *var_type = field.transformed_storage();
           for (int i = 0; i < ncomp; i++) {
-            std::string var_name = var_type->label_name(field.get_name(), i + 1, '_');
+            std::string var_name = get_component_name(field, Ioss::Field::InOut::OUTPUT, i + 1);
             legend_->add_legend(var_name);
           }
         }

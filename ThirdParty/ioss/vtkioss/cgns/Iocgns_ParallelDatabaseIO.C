@@ -3,7 +3,7 @@
 // * Single Base.
 // * ZoneGridConnectivity is 1to1 with point lists for unstructured
 
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -69,10 +69,10 @@ namespace {
 #endif
   }
 
-  void map_local_to_global_implicit(CGNSIntVector &data, ioss_ssize_t count,
+  void map_local_to_global_implicit(CGNSIntVector &data, size_t count,
                                     const CGNSIntVector &global_implicit_map)
   {
-    for (ioss_ssize_t i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
       data[i] = global_implicit_map[data[i] - 1];
     }
   }
@@ -1233,9 +1233,8 @@ namespace Iocgns {
     else if (role == Ioss::Field::TRANSIENT) {
       // Locate the FlowSolution node corresponding to the correct state/step/time
       // TODO: do this at read_meta_data() and store...
-      int  step       = get_region()->get_current_state();
-      auto var_type   = field.transformed_storage();
-      int  comp_count = var_type->component_count();
+      int step       = get_region()->get_current_state();
+      int comp_count = field.get_component_count(Ioss::Field::InOut::INPUT);
 
       if (comp_count == 1) {
         decomp->get_node_field(get_file_pointer(), step, Utils::index(field), (double *)data);
@@ -1302,10 +1301,7 @@ namespace Iocgns {
                (rmax[0] - rmin[0] + 1) * (rmax[1] - rmin[1] + 1) * (rmax[2] - rmin[2] + 1));
       }
 
-      auto var_type               = field.transformed_storage();
-      int  comp_count             = var_type->component_count();
-      char field_suffix_separator = get_field_separator();
-
+      int comp_count = field.get_component_count(Ioss::Field::InOut::INPUT);
       if (comp_count == 1) {
         CGCHECKM(cg_field_read(get_file_pointer(), base, zone, solution_index,
                                field.get_name().c_str(), CGNS_ENUMV(RealDouble), rmin, rmax,
@@ -1314,9 +1310,7 @@ namespace Iocgns {
       else {
         std::vector<double> cgns_data(num_to_get);
         for (int i = 0; i < comp_count; i++) {
-          std::string var_name =
-              var_type->label_name(field.get_name(), i + 1, field_suffix_separator);
-
+          std::string var_name = get_component_name(field, Ioss::Field::InOut::INPUT, i + 1);
           CGCHECKM(cg_field_read(get_file_pointer(), base, zone, solution_index, var_name.c_str(),
                                  CGNS_ENUMV(RealDouble), rmin, rmax, cgns_data.data()));
           for (cgsize_t j = 0; j < num_to_get; j++) {
@@ -1467,8 +1461,7 @@ namespace Iocgns {
       }
     }
     else if (role == Ioss::Field::TRANSIENT) {
-      auto var_type   = field.transformed_storage();
-      int  comp_count = var_type->component_count();
+      int comp_count = field.get_component_count(Ioss::Field::InOut::INPUT);
 
       int sol_index = 0;
       int step      = get_region()->get_current_state();
@@ -1549,15 +1542,13 @@ namespace Iocgns {
 
       int order = eb->get_property("original_block_order").get_int();
 
-      const Ioss::VariableType *var_type = field.raw_storage();
-
       // Read into a double variable
       // TODO: Support other field types...
       size_t              num_entity = eb->entity_count();
       std::vector<double> temp(num_entity);
 
       // get number of components, cycle through each component
-      size_t comp_count = var_type->component_count();
+      size_t comp_count = field.get_component_count(Ioss::Field::InOut::INPUT);
       for (size_t i = 0; i < comp_count; i++) {
         int field_offset = Utils::index(field) + i;
         decomp->get_element_field(get_file_pointer(), solution_index, order, field_offset,
@@ -1610,7 +1601,7 @@ namespace Iocgns {
     int         id   = sb->get_property("id").get_int();
     const auto &sset = decomp->m_sideSets[id];
 
-    ioss_ssize_t num_to_get = field.verify(data_size);
+    auto num_to_get = field.verify(data_size);
     if (num_to_get > 0) {
       int64_t entity_count = sb->entity_count();
       if (num_to_get != entity_count) {
@@ -1879,8 +1870,7 @@ namespace Iocgns {
       // prior to outputting nodal coordinates.
       std::vector<int64_t> node_offset = get_processor_zone_node_offset();
 
-      const Ioss::VariableType *var_type   = field.raw_storage();
-      size_t                    comp_count = var_type->component_count();
+      size_t comp_count = field.get_component_count(Ioss::Field::InOut::OUTPUT);
 
       double *rdata = num_to_get > 0 ? static_cast<double *>(data) : nullptr;
 
@@ -1895,8 +1885,6 @@ namespace Iocgns {
         cgsize_t start  = node_offset[zone - 1] + 1;
         cgsize_t finish = start + block_map->size() - 1;
 
-        char field_suffix_separator = get_field_separator();
-
         for (size_t i = 0; i < comp_count; i++) {
           for (size_t j = 0; j < block_map->size(); j++) {
             auto global = block_map->map()[j + 1];
@@ -1904,9 +1892,9 @@ namespace Iocgns {
             assert(local >= 0 && local < (int64_t)num_to_get);
             blk_data[j] = rdata[local * comp_count + i];
           }
-          std::string var_name   = (comp_count > 1) ? var_type->label_name(field.get_name(), i + 1,
-                                                                           field_suffix_separator)
-                                                    : field.get_name();
+          std::string var_name   = (comp_count > 1)
+                                       ? get_component_name(field, Ioss::Field::InOut::OUTPUT, i + 1)
+                                       : field.get_name();
           int         cgns_field = 0;
           CGCHECKM(cgp_field_write(get_file_pointer(), base, zone, m_currentVertexSolutionIndex,
                                    CGNS_ENUMV(RealDouble), var_name.c_str(), &cgns_field));
@@ -1941,12 +1929,10 @@ namespace Iocgns {
 
     Ioss::Field::RoleType role = field.get_role();
     if (role == Ioss::Field::TRANSIENT) {
-      int   base                   = 1;
-      auto *rdata                  = static_cast<double *>(data);
-      int   cgns_field             = 0;
-      auto  var_type               = field.transformed_storage();
-      int   comp_count             = var_type->component_count();
-      char  field_suffix_separator = get_field_separator();
+      int   base       = 1;
+      auto *rdata      = static_cast<double *>(data);
+      int   cgns_field = 0;
+      int   comp_count = field.get_component_count(Ioss::Field::InOut::OUTPUT);
 
       cgsize_t rmin[3] = {0, 0, 0};
       cgsize_t rmax[3] = {0, 0, 0};
@@ -1976,8 +1962,7 @@ namespace Iocgns {
           for (cgsize_t j = 0; j < num_to_get; j++) {
             cgns_data[j] = rdata[comp_count * j + i];
           }
-          std::string var_name =
-              var_type->label_name(field.get_name(), i + 1, field_suffix_separator);
+          std::string var_name = get_component_name(field, Ioss::Field::InOut::OUTPUT, i + 1);
 
           CGCHECKM(cgp_field_write(get_file_pointer(), base, zone, m_currentVertexSolutionIndex,
                                    CGNS_ENUMV(RealDouble), var_name.c_str(), &cgns_field));
@@ -2166,8 +2151,7 @@ namespace Iocgns {
       }
     }
     else if (role == Ioss::Field::TRANSIENT) {
-      double                   *rdata    = num_to_get > 0 ? static_cast<double *>(data) : nullptr;
-      const Ioss::VariableType *var_type = field.raw_storage();
+      double *rdata = num_to_get > 0 ? static_cast<double *>(data) : nullptr;
 
       int base = eb->get_property("base").get_int();
       int zone = eb->get_property("zone").get_int();
@@ -2177,7 +2161,7 @@ namespace Iocgns {
       cgsize_t range_max[1] = {(cgsize_t)start + (cgsize_t)num_to_get};
 
       // get number of components, cycle through each component
-      size_t comp_count = var_type->component_count();
+      size_t comp_count = field.get_component_count(Ioss::Field::InOut::OUTPUT);
       if (comp_count == 1) {
         int cgns_field = 0;
         CGCHECKM(cgp_field_write(get_file_pointer(), base, zone, m_currentCellCenterSolutionIndex,
@@ -2188,15 +2172,13 @@ namespace Iocgns {
         Utils::set_field_index(field, cgns_field, CGNS_ENUMV(CellCenter));
       }
       else {
-        char                field_suffix_separator = get_field_separator();
         std::vector<double> cgns_data(num_to_get);
         for (size_t i = 0; i < comp_count; i++) {
           for (size_t j = 0; j < num_to_get; j++) {
             cgns_data[j] = rdata[comp_count * j + i];
           }
-          std::string var_name =
-              var_type->label_name(field.get_name(), i + 1, field_suffix_separator);
-          int cgns_field = 0;
+          std::string var_name   = get_component_name(field, Ioss::Field::InOut::OUTPUT, i + 1);
+          int         cgns_field = 0;
           CGCHECKM(cgp_field_write(get_file_pointer(), base, zone, m_currentCellCenterSolutionIndex,
                                    CGNS_ENUMV(RealDouble), var_name.c_str(), &cgns_field));
           CGCHECKM(cgp_field_write_data(get_file_pointer(), base, zone,
@@ -2320,12 +2302,9 @@ namespace Iocgns {
       }
     }
     else if (role == Ioss::Field::TRANSIENT) {
-      int  cgns_field             = 0;
-      auto var_type               = field.transformed_storage();
-      int  comp_count             = var_type->component_count();
-      char field_suffix_separator = get_field_separator();
-
-      int sol_index = 0;
+      int cgns_field = 0;
+      int comp_count = field.get_component_count(Ioss::Field::InOut::OUTPUT);
+      int sol_index  = 0;
       CGNS_ENUMT(GridLocation_t) location;
       if (cell_field) {
         sol_index = m_currentCellCenterSolutionIndex;
@@ -2349,8 +2328,7 @@ namespace Iocgns {
           for (cgsize_t j = 0; j < num_to_get; j++) {
             cgns_data[j] = rdata[comp_count * j + i];
           }
-          std::string var_name =
-              var_type->label_name(field.get_name(), i + 1, field_suffix_separator);
+          std::string var_name = get_component_name(field, Ioss::Field::InOut::OUTPUT, i + 1);
 
           CGCHECKM(cgp_field_write(get_file_pointer(), base, zone, sol_index,
                                    CGNS_ENUMV(RealDouble), var_name.c_str(), &cgns_field));
@@ -2419,9 +2397,9 @@ namespace Iocgns {
       IOSS_ERROR(errmsg);
     }
 
-    int     base       = parent_block->get_property("base").get_int();
-    int     zone       = parent_block->get_property("zone").get_int();
-    ioss_ssize_t num_to_get = field.verify(data_size);
+    int  base       = parent_block->get_property("base").get_int();
+    int  zone       = parent_block->get_property("zone").get_int();
+    auto num_to_get = field.verify(data_size);
 
     Ioss::Field::RoleType role = field.get_role();
 
@@ -2468,7 +2446,7 @@ namespace Iocgns {
         if (field.get_type() == Ioss::Field::INT32) {
           int   *idata = reinterpret_cast<int *>(data);
           size_t j     = 0;
-          for (ioss_ssize_t i = 0; i < num_to_get; i++) {
+          for (size_t i = 0; i < num_to_get; i++) {
             parent[num_to_get * 0 + i] = elemMap.global_to_local(idata[j++]); // Element
             parent[num_to_get * 2 + i] = idata[j++];
           }
@@ -2476,7 +2454,7 @@ namespace Iocgns {
         else {
           auto  *idata = reinterpret_cast<int64_t *>(data);
           size_t j     = 0;
-          for (ioss_ssize_t i = 0; i < num_to_get; i++) {
+          for (size_t i = 0; i < num_to_get; i++) {
             parent[num_to_get * 0 + i] = elemMap.global_to_local(idata[j++]); // Element
             parent[num_to_get * 2 + i] = idata[j++];
           }

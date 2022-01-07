@@ -83,8 +83,8 @@ namespace Ioss {
     bool retain_original() const; // True if need to retain in parallel decomp
 
     std::array<IOSS_ZC_INT, 9> transform_matrix() const;
-    Ioss::IJK_t        transform(const Ioss::IJK_t &index_1) const;
-    Ioss::IJK_t        inverse_transform(const Ioss::IJK_t &index_1) const;
+    Ioss::IJK_t                transform(const Ioss::IJK_t &index_1) const;
+    Ioss::IJK_t                inverse_transform(const Ioss::IJK_t &index_1) const;
 
     std::vector<int>     get_range(int ordinal) const;
     friend std::ostream &operator<<(std::ostream &os, const ZoneConnectivity &zgc);

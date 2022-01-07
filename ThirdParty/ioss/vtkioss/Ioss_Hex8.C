@@ -75,8 +75,6 @@ Ioss::Hex8::Hex8() : Ioss::ElementTopology(Ioss::Hex8::name, "Hexahedron_8")
   Ioss::ElementTopology::alias(Ioss::Hex8::name, "Solid_Hex_8_3D");
 }
 
-Ioss::Hex8::~Hex8() = default;
-
 int Ioss::Hex8::parametric_dimension() const { return 3; }
 int Ioss::Hex8::spatial_dimension() const { return 3; }
 int Ioss::Hex8::order() const { return 1; }
