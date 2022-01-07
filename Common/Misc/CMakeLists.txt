@@ -8,7 +8,7 @@ set(classes
   vtkResourceFileLocator)
 
 # ExprTk uses lots of templates and exceeds object file limits
-if (MINGW)
+if (MINGW AND NOT ANDROID) # MINGW is set when cross-compiling for ANDROID, see issue https://gitlab.kitware.com/cmake/cmake/-/issues/22647
   set_property(SOURCE vtkExprTkFunctionParser.cxx APPEND
     PROPERTY
       COMPILE_FLAGS "-Wa,-mbig-obj")

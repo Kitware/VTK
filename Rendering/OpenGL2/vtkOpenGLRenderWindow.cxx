@@ -2098,7 +2098,7 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
         this->MultiSamples = 0;
       }
 #else
-      this->MultSamples = 0;
+      this->MultiSamples = 0;
 #endif
     }
     this->GetState()->PushFramebufferBindings();
