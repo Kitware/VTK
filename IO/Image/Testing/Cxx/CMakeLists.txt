@@ -133,6 +133,8 @@ set(all_tests
   ${data_tests}
   ${tests}
   )
+
 vtk_test_cxx_executable(vtkIOImageCxxTests all_tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
-)
+  )

@@ -3,4 +3,6 @@ vtk_add_test_cxx(vtkFiltersProgrammableCxxTests tests
   TestProgrammableGlyph.cxx
   )
 vtk_test_cxx_executable(vtkFiltersProgrammableCxxTests tests
-  RENDERING_FACTORY)
+  DISABLE_FLOATING_POINT_EXCEPTIONS
+  RENDERING_FACTORY
+  )

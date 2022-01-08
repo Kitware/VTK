@@ -125,4 +125,5 @@ set_tests_properties(VTK::IOImportCxx-TestImportGLFT
 )
 
 vtk_test_cxx_executable(vtkIOImportCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY)

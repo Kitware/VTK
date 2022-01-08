@@ -39,6 +39,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 
 vtk_test_cxx_executable(vtkRenderingVolumeOpenGL2CxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   ${shader_c_files}
   )

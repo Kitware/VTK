@@ -13,5 +13,6 @@ vtk_add_test_cxx(vtkIOChemistryCxxTests tests
 )
 
 vtk_test_cxx_executable(vtkIOChemistryCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
 )

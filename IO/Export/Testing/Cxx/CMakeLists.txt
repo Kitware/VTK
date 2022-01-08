@@ -20,6 +20,7 @@ vtk_add_test_cxx(vtkIOExportCxxTests tests
   UnitTestRIB.cxx,NO_DATA,NO_VALID
   )
 vtk_test_cxx_executable(vtkIOExportCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
 

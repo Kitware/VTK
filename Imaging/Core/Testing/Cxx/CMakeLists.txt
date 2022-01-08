@@ -49,5 +49,6 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     -V DATA{../Data/Baseline/TestClipStencilData.png,:})
 
 vtk_test_cxx_executable(vtkImagingCoreCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )

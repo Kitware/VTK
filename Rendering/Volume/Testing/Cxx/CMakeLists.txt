@@ -97,6 +97,7 @@ vtk_add_test_cxx(vtkRenderingVolumeCxxTests tests
   )
 
 vtk_test_cxx_executable(vtkRenderingVolumeCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
 

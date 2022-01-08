@@ -7,10 +7,11 @@ vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestCubeSource.cxx,NO_VALID
   TestCylinderSource.cxx,NO_VALID
   TestDiskSource.cxx,NO_VALID
-  TestEllipticalButtonSource.cxx,NO_VALID
   TestEllipseArcSource.cxx
+  TestEllipticalButtonSource.cxx,NO_VALID
   TestFrustumSource.cxx,NO_VALID
   TestGlyphSource2D.cxx,NO_VALID
+  TestGlyphSource2DResolution.cxx,
   TestLineSource.cxx,NO_VALID
   TestMultiBlock.cxx
   TestOutlineCornerSource.cxx,NO_VALID
@@ -31,7 +32,8 @@ vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestTessellatedBoxSource.cxx,NO_VALID
   TestTextSource.cxx,NO_VALID
   TestTexturedSphereSource.cxx,NO_VALID
-  TestGlyphSource2DResolution.cxx,
   )
 vtk_test_cxx_executable(vtkFiltersSourcesCxxTests tests
-  RENDERING_FACTORY)
+  DISABLE_FLOATING_POINT_EXCEPTIONS
+  RENDERING_FACTORY
+  )

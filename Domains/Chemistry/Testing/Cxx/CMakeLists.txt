@@ -45,6 +45,7 @@ vtk_add_test_cxx(vtkDomainsChemistryCxxTests tests
   TestVDWSpheres.cxx
   )
 vtk_test_cxx_executable(vtkDomainsChemistryCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
 

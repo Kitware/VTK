@@ -117,5 +117,6 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestZoomIndividualAxis.cxx
   )
 vtk_test_cxx_executable(vtkChartsCoreCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
