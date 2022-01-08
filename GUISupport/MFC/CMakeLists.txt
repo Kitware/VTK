@@ -5,17 +5,16 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMFCConfigure.h"
   )
 
-set(MFC_SRCS
-  vtkMFCWindow.cpp
+set(classes
+  vtkMFCWindow
   )
-set(MFC_HDRS
-  vtkMFCWindow.h
+set(headers
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkMFCConfigure.h"
   )
 
 vtk_module_add_module(VTK::GUISupportMFC
-  SOURCES ${MFC_SRCS}
-  HEADERS ${MFC_HDRS}
-          "${CMAKE_CURRENT_BINARY_DIR}/vtkMFCConfigure.h")
+  CLASSES ${classes}
+  HEADERS ${headers})
 
 if(VTK_MFC_EXTRA_LIBS)
   vtk_module_link(VTK::GUISupportMFC PRIVATE ${VTK_MFC_EXTRA_LIBS})
