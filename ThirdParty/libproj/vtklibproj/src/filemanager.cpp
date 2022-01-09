@@ -991,7 +991,7 @@ std::string FileManager::getProjLibEnvVar(PJ_CONTEXT *ctx) {
     }
     (void)ctx;
     std::string str;
-    const char *envvar = getenv("PROJ_LIB");
+    const char *envvar = getenv("VTK_PROJ_LIB");
     if (!envvar)
         return str;
     str = envvar;
