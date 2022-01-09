@@ -30,6 +30,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkPolyDataTangents.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
@@ -459,7 +460,19 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         {
           // Generate tangents
           vtkNew<vtkPolyDataTangents> tangents;
-          tangents->SetInputData(primitive.Geometry);
+
+          if (pointData->GetNormals() == nullptr)
+          {
+            // Generate normals first
+            vtkNew<vtkPolyDataNormals> normals;
+            normals->SetInputData(primitive.Geometry);
+            tangents->SetInputConnection(normals->GetOutputPort());
+          }
+          else
+          {
+            tangents->SetInputData(primitive.Geometry);
+          }
+
           tangents->Update();
           mapper->SetInputConnection(tangents->GetOutputPort(0));
         }
