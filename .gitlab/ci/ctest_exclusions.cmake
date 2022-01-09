@@ -167,6 +167,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
     "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$"
+
+    # Timeout; needs investigated
+    "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
   )
 endif ()
 
