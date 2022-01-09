@@ -16,6 +16,16 @@
 #ifndef vtkMFCConfigure_h
 #define vtkMFCConfigure_h
 
-#cmakedefine VTK_MFC_STATIC
+#include "vtkLegacy.h"
+
+#ifndef VTK_LEGACY_SILENT
+#ifdef _MSC_VER
+#pragma message("vtkMFCConfigure.h is deprecated; there is no need for the header.")
+#else
+#warning "vtkMFCConfigure.h is deprecated; there is no need for the header."
+#endif
+#endif
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkMFCConfigure.h

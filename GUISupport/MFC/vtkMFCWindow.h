@@ -22,8 +22,6 @@
 class vtkWin32OpenGLRenderWindow;
 class vtkRenderWindowInteractor;
 
-#include "vtkMFCConfigure.h"
-
 //! class to display a VTK window in an MFC window
 class VTKGUISUPPORTMFC_EXPORT vtkMFCWindow : public CWnd
 {
