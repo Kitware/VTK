@@ -15,7 +15,7 @@
         - dnf install -y --setopt=install_weak_deps=False rsync openssh-clients
         - chmod 400 $RSYNC_BINARY_KEY
         - ssh-keygen -y -f $RSYNC_BINARY_KEY > $RSYNC_BINARY_KEY.pub
-        - rsync -tv --recursive -e "ssh -i $RSYNC_BINARY_KEY -o StrictHostKeyChecking=no" build/$SRC_SUBDIR kitware@public.kitware.com:$RSYNC_DESTINATION/
+        - rsync -tv --recursive -e "ssh -i $RSYNC_BINARY_KEY -o StrictHostKeyChecking=no" build/$SRC_SUBDIR kitware@web.kitware.com:$RSYNC_DESTINATION/
 
 .pypi_upload:
     image: "fedora:34"
