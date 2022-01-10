@@ -18,7 +18,6 @@
  *
  * vtkOpenGLHyperTreeGridMapper is a class that uses OpenGL to do the actual
  * rendering of Hyper Tree Grid.
- * For now, only support 2D HTG.
  */
 
 #ifndef vtkOpenGLHyperTreeGridMapper_h

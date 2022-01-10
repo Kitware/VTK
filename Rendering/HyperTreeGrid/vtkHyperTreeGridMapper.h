@@ -94,9 +94,9 @@ public:
    * to the Camera frustum during the rendering. Setting this variable
    * to true (default) should provide increased preformances.
    */
-  vtkGetMacro(UseCameraFrustum, bool);
-  vtkSetMacro(UseCameraFrustum, bool);
-  vtkBooleanMacro(UseCameraFrustum, bool);
+  vtkGetMacro(UseAdaptiveDecimation, bool);
+  vtkSetMacro(UseAdaptiveDecimation, bool);
+  vtkBooleanMacro(UseAdaptiveDecimation, bool);
   //@}
 
   /**
@@ -140,14 +140,17 @@ protected:
    */
   vtkPolyData* GetSurfaceFilterInput();
 
-  // Generate the surface to render
-  bool UseCameraFrustum = true;
+  // In 2D mode, these variables control the mapper oprimisations
+  bool UseAdaptiveDecimation = false;
   vtkNew<vtkHyperTreeGridGeometry> GeometryFilter;
   vtkNew<vtkAdaptiveDataSetSurfaceFilter> Adaptive2DGeometryFilter;
 
-  // render the extracted surface, need to be created
-  // in device specific subclass
-  vtkSmartPointer<vtkPolyDataMapper> PDMapper;
+  // render the extracted surface,
+  // need to be created in device specific subclass
+  vtkSmartPointer<vtkPolyDataMapper> PDMapper2D;
+  // fallback to the usual mapper in 3D mode,
+  // need to be created in device specific subclass
+  vtkSmartPointer<vtkPolyDataMapper> Mapper3D;
 
 private:
   vtkHyperTreeGridMapper(const vtkHyperTreeGridMapper&) = delete;
