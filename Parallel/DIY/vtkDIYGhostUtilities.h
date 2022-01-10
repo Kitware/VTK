@@ -52,10 +52,17 @@
  *   points if point global ids are not present, and point global ids are used instead if they are
  *   present.
  *
- * @note Currently, only `vtkImageData`, `vtkRectilinearGrid`, `vtkStructuredGrid` and
- * `vtkUnstructuredGrid` are
+ * @note Currently, only `vtkImageData`, `vtkRectilinearGrid`, `vtkStructuredGrid`,
+ * `vtkUnstructuredGrid` and `vtkPolyData` are
  * implemented. Unless there is determining structural data added to subclasses of those classes,
  * this filter should work well on subclasses of supported types.
+ *
+ * @warning This warning only applies for `vtkUnstructuredGrid` and `vtkPolyData` inputs. If
+ * there are duplicate points in the outer shell of an input partition, then this filter cannot
+ * decide on how to connect the cells properly when generating ghosts. The same phenomenon occurs
+ * when the outer shell of the partition has 2 points with the same global id. In such
+ * circumstances, use the `vtkStaticCleanUnstructuredGrid`
+ * or `vtkStaticCleanPolyData` filter first in order to have a clean input.
  */
 #ifndef vtkDIYGhostUtilities_h
 #define vtkDIYGhostUtilities_h

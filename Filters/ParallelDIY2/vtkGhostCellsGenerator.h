@@ -19,6 +19,7 @@
  * This filter computes ghost cells between data sets of same types in a `vtkCompositeDataSet`.
  * For example, a `vtkImageData` inside a `vtkCompositeDataSet` will send and receive ghosts only to
  * and from other `vtkImageData`.
+ * The backend used to generate the ghosts is `vtkDIYGhostUtilities::GenerateGhosts`.
  *
  * If the input is a `vtkPartitionedDataSetCollection`, then ghosts are computed per partitioned
  * data set. In other words, ghost are not computed between 2 `vtkDataSet` belonging to 2 different
@@ -29,6 +30,11 @@
  * `vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()` in the downstream streaming
  * pipeline. If not (i.e. `BuildIfRequired` is off), then the max between this latter value and
  * `NumberOfGhostLayers` is being used.
+ *
+ * Ghosts points are generated in addition to ghost cells. The same point exists across multiple
+ * partitions at the interface between them. One version of those points is not tagged as ghost,
+ * while the others are. As a consequence, there are as many non ghost points as there would be
+ * points if the input partitions were all merged into one partition.
  *
  * If the input is composed of some data sets already owning ghosts, those ghosts are removed from
  * the output and are recomputed. Ghosts in the input are as if they didn't exist.
@@ -44,8 +50,17 @@
  * @warning If an input already holds ghosts, the input ghost cells should be tagged as
  * `CELLDUPLICATE` in order for this filter to work properly.
  *
- * @note Currently,`vtkImageData`, `vtkRectilinearGrid`, `vtkStructuredGrid` and
- * `vtkUnstructuredGrid` are implemented.
+ * @note Currently,`vtkImageData`, `vtkRectilinearGrid`, `vtkStructuredGrid`,
+ * `vtkUnstructuredGrid` and `vtkPolyData` are implemented.
+ *
+ * @warning This warning only applies for `vtkUnstructuredGrid` and `vtkPolyData` inputs. If
+ * there are duplicate points in the outer shell of an input partition, then this filter cannot
+ * decide on how to connect the cells properly when generating ghosts. The same phenomenon occurs
+ * when the outer shell of the partition has 2 points with the same global id. In such
+ * circumstances, use the `vtkStaticCleanUnstructuredGrid`
+ * or `vtkStaticCleanPolyData` filter first in order to have a clean input.
+ *
+ * @sa vtkDIYGhostUtilities
  */
 
 #ifndef vtkGhostCellsGenerator_h
