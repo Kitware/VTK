@@ -70,15 +70,15 @@ static void AtExitCallback()
 }
 #endif // VTK_COMPILED_USING_MPI
 
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__MINGW32__)
 int wmain(int argc, wchar_t* wargv[])
 #else
 int main(int argc, char** argv)
 #endif
 {
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
-  vtkPythonArgConverter converter(argc, wargv);
-  char** argv = converter.getArgs();
+#if defined(_WIN32) && !defined(__MINGW32__)
+  vtkWideArgsConverter converter(argc, wargv);
+  char** argv = converter.GetArgs();
 #endif
 
 #ifdef VTK_COMPILED_USING_MPI

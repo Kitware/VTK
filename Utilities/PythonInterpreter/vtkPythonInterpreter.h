@@ -61,9 +61,10 @@
 #include "vtkPythonInterpreterModule.h" // For export macro
 #include "vtkStdString.h"               // needed for vtkStdString.
 
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
-#include <vector>
+#if defined(_WIN32)
+#include <vector> // for vtkWideArgsConverter
 #endif
+
 class VTKPYTHONINTERPRETER_EXPORT vtkPythonInterpreter : public vtkObject
 {
 public:
@@ -253,20 +254,22 @@ private:
 // This is here to implement the Schwarz counter idiom.
 static vtkPythonGlobalInterpreters vtkPythonInterpreters;
 
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
-class VTKPYTHONINTERPRETER_EXPORT vtkPythonArgConverter
+#if defined(_WIN32)
+class VTKPYTHONINTERPRETER_EXPORT vtkWideArgsConverter
 {
 public:
-  vtkPythonArgConverter(int argc, wchar_t* wargv[]);
-  ~vtkPythonArgConverter();
+  vtkWideArgsConverter(int argc, wchar_t* wargv[]);
+  ~vtkWideArgsConverter();
 
-  char** getArgs() { return &args[0]; }
+  char** GetArgs() { return &this->Args[0]; }
+  int GetArgCount() { return this->Argc; }
 
 private:
-  std::vector<char*> args;
-  std::vector<char*> memcache;
-  vtkPythonArgConverter(const vtkPythonArgConverter&) = delete;
-  vtkPythonArgConverter& operator=(const vtkPythonArgConverter&) = delete;
+  int Argc;
+  std::vector<char*> Args;
+  std::vector<char*> MemCache;
+  vtkWideArgsConverter(const vtkWideArgsConverter&) = delete;
+  vtkWideArgsConverter& operator=(const vtkWideArgsConverter&) = delete;
 };
 #endif
 
