@@ -4548,11 +4548,11 @@ void DeepCopyInputsAndAllocateGhosts(vtkPolyData* input, vtkPolyData* output,
 
   vtkPoints* inputPoints = input->GetPoints();
   vtkNew<vtkPoints> outputPoints;
-  outputPoints->SetNumberOfPoints(numberOfPoints);
   if (inputPoints)
   {
     outputPoints->SetDataType(inputPoints->GetDataType());
   }
+  outputPoints->SetNumberOfPoints(numberOfPoints);
   output->SetPoints(outputPoints);
 
   vtkNew<vtkCellArray> outputPolys, outputStrips, outputLines;
