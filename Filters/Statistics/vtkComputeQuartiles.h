@@ -24,6 +24,9 @@
  * using a vtkPlotBox instance.
  * The filter internally uses vtkOrderStatistics to compute quartiles.
  *
+ * Note: This class is being kept for backwards compatibility. Please use vtkComputeQuantiles
+ * instead which is the generalized version of this filter.
+ *
  * @sa
  * vtkTableAlgorithm vtkOrderStatistics vtkPlotBox vtkChartBox
  *
@@ -34,40 +37,23 @@
 #ifndef vtkComputeQuartiles_h
 #define vtkComputeQuartiles_h
 
+#include "vtkComputeQuantiles.h"
 #include "vtkFiltersStatisticsModule.h" // For export macro
-#include "vtkTableAlgorithm.h"
 
-class vtkDataSet;
-class vtkDoubleArray;
-class vtkFieldData;
-class vtkTable;
-
-class VTKFILTERSSTATISTICS_EXPORT vtkComputeQuartiles : public vtkTableAlgorithm
+class VTKFILTERSSTATISTICS_EXPORT vtkComputeQuartiles : public vtkComputeQuantiles
 {
 public:
   static vtkComputeQuartiles* New();
-  vtkTypeMacro(vtkComputeQuartiles, vtkTableAlgorithm);
+  vtkTypeMacro(vtkComputeQuartiles, vtkComputeQuantiles);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkComputeQuartiles();
-  ~vtkComputeQuartiles() override;
-
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-
-  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
-
-  void ComputeTable(vtkDataObject*, vtkTable*, vtkIdType);
-
-  int FieldAssociation;
+  ~vtkComputeQuartiles() = default;
 
 private:
   void operator=(const vtkComputeQuartiles&) = delete;
   vtkComputeQuartiles(const vtkComputeQuartiles&) = delete;
-
-  int GetInputFieldAssociation();
-  vtkFieldData* GetInputFieldData(vtkDataObject* input);
 };
 
 #endif
