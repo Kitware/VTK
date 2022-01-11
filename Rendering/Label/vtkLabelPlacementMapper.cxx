@@ -603,7 +603,6 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
     ((kdbounds[1] - kdbounds[0]) * (kdbounds[3] - kdbounds[2])) * this->MaximumLabelFraction);
   (void)allowableLabelArea;
   unsigned long renderedLabelArea = 0;
-  unsigned long iteratedLabelArea = 0;
   double camVec[3];
   if (this->PositionsAsNormals)
   {
@@ -823,8 +822,6 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
         vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea);
       }
     }
-
-    iteratedLabelArea += static_cast<unsigned long>(sz[0] * sz[1]);
 
     double orient = tpropCopy->GetOrientation();
 

@@ -409,11 +409,9 @@ void vtkLabelHierarchyFrustumIterator::Next()
       }
       if (gotNode)
       {
-        int R2 = 0;
         for (int i = 0; i < 3; ++i)
         {
           this->IjkG[i] = this->Ijk0[i] + this->IjkS[i];
-          R2 += this->IjkS[i] * this->IjkS[i];
           if (this->IjkG[i] < 0 || this->IjkG[i] >= lvlMax)
           { // out of bounds
             gotNode = false;

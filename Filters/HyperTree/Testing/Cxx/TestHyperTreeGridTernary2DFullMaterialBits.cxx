@@ -89,7 +89,6 @@ void GenerateDescriptorAndMaterial(
   int depth, int sx, int sy, int sz, int branch, vtkBitArray* d, vtkBitArray* m)
 {
   vtkIdType l = sx * sy * sz;
-  vtkIdType s = 1;
   for (int j = 0; j < depth - 1; j++)
   {
     for (int i = 0; i < l; i++)
@@ -100,7 +99,6 @@ void GenerateDescriptorAndMaterial(
         m->InsertNextValue(1);
       }
     }
-    s *= branch * branch;
     l *= branch * branch;
   }
 
