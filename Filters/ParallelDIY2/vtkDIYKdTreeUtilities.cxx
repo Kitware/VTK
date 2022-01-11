@@ -383,6 +383,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
     else if (block0[cc].size() > 1)
     {
       vtkNew<vtkAppendFilter> appender;
+      appender->MergePointsOn();
       for (auto& ug : block0[cc])
       {
         appender->AddInputDataObject(ug);
