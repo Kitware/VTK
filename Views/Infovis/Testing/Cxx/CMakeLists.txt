@@ -23,4 +23,5 @@ vtk_add_test_cxx(vtkViewsInfovisCxxTests tests
   )
 
 vtk_test_cxx_executable(vtkViewsInfovisCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY)

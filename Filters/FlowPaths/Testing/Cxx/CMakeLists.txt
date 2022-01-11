@@ -14,5 +14,6 @@ vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
   TestVectorFieldTopology.cxx
   )
 vtk_test_cxx_executable(vtkFiltersFlowPathsCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )

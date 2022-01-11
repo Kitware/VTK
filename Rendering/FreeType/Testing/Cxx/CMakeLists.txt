@@ -59,4 +59,6 @@ if(MATPLOTLIB_FOUND AND TARGET VTK::RenderingMatplotlib)
 endif()
 
 vtk_test_cxx_executable(vtkRenderingFreeTypeCxxTests tests
-  RENDERING_FACTORY)
+  DISABLE_FLOATING_POINT_EXCEPTIONS
+  RENDERING_FACTORY
+  )

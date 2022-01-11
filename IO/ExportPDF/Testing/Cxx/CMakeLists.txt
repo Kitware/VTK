@@ -12,6 +12,7 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
     ${PDFTests}
     )
   vtk_test_cxx_executable(vtkIOExportPDFCxxTests tests
+    DISABLE_FLOATING_POINT_EXCEPTIONS
     RENDERING_FACTORY
     )
 

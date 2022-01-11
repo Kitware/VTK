@@ -21,7 +21,9 @@ list(APPEND tests
 )
 
 vtk_test_cxx_executable(vtkIOExodusCxxTests tests
-  RENDERING_FACTORY)
+  DISABLE_FLOATING_POINT_EXCEPTIONS
+  RENDERING_FACTORY
+  )
 
 ExternalData_add_test(VTKData
   NAME VTK::IOExodusCxx-Tetra15

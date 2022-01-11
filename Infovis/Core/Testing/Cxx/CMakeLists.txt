@@ -51,4 +51,7 @@ set(all_tests
   ${output_tests}
   ${custom_tests}
   )
-vtk_test_cxx_executable(vtkInfovisCoreCxxTests all_tests RENDERING_FACTORY)
+vtk_test_cxx_executable(vtkInfovisCoreCxxTests all_tests
+   DISABLE_FLOATING_POINT_EXCEPTIONS
+   RENDERING_FACTORY
+   )

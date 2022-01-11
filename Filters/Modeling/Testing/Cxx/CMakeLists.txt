@@ -21,4 +21,7 @@ vtk_add_test_cxx(vtkFiltersModelingCxxTests tests
 vtk_add_test_cxx(vtkFiltersModelingCxxTests tests
   TestCollisionDetectionHalfContacts,TestCollisionDetection.cxx 2)
 
-vtk_test_cxx_executable(vtkFiltersModelingCxxTests tests RENDERING_FACTORY)
+vtk_test_cxx_executable(vtkFiltersModelingCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
+  RENDERING_FACTORY
+  )

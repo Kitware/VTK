@@ -18,5 +18,6 @@ vtk_add_test_cxx(vtkFiltersHybridCxxTests tests
   TestTemporalInterpolator.cxx
   )
 vtk_test_cxx_executable(vtkFiltersHybridCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )

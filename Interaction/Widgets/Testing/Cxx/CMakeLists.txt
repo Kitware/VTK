@@ -136,6 +136,7 @@ set(all_tests
   ${ogl_tests}
   )
 vtk_test_cxx_executable(vtkInteractionWidgetsCxxTests all_tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
 

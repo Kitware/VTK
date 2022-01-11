@@ -79,7 +79,9 @@ set(all_tests
   )
 
 vtk_test_cxx_executable(vtkFiltersGeneralCxxTests all_tests
-  RENDERING_FACTORY)
+  DISABLE_FLOATING_POINT_EXCEPTIONS
+  RENDERING_FACTORY
+  )
 
 # On some machines this test takes some extra time
 if(NOT VTK_TEST_TIMEOUT_TestYoungsMaterialInterface)

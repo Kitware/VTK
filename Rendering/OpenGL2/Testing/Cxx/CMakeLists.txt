@@ -105,4 +105,7 @@ if (VTK_USE_SDL2)
   vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests TestSDL2.cxx)
 endif ()
 
-vtk_test_cxx_executable(vtkRenderingOpenGL2CxxTests tests RENDERING_FACTORY)
+vtk_test_cxx_executable(vtkRenderingOpenGL2CxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
+  RENDERING_FACTORY
+  )

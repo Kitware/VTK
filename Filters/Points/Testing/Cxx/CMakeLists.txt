@@ -7,5 +7,6 @@ vtk_add_test_cxx(vtkFiltersPointsCxxTests tests
   TestPoissonDiskSampler.cxx,NO_VALID,NO_DATA
   )
 vtk_test_cxx_executable(vtkFiltersPointsCxxTests tests
+  DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
   )
