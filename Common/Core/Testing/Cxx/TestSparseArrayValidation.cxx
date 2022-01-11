@@ -58,8 +58,8 @@ int TestSparseArrayValidation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     array->AddValue(1, 2, 2);
     array->AddValue(0, 0, 4);
     test_expression(!array->Validate());
-    int status = 0;
-    status += errorObserver->CheckErrorMessage("Array contains 1 duplicate coordinates");
+    int status = errorObserver->CheckErrorMessage("Array contains 1 duplicate coordinates");
+    test_expression(status == 0);
 
     array->Clear();
     array->AddValue(0, 0, 1);

@@ -34,6 +34,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -550,7 +551,7 @@ void vtkFast2DLayoutStrategy::ResolveCoincidentVertices()
   giantGrid->Delete();
 
   // Report number of collision operations just for sanity check
-  // vtkWarningMacro("Collision Ops: " << totalCollisionOps);
+  vtkLog(TRACE, "Collision Ops: " << totalCollisionOps);
 }
 
 void vtkFast2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)

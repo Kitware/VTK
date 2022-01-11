@@ -142,5 +142,10 @@ int TestFixedWidthTextReader(int argc, char* argv[])
   reader->Delete();
   delete[] filename;
 
+  if (status != 0)
+  {
+    return EXIT_FAILURE;
+  }
+
   return 0;
 }
