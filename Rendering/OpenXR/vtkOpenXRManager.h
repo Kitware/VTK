@@ -266,6 +266,13 @@ public:
   bool AttachSessionActionSets();
   //@}
 
+  //@{
+  /**
+   * Iterate over and destroy all action sets that have been created.
+   */
+  //@}
+  void DestroyActionSets();
+
   struct Action_t;
 
   //@{

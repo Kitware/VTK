@@ -122,6 +122,7 @@ bool vtkOpenXRManager::Initialize(vtkOpenGLRenderWindow* helperWindow)
 //------------------------------------------------------------------------------
 void vtkOpenXRManager::Finalize()
 {
+  this->DestroyActionSets();
   xrEndSession(this->Session);
   xrDestroySession(this->Session);
   xrDestroyInstance(this->Instance);
@@ -1169,6 +1170,20 @@ bool vtkOpenXRManager::AttachSessionActionSets()
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenXRManager::DestroyActionSets()
+{
+  for (XrActionSet actionSet : this->ActionSets)
+  {
+    xrDestroyActionSet(actionSet);
+  }
+
+  this->ActionSets.clear();
+
+  // active action set pointed to one of those, so clear it now
+  this->ActiveActionSet = nullptr;
+}
+
+//------------------------------------------------------------------------------
 XrPath vtkOpenXRManager::GetXrPath(const std::string& path)
 {
   VTK_CHECK_NULL_XRHANDLE(this->Instance, "vtkOpenXRManager::GetXrPath, Instance");
@@ -1185,7 +1200,6 @@ bool vtkOpenXRManager::CreateOneAction(
 {
   if (this->ActiveActionSet == nullptr)
   {
-    vtkErrorMacro(<< "CreateOneAction: ActiveActionSet is nullptr !");
     return false;
   }
 
@@ -1276,7 +1290,6 @@ bool vtkOpenXRManager::SyncActions()
 {
   if (this->ActiveActionSet == nullptr)
   {
-    vtkErrorMacro(<< "SyncActions: ActiveActionSet is nullptr !");
     return false;
   }
   const XrActionSet& actionSet = *this->ActiveActionSet;
