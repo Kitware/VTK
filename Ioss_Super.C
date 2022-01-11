@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -9,8 +9,8 @@
 #include <Ioss_ElementVariableType.h> // for ElementVariableType
 #include <Ioss_Super.h>
 #include <cstddef> // for size_t
-#include <cstdlib> // for atoi
-#include <string>  // for string
+#include <cstdlib>
+#include <string> // for string
 
 //------------------------------------------------------------------------
 // Define a variable type for storage of this elements connectivity

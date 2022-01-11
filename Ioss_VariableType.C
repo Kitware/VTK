@@ -295,7 +295,7 @@ namespace Ioss {
 
     char *countstr = std::strtok(nullptr, "[]");
     assert(countstr != nullptr);
-    int count = std::atoi(countstr);
+    int count = std::strtol(countstr, nullptr, 10);
     if (count <= 0) {
       delete[] typecopy;
       return false;

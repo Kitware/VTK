@@ -1,12 +1,11 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
  * See packages/seacas/LICENSE for details
  */
-#ifndef IOCGNS_STRUCTUREDZONEDATA_H
-#define IOCGNS_STRUCTUREDZONEDATA_H
+#pragma once
 
 #include <Ioss_CodeTypes.h>
 #include <Ioss_StructuredBlock.h>
@@ -97,5 +96,3 @@ namespace Iocgns {
     void update_zgc_processor(const std::vector<Iocgns::StructuredZoneData *> &zones);
   };
 } // namespace Iocgns
-
-#endif

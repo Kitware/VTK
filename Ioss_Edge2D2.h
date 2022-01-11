@@ -1,11 +1,10 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#ifndef IOSS_Ioss_Edge2D2_h
-#define IOSS_Ioss_Edge2D2_h
+#pragma once
 
 #include "vtk_ioss_mangle.h"
 
@@ -53,4 +52,3 @@ namespace Ioss {
     static Edge2D2 instance_;
   };
 } // namespace Ioss
-#endif // IOSS_Ioss_Edge2D2_h
