@@ -24,6 +24,7 @@
 #include "vtkSMPTools.h"
 
 #include <algorithm>
+#include <array>
 
 vtkStandardNewMacro(vtkPlane);
 
