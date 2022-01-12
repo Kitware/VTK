@@ -39,9 +39,13 @@ void vtkHyperTreeGridMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
 
   auto* htg = vtkHyperTreeGrid::SafeDownCast(this->GetInputDataObject(0, 0));
-  const bool use2DMode = (htg && htg->GetDimension() == 2);
 
-  if (!use2DMode) // fallback to generic mapper
+  if (htg == nullptr) // nothing to do
+  {
+    return;
+  }
+
+  if (htg->GetDimension() != 2) // fallback to generic mapper
   {
     if (this->GetMTime() > this->Mapper3D->GetMTime())
     {
