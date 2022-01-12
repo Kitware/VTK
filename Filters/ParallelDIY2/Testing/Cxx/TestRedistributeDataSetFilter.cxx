@@ -24,6 +24,7 @@
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRandomAttributeGenerator.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkRegressionTestImage.h"
@@ -46,6 +47,30 @@
 
 namespace
 {
+bool TestDuplicatePoints(vtkMultiProcessController* controller)
+{
+  int myrank = controller->GetLocalProcessId();
+
+  vtkNew<vtkRTAnalyticSource> wavelet;
+  if (myrank == 0)
+  {
+    wavelet->SetWholeExtent(-10, 0, -10, 10, -10, 10);
+  }
+  else if (myrank == 1)
+  {
+    wavelet->SetWholeExtent(0, 10, -10, 10, -10, 10);
+  }
+
+  vtkNew<vtkRedistributeDataSetFilter> redistribute;
+  redistribute->SetInputConnection(wavelet->GetOutputPort());
+  redistribute->Update();
+
+  vtkDataSet* waveletDS = vtkDataSet::SafeDownCast(wavelet->GetOutputDataObject(0));
+  vtkDataSet* redistributedDS = vtkDataSet::SafeDownCast(redistribute->GetOutputDataObject(0));
+
+  return waveletDS->GetNumberOfPoints() == redistributedDS->GetNumberOfPoints();
+}
+
 bool TestMultiBlockEmptyOnAllRanksButZero(vtkMultiProcessController* controller)
 {
   // See !8745
@@ -120,6 +145,15 @@ int TestRedistributeDataSetFilter(int argc, char* argv[])
 
   if (!TestMultiBlockEmptyOnAllRanksButZero(controller))
   {
+    return EXIT_FAILURE;
+  }
+
+  // See paraview/paraview#21161
+  if (!TestDuplicatePoints(controller))
+  {
+    vtkLog(ERROR,
+      "Wrong number of output points when applying the filter on a wavelet source."
+      " The most likely reason for that is if the filter produced duplicated points.");
     return EXIT_FAILURE;
   }
 
