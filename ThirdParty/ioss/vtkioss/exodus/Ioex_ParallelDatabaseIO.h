@@ -1,12 +1,11 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
 // -*- Mode: c++ -*-
-#ifndef IOSS_Ioex_ParallelDatabaseIO_h
-#define IOSS_Ioex_ParallelDatabaseIO_h
+#pragma once
 
 #include "vtk_ioss_mangle.h"
 #include <vtk_exodusII.h>
@@ -260,5 +259,4 @@ namespace Ioex {
     mutable bool elemGlobalImplicitMapDefined{false};
   };
 } // namespace Ioex
-#endif
 #endif
