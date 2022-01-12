@@ -89,13 +89,39 @@ if (config_subdir AND CMAKE_VERSION VERSION_LESS "3.20")
 endif ()
 
 get_target_property(qt_config "Qt${vtk_qt_major_version}::Core" IMPORTED_CONFIGURATIONS)
-if (WIN32 AND ("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
-  message(AUTHOR_WARNING
-    "Qt5 is configured in both Debug and Release modes. Due to Qt issue "
-    "47774 (https://bugreports.qt.io/browse/QTBUG-47774), skipping "
-    "generation of qmltypes file. Using the one provided with the source "
-    "tree instead.")
 
+set(copy_qmlplugintypes FALSE)
+if (vtk_qt_major_version VERSION_GREATER 5)
+  set(copy_qmlplugintypes TRUE)
+endif ()
+
+if (NOT copy_qmlplugintypes)
+  if (WIN32 AND ("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
+    message(AUTHOR_WARNING
+      "Qt5 is configured in both Debug and Release modes. Due to Qt issue "
+      "47774 (https://bugreports.qt.io/browse/QTBUG-47774), skipping "
+      "generation of qmltypes file. Using the one provided with the source "
+      "tree instead.")
+  
+    set(copy_qmlplugintypes TRUE)
+  else ()
+    add_custom_command(
+      TARGET qmlvtkplugin
+      POST_BUILD
+      COMMAND
+        "${QMLPLUGINDUMP_EXECUTABLE}"
+        -output "${qmltypes_file_output}"
+        "${_vtk_build_PACKAGE}"
+        "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
+        "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_QMLDIR}${config_subdir}"
+      WORKING_DIRECTORY
+        "${CMAKE_CURRENT_BINARY_DIR}"
+      ${byproducts}
+      COMMENT "Generating qmltypes file using qmlplugindump"
+      VERBATIM)
+  endif ()
+endif()
+if (copy_qmlplugintypes)
   add_custom_command(
     TARGET qmlvtkplugin
     POST_BUILD
@@ -107,21 +133,6 @@ if (WIN32 AND ("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
       "${CMAKE_CURRENT_BINARY_DIR}"
     ${byproducts}
     COMMENT "Copying qmltypes file from the source tree to ${qmltypes_file_output}")
-else ()
-  add_custom_command(
-    TARGET qmlvtkplugin
-    POST_BUILD
-    COMMAND
-      "${QMLPLUGINDUMP_EXECUTABLE}"
-      -output "${qmltypes_file_output}"
-      "${_vtk_build_PACKAGE}"
-      "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
-      "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_QMLDIR}${config_subdir}"
-    WORKING_DIRECTORY
-      "${CMAKE_CURRENT_BINARY_DIR}"
-    ${byproducts}
-    COMMENT "Generating qmltypes file using qmlplugindump"
-    VERBATIM)
 endif ()
 
 # Install the QML plugin module
