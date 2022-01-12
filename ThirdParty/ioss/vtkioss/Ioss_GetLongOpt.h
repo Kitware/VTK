@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -7,8 +7,7 @@
  */
 /* S Manoharan. Advanced Computer Research Institute. Lyon. France */
 
-#ifndef _GetLongOption_h_
-#define _GetLongOption_h_
+#pragma once
 
 #include "vtk_ioss_mangle.h"
 
@@ -112,4 +111,3 @@ namespace Ioss {
     }
   };
 } // namespace Ioss
-#endif /* _GetLongOption_h_ */

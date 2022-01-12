@@ -4,8 +4,7 @@
 //
 // See packages/seacas/LICENSE for details
 
-#ifndef IOSS_code_types_h
-#define IOSS_code_types_h
+#pragma once
 
 #include "vtk_ioss_mangle.h"
 
@@ -84,7 +83,6 @@ using Kokkos_Complex = Kokkos::complex<float>;
 using Complex        = std::complex<double>;
 #ifdef SEACAS_HAVE_KOKKOS
 using Kokkos_Complex = Kokkos::complex<double>;
-#endif
 #endif
 #endif
 

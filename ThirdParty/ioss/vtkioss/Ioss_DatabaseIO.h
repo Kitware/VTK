@@ -4,8 +4,7 @@
 //
 // See packages/seacas/LICENSE for details
 
-#ifndef IOSS_Ioss_DatabaseIO_h
-#define IOSS_Ioss_DatabaseIO_h
+#pragma once
 
 #include "vtk_ioss_mangle.h"
 
@@ -837,4 +836,3 @@ namespace Ioss {
         m_stateStart; // Used for optional output step timing.
   };
 } // namespace Ioss
-#endif

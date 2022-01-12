@@ -1,6 +1,6 @@
 
 /*
- * Copyright (C) 1991, 1992, 1993 by Chris Thewalt (thewalt@ce.berkeley.edu)
+ * Copyright (C) 1991, 1992, 1993, 2022 by Chris Thewalt (thewalt@ce.berkeley.edu)
  *
  * Permission to use, copy, modify, and distribute this software
  * for any purpose and without fee is hereby granted, provided
@@ -15,8 +15,7 @@
  *   Edin Hodzic, Eric J Bivona, Kai Uwe Rommel, Danny Quah, Ulrich Betzler
  */
 
-#ifndef IOSS_GETLINE_H
-#define IOSS_GETLINE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,5 +28,3 @@ void  io_gl_histadd(const char *);  /* adds entries to hist */
 #ifdef __cplusplus
 } /* close brackets on extern "C" declaration */
 #endif
-
-#endif /* IOSS_GETLINE_H */
