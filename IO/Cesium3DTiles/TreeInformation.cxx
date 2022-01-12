@@ -34,6 +34,7 @@
 #include <vtk_libproj.h>
 
 #include <sstream>
+#include <vtksys/FStream.hxx>
 
 using namespace nlohmann;
 
@@ -345,7 +346,7 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
   }
   this->RootJson["geometricError"] = this->ComputeTilesetGeometricError();
   this->RootJson["root"] = this->GenerateTileJson(root);
-  std::ofstream file(output);
+  vtksys::ofstream file(output.c_str());
   if (!file)
   {
     vtkLog(ERROR, "Cannot open " << output << " for writing");

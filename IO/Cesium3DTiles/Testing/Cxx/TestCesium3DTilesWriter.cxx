@@ -32,6 +32,7 @@
 #include <vtkPoints.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
@@ -392,27 +393,27 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
-  std::ifstream baselineFile(dataRoot + "/Data/3DTiles/jacksonville-tileset.json");
+  std::string basefname = dataRoot + "/Data/3DTiles/jacksonville-tileset.json";
+  vtksys::ifstream baselineFile(basefname.c_str());
   if (baselineFile.fail())
   {
-    std::cerr << "Cannot open: " << dataRoot << "/Data/3DTiles/jacksonville-tileset.json"
-              << std::endl;
+    std::cerr << "Cannot open: " << basefname << std::endl;
     return EXIT_FAILURE;
   }
   json baseline = json::parse(baselineFile);
-  std::ifstream testFile(tempDirectory + "/jacksonville-3dtiles/tileset.json");
+  std::string testfname = tempDirectory + "/jacksonville-3dtiles/tileset.json";
+  vtksys::ifstream testFile(testfname.c_str());
   if (testFile.fail())
   {
-    std::cerr << "Cannot open: " << tempDirectory << "/jacksonville-3dtiles/tileset.json"
-              << std::endl;
+    std::cerr << "Cannot open: " << testfname << std::endl;
     return EXIT_FAILURE;
   }
   json test = json::parse(testFile);
   if (!jsonEqual(baseline, test))
   {
     std::cerr << "Jacksonville data produced a different tileset than expected:" << std::endl
-              << dataRoot + "/Data/3DTiles/jacksonville-tileset.json" << std::endl
-              << tempDirectory + "/jacksonville-3dtiles/tileset.json" << std::endl;
+              << basefname << std::endl
+              << testfname << std::endl;
     return EXIT_FAILURE;
   }
   ret = tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
@@ -430,26 +431,28 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
     return EXIT_FAILURE;
   }
   baselineFile.close();
-  baselineFile.open(dataRoot + "/Data/3DTiles/berlin-tileset.json");
+  basefname = dataRoot + "/Data/3DTiles/berlin-tileset.json";
+  baselineFile.open(basefname.c_str());
   if (baselineFile.fail())
   {
-    std::cerr << "Cannot open: " << dataRoot << "/Data/3DTiles/berlin-tileset.json" << std::endl;
+    std::cerr << "Cannot open: " << basefname << std::endl;
     return EXIT_FAILURE;
   }
   baseline = json::parse(baselineFile);
   testFile.close();
-  testFile.open(tempDirectory + "/berlin-3dtiles/tileset.json");
+  testfname = tempDirectory + "/berlin-3dtiles/tileset.json";
+  testFile.open(testfname.c_str());
   if (testFile.fail())
   {
-    std::cerr << "Cannot open: " << tempDirectory << "/berlin-3dtiles/tileset.json" << std::endl;
+    std::cerr << "Cannot open: " << testfname << std::endl;
     return EXIT_FAILURE;
   }
   test = json::parse(testFile);
   if (!jsonEqual(baseline, test))
   {
     std::cerr << "Berlin data produced a different tileset than expected" << std::endl
-              << dataRoot + "/Data/3DTiles/berlin-tileset.json" << std::endl
-              << tempDirectory + "/berlin-3dtiles/tileset.json" << std::endl;
+              << basefname << std::endl
+              << testfname << std::endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

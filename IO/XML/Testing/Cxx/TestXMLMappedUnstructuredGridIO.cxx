@@ -37,8 +37,8 @@
 
 bool compareFiles(const std::string& p1, const std::string& p2)
 {
-  vtksys::ifstream f1(p1.c_str(), std::ifstream::binary | std::ifstream::ate);
-  vtksys::ifstream f2(p2.c_str(), std::ifstream::binary | std::ifstream::ate);
+  vtksys::ifstream f1(p1.c_str(), std::ios::binary | std::ios::ate);
+  vtksys::ifstream f2(p2.c_str(), std::ios::binary | std::ios::ate);
 
   if (f1.fail() || f2.fail())
   {
