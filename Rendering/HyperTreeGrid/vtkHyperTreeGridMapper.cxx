@@ -38,14 +38,35 @@ vtkHyperTreeGridMapper::~vtkHyperTreeGridMapper() = default;
 void vtkHyperTreeGridMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
 
-  if (this->GetMTime() > this->PDMapper->GetMTime())
+  auto* htg = vtkHyperTreeGrid::SafeDownCast(this->GetInputDataObject(0, 0));
+
+  if (htg == nullptr) // nothing to do
   {
-    bool renderAdaptiveGeo = this->UseCameraFrustum;
+    return;
+  }
+
+  if (htg->GetDimension() != 2) // fallback to generic mapper
+  {
+    if (this->GetMTime() > this->Mapper3D->GetMTime())
+    {
+      if (this->UseAdaptiveDecimation)
+      {
+        vtkWarningMacro("the adaptive decimation is only available for 2D HTG.");
+      }
+      this->Mapper3D->ShallowCopy(this);
+      this->Mapper3D->SetInputData(this->GetSurfaceFilterInput());
+    }
+    return this->Mapper3D->Render(ren, act);
+  }
+
+  if (this->GetMTime() > this->PDMapper2D->GetMTime())
+  {
+    bool renderAdaptiveGeo = this->UseAdaptiveDecimation;
     if (renderAdaptiveGeo && !ren->GetActiveCamera()->GetParallelProjection())
     {
       // This Adaptive2DGeometryFilter only support ParallelProjection from now on.
       renderAdaptiveGeo = false;
-      vtkWarningMacro("The UseCameraFrustum requires the camera to use ParallelProjection.");
+      vtkWarningMacro("The adaptive decimation requires the camera to use ParallelProjection.");
     }
 
     if (renderAdaptiveGeo)
@@ -60,11 +81,11 @@ void vtkHyperTreeGridMapper::Render(vtkRenderer* ren, vtkActor* act)
     }
 
     // forward common internal properties
-    this->PDMapper->ShallowCopy(this);
-    this->PDMapper->SetInputData(this->GetSurfaceFilterInput());
+    this->PDMapper2D->ShallowCopy(this);
+    this->PDMapper2D->SetInputData(this->GetSurfaceFilterInput());
   }
 
-  this->PDMapper->Render(ren, act);
+  this->PDMapper2D->Render(ren, act);
 }
 
 //------------------------------------------------------------------------------
@@ -117,10 +138,12 @@ vtkPolyData* vtkHyperTreeGridMapper::GetSurfaceFilterInput()
 void vtkHyperTreeGridMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "UseCameraFrustum: " << this->UseCameraFrustum << std::endl;
+  os << indent << "UseAdaptiveDecimation: " << this->UseAdaptiveDecimation << std::endl;
   this->GetSurfaceFilter()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Internal PolyData Mapper: " << std::endl;
-  this->PDMapper->PrintSelf(os, indent.GetNextIndent());
+  this->PDMapper2D->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Internal Geometry Mapper: " << std::endl;
+  this->Mapper3D->PrintSelf(os, indent.GetNextIndent());
 }
 
 //------------------------------------------------------------------------------
@@ -140,7 +163,7 @@ void vtkHyperTreeGridMapper::Update(int port)
 //------------------------------------------------------------------------------
 vtkAlgorithm* vtkHyperTreeGridMapper::GetSurfaceFilter()
 {
-  if (this->UseCameraFrustum)
+  if (this->UseAdaptiveDecimation)
   {
     return this->Adaptive2DGeometryFilter;
   }
