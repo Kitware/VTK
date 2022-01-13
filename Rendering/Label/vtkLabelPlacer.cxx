@@ -567,7 +567,6 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
     ((kdbounds[1] - kdbounds[0]) * (kdbounds[3] - kdbounds[2])) * this->MaximumLabelFraction);
   (void)allowableLabelArea;
   unsigned long renderedLabelArea = 0;
-  unsigned long iteratedLabelArea = 0;
   double camVec[3];
   if (this->PositionsAsNormals)
   {
@@ -752,28 +751,10 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
 
-    iteratedLabelArea += static_cast<unsigned long>(sz[0] * sz[1]);
-
-    // TODO: Is this necessary?
-#if 0
-    if ( iteratedLabelArea > 5 * allowableLabelArea )
-    {
-      vtkDebugMacro("Early exit due to large iterated label area");
-      break;
-    }
-#endif
-
     float opacity = 1.;
     if (this->Buckets->PlaceLabel(opacity, ll[0], ur[0], ll[1], ur[1]))
     {
       renderedLabelArea += static_cast<unsigned long>(sz[0] * sz[1]);
-#if 0
-      if ( renderedLabelArea > allowableLabelArea )
-      {
-        vtkDebugMacro("Early exit due to large rendered label area");
-        break;
-      }
-#endif // 0
       vtkIdType conn[4];
       OutputCoordinates coordSys = static_cast<OutputCoordinates>(this->OutputCoordinateSystem);
       if (labelType == 0)
