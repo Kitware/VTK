@@ -132,6 +132,16 @@ public:
 
   ///@{
   /**
+   * Set/Get the Radius Multiplier value. Default is 1.0.
+   */
+  virtual void SetRadiusMultiplier(double radiusMultiplier);
+  virtual double GetRadiusMultiplierMinValue() { return 0.000001; }
+  virtual double GetRadiusMultiplierMaxValue() { return VTK_DOUBLE_MAX; }
+  vtkGetMacro(RadiusMultiplier, double);
+  ///@}
+
+  ///@{
+  /**
    * Enable/disable the drawing of the plane. In some cases the plane
    * interferes with the object that it is operating on (i.e., the
    * plane interferes with the cut surface it produces producing

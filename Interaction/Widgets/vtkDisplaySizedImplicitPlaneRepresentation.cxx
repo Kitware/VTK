@@ -1200,9 +1200,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::ResizeRadius(
     newRadius = std::sqrt(vtkMath::Distance2BetweenPoints(p2, o));
   }
   double oldRadiusAdaptiveFactor = vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.04, o);
-  this->RadiusMultiplier = newRadius / oldRadiusAdaptiveFactor;
-  this->Modified();
-  this->BuildRepresentation();
+  this->SetRadiusMultiplier(newRadius / oldRadiusAdaptiveFactor);
 }
 
 void vtkDisplaySizedImplicitPlaneRepresentation::ResizeRadius3D(double* vtkNotUsed(p1), double* p2)
@@ -1213,9 +1211,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::ResizeRadius3D(double* vtkNotUs
 
   double oldRadiusAdaptiveFactor = vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.04, o);
   double newRadius = std::sqrt(vtkMath::Distance2BetweenPoints(p2Projected, o));
-  this->RadiusMultiplier = newRadius / oldRadiusAdaptiveFactor;
-  this->Modified();
-  this->BuildRepresentation();
+  this->SetRadiusMultiplier(newRadius / oldRadiusAdaptiveFactor);
 }
 
 //------------------------------------------------------------------------------
@@ -1451,6 +1447,22 @@ double* vtkDisplaySizedImplicitPlaneRepresentation::GetNormal()
 void vtkDisplaySizedImplicitPlaneRepresentation::GetNormal(double xyz[3])
 {
   this->Plane->GetNormal(xyz);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetRadiusMultiplier(double radiusMultiplier)
+{
+  if (this->RadiusMultiplier !=
+    (radiusMultiplier < 0.000001
+        ? 0.000001
+        : (radiusMultiplier > VTK_DOUBLE_MAX ? VTK_DOUBLE_MAX : radiusMultiplier)))
+  {
+    this->RadiusMultiplier = (radiusMultiplier < 0.000001
+        ? 0.000001
+        : (radiusMultiplier > VTK_DOUBLE_MAX ? VTK_DOUBLE_MAX : radiusMultiplier));
+    this->Modified();
+    this->BuildRepresentation();
+  }
 }
 
 //------------------------------------------------------------------------------
