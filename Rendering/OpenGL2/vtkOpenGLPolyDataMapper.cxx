@@ -488,7 +488,7 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
   }
   else
   {
-    if (this->DrawingEdges(ren, actor))
+    if (this->DrawingEdges(ren, actor) && !this->DrawingSelection)
     {
       shaders[vtkShader::Geometry]->SetSource(vtkPolyDataEdgesGS);
     }
