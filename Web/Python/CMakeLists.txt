@@ -7,6 +7,7 @@ set(files
   vtkmodules/web/render_window_serializer.py
   vtkmodules/web/testing.py
   vtkmodules/web/vtkjs_helper.py
+  vtkmodules/web/venv.py
   vtkmodules/web/wslink.py
   vtkmodules/web/utils.py)
 
