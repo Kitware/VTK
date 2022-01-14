@@ -669,13 +669,11 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       int ctrl = ((reinterpret_cast<XButtonEvent*>(event))->state & ControlMask) ? 1 : 0;
       int shift = ((reinterpret_cast<XButtonEvent*>(event))->state & ShiftMask) ? 1 : 0;
       int alt = ((reinterpret_cast<XButtonEvent*>(event))->state & Mod1Mask) ? 1 : 0;
-      vtkKeySym ks;
-      static char buffer[20];
-      buffer[0] = '\0';
-      XLookupString(reinterpret_cast<XKeyEvent*>(event), buffer, 20, &ks, nullptr);
+      vtkKeySym keySym = XLookupKeysym(reinterpret_cast<XKeyEvent*>(event), 0);
+      char keyCode = keySym < 128 ? static_cast<char>(keySym) : 0;
       xp = (reinterpret_cast<XKeyEvent*>(event))->x;
       yp = (reinterpret_cast<XKeyEvent*>(event))->y;
-      this->SetEventInformationFlipY(xp, yp, ctrl, shift, buffer[0], 1, XKeysymToString(ks));
+      this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, XKeysymToString(keySym));
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
       this->InvokeEvent(vtkCommand::CharEvent, nullptr);
@@ -691,13 +689,11 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       int ctrl = ((reinterpret_cast<XButtonEvent*>(event))->state & ControlMask) ? 1 : 0;
       int shift = ((reinterpret_cast<XButtonEvent*>(event))->state & ShiftMask) ? 1 : 0;
       int alt = ((reinterpret_cast<XButtonEvent*>(event))->state & Mod1Mask) ? 1 : 0;
-      vtkKeySym ks;
-      static char buffer[20];
-      buffer[0] = '\0';
-      XLookupString(reinterpret_cast<XKeyEvent*>(event), buffer, 20, &ks, nullptr);
+      vtkKeySym keySym = XLookupKeysym(reinterpret_cast<XKeyEvent*>(event), 0);
+      char keyCode = keySym < 128 ? static_cast<char>(keySym) : 0;
       xp = (reinterpret_cast<XKeyEvent*>(event))->x;
       yp = (reinterpret_cast<XKeyEvent*>(event))->y;
-      this->SetEventInformationFlipY(xp, yp, ctrl, shift, buffer[0], 1, XKeysymToString(ks));
+      this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, XKeysymToString(keySym));
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
     }

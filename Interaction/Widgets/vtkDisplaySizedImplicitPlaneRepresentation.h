@@ -48,6 +48,7 @@ class vtkCellPicker;
 class vtkConeSource;
 class vtkDiskSource;
 class vtkFeatureEdges;
+class vtkHardwarePicker;
 class vtkImageData;
 class vtkLineSource;
 class vtkLookupTable;
@@ -354,7 +355,7 @@ public:
    * Note: if a point from a rendered object is not picked, the camera focal point can optionally be
    * set.
    */
-  bool PickOrigin(int X, int Y);
+  bool PickOrigin(int X, int Y, bool snapToMeshPoint = false);
 
   /**
    * Given the X, Y display coordinates, pick a new normal for the plane
@@ -363,7 +364,7 @@ public:
    * Note: if a normal from a rendered object is not picked, the camera plane normal can optionally
    * be set.
    */
-  bool PickNormal(int X, int Y);
+  bool PickNormal(int X, int Y, bool snapToMeshPoint = false);
 
   ///@{
   /**
@@ -558,8 +559,9 @@ protected:
   void HighlightSphere(int highlight);
 
   // Do the picking
-  vtkNew<vtkCellPicker> Picker;
-  // Compute Picker tolerance
+  vtkNew<vtkHardwarePicker> HardwarePicker; // Used for picking rendered props (screen)
+  vtkNew<vtkCellPicker> CellPicker;         // Used for picking widget props (screen and VR)
+  // Compute Cell Picker tolerance
   void ComputeAdaptivePickerTolerance();
 
   // Register internal Pickers within PickingManager

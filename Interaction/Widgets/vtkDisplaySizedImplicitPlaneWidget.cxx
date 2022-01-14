@@ -32,7 +32,7 @@
 
 vtkStandardNewMacro(vtkDisplaySizedImplicitPlaneWidget);
 
-// The implicit disc plane widget observes its representation. The representation
+// The display sized implicit plane widget observes its representation. The representation
 // may invoke an InteractionEvent when the camera moves when LockedNormalToCamera
 // is enabled.
 class vtkInteractionCallback : public vtkCommand
@@ -44,11 +44,11 @@ public:
     switch (eventId)
     {
       case vtkCommand::ModifiedEvent:
-        this->ImplicitDiscPlaneWidget->InvokeInteractionCallback();
+        this->DisplaySizedImplicitPlaneWidget->InvokeInteractionCallback();
         break;
     }
   }
-  vtkDisplaySizedImplicitPlaneWidget* ImplicitDiscPlaneWidget;
+  vtkDisplaySizedImplicitPlaneWidget* DisplaySizedImplicitPlaneWidget;
 };
 
 ///------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ vtkDisplaySizedImplicitPlaneWidget::vtkDisplaySizedImplicitPlaneWidget()
   }
 
   this->InteractionCallback = vtkInteractionCallback::New();
-  this->InteractionCallback->ImplicitDiscPlaneWidget = this;
+  this->InteractionCallback->DisplaySizedImplicitPlaneWidget = this;
 }
 
 //------------------------------------------------------------------------------
@@ -200,7 +200,8 @@ void vtkDisplaySizedImplicitPlaneWidget::PickOriginAction(vtkAbstractWidget* w)
 
   // Invoke all the events associated with moving the plane
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
-  bool newOriginPicked = self->GetDisplaySizedImplicitPlaneRepresentation()->PickOrigin(X, Y);
+  bool newOriginPicked = self->GetDisplaySizedImplicitPlaneRepresentation()->PickOrigin(
+    X, Y, self->Interactor->GetControlKey() == 1);
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
@@ -221,7 +222,8 @@ void vtkDisplaySizedImplicitPlaneWidget::PickNormalAction(vtkAbstractWidget* w)
 
   // Invoke all the events associated with moving the plane
   self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
-  bool newNormalPicked = self->GetDisplaySizedImplicitPlaneRepresentation()->PickNormal(X, Y);
+  bool newNormalPicked = self->GetDisplaySizedImplicitPlaneRepresentation()->PickNormal(
+    X, Y, self->Interactor->GetControlKey() == 1);
   self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);

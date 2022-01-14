@@ -232,7 +232,7 @@ void vtkAbstractWidget::ProcessEventsHandler(
     int modifier = vtkEvent::GetModifier(self->Interactor);
 
     // If neither the ctrl nor the shift keys are pressed, give
-    // NoModifier a preference over AnyModifer.
+    // NoModifier a preference over AnyModifier.
     if (modifier == vtkEvent::AnyModifier)
     {
       widgetEvent = self->EventTranslator->GetTranslation(vtkEvent, vtkEvent::NoModifier,

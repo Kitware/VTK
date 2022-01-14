@@ -15,6 +15,7 @@
 #include "vtkCompositeDataSet.h"
 
 #include "vtkBoundingBox.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSetRange.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
@@ -23,8 +24,6 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
-
-#include <numeric>
 
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
 vtkInformationKeyMacro(vtkCompositeDataSet, CURRENT_PROCESS_CAN_LOAD_BLOCK, Integer);
@@ -149,6 +148,21 @@ void vtkCompositeDataSet::GetBounds(double bounds[6])
     }
   }
   bbox.GetBounds(bounds);
+}
+
+//------------------------------------------------------------------------------
+vtkDataObject* vtkCompositeDataSet::GetDataSet(unsigned int flatIndex)
+{
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(this->NewIterator());
+  for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  {
+    if (iter->GetCurrentFlatIndex() == flatIndex)
+    {
+      return vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    }
+  }
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------

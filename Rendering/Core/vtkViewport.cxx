@@ -734,6 +734,23 @@ vtkAssemblyPath* vtkViewport::PickPropFrom(double selectionX1, double selectionY
 }
 
 //------------------------------------------------------------------------------
+vtkAssemblyPath* vtkViewport::PickPropFrom(double selectionX, double selectionY,
+  vtkPropCollection* pickfrom, int fieldAssociation, vtkSmartPointer<vtkSelection> sel)
+{
+  this->PickFromProps = pickfrom;
+  return this->PickProp(selectionX, selectionY, fieldAssociation, sel);
+}
+
+//------------------------------------------------------------------------------
+vtkAssemblyPath* vtkViewport::PickPropFrom(double selectionX1, double selectionY1,
+  double selectionX2, double selectionY2, vtkPropCollection* pickfrom, int fieldAssociation,
+  vtkSmartPointer<vtkSelection> sel)
+{
+  this->PickFromProps = pickfrom;
+  return this->PickProp(selectionX1, selectionY1, selectionX2, selectionY2, fieldAssociation, sel);
+}
+
+//------------------------------------------------------------------------------
 // This complicated method determines the size of the current tile in pixels
 // this is useful in computeing the actual aspcet ration of the current tile
 void vtkViewport::GetTiledSize(int* usize, int* vsize)

@@ -72,18 +72,28 @@ public:
   /**
    * Sets the data set at the location pointed by the iterator.
    * The iterator does not need to be iterating over this dataset itself. It can
-   * be any composite datasite with similar structure (achieved by using
+   * be any composite dataset with similar structure (achieved by using
    * CopyStructure).
    */
   virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj) = 0;
 
   /**
-   * Returns the dataset located at the positiong pointed by the iterator.
+   * Returns the dataset located at the position pointed by the iterator.
    * The iterator does not need to be iterating over this dataset itself. It can
    * be an iterator for composite dataset with similar structure (achieved by
    * using CopyStructure).
    */
   virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter) = 0;
+
+  /**
+   * Returns the dataset located at the position pointed by the flatIndex.
+   * If no dataset has the same flat index, nullptr is returned.
+   *
+   * It should be noted that this function should be used ONLY when you already know the flat index.
+   * It should NOT be used when you are iterating over the composite dataset (in that case, prefer
+   * the vtkCompositeDataIterator).
+   */
+  virtual vtkDataObject* GetDataSet(unsigned int flatIndex);
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number

@@ -14,8 +14,6 @@
 =========================================================================*/
 #include "vtkRenderer.h"
 
-#include "vtkAreaPicker.h"
-#include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
@@ -30,21 +28,16 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOutputWindow.h"
-#include "vtkPicker.h"
-#include "vtkProp3DCollection.h"
 #include "vtkPropCollection.h"
 #include "vtkRect.h"
 #include "vtkRenderPass.h"
 #include "vtkRenderTimerLog.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererDelegate.h"
-#include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
 #include "vtkVectorOperators.h"
-#include "vtkVolume.h"
 
 #include <sstream>
 
@@ -1868,6 +1861,13 @@ vtkMTimeType vtkRenderer::GetMTime()
 vtkAssemblyPath* vtkRenderer::PickProp(
   double selectionX1, double selectionY1, double selectionX2, double selectionY2)
 {
+  return this->PickProp(selectionX1, selectionY1, selectionX2, selectionY2,
+    vtkDataObject::FIELD_ASSOCIATION_CELLS, nullptr);
+}
+
+vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1, double selectionX2,
+  double selectionY2, int fieldAssociation, vtkSmartPointer<vtkSelection> sel)
+{
   // Get the pick id of the object that was picked
   if (this->PickedProp != nullptr)
   {
@@ -1914,12 +1914,24 @@ vtkAssemblyPath* vtkRenderer::PickProp(
 
   // use a hardware selector since we have it
   vtkNew<vtkHardwareSelector> hsel;
-  hsel->SetActorPassOnly(true);
+  hsel->SetFieldAssociation(fieldAssociation);
+  // if the user has instantiated a selection, perform all the passes
+  // otherwise, perform the actor pass only for faster results
+  hsel->SetActorPassOnly(sel == nullptr);
   hsel->SetCaptureZValues(true);
   hsel->SetRenderer(this);
   hsel->SetArea(this->PickX1, this->PickY1, this->PickX2, this->PickY2);
-  vtkSmartPointer<vtkSelection> sel;
-  sel.TakeReference(hsel->Select());
+  vtkSelection* hSelResult = hsel->Select();
+  // if the user has instantiated a selection, then return the hardware selection result
+  if (sel != nullptr)
+  {
+    sel->ShallowCopy(hSelResult);
+    hSelResult->Delete();
+  }
+  else // else just take the reference of it and use it locally
+  {
+    sel.TakeReference(hSelResult);
+  }
 
   if (sel && sel->GetNode(0))
   {
