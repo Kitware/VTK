@@ -299,10 +299,13 @@ void vtkOpenXRRenderWindow::RenderModels()
     // if we have a model and it is visible
     if (pRenderModel && pRenderModel->GetVisibility())
     {
-      XrPosef handPose = iren->GetHandPose(hand);
-      vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
-      vtkOpenXRUtilities::SetMatrixFromXrPose(tdPose, handPose);
-      pRenderModel->Render(this, tdPose);
+      XrPosef* handPose = iren->GetHandPose(hand);
+      if (handPose)
+      {
+        vtkMatrix4x4* tdPose = this->GetDeviceToPhysicalMatrixForDeviceHandle(handle);
+        vtkOpenXRUtilities::SetMatrixFromXrPose(tdPose, *handPose);
+        pRenderModel->Render(this, tdPose);
+      }
     }
   }
 }

@@ -372,6 +372,15 @@ public:
   vtkGetMacro(TrackHMD, bool);
   ///@}
 
+  //@{
+  /**
+   * Set/Get the visibility of the base stations. Defaults to false
+   */
+  vtkGetMacro(BaseStationVisibility, bool);
+  vtkSetMacro(BaseStationVisibility, bool);
+  vtkBooleanMacro(BaseStationVisibility, bool);
+  //@}
+
   /**
    * Update the HMD pose.
    */
@@ -428,6 +437,8 @@ protected:
   double PhysicalTranslation[3] = { 0.0, 0.0, 0.0 };
   // Scale of the Physical to World matrix
   double PhysicalScale = 1.0;
+
+  bool BaseStationVisibility = false;
 
   vtkOpenGLRenderWindow* HelperWindow;
 

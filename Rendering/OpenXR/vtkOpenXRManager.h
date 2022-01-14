@@ -30,6 +30,7 @@
 
 #include <array>
 #include <memory>
+#include <string>
 #include <vector>
 
 class vtkOpenGLRenderWindow;
@@ -264,6 +265,13 @@ public:
    */
   bool AttachSessionActionSets();
   //@}
+
+  //@{
+  /**
+   * Iterate over and destroy all action sets that have been created.
+   */
+  //@}
+  void DestroyActionSets();
 
   struct Action_t;
 

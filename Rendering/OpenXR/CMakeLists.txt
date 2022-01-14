@@ -3,15 +3,19 @@ vtk_module_find_package(PACKAGE OpenXR)
 set(classes
   vtkOpenXRRenderWindow
   vtkOpenXRRenderWindowInteractor
-  vtkOpenXRManager
   vtkOpenXRCamera
   vtkOpenXRControlsHelper
   vtkOpenXRModel
   vtkOpenXRRenderer
   vtkOpenXRInteractorStyle)
 
+set(nowrap_classes
+  vtkOpenXRManager
+  )
+
 vtk_module_add_module(VTK::RenderingOpenXR
   CLASSES ${classes}
+  NOWRAP_CLASSES ${nowrap_classes}
   NOWRAP_HEADERS "vtkOpenXR.h" "XrExtensions.h" "vtkOpenXRUtilities.h"
   )
 
