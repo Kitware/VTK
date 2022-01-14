@@ -215,7 +215,6 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
 
   this->Internals->Encoder->Push(
     this->Internals->ObjectIdMap->GetGlobalId(view), image, quality, this->ImageEncoding);
-  assert(image == nullptr);
 
   if (value.Data == nullptr)
   {
