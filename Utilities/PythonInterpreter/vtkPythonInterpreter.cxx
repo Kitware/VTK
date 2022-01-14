@@ -255,6 +255,7 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
     vtkPythonInterpreter::SetupPythonPrefix();
     bool signals_installed = initsigs != 0;
 
+#if PY_VERSION_HEX >= 0x03000000
     // Need two copies of args, because programs might modify the first
     using OwnedWideString = std::unique_ptr<wchar_t, CharDeleter>;
     std::vector<wchar_t*> argvForPython;
@@ -274,6 +275,13 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
       argvForPython.push_back(argCopy.get());
       argvCleanup.emplace_back(std::move(argCopy));
     }
+#else // Python 2.x
+    std::vector<char*> argvForPython;
+    for (int i = 0; i < argc; i++)
+    {
+      argvForPython.push_back(argv[i]);
+    }
+#endif
 
 #if PY_VERSION_HEX < 0x03080000
     Py_InitializeEx(initsigs);
@@ -605,6 +613,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
 #endif
 
 #if PY_VERSION_HEX < 0x03080000
+#if PY_VERSION_HEX >= 0x03000000
   // Need two copies of args, because programs might modify the first
   using OwnedWideString = std::unique_ptr<wchar_t, CharDeleter>;
   std::vector<wchar_t*> argvForPythonWide;
@@ -627,6 +636,10 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
 
   vtkPythonScopeGilEnsurer gilEnsurer(false, true);
   return Py_Main(static_cast<int>(argvForPythonWide.size()), argvForPythonWide.data());
+#else // Python 2.x
+  vtkPythonScopeGilEnsurer gilEnsurer(false, true);
+  return Py_Main(static_cast<int>(argvForPython.size()), argvForPython.data());
+#endif
 #else
   vtkPythonScopeGilEnsurer gilEnsurer(false, true);
   return Py_RunMain();
