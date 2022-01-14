@@ -224,6 +224,18 @@ public:
 
   ///@{
   /**
+   * Turn on/off whether the maximum widget size should be constrained to the widget bounds.
+   * If on, the radius of the disk plane and plane normal arrow will not be allowed to be larger
+   * than the half diagonal of the bounding box formed by the widget bounds.
+   * If off, the radius of the disk plane and plane normal arrow can be arbitrary big
+   * The default behaviour is off.
+   */
+  vtkSetMacro(ConstrainMaximumSizeToWidgetBounds, vtkTypeBool);
+  vtkGetMacro(ConstrainMaximumSizeToWidgetBounds, vtkTypeBool);
+  vtkBooleanMacro(ConstrainMaximumSizeToWidgetBounds, vtkTypeBool);
+
+  ///@{
+  /**
    * Turn on/off the ability to scale the widget with the mouse.
    */
   vtkSetMacro(ScaleEnabled, vtkTypeBool);
@@ -518,7 +530,8 @@ protected:
   vtkTypeBool ScaleEnabled;       // whether the widget can be scaled
   vtkTypeBool OutsideBounds;      // whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
-  vtkTypeBool ConstrainToWidgetBounds;
+  vtkTypeBool ConstrainToWidgetBounds; // whether the widget can be moved outside input's bounds
+  vtkTypeBool ConstrainMaximumSizeToWidgetBounds; // whether the maximum widget size is constrained
 
   // The plane
   double RadiusMultiplier;

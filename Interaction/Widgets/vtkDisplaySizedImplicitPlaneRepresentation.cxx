@@ -85,6 +85,7 @@ vtkDisplaySizedImplicitPlaneRepresentation::vtkDisplaySizedImplicitPlaneRepresen
   this->ScaleEnabled = 1;
   this->OutsideBounds = 1;
   this->ConstrainToWidgetBounds = 0;
+  this->ConstrainMaximumSizeToWidgetBounds = 0;
 
   this->RadiusMultiplier = 1.0;
   this->DiskPlaneSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
@@ -615,17 +616,24 @@ void vtkDisplaySizedImplicitPlaneRepresentation::EndComplexInteraction(
 double* vtkDisplaySizedImplicitPlaneRepresentation::GetBounds()
 {
   this->BuildRepresentation();
-  // bounds need to be reset because the size of the widget changes overtime
-  this->BoundingBox->SetBounds(
-    VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN);
-  this->BoundingBox->AddBounds(this->OutlineActor->GetBounds());
-  this->BoundingBox->AddBounds(this->PlaneActor->GetBounds());
-  this->BoundingBox->AddBounds(this->EdgesActor->GetBounds());
-  this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
-  this->BoundingBox->AddBounds(this->LineActor->GetBounds());
-  this->BoundingBox->AddBounds(this->ConeActor2->GetBounds());
-  this->BoundingBox->AddBounds(this->SphereActor->GetBounds());
-  return this->BoundingBox->GetBounds();
+  if (this->ConstrainMaximumSizeToWidgetBounds)
+  {
+    return this->WidgetBounds;
+  }
+  else
+  {
+    // bounds need to be reset because the size of the widget changes overtime
+    this->BoundingBox->SetBounds(VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN,
+      VTK_DOUBLE_MAX, VTK_DOUBLE_MIN);
+    this->BoundingBox->AddBounds(this->OutlineActor->GetBounds());
+    this->BoundingBox->AddBounds(this->PlaneActor->GetBounds());
+    this->BoundingBox->AddBounds(this->EdgesActor->GetBounds());
+    this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
+    this->BoundingBox->AddBounds(this->LineActor->GetBounds());
+    this->BoundingBox->AddBounds(this->ConeActor2->GetBounds());
+    this->BoundingBox->AddBounds(this->SphereActor->GetBounds());
+    return this->BoundingBox->GetBounds();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -758,6 +766,8 @@ void vtkDisplaySizedImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkInden
   os << indent << "Outside Bounds: " << (this->OutsideBounds ? "On" : "Off") << "\n";
   os << indent << "Constrain to Widget Bounds: " << (this->ConstrainToWidgetBounds ? "On" : "Off")
      << "\n";
+  os << indent << "Constrain Maximum Size to Widget Bounds: "
+     << (this->ConstrainMaximumSizeToWidgetBounds ? "On" : "Off") << "\n";
   os << indent << "Scale Enabled: " << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
   os << indent << "Draw Outline: " << (this->DrawOutline ? "On" : "Off") << "\n";
@@ -1790,12 +1800,35 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SizeHandles()
 
   double radiusAdaptiveFactor = vtkWidgetRepresentation::SizeHandlesRelativeToViewport(0.04, o);
 
+  double halfDiagonal = 0.0;
+  if (this->ConstrainMaximumSizeToWidgetBounds)
+  {
+    // calculate half diagonal of the bounding box formed by the widget bounds
+    // half diagonal is used as the maximum size of the radius and then normal plane arrow
+    double diagonal = 0.0;
+    for (int i = 0; i < 3; i++)
+    {
+      double diff = static_cast<double>(this->WidgetBounds[2 * i + 1]) -
+        static_cast<double>(this->WidgetBounds[2 * i]);
+      diagonal += diff * diff;
+    }
+    diagonal = std::sqrt(diagonal);
+    halfDiagonal = diagonal / 2.0;
+
+    if (radiusAdaptiveFactor * this->RadiusMultiplier > halfDiagonal)
+    {
+      radiusAdaptiveFactor = std::min(radiusAdaptiveFactor, halfDiagonal);
+      this->RadiusMultiplier = halfDiagonal / radiusAdaptiveFactor;
+    }
+  }
   // set up plane disk radius
   this->DiskPlaneSource->SetOuterRadius(radiusAdaptiveFactor * this->RadiusMultiplier);
 
   // set up the plane normal
   double p2[3];
-  const double& d = radiusAdaptiveFactor;
+  const double d = this->ConstrainMaximumSizeToWidgetBounds
+    ? std::min(radiusAdaptiveFactor, halfDiagonal)
+    : radiusAdaptiveFactor;
   p2[0] = o[0] + d * n[0];
   p2[1] = o[1] + d * n[1];
   p2[2] = o[2] + d * n[2];
@@ -1811,7 +1844,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SizeHandles()
   this->ConeSource2->SetCenter(p2);
 
   // set up cones, sphere and edge tuber size
-  double radius = this->vtkWidgetRepresentation::SizeHandlesInPixels(3.0, o);
+  const double radius = this->vtkWidgetRepresentation::SizeHandlesInPixels(3.0, o);
 
   this->ConeSource->SetHeight(2.0 * radius);
   this->ConeSource->SetRadius(radius);
