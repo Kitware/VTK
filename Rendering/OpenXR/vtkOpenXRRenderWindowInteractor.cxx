@@ -423,10 +423,12 @@ void vtkOpenXRRenderWindowInteractor::AddAction(
   if (this->MapActionStruct_Name.count(path) == 0)
   {
     ActionData* am = new ActionData();
-    am->EventId = eid;
-    am->UseFunction = false;
     this->MapActionStruct_Name[path] = am;
   }
+
+  auto* am = this->MapActionStruct_Name[path];
+  am->EventId = eid;
+  am->UseFunction = false;
 }
 
 //------------------------------------------------------------------------------
@@ -436,10 +438,12 @@ void vtkOpenXRRenderWindowInteractor::AddAction(
   if (this->MapActionStruct_Name.count(path) == 0)
   {
     ActionData* am = new ActionData();
-    am->UseFunction = true;
-    am->Function = func;
     this->MapActionStruct_Name[path] = am;
   }
+
+  auto* am = this->MapActionStruct_Name[path];
+  am->UseFunction = true;
+  am->Function = func;
 }
 
 //------------------------------------------------------------------------------
