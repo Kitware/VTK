@@ -587,27 +587,27 @@ static void parse_win32_cleanup(void)
 char** vtkParse_WideArgsToUTF8(int argc, wchar_t* wargv[])
 {
   int i, n;
-  int l = 0;
+  int cl = 0;
   char** argv;
   char* cp;
 
   /* compute total command-line length */
   for (i = 0; i < argc; i++)
   {
-    l += WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
+    cl += WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
   }
 
   /* allocate combined buffer for argv and arg strings */
-  argv = (char**)malloc(argc * sizeof(char*) + l);
+  argv = (char**)malloc(argc * sizeof(char*) + cl);
   cp = (char*)(argv + argc);
 
   /* convert all arguments */
   for (i = 0; i < argc; i++)
   {
     argv[i] = cp;
-    n = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, argv[i], l, NULL, NULL);
+    n = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, argv[i], cl, NULL, NULL);
     cp += n;
-    l -= n;
+    cl -= n;
   }
 
   /* use atexit() to handle the cleanup */
