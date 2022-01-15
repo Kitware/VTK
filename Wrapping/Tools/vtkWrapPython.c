@@ -21,6 +21,7 @@
 
 #include "vtkParseExtras.h"
 #include "vtkParseMain.h"
+#include "vtkParseSystem.h"
 #include "vtkWrap.h"
 
 #include <ctype.h>
@@ -226,7 +227,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 
 #define MAX_WRAPPED_CLASSES 256
 
-int main(int argc, char* argv[])
+int VTK_PARSE_MAIN(int argc, char* argv[])
 {
   ClassInfo* wrappedClasses[MAX_WRAPPED_CLASSES];
   unsigned char wrapAsVTKObject[MAX_WRAPPED_CLASSES];
@@ -263,7 +264,7 @@ int main(int argc, char* argv[])
   }
 
   /* get the output file */
-  fp = fopen(options->OutputFileName, "w");
+  fp = vtkParse_FileOpen(options->OutputFileName, "w");
 
 #ifdef _WIN32
   if (!fp)
@@ -274,7 +275,7 @@ int main(int argc, char* argv[])
     for (tries = 0; !fp && tries < 5 && errno == EACCES; tries++)
     {
       Sleep(1000);
-      fp = fopen(options->OutputFileName, "w");
+      fp = vtkParse_FileOpen(options->OutputFileName, "w");
     }
   }
 #endif

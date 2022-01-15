@@ -16,6 +16,7 @@
 #include "vtkParse.h"
 #include "vtkParseHierarchy.h"
 #include "vtkParseMain.h"
+#include "vtkParseSystem.h"
 #include "vtkWrap.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -967,7 +968,7 @@ void WriteDummyClass(FILE* fp, ClassInfo* data, const char* filename)
 }
 
 /* print the parsed structures */
-int main(int argc, char* argv[])
+int VTK_PARSE_MAIN(int argc, char* argv[])
 {
   OptionInfo* options;
   FileInfo* file_info;
@@ -995,7 +996,7 @@ int main(int argc, char* argv[])
   }
 
   /* get the output file */
-  fp = fopen(options->OutputFileName, "w");
+  fp = vtkParse_FileOpen(options->OutputFileName, "w");
 
   if (!fp)
   {
@@ -1181,7 +1182,7 @@ int main(int argc, char* argv[])
       }
     }
     strcat(dir, javaDone);
-    tfp = fopen(dir, "w");
+    tfp = vtkParse_FileOpen(dir, "w");
     if (tfp)
     {
       fprintf(tfp, "File: %s\n", fname);

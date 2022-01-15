@@ -23,6 +23,8 @@
 #include "vtkParseString.h"
 #include "vtkWrappingToolsModule.h"
 
+#include <stdio.h> /* for FILE* */
+
 /**
  * Contains the paths to all files that have been discoved on the file
  * system. This is used to accelerate searches for header files.
@@ -63,6 +65,13 @@ extern "C"
    */
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_FreeFileCache(SystemInfo* info);
+
+  /**
+   * On Win32, this interpretes fname as UTF8 and then calls wfopen().
+   * The returned handle must be freed with fclose().
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  FILE* vtkParse_FileOpen(const char* fname, const char* mode);
 
 #ifdef __cplusplus
 } /* extern "C" */

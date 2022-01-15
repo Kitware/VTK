@@ -21,6 +21,7 @@
 
 #include "vtkParseHierarchy.h"
 #include "vtkParseExtras.h"
+#include "vtkParseSystem.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -341,7 +342,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(HierarchyInfo* info, const char* f
   int success = 1;
   int lineno;
 
-  fp = fopen(filename, "r");
+  fp = vtkParse_FileOpen(filename, "r");
 
   if (fp == NULL)
   {

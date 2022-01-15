@@ -24,6 +24,7 @@
 #include "vtkParseData.h"
 #include "vtkParseExtras.h"
 #include "vtkParseMain.h"
+#include "vtkParseSystem.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -691,7 +692,7 @@ void vtkParseMerge_MergeHelper(FileInfo* finfo, const NamespaceInfo* data,
       exit(1);
     }
 
-    fp = fopen(filename, "r");
+    fp = vtkParse_FileOpen(filename, "r");
     if (!fp)
     {
       fprintf(stderr, "Couldn't open header file %s\n", header);
@@ -713,7 +714,7 @@ void vtkParseMerge_MergeHelper(FileInfo* finfo, const NamespaceInfo* data,
         hintfilename = hintfiles[ihintfiles];
         if (hintfilename && hintfilename[0] != '\0')
         {
-          if (!(hintfile = fopen(hintfilename, "r")))
+          if (!(hintfile = vtkParse_FileOpen(hintfilename, "r")))
           {
             fprintf(stderr, "Error opening hint file %s\n", hintfilename);
             vtkParse_FreeFile(new_finfo);
