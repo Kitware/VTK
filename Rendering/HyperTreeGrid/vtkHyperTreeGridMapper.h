@@ -132,7 +132,7 @@ public:
 
 protected:
   vtkHyperTreeGridMapper();
-  virtual ~vtkHyperTreeGridMapper();
+  ~vtkHyperTreeGridMapper() override;
 
   /**
    * The input exposed here is the output of the SurfaceFilter.
