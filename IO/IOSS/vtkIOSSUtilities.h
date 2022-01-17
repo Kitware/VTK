@@ -114,7 +114,7 @@ using ArrayList = typename vtkTypeList::Unique<
  * Reads time / timestep information from a region. Returns an empty vector if
  * no time information in available in the Ioss::Region.
  */
-std::set<double> GetTimeValues(const Ioss::Region* region);
+std::vector<std::pair<int, double>> GetTime(const Ioss::Region* region);
 
 /**
  * This is primarily intended for CGNS. CGNS ends up naming blocks in separate

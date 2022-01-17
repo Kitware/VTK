@@ -147,22 +147,23 @@ void Cache::Insert(
 }
 
 //----------------------------------------------------------------------------
-std::set<double> GetTimeValues(const Ioss::Region* region)
+std::vector<std::pair<int, double>> GetTime(const Ioss::Region* region)
 {
   const auto mxtime = region->get_max_time();
   if (mxtime.first <= 0)
   {
     // timestep index is 1-based, 0 implies time is not present in the dataset.
-    return std::set<double>{};
+    return {};
   }
 
   const auto mntime = region->get_min_time();
-  std::set<double> timevalues;
+
+  std::vector<std::pair<int, double>> result;
   for (int cc = mntime.first; cc <= mxtime.first; ++cc)
   {
-    timevalues.insert(region->get_state_time(cc));
+    result.emplace_back(cc, region->get_state_time(cc));
   }
-  return timevalues;
+  return result;
 }
 
 //----------------------------------------------------------------------------
