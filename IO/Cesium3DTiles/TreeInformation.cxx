@@ -254,7 +254,7 @@ void TreeInformation::SaveTile(vtkIncrementalOctreeNode* node, void* aux)
     writer->SetFileName(ostr.str().c_str());
     writer->SetTextureBaseDirectory(this->TexturePath.c_str());
     writer->SetSaveTextures(this->SaveTextures);
-    writer->SetSaveNormal(!this->SaveTextures);
+    writer->SetSaveNormal(true);
     writer->Write();
   }
 }
