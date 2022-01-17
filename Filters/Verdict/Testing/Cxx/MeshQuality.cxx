@@ -336,12 +336,6 @@ int MeshQuality(int argc, char* argv[])
     DumpQualityStats(iq, "Mesh Tetrahedron Quality");
     cout << endl;
 
-    iq->SetTetQualityMeasureToAspectBeta();
-    iq->Update();
-    cout << " Aspect Beta:" << endl;
-    DumpQualityStats(iq, "Mesh Tetrahedron Quality");
-    cout << endl;
-
     iq->SetTetQualityMeasureToAspectGamma();
     iq->Update();
     cout << " Aspect Gamma:" << endl;

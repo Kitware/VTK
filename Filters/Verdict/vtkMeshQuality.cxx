@@ -34,28 +34,34 @@
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
-#include "vtkTetra.h"
-#include "vtkTriangle.h"
 
 #include "vtk_verdict.h"
 
 #include <limits>
 
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMeshQuality);
+
+//----------------------------------------------------------------------------
+double vtkMeshQuality::TriangleAverageSize = 0.0;
+double vtkMeshQuality::QuadAverageSize = 0.0;
+double vtkMeshQuality::TetAverageSize = 0.0;
+double vtkMeshQuality::HexAverageSize = 0.0;
+
+//----------------------------------------------------------------------------
+const char* vtkMeshQuality::QualityMeasureNames[] = { "EdgeRatio", "AspectRatio", "RadiusRatio",
+  "AspectFrobenius", "MedAspectFrobenius", "MaxAspectFrobenius", "MinAngle", "CollapseRatio",
+  "MaxAngle", "Condition", "ScaledJacobian", "Shear", "RelativeSizeSquared", "Shape",
+  "ShapeAndSize", "Distortion", "MaxEdgeRatio", "Skew", "Taper", "Volume", "Stretch", "Diagonal",
+  "Dimension", "Oddy", "ShearAndSize", "Jacobian", "Warpage", "AspectGamma", "Area", "None" };
 
 namespace
 {
 typedef double (*CellQualityType)(vtkCell*);
-
-const char* QualityMeasureNames[] = { "EdgeRatio", "AspectRatio", "RadiusRatio", "AspectFrobenius",
-  "MedAspectFrobenius", "MaxAspectFrobenius", "MinAngle", "CollapseRatio", "MaxAngle", "Condition",
-  "ScaledJacobian", "Shear", "RelativeSizeSquared", "Shape", "ShapeAndSize", "Distortion",
-  "MaxEdgeRatio", "Skew", "Taper", "Volume", "Stretch", "Diagonal", "Dimension", "Oddy",
-  "ShearAndSize", "Jacobian", "Warpage", "AspectGamma", "Area", "AspectBeta" };
-
 //----------------------------------------------------------------------------
 void LinearizeCell(int& cellType)
 {
@@ -95,8 +101,6 @@ void LinearizeCell(int& cellType)
 }
 } // anonymous namespace
 
-double vtkMeshQuality::CurrentTriNormal[3];
-
 //----------------------------------------------------------------------------
 void vtkMeshQuality::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -119,10 +123,10 @@ void vtkMeshQuality::PrintSelf(ostream& os, vtkIndent indent)
 vtkMeshQuality::vtkMeshQuality()
 {
   this->SaveCellQuality = 1; // Default is On
-  this->TriangleQualityMeasure = VTK_QUALITY_ASPECT_RATIO;
-  this->QuadQualityMeasure = VTK_QUALITY_EDGE_RATIO;
-  this->TetQualityMeasure = VTK_QUALITY_ASPECT_RATIO;
-  this->HexQualityMeasure = VTK_QUALITY_MAX_ASPECT_FROBENIUS;
+  this->TriangleQualityMeasure = vtkMeshQuality::ASPECT_RATIO;
+  this->QuadQualityMeasure = vtkMeshQuality::EDGE_RATIO;
+  this->TetQualityMeasure = vtkMeshQuality::ASPECT_RATIO;
+  this->HexQualityMeasure = vtkMeshQuality::MAX_ASPECT_FROBENIUS;
   this->Volume = 0;
   this->CompatibilityMode = 0;
   this->LinearApproximation = false;
@@ -159,14 +163,6 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
   int progressNumer = 0;
   double progressDenom = 20.;
 
-  this->CellNormals = in->GetCellData()->GetNormals();
-
-  if (this->CellNormals)
-    v_set_tri_normal_func(
-      reinterpret_cast<ComputeNormal>(vtkMeshQuality::GetCurrentTriangleNormal));
-  else
-    v_set_tri_normal_func(nullptr);
-
   // Initialize the min and max values, std deviations, etc.
   qtriM = qquaM = qtetM = qhexM = VTK_DOUBLE_MIN;
   qtrim = qquam = qtetm = qhexm = VTK_DOUBLE_MAX;
@@ -174,43 +170,43 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
 
   switch (this->GetTriangleQualityMeasure())
   {
-    case VTK_QUALITY_AREA:
+    case vtkMeshQuality::AREA:
       TriangleQuality = TriangleArea;
       break;
-    case VTK_QUALITY_EDGE_RATIO:
+    case vtkMeshQuality::EDGE_RATIO:
       TriangleQuality = TriangleEdgeRatio;
       break;
-    case VTK_QUALITY_ASPECT_RATIO:
+    case vtkMeshQuality::ASPECT_RATIO:
       TriangleQuality = TriangleAspectRatio;
       break;
-    case VTK_QUALITY_RADIUS_RATIO:
+    case vtkMeshQuality::RADIUS_RATIO:
       TriangleQuality = TriangleRadiusRatio;
       break;
-    case VTK_QUALITY_ASPECT_FROBENIUS:
+    case vtkMeshQuality::ASPECT_FROBENIUS:
       TriangleQuality = TriangleAspectFrobenius;
       break;
-    case VTK_QUALITY_MIN_ANGLE:
+    case vtkMeshQuality::MIN_ANGLE:
       TriangleQuality = TriangleMinAngle;
       break;
-    case VTK_QUALITY_MAX_ANGLE:
+    case vtkMeshQuality::MAX_ANGLE:
       TriangleQuality = TriangleMaxAngle;
       break;
-    case VTK_QUALITY_CONDITION:
+    case vtkMeshQuality::CONDITION:
       TriangleQuality = TriangleCondition;
       break;
-    case VTK_QUALITY_SCALED_JACOBIAN:
+    case vtkMeshQuality::SCALED_JACOBIAN:
       TriangleQuality = TriangleScaledJacobian;
       break;
-    case VTK_QUALITY_RELATIVE_SIZE_SQUARED:
+    case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
       TriangleQuality = TriangleRelativeSizeSquared;
       break;
-    case VTK_QUALITY_SHAPE:
+    case vtkMeshQuality::SHAPE:
       TriangleQuality = TriangleShape;
       break;
-    case VTK_QUALITY_SHAPE_AND_SIZE:
+    case vtkMeshQuality::SHAPE_AND_SIZE:
       TriangleQuality = TriangleShapeAndSize;
       break;
-    case VTK_QUALITY_DISTORTION:
+    case vtkMeshQuality::DISTORTION:
       TriangleQuality = TriangleDistortion;
       break;
     default:
@@ -222,74 +218,74 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
 
   switch (this->GetQuadQualityMeasure())
   {
-    case VTK_QUALITY_EDGE_RATIO:
+    case vtkMeshQuality::EDGE_RATIO:
       QuadQuality = QuadEdgeRatio;
       break;
-    case VTK_QUALITY_ASPECT_RATIO:
+    case vtkMeshQuality::ASPECT_RATIO:
       QuadQuality = QuadAspectRatio;
       break;
-    case VTK_QUALITY_RADIUS_RATIO:
+    case vtkMeshQuality::RADIUS_RATIO:
       QuadQuality = QuadRadiusRatio;
       break;
-    case VTK_QUALITY_MED_ASPECT_FROBENIUS:
+    case vtkMeshQuality::MED_ASPECT_FROBENIUS:
       QuadQuality = QuadMedAspectFrobenius;
       break;
-    case VTK_QUALITY_MAX_ASPECT_FROBENIUS:
+    case vtkMeshQuality::MAX_ASPECT_FROBENIUS:
       QuadQuality = QuadMaxAspectFrobenius;
       break;
-    case VTK_QUALITY_MIN_ANGLE:
+    case vtkMeshQuality::MIN_ANGLE:
       QuadQuality = QuadMinAngle;
       break;
-    case VTK_QUALITY_MAX_EDGE_RATIO:
+    case vtkMeshQuality::MAX_EDGE_RATIO:
       QuadQuality = QuadMaxEdgeRatios;
       break;
-    case VTK_QUALITY_SKEW:
+    case vtkMeshQuality::SKEW:
       QuadQuality = QuadSkew;
       break;
-    case VTK_QUALITY_TAPER:
+    case vtkMeshQuality::TAPER:
       QuadQuality = QuadTaper;
       break;
-    case VTK_QUALITY_WARPAGE:
+    case vtkMeshQuality::WARPAGE:
       QuadQuality = QuadWarpage;
       break;
-    case VTK_QUALITY_AREA:
+    case vtkMeshQuality::AREA:
       QuadQuality = QuadArea;
       break;
-    case VTK_QUALITY_STRETCH:
+    case vtkMeshQuality::STRETCH:
       QuadQuality = QuadStretch;
       break;
-    // case VTK_QUALITY_MIN_ANGLE:
-    case VTK_QUALITY_MAX_ANGLE:
+    // case vtkMeshQualitys::MIN_ANGLE:
+    case vtkMeshQuality::MAX_ANGLE:
       QuadQuality = QuadMaxAngle;
       break;
-    case VTK_QUALITY_ODDY:
+    case vtkMeshQuality::ODDY:
       QuadQuality = QuadOddy;
       break;
-    case VTK_QUALITY_CONDITION:
+    case vtkMeshQuality::CONDITION:
       QuadQuality = QuadCondition;
       break;
-    case VTK_QUALITY_JACOBIAN:
+    case vtkMeshQuality::JACOBIAN:
       QuadQuality = QuadJacobian;
       break;
-    case VTK_QUALITY_SCALED_JACOBIAN:
+    case vtkMeshQuality::SCALED_JACOBIAN:
       QuadQuality = QuadScaledJacobian;
       break;
-    case VTK_QUALITY_SHEAR:
+    case vtkMeshQuality::SHEAR:
       QuadQuality = QuadShear;
       break;
-    case VTK_QUALITY_SHAPE:
+    case vtkMeshQuality::SHAPE:
       QuadQuality = QuadShape;
       break;
-    case VTK_QUALITY_RELATIVE_SIZE_SQUARED:
+    case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
       QuadQuality = QuadRelativeSizeSquared;
       break;
-    case VTK_QUALITY_SHAPE_AND_SIZE:
+    case vtkMeshQuality::SHAPE_AND_SIZE:
       QuadQuality = QuadShapeAndSize;
       break;
-    case VTK_QUALITY_SHEAR_AND_SIZE:
+    case vtkMeshQuality::SHEAR_AND_SIZE:
       QuadQuality = QuadShearAndSize;
       break;
-    case VTK_QUALITY_DISTORTION:
+    case vtkMeshQuality::DISTORTION:
       QuadQuality = QuadDistortion;
       break;
     default:
@@ -301,52 +297,49 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
 
   switch (this->GetTetQualityMeasure())
   {
-    case VTK_QUALITY_EDGE_RATIO:
+    case vtkMeshQuality::EDGE_RATIO:
       TetQuality = TetEdgeRatio;
       break;
-    case VTK_QUALITY_ASPECT_RATIO:
+    case vtkMeshQuality::ASPECT_RATIO:
       TetQuality = TetAspectRatio;
       break;
-    case VTK_QUALITY_RADIUS_RATIO:
+    case vtkMeshQuality::RADIUS_RATIO:
       TetQuality = TetRadiusRatio;
       break;
-    case VTK_QUALITY_ASPECT_FROBENIUS:
+    case vtkMeshQuality::ASPECT_FROBENIUS:
       TetQuality = TetAspectFrobenius;
       break;
-    case VTK_QUALITY_MIN_ANGLE:
+    case vtkMeshQuality::MIN_ANGLE:
       TetQuality = TetMinAngle;
       break;
-    case VTK_QUALITY_COLLAPSE_RATIO:
+    case vtkMeshQuality::COLLAPSE_RATIO:
       TetQuality = TetCollapseRatio;
       break;
-    case VTK_QUALITY_ASPECT_BETA:
-      TetQuality = TetAspectBeta;
-      break;
-    case VTK_QUALITY_ASPECT_GAMMA:
+    case vtkMeshQuality::ASPECT_GAMMA:
       TetQuality = TetAspectGamma;
       break;
-    case VTK_QUALITY_VOLUME:
+    case vtkMeshQuality::VOLUME:
       TetQuality = TetVolume;
       break;
-    case VTK_QUALITY_CONDITION:
+    case vtkMeshQuality::CONDITION:
       TetQuality = TetCondition;
       break;
-    case VTK_QUALITY_JACOBIAN:
+    case vtkMeshQuality::JACOBIAN:
       TetQuality = TetJacobian;
       break;
-    case VTK_QUALITY_SCALED_JACOBIAN:
+    case vtkMeshQuality::SCALED_JACOBIAN:
       TetQuality = TetScaledJacobian;
       break;
-    case VTK_QUALITY_SHAPE:
+    case vtkMeshQuality::SHAPE:
       TetQuality = TetShape;
       break;
-    case VTK_QUALITY_RELATIVE_SIZE_SQUARED:
+    case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
       TetQuality = TetRelativeSizeSquared;
       break;
-    case VTK_QUALITY_SHAPE_AND_SIZE:
-      TetQuality = TetShapeandSize;
+    case vtkMeshQuality::SHAPE_AND_SIZE:
+      TetQuality = TetShapeAndSize;
       break;
-    case VTK_QUALITY_DISTORTION:
+    case vtkMeshQuality::DISTORTION:
       TetQuality = TetDistortion;
       break;
     default:
@@ -358,64 +351,64 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
 
   switch (this->GetHexQualityMeasure())
   {
-    case VTK_QUALITY_EDGE_RATIO:
+    case vtkMeshQuality::EDGE_RATIO:
       HexQuality = HexEdgeRatio;
       break;
-    case VTK_QUALITY_MED_ASPECT_FROBENIUS:
+    case vtkMeshQuality::MED_ASPECT_FROBENIUS:
       HexQuality = HexMedAspectFrobenius;
       break;
-    case VTK_QUALITY_MAX_ASPECT_FROBENIUS:
+    case vtkMeshQuality::MAX_ASPECT_FROBENIUS:
       HexQuality = HexMaxAspectFrobenius;
       break;
-    case VTK_QUALITY_MAX_EDGE_RATIO:
+    case vtkMeshQuality::MAX_EDGE_RATIO:
       HexQuality = HexMaxEdgeRatio;
       break;
-    case VTK_QUALITY_SKEW:
+    case vtkMeshQuality::SKEW:
       HexQuality = HexSkew;
       break;
-    case VTK_QUALITY_TAPER:
+    case vtkMeshQuality::TAPER:
       HexQuality = HexTaper;
       break;
-    case VTK_QUALITY_VOLUME:
+    case vtkMeshQuality::VOLUME:
       HexQuality = HexVolume;
       break;
-    case VTK_QUALITY_STRETCH:
+    case vtkMeshQuality::STRETCH:
       HexQuality = HexStretch;
       break;
-    case VTK_QUALITY_DIAGONAL:
+    case vtkMeshQuality::DIAGONAL:
       HexQuality = HexDiagonal;
       break;
-    case VTK_QUALITY_DIMENSION:
+    case vtkMeshQuality::DIMENSION:
       HexQuality = HexDimension;
       break;
-    case VTK_QUALITY_ODDY:
+    case vtkMeshQuality::ODDY:
       HexQuality = HexOddy;
       break;
-    case VTK_QUALITY_CONDITION:
+    case vtkMeshQuality::CONDITION:
       HexQuality = HexCondition;
       break;
-    case VTK_QUALITY_JACOBIAN:
+    case vtkMeshQuality::JACOBIAN:
       HexQuality = HexJacobian;
       break;
-    case VTK_QUALITY_SCALED_JACOBIAN:
+    case vtkMeshQuality::SCALED_JACOBIAN:
       HexQuality = HexScaledJacobian;
       break;
-    case VTK_QUALITY_SHEAR:
+    case vtkMeshQuality::SHEAR:
       HexQuality = HexShear;
       break;
-    case VTK_QUALITY_SHAPE:
+    case vtkMeshQuality::SHAPE:
       HexQuality = HexShape;
       break;
-    case VTK_QUALITY_RELATIVE_SIZE_SQUARED:
+    case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
       HexQuality = HexRelativeSizeSquared;
       break;
-    case VTK_QUALITY_SHAPE_AND_SIZE:
+    case vtkMeshQuality::SHAPE_AND_SIZE:
       HexQuality = HexShapeAndSize;
       break;
-    case VTK_QUALITY_SHEAR_AND_SIZE:
+    case vtkMeshQuality::SHEAR_AND_SIZE:
       HexQuality = HexShearAndSize;
       break;
-    case VTK_QUALITY_DISTORTION:
+    case vtkMeshQuality::DISTORTION:
       HexQuality = HexDistortion;
       break;
     default:
@@ -475,16 +468,16 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
 
   // These measures require the average area/volume for all cells of the same type in the mesh.
   // Either use the hinted value (computed by a previous vtkMeshQuality filter) or compute it.
-  if (this->GetTriangleQualityMeasure() == VTK_QUALITY_RELATIVE_SIZE_SQUARED ||
-    this->GetTriangleQualityMeasure() == VTK_QUALITY_SHAPE_AND_SIZE ||
-    this->GetQuadQualityMeasure() == VTK_QUALITY_RELATIVE_SIZE_SQUARED ||
-    this->GetQuadQualityMeasure() == VTK_QUALITY_SHAPE_AND_SIZE ||
-    this->GetQuadQualityMeasure() == VTK_QUALITY_SHEAR_AND_SIZE ||
-    this->GetTetQualityMeasure() == VTK_QUALITY_RELATIVE_SIZE_SQUARED ||
-    this->GetTetQualityMeasure() == VTK_QUALITY_SHAPE_AND_SIZE ||
-    this->GetHexQualityMeasure() == VTK_QUALITY_RELATIVE_SIZE_SQUARED ||
-    this->GetHexQualityMeasure() == VTK_QUALITY_SHAPE_AND_SIZE ||
-    this->GetHexQualityMeasure() == VTK_QUALITY_SHEAR_AND_SIZE)
+  if (this->GetTriangleQualityMeasure() == vtkMeshQuality::RELATIVE_SIZE_SQUARED ||
+    this->GetTriangleQualityMeasure() == vtkMeshQuality::SHAPE_AND_SIZE ||
+    this->GetQuadQualityMeasure() == vtkMeshQuality::RELATIVE_SIZE_SQUARED ||
+    this->GetQuadQualityMeasure() == vtkMeshQuality::SHAPE_AND_SIZE ||
+    this->GetQuadQualityMeasure() == vtkMeshQuality::SHEAR_AND_SIZE ||
+    this->GetTetQualityMeasure() == vtkMeshQuality::RELATIVE_SIZE_SQUARED ||
+    this->GetTetQualityMeasure() == vtkMeshQuality::SHAPE_AND_SIZE ||
+    this->GetHexQualityMeasure() == vtkMeshQuality::RELATIVE_SIZE_SQUARED ||
+    this->GetHexQualityMeasure() == vtkMeshQuality::SHAPE_AND_SIZE ||
+    this->GetHexQualityMeasure() == vtkMeshQuality::SHEAR_AND_SIZE)
   {
     vtkDataArray* triAreaHint = in->GetFieldData()->GetArray("TriArea");
     vtkDataArray* quadAreaHint = in->GetFieldData()->GetArray("QuadArea");
@@ -507,10 +500,10 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
       quadAreaHint->GetTuple(0, quadAreaTuple);
       tetVolHint->GetTuple(0, tetVolTuple);
       hexVolHint->GetTuple(0, hexVolTuple);
-      v_set_tri_size(triAreaTuple[1] / triAreaTuple[4]);
-      v_set_quad_size(quadAreaTuple[1] / quadAreaTuple[4]);
-      v_set_tet_size(tetVolTuple[1] / tetVolTuple[4]);
-      v_set_hex_size(hexVolTuple[1] / hexVolTuple[4]);
+      vtkMeshQuality::TriangleAverageSize = triAreaTuple[1] / triAreaTuple[4];
+      vtkMeshQuality::QuadAverageSize = quadAreaTuple[1] / quadAreaTuple[4];
+      vtkMeshQuality::TetAverageSize = tetVolTuple[1] / tetVolTuple[4];
+      vtkMeshQuality::HexAverageSize = hexVolTuple[1] / hexVolTuple[4];
     }
     else
     {
@@ -611,10 +604,10 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
       quadAreaTuple[4] = nqua;
       tetVolTuple[4] = ntet;
       hexVolTuple[4] = nhex;
-      v_set_tri_size(triAreaTuple[1] / triAreaTuple[4]);
-      v_set_quad_size(quadAreaTuple[1] / quadAreaTuple[4]);
-      v_set_tet_size(tetVolTuple[1] / tetVolTuple[4]);
-      v_set_hex_size(hexVolTuple[1] / hexVolTuple[4]);
+      vtkMeshQuality::TriangleAverageSize = triAreaTuple[1] / triAreaTuple[4];
+      vtkMeshQuality::QuadAverageSize = quadAreaTuple[1] / quadAreaTuple[4];
+      vtkMeshQuality::TetAverageSize = tetVolTuple[1] / tetVolTuple[4];
+      vtkMeshQuality::HexAverageSize = hexVolTuple[1] / hexVolTuple[4];
       progressNumer = 20;
       progressDenom = 40.;
       ntri = 0;
@@ -675,8 +668,6 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
         switch (cellType)
         {
           case VTK_TRIANGLE:
-            if (this->CellNormals)
-              this->CellNormals->GetTuple(c, vtkMeshQuality::CurrentTriNormal);
             q = TriangleQuality(cell);
             if (q > qtriM)
             {
@@ -883,18 +874,6 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkMeshQuality::GetCurrentTriangleNormal(double point[3], double normal[3])
-{
-  // ignore the location where the normal should be evaluated.
-  (void)point;
-
-  // copy the cell normal
-  for (int i = 0; i < 3; ++i)
-    normal[i] = vtkMeshQuality::CurrentTriNormal[i];
-  return 1;
-}
-
 // Triangle quality metrics
 
 //----------------------------------------------------------------------------
@@ -907,7 +886,7 @@ double vtkMeshQuality::TriangleArea(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_area(3, pc);
+  return verdict::tri_area(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -920,7 +899,7 @@ double vtkMeshQuality::TriangleEdgeRatio(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_edge_ratio(3, pc);
+  return verdict::tri_edge_ratio(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -933,7 +912,7 @@ double vtkMeshQuality::TriangleAspectRatio(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_aspect_ratio(3, pc);
+  return verdict::tri_aspect_ratio(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -946,7 +925,7 @@ double vtkMeshQuality::TriangleRadiusRatio(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_radius_ratio(3, pc);
+  return verdict::tri_radius_ratio(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -959,7 +938,7 @@ double vtkMeshQuality::TriangleAspectFrobenius(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_aspect_frobenius(3, pc);
+  return verdict::tri_aspect_frobenius(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -972,7 +951,7 @@ double vtkMeshQuality::TriangleMinAngle(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_minimum_angle(3, pc);
+  return verdict::tri_minimum_angle(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -985,7 +964,7 @@ double vtkMeshQuality::TriangleMaxAngle(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_maximum_angle(3, pc);
+  return verdict::tri_maximum_angle(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -998,7 +977,7 @@ double vtkMeshQuality::TriangleCondition(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_condition(3, pc);
+  return verdict::tri_condition(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1011,7 +990,7 @@ double vtkMeshQuality::TriangleScaledJacobian(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_scaled_jacobian(3, pc);
+  return verdict::tri_scaled_jacobian(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1024,7 +1003,12 @@ double vtkMeshQuality::TriangleRelativeSizeSquared(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_relative_size_squared(3, pc);
+  if (vtkMeshQuality::TriangleAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "TriangleAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::tri_relative_size_squared(3, pc, vtkMeshQuality::TriangleAverageSize);
 }
 
 //----------------------------------------------------------------------------
@@ -1037,7 +1021,7 @@ double vtkMeshQuality::TriangleShape(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_shape(3, pc);
+  return verdict::tri_shape(3, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1050,7 +1034,12 @@ double vtkMeshQuality::TriangleShapeAndSize(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_shape_and_size(3, pc);
+  if (vtkMeshQuality::TriangleAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "TriangleAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::tri_shape_and_size(3, pc, vtkMeshQuality::TriangleAverageSize);
 }
 
 //----------------------------------------------------------------------------
@@ -1063,7 +1052,7 @@ double vtkMeshQuality::TriangleDistortion(vtkCell* cell)
   p->GetPoint(1, pc[1]);
   p->GetPoint(2, pc[2]);
 
-  return v_tri_distortion(3, pc);
+  return verdict::tri_distortion(3, pc);
 }
 
 // Quadrangle quality metrics
@@ -1075,9 +1064,11 @@ double vtkMeshQuality::QuadEdgeRatio(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_edge_ratio(4, pc);
+  return verdict::quad_edge_ratio(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1087,9 +1078,11 @@ double vtkMeshQuality::QuadAspectRatio(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_aspect_ratio(4, pc);
+  return verdict::quad_aspect_ratio(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1099,9 +1092,11 @@ double vtkMeshQuality::QuadRadiusRatio(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_radius_ratio(4, pc);
+  return verdict::quad_radius_ratio(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1111,9 +1106,11 @@ double vtkMeshQuality::QuadMedAspectFrobenius(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_med_aspect_frobenius(4, pc);
+  return verdict::quad_med_aspect_frobenius(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1123,9 +1120,11 @@ double vtkMeshQuality::QuadMaxAspectFrobenius(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_max_aspect_frobenius(4, pc);
+  return verdict::quad_max_aspect_frobenius(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1135,9 +1134,11 @@ double vtkMeshQuality::QuadMinAngle(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_minimum_angle(4, pc);
+  return verdict::quad_minimum_angle(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1147,9 +1148,11 @@ double vtkMeshQuality::QuadMaxEdgeRatios(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_max_edge_ratio(4, pc);
+  return verdict::quad_max_edge_ratio(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1159,9 +1162,11 @@ double vtkMeshQuality::QuadSkew(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_skew(4, pc);
+  return verdict::quad_skew(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1171,9 +1176,11 @@ double vtkMeshQuality::QuadTaper(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_taper(4, pc);
+  return verdict::quad_taper(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1183,9 +1190,11 @@ double vtkMeshQuality::QuadWarpage(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_warpage(4, pc);
+  return verdict::quad_warpage(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1195,9 +1204,11 @@ double vtkMeshQuality::QuadArea(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_area(4, pc);
+  return verdict::quad_area(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1207,24 +1218,12 @@ double vtkMeshQuality::QuadStretch(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_stretch(4, pc);
+  return verdict::quad_stretch(4, pc);
 }
-
-#if 0
-// FIXME
-double vtkMeshQuality::QuadMinAngle( vtkCell* cell )
-{
-  double pc[4][3];
-
-  vtkPoints *p = cell->GetPoints();
-  for ( int i = 0; i < 4; ++i )
-    p->GetPoint( i, pc[i] );
-
-  return v_quad_minimum_angle( 4, pc );
-}
-#endif // 0
 
 //----------------------------------------------------------------------------
 double vtkMeshQuality::QuadMaxAngle(vtkCell* cell)
@@ -1233,9 +1232,11 @@ double vtkMeshQuality::QuadMaxAngle(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_maximum_angle(4, pc);
+  return verdict::quad_maximum_angle(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1245,9 +1246,11 @@ double vtkMeshQuality::QuadOddy(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_oddy(4, pc);
+  return verdict::quad_oddy(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1257,9 +1260,11 @@ double vtkMeshQuality::QuadCondition(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_condition(4, pc);
+  return verdict::quad_condition(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1269,9 +1274,11 @@ double vtkMeshQuality::QuadJacobian(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_jacobian(4, pc);
+  return verdict::quad_jacobian(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1281,9 +1288,11 @@ double vtkMeshQuality::QuadScaledJacobian(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_scaled_jacobian(4, pc);
+  return verdict::quad_scaled_jacobian(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1293,9 +1302,11 @@ double vtkMeshQuality::QuadShear(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_shear(4, pc);
+  return verdict::quad_shear(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1305,9 +1316,11 @@ double vtkMeshQuality::QuadShape(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_shape(4, pc);
+  return verdict::quad_shape(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1317,9 +1330,16 @@ double vtkMeshQuality::QuadRelativeSizeSquared(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_relative_size_squared(4, pc);
+  if (vtkMeshQuality::QuadAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "QuadAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::quad_relative_size_squared(4, pc, vtkMeshQuality::QuadAverageSize);
 }
 
 //----------------------------------------------------------------------------
@@ -1329,9 +1349,16 @@ double vtkMeshQuality::QuadShapeAndSize(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_shape_and_size(4, pc);
+  if (vtkMeshQuality::QuadAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "QuadAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::quad_shape_and_size(4, pc, vtkMeshQuality::QuadAverageSize);
 }
 
 //----------------------------------------------------------------------------
@@ -1341,9 +1368,16 @@ double vtkMeshQuality::QuadShearAndSize(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_shear_and_size(4, pc);
+  if (vtkMeshQuality::QuadAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "QuadAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::quad_shear_and_size(4, pc, vtkMeshQuality::QuadAverageSize);
 }
 
 //----------------------------------------------------------------------------
@@ -1353,9 +1387,11 @@ double vtkMeshQuality::QuadDistortion(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_quad_distortion(4, pc);
+  return verdict::quad_distortion(4, pc);
 }
 
 // Tetrahedral quality metrics
@@ -1367,9 +1403,11 @@ double vtkMeshQuality::TetEdgeRatio(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_edge_ratio(4, pc);
+  return verdict::tet_edge_ratio(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1379,9 +1417,11 @@ double vtkMeshQuality::TetAspectRatio(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_aspect_ratio(4, pc);
+  return verdict::tet_aspect_ratio(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1391,21 +1431,11 @@ double vtkMeshQuality::TetRadiusRatio(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_radius_ratio(4, pc);
-}
-
-//----------------------------------------------------------------------------
-double vtkMeshQuality::TetAspectBeta(vtkCell* cell)
-{
-  double pc[4][3];
-
-  vtkPoints* p = cell->GetPoints();
-  for (int i = 0; i < 4; ++i)
-    p->GetPoint(i, pc[i]);
-
-  return v_tet_aspect_beta(4, pc);
+  return verdict::tet_radius_ratio(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1415,9 +1445,11 @@ double vtkMeshQuality::TetAspectFrobenius(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_aspect_frobenius(4, pc);
+  return verdict::tet_aspect_frobenius(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1427,9 +1459,11 @@ double vtkMeshQuality::TetMinAngle(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_minimum_angle(4, pc);
+  return verdict::tet_minimum_angle(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1439,9 +1473,11 @@ double vtkMeshQuality::TetCollapseRatio(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_collapse_ratio(4, pc);
+  return verdict::tet_collapse_ratio(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1451,9 +1487,11 @@ double vtkMeshQuality::TetAspectGamma(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_aspect_gamma(4, pc);
+  return verdict::tet_aspect_gamma(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1463,9 +1501,11 @@ double vtkMeshQuality::TetVolume(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_volume(4, pc);
+  return verdict::tet_volume(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1475,9 +1515,11 @@ double vtkMeshQuality::TetCondition(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_condition(4, pc);
+  return verdict::tet_condition(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1487,9 +1529,11 @@ double vtkMeshQuality::TetJacobian(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_jacobian(4, pc);
+  return verdict::tet_jacobian(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1499,9 +1543,11 @@ double vtkMeshQuality::TetScaledJacobian(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_scaled_jacobian(4, pc);
+  return verdict::tet_scaled_jacobian(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1511,9 +1557,11 @@ double vtkMeshQuality::TetShape(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_shape(4, pc);
+  return verdict::tet_shape(4, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1523,21 +1571,35 @@ double vtkMeshQuality::TetRelativeSizeSquared(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_relative_size_squared(4, pc);
+  if (vtkMeshQuality::TetAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "TetAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::tet_relative_size_squared(4, pc, vtkMeshQuality::TetAverageSize);
 }
 
 //----------------------------------------------------------------------------
-double vtkMeshQuality::TetShapeandSize(vtkCell* cell)
+double vtkMeshQuality::TetShapeAndSize(vtkCell* cell)
 {
   double pc[4][3];
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_shape_and_size(4, pc);
+  if (vtkMeshQuality::TetAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "TetAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::tet_shape_and_size(4, pc, vtkMeshQuality::TetAverageSize);
 }
 
 //----------------------------------------------------------------------------
@@ -1547,9 +1609,11 @@ double vtkMeshQuality::TetDistortion(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 4; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_tet_distortion(4, pc);
+  return verdict::tet_distortion(4, pc);
 }
 
 // Hexahedral quality metrics
@@ -1561,9 +1625,11 @@ double vtkMeshQuality::HexEdgeRatio(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_edge_ratio(8, pc);
+  return verdict::hex_edge_ratio(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1573,9 +1639,11 @@ double vtkMeshQuality::HexMedAspectFrobenius(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_med_aspect_frobenius(8, pc);
+  return verdict::hex_med_aspect_frobenius(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1585,9 +1653,11 @@ double vtkMeshQuality::HexMaxAspectFrobenius(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_max_aspect_frobenius(8, pc);
+  return verdict::hex_max_aspect_frobenius(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1597,9 +1667,11 @@ double vtkMeshQuality::HexMaxEdgeRatio(vtkCell* cell)
 
   vtkPoints* p = cell->GetPoints();
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_max_edge_ratio(8, pc);
+  return verdict::hex_max_edge_ratio(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1609,9 +1681,11 @@ double vtkMeshQuality::HexSkew(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_skew(8, pc);
+  return verdict::hex_skew(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1621,9 +1695,11 @@ double vtkMeshQuality::HexTaper(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_taper(8, pc);
+  return verdict::hex_taper(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1633,9 +1709,11 @@ double vtkMeshQuality::HexVolume(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_volume(8, pc);
+  return verdict::hex_volume(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1645,9 +1723,11 @@ double vtkMeshQuality::HexStretch(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_stretch(8, pc);
+  return verdict::hex_stretch(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1657,9 +1737,11 @@ double vtkMeshQuality::HexDiagonal(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_diagonal(8, pc);
+  return verdict::hex_diagonal(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1669,9 +1751,11 @@ double vtkMeshQuality::HexDimension(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_dimension(8, pc);
+  return verdict::hex_dimension(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1681,9 +1765,11 @@ double vtkMeshQuality::HexOddy(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_oddy(8, pc);
+  return verdict::hex_oddy(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1693,9 +1779,11 @@ double vtkMeshQuality::HexCondition(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_condition(8, pc);
+  return verdict::hex_condition(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1705,9 +1793,11 @@ double vtkMeshQuality::HexJacobian(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_jacobian(8, pc);
+  return verdict::hex_jacobian(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1717,9 +1807,11 @@ double vtkMeshQuality::HexScaledJacobian(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_scaled_jacobian(8, pc);
+  return verdict::hex_scaled_jacobian(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1729,9 +1821,11 @@ double vtkMeshQuality::HexShear(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_shear(8, pc);
+  return verdict::hex_shear(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1741,9 +1835,11 @@ double vtkMeshQuality::HexShape(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_shape(8, pc);
+  return verdict::hex_shape(8, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1753,9 +1849,16 @@ double vtkMeshQuality::HexRelativeSizeSquared(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_relative_size_squared(8, pc);
+  if (vtkMeshQuality::HexAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "HexAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::hex_relative_size_squared(8, pc, vtkMeshQuality::HexAverageSize);
 }
 
 //----------------------------------------------------------------------------
@@ -1765,9 +1868,16 @@ double vtkMeshQuality::HexShapeAndSize(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_shape_and_size(8, pc);
+  if (vtkMeshQuality::HexAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "HexAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::hex_shape_and_size(8, pc, vtkMeshQuality::HexAverageSize);
 }
 
 //----------------------------------------------------------------------------
@@ -1777,9 +1887,16 @@ double vtkMeshQuality::HexShearAndSize(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_shear_and_size(8, pc);
+  if (vtkMeshQuality::HexAverageSize == 0.0)
+  {
+    vtkLogF(ERROR, "HexAverageSize is not set. Execute vtkMeshQuality!");
+    return 0.0;
+  }
+  return verdict::hex_shear_and_size(8, pc, vtkMeshQuality::HexAverageSize);
 }
 
 //----------------------------------------------------------------------------
@@ -1789,7 +1906,9 @@ double vtkMeshQuality::HexDistortion(vtkCell* cell)
   vtkPoints* p = cell->GetPoints();
 
   for (int i = 0; i < 8; ++i)
+  {
     p->GetPoint(i, pc[i]);
+  }
 
-  return v_hex_distortion(8, pc);
+  return verdict::hex_distortion(8, pc);
 }

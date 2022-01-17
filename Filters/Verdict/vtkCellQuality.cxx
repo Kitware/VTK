@@ -14,81 +14,44 @@
 =========================================================================*/
 
 #include "vtkCellQuality.h"
-#include "vtk_verdict.h"
 
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellTypes.h"
-#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
-#include "vtkMeshQuality.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
-#include <utility>
 
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCellQuality);
 
-double vtkCellQuality::CurrentTriNormal[3];
-
+//----------------------------------------------------------------------------
 vtkCellQuality::~vtkCellQuality()
 {
   this->PointIds->Delete();
   this->Points->Delete();
 }
 
+//----------------------------------------------------------------------------
 vtkCellQuality::vtkCellQuality()
 {
-  this->QualityMeasure = NONE;
+  this->QualityMeasure = vtkMeshQuality::NONE;
   this->UnsupportedGeometry = -1;
   this->UndefinedQuality = -1;
   this->PointIds = vtkIdList::New();
   this->Points = vtkPoints::New();
 }
 
+//----------------------------------------------------------------------------
 void vtkCellQuality::PrintSelf(ostream& os, vtkIndent indent)
 {
-  static const char* CellQualityMeasureNames[] = {
-    "None",
-    "Area",
-    "AspectBeta",
-    "AspectFrobenius",
-    "AspectGamma",
-    "AspectRatio",
-    "CollapseRatio",
-    "Condition",
-    "Diagonal",
-    "Dimension",
-    "Distortion",
-    "EdgeRatio",
-    "Jacobian",
-    "MaxAngle",
-    "MaxAspectFrobenius",
-    "MaxEdgeRatio",
-    "MedAspectFrobenius",
-    "MinAngle",
-    "Oddy",
-    "RadiusRatio",
-    "RelativeSizeSquared",
-    "ScaledJacobian",
-    "Shape",
-    "ShapeAndSize",
-    "Shear",
-    "ShearAndSize",
-    "Skew",
-    "Stretch",
-    "Taper",
-    "Volume",
-    "Warpage",
-  };
-
-  const char* name = CellQualityMeasureNames[this->QualityMeasure];
+  const char* name = vtkMeshQuality::QualityMeasureNames[this->QualityMeasure];
   this->Superclass::PrintSelf(os, indent);
   os << indent << "TriangleQualityMeasure : " << name << endl;
   os << indent << "QuadQualityMeasure : " << name << endl;
@@ -117,20 +80,9 @@ int vtkCellQuality::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Allocate storage for cell quality
   vtkIdType const nCells = in->GetNumberOfCells();
-  vtkSmartPointer<vtkDoubleArray> quality = vtkSmartPointer<vtkDoubleArray>::New();
+  auto quality = vtkSmartPointer<vtkDoubleArray>::New();
   quality->SetName("CellQuality");
   quality->SetNumberOfValues(nCells);
-
-  vtkDataArray* CellNormals = in->GetCellData()->GetNormals();
-  if (CellNormals)
-  {
-    v_set_tri_normal_func(
-      reinterpret_cast<ComputeNormal>(vtkCellQuality::GetCurrentTriangleNormal));
-  }
-  else
-  {
-    v_set_tri_normal_func(nullptr);
-  }
 
   // Support progress and abort.
   vtkIdType const tenth = (nCells >= 10 ? nCells / 10 : 1);
@@ -150,7 +102,7 @@ int vtkCellQuality::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     vtkCell* cell = out->GetCell(cid);
-    double q = 0;
+    double q;
     switch (cell->GetCellType())
     {
       default:
@@ -162,8 +114,6 @@ int vtkCellQuality::RequestData(vtkInformation* vtkNotUsed(request),
       // defined with respective to a particular cell type,
       // this->GetUndefinedQuality() is returned.
       case VTK_TRIANGLE:
-        if (CellNormals)
-          CellNormals->GetTuple(cid, vtkCellQuality::CurrentTriNormal);
         q = this->ComputeTriangleQuality(cell);
         break;
       case VTK_TRIANGLE_STRIP:
@@ -191,233 +141,228 @@ int vtkCellQuality::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//----------------------------------------------------------------------------
 double vtkCellQuality::ComputeTriangleQuality(vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
   {
-    case AREA:
+    case vtkMeshQuality::AREA:
       return vtkMeshQuality::TriangleArea(cell);
-    case ASPECT_FROBENIUS:
+    case vtkMeshQuality::ASPECT_FROBENIUS:
       return vtkMeshQuality::TriangleAspectFrobenius(cell);
-    case ASPECT_RATIO:
+    case vtkMeshQuality::ASPECT_RATIO:
       return vtkMeshQuality::TriangleAspectRatio(cell);
-    case CONDITION:
+    case vtkMeshQuality::CONDITION:
       return vtkMeshQuality::TriangleCondition(cell);
-    case DISTORTION:
+    case vtkMeshQuality::DISTORTION:
       return vtkMeshQuality::TriangleDistortion(cell);
-    case EDGE_RATIO:
+    case vtkMeshQuality::EDGE_RATIO:
       return vtkMeshQuality::TriangleEdgeRatio(cell);
-    case MAX_ANGLE:
+    case vtkMeshQuality::MAX_ANGLE:
       return vtkMeshQuality::TriangleMaxAngle(cell);
-    case MIN_ANGLE:
+    case vtkMeshQuality::MIN_ANGLE:
       return vtkMeshQuality::TriangleMinAngle(cell);
-    case RADIUS_RATIO:
+    case vtkMeshQuality::RADIUS_RATIO:
       return vtkMeshQuality::TriangleRadiusRatio(cell);
-    case RELATIVE_SIZE_SQUARED:
+    case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
       return vtkMeshQuality::TriangleRelativeSizeSquared(cell);
-    case SCALED_JACOBIAN:
+    case vtkMeshQuality::SCALED_JACOBIAN:
       return vtkMeshQuality::TriangleScaledJacobian(cell);
-    case SHAPE_AND_SIZE:
+    case vtkMeshQuality::SHAPE_AND_SIZE:
       return vtkMeshQuality::TriangleShapeAndSize(cell);
-    case SHAPE:
+    case vtkMeshQuality::SHAPE:
       return vtkMeshQuality::TriangleShape(cell);
     default:
       return this->GetUndefinedQuality();
   }
 }
 
+//----------------------------------------------------------------------------
 double vtkCellQuality::ComputeQuadQuality(vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
   {
-    case AREA:
+    case vtkMeshQuality::AREA:
       return vtkMeshQuality::QuadArea(cell);
-    case ASPECT_RATIO:
+    case vtkMeshQuality::ASPECT_RATIO:
       return vtkMeshQuality::QuadAspectRatio(cell);
-    case CONDITION:
+    case vtkMeshQuality::CONDITION:
       return vtkMeshQuality::QuadCondition(cell);
-    case DISTORTION:
+    case vtkMeshQuality::DISTORTION:
       return vtkMeshQuality::QuadDistortion(cell);
-    case EDGE_RATIO:
+    case vtkMeshQuality::EDGE_RATIO:
       return vtkMeshQuality::QuadEdgeRatio(cell);
-    case JACOBIAN:
+    case vtkMeshQuality::JACOBIAN:
       return vtkMeshQuality::QuadJacobian(cell);
-    case MAX_ANGLE:
+    case vtkMeshQuality::MAX_ANGLE:
       return vtkMeshQuality::QuadMaxAngle(cell);
-    case MAX_ASPECT_FROBENIUS:
+    case vtkMeshQuality::MAX_ASPECT_FROBENIUS:
       return vtkMeshQuality::QuadMaxAspectFrobenius(cell);
-    case MAX_EDGE_RATIO:
+    case vtkMeshQuality::MAX_EDGE_RATIO:
       return vtkMeshQuality::QuadMaxEdgeRatios(cell);
-    case MED_ASPECT_FROBENIUS:
+    case vtkMeshQuality::MED_ASPECT_FROBENIUS:
       return vtkMeshQuality::QuadMedAspectFrobenius(cell);
-    case MIN_ANGLE:
+    case vtkMeshQuality::MIN_ANGLE:
       return vtkMeshQuality::QuadMinAngle(cell);
-    case ODDY:
+    case vtkMeshQuality::ODDY:
       return vtkMeshQuality::QuadOddy(cell);
-    case RADIUS_RATIO:
+    case vtkMeshQuality::RADIUS_RATIO:
       return vtkMeshQuality::QuadRadiusRatio(cell);
-    case RELATIVE_SIZE_SQUARED:
+    case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
       return vtkMeshQuality::QuadRelativeSizeSquared(cell);
-    case SCALED_JACOBIAN:
+    case vtkMeshQuality::SCALED_JACOBIAN:
       return vtkMeshQuality::QuadScaledJacobian(cell);
-    case SHAPE_AND_SIZE:
+    case vtkMeshQuality::SHAPE_AND_SIZE:
       return vtkMeshQuality::QuadShapeAndSize(cell);
-    case SHAPE:
+    case vtkMeshQuality::SHAPE:
       return vtkMeshQuality::QuadShape(cell);
-    case SHEAR_AND_SIZE:
+    case vtkMeshQuality::SHEAR_AND_SIZE:
       return vtkMeshQuality::QuadShearAndSize(cell);
-    case SHEAR:
+    case vtkMeshQuality::SHEAR:
       return vtkMeshQuality::QuadShear(cell);
-    case SKEW:
+    case vtkMeshQuality::SKEW:
       return vtkMeshQuality::QuadSkew(cell);
-    case STRETCH:
+    case vtkMeshQuality::STRETCH:
       return vtkMeshQuality::QuadStretch(cell);
-    case TAPER:
+    case vtkMeshQuality::TAPER:
       return vtkMeshQuality::QuadTaper(cell);
-    case WARPAGE:
+    case vtkMeshQuality::WARPAGE:
       return vtkMeshQuality::QuadWarpage(cell);
     default:
       return this->GetUndefinedQuality();
   }
 }
 
+//----------------------------------------------------------------------------
 double vtkCellQuality::ComputeTetQuality(vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
   {
-    case ASPECT_BETA:
-      return vtkMeshQuality::TetAspectBeta(cell);
-    case ASPECT_FROBENIUS:
+    case vtkMeshQuality::ASPECT_FROBENIUS:
       return vtkMeshQuality::TetAspectFrobenius(cell);
-    case ASPECT_GAMMA:
+    case vtkMeshQuality::ASPECT_GAMMA:
       return vtkMeshQuality::TetAspectGamma(cell);
-    case ASPECT_RATIO:
+    case vtkMeshQuality::ASPECT_RATIO:
       return vtkMeshQuality::TetAspectRatio(cell);
-    case COLLAPSE_RATIO:
+    case vtkMeshQuality::COLLAPSE_RATIO:
       return vtkMeshQuality::TetCollapseRatio(cell);
-    case CONDITION:
+    case vtkMeshQuality::CONDITION:
       return vtkMeshQuality::TetCondition(cell);
-    case DISTORTION:
+    case vtkMeshQuality::DISTORTION:
       return vtkMeshQuality::TetDistortion(cell);
-    case EDGE_RATIO:
+    case vtkMeshQuality::EDGE_RATIO:
       return vtkMeshQuality::TetEdgeRatio(cell);
-    case JACOBIAN:
+    case vtkMeshQuality::JACOBIAN:
       return vtkMeshQuality::TetJacobian(cell);
-    case MIN_ANGLE:
+    case vtkMeshQuality::MIN_ANGLE:
       return vtkMeshQuality::TetMinAngle(cell);
-    case RADIUS_RATIO:
+    case vtkMeshQuality::RADIUS_RATIO:
       return vtkMeshQuality::TetRadiusRatio(cell);
-    case RELATIVE_SIZE_SQUARED:
+    case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
       return vtkMeshQuality::TetRelativeSizeSquared(cell);
-    case SCALED_JACOBIAN:
+    case vtkMeshQuality::SCALED_JACOBIAN:
       return vtkMeshQuality::TetScaledJacobian(cell);
-    case SHAPE_AND_SIZE:
-      return vtkMeshQuality::TetShapeandSize(cell);
-    case SHAPE:
+    case vtkMeshQuality::SHAPE_AND_SIZE:
+      return vtkMeshQuality::TetShapeAndSize(cell);
+    case vtkMeshQuality::SHAPE:
       return vtkMeshQuality::TetShape(cell);
-    case VOLUME:
+    case vtkMeshQuality::VOLUME:
       return vtkMeshQuality::TetVolume(cell);
     default:
       return this->GetUndefinedQuality();
   }
 }
 
+//----------------------------------------------------------------------------
 double vtkCellQuality::ComputeHexQuality(vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
   {
-    case CONDITION:
+    case vtkMeshQuality::CONDITION:
       return vtkMeshQuality::HexCondition(cell);
-    case DIAGONAL:
+    case vtkMeshQuality::DIAGONAL:
       return vtkMeshQuality::HexDiagonal(cell);
-    case DIMENSION:
+    case vtkMeshQuality::DIMENSION:
       return vtkMeshQuality::HexDimension(cell);
-    case DISTORTION:
+    case vtkMeshQuality::DISTORTION:
       return vtkMeshQuality::HexDistortion(cell);
-    case EDGE_RATIO:
+    case vtkMeshQuality::EDGE_RATIO:
       return vtkMeshQuality::HexEdgeRatio(cell);
-    case JACOBIAN:
+    case vtkMeshQuality::JACOBIAN:
       return vtkMeshQuality::HexJacobian(cell);
-    case MAX_ASPECT_FROBENIUS:
+    case vtkMeshQuality::MAX_ASPECT_FROBENIUS:
       return vtkMeshQuality::HexMaxAspectFrobenius(cell);
-    case MAX_EDGE_RATIO:
+    case vtkMeshQuality::MAX_EDGE_RATIO:
       return vtkMeshQuality::HexMaxEdgeRatio(cell);
-    case MED_ASPECT_FROBENIUS:
+    case vtkMeshQuality::MED_ASPECT_FROBENIUS:
       return vtkMeshQuality::HexMedAspectFrobenius(cell);
-    case ODDY:
+    case vtkMeshQuality::ODDY:
       return vtkMeshQuality::HexOddy(cell);
-    case RELATIVE_SIZE_SQUARED:
+    case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
       return vtkMeshQuality::HexRelativeSizeSquared(cell);
-    case SCALED_JACOBIAN:
+    case vtkMeshQuality::SCALED_JACOBIAN:
       return vtkMeshQuality::HexScaledJacobian(cell);
-    case SHAPE_AND_SIZE:
+    case vtkMeshQuality::SHAPE_AND_SIZE:
       return vtkMeshQuality::HexShapeAndSize(cell);
-    case SHAPE:
+    case vtkMeshQuality::SHAPE:
       return vtkMeshQuality::HexShape(cell);
-    case SHEAR_AND_SIZE:
+    case vtkMeshQuality::SHEAR_AND_SIZE:
       return vtkMeshQuality::HexShearAndSize(cell);
-    case SHEAR:
+    case vtkMeshQuality::SHEAR:
       return vtkMeshQuality::HexShear(cell);
-    case SKEW:
+    case vtkMeshQuality::SKEW:
       return vtkMeshQuality::HexSkew(cell);
-    case STRETCH:
+    case vtkMeshQuality::STRETCH:
       return vtkMeshQuality::HexStretch(cell);
-    case TAPER:
+    case vtkMeshQuality::TAPER:
       return vtkMeshQuality::HexTaper(cell);
-    case VOLUME:
+    case vtkMeshQuality::VOLUME:
       return vtkMeshQuality::HexVolume(cell);
     default:
       return this->GetUndefinedQuality();
   }
 }
 
+//----------------------------------------------------------------------------
 double vtkCellQuality::ComputeTriangleStripQuality(vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
   {
-    case AREA:
+    case vtkMeshQuality::AREA:
       return vtkCellQuality::TriangleStripArea(cell);
     default:
       return this->GetUndefinedQuality();
   }
 }
 
+//----------------------------------------------------------------------------
 double vtkCellQuality::ComputePixelQuality(vtkCell* cell)
 {
   switch (this->GetQualityMeasure())
   {
-    case AREA:
+    case vtkMeshQuality::AREA:
       return vtkCellQuality::PixelArea(cell);
     default:
       return this->GetUndefinedQuality();
   }
 }
 
-int vtkCellQuality::GetCurrentTriangleNormal(double[3], double normal[3])
-{
-  // copy the cell normal
-  normal[0] = vtkCellQuality::CurrentTriNormal[0];
-  normal[1] = vtkCellQuality::CurrentTriNormal[1];
-  normal[2] = vtkCellQuality::CurrentTriNormal[2];
-  return 1;
-}
-
+//----------------------------------------------------------------------------
 // Triangle strip quality metrics
-
 double vtkCellQuality::TriangleStripArea(vtkCell* cell)
 {
   return this->PolygonArea(cell);
 }
 
+//----------------------------------------------------------------------------
 // Pixel quality metrics
-
 double vtkCellQuality::PixelArea(vtkCell* cell)
 {
   return this->PolygonArea(cell);
 }
 
+//----------------------------------------------------------------------------
 // Polygon quality metrics
-
 double vtkCellQuality::PolygonArea(vtkCell* cell)
 {
   cell->Triangulate(0, this->PointIds, this->Points);

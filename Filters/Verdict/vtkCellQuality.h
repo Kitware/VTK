@@ -14,9 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkCellQuality
- * @brief   Calculate functions of quality of the elements
- *  of a mesh
- *
+ * @brief   Calculate functions of quality of the elements of a mesh
  *
  * vtkCellQuality computes one or more functions of (geometric) quality for each
  * cell of a mesh.  The per-cell quality is added to the mesh's cell data, in an
@@ -34,6 +32,7 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersVerdictModule.h" // For export macro
+#include "vtkMeshQuality.h"          // For QualityMeasureType
 
 class vtkCell;
 class vtkDataArray;
@@ -42,43 +41,6 @@ class vtkPoints;
 
 class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
 {
-
-  enum
-  {
-    NONE = 0,
-    AREA,
-    ASPECT_BETA,
-    ASPECT_FROBENIUS,
-    ASPECT_GAMMA,
-    ASPECT_RATIO,
-    COLLAPSE_RATIO,
-    CONDITION,
-    DIAGONAL,
-    DIMENSION,
-    DISTORTION,
-    EDGE_RATIO,
-    JACOBIAN,
-    MAX_ANGLE,
-    MAX_ASPECT_FROBENIUS,
-    MAX_EDGE_RATIO,
-    MED_ASPECT_FROBENIUS,
-    MIN_ANGLE,
-    NORMAL,
-    ODDY,
-    RADIUS_RATIO,
-    RELATIVE_SIZE_SQUARED,
-    SCALED_JACOBIAN,
-    SHAPE,
-    SHAPE_AND_SIZE,
-    SHEAR,
-    SHEAR_AND_SIZE,
-    SKEW,
-    STRETCH,
-    TAPER,
-    VOLUME,
-    WARPAGE
-  };
-
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkCellQuality, vtkDataSetAlgorithm);
@@ -93,40 +55,67 @@ public:
    * request.
    * There is no default value for this call and valid values include all
    * possible qualities supported by this class.
+   *
+   * For Quality Measure values see vtkMeshQuality's enum QualityMeasureType.
    */
   vtkSetMacro(QualityMeasure, int);
   vtkGetMacro(QualityMeasure, int);
+  void SetQualityMeasureToArea() { this->SetQualityMeasure(vtkMeshQuality::AREA); }
+  void SetQualityMeasureToAspectFrobenius()
+  {
+    this->SetQualityMeasure(vtkMeshQuality::ASPECT_FROBENIUS);
+  }
+  void SetQualityMeasureToAspectGamma() { this->SetQualityMeasure(vtkMeshQuality::ASPECT_GAMMA); }
+  void SetQualityMeasureToAspectRatio() { this->SetQualityMeasure(vtkMeshQuality::ASPECT_RATIO); }
+  void SetQualityMeasureToCollapseRatio()
+  {
+    this->SetQualityMeasure(vtkMeshQuality::COLLAPSE_RATIO);
+  }
+  void SetQualityMeasureToCondition() { this->SetQualityMeasure(vtkMeshQuality::CONDITION); }
+  void SetQualityMeasureToDiagonal() { this->SetQualityMeasure(vtkMeshQuality::DIAGONAL); }
+  void SetQualityMeasureToDimension() { this->SetQualityMeasure(vtkMeshQuality::DIMENSION); }
+  void SetQualityMeasureToDistortion() { this->SetQualityMeasure(vtkMeshQuality::DISTORTION); }
+  void SetQualityMeasureToJacobian() { this->SetQualityMeasure(vtkMeshQuality::JACOBIAN); }
+  void SetQualityMeasureToMaxAngle() { this->SetQualityMeasure(vtkMeshQuality::MAX_ANGLE); }
+  void SetQualityMeasureToMaxAspectFrobenius()
+  {
+    this->SetQualityMeasure(vtkMeshQuality::MAX_ASPECT_FROBENIUS);
+  }
+  void SetQualityMeasureToMaxEdgeRatio()
+  {
+    this->SetQualityMeasure(vtkMeshQuality::MAX_EDGE_RATIO);
+  }
+  void SetQualityMeasureToMedAspectFrobenius()
+  {
+    this->SetQualityMeasure(vtkMeshQuality::MED_ASPECT_FROBENIUS);
+  }
+  void SetQualityMeasureToMinAngle() { this->SetQualityMeasure(vtkMeshQuality::MIN_ANGLE); }
+  void SetQualityMeasureToOddy() { this->SetQualityMeasure(vtkMeshQuality::ODDY); }
+  void SetQualityMeasureToRadiusRatio() { this->SetQualityMeasure(vtkMeshQuality::RADIUS_RATIO); }
+  void SetQualityMeasureToRelativeSizeSquared()
+  {
+    this->SetQualityMeasure(vtkMeshQuality::RELATIVE_SIZE_SQUARED);
+  }
+  void SetQualityMeasureToScaledJacobian()
+  {
+    this->SetQualityMeasure(vtkMeshQuality::SCALED_JACOBIAN);
+  }
+  void SetQualityMeasureToShapeAndSize()
+  {
+    this->SetQualityMeasure(vtkMeshQuality::SHAPE_AND_SIZE);
+  }
+  void SetQualityMeasureToShape() { this->SetQualityMeasure(vtkMeshQuality::SHAPE); }
+  void SetQualityMeasureToShearAndSize()
+  {
+    this->SetQualityMeasure(vtkMeshQuality::SHEAR_AND_SIZE);
+  }
+  void SetQualityMeasureToShear() { this->SetQualityMeasure(vtkMeshQuality::SHEAR); }
+  void SetQualityMeasureToSkew() { this->SetQualityMeasure(vtkMeshQuality::SKEW); }
+  void SetQualityMeasureToStretch() { this->SetQualityMeasure(vtkMeshQuality::STRETCH); }
+  void SetQualityMeasureToTaper() { this->SetQualityMeasure(vtkMeshQuality::TAPER); }
+  void SetQualityMeasureToVolume() { this->SetQualityMeasure(vtkMeshQuality::VOLUME); }
+  void SetQualityMeasureToWarpage() { this->SetQualityMeasure(vtkMeshQuality::WARPAGE); }
   ///@}
-
-  void SetQualityMeasureToArea() { this->SetQualityMeasure(AREA); }
-  void SetQualityMeasureToAspectBeta() { this->SetQualityMeasure(ASPECT_BETA); }
-  void SetQualityMeasureToAspectFrobenius() { this->SetQualityMeasure(ASPECT_FROBENIUS); }
-  void SetQualityMeasureToAspectGamma() { this->SetQualityMeasure(ASPECT_GAMMA); }
-  void SetQualityMeasureToAspectRatio() { this->SetQualityMeasure(ASPECT_RATIO); }
-  void SetQualityMeasureToCollapseRatio() { this->SetQualityMeasure(COLLAPSE_RATIO); }
-  void SetQualityMeasureToCondition() { this->SetQualityMeasure(CONDITION); }
-  void SetQualityMeasureToDiagonal() { this->SetQualityMeasure(DIAGONAL); }
-  void SetQualityMeasureToDimension() { this->SetQualityMeasure(DIMENSION); }
-  void SetQualityMeasureToDistortion() { this->SetQualityMeasure(DISTORTION); }
-  void SetQualityMeasureToJacobian() { this->SetQualityMeasure(JACOBIAN); }
-  void SetQualityMeasureToMaxAngle() { this->SetQualityMeasure(MAX_ANGLE); }
-  void SetQualityMeasureToMaxAspectFrobenius() { this->SetQualityMeasure(MAX_ASPECT_FROBENIUS); }
-  void SetQualityMeasureToMaxEdgeRatio() { this->SetQualityMeasure(MAX_EDGE_RATIO); }
-  void SetQualityMeasureToMedAspectFrobenius() { this->SetQualityMeasure(MED_ASPECT_FROBENIUS); }
-  void SetQualityMeasureToMinAngle() { this->SetQualityMeasure(MIN_ANGLE); }
-  void SetQualityMeasureToOddy() { this->SetQualityMeasure(ODDY); }
-  void SetQualityMeasureToRadiusRatio() { this->SetQualityMeasure(RADIUS_RATIO); }
-  void SetQualityMeasureToRelativeSizeSquared() { this->SetQualityMeasure(RELATIVE_SIZE_SQUARED); }
-  void SetQualityMeasureToScaledJacobian() { this->SetQualityMeasure(SCALED_JACOBIAN); }
-  void SetQualityMeasureToShapeAndSize() { this->SetQualityMeasure(SHAPE_AND_SIZE); }
-  void SetQualityMeasureToShape() { this->SetQualityMeasure(SHAPE); }
-  void SetQualityMeasureToShearAndSize() { this->SetQualityMeasure(SHEAR_AND_SIZE); }
-  void SetQualityMeasureToShear() { this->SetQualityMeasure(SHEAR); }
-  void SetQualityMeasureToSkew() { this->SetQualityMeasure(SKEW); }
-  void SetQualityMeasureToStretch() { this->SetQualityMeasure(STRETCH); }
-  void SetQualityMeasureToTaper() { this->SetQualityMeasure(TAPER); }
-  void SetQualityMeasureToVolume() { this->SetQualityMeasure(VOLUME); }
-  void SetQualityMeasureToWarpage() { this->SetQualityMeasure(WARPAGE); }
 
   ///@{
   /**
@@ -210,7 +199,6 @@ protected:
   /**
    * Set/Get the particular estimator used to measure the quality of tetrahedra.
    * The default is NONE and valid values also include
-   * ASPECT_BETA
    * ASPECT_FROBENIUS
    * ASPECT_GAMMA
    * ASPECT_RATIO
@@ -219,7 +207,7 @@ protected:
    * DISTORTION
    * EDGE_RATIO
    * JACOBIAN
-   * RADIUS_RATIO (identical to Verdict's aspect ratio beta)
+   * RADIUS_RATIO
    * RELATIVE_SIZE_SQUARED
    * SCALED_JACOBIAN
    * SHAPE
@@ -270,18 +258,6 @@ protected:
   double ComputePixelQuality(vtkCell*);
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-  ///@{
-  /**
-   * A function called by some VERDICT triangle quality functions to test for
-   * inverted triangles.
-   * VERDICT only accepts plain function pointers which means the follow
-   * function and member must be static. Unfortunately, this makes the use of
-   * this part not thread safe.
-   */
-  static int GetCurrentTriangleNormal(double point[3], double normal[3]);
-  static double CurrentTriNormal[3];
-  ///@}
 
   int QualityMeasure;
 
