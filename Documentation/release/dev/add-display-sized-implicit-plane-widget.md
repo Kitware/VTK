@@ -5,6 +5,7 @@ While both provide similar functionality, `vtkDisplaySizedImplicitPlaneWidget` h
 
 1) the outline is not drawn by default
 2) the size of the normal arrow and plane are relative to the viewport size (that's why it's named display sized)
+    1) there is an option which allows the maximum size of the plane radius and normal arrow to be constrained by the widget bounds
 3) the origin can be moved freely by default, and it's not restricted by the bounding box
 4) the size of the origin/cone handles are bigger
 5) the plane is represented as a disk

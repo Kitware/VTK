@@ -132,6 +132,16 @@ public:
 
   ///@{
   /**
+   * Set/Get the Radius Multiplier value. Default is 1.0.
+   */
+  virtual void SetRadiusMultiplier(double radiusMultiplier);
+  virtual double GetRadiusMultiplierMinValue() { return 0.000001; }
+  virtual double GetRadiusMultiplierMaxValue() { return VTK_DOUBLE_MAX; }
+  vtkGetMacro(RadiusMultiplier, double);
+  ///@}
+
+  ///@{
+  /**
    * Enable/disable the drawing of the plane. In some cases the plane
    * interferes with the object that it is operating on (i.e., the
    * plane interferes with the cut surface it produces producing
@@ -211,6 +221,18 @@ public:
   vtkGetMacro(ConstrainToWidgetBounds, vtkTypeBool);
   vtkBooleanMacro(ConstrainToWidgetBounds, vtkTypeBool);
   ///@}
+
+  ///@{
+  /**
+   * Turn on/off whether the maximum widget size should be constrained to the widget bounds.
+   * If on, the radius of the disk plane and plane normal arrow will not be allowed to be larger
+   * than the half diagonal of the bounding box formed by the widget bounds.
+   * If off, the radius of the disk plane and plane normal arrow can be arbitrary big
+   * The default behaviour is off.
+   */
+  vtkSetMacro(ConstrainMaximumSizeToWidgetBounds, vtkTypeBool);
+  vtkGetMacro(ConstrainMaximumSizeToWidgetBounds, vtkTypeBool);
+  vtkBooleanMacro(ConstrainMaximumSizeToWidgetBounds, vtkTypeBool);
 
   ///@{
   /**
@@ -508,7 +530,8 @@ protected:
   vtkTypeBool ScaleEnabled;       // whether the widget can be scaled
   vtkTypeBool OutsideBounds;      // whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
-  vtkTypeBool ConstrainToWidgetBounds;
+  vtkTypeBool ConstrainToWidgetBounds; // whether the widget can be moved outside input's bounds
+  vtkTypeBool ConstrainMaximumSizeToWidgetBounds; // whether the maximum widget size is constrained
 
   // The plane
   double RadiusMultiplier;
