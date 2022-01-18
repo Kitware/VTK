@@ -41,6 +41,7 @@
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
+#include "vtkLogger.h"
 #include "vtkLongArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
@@ -610,7 +611,8 @@ void vtkEnSightWriter::WriteData()
       }
     }
   }
-  // cout << "wrote " << blockCount << "parts\n";
+  vtkLog(TRACE, "wrote " << blockCount << "parts\n");
+
   if (this->TmpInput)
   {
     this->TmpInput->Delete();

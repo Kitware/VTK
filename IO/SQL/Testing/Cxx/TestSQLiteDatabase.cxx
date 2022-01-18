@@ -87,6 +87,11 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   }
   int status1 =
     errorObserver->CheckErrorMessage("You specified creating a database but the file exists");
+  if (status1 != 0)
+  {
+    cerr << "Expected error message not found.\n";
+    return 1;
+  }
   db2->Delete();
 
   vtkSQLiteDatabase* db3 =
@@ -123,9 +128,14 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
     cerr << "Select query succeeded when it shouldn't have." << endl;
     return 1;
   }
-  status1 += queryObserver->CheckErrorMessage("Query is not null but prepared statement is");
+  status1 = queryObserver->CheckErrorMessage("Query is not null but prepared statement is");
   db4->Delete();
   query4->Delete();
+  if (status1 != 0)
+  {
+    cerr << "Expected error message not found.\n";
+    return 1;
+  }
 
   cerr << ">>>>> Testing database functions" << endl;
 

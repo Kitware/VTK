@@ -50,6 +50,10 @@ int vtkSeedRepresentationTest1(int, char*[])
   status += errorObserver->CheckErrorMessage("Trying to access non-existent handle");
   node1->GetSeedDisplayPosition(s, pos);
   status += errorObserver->CheckErrorMessage("Trying to access non-existent handle");
+  if (status != 0)
+  {
+    return EXIT_FAILURE;
+  }
 
   // set/get display and world position will fail without seeds having been
   // created, so add some and then do the testing of return values.

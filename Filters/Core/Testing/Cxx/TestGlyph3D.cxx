@@ -63,7 +63,7 @@ static bool TestGlyph3D_WithBadArray()
   glyph3D->Update();
   int status = errorObserver1->CheckErrorMessage("vtkDataArray Normals has more than 3 components");
   status += errorObserver2->CheckErrorMessage("Algorithm vtkGlyph3D");
-  return true;
+  return (status == 0);
 }
 
 static bool TestGlyph3D_WithoutSource()
