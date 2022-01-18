@@ -255,7 +255,7 @@ class vtkIOSSReader::vtkInternals
   DatabaseNamesType DatabaseNames;
   vtkTimeStamp DatabaseNamesMTime;
 
-  std::map<std::string, std::set<double>> DatabaseTimes;
+  std::map<std::string, std::vector<std::pair<int, double>>> DatabaseTimes;
   std::vector<double> TimestepValues;
   vtkTimeStamp TimestepValuesMTime;
 
@@ -935,7 +935,8 @@ bool vtkIOSSReader::vtkInternals::UpdateTimeInformation(vtkIOSSReader* self)
   if (rank == 0)
   {
     // time values for each database.
-    std::map<std::string, std::set<double>> dbase_times;
+    auto& dbase_times = this->DatabaseTimes;
+    dbase_times.clear();
 
     // read all databases to collect timestep information.
     for (const auto& pair : this->DatabaseNames)
@@ -949,7 +950,7 @@ bool vtkIOSSReader::vtkInternals::UpdateTimeInformation(vtkIOSSReader* self)
       try
       {
         auto region = this->GetRegion(pair.first, fileids.front());
-        dbase_times[pair.first] = vtkIOSSUtilities::GetTimeValues(region);
+        dbase_times[pair.first] = vtkIOSSUtilities::GetTime(region);
       }
       catch (std::runtime_error& e)
       {
@@ -959,8 +960,6 @@ bool vtkIOSSReader::vtkInternals::UpdateTimeInformation(vtkIOSSReader* self)
         break;
       }
     }
-
-    this->DatabaseTimes.swap(dbase_times);
   }
 
   if (numRanks > 1)
@@ -988,7 +987,9 @@ bool vtkIOSSReader::vtkInternals::UpdateTimeInformation(vtkIOSSReader* self)
   std::set<double> times_set;
   for (auto& pair : this->DatabaseTimes)
   {
-    std::copy(pair.second.begin(), pair.second.end(), std::inserter(times_set, times_set.end()));
+    std::transform(pair.second.begin(), pair.second.end(),
+      std::inserter(times_set, times_set.end()),
+      [](const std::pair<int, double>& pair) { return pair.second; });
   }
   this->TimestepValues.resize(times_set.size());
   std::copy(times_set.begin(), times_set.end(), this->TimestepValues.begin());
@@ -1452,14 +1453,16 @@ std::vector<DatabaseHandle> vtkIOSSReader::vtkInternals::GetDatabaseHandles(
     // find the right database in a set of restarts;
     for (const auto& pair : this->DatabaseTimes)
     {
-      if (pair.second.find(time) != pair.second.end())
+      const auto& vector = pair.second;
+      auto iter = std::find_if(vector.begin(), vector.end(),
+        [&time](const std::pair<int, double>& pair) { return pair.second == time; });
+      if (iter != vector.end())
       {
         // if multiple databases provide the same timestep, we opt to choose
         // the one with a newer end timestep. this follows from the fact that
         // often a restart may be started after "rewinding" a bit to overcome
         // some bad timesteps.
-        if (dbasename.empty() ||
-          (*this->DatabaseTimes.at(dbasename).rbegin() < *pair.second.rbegin()))
+        if (dbasename.empty() || (*this->DatabaseTimes.at(dbasename).rbegin() < *vector.rbegin()))
         {
           dbasename = pair.first;
         }
@@ -2308,10 +2311,10 @@ bool vtkIOSSReader::vtkInternals::GetGeometry(
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkAbstractArray> vtkIOSSReader::vtkInternals::GetField(
   const std::string& fieldname, Ioss::Region* region, Ioss::GroupingEntity* group_entity,
-  const DatabaseHandle& vtkNotUsed(handle), int timestep, vtkIdTypeArray* ids_to_extract,
+  const DatabaseHandle& handle, int timestep, vtkIdTypeArray* ids_to_extract,
   const std::string& cache_key_suffix)
 {
-  const auto get_field = [&fieldname, &region, &timestep, this](
+  const auto get_field = [&fieldname, &region, &timestep, &handle, this](
                            Ioss::GroupingEntity* entity) -> vtkSmartPointer<vtkAbstractArray> {
     if (!entity->field_exists(fieldname))
     {
@@ -2325,27 +2328,23 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReader::vtkInternals::GetField(
     }
 
     // determine state for transient data.
-    const auto max = region->get_max_time();
-    if (max.first <= 0)
+    const auto& stateVector = this->DatabaseTimes[handle.first];
+    if (stateVector.empty())
     {
       // see paraview/paraview#20658 for why this is needed.
       return nullptr;
     }
 
-    const auto min = region->get_min_time();
-    int state = -1;
-    for (int cc = min.first; cc <= max.first; ++cc)
-    {
-      if (region->get_state_time(cc) == this->TimestepValues[timestep])
-      {
-        state = cc;
-        break;
-      }
-    }
-    if (state == -1)
+    auto iter =
+      std::find_if(stateVector.begin(), stateVector.end(), [&](const std::pair<int, double>& pair) {
+        return pair.second == this->TimestepValues[timestep];
+      });
+
+    if (iter == stateVector.end())
     {
       throw std::runtime_error("Invalid timestep chosen: " + std::to_string(timestep));
     }
+    const int state = iter->first;
     region->begin_state(state);
     try
     {
