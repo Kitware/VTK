@@ -5,7 +5,8 @@ set(test_exclusions
   # This test just seems to be incorrect.
   "^VTK::FiltersSelectionCxx-TestLinearSelector3D$")
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
+    "$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
   list(APPEND test_exclusions
     # See this issue to track the status of these tests.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
@@ -15,26 +16,18 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::FiltersCorePython-contourQuadraticCells$"
     "^VTK::FiltersFlowPathsCxx-TestBSPTree$"
     "^VTK::FiltersGeneralCxx-TestDensifyPolyData$" # valid image looks weird too
-    "^VTK::FiltersGeneralCxx-TestYoungsMaterialInterface$"
     "^VTK::FiltersGeneralPython-clipQuadraticCells$"
     "^VTK::FiltersGeneralPython-edgePoints$"
     "^VTK::FiltersGeneralPython-TestFEDiscreteClipper2D$"
     "^VTK::FiltersGeometryCxx-TestLinearToQuadraticCellsFilter$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryEllipseMaterial$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DAxisClipBox$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DDualContour$"
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DPlaneCutterDual$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridToDualGrid$"
     "^VTK::FiltersModelingPython-TestCookieCutter3$"
     "^VTK::FiltersModelingPython-TestImprintFilter2$"
     "^VTK::FiltersModelingPython-TestImprintFilter3$"
     "^VTK::FiltersModelingPython-TestImprintFilter6$"
     "^VTK::FiltersSourcesPython-TestStaticCellLocatorLineIntersection$"
     "^VTK::InteractionWidgetsCxx-TestPickingManagerWidgets$"
-    "^VTK::InteractionWidgetsPython-TestTensorWidget$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
-    "^VTK::RenderingCoreCxx-TestEdgeFlags$"
-    "^VTK::RenderingImagePython-TestDepthImageToPointCloud$"
     "^VTK::RenderingOpenGL2Cxx-TestCameraShiftScale$"
     "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CameraShiftScale$"
@@ -42,20 +35,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
 
     # Point rendering differences
-    "^VTK::FiltersGeneralPython-TestCellDerivs$"
     "^VTK::FiltersPointsPython-TestConnectedPointsFilter$" # other differences too
-    "^VTK::FiltersPointsPython-TestFitImplicitFunction$"
-    "^VTK::FiltersPointsPython-TestHierarchicalBinningFilter$"
     "^VTK::FiltersPointsPython-TestPCANormalEstimation$"
     "^VTK::FiltersPointsPython-TestPCANormalEstimation2$"
     "^VTK::FiltersPointsPython-TestRadiusOutlierRemoval$"
-    "^VTK::FiltersPointsPython-TestSignedDistanceFilter$"
     "^VTK::FiltersPointsPython-TestVoxelGridFilter$"
     "^VTK::IOGeometryPython-ParticleReader$"
-    "^VTK::IOLASCxx-TestLASReader_test_1$"
-    "^VTK::IOLASCxx-TestLASReader_test_2$"
-    "^VTK::IOPDALCxx-TestPDALReader_test_1$"
-    "^VTK::IOPDALCxx-TestPDALReader_test_2$"
     "^VTK::InteractionWidgetsPython-TestPointCloudWidget$"
     "^VTK::InteractionWidgetsPython-TestPointCloudWidget2$"
 
@@ -64,9 +49,47 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
 
     # Test image looks "dim"; image rendering seems to be common
     # (some also have vertical line rendering differences)
+    "^VTK::FiltersModelingPython-TestCookieCutter$"
+    "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$" # seems to just not work here
+
+    # Geometry looks "off"
+    "^VTK::IOImportCxx-OBJImport-MixedOrder1$"
+    "^VTK::IOImportCxx-OBJImport-MTLwithoutTextureFile$"
+
+    # Font rendering differences (new baseline?)
+    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
+    )
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
+  list(APPEND test_exclusions
+    # See this issue to track the status of these tests.
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
+
+    # Line rendering differences
+    "^VTK::FiltersGeneralCxx-TestYoungsMaterialInterface$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryEllipseMaterial$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DAxisClipBox$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DDualContour$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridToDualGrid$"
+    "^VTK::InteractionWidgetsPython-TestTensorWidget$"
+    "^VTK::RenderingCoreCxx-TestEdgeFlags$"
+    "^VTK::RenderingImagePython-TestDepthImageToPointCloud$"
+
+    # Point rendering differences
+    "^VTK::FiltersGeneralPython-TestCellDerivs$"
+    "^VTK::FiltersPointsPython-TestFitImplicitFunction$"
+    "^VTK::FiltersPointsPython-TestHierarchicalBinningFilter$"
+    "^VTK::FiltersPointsPython-TestSignedDistanceFilter$"
+    "^VTK::IOLASCxx-TestLASReader_test_1$"
+    "^VTK::IOLASCxx-TestLASReader_test_2$"
+    "^VTK::IOPDALCxx-TestPDALReader_test_1$"
+    "^VTK::IOPDALCxx-TestPDALReader_test_2$"
+
+    # Test image looks "dim"; image rendering seems to be common
+    # (some also have vertical line rendering differences)
     "^VTK::FiltersGeometryCxx-TestExplicitStructuredGridSurfaceFilter$"
     "^VTK::FiltersHybridPython-depthSort$"
-    "^VTK::FiltersModelingPython-TestCookieCutter$"
     "^VTK::FiltersTexturePython-textureThreshold$"
     "^VTK::GeovisGDALCxx-TestRasterReprojectionFilter$"
     "^VTK::ImagingCorePython-Spectrum$"
@@ -78,7 +101,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::IOImageCxx-TestTIFFReaderMulti$"
     "^VTK::RenderingAnnotationCxx-TestCornerAnnotation$"
     "^VTK::RenderingCoreCxx-TestTextureRGBA$"
-    "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$" # seems to just not work here
     "^VTK::RenderingCorePython-PickerWithLocator$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastRenderDepthToImage$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastRenderDepthToImage2$"
@@ -92,18 +114,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # Numerical problems?
     "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
 
-    # Geometry looks "off"
-    "^VTK::IOImportCxx-OBJImport-MixedOrder1$"
-    "^VTK::IOImportCxx-OBJImport-MTLwithoutTextureFile$"
-
     # Gets the wrong selection (sometimes).
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
 
     # Syntax error in generated shader program.
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
-
-    # Font rendering differences (new baseline?)
-    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
 
     # Needs investigation
     "^VTKExample-Medical/Cxx")
