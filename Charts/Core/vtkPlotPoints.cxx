@@ -108,49 +108,6 @@ vtkPlotPoints::~vtkPlotPoints()
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotPoints::Update()
-{
-  if (!this->Visible)
-  {
-    return;
-  }
-  // Check if we have an input
-  vtkTable* table = this->Data->GetInput();
-
-  if (table && !this->ValidPointMaskName.empty() &&
-    table->GetColumnByName(this->ValidPointMaskName))
-  {
-    this->ValidPointMask =
-      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName));
-  }
-  else
-  {
-    this->ValidPointMask = nullptr;
-  }
-
-  if (!table)
-  {
-    vtkDebugMacro(<< "Update event called with no input table set.");
-    return;
-  }
-  else if (this->Data->GetMTime() > this->BuildTime || table->GetMTime() > this->BuildTime ||
-    (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime) ||
-    this->MTime > this->BuildTime)
-  {
-    vtkDebugMacro(<< "Updating cached values.");
-    this->UpdateTableCache(table);
-  }
-  else if (this->XAxis && this->YAxis &&
-    ((this->XAxis->GetMTime() > this->BuildTime) || (this->YAxis->GetMTime() > this->BuildTime)))
-  {
-    if ((this->LogX != this->XAxis->GetLogScale()) || (this->LogY != this->YAxis->GetLogScale()))
-    {
-      this->UpdateTableCache(table);
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
 bool vtkPlotPoints::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -638,16 +595,22 @@ bool vtkPlotPoints::GetDataArrays(vtkTable* table, vtkDataArray* array[2])
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotPoints::UpdateCache()
+bool vtkPlotPoints::CacheRequiresUpdate()
 {
-  // Update has the necessary checks in place and will update the
-  // ValidPointMask and TableCache when necessary.
-  this->Update();
+  return this->Superclass::CacheRequiresUpdate() ||
+    (this->XAxis && this->LogX != this->XAxis->GetLogScaleActive()) ||
+    (this->YAxis && this->LogY != this->YAxis->GetLogScaleActive());
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotPoints::UpdateTableCache(vtkTable* table)
+bool vtkPlotPoints::UpdateCache()
 {
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
+  vtkTable* table = this->Data->GetInput();
   vtkDataArray* array[2] = { nullptr, nullptr };
   if (!this->GetDataArrays(table, array))
   {
@@ -680,7 +643,19 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable* table)
     }
   }
   this->CalculateLogSeries();
+
+  if (table && !this->ValidPointMaskName.empty() &&
+    table->GetColumnByName(this->ValidPointMaskName))
+  {
+    this->ValidPointMask =
+      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName));
+  }
+  else
+  {
+    this->ValidPointMask = nullptr;
+  }
   this->FindBadPoints();
+
   this->Points->Modified();
   delete this->Sorted;
   this->Sorted = nullptr;

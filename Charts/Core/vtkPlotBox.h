@@ -47,13 +47,6 @@ public:
   static vtkPlotBox* New();
 
   /**
-   * Perform any updates to the item that may be necessary before rendering.
-   * The scene should take care of calling this on all items before their
-   * Paint function is invoked.
-   */
-  void Update() override;
-
-  /**
    * Paint event for the plot, called whenever the chart needs to be drawn
    */
   bool Paint(vtkContext2D* painter) override;
@@ -126,16 +119,19 @@ public:
   vtkGetObjectMacro(TitleProperties, vtkTextProperty);
   ///@}
 
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  bool UpdateCache() override;
+
 protected:
   vtkPlotBox();
   ~vtkPlotBox() override;
 
   void DrawBoxPlot(int, unsigned char*, double, vtkContext2D*);
-
-  /**
-   * Update the table cache.
-   */
-  bool UpdateTableCache(vtkTable* table);
 
   ///@{
   /**

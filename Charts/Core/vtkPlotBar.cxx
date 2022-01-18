@@ -558,39 +558,6 @@ vtkPlotBar::~vtkPlotBar()
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotBar::Update()
-{
-  if (!this->Visible)
-  {
-    return;
-  }
-  // First check if we have an input
-  vtkTable* table = this->Data->GetInput();
-  if (!table)
-  {
-    vtkDebugMacro(<< "Update event called with no input table set.");
-    return;
-  }
-  else if (this->Data->GetMTime() > this->BuildTime || table->GetMTime() > this->BuildTime ||
-    (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime) ||
-    this->MTime > this->BuildTime)
-  {
-    vtkDebugMacro(<< "Updating cached values.");
-    this->UpdateTableCache(table);
-  }
-  else if ((this->XAxis->GetMTime() > this->BuildTime) ||
-    (this->YAxis->GetMTime() > this->BuildTime))
-  {
-    if ((this->LogX != this->XAxis->GetLogScale()) || (this->LogY != this->YAxis->GetLogScale()))
-    {
-      this->LogX = this->XAxis->GetLogScale();
-      this->LogY = this->YAxis->GetLogScale();
-      this->UpdateTableCache(table);
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
 bool vtkPlotBar::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -810,8 +777,22 @@ vtkStdString vtkPlotBar::GetGroupName()
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotBar::UpdateTableCache(vtkTable* table)
+bool vtkPlotBar::CacheRequiresUpdate()
 {
+  return this->Superclass::CacheRequiresUpdate() ||
+    (this->XAxis && this->LogX != this->XAxis->GetLogScaleActive()) ||
+    (this->YAxis && this->LogY != this->YAxis->GetLogScaleActive()) ||
+    (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime);
+}
+
+//------------------------------------------------------------------------------
+bool vtkPlotBar::UpdateCache()
+{
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+  vtkTable* table = this->Data->GetInput();
   // Get the x and y arrays (index 0 and 1 respectively)
   vtkDataArray* x =
     this->UseIndexForXSeries ? nullptr : this->Data->GetInputArrayToProcess(0, table);
@@ -831,6 +812,9 @@ bool vtkPlotBar::UpdateTableCache(vtkTable* table)
     vtkErrorMacro("The x and y columns must have the same number of elements.");
     return false;
   }
+
+  this->LogX = this->XAxis->GetLogScaleActive();
+  this->LogY = this->YAxis->GetLogScaleActive();
 
   this->Private->Update();
 

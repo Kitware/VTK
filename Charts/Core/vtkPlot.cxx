@@ -76,6 +76,44 @@ vtkPlot::~vtkPlot()
 }
 
 //------------------------------------------------------------------------------
+void vtkPlot::Update()
+{
+  if (!this->Visible)
+  {
+    return;
+  }
+  // Check if we have an input
+  if (!this->Data->GetInput())
+  {
+    vtkDebugMacro(<< "Update event called with no input table data set.");
+    return;
+  }
+
+  bool data_updated = false;
+  if (this->Data->GetMTime() > this->BuildTime ||
+    this->Data->GetInput()->GetMTime() > this->BuildTime)
+  {
+    this->Data->Update();
+    data_updated = true;
+  }
+
+  if (data_updated || this->CacheRequiresUpdate())
+  {
+    vtkDebugMacro(<< "Updating internal cached values.");
+    this->UpdateCache();
+    this->BuildTime.Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkPlot::CacheRequiresUpdate()
+{
+  return (this->MTime > this->BuildTime) ||
+    (this->XAxis && this->XAxis->GetMTime() > this->BuildTime) ||
+    (this->YAxis && this->YAxis->GetMTime() > this->BuildTime);
+}
+
+//------------------------------------------------------------------------------
 bool vtkPlot::PaintLegend(vtkContext2D*, const vtkRectf&, int)
 {
   return false;
@@ -479,9 +517,21 @@ void vtkPlot::SetInputData(vtkTable* table, vtkIdType xColumn, vtkIdType yColumn
 }
 
 //------------------------------------------------------------------------------
+void vtkPlot::SetInputConnection(vtkAlgorithmOutput* input)
+{
+  this->Data->SetInputConnection(0, input);
+}
+
+//------------------------------------------------------------------------------
 vtkTable* vtkPlot::GetInput()
 {
   return this->Data->GetInput();
+}
+
+//------------------------------------------------------------------------------
+vtkAlgorithmOutput* vtkPlot::GetInputConnection()
+{
+  return this->Data->GetInputConnection(0, 0);
 }
 
 //------------------------------------------------------------------------------

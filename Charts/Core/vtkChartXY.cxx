@@ -454,10 +454,10 @@ bool vtkChartXY::Paint(vtkContext2D* painter)
 
   // Now that plot transforms, including whether to use log scaling and the
   // shift-scale factors, have been updated, we give the vtkPlot instances an
-  // opportunity to update caches.
+  // opportunity to update their internal caches.
   for (size_t i = 0; i < this->ChartPrivate->plots.size(); ++i)
   {
-    this->ChartPrivate->plots[i]->UpdateCache();
+    this->ChartPrivate->plots[i]->Update();
   }
 
   // Update the clipping if necessary
@@ -2364,8 +2364,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
                 int idx = 1; // y
                 vtkAbstractArray* column =
                   plot->GetData()->GetInputAbstractArrayToProcess(idx, plot->GetInput());
-                int columnID = -1;
-                plot->GetInput()->GetRowData()->GetAbstractArray(column->GetName(), columnID);
+                int columnID = plot->GetInput()->GetColumnIndex(column->GetName());
                 if (plotSelection->GetNumberOfTuples() != column->GetNumberOfTuples())
                 {
                   plotSelection->SetNumberOfTuples(0);

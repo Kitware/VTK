@@ -585,37 +585,6 @@ void vtkPlotStacked::GetColor(double rgb[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotStacked::Update()
-{
-  if (!this->Visible)
-  {
-    return;
-  }
-  // Check if we have an input
-  vtkTable* table = this->Data->GetInput();
-  if (!table)
-  {
-    vtkDebugMacro(<< "Update event called with no input table set.");
-    return;
-  }
-  else if (this->Data->GetMTime() > this->BuildTime || table->GetMTime() > this->BuildTime ||
-    this->MTime > this->BuildTime)
-  {
-    vtkDebugMacro(<< "Updating cached values.");
-    this->UpdateTableCache(table);
-  }
-  else if ((this->XAxis->GetMTime() > this->BuildTime) ||
-    (this->YAxis->GetMTime() > this->BuildTime))
-  {
-    if (this->LogX != this->XAxis->GetLogScaleActive() ||
-      this->LogY != this->YAxis->GetLogScaleActive())
-    {
-      this->UpdateTableCache(table);
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
 bool vtkPlotStacked::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -731,8 +700,22 @@ vtkStringArray* vtkPlotStacked::GetLabels()
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotStacked::UpdateTableCache(vtkTable* table)
+bool vtkPlotStacked::CacheRequiresUpdate()
 {
+  return this->Superclass::CacheRequiresUpdate() ||
+    (this->XAxis && this->LogX != this->XAxis->GetLogScaleActive()) ||
+    (this->YAxis && this->LogY != this->YAxis->GetLogScaleActive());
+}
+
+//------------------------------------------------------------------------------
+bool vtkPlotStacked::UpdateCache()
+{
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
+  vtkTable* table = this->Data->GetInput();
   // Get the x and ybase and yextent arrays (index 0 1 2 respectively)
   vtkDataArray* x =
     this->UseIndexForXSeries ? nullptr : this->Data->GetInputArrayToProcess(0, table);

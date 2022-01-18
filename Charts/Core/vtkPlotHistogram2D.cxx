@@ -39,9 +39,32 @@ vtkPlotHistogram2D::vtkPlotHistogram2D()
 //------------------------------------------------------------------------------
 vtkPlotHistogram2D::~vtkPlotHistogram2D() = default;
 
+//------------------------------------------------------------------------------
 void vtkPlotHistogram2D::Update()
 {
-  this->GenerateHistogram();
+  if (!this->Visible)
+  {
+    return;
+  }
+  // Check if we have an input image
+  if (!this->Input)
+  {
+    vtkDebugMacro(<< "Update event called with no input image.");
+    return;
+  }
+
+  bool dataUpdated = false;
+  if (this->Input->GetMTime() > this->BuildTime)
+  {
+    dataUpdated = true;
+  }
+
+  if (dataUpdated || this->CacheRequiresUpdate())
+  {
+    vtkDebugMacro(<< "Updating cached values.");
+    this->UpdateCache();
+    this->BuildTime.Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -230,11 +253,11 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotHistogram2D::GenerateHistogram()
+bool vtkPlotHistogram2D::UpdateCache()
 {
   if (!this->Input)
   {
-    return;
+    return false;
   }
   if (!this->Output)
   {
@@ -252,6 +275,8 @@ void vtkPlotHistogram2D::GenerateHistogram()
   {
     this->TransferFunction->MapScalarsThroughTable2(input, output, inputType, dimension, 1, 4);
   }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------

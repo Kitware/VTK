@@ -18,6 +18,7 @@
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -35,7 +36,7 @@
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotBag);
 
-vtkCxxSetObjectMacro(vtkPlotBag, LinePen, vtkPen);
+vtkSetObjectImplementationMacro(vtkPlotBag, LinePen, vtkPen);
 
 //------------------------------------------------------------------------------
 vtkPlotBag::vtkPlotBag()
@@ -74,35 +75,6 @@ vtkPlotBag::~vtkPlotBag()
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotBag::Update()
-{
-  if (!this->Visible)
-  {
-    return;
-  }
-
-  // Check if we have an input
-  vtkTable* table = this->Data->GetInput();
-  vtkDataArray* density =
-    vtkArrayDownCast<vtkDataArray>(this->Data->GetInputAbstractArrayToProcess(2, this->GetInput()));
-  if (!table || !density)
-  {
-    vtkDebugMacro(<< "Update event called with no input table or density column set.");
-    return;
-  }
-  bool update = (this->Data->GetMTime() > this->BuildTime || table->GetMTime() > this->BuildTime ||
-    this->MTime > this->BuildTime);
-
-  this->Superclass::Update();
-
-  if (update)
-  {
-    vtkDebugMacro(<< "Updating cached values.");
-    this->UpdateTableCache(density);
-  }
-}
-
-//------------------------------------------------------------------------------
 class DensityVal
 {
 public:
@@ -117,26 +89,42 @@ public:
 };
 
 //------------------------------------------------------------------------------
-void vtkPlotBag::UpdateTableCache(vtkDataArray* density)
+bool vtkPlotBag::UpdateCache()
 {
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
+  vtkTable* table = this->Data->GetInput();
+
   this->MedianPoints->Reset();
   this->Q3Points->Reset();
 
   if (!this->Points)
   {
-    return;
+    return false;
   }
-  vtkDataArray* d = density;
+  vtkDataArray* density = vtkDataArray::SafeDownCast(table->GetColumn(2));
+  if (!density)
+  {
+    vtkDebugMacro(<< "Update event called with no input table or density column set.");
+    return false;
+  }
+
   vtkPoints2D* points = this->Points;
 
-  vtkIdType nbPoints = d->GetNumberOfTuples();
+  vtkIdType nbPoints = density->GetNumberOfTuples();
 
   // Fetch and sort arrays according their density
   std::vector<DensityVal> ids;
   ids.reserve(nbPoints);
-  for (int i = 0; i < nbPoints; i++)
+  auto range = vtk::DataArrayTupleRange(density);
+  int counter = 0;
+  for (typename decltype(range)::ConstTupleReferenceType tuple : range)
   {
-    ids.emplace_back(d->GetTuple1(i), i);
+    ids.emplace_back(tuple[0], counter);
+    counter++;
   }
   std::sort(ids.begin(), ids.end());
 
@@ -149,7 +137,7 @@ void vtkPlotBag::UpdateTableCache(vtkDataArray* density)
   double densitySum = 0.0;
   for (vtkIdType i = 0; i < nbPoints; i++)
   {
-    densitySum += d->GetTuple1(i);
+    densitySum += density->GetTuple1(i);
   }
 
   double sum = 0.0;
@@ -220,6 +208,7 @@ void vtkPlotBag::UpdateTableCache(vtkDataArray* density)
   }
 
   this->BuildTime.Modified();
+  return true;
 }
 
 //------------------------------------------------------------------------------

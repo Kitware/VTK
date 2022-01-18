@@ -82,24 +82,6 @@ vtkPlotBox::~vtkPlotBox()
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotBox::Update()
-{
-  if (!this->Visible)
-  {
-    return;
-  }
-  // Check if we have an input
-  vtkTable* table = this->Data->GetInput();
-  if (!table)
-  {
-    vtkDebugMacro(<< "Update event called with no input table set.");
-    return;
-  }
-
-  this->UpdateTableCache(table);
-}
-
-//------------------------------------------------------------------------------
 bool vtkPlotBox::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -124,8 +106,7 @@ bool vtkPlotBox::Paint(vtkContext2D* painter)
   for (int i = 0; i < nbCols; i++)
   {
     vtkStdString colName = parent->GetVisibleColumns()->GetValue(i);
-    int index;
-    this->GetInput()->GetRowData()->GetAbstractArray(colName.c_str(), index);
+    int index = this->GetInput()->GetColumnIndex(colName.c_str());
     double rgb[4];
     this->LookupTable->GetIndexedColor(index, rgb);
     unsigned char crgba[4] = { static_cast<unsigned char>(rgb[0] * 255.),
@@ -301,12 +282,17 @@ vtkIdType vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2
   return -1;
 }
 //------------------------------------------------------------------------------
-bool vtkPlotBox::UpdateTableCache(vtkTable* table)
+bool vtkPlotBox::UpdateCache()
 {
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
   // Each boxplot is a column in our storage array,
   // they are scaled from 0.0 to 1.0
   vtkChartBox* parent = vtkChartBox::SafeDownCast(this->Parent);
-
+  vtkTable* table = this->Data->GetInput();
   if (!parent || !table || table->GetNumberOfColumns() == 0)
   {
     return false;
@@ -380,8 +366,7 @@ void vtkPlotBox::SetColumnColor(const vtkStdString& colName, double* rgb)
   {
     this->CreateDefaultLookupTable();
   }
-  int index;
-  this->GetInput()->GetRowData()->GetAbstractArray(colName.c_str(), index);
+  int index = this->GetInput()->GetColumnIndex(colName.c_str());
   vtkLookupTable* lut = vtkLookupTable::SafeDownCast(this->LookupTable);
   if (index >= 0 && lut)
   {

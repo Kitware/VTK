@@ -50,13 +50,6 @@ public:
   static vtkPlotBag* New();
 
   /**
-   * Perform any updates to the item that may be necessary before rendering.
-   * The scene should take care of calling this on all items before their
-   * Paint function is invoked.
-   */
-  void Update() override;
-
-  /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn.
    */
   bool Paint(vtkContext2D* painter) override;
@@ -125,11 +118,17 @@ public:
   void SetPointPen(vtkPen* pen) { this->SetPen(pen); }
   vtkPen* GetPointPen() { return this->GetPen(); }
 
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  bool UpdateCache() override;
+
 protected:
   vtkPlotBag();
   ~vtkPlotBag() override;
-
-  void UpdateTableCache(vtkDataArray*);
 
   bool BagVisible;
   vtkPoints2D* MedianPoints;

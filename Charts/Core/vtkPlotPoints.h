@@ -59,13 +59,6 @@ public:
   static vtkPlotPoints* New();
 
   /**
-   * Perform any updates to the item that may be necessary before rendering.
-   * The scene should take care of calling this on all items before their
-   * Paint function is invoked.
-   */
-  void Update() override;
-
-  /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
   bool Paint(vtkContext2D* painter) override;
@@ -184,6 +177,14 @@ public:
   vtkSetMacro(ValidPointMaskName, vtkStdString);
   ///@}
 
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  bool UpdateCache() override;
+
 protected:
   vtkPlotPoints();
   ~vtkPlotPoints() override;
@@ -194,14 +195,9 @@ protected:
   bool GetDataArrays(vtkTable* table, vtkDataArray* array[2]);
 
   /**
-   * Update the table cache if necessary.
+   * Test if the internal cache requires an update.
    */
-  virtual void UpdateCache() override;
-
-  /**
-   * Update the table cache.
-   */
-  bool UpdateTableCache(vtkTable* table);
+  virtual bool CacheRequiresUpdate() override;
 
   /**
    * Calculate the unscaled input bounds from the input arrays.
@@ -210,7 +206,7 @@ protected:
 
   /**
    * Handle calculating the log of the x or y series if necessary. Should be
-   * called by UpdateTableCache once the data has been updated in Points.
+   * called by UpdateCache once the data has been updated in Points.
    */
   void CalculateLogSeries();
 
@@ -263,11 +259,6 @@ protected:
    * Name of the valid point mask array.
    */
   vtkStdString ValidPointMaskName;
-
-  /**
-   * The point cache is marked dirty until it has been initialized.
-   */
-  vtkTimeStamp BuildTime;
 
   ///@{
   /**

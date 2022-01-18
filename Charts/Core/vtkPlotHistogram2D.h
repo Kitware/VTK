@@ -118,14 +118,17 @@ public:
     vtkVector2f* location, vtkIdType* segmentId) override;
   using vtkPlot::GetNearestPoint;
 
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  bool UpdateCache() override;
+
 protected:
   vtkPlotHistogram2D();
   ~vtkPlotHistogram2D() override;
-
-  /**
-   * Where all the magic happens...
-   */
-  void GenerateHistogram();
 
   vtkSmartPointer<vtkImageData> Input;
   vtkSmartPointer<vtkImageData> Output;
