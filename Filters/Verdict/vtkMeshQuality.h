@@ -26,17 +26,17 @@
  * @brief   Calculate functions of quality of the elements of a mesh
  *
  * vtkMeshQuality computes one or more functions of (geometric)
- * quality for each 2-D and 3-D cell (triangle, quadrilateral, tetrahedron,
- * or hexahedron) of a mesh. These functions of quality are then averaged
+ * quality for each 2-D and 3-D cell (triangle, quadrilateral, tetrahedron, pyramid,
+ * wedge, or hexahedron) of a mesh. These functions of quality are then averaged
  * over the entire mesh. The minimum, average, maximum, and unbiased variance
  * of quality for each type of cell is stored in the output mesh's FieldData.
  * The FieldData arrays are named "Mesh Triangle Quality,"
- * "Mesh Quadrilateral Quality," "Mesh Tetrahedron Quality,"
- * and "Mesh Hexahedron Quality." Each array has a single tuple
- * with 5 components. The first 4 components are the quality statistics
- * mentioned above; the final value is the number of cells of the given type.
- * This final component makes aggregation of statistics for distributed
- * mesh data possible.
+ * "Mesh Quadrilateral Quality," "Mesh Tetrahedron Quality," "Mesh Pyramid Quality,"
+ * "Mesh Wedge Quality," and "Mesh Hexahedron Quality." Each array has
+ * a single tuple with 5 components. The first 4 components are the quality
+ * statistics mentioned above; the final value is the number of cells of the
+ * given type. This final component makes aggregation of statistics for
+ * distributed mesh data possible.
  *
  * By default, the per-cell quality is added to the mesh's cell data, in
  * an array named "Quality." Cell types not supported by
@@ -56,8 +56,7 @@
  *
  * @warning
  * While more general than before, this class does not address many
- * cell types, including wedges and pyramids in 3D and triangle strips
- * and fans in 2D (among others).
+ * cell types, including triangle strips and fans in 2D (among others).
  * Most quadrilateral quality functions are intended for planar quadrilaterals
  * only.
  * The minimal angle is not, strictly speaking, a quality function, but it is
@@ -122,12 +121,19 @@ public:
     DIMENSION = 22,
     DISTORTION = 15,
     EDGE_RATIO = 0,
+    EQUIANGLE_SKEW = 29,
+    EQUIVOLUME_SKEW = 30,
     JACOBIAN = 25,
     MAX_ANGLE = 8,
     MAX_ASPECT_FROBENIUS = 5,
     MAX_EDGE_RATIO = 16,
+    MAX_STRETCH = 31,
+    MEAN_ASPECT_FROBENIUS = 32,
+    MEAN_RATIO = 33,
     MED_ASPECT_FROBENIUS = 4,
     MIN_ANGLE = 6,
+    NODAL_JACOBIAN_RATIO = 34,
+    NORMALIZED_INRADIUS = 35,
     ODDY = 23,
     RADIUS_RATIO = 2,
     RELATIVE_SIZE_SQUARED = 12,
@@ -137,11 +143,12 @@ public:
     SHEAR = 11,
     SHEAR_AND_SIZE = 24,
     SKEW = 17,
+    SQUISH_INDEX = 36,
     STRETCH = 20,
     TAPER = 18,
     VOLUME = 19,
     WARPAGE = 26,
-    TOTAL_QUALITY_MEASURE_TYPES = 29,
+    TOTAL_QUALITY_MEASURE_TYPES = 37,
     NONE = TOTAL_QUALITY_MEASURE_TYPES
   };
 
@@ -155,7 +162,8 @@ public:
    * Set/Get the particular estimator used to function the quality of triangles.
    * The default is RADIUS_RATIO and valid values also include
    * ASPECT_RATIO, ASPECT_FROBENIUS, and EDGE_RATIO, MIN_ANGLE, MAX_ANGLE, CONDITION,
-   * SCALED_JACOBIAN, RELATIVE_SIZE_SQUARED, SHAPE, SHAPE_AND_SIZE, and DISTORTION.
+   * SCALED_JACOBIAN, RELATIVE_SIZE_SQUARED, SHAPE, SHAPE_AND_SIZE, DISTORTION,
+   * EQUIANGLE_SKEW, and NORMALIZED_INRADIUS.
    */
   vtkSetMacro(TriangleQualityMeasure, int);
   vtkGetMacro(TriangleQualityMeasure, int);
@@ -184,6 +192,14 @@ public:
     this->SetTriangleQualityMeasure(SHAPE_AND_SIZE);
   }
   void SetTriangleQualityMeasureToDistortion() { this->SetTriangleQualityMeasure(DISTORTION); }
+  void SetTriangleQualityMeasureToEquiangleSkew()
+  {
+    this->SetTriangleQualityMeasure(EQUIANGLE_SKEW);
+  }
+  void SetTriangleQualityMeasureToNormalizedInradius()
+  {
+    this->SetTriangleQualityMeasure(NORMALIZED_INRADIUS);
+  }
   ///@}
 
   ///@{
@@ -192,7 +208,8 @@ public:
    * The default is EDGE_RATIO and valid values also include
    * RADIUS_RATIO, ASPECT_RATIO, MAX_EDGE_RATIO SKEW, TAPER, WARPAGE, AREA,
    * STRETCH, MIN_ANGLE, MAX_ANGLE, ODDY, CONDITION, JACOBIAN, SCALED_JACOBIAN,
-   * SHEAR, SHAPE, RELATIVE_SIZE_SQUARED, SHAPE_AND_SIZE, SHEAR_AND_SIZE, and DISTORTION.
+   * SHEAR, SHAPE, RELATIVE_SIZE_SQUARED, SHAPE_AND_SIZE, SHEAR_AND_SIZE, DISTORTION,
+   * and EQUIANGLE_SKEW.
    *
    * Scope: Except for EDGE_RATIO, these estimators are intended for planar
    * quadrilaterals only; use at your own risk if you really want to assess non-planar
@@ -211,7 +228,7 @@ public:
   {
     this->SetQuadQualityMeasure(MAX_ASPECT_FROBENIUS);
   }
-  void SetQuadQualityMeasureToMaxEdgeRatios() { this->SetQuadQualityMeasure(MAX_EDGE_RATIO); }
+  void SetQuadQualityMeasureToMaxEdgeRatio() { this->SetQuadQualityMeasure(MAX_EDGE_RATIO); }
   void SetQuadQualityMeasureToSkew() { this->SetQuadQualityMeasure(SKEW); }
   void SetQuadQualityMeasureToTaper() { this->SetQuadQualityMeasure(TAPER); }
   void SetQuadQualityMeasureToWarpage() { this->SetQuadQualityMeasure(WARPAGE); }
@@ -232,6 +249,7 @@ public:
   void SetQuadQualityMeasureToShapeAndSize() { this->SetQuadQualityMeasure(SHAPE_AND_SIZE); }
   void SetQuadQualityMeasureToShearAndSize() { this->SetQuadQualityMeasure(SHEAR_AND_SIZE); }
   void SetQuadQualityMeasureToDistortion() { this->SetQuadQualityMeasure(DISTORTION); }
+  void SetQuadQualityMeasureToEquiangleSkew() { this->SetQuadQualityMeasure(EQUIANGLE_SKEW); }
   ///@}
 
   ///@{
@@ -239,8 +257,8 @@ public:
    * Set/Get the particular estimator used to measure the quality of tetrahedra.
    * The default is RADIUS_RATIO and valid values also include
    * ASPECT_RATIO, ASPECT_FROBENIUS, EDGE_RATIO, COLLAPSE_RATIO, ASPECT_GAMMA, VOLUME,
-   * CONDITION, JACOBIAN, SCALED_JACOBIAN, SHAPE, RELATIVE_SIZE_SQUARED, SHAPE_AND_SIZE, and
-   * DISTORTION.
+   * CONDITION, JACOBIAN, SCALED_JACOBIAN, SHAPE, RELATIVE_SIZE_SQUARED, SHAPE_AND_SIZE,
+   * DISTORTION, EQUIANGLE_SKEW, EQUIVOLUME_SKEW, MEAN_RATIO, NORMALIZED_INRADIUS, and SQUISH_INDEX.
    */
   vtkSetMacro(TetQualityMeasure, int);
   vtkGetMacro(TetQualityMeasure, int);
@@ -262,6 +280,60 @@ public:
   }
   void SetTetQualityMeasureToShapeAndSize() { this->SetTetQualityMeasure(SHAPE_AND_SIZE); }
   void SetTetQualityMeasureToDistortion() { this->SetTetQualityMeasure(DISTORTION); }
+  void SetTetQualityMeasureToEquiangleSkew() { this->SetTetQualityMeasure(EQUIANGLE_SKEW); }
+  void SetTetQualityMeasureToEquivolumeSkew() { this->SetTetQualityMeasure(EQUIVOLUME_SKEW); }
+  void SetTetQualityMeasureToMeanRatio() { this->SetTetQualityMeasure(MEAN_RATIO); }
+  void SetTetQualityMeasureToNormalizedInradius()
+  {
+    this->SetTetQualityMeasure(NORMALIZED_INRADIUS);
+  }
+  void SetTetQualityMeasureToSquishIndex() { this->SetTetQualityMeasure(SQUISH_INDEX); }
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the particular estimator used to measure the quality of pyramids.
+   * The default is SHAPE and valid values also include
+   * EQUIANGLE_SKEW, JACOBIAN, SCALED_JACOBIAN, and VOLUME.
+   */
+  vtkSetMacro(PyramidQualityMeasure, int);
+  vtkGetMacro(PyramidQualityMeasure, int);
+  void SetPyramidQualityMeasureToEquiangleSkew() { this->SetPyramidQualityMeasure(EQUIANGLE_SKEW); }
+  void SetPyramidQualityMeasureToJacobian() { this->SetPyramidQualityMeasure(JACOBIAN); }
+  void SetPyramidQualityMeasureToScaledJacobian()
+  {
+    this->SetPyramidQualityMeasure(SCALED_JACOBIAN);
+  }
+  void SetPyramidQualityMeasureToShape() { this->SetPyramidQualityMeasure(SHAPE); }
+  void SetPyramidQualityMeasureToVolume() { this->SetPyramidQualityMeasure(VOLUME); }
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the particular estimator used to measure the quality of wedges.
+   * The default is EDGE_RATIO and valid values also include
+   * CONDITION, DISTORTION, EQUIANGLE_SKEW, JACOBIAN, MAX_ASPECT_FROBENIUS, MAX_STRETCH,
+   * MEAN_ASPECT_FROBENIUS, SCALED_JACOBIAN, SHAPE, and VOLUME.
+   */
+  vtkSetMacro(WedgeQualityMeasure, int);
+  vtkGetMacro(WedgeQualityMeasure, int);
+  void SetWedgeQualityMeasureToCondition() { this->SetWedgeQualityMeasure(CONDITION); }
+  void SetWedgeQualityMeasureToDistortion() { this->SetWedgeQualityMeasure(DISTORTION); }
+  void SetWedgeQualityMeasureToEdgeRatio() { this->SetWedgeQualityMeasure(EDGE_RATIO); }
+  void SetWedgeQualityMeasureToEquiangleSkew() { this->SetWedgeQualityMeasure(EQUIANGLE_SKEW); }
+  void SetWedgeQualityMeasureToJacobian() { this->SetWedgeQualityMeasure(JACOBIAN); }
+  void SetWedgeQualityMeasureToMaxAspectFrobenius()
+  {
+    this->SetWedgeQualityMeasure(MAX_ASPECT_FROBENIUS);
+  }
+  void SetWedgeQualityMeasureToMaxStretch() { this->SetWedgeQualityMeasure(MAX_STRETCH); }
+  void SetWedgeQualityMeasureToMeanAspectFrobenius()
+  {
+    this->SetWedgeQualityMeasure(MEAN_ASPECT_FROBENIUS);
+  }
+  void SetWedgeQualityMeasureToScaledJacobian() { this->SetWedgeQualityMeasure(SCALED_JACOBIAN); }
+  void SetWedgeQualityMeasureToShape() { this->SetWedgeQualityMeasure(SHAPE); }
+  void SetWedgeQualityMeasureToVolume() { this->SetWedgeQualityMeasure(VOLUME); }
   ///@}
 
   ///@{
@@ -271,7 +343,7 @@ public:
    * EDGE_RATIO, MAX_ASPECT_FROBENIUS, MAX_EDGE_RATIO, SKEW, TAPER, VOLUME,
    * STRETCH, DIAGONAL, DIMENSION, ODDY, CONDITION, JACOBIAN,
    * SCALED_JACOBIAN, SHEAR, SHAPE, RELATIVE_SIZE_SQUARED, SHAPE_AND_SIZE,
-   * SHEAR_AND_SIZE, and DISTORTION.
+   * SHEAR_AND_SIZE, DISTORTION, EQUIANGLE_SKEW, and NODAL_JACOBIAN_RATIO.
    */
   vtkSetMacro(HexQualityMeasure, int);
   vtkGetMacro(HexQualityMeasure, int);
@@ -284,7 +356,7 @@ public:
   {
     this->SetHexQualityMeasure(MAX_ASPECT_FROBENIUS);
   }
-  void SetHexQualityMeasureToMaxEdgeRatios() { this->SetHexQualityMeasure(MAX_EDGE_RATIO); }
+  void SetHexQualityMeasureToMaxEdgeRatio() { this->SetHexQualityMeasure(MAX_EDGE_RATIO); }
   void SetHexQualityMeasureToSkew() { this->SetHexQualityMeasure(SKEW); }
   void SetHexQualityMeasureToTaper() { this->SetHexQualityMeasure(TAPER); }
   void SetHexQualityMeasureToVolume() { this->SetHexQualityMeasure(VOLUME); }
@@ -304,6 +376,11 @@ public:
   void SetHexQualityMeasureToShapeAndSize() { this->SetHexQualityMeasure(SHAPE_AND_SIZE); }
   void SetHexQualityMeasureToShearAndSize() { this->SetHexQualityMeasure(SHEAR_AND_SIZE); }
   void SetHexQualityMeasureToDistortion() { this->SetHexQualityMeasure(DISTORTION); }
+  void SetHexQualityMeasureToEquiangleSkew() { this->SetHexQualityMeasure(EQUIANGLE_SKEW); }
+  void SetHexQualityMeasureToNodalJacobianRatio()
+  {
+    this->SetHexQualityMeasure(NODAL_JACOBIAN_RATIO);
+  }
   ///@}
 
   /**
@@ -400,6 +477,18 @@ public:
   static double TriangleDistortion(vtkCell* cell);
 
   /**
+   * This is a static function used to calculate the equiangle skew of a triangle.
+   */
+  static double TriangleEquiangleSkew(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the normalized in-radius of a triangle.
+   * The minimum normalized in-radius of a triangle is the ratio of the minimum
+   * sub-triangle inner radius to the outer triangle radius.
+   */
+  static double TriangleNormalizedInradius(vtkCell* cell);
+
+  /**
    * This is a static function used to calculate the edge ratio of a quadrilateral.
    * The edge ratio of a quadrilateral \f$q\f$ is:
    * \f$\frac{|q|_\infty}{|q|_0}\f$,
@@ -464,7 +553,7 @@ public:
    * This is a static function used to calculate the maximum edge length ratio of a quadrilateral
    * at quad center.
    */
-  static double QuadMaxEdgeRatios(vtkCell* cell);
+  static double QuadMaxEdgeRatio(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the skew of a quadrilateral.
@@ -578,6 +667,11 @@ public:
    * parent area = 4 for quad.
    */
   static double QuadDistortion(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the equiangle skew of a quadrilateral.
+   */
+  static double QuadEquiangleSkew(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the edge ratio of a tetrahedron.
@@ -695,6 +789,137 @@ public:
    * parent volume = 1 / 6 for a tetrahedron.
    */
   static double TetDistortion(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the equiangle skew of a tetrahedron.
+   */
+  static double TetEquiangleSkew(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the equivolume skew of a tetrahedron.
+   */
+  static double TetEquivolumeSkew(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the mean ratio of a tetrahedron.
+   * The mean ratio of a tetrahedron is the ratio of tetrahedron volume over the volume of an
+   * equilateral tetrahedron with the same RMS edge length.
+   */
+  static double TetMeanRatio(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the normalized in-radius of a tetrahedron.
+   * The minimum normalized in-radius of a tetrahedron is the ratio of the minimum
+   * sub-tetrahedron inner radius to the outer tetrahedron radius.
+   */
+  static double TetNormalizedInradius(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the squish index of a tetrahedron.
+   */
+  static double TetSquishIndex(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the equiangle skew of a pyramid.
+   */
+  static double PyramidEquiangleSkew(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the Jacobian of a pyramid.
+   * The jacobian of a tetrahedron is the minimum point-wise volume at any corner.
+   */
+  static double PyramidJacobian(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the Jacobian of a pyramid.
+   * The jacobian of a tetrahedron is the minimum point-wise volume at any corner.
+   */
+  static double PyramidScaledJacobian(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the shape of a pyramid.
+   * The shape of a pyramid is 4 divided by the minimum mean ratio of the
+   * Jacobian matrix at each element corner.
+   */
+  static double PyramidShape(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the volume of a pyramid.
+   */
+  static double PyramidVolume(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the condition number of a wedge.
+   * The condition number of a wedge is equivalent to the max aspect Frobenius.
+   */
+  static double WedgeCondition(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the distortion of a wedge.
+   * The distortion of a wedge is {min(|J|) / actual volume } * parent volume.
+   */
+  static double WedgeDistortion(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the edge ratio of a wedge.
+   * The edge ratio of a wedge is Hmax / Hmin, where Hmax and Hmin are respectively
+   * the maximum and the minimum edge lengths.
+   */
+  static double WedgeEdgeRatio(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the equiangle skew of a wedge.
+   */
+  static double WedgeEquiangleSkew(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the Jacobian of a wedge.
+   * The jacobian of a wedge is the min{((L_2 X L_0) * L_3)_k}.
+   */
+  static double WedgeJacobian(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the max aspect Frobenius of a wedge.
+   * The max aspect Frobenius of a wedge is max(F_0123, F_1204, F_2015, F_3540, F_4351, F_5432).
+   */
+  static double WedgeMaxAspectFrobenius(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the max stretch of a wedge.
+   * The maximum stretch of a wedge is maximum stretch (S) of the three quadrilateral faces:
+   * q = max[S_1043, S_1254, S_2035]
+   */
+  static double WedgeMaxStretch(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the mean aspect Frobenius of a wedge.
+   * The mean aspect Frobenius of a wedge is:
+   * 1/6 * (F_0123 + F_1204 + F+2015 + F_3540 + F_4351 + F_5432).
+   */
+  static double WedgeMeanAspectFrobenius(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the scaled Jacobian a wedge.
+   * The jacobian of a wedge is the minimum point-wise volume at any corner divided by the
+   * corresponding edge lengths and normalized to the unit wedge:
+   * q = min(  2 / sqrt(3) * ((L_2 X L_0) * L_3)_k / sqrt(mag(L_2) * mag(L_0) * mag(L_3))),
+   * where ((L_2 X L_0) * L_3)_k is the determinant of the Jacobian of the tetrahedron defined
+   * at the kth corner node, and L_2, L_0 and L_3 are the egdes defined according to the
+   * standard for tetrahedral elements.
+   */
+  static double WedgeScaledJacobian(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the shape of a wedge.
+   * The shape of a wedge is 3 divided by the minimum mean ratio of the Jacobian matrix at each
+   * element corner.
+   */
+  static double WedgeShape(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the volume of a wedge.
+   */
+  static double WedgeVolume(vtkCell* cell);
 
   /**
    * This is a static function used to calculate the edge ratio of a hexahedron.
@@ -836,6 +1061,17 @@ public:
    * parent volume = 8 for a hexahedron.
    */
   static double HexDistortion(vtkCell* cell);
+
+  /**
+   * THis is a static function used to calculate the equiangle skew of a hexahedron.
+   */
+  static double HexEquiangleSkew(vtkCell* cell);
+
+  /**
+   * This is a static function used to calculate the nodal Jacobian ratio of a hexahedron.
+   * The nodal Jacobian ratio of a hexahedron is min(Jacobian) / max(Jacobian) over all nodes.
+   */
+  static double HexNodalJacobianRatio(vtkCell* cell);
 
   /**
    * These methods are deprecated. Use Get/SetSaveCellQuality() instead.
@@ -980,6 +1216,8 @@ protected:
   int TriangleQualityMeasure;
   int QuadQualityMeasure;
   int TetQualityMeasure;
+  int PyramidQualityMeasure;
+  int WedgeQualityMeasure;
   int HexQualityMeasure;
   bool LinearApproximation;
 
@@ -992,6 +1230,8 @@ protected:
   static double TriangleAverageSize;
   static double QuadAverageSize;
   static double TetAverageSize;
+  static double PyramidAverageSize;
+  static double WedgeAverageSize;
   static double HexAverageSize;
 
 private:

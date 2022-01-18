@@ -56,6 +56,8 @@ void vtkCellQuality::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TriangleQualityMeasure : " << name << endl;
   os << indent << "QuadQualityMeasure : " << name << endl;
   os << indent << "TetQualityMeasure : " << name << endl;
+  os << indent << "PyramidQualityMeasure : " << name << endl;
+  os << indent << "WedgeQualityMeasure : " << name << endl;
   os << indent << "HexQualityMeasure : " << name << endl;
   os << indent << "TriangleStripQualityMeasure : " << name << endl;
   os << indent << "PixelQualityMeasure : " << name << endl;
@@ -128,6 +130,12 @@ int vtkCellQuality::RequestData(vtkInformation* vtkNotUsed(request),
       case VTK_TETRA:
         q = this->ComputeTetQuality(cell);
         break;
+      case VTK_PYRAMID:
+        q = this->ComputePyramidQuality(cell);
+        break;
+      case VTK_WEDGE:
+        q = this->ComputeWedgeQuality(cell);
+        break;
       case VTK_HEXAHEDRON:
         q = this->ComputeHexQuality(cell);
         break;
@@ -158,10 +166,14 @@ double vtkCellQuality::ComputeTriangleQuality(vtkCell* cell)
       return vtkMeshQuality::TriangleDistortion(cell);
     case vtkMeshQuality::EDGE_RATIO:
       return vtkMeshQuality::TriangleEdgeRatio(cell);
+    case vtkMeshQuality::EQUIANGLE_SKEW:
+      return vtkMeshQuality::TriangleEquiangleSkew(cell);
     case vtkMeshQuality::MAX_ANGLE:
       return vtkMeshQuality::TriangleMaxAngle(cell);
     case vtkMeshQuality::MIN_ANGLE:
       return vtkMeshQuality::TriangleMinAngle(cell);
+    case vtkMeshQuality::NORMALIZED_INRADIUS:
+      return vtkMeshQuality::TriangleNormalizedInradius(cell);
     case vtkMeshQuality::RADIUS_RATIO:
       return vtkMeshQuality::TriangleRadiusRatio(cell);
     case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
@@ -192,6 +204,8 @@ double vtkCellQuality::ComputeQuadQuality(vtkCell* cell)
       return vtkMeshQuality::QuadDistortion(cell);
     case vtkMeshQuality::EDGE_RATIO:
       return vtkMeshQuality::QuadEdgeRatio(cell);
+    case vtkMeshQuality::EQUIANGLE_SKEW:
+      return vtkMeshQuality::QuadEquiangleSkew(cell);
     case vtkMeshQuality::JACOBIAN:
       return vtkMeshQuality::QuadJacobian(cell);
     case vtkMeshQuality::MAX_ANGLE:
@@ -199,7 +213,7 @@ double vtkCellQuality::ComputeQuadQuality(vtkCell* cell)
     case vtkMeshQuality::MAX_ASPECT_FROBENIUS:
       return vtkMeshQuality::QuadMaxAspectFrobenius(cell);
     case vtkMeshQuality::MAX_EDGE_RATIO:
-      return vtkMeshQuality::QuadMaxEdgeRatios(cell);
+      return vtkMeshQuality::QuadMaxEdgeRatio(cell);
     case vtkMeshQuality::MED_ASPECT_FROBENIUS:
       return vtkMeshQuality::QuadMedAspectFrobenius(cell);
     case vtkMeshQuality::MIN_ANGLE:
@@ -252,10 +266,18 @@ double vtkCellQuality::ComputeTetQuality(vtkCell* cell)
       return vtkMeshQuality::TetDistortion(cell);
     case vtkMeshQuality::EDGE_RATIO:
       return vtkMeshQuality::TetEdgeRatio(cell);
+    case vtkMeshQuality::EQUIANGLE_SKEW:
+      return vtkMeshQuality::TetEquiangleSkew(cell);
+    case vtkMeshQuality::EQUIVOLUME_SKEW:
+      return vtkMeshQuality::TetEquivolumeSkew(cell);
     case vtkMeshQuality::JACOBIAN:
       return vtkMeshQuality::TetJacobian(cell);
+    case vtkMeshQuality::MEAN_RATIO:
+      return vtkMeshQuality::TetMeanRatio(cell);
     case vtkMeshQuality::MIN_ANGLE:
       return vtkMeshQuality::TetMinAngle(cell);
+    case vtkMeshQuality::NORMALIZED_INRADIUS:
+      return vtkMeshQuality::TetNormalizedInradius(cell);
     case vtkMeshQuality::RADIUS_RATIO:
       return vtkMeshQuality::TetRadiusRatio(cell);
     case vtkMeshQuality::RELATIVE_SIZE_SQUARED:
@@ -266,8 +288,62 @@ double vtkCellQuality::ComputeTetQuality(vtkCell* cell)
       return vtkMeshQuality::TetShapeAndSize(cell);
     case vtkMeshQuality::SHAPE:
       return vtkMeshQuality::TetShape(cell);
+    case vtkMeshQuality::SQUISH_INDEX:
+      return vtkMeshQuality::TetSquishIndex(cell);
     case vtkMeshQuality::VOLUME:
       return vtkMeshQuality::TetVolume(cell);
+    default:
+      return this->GetUndefinedQuality();
+  }
+}
+
+//----------------------------------------------------------------------------
+double vtkCellQuality::ComputePyramidQuality(vtkCell* cell)
+{
+  switch (this->GetQualityMeasure())
+  {
+    case vtkMeshQuality::EQUIANGLE_SKEW:
+      return vtkMeshQuality::PyramidEquiangleSkew(cell);
+    case vtkMeshQuality::JACOBIAN:
+      return vtkMeshQuality::PyramidJacobian(cell);
+    case vtkMeshQuality::SCALED_JACOBIAN:
+      return vtkMeshQuality::PyramidScaledJacobian(cell);
+    case vtkMeshQuality::SHAPE:
+      return vtkMeshQuality::PyramidShape(cell);
+    case vtkMeshQuality::VOLUME:
+      return vtkMeshQuality::PyramidVolume(cell);
+    default:
+      return this->GetUndefinedQuality();
+  }
+}
+
+//----------------------------------------------------------------------------
+double vtkCellQuality::ComputeWedgeQuality(vtkCell* cell)
+{
+  switch (this->GetQualityMeasure())
+  {
+    case vtkMeshQuality::CONDITION:
+      return vtkMeshQuality::WedgeCondition(cell);
+    case vtkMeshQuality::DISTORTION:
+      return vtkMeshQuality::WedgeDistortion(cell);
+    case vtkMeshQuality::EDGE_RATIO:
+      return vtkMeshQuality::WedgeEdgeRatio(cell);
+    case vtkMeshQuality::EQUIANGLE_SKEW:
+      return vtkMeshQuality::WedgeEquiangleSkew(cell);
+    case vtkMeshQuality::JACOBIAN:
+      return vtkMeshQuality::WedgeJacobian(cell);
+    case vtkMeshQuality::MAX_ASPECT_FROBENIUS:
+      return vtkMeshQuality::WedgeMaxAspectFrobenius(cell);
+    case vtkMeshQuality::MAX_STRETCH:
+      return vtkMeshQuality::WedgeMaxStretch(cell);
+    case vtkMeshQuality::MEAN_ASPECT_FROBENIUS:
+      return vtkMeshQuality::WedgeMeanAspectFrobenius(cell);
+    case vtkMeshQuality::SCALED_JACOBIAN:
+      return vtkMeshQuality::WedgeScaledJacobian(cell);
+    case vtkMeshQuality::SHAPE:
+      return vtkMeshQuality::WedgeShape(cell);
+    case vtkMeshQuality::VOLUME:
+      return vtkMeshQuality::WedgeVolume(cell);
     default:
       return this->GetUndefinedQuality();
   }
@@ -288,6 +364,8 @@ double vtkCellQuality::ComputeHexQuality(vtkCell* cell)
       return vtkMeshQuality::HexDistortion(cell);
     case vtkMeshQuality::EDGE_RATIO:
       return vtkMeshQuality::HexEdgeRatio(cell);
+    case vtkMeshQuality::EQUIANGLE_SKEW:
+      return vtkMeshQuality::HexEquiangleSkew(cell);
     case vtkMeshQuality::JACOBIAN:
       return vtkMeshQuality::HexJacobian(cell);
     case vtkMeshQuality::MAX_ASPECT_FROBENIUS:
@@ -296,6 +374,8 @@ double vtkCellQuality::ComputeHexQuality(vtkCell* cell)
       return vtkMeshQuality::HexMaxEdgeRatio(cell);
     case vtkMeshQuality::MED_ASPECT_FROBENIUS:
       return vtkMeshQuality::HexMedAspectFrobenius(cell);
+    case vtkMeshQuality::NODAL_JACOBIAN_RATIO:
+      return vtkMeshQuality::HexNodalJacobianRatio(cell);
     case vtkMeshQuality::ODDY:
       return vtkMeshQuality::HexOddy(cell);
     case vtkMeshQuality::RELATIVE_SIZE_SQUARED:

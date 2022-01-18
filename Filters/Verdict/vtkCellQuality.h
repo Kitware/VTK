@@ -156,8 +156,10 @@ protected:
    * CONDITION
    * DISTORTION
    * EDGE_RATIO
+   * EQUIANGLE_SKEW
    * MAX_ANGLE
    * MIN_ANGLE
+   * NORMALIZED_INRADIUS
    * RADIUS_RATIO
    * RELATIVE_SIZE_SQUARED
    * SCALED_JACOBIAN
@@ -174,6 +176,7 @@ protected:
    * CONDITION
    * DISTORTION
    * EDGE_RATIO
+   * EQUIANGLE_SKEW
    * JACOBIAN
    * MAX_ANGLE
    * MAX_EDGE_RATIO
@@ -206,15 +209,48 @@ protected:
    * CONDITION
    * DISTORTION
    * EDGE_RATIO
+   * EQUIANGLE_SKEW
+   * EQUIVOLUME_SKEW
    * JACOBIAN
+   * MEAN_RATIO
+   * NORMALIZED_INRADIUS
    * RADIUS_RATIO
    * RELATIVE_SIZE_SQUARED
    * SCALED_JACOBIAN
    * SHAPE
    * SHAPE_AND_SIZE
+   * SQUISH_INDEX
    * VOLUME
    */
   double ComputeTetQuality(vtkCell*);
+
+  /**
+   * Set/Get the particular estimator used to measure the quality of pyramids.
+   * The default is NONE and valid values also include
+   * EQUIANGLE_SKEW
+   * JACOBIAN
+   * SCALED_JACOBIAN
+   * SHAPE
+   * VOLUME
+   */
+  double ComputePyramidQuality(vtkCell*);
+
+  /**
+   * Set/Get the particular estimator used to measure the quality of wedges.
+   * The default is NONE and valid values also include
+   * CONDITION
+   * DISTORTION
+   * EDGE_RATIO
+   * EQUIANGLE_SKEW
+   * JACOBIAN
+   * MAX_ASPECT_FROBENIUS
+   * MAX_STRETCH
+   * MEAN_ASPECT_FROBENIUS
+   * SCALED_JACOBIAN
+   * SHAPE
+   * VOLUME
+   */
+  double ComputeWedgeQuality(vtkCell*);
 
   /**
    * Set/Get the particular estimator used to measure the quality of hexahedra.
@@ -224,10 +260,12 @@ protected:
    * DIMENSION
    * DISTORTION
    * EDGE_RATIO
+   * EQUIANGLE_SKEW
    * JACOBIAN
    * MAX_ASPECT_FROBENIUS
    * MAX_ASPECT_FROBENIUS
    * MAX_EDGE_RATIO
+   * NODAL_JACOBIAN_RATIO
    * ODDY
    * RELATIVE_SIZE_SQUARED
    * SCALED_JACOBIAN

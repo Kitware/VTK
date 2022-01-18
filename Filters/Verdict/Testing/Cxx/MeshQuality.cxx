@@ -13,7 +13,6 @@
 #include "vtkCellTypeSource.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
-#include "vtkFieldData.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
@@ -116,71 +115,97 @@ int MeshQuality(int argc, char* argv[])
     cout << endl;
     cout << "Triangle quality of mesh" << endl;
     cout << mr->GetFileName() << endl;
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToArea();
     iq->Update();
     cout << " Area:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToEdgeRatio();
     iq->Update();
     cout << " Edge Ratio:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToAspectRatio();
     iq->Update();
     cout << " Aspect Ratio:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToRadiusRatio();
     iq->Update();
     cout << " Radius Ratio:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToAspectFrobenius();
     iq->Update();
     cout << " Frobenius Norm:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToMinAngle();
     iq->Update();
     cout << " Minimal Angle:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToMaxAngle();
     iq->Update();
     cout << " Maximal Angle:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToCondition();
     iq->Update();
     cout << " Condition:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToScaledJacobian();
     iq->Update();
-    cout << " ScaledJacobian:" << endl;
+    cout << " Scaled Jacobian:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToRelativeSizeSquared();
     iq->Update();
-    cout << " RelativeSizeSquared:" << endl;
+    cout << " Relative Size Squared:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToShape();
     iq->Update();
     cout << " Shape:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToShapeAndSize();
     iq->Update();
-    cout << " ShapeAndSize:" << endl;
+    cout << " Shape And Size:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     iq->SetTriangleQualityMeasureToDistortion();
     iq->Update();
     cout << " Distortion:" << endl;
     DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
+
+    iq->SetTriangleQualityMeasureToEquiangleSkew();
+    iq->Update();
+    cout << " Equiangle Skew:" << endl;
+    DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
+
+    iq->SetTriangleQualityMeasureToNormalizedInradius();
+    iq->Update();
+    cout << " Normalized Inradius:" << endl;
+    DumpQualityStats(iq, "Mesh Triangle Quality");
+    cout << endl;
 
     cout << endl;
     cout << "Quadrilatedral quality of mesh" << endl;
@@ -190,116 +215,145 @@ int MeshQuality(int argc, char* argv[])
     iq->Update();
     cout << " Edge Ratio:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToAspectRatio();
     iq->Update();
     cout << " Aspect Ratio:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToRadiusRatio();
     iq->Update();
     cout << " Radius Ratio:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToMedAspectFrobenius();
     iq->Update();
     cout << " Average Frobenius Norm:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToMaxAspectFrobenius();
     iq->Update();
     cout << " Maximal Frobenius Norm:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
-    iq->SetQuadQualityMeasureToMaxEdgeRatios();
+    iq->SetQuadQualityMeasureToMaxEdgeRatio();
     iq->Update();
     cout << " Max Edge Ratios:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToSkew();
     iq->Update();
     cout << " Skew:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToTaper();
     iq->Update();
     cout << " Taper:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToWarpage();
     iq->Update();
     cout << " Warpage:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToArea();
     iq->Update();
     cout << " Area:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToStretch();
     iq->Update();
     cout << " Stretch:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToMinAngle();
     iq->Update();
     cout << " Min Angle:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToMaxAngle();
     iq->Update();
     cout << " Max Angle:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToOddy();
     iq->Update();
     cout << " Oddy:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToCondition();
     iq->Update();
     cout << " Condition:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToJacobian();
     iq->Update();
     cout << " Jacobian:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToScaledJacobian();
     iq->Update();
     cout << " Scaled Jacobian:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToShear();
     iq->Update();
     cout << " Shear:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToShape();
     iq->Update();
     cout << " Shape:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToRelativeSizeSquared();
     iq->Update();
     cout << " Relative Size Squared:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToShapeAndSize();
     iq->Update();
     cout << " Shape And Size:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToShearAndSize();
     iq->Update();
     cout << " Shear And Size:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     iq->SetQuadQualityMeasureToDistortion();
     iq->Update();
     cout << " Distortion:" << endl;
     DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
+
+    iq->SetQuadQualityMeasureToEquiangleSkew();
+    iq->Update();
+    cout << " EquiangleSkew:" << endl;
+    DumpQualityStats(iq, "Mesh Quadrilateral Quality");
+    cout << endl;
 
     cout << endl;
     cout << "Tetrahedral quality of mesh" << endl;
@@ -309,26 +363,31 @@ int MeshQuality(int argc, char* argv[])
     iq->Update();
     cout << " Edge Ratio:" << endl;
     DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
 
     iq->SetTetQualityMeasureToAspectRatio();
     iq->Update();
     cout << " Aspect Ratio:" << endl;
     DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
 
     iq->SetTetQualityMeasureToRadiusRatio();
     iq->Update();
     cout << " Radius Ratio:" << endl;
     DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
 
     iq->SetTetQualityMeasureToAspectFrobenius();
     iq->Update();
     cout << " Frobenius Norm:" << endl;
     DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
 
     iq->SetTetQualityMeasureToMinAngle();
     iq->Update();
     cout << " Minimal Dihedral Angle:" << endl;
     DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
 
     iq->SetTetQualityMeasureToCollapseRatio();
     iq->Update();
@@ -390,6 +449,138 @@ int MeshQuality(int argc, char* argv[])
     DumpQualityStats(iq, "Mesh Tetrahedron Quality");
     cout << endl;
 
+    iq->SetTetQualityMeasureToEquiangleSkew();
+    iq->Update();
+    cout << " Equiangle Skew:" << endl;
+    DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
+
+    iq->SetTetQualityMeasureToEquivolumeSkew();
+    iq->Update();
+    cout << " Equivolume Skew:" << endl;
+    DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
+
+    iq->SetTetQualityMeasureToMeanRatio();
+    iq->Update();
+    cout << " Mean Ratio:" << endl;
+    DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
+
+    iq->SetTetQualityMeasureToNormalizedInradius();
+    iq->Update();
+    cout << " Normalized Inradius:" << endl;
+    DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
+
+    iq->SetTetQualityMeasureToSquishIndex();
+    iq->Update();
+    cout << " Squish Index:" << endl;
+    DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
+
+    cout << "Pyramid quality of mesh" << endl;
+    cout << mr->GetFileName() << endl;
+
+    iq->SetPyramidQualityMeasureToEquiangleSkew();
+    iq->Update();
+    cout << " Equiangle Skew:" << endl;
+    DumpQualityStats(iq, "Mesh Pyramid Quality");
+    cout << endl;
+
+    iq->SetPyramidQualityMeasureToJacobian();
+    iq->Update();
+    cout << " Jacobian:" << endl;
+    DumpQualityStats(iq, "Mesh Pyramid Quality");
+    cout << endl;
+
+    iq->SetPyramidQualityMeasureToScaledJacobian();
+    iq->Update();
+    cout << " Scaled Jacobian:" << endl;
+    DumpQualityStats(iq, "Mesh Pyramid Quality");
+    cout << endl;
+
+    iq->SetPyramidQualityMeasureToShape();
+    iq->Update();
+    cout << " Shape:" << endl;
+    DumpQualityStats(iq, "Mesh Pyramid Quality");
+    cout << endl;
+
+    iq->SetPyramidQualityMeasureToVolume();
+    iq->Update();
+    cout << " Volume:" << endl;
+    DumpQualityStats(iq, "Mesh Pyramid Quality");
+    cout << endl;
+
+    cout << "Wedge quality of mesh" << endl;
+    cout << mr->GetFileName() << endl;
+
+    iq->SetWedgeQualityMeasureToCondition();
+    iq->Update();
+    cout << " Condition:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToDistortion();
+    iq->Update();
+    cout << " Distortion:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToEdgeRatio();
+    iq->Update();
+    cout << " Edge Ratio:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToEquiangleSkew();
+    iq->Update();
+    cout << " Equiangle Skew:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToJacobian();
+    iq->Update();
+    cout << " Jacobian:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToMaxAspectFrobenius();
+    iq->Update();
+    cout << " Max Aspect Frobenius:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToMaxStretch();
+    iq->Update();
+    cout << " Max Stretch:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToMeanAspectFrobenius();
+    iq->Update();
+    cout << " Mean Aspect Frobenius:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToScaledJacobian();
+    iq->Update();
+    cout << " Scaled Jacobian:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToShape();
+    iq->Update();
+    cout << " Shape:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
+    iq->SetWedgeQualityMeasureToVolume();
+    iq->Update();
+    cout << " Volume:" << endl;
+    DumpQualityStats(iq, "Mesh Wedge Quality");
+    cout << endl;
+
     cout << "Hexahedral quality of mesh" << endl;
     cout << mr->GetFileName() << endl;
 
@@ -411,7 +602,7 @@ int MeshQuality(int argc, char* argv[])
     DumpQualityStats(iq, "Mesh Hexahedron Quality");
     cout << endl;
 
-    iq->SetHexQualityMeasureToMaxEdgeRatios();
+    iq->SetHexQualityMeasureToMaxEdgeRatio();
     iq->Update();
     cout << " Max Edge Ratios:" << endl;
     DumpQualityStats(iq, "Mesh Hexahedron Quality");
@@ -523,6 +714,12 @@ int MeshQuality(int argc, char* argv[])
   constexpr int TetraTypes[] = { VTK_QUADRATIC_TETRA, VTK_HIGHER_ORDER_TETRAHEDRON,
     VTK_LAGRANGE_TETRAHEDRON, VTK_BEZIER_TETRAHEDRON };
 
+  constexpr int PyramidTypes[] = { VTK_QUADRATIC_PYRAMID, VTK_TRIQUADRATIC_PYRAMID,
+    VTK_HIGHER_ORDER_PYRAMID, VTK_LAGRANGE_PYRAMID, VTK_BEZIER_PYRAMID };
+
+  constexpr int WedgeTypes[] = { VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_LINEAR_WEDGE,
+    VTK_BIQUADRATIC_QUADRATIC_WEDGE, VTK_HIGHER_ORDER_WEDGE, VTK_LAGRANGE_WEDGE, VTK_BEZIER_WEDGE };
+
   constexpr int HexaTypes[] = { VTK_QUADRATIC_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON,
     VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, VTK_HIGHER_ORDER_HEXAHEDRON, VTK_LAGRANGE_HEXAHEDRON,
     VTK_BEZIER_HEXAHEDRON };
@@ -533,6 +730,10 @@ int MeshQuality(int argc, char* argv[])
   TestNonLinearCells(VTK_QUAD, QuadTypes, sizeof(QuadTypes) / sizeof(int));
   vtkLog(INFO, "Testing non linear tetras");
   TestNonLinearCells(VTK_TETRA, TetraTypes, sizeof(TetraTypes) / sizeof(int));
+  vtkLog(INFO, "Testing non linear pyramids");
+  TestNonLinearCells(VTK_PYRAMID, PyramidTypes, sizeof(PyramidTypes) / sizeof(int));
+  vtkLog(INFO, "Testing non linear wedges");
+  TestNonLinearCells(VTK_WEDGE, WedgeTypes, sizeof(WedgeTypes) / sizeof(int));
   vtkLog(INFO, "Testing non linear hexahedrons");
   TestNonLinearCells(VTK_HEXAHEDRON, HexaTypes, sizeof(HexaTypes) / sizeof(int));
 
@@ -540,11 +741,10 @@ int MeshQuality(int argc, char* argv[])
   iq->Print(cout);
 
   // Check for warnings
-  vtkSmartPointer<vtkTest::ErrorObserver> warningObserver =
-    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  auto warningObserver = vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
   iq->AddObserver(vtkCommand::WarningEvent, warningObserver);
-  iq->SetTriangleQualityMeasure(100000);
+  iq->SetTriangleQualityMeasure(vtkMeshQuality::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())
@@ -558,7 +758,7 @@ int MeshQuality(int argc, char* argv[])
   }
   warningObserver->Clear();
 
-  iq->SetQuadQualityMeasure(100000);
+  iq->SetQuadQualityMeasure(vtkMeshQuality::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())
@@ -572,7 +772,7 @@ int MeshQuality(int argc, char* argv[])
   }
   warningObserver->Clear();
 
-  iq->SetTetQualityMeasure(100000);
+  iq->SetTetQualityMeasure(vtkMeshQuality::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())
@@ -586,7 +786,35 @@ int MeshQuality(int argc, char* argv[])
   }
   warningObserver->Clear();
 
-  iq->SetHexQualityMeasure(100000);
+  iq->SetPyramidQualityMeasure(vtkMeshQuality::NONE);
+  iq->Update();
+
+  if (warningObserver->GetWarning())
+  {
+    std::cout << "Caught expected warning: " << warningObserver->GetWarningMessage();
+  }
+  else
+  {
+    std::cout << "Failed to catch expected warning" << std::endl;
+    return EXIT_FAILURE;
+  }
+  warningObserver->Clear();
+
+  iq->SetWedgeQualityMeasure(vtkMeshQuality::NONE);
+  iq->Update();
+
+  if (warningObserver->GetWarning())
+  {
+    std::cout << "Caught expected warning: " << warningObserver->GetWarningMessage();
+  }
+  else
+  {
+    std::cout << "Failed to catch expected warning" << std::endl;
+    return EXIT_FAILURE;
+  }
+  warningObserver->Clear();
+
+  iq->SetHexQualityMeasure(vtkMeshQuality::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())
