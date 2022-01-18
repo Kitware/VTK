@@ -7,6 +7,7 @@ set(classes
   QVTKOpenGLStereoWidget
   QVTKOpenGLWindow
   QVTKRenderWindowAdapter
+  QVTKTableModelAdapter
   vtkEventQtSlotConnect
   vtkQWidgetRepresentation
   vtkQWidgetTexture
