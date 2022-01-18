@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkObject.cxx
+  Module:    vtkCellQuality.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -20,10 +20,13 @@
 #include "vtkCellTypes.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
@@ -66,6 +69,76 @@ void vtkCellQuality::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UndefinedQuality : " << this->UndefinedQuality << endl;
 }
 
+//----------------------------------------------------------------------------
+class vtkCellQualityFunctor
+{
+private:
+  vtkSMPThreadLocalObject<vtkGenericCell> Cell;
+  vtkCellQuality* CellQuality;
+  vtkDataSet* Output;
+  vtkSmartPointer<vtkDoubleArray> Quality;
+
+public:
+  vtkCellQualityFunctor(
+    vtkCellQuality* cellQuality, vtkDataSet* output, vtkSmartPointer<vtkDoubleArray> quality)
+    : CellQuality(cellQuality)
+    , Output(output)
+    , Quality(quality)
+  {
+    // instantiate any data-structure that needs to be cached for parallel execution.
+    vtkNew<vtkGenericCell> cell;
+    this->Output->GetCell(0, cell);
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    auto& genericCell = this->Cell.Local();
+    vtkCell* cell;
+    double q;
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      this->Output->GetCell(i, genericCell);
+      cell = genericCell->GetRepresentativeCell();
+      switch (cell->GetCellType())
+      {
+        default:
+          q = this->CellQuality->GetUnsupportedGeometry();
+          break;
+
+        // Below are supported types. Please be noted that not every quality is
+        // defined for all supported geometries. For those quality that is not
+        // defined with respective to a particular cell type,
+        // this->GetUndefinedQuality() is returned.
+        case VTK_TRIANGLE:
+          q = this->CellQuality->ComputeTriangleQuality(cell);
+          break;
+        case VTK_TRIANGLE_STRIP:
+          q = this->CellQuality->ComputeTriangleStripQuality(cell);
+          break;
+        case VTK_PIXEL:
+          q = this->CellQuality->ComputePixelQuality(cell);
+          break;
+        case VTK_QUAD:
+          q = this->CellQuality->ComputeQuadQuality(cell);
+          break;
+        case VTK_TETRA:
+          q = this->CellQuality->ComputeTetQuality(cell);
+          break;
+        case VTK_PYRAMID:
+          q = this->CellQuality->ComputePyramidQuality(cell);
+          break;
+        case VTK_WEDGE:
+          q = this->CellQuality->ComputeWedgeQuality(cell);
+          break;
+        case VTK_HEXAHEDRON:
+          q = this->CellQuality->ComputeHexQuality(cell);
+          break;
+      }
+      this->Quality->SetValue(i, q);
+    }
+  }
+};
+
 int vtkCellQuality::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -86,62 +159,9 @@ int vtkCellQuality::RequestData(vtkInformation* vtkNotUsed(request),
   quality->SetName("CellQuality");
   quality->SetNumberOfValues(nCells);
 
-  // Support progress and abort.
-  vtkIdType const tenth = (nCells >= 10 ? nCells / 10 : 1);
-  double const nCellInv = 1. / nCells;
-
-  // Actual computation of the selected quality
-  for (vtkIdType cid = 0; cid < nCells; ++cid)
-  {
-    // Periodically update progress and check for an abort request.
-    if (0 == cid % tenth)
-    {
-      this->UpdateProgress((cid + 1) * nCellInv);
-      if (this->GetAbortExecute())
-      {
-        break;
-      }
-    }
-
-    vtkCell* cell = out->GetCell(cid);
-    double q;
-    switch (cell->GetCellType())
-    {
-      default:
-        q = this->GetUnsupportedGeometry();
-        break;
-
-      // Below are supported types. Please be noted that not every quality is
-      // defined for all supported geometries. For those quality that is not
-      // defined with respective to a particular cell type,
-      // this->GetUndefinedQuality() is returned.
-      case VTK_TRIANGLE:
-        q = this->ComputeTriangleQuality(cell);
-        break;
-      case VTK_TRIANGLE_STRIP:
-        q = this->ComputeTriangleStripQuality(cell);
-        break;
-      case VTK_PIXEL:
-        q = this->ComputePixelQuality(cell);
-        break;
-      case VTK_QUAD:
-        q = this->ComputeQuadQuality(cell);
-        break;
-      case VTK_TETRA:
-        q = this->ComputeTetQuality(cell);
-        break;
-      case VTK_PYRAMID:
-        q = this->ComputePyramidQuality(cell);
-        break;
-      case VTK_WEDGE:
-        q = this->ComputeWedgeQuality(cell);
-        break;
-      case VTK_HEXAHEDRON:
-        q = this->ComputeHexQuality(cell);
-        break;
-    }
-    quality->SetValue(cid, q);
-  }
+  // Set the output quality array
+  vtkCellQualityFunctor cellQualityFunctor(this, out, quality);
+  vtkSMPTools::For(0, nCells, cellQualityFunctor);
 
   out->GetCellData()->AddArray(quality);
   out->GetCellData()->SetActiveAttribute("CellQuality", vtkDataSetAttributes::SCALARS);

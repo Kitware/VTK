@@ -61,6 +61,11 @@
  * only.
  * The minimal angle is not, strictly speaking, a quality function, but it is
  * provided because of its usage by many authors.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  */
 
 #ifndef vtkMeshQuality_h
@@ -73,9 +78,13 @@
 class vtkCell;
 class vtkDataArray;
 class vtkDoubleArray;
+class vtkMeshQualityFunctor;
 
 class VTKFILTERSVERDICT_EXPORT vtkMeshQuality : public vtkDataSetAlgorithm
 {
+private:
+  friend class vtkMeshQualityFunctor;
+
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkMeshQuality, vtkDataSetAlgorithm);
@@ -1220,6 +1229,14 @@ protected:
   int WedgeQualityMeasure;
   int HexQualityMeasure;
   bool LinearApproximation;
+
+  using CellQualityType = double (*)(vtkCell*);
+  CellQualityType GetTriangleQualityMeasureFunction();
+  CellQualityType GetQuadQualityMeasureFunction();
+  CellQualityType GetTetQualityMeasureFunction();
+  CellQualityType GetPyramidQualityMeasureFunction();
+  CellQualityType GetWedgeQualityMeasureFunction();
+  CellQualityType GetHexQualityMeasureFunction();
 
   // VTK_DEPRECATED_IN_9_2_0 Those 2 attributes need to be removed, and instance in the code as
   // well.

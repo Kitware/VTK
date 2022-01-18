@@ -25,6 +25,11 @@
  * Most quadrilateral quality functions are intended for planar quadrilaterals
  * only.  The minimal angle is not, strictly speaking, a quality function, but
  * it is provided because of its usage by many authors.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  */
 
 #ifndef vtkCellQuality_h
@@ -35,12 +40,16 @@
 #include "vtkMeshQuality.h"          // For QualityMeasureType
 
 class vtkCell;
+class vtkCellQualityFunctor;
 class vtkDataArray;
 class vtkIdList;
 class vtkPoints;
 
 class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
 {
+private:
+  friend class vtkCellQualityFunctor;
+
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkCellQuality, vtkDataSetAlgorithm);
