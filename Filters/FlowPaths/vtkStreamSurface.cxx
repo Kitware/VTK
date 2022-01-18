@@ -16,10 +16,12 @@
 
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
+#include <vtkCellData.h>
 #include <vtkDoubleArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkNew.h>
+#include <vtkNonOverlappingAMR.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
@@ -27,6 +29,8 @@
 #include <vtkRuledSurfaceFilter.h>
 #include <vtkStreamTracer.h>
 #include <vtkTriangle.h>
+#include <vtkUniformGrid.h>
+#include <vtkUniformGridAMR.h>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkStreamSurface);
@@ -34,10 +38,14 @@ vtkStandardNewMacro(vtkStreamSurface);
 //----------------------------------------------------------------------------
 vtkStreamSurface::vtkStreamSurface()
 {
-  // this prevents that vtkPStreamTracer is called, which is necessary to prevent deadlocks
+  // this prevents that vtkPStreamTracer is called, which is necessary to
+  // prevent deadlocks
   vtkObjectFactory::SetAllEnableFlags(false, "vtkStreamTracer"); // this will need to be discussed
   this->RuledSurface->SetInputConnection(this->StreamTracer->GetOutputPort());
   this->RuledSurface->SetRuledModeToResample();
+  // by default process active point vectors
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
 }
 
 //----------------------------------------------------------------------------
@@ -58,13 +66,29 @@ void vtkStreamSurface::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkStreamSurface::AdvectIterative(
-  vtkDataSet* field, vtkPolyData* seeds, int integrationDirection, vtkPolyData* output)
+  vtkDataObject* field, vtkPolyData* seeds, int integrationDirection, vtkPolyData* output)
 {
+  vtkDataSet* dataset;
+
   // adapt dist if cell unit was selected
   double distThreshold = this->InitialIntegrationStep;
-  if (this->IntegrationStepUnit == CELL_LENGTH_UNIT)
+
+  if (field->IsA("vtkDataSet"))
   {
-    distThreshold *= sqrt(static_cast<double>(field->GetCell(0)->GetLength2()));
+    dataset = vtkDataSet::SafeDownCast(field);
+    if (this->IntegrationStepUnit == CELL_LENGTH_UNIT)
+    {
+      distThreshold *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
+    }
+  }
+  else if (field->IsA("vtkUniformGridAMR"))
+  {
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    dataset = data->GetDataSet(0, 0);
+    if (this->IntegrationStepUnit == CELL_LENGTH_UNIT)
+    {
+      distThreshold *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
+    }
   }
 
   vtkNew<vtkPolyData> currentSeeds;
@@ -89,9 +113,9 @@ int vtkStreamSurface::AdvectIterative(
     this->StreamTracer->SetInitialIntegrationStep(this->InitialIntegrationStep);
     this->StreamTracer->SetIntegrationDirection(integrationDirection);
     int vecType(0);
-    vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, field, vecType);
-    this->StreamTracer->SetInputArrayToProcess(
-      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vectors->GetName());
+    vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, dataset, vecType);
+    // this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vecType, vectors->GetName());
+    this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vecType, "resultArray");
     // setting this to zero makes the tracer do 1 step
     this->StreamTracer->SetMaximumNumberOfSteps(0);
     this->StreamTracer->Update();
@@ -284,7 +308,7 @@ int vtkStreamSurface::AdvectIterative(
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamSurface::AdvectSimple(vtkDataSet* field, vtkPolyData* seeds, vtkPolyData* output)
+int vtkStreamSurface::AdvectSimple(vtkDataObject* field, vtkPolyData* seeds, vtkPolyData* output)
 {
   //  this is for comparison with the standard ruled surface
   this->StreamTracer->SetInputData(field);
@@ -315,17 +339,105 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet* field = vtkDataSet::SafeDownCast(fieldInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject* field = vtkDataObject::SafeDownCast(fieldInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* seeds = vtkPolyData::SafeDownCast(seedsInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // make output
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* dataset;
+
+  if (field->IsA("vtkDataSet"))
+  {
+    dataset = vtkDataSet::SafeDownCast(field);
+  }
+  else if (field->IsA("vtkUniformGridAMR"))
+  {
+    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
+    dataset = data->GetDataSet(0, 0);
+  }
+
+  int vecType(0);
+  vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, dataset, vecType);
+
+  bool doesPointDataNotExist = (dataset->GetPointData() == nullptr);
+  bool doesCellDataNotExist = (dataset->GetCellData() == nullptr);
+
+  if (!vectors)
+  {
+    if (this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME()) != nullptr &&
+      (((doesPointDataNotExist ||
+          dataset->GetPointData()->GetArray(
+            this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME())) == nullptr) &&
+         vecType == vtkDataObject::FIELD_ASSOCIATION_POINTS) ||
+        ((doesCellDataNotExist ||
+           dataset->GetCellData()->GetArray(
+             this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME())) == nullptr) &&
+          vecType == vtkDataObject::FIELD_ASSOCIATION_CELLS)))
+      vtkWarningMacro("The array chosen via GetInputArrayToProcess was not "
+                      "found. The algorithm "
+                      "tries to detect vectors.");
+
+    bool vectorNotFound = true;
+
+    // search point data
+    for (int i = 0; i < dataset->GetPointData()->GetNumberOfArrays(); i++)
+      if (dataset->GetPointData()->GetArray(i)->GetNumberOfComponents() == 3)
+      {
+        vectors = dataset->GetPointData()->GetArray(i);
+        vectorNotFound = false;
+        vtkErrorMacro("A possible vector found in point data.");
+        return 0;
+      }
+
+    // search cell data
+    if (vectorNotFound)
+    {
+      for (int i = 0; i < dataset->GetCellData()->GetNumberOfArrays(); i++)
+        if (dataset->GetCellData()->GetArray(i)->GetNumberOfComponents() == 3)
+        {
+          vectors = dataset->GetCellData()->GetArray(i);
+          vectorNotFound = false;
+          vtkErrorMacro("A possible vector found in cell data.");
+          return 0;
+        }
+    }
+
+    if (vectorNotFound)
+    {
+      vtkErrorMacro("The input field does not contain any vectors as pointdata "
+                    "and celldata.");
+      return 0;
+    }
+  }
+  else
+  {
+    // Users might set the name that belongs to an existing array that is not a
+    // vector array.
+    if (vecType == 0)
+    {
+      if (dataset->GetPointData()->GetArray(vectors->GetName())->GetNumberOfComponents() != 3)
+      {
+        vtkErrorMacro("The array that corresponds to the name of vector array "
+                      "is not a vector array.");
+        return 0;
+      }
+    }
+    else if (vecType == 1)
+    {
+      if (dataset->GetCellData()->GetArray(vectors->GetName())->GetNumberOfComponents() != 3)
+      {
+        vtkErrorMacro("The array that corresponds to the name of vector array "
+                      "is not a vector array.");
+        return 0;
+      }
+    }
+  }
 
   int finishedSuccessfully = 0;
   if (this->UseIterativeSeeding)
   {
-    // if this->IntegrationDirection is set to BOTH, then run forward and backward separately and
-    // combine results
+    // if this->IntegrationDirection is set to BOTH, then run forward and
+    // backward separately and combine results
     if (this->IntegrationDirection == 2)
     {
       finishedSuccessfully = AdvectIterative(field, seeds, 0, output);

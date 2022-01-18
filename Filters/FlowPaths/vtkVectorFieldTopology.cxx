@@ -1811,8 +1811,7 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME()) != nullptr &&
       dataset->GetPointData()->GetArray(
-        std::string(this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME())).c_str()) ==
-        nullptr)
+        this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_NAME())) == nullptr)
       vtkWarningMacro("The array chosen via GetInputArrayToProcess was not found. The algorithm "
                       "tries to use vectors instead.");
 
@@ -1820,16 +1819,18 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
 
     if (!vectors)
     {
-      bool VectorNotFound = true;
+      bool vectorNotFound = true;
       for (int i = 0; i < dataset->GetPointData()->GetNumberOfArrays(); i++)
         if (dataset->GetPointData()->GetArray(i)->GetNumberOfComponents() == 3)
         {
           vectors = dataset->GetPointData()->GetArray(i);
-          VectorNotFound = false;
+          vectorNotFound = false;
+          // program stops
+          vtkErrorMacro("A possible vector found in point data.");
           break;
         }
 
-      if (VectorNotFound)
+      if (vectorNotFound)
       {
         vtkErrorMacro("The input field does not contain any vectors as pointdata.");
         return 0;
@@ -1837,6 +1838,7 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
+  // save the name so that it does not need to call GetInputArrayToProcess many times
   this->NameOfVectorArray = vectors->GetName();
 
   // Users might set the name that belongs to an existing array that is not a vector array.
