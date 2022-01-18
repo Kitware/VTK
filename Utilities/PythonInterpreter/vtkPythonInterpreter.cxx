@@ -620,9 +620,9 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   using OwnedWideString = std::unique_ptr<wchar_t, CharDeleter>;
   std::vector<wchar_t*> argvForPythonWide;
   std::vector<OwnedWideString> argvCleanupWide;
-  for (int i = 0; i < argc; i++)
+  for (int i = 0; i < argvCleanup.size(); i++)
   {
-    OwnedWideString argCopy(vtk_Py_UTF8ToWide(argv[i]), CharDeleter());
+    OwnedWideString argCopy(vtk_Py_UTF8ToWide(argvCleanup[i].get()), CharDeleter());
     if (argCopy == nullptr)
     {
       fprintf(stderr,
