@@ -28,6 +28,11 @@
  * has the same number of entries, and provides row access (using vtkVariantArray)
  * and single entry access (using vtkVariant).
  *
+ * Inserting or removing rows via the class API preserves existing table data where possible.
+ *
+ * The "RemoveRow*" and SetNumberOfRows() operations will not release memory. Call on SqueezeRows()
+ * to achieve this after performing the operations.
+ *
  * The field data inherited from vtkDataObject may be used to store metadata
  * related to the table.
  *
@@ -108,9 +113,15 @@ public:
 
   /**
    * Set the number of rows in the table. Note that memory allocation might be performed
-   * as a result of this, but no memory will be released.
+   * as a result of this, but no memory will be released. Existing data is preserved if the table is
+   * expanding.
    */
   void SetNumberOfRows(const vtkIdType);
+
+  /**
+   * Release previously allocated and now unused memory after performing resizing operations.
+   */
+  void SqueezeRows();
 
   /**
    * Get a row of the table as a vtkVariantArray which has one entry for each column.
@@ -129,20 +140,41 @@ public:
   void SetRow(vtkIdType row, vtkVariantArray* values);
 
   /**
+   * Insert a single row at the index.
+   */
+  void InsertRow(vtkIdType row);
+
+  /**
+   * Insert n rows before row. If row < 0 then the rows will be prepended to the table.
+   */
+  void InsertRows(vtkIdType row, vtkIdType n);
+
+  /**
    * Insert a blank row at the end of the table.
    */
   vtkIdType InsertNextBlankRow(double default_num_val = 0.0);
 
   /**
-   * Insert a row specified by a vtkVariantArray.  The number of entries in the array
-   * should match the number of columns in the table.
+   * Insert a row at the end of the tablespecified by a vtkVariantArray. The number of entries in
+   * the array should match the number of columns in the table.
    */
   vtkIdType InsertNextRow(vtkVariantArray* values);
 
   /**
-   * Delete a row from the table.  Rows below the deleted row are shifted up.
+   * Delete a single row from the table. Rows below the deleted row are shifted up.
    */
   void RemoveRow(vtkIdType row);
+
+  /**
+   * Delete n rows from the table, starting at row. Rows below the deleted rows are shifted up.
+   */
+  void RemoveRows(vtkIdType row, vtkIdType n);
+
+  /**
+   * Delete all rows from the table. The column arrays are not delete, they are just empty
+   * after this operation.
+   */
+  void RemoveAllRows();
 
   //
   // Column functions
@@ -162,6 +194,12 @@ public:
   vtkAbstractArray* GetColumnByName(const char* name);
 
   /**
+   * Get the column index for a name.
+   * If name is not found returns -1.
+   */
+  vtkIdType GetColumnIndex(const char* name);
+
+  /**
    * Get a column of the table by its column index.
    */
   vtkAbstractArray* GetColumn(vtkIdType col);
@@ -172,6 +210,11 @@ public:
   void AddColumn(vtkAbstractArray* arr);
 
   /**
+   * Insert a column into the table at given column index.
+   */
+  void InsertColumn(vtkAbstractArray* arr, vtkIdType index);
+
+  /**
    * Remove a column from the table by its name.
    */
   void RemoveColumnByName(const char* name);
@@ -180,6 +223,11 @@ public:
    * Remove a column from the table by its column index.
    */
   void RemoveColumn(vtkIdType col);
+
+  /**
+   * Remove all columns from the table.
+   */
+  void RemoveAllColumns();
 
   //
   // Table single entry functions
@@ -255,6 +303,13 @@ protected:
    * Holds row information returned by GetRow().
    */
   vtkVariantArray* RowArray;
+
+  /**
+   * Move the content of the rows, starting first row and including last row. The rows
+   * will be moved by delta, which can be positive or negative. No checks will be performed that the
+   * arrays are correctly sized.
+   */
+  void MoveRowData(vtkIdType first, vtkIdType last, vtkIdType delta);
 
 private:
   vtkTable(const vtkTable&) = delete;
