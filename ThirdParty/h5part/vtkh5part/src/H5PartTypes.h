@@ -38,8 +38,7 @@ struct H5BlockFile;
    It is created by H5PartOpenFile<xx>() and destroyed by
    H5PartCloseFile().  
 */
-VTKH5PART_EXPORT
-struct H5PartFile {
+struct VTKH5PART_EXPORT H5PartFile {
 	hid_t	file;
 	char	groupname_step[H5PART_STEPNAME_LEN];
 	int	stepno_width;
