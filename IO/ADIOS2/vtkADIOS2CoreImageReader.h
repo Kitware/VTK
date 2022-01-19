@@ -36,9 +36,8 @@
 #include <vector> // For independently time stepped array indexing
 
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkMultiProcessController.h" // For the process controller
-#include "vtkSetGet.h"                 // For property get/set macros
-#include "vtkSmartPointer.h"           // For the object cache
+#include "vtkSetGet.h"       // For property get/set macros
+#include "vtkSmartPointer.h" // For the object cache
 
 #include "vtkIOADIOS2Module.h" // For export macro
 
@@ -50,6 +49,7 @@ class vtkDataSetAttributes;
 class vtkFieldData;
 class vtkImageData;
 class vtkMultiBlockDataSet;
+class vtkMultiProcessController;
 class vtkStringArray;
 
 //----------------------------------------------------------------------------

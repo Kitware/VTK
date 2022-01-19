@@ -305,7 +305,7 @@ void vtkADIOS2CoreImageReader::SetController(vtkMultiProcessController* controll
   }
 #endif
 
-  vtkSetObjectBodyMacro(Controller, vtkMultiProcessController, controller);
+  vtkSetSmartPointerBodyMacro(Controller, vtkMultiProcessController, controller);
 }
 
 //------------------------------------------------------------------------------
@@ -420,10 +420,7 @@ vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReader()
 }
 
 //------------------------------------------------------------------------------
-vtkADIOS2CoreImageReader::~vtkADIOS2CoreImageReader()
-{
-  this->SetController(nullptr);
-}
+vtkADIOS2CoreImageReader::~vtkADIOS2CoreImageReader() = default;
 
 //------------------------------------------------------------------------------
 int vtkADIOS2CoreImageReader::RequestInformation(
