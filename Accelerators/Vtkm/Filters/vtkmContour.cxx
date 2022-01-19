@@ -17,12 +17,15 @@
 
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkmlib/ArrayConverters.h"
@@ -31,6 +34,7 @@
 
 #include "vtkmFilterPolicy.h"
 
+#include <vtkm/cont/ErrorFilterExecution.h>
 #include <vtkm/filter/Contour.h>
 
 vtkStandardNewMacro(vtkmContour);
@@ -48,13 +52,55 @@ void vtkmContour::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+bool vtkmContour::IsSupportedInput(vtkDataSet* input)
+{
+  auto imageData = vtkImageData::SafeDownCast(input);
+  if (imageData && imageData->GetDataDimension() == 3)
+  {
+    return true;
+  }
+
+  auto rectilinearGrid = vtkRectilinearGrid::SafeDownCast(input);
+  if (rectilinearGrid && rectilinearGrid->GetDataDimension() == 3)
+  {
+    return true;
+  }
+
+  auto structuredGrid = vtkStructuredGrid::SafeDownCast(input);
+  if (structuredGrid && structuredGrid->GetDataDimension() == 3)
+  {
+    return true;
+  }
+
+  auto unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
+  if (unstructuredGrid)
+  {
+    auto cellTypes = unstructuredGrid->GetDistinctCellTypesArray();
+    if (cellTypes)
+    {
+      for (vtkIdType i = 0; i < cellTypes->GetNumberOfValues(); ++i)
+      {
+        unsigned char cellType = cellTypes->GetValue(i);
+        // Supports only 3D linear cell types
+        if (cellType < VTK_TETRA || cellType > VTK_PYRAMID)
+        {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  return false;
+}
+
+//------------------------------------------------------------------------------
 int vtkmContour::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Find the scalar array:
@@ -75,6 +121,11 @@ int vtkmContour::RequestData(
 
   try
   {
+    if (!vtkmContour::IsSupportedInput(input))
+    {
+      throw vtkm::cont::ErrorFilterExecution("Input dataset is not supported by vtkmContour.");
+    }
+
     vtkm::filter::Contour filter;
     filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::POINTS);
     filter.SetGenerateNormals(this->GetComputeNormals() != 0);
@@ -105,9 +156,7 @@ int vtkmContour::RequestData(
     // convert back the dataset to VTK
     if (!fromvtkm::Convert(result, output, input))
     {
-      vtkWarningMacro(<< "Unable to convert VTKm DataSet back to VTK.\n"
-                      << "Falling back to serial implementation.");
-      return this->Superclass::RequestData(request, inputVector, outputVector);
+      throw vtkm::cont::ErrorFilterExecution("Unable to convert VTKm result dataSet back to VTK.");
     }
 
     if (this->ComputeScalars)
@@ -122,8 +171,9 @@ int vtkmContour::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
-    return 0;
+    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage() << "\n"
+                    << "Falling back to the default VTK implementation.");
+    return this->Superclass::RequestData(request, inputVector, outputVector);
   }
 
   // we got this far, everything is good

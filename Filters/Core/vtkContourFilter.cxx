@@ -47,7 +47,7 @@
 
 #include <cmath>
 
-vtkStandardNewMacro(vtkContourFilter);
+vtkObjectFactoryNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter, ScalarTree, vtkScalarTree);
 
 //------------------------------------------------------------------------------

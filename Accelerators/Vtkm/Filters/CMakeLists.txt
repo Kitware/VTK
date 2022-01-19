@@ -65,6 +65,46 @@ if (TARGET vtkm::cuda)
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 endif ()
 
+#=============================================================================
+# Option to enable VTK-m override of corresponding VTK filters. Note that
+# there is also a run-time option that needs to be enabled. It can be accessed
+# via the static function `vtkmFilterOverrides::SetEnabled(bool)`
+#
+option (VTK_ENABLE_VTKM_OVERRIDES "Override VTK filters using the object factory" OFF)
+mark_as_advanced(VTK_ENABLE_VTKM_OVERRIDES)
+
+macro (_vtkm_add_override override_base override_sub)
+  vtk_object_factory_declare(BASE ${override_base} OVERRIDE ${override_sub})
+  list (APPEND VTKM_OVERRIDES_INITIALIZER_LIST "{\"${override_base}\", \"${override_sub}\"}")
+endmacro()
+
+if (VTK_ENABLE_VTKM_OVERRIDES)
+  _vtkm_add_override("vtkContourFilter" "vtkmContour")
+
+  list (JOIN VTKM_OVERRIDES_INITIALIZER_LIST ",\n  " VTKM_OVERRIDES_INITIALIZER_LIST_STRING)
+
+  vtk_object_factory_configure(
+    SOURCE_FILE vtk_object_factory_source
+    HEADER_FILE vtk_object_factory_header
+    EXPORT_MACRO "VTKACCELERATORSVTKMFILTERS_EXPORT")
+
+  list (APPEND sources ${vtk_object_factory_source})
+  list (APPEND headers ${vtk_object_factory_header})
+
+  # Set this here instead of the vtk.module file as it is conditional
+  set_property(GLOBAL APPEND
+    PROPERTY
+    "_vtk_module_VTK::AcceleratorsVTKmFilters_implements" VTK::FiltersCore)
+endif()
+
+set (VTKM_OVERRIDES_INITIALIZER_LIST_STRING "{\n  ${VTKM_OVERRIDES_INITIALIZER_LIST_STRING}};")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkmFilterOverrides.cxx.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkmFilterOverrides.cxx")
+list (APPEND headers vtkmFilterOverrides.h)
+list (APPEND sources "${CMAKE_CURRENT_BINARY_DIR}/vtkmFilterOverrides.cxx")
+#=============================================================================
+
 vtk_module_add_module(VTK::AcceleratorsVTKmFilters
   SOURCES ${sources}
   HEADERS ${headers}
@@ -82,6 +122,8 @@ vtk_module_link(VTK::AcceleratorsVTKmFilters
   PRIVATE
     vtkm_worklet
     vtkm_filter)
+vtk_module_definitions(VTK::AcceleratorsVTKmFilters
+  PUBLIC "VTK_ENABLE_VTKM_OVERRIDES=$<BOOL:${VTK_ENABLE_VTKM_OVERRIDES}>")
 
 if (TARGET vtkm::cuda)
   list(TRANSFORM classes APPEND ".cxx" OUTPUT_VARIABLE cuda_impl)

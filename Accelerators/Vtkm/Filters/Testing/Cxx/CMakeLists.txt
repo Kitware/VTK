@@ -13,6 +13,7 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
   TestVTKMMarchingCubes.cxx
   TestVTKMMarchingCubes2.cxx
   TestVTKMNDHistogram.cxx,NO_VALID
+  TestVTKMOverride.cxx,NO_VALID
   TestVTKMPointElevation.cxx
   TestVTKMPointTransform.cxx
   TestVTKMProbe.cxx,NO_VALID
