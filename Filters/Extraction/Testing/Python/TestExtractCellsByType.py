@@ -61,6 +61,11 @@ print("Number of tets: {0}".format(extr.GetOutput().GetNumberOfCells()))
 if extr.GetOutput().GetNumberOfCells() != 5*res*res*res:
     error = 1
 
+# Check number of points
+if extr.GetOutput().GetNumberOfPoints() != 9261:
+    print("Wrong number of points. Expected 9261 but got {0}.".format(extr.GetOutput().GetNumberOfPoints()))
+    error = 1
+
 # Check presence of cell and point data arrays
 if extr.GetOutput().GetCellData().HasArray("RandomCellScalars") != 1:
     print("Missing cell array 'RandomCellScalars'.")
