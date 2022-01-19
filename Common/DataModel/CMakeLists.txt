@@ -202,6 +202,7 @@ set(classes
   vtkSortFieldData
   vtkSphere
   vtkSpheres
+  vtkSphericalPointIterator
   vtkSpline
   vtkStaticCellLinks
   vtkStaticCellLocator
