@@ -56,7 +56,7 @@ public:
     auto e = entity;
     while (e)
     {
-      stream << e->generic_name().c_str();
+      stream << e->generic_name() << "#" << e->name();
       auto parent = e->contained_in();
       if (parent == e)
       {
