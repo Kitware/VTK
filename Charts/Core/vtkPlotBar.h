@@ -60,11 +60,6 @@ public:
   static vtkPlotBar* New();
 
   /**
-   * Perform any updates to the item that may be necessary before rendering.
-   */
-  void Update() override;
-
-  /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
   bool Paint(vtkContext2D* painter) override;
@@ -258,14 +253,22 @@ public:
    */
   void GetDataBounds(double bounds[2]);
 
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  bool UpdateCache() override;
+
 protected:
   vtkPlotBar();
   ~vtkPlotBar() override;
 
   /**
-   * Update the table cache.
+   * Test if the internal cache requires an update.
    */
-  bool UpdateTableCache(vtkTable* table);
+  virtual bool CacheRequiresUpdate() override;
 
   /**
    * Store a well packed set of XY coordinates for this data series.

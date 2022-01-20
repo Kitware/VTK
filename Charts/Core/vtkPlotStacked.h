@@ -59,13 +59,6 @@ public:
   ///@}
 
   /**
-   * Perform any updates to the item that may be necessary before rendering.
-   * The scene should take care of calling this on all items before their
-   * Paint function is invoked.
-   */
-  void Update() override;
-
-  /**
    * Paint event for the Stacked plot, called whenever the chart needs to be drawn
    */
   bool Paint(vtkContext2D* painter) override;
@@ -123,14 +116,22 @@ public:
    */
   bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max) override;
 
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  bool UpdateCache() override;
+
 protected:
   vtkPlotStacked();
   ~vtkPlotStacked() override;
 
   /**
-   * Update the table cache.
+   * Test if the internal cache requires an update.
    */
-  bool UpdateTableCache(vtkTable* table);
+  virtual bool CacheRequiresUpdate() override;
 
   // Descript:
   // For stacked plots the Extent data must be greater than (or equal to) the
@@ -139,7 +140,7 @@ protected:
 
   /**
    * Handle calculating the log of the x or y series if necessary. Should be
-   * called by UpdateTableCache once the data has been updated in Points.
+   * called by UpdateCache once the data has been updated in Points.
    */
   void CalculateLogSeries();
 

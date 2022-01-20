@@ -65,13 +65,6 @@ public:
   bool GetVisible() override;
 
   /**
-   * Perform any updates to the item that may be necessary before rendering.
-   * The scene should take care of calling this on all items before their
-   * Paint function is invoked.
-   */
-  void Update() override;
-
-  /**
    * Paint event for the plot, called whenever the chart needs to be drawn.
    */
   bool Paint(vtkContext2D* painter) override;
@@ -128,6 +121,14 @@ public:
    */
   bool SelectPointsInPolygon(const vtkContextPolygon& polygon) override;
 
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  bool UpdateCache() override;
+
 protected:
   vtkPlotFunctionalBag();
   ~vtkPlotFunctionalBag() override;
@@ -138,9 +139,9 @@ protected:
   bool GetDataArrays(vtkTable* table, vtkDataArray* array[2]);
 
   /**
-   * Update the table cache.
+   * Test if the internal cache requires an update.
    */
-  bool UpdateTableCache(vtkTable*);
+  virtual bool CacheRequiresUpdate() override;
 
   /**
    * The cache is marked dirty until it has been initialized.

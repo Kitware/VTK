@@ -81,24 +81,6 @@ vtkPlotParallelCoordinates::~vtkPlotParallelCoordinates()
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::Update()
-{
-  if (!this->Visible)
-  {
-    return;
-  }
-  // Check if we have an input
-  vtkTable* table = this->Data->GetInput();
-  if (!table)
-  {
-    vtkDebugMacro(<< "Update event called with no input table set.");
-    return;
-  }
-
-  this->UpdateTableCache(table);
-}
-
-//------------------------------------------------------------------------------
 bool vtkPlotParallelCoordinates::Paint(vtkContext2D* painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -284,10 +266,16 @@ void vtkPlotParallelCoordinates::SetInputData(vtkTable* table)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable* table)
+bool vtkPlotParallelCoordinates::UpdateCache()
 {
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
   // Each axis is a column in our storage array, they are scaled from 0.0 to 1.0
   vtkChartParallelCoordinates* parent = vtkChartParallelCoordinates::SafeDownCast(this->Parent);
+  vtkTable* table = this->Data->GetInput();
   if (!parent || !table || table->GetNumberOfColumns() == 0)
   {
     return false;

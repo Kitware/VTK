@@ -42,12 +42,20 @@ class vtkPen;
 class vtkBrush;
 class vtkAxis;
 class vtkStringArray;
+class vtkAlgorithmOutput;
 
 class VTKCHARTSCORE_EXPORT vtkPlot : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlot, vtkContextItem);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Perform any updates to the item that may be necessary before rendering.
+   * The scene should take care of calling this on all items before their
+   * Paint function is invoked.
+   */
+  void Update() override;
 
   ///@{
   /**
@@ -257,10 +265,22 @@ public:
   void SetInputData(vtkTable* table, vtkIdType xColumn, vtkIdType yColumn);
   ///@}
 
+  ///@{
+  /**
+   * This is a convenience function to set the input connection for the plot.
+   */
+  virtual void SetInputConnection(vtkAlgorithmOutput* input);
+  ///@}
+
   /**
    * Get the input table used by the plot.
    */
   virtual vtkTable* GetInput();
+
+  /**
+   * Get the input connection used by the plot.
+   */
+  vtkAlgorithmOutput* GetInputConnection();
 
   /**
    * Convenience function to set the input arrays. For most plots index 0
@@ -356,14 +376,6 @@ public:
     return this->GetBounds(bounds);
   }
 
-  /**
-   * Subclasses that build data caches to speed up painting should override this
-   * method to update such caches. This is called on each Paint, hence
-   * subclasses must add checks to avoid rebuilding of cache, unless necessary.
-   * Default implementation is empty.
-   */
-  virtual void UpdateCache() {}
-
   ///@{
   /**
    * A General setter/getter that should be overridden. It can silently drop
@@ -387,6 +399,14 @@ public:
    */
   bool Hit(const vtkContextMouseEvent& mouse) override;
 
+  /**
+   * Update the internal cache. Returns true if cache was successfully updated. Default does
+   * nothing.
+   * This method is called by Update() when either the plot's data has changed or
+   * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
+   */
+  virtual bool UpdateCache() { return true; }
+
 protected:
   vtkPlot();
   ~vtkPlot() override;
@@ -408,6 +428,16 @@ protected:
   virtual void TransformDataToScreen(
     const double inX, const double inY, double& outX, double& outY);
   ///@}
+
+  /**
+   * Test if the internal cache requires an update.
+   */
+  virtual bool CacheRequiresUpdate();
+
+  /**
+   * The point cache is marked dirty until it has been initialized.
+   */
+  vtkTimeStamp BuildTime;
 
   /**
    * This object stores the vtkPen that controls how the plot is drawn.

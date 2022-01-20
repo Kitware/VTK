@@ -65,41 +65,23 @@ bool vtkPlotFunctionalBag::GetVisible()
   return this->Superclass::GetVisible() || this->GetSelection() != nullptr;
 }
 
-//------------------------------------------------------------------------------
-void vtkPlotFunctionalBag::Update()
+bool vtkPlotFunctionalBag::CacheRequiresUpdate()
 {
-  if (!this->GetVisible())
-  {
-    return;
-  }
-  // Check if we have an input
-  vtkTable* table = this->Data->GetInput();
-
-  if (!table)
-  {
-    vtkDebugMacro(<< "Update event called with no input table set.");
-    return;
-  }
-  else if (this->Data->GetMTime() > this->BuildTime || table->GetMTime() > this->BuildTime ||
-    (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime) ||
-    this->MTime > this->BuildTime)
-  {
-    vtkDebugMacro(<< "Updating cached values.");
-    this->UpdateTableCache(table);
-  }
-  else if ((this->XAxis->GetMTime() > this->BuildTime) ||
-    (this->YAxis->GetMTime() > this->BuildTime))
-  {
-    if ((this->LogX != this->XAxis->GetLogScale()) || (this->LogY != this->YAxis->GetLogScale()))
-    {
-      this->UpdateTableCache(table);
-    }
-  }
+  return this->Superclass::CacheRequiresUpdate() ||
+    (this->XAxis && this->LogX != this->XAxis->GetLogScaleActive()) ||
+    (this->YAxis && this->LogY != this->YAxis->GetLogScaleActive()) ||
+    (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime);
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable* table)
+bool vtkPlotFunctionalBag::UpdateCache()
 {
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
+  vtkTable* table = this->Data->GetInput();
   if (!this->LookupTable)
   {
     this->CreateDefaultLookupTable();

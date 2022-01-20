@@ -103,25 +103,6 @@ vtkPlotPie::~vtkPlotPie()
 //------------------------------------------------------------------------------
 bool vtkPlotPie::Paint(vtkContext2D* painter)
 {
-  if (!this->Visible)
-  {
-    return false;
-  }
-
-  // First check if we have an input
-  vtkTable* table = this->Data->GetInput();
-  if (!table)
-  {
-    vtkDebugMacro(<< "Paint event called with no input table set.");
-    return false;
-  }
-  else if (this->Data->GetMTime() > this->BuildTime || table->GetMTime() > this->BuildTime ||
-    this->MTime > this->BuildTime)
-  {
-    vtkDebugMacro(<< "Paint event called with outdated table cache. Updating.");
-    this->UpdateTableCache(table);
-  }
-
   float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
   vtkNew<vtkBrush> brush;
   painter->ApplyBrush(brush);
@@ -235,8 +216,15 @@ void vtkPlotPie::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotPie::UpdateTableCache(vtkTable* table)
+bool vtkPlotPie::UpdateCache()
 {
+  if (!this->Superclass::UpdateCache())
+  {
+    return false;
+  }
+
+  vtkTable* table = this->Data->GetInput();
+
   // Get the x and y arrays (index 0 and 1 respectively)
   vtkDataArray* data = this->Data->GetInputArrayToProcess(0, table);
 

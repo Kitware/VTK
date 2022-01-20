@@ -492,46 +492,41 @@ vtkPlotArea::~vtkPlotArea()
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotArea::Update()
+bool vtkPlotArea::UpdateCache()
 {
-  if (!this->Visible)
+  if (!this->Superclass::UpdateCache())
   {
-    return;
+    return false;
   }
 
-  vtkTable* table = this->GetInput();
-  if (!table)
-  {
-    vtkDebugMacro("Update event called with no input table set.");
-    this->TableCache->Reset();
-    return;
-  }
-
-  if (this->Data->GetMTime() > this->UpdateTime || table->GetMTime() > this->UpdateTime ||
-    this->GetMTime() > this->UpdateTime)
-  {
-    vtkTableCache& cache = (*this->TableCache);
-
-    cache.Reset();
-    cache.ValidPointMask = !this->ValidPointMaskName.empty()
-      ? vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName))
-      : nullptr;
-    cache.SetPoints(
-      this->UseIndexForXSeries ? nullptr : this->Data->GetInputArrayToProcess(0, table),
-      this->Data->GetInputArrayToProcess(1, table), this->Data->GetInputArrayToProcess(2, table));
-    this->UpdateTime.Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkPlotArea::UpdateCache()
-{
+  vtkTable* table = this->Data->GetInput();
   vtkTableCache& cache = (*this->TableCache);
-  if (!this->Visible || !cache.IsInputDataValid())
+  cache.Reset();
+
+  if (!this->ValidPointMaskName.empty())
   {
-    return;
+    cache.ValidPointMask =
+      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName));
   }
+  else
+  {
+    cache.ValidPointMask = nullptr;
+  }
+
+  if (this->UseIndexForXSeries)
+  {
+    cache.SetPoints(nullptr, this->Data->GetInputArrayToProcess(1, table),
+      this->Data->GetInputArrayToProcess(2, table));
+  }
+  else
+  {
+    cache.SetPoints(this->Data->GetInputArrayToProcess(0, table),
+      this->Data->GetInputArrayToProcess(1, table), this->Data->GetInputArrayToProcess(2, table));
+  }
+
+  this->UpdateTime.Modified();
   cache.UpdateCache(this);
+  return true;
 }
 
 //------------------------------------------------------------------------------

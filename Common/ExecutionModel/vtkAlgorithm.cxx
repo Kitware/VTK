@@ -512,8 +512,7 @@ vtkAbstractArray* vtkAlgorithm::GetInputAbstractArrayToProcess(
         vtkErrorMacro("Attempt to get row data from a non-table");
         return nullptr;
       }
-      vtkFieldData* fd = inputT->GetRowData();
-      return fd->GetAbstractArray(name);
+      return inputT->GetColumnByName(name);
     }
 
     if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES ||
