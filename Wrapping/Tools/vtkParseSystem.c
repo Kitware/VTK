@@ -240,9 +240,11 @@ system_filetype_t vtkParse_FileExists(SystemInfo* info, const char* name)
   system_filetype_t type;
   system_filetype_t result;
 #if defined(_WIN32)
+  int m;
   struct _stat fs;
+  wchar_t* wfullname;
   HANDLE dirhandle;
-  WIN32_FIND_DATA entry;
+  WIN32_FIND_DATAW entry;
 #else
   struct stat fs;
   DIR* dirhandle;
@@ -319,33 +321,37 @@ system_filetype_t vtkParse_FileExists(SystemInfo* info, const char* name)
   }
 
   /* begin the search, using local text encoding */
-  dirhandle = FindFirstFile(fullname, &entry);
+  wfullname = system_utf8_to_wide(fullname);
+  dirhandle = FindFirstFileW(wfullname, &entry);
+  free(wfullname);
   if (dirhandle != INVALID_HANDLE_VALUE)
   {
     do
     {
+      /* construct full path for this entry */
+      m = WideCharToMultiByte(CP_UTF8, 0, entry.cFileName, -1, NULL, 0, NULL, NULL);
+      fullname = vtkParse_NewString(info->Strings, l + m - 1);
+      memcpy(fullname, name, l);
+      WideCharToMultiByte(CP_UTF8, 0, entry.cFileName, -1, &fullname[l], m, NULL, NULL);
+
       if (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
       {
         type = VTK_PARSE_ISDIR;
       }
       else
       {
-        /* construct full path for this entry, and add it to cache */
-        n = l + strlen(entry.cFileName);
-        fullname = vtkParse_NewString(info->Strings, n);
-        memcpy(fullname, name, l);
-        strcpy(&fullname[l], entry.cFileName);
+        /* entry is a file, so add it to the file cache */
         type = VTK_PARSE_ISFILE;
         system_file_add(info, fullname, type);
       }
 
       /* check if this directory entry is the file we are looking for */
-      if (result == VTK_PARSE_NOFILE && strcmp(entry.cFileName, &name[l]) == 0)
+      if (result == VTK_PARSE_NOFILE && strcmp(&fullname[l], &name[l]) == 0)
       {
         result = type;
       }
 
-    } while (FindNextFile(dirhandle, &entry));
+    } while (FindNextFileW(dirhandle, &entry));
     FindClose(dirhandle);
   }
 #elif defined(HAVE_DIRENT_D_TYPE)
