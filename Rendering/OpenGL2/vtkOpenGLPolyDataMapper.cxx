@@ -3154,6 +3154,10 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
   // type
   factor = 0.0;
   offset = 0.0;
+  if (this->LastBoundBO == nullptr)
+  {
+    return;
+  }
   int primType = this->LastBoundBO->PrimitiveType;
   if (vtkOpenGLPolyDataMapper::GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER &&
     (primType == PrimitiveTris || primType == vtkOpenGLPolyDataMapper::PrimitiveTriStrips))
