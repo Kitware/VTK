@@ -88,6 +88,9 @@ public:
   // idx must be less than the number of data sets at that level.
   virtual void SetDataSet(unsigned int level, unsigned int idx, vtkUniformGrid* grid);
 
+  // Needed because, otherwise vtkCompositeData::GetDataSet(unsigned int flatIndex) is hidden.
+  using Superclass::GetDataSet;
+
   // Description:
   // Return the data set pointed to by iter
   vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter) override;
