@@ -121,6 +121,16 @@ public:
   vtkGetMacro(UseGlobalIDs, bool);
   ///@}
 
+  ///@{
+  /**
+   * When `ExtractSum` is set to true, the sum of each field data at each time step
+   * is computed and stored in the output. The column name for the sum is called "sum(array_name)".
+   */
+  vtkSetMacro(ExtractSum, bool);
+  vtkGetMacro(ExtractSum, bool);
+  vtkBooleanMacro(ExtractSum, bool);
+  ///@}
+
 protected:
   vtkExtractDataArraysOverTime();
   ~vtkExtractDataArraysOverTime() override;
@@ -142,6 +152,7 @@ protected:
   int FieldAssociation;
   bool ReportStatisticsOnly;
   bool UseGlobalIDs;
+  bool ExtractSum;
   int Error;
   enum Errors
   {
