@@ -118,7 +118,7 @@ protected:
    * Construction methods
    */
   vtkHyperTreeGridPProbeFilter();
-  virtual ~vtkHyperTreeGridPProbeFilter();
+  ~vtkHyperTreeGridPProbeFilter() override;
   ///@}
 
   ///@{

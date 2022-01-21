@@ -156,7 +156,7 @@ public:
   /**
    * Destructor
    */
-  ~QQuickVTKRenderWindow();
+  ~QQuickVTKRenderWindow() override;
 
   /**
    * Set up the graphics surface format and api.
