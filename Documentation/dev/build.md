@@ -225,6 +225,8 @@ More advanced options:
   * `VTK_ENABLE_REMOTE_MODULES` (default `ON`): If set, VTK will try to build
     remote modules (the `Remote` directory). If unset, no remote modules will
     build.
+  * `VTK_ENABLE_EXTRA_BUILD_WARNINGS` (default `OFF`): If set, VTK will enable
+    additional build warnings.
   * `VTK_USE_EXTERNAL` (default `OFF`): Whether to prefer external third
     party libraries or the versions VTK's source contains.
   * `VTK_TARGET_SPECIFIC_COMPONENTS` (default `OFF`): Whether to install
