@@ -2329,16 +2329,26 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   if (factor != 0.0 || offset != 0.0)
   {
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
-    vtkShaderProgram::Substitute(FSSource, "//VTK::Coincident::Dec", "uniform float cOffset;");
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Coincident::Dec",
+      "uniform float cOffset;\n"
+      "uniform float cFactor;\n");
     if (this->DrawingTubesOrSpheres(*this->LastBoundBO, actor))
     {
-      vtkShaderProgram::Substitute(
-        FSSource, "//VTK::Depth::Impl", "gl_FragDepth = gl_FragDepth + 1.0*cOffset/65000;\n");
+      vtkShaderProgram::Substitute(FSSource, "//VTK::UniformFlow::Impl",
+        "float cscale = length(vec2(dFdx(gl_FragDepth), dFdy(gl_FragDepth)));\n"
+        "  //VTK::UniformFlow::Impl\n" // for other replacements
+      );
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
+        "gl_FragDepth = gl_FragDepth + cFactor*cscale + 1.0*cOffset/65000;\n");
     }
     else
     {
-      vtkShaderProgram::Substitute(
-        FSSource, "//VTK::Depth::Impl", "gl_FragDepth = gl_FragCoord.z + 1.0*cOffset/65000;\n");
+      vtkShaderProgram::Substitute(FSSource, "//VTK::UniformFlow::Impl",
+        "float cscale = length(vec2(dFdx(gl_FragCoord.z), dFdy(gl_FragCoord.z)));\n"
+        "  //VTK::UniformFlow::Impl\n" // for other replacements
+      );
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
+        "gl_FragDepth = gl_FragCoord.z + cFactor*cscale + 1.0*cOffset/65000;\n");
     }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }
@@ -2872,11 +2882,14 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
   }
 
   // handle coincident
-  if (cellBO.Program->IsUniformUsed("cOffset"))
+  float factor = 0.0;
+  float offset = 0.0;
+  this->GetCoincidentParameters(ren, actor, factor, offset);
+  if ((factor != 0.0 || offset != 0.0) && cellBO.Program->IsUniformUsed("cOffset") &&
+    cellBO.Program->IsUniformUsed("cFactor"))
   {
-    float factor, offset;
-    this->GetCoincidentParameters(ren, actor, factor, offset);
     cellBO.Program->SetUniformf("cOffset", offset);
+    cellBO.Program->SetUniformf("cFactor", factor);
   }
 
   vtkNew<vtkMatrix3x3> env;
@@ -3141,6 +3154,10 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
   // type
   factor = 0.0;
   offset = 0.0;
+  if (this->LastBoundBO == nullptr)
+  {
+    return;
+  }
   int primType = this->LastBoundBO->PrimitiveType;
   if (vtkOpenGLPolyDataMapper::GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER &&
     (primType == PrimitiveTris || primType == vtkOpenGLPolyDataMapper::PrimitiveTriStrips))

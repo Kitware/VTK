@@ -90,7 +90,7 @@ light.SetPosition(1,1,1)
 
 for m in mappers:
     # Push back the polygons
-    m.SetRelativeCoincidentTopologyPolygonOffsetParameters(10,2)
+    m.SetRelativeCoincidentTopologyPolygonOffsetParameters(0,2)
 
     # Bottom renderer shows cube without lighting
     actors.append(vtk.vtkActor())
