@@ -13,3 +13,14 @@ endfunction ()
 
 option(VTK_ENABLE_EXTRA_BUILD_WARNINGS "Enable extra build warnings" OFF)
 mark_as_advanced(VTK_ENABLE_EXTRA_BUILD_WARNINGS)
+
+if (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
+  # C flags.
+
+  # C++ flags.
+  vtk_add_flag(-Winconsistent-missing-destructor-override CXX)
+
+  # C and C++ flags.
+
+  # Fortran flags.
+endif ()
