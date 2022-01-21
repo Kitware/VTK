@@ -24,6 +24,16 @@
 #include <algorithm>
 #include <cctype>
 
+namespace
+{
+void rtrim(std::string& s)
+{
+  s.erase(
+    std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(),
+    s.end());
+}
+}
+
 vtkStandardNewMacro(vtkIOSSFilesScanner);
 //----------------------------------------------------------------------------
 vtkIOSSFilesScanner::vtkIOSSFilesScanner() = default;
@@ -42,9 +52,10 @@ bool vtkIOSSFilesScanner::IsMetaFile(const std::string& filename)
 
   std::string s;
   std::getline(metafile, s);
+  rtrim(s); // strip trailing white-spaces
   if (s.empty() ||
     s.size() != static_cast<size_t>(std::count_if(s.begin(), s.end(), [](unsigned char c) {
-      return std::isprint(c);
+      return std::isprint(c) || std::isspace(c);
     })))
   {
     return false;
@@ -73,6 +84,7 @@ std::set<std::string> vtkIOSSFilesScanner::GetFilesFromMetaFile(const std::strin
   {
     std::string fname;
     std::getline(metafile, fname);
+    rtrim(fname);
     if (!fname.empty())
     {
       fname = vtksys::SystemTools::CollapseFullPath(fname, metafile_path);
