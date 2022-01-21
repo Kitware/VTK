@@ -20,6 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
@@ -133,25 +134,28 @@ void vtkExtractCellsByType::ExtractUnstructuredData(vtkDataSet* inDS, vtkDataSet
     this->ExtractUnstructuredGridCells(inDS, outDS, ptMap, numNewPts);
   }
 
-  // Copy referenced input points to new points array
-  outPD->CopyAllocate(inPD);
-  vtkPointSet* inPtSet = vtkPointSet::SafeDownCast(inDS);
-  vtkPointSet* outPtSet = vtkPointSet::SafeDownCast(outDS);
-  vtkPoints* inPts = inPtSet->GetPoints();
-  vtkPoints* outPts = vtkPoints::New();
-  outPts->SetNumberOfPoints(numNewPts);
-  for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
+  // Define points using point mapping for extracted cells
+  if (numNewPts > 0)
   {
-    if (ptMap[ptId] >= 0)
+    // Copy referenced input points to new points array
+    outPD->CopyAllocate(inPD);
+    vtkPointSet* inPtSet = vtkPointSet::SafeDownCast(inDS);
+    vtkPointSet* outPtSet = vtkPointSet::SafeDownCast(outDS);
+    vtkPoints* inPts = inPtSet->GetPoints();
+    vtkNew<vtkPoints> outPts;
+    outPts->SetNumberOfPoints(numNewPts);
+    for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
     {
-      outPts->SetPoint(ptMap[ptId], inPts->GetPoint(ptId));
-      outPD->CopyData(inPD, ptId, ptMap[ptId]);
+      if (ptMap[ptId] >= 0)
+      {
+        outPts->SetPoint(ptMap[ptId], inPts->GetPoint(ptId));
+        outPD->CopyData(inPD, ptId, ptMap[ptId]);
+      }
     }
+    outPtSet->SetPoints(outPts);
   }
-  outPtSet->SetPoints(outPts);
 
   // Clean up
-  outPts->Delete();
   delete[] ptMap;
 }
 
