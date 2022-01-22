@@ -67,4 +67,4 @@ ren1.ResetCamera()
 ren1.GetActiveCamera().Zoom(1.5)
 
 iren.Initialize()
-#iren.Start()
+iren.Start()

@@ -84,4 +84,4 @@ renWin.Render()
 # for testing
 threshold = 15
 
-#iren.Start()
+iren.Start()
