@@ -37,8 +37,8 @@ public:
   static vtkStdString GetYName() { return "Sine2"; }
 
 protected:
-  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override
+  virtual int RequestData(vtkInformation* vtkNotUsed(request),
+    vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector) override
   {
     vtkTable* output = vtkTable::GetData(outputVector, 0);
 
