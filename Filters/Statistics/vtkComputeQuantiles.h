@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkComputeQuantiles();
-  ~vtkComputeQuantiles() = default;
+  ~vtkComputeQuantiles() override = default;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
