@@ -744,7 +744,7 @@ int MeshQuality(int argc, char* argv[])
   auto warningObserver = vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
   iq->AddObserver(vtkCommand::WarningEvent, warningObserver);
-  iq->SetTriangleQualityMeasure(vtkMeshQuality::NONE);
+  iq->SetTriangleQualityMeasure(vtkMeshQuality::QualityMeasureTypes::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())
@@ -758,7 +758,7 @@ int MeshQuality(int argc, char* argv[])
   }
   warningObserver->Clear();
 
-  iq->SetQuadQualityMeasure(vtkMeshQuality::NONE);
+  iq->SetQuadQualityMeasure(vtkMeshQuality::QualityMeasureTypes::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())
@@ -772,7 +772,7 @@ int MeshQuality(int argc, char* argv[])
   }
   warningObserver->Clear();
 
-  iq->SetTetQualityMeasure(vtkMeshQuality::NONE);
+  iq->SetTetQualityMeasure(vtkMeshQuality::QualityMeasureTypes::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())
@@ -786,7 +786,7 @@ int MeshQuality(int argc, char* argv[])
   }
   warningObserver->Clear();
 
-  iq->SetPyramidQualityMeasure(vtkMeshQuality::NONE);
+  iq->SetPyramidQualityMeasure(vtkMeshQuality::QualityMeasureTypes::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())
@@ -800,7 +800,7 @@ int MeshQuality(int argc, char* argv[])
   }
   warningObserver->Clear();
 
-  iq->SetWedgeQualityMeasure(vtkMeshQuality::NONE);
+  iq->SetWedgeQualityMeasure(vtkMeshQuality::QualityMeasureTypes::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())
@@ -814,7 +814,7 @@ int MeshQuality(int argc, char* argv[])
   }
   warningObserver->Clear();
 
-  iq->SetHexQualityMeasure(vtkMeshQuality::NONE);
+  iq->SetHexQualityMeasure(vtkMeshQuality::QualityMeasureTypes::NONE);
   iq->Update();
 
   if (warningObserver->GetWarning())

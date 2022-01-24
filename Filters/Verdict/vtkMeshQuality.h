@@ -118,7 +118,7 @@ public:
   /**
    * Enum which lists the Quality Measures Types
    */
-  enum QualityMeasureTypes
+  enum class QualityMeasureTypes
   {
     AREA = 28,
     ASPECT_FROBENIUS = 3,
@@ -174,40 +174,71 @@ public:
    * SCALED_JACOBIAN, RELATIVE_SIZE_SQUARED, SHAPE, SHAPE_AND_SIZE, DISTORTION,
    * EQUIANGLE_SKEW, and NORMALIZED_INRADIUS.
    */
-  vtkSetMacro(TriangleQualityMeasure, int);
-  vtkGetMacro(TriangleQualityMeasure, int);
-  void SetTriangleQualityMeasureToArea() { this->SetTriangleQualityMeasure(AREA); }
-  void SetTriangleQualityMeasureToEdgeRatio() { this->SetTriangleQualityMeasure(EDGE_RATIO); }
-  void SetTriangleQualityMeasureToAspectRatio() { this->SetTriangleQualityMeasure(ASPECT_RATIO); }
-  void SetTriangleQualityMeasureToRadiusRatio() { this->SetTriangleQualityMeasure(RADIUS_RATIO); }
+  vtkSetEnumMacro(TriangleQualityMeasure, QualityMeasureTypes);
+  virtual void SetTriangleQualityMeasure(int measure)
+  {
+    this->SetTriangleQualityMeasure(static_cast<QualityMeasureTypes>(measure));
+  }
+  vtkGetEnumMacro(TriangleQualityMeasure, QualityMeasureTypes);
+  void SetTriangleQualityMeasureToArea()
+  {
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::AREA);
+  }
+  void SetTriangleQualityMeasureToEdgeRatio()
+  {
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::EDGE_RATIO);
+  }
+  void SetTriangleQualityMeasureToAspectRatio()
+  {
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::ASPECT_RATIO);
+  }
+  void SetTriangleQualityMeasureToRadiusRatio()
+  {
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::RADIUS_RATIO);
+  }
   void SetTriangleQualityMeasureToAspectFrobenius()
   {
-    this->SetTriangleQualityMeasure(ASPECT_FROBENIUS);
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::ASPECT_FROBENIUS);
   }
-  void SetTriangleQualityMeasureToMinAngle() { this->SetTriangleQualityMeasure(MIN_ANGLE); }
-  void SetTriangleQualityMeasureToMaxAngle() { this->SetTriangleQualityMeasure(MAX_ANGLE); }
-  void SetTriangleQualityMeasureToCondition() { this->SetTriangleQualityMeasure(CONDITION); }
+  void SetTriangleQualityMeasureToMinAngle()
+  {
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::MIN_ANGLE);
+  }
+  void SetTriangleQualityMeasureToMaxAngle()
+  {
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::MAX_ANGLE);
+  }
+  void SetTriangleQualityMeasureToCondition()
+  {
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::CONDITION);
+  }
   void SetTriangleQualityMeasureToScaledJacobian()
   {
-    this->SetTriangleQualityMeasure(SCALED_JACOBIAN);
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::SCALED_JACOBIAN);
   }
   void SetTriangleQualityMeasureToRelativeSizeSquared()
   {
-    this->SetTriangleQualityMeasure(RELATIVE_SIZE_SQUARED);
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::RELATIVE_SIZE_SQUARED);
   }
-  void SetTriangleQualityMeasureToShape() { this->SetTriangleQualityMeasure(SHAPE); }
+  void SetTriangleQualityMeasureToShape()
+  {
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::SHAPE);
+  }
   void SetTriangleQualityMeasureToShapeAndSize()
   {
-    this->SetTriangleQualityMeasure(SHAPE_AND_SIZE);
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::SHAPE_AND_SIZE);
   }
-  void SetTriangleQualityMeasureToDistortion() { this->SetTriangleQualityMeasure(DISTORTION); }
+  void SetTriangleQualityMeasureToDistortion()
+  {
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::DISTORTION);
+  }
   void SetTriangleQualityMeasureToEquiangleSkew()
   {
-    this->SetTriangleQualityMeasure(EQUIANGLE_SKEW);
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::EQUIANGLE_SKEW);
   }
   void SetTriangleQualityMeasureToNormalizedInradius()
   {
-    this->SetTriangleQualityMeasure(NORMALIZED_INRADIUS);
+    this->SetTriangleQualityMeasure(QualityMeasureTypes::NORMALIZED_INRADIUS);
   }
   ///@}
 
@@ -224,41 +255,90 @@ public:
    * quadrilaterals only; use at your own risk if you really want to assess non-planar
    * quadrilateral quality with those.
    */
-  vtkSetMacro(QuadQualityMeasure, int);
-  vtkGetMacro(QuadQualityMeasure, int);
-  void SetQuadQualityMeasureToEdgeRatio() { this->SetQuadQualityMeasure(EDGE_RATIO); }
-  void SetQuadQualityMeasureToAspectRatio() { this->SetQuadQualityMeasure(ASPECT_RATIO); }
-  void SetQuadQualityMeasureToRadiusRatio() { this->SetQuadQualityMeasure(RADIUS_RATIO); }
+  vtkSetEnumMacro(QuadQualityMeasure, QualityMeasureTypes);
+  virtual void SetQuadQualityMeasure(int measure)
+  {
+    this->SetQuadQualityMeasure(static_cast<QualityMeasureTypes>(measure));
+  }
+  vtkGetEnumMacro(QuadQualityMeasure, QualityMeasureTypes);
+  void SetQuadQualityMeasureToEdgeRatio()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::EDGE_RATIO);
+  }
+  void SetQuadQualityMeasureToAspectRatio()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::ASPECT_RATIO);
+  }
+  void SetQuadQualityMeasureToRadiusRatio()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::RADIUS_RATIO);
+  }
   void SetQuadQualityMeasureToMedAspectFrobenius()
   {
-    this->SetQuadQualityMeasure(MED_ASPECT_FROBENIUS);
+    this->SetQuadQualityMeasure(QualityMeasureTypes::MED_ASPECT_FROBENIUS);
   }
   void SetQuadQualityMeasureToMaxAspectFrobenius()
   {
-    this->SetQuadQualityMeasure(MAX_ASPECT_FROBENIUS);
+    this->SetQuadQualityMeasure(QualityMeasureTypes::MAX_ASPECT_FROBENIUS);
   }
-  void SetQuadQualityMeasureToMaxEdgeRatio() { this->SetQuadQualityMeasure(MAX_EDGE_RATIO); }
-  void SetQuadQualityMeasureToSkew() { this->SetQuadQualityMeasure(SKEW); }
-  void SetQuadQualityMeasureToTaper() { this->SetQuadQualityMeasure(TAPER); }
-  void SetQuadQualityMeasureToWarpage() { this->SetQuadQualityMeasure(WARPAGE); }
-  void SetQuadQualityMeasureToArea() { this->SetQuadQualityMeasure(AREA); }
-  void SetQuadQualityMeasureToStretch() { this->SetQuadQualityMeasure(STRETCH); }
-  void SetQuadQualityMeasureToMinAngle() { this->SetQuadQualityMeasure(MIN_ANGLE); }
-  void SetQuadQualityMeasureToMaxAngle() { this->SetQuadQualityMeasure(MAX_ANGLE); }
-  void SetQuadQualityMeasureToOddy() { this->SetQuadQualityMeasure(ODDY); }
-  void SetQuadQualityMeasureToCondition() { this->SetQuadQualityMeasure(CONDITION); }
-  void SetQuadQualityMeasureToJacobian() { this->SetQuadQualityMeasure(JACOBIAN); }
-  void SetQuadQualityMeasureToScaledJacobian() { this->SetQuadQualityMeasure(SCALED_JACOBIAN); }
-  void SetQuadQualityMeasureToShear() { this->SetQuadQualityMeasure(SHEAR); }
-  void SetQuadQualityMeasureToShape() { this->SetQuadQualityMeasure(SHAPE); }
+  void SetQuadQualityMeasureToMaxEdgeRatio()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::MAX_EDGE_RATIO);
+  }
+  void SetQuadQualityMeasureToSkew() { this->SetQuadQualityMeasure(QualityMeasureTypes::SKEW); }
+  void SetQuadQualityMeasureToTaper() { this->SetQuadQualityMeasure(QualityMeasureTypes::TAPER); }
+  void SetQuadQualityMeasureToWarpage()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::WARPAGE);
+  }
+  void SetQuadQualityMeasureToArea() { this->SetQuadQualityMeasure(QualityMeasureTypes::AREA); }
+  void SetQuadQualityMeasureToStretch()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::STRETCH);
+  }
+  void SetQuadQualityMeasureToMinAngle()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::MIN_ANGLE);
+  }
+  void SetQuadQualityMeasureToMaxAngle()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::MAX_ANGLE);
+  }
+  void SetQuadQualityMeasureToOddy() { this->SetQuadQualityMeasure(QualityMeasureTypes::ODDY); }
+  void SetQuadQualityMeasureToCondition()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::CONDITION);
+  }
+  void SetQuadQualityMeasureToJacobian()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::JACOBIAN);
+  }
+  void SetQuadQualityMeasureToScaledJacobian()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::SCALED_JACOBIAN);
+  }
+  void SetQuadQualityMeasureToShear() { this->SetQuadQualityMeasure(QualityMeasureTypes::SHEAR); }
+  void SetQuadQualityMeasureToShape() { this->SetQuadQualityMeasure(QualityMeasureTypes::SHAPE); }
   void SetQuadQualityMeasureToRelativeSizeSquared()
   {
-    this->SetQuadQualityMeasure(RELATIVE_SIZE_SQUARED);
+    this->SetQuadQualityMeasure(QualityMeasureTypes::RELATIVE_SIZE_SQUARED);
   }
-  void SetQuadQualityMeasureToShapeAndSize() { this->SetQuadQualityMeasure(SHAPE_AND_SIZE); }
-  void SetQuadQualityMeasureToShearAndSize() { this->SetQuadQualityMeasure(SHEAR_AND_SIZE); }
-  void SetQuadQualityMeasureToDistortion() { this->SetQuadQualityMeasure(DISTORTION); }
-  void SetQuadQualityMeasureToEquiangleSkew() { this->SetQuadQualityMeasure(EQUIANGLE_SKEW); }
+  void SetQuadQualityMeasureToShapeAndSize()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::SHAPE_AND_SIZE);
+  }
+  void SetQuadQualityMeasureToShearAndSize()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::SHEAR_AND_SIZE);
+  }
+  void SetQuadQualityMeasureToDistortion()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::DISTORTION);
+  }
+  void SetQuadQualityMeasureToEquiangleSkew()
+  {
+    this->SetQuadQualityMeasure(QualityMeasureTypes::EQUIANGLE_SKEW);
+  }
   ///@}
 
   ///@{
@@ -269,34 +349,86 @@ public:
    * CONDITION, JACOBIAN, SCALED_JACOBIAN, SHAPE, RELATIVE_SIZE_SQUARED, SHAPE_AND_SIZE,
    * DISTORTION, EQUIANGLE_SKEW, EQUIVOLUME_SKEW, MEAN_RATIO, NORMALIZED_INRADIUS, and SQUISH_INDEX.
    */
-  vtkSetMacro(TetQualityMeasure, int);
-  vtkGetMacro(TetQualityMeasure, int);
-  void SetTetQualityMeasureToEdgeRatio() { this->SetTetQualityMeasure(EDGE_RATIO); }
-  void SetTetQualityMeasureToAspectRatio() { this->SetTetQualityMeasure(ASPECT_RATIO); }
-  void SetTetQualityMeasureToRadiusRatio() { this->SetTetQualityMeasure(RADIUS_RATIO); }
-  void SetTetQualityMeasureToAspectFrobenius() { this->SetTetQualityMeasure(ASPECT_FROBENIUS); }
-  void SetTetQualityMeasureToMinAngle() { this->SetTetQualityMeasure(MIN_ANGLE); }
-  void SetTetQualityMeasureToCollapseRatio() { this->SetTetQualityMeasure(COLLAPSE_RATIO); }
-  void SetTetQualityMeasureToAspectGamma() { this->SetTetQualityMeasure(ASPECT_GAMMA); }
-  void SetTetQualityMeasureToVolume() { this->SetTetQualityMeasure(VOLUME); }
-  void SetTetQualityMeasureToCondition() { this->SetTetQualityMeasure(CONDITION); }
-  void SetTetQualityMeasureToJacobian() { this->SetTetQualityMeasure(JACOBIAN); }
-  void SetTetQualityMeasureToScaledJacobian() { this->SetTetQualityMeasure(SCALED_JACOBIAN); }
-  void SetTetQualityMeasureToShape() { this->SetTetQualityMeasure(SHAPE); }
+  vtkSetEnumMacro(TetQualityMeasure, QualityMeasureTypes);
+  virtual void SetTetQualityMeasure(int measure)
+  {
+    this->SetTetQualityMeasure(static_cast<QualityMeasureTypes>(measure));
+  }
+  vtkGetEnumMacro(TetQualityMeasure, QualityMeasureTypes);
+  void SetTetQualityMeasureToEdgeRatio()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::EDGE_RATIO);
+  }
+  void SetTetQualityMeasureToAspectRatio()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::ASPECT_RATIO);
+  }
+  void SetTetQualityMeasureToRadiusRatio()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::RADIUS_RATIO);
+  }
+  void SetTetQualityMeasureToAspectFrobenius()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::ASPECT_FROBENIUS);
+  }
+  void SetTetQualityMeasureToMinAngle()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::MIN_ANGLE);
+  }
+  void SetTetQualityMeasureToCollapseRatio()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::COLLAPSE_RATIO);
+  }
+  void SetTetQualityMeasureToAspectGamma()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::ASPECT_GAMMA);
+  }
+  void SetTetQualityMeasureToVolume() { this->SetTetQualityMeasure(QualityMeasureTypes::VOLUME); }
+  void SetTetQualityMeasureToCondition()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::CONDITION);
+  }
+  void SetTetQualityMeasureToJacobian()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::JACOBIAN);
+  }
+  void SetTetQualityMeasureToScaledJacobian()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::SCALED_JACOBIAN);
+  }
+  void SetTetQualityMeasureToShape() { this->SetTetQualityMeasure(QualityMeasureTypes::SHAPE); }
   void SetTetQualityMeasureToRelativeSizeSquared()
   {
-    this->SetTetQualityMeasure(RELATIVE_SIZE_SQUARED);
+    this->SetTetQualityMeasure(QualityMeasureTypes::RELATIVE_SIZE_SQUARED);
   }
-  void SetTetQualityMeasureToShapeAndSize() { this->SetTetQualityMeasure(SHAPE_AND_SIZE); }
-  void SetTetQualityMeasureToDistortion() { this->SetTetQualityMeasure(DISTORTION); }
-  void SetTetQualityMeasureToEquiangleSkew() { this->SetTetQualityMeasure(EQUIANGLE_SKEW); }
-  void SetTetQualityMeasureToEquivolumeSkew() { this->SetTetQualityMeasure(EQUIVOLUME_SKEW); }
-  void SetTetQualityMeasureToMeanRatio() { this->SetTetQualityMeasure(MEAN_RATIO); }
+  void SetTetQualityMeasureToShapeAndSize()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::SHAPE_AND_SIZE);
+  }
+  void SetTetQualityMeasureToDistortion()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::DISTORTION);
+  }
+  void SetTetQualityMeasureToEquiangleSkew()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::EQUIANGLE_SKEW);
+  }
+  void SetTetQualityMeasureToEquivolumeSkew()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::EQUIVOLUME_SKEW);
+  }
+  void SetTetQualityMeasureToMeanRatio()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::MEAN_RATIO);
+  }
   void SetTetQualityMeasureToNormalizedInradius()
   {
-    this->SetTetQualityMeasure(NORMALIZED_INRADIUS);
+    this->SetTetQualityMeasure(QualityMeasureTypes::NORMALIZED_INRADIUS);
   }
-  void SetTetQualityMeasureToSquishIndex() { this->SetTetQualityMeasure(SQUISH_INDEX); }
+  void SetTetQualityMeasureToSquishIndex()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::SQUISH_INDEX);
+  }
   ///@}
 
   ///@{
@@ -305,16 +437,32 @@ public:
    * The default is SHAPE and valid values also include
    * EQUIANGLE_SKEW, JACOBIAN, SCALED_JACOBIAN, and VOLUME.
    */
-  vtkSetMacro(PyramidQualityMeasure, int);
-  vtkGetMacro(PyramidQualityMeasure, int);
-  void SetPyramidQualityMeasureToEquiangleSkew() { this->SetPyramidQualityMeasure(EQUIANGLE_SKEW); }
-  void SetPyramidQualityMeasureToJacobian() { this->SetPyramidQualityMeasure(JACOBIAN); }
+  vtkSetMacro(PyramidQualityMeasure, QualityMeasureTypes);
+  virtual void SetPyramidQualityMeasure(int measure)
+  {
+    this->SetPyramidQualityMeasure(static_cast<QualityMeasureTypes>(measure));
+  }
+  vtkGetMacro(PyramidQualityMeasure, QualityMeasureTypes);
+  void SetPyramidQualityMeasureToEquiangleSkew()
+  {
+    this->SetPyramidQualityMeasure(QualityMeasureTypes::EQUIANGLE_SKEW);
+  }
+  void SetPyramidQualityMeasureToJacobian()
+  {
+    this->SetPyramidQualityMeasure(QualityMeasureTypes::JACOBIAN);
+  }
   void SetPyramidQualityMeasureToScaledJacobian()
   {
-    this->SetPyramidQualityMeasure(SCALED_JACOBIAN);
+    this->SetPyramidQualityMeasure(QualityMeasureTypes::SCALED_JACOBIAN);
   }
-  void SetPyramidQualityMeasureToShape() { this->SetPyramidQualityMeasure(SHAPE); }
-  void SetPyramidQualityMeasureToVolume() { this->SetPyramidQualityMeasure(VOLUME); }
+  void SetPyramidQualityMeasureToShape()
+  {
+    this->SetPyramidQualityMeasure(QualityMeasureTypes::SHAPE);
+  }
+  void SetPyramidQualityMeasureToVolume()
+  {
+    this->SetPyramidQualityMeasure(QualityMeasureTypes::VOLUME);
+  }
   ///@}
 
   ///@{
@@ -324,25 +472,53 @@ public:
    * CONDITION, DISTORTION, EQUIANGLE_SKEW, JACOBIAN, MAX_ASPECT_FROBENIUS, MAX_STRETCH,
    * MEAN_ASPECT_FROBENIUS, SCALED_JACOBIAN, SHAPE, and VOLUME.
    */
-  vtkSetMacro(WedgeQualityMeasure, int);
-  vtkGetMacro(WedgeQualityMeasure, int);
-  void SetWedgeQualityMeasureToCondition() { this->SetWedgeQualityMeasure(CONDITION); }
-  void SetWedgeQualityMeasureToDistortion() { this->SetWedgeQualityMeasure(DISTORTION); }
-  void SetWedgeQualityMeasureToEdgeRatio() { this->SetWedgeQualityMeasure(EDGE_RATIO); }
-  void SetWedgeQualityMeasureToEquiangleSkew() { this->SetWedgeQualityMeasure(EQUIANGLE_SKEW); }
-  void SetWedgeQualityMeasureToJacobian() { this->SetWedgeQualityMeasure(JACOBIAN); }
+  vtkSetEnumMacro(WedgeQualityMeasure, QualityMeasureTypes);
+  virtual void SetWedgeQualityMeasure(int measure)
+  {
+    this->SetWedgeQualityMeasure(static_cast<QualityMeasureTypes>(measure));
+  }
+  vtkGetEnumMacro(WedgeQualityMeasure, QualityMeasureTypes);
+  void SetWedgeQualityMeasureToCondition()
+  {
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::CONDITION);
+  }
+  void SetWedgeQualityMeasureToDistortion()
+  {
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::DISTORTION);
+  }
+  void SetWedgeQualityMeasureToEdgeRatio()
+  {
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::EDGE_RATIO);
+  }
+  void SetWedgeQualityMeasureToEquiangleSkew()
+  {
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::EQUIANGLE_SKEW);
+  }
+  void SetWedgeQualityMeasureToJacobian()
+  {
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::JACOBIAN);
+  }
   void SetWedgeQualityMeasureToMaxAspectFrobenius()
   {
-    this->SetWedgeQualityMeasure(MAX_ASPECT_FROBENIUS);
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::MAX_ASPECT_FROBENIUS);
   }
-  void SetWedgeQualityMeasureToMaxStretch() { this->SetWedgeQualityMeasure(MAX_STRETCH); }
+  void SetWedgeQualityMeasureToMaxStretch()
+  {
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::MAX_STRETCH);
+  }
   void SetWedgeQualityMeasureToMeanAspectFrobenius()
   {
-    this->SetWedgeQualityMeasure(MEAN_ASPECT_FROBENIUS);
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::MEAN_ASPECT_FROBENIUS);
   }
-  void SetWedgeQualityMeasureToScaledJacobian() { this->SetWedgeQualityMeasure(SCALED_JACOBIAN); }
-  void SetWedgeQualityMeasureToShape() { this->SetWedgeQualityMeasure(SHAPE); }
-  void SetWedgeQualityMeasureToVolume() { this->SetWedgeQualityMeasure(VOLUME); }
+  void SetWedgeQualityMeasureToScaledJacobian()
+  {
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::SCALED_JACOBIAN);
+  }
+  void SetWedgeQualityMeasureToShape() { this->SetWedgeQualityMeasure(QualityMeasureTypes::SHAPE); }
+  void SetWedgeQualityMeasureToVolume()
+  {
+    this->SetWedgeQualityMeasure(QualityMeasureTypes::VOLUME);
+  }
   ///@}
 
   ///@{
@@ -354,41 +530,78 @@ public:
    * SCALED_JACOBIAN, SHEAR, SHAPE, RELATIVE_SIZE_SQUARED, SHAPE_AND_SIZE,
    * SHEAR_AND_SIZE, DISTORTION, EQUIANGLE_SKEW, and NODAL_JACOBIAN_RATIO.
    */
-  vtkSetMacro(HexQualityMeasure, int);
-  vtkGetMacro(HexQualityMeasure, int);
-  void SetHexQualityMeasureToEdgeRatio() { this->SetHexQualityMeasure(EDGE_RATIO); }
+  vtkSetEnumMacro(HexQualityMeasure, QualityMeasureTypes);
+  virtual void SetHexQualityMeasure(int measure)
+  {
+    this->SetHexQualityMeasure(static_cast<QualityMeasureTypes>(measure));
+  }
+  vtkGetEnumMacro(HexQualityMeasure, QualityMeasureTypes);
+  void SetHexQualityMeasureToEdgeRatio()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::EDGE_RATIO);
+  }
   void SetHexQualityMeasureToMedAspectFrobenius()
   {
-    this->SetHexQualityMeasure(MED_ASPECT_FROBENIUS);
+    this->SetHexQualityMeasure(QualityMeasureTypes::MED_ASPECT_FROBENIUS);
   }
   void SetHexQualityMeasureToMaxAspectFrobenius()
   {
-    this->SetHexQualityMeasure(MAX_ASPECT_FROBENIUS);
+    this->SetHexQualityMeasure(QualityMeasureTypes::MAX_ASPECT_FROBENIUS);
   }
-  void SetHexQualityMeasureToMaxEdgeRatio() { this->SetHexQualityMeasure(MAX_EDGE_RATIO); }
-  void SetHexQualityMeasureToSkew() { this->SetHexQualityMeasure(SKEW); }
-  void SetHexQualityMeasureToTaper() { this->SetHexQualityMeasure(TAPER); }
-  void SetHexQualityMeasureToVolume() { this->SetHexQualityMeasure(VOLUME); }
-  void SetHexQualityMeasureToStretch() { this->SetHexQualityMeasure(STRETCH); }
-  void SetHexQualityMeasureToDiagonal() { this->SetHexQualityMeasure(DIAGONAL); }
-  void SetHexQualityMeasureToDimension() { this->SetHexQualityMeasure(DIMENSION); }
-  void SetHexQualityMeasureToOddy() { this->SetHexQualityMeasure(ODDY); }
-  void SetHexQualityMeasureToCondition() { this->SetHexQualityMeasure(CONDITION); }
-  void SetHexQualityMeasureToJacobian() { this->SetHexQualityMeasure(JACOBIAN); }
-  void SetHexQualityMeasureToScaledJacobian() { this->SetHexQualityMeasure(SCALED_JACOBIAN); }
-  void SetHexQualityMeasureToShear() { this->SetHexQualityMeasure(SHEAR); }
-  void SetHexQualityMeasureToShape() { this->SetHexQualityMeasure(SHAPE); }
+  void SetHexQualityMeasureToMaxEdgeRatio()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::MAX_EDGE_RATIO);
+  }
+  void SetHexQualityMeasureToSkew() { this->SetHexQualityMeasure(QualityMeasureTypes::SKEW); }
+  void SetHexQualityMeasureToTaper() { this->SetHexQualityMeasure(QualityMeasureTypes::TAPER); }
+  void SetHexQualityMeasureToVolume() { this->SetHexQualityMeasure(QualityMeasureTypes::VOLUME); }
+  void SetHexQualityMeasureToStretch() { this->SetHexQualityMeasure(QualityMeasureTypes::STRETCH); }
+  void SetHexQualityMeasureToDiagonal()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::DIAGONAL);
+  }
+  void SetHexQualityMeasureToDimension()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::DIMENSION);
+  }
+  void SetHexQualityMeasureToOddy() { this->SetHexQualityMeasure(QualityMeasureTypes::ODDY); }
+  void SetHexQualityMeasureToCondition()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::CONDITION);
+  }
+  void SetHexQualityMeasureToJacobian()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::JACOBIAN);
+  }
+  void SetHexQualityMeasureToScaledJacobian()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::SCALED_JACOBIAN);
+  }
+  void SetHexQualityMeasureToShear() { this->SetHexQualityMeasure(QualityMeasureTypes::SHEAR); }
+  void SetHexQualityMeasureToShape() { this->SetHexQualityMeasure(QualityMeasureTypes::SHAPE); }
   void SetHexQualityMeasureToRelativeSizeSquared()
   {
-    this->SetHexQualityMeasure(RELATIVE_SIZE_SQUARED);
+    this->SetHexQualityMeasure(QualityMeasureTypes::RELATIVE_SIZE_SQUARED);
   }
-  void SetHexQualityMeasureToShapeAndSize() { this->SetHexQualityMeasure(SHAPE_AND_SIZE); }
-  void SetHexQualityMeasureToShearAndSize() { this->SetHexQualityMeasure(SHEAR_AND_SIZE); }
-  void SetHexQualityMeasureToDistortion() { this->SetHexQualityMeasure(DISTORTION); }
-  void SetHexQualityMeasureToEquiangleSkew() { this->SetHexQualityMeasure(EQUIANGLE_SKEW); }
+  void SetHexQualityMeasureToShapeAndSize()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::SHAPE_AND_SIZE);
+  }
+  void SetHexQualityMeasureToShearAndSize()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::SHEAR_AND_SIZE);
+  }
+  void SetHexQualityMeasureToDistortion()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::DISTORTION);
+  }
+  void SetHexQualityMeasureToEquiangleSkew()
+  {
+    this->SetHexQualityMeasure(QualityMeasureTypes::EQUIANGLE_SKEW);
+  }
   void SetHexQualityMeasureToNodalJacobianRatio()
   {
-    this->SetHexQualityMeasure(NODAL_JACOBIAN_RATIO);
+    this->SetHexQualityMeasure(QualityMeasureTypes::NODAL_JACOBIAN_RATIO);
   }
   ///@}
 
@@ -1190,7 +1403,7 @@ public:
     if (this->CompatibilityMode)
     {
       this->Volume = 1;
-      this->TetQualityMeasure = RADIUS_RATIO;
+      this->TetQualityMeasure = QualityMeasureTypes::RADIUS_RATIO;
     }
   }
   VTK_DEPRECATED_IN_9_2_0("Deprecating compatibility mode for this filter")
@@ -1222,12 +1435,12 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkTypeBool SaveCellQuality;
-  int TriangleQualityMeasure;
-  int QuadQualityMeasure;
-  int TetQualityMeasure;
-  int PyramidQualityMeasure;
-  int WedgeQualityMeasure;
-  int HexQualityMeasure;
+  QualityMeasureTypes TriangleQualityMeasure;
+  QualityMeasureTypes QuadQualityMeasure;
+  QualityMeasureTypes TetQualityMeasure;
+  QualityMeasureTypes PyramidQualityMeasure;
+  QualityMeasureTypes WedgeQualityMeasure;
+  QualityMeasureTypes HexQualityMeasure;
   bool LinearApproximation;
 
   using CellQualityType = double (*)(vtkCell*);
