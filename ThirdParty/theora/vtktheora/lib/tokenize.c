@@ -245,11 +245,11 @@ int oc_enc_tokenize_ac(oc_enc_ctx *_enc,int _pli,ptrdiff_t _fragi,
   for(zzi=OC_MINI(_zzi,63);zzi>0;zzi--){
     ogg_int32_t  lambda;
     ogg_uint32_t best_cost;
-    int          best_bits=best_bits;
-    int          best_next=best_next;
-    int          best_token=best_token;
-    int          best_eb=best_eb;
-    int          best_qc=best_qc;
+    int          best_bits=0;
+    int          best_next=0;
+    int          best_token=0;
+    int          best_eb=0;
+    int          best_qc=0;
     int          flush_bits;
     ogg_uint32_t d2;
     int          dq;
@@ -793,8 +793,8 @@ void oc_enc_tokenize_dc_frag_list(oc_enc_ctx *_enc,int _pli,
   int                neobs1;
   int                token;
   int                eb;
-  int                token1=token1;
-  int                eb1=eb1;
+  int                token1=0;
+  int                eb1=0;
   /*Return immediately if there are no coded fragments; otherwise we'd flush
      any trailing EOB run into the AC 1 list and never read it back out.*/
   if(_ncoded_fragis<=0)return;
@@ -1033,7 +1033,7 @@ void oc_enc_tokenize_finish(oc_enc_ctx *_enc){
     int       new_eb;
     int       zzj;
     int       plj;
-    ptrdiff_t ti=ti;
+    ptrdiff_t ti=0;
     int       run_count;
     /*Make sure this coefficient has tokens at all.*/
     if(_enc->ndct_tokens[pli][zzi]<=0)continue;
