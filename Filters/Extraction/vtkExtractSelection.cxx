@@ -370,7 +370,6 @@ vtkSmartPointer<vtkSelector> vtkExtractSelection::NewSelectionOperator(
       return vtkSmartPointer<vtkBlockSelector>::New();
 
     case vtkSelectionNode::USER:
-    case vtkSelectionNode::SELECTIONS:
     case vtkSelectionNode::QUERY:
     default:
       return nullptr;
