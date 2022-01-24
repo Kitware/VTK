@@ -7,6 +7,7 @@ set(classes
   vtkCorrelativeStatistics
   vtkDescriptiveStatistics
   vtkExtractFunctionalBagPlot
+  vtkExtractHistogram
   vtkHighestDensityRegionsStatistics
   vtkKMeansDistanceFunctor
   vtkKMeansDistanceFunctorCalculator
