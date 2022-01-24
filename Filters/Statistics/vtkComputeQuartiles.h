@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkComputeQuartiles();
-  ~vtkComputeQuartiles() = default;
+  ~vtkComputeQuartiles() override = default;
 
 private:
   void operator=(const vtkComputeQuartiles&) = delete;
