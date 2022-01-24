@@ -606,12 +606,12 @@ public:
   ///@}
 
   /**
-   * This is a static function used to calculate the area of a triangle.
+   * Calculate the area of a triangle.
    */
   static double TriangleArea(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the edge ratio of a triangle.
+   * Calculate the edge ratio of a triangle.
    * The edge ratio of a triangle \f$t\f$ is:
    * \f$\frac{|t|_\infty}{|t|_0}\f$,
    * where \f$|t|_\infty\f$ and \f$|t|_0\f$ respectively denote the greatest and
@@ -620,7 +620,7 @@ public:
   static double TriangleEdgeRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the aspect ratio of a triangle.
+   * Calculate the aspect ratio of a triangle.
    * The aspect ratio of a triangle \f$t\f$ is:
    * \f$\frac{|t|_\infty}{2\sqrt{3}r}\f$,
    * where \f$|t|_\infty\f$ and \f$r\f$ respectively denote the greatest edge
@@ -629,7 +629,7 @@ public:
   static double TriangleAspectRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the radius ratio of a triangle.
+   * Calculate the radius ratio of a triangle.
    * The radius ratio of a triangle \f$t\f$ is:
    * \f$\frac{R}{2r}\f$,
    * where \f$R\f$ and \f$r\f$ respectively denote the circumradius and
@@ -638,8 +638,8 @@ public:
   static double TriangleRadiusRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the Frobenius condition number
-   * of the transformation matrix from an equilateral triangle to a triangle.
+   * Calculate the Frobenius condition number of the transformation matrix from an equilateral
+   * triangle to a triangle.
    * The Frobenius aspect of a triangle \f$t\f$, when the reference element is
    * equilateral, is:
    * \f$\frac{|t|^2_2}{2\sqrt{3}{\cal A}}\f$,
@@ -649,30 +649,27 @@ public:
   static double TriangleAspectFrobenius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the minimal (nonoriented) angle
-   * of a triangle, expressed in degrees.
+   * Calculate the minimal (nonoriented) angle of a triangle, expressed in degrees.
    */
   static double TriangleMinAngle(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the maximal (nonoriented) angle
-   * of a triangle, expressed in degrees.
+   * Calculate the maximal (nonoriented) angle of a triangle, expressed in degrees.
    */
   static double TriangleMaxAngle(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the condition number
-   * of a triangle.
+   * Calculate the condition number of a triangle.
    */
   static double TriangleCondition(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the scaled Jacobian of a triangle.
+   * Calculate the scaled Jacobian of a triangle.
    */
   static double TriangleScaledJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the square of the relative size of a triangle.
+   * Calculate the square of the relative size of a triangle.
    *
    * Note: TriangleRelativeSizeSquared will return 0.0 if the MeshQuality filter has NOT
    * been executed, because it relies on the average triangle size.
@@ -680,13 +677,12 @@ public:
   static double TriangleRelativeSizeSquared(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shape of a triangle.
+   * Calculate the shape of a triangle.
    */
   static double TriangleShape(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the product of shape and relative size of a
-   * triangle.
+   * Calculate the product of shape and relative size of a triangle.
    *
    * Note: TriangleShapeAndSize will return 0.0 if the MeshQuality filter has NOT
    * been executed, because it relies on the average triangle size.
@@ -694,24 +690,24 @@ public:
   static double TriangleShapeAndSize(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the distortion of a triangle.
+   * Calculate the distortion of a triangle.
    */
   static double TriangleDistortion(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the equiangle skew of a triangle.
+   * Calculate the equiangle skew of a triangle.
    */
   static double TriangleEquiangleSkew(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the normalized in-radius of a triangle.
+   * Calculate the normalized in-radius of a triangle.
    * The minimum normalized in-radius of a triangle is the ratio of the minimum
    * sub-triangle inner radius to the outer triangle radius.
    */
   static double TriangleNormalizedInradius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the edge ratio of a quadrilateral.
+   * Calculate the edge ratio of a quadrilateral.
    * The edge ratio of a quadrilateral \f$q\f$ is:
    * \f$\frac{|q|_\infty}{|q|_0}\f$,
    * where \f$|q|_\infty\f$ and \f$|q|_0\f$ respectively denote the greatest and
@@ -720,7 +716,7 @@ public:
   static double QuadEdgeRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the aspect ratio of a planar quadrilateral.
+   * Calculate the aspect ratio of a planar quadrilateral.
    * The aspect ratio of a planar quadrilateral \f$q\f$ is:
    * \f$\frac{|q|_1|q|_\infty}{4{\cal A}}\f$,
    * where \f$|q|_1\f$, \f$|q|_\infty\f$ and \f${\cal A}\f$ respectively denote the
@@ -729,10 +725,9 @@ public:
   static double QuadAspectRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the radius ratio of a planar
-   * quadrilateral. The name is only used by analogy with the triangle radius
-   * ratio, because in general a quadrilateral does not have a circumcircle nor
-   * an incircle.
+   * Calculate the radius ratio of a planar quadrilateral. The name is only used by analogy
+   * with the triangle radius ratio, because in general a quadrilateral does not have a
+   * circumcircle nor an incircle.
    * The radius ratio of a planar quadrilateral \f$q\f$ is:
    * \f$\frac{|q|_2h_{\max}}{\min_i{\cal A}_i}\f$,
    * where \f$|q|_2\f$, \f$h_{\max}\f$ and \f$\min{\cal A}_i\f$ respectively denote
@@ -742,9 +737,8 @@ public:
   static double QuadRadiusRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the average Frobenius aspect of
-   * the 4 corner triangles of a planar quadrilateral, when the reference
-   * triangle elements are right isosceles at the quadrangle vertices.
+   * Calculate the average Frobenius aspect of the 4 corner triangles of a planar quadrilateral,
+   * when the reference triangle elements are right isosceles at the quadrangle vertices.
    * The Frobenius aspect of a triangle \f$t\f$, when the reference element is
    * right isosceles at vertex \f$V\f$, is:
    * \f$\frac{f^2+g^2}{4{\cal A}}\f$,
@@ -754,9 +748,8 @@ public:
   static double QuadMedAspectFrobenius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the maximal Frobenius aspect of
-   * the 4 corner triangles of a planar quadrilateral, when the reference
-   * triangle elements are right isosceles at the quadrangle vertices.
+   * Calculate the maximal Frobenius aspect of the 4 corner triangles of a planar quadrilateral,
+   * when the reference triangle elements are right isosceles at the quadrangle vertices.
    * The Frobenius aspect of a triangle \f$t\f$, when the reference element is
    * right isosceles at vertex \f$V\f$, is:
    * \f$\frac{f^2+g^2}{4{\cal A}}\f$,
@@ -766,97 +759,94 @@ public:
   static double QuadMaxAspectFrobenius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the minimal (nonoriented) angle
-   * of a quadrilateral, expressed in degrees.
+   * Calculate the minimal (nonoriented) angle of a quadrilateral, expressed in degrees.
    */
   static double QuadMinAngle(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the maximum edge length ratio of a quadrilateral
-   * at quad center.
+   * Calculate the maximum edge length ratio of a quadrilateral at quad center.
    */
   static double QuadMaxEdgeRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the skew of a quadrilateral.
+   * Calculate the skew of a quadrilateral.
    * The skew of a quadrilateral is the maximum |cos A|, where A is the angle
    * between edges at the quad center.
    */
   static double QuadSkew(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the taper of a quadrilateral.
+   * Calculate the taper of a quadrilateral.
    * The taper of a quadrilateral is the ratio of lengths derived from opposite edges.
    */
   static double QuadTaper(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the warpage of a quadrilateral.
+   * Calculate the warpage of a quadrilateral.
    * The warpage of a quadrilateral is the cosine of Minimum Dihedral Angle formed by
    * Planes Intersecting in Diagonals.
    */
   static double QuadWarpage(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the area of a quadrilateral.
+   * Calculate the area of a quadrilateral.
    * The area of a quadrilateral is the Jacobian at quad center.
    */
   static double QuadArea(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the stretch of a quadrilateral.
+   * Calculate the stretch of a quadrilateral.
    * The stretch of a quadrilateral is Sqrt(2) * minimum edge length / maximum diagonal length.
    */
   static double QuadStretch(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the maximum (nonoriented) angle
-   * of a quadrilateral, expressed in degrees.
+   * Calculate the maximum (nonoriented) angle of a quadrilateral, expressed in degrees.
    */
   static double QuadMaxAngle(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the oddy of a quadrilateral.
+   * Calculate the oddy of a quadrilateral.
    * The oddy of a quadrilateral is the general distortion measure based on left
    * Cauchy-Green Tensor.
    */
   static double QuadOddy(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the condition number of a quadrilateral.
+   * Calculate the condition number of a quadrilateral.
    * The condition number of a quadrilateral is the (maximum) condition number of the
    * Jacobian matrix at the 4 corners.
    */
   static double QuadCondition(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the Jacobian of a quadrilateral.
+   * Calculate the Jacobian of a quadrilateral.
    * The Jacobian of a quadrilateral is the minimum point-wise volume of local map
    * at 4 corners & center of quad.
    */
   static double QuadJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the scaled Jacobian of a quadrilateral.
+   * Calculate the scaled Jacobian of a quadrilateral.
    * The scaled Jacobian of a quadrilateral is the minimum Jacobian divided by the lengths
    * of the 2 edge vectors.
    */
   static double QuadScaledJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shear of a quadrilateral.
+   * Calculate the shear of a quadrilateral.
    * The shear of a quadrilateral is 2 / Condition number of Jacobian Skew matrix.
    */
   static double QuadShear(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shear of a quadrilateral.
+   * Calculate the shear of a quadrilateral.
    * The shear of a quadrilateral is 2 / Condition number of weighted Jacobian matrix.
    */
   static double QuadShape(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the relative size squared of a quadrilateral.
+   * Calculate the relative size squared of a quadrilateral.
    * The relative size squared of a quadrilateral is the Min(J, 1 / J), where J is the
    * determinant of weighted Jacobian matrix.
    *
@@ -866,7 +856,7 @@ public:
   static double QuadRelativeSizeSquared(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shape and size of a quadrilateral.
+   * Calculate the shape and size of a quadrilateral.
    * The shape and size of a quadrilateral is product of shape and average size.
    *
    * Note: QuadShapeAndSize will return 0.0 if the MeshQuality filter has NOT
@@ -875,7 +865,7 @@ public:
   static double QuadShapeAndSize(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shear and size of a quadrilateral.
+   * Calculate the shear and size of a quadrilateral.
    * The shear and size of a quadrilateral is product of shear and average size.
    *
    * Note: QuadShearAndSize will return 0.0 if the MeshQuality filter has NOT
@@ -884,19 +874,19 @@ public:
   static double QuadShearAndSize(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the distortion of a quadrilateral.
+   * Calculate the distortion of a quadrilateral.
    * The distortion of a quadrilateral is {min(|J|)/actual area} * parent area,
    * parent area = 4 for quad.
    */
   static double QuadDistortion(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the equiangle skew of a quadrilateral.
+   * Calculate the equiangle skew of a quadrilateral.
    */
   static double QuadEquiangleSkew(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the edge ratio of a tetrahedron.
+   * Calculate the edge ratio of a tetrahedron.
    * The edge ratio of a tetrahedron \f$K\f$ is:
    * \f$\frac{|K|_\infty}{|K|_0}\f$,
    * where \f$|K|_\infty\f$ and \f$|K|_0\f$ respectively denote the greatest and
@@ -905,7 +895,7 @@ public:
   static double TetEdgeRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the aspect ratio of a tetrahedron.
+   * Calculate the aspect ratio of a tetrahedron.
    * The aspect ratio of a tetrahedron \f$K\f$ is:
    * \f$\frac{|K|_\infty}{2\sqrt{6}r}\f$,
    * where \f$|K|_\infty\f$ and \f$r\f$ respectively denote the greatest edge
@@ -914,7 +904,7 @@ public:
   static double TetAspectRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the radius ratio of a tetrahedron.
+   * Calculate the radius ratio of a tetrahedron.
    * The radius ratio of a tetrahedron \f$K\f$ is:
    * \f$\frac{R}{3r}\f$,
    * where \f$R\f$ and \f$r\f$ respectively denote the circumradius and
@@ -923,8 +913,8 @@ public:
   static double TetRadiusRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the Frobenius condition number
-   * of the transformation matrix from a regular tetrahedron to a tetrahedron.
+   * Calculate the Frobenius condition number of the transformation matrix from a regular
+   * tetrahedron to a tetrahedron.
    * The Frobenius aspect of a tetrahedron \f$K\f$, when the reference element is
    * regular, is:
    * \f$\frac{\frac{3}{2}(l_{11}+l_{22}+l_{33}) - (l_{12}+l_{13}+l_{23})}
@@ -935,13 +925,12 @@ public:
   static double TetAspectFrobenius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the minimal (nonoriented) dihedral
-   * angle of a tetrahedron, expressed in degrees.
+   * Calculate the minimal (nonoriented) dihedral angle of a tetrahedron, expressed in degrees.
    */
   static double TetMinAngle(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the collapse ratio of a tetrahedron.
+   * Calculate the collapse ratio of a tetrahedron.
    * The collapse ratio is a dimensionless number defined as the smallest ratio of the
    * height of a vertex above its opposing triangle to the longest edge of that opposing
    * triangle across all vertices of the tetrahedron.
@@ -949,45 +938,45 @@ public:
   static double TetCollapseRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the aspect gamma of a tetrahedron.
+   * Calculate the aspect gamma of a tetrahedron.
    * The aspect gamma of a tetrahedron is:
    * Srms**3 / (8.479670*V) where Srms = sqrt(Sum(Si**2)/6), Si = edge length.
    */
   static double TetAspectGamma(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the volume of a tetrahedron.
+   * Calculate the volume of a tetrahedron.
    * The volume of a tetrahedron is (1/6) * Jacobian at corner node.
    */
   static double TetVolume(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the condition number of a tetrahedron.
+   * Calculate the condition number of a tetrahedron.
    * The condition number of a tetrahedron is Condition number of the Jacobian matrix at any corner.
    */
   static double TetCondition(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the Jacobian of a tetrahedron.
+   * Calculate the Jacobian of a tetrahedron.
    * The jacobian of a tetrahedron is the minimum point-wise volume at any corner.
    */
   static double TetJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the scaled Jacobian of a tetrahedron.
+   * Calculate the scaled Jacobian of a tetrahedron.
    * The scaled jacobian of a tetrahedron is the minimum Jacobian divided
    * by the lengths of 3 edge vectors.
    */
   static double TetScaledJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shape of a tetrahedron.
+   * Calculate the shape of a tetrahedron.
    * The shape of a tetrahedron is 3 / Mean Ratio of weighted Jacobian matrix.
    */
   static double TetShape(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the relative size squared of a tetrahedron.
+   * Calculate the relative size squared of a tetrahedron.
    * The relative size squared of a tetrahedron is Min(J, 1 / J), where J is determinant
    * of weighted Jacobian matrix.
    *
@@ -997,7 +986,7 @@ public:
   static double TetRelativeSizeSquared(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shape and size of a tetrahedron.
+   * Calculate the shape and size of a tetrahedron.
    * The shape and size of a tetrahedron is product of shape and average size.
    *
    * Note: TetShapeAndSize will return 0.0 if the MeshQuality filter has NOT
@@ -1006,122 +995,122 @@ public:
   static double TetShapeAndSize(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the distortion of a tetrahedron.
+   * Calculate the distortion of a tetrahedron.
    * The distortion of a quadrilateral is {min(|J|)/actual volume} * parent volume,
    * parent volume = 1 / 6 for a tetrahedron.
    */
   static double TetDistortion(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the equiangle skew of a tetrahedron.
+   * Calculate the equiangle skew of a tetrahedron.
    */
   static double TetEquiangleSkew(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the equivolume skew of a tetrahedron.
+   * Calculate the equivolume skew of a tetrahedron.
    */
   static double TetEquivolumeSkew(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the mean ratio of a tetrahedron.
+   * Calculate the mean ratio of a tetrahedron.
    * The mean ratio of a tetrahedron is the ratio of tetrahedron volume over the volume of an
    * equilateral tetrahedron with the same RMS edge length.
    */
   static double TetMeanRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the normalized in-radius of a tetrahedron.
+   * Calculate the normalized in-radius of a tetrahedron.
    * The minimum normalized in-radius of a tetrahedron is the ratio of the minimum
    * sub-tetrahedron inner radius to the outer tetrahedron radius.
    */
   static double TetNormalizedInradius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the squish index of a tetrahedron.
+   * Calculate the squish index of a tetrahedron.
    */
   static double TetSquishIndex(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the equiangle skew of a pyramid.
+   * Calculate the equiangle skew of a pyramid.
    */
   static double PyramidEquiangleSkew(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the Jacobian of a pyramid.
+   * Calculate the Jacobian of a pyramid.
    * The jacobian of a tetrahedron is the minimum point-wise volume at any corner.
    */
   static double PyramidJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the Jacobian of a pyramid.
+   * Calculate the Jacobian of a pyramid.
    * The jacobian of a tetrahedron is the minimum point-wise volume at any corner.
    */
   static double PyramidScaledJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shape of a pyramid.
+   * Calculate the shape of a pyramid.
    * The shape of a pyramid is 4 divided by the minimum mean ratio of the
    * Jacobian matrix at each element corner.
    */
   static double PyramidShape(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the volume of a pyramid.
+   * Calculate the volume of a pyramid.
    */
   static double PyramidVolume(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the condition number of a wedge.
+   * Calculate the condition number of a wedge.
    * The condition number of a wedge is equivalent to the max aspect Frobenius.
    */
   static double WedgeCondition(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the distortion of a wedge.
+   * Calculate the distortion of a wedge.
    * The distortion of a wedge is {min(|J|) / actual volume } * parent volume.
    */
   static double WedgeDistortion(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the edge ratio of a wedge.
+   * Calculate the edge ratio of a wedge.
    * The edge ratio of a wedge is Hmax / Hmin, where Hmax and Hmin are respectively
    * the maximum and the minimum edge lengths.
    */
   static double WedgeEdgeRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the equiangle skew of a wedge.
+   * Calculate the equiangle skew of a wedge.
    */
   static double WedgeEquiangleSkew(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the Jacobian of a wedge.
+   * Calculate the Jacobian of a wedge.
    * The jacobian of a wedge is the min{((L_2 X L_0) * L_3)_k}.
    */
   static double WedgeJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the max aspect Frobenius of a wedge.
+   * Calculate the max aspect Frobenius of a wedge.
    * The max aspect Frobenius of a wedge is max(F_0123, F_1204, F_2015, F_3540, F_4351, F_5432).
    */
   static double WedgeMaxAspectFrobenius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the max stretch of a wedge.
+   * Calculate the max stretch of a wedge.
    * The maximum stretch of a wedge is maximum stretch (S) of the three quadrilateral faces:
    * q = max[S_1043, S_1254, S_2035]
    */
   static double WedgeMaxStretch(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the mean aspect Frobenius of a wedge.
+   * Calculate the mean aspect Frobenius of a wedge.
    * The mean aspect Frobenius of a wedge is:
    * 1/6 * (F_0123 + F_1204 + F+2015 + F_3540 + F_4351 + F_5432).
    */
   static double WedgeMeanAspectFrobenius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the scaled Jacobian a wedge.
+   * Calculate the scaled Jacobian a wedge.
    * The jacobian of a wedge is the minimum point-wise volume at any corner divided by the
    * corresponding edge lengths and normalized to the unit wedge:
    * q = min(  2 / sqrt(3) * ((L_2 X L_0) * L_3)_k / sqrt(mag(L_2) * mag(L_0) * mag(L_3))),
@@ -1132,19 +1121,19 @@ public:
   static double WedgeScaledJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shape of a wedge.
+   * Calculate the shape of a wedge.
    * The shape of a wedge is 3 divided by the minimum mean ratio of the Jacobian matrix at each
    * element corner.
    */
   static double WedgeShape(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the volume of a wedge.
+   * Calculate the volume of a wedge.
    */
   static double WedgeVolume(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the edge ratio of a hexahedron.
+   * Calculate the edge ratio of a hexahedron.
    * The edge ratio of a hexahedron \f$H\f$ is:
    * \f$\frac{|H|_\infty}{|H|_0}\f$,
    * where \f$|H|_\infty\f$ and \f$|H|_0\f$ respectively denote the greatest and
@@ -1153,104 +1142,101 @@ public:
   static double HexEdgeRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the average Frobenius aspect of
-   * the 8 corner tetrahedra of a hexahedron, when the reference
-   * tetrahedral elements are right isosceles at the hexahedron vertices.
+   * Calculate the average Frobenius aspect of the 8 corner tetrahedra of a hexahedron,
+   * when the reference tetrahedral elements are right isosceles at the hexahedron vertices.
    */
   static double HexMedAspectFrobenius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the maximal Frobenius aspect of
-   * the 8 corner tetrahedra of a hexahedron, when the reference
-   * tetrahedral elements are right isosceles at the hexahedron vertices.
+   * Calculate the maximal Frobenius aspect of the 8 corner tetrahedra of a hexahedron,
+   * when the reference tetrahedral elements are right isosceles at the hexahedron vertices.
    */
   static double HexMaxAspectFrobenius(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the maximum edge ratio of a hexahedron
-   * at its center.
+   * Calculate the maximum edge ratio of a hexahedron at its center.
    */
   static double HexMaxEdgeRatio(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the skew of a hexahedron.
+   * Calculate the skew of a hexahedron.
    * The skew of a hexahedron is the maximum |cos A|, where A is the angle
    * between edges at the hexahedron center.
    */
   static double HexSkew(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the taper of a hexahedron.
+   * Calculate the taper of a hexahedron.
    * The taper of a hexahedron is the ratio of lengths derived from opposite edges.
    */
   static double HexTaper(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the volume of a hexahedron.
+   * Calculate the volume of a hexahedron.
    * The volume of a hexahedron is the Jacobian at the hexahedron center.
    */
   static double HexVolume(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the stretch of a hexahedron.
+   * Calculate the stretch of a hexahedron.
    * The stretch of a hexahedron is Sqrt(3) * minimum edge length / maximum diagonal length.
    */
   static double HexStretch(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the diagonal of a hexahedron.
+   * Calculate the diagonal of a hexahedron.
    * The diagonal of a hexahedron Minimum diagonal length / maximum diagonal length.
    */
   static double HexDiagonal(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the dimension of a hexahedron.
+   * Calculate the dimension of a hexahedron.
    * The dimension of a hexahedron is the Pronto-specific characteristic length
    * for stable time step calculation, where characteristic length = Volume / 2 grad Volume.
    */
   static double HexDimension(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the oddy of a hexahedron.
+   * Calculate the oddy of a hexahedron.
    * The oddy of a hexahedron is the general distortion measure based on left
    * Cauchy-Green Tensor.
    */
   static double HexOddy(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the condition of a hexahedron.
+   * Calculate the condition of a hexahedron.
    * The condition of a hexahedron is equivalent to HexMaxAspectFrobenius.
    */
   static double HexCondition(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the Jacobian of a hexahedron.
+   * Calculate the Jacobian of a hexahedron.
    * The jacobian of a hexahedron is the minimum point-wise of local map at
    * 8 corners & center of the hexahedron.
    */
   static double HexJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the scaled Jacobian of a hexahedron.
+   * Calculate the scaled Jacobian of a hexahedron.
    * The scaled jacobian of a hexahedron is the minimum Jacobian divided
    * by the lengths of 3 edge vectors.
    */
   static double HexScaledJacobian(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shear of a hexahedron.
+   * Calculate the shear of a hexahedron.
    * The shear of a hexahedron is 3 / Mean Ratio of Jacobian Skew matrix.
    */
   static double HexShear(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shape of a hexahedron.
+   * Calculate the shape of a hexahedron.
    * The shape of a hexahedron is 3 / Mean Ratio of weighted Jacobian matrix.
    */
   static double HexShape(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the relative size squared of a hexahedron.
+   * Calculate the relative size squared of a hexahedron.
    * The relative size squared of a hexahedron is Min(J, 1 / J), where J is determinant
    * of weighted Jacobian matrix.
    *
@@ -1260,7 +1246,7 @@ public:
   static double HexRelativeSizeSquared(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shape and size of a hexahedron.
+   * Calculate the shape and size of a hexahedron.
    * The shape and size of a hexahedron is product of shape and average size.
    *
    * Note: HexShapeAndSize will return 0.0 if the MeshQuality filter has NOT
@@ -1269,7 +1255,7 @@ public:
   static double HexShapeAndSize(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the shear and size of a hexahedron.
+   * Calculate the shear and size of a hexahedron.
    * The shear and size of a hexahedron is product of shear and average size.
    *
    * Note: HexShearAndSize will return 0.0 if the MeshQuality filter has NOT
@@ -1278,19 +1264,19 @@ public:
   static double HexShearAndSize(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the distortion of a hexahedron.
+   * Calculate the distortion of a hexahedron.
    * The distortion of a hexahedron is {min(|J|)/actual volume} * parent volume,
    * parent volume = 8 for a hexahedron.
    */
   static double HexDistortion(vtkCell* cell);
 
   /**
-   * THis is a static function used to calculate the equiangle skew of a hexahedron.
+   * Calculate the equiangle skew of a hexahedron.
    */
   static double HexEquiangleSkew(vtkCell* cell);
 
   /**
-   * This is a static function used to calculate the nodal Jacobian ratio of a hexahedron.
+   * Calculate the nodal Jacobian ratio of a hexahedron.
    * The nodal Jacobian ratio of a hexahedron is min(Jacobian) / max(Jacobian) over all nodes.
    */
   static double HexNodalJacobianRatio(vtkCell* cell);
