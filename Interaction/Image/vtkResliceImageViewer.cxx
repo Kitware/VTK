@@ -542,7 +542,7 @@ void vtkResliceImageViewer::IncrementSlice(int inc)
   if (this->GetResliceMode() == vtkResliceImageViewer::RESLICE_AXIS_ALIGNED)
   {
     int oldSlice = this->GetSlice();
-    this->SetSlice(this->GetSlice() + inc);
+    this->SetSlice(this->GetSlice() + static_cast<int>(std::round(inc * this->SliceScrollFactor)));
     if (this->GetSlice() != oldSlice)
     {
       this->InvokeEvent(vtkResliceImageViewer::SliceChangedEvent, nullptr);
@@ -555,7 +555,8 @@ void vtkResliceImageViewer::IncrementSlice(int inc)
     {
       double n[3], c[3], bounds[6];
       p->GetNormal(n);
-      const double spacing = this->GetInterSliceSpacingInResliceMode() * inc;
+      const double spacing =
+        this->GetInterSliceSpacingInResliceMode() * inc * this->SliceScrollFactor;
       this->GetResliceCursor()->GetCenter(c);
       vtkMath::MultiplyScalar(n, spacing);
       c[0] += n[0];
@@ -588,6 +589,7 @@ void vtkResliceImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   this->ResliceCursorWidget->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ResliceMode: " << this->ResliceMode << endl;
   os << indent << "SliceScrollOnMouseWheel: " << this->SliceScrollOnMouseWheel << endl;
+  os << indent << "SliceScrollFactor: " << this->SliceScrollFactor << endl;
   os << indent << "Point Placer: ";
   this->PointPlacer->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Measurements: ";
