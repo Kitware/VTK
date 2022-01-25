@@ -296,7 +296,7 @@ void MyProcess::Execute()
   }
 
   int retVal;
-  const int MY_RETURN_VALUE_MESSAGE = 0x518113;
+  const int MY_RETURN_VALUE_MESSAGE = 0xcafe;
 
   if (me > 0)
   {

@@ -52,6 +52,15 @@
     extends: .linux
     image: "kitware/vtk:ci-fedora34-20211020"
 
+.el8_icc:
+    extends: .linux
+    image: "kitware/vtk:ci-el8-icc-20220118"
+
+    variables:
+        CC: icx
+        CXX: icpx
+        FC: ifx
+
 .fedora_cuda_addon:
     image: "kitware/vtk:ci-fedora34-20210824"
     variables:
@@ -72,6 +81,20 @@
         OMPI_ALLOW_RUN_AS_ROOT: 1
         OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         MODULES: mpi/openmpi-x86_64
+
+.el8_intelmpi_addon:
+    variables:
+        CMAKE_PREFIX_PATH: /usr/local/intelmpi
+        # Disable shared memory; it doesn't work so well inside of containers.
+        I_MPI_SHM: disable
+
+.el8_icc_mpi_python:
+    extends:
+        - .el8_icc
+        - .el8_intelmpi_addon
+
+    variables:
+        CMAKE_CONFIGURATION: el8_icc_mpi_python
 
 .fedora34_doxygen_mpi_python_qt_tbb:
     extends:
@@ -310,6 +333,8 @@
     - git submodule update --init --recursive
     # Load any modules that may be necessary.
     - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
+    # Enable the Intel compiler if required.
+    - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
 
 .cmake_build_linux:
     stage: build

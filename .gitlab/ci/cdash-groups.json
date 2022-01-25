@@ -3,6 +3,11 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[el8_icc_mpi_python]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
             "buildname": "[fedora34_doxygen_mpi_python_qt_tbb]"
         },
         {

@@ -282,6 +282,7 @@ bool vtkPythonInterpreter::InitializeWithArgs(int initsigs, int argc, char* argv
       argvForPython.push_back(argv[i]);
     }
 #endif
+    argvForPython.push_back(nullptr);
 
 #if PY_VERSION_HEX < 0x03080000
     Py_InitializeEx(initsigs);
@@ -558,9 +559,10 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     argvForPython.push_back(argCopy.get());
     argvCleanup.emplace_back(std::move(argCopy));
   }
+  int argvForPythonSize = argvForPython.size();
+  argvForPython.push_back(nullptr);
 
-  vtkPythonInterpreter::InitializeWithArgs(
-    1, static_cast<int>(argvForPython.size()), argvForPython.data());
+  vtkPythonInterpreter::InitializeWithArgs(1, argvForPythonSize, argvForPython.data());
 
 #if PY_VERSION_HEX >= 0x03070000 && PY_VERSION_HEX < 0x03080000
   // Python 3.7.0 has a bug where Py_InitializeEx (called above) followed by
@@ -618,9 +620,9 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   using OwnedWideString = std::unique_ptr<wchar_t, CharDeleter>;
   std::vector<wchar_t*> argvForPythonWide;
   std::vector<OwnedWideString> argvCleanupWide;
-  for (int i = 0; i < argc; i++)
+  for (int i = 0; i < argvCleanup.size(); i++)
   {
-    OwnedWideString argCopy(vtk_Py_UTF8ToWide(argv[i]), CharDeleter());
+    OwnedWideString argCopy(vtk_Py_UTF8ToWide(argvCleanup[i].get()), CharDeleter());
     if (argCopy == nullptr)
     {
       fprintf(stderr,
@@ -633,12 +635,14 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     argvForPythonWide.push_back(argCopy.get());
     argvCleanupWide.emplace_back(std::move(argCopy));
   }
+  int argvForPythonWideSize = argvForPythonWide.size();
+  argvForPythonWide.push_back(nullptr);
 
   vtkPythonScopeGilEnsurer gilEnsurer(false, true);
-  return Py_Main(static_cast<int>(argvForPythonWide.size()), argvForPythonWide.data());
+  return Py_Main(argvForPythonWideSize, argvForPythonWide.data());
 #else // Python 2.x
   vtkPythonScopeGilEnsurer gilEnsurer(false, true);
-  return Py_Main(static_cast<int>(argvForPython.size()), argvForPython.data());
+  return Py_Main(argvForPythonSize, argvForPython.data());
 #endif
 #else
   vtkPythonScopeGilEnsurer gilEnsurer(false, true);

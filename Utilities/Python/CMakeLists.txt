@@ -157,6 +157,9 @@ if (VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
   set(needs_flags "$<NOT:$<BOOL:${vtk_undefined_symbols_allowed}>>")
   set(direct_link "$<BOOL:$<TARGET_PROPERTY:INTERFACE_vtk_python_direct_link>>")
   set(should_use "$<OR:${is_exe},${direct_link}>")
+  # Intel's Fortran compiler doesn't like some flags, so mask it out when using
+  # the Intel Fortran Compiler (OneAPI).
+  set(ifx_mask "$<NOT:$<COMPILE_LANG_AND_ID:Fortran,IntelLLVM>>")
   set(platform_flags
     # Apple flags.
     "$<$<PLATFORM_ID:Darwin>:-undefined;dynamic_lookup>"
@@ -167,7 +170,7 @@ if (VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
     "$<$<AND:${should_use},$<PLATFORM_ID:Linux>>:LINKER:--no-as-needed>"
     # Due to the above making the symbols actually available, we can ignore
     # unresolved symbols in the shared libraries that are being linked to.
-    "$<$<AND:${should_use},$<PLATFORM_ID:Linux>>:LINKER:--unresolved-symbols=ignore-in-shared-libs>")
+    "$<$<AND:${should_use},$<PLATFORM_ID:Linux>,${ifx_mask}>:LINKER:--unresolved-symbols=ignore-in-shared-libs>")
 
   # Use the `PythonX::Module` target from FindPython.
   vtk_module_link(VTK::Python
