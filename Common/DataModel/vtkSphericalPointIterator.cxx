@@ -70,7 +70,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
   // information.
   bool IsValid(int axis, int ptIdx)
   {
-    if (axis >= this->Axes.size())
+    if (axis >= static_cast<int>(this->Axes.size()))
     {
       return false;
     }
