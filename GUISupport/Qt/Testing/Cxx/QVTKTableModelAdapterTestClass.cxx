@@ -229,7 +229,7 @@ void QVTKTableModelAdapterTestClass::testInsertRemoveRows()
   }
 }
 
-int QVTKTableModelAdapterTestClass::rowCount(const QModelIndex& parent) const
+int QVTKTableModelAdapterTestClass::rowCount(const QModelIndex& vtkNotUsed(parent)) const
 {
   if (this->ColumnData.isEmpty())
   {
@@ -238,7 +238,7 @@ int QVTKTableModelAdapterTestClass::rowCount(const QModelIndex& parent) const
   return ColumnData[0].count();
 }
 
-int QVTKTableModelAdapterTestClass::columnCount(const QModelIndex& parent) const
+int QVTKTableModelAdapterTestClass::columnCount(const QModelIndex& vtkNotUsed(parent)) const
 {
   return this->ColumnData.count();
 }
@@ -325,7 +325,6 @@ QVariant QVTKTableModelAdapterTestClass::data(const QModelIndex& index, int role
     return QVariant();
   }
   return this->ColumnData[index.column()][index.row()];
-  return QVariant();
 }
 
 bool QVTKTableModelAdapterTestClass::setData(

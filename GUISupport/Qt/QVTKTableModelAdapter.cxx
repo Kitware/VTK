@@ -310,15 +310,16 @@ void QVTKTableModelAdapter::onHeaderDataChanged(Qt::Orientation orientation, int
 }
 
 //------------------------------------------------------------------------------
-void QVTKTableModelAdapter::onLayoutChanged(
-  const QList<QPersistentModelIndex>& parents, QAbstractItemModel::LayoutChangeHint hint)
+void QVTKTableModelAdapter::onLayoutChanged(const QList<QPersistentModelIndex>& vtkNotUsed(parents),
+  QAbstractItemModel::LayoutChangeHint vtkNotUsed(hint))
 {
   // Resetting the table in that case is a reasonable choice
   this->onModelReset();
 }
 
 //------------------------------------------------------------------------------
-void QVTKTableModelAdapter::onRowsInserted(const QModelIndex& parent, int first, int last)
+void QVTKTableModelAdapter::onRowsInserted(
+  const QModelIndex& vtkNotUsed(parent), int first, int last)
 {
   // if the table currently has no rows then the arrays in there may be of the wrong type
   // hence here is a good point to set the correct array types
@@ -343,7 +344,8 @@ void QVTKTableModelAdapter::onRowsInserted(const QModelIndex& parent, int first,
 }
 
 //------------------------------------------------------------------------------
-void QVTKTableModelAdapter::onRowsRemoved(const QModelIndex& parent, int first, int last)
+void QVTKTableModelAdapter::onRowsRemoved(
+  const QModelIndex& vtkNotUsed(parent), int first, int last)
 {
   if (!this->ItemModel)
   {
@@ -355,15 +357,17 @@ void QVTKTableModelAdapter::onRowsRemoved(const QModelIndex& parent, int first, 
 }
 
 //------------------------------------------------------------------------------
-void QVTKTableModelAdapter::onRowsMoved(
-  const QModelIndex& parent, int start, int end, const QModelIndex& destination, int row)
+void QVTKTableModelAdapter::onRowsMoved(const QModelIndex& vtkNotUsed(parent),
+  int vtkNotUsed(start), int vtkNotUsed(end), const QModelIndex& vtkNotUsed(destination),
+  int vtkNotUsed(row))
 {
   // Resetting the table in that case is a reasonable choice
   this->onModelReset();
 }
 
 //------------------------------------------------------------------------------
-void QVTKTableModelAdapter::onColumnsInserted(const QModelIndex& parent, int first, int last)
+void QVTKTableModelAdapter::onColumnsInserted(
+  const QModelIndex& vtkNotUsed(parent), int first, int last)
 {
   if (!this->ItemModel)
   {
@@ -386,7 +390,8 @@ void QVTKTableModelAdapter::onColumnsInserted(const QModelIndex& parent, int fir
 }
 
 //------------------------------------------------------------------------------
-void QVTKTableModelAdapter::onColumnsRemoved(const QModelIndex& parent, int first, int last)
+void QVTKTableModelAdapter::onColumnsRemoved(
+  const QModelIndex& vtkNotUsed(parent), int first, int last)
 {
   if (!this->ItemModel)
   {
@@ -401,8 +406,9 @@ void QVTKTableModelAdapter::onColumnsRemoved(const QModelIndex& parent, int firs
 }
 
 //------------------------------------------------------------------------------
-void QVTKTableModelAdapter::onColumnsMoved(
-  const QModelIndex& parent, int start, int end, const QModelIndex& destination, int column)
+void QVTKTableModelAdapter::onColumnsMoved(const QModelIndex& vtkNotUsed(parent),
+  int vtkNotUsed(start), int vtkNotUsed(end), const QModelIndex& vtkNotUsed(destination),
+  int vtkNotUsed(column))
 {
   // Resetting the table in that case is a reasonable choice
   this->onModelReset();
