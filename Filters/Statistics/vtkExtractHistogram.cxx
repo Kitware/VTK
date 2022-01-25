@@ -163,8 +163,8 @@ public:
   FiniteMinAndMaxWithBlankingFunctor(
     ArrayT* array, int component, vtkUnsignedCharArray* ghostArray, unsigned char hiddenFlag)
     : Array(array)
-    , Component(component)
     , GhostArray(ghostArray)
+    , Component(component)
     , HiddenFlag(hiddenFlag)
   {
   }
@@ -508,8 +508,8 @@ public:
     bool centerBinsAroundMinAndMax)
     : DataArray(dataArray)
     , Field(field)
-    , BinValuesArrayName(binValuesArrayName)
     , BinValues(binValues)
+    , BinValuesArrayName(binValuesArrayName)
     , ArrayValues(arrayValues)
     , BinCount(binCount)
     , Component(component)

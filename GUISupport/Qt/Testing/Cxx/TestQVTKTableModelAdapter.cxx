@@ -21,7 +21,7 @@
 int TestQVTKTableModelAdapter(int argc, char* argv[])
 {
   QCoreApplication app(argc, argv);
-  QVTKTableModelAdapterTestClass test;
+  QVTKTableModelAdapterTestClass test(&app);
   QTimer::singleShot(100, &test, SLOT(runTests()));
-  return app.exec();
+  return QCoreApplication::exec();
 }
