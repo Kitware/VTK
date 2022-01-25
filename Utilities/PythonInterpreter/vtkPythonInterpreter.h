@@ -61,6 +61,10 @@
 #include "vtkPythonInterpreterModule.h" // For export macro
 #include "vtkStdString.h"               // needed for vtkStdString.
 
+#if defined(_WIN32)
+#include <vector> // for vtkWideArgsConverter
+#endif
+
 class VTKPYTHONINTERPRETER_EXPORT vtkPythonInterpreter : public vtkObject
 {
 public:
@@ -249,5 +253,24 @@ private:
 
 // This is here to implement the Schwarz counter idiom.
 static vtkPythonGlobalInterpreters vtkPythonInterpreters;
+
+#if defined(_WIN32)
+class VTKPYTHONINTERPRETER_EXPORT vtkWideArgsConverter
+{
+public:
+  vtkWideArgsConverter(int argc, wchar_t* wargv[]);
+  ~vtkWideArgsConverter();
+
+  char** GetArgs() { return &this->Args[0]; }
+  int GetArgCount() { return this->Argc; }
+
+private:
+  int Argc;
+  std::vector<char*> Args;
+  std::vector<char*> MemCache;
+  vtkWideArgsConverter(const vtkWideArgsConverter&) = delete;
+  vtkWideArgsConverter& operator=(const vtkWideArgsConverter&) = delete;
+};
+#endif
 
 #endif
