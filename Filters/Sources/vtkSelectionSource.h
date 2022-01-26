@@ -38,6 +38,39 @@ public:
 
   ///@{
   /**
+   * Set/Get FieldTypeOption which is used to specify the selection field type for the selection.
+   *
+   * If FIELD_TYPE is defined, set FieldType using accepted values as defined in
+   * vtkSelectionNode::SelectionField.
+   *
+   * If ELEMENT_TYPE is defined, set ElementType using accepted values as defined in
+   * `vtkDataObject::AttributeTypes`. Note, `vtkDataObject::FIELD` and
+   * `vtkDataObject::POINT_THEN_CELL` are not supported.
+   *
+   * The default is FIELD_TYPE.
+   */
+  enum FieldTypeOptions
+  {
+    FIELD_TYPE,
+    ELEMENT_TYPE
+  };
+  vtkSetClampMacro(FieldTypeOption, int, FIELD_TYPE, ELEMENT_TYPE);
+  virtual void SetFieldTypeOptionToFieldType() { this->SetFieldTypeOption(FIELD_TYPE); }
+  virtual void SetFieldTypeOptionToElementType() { this->SetFieldTypeOption(ELEMENT_TYPE); }
+  vtkGetMacro(FieldTypeOption, int);
+  ///@}
+
+  //@{
+  /**
+   * Get/Set which process to limit the selection to. `-1` is treated as
+   * all processes. The default is -1.
+   */
+  vtkSetClampMacro(ProcessID, int, -1, VTK_INT_MAX);
+  vtkGetMacro(ProcessID, int);
+  //@}
+
+  ///@{
+  /**
    * Add a (piece, id) to the selection set. The source will generate
    * only the ids for which piece == UPDATE_PIECE_NUMBER.
    * If piece == -1, the id applies to all pieces.
@@ -102,7 +135,9 @@ public:
   /**
    * Set the content type for the generated selection.
    * Possible values are as defined by
-   * vtkSelection::SelectionContent.
+   * vtkSelectionNode::SelectionContent.
+   *
+   * The default is vtkSelectionNode::SelectionContent::INDICES.
    */
   vtkSetMacro(ContentType, int);
   vtkGetMacro(ContentType, int);
@@ -112,11 +147,26 @@ public:
   /**
    * Set the field type for the generated selection.
    * Possible values are as defined by
-   * vtkSelection::SelectionField.
+   * vtkSelectionNode::SelectionField.
+   *
+   * The default is vtkSelectionNode::SelectionField::CELL.
    */
   vtkSetMacro(FieldType, int);
   vtkGetMacro(FieldType, int);
   ///@}
+
+  //@{
+  /**
+   * Set/Get which types of elements are being selected.
+   * Accepted values are defined in `vtkDataObject::AttributeTypes`. Note,
+   * `vtkDataObject::FIELD` and `vtkDataObject::POINT_THEN_CELL` are not
+   * supported.
+   *
+   * The default is vtkDataObject::AttributeTypes::Cell.
+   */
+  vtkSetClampMacro(ElementType, int, vtkDataObject::POINT, vtkDataObject::ROW);
+  vtkGetMacro(ElementType, int);
+  //@}
 
   ///@{
   /**
@@ -210,10 +260,12 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
+  int FieldTypeOption;
+  int ProcessID;
   int ContentType;
   int FieldType;
+  int ElementType;
   int ContainingCells;
-  int PreserveTopology;
   int Inverse;
   int CompositeIndex;
   int HierarchicalLevel;
