@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkSelection.h"
 
-#include "vtkAbstractArray.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -30,29 +29,15 @@
 #include "vtkTable.h"
 
 #include <vtksys/RegularExpression.hxx>
-#include <vtksys/SystemTools.hxx>
 
 #include <atomic>
 #include <cassert>
 #include <cctype>
-#include <iterator>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-
-namespace
-{
-// since certain compilers don't support std::to_string yet
-template <typename T>
-std::string convert_to_string(const T& val)
-{
-  std::ostringstream str;
-  str << val;
-  return str.str();
-}
-}
 
 //============================================================================
 namespace parser
@@ -402,10 +387,10 @@ std::string vtkSelection::AddNode(vtkSelectionNode* node)
   }
 
   static std::atomic<uint64_t> counter(0U);
-  std::string name = std::string("node") + convert_to_string(++counter);
+  std::string name = std::string("node") + std::to_string(++counter);
   while (internals.Items.find(name) != internals.Items.end())
   {
-    name = std::string("node") + convert_to_string(++counter);
+    name = std::string("node") + std::to_string(++counter);
   }
 
   this->SetNode(name, node);
