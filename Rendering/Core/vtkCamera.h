@@ -215,7 +215,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the scaling used for a parallel projection, i.e. the height
+   * Set/Get the scaling used for a parallel projection, i.e. the half of the height
    * of the viewport in world-coordinate distances. The default is 1.
    * Note that the "scale" parameter works as an "inverse scale" ---
    * larger numbers produce smaller images.
