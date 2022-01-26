@@ -40,8 +40,7 @@ class vtkCommand;
  *
  * Reads data saved using the VTK HDF format which supports all
  * vtkDataSet types (image data and unstructured grid are currently
- * implemented) and serial as well as parallel processing. See (@ref
- * VTKHDFFileFormat) for more information about this.
+ * implemented) and serial as well as parallel processing.
  *
  */
 class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataSetAlgorithm
