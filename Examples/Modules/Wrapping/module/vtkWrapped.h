@@ -7,22 +7,22 @@
 
 #include <string> // for std::string
 
-class VTKWRAPPABLE_EXPORT vtkWrappable : public vtkObject
+class VTKWRAPPABLE_EXPORT vtkWrapped : public vtkObject
 {
 public:
-  static vtkWrappable* New();
-  vtkTypeMacro(vtkWrappable, vtkObject);
+  static vtkWrapped* New();
+  vtkTypeMacro(vtkWrapped, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   std::string GetString() const;
 
 protected:
-  vtkWrappable();
-  ~vtkWrappable() override;
+  vtkWrapped();
+  ~vtkWrapped() override;
 
 private:
-  vtkWrappable(const vtkWrappable&) = delete;
-  void operator=(const vtkWrappable&) = delete;
+  vtkWrapped(const vtkWrapped&) = delete;
+  void operator=(const vtkWrapped&) = delete;
 };
 
 #endif
