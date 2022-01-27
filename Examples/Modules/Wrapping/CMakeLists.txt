@@ -56,37 +56,31 @@ vtk_module_wrap_python(
   INSTALL_HEADERS OFF)
 
 # Create an `__init__.py` containing wrapped filters.
-set(InitContent "from __future__ import absolute_import\n")
-string(APPEND InitContent "from .vtkWrappable import *\n")
+set(python_modules)
+foreach(module ${modules})
+  _vtk_module_get_module_property("${module}"
+    PROPERTY  "library_name"
+    VARIABLE  library_name)
+  list(APPEND python_modules "'${library_name}'")
+endforeach()
+
+list(JOIN python_modules ,  python_modules_string)
+set(InitContent "__all__ = [${python_modules_string}]\n")
 file(GENERATE
-  OUTPUT
-    "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
-  CONTENT
-    "${InitContent}"
-)
+  OUTPUT  "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
+  CONTENT "${InitContent}")
 install(
-  FILES
-    "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
-  DESTINATION
-    "${python_destination}/wrapping/"
-)
+  FILES       "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
+  DESTINATION "${python_destination}/wrapping/")
 
 # Install the module
 export(
-  EXPORT
-    wrapping_export
-  NAMESPACE
-    Wrapping::
-  FILE
-    "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/wrapping_export-targets.cmake"
-)
+  EXPORT    wrapping_export
+  NAMESPACE Wrapping::
+  FILE      "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/wrapping_export-targets.cmake")
 install(
-  EXPORT
-    wrapping_export
-  NAMESPACE
-    Wrapping::
-  FILE
-    wrapping_export-targets.cmake
-  DESTINATION
-    "${python_destination}/cmake/wrapping"
+  EXPORT      wrapping_export
+  NAMESPACE   Wrapping::
+  FILE        wrapping_export-targets.cmake
+  DESTINATION "${python_destination}/cmake/wrapping"
 )
