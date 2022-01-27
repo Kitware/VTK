@@ -176,7 +176,7 @@ protected:
   std::vector<double> Planes;
 
   // Internal method used to find the position of each plane
-  void ComputePlaneDistances(vtkPolyData* input);
+  void ComputePlaneDistances(vtkPointSet* input);
 
   // Internal method used to create the actual polygons from the set
   // of planes

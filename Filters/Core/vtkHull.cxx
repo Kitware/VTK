@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlanes.h"
 #include "vtkPolyData.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkHull);
 
@@ -44,7 +45,6 @@ void vtkHull::RemoveAllPlanes()
 // away from the center of the hull.
 int vtkHull::AddPlane(double A, double B, double C)
 {
-  double* tmpPointer;
   int i;
   double norm, dotproduct;
 
@@ -451,7 +451,7 @@ int vtkHull::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVect
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType numPoints;
@@ -502,36 +502,44 @@ int vtkHull::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVect
 // by passing a plane with the specified normal through each vertex in the
 // geometry. This plane will have a normal pointing in towards the center of
 // the hull.
-void vtkHull::ComputePlaneDistances(vtkPolyData* input)
+void vtkHull::ComputePlaneDistances(vtkPointSet* input)
 {
-  vtkIdType i;
-  int j;
-  double coord[3];
-  double v;
+  vtkIdType numPts = input->GetNumberOfPoints();
+  int numPlanes = this->GetNumberOfPlanes();
+  std::vector<double>& planes = this->Planes;
 
   // Initialize all planes to the first vertex value
-  input->GetPoint(0, coord);
-  for (j = 0; j < this->GetNumberOfPlanes(); j++)
+  vtkPoints* inPts = input->GetPoints();
   {
-    this->Planes[j * 4 + 3] = -(this->Planes[j * 4 + 0] * coord[0] +
-      this->Planes[j * 4 + 1] * coord[1] + this->Planes[j * 4 + 2] * coord[2]);
-  }
-  // For all other vertices in the geometry, check if it produces a larger
-  // D value for each of the planes.
-  for (i = 1; i < input->GetNumberOfPoints(); i++)
-  {
-    input->GetPoint(i, coord);
-    for (j = 0; j < this->GetNumberOfPlanes(); j++)
+    double coord[3];
+    inPts->GetPoint(0, coord);
+    for (auto j = 0; j < numPlanes; j++)
     {
-      v = -(this->Planes[j * 4 + 0] * coord[0] + this->Planes[j * 4 + 1] * coord[1] +
-        this->Planes[j * 4 + 2] * coord[2]);
-      // negative means further in + direction of plane
-      if (v < this->Planes[j * 4 + 3])
-      {
-        this->Planes[j * 4 + 3] = v;
-      }
+      planes[j * 4 + 3] = -(
+        planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] + planes[j * 4 + 2] * coord[2]);
     }
   }
+
+  // For all other vertices in the geometry, check if it produces a larger
+  // D value for each of the planes. Threaded because for larger models,
+  // looping over all the points for each plane can be a lot of work.
+  vtkSMPTools::For(1, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+    for (; ptId < endPtId; ++ptId)
+    {
+      double v, coord[3];
+      inPts->GetPoint(ptId, coord);
+      for (auto j = 0; j < numPlanes; j++)
+      {
+        v = -(planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] +
+          planes[j * 4 + 2] * coord[2]);
+        // negative means further in + direction of plane
+        if (v < planes[j * 4 + 3])
+        {
+          planes[j * 4 + 3] = v;
+        }
+      }
+    }
+  }); // end lambda
 }
 
 //------------------------------------------------------------------------------
