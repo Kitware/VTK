@@ -34,6 +34,7 @@
 #include "vtkUnicodeStringArray.h"
 #include "vtkVariantArray.h"
 
+#include <algorithm>
 #include <vector>
 
 //
