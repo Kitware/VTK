@@ -224,6 +224,10 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataS
   {
     vtkDataSet* partition = pd->GetPartition(cc);
     *fp << "CHILD " << (partition ? partition->GetDataObjectType() : -1);
+    if (pd->HasMetaData(cc) && pd->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
+    {
+      *fp << " [" << pd->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME()) << "]";
+    }
     *fp << "\n";
 
     if (partition)
@@ -247,6 +251,10 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataS
   {
     vtkPartitionedDataSet* dataset = pd->GetPartitionedDataSet(cc);
     *fp << "CHILD " << (dataset ? dataset->GetDataObjectType() : -1);
+    if (pd->HasMetaData(cc) && pd->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
+    {
+      *fp << " [" << pd->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME()) << "]";
+    }
     *fp << "\n";
 
     if (dataset)
