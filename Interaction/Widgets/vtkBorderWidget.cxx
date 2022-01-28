@@ -226,7 +226,8 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget* w)
 
     if ((borderRepresentation->GetShowVerticalBorder() == vtkBorderRepresentation::BORDER_ACTIVE ||
           borderRepresentation->GetShowHorizontalBorder() ==
-            vtkBorderRepresentation::BORDER_ACTIVE) &&
+            vtkBorderRepresentation::BORDER_ACTIVE ||
+          borderRepresentation->GetShowPolygon() == vtkBorderRepresentation::BORDER_ACTIVE) &&
       stateBefore != stateAfter &&
       (stateBefore == vtkBorderRepresentation::Outside ||
         stateAfter == vtkBorderRepresentation::Outside))
@@ -282,9 +283,18 @@ void vtkBorderWidget::HoverLeaveAction(vtkAbstractWidget* w)
   auto self = vtkBorderWidget::SafeDownCast(w);
 
   auto representation = self->GetBorderRepresentation();
-  if (representation && representation->GetShowBorder() != vtkBorderRepresentation::BORDER_ON)
+  if (representation)
   {
-    representation->SetBWActorDisplayOverlay(false);
+    if (representation->GetShowHorizontalBorder() != vtkBorderRepresentation::BORDER_ON &&
+      representation->GetShowVerticalBorder() != vtkBorderRepresentation::BORDER_ON)
+    {
+      representation->SetBWActorDisplayOverlayEdges(false);
+    }
+    if (representation->GetShowPolygon() != vtkBorderRepresentation::BORDER_ON)
+    {
+      representation->SetBWActorDisplayOverlayPolygon(false);
+    }
+
     representation->SetInteractionState(vtkBorderRepresentation::Outside);
   }
 

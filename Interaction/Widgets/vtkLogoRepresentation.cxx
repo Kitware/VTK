@@ -82,7 +82,7 @@ vtkLogoRepresentation::vtkLogoRepresentation()
   this->Position2Coordinate->SetValue(0.04 * size[0], 0.04 * size[1]);
   this->ProportionalResize = 1;
   this->Moving = 1;
-  this->SetShowBorder(vtkBorderRepresentation::BORDER_ACTIVE);
+  this->SetShowBorderToActive();
   this->PositionCoordinate->SetValue(0.9, 0.025);
   this->Position2Coordinate->SetValue(0.075, 0.075);
 }

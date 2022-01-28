@@ -64,7 +64,7 @@ int TestTextRepresentationWithBorders(int argc, char* argv[])
   rep->SetPolygonOpacity(0.5);
   rep->SetCornerRadiusStrength(0.5);
   rep->SetBorderThickness(5.0);
-  rep->SetShowBorder(true);
+  rep->SetShowBorderToOn();
 
   rep->SetPaddingLeft(30);
   rep->SetPaddingRight(10);

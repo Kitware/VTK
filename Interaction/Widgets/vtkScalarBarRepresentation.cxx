@@ -48,7 +48,7 @@ vtkScalarBarRepresentation::vtkScalarBarRepresentation()
   this->SetScalarBarActor(actor);
   actor->Delete();
 
-  this->SetShowBorder(vtkBorderRepresentation::BORDER_ACTIVE);
+  this->SetShowBorderToActive();
 }
 
 //------------------------------------------------------------------------------

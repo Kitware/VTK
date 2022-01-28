@@ -56,7 +56,7 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
   this->CaptionGlyph->SetCenter(-0.5, 0, 0);
   this->CaptionActor2D->SetLeaderGlyphConnection(this->CaptionGlyph->GetOutputPort());
 
-  this->SetShowBorder(vtkBorderRepresentation::BORDER_OFF);
+  this->SetShowBorderToOff();
   this->FontFactor = 1.0;
 }
 
