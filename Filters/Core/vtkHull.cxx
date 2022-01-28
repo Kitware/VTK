@@ -21,41 +21,30 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlanes.h"
 #include "vtkPolyData.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkHull);
 
-// Construct an the hull object with no planes
-vtkHull::vtkHull()
+//------------------------------------------------------------------------------
+int vtkHull::GetNumberOfPlanes()
 {
-  this->Planes = nullptr;
-  this->PlanesStorageSize = 0;
-  this->NumberOfPlanes = 0;
+  return static_cast<int>(this->Planes.size()) / 4;
 }
 
-// Destructor for a hull object - remove the planes if necessary
-vtkHull::~vtkHull()
-{
-  delete[] this->Planes;
-  this->Planes = nullptr;
-}
-
+//------------------------------------------------------------------------------
 // Remove all planes.
 void vtkHull::RemoveAllPlanes()
 {
-  delete[] this->Planes;
-  this->Planes = nullptr;
-
-  this->PlanesStorageSize = 0;
-  this->NumberOfPlanes = 0;
+  this->Planes.clear();
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 // Add a plane. The vector (A,B,C) is the plane normal and is from the
 // plane equation Ax + By + Cz + D = 0. The normal should point outwards
 // away from the center of the hull.
 int vtkHull::AddPlane(double A, double B, double C)
 {
-  double* tmpPointer;
   int i;
   double norm, dotproduct;
 
@@ -74,7 +63,7 @@ int vtkHull::AddPlane(double A, double B, double C)
   // Check that it is at least somewhat different from the other
   // planes we have so far - can't have a normalized dot product of
   // nearly 1.
-  for (i = 0; i < this->NumberOfPlanes; i++)
+  for (i = 0; i < this->GetNumberOfPlanes(); i++)
   {
     dotproduct =
       A * this->Planes[i * 4 + 0] + B * this->Planes[i * 4 + 1] + C * this->Planes[i * 4 + 2];
@@ -87,48 +76,14 @@ int vtkHull::AddPlane(double A, double B, double C)
     }
   }
 
-  // If adding this plane would put us over the amount of space we've
-  // allocated for planes, then we'll have to allocated some more space
-  if ((this->NumberOfPlanes + 1) >= this->PlanesStorageSize)
-  {
-    // Hang onto the previous set of planes
-    tmpPointer = this->Planes;
-
-    // Increase our storage
-    if (this->PlanesStorageSize <= 0)
-    {
-      this->PlanesStorageSize = 100;
-    }
-    else
-    {
-      this->PlanesStorageSize *= 2;
-    }
-    this->Planes = new double[this->PlanesStorageSize * 4];
-
-    if (!this->Planes)
-    {
-      vtkErrorMacro(<< "Unable to allocate space for planes");
-      this->Planes = tmpPointer;
-      return -VTK_INT_MAX;
-    }
-
-    // Copy the planes and delete the old storage space
-    for (i = 0; i < this->NumberOfPlanes * 4; i++)
-    {
-      this->Planes[i] = tmpPointer[i];
-    }
-    delete[] tmpPointer;
-  }
-
   // Add the plane at the end of the array.
   // The fourth element doesn't actually need to be set, but it
-  // eliminates a purify uninitialized memory copy error if it is set
-  i = this->NumberOfPlanes;
-  this->Planes[i * 4 + 0] = A;
-  this->Planes[i * 4 + 1] = B;
-  this->Planes[i * 4 + 2] = C;
-  this->Planes[i * 4 + 3] = 0.0;
-  this->NumberOfPlanes++;
+  // eliminates a uninitialized memory copy error if it is set.
+  i = this->GetNumberOfPlanes();
+  this->Planes.push_back(A);
+  this->Planes.push_back(B);
+  this->Planes.push_back(C);
+  this->Planes.push_back(0.0);
 
   this->Modified();
 
@@ -136,6 +91,7 @@ int vtkHull::AddPlane(double A, double B, double C)
   return i;
 }
 
+//------------------------------------------------------------------------------
 // Add a plane, passing the plane normal vector as a double array instead
 // of three doubles.
 int vtkHull::AddPlane(double plane[3])
@@ -143,7 +99,8 @@ int vtkHull::AddPlane(double plane[3])
   return this->AddPlane(plane[0], plane[1], plane[2]);
 }
 
-// Set a specific plane - this plane should already have been added with
+//------------------------------------------------------------------------------
+// Set a specific plane - this plane should have already been added with
 // AddPlane, and the return value then used to modify the plane normal
 // with this method.
 void vtkHull::SetPlane(int i, double A, double B, double C)
@@ -151,16 +108,16 @@ void vtkHull::SetPlane(int i, double A, double B, double C)
   double norm;
 
   // Make sure this is a plane that was already added
-  if (i < 0 || i >= this->NumberOfPlanes)
+  if (i < 0 || i >= this->GetNumberOfPlanes())
   {
     vtkErrorMacro(<< "Invalid index in SetPlane");
     return;
   }
 
-  double* plane = this->Planes + i * 4;
+  double* plane = this->Planes.data() + i * 4;
   if (A == plane[0] && B == plane[1] && C == plane[2])
   {
-    return; // no modified
+    return; // not modified
   }
 
   // Set plane that has index i. Normalize the direction,
@@ -178,6 +135,7 @@ void vtkHull::SetPlane(int i, double A, double B, double C)
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 // Set a specific plane (that has already been added) - passing the plane
 // normal as a double array
 void vtkHull::SetPlane(int i, double plane[3])
@@ -185,6 +143,7 @@ void vtkHull::SetPlane(int i, double plane[3])
   this->SetPlane(i, plane[0], plane[1], plane[2]);
 }
 
+//------------------------------------------------------------------------------
 int vtkHull::AddPlane(double A, double B, double C, double D)
 {
   int i, j;
@@ -193,7 +152,7 @@ int vtkHull::AddPlane(double A, double B, double C, double D)
   {
     this->Planes[4 * i + 3] = D;
   }
-  else if (i >= -this->NumberOfPlanes)
+  else if (i >= -this->GetNumberOfPlanes())
   { // pick the D that minimizes the convex set
     j = -i - 1;
     this->Planes[4 * j + 3] = (D > this->Planes[4 * j + 3] ? D : this->Planes[4 * j + 3]);
@@ -201,6 +160,7 @@ int vtkHull::AddPlane(double A, double B, double C, double D)
   return i;
 }
 
+//------------------------------------------------------------------------------
 int vtkHull::AddPlane(double plane[3], double D)
 {
   int i, j;
@@ -209,7 +169,7 @@ int vtkHull::AddPlane(double plane[3], double D)
   {
     this->Planes[4 * i + 3] = D;
   }
-  else if (i >= -this->NumberOfPlanes)
+  else if (i >= -this->GetNumberOfPlanes())
   { // pick the D that minimizes the convex set
     j = -i - 1;
     this->Planes[4 * j + 3] = (D > this->Planes[4 * j + 3] ? D : this->Planes[4 * j + 3]);
@@ -217,11 +177,12 @@ int vtkHull::AddPlane(double plane[3], double D)
   return i;
 }
 
+//------------------------------------------------------------------------------
 void vtkHull::SetPlane(int i, double A, double B, double C, double D)
 {
-  if (i >= 0 && i < this->NumberOfPlanes)
+  if (i >= 0 && i < this->GetNumberOfPlanes())
   {
-    double* plane = this->Planes + 4 * i;
+    double* plane = this->Planes.data() + 4 * i;
     if (plane[0] != A || plane[1] != B || plane[2] != C || plane[3] != D)
     {
       this->SetPlane(i, A, B, C);
@@ -231,11 +192,13 @@ void vtkHull::SetPlane(int i, double A, double B, double C, double D)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkHull::SetPlane(int i, double plane[3], double D)
 {
   this->SetPlane(i, plane[0], plane[1], plane[2], D);
 }
 
+//------------------------------------------------------------------------------
 void vtkHull::SetPlanes(vtkPlanes* planes)
 {
   this->RemoveAllPlanes();
@@ -259,7 +222,7 @@ void vtkHull::SetPlanes(vtkPlanes* planes)
             this->Planes[idx + 1] * point[1] + this->Planes[idx + 2] * point[2]);
         }
 
-        else if (idx >= -this->NumberOfPlanes)
+        else if (idx >= -this->GetNumberOfPlanes())
         { // planes are parallel, take the one that minimizes the convex set
           idx = -4 * (idx + 1);
           double D = -(this->Planes[idx] * point[0] + this->Planes[idx + 1] * point[1] +
@@ -272,6 +235,7 @@ void vtkHull::SetPlanes(vtkPlanes* planes)
   }       // if planes defined
 }
 
+//------------------------------------------------------------------------------
 // Add the six planes that represent the faces on a cube
 void vtkHull::AddCubeFacePlanes()
 {
@@ -283,6 +247,7 @@ void vtkHull::AddCubeFacePlanes()
   this->AddPlane(0.0, 0.0, -1.0);
 }
 
+//------------------------------------------------------------------------------
 // Add the twelve planes that represent the edges on a cube - halfway between
 // the two adjacent face planes
 void vtkHull::AddCubeEdgePlanes()
@@ -301,6 +266,7 @@ void vtkHull::AddCubeEdgePlanes()
   this->AddPlane(0.0, -1.0, -1.0);
 }
 
+//------------------------------------------------------------------------------
 // Add the eight planes that represent the vertices on a cube - partway
 // between the three adjacent face planes.
 void vtkHull::AddCubeVertexPlanes()
@@ -315,6 +281,7 @@ void vtkHull::AddCubeVertexPlanes()
   this->AddPlane(-1.0, -1.0, -1.0);
 }
 
+//------------------------------------------------------------------------------
 // Add the planes that represent the normals of the vertices of a
 // polygonal sphere formed by recursively subdividing the triangles in
 // an octahedron.  Each triangle is subdivided by connecting the
@@ -325,9 +292,6 @@ void vtkHull::AddCubeVertexPlanes()
 void vtkHull::AddRecursiveSpherePlanes(int level)
 {
   int numTriangles;
-  double* points;
-  int* triangles;
-  int* validPoint;
   int triCount, pointCount;
   int i, j, k, loop, limit;
   double midpoint[3][3];
@@ -351,9 +315,9 @@ void vtkHull::AddRecursiveSpherePlanes(int level)
   // Create room for the triangles and points
   // We will also need to keep track of which points are
   // duplicates so keep a validPoint array for this
-  points = new double[3 * numTriangles];
-  triangles = new int[3 * numTriangles];
-  validPoint = new int[3 * numTriangles];
+  std::vector<double> points(3 * numTriangles);
+  std::vector<int> triangles(3 * numTriangles);
+  std::vector<int> validPoint(3 * numTriangles);
 
   // Add the initial points
   i = 0;
@@ -474,12 +438,9 @@ void vtkHull::AddRecursiveSpherePlanes(int level)
       this->AddPlane(points[i * 3 + 0], points[i * 3 + 1], points[i * 3 + 2]);
     }
   }
-
-  delete[] points;
-  delete[] triangles;
-  delete[] validPoint;
 }
 
+//------------------------------------------------------------------------------
 // Create the n-sided convex hull from the input geometry according to the
 // set of planes.
 int vtkHull::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
@@ -490,12 +451,10 @@ int vtkHull::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVect
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType numPoints;
-  vtkPoints* outPoints;
-  vtkCellArray* outPolys;
   const double* bounds = input->GetBounds();
 
   // Get the number of points in the input data
@@ -510,7 +469,7 @@ int vtkHull::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVect
 
   // There should be at least four planes for this to work. There will need
   // to be more planes than four if any of them are parallel.
-  if (this->NumberOfPlanes < 4)
+  if (this->GetNumberOfPlanes() < 4)
   {
     vtkErrorMacro(<< "There must be >= 4 planes!!!\n");
     return 1;
@@ -518,8 +477,8 @@ int vtkHull::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVect
 
   // Create a new set of points and polygons into which the results will
   // be stored
-  outPoints = vtkPoints::New();
-  outPolys = vtkCellArray::New();
+  vtkNew<vtkPoints> outPoints;
+  vtkNew<vtkCellArray> outPolys;
 
   // Compute the D value for each plane according to the vertices in the
   // geometry
@@ -535,49 +494,55 @@ int vtkHull::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVect
   output->SetPoints(outPoints);
   output->SetPolys(outPolys);
 
-  // Delete the temporary storage
-  outPoints->Delete();
-  outPolys->Delete();
-
   return 1;
 }
 
+//------------------------------------------------------------------------------
 // Compute the D value for each plane. This is the largest D value obtained
 // by passing a plane with the specified normal through each vertex in the
 // geometry. This plane will have a normal pointing in towards the center of
 // the hull.
-void vtkHull::ComputePlaneDistances(vtkPolyData* input)
+void vtkHull::ComputePlaneDistances(vtkPointSet* input)
 {
-  vtkIdType i;
-  int j;
-  double coord[3];
-  double v;
+  vtkIdType numPts = input->GetNumberOfPoints();
+  int numPlanes = this->GetNumberOfPlanes();
+  std::vector<double>& planes = this->Planes;
 
   // Initialize all planes to the first vertex value
-  input->GetPoint(0, coord);
-  for (j = 0; j < this->NumberOfPlanes; j++)
+  vtkPoints* inPts = input->GetPoints();
   {
-    this->Planes[j * 4 + 3] = -(this->Planes[j * 4 + 0] * coord[0] +
-      this->Planes[j * 4 + 1] * coord[1] + this->Planes[j * 4 + 2] * coord[2]);
-  }
-  // For all other vertices in the geometry, check if it produces a larger
-  // D value for each of the planes.
-  for (i = 1; i < input->GetNumberOfPoints(); i++)
-  {
-    input->GetPoint(i, coord);
-    for (j = 0; j < this->NumberOfPlanes; j++)
+    double coord[3];
+    inPts->GetPoint(0, coord);
+    for (auto j = 0; j < numPlanes; j++)
     {
-      v = -(this->Planes[j * 4 + 0] * coord[0] + this->Planes[j * 4 + 1] * coord[1] +
-        this->Planes[j * 4 + 2] * coord[2]);
-      // negative means further in + direction of plane
-      if (v < this->Planes[j * 4 + 3])
-      {
-        this->Planes[j * 4 + 3] = v;
-      }
+      planes[j * 4 + 3] = -(
+        planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] + planes[j * 4 + 2] * coord[2]);
     }
   }
+
+  // For all other vertices in the geometry, check if it produces a larger
+  // D value for each of the planes. Threaded because for larger models,
+  // looping over all the points for each plane can be a lot of work.
+  vtkSMPTools::For(1, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+    for (; ptId < endPtId; ++ptId)
+    {
+      double v, coord[3];
+      inPts->GetPoint(ptId, coord);
+      for (auto j = 0; j < numPlanes; j++)
+      {
+        v = -(planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] +
+          planes[j * 4 + 2] * coord[2]);
+        // negative means further in + direction of plane
+        if (v < planes[j * 4 + 3])
+        {
+          planes[j * 4 + 3] = v;
+        }
+      }
+    }
+  }); // end lambda
 }
 
+//------------------------------------------------------------------------------
 // Given the set of planes, create a large polygon for each, then use all the
 // other planes to clip this polygon.
 void vtkHull::ClipPolygonsFromPlanes(
@@ -585,33 +550,31 @@ void vtkHull::ClipPolygonsFromPlanes(
 {
   int i, j, k, q;
   double previousD, d, crosspoint;
-  double *verts, *newVerts, *tmpVerts;
-  int vertCount, newVertCount, oldSize;
-  vtkIdType* pnts;
+  int vertCount, newVertCount;
 
   // Use two arrays to store the vertices of the polygon
-  verts = new double[3 * (this->NumberOfPlanes + 1)];
-  newVerts = new double[3 * (this->NumberOfPlanes + 1)];
+  std::vector<double> verts(3 * (this->GetNumberOfPlanes() + 1));
+  std::vector<double> newVerts(3 * (this->GetNumberOfPlanes() + 1));
 
   // We need an array to store the indices for the polygon
-  oldSize = this->NumberOfPlanes - 1;
-  pnts = static_cast<vtkIdType*>(malloc(sizeof(vtkIdType) * oldSize));
+  std::vector<vtkIdType> pnts(this->GetNumberOfPlanes() - 1);
 
   // We have no vertices yet
   // vertCount = 0;
+  int numPlanes = this->GetNumberOfPlanes();
 
   // For each plane, create a polygon (if it gets completely clipped there
   // won't be a polygon)
-  for (i = 0; i < this->NumberOfPlanes; i++)
+  for (i = 0; i < numPlanes; i++)
   {
     // Create the initial polygon - this is a large square around the
     // projected center of the object (projected onto this plane). We
     // now have four vertices.
-    this->CreateInitialPolygon(verts, i, bounds);
+    this->CreateInitialPolygon(verts.data(), i, bounds);
     vertCount = 4;
 
     // Clip this polygon by each plane.
-    for (j = 0; j < this->NumberOfPlanes; j++)
+    for (j = 0; j < numPlanes; j++)
     {
       // Stop if we have removed too many vertices and no longer have
       // a polygon
@@ -670,39 +633,24 @@ void vtkHull::ClipPolygonsFromPlanes(
 
           previousD = d;
         } // for all vertices of this plane
-        tmpVerts = newVerts;
-        newVerts = verts;
-        verts = tmpVerts;
+        newVerts.swap(verts);
         vertCount = newVertCount;
       }
     } // for each potentially intersecting plane
 
     if (vertCount > 0)
     {
-      if (vertCount > oldSize)
-      {
-        vtkIdType* tmpPointer =
-          static_cast<vtkIdType*>(realloc(pnts, vertCount * sizeof(vtkIdType)));
-        if (tmpPointer == nullptr)
-        {
-          vtkErrorMacro(<< "Unable to allocate space for PointIds");
-        }
-        pnts = tmpPointer;
-        oldSize = vertCount;
-      }
+      pnts.clear();
       for (j = 0; j < vertCount; j++)
       {
-        pnts[j] = outPoints->InsertNextPoint((verts + j * 3));
+        pnts.push_back(outPoints->InsertNextPoint((verts.data() + j * 3)));
       }
-      outPolys->InsertNextCell(vertCount, pnts);
+      outPolys->InsertNextCell(vertCount, pnts.data());
     }
   } // for each plane
-
-  delete[] verts;
-  delete[] newVerts;
-  free(pnts);
 }
 
+//------------------------------------------------------------------------------
 void vtkHull::CreateInitialPolygon(double* verts, int i, const double* bounds)
 {
   double center[3], d, planeCenter[3];
@@ -725,7 +673,7 @@ void vtkHull::CreateInitialPolygon(double* verts, int i, const double* bounds)
   while (dotProduct > 0.99999 || dotProduct < -0.99999)
   {
     j++;
-    if (j >= this->NumberOfPlanes)
+    if (j >= this->GetNumberOfPlanes())
     {
       j = 0;
     }
@@ -774,6 +722,7 @@ void vtkHull::CreateInitialPolygon(double* verts, int i, const double* bounds)
   verts[3 * 3 + 2] = planeCenter[2] + d * v1[2] - d * v2[2];
 }
 
+//------------------------------------------------------------------------------
 void vtkHull::GenerateHull(
   vtkPolyData* pd, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
 {
@@ -788,14 +737,13 @@ void vtkHull::GenerateHull(
   this->GenerateHull(pd, bounds);
 }
 
+//------------------------------------------------------------------------------
 void vtkHull::GenerateHull(vtkPolyData* pd, double* bounds)
 {
-  vtkPoints* newPoints;
-  vtkCellArray* newPolys;
-
   // There should be at least four planes for this to work. There will need
   // to be more planes than four if any of them are parallel.
-  if (this->NumberOfPlanes < 4)
+  int numPlanes = this->GetNumberOfPlanes();
+  if (numPlanes < 4)
   {
     vtkErrorMacro(<< "There must be >= 4 planes!!!");
     return;
@@ -803,31 +751,38 @@ void vtkHull::GenerateHull(vtkPolyData* pd, double* bounds)
 
   // Create a new set of points and polygons into which the results will
   // be stored
-  newPoints = vtkPoints::New();
-  newPoints->Allocate(this->NumberOfPlanes * 3);
-  newPolys = vtkCellArray::New();
-  newPolys->AllocateEstimate(this->NumberOfPlanes, 3);
+  vtkNew<vtkPoints> newPoints;
+  newPoints->Allocate(numPlanes * 3);
+  vtkNew<vtkCellArray> newPolys;
+  newPolys->AllocateEstimate(numPlanes, 3);
 
   this->ClipPolygonsFromPlanes(newPoints, newPolys, bounds);
 
   pd->SetPoints(newPoints);
   pd->SetPolys(newPolys);
-  newPoints->Delete();
-  newPolys->Delete();
 
   pd->Squeeze();
 }
 
+//------------------------------------------------------------------------------
+int vtkHull::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  // now add our info
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 // Print the object
 void vtkHull::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int i;
+  int i, numPlanes = this->GetNumberOfPlanes();
 
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Number Of Planes: " << this->NumberOfPlanes << endl;
+  os << indent << "Number Of Planes: " << numPlanes << endl;
 
-  for (i = 0; i < this->NumberOfPlanes; i++)
+  for (i = 0; i < numPlanes; i++)
   {
     os << indent << "Plane " << i << ":  " << this->Planes[i * 4] << " " << this->Planes[i * 4 + 1]
        << " " << this->Planes[i * 4 + 2] << " " << this->Planes[i * 4 + 3] << endl;
