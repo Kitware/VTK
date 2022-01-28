@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkExtractSelection.h"
 
-#include "vtkAssume.h"
 #include "vtkBlockSelector.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
@@ -35,6 +34,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSelector.h"
 #include "vtkSignedCharArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 #include "vtkUniformGridAMRDataIterator.h"
 #include "vtkUnstructuredGrid.h"
@@ -42,7 +42,6 @@
 
 #include <cassert>
 #include <map>
-#include <memory>
 #include <numeric>
 #include <set>
 #include <vector>
@@ -159,6 +158,7 @@ vtkDataObject::AttributeTypes vtkExtractSelection::GetAttributeTypeOfSelection(
 
 namespace
 {
+//----------------------------------------------------------------------------
 void InvertSelection(vtkSignedCharArray* array)
 {
   const vtkIdType n = array->GetNumberOfTuples();
@@ -169,6 +169,37 @@ void InvertSelection(vtkSignedCharArray* array)
     }
   });
 }
+
+//----------------------------------------------------------------------------
+// Remove all selection nodes that their propId = vtkSelectionNode::PROCESS_ID()
+// is not the same as the processId = vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER().
+void vtkTrimSelection(vtkSelection* input, int processId)
+{
+  if (input)
+  {
+    unsigned int numNodes = input->GetNumberOfNodes();
+    for (unsigned int cc = 0; cc < numNodes; cc++)
+    {
+      vtkSelectionNode* node = input->GetNode(cc);
+      int propId = (node->GetProperties()->Has(vtkSelectionNode::PROCESS_ID()))
+        ? node->GetProperties()->Get(vtkSelectionNode::PROCESS_ID())
+        : -1;
+      if (propId != -1 && processId != -1 && propId != processId)
+      {
+        input->RemoveNode(node);
+      }
+    }
+  }
+}
+}
+
+//------------------------------------------------------------------------------
+int vtkExtractSelection::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+{
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+  return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -178,6 +209,7 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* input = vtkDataObject::GetData(inputVector[0], 0);
   vtkSelection* selection = vtkSelection::GetData(inputVector[1], 0);
   vtkDataObject* output = vtkDataObject::GetData(outputVector, 0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // If no input, error
   if (!input)
@@ -188,6 +220,19 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
 
   // If no selection, quietly select nothing
   if (!selection)
+  {
+    return 1;
+  }
+
+  // preserve only nodes that their processId matches the current processId
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+  {
+    int processId = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    vtkTrimSelection(selection, processId);
+  }
+
+  // check for empty selection
+  if (selection->GetNumberOfNodes() == 0)
   {
     return 1;
   }
