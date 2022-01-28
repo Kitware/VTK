@@ -68,7 +68,7 @@ void vtkStreamSurface::PrintSelf(ostream& os, vtkIndent indent)
 int vtkStreamSurface::AdvectIterative(
   vtkDataObject* field, vtkPolyData* seeds, int integrationDirection, vtkPolyData* output)
 {
-  vtkDataSet* dataset;
+  vtkDataSet* dataset = nullptr;
 
   // adapt dist if cell unit was selected
   double distThreshold = this->InitialIntegrationStep;
@@ -344,7 +344,7 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
 
   // make output
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet* dataset;
+  vtkDataSet* dataset = nullptr;
 
   if (field->IsA("vtkDataSet"))
   {
