@@ -144,11 +144,6 @@ protected:
   Private* Storage;
   ///@}
 
-  /**
-   * The point cache is marked dirty until it has been initialized.
-   */
-  vtkTimeStamp BuildTime;
-
   ///@{
   /**
    * Lookup Table for coloring points by scalar value

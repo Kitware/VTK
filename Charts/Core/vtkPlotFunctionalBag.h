@@ -144,11 +144,6 @@ protected:
   virtual bool CacheRequiresUpdate() override;
 
   /**
-   * The cache is marked dirty until it has been initialized.
-   */
-  vtkTimeStamp BuildTime;
-
-  /**
    * Lookup Table for coloring points by scalar value
    */
   vtkScalarsToColors* LookupTable;

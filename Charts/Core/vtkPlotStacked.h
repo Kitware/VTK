@@ -156,11 +156,6 @@ protected:
    */
   vtkIdTypeArray* ExtentBadPoints;
 
-  /**
-   * The point cache is marked dirty until it has been initialized.
-   */
-  vtkTimeStamp BuildTime;
-
   bool LogX, LogY;
 
   /**
