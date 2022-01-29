@@ -115,12 +115,28 @@ static void CreateImplFile(const char* libName, const char* importName, int numD
     fprintf(fout, "  {\n");
     fprintf(fout, "    if (!vtkPythonUtil::ImportModule(depends[i], d))\n");
     fprintf(fout, "    {\n");
+    fprintf(fout, "#ifdef VTK_PY3K\n");
+    fprintf(fout, "      Py_DECREF(m);\n");
+    fprintf(fout, "#endif\n");
     fprintf(fout,
       "      return PyErr_Format(PyExc_ImportError,\n"
       "        \"Failed to load %s: No module named %%s\",\n"
       "        depends[i]);\n",
       libName);
     fprintf(fout, "    }\n");
+    fprintf(fout, "  }\n\n");
+
+    /* vtkPythonUtil should have been initialized by one of our dependencies */
+    fprintf(fout, "  if (!vtkPythonUtil::IsInitialized())\n");
+    fprintf(fout, "  {\n");
+    fprintf(fout, "#ifdef VTK_PY3K\n");
+    fprintf(fout, "    Py_DECREF(m);\n");
+    fprintf(fout, "#endif\n");
+    fprintf(fout,
+      "    return PyErr_Format(PyExc_ImportError,\n"
+      "      \"Initialization failed for %s, not compatible with %%s\",\n"
+      "      depends[0]);\n",
+      libName);
     fprintf(fout, "  }\n\n");
   }
   else
