@@ -42,7 +42,7 @@ import re
 import argparse
 import builtins
 import inspect
-import importlib
+import importlib.util
 
 
 # ==== For type inspection ====
