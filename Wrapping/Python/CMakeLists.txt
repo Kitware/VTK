@@ -200,6 +200,47 @@ endif ()
 list(APPEND _vtk_python_files
   ${python_copied_modules})
 
+set(_vtk_python_pyi_files)
+set(_vtk_python_module_targets)
+foreach (_vtk_python_module IN LISTS vtk_python_wrapped_modules)
+  get_property(_vtk_python_library_name
+    TARGET    "${_vtk_python_module}"
+    PROPERTY  "INTERFACE_vtk_module_library_name")
+  list(APPEND _vtk_python_pyi_files
+    "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/${_vtk_python_library_name}.pyi")
+  if (TARGET "${_vtk_python_library_name}Python")
+    list(APPEND _vtk_python_module_targets "${_vtk_python_library_name}Python")
+  endif ()
+endforeach ()
+
+if (TARGET vtkpython)
+  set(_vtk_python_exe "$<TARGET_FILE:VTK::vtkpython>")
+else ()
+  set(_vtk_python_exe "${Python3_EXECUTABLE}")
+endif ()
+
+set(_vtk_pyi_script "${VTK_SOURCE_DIR}/Utilities/Maintenance/vtk_generate_pyi.py")
+add_custom_command(
+  OUTPUT    ${_vtk_python_pyi_files}
+  COMMAND   "${CMAKE_COMMAND}" -E env
+            "PYTHONPATH=${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+            "${_vtk_python_exe}"
+            "${_vtk_pyi_script}"
+            -p vtkmodules
+  DEPENDS   ${_vtk_python_module_targets}
+  COMMENT   "Creating .pyi files for Python modules."
+  COMPONENT "python")
+
+if (BUILD_SHARED_LIBS)
+  install(
+    FILES       ${_vtk_python_pyi_files}
+    DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules"
+    COMPONENT   "python")
+endif ()
+
+list(APPEND _vtk_python_files
+  ${_python_pyi_files})
+
 set(_vtk_python_zip)
 if (NOT BUILD_SHARED_LIBS)
   set(_vtk_python_zip "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/_vtk.zip")
@@ -219,6 +260,7 @@ endif ()
 add_custom_target(vtk_python_copy ALL
   DEPENDS
     ${python_copied_modules}
+    ${_vtk_python_pyi_files}
     ${_vtk_python_zip})
 
 if (VTK_BUILD_TESTING)
