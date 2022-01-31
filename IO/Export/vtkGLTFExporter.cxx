@@ -474,8 +474,16 @@ void WriteMaterial(Json::Value& materials, int textureIndex, bool haveTexture, v
   model["baseColorFactor"].append(dcolor[1]);
   model["baseColorFactor"].append(dcolor[2]);
   model["baseColorFactor"].append(prop->GetOpacity());
-  model["metallicFactor"] = prop->GetSpecular();
-  model["roughnessFactor"] = 1.0 / (1.0 + prop->GetSpecular() * 0.2 * prop->GetSpecularPower());
+  if (prop->GetInterpolation() == VTK_PBR)
+  {
+    model["metallicFactor"] = prop->GetMetallic();
+    model["roughnessFactor"] = prop->GetRoughness();
+  }
+  else
+  {
+    model["metallicFactor"] = prop->GetSpecular();
+    model["roughnessFactor"] = 1.0 / (1.0 + prop->GetSpecular() * 0.2 * prop->GetSpecularPower());
+  }
   mat["pbrMetallicRoughness"] = model;
   materials.append(mat);
 }
