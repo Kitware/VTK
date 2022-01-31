@@ -173,6 +173,8 @@ setup(
             '*.pyd',
             # Windows shared libraries.
             '*.dll',
+            # Type information stubs
+            '*.pyi',
         ],
     },
     cmdclass={
