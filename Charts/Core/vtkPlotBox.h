@@ -142,11 +142,6 @@ protected:
   ///@}
 
   /**
-   * The point cache is marked dirty until it has been initialized.
-   */
-  vtkTimeStamp BuildTime;
-
-  /**
    * Width of boxes.
    */
   float BoxWidth;

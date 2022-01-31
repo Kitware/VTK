@@ -117,11 +117,6 @@ protected:
    */
   vtkPoints2D* Points;
 
-  /**
-   * The point cache is marked dirty until it has been initialized.
-   */
-  vtkTimeStamp BuildTime;
-
 private:
   vtkPlotPie(const vtkPlotPie&) = delete;
   void operator=(const vtkPlotPie&) = delete;
