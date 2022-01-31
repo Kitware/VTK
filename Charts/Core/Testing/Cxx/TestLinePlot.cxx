@@ -37,18 +37,18 @@ public:
   static vtkStdString GetYName() { return "Sine2"; }
 
 protected:
-  virtual int RequestData(vtkInformation* vtkNotUsed(request),
+  int RequestData(vtkInformation* vtkNotUsed(request),
     vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector) override
   {
     vtkTable* output = vtkTable::GetData(outputVector, 0);
 
     vtkNew<vtkFloatArray> x_arr;
     x_arr->SetNumberOfComponents(1);
-    x_arr->SetName(this->GetXName());
+    x_arr->SetName(vtkTestSineTableSource::GetXName());
 
     vtkNew<vtkFloatArray> y_arr;
     y_arr->SetNumberOfComponents(1);
-    y_arr->SetName(this->GetYName());
+    y_arr->SetName(vtkTestSineTableSource::GetYName());
 
     output->AddColumn(x_arr);
     output->AddColumn(y_arr);

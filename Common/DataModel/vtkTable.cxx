@@ -515,7 +515,7 @@ void vtkTable::InsertColumn(vtkAbstractArray* arr, vtkIdType index)
     this->RowData->RemoveArray(0);
   }
 
-  for (int c = 0; c < store.size(); c++)
+  for (unsigned long c = 0; c < store.size(); c++)
   {
     this->RowData->AddArray(store[c]);
   }
