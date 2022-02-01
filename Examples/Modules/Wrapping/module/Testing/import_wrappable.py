@@ -1,4 +1,4 @@
 from wrapping import vtkWrappable
 
-wrap = vtkWrappable.vtkWrappable()
+wrap = vtkWrappable.vtkWrapped()
 assert wrap.GetString() == 'wrapped'

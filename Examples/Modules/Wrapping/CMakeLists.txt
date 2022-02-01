@@ -44,11 +44,43 @@ vtk_module_build(MODULES ${modules})
 # Wrap it with Python.
 vtk_module_wrap_python(
   MODULES         ${modules}
+  TARGET          Wrapping::WrappablePython
+  WRAPPED_MODULES wrapping_modules
+  INSTALL_EXPORT  wrapping_export
   PYTHON_PACKAGE  "wrapping"
-  MODULE_DESTINATION "${python_destination}"
+  MODULE_DESTINATION  "${python_destination}"
+  CMAKE_DESTINATION   "${CMAKE_INSTALL_LIBDIR}/cmake/WrappingPython"
+  LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   # Static Python modules are almost never wanted.
   BUILD_STATIC    OFF
   INSTALL_HEADERS OFF)
 
-# Create an `__init__.py` for the wrapped module.
-file(WRITE "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py" "")
+# Create an `__init__.py` containing wrapped filters.
+set(python_modules)
+foreach(module ${modules})
+  _vtk_module_get_module_property("${module}"
+    PROPERTY  "library_name"
+    VARIABLE  library_name)
+  list(APPEND python_modules "'${library_name}'")
+endforeach()
+
+list(JOIN python_modules ,  python_modules_string)
+set(InitContent "__all__ = [${python_modules_string}]\n")
+file(GENERATE
+  OUTPUT  "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
+  CONTENT "${InitContent}")
+install(
+  FILES       "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
+  DESTINATION "${python_destination}/wrapping/")
+
+# Install the module
+export(
+  EXPORT    wrapping_export
+  NAMESPACE Wrapping::
+  FILE      "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/wrapping_export-targets.cmake")
+install(
+  EXPORT      wrapping_export
+  NAMESPACE   Wrapping::
+  FILE        wrapping_export-targets.cmake
+  DESTINATION "${python_destination}/cmake/wrapping"
+)
