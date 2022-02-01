@@ -245,6 +245,12 @@ void vtkPythonUtil::Initialize()
 }
 
 //------------------------------------------------------------------------------
+bool vtkPythonUtil::IsInitialized()
+{
+  return (vtkPythonMap != nullptr);
+}
+
+//------------------------------------------------------------------------------
 void vtkPythonUtil::RegisterPythonCommand(vtkPythonCommand* cmd)
 {
   if (cmd)

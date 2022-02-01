@@ -56,6 +56,11 @@ public:
   static void Initialize();
 
   /**
+   * Check whether the Python wrappers have been initialized.
+   */
+  static bool IsInitialized();
+
+  /**
    * If the name is templated or mangled, converts it into
    * a python-printable name.
    */
