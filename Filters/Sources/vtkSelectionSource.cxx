@@ -21,7 +21,6 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
-#include "vtkSelectionNode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -30,27 +29,52 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
-class vtkSelectionSource::vtkInternals
+struct vtkSelectionSource::NodeInformation
 {
-public:
   using IDSetType = std::set<vtkIdType>;
   using IDsType = std::vector<IDSetType>;
+  using StringSetType = std::set<std::string>;
+  using StringIDsType = std::vector<StringSetType>;
+
+  std::string Name;
+  int ContentType;
+
+  // data that defines the selection node
+  std::string ArrayName;
+  int ArrayComponent;
   IDsType IDs;
-
-  using StringIDSetType = std::set<std::string>;
-  using StringIDsType = std::vector<StringIDSetType>;
   StringIDsType StringIDs;
-
   std::vector<double> Thresholds;
   std::vector<double> Locations;
-
-  IDSetType Blocks;
   double Frustum[32];
+  IDSetType Blocks;
+  StringSetType BlockSelectors;
+  std::string QueryString;
 
-  std::vector<std::string> BlockSelectors;
-  std::vector<std::string> Selectors; //< Qualifiers
+  // Composite qualifiers
+  int CompositeIndex;
+  int HierarchicalLevel;
+  int HierarchicalIndex;
+  std::string AssemblyName;
+  StringSetType Selectors;
 
-  vtkInternals() { std::fill_n(this->Frustum, 32, 0); }
+  // Remaining qualifiers
+  bool ContainingCells;
+  bool Inverse;
+  int NumberOfLayers;
+
+  NodeInformation()
+    : ContentType(vtkSelectionNode::INDICES)
+    , ContainingCells(false)
+    , Inverse(false)
+    , CompositeIndex(-1)
+    , HierarchicalLevel(-1)
+    , HierarchicalIndex(-1)
+    , ArrayComponent(0)
+    , NumberOfLayers(0)
+  {
+    std::fill_n(this->Frustum, 32, 0);
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -59,115 +83,241 @@ vtkStandardNewMacro(vtkSelectionSource);
 //------------------------------------------------------------------------------
 vtkSelectionSource::vtkSelectionSource()
   : FieldTypeOption(FieldTypeOptions::FIELD_TYPE)
-  , ProcessID(-1)
-  , ContentType(vtkSelectionNode::INDICES)
   , FieldType(vtkSelectionNode::CELL)
   , ElementType(vtkDataObject::CELL)
-  , ContainingCells(true)
-  , Inverse(false)
-  , CompositeIndex(-1)
-  , HierarchicalLevel(-1)
-  , HierarchicalIndex(-1)
-  , ArrayName(nullptr)
-  , ArrayComponent(0)
-  , QueryString(nullptr)
-  , NumberOfLayers(0)
-  , AssemblyName(nullptr)
-  , Internal(new vtkSelectionSource::vtkInternals())
+  , ProcessID(-1)
 {
+  this->NodesInfo.push_back(std::make_shared<NodeInformation>());
   this->SetNumberOfInputPorts(0);
 }
 
 //------------------------------------------------------------------------------
 vtkSelectionSource::~vtkSelectionSource()
 {
-  delete this->Internal;
-  delete[] this->ArrayName;
-  delete[] this->QueryString;
-  delete[] this->AssemblyName;
+  this->NodesInfo.clear();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::RemoveAllIDs()
+void vtkSelectionSource::SetNumberOfNodes(unsigned int numberOfNodes)
 {
-  this->Internal->IDs.clear();
+  if (numberOfNodes == this->NodesInfo.size())
+  {
+    return;
+  }
+
+  this->NodesInfo.resize(numberOfNodes);
+  for (auto& nodeInfo : this->NodesInfo)
+  {
+    if (!nodeInfo)
+    {
+      nodeInfo = std::make_shared<NodeInformation>();
+    }
+  }
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::RemoveAllStringIDs()
+void vtkSelectionSource::RemoveNode(unsigned int idx)
 {
-  this->Internal->StringIDs.clear();
+  if (idx >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << idx);
+    return;
+  }
+  this->NodesInfo.erase(this->NodesInfo.begin() + idx);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::RemoveAllLocations()
+void vtkSelectionSource::RemoveNode(const char* name)
 {
-  this->Internal->Locations.clear();
+  for (unsigned int i = 0; i < this->GetNumberOfNodes(); ++i)
+  {
+    if (this->NodesInfo[i]->Name == name)
+    {
+      this->RemoveNode(i--);
+      return;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllNodes()
+{
+  this->NodesInfo.clear();
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::RemoveAllThresholds()
+void vtkSelectionSource::SetNodeName(unsigned int nodeId, const char* name)
 {
-  this->Internal->Thresholds.clear();
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  const std::string safeNodeName = name ? name : "";
+  if (safeNodeName.empty())
+  {
+    return;
+  }
+  if (std::find_if(this->NodesInfo.begin(), this->NodesInfo.end(),
+        [&safeNodeName](const std::shared_ptr<NodeInformation>& nodeInfo) {
+          return nodeInfo->Name == safeNodeName;
+        }) != this->NodesInfo.end())
+  {
+    vtkErrorMacro("Node name already exists: " << safeNodeName);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->Name != safeNodeName)
+  {
+    this->NodesInfo[nodeId]->Name = safeNodeName;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+const char* vtkSelectionSource::GetNodeName(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return nullptr;
+  }
+  return this->NodesInfo[nodeId]->Name.c_str();
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllIDs(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  this->NodesInfo[nodeId]->IDs.clear();
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::AddID(vtkIdType proc, vtkIdType id)
+void vtkSelectionSource::RemoveAllStringIDs(unsigned int nodeId)
 {
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  this->NodesInfo[nodeId]->StringIDs.clear();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllLocations(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  this->NodesInfo[nodeId]->Locations.clear();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllThresholds(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  this->NodesInfo[nodeId]->Thresholds.clear();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::AddID(unsigned int nodeId, vtkIdType proc, vtkIdType id)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
   // proc == -1 means all processes. All others are stored at index proc+1
   proc++;
 
-  if (proc >= (vtkIdType)this->Internal->IDs.size())
+  if (proc >= (vtkIdType)this->NodesInfo[nodeId]->IDs.size())
   {
-    this->Internal->IDs.resize(proc + 1);
+    this->NodesInfo[nodeId]->IDs.resize(proc + 1);
   }
-  this->Internal->IDs[proc].insert(id);
+  this->NodesInfo[nodeId]->IDs[proc].insert(id);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::AddStringID(vtkIdType proc, const char* id)
+void vtkSelectionSource::AddStringID(unsigned int nodeId, vtkIdType proc, const char* id)
 {
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  const std::string safeId = id ? id : "";
+  if (safeId.empty())
+  {
+    return;
+  }
   // proc == -1 means all processes. All others are stored at index proc+1
   proc++;
 
-  if (proc >= (vtkIdType)this->Internal->StringIDs.size())
+  if (proc >= (vtkIdType)this->NodesInfo[nodeId]->StringIDs.size())
   {
-    this->Internal->StringIDs.resize(proc + 1);
+    this->NodesInfo[nodeId]->StringIDs.resize(proc + 1);
   }
-  this->Internal->StringIDs[proc].insert(id);
+  this->NodesInfo[nodeId]->StringIDs[proc].insert(safeId);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::AddLocation(double x, double y, double z)
+void vtkSelectionSource::AddLocation(unsigned int nodeId, double x, double y, double z)
 {
-  this->Internal->Locations.push_back(x);
-  this->Internal->Locations.push_back(y);
-  this->Internal->Locations.push_back(z);
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  this->NodesInfo[nodeId]->Locations.push_back(x);
+  this->NodesInfo[nodeId]->Locations.push_back(y);
+  this->NodesInfo[nodeId]->Locations.push_back(z);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::AddThreshold(double min, double max)
+void vtkSelectionSource::AddThreshold(unsigned int nodeId, double min, double max)
 {
-  this->Internal->Thresholds.push_back(min);
-  this->Internal->Thresholds.push_back(max);
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  this->NodesInfo[nodeId]->Thresholds.push_back(min);
+  this->NodesInfo[nodeId]->Thresholds.push_back(max);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::SetFrustum(double* vertices)
+void vtkSelectionSource::SetFrustum(unsigned int nodeId, double* vertices)
 {
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
   for (int cc = 0; cc < 32; cc++)
   {
-    if (vertices[cc] != this->Internal->Frustum[cc])
+    if (vertices[cc] != this->NodesInfo[nodeId]->Frustum[cc])
     {
-      memcpy(this->Internal->Frustum, vertices, 32 * sizeof(double));
+      memcpy(this->NodesInfo[nodeId]->Frustum, vertices, 32 * sizeof(double));
       this->Modified();
       break;
     }
@@ -175,57 +325,404 @@ void vtkSelectionSource::SetFrustum(double* vertices)
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::AddBlock(vtkIdType block)
+void vtkSelectionSource::AddBlock(unsigned int nodeId, vtkIdType block)
 {
-  this->Internal->Blocks.insert(block);
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  this->NodesInfo[nodeId]->Blocks.insert(block);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::RemoveAllBlocks()
+void vtkSelectionSource::RemoveAllBlocks(unsigned int nodeId)
 {
-  this->Internal->Blocks.clear();
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  this->NodesInfo[nodeId]->Blocks.clear();
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::AddSelector(const char* selector)
+void vtkSelectionSource::AddBlockSelector(unsigned int nodeId, const char* selector)
 {
-  if (selector)
+  if (nodeId >= this->NodesInfo.size())
   {
-    this->Internal->Selectors.emplace_back(selector);
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  const std::string safeBlockSelectorName = selector ? selector : "";
+  if (safeBlockSelectorName.empty())
+  {
+    return;
+  }
+  this->NodesInfo[nodeId]->BlockSelectors.insert(safeBlockSelectorName);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllBlockSelectors(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (!this->NodesInfo[nodeId]->BlockSelectors.empty())
+  {
+    this->NodesInfo[nodeId]->BlockSelectors.clear();
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::RemoveAllSelectors()
+void vtkSelectionSource::SetContentType(unsigned int nodeId, int contentType)
 {
-  if (!this->Internal->Selectors.empty())
+  if (nodeId >= this->NodesInfo.size())
   {
-    this->Internal->Selectors.clear();
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->ContentType !=
+    (contentType < vtkSelectionNode::SelectionContent::GLOBALIDS
+        ? vtkSelectionNode::SelectionContent::GLOBALIDS
+        : (contentType > vtkSelectionNode::SelectionContent::USER
+              ? vtkSelectionNode::SelectionContent::USER
+              : contentType)))
+  {
+    this->NodesInfo[nodeId]->ContentType =
+      (contentType < vtkSelectionNode::SelectionContent::GLOBALIDS
+          ? vtkSelectionNode::SelectionContent::GLOBALIDS
+          : (contentType > vtkSelectionNode::SelectionContent::USER
+                ? vtkSelectionNode::SelectionContent::USER
+                : contentType));
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::AddBlockSelector(const char* selector)
+int vtkSelectionSource::GetContentType(unsigned int nodeId)
 {
-  if (selector)
+  if (nodeId >= this->NodesInfo.size())
   {
-    this->Internal->BlockSelectors.emplace_back(selector);
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return 0;
+  }
+  return this->NodesInfo[nodeId]->ContentType;
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetContainingCells(unsigned int nodeId, vtkTypeBool containingCells)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->ContainingCells != static_cast<bool>(containingCells))
+  {
+    this->NodesInfo[nodeId]->ContainingCells = static_cast<bool>(containingCells);
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkSelectionSource::RemoveAllBlockSelectors()
+vtkTypeBool vtkSelectionSource::GetContainingCells(unsigned int nodeId)
 {
-  if (!this->Internal->BlockSelectors.empty())
+  if (nodeId >= this->NodesInfo.size())
   {
-    this->Internal->BlockSelectors.clear();
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return false;
+  }
+  return static_cast<vtkTypeBool>(this->NodesInfo[nodeId]->ContainingCells);
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetNumberOfLayers(unsigned int nodeId, int numberOfLayers)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->NumberOfLayers !=
+    (numberOfLayers < 0 ? 0 : (numberOfLayers > VTK_INT_MAX ? VTK_INT_MAX : numberOfLayers)))
+  {
+    this->NodesInfo[nodeId]->NumberOfLayers =
+      (numberOfLayers < 0 ? 0 : (numberOfLayers > VTK_INT_MAX ? VTK_INT_MAX : numberOfLayers));
     this->Modified();
   }
+}
+
+//------------------------------------------------------------------------------
+int vtkSelectionSource::GetNumberOfLayers(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return 0;
+  }
+  return this->NodesInfo[nodeId]->NumberOfLayers;
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetInverse(unsigned int nodeId, vtkTypeBool inverse)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->Inverse != static_cast<bool>(inverse))
+  {
+    this->NodesInfo[nodeId]->Inverse = static_cast<bool>(inverse);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkSelectionSource::GetInverse(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return false;
+  }
+  return static_cast<vtkTypeBool>(this->NodesInfo[nodeId]->Inverse);
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetArrayName(unsigned int nodeId, const char* arrayName)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  const std::string safeArrayName = arrayName ? arrayName : "";
+  if (safeArrayName.empty())
+  {
+    return;
+  }
+  if (this->NodesInfo[nodeId]->ArrayName != safeArrayName)
+  {
+    this->NodesInfo[nodeId]->ArrayName = safeArrayName;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+const char* vtkSelectionSource::GetArrayName(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return nullptr;
+  }
+  return this->NodesInfo[nodeId]->ArrayName.c_str();
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetArrayComponent(unsigned int nodeId, int arrayComponent)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->ArrayComponent != arrayComponent)
+  {
+    this->NodesInfo[nodeId]->ArrayComponent = arrayComponent;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkSelectionSource::GetArrayComponent(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return 0;
+  }
+  return this->NodesInfo[nodeId]->ArrayComponent;
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetCompositeIndex(unsigned int nodeId, int index)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->CompositeIndex != index)
+  {
+    this->NodesInfo[nodeId]->CompositeIndex = index;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkSelectionSource::GetCompositeIndex(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return 0;
+  }
+  return this->NodesInfo[nodeId]->CompositeIndex;
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetHierarchicalLevel(unsigned int nodeId, int level)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->HierarchicalLevel != level)
+  {
+    this->NodesInfo[nodeId]->HierarchicalLevel = level;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkSelectionSource::GetHierarchicalLevel(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return 0;
+  }
+  return this->NodesInfo[nodeId]->HierarchicalLevel;
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetHierarchicalIndex(unsigned int nodeId, int index)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (this->NodesInfo[nodeId]->HierarchicalIndex != index)
+  {
+    this->NodesInfo[nodeId]->HierarchicalIndex = index;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkSelectionSource::GetHierarchicalIndex(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return 0;
+  }
+  return this->NodesInfo[nodeId]->HierarchicalIndex;
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetAssemblyName(unsigned int nodeId, const char* name)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  const std::string safeAssemblyName = name ? name : "";
+  if (safeAssemblyName.empty())
+  {
+    return;
+  }
+  if (this->NodesInfo[nodeId]->AssemblyName != safeAssemblyName)
+  {
+    this->NodesInfo[nodeId]->AssemblyName = safeAssemblyName;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+const char* vtkSelectionSource::GetAssemblyName(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return nullptr;
+  }
+  return this->NodesInfo[nodeId]->AssemblyName.c_str();
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::AddSelector(unsigned int nodeId, const char* selector)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  const std::string safeSelectorName = selector ? selector : "";
+  if (safeSelectorName.empty())
+  {
+    return;
+  }
+  this->NodesInfo[nodeId]->Selectors.insert(safeSelectorName);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllSelectors(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  if (!this->NodesInfo[nodeId]->Selectors.empty())
+  {
+    this->NodesInfo[nodeId]->Selectors.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetQueryString(unsigned int nodeId, const char* queryString)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return;
+  }
+  const std::string safeQueryString = queryString ? queryString : "";
+  if (safeQueryString.empty())
+  {
+    return;
+  }
+  if (this->NodesInfo[nodeId]->QueryString != safeQueryString)
+  {
+    this->NodesInfo[nodeId]->QueryString = safeQueryString;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+const char* vtkSelectionSource::GetQueryString(unsigned int nodeId)
+{
+  if (nodeId >= this->NodesInfo.size())
+  {
+    vtkErrorMacro("Invalid node id: " << nodeId);
+    return nullptr;
+  }
+  return this->NodesInfo[nodeId]->QueryString.c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -235,25 +732,35 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FieldTypeOption: "
      << (this->FieldTypeOption == FieldTypeOptions::FIELD_TYPE ? "FieldType" : "ElementType")
      << endl;
+  if (this->FieldTypeOption == FieldTypeOptions::FIELD_TYPE)
+  {
+    os << indent << "FieldType: " << vtkSelectionNode::GetFieldTypeAsString(this->FieldType)
+       << endl;
+  }
+  else
+  {
+    os << indent << "ElementType: "
+       << vtkSelectionNode::GetFieldTypeAsString(
+            vtkSelectionNode::ConvertAttributeTypeToSelectionField(this->ElementType))
+       << endl;
+  }
   os << indent << "ProcessID: " << this->ProcessID << endl;
-  os << indent << "ContentType: " << vtkSelectionNode::GetContentTypeAsString(this->ContentType)
-     << endl;
-  os << indent << "FieldType: " << vtkSelectionNode::GetFieldTypeAsString(this->FieldType) << endl;
-  os << indent << "ElementType: "
-     << vtkSelectionNode::GetFieldTypeAsString(
-          vtkSelectionNode::ConvertAttributeTypeToSelectionField(this->ElementType))
-     << endl;
-  os << indent << "ContainingCells: " << (this->ContainingCells ? "CELLS" : "POINTS") << endl;
-  os << indent << "Inverse: " << this->Inverse << endl;
-  os << indent << "ArrayName: " << (this->ArrayName ? this->ArrayName : "(nullptr)") << endl;
-  os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
-  os << indent << "CompositeIndex: " << this->CompositeIndex << endl;
-  os << indent << "HierarchicalLevel: " << this->HierarchicalLevel << endl;
-  os << indent << "HierarchicalIndex: " << this->HierarchicalIndex << endl;
-  os << indent << "QueryString: " << (this->QueryString ? this->QueryString : "(nullptr)") << endl;
-  os << indent << "NumberOfLayers: " << this->NumberOfLayers << endl;
-  os << indent << "AssemblyName: " << (this->AssemblyName ? this->AssemblyName : "(nullptr)")
-     << endl;
+  for (const auto& nodeInfo : this->NodesInfo)
+  {
+    os << indent
+       << "ContentType: " << vtkSelectionNode::GetContentTypeAsString(nodeInfo->ContentType)
+       << endl;
+    os << indent << "ContainingCells: " << (nodeInfo->ContainingCells ? "Yes" : "No") << endl;
+    os << indent << "Inverse: " << (nodeInfo->Inverse ? "Yes" : "No") << endl;
+    os << indent << "ArrayName: " << nodeInfo->ArrayName << endl;
+    os << indent << "ArrayComponent: " << nodeInfo->ArrayComponent << endl;
+    os << indent << "CompositeIndex: " << nodeInfo->CompositeIndex << endl;
+    os << indent << "HierarchicalLevel: " << nodeInfo->HierarchicalLevel << endl;
+    os << indent << "HierarchicalIndex: " << nodeInfo->HierarchicalIndex << endl;
+    os << indent << "QueryString: " << nodeInfo->QueryString << endl;
+    os << indent << "NumberOfLayers: " << nodeInfo->NumberOfLayers << endl;
+    os << indent << "AssemblyName: " << nodeInfo->AssemblyName << endl;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -270,258 +777,277 @@ int vtkSelectionSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkSelection* outputSel = vtkSelection::GetData(outputVector);
-  vtkNew<vtkSelectionNode> output;
-  outputSel->AddNode(output);
-  vtkInformation* oProperties = output->GetProperties();
-
+  if (!this->Expression.empty())
+  {
+    outputSel->SetExpression(this->Expression);
+  }
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  int piece = 0;
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
-  {
-    piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    if (this->ProcessID >= 0)
-    {
-      oProperties->Set(vtkSelectionNode::PROCESS_ID(), this->ProcessID);
-    }
-  }
 
-  if (this->CompositeIndex >= 0)
-  {
-    oProperties->Set(vtkSelectionNode::COMPOSITE_INDEX(), this->CompositeIndex);
-  }
-
-  if (this->HierarchicalLevel >= 0 && this->HierarchicalIndex >= 0)
-  {
-    oProperties->Set(vtkSelectionNode::HIERARCHICAL_LEVEL(), this->HierarchicalLevel);
-    oProperties->Set(vtkSelectionNode::HIERARCHICAL_INDEX(), this->HierarchicalIndex);
-  }
-
-  if (this->AssemblyName != nullptr && !this->Internal->Selectors.empty())
-  {
-    oProperties->Set(vtkSelectionNode::ASSEMBLY_NAME(), this->AssemblyName);
-    for (auto& selector : this->Internal->Selectors)
-    {
-      oProperties->Append(vtkSelectionNode::SELECTORS(), selector.c_str());
-    }
-  }
+  int piece = outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
+    ? outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
+    : 0;
 
   int fieldType = this->FieldTypeOption == FieldTypeOptions::FIELD_TYPE
     ? this->FieldType
     : vtkSelectionNode::ConvertAttributeTypeToSelectionField(this->ElementType);
 
-  // First look for string ids.
-  if (((this->ContentType == vtkSelectionNode::GLOBALIDS) ||
-        (this->ContentType == vtkSelectionNode::PEDIGREEIDS) ||
-        (this->ContentType == vtkSelectionNode::INDICES) ||
-        (this->ContentType == vtkSelectionNode::VALUES)) &&
-    !this->Internal->StringIDs.empty())
+  for (unsigned int nodeId = 0; nodeId < this->GetNumberOfNodes(); ++nodeId)
   {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
-    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
-
-    vtkNew<vtkStringArray> selectionList;
-    output->SetSelectionList(selectionList);
-
-    // Number of selected items common to all pieces
-    vtkIdType numCommonElems = 0;
-    if (!this->Internal->StringIDs.empty())
+    const auto& nodeInfo = this->NodesInfo[nodeId];
+    vtkNew<vtkSelectionNode> node;
+    if (!nodeInfo->Name.empty())
     {
-      numCommonElems = static_cast<vtkIdType>(this->Internal->StringIDs[0].size());
-    }
-    if (piece + 1 >= (int)this->Internal->StringIDs.size() && numCommonElems == 0)
-    {
-      vtkDebugMacro("No selection for piece: " << piece);
+      outputSel->SetNode(nodeInfo->Name, node);
     }
     else
     {
-      // idx == 0 is the list for all pieces
-      // idx == piece+1 is the list for the current piece
-      size_t pids[2];
-      pids[0] = 0;
-      pids[1] = static_cast<size_t>(piece + 1);
-      for (int i = 0; i < 2; i++)
+      outputSel->AddNode(node);
+    }
+    vtkInformation* oProperties = node->GetProperties();
+
+    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+    {
+      if (this->ProcessID >= 0)
       {
-        size_t idx = pids[i];
-        if (idx >= this->Internal->StringIDs.size())
-        {
-          continue;
-        }
-
-        auto& selSet = this->Internal->StringIDs[idx];
-
-        if (!selSet.empty())
-        {
-          // Create the selection list
-          selectionList->SetNumberOfTuples(static_cast<vtkIdType>(selSet.size()));
-          // iterate over ids and insert to the selection list
-          vtkIdType idx2 = 0;
-          for (const auto& id : selSet)
-          {
-            selectionList->SetValue(idx2++, id);
-          }
-        }
+        oProperties->Set(vtkSelectionNode::PROCESS_ID(), this->ProcessID);
       }
     }
-  }
-
-  // If no string ids, use integer ids.
-  if (((this->ContentType == vtkSelectionNode::GLOBALIDS) ||
-        (this->ContentType == vtkSelectionNode::PEDIGREEIDS) ||
-        (this->ContentType == vtkSelectionNode::INDICES) ||
-        (this->ContentType == vtkSelectionNode::VALUES)) &&
-    this->Internal->StringIDs.empty())
-  {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
-    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
-
-    vtkNew<vtkIdTypeArray> selectionList;
-    output->SetSelectionList(selectionList);
-
-    // Number of selected items common to all pieces
-    vtkIdType numCommonElems = 0;
-    if (!this->Internal->IDs.empty())
+    if (nodeInfo->CompositeIndex >= 0)
     {
-      numCommonElems = static_cast<vtkIdType>(this->Internal->IDs[0].size());
+      oProperties->Set(vtkSelectionNode::COMPOSITE_INDEX(), nodeInfo->CompositeIndex);
     }
-    if (piece + 1 >= (int)this->Internal->IDs.size() && numCommonElems == 0)
+
+    if (nodeInfo->HierarchicalLevel >= 0 && nodeInfo->HierarchicalIndex >= 0)
     {
-      vtkDebugMacro("No selection for piece: " << piece);
+      oProperties->Set(vtkSelectionNode::HIERARCHICAL_LEVEL(), nodeInfo->HierarchicalLevel);
+      oProperties->Set(vtkSelectionNode::HIERARCHICAL_INDEX(), nodeInfo->HierarchicalIndex);
     }
-    else
+
+    if (!nodeInfo->AssemblyName.empty() && !nodeInfo->Selectors.empty())
     {
-      // idx == 0 is the list for all pieces
-      // idx == piece+1 is the list for the current piece
-      size_t pids[2] = { static_cast<size_t>(0), static_cast<size_t>(piece + 1) };
-      for (int i = 0; i < 2; i++)
+      oProperties->Set(vtkSelectionNode::ASSEMBLY_NAME(), nodeInfo->AssemblyName.c_str());
+      for (auto& selector : nodeInfo->Selectors)
       {
-        size_t idx = pids[i];
-        if (idx >= this->Internal->IDs.size())
-        {
-          continue;
-        }
-
-        auto& selSet = this->Internal->IDs[idx];
-
-        if (!selSet.empty())
-        {
-          // Create the selection list
-          selectionList->SetNumberOfTuples(static_cast<vtkIdType>(selSet.size()));
-          // iterate over ids and insert to the selection list
-          vtkIdType idx2 = 0;
-          for (const auto& id : selSet)
-          {
-            selectionList->SetValue(idx2++, id);
-          }
-        }
+        oProperties->Append(vtkSelectionNode::SELECTORS(), selector.c_str());
       }
     }
-  }
 
-  if (this->ContentType == vtkSelectionNode::LOCATIONS)
-  {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
-    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
-    // Create the selection list
-    vtkNew<vtkDoubleArray> selectionList;
-    selectionList->SetNumberOfComponents(3);
-    selectionList->SetNumberOfValues(static_cast<vtkIdType>(this->Internal->Locations.size()));
-
-    vtkIdType cc = 0;
-    for (const auto& locationCoordinate : this->Internal->Locations)
+    switch (nodeInfo->ContentType)
     {
-      selectionList->SetValue(cc++, locationCoordinate);
+      case vtkSelectionNode::GLOBALIDS:
+      case vtkSelectionNode::PEDIGREEIDS:
+      case vtkSelectionNode::INDICES:
+      case vtkSelectionNode::VALUES:
+      {
+        // First look for string ids.
+        if (!nodeInfo->StringIDs.empty())
+        {
+          oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), nodeInfo->ContentType);
+          oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
+
+          vtkNew<vtkStringArray> selectionList;
+          node->SetSelectionList(selectionList);
+
+          // Number of selected items common to all pieces
+          vtkIdType numCommonElems = 0;
+          if (!nodeInfo->StringIDs.empty())
+          {
+            numCommonElems = static_cast<vtkIdType>(nodeInfo->StringIDs[0].size());
+          }
+          if (piece + 1 >= (int)nodeInfo->StringIDs.size() && numCommonElems == 0)
+          {
+            vtkDebugMacro("No selection for piece: " << piece);
+          }
+          else
+          {
+            // idx == 0 is the list for all pieces
+            // idx == piece+1 is the list for the current piece
+            size_t pids[2];
+            pids[0] = 0;
+            pids[1] = static_cast<size_t>(piece + 1);
+            for (int i = 0; i < 2; i++)
+            {
+              size_t idx = pids[i];
+              if (idx >= nodeInfo->StringIDs.size())
+              {
+                continue;
+              }
+
+              auto& selSet = nodeInfo->StringIDs[idx];
+
+              if (!selSet.empty())
+              {
+                // Create the selection list
+                selectionList->SetNumberOfTuples(static_cast<vtkIdType>(selSet.size()));
+                // iterate over ids and insert to the selection list
+                vtkIdType idx2 = 0;
+                for (const auto& id : selSet)
+                {
+                  selectionList->SetValue(idx2++, id);
+                }
+              }
+            }
+          }
+        }
+        // If no string ids, use integer ids.
+        else
+        {
+          oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), nodeInfo->ContentType);
+          oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
+
+          vtkNew<vtkIdTypeArray> selectionList;
+          node->SetSelectionList(selectionList);
+
+          // Number of selected items common to all pieces
+          vtkIdType numCommonElems = 0;
+          if (!nodeInfo->IDs.empty())
+          {
+            numCommonElems = static_cast<vtkIdType>(nodeInfo->IDs[0].size());
+          }
+          if (piece + 1 >= (int)nodeInfo->IDs.size() && numCommonElems == 0)
+          {
+            vtkDebugMacro("No selection for piece: " << piece);
+          }
+          else
+          {
+            // idx == 0 is the list for all pieces
+            // idx == piece+1 is the list for the current piece
+            size_t pids[2] = { static_cast<size_t>(0), static_cast<size_t>(piece + 1) };
+            for (int i = 0; i < 2; i++)
+            {
+              size_t idx = pids[i];
+              if (idx >= nodeInfo->IDs.size())
+              {
+                continue;
+              }
+
+              auto& selSet = nodeInfo->IDs[idx];
+
+              if (!selSet.empty())
+              {
+                // Create the selection list
+                selectionList->SetNumberOfTuples(static_cast<vtkIdType>(selSet.size()));
+                // iterate over ids and insert to the selection list
+                vtkIdType idx2 = 0;
+                for (const auto& id : selSet)
+                {
+                  selectionList->SetValue(idx2++, id);
+                }
+              }
+            }
+          }
+        }
+        break;
+      }
+      case vtkSelectionNode::LOCATIONS:
+      {
+        oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), nodeInfo->ContentType);
+        oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
+        // Create the selection list
+        vtkNew<vtkDoubleArray> selectionList;
+        selectionList->SetNumberOfComponents(3);
+        selectionList->SetNumberOfValues(static_cast<vtkIdType>(nodeInfo->Locations.size()));
+
+        vtkIdType cc = 0;
+        for (const auto& locationCoordinate : nodeInfo->Locations)
+        {
+          selectionList->SetValue(cc++, locationCoordinate);
+        }
+        node->SetSelectionList(selectionList);
+        break;
+      }
+      case vtkSelectionNode::THRESHOLDS:
+      {
+        oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), nodeInfo->ContentType);
+        oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
+        oProperties->Set(vtkSelectionNode::COMPONENT_NUMBER(), nodeInfo->ArrayComponent);
+        // Create the selection list
+        vtkNew<vtkDoubleArray> selectionList;
+        selectionList->SetNumberOfComponents(2);
+        selectionList->SetNumberOfValues(static_cast<vtkIdType>(nodeInfo->Thresholds.size()));
+
+        auto iter = nodeInfo->Thresholds.begin();
+        for (vtkIdType cc = 0; iter != nodeInfo->Thresholds.end(); ++iter, ++cc)
+        {
+          selectionList->SetTypedComponent(cc, 0, *iter);
+          ++iter;
+          selectionList->SetTypedComponent(cc, 1, *iter);
+        }
+        node->SetSelectionList(selectionList);
+        break;
+      }
+      case vtkSelectionNode::FRUSTUM:
+      {
+        oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), nodeInfo->ContentType);
+        oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
+        // Create the selection list
+        vtkNew<vtkDoubleArray> selectionList;
+        selectionList->SetNumberOfComponents(4);
+        selectionList->SetNumberOfTuples(8);
+        for (vtkIdType cc = 0; cc < 32; cc++)
+        {
+          selectionList->SetValue(cc, nodeInfo->Frustum[cc]);
+        }
+        node->SetSelectionList(selectionList);
+        break;
+      }
+      case vtkSelectionNode::BLOCKS:
+      {
+        oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), nodeInfo->ContentType);
+        oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
+        vtkNew<vtkUnsignedIntArray> selectionList;
+        selectionList->SetNumberOfComponents(1);
+        selectionList->SetNumberOfTuples(static_cast<vtkIdType>(nodeInfo->Blocks.size()));
+        vtkIdType cc = 0;
+        for (const auto& block : nodeInfo->Blocks)
+        {
+          selectionList->SetValue(cc++, block);
+        }
+        node->SetSelectionList(selectionList);
+        break;
+      }
+      case vtkSelectionNode::BLOCK_SELECTORS:
+      {
+        oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), nodeInfo->ContentType);
+        oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
+        vtkNew<vtkStringArray> selectionList;
+        selectionList->SetNumberOfTuples(static_cast<vtkIdType>(nodeInfo->BlockSelectors.size()));
+        vtkIdType cc = 0;
+        for (const auto& selector : nodeInfo->BlockSelectors)
+        {
+          selectionList->SetValue(cc++, selector);
+        }
+        node->SetSelectionList(selectionList);
+        break;
+      }
+      case vtkSelectionNode::QUERY:
+      {
+        oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), nodeInfo->ContentType);
+        oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
+        node->SetQueryString(nodeInfo->QueryString.c_str());
+        break;
+      }
+      case vtkSelectionNode::USER:
+      {
+        vtkErrorMacro("User-supplied, application-specific selections are not supported.");
+        return 0;
+      }
+      default:
+      {
+        vtkErrorMacro("Unsupported content type: " << nodeInfo->ContentType);
+        return 0;
+      }
     }
 
-    output->SetSelectionList(selectionList);
-  }
+    oProperties->Set(vtkSelectionNode::CONTAINING_CELLS(), nodeInfo->ContainingCells);
 
-  if (this->ContentType == vtkSelectionNode::THRESHOLDS)
-  {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
-    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
-    oProperties->Set(vtkSelectionNode::COMPONENT_NUMBER(), this->ArrayComponent);
-    // Create the selection list
-    vtkNew<vtkDoubleArray> selectionList;
-    selectionList->SetNumberOfComponents(2);
-    selectionList->SetNumberOfValues(static_cast<vtkIdType>(this->Internal->Thresholds.size()));
+    oProperties->Set(vtkSelectionNode::INVERSE(), nodeInfo->Inverse);
 
-    auto iter = this->Internal->Thresholds.begin();
-    for (vtkIdType cc = 0; iter != this->Internal->Thresholds.end(); ++iter, ++cc)
+    if (node->GetSelectionList() && !nodeInfo->ArrayName.empty())
     {
-      selectionList->SetTypedComponent(cc, 0, *iter);
-      ++iter;
-      selectionList->SetTypedComponent(cc, 1, *iter);
+      node->GetSelectionList()->SetName(nodeInfo->ArrayName.c_str());
     }
-
-    output->SetSelectionList(selectionList);
+    oProperties->Set(vtkSelectionNode::CONNECTED_LAYERS(), nodeInfo->NumberOfLayers);
   }
-
-  if (this->ContentType == vtkSelectionNode::FRUSTUM)
-  {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
-    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
-    // Create the selection list
-    vtkNew<vtkDoubleArray> selectionList;
-    selectionList->SetNumberOfComponents(4);
-    selectionList->SetNumberOfTuples(8);
-    for (vtkIdType cc = 0; cc < 32; cc++)
-    {
-      selectionList->SetValue(cc, this->Internal->Frustum[cc]);
-    }
-
-    output->SetSelectionList(selectionList);
-  }
-
-  if (this->ContentType == vtkSelectionNode::BLOCKS)
-  {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
-    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
-    vtkNew<vtkUnsignedIntArray> selectionList;
-    selectionList->SetNumberOfComponents(1);
-    selectionList->SetNumberOfTuples(static_cast<vtkIdType>(this->Internal->Blocks.size()));
-    vtkIdType cc = 0;
-    for (const auto& block : this->Internal->Blocks)
-    {
-      selectionList->SetValue(cc++, block);
-    }
-    output->SetSelectionList(selectionList);
-  }
-
-  if (this->ContentType == vtkSelectionNode::BLOCK_SELECTORS)
-  {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
-    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
-    vtkNew<vtkStringArray> selectionList;
-    selectionList->SetNumberOfTuples(static_cast<vtkIdType>(this->Internal->BlockSelectors.size()));
-    vtkIdType cc = 0;
-    for (const auto& selector : this->Internal->BlockSelectors)
-    {
-      selectionList->SetValue(cc++, selector);
-    }
-    output->SetSelectionList(selectionList);
-  }
-
-  if (this->ContentType == vtkSelectionNode::QUERY)
-  {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
-    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), fieldType);
-    output->SetQueryString(this->QueryString);
-  }
-
-  if (this->ContentType == vtkSelectionNode::USER)
-  {
-    vtkErrorMacro("User-supplied, application-specific selections are not supported.");
-    return 0;
-  }
-
-  oProperties->Set(vtkSelectionNode::CONTAINING_CELLS(), this->ContainingCells);
-
-  oProperties->Set(vtkSelectionNode::INVERSE(), this->Inverse);
-
-  if (output->GetSelectionList())
-  {
-    output->GetSelectionList()->SetName(this->ArrayName);
-  }
-  oProperties->Set(vtkSelectionNode::CONNECTED_LAYERS(), this->NumberOfLayers);
   return 1;
 }
