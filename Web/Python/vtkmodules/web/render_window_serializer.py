@@ -260,6 +260,7 @@ def initializeSerializers():
     registerInstanceSerializer("vtkOpenGLRenderWindow", renderWindowSerializer)
     registerInstanceSerializer("vtkIOSRenderWindow", renderWindowSerializer)
     registerInstanceSerializer("vtkExternalOpenGLRenderWindow", renderWindowSerializer)
+    registerInstanceSerializer("vtkOffscreenOpenGLRenderWindow", renderWindowSerializer)
 
     # Renderers
     registerInstanceSerializer("vtkRenderer", rendererSerializer)
