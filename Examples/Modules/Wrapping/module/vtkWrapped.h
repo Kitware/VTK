@@ -1,5 +1,5 @@
-#ifndef vtkWrappable_h
-#define vtkWrappable_h
+#ifndef vtkWrapped_h
+#define vtkWrapped_h
 
 #include "vtkWrappableModule.h" // for export macro
 
