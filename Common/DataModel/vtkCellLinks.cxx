@@ -67,13 +67,34 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 }
 
 //------------------------------------------------------------------------------
+namespace
+{
+struct LinkAllocator
+{
+private:
+  vtkCellLinks::Link* LinkArray;
+
+public:
+  LinkAllocator(vtkCellLinks::Link* linkArray)
+    : LinkArray(linkArray)
+  {
+  }
+  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  {
+    for (; cellId < endCellId; ++cellId)
+    {
+      this->LinkArray[cellId].cells = new vtkIdType[this->LinkArray[cellId].ncells];
+    }
+  }
+};
+} // namespace
+
+//----------------------------------------------------------------------------
 // Allocate memory for the list of lists of cell ids.
 void vtkCellLinks::AllocateLinks(vtkIdType n)
 {
-  for (vtkIdType i = 0; i < n; i++)
-  {
-    this->Array[i].cells = new vtkIdType[this->Array[i].ncells];
-  }
+  LinkAllocator allocator(this->Array);
+  vtkSMPTools::For(0, n, allocator);
 }
 
 //------------------------------------------------------------------------------
