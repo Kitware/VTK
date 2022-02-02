@@ -22,6 +22,7 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::FiltersFlowPaths
+  VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersGeometry
   VTK::FiltersSources
