@@ -148,6 +148,9 @@ protected:
   // Record the ordering of the cells when building the hypertree grid
   // Needed so that the data will line up correctly
   std::vector<int> indexNodeLeaf;
+
+  struct AdaptorImpl;
+  AdaptorImpl* Impl;
 };
 
 #endif
