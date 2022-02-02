@@ -39,6 +39,7 @@ CLASS_DIAGRAMS       = YES
 GENERATE_LEGEND      = YES
 GRAPHICAL_HIERARCHY  = NO        # would be too large for vtkObject
 MAX_DOT_GRAPH_DEPTH  = 3
+USE_MATHJAX          = YES
 
 ALLEXTERNALS         = NO
 
