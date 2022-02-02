@@ -498,6 +498,9 @@ class GtkGLExtVTKRenderWindow(GtkGLExtVTKRenderWindowBase):
 def main():
     from vtkmodules.vtkFiltersSources import vtkConeSource
     from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+    # load implementations for rendering and interaction factory classes
+    import vtkmodules.vtkRenderingOpenGL2
+    import vtkmodules.vtkInteractionStyle
 
     # The main window
     window = gtk.Window()
