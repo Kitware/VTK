@@ -582,7 +582,7 @@ sub word_section_doc {
             last if ++$count > $args{"limit"};
             if (exists $args{"link"}) {
                 push @temp,
-                '    - @htmlonly <TT><A href="' . $args{"link"} .
+                '    - @htmlonly <TT><A href="' . $args{"link"} . '/' .
                   $shorter_filename{$file} . $args{"linksuffix"} . '">@endhtmlonly ' . $shorter_filename{$file} .
                     '@htmlonly</A></TT> @endhtmlonly ' .
                       $has_data . $has_baseline_picture;
@@ -646,7 +646,7 @@ foreach my $class (@words) {
 
     if (defined $line) {
         while ($line = <HEADER>) {
-            last if $line =~ /^\*\// || $line =~ /^\s*\@par\s+$args{"label"}:\s*$/;
+            last if $line =~ /^\s*\*\// || $line =~ /^\s*\@par\s+$args{"label"}:\s*$/;
             push @dest, $line;
         }
 
@@ -654,7 +654,7 @@ foreach my $class (@words) {
         # example page, read the rest of the file, and overwrite the
         # header
 
-        if (defined $line && $line =~ /^\*\//) {
+        if (defined $line && $line =~ /^\s*\*\//) {
             push @dest, "\n    \@par      " . $args{"label"} . ":\n",
                     "              \@ref ${prefix}_$class \"$class (" . $args{"label"} . ")\"\n",
                         $line;
