@@ -88,9 +88,10 @@ set(DATA_ROOT "@VTK_DATA_ROOT@")
 #   GITWEB_DATA_SUFFIX=?root=VTKData
 #   GITWEB_DATA_CHECKOUT=http://public.kitware.com/cgi-bin/viewcvs.cgi/*checkout*
 #
-set(GITWEB http://vtk.org/gitweb) # not used
+set(GITWEB https://gitlab.kitware.com) # not used
 set(GITWEB_SUFFIX ) #empty for git ?p=VTK)
-set(GITWEB_CHECKOUT http://vtk.org/gitweb?p=VTK.git;a=blob;f=)
+set(GITWEB_CHECKOUT
+  "https://gitlab.kitware.com/vtk/vtk/-/blob/v@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.0/")
 set(GITWEB_DATA http://vtk.org/gitweb)
 set(GITWEB_DATA_SUFFIX ) # empty for git ?p=VTKData)
 set(GITWEB_DATA_CHECKOUT http://vtk.org/gitweb?p=VTKData.git;a=blob;f=)

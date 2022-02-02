@@ -582,7 +582,7 @@ sub word_section_doc {
             last if ++$count > $args{"limit"};
             if (exists $args{"link"}) {
                 push @temp,
-                '    - @htmlonly <TT><A href="' . $args{"link"} .
+                '    - @htmlonly <TT><A href="' . $args{"link"} . '/' .
                   $shorter_filename{$file} . $args{"linksuffix"} . '">@endhtmlonly ' . $shorter_filename{$file} .
                     '@htmlonly</A></TT> @endhtmlonly ' .
                       $has_data . $has_baseline_picture;
