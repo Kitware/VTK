@@ -165,6 +165,19 @@ public:
   vtkBooleanMacro(SliceScrollOnMouseWheel, vtkTypeBool);
   ///@}
 
+  //@{
+  /**
+   * Define a factor that will be applied in addition to the inter slice spacing when scrolling
+   * image. When the view is in axis aligned ResliceMode, and the factor is not an integer,
+   * then the new value of the slice will be rounded. Otherwise, the factor is applied
+   * normally. Default value is 1.0.
+   * Note that in axis aligned ResliceMode, the factor is applied in local coordinate (i, j, k),
+   * whereas in oblique ResliceMode, the factor is applied in world coordinate (x, y, z)
+   */
+  vtkSetMacro(SliceScrollFactor, double);
+  vtkGetMacro(SliceScrollFactor, double);
+  //@}
+
   /**
    * Increment/Decrement slice by 'inc' slices
    */
@@ -200,6 +213,7 @@ protected:
   vtkResliceImageViewerMeasurements* Measurements;
   vtkTypeBool SliceScrollOnMouseWheel;
   vtkResliceImageViewerScrollCallback* ScrollCallback;
+  double SliceScrollFactor = 1.0;
 
 private:
   vtkResliceImageViewer(const vtkResliceImageViewer&) = delete;
