@@ -43,6 +43,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmContour* New();
 
+  static bool IsSupportedInput(vtkDataSet* input);
+
 protected:
   vtkmContour();
   ~vtkmContour() override;
