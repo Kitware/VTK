@@ -98,6 +98,8 @@ int vtkStreamSurface::AdvectIterative(
   seedIntegrationTimeArray->SetNumberOfTuples(currentSeeds->GetNumberOfPoints());
   seedIntegrationTimeArray->Fill(0.0);
   currentSeeds->GetPointData()->AddArray(seedIntegrationTimeArray);
+  int vecType(0);
+  vtkDataArray* vectors = this->GetInputArrayToProcess(0, field, vecType);
 
   for (int currentIteration = 0; currentIteration < this->MaximumNumberOfSteps; currentIteration++)
   {
@@ -112,10 +114,8 @@ int vtkStreamSurface::AdvectIterative(
     this->StreamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
     this->StreamTracer->SetInitialIntegrationStep(this->InitialIntegrationStep);
     this->StreamTracer->SetIntegrationDirection(integrationDirection);
-    int vecType(0);
-    vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, dataset, vecType);
-    // this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vecType, vectors->GetName());
-    this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vecType, "resultArray");
+    this->StreamTracer->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vectors->GetName());
     // setting this to zero makes the tracer do 1 step
     this->StreamTracer->SetMaximumNumberOfSteps(0);
     this->StreamTracer->Update();
@@ -141,6 +141,7 @@ int vtkStreamSurface::AdvectIterative(
 
     int currentCircleIndex = -1;
     int numPts = this->StreamTracer->GetOutput()->GetNumberOfPoints() - 1;
+
     for (int k = 0; k < numPts; k++)
     {
       if (this->StreamTracer->GetOutput()
@@ -199,9 +200,9 @@ int vtkStreamSurface::AdvectIterative(
     for (int k = 0; k < orderedSurface->GetNumberOfPoints() - 2; k += 2)
     {
       if (std::abs(orderedSurface->GetPointData()->GetArray("IntegrationTime")->GetTuple1(k + 1) -
-            orderedSurface->GetPointData()->GetArray("IntegrationTime")->GetTuple1(k)) > 1e-10 &&
+            orderedSurface->GetPointData()->GetArray("IntegrationTime")->GetTuple1(k)) > 0 &&
         std::abs(orderedSurface->GetPointData()->GetArray("IntegrationTime")->GetTuple1(k + 3) -
-          orderedSurface->GetPointData()->GetArray("IntegrationTime")->GetTuple1(k + 2)) > 1e-10)
+          orderedSurface->GetPointData()->GetArray("IntegrationTime")->GetTuple1(k + 2)) > 0)
       {
         double p0[3];
         orderedSurface->GetPoint(k, p0);
@@ -320,7 +321,9 @@ int vtkStreamSurface::AdvectSimple(vtkDataObject* field, vtkPolyData* seeds, vtk
   this->StreamTracer->SetInitialIntegrationStep(this->InitialIntegrationStep);
   this->StreamTracer->SetIntegrationDirection(this->IntegrationDirection);
   this->StreamTracer->SetMaximumNumberOfSteps(this->MaximumNumberOfSteps);
-
+  int vecType(0);
+  vtkDataArray* vectors = this->GetInputArrayToProcess(0, field, vecType);
+  this->StreamTracer->SetInputArrayToProcess(0, 0, 0, vecType, vectors->GetName());
   this->RuledSurface->SetResolution(this->MaximumNumberOfSteps, 1);
   this->RuledSurface->Update();
 
