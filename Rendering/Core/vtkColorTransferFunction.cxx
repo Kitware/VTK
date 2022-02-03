@@ -15,6 +15,7 @@
 #include "vtkColorTransferFunction.h"
 
 #include "vtkCIEDE2000.h"
+#include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
@@ -426,6 +427,84 @@ int vtkColorTransferFunction::AddRGBPoint(
   }
 
   return retVal;
+}
+
+//----------------------------------------------------------------------------
+// Bulk add points defined in RGB
+int vtkColorTransferFunction::AddRGBPoints(vtkDoubleArray* x, vtkDoubleArray* rgbColors)
+{
+  return this->AddRGBPoints(x, rgbColors, 0.5, 0.0);
+}
+
+//----------------------------------------------------------------------------
+// Bulk add points defined in RGB
+int vtkColorTransferFunction::AddRGBPoints(
+  vtkDoubleArray* x, vtkDoubleArray* rgbColors, double midpoint, double sharpness)
+{
+  if (x == nullptr)
+  {
+    vtkErrorMacro("Points array is null");
+    return -1;
+  }
+  if (rgbColors == nullptr)
+  {
+    vtkErrorMacro("Colors array is null");
+    return -1;
+  }
+  if (x->GetNumberOfTuples() != rgbColors->GetNumberOfTuples())
+  {
+    vtkErrorMacro("Bulk arrays are of unequal length: x=" << x->GetNumberOfTuples() << " Colors="
+                                                          << rgbColors->GetNumberOfTuples());
+    return -1;
+  }
+  if (rgbColors->GetNumberOfComponents() != 3)
+  {
+    vtkErrorMacro(
+      "rgbColors doesn't contain rgb values: Components=" << rgbColors->GetNumberOfComponents());
+    return -1;
+  }
+
+  // Error check
+  if (midpoint < 0.0 || midpoint > 1.0)
+  {
+    vtkErrorMacro("Midpoint " << midpoint << " outside range [0.0, 1.0]");
+    return -1;
+  }
+
+  if (sharpness < 0.0 || sharpness > 1.0)
+  {
+    vtkErrorMacro("Sharpness " << sharpness << " outside range [0.0, 1.0]");
+    return -1;
+  }
+
+  // remove any node already at this X location
+  if (!this->AllowDuplicateScalars)
+  {
+    vtkErrorMacro("Adding points in bulk doesn't support checking for duplicates");
+    return -1;
+  }
+
+  auto numNodes = x->GetNumberOfValues();
+  for (vtkIdType i = 0; i < numNodes; i++)
+  {
+    // Create the new node
+    vtkCTFNode* node = new vtkCTFNode;
+    node->X = x->GetValue(i);
+    auto rgb = rgbColors->GetTuple3(i);
+    node->R = rgb[0];
+    node->G = rgb[1];
+    node->B = rgb[2];
+    node->Midpoint = midpoint;
+    node->Sharpness = sharpness;
+
+    // Add it
+    this->Internal->Nodes.push_back(node);
+  }
+
+  // Then sort to get everything in order
+  this->SortAndUpdateRange();
+
+  return static_cast<int>(this->Internal->Nodes.size()) - 1;
 }
 
 //------------------------------------------------------------------------------

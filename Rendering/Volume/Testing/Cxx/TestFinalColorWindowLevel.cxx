@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDoubleArray.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
 #include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkPiecewiseFunction.h"
@@ -35,32 +36,42 @@ int TestFinalColorWindowLevel(int argc, char* argv[])
 {
 
   // Create the renderers, render window, and interactor
-  vtkRenderWindow* renWin = vtkRenderWindow::New();
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkNew<vtkRenderWindow> renWin;
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
-  vtkRenderer* ren = vtkRenderer::New();
+  vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren);
 
   // Read the data from a vtk file
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
-  vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
+  vtkNew<vtkStructuredPointsReader> reader;
   reader->SetFileName(fname);
   reader->Update();
   delete[] fname;
 
   // Create a transfer function mapping scalar value to opacity
-  vtkPiecewiseFunction* oTFun = vtkPiecewiseFunction::New();
+  vtkNew<vtkPiecewiseFunction> oTFun;
   oTFun->AddSegment(10, 0.0, 255, 0.3);
 
   // Create a transfer function mapping scalar value to color (color)
-  vtkColorTransferFunction* cTFun = vtkColorTransferFunction::New();
-  cTFun->AddRGBPoint(0, 1.0, 0.0, 0.0);
-  cTFun->AddRGBPoint(64, 1.0, 1.0, 0.0);
-  cTFun->AddRGBPoint(128, 0.0, 1.0, 0.0);
-  cTFun->AddRGBPoint(192, 0.0, 1.0, 1.0);
-  cTFun->AddRGBPoint(255, 0.0, 0.0, 1.0);
+  vtkNew<vtkDoubleArray> ctPoints;
+  ctPoints->InsertNextValue(0);
+  ctPoints->InsertNextValue(64);
+  ctPoints->InsertNextValue(128);
+  ctPoints->InsertNextValue(192);
+  ctPoints->InsertNextValue(255);
+  vtkNew<vtkDoubleArray> ctColors;
+  ctColors->SetNumberOfComponents(3);
+  ctColors->InsertNextTuple3(1.0, 0.0, 0.0);
+  ctColors->InsertNextTuple3(1.0, 1.0, 0.0);
+  ctColors->InsertNextTuple3(0.0, 1.0, 0.0);
+  ctColors->InsertNextTuple3(0.0, 1.0, 1.0);
+  ctColors->InsertNextTuple3(0.0, 0.0, 1.0);
+  vtkNew<vtkColorTransferFunction> cTFun;
+  cTFun->AllowDuplicateScalarsOn();
+  cTFun->AddRGBPoints(ctPoints, ctColors);
 
-  vtkVolumeProperty* property = vtkVolumeProperty::New();
+  vtkNew<vtkVolumeProperty> property;
   property->SetShade(0);
   property->SetAmbient(0.3);
   property->SetDiffuse(1.0);
@@ -70,10 +81,10 @@ int TestFinalColorWindowLevel(int argc, char* argv[])
   property->SetColor(cTFun);
   property->SetInterpolationTypeToLinear();
 
-  vtkFixedPointVolumeRayCastMapper* mapper = vtkFixedPointVolumeRayCastMapper::New();
+  vtkNew<vtkFixedPointVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
 
-  vtkVolume* volume = vtkVolume::New();
+  vtkNew<vtkVolume> volume;
   volume->SetProperty(property);
   volume->SetMapper(mapper);
   ren->AddViewProp(volume);
@@ -96,18 +107,6 @@ int TestFinalColorWindowLevel(int argc, char* argv[])
   {
     iren->Start();
   }
-
-  // Clean up
-  reader->Delete();
-  oTFun->Delete();
-  cTFun->Delete();
-  property->Delete();
-  mapper->Delete();
-  volume->Delete();
-
-  ren->Delete();
-  iren->Delete();
-  renWin->Delete();
 
   return !retVal;
 }
