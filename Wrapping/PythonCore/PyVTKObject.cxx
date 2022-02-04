@@ -54,6 +54,37 @@ PyVTKClass::PyVTKClass(
 //------------------------------------------------------------------------------
 // C API
 
+static PyObject* PyVTKClass_overwrite(PyObject* cls, PyObject* type)
+{
+  PyTypeObject* typeobj = (PyTypeObject*)cls;
+  std::string clsName(typeobj->tp_name);
+  size_t idx = clsName.find_last_of(".") + 1;
+  clsName = clsName.substr(idx, clsName.length() - idx);
+
+  if (Py_TYPE(type) == &PyType_Type)
+  {
+    PyTypeObject* to = (PyTypeObject*)type;
+    if (PyType_IsSubtype(to, typeobj))
+    {
+      PyVTKClass* thecls = vtkPythonUtil::FindClass(clsName.c_str());
+      thecls->py_type = to;
+    }
+    else
+    {
+      std::string str("method requires a subtype of ");
+      str += clsName.c_str();
+      PyErr_SetString(PyExc_TypeError, str.c_str());
+    }
+  }
+  else
+  {
+    PyErr_SetString(PyExc_TypeError, "method requires a type object.");
+  }
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
 //------------------------------------------------------------------------------
 // Add a class, add methods and members to its type object.  A return
 // value of nullptr signifies that the class was already added.
@@ -91,6 +122,22 @@ PyTypeObject* PyVTKClass_Add(
     PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
     Py_DECREF(func);
   }
+  static PyMethodDef overwrite = { "overwrite", PyVTKClass_overwrite, METH_CLASS | METH_O,
+    "This method can be used to overwrite a VTK class with a Python subclass.\n"
+    "The class type passed to overwrite will afterwards be instantiated\n"
+    "instead of the type overwrite is called on.\n"
+    "For example,\n"
+    "class foo(vtk.vtkPoints):\n"
+    "  pass\n"
+    "vtk.vtkPoints.overwrite(foo)\n"
+    "\n"
+    "will lead to foo being instantied everytime vtkPoints() is called.\n"
+    "The main objective of this functionality is to enable developers to\n"
+    "extend VTK classes with more pythonic subclasses that contain\n"
+    "convenience functionality.\n" };
+  PyObject* func = PyDescr_NewClassMethod(pytype, &overwrite);
+  PyDict_SetItemString(pytype->tp_dict, overwrite.ml_name, func);
+  Py_DECREF(func);
 
   return pytype;
 }
