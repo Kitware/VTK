@@ -135,6 +135,14 @@ public:
   vtkGetMacro(OffsetAwayFromBoundary, double);
   //@}
 
+  //@{
+  /**
+   * Specify EpsilonCriticalPoint for classifying critical points. The default is 1e-10.
+   */
+  vtkSetMacro(EpsilonCriticalPoint, double);
+  vtkGetMacro(EpsilonCriticalPoint, double);
+  //@}
+
   /**
    * Set the type of the velocity field interpolator to determine whether
    * vtkInterpolatedVelocityField (INTERPOLATOR_WITH_DATASET_POINT_LOCATOR) or
@@ -500,6 +508,11 @@ private:
    * is equivalent to OffsetAwayFromBoundary * cell length
    */
   double OffsetAwayFromBoundary = 1e-3;
+
+  /**
+   * It is used to classify the type of critical points.
+   */
+  double EpsilonCriticalPoint = 1e-10;
 
   vtkNew<vtkStreamSurface> StreamSurface;
 };

@@ -94,6 +94,7 @@ void vtkVectorFieldTopology::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseIterativeSeeding =  " << this->UseIterativeSeeding << "\n";
   os << indent << "InterpolatorType = " << this->InterpolatorType << "\n";
   os << indent << "ComputeSurfaces =  " << this->ComputeSurfaces << "\n";
+  os << indent << "EpsilonCriticalPoint = " << this->EpsilonCriticalPoint << "\n";
   os << indent << "vtkStreamSurface: \n";
   this->StreamSurface->PrintSelf(os, indent.GetNextIndent());
 }
@@ -711,13 +712,14 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
   circle->GetOutput()->GetPoints()->InsertNextPoint(circle->GetOutput()->GetPoint(0));
   vtkNew<vtkPolyData> currentCircle;
   currentCircle->SetPoints(circle->GetOutput()->GetPoints());
-  // vtkNew<vtkDoubleArray> integrationTimeArray;
-  // integrationTimeArray->SetName("IntegrationTime");
-  // currentCircle->GetPointData()->AddArray(integrationTimeArray);
-  // for (int i = 0; i < currentCircle->GetNumberOfPoints(); ++i)
-  // {
-  //   integrationTimeArray->InsertNextTuple1(0);
-  // }
+  vtkNew<vtkDoubleArray> integrationTimeArray;
+  integrationTimeArray->SetName("IntegrationTime");
+  currentCircle->GetPointData()->AddArray(integrationTimeArray);
+  integrationTimeArray->Resize(currentCircle->GetNumberOfPoints());
+  for (int i = 0; i < currentCircle->GetNumberOfPoints(); ++i)
+  {
+    integrationTimeArray->SetTuple1(i, (double)0);
+  }
 
   this->StreamSurface->SetInputData(0, dataset);
   this->StreamSurface->SetInputData(1, currentCircle);
@@ -732,7 +734,6 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
   this->StreamSurface->SetMaximumPropagation(dist * maxNumSteps);
   this->StreamSurface->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, this->NameOfVectorArray);
-
   this->StreamSurface->Update();
 
   vtkNew<vtkDoubleArray> indexArray;
@@ -1430,11 +1431,11 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
         countComplex++;
       }
 
-      if (real(eigenS.eigenvalues()[i]) < -epsilon)
+      if (real(eigenS.eigenvalues()[i]) < -this->EpsilonCriticalPoint)
       {
         countNeg++;
       }
-      else if (real(eigenS.eigenvalues()[i]) > epsilon)
+      else if (real(eigenS.eigenvalues()[i]) > this->EpsilonCriticalPoint)
       {
         countPos++;
       }

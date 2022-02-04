@@ -14,8 +14,11 @@
 #include "vtkActor.h"
 #include "vtkArrayCalculator.h"
 #include "vtkDataSetMapper.h"
+#include "vtkDoubleArray.h"
+#include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkPointSource.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -30,9 +33,8 @@
 #include "vtkVectorFieldTopology.h"
 #include "vtkWarpScalar.h"
 
-int TestVectorFieldTopology(int argc, char* argv[])
+int TestVectorFieldTopologyNoIterativeSeeding(int argc, char* argv[])
 {
-
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);
 
@@ -44,16 +46,26 @@ int TestVectorFieldTopology(int argc, char* argv[])
   calc->SetInputConnection(wavelet->GetOutputPort());
   calc->Update();
 
+  vtkNew<vtkImageData> calcOutput;
+  calcOutput->ShallowCopy(calc->GetImageDataOutput());
+
+  vtkNew<vtkDoubleArray> array;
+  array->DeepCopy(calc->GetImageDataOutput()->GetPointData()->GetVectors());
+  array->SetName("array");
+  calcOutput->GetPointData()->AddArray(array);
+  calcOutput->GetPointData()->RemoveArray(0);
+  calcOutput->GetPointData()->RemoveArray(0);
+
   vtkNew<vtkVectorFieldTopology> topology;
-  topology->SetInputData(calc->GetOutput());
+  topology->SetInputData(calcOutput);
   topology->SetIntegrationStepUnit(1);
   topology->SetSeparatrixDistance(1);
   topology->SetIntegrationStepSize(1);
   topology->SetMaxNumSteps(1000);
   topology->SetComputeSurfaces(true);
   topology->SetUseBoundarySwitchPoints(true);
-  topology->SetUseIterativeSeeding(true);
-  topology->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "resultArray");
+  topology->SetUseIterativeSeeding(false);
+  topology->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "array");
   topology->Update();
 
   // the bounding box
