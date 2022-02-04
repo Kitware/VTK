@@ -34,10 +34,13 @@ vtkStandardNewMacro(vtkImplicitPlaneWidget2);
 // The implicit plane widget observes its representation. The representation
 // may invoke an InteractionEvent when the camera moves when LockedNormalToCamera
 // is enabled.
-class vtkInteractionCallback : public vtkCommand
+class vtkImplicitPlaneWidget2InteractionCallback : public vtkCommand
 {
 public:
-  static vtkInteractionCallback* New() { return new vtkInteractionCallback; }
+  static vtkImplicitPlaneWidget2InteractionCallback* New()
+  {
+    return new vtkImplicitPlaneWidget2InteractionCallback;
+  }
   void Execute(vtkObject*, unsigned long eventId, void*) override
   {
     switch (eventId)
@@ -129,7 +132,7 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
       this, vtkImplicitPlaneWidget2::MoveAction3D);
   }
 
-  this->InteractionCallback = vtkInteractionCallback::New();
+  this->InteractionCallback = vtkImplicitPlaneWidget2InteractionCallback::New();
   this->InteractionCallback->ImplicitPlaneWidget = this;
 }
 

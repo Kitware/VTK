@@ -97,11 +97,11 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkImplicitPlaneRepresentation;
-class vtkInteractionCallback;
+class vtkImplicitPlaneWidget2InteractionCallback;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitPlaneWidget2 : public vtkAbstractWidget
 {
-  friend class vtkInteractionCallback;
+  friend class vtkImplicitPlaneWidget2InteractionCallback;
 
 public:
   /**
@@ -187,7 +187,7 @@ protected:
   /**
    * Handle the interaction callback that may come from the representation.
    */
-  vtkInteractionCallback* InteractionCallback;
+  vtkImplicitPlaneWidget2InteractionCallback* InteractionCallback;
   void InvokeInteractionCallback();
   ///@}
 

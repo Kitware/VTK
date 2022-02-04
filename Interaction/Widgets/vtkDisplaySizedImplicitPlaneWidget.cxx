@@ -35,10 +35,13 @@ vtkStandardNewMacro(vtkDisplaySizedImplicitPlaneWidget);
 // The display sized implicit plane widget observes its representation. The representation
 // may invoke an InteractionEvent when the camera moves when LockedNormalToCamera
 // is enabled.
-class vtkInteractionCallback : public vtkCommand
+class vtkDisplaySizedImplicitPlaneInteractionCallback : public vtkCommand
 {
 public:
-  static vtkInteractionCallback* New() { return new vtkInteractionCallback; }
+  static vtkDisplaySizedImplicitPlaneInteractionCallback* New()
+  {
+    return new vtkDisplaySizedImplicitPlaneInteractionCallback;
+  }
   void Execute(vtkObject*, unsigned long eventId, void*) override
   {
     switch (eventId)
@@ -144,7 +147,7 @@ vtkDisplaySizedImplicitPlaneWidget::vtkDisplaySizedImplicitPlaneWidget()
       this, vtkDisplaySizedImplicitPlaneWidget::MoveAction3D);
   }
 
-  this->InteractionCallback = vtkInteractionCallback::New();
+  this->InteractionCallback = vtkDisplaySizedImplicitPlaneInteractionCallback::New();
   this->InteractionCallback->DisplaySizedImplicitPlaneWidget = this;
 }
 
