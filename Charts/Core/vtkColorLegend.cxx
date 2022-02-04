@@ -37,6 +37,7 @@ vtkColorLegend::vtkColorLegend()
   this->Interpolate = true;
   this->Axis = vtkSmartPointer<vtkAxis>::New();
   this->Axis->SetPosition(vtkAxis::RIGHT);
+  this->Axis->SetRangeLabelsVisible(true);
   this->AddItem(this->Axis);
   this->SetInline(false);
   this->SetHorizontalAlignment(vtkChartLegend::RIGHT);
@@ -105,6 +106,8 @@ void vtkColorLegend::Update()
   if (bounds[0] != axisBounds[0] || bounds[1] != axisBounds[1])
   {
     this->Axis->SetUnscaledRange(bounds[0], bounds[1]);
+    this->Axis->SetUnscaledMinimumLimit(bounds[0]);
+    this->Axis->SetUnscaledMaximumLimit(bounds[1]);
   }
 
   this->Axis->Update();
@@ -271,10 +274,6 @@ void vtkColorLegend::ComputeTexture()
     vtkWarningMacro(<< "The color transfer function seems to be empty.");
     return;
   }
-
-  // Set the axis up
-  this->Axis->SetUnscaledRange(bounds[0], bounds[1]);
-  // this->Axis->AutoScale();
 
   // Could depend on the screen resolution
   const int dimension = 256;
