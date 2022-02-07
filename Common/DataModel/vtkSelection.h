@@ -121,10 +121,10 @@ public:
   /**
    * Get/Set the expression that defines the boolean expression to combine the
    * selection nodes. Expression consists of node name identifiers, `|` for
-   * boolean-or, '&' for boolean and, '!' for boolean not, and parenthesis `(`
-   * and `)`. If the expression consists of a node name identifier that is not
-   * assigned any `vtkSelectionNode` (using `SetNode`) then it is evaluates to
-   * `false`.
+   * boolean-or, '^' for boolean-xor, '&' for boolean and, '!' for boolean not,
+   * and parenthesis `(` and `)`. If the expression consists of a node name identifier
+   * that is not assigned any `vtkSelectionNode` (using `SetNode`) then it is evaluates
+   * to `false`.
    *
    * `SetExpression` does not validate the expression. It will be validated in
    * `Evaluate` call.

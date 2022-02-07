@@ -142,6 +142,32 @@ public:
     os << ")";
   }
 };
+
+class NodeXor : public Node
+{
+  std::shared_ptr<Node> ChildA;
+  std::shared_ptr<Node> ChildB;
+
+public:
+  NodeXor(const std::shared_ptr<Node>& nodeA, const std::shared_ptr<Node>& nodeB)
+    : ChildA(nodeA)
+    , ChildB(nodeB)
+  {
+  }
+  bool Evaluate(vtkIdType offset) const override
+  {
+    assert(this->ChildA && this->ChildB);
+    return this->ChildA->Evaluate(offset) ^ this->ChildB->Evaluate(offset);
+  }
+  void Print(ostream& os) const override
+  {
+    os << "(";
+    this->ChildA->Print(os);
+    os << " ^ ";
+    this->ChildB->Print(os);
+    os << ")";
+  }
+};
 } // namespace parser
 
 //============================================================================
@@ -168,7 +194,7 @@ class vtkSelection::vtkInternals
       op_stack.pop_back();
       return true;
     }
-    else if (op_stack.back() == '|' || op_stack.back() == '&')
+    else if (op_stack.back() == '|' || op_stack.back() == '^' || op_stack.back() == '&')
     {
       if (var_stack.size() < 2)
       {
@@ -184,7 +210,11 @@ class vtkSelection::vtkInternals
       {
         var_stack.push_back(std::make_shared<parser::NodeOr>(a, b));
       }
-      else
+      else if (op_stack.back() == '^')
+      {
+        var_stack.push_back(std::make_shared<parser::NodeXor>(a, b));
+      }
+      else // if (op_stack.back() == '&')
       {
         var_stack.push_back(std::make_shared<parser::NodeAnd>(a, b));
       }
@@ -201,7 +231,9 @@ class vtkSelection::vtkInternals
     switch (op)
     {
       case '|':
-        return -15;
+        return -16;
+      case '^':
+        return -15; // https://stackoverflow.com/a/36320208
       case '&':
         return -14;
       case '!':
@@ -239,6 +271,7 @@ public:
         case '(':
         case ')':
         case '|':
+        case '^':
         case '&':
         case '!':
           if (!accumated_text.empty())
@@ -285,7 +318,7 @@ public:
         // pop the opening paren.
         op_stack.pop_back();
       }
-      else if (term[0] == '&' || term[0] == '|' || term[0] == '!')
+      else if (term[0] == '&' || term[0] == '^' || term[0] == '|' || term[0] == '!')
       {
         while (!op_stack.empty() && (precedence(term[0]) < precedence(op_stack.back())) &&
           this->ApplyBack(op_stack, var_stack))

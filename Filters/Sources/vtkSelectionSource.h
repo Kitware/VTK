@@ -83,11 +83,11 @@ public:
   /**
    * Set/Get the expression that defines the boolean expression to combine the
    * selection nodes. Expression consists of node name identifiers, `|` for
-   * boolean-or, '&' for boolean and, '!' for boolean not, and parenthesis `(`
-   * and `)`. If you want to set the expression, be sure to define the node names.
-   * If no expression is specified and there are multiple selection nodes, then
-   * the default expression simply combines all the selection nodes using an
-   * `or` operator.
+   * boolean-or, '^' for boolean-xor, '&' for boolean and, '!' for boolean not,
+   * and parenthesis `(` and `)`. If you want to set the expression, be sure to
+   * define the node names. If no expression is specified and there are multiple
+   * selection nodes, then the default expression simply combines all the selection
+   * nodes using an `or` operator.
    *
    * `SetExpression` does not validate the expression. It will be validated in
    * `internally.
