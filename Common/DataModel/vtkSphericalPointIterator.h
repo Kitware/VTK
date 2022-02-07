@@ -110,13 +110,14 @@ public:
    * Define the axes for the point iterator. This only needs to be defined
    * once (typically immediately after instantiation). The axes data array
    * must be a 3-component array, where each 3-tuple defines a vector
-   * defining a axis. The order in which the axes are defined determines the
-   * order in which the axes are traversed. Depending on the order, it's
-   * possible to create a variety of traversal patterns, ranging from
-   * clockwise/counterclockwise to spiral to ping pong (e.g., -x,+x, -y,+y,
-   * -z,+z). Note: the defining axes need not be normalized, they are
-   * normalized and copied into internal iterator storage in the Initialize()
-   * method.
+   * defining a axis. The number of axes is limited to 100,000 or less
+   * (typically the numbers of axes are <=20). The order in which the axes
+   * are defined determines the order in which the axes are
+   * traversed. Depending on the order, it's possible to create a variety of
+   * traversal patterns, ranging from clockwise/counterclockwise to spiral to
+   * ping pong (e.g., -x,+x, -y,+y, -z,+z). Note: the defining axes need not
+   * be normalized, they are normalized and copied into internal iterator
+   * storage in the Initialize() method.
    */
   vtkSetSmartPointerMacro(Axes, vtkDoubleArray);
   vtkGetSmartPointerMacro(Axes, vtkDoubleArray);

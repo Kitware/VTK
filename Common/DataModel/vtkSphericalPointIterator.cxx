@@ -75,7 +75,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
       return false;
     }
     std::vector<vtkIdType>& axisPts = this->Points[axis];
-    if (ptIdx >= axisPts.size())
+    if (ptIdx >= static_cast<int>(axisPts.size()))
     {
       return false;
     }
@@ -96,11 +96,16 @@ struct vtkSphericalPointIterator::SphericalPointIterator
   }
 
   // Propagate the VTK class information to this internal iterator.
-  // Make sure the axes are normalized.
+  // Make sure the axes are normalized. There is an upper limit on
+  // the number of axes, here it's set to a ridiculously large number.
+  // Typically the number of axes is 20 or less.
   void Define(vtkDataSet* ds, vtkDoubleArray* axes)
   {
+    constexpr int MAX_NUM_AXES = 100000;
+
     this->Clear();
     vtkIdType numAxes = axes->GetNumberOfTuples();
+    numAxes = (numAxes < MAX_NUM_AXES ? numAxes : MAX_NUM_AXES);
     this->Points.resize(numAxes); // creates empty points vectors
 
     this->DataSet = ds;
@@ -109,7 +114,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
     {
       axes->GetTuple(i, a);
       vtkMath::Normalize(a);
-      this->Axes.push_back(a);
+      this->Axes.emplace_back(a);
     }
   }
 
@@ -143,7 +148,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
   void SortPointsOnAxis(std::vector<vtkIdType>& points, int dir)
   {
     // Make sure there is work to do
-    if (points.size() < 1)
+    if (points.empty())
     {
       return;
     }
@@ -168,7 +173,8 @@ struct vtkSphericalPointIterator::SphericalPointIterator
     }
 
     // Update the ordering of the points along the axis
-    for (auto i = 0; i < points.size(); ++i)
+    vtkIdType sze = static_cast<vtkIdType>(points.size());
+    for (vtkIdType i = 0; i < sze; ++i)
     {
       points[i] = radialSort[i].PtId;
     }
@@ -188,7 +194,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
 
     // Project points onto the best axis (with maximum positive dot product)
     double x[3], v[3], dp, dpMax;
-    int axis, axisMax;
+    int axis, axisMax = 0;
     for (auto i = 0; i < numNei; ++i)
     {
       vtkIdType ptId = neighborhood[i];
@@ -197,7 +203,8 @@ struct vtkSphericalPointIterator::SphericalPointIterator
       v[1] = x[1] - this->Center[1];
       v[2] = x[2] - this->Center[2];
       dpMax = 0; // angle between vectors must be <90 degrees
-      for (axis = 0; axis < this->Axes.size(); ++axis)
+      int sze = static_cast<int>(this->Axes.size());
+      for (axis = 0; axis < sze; ++axis)
       {
         double* a = this->Axes[axis].A;
         dp = vtkMath::Dot(a, v);
@@ -209,7 +216,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
       } // for all axes
       if (dpMax > 0)
       {
-        this->Points[axisMax].push_back(ptId);
+        this->Points[axisMax].emplace_back(ptId);
         this->NumPts++;
       }
     } // for all points in neighborhood
@@ -218,7 +225,8 @@ struct vtkSphericalPointIterator::SphericalPointIterator
     // of sorting along each of the axes.
     if (sort != vtkSphericalPointIterator::SORT_NONE)
     {
-      for (axis = 0; axis < this->Axes.size(); ++axis)
+      int sze = static_cast<int>(this->Axes.size());
+      for (axis = 0; axis < sze; ++axis)
       {
         this->SortPointsOnAxis(this->Points[axis], sort);
       }
@@ -226,7 +234,8 @@ struct vtkSphericalPointIterator::SphericalPointIterator
 
     // Determine the maximum number of points on any axis.
     this->MaxPointIndex = 0;
-    for (axis = 0; axis < this->Axes.size(); ++axis)
+    int sze = static_cast<int>(this->Axes.size());
+    for (axis = 0; axis < sze; ++axis)
     {
       vtkIdType npts = (vtkIdType)this->Points[axis].size();
       this->MaxPointIndex = (npts > this->MaxPointIndex ? npts : this->MaxPointIndex);
@@ -243,7 +252,8 @@ struct vtkSphericalPointIterator::SphericalPointIterator
   void GoToFirstPoint()
   {
     this->CurrentPointIndex = 0;
-    for (this->CurrentAxis = 0; this->CurrentAxis < this->Axes.size(); ++this->CurrentAxis)
+    int sze = static_cast<int>(this->Axes.size());
+    for (this->CurrentAxis = 0; this->CurrentAxis < sze; ++this->CurrentAxis)
     {
       if (this->IsValid(this->CurrentAxis, this->CurrentPointIndex))
       {
@@ -263,7 +273,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
     // all axes have been visited once.
     do
     {
-      if (++this->CurrentAxis >= this->Axes.size())
+      if (++this->CurrentAxis >= static_cast<int>(this->Axes.size()))
       {
         this->CurrentAxis = 0;
         this->CurrentPointIndex++;
@@ -318,7 +328,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
   // Get the points along a particular axis.
   void GetAxisPoints(int axis, vtkIdType& npts, const vtkIdType*& pts)
   {
-    if (axis < this->Axes.size())
+    if (axis < static_cast<int>(this->Axes.size()))
     {
       npts = this->Points[axis].size();
       pts = this->Points[axis].data();
