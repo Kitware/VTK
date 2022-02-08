@@ -26,6 +26,7 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkContextScene.h" // For SelectionModifier
 #include "vtkRect.h"         // For vtkRectf
 #include "vtkSmartPointer.h" // For SP ivars
 #include "vtkStdString.h"    // For vtkStdString ivars
@@ -366,10 +367,10 @@ public:
   ///@{
   /**
    * Set/get the Selection Mode that will be used by the chart while doing
-   * selection. The only valid enums are vtkContextScene::SELECTION_NONE,
-   * SELECTION_DEFAULT, SELECTION_ADDITION, SELECTION_SUBTRACTION, SELECTION_TOGGLE
+   * selection. The only valid enums are vtkContextScene::SelectionModifier.
    */
-  virtual void SetSelectionMode(int);
+  vtkSetClampMacro(
+    SelectionMode, int, vtkContextScene::SELECTION_DEFAULT, vtkContextScene::SELECTION_TOGGLE);
   vtkGetMacro(SelectionMode, int);
   ///@}
 

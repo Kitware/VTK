@@ -20,7 +20,6 @@
 #include "vtkTransform2D.h"
 
 #include "vtkAnnotationLink.h"
-#include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
 #include "vtkTextProperty.h"
 
@@ -66,7 +65,7 @@ vtkChart::vtkChart()
   this->RenderEmpty = false;
   this->BackgroundBrush = vtkSmartPointer<vtkBrush>::New();
   this->BackgroundBrush->SetColorF(1, 1, 1, 0);
-  this->SelectionMode = vtkContextScene::SELECTION_NONE;
+  this->SelectionMode = vtkContextScene::SELECTION_DEFAULT;
   this->SelectionMethod = vtkChart::SELECTION_ROWS;
 }
 
@@ -484,16 +483,4 @@ void vtkChart::AxisRangeForwarderCallback(vtkObject*, unsigned long, void*)
     this->GetAxis(i)->GetRange(&fullAxisRange[i * 2]);
   }
   this->InvokeEvent(vtkChart::UpdateRange, fullAxisRange);
-}
-
-//------------------------------------------------------------------------------
-void vtkChart::SetSelectionMode(int selMode)
-{
-  if (this->SelectionMode == selMode || selMode < vtkContextScene::SELECTION_NONE ||
-    selMode > vtkContextScene::SELECTION_TOGGLE)
-  {
-    return;
-  }
-  this->SelectionMode = selMode;
-  this->Modified();
 }

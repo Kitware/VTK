@@ -366,7 +366,7 @@ vtkScatterPlotMatrix::vtkScatterPlotMatrix()
   this->Private = new PIMPL;
   this->TitleProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->TitleProperties->SetFontSize(12);
-  this->SelectionMode = vtkContextScene::SELECTION_NONE;
+  this->SelectionMode = vtkContextScene::SELECTION_DEFAULT;
   this->ActivePlot = vtkVector2i(0, -2);
   this->ActivePlotValid = false;
   this->Animating = false;
@@ -1795,7 +1795,7 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
 //------------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
 {
-  if (this->SelectionMode == selMode || selMode < vtkContextScene::SELECTION_NONE ||
+  if (this->SelectionMode == selMode || selMode < vtkContextScene::SELECTION_DEFAULT ||
     selMode > vtkContextScene::SELECTION_TOGGLE)
   {
     return;
