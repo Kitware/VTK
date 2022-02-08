@@ -37,7 +37,7 @@ def vtkLoadPythonTkWidgets(interp):
     filename = prefix+name+extension
 
     # create an extensive list of paths to search
-    pathlist = sys.path
+    pathlist = [os.path.join(p, 'vtkmodules') for p in sys.path]
     # add tcl paths, ensure that {} is handled properly
     try:
         auto_paths = interp.getvar('auto_path').split()

@@ -313,6 +313,9 @@ class vtkTkImageViewerWidget(tkinter.Widget):
 # an example of how to use this widget
 if __name__ == "__main__":
     from vtkmodules.vtkImagingSources import vtkImageCanvasSource2D
+    # load implementations for rendering and interaction factory classes
+    import vtkmodules.vtkRenderingOpenGL2
+    import vtkmodules.vtkInteractionStyle
 
     canvas = vtkImageCanvasSource2D()
     canvas.SetNumberOfScalarComponents(3)
