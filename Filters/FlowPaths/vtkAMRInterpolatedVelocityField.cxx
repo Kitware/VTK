@@ -96,7 +96,9 @@ int vtkAMRInterpolatedVelocityField::SelfInitialize()
   for (size_t cc = 0; cc < datasets.size(); ++cc)
   {
     vectors = (gVectors ? gVectors
-                        : vectors = datasets[cc]->GetCellData()->GetArray(this->VectorsSelection));
+                        : vectors = datasets[cc]
+                                      ->GetAttributesAsFieldData(this->VectorsType)
+                                      ->GetArray(this->VectorsSelection));
 
     this->AddToFunctionCache(datasets[cc], nullptr, vectors);
   }
