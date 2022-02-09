@@ -1,8 +1,3 @@
-# Disable floating point optimizations which break `isinf` and `isnan`.
-set(CMAKE_C_FLAGS "-fp-model=precise" CACHE STRING "")
-set(CMAKE_CXX_FLAGS "-fp-model=precise" CACHE STRING "")
-set(CMAKE_Fortran_FLAGS "-fp-model=precise" CACHE STRING "")
-
 # Disable modules for which there are missing dependencies.
 set(VTK_MODULE_ENABLE_VTK_CommonArchive NO CACHE STRING "") # libarchive
 set(VTK_MODULE_ENABLE_VTK_DomainsMicroscopy NO CACHE STRING "") # openslide
