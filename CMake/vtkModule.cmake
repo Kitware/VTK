@@ -170,6 +170,8 @@ LIBRARY_NAME
   vtkCommonCore
 DESCRIPTION
   The base VTK library.
+LICENSE_FILES
+  Copyright.txt
 GROUPS
   StandAlone
 DEPENDS
@@ -216,6 +218,7 @@ supported:
   * `EXCLUDE_WRAP`: If present, this module should not be wrapped in any
     language.
   * `THIRD_PARTY`: If present, this module is a third party module.
+  * `LICENSE_FILES`: A list of license files to install for the module. Optional. 
 #]==]
 
 #[==[
@@ -264,7 +267,7 @@ macro (_vtk_module_parse_module_args name_output)
   cmake_parse_arguments("${_name_NAME}"
     "IMPLEMENTABLE;EXCLUDE_WRAP;THIRD_PARTY"
     "LIBRARY_NAME;NAME;KIT"
-    "GROUPS;DEPENDS;PRIVATE_DEPENDS;OPTIONAL_DEPENDS;ORDER_DEPENDS;TEST_DEPENDS;TEST_OPTIONAL_DEPENDS;TEST_LABELS;DESCRIPTION;CONDITION;IMPLEMENTS"
+    "GROUPS;DEPENDS;PRIVATE_DEPENDS;OPTIONAL_DEPENDS;ORDER_DEPENDS;TEST_DEPENDS;TEST_OPTIONAL_DEPENDS;TEST_LABELS;DESCRIPTION;CONDITION;IMPLEMENTS;LICENSE_FILES"
     ${ARGN})
 
   if (${_name_NAME}_UNPARSED_ARGUMENTS)
@@ -852,6 +855,9 @@ function (vtk_module_scan)
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_implementable" "${${_vtk_scan_module_name}_IMPLEMENTABLE}")
+    set_property(GLOBAL
+      PROPERTY
+       "_vtk_module_${_vtk_scan_module_name}_license_files" "${${_vtk_scan_module_name}_LICENSE_FILES}")
     if (_vtk_scan_ENABLE_TESTS STREQUAL "WANT")
       set_property(GLOBAL
         PROPERTY
@@ -2194,6 +2200,8 @@ vtk_module_build(
 
   [TARGET_SPECIFIC_COMPONENTS <ON|OFF>]
 
+  [LICENSE_COMPONENT  <component>]
+
   [UTILITY_TARGET     <target>]
 
   [TEST_DIRECTORY_NAME        <name>]
@@ -2241,6 +2249,8 @@ have reasonable defaults if not specified.
     for the libraries built.
   * `TARGET_SPECIFIC_COMPONENTS`: (Defaults to `OFF`) If `ON`, place artifacts
     into target-specific install components (`<TARGET>-<COMPONENT>`).
+  * `LICENSE_COMPONENT`: (Defaults to `licenses`) The install component to use
+    for licenses.
   * `UTILITY_TARGET`: If specified, all libraries and executables made by the
     VTK Module API will privately link to this target. This may be used to
     provide things such as project-wide compilation flags or similar.
@@ -2280,8 +2290,7 @@ See CMake documentation for the difference between `ARCHIVE`, `LIBRARY`, and
   * `CMAKE_DESTINATION`: (Defaults to `<LIBRARY_DESTINATION>/cmake/<PACKAGE>`)
     The install destination for CMake files.
   * `LICENSE_DESTINATION`: (Defaults to `${CMAKE_INSTALL_DATAROOTDIR}/licenses/${CMAKE_PROJECT_NAME}`)
-    The install destination for license files (relevant for third party
-    packages).
+    The install destination for license files.
   * `HIERARCHY_DESTINATION`: (Defaults to
     `<LIBRARY_DESTINATION>/vtk/hierarchy/<PACKAGE>`) The install destination
     for hierarchy files (used for language wrapping).
@@ -2295,6 +2304,7 @@ function (vtk_module_build)
     # Targets
     INSTALL_EXPORT
     TARGETS_COMPONENT
+    LICENSE_COMPONENT
     TARGET_NAMESPACE
     UTILITY_TARGET
 
@@ -2405,6 +2415,10 @@ function (vtk_module_build)
 
   if (NOT DEFINED _vtk_build_HEADERS_COMPONENT)
     set(_vtk_build_HEADERS_COMPONENT "development")
+  endif ()
+
+  if (NOT DEFINED _vtk_build_LICENSE_COMPONENT)
+    set(_vtk_build_LICENSE_COMPONENT "licenses")
   endif ()
 
   if (NOT DEFINED _vtk_build_ARCHIVE_DESTINATION)
@@ -3855,6 +3869,19 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
   if (_vtk_add_module_build_with_kit)
     _vtk_module_install("${_vtk_add_module_target_name}-objects")
   endif ()
+
+  get_property(_vtk_add_module_LICENSE_FILES GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_license_files")
+  if (_vtk_add_module_LICENSE_FILES)
+    if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
+      string(PREPEND _vtk_build_LICENSE_COMPONENT "${_vtk_build_module}-")
+    endif ()
+    install(
+      FILES       ${_vtk_add_module_LICENSE_FILES}
+      DESTINATION "${_vtk_build_LICENSE_DESTINATION}/${_vtk_add_module_library_name}/"
+      COMPONENT   "${_vtk_build_LICENSE_COMPONENT}")
+  endif ()
+
 endfunction ()
 
 #[==[

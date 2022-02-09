@@ -2,6 +2,8 @@ NAME
   VTK::IOMINC
 LIBRARY_NAME
   vtkIOMINC
+LICENSE_FILES
+  Copyright.txt
 GROUPS
   StandAlone
 DEPENDS
