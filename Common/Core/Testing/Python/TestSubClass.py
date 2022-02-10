@@ -104,12 +104,12 @@ class TestSubclass(Testing.vtkTest):
         self.assertEqual(o.__class__, vtkCustomObject)
         self.assertNotEqual(i, id(o))
 
-    def testOverWrite(self):
+    def testOverride(self):
         """Make sure that overwriting with a subclass works"""
         self.assertFalse(isinstance(vtk.vtkPoints(), vtkPointsCustom))
-        vtk.vtkPoints.overwrite(vtkPointsCustom)
+        vtk.vtkPoints.override(vtkPointsCustom)
         self.assertTrue(isinstance(vtk.vtkPoints(), vtkPointsCustom))
-        vtk.vtkPoints.overwrite(vtk.vtkPoints)
+        vtk.vtkPoints.override(vtk.vtkPoints)
         self.assertFalse(isinstance(vtk.vtkPoints(), vtkPointsCustom))
 
 if __name__ == "__main__":

@@ -52,38 +52,69 @@ PyVTKClass::PyVTKClass(
 }
 
 //------------------------------------------------------------------------------
-// C API
-
-static PyObject* PyVTKClass_overwrite(PyObject* cls, PyObject* type)
+// Create a Python "override" method
+// See the help string below this function for details.
+static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
 {
   PyTypeObject* typeobj = (PyTypeObject*)cls;
-  std::string clsName(typeobj->tp_name);
-  size_t idx = clsName.find_last_of(".") + 1;
-  clsName = clsName.substr(idx, clsName.length() - idx);
+  std::string clsName = vtkPythonUtil::StripModule(typeobj->tp_name);
 
   if (Py_TYPE(type) == &PyType_Type)
   {
-    PyTypeObject* to = (PyTypeObject*)type;
-    if (PyType_IsSubtype(to, typeobj))
+    PyTypeObject* newtypeobj = (PyTypeObject*)type;
+    if (PyType_IsSubtype(newtypeobj, typeobj))
     {
+      // Make sure "type" and intermediate classes aren't wrapped classes
+      for (PyTypeObject* tp = newtypeobj; tp && tp != typeobj; tp = tp->tp_base)
+      {
+        if (vtkPythonUtil::FindClass(vtkPythonUtil::StripModule(tp->tp_name)))
+        {
+          std::string str("method requires overriding with a pure python subclass of ");
+          str += clsName;
+          str += ", subclassing from VTK C++ subclasses is not allowed.";
+          PyErr_SetString(PyExc_TypeError, str.c_str());
+          return nullptr;
+        }
+      }
+
+      // Set the override
       PyVTKClass* thecls = vtkPythonUtil::FindClass(clsName.c_str());
-      thecls->py_type = to;
+      thecls->py_type = newtypeobj;
+      // Store override in dict of old type, to keep a reference to it
+      PyDict_SetItemString(typeobj->tp_dict, "__override__", type);
     }
     else
     {
       std::string str("method requires a subtype of ");
       str += clsName.c_str();
       PyErr_SetString(PyExc_TypeError, str.c_str());
+      return nullptr;
     }
   }
   else
   {
     PyErr_SetString(PyExc_TypeError, "method requires a type object.");
+    return nullptr;
   }
 
-  Py_INCREF(Py_None);
-  return Py_None;
+  Py_INCREF(type);
+  return type;
 }
+
+static PyMethodDef PyVTKClass_override_def = { "override", PyVTKClass_override, METH_CLASS | METH_O,
+  "This method can be used to override a VTK class with a Python subclass.\n"
+  "The class type passed to override will afterwards be instantiated\n"
+  "instead of the type override is called on.\n"
+  "For example,\n"
+  "\n"
+  "class foo(vtk.vtkPoints):\n"
+  "  pass\n"
+  "vtk.vtkPoints.override(foo)\n"
+  "\n"
+  "will lead to foo being instantied everytime vtkPoints() is called.\n"
+  "The main objective of this functionality is to enable developers to\n"
+  "extend VTK classes with more pythonic subclasses that contain\n"
+  "convenience functionality.\n" };
 
 //------------------------------------------------------------------------------
 // Add a class, add methods and members to its type object.  A return
@@ -122,22 +153,14 @@ PyTypeObject* PyVTKClass_Add(
     PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
     Py_DECREF(func);
   }
-  static PyMethodDef overwrite = { "overwrite", PyVTKClass_overwrite, METH_CLASS | METH_O,
-    "This method can be used to overwrite a VTK class with a Python subclass.\n"
-    "The class type passed to overwrite will afterwards be instantiated\n"
-    "instead of the type overwrite is called on.\n"
-    "For example,\n"
-    "class foo(vtk.vtkPoints):\n"
-    "  pass\n"
-    "vtk.vtkPoints.overwrite(foo)\n"
-    "\n"
-    "will lead to foo being instantied everytime vtkPoints() is called.\n"
-    "The main objective of this functionality is to enable developers to\n"
-    "extend VTK classes with more pythonic subclasses that contain\n"
-    "convenience functionality.\n" };
-  PyObject* func = PyDescr_NewClassMethod(pytype, &overwrite);
-  PyDict_SetItemString(pytype->tp_dict, overwrite.ml_name, func);
-  Py_DECREF(func);
+
+  // Add the override method
+  if (strcmp(classname, "vtkObjectBase") == 0)
+  {
+    PyObject* func = PyDescr_NewClassMethod(pytype, &PyVTKClass_override_def);
+    PyDict_SetItemString(pytype->tp_dict, PyVTKClass_override_def.ml_name, func);
+    Py_DECREF(func);
+  }
 
   return pytype;
 }
