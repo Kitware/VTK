@@ -47,8 +47,8 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkDiscreteFlyingEdges2D vtkDiscreteMarchingCubes vtkContourLoopExtraction
- * vtkFlyingEdges2D vtkFlyingEdges3D
+ * vtkSurfaceNets2D vtkDiscreteFlyingEdges2D vtkDiscreteMarchingCubes
+ * vtkContourLoopExtraction vtkFlyingEdges2D vtkFlyingEdges3D
  */
 
 #ifndef vtkDiscreteFlyingEdgesClipper2D_h

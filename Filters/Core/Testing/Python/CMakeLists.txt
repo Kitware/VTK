@@ -24,6 +24,8 @@ vtk_add_test_python(
   TestCleanPolyhedraGrid.py
   TestCleanUnstructuredGrid.py
   TestCompositeDataSetPlaneCutter.py
+  TestConstrainedSmoothingFilter.py
+  TestConstrainedSmoothingFilter2.py
   TestContour3DLinearGrid.py
   TestContour3DLinearGrid2.py
   TestContour3DLinearGridCompositeInput.py
@@ -63,6 +65,8 @@ vtk_add_test_python(
   TestSphereTreeFilter2.py
   TestStaticCleanPolyData.py
   TestStructuredGridPlaneCutter.py
+  TestSurfaceNets2D.py
+  TestSurfaceNets2D2.py
   TestSynchronizedTemplates2D.py
   TestSynchronizedTemplates3D.py
   TestWindowedSincPolyDataFilter.py

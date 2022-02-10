@@ -21,6 +21,7 @@
 #include "vtkImageTransform.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLabelMapLookup.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
@@ -37,133 +38,6 @@ vtkStandardNewMacro(vtkDiscreteFlyingEdgesClipper2D);
 //============================================================================
 namespace
 { // anonymous
-
-// Determine whether an image label/value is a specified contour
-// value. Different data structures are used depending on the
-// number of contour values. A cache is used for the common case
-// of repeated queries for the same contour value.
-template <typename T>
-struct ContourMap
-{
-  T CachedValue;
-  T CachedOutValue;
-  bool CachedOutValueInitialized;
-
-  ContourMap(double* values, int vtkNotUsed(numValues))
-  {
-    this->CachedValue = static_cast<T>(values[0]);
-    this->CachedOutValue = static_cast<T>(values[0]);
-    this->CachedOutValueInitialized = false;
-  }
-  virtual ~ContourMap() = default;
-  virtual bool IsContourValue(T label) = 0;
-  bool IsContourValueInCache(T label, bool& inContourSet)
-  {
-    if (label == this->CachedValue)
-    {
-      inContourSet = true;
-      return true;
-    }
-    else if (this->CachedOutValueInitialized && label == this->CachedOutValue)
-    {
-      inContourSet = false;
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-};
-
-// Cache a single contour value
-template <typename T>
-struct SingleContourValue : public ContourMap<T>
-{
-  SingleContourValue(double* values)
-    : ContourMap<T>(values, 1)
-  {
-  }
-  bool IsContourValue(T label) override { return label == this->CachedValue; }
-};
-
-// Represent a few contour values
-template <typename T>
-struct ContourVector : public ContourMap<T>
-{
-  std::vector<T> Map;
-
-  ContourVector(double* values, int numValues)
-    : ContourMap<T>(values, numValues)
-  {
-    for (int vidx = 0; vidx < numValues; vidx++)
-    {
-      Map.push_back(static_cast<T>(values[vidx]));
-    }
-  }
-  bool IsContourValue(T label) override
-  {
-    bool inContourSet;
-    if (this->IsContourValueInCache(label, inContourSet))
-    {
-      return inContourSet;
-    }
-
-    else
-    {
-      if (std::find(this->Map.begin(), this->Map.end(), label) != this->Map.end())
-      {
-        this->CachedValue = label;
-        return true;
-      }
-      else
-      {
-        this->CachedOutValue = label;
-        this->CachedOutValueInitialized = true;
-        return false;
-      }
-    }
-  }
-};
-
-// Represent many contour values
-template <typename T>
-struct ContourSet : public ContourMap<T>
-{
-  std::set<T> Map;
-
-  ContourSet(double* values, int numValues)
-    : ContourMap<T>(values, numValues)
-  {
-    for (int vidx = 0; vidx < numValues; vidx++)
-    {
-      Map.insert(static_cast<T>(values[vidx]));
-    }
-  }
-  bool IsContourValue(T label) override
-  {
-    bool inContourSet;
-    if (this->IsContourValueInCache(label, inContourSet))
-    {
-      return inContourSet;
-    }
-
-    else
-    {
-      if (this->Map.find(label) != this->Map.end())
-      {
-        this->CachedValue = label;
-        return true;
-      }
-      else
-      {
-        this->CachedOutValue = label;
-        this->CachedOutValueInitialized = true;
-        return false;
-      }
-    }
-  }
-};
 
 // This templated class is the heart of the algorithm. Templated across
 // scalar type T. vtkDiscreteFlyingEdgesClipper2D populates the information
@@ -211,7 +85,7 @@ public:
   int Max1;
   int Inc1;
   int Axis2;
-  ContourMap<T>* CMap;
+  vtkLabelMapLookup<T>* LMap;
 
   // Output data. Threads write to partitioned memory.
   T* Scalars;
@@ -1175,7 +1049,7 @@ void vtkDiscreteClipperAlgorithm<T>::ClassifyXEdges(T* inPtr, vtkIdType row)
   vtkIdType* eMD = this->EdgeMetaData + row * 6;
   unsigned char* dPtr = this->DyadCases + row * nxcells;
   T s0, sx = (*inPtr);
-  bool isCV0, isCVx = this->CMap->IsContourValue(sx);
+  bool isCV0, isCVx = this->LMap->IsLabelValue(sx);
 
   // run along the entire x-edge classifying dyad x and y axes
   std::fill_n(eMD, 6, 0);
@@ -1192,7 +1066,7 @@ void vtkDiscreteClipperAlgorithm<T>::ClassifyXEdges(T* inPtr, vtkIdType row)
     else
     {
       sx = static_cast<T>(*(inPtr + (i + 1) * this->Inc0));
-      isCVx = this->CMap->IsContourValue(sx);
+      isCVx = this->LMap->IsLabelValue(sx);
     }
 
     // Is the current vertex a contour value?
@@ -1513,18 +1387,7 @@ void vtkDiscreteClipperAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdgesClipper2
   // requiring a fast lookup as to whether a data value is a contour value.
   // Depending on the number of contours, different lookup strategies are
   // used.
-  if (numContours == 1)
-  {
-    algo.CMap = new SingleContourValue<T>(values);
-  }
-  else if (numContours < 10)
-  {
-    algo.CMap = new ContourVector<T>(values, numContours);
-  }
-  else
-  {
-    algo.CMap = new ContourSet<T>(values, numContours);
-  }
+  algo.LMap = vtkLabelMapLookup<T>::CreateLabelLookup(values, numContours);
 
   // The algorithm is separated into multiple passes. The first pass detects
   // intersections on row edges, counting the number of intersected edges as
@@ -1601,7 +1464,7 @@ void vtkDiscreteClipperAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdgesClipper2
   // Clean up and return
   delete[] algo.DyadCases;
   delete[] algo.EdgeMetaData;
-  delete algo.CMap;
+  delete algo.LMap;
 }
 
 } // anonymous namespace

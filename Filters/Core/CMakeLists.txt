@@ -21,6 +21,7 @@ set(classes
   vtkCompositeCutter
   vtkCompositeDataProbeFilter
   vtkConnectivityFilter
+  vtkConstrainedSmoothingFilter
   vtkContour3DLinearGrid
   vtkContourFilter
   vtkContourGrid
@@ -43,6 +44,7 @@ set(classes
   vtkExplicitStructuredGridCrop
   vtkExplicitStructuredGridToUnstructuredGrid
   vtkExtractCellsAlongPolyLine
+  vtkExtractEdges
   vtkFeatureEdges
   vtkFieldDataToAttributeDataFilter
   vtkFlyingEdges2D
@@ -97,6 +99,7 @@ set(classes
   vtkStripper
   vtkStructuredGridAppend
   vtkStructuredGridOutlineFilter
+  vtkSurfaceNets2D
   vtkSynchronizedTemplates2D
   vtkSynchronizedTemplates3D
   vtkSynchronizedTemplatesCutter3D

@@ -9,7 +9,6 @@ set(classes
   vtkExtractDataArraysOverTime
   vtkExtractDataOverTime
   vtkExtractDataSets
-  vtkExtractEdges
   vtkExtractExodusGlobalTemporalVariables
   vtkExtractGeometry
   vtkExtractGrid
