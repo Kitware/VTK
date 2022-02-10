@@ -100,9 +100,9 @@ public:
    * will appear when the mouse pointer enters the region bounded by the
    * border widget.
    * This method is provided as conveniency to set both horizontal and
-   * vertical borders.
+   * vertical borders, and the polygon background.
    * BORDER_ON by default.
-   * See Also: SetShowHorizontalBorder(), SetShowVerticalBorder()
+   * See Also: SetShowHorizontalBorder(), SetShowVerticalBorder(), SetShowPolygon()
    */
   virtual void SetShowBorder(int border);
   virtual int GetShowBorderMinValue();
@@ -116,6 +116,7 @@ public:
   ///@{
   /**
    * Specify when and if the vertical border should appear.
+   * BORDER_ON by default.
    * See Also: SetShowBorder(), SetShowHorizontalBorder()
    */
   vtkSetClampMacro(ShowVerticalBorder, int, BORDER_OFF, BORDER_ACTIVE);
@@ -125,6 +126,7 @@ public:
   ///@{
   /**
    * Specify when and if the horizontal border should appear.
+   * BORDER_ON by default.
    * See Also: SetShowBorder(), SetShowVerticalBorder()
    */
   vtkSetClampMacro(ShowHorizontalBorder, int, BORDER_OFF, BORDER_ACTIVE);
@@ -136,6 +138,29 @@ public:
    * Specify the properties of the border.
    */
   vtkGetObjectMacro(BorderProperty, vtkProperty2D);
+  ///@}
+
+  ///@{
+  /**
+   * Specify when and if the border's polygon background should appear.
+   * BORDER_ON by default.
+   * See Also: SetShowBorder()
+   */
+  virtual void SetShowPolygon(int border);
+  virtual int GetShowPolygon();
+  void SetShowPolygonToOff() { this->SetShowPolygon(BORDER_OFF); }
+  void SetShowPolygonToOn() { this->SetShowPolygon(BORDER_ON); }
+  void SetShowPolygonToActive() { this->SetShowPolygon(BORDER_ACTIVE); }
+  ///@}
+
+  ///@{
+  /**
+   * Specify when and if the border polygon background should appear.
+   * BORDER_ON by default.
+   * See Also: SetShowBorder(), SetShowPolygon()
+   */
+  vtkSetClampMacro(ShowPolygonBackground, int, BORDER_OFF, BORDER_ACTIVE);
+  vtkGetMacro(ShowPolygonBackground, int);
   ///@}
 
   ///@{
@@ -311,7 +336,13 @@ public:
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   ///@}
 
+  VTK_DEPRECATED_IN_9_2_0(
+    "SetBWActorDisplayOverlay is deprecated. Use "
+    "SetBWActorDisplayOverlayEdges or SetBWActorDisplayOverlayPolygon instead.")
   void SetBWActorDisplayOverlay(bool);
+
+  void SetBWActorDisplayOverlayEdges(bool);
+  void SetBWActorDisplayOverlayPolygon(bool);
 
   ///@{
   /**
@@ -393,6 +424,7 @@ protected:
   // Ivars
   int ShowVerticalBorder = BORDER_ON;
   int ShowHorizontalBorder = BORDER_ON;
+  int ShowPolygonBackground = BORDER_ON;
   vtkNew<vtkProperty2D> BorderProperty;
   vtkNew<vtkProperty2D> PolygonProperty;
   vtkTypeBool EnforceNormalizedViewportBounds = 0;

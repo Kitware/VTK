@@ -50,7 +50,7 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
   this->Position2Coordinate->SetValue(0.48 * size[0], 0.08 * size[1]);
   this->ProportionalResizeOff();
   this->Moving = 1;
-  this->SetShowBorder(vtkBorderRepresentation::BORDER_ACTIVE);
+  this->SetShowBorderToActive();
 
   // Create the geometry in canonical coordinates
   this->Points = vtkPoints::New();
