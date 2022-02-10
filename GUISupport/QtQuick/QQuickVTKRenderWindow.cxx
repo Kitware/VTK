@@ -77,13 +77,22 @@ void QQuickVTKRenderWindow::sync()
     return;
   }
 
-  QSize windowSize = window()->size() * window()->devicePixelRatio();
-  this->m_renderWindow->SetSize(windowSize.width(), windowSize.height());
+  const double dpr = window()->devicePixelRatio();
+  const QSize screenSize = this->window()->size();
+  const QSize deviceWindowSize = screenSize * dpr;
+  this->m_interactorAdapter->SetDevicePixelRatio(dpr);
   if (auto iren = this->m_renderWindow->GetInteractor())
   {
-    iren->SetSize(windowSize.width(), windowSize.height());
+    iren->UpdateSize(deviceWindowSize.width(), deviceWindowSize.height());
     m_interactorAdapter->ProcessEvents(iren);
   }
+  else
+  {
+    this->m_renderWindow->SetSize(deviceWindowSize.width(), deviceWindowSize.height());
+  }
+  this->m_renderWindow->SetScreenSize(screenSize.width(), screenSize.height());
+  const double unscaledDPI = 72.0;
+  this->m_renderWindow->SetDPI(dpr * unscaledDPI);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -280,7 +289,7 @@ void QQuickVTKRenderWindow::mapToViewport(const QRectF& rect, double viewport[4]
 
   if (this->m_renderWindow)
   {
-    int* windowSize = this->m_renderWindow->GetSize();
+    int* windowSize = this->m_renderWindow->GetScreenSize();
     if (windowSize && windowSize[0] != 0 && windowSize[1] != 0)
     {
       viewport[0] = viewport[0] / (windowSize[0] - 1.0);
