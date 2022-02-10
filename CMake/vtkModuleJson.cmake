@@ -152,6 +152,8 @@ function (vtk_module_json)
       PROPERTY "_vtk_module_${_vtk_json_module}_library_name")
     get_property(_vtk_json_module_file GLOBAL
       PROPERTY "_vtk_module_${_vtk_json_module}_file")
+    get_property(_vtk_json_licenses GLOBAL
+      PROPERTY "_vtk_module_${_vtk_json_module}_licenses")
 
     set(_vtk_json_kit_name "null")
     if (_vtk_json_kit)
@@ -183,6 +185,7 @@ function (vtk_module_json)
     _vtk_json_string_list(_vtk_json_contents "private_depends" _vtk_json_private_depends)
     _vtk_json_string_list(_vtk_json_contents "implements" _vtk_json_implements)
     _vtk_json_string_list(_vtk_json_contents "headers" _vtk_json_headers)
+    _vtk_json_string_list(_vtk_json_contents "licenses" _vtk_json_licences)
     string(APPEND _vtk_json_contents "}, ")
   endforeach ()
   string(APPEND _vtk_json_contents "}, ")

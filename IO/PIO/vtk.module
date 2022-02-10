@@ -2,6 +2,8 @@ NAME
   VTK::IOPIO
 LIBRARY_NAME
   vtkIOPIO
+LICENSE_FILES
+  Copyright.txt
 KIT
   VTK::Parallel
 DEPENDS
