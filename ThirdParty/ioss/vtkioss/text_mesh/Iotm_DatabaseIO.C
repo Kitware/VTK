@@ -9,7 +9,8 @@
 #include <Ioss_CodeTypes.h> // for Int64Vector, IntVector
 #include <Ioss_SideBlock.h> // for SideBlock
 #include <Ioss_Utils.h>     // for Utils, IOSS_ERROR
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 
 #include <algorithm> // for copy
 #include <cassert>   // for assert

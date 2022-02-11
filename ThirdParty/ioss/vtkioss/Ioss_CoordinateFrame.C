@@ -6,7 +6,8 @@
 
 #include <Ioss_CoordinateFrame.h>
 #include <Ioss_Utils.h>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 
 namespace Ioss {
   CoordinateFrame::CoordinateFrame(int64_t my_id, char my_tag, const double *point_list)

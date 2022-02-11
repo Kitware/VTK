@@ -39,7 +39,8 @@
 #include <cctype>
 #include <climits>
 #include <cstddef>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <iomanip>
 #include <iostream>
 #include <map>

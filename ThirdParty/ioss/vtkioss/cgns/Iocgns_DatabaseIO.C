@@ -18,7 +18,8 @@
 #include <cgns/Iocgns_Utils.h>
 #include <cstddef>
 #include <ctime>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <fstream>
 #include <iostream>
 #include <numeric>

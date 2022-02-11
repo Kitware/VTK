@@ -20,8 +20,9 @@
 
 #include <algorithm>
 #include <chrono>
-#include <fmt/format.h>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ostream.h)
 #include <functional>
 #include <numeric>
 #include <random>

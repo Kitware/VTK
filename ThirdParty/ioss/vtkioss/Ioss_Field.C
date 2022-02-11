@@ -10,7 +10,8 @@
 #include <Ioss_VariableType.h>
 #include <cstddef>
 #include <cstdint>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <iostream>
 #include <string>
 #include <vector>

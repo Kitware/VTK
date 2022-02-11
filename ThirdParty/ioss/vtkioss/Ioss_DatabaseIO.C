@@ -31,7 +31,8 @@
 #include <cfloat>
 #include <cstddef>
 #include <cstring>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <iomanip>
 #include <iostream>
 #include <iterator>

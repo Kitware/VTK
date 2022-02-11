@@ -13,7 +13,8 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <numeric>
 #include <string>
 #include <tokenize.h>
