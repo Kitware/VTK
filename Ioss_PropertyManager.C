@@ -8,7 +8,8 @@
 #include <Ioss_PropertyManager.h>
 #include <Ioss_Utils.h>
 #include <cstddef>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <map>
 #include <ostream>
 #include <string>

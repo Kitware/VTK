@@ -7,8 +7,9 @@
 /* S Manoharan. Advanced Computer Research Institute. Lyon. France */
 #include <Ioss_GetLongOpt.h>
 #include <cstring>
-#include <fmt/color.h>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/color.h)
+#include VTK_FMT(fmt/ostream.h)
 #include <sstream>
 
 namespace Ioss {

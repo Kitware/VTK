@@ -12,7 +12,8 @@
 #include <string>   // for string
 
 #include <catalyst.hpp>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 
 namespace Ioss {
   class PropertyManager;
