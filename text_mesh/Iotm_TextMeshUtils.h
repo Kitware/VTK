@@ -1,11 +1,10 @@
-#ifndef IOTM_TEXTMESHUTILS_HPP_
-#define IOTM_TEXTMESHUTILS_HPP_
+#pragma once
 
 // #######################  Start Clang Header Tool Managed Headers ########################
 // clang-format off
-#include <ctype.h>                                   // for toupper
 #include <stddef.h>                                  // for size_t
 #include <algorithm>                                 // for remove, etc
+#include <cctype>                                    // for toupper, isdigit
 #include <iterator>                                  // for insert_iterator
 #include <map>
 #include <set>                                       // for set
@@ -605,5 +604,3 @@ namespace Iotm {
 
   } // namespace text_mesh
 } // namespace Iotm
-
-#endif /* IOTM_TEXTMESHUTILS_HPP_ */

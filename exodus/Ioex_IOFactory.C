@@ -14,7 +14,8 @@
 
 #include <cstddef> // for nullptr
 #include <vtk_exodusII.h>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <string> // for string
 
 #include "Ioss_CodeTypes.h" // for MPI_Comm

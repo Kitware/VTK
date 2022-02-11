@@ -29,7 +29,8 @@
 #include <algorithm>              // for copy
 #include <cassert>                // for assert
 #include <cmath>                  // for sqrt
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <generated/Iogn_DatabaseIO.h>
 #include <generated/Iogn_GeneratedMesh.h> // for GeneratedMesh
 #include <iostream>                       // for ostringstream

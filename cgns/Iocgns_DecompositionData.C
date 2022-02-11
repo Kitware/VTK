@@ -17,9 +17,10 @@
 #include <Ioss_Utils.h>
 #include <cgns/Iocgns_DecompositionData.h>
 #include <cgns/Iocgns_Utils.h>
-#include <fmt/color.h>
-#include <fmt/format.h>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/color.h)
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ostream.h)
 #include <tokenize.h>
 
 #include VTK_CGNS(pcgnslib.h)

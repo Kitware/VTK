@@ -1,11 +1,10 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#ifndef IOSS_Iogs_DatabaseIO_h
-#define IOSS_Iogs_DatabaseIO_h
+#pragma once
 
 #include "vtk_ioss_mangle.h"
 
@@ -192,7 +191,7 @@ namespace Iogs {
 
     void add_transient_fields(Ioss::GroupingEntity *entity);
 
-    GeneratedMesh *          m_generatedMesh{nullptr};
+    GeneratedMesh           *m_generatedMesh{nullptr};
     std::vector<std::string> m_sideset_names{};
 
     double currentTime{0.0};
@@ -205,4 +204,3 @@ namespace Iogs {
     bool m_useVariableDf{true};
   };
 } // namespace Iogs
-#endif // IOSS_Iogs_DatabaseIO_h

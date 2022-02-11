@@ -4,8 +4,7 @@
 //
 // See packages/seacas/LICENSE for details
 
-#ifndef IOSS_Ioss_Field_h
-#define IOSS_Ioss_Field_h
+#pragma once
 
 #include "vtk_ioss_mangle.h"
 
@@ -189,4 +188,3 @@ namespace Ioss {
     bool equal_(const Ioss::Field &rhs, bool quiet) const;
   };
 } // namespace Ioss
-#endif

@@ -21,7 +21,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <functional>
 #include <iostream>
 #include <limits>

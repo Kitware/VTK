@@ -13,7 +13,8 @@
 #include <Ioss_Utils.h>
 #include <algorithm>
 #include <cassert>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <numeric>
 
 #if !defined(NO_ZOLTAN_SUPPORT)
@@ -430,7 +431,7 @@ namespace Ioss {
 
 #if IOSS_DEBUG_OUTPUT
     fmt::print(Ioss::DEBUG(),
-               "Processor {} communicates {} nodes from and {} nodes to other processors\n",
+               "Processor {} communicates {:L} nodes from and {:L} nodes to other processors\n",
                m_processor, sumr, sums);
 #endif
     // Build the list telling the other processors which of their nodes I will
@@ -691,7 +692,7 @@ namespace Ioss {
     show_progress("\tguided_decompose Communication 2 finished");
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
+    fmt::print(Ioss::DEBUG(), "Processor {}:\t{:L} local, {:L} imported and {:L} exported elements\n",
                m_processor, m_elementCount - exp_size, imp_size, exp_size);
 #endif
   }
@@ -858,7 +859,7 @@ namespace Ioss {
     show_progress("\tmetis_decompose Communication 2 finished");
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
+    fmt::print(Ioss::DEBUG(), "Processor {}:\t{:L} local, {:L} imported and {:L} exported elements\n",
                m_processor, m_elementCount - exp_size, imp_size, exp_size);
 #endif
   }
@@ -1022,7 +1023,7 @@ namespace Ioss {
     show_progress("\tZoltan lb_partition finished");
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
+    fmt::print(Ioss::DEBUG(), "Processor {}:\t{:L} local, {:L} imported and {:L} exported elements\n",
                m_processor, m_elementCount - num_export, num_import, num_export);
 #endif
 
@@ -1367,7 +1368,7 @@ namespace Ioss {
 // Map that converts nodes from the global index (1-based) to a
 // local-per-processor index (1-based)
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {}:\tNode Count = {}\n", m_processor, nodes.size());
+    fmt::print(Ioss::DEBUG(), "Processor {}:\tNode Count = {:L}\n", m_processor, nodes.size());
 #endif
     nodeGTL.swap(nodes);
     for (size_t i = 0; i < nodeGTL.size(); i++) {
@@ -1494,7 +1495,7 @@ namespace Ioss {
       m_nodeCommMap[i] = node_global_to_local(m_nodeCommMap[i] + 1);
     }
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {} has {} shared nodes\n", m_processor,
+    fmt::print(Ioss::DEBUG(), "Processor {} has {:L} shared nodes\n", m_processor,
                m_nodeCommMap.size() / 2);
 #endif
     show_progress(__func__);
