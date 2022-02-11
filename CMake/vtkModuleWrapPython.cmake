@@ -1173,6 +1173,18 @@ function (vtk_module_add_python_module name)
       VALUE     "${_vtk_module_python_modules}")
   endforeach ()
 
+  get_property(_vtk_add_python_module_LICENSE_FILES GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_license_files")
+  if (_vtk_add_python_module_LICENSE_FILES)
+    if (_vtk_build_TARGET_SPECIFIC_COMPONENTS)
+      string(PREPEND _vtk_build_LICENSE_COMPONENT "${_vtk_build_module}-")
+    endif ()
+    install(
+      FILES       ${_vtk_add_python_module_LICENSE_FILES}
+      DESTINATION "${_vtk_build_LICENSE_DESTINATION}/${_vtk_add_python_module_target_name}/"
+      COMPONENT   "${_vtk_build_LICENSE_COMPONENT}")
+  endif ()
+
   _vtk_module_apply_properties("${_vtk_add_python_module_target_name}")
   _vtk_module_install("${_vtk_add_python_module_target_name}")
 endfunction ()
