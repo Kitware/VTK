@@ -17,9 +17,10 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <fmt/chrono.h>
-#include <fmt/format.h>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/chrono.h)
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ostream.h)
 #include <fstream>
 #include <sstream>
 #include <string>

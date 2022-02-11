@@ -7,7 +7,8 @@
 #include "Iotm_TextMesh.h"
 
 #include <Ioss_Utils.h>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <tokenize.h> // for tokenize
 
 #include <algorithm>
