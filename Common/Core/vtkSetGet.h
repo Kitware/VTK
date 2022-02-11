@@ -832,7 +832,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
       vtkObject* _object = const_cast<vtkObject*>(static_cast<const vtkObject*>(self));            \
       if (_object)                                                                                 \
       {                                                                                            \
-        vtkmsg << _object->GetClassName() << " (" << _object << "): ";                             \
+        vtkmsg << _object->GetObjectDescription() << ": ";                                         \
       }                                                                                            \
       else                                                                                         \
       {                                                                                            \
@@ -863,7 +863,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
       vtkObject* _object = const_cast<vtkObject*>(static_cast<const vtkObject*>(self));            \
       if (_object)                                                                                 \
       {                                                                                            \
-        vtkmsg << _object->GetClassName() << " (" << _object << "): ";                             \
+        vtkmsg << _object->GetObjectDescription() << ": ";                                         \
       }                                                                                            \
       else                                                                                         \
       {                                                                                            \
@@ -899,7 +899,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       if (_object)                                                                                 \
       {                                                                                            \
-        vtkmsg << _object->GetClassName() << " (" << _object << "): ";                             \
+        vtkmsg << _object->GetObjectDescription() << ": ";                                         \
       }                                                                                            \
       else                                                                                         \
       {                                                                                            \

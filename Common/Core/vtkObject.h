@@ -230,6 +230,23 @@ public:
   int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, nullptr); }
   int InvokeEvent(const char* event) { return this->InvokeEvent(event, nullptr); }
 
+  ///@{
+  /**
+   * Set/get the name of this object for reporting purposes. The name appears in
+   * warning and debug messages and in the Print output. Setting the object name
+   * does not change the MTime and does not invoke a ModifiedEvent. Derived
+   * classes implementing copying methods are expected not to copy the ObjectName.
+   */
+  virtual void SetObjectName(const std::string& objectName);
+  virtual std::string GetObjectName() const;
+  ///@}
+
+  /**
+   * The object description printed in messages and PrintSelf
+   * output. To be used only for reporting purposes.
+   */
+  std::string GetObjectDescription() const override;
+
 protected:
   vtkObject();
   ~vtkObject() override;
@@ -241,6 +258,7 @@ protected:
   bool Debug;                      // Enable debug messages
   vtkTimeStamp MTime;              // Keep track of modification time
   vtkSubjectHelper* SubjectHelper; // List of observers on this object
+  std::string ObjectName;          // Name of this object for reporting
 
   ///@{
   /**

@@ -22,6 +22,7 @@
 #include "vtkWeakPointer.h"
 
 #include <algorithm>
+#include <sstream>
 #include <vector>
 
 // Initialize static member that controls warning display
@@ -980,4 +981,30 @@ unsigned long vtkObject::AddTemplatedObserver(
   unsigned long id = this->AddObserver(event, command, priority);
   command->Delete();
   return id;
+}
+
+//------------------------------------------------------------------------------
+void vtkObject::SetObjectName(const std::string& objectName)
+{
+  vtkDebugMacro(<< vtkObjectBase::GetObjectDescription() << "set object name to '" << objectName
+                << "'");
+  this->ObjectName = objectName;
+}
+
+//------------------------------------------------------------------------------
+std::string vtkObject::GetObjectName() const
+{
+  return this->ObjectName;
+}
+
+//------------------------------------------------------------------------------
+std::string vtkObject::GetObjectDescription() const
+{
+  std::stringstream s;
+  s << this->Superclass::GetObjectDescription();
+  if (!this->ObjectName.empty())
+  {
+    s << " '" << this->ObjectName << "'";
+  }
+  return s.str();
 }

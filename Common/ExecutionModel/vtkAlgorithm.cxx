@@ -998,8 +998,7 @@ void vtkAlgorithm::SetInputConnection(int port, vtkAlgorithmOutput* input)
   // The connection is not present.
   vtkDebugMacro("Setting connection to input port index "
     << consumerPort << " from output port index " << producerPort << " on algorithm "
-    << (producer ? producer->GetAlgorithm()->GetClassName() : "") << "("
-    << (producer ? producer->GetAlgorithm() : nullptr) << ").");
+    << (producer ? producer->GetObjectDescription() : nullptr) << ".");
 
   // Add this consumer to the new input's list of consumers.
   if (newInfo)
@@ -1063,7 +1062,7 @@ void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
   // Add the new connection.
   vtkDebugMacro("Adding connection to input port index "
     << consumerPort << " from output port index " << producerPort << " on algorithm "
-    << producer->GetAlgorithm()->GetClassName() << "(" << producer->GetAlgorithm() << ").");
+    << producer->GetAlgorithm()->GetObjectDescription() << ".");
 
   // Get the information object from the producer of the new input.
   vtkInformation* newInfo = producer->GetOutputInformation(producerPort);
@@ -1155,7 +1154,7 @@ void vtkAlgorithm::RemoveInputConnection(int port, vtkAlgorithmOutput* input)
   // Remove the connection.
   vtkDebugMacro("Removing connection to input port index "
     << consumerPort << " from output port index " << producerPort << " on algorithm "
-    << producer->GetAlgorithm()->GetClassName() << "(" << producer->GetAlgorithm() << ").");
+    << producer->GetAlgorithm()->GetObjectDescription() << ".");
 
   // Get the information object from the producer of the old input.
   vtkInformation* oldInfo = producer->GetOutputInformation(producerPort);
@@ -1204,8 +1203,7 @@ void vtkAlgorithm::SetNthInputConnection(int port, int index, vtkAlgorithmOutput
   vtkDebugMacro("Setting connection index "
     << index << " to input port index " << consumerPort << " from output port index "
     << producerPort << " on algorithm "
-    << (producer ? producer->GetAlgorithm()->GetClassName() : "") << "("
-    << (producer ? producer->GetAlgorithm() : nullptr) << ").");
+    << (producer ? producer->GetAlgorithm()->GetObjectDescription() : "nullptr") << ".");
 
   // Add the consumer to the new input's list of consumers.
   if (newInfo)

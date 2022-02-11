@@ -55,6 +55,7 @@
 #include "vtkType.h"
 
 #include <atomic> // For std::atomic
+#include <string>
 
 class vtkGarbageCollector;
 class vtkGarbageCollectorToObjectBaseFriendship;
@@ -86,6 +87,12 @@ public:
    * Return the class name as a string.
    */
   const char* GetClassName() const;
+
+  /**
+   * The object description printed in messages and PrintSelf
+   * output. To be used only for reporting purposes.
+   */
+  virtual std::string GetObjectDescription() const;
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 #undef GetClassNameW

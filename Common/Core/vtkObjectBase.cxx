@@ -189,6 +189,13 @@ const char* vtkObjectBase::GetClassName() const
   return this->GetClassNameInternal();
 }
 
+std::string vtkObjectBase::GetObjectDescription() const
+{
+  std::stringstream s;
+  s << this->GetClassName() << " (" << this << ")";
+  return s.str();
+}
+
 vtkTypeBool vtkObjectBase::IsTypeOf(const char* name)
 {
   if (!strcmp("vtkObjectBase", name))
@@ -247,7 +254,7 @@ void vtkObjectBase::Print(ostream& os)
 
 void vtkObjectBase::PrintHeader(ostream& os, vtkIndent indent)
 {
-  os << indent << this->GetClassName() << " (" << this << ")\n";
+  os << indent << this->GetObjectDescription() << "\n";
 }
 
 // Chaining method to print an object's instance variables, as well as
