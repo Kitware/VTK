@@ -48,6 +48,8 @@ class vtkCustomObject(vtk.vtkObject):
             t = max(t, self._ExtraObject.GetMTime())
         return t
 
+class vtkPointsCustom(vtk.vtkPoints):
+    pass
 
 class TestSubclass(Testing.vtkTest):
     def testSubclassInstantiate(self):
@@ -101,6 +103,14 @@ class TestSubclass(Testing.vtkTest):
         # make sure the id has changed, but class the same
         self.assertEqual(o.__class__, vtkCustomObject)
         self.assertNotEqual(i, id(o))
+
+    def testOverride(self):
+        """Make sure that overwriting with a subclass works"""
+        self.assertFalse(isinstance(vtk.vtkPoints(), vtkPointsCustom))
+        vtk.vtkPoints.override(vtkPointsCustom)
+        self.assertTrue(isinstance(vtk.vtkPoints(), vtkPointsCustom))
+        vtk.vtkPoints.override(vtk.vtkPoints)
+        self.assertFalse(isinstance(vtk.vtkPoints(), vtkPointsCustom))
 
 if __name__ == "__main__":
     Testing.main([(TestSubclass, 'test')])
