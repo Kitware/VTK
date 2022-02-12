@@ -135,6 +135,7 @@ set(python_files
   vtkmodules/util/keys.py
   vtkmodules/util/misc.py
   vtkmodules/util/numpy_support.py
+  vtkmodules/util/pyi.py
   vtkmodules/util/vtkAlgorithm.py
   vtkmodules/util/vtkConstants.py
   vtkmodules/util/vtkImageExportToArray.py
@@ -219,7 +220,7 @@ else ()
   set(_vtk_python_exe "${Python3_EXECUTABLE}")
 endif ()
 
-set(_vtk_pyi_script "${VTK_SOURCE_DIR}/Utilities/Maintenance/vtk_generate_pyi.py")
+set(_vtk_pyi_script "${VTK_SOURCE_DIR}/Wrapping/Python/vtkmodules/util/pyi.py")
 add_custom_command(
   OUTPUT    ${_vtk_python_pyi_files}
   COMMAND   "${CMAKE_COMMAND}" -E env
