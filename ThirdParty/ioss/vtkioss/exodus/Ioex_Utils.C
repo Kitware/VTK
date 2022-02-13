@@ -14,7 +14,8 @@
 #include <cstring>
 #include <exodus/Ioex_Utils.h>
 #include <exodusII_int.h>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <tokenize.h>
 
 namespace {

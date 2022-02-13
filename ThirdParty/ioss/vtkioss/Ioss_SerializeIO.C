@@ -8,7 +8,8 @@
 #include <Ioss_ParallelUtils.h> // for ParallelUtils
 #include <Ioss_SerializeIO.h>
 #include <Ioss_Utils.h> // for IOSS_ERROR, Ioss::WARNING()
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <ostream> // for operator<<, etc
 #include <string>  // for char_traits
 

@@ -11,7 +11,8 @@
 #include <cassert> // for assert
 #include <cmath>   // for atan2, cos, sin
 #include <cstdlib> // for nullptr, exit, etc
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <gen_struc/Iogs_GeneratedMesh.h>
 #include <numeric>
 #include <string>
