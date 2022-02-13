@@ -1,12 +1,11 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
  * See packages/seacas/LICENSE for details
  */
-#ifndef SCOPEGUARD_H_
-#define SCOPEGUARD_H_
+#pragma once
 
 #include "vtk_ioss_mangle.h"
 
@@ -271,5 +270,3 @@ MakeGuard(Ret (Obj2::*memFun)(P1a, P2a), Obj1 *obj, P1b p1, P2b p2)
 
 #define ON_BLOCK_EXIT     ScopeGuard ANONYMOUS_VARIABLE(scopeGuard) = MakeGuard
 #define ON_BLOCK_EXIT_OBJ ScopeGuard ANONYMOUS_VARIABLE(scopeGuard) = MakeObjGuard
-
-#endif // SCOPEGUARD_H_

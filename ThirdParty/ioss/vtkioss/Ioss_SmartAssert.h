@@ -1,10 +1,9 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
-#if !defined(IOSS_SMART_ASSERT_H)
-#define IOSS_SMART_ASSERT_H
+#pragma once
 
 #include "vtk_ioss_mangle.h"
 
@@ -365,6 +364,4 @@ namespace SmartAssert {
 
 #if _MSC_VER > 1000
 #pragma warning(pop)
-#endif
-
 #endif

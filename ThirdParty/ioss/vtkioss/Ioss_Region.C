@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -39,7 +39,8 @@
 #include <cctype>
 #include <climits>
 #include <cstddef>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -605,9 +606,7 @@ namespace Ioss {
       switch (get_state()) {
       case STATE_CLOSED:
         // Make sure we can go to the specified state.
-        switch (new_state) {
-        default: success = set_state(new_state);
-        }
+        success = set_state(new_state);
         break;
 
       // For the invalid transitions; provide a more meaningful
@@ -1617,10 +1616,10 @@ namespace Ioss {
     auto        I        = aliases_[type].find(ci_alias);
     if (I == aliases_[type].end()) {
       if (type == Ioss::SIDEBLOCK) {
-	I = aliases_[Ioss::SIDESET].find(ci_alias);
-	if (I != aliases_[Ioss::SIDESET].end()) {
-	  return (*I).second;
-	}
+        I = aliases_[Ioss::SIDESET].find(ci_alias);
+        if (I != aliases_[Ioss::SIDESET].end()) {
+          return (*I).second;
+        }
       }
       return "";
     }

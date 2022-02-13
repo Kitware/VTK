@@ -6,6 +6,7 @@ DEPENDS
   VTK::cgns
 PRIVATE_DEPENDS
   VTK::exodusII
+  VTK::fmt
   VTK::zlib
 OPTIONAL_DEPENDS
   VTK::mpi

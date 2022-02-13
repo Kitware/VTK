@@ -32,7 +32,8 @@
 
 #include <Ioss_Utils.h> // for Utils, IOSS_ERROR, etc
 #include <climits>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 
 #include <catalyst.hpp>
 #include <catalyst/Iocatalyst_DatabaseIO.h>

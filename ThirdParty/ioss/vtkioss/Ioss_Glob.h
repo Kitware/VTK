@@ -1,5 +1,4 @@
-#ifndef IOSS_GLOB_CPP_H
-#define IOSS_GLOB_CPP_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -1674,5 +1673,3 @@ namespace glob {
   using wmatch = MatchResults<wchar_t>;
 
 } // namespace glob
-
-#endif // IOSS_GLOB_CPP_H

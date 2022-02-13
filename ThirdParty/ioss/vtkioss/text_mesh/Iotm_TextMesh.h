@@ -1,11 +1,10 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
-#ifndef IOSS_Iotm_TextMesh_h
-#define IOSS_Iotm_TextMesh_h
+#pragma once
 
 #include <Ioss_CodeTypes.h>
 #include <Ioss_EntityType.h> // for EntityType
@@ -21,8 +20,8 @@
 #include "Ioss_ElementTopology.h"
 #include "Ioss_StandardElementTypes.h"
 
-#include "Iotm_TextMeshUtils.h"
 #include "Iotm_TextMeshTopologyMapping.h"
+#include "Iotm_TextMeshUtils.h"
 
 namespace Iotm {
   using Topology       = TopologyMapEntry;
@@ -234,4 +233,3 @@ namespace Iotm {
     std::unordered_map<int64_t, std::vector<int64_t>> m_elementConnectivity;
   };
 } // namespace Iotm
-#endif
