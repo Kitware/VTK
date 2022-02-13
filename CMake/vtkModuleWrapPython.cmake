@@ -990,6 +990,52 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         LIBRARY DESTINATION "${_vtk_python_MODULE_DESTINATION}"
         ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
     endif () # if (_vtk_python_BUILD_STATIC)
+
+    set(_vtk_python_pyi_files)
+    set(_vtk_python_module_targets)
+    foreach (_vtk_python_module IN LISTS _vtk_python_all_wrapped_modules)
+      get_property(_vtk_python_library_name
+        TARGET    "${_vtk_python_module}"
+        PROPERTY  "INTERFACE_vtk_module_library_name")
+      list(APPEND _vtk_python_pyi_files
+        "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}/${_vtk_python_library_name}.pyi")
+      if (TARGET "${_vtk_python_library_name}Python")
+        list(APPEND _vtk_python_module_targets "${_vtk_python_library_name}Python")
+      endif ()
+    endforeach ()
+
+    set(_vtk_python_exe "${Python3_EXECUTABLE}")
+    set(_pythonpath "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}")
+    set(_vtk_pyi_script "vtkmodules/util/pyi.py")
+    if (VTK_PYTHONPATH)
+      set(_ps ":")
+      if (WIN32)
+        set(_ps $<SEMICOLON>)
+      endif ()
+      set(_pythonpath "${_pythonpath}${_ps}${VTK_PREFIX_PATH}/${VTK_PYTHONPATH}")
+      set(_vtk_pyi_script "${VTK_PREFIX_PATH}/${VTK_PYTHONPATH}/${_vtk_pyi_script}")
+    else ()
+      set(_vtk_pyi_script "${VTK_SOURCE_DIR}/Wrapping/Python/${_vtk_pyi_script}")
+    endif ()
+
+    add_custom_command(
+      OUTPUT    ${_vtk_python_pyi_files}
+      COMMAND   "${CMAKE_COMMAND}" -E env "PYTHONPATH=${_pythonpath}"
+                "${_vtk_python_exe}"
+                "${_vtk_pyi_script}"
+                -p "${_vtk_python_PYTHON_PACKAGE}"
+      DEPENDS   ${_vtk_python_module_targets}
+                "${_vtk_pyi_script}"
+      COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}")
+
+    install(
+      FILES       ${_vtk_python_pyi_files}
+      DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}"
+      COMPONENT   "${_vtk_python_component}")
+
+    add_custom_target("${_vtk_python_TARGET_NAME}_pyi" ALL
+      DEPENDS ${_vtk_python_pyi_files})
+
   endif ()
 endfunction ()
 
