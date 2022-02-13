@@ -13,7 +13,8 @@
 #include <Ioss_SideBlock.h>
 #include <cassert>
 #include <cstddef>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <string>
 #include <tokenize.h>
 #include <vector>

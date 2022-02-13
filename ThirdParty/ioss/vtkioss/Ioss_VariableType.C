@@ -16,7 +16,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <map>
 #include <sstream>
 #include <string>
@@ -295,7 +296,7 @@ namespace Ioss {
 
     char *countstr = std::strtok(nullptr, "[]");
     assert(countstr != nullptr);
-    int count = std::atoi(countstr);
+    int count = std::strtol(countstr, nullptr, 10);
     if (count <= 0) {
       delete[] typecopy;
       return false;

@@ -1,4 +1,4 @@
-// Copyright(C) 2021 National Technology & Engineering Solutions
+// Copyright(C) 2021, 2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -11,7 +11,8 @@
 #include <Ioss_MeshCopyOptions.h>
 #include <Ioss_SubSystem.h>
 
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <limits>
 
 // For Sleep...
@@ -409,10 +410,6 @@ namespace {
       else {
         std::exit(EXIT_FAILURE);
       }
-    }
-
-    if (rank == 0) {
-      fmt::print(std::cout, "\n\n Input Region summary for rank 0:\n");
     }
 
     // Get all properties of input database...

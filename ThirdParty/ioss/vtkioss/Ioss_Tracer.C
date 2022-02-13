@@ -7,7 +7,8 @@
 #include <Ioss_Tracer.h>
 #include <Ioss_Utils.h>
 #include <cassert>
-#include <fmt/ostream.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/ostream.h)
 #include <iostream>
 
 namespace Ioss {
