@@ -1020,25 +1020,28 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
       set(_vtk_pyi_script "${VTK_SOURCE_DIR}/Wrapping/Python/${_vtk_pyi_script}")
     endif ()
 
-    add_custom_command(
-      OUTPUT    ${_vtk_python_pyi_files}
-      COMMAND   "${CMAKE_COMMAND}" -E env "PYTHONPATH=${_pythonpath}"
-                "${_vtk_python_exe}"
-                "${_vtk_pyi_script}"
-                -p "${_vtk_python_PYTHON_PACKAGE}"
-                ${_vtk_python_modules}
-      DEPENDS   ${_vtk_python_module_targets}
-                ${_vtk_python_static_importer_name}
-                "${_vtk_pyi_script}"
-      COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}")
+    # XXX(python2): Remove this conditional
+    if (NOT VTK_PYTHON_VERSION STREQUAL "2")
+      add_custom_command(
+        OUTPUT    ${_vtk_python_pyi_files}
+        COMMAND   "${CMAKE_COMMAND}" -E env "PYTHONPATH=${_pythonpath}"
+                  "${_vtk_python_exe}"
+                  "${_vtk_pyi_script}"
+                  -p "${_vtk_python_PYTHON_PACKAGE}"
+                  ${_vtk_python_modules}
+        DEPENDS   ${_vtk_python_module_targets}
+                  ${_vtk_python_static_importer_name}
+                  "${_vtk_pyi_script}"
+        COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}")
 
-    install(
-      FILES       ${_vtk_python_pyi_files}
-      DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}"
-      COMPONENT   "${_vtk_python_component}")
+      install(
+        FILES       ${_vtk_python_pyi_files}
+        DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}"
+        COMPONENT   "${_vtk_python_component}")
 
-    add_custom_target("${_vtk_python_TARGET_NAME}_pyi" ALL
-      DEPENDS ${_vtk_python_pyi_files})
+      add_custom_target("${_vtk_python_TARGET_NAME}_pyi" ALL
+        DEPENDS ${_vtk_python_pyi_files})
+    endif ()
 
   endif ()
 endfunction ()
