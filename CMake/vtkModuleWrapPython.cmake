@@ -992,6 +992,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
     endif () # if (_vtk_python_BUILD_STATIC)
 
     set(_vtk_python_pyi_files)
+    set(_vtk_python_modules)
     set(_vtk_python_module_targets)
     foreach (_vtk_python_module IN LISTS _vtk_python_all_wrapped_modules)
       get_property(_vtk_python_library_name
@@ -999,6 +1000,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         PROPERTY  "INTERFACE_vtk_module_library_name")
       list(APPEND _vtk_python_pyi_files
         "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}/${_vtk_python_library_name}.pyi")
+      list(APPEND _vtk_python_modules "${_vtk_python_library_name}")
       if (TARGET "${_vtk_python_library_name}Python")
         list(APPEND _vtk_python_module_targets "${_vtk_python_library_name}Python")
       endif ()
@@ -1024,7 +1026,9 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
                 "${_vtk_python_exe}"
                 "${_vtk_pyi_script}"
                 -p "${_vtk_python_PYTHON_PACKAGE}"
+                ${_vtk_python_modules}
       DEPENDS   ${_vtk_python_module_targets}
+                ${_vtk_python_static_importer_name}
                 "${_vtk_pyi_script}"
       COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}")
 
