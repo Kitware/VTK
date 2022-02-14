@@ -90,6 +90,7 @@ class vtkImageData;
 class vtkMatrix3x3;
 class vtkMultiProcessController;
 class vtkPoints;
+class vtkPointSet;
 class vtkPolyData;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
@@ -117,7 +118,7 @@ public:
 
   /**
    * This helper structure owns a typedef to the block type of `DataSetT` used with diy to generate
-   * ghosts. This block type is defined as `DataSetTypeToBlockTypeConverter<DataSetT>::BlockType`.
+   * ghosts. This block type is defined as DataSetTypeToBlockTypeConverter<DataSetT>::BlockType.
    */
   template <class DataSetT>
   struct DataSetTypeToBlockTypeConverter;
@@ -913,12 +914,9 @@ private:
    * @note This method only does something for vtkUnstructuredGrid and vtkPolyData. The vtkDataSet
    * version is empty;
    */
-  static void InflateBoundingBoxIfNecessary(vtkDataSet* vtkNotUsed(input),
-    const double* vtkNotUsed(bounds), vtkBoundingBox& vtkNotUsed(bb));
   static void InflateBoundingBoxIfNecessary(
-    vtkUnstructuredGrid* input, const double* bounds, vtkBoundingBox& bb);
-  static void InflateBoundingBoxIfNecessary(
-    vtkPolyData* input, const double* bounds, vtkBoundingBox& bb);
+    vtkDataSet* vtkNotUsed(input), vtkBoundingBox& vtkNotUsed(bb));
+  static void InflateBoundingBoxIfNecessary(vtkPointSet* input, vtkBoundingBox& bb);
   ///@}
 };
 

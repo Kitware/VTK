@@ -4298,7 +4298,7 @@ struct CellArrayInserter
             }
           }
         }
-        else
+        else if (-pointId - 1 < this->MatchingReceivedPointIds->GetNumberOfValues())
         {
           // In this case, we already own a copy of this point. It is on the interfacing surface
           // between us and the block who sent us those ids. We have to retrieve where this point
@@ -4306,6 +4306,12 @@ struct CellArrayInserter
           // We tagged those points by giving them a negative id.
           connectivityDest->SetValue(this->ConnectivityOffset + id,
               this->MatchingReceivedPointIds->GetValue(-pointId - 1));
+        }
+        else
+        {
+          vtkLog(ERROR, "Wrong output geometry... Ghosts should not be trusted."
+            << " This is likely due to asymmetry between data shared between the partitions.");
+          connectivityDest->SetValue(this->ConnectivityOffset + id, 0);
         }
       }
     }
@@ -5385,42 +5391,24 @@ void CopyOuterLayerGridPoints(vtkStructuredGrid* input, vtkSmartPointer<vtkPoint
     }
   }
 }
-
-//----------------------------------------------------------------------------
-void InflateBoundingBoxIfNecessaryImpl(
-  vtkPointSet* input, const double* bounds, vtkBoundingBox& bb)
-{
-  vtkPoints* points = input->GetPoints();
-
-  if (points && points->GetData())
-  {
-    double eps;
-    using Dispatch = vtkArrayDispatch::Dispatch;
-    vtkDIYGhostUtilities_detail::ComputeBoundingBoxPrecisionWorker worker;
-    Dispatch::Execute(points->GetData(), worker, bounds, eps);
-    bb.Inflate(eps);
-  }
-}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
-  vtkDataSet* vtkNotUsed(input), const double* vtkNotUsed(bounds), vtkBoundingBox& vtkNotUsed(bb))
+  vtkDataSet* vtkNotUsed(input), vtkBoundingBox& vtkNotUsed(bb))
 {
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
-    vtkPolyData* input, const double* bounds, vtkBoundingBox& bb)
+    vtkPointSet* vtkNotUsed(input), vtkBoundingBox& bb)
 {
-  InflateBoundingBoxIfNecessaryImpl(input, bounds, bb);
-}
-
-//----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
-  vtkUnstructuredGrid* input, const double* bounds, vtkBoundingBox& bb)
-{
-  InflateBoundingBoxIfNecessaryImpl(input, bounds, bb);
+  // We inflate the bounding box by quite a lot (0.1% of the bounding box's largest width).
+  // It is not that problematic. It might include a few extra points to be shared across partitions.
+  // This loose inflation allows data sets that have very imprecise point positions and global ids
+  // attached to them to succeed at generating ghosts.
+  // This addresses paraview/paraview#21228
+  bb.Inflate(1e-3 * bb.GetMaxLength());
 }
 
 //----------------------------------------------------------------------------
