@@ -278,4 +278,5 @@
         - twine check (Get-ChildItem build\dist\*.whl | % FullName)
         - pip install (Get-ChildItem build\dist\*.whl | % FullName)
         - python -c "import vtk"
+        - python -m vtkmodules.util.pyi --test -p vtkmodules
     interruptible: true

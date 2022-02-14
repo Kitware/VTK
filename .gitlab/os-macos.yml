@@ -235,4 +235,5 @@
         - venv/bin/twine check build/dist/*.whl
         - venv/bin/pip install build/dist/*.whl
         - venv/bin/python -c "import vtk"
+        - venv/bin/python -m vtkmodules.util.pyi --test -p vtkmodules
     interruptible: true
