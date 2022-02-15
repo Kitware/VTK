@@ -882,4 +882,35 @@ std::vector<Ioss::StructuredBlock*> GetMatchingStructuredBlocks(
   return groups;
 }
 
+//----------------------------------------------------------------------------
+template <>
+void GetEntityAndFieldNames<Ioss::SideSet>(const Ioss::Region* region,
+  const std::vector<Ioss::SideSet*>& entities, std::set<EntityNameType>& entity_names,
+  std::set<std::string>& field_names)
+{
+  for (const auto& entity : entities)
+  {
+    const int64_t id = entity->property_exists("id") ? entity->get_property("id").get_int() : 0;
+    auto name = vtkIOSSUtilities::GetSanitizedBlockName(region, entity->name());
+    entity_names.insert(EntityNameType{ static_cast<vtkTypeUInt64>(id), name });
+
+    for (const auto& block : entity->get_side_blocks())
+    {
+      Ioss::NameList attributeNames;
+      block->field_describe(Ioss::Field::TRANSIENT, &attributeNames);
+      block->field_describe(Ioss::Field::ATTRIBUTE, &attributeNames);
+      std::copy(attributeNames.begin(), attributeNames.end(),
+        std::inserter(field_names, field_names.end()));
+    }
+
+    // not sure if there will ever be any fields on the side-set itself, but no
+    // harm in checking.
+    Ioss::NameList attributeNames;
+    entity->field_describe(Ioss::Field::TRANSIENT, &attributeNames);
+    entity->field_describe(Ioss::Field::ATTRIBUTE, &attributeNames);
+    std::copy(
+      attributeNames.begin(), attributeNames.end(), std::inserter(field_names, field_names.end()));
+  }
+}
+
 } // end of namespace.
