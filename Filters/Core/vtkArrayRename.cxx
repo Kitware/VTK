@@ -90,14 +90,6 @@ void vtkArrayRename::SetArrayName(int attributeType, const char* inputName, cons
     return;
   }
 
-  for (const std::pair<const std::string, std::string>& mapping : this->ArrayMapping[attributeType])
-  {
-    if (mapping.first != inputName && mapping.second == newName)
-    {
-      vtkWarningMacro(<< "Cannot use array name " << newName << ". Already set on another array.");
-      return;
-    }
-  }
   vtkDebugMacro(<< "Setting " << inputName << " "
                 << vtkDataObject::GetAssociationTypeAsString(attributeType) << " array name to "
                 << newName);
@@ -198,10 +190,15 @@ int vtkArrayRename::RequestData(vtkInformation* vtkNotUsed(request),
       std::string previousName = array->GetName();
       if (fieldMap.find(previousName) != fieldMap.end())
       {
+        vtkDebugMacro(<< "Renaming " << previousName << " into " << fieldMap[previousName]);
         newArray->SetName(fieldMap[previousName].c_str());
         outFd->RemoveArray(previousName.c_str());
+        if (outFd->HasArray(fieldMap[previousName].c_str()))
+        {
+          vtkWarningMacro(<< "Array name " << fieldMap[previousName]
+                          << " already in use. Overwriting an array.");
+        }
         outFd->AddArray(newArray);
-        vtkDebugMacro(<< "Renaming " << previousName << " into " << fieldMap[previousName]);
       }
       newArray->Delete();
     }
