@@ -109,8 +109,8 @@ class TestSubclass(Testing.vtkTest):
         self.assertFalse(isinstance(vtk.vtkPoints(), vtkPointsCustom))
         vtk.vtkPoints.override(vtkPointsCustom)
         self.assertTrue(isinstance(vtk.vtkPoints(), vtkPointsCustom))
-        vtk.vtkPoints.override(vtk.vtkPoints)
-        self.assertFalse(isinstance(vtk.vtkPoints(), vtkPointsCustom))
+        vtk.vtkPoints.override(None)
+        self.assertTrue(vtk.vtkPoints().__class__ == vtk.vtkPoints)
 
 if __name__ == "__main__":
     Testing.main([(TestSubclass, 'test')])

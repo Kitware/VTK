@@ -91,9 +91,21 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
       return nullptr;
     }
   }
+  else if (type == Py_None)
+  {
+    // Clear the override
+    PyVTKClass* thecls = vtkPythonUtil::FindClass(clsName.c_str());
+    thecls->py_type = typeobj;
+    // Delete the __override__ attribute if it exists
+    if (PyDict_DelItemString(typeobj->tp_dict, "__override__") == -1)
+    {
+      // Clear the KeyError that occurs if __override__ doesn't exist
+      PyErr_Clear();
+    }
+  }
   else
   {
-    PyErr_SetString(PyExc_TypeError, "method requires a type object.");
+    PyErr_SetString(PyExc_TypeError, "method requires a type object or None.");
     return nullptr;
   }
 
