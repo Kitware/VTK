@@ -170,6 +170,7 @@ PIOAdaptor::PIOAdaptor(vtkMultiProcessController* ctrl)
 PIOAdaptor::~PIOAdaptor()
 {
   delete this->pioData;
+  this->pioData = nullptr;
   this->Controller = nullptr;
   delete[] this->Impl->startCell;
   delete[] this->Impl->endCell;
@@ -242,13 +243,17 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
 
   /////////////////////////////////////////////////////////////////////////////
   //
-  // Using the dump directories and base name form the dump file names
-  // Cycle number is always at the end but a variable number of digits
+  // Using the dump directories and base name, scan for all dump files
   //
-  auto directory = vtkSmartPointer<vtkDirectory>::New();
+  vtkNew<vtkDirectory> directory;
   uint64_t numFiles = 0;
   std::map<long, std::string> fileMap;
   std::map<long, std::string>::iterator miter;
+
+  std::vector<int> cycleIndex;
+  std::vector<double> simulationTime;
+  std::vector<std::string> fileNames;
+
   for (size_t dir = 0; dir < this->dumpDirectory.size(); dir++)
   {
     if (directory->Open(this->dumpDirectory[dir].c_str()) == false)
@@ -261,25 +266,32 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
       uint64_t numDumps = 0;
       for (unsigned int i = 0; i < numFiles; i++)
       {
+        // check if fileName starts with base name
         std::string fileName = directory->GetFile(i);
-        std::size_t found = fileName.find(this->dumpBaseName);
-        if (found == 0) // base name exists in filename and is at beginning
+        std::size_t matchPos = fileName.find(this->dumpBaseName);
+        if (matchPos == 0)
         {
-          std::size_t cyclePos = found + this->dumpBaseName.size();
-          std::string timeStr = fileName.substr(cyclePos, fileName.size());
-          if (!timeStr.empty())
+          // try to open it and see if it is a valid pio file
+          std::ostringstream tmpStr;
+          tmpStr << this->dumpDirectory[dir] << Slash << fileName;
+          PIO_DATA* pioData = new PIO_DATA(tmpStr.str().c_str());
+          if (pioData->good_read())
           {
-            char* p;
-            long cycle = std::strtol(timeStr.c_str(), &p, 10);
-            if (*p == 0)
-            {
-              std::ostringstream tempStr;
-              tempStr << this->dumpDirectory[dir] << Slash << fileName;
-              std::pair<long, std::string> pair(cycle, tempStr.str());
-              fileMap.insert(pair);
-              numDumps++;
-            }
+            // Collect metadata of dump file
+            // cycle number is the first integer in the controller_i array
+            // simulation time is the first double in the controller_r8 array
+            // Note: cannot use hist_cycle and hist_time because even/odd dumps
+            // will not have the correct values
+            std::valarray<int> controller_i;
+            std::valarray<double> controller_r8;
+            pioData->set_scalar_field(controller_i, "controller_i");
+            pioData->set_scalar_field(controller_r8, "controller_r8");
+            cycleIndex.emplace_back(controller_i[0]);
+            simulationTime.emplace_back(controller_r8[0]);
+            fileNames.emplace_back(tmpStr.str());
+            numDumps++;
           }
+          delete pioData;
         }
       }
       if (numDumps == 0)
@@ -296,154 +308,55 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
       }
     }
   }
-  for (miter = fileMap.begin(); miter != fileMap.end(); ++miter)
+
+  if (cycleIndex.empty())
   {
-    this->dumpFileName.push_back(miter->second);
-  }
-  if (this->dumpFileName.empty())
-  {
+    // no dump files were found
     return 0;
   }
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Read the first file to get its index, cycle and simtime, and variables
-  //
-  this->pioData = new PIO_DATA(this->dumpFileName[0].c_str());
-  double firstCycle = 0;
-  double firstTime = 0;
-  size_t firstCycleIndex = 0;
-  if (this->pioData->good_read())
+  else
   {
-    std::valarray<double> histCycle;
-    std::valarray<double> histTime;
-    this->pioData->set_scalar_field(histCycle, "hist_cycle");
-    this->pioData->set_scalar_field(histTime, "hist_time");
-    firstCycleIndex = histCycle.size() - 1;
-    firstCycle = histCycle[firstCycleIndex];
-    firstTime = histTime[firstCycleIndex];
+    // at least one dump file was found.
+    // sort information by cycle number, and add information to permanent arrays.
+    // create an array of indices, and sort the indices array. then we can use
+    // the indices array to sort other metadata in the same order.
+    class sort_indices
+    {
+    private:
+      std::vector<int> mparr;
 
-    // Read the variable meta data for AMR and tracers
+    public:
+      sort_indices(std::vector<int> parr)
+        : mparr(parr)
+      {
+      }
+      bool operator()(int i, int j) const { return mparr[i] < mparr[j]; }
+    };
+
+    int numDumps = (int)cycleIndex.size();
+    std::vector<int> indices(numDumps);
+    for (int i = 0; i < numDumps; i++)
+    {
+      indices[i] = i;
+    }
+
+    std::sort(indices.begin(), indices.end(), sort_indices(cycleIndex));
+
+    for (int i = 0; i < numDumps; i++)
+    {
+      this->CycleIndex.emplace_back(static_cast<double>(cycleIndex[indices[i]]));
+      this->SimulationTime.emplace_back(simulationTime[indices[i]]);
+      this->dumpFileName.emplace_back(fileNames[indices[i]]);
+      this->PIOFileIndex.emplace_back(static_cast<double>(i));
+    }
+
+    // this needs to be set for later functions to use
+    this->pioData = new PIO_DATA(this->dumpFileName.back().c_str());
+
+    // collect rest of metadata
     collectVariableMetaData();
   }
-  else
-  {
-    vtkGenericWarningMacro("PIOFile " << this->dumpFileName[0] << " can't be read ");
-    return 0;
-  }
-  delete this->pioData;
-  this->pioData = nullptr;
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Read the last file to get index, cycle and simtimes for all file in directory
-  // If this is a standard directory all files do not have to be read to get
-  // the cycle and simulation time information
-  //
-  size_t numberOfTimeSteps = this->dumpFileName.size();
-  this->pioData = new PIO_DATA(this->dumpFileName[numberOfTimeSteps - 1].c_str());
-  double lastCycle = 0;
-  double lastTime = 0;
-  size_t lastCycleIndex = 0;
-  if (this->pioData->good_read())
-  {
-    // Collect all of the simulation times and cycles for entire run
-    std::valarray<double> histCycle;
-    std::valarray<double> histTime;
-    this->pioData->set_scalar_field(histCycle, "hist_cycle");
-    this->pioData->set_scalar_field(histTime, "hist_time");
-    lastCycleIndex = histCycle.size() - 1;
-    lastCycle = histCycle[lastCycleIndex];
-    lastTime = histTime[lastCycleIndex];
-
-    // Collect information for entire run which is good if no wraparound of names
-    for (size_t step = 0; step < numberOfTimeSteps; step++)
-    {
-      this->CycleIndex.push_back(histCycle[step + firstCycleIndex]);
-      this->SimulationTime.push_back(histTime[step + firstCycleIndex]);
-      this->PIOFileIndex.push_back(static_cast<double>(step));
-    }
-  }
-  else
-  {
-    vtkGenericWarningMacro(
-      "PIOFile " << this->dumpFileName[numberOfTimeSteps - 1] << " can't be read ");
-    return 0;
-  }
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // If the number of files in the history does not match number in directory
-  // all files must be opened to collect cycle, simtime, index and file names
-  // must be reordered
-  //
-  if ((this->dumpDirectory.size() == 1) &&
-    (lastCycleIndex - firstCycleIndex == numberOfTimeSteps - 1))
-  {
-    return 1;
-  }
-  else
-  {
-    // Read every file between first and last and add to information for ordering
-    std::map<double, int> fileInfo;
-    std::map<double, int>::iterator miter2;
-    std::vector<double> cycleIndex(numberOfTimeSteps);
-    std::vector<double> simulationTime(numberOfTimeSteps);
-    std::vector<double> pioFileIndex(numberOfTimeSteps);
-    std::vector<std::string> fileName(numberOfTimeSteps);
-
-    // Information from first and last files already read so add to map
-    cycleIndex[0] = firstCycle;
-    simulationTime[0] = firstTime;
-    pioFileIndex[0] = 0;
-    fileName[0] = dumpFileName[0];
-    std::pair<double, int> firstPair(firstTime, 0);
-    fileInfo.insert(firstPair);
-
-    cycleIndex[numberOfTimeSteps - 1] = lastCycle;
-    simulationTime[numberOfTimeSteps - 1] = lastTime;
-    pioFileIndex[numberOfTimeSteps - 1] = static_cast<double>(numberOfTimeSteps - 1);
-    fileName[numberOfTimeSteps - 1] = dumpFileName[numberOfTimeSteps - 1];
-    std::pair<double, int> lastPair(lastTime, static_cast<int>(numberOfTimeSteps - 1));
-    fileInfo.insert(lastPair);
-
-    // Process all files in between
-    PIO_DATA* tmpData;
-    for (size_t step = 1; step < (numberOfTimeSteps - 1); step++)
-    {
-      tmpData = new PIO_DATA(this->dumpFileName[step].c_str());
-      if (tmpData->good_read())
-      {
-        std::valarray<double> histCycle;
-        std::valarray<double> histTime;
-        tmpData->set_scalar_field(histCycle, "hist_cycle");
-        tmpData->set_scalar_field(histTime, "hist_time");
-        cycleIndex[step] = histCycle[histCycle.size() - 1];
-        simulationTime[step] = histTime[histCycle.size() - 1];
-        pioFileIndex[step] = histCycle.size() - 1;
-        fileName[step] = this->dumpFileName[step];
-        std::pair<double, int> pair(simulationTime[step], static_cast<int>(step));
-        fileInfo.insert(pair);
-      }
-      else
-      {
-        vtkGenericWarningMacro("PIOFile " << this->dumpFileName[step] << " can't be read ");
-        return 0;
-      }
-      delete tmpData;
-    }
-
-    // Move information from map into permanent arrays
-    int index = 0;
-    for (miter2 = fileInfo.begin(); miter2 != fileInfo.end(); ++miter2)
-    {
-      this->CycleIndex[index] = cycleIndex[miter2->second];
-      this->SimulationTime[index] = simulationTime[miter2->second];
-      this->PIOFileIndex[index] = pioFileIndex[miter2->second];
-      this->dumpFileName[index] = fileName[miter2->second];
-      index++;
-    }
-  }
   return 1;
 }
 
@@ -687,6 +600,8 @@ void PIOAdaptor::collectVariableMetaData()
   this->fieldsToRead.emplace_back("l_eap_version");
   this->fieldsToRead.emplace_back("hist_usernm");
   this->fieldsToRead.emplace_back("hist_prbnm");
+  this->fieldsToRead.emplace_back("controller_i");
+  this->fieldsToRead.emplace_back("controller_r8");
 
   // If tracers are contained in the file
   if (this->hasTracers == true)
@@ -872,8 +787,6 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   }
 
   // Collect other information from PIOData
-  std::valarray<double> simCycle;
-  std::valarray<double> simTime;
   double currentCycle;
   double currentTime;
   double currentIndex;
@@ -887,19 +800,24 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
     this->pioData->GetPIOData("l_eap_version", cdata);
     eap_version = cdata;
 
-    this->pioData->set_scalar_field(simCycle, "hist_cycle");
-    this->pioData->set_scalar_field(simTime, "hist_time");
-    int curIndex = static_cast<int>(simCycle.size()) - 1;
-
     this->pioData->GetPIOData("hist_usernm", cdata);
     user_name = cdata;
 
     this->pioData->GetPIOData("hist_prbnm", cdata);
     problem_name = cdata;
 
-    currentCycle = simCycle[curIndex];
-    currentTime = simTime[curIndex];
-    currentIndex = static_cast<double>(curIndex);
+    std::valarray<int> controller_i;
+    std::valarray<double> controller_r8;
+    this->pioData->set_scalar_field(controller_i, "controller_i");
+    this->pioData->set_scalar_field(controller_r8, "controller_r8");
+
+    currentCycle = static_cast<double>(controller_i[0]);
+    currentTime = controller_r8[0];
+
+    // find the current index by searching for currentCycle in CycleIndex
+    std::vector<double>::iterator it =
+      std::find(this->CycleIndex.begin(), this->CycleIndex.end(), currentCycle);
+    currentIndex = static_cast<double>(std::distance(this->CycleIndex.begin(), it));
   }
 
   // Share information

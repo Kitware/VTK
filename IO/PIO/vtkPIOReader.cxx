@@ -126,7 +126,7 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
     // otherwise a basename-dmp000000 is given and defaults are used
     if (!this->pioAdaptor->initializeGlobal(this->FileName))
     {
-      vtkErrorMacro("Error in pio description file");
+      vtkErrorMacro("Error in loading pio files");
       this->SetErrorCode(vtkErrorCode::FileFormatError);
       delete this->pioAdaptor;
       this->pioAdaptor = nullptr;
@@ -234,7 +234,7 @@ int vtkPIOReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   // If no PIOAdaptor there was an earlier failure
   if (this->pioAdaptor == nullptr)
   {
-    vtkErrorMacro("Error in pio description file");
+    vtkErrorMacro("Error in loading pio files");
     this->SetErrorCode(vtkErrorCode::FileFormatError);
     return 0;
   }
