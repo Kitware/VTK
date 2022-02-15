@@ -632,8 +632,8 @@ void vtkStreamingDemandDrivenPipeline ::CopyDefaultInformation(vtkInformation* r
           if (!inData)
           {
             vtkErrorMacro("Cannot copy default update request from output port "
-              << outputPort << " on algorithm " << this->Algorithm->GetClassName() << "("
-              << this->Algorithm << ") to input connection " << j << " on input port " << i
+              << outputPort << " on algorithm " << this->Algorithm->GetObjectDescription()
+              << " to input connection " << j << " on input port " << i
               << " because there is no data object.");
             continue;
           }
@@ -816,16 +816,14 @@ int vtkStreamingDemandDrivenPipeline ::VerifyOutputInformation(
     {
       vtkErrorMacro("No update piece number has been set in the "
                     "information for output port "
-        << outputPort << " on algorithm " << this->Algorithm->GetClassName() << "("
-        << this->Algorithm << ").");
+        << outputPort << " on algorithm " << this->Algorithm->GetObjectDescription() << ".");
       return 0;
     }
     if (!outInfo->Has(UPDATE_NUMBER_OF_PIECES()))
     {
       vtkErrorMacro("No update number of pieces has been set in the "
                     "information for output port "
-        << outputPort << " on algorithm " << this->Algorithm->GetClassName() << "("
-        << this->Algorithm << ").");
+        << outputPort << " on algorithm " << this->Algorithm->GetObjectDescription() << ".");
       return 0;
     }
     if (!outInfo->Has(UPDATE_NUMBER_OF_GHOST_LEVELS()))
@@ -842,16 +840,14 @@ int vtkStreamingDemandDrivenPipeline ::VerifyOutputInformation(
     {
       vtkErrorMacro("No whole extent has been set in the "
                     "information for output port "
-        << outputPort << " on algorithm " << this->Algorithm->GetClassName() << "("
-        << this->Algorithm << ").");
+        << outputPort << " on algorithm " << this->Algorithm->GetObjectDescription() << ".");
       return 0;
     }
     if (!outInfo->Has(UPDATE_EXTENT()))
     {
       vtkErrorMacro("No update extent has been set in the "
                     "information for output port "
-        << outputPort << " on algorithm " << this->Algorithm->GetClassName() << "("
-        << this->Algorithm << ").");
+        << outputPort << " on algorithm " << this->Algorithm->GetObjectDescription() << ".");
       return 0;
     }
     // Make sure the update request is inside the whole extent.
@@ -870,12 +866,12 @@ int vtkStreamingDemandDrivenPipeline ::VerifyOutputInformation(
         // Update extent is outside the whole extent and is not empty.
         vtkErrorMacro("The update extent specified in the "
                       "information for output port "
-          << outputPort << " on algorithm " << this->Algorithm->GetClassName() << "("
-          << this->Algorithm << ") is " << updateExtent[0] << " " << updateExtent[1] << " "
-          << updateExtent[2] << " " << updateExtent[3] << " " << updateExtent[4] << " "
-          << updateExtent[5] << ", which is outside the whole extent " << wholeExtent[0] << " "
-          << wholeExtent[1] << " " << wholeExtent[2] << " " << wholeExtent[3] << " "
-          << wholeExtent[4] << " " << wholeExtent[5] << ".");
+          << outputPort << " on algorithm " << this->Algorithm->GetObjectDescription() << " is "
+          << updateExtent[0] << " " << updateExtent[1] << " " << updateExtent[2] << " "
+          << updateExtent[3] << " " << updateExtent[4] << " " << updateExtent[5]
+          << ", which is outside the whole extent " << wholeExtent[0] << " " << wholeExtent[1]
+          << " " << wholeExtent[2] << " " << wholeExtent[3] << " " << wholeExtent[4] << " "
+          << wholeExtent[5] << ".");
         return 0;
       }
     }

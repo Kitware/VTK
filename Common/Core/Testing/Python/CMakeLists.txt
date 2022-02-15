@@ -12,6 +12,7 @@ vtk_add_test_python(
   TestFilePath.py
   TestGhost.py
   TestIterateCollection.py
+  TestObjectName.py
   TestPassByReference.py
   TestNumpySupport.py
   TestNumpyInterface.py
