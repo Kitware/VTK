@@ -52,6 +52,8 @@ foreach (lang IN ITEMS C CXX Fortran)
     "$<AND:${is_lang},${is_intelllvm},${is_intelllvm_fastmath_assuming_version}>")
 endforeach ()
 string(REPLACE ";" "," intel_oneapi_compiler_detections "${intel_oneapi_compiler_detections}")
-target_compile_options(vtkbuild
-  INTERFACE
-    "$<BUILD_INTERFACE:$<$<OR:${intel_oneapi_compiler_detections}>:-fp-model=precise>>")
+if (TARGET vtkbuild)
+  target_compile_options(vtkbuild
+    INTERFACE
+      "$<BUILD_INTERFACE:$<$<OR:${intel_oneapi_compiler_detections}>:-fp-model=precise>>")
+endif ()
