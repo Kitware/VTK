@@ -855,9 +855,18 @@ function (vtk_module_scan)
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_implementable" "${${_vtk_scan_module_name}_IMPLEMENTABLE}")
+    # create absolute path for license files
+    set(_license_files)
+    foreach (_license_file IN LISTS ${_vtk_scan_module_name}_LICENSE_FILES)
+      if (NOT IS_ABSOLUTE "${_license_file}")
+        get_filename_component(_vtk_scan_module_dir "${_vtk_scan_module_file}" DIRECTORY)
+        string(PREPEND _license_file "${_vtk_scan_module_dir}/")
+      endif ()
+      list(APPEND _license_files "${_license_file}")
+    endforeach ()
     set_property(GLOBAL
       PROPERTY
-       "_vtk_module_${_vtk_scan_module_name}_license_files" "${${_vtk_scan_module_name}_LICENSE_FILES}")
+        "_vtk_module_${_vtk_scan_module_name}_license_files" "${_license_files}")
     if (_vtk_scan_ENABLE_TESTS STREQUAL "WANT")
       set_property(GLOBAL
         PROPERTY
