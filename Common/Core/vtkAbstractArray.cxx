@@ -537,6 +537,29 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+const char* vtkAbstractArray::GetArrayTypeAsString() const
+{
+  switch (this->GetArrayType())
+  {
+    case AbstractArray:
+      return "AbstractArray";
+    case DataArray:
+      return "DataArray";
+    case AoSDataArrayTemplate:
+      return "AoSDataArrayTemplate";
+    case SoADataArrayTemplate:
+      return "SoADataArrayTemplate";
+    case TypedDataArray:
+      return "TypedDataArray";
+    case MappedDataArray:
+      return "MappedDataArray";
+    case ScaleSoADataArrayTemplate:
+      return "ScaleSoADataArrayTemplate";
+  }
+  return "Unknown";
+}
+
+//------------------------------------------------------------------------------
 void vtkAbstractArray::GetProminentComponentValues(
   int comp, vtkVariantArray* values, double uncertainty, double minimumProminence)
 {
