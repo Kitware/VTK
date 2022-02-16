@@ -509,9 +509,9 @@ void vtkTable::InsertColumn(vtkAbstractArray* arr, vtkIdType index)
   {
     if (c == index)
     {
-      store.push_back(arr);
+      store.emplace_back(arr);
     }
-    store.push_back(this->GetColumn(0));
+    store.emplace_back(this->GetColumn(0));
     this->RowData->RemoveArray(0);
   }
 
