@@ -559,7 +559,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     argvForPython.push_back(argCopy.get());
     argvCleanup.emplace_back(std::move(argCopy));
   }
-  int argvForPythonSize = argvForPython.size();
+  int argvForPythonSize = static_cast<int>(argvForPython.size());
   argvForPython.push_back(nullptr);
 
   vtkPythonInterpreter::InitializeWithArgs(1, argvForPythonSize, argvForPython.data());
@@ -635,7 +635,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     argvForPythonWide.push_back(argCopy.get());
     argvCleanupWide.emplace_back(std::move(argCopy));
   }
-  int argvForPythonWideSize = argvForPythonWide.size();
+  int argvForPythonWideSize = static_cast<int>(argvForPythonWide.size());
   argvForPythonWide.push_back(nullptr);
 
   vtkPythonScopeGilEnsurer gilEnsurer(false, true);
