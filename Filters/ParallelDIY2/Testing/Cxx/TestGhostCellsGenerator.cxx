@@ -389,6 +389,108 @@ bool TestMixedTypes(int myrank)
 }
 
 //----------------------------------------------------------------------------
+bool TestZeroLevels(vtkMultiProcessController* controller, int myrank)
+{
+  vtkLog(INFO, "Testing zero levels of ghosts");
+
+  bool retVal = true;
+
+  // Here, we test generating ghosts with zero layers of cells.
+  // A shallow copy of the input can be done since no geometry is added.
+  // Only ghost points are generated.
+  vtkNew<vtkImageData> image;
+  image->SetExtent(myrank == 0 ? -MaxExtent : 0, myrank == 0 ? 0 : MaxExtent, -MaxExtent, MaxExtent,
+    -MaxExtent, MaxExtent);
+  FillImage(image);
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputData(image);
+  generator->BuildIfRequiredOff();
+  generator->SetController(controller);
+  generator->SetNumberOfGhostLayers(0);
+  generator->Update();
+
+  {
+    auto output = vtkImageData::SafeDownCast(generator->GetOutputDataObject(0));
+    if (vtkArrayDownCast<vtkDoubleArray>(output->GetPointData()->GetAbstractArray(0))
+          ->GetPointer(0) !=
+      vtkArrayDownCast<vtkDoubleArray>(image->GetPointData()->GetAbstractArray(0))->GetPointer(0))
+    {
+      vtkLog(ERROR, "No shallow-copy when generating zero layers of ghosts.");
+      retVal = false;
+    }
+
+    if (output->GetCellGhostArray())
+    {
+      vtkLog(ERROR, "There should not be a ghost cell array in this output.");
+      retVal = false;
+    }
+
+    vtkUnsignedCharArray* ghostPoints = output->GetPointGhostArray();
+    vtkIdType numberOfNonGhostPoints = 0;
+
+    for (vtkIdType pointId = 0; pointId < output->GetNumberOfPoints(); ++pointId)
+    {
+      numberOfNonGhostPoints += ghostPoints->GetValue(pointId) == 0;
+    }
+    vtkIdType globalNumberOfNonGhostPoints;
+    controller->AllReduce(
+      &numberOfNonGhostPoints, &globalNumberOfNonGhostPoints, 1, vtkCommunicator::SUM_OP);
+    vtkLog(INFO, "N " << numberOfNonGhostPoints);
+    vtkLog(
+      INFO, "numberOfNonGhostPoints " << globalNumberOfNonGhostPoints << " != " << NumberOfPoints);
+    if (globalNumberOfNonGhostPoints != NumberOfPoints)
+    {
+      vtkLog(ERROR, "Ghost Point tagging failed when generating zero layers of ghosts.");
+    }
+  }
+
+  // Now we see how the filter handles generating zero layers when there already were layers in the
+  // input
+
+  vtkNew<vtkGhostCellsGenerator> generator2Layers;
+  generator2Layers->SetInputConnection(generator->GetOutputPort());
+  generator2Layers->BuildIfRequiredOff();
+  generator2Layers->SetController(controller);
+  generator2Layers->SetNumberOfGhostLayers(2);
+
+  vtkNew<vtkGhostCellsGenerator> generatorShrink;
+  generatorShrink->SetInputConnection(generator2Layers->GetOutputPort());
+  generatorShrink->BuildIfRequiredOff();
+  generatorShrink->SetController(controller);
+  generatorShrink->SetNumberOfGhostLayers(0);
+
+  generatorShrink->Update();
+
+  {
+    auto output = vtkImageData::SafeDownCast(generator->GetOutputDataObject(0));
+
+    if (output->GetCellGhostArray())
+    {
+      vtkLog(ERROR, "There should not be a ghost cell array in this output.");
+      retVal = false;
+    }
+
+    vtkUnsignedCharArray* ghostPoints = output->GetPointGhostArray();
+    vtkIdType numberOfNonGhostPoints = 0;
+
+    for (vtkIdType pointId = 0; pointId < output->GetNumberOfPoints(); ++pointId)
+    {
+      numberOfNonGhostPoints += ghostPoints->GetValue(pointId) == 0;
+    }
+    vtkIdType globalNumberOfNonGhostPoints;
+    controller->AllReduce(
+      &numberOfNonGhostPoints, &globalNumberOfNonGhostPoints, 1, vtkCommunicator::SUM_OP);
+    if (globalNumberOfNonGhostPoints != NumberOfPoints)
+    {
+      vtkLog(ERROR, "Ghost Point tagging failed when generating zero layers of ghosts.");
+    }
+  }
+
+  return retVal;
+}
+
+//----------------------------------------------------------------------------
 bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
 {
   bool retVal = true;
@@ -2914,6 +3016,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   }
 
   if (!TestMixedTypes(myrank))
+  {
+    retVal = EXIT_FAILURE;
+  }
+
+  if (!TestZeroLevels(contr, myrank))
   {
     retVal = EXIT_FAILURE;
   }

@@ -94,12 +94,6 @@ int vtkGhostCellsGenerator::RequestData(
   int numberOfGhostLayersToCompute =
     this->BuildIfRequired ? reqGhostLayers : std::max(reqGhostLayers, this->NumberOfGhostLayers);
 
-  if (numberOfGhostLayersToCompute < 1)
-  {
-    outputDO->ShallowCopy(inputDO);
-    return 1;
-  }
-
   std::vector<vtkDataObject*> inputPDSs, outputPDSs;
 
   if (auto inputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO))

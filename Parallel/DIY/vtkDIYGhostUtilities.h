@@ -883,22 +883,30 @@ protected:
     const diy::Master::ProxyWithLink& cp, int gid, PolyDataBlockStructure& blockStructure);
   ///@}
 
+  /**
+   * Copy the inputs into the outputs. Shallow copying is performed if possible. If not,
+   * a deep copy is done.
+   */
+  template <class DataSetT>
+  static void CopyInputsAndAllocateGhosts(const diy::Master& master, std::vector<DataSetT*>& inputs,
+    std::vector<DataSetT*>& outputs, int outputGhostLevels);
+
   ///@{
   /**
    * Method to be overloaded for each supported input data set type,
    * This method allocates ghosts in the output. At the point of calling this method,
    * ghosts should have already been exchanged (see `ExchangeGhosts`).
    */
-  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkImageData*>& inputs, std::vector<vtkImageData*>& outputs);
-  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs);
-  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs);
-  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkUnstructuredGrid*>& inputs, std::vector<vtkUnstructuredGrid*>& outputs);
-  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkPolyData*>& inputs, std::vector<vtkPolyData*>& outputs);
+  static void DeepCopyInputAndAllocateGhosts(
+    ImageDataBlock* block, vtkImageData* input, vtkImageData* outputs);
+  static void DeepCopyInputAndAllocateGhosts(
+    RectilinearGridBlock* block, vtkRectilinearGrid* input, vtkRectilinearGrid* outputs);
+  static void DeepCopyInputAndAllocateGhosts(
+    StructuredGridBlock* block, vtkStructuredGrid* input, vtkStructuredGrid* outputs);
+  static void DeepCopyInputAndAllocateGhosts(
+    UnstructuredGridBlock* block, vtkUnstructuredGrid* input, vtkUnstructuredGrid* outputs);
+  static void DeepCopyInputAndAllocateGhosts(
+    PolyDataBlock* block, vtkPolyData* input, vtkPolyData* outputs);
   ///@}
 
   /**
@@ -911,7 +919,8 @@ protected:
    * This methods allocate a point and cell ghost array and fills it with 0.
    */
   template <class DataSetT>
-  static void InitializeGhostArrays(diy::Master& master, std::vector<DataSetT*>& outputs);
+  static void InitializeGhostArrays(
+    diy::Master& master, std::vector<DataSetT*>& outputs, int outputGhostLevels);
 
   /**
    * Adds ghost arrays, which are present in blocks of `master`, to `outputs` point and / or cell
@@ -924,12 +933,16 @@ protected:
   /**
    * This method sets the ghost arrays in the output. Ghosts have to be already allocated.
    */
-  static void FillGhostArrays(const diy::Master& master, std::vector<vtkImageData*>& outputs);
-  static void FillGhostArrays(const diy::Master& master, std::vector<vtkRectilinearGrid*>& outputs);
-  static void FillGhostArrays(const diy::Master& master, std::vector<vtkStructuredGrid*>& outputs);
   static void FillGhostArrays(
-    const diy::Master& master, std::vector<vtkUnstructuredGrid*>& outputs);
-  static void FillGhostArrays(const diy::Master& master, std::vector<vtkPolyData*>& outputs);
+    const diy::Master& master, std::vector<vtkImageData*>& outputs, int outputGhostLevels);
+  static void FillGhostArrays(
+    const diy::Master& master, std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels);
+  static void FillGhostArrays(
+    const diy::Master& master, std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels);
+  static void FillGhostArrays(
+    const diy::Master& master, std::vector<vtkUnstructuredGrid*>& outputs, int outputGhostLevels);
+  static void FillGhostArrays(
+    const diy::Master& master, std::vector<vtkPolyData*>& outputs, int outputGhostLevels);
   ///@}
 
 private:

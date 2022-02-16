@@ -116,6 +116,9 @@ bool CheckCellFieldsForGrid(vtkUniformGrid* grid)
     {
       if (!vtkMathUtilities::FuzzyCompare(centroid[i], array->GetComponent(cellIdx, i)))
       {
+        vtkLog(ERROR, << "Array " << array->GetName() << "id: " << idx << " comp: " << i
+                      << " -- FuzzyCompare failed: " << centroid[i]
+                      << " != " << array->GetComponent(idx, i));
         return false;
       } // END if fuzz-compare
     }   // END for all components
