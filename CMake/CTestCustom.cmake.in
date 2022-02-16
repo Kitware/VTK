@@ -109,6 +109,9 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkParse.tab.c.*bugprone-sizeof-expression"
   "vtkParse.tab.c.*bugprone-suspicious-include"
   "mocs_compilation.cpp.*bugprone-suspicious-include"
+
+  # Ignore some tidy warnings from wrapper code.
+  "vtk[^\\.]+(Java|Python).cxx:.*\\[(readability-redundant-string-init)\\]"
   )
 
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")
