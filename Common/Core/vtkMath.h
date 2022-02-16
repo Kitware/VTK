@@ -1534,6 +1534,13 @@ public:
    */
   static int QuadraticRoot(double a, double b, double c, double min, double max, double* u);
 
+  /**
+   * Compute the convolution of a sampled 1D signal by a given kernel. The desired
+   * output domain (number of output samples) is given by the outputSampleSize parameter.
+   */
+  static void Convolve1D(double* inputSample, size_t inputSampleSize, double* kernel,
+    size_t kernelSize, double* outputSample, size_t outputSampleSize);
+
 protected:
   vtkMath() = default;
   ~vtkMath() override = default;
