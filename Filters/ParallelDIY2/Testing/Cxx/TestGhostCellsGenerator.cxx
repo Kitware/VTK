@@ -2773,6 +2773,8 @@ bool TestPartitionedDataSetCollection(int myrank, int numberOfGhostLayers)
 //----------------------------------------------------------------------------
 bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
 {
+  bool retVal = true;
+
   vtkNew<vtkUnstructuredGrid> ug;
   vtkNew<vtkPoints> points;
   points->SetDataType(VTK_DOUBLE);
@@ -2797,6 +2799,7 @@ bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
   cells->SetData(offsets, connectivity);
   ug->SetCells(types, cells);
 
+  // Checking point precision
   if (myrank == 0)
   {
     double p[3] = { 0.0, 0.0, 0.0 };
@@ -2813,23 +2816,74 @@ bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
     points->SetPoint(1, p);
   }
 
-  vtkNew<vtkGhostCellsGenerator> generator;
-  generator->SetInputData(ug);
-  generator->SetNumberOfGhostLayers(1);
-  generator->SetController(controller);
-  generator->BuildIfRequiredOff();
-  generator->Update();
-
-  auto output = vtkUnstructuredGrid::SafeDownCast(generator->GetOutputDataObject(0));
-
-  // The ghost cells generator would output one cell if it was sensitive to point precision.
-  if (output->GetNumberOfCells() != 2)
   {
-    vtkLog(ERROR, "Ghost cells generator is too sensitive to point precision");
-    return false;
+    vtkNew<vtkGhostCellsGenerator> generator;
+    generator->SetInputData(ug);
+    generator->SetNumberOfGhostLayers(1);
+    generator->SetController(controller);
+    generator->BuildIfRequiredOff();
+    generator->Update();
+
+    auto output = vtkUnstructuredGrid::SafeDownCast(generator->GetOutputDataObject(0));
+
+    // The ghost cells generator would output one cell if it was sensitive to point precision.
+    if (output->GetNumberOfCells() != 2)
+    {
+      vtkLog(ERROR, "Ghost cells generator is too sensitive to point precision");
+      retVal = false;
+    }
   }
 
-  return true;
+  // Checking bounding box precision
+  // See paraview/paraview#21228
+  vtkNew<vtkIdTypeArray> globalIds;
+  globalIds->SetNumberOfValues(2);
+  globalIds->SetName("globalIds");
+
+  if (myrank == 0)
+  {
+    double p[3] = { 0.0, 0.0, 0.0 };
+    points->SetPoint(0, p);
+    p[0] = 1.0;
+    points->SetPoint(1, p);
+
+    globalIds->SetValue(0, 0);
+    globalIds->SetValue(1, 1);
+  }
+  else if (myrank == 1)
+  {
+    double p[3] = { 1.0 + 5e-4, 0.0, 0.0 };
+    points->SetPoint(0, p);
+    p[0] = 2.0;
+    points->SetPoint(1, p);
+    points->Modified();
+
+    globalIds->SetValue(0, 1);
+    globalIds->SetValue(1, 2);
+  }
+  ug->GetPointData()->SetGlobalIds(globalIds);
+
+  {
+    vtkNew<vtkGhostCellsGenerator> generator;
+    generator->SetInputData(ug);
+    generator->SetNumberOfGhostLayers(1);
+    generator->SetController(controller);
+    generator->BuildIfRequiredOff();
+    generator->Update();
+
+    auto output = vtkUnstructuredGrid::SafeDownCast(generator->GetOutputDataObject(0));
+
+    // The ghost cells generator would output one cell if it was sensitive to point precision.
+    if (output->GetNumberOfCells() != 2)
+    {
+      vtkLog(ERROR,
+        "Ghost cells generator is too sensitive to bounding box precision"
+          << "in the presence of point global ids.");
+      retVal = false;
+    }
+  }
+
+  return retVal;
 }
 } // anonymous namespace
 

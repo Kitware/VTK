@@ -118,18 +118,6 @@ ValueT ComputePrecision(ValueT val)
   constexpr ValueT Min = Limits<ValueT>::Min;
   return std::max<ValueT>(val * Epsilon, Min);
 }
-
-//============================================================================
-struct ComputeBoundingBoxPrecisionWorker
-{
-  template <class ArrayT, class ValueT = typename ArrayT::ValueType>
-  void operator()(ArrayT*, const double* bounds, double& eps)
-  {
-    eps = 2 *
-      ComputePrecision<ValueT>(
-        std::max({ bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] }));
-  }
-};
 } // namesapce vtkDIYGhostUtilities_detail
 
 //----------------------------------------------------------------------------
@@ -150,7 +138,7 @@ void vtkDIYGhostUtilities::ExchangeBoundingBoxes(
         vtkBoundingBox& bb = block->BoundingBox;
         bb = vtkBoundingBox(bounds);
 
-        vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(input, bounds, bb);
+        vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(input, bb);
 
         for (int i = 0; i < srp.out_link().size(); ++i)
         {
