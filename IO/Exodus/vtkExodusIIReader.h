@@ -372,6 +372,7 @@ public:
   int GetNumberOfEntriesInObject(int objectType, int objectIndex);
   int GetObjectId(int objectType, int objectIndex);
   const char* GetObjectName(int objectType, int objectIndex);
+  using Superclass::GetObjectName;
   int GetObjectIndex(int objectType, const char* objectName);
   int GetObjectIndex(int objectType, int id);
   int GetObjectStatus(int objectType, int objectIndex);

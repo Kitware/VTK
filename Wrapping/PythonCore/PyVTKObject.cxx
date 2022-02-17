@@ -86,7 +86,7 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
     else
     {
       std::string str("method requires a subtype of ");
-      str += clsName.c_str();
+      str += clsName;
       PyErr_SetString(PyExc_TypeError, str.c_str());
       return nullptr;
     }

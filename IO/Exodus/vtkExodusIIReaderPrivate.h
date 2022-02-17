@@ -130,6 +130,7 @@ public:
    * member function.
    */
   const char* GetObjectName(int otype, int i);
+  using Superclass::GetObjectName;
 
   /** For a given object type, return the user-assigned ID of the i-th object.
    * You must have called RequestInformation before invoking this
