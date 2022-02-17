@@ -964,7 +964,7 @@ while (0)
 #endif
 
 static void
-_yy_memcpy (char *from, char *to, int count)
+yy_memcpy (char *from, char *to, int count)
 {
   char *f = from;
   char *t = to;
@@ -1092,12 +1092,12 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
     if (yystacksize > YYMAXDEPTH)
       yystacksize = YYMAXDEPTH;
     yyss = (short *) yyallocator.Allocate (yystacksize * sizeof (*yyssp));
-    _yy_memcpy ((char *)yyss1, (char *)yyss, size * sizeof (*yyssp));
+    yy_memcpy ((char *)yyss1, (char *)yyss, size * sizeof (*yyssp));
     yyvs = (YYSTYPE *) yyallocator.Allocate (yystacksize * sizeof (*yyvsp));
-    _yy_memcpy ((char *)yyvs1, (char *)yyvs, size * sizeof (*yyvsp));
+    yy_memcpy ((char *)yyvs1, (char *)yyvs, size * sizeof (*yyvsp));
 #ifdef YYLSP_NEEDED
     yyls = (YYLTYPE *) yyallocator.Allocate (yystacksize * sizeof (*yylsp));
-    _yy_memcpy ((char *)yyls1, (char *)yyls, size * sizeof (*yylsp));
+    yy_memcpy ((char *)yyls1, (char *)yyls, size * sizeof (*yylsp));
 #endif
 #endif /* no yyoverflow */
 
