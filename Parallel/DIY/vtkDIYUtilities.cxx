@@ -248,7 +248,7 @@ void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkFieldData* fd)
 {
   if (!fd)
   {
-    diy::save(bb, 0);
+    diy::save(bb, static_cast<int>(0));
   }
   else
   {
@@ -258,12 +258,12 @@ void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkFieldData* fd)
       vtkAbstractArray* aa = fd->GetAbstractArray(id);
       if (auto da = vtkArrayDownCast<vtkDataArray>(aa))
       {
-        diy::save(bb, 0); // vtkDataArray flag
+        diy::save(bb, static_cast<int>(0)); // vtkDataArray flag
         vtkDIYUtilities::Save(bb, da);
       }
       else if (auto sa = vtkArrayDownCast<vtkStringArray>(aa))
       {
-        diy::save(bb, 1); // vtkStringArray flag
+        diy::save(bb, static_cast<int>(1)); // vtkStringArray flag
         vtkDIYUtilities::Save(bb, sa);
       }
       else
@@ -391,7 +391,7 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkFieldData*& fd)
           break;
         }
         default:
-          vtkLog(ERROR, "Error while receiving array: wrong flag.");
+          vtkLog(ERROR, "Error while receiving array: wrong flag: " << flag << ".");
           break;
       }
       if (aa)
