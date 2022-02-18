@@ -116,9 +116,6 @@ bool CheckCellFieldsForGrid(vtkUniformGrid* grid)
     {
       if (!vtkMathUtilities::FuzzyCompare(centroid[i], array->GetComponent(cellIdx, i)))
       {
-        vtkLog(ERROR, << "Array " << array->GetName() << "id: " << idx << " comp: " << i
-                      << " -- FuzzyCompare failed: " << centroid[i]
-                      << " != " << array->GetComponent(idx, i));
         return false;
       } // END if fuzz-compare
     }   // END for all components
@@ -322,12 +319,13 @@ int Test2D(
 
   vtkMultiBlockDataSet* mbds =
     GetDataSet(p, WholeExtent, h, numPartitions, numGhosts, hasNodeData, hasCellData);
-  WriteMultiBlock(mbds, "INITIAL");
+  // WriteMultiBlock(mbds, "INITIAL");
 
   vtkGhostCellsGenerator* ghostDataGenerator = vtkGhostCellsGenerator::New();
 
   ghostDataGenerator->SetInputData(mbds);
   ghostDataGenerator->SetNumberOfGhostLayers(1);
+  ghostDataGenerator->BuildIfRequiredOff();
   ghostDataGenerator->Update();
 
   vtkMultiBlockDataSet* ghostedDataSet =
@@ -359,6 +357,7 @@ int Test3D(
 
   ghostDataGenerator->SetInputData(mbds);
   ghostDataGenerator->SetNumberOfGhostLayers(1);
+  ghostDataGenerator->BuildIfRequiredOff();
   ghostDataGenerator->Update();
 
   vtkMultiBlockDataSet* ghostedDataSet =
@@ -378,8 +377,11 @@ int TestUniformGridGhostDataGenerator(int, char*[])
 {
   int rc = 0;
 
-  rc += Test2D(true, false, 4, 0);
-  rc += Test2D(true, true, 16, 0);
-  rc += Test3D(false, true, 8, 0);
+  rc += Test2D(true, false, 4, 1);
+  vtkLog(INFO, "Running Test2D(true, true, 4, 1)");
+  rc += Test2D(true, true, 16, 1);
+  vtkLog(INFO, "Running Test3D(true, false, 4, 1)");
+  rc += Test3D(false, true, 8, 1);
+  vtkLog(INFO, "test end " << rc);
   return (rc);
 }
