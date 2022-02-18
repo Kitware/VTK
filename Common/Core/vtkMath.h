@@ -43,6 +43,7 @@
 #include "vtkMathPrivate.hxx"    // For Matrix meta-class helpers
 #include "vtkMatrixUtilities.h"  // For Matrix wrapping / mapping
 #include "vtkObject.h"
+#include "vtkSMPTools.h"     // For SMPTools
 #include "vtkSmartPointer.h" // For vtkSmartPointer.
 #include "vtkTypeTraits.h"   // For type traits
 
@@ -1534,12 +1535,78 @@ public:
    */
   static int QuadraticRoot(double a, double b, double c, double min, double max, double* u);
 
+  enum class ConvolutionMode
+  {
+    FULL,
+    SAME,
+    VALID
+  };
+
   /**
-   * Compute the convolution of a sampled 1D signal by a given kernel. The desired
-   * output domain (number of output samples) is given by the outputSampleSize parameter.
+   * Compute the convolution of a sampled 1D signal by a given kernel. There are 3 different modes
+   * available:
+   *
+   * The "full" mode (default), returning the convolution at each point of overlap between
+   * the sample and the kernel. The ouput size is equal to sampleSize + kernelSize + 1.
+   *
+   * The "same" mode, where the convolution is computed only if the center of the kernel
+   * overlaps with the sample. The output size is equal to the sampleSize.
+   *
+   * The "valid" mode, where the convolution is computed only if the kernel overlaps completely
+   * with the sample. The output size is equal to the sampleSize - kernelSize + 1.
+   *
+   * @note By convention, here the kernel refers to the smallest input signal of the two, but it
+   * doesn't matter if it's passed as the first or the second parameter (the convolution is
+   * commutative).
+   *
+   * @note The function does nothing if iteratorBegin >= iteratorEnd (for each couple of iterators)
+   *
+   * @note The output signal is padded with zeros if its size (endOut - beginOut) is bigger than
+   * the number of generated values. If its size is smaller, the result is truncated from the end.
    */
-  static void Convolve1D(double* inputSample, size_t inputSampleSize, double* kernel,
-    size_t kernelSize, double* outputSample, size_t outputSampleSize);
+  template <class Iter1, class Iter2, class Iter3>
+  static void Convolve1D(Iter1 beginSample, Iter1 endSample, Iter2 beginKernel, Iter2 endKernel,
+    Iter3 beginOut, Iter3 endOut, ConvolutionMode mode = ConvolutionMode::FULL)
+  {
+    int sampleSize = std::distance(beginSample, endSample);
+    int kernelSize = std::distance(beginKernel, endKernel);
+    int outSize = std::distance(beginOut, endOut);
+
+    if (sampleSize <= 0 || kernelSize <= 0 || outSize <= 0)
+    {
+      return;
+    }
+
+    int begin = 0;
+    int end = outSize;
+
+    switch (mode)
+    {
+      case ConvolutionMode::SAME:
+        begin = std::ceil(std::min(sampleSize, kernelSize) / 2.0) - 1;
+        end = begin + std::max(sampleSize, kernelSize);
+        break;
+      case ConvolutionMode::VALID:
+        begin = std::min(sampleSize, kernelSize) - 1;
+        end = begin + std::abs(sampleSize - kernelSize) + 1;
+        break;
+      case ConvolutionMode::FULL:
+      default:
+        break;
+    }
+
+    vtkSMPTools::For(begin, end, [&](int i, int _end) {
+      for (; i < _end; i++)
+      {
+        Iter3 out = beginOut + i - begin;
+        *out = 0;
+        for (int j = std::max(i - sampleSize + 1, 0); j <= std::min(i, kernelSize - 1); j++)
+        {
+          *out += *(beginSample + (i - j)) * *(beginKernel + j);
+        }
+      }
+    });
+  }
 
 protected:
   vtkMath() = default;

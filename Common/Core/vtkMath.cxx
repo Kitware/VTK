@@ -3244,22 +3244,3 @@ int vtkMath::QuadraticRoot(double a, double b, double c, double min, double max,
   }
   return 0;
 }
-
-//------------------------------------------------------------------------------
-void vtkMath::Convolve1D(double* inputSample, size_t inputSampleSize, double* kernel,
-  size_t kernelSize, double* outputSample, size_t outputSampleSize)
-{
-
-  for (size_t i = 0; i < outputSampleSize; i++)
-  {
-    outputSample[i] = 0;
-    for (size_t j = 0; j < inputSampleSize; j++)
-    {
-      if (i - j < 0 || i - j >= kernelSize)
-      {
-        continue;
-      }
-      outputSample[i] += inputSample[j] * kernel[i - j];
-    }
-  }
-}

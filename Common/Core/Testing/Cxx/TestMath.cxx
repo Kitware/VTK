@@ -39,6 +39,19 @@ bool fuzzyCompare3D(A a[3], A b[3])
   return fuzzyCompare1D(a[0], b[0]) && fuzzyCompare1D(a[1], b[1]) && fuzzyCompare1D(a[2], b[2]);
 }
 
+template <class A>
+bool fuzzyCompareNDWeak(const A& a, const A& b, int size)
+{
+  for (int i = 0; i < size; i++)
+  {
+    if (!fuzzyCompare1DWeak(a[i], b[i]))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
 //=============================================================================
 // Helpful class for storing and using color triples.
 class Triple
@@ -620,6 +633,80 @@ int TestMath(int, char*[])
   if (!(0 > vtkMath::NegInf()))
   {
     vtkGenericWarningMacro(<< "Odd comparison for negative infinity.");
+    return 1;
+  }
+
+  // Test 1D convolution
+  constexpr std::array<double, 4> sample1{ 1, 4.5, 2, 6.2 };
+  constexpr std::array<double, 3> kernel1{ 4, 0, 3.5 };
+  constexpr std::array<double, 7> sample2{ 1, 3, 4.3, 8.7, 6.5, 4.8, 0 };
+  constexpr std::array<double, 7> kernel2{ 2, 0, 1.5, 8.4, 6.2, 2.8, 6.9 };
+
+  constexpr std::array<double, 13> expectedFull1{ 4.0, 18.0, 11.5, 40.55, 7.0, 21.7, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0 };
+  constexpr std::array<double, 13> expectedSame1{ 18.0, 11.5, 40.55, 7.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0 };
+  constexpr std::array<double, 13> expectedValid1{ 11.5, 40.55, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0 };
+  constexpr std::array<double, 13> expectedFull2{ 2.0, 6.0, 10.1, 30.3, 50.85, 80.17, 124.79,
+    148.48, 134.65, 107.99, 58.29, 33.12, 0.0 };
+  constexpr std::array<double, 13> expectedSame2{ 30.3, 50.85, 80.17, 124.79, 148.48, 134.65,
+    107.99, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+  constexpr std::array<double, 13> expectedValid2{ 124.79, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0 };
+
+  std::array<double, 13> output;
+  output.fill(0.0);
+  vtkMath::Convolve1D(sample1.begin(), sample1.end(), kernel1.begin(), kernel1.end(),
+    output.begin(), output.end(), vtkMath::ConvolutionMode::FULL);
+  if (!fuzzyCompareNDWeak(output, expectedFull1, 13))
+  {
+    vtkGenericWarningMacro(<< "First \"full\" 1D convolution test failed.");
+    return 1;
+  }
+
+  output.fill(0.0);
+  vtkMath::Convolve1D(sample1.begin(), sample1.end(), kernel1.begin(), kernel1.end(),
+    output.begin(), output.end(), vtkMath::ConvolutionMode::SAME);
+  if (!fuzzyCompareNDWeak(output, expectedSame1, 13))
+  {
+    vtkGenericWarningMacro(<< "First \"same\" 1D convolution test failed.");
+    return 1;
+  }
+
+  output.fill(0.0);
+  vtkMath::Convolve1D(sample1.begin(), sample1.end(), kernel1.begin(), kernel1.end(),
+    output.begin(), output.end(), vtkMath::ConvolutionMode::VALID);
+  if (!fuzzyCompareNDWeak(output, expectedValid1, 13))
+  {
+    vtkGenericWarningMacro(<< "First \"valid\" 1D convolution test failed.");
+    return 1;
+  }
+
+  output.fill(0.0);
+  vtkMath::Convolve1D(sample2.begin(), sample2.end(), kernel2.begin(), kernel2.end(),
+    output.begin(), output.end(), vtkMath::ConvolutionMode::FULL);
+  if (!fuzzyCompareNDWeak(output, expectedFull2, 13))
+  {
+    vtkGenericWarningMacro(<< "Second \"full\" 1D convolution test failed.");
+    return 1;
+  }
+
+  output.fill(0.0);
+  vtkMath::Convolve1D(sample2.begin(), sample2.end(), kernel2.begin(), kernel2.end(),
+    output.begin(), output.end(), vtkMath::ConvolutionMode::SAME);
+  if (!fuzzyCompareNDWeak(output, expectedSame2, 13))
+  {
+    vtkGenericWarningMacro(<< "Second \"same\" 1D convolution test failed.");
+    return 1;
+  }
+
+  output.fill(0.0);
+  vtkMath::Convolve1D(sample2.begin(), sample2.end(), kernel2.begin(), kernel2.end(),
+    output.begin(), output.end(), vtkMath::ConvolutionMode::VALID);
+  if (!fuzzyCompareNDWeak(output, expectedValid2, 13))
+  {
+    vtkGenericWarningMacro(<< "Second \"valid\" 1D convolution test failed.");
     return 1;
   }
 
