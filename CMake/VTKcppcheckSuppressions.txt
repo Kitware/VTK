@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 2.6 with the flags below.
+// at least on macOS with cppcheck 2.7 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
@@ -641,6 +641,8 @@ arrayIndexOutOfBoundsCond:*/Wrapping/Tools/vtkParsePreprocess.c
 // False positives
 knownConditionTrueFalse:*/Wrapping/Tools/vtkWrapJava.c
 knownConditionTrueFalse:*/Wrapping/Tools/vtkParseJava.c
+uninitvar:*/Wrapping/Tools/vtkWrapPythonClass.c
+nullPointer:*/Wrapping/Tools/lex.yy.c
 
 // Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
 constParameter:*/Wrapping/Tools/vtkWrapPythonOverload.c
