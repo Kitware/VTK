@@ -568,6 +568,18 @@ bool vtkOpenXRRenderWindowInteractor::LoadActions(const std::string& actionFilen
     std::string localizedName = localization[name].asString();
     std::string type = action["type"].asString();
 
+    // If the action is an output, add it so that it will
+    // connect to its binding without user having to specify.
+    // Vibration is the only supported output
+    if (type == "vibration")
+    {
+      if (this->MapActionStruct_Name.count(name) == 0)
+      {
+        ActionData* am = new ActionData();
+        this->MapActionStruct_Name[name] = am;
+      }
+    }
+
     // Check if the action is used by the interactor style
     // or ourself. If that's the case, create it
     // Else do nothing
@@ -772,6 +784,19 @@ bool vtkOpenXRRenderWindowInteractor::LoadDefaultBinding(const std::string& bind
     }
   }
 
+  // Look under haptics for any outputs
+  Json::Value haptics = actionSet["haptics"];
+  for (Json::Value::ArrayIndex i = 0; i < haptics.size(); i++)
+  {
+    Json::Value haptic = haptics[i];
+
+    // The path for this action
+    std::string path = haptic["path"].asString();
+
+    // Iterate over all outputs
+    fillActionSuggestedBindings(path, haptic);
+  }
+
   // Submit all suggested bindings
   return vtkOpenXRManager::GetInstance()->SuggestActions(
     interactionProfile, actionSuggestedBindings);
@@ -797,4 +822,21 @@ void vtkOpenXRRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "vtkOpenXRRenderWindowInteractor"
      << "\n";
   this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenXRRenderWindowInteractor::ApplyVibration(const std::string& actionName, const int hand,
+  const float amplitude, const float duration, const float frequency)
+{
+  ActionData* actionData = GetActionDataFromName(actionName);
+  if (actionData == nullptr)
+  {
+    vtkWarningMacro(
+      << "vtkOpenXRRenderWindowInteractor: Attempt to ApplyVibration using action data with name"
+      << actionName << " that does not exist.");
+    return false;
+  }
+
+  return vtkOpenXRManager::GetInstance()->ApplyVibration(
+    actionData->ActionStruct, hand, amplitude, duration, frequency);
 }

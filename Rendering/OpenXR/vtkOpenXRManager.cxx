@@ -1391,8 +1391,8 @@ bool vtkOpenXRManager::UpdateActionData(Action_t& action_t, const int hand)
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenXRManager::ApplyVibration(
-  const Action_t& actionT, const int hand, const float amplitude)
+bool vtkOpenXRManager::ApplyVibration(const Action_t& actionT, const int hand,
+  const float amplitude, const float duration, const float frequency)
 {
   VTK_CHECK_NULL_XRHANDLE(this->Session, "vtkOpenXRManager::ApplyVibration, Session");
 
@@ -1410,8 +1410,8 @@ bool vtkOpenXRManager::ApplyVibration(
 
   XrHapticVibration vibration{ XR_TYPE_HAPTIC_VIBRATION };
   vibration.amplitude = amplitude;
-  vibration.duration = XR_MIN_HAPTIC_DURATION;
-  vibration.frequency = XR_FREQUENCY_UNSPECIFIED;
+  vibration.duration = duration;
+  vibration.frequency = frequency;
 
   if (!this->XrCheckError(
         xrApplyHapticFeedback(this->Session, &actionInfo, (XrHapticBaseHeader*)&vibration),
