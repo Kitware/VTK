@@ -184,12 +184,20 @@ PIOAdaptor::~PIOAdaptor()
 
 int PIOAdaptor::initializeGlobal(const char* PIOFileName)
 {
+  int success;
   if (this->Rank == 0)
   {
-    if (!collectMetaData(PIOFileName))
-    {
-      return 0;
-    }
+    success = collectMetaData(PIOFileName);
+    this->Controller->Broadcast(&success, 1, 0);
+  }
+  else
+  {
+    this->Controller->Broadcast(&success, 1, 0);
+  }
+
+  if (!success)
+  {
+    return 0;
   }
 
   // Share with all processors
