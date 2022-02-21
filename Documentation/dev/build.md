@@ -238,9 +238,12 @@ More advanced options:
     "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" "1" ${MPIEXEC_PREFLAGS}
   * `VTK_WINDOWS_PYTHON_DEBUGGABLE` (default `OFF`): Set to `ON` if using a
     debug build of Python.
-  * `VTK_DLL_PATHS` (default `""`): If set, these paths will be added via
-    Python 3.8's `os.add_dll_directory` mechanism in order to find dependent
-    DLLs when loading VTK's Python modules.
+  * `VTK_DLL_PATHS` (default `""` or `VTK_DLL_PATHS` from the environment): If
+    set, these paths will be added via Python 3.8's `os.add_dll_directory`
+    mechanism in order to find dependent DLLs when loading VTK's Python
+    modules. Note that when using the variable, paths are in CMake form (using
+    `/`) and in the environment are a path list in the platform's preferred
+    format.
   * `VTK_ENABLE_VR_COLLABORATION` (default `OFF`): If `ON`, includes support
     for multi client VR collaboration. Requires libzmq and cppzmq external libraries.
   * `VTK_SMP_ENABLE_<backend_name>` (default `OFF` if needs an external library otherwise `ON`):
