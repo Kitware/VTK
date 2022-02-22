@@ -19,7 +19,7 @@
  *
  * vtkActor is used to represent an entity in a rendering scene.  It inherits
  * functions related to the actors position, and orientation from
- * vtkProp. The actor also has scaling and maintains a reference to the
+ * vtkProp3D. The actor also has scaling and maintains a reference to the
  * defining geometry (i.e., the mapper), rendering properties, and possibly a
  * texture map. vtkActor combines these instance variables into one 4x4
  * transformation matrix as follows: [x y z 1] = [x y z 1] Translate(-origin)
