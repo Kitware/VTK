@@ -48,6 +48,7 @@
 #include "vtkCommand.h" // for method sig
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"        // For InteractorStyle
 
 class vtkTimerIdMap;
 
@@ -297,7 +298,7 @@ public:
    * is a vtkInteractorStyleSwitch object.
    */
   virtual void SetInteractorStyle(vtkInteractorObserver*);
-  vtkGetObjectMacro(InteractorStyle, vtkInteractorObserver);
+  virtual vtkInteractorObserver* GetInteractorStyle();
   ///@}
 
   ///@{
@@ -808,7 +809,7 @@ protected:
 
   vtkRenderWindow* RenderWindow;
   vtkHardwareWindow* HardwareWindow;
-  vtkInteractorObserver* InteractorStyle;
+  vtkSmartPointer<vtkInteractorObserver> InteractorStyle;
 
   // Used as a helper object to pick instances of vtkProp
   vtkAbstractPicker* Picker;
