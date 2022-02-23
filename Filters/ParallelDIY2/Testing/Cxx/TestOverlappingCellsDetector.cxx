@@ -75,12 +75,6 @@ static constexpr vtkIdType CollisionsBlocks[144] = { 29, 13, 27, 12, 12, 13, 20,
 
 int TestOverlappingCellsDetector(int argc, char* argv[])
 {
-  vtkLogger::Init(argc, argv);
-
-  // Put every log message in "everything.log":
-  vtkLogger::LogToFile("~/Documents/ParaView/vtk_build_mpi_test/everything.log", vtkLogger::APPEND,
-    vtkLogger::VERBOSITY_MAX);
-
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> contr;
 #else
