@@ -1,65 +1,62 @@
 #!/usr/bin/env python
 import vtk
 from vtk.util.misc import vtkGetDataRoot
+
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 
 def GetSelection(ids, inverse=False):
-    selNode = vtk.vtkSelectionNode()
-    selNode.SetContentType(vtk.vtkSelectionNode.BLOCKS)
-
-    idArray = vtk.vtkIdTypeArray()
-    idArray.SetNumberOfTuples(len(ids))
+    selectionSource = vtk.vtkSelectionSource()
+    selectionSource.SetInverse(inverse)
+    selectionSource.SetContentType(vtk.vtkSelectionNode.BLOCKS)
     for i in range(len(ids)):
-        idArray.SetValue(i, ids[i])
-    selNode.SetSelectionList(idArray)
+        selectionSource.AddBlock(ids[i])
+    return selectionSource
 
-    if inverse:
-        selNode.GetProperties().Set(vtk.vtkSelectionNode.INVERSE(), 1)
-
-    sel = vtk.vtkSelection()
-    sel.AddNode(selNode)
-
-    return sel
 
 def GetNumberOfNonNullLeaves(cd):
     count = 0
     it = cd.NewIterator()
     while not it.IsDoneWithTraversal():
         if it.GetCurrentDataObject():
-            count+=1
+            count += 1
         it.GoToNextItem()
     return count
+
 
 reader = vtk.vtkExodusIIReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/can.ex2")
 reader.UpdateInformation()
 
-extractor = vtk.vtkExtractSelectedBlock()
+extractor = vtk.vtkExtractSelection()
 extractor.SetInputConnection(0, reader.GetOutputPort())
 
 # extract 0
-extractor.SetInputDataObject(1, GetSelection([0]))
+selectionSource = GetSelection([0])
+extractor.SetInputConnection(1, selectionSource.GetOutputPort())
 extractor.Update()
 assert GetNumberOfNonNullLeaves(extractor.GetOutputDataObject(0)) == 2
 
 # extract inverse of root
-extractor.SetInputDataObject(1, GetSelection([0], True))
+selectionSource = GetSelection([0], True)
+extractor.SetInputConnection(1, selectionSource.GetOutputPort())
 extractor.Update()
 assert GetNumberOfNonNullLeaves(extractor.GetOutputDataObject(0)) == 0
 
 # extract a non-leaf block
-extractor.SetInputDataObject(1, GetSelection([1]))
+selectionSource = GetSelection([1])
+extractor.SetInputConnection(1, selectionSource.GetOutputPort())
 extractor.Update()
 assert GetNumberOfNonNullLeaves(extractor.GetOutputDataObject(0)) == 2
 
 # extract a leaf block
-extractor.SetInputDataObject(1, GetSelection([2]))
+selectionSource = GetSelection([2])
+extractor.SetInputConnection(1, selectionSource.GetOutputPort())
 extractor.Update()
 assert GetNumberOfNonNullLeaves(extractor.GetOutputDataObject(0)) == 1
 
-
 # extract a non-leaf and leaf block
-extractor.SetInputDataObject(1, GetSelection([1,3]))
+selectionSource = GetSelection([1, 3])
+extractor.SetInputConnection(1, selectionSource.GetOutputPort())
 extractor.Update()
 assert GetNumberOfNonNullLeaves(extractor.GetOutputDataObject(0)) == 2

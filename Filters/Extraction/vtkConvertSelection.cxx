@@ -25,7 +25,6 @@
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtractSelectedThresholds.h"
 #include "vtkExtractSelection.h"
 #include "vtkFieldData.h"
 #include "vtkGraph.h"
@@ -44,6 +43,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkUnsignedIntArray.h"
+#include "vtkValueSelector.h"
 #include "vtkVariantArray.h"
 
 #include <algorithm>
@@ -717,10 +717,20 @@ int vtkConvertSelection::Convert(vtkSelection* input, vtkDataObject* data, vtkSe
           return 1;
         }
       }
+      // create insidenessArray
+      vtkNew<vtkSignedCharArray> insidednessArray;
+      insidednessArray->SetName(lims->GetName());
+      insidednessArray->SetNumberOfComponents(1);
+      insidednessArray->SetNumberOfTuples(dataArr->GetNumberOfTuples());
+      // create selector
+      vtkNew<vtkValueSelector> valueSelector;
+      valueSelector->SetInsidednessArrayName(lims->GetName());
+      valueSelector->Initialize(inputNode);
+      valueSelector->ComputeSelectedElements(data, insidednessArray);
+      valueSelector->Finalize();
       for (vtkIdType id = 0; id < dataArr->GetNumberOfTuples(); id++)
       {
-        int keepPoint = vtkExtractSelectedThresholds::EvaluateValue(dataArr, id, lims);
-        if (keepPoint)
+        if (insidednessArray->GetValue(id) == 1)
         {
           indices->InsertNextValue(id);
         }

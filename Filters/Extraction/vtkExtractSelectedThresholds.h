@@ -29,11 +29,27 @@
  *
  * @sa
  * vtkSelection vtkExtractSelection vtkThreshold
+ *
+ * @deprecated vtkExtractSelectedThresholds is deprecated in VTK 9.2 and will be removed.
+ * Use `vtkExtractSelection` instead of `vtkExtractSelectedThresholds`.
+ *
+ * Example using vtkExtractSelectedThresholds:
+ *
+ * vtkNew<vtkExtractSelectedThresholds> selFilter;
+ * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
+ * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
+ *
+ * Example using vtkExtractSelection:
+ *
+ * vtkNew<vtkExtractSelection> selFilter;
+ * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
+ * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
  */
 
 #ifndef vtkExtractSelectedThresholds_h
 #define vtkExtractSelectedThresholds_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkExtractSelectionBase.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
@@ -42,7 +58,8 @@ class vtkSelection;
 class vtkSelectionNode;
 class vtkTable;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedThresholds : public vtkExtractSelectionBase
+class VTK_DEPRECATED_IN_9_2_0("Use vtkExtractSelection instead of vtkExtractSelectedThresholds.")
+  VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedThresholds : public vtkExtractSelectionBase
 {
 public:
   vtkTypeMacro(vtkExtractSelectedThresholds, vtkExtractSelectionBase);
@@ -114,3 +131,5 @@ private:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkExtractSelectedThresholds.h

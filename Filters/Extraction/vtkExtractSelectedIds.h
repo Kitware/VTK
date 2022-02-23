@@ -24,20 +24,38 @@
  * GLOBALIDS, VALUES or INDICES, the selection will use the contents of the
  * array named in the GLOBALIDS DataSetAttribute, and arbitrary array, or the
  * position (tuple id or number) within the cell or point array.
+ *
  * @sa
  * vtkSelection vtkExtractSelection
+ *
+ * @deprecated vtkExtractSelectedIds is deprecated in VTK 9.2 and will be removed.
+ * Use `vtkExtractSelection` instead of `vtkExtractSelectedIds`.
+ *
+ * Example using vtkExtractSelectedIds:
+ *
+ * vtkNew<vtkExtractSelectedIds> selFilter;
+ * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
+ * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
+ *
+ * Example using vtkExtractSelection:
+ *
+ * vtkNew<vtkExtractSelection> selFilter;
+ * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
+ * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
  */
 
 #ifndef vtkExtractSelectedIds_h
 #define vtkExtractSelectedIds_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkExtractSelectionBase.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
 class vtkSelection;
 class vtkSelectionNode;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedIds : public vtkExtractSelectionBase
+class VTK_DEPRECATED_IN_9_2_0("Use vtkExtractSelection instead of vtkExtractSelectedIds.")
+  VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedIds : public vtkExtractSelectionBase
 {
 public:
   static vtkExtractSelectedIds* New();
@@ -63,3 +81,5 @@ private:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkExtractSelectedIds.h

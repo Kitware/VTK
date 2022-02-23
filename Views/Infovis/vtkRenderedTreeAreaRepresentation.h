@@ -35,7 +35,6 @@ class vtkAreaLayout;
 class vtkAreaLayoutStrategy;
 class vtkConvertSelection;
 class vtkEdgeCenters;
-class vtkExtractSelectedPolyDataIds;
 class vtkLabeledDataMapper;
 class vtkPointSetToLabelHierarchy;
 class vtkPolyData;

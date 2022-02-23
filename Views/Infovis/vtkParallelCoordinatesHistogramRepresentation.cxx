@@ -26,7 +26,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkComputeHistogram2DOutliers.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtractHistogram2D.h"
-#include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"

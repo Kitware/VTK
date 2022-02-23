@@ -33,7 +33,6 @@
 #include "vtkEdgeCenters.h"
 #include "vtkExtractEdges.h"
 #include "vtkExtractSelectedGraph.h"
-#include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkGraphHierarchicalBundleEdges.h"
 #include "vtkGraphLayout.h"
 #include "vtkGraphMapper.h"
