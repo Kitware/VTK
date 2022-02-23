@@ -28,8 +28,6 @@
 #include "vtkExtractSelection.h"
 #include "vtkFieldData.h"
 #include "vtkGraph.h"
-#include "vtkHierarchicalBoxDataIterator.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -42,6 +40,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUniformGridAMR.h"
+#include "vtkUniformGridAMRDataIterator.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkValueSelector.h"
 #include "vtkVariantArray.h"
@@ -255,11 +255,10 @@ int vtkConvertSelection::ConvertToBlockSelection(
     }
     else if (properties->Has(vtkSelectionNode::CONTENT_TYPE()) &&
       properties->Has(vtkSelectionNode::HIERARCHICAL_INDEX()) &&
-      properties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) &&
-      data->IsA("vtkHierarchicalBoxDataSet"))
+      properties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) && data->IsA("vtkUniformGridAMR"))
     {
       // convert hierarchical index to composite index.
-      vtkHierarchicalBoxDataSet* hbox = vtkHierarchicalBoxDataSet::SafeDownCast(data);
+      vtkUniformGridAMR* hbox = vtkUniformGridAMR::SafeDownCast(data);
       indices.insert(hbox->GetCompositeIndex(
         static_cast<unsigned int>(properties->Get(vtkSelectionNode::HIERARCHICAL_LEVEL())),
         static_cast<unsigned int>(properties->Get(vtkSelectionNode::HIERARCHICAL_INDEX()))));
@@ -373,13 +372,13 @@ int vtkConvertSelection::ConvertCompositeDataSet(
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(data->NewIterator());
 
-    vtkHierarchicalBoxDataIterator* hbIter = vtkHierarchicalBoxDataIterator::SafeDownCast(iter);
+    vtkUniformGridAMRDataIterator* hierIter = vtkUniformGridAMRDataIterator::SafeDownCast(iter);
 
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-      if (has_hierarchical_key && hbIter &&
-        (hbIter->GetCurrentLevel() != hierarchical_level ||
-          hbIter->GetCurrentIndex() != hierarchical_index))
+      if (has_hierarchical_key && hierIter &&
+        (hierIter->GetCurrentLevel() != hierarchical_level ||
+          hierIter->GetCurrentIndex() != hierarchical_index))
       {
         continue;
       }
@@ -411,7 +410,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
             outputNode->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(), composite_index);
           }
 
-          if (has_hierarchical_key && hbIter)
+          if (has_hierarchical_key && hierIter)
           {
             outputNode->GetProperties()->Set(
               vtkSelectionNode::HIERARCHICAL_LEVEL(), hierarchical_level);
@@ -447,7 +446,7 @@ int vtkConvertSelection::ConvertFromQueryAndBlockSelectionNodeCompositeDataSet(
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(cds->NewIterator());
 
-    vtkHierarchicalBoxDataIterator* hbIter = vtkHierarchicalBoxDataIterator::SafeDownCast(iter);
+    vtkUniformGridAMRDataIterator* hierIter = vtkUniformGridAMRDataIterator::SafeDownCast(iter);
 
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
@@ -465,10 +464,10 @@ int vtkConvertSelection::ConvertFromQueryAndBlockSelectionNodeCompositeDataSet(
       outputProperties->Set(vtkSelectionNode::INVERSE(), 0);
       outputProperties->Set(vtkSelectionNode::COMPOSITE_INDEX(), iter->GetCurrentFlatIndex());
 
-      if (hbIter)
+      if (hierIter)
       {
-        outputProperties->Set(vtkSelectionNode::HIERARCHICAL_LEVEL(), hbIter->GetCurrentLevel());
-        outputProperties->Set(vtkSelectionNode::HIERARCHICAL_INDEX(), hbIter->GetCurrentIndex());
+        outputProperties->Set(vtkSelectionNode::HIERARCHICAL_LEVEL(), hierIter->GetCurrentLevel());
+        outputProperties->Set(vtkSelectionNode::HIERARCHICAL_INDEX(), hierIter->GetCurrentIndex());
       }
 
       // Create a list of ids to select

@@ -12,10 +12,10 @@
 
 =========================================================================*/
 #include "vtkHierarchicalBoxDataSet.h"
-#include "vtkHierarchicalBoxDataIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkUniformGridAMRDataIterator.h"
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
@@ -34,7 +34,7 @@ void vtkHierarchicalBoxDataSet::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 vtkCompositeDataIterator* vtkHierarchicalBoxDataSet::NewIterator()
 {
-  vtkCompositeDataIterator* iter = vtkHierarchicalBoxDataIterator::New();
+  vtkCompositeDataIterator* iter = vtkUniformGridAMRDataIterator::New();
   iter->SetDataSet(this);
   return iter;
 }

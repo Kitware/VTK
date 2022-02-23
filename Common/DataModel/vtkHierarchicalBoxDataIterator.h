@@ -15,16 +15,21 @@
 /**
  * @class   vtkHierarchicalBoxDataIterator
  * @brief   Empty class for backwards compatibility.
+ *
+ * @deprecated vtkHierarchicalBoxDataIterator is deprecated in VTK 9.2 and will be removed.
+ * Use `vtkUniformGridAMRDataIterator` instead of `vtkHierarchicalBoxDataIterator`.
  */
 
 #ifndef vtkHierarchicalBoxDataIterator_h
 #define vtkHierarchicalBoxDataIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkUniformGridAMRDataIterator.h"
 
-class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataIterator
-  : public vtkUniformGridAMRDataIterator
+class VTK_DEPRECATED_IN_9_2_0(
+  "Use vtkUniformGridAMRDataIterator instead of vtkHierarchicalBoxDataIterator")
+  VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataIterator : public vtkUniformGridAMRDataIterator
 {
 public:
   static vtkHierarchicalBoxDataIterator* New();
@@ -40,4 +45,6 @@ private:
   void operator=(const vtkHierarchicalBoxDataIterator&) = delete;
 };
 
-#endif /* VTKHIERARCHICALBOXDATAITERATOR_H_ */
+#endif
+
+// VTK-HeaderTest-Exclude: vtkHierarchicalBoxDataIterator.h
