@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkConduitArrayUtilities();
-  ~vtkConduitArrayUtilities();
+  ~vtkConduitArrayUtilities() override;
 
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKArrayImpl(
     const conduit_node* mcarray, bool force_signed);

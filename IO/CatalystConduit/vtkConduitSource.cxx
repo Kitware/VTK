@@ -424,51 +424,32 @@ bool AddGlobalData(vtkDataObject* output, const conduit_cpp::Node& globalFields)
 {
   auto fd = output->GetFieldData();
 
-  // this can be made very generic. For now, I am only processing known
-  // fields.
-  if (globalFields.has_path("time"))
+  const conduit_index_t nchildren = globalFields.number_of_children();
+  for (conduit_index_t idx = 0; idx < nchildren; idx++)
   {
-    // for compatibility with older Catalyst scripts.
-    vtkNew<vtkDoubleArray> timeValue;
-    timeValue->SetName("TimeValue");
-    timeValue->SetNumberOfTuples(1);
-    timeValue->SetTypedComponent(0, 0, globalFields["time"].to_float64());
-    fd->AddArray(timeValue);
+    const auto child = globalFields.child(idx);
+    std::string fieldName = child.name();
 
-    // "time" is a better name than "TimeValue"
-    vtkNew<vtkDoubleArray> time;
-    time->SetName("time");
-    time->SetNumberOfTuples(1);
-    time->SetTypedComponent(0, 0, globalFields["time"].to_float64());
-    fd->AddArray(time);
+    if (child.dtype().is_string())
+    {
+      vtkNew<vtkStringArray> stringArray;
+      stringArray->SetName(fieldName.c_str());
+      stringArray->InsertNextValue(child.as_string().c_str());
+      fd->AddArray(stringArray);
+      continue;
+    }
 
-    // let's also set DATA_TIME_STEP.
-    output->GetInformation()->Set(
-      vtkDataObject::DATA_TIME_STEP(), globalFields["time"].to_float64());
+    auto array =
+      vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&child), fieldName);
+    fd->AddArray(array);
+
+    if ((fieldName == "time" || fieldName == "TimeValue") && child.dtype().is_float())
+    {
+      // let's also set DATA_TIME_STEP.
+      output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), child.to_float64());
+    }
   }
-  if (globalFields.has_path("cycle"))
-  {
-    vtkNew<vtkIntArray> cycle;
-    cycle->SetName("cycle");
-    cycle->SetNumberOfTuples(1);
-    cycle->SetTypedComponent(0, 0, globalFields["cycle"].to_int64());
-    fd->AddArray(cycle);
-  }
-  if (globalFields.has_path("timestep"))
-  {
-    vtkNew<vtkIntArray> timestep;
-    timestep->SetName("timestep");
-    timestep->SetNumberOfTuples(1);
-    timestep->SetTypedComponent(0, 0, globalFields["timestep"].to_int64());
-    fd->AddArray(timestep);
-  }
-  if (globalFields.has_path("channel"))
-  {
-    vtkNew<vtkStringArray> channel;
-    channel->SetName("__CatalystChannel__");
-    channel->InsertNextValue(globalFields["channel"].as_string().c_str());
-    fd->AddArray(channel);
-  }
+
   return true;
 }
 
