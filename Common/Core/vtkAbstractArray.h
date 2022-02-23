@@ -669,6 +669,11 @@ public:
    */
   virtual int GetArrayType() const { return AbstractArray; }
 
+  /**
+   * Get the name for the array type as string
+   */
+  const char* GetArrayTypeAsString() const;
+
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray();
