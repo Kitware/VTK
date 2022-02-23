@@ -14,11 +14,14 @@
 =========================================================================*/
 /**
  * @class   vtkCameraOrientationRepresentation
- * @brief   a 3D axes representation for interactive widgets
+ * @brief   A 3D representation for vtkCameraOrientationWidget.
  *
- * This class is a concrete representation for vtkCameraOrientationWidget.
- * It is used to represent 3D axes in the scene and control attached renderer's
- * camera.
+ * Hover over the representation and drag with LMB to orbit around the view.
+ * Clicking on one of the axis labels will snap to that view.
+ * Click again on the same axis to switch to the opposite view of that same axis.
+ *
+ * The representation anchors itself to a corner of the renderer's
+ * viewport. See AnchorType.
  *
  * @sa
  * vtkCameraOrientationWidget
@@ -271,6 +274,11 @@ public:
    * Shallow copy of an axes actor. Overloads the virtual vtkProp method.
    */
   void ShallowCopy(vtkProp* prop) override;
+
+  /**
+   * Is a grabber button picked.
+   */
+  bool IsAnyHandleSelected() { return (this->PickedAxis != -1) && (this->PickedDir != -1); }
 
 protected:
   vtkCameraOrientationRepresentation();
