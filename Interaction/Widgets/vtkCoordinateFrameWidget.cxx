@@ -32,10 +32,13 @@ vtkStandardNewMacro(vtkCoordinateFrameWidget);
 // The coordinate frame widget observes its representation. The representation
 // may invoke an InteractionEvent when the camera moves when LockedNormalToCamera
 // is enabled.
-class vtkInteractionCallback : public vtkCommand
+class vtkCoordinateFrameWidgetInteractionCallback : public vtkCommand
 {
 public:
-  static vtkInteractionCallback* New() { return new vtkInteractionCallback; }
+  static vtkCoordinateFrameWidgetInteractionCallback* New()
+  {
+    return new vtkCoordinateFrameWidgetInteractionCallback;
+  }
   void Execute(vtkObject*, unsigned long eventId, void*) override
   {
     switch (eventId)
@@ -103,7 +106,7 @@ vtkCoordinateFrameWidget::vtkCoordinateFrameWidget()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent, vtkEvent::AnyModifier, 'Z',
     1, "Z", vtkWidgetEvent::Reset, this, vtkCoordinateFrameWidget::TranslationAxisUnLock);
 
-  this->InteractionCallback = vtkInteractionCallback::New();
+  this->InteractionCallback = vtkCoordinateFrameWidgetInteractionCallback::New();
   this->InteractionCallback->CoordinateFrameWidget = this;
 }
 

@@ -94,11 +94,11 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkCoordinateFrameRepresentation;
-class vtkInteractionCallback;
+class vtkCoordinateFrameWidgetInteractionCallback;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkCoordinateFrameWidget : public vtkAbstractWidget
 {
-  friend class vtkInteractionCallback;
+  friend class vtkCoordinateFrameWidgetInteractionCallback;
 
 public:
   /**
@@ -176,7 +176,7 @@ protected:
   /**
    * Handle the interaction callback that may come from the representation.
    */
-  vtkInteractionCallback* InteractionCallback;
+  vtkCoordinateFrameWidgetInteractionCallback* InteractionCallback;
   void InvokeInteractionCallback();
   ///@}
 private:
