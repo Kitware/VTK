@@ -833,6 +833,14 @@ void ComputeAdjacencyAndOverlapMasks(const ::ExtentType& localExtent, const ::Ex
 }
 
 //----------------------------------------------------------------------------
+bool AreExtentsAdjacent(const ::ExtentType& e1, const ::ExtentType& e2)
+{
+  return (e1[0] != e1[1] ? e1[0] == e2[1] || e1[1] == e2[0] : false) ||
+    (e1[2] != e1[3] ? e1[2] == e2[3] || e1[3] == e2[2] : false) ||
+    (e1[4] != e1[5] ? e1[4] == e2[5] || e1[5] == e2[4] : false);
+}
+
+//----------------------------------------------------------------------------
 /**
  * Function to be overloaded for each supported input grid data sets.
  * This function will return true if 2 input block structures are adjacent, false otherwise.
@@ -845,6 +853,7 @@ bool SynchronizeGridExtents(const ::ImageDataBlockStructure& localBlockStructure
   const ::VectorType& localOrigin = localBlockStructure.Origin;
   const ::VectorType& localSpacing = localBlockStructure.Spacing;
   const ::QuaternionType& localQ = localBlockStructure.OrientationQuaternion;
+  const ::ExtentType& localExtent = localBlockStructure.Extent;
   int localDim = localBlockStructure.DataDimension;
 
   const ::ExtentType& extent = blockStructure.Extent;
@@ -879,7 +888,7 @@ bool SynchronizeGridExtents(const ::ImageDataBlockStructure& localBlockStructure
   shiftedExtent[4] = extent[4] + originDiff[2];
   shiftedExtent[5] = extent[5] + originDiff[2];
 
-  return true;
+  return ::AreExtentsAdjacent(shiftedExtent, localExtent);
 }
 
 //============================================================================
@@ -1067,6 +1076,7 @@ bool SynchronizeGridExtents(const ::RectilinearGridBlockStructure& localBlockStr
   blockStructure.ShiftedExtent =
     ::ExtentType{ extent[0] + originDiff[0], extent[1] + originDiff[0], extent[2] + originDiff[1],
       extent[3] + originDiff[1], extent[4] + originDiff[2], extent[5] + originDiff[2] };
+
   return true;
 }
 
