@@ -104,6 +104,8 @@ public:
 
   // variableNames map to (potentially a collection of) variableNames indices
   std::map<std::string, std::vector<int>> parsedVariableNames;
+  std::map<std::string, std::vector<int>> extraMultiFabParsedVarNames;
+  std::map<std::string, int> extraMultiFabParsedVarMap;
 
   int dim;
   double time;
@@ -120,6 +122,17 @@ public:
   std::vector<std::vector<std::vector<std::vector<double>>>> levelCells;
   std::vector<std::string> levelPrefix;
   std::vector<std::string> multiFabPrefix;
+
+  // use this to store the prefixes for extra multifabs appended to the end of the main header
+  int extraMultiFabCount;
+  // only allow one topology per multifab. 0 == vertex data, 3 == cell data
+  // edge and face data not supported
+  std::vector<int> extraMultiFabVarTopology;
+  // prefix for each multifab on each level [fab][level]
+  std::vector<std::vector<std::string>> extraMultiFabPrefixes;
+  // vector of variables stored on each fab [fab][variable]
+  std::vector<std::vector<std::string>> extraMultiFabVariables;
+
   bool debugHeader;
 
   vtkAMReXGridHeader();
@@ -223,12 +236,16 @@ public:
   void ReadMetaData();
   bool ReadHeader();
   bool ReadLevelHeader();
+  bool ReadExtraFabHeader();
   int GetNumberOfLevels();
   int GetBlockLevel(const int blockIdx);
   int GetNumberOfBlocks();
   int GetBlockIndexWithinLevel(int blockIdx, int level);
   void GetBlockAttribute(const char* attribute, int blockIdx, vtkDataSet* pDataSet);
+  void GetExtraMultiFabBlockAttribute(const char* attribute, int blockIdx, vtkDataSet* pDataSet);
   int GetOffsetOfAttribute(const char* attribute);
+  int GetAttributeOffsetExtraMultiFab(const char* attribute, const int fabIndex);
+  int GetExtraMultiFabIndex(const char* attribute);
   void ReadFAB(std::istream& is);
   int ReadVersion(std::istream& is);
   void ReadOrder(std::istream& is, std::vector<int>& ar);
@@ -251,11 +268,13 @@ public:
     const int numberOfPoints, const std::string& attribute);
 
   bool headersAreRead;
+  bool extraMultiFabHeadersAreRead;
   bool debugReader;
   std::string FileName;
   vtkAMReXGridHeader* Header;
   friend class vtkAMReXGridHeader;
   std::vector<vtkAMReXGridLevelHeader*> LevelHeader;
+  std::vector<std::vector<vtkAMReXGridLevelHeader*>> ExtraMultiFabHeader;
   friend class vtkAMReXGridLeveHeader;
 };
 
@@ -266,6 +285,14 @@ void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkAOSDataArrayTemplate
   const std::string& attribute)
 {
   int nComps = static_cast<int>(this->Header->parsedVariableNames[attribute].size());
+  if (nComps == 0) // check if the variable is in an extra fab
+  {
+    nComps = static_cast<int>(this->Header->extraMultiFabParsedVarNames[attribute].size());
+  }
+  if (nComps == 0)
+  {
+    return;
+  }
   dataArray->SetName(attribute.c_str());
   dataArray->SetNumberOfComponents(nComps);
   dataArray->SetNumberOfTuples(numberOfPoints);
