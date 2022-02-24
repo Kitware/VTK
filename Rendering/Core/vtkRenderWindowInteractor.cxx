@@ -21,6 +21,7 @@
 #include "vtkHardwareWindow.h"
 #include "vtkInteractorStyleSwitchBase.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkObserverMediator.h"
 #include "vtkPickingManager.h"
@@ -75,9 +76,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   // object factory logic to create the correct instance, which should be the
   // vtkInteractorStyleSwitch when linked to the interactor styles, or
   // vtkInteractorStyleSwitchBase if the style module is not linked.
-  this->InteractorStyle = nullptr;
-  this->SetInteractorStyle(vtkInteractorStyleSwitchBase::New());
-  this->InteractorStyle->Delete();
+  this->SetInteractorStyle(vtkNew<vtkInteractorStyleSwitchBase>());
 
   this->LightFollowCamera = 1;
   this->Initialized = 0;
@@ -152,10 +151,6 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 //------------------------------------------------------------------------------
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 {
-  if (this->InteractorStyle != nullptr)
-  {
-    this->InteractorStyle->UnRegister(this);
-  }
   if (this->Picker)
   {
     this->Picker->UnRegister(this);
@@ -254,25 +249,20 @@ void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow* aren)
 }
 
 //------------------------------------------------------------------------------
+vtkInteractorObserver* vtkRenderWindowInteractor::GetInteractorStyle()
+{
+  return this->InteractorStyle;
+}
+
+//------------------------------------------------------------------------------
 void vtkRenderWindowInteractor::SetInteractorStyle(vtkInteractorObserver* style)
 {
   if (this->InteractorStyle != style)
   {
-    // to avoid destructor recursion
-    vtkInteractorObserver* temp = this->InteractorStyle;
     this->InteractorStyle = style;
-    if (temp != nullptr)
-    {
-      temp->SetInteractor(nullptr);
-      temp->UnRegister(this);
-    }
     if (this->InteractorStyle != nullptr)
     {
-      this->InteractorStyle->Register(this);
-      if (this->InteractorStyle->GetInteractor() != this)
-      {
-        this->InteractorStyle->SetInteractor(this);
-      }
+      this->InteractorStyle->SetInteractor(this);
     }
   }
 }
