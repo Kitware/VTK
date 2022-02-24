@@ -2414,7 +2414,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
       vtkvolume::ComputeGradientOpacityMulti1DDecl(this->AssembledInputs));
 
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeColor::Dec",
-      vtkvolume::ComputeColorMultiDeclaration(this->AssembledInputs));
+      vtkvolume::ComputeColorMultiDeclaration(
+        this->AssembledInputs, vol->GetProperty()->HasGradientOpacity()));
 
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeLighting::Dec",
       vtkvolume::ComputeLightingMultiDeclaration(ren, this, vol, numComps, independentComponents,
@@ -2969,6 +2970,23 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
     this->ForceTransferInit();
   }
 
+  if (this->MultiVolume)
+  {
+    bool hasGradient = this->Parent->AssembledInputs[0].Volume->GetProperty()->HasGradientOpacity();
+    for (auto& item : this->Parent->AssembledInputs)
+    {
+      if (item.second.Volume->GetProperty()->HasGradientOpacity() != hasGradient)
+      {
+        vtkGenericWarningMacro(
+          "Current implentation of vtkOpenGLGPUVolumeRayCastMapper does not support MultiVolume "
+          "where some volumes have a gradient opacity function and some others don't. "
+          "Rendering of the MultiVolume is disabled.");
+        success = false;
+        break;
+      }
+    }
+  }
+
   return success;
 }
 
@@ -3105,7 +3123,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   this->Impl->MultiVolume = multiVol && this->GetInputCount() > 1 ? multiVol : nullptr;
 
   this->Impl->ClearRemovedInputs(renWin);
-  this->Impl->UpdateInputs(ren, vol);
+  if (!this->Impl->UpdateInputs(ren, vol))
+  {
+    return;
+  }
   this->Impl->UpdateSamplingDistance(ren);
   this->Impl->UpdateTransfer2DYAxisArray(ren, vol);
   this->Impl->UpdateTransferFunctions(ren);
