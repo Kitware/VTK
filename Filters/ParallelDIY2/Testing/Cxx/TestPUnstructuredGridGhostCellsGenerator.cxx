@@ -12,7 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkCellData.h"
 #include "vtkDataSetTriangleFilter.h"
+#include "vtkDoubleArray.h"
 #include "vtkGhostCellsGenerator.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
@@ -23,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -96,6 +99,41 @@ bool CheckFieldData(vtkFieldData* fd)
   return true;
 }
 
+bool CheckCellDataArray(vtkUnstructuredGrid* unstructuredGrid, vtkDataArray* da)
+{
+  if (!da)
+  {
+    cerr << "Cell data not found." << endl;
+    return false;
+  }
+  if (da->GetNumberOfTuples() <= 0)
+  {
+    cerr << "Cell data has no data." << endl;
+    return false;
+  }
+
+  bool rc = da->GetNumberOfTuples() == unstructuredGrid->GetNumberOfCells();
+  return rc;
+}
+
+bool CheckCellData(vtkUnstructuredGrid* unstructuredGrid)
+{
+  vtkCellData* cellData = unstructuredGrid ? unstructuredGrid->GetCellData() : nullptr;
+
+  if (!cellData)
+  {
+    return false;
+  }
+
+  auto vorticity = cellData->GetArray("Vorticity");
+  auto pressure = cellData->GetArray("Pressure");
+
+  bool ok = CheckCellDataArray(unstructuredGrid, vorticity) &&
+    CheckCellDataArray(unstructuredGrid, pressure);
+
+  return ok;
+}
+
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -129,6 +167,34 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   vtkNew<vtkFieldData> fd;
   fd->AddArray(fdArray);
   initialGrid->SetFieldData(fd);
+
+  // add cell data
+  vtkNew<vtkDoubleArray> dblArray;
+  dblArray->SetName("Vorticity");
+  dblArray->SetNumberOfTuples(initialGrid->GetNumberOfCells());
+  for (vtkIdType i = 0; i < initialGrid->GetNumberOfCells(); ++i)
+  {
+    dblArray->SetValue(i, static_cast<double>(i));
+  }
+  initialGrid->GetCellData()->AddArray(dblArray);
+
+  double* p = new double[initialGrid->GetNumberOfCells()];
+  for (vtkIdType i = 0; i < initialGrid->GetNumberOfCells(); ++i)
+  {
+    p[i] = static_cast<double>(i);
+    dblArray->SetValue(i, static_cast<double>(i));
+  }
+  vtkNew<vtkSOADataArrayTemplate<double>> soaArray;
+  soaArray->SetName("Pressure");
+  soaArray->SetNumberOfComponents(1);
+  soaArray->SetArray(0, p, initialGrid->GetNumberOfCells(), /*updateMaxId*/ true, /*save*/ true);
+  initialGrid->GetCellData()->AddArray(soaArray);
+
+  if (!CheckCellData(initialGrid))
+  {
+    cerr << "Cell data was not initialized correctly" << std::endl;
+    ret = EXIT_FAILURE;
+  }
 
   // Prepare the ghost cells generator
   vtkNew<vtkGhostCellsGenerator> ghostGenerator;
@@ -166,6 +232,13 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
     ret = EXIT_FAILURE;
   }
 
+  auto recievedGrid = vtkUnstructuredGrid::SafeDownCast(ghostGenerator->GetOutputDataObject(0));
+  if (!CheckCellData(recievedGrid))
+  {
+    cerr << "Cell data was not copied correctly" << std::endl;
+    ret = EXIT_FAILURE;
+  }
+
   // Check if algorithm works with empty input on all nodes except first one
   vtkNew<vtkUnstructuredGrid> emptyGrid;
   ghostGenerator->SetInputData(myRank == 0 ? initialGrid : emptyGrid);
@@ -197,6 +270,11 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
       if (!CheckFieldData(outGrids[step]->GetFieldData()))
       {
         cerr << "Field data was not copied" << std::endl;
+        ret = EXIT_FAILURE;
+      }
+      if (!CheckCellData(outGrids[step]))
+      {
+        cerr << "Cell data was not copied" << std::endl;
         ret = EXIT_FAILURE;
       }
 
