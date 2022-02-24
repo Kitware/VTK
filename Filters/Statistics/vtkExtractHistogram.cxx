@@ -164,8 +164,8 @@ public:
     ArrayT* array, int component, vtkUnsignedCharArray* ghostArray, unsigned char hiddenFlag)
     : Array(array)
     , GhostArray(ghostArray)
-    , Component(component)
     , HiddenFlag(hiddenFlag)
+    , Component(component)
   {
   }
 
@@ -509,8 +509,8 @@ public:
     : DataArray(dataArray)
     , Field(field)
     , BinValues(binValues)
-    , BinValuesArrayName(binValuesArrayName)
     , ArrayValues(arrayValues)
+    , BinValuesArrayName(binValuesArrayName)
     , BinCount(binCount)
     , Component(component)
     , Min(min)
