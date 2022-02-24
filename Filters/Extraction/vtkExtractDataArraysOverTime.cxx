@@ -490,6 +490,14 @@ vtkSmartPointer<vtkDataObject> vtkExtractDataArraysOverTime::vtkInternal::Summar
           statSummary, avgName.str(), VTK_DOUBLE, rawModel->GetValueByName(0, "Mean"));
         vtkExtractArraysAddColumnValue(statSummary, stdName.str(), VTK_DOUBLE,
           drvModel->GetValueByName(0, "Standard Deviation"));
+
+        if (this->Self->ExtractSum)
+        {
+          std::ostringstream sumName;
+          sumName << "sum(" << cname << ")";
+          vtkExtractArraysAddColumnValue(
+            statSummary, sumName.str(), VTK_DOUBLE, drvModel->GetValueByName(0, "Sum"));
+        }
       }
     }
   }
@@ -666,6 +674,7 @@ vtkExtractDataArraysOverTime::vtkExtractDataArraysOverTime()
   , FieldAssociation(vtkDataObject::POINT)
   , ReportStatisticsOnly(false)
   , UseGlobalIDs(true)
+  , ExtractSum(false)
   , Error(vtkExtractDataArraysOverTime::NoError)
   , Internal(nullptr)
 {
