@@ -150,29 +150,28 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
   {
     return;
   }
-  vtkDataObjectTree* source = vtkDataObjectTree::SafeDownCast(compositeSource);
-  if (source == this)
+  vtkDataObjectTree* dObjTree = vtkDataObjectTree::SafeDownCast(compositeSource);
+  if (dObjTree == this)
   {
     return;
   }
 
   this->Superclass::CopyStructure(compositeSource);
   this->Internals->Children.clear();
-  if (!source)
+
+  if (!dObjTree)
   {
     // WARNING:
     // If we copy the structure of from a non-tree composite data set
     // we create a special structure of two levels, the first level
     // is just a single multipiece and the second level are all the data sets.
     // This is likely to change in the future!
-    vtkMultiPieceDataSet* mds = vtkMultiPieceDataSet::New();
+    vtkNew<vtkMultiPieceDataSet> mds;
     this->SetChild(0, mds);
-    mds->Delete();
 
-    vtkInformation* info = vtkInformation::New();
+    vtkNew<vtkInformation> info;
     info->Set(vtkCompositeDataSet::NAME(), "All Blocks");
     this->SetChildMetaData(0, info);
-    info->FastDelete();
 
     int totalNumBlocks = 0;
     vtkCompositeDataIterator* iter = compositeSource->NewIterator();
@@ -184,36 +183,36 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
     iter->Delete();
 
     mds->SetNumberOfChildren(totalNumBlocks);
-    return;
   }
-
-  this->Internals->Children.resize(source->Internals->Children.size());
-
-  vtkDataObjectTreeInternals::Iterator srcIter = source->Internals->Children.begin();
-  vtkDataObjectTreeInternals::Iterator myIter = this->Internals->Children.begin();
-  for (; srcIter != source->Internals->Children.end(); ++srcIter, ++myIter)
+  else
   {
-    vtkDataObjectTree* compositeSrc = vtkDataObjectTree::SafeDownCast(srcIter->DataObject);
-    if (compositeSrc)
-    {
-      if (vtkDataObjectTree* copy = this->CreateForCopyStructure(compositeSrc))
-      {
-        myIter->DataObject.TakeReference(copy);
-        copy->CopyStructure(compositeSrc);
-      }
-      else
-      {
-        vtkErrorMacro("CopyStructure has encountered an error and will fail!");
-      }
-    }
+    this->Internals->Children.resize(dObjTree->Internals->Children.size());
 
-    // shallow copy meta data.
-    if (srcIter->MetaData)
+    for (auto dObjTreeIter = dObjTree->Internals->Children.begin(),
+              thisIter = this->Internals->Children.begin();
+         dObjTreeIter != dObjTree->Internals->Children.end(); ++dObjTreeIter, ++thisIter)
     {
-      vtkInformation* info = vtkInformation::New();
-      info->Copy(srcIter->MetaData, /*deep=*/0);
-      myIter->MetaData = info;
-      info->FastDelete();
+      vtkDataObjectTree* subDObjTree = vtkDataObjectTree::SafeDownCast(dObjTreeIter->DataObject);
+      if (subDObjTree)
+      {
+        if (vtkDataObjectTree* copy = this->CreateForCopyStructure(subDObjTree))
+        {
+          thisIter->DataObject.TakeReference(copy);
+          copy->CopyStructure(subDObjTree);
+        }
+        else
+        {
+          vtkErrorMacro("CopyStructure has encountered an error and will fail!");
+        }
+      }
+
+      // shallow copy meta data.
+      if (dObjTreeIter->MetaData)
+      {
+        vtkNew<vtkInformation> info;
+        info->Copy(dObjTreeIter->MetaData, /*deep=*/0);
+        thisIter->MetaData = info;
+      }
     }
   }
   this->Modified();

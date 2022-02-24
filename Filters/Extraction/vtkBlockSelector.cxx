@@ -183,7 +183,8 @@ vtkSelector::SelectionMode vtkBlockSelector::GetAMRBlockSelection(
 }
 
 //------------------------------------------------------------------------------
-vtkSelector::SelectionMode vtkBlockSelector::GetBlockSelection(unsigned int compositeIndex)
+vtkSelector::SelectionMode vtkBlockSelector::GetBlockSelection(
+  unsigned int compositeIndex, bool isDataObjectTree)
 {
   auto& internals = (*this->Internals);
   if (internals.CompositeIds.find(compositeIndex) != internals.CompositeIds.end())
@@ -192,7 +193,14 @@ vtkSelector::SelectionMode vtkBlockSelector::GetBlockSelection(unsigned int comp
   }
   else
   {
-    return compositeIndex == 0 ? EXCLUDE : INHERIT;
+    if (isDataObjectTree)
+    {
+      return compositeIndex == 0 ? EXCLUDE : INHERIT;
+    }
+    else
+    {
+      return EXCLUDE;
+    }
   }
 }
 

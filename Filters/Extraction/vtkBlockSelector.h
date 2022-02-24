@@ -50,7 +50,8 @@ protected:
 
   bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* insidednessArray) override;
   SelectionMode GetAMRBlockSelection(unsigned int level, unsigned int index) override;
-  SelectionMode GetBlockSelection(unsigned int compositeIndex) override;
+  SelectionMode GetBlockSelection(
+    unsigned int compositeIndex, bool isDataObjectTree = true) override;
 
 private:
   vtkBlockSelector(const vtkBlockSelector&) = delete;

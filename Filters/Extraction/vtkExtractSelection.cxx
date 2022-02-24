@@ -18,6 +18,7 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTree.h"
 #include "vtkDataSet.h"
 #include "vtkExtractCells.h"
 #include "vtkFrustumSelector.h"
@@ -26,7 +27,6 @@
 #include "vtkInformationVector.h"
 #include "vtkLocationSelector.h"
 #include "vtkLogger.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
@@ -86,7 +86,7 @@ int vtkExtractSelection::RequestDataObject(
 
   if (this->PreserveTopology)
   {
-    // when PreserveTopology is ON, we're preserve input data type.
+    // when PreserveTopology is ON, we preserve input data type.
     outputType = inputType;
   }
   else if (vtkDataObjectTree::SafeDownCast(inputDO))
@@ -96,7 +96,7 @@ int vtkExtractSelection::RequestDataObject(
   }
   else if (vtkCompositeDataSet::SafeDownCast(inputDO))
   {
-    // For other composite datasets, we're create a vtkMultiBlockDataSet as output;
+    // For other composite datasets, we create a vtkMultiBlockDataSet as output;
     outputType = VTK_MULTIBLOCK_DATA_SET;
   }
   else if (vtkDataSet::SafeDownCast(inputDO))
@@ -352,10 +352,13 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     vtkLogEndScope("evaluate expression");
 
     vtkLogStartScope(TRACE, "extract output");
-    for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
+    // input iterator is needed because if inputCD is subclass of vtkUniformGridAMR,
+    // GetDataSet requires the iterator to be vtkUniformGridAMRDataIterator
+    for (inIter->GoToFirstItem(), outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal();
+         inIter->GoToNextItem(), outIter->GoToNextItem())
     {
       outputCD->SetDataSet(
-        outIter, extract(inputCD->GetDataSet(outIter), outIter->GetCurrentDataObject()));
+        outIter, extract(inputCD->GetDataSet(inIter), outIter->GetCurrentDataObject()));
     }
     vtkLogEndScope("extract output");
   }

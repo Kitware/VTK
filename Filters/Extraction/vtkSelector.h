@@ -129,9 +129,12 @@ protected:
    * processed. If the selector cannot make an exact determination for the given
    * level and index, it should return `INHERIT`. Note, returning `INCLUDE` or
    * `EXCLUDE` has impact on all nodes in the subtree unless any of the node
-   * explicitly overrides the block selection mode.
+   * explicitly overrides the block selection mode. isDataObjectTree is true for vtkDataObjectTree
+   * and false for vtkUniformGridAMR. When isDataObjectTree == true, we treat compositeIndex == 0
+   * differently.
    */
-  virtual SelectionMode GetBlockSelection(unsigned int compositeIndex);
+  virtual SelectionMode GetBlockSelection(
+    unsigned int compositeIndex, bool isDataObjectTree = true);
 
   /**
    * Creates an array suitable for storing insideness. The array is named using

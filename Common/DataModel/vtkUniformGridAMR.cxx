@@ -182,11 +182,11 @@ void vtkUniformGridAMR::SetDataSet(unsigned int level, unsigned int idx, vtkUnif
 //------------------------------------------------------------------------------
 void vtkUniformGridAMR::SetDataSet(vtkCompositeDataIterator* compositeIter, vtkDataObject* dataObj)
 {
-  vtkUniformGridAMRDataIterator* itr = vtkUniformGridAMRDataIterator::SafeDownCast(compositeIter);
-  vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(dataObj);
-  int level = itr->GetCurrentLevel();
-  int id = itr->GetCurrentIndex();
-  this->SetDataSet(level, id, grid);
+  if (auto amrIter = vtkUniformGridAMRDataIterator::SafeDownCast(compositeIter))
+  {
+    this->SetDataSet(amrIter->GetCurrentLevel(), amrIter->GetCurrentIndex(),
+      vtkUniformGrid::SafeDownCast(dataObj));
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -212,14 +212,11 @@ int vtkUniformGridAMR::GetGridDescription()
 //------------------------------------------------------------------------------
 vtkDataObject* vtkUniformGridAMR::GetDataSet(vtkCompositeDataIterator* compositeIter)
 {
-  vtkUniformGridAMRDataIterator* itr = vtkUniformGridAMRDataIterator::SafeDownCast(compositeIter);
-  if (!itr)
+  if (auto amrIter = vtkUniformGridAMRDataIterator::SafeDownCast(compositeIter))
   {
-    return nullptr;
+    return this->GetDataSet(amrIter->GetCurrentLevel(), amrIter->GetCurrentIndex());
   }
-  int level = itr->GetCurrentLevel();
-  int id = itr->GetCurrentIndex();
-  return this->GetDataSet(level, id);
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
