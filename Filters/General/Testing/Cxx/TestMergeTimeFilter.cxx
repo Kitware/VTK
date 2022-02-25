@@ -17,6 +17,7 @@
 #include "vtkExodusIIReader.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
+#include "vtkSphereSource.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemporalShiftScale.h"
 #include "vtkTestUtilities.h"
@@ -102,6 +103,19 @@ int TestMergeTimeFilter(int argc, char* argv[])
   if (values[0] != 0)
   {
     std::cerr << "Wrong value for timestep. Should be 0, has " << values[0] << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkSphereSource> sphere;
+  merger->AddInputConnection(sphere->GetOutputPort(0));
+  merger->Update();
+
+  info = merger->GetOutputInformation(0);
+  nbOfTimesteps = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  values = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  if (nbOfTimesteps != 66)
+  {
+    std::cerr << "Non temporal data should not impact available timesteps" << std::endl;
     return EXIT_FAILURE;
   }
 
