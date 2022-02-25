@@ -259,6 +259,10 @@ void vtkRenderWindowInteractor::SetInteractorStyle(vtkInteractorObserver* style)
 {
   if (this->InteractorStyle != style)
   {
+    if (this->InteractorStyle)
+    {
+      this->InteractorStyle->SetInteractor(nullptr);
+    }
     this->InteractorStyle = style;
     if (this->InteractorStyle != nullptr)
     {
