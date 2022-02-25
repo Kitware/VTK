@@ -263,7 +263,7 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
       {
         std::string fileName = directory->GetFile(i);
         std::size_t found = fileName.find(this->dumpBaseName);
-        if (found != std::string::npos)
+        if (found == 0) // base name exists in filename and is at beginning
         {
           std::size_t cyclePos = found + this->dumpBaseName.size();
           std::string timeStr = fileName.substr(cyclePos, fileName.size());
