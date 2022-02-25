@@ -218,6 +218,10 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
         vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeSteps, this->NumberOfTimeSteps);
     }
   }
+
+  // Indicate reading in parallel is supported.
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+
   return 1;
 }
 
