@@ -57,12 +57,12 @@ public:
   vtkTypeMacro(vtkOpenGLRenderTimerLog, vtkRenderTimerLog);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  bool IsSupported() override;
+  bool IsSupported() VTK_FUTURE_CONST override;
 
   /**
    * Overridden to do support check before returning.
    */
-  bool GetLoggingEnabled() override { return this->DoLogging(); }
+  bool GetLoggingEnabled() VTK_FUTURE_CONST override { return this->DoLogging(); }
 
   void MarkFrame() override;
 
@@ -104,7 +104,7 @@ protected:
   vtkOpenGLRenderTimerLog();
   ~vtkOpenGLRenderTimerLog() override;
 
-  bool DoLogging();
+  bool DoLogging() VTK_FUTURE_CONST;
 
   Frame Convert(const OGLFrame& oglFrame);
   Event Convert(const OGLEvent& oglEvent);

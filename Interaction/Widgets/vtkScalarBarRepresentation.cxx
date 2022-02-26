@@ -197,7 +197,7 @@ void vtkScalarBarRepresentation::SwapOrientation()
 }
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkScalarBarRepresentation::GetVisibility()
+vtkTypeBool vtkScalarBarRepresentation::GetVisibility() VTK_FUTURE_CONST
 {
   return this->ScalarBarActor->GetVisibility();
 }

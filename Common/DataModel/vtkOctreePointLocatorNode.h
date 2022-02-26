@@ -84,8 +84,8 @@ public:
    * Get a pointer to the 3 bound minima (xmin, ymin and zmin) or the
    * 3 bound maxima (xmax, ymax, zmax).  Don't free this pointer.
    */
-  vtkGetMacro(MinBounds, double*);
-  vtkGetMacro(MaxBounds, double*);
+  vtkGetMacro(MinBounds, VTK_FUTURE_CONST double*);
+  vtkGetMacro(MaxBounds, VTK_FUTURE_CONST double*);
   ///@}
 
   ///@{
@@ -117,8 +117,8 @@ public:
    * Get a pointer to the 3 data bound minima (xmin, ymin and zmin) or the
    * 3 data bound maxima (xmax, ymax, zmax).  Don't free this pointer.
    */
-  vtkGetMacro(MinDataBounds, double*);
-  vtkGetMacro(MaxDataBounds, double*);
+  vtkGetMacro(MinDataBounds, VTK_FUTURE_CONST double*);
+  vtkGetMacro(MaxDataBounds, VTK_FUTURE_CONST double*);
   ///@}
 
   ///@{
@@ -126,7 +126,7 @@ public:
    * Set the xmin, ymin and zmin value of the bounds of this
    * data within this region.
    */
-  void SetMinDataBounds(double minDataBounds[3])
+  void SetMinDataBounds(VTK_FUTURE_CONST double minDataBounds[3])
   {
     this->MinDataBounds[0] = minDataBounds[0];
     this->MinDataBounds[1] = minDataBounds[1];
@@ -139,7 +139,7 @@ public:
    * Set the xmax, ymax and zmax value of the bounds of this
    * data within this region.
    */
-  void SetMaxDataBounds(double maxDataBounds[3])
+  void SetMaxDataBounds(VTK_FUTURE_CONST double maxDataBounds[3])
   {
     this->MaxDataBounds[0] = maxDataBounds[0];
     this->MaxDataBounds[1] = maxDataBounds[1];

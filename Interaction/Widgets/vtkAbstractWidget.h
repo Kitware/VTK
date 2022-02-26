@@ -87,7 +87,12 @@ public:
    * that they pass on the flag to all component widgets.
    */
   vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
-  vtkGetMacro(ProcessEvents, vtkTypeBool);
+  virtual vtkTypeBool GetProcessEvents()
+  {
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning ProcessEvents of "
+                  << this->ProcessEvents);
+    return this->ProcessEvents;
+  }
   vtkBooleanMacro(ProcessEvents, vtkTypeBool);
   ///@}
 

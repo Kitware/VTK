@@ -99,7 +99,7 @@ public:
   /**
    * Returns the number of bins.
    */
-  vtkIdType GetNumberOfBuckets() override { return this->NumberOfBuckets; }
+  vtkIdType GetNumberOfBuckets() VTK_FUTURE_CONST override { return this->NumberOfBuckets; }
 
 protected:
   vtkSMPMergePoints();

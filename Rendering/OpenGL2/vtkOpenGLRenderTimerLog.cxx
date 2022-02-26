@@ -36,7 +36,7 @@ void vtkOpenGLRenderTimerLog::PrintSelf(std::ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderTimerLog::IsSupported()
+bool vtkOpenGLRenderTimerLog::IsSupported() VTK_FUTURE_CONST
 {
   return vtkOpenGLRenderTimer::IsSupported();
 }
@@ -153,7 +153,7 @@ vtkOpenGLRenderTimerLog::~vtkOpenGLRenderTimerLog()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderTimerLog::DoLogging()
+bool vtkOpenGLRenderTimerLog::DoLogging() VTK_FUTURE_CONST
 {
   if (!this->LoggingEnabled)
   {

@@ -151,7 +151,7 @@
 // Get built-in type.  Creates member Get"name"() (e.g., GetVisibility());
 //
 #define vtkGetMacro(name, type)                                                                    \
-  virtual type Get##name()                                                                         \
+  virtual type Get##name() VTK_FUTURE_CONST                                                        \
   {                                                                                                \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of "       \
                   << this->name);                                                                  \

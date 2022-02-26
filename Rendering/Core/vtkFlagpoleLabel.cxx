@@ -100,7 +100,7 @@ void vtkFlagpoleLabel::SetForceOpaque(bool opaque)
 }
 
 //------------------------------------------------------------------------------
-bool vtkFlagpoleLabel::GetForceOpaque()
+bool vtkFlagpoleLabel::GetForceOpaque() VTK_FUTURE_CONST
 {
   return this->QuadActor->GetForceOpaque();
 }
@@ -127,7 +127,7 @@ void vtkFlagpoleLabel::SetForceTranslucent(bool trans)
 }
 
 //------------------------------------------------------------------------------
-bool vtkFlagpoleLabel::GetForceTranslucent()
+bool vtkFlagpoleLabel::GetForceTranslucent() VTK_FUTURE_CONST
 {
   return this->QuadActor->GetForceTranslucent();
 }
