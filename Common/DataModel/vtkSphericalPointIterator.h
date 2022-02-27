@@ -80,6 +80,8 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // auto destruct
 
+#include <memory> // for std::unique_ptr
+
 class vtkDoubleArray;
 class vtkPolyData;
 struct SpiralPointIterator;
