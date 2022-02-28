@@ -1,11 +1,11 @@
 /*=========================================================================
 
-  Program:   ParaView
+  Program:   Visualization Toolkit
   Module:    vtkSelection.h
 
-  Copyright (c) Kitware, Inc.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -121,10 +121,10 @@ public:
   /**
    * Get/Set the expression that defines the boolean expression to combine the
    * selection nodes. Expression consists of node name identifiers, `|` for
-   * boolean-or, '&' for boolean and, '!' for boolean not, and parenthesis `(`
-   * and `)`. If the expression consists of a node name identifier that is not
-   * assigned any `vtkSelectionNode` (using `SetNode`) then it is evaluates to
-   * `false`.
+   * boolean-or, '^' for boolean-xor, '&' for boolean and, '!' for boolean not,
+   * and parenthesis `(` and `)`. If the expression consists of a node name identifier
+   * that is not assigned any `vtkSelectionNode` (using `SetNode`) then it is evaluates
+   * to `false`.
    *
    * `SetExpression` does not validate the expression. It will be validated in
    * `Evaluate` call.

@@ -44,8 +44,13 @@
 
 #include <memory> // unique_ptr
 
+class vtkConvertSelection;
+
 class VTKFILTERSEXTRACTION_EXPORT vtkValueSelector : public vtkSelector
 {
+private:
+  friend class vtkConvertSelection;
+
 public:
   static vtkValueSelector* New();
   vtkTypeMacro(vtkValueSelector, vtkSelector);

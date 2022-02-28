@@ -22,20 +22,38 @@
  * adds a scalar array called vtkOriginalCellIds that says what input cell
  * produced each output cell. This is an example of a Pedigree ID which helps
  * to trace back results.
+ *
  * @sa
  * vtkSelection vtkExtractSelection
+ *
+ * @deprecated vtkExtractSelectedLocations is deprecated in VTK 9.2 and will be removed.
+ * Use `vtkExtractSelection` instead of `vtkExtractSelectedLocations`.
+ *
+ * Example using vtkExtractSelectedLocations:
+ *
+ * vtkNew<vtkExtractSelectedLocations> selFilter;
+ * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
+ * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
+ *
+ * Example using vtkExtractSelection:
+ *
+ * vtkNew<vtkExtractSelection> selFilter;
+ * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
+ * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
  */
 
 #ifndef vtkExtractSelectedLocations_h
 #define vtkExtractSelectedLocations_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkExtractSelectionBase.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
 class vtkSelection;
 class vtkSelectionNode;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedLocations : public vtkExtractSelectionBase
+class VTK_DEPRECATED_IN_9_2_0("Use vtkExtractSelection instead of vtkExtractSelectedLocations.")
+  VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedLocations : public vtkExtractSelectionBase
 {
 public:
   static vtkExtractSelectedLocations* New();
@@ -58,3 +76,5 @@ private:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkExtractSelectedLocations.h

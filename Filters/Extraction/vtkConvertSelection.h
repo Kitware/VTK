@@ -183,7 +183,7 @@ protected:
 
   int ConvertCompositeDataSet(vtkSelection* input, vtkCompositeDataSet* data, vtkSelection* output);
 
-  int ConvertFromQueryNodeCompositeDataSet(
+  int ConvertFromQueryAndBlockSelectionNodeCompositeDataSet(
     vtkSelectionNode* input, vtkCompositeDataSet* data, vtkSelection* output);
 
   int ConvertToIndexSelection(vtkSelectionNode* input, vtkDataSet* data, vtkSelectionNode* output);

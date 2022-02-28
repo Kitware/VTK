@@ -244,13 +244,12 @@ public:
   /**
    * Enum of valid selection modes for charts in the scene
    */
-  enum
+  enum SelectionModifier
   {
-    SELECTION_NONE = 0,
-    SELECTION_DEFAULT,
-    SELECTION_ADDITION,
-    SELECTION_SUBTRACTION,
-    SELECTION_TOGGLE
+    SELECTION_DEFAULT = 0, // selection = newSelection
+    SELECTION_ADDITION,    // selection = prevSelection | newSelection
+    SELECTION_SUBTRACTION, // selection = prevSelection & !newSelection
+    SELECTION_TOGGLE       // selection = prevSelection ^ newSelection
   };
 
 protected:

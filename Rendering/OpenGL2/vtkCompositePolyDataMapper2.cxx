@@ -22,8 +22,6 @@
 #include "vtkCommand.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataPipeline.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataSetRange.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkFloatArray.h"
@@ -58,11 +56,10 @@
 
 #include "vtkCompositeMapperHelper2.h"
 
-typedef std::map<vtkPolyData*, vtkCompositeMapperHelperData*>::iterator dataIter;
-typedef std::map<const std::string, vtkCompositeMapperHelper2*>::iterator helpIter;
-
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCompositeMapperHelper2);
 
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -71,15 +68,17 @@ void vtkCompositeMapperHelper2::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Override Color Used: " << this->OverideColorUsed << endl;
 }
 
+//------------------------------------------------------------------------------
 vtkCompositeMapperHelper2::~vtkCompositeMapperHelper2()
 {
-  for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
+  for (auto& data : this->Data)
   {
-    delete it->second;
+    delete data.second;
   }
   this->Data.clear();
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::SetShaderValues(
   vtkShaderProgram* prog, vtkCompositeMapperHelperData* hdata, size_t primOffset)
 {
@@ -164,6 +163,7 @@ void vtkCompositeMapperHelper2::SetShaderValues(
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::UpdateShaders(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act)
 {
@@ -175,6 +175,7 @@ void vtkCompositeMapperHelper2::UpdateShaders(
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::ReplaceShaderColor(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
@@ -200,18 +201,20 @@ void vtkCompositeMapperHelper2::ReplaceShaderColor(
   this->Superclass::ReplaceShaderColor(shaders, ren, actor);
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::ClearMark()
 {
-  for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
+  for (auto& data : this->Data)
   {
-    it->second->Marked = false;
+    data.second->Marked = false;
   }
   this->Marked = false;
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::RemoveUnused()
 {
-  for (dataIter it = this->Data.begin(); it != this->Data.end();)
+  for (auto it = this->Data.begin(); it != this->Data.end();)
   {
     if (!it->second->Marked)
     {
@@ -226,6 +229,7 @@ void vtkCompositeMapperHelper2::RemoveUnused()
   }
 }
 
+//------------------------------------------------------------------------------
 std::vector<vtkPolyData*> vtkCompositeMapperHelper2::GetRenderedList() const
 {
   std::vector<vtkPolyData*> result;
@@ -252,9 +256,9 @@ int vtkCompositeMapperHelper2::CanUseTextureMapForColoring(vtkDataObject*)
 
   int cellFlag = 0;
   vtkScalarsToColors* scalarsLookupTable = nullptr;
-  for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
+  for (auto& data : this->Data)
   {
-    vtkPolyData* pd = it->second->Data;
+    vtkPolyData* pd = data.second->Data;
     vtkDataArray* scalars = vtkAbstractMapper::GetScalars(
       pd, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
 
@@ -392,9 +396,9 @@ void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int p
     bool selecting = this->CurrentSelector != nullptr;
     bool tpass = actor->IsRenderingTranslucentPolygonalGeometry();
 
-    for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
+    for (auto& data : this->Data)
     {
-      vtkCompositeMapperHelperData* starthdata = it->second;
+      vtkCompositeMapperHelperData* starthdata = data.second;
       bool shouldDraw = starthdata->Visibility     // must be visible
         && (!selecting || starthdata->Pickability) // and pickable when selecting
         && (((selecting || starthdata->IsOpaque || actor->GetForceOpaque()) &&
@@ -481,10 +485,11 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(vtkRenderer* ren, vtkActor* acto
   }
 }
 
+//------------------------------------------------------------------------------
 vtkCompositeMapperHelperData* vtkCompositeMapperHelper2::AddData(
   vtkPolyData* pd, unsigned int flatIndex)
 {
-  dataIter found = this->Data.find(pd);
+  auto found = this->Data.find(pd);
   if (found == this->Data.end())
   {
     vtkCompositeMapperHelperData* hdata = new vtkCompositeMapperHelperData();
@@ -508,9 +513,9 @@ bool vtkCompositeMapperHelper2::GetNeedToRebuildBufferObjects(
   // we need to check all inputs, not just this->CurrentInput
   this->TempState.Clear();
   this->TempState.Append(act->GetProperty()->GetMTime(), "actor mtime");
-  for (dataIter iter = this->Data.begin(); iter != this->Data.end(); ++iter)
+  for (auto data : this->Data)
   {
-    this->TempState.Append(iter->first ? iter->first->GetMTime() : 0, "input mtime");
+    this->TempState.Append(data.first ? data.first->GetMTime() : 0, "input mtime");
   }
   this->TempState.Append(act->GetTexture() ? act->GetTexture()->GetMTime() : 0, "texture mtime");
 
@@ -532,7 +537,6 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
   std::vector<unsigned char> newColors;
   std::vector<float> newNorms;
 
-  dataIter iter;
   this->VBOs->ClearAllVBOs();
 
   if (this->Data.begin() == this->Data.end())
@@ -548,9 +552,9 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
   this->Data.begin()->second->Data->GetPoints()->GetBounds(bounds);
   bbox.SetBounds(bounds);
   vtkCompositeMapperHelperData* prevhdata = nullptr;
-  for (iter = this->Data.begin(); iter != this->Data.end(); ++iter)
+  for (auto& data : this->Data)
   {
-    vtkCompositeMapperHelperData* hdata = iter->second;
+    vtkCompositeMapperHelperData* hdata = data.second;
 
     hdata->Data->GetPoints()->GetBounds(bounds);
     bbox.AddBounds(bounds);
@@ -962,6 +966,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::ProcessSelectorPixelBuffers(
   vtkHardwareSelector* sel, std::vector<unsigned int>& pixeloffsets, vtkProp* prop)
 {
@@ -991,9 +996,10 @@ void vtkCompositeMapperHelper2::ProcessSelectorPixelBuffers(
     }
 
     size_t maxFlatIndex = 0;
-    for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
+    for (auto& data : this->Data)
     {
-      maxFlatIndex = (it->second->FlatIndex > maxFlatIndex) ? it->second->FlatIndex : maxFlatIndex;
+      maxFlatIndex =
+        (data.second->FlatIndex > maxFlatIndex) ? data.second->FlatIndex : maxFlatIndex;
     }
 
     this->PickPixels.resize(maxFlatIndex + 1);
@@ -1013,16 +1019,17 @@ void vtkCompositeMapperHelper2::ProcessSelectorPixelBuffers(
   }
 
   // for each block update the image
-  for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
+  for (auto& data : this->Data)
   {
-    if (!this->PickPixels[it->second->FlatIndex].empty())
+    if (!this->PickPixels[data.second->FlatIndex].empty())
     {
       this->ProcessCompositePixelBuffers(
-        sel, prop, it->second, this->PickPixels[it->second->FlatIndex]);
+        sel, prop, data.second, this->PickPixels[data.second->FlatIndex]);
     }
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector* sel,
   vtkProp* prop, vtkCompositeMapperHelperData* hdata, std::vector<unsigned int>& pixeloffsets)
 {
@@ -1295,10 +1302,13 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
   }
 }
 
-//===================================================================
+//------------------------------------------------------------------------------
 // Now the main class methods
+//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
+
 //------------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 {
@@ -1309,10 +1319,9 @@ vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 //------------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::~vtkCompositePolyDataMapper2()
 {
-  helpIter miter = this->Helpers.begin();
-  for (; miter != this->Helpers.end(); ++miter)
+  for (auto& helper : this->Helpers)
   {
-    miter->second->Delete();
+    helper.second->Delete();
   }
   this->Helpers.clear();
 }
@@ -1322,7 +1331,7 @@ int vtkCompositePolyDataMapper2::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObjectTree");
   return 1;
 }
 
@@ -1336,7 +1345,7 @@ vtkExecutive* vtkCompositePolyDataMapper2::CreateDefaultExecutive()
 // Looks at each DataSet and finds the union of all the bounds
 void vtkCompositePolyDataMapper2::ComputeBounds()
 {
-  vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
+  vtkDataObjectTree* input = vtkDataObjectTree::SafeDownCast(this->GetInputDataObject(0, 0));
 
   // If we don't have hierarchical data, test to see if we have
   // plain old polydata. In this case, the bounds are simply
@@ -1366,6 +1375,7 @@ bool vtkCompositePolyDataMapper2::HasOpaqueGeometry()
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool vtkCompositePolyDataMapper2::RecursiveHasTranslucentGeometry(
   vtkDataObject* dobj, unsigned int& flat_index)
 {
@@ -1391,8 +1401,7 @@ bool vtkCompositePolyDataMapper2::RecursiveHasTranslucentGeometry(
   // block.
   flat_index++;
 
-  auto dObjTree = vtkDataObjectTree::SafeDownCast(dobj);
-  if (dObjTree)
+  if (auto dObjTree = vtkDataObjectTree::SafeDownCast(dobj))
   {
     using Opts = vtk::DataObjectTreeOptions;
     for (vtkDataObject* child : vtk::Range(dObjTree, Opts::None))
@@ -1411,18 +1420,20 @@ bool vtkCompositePolyDataMapper2::RecursiveHasTranslucentGeometry(
     }
     return false;
   }
-
-  vtkPolyData* pd = vtkPolyData::SafeDownCast(dobj);
-  // if we think it is opaque check the scalars
-  if (this->ScalarVisibility)
+  else
   {
-    vtkScalarsToColors* lut = this->GetLookupTable();
-    int cellFlag;
-    vtkDataArray* scalars = vtkCompositePolyDataMapper2::GetScalars(
-      pd, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
-    if (lut->IsOpaque(scalars, this->ColorMode, this->ArrayComponent) == 0)
+    vtkPolyData* pd = vtkPolyData::SafeDownCast(dobj);
+    // if we think it is opaque check the scalars
+    if (this->ScalarVisibility)
     {
-      return true;
+      vtkScalarsToColors* lut = this->GetLookupTable();
+      int cellFlag;
+      vtkDataArray* scalars = vtkCompositePolyDataMapper2::GetScalars(
+        pd, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+      if (lut->IsOpaque(scalars, this->ColorMode, this->ArrayComponent) == 0)
+      {
+        return true;
+      }
     }
   }
 
@@ -1680,6 +1691,7 @@ void vtkCompositePolyDataMapper2::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHelper2* helper)
 {
   // We avoid PolyDataMapper::ShallowCopy because it copies the input
@@ -1695,6 +1707,7 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
   helper->SetVBOShiftScaleMethod(this->GetVBOShiftScaleMethod());
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetVBOShiftScaleMethod(int m)
 {
   if (this->ShiftScaleMethod == m)
@@ -1704,12 +1717,13 @@ void vtkCompositePolyDataMapper2::SetVBOShiftScaleMethod(int m)
 
   this->Superclass::SetVBOShiftScaleMethod(m);
 
-  for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  for (auto& helper : this->Helpers)
   {
-    hiter->second->SetVBOShiftScaleMethod(m);
+    helper.second->SetVBOShiftScaleMethod(m);
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetPauseShiftScale(bool pauseShiftScale)
 {
   if (pauseShiftScale == this->PauseShiftScale)
@@ -1718,24 +1732,19 @@ void vtkCompositePolyDataMapper2::SetPauseShiftScale(bool pauseShiftScale)
   }
 
   this->Superclass::SetPauseShiftScale(pauseShiftScale);
-  for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  for (auto& helper : this->Helpers)
   {
-    hiter->second->SetPauseShiftScale(pauseShiftScale);
+    helper.second->SetPauseShiftScale(pauseShiftScale);
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
 {
-  helpIter miter = this->Helpers.begin();
-  for (; miter != this->Helpers.end(); ++miter)
+  for (auto& helper : this->Helpers)
   {
-    miter->second->ReleaseGraphicsResources(win);
-  }
-  miter = this->Helpers.begin();
-  for (; miter != this->Helpers.end(); ++miter)
-  {
-    miter->second->Delete();
+    helper.second->ReleaseGraphicsResources(win);
+    helper.second->Delete();
   }
   this->Helpers.clear();
   this->Modified();
@@ -1780,26 +1789,22 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer* ren, vtkActor* actor)
     this->HelperMTime < this->GetMTime())
   {
     // clear old helpers
-    for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+    for (auto& helper : this->Helpers)
     {
-      hiter->second->ClearMark();
+      helper.second->ClearMark();
     }
     this->HelperDataMap.clear();
 
-    vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
-
-    if (input)
+    if (auto dObjTree = vtkDataObjectTree::SafeDownCast(this->GetInputDataObject(0, 0)))
     {
-      vtkSmartPointer<vtkDataObjectTreeIterator> iter =
-        vtkSmartPointer<vtkDataObjectTreeIterator>::New();
-      iter->SetDataSet(input);
+      vtkNew<vtkDataObjectTreeIterator> iter;
+      iter->SetDataSet(dObjTree);
       iter->SkipEmptyNodesOn();
       iter->VisitOnlyLeavesOn();
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
         unsigned int flatIndex = iter->GetCurrentFlatIndex();
-        vtkDataObject* dso = iter->GetCurrentDataObject();
-        vtkPolyData* pd = vtkPolyData::SafeDownCast(dso);
+        vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
 
         if (!pd || !pd->GetPoints())
         {
@@ -1821,7 +1826,7 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer* ren, vtkActor* actor)
                  << (hasTCoords ? 1 : 0);
 
         vtkCompositeMapperHelper2* helper = nullptr;
-        helpIter found = this->Helpers.find(toString.str());
+        auto found = this->Helpers.find(toString.str());
         if (found == this->Helpers.end())
         {
           helper = this->CreateHelper();
@@ -1858,7 +1863,7 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer* ren, vtkActor* actor)
                  << (hasTCoords ? 1 : 0);
 
         vtkCompositeMapperHelper2* helper = nullptr;
-        helpIter found = this->Helpers.find(toString.str());
+        auto found = this->Helpers.find(toString.str());
         if (found == this->Helpers.end())
         {
           helper = this->CreateHelper();
@@ -1876,7 +1881,7 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer* ren, vtkActor* actor)
     }
 
     // delete unused old helpers/data
-    for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end();)
+    for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end();)
     {
       hiter->second->RemoveUnused();
       if (!hiter->second->GetMarked())
@@ -1938,13 +1943,13 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer* ren, vtkActor* actor)
 
   this->InitializeHelpersBeforeRendering(ren, actor);
 
-  for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  for (auto& helper : this->Helpers)
   {
-    vtkCompositeMapperHelper2* helper = hiter->second;
-    helper->RenderPiece(ren, actor);
+    vtkCompositeMapperHelper2* helper2 = helper.second;
+    helper2->RenderPiece(ren, actor);
 
     // update the list of rendered polydata that vtkValuePass relies on
-    std::vector<vtkPolyData*> pdl = helper->GetRenderedList();
+    std::vector<vtkPolyData*> pdl = helper2->GetRenderedList();
     for (unsigned int i = 0; i < pdl.size(); ++i)
     {
       this->RenderedList.push_back(pdl[i]);
@@ -1998,8 +2003,7 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
     textureOpaque = false;
   }
 
-  auto dObjTree = vtkDataObjectTree::SafeDownCast(dobj);
-  if (dObjTree)
+  if (auto dObjTree = vtkDataObjectTree::SafeDownCast(dobj))
   {
     using Opts = vtk::DataObjectTreeOptions;
     for (vtkDataObject* child : vtk::Range(dObjTree, Opts::None))
@@ -2017,7 +2021,7 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   else
   {
     vtkPolyData* pd = vtkPolyData::SafeDownCast(dobj);
-    dataIter dit = this->HelperDataMap.find(pd);
+    auto dit = this->HelperDataMap.find(pd);
     if (dit != this->HelperDataMap.end())
     {
       vtkCompositeMapperHelperData* helperData = dit->second;

@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkTriQuadraticPyramid
- * @brief   cell represents a parabolic, 13-node isoparametric pyramid
+ * @brief   cell represents a parabolic, 19-node isoparametric pyramid
  *
  * vtkTriQuadraticPyramid is a concrete implementation of vtkNonLinearCell to
  * represent a second order three-dimensional isoparametric 19-node pyramid.

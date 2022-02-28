@@ -43,7 +43,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDataObject.h"
 #include "vtkDataSetMapper.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkFieldData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"

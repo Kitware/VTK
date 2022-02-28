@@ -83,6 +83,8 @@ public:
    */
   void SetDataSetFrom(vtkDataObjectTreeIterator* iter, vtkDataObject* dataObj);
 
+  // Needed because, otherwise vtkCompositeData::GetDataSet(unsigned int flatIndex) is hidden.
+  using Superclass::GetDataSet;
   /**
    * Returns the dataset located at the positiong pointed by the iterator.
    * The iterator does not need to be iterating over this dataset itself. It can

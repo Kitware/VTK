@@ -14,67 +14,46 @@
 =========================================================================*/
 
 #include "vtkActor.h"
-#include "vtkExtractSelectedPolyDataIds.h"
-#include "vtkIdTypeArray.h"
+#include "vtkDataSetMapper.h"
+#include "vtkExtractSelection.h"
 #include "vtkInformation.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSelection.h"
-#include "vtkSelectionNode.h"
+#include "vtkSelectionSource.h"
 #include "vtkSphereSource.h"
 
 #include "vtkRegressionTestImage.h"
 
-#include <cassert>
-
 int TestExtractSelection(int argc, char* argv[])
 {
-  vtkSelection* sel = vtkSelection::New();
-  vtkSelectionNode* node = vtkSelectionNode::New();
-  sel->AddNode(node);
-  node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
-  node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::CELL);
+  vtkNew<vtkSelectionSource> selection;
+  selection->SetContentType(vtkSelectionNode::INDICES);
+  selection->SetFieldType(vtkSelectionNode::CELL);
+  selection->AddID(-1, 2);
+  selection->AddID(-1, 4);
+  selection->AddID(-1, 5);
+  selection->AddID(-1, 8);
 
-  // Get types as strings
-  assert(strcmp(vtkSelectionNode::GetContentTypeAsString(node->GetContentType()), "INDICES") == 0);
-  assert(strcmp(vtkSelectionNode::GetFieldTypeAsString(node->GetFieldType()), "CELL") == 0);
+  vtkNew<vtkSphereSource> sphere;
 
-  std::cout << *node << std::endl;
-
-  // list of cells to be selected
-  vtkIdTypeArray* arr = vtkIdTypeArray::New();
-  arr->SetNumberOfTuples(4);
-  arr->SetTuple1(0, 2);
-  arr->SetTuple1(1, 4);
-  arr->SetTuple1(2, 5);
-  arr->SetTuple1(3, 8);
-
-  node->SetSelectionList(arr);
-  arr->Delete();
-
-  vtkSphereSource* sphere = vtkSphereSource::New();
-
-  vtkExtractSelectedPolyDataIds* selFilter = vtkExtractSelectedPolyDataIds::New();
-  selFilter->SetInputData(1, sel);
+  vtkNew<vtkExtractSelection> selFilter;
   selFilter->SetInputConnection(0, sphere->GetOutputPort());
-  sel->Delete();
-  node->Delete();
+  selFilter->SetInputConnection(1, selection->GetOutputPort());
 
-  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
+  vtkNew<vtkDataSetMapper> mapper;
   mapper->SetInputConnection(selFilter->GetOutputPort());
 
-  vtkActor* actor = vtkActor::New();
+  vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
 
-  vtkRenderer* ren = vtkRenderer::New();
+  vtkNew<vtkRenderer> ren;
   ren->AddActor(actor);
 
-  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(ren);
 
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
   iren->Initialize();
@@ -86,15 +65,6 @@ int TestExtractSelection(int argc, char* argv[])
   {
     iren->Start();
   }
-
-  // Clean up
-  sphere->Delete();
-  selFilter->Delete();
-  mapper->Delete();
-  actor->Delete();
-  ren->Delete();
-  renWin->Delete();
-  iren->Delete();
 
   return !retVal;
 }

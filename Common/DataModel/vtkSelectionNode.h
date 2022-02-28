@@ -1,11 +1,11 @@
 /*=========================================================================
 
-  Program:   ParaView
+  Program:   Visualization Toolkit
   Module:    vtkSelectionNode.h
 
-  Copyright (c) Kitware, Inc.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -29,7 +29,7 @@
  * qualifiers, and information. The core properties must be specified other wise the
  * vtkSelectionNode is not considered valid. These are `FIELD_TYPE` and
  * `CONTENT_TYPE`. `FIELD_TYPE` defines what kinds of entities are being selected.
- * Since selections are used select items in a data-object, these correspond to
+ * Since selections are used to select items in a data-object, these correspond to
  * things like cells, points, nodes, edges, rows, etc. Supported FIELD_TYPE
  * values are defined in `vtkSelectionNode::SelectionField`. `CONTENT_TYPE`
  * defines the how the selection is described. Supported values are
@@ -62,7 +62,7 @@
  *   using vtkDataSetAttributes API. Since global ids are expected to be unique
  *   for that element type over the entire dataset, it's a convenient way of
  *   defining selections. For this content-type, the selection list must be
- *   to a single-component, `vtkIdTypeArray` that lists all the globals ids for
+ *   a single-component, `vtkIdTypeArray` that lists all the globals ids for
  *   the selected elements.
  *
  * * `vtkSelectionNode::PEDIGREEIDS`: similar to `GLOBALIDS` except uses
@@ -94,7 +94,7 @@
  *
  * * `vtkSelectionNode::LOCATIONS`: this is used to select points (or cells)
  *   near (or containing) specified locations. The selection list is a
- *   3-compnent vtkDoubleArray with coordinates for locations of interest.
+ *   3-component vtkDoubleArray with coordinates for locations of interest.
  *
  * * `vtkSelectionNode::THRESHOLDS`: this type is used to define a selection based
  *   on array value ranges. This is akin to thresholding. All elements with values in
@@ -299,7 +299,6 @@ public:
    */
   enum SelectionContent
   {
-    SELECTIONS,      //!< Deprecated.
     GLOBALIDS,       //!< Select entities called out by their globally-unique IDs.
     PEDIGREEIDS,     //!< Select entities that have some identifiable pedigree.
     VALUES,          //!< Select entities that take on specific array values.

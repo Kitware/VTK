@@ -71,8 +71,7 @@ void vtkOpenGLHardwareSelector::PreCapturePass(int pass)
   annotate(std::string("Starting pass: ") + this->PassTypeToString(static_cast<PassTypes>(pass)));
 
   // Disable blending
-  vtkOpenGLRenderWindow* rwin =
-    static_cast<vtkOpenGLRenderWindow*>(this->Renderer->GetRenderWindow());
+  auto rwin = vtkOpenGLRenderWindow::SafeDownCast(this->Renderer->GetRenderWindow());
   vtkOpenGLState* ostate = rwin->GetState();
 
   this->OriginalBlending = ostate->GetEnumState(GL_BLEND);
@@ -83,8 +82,7 @@ void vtkOpenGLHardwareSelector::PreCapturePass(int pass)
 void vtkOpenGLHardwareSelector::PostCapturePass(int pass)
 {
   // Restore blending.
-  vtkOpenGLRenderWindow* rwin =
-    static_cast<vtkOpenGLRenderWindow*>(this->Renderer->GetRenderWindow());
+  auto rwin = vtkOpenGLRenderWindow::SafeDownCast(this->Renderer->GetRenderWindow());
   vtkOpenGLState* ostate = rwin->GetState();
 
   ostate->SetEnumState(GL_BLEND, this->OriginalBlending);
@@ -94,8 +92,7 @@ void vtkOpenGLHardwareSelector::PostCapturePass(int pass)
 //------------------------------------------------------------------------------
 void vtkOpenGLHardwareSelector::BeginSelection()
 {
-  vtkOpenGLRenderWindow* rwin =
-    static_cast<vtkOpenGLRenderWindow*>(this->Renderer->GetRenderWindow());
+  auto rwin = vtkOpenGLRenderWindow::SafeDownCast(this->Renderer->GetRenderWindow());
 
   this->OriginalMultiSample = rwin->GetMultiSamples();
   rwin->SetMultiSamples(0);
@@ -126,8 +123,7 @@ void vtkOpenGLHardwareSelector::EndSelection()
     this->Renderer->PreserveDepthBufferOff();
   }
 
-  vtkOpenGLRenderWindow* rwin =
-    static_cast<vtkOpenGLRenderWindow*>(this->Renderer->GetRenderWindow());
+  auto rwin = vtkOpenGLRenderWindow::SafeDownCast(this->Renderer->GetRenderWindow());
   rwin->SetMultiSamples(this->OriginalMultiSample);
   vtkOpenGLState* ostate = rwin->GetState();
   ostate->Pop();
@@ -194,7 +190,6 @@ void vtkOpenGLHardwareSelector::BeginRenderProp()
   vtkRenderWindow* renWin = this->Renderer->GetRenderWindow();
   this->BeginRenderProp(renWin);
 
-  // cout << "In BeginRenderProp" << endl;
   if (this->CurrentPass == ACTOR_PASS)
   {
     int propid = this->PropID;
@@ -203,17 +198,13 @@ void vtkOpenGLHardwareSelector::BeginRenderProp()
       vtkErrorMacro("Too many props. Currently only " << 0xfffffe << " props are supported.");
       return;
     }
-    float color[3];
     // Since 0 is reserved for nothing selected, we offset propid by 1.
     propid = propid + ID_OFFSET;
-    vtkHardwareSelector::Convert(propid, color);
-    this->SetPropColorValue(color);
+    this->SetPropColorValue(propid);
   }
   else if (this->CurrentPass == PROCESS_PASS)
   {
-    float color[3];
-    vtkHardwareSelector::Convert(this->ProcessID + 1, color);
-    this->SetPropColorValue(color);
+    this->SetPropColorValue(this->ProcessID + 1);
   }
 }
 
@@ -234,18 +225,14 @@ void vtkOpenGLHardwareSelector::EndRenderProp()
 //------------------------------------------------------------------------------
 void vtkOpenGLHardwareSelector::RenderCompositeIndex(unsigned int index)
 {
-
-  if (index > 0xffffff)
-  {
-    vtkErrorMacro("Indices > 0xffffff are not supported.");
-    return;
-  }
-
   if (this->CurrentPass == COMPOSITE_INDEX_PASS)
   {
-    float color[3];
-    vtkHardwareSelector::Convert(static_cast<vtkIdType>(0xffffff & index), color);
-    this->SetPropColorValue(color);
+    if (index > 0xffffff)
+    {
+      vtkErrorMacro("Indices > 0xffffff are not supported.");
+      return;
+    }
+    this->SetPropColorValue(static_cast<vtkIdType>(0xffffff & index));
   }
 }
 
@@ -259,10 +246,7 @@ void vtkOpenGLHardwareSelector::RenderProcessId(unsigned int processid)
       vtkErrorMacro("Invalid id: " << processid);
       return;
     }
-
-    float color[3];
-    vtkHardwareSelector::Convert(static_cast<vtkIdType>(processid + 1), color);
-    this->SetPropColorValue(color);
+    this->SetPropColorValue(static_cast<vtkIdType>(processid + 1));
   }
 }
 

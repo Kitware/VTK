@@ -19,12 +19,12 @@
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
 #include "vtkPoints.h"
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
@@ -62,15 +62,30 @@ void ComputePlane(
 }
 
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 class ComputeCellsInFrustumFunctor
 {
+private:
+  vtkPlanes* Frustum;
+  vtkDataSet* Input;
+  vtkSignedCharArray* Array;
+  int np_vertids[6][2];
+
+  vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
+  vtkSMPThreadLocalObject<vtkPlane> TLPlane;
+  vtkSMPThreadLocal<std::vector<double>> TLVertexBuffer;
+
 public:
   ComputeCellsInFrustumFunctor(vtkPlanes* f, vtkDataSet* in, vtkSignedCharArray* array)
     : Frustum(f)
     , Input(in)
     , Array(array)
   {
+    // Hacky PrepareForMultithreadedAccess()
+    // call everything we will call on the data object on the main thread first
+    // so that it can build its caching structures
+    vtkNew<vtkGenericCell> cell;
+    this->Input->GetCell(0, cell);
+
     vtkIdType i;
     double x[3];
 
@@ -90,20 +105,20 @@ public:
   void operator()(vtkIdType begin, vtkIdType end)
   {
     double bounds[6];
-    vtkNew<vtkGenericCell> cell;
+    auto& cell = this->TLCell.Local();
 
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
-      Input->GetCellBounds(cellId, bounds);
-      Input->GetCell(cellId, cell);
+      this->Input->GetCell(cellId, cell);
+      cell->GetBounds(bounds);
       int isect = this->ABoxFrustumIsect(bounds, cell);
       if (isect == 1)
       {
-        Array->SetValue(cellId, 1);
+        this->Array->SetValue(cellId, 1);
       }
       else
       {
-        Array->SetValue(cellId, 0);
+        this->Array->SetValue(cellId, 0);
       }
     }
   }
@@ -149,7 +164,7 @@ public:
     int intersect = 0;
 
     // reject if any plane rejects the entire bbox
-    vtkNew<vtkPlane> plane;
+    auto& plane = this->TLPlane.Local();
     for (int pid = 0; pid < MAXPLANE; pid++)
     {
       this->Frustum->GetPlane(pid, plane);
@@ -160,9 +175,6 @@ public:
       dist = plane->EvaluateFunction(verts[nvid]);
       if (dist > 0.0)
       {
-        /*
-        this->NumRejects++;
-        */
         return 0;
       }
       pvid = this->np_vertids[pid][1];
@@ -177,20 +189,15 @@ public:
     // accept if entire bbox is inside all planes
     if (!intersect)
     {
-      /*
-      this->NumAccepts++;
-      */
       return 1;
     }
 
-    // otherwise we have to do clipping tests to decide if actually insects
-    /*
-    this->NumIsects++;
-    */
+    // otherwise, we have to do clipping tests to decide if actually insects
     vtkCell* face;
     vtkCell* edge;
     vtkPoints* pts = nullptr;
-    std::vector<double> vertbuffer;
+    auto& vertbuffer = this->TLVertexBuffer.Local();
+    vertbuffer.clear();
     int maxedges = 16;
     // be ready to resize if we hit a polygon with many vertices
     vertbuffer.resize(3 * maxedges * 3);
@@ -302,7 +309,6 @@ public:
     }
     else
     {
-
       // go around edges of each face and clip to planes
       // if nothing remains at the end, then we do not intersect and reject
       for (int f = 0; f < nfaces; f++)
@@ -382,10 +388,9 @@ public:
   // handle degenerate cells by testing each point, if any in, then in
   int IsectDegenerateCell(vtkCell* cell)
   {
-    vtkIdType npts = cell->GetNumberOfPoints();
     vtkPoints* pts = cell->GetPoints();
     double x[3];
-    for (vtkIdType i = 0; i < npts; i++)
+    for (vtkIdType i = 0, npts = cell->GetNumberOfPoints(); i < npts; i++)
     {
       pts->GetPoint(i, x);
       if (this->Frustum->EvaluateFunction(x) < 0.0)
@@ -457,7 +462,7 @@ public:
       noverts++;
     }
 
-    vtkNew<vtkPlane> plane;
+    auto& plane = this->TLPlane.Local();
     this->Frustum->GetPlane(pid, plane);
 
     if (plane->EvaluateFunction(V1) < 0.0)
@@ -557,15 +562,9 @@ public:
     }
     return code;
   }
-
-  vtkPlanes* Frustum;
-  vtkDataSet* Input;
-  vtkSignedCharArray* Array;
-  int np_vertids[6][2];
 };
 }
 
-//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFrustumSelector);
 
@@ -731,27 +730,22 @@ void vtkFrustumSelector::ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharA
     }
   });
 }
+
 //------------------------------------------------------------------------------
 void vtkFrustumSelector::ComputeSelectedCells(vtkDataSet* input, vtkSignedCharArray* cellSelected)
 {
   vtkIdType numCells = input->GetNumberOfCells();
 
-  // Hacky PrepareForMultithreadedAccess()
-  // call everything we will call on the data object on the main thread first
-  // so that it can build its caching structures
   if (numCells == 0)
   {
     return;
   }
-  double bounds[6];
-  vtkNew<vtkGenericCell> cell;
-  input->GetCellBounds(0, bounds);
-  input->GetCell(0, cell);
 
   ComputeCellsInFrustumFunctor functor(this->Frustum, input, cellSelected);
   vtkSMPTools::For(0, numCells, functor);
 }
 
+//------------------------------------------------------------------------------
 void vtkFrustumSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -759,6 +753,7 @@ void vtkFrustumSelector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Frustum: " << static_cast<void*>(this->Frustum) << "\n";
 }
 
+//------------------------------------------------------------------------------
 int vtkFrustumSelector::OverallBoundsTest(double bounds[6])
 {
   ComputeCellsInFrustumFunctor functor(this->Frustum, nullptr, nullptr);

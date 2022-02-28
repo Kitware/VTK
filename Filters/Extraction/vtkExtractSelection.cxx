@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkExtractSelection.h"
 
-#include "vtkAssume.h"
 #include "vtkBlockSelector.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTree.h"
 #include "vtkDataSet.h"
 #include "vtkExtractCells.h"
 #include "vtkFrustumSelector.h"
@@ -27,7 +27,6 @@
 #include "vtkInformationVector.h"
 #include "vtkLocationSelector.h"
 #include "vtkLogger.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
@@ -35,6 +34,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSelector.h"
 #include "vtkSignedCharArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 #include "vtkUniformGridAMRDataIterator.h"
 #include "vtkUnstructuredGrid.h"
@@ -42,7 +42,6 @@
 
 #include <cassert>
 #include <map>
-#include <memory>
 #include <numeric>
 #include <set>
 #include <vector>
@@ -87,7 +86,7 @@ int vtkExtractSelection::RequestDataObject(
 
   if (this->PreserveTopology)
   {
-    // when PreserveTopology is ON, we're preserve input data type.
+    // when PreserveTopology is ON, we preserve input data type.
     outputType = inputType;
   }
   else if (vtkDataObjectTree::SafeDownCast(inputDO))
@@ -97,7 +96,7 @@ int vtkExtractSelection::RequestDataObject(
   }
   else if (vtkCompositeDataSet::SafeDownCast(inputDO))
   {
-    // For other composite datasets, we're create a vtkMultiBlockDataSet as output;
+    // For other composite datasets, we create a vtkMultiBlockDataSet as output;
     outputType = VTK_MULTIBLOCK_DATA_SET;
   }
   else if (vtkDataSet::SafeDownCast(inputDO))
@@ -159,6 +158,7 @@ vtkDataObject::AttributeTypes vtkExtractSelection::GetAttributeTypeOfSelection(
 
 namespace
 {
+//----------------------------------------------------------------------------
 void InvertSelection(vtkSignedCharArray* array)
 {
   const vtkIdType n = array->GetNumberOfTuples();
@@ -169,6 +169,37 @@ void InvertSelection(vtkSignedCharArray* array)
     }
   });
 }
+
+//----------------------------------------------------------------------------
+// Remove all selection nodes that their propId = vtkSelectionNode::PROCESS_ID()
+// is not the same as the processId = vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER().
+void vtkTrimSelection(vtkSelection* input, int processId)
+{
+  if (input)
+  {
+    unsigned int numNodes = input->GetNumberOfNodes();
+    for (unsigned int cc = 0; cc < numNodes; cc++)
+    {
+      vtkSelectionNode* node = input->GetNode(cc);
+      int propId = (node->GetProperties()->Has(vtkSelectionNode::PROCESS_ID()))
+        ? node->GetProperties()->Get(vtkSelectionNode::PROCESS_ID())
+        : -1;
+      if (propId != -1 && processId != -1 && propId != processId)
+      {
+        input->RemoveNode(node);
+      }
+    }
+  }
+}
+}
+
+//------------------------------------------------------------------------------
+int vtkExtractSelection::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+{
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+  return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -178,6 +209,7 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* input = vtkDataObject::GetData(inputVector[0], 0);
   vtkSelection* selection = vtkSelection::GetData(inputVector[1], 0);
   vtkDataObject* output = vtkDataObject::GetData(outputVector, 0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // If no input, error
   if (!input)
@@ -188,6 +220,19 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
 
   // If no selection, quietly select nothing
   if (!selection)
+  {
+    return 1;
+  }
+
+  // preserve only nodes that their processId matches the current processId
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+  {
+    int processId = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    vtkTrimSelection(selection, processId);
+  }
+
+  // check for empty selection
+  if (selection->GetNumberOfNodes() == 0)
   {
     return 1;
   }
@@ -307,10 +352,13 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     vtkLogEndScope("evaluate expression");
 
     vtkLogStartScope(TRACE, "extract output");
-    for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
+    // input iterator is needed because if inputCD is subclass of vtkUniformGridAMR,
+    // GetDataSet requires the iterator to be vtkUniformGridAMRDataIterator
+    for (inIter->GoToFirstItem(), outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal();
+         inIter->GoToNextItem(), outIter->GoToNextItem())
     {
       outputCD->SetDataSet(
-        outIter, extract(inputCD->GetDataSet(outIter), outIter->GetCurrentDataObject()));
+        outIter, extract(inputCD->GetDataSet(inIter), outIter->GetCurrentDataObject()));
     }
     vtkLogEndScope("extract output");
   }
@@ -370,7 +418,6 @@ vtkSmartPointer<vtkSelector> vtkExtractSelection::NewSelectionOperator(
       return vtkSmartPointer<vtkBlockSelector>::New();
 
     case vtkSelectionNode::USER:
-    case vtkSelectionNode::SELECTIONS:
     case vtkSelectionNode::QUERY:
     default:
       return nullptr;

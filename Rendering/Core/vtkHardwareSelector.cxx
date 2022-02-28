@@ -26,9 +26,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkStructuredExtent.h"
 
-#include <algorithm>
 #include <cassert>
 #include <map>
 #include <set>

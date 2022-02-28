@@ -60,7 +60,6 @@ class vtkAxisActor2D;
 class vtkBivariateLinearTableThreshold;
 class vtkCollection;
 class vtkCoordinate;
-class vtkExtractSelectedPolyDataIds;
 class vtkFieldData;
 class vtkDataArray;
 class vtkDataObject;

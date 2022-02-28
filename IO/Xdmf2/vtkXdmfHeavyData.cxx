@@ -20,7 +20,7 @@
 #include "vtkDataArrayRange.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtractSelectedIds.h"
+#include "vtkExtractSelection.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -48,7 +48,6 @@
 #include <cassert>
 #include <deque>
 #include <numeric>
-#include <type_traits>
 #include <vector>
 
 #include "vtk_libxml2.h"
@@ -1498,7 +1497,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractCells(XdmfSet* xmfSet, vtkDataSet* dataSet)
   XdmfArray* xmfIds = xmfSet->GetIds();
   XdmfInt64 numIds = xmfIds->GetNumberOfElements();
 
-  vtkIdTypeArray* ids = vtkIdTypeArray::New();
+  vtkNew<vtkIdTypeArray> ids;
   ids->SetNumberOfComponents(1);
   ids->SetNumberOfTuples(numIds);
   xmfIds->GetValues(0, (vtkXdmfIdType*)ids->GetPointer(0), numIds);
@@ -1508,26 +1507,21 @@ vtkDataSet* vtkXdmfHeavyData::ExtractCells(XdmfSet* xmfSet, vtkDataSet* dataSet)
 
   // We directly use vtkExtractSelectedIds for extract cells since the logic to
   // extract cells it no trivial (like extracting points).
-  vtkSelectionNode* selNode = vtkSelectionNode::New();
+  vtkNew<vtkSelectionNode> selNode;
   selNode->SetContentType(vtkSelectionNode::INDICES);
   selNode->SetFieldType(vtkSelectionNode::CELL);
   selNode->SetSelectionList(ids);
 
-  vtkSelection* sel = vtkSelection::New();
+  vtkNew<vtkSelection> sel;
   sel->AddNode(selNode);
-  selNode->Delete();
 
-  vtkExtractSelectedIds* extractCells = vtkExtractSelectedIds::New();
+  vtkNew<vtkExtractSelection> extractCells;
   extractCells->SetInputData(0, dataSet);
   extractCells->SetInputData(1, sel);
   extractCells->Update();
 
   vtkDataSet* output = vtkDataSet::SafeDownCast(extractCells->GetOutput()->NewInstance());
   output->CopyStructure(vtkDataSet::SafeDownCast(extractCells->GetOutput()));
-
-  sel->Delete();
-  extractCells->Delete();
-  ids->Delete();
 
   // Read cell-centered attributes that may be defined on this set.
   int numAttributes = xmfSet->GetNumberOfAttributes();

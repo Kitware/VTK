@@ -214,12 +214,13 @@ void vtkSelector::ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* outp
   auto iter = vtkUniformGridAMRDataIterator::SafeDownCast(input->NewIterator());
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    auto modeDSUsingCompositeIndex = this->GetBlockSelection(iter->GetCurrentFlatIndex());
+    auto modeDSUsingCompositeIndex = this->GetBlockSelection(iter->GetCurrentFlatIndex(), false);
     auto modeDSUsingAMRLevel =
       this->GetAMRBlockSelection(iter->GetCurrentLevel(), iter->GetCurrentIndex());
     auto realMode =
       modeDSUsingAMRLevel == INHERIT ? modeDSUsingCompositeIndex : modeDSUsingAMRLevel;
-    realMode = (realMode == INHERIT) ? EXCLUDE : realMode;
+    // if both modes are INHERIT then we include everything
+    realMode = (realMode == INHERIT) ? INCLUDE : realMode;
 
     auto inputDS = iter->GetCurrentDataObject();
     auto outputDS = output->GetDataSet(iter);
@@ -263,7 +264,8 @@ vtkSelector::SelectionMode vtkSelector::GetAMRBlockSelection(unsigned int level,
 }
 
 //------------------------------------------------------------------------------
-vtkSelector::SelectionMode vtkSelector::GetBlockSelection(unsigned int compositeIndex)
+vtkSelector::SelectionMode vtkSelector::GetBlockSelection(
+  unsigned int compositeIndex, bool isDataObjectTree)
 {
   auto properties = this->Node->GetProperties();
   auto key = vtkSelectionNode::COMPOSITE_INDEX();
@@ -275,13 +277,20 @@ vtkSelector::SelectionMode vtkSelector::GetBlockSelection(unsigned int composite
     }
     else
     {
-      // this needs some explanation:
-      // if `COMPOSITE_INDEX` is present, then the root node is to be treated as
-      // excluded unless explicitly selected. This ensures that
-      // we only "INCLUDE" the chosen subtree(s).
-      // For all other nodes, we will simply return INHERIT, that way the state
-      // from the parent is inherited unless overridden.
-      return compositeIndex == 0 ? EXCLUDE : INHERIT;
+      if (isDataObjectTree)
+      {
+        // this needs some explanation:
+        // if `COMPOSITE_INDEX` is present, then the root node is to be treated as
+        // excluded unless explicitly selected. This ensures that
+        // we only "INCLUDE" the chosen subtree(s).
+        // For all other nodes, we will simply return INHERIT, that way the state
+        // from the parent is inherited unless overridden.
+        return compositeIndex == 0 ? EXCLUDE : INHERIT;
+      }
+      else
+      {
+        return EXCLUDE;
+      }
     }
   }
   else if (properties->Has(vtkSelectionNode::SELECTORS()) &&
@@ -293,8 +302,15 @@ vtkSelector::SelectionMode vtkSelector::GetBlockSelection(unsigned int composite
     }
     else
     {
-      // see earlier explanation for why this is done for root node.
-      return compositeIndex == 0 ? EXCLUDE : INHERIT;
+      if (isDataObjectTree)
+      {
+        // see earlier explanation for why this is done for root node.
+        return compositeIndex == 0 ? EXCLUDE : INHERIT;
+      }
+      else
+      {
+        return EXCLUDE;
+      }
     }
   }
   else

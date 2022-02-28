@@ -352,7 +352,7 @@ void vtkAMRInformation::SetAMRBlockSourceIndex(int index, int sourceId)
     vtkErrorMacro("Invalid index");
     return;
   }
-  SourceIndex->SetValue(index, sourceId);
+  this->SourceIndex->SetValue(index, sourceId);
 }
 
 void vtkAMRInformation::ComputeIndexPair(unsigned int index, unsigned int& level, unsigned int& id)

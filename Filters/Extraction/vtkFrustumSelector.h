@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /**
- * @class   vtkFrustumSelector.h
+ * @class   vtkFrustumSelector
  *
  * vtkFrustumSelector is a vtkSelector that selects elements based
  * on whether they are inside or intersect a frustum of interest.  This handles

@@ -25,15 +25,32 @@
  * Note: this filter uses `vtkCompositeDataSet::ShallowCopy`, as a result, datasets at
  * leaf nodes are simply passed through, rather than being shallow-copied
  * themselves.
+ *
+ * @deprecated vtkExtractSelectedBlock is deprecated in VTK 9.2 and will be removed.
+ * Use `vtkExtractSelection` instead of `vtkExtractSelectedBlock`.
+ *
+ * Example using vtkExtractSelectedBlock:
+ *
+ * vtkNew<vtkExtractSelectedBlock> selFilter;
+ * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
+ * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
+ *
+ * Example using vtkExtractSelection:
+ *
+ * vtkNew<vtkExtractSelection> selFilter;
+ * selFilter->SetInputConnection(0, sphereSource->GetOutputPort());
+ * selFilter->SetInputConnection(1, selectionSource->GetOutputPort());
  */
 
 #ifndef vtkExtractSelectedBlock_h
 #define vtkExtractSelectedBlock_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkExtractSelectionBase.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedBlock : public vtkExtractSelectionBase
+class VTK_DEPRECATED_IN_9_2_0("Use vtkExtractSelection instead of vtkExtractSelectedBlock.")
+  VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedBlock : public vtkExtractSelectionBase
 {
 public:
   static vtkExtractSelectedBlock* New();
@@ -61,3 +78,5 @@ private:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkExtractSelectedBlock.h
