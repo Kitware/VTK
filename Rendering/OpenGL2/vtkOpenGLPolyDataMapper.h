@@ -561,9 +561,9 @@ protected:
   // compute and set the maximum point and cell ID used in selection
   virtual void UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor* actor);
 
-  void AddPointIdsToSelectionPrimitives(vtkPolyData* poly, const char* arrayName,
+  virtual void AddPointIdsToSelectionPrimitives(vtkPolyData* poly, const char* arrayName,
     unsigned int processId, unsigned int compositeIndex, vtkIdType selectedId);
-  void AddCellIdsToSelectionPrimitives(vtkPolyData* poly, const char* arrayName,
+  virtual void AddCellIdsToSelectionPrimitives(vtkPolyData* poly, const char* arrayName,
     unsigned int processId, unsigned int compositeIndex, vtkIdType selectedId);
 
   vtkNew<vtkCellArray> SelectionArrays[4];
