@@ -1,7 +1,7 @@
 if (TARGET VTK::ParallelMPI)
   vtk_add_test_cxx(vtkParallelDIYCxxTests-MPI tests
-    TestDataArraySerialization.cxx,NO_DATA NO_VALID)
-    
+    TestDIYDataArraySerialization.cxx,NO_DATA NO_VALID)
+
   vtk_test_cxx_executable(vtkParallelDIYCxxTests tests)
 
   set(vtkParallelDIYCxxTests-MPI_NUMPROCS 3)

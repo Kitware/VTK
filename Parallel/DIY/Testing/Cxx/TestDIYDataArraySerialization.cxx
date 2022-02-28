@@ -17,6 +17,7 @@
 #include "vtkAngularPeriodicDataArray.h"
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDIYUtilities.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkIntArray.h"
@@ -32,9 +33,10 @@
 #include VTK_DIY2(diy/mpi.hpp)
 // clang-format on
 
-template <vtkIdType N, vtkIdType M, typename ValueT, template <typename> class ArrayT>
-bool TestTemplatedArray(ArrayT<ValueT>* array, bool initialized = false)
+template <vtkIdType N, vtkIdType M, class ArrayT>
+bool TestTemplatedArray(ArrayT* array, bool initialized = false)
 {
+  using ValueType = vtk::GetAPIType<ArrayT>;
   if (!initialized)
   {
     array->SetName("array-name");
@@ -42,10 +44,10 @@ bool TestTemplatedArray(ArrayT<ValueT>* array, bool initialized = false)
     array->SetNumberOfTuples(M);
     for (vtkIdType i = 0; i < M; ++i)
     {
-      ValueT tuple[N];
+      ValueType tuple[N];
       for (vtkIdType j = 0; j < N; ++j)
       {
-        tuple[j] = static_cast<ValueT>(N * i + j);
+        tuple[j] = static_cast<ValueType>(N * i + j);
       }
       array->SetTypedTuple(i, tuple);
     }
@@ -67,10 +69,10 @@ bool TestTemplatedArray(ArrayT<ValueT>* array, bool initialized = false)
 
   for (vtkIdType i = 0; i < M; ++i)
   {
-    ValueT tuple[N], expected[N];
+    ValueType tuple[N], expected[N];
     for (vtkIdType j = 0; j < N; ++j)
     {
-      expected[j] = static_cast<ValueT>(N * i + j);
+      expected[j] = static_cast<ValueType>(N * i + j);
     }
 
     array->GetTypedTuple(i, tuple);
@@ -88,7 +90,7 @@ bool TestTemplatedArray(ArrayT<ValueT>* array, bool initialized = false)
 }
 
 //------------------------------------------------------------------------------
-int TestDataArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestDIYDataArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   bool rc(false);
   const vtkNew<vtkDoubleArray> dblArray;
