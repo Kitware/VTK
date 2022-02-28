@@ -186,12 +186,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     # Timeout; needs investigated
     "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
   )
-
-  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
-    list(APPEND test_exclusions
-      # Timeout; needs investigated
-      "^VTK::FiltersModelingPython-TestCookieCutter4$")
-  endif ()
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
@@ -237,6 +231,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
       "^VTK::InteractionStylePython-TestStyleTrackballActor$"
       "^VTK::InteractionStylePython-TestStyleTrackballCamera$")
   endif ()
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
+  list(APPEND test_exclusions
+    # Timeout; needs investigated
+    # See #18477
+    "^VTK::FiltersModelingPython-TestCookieCutter4$")
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
