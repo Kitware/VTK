@@ -1583,7 +1583,7 @@ public:
     switch (mode)
     {
       case ConvolutionMode::SAME:
-        begin = std::ceil(std::min(sampleSize, kernelSize) / 2.0) - 1;
+        begin = static_cast<int>(std::ceil(std::min(sampleSize, kernelSize) / 2.0)) - 1;
         end = begin + std::max(sampleSize, kernelSize);
         break;
       case ConvolutionMode::VALID:

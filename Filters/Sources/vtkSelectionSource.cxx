@@ -65,12 +65,12 @@ struct vtkSelectionSource::NodeInformation
 
   NodeInformation()
     : ContentType(vtkSelectionNode::INDICES)
-    , ContainingCells(false)
-    , Inverse(false)
+    , ArrayComponent(0)
     , CompositeIndex(-1)
     , HierarchicalLevel(-1)
     , HierarchicalIndex(-1)
-    , ArrayComponent(0)
+    , ContainingCells(false)
+    , Inverse(false)
     , NumberOfLayers(0)
   {
     std::fill_n(this->Frustum, 32, 0);

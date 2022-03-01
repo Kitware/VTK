@@ -134,7 +134,7 @@ void vtkAppendSelection::SetInputName(int index, const char* name)
 //------------------------------------------------------------------------------
 const char* vtkAppendSelection::GetInputName(int index) const
 {
-  if (index < 0 || index >= this->Internals->Names.size())
+  if (index < 0 || static_cast<size_t>(index) >= this->Internals->Names.size())
   {
     vtkErrorMacro("Invalid index: " << index);
     return nullptr;
@@ -275,7 +275,7 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
     else
     {
       // check if the number of input selection names != the number of input selections
-      if (this->Internals->Names.size() != numInputs)
+      if (this->Internals->Names.size() != static_cast<size_t>(numInputs))
       {
         vtkErrorMacro("Number of input selection names does not match number of input selections.");
         return 0;
