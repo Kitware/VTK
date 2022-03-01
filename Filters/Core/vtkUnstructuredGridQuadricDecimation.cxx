@@ -1443,7 +1443,7 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::LoadUnstructuredGrid(
     }
   }
 
-  return vtkUnstructuredGridQuadricDecimation::NO_ERROR;
+  return vtkUnstructuredGridQuadricDecimation::NON_ERROR;
 }
 
 int vtkUnstructuredGridQuadricDecimationTetMesh::SaveUnstructuredGrid(vtkUnstructuredGrid* vgrid)
@@ -1497,7 +1497,7 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::SaveUnstructuredGrid(vtkUnstruc
       vgrid->InsertNextCell(VTK_TETRA, 4, idx);
     }
   }
-  return vtkUnstructuredGridQuadricDecimation::NO_ERROR;
+  return vtkUnstructuredGridQuadricDecimation::NON_ERROR;
 }
 
 #undef VTK_PRECHECK
@@ -1580,7 +1580,7 @@ int vtkUnstructuredGridQuadricDecimation::RequestData(vtkInformation* vtkNotUsed
   myMesh.noDoubling = !this->AutoAddCandidates;
   myMesh.boundaryWeight = this->BoundaryWeight;
   int err = myMesh.LoadUnstructuredGrid((vtkUnstructuredGrid*)(input), this->ScalarsName);
-  if (err != vtkUnstructuredGridQuadricDecimation::NO_ERROR)
+  if (err != vtkUnstructuredGridQuadricDecimation::NON_ERROR)
   {
     this->ReportError(err);
     return 0;

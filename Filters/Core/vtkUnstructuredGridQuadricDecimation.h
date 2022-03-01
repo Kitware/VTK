@@ -157,7 +157,7 @@ public:
 
   enum
   {
-    NO_ERROR = 0,
+    NON_ERROR = 0,
     NON_TETRAHEDRA = 1,
     NO_SCALARS = 2,
     NO_CELLS = 3
