@@ -143,14 +143,14 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtk-find-package-helpers.cmake" OPTIONAL)
 # Ensure that the right OpenGL preference is in place when finding the OpenGL
 # libraries.
 if (@vtk_opengl_preference_set@) # vtk_opengl_preference_set
-  set("${CMAKE_FIND_PACKAGE_NAME}_OPENGL_GL_PREFERENCE_save" "${OPENGL_GL_PREFERENCE}")
-  set(OPENGL_GL_PREFERENCE "@vtk_opengl_preference@")
+  set("${CMAKE_FIND_PACKAGE_NAME}_OpenGL_GL_PREFERENCE_save" "${OpenGL_GL_PREFERENCE}")
+  set(OpenGL_GL_PREFERENCE "@vtk_opengl_preference@")
 endif ()
 
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-find-packages.cmake")
 
 if (@vtk_opengl_preference_set@) # vtk_opengl_preference_set
-  set(OPENGL_GL_PREFERENCE "${${CMAKE_FIND_PACKAGE_NAME}_OPENGL_GL_PREFERENCE_save}")
+  set(OpenGL_GL_PREFERENCE "${${CMAKE_FIND_PACKAGE_NAME}_OpenGL_GL_PREFERENCE_save}")
 endif ()
 
 if (TARGET VTK::opengl)
