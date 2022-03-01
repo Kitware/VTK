@@ -234,6 +234,7 @@ protected:
   void WriteData() override;
   vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkIdType num, vtkDataSetAttributes* dsa);
   const float* GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes* dsa);
+  const float* GetNormals(vtkIdType num, vtkDataSetAttributes* dsa);
 
   int DataByteOrder;
   char* ArrayName;

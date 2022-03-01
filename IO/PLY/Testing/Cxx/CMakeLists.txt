@@ -5,6 +5,7 @@ vtk_add_test_cxx(vtkIOPLYCxxTests tests
   TestPLYWriterAlpha.cxx
   TestPLYWriter.cxx,NO_VALID
   TestPLYWriterString.cxx,NO_VALID,NO_OUTPUT
+  TestPLYWriterNormals.cxx,NO_VALID
   )
 vtk_add_test_cxx(vtkIOPLYCxxTests tests
   TestPLYReaderTextureUVPoints,TestPLYReaderTextureUV.cxx squareTextured.ply
