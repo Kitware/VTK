@@ -96,7 +96,6 @@ int TestExtractDataArraysOverTime(int argc, char* argv[])
 
   vtkNew<vtkExtractDataArraysOverTime> extractor;
   extractor->SetReportStatisticsOnly(true);
-  extractor->ExtractSumOn();
   extractor->SetInputConnection(textracter->GetOutputPort());
   extractor->Update();
 
