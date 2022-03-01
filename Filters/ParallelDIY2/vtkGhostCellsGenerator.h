@@ -45,7 +45,13 @@
  * If the input is a `vtkUnstructuredGrid`, if the input `vtkPointData` has global ids, then the
  * values of those global ids are used instead of point position in 3D to connect 2 partitions.
  * If not, point position of the outer surface are used to connect them. The precision of such
- * connection is done using numeric precision of the input coordinates.
+ * connection is done using numeric precision of the input coordinates. Points and cells tagged as
+ * hidden ghosts are removed from the output.
+ *
+ * When requesting zero layers of ghost cells, ghost points are still generated. In this instance,
+ * the filter will produce a ghost cell array in the output if and only if the input is a structured
+ * data set (`vtkImageData`, `vtkRectilinearGrid`, or `vtkStructuredGrid`), and has hidden ghosts
+ * within its valid extent (extent when duplicate ghosts are peeled off).
  *
  * @warning If an input already holds ghosts, the input ghost cells should be tagged as
  * `CELLDUPLICATE` in order for this filter to work properly.
@@ -115,7 +121,7 @@ public:
    * [1, VTK_INT_MAX].
    */
   vtkGetMacro(NumberOfGhostLayers, int);
-  vtkSetClampMacro(NumberOfGhostLayers, int, 1, VTK_INT_MAX);
+  vtkSetClampMacro(NumberOfGhostLayers, int, 0, VTK_INT_MAX);
   ///@}
 
 protected:
