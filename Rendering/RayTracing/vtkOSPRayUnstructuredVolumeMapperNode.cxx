@@ -119,11 +119,10 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
     {
       ospRelease(this->OSPRayVolume);
 
-      auto iCellTypes = vtkSmartPointer<vtkCellTypes>::New();
-      dataSet->GetCellTypes(iCellTypes);
-      for (vtkIdType cti = 0; cti < iCellTypes->GetNumberOfTypes(); cti++)
+      vtkUnsignedCharArray* iCellTypes = dataSet->GetDistinctCellTypesArray();
+      for (vtkIdType cti = 0; cti < iCellTypes->GetNumberOfValues(); cti++)
       {
-        auto ct = iCellTypes->GetCellType(cti);
+        auto ct = iCellTypes->GetValue(cti);
         if (ct != VTK_TETRA && ct != VTK_HEXAHEDRON && ct != VTK_WEDGE && ct != VTK_PYRAMID)
         {
           vtkWarningMacro("Unsupported voxel type " << ct);
