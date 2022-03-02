@@ -139,6 +139,11 @@ endif()
 option(VTK_ENABLE_LOGGING "Enable logging support." ON)
 mark_as_advanced(VTK_ENABLE_LOGGING)
 
+#-----------------------------------------------------------------------------
+# Add an option to enable/disable catalyst2 support.
+option(VTK_ENABLE_CATALYST "Build IOCatalystConduit module and VTK catalyst implementation." OFF)
+mark_as_advanced(VTK_ENABLE_CATALYST)
+
 include(vtkEncodeString)
 
 # Set up our directory structure for output libraries and binaries
@@ -192,6 +197,15 @@ if (VTK_ENABLE_LOGGING)
   set("_vtk_module_reason_VTK::loguru"
     "via `VTK_ENABLE_LOGGING`")
 endif ()
+if (VTK_ENABLE_CATALYST)
+  list(APPEND vtk_request_modules
+    VTK::IOCatalystConduit)
+else()
+  list(APPEND vtk_rejected_modules
+    VTK::IOCatalystConduit)
+endif()
+set("_vtk_module_reason_VTK::IOCatalystConduit"
+  "via `VTK_ENABLE_CATALYST`")
 
 if (VTK_BUILD_TESTING)
   list(APPEND vtk_requested_modules
@@ -405,6 +419,7 @@ vtk_module_build(
   TARGET_SPECIFIC_COMPONENTS  "${VTK_TARGET_SPECIFIC_COMPONENTS}"
   TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
   TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing")
+
 include(vtkModuleJson)
 vtk_module_json(
   MODULES ${vtk_modules}

@@ -11,3 +11,5 @@ Main content:
  * `vtkConduitSource` : a VTK source that can generate a `vtkPartionedDataSet` or `vtkPartionedDataSetCollection` from a given Conduit node.
  It also has an option to output `vtkMultiBlockDataSet` for historical reason.
  * `vtkDataObjectToConduit` is a utility namespace to get a conduit node from any `vtkDataObject`.
+
+ Also note that VTK now provide a stub implementation of Catalyst.
