@@ -2,8 +2,8 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <script src="https://cesium.com/downloads/cesiumjs/releases/1.89/Build/Cesium/Cesium.js"></script>
-        <link href="https://cesium.com/downloads/cesiumjs/releases/1.89/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+        <script src="https://cesium.com/downloads/cesiumjs/releases/1.90/Build/Cesium/Cesium.js"></script>
+        <link href="https://cesium.com/downloads/cesiumjs/releases/1.90/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 </head>
 <body>
   <div id="cesiumContainer"></div>
@@ -11,7 +11,7 @@
    var viewer = new Cesium.Viewer("cesiumContainer");
    var scene = new Cesium.Cesium3DTileset({
        url : "http://localhost:8003/tilesets/berlin-3d-tiles/tileset.json",
-       debugShowBoundingVolume: true,
+       // debugShowBoundingVolume: true,
        debugColorizeTiles: true,
        // debugShowGeometricError: true
    })
