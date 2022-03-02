@@ -697,7 +697,7 @@ int vtkCellTreeLocator::IntersectWithLine(const double p1[3], const double p2[3]
   double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellIds)
 {
   //
-  vtkCellTreeNode *node, *near, *far;
+  vtkCellTreeNode *node, *nearNode, *farNode;
   double ctmin, ctmax, tmin, tmax, _tmin, _tmax, tDist;
   double ray_vec[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
 
@@ -764,29 +764,30 @@ int vtkCellTreeLocator::IntersectWithLine(const double p1[3], const double p2[3]
     while (!node->IsLeaf())
     { // this must be a parent node
       // Which child node is closest to ray origin - given direction
-      Classify(p1, ray_vec, tDist, near, node, far, mustCheck);
-      // if the distance to the far edge of the near box is > tmax, no need to test far box
-      // (we still need to test Mid because it may overlap slightly)
+      Classify(p1, ray_vec, tDist, nearNode, node, farNode, mustCheck);
+      // if the distance to the farNode edge of the nearNode box is > tmax, no need to test farNode
+      // box (we still need to test Mid because it may overlap slightly)
       if (mustCheck)
       {
-        ns.push(far);
-        node = near;
+        ns.push(farNode);
+        node = nearNode;
       }
       else if ((tDist > tmax) || (tDist <= 0))
       { // <=0 for ray on edge
-        node = near;
+        node = nearNode;
       }
-      // if the distance to the far edge of the near box is < tmin, no need to test near box
+      // if the distance to the farNode edge of the nearNode box is < tmin, no need to test nearNode
+      // box
       else if (tDist < tmin)
       {
-        ns.push(near);
-        node = far;
+        ns.push(nearNode);
+        node = farNode;
       }
-      // All the child nodes may be candidates, keep near, push far then mid
+      // All the child nodes may be candidates, keep nearNode, push farNode then mid
       else
       {
-        ns.push(far);
-        node = near;
+        ns.push(farNode);
+        node = nearNode;
       }
     }
     double t_hit, ipt[3];
@@ -1168,21 +1169,21 @@ int vtkCellTreeLocator::getDominantAxis(const double dir[3])
 }
 //------------------------------------------------------------------------------
 void vtkCellTreeLocator::Classify(const double origin[3], const double dir[3], double& rDist,
-  vtkCellTreeNode*& near, vtkCellTreeNode*& parent, vtkCellTreeNode*& far, int& mustCheck)
+  vtkCellTreeNode*& nearNode, vtkCellTreeNode*& parent, vtkCellTreeNode*& farNode, int& mustCheck)
 {
   double tOriginToDivPlane = parent->GetLeftMaxValue() - origin[parent->GetDimension()];
   double tOriginToDivPlane2 = parent->GetRightMinValue() - origin[parent->GetDimension()];
   double tDivDirection = dir[parent->GetDimension()];
   if (tOriginToDivPlane2 > 0) // origin is right of the rmin
   {
-    near = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
-    far = &this->Tree->Nodes.at(parent->GetLeftChildIndex() + 1);
+    nearNode = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
+    farNode = &this->Tree->Nodes.at(parent->GetLeftChildIndex() + 1);
     rDist = (tDivDirection) ? tOriginToDivPlane2 / tDivDirection : VTK_FLOAT_MAX;
   }
   else if (tOriginToDivPlane < 0) // origin is left of the lm
   {
-    far = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
-    near = &this->Tree->Nodes.at(parent->GetLeftChildIndex() + 1);
+    farNode = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
+    nearNode = &this->Tree->Nodes.at(parent->GetLeftChildIndex() + 1);
     rDist = (tDivDirection) ? tOriginToDivPlane / tDivDirection : VTK_FLOAT_MAX;
   }
 
@@ -1196,8 +1197,8 @@ void vtkCellTreeLocator::Classify(const double origin[3], const double dir[3], d
 
     if (tDivDirection < 0)
     {
-      near = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
-      far = &this->Tree->Nodes.at(parent->GetLeftChildIndex() + 1);
+      nearNode = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
+      farNode = &this->Tree->Nodes.at(parent->GetLeftChildIndex() + 1);
       if (!(tOriginToDivPlane > 0 || tOriginToDivPlane < 0))
       {
         mustCheck = 1; // Ray was exactly on edge left max box.
@@ -1206,8 +1207,8 @@ void vtkCellTreeLocator::Classify(const double origin[3], const double dir[3], d
     }
     else
     {
-      far = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
-      near = &this->Tree->Nodes.at(parent->GetLeftChildIndex() + 1);
+      farNode = &this->Tree->Nodes.at(parent->GetLeftChildIndex());
+      nearNode = &this->Tree->Nodes.at(parent->GetLeftChildIndex() + 1);
       if (!(tOriginToDivPlane2 > 0 || tOriginToDivPlane2 < 0))
       {
         mustCheck = 1; // Ray was exactly on edge right min box.

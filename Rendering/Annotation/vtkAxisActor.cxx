@@ -3336,7 +3336,7 @@ void vtkAxisActor::RotateActor2DFromAxisProjection(vtkTextActor* pActor2D)
   double* p2 = this->Point2Coordinate->GetValue();
 
   vtkMatrix4x4* matModelView = this->Camera->GetModelViewTransformMatrix();
-  double near = this->Camera->GetClippingRange()[0];
+  double nearPlane = this->Camera->GetClippingRange()[0];
 
   // Need view coordinate points.
   double viewPt1[4] = { p1[0], p1[1], p1[2], 1.0 };
@@ -3350,8 +3350,10 @@ void vtkAxisActor::RotateActor2DFromAxisProjection(vtkTextActor* pActor2D)
     return;
   }
 
-  double p1Pjt[3] = { -near * viewPt1[0] / viewPt1[2], -near * viewPt1[1] / viewPt1[2], -near };
-  double p2Pjt[3] = { -near * viewPt2[0] / viewPt2[2], -near * viewPt2[1] / viewPt2[2], -near };
+  double p1Pjt[3] = { -nearPlane * viewPt1[0] / viewPt1[2], -nearPlane * viewPt1[1] / viewPt1[2],
+    -nearPlane };
+  double p2Pjt[3] = { -nearPlane * viewPt2[0] / viewPt2[2], -nearPlane * viewPt2[1] / viewPt2[2],
+    -nearPlane };
 
   double axisOnScreen[2] = { p2Pjt[0] - p1Pjt[0], p2Pjt[1] - p1Pjt[1] };
   double x[2] = { 1.0, 0.0 }, y[2] = { 0.0, 1.0 };
