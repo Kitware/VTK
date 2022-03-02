@@ -29,6 +29,11 @@
  * This filter is unusual in that it creates multiple outputs.
  * If you use the GetOutput() method, you will be retrieving the x vector
  * component.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  */
 
 #ifndef vtkExtractVectorComponents_h
