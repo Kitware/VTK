@@ -127,9 +127,16 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QMouseEvent* e2 = static_cast<QMouseEvent*>(e);
 
     // give interactor the event information
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    auto x = e2->x();
+    auto y = e2->y();
+#else
+    auto x = e2->position().x();
+    auto y = e2->position().y();
+#endif
     iren->SetEventInformationFlipY(
-      static_cast<int>(e2->x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
-      static_cast<int>(e2->y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+      static_cast<int>(x * this->DevicePixelRatio + DevicePixelRatioTolerance),
+      static_cast<int>(y * this->DevicePixelRatio + DevicePixelRatioTolerance),
       (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
       (e2->modifiers() & Qt::ShiftModifier) > 0 ? 1 : 0, 0,
       e2->type() == QEvent::MouseButtonDblClick ? 1 : 0);
@@ -205,20 +212,33 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
   if (t == QEvent::TouchBegin || t == QEvent::TouchUpdate || t == QEvent::TouchEnd)
   {
     QTouchEvent* e2 = dynamic_cast<QTouchEvent*>(e);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     Q_FOREACH (const QTouchEvent::TouchPoint& point, e2->touchPoints())
+#else
+    Q_FOREACH (const QTouchEvent::TouchPoint& point, e2->points())
+#endif
     {
       if (point.id() >= VTKI_MAX_POINTERS)
       {
         break;
       }
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+      QPointF pos = point.pos();
+#else
+      QPointF pos = point.position();
+#endif
       // give interactor the event information
       iren->SetEventInformationFlipY(
-        static_cast<int>(point.pos().x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
-        static_cast<int>(point.pos().y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+        static_cast<int>(pos.x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+        static_cast<int>(pos.y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
         (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
         (e2->modifiers() & Qt::ShiftModifier) > 0 ? 1 : 0, 0, 0, nullptr, point.id());
     }
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     Q_FOREACH (const QTouchEvent::TouchPoint& point, e2->touchPoints())
+#else
+    Q_FOREACH (const QTouchEvent::TouchPoint& point, e2->points())
+#endif
     {
       if (point.id() >= VTKI_MAX_POINTERS)
       {
@@ -386,9 +406,14 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QDragMoveEvent* e2 = static_cast<QDragMoveEvent*>(e);
 
     // give interactor the event information
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QPoint pos = e2->pos();
+#else
+    QPoint pos = e2->position().toPoint();
+#endif
     iren->SetEventInformationFlipY(
-      static_cast<int>(e2->pos().x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
-      static_cast<int>(e2->pos().y() * this->DevicePixelRatio + DevicePixelRatioTolerance));
+      static_cast<int>(pos.x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+      static_cast<int>(pos.y() * this->DevicePixelRatio + DevicePixelRatioTolerance));
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::DragMoveEvent, e2);
@@ -400,9 +425,14 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QDropEvent* e2 = static_cast<QDropEvent*>(e);
 
     // give interactor the event information
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QPoint pos = e2->pos();
+#else
+    QPoint pos = e2->position().toPoint();
+#endif
     iren->SetEventInformationFlipY(
-      static_cast<int>(e2->pos().x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
-      static_cast<int>(e2->pos().y() * this->DevicePixelRatio + DevicePixelRatioTolerance));
+      static_cast<int>(pos.x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+      static_cast<int>(pos.y() * this->DevicePixelRatio + DevicePixelRatioTolerance));
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::DropEvent, e2);

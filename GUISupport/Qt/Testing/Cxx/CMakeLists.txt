@@ -74,6 +74,8 @@ target_link_libraries(vtkGUISupportQtCxxTests
   PRIVATE
     "Qt${vtk_qt_major_version}::Widgets")
 
+target_compile_definitions(vtkGUISupportQtCxxTests PRIVATE QT_NO_KEYWORDS)
+
 set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetPicking
  PROPERTIES RUN_SERIAL ON)
 set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLNativeWidgetPicking
