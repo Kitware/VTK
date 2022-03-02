@@ -730,7 +730,9 @@ void vtkUnstructuredGridBunykRayCastFunction::TransformPoints()
   perspectiveTransform->Concatenate(
     cam->GetProjectionTransformMatrix(aspect[0] / aspect[1], 0.0, 1.0));
   perspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
-  perspectiveTransform->Concatenate(vol->GetMatrix());
+  vtkNew<vtkMatrix4x4> modelToWorld;
+  vol->GetModelToWorldMatrix(modelToWorld);
+  perspectiveTransform->Concatenate(modelToWorld);
   perspectiveMatrix->DeepCopy(perspectiveTransform->GetMatrix());
 
   // Invert this project matrix and store for later use

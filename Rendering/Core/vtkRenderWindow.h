@@ -42,6 +42,7 @@
 #define vtkRenderWindow_h
 
 #include "vtkDeprecation.h"         // For VTK_DEPRECATED_IN_9_1_0
+#include "vtkEventData.h"           // for enums
 #include "vtkNew.h"                 // For vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For vtkSmartPointer
@@ -50,6 +51,7 @@
 class vtkFloatArray;
 class vtkProp;
 class vtkCollection;
+class vtkMatrix4x4;
 class vtkRenderTimerLog;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
@@ -729,6 +731,22 @@ public:
   vtkSetMacro(UseSRGBColorSpace, bool);
   vtkBooleanMacro(UseSRGBColorSpace, bool);
   ///@}
+
+  /**
+   * Get physical to world transform matrix. Some subclasses may define a
+   * Physical coordinate system such as in VR. This method provides access
+   * to the matrix mapping that space to world coordinates.
+   */
+  virtual void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
+
+  /**
+   * Store in \p deviceToWorldMatrix the matrix that goes from device coordinates
+   * to world coordinates. e.g. if you push 0,0,0,1 through this matrix you will get
+   * the location of the device in world coordinates.
+   * Return true if the query is valid, else false.
+   */
+  virtual bool GetDeviceToWorldMatrixForDevice(
+    vtkEventDataDevice device, vtkMatrix4x4* deviceToWorldMatrix);
 
 protected:
   vtkRenderWindow();

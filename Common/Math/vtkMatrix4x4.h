@@ -129,6 +129,22 @@ public:
   void Transpose() { vtkMatrix4x4::Transpose(this, this); }
   static void Transpose(const double inElements[16], double outElements[16]);
 
+  ///@{
+  /**
+   * Construct a matrix from a rotation
+   */
+  static void MatrixFromRotation(double angle, double x, double y, double z, vtkMatrix4x4* result);
+  static void MatrixFromRotation(double angle, double x, double y, double z, double matrix[16]);
+  ///@}
+
+  /**
+   * Given an orientation and position this function will fill in a matrix
+   * representing the transformation from the pose to whatever space the pose was
+   * defined in. For example if the position and orientation are in world
+   * coordinates then this method would set the matrix to be PoseToWorld
+   */
+  static void PoseToMatrix(double pos[3], double ori[4], vtkMatrix4x4* mat);
+
   /**
    * Multiply a homogeneous coordinate by this matrix, i.e. out = A*in.
    * The in[4] and out[4] can be the same array.

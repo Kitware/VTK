@@ -396,7 +396,7 @@ double* vtkActor::GetBounds()
   // the modified time of this class is newer than the cached time,
   // then we need to rebuild.
   if ((memcmp(this->MapperBounds, bounds, 6 * sizeof(double)) != 0) ||
-    (this->GetMTime() > this->BoundsMTime))
+    (this->GetMTime() > this->BoundsMTime) || this->CoordinateSystem != vtkProp3D::WORLD)
   {
     vtkDebugMacro(<< "Recomputing bounds...");
 

@@ -22,11 +22,13 @@
 
 #include <vector> // For DataBlocks
 
+#include "vtkNew.h"                          // for ivars
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
 
 class vtkDataObjectTree;
 class vtkDataSet;
+class vtkMatrix4x4;
 class vtkMultiBlockDataSet;
 class vtkUnstructuredGrid;
 class vtkRenderWindow;
@@ -102,6 +104,7 @@ protected:
 
   vtkRenderWindow* DebugWin;
   vtkRenderer* DebugRen;
+  vtkNew<vtkMatrix4x4> TempMatrix4x4;
 
 private:
   /**

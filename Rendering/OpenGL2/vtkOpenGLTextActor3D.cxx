@@ -92,7 +92,8 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport* vp, vtkOpenGLGL2PSHelper* gl2
   }
 
   // Get actor info
-  vtkMatrix4x4* actorMatrix = this->GetMatrix();
+  vtkNew<vtkMatrix4x4> actorMatrix;
+  this->GetModelToWorldMatrix(actorMatrix);
   double actorBounds[6];
   this->GetBounds(actorBounds);
   double textPos[3] = { (actorBounds[1] + actorBounds[0]) * 0.5,

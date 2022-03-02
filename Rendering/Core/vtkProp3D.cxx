@@ -16,8 +16,11 @@
 
 #include "vtkActor.h"
 #include "vtkAssemblyPaths.h"
+#include "vtkEventData.h"
 #include "vtkMath.h"
 #include "vtkMatrixToLinearTransform.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTransform.h"
 
 #include <cmath>
@@ -55,6 +58,7 @@ vtkProp3D::vtkProp3D()
 
   this->CachedProp3D = nullptr;
   this->IsIdentity = 1;
+  this->CoordinateSystemDevice = static_cast<int>(vtkEventDataDevice::HeadMountedDisplay);
 }
 
 //------------------------------------------------------------------------------
@@ -113,6 +117,124 @@ vtkMTimeType vtkProp3D::GetUserTransformMatrixMTime()
   }
 
   return mTime;
+}
+
+void vtkProp3D::SetCoordinateSystemRenderer(vtkRenderer* ren)
+{
+  if (ren == this->CoordinateSystemRenderer)
+  {
+    return;
+  }
+  this->CoordinateSystemRenderer = ren;
+  this->Modified();
+}
+
+vtkRenderer* vtkProp3D::GetCoordinateSystemRenderer()
+{
+  return this->CoordinateSystemRenderer;
+}
+
+void vtkProp3D::SetCoordinateSystem(CoordinateSystems val)
+{
+  if (this->CoordinateSystem == val)
+  {
+    return;
+  }
+  this->CoordinateSystem = val;
+  // if the coordinate system is not WORLD, then assume the matrix is not identity
+  // as camera movements or render window changes come into play as well.
+  if (val != WORLD)
+  {
+    this->IsIdentity = 0;
+  }
+  this->Modified();
+}
+
+const char* vtkProp3D::GetCoordinateSystemAsString()
+{
+  switch (this->CoordinateSystem)
+  {
+    case WORLD:
+      return "World";
+    case PHYSICAL:
+      return "Physical";
+    case DEVICE:
+      return "Device";
+    default:
+      return "UNKNOWN!";
+  }
+}
+
+void vtkProp3D::GetModelToWorldMatrix(vtkMatrix4x4* result)
+{
+  this->GetMatrix(result);
+}
+
+void vtkProp3D::SetPropertiesFromModelToWorldMatrix(vtkMatrix4x4* modelToWorld)
+{
+  vtkMatrix4x4* inputMatrix = modelToWorld;
+
+  if (this->CoordinateSystem == PHYSICAL && this->CoordinateSystemRenderer)
+  {
+    // model -> intermediate -> user -> physical
+    // so
+    // modeltointermediate = modeltoworld * worldToPhyscial * inverseUserMatrix
+    vtkRenderWindow* renWin =
+      static_cast<vtkRenderWindow*>(this->CoordinateSystemRenderer->GetVTKWindow());
+    renWin->GetPhysicalToWorldMatrix(this->TempMatrix4x4);
+    this->TempMatrix4x4->Invert();
+    vtkMatrix4x4::Multiply4x4(this->TempMatrix4x4, modelToWorld, this->TempMatrix4x4);
+    vtkMatrix4x4* userToIntermediate = this->GetUserMatrix();
+    if (userToIntermediate)
+    {
+      vtkNew<vtkMatrix4x4> tmpMatrix;
+      tmpMatrix->DeepCopy(userToIntermediate);
+      tmpMatrix->Invert();
+      vtkMatrix4x4::Multiply4x4(tmpMatrix, this->TempMatrix4x4, this->TempMatrix4x4);
+    }
+    inputMatrix = this->TempMatrix4x4;
+  }
+
+  if (this->CoordinateSystem == DEVICE && this->CoordinateSystemRenderer)
+  {
+    // modelToDevice = modelToWOrld * worldToDevice
+    vtkRenderWindow* renWin =
+      static_cast<vtkRenderWindow*>(this->CoordinateSystemRenderer->GetVTKWindow());
+    if (renWin->GetDeviceToWorldMatrixForDevice(
+          static_cast<vtkEventDataDevice>(this->CoordinateSystemDevice), this->TempMatrix4x4))
+    {
+      this->TempMatrix4x4->Invert();
+      vtkMatrix4x4::Multiply4x4(this->TempMatrix4x4, modelToWorld, this->TempMatrix4x4);
+      inputMatrix = this->TempMatrix4x4;
+    }
+    vtkMatrix4x4* userToIntermediate = this->GetUserMatrix();
+    if (userToIntermediate)
+    {
+      vtkNew<vtkMatrix4x4> tmpMatrix;
+      tmpMatrix->DeepCopy(userToIntermediate);
+      tmpMatrix->Invert();
+      vtkMatrix4x4::Multiply4x4(tmpMatrix, this->TempMatrix4x4, this->TempMatrix4x4);
+    }
+  }
+
+  double* mat = inputMatrix->GetData();
+  this->Origin[0] = 0.0;
+  this->Origin[1] = 0.0;
+  this->Origin[2] = 0.0;
+  this->Position[0] = mat[3];
+  this->Position[1] = mat[7];
+  this->Position[2] = mat[11];
+
+  this->Scale[0] = sqrt(mat[0] * mat[0] + mat[4] * mat[4] + mat[8] * mat[8]);
+  this->Scale[1] = sqrt(mat[1] * mat[1] + mat[5] * mat[5] + mat[9] * mat[9]);
+  this->Scale[2] = sqrt(mat[2] * mat[2] + mat[6] * mat[6] + mat[10] * mat[10]);
+
+  double orient[3];
+  vtkTransform::GetOrientation(orient, inputMatrix);
+  this->SetOrientation(orient[0], orient[1], orient[2]);
+
+  this->IsIdentity = 0;
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -376,7 +498,7 @@ void vtkProp3D::ComputeMatrix()
   }
 
   // check whether or not need to rebuild the matrix
-  if (this->GetMTime() > this->MatrixMTime)
+  if (this->GetMTime() > this->MatrixMTime || this->CoordinateSystem != vtkProp3D::WORLD)
   {
     this->GetOrientation();
     this->Transform->Push();
@@ -402,6 +524,24 @@ void vtkProp3D::ComputeMatrix()
     if (this->UserTransform)
     {
       this->Transform->Concatenate(this->UserTransform->GetMatrix());
+    }
+
+    if (this->CoordinateSystem == PHYSICAL && this->CoordinateSystemRenderer)
+    {
+      vtkRenderWindow* renWin =
+        static_cast<vtkRenderWindow*>(this->CoordinateSystemRenderer->GetVTKWindow());
+      renWin->GetPhysicalToWorldMatrix(this->Matrix);
+      this->Transform->Concatenate(this->Matrix);
+    }
+    else if (this->CoordinateSystem == DEVICE && this->CoordinateSystemRenderer)
+    {
+      vtkRenderWindow* renWin =
+        static_cast<vtkRenderWindow*>(this->CoordinateSystemRenderer->GetVTKWindow());
+      if (renWin->GetDeviceToWorldMatrixForDevice(
+            static_cast<vtkEventDataDevice>(this->CoordinateSystemDevice), this->Matrix))
+      {
+        this->Transform->Concatenate(this->Matrix);
+      }
     }
 
     this->Transform->PreMultiply();
@@ -501,6 +641,9 @@ void vtkProp3D::ShallowCopy(vtkProp* prop)
     }
 
     this->SetUserTransform(p->UserTransform);
+    this->SetCoordinateSystem(p->GetCoordinateSystem());
+    this->SetCoordinateSystemDevice(p->GetCoordinateSystemDevice());
+    this->SetCoordinateSystemRenderer(p->GetCoordinateSystemRenderer());
   }
 
   // Now do superclass

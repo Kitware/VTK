@@ -2764,7 +2764,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
     for (int i = 0; i < numClipPlanes; i++)
     {
       double planeEquation[4];
-      this->GetClippingPlaneInDataCoords(actor->GetMatrix(), i, planeEquation);
+      actor->GetModelToWorldMatrix(this->TempMatrix4);
+      this->GetClippingPlaneInDataCoords(this->TempMatrix4, i, planeEquation);
 
       // multiply by shift scale if set
       planeEquations[i][0] = planeEquation[0] / scale[0];

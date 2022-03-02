@@ -2313,7 +2313,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeMatrices(double inputOrigin[3],
   // Get the volume matrix. This is a volume to world matrix right now.
   // We'll need to invert it, translate by the origin and scale by the
   // spacing to change it to a world to voxels matrix.
-  this->VolumeMatrix->DeepCopy(vol->GetMatrix());
+  vol->GetModelToWorldMatrix(this->VolumeMatrix);
 
   this->VoxelsToViewTransform->SetMatrix(this->VolumeMatrix);
 

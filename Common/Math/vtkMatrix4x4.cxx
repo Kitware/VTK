@@ -74,6 +74,71 @@ void vtkMatrix4x4::MultiplyPoint(const double elements[16], const double in[4], 
 }
 
 //------------------------------------------------------------------------------
+void vtkMatrix4x4::MatrixFromRotation(
+  double angle, double x, double y, double z, vtkMatrix4x4* result)
+{
+  vtkMatrix4x4::MatrixFromRotation(angle, x, y, z, *result->Element);
+}
+
+//------------------------------------------------------------------------------
+void vtkMatrix4x4::MatrixFromRotation(double angle, double x, double y, double z, double matrix[16])
+{
+  vtkMatrix4x4::Identity(matrix);
+
+  if (angle == 0.0 || (x == 0.0 && y == 0.0 && z == 0.0))
+  {
+    return;
+  }
+
+  // convert to radians
+  angle = vtkMath::RadiansFromDegrees(angle);
+
+  // make a normalized quaternion
+  double w = cos(0.5 * angle);
+  double f = sin(0.5 * angle) / sqrt(x * x + y * y + z * z);
+  x *= f;
+  y *= f;
+  z *= f;
+
+  // convert the quaternion to a matrix
+  double ww = w * w;
+  double wx = w * x;
+  double wy = w * y;
+  double wz = w * z;
+
+  double xx = x * x;
+  double yy = y * y;
+  double zz = z * z;
+
+  double xy = x * y;
+  double xz = x * z;
+  double yz = y * z;
+
+  double s = ww - xx - yy - zz;
+
+  matrix[0] = xx * 2 + s;
+  matrix[4] = (xy + wz) * 2;
+  matrix[8] = (xz - wy) * 2;
+
+  matrix[1] = (xy - wz) * 2;
+  matrix[5] = yy * 2 + s;
+  matrix[9] = (yz + wx) * 2;
+
+  matrix[2] = (xz + wy) * 2;
+  matrix[6] = (yz - wx) * 2;
+  matrix[10] = zz * 2 + s;
+}
+
+void vtkMatrix4x4::PoseToMatrix(double pos[3], double ori[4], vtkMatrix4x4* mat)
+{
+  vtkMatrix4x4::MatrixFromRotation(ori[0], ori[1], ori[2], ori[3], mat);
+  double* data = mat->GetData();
+  data[3] = pos[0];
+  data[7] = pos[1];
+  data[11] = pos[2];
+}
+
+//------------------------------------------------------------------------------
 // Matrix Inversion (adapted from Richard Carling in "Graphics Gems,"
 // Academic Press, 1990).
 void vtkMatrix4x4::Invert(const double inElements[16], double outElements[16])

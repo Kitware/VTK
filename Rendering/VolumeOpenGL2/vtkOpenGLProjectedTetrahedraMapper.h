@@ -36,18 +36,19 @@
 #ifndef vtkOpenGLProjectedTetrahedraMapper_h
 #define vtkOpenGLProjectedTetrahedraMapper_h
 
+#include "vtkNew.h"          // for ivars
+#include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkProjectedTetrahedraMapper.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
-#include "vtkOpenGLHelper.h" // used for ivars
-
-class vtkVisibilitySort;
-class vtkUnsignedCharArray;
 class vtkFloatArray;
-class vtkRenderWindow;
+class vtkMatrix4x4;
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexBufferObject;
+class vtkRenderWindow;
+class vtkUnsignedCharArray;
+class vtkVisibilitySort;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLProjectedTetrahedraMapper
   : public vtkProjectedTetrahedraMapper
@@ -126,6 +127,9 @@ protected:
    * invoking progress.
    */
   void GLSafeUpdateProgress(double value, vtkOpenGLRenderWindow* window);
+
+  vtkNew<vtkMatrix4x4> tmpMat;
+  vtkNew<vtkMatrix4x4> tmpMat2;
 
 private:
   vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper&) = delete;
