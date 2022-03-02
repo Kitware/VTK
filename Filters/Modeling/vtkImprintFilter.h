@@ -155,13 +155,13 @@ public:
   ///@}
 
   // Used to control how the merge tolerance is interpreted.
-  // ABSOLUTE is a tolerance expressed in world coordinates;
+  // ABSOLUTE_TOLERANCE is a tolerance expressed in world coordinates;
   // RELATIVE_TO_TOLERANCE is a tolerance relative to the projection
   // tolerance; and RELATIVE_TO_MIN_EDGE_LENGTH is a tolerance relative
   // to the minimum edge length of the tool/imprint mesh.
   enum MergeTolType
   {
-    ABSOLUTE = 0,
+    ABSOLUTE_TOLERANCE = 0,
     RELATIVE_TO_PROJECTION_TOLERANCE = 1,
     RELATIVE_TO_MIN_EDGE_LENGTH = 2
   };
@@ -172,9 +172,9 @@ public:
    * considered coincident to one another. This is important when performing
    * intersections and projections to reduce numerical issues.
    */
-  vtkSetClampMacro(MergeToleranceType, int, ABSOLUTE, RELATIVE_TO_MIN_EDGE_LENGTH);
+  vtkSetClampMacro(MergeToleranceType, int, ABSOLUTE_TOLERANCE, RELATIVE_TO_MIN_EDGE_LENGTH);
   vtkGetMacro(MergeToleranceType, int);
-  void SetMergeToleranceTypeToAbsolute() { this->SetMergeToleranceType(ABSOLUTE); }
+  void SetMergeToleranceTypeToAbsolute() { this->SetMergeToleranceType(ABSOLUTE_TOLERANCE); }
   void SetMergeToleranceTypeToRelativeToProjection()
   {
     this->SetMergeToleranceType(RELATIVE_TO_PROJECTION_TOLERANCE);
