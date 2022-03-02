@@ -318,7 +318,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
   if (t == QEvent::Wheel)
   {
     QWheelEvent* e2 = static_cast<QWheelEvent*>(e);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     auto x = e2->x();
     auto y = e2->y();
 #else
