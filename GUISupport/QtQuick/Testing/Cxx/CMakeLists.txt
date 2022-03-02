@@ -38,6 +38,8 @@ target_link_libraries(vtkGUISupportQtQuickCxxTests
     "Qt${vtk_qt_major_version}::Qml"
     )
 
+target_compile_definitions(vtkGUISupportQtQuickCxxTests PRIVATE QT_NO_KEYWORDS)
+
 set_property(
   TEST
     VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem
