@@ -236,7 +236,8 @@ public:
     }
 
     const QSize screen_size = this->screenSize();
-    this->RenderWindow->SetScreenSize(screen_size.width(), screen_size.height());
+    const QSize screen_deviceSize = screen_size * dpr;
+    this->RenderWindow->SetScreenSize(screen_deviceSize.width(), screen_deviceSize.height());
 
     // since we've resize, we request a vtkRenderWindow::Render in `paintGL`
     // so we render an updated rendering.
