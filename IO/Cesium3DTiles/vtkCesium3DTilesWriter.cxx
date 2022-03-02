@@ -79,12 +79,22 @@ vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctree(
   return octree;
 }
 
+vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctree(
+  vtkPointSet* pointSet, int pointsPerTile)
+{
+  vtkNew<vtkIncrementalOctreePointLocator> octree;
+  octree->SetMaxPointsPerLeaf(pointsPerTile);
+  octree->SetDataSet(pointSet);
+  octree->BuildLocator();
+  return octree;
+}
+
 //------------------------------------------------------------------------------
-std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* root, const double* fileOffset,
-  std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings)
+std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* rootBuildings,
+  const double* fileOffset, std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings)
 {
   std::array<double, 6> wholeBB;
-  root->GetBounds(&wholeBB[0]);
+  rootBuildings->GetBounds(&wholeBB[0]);
 
   // translate the buildings so that the minimum wholeBB is at 0,0,0
   vtkNew<vtkTransformFilter> f;
@@ -92,7 +102,7 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* root, const doubl
   t->Identity();
   t->Translate(fileOffset);
   f->SetTransform(t);
-  f->SetInputData(root);
+  f->SetInputData(rootBuildings);
   f->Update();
   vtkMultiBlockDataSet* tr = vtkMultiBlockDataSet::SafeDownCast(f->GetOutputDataObject(0));
   tr->GetBounds(&wholeBB[0]);
@@ -123,6 +133,7 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* root, const doubl
 //------------------------------------------------------------------------------
 vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
 {
+  this->SetNumberOfInputPorts(2);
   this->DirectoryName = nullptr;
   this->TexturePath = nullptr;
   std::fill(this->Offset, this->Offset + 3, 0);
@@ -155,6 +166,12 @@ int vtkCesium3DTilesWriter::FillInputPortInformation(int port, vtkInformation* i
   if (port == 0)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+  }
+  else if (port == 1)
+  {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   }
   return 1;
 }
@@ -163,34 +180,51 @@ int vtkCesium3DTilesWriter::FillInputPortInformation(int port, vtkInformation* i
 void vtkCesium3DTilesWriter::WriteData()
 {
   {
-    auto root = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
-    std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
-
-    vtkLog(INFO, "Translate buildings...");
-    auto wholeBB = TranslateBuildings(root, this->Offset, buildings);
-    if (buildings.empty())
+    auto rootBuildings = vtkMultiBlockDataSet::SafeDownCast(this->GetInput(0));
+    auto rootPointCloud = vtkPointSet::SafeDownCast(this->GetInput(1));
+    if (rootBuildings)
     {
-      vtkLog(ERROR,
-        "No buildings read from the input file. "
-        "Maybe buildings are on a different LOD. Try changing --lod parameter.");
-      return;
+      std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
+      vtkLog(INFO, "Translate buildings...");
+      auto wholeBB = TranslateBuildings(rootBuildings, this->Offset, buildings);
+      if (buildings.empty())
+      {
+        vtkLog(ERROR,
+          "No buildings read from the input file. "
+          "Maybe buildings are on a different LOD. Try changing --lod parameter.");
+        return;
+      }
+      vtkLog(INFO, "Processing " << buildings.size() << " buildings...");
+      vtkDirectory::MakeDirectory(this->DirectoryName);
+
+      vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
+        BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
+      TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), &buildings,
+        this->DirectoryName, this->TexturePath, this->SaveTextures, this->ContentType, this->CRS);
+      treeInformation.Compute();
+      vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
+      treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
+      if (this->SaveTiles)
+      {
+        treeInformation.SaveTiles(this->MergeTilePolyData);
+      }
+      vtkLog(INFO, "Deleting objects ...");
     }
-    vtkLog(INFO, "Processing " << buildings.size() << " buildings...");
-    vtkDirectory::MakeDirectory(this->DirectoryName);
-
-    vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
-      BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
-    TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), buildings,
-      this->DirectoryName, this->TexturePath, this->SaveTextures, this->ContentType, this->CRS);
-    treeInformation.Compute();
-    vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
-    treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
-
-    if (this->SaveTiles)
+    else if (rootPointCloud)
     {
-      treeInformation.SaveTiles(this->MergeTilePolyData);
+      vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
+        BuildOctree(rootPointCloud, this->NumberOfBuildingsPerTile);
+      TreeInformation treeInformation(
+        octree->GetRoot(), octree->GetNumberOfNodes(), this->DirectoryName, this->CRS);
+      treeInformation.Compute();
+      vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
+      treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
+      if (this->SaveTiles)
+      {
+        treeInformation.SaveTiles(this->MergeTilePolyData);
+      }
+      vtkLog(INFO, "Deleting objects ...");
     }
-    vtkLog(INFO, "Deleting objects ...");
   }
   vtkLog(INFO, "Done.");
 }

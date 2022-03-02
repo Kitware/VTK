@@ -14,8 +14,14 @@
 =========================================================================*/
 /**
  * @class   vtkCesium3DTilesWriter
- * @brief   Converts a vtkMultiBlockDataSet (as created by vtkCityGMLReader) into
- *          3D Tiles format.
+ * @brief   Writes a dataset into 3D Tiles format.
+ *
+ *
+ * Valid inputs include the vtkMultiBlockDataSet (as created by
+ * vtkCityGMLReader) storing 3D buidlings or vtkPointSet
+ * storing a point cloud. Note that currently the writer
+ * cannot handle mixed inputs (buildings and point clouds).
+ *
  */
 
 #ifndef vtkCesium3DTilesWriter_h
@@ -109,16 +115,15 @@ public:
    */
   vtkSetMacro(ContentType, int);
   vtkGetMacro(ContentType, int);
-  vtkBooleanMacro(ContentType, int);
   //@
 
   //@{
   /**
-   * Maximum number of buildings per tile. Default is 100.
+   * Maximum number of buildings per tile in case of buildings input or
+   * the number of points per tile in case of point cloud input. Default is 100.
    */
   vtkSetMacro(NumberOfBuildingsPerTile, int);
   vtkGetMacro(NumberOfBuildingsPerTile, int);
-  vtkBooleanMacro(NumberOfBuildingsPerTile, int);
   //@
 
   ///@{

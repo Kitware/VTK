@@ -43,9 +43,17 @@ class TreeInformation
 {
 public:
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
-    const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
+    const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings,
     const std::string& outputDir, const std::string& texturePath, bool saveTextures,
     int contentType, const char* crs);
+  TreeInformation(
+    vtkIncrementalOctreeNode* root, int numberOfNodes, const std::string& output, const char* crs);
+
+  enum Format
+  {
+    BUILDINGS,
+    POINTS
+  };
 
   void PrintNode(vtkIncrementalOctreeNode* node);
 
@@ -97,21 +105,32 @@ protected:
   double ComputeTilesetGeometricError();
 
 private:
+  int Format;
   vtkIncrementalOctreeNode* Root;
-  // buildings indexed by building ID
-  const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& Buildings;
+
+  /**
+   * buildings indexed by building ID
+   */
+  const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* Buildings;
   std::string OutputDir;
   std::string TexturePath;
   bool SaveTextures;
   int ContentType;
+
   const char* CRS;
-  // tight bounds indexed by tile ID
+  /**
+   * tight bounds indexed by tile ID
+   */
   std::vector<std::array<double, 6>> NodeBounds;
   std::vector<bool> EmptyNode;
-  // geometric error = pow(VolumeError, 1/3)
+  /**
+   * geometric error = pow(VolumeError, 1/3)
+   */
   std::vector<double> GeometricError;
-  // volume difference between rendering this node and rendering the most detailed model.
-  // indexed by node ID
+  /**
+   * volume difference between rendering this node and rendering the most detailed model.
+   * indexed by node ID
+   */
   std::vector<double> VolumeError;
   nlohmann::json RootJson;
 };

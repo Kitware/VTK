@@ -47,7 +47,7 @@ namespace
  * which stores all buildings.
  */
 std::array<double, 6> ComputeTightBoudingBox(
-  const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings, vtkIdList* tileBuildings)
+  const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings, vtkIdList* tileBuildings)
 {
   std::array<double, 6> wholeBB = { std::numeric_limits<double>::max(),
     std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
@@ -56,7 +56,7 @@ std::array<double, 6> ComputeTightBoudingBox(
   for (int i = 0; i < tileBuildings->GetNumberOfIds(); ++i)
   {
     double bb[6];
-    buildings[tileBuildings->GetId(i)]->GetBounds(bb);
+    (*buildings)[tileBuildings->GetId(i)]->GetBounds(bb);
     wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], bb);
   }
   return wholeBB;
@@ -120,16 +120,37 @@ std::array<std::string, 3> ContentTypeExtension = { ".b3dm", ".glb", ".gltf" };
 
 //------------------------------------------------------------------------------
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
-  const std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings, const std::string& output,
+  const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings, const std::string& output,
   const std::string& texturePath, bool saveTextures, int contentType, const char* crs)
-  :
-
-  Root(root)
+  : Format(BUILDINGS)
+  , Root(root)
   , Buildings(buildings)
   , OutputDir(output)
   , TexturePath(texturePath)
   , SaveTextures(saveTextures)
   , ContentType(contentType)
+  , CRS(crs)
+  , NodeBounds(numberOfNodes)
+  , EmptyNode(numberOfNodes)
+  , GeometricError(numberOfNodes)
+  , VolumeError(numberOfNodes)
+{
+  std::array<double, 6> a = { std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::lowest() };
+  std::fill(this->NodeBounds.begin(), this->NodeBounds.end(), a);
+  std::fill(this->EmptyNode.begin(), this->EmptyNode.end(), true);
+  std::fill(this->GeometricError.begin(), this->GeometricError.end(), 0);
+  std::fill(this->VolumeError.begin(), this->VolumeError.end(), 0);
+}
+
+//------------------------------------------------------------------------------
+TreeInformation::TreeInformation(
+  vtkIncrementalOctreeNode* root, int numberOfNodes, const std::string& output, const char* crs)
+  : Format(POINTS)
+  , Root(root)
+  , OutputDir(output)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -220,7 +241,7 @@ void TreeInformation::SaveTile(vtkIncrementalOctreeNode* node, void* aux)
       for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
       {
         int buildingId = pointIds->GetId(i);
-        vtkCompositeDataSet* building = this->Buildings[buildingId];
+        vtkCompositeDataSet* building = (*this->Buildings)[buildingId];
         auto it = vtk::TakeSmartPointer(building->NewIterator());
         // for each poly data in the building
         for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
@@ -239,7 +260,7 @@ void TreeInformation::SaveTile(vtkIncrementalOctreeNode* node, void* aux)
       {
         int buildingId = pointIds->GetId(i);
         // add all buildings to the tile
-        tile->SetBlock(i, this->Buildings[buildingId]);
+        tile->SetBlock(i, (*this->Buildings)[buildingId]);
         // ostr << buildingId << " ";
       }
     }
@@ -272,7 +293,7 @@ double TreeInformation::ComputeTilesetGeometricError()
     for (int i = 0; i < childBuildings->GetNumberOfIds(); ++i)
     {
       double bb[6];
-      this->Buildings[childBuildings->GetId(i)]->GetBounds(bb);
+      (*this->Buildings)[childBuildings->GetId(i)]->GetBounds(bb);
       double volume = (bb[1] - bb[0]) * (bb[3] - bb[2]) * (bb[5] - bb[4]);
       tilesetVolumeError += volume;
     }
@@ -304,7 +325,7 @@ void TreeInformation::Compute(vtkIncrementalOctreeNode* node, void*)
         for (vtkIdType j = 0; j < childBuildings->GetNumberOfIds(); ++j)
         {
           double bb[6];
-          this->Buildings[childBuildings->GetId(j)]->GetBounds(bb);
+          (*this->Buildings)[childBuildings->GetId(j)]->GetBounds(bb);
           double volume = (bb[1] - bb[0]) * (bb[3] - bb[2]) * (bb[5] - bb[4]);
           this->VolumeError[node->GetID()] += volume;
         }
@@ -435,7 +456,7 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
       for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
       {
         int buildingId = pointIds->GetId(i);
-        vtkSmartPointer<vtkCompositeDataSet> building = this->Buildings[buildingId];
+        vtkSmartPointer<vtkCompositeDataSet> building = (*this->Buildings)[buildingId];
         auto it = vtk::TakeSmartPointer(building->NewIterator());
         // for each poly data in the building
         for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
