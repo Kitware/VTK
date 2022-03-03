@@ -21,6 +21,7 @@
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
@@ -38,54 +39,30 @@ vtkHyperTreeGridMapper::~vtkHyperTreeGridMapper() = default;
 void vtkHyperTreeGridMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
 
-  auto* htg = vtkHyperTreeGrid::SafeDownCast(this->GetInputDataObject(0, 0));
+  auto* dataObj = this->GetInputDataObject(0, 0);
 
-  if (htg == nullptr) // nothing to do
+  if (dataObj == nullptr) // nothing to do
   {
     return;
   }
 
-  if (htg->GetDimension() != 2) // fallback to generic mapper
+  if (auto* mb = vtkMultiBlockDataSet::SafeDownCast(dataObj))
   {
-    if (this->GetMTime() > this->Mapper3D->GetMTime())
-    {
-      if (this->UseAdaptiveDecimation)
-      {
-        vtkWarningMacro("the adaptive decimation is only available for 2D HTG.");
-      }
-      this->Mapper3D->ShallowCopy(this);
-      this->Mapper3D->SetInputData(this->GetSurfaceFilterInput());
-    }
-    return this->Mapper3D->Render(ren, act);
+    vtkWarningMacro("HTG MB Case");
   }
 
-  if (this->GetMTime() > this->PDMapper2D->GetMTime())
+  if (auto* htg = vtkHyperTreeGrid::SafeDownCast(dataObj))
   {
-    bool renderAdaptiveGeo = this->UseAdaptiveDecimation;
-    if (renderAdaptiveGeo && !ren->GetActiveCamera()->GetParallelProjection())
-    {
-      // This Adaptive2DGeometryFilter only support ParallelProjection from now on.
-      renderAdaptiveGeo = false;
-      vtkWarningMacro("The adaptive decimation requires the camera to use ParallelProjection.");
-    }
-
-    if (renderAdaptiveGeo)
-    {
-      // ensure the camera is accessible in the Adaptive2DGeometryFilter
-      // if we need to cut the geometry using its frustum
-      this->Adaptive2DGeometryFilter->SetRenderer(ren);
-    }
-    else
-    {
-      this->Adaptive2DGeometryFilter->SetRenderer(nullptr);
-    }
-
-    // forward common internal properties
-    this->PDMapper2D->ShallowCopy(this);
-    this->PDMapper2D->SetInputData(this->GetSurfaceFilterInput());
+    this->UpdateDecimationHTG(htg, ren);
   }
 
-  this->PDMapper2D->Render(ren, act);
+  if (this->GetMTime() > this->Mapper->GetMTime())
+  {
+    this->Mapper->ShallowCopy(this);
+    this->Mapper->SetInputData(this->GetSurfaceFilterInput());
+  }
+
+  this->Mapper->Render(ren, act);
 }
 
 //------------------------------------------------------------------------------
@@ -123,7 +100,36 @@ void vtkHyperTreeGridMapper::GetBounds(double bounds[6])
 }
 
 //------------------------------------------------------------------------------
-// Specify the input data or filter.
+void vtkHyperTreeGridMapper::UpdateDecimationHTG(vtkHyperTreeGrid* htg, vtkRenderer* ren)
+{
+  if (htg->GetDimension() == 2)
+  {
+    bool renderAdaptiveGeo = this->UseAdaptiveDecimation;
+    if (renderAdaptiveGeo && !ren->GetActiveCamera()->GetParallelProjection())
+    {
+      // This Adaptive2DGeometryFilter only support ParallelProjection from now on.
+      renderAdaptiveGeo = false;
+      vtkWarningMacro("The adaptive decimation requires the camera to use ParallelProjection.");
+    }
+
+    if (renderAdaptiveGeo)
+    {
+      // ensure the camera is accessible in the Adaptive2DGeometryFilter
+      // if we need to cut the geometry using its frustum
+      this->Adaptive2DGeometryFilter->SetRenderer(ren);
+    }
+    else
+    {
+      this->Adaptive2DGeometryFilter->SetRenderer(nullptr);
+    }
+  }
+  else if (this->UseAdaptiveDecimation)
+  {
+    vtkWarningMacro("the adaptive decimation is only available for 2D HTG.");
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkPolyData* vtkHyperTreeGridMapper::GetSurfaceFilterInput()
 {
   vtkAlgorithm* geometry = this->GetSurfaceFilter();
@@ -141,9 +147,7 @@ void vtkHyperTreeGridMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseAdaptiveDecimation: " << this->UseAdaptiveDecimation << std::endl;
   this->GetSurfaceFilter()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Internal PolyData Mapper: " << std::endl;
-  this->PDMapper2D->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "Internal Geometry Mapper: " << std::endl;
-  this->Mapper3D->PrintSelf(os, indent.GetNextIndent());
+  this->Mapper->PrintSelf(os, indent.GetNextIndent());
 }
 
 //------------------------------------------------------------------------------

@@ -135,6 +135,14 @@ protected:
   ~vtkHyperTreeGridMapper() override;
 
   /**
+   */
+  void UpdateDecimationHTG(vtkHyperTreeGrid* htg, vtkRenderer* ren);
+
+  /**
+   */
+  void UpdateDecimationMB();
+
+  /**
    * The input exposed here is the output of the SurfaceFilter.
    * It is the piece of PolyData to map and render on the screen.
    */
@@ -147,10 +155,7 @@ protected:
 
   // render the extracted surface,
   // need to be created in device specific subclass
-  vtkSmartPointer<vtkPolyDataMapper> PDMapper2D;
-  // fallback to the usual mapper in 3D mode,
-  // need to be created in device specific subclass
-  vtkSmartPointer<vtkPolyDataMapper> Mapper3D;
+  vtkSmartPointer<vtkPolyDataMapper> Mapper;
 
 private:
   vtkHyperTreeGridMapper(const vtkHyperTreeGridMapper&) = delete;
