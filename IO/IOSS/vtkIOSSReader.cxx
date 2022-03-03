@@ -989,7 +989,7 @@ bool vtkIOSSReader::vtkInternals::UpdateTimeInformation(vtkIOSSReader* self)
   {
     std::transform(pair.second.begin(), pair.second.end(),
       std::inserter(times_set, times_set.end()),
-      [](const std::pair<int, double>& pair) { return pair.second; });
+      [](const std::pair<int, double>& otherPair) { return otherPair.second; });
   }
   this->TimestepValues.resize(times_set.size());
   std::copy(times_set.begin(), times_set.end(), this->TimestepValues.begin());
@@ -1455,7 +1455,7 @@ std::vector<DatabaseHandle> vtkIOSSReader::vtkInternals::GetDatabaseHandles(
     {
       const auto& vector = pair.second;
       auto iter = std::find_if(vector.begin(), vector.end(),
-        [&time](const std::pair<int, double>& pair) { return pair.second == time; });
+        [&time](const std::pair<int, double>& otherPair) { return otherPair.second == time; });
       if (iter != vector.end())
       {
         // if multiple databases provide the same timestep, we opt to choose
