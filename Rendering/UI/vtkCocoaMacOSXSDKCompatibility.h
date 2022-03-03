@@ -33,6 +33,13 @@ PURPOSE.  See the above copyright notice for more information.
 #error VTK requires a deployment target of Mac OS X 10.7 or later
 #endif
 
+// Stop AssertMacros.h from defining its macros without underscore prefixes,
+// which pollute the global namespace and cause us build issues.
+// This is default as of the macOS 10.13 SDK, but needed for older SDKs.
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 101300
+#define __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES 0
+#endif
+
 #if (MAC_OS_X_VERSION_MAX_ALLOWED < 101200) && !defined(VTK_DONT_MAP_10_12_ENUMS)
 // The 10.12 SDK made a bunch of enum names more logical, map old names to new names to continue
 // supporting old SDKs.
