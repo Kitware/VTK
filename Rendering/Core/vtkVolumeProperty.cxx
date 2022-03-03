@@ -517,6 +517,7 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
   if (this->TransferFunction2D[index] != nullptr)
   {
     this->TransferFunction2D[index]->UnRegister(this);
+    this->TransferFunction2D[index] = nullptr;
   }
 
   if (function != nullptr)
