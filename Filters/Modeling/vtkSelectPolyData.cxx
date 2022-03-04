@@ -17,6 +17,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
+#include "vtkDijkstraGraphGeodesicPath.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
@@ -26,6 +27,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
@@ -42,6 +44,7 @@ vtkSelectPolyData::vtkSelectPolyData()
 {
   this->GenerateSelectionScalars = 0;
   this->InsideOut = 0;
+  this->EdgeSearchMode = VTK_GREEDY_EDGE_SEARCH;
   this->Loop = nullptr;
   this->SelectionMode = VTK_INSIDE_SMALLEST_REGION;
   this->ClosestPoint[0] = this->ClosestPoint[1] = this->ClosestPoint[2] = 0.0;
@@ -90,6 +93,133 @@ vtkPolyData* vtkSelectPolyData::GetSelectionEdges()
 }
 
 //------------------------------------------------------------------------------
+bool vtkSelectPolyData::GreedyEdgeSearch(vtkPoints* inPts, vtkIdList* loopIds, vtkIdList* edgeIds)
+{
+  // Now that we've got point ids, we build the loop. Start with the
+  // first two points in the loop (which define a line), and find the
+  // mesh edge that is directed along the line, and whose
+  // end point is closest to the line. Continue until loop closes in on
+  // itself.
+  vtkNew<vtkIdList> neighbors;
+  neighbors->Allocate(10000);
+  vtkIdType numLoopPts = this->Loop->GetNumberOfPoints();
+  for (vtkIdType i = 0; i < numLoopPts; i++)
+  {
+    vtkIdType currentId = loopIds->GetId(i);
+    vtkIdType nextId = loopIds->GetId((i + 1) % numLoopPts);
+    vtkIdType prevId = (-1);
+    double x[3];
+    double x0[3];
+    double x1[3];
+    double vec[3];
+    inPts->GetPoint(currentId, x);
+    inPts->GetPoint(currentId, x0);
+    inPts->GetPoint(nextId, x1);
+    for (int j = 0; j < 3; j++)
+    {
+      vec[j] = x1[j] - x0[j];
+    }
+
+    // track edge
+    for (vtkIdType id = currentId; id != nextId;)
+    {
+      this->GetPointNeighbors(id, neighbors); // points connected by edge
+      vtkIdType numNei = neighbors->GetNumberOfIds();
+      vtkIdType closest = -1;
+      double closestDist2 = VTK_DOUBLE_MAX;
+      for (vtkIdType j = 0; j < numNei; j++)
+      {
+        vtkIdType neiId = neighbors->GetId(j);
+        if (neiId == nextId)
+        {
+          closest = neiId;
+          break;
+        }
+        else
+        {
+          double neiX[3];
+          inPts->GetPoint(neiId, neiX);
+          double dir[3];
+          for (vtkIdType k = 0; k < 3; k++)
+          {
+            dir[k] = neiX[k] - x[k];
+          }
+          if (neiId != prevId && vtkMath::Dot(dir, vec) > 0.0) // candidate
+          {
+            double dist2 = vtkLine::DistanceToLine(neiX, x0, x1);
+            if (dist2 < closestDist2)
+            {
+              closest = neiId;
+              closestDist2 = dist2;
+            }
+          } // in direction of line
+        }
+      } // for all neighbors
+
+      if (closest < 0)
+      {
+        vtkErrorMacro(<< "Can't follow edge");
+        return false;
+      }
+      else
+      {
+        edgeIds->InsertNextId(closest);
+        prevId = id;
+        id = closest;
+        inPts->GetPoint(id, x);
+      }
+    } // for tracking edge
+  }   // for all edges of loop
+
+  // success
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkSelectPolyData::DijkstraEdgeSearch(
+  vtkPolyData* triMesh, vtkIdList* loopIds, vtkIdList* edgeIds)
+{
+  vtkNew<vtkDijkstraGraphGeodesicPath> edgesFilter;
+  edgesFilter->StopWhenEndReachedOn();
+  edgesFilter->SetInputData(triMesh);
+
+  vtkNew<vtkPointLocator> pointLocator;
+  pointLocator->SetDataSet(triMesh);
+
+  vtkPoints* inPts = triMesh->GetPoints();
+  vtkIdType numLoopPts = this->Loop->GetNumberOfPoints();
+  for (vtkIdType i = 0; i < numLoopPts; i++)
+  {
+    vtkIdType currentId = loopIds->GetId(i);
+    vtkIdType nextId = loopIds->GetId((i + 1) % numLoopPts);
+    edgesFilter->SetStartVertex(currentId);
+    edgesFilter->SetEndVertex(nextId);
+    edgesFilter->Update();
+    vtkPolyData* outputPath = edgesFilter->GetOutput();
+    double x0[3];
+    inPts->GetPoint(currentId, x0);
+    for (int j = outputPath->GetNumberOfPoints() - 1; j >= 0; --j)
+    {
+      double x[3];
+      outputPath->GetPoint(j, x);
+      double dist2 = vtkMath::Distance2BetweenPoints(x, x0);
+      if (dist2 > 0.0)
+      {
+        // Find point ID to add in the input mesh to remember the next edge point
+        edgeIds->InsertNextId(pointLocator->FindClosestPoint(x));
+        for (int k = 0; k < 3; ++k)
+        {
+          // Remember last added point so that it does not get added twice
+          x0[k] = x[k];
+        }
+      }
+    }
+  }
+  // success
+  return true;
+}
+
+//------------------------------------------------------------------------------
 int vtkSelectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -109,16 +239,15 @@ int vtkSelectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   int k;
   vtkIdList *loopIds, *edgeIds, *neighbors;
   double x[3], xLoop[3], closestDist2, dist2, t;
-  double x0[3], x1[3], vec[3], dir[3], neiX[3];
+  double x0[3], x1[3], neiX[3];
   vtkCellArray* inPolys;
   vtkPoints* inPts;
   int numNei;
-  vtkIdType id, currentId = 0, nextId, pt1, pt2, numCells, neiId;
+  vtkIdType id, currentId = 0, pt1, pt2, numCells, neiId;
   vtkIdType* cells;
   const vtkIdType* pts;
   vtkIdType npts;
   vtkIdType numMeshLoopPts;
-  vtkIdType prevId;
   vtkIdType ncells;
   int mark, s1, s2, val;
 
@@ -197,83 +326,33 @@ int vtkSelectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     loopIds->SetId(i, closest);
   } // for all loop points
 
-  // Now that we've got point ids, we build the loop. Start with the
-  // first two points in the loop (which define a line), and find the
-  // mesh edge that is directed along the line, and whose
-  // end point is closest to the line. Continue until loop closes in on
-  // itself.
   edgeIds = vtkIdList::New();
   edgeIds->Allocate(numLoopPts * 10, 1000);
   neighbors = vtkIdList::New();
   neighbors->Allocate(10000);
   edgeIds->InsertNextId(loopIds->GetId(0));
 
-  for (i = 0; i < numLoopPts; i++)
+  bool edgeSearchSuccess = false;
+  switch (this->EdgeSearchMode)
   {
-    currentId = loopIds->GetId(i);
-    nextId = loopIds->GetId((i + 1) % numLoopPts);
-    prevId = (-1);
-    inPts->GetPoint(currentId, x);
-    inPts->GetPoint(currentId, x0);
-    inPts->GetPoint(nextId, x1);
-    for (j = 0; j < 3; j++)
-    {
-      vec[j] = x1[j] - x0[j];
-    }
-
-    // track edge
-    for (id = currentId; id != nextId;)
-    {
-      this->GetPointNeighbors(id, neighbors); // points connected by edge
-      numNei = neighbors->GetNumberOfIds();
-      closest = -1;
-      closestDist2 = VTK_DOUBLE_MAX;
-      for (j = 0; j < numNei; j++)
-      {
-        neiId = neighbors->GetId(j);
-        if (neiId == nextId)
-        {
-          closest = neiId;
-          break;
-        }
-        else
-        {
-          inPts->GetPoint(neiId, neiX);
-          for (k = 0; k < 3; k++)
-          {
-            dir[k] = neiX[k] - x[k];
-          }
-          if (neiId != prevId && vtkMath::Dot(dir, vec) > 0.0) // candidate
-          {
-            dist2 = vtkLine::DistanceToLine(neiX, x0, x1);
-            if (dist2 < closestDist2)
-            {
-              closest = neiId;
-              closestDist2 = dist2;
-            }
-          } // in direction of line
-        }
-      } // for all neighbors
-
-      if (closest < 0)
-      {
-        vtkErrorMacro(<< "Can't follow edge");
-        triMesh->UnRegister(this);
-        this->Mesh->Delete();
-        neighbors->Delete();
-        edgeIds->Delete();
-        loopIds->Delete();
-        return 1;
-      }
-      else
-      {
-        edgeIds->InsertNextId(closest);
-        prevId = id;
-        id = closest;
-        inPts->GetPoint(id, x);
-      }
-    } // for tracking edge
-  }   // for all edges of loop
+    case VTK_GREEDY_EDGE_SEARCH:
+      edgeSearchSuccess = this->GreedyEdgeSearch(inPts, loopIds, edgeIds);
+      break;
+    case VTK_DIJKSTRA_EDGE_SEARCH:
+      edgeSearchSuccess = this->DijkstraEdgeSearch(triMesh, loopIds, edgeIds);
+      break;
+    default:
+      vtkErrorMacro("Unknown edge search mode: " << this->EdgeSearchMode);
+  }
+  if (!edgeSearchSuccess)
+  {
+    triMesh->UnRegister(this);
+    this->Mesh->Delete();
+    neighbors->Delete();
+    edgeIds->Delete();
+    loopIds->Delete();
+    return 1;
+  }
 
   // mainly for debugging
   numMeshLoopPts = edgeIds->GetNumberOfIds();
@@ -643,6 +722,9 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
      << "Generate Selection Scalars: " << (this->GenerateSelectionScalars ? "On\n" : "Off\n");
 
   os << indent << "Inside Out: " << (this->InsideOut ? "On\n" : "Off\n");
+
+  os << indent << "Edge Search Mode: ";
+  os << this->GetEdgeSearchModeAsString() << "\n";
 
   if (this->Loop)
   {
