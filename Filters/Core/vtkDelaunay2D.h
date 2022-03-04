@@ -298,7 +298,7 @@ private:
   int InCircle(double x[3], double x1[3], double x2[3], double x3[3]);
   vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri, double tol,
     vtkIdType nei[3], vtkIdList* neighbors);
-  void CheckEdge(
+  bool CheckEdge(
     vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri, bool recursive);
 
   int FillInputPortInformation(int, vtkInformation*) override;
