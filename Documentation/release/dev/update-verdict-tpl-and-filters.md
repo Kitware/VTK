@@ -45,6 +45,22 @@ a [third-party library](https://gitlab.kitware.com/third-party/verdict).
         1) EquiangleSkew
         2) NodalJacobianRatio
 
+API changes:
+
+For `vtkMeshQuality`:
+
+1) Metrics used to be enumerated using define flags, but now `enum class QualityMeasureTypes` is used instead (same
+   numbering applies).
+2) SetQuadQualityMeasureToMaxEdgeRatios -> SetQuadQualityMeasureToMaxEdgeRatio
+3) SetHexQualityMeasureToMaxEdgeRatios -> SetHexQualityMeasureToMaxEdgeRatio
+4) QuadMaxEdgeRatios -> QuadMaxEdgeRatio
+5) TetShapeandSize -> TetShapeAndSize
+
+For `vtkCellQuality`:
+
+1) Metrics used to be defined in an anonymous enum, but now the typedef `enum class QualityMeasureTypes`
+   from `vtkMeshQuality` is used instead.
+
 This MR addresses the issues:
 
 1) https://gitlab.kitware.com/vtk/vtk/-/issues/17477
