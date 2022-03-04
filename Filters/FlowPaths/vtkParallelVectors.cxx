@@ -501,6 +501,9 @@ public:
     , CellSurfaceTrianglePoints(cellSurfaceTrianglePoints)
   {
     this->CellSurfaceTrianglePoints.resize(input->GetNumberOfCells());
+    // instantiate any data-structure that needs to be cached for parallel execution.
+    vtkNew<vtkGenericCell> cell;
+    this->Input->GetCell(0, cell);
   }
 
   void Initialize()

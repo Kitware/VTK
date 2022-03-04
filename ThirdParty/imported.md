@@ -39,6 +39,7 @@
   * [theora](theora/update.sh)
   * [tiff](tiff/update.sh)
   * [utf8](utf8/update.sh)
+  * [verdict](verdict/update.sh)
   * [xdmf3](xdmf3/update.sh)
   * [zfp](zfp/update.sh)
   * [zlib](zlib/update.sh)

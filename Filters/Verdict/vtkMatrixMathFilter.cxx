@@ -13,7 +13,6 @@
 
 =========================================================================*/
 #include "vtkMatrixMathFilter.h"
-#include "vtk_verdict.h"
 
 #include "vtkCellData.h"
 #include "vtkDataSet.h"

@@ -16,6 +16,12 @@
 #define vtk_verdict_h
 
 /* Use the verdict library configured for VTK.  */
-#include <vtkverdict/verdict.h>
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_VTK_verdict
+
+#if VTK_MODULE_USE_EXTERNAL_VTK_verdict
+# include <verdict.h>
+#else
+# include <vtkverdict/verdict.h>
+#endif
 
 #endif
