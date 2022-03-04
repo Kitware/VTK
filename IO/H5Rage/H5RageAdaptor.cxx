@@ -178,12 +178,20 @@ std::string H5RageAdaptor::TrimString(const std::string& str)
 
 int H5RageAdaptor::InitializeGlobal(const char* H5RageFileName)
 {
+  int success;
   if (this->Rank == 0)
   {
-    if (!CollectMetaData(H5RageFileName))
-    {
-      return 0;
-    }
+    success = CollectMetaData(H5RageFileName);
+    this->Controller->Broadcast(&success, 1, 0);
+  }
+  else
+  {
+    this->Controller->Broadcast(&success, 1, 0);
+  }
+
+  if (!success)
+  {
+    return 0;
   }
 
   // Share with all processors sizes, timesteps, variables
