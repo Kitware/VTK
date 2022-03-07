@@ -17,14 +17,59 @@
 #include "vtkActor.h"
 #include "vtkAdaptiveDataSetSurfaceFilter.h"
 #include "vtkCamera.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
+#include "vtkDataSetSurfaceFilter.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRange.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+
+namespace
+{
+vtkSmartPointer<vtkCompositeDataSet> EnsureComposite(vtkDataObject* dobj)
+{
+  if (auto cds = vtkCompositeDataSet::SafeDownCast(dobj))
+  {
+    return cds;
+  }
+  vtkNew<vtkGroupDataSetsFilter> toComposite;
+  toComposite->SetInputDataObject(dobj);
+  toComposite->SetOutputTypeToMultiBlockDataSet();
+  toComposite->Update();
+  auto outCds = vtkCompositeDataSet::SafeDownCast(toComposite->GetOutputDataObject(0));
+  auto cds = vtkSmartPointer<vtkCompositeDataSet>::Take(outCds->NewInstance());
+  cds->ShallowCopy(outCds);
+  return cds;
+}
+
+void GetBoundsComposite(vtkCompositeDataSet* cd, double bounds[6])
+{
+  vtkBoundingBox globalBounds;
+  for (auto block : vtk::Range(cd))
+  {
+    if (auto ds = vtkDataSet::SafeDownCast(block))
+    {
+      double localBounds[6];
+      ds->GetBounds(localBounds);
+      globalBounds.AddBounds(localBounds);
+    }
+    else if (auto htg = vtkHyperTreeGrid::SafeDownCast(block))
+    {
+      double localBounds[6];
+      htg->GetBounds(localBounds);
+      globalBounds.AddBounds(localBounds);
+    }
+  }
+  globalBounds.GetBounds(bounds);
+}
+}
 
 vtkObjectFactoryNewMacro(vtkHyperTreeGridMapper);
 
@@ -38,100 +83,123 @@ vtkHyperTreeGridMapper::~vtkHyperTreeGridMapper() = default;
 void vtkHyperTreeGridMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
 
-  auto* htg = vtkHyperTreeGrid::SafeDownCast(this->GetInputDataObject(0, 0));
-
-  if (htg == nullptr) // nothing to do
+  auto* dataObj = this->GetInputDataObject(0, 0);
+  if (dataObj == nullptr) // nothing to do
   {
     return;
   }
 
-  if (htg->GetDimension() != 2) // fallback to generic mapper
+  // Adaptive decimation (if required)
+  auto htgs = ::EnsureComposite(dataObj);
+  auto adaptedHtgs = this->UpdateWithDecimation(htgs, ren);
+
+  // Setup the mapper
+  if (this->GetMTime() > this->Mapper->GetMTime())
   {
-    if (this->GetMTime() > this->Mapper3D->GetMTime())
-    {
-      if (this->UseAdaptiveDecimation)
-      {
-        vtkWarningMacro("the adaptive decimation is only available for 2D HTG.");
-      }
-      this->Mapper3D->ShallowCopy(this);
-      this->Mapper3D->SetInputData(this->GetSurfaceFilterInput());
-    }
-    return this->Mapper3D->Render(ren, act);
+    this->Mapper->ShallowCopy(this);
   }
 
-  if (this->GetMTime() > this->PDMapper2D->GetMTime())
-  {
-    bool renderAdaptiveGeo = this->UseAdaptiveDecimation;
-    if (renderAdaptiveGeo && !ren->GetActiveCamera()->GetParallelProjection())
-    {
-      // This Adaptive2DGeometryFilter only support ParallelProjection from now on.
-      renderAdaptiveGeo = false;
-      vtkWarningMacro("The adaptive decimation requires the camera to use ParallelProjection.");
-    }
-
-    if (renderAdaptiveGeo)
-    {
-      // ensure the camera is accessible in the Adaptive2DGeometryFilter
-      // if we need to cut the geometry using its frustum
-      this->Adaptive2DGeometryFilter->SetRenderer(ren);
-    }
-    else
-    {
-      this->Adaptive2DGeometryFilter->SetRenderer(nullptr);
-    }
-
-    // forward common internal properties
-    this->PDMapper2D->ShallowCopy(this);
-    this->PDMapper2D->SetInputData(this->GetSurfaceFilterInput());
-  }
-
-  this->PDMapper2D->Render(ren, act);
-}
-
-//------------------------------------------------------------------------------
-void vtkHyperTreeGridMapper::SetInputConnection(vtkAlgorithmOutput* input)
-{
-  this->GeometryFilter->SetInputConnection(input);
-  this->Adaptive2DGeometryFilter->SetInputConnection(input);
-  this->Superclass::SetInputConnection(input);
+  this->Mapper->SetInputDataObject(adaptedHtgs);
+  this->Mapper->Render(ren, act);
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridMapper::SetInputDataObject(int port, vtkDataObject* input)
 {
-  this->GeometryFilter->SetInputDataObject(input);
-  this->Adaptive2DGeometryFilter->SetInputDataObject(input);
+  this->Input = ::EnsureComposite(input);
   this->Superclass::SetInputDataObject(port, input);
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridMapper::SetInputDataObject(vtkDataObject* input)
 {
-  this->SetInputDataObject(0, input);
+  this->Input = ::EnsureComposite(input);
+  this->Superclass::SetInputDataObject(input);
 }
 
 //------------------------------------------------------------------------------
 double* vtkHyperTreeGridMapper::GetBounds()
 {
-  return this->GetSurfaceFilterInput()->GetBounds();
+  this->GetBounds(this->Bounds);
+  return this->Bounds;
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridMapper::GetBounds(double bounds[6])
 {
-  this->GetSurfaceFilterInput()->GetBounds(bounds);
+  if (this->Input)
+  {
+    ::GetBoundsComposite(this->Input, bounds);
+  }
+  else
+  {
+    vtkMath::UninitializeBounds(bounds);
+  }
 }
 
 //------------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkPolyData* vtkHyperTreeGridMapper::GetSurfaceFilterInput()
+vtkSmartPointer<vtkCompositeDataSet> vtkHyperTreeGridMapper::UpdateWithDecimation(
+  vtkCompositeDataSet* cds, vtkRenderer* ren)
 {
-  vtkAlgorithm* geometry = this->GetSurfaceFilter();
-  if (geometry->GetInputDataObject(0, 0))
+  bool useAdapt = this->UseAdaptiveDecimation;
+
+  // Sanity check, Adaptive2DGeometryFilter only support ParallelProjection from now on.
+  if (useAdapt && !ren->GetActiveCamera()->GetParallelProjection())
   {
-    geometry->Update();
+    vtkWarningMacro("The adaptive decimation requires the camera to use ParallelProjection.");
+    useAdapt = false;
   }
-  return vtkPolyData::SafeDownCast(geometry->GetOutputDataObject(0));
+
+  vtkNew<vtkAdaptiveDataSetSurfaceFilter> adaptiveGeometryFilter;
+  vtkNew<vtkHyperTreeGridGeometry> geometryFilter;
+  vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
+
+  adaptiveGeometryFilter->SetRenderer(ren);
+
+  auto outputComposite = vtkSmartPointer<vtkCompositeDataSet>::Take(cds->NewInstance());
+  outputComposite->CopyStructure(cds);
+
+  auto iter = vtkSmartPointer<vtkCompositeDataIterator>::Take(cds->NewIterator());
+  iter->SkipEmptyNodesOn();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  {
+    vtkDataObject* leaf = iter->GetCurrentDataObject();
+    if (auto* htg = vtkHyperTreeGrid::SafeDownCast(leaf))
+    {
+      if (useAdapt && htg->GetDimension() == 2)
+      {
+        // use adaptive decimation
+        adaptiveGeometryFilter->SetInputDataObject(htg);
+        adaptiveGeometryFilter->Update();
+        vtkDataObject* outputDS = adaptiveGeometryFilter->GetOutputDataObject(0);
+        auto newBlock = vtkSmartPointer<vtkDataObject>::Take(outputDS->NewInstance());
+        newBlock->ShallowCopy(outputDS);
+        outputComposite->SetDataSet(iter.Get(), newBlock);
+      }
+      else
+      {
+        // simply transform to polydata
+        geometryFilter->SetInputDataObject(htg);
+        geometryFilter->Update();
+        vtkDataObject* outputDS = geometryFilter->GetOutputDataObject(0);
+        auto newBlock = vtkSmartPointer<vtkDataObject>::Take(outputDS->NewInstance());
+        newBlock->ShallowCopy(outputDS);
+        outputComposite->SetDataSet(iter.Get(), newBlock);
+      }
+    }
+    else if (auto* ds = vtkDataSet::SafeDownCast(leaf))
+    {
+      // other cases
+      surfaceFilter->SetInputDataObject(ds);
+      surfaceFilter->Update();
+      vtkDataObject* outputDS = surfaceFilter->GetOutputDataObject(0);
+      auto newBlock = vtkSmartPointer<vtkDataObject>::Take(outputDS->NewInstance());
+      newBlock->ShallowCopy(outputDS);
+      outputComposite->SetDataSet(iter.Get(), newBlock);
+    }
+  }
+
+  return outputComposite;
 }
 
 //------------------------------------------------------------------------------
@@ -139,11 +207,8 @@ void vtkHyperTreeGridMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "UseAdaptiveDecimation: " << this->UseAdaptiveDecimation << std::endl;
-  this->GetSurfaceFilter()->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "Internal PolyData Mapper: " << std::endl;
-  this->PDMapper2D->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "Internal Geometry Mapper: " << std::endl;
-  this->Mapper3D->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Internal Mapper: " << std::endl;
+  this->Mapper->PrintSelf(os, indent.GetNextIndent());
 }
 
 //------------------------------------------------------------------------------
@@ -151,24 +216,4 @@ int vtkHyperTreeGridMapper::FillInputPortInformation(int vtkNotUsed(port), vtkIn
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkHyperTreeGridMapper::Update(int port)
-{
-  this->Superclass::Update(port);
-  this->GetSurfaceFilter()->Update();
-}
-
-//------------------------------------------------------------------------------
-vtkAlgorithm* vtkHyperTreeGridMapper::GetSurfaceFilter()
-{
-  if (this->UseAdaptiveDecimation)
-  {
-    return this->Adaptive2DGeometryFilter;
-  }
-  else
-  {
-    return this->GeometryFilter;
-  }
 }

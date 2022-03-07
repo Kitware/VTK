@@ -23,8 +23,7 @@ vtkObjectFactoryNewMacro(vtkOpenGLHyperTreeGridMapper);
 //------------------------------------------------------------------------------
 vtkOpenGLHyperTreeGridMapper::vtkOpenGLHyperTreeGridMapper()
 {
-  this->PDMapper2D = vtkSmartPointer<vtkOpenGLPolyDataMapper>::New();
-  this->Mapper3D = vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+  this->Mapper = vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
 }
 
 //------------------------------------------------------------------------------
