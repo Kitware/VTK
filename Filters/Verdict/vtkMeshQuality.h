@@ -437,12 +437,12 @@ public:
    * The default is SHAPE and valid values also include
    * EQUIANGLE_SKEW, JACOBIAN, SCALED_JACOBIAN, and VOLUME.
    */
-  vtkSetMacro(PyramidQualityMeasure, QualityMeasureTypes);
+  vtkSetEnumMacro(PyramidQualityMeasure, QualityMeasureTypes);
   virtual void SetPyramidQualityMeasure(int measure)
   {
     this->SetPyramidQualityMeasure(static_cast<QualityMeasureTypes>(measure));
   }
-  vtkGetMacro(PyramidQualityMeasure, QualityMeasureTypes);
+  vtkGetEnumMacro(PyramidQualityMeasure, QualityMeasureTypes);
   void SetPyramidQualityMeasureToEquiangleSkew()
   {
     this->SetPyramidQualityMeasure(QualityMeasureTypes::EQUIANGLE_SKEW);
