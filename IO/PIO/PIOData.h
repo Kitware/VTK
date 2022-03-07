@@ -61,7 +61,7 @@ public:
   bool set_scalar_field(std::valarray<uint64_t>&, const char*);
   bool set_scalar_field(std::valarray<double>&, const char*);
   bool set_vector_field(std::valarray<std::valarray<double>>&, const char*);
-  inline bool good_read() { return (pio_field != 0) ? true : false; }
+  inline bool good_read() { return (pio_field != nullptr) ? true : false; }
   VAR_MAP VarMMap; // Multimap from pio_name to a PIO_FIELD class
   const char* get_name() const { return name; }
   bool get_reverse_endian() const { return reverse_endian; }
