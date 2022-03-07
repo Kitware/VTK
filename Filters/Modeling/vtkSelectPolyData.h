@@ -204,6 +204,12 @@ public:
   vtkPolyData* GetUnselectedOutput();
 
   /**
+   * Return output port that hasn't been selected (if GenreateUnselectedOutput is
+   * enabled).
+   */
+  vtkAlgorithmOutput* GetUnselectedOutputPort();
+
+  /**
    * Return the (mesh) edges of the selection region.
    */
   vtkPolyData* GetSelectionEdges();
@@ -217,10 +223,26 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  // Return true on success
-  bool GreedyEdgeSearch(vtkPoints* inPts, vtkIdList* loopIds, vtkIdList* edgeIds);
-  // Return true on success
-  bool DijkstraEdgeSearch(vtkPolyData* triMesh, vtkIdList* loopIds, vtkIdList* edgeIds);
+  // Compute point list that forms a continuous loop overy the mesh,
+  void GreedyEdgeSearch(vtkPolyData* mesh, vtkIdList* edgeIds);
+  void DijkstraEdgeSearch(vtkPolyData* mesh, vtkIdList* edgeIds);
+
+  // Returns maximum front cell ID
+  vtkIdType ComputeTopologicalDistance(
+    vtkPolyData* mesh, vtkIdList* edgeIds, vtkIntArray* pointMarks, vtkIntArray* cellMarks);
+
+  // Get closest cell to a position that is not at the boundary
+  vtkIdType GetClosestCellId(vtkPolyData* mesh, vtkIntArray* pointMarks);
+
+  // Starting from maxFrontCell, without crossing the boundary, set all cell and point marks to -1.
+  void FillMarksInRegion(vtkPolyData* mesh, vtkIdList* edgePointIds, vtkIntArray* pointMarks,
+    vtkIntArray* cellMarks, vtkIdType cellIdInSelectedRegion);
+
+  void SetClippedResultToOutput(vtkPointData* originalPointData, vtkPolyData* mesh,
+    vtkIntArray* cellMarks, vtkPolyData* output);
+
+  void SetSelectionScalarsToOutput(vtkPointData* originalPointData, vtkCellData* originalCellData,
+    vtkPolyData* mesh, vtkIdList* edgeIds, vtkIntArray* pointMarks, vtkPolyData* output);
 
   vtkTypeBool GenerateSelectionScalars;
   vtkTypeBool InsideOut;
@@ -231,8 +253,11 @@ protected:
   vtkTypeBool GenerateUnselectedOutput;
 
 private:
-  vtkPolyData* Mesh;
-  void GetPointNeighbors(vtkIdType ptId, vtkIdList* nei);
+  static void GetPointNeighbors(vtkPolyData* mesh, vtkIdType ptId, vtkIdList* nei);
+
+  // Helper function to check if the edge between pointId1 and pointId2 is present in the
+  // edgePointIds (as direct neighbors).
+  static bool IsBoundaryEdge(vtkIdType pointId1, vtkIdType pointId2, vtkIdList* edgePointIds);
 
 private:
   vtkSelectPolyData(const vtkSelectPolyData&) = delete;
