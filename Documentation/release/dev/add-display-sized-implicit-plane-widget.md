@@ -4,6 +4,7 @@ VTK now provides `vtkDisplaySizedImplicitPlaneWidget` which is an alternative to
 While both provide similar functionality, `vtkDisplaySizedImplicitPlaneWidget` has the following key differences:
 
 1) the outline is not drawn by default
+   1) If the outline is drawn, there an option to draw the intersection edges of the outline with the plane.
 2) the size of the normal arrow and plane are relative to the viewport size (that's why it's named display sized)
     1) there is an option which allows the maximum size of the plane radius and normal arrow to be constrained by the widget bounds
 3) the origin can be moved freely by default, and it's not restricted by the bounding box
