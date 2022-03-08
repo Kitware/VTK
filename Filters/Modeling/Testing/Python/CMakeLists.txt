@@ -32,6 +32,7 @@ vtk_add_test_python(
   TestRibbonAndTube.py
   TestRuledSurface.py
   TestRuledSurface2.py
+  TestSelectPolyDataFilter.py,NO_RT
   TestSpherePuzzle.py
   TestSpherePuzzleArrows.py
   TestTrimmedExtrusionFilter.py
