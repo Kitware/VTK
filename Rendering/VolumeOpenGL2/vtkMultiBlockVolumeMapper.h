@@ -37,12 +37,14 @@
 
 #include <vector> // For DataBlocks
 
+#include "vtkNew.h"                          // for ivar
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkVolumeMapper.h"
 
 class vtkDataObjectTree;
 class vtkDataSet;
 class vtkImageData;
+class vtkMatrix4x4;
 class vtkMultiBlockDataSet;
 class vtkRenderWindow;
 class vtkSmartVolumeMapper;
@@ -150,6 +152,8 @@ protected:
 
   vtkRenderWindow* DebugWin;
   vtkRenderer* DebugRen;
+
+  vtkNew<vtkMatrix4x4> TempMatrix4x4;
 
 private:
   /**

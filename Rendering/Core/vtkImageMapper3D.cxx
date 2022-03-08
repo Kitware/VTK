@@ -283,7 +283,7 @@ vtkMatrix4x4* vtkImageMapper3D::GetDataToWorldMatrix()
   {
     if (this->CurrentRenderer)
     {
-      this->DataToWorldMatrix->DeepCopy(prop->GetMatrix());
+      prop->GetModelToWorldMatrix(this->DataToWorldMatrix);
     }
     else
     {

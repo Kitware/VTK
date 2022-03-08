@@ -528,52 +528,8 @@ void vtkTransformConcatenation::Translate(double x, double y, double z)
 //------------------------------------------------------------------------------
 void vtkTransformConcatenation::Rotate(double angle, double x, double y, double z)
 {
-  if (angle == 0.0 || (x == 0.0 && y == 0.0 && z == 0.0))
-  {
-    return;
-  }
-
-  // convert to radians
-  angle = vtkMath::RadiansFromDegrees(angle);
-
-  // make a normalized quaternion
-  double w = cos(0.5 * angle);
-  double f = sin(0.5 * angle) / sqrt(x * x + y * y + z * z);
-  x *= f;
-  y *= f;
-  z *= f;
-
-  // convert the quaternion to a matrix
   double matrix[4][4];
-  vtkMatrix4x4::Identity(*matrix);
-
-  double ww = w * w;
-  double wx = w * x;
-  double wy = w * y;
-  double wz = w * z;
-
-  double xx = x * x;
-  double yy = y * y;
-  double zz = z * z;
-
-  double xy = x * y;
-  double xz = x * z;
-  double yz = y * z;
-
-  double s = ww - xx - yy - zz;
-
-  matrix[0][0] = xx * 2 + s;
-  matrix[1][0] = (xy + wz) * 2;
-  matrix[2][0] = (xz - wy) * 2;
-
-  matrix[0][1] = (xy - wz) * 2;
-  matrix[1][1] = yy * 2 + s;
-  matrix[2][1] = (yz + wx) * 2;
-
-  matrix[0][2] = (xz + wy) * 2;
-  matrix[1][2] = (yz - wx) * 2;
-  matrix[2][2] = zz * 2 + s;
-
+  vtkMatrix4x4::MatrixFromRotation(angle, x, y, z, *matrix);
   this->Concatenate(*matrix);
 }
 

@@ -557,7 +557,8 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   vtkUnstructuredGridBase* input = this->GetInput();
   this->VisibilitySort->SetInput(input);
   this->VisibilitySort->SetDirectionToBackToFront();
-  this->VisibilitySort->SetModelTransform(volume->GetMatrix());
+  volume->GetModelToWorldMatrix(this->tmpMat);
+  this->VisibilitySort->SetModelTransform(this->tmpMat);
   this->VisibilitySort->SetCamera(renderer->GetActiveCamera());
   this->VisibilitySort->SetMaxCellsReturned(1000);
 
@@ -590,12 +591,10 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   float modelview_mat[16];
   if (!volume->GetIsIdentity())
   {
-    vtkMatrix4x4* tmpMat = vtkMatrix4x4::New();
-    vtkMatrix4x4* tmpMat2 = vtkMatrix4x4::New();
-    vtkMatrix4x4* mcwc = volume->GetMatrix();
+    volume->GetModelToWorldMatrix(tmpMat);
     tmpMat2->DeepCopy(wcvc);
     tmpMat2->Transpose();
-    vtkMatrix4x4::Multiply4x4(tmpMat2, mcwc, tmpMat);
+    vtkMatrix4x4::Multiply4x4(tmpMat2, tmpMat, tmpMat);
     tmpMat->Transpose();
     for (int i = 0; i < 4; ++i)
     {
@@ -604,8 +603,6 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
         modelview_mat[i * 4 + j] = tmpMat->GetElement(i, j);
       }
     }
-    tmpMat->Delete();
-    tmpMat2->Delete();
   }
   else
   {

@@ -33,12 +33,15 @@
 #ifndef vtkProp3D_h
 #define vtkProp3D_h
 
+#include "vtkNew.h" // for ivar
 #include "vtkProp.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWeakPointer.h"         // For vtkWeakPointer
 
+class vtkLinearTransform;
+class vtkMatrix4x4;
 class vtkRenderer;
 class vtkTransform;
-class vtkLinearTransform;
 
 class VTKRENDERINGCORE_EXPORT vtkProp3D : public vtkProp
 {
@@ -158,6 +161,20 @@ public:
   virtual void GetMatrix(vtkMatrix4x4* result);
   virtual void GetMatrix(double result[16]);
   ///@}
+
+  ///@{
+  /**
+   * Return a reference to the Prop3D's Model to World matrix.
+   * This method takes into account the coordinate system the prop is in.
+   */
+  virtual void GetModelToWorldMatrix(vtkMatrix4x4* result);
+  ///@}
+
+  /**
+   * Set the position, scale, orientation from a provided model to world matrix.
+   * If the prop is in a coordinate system other than world, then ren must be non-null
+   */
+  virtual void SetPropertiesFromModelToWorldMatrix(vtkMatrix4x4* modelToWorld);
 
   /**
    * Return a reference to the Prop3D's composite transform.
@@ -305,10 +322,12 @@ public:
    */
   vtkMTimeType GetUserTransformMatrixMTime();
 
+  ///@{
   /**
    * Generate the matrix based on ivars
    */
   virtual void ComputeMatrix();
+  ///@}
 
   ///@{
   /**
@@ -328,6 +347,47 @@ public:
   vtkGetMacro(IsIdentity, int);
   ///@}
 
+  ///@{
+  /**
+   * Specify the coordinate system that this prop is relative to.
+   * This defaults to WORLD but can be set to PHYSICAL which for
+   * VirtualReality is the physical space (aka room) the viewer
+   * is in (in meters). When set to device the CoordinateSystemDevice
+   * is used to place the prop relative to that device (such as a HMD
+   * or controller)
+   */
+  enum CoordinateSystems
+  {
+    WORLD = 0,
+    PHYSICAL = 1,
+    DEVICE = 2
+  };
+  void SetCoordinateSystemToWorld() { this->SetCoordinateSystem(WORLD); }
+  void SetCoordinateSystemToPhysical() { this->SetCoordinateSystem(PHYSICAL); }
+  void SetCoordinateSystemToDevice() { this->SetCoordinateSystem(DEVICE); }
+  void SetCoordinateSystem(CoordinateSystems val);
+  vtkGetMacro(CoordinateSystem, CoordinateSystems);
+  const char* GetCoordinateSystemAsString();
+  ///@}
+
+  ///@{
+  /**
+   * Specify the Renderer that the prop3d is relative to when the
+   * coordinate system is set to PHYSICAL or DEVICE
+   */
+  void SetCoordinateSystemRenderer(vtkRenderer* ren);
+  vtkRenderer* GetCoordinateSystemRenderer();
+  ///@}
+
+  ///@{
+  /**
+   * Specify the device to be used when the coordinate system is set
+   * to DEVICE. Defaults to vtkEventDataDevice::HeadMountedDisplay.
+   */
+  vtkSetMacro(CoordinateSystemDevice, int);
+  vtkGetMacro(CoordinateSystemDevice, int);
+  ///@}
+
 protected:
   vtkProp3D();
   ~vtkProp3D() override;
@@ -345,6 +405,11 @@ protected:
   double Bounds[6];
   vtkProp3D* CachedProp3D; // support the PokeMatrix() method
   int IsIdentity;
+
+  int CoordinateSystemDevice;
+  CoordinateSystems CoordinateSystem = WORLD;
+  vtkWeakPointer<vtkRenderer> CoordinateSystemRenderer;
+  vtkNew<vtkMatrix4x4> TempMatrix4x4;
 
 private:
   vtkProp3D(const vtkProp3D&) = delete;

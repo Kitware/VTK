@@ -163,8 +163,8 @@ public:
    * the location of the device in world coordinates.
    * Return true if the query is valid, else false.
    */
-  virtual bool GetDeviceToWorldMatrixForDevice(
-    vtkEventDataDevice device, vtkMatrix4x4* deviceToWorldMatrix);
+  bool GetDeviceToWorldMatrixForDevice(
+    vtkEventDataDevice device, vtkMatrix4x4* deviceToWorldMatrix) override;
   virtual bool GetDeviceToWorldMatrixForDeviceHandle(
     uint32_t handle, vtkMatrix4x4* deviceToWorldMatrix);
 
@@ -244,7 +244,7 @@ public:
    * Get physical to world transform matrix. Members used to calculate the matrix:
    * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
    */
-  void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
+  void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix) override;
 
   /**
    * Add a renderer to the list of renderers.

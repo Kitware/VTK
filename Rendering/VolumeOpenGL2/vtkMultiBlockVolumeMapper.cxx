@@ -94,7 +94,8 @@ void vtkMultiBlockVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
     this->BlockLoadingTime = dataObj->GetMTime();
   }
 
-  this->SortMappers(ren, vol->GetMatrix());
+  vol->GetModelToWorldMatrix(this->TempMatrix4x4);
+  this->SortMappers(ren, this->TempMatrix4x4);
 
   MapperVec::iterator end = this->Mappers.end();
   for (MapperVec::iterator it = this->Mappers.begin(); it != end; ++it)

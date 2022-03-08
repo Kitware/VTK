@@ -187,6 +187,20 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor* rwi)
   }
 }
 
+void vtkRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
+{
+  if (matrix)
+  {
+    matrix->Identity();
+  }
+}
+
+bool vtkRenderWindow::GetDeviceToWorldMatrixForDevice(
+  vtkEventDataDevice vtkNotUsed(device), vtkMatrix4x4* vtkNotUsed(deviceToWorldMatrix))
+{
+  return false;
+}
+
 //------------------------------------------------------------------------------
 void vtkRenderWindow::SetDesiredUpdateRate(double rate)
 {

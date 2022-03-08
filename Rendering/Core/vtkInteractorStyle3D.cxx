@@ -73,10 +73,10 @@ void vtkInteractorStyle3D::PositionProp(vtkEventData* ed, double* lwpos, double*
   {
     return;
   }
+
   vtkEventDataDevice3D* edd = static_cast<vtkEventDataDevice3D*>(ed);
   double wpos[3];
   edd->GetWorldPosition(wpos);
-
   double wori[4];
   edd->GetWorldOrientation(wori);
 
@@ -94,43 +94,39 @@ void vtkInteractorStyle3D::PositionProp(vtkEventData* ed, double* lwpos, double*
     lwori = rwi->GetLastWorldEventOrientation(rwi->GetPointerIndex());
   }
 
-  double trans[3];
-  for (int i = 0; i < 3; i++)
+  // the code below computes newModelToWorld and then sets the prop3D from
+  // it
+
+  // we need another temp matrix for these calculations
+  vtkNew<vtkMatrix4x4> tmpMatrix;
+
+  // the basic gist is
+  // newModelToWorld = oldModelToWorld -> worldToLastPose -> newPoseToWorld
+
+  // first use it to store newModelToWorld
+  vtkMatrix4x4* oldModelToLastPose = this->TempMatrix4;
+
+  // create a scope here so that some usages of TempMatrix4 and tmpMatrix
+  // go out of scope and will not be accidentaly reused.
   {
-    trans[i] = wpos[i] - lwpos[i];
+    vtkMatrix4x4* oldModelToWorld = this->TempMatrix4;
+    this->InteractionProp->GetModelToWorldMatrix(oldModelToWorld);
+
+    vtkMatrix4x4* worldToLastPose = tmpMatrix;
+    vtkMatrix4x4::PoseToMatrix(lwpos, lwori, worldToLastPose);
+    worldToLastPose->Invert();
+
+    vtkMatrix4x4::Multiply4x4(worldToLastPose, oldModelToWorld, oldModelToLastPose);
   }
+  // oldModelToWorld and worldToLastPose are gone now
 
-  if (this->InteractionProp->GetUserTransform() != nullptr)
-  {
-    vtkTransform* t = this->TempTransform;
-    t->PostMultiply();
-    t->Identity();
-    t->Concatenate(this->InteractionProp->GetUserMatrix());
-    t->Translate(trans);
-    vtkNew<vtkMatrix4x4> n;
-    n->DeepCopy(t->GetMatrix());
-    this->InteractionProp->SetUserMatrix(n);
-  }
-  else
-  {
-    this->InteractionProp->AddPosition(trans);
-  }
+  vtkMatrix4x4* newPoseToWorld = tmpMatrix;
+  vtkMatrix4x4::PoseToMatrix(wpos, wori, newPoseToWorld);
 
-  // compute the net rotation
-  vtkQuaternion<double> q1;
-  q1.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(lwori[0]), lwori[1], lwori[2], lwori[3]);
-  vtkQuaternion<double> q2;
-  q2.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(wori[0]), wori[1], wori[2], wori[3]);
-  q1.Conjugate();
-  q2 = q2 * q1;
-  double axis[4];
-  axis[0] = vtkMath::DegreesFromRadians(q2.GetRotationAngleAndAxis(axis + 1));
+  vtkMatrix4x4* newModelToWorld = this->TempMatrix4;
+  vtkMatrix4x4::Multiply4x4(newPoseToWorld, oldModelToLastPose, newModelToWorld);
 
-  double scale[3];
-  scale[0] = scale[1] = scale[2] = 1.0;
-
-  double* rotate = axis;
-  this->Prop3DTransform(this->InteractionProp, wpos, 1, &rotate, scale);
+  this->InteractionProp->SetPropertiesFromModelToWorldMatrix(newModelToWorld);
 
   if (this->AutoAdjustCameraClippingRange)
   {

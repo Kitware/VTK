@@ -459,6 +459,8 @@ public:
   vtkNew<vtkMatrix4x4> InverseModelViewMat;
   vtkNew<vtkMatrix4x4> InverseVolumeMat;
 
+  vtkNew<vtkMatrix4x4> TempMatrix4x4;
+
   vtkSmartPointer<vtkPolyData> BBoxPolyData;
   vtkSmartPointer<vtkVolumeTexture> CurrentMask;
 
@@ -951,7 +953,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   vtkRenderer* ren, vtkVolume* vol, double geometry[24])
 {
   vtkNew<vtkMatrix4x4> dataToWorld;
-  dataToWorld->DeepCopy(vol->GetMatrix());
+  vol->GetModelToWorldMatrix(dataToWorld);
 
   vtkCamera* cam = ren->GetActiveCamera();
 
@@ -1071,7 +1073,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
     if (this->IsCameraInside(ren, vol, geometry))
     {
       vtkNew<vtkMatrix4x4> dataToWorld;
-      dataToWorld->DeepCopy(vol->GetMatrix());
+      vol->GetModelToWorldMatrix(dataToWorld);
 
       vtkCamera* cam = ren->GetActiveCamera();
 
@@ -1160,7 +1162,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
 
     // See if the volume transform is orientation-preserving
     // and orient polygons accordingly
-    vtkMatrix4x4* volMat = vol->GetMatrix();
+    vol->GetModelToWorldMatrix(this->TempMatrix4x4);
+    vtkMatrix4x4* volMat = this->TempMatrix4x4;
     double det = vtkMath::Determinant3x3(volMat->GetElement(0, 0), volMat->GetElement(0, 1),
       volMat->GetElement(0, 2), volMat->GetElement(1, 0), volMat->GetElement(1, 1),
       volMat->GetElement(1, 2), volMat->GetElement(2, 0), volMat->GetElement(2, 1),
@@ -1477,7 +1480,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
   }
   else
   {
-    vtkMatrix4x4* worldToDataset = vol->GetMatrix();
+    vol->GetModelToWorldMatrix(this->TempMatrix4x4);
+    vtkMatrix4x4* worldToDataset = this->TempMatrix4x4;
     double minWorldSpacing = VTK_DOUBLE_MAX;
     int i = 0;
     while (i < 3)
@@ -3327,7 +3331,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
       auto& inputData = (*it).second;
       it++;
       auto volTex = inputData.Texture;
-      auto volMatrix = inputData.Volume->GetMatrix();
+      inputData.Volume->GetModelToWorldMatrix(this->TempMatrix4x4);
+      vtkMatrix4x4* volMatrix = this->TempMatrix4x4;
       dataToWorld->DeepCopy(volMatrix);
       texToDataMat->DeepCopy(volTex->GetCurrentBlock()->TextureToDataset.GetPointer());
 
@@ -3788,12 +3793,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderSingleInput(
 
   // Sort blocks in case the viewpoint changed, it immediately returns if there
   // is a single block.
-  volumeTex->SortBlocksBackToFront(ren, vol->GetMatrix());
+  vol->GetModelToWorldMatrix(this->TempMatrix4x4);
+  volumeTex->SortBlocksBackToFront(ren, this->TempMatrix4x4);
   vtkVolumeTexture::VolumeBlock* block = volumeTex->GetCurrentBlock();
 
   if (this->CurrentMask)
   {
-    this->CurrentMask->SortBlocksBackToFront(ren, vol->GetMatrix());
+    this->CurrentMask->SortBlocksBackToFront(ren, this->TempMatrix4x4);
   }
 
   const int independent = vol->GetProperty()->GetIndependentComponents();
