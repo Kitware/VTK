@@ -46,6 +46,7 @@ class vtkActor;
 class vtkBox;
 class vtkCellPicker;
 class vtkConeSource;
+class vtkCutter;
 class vtkDiskSource;
 class vtkFeatureEdges;
 class vtkHardwarePicker;
@@ -156,9 +157,20 @@ public:
   /**
    * Enable/disable the drawing of the outline. Default is off.
    */
-  void SetDrawOutline(vtkTypeBool plane);
+  void SetDrawOutline(vtkTypeBool outline);
   vtkGetMacro(DrawOutline, vtkTypeBool);
   vtkBooleanMacro(DrawOutline, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Enable/disable the drawing of the intersection edges. Default is off.
+   *
+   * Note: drawing the intersection edges requires DrawOutline to be on.
+   */
+  void SetDrawIntersectionEdges(vtkTypeBool intersectionEdges);
+  vtkGetMacro(DrawIntersectionEdges, vtkTypeBool);
+  vtkBooleanMacro(DrawIntersectionEdges, vtkTypeBool);
   ///@}
 
   ///@{
@@ -319,6 +331,13 @@ public:
    */
   vtkGetObjectMacro(EdgesProperty, vtkProperty);
   vtkGetObjectMacro(SelectedEdgesProperty, vtkProperty);
+  ///@}
+
+  ///@{
+  /**
+   * Get the property of the intersection edges of the plane with the outline.
+   */
+  vtkGetObjectMacro(IntersectionEdgesProperty, vtkProperty);
   ///@}
 
   ///@{
@@ -525,13 +544,14 @@ protected:
   vtkNew<vtkOutlineFilter> Outline;
   vtkNew<vtkPolyDataMapper> OutlineMapper;
   vtkNew<vtkActor> OutlineActor;
-  void HighlightOutline(int highlight);
   vtkTypeBool OutlineTranslation; // whether the outline can be moved
   vtkTypeBool ScaleEnabled;       // whether the widget can be scaled
   vtkTypeBool OutsideBounds;      // whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
   vtkTypeBool ConstrainToWidgetBounds; // whether the widget can be moved outside input's bounds
   vtkTypeBool ConstrainMaximumSizeToWidgetBounds; // whether the maximum widget size is constrained
+  vtkTypeBool DrawOutline;                        // whether to draw the outline
+  void HighlightOutline(int highlight);
 
   // The plane
   double RadiusMultiplier;
@@ -540,7 +560,6 @@ protected:
   vtkNew<vtkPolyDataMapper> PlaneMapper;
   vtkNew<vtkActor> PlaneActor;
   vtkTypeBool DrawPlane;
-  vtkTypeBool DrawOutline;
   void HighlightPlane(int highlight);
 
   // plane boundary edges are represented as tubes
@@ -552,11 +571,28 @@ protected:
 
   ///@{
   /**
-   * Set color to the edge
+   * Set color to the edges
    */
-  void SetEdgeColor(vtkLookupTable*);
-  void SetEdgeColor(double, double, double);
-  void SetEdgeColor(double c[3]);
+  void SetEdgesColor(vtkLookupTable*);
+  void SetEdgesColor(double, double, double);
+  void SetEdgesColor(double c[3]);
+  ///@}
+
+  // The intersection edges with the outline
+  vtkNew<vtkCutter> Cutter;
+  vtkNew<vtkFeatureEdges> IntersectionEdges;
+  vtkNew<vtkTubeFilter> IntersectionEdgesTuber;
+  vtkNew<vtkPolyDataMapper> IntersectionEdgesMapper;
+  vtkNew<vtkActor> IntersectionEdgesActor;
+  vtkTypeBool DrawIntersectionEdges;
+
+  ///@{
+  /**
+   * Set color to the intersection edges
+   */
+  void SetIntersectionEdgesColor(vtkLookupTable*);
+  void SetIntersectionEdgesColor(double, double, double);
+  void SetIntersectionEdgesColor(double c[3]);
   ///@}
 
   // The + normal cone
@@ -617,6 +653,7 @@ protected:
   vtkNew<vtkProperty> SelectedOutlineProperty;
   vtkNew<vtkProperty> EdgesProperty;
   vtkNew<vtkProperty> SelectedEdgesProperty;
+  vtkNew<vtkProperty> IntersectionEdgesProperty;
   virtual void CreateDefaultProperties();
 
   // Support GetBounds() method

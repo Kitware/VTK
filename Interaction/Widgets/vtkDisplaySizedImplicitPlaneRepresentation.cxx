@@ -22,6 +22,7 @@
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
 #include "vtkConeSource.h"
+#include "vtkCutter.h"
 #include "vtkDiskSource.h"
 #include "vtkEventData.h"
 #include "vtkFeatureEdges.h"
@@ -86,6 +87,7 @@ vtkDisplaySizedImplicitPlaneRepresentation::vtkDisplaySizedImplicitPlaneRepresen
   this->OutsideBounds = 1;
   this->ConstrainToWidgetBounds = 0;
   this->ConstrainMaximumSizeToWidgetBounds = 0;
+  this->DrawOutline = 0;
 
   this->RadiusMultiplier = 1.0;
   this->DiskPlaneSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
@@ -94,15 +96,28 @@ vtkDisplaySizedImplicitPlaneRepresentation::vtkDisplaySizedImplicitPlaneRepresen
   this->PlaneMapper->SetInputConnection(this->DiskPlaneSource->GetOutputPort());
   this->PlaneActor->SetMapper(this->PlaneMapper);
   this->DrawPlane = 1;
-  this->DrawOutline = 0;
 
   this->Edges->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->Edges->SetInputConnection(this->DiskPlaneSource->GetOutputPort());
   this->EdgesTuber->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->EdgesTuber->SetInputConnection(this->Edges->GetOutputPort());
   this->EdgesTuber->SetNumberOfSides(12);
+  this->EdgesTuber->SetRadius(0.25);
   this->EdgesMapper->SetInputConnection(this->EdgesTuber->GetOutputPort());
   this->EdgesActor->SetMapper(this->EdgesMapper);
+
+  this->Cutter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+  this->Cutter->SetInputData(this->Box);
+  this->Cutter->SetCutFunction(this->Plane);
+  this->IntersectionEdges->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+  this->IntersectionEdges->SetInputConnection(this->Cutter->GetOutputPort());
+  this->IntersectionEdgesTuber->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+  this->IntersectionEdgesTuber->SetInputConnection(this->IntersectionEdges->GetOutputPort());
+  this->IntersectionEdgesTuber->SetNumberOfSides(12);
+  this->IntersectionEdgesTuber->SetRadius(0.1);
+  this->IntersectionEdgesMapper->SetInputConnection(this->IntersectionEdgesTuber->GetOutputPort());
+  this->IntersectionEdgesActor->SetMapper(this->IntersectionEdgesMapper);
+  this->DrawIntersectionEdges = 0;
 
   // Create the +- plane normal
   this->LineSource->SetResolution(1);
@@ -164,6 +179,8 @@ vtkDisplaySizedImplicitPlaneRepresentation::vtkDisplaySizedImplicitPlaneRepresen
   this->SphereActor->SetProperty(this->SphereProperty);
   this->PlaneActor->SetProperty(this->PlaneProperty);
   this->HighlightEdges(0);
+  this->IntersectionEdgesActor->SetProperty(this->IntersectionEdgesProperty);
+  this->SetIntersectionEdgesColor(this->IntersectionEdgesActor->GetProperty()->GetColor());
 
   this->RepresentationState = vtkDisplaySizedImplicitPlaneRepresentation::Outside;
 
@@ -628,6 +645,7 @@ double* vtkDisplaySizedImplicitPlaneRepresentation::GetBounds()
     this->BoundingBox->AddBounds(this->OutlineActor->GetBounds());
     this->BoundingBox->AddBounds(this->PlaneActor->GetBounds());
     this->BoundingBox->AddBounds(this->EdgesActor->GetBounds());
+    this->BoundingBox->AddBounds(this->IntersectionEdgesActor->GetBounds());
     this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
     this->BoundingBox->AddBounds(this->LineActor->GetBounds());
     this->BoundingBox->AddBounds(this->ConeActor2->GetBounds());
@@ -642,6 +660,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::GetActors(vtkPropCollection* pc
   pc->AddItem(this->OutlineActor);
   pc->AddItem(this->PlaneActor);
   pc->AddItem(this->EdgesActor);
+  pc->AddItem(this->IntersectionEdgesActor);
   pc->AddItem(this->ConeActor);
   pc->AddItem(this->LineActor);
   pc->AddItem(this->ConeActor2);
@@ -655,6 +674,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::ReleaseGraphicsResources(vtkWin
   this->OutlineActor->ReleaseGraphicsResources(w);
   this->PlaneActor->ReleaseGraphicsResources(w);
   this->EdgesActor->ReleaseGraphicsResources(w);
+  this->IntersectionEdgesActor->ReleaseGraphicsResources(w);
   this->ConeActor->ReleaseGraphicsResources(w);
   this->LineActor->ReleaseGraphicsResources(w);
   this->ConeActor2->ReleaseGraphicsResources(w);
@@ -669,6 +689,10 @@ int vtkDisplaySizedImplicitPlaneRepresentation::RenderOpaqueGeometry(vtkViewport
   if (this->DrawOutline)
   {
     count += this->OutlineActor->RenderOpaqueGeometry(v);
+    if (this->DrawIntersectionEdges)
+    {
+      count += this->IntersectionEdgesActor->RenderOpaqueGeometry(v);
+    }
   }
   if (!this->LockNormalToCamera)
   {
@@ -694,6 +718,10 @@ int vtkDisplaySizedImplicitPlaneRepresentation::RenderTranslucentPolygonalGeomet
   if (this->DrawOutline)
   {
     count += this->OutlineActor->RenderTranslucentPolygonalGeometry(v);
+    if (this->DrawIntersectionEdges)
+    {
+      count += this->IntersectionEdgesActor->RenderTranslucentPolygonalGeometry(v);
+    }
   }
   if (!this->LockNormalToCamera)
   {
@@ -718,6 +746,10 @@ vtkTypeBool vtkDisplaySizedImplicitPlaneRepresentation::HasTranslucentPolygonalG
   if (this->DrawOutline)
   {
     result |= this->OutlineActor->HasTranslucentPolygonalGeometry();
+    if (this->DrawIntersectionEdges)
+    {
+      result |= this->IntersectionEdgesActor->HasTranslucentPolygonalGeometry();
+    }
   }
   if (!this->LockNormalToCamera)
   {
@@ -750,6 +782,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkInden
   os << indent << "Selected Plane Property: " << this->SelectedPlaneProperty << "\n";
   os << indent << "Edges Property: " << this->EdgesProperty << "\n";
   os << indent << "Selected Edges Property: " << this->SelectedEdgesProperty << "\n";
+  os << indent << "Intersection Edges Property: " << this->IntersectionEdgesProperty << "\n";
   os << indent << "Outline Property: " << this->OutlineProperty << "\n";
   os << indent << "Selected Outline Property: " << this->SelectedOutlineProperty << "\n";
 
@@ -771,6 +804,8 @@ void vtkDisplaySizedImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkInden
   os << indent << "Scale Enabled: " << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
   os << indent << "Draw Outline: " << (this->DrawOutline ? "On" : "Off") << "\n";
+  os << indent << "Draw Intersection Edges: " << (this->DrawIntersectionEdges ? "On" : "Off")
+     << "\n";
   os << indent << "Bump Distance: " << this->BumpDistance << "\n";
 
   os << indent << "Representation State: ";
@@ -872,7 +907,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::HighlightEdges(int highlight)
   {
     this->EdgesActor->SetProperty(this->EdgesProperty);
   }
-  this->SetEdgeColor(this->EdgesActor->GetProperty()->GetColor());
+  this->SetEdgesColor(this->EdgesActor->GetProperty()->GetColor());
 }
 
 //------------------------------------------------------------------------------
@@ -1227,6 +1262,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::ResizeRadius3D(double* vtkNotUs
 //------------------------------------------------------------------------------
 void vtkDisplaySizedImplicitPlaneRepresentation::CreateDefaultProperties()
 {
+  static constexpr double neutral[3] = { 1.0, 1.0, 1.0 };         // white
   static constexpr double unselectedColor[3] = { 1.0, 0.0, 0.0 }; // red
   static constexpr double selectedColor[3] = { 0.0, 1.0, 0.0 };   // green
 
@@ -1244,7 +1280,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::CreateDefaultProperties()
 
   // Plane properties
   this->PlaneProperty->SetAmbient(1.0);
-  this->PlaneProperty->SetColor(1.0, 1.0, 1.0);
+  this->PlaneProperty->SetColor(neutral[0], neutral[1], neutral[2]);
   this->PlaneProperty->SetOpacity(0.5);
 
   this->SelectedPlaneProperty->SetAmbient(1.0);
@@ -1253,18 +1289,23 @@ void vtkDisplaySizedImplicitPlaneRepresentation::CreateDefaultProperties()
 
   // Outline properties
   this->OutlineProperty->SetAmbient(1.0);
-  this->OutlineProperty->SetAmbientColor(1.0, 1.0, 1.0);
+  this->OutlineProperty->SetAmbientColor(neutral[0], neutral[1], neutral[2]);
 
   this->SelectedOutlineProperty->SetAmbient(1.0);
   this->SelectedOutlineProperty->SetAmbientColor(
     selectedColor[0], selectedColor[1], selectedColor[2]);
 
-  // Edge property
+  // Edges property
   this->EdgesProperty->SetAmbient(1.0);
   this->EdgesProperty->SetColor(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 
   this->SelectedEdgesProperty->SetAmbient(1.0);
   this->SelectedEdgesProperty->SetColor(selectedColor[0], selectedColor[1], selectedColor[2]);
+
+  // Intersection Edges property
+  this->IntersectionEdgesProperty->SetAmbient(1.0);
+  this->IntersectionEdgesProperty->SetOpacity(0.35);
+  this->IntersectionEdgesProperty->SetColor(neutral[0], neutral[1], neutral[2]);
 }
 
 //------------------------------------------------------------------------------
@@ -1298,13 +1339,13 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SetUnselectedWidgetColor(double
 }
 
 //------------------------------------------------------------------------------
-void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgeColor(vtkLookupTable* lut)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgesColor(vtkLookupTable* lut)
 {
   this->EdgesMapper->SetLookupTable(lut);
 }
 
 //------------------------------------------------------------------------------
-void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgeColor(double r, double g, double b)
+void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgesColor(double r, double g, double b)
 {
   vtkNew<vtkLookupTable> lookupTable;
 
@@ -1313,13 +1354,39 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgeColor(double r, double g
   lookupTable->SetTableValue(0, r, g, b);
   lookupTable->Build();
 
-  this->SetEdgeColor(lookupTable);
+  this->SetEdgesColor(lookupTable);
 }
 
 //------------------------------------------------------------------------------
-void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgeColor(double c[3])
+void vtkDisplaySizedImplicitPlaneRepresentation::SetEdgesColor(double c[3])
 {
-  this->SetEdgeColor(c[0], c[1], c[2]);
+  this->SetEdgesColor(c[0], c[1], c[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetIntersectionEdgesColor(vtkLookupTable* lut)
+{
+  this->IntersectionEdgesMapper->SetLookupTable(lut);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetIntersectionEdgesColor(
+  double r, double g, double b)
+{
+  vtkNew<vtkLookupTable> lookupTable;
+
+  lookupTable->SetTableRange(0.0, 1.0);
+  lookupTable->SetNumberOfTableValues(1);
+  lookupTable->SetTableValue(0, r, g, b);
+  lookupTable->Build();
+
+  this->SetIntersectionEdgesColor(lookupTable);
+}
+
+//------------------------------------------------------------------------------
+void vtkDisplaySizedImplicitPlaneRepresentation::SetIntersectionEdgesColor(double c[3])
+{
+  this->SetIntersectionEdgesColor(c[0], c[1], c[2]);
 }
 
 //------------------------------------------------------------------------------
@@ -1509,6 +1576,17 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SetDrawOutline(vtkTypeBool val)
   this->BuildRepresentation();
 }
 
+void vtkDisplaySizedImplicitPlaneRepresentation::SetDrawIntersectionEdges(vtkTypeBool val)
+{
+  if (val == this->DrawIntersectionEdges)
+  {
+    return;
+  }
+  this->Modified();
+  this->DrawIntersectionEdges = val;
+  this->BuildRepresentation();
+}
+
 //------------------------------------------------------------------------------
 void vtkDisplaySizedImplicitPlaneRepresentation::SetNormalToXAxis(vtkTypeBool var)
 {
@@ -1692,6 +1770,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::BuildRepresentation()
   this->OutlineActor->SetPropertyKeys(info);
   this->PlaneActor->SetPropertyKeys(info);
   this->EdgesActor->SetPropertyKeys(info);
+  this->IntersectionEdgesActor->SetPropertyKeys(info);
   this->ConeActor->SetPropertyKeys(info);
   this->LineActor->SetPropertyKeys(info);
   this->ConeActor2->SetPropertyKeys(info);
