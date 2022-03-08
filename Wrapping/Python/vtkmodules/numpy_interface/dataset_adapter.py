@@ -912,7 +912,7 @@ class DataObject(VTKObjectWrapper):
     FieldData = property(GetFieldData, None, None, "This property returns the field data of a data object.")
 
 class Table(DataObject):
-    """A wrapper for vtkFielData that makes it easier to access RowData array as
+    """A wrapper for vtkTable that makes it easier to access RowData array as
     VTKArrays
     """
     def GetRowData(self):
@@ -920,6 +920,16 @@ class Table(DataObject):
         return self.GetAttributes(ArrayAssociation.ROW)
 
     RowData = property(GetRowData, None, None, "This property returns the row data of the table.")
+
+class HyperTreeGrid(DataObject):
+    """A wrapper for vtkHyperTreeGrid that makes it easier to access CellData
+    arrays as VTKArrays.
+    """
+    def GetCellData(self):
+        "Returns the cell data as DataSetAttributes instance."
+        return self.GetAttributes(ArrayAssociation.CELL)
+
+    CellData = property(GetCellData, None, None, "This property returns the cell data of the hypertree grid.")
 
 class CompositeDataSet(DataObject):
     """A wrapper for vtkCompositeData and subclasses that makes it easier
@@ -1154,5 +1164,7 @@ def WrapDataObject(ds):
         return Molecule(ds)
     elif ds.IsA("vtkGraph"):
         return Table(ds)
+    elif ds.IsA("vtkHyperTreeGrid"):
+        return HyperTreeGrid(ds)
     elif ds.IsA("vtkDataObject"):
         return DataObject(ds)
