@@ -220,7 +220,7 @@ def initializeSerializers():
     # LookupTables/TransferFunctions
     registerInstanceSerializer("vtkLookupTable", lookupTableSerializer2)
     registerInstanceSerializer(
-        "vtkPVDiscretizableColorTransferFunction", colorTransferFunctionSerializer
+        "vtkPVDiscretizableColorTransferFunction", discretizableColorTransferFunctionSerializer
     )
     registerInstanceSerializer(
         "vtkColorTransferFunction", colorTransferFunctionSerializer
@@ -1046,6 +1046,12 @@ def colorTransferFunctionSerializer(parent, instance, objId, context, depth):
             "nodes": nodes,
         },
     }
+
+def discretizableColorTransferFunctionSerializer(parent, instance, objId, context, depth):
+    ctf = colorTransferFunctionSerializer(parent, instance, objId, context, depth)
+    ctf["properties"]["discretize"] = instance.GetDiscretize()
+    ctf["properties"]["numberOfValues"] = instance.GetNumberOfValues()
+    return ctf
 
 # -----------------------------------------------------------------------------
 
