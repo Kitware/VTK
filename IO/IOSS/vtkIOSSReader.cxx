@@ -1412,7 +1412,7 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
     auto dbase = std::unique_ptr<Ioss::DatabaseIO>(Ioss::IOFactory::create(
       this->IOSSReader->DatabaseTypeOverride ? std::string(this->IOSSReader->DatabaseTypeOverride)
                                              : dtype,
-      dbasename, Ioss::READ_RESTART, MPI_COMM_WORLD, properties));
+      dbasename, Ioss::READ_RESTART, Ioss::ParallelUtils::comm_world(), properties));
     if (dbase == nullptr || !dbase->ok(/*write_message=*/true))
     {
       throw std::runtime_error(
