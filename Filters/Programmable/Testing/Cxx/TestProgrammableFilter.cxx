@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include <vtkDirectedGraph.h>
+#include <vtkHyperTreeGrid.h>
 #include <vtkMolecule.h>
 #include <vtkNew.h>
 #include <vtkPolyData.h>
@@ -50,6 +51,7 @@ EXECUTE_METHOD(RectilinearGrid);
 EXECUTE_METHOD(Graph);
 EXECUTE_METHOD(Molecule);
 EXECUTE_METHOD(Table);
+EXECUTE_METHOD(HyperTreeGrid);
 
 #define TEST_PROGRAMMABLE_FILTER_B(_intype, _type)                                                 \
   {                                                                                                \
@@ -78,5 +80,6 @@ int TestProgrammableFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   TEST_PROGRAMMABLE_FILTER_B(DirectedGraph, Graph);
   TEST_PROGRAMMABLE_FILTER_A(Molecule);
   TEST_PROGRAMMABLE_FILTER_A(Table);
+  TEST_PROGRAMMABLE_FILTER_A(HyperTreeGrid);
   return EXIT_SUCCESS;
 }

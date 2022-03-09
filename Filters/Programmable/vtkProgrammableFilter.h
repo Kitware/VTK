@@ -87,6 +87,7 @@ public:
   vtkGraph* GetGraphInput();
   vtkMolecule* GetMoleculeInput();
   vtkTable* GetTableInput();
+  vtkHyperTreeGrid* GetHyperTreeGridInput();
   ///@}
 
   ///@{
