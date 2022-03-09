@@ -9,6 +9,7 @@
 #include "vtkMath.h"
 #include "vtkMathConfigure.h"
 
+#include <array>
 #include <limits>
 
 #ifndef ABS
