@@ -29,13 +29,23 @@ namespace Ioss {
   {
   public:
     ParallelUtils() = default;
-    explicit ParallelUtils(MPI_Comm the_communicator);
+    explicit ParallelUtils(Ioss_MPI_Comm the_communicator);
     ~ParallelUtils() = default;
 
     // Assignment operator
     // Copy constructor
 
     enum MinMax { DO_MAX, DO_MIN, DO_SUM };
+
+#if defined(SEACAS_HAVE_MPI)
+    static Ioss_MPI_Comm comm_world() { return (Ioss_MPI_Comm)MPI_COMM_WORLD; }
+    static Ioss_MPI_Comm comm_self() { return (Ioss_MPI_Comm)MPI_COMM_SELF; }
+    static Ioss_MPI_Comm comm_null() { return (Ioss_MPI_Comm)MPI_COMM_NULL; }
+#else
+    static constexpr Ioss_MPI_Comm comm_world() { return 0; }
+    static constexpr Ioss_MPI_Comm comm_self() { return 0; }
+    static constexpr Ioss_MPI_Comm comm_null() { return 0; }
+#endif
 
     /*!
      * See if any external properties specified via the
@@ -72,9 +82,9 @@ namespace Ioss {
 
     std::string decode_filename(const std::string &filename, bool is_parallel) const;
 
-    MPI_Comm communicator() const { return communicator_; }
-    int      parallel_size() const;
-    int      parallel_rank() const;
+    Ioss_MPI_Comm communicator() const { return communicator_; }
+    int           parallel_size() const;
+    int           parallel_rank() const;
 
     void barrier() const;
 
@@ -121,10 +131,15 @@ namespace Ioss {
     int gather(int vals_count, int size_per_val, std::vector<T> &my_values,
                std::vector<T> &result) const;
 
+    template <typename T> void broadcast(T &value, int root = 0) const;
+    template <typename T> void broadcast(std::vector<T> &value, int root = 0) const;
+
     void progress(const std::string &output) const;
 
   private:
-    MPI_Comm communicator_{MPI_COMM_WORLD};
+    Ioss_MPI_Comm communicator_{comm_world()};
+    mutable int   parallelSize_{-1};
+    mutable int   parallelRank_{-1};
   };
 
 #ifdef SEACAS_HAVE_MPI
@@ -142,7 +157,7 @@ namespace Ioss {
   int MY_Alltoallv64(const std::vector<T> &sendbuf, const std::vector<int64_t> &sendcounts,
                      const std::vector<int64_t> &senddisp, std::vector<T> &recvbuf,
                      const std::vector<int64_t> &recvcounts, const std::vector<int64_t> &recvdisp,
-                     MPI_Comm comm)
+                     Ioss_MPI_Comm comm)
   {
     int processor_count = 0;
     int my_processor    = 0;
@@ -201,7 +216,7 @@ namespace Ioss {
   int MY_Alltoallv(const std::vector<T> &sendbuf, const std::vector<int64_t> &sendcnts,
                    const std::vector<int64_t> &senddisp, std::vector<T> &recvbuf,
                    const std::vector<int64_t> &recvcnts, const std::vector<int64_t> &recvdisp,
-                   MPI_Comm comm)
+                   Ioss_MPI_Comm comm)
   {
 // Wrapper to handle case where send/recv counts and displacements are 64-bit integers.
 // Two cases:
@@ -212,15 +227,15 @@ namespace Ioss {
 #if IOSS_DEBUG_OUTPUT
     {
       Ioss::ParallelUtils utils(comm);
-      int processor_count = utils.parallel_size();
+      int                 processor_count = utils.parallel_size();
 
-      int max_comm = sendcnts[processor_count - 1] + senddisp[processor_count - 1];
+      int              max_comm = sendcnts[processor_count - 1] + senddisp[processor_count - 1];
       std::vector<int> comm_size;
 
       utils.gather(max_comm, comm_size);
       int my_rank = utils.parallel_rank();
       if (my_rank == 0) {
-	fmt::print("Send Communication Size: {}\n", fmt::join(comm_size, ", "));
+        fmt::print("Send Communication Size: {}\n", fmt::join(comm_size, ", "));
       }
     }
 #endif
@@ -255,20 +270,20 @@ namespace Ioss {
   int MY_Alltoallv(const std::vector<T> &sendbuf, const std::vector<int> &sendcnts,
                    const std::vector<int> &senddisp, std::vector<T> &recvbuf,
                    const std::vector<int> &recvcnts, const std::vector<int> &recvdisp,
-                   MPI_Comm comm)
+                   Ioss_MPI_Comm comm)
   {
 #if IOSS_DEBUG_OUTPUT
     {
       Ioss::ParallelUtils utils(comm);
-      int processor_count = utils.parallel_size();
+      int                 processor_count = utils.parallel_size();
 
-      int max_comm = sendcnts[processor_count - 1] + senddisp[processor_count - 1];
+      int              max_comm = sendcnts[processor_count - 1] + senddisp[processor_count - 1];
       std::vector<int> comm_size;
 
       utils.gather(max_comm, comm_size);
       int my_rank = utils.parallel_rank();
       if (my_rank == 0) {
-	fmt::print("Send Communication Size: {}\n", fmt::join(comm_size, ", "));
+        fmt::print("Send Communication Size: {}\n", fmt::join(comm_size, ", "));
       }
     }
 #endif

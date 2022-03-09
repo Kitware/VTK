@@ -12,7 +12,7 @@
 #include <string>   // for string
 
 #include <catalyst.hpp>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 
 namespace Ioss {
@@ -34,7 +34,7 @@ namespace Iocatalyst {
   }
 
   Ioss::DatabaseIO *IOFactory::make_IO(const std::string &filename, Ioss::DatabaseUsage db_usage,
-                                       MPI_Comm                     communicator,
+                                       Ioss_MPI_Comm                communicator,
                                        const Ioss::PropertyManager &properties) const
   {
     return new DatabaseIO(nullptr, filename, db_usage, communicator, properties);

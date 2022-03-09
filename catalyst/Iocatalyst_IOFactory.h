@@ -26,7 +26,7 @@ namespace Iocatalyst {
   private:
     IOFactory();
     Ioss::DatabaseIO *make_IO(const std::string &filename, Ioss::DatabaseUsage db_usage,
-                              MPI_Comm                     communicator,
+                              Ioss_MPI_Comm                communicator,
                               const Ioss::PropertyManager &properties) const override;
     std::string       show_config() const override;
   };

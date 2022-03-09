@@ -16,7 +16,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <map>
 #include <sstream>
@@ -175,7 +175,8 @@ namespace Ioss {
     return inst;
   }
 
-  const VariableType *VariableType::factory(const std::vector<Suffix> &suffices)
+  const VariableType *VariableType::factory(const std::vector<Suffix> &suffices,
+                                            bool                       ignore_realn_fields)
   {
     size_t              size = suffices.size();
     const VariableType *ivt  = nullptr;
@@ -185,16 +186,17 @@ namespace Ioss {
 
     bool match = false;
     for (const auto &vtype : registry()) {
-      ivt = vtype.second;
-      if (ivt->suffix_count() == static_cast<int>(size)) {
-        if (ivt->match(suffices)) {
+      auto *tst_ivt = vtype.second;
+      if (tst_ivt->suffix_count() == static_cast<int>(size)) {
+        if (tst_ivt->match(suffices)) {
+          ivt   = tst_ivt;
           match = true;
           break;
         }
       }
     }
 
-    if (!match) {
+    if (!match && !ignore_realn_fields) {
       match = true;
       // Check if the suffices form a sequence (1,2,3,...,N)
       // This indicates a "component" variable type that is
@@ -215,9 +217,6 @@ namespace Ioss {
         // Note that this type has not yet been constructed since
         // it would have been found above.
         ivt = new ConstructedVariableType(size, true);
-      }
-      else {
-        ivt = nullptr;
       }
     }
     return ivt;
@@ -315,9 +314,9 @@ namespace Ioss {
     if (ncomp >= 100000) {
       std::ostringstream errmsg;
       fmt::print(errmsg,
-                 "ERROR: Variable '{}' has {:L} components which is larger than the current maximum"
+                 "ERROR: Variable '{}' has {} components which is larger than the current maximum"
                  " of 100,000. Please contact developer.\n",
-                 name, ncomp);
+                 name, fmt::group_digits(ncomp));
       IOSS_ERROR(errmsg);
     }
 

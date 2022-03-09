@@ -6,7 +6,7 @@
 
 #include <Ioss_CoordinateFrame.h>
 #include <Ioss_Utils.h>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 
 namespace Ioss {

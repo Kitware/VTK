@@ -21,7 +21,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <functional>
 #include <iostream>
@@ -319,7 +319,7 @@ namespace {
 
 namespace Ioex {
   ParallelDatabaseIO::ParallelDatabaseIO(Ioss::Region *region, const std::string &filename,
-                                         Ioss::DatabaseUsage db_usage, MPI_Comm communicator,
+                                         Ioss::DatabaseUsage db_usage, Ioss_MPI_Comm communicator,
                                          const Ioss::PropertyManager &props)
       : Ioex::BaseDatabaseIO(region, filename, db_usage, communicator, props)
   {
@@ -538,7 +538,7 @@ namespace Ioex {
         Ioss::FileInfo file(get_filename());
         int_is_ok = file.exists() && file.is_writable() ? 1 : 0;
       }
-      MPI_Bcast(&int_is_ok, 1, MPI_INT, 0, util().communicator());
+      util().broadcast(int_is_ok);
 
       if (int_is_ok == 1) {
         // Note that at this point, we cannot totally guarantee that
@@ -885,21 +885,12 @@ namespace Ioex {
     // One use case is that job is restarting at a time prior to what has been
     // written to the results file, so want to start appending after
     // restart time instead of at end time on database.
-    int max_step = timestep_count;
-    if (properties.exists("APPEND_OUTPUT_AFTER_STEP")) {
-      max_step = properties.get("APPEND_OUTPUT_AFTER_STEP").get_int();
-    }
-    if (max_step > timestep_count) {
-      max_step = timestep_count;
-    }
+    int max_step = properties.get_optional("APPEND_OUTPUT_AFTER_STEP", timestep_count);
+    max_step     = std::min(max_step, timestep_count);
 
-    double max_time = std::numeric_limits<double>::max();
-    if (properties.exists("APPEND_OUTPUT_AFTER_TIME")) {
-      max_time = properties.get("APPEND_OUTPUT_AFTER_TIME").get_real();
-    }
-    if (last_time > max_time) {
-      last_time = max_time;
-    }
+    double max_time =
+        properties.get_optional("APPEND_OUTPUT_AFTER_TIME", std::numeric_limits<double>::max());
+    last_time = std::min(last_time, max_time);
 
     Ioss::Region *this_region = get_region();
     for (int i = 0; i < max_step; i++) {
@@ -913,11 +904,10 @@ namespace Ioex {
           // a warning if there is a corrupt step on processor
           // 0... Need better warnings which won't overload in the
           // worst case...
-          fmt::print(
-              Ioss::WARNING(),
-              "Skipping step {:L} at time {} in database file\n\t{}.\nThe data for that step "
-              "is possibly corrupt.\n",
-              i + 1, tsteps[i], get_filename());
+          fmt::print(Ioss::WARNING(),
+                     "Skipping step {} at time {} in database file\n\t{}.\nThe data for that step "
+                     "is possibly corrupt.\n",
+                     fmt::group_digits(i + 1), tsteps[i], get_filename());
         }
       }
     }
@@ -1221,6 +1211,11 @@ namespace Ioex {
               Ioex::add_map_fields(get_file_pointer(), dynamic_cast<Ioss::ElementBlock *>(io_block),
                                    decomp->el_blocks[iblk].ioss_count(), maximumNameLength);
         }
+
+        if (!assemblyOmissions.empty() || !assemblyInclusions.empty()) {
+          update_block_omissions_from_assemblies();
+        }
+
         assert(blockOmissions.empty() || blockInclusions.empty()); // Only one can be non-empty
 
         // Handle all block omissions or inclusions...
@@ -1300,6 +1295,43 @@ namespace Ioex {
     nodeConnectivityStatusCalculated = true;
   }
 
+  namespace {
+    void get_element_sides_lists(const std::unique_ptr<DecompositionDataBase> &decomp, int exoid,
+                                 int64_t id, int int_byte_size, int64_t number_sides,
+                                 Ioss::Int64Vector &element, Ioss::Int64Vector &sides)
+    {
+      // Check whether we already populated the element/sides vectors.
+      if (element.empty() && sides.empty() && number_sides > 0) {
+        fmt::print("IOSS DEBUG: Reading data for {} element/sides\n", number_sides);
+        element.resize(number_sides);
+        sides.resize(number_sides);
+
+        // Easier below here if the element and sides are a known 64-bit size...
+        // Kluge here to do that...
+        if (int_byte_size == 4) {
+          Ioss::Field side_field("sides", Ioss::Field::INTEGER, IOSS_SCALAR(), Ioss::Field::MESH,
+                                 number_sides);
+          Ioss::Field elem_field("ids_raw", Ioss::Field::INTEGER, IOSS_SCALAR(), Ioss::Field::MESH,
+                                 number_sides);
+
+          Ioss::IntVector e32(number_sides);
+          decomp->get_set_mesh_var(exoid, EX_SIDE_SET, id, elem_field, e32.data());
+          std::copy(e32.begin(), e32.end(), element.begin());
+          decomp->get_set_mesh_var(exoid, EX_SIDE_SET, id, side_field, e32.data());
+          std::copy(e32.begin(), e32.end(), sides.begin());
+        }
+        else {
+          Ioss::Field side_field("sides", Ioss::Field::INT64, IOSS_SCALAR(), Ioss::Field::MESH,
+                                 number_sides);
+          Ioss::Field elem_field("ids_raw", Ioss::Field::INT64, IOSS_SCALAR(), Ioss::Field::MESH,
+                                 number_sides);
+          decomp->get_set_mesh_var(exoid, EX_SIDE_SET, id, elem_field, element.data());
+          decomp->get_set_mesh_var(exoid, EX_SIDE_SET, id, side_field, sides.data());
+        }
+      }
+    }
+  } // namespace
+
   void ParallelDatabaseIO::get_sidesets()
   {
     // This function creates all sidesets (surfaces) for a
@@ -1325,8 +1357,8 @@ namespace Ioex {
       // side "blocks" (perhaps written by IO system for a restart).  In that case,
       // they were split by a previous run and we need to reconstruct the side "set"
       // that may contain one or more of them.
-      Ioex::SideSetMap fs_map;
-      Ioex::SideSetSet fs_set;
+      Ioex::SideSetMap ss_map;
+      Ioex::SideSetSet ss_set;
 
       {
         int error;
@@ -1340,19 +1372,19 @@ namespace Ioex {
           }
           if (ss_name[0] != '\0') {
             Ioss::Utils::fixup_name(ss_name.data());
-            Ioex::decode_surface_name(fs_map, fs_set, ss_name.data());
+            Ioex::decode_surface_name(ss_map, ss_set, ss_name.data());
           }
         }
       }
 
-      // Create sidesets for each entry in the fs_set... These are the
+      // Create sidesets for each entry in the ss_set... These are the
       // sidesets which were probably written by a previous run of the
       // IO system and are already split into homogeneous pieces...
       {
-        for (auto &fs_name : fs_set) {
-          auto *side_set = new Ioss::SideSet(this, fs_name);
+        for (auto &ss_name : ss_set) {
+          auto *side_set = new Ioss::SideSet(this, ss_name);
           get_region()->add(side_set);
-          int64_t id = Ioex::extract_id(fs_name);
+          int64_t id = Ioex::extract_id(ss_name);
           if (id > 0) {
             side_set->property_add(Ioss::Property("id", id));
             side_set->property_add(Ioss::Property("guid", util().generate_guid(id)));
@@ -1385,13 +1417,13 @@ namespace Ioex {
             split_type = Ioss::SPLIT_BY_DONT_SPLIT;
           }
 
-          bool in_fs_map = false;
-          auto FSM       = fs_map.find(side_set_name);
-          if (FSM != fs_map.end()) {
-            in_fs_map            = true;
-            std::string efs_name = (*FSM).second;
-            side_set             = get_region()->get_sideset(efs_name);
-            Ioss::Utils::check_non_null(side_set, "sideset", efs_name, __func__);
+          bool in_ss_map = false;
+          auto SSM       = ss_map.find(side_set_name);
+          if (SSM != ss_map.end()) {
+            in_ss_map            = true;
+            std::string ess_name = (*SSM).second;
+            side_set             = get_region()->get_sideset(ess_name);
+            Ioss::Utils::check_non_null(side_set, "sideset", ess_name, __func__);
           }
           else {
             if (get_use_generic_canonical_name()) {
@@ -1423,34 +1455,12 @@ namespace Ioex {
           int64_t number_sides = decomp->side_sets[iss].ioss_count();
           // FIXME: Support-  number_distribution_factors = decomp->side_sets[iss].df_count();
 
-          Ioss::Int64Vector element(number_sides);
-          Ioss::Int64Vector sides(number_sides);
-
-          // Easier below here if the element and sides are a known 64-bit size...
-          // Kluge here to do that...
-          if (int_byte_size_api() == 4) {
-            Ioss::Field side_field("sides", Ioss::Field::INTEGER, IOSS_SCALAR(), Ioss::Field::MESH,
-                                   number_sides);
-            Ioss::Field elem_field("ids_raw", Ioss::Field::INTEGER, IOSS_SCALAR(),
-                                   Ioss::Field::MESH, number_sides);
-
-            Ioss::IntVector e32(number_sides);
-            decomp->get_set_mesh_var(get_file_pointer(), EX_SIDE_SET, id, elem_field, e32.data());
-            std::copy(e32.begin(), e32.end(), element.begin());
-            decomp->get_set_mesh_var(get_file_pointer(), EX_SIDE_SET, id, side_field, e32.data());
-            std::copy(e32.begin(), e32.end(), sides.begin());
-          }
-          else {
-            Ioss::Field side_field("sides", Ioss::Field::INT64, IOSS_SCALAR(), Ioss::Field::MESH,
-                                   number_sides);
-            Ioss::Field elem_field("ids_raw", Ioss::Field::INT64, IOSS_SCALAR(), Ioss::Field::MESH,
-                                   number_sides);
-            decomp->get_set_mesh_var(get_file_pointer(), EX_SIDE_SET, id, elem_field,
-                                     element.data());
-            decomp->get_set_mesh_var(get_file_pointer(), EX_SIDE_SET, id, side_field, sides.data());
-          }
+          Ioss::Int64Vector element;
+          Ioss::Int64Vector sides;
 
           if (!blockOmissions.empty() || !blockInclusions.empty()) {
+            get_element_sides_lists(decomp, get_file_pointer(), id, int_byte_size_api(),
+                                    number_sides, element, sides);
             Ioex::filter_element_list(get_region(), element, sides, true);
             number_sides = element.size();
             assert(element.size() == sides.size());
@@ -1465,7 +1475,7 @@ namespace Ioex {
             const Ioss::ElementTopology *mixed_topo = Ioss::ElementTopology::factory("unknown");
             topo_map[std::make_pair(std::string("unknown"), mixed_topo)] = number_sides;
           }
-          else if (in_fs_map) {
+          else if (in_ss_map) {
             std::vector<std::string> tokens = Ioss::tokenize(side_set_name, "_");
             assert(tokens.size() >= 4);
             // The sideset should have only a single topology which is
@@ -1505,6 +1515,8 @@ namespace Ioex {
               side_map[std::make_pair(side_topo.first->name(), side_topo.second)] = 0;
             }
 
+            get_element_sides_lists(decomp, get_file_pointer(), id, int_byte_size_api(),
+                                    number_sides, element, sides);
             Ioex::separate_surface_element_sides(element, sides, get_region(), topo_map, side_map,
                                                  split_type, side_set_name);
           }
@@ -1545,6 +1557,8 @@ namespace Ioex {
                 }
               }
             }
+            get_element_sides_lists(decomp, get_file_pointer(), id, int_byte_size_api(),
+                                    number_sides, element, sides);
             Ioex::separate_surface_element_sides(element, sides, get_region(), topo_map, side_map,
                                                  split_type, side_set_name);
           }
@@ -2394,7 +2408,7 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::ElementSet *ns, const
   return get_Xset_field_internal(EX_ELEM_SET, ns, field, data, data_size);
 }
 
-int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideSet *fs, const Ioss::Field &field,
+int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideSet *ss, const Ioss::Field &field,
                                                void *data, size_t data_size) const
 {
   size_t num_to_get = field.verify(data_size);
@@ -2405,7 +2419,7 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideSet *fs, const Io
     memset(data, 0x00, data_size);
   }
   else {
-    num_to_get = Ioss::Utils::field_warning(fs, field, "input");
+    num_to_get = Ioss::Utils::field_warning(ss, field, "input");
   }
   return num_to_get;
 }
@@ -2448,14 +2462,14 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::CommSet *cs, const Io
   return num_to_get;
 }
 
-int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const Ioss::Field &field,
+int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *sb, const Ioss::Field &field,
                                                void *data, size_t data_size) const
 {
   int64_t num_to_get = field.verify(data_size);
   int     ierr       = 0;
 
-  int64_t id           = Ioex::get_id(fb, EX_SIDE_SET, &ids_);
-  int64_t entity_count = fb->entity_count();
+  int64_t id           = Ioex::get_id(sb, EX_SIDE_SET, &ids_);
+  int64_t entity_count = sb->entity_count();
   if (num_to_get != entity_count) {
     std::ostringstream errmsg;
     fmt::print(errmsg, "ERROR: Partial field input not yet implemented for side blocks");
@@ -2480,7 +2494,7 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const 
 
     // Get size of data stored on the file...
     // FIX 64: FIX THIS -- STORING INT IN DOUBLE WON'T WORK
-    if (field.get_name() == "side_ids" && fb->name() == "universal_sideset") {
+    if (field.get_name() == "side_ids" && sb->name() == "universal_sideset") {
       // The side ids are being stored as the distribution factor
       // field on the universal sideset.  There should be no other
       // side sets that request this field...  (Eventually,
@@ -2523,9 +2537,9 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const 
       // the global id but only the local id is stored so we need to
       // map from local_to_global prior to generating the side id...
 
-      Ioss::Field       el_side = fb->get_field("element_side");
+      Ioss::Field       el_side = sb->get_field("element_side");
       std::vector<char> element_side(2 * number_sides * int_byte_size_api());
-      get_field_internal(fb, el_side, element_side.data(), element_side.size());
+      get_field_internal(sb, el_side, element_side.data(), element_side.size());
 
       // At this point, have the 'element_side' data containing
       // the global element ids and the sides...  Iterate
@@ -2577,9 +2591,9 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const 
       // numbers.
 
       // See if edges or faces...
-      int64_t side_offset = Ioss::Utils::get_side_offset(fb);
+      int64_t side_offset = Ioss::Utils::get_side_offset(sb);
 
-      if (fb->owner()->block_count() == 1 && number_sides == entity_count) {
+      if (sb->owner()->block_count() == 1 && number_sides == entity_count) {
 
         if (int_byte_size_api() == 4) {
           int *element_side = static_cast<int *>(data);
@@ -2623,7 +2637,7 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const 
         }
 
         Ioss::IntVector is_valid_side;
-        Ioss::Utils::calculate_sideblock_membership(is_valid_side, fb, int_byte_size_api(),
+        Ioss::Utils::calculate_sideblock_membership(is_valid_side, sb, int_byte_size_api(),
                                                     element.data(), sides.data(), number_sides,
                                                     get_region());
 
@@ -2674,7 +2688,7 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const 
       // the element number and local side  of that element. A sideset
       // can span multiple element blocks, and contain multiple side
       // types; the side block contains side of similar topology.
-      ierr = get_side_connectivity(fb, id, entity_count, data, true);
+      ierr = get_side_connectivity(sb, id, entity_count, data, true);
       if (ierr < 0) {
         Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
       }
@@ -2684,20 +2698,20 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const 
       // the element number and local side  of that element. A sideset
       // can span multiple element blocks, and contain multiple side
       // types; the side block contains side of similar topology.
-      ierr = get_side_connectivity(fb, id, entity_count, data, false);
+      ierr = get_side_connectivity(sb, id, entity_count, data, false);
       if (ierr < 0) {
         Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
       }
     }
     else if (field.get_name() == "distribution_factors") {
-      ierr = get_side_distributions(fb, id, entity_count, static_cast<double *>(data),
+      ierr = get_side_distributions(sb, id, entity_count, static_cast<double *>(data),
                                     data_size / sizeof(double));
       if (ierr < 0) {
         Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
       }
     }
     else {
-      num_to_get = Ioss::Utils::field_warning(fb, field, "input");
+      num_to_get = Ioss::Utils::field_warning(sb, field, "input");
     }
   }
   else if (role == Ioss::Field::TRANSIENT) {
@@ -2706,8 +2720,8 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const 
     // exist on the database as scalars with the appropriate
     // extensions.
 
-    if (fb->owner()->block_count() == 1 && number_sides == entity_count) {
-      num_to_get = read_transient_field(EX_SIDE_SET, m_variables[EX_SIDE_SET], field, fb, data);
+    if (sb->owner()->block_count() == 1 && number_sides == entity_count) {
+      num_to_get = read_transient_field(EX_SIDE_SET, m_variables[EX_SIDE_SET], field, sb, data);
     }
     else {
       // Need to read all values for the specified field and then
@@ -2737,7 +2751,7 @@ int64_t ParallelDatabaseIO::get_field_internal(const Ioss::SideBlock *fb, const 
         decomp->get_set_mesh_var(get_file_pointer(), EX_SIDE_SET, id, side_field,
                                  reinterpret_cast<int64_t *>(sides.data()));
       }
-      Ioss::Utils::calculate_sideblock_membership(is_valid_side, fb, int_byte_size_api(),
+      Ioss::Utils::calculate_sideblock_membership(is_valid_side, sb, int_byte_size_api(),
                                                   element.data(), sides.data(), number_sides,
                                                   get_region());
 
@@ -2907,8 +2921,6 @@ int64_t ParallelDatabaseIO::read_transient_field(ex_entity_type               ty
                                                  const Ioss::Field           &field,
                                                  const Ioss::GroupingEntity *ge, void *data) const
 {
-  const Ioss::VariableType *var_type = field.raw_storage();
-
   // Read into a double variable since that is all ExodusII can store...
   size_t              num_entity = ge->entity_count();
   std::vector<double> temp(num_entity);
@@ -2920,7 +2932,6 @@ int64_t ParallelDatabaseIO::read_transient_field(ex_entity_type               ty
   // of this name in 'nodeVariables' map
   size_t comp_count = field.get_component_count(Ioss::Field::InOut::INPUT);
 
-  char field_suffix_separator = get_field_separator();
   for (size_t i = 0; i < comp_count; i++) {
     std::string var_name = get_component_name(field, Ioss::Field::InOut::INPUT, i + 1);
 
@@ -2984,10 +2995,9 @@ int64_t ParallelDatabaseIO::read_ss_transient_field(const Ioss::Field &field, in
                                                     void            *variables,
                                                     Ioss::IntVector &is_valid_side) const
 {
-  size_t                    num_valid_sides = 0;
-  const Ioss::VariableType *var_type        = field.raw_storage();
-  size_t                    my_side_count   = is_valid_side.size();
-  std::vector<double>       temp(my_side_count);
+  size_t              num_valid_sides = 0;
+  size_t              my_side_count   = is_valid_side.size();
+  std::vector<double> temp(my_side_count);
 
   size_t step = get_current_state();
 
@@ -2996,7 +3006,6 @@ int64_t ParallelDatabaseIO::read_ss_transient_field(const Ioss::Field &field, in
   // of this name in 'nodeVariables' map
   size_t comp_count = field.get_component_count(Ioss::Field::InOut::INPUT);
 
-  char field_suffix_separator = get_field_separator();
   for (size_t i = 0; i < comp_count; i++) {
     std::string var_name = get_component_name(field, Ioss::Field::InOut::INPUT, i + 1);
 
@@ -3060,7 +3069,7 @@ int64_t ParallelDatabaseIO::read_ss_transient_field(const Ioss::Field &field, in
   return num_valid_sides;
 }
 
-int64_t ParallelDatabaseIO::get_side_connectivity(const Ioss::SideBlock *fb, int64_t id,
+int64_t ParallelDatabaseIO::get_side_connectivity(const Ioss::SideBlock *sb, int64_t id,
                                                   int64_t /*unused*/, void          *fconnect,
                                                   bool map_ids) const
 {
@@ -3103,7 +3112,7 @@ int64_t ParallelDatabaseIO::get_side_connectivity(const Ioss::SideBlock *fb, int
   }
 
   Ioss::IntVector is_valid_side;
-  Ioss::Utils::calculate_sideblock_membership(is_valid_side, fb, int_byte_size_api(),
+  Ioss::Utils::calculate_sideblock_membership(is_valid_side, sb, int_byte_size_api(),
                                               (void *)element.data(), (void *)side.data(),
                                               number_sides, get_region());
 
@@ -3214,7 +3223,7 @@ int64_t ParallelDatabaseIO::get_side_connectivity(const Ioss::SideBlock *fb, int
 }
 
 // Get distribution factors for the specified side block
-int64_t ParallelDatabaseIO::get_side_distributions(const Ioss::SideBlock *fb, int64_t id,
+int64_t ParallelDatabaseIO::get_side_distributions(const Ioss::SideBlock *sb, int64_t id,
                                                    int64_t my_side_count, double *dist_fact,
                                                    size_t /* data_size */) const
 {
@@ -3225,7 +3234,7 @@ int64_t ParallelDatabaseIO::get_side_distributions(const Ioss::SideBlock *fb, in
   int64_t number_sides                = set.ioss_count();
   int64_t number_distribution_factors = set.df_count();
 
-  const Ioss::ElementTopology *ftopo   = fb->topology();
+  const Ioss::ElementTopology *ftopo   = sb->topology();
   int                          nfnodes = ftopo->number_nodes();
 
   if (set.distributionFactorConstant) {
@@ -3240,8 +3249,8 @@ int64_t ParallelDatabaseIO::get_side_distributions(const Ioss::SideBlock *fb, in
   // 'number_sides' then the sideset is stored in a single sideblock
   // and all distribution factors on the database are transferred
   // 1-to-1 into 'dist_fact' array.
-  int64_t entity_count = fb->entity_count();
-  if (fb->owner()->block_count() == 1 && number_sides == entity_count) {
+  int64_t entity_count = sb->entity_count();
+  if (sb->owner()->block_count() == 1 && number_sides == entity_count) {
     assert(number_sides == 0 || number_distribution_factors % number_sides == 0);
     assert(number_sides == 0 || number_distribution_factors / number_sides == nfnodes);
     if (number_sides * nfnodes != number_distribution_factors &&
@@ -3252,7 +3261,7 @@ int64_t ParallelDatabaseIO::get_side_distributions(const Ioss::SideBlock *fb, in
                  "\tThere are {} '{}' sides with {} nodes per side, but there are {}"
                  " distribution factors which is not correct.\n"
                  "\tThere should be either {} or {} distribution factors.\n",
-                 fb->name(), number_sides, ftopo->name(), nfnodes, number_distribution_factors,
+                 sb->name(), number_sides, ftopo->name(), nfnodes, number_distribution_factors,
                  number_sides, number_sides * nfnodes);
       IOSS_ERROR(errmsg);
     }
@@ -3326,7 +3335,7 @@ int64_t ParallelDatabaseIO::get_side_distributions(const Ioss::SideBlock *fb, in
   //----
 
   Ioss::IntVector is_valid_side;
-  Ioss::Utils::calculate_sideblock_membership(is_valid_side, fb, int_byte_size_api(),
+  Ioss::Utils::calculate_sideblock_membership(is_valid_side, sb, int_byte_size_api(),
                                               element.data(), sides.data(), number_sides,
                                               get_region());
 
@@ -4085,8 +4094,7 @@ void ParallelDatabaseIO::write_nodal_transient_field(ex_entity_type /* type */,
   // exodus fields.  These fields were already defined in
   // "write_results_metadata".
 
-  const Ioss::VariableType *var_type = field.transformed_storage();
-  std::vector<double>       temp(count);
+  std::vector<double> temp(count);
 
   int step = get_current_state();
   step     = get_database_step(step);
@@ -4106,7 +4114,6 @@ void ParallelDatabaseIO::write_nodal_transient_field(ex_entity_type /* type */,
       field_name += complex_suffix[complex_comp];
     }
 
-    char field_suffix_separator = get_field_separator();
     for (int i = 0; i < comp_count; i++) {
       std::string var_name = get_component_name(field, Ioss::Field::InOut::OUTPUT, i + 1);
 
@@ -4141,8 +4148,9 @@ void ParallelDatabaseIO::write_nodal_transient_field(ex_entity_type /* type */,
         fmt::print(errmsg,
                    "ERROR: Problem outputting nodal variable '{}' with index = {} to file '{}' on "
                    "processor {}\n"
-                   "\tShould have output {:L} values, but instead only output {:L} values.\n",
-                   var_name, var_index, get_filename(), myProcessor, nodeCount, num_out);
+                   "\tShould have output {} values, but instead only output {} values.\n",
+                   var_name, var_index, get_filename(), myProcessor, fmt::group_digits(nodeCount),
+                   fmt::group_digits(num_out));
         IOSS_ERROR(errmsg);
       }
 
@@ -4169,9 +4177,8 @@ void ParallelDatabaseIO::write_entity_transient_field(ex_entity_type type, const
                                                       const Ioss::GroupingEntity *ge, int64_t count,
                                                       void *variables) const
 {
-  static Ioss::Map non_element_map; // Used as an empty map for ge->type() != element block.
-  const Ioss::VariableType *var_type = field.transformed_storage();
-  std::vector<double>       temp(count);
+  static Ioss::Map    non_element_map; // Used as an empty map for ge->type() != element block.
+  std::vector<double> temp(count);
 
   int step = get_current_state();
   step     = get_database_step(step);
@@ -4217,7 +4224,6 @@ void ParallelDatabaseIO::write_entity_transient_field(ex_entity_type type, const
       field_name += complex_suffix[complex_comp];
     }
 
-    char field_suffix_separator = get_field_separator();
     for (int i = 0; i < comp_count; i++) {
       std::string var_name = get_component_name(field, Ioss::Field::InOut::OUTPUT, i + 1);
 
@@ -4275,8 +4281,8 @@ void ParallelDatabaseIO::write_entity_transient_field(ex_entity_type type, const
 
       if (ierr < 0) {
         std::ostringstream extra_info;
-        fmt::print(extra_info, "Outputting component {} of field '{}' at step {:L} on {} '{}'.", i,
-                   field_name, step, ge->type_string(), ge->name());
+        fmt::print(extra_info, "Outputting component {} of field '{}' at step {} on {} '{}'.", i,
+                   field_name, fmt::group_digits(step), ge->type_string(), ge->name());
         Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__, extra_info.str());
       }
     }
@@ -4409,7 +4415,7 @@ int64_t ParallelDatabaseIO::put_field_internal(const Ioss::ElementSet *ns, const
   return put_Xset_field_internal(EX_ELEM_SET, ns, field, data, data_size);
 }
 
-int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideSet *fs, const Ioss::Field &field,
+int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideSet *ss, const Ioss::Field &field,
                                                void * /* data */, size_t data_size) const
 {
   size_t num_to_get = field.verify(data_size);
@@ -4417,7 +4423,7 @@ int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideSet *fs, const Io
     // Do nothing, just handles an idiosyncrasy of the GroupingEntity
   }
   else {
-    num_to_get = Ioss::Utils::field_warning(fs, field, "output");
+    num_to_get = Ioss::Utils::field_warning(ss, field, "output");
   }
   return num_to_get;
 }
@@ -4430,19 +4436,19 @@ int64_t ParallelDatabaseIO::put_field_internal(const Ioss::CommSet * /*cs*/,
   return num_to_get;
 }
 
-int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const Ioss::Field &field,
+int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideBlock *sb, const Ioss::Field &field,
                                                void *data, size_t data_size) const
 {
   size_t  num_to_get = field.verify(data_size);
-  int64_t id         = Ioex::get_id(fb, EX_SIDE_SET, &ids_);
+  int64_t id         = Ioex::get_id(sb, EX_SIDE_SET, &ids_);
 
-  size_t entity_count = fb->entity_count();
-  size_t offset       = fb->get_property("set_offset").get_int();
+  size_t entity_count = sb->entity_count();
+  size_t offset       = sb->get_property("set_offset").get_int();
 
   Ioss::Field::RoleType role = field.get_role();
 
   if (role == Ioss::Field::MESH) {
-    if (field.get_name() == "side_ids" && fb->name() == "universal_sideset") {
+    if (field.get_name() == "side_ids" && sb->name() == "universal_sideset") {
       // The side ids are being stored as the distribution factor
       // field on the universal sideset.  There should be no other
       // side sets that request this field...  (Eventually,
@@ -4490,9 +4496,9 @@ int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const 
 
     else if (field.get_name() == "distribution_factors") {
       int    ierr;
-      size_t df_offset      = fb->get_property("set_df_offset").get_int();
-      size_t proc_df_offset = fb->get_property("processor_df_offset").get_int();
-      size_t df_count       = fb->get_property("distribution_factor_count").get_int();
+      size_t df_offset      = sb->get_property("set_df_offset").get_int();
+      size_t proc_df_offset = sb->get_property("processor_df_offset").get_int();
+      size_t df_count       = sb->get_property("distribution_factor_count").get_int();
       ierr                  = ex_put_partial_set_dist_fact(get_file_pointer(), EX_SIDE_SET, id,
                                                            proc_df_offset + df_offset + 1, df_count,
                                                            static_cast<double *>(data));
@@ -4517,11 +4523,11 @@ int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const 
       // Allocate space for local side number and element numbers
       // numbers.
       // See if edges or faces...
-      size_t side_offset = Ioss::Utils::get_side_offset(fb);
+      size_t side_offset = Ioss::Utils::get_side_offset(sb);
 
       size_t index = 0;
 
-      size_t proc_offset = fb->get_optional_property("_processor_offset", 0);
+      size_t proc_offset = sb->get_optional_property("_processor_offset", 0);
 
       if (field.get_type() == Ioss::Field::INTEGER) {
         Ioss::IntVector element(num_to_get);
@@ -4572,7 +4578,7 @@ int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const 
       // The element_id passed in is the local id.
 
       // See if edges or faces...
-      size_t side_offset = Ioss::Utils::get_side_offset(fb);
+      size_t side_offset = Ioss::Utils::get_side_offset(sb);
 
       size_t index = 0;
       if (field.get_type() == Ioss::Field::INTEGER) {
@@ -4615,7 +4621,7 @@ int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const 
       // Do nothing, just handles an idiosyncrasy of the GroupingEntity
     }
     else {
-      num_to_get = Ioss::Utils::field_warning(fb, field, "output");
+      num_to_get = Ioss::Utils::field_warning(sb, field, "output");
     }
   }
   else if (role == Ioss::Field::TRANSIENT) {
@@ -4627,13 +4633,13 @@ int64_t ParallelDatabaseIO::put_field_internal(const Ioss::SideBlock *fb, const 
     // Transfer each component of the variable into 'data' and then
     // output.  Need temporary storage area of size 'number of
     // entities in this block.
-    write_entity_transient_field(EX_SIDE_SET, field, fb, entity_count, data);
+    write_entity_transient_field(EX_SIDE_SET, field, sb, entity_count, data);
   }
   else if (role == Ioss::Field::ATTRIBUTE) {
-    num_to_get = write_attribute_field(EX_SIDE_SET, field, fb, data);
+    num_to_get = write_attribute_field(EX_SIDE_SET, field, sb, data);
   }
   else if (role == Ioss::Field::REDUCTION) {
-    store_reduction_field(EX_SIDE_SET, field, fb, data);
+    store_reduction_field(EX_SIDE_SET, field, sb, data);
   }
   return num_to_get;
 }

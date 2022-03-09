@@ -34,7 +34,7 @@ namespace Ioex {
   class DecompositionDataBase
   {
   public:
-    DecompositionDataBase(MPI_Comm comm) : comm_(comm) {}
+    DecompositionDataBase(Ioss_MPI_Comm comm) : comm_(comm) {}
 
     virtual ~DecompositionDataBase()            = default;
     virtual int    int_size() const             = 0;
@@ -53,7 +53,7 @@ namespace Ioex {
 
     virtual std::vector<double> &centroids() = 0;
 
-    MPI_Comm comm_;
+    Ioss_MPI_Comm comm_;
 
     int m_processor{0};
     int m_processorCount{0};
@@ -99,7 +99,7 @@ namespace Ioex {
   template <typename INT> class DecompositionData : public DecompositionDataBase
   {
   public:
-    DecompositionData(const Ioss::PropertyManager &props, MPI_Comm communicator);
+    DecompositionData(const Ioss::PropertyManager &props, Ioss_MPI_Comm communicator);
     ~DecompositionData() = default;
 
     int int_size() const { return sizeof(INT); }

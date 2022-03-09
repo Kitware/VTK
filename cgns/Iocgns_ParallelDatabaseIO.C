@@ -22,7 +22,7 @@
 #include <cgns/Iocgns_Utils.h>
 #include <cstddef>
 #include <ctime>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <fstream>
 #include <iostream>
@@ -143,7 +143,7 @@ namespace {
 namespace Iocgns {
 
   ParallelDatabaseIO::ParallelDatabaseIO(Ioss::Region *region, const std::string &filename,
-                                         Ioss::DatabaseUsage db_usage, MPI_Comm communicator,
+                                         Ioss::DatabaseUsage db_usage, Ioss_MPI_Comm communicator,
                                          const Ioss::PropertyManager &props)
       : Ioss::DatabaseIO(region, filename, db_usage, communicator, props)
   {
@@ -660,7 +660,7 @@ namespace Iocgns {
     }
 
     have_nodes = have_nodes == 0 ? MPI_UNDEFINED : 1;
-    MPI_Comm pcomm;
+    Ioss_MPI_Comm pcomm;
     MPI_Comm_split(util().communicator(), have_nodes, myProcessor, &pcomm);
 
     if (have_nodes == 1) {
@@ -896,7 +896,7 @@ namespace Iocgns {
           }
 
           int size = (int)common.size();
-          MPI_Bcast(&size, 1, MPI_INT, 0, util().communicator());
+          util().broadcast(size);
 
           if (size > 0) {
             // This 'cg_conn_write' should probably be a parallel
@@ -904,7 +904,7 @@ namespace Iocgns {
             // data on all processors.  Seems to work, but is klugy.
 
             common.resize(size);
-            MPI_Bcast(common.data(), 2 * size, MPI_INT, 0, util().communicator());
+            util().broadcast(common);
 
             CGNSIntVector point_list;
             CGNSIntVector point_list_donor;
