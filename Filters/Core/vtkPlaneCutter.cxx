@@ -1840,7 +1840,7 @@ int vtkPlaneCutter::ExecuteDataSet(
   }
 
   // Delegate the processing to the matching algorithm
-  if (input->GetDataObjectType() == VTK_IMAGE_DATA)
+  if (vtkImageData::SafeDownCast(input))
   {
     vtkDataSet* tmpInput = input;
     bool elevationFlag = false;
@@ -1898,19 +1898,19 @@ int vtkPlaneCutter::ExecuteDataSet(
   vtkPlaneCutter::InitializeOutput(output);
 
   // Threaded execute
-  if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
+  if (vtkStructuredGrid::SafeDownCast(input))
   {
     StructuredFunctor::Execute(input, output, plane, tree, planeOrigin, planeNormal,
       this->InterpolateAttributes, this->GeneratePolygons);
   }
 
-  else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
+  else if (vtkRectilinearGrid::SafeDownCast(input))
   {
     RectilinearFunctor::Execute(input, output, plane, tree, planeOrigin, planeNormal,
       this->InterpolateAttributes, this->GeneratePolygons);
   }
 
-  else if (input->GetDataObjectType() == VTK_POLY_DATA)
+  else if (vtkPolyData::SafeDownCast(input))
   {
     PolyDataFunctor::Execute(
       input, output, plane, tree, planeOrigin, planeNormal, this->InterpolateAttributes);
