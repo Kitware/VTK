@@ -25,6 +25,8 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkUnstructuredGrid.h"
 
+#include "vtksys/SystemTools.hxx"
+
 #include <float.h>
 #include <fstream>
 #include <iostream>
@@ -827,6 +829,12 @@ void PIOAdaptor::create_geometry(vtkMultiBlockDataSet* grid)
   this->Controller->Broadcast(&currentCycle, 1, 0);
   this->Controller->Broadcast(&currentTime, 1, 0);
   this->Controller->Broadcast(&currentIndex, 1, 0);
+
+  vtkNew<vtkStringArray> dumpFileNameArray;
+  dumpFileNameArray->SetName("dump_filename");
+  dumpFileNameArray->InsertNextValue(
+    vtksys::SystemTools::GetFilenameName(this->dumpFileName[currentIndex]));
+  grid->GetFieldData()->AddArray(dumpFileNameArray);
 
   // Add FieldData array for version number
   vtkNew<vtkStringArray> versionArray;
