@@ -208,7 +208,7 @@ vtkIdType vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType
 // Continues until all edges are Delaunay. Points p1 and p2 form the edge in
 // question; x is the coordinates of the inserted point; tri is the current
 // triangle id.
-void vtkDelaunay2D::CheckEdge(
+bool vtkDelaunay2D::CheckEdge(
   vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri, bool recursive)
 {
   int i;
@@ -218,6 +218,7 @@ void vtkDelaunay2D::CheckEdge(
   double x1[3], x2[3], x3[3];
   vtkIdList* neighbors;
   vtkIdType swapTri[3];
+  bool flipped = false;
 
   this->GetPoint(p1, x1);
   this->GetPoint(p2, x2);
@@ -245,7 +246,8 @@ void vtkDelaunay2D::CheckEdge(
 
     // see whether point is in circumcircle
     if (this->InCircle(x3, x, x1, x2))
-    { // swap diagonal
+    {
+      // swap diagonal
       this->Mesh->RemoveReferenceToCell(p1, tri);
       this->Mesh->RemoveReferenceToCell(p2, nei);
       this->Mesh->ResizeCellList(ptId, 1);
@@ -263,6 +265,8 @@ void vtkDelaunay2D::CheckEdge(
       swapTri[2] = p3;
       this->Mesh->ReplaceCell(nei, 3, swapTri);
 
+      flipped = true;
+
       if (recursive)
       {
         // two new edges become suspect
@@ -273,6 +277,7 @@ void vtkDelaunay2D::CheckEdge(
   }   // interior edge
 
   neighbors->Delete();
+  return flipped;
 }
 
 // 2D Delaunay triangulation. Steps are as follows:
@@ -1356,13 +1361,18 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   }
 
   j = static_cast<int>(newEdges.size()) / 4;
+
   // Now check the new suspicious edges
   for (i = 0; i < j; i++)
   {
     vtkIdType* v = &newEdges[4 * i];
     double x[3];
     this->GetPoint(v[3], x);
-    this->CheckEdge(v[3], x, v[1], v[2], v[0], false);
+    if (this->CheckEdge(v[3], x, v[1], v[2], v[0], false))
+    {
+      // Flipping an edge renders triangle and edge IDs in newEdges invalid
+      break;
+    }
   }
 
 FAILURE:

@@ -25,6 +25,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestDecimatePro.cxx,NO_VALID
   TestDelaunay2D.cxx
   TestDelaunay2DBestFittingPlane.cxx,NO_VALID
+  TestDelaunay2DConstrained.cxx,NO_VALID
   TestDelaunay2DFindTriangle.cxx,NO_VALID
   TestDelaunay2DMeshes.cxx,NO_VALID
   TestDelaunay3D.cxx,NO_VALID
