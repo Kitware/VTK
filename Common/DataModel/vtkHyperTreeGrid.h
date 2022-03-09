@@ -630,19 +630,20 @@ public:
   void InitializeLocalIndexNode();
 
   /**
-   * Returns 1 if there are any ghost cells
-   * 0 otherwise.
+   * Returns true if a ghost cell array is defined.
    */
   bool HasAnyGhostCells() const;
 
   /**
-   * Accessor on ghost cells
+   * Gets the array that defines the ghost type of each cell.
+   * see also GetTreeGhostArray().
    */
   vtkUnsignedCharArray* GetGhostCells();
 
   /**
-   * Gets the array that defines the ghost type of each point.
-   * We cache the pointer to the array to save a lookup involving string comparisons
+   * Gets the array that defines the ghost type of each cell.
+   * Unlike GetGhostCells(), we cache the pointer to the array
+   * to save a lookup involving string comparisons
    */
   vtkUnsignedCharArray* GetTreeGhostArray();
 

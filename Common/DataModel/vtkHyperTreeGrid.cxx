@@ -467,8 +467,6 @@ void vtkHyperTreeGrid::CopyEmptyStructure(vtkDataObject* ds)
   this->HasInterface = htg->HasInterface;
   this->SetInterfaceNormalsName(htg->InterfaceNormalsName);
   this->SetInterfaceInterceptsName(htg->InterfaceInterceptsName);
-
-  this->CellData->CopyStructure(htg->GetCellData());
 }
 
 //------------------------------------------------------------------------------
@@ -513,8 +511,6 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
   this->SetMask(htg->GetMask());
   vtkSetObjectBodyMacro(PureMask, vtkBitArray, htg->GetPureMask());
 
-  this->CellData->CopyStructure(htg->GetCellData());
-
   // Search for hyper tree with given index
   this->HyperTrees.clear();
 
@@ -525,6 +521,11 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
     tree->CopyStructure(it->second);
     this->HyperTrees[it->first] = tree;
     tree->Delete();
+  }
+
+  if (htg->HasAnyGhostCells())
+  {
+    this->GetCellData()->AddArray(htg->GetGhostCells());
   }
 }
 
