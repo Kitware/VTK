@@ -140,7 +140,7 @@ int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObje
   {
     output->ShallowCopy(input);
 
-    this->OutMask->SetNumberOfTuples(output->GetNumberOfVertices());
+    this->OutMask->SetNumberOfTuples(output->GetNumberOfCells());
 
     // Iterate over all input and output hyper trees
     vtkIdType outIndex;

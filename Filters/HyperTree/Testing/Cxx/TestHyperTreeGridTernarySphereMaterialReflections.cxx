@@ -69,11 +69,11 @@ int TestHyperTreeGridTernarySphereMaterialReflections(int argc, char* argv[])
   getrusage(RUSAGE_SELF, &usage1);
 #endif
   vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast(htg);
-  vtkIdType nV = H->GetNumberOfVertices();
+  vtkIdType nC = H->GetNumberOfCells();
   vtkIdType nL = H->GetNumberOfLeaves();
   cerr << "Time for 1 HyperTreeGridSource: " << timer->GetElapsedTime() << endl;
-  cerr << "  number of tree vertices: " << nV << endl;
-  cerr << "  number of tree leaves: " << nL << " (" << (double)nL / (double)nV * 100.00 << "%)\n";
+  cerr << "  number of tree vertices: " << nC << endl;
+  cerr << "  number of tree leaves: " << nL << " (" << (double)nL / (double)nC * 100.00 << "%)\n";
 #ifdef HYPERTREEGRID_GETRUSAGE
   cerr << "  increase in max. resident set size: " << (usage1.ru_maxrss - usage0.ru_maxrss) / 1024
        << " kiB\n";

@@ -62,6 +62,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+#include "vtkDeprecation.h"  // for deprecation macro
 #include "vtkNew.h"          // vtkSmartPointer
 #include "vtkSmartPointer.h" // vtkSmartPointer
 
@@ -288,6 +289,7 @@ public:
   /**
    * Get the number of vertices in the primal tree grid.
    */
+  VTK_DEPRECATED_IN_9_2_0("Please use the renamed version, GetNumberOfCells().")
   vtkIdType GetNumberOfVertices();
 
   /**
@@ -738,6 +740,12 @@ public:
    * it defers to vtkDataObject.
    */
   vtkIdType GetNumberOfElements(int type) override;
+
+  /**
+   * Return the number of cells.
+   * It matches the total number of internal nodes and leaves of the underlying hypertrees.
+   */
+  vtkIdType GetNumberOfCells();
 
 protected:
   /**

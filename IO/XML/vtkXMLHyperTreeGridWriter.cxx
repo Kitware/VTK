@@ -309,7 +309,7 @@ void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes(ostream& os, vtkIn
 
   if (this->GetDataSetMajorVersion() < 1)
   {
-    this->WriteScalarAttribute("NumberOfVertices", input->GetNumberOfVertices());
+    this->WriteScalarAttribute("NumberOfVertices", input->GetNumberOfCells());
   }
 }
 

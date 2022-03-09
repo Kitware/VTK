@@ -151,7 +151,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
   timer->StopTimer();
   vtkHyperTreeGrid* ht = htGrid->GetHyperTreeGridOutput();
   cout << " Done in " << timer->GetElapsedTime() << "s" << endl;
-  cout << "#pts " << ht->GetNumberOfVertices() << endl;
+  cout << "#cells " << ht->GetNumberOfCells() << endl;
   timer->StartTimer();
   timer->StopTimer();
 
@@ -161,9 +161,9 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
   vtkNew<vtkIdTypeArray> idArray;
   idArray->SetName("Ids");
   idArray->SetNumberOfComponents(1);
-  vtkIdType nbPoints = ht->GetNumberOfVertices();
-  idArray->SetNumberOfValues(nbPoints);
-  for (vtkIdType i = 0; i < nbPoints; ++i)
+  vtkIdType nbCells = ht->GetNumberOfCells();
+  idArray->SetNumberOfValues(nbCells);
+  for (vtkIdType i = 0; i < nbCells; ++i)
   {
     idArray->SetValue(i, i);
   }

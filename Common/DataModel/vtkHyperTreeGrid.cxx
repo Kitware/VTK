@@ -37,6 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
+#include "vtkLegacy.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -783,6 +784,13 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfNonEmptyTrees()
 
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGrid::GetNumberOfVertices()
+{
+  VTK_LEGACY_REPLACED_BODY(GetNumberOfVertices, "VTK 9.2", GetNumberOfCells);
+  return this->GetNumberOfCells();
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
 {
   vtkIdType nVertices = 0;
 
