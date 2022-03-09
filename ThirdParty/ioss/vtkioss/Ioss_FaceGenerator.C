@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -20,7 +20,7 @@
 
 #include <algorithm>
 #include <chrono>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
 #include <functional>
@@ -402,23 +402,24 @@ namespace Ioss {
     auto endp  = std::chrono::steady_clock::now();
     auto diffh = endh - starth;
     auto difff = endf - endh;
-    fmt::print("Node ID hash time:   \t{:.6L} ms\t{:12L} nodes/second\n"
-               "Face generation time:\t{:.6L} ms\t{:12L} faces/second\n",
-               std::chrono::duration<double, std::milli>(diffh).count(),
-               INT(hashIds_.size() / std::chrono::duration<double>(diffh).count()),
-               std::chrono::duration<double, std::milli>(difff).count(),
-               INT(face_count / std::chrono::duration<double>(difff).count()));
+    fmt::print(
+        "Node ID hash time:   \t{:.6} ms\t{:12} nodes/second\n"
+        "Face generation time:\t{:.6} ms\t{:12} faces/second\n",
+        std::chrono::duration<double, std::milli>(diffh).count(),
+        fmt::group_digits(INT(hashIds_.size() / std::chrono::duration<double>(diffh).count())),
+        std::chrono::duration<double, std::milli>(difff).count(),
+        fmt::group_digits(INT(face_count / std::chrono::duration<double>(difff).count())));
 #ifdef SEACAS_HAVE_MPI
     auto   diffp      = endp - endf;
     size_t proc_count = region_.get_database()->util().parallel_size();
 
     if (proc_count > 1) {
-      fmt::print("Parallel time:       \t{:.6L} ms\t{:12L} faces/second.\n",
+      fmt::print("Parallel time:       \t{:.6} ms\t{:12} faces/second.\n",
                  std::chrono::duration<double, std::milli>(diffp).count(),
-                 INT(face_count / std::chrono::duration<double>(diffp).count()));
+                 fmt::group_digits(INT(face_count / std::chrono::duration<double>(diffp).count())));
     }
 #endif
-    fmt::print("Total time:          \t{:.6L} ms\n\n",
+    fmt::print("Total time:          \t{:.6} ms\n\n",
                std::chrono::duration<double, std::milli>(endp - starth).count());
 #endif
   }

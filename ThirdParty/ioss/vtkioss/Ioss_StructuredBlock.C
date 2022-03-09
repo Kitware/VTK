@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -13,7 +13,7 @@
 #include <Ioss_Region.h>
 #include <Ioss_SmartAssert.h>
 #include <Ioss_StructuredBlock.h>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 
 #include <cstddef> // for size_t
@@ -32,7 +32,7 @@ namespace {
       cell_count = static_cast<int64_t>(ni) * nj;
     }
     else if (index_dim == 3) {
-      cell_count = static_cast<int64_t>(ni) * nj * nk;
+      cell_count = static_cast<int64_t>(ni) * nj * (nk == 0 ? 1 : nk);
     }
     return cell_count;
   }
@@ -339,9 +339,10 @@ namespace Ioss {
 
   std::ostream &operator<<(std::ostream &os, const BoundaryCondition &bc)
   {
-    fmt::print(os, "\t\tBC Name '{}' owns {:10L} faces.\tRange: [{}..{}, {}..{}, {}..{}]",
-               bc.m_bcName, bc.get_face_count(), bc.m_rangeBeg[0], bc.m_rangeEnd[0],
-               bc.m_rangeBeg[1], bc.m_rangeEnd[1], bc.m_rangeBeg[2], bc.m_rangeEnd[2]);
+    fmt::print(os, "\t\tBC Name '{}' owns {:10} faces.\tRange: [{}..{}, {}..{}, {}..{}]",
+               bc.m_bcName, fmt::group_digits(bc.get_face_count()), bc.m_rangeBeg[0],
+               bc.m_rangeEnd[0], bc.m_rangeBeg[1], bc.m_rangeEnd[1], bc.m_rangeBeg[2],
+               bc.m_rangeEnd[2]);
     return os;
   }
 

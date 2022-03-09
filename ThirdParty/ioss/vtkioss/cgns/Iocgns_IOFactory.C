@@ -1,16 +1,16 @@
-// Copyright(C) 1999-2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
 
+#include "Ioss_DBUsage.h"           // for DatabaseUsage
+#include "Ioss_IOFactory.h"         // for IOFactory
 #include <cgns/Iocgns_DatabaseIO.h> // for DatabaseIO -- serial
 #include <cgns/Iocgns_IOFactory.h>
 #include <cgns/Iocgns_Utils.h>
 #include <cstddef> // for nullptr
-#include "Ioss_DBUsage.h"   // for DatabaseUsage
-#include "Ioss_IOFactory.h" // for IOFactory
-#include <string>           // for string
+#include <string>  // for string
 #include <tokenize.h>
 
 #include <vtk_cgns.h> // xxx(kitware)
@@ -49,7 +49,7 @@ namespace Iocgns {
   }
 
   Ioss::DatabaseIO *IOFactory::make_IO(const std::string &filename, Ioss::DatabaseUsage db_usage,
-                                       MPI_Comm                     communicator,
+                                       Ioss_MPI_Comm                communicator,
                                        const Ioss::PropertyManager &properties) const
   {
 // The "cgns" and "parallel_cgns" databases can both be accessed from
@@ -57,10 +57,8 @@ namespace Iocgns {
 // than 1 processor unless the decomposition property is set and the
 // value is "external" or the composition property is set with value "external"
 #if CG_BUILD_PARALLEL
-    int proc_count = 1;
-    if (communicator != MPI_COMM_NULL) {
-      MPI_Comm_size(communicator, &proc_count);
-    }
+    Ioss::ParallelUtils pu(communicator);
+    int                 proc_count = pu.parallel_size();
 
     bool decompose = false;
 

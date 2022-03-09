@@ -58,7 +58,7 @@ namespace Ioss {
     //! else: exists on some proc, but not all.
     //! In the last case, a list of processors where it is missing is returned in 'where' on
     //! processor 0.
-    int parallel_exists(MPI_Comm communicator, std::string &where) const;
+    int parallel_exists(Ioss_MPI_Comm communicator, std::string &where) const;
 
     bool exists() const;        //!< returns True if file exists, false if nonexistent
     bool is_readable() const;   //!< Exists and is readable
@@ -94,7 +94,7 @@ namespace Ioss {
     //! This function is used to create the path to an output directory (or history, restart, etc.)
     //!  if it does not exist.  Called by all processors. Will throw exception if path does not
     //!  specify a valid directory or if the path cannot be created.
-    static void create_path(const std::string &filename, MPI_Comm communicator);
+    static void create_path(const std::string &filename, Ioss_MPI_Comm communicator);
     static void create_path(const std::string &filename);
 
   private:

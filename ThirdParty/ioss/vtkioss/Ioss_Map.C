@@ -10,7 +10,7 @@
 #include <Ioss_Sort.h>
 #include <Ioss_Utils.h> // for IOSS_ERROR
 #include <cstddef>      // for size_t
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <iterator> // for insert_iterator, inserter
 #include <numeric>

@@ -57,7 +57,7 @@ namespace Iocgns {
     enum class entity_type { NODE, ELEM };
 
     ParallelDatabaseIO(Ioss::Region *region, const std::string &filename,
-                       Ioss::DatabaseUsage db_usage, MPI_Comm communicator,
+                       Ioss::DatabaseUsage db_usage, Ioss_MPI_Comm communicator,
                        const Ioss::PropertyManager &props);
 
     ~ParallelDatabaseIO() override;

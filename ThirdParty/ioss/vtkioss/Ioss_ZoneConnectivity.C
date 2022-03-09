@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -7,7 +7,7 @@
 #include <Ioss_Utils.h>
 #include <Ioss_ZoneConnectivity.h>
 #include <cstddef> // for size_t
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <string> // for string
 #include <vector> // for vector
@@ -61,18 +61,18 @@ namespace Ioss {
     auto donor_face = get_constant_face(zgc.m_donorRangeBeg, zgc.m_donorRangeEnd);
 
     fmt::print(os,
-               "\t\t{}[P{}]:\tDZ {}\tName '{}' shares {:L} nodes on face {}:{} Decomp: {}."
+               "\t\t{}[P{}]:\tDZ {}\tName '{}' shares {} nodes on face {}:{} Decomp: {}."
                "\n\t\t\t\t      Range: [{}..{}, {}..{}, {}..{}]\t      Donor Range: [{}..{}, "
                "{}..{}, {}..{}]"
                "\n\t\t\t\tLocal Range: [{}..{}, {}..{}, {}..{}]\tDonor Local Range: [{}..{}, "
                "{}..{}, {}..{}]",
                zgc.m_donorName, zgc.m_donorProcessor, zgc.m_donorZone, zgc.m_connectionName,
-               zgc.get_shared_node_count(), owner_face, donor_face, zgc.m_fromDecomp,
-               zgc.m_ownerRangeBeg[0], zgc.m_ownerRangeEnd[0], zgc.m_ownerRangeBeg[1],
-               zgc.m_ownerRangeEnd[1], zgc.m_ownerRangeBeg[2], zgc.m_ownerRangeEnd[2],
-               zgc.m_donorRangeBeg[0], zgc.m_donorRangeEnd[0], zgc.m_donorRangeBeg[1],
-               zgc.m_donorRangeEnd[1], zgc.m_donorRangeBeg[2], zgc.m_donorRangeEnd[2],
-               zgc.m_ownerRangeBeg[0] - zgc.m_ownerOffset[0],
+               fmt::group_digits(zgc.get_shared_node_count()), owner_face, donor_face,
+               zgc.m_fromDecomp, zgc.m_ownerRangeBeg[0], zgc.m_ownerRangeEnd[0],
+               zgc.m_ownerRangeBeg[1], zgc.m_ownerRangeEnd[1], zgc.m_ownerRangeBeg[2],
+               zgc.m_ownerRangeEnd[2], zgc.m_donorRangeBeg[0], zgc.m_donorRangeEnd[0],
+               zgc.m_donorRangeBeg[1], zgc.m_donorRangeEnd[1], zgc.m_donorRangeBeg[2],
+               zgc.m_donorRangeEnd[2], zgc.m_ownerRangeBeg[0] - zgc.m_ownerOffset[0],
                zgc.m_ownerRangeEnd[0] - zgc.m_ownerOffset[0],
                zgc.m_ownerRangeBeg[1] - zgc.m_ownerOffset[1],
                zgc.m_ownerRangeEnd[1] - zgc.m_ownerOffset[1],

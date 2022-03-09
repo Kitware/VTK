@@ -74,7 +74,7 @@ namespace Ioex {
   {
   public:
     BaseDatabaseIO(Ioss::Region *region, const std::string &filename, Ioss::DatabaseUsage db_usage,
-                   MPI_Comm communicator, const Ioss::PropertyManager &props);
+                   Ioss_MPI_Comm communicator, const Ioss::PropertyManager &props);
     BaseDatabaseIO(const BaseDatabaseIO &from) = delete;
     BaseDatabaseIO &operator=(const BaseDatabaseIO &from) = delete;
 
@@ -231,6 +231,8 @@ namespace Ioex {
     void get_nodeblocks();
     void get_assemblies();
     void get_blobs();
+
+    void update_block_omissions_from_assemblies();
 
     void add_attribute_fields(ex_entity_type entity_type, Ioss::GroupingEntity *block,
                               int attribute_count, const std::string &type);

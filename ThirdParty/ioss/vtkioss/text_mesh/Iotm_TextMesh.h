@@ -27,10 +27,20 @@ namespace Iotm {
   using Topology       = TopologyMapEntry;
   using TextMeshData   = text_mesh::TextMeshData<int64_t, TopologyMapEntry>;
   using ElementData    = text_mesh::ElementData<int64_t, TopologyMapEntry>;
-  using Coordinates    = text_mesh::Coordinates<int64_t, TopologyMapEntry>;
+  using SidesetData    = text_mesh::SidesetData<int64_t, TopologyMapEntry>;
+  using NodesetData    = text_mesh::NodesetData<int64_t>;
+  using AssemblyData   = text_mesh::AssemblyData<int64_t>;
+  using Coordinates    = text_mesh::Coordinates<int64_t>;
   using TextMeshParser = text_mesh::TextMeshParser<int64_t, IossTopologyMapping>;
+  using ErrorHandler   = text_mesh::ErrorHandler;
+  using SideBlockInfo  = text_mesh::SideBlockInfo;
+  using SplitType      = text_mesh::SplitType;
+  using AssemblyType   = text_mesh::AssemblyType;
 
-  inline std::ostream &operator<<(std::ostream &out, Topology t) { return out << t.name(); }
+  inline std::ostream &operator<<(std::ostream &out, const TopologyMapEntry &t)
+  {
+    return out << t.name();
+  }
 
   struct BlockPartition
   {
@@ -73,6 +83,48 @@ namespace Iotm {
     virtual int64_t block_count() const;
 
     /**
+     * Return number of nodesets in the entire model.
+     */
+    virtual int64_t nodeset_count() const;
+
+    /**
+     * Return number of nodeset nodes on nodeset 'id'
+     */
+    int64_t nodeset_node_count(int64_t id) const;
+
+    /**
+     * Return number of nodeset nodes on nodeset 'id' on the current processor
+     */
+    virtual int64_t nodeset_node_count_proc(int64_t id) const;
+
+    /**
+     * Return number of sidesets in the entire model.
+     */
+    virtual int64_t sideset_count() const;
+
+    /**
+     * Return number of sideset 'sides' on sideset 'id'
+     */
+    int64_t sideset_side_count(int64_t id) const;
+
+    /**
+     * Return number of sideset 'sides' on sideset 'id' on the current
+     * processor.
+     */
+    virtual int64_t sideset_side_count_proc(int64_t id) const;
+
+    /**
+     * Return number of sideblock 'sides' on sideset 'id' and sideblock 'sideBlockName'
+     */
+    int64_t sideblock_side_count(int64_t id, const std::string &sideBlockName) const;
+
+    /**
+     * Return number of sideset 'sides' on sideset 'id' and sideblock 'sideBlockName' on the current
+     * processor.
+     */
+    virtual int64_t sideblock_side_count_proc(int64_t id, const std::string &sideBlockName) const;
+
+    /**
      * Return number of elements in all element blocks in the model.
      */
     virtual int64_t element_count() const;
@@ -94,6 +146,11 @@ namespace Iotm {
      * block with id 'block_number'.
      */
     virtual int64_t element_count_proc(int64_t block_number) const;
+
+    /**
+     * Return number of assemblies in the entire model.
+     */
+    int64_t assembly_count() const;
 
     /**
      * Returns pair containing "topology type string" and "number of
@@ -175,6 +232,28 @@ namespace Iotm {
     virtual void coordinates(int component, std::vector<double> &xyz) const;
     virtual void coordinates(int component, double *xyz) const;
 
+    /**
+     * Return the list of nodes in nodeset 'id' on this processor.
+     * The 'nodes' vector will be resized to the size required to
+     * contain the node list. The ids are global ids.
+     */
+    virtual void nodeset_nodes(int64_t id, Ioss::Int64Vector &nodes) const;
+
+    /**
+     * Return the list of the face/ordinal pairs
+     * "elem_sides[local_position]   = element global_id" and
+     * "elem_sides[local_position+1] = element local face id (0-based)"
+     * for the faces in sideset 'id' on this
+     * processor.  The 'elem_sides' vector will be resized to the size
+     * required to contain the list. The element ids are global ids,
+     * the side ordinal is 0-based.
+     */
+    virtual void sideset_elem_sides(int64_t id, Ioss::Int64Vector &elemSides) const;
+    virtual void sideblock_elem_sides(int64_t sidesetId, const std::string &sideBlockName,
+                                      Ioss::Int64Vector &elemSides) const;
+
+    virtual std::vector<std::string> sideset_touching_blocks(int64_t set_id) const;
+
     size_t get_variable_count(Ioss::EntityType type) const
     {
       return m_variableCount.find(type) != m_variableCount.end()
@@ -185,7 +264,28 @@ namespace Iotm {
     std::vector<std::string> get_part_names() const;
     int64_t                  get_part_id(const std::string &name) const;
 
+    std::vector<std::string> get_nodeset_names() const;
+    std::string              get_nodeset_name(int64_t id) const;
+    int64_t                  get_nodeset_id(const std::string &name) const;
+
+    std::vector<std::string> get_sideset_names() const;
+    std::string              get_sideset_name(int64_t id) const;
+    int64_t                  get_sideset_id(const std::string &name) const;
+
+    std::vector<std::string> get_assembly_names() const;
+    std::string              get_assembly_name(int64_t id) const;
+    int64_t                  get_assembly_id(const std::string &name) const;
+    Ioss::EntityType         get_assembly_type(const std::string &name) const;
+    std::vector<std::string> get_assembly_members(const std::string &name) const;
+
+    Ioss::EntityType assembly_type_to_entity_type(const AssemblyType type) const;
+
     unsigned spatial_dimension() const;
+
+    std::vector<SideBlockInfo> get_side_block_info_for_sideset(const std::string &name) const;
+    std::vector<size_t>        get_local_side_block_indices(const std::string   &name,
+                                                            const SideBlockInfo &info) const;
+    SplitType                  get_sideset_split_type(const std::string &name) const;
 
   private:
     template <typename INT> void raw_element_map(int64_t block_number, std::vector<INT> &map) const;
@@ -194,9 +294,6 @@ namespace Iotm {
     template <typename INT> void raw_node_map(std::vector<INT> &map) const;
 
     void set_variable_count(const std::string &type, size_t count);
-    void parse_options(const std::vector<std::string> &groups);
-    void parse_coordinates_option(const std::vector<std::string> &option);
-    void parse_dimension_option(const std::vector<std::string> &option);
 
     void initialize();
 
@@ -211,20 +308,17 @@ namespace Iotm {
 
     std::set<int64_t> get_local_element_ids_for_block(int64_t id) const;
 
-    unsigned m_dimension{3};
-    size_t   m_processorCount{0};
-    size_t   m_myProcessor{0};
+    std::set<std::string> get_blocks_touched_by_sideset(const SidesetData *sideset) const;
+
+    size_t m_processorCount{0};
+    size_t m_myProcessor{0};
 
     size_t                             m_timestepCount{0};
     std::map<Ioss::EntityType, size_t> m_variableCount;
 
-    bool                m_coordinatesParsed{false};
-    std::vector<double> m_rawCoordinates;
+    TextMeshData m_data;
 
-    TextMeshData m_data{};
-    Coordinates  m_coordinates{};
-
-    text_mesh::ErrorHandler m_errorHandler;
+    ErrorHandler m_errorHandler;
 
     std::unordered_map<std::string, Topology> m_partToTopology;
 

@@ -17,7 +17,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/chrono.h)
 #include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
@@ -37,13 +37,10 @@
 #endif
 #include <cstdio>
 
-#if defined(_MSC_VER)
-#include <io.h>
-#define isatty _isatty
-#endif
-
 // For memory utilities...
 #if defined(__IOSS_WINDOWS__)
+#include <io.h>
+#define isatty _isatty
 #define WIN32_LEAN_AND_MEAN
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -445,7 +442,8 @@ namespace {
   }
 
   const Ioss::VariableType *match_single_field(char **names, Ioss::IntVector &which_names,
-                                               const char suffix_separator)
+                                               const char suffix_separator,
+                                               bool       ignore_realn_fields)
   {
     // Strip off the suffix from each name indexed in 'which_names'
     // and see if it defines a valid type...
@@ -461,13 +459,13 @@ namespace {
       Ioss::Suffix tmp(tokens[num_tokens - 1]);
       suffices.push_back(tmp);
     }
-    const Ioss::VariableType *type = Ioss::VariableType::factory(suffices);
+    const Ioss::VariableType *type = Ioss::VariableType::factory(suffices, ignore_realn_fields);
     return type;
   }
 
   Ioss::Field get_next_field(char **names, int num_names, size_t count,
                              Ioss::Field::RoleType fld_role, const char suffix_separator,
-                             const int *truth_table)
+                             const int *truth_table, bool ignore_realn_fields)
   {
     // NOTE: 'names' are all lowercase at this point.
 
@@ -579,7 +577,7 @@ namespace {
       }
       else {
         assert(suffix_size == 1);
-        type = match_single_field(names, which_names, suffix_separator);
+        type = match_single_field(names, which_names, suffix_separator, ignore_realn_fields);
       }
 
       if (type != nullptr) {
@@ -675,6 +673,7 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
 {
   bool enable_field_recognition = db->get_field_recognition();
   bool strip_trailing_          = db->get_field_strip_trailing_();
+  bool ignore_realn_fields      = db->get_ignore_realn_fields();
   char suffix_separator         = db->get_field_separator();
 
   if (!enable_field_recognition) {
@@ -690,8 +689,8 @@ void Ioss::Utils::get_fields(int64_t entity_count, // The number of objects in t
   else if (suffix_separator != 0) {
     while (true) {
       // NOTE: 'get_next_field' determines storage type (vector, tensor,...)
-      Ioss::Field field =
-          get_next_field(names, num_names, entity_count, fld_role, suffix_separator, local_truth);
+      Ioss::Field field = get_next_field(names, num_names, entity_count, fld_role, suffix_separator,
+                                         local_truth, ignore_realn_fields);
       if (field.is_valid()) {
         fields.push_back(field);
       }
@@ -920,25 +919,25 @@ bool Ioss::Utils::block_is_omitted(Ioss::GroupingEntity *block)
 }
 
 void Ioss::Utils::calculate_sideblock_membership(IntVector             &face_is_member,
-                                                 const Ioss::SideBlock *ef_blk,
+                                                 const Ioss::SideBlock *sd_blk,
                                                  size_t int_byte_size, const void *element,
                                                  const void *sides, int64_t number_sides,
                                                  const Ioss::Region *region)
 {
-  assert(ef_blk != nullptr);
+  assert(sd_blk != nullptr);
 
   face_is_member.reserve(number_sides);
 
   const ElementTopology *unknown = Ioss::ElementTopology::factory("unknown");
 
   // Topology of faces in this face block...
-  const ElementTopology *ftopo = ef_blk->topology();
+  const ElementTopology *ftopo = sd_blk->topology();
 
   // Topology of parent element for faces in this face block
-  const ElementTopology *parent_topo = ef_blk->parent_element_topology();
+  const ElementTopology *parent_topo = sd_blk->parent_element_topology();
 
   // If split by element block then parent_block will be non-nullptr
-  const ElementBlock *parent_block = ef_blk->parent_element_block();
+  const ElementBlock *parent_block = sd_blk->parent_element_block();
 
   // The element block containing the face we are working on...
   Ioss::ElementBlock *block = nullptr;
@@ -1442,4 +1441,44 @@ void Ioss::Utils::info_property(const Ioss::GroupingEntity *ige, Ioss::Property:
   if (!header.empty()) {
     fmt::print("\n");
   }
+}
+
+void Ioss::Utils::copyright(std::ostream &out, const std::string &year_range)
+{
+  fmt::print(out,
+             "\n"
+             "Copyright(C) {} National Technology & Engineering Solutions of\n"
+             "Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with\n"
+             "NTESS, the U.S. Government retains certain rights in this software.\n"
+             "\n"
+             "Redistribution and use in source and binary forms, with or without\n"
+             "modification, are permitted provided that the following conditions are\n"
+             "met:\n"
+             "\n"
+             "* Redistributions of source code must retain the above copyright\n"
+             "   notice, this list of conditions and the following disclaimer.\n"
+             "\n"
+             "* Redistributions in binary form must reproduce the above\n"
+             "  copyright notice, this list of conditions and the following\n"
+             "  disclaimer in the documentation and/or other materials provided\n"
+             "  with the distribution.\n"
+             "\n"
+             "* Neither the name of NTESS nor the names of its\n"
+             "  contributors may be used to endorse or promote products derived\n"
+             "  from this software without specific prior written permission.\n"
+             "\n"
+             "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
+             "\" AS IS \" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
+             "LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n"
+             "A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\n"
+             "OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\n"
+             "SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT\n"
+             "LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,\n"
+             "DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n"
+             "THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"
+             "(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
+             "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
+             "\n",
+             year_range);
+  return;
 }
