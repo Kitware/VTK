@@ -43,7 +43,6 @@
 #include "vtkMathPrivate.hxx"    // For Matrix meta-class helpers
 #include "vtkMatrixUtilities.h"  // For Matrix wrapping / mapping
 #include "vtkObject.h"
-#include "vtkSMPTools.h"     // For SMPTools
 #include "vtkSmartPointer.h" // For vtkSmartPointer.
 #include "vtkTypeTraits.h"   // For type traits
 
@@ -1595,17 +1594,15 @@ public:
         break;
     }
 
-    vtkSMPTools::For(begin, end, [&](int i, int _end) {
-      for (; i < _end; i++)
+    for (int i = begin; i < end; i++)
+    {
+      Iter3 out = beginOut + i - begin;
+      *out = 0;
+      for (int j = std::max(i - sampleSize + 1, 0); j <= std::min(i, kernelSize - 1); j++)
       {
-        Iter3 out = beginOut + i - begin;
-        *out = 0;
-        for (int j = std::max(i - sampleSize + 1, 0); j <= std::min(i, kernelSize - 1); j++)
-        {
-          *out += *(beginSample + (i - j)) * *(beginKernel + j);
-        }
+        *out += *(beginSample + (i - j)) * *(beginKernel + j);
       }
-    });
+    }
   }
 
 protected:
