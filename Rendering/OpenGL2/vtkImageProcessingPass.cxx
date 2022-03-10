@@ -116,17 +116,17 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
   }
   else
   {
-    double large;
-    double small;
+    double largeDim;
+    double smallDim;
     if (newCamera->GetUseHorizontalViewAngle())
     {
-      large = newWidth;
-      small = width;
+      largeDim = newWidth;
+      smallDim = width;
     }
     else
     {
-      large = newHeight;
-      small = height;
+      largeDim = newHeight;
+      smallDim = height;
     }
     double angle = vtkMath::RadiansFromDegrees(newCamera->GetViewAngle());
 
@@ -135,7 +135,7 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
          << endl;
 #endif
 
-    angle = 2.0 * atan(tan(angle / 2.0) * large / static_cast<double>(small));
+    angle = 2.0 * atan(tan(angle / 2.0) * largeDim / static_cast<double>(smallDim));
 
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
     cout << "new angle =" << angle << " rad=" << vtkMath::DegreesFromRadians(angle) << " deg"
