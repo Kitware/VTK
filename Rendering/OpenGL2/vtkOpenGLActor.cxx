@@ -126,7 +126,8 @@ void vtkOpenGLActor::GetKeyMatrices(vtkMatrix4x4*& mcwc, vtkMatrix3x3*& normMat)
   }
 
   // has the actor changed or is in device coords?
-  if (this->GetMTime() > this->KeyMatrixTime || rwTime > this->KeyMatrixTime)
+  if (this->GetMTime() > this->KeyMatrixTime || rwTime > this->KeyMatrixTime ||
+    this->CoordinateSystem == DEVICE)
   {
     this->GetModelToWorldMatrix(this->MCWCMatrix);
 
