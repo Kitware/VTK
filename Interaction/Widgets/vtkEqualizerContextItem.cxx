@@ -224,7 +224,8 @@ public:
               equalizer::EqualizerPoint::radiusInteractive, closestPoint))
         {
           vtkVector2f tmp(closestPoint[0], closestPoint[1]);
-          this->Points.insert(itCur, transform->MapFromScene(tmp));
+          auto inserted = this->Points.insert(itCur, transform->MapFromScene(tmp));
+          this->TakenPoint = std::distance(this->Points.begin(), inserted);
           break;
         }
         itPrev = itCur;
@@ -377,39 +378,30 @@ bool vtkEqualizerContextItem::MouseEnterEvent(const vtkContextMouseEvent& vtkNot
 //------------------------------------------------------------------------------
 bool vtkEqualizerContextItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
-  if (this->MouseState == LEFT_BUTTON_PRESSED)
+  vtkContextScene* scene = this->GetScene();
+  if (!scene || (this->MouseState != LEFT_BUTTON_PRESSED) || !this->Transform)
   {
-    vtkContextScene* scene = this->GetScene();
-    if (!scene)
+    return false;
+  }
+
+  if (this->Internal->TakenPoint != -1)
+  {
+    equalizer::EqualizerPoint& point = this->Internal->Points.at(this->Internal->TakenPoint);
+    auto scope = this->Internal->GetScopes();
+    auto posScene = this->Transform->MapFromScene(mouse.GetPos());
+    auto posX = vtkMath::ClampValue<int>(posScene.GetX(), scope.first, scope.second);
+
+    auto posY = posScene.GetY();
+    if (posY < 0)
     {
-      return false;
+      posY = 0;
     }
 
-    if (!this->Transform)
-    {
-      return false;
-    }
+    point.freq = posX;
+    point.coef = posY;
 
-    if (this->Internal->TakenPoint != -1)
-    {
-      equalizer::EqualizerPoint& point = this->Internal->Points.at(this->Internal->TakenPoint);
-      auto scope = this->Internal->GetScopes();
-      auto posScene = this->Transform->MapFromScene(mouse.GetPos());
-      auto posX = vtkMath::ClampValue<int>(posScene.GetX(), scope.first, scope.second);
-
-      auto posY = posScene.GetY();
-      if (posY < 0)
-      {
-        posY = 0;
-      }
-
-      point.freq = posX;
-      point.coef = posY;
-
-      this->InvokeEvent(vtkCommand::InteractionEvent);
-      this->Modified();
-      return true;
-    }
+    this->InvokeEvent(vtkCommand::InteractionEvent);
+    this->GetScene()->SetDirty(true);
   }
 
   return true;
@@ -430,15 +422,16 @@ bool vtkEqualizerContextItem::MouseButtonPressEvent(const vtkContextMouseEvent& 
     this->MouseState = LEFT_BUTTON_PRESSED;
     this->Internal->LeftButtonPressEvent(pos, this->Transform);
   }
-  else if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON)
+  else if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON ||
+    mouse.GetButton() == vtkContextMouseEvent::MIDDLE_BUTTON)
   {
+    // middle click behave as right click
     this->MouseState = RIGHT_BUTTON_PRESSED;
     this->Internal->RightButtonPressEvent(pos, this->Transform);
   }
 
   this->InvokeEvent(vtkCommand::StartInteractionEvent);
-  this->InvokeEvent(vtkCommand::InteractionEvent);
-  this->Modified();
+  this->GetScene()->SetDirty(true);
   return true;
 }
 
@@ -447,22 +440,14 @@ bool vtkEqualizerContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent
 {
   this->MouseState = NO_BUTTON;
   this->InvokeEvent(vtkCommand::EndInteractionEvent);
-  this->Modified();
+  this->GetScene()->SetDirty(true);
   return true;
-}
-
-//------------------------------------------------------------------------------
-void vtkEqualizerContextItem::SetScene(vtkContextScene* scene)
-{
-  this->Superclass::SetScene(scene);
-  this->Modified();
 }
 
 //------------------------------------------------------------------------------
 void vtkEqualizerContextItem::SetPoints(const std::string& points)
 {
   this->Internal->setPoints(points);
-  this->Modified();
 }
 
 //------------------------------------------------------------------------------

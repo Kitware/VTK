@@ -70,12 +70,12 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestSphereWidgetZoomInOut.cxx
   TestSplineWidget.cxx
   TestTextWidget.cxx
-  TestEqualizerContextItem.cxx
   TestTextRepresentationWithBorders.cxx
   TestTextWidgetBackgroundInteractive.cxx
   )
 vtk_add_test_cxx(vtkInteractionWidgetsCxxTests no_valid_tests
   NO_VALID
+  TestEqualizerContextItem.cxx
   vtkAngleRepresentation2DTest1.cxx
   vtkAngleRepresentation3DTest1.cxx
   vtkAngleWidgetTest1.cxx
