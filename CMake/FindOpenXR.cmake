@@ -27,6 +27,7 @@ find_path(OpenXR_INCLUDE_DIR
     openxr.h
     openxr_platform.h
   PATH_SUFFIXES
+    openxr
     headers
     public/headers
     steam
