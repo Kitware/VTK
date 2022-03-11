@@ -50,7 +50,7 @@
 
 .fedora34:
     extends: .linux
-    image: "kitware/vtk:ci-fedora34-20211020"
+    image: "kitware/vtk:ci-fedora34-20220310"
 
 .el8_icc:
     extends: .linux
