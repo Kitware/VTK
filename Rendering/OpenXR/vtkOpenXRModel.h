@@ -43,8 +43,8 @@ protected:
   void CreateTextureObject(vtkOpenGLRenderWindow* win) override;
   void LoadModelAndTexture(vtkOpenGLRenderWindow* win) override;
 
-  std::atomic<bool> ModelLoading = false;
-  std::atomic<bool> ModelLoaded = false;
+  std::atomic<bool> ModelLoading{ false };
+  std::atomic<bool> ModelLoaded{ false };
   void AsyncLoad();
 
   std::vector<float> ModelVBOData;
