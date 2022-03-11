@@ -23,6 +23,7 @@ TEST_DEPENDS
   VTK::FiltersCore
   VTK::FiltersGeometry
   VTK::IOAMR
+  VTK::IOXML
   VTK::ImagingCore
   VTK::InteractionStyle
   VTK::TestingCore
