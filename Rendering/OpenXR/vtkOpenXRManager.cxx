@@ -605,7 +605,7 @@ std::vector<const char*> vtkOpenXRManager::SelectExtensions()
   auto EnableExtensionIfSupported = [&](const char* extensionName) {
     for (uint32_t i = 0; i < extensionCount; i++)
     {
-      if (std::strcmp(extensionProperties[i].extensionName, extensionName) == 0)
+      if (strcmp(extensionProperties[i].extensionName, extensionName) == 0)
       {
         enabledExtensions.push_back(extensionName);
         return true;
