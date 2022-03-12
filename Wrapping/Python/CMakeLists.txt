@@ -99,6 +99,13 @@ configure_file(
 list(APPEND _vtk_python_files
   "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/all.py")
 
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkmodules/generate_pyi.py"
+  "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/generate_pyi.py"
+  COPYONLY)
+list(APPEND _vtk_python_files
+  "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/generate_pyi.py")
+
 if (BUILD_SHARED_LIBS)
   install(
     FILES       "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/all.py"
@@ -135,7 +142,6 @@ set(python_files
   vtkmodules/util/keys.py
   vtkmodules/util/misc.py
   vtkmodules/util/numpy_support.py
-  vtkmodules/util/pyi.py
   vtkmodules/util/vtkAlgorithm.py
   vtkmodules/util/vtkConstants.py
   vtkmodules/util/vtkImageExportToArray.py

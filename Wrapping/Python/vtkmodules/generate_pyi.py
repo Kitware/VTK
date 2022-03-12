@@ -18,19 +18,19 @@ With no arguments, the script runs with the defaults (the .pyi files
 are put inside the existing vtkmodules package).  This is equivalent
 to the following:
 
-    python -m vtkmodules.util.pyi -p vtkmodules
+    python -m vtkmodules.generate_pyi -p vtkmodules
 
 To put the pyi files somewhere else, perhaps with a different suffix:
 
-    python -m vtkmodules.util.pyi -o /path/to/vtkmodules -e .pyi
+    python -m vtkmodules.generate_pyi -o /path/to/vtkmodules -e .pyi
 
 To generate pyi files for just one or two modules:
 
-    python -m vtkmodules.util.pyi -p vtkmodules vtkCommonCore vtkCommonDataModel
+    python -m vtkmodules.generate_pyi -p vtkmodules vtkCommonCore vtkCommonDataModel
 
 To generate pyi files for your own modules in your own package:
 
-    python -m vtkmodules.util.pyi -p mypackage mymodule [mymodule2 ...]
+    python -m vtkmodules.generate_pyi -p mypackage mymodule [mymodule2 ...]
 
 """
 
