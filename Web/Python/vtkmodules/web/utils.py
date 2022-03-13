@@ -2,7 +2,7 @@ import base64
 import numpy as np
 
 from vtkmodules.util.numpy_support import vtk_to_numpy
-from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
 
 # Numpy to JS TypedArray
 to_js_type = {
@@ -112,7 +112,7 @@ def mesh(dataset, field_to_keep=None, point_arrays=None, cell_arrays=None):
     if dataset.IsA("vtkPolyData"):
         polydata = dataset
     else:
-        extractSkinFilter = vtkGeometryFilter()
+        extractSkinFilter = vtkDataSetSurfaceFilter()
         extractSkinFilter.SetInputData(dataset)
         extractSkinFilter.Update()
         polydata = extractSkinFilter.GetOutput()

@@ -13,7 +13,7 @@ from vtkmodules.web import (
 
 from vtkmodules.vtkCommonCore import vtkTypeUInt32Array
 from vtkmodules.vtkFiltersGeometry import vtkCompositeDataGeometryFilter
-from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
+from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
 from vtkmodules.vtkRenderingCore import vtkColorTransferFunction
 
 
@@ -1002,7 +1002,7 @@ def mergeToPolydataSerializer(parent, dataObject, dataObjectId, context, depth, 
         gf.Update()
         dataset = gf.GetOutput()
     elif dataObject.IsA("vtkUnstructuredGrid"):
-        gf = vtkGeometryFilter()
+        gf = vtkDataSetSurfaceFilter()
         gf.SetInputData(dataObject)
         gf.Update()
         dataset = gf.GetOutput()
