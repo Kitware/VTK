@@ -102,7 +102,6 @@ vtkDisplaySizedImplicitPlaneRepresentation::vtkDisplaySizedImplicitPlaneRepresen
   this->EdgesTuber->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->EdgesTuber->SetInputConnection(this->Edges->GetOutputPort());
   this->EdgesTuber->SetNumberOfSides(12);
-  this->EdgesTuber->SetRadius(0.25);
   this->EdgesMapper->SetInputConnection(this->EdgesTuber->GetOutputPort());
   this->EdgesActor->SetMapper(this->EdgesMapper);
 
@@ -114,7 +113,6 @@ vtkDisplaySizedImplicitPlaneRepresentation::vtkDisplaySizedImplicitPlaneRepresen
   this->IntersectionEdgesTuber->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->IntersectionEdgesTuber->SetInputConnection(this->IntersectionEdges->GetOutputPort());
   this->IntersectionEdgesTuber->SetNumberOfSides(12);
-  this->IntersectionEdgesTuber->SetRadius(0.1);
   this->IntersectionEdgesMapper->SetInputConnection(this->IntersectionEdgesTuber->GetOutputPort());
   this->IntersectionEdgesActor->SetMapper(this->IntersectionEdgesMapper);
   this->DrawIntersectionEdges = 0;
@@ -1932,7 +1930,8 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SizeHandles()
 
   this->Sphere->SetRadius(radius);
 
-  this->EdgesTuber->SetRadius(0.5 * radius);
+  this->EdgesTuber->SetRadius(0.35 * radius);
+  this->IntersectionEdgesTuber->SetRadius(0.25 * radius);
 }
 
 //------------------------------------------------------------------------------
