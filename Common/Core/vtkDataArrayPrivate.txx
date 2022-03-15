@@ -20,6 +20,7 @@
 #include "vtkAssume.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkMathUtilities.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 #include "vtkTypeTraits.h"
@@ -184,8 +185,7 @@ public:
       size_t j = 0;
       for (const APIType value : tuple)
       {
-        range[j] = detail::min(range[j], value);
-        range[j + 1] = detail::max(range[j + 1], value);
+        vtkMathUtilities::UpdateRange(range[j], range[j + 1], value);
         j += 2;
       }
     }
