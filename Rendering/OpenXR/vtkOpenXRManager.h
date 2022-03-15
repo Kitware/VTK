@@ -312,7 +312,6 @@ public:
   bool UpdateActionData(Action_t& action_t, const int hand);
   //@}
 
-  //@{
   /**
    * Apply haptic vibration of given amplitude to controller associated with
    * specified hand. amplitude 0.0 to 1.0. duration nanoseconds, frequency hz
@@ -320,7 +319,6 @@ public:
   bool ApplyVibration(const Action_t& actionT, const int hand, const float amplitude = 0.5f,
     const float duration = XR_MIN_HAPTIC_DURATION,
     const float frequency = XR_FREQUENCY_UNSPECIFIED);
-  //@}
 
   enum ControllerIndex
   {

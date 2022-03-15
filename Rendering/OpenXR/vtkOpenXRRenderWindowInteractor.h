@@ -69,13 +69,11 @@ public:
     double ppos[3],  // Output physical position
     double wdir[3]); // Output world view direction (-Z)
 
-  //@{
   /**
    * Apply haptic vibration using the provided action
    */
   bool ApplyVibration(const std::string& actionName, const int hand, const float amplitude = 0.5f,
     const float duration = -1.0f, const float frequency = 0.0f);
-  //@}
 
 protected:
   vtkOpenXRRenderWindowInteractor();
