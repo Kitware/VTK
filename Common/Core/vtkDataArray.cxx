@@ -547,13 +547,6 @@ void vtkDataArray::SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbs
     return;
   }
 
-  if (!vtkDataTypesCompare(source->GetDataType(), this->GetDataType()))
-  {
-    vtkErrorMacro("Type mismatch: Source: " << source->GetDataTypeAsString()
-                                            << " Dest: " << this->GetDataTypeAsString());
-    return;
-  }
-
   if (source->GetNumberOfComponents() != this->GetNumberOfComponents())
   {
     vtkErrorMacro("Number of components do not match: Source: "
@@ -562,7 +555,7 @@ void vtkDataArray::SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbs
   }
 
   SetTupleArrayWorker worker(srcTupleIdx, dstTupleIdx);
-  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
+  if (!vtkArrayDispatch::Dispatch2::Execute(srcDA, this, worker))
   {
     worker(srcDA, this);
   }
@@ -668,7 +661,7 @@ void vtkDataArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstrac
   this->MaxId = std::max(this->MaxId, newSize - 1);
 
   SetTuplesIdListWorker worker(srcIds, dstIds);
-  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
+  if (!vtkArrayDispatch::Dispatch2::Execute(srcDA, this, worker))
   {
     worker(srcDA, this);
   }
@@ -770,7 +763,7 @@ void vtkDataArray::InsertTuples(
   this->MaxId = std::max(this->MaxId, newSize - 1);
 
   SetTuplesRangeWorker worker(srcStart, dstStart, n);
-  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
+  if (!vtkArrayDispatch::Dispatch2::Execute(srcDA, this, worker))
   {
     worker(srcDA, this);
   }
