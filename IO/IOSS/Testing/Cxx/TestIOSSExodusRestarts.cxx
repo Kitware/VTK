@@ -67,7 +67,7 @@ int TestIOSSExodusRestarts(int argc, char* argv[])
   auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
   auto pd = pdc->GetPartitionedDataSet(0);
   auto ds = (pd && pd->GetNumberOfPartitions() > 0) ? pd->GetPartition(0) : nullptr;
-  auto array = ds ? ds->GetPointData()->GetArray("thickness") : nullptr;
+  auto array = ds ? ds->GetPointData()->GetArray("THICKNESS") : nullptr;
   double range[2] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
   if (array)
   {

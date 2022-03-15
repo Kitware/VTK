@@ -1276,6 +1276,13 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
     // see https://github.com/gsjaardema/seacas/issues/265
     properties.add(Ioss::Property("FIELD_STRIP_TRAILING_UNDERSCORE", "on"));
 
+    // Do not convert variable names to lower case. The default is on.
+    // For ex: this resolves a misunderstanding b/w T (temperature) vs t (time)
+    properties.add(Ioss::Property("LOWER_CASE_VARIABLE_NAMES", "off"));
+
+    // Do not treat numeric suffixes for a variable as vector components.
+    properties.add(Ioss::Property("IGNORE_REALN_FIELDS", "on"));
+
     // Fillup with user-specified properties.
     Ioss::NameList names;
     this->DatabaseProperties.describe(&names);
