@@ -68,7 +68,7 @@ namespace Iotm {
       return validSpatialDimensions[spatialDim];
     }
 
-    const std::string &name() const { return topology->name(); }
+    const std::string name() const { return topology->name(); }
 
     int num_nodes() const { return topology->number_nodes(); }
 
@@ -87,6 +87,32 @@ namespace Iotm {
     }
 
     bool operator!=(const TopologyMapEntry &rhs) const { return !(*this == rhs); }
+
+    bool valid_side(unsigned side) const
+    {
+      unsigned numSides = topology->number_boundaries();
+      if (side > 0 && side <= numSides)
+        return true;
+      return false;
+    }
+
+    std::string side_topology_name(unsigned side) const
+    {
+      if (!valid_side(side))
+        return "";
+
+      Ioss::ElementTopology *sideTopology = topology->boundary_type(side);
+      return sideTopology->name();
+    }
+
+    unsigned side_topology_num_nodes(unsigned side) const
+    {
+      if (!valid_side(side))
+        return 0;
+
+      Ioss::ElementTopology *sideTopology = topology->boundary_type(side);
+      return sideTopology->number_nodes();
+    }
   };
 
   class IossTopologyMapping : public text_mesh::TopologyMapping<TopologyMapEntry>

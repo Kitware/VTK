@@ -11,7 +11,7 @@
 #include <Ioss_MeshCopyOptions.h>
 #include <Ioss_SubSystem.h>
 
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <limits>
 
@@ -179,7 +179,8 @@ void Ioss::transfer_assemblies(Ioss::Region &region, Ioss::Region &output_region
     }
 
     if (options.verbose && rank == 0) {
-      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n", "Assemblies", assem.size());
+      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14}\n", "Assemblies",
+                 fmt::group_digits(assem.size()));
     }
     if (options.debug && rank == 0) {
       fmt::print(Ioss::DEBUG(), "\n");
@@ -205,9 +206,10 @@ void Ioss::transfer_blobs(Ioss::Region &region, Ioss::Region &output_region,
     }
 
     if (options.verbose && rank == 0) {
-      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}", (*blobs.begin())->type_string() + "s",
-                 blobs.size());
-      fmt::print(Ioss::DEBUG(), "\tLength of entity list = {:14L}\n", total_entities);
+      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14}", (*blobs.begin())->type_string() + "s",
+                 fmt::group_digits(blobs.size()));
+      fmt::print(Ioss::DEBUG(), "\tLength of entity list = {:14}\n",
+                 fmt::group_digits(total_entities));
     }
     if (options.debug && rank == 0) {
       fmt::print(Ioss::DEBUG(), "\n");
@@ -231,8 +233,8 @@ void Ioss::copy_database(Ioss::Region &region, Ioss::Region &output_region,
       label = "GiB";
       size /= 1024.0;
     }
-    fmt::print(Ioss::DEBUG(), "\n Maximum Field size = {:L} bytes ({:.3} {}) for field '{}'.\n",
-               max_field.first, size, label, max_field.second);
+    fmt::print(Ioss::DEBUG(), "\n Maximum Field size = {} bytes ({:.3} {}) for field '{}'.\n",
+               fmt::group_digits(max_field.first), size, label, max_field.second);
   }
 
   DataPool data_pool;
@@ -797,8 +799,10 @@ namespace {
       size_t num_nodes = inb->entity_count();
       size_t degree    = inb->get_property("component_degree").get_int();
       if (options.verbose && rank == 0) {
-        fmt::print(Ioss::DEBUG(), " Number of Coordinates per Node = {:14L}\n", degree);
-        fmt::print(Ioss::DEBUG(), " Number of Nodes                = {:14L}\n", num_nodes);
+        fmt::print(Ioss::DEBUG(), " Number of Coordinates per Node = {:14}\n",
+                   fmt::group_digits(degree));
+        fmt::print(Ioss::DEBUG(), " Number of Nodes                = {:14}\n",
+                   fmt::group_digits(num_nodes));
       }
       auto *nb = new Ioss::NodeBlock(*inb);
       output_region.add(nb);
@@ -881,10 +885,10 @@ namespace {
         output_region.add(block);
       }
       if (options.verbose && rank == 0) {
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
-                   (*blocks.begin())->type_string() + "s", blocks.size());
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
-                   (*blocks.begin())->contains_string() + "s", total_entities);
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14}\n",
+                   (*blocks.begin())->type_string() + "s", fmt::group_digits(blocks.size()));
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14}\n",
+                   (*blocks.begin())->contains_string() + "s", fmt::group_digits(total_entities));
       }
       if (options.debug && rank == 0) {
         fmt::print(Ioss::DEBUG(), "\n");
@@ -949,10 +953,10 @@ namespace {
       }
 
       if (options.verbose && rank == 0) {
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
-                   (*blocks.begin())->type_string() + "s", blocks.size());
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
-                   (*blocks.begin())->contains_string() + "s", total_entities);
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14}\n",
+                   (*blocks.begin())->type_string() + "s", fmt::group_digits(blocks.size()));
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14}\n",
+                   (*blocks.begin())->contains_string() + "s", fmt::group_digits(total_entities));
       }
       if (options.debug && rank == 0) {
         fmt::print(Ioss::DEBUG(), "\n");
@@ -1012,8 +1016,8 @@ namespace {
     }
 
     if (options.verbose && rank == 0 && !fss.empty()) {
-      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n", (*fss.begin())->type_string() + "s",
-                 fss.size());
+      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14}\n", (*fss.begin())->type_string() + "s",
+                 fmt::group_digits(fss.size()));
     }
     if (options.debug && rank == 0) {
       fmt::print(Ioss::DEBUG(), "\n");
@@ -1038,9 +1042,10 @@ namespace {
       }
 
       if (options.verbose && rank == 0) {
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}",
-                   (*sets.begin())->type_string() + "s", sets.size());
-        fmt::print(Ioss::DEBUG(), "\tLength of entity list = {:14L}\n", total_entities);
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14}", (*sets.begin())->type_string() + "s",
+                   fmt::group_digits(sets.size()));
+        fmt::print(Ioss::DEBUG(), "\tLength of entity list = {:14}\n",
+                   fmt::group_digits(total_entities));
       }
       if (options.debug && rank == 0) {
         fmt::print(Ioss::DEBUG(), "\n");

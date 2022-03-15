@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -8,7 +8,7 @@
 #include <Ioss_SmartAssert.h>
 #include <algorithm>
 #include <cgns/Iocgns_StructuredZoneData.h>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/color.h)
 #include VTK_FMT(fmt/ostream.h)
 #include <tokenize.h>
@@ -364,25 +364,25 @@ namespace Iocgns {
           Ioss::DEBUG(), "{}",
           fmt::format(
               fg(fmt::color::cyan),
-              "\nSplit Zone {} ({}) Adam {} ({}) with intervals {:>12},\twork = {:12L}, offset {} "
+              "\nSplit Zone {} ({}) Adam {} ({}) with intervals {:>12},\twork = {:12}, offset {} "
               "{} {}, ordinal {}, ratio {:.3f}\n",
               m_name, m_zone, m_adam->m_name, m_adam->m_zone,
-              fmt::format("{} {} {}", m_ordinal[0], m_ordinal[1], m_ordinal[2]), work(),
-              m_offset[0], m_offset[1], m_offset[2], ordinal, ratio));
+              fmt::format("{} {} {}", m_ordinal[0], m_ordinal[1], m_ordinal[2]),
+              fmt::group_digits(work()), m_offset[0], m_offset[1], m_offset[2], ordinal, ratio));
 
       fmt::print(Ioss::DEBUG(),
-                 "\tChild 1: Zone {} ({}) with intervals {:>12},\twork = {:12L}, offset "
+                 "\tChild 1: Zone {} ({}) with intervals {:>12},\twork = {:12}, offset "
                  "{} {} {}\n"
-                 "\tChild 2: Zone {} ({}) with intervals {:>12},\twork = {:12L}, offset "
+                 "\tChild 2: Zone {} ({}) with intervals {:>12},\twork = {:12}, offset "
                  "{} {} {}\n",
                  m_child1->m_name, m_child1->m_zone,
                  fmt::format("{} {} {}", m_child1->m_ordinal[0], m_child1->m_ordinal[1],
                              m_child1->m_ordinal[2]),
-                 m_child1->work(), m_child1->m_offset[0], m_child1->m_offset[1],
+                 fmt::group_digits(m_child1->work()), m_child1->m_offset[0], m_child1->m_offset[1],
                  m_child1->m_offset[2], m_child2->m_name, m_child2->m_zone,
                  fmt::format("{} {} {}", m_child2->m_ordinal[0], m_child2->m_ordinal[1],
                              m_child2->m_ordinal[2]),
-                 m_child2->work(), m_child2->m_offset[0], m_child2->m_offset[1],
+                 fmt::group_digits(m_child2->work()), m_child2->m_offset[0], m_child2->m_offset[1],
                  m_child2->m_offset[2]);
     }
 

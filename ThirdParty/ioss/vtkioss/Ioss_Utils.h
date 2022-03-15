@@ -109,6 +109,8 @@ namespace Ioss {
     static void set_pre_warning_text(const std::string &text) { m_preWarningText = text; }
     /** @}*/
 
+    static void copyright(std::ostream &out, const std::string &year_range);
+
     static void check_dynamic_cast(const void *ptr)
     {
       if (ptr == nullptr) {
@@ -208,7 +210,7 @@ namespace Ioss {
      * (1,234,567,890 would return 13)
      * Typically used with the `fmt::print()` functions as:
      * ```
-     * fmt::print("{:{}L}", number, number_width(number,true))
+     * fmt::print("{:{}}", number, number_width(number,true))
      * fmt::print("{:{}d}", number, number_width(number,false))
      * ```
      */
@@ -420,7 +422,7 @@ namespace Ioss {
     static int field_warning(const Ioss::GroupingEntity *ge, const Ioss::Field &field,
                              const std::string &inout);
 
-    static void calculate_sideblock_membership(IntVector &face_is_member, const SideBlock *ef_blk,
+    static void calculate_sideblock_membership(IntVector &face_is_member, const SideBlock *sb,
                                                size_t int_byte_size, const void *element,
                                                const void *sides, int64_t number_sides,
                                                const Region *region);

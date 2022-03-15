@@ -50,19 +50,13 @@ inline const std::string IOSS_SYM_TENSOR() { return std::string("sym_tensor_33")
 #if defined(SEACAS_HAVE_MPI)
 #include <vtk_mpi.h>
 #define PAR_UNUSED(x)
+using Ioss_MPI_Comm = MPI_Comm;
 #else
 #define PAR_UNUSED(x)                                                                              \
   do {                                                                                             \
     (void)(x);                                                                                     \
   } while (0)
-
-#ifndef MPI_COMM_SELF
-#define MPI_COMM_SELF 0
-#endif
-#ifndef MPI_COMM_WORLD
-#define MPI_COMM_WORLD 0
-using MPI_Comm       = int;
-#endif
+using Ioss_MPI_Comm  = int;
 #endif
 
 #ifdef SEACAS_HAVE_KOKKOS

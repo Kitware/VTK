@@ -131,7 +131,7 @@ namespace Iocgns {
   template <typename INT> class DecompositionData : public DecompositionDataBase
   {
   public:
-    DecompositionData(const Ioss::PropertyManager &props, MPI_Comm communicator);
+    DecompositionData(const Ioss::PropertyManager &props, Ioss_MPI_Comm communicator);
     ~DecompositionData() override = default;
 
     int int_size() const override { return sizeof(INT); }

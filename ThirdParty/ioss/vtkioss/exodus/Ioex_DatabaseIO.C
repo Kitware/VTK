@@ -24,7 +24,7 @@
 #include <exodus/Ioex_Internals.h>
 #include <exodus/Ioex_Utils.h>
 #include <vtk_exodusII.h>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <functional>
 #include <iostream>
@@ -155,7 +155,7 @@ namespace {
 
 namespace Ioex {
   DatabaseIO::DatabaseIO(Ioss::Region *region, const std::string &filename,
-                         Ioss::DatabaseUsage db_usage, MPI_Comm communicator,
+                         Ioss::DatabaseUsage db_usage, Ioss_MPI_Comm communicator,
                          const Ioss::PropertyManager &props)
       : Ioex::BaseDatabaseIO(region, filename, db_usage, communicator, props)
   {
@@ -649,6 +649,7 @@ namespace Ioex {
 
   void DatabaseIO::get_step_times__()
   {
+    double              t_begin        = Ioss::Utils::timer();
     bool                exists         = false;
     double              last_time      = DBL_MAX;
     int                 timestep_count = 0;
@@ -667,23 +668,17 @@ namespace Ioex {
         // Since we can't access the Region's stateCount directly, we just add
         // all of the steps and assume the Region is dealing with them directly...
         tsteps.resize(timestep_count);
+
         int error = ex_get_all_times(get_file_pointer(), tsteps.data());
         if (error < 0) {
           Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
         }
 
-        int max_step = timestep_count;
-        if (properties.exists("APPEND_OUTPUT_AFTER_STEP")) {
-          max_step = properties.get("APPEND_OUTPUT_AFTER_STEP").get_int();
-        }
-        if (max_step > timestep_count) {
-          max_step = timestep_count;
-        }
+        int max_step = properties.get_optional("APPEND_OUTPUT_AFTER_STEP", timestep_count);
+        max_step     = std::min(max_step, timestep_count);
 
-        double max_time = std::numeric_limits<double>::max();
-        if (properties.exists("APPEND_OUTPUT_AFTER_TIME")) {
-          max_time = properties.get("APPEND_OUTPUT_AFTER_TIME").get_real();
-        }
+        double max_time =
+            properties.get_optional("APPEND_OUTPUT_AFTER_TIME", std::numeric_limits<double>::max());
 
         Ioss::Region *this_region = get_region();
         for (int i = 0; i < max_step; i++) {
@@ -704,9 +699,26 @@ namespace Ioex {
         // For an exodus file, timesteps are global and are stored in the region.
         // Read the timesteps and add to the region
         tsteps.resize(timestep_count);
-        int error = ex_get_all_times(get_file_pointer(), tsteps.data());
-        if (error < 0) {
-          Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
+
+        // The `EXODUS_CALL_GET_ALL_TIMES=NO` is typically only used in
+        // isSerialParallel mode and the client is responsible for
+        // making sure that the step times are handled correctly.  All
+        // databases will know about the number of timesteps, but if
+        // this is skipped, then the times will all be zero.  Use case
+        // is that in isSerialParallel, each call to
+        // `ex_get_all_times` for all files is performed sequentially,
+        // so if you have hundreds to thousands of files, the time for
+        // the call is additive and since timesteps are record
+        // variables in netCDF, accessing the data for all timesteps
+        // involves lseeks throughout the file.
+        bool call_ex_get_all_times = true;
+        Ioss::Utils::check_set_bool_property(properties, "EXODUS_CALL_GET_ALL_TIMES",
+                                             call_ex_get_all_times);
+        if (call_ex_get_all_times) {
+          int error = ex_get_all_times(get_file_pointer(), tsteps.data());
+          if (error < 0) {
+            Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
+          }
         }
 
         // See if the "last_written_time" attribute exists and if it
@@ -732,21 +744,12 @@ namespace Ioex {
       // One use case is that job is restarting at a time prior to what has been
       // written to the results file, so want to start appending after
       // restart time instead of at end time on database.
-      int max_step = timestep_count;
-      if (properties.exists("APPEND_OUTPUT_AFTER_STEP")) {
-        max_step = properties.get("APPEND_OUTPUT_AFTER_STEP").get_int();
-      }
-      if (max_step > timestep_count) {
-        max_step = timestep_count;
-      }
+      int max_step = properties.get_optional("APPEND_OUTPUT_AFTER_STEP", timestep_count);
+      max_step     = std::min(max_step, timestep_count);
 
-      double max_time = std::numeric_limits<double>::max();
-      if (properties.exists("APPEND_OUTPUT_AFTER_TIME")) {
-        max_time = properties.get("APPEND_OUTPUT_AFTER_TIME").get_real();
-      }
-      if (last_time > max_time) {
-        last_time = max_time;
-      }
+      double max_time =
+          properties.get_optional("APPEND_OUTPUT_AFTER_TIME", std::numeric_limits<double>::max());
+      last_time = std::min(last_time, max_time);
 
       Ioss::Region *this_region = get_region();
       for (int i = 0; i < max_step; i++) {
@@ -761,14 +764,17 @@ namespace Ioex {
             // 0... Need better warnings which won't overload in the
             // worst case...
             fmt::print(Ioss::WARNING(),
-                       "Skipping step {:L} at time {} in database file\n\t{}.\n"
+                       "Skipping step {} at time {} in database file\n\t{}.\n"
                        "\tThe data for that step is possibly corrupt since the last time written "
                        "successfully was {}.\n",
-                       i + 1, tsteps[i], get_filename(), last_time);
+                       fmt::group_digits(i + 1), tsteps[i], get_filename(), last_time);
           }
         }
       }
     }
+    double t_end    = Ioss::Utils::timer();
+    double duration = t_end - t_begin;
+    fmt::print(Ioss::DEBUG(), "Get Step Times = {}\n", duration);
   }
 
   void DatabaseIO::read_communication_metadata()
@@ -1293,6 +1299,10 @@ namespace Ioex {
     m_groupCount[entity_type] = used_blocks;
 
     if (entity_type == EX_ELEM_BLOCK) {
+      if (!assemblyOmissions.empty() || !assemblyInclusions.empty()) {
+        update_block_omissions_from_assemblies();
+      }
+
       assert(blockOmissions.empty() || blockInclusions.empty()); // Only one can be non-empty
 
       // Handle all block omissions or inclusions...
@@ -1371,6 +1381,37 @@ namespace Ioex {
     }
     nodeConnectivityStatusCalculated = true;
   }
+
+  namespace {
+    void get_element_sides_lists(int exoid, int64_t id, int int_byte_size, int64_t number_sides,
+                                 Ioss::Int64Vector &element, Ioss::Int64Vector &sides)
+    {
+      // Check whether we already populated the element/sides vectors.
+      if (element.empty() && sides.empty() && number_sides > 0) {
+        fmt::print("IOSS DEBUG: Reading data for {} element/sides\n", number_sides);
+        element.resize(number_sides);
+        sides.resize(number_sides);
+        // Easier below here if the element and sides are a known 64-bit size...
+        // Kluge here to do that...
+        if (int_byte_size == 4) {
+          Ioss::IntVector e32(number_sides);
+          Ioss::IntVector s32(number_sides);
+          int             ierr = ex_get_set(exoid, EX_SIDE_SET, id, e32.data(), s32.data());
+          if (ierr < 0) {
+            Ioex::exodus_error(exoid, __LINE__, __func__, __FILE__);
+          }
+          std::copy(e32.begin(), e32.end(), element.begin());
+          std::copy(s32.begin(), s32.end(), sides.begin());
+        }
+        else {
+          int ierr = ex_get_set(exoid, EX_SIDE_SET, id, element.data(), sides.data());
+          if (ierr < 0) {
+            Ioex::exodus_error(exoid, __LINE__, __func__, __FILE__);
+          }
+        }
+      }
+    }
+  } // namespace
 
   void DatabaseIO::get_sidesets()
   {
@@ -1524,30 +1565,12 @@ namespace Ioex {
 
           int64_t number_sides = set_param[0].num_entry;
 
-          Ioss::Int64Vector element(number_sides);
-          Ioss::Int64Vector sides(number_sides);
-
-          // Easier below here if the element and sides are a known 64-bit size...
-          // Kluge here to do that...
-          if (int_byte_size_api() == 4) {
-            Ioss::IntVector e32(number_sides);
-            Ioss::IntVector s32(number_sides);
-            int ierr = ex_get_set(get_file_pointer(), EX_SIDE_SET, id, e32.data(), s32.data());
-            if (ierr < 0) {
-              Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
-            }
-            std::copy(e32.begin(), e32.end(), element.begin());
-            std::copy(s32.begin(), s32.end(), sides.begin());
-          }
-          else {
-            int ierr =
-                ex_get_set(get_file_pointer(), EX_SIDE_SET, id, element.data(), sides.data());
-            if (ierr < 0) {
-              Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
-            }
-          }
+          Ioss::Int64Vector element;
+          Ioss::Int64Vector sides;
 
           if (!blockOmissions.empty() || !blockInclusions.empty()) {
+            get_element_sides_lists(get_file_pointer(), id, int_byte_size_api(), number_sides,
+                                    element, sides);
             Ioex::filter_element_list(get_region(), element, sides, true);
             number_sides = element.size();
             SMART_ASSERT(element.size() == sides.size())(element.size())(sides.size());
@@ -1602,6 +1625,8 @@ namespace Ioex {
               side_map[std::make_pair(elem.first->name(), elem.second)] = 0;
             }
 
+            get_element_sides_lists(get_file_pointer(), id, int_byte_size_api(), number_sides,
+                                    element, sides);
             Ioex::separate_surface_element_sides(element, sides, get_region(), topo_map, side_map,
                                                  split_type, side_set_name);
           }
@@ -1642,6 +1667,8 @@ namespace Ioex {
                 }
               }
             }
+            get_element_sides_lists(get_file_pointer(), id, int_byte_size_api(), number_sides,
+                                    element, sides);
             Ioex::separate_surface_element_sides(element, sides, get_region(), topo_map, side_map,
                                                  split_type, side_set_name);
           }
@@ -4724,8 +4751,8 @@ void DatabaseIO::write_entity_transient_field(ex_entity_type type, const Ioss::F
 
     if (ierr < 0) {
       std::ostringstream extra_info;
-      fmt::print(extra_info, "Outputting field {} at step {:L} on {} {}.", field.get_name(), step,
-                 ge->type_string(), ge->name());
+      fmt::print(extra_info, "Outputting field {} at step {} on {} {}.", field.get_name(),
+                 fmt::group_digits(step), ge->type_string(), ge->name());
       Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__, extra_info.str());
     }
     return;
@@ -4786,8 +4813,8 @@ void DatabaseIO::write_entity_transient_field(ex_entity_type type, const Ioss::F
 
       if (ierr < 0) {
         std::ostringstream extra_info;
-        fmt::print(extra_info, "Outputting component {} of field {} at step {:L} on {} {}.", i,
-                   field_name, step, ge->type_string(), ge->name());
+        fmt::print(extra_info, "Outputting component {} of field {} at step {} on {} {}.", i,
+                   field_name, fmt::group_digits(step), ge->type_string(), ge->name());
         Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__, extra_info.str());
       }
     }

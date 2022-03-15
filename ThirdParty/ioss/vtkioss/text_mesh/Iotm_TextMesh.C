@@ -7,9 +7,9 @@
 #include "Iotm_TextMesh.h"
 
 #include <Ioss_Utils.h>
-#include "vtk_fmt.h"
+
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
-#include <tokenize.h> // for tokenize
 
 #include <algorithm>
 #include <array>
@@ -20,8 +20,6 @@
 #include <numeric>
 #include <string>
 #include <vector> // for vector
-
-#include <Ioss_Utils.h>
 
 #define ThrowRequireMsg(expr, message)                                                             \
   do {                                                                                             \
@@ -48,16 +46,9 @@ namespace Iotm {
     m_errorHandler = [](const std::ostringstream &errmsg) { error_handler(errmsg); };
 
     if (!parameters.empty()) {
-      auto groups = Ioss::tokenize(parameters, "|+");
-      parse_options(groups);
-
-      TextMeshParser parser(m_dimension);
+      TextMeshParser parser;
       parser.set_error_handler(m_errorHandler);
-      m_data = parser.parse(groups[0]);
-
-      m_coordinates.set_error_handler(m_errorHandler);
-      m_coordinates.set_coordinate_data(m_data, m_rawCoordinates);
-      m_rawCoordinates.clear();
+      m_data = parser.parse(parameters);
     };
 
     initialize();
@@ -69,7 +60,7 @@ namespace Iotm {
     initialize();
   }
 
-  unsigned TextMesh::spatial_dimension() const { return m_dimension; }
+  unsigned TextMesh::spatial_dimension() const { return m_data.spatialDim; }
 
   void TextMesh::initialize()
   {
@@ -77,67 +68,14 @@ namespace Iotm {
     build_block_partition_map();
     build_element_connectivity_map();
 
+    m_variableCount[Ioss::NODESET]      = 0;
+    m_variableCount[Ioss::SIDESET]      = 0;
     m_variableCount[Ioss::COMMSET]      = 0;
     m_variableCount[Ioss::ELEMENTBLOCK] = 0;
     m_variableCount[Ioss::INVALID_TYPE] = 0;
     m_variableCount[Ioss::NODEBLOCK]    = 0;
     m_variableCount[Ioss::REGION]       = 0;
-  }
-
-  void TextMesh::parse_coordinates_option(const std::vector<std::string> &option)
-  {
-    ThrowRequireMsg(!m_coordinatesParsed, "Coordinates have already been parsed! Check syntax.");
-
-    if (option.size() > 1) {
-      const auto &tokens = Ioss::tokenize(option[1], ",");
-      m_rawCoordinates.reserve(tokens.size());
-      for (const auto &token : tokens) {
-        double coord = std::stod(token);
-        m_rawCoordinates.push_back(coord);
-      }
-
-      m_coordinatesParsed = true;
-    }
-  }
-
-  void TextMesh::parse_dimension_option(const std::vector<std::string> &option)
-  {
-    if (option.size() > 1) {
-      m_dimension = std::stoull(option[1]);
-      ThrowRequireMsg(m_dimension == 2 || m_dimension == 3,
-                      "Error!  Spatial dimension not defined to be 2 or 3!");
-    }
-  }
-
-  void TextMesh::parse_options(const std::vector<std::string> &groups)
-  {
-    for (size_t i = 1; i < groups.size(); i++) {
-      auto        option     = Ioss::tokenize(groups[i], ":");
-      std::string optionType = option[0];
-
-      if (optionType == "coordinates") {
-        parse_coordinates_option(option);
-      }
-      else if (optionType == "dimension") {
-        parse_dimension_option(option);
-      }
-      else if (optionType == "help") {
-        fmt::print(
-            Ioss::OUTPUT(),
-            "\nValid Options for TextMesh parameter string:\n"
-            "\tPROC_ID,ELEM_ID,TOPOLOGY,{NODE CONNECTIVITY LIST}[,PART_NAME[,PART_ID]] (specifies "
-            "element list .. first "
-            "argument)\n"
-            "\tcoordinates:x1,y1[,z1], x2,y2[,z2], ...., xn,yn[,zn] (specifies coordinate data)\n"
-            "\tdimension:spatialDimension (specifies spatial dimension .. default is 3)\n"
-            "\thelp -- show this list\n\n");
-      }
-      else {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Unrecognized option '{}'.  It will be ignored.\n", optionType);
-        IOSS_ERROR(errmsg);
-      }
-    }
+    m_variableCount[Ioss::ASSEMBLY]     = 0;
   }
 
   int64_t TextMesh::node_count() const { return m_data.nodeIds.size(); }
@@ -145,6 +83,67 @@ namespace Iotm {
   int64_t TextMesh::node_count_proc() const { return m_data.num_nodes_on_proc(m_myProcessor); }
 
   int64_t TextMesh::block_count() const { return m_data.partIds.size(); }
+
+  int64_t TextMesh::nodeset_count() const { return m_data.nodesets.get_group_data().size(); }
+
+  int64_t TextMesh::nodeset_node_count(int64_t id) const
+  {
+    int64_t count = 0;
+
+    const NodesetData *nodeset = m_data.nodesets.get_group_data(id);
+    if (nullptr != nodeset) {
+      count = nodeset->data.size();
+    }
+    return count;
+  }
+
+  int64_t TextMesh::nodeset_node_count_proc(int64_t id) const
+  {
+    int64_t count = 0;
+
+    const NodesetData       *nodeset = m_data.nodesets.get_group_data(id);
+    const std::set<int64_t> &myNodes = m_data.nodes_on_proc(m_myProcessor);
+
+    if (nullptr != nodeset) {
+      for (int64_t nodeId : nodeset->data) {
+        if (myNodes.count(nodeId) > 0) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  int64_t TextMesh::sideset_count() const { return m_data.sidesets.get_group_data().size(); }
+
+  int64_t TextMesh::sideset_side_count(int64_t id) const
+  {
+    int64_t count = 0;
+
+    const SidesetData *sideset = m_data.sidesets.get_group_data(id);
+    if (nullptr != sideset) {
+      count = sideset->data.size();
+    }
+    return count;
+  }
+
+  int64_t TextMesh::sideset_side_count_proc(int64_t id) const
+  {
+    int64_t count = 0;
+
+    const SidesetData *sideset = m_data.sidesets.get_group_data(id);
+    int                myProc  = m_myProcessor;
+    if (nullptr != sideset) {
+      for (const std::pair<int64_t, int> &elemSidePair : sideset->data) {
+        int64_t elemId = elemSidePair.first;
+        auto iter = std::find(m_data.elementDataVec.begin(), m_data.elementDataVec.end(), elemId);
+        if (iter != m_data.elementDataVec.end() && iter->proc == myProc) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
 
   int64_t TextMesh::element_count() const { return m_data.elementDataVec.size(); }
 
@@ -354,13 +353,13 @@ namespace Iotm {
   {
     /* create global coordinates */
     int64_t count = node_count_proc();
-    coord.resize(count * m_dimension);
+    coord.resize(count * spatial_dimension());
     coordinates(&coord[0]);
   }
 
   void TextMesh::coordinates(double *coord) const
   {
-    if (!m_coordinatesParsed)
+    if (!m_data.coords.has_coordinate_data())
       return;
 
     /* create global coordinates */
@@ -368,7 +367,7 @@ namespace Iotm {
     unsigned    offset = 0;
 
     for (auto node : nodes) {
-      const std::vector<double> &coords = m_coordinates[node];
+      const std::vector<double> &coords = m_data.coords[node];
       for (unsigned i = 0; i < coords.size(); i++) {
         coord[offset++] = coords[i];
       }
@@ -378,7 +377,7 @@ namespace Iotm {
   void TextMesh::coordinates(std::vector<double> &x, std::vector<double> &y,
                              std::vector<double> &z) const
   {
-    if (!m_coordinatesParsed)
+    if (!m_data.coords.has_coordinate_data())
       return;
 
     /* create global coordinates */
@@ -390,11 +389,11 @@ namespace Iotm {
     const auto &nodes = m_data.nodes_on_proc(m_myProcessor);
 
     for (auto node : nodes) {
-      const std::vector<double> &coords = m_coordinates[node];
+      const std::vector<double> &coords = m_data.coords[node];
 
       x.push_back(coords[0]);
       y.push_back(coords[1]);
-      z.push_back((m_dimension == 3) ? coords[2] : 0.0);
+      z.push_back((spatial_dimension() == 3) ? coords[2] : 0.0);
     }
   }
 
@@ -413,22 +412,95 @@ namespace Iotm {
 
     if (component == 1) {
       for (auto node : nodes) {
-        const std::vector<double> &coords = m_coordinates[node];
+        const std::vector<double> &coords = m_data.coords[node];
         xyz[offset++]                     = coords[0];
       }
     }
     else if (component == 2) {
       for (auto node : nodes) {
-        const std::vector<double> &coords = m_coordinates[node];
+        const std::vector<double> &coords = m_data.coords[node];
         xyz[offset++]                     = coords[1];
       }
     }
     else if (component == 3) {
       for (auto node : nodes) {
-        const std::vector<double> &coords = m_coordinates[node];
-        xyz[offset++]                     = (m_dimension == 3) ? coords[2] : 0.0;
+        const std::vector<double> &coords = m_data.coords[node];
+        xyz[offset++]                     = (spatial_dimension() == 3) ? coords[2] : 0.0;
       }
     }
+  }
+
+  void TextMesh::nodeset_nodes(int64_t id, Ioss::Int64Vector &nodes) const
+  {
+    const NodesetData *nodeset = m_data.nodesets.get_group_data(id);
+    if (nullptr == nodeset)
+      return;
+
+    nodes.resize(nodeset_node_count_proc(id));
+
+    int64_t                  count   = 0;
+    const std::set<int64_t> &myNodes = m_data.nodes_on_proc(m_myProcessor);
+
+    for (int64_t nodeId : nodeset->data) {
+      if (myNodes.count(nodeId) > 0) {
+        nodes[count++] = nodeId;
+      }
+    }
+  }
+
+  void TextMesh::sideset_elem_sides(int64_t id, Ioss::Int64Vector &elemSides) const
+  {
+    const SidesetData *sideset = m_data.sidesets.get_group_data(id);
+    if (nullptr == sideset)
+      return;
+
+    elemSides.resize(2 * sideset_side_count_proc(id));
+
+    int64_t count  = 0;
+    int     myProc = m_myProcessor;
+
+    for (const std::pair<int64_t, int> &elemSidePair : sideset->data) {
+      int64_t elemId = elemSidePair.first;
+      int     side   = elemSidePair.second;
+      auto    iter = std::find(m_data.elementDataVec.begin(), m_data.elementDataVec.end(), elemId);
+      if (iter != m_data.elementDataVec.end() && iter->proc == myProc) {
+        elemSides[count++] = elemId;
+        elemSides[count++] = side;
+      }
+    }
+  }
+
+  std::set<std::string> TextMesh::get_blocks_touched_by_sideset(const SidesetData *sideset) const
+  {
+    std::set<std::string> touchedBlocks;
+
+    int myProc = m_myProcessor;
+
+    for (const std::pair<int64_t, int> &elemSidePair : sideset->data) {
+      int64_t elemId = elemSidePair.first;
+      auto    iter = std::find(m_data.elementDataVec.begin(), m_data.elementDataVec.end(), elemId);
+      if (iter != m_data.elementDataVec.end() && iter->proc == myProc) {
+        touchedBlocks.insert(iter->partName);
+      }
+    }
+
+    return touchedBlocks;
+  }
+
+  std::vector<std::string> TextMesh::sideset_touching_blocks(int64_t setId) const
+  {
+    std::vector<std::string> touchedBlocks;
+
+    const SidesetData *sideset = m_data.sidesets.get_group_data(setId);
+    if (nullptr != sideset) {
+      std::set<std::string> blockList = get_blocks_touched_by_sideset(sideset);
+      touchedBlocks.reserve(blockList.size());
+      for (const std::string &block : blockList) {
+        touchedBlocks.push_back(block);
+      }
+    }
+
+    return touchedBlocks;
   }
 
   void TextMesh::connectivity(int64_t id, Ioss::Int64Vector &connect) const
@@ -484,12 +556,21 @@ namespace Iotm {
     else if (type == "nodal" || type == "node") {
       m_variableCount[Ioss::NODEBLOCK] = count;
     }
+    else if (type == "nodeset") {
+      m_variableCount[Ioss::NODESET] = count;
+    }
+    else if (type == "surface" || type == "sideset") {
+      m_variableCount[Ioss::SIDEBLOCK] = count;
+    }
+    else if (type == "assembly") {
+      m_variableCount[Ioss::ASSEMBLY] = count;
+    }
     else {
       std::ostringstream errmsg;
       fmt::print(errmsg,
                  "ERROR: (Iotm::TextMesh::set_variable_count)\n"
                  "       Unrecognized variable type '{}'. Valid types are:\n"
-                 "       global, element, node, nodal, nodeset, surface, sideset.\n",
+                 "       global, element, node, nodal, nodeset, surface, sideset, assembly.\n",
                  type);
       IOSS_ERROR(errmsg);
     }
@@ -501,6 +582,100 @@ namespace Iotm {
   }
 
   int64_t TextMesh::get_part_id(const std::string &name) const { return m_data.partIds.get(name); }
+
+  std::vector<std::string> TextMesh::get_nodeset_names() const
+  {
+    return m_data.nodesets.get_part_names();
+  }
+
+  std::string TextMesh::get_nodeset_name(int64_t id) const
+  {
+    const NodesetData *nodeset = m_data.nodesets.get_group_data(id);
+    ThrowRequireMsg(nullptr != nodeset, "Could not find nodeset with id" << id);
+    return nodeset->name;
+  }
+
+  int64_t TextMesh::get_nodeset_id(const std::string &name) const
+  {
+    const NodesetData *nodeset = m_data.nodesets.get_group_data(name);
+    ThrowRequireMsg(nullptr != nodeset, "Could not find nodeset with name" << name);
+    return nodeset->id;
+  }
+
+  std::vector<std::string> TextMesh::get_sideset_names() const
+  {
+    return m_data.sidesets.get_part_names();
+  }
+
+  std::string TextMesh::get_sideset_name(int64_t id) const
+  {
+    const SidesetData *sideset = m_data.sidesets.get_group_data(id);
+    ThrowRequireMsg(nullptr != sideset, "Could not find sideset with id" << id);
+    return sideset->name;
+  }
+
+  int64_t TextMesh::get_sideset_id(const std::string &name) const
+  {
+    const SidesetData *sideset = m_data.sidesets.get_group_data(name);
+    ThrowRequireMsg(nullptr != sideset, "Could not find sideset with name" << name);
+    return sideset->id;
+  }
+
+  std::vector<std::string> TextMesh::get_assembly_names() const
+  {
+    return m_data.assemblies.get_part_names();
+  }
+
+  std::string TextMesh::get_assembly_name(int64_t id) const
+  {
+    const AssemblyData *assembly = m_data.assemblies.get_group_data(id);
+    ThrowRequireMsg(nullptr != assembly, "Could not find assembly with id" << id);
+    return assembly->name;
+  }
+
+  int64_t TextMesh::get_assembly_id(const std::string &name) const
+  {
+    const AssemblyData *assembly = m_data.assemblies.get_group_data(name);
+    ThrowRequireMsg(nullptr != assembly, "Could not find assembly with name" << name);
+    return assembly->id;
+  }
+
+  Ioss::EntityType TextMesh::assembly_type_to_entity_type(const AssemblyType type) const
+  {
+    if (type == AssemblyType::BLOCK) {
+      return Ioss::ELEMENTBLOCK;
+    }
+    else if (type == AssemblyType::NODESET) {
+      return Ioss::NODESET;
+    }
+    else if (type == AssemblyType::SIDESET) {
+      return Ioss::SIDESET;
+    }
+    else if (type == AssemblyType::ASSEMBLY) {
+      return Ioss::ASSEMBLY;
+    }
+
+    return Ioss::INVALID_TYPE;
+  }
+
+  Ioss::EntityType TextMesh::get_assembly_type(const std::string &name) const
+  {
+    const AssemblyData *assembly = m_data.assemblies.get_group_data(name);
+    ThrowRequireMsg(nullptr != assembly, "Could not find assembly with name" << name);
+
+    AssemblyType type = assembly->get_assembly_type();
+    return assembly_type_to_entity_type(type);
+  }
+
+  std::vector<std::string> TextMesh::get_assembly_members(const std::string &name) const
+  {
+    const AssemblyData *assembly = m_data.assemblies.get_group_data(name);
+    ThrowRequireMsg(nullptr != assembly, "Could not find assembly with name" << name);
+
+    return assembly->data;
+  }
+
+  int64_t TextMesh::assembly_count() const { return m_data.assemblies.get_group_data().size(); }
 
   std::set<int64_t> TextMesh::get_local_element_ids_for_block(int64_t id) const
   {
@@ -601,4 +776,78 @@ namespace Iotm {
     }
   }
 
+  int64_t TextMesh::sideblock_side_count(int64_t id, const std::string &sideBlockName) const
+  {
+    int64_t count = 0;
+
+    const SidesetData *sideset = m_data.sidesets.get_group_data(id);
+    if (nullptr != sideset) {
+      SideBlockInfo info = sideset->get_side_block_info(sideBlockName);
+      count              = info.sideIndex.size();
+    }
+    return count;
+  }
+
+  int64_t TextMesh::sideblock_side_count_proc(int64_t id, const std::string &sideBlockName) const
+  {
+    int64_t count = 0;
+
+    const SidesetData *sideset = m_data.sidesets.get_group_data(id);
+    if (nullptr != sideset) {
+      SideBlockInfo info = sideset->get_side_block_info(sideBlockName);
+      count              = sideset->get_sideblock_indices_local_to_proc(info, m_myProcessor).size();
+    }
+    return count;
+  }
+
+  void TextMesh::sideblock_elem_sides(int64_t id, const std::string &sideBlockName,
+                                      Ioss::Int64Vector &elemSides) const
+  {
+    const SidesetData *sideset = m_data.sidesets.get_group_data(id);
+    if (nullptr == sideset)
+      return;
+
+    SideBlockInfo       info = sideset->get_side_block_info(sideBlockName);
+    std::vector<size_t> localSideIndex =
+        sideset->get_sideblock_indices_local_to_proc(info, m_myProcessor);
+    elemSides.resize(2 * localSideIndex.size());
+
+    int64_t count = 0;
+
+    for (size_t sideIndex : localSideIndex) {
+      const SidesetData::DataType &elemSidePair = sideset->data[sideIndex];
+      int64_t                      elemId       = elemSidePair.first;
+      int                          side         = elemSidePair.second;
+
+      elemSides[count++] = elemId;
+      elemSides[count++] = side;
+    }
+  }
+
+  std::vector<SideBlockInfo>
+  TextMesh::get_side_block_info_for_sideset(const std::string &name) const
+  {
+    const SidesetData *sideset = m_data.sidesets.get_group_data(name);
+    ThrowRequireMsg(nullptr != sideset, "Could not find sideset with name" << name);
+    return sideset->get_side_block_info();
+  }
+
+  std::vector<size_t> TextMesh::get_local_side_block_indices(const std::string   &name,
+                                                             const SideBlockInfo &info) const
+  {
+    const SidesetData *sideset = m_data.sidesets.get_group_data(name);
+    ThrowRequireMsg(nullptr != sideset, "Could not find sideset with name" << name);
+    ThrowRequireMsg(name == info.parentName,
+                    "SideBlock: " << info.name << " with parent: " << info.parentName
+                                  << " was not created from sideset: " << name);
+    return sideset->get_sideblock_indices_local_to_proc(info, m_myProcessor);
+  }
+
+  SplitType TextMesh::get_sideset_split_type(const std::string &name) const
+  {
+    const SidesetData *sideset = m_data.sidesets.get_group_data(name);
+    ThrowRequireMsg(nullptr != sideset, "Could not find sideset with name" << name);
+
+    return sideset->get_split_type();
+  }
 } // namespace Iotm

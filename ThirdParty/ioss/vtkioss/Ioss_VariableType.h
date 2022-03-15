@@ -83,7 +83,8 @@ namespace Ioss {
     virtual bool        match(const std::vector<Suffix> &suffices) const;
 
     static const VariableType *factory(const std::string &raw_name, int copies = 1);
-    static const VariableType *factory(const std::vector<Suffix> &suffices);
+    static const VariableType *factory(const std::vector<Suffix> &suffices,
+                                       bool                       ignore_realn_fields = false);
 
   protected:
     VariableType(const std::string &type, int comp_count, bool delete_me = false);

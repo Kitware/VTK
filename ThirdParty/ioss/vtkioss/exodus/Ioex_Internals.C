@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -18,7 +18,7 @@ extern "C" {
 #include <cstdio>  // for nullptr
 #include <cstdlib> // for exit, EXIT_FAILURE
 #include <cstring> // for strlen
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <vtk_netcdf.h> // for NC_NOERR, nc_def_var, etc
 #include <ostream>  // for operator<<, etc
@@ -1035,7 +1035,7 @@ void Internals::copy_database(int in_file, int out_file, bool transient_also)
 
 void Internals::update_assembly_data(int exoid, std::vector<Assembly> &assemblies, int stage)
 {
-  Ioss::ParallelUtils pm(MPI_COMM_WORLD);
+  Ioss::ParallelUtils pm;
   Internals           internal{exoid, 0, pm};
 
   if (stage == 0 || stage == 1) {

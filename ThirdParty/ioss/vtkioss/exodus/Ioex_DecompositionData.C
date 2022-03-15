@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -21,7 +21,7 @@
 #include <cmath>
 #include <cstdlib> // for exit, EXIT_FAILURE
 #include <cstring>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <iostream> // for operator<<, ostringstream, etc
 #include <iterator> // for distance
@@ -111,17 +111,18 @@ namespace {
 
 namespace Ioex {
   template DecompositionData<int>::DecompositionData(const Ioss::PropertyManager &props,
-                                                     MPI_Comm                     communicator);
+                                                     Ioss_MPI_Comm                communicator);
   template DecompositionData<int64_t>::DecompositionData(const Ioss::PropertyManager &props,
-                                                         MPI_Comm                     communicator);
+                                                         Ioss_MPI_Comm                communicator);
 
   template <typename INT>
   DecompositionData<INT>::DecompositionData(const Ioss::PropertyManager &props,
-                                            MPI_Comm                     communicator)
+                                            Ioss_MPI_Comm                communicator)
       : DecompositionDataBase(communicator), m_decomposition(props, communicator)
   {
-    MPI_Comm_rank(comm_, &m_processor);
-    MPI_Comm_size(comm_, &m_processorCount);
+    Ioss::ParallelUtils pu(comm_);
+    m_processor      = pu.parallel_rank();
+    m_processorCount = pu.parallel_size();
   }
 
   template <typename INT> void DecompositionData<INT>::decompose_model(int filePtr)
@@ -145,10 +146,10 @@ namespace Ioex {
     generate_adjacency_list(filePtr, m_decomposition);
 
 #if IOSS_DEBUG_OUTPUT
-    fmt::print(Ioss::DEBUG(), "Processor {} has {:L} elements; offset = {:L}\n", m_processor,
-               decomp_elem_count(), decomp_elem_offset());
-    fmt::print(Ioss::DEBUG(), "Processor {} has {:L} nodes; offset = {:L}\n", m_processor,
-               decomp_node_count(), decomp_node_offset());
+    fmt::print(Ioss::DEBUG(), "Processor {} has {} elements; offset = {}\n", m_processor,
+               fmt::group_digits(decomp_elem_count()), fmt::group_digits(decomp_elem_offset()));
+    fmt::print(Ioss::DEBUG(), "Processor {} has {} nodes; offset = {}\n", m_processor,
+               fmt::group_digits(decomp_node_count()), fmt::group_digits(decomp_node_offset()));
 #endif
 
     if (m_decomposition.needs_centroids()) {
@@ -402,8 +403,8 @@ namespace Ioex {
         std::vector<INT> connectivity(overlap * element_nodes);
         size_t           blk_start = std::max(b_start, p_start) - b_start + 1;
 #if IOSS_DEBUG_OUTPUT
-        fmt::print(Ioss::DEBUG(), "Processor {} has {:L} elements on element block {}\n", m_processor,
-                   overlap, id);
+        fmt::print(Ioss::DEBUG(), "Processor {} has {} elements on element block {}\n", m_processor,
+                   fmt::group_digits(overlap), id);
 #endif
         ex_get_partial_conn(filePtr, EX_ELEM_BLOCK, id, blk_start, overlap, connectivity.data(),
                             nullptr, nullptr);
@@ -486,18 +487,19 @@ namespace Ioex {
     std::vector<INT> entitylist(max_size);
     std::vector<INT> set_entities_read(set_count);
 
-    size_t offset     = 0;        // What position are we filling in entitylist.
+    size_t  offset     = 0;        // What position are we filling in entitylist.
     int64_t remain     = max_size; // Amount of space left in entitylist.
-    size_t ibeg       = 0;
-    size_t total_read = 0;
+    size_t  ibeg       = 0;
+    size_t  total_read = 0;
     for (size_t i = 0; i < set_count; i++) {
       int64_t entitys_to_read = sets[i].num_entry;
       do {
         int64_t to_read = std::min(remain, entitys_to_read);
         if (m_processor == root) {
 #if IOSS_DEBUG_OUTPUT
-          fmt::print(Ioss::DEBUG(), "{} {} reading {:L} entities from offset {:L}\n", set_type_name,
-                     sets[i].id, to_read, set_entities_read[i] + 1);
+          fmt::print(Ioss::DEBUG(), "{} {} reading {} entities from offset {}\n", set_type_name,
+                     sets[i].id, fmt::group_digits(to_read),
+                     fmt::group_digits(set_entities_read[i] + 1));
 #endif
           // Read the entitylists on root processor.
           ex_get_partial_set(filePtr, set_type, sets[i].id, set_entities_read[i] + 1, to_read,
@@ -512,7 +514,8 @@ namespace Ioex {
           // * Broadcast data to other processors
           // * Each processor extracts the entities it manages.
           m_decomposition.show_progress("\tBroadcast entitylist begin");
-          MPI_Bcast(entitylist.data(), entitylist.size(), Ioss::mpi_type(INT(0)), root, comm_);
+          Ioss::ParallelUtils pu(comm_);
+          pu.broadcast(entitylist, root);
           m_decomposition.show_progress("\tBroadcast entitylist end");
 
           // Each processor now has same list of entities in entitysets (i_beg ... i)
@@ -648,7 +651,9 @@ namespace Ioex {
     }
 
     // Tell other processors
-    MPI_Bcast(df_valcon.data(), df_valcon.size(), MPI_DOUBLE, root, comm_);
+    Ioss::ParallelUtils pu(comm_);
+    pu.broadcast(df_valcon, root);
+
     for (size_t i = 0; i < set_count; i++) {
       node_sets[i].distributionFactorCount    = node_sets[i].ioss_count();
       node_sets[i].distributionFactorValue    = df_valcon[2 * i + 0];
@@ -726,13 +731,16 @@ namespace Ioex {
     }
 
     // Tell other processors
-    m_decomposition.show_progress("\tBroadcast df_valcon begin");
-    MPI_Bcast(df_valcon.data(), df_valcon.size(), MPI_DOUBLE, root, comm_);
-    m_decomposition.show_progress("\tBroadcast df_valcon end");
-    for (size_t i = 0; i < set_count; i++) {
-      side_sets[i].distributionFactorValue         = df_valcon[3 * i + 0];
-      side_sets[i].distributionFactorConstant      = (df_valcon[3 * i + 1] == 1.0);
-      side_sets[i].distributionFactorValsPerEntity = static_cast<int>(df_valcon[3 * i + 2]);
+    {
+      m_decomposition.show_progress("\tBroadcast df_valcon begin");
+      Ioss::ParallelUtils pu(comm_);
+      pu.broadcast(df_valcon, root);
+      m_decomposition.show_progress("\tBroadcast df_valcon end");
+      for (size_t i = 0; i < set_count; i++) {
+        side_sets[i].distributionFactorValue         = df_valcon[3 * i + 0];
+        side_sets[i].distributionFactorConstant      = (df_valcon[3 * i + 1] == 1.0);
+        side_sets[i].distributionFactorValsPerEntity = static_cast<int>(df_valcon[3 * i + 2]);
+      }
     }
 
     // See if need to communicate the nodes_per_side data on any
@@ -762,24 +770,27 @@ namespace Ioex {
         }
       }
 
-      // Broadcast this data to all other processors...
-      m_decomposition.show_progress("\tBroadcast nodes_per_face begin");
-      MPI_Bcast(nodes_per_face.data(), nodes_per_face.size(), MPI_INT, root, comm_);
-      m_decomposition.show_progress("\tBroadcast nodes_per_face end");
+      {
+        // Broadcast this data to all other processors...
+        m_decomposition.show_progress("\tBroadcast nodes_per_face begin");
+        Ioss::ParallelUtils pu(comm_);
+        pu.broadcast(nodes_per_face, root);
+        m_decomposition.show_progress("\tBroadcast nodes_per_face end");
 
-      // Each processor now has a list of the number of nodes per
-      // face for all sidesets that have a variable number. This can
-      // be used to determine the df field size on the ioss_decomp.
-      size_t offset = 0;
-      for (size_t i = 0; i < set_count; i++) {
-        if (side_sets[i].distributionFactorValsPerEntity < 0) {
-          int *npf = &nodes_per_face[offset];
-          offset += side_sets[i].file_count();
-          size_t my_count = 0;
-          for (size_t j = 0; j < side_sets[i].ioss_count(); j++) {
-            my_count += npf[side_sets[i].entitylist_map[j]];
+        // Each processor now has a list of the number of nodes per
+        // face for all sidesets that have a variable number. This can
+        // be used to determine the df field size on the ioss_decomp.
+        size_t offset = 0;
+        for (size_t i = 0; i < set_count; i++) {
+          if (side_sets[i].distributionFactorValsPerEntity < 0) {
+            int *npf = &nodes_per_face[offset];
+            offset += side_sets[i].file_count();
+            size_t my_count = 0;
+            for (size_t j = 0; j < side_sets[i].ioss_count(); j++) {
+              my_count += npf[side_sets[i].entitylist_map[j]];
+            }
+            side_sets[i].distributionFactorCount = my_count;
           }
-          side_sets[i].distributionFactorCount = my_count;
         }
       }
     }
@@ -796,8 +807,8 @@ namespace Ioex {
     int ierr = 0;
     if (field.get_name() == "mesh_model_coordinates_x") {
       m_decomposition.show_progress("\tex_get_partial_coord X");
-      ierr = ex_get_partial_coord_component(filePtr, decomp_node_offset() + 1,
-					    decomp_node_count(), 1, tmp.data());
+      ierr = ex_get_partial_coord_component(filePtr, decomp_node_offset() + 1, decomp_node_count(),
+                                            1, tmp.data());
       if (ierr >= 0) {
         communicate_node_data(tmp.data(), ioss_data, 1);
       }
@@ -881,14 +892,13 @@ namespace Ioex {
     size_t offset = get_block_element_offset(blk_seq);
 
     if (m_decomposition.m_method == "LINEAR") {
-      ex_get_partial_conn(filePtr, EX_ELEM_BLOCK, id, offset + 1, count, data, nullptr,
-			  nullptr);
+      ex_get_partial_conn(filePtr, EX_ELEM_BLOCK, id, offset + 1, count, data, nullptr, nullptr);
     }
     else {
       std::vector<INT> file_conn(count * nnpe);
       m_decomposition.show_progress("\tex_get_partial_conn");
       ex_get_partial_conn(filePtr, EX_ELEM_BLOCK, id, offset + 1, count, file_conn.data(), nullptr,
-			  nullptr);
+                          nullptr);
       m_decomposition.communicate_block_data(file_conn.data(), data, blk, nnpe);
     }
 
@@ -1289,16 +1299,16 @@ namespace Ioex {
     m_decomposition.show_progress("\tex_get_partial_var (elem)");
     if (m_decomposition.m_method == "LINEAR") {
       ierr = ex_get_partial_var(filePtr, step, EX_ELEM_BLOCK, var_index, id, offset + 1, count,
-				ioss_data.data());
+                                ioss_data.data());
     }
     else {
       std::vector<double> file_data(count);
       ierr = ex_get_partial_var(filePtr, step, EX_ELEM_BLOCK, var_index, id, offset + 1, count,
-				file_data.data());
+                                file_data.data());
 
       if (ierr >= 0) {
-	m_decomposition.communicate_block_data(file_data.data(), ioss_data.data(), el_blocks[blk_seq],
-					       1);
+        m_decomposition.communicate_block_data(file_data.data(), ioss_data.data(),
+                                               el_blocks[blk_seq], 1);
       }
     }
     return ierr;
@@ -1321,8 +1331,8 @@ namespace Ioex {
       std::vector<double> file_data(count * comp_count);
       ierr = ex_get_partial_attr(filePtr, EX_ELEM_BLOCK, id, offset + 1, count, file_data.data());
       if (ierr >= 0) {
-	m_decomposition.communicate_block_data(file_data.data(), ioss_data, el_blocks[blk_seq],
-					       comp_count);
+        m_decomposition.communicate_block_data(file_data.data(), ioss_data, el_blocks[blk_seq],
+                                               comp_count);
       }
     }
     return ierr;

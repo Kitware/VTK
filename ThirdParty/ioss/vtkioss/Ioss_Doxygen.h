@@ -75,14 +75,15 @@ PARALLEL_IO_MODE | netcdf4, hdf5, pnetcdf, (mpiio and mpiposix are deprecated)
  REAL_SIZE_DB          | 4 / [8] | byte size of floating point stored on the database.
  REAL_SIZE_API         | 4 / [8] | byte size of floating point used in api functions.
 
-## Properties related to field interpretation
+## Properties related to field and sideset/surface interpretation
  Property                 |   Value  | Description
 --------------------------|:--------:|-----------------------------------------------------------
  ENABLE_FIELD_RECOGNITION | [on]/off | Does the IOSS library combine scalar fields into higher-order fields (tensor, vector) based on suffix interpretation.
+ IGNORE_REALN_FIELDS      | [off]/on | Do not recognize var_1, var_2, ..., var_n as an n-component field.  Keep as n scalar fields.  Currently ignored for composite fields.
  FIELD_SUFFIX_SEPARATOR   | char / '_'| The character that is used to separate the base field name from the suffix.  Default is underscore.
  FIELD_STRIP_TRAILING_UNDERSCORE | on / [off] | If `FIELD_SUFFIX_SEPARATOR` is empty and there are fields that end with an underscore, then strip the underscore. (`a_x`, `a_y`, `a_z` is vector field `a`).
  IGNORE_ATTRIBUTE_NAMES   | on/[off] | Do not read the attribute names that may exist on an input database. Instead for an element block with N attributes, the fields will be named `attribute_1` ... `attribute_N`
-## Properties related to underlying file type (exodus only)
+ SURFACE_SPLIT_TYPE       | {type} | Specify how to split sidesets into homogeneous sideblocks. Either an integer or string: 1 or `TOPOLOGY`, 2 or `BLOCK`, 3 or `NO_SPLIT`.  Default is `TOPOLOGY` if not specified.
 
 ## Output Database-Related Properties
  Property        | Value  | Description
@@ -108,16 +109,18 @@ PARALLEL_IO_MODE | netcdf4, hdf5, pnetcdf, (mpiio and mpiposix are deprecated)
 ## Properties for the heartbeat output
  Property              | Value  | Description
 -----------------------|:------:|-----------------------------------------------------------
+  FILE_FORMAT          | [default], spyhis, csv, ts_csv, text, ts_text | predefined formats for heartbeat output. `ts_` outputs timestamp.
   FLUSH_INTERVAL       | int   | Minimum time interval between flushing heartbeat data to disk.  Default is 10 seconds
   TIME_STAMP_FORMAT    | [%H:%M:%S] | Format used to format time stamp.  See strftime man page
   SHOW_TIME_STAMP      | on/off | Should the output lines be preceded by the timestamp
+  FIELD_SEPARATOR      | [, ]   | separator to be used between output fields.
   PRECISION            | 0..16 [5] | Precision used for floating point output.
   FIELD_WIDTH          | 0.. |  Width of an output field. If 0, then use natural width.
   SHOW_LABELS          | on/[off]  | Should each field be preceded by its name (ke=1.3e9, ie=2.0e9)
   SHOW_LEGEND          | [on]/off  | Should a legend be printed at the beginning of the output showing the field names for each column of data.
   SHOW_TIME_FIELD      | on/[off]  | Should the current analysis time be output as the first field.
 
-## Experimental
+## Experimental / Special Purpose
 
  Property              | Value  | Description
 -----------------------|:------:|-----------------------------------------------------------
@@ -126,7 +129,18 @@ MEMORY_WRITE       | on/[off]   | experimental
 ENABLE_FILE_GROUPS | on/[off]   | experimental
 MINIMAL_NEMESIS_INFO | on/[off] | special case, omit all nemesis data except for nodal communication map
 OMIT_EXODUS_NUM_MAPS | on/[off] | special case, do not output the node and element numbering map.
+EXODUS_CALL_GET_ALL_TIMES| [on] / off | special case -- should the `ex_get_all_times()` function be called.  See below.
 
+* `EXODUS_CALL_GET_ALL_TIMES`: Typically only used in `isSerialParallel`
+mode and the client is responsible for making sure that the step times
+are handled correctly.  All databases will know about the number of
+timesteps, but if the `ex_get_all_times()` function call is skipped, then
+the times on that database will all be zero.  The use case is that in `isSerialParallel`,
+each call to `ex_get_all_times()` for all files is performed
+sequentially, so if you have hundreds to thousands of files, the time
+for the call is additive and since timesteps are record variables in
+netCDF, accessing the data for all timesteps involves lseeks
+throughout the file.
 
 ## Debugging / Profiling
 

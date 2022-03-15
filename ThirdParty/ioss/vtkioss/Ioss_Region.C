@@ -39,7 +39,7 @@
 #include <cctype>
 #include <climits>
 #include <cstddef>
-#include "vtk_fmt.h"
+#include "vtk_ioss_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <iomanip>
 #include <iostream>
@@ -529,37 +529,75 @@ namespace Ioss {
         "\n Database: {0}\n"
         " Mesh Type = {1}, {39}\n"
         "                      {38:{24}s}\t                 {38:{23}s}\t Variables : Transient / Reduction\n"
-        " Spatial dimensions = {2:{24}L}\t                 {38:{23}s}\t Global     = {26:{25}L}\t{44:{25}L}\n"
-        " Node blocks        = {7:{24}L}\t Nodes         = {3:{23}L}\t Nodal      = {27:{25}L}\t{45:{25}L}\n"
-        " Edge blocks        = {8:{24}L}\t Edges         = {4:{23}L}\t Edge       = {33:{25}L}\t{46:{25}L}\n"
-        " Face blocks        = {9:{24}L}\t Faces         = {5:{23}L}\t Face       = {34:{25}L}\t{47:{25}L}\n"
-        " Element blocks     = {10:{24}L}\t Elements      = {6:{23}L}\t Element    = {28:{25}L}\t{48:{25}L}\n"
-        " Structured blocks  = {11:{24}L}\t Cells         = {17:{23}L}\t Structured = {29:{25}L}\t{49:{25}L}\n"
-        " Node sets          = {12:{24}L}\t Node list     = {18:{23}L}\t Nodeset    = {30:{25}L}\t{50:{25}L}\n"
-        " Edge sets          = {13:{24}L}\t Edge list     = {19:{23}L}\t Edgeset    = {35:{25}L}\t{51:{25}L}\n"
-        " Face sets          = {14:{24}L}\t Face list     = {20:{23}L}\t Faceset    = {36:{25}L}\t{52:{25}L}\n"
-        " Element sets       = {15:{24}L}\t Element list  = {21:{23}L}\t Elementset = {37:{25}L}\t{53:{25}L}\n"
-        " Element side sets  = {16:{24}L}\t Element sides = {22:{23}L}\t Sideset    = {31:{25}L}\n"
-        " Assemblies         = {40:{24}L}\t                 {38:{23}s}\t Assembly   = {41:{25}L}\t{54:{25}L}\n"
-        " Blobs              = {42:{24}L}\t                 {38:{23}s}\t Blob       = {43:{25}L}\t{55:{25}L}\n\n"
-        " Time steps         = {32:{24}L}\n",
+        " Spatial dimensions = {2:{24}}\t                 {38:{23}s}\t Global     = {26:{25}}\t{44:{25}}\n"
+        " Node blocks        = {7:{24}}\t Nodes         = {3:{23}}\t Nodal      = {27:{25}}\t{45:{25}}\n"
+        " Edge blocks        = {8:{24}}\t Edges         = {4:{23}}\t Edge       = {33:{25}}\t{46:{25}}\n"
+        " Face blocks        = {9:{24}}\t Faces         = {5:{23}}\t Face       = {34:{25}}\t{47:{25}}\n"
+        " Element blocks     = {10:{24}}\t Elements      = {6:{23}}\t Element    = {28:{25}}\t{48:{25}}\n"
+        " Structured blocks  = {11:{24}}\t Cells         = {17:{23}}\t Structured = {29:{25}}\t{49:{25}}\n"
+        " Node sets          = {12:{24}}\t Node list     = {18:{23}}\t Nodeset    = {30:{25}}\t{50:{25}}\n"
+        " Edge sets          = {13:{24}}\t Edge list     = {19:{23}}\t Edgeset    = {35:{25}}\t{51:{25}}\n"
+        " Face sets          = {14:{24}}\t Face list     = {20:{23}}\t Faceset    = {36:{25}}\t{52:{25}}\n"
+        " Element sets       = {15:{24}}\t Element list  = {21:{23}}\t Elementset = {37:{25}}\t{53:{25}}\n"
+        " Element side sets  = {16:{24}}\t Element sides = {22:{23}}\t Sideset    = {31:{25}}\n"
+        " Assemblies         = {40:{24}}\t                 {38:{23}s}\t Assembly   = {41:{25}}\t{54:{25}}\n"
+        " Blobs              = {42:{24}}\t                 {38:{23}s}\t Blob       = {43:{25}}\t{55:{25}}\n\n"
+        " Time steps         = {32:{24}}\n",
         get_database()->get_filename(), mesh_type_string(),
-        get_property("spatial_dimension").get_int(), get_property("node_count").get_int(),
-        get_property("edge_count").get_int(), get_property("face_count").get_int(),
-        get_property("element_count").get_int(), get_property("node_block_count").get_int(),
-        get_property("edge_block_count").get_int(), get_property("face_block_count").get_int(),
-        get_property("element_block_count").get_int(),
-        get_property("structured_block_count").get_int(), get_property("node_set_count").get_int(),
-        get_property("edge_set_count").get_int(), get_property("face_set_count").get_int(),
-        get_property("element_set_count").get_int(), get_property("side_set_count").get_int(),
-        total_cells, total_ns_nodes, total_es_edges, total_fs_faces, total_es_elements, total_sides,
-        num_width, sb_width, vr_width, num_glo_vars, num_nod_vars, num_ele_vars, num_str_vars,
-        num_ns_vars, num_ss_vars, num_ts, num_edg_vars, num_fac_vars, num_es_vars, num_fs_vars,
-        num_els_vars, " ", get_database()->get_format(), get_property("assembly_count").get_int(),
-        num_asm_vars, get_property("blob_count").get_int(), num_blob_vars, num_glo_red_vars,
-        num_nod_red_vars, num_edg_red_vars, num_fac_red_vars, num_ele_red_vars, num_str_red_vars,
-        num_ns_red_vars, num_es_red_vars, num_fs_red_vars, num_els_red_vars, num_asm_red_vars,
-        num_blob_red_vars);
+        fmt::group_digits(get_property("spatial_dimension").get_int()), 
+	fmt::group_digits(get_property("node_count").get_int()),
+        fmt::group_digits(get_property("edge_count").get_int()), 
+	fmt::group_digits(get_property("face_count").get_int()),
+        fmt::group_digits(get_property("element_count").get_int()), 
+	fmt::group_digits(get_property("node_block_count").get_int()),
+        fmt::group_digits(get_property("edge_block_count").get_int()), 
+	fmt::group_digits(get_property("face_block_count").get_int()),
+        fmt::group_digits(get_property("element_block_count").get_int()),
+        fmt::group_digits(get_property("structured_block_count").get_int()), 
+	fmt::group_digits(get_property("node_set_count").get_int()),
+        fmt::group_digits(get_property("edge_set_count").get_int()), 
+	fmt::group_digits(get_property("face_set_count").get_int()),
+        fmt::group_digits(get_property("element_set_count").get_int()), 
+	fmt::group_digits(get_property("side_set_count").get_int()),
+        fmt::group_digits(total_cells), 
+	fmt::group_digits(total_ns_nodes), 
+	fmt::group_digits(total_es_edges), 
+	fmt::group_digits(total_fs_faces), 
+	fmt::group_digits(total_es_elements), 
+	fmt::group_digits(total_sides),
+        num_width, 
+	sb_width, 
+	vr_width, 
+	fmt::group_digits(num_glo_vars), 
+	fmt::group_digits(num_nod_vars), 
+	fmt::group_digits(num_ele_vars), 
+	fmt::group_digits(num_str_vars),
+        fmt::group_digits(num_ns_vars), 
+	fmt::group_digits(num_ss_vars), 
+	fmt::group_digits(num_ts), 
+	fmt::group_digits(num_edg_vars), 
+	fmt::group_digits(num_fac_vars), 
+	fmt::group_digits(num_es_vars), 
+	fmt::group_digits(num_fs_vars),
+        fmt::group_digits(num_els_vars), 
+	" ", 
+	get_database()->get_format(), 
+	fmt::group_digits(get_property("assembly_count").get_int()),
+        fmt::group_digits(num_asm_vars) ,
+	fmt::group_digits(get_property("blob_count").get_int()),
+	fmt::group_digits(num_blob_vars),
+	fmt::group_digits(num_glo_red_vars),
+        fmt::group_digits(num_nod_red_vars), 
+	fmt::group_digits(num_edg_red_vars), 
+	fmt::group_digits(num_fac_red_vars), 
+	fmt::group_digits(num_ele_red_vars),
+	fmt::group_digits(num_str_red_vars),
+        fmt::group_digits(num_ns_red_vars),
+	fmt::group_digits(num_es_red_vars), 
+	fmt::group_digits(num_fs_red_vars), 
+	fmt::group_digits(num_els_red_vars),
+	fmt::group_digits(num_asm_red_vars),
+        fmt::group_digits(num_blob_red_vars));
     // clang-format on
   }
 

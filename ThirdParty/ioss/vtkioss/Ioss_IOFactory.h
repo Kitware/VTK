@@ -12,6 +12,7 @@
 #include <string>
 
 #include <Ioss_DBUsage.h>
+#include <Ioss_ParallelUtils.h>
 #include <Ioss_PropertyManager.h>
 
 #include <map>
@@ -35,7 +36,8 @@ namespace Ioss {
   public:
     virtual ~IOFactory() = default;
     static DatabaseIO *create(const std::string &type, const std::string &filename,
-                              DatabaseUsage db_usage, MPI_Comm communicator = MPI_COMM_WORLD,
+                              DatabaseUsage db_usage,
+                              Ioss_MPI_Comm communicator = Ioss::ParallelUtils::comm_world(),
                               const Ioss::PropertyManager &properties = Ioss::PropertyManager());
 
     static int         describe(NameList *names);
@@ -47,7 +49,7 @@ namespace Ioss {
     explicit IOFactory(const std::string &type);
 
     virtual DatabaseIO *make_IO(const std::string &filename, DatabaseUsage db_usage,
-                                MPI_Comm                     communicator,
+                                Ioss_MPI_Comm                communicator,
                                 const Ioss::PropertyManager &properties) const = 0;
 
     virtual std::string show_config() const { return std::string(""); }
