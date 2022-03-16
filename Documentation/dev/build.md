@@ -229,6 +229,10 @@ More advanced options:
     deprecated APIs.
   * `VTK_LEGACY_SILENT` (default `OFF`; requires `VTK_LEGACY_REMOVE` to be
     `OFF`): If set, usage of legacy, deprecated APIs will not cause warnings.
+  * `VTK_USE_FUTURE_CONST` (default `OFF`): If set, the `VTK_FUTURE_CONST`
+    macro expands to `const`; otherwise it expands to nothing. This is used to
+    incrementally add more const correctness to the codebase while making it
+    opt-in for backwards compatibility.
   * `VTK_USE_TK` (default `OFF`; requires `VTK_WRAP_PYTHON`): If set, VTK will
     enable Tkinter support for VTK widgets.
   * `VTK_BUILD_COMPILE_TOOLS_ONLY` (default `OFF`): If set, VTK will compile

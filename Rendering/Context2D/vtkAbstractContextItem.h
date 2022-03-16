@@ -255,7 +255,13 @@ public:
   /**
    * Get the visibility of the item (should it be drawn).
    */
-  vtkGetMacro(Visible, bool);
+  virtual bool GetVisible()
+  {
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Visible of "
+                  << this->Visible);
+    return this->Visible;
+  }
+
   ///@}
 
   ///@{

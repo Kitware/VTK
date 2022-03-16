@@ -39,7 +39,7 @@ void vtkRenderTimerLog::PrintSelf(std::ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-bool vtkRenderTimerLog::IsSupported()
+bool vtkRenderTimerLog::IsSupported() VTK_FUTURE_CONST
 {
   return false;
 }

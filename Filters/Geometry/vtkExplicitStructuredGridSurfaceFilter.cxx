@@ -138,7 +138,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   vtkNew<vtkIdList> cellIds;
   vtkUnsignedCharArray* connectivityFlags = nullptr;
 
-  char* facesConnectivityFlagsArrayName = input->GetFacesConnectivityFlagsArrayName();
+  const char* facesConnectivityFlagsArrayName = input->GetFacesConnectivityFlagsArrayName();
   if (facesConnectivityFlagsArrayName)
   {
     connectivityFlags = vtkUnsignedCharArray::SafeDownCast(

@@ -12,6 +12,9 @@ endif ()
 option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids" "${vtk_use_64bit_ids_default}")
 mark_as_advanced(VTK_USE_64BIT_IDS)
 
+option(VTK_USE_FUTURE_CONST "Adds more const to APIs. Opt-in because it may break compatibility" OFF)
+mark_as_advanced(VTK_USE_FUTURE_CONST)
+
 option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 mark_as_advanced(VTK_DEBUG_LEAKS)
 

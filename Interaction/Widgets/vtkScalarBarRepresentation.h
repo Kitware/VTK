@@ -81,7 +81,7 @@ public:
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  vtkTypeBool GetVisibility() override;
+  vtkTypeBool GetVisibility() VTK_FUTURE_CONST override;
   void SetVisibility(vtkTypeBool) override;
   void GetActors2D(vtkPropCollection* collection) override;
   void ReleaseGraphicsResources(vtkWindow* window) override;

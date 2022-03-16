@@ -154,8 +154,8 @@ void vtkOctreePointLocatorNode::ComputeOctreeNodeInformation(
 
     for (i = 1; i < 8; i++)
     {
-      double* min = this->Children[i]->GetMinDataBounds();
-      double* max = this->Children[i]->GetMaxDataBounds();
+      const double* min = this->Children[i]->GetMinDataBounds();
+      const double* max = this->Children[i]->GetMaxDataBounds();
       for (int j = 0; j < 3; j++)
       {
         if (min[j] < this->MinDataBounds[j])

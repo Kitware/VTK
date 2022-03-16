@@ -66,7 +66,6 @@
 // The level at which warnings should be made.
 #ifndef VTK_DEPRECATION_LEVEL
 // VTK defaults to deprecation of its current version.
-#include "vtkVersionMacros.h"
 #define VTK_DEPRECATION_LEVEL VTK_VERSION_NUMBER
 #endif
 

@@ -30,6 +30,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCompiler.h"
 #include "vtkLegacy.h"
+#include "vtkOptions.h"
 #include "vtkSystemIncludes.h"
 #include <type_traits> // for std::underlying type.
 #include <typeinfo>
@@ -43,6 +44,12 @@
 #if !defined(__clang__) && defined(__GNUC__) &&                                                    \
   (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8))
 #error VTK requires GCC 4.8 or newer
+#endif
+
+#if VTK_USE_FUTURE_CONST
+#define VTK_FUTURE_CONST const
+#else
+#define VTK_FUTURE_CONST
 #endif
 
 // Convert a macro representing a value to a string.
@@ -144,7 +151,7 @@
 // Get built-in type.  Creates member Get"name"() (e.g., GetVisibility());
 //
 #define vtkGetMacro(name, type)                                                                    \
-  virtual type Get##name()                                                                         \
+  virtual type Get##name() VTK_FUTURE_CONST                                                        \
   {                                                                                                \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of "       \
                   << this->name);                                                                  \
@@ -245,7 +252,9 @@
 #define vtkGetStringMacro(name) virtual char* Get##name() vtkGetStringBodyMacro(name)
 
 // Get a file path, like vtkGetStringMacro but with VTK_FILEPATH hint.
-#define vtkGetFilePathMacro(name) virtual VTK_FILEPATH char* Get##name() vtkGetStringBodyMacro(name)
+#define vtkGetFilePathMacro(name)                                                                  \
+  virtual VTK_FILEPATH VTK_FUTURE_CONST char* Get##name()                                          \
+    VTK_FUTURE_CONST vtkGetStringBodyMacro(name)
 
 // This macro defines a body of get string macro. It can be used either in
 // the header file using vtkGetStringMacro or in the implementation.

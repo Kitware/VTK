@@ -73,7 +73,7 @@ void vtkMetaImageWriter::SetRAWFileName(const char* fname)
 }
 
 //------------------------------------------------------------------------------
-char* vtkMetaImageWriter::GetRAWFileName()
+VTK_FUTURE_CONST char* vtkMetaImageWriter::GetRAWFileName() VTK_FUTURE_CONST
 {
   return this->Superclass::GetFileName();
 }

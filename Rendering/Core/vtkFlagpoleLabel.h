@@ -67,11 +67,11 @@ public:
    * @{
    */
   void SetForceOpaque(bool opaque) override;
-  bool GetForceOpaque() override;
+  bool GetForceOpaque() VTK_FUTURE_CONST override;
   void ForceOpaqueOn() override;
   void ForceOpaqueOff() override;
   void SetForceTranslucent(bool trans) override;
-  bool GetForceTranslucent() override;
+  bool GetForceTranslucent() VTK_FUTURE_CONST override;
   void ForceTranslucentOn() override;
   void ForceTranslucentOff() override;
   /**@}*/

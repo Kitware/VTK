@@ -166,7 +166,7 @@ public:
    * Returns true if stream timings are implemented for the current graphics
    * backend.
    */
-  virtual bool IsSupported();
+  virtual bool IsSupported() VTK_FUTURE_CONST;
 
   /**
    * Call to mark the start of a new frame, or the end of an old one. Does
@@ -221,7 +221,7 @@ protected:
   vtkRenderTimerLog();
   ~vtkRenderTimerLog() override;
 
-  bool LoggingEnabled;
+  mutable bool LoggingEnabled;
   unsigned int FrameLimit;
 
 private:
