@@ -230,8 +230,16 @@ int vtkThreshold::RequestData(vtkInformation* vtkNotUsed(request),
   // Check that the scalars of each cell satisfy the threshold criterion
   vtkSmartPointer<vtkCellIterator> it =
     vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+  vtkIdType numberOfCells = input->GetNumberOfCells();
+  vtkIdType index = 0;
+  const vtkIdType tenth = numberOfCells / 10 + 1;
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
+    if (index % tenth == 0)
+    {
+      this->UpdateProgress(index * 1.0 / numberOfCells);
+    }
+    index++;
     int cellType = it->GetCellType();
     if (cellType == VTK_EMPTY_CELL)
     {
