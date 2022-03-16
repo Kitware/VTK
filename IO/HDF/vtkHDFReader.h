@@ -21,18 +21,21 @@
 #ifndef vtkHDFReader_h
 #define vtkHDFReader_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkIOHDFModule.h" // For export macro
 #include <vector>           // For storing list of values
 
 class vtkAbstractArray;
 class vtkCallbackCommand;
+class vtkCommand;
 class vtkDataArraySelection;
 class vtkDataSet;
 class vtkDataSetAttributes;
+class vtkImageData;
 class vtkInformationVector;
 class vtkInformation;
-class vtkCommand;
+class vtkOverlappingAMR;
+class vtkUnstructuredGrid;
 
 /**
  * @class vtkHDFReader
@@ -43,11 +46,11 @@ class vtkCommand;
  * implemented) and serial as well as parallel processing.
  *
  */
-class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataSetAlgorithm
+class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataObjectAlgorithm
 {
 public:
   static vtkHDFReader* New();
-  vtkTypeMacro(vtkHDFReader, vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkHDFReader, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -102,6 +105,9 @@ public:
   const char* GetCellArrayName(int index);
   //@}
 
+  vtkSetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
+  vtkGetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
+
 protected:
   vtkHDFReader();
   ~vtkHDFReader() override;
@@ -124,6 +130,7 @@ protected:
    */
   int Read(vtkInformation* outInfo, vtkImageData* data);
   int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data);
+  int Read(vtkInformation* outInfo, vtkOverlappingAMR* data);
   //@}
   /**
    * Read 'pieceData' specified by 'filePiece' where
@@ -137,7 +144,7 @@ protected:
   /**
    * Read the field arrays from the file and add them to the dataset.
    */
-  int AddFieldArrays(vtkDataSet* data);
+  int AddFieldArrays(vtkDataObject* data);
 
   /**
    * Modify this object when an array selection is changed.
@@ -192,6 +199,9 @@ protected:
   double Origin[3];
   double Spacing[3];
   //@}
+
+  unsigned int MaximumLevelsToReadByDefaultForAMR = 0;
+
   class Implementation;
   Implementation* Impl;
 };

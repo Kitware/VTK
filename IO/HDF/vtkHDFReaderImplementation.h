@@ -106,6 +106,16 @@ public:
    */
   std::vector<hsize_t> GetDimensions(const char* dataset);
 
+  /**
+   * Fills the given AMR data with the content of the opened HDF file.
+   * The number of level to read is limited by the maximumLevelsToReadByDefault argument.
+   * maximumLevelsToReadByDefault == 0 means to read all levels (no limit).
+   * Only the selected data array in dataArraySelection are added to the AMR data.
+   * Returns true on success.
+   */
+  bool FillAMR(vtkOverlappingAMR* data, unsigned int maximumLevelsToReadByDefault, double origin[3],
+    vtkDataArraySelection* dataArraySelection[3]);
+
 protected:
   /**
    * Used to store HDF native types in a map
@@ -195,6 +205,20 @@ private:
   using ArrayReader = vtkDataArray* (vtkHDFReader::Implementation::*)(hid_t dataset,
     const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents);
   std::map<TypeDescription, ArrayReader> TypeReaderMap;
+
+  bool ReadDataSetType();
+
+  //@{
+  /**
+   * These methods are valid only with AMR data set type.
+   */
+  bool ComputeAMRBlocksPerLevels(std::vector<int>& levels);
+  bool ReadLevelSpacing(hid_t levelGroupID, double* spacing);
+  bool ReadAMRBoxRawValues(hid_t levelGroupID, std::vector<int>& amrBoxRawData);
+  bool ReadAMRAttributeGroupIDs(hid_t levelGroupID);
+  bool ReadLevel(unsigned int level, const std::string& levelGroupName, vtkOverlappingAMR* data,
+    double origin[3], vtkDataArraySelection* dataArraySelection[3]);
+  //@}
 };
 
 //------------------------------------------------------------------------------

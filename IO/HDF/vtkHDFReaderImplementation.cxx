@@ -20,23 +20,31 @@
 #include <stdexcept>
 #include <type_traits>
 
+#include "vtkAMRBox.h"
+#include "vtkAMRUtilities.h"
 #include "vtkCharArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
+#include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkShortArray.h"
 #include "vtkStringArray.h"
+#include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
+
+#include <array>
 
 //------------------------------------------------------------------------------
 namespace
@@ -163,8 +171,23 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
       // we try to read a non-VTKHDF file
       return false;
     }
+
+    H5Eset_auto(H5E_DEFAULT, f, client_data);
+    if (!this->ReadDataSetType())
+    {
+      return false;
+    }
+    H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+
     std::array<const char*, 3> groupNames = { "/VTKHDF/PointData", "/VTKHDF/CellData",
       "/VTKHDF/FieldData" };
+
+    if (this->DataSetType == VTK_OVERLAPPING_AMR)
+    {
+      groupNames = { "/VTKHDF/Level0/PointData", "/VTKHDF/Level0/CellData",
+        "/VTKHDF/Level0/FieldData" };
+    }
+
     // try to open cell or point group. Its OK if they don't exist.
     for (size_t i = 0; i < this->AttributeDataGroup.size(); ++i)
     {
@@ -176,14 +199,12 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
     {
       return false;
     }
+
     hid_t attr = -1;
     try
     {
-      H5Eset_auto(H5E_DEFAULT, nullptr, nullptr); // errors off
-      if ((attr = H5Aopen_name(this->VTKGroup, "WholeExtent")) < 0)
+      if (this->DataSetType == VTK_UNSTRUCTURED_GRID)
       {
-        H5Eset_auto(H5E_DEFAULT, f, client_data); // errors on
-        this->DataSetType = VTK_UNSTRUCTURED_GRID;
         const char* datasetName = "/VTKHDF/NumberOfPoints";
         std::vector<hsize_t> dims = this->GetDimensions(datasetName);
         if (dims.size() != 1)
@@ -192,10 +213,12 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
         }
         this->NumberOfPieces = dims[0];
       }
-      else
+      else if (this->DataSetType == VTK_IMAGE_DATA)
       {
-        H5Eset_auto(H5E_DEFAULT, f, client_data); // errors on
-        this->DataSetType = VTK_IMAGE_DATA;
+        this->NumberOfPieces = 1;
+      }
+      else if (this->DataSetType == VTK_OVERLAPPING_AMR)
+      {
         this->NumberOfPieces = 1;
       }
     }
@@ -204,6 +227,7 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
       vtkErrorWithObjectMacro(this->Reader, << e.what());
       error = true;
     }
+
     if (attr >= 0)
     {
       error = H5Aclose(attr) < 0 || error;
@@ -211,6 +235,93 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
   }
   this->BuildTypeReaderMap();
   return !error;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::ReadDataSetType()
+{
+  if (H5Aexists(this->VTKGroup, "Type"))
+  {
+    hid_t typeAttributeHID = H5Aopen_name(this->VTKGroup, "Type");
+    if (typeAttributeHID < 0)
+    {
+      vtkErrorWithObjectMacro(this->Reader, "Can't open 'Type' attribute.");
+      return false;
+    }
+
+    hid_t hdfType = H5Aget_type(typeAttributeHID);
+    if (hdfType == H5I_INVALID_HID)
+    {
+      vtkErrorWithObjectMacro(this->Reader, "Invalid type when reading type attribute.");
+      H5Aclose(typeAttributeHID);
+      return false;
+    }
+
+    H5T_class_t attributeClass = H5Tget_class(hdfType);
+    if (attributeClass != H5T_STRING)
+    {
+      vtkErrorWithObjectMacro(this->Reader, "Can't get class type of attribute.");
+      H5Tclose(hdfType);
+      H5Aclose(typeAttributeHID);
+      return false;
+    }
+
+    H5T_cset_t characterType = H5Tget_cset(hdfType);
+    if (characterType != H5T_CSET_ASCII)
+    {
+      vtkErrorWithObjectMacro(
+        this->Reader, "Not an ASCII string character type: " << characterType);
+      H5Tclose(hdfType);
+      H5Aclose(typeAttributeHID);
+      return false;
+    }
+
+    std::vector<char> stringArray(32);
+    if (H5Aread(typeAttributeHID, hdfType, stringArray.data()) < 0)
+    {
+      vtkErrorWithObjectMacro(
+        this->Reader, "Not an ASCII string character type: " << characterType);
+      H5Tclose(hdfType);
+      H5Aclose(typeAttributeHID);
+      return false;
+    }
+    std::string typeName(stringArray.data());
+
+    H5Tclose(hdfType);
+    H5Aclose(typeAttributeHID);
+
+    if (typeName == "OverlappingAMR")
+    {
+      this->DataSetType = VTK_OVERLAPPING_AMR;
+    }
+    else if (typeName == "ImageData")
+    {
+      this->DataSetType = VTK_IMAGE_DATA;
+    }
+    else if (typeName == "UnstructuredGrid")
+    {
+      this->DataSetType = VTK_UNSTRUCTURED_GRID;
+    }
+    else
+    {
+      vtkErrorWithObjectMacro(this->Reader, "Unknown data set type: " << typeName);
+      return false;
+    }
+  }
+  else
+  {
+    // Legacy vtkhdf: we need to check the presence of WholeExtent attribute to get the correct
+    // data set type.
+    if (H5Aexists(this->VTKGroup, "WholeExtent"))
+    {
+      this->DataSetType = VTK_IMAGE_DATA;
+    }
+    else
+    {
+      this->DataSetType = VTK_UNSTRUCTURED_GRID;
+    }
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -873,6 +984,367 @@ bool vtkHDFReader::Implementation::NewArray(
     error = H5Sclose(filespace) < 0 || error;
   }
   return !error;
+}
+
+bool vtkHDFReader::Implementation::ComputeAMRBlocksPerLevels(std::vector<int>& levels)
+{
+  levels.clear();
+
+  if (this->DataSetType == VTK_OVERLAPPING_AMR)
+  {
+    unsigned int level = 0;
+    bool isValidLevel = true;
+    while (isValidLevel)
+    {
+      std::stringstream levelGroupName;
+      levelGroupName << "Level" << level;
+      if (H5Lexists(this->VTKGroup, levelGroupName.str().c_str(), H5P_DEFAULT) <= 0)
+      {
+        // The level does not exist, just exit.
+        isValidLevel = false;
+      }
+      else
+      {
+        auto levelGroupID = H5Gopen(this->VTKGroup, levelGroupName.str().c_str(), H5P_DEFAULT);
+        if (levelGroupID == H5I_INVALID_HID)
+        {
+          vtkErrorWithObjectMacro(this->Reader, "Can't open group Level" << level);
+          return false;
+        }
+
+        if (H5Lexists(levelGroupID, "AMRBox", H5P_DEFAULT) <= 0)
+        {
+          vtkErrorWithObjectMacro(this->Reader, "No AMRBox dataset at Level" << level);
+          H5Gclose(levelGroupID);
+          return false;
+        }
+
+        auto amrBoxDatasetID = H5Dopen(levelGroupID, "AMRBox", H5P_DEFAULT);
+        if (amrBoxDatasetID == H5I_INVALID_HID)
+        {
+          vtkErrorWithObjectMacro(this->Reader, "Can't AMRBox dataset at Level" << level);
+          H5Gclose(levelGroupID);
+          return false;
+        }
+
+        auto spaceID = H5Dget_space(amrBoxDatasetID);
+        if (spaceID == H5I_INVALID_HID)
+        {
+          vtkErrorWithObjectMacro(
+            this->Reader, "Can't get space of AMRBox dataset at Level" << level);
+          H5Dclose(amrBoxDatasetID);
+          H5Gclose(levelGroupID);
+          return false;
+        }
+
+        std::array<hsize_t, 2> dimensions;
+        if (H5Sget_simple_extent_dims(spaceID, dimensions.data(), nullptr) <= 0)
+        {
+          vtkErrorWithObjectMacro(
+            this->Reader, "Can't get space dimensions of AMRBox dataset at Level" << level);
+          H5Sclose(spaceID);
+          H5Dclose(amrBoxDatasetID);
+          H5Gclose(levelGroupID);
+          return false;
+        }
+
+        levels.push_back(dimensions[0]);
+
+        H5Sclose(spaceID);
+        H5Dclose(amrBoxDatasetID);
+        H5Gclose(levelGroupID);
+
+        ++level;
+      }
+    }
+  }
+
+  return true;
+}
+
+bool vtkHDFReader::Implementation::FillAMR(vtkOverlappingAMR* data,
+  unsigned int maximumLevelsToReadByDefault, double origin[3],
+  vtkDataArraySelection* dataArraySelection[3])
+{
+  if (this->DataSetType != VTK_OVERLAPPING_AMR)
+  {
+    vtkErrorWithObjectMacro(this->Reader,
+      "Wrong data set type, expected " << VTK_OVERLAPPING_AMR
+                                       << ", but got: " << this->DataSetType);
+    return false;
+  }
+
+  if (!dataArraySelection)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "NULL dataArraySelection ");
+    return false;
+  }
+
+  std::vector<int> blocksPerLevels;
+  if (!this->ComputeAMRBlocksPerLevels(blocksPerLevels))
+  {
+    return false;
+  }
+
+  if (blocksPerLevels.empty())
+  {
+    return true;
+  }
+
+  int numberOfLoadedLevels = maximumLevelsToReadByDefault == 0
+    ? blocksPerLevels.size()
+    : std::min((unsigned int)blocksPerLevels.size(), maximumLevelsToReadByDefault);
+  data->Initialize(numberOfLoadedLevels, blocksPerLevels.data());
+  data->SetOrigin(origin);
+  data->SetGridDescription(VTK_XYZ_GRID);
+
+  unsigned int level = 0;
+  unsigned int maxLevel = maximumLevelsToReadByDefault > 0
+    ? maximumLevelsToReadByDefault
+    : std::numeric_limits<unsigned int>::max();
+  bool isValidLevel = true;
+  while (isValidLevel && level < maxLevel)
+  {
+    std::string levelGroupName = "Level" + std::to_string(level);
+    if (H5Lexists(this->VTKGroup, levelGroupName.c_str(), H5P_DEFAULT) <= 0)
+    {
+      // The level does not exist, just exit.
+      isValidLevel = false;
+    }
+    else
+    {
+      if (!ReadLevel(level, levelGroupName, data, origin, dataArraySelection))
+      {
+        vtkErrorWithObjectMacro(this->Reader, "Can't read group Level" << level);
+        return false;
+      }
+      ++level;
+    }
+  }
+
+  vtkAMRUtilities::BlankCells(data);
+
+  return true;
+}
+
+bool vtkHDFReader::Implementation::ReadLevel(unsigned int level, const std::string& levelGroupName,
+  vtkOverlappingAMR* data, double origin[3], vtkDataArraySelection* dataArraySelection[3])
+{
+  auto levelGroupID = H5Gopen(this->VTKGroup, levelGroupName.c_str(), H5P_DEFAULT);
+  if (levelGroupID == H5I_INVALID_HID)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Can't open group Level" << level);
+    return false;
+  }
+
+  std::array<double, 3> spacing = { 0, 0, 0 };
+  if (!this->ReadLevelSpacing(levelGroupID, spacing.data()))
+  {
+    vtkErrorWithObjectMacro(
+      this->Reader, "Error while reading spacing attribute at level " << level);
+    H5Gclose(levelGroupID);
+    return false;
+  }
+  data->SetSpacing(level, spacing.data());
+
+  std::vector<int> amrBoxRawData;
+  if (!this->ReadAMRBoxRawValues(levelGroupID, amrBoxRawData))
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Error while reading AMRBox at level " << level);
+    H5Gclose(levelGroupID);
+    return false;
+  }
+
+  if (!this->ReadAMRAttributeGroupIDs(levelGroupID))
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Error while reading attribute IDs at level " << level);
+    H5Gclose(levelGroupID);
+    return false;
+  }
+
+  if (amrBoxRawData.size() % 6 != 0)
+  {
+    vtkErrorWithObjectMacro(this->Reader,
+      "The size of the \"AMRBox\" dataset at Level" << level << " is not a multiple of 6.");
+    H5Gclose(levelGroupID);
+    return false;
+  }
+
+  size_t numberOfDatasets = amrBoxRawData.size() / 6;
+  for (size_t dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
+  {
+    int* currentAMRBoxRawData = amrBoxRawData.data() + (6 * dataSetIndex);
+    vtkAMRBox amrBox(currentAMRBoxRawData);
+
+    data->SetAMRBox(level, dataSetIndex, amrBox);
+    vtkNew<vtkUniformGrid> dataSet;
+    dataSet->Initialize();
+
+    const int* lowCorner = amrBox.GetLoCorner();
+    double dataSetOrigin[3] = { origin[0] + lowCorner[0] * spacing[0],
+      origin[1] + lowCorner[1] * spacing[1], origin[2] + lowCorner[2] * spacing[2] };
+    dataSet->SetOrigin(dataSetOrigin);
+
+    dataSet->SetSpacing(spacing.data());
+    std::array<int, 3> numberOfNodes = { 0, 0, 0 };
+    amrBox.GetNumberOfNodes(numberOfNodes.data());
+    dataSet->SetDimensions(numberOfNodes.data());
+
+    for (size_t attributeType = 0; attributeType < 3; ++attributeType)
+    {
+      auto arrayNames = this->GetArrayNames(attributeType);
+      for (const std::string& name : arrayNames)
+      {
+        if (!dataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
+        {
+          continue;
+        }
+        hid_t nativeType = -1;
+        std::vector<hsize_t> dims;
+        hid_t datasetID = -1;
+        if ((datasetID = this->OpenDataSet(
+               this->AttributeDataGroup[attributeType], name.c_str(), &nativeType, dims)) < 0)
+        {
+          vtkErrorWithObjectMacro(this->Reader, "Can't open array " << name);
+          H5Gclose(levelGroupID);
+          return 0;
+        }
+        H5Dclose(datasetID);
+
+        vtkSmartPointer<vtkDataArray> array;
+        hsize_t dataSize = 0;
+        switch (attributeType)
+        {
+          case 0:
+            dataSize = amrBox.GetNumberOfNodes();
+            break;
+          case 1:
+            dataSize = amrBox.GetNumberOfCells();
+            break;
+          case 2:
+            dataSize = dims[0] / numberOfDatasets;
+        }
+        hsize_t dataOffset = dataSize * dataSetIndex;
+        if ((array = vtk::TakeSmartPointer(
+               this->NewArray(attributeType, name.c_str(), dataOffset, dataSize))) == nullptr)
+        {
+          vtkErrorWithObjectMacro(this->Reader, "Error reading array " << name);
+          H5Gclose(levelGroupID);
+          return 0;
+        }
+        array->SetName(name.c_str());
+        dataSet->GetAttributesAsFieldData(attributeType)->AddArray(array);
+      }
+    }
+
+    data->SetDataSet(level, dataSetIndex, dataSet);
+  }
+
+  for (size_t i = 0; i < 3; ++i)
+  {
+    H5Gclose(this->AttributeDataGroup[i]);
+    this->AttributeDataGroup[i] = -1;
+  }
+
+  H5Gclose(levelGroupID);
+
+  return true;
+}
+
+bool vtkHDFReader::Implementation::ReadLevelSpacing(hid_t levelGroupID, double* spacing)
+{
+  if (!H5Aexists(levelGroupID, "Spacing"))
+  {
+    vtkErrorWithObjectMacro(this->Reader, "\"Spacing\" attribute does not exist.");
+    return false;
+  }
+  hid_t spacingAttributeID = H5Aopen_name(levelGroupID, "Spacing");
+  if (spacingAttributeID < 0)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Can't open \"Spacing\" attribute.");
+    return false;
+  }
+
+  if (H5Aread(spacingAttributeID, H5T_NATIVE_DOUBLE, spacing) < 0)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Can't read \"Spacing\" attribute.");
+    H5Aclose(spacingAttributeID);
+    return false;
+  }
+
+  H5Aclose(spacingAttributeID);
+  return true;
+}
+
+bool vtkHDFReader::Implementation::ReadAMRBoxRawValues(
+  hid_t levelGroupID, std::vector<int>& amrBoxRawData)
+{
+  if (H5Lexists(levelGroupID, "AMRBox", H5P_DEFAULT) <= 0)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "No AMRBox dataset");
+    H5Gclose(levelGroupID);
+    return false;
+  }
+
+  auto amrBoxDatasetID = H5Dopen(levelGroupID, "AMRBox", H5P_DEFAULT);
+  if (amrBoxDatasetID == H5I_INVALID_HID)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Can't open AMRBox dataset");
+    return false;
+  }
+
+  auto spaceID = H5Dget_space(amrBoxDatasetID);
+  if (spaceID == H5I_INVALID_HID)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Can't get space of AMRBox dataset");
+    H5Dclose(amrBoxDatasetID);
+    return false;
+  }
+
+  std::array<hsize_t, 2> dimensions;
+  if (H5Sget_simple_extent_dims(spaceID, dimensions.data(), nullptr) <= 0)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Can't get space dimensions of AMRBox dataset");
+    H5Sclose(spaceID);
+    H5Dclose(amrBoxDatasetID);
+    return false;
+  }
+
+  if (dimensions[1] != 6)
+  {
+    vtkErrorWithObjectMacro(
+      this->Reader, "Wrong AMRBox dimension, expected 6, got: " << dimensions[1]);
+    H5Sclose(spaceID);
+    H5Dclose(amrBoxDatasetID);
+    return false;
+  }
+  H5Sclose(spaceID);
+
+  hsize_t numberOfDatasets = dimensions[0];
+  amrBoxRawData.resize(numberOfDatasets * 6);
+  if (H5Dread(
+        amrBoxDatasetID, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, amrBoxRawData.data()) < 0)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Can't read AMRBox dataset.");
+    H5Dclose(amrBoxDatasetID);
+    return false;
+  }
+
+  H5Dclose(amrBoxDatasetID);
+  return true;
+}
+
+bool vtkHDFReader::Implementation::ReadAMRAttributeGroupIDs(hid_t levelGroupID)
+{
+  std::array<const char*, 3> groupNames = { "PointData", "CellData", "FieldData" };
+
+  // try to open cell or point group. Its OK if they don't exist.
+  for (size_t i = 0; i < 3; ++i)
+  {
+    this->AttributeDataGroup[i] = H5Gopen(levelGroupID, groupNames[i], H5P_DEFAULT);
+  }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
