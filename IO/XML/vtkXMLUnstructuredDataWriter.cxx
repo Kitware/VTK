@@ -1005,7 +1005,10 @@ struct ConvertCellsVisitor
 void vtkXMLUnstructuredDataWriter::ConvertCells(vtkCellArray* cells)
 {
   ConvertCellsVisitor visitor;
-  cells->Visit(visitor);
+  if (cells)
+  {
+    cells->Visit(visitor);
+  }
   this->CellPoints = visitor.Connectivity;
   this->CellOffsets = visitor.Offsets;
 }
