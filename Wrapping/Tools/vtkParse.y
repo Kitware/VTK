@@ -1853,6 +1853,7 @@ namespace_definition:
     NAMESPACE '{' ignored_items '}'
   | NAMESPACE identifier { pushNamespace($<str>2); }
     '{' opt_declaration_seq '}' { popNamespace(); }
+  | INLINE NAMESPACE identifier '{' opt_declaration_seq '}'
 
 namespace_alias_definition:
     NAMESPACE identifier '=' qualified_id ';'
