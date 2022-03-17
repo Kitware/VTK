@@ -133,14 +133,15 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* rootBuildings,
 //------------------------------------------------------------------------------
 vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
 {
-  this->SetNumberOfInputPorts(2);
+  this->SetNumberOfInputPorts(1);
   this->DirectoryName = nullptr;
   this->TexturePath = nullptr;
   std::fill(this->Offset, this->Offset + 3, 0);
   this->SaveTextures = true;
   this->SaveTiles = true;
   this->MergeTilePolyData = false;
-  this->ContentType = B3DM;
+  this->InputType = Buildings;
+  this->BuildingContentType = B3DM;
   this->NumberOfBuildingsPerTile = 100;
   this->CRS = nullptr;
 }
@@ -163,15 +164,22 @@ void vtkCesium3DTilesWriter::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 int vtkCesium3DTilesWriter::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if (port == 0)
+  if (this->InputType == Buildings)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
-    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   }
-  else if (port == 1)
+  else if (this->InputType == Points)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
-    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+  }
+  else if (this->InputType == Mesh)
+  {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  }
+  else
+  {
+    vtkErrorMacro("Invalid InputType: " << this->InputType);
+    return 0;
   }
   return 1;
 }
@@ -181,7 +189,7 @@ void vtkCesium3DTilesWriter::WriteData()
 {
   {
     auto rootBuildings = vtkMultiBlockDataSet::SafeDownCast(this->GetInput(0));
-    auto rootPointCloud = vtkPointSet::SafeDownCast(this->GetInput(1));
+    auto rootPointCloud = vtkPointSet::SafeDownCast(this->GetInput(0));
     if (rootBuildings)
     {
       std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
@@ -200,13 +208,14 @@ void vtkCesium3DTilesWriter::WriteData()
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), &buildings,
-        this->DirectoryName, this->TexturePath, this->SaveTextures, this->ContentType, this->CRS);
+        this->DirectoryName, this->TexturePath, this->SaveTextures, this->BuildingContentType,
+        this->CRS);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
-        treeInformation.SaveTiles(this->MergeTilePolyData);
+        treeInformation.SaveTilesGLTF(this->MergeTilePolyData);
       }
       vtkLog(INFO, "Deleting objects ...");
     }
@@ -214,14 +223,14 @@ void vtkCesium3DTilesWriter::WriteData()
     {
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctree(rootPointCloud, this->NumberOfBuildingsPerTile);
-      TreeInformation treeInformation(
-        octree->GetRoot(), octree->GetNumberOfNodes(), this->DirectoryName, this->CRS);
+      TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), rootPointCloud,
+        this->DirectoryName, this->CRS);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
-        treeInformation.SaveTiles(this->MergeTilePolyData);
+        treeInformation.SaveTilesPnts();
       }
       vtkLog(INFO, "Deleting objects ...");
     }

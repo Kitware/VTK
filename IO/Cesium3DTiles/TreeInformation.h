@@ -33,8 +33,10 @@
 
 class vtkActor;
 class vtkCompositeDataSet;
+class vtkIdList;
 class vtkIntArray;
 class vtkPolyData;
+class vtkPointSet;
 class vtkRenderWindow;
 class vtkRenderWindowInteractor;
 class vtkIncrementalOctreeNode;
@@ -46,14 +48,8 @@ public:
     const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings,
     const std::string& outputDir, const std::string& texturePath, bool saveTextures,
     int contentType, const char* crs);
-  TreeInformation(
-    vtkIncrementalOctreeNode* root, int numberOfNodes, const std::string& output, const char* crs);
-
-  enum Format
-  {
-    BUILDINGS,
-    POINTS
-  };
+  TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPointSet* points,
+    const std::string& output, const char* crs);
 
   void PrintNode(vtkIncrementalOctreeNode* node);
 
@@ -81,7 +77,8 @@ public:
    * and the geometric error.
    */
   void Compute();
-  void SaveTiles(bool mergeTilePolyData);
+  void SaveTilesGLTF(bool mergeTilePolyData);
+  void SaveTilesPnts();
   void SaveTileset(const std::string& output);
   static void PrintBounds(const char* name, const double* bounds);
   static void PrintBounds(const std::string& name, const double* bounds)
@@ -101,21 +98,24 @@ protected:
    * and the geometric error.
    */
   void Compute(vtkIncrementalOctreeNode* node, void* aux);
-  void SaveTile(vtkIncrementalOctreeNode* node, void* aux);
+  void SaveTileGLTF(vtkIncrementalOctreeNode* node, void* auxData);
+  void SaveTilePnts(vtkIncrementalOctreeNode* node, void* auxData);
   double ComputeTilesetGeometricError();
+  std::array<double, 6> ComputeTightBB(vtkIdList* tileBuildings);
 
 private:
-  int Format;
+  int InputType;
   vtkIncrementalOctreeNode* Root;
-
   /**
    * buildings indexed by building ID
    */
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* Buildings;
+  vtkPointSet* Points;
+
   std::string OutputDir;
   std::string TexturePath;
   bool SaveTextures;
-  int ContentType;
+  int BuildingContentType;
 
   const char* CRS;
   /**

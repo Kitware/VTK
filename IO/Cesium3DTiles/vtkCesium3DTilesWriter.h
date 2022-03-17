@@ -37,7 +37,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkCesium3DTilesWriter, vtkWriter);
 
-  enum ContentType
+  enum InputType
+  {
+    Buildings,
+    Points,
+    Mesh
+  };
+
+  enum BuildingContentType
   {
     B3DM,
     GLB,
@@ -107,14 +114,22 @@ public:
 
   //@{
   /**
-   * What is the ContentType used for tiles. Default is B3DM.
-   * For ContentType GLB and GLTF we use 3DTILES_content_gltf extension.
-   * For ContentType B3DM and GLB, external programs are needed to convert
-   * GLTF -> GLB -> B3DM.
+   * What is the BuildingContentType used for tiles. Default is B3DM.
+   * For BuildingContentType GLB and GLTF we use 3DTILES_content_gltf extension.
+   * For BuildingContentType B3DM and GLB, external programs are needed to convert
+   * GLTF -> GLB -> B3DM. This field is only used for Buildings.
    *
    */
-  vtkSetMacro(ContentType, int);
-  vtkGetMacro(ContentType, int);
+  vtkSetMacro(BuildingContentType, int);
+  vtkGetMacro(BuildingContentType, int);
+  //@
+
+  //@{
+  /**
+   *
+   */
+  vtkSetMacro(InputType, int);
+  vtkGetMacro(InputType, int);
   //@
 
   //@{
@@ -150,7 +165,8 @@ protected:
   char* TexturePath;
   double Offset[3];
   bool SaveTextures;
-  int ContentType;
+  int InputType;
+  int BuildingContentType;
   bool SaveTiles;
   bool MergeTilePolyData;
   int NumberOfBuildingsPerTile;

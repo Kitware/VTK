@@ -46,7 +46,7 @@ namespace
  * 'list', which stores all buildings in a tile as indexes into 'buildings' vector
  * which stores all buildings.
  */
-std::array<double, 6> ComputeTightBoudingBox(
+std::array<double, 6> ComputeTightBBBuildings(
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings, vtkIdList* tileBuildings)
 {
   std::array<double, 6> wholeBB = { std::numeric_limits<double>::max(),
@@ -58,6 +58,24 @@ std::array<double, 6> ComputeTightBoudingBox(
     double bb[6];
     (*buildings)[tileBuildings->GetId(i)]->GetBounds(bb);
     wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], bb);
+  }
+  return wholeBB;
+}
+
+std::array<double, 6> ComputeTightBBPoints(
+  const vtkSmartPointer<vtkPointSet> points, vtkIdList* tileBuildings)
+{
+  std::array<double, 6> wholeBB = { std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::lowest() };
+  for (int i = 0; i < tileBuildings->GetNumberOfIds(); ++i)
+  {
+    std::array<double, 6> bb;
+    double point[3];
+    points->GetPoint(tileBuildings->GetId(i), point);
+    bb = { { point[0], point[0], point[1], point[1], point[2], point[2] } };
+    wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], &bb[0]);
   }
   return wholeBB;
 }
@@ -115,20 +133,21 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
   return lonlatheight;
 }
 
-std::array<std::string, 3> ContentTypeExtension = { ".b3dm", ".glb", ".gltf" };
+std::array<std::string, 3> BuildingContentTypeExtension = { ".b3dm", ".glb", ".gltf" };
 }
 
 //------------------------------------------------------------------------------
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings, const std::string& output,
   const std::string& texturePath, bool saveTextures, int contentType, const char* crs)
-  : Format(BUILDINGS)
+  : InputType(vtkCesium3DTilesWriter::Buildings)
   , Root(root)
   , Buildings(buildings)
+  , Points(nullptr)
   , OutputDir(output)
   , TexturePath(texturePath)
   , SaveTextures(saveTextures)
-  , ContentType(contentType)
+  , BuildingContentType(contentType)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -146,11 +165,15 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
 }
 
 //------------------------------------------------------------------------------
-TreeInformation::TreeInformation(
-  vtkIncrementalOctreeNode* root, int numberOfNodes, const std::string& output, const char* crs)
-  : Format(POINTS)
+TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
+  vtkPointSet* points, const std::string& output, const char* crs)
+  : InputType(vtkCesium3DTilesWriter::Points)
   , Root(root)
+  , Buildings(nullptr)
+  , Points(points)
   , OutputDir(output)
+  , SaveTextures(false)
+  , BuildingContentType(vtkCesium3DTilesWriter::B3DM)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -204,9 +227,15 @@ void TreeInformation::Compute()
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTiles(bool mergeTilePolyData)
+void TreeInformation::SaveTilesGLTF(bool mergeTilePolyData)
 {
-  this->PostOrderTraversal(&TreeInformation::SaveTile, this->Root, &mergeTilePolyData);
+  this->PostOrderTraversal(&TreeInformation::SaveTileGLTF, this->Root, &mergeTilePolyData);
+}
+
+//------------------------------------------------------------------------------
+void TreeInformation::SaveTilesPnts()
+{
+  this->PostOrderTraversal(&TreeInformation::SaveTilePnts, this->Root, nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -225,7 +254,7 @@ void TreeInformation::PostOrderTraversal(
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTile(vtkIncrementalOctreeNode* node, void* aux)
+void TreeInformation::SaveTileGLTF(vtkIncrementalOctreeNode* node, void* aux)
 {
   bool mergeTilePolyData = *static_cast<bool*>(aux);
   if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
@@ -282,6 +311,9 @@ void TreeInformation::SaveTile(vtkIncrementalOctreeNode* node, void* aux)
 }
 
 //------------------------------------------------------------------------------
+void TreeInformation::SaveTilePnts(vtkIncrementalOctreeNode* node, void* auxData) {}
+
+//------------------------------------------------------------------------------
 double TreeInformation::ComputeTilesetGeometricError()
 {
   double tilesetVolumeError;
@@ -302,13 +334,31 @@ double TreeInformation::ComputeTilesetGeometricError()
 }
 
 //------------------------------------------------------------------------------
+std::array<double, 6> TreeInformation::ComputeTightBB(vtkIdList* tileBuildings)
+{
+
+  std::array<double, 6> d;
+  d.fill(0);
+  switch (this->InputType)
+  {
+    case vtkCesium3DTilesWriter::Buildings:
+      return ComputeTightBBBuildings(this->Buildings, tileBuildings);
+    case vtkCesium3DTilesWriter::Points:
+      return ComputeTightBBPoints(this->Points, tileBuildings);
+    default:
+      vtkLog(ERROR, "Invalid InputType " << this->InputType);
+  }
+  return d;
+}
+
+//------------------------------------------------------------------------------
 void TreeInformation::Compute(vtkIncrementalOctreeNode* node, void*)
 {
   vtkIdList* nodeBuildings = node->GetPointIdSet();
   // compute the bounding box for the current node
   if (nodeBuildings)
   {
-    this->NodeBounds[node->GetID()] = ComputeTightBoudingBox(this->Buildings, nodeBuildings);
+    this->NodeBounds[node->GetID()] = this->ComputeTightBB(nodeBuildings);
     this->EmptyNode[node->GetID()] = false;
   }
   // propagate the node bounding box from the children.
@@ -352,7 +402,7 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
 {
   json v;
   this->RootJson["asset"]["version"] = "1.0";
-  if (this->ContentType != vtkCesium3DTilesWriter::B3DM)
+  if (this->BuildingContentType != vtkCesium3DTilesWriter::B3DM)
   {
     std::string content_gltf = "3DTILES_content_gltf";
     std::string mesh_gpu_instancing = "EXT_mesh_gpu_instancing";
@@ -495,7 +545,8 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
       proj_destroy(P);
 
       ostr.str("");
-      ostr << node->GetID() << "/" << node->GetID() << ContentTypeExtension[this->ContentType];
+      ostr << node->GetID() << "/" << node->GetID()
+           << BuildingContentTypeExtension[this->BuildingContentType];
       tree["content"]["uri"] = ostr.str();
     }
   }

@@ -13,27 +13,28 @@
 
 =========================================================================*/
 
+#include "vtkAppendPolyData.h"
+#include "vtkCellData.h"
 #include "vtkCesium3DTilesWriter.h"
+#include "vtkCityGMLReader.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkDataObject.h"
+#include "vtkDirectory.h"
+#include "vtkDoubleArray.h"
+#include "vtkGLTFReader.h"
+#include "vtkIncrementalOctreeNode.h"
+#include "vtkIncrementalOctreePointLocator.h"
+#include "vtkLogger.h"
+#include "vtkMathUtilities.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
+#include "vtkOBJReader.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkTesting.h"
-#include <vtkCellData.h>
-#include <vtkCityGMLReader.h>
-#include <vtkCompositeDataIterator.h>
-#include <vtkDataObject.h>
-#include <vtkDirectory.h>
-#include <vtkDoubleArray.h>
-#include <vtkGLTFReader.h>
-#include <vtkIncrementalOctreeNode.h>
-#include <vtkIncrementalOctreePointLocator.h>
-#include <vtkLogger.h>
-#include <vtkMathUtilities.h>
-#include <vtkMultiBlockDataSet.h>
-#include <vtkNew.h>
-#include <vtkOBJReader.h>
-#include <vtkPoints.h>
-#include <vtkSmartPointer.h>
-#include <vtkStringArray.h>
-#include <vtksys/FStream.hxx>
-#include <vtksys/SystemTools.hxx>
+#include "vtksys/FStream.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
 #include <array>
@@ -99,7 +100,7 @@ std::string GetOBJTextureFileName(const std::string& file)
   return fileNoExt + ".png";
 }
 
-vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJFiles(int numberOfBuildings, int vtkNotUsed(lod),
+vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJBuildings(int numberOfBuildings, int vtkNotUsed(lod),
   const std::vector<std::string>& files, std::array<double, 3>& fileOffset)
 {
   auto root = vtkSmartPointer<vtkMultiBlockDataSet>::New();
@@ -122,7 +123,27 @@ vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJFiles(int numberOfBuildings, int vt
   return root;
 }
 
-vtkSmartPointer<vtkMultiBlockDataSet> ReadCityGMLFiles(int numberOfBuildings, int lod,
+vtkSmartPointer<vtkPolyData> ReadOBJMesh(int numberOfBuildings, int vtkNotUsed(lod),
+  const std::vector<std::string>& files, std::array<double, 3>& fileOffset)
+{
+  vtkNew<vtkAppendPolyData> append;
+  for (size_t i = 0; i < files.size() && i < static_cast<size_t>(numberOfBuildings); ++i)
+  {
+    vtkNew<vtkOBJReader> reader;
+    reader->SetFileName(files[i].c_str());
+    reader->Update();
+    if (i == 0)
+    {
+      fileOffset = ReadOBJOffset(reader->GetComment());
+    }
+    auto polyData = reader->GetOutput();
+    append->AddInputDataObject(polyData);
+  }
+  append->Update();
+  return append->GetOutput();
+}
+
+vtkSmartPointer<vtkMultiBlockDataSet> ReadCityGMLBuildings(int numberOfBuildings, int lod,
   const std::vector<std::string>& files, std::array<double, 3>& fileOffset)
 {
   if (files.size() > 1)
@@ -147,8 +168,8 @@ vtkSmartPointer<vtkMultiBlockDataSet> ReadCityGMLFiles(int numberOfBuildings, in
 //------------------------------------------------------------------------------
 using ReaderType = vtkSmartPointer<vtkMultiBlockDataSet> (*)(int numberOfBuildings, int lod,
   const std::vector<std::string>& files, std::array<double, 3>& fileOffset);
-std::map<std::string, ReaderType> READER = { { ".obj", ReadOBJFiles },
-  { ".gml", ReadCityGMLFiles } };
+std::map<std::string, ReaderType> READER = { { ".obj", ReadOBJBuildings },
+  { ".gml", ReadCityGMLBuildings } };
 
 //------------------------------------------------------------------------------
 bool isSupported(const char* file)
@@ -196,42 +217,46 @@ std::vector<std::string> getFiles(const std::vector<std::string>& input)
 }
 
 //------------------------------------------------------------------------------
-struct Input
-{
-  Input()
-  {
-    this->Data = nullptr;
-    std::fill(Offset.begin(), Offset.end(), 0);
-  }
-  vtkSmartPointer<vtkMultiBlockDataSet> Data;
-  std::array<double, 3> Offset;
-};
 
-Input tiler(const std::vector<std::string>& input, const std::string& output, int numberOfBuildings,
-  int buildingsPerTile, int lod, const std::vector<double>& inputOffset, bool saveTiles,
-  bool saveTextures, std::string crs, const int utmZone, char utmHemisphere)
+bool tiler(const std::vector<std::string>& input, int inputType, const std::string& output,
+  int numberOfBuildings, int buildingsPerTile, int lod, const std::vector<double>& inputOffset,
+  bool saveTiles, bool saveTextures, std::string crs, const int utmZone, char utmHemisphere)
 {
-  Input ret;
+  vtkSmartPointer<vtkMultiBlockDataSet> mbData;
+  vtkSmartPointer<vtkPolyData> polyData;
   std::vector<std::string> files = getFiles(input);
   if (files.empty())
   {
     vtkLog(ERROR, "No valid input files");
-    return ret;
+    return false;
   }
   vtkLog(INFO, "Parsing " << files.size() << " files...")
 
     std::array<double, 3>
       fileOffset = { { 0, 0, 0 } };
-  ret.Data =
-    READER[SystemTools::GetFilenameExtension(files[0])](numberOfBuildings, lod, files, fileOffset);
+  if (inputType == vtkCesium3DTilesWriter::Buildings)
+  {
+    mbData = READER[SystemTools::GetFilenameExtension(files[0])](
+      numberOfBuildings, lod, files, fileOffset);
+  }
+  else if (inputType == vtkCesium3DTilesWriter::Points)
+  {
+    polyData = ReadOBJMesh(numberOfBuildings, lod, files, fileOffset);
+  }
   std::transform(fileOffset.begin(), fileOffset.end(), inputOffset.begin(), fileOffset.begin(),
     std::plus<double>());
-  ret.Offset = fileOffset;
-
   std::string texturePath = SystemTools::GetFilenamePath(files[0]);
 
   vtkNew<vtkCesium3DTilesWriter> writer;
-  writer->SetInputDataObject(ret.Data);
+  if (inputType == vtkCesium3DTilesWriter::Buildings)
+  {
+    writer->SetInputDataObject(mbData);
+  }
+  else
+  {
+    writer->SetInputDataObject(polyData);
+  }
+  writer->SetInputType(inputType);
   writer->SetDirectoryName(output.c_str());
   writer->SetTexturePath(texturePath.c_str());
   writer->SetOffset(&fileOffset[0]);
@@ -246,7 +271,7 @@ Input tiler(const std::vector<std::string>& input, const std::string& output, in
   }
   writer->SetCRS(crs.c_str());
   writer->Write();
-  return ret;
+  return true;
 }
 
 bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfFileName)
@@ -376,11 +401,12 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   std::string dataRoot = testHelper->GetDataRoot();
   std::string tempDirectory = testHelper->GetTempDirectory();
 
-  auto ret =
-    tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-      tempDirectory + "/jacksonville-3dtiles", 1, 1, 2, std::vector<double>{ { 0, 0, 0 } },
-      true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
-  if (!ret.Data)
+  // Test jacksonville triangle
+  std::cout << "Test jacksonville buildings" << std::endl;
+  if (!tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
+        vtkCesium3DTilesWriter::Buildings, tempDirectory + "/jacksonville-3dtiles", 1, 1, 2,
+        std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17,
+        'N'))
   {
     return EXIT_FAILURE;
   }
@@ -416,10 +442,13 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
               << testfname << std::endl;
     return EXIT_FAILURE;
   }
-  ret = tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
-    tempDirectory + "/berlin-3dtiles", 1, 1, 2, std::vector<double>{ { 0, 0, 0 } },
-    true /*saveTiles*/, false /*saveTextures*/, "", 33, 'N');
-  if (!ret.Data)
+
+  // Test berlin-triangle
+  std::cout << "Test berlin buildings (citygml)" << std::endl;
+  if (!tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
+        vtkCesium3DTilesWriter::Buildings, tempDirectory + "/berlin-3dtiles", 1, 1, 2,
+        std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 33,
+        'N'))
   {
     return EXIT_FAILURE;
   }
@@ -455,5 +484,16 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
               << testfname << std::endl;
     return EXIT_FAILURE;
   }
+
+  // // Test jacksonville-points
+  // std::cout << "Test jacksonville points" << std::endl;
+  // if (! tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" }
+  // }, vtkCesium3DTilesWriter::Points,
+  //             tempDirectory + "/jacksonville-3dtiles-points", 3, 3, 2, std::vector<double>{ { 0,
+  //             0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 33, 'N'))
+  // {
+  //   return EXIT_FAILURE;
+  // }
+
   return EXIT_SUCCESS;
 }
