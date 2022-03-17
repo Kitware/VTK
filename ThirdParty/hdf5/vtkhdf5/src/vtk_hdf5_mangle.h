@@ -268,6 +268,7 @@
 #define H5B_valid vtkhdf5_H5B_valid
 #define H5C_cache_image_pending vtkhdf5_H5C_cache_image_pending
 #define H5C_cache_image_status vtkhdf5_H5C_cache_image_status
+#define H5C_cache_is_clean vtkhdf5_H5C_cache_is_clean
 #define H5C_cork vtkhdf5_H5C_cork
 #define H5C_create vtkhdf5_H5C_create
 #define H5C_create_flush_dependency vtkhdf5_H5C_create_flush_dependency
@@ -275,11 +276,15 @@
 #define H5C__deserialize_prefetched_entry vtkhdf5_H5C__deserialize_prefetched_entry
 #define H5C_dest vtkhdf5_H5C_dest
 #define H5C_destroy_flush_dependency vtkhdf5_H5C_destroy_flush_dependency
+#define H5C_dump_cache vtkhdf5_H5C_dump_cache
+#define H5C_dump_cache_LRU vtkhdf5_H5C_dump_cache_LRU
+#define H5C_dump_cache_skip_list vtkhdf5_H5C_dump_cache_skip_list
 #define H5C_evict vtkhdf5_H5C_evict
 #define H5C_evict_tagged_entries vtkhdf5_H5C_evict_tagged_entries
 #define H5C_expunge_entry vtkhdf5_H5C_expunge_entry
 #define H5C_expunge_tag_type_metadata vtkhdf5_H5C_expunge_tag_type_metadata
 #define H5C_flush_cache vtkhdf5_H5C_flush_cache
+#define H5C_flush_dependency_exists vtkhdf5_H5C_flush_dependency_exists
 #define H5C__flush_marked_entries vtkhdf5_H5C__flush_marked_entries
 #define H5C__flush_single_entry vtkhdf5_H5C__flush_single_entry
 #define H5C_flush_tagged_entries vtkhdf5_H5C_flush_tagged_entries
@@ -291,6 +296,7 @@
 #define H5C_get_cache_hit_rate vtkhdf5_H5C_get_cache_hit_rate
 #define H5C_get_cache_image_config vtkhdf5_H5C_get_cache_image_config
 #define H5C_get_cache_size vtkhdf5_H5C_get_cache_size
+#define H5C_get_entry_ptr_from_addr vtkhdf5_H5C_get_entry_ptr_from_addr
 #define H5C_get_entry_ring vtkhdf5_H5C_get_entry_ring
 #define H5C_get_entry_status vtkhdf5_H5C_get_entry_status
 #define H5C_get_evictions_enabled vtkhdf5_H5C_get_evictions_enabled
@@ -298,6 +304,7 @@
 #define H5C_get_logging_status vtkhdf5_H5C_get_logging_status
 #define H5C_get_mdc_image_info vtkhdf5_H5C_get_mdc_image_info
 #define H5C_get_num_objs_corked vtkhdf5_H5C_get_num_objs_corked
+#define H5C_get_serialization_in_progress vtkhdf5_H5C_get_serialization_in_progress
 #define H5C_get_tag vtkhdf5_H5C_get_tag
 #define H5_checksum_crc vtkhdf5_H5_checksum_crc
 #define H5_checksum_fletcher32 vtkhdf5_H5_checksum_fletcher32
@@ -372,7 +379,10 @@
 #define H5C_unsettle_ring vtkhdf5_H5C_unsettle_ring
 #define H5C__untag_entry vtkhdf5_H5C__untag_entry
 #define H5C_validate_cache_image_config vtkhdf5_H5C_validate_cache_image_config
+#define H5C_validate_index_list vtkhdf5_H5C_validate_index_list
 #define H5C_validate_resize_config vtkhdf5_H5C_validate_resize_config
+#define H5C_verify_tag vtkhdf5_H5C_verify_tag
+#define H5C_verify_entry_type vtkhdf5_H5C_verify_entry_type
 #define H5C__verify_cork_tag_test vtkhdf5_H5C__verify_cork_tag_test
 #define H5CX_free_state vtkhdf5_H5CX_free_state
 #define H5CX_get_bkgr_buf vtkhdf5_H5CX_get_bkgr_buf
