@@ -124,10 +124,6 @@ private:
   std::vector<std::array<double, 6>> NodeBounds;
   std::vector<bool> EmptyNode;
   /**
-   * geometric error = pow(VolumeError, 1/3)
-   */
-  std::vector<double> GeometricError;
-  /**
    * volume difference between rendering this node and rendering the most detailed model.
    * indexed by node ID
    */
