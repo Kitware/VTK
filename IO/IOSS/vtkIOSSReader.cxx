@@ -250,6 +250,8 @@ class vtkIOSSReader::vtkInternals
   // it's okay to instantiate this multiple times.
   Ioss::Init::Initializer io;
 
+  double DisplacementMagnitude = 1.;
+
   using DatabaseNamesType = std::map<std::string, DatabaseParitionInfo>;
   DatabaseNamesType UnfilteredDatabaseNames;
   DatabaseNamesType DatabaseNames;
@@ -293,6 +295,9 @@ public:
 
   const std::vector<double>& GetTimeSteps() const { return this->TimestepValues; }
   vtkIOSSUtilities::DatabaseFormatType GetFormat() const { return this->Format; }
+
+  void SetDisplacementMagnitude(double s) { this->DisplacementMagnitude = s; }
+  bool GetDisplacementMagnitude() { return this->DisplacementMagnitude; }
 
   //@{
   /**
@@ -2764,6 +2769,10 @@ bool vtkIOSSReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Re
     {
       pts->GetPoint(cc, coords.GetData());
       array->GetTuple(cc, displ.GetData());
+      for (int i = 0; i < 3; ++i)
+      {
+        displ[i] *= this->DisplacementMagnitude;
+      }
       xformedPts->SetPoint(cc, (coords + displ).GetData());
     }
 
@@ -2882,6 +2891,22 @@ int vtkIOSSReader::FillOutputPortInformation(int vtkNotUsed(port), vtkInformatio
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSetCollection");
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::SetDisplacementMagnitude(double magnitude)
+{
+  const double oldMagnitude = this->Internals->GetDisplacementMagnitude();
+  this->Internals->SetDisplacementMagnitude(magnitude);
+  if (magnitude != oldMagnitude)
+  {
+    this->Modified();
+  }
+}
+//----------------------------------------------------------------------------
+double vtkIOSSReader::GetDisplacementMagnitude()
+{
+  return this->Internals->GetDisplacementMagnitude();
 }
 
 //----------------------------------------------------------------------------
@@ -3428,6 +3453,7 @@ void vtkIOSSReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReadIds: " << this->ReadIds << endl;
   os << indent << "RemoveUnusedPoints: " << this->RemoveUnusedPoints << endl;
   os << indent << "ApplyDisplacements: " << this->ApplyDisplacements << endl;
+  os << indent << "DisplacementMagnitude: " << this->Internals->GetDisplacementMagnitude() << endl;
   os << indent << "ReadGlobalFields: " << this->ReadGlobalFields << endl;
   os << indent << "ReadQAAndInformationRecords: " << this->ReadQAAndInformationRecords << endl;
   os << indent << "DatabaseTypeOverride: "
