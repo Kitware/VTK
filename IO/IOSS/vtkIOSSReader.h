@@ -212,6 +212,15 @@ public:
 
   ///@{
   /**
+   * When displacements are being applied, they are scaled by this amount. Set to 1 (default) for no
+   * scaling.
+   */
+  void SetDisplacementMagnitude(double magnitude);
+  double GetDisplacementMagnitude();
+  ///@}
+
+  ///@{
+  /**
    * When set to true, the reader can automatically locate and load additional
    * files that are part of the collection.
    */
