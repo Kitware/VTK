@@ -575,6 +575,16 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
     bounds.Reset();
   }
 
+  // we need to shift the logical ijk coords we give to OpenVDB based on our origin
+  // and spacing since other packages that will use the output figure out the
+  // spatial location based on these indices and the transform.
+  double origin[3] = { 0., 0., 0. };
+  imageData->GetOrigin(origin);
+
+  openvdb::Coord shift(static_cast<openvdb::Coord::Int32>(origin[0] / dx),
+    static_cast<openvdb::Coord::Int32>(origin[1] / dy),
+    static_cast<openvdb::Coord::Int32>(origin[2] / dz));
+
   vtkBoundingBox boundingBox;
   for (int array = 0; array < pointData->GetNumberOfArrays(); array++)
   {
@@ -642,11 +652,11 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
                 double tuple[3];
                 data->GetTuple(pointId, tuple);
                 openvdb::Vec3f ftuple(tuple[0], tuple[1], tuple[2]);
-                vecAccessor.setValue(ijk, ftuple);
+                vecAccessor.setValue(ijk + shift, ftuple);
               }
               else
               {
-                accessor.setValue(ijk, data->GetComponent(pointId, component));
+                accessor.setValue(ijk + shift, data->GetComponent(pointId, component));
               }
             }
           }
@@ -732,7 +742,6 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
               }
               bounds.AddPoint(coords);
             }
-
             if (!cellGhostType || cellGhostType->GetTuple1(cellId) == 0)
             {
               if (numberOfComponents == 3)
@@ -740,11 +749,11 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
                 double tuple[3];
                 data->GetTuple(cellId, tuple);
                 openvdb::Vec3f ftuple(tuple[0], tuple[1], tuple[2]);
-                vecAccessor.setValue(ijk, ftuple);
+                vecAccessor.setValue(ijk + shift, ftuple);
               }
               else
               {
-                accessor.setValue(ijk, data->GetComponent(cellId, component));
+                accessor.setValue(ijk + shift, data->GetComponent(cellId, component));
               }
             }
           }
@@ -788,7 +797,7 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
       {
         for (i = extent[0]; i < extent[1]; ++i)
         {
-          accessor.setValue(ijk, 1.);
+          accessor.setValue(ijk + shift, 1.);
         }
       }
       grid->setTransform(linearTransform);
