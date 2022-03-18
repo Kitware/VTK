@@ -72,12 +72,12 @@ inline void vtkUpdateCellsV8toV9(vtkUnstructuredGrid* output)
   }
 }
 
-inline bool vtkNeedsNewFileVersionV8toV9(vtkCellTypes* cellTypes)
+inline bool vtkNeedsNewFileVersionV8toV9(vtkUnsignedCharArray* distinctCellTypes)
 {
-  int nCellTypes = cellTypes->GetNumberOfTypes();
+  vtkIdType nCellTypes = distinctCellTypes->GetNumberOfValues();
   for (vtkIdType i = 0; i < nCellTypes; ++i)
   {
-    unsigned char type = cellTypes->GetCellType(i);
+    unsigned char type = distinctCellTypes->GetValue(i);
     if (type == VTK_HIGHER_ORDER_HEXAHEDRON || type == VTK_LAGRANGE_HEXAHEDRON ||
       type == VTK_BEZIER_HEXAHEDRON)
     {
