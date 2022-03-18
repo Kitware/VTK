@@ -1390,8 +1390,6 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySizeBytes()
     size += this->Mask->GetActualMemorySize() << 10;
   }
 
-  // JB Faut il compter le cout des grandeurs dans la representation ???
-  // JB Il ne me semble pas que cela soit fait ainsi dans les autres representations
   size += this->CellData->GetActualMemorySize() << 10;
 
   return static_cast<unsigned long>(size);
