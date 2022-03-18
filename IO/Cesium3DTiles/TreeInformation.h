@@ -104,12 +104,18 @@ protected:
   std::array<double, 6> ComputeTightBB(vtkIdList* tileBuildings);
 
 private:
+  /**
+   * Buildings, Points or Mesh. @see vtkCesium3DTilesWriter::InputType
+   */
   int InputType;
   vtkIncrementalOctreeNode* Root;
   /**
-   * buildings indexed by building ID
+   * buildings input indexed by building ID
    */
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* Buildings;
+  /**
+   * point cloud input
+   */
   vtkPointSet* Points;
 
   std::string OutputDir;
@@ -127,7 +133,7 @@ private:
    * volume difference between rendering this node and rendering the most detailed model.
    * indexed by node ID
    */
-  std::vector<double> VolumeError;
+  std::vector<double> GeometricError;
   nlohmann::json RootJson;
 };
 

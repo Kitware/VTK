@@ -151,7 +151,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
-  , VolumeError(numberOfNodes)
+  , GeometricError(numberOfNodes)
 {
   std::array<double, 6> a = { std::numeric_limits<double>::max(),
     std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
@@ -159,7 +159,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
     std::numeric_limits<double>::lowest() };
   std::fill(this->NodeBounds.begin(), this->NodeBounds.end(), a);
   std::fill(this->EmptyNode.begin(), this->EmptyNode.end(), true);
-  std::fill(this->VolumeError.begin(), this->VolumeError.end(), 0);
+  std::fill(this->GeometricError.begin(), this->GeometricError.end(), 0);
 }
 
 //------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
-  , VolumeError(numberOfNodes)
+  , GeometricError(numberOfNodes)
 {
   std::array<double, 6> a = { std::numeric_limits<double>::max(),
     std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
@@ -183,7 +183,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
     std::numeric_limits<double>::lowest() };
   std::fill(this->NodeBounds.begin(), this->NodeBounds.end(), a);
   std::fill(this->EmptyNode.begin(), this->EmptyNode.end(), true);
-  std::fill(this->VolumeError.begin(), this->VolumeError.end(), 0);
+  std::fill(this->GeometricError.begin(), this->GeometricError.end(), 0);
 }
 
 //------------------------------------------------------------------------------
@@ -314,7 +314,7 @@ double TreeInformation::ComputeTilesetGeometricError()
 {
   double tilesetVolumeError;
   // buildings in child nodes contribute to the error in the parent
-  tilesetVolumeError = this->VolumeError[this->Root->GetID()];
+  tilesetVolumeError = this->GeometricError[this->Root->GetID()];
   vtkIdList* childBuildings = this->Root->GetPointIdSet();
   if (childBuildings)
   {
@@ -364,7 +364,7 @@ void TreeInformation::Compute(vtkIncrementalOctreeNode* node, void*)
     {
       // buildings in child nodes contribute to the error in the parent
       vtkIncrementalOctreeNode* child = node->GetChild(i);
-      this->VolumeError[node->GetID()] += this->VolumeError[child->GetID()];
+      this->GeometricError[node->GetID()] += this->GeometricError[child->GetID()];
       vtkIdList* childBuildings = child->GetPointIdSet();
       if (childBuildings)
       {
@@ -373,7 +373,7 @@ void TreeInformation::Compute(vtkIncrementalOctreeNode* node, void*)
           double bb[6];
           (*this->Buildings)[childBuildings->GetId(j)]->GetBounds(bb);
           double volume = (bb[1] - bb[0]) * (bb[3] - bb[2]) * (bb[5] - bb[4]);
-          this->VolumeError[node->GetID()] += volume;
+          this->GeometricError[node->GetID()] += volume;
         }
       }
       if (!this->EmptyNode[child->GetID()])
@@ -440,7 +440,7 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
     v[i] = lonLatRadiansHeight[i];
   }
   tree["boundingVolume"]["region"] = v;
-  tree["geometricError"] = std::pow(this->VolumeError[node->GetID()], 1.0 / 3);
+  tree["geometricError"] = std::pow(this->GeometricError[node->GetID()], 1.0 / 3);
   if (node == this->Root)
   {
     tree["refine"] = "REPLACE";
@@ -575,7 +575,7 @@ void TreeInformation::AddGeometricError(vtkPolyData* poly)
   for (int i = 0; i < indexArray->GetNumberOfTuples(); ++i)
   {
     int index = indexArray->GetValue(i);
-    error->SetValue(i, std::pow(this->VolumeError[index], 1.0 / 3));
+    error->SetValue(i, std::pow(this->GeometricError[index], 1.0 / 3));
   }
   poly->GetCellData()->AddArray(error);
 }
