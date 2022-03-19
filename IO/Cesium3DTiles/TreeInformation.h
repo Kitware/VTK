@@ -100,8 +100,17 @@ protected:
   void Compute(vtkIncrementalOctreeNode* node, void* aux);
   void SaveTileGLTF(vtkIncrementalOctreeNode* node, void* auxData);
   void SaveTilePnts(vtkIncrementalOctreeNode* node, void* auxData);
-  double ComputeTilesetGeometricError();
+
+  double ComputeGeometricErrorTilesetBuildings();
+  double ComputeGeometricErrorTilesetPoints();
+  double ComputeGeometricErrorTileset();
+  double ComputeGeometricErrorNodeBuildings(vtkIncrementalOctreeNode* node);
+  double ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode* node);
+  double ComputeGeometricErrorNode(vtkIncrementalOctreeNode* node);
   std::array<double, 6> ComputeTightBB(vtkIdList* tileBuildings);
+
+  void SetPointsPerCubeMeter(int value) { this->PointsPerCubeMeter = value; }
+  int GetPointsPerCubeMeter() const { return this->PointsPerCubeMeter; }
 
 private:
   /**
@@ -122,6 +131,10 @@ private:
   std::string TexturePath;
   bool SaveTextures;
   int BuildingContentType;
+  // Number of points for which we consider the full volume as part of the error.
+  // We clamp the number of points to this value for a larger number of points,
+  // otherwise we scale the volume with numberOfPoints / PointsPerCubeMeter.
+  int PointsPerCubeMeter;
 
   const char* CRS;
   /**
