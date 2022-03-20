@@ -147,7 +147,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , OutputDir(output)
   , TexturePath(texturePath)
   , SaveTextures(saveTextures)
-  , BuildingContentType(contentType)
+  , BuildingsContentType(contentType)
   , PointsPerCubeMeter(1000)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
@@ -172,7 +172,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , Points(points)
   , OutputDir(output)
   , SaveTextures(false)
-  , BuildingContentType(vtkCesium3DTilesWriter::B3DM)
+  , BuildingsContentType(vtkCesium3DTilesWriter::B3DM)
   , PointsPerCubeMeter(1000)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
@@ -501,7 +501,7 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
 {
   json v;
   this->RootJson["asset"]["version"] = "1.0";
-  if (this->BuildingContentType != vtkCesium3DTilesWriter::B3DM)
+  if (this->BuildingsContentType != vtkCesium3DTilesWriter::B3DM)
   {
     std::string content_gltf = "3DTILES_content_gltf";
     std::string mesh_gpu_instancing = "EXT_mesh_gpu_instancing";
@@ -516,6 +516,14 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
   }
   this->RootJson["geometricError"] = this->ComputeGeometricErrorTileset();
   this->RootJson["root"] = this->GenerateTileJson(root);
+  switch (this->InputType)
+  {
+    case vtkCesium3DTilesWriter::Points:
+      ConvertDataSetCartesianPoints();
+      break;
+    default:
+      break;
+  }
   vtksys::ofstream file(output.c_str());
   if (!file)
   {
@@ -533,12 +541,6 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
   std::array<double, 6> nodeBounds = this->NodeBounds[node->GetID()];
   std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(this->CRS, nodeBounds);
   std::ostringstream ostr;
-  // std::cout << "lonLatRadiansHeight: " << (lonLatRadiansHeight[0] * 180.0) / vtkMath::Pi() << " "
-  //           << (lonLatRadiansHeight[1] * 180.0) / vtkMath::Pi() << " "
-  //           << (lonLatRadiansHeight[2] * 180.0) / vtkMath::Pi() << " "
-  //           << (lonLatRadiansHeight[3] * 180.0) / vtkMath::Pi() << " " << lonLatRadiansHeight[4]
-  //           << " "
-  //           << lonLatRadiansHeight[5] << " " << std::endl;
   for (int i = 0; i < 6; ++i)
   {
     v[i] = lonLatRadiansHeight[i];
@@ -574,82 +576,164 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
   {
     if (!this->EmptyNode[node->GetID()])
     {
-
-      PJ* P;
-      P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, this->CRS, "+proj=cart", nullptr);
-      if (P == nullptr)
+      if (this->InputType == vtkCesium3DTilesWriter::Buildings &&
+        !ConvertTileCartesianBuildings(node))
       {
-        vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(nullptr)));
         return tree;
       }
-      /* For that particular use case, this is not needed. */
-      /* proj_normalize_for_visualization() ensures that the coordinate */
-      /* order expected and returned by proj_trans() will be longitude, */
-      /* latitude for geographic CRS, and easting, northing for projected */
-      /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
-      /* had been used, this might had been necessary. */
-      PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
-      if (P_for_GIS == nullptr)
-      {
-        proj_destroy(P);
-        vtkLog(ERROR,
-          "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(nullptr)));
-        return tree;
-      }
-      proj_destroy(P);
-      P = P_for_GIS;
-
-      // transform points to Cartesian coordinates
-      vtkIdList* pointIds = node->GetPointIds();
-      // for each building
-      for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
-      {
-        int buildingId = pointIds->GetId(i);
-        vtkSmartPointer<vtkCompositeDataSet> building = (*this->Buildings)[buildingId];
-        auto it = vtk::TakeSmartPointer(building->NewIterator());
-        // for each poly data in the building
-        for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
-        {
-          vtkPolyData* pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
-          vtkDataArray* points = pd->GetPoints()->GetData();
-          vtkNew<vtkDoubleArray> newPoints;
-          vtkDoubleArray* da = vtkArrayDownCast<vtkDoubleArray>(points);
-          vtkFloatArray* fa = vtkArrayDownCast<vtkFloatArray>(points);
-          bool conversion = false;
-          if (!da)
-          {
-            if (fa)
-            {
-              vtkLog(WARNING, "Converting float to double points.");
-              newPoints->DeepCopy(fa);
-              da = newPoints;
-              conversion = true;
-            }
-            else
-            {
-              vtkLog(ERROR, "Points are not float or double.");
-              break;
-            }
-          }
-          double* d = da->GetPointer(0);
-          int n = da->GetNumberOfTuples();
-          proj_trans_generic(P, PJ_FWD, d, sizeof(d[0]) * 3, n, d + 1, sizeof(d[0]) * 3, n, d + 2,
-            sizeof(d[0]) * 3, n, nullptr, 0, 0);
-          if (conversion)
-          {
-            pd->GetPoints()->SetData(newPoints);
-          }
-        }
-      }
-      proj_destroy(P);
-
       ostr.str("");
-      ostr << node->GetID() << "/" << node->GetID()
-           << BuildingContentTypeExtension[this->BuildingContentType];
+      ostr << node->GetID() << "/" << node->GetID() << this->ContentTypeExtension();
       tree["content"]["uri"] = ostr.str();
     }
   }
   return tree;
+}
+
+std::string TreeInformation::ContentTypeExtension() const
+{
+  switch (this->InputType)
+  {
+    case vtkCesium3DTilesWriter::Buildings:
+      return BuildingContentTypeExtension[this->BuildingsContentType];
+    case vtkCesium3DTilesWriter::Points:
+      return ".pnts";
+    default:
+      vtkLog(ERROR, "Invalid InputType " << this->InputType);
+      return "";
+  }
+}
+
+//------------------------------------------------------------------------------
+bool TreeInformation::ConvertTileCartesianBuildings(vtkIncrementalOctreeNode* node)
+{
+  PJ* P;
+  P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, this->CRS, "+proj=cart", nullptr);
+  if (P == nullptr)
+  {
+    vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(nullptr)));
+    return false;
+  }
+  /* For that particular use case, this is not needed. */
+  /* proj_normalize_for_visualization() ensures that the coordinate */
+  /* order expected and returned by proj_trans() will be longitude, */
+  /* latitude for geographic CRS, and easting, northing for projected */
+  /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
+  /* had been used, this might had been necessary. */
+  PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
+  if (P_for_GIS == nullptr)
+  {
+    proj_destroy(P);
+    vtkLog(
+      ERROR, "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(nullptr)));
+    return false;
+  }
+  proj_destroy(P);
+  P = P_for_GIS;
+
+  // transform points to Cartesian coordinates
+  vtkIdList* pointIds = node->GetPointIds();
+  // for each building
+  for (int i = 0; i < pointIds->GetNumberOfIds(); ++i)
+  {
+    int buildingId = pointIds->GetId(i);
+    vtkSmartPointer<vtkCompositeDataSet> building = (*this->Buildings)[buildingId];
+    auto it = vtk::TakeSmartPointer(building->NewIterator());
+    // for each poly data in the building
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+    {
+      vtkPolyData* pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+      vtkDataArray* points = pd->GetPoints()->GetData();
+      vtkNew<vtkDoubleArray> newPoints;
+      vtkDoubleArray* da = vtkArrayDownCast<vtkDoubleArray>(points);
+      vtkFloatArray* fa = vtkArrayDownCast<vtkFloatArray>(points);
+      bool conversion = false;
+      if (!da)
+      {
+        if (fa)
+        {
+          vtkLog(WARNING, "Converting float to double points.");
+          newPoints->DeepCopy(fa);
+          da = newPoints;
+          conversion = true;
+        }
+        else
+        {
+          vtkLog(ERROR, "Points are not float or double.");
+          break;
+        }
+      }
+      double* d = da->GetPointer(0);
+      int n = da->GetNumberOfTuples();
+      proj_trans_generic(P, PJ_FWD, d, sizeof(d[0]) * 3, n, d + 1, sizeof(d[0]) * 3, n, d + 2,
+        sizeof(d[0]) * 3, n, nullptr, 0, 0);
+      if (conversion)
+      {
+        pd->GetPoints()->SetData(newPoints);
+      }
+    }
+  }
+  proj_destroy(P);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TreeInformation::ConvertDataSetCartesianPoints()
+{
+  PJ* P;
+  P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, this->CRS, "+proj=cart", nullptr);
+  if (P == nullptr)
+  {
+    vtkLog(ERROR, "proj_create_crs_to_crs failed: " << proj_errno_string(proj_errno(nullptr)));
+    return false;
+  }
+  /* For that particular use case, this is not needed. */
+  /* proj_normalize_for_visualization() ensures that the coordinate */
+  /* order expected and returned by proj_trans() will be longitude, */
+  /* latitude for geographic CRS, and easting, northing for projected */
+  /* CRS. If instead of using PROJ strings as above, "EPSG:XXXX" codes */
+  /* had been used, this might had been necessary. */
+  PJ* P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
+  if (P_for_GIS == nullptr)
+  {
+    proj_destroy(P);
+    vtkLog(
+      ERROR, "proj_normalize_for_visualization failed: " << proj_errno_string(proj_errno(nullptr)));
+    return false;
+  }
+  proj_destroy(P);
+  P = P_for_GIS;
+
+  // transform points to Cartesian coordinates
+  vtkDataArray* points = this->Points->GetPoints()->GetData();
+  vtkNew<vtkDoubleArray> newPoints;
+  vtkDoubleArray* da = vtkArrayDownCast<vtkDoubleArray>(points);
+  vtkFloatArray* fa = vtkArrayDownCast<vtkFloatArray>(points);
+  bool conversion = false;
+  if (!da)
+  {
+    if (fa)
+    {
+      vtkLog(WARNING, "Converting float to double points.");
+      newPoints->DeepCopy(fa);
+      da = newPoints;
+      conversion = true;
+    }
+    else
+    {
+      vtkLog(ERROR, "Points are not float or double.");
+      return false;
+    }
+  }
+  double* d = da->GetPointer(0);
+  int n = da->GetNumberOfTuples();
+  proj_trans_generic(P, PJ_FWD, d, sizeof(d[0]) * 3, n, d + 1, sizeof(d[0]) * 3, n, d + 2,
+    sizeof(d[0]) * 3, n, nullptr, 0, 0);
+  if (conversion)
+  {
+    this->Points->GetPoints()->SetData(newPoints);
+  }
+  proj_destroy(P);
+  return true;
 }
 
 //------------------------------------------------------------------------------

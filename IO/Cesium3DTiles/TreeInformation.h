@@ -92,6 +92,9 @@ protected:
     vtkIncrementalOctreeNode* node, void* aux);
   void SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output);
   nlohmann::json GenerateTileJson(vtkIncrementalOctreeNode* node);
+  bool ConvertTileCartesianBuildings(vtkIncrementalOctreeNode* node);
+  bool ConvertDataSetCartesianPoints();
+
   /**
    * Computes the additional information for 'node'. This includes
    * the tight bounding box around the buildings, if the node is empty or not,
@@ -108,6 +111,7 @@ protected:
   double ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode* node);
   double ComputeGeometricErrorNode(vtkIncrementalOctreeNode* node);
   std::array<double, 6> ComputeTightBB(vtkIdList* tileBuildings);
+  std::string ContentTypeExtension() const;
 
   void SetPointsPerCubeMeter(int value) { this->PointsPerCubeMeter = value; }
   int GetPointsPerCubeMeter() const { return this->PointsPerCubeMeter; }
@@ -130,7 +134,7 @@ private:
   std::string OutputDir;
   std::string TexturePath;
   bool SaveTextures;
-  int BuildingContentType;
+  int BuildingsContentType;
   // Number of points for which we consider the full volume as part of the error.
   // We clamp the number of points to this value for a larger number of points,
   // otherwise we scale the volume with numberOfPoints / PointsPerCubeMeter.
@@ -141,6 +145,9 @@ private:
    * tight bounds indexed by tile ID
    */
   std::vector<std::array<double, 6>> NodeBounds;
+  /**
+   * You can have leaf nodes that are empty, that is they don't have any points.
+   */
   std::vector<bool> EmptyNode;
   /**
    * volume difference between rendering this node and rendering the most detailed model.

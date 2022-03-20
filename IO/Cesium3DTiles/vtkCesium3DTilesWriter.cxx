@@ -221,6 +221,7 @@ void vtkCesium3DTilesWriter::WriteData()
     }
     else if (rootPointCloud)
     {
+      vtkDirectory::MakeDirectory(this->DirectoryName);
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctree(rootPointCloud, this->NumberOfBuildingsPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), rootPointCloud,
