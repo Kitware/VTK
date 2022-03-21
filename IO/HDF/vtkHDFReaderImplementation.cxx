@@ -595,7 +595,7 @@ hid_t vtkHDFReader::Implementation::OpenDataSet(
 vtkDataArray* vtkHDFReader::Implementation::NewArray(
   int attributeType, const char* name, const std::vector<hsize_t>& fileExtent)
 {
-  return NewArray(this->AttributeDataGroup[attributeType], name, fileExtent);
+  return NewArrayForGroup(this->AttributeDataGroup[attributeType], name, fileExtent);
 }
 
 //------------------------------------------------------------------------------
@@ -603,7 +603,7 @@ vtkDataArray* vtkHDFReader::Implementation::NewArray(
   int attributeType, const char* name, hsize_t offset, hsize_t size)
 {
   std::vector<hsize_t> fileExtent = { offset, offset + size - 1 };
-  return NewArray(this->AttributeDataGroup[attributeType], name, fileExtent);
+  return NewArrayForGroup(this->AttributeDataGroup[attributeType], name, fileExtent);
 }
 
 //------------------------------------------------------------------------------
@@ -685,7 +685,7 @@ vtkAbstractArray* vtkHDFReader::Implementation::NewFieldArray(const char* name)
     // empty fileExtent means read all values from the file
     // field arrays are always 1D
     std::vector<hsize_t> fileExtent;
-    return NewArray(this->AttributeDataGroup[vtkDataObject::FIELD], name, fileExtent);
+    return NewArrayForGroup(this->AttributeDataGroup[vtkDataObject::FIELD], name, fileExtent);
   }
 }
 
@@ -694,7 +694,7 @@ vtkDataArray* vtkHDFReader::Implementation::NewMetadataArray(
   const char* name, hsize_t offset, hsize_t size)
 {
   std::vector<hsize_t> fileExtent = { offset, offset + size - 1 };
-  return NewArray(this->VTKGroup, name, fileExtent);
+  return NewArrayForGroup(this->VTKGroup, name, fileExtent);
 }
 
 //------------------------------------------------------------------------------
@@ -702,7 +702,7 @@ std::vector<vtkIdType> vtkHDFReader::Implementation::GetMetadata(const char* nam
 {
   std::vector<vtkIdType> v;
   std::vector<hsize_t> fileExtent = { 0, size - 1 };
-  auto a = vtk::TakeSmartPointer(NewArray(this->VTKGroup, name, fileExtent));
+  auto a = vtk::TakeSmartPointer(NewArrayForGroup(this->VTKGroup, name, fileExtent));
   if (!a)
   {
     return v;
@@ -714,7 +714,7 @@ std::vector<vtkIdType> vtkHDFReader::Implementation::GetMetadata(const char* nam
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkHDFReader::Implementation::NewArray(
+vtkDataArray* vtkHDFReader::Implementation::NewArrayForGroup(
   hid_t group, const char* name, const std::vector<hsize_t>& parameterExtent)
 {
   hid_t dataset = -1;
