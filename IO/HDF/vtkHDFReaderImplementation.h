@@ -162,7 +162,8 @@ protected:
    * fileExtent.size()>>1 + 1 == ndims - in this case we read an array with
    *                           the number of components > 1.
    */
-  vtkDataArray* NewArray(hid_t group, const char* name, const std::vector<hsize_t>& fileExtent);
+  vtkDataArray* NewArrayForGroup(
+    hid_t group, const char* name, const std::vector<hsize_t>& fileExtent);
   template <typename T>
   vtkDataArray* NewArray(
     hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents);
