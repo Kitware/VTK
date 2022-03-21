@@ -2,7 +2,8 @@ set(classes
   vtkCesium3DTilesWriter)
 
 set(private_classes
-  TreeInformation)
+  TreeInformation
+  vtkCesiumPointCloudWriter)
 
 vtk_module_add_module(VTK::IOCesium3DTiles
   CLASSES ${classes}

@@ -15,6 +15,7 @@
 #include "TreeInformation.h"
 
 #include "vtkCesium3DTilesWriter.h"
+#include "vtkCesiumPointCloudWriter.h"
 #include "vtkGLTFWriter.h"
 #include "vtkMultiBlockDataSet.h"
 #include <vtkActor.h>
@@ -309,7 +310,22 @@ void TreeInformation::SaveTileGLTF(vtkIncrementalOctreeNode* node, void* aux)
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTilePnts(vtkIncrementalOctreeNode* node, void* auxData) {}
+void TreeInformation::SaveTilePnts(vtkIncrementalOctreeNode* node, void* auxData)
+{
+  if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
+  {
+    vtkSmartPointer<vtkIdList> pointIds = node->GetPointIds();
+    vtkNew<vtkCesiumPointCloudWriter> writer;
+    writer->SetInputDataObject(this->Points);
+    writer->SetPointIds(pointIds);
+    std::ostringstream ostr;
+    ostr << this->OutputDir << "/" << node->GetID();
+    vtkDirectory::MakeDirectory(ostr.str().c_str());
+    ostr << "/" << node->GetID() << ".gltf";
+    writer->SetFileName(ostr.str().c_str());
+    writer->Write();
+  }
+}
 
 //------------------------------------------------------------------------------
 double TreeInformation::ComputeGeometricErrorTilesetBuildings()
