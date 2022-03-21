@@ -63,6 +63,7 @@ set(test_sources
   TestHyperTreeGridTernary3DGeometryLargeMaterialBits.cxx
   TestHyperTreeGridTernary3DGeometryMaterial.cxx
   TestHyperTreeGridTernary3DGeometryMaterialBits.cxx
+  TestHyperTreeGridTernary3DGradient.cxx
   TestHyperTreeGridTernary3DPlaneCutter.cxx
   TestHyperTreeGridTernary3DPlaneCutterDual.cxx
   TestHyperTreeGridTernary3DPlaneCutterDualMaterial.cxx

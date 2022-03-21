@@ -616,7 +616,7 @@ struct CellGradients : public GradientsBase<TData>
 
       for (int comp = 0; comp < this->NumComp; comp++)
       {
-        for (int i = 0; i < nPts; i++)
+        for (vtkIdType i = 0; i < nPts; i++)
         {
           auto a = array[cell->GetPointId(i)];
           values[i] = a[comp];
