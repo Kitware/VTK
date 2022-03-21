@@ -828,8 +828,9 @@ class CompositeDataSetAttributes():
     def PassData(self, other):
         """Emulate PassData for composite datasets."""
         for this,that in zip(self.DataSet, other.DataSet):
-            for assoc in [ArrayAssociation.POINT, ArrayAssociation.CELL]:
-                this.GetAttributes(assoc).PassData(that.GetAttributes(assoc))
+            for assoc in [ArrayAssociation.POINT, ArrayAssociation.CELL, ArrayAssociation.ROW]:
+                if this.HasAttributes(assoc) and that.HasAttributes(assoc):
+                    this.GetAttributes(assoc).PassData(that.GetAttributes(assoc))
 
 class CompositeDataIterator(object):
     """Wrapper for a vtkCompositeDataIterator class to satisfy
@@ -905,6 +906,10 @@ class DataObject(VTKObjectWrapper):
             return DataSetAttributes(self.VTKObject.GetFieldData(), self, type)
         return DataSetAttributes(self.VTKObject.GetAttributes(type), self, type)
 
+    def HasAttributes(self, type):
+        "Returns if current object support this attributes type"
+        return type == ArrayAssociation.FIELD
+
     def GetFieldData(self):
         "Returns the field data as a DataSetAttributes instance."
         return DataSetAttributes(self.VTKObject.GetFieldData(), self, ArrayAssociation.FIELD)
@@ -919,6 +924,10 @@ class Table(DataObject):
         "Returns the row data as a DataSetAttributes instance."
         return self.GetAttributes(ArrayAssociation.ROW)
 
+    def HasAttributes(self, type):
+        "Returns if current object support this attributes type"
+        return type == ArrayAssociation.ROW or DataObject.HasAttributes(self, type)
+
     RowData = property(GetRowData, None, None, "This property returns the row data of the table.")
 
 class HyperTreeGrid(DataObject):
@@ -928,6 +937,10 @@ class HyperTreeGrid(DataObject):
     def GetCellData(self):
         "Returns the cell data as DataSetAttributes instance."
         return self.GetAttributes(ArrayAssociation.CELL)
+
+    def HasAttributes(self, type):
+        "Returns if current object support this attributes type"
+        return type == ArrayAssociation.CELL or DataObject.HasAttributes(self, type)
 
     CellData = property(GetCellData, None, None, "This property returns the cell data of the hypertree grid.")
 
@@ -974,6 +987,14 @@ class CompositeDataSet(DataObject):
         """Returns the attributes specified by the type as a
         CompositeDataSetAttributes instance."""
         return CompositeDataSetAttributes(self, type)
+
+    def HasAttributes(self, type):
+        "Returns true if every leaves of current composite object support this attributes type"
+        for dataset in self:
+            if not dataset.HasAttributes(type):
+                return False
+
+        return True
 
     def GetPointData(self):
         "Returns the point data as a DataSetAttributes instance."
@@ -1033,6 +1054,10 @@ class DataSet(DataObject):
     def GetCellData(self):
         "Returns the cell data as a DataSetAttributes instance."
         return self.GetAttributes(ArrayAssociation.CELL)
+
+    def HasAttributes(self, type):
+        "Returns if current object support this attributes type"
+        return type == ArrayAssociation.POINT or type == ArrayAssociation.CELL or DataObject.HasAttributes(self, type)
 
     PointData = property(GetPointData, None, None, "This property returns the point data of the dataset.")
     CellData = property(GetCellData, None, None, "This property returns the cell data of a dataset.")
