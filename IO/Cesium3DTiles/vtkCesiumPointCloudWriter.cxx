@@ -124,21 +124,26 @@ void vtkCesiumPointCloudWriter::WriteData()
   std::ostringstream ostr;
   ostr << featureTable;
   Header header;
+  // the FeatureTable JSON header must end on a 8-byte boundary, so we pad with space.
+  int paddingSize = (8 - ((sizeof(header) + ostr.str().length()) % 8)) % 8;
+  for (int i = 0; i < paddingSize; ++i)
+  {
+    ostr << ' ';
+  }
+  // the FeatureTable binary body must end on a 8-byte boundary, so we pad with 0
+  paddingSize = (8 - ((this->PointIds->GetNumberOfIds() * 3 * sizeof(float)) % 8)) % 8;
+
   header.version = 1;
   header.featureTableJSONByteLength = ostr.str().length();
-  header.featureTableBinaryByteLength = this->PointIds->GetNumberOfIds() * 4;
+  header.featureTableBinaryByteLength =
+    this->PointIds->GetNumberOfIds() * 3 * sizeof(float) + paddingSize;
   header.batchTableJSONByteLength = 0;
   header.batchTableBinaryByteLength = 0;
   header.byteLength = sizeof(header) + header.featureTableJSONByteLength +
     header.featureTableBinaryByteLength + header.batchTableJSONByteLength +
     header.batchTableBinaryByteLength;
   out.write("pnts", 4);
-  vtkByteSwap::Swap4LE(&header.version);
-  vtkByteSwap::Swap4LE(&header.byteLength);
-  vtkByteSwap::Swap4LE(&header.featureTableJSONByteLength);
-  vtkByteSwap::Swap4LE(&header.featureTableBinaryByteLength);
-  vtkByteSwap::Swap4LE(&header.batchTableJSONByteLength);
-  vtkByteSwap::Swap4LE(&header.batchTableBinaryByteLength);
+  vtkByteSwap::SwapWrite4LERange(&header.version, 6, &out);
   out.write(ostr.str().c_str(), ostr.str().length());
   for (vtkIdType i = 0; i < this->PointIds->GetNumberOfIds(); ++i)
   {
@@ -150,7 +155,13 @@ void vtkCesiumPointCloudWriter::WriteData()
     {
       pointf[0] = pointd[0];
     }
-    vtkByteSwap::Swap4LE(pointf);
+    vtkByteSwap::SwapWrite4LERange(pointf, 3, &out);
+  }
+  // pad the FeatureTable body
+  char c = 0;
+  for (int i = 0; i < paddingSize; ++i)
+  {
+    out.write(&c, sizeof(c));
   }
 }
 
