@@ -18,8 +18,9 @@
 #include "vtkDataArraySelection.h"
 #include "vtkIOH5RageModule.h" // For export macro
 
-#include <string> // for std::string
-#include <vector> // for std::vector
+#include <cstdint> // for std::int64_t
+#include <string>  // for std::string
+#include <vector>  // for std::vector
 
 class vtkDataArraySelection;
 class vtkImageData;
@@ -68,7 +69,7 @@ protected:
 
   // Geometry information for sharing data with other processors
   int** ExtentSchedule;
-  int* NumberOfTuples;
+  int64_t* NumberOfTuples;
 
   int WholeExtent[6]; // Size of image
   int SubExtent[6];   // Size of image this processor
@@ -77,7 +78,7 @@ protected:
   double Spacing[3];  // Physical spacing
 
   int NumberOfDimensions;
-  int TotalTuples;
+  int64_t TotalTuples;
   bool UseFloat64;
 
   // Variable information retrieved from hdf filenames

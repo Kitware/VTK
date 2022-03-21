@@ -129,7 +129,7 @@ H5RageAdaptor::H5RageAdaptor(vtkMultiProcessController* ctrl)
 
   // Schedule for sending partitioned variables to processors
   // Only rank 0 reads the data, ghost overlap is 1
-  this->NumberOfTuples = new int[this->TotalRank];
+  this->NumberOfTuples = new int64_t[this->TotalRank];
   this->ExtentSchedule = new int*[this->TotalRank];
   for (int rank = 0; rank < this->TotalRank; rank++)
   {
@@ -719,14 +719,14 @@ void H5RageAdaptor::LoadVariableData(
         if (this->Rank == 0)
         {
           // Store the rank 0 portion of the data
-          int pos = 0;
-          for (int k = this->ExtentSchedule[0][4]; k <= this->ExtentSchedule[0][5]; k++)
+          int64_t pos = 0;
+          for (int64_t k = this->ExtentSchedule[0][4]; k <= this->ExtentSchedule[0][5]; k++)
           {
-            for (int j = this->ExtentSchedule[0][2]; j <= this->ExtentSchedule[0][3]; j++)
+            for (int64_t j = this->ExtentSchedule[0][2]; j <= this->ExtentSchedule[0][3]; j++)
             {
-              for (int i = this->ExtentSchedule[0][0]; i <= this->ExtentSchedule[0][1]; i++)
+              for (int64_t i = this->ExtentSchedule[0][0]; i <= this->ExtentSchedule[0][1]; i++)
               {
-                int indx =
+                int64_t indx =
                   (k * this->Dimension[0] * this->Dimension[1]) + (j * this->Dimension[0]) + i;
                 varData[pos++] = dData[indx];
               }
@@ -738,14 +738,16 @@ void H5RageAdaptor::LoadVariableData(
           {
             // Allocate buffer to send and fill with correct range per processor
             double* buffer = new double[this->NumberOfTuples[this->Rank]];
-            int pos2 = 0;
-            for (int k = this->ExtentSchedule[rank][4]; k <= this->ExtentSchedule[rank][5]; k++)
+            int64_t pos2 = 0;
+            for (int64_t k = this->ExtentSchedule[rank][4]; k <= this->ExtentSchedule[rank][5]; k++)
             {
-              for (int j = this->ExtentSchedule[rank][2]; j <= this->ExtentSchedule[rank][3]; j++)
+              for (int64_t j = this->ExtentSchedule[rank][2]; j <= this->ExtentSchedule[rank][3];
+                   j++)
               {
-                for (int i = this->ExtentSchedule[rank][0]; i <= this->ExtentSchedule[rank][1]; i++)
+                for (int64_t i = this->ExtentSchedule[rank][0]; i <= this->ExtentSchedule[rank][1];
+                     i++)
                 {
-                  int indx =
+                  int64_t indx =
                     (k * this->Dimension[0] * this->Dimension[1]) + (j * this->Dimension[0]) + i;
                   buffer[pos2++] = dData[indx];
                 }
@@ -778,14 +780,14 @@ void H5RageAdaptor::LoadVariableData(
         if (this->Rank == 0)
         {
           // Store the rank 0 portion of the data
-          int pos2 = 0;
-          for (int k = this->ExtentSchedule[0][4]; k <= this->ExtentSchedule[0][5]; k++)
+          int64_t pos2 = 0;
+          for (int64_t k = this->ExtentSchedule[0][4]; k <= this->ExtentSchedule[0][5]; k++)
           {
-            for (int j = this->ExtentSchedule[0][2]; j <= this->ExtentSchedule[0][3]; j++)
+            for (int64_t j = this->ExtentSchedule[0][2]; j <= this->ExtentSchedule[0][3]; j++)
             {
-              for (int i = this->ExtentSchedule[0][0]; i <= this->ExtentSchedule[0][1]; i++)
+              for (int64_t i = this->ExtentSchedule[0][0]; i <= this->ExtentSchedule[0][1]; i++)
               {
-                int indx =
+                int64_t indx =
                   (k * this->Dimension[0] * this->Dimension[1]) + (j * this->Dimension[0]) + i;
                 varData[pos2++] = fData[indx];
               }
@@ -797,14 +799,16 @@ void H5RageAdaptor::LoadVariableData(
           {
             // Allocate buffer to send and fill with correct range per processor
             float* buffer = new float[this->NumberOfTuples[rank]];
-            int pos3 = 0;
-            for (int k = this->ExtentSchedule[rank][4]; k <= this->ExtentSchedule[rank][5]; k++)
+            int64_t pos3 = 0;
+            for (int64_t k = this->ExtentSchedule[rank][4]; k <= this->ExtentSchedule[rank][5]; k++)
             {
-              for (int j = this->ExtentSchedule[rank][2]; j <= this->ExtentSchedule[rank][3]; j++)
+              for (int64_t j = this->ExtentSchedule[rank][2]; j <= this->ExtentSchedule[rank][3];
+                   j++)
               {
-                for (int i = this->ExtentSchedule[rank][0]; i <= this->ExtentSchedule[rank][1]; i++)
+                for (int64_t i = this->ExtentSchedule[rank][0]; i <= this->ExtentSchedule[rank][1];
+                     i++)
                 {
-                  int indx =
+                  int64_t indx =
                     (k * this->Dimension[0] * this->Dimension[1]) + (j * this->Dimension[0]) + i;
                   buffer[pos3++] = fData[indx];
                 }
@@ -838,16 +842,16 @@ void H5RageAdaptor::ConvertHDFData(int ndims, int* dimensions, T* hdfData)
 
   if (ndims == 3)
   {
-    int pos = 0;
-    int planeSize = dimensions[1] * dimensions[2];
-    int rowSize = dimensions[2];
-    for (int k = 0; k < dimensions[0]; k++)
+    int64_t pos = 0;
+    int64_t planeSize = dimensions[1] * dimensions[2];
+    int64_t rowSize = dimensions[2];
+    for (int64_t k = 0; k < dimensions[0]; k++)
     {
-      for (int j = (dimensions[1] - 1); j >= 0; j--)
+      for (int64_t j = (dimensions[1] - 1); j >= 0; j--)
       {
-        for (int i = 0; i < dimensions[2]; i++)
+        for (int64_t i = 0; i < dimensions[2]; i++)
         {
-          int indx = (k * planeSize) + (j * rowSize) + i;
+          int64_t indx = (k * planeSize) + (j * rowSize) + i;
           convertedData[pos++] = hdfData[indx];
         }
       }
@@ -855,20 +859,20 @@ void H5RageAdaptor::ConvertHDFData(int ndims, int* dimensions, T* hdfData)
   }
   else
   {
-    int pos = 0;
-    int rowSize = dimensions[1];
-    for (int j = (dimensions[0] - 1); j >= 0; j--)
+    int64_t pos = 0;
+    int64_t rowSize = dimensions[1];
+    for (int64_t j = (dimensions[0] - 1); j >= 0; j--)
     {
-      for (int i = 0; i < dimensions[1]; i++)
+      for (int64_t i = 0; i < dimensions[1]; i++)
       {
-        int indx = (j * rowSize) + i;
+        int64_t indx = (j * rowSize) + i;
         convertedData[pos++] = hdfData[indx];
       }
     }
   }
 
   // Copy back to original
-  for (int indx = 0; indx < this->TotalTuples; indx++)
+  for (int64_t indx = 0; indx < this->TotalTuples; indx++)
   {
     hdfData[indx] = convertedData[indx];
   }
