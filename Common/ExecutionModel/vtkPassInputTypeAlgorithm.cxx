@@ -17,6 +17,7 @@
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
 #include "vtkGraph.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMolecule.h"
@@ -57,6 +58,13 @@ vtkDataObject* vtkPassInputTypeAlgorithm::GetOutput(int port)
 vtkImageData* vtkPassInputTypeAlgorithm::GetImageDataOutput()
 {
   return vtkImageData::SafeDownCast(this->GetOutput());
+}
+
+//------------------------------------------------------------------------------
+// Get the output as vtkHyperTreeGrid
+vtkHyperTreeGrid* vtkPassInputTypeAlgorithm::GetHyperTreeGridOutput()
+{
+  return vtkHyperTreeGrid::SafeDownCast(this->GetOutput());
 }
 
 //------------------------------------------------------------------------------

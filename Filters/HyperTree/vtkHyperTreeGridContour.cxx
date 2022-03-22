@@ -289,7 +289,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   this->InGhostArray = input->GetGhostCells();
 
   // Estimate output size as a multiple of 1024
-  vtkIdType numCells = input->GetNumberOfVertices();
+  vtkIdType numCells = input->GetNumberOfCells();
   vtkIdType numContours = this->ContourValues->GetNumberOfContours();
   vtkIdType estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(numCells), .75));
   estimatedSize *= numContours;

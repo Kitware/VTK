@@ -559,11 +559,11 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     scalars->SetNumberOfComponents(1);
     scalars->SetName(vtkDataSetAttributes::GhostArrayName());
     scalars->SetNumberOfTuples(numberOfValues);
-    for (vtkIdType ii = 0; ii < input->GetNumberOfVertices(); ++ii)
+    for (vtkIdType ii = 0; ii < input->GetNumberOfCells(); ++ii)
     {
       scalars->InsertValue(ii, 0);
     }
-    for (vtkIdType ii = input->GetNumberOfVertices(); ii < numberOfValues; ++ii)
+    for (vtkIdType ii = input->GetNumberOfCells(); ii < numberOfValues; ++ii)
     {
       scalars->InsertValue(ii, 1);
     }

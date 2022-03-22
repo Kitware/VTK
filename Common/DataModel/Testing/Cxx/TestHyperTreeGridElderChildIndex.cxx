@@ -37,7 +37,7 @@ void generateTree2(vtkUniformHyperTreeGrid* uhtg, unsigned int treeId)
   std::cout.flush();
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   uhtg->InitializeNonOrientedCursor(cursor, treeId, true);
-  cursor->SetGlobalIndexStart(uhtg->GetNumberOfVertices());
+  cursor->SetGlobalIndexStart(uhtg->GetNumberOfCells());
 
   // level 0
   cursor->SetMask(false);
@@ -126,7 +126,7 @@ void generateTree(vtkUniformHyperTreeGrid* uhtg, unsigned int treeId)
   std::cout.flush();
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   uhtg->InitializeNonOrientedCursor(cursor, treeId, true);
-  cursor->SetGlobalIndexStart(uhtg->GetNumberOfVertices());
+  cursor->SetGlobalIndexStart(uhtg->GetNumberOfCells());
   // level 0
   cursor->SubdivideLeaf();
   cursor->ToChild(0);

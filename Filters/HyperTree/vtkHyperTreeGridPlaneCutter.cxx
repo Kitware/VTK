@@ -292,7 +292,7 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataOb
     {
       this->SelectedCells = vtkBitArray::New();
     }
-    vtkIdType numCells = input->GetNumberOfVertices();
+    vtkIdType numCells = input->GetNumberOfCells();
     this->SelectedCells->SetNumberOfTuples(numCells);
     for (vtkIdType i = 0; i < numCells; ++i)
     {

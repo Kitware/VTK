@@ -62,6 +62,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+#include "vtkDeprecation.h"  // for deprecation macro
 #include "vtkNew.h"          // vtkSmartPointer
 #include "vtkSmartPointer.h" // vtkSmartPointer
 
@@ -288,6 +289,7 @@ public:
   /**
    * Get the number of vertices in the primal tree grid.
    */
+  VTK_DEPRECATED_IN_9_2_0("Please use the renamed version, GetNumberOfCells().")
   vtkIdType GetNumberOfVertices();
 
   /**
@@ -500,7 +502,7 @@ public:
   int GetExtentType() override { return VTK_3D_EXTENT; }
 
   /**
-   * Return the actual size of the data in kibibytes (1024 bytes). This number
+   * Return the actual size of the data in bytes. This number
    * is valid only after the pipeline has updated. The memory size
    * returned is guaranteed to be greater than or equal to the
    * memory required to represent the data (e.g., extra space in
@@ -628,19 +630,20 @@ public:
   void InitializeLocalIndexNode();
 
   /**
-   * Returns 1 if there are any ghost cells
-   * 0 otherwise.
+   * Returns true if a ghost cell array is defined.
    */
   bool HasAnyGhostCells() const;
 
   /**
-   * Accessor on ghost cells
+   * Gets the array that defines the ghost type of each cell.
+   * see also GetTreeGhostArray().
    */
   vtkUnsignedCharArray* GetGhostCells();
 
   /**
-   * Gets the array that defines the ghost type of each point.
-   * We cache the pointer to the array to save a lookup involving string comparisons
+   * Gets the array that defines the ghost type of each cell.
+   * Unlike GetGhostCells(), we cache the pointer to the array
+   * to save a lookup involving string comparisons
    */
   vtkUnsignedCharArray* GetTreeGhostArray();
 
@@ -738,6 +741,12 @@ public:
    * it defers to vtkDataObject.
    */
   vtkIdType GetNumberOfElements(int type) override;
+
+  /**
+   * Return the number of cells.
+   * It matches the total number of internal nodes and leaves of the underlying hypertrees.
+   */
+  vtkIdType GetNumberOfCells();
 
 protected:
   /**

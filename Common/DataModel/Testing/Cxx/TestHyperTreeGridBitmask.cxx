@@ -88,7 +88,7 @@ void initUniformHyperTreeOneRootCell(vtkUniformHyperTreeGrid* uhtg)
 
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   const unsigned int treeId = 1;
-  const vtkIdType nbElementsInHTG = uhtg->GetNumberOfVertices();
+  const vtkIdType nbElementsInHTG = uhtg->GetNumberOfCells();
   uhtg->InitializeNonOrientedCursor(cursor, treeId, true);
   cursor->SetGlobalIndexStart(nbElementsInHTG);
   cursor->SetMask(false);
@@ -167,7 +167,7 @@ void initUniformHyperTreeSeveralRootCells(
   unsigned int treeIndex = 0;
   for (unsigned int treeId : treeIds)
   {
-    const vtkIdType nbElementsInHTG = uhtg->GetNumberOfVertices();
+    const vtkIdType nbElementsInHTG = uhtg->GetNumberOfCells();
     uhtg->InitializeNonOrientedCursor(cursor, treeId, true);
     cursor->SetGlobalIndexStart(nbElementsInHTG);
     // std::cout << "GlobalIndexStart of HT " << treeId << " : " << nbElementsInHTG << std::endl;

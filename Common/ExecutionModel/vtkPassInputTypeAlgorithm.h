@@ -39,6 +39,7 @@
 
 class vtkDataObject;
 class vtkGraph;
+class vtkHyperTreeGrid;
 class vtkImageData;
 class vtkMolecule;
 class vtkPolyData;
@@ -76,6 +77,7 @@ public:
   vtkGraph* GetGraphOutput();
   vtkMolecule* GetMoleculeOutput();
   vtkTable* GetTableOutput();
+  vtkHyperTreeGrid* GetHyperTreeGridOutput();
   ///@}
 
   /**

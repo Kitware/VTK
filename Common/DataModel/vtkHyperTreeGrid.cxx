@@ -37,6 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
+#include "vtkLegacy.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -466,8 +467,6 @@ void vtkHyperTreeGrid::CopyEmptyStructure(vtkDataObject* ds)
   this->HasInterface = htg->HasInterface;
   this->SetInterfaceNormalsName(htg->InterfaceNormalsName);
   this->SetInterfaceInterceptsName(htg->InterfaceInterceptsName);
-
-  this->CellData->CopyStructure(htg->GetCellData());
 }
 
 //------------------------------------------------------------------------------
@@ -512,8 +511,6 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
   this->SetMask(htg->GetMask());
   vtkSetObjectBodyMacro(PureMask, vtkBitArray, htg->GetPureMask());
 
-  this->CellData->CopyStructure(htg->GetCellData());
-
   // Search for hyper tree with given index
   this->HyperTrees.clear();
 
@@ -524,6 +521,11 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
     tree->CopyStructure(it->second);
     this->HyperTrees[it->first] = tree;
     tree->Delete();
+  }
+
+  if (htg->HasAnyGhostCells())
+  {
+    this->GetCellData()->AddArray(htg->GetGhostCells());
   }
 }
 
@@ -783,6 +785,13 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfNonEmptyTrees()
 
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGrid::GetNumberOfVertices()
+{
+  VTK_LEGACY_REPLACED_BODY(GetNumberOfVertices, "VTK 9.2", GetNumberOfCells);
+  return this->GetNumberOfCells();
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
 {
   vtkIdType nVertices = 0;
 
@@ -1381,8 +1390,6 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySizeBytes()
     size += this->Mask->GetActualMemorySize() << 10;
   }
 
-  // JB Faut il compter le cout des grandeurs dans la representation ???
-  // JB Il ne me semble pas que cela soit fait ainsi dans les autres representations
   size += this->CellData->GetActualMemorySize() << 10;
 
   return static_cast<unsigned long>(size);

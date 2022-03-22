@@ -118,7 +118,7 @@ int vtkHyperTreeGridToDualGrid::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObj
   // entre les noeuds de l'HTG et ces points du maillage dual.
   // En effet, si l'on definit un GlobalIndex ou un IndexStart specifique
   // cette ecriture simpliste ne fonctionnait plus... tableau trop petit
-  // car GetGlobalIndex retourne une valeur > this->GetNumberOfVertices().
+  // car GetGlobalIndex retourne une valeur > this->GetNumberOfCells().
   this->Points->SetNumberOfPoints(input->GetGlobalNodeIndexMax() + 1);
 
   // TODO: find out why we get some uninitialized point coords instead
@@ -187,12 +187,12 @@ int vtkHyperTreeGridToDualGrid::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObj
     {
       double pt[3];
 
-      assert(_it->first < input->GetNumberOfVertices());
+      assert(_it->first < input->GetNumberOfCells());
       this->Points->GetPoint(_it->first, pt);
 
       pt[d] += _it->second;
 
-      assert(_it->first < input->GetNumberOfVertices());
+      assert(_it->first < input->GetNumberOfCells());
       this->Points->SetPoint(_it->first, pt);
     } // it
     this->PointShifts[d].clear();
@@ -1004,7 +1004,7 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf2D(
   vtkIdType id = cursor->GetGlobalNodeIndex();
 
   // Insert dual point at center of leaf cell
-  assert(id < input->GetNumberOfVertices());
+  assert(id < input->GetNumberOfCells());
   this->Points->SetPoint(id, pt);
 
   // If cell is masked, terminate recursion, no dual cell will be generated
