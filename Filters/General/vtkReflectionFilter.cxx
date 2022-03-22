@@ -627,6 +627,7 @@ int vtkReflectionFilter::RequestDataInternal(
         outputCellId = output->InsertNextCell(cellType, 4, newCellPts);
         break;
       }
+      case VTK_VOXEL:
       case VTK_HEXAHEDRON:
       {
         input->GetCellPoints(i, cellPts);
