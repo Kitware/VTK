@@ -88,6 +88,12 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
+  /**
+   * Reimplement ProcessEvents to use vtkAbstractWidget instead of vtkBorderWidget,
+   * for interaction with the scalar bar, even when the scalar bar's position is not AnyLocation.
+   */
+  vtkTypeBool GetProcessEvents() override;
+
 protected:
   vtkScalarBarWidget();
   ~vtkScalarBarWidget() override;
