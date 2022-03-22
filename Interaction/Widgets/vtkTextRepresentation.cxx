@@ -317,6 +317,17 @@ void vtkTextRepresentation::CheckTextBoundary()
 }
 
 //------------------------------------------------------------------------------
+void vtkTextRepresentation::SetWindowLocation(int enumLocation)
+{
+  if (this->WindowLocation != enumLocation)
+  {
+    this->WindowLocation = enumLocation;
+    this->CheckTextBoundary();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkTextRepresentation::SetPosition(double x, double y)
 {
   double* pos = this->PositionCoordinate->GetValue();

@@ -91,6 +91,19 @@ public:
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   ///@}
 
+  /**
+   * Set the text position, by enumeration (
+   * vtkBorderRepresentation::AnyLocation = 0,
+   * vtkBorderRepresentation::LowerLeftCorner,
+   * vtkBorderRepresentation::LowerRightCorner,
+   * vtkBorderRepresentation::LowerCenter,
+   * vtkBorderRepresentation::UpperLeftCorner,
+   * vtkBorderRepresentation::UpperRightCorner,
+   * vtkBorderRepresentation::UpperCenter)
+   * related to the render window
+   */
+  void SetWindowLocation(int enumLocation) override;
+
   ///@{
   /**
    * Set the text position, by overriding the same function of
