@@ -184,9 +184,20 @@ public:
         *connIter++ = eIds[*edges++];
         *connIter++ = eIds[*edges++];
       }
-
-      // Write the last offset:
-      *offsetIter = static_cast<ValueType>(3 * triId);
+    }
+  };
+  // Finalize the triangle cell array: after all the tris are inserted,
+  // the last offset has to be added to complete the offsets array.
+  struct FinalizeTrisImpl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT& state, vtkIdType numTris)
+    {
+      using ValueType = typename CellStateT::ValueType;
+      auto* offsets = state.GetOffsets();
+      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetIter = offsetRange.begin() + numTris;
+      *offsetIter = static_cast<ValueType>(3 * numTris);
     }
   };
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType* eIds, vtkIdType& triId)
@@ -1298,6 +1309,7 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
       newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
       algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
       newTris->ResizeExact(numOutTris, 3 * numOutTris);
+      newTris->Visit(FinalizeTrisImpl{}, numOutTris);
       algo.NewTris = newTris;
       if (newScalars)
       {
@@ -1467,28 +1479,28 @@ int vtkFlyingEdges3D::RequestData(
 
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
-  vtkCellArray* newTris = vtkCellArray::New();
-  vtkPoints* newPts = vtkPoints::New();
+  vtkNew<vtkCellArray> newTris;
+  vtkNew<vtkPoints> newPts;
   newPts->SetDataTypeToFloat();
-  vtkDataArray* newScalars = nullptr;
-  vtkFloatArray* newNormals = nullptr;
-  vtkFloatArray* newGradients = nullptr;
+  vtkSmartPointer<vtkDataArray> newScalars;
+  vtkSmartPointer<vtkFloatArray> newNormals;
+  vtkSmartPointer<vtkFloatArray> newGradients;
 
   if (this->ComputeScalars)
   {
-    newScalars = inScalars->NewInstance();
+    newScalars.TakeReference(inScalars->NewInstance());
     newScalars->SetNumberOfComponents(1);
     newScalars->SetName(inScalars->GetName());
   }
   if (this->ComputeNormals)
   {
-    newNormals = vtkFloatArray::New();
+    newNormals = vtkSmartPointer<vtkFloatArray>::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->SetName("Normals");
   }
   if (this->ComputeGradients)
   {
-    newGradients = vtkFloatArray::New();
+    newGradients = vtkSmartPointer<vtkFloatArray>::New();
     newGradients->SetNumberOfComponents(3);
     newGradients->SetName("Gradients");
   }
@@ -1508,30 +1520,24 @@ int vtkFlyingEdges3D::RequestData(
   // Update ourselves.  Because we don't know up front how many lines
   // we've created, take care to reclaim memory.
   output->SetPoints(newPts);
-  newPts->Delete();
-
   output->SetPolys(newTris);
-  newTris->Delete();
 
   if (newScalars)
   {
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-    newScalars->Delete();
   }
 
   if (newNormals)
   {
     int idx = output->GetPointData()->AddArray(newNormals);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::NORMALS);
-    newNormals->Delete();
   }
 
   if (newGradients)
   {
     int idx = output->GetPointData()->AddArray(newGradients);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::VECTORS);
-    newGradients->Delete();
   }
 
   // Transform output if image orientation is not axis aligned
