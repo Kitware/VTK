@@ -120,6 +120,12 @@ void vtkScalarBarWidget::MoveAction(vtkAbstractWidget* w)
 }
 
 //------------------------------------------------------------------------------
+vtkTypeBool vtkScalarBarWidget::GetProcessEvents()
+{
+  return this->vtkAbstractWidget::GetProcessEvents(); // NOLINT(bugprone-parent-virtual-call)
+}
+
+//------------------------------------------------------------------------------
 void vtkScalarBarWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
