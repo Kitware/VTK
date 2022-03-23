@@ -30,7 +30,7 @@
 // old versions of gcc are missing some pices of c++11 such as std::get_time
 // so use
 
-#if (defined(__GNUC__) && (__GNUC__ < 5)) || defined(ANDROID)
+#if (defined(__GNUC__) && (__GNUC__ < 5) && !defined(__clang__)) || defined(ANDROID)
 #define USE_STRPTIME
 #include "time.h"
 #endif
