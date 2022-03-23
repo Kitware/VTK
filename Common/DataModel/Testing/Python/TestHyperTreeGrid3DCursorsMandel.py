@@ -10,25 +10,26 @@ CUT_OFF = TARGET_LEVEL
 # Helpers
 # -----------------------------------------------------------------------------
 
-def mandelbrotTest(x, y, timeStep = 0):
-  count = 0;
-  cReal = float(x);
-  cImag = float(y);
-  zReal = 0.0;
-  zImag = float(timeStep) / 10.0;
 
-  zReal2 = zReal * zReal;
-  zImag2 = zImag * zImag;
-  v1 = (zReal2 + zImag2);
-  while v1 < 4.0 and count < 100:
-    zImag = 2.0 * zReal * zImag + cImag
-    zReal = zReal2 - zImag2 + cReal
+def mandelbrotTest(x, y, timeStep=0):
+    count = 0
+    cReal = float(x)
+    cImag = float(y)
+    zReal = 0.0
+    zImag = float(timeStep) / 10.0
+
     zReal2 = zReal * zReal
     zImag2 = zImag * zImag
-    count += 1
-    v1 = (zReal2 + zImag2)
+    v1 = zReal2 + zImag2
+    while v1 < 4.0 and count < 100:
+        zImag = 2.0 * zReal * zImag + cImag
+        zReal = zReal2 - zImag2 + cReal
+        zReal2 = zReal * zReal
+        zImag2 = zImag * zImag
+        count += 1
+        v1 = zReal2 + zImag2
 
-  return count == 100;
+    return count == 100
 
 
 def mandelbrotSide(bounds):
@@ -64,7 +65,6 @@ def shouldRefine(level, bounds):
 
 def handleNode(cursor, sideArray, levelArray):
     cellBounds = [0, -1, 0, -1, 0, -1]
-    level = cursor.GetLevel()
     cursor.GetBounds(cellBounds)
 
     # Add field
@@ -79,7 +79,7 @@ def handleNode(cursor, sideArray, levelArray):
             handleNode(cursor, sideArray, mask)
 
     else:
-        for childIdx in range( cursor.GetNumberOfChildren() ):
+        for childIdx in range(cursor.GetNumberOfChildren()):
             cursor.ToChild(childIdx)
             handleNode(cursor, sideArray, mask)
             cursor.ToParent()
@@ -93,23 +93,19 @@ geoCursor = vtk.vtkHyperTreeGridNonOrientedGeometryCursor()
 
 htg = vtk.vtkHyperTreeGrid()
 htg.Initialize()
-htg.SetDimensions([ROOT_SPLIT+1, ROOT_SPLIT+1, 2]) # nb cells, not nb points : GridCell [ROOT_SPLIT, ROOT_SPLIT, 1]
+htg.SetDimensions(
+    [ROOT_SPLIT + 1, ROOT_SPLIT + 1, 2]
+)  # nb cells, not nb points : GridCell [ROOT_SPLIT, ROOT_SPLIT, 1]
 htg.SetBranchFactor(2)
 
 sideArray = vtk.vtkUnsignedCharArray()
-sideArray.SetName('sideArray')
+sideArray.SetName("sideArray")
 sideArray.SetNumberOfValues(0)
 sideArray.SetNumberOfComponents(1)
 htg.GetCellData().AddArray(sideArray)
 
-#quand je mets cela je n'ai plus rien d'affiche
-#htg.GetCellData().SetScalars(levels)
-#htg.GetCellData().AddArray(sideArray)
-#htg.GetCellData().SetActiveScalars('levels')
-#htg.SetMaterialMask(mask)
-
 mask = vtk.vtkBitArray()
-mask.SetName('mask')
+mask.SetName("mask")
 
 # X[-1.75, 0.75]
 xValues = vtk.vtkDoubleArray()
@@ -139,18 +135,19 @@ for treeId in range(htg.GetMaxNumberOfTrees()):
     handleNode(geoCursor, sideArray, mask)
     offsetIndex += geoCursor.GetTree().GetNumberOfVertices()
 
-print('offsetIndex: ', offsetIndex)
+print("offsetIndex: ", offsetIndex)
 
 # Squeeze
 htg.Squeeze()
 
 # Activation d'une scalaire
-htg.GetCellData().SetActiveScalars('sideArray')
+htg.GetCellData().SetActiveScalars("sideArray")
 
 # DataRange sideArray on PointData HTG
-dataRange = htg.GetCellData().GetArray('sideArray').GetRange()
-print('sideArray on PointData HTG:', dataRange)
-print('HTG:', htg.GetNumberOfVertices())
+dataRange = htg.GetCellData().GetArray("sideArray").GetRange()
+print("sideArray on PointData HTG:", dataRange)
+print("HTG:", htg.GetNumberOfVertices())
+
 
 # Tests cursors... in Python
 def recursive(cursor):
@@ -158,110 +155,126 @@ def recursive(cursor):
         return 1
     nb = 0
     for ichild in range(cursor.GetNumberOfChildren()):
-        cursor.ToChild( ichild )
-        nb += recursive( cursor )
+        cursor.ToChild(ichild)
+        nb += recursive(cursor)
         cursor.ToParent()
     return nb
 
-def nonOrientedCursor( htg, waited ):
+
+def nonOrientedCursor(htg, expected):
     nb = 0
     cursor = vtk.vtkHyperTreeGridNonOrientedCursor()
     for treeId in range(htg.GetMaxNumberOfTrees()):
-        htg.InitializeNonOrientedCursor( cursor, treeId )
+        htg.InitializeNonOrientedCursor(cursor, treeId)
         if not cursor.IsMasked():
-            nb += recursive( cursor )
-    print('nb: ', nb)
-    if waited and nb != waited:
-        print('ERROR Not corresponding waited value')
+            nb += recursive(cursor)
+    print("nb: ", nb)
+    if expected and nb != expected:
+        print("ERROR Not corresponding expected value")
     return nb
 
-waited = nonOrientedCursor( htg, None)
 
-def nonOrientedGeometryCursor( htg, waited ):
+expected = nonOrientedCursor(htg, None)
+
+
+def nonOrientedGeometryCursor(htg, expected):
     nb = 0
     cursor = vtk.vtkHyperTreeGridNonOrientedGeometryCursor()
     for treeId in range(htg.GetMaxNumberOfTrees()):
-        htg.InitializeNonOrientedGeometryCursor( cursor, treeId )
+        htg.InitializeNonOrientedGeometryCursor(cursor, treeId)
         if not cursor.IsMasked():
-            nb += recursive( cursor )
-    print('nb: ', nb)
-    if waited and nb != waited:
-        print('ERROR Not corresponding waited value')
+            nb += recursive(cursor)
+    print("nb: ", nb)
+    if expected and nb != expected:
+        print("ERROR Not corresponding expected value")
     return nb
 
-nonOrientedGeometryCursor( htg, waited)
 
-def nonOrientedVonNeumannSuperCursor( htg, waited ):
+nonOrientedGeometryCursor(htg, expected)
+
+
+def nonOrientedVonNeumannSuperCursor(htg, expected):
     nb = 0
     cursor = vtk.vtkHyperTreeGridNonOrientedVonNeumannSuperCursor()
     for treeId in range(htg.GetMaxNumberOfTrees()):
-        htg.InitializeNonOrientedVonNeumannSuperCursor( cursor, treeId )
+        htg.InitializeNonOrientedVonNeumannSuperCursor(cursor, treeId)
         if not cursor.IsMasked():
-            nb += recursive( cursor )
-    print('nb: ', nb)
-    if waited and nb != waited:
-        print('ERROR Not corresponding waited value')
+            nb += recursive(cursor)
+    print("nb: ", nb)
+    if expected and nb != expected:
+        print("ERROR Not corresponding expected value")
     return nb
 
-nonOrientedVonNeumannSuperCursor( htg, waited)
 
-def nonOrientedMooreSuperCursor( htg, waited ):
+nonOrientedVonNeumannSuperCursor(htg, expected)
+
+
+def nonOrientedMooreSuperCursor(htg, expected):
     nb = 0
     cursor = vtk.vtkHyperTreeGridNonOrientedMooreSuperCursor()
     for treeId in range(htg.GetMaxNumberOfTrees()):
-        htg.InitializeNonOrientedMooreSuperCursor( cursor, treeId )
+        htg.InitializeNonOrientedMooreSuperCursor(cursor, treeId)
         if not cursor.IsMasked():
-            nb += recursive( cursor )
-    print('nb: ', nb)
-    if waited and nb != waited:
-        print('ERROR Not corresponding waited value')
+            nb += recursive(cursor)
+    print("nb: ", nb)
+    if expected and nb != expected:
+        print("ERROR Not corresponding expected value")
     return nb
 
-nonOrientedMooreSuperCursor( htg, waited)
+
+nonOrientedMooreSuperCursor(htg, expected)
 
 # Test Find
-findx = [ -1.75 + float(ROOT_SPLIT) * 0.5 * 0.25,  -1.75 + float(ROOT_SPLIT) * 0.5 * 0.25, 0.11 ]
-print('--------- FindNonOrientedGeometryCursor ---------')
-cursor = htg.FindNonOrientedGeometryCursor( findx )
+findx = [
+    -1.75 + float(ROOT_SPLIT) * 0.5 * 0.25,
+    -1.75 + float(ROOT_SPLIT) * 0.5 * 0.25,
+    0.11,
+]
+print("--------- FindNonOrientedGeometryCursor ---------")
+cursor = htg.FindNonOrientedGeometryCursor(findx)
 cursor.UnRegister(htg)
 
-bbox = [-1.,-1.,-1.,-1.,-1.,-1.,]
-cursor.GetBounds( bbox )
-print('bbox: ',bbox)
+bbox = [
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0,
+]
+cursor.GetBounds(bbox)
+print("bbox: ", bbox)
 
-point = [-1.,-1.,-1.,]
+point = [
+    -1.0,
+    -1.0,
+    -1.0,
+]
 cursor.GetPoint(point)
-print('point: ',point[0], point[1], point[2] )
+print("point: ", point[0], point[1], point[2])
 
-# TODO Ne fonctionne pas en Python ?
-#origin = cursor.GetOrigin()
-#print(origin[0], origin[1], origin[2] )
-#scale = cursor.GetSize()
-#print(scale[0], scale[1], scale[2] )
+print("IsLeaf: ", cursor.IsLeaf())
+assert cursor.IsLeaf()
 
-print('IsLeaf: ', cursor.IsLeaf())
-assert( cursor.IsLeaf() )
+print(bbox[0], " <= ", findx[0], " and ", findx[0], " <= ", bbox[1])
 
-print( bbox[0], ' <= ', findx[0], ' and ', findx[0], ' <= ', bbox[1] )
-
-if bbox[0] <= findx[0] and findx[0] <= bbox[1] :
-  pass
+if bbox[0] <= findx[0] and findx[0] <= bbox[1]:
+    pass
 else:
-  assert( bbox[0] <= findx[0] and findx[0] <= bbox[1] )
+    assert bbox[0] <= findx[0] and findx[0] <= bbox[1]
 
-print( bbox[2], ' <= ', findx[1], ' and ', findx[1], ' <= ', bbox[3] )
+print(bbox[2], " <= ", findx[1], " and ", findx[1], " <= ", bbox[3])
 
-if bbox[2] <= findx[1] and findx[1] <= bbox[3] :
-  pass
+if bbox[2] <= findx[1] and findx[1] <= bbox[3]:
+    pass
 else:
-  assert( bbox[2] <= findx[1] and findx[1] <= bbox[3] )
+    assert bbox[2] <= findx[1] and findx[1] <= bbox[3]
 
-print( bbox[4], ' <= ', findx[2], ' and ', findx[2], ' <= ', bbox[5] )
+print(bbox[4], " <= ", findx[2], " and ", findx[2], " <= ", bbox[5])
 
-if bbox[4] <= findx[2] and findx[2] <= bbox[5] :
-  pass
+if bbox[4] <= findx[2] and findx[2] <= bbox[5]:
+    pass
 else:
-  assert( bbox[4] <= findx[2] and findx[2] <= bbox[5] )
+    assert bbox[4] <= findx[2] and findx[2] <= bbox[5]
 
-# prevent the tk window from showing up then start the event loop
 # --- end of script --
