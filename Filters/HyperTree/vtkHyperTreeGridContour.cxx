@@ -525,7 +525,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
       // Retrieve sign with respect to contour value at current cursor
       bool sign = (this->CellSigns[c]->GetTuple1(id) != 0.0);
 
-      // Iterate over all cursors of Von Neumann neighborhood around center
+      // Iterate over all cursors of Moore neighborhood around center
       unsigned int nn = supercursor->GetNumberOfCursors() - 1;
       for (unsigned int neighbor = 0; neighbor < nn && !selected; ++neighbor)
       {
