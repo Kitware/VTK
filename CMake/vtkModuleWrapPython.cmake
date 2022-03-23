@@ -71,7 +71,7 @@ function (vtk_module_python_default_destination var)
       "Only Python2 and Python3 are supported right now.")
   endif ()
 
-  if (WIN32 AND NOT CYGWIN)
+  if (MSVC)
     set(destination "${CMAKE_INSTALL_BINDIR}/Lib/site-packages")
   else ()
     if (NOT DEFINED "Python${_vtk_module_python_MAJOR_VERSION}_VERSION_MAJOR" OR

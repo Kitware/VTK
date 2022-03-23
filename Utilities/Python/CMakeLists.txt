@@ -81,7 +81,7 @@ endif ()
 # Export location of python module dirs in install and build tree for every vtkpython module to use
 # As long as those modules depend on vtkpython, they can retrieve and use these
 if (NOT VTK_PYTHON_SITE_PACKAGES_SUFFIX)
-  if (WIN32 AND NOT CYGWIN)
+  if (MSVC)
     set(VTK_PYTHON_SITE_PACKAGES_SUFFIX "Lib/site-packages")
   else ()
     set(VTK_PYTHON_SITE_PACKAGES_SUFFIX
