@@ -164,6 +164,20 @@ public:
       *offsetIter = static_cast<ValueType>(2 * lineId);
     }
   };
+  // Finalize the lines cell array: after all the lines are inserted,
+  // the last offset has to be added to complete the offsets array.
+  struct FinalizeLinesImpl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT& state, vtkIdType numLines)
+    {
+      using ValueType = typename CellStateT::ValueType;
+      auto* offsets = state.GetOffsets();
+      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetIter = offsetRange.begin() + numLines;
+      *offsetIter = static_cast<ValueType>(2 * numLines);
+    }
+  };
   void GenerateLines(
     unsigned char eCase, unsigned char numLines, vtkIdType* eIds, vtkIdType& lineId)
   {
@@ -808,6 +822,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdges2D
       newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
       algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
       newLines->ResizeExact(numOutLines, 2 * numOutLines);
+      newLines->Visit(FinalizeLinesImpl{}, numOutLines);
       algo.NewLines = newLines;
       if (newScalars)
       {
@@ -904,14 +919,14 @@ int vtkDiscreteFlyingEdges2D::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
-  vtkCellArray* newLines = vtkCellArray::New();
-  vtkPoints* newPts = vtkPoints::New();
+  vtkNew<vtkCellArray> newLines;
+  vtkNew<vtkPoints> newPts;
   newPts->SetDataTypeToFloat();
-  vtkDataArray* newScalars = nullptr;
+  vtkSmartPointer<vtkDataArray> newScalars;
 
   if (this->ComputeScalars)
   {
-    newScalars = inScalars->NewInstance();
+    newScalars.TakeReference(inScalars->NewInstance());
     newScalars->SetNumberOfComponents(1);
     newScalars->SetName(inScalars->GetName());
   }
@@ -930,16 +945,12 @@ int vtkDiscreteFlyingEdges2D::RequestData(vtkInformation* vtkNotUsed(request),
   // Update ourselves.  Because we don't know up front how many lines
   // we've created, take care to reclaim memory.
   output->SetPoints(newPts);
-  newPts->Delete();
-
   output->SetLines(newLines);
-  newLines->Delete();
 
   if (newScalars)
   {
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-    newScalars->Delete();
   }
 
   vtkImageTransform::TransformPointSet(input, output);

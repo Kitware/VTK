@@ -282,8 +282,20 @@ public:
           conn->SetValue(cellConnBegin++, static_cast<ValueType>(ptIds[vid]));
         }
       }
-      // Write the last offset:
-      offsets->SetValue(cellOffsetBegin, cellConnBegin);
+    }
+  };
+  // Finalize the polygons cell array: after all the polys are inserted,
+  // the last offset has to be added to complete the offsets array.
+  struct FinalizePolysImpl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT& state, vtkIdType numPolys, vtkIdType connSize)
+    {
+      using ValueType = typename CellStateT::ValueType;
+      auto* offsets = state.GetOffsets();
+      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetIter = offsetRange.begin() + numPolys;
+      *offsetIter = static_cast<ValueType>(connSize);
     }
   };
   void GeneratePolys(unsigned char dCase, unsigned char numPolys, vtkIdType ptIds[9],
@@ -1572,6 +1584,7 @@ void vtkDiscreteClipperAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdgesClipper2
     newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
     algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
     newPolys->ResizeExact(numOutPolys, outConnLen - numOutPolys);
+    newPolys->Visit(FinalizePolysImpl{}, numOutPolys, outConnLen - numOutPolys);
     algo.NewPolys = newPolys;
     if (newScalars)
     {
@@ -1667,14 +1680,14 @@ int vtkDiscreteFlyingEdgesClipper2D::RequestData(vtkInformation* vtkNotUsed(requ
 
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
-  vtkCellArray* newPolys = vtkCellArray::New();
-  vtkPoints* newPts = vtkPoints::New();
+  vtkNew<vtkCellArray> newPolys;
+  vtkNew<vtkPoints> newPts;
   newPts->SetDataTypeToFloat();
-  vtkDataArray* newScalars = nullptr;
+  vtkSmartPointer<vtkDataArray> newScalars;
 
   if (this->ComputeScalars)
   {
-    newScalars = inScalars->NewInstance();
+    newScalars.TakeReference(inScalars->NewInstance());
     newScalars->SetNumberOfComponents(1);
     newScalars->SetName(inScalars->GetName());
   }
@@ -1692,16 +1705,12 @@ int vtkDiscreteFlyingEdgesClipper2D::RequestData(vtkInformation* vtkNotUsed(requ
 
   // Update ourselves.
   output->SetPoints(newPts);
-  newPts->Delete();
-
   output->SetPolys(newPolys);
-  newPolys->Delete();
 
   if (newScalars)
   {
     int idx = output->GetCellData()->AddArray(newScalars);
     output->GetCellData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-    newScalars->Delete();
   }
 
   vtkImageTransform::TransformPointSet(input, output);

@@ -205,9 +205,20 @@ public:
         *connIter++ = eIds[*edges++];
         *connIter++ = eIds[*edges++];
       }
-
-      // Write the last offset:
-      *offsetIter = static_cast<ValueType>(3 * triId);
+    }
+  };
+  // Finalize the triangle cell array: after all the tris are inserted,
+  // the last offset has to be added to complete the offsets array.
+  struct FinalizeTrisImpl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT& state, vtkIdType numTris)
+    {
+      using ValueType = typename CellStateT::ValueType;
+      auto* offsets = state.GetOffsets();
+      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetIter = offsetRange.begin() + numTris;
+      *offsetIter = static_cast<ValueType>(3 * numTris);
     }
   };
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType* eIds, vtkIdType& triId)
@@ -1214,6 +1225,7 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
     newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
     algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
     newTris->ResizeExact(numOutTris, 3 * numOutTris);
+    newTris->Visit(FinalizeTrisImpl{}, numOutTris);
     algo.NewTris = newTris;
 
     if (newScalars)
@@ -1374,7 +1386,7 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
   vtkSmartPointer<vtkFloatArray> newNormals;
   if (this->ComputeNormals)
   {
-    newNormals = vtkFloatArray::New();
+    newNormals = vtkSmartPointer<vtkFloatArray>::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->SetName("Normals");
   }
