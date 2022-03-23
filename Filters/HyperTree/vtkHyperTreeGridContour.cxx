@@ -519,6 +519,8 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
     // Cell is not selected until proven otherwise
     bool selected = false;
 
+    std::cout << "ccoarse: " << id << std::endl;
+
     // Iterate over contours
     for (vtkIdType c = 0; c < this->ContourValues->GetNumberOfContours() && !selected; ++c)
     {
@@ -563,6 +565,9 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
   }
   else if ((!this->InMask || !this->InMask->GetTuple1(id)))
   {
+
+    std::cout << "cleaf: " << id << std::endl;
+
     // Cell is not masked, iterate over its corners
     unsigned int numLeavesCorners = 1 << dim;
     for (unsigned int cornerIdx = 0; cornerIdx < numLeavesCorners; ++cornerIdx)
@@ -579,6 +584,14 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
       // If cell owns dual cell, compute contours thereof
       if (owner)
       {
+
+        std::cout << "   : ";
+        for (auto l : *this->Leaves)
+        {
+          std::cout << " " << l;
+        }
+        std::cout << std::endl;
+
         vtkIdType numContours = this->ContourValues->GetNumberOfContours();
         double* values = this->ContourValues->GetValues();
 
@@ -611,6 +624,8 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
           // Retrieve neighbor index and add to list of cell vertices
           vtkIdType idN = supercursor->GetGlobalNodeIndex(cursorId);
           cell->PointIds->SetId(_cornerIdx, idN);
+
+          std::cout << "  ccorner: " << id << " - " << idN << std::endl;
 
           // Assign scalar value attached to this contour item
           this->CellScalars->SetTuple(_cornerIdx, this->InScalars->GetTuple(idN));

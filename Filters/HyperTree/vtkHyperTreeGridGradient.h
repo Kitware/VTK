@@ -40,8 +40,12 @@
 #include <forward_list> // For STL
 #include <vector>
 
-class vtkHyperTreeGridNonOrientedCursor;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedMooreSuperCursor;
+class vtkIdList;
+class vtkBitArray;
 class vtkDoubleArray;
+class vtkUnsignedCharArray;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGradient : public vtkHyperTreeGridAlgorithm
 {
@@ -60,24 +64,31 @@ protected:
   int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
-   * Fill the AvgChildScalars with avg values of all childs
-   */
-  std::forward_list<vtkIdType> RecursivelyPreProcessTree(vtkHyperTreeGridNonOrientedCursor*);
-
-  /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedCursor*);
+  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedMooreSuperCursor*);
+
+  // Fields
+
+  vtkIdList* Leaves;
 
   /**
    * Keep track of selected input scalars
    */
   vtkDataArray* InScalars;
+  vtkDataArray* CellScalars;
 
+  vtkBitArray* InMask;
+  vtkUnsignedCharArray* InGhostArray;
+
+  ///@{
   /**
-   * Intermediate values for efficient comuptation
+   * Intermediate array for efficient comuptation:
+   * Avg scalars on coarse cells
+   * and cell centers
    */
-  vtkDataArray* AvgChildScalars;
+  unsigned int* Dims;
+  ///@}
 
   /**
    * Computed gradient

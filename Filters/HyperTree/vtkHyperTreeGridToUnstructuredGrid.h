@@ -46,6 +46,7 @@
 class vtkBitArray;
 class vtkCellArray;
 class vtkHyperTreeGrid;
+class vtkIdTypeArray;
 class vtkPoints;
 class vtkUnstructuredGrid;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
@@ -57,6 +58,15 @@ public:
   static vtkHyperTreeGridToUnstructuredGrid* New();
   vtkTypeMacro(vtkHyperTreeGridToUnstructuredGrid, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  ///@{
+  /**
+   * Add a cell array with original HTG ids
+   */
+  vtkGetMacro(AddOriginalIds, bool);
+  vtkSetMacro(AddOriginalIds, bool);
+  vtkBooleanMacro(AddOriginalIds, bool);
+  ///@}
 
 protected:
   vtkHyperTreeGridToUnstructuredGrid();
@@ -98,6 +108,9 @@ protected:
   unsigned int Dimension;
   unsigned int Orientation;
   const unsigned int* Axes;
+
+  bool AddOriginalIds;
+  vtkIdTypeArray* OriginalIds;
 
 private:
   vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&) = delete;
