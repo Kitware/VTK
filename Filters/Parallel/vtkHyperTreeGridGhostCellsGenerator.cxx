@@ -132,6 +132,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   else
   {
     output->CopyEmptyStructure(input);
+    output->GetCellData()->CopyStructure(input->GetCellData());
   }
 
   // Link HyperTrees
@@ -196,6 +197,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     }
   }
   broadcastHyperTreesMapToProcesses[nbHTs + processId] = input->HasMask();
+  vtkDebugMacro("AllReduce: HyperTrees to process.");
   controller->AllReduce(broadcastHyperTreesMapToProcesses.data(), hyperTreesMapToProcesses.data(),
     nbHTs + numberOfProcesses, vtkCommunicator::MAX_OP);
 
@@ -298,6 +300,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
           // Telling my neighbors how much data I will send later
           counts[cpt++] = sendTreeBuffer.count;
         }
+        vtkDebugMacro("Send: data size to " << id);
         controller->Send(counts.data(), cpt, id, HTGGCG_SIZE_EXCHANGE_TAG);
       }
     }
@@ -309,6 +312,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
         unsigned process = recvTreeMapPair.first;
         auto&& recvTreeMap = recvTreeMapPair.second;
         std::vector<vtkIdType> counts(recvTreeMap.size());
+        vtkDebugMacro("Receive: data size from " << process);
         controller->Receive(counts.data(), static_cast<vtkIdType>(recvTreeMap.size()), process,
           HTGGCG_SIZE_EXCHANGE_TAG);
         int cpt = 0;
@@ -321,6 +325,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   }
 
   // Synchronizing
+  vtkDebugMacro("Barrier");
   controller->Barrier();
 
   // Sending masks and parent state of each node
@@ -369,6 +374,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
             len += dlen;
           }
         }
+        vtkDebugMacro("Send: data to " << id);
         this->Internals->Controller->Send(buf.data(), len, id, HTGGCG_DATA_EXCHANGE_TAG);
       }
     }
@@ -400,6 +406,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
           }
           std::vector<unsigned char> buf(len);
 
+          vtkDebugMacro("Receive: data from " << process);
           this->Internals->Controller->Receive(buf.data(), len, process, HTGGCG_DATA_EXCHANGE_TAG);
 
           vtkIdType cpt = 0;
@@ -471,6 +478,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   }
 
   // Synchronizing
+  vtkDebugMacro("Barrier");
   this->Internals->Controller->Barrier();
 
   // We now send the data store on each node
@@ -505,6 +513,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
             }
           }
         }
+        vtkDebugMacro("Send: data2 from " << id);
         this->Internals->Controller->Send(buf.data(), len, id, HTGGCG_DATA2_EXCHANGE_TAG);
       }
     }
@@ -526,6 +535,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
           }
           std::vector<double> buf(len);
 
+          vtkDebugMacro("Receive: data2 from " << process);
           this->Internals->Controller->Receive(buf.data(), len, process, HTGGCG_DATA2_EXCHANGE_TAG);
           vtkIdType cpt = 0;
 
@@ -553,6 +563,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     }
   }
 
+  vtkDebugMacro("Barrier");
   this->Internals->Controller->Barrier();
   {
     vtkNew<vtkUnsignedCharArray> scalars;
