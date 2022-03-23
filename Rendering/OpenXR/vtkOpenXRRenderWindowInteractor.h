@@ -71,9 +71,11 @@ public:
 
   /**
    * Apply haptic vibration using the provided action
+   * \p action to emit vibration on \p hand to emit on \p amplitude 0.0 to 1.0.
+   * \p duration nanoseconds, default 25ms \p frequency (hz)
    */
   bool ApplyVibration(const std::string& actionName, const int hand, const float amplitude = 0.5f,
-    const float duration = -1.0f, const float frequency = 0.0f);
+    const float duration = 25000000.0f, const float frequency = XR_FREQUENCY_UNSPECIFIED);
 
 protected:
   vtkOpenXRRenderWindowInteractor();
