@@ -15,26 +15,17 @@
 
 #include "vtkHyperTreeGridGradient.h"
 
-#include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkContourHelper.h"
+#include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
-#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-#include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLine.h"
-#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
-#include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkVoxel.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridGradient);
 
@@ -45,8 +36,9 @@ vtkHyperTreeGridGradient::vtkHyperTreeGridGradient()
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 
-  // Input scalars point to null by default
+  // scalars point to null by default
   this->InScalars = nullptr;
+  this->AvgChildScalars = nullptr;
 
   this->AppropriateOutput = true; // output is HTG
 }
@@ -67,6 +59,17 @@ void vtkHyperTreeGridGradient::PrintSelf(ostream& os, vtkIndent indent)
   else
   {
     os << indent << "InScalars: ( none )\n";
+  }
+
+  // This one is empty outside the RequestData
+  if (this->AvgChildScalars)
+  {
+    os << indent << "AvgChildScalars:\n";
+    this->AvgChildScalars->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "AvgChildScalars: ( none )\n";
   }
 }
 
@@ -89,7 +92,17 @@ int vtkHyperTreeGridGradient::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
     return 1;
   }
 
-  // First pass across tree roots to evince cells intersected by contours
+  // Avg temporary array
+  this->AvgChildScalars = vtkDoubleArray::New();
+  this->AvgChildScalars->SetNumberOfComponents(1);
+  this->AvgChildScalars->SetNumberOfTuples(this->InScalars->GetNumberOfTuples());
+
+  // Initialize output
+  this->OutGradient->SetName("Gradient");
+  this->OutGradient->SetNumberOfComponents(1);
+  this->OutGradient->SetNumberOfTuples(this->InScalars->GetNumberOfTuples());
+
+  // First pass across tree roots to fill the AvgChildScalars
   vtkIdType index;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   input->InitializeTreeIterator(it);
@@ -102,34 +115,41 @@ int vtkHyperTreeGridGradient::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
     this->RecursivelyPreProcessTree(cursor);
   } // it
 
-  // Second pass across tree roots: now compute isocontours recursively
+  // Second pass across tree roots: now compute the gradient recursively
+
   input->InitializeTreeIterator(it);
-  vtkNew<vtkHyperTreeGridNonOrientedMooreSuperCursor> supercursor;
+  // vtkNew<vtkHyperTreeGridNonOrientedCursor> supercursor;
   while (it.GetNextTree(index))
   {
     // Initialize new Moore cursor at root of current tree
-    input->InitializeNonOrientedMooreSuperCursor(supercursor, index);
+    input->InitializeNonOrientedCursor(cursor, index);
     // Compute contours recursively
-    this->RecursivelyProcessTree(supercursor);
+    this->RecursivelyProcessTree(cursor);
   } // it
 
   output->ShallowCopy(input);
+  output->GetCellData()->AddArray(this->OutGradient);
+
+  this->AvgChildScalars->Delete();
 
   return 1;
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridGradient::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrientedCursor* cursor)
+// avg on coarse cells
+// TODO: avoid recompute sum at each level
+std::forward_list<vtkIdType> vtkHyperTreeGridGradient::RecursivelyPreProcessTree(
+  vtkHyperTreeGridNonOrientedCursor* cursor)
 {
   // Retrieve global index of input cursor
   vtkIdType id = cursor->GetGlobalNodeIndex();
 
-  // Descend further into input trees only if cursor is not a leaf
-  bool selected = false;
+  std::forward_list<vtkIdType> childs;
+  childs.push_front(id);
+
   if (cursor->IsLeaf())
   {
-    selected = true;
-    std::cout << "Leaf : " << id << " val: " << this->InScalars->GetTuple1(id) << std::endl;
+    this->AvgChildScalars->SetTuple1(id, this->InScalars->GetTuple1(id));
   }
   else
   {
@@ -139,27 +159,32 @@ bool vtkHyperTreeGridGradient::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrie
     {
       cursor->ToChild(child);
 
-      std::cout << "Node : " << id << std::endl;
+      this->OutGradient->SetTuple1(id, 0.);
 
       // Recurse and keep track of whether this branch is selected
-      selected |= this->RecursivelyPreProcessTree(cursor);
+      childs.merge(this->RecursivelyPreProcessTree(cursor));
 
-      // Check if branch not completely selected
-      if (!selected)
+      // Compute AVG
+      // TODO: stream computation to avoid overflow
+      vtkIdType nbChilds = 0;
+      double sumScals = 0;
+      for (const auto cid : childs)
       {
+        ++nbChilds;
+        sumScals += this->InScalars->GetTuple1(cid);
       }
+      this->AvgChildScalars->SetTuple1(id, sumScals / nbChilds);
 
       cursor->ToParent();
     } // for child
   }
 
-  // Return whether current node was fully selected
-  return selected;
+  return childs;
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGradient::RecursivelyProcessTree(
-  vtkHyperTreeGridNonOrientedMooreSuperCursor* supercursor)
+  vtkHyperTreeGridNonOrientedCursor* supercursor)
 {
   // Retrieve global index of input cursor
   vtkIdType id = supercursor->GetGlobalNodeIndex();

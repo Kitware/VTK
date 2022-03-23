@@ -35,11 +35,13 @@
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkNew.h"
 
-#include <vector> // For STL
+#include <forward_list> // For STL
+#include <vector>
 
 class vtkHyperTreeGridNonOrientedCursor;
-class vtkHyperTreeGridNonOrientedMooreSuperCursor;
+class vtkDoubleArray;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGradient : public vtkHyperTreeGridAlgorithm
 {
@@ -58,19 +60,29 @@ protected:
   int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
-   *
+   * Fill the AvgChildScalars with avg values of all childs
    */
-  bool RecursivelyPreProcessTree(vtkHyperTreeGridNonOrientedCursor*);
+  std::forward_list<vtkIdType> RecursivelyPreProcessTree(vtkHyperTreeGridNonOrientedCursor*);
 
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedMooreSuperCursor*);
+  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedCursor*);
 
   /**
    * Keep track of selected input scalars
    */
   vtkDataArray* InScalars;
+
+  /**
+   * Intermediate values for efficient comuptation
+   */
+  vtkDataArray* AvgChildScalars;
+
+  /**
+   * Computed gradient
+   */
+  vtkNew<vtkDoubleArray> OutGradient;
 
 private:
   vtkHyperTreeGridGradient(const vtkHyperTreeGridGradient&) = delete;
