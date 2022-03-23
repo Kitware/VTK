@@ -456,7 +456,10 @@ void vtkAMRUtilities::MergeGhostArrays(vtkDataArray* existingArray, vtkUnsignedC
     {
       unsigned char ghostValue = ghosts->GetValue(valueIndex);
       unsigned char existingGhostValue = existingGhostArray->GetValue(valueIndex);
-      unsigned char mergedValue = ghostValue | existingGhostValue;
+
+      // Clear the REFINEDCELL flag that is transient and not expected at this step.
+      unsigned char filteredValue = existingGhostValue & ~vtkDataSetAttributes::REFINEDCELL;
+      unsigned char mergedValue = ghostValue | filteredValue;
       ghosts->SetValue(valueIndex, mergedValue);
     }
   }
