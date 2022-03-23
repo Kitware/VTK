@@ -134,7 +134,6 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
   loguru::g_preamble_time = false;
   loguru::g_internal_verbosity = static_cast<loguru::Verbosity>(vtkLogger::InternalVerbosityLevel);
 
-  const auto current_stderr_verbosity = loguru::g_stderr_verbosity;
   if (loguru::g_internal_verbosity > loguru::g_stderr_verbosity)
   {
     // this avoids printing the preamble-header on stderr except for cases
@@ -149,7 +148,6 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
     options.main_thread_name = vtkLogger::ThreadName.c_str();
   }
   loguru::init(argc, argv, options);
-  loguru::g_stderr_verbosity = current_stderr_verbosity;
 #else
   (void)argc;
   (void)argv;
