@@ -24,7 +24,6 @@ vtkAMRVelodyneReaderInternal::~vtkAMRVelodyneReaderInternal()
 
 void vtkAMRVelodyneReaderInternal::Init()
 {
-  this->FileName = nullptr;
   this->nLevels = 0;
   this->nBlocks = 0;
   this->nLeaves = 0;

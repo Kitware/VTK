@@ -58,7 +58,7 @@ int TestAnimateModes(int argc, char* argv[])
     return EXIT_FAILURE;
   }
   modeShapes->SetModeShape(11);
-  modeShapes->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "displ");
+  modeShapes->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "DISPL");
   modeShapes->DisplacementPreappliedOn();
   modeShapes->SetDisplacementMagnitude(2.0);
   modeShapes->AnimateVibrationsOn();
