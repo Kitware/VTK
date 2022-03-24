@@ -161,6 +161,13 @@ protected:
 
   void WriteData() override;
 
+  ///@{
+  /**
+   * Path to temporary folder where files are written to before
+   * being renamed to this->FileName.
+   */
+  std::string GetTemporaryPath() const;
+  ///@}
   std::string CurrentDataSetPath() const;
 
   std::string WriteTexture(vtkTexture* texture);
