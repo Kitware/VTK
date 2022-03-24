@@ -50,6 +50,8 @@ vtkLeaderActor2D::vtkLeaderActor2D()
   this->LabelFormat = new char[8];
   snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
 
+  this->UseFontSizeFromProperty = 0;
+
   this->ArrowPlacement = vtkLeaderActor2D::VTK_ARROW_BOTH;
   this->ArrowStyle = vtkLeaderActor2D::VTK_ARROW_FILLED;
   this->ArrowLength = 0.04;
@@ -407,7 +409,21 @@ int vtkLeaderActor2D::SetFontSize(vtkViewport* viewport, vtkTextMapper* textMapp
   targetHeight = static_cast<int>(
     VTK_LA2D_FACTOR * factor * targetSize[0] + VTK_LA2D_FACTOR * factor * targetSize[1]);
 
-  fontSize = textMapper->SetConstrainedFontSize(viewport, targetWidth, targetHeight);
+  if (!this->UseFontSizeFromProperty)
+  {
+    fontSize = textMapper->SetConstrainedFontSize(viewport, targetWidth, targetHeight);
+  }
+  else
+  {
+    vtkTextProperty* tprop = textMapper->GetTextProperty();
+    if (!tprop)
+    {
+      vtkGenericWarningMacro(<< "Need text property to apply font size");
+      return 0;
+    }
+    fontSize = tprop->GetFontSize();
+  }
+
   textMapper->GetSize(viewport, stringSize);
 
   return fontSize;

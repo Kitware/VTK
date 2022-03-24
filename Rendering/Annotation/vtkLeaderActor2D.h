@@ -219,6 +219,17 @@ public:
   void ReleaseGraphicsResources(vtkWindow*) override;
   void ShallowCopy(vtkProp* prop) override;
 
+  ///@{
+  /**
+   * By default the LeaderActor2D controls the font size of the label. If this
+   * option is set to true, it will instead use whatever font size is set in the
+   * vtkTextProperty, allowing external control of the font size.
+   */
+  vtkSetMacro(UseFontSizeFromProperty, vtkTypeBool);
+  vtkGetMacro(UseFontSizeFromProperty, vtkTypeBool);
+  vtkBooleanMacro(UseFontSizeFromProperty, vtkTypeBool);
+  ///@}
+
 protected:
   vtkLeaderActor2D();
   ~vtkLeaderActor2D() override;
@@ -245,6 +256,8 @@ protected:
   vtkTextMapper* LabelMapper;
   vtkActor2D* LabelActor;
   vtkTextProperty* LabelTextProperty;
+
+  vtkTypeBool UseFontSizeFromProperty;
 
   int ArrowPlacement;
   int ArrowStyle;
