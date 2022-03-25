@@ -489,7 +489,7 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   std::cout << "Test jacksonville points" << std::endl;
   if (!tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
         vtkCesium3DTilesWriter::Points, tempDirectory + "/jacksonville-3dtiles-points", 3, 3, 2,
-        std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 33,
+        std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17,
         'N'))
   {
     return EXIT_FAILURE;

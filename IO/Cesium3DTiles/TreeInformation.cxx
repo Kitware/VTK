@@ -566,14 +566,13 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
   if (node == this->Root)
   {
     tree["refine"] = "REPLACE";
-    std::array<double, 16> t = { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-      0.0, 0.0, 1.0 };
-    v.clear();
-    for (int i = 0; i < 16; ++i)
+    if (this->InputType != vtkCesium3DTilesWriter::Points)
     {
-      v[i] = t[i];
+      // gltf y-up to 3d-tiles z-up transform
+      std::array<double, 16> t = { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 1.0 };
+      tree["transform"] = t;
     }
-    tree["transform"] = v;
   }
   // generate json for the node
   if (!node->IsLeaf())

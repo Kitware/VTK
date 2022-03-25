@@ -143,7 +143,9 @@ void vtkCesiumPointCloudWriter::WriteData()
     header.featureTableBinaryByteLength + header.batchTableJSONByteLength +
     header.batchTableBinaryByteLength;
   out.write("pnts", 4);
+  // write 6 uint32_t from the header.
   vtkByteSwap::SwapWrite4LERange(&header.version, 6, &out);
+  // write the json section
   out.write(ostr.str().c_str(), ostr.str().length());
   for (vtkIdType i = 0; i < this->PointIds->GetNumberOfIds(); ++i)
   {
@@ -153,7 +155,7 @@ void vtkCesiumPointCloudWriter::WriteData()
     vtkMath::Subtract(pointd, &origin[0], pointd);
     for (int j = 0; j < 3; ++j)
     {
-      pointf[0] = pointd[0];
+      pointf[j] = pointd[j];
     }
     vtkByteSwap::SwapWrite4LERange(pointf, 3, &out);
   }

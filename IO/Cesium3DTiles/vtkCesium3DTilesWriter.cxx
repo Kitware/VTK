@@ -54,7 +54,7 @@ namespace
 {
 //------------------------------------------------------------------------------
 /**
- * Add building centers to the octree
+ * Add building centers to the octree.
  */
 vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctree(
   std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings,
@@ -79,6 +79,9 @@ vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctree(
   return octree;
 }
 
+/**
+ * Build octree for point cloud.
+ */
 vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctree(
   vtkPointSet* pointSet, int pointsPerTile)
 {
@@ -96,7 +99,6 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* rootBuildings,
   std::array<double, 6> wholeBB;
   rootBuildings->GetBounds(&wholeBB[0]);
 
-  // translate the buildings so that the minimum wholeBB is at 0,0,0
   vtkNew<vtkTransformFilter> f;
   vtkNew<vtkTransform> t;
   t->Identity();
@@ -128,6 +130,21 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* rootBuildings,
   }
   return wholeBB;
 }
+
+vtkSmartPointer<vtkPointSet> TranslatePoints(vtkPointSet* rootPoints, const double* fileOffset)
+{
+  vtkSmartPointer<vtkPointSet> ret;
+  vtkNew<vtkTransformFilter> f;
+  vtkNew<vtkTransform> t;
+  t->Identity();
+  t->Translate(fileOffset);
+  f->SetTransform(t);
+  f->SetInputData(rootPoints);
+  f->Update();
+  ret = vtkPointSet::SafeDownCast(f->GetOutputDataObject(0));
+  return ret;
+}
+
 };
 
 //------------------------------------------------------------------------------
@@ -222,10 +239,11 @@ void vtkCesium3DTilesWriter::WriteData()
     else if (rootPointCloud)
     {
       vtkDirectory::MakeDirectory(this->DirectoryName);
+      vtkSmartPointer<vtkPointSet> pc = TranslatePoints(rootPointCloud, this->Offset);
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
-        BuildOctree(rootPointCloud, this->NumberOfBuildingsPerTile);
-      TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), rootPointCloud,
-        this->DirectoryName, this->CRS);
+        BuildOctree(pc, this->NumberOfBuildingsPerTile);
+      TreeInformation treeInformation(
+        octree->GetRoot(), octree->GetNumberOfNodes(), pc, this->DirectoryName, this->CRS);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
