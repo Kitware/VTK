@@ -489,19 +489,28 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
     }
   }
 
-  // mat and linearTransform are used to transform our voxel geometry to the proper shape
+  // mat, pointsTransform and cellsTransform are used to transform our voxel geometry to the proper
+  // shape and then translate to the proper location in 3D space
   openvdb::math::Mat4d mat(dx, 0., 0., 0., 0., dy, 0., 0., 0., 0., dz, 0., 0., 0., 0., 1.);
 
-  openvdb::math::Transform::Ptr linearTransform =
+  openvdb::math::Transform::Ptr pointsTransform =
+    openvdb::math::Transform::createLinearTransform(mat);
+  openvdb::math::Transform::Ptr cellsTransform =
     openvdb::math::Transform::createLinearTransform(mat);
 
   int extent[6], wholeExtent[6];
   imageData->GetExtent(extent);
   if (this->Controller)
   {
+    extent[0] = -extent[0];
+    extent[2] = -extent[2];
+    extent[4] = -extent[4];
     this->Controller->AllReduce(extent, wholeExtent, 6, vtkCommunicator::MAX_OP);
+    wholeExtent[0] = -wholeExtent[0];
+    wholeExtent[2] = -wholeExtent[2];
+    wholeExtent[4] = -wholeExtent[4];
+    imageData->GetExtent(extent);
   }
-  imageData->GetExtent(extent);
   int pointExtent[6] = { extent[0], extent[1], extent[2], extent[3], extent[4], extent[5] };
 
   // since we don't want duplicate data in parallel for the pointdata
@@ -575,15 +584,15 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
     bounds.Reset();
   }
 
-  // we need to shift the logical ijk coords we give to OpenVDB based on our origin
-  // and spacing since other packages that will use the output figure out the
-  // spatial location based on these indices and the transform.
   double origin[3] = { 0., 0., 0. };
   imageData->GetOrigin(origin);
 
-  openvdb::Coord shift(static_cast<openvdb::Coord::Int32>(origin[0] / dx),
-    static_cast<openvdb::Coord::Int32>(origin[1] / dy),
-    static_cast<openvdb::Coord::Int32>(origin[2] / dz));
+  // we need to add a translation to the transform since the logical ijk coords we give
+  // to OpenVDB is based on our origin and spacing but OpenVDB's origin is always at [0, 0, 0]
+  const openvdb::math::Vec3d offsetPoints(-wholeExtent[0] * dx + globalBounds.GetBound(0),
+    -wholeExtent[2] * dy + globalBounds.GetBound(2),
+    -wholeExtent[4] * dz + globalBounds.GetBound(4));
+  pointsTransform->postTranslate(offsetPoints);
 
   vtkBoundingBox boundingBox;
   for (int array = 0; array < pointData->GetNumberOfArrays(); array++)
@@ -652,19 +661,19 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
                 double tuple[3];
                 data->GetTuple(pointId, tuple);
                 openvdb::Vec3f ftuple(tuple[0], tuple[1], tuple[2]);
-                vecAccessor.setValue(ijk + shift, ftuple);
+                vecAccessor.setValue(ijk, ftuple);
               }
               else
               {
-                accessor.setValue(ijk + shift, data->GetComponent(pointId, component));
+                accessor.setValue(ijk, data->GetComponent(pointId, component));
               }
             }
           }
         }
       }
 
-      grid->setTransform(linearTransform);
-      vecGrid->setTransform(linearTransform);
+      grid->setTransform(pointsTransform);
+      vecGrid->setTransform(pointsTransform);
 
       if (numberOfComponents == 3)
       {
@@ -681,6 +690,10 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
   // and then figure out the bounds but only do this if we need to
   // update the bounds
   double halfCellSize[3] = { dx / 2., dy / 2., dz / 2. };
+  const openvdb::math::Vec3d offsetCells(-wholeExtent[0] * dx + dx / 2 + globalBounds.GetBound(0),
+    -wholeExtent[2] * dy + dy / 2 + globalBounds.GetBound(2),
+    -wholeExtent[4] * dz + dz / 2 + globalBounds.GetBound(4));
+  cellsTransform->postTranslate(offsetCells);
 
   for (int array = 0; array < cellData->GetNumberOfArrays(); array++)
   {
@@ -749,19 +762,19 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
                 double tuple[3];
                 data->GetTuple(cellId, tuple);
                 openvdb::Vec3f ftuple(tuple[0], tuple[1], tuple[2]);
-                vecAccessor.setValue(ijk + shift, ftuple);
+                vecAccessor.setValue(ijk, ftuple);
               }
               else
               {
-                accessor.setValue(ijk + shift, data->GetComponent(cellId, component));
+                accessor.setValue(ijk, data->GetComponent(cellId, component));
               }
             }
           }
         }
       }
 
-      grid->setTransform(linearTransform);
-      vecGrid->setTransform(linearTransform);
+      grid->setTransform(cellsTransform);
+      vecGrid->setTransform(cellsTransform);
 
       if (numberOfComponents == 3)
       {
@@ -797,10 +810,10 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
       {
         for (i = extent[0]; i < extent[1]; ++i)
         {
-          accessor.setValue(ijk + shift, 1.);
+          accessor.setValue(ijk, 1.);
         }
       }
-      grid->setTransform(linearTransform);
+      grid->setTransform(cellsTransform);
     }
     grids.push_back(grid);
   }
