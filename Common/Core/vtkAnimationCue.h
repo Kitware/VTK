@@ -175,6 +175,20 @@ public:
     TIMEMODE_RELATIVE = 1
   };
 
+  enum class PlayDirection
+  {
+    BACKWARD,
+    FORWARD,
+  };
+
+  ///@{
+  /**
+   * Set/get the direction of playback.
+   */
+  vtkSetEnumMacro(Direction, PlayDirection);
+  vtkGetEnumMacro(Direction, PlayDirection);
+  ///@}
+
 protected:
   vtkAnimationCue();
   ~vtkAnimationCue() override;
@@ -189,6 +203,7 @@ protected:
   double StartTime;
   double EndTime;
   int TimeMode;
+  PlayDirection Direction = PlayDirection::FORWARD;
 
   // These are set when the AnimationCueTickEvent event
   // is fired. Thus giving access to the information in
@@ -212,6 +227,15 @@ protected:
   virtual void TickInternal(double currenttime, double deltatime, double clocktime);
   virtual void EndCueInternal();
   ///@}
+
+  ///@{
+  /**
+   * These test the start, end time variables with current time to
+   * decide whether the animation can begin or end.
+   */
+  virtual bool CheckStartCue(double currenttime);
+  virtual bool CheckEndCue(double currenttime);
+  ///
 
 private:
   vtkAnimationCue(const vtkAnimationCue&) = delete;

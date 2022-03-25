@@ -231,6 +231,8 @@ void vtkAnimationScene::TickInternal(double currenttime, double deltatime, doubl
     vtkAnimationCue* cue = vtkAnimationCue::SafeDownCast(iter->GetCurrentObject());
     if (cue)
     {
+      const PlayDirection dir = cue->GetDirection(); // back up cue's direction.
+      cue->SetDirection(this->Direction);
       switch (cue->GetTimeMode())
       {
         case vtkAnimationCue::TIMEMODE_RELATIVE:
@@ -245,6 +247,7 @@ void vtkAnimationScene::TickInternal(double currenttime, double deltatime, doubl
         default:
           vtkErrorMacro("Invalid cue time mode");
       }
+      cue->SetDirection(dir); // restore old direction.
     }
   }
 
