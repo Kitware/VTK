@@ -29,6 +29,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkOBJReader.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
@@ -218,9 +219,10 @@ std::vector<std::string> getFiles(const std::vector<std::string>& input)
 
 //------------------------------------------------------------------------------
 
-bool tiler(const std::vector<std::string>& input, int inputType, const std::string& output,
-  int numberOfBuildings, int buildingsPerTile, int lod, const std::vector<double>& inputOffset,
-  bool saveTiles, bool saveTextures, std::string crs, const int utmZone, char utmHemisphere)
+bool tiler(const std::vector<std::string>& input, int inputType, bool addColor,
+  const std::string& output, int numberOfBuildings, int buildingsPerTile, int lod,
+  const std::vector<double>& inputOffset, bool saveTiles, bool saveTextures, std::string crs,
+  const int utmZone, char utmHemisphere)
 {
   vtkSmartPointer<vtkMultiBlockDataSet> mbData;
   vtkSmartPointer<vtkPolyData> polyData;
@@ -242,6 +244,17 @@ bool tiler(const std::vector<std::string>& input, int inputType, const std::stri
   else if (inputType == vtkCesium3DTilesWriter::Points)
   {
     polyData = ReadOBJMesh(numberOfBuildings, lod, files, fileOffset);
+    if (addColor)
+    {
+      vtkNew<vtkUnsignedCharArray> rgb;
+      rgb->SetNumberOfComponents(3);
+      rgb->SetNumberOfTuples(3);
+      rgb->SetTuple3(0, 255, 0, 0);
+      rgb->SetTuple3(1, 0, 255, 0);
+      rgb->SetTuple3(0, 0, 0, 255);
+      rgb->SetName("rgb");
+      polyData->GetPointData()->SetScalars(rgb);
+    }
   }
   std::transform(fileOffset.begin(), fileOffset.end(), inputOffset.begin(), fileOffset.begin(),
     std::plus<double>());
@@ -404,9 +417,9 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   // Test jacksonville triangle
   std::cout << "Test jacksonville buildings" << std::endl;
   if (!tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-        vtkCesium3DTilesWriter::Buildings, tempDirectory + "/jacksonville-3dtiles", 1, 1, 2,
-        std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17,
-        'N'))
+        vtkCesium3DTilesWriter::Buildings, false /*addColor*/,
+        tempDirectory + "/jacksonville-3dtiles", 1, 1, 2, std::vector<double>{ { 0, 0, 0 } },
+        true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N'))
   {
     return EXIT_FAILURE;
   }
@@ -446,9 +459,9 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   // Test berlin-triangle
   std::cout << "Test berlin buildings (citygml)" << std::endl;
   if (!tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
-        vtkCesium3DTilesWriter::Buildings, tempDirectory + "/berlin-3dtiles", 1, 1, 2,
-        std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 33,
-        'N'))
+        vtkCesium3DTilesWriter::Buildings, false /*addColor*/, tempDirectory + "/berlin-3dtiles", 1,
+        1, 2, std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "",
+        33, 'N'))
   {
     return EXIT_FAILURE;
   }
@@ -488,7 +501,18 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   // Test jacksonville-points
   std::cout << "Test jacksonville points" << std::endl;
   if (!tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-        vtkCesium3DTilesWriter::Points, tempDirectory + "/jacksonville-3dtiles-points", 3, 3, 2,
+        vtkCesium3DTilesWriter::Points, false /*addColor*/,
+        tempDirectory + "/jacksonville-3dtiles-points", 3, 3, 2, std::vector<double>{ { 0, 0, 0 } },
+        true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N'))
+  {
+    return EXIT_FAILURE;
+  }
+
+  // Test jacksonville-points with color
+  std::cout << "Test jacksonville points" << std::endl;
+  if (!tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
+        vtkCesium3DTilesWriter::Points, true /*addColor*/,
+        tempDirectory + "/jacksonville-3dtiles-colorpoints", 3, 3, 2,
         std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17,
         'N'))
   {

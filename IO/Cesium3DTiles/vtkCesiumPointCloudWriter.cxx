@@ -58,20 +58,6 @@
 #include "vtk_nlohmannjson.h"
 #include VTK_NLOHMANN_JSON(json.hpp)
 
-vtkStandardNewMacro(vtkCesiumPointCloudWriter);
-
-vtkCesiumPointCloudWriter::vtkCesiumPointCloudWriter()
-{
-  this->FileName = nullptr;
-  this->SaveNormal = false;
-  this->SaveBatchId = false;
-}
-
-vtkCesiumPointCloudWriter::~vtkCesiumPointCloudWriter()
-{
-  this->SetFileName(nullptr);
-}
-
 namespace
 {
 struct Header
@@ -84,7 +70,18 @@ struct Header
   uint32_t batchTableJSONByteLength;
   uint32_t batchTableBinaryByteLength;
 };
+}
 
+vtkStandardNewMacro(vtkCesiumPointCloudWriter);
+
+vtkCesiumPointCloudWriter::vtkCesiumPointCloudWriter()
+{
+  this->FileName = nullptr;
+}
+
+vtkCesiumPointCloudWriter::~vtkCesiumPointCloudWriter()
+{
+  this->SetFileName(nullptr);
 }
 
 void vtkCesiumPointCloudWriter::WriteData()
@@ -106,6 +103,23 @@ void vtkCesiumPointCloudWriter::WriteData()
     vtkErrorMacro(<< "Please specify the point Ids to save");
     return;
   }
+  auto rgbArray = vtkUnsignedCharArray::SafeDownCast(pointSet->GetPointData()->GetScalars());
+  std::string rgbTypeName;
+  if (rgbArray)
+  {
+    switch (rgbArray->GetNumberOfComponents())
+    {
+      case 3:
+        rgbTypeName = "RGB";
+        break;
+      case 4:
+        rgbTypeName = "RGBA";
+        break;
+      default:
+        // we don't know how to deal with arrays different than RGB or RGBA
+        rgbArray = nullptr;
+    }
+  }
   std::ofstream out;
   out.open(this->FileName, std::ios_base::out | std::ios_base::binary);
   if (out.fail())
@@ -117,36 +131,56 @@ void vtkCesiumPointCloudWriter::WriteData()
   std::array<double, 3> origin;
   pointSet->GetBounds(bb);
   origin = { { bb[0], bb[2], bb[4] } };
+
+  // build FeatureTableJSON
   nlohmann::json featureTable;
   featureTable["POINTS_LENGTH"] = this->PointIds->GetNumberOfIds();
   featureTable["RTC_CENTER"] = origin;
   featureTable["POSITION"]["byteOffset"] = 0;
+  if (rgbArray)
+  {
+    featureTable[rgbTypeName]["byteOffset"] = this->PointIds->GetNumberOfIds() * 3 * sizeof(float);
+  }
+
   std::ostringstream ostr;
   ostr << featureTable;
   Header header;
-  // the FeatureTable JSON header must end on a 8-byte boundary, so we pad with space.
-  int paddingSize = (8 - ((sizeof(header) + ostr.str().length()) % 8)) % 8;
-  for (int i = 0; i < paddingSize; ++i)
+
+  // FeatureTableJSON must end on a 8-byte boundary, so we pad with space.
+  int featureTableJSONPadding = (8 - ((sizeof(header) + ostr.str().length()) % 8)) % 8;
+  for (int i = 0; i < featureTableJSONPadding; ++i)
   {
     ostr << ' ';
   }
-  // the FeatureTable binary body must end on a 8-byte boundary, so we pad with 0
-  paddingSize = (8 - ((this->PointIds->GetNumberOfIds() * 3 * sizeof(float)) % 8)) % 8;
 
+  // FeatureTableBinary body must end on a 8-byte boundary, so we pad with 0
+  // POSITION ends on 4-byte boundary
+  // there is not start requirement for RGB
+  // RGBA should start at 4-byte boundary
+  vtkIdType featureTableBinarySize = this->PointIds->GetNumberOfIds() * 3 * sizeof(float);
+  if (rgbArray)
+  {
+    featureTableBinarySize += this->PointIds->GetNumberOfIds() * rgbArray->GetNumberOfComponents();
+  }
+  int featureTableBinaryPadding = (8 - (featureTableBinarySize % 8)) % 8;
+
+  // build the header
   header.version = 1;
   header.featureTableJSONByteLength = ostr.str().length();
-  header.featureTableBinaryByteLength =
-    this->PointIds->GetNumberOfIds() * 3 * sizeof(float) + paddingSize;
+  header.featureTableBinaryByteLength = featureTableBinarySize + featureTableBinaryPadding;
   header.batchTableJSONByteLength = 0;
   header.batchTableBinaryByteLength = 0;
   header.byteLength = sizeof(header) + header.featureTableJSONByteLength +
     header.featureTableBinaryByteLength + header.batchTableJSONByteLength +
     header.batchTableBinaryByteLength;
+
+  // write the magic
   out.write("pnts", 4);
-  // write 6 uint32_t from the header.
+  // write header's next 6 uint32_t
   vtkByteSwap::SwapWrite4LERange(&header.version, 6, &out);
-  // write the json section
+  // write FeatureTableJSON
   out.write(ostr.str().c_str(), ostr.str().length());
+  // write POSITiON
   for (vtkIdType i = 0; i < this->PointIds->GetNumberOfIds(); ++i)
   {
     double pointd[3];
@@ -159,9 +193,18 @@ void vtkCesiumPointCloudWriter::WriteData()
     }
     vtkByteSwap::SwapWrite4LERange(pointf, 3, &out);
   }
-  // pad the FeatureTable body
+  // write RGB or RGBA
+  if (rgbArray)
+  {
+    for (vtkIdType i = 0; i < this->PointIds->GetNumberOfIds(); ++i)
+    {
+      const unsigned char* p = rgbArray->GetPointer(this->PointIds->GetId(i));
+      out.write(reinterpret_cast<const char*>(p), rgbArray->GetNumberOfComponents());
+    }
+  }
+  // pad FeatureTableBinary
   char c = 0;
-  for (int i = 0; i < paddingSize; ++i)
+  for (int i = 0; i < featureTableBinaryPadding; ++i)
   {
     out.write(&c, sizeof(c));
   }
@@ -178,8 +221,6 @@ void vtkCesiumPointCloudWriter::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "FileName: (null)\n";
   }
-  os << indent << "SaveNormal: " << this->SaveNormal << std::endl;
-  os << indent << "SaveBatchId: " << this->SaveBatchId << std::endl;
   os << indent << "PointIds number of ids: " << this->PointIds->GetNumberOfIds() << std::endl;
 }
 
