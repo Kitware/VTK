@@ -166,7 +166,7 @@ void vtkCesiumPointCloudWriter::WriteData()
 
   // build the header
   header.version = 1;
-  header.featureTableJSONByteLength = ostr.str().length();
+  header.featureTableJSONByteLength = ostr.str().length(); // includes padding
   header.featureTableBinaryByteLength = featureTableBinarySize + featureTableBinaryPadding;
   header.batchTableJSONByteLength = 0;
   header.batchTableBinaryByteLength = 0;

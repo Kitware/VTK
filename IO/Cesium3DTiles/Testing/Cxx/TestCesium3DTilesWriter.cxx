@@ -499,23 +499,38 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   }
 
   // Test jacksonville-points
+  std::string destDir = tempDirectory + "/jacksonville-3dtiles-points";
   std::cout << "Test jacksonville points" << std::endl;
   if (!tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-        vtkCesium3DTilesWriter::Points, false /*addColor*/,
-        tempDirectory + "/jacksonville-3dtiles-points", 3, 3, 2, std::vector<double>{ { 0, 0, 0 } },
-        true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N'))
+        vtkCesium3DTilesWriter::Points, false /*addColor*/, destDir, 3, 3, 2,
+        std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17,
+        'N'))
   {
+    return EXIT_FAILURE;
+  }
+  if (SystemTools::FilesDiffer(
+        destDir + "/0/0.pnts", dataRoot + "/Data/3DTiles/jacksonville-3dtiles-points.pnts"))
+  {
+    vtkLog(ERROR, << "Error: File differ " << destDir + "/0/0.pnts, "
+                  << dataRoot + "/Data/3DTiles/jacksonville-3dtiles-points.pnts");
     return EXIT_FAILURE;
   }
 
   // Test jacksonville-points with color
+  destDir = tempDirectory + "/jacksonville-3dtiles-colorpoints";
   std::cout << "Test jacksonville points" << std::endl;
   if (!tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-        vtkCesium3DTilesWriter::Points, true /*addColor*/,
-        tempDirectory + "/jacksonville-3dtiles-colorpoints", 3, 3, 2,
+        vtkCesium3DTilesWriter::Points, true /*addColor*/, destDir, 3, 3, 2,
         std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17,
         'N'))
   {
+    return EXIT_FAILURE;
+  }
+  if (SystemTools::FilesDiffer(
+        destDir + "/0/0.pnts", dataRoot + "/Data/3DTiles/jacksonville-3dtiles-colorpoints.pnts"))
+  {
+    vtkLog(ERROR, << "Error: File differ " << destDir + "/0/0.pnts, "
+                  << dataRoot + "/Data/3DTiles/jacksonville-3dtiles-colorpoints.pnts");
     return EXIT_FAILURE;
   }
 
