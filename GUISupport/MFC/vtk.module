@@ -3,7 +3,7 @@ NAME
 LIBRARY_NAME
   vtkGUISupportMFC
 CONDITION
-  WIN32
+  MSVC
 DEPENDS
   # If dependencies are added, update the list in the `CMakeLists.txt`.
   VTK::RenderingOpenGL2
