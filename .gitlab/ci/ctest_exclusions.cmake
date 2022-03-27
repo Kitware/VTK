@@ -47,6 +47,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     # Floating point imprecision?
     "^VTK::FiltersGeneralPython-TestSampleImplicitFunctionFilter$"
 
+    # Gets the wrong selection (sometimes).
+    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
+
     # Test image looks "dim"; image rendering seems to be common
     # (some also have vertical line rendering differences)
     "^VTK::FiltersModelingPython-TestCookieCutter$"
@@ -113,9 +116,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
 
     # Numerical problems?
     "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
-
-    # Gets the wrong selection (sometimes).
-    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
 
     # Syntax error in generated shader program.
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
