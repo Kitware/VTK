@@ -34,6 +34,32 @@ vtkAnimationCue::vtkAnimationCue()
 vtkAnimationCue::~vtkAnimationCue() = default;
 
 //------------------------------------------------------------------------------
+bool vtkAnimationCue::CheckStartCue(double currenttime)
+{
+  if (this->Direction == PlayDirection::FORWARD)
+  {
+    return currenttime >= this->StartTime && this->CueState == vtkAnimationCue::UNINITIALIZED;
+  }
+  else
+  {
+    return currenttime <= this->EndTime && this->CueState == vtkAnimationCue::UNINITIALIZED;
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkAnimationCue::CheckEndCue(double currenttime)
+{
+  if (this->Direction == PlayDirection::FORWARD)
+  {
+    return currenttime >= this->EndTime && this->CueState == vtkAnimationCue::ACTIVE;
+  }
+  else
+  {
+    return currenttime <= this->StartTime && this->CueState == vtkAnimationCue::ACTIVE;
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkAnimationCue::StartCueInternal()
 {
   vtkAnimationCue::AnimationCueInfo info;
@@ -82,7 +108,7 @@ void vtkAnimationCue::TickInternal(double currenttime, double deltatime, double 
 void vtkAnimationCue::Tick(double currenttime, double deltatime, double clocktime)
 {
   // Check to see if we have crossed the Cue start.
-  if (currenttime >= this->StartTime && this->CueState == vtkAnimationCue::UNINITIALIZED)
+  if (this->CheckStartCue(currenttime))
   {
     this->CueState = vtkAnimationCue::ACTIVE;
     this->StartCueInternal();
@@ -96,11 +122,11 @@ void vtkAnimationCue::Tick(double currenttime, double deltatime, double clocktim
     {
       this->TickInternal(currenttime, deltatime, clocktime);
     }
-    if (currenttime >= this->EndTime)
-    {
-      this->EndCueInternal();
-      this->CueState = vtkAnimationCue::INACTIVE;
-    }
+  }
+  if (this->CheckEndCue(currenttime))
+  {
+    this->EndCueInternal();
+    this->CueState = vtkAnimationCue::INACTIVE;
   }
 }
 
@@ -137,4 +163,7 @@ void vtkAnimationCue::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AnimationTime: " << this->AnimationTime << endl;
   os << indent << "DeltaTime: " << this->DeltaTime << endl;
   os << indent << "ClockTime: " << this->ClockTime << endl;
+  os << indent
+     << "Direction: " << (this->Direction == PlayDirection::BACKWARD ? "Backward" : "Forward")
+     << endl;
 }
