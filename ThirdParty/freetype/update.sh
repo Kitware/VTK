@@ -8,7 +8,7 @@ readonly name="freetype"
 readonly ownership="Freetype Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/freetype.git"
-readonly tag="for/vtk-20210729-2.11.0"
+readonly tag="for/vtk-20220304-2.11.0"
 readonly paths="
 include
 src

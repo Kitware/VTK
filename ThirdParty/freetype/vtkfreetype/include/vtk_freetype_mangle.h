@@ -237,7 +237,7 @@
 #define tt_driver_class vtkfreetype_tt_driver_class
 #define TT_New_Context vtkfreetype_TT_New_Context
 #define TT_RunIns vtkfreetype_TT_RunIns
-#define vtkfreetype_FT_MulFix vtkfreetype_vtkfreetype_FT_MulFix
+#define FT_MulFix vtkfreetype_FT_MulFix
 #define winfnt_driver_class vtkfreetype_winfnt_driver_class
 
 #endif
