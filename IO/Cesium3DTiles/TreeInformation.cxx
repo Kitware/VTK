@@ -300,7 +300,7 @@ void TreeInformation::SaveTileGLTF(vtkIncrementalOctreeNode* node, void* aux)
     ostr.str("");
     ostr << this->OutputDir << "/" << node->GetID();
     vtkDirectory::MakeDirectory(ostr.str().c_str());
-    ostr << "/" << node->GetID() << this->ContentTypeExtension();
+    ostr << "/" << node->GetID() << ".gltf";
     writer->SetFileName(ostr.str().c_str());
     writer->SetTextureBaseDirectory(this->TexturePath.c_str());
     writer->SetSaveTextures(this->SaveTextures);
