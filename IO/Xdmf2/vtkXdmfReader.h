@@ -254,7 +254,6 @@ protected:
 
   char* InputString;
   int InputStringLength;
-  int InputStringPos;
 
   vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

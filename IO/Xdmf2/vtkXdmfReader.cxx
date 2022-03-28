@@ -112,7 +112,6 @@ vtkXdmfReader::vtkXdmfReader()
   this->ReadFromInputString = false;
   this->InputString = nullptr;
   this->InputStringLength = 0;
-  this->InputStringPos = 0;
   this->InputArray = nullptr;
 
   this->SetNumberOfInputPorts(0);
