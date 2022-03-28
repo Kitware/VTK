@@ -6,7 +6,9 @@ vtk_module_find_package(
     avformat
     avcodec
     avutil
-    swscale)
+    swscale
+  OPTIONAL_COMPONENTS
+    swresample)
 
 set(classes
   vtkFFMPEGWriter)
@@ -21,6 +23,17 @@ if (NOT FFMPEG_VERSION VERSION_LESS "3.1")
     vtkFFMPEGVideoSource)
 endif ()
 
+set(ffmpeg_libraries)
+if (NOT FFMPEG_VERSION VERSION_LESS "5.0")
+  if (NOT FFMPEG_swresample_FOUND)
+    message(FATAL_ERROR
+      "FFMPEG 5.0 requires the `swresample` library.")
+  endif ()
+
+  list(APPEND ffmpeg_libraries
+    FFMPEG::swresample)
+endif ()
+
 vtk_module_add_module(VTK::IOFFMPEG
   CLASSES ${classes})
 vtk_module_link(VTK::IOFFMPEG
@@ -28,4 +41,5 @@ vtk_module_link(VTK::IOFFMPEG
     FFMPEG::avformat
     FFMPEG::avcodec
     FFMPEG::avutil
-    FFMPEG::swscale)
+    FFMPEG::swscale
+    ${ffmpeg_libraries})

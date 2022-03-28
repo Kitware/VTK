@@ -205,7 +205,7 @@ void vtkFFMPEGVideoSource::Initialize()
 
   this->Internal->VideoStream = fcontext->streams[this->Internal->VideoStreamIndex];
 
-  AVCodec* dec = avcodec_find_decoder(this->Internal->VideoStream->codecpar->codec_id);
+  const AVCodec* dec = avcodec_find_decoder(this->Internal->VideoStream->codecpar->codec_id);
   if (!dec)
   {
     vtkErrorMacro("Failed to find codec for video");
@@ -271,7 +271,7 @@ void vtkFFMPEGVideoSource::Initialize()
   {
     this->Internal->AudioStream = fcontext->streams[this->Internal->AudioStreamIndex];
 
-    AVCodec* adec = avcodec_find_decoder(this->Internal->AudioStream->codecpar->codec_id);
+    const AVCodec* adec = avcodec_find_decoder(this->Internal->AudioStream->codecpar->codec_id);
     if (!adec)
     {
       vtkErrorMacro("Failed to find codec for audio");
