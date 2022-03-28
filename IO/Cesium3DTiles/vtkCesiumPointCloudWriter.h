@@ -22,10 +22,8 @@
 #define vtkCesiumPointCloudWriter_h
 
 #include "vtkIOCesium3DTilesModule.h" // For export macro
-#include "vtkSmartPointer.h"
+#include "vtkIdList.h"
 #include "vtkWriter.h"
-
-class vtkIdList;
 
 class VTKIOCESIUM3DTILES_EXPORT vtkCesiumPointCloudWriter : public vtkWriter
 {
@@ -46,7 +44,7 @@ public:
   /**
    * List of points to be saved.
    */
-  vtkSetSmartPointerMacro(PointIds, vtkIdList);
+  vtkSetObjectMacro(PointIds, vtkIdList);
   vtkGetObjectMacro(PointIds, vtkIdList);
   ///@}
 
@@ -58,7 +56,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   char* FileName;
-  vtkSmartPointer<vtkIdList> PointIds;
+  vtkIdList* PointIds;
 
 private:
   vtkCesiumPointCloudWriter(const vtkCesiumPointCloudWriter&) = delete;
@@ -66,5 +64,4 @@ private:
 };
 
 #endif
-
 // VTK-HeaderTest-Exclude: vtkCesiumPointCloudWriter.h

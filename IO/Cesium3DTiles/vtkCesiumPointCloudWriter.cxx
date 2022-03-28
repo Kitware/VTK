@@ -77,11 +77,13 @@ vtkStandardNewMacro(vtkCesiumPointCloudWriter);
 vtkCesiumPointCloudWriter::vtkCesiumPointCloudWriter()
 {
   this->FileName = nullptr;
+  this->PointIds = nullptr;
 }
 
 vtkCesiumPointCloudWriter::~vtkCesiumPointCloudWriter()
 {
   this->SetFileName(nullptr);
+  this->SetPointIds(nullptr);
 }
 
 void vtkCesiumPointCloudWriter::WriteData()
