@@ -106,6 +106,7 @@ protected:
   static int NumAppInitialized;
 
   Display* DisplayId;
+  bool OwnDisplay = false;
   Window WindowId;
   Atom KillAtom;
   int PositionBeforeStereo[2];
@@ -141,6 +142,12 @@ protected:
    * application is exited.
    */
   void StartEventLoop() override;
+
+  /**
+   * Deallocate X ressource that may have been allocated
+   * Also calls finalize on the render window if available
+   */
+  void Finalize();
 
 private:
   vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) = delete;

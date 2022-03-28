@@ -203,7 +203,6 @@ void vtkXRenderWindowInteractor::TerminateApp()
 
   XSendEvent(client.display, client.window, True, NoEventMask, reinterpret_cast<XEvent*>(&client));
   XFlush(client.display);
-  this->RenderWindow->Finalize();
 }
 
 void vtkXRenderWindowInteractor::ProcessEvents()
@@ -258,6 +257,10 @@ void vtkXRenderWindowInteractor::ProcessEvents()
         XNextEvent((*rwi)->DisplayId, &event);
         (*rwi)->DispatchEvent(&event);
       }
+
+      // Finalize the rwi
+      (*rwi)->Finalize();
+
       // Adjust the file descriptors vector
       int rwiPosition = std::distance(vtkXRenderWindowInteractorInternals::Instances.begin(), rwi);
       rwi = vtkXRenderWindowInteractorInternals::Instances.erase(rwi);
@@ -329,6 +332,7 @@ void vtkXRenderWindowInteractor::Initialize()
   {
     vtkDebugMacro("opening display");
     this->DisplayId = XOpenDisplay(nullptr);
+    this->OwnDisplay = true;
     vtkDebugMacro("opened display");
     ren->SetDisplayId(this->DisplayId);
   }
@@ -356,6 +360,23 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
+}
+
+void vtkXRenderWindowInteractor::Finalize()
+{
+  if (this->RenderWindow)
+  {
+    // Finalize the window
+    this->RenderWindow->Finalize();
+  }
+
+  // if we create the display, we'll delete it
+  if (this->OwnDisplay && this->DisplayId)
+  {
+    XCloseDisplay(this->DisplayId);
+    this->DisplayId = nullptr;
+    this->OwnDisplay = false;
+  }
 }
 
 //------------------------------------------------------------------------------
