@@ -44,7 +44,7 @@ public:
     Mesh
   };
 
-  enum BuildingContentType
+  enum BuildingsContentType
   {
     B3DM,
     GLB,
@@ -114,14 +114,14 @@ public:
 
   //@{
   /**
-   * What is the BuildingContentType used for tiles. Default is B3DM.
-   * For BuildingContentType GLB and GLTF we use 3DTILES_content_gltf extension.
-   * For BuildingContentType B3DM and GLB, external programs are needed to convert
+   * What is the BuildingsContentType used for tiles. Default is B3DM.
+   * For BuildingsContentType GLB and GLTF we use 3DTILES_content_gltf extension.
+   * For BuildingsContentType B3DM and GLB, external programs are needed to convert
    * GLTF -> GLB -> B3DM. This field is only used for Buildings.
    *
    */
-  vtkSetMacro(BuildingContentType, int);
-  vtkGetMacro(BuildingContentType, int);
+  vtkSetMacro(BuildingsContentType, int);
+  vtkGetMacro(BuildingsContentType, int);
   //@
 
   //@{
@@ -137,8 +137,8 @@ public:
    * Maximum number of buildings per tile in case of buildings input or
    * the number of points per tile in case of point cloud input. Default is 100.
    */
-  vtkSetMacro(NumberOfBuildingsPerTile, int);
-  vtkGetMacro(NumberOfBuildingsPerTile, int);
+  vtkSetMacro(NumberOfFeaturesPerTile, int);
+  vtkGetMacro(NumberOfFeaturesPerTile, int);
   //@
 
   ///@{
@@ -166,10 +166,10 @@ protected:
   double Offset[3];
   bool SaveTextures;
   int InputType;
-  int BuildingContentType;
+  int BuildingsContentType;
   bool SaveTiles;
   bool MergeTilePolyData;
-  int NumberOfBuildingsPerTile;
+  int NumberOfFeaturesPerTile;
   char* CRS;
 
 private:

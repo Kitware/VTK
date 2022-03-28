@@ -264,6 +264,7 @@ bool tiler(const std::vector<std::string>& input, int inputType, bool addColor,
   if (inputType == vtkCesium3DTilesWriter::Buildings)
   {
     writer->SetInputDataObject(mbData);
+    writer->SetBuildingsContentType(vtkCesium3DTilesWriter::GLTF);
   }
   else
   {
@@ -274,7 +275,7 @@ bool tiler(const std::vector<std::string>& input, int inputType, bool addColor,
   writer->SetTexturePath(texturePath.c_str());
   writer->SetOffset(&fileOffset[0]);
   writer->SetSaveTextures(saveTextures);
-  writer->SetNumberOfBuildingsPerTile(buildingsPerTile);
+  writer->SetNumberOfFeaturesPerTile(buildingsPerTile);
   writer->SetSaveTiles(saveTiles);
   if (crs.empty())
   {

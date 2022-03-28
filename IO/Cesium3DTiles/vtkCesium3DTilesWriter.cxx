@@ -158,8 +158,8 @@ vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
   this->SaveTiles = true;
   this->MergeTilePolyData = false;
   this->InputType = Buildings;
-  this->BuildingContentType = B3DM;
-  this->NumberOfBuildingsPerTile = 100;
+  this->BuildingsContentType = B3DM;
+  this->NumberOfFeaturesPerTile = 100;
   this->CRS = nullptr;
 }
 
@@ -223,9 +223,9 @@ void vtkCesium3DTilesWriter::WriteData()
       vtkDirectory::MakeDirectory(this->DirectoryName);
 
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
-        BuildOctree(buildings, wholeBB, this->NumberOfBuildingsPerTile);
+        BuildOctree(buildings, wholeBB, this->NumberOfFeaturesPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), &buildings,
-        this->DirectoryName, this->TexturePath, this->SaveTextures, this->BuildingContentType,
+        this->DirectoryName, this->TexturePath, this->SaveTextures, this->BuildingsContentType,
         this->CRS);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
@@ -241,7 +241,7 @@ void vtkCesium3DTilesWriter::WriteData()
       vtkDirectory::MakeDirectory(this->DirectoryName);
       vtkSmartPointer<vtkPointSet> pc = TranslatePoints(rootPointCloud, this->Offset);
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
-        BuildOctree(pc, this->NumberOfBuildingsPerTile);
+        BuildOctree(pc, this->NumberOfFeaturesPerTile);
       TreeInformation treeInformation(
         octree->GetRoot(), octree->GetNumberOfNodes(), pc, this->DirectoryName, this->CRS);
       treeInformation.Compute();
