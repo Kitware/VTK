@@ -184,7 +184,7 @@ public:
   {
   public:
     XdmfDataSetTopoGeoPath()
-      : dataset(0)
+      : dataset(nullptr)
       , topologyPath()
       , geometryPath()
     {
