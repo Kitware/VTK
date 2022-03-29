@@ -103,7 +103,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadData()
     // need to be care:
     // 1. If the data is structured, we respect the update-extent and read
     //    accordingly.
-    // 2. If the data is unstructrued, we read only on the root node. The user
+    // 2. If the data is unstructured, we read only on the root node. The user
     //    can apply D3 or something to repartition the data.
     return this->ReadData(this->Domain->GetGrid(0));
   }
@@ -414,15 +414,28 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
 
     default:
       // un-handled case.
-      return nullptr;
+      dataObject = nullptr;
+      break;
   }
+  // grid's memory needs to be released because otherwise, it will be cached
+  // which can lead to out-of-memory issues for big datasets
+  xmfGrid->Release();
 
-  if (caching)
+  // dataObject can be nullptr if an error occur inside Read*(xmfGrid)
+  // so it needs to be handled carefully
+  if (dataObject)
   {
-    cache[blockId].dataset = vtkDataSet::SafeDownCast(dataObject);
-    dataObject->Register(nullptr);
+    if (caching)
+    {
+      cache[blockId].dataset = vtkDataSet::SafeDownCast(dataObject);
+      dataObject->Register(nullptr);
+    }
+    return dataObject;
   }
-  return dataObject;
+  else
+  {
+    return nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -184,7 +184,7 @@ public:
   {
   public:
     XdmfDataSetTopoGeoPath()
-      : dataset(0)
+      : dataset(nullptr)
       , topologyPath()
       , geometryPath()
     {
@@ -254,7 +254,6 @@ protected:
 
   char* InputString;
   int InputStringLength;
-  int InputStringPos;
 
   vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
@@ -283,7 +282,7 @@ protected:
   // used by the active vtkXdmfDomain in RequestInformation().
   // Note that these are only used until the first domain is setup, once that
   // happens, the information set in these is passed to the domain and these
-  // are cleared an no longer used, until the active domain becomes invalid
+  // are cleared and no longer used, until the active domain becomes invalid
   // again.
   vtkXdmfArraySelection* PointArraysCache;
   vtkXdmfArraySelection* CellArraysCache;

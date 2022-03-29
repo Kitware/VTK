@@ -112,7 +112,6 @@ vtkXdmfReader::vtkXdmfReader()
   this->ReadFromInputString = false;
   this->InputString = nullptr;
   this->InputStringLength = 0;
-  this->InputStringPos = 0;
   this->InputArray = nullptr;
 
   this->SetNumberOfInputPorts(0);
@@ -391,7 +390,7 @@ int vtkXdmfReader::RequestInformation(
 
   if (!time_steps.empty())
   {
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &time_steps[0],
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), time_steps.data(),
       static_cast<int>(time_steps.size()));
     double timeRange[2];
     timeRange[0] = time_steps.front();
@@ -706,6 +705,7 @@ void vtkXdmfReader::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os, indent);
 }
+
 //------------------------------------------------------------------------------
 vtkGraph* vtkXdmfReader::GetSIL()
 {
