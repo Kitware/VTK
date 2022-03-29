@@ -103,7 +103,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadData()
     // need to be care:
     // 1. If the data is structured, we respect the update-extent and read
     //    accordingly.
-    // 2. If the data is unstructrued, we read only on the root node. The user
+    // 2. If the data is unstructured, we read only on the root node. The user
     //    can apply D3 or something to repartition the data.
     return this->ReadData(this->Domain->GetGrid(0));
   }
