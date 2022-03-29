@@ -32,7 +32,6 @@
 #define vtkVariant_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkObject.h"           // For vtkObject's warning support
 #include "vtkSetGet.h"           // For vtkNotUsed macro
 #include "vtkStdString.h"
@@ -54,7 +53,6 @@
   vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call)
 
 class vtkStdString;
-class vtkUnicodeString;
 class vtkObjectBase;
 class vtkAbstractArray;
 class vtkVariant;
@@ -161,12 +159,6 @@ public:
   vtkVariant(vtkStdString value);
 
   /**
-   * Create a Unicode string variant
-   */
-  VTK_DEPRECATED_IN_9_1_0("Use vtkVariant(vtkStdString value)")
-  vtkVariant(const vtkUnicodeString& value);
-
-  /**
    * Create a vtkObjectBase variant.
    */
   vtkVariant(vtkObjectBase* value);
@@ -190,12 +182,6 @@ public:
    * Get whether the variant is a string.
    */
   bool IsString() const;
-
-  /**
-   * Get whether the variant is a Unicode string.
-   */
-  VTK_DEPRECATED_IN_9_1_0("Use bool IsString() const")
-  bool IsUnicodeString() const;
 
   /**
    * Get whether the variant is any numeric type.
@@ -303,18 +289,6 @@ public:
    * See the std doc for more information.
    */
   vtkStdString ToString(int formatting = DEFAULT_FORMATTING, int precision = 6) const;
-
-  /**
-   * convert the variant to a Unicode string.
-   * Set the formatting argument to either DEFAULT_FORMATTING, FIXED_FORMATTING,
-   * SCIENTIFIC_FORMATTING to control the formatting. Set the precision
-   * argument to control the precision of the output. These two parameters have no effect when the
-   * variant is not a floating-point value or an array of floating-point values.
-   * See the std doc for more information.
-   */
-  VTK_DEPRECATED_IN_9_1_0(
-    "Use vtkStdString ToString(int formatting = DEFAULT_FORMATTING, int precision = 6)")
-  vtkUnicodeString ToUnicodeString(int formatting = DEFAULT_FORMATTING, int precision = 6) const;
 
   ///@{
   /**
@@ -427,7 +401,6 @@ private:
 
   union {
     vtkStdString* String;
-    vtkUnicodeString* UnicodeString;
     float Float;
     double Double;
     char Char;
@@ -443,10 +416,6 @@ private:
     unsigned long long UnsignedLongLong;
     vtkObjectBase* VTKObject;
   } Data;
-
-  // XXX(9.1): Remove with VTK_DEPRECATED_IN_9_1_0().
-  bool CheckUnicodeStringEqual(const vtkVariant& other) const;
-  bool CheckUnicodeStringLessThan(const vtkVariant& other) const;
 
   unsigned char Valid;
   unsigned char Type;

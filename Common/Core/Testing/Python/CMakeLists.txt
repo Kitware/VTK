@@ -23,7 +23,6 @@ vtk_add_test_python(
   TestSetGet.py
   TestSingleton.py
   TestSOADataArrays.py
-  TestStdVector.py
   TestStrings.py
   TestSubClass.py
   TestSwigPointer.py

@@ -181,7 +181,7 @@ void vtkQtLabelRenderStrategy::StartFrame()
 // int compute_bounds_iter = 0;
 //------------------------------------------------------------------------------
 void vtkQtLabelRenderStrategy::ComputeLabelBounds(
-  vtkTextProperty* tprop, vtkUnicodeString label, double bds[4])
+  vtkTextProperty* tprop, vtkStdString label, double bds[4])
 {
   if (!QApplication::instance())
   {
@@ -209,7 +209,7 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
     fontSpec.setStyleStrategy(QFont::NoAntialias);
   }
 
-  QString text = QString::fromUtf8(label.utf8_str());
+  QString text = QString::fromUtf8(label);
   QColor textColor =
     this->Implementation->TextPropertyToColor(tprop->GetColor(), tprop->GetOpacity());
   vtkQtLabelMapEntry key;
@@ -280,7 +280,7 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
 // int render_label_iter = 0;
 //------------------------------------------------------------------------------
 void vtkQtLabelRenderStrategy::RenderLabel(
-  int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth)
+  int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth)
 {
   if (!QApplication::instance())
   {
@@ -292,7 +292,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   // timer->StartTimer();
 
   // Determine if we can render the label to fit the width
-  QString origText = QString::fromUtf8(label.utf8_str());
+  QString origText = QString::fromUtf8(label);
   QFont fontSpec = this->Implementation->TextPropertyToFont(tprop);
 
   // This is the recommended Qt way of controlling text antialiasing.
@@ -384,7 +384,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
 }
 
 //------------------------------------------------------------------------------
-void vtkQtLabelRenderStrategy::RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label)
+void vtkQtLabelRenderStrategy::RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
 {
   if (!QApplication::instance())
   {
@@ -401,7 +401,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(int x[2], vtkTextProperty* tprop, vtk
   // vtkTimerLog* timer = vtkTimerLog::New();
   // timer->StartTimer();
 
-  QString text = QString::fromUtf8(label.utf8_str());
+  QString text = QString::fromUtf8(label);
   QFont fontSpec = this->Implementation->TextPropertyToFont(tprop);
 
   // This is the recommended Qt way of controlling text antialiasing.

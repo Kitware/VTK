@@ -19,9 +19,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include <vtkArrayData.h>
 #include <vtkArrayReader.h>
 #include <vtkArrayWriter.h>
@@ -29,7 +26,6 @@
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
-#include <vtkUnicodeString.h>
 
 #include <iostream>
 #include <sstream>
@@ -122,51 +118,6 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(f1->GetVariantValue(1).ToString() == "quick brown");
     test_expression(f1->GetVariantValue(2).ToString() == "fox");
 
-    // Test dense Unicode string arrays containing whitespace ...
-    vtkSmartPointer<vtkDenseArray<vtkUnicodeString>> g1 =
-      vtkSmartPointer<vtkDenseArray<vtkUnicodeString>>::New();
-    g1->Resize(3);
-    g1->SetValue(0, vtkUnicodeString::from_utf8("The"));
-    g1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
-    g1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
-
-    std::stringstream g_buffer;
-    vtkArrayWriter::Write(g1, g_buffer);
-    vtkSmartPointer<vtkArray> g2;
-    g2.TakeReference(vtkArrayReader::Read(g_buffer));
-
-    test_expression(g2);
-    test_expression(vtkDenseArray<vtkUnicodeString>::SafeDownCast(g2));
-    test_expression(g2->GetNonNullSize() == 3);
-    test_expression(g2->GetVariantValue(0).ToUnicodeString() == vtkUnicodeString::from_utf8("The"));
-    test_expression(
-      g2->GetVariantValue(1).ToUnicodeString() == vtkUnicodeString::from_utf8("quick brown"));
-    test_expression(g2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
-
-    // Test sparse Unicode string arrays containing whitespace ...
-    vtkSmartPointer<vtkSparseArray<vtkUnicodeString>> h1 =
-      vtkSmartPointer<vtkSparseArray<vtkUnicodeString>>::New();
-    h1->Resize(3);
-    h1->SetNullValue(vtkUnicodeString::from_utf8("nothing here"));
-    h1->SetValue(0, vtkUnicodeString::from_utf8("The"));
-    h1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
-    h1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
-
-    std::stringstream h_buffer;
-    vtkArrayWriter::Write(h1, h_buffer);
-    vtkSmartPointer<vtkArray> h2;
-    h2.TakeReference(vtkArrayReader::Read(h_buffer));
-
-    test_expression(h2);
-    test_expression(vtkSparseArray<vtkUnicodeString>::SafeDownCast(h2));
-    test_expression(h2->GetNonNullSize() == 3);
-    test_expression(vtkSparseArray<vtkUnicodeString>::SafeDownCast(h2)->GetNullValue() ==
-      vtkUnicodeString::from_utf8("nothing here"));
-    test_expression(h2->GetVariantValue(0).ToUnicodeString() == vtkUnicodeString::from_utf8("The"));
-    test_expression(
-      h2->GetVariantValue(1).ToUnicodeString() == vtkUnicodeString::from_utf8("quick brown"));
-    test_expression(h2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
-
     // Test sparse arrays with DOS line endings ...
     std::istringstream i_buffer(
       "vtk-sparse-array double\r\nascii\r\ni1\r\n0 2 0 2 1\r\nrows\r\ncolumns\r\n0\r\n0 0 5\r\n");
@@ -180,12 +131,12 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(i1->GetVariantValue(1, 0).ToDouble() == 0);
 
     // Test writing to string and reading back ...
-    vtkNew<vtkSparseArray<vtkUnicodeString>> j1;
+    vtkNew<vtkSparseArray<vtkStdString>> j1;
     j1->Resize(3);
-    j1->SetNullValue(vtkUnicodeString::from_utf8("nothing here"));
-    j1->SetValue(0, vtkUnicodeString::from_utf8("The"));
-    j1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
-    j1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
+    j1->SetNullValue("nothing here");
+    j1->SetValue(0, "The");
+    j1->SetValue(1, "quick brown");
+    j1->SetValue(2, "fox");
 
     vtkNew<vtkArrayData> j1d;
     j1d->AddArray(j1);
@@ -203,14 +154,13 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkArray* j2 = jr->GetOutput()->GetArray(0);
 
     test_expression(j2);
-    test_expression(vtkSparseArray<vtkUnicodeString>::SafeDownCast(j2));
+    test_expression(vtkSparseArray<vtkStdString>::SafeDownCast(j2));
     test_expression(j2->GetNonNullSize() == 3);
-    test_expression(vtkSparseArray<vtkUnicodeString>::SafeDownCast(j2)->GetNullValue() ==
-      vtkUnicodeString::from_utf8("nothing here"));
-    test_expression(j2->GetVariantValue(0).ToUnicodeString() == vtkUnicodeString::from_utf8("The"));
     test_expression(
-      j2->GetVariantValue(1).ToUnicodeString() == vtkUnicodeString::from_utf8("quick brown"));
-    test_expression(j2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
+      vtkSparseArray<vtkStdString>::SafeDownCast(j2)->GetNullValue() == "nothing here");
+    test_expression(j2->GetVariantValue(0).ToString() == "The");
+    test_expression(j2->GetVariantValue(1).ToString() == "quick brown");
+    test_expression(j2->GetVariantValue(2).ToString() == "fox");
 
     // Test Read and Write in Binary mode
     // Test sparse-array round-trip ...
@@ -280,55 +230,6 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(bc2->GetVariantValue(0).ToString() == "The");
     test_expression(bc2->GetVariantValue(1).ToString() == "quick brown");
     test_expression(bc2->GetVariantValue(2).ToString() == "fox");
-
-    // Test dense Unicode string arrays containing whitespace ...
-    vtkSmartPointer<vtkDenseArray<vtkUnicodeString>> bd1 =
-      vtkSmartPointer<vtkDenseArray<vtkUnicodeString>>::New();
-    bd1->Resize(3);
-    bd1->SetValue(0, vtkUnicodeString::from_utf8("The"));
-    bd1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
-    bd1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
-
-    std::stringstream bd_buffer;
-    vtkArrayWriter::Write(bd1, bd_buffer, true);
-    vtkSmartPointer<vtkArray> bd2;
-    bd2.TakeReference(vtkArrayReader::Read(bd_buffer));
-
-    test_expression(bd2);
-    test_expression(vtkDenseArray<vtkUnicodeString>::SafeDownCast(bd2));
-    test_expression(bd2->GetNonNullSize() == 3);
-    test_expression(
-      bd2->GetVariantValue(0).ToUnicodeString() == vtkUnicodeString::from_utf8("The"));
-    test_expression(
-      bd2->GetVariantValue(1).ToUnicodeString() == vtkUnicodeString::from_utf8("quick brown"));
-    test_expression(
-      bd2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
-
-    // Test sparse Unicode string arrays containing whitespace ...
-    vtkSmartPointer<vtkSparseArray<vtkUnicodeString>> be1 =
-      vtkSmartPointer<vtkSparseArray<vtkUnicodeString>>::New();
-    be1->Resize(3);
-    be1->SetNullValue(vtkUnicodeString::from_utf8("nothing here"));
-    be1->SetValue(0, vtkUnicodeString::from_utf8("The"));
-    be1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
-    be1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
-
-    std::stringstream be_buffer;
-    vtkArrayWriter::Write(be1, be_buffer, true);
-    vtkSmartPointer<vtkArray> be2;
-    be2.TakeReference(vtkArrayReader::Read(be_buffer));
-
-    test_expression(be2);
-    test_expression(vtkSparseArray<vtkUnicodeString>::SafeDownCast(be2));
-    test_expression(be2->GetNonNullSize() == 3);
-    test_expression(vtkSparseArray<vtkUnicodeString>::SafeDownCast(be2)->GetNullValue() ==
-      vtkUnicodeString::from_utf8("nothing here"));
-    test_expression(
-      be2->GetVariantValue(0).ToUnicodeString() == vtkUnicodeString::from_utf8("The"));
-    test_expression(
-      be2->GetVariantValue(1).ToUnicodeString() == vtkUnicodeString::from_utf8("quick brown"));
-    test_expression(
-      be2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
 
     return 0;
   }

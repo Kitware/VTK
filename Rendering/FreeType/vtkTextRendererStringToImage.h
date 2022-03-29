@@ -47,8 +47,6 @@ public:
    * is valid (it may not if GetBoundingBox() failed or if the string
    * was empty).
    */
-  vtkVector2i GetBounds(
-    vtkTextProperty* property, const vtkUnicodeString& string, int dpi) override;
   vtkVector2i GetBounds(vtkTextProperty* property, const vtkStdString& string, int dpi) override;
   ///@}
 
@@ -60,8 +58,6 @@ public:
    * This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
    * not match the dimensions of the rendered text.
    */
-  int RenderString(vtkTextProperty* property, const vtkUnicodeString& string, int dpi,
-    vtkImageData* data, int textDims[2] = nullptr) override;
   int RenderString(vtkTextProperty* property, const vtkStdString& string, int dpi,
     vtkImageData* data, int textDims[2] = nullptr) override;
   ///@}

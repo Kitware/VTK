@@ -21,7 +21,6 @@ _variant_type_map = {
     'float' : vtkCommonCore.VTK_FLOAT,
     'double' : vtkCommonCore.VTK_DOUBLE,
     'string' : vtkCommonCore.VTK_STRING,
-    'unicode string' : vtkCommonCore.VTK_UNICODE_STRING,
     'vtkObjectBase' : vtkCommonCore.VTK_OBJECT,
     'vtkObject' : vtkCommonCore.VTK_OBJECT,
 }
@@ -42,7 +41,6 @@ _variant_method_map = {
     vtkCommonCore.VTK_FLOAT : 'ToFloat',
     vtkCommonCore.VTK_DOUBLE : 'ToDouble',
     vtkCommonCore.VTK_STRING : 'ToString',
-    vtkCommonCore.VTK_UNICODE_STRING : 'ToUnicodeString',
     vtkCommonCore.VTK_OBJECT : 'ToVTKObject',
 }
 
@@ -62,7 +60,6 @@ _variant_check_map = {
     vtkCommonCore.VTK_FLOAT : 'IsFloat',
     vtkCommonCore.VTK_DOUBLE : 'IsDouble',
     vtkCommonCore.VTK_STRING : 'IsString',
-    vtkCommonCore.VTK_UNICODE_STRING : 'IsUnicodeString',
     vtkCommonCore.VTK_OBJECT : 'IsVTKObject',
 }
 
@@ -71,7 +68,7 @@ def vtkVariantCreate(v, t):
     """
     Create a vtkVariant of the specified type, where the type is in the
     following format: 'int', 'unsigned int', etc. for numeric types,
-    and 'string' or 'unicode string' for strings.  You can also use an
+    and 'string' for strings.  You can also use an
     integer VTK type constant for the type.
     """
     if not issubclass(type(t), int):
@@ -84,7 +81,7 @@ def vtkVariantExtract(v, t=None):
     """
     Extract the specified value type from the vtkVariant, where the type is
     in the following format: 'int', 'unsigned int', etc. for numeric types,
-    and 'string' or 'unicode string' for strings.  You can also use an
+    and 'string' for strings.  You can also use an
     integer VTK type constant for the type.  Set the type to 'None" to
     extract the value in its native type.
     """
@@ -105,7 +102,7 @@ def vtkVariantCast(v, t):
     """
     Cast the vtkVariant to the specified value type, where the type is
     in the following format: 'int', 'unsigned int', etc. for numeric types,
-    and 'string' or 'unicode string' for strings.  You can also use an
+    and 'string' for strings.  You can also use an
     integer VTK type constant for the type.
     """
     if not issubclass(type(t), int):

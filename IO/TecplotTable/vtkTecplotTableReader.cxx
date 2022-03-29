@@ -16,9 +16,6 @@
   Copyright 2016 Menno Deij - van Rijswijk (MARIN)
 -------------------------------------------------------------------------*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkTecplotTableReader.h"
 #include "vtkCommand.h"
 #include "vtkDataSetAttributes.h"
@@ -34,6 +31,8 @@
 #include "vtkTextCodec.h"
 #include "vtkTextCodecFactory.h"
 #include "vtksys/FStream.hxx"
+
+#include <vtk_utf8.h>
 
 #include <algorithm>
 #include <iostream>
@@ -55,12 +54,11 @@
 namespace
 {
 
-// FIXME(#18327): Port away from `vtkUnicodeString`.
 class DelimitedTextIterator : public vtkTextCodec::OutputIterator
 {
 public:
   typedef std::forward_iterator_tag iterator_category;
-  typedef vtkUnicodeStringValueType value_type;
+  typedef vtkTypeUInt32 value_type;
   typedef std::string::difference_type difference_type;
   typedef value_type* pointer;
   typedef value_type& reference;
@@ -118,15 +116,20 @@ public:
   // ...
   void ReachedEndOfInput()
   {
-    if (this->CurrentField.empty())
+    if (!this->CurrentField.empty())
     {
-      return;
-    }
-    vtkUnicodeString::value_type value =
-      this->CurrentField[this->CurrentField.character_count() - 1];
-    if (!this->RecordDelimiters.count(value) && !this->Whitespace.count(value))
-    {
-      this->InsertField();
+      std::string::iterator start = this->CurrentField.begin();
+      std::string::iterator end = this->CurrentField.end();
+      std::string::size_type size = utf8::distance(start, end);
+
+      std::string::iterator iterator = start;
+      utf8::advance(iterator, size - 1, end);
+      vtkTypeUInt32 value = utf8::next(iterator, end);
+      // if the last character is not a CR/LF add a column
+      if (!this->RecordDelimiters.count(value) && !this->Whitespace.count(value))
+      {
+        this->InsertField();
+      }
     }
   }
 
@@ -202,47 +205,47 @@ public:
     // Process escape sequence ...
     if (this->ProcessEscapeSequence)
     {
-      vtkUnicodeString curr_char;
-      curr_char += value;
-      if (curr_char == vtkUnicodeString::from_utf8("0"))
+      std::string curr_char;
+      utf8::append(value, std::back_inserter(curr_char));
+      if (curr_char == "0")
       {
-        this->CurrentField += vtkUnicodeString::from_utf8("\0");
+        this->CurrentField += "\0";
       }
-      else if (curr_char == vtkUnicodeString::from_utf8("a"))
+      else if (curr_char == "a")
       {
-        this->CurrentField += vtkUnicodeString::from_utf8("\a");
+        this->CurrentField += "\a";
       }
-      else if (curr_char == vtkUnicodeString::from_utf8("b"))
+      else if (curr_char == "b")
       {
-        this->CurrentField += vtkUnicodeString::from_utf8("\b");
+        this->CurrentField += "\b";
       }
-      else if (curr_char == vtkUnicodeString::from_utf8("t"))
+      else if (curr_char == "t")
       {
-        this->CurrentField += vtkUnicodeString::from_utf8("\t");
+        this->CurrentField += "\t";
       }
-      else if (curr_char == vtkUnicodeString::from_utf8("n"))
+      else if (curr_char == "n")
       {
-        this->CurrentField += vtkUnicodeString::from_utf8("\n");
+        this->CurrentField += "\n";
       }
-      else if (curr_char == vtkUnicodeString::from_utf8("v"))
+      else if (curr_char == "v")
       {
-        this->CurrentField += vtkUnicodeString::from_utf8("\v");
+        this->CurrentField += "\v";
       }
-      else if (curr_char == vtkUnicodeString::from_utf8("f"))
+      else if (curr_char == "f")
       {
-        this->CurrentField += vtkUnicodeString::from_utf8("\f");
+        this->CurrentField += "\f";
       }
-      else if (curr_char == vtkUnicodeString::from_utf8("r"))
+      else if (curr_char == "r")
       {
-        this->CurrentField += vtkUnicodeString::from_utf8("\r");
+        this->CurrentField += "\r";
       }
-      else if (curr_char == vtkUnicodeString::from_utf8("\\"))
+      else if (curr_char == "\\")
       {
-        this->CurrentField += vtkUnicodeString::from_utf8("\\");
+        this->CurrentField += "\\";
       }
       else
       {
-        this->CurrentField += value;
+        this->CurrentField += curr_char;
       }
       this->ProcessEscapeSequence = false;
       return *this;
@@ -268,7 +271,7 @@ public:
       this->WhiteSpaceOnlyString = false;
     }
     // Keep growing the current field ...
-    this->CurrentField += value;
+    utf8::append(value, std::back_inserter(this->CurrentField));
     return *this;
   }
 
@@ -286,7 +289,7 @@ private:
     {
       vtkDoubleArray* array = vtkDoubleArray::New();
 
-      array->SetName(this->CurrentField.utf8_str());
+      array->SetName(this->CurrentField.c_str());
       this->OutputTable->AddColumn(array);
       array->Delete();
     }
@@ -298,8 +301,7 @@ private:
       vtkDoubleArray* array =
         vtkArrayDownCast<vtkDoubleArray>(this->OutputTable->GetColumn(fieldIndex));
 
-      vtkStdString str;
-      str = this->CurrentField.utf8_str();
+      vtkStdString str = this->CurrentField;
       bool ok;
       double doubleValue = vtkVariant(str).ToDouble(&ok);
       if (ok)
@@ -315,17 +317,17 @@ private:
 
   vtkIdType MaxRecords;
   vtkIdType MaxRecordIndex;
-  std::set<vtkUnicodeString::value_type> RecordDelimiters;
-  std::set<vtkUnicodeString::value_type> FieldDelimiters;
-  std::set<vtkUnicodeString::value_type> StringDelimiters;
-  std::set<vtkUnicodeString::value_type> Whitespace;
-  std::set<vtkUnicodeString::value_type> EscapeDelimiter;
+  std::set<vtkTypeUInt32> RecordDelimiters;
+  std::set<vtkTypeUInt32> FieldDelimiters;
+  std::set<vtkTypeUInt32> StringDelimiters;
+  std::set<vtkTypeUInt32> Whitespace;
+  std::set<vtkTypeUInt32> EscapeDelimiter;
 
   bool WhiteSpaceOnlyString;
   vtkTable* OutputTable;
   vtkIdType CurrentRecordIndex;
   vtkIdType CurrentFieldIndex;
-  vtkUnicodeString CurrentField;
+  std::string CurrentField;
 
   vtkIdType HeaderLines;
   vtkIdType ColumnNamesOnLine;
@@ -335,7 +337,7 @@ private:
   bool MergeConsDelims;
   bool ProcessEscapeSequence;
   bool UseStringDelimiter;
-  vtkUnicodeString::value_type WithinString;
+  vtkTypeUInt32 WithinString;
 };
 
 } // End anonymous namespace
@@ -404,7 +406,6 @@ int vtkTecplotTableReader::RequestData(
       return 0;
     }
 
-    istream* input_stream_pt = nullptr;
     vtksys::ifstream file_stream;
 
     // If the filename hasn't been specified, we're done ...
@@ -423,8 +424,7 @@ int vtkTecplotTableReader::RequestData(
     file_stream.seekg(0, ios::end);
     file_stream.seekg(0, ios::beg);
 
-    input_stream_pt = dynamic_cast<istream*>(&file_stream);
-    vtkTextCodec* transCodec = vtkTextCodecFactory::CodecToHandle(*input_stream_pt);
+    vtkTextCodec* transCodec = vtkTextCodecFactory::CodecToHandle(file_stream);
 
     if (nullptr == transCodec)
     {
@@ -435,9 +435,7 @@ int vtkTecplotTableReader::RequestData(
     DelimitedTextIterator iterator(output_table, this->MaxRecords, this->HeaderLines,
       this->ColumnNamesOnLine, this->SkipColumnNames);
 
-    vtkTextCodec::OutputIterator& outIter = iterator;
-
-    transCodec->ToUnicode(*input_stream_pt, outIter);
+    transCodec->ToUnicode(file_stream, iterator);
     iterator.ReachedEndOfInput();
     transCodec->Delete();
 

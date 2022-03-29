@@ -18,9 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkLabelHierarchyIterator.h"
 
 #include "vtkCamera.h"
@@ -132,20 +129,6 @@ vtkStdString vtkLabelHierarchyIterator::GetLabel()
     return "";
   }
   return labelArr->GetVariantValue(this->GetLabelId()).ToString();
-}
-
-vtkUnicodeString vtkLabelHierarchyIterator::GetUnicodeLabel()
-{
-  if (!this->GetHierarchy())
-  {
-    return vtkUnicodeString();
-  }
-  vtkAbstractArray* labelArr = this->GetHierarchy()->GetLabels();
-  if (!labelArr)
-  {
-    return vtkUnicodeString();
-  }
-  return labelArr->GetVariantValue(this->GetLabelId()).ToUnicodeString();
 }
 
 double vtkLabelHierarchyIterator::GetOrientation()

@@ -14,9 +14,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkOpenGLContextDevice2D.h"
 
 #include "vtkAbstractContextBufferId.h"
@@ -1538,19 +1535,9 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawString(float* point, const vtkStdString& string)
-{
-  // FIXME(#18327): Migrate to processing here rather than working on
-  // `vtkUnicodeString`.
-  this->DrawString(point, vtkUnicodeString::from_utf8(string));
-}
-
-//------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString& string, float bounds[4])
 {
-  // FIXME(#18327): Migrate to processing here rather than working on
-  // `vtkUnicodeString`.
-  this->ComputeStringBoundsInternal(vtkUnicodeString::from_utf8(string), bounds);
+  this->ComputeStringBoundsInternal(string, bounds);
   bounds[0] = 0.f;
   bounds[1] = 0.f;
 }
@@ -1558,13 +1545,11 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString& string, f
 //------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::ComputeJustifiedStringBounds(const char* string, float bounds[4])
 {
-  // FIXME(#18327): Migrate to processing here rather than working on
-  // `vtkUnicodeString`.
-  this->ComputeStringBoundsInternal(vtkUnicodeString::from_utf8(string), bounds);
+  this->ComputeStringBoundsInternal(string, bounds);
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawString(float* point, const vtkUnicodeString& string)
+void vtkOpenGLContextDevice2D::DrawString(float* point, const vtkStdString& string)
 {
   vtkOpenGLGL2PSHelper* gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   if (gl2ps)
@@ -1577,7 +1562,7 @@ void vtkOpenGLContextDevice2D::DrawString(float* point, const vtkUnicodeString& 
         float ty = point[1];
         this->TransformPoint(tx, ty);
         double x[3] = { tx, ty, 0. };
-        gl2ps->DrawString(string.utf8_str(), this->TextProp, x, 0., this->Renderer);
+        gl2ps->DrawString(string, this->TextProp, x, 0., this->Renderer);
         return;
       }
       case vtkOpenGLGL2PSHelper::Background:
@@ -1613,8 +1598,8 @@ void vtkOpenGLContextDevice2D::DrawString(float* point, const vtkUnicodeString& 
   int dpi = this->RenderWindow->GetDPI() * std::max(tileScale[0], tileScale[1]);
 
   // Cache rendered text strings
-  vtkTextureImageCache<UTF16TextPropertyKey>::CacheData& cache =
-    this->Storage->TextTextureCache.GetCacheData(UTF16TextPropertyKey(this->TextProp, string, dpi));
+  vtkTextureImageCache<UTF8TextPropertyKey>::CacheData& cache =
+    this->Storage->TextTextureCache.GetCacheData(UTF8TextPropertyKey(this->TextProp, string, dpi));
   vtkImageData* image = cache.ImageData;
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
   {
@@ -1676,14 +1661,6 @@ void vtkOpenGLContextDevice2D::DrawString(float* point, const vtkUnicodeString& 
   texture->PostRender(this->Renderer);
 
   vtkOpenGLCheckErrorMacro("failed after DrawString");
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString& string, float bounds[4])
-{
-  this->ComputeStringBoundsInternal(string, bounds);
-  bounds[0] = 0.f;
-  bounds[1] = 0.f;
 }
 
 //------------------------------------------------------------------------------
@@ -2117,7 +2094,6 @@ void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow* window)
     this->Storage->SpriteTexture->ReleaseGraphicsResources(window);
   }
   this->Storage->TextTextureCache.ReleaseGraphicsResources(window);
-  this->Storage->MathTextTextureCache.ReleaseGraphicsResources(window);
 }
 
 //------------------------------------------------------------------------------
@@ -2183,7 +2159,7 @@ vtkImageData* vtkOpenGLContextDevice2D::GetMarker(int shape, int size, bool high
 
 //------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::ComputeStringBoundsInternal(
-  const vtkUnicodeString& string, float bounds[4])
+  const std::string& string, float bounds[4])
 {
   vtkTextRenderer* tren = vtkTextRenderer::GetInstance();
   if (!tren)

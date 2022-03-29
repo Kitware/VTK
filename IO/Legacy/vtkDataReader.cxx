@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkDataReader.h"
 
 #include "vtkBitArray.h"
@@ -55,7 +52,6 @@
 #include "vtkTable.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkTypeUInt64Array.h"
-#include "vtkUnicodeStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -1827,7 +1823,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "string", 6))
+  else if (!strncmp(type, "string", 6) || !strncmp(type, "utf8_string", 11))
   {
     array = vtkStringArray::New();
     array->SetNumberOfComponents(numComp);
@@ -1902,86 +1898,6 @@ vtkAbstractArray* vtkDataReader::ReadArray(
           int decodedLength = this->DecodeString(decoded.data(), s.c_str());
           vtkStdString decodedStr(decoded.data(), decodedLength);
           ((vtkStringArray*)array)->InsertNextValue(decodedStr);
-        }
-      }
-    }
-  }
-  else if (!strncmp(type, "utf8_string", 11))
-  {
-    array = vtkUnicodeStringArray::New();
-    array->SetNumberOfComponents(numComp);
-
-    if (this->FileType == VTK_BINARY)
-    {
-      // read in newline
-      char line[256];
-      IS->getline(line, 256);
-
-      for (vtkIdType i = 0; i < numTuples; i++)
-      {
-        for (vtkIdType j = 0; j < numComp; j++)
-        {
-          vtkTypeUInt8 firstByte;
-          vtkTypeUInt8 headerType;
-          vtkStdString::size_type stringLength;
-          firstByte = IS->peek();
-          headerType = firstByte >> 6;
-          if (headerType == 3)
-          {
-            vtkTypeUInt8 length = IS->get();
-            length <<= 2;
-            length >>= 2;
-            stringLength = length;
-          }
-          else if (headerType == 2)
-          {
-            vtkTypeUInt16 length;
-            IS->read(reinterpret_cast<char*>(&length), 2);
-            vtkByteSwap::Swap2BE(&length);
-            length <<= 2;
-            length >>= 2;
-            stringLength = length;
-          }
-          else if (headerType == 1)
-          {
-            vtkTypeUInt32 length;
-            IS->read(reinterpret_cast<char*>(&length), 4);
-            vtkByteSwap::Swap4BE(&length);
-            length <<= 2;
-            length >>= 2;
-            stringLength = length;
-          }
-          else
-          {
-            vtkTypeUInt64 length;
-            IS->read(reinterpret_cast<char*>(&length), 8);
-            vtkByteSwap::Swap4BE(&length);
-            stringLength = length;
-          }
-          std::vector<char> str(stringLength);
-          IS->read(str.data(), stringLength);
-          vtkUnicodeString s = vtkUnicodeString::from_utf8(str.data(), str.data() + stringLength);
-          ((vtkUnicodeStringArray*)array)->InsertNextValue(s);
-        }
-      }
-    }
-    else
-    {
-      // read in newline
-      vtkStdString s;
-      my_getline(*(this->IS), s);
-
-      for (vtkIdType i = 0; i < numTuples; i++)
-      {
-        for (vtkIdType j = 0; j < numComp; j++)
-        {
-          my_getline(*(this->IS), s);
-          int length = static_cast<int>(s.length());
-          std::vector<char> decoded(length + 1);
-          int decodedLength = this->DecodeString(decoded.data(), s.c_str());
-          vtkUnicodeString decodedStr =
-            vtkUnicodeString::from_utf8(decoded.data(), decoded.data() + decodedLength);
-          ((vtkUnicodeStringArray*)array)->InsertNextValue(decodedStr);
         }
       }
     }

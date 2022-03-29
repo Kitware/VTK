@@ -145,8 +145,6 @@ public:
     float x, float y, float rX, float rY, float startAngle, float stopAngle) override;
   void DrawString(float* point, const vtkStdString& string) override;
   void ComputeStringBounds(const vtkStdString& string, float bounds[4]) override;
-  void DrawString(float* point, const vtkUnicodeString& string) override;
-  void ComputeStringBounds(const vtkUnicodeString& string, float bounds[4]) override;
   void ComputeJustifiedStringBounds(const char* string, float bounds[4]) override;
   void DrawMathTextString(float* point, const vtkStdString& str) override;
   void DrawImage(float p[2], float scale, vtkImageData* image) override;

@@ -65,8 +65,8 @@ class TestVariant(Testing.vtkTest):
     def testUnicodeConstructor(self):
         """Construct from unicode"""
         v = vtk.vtkVariant(cedilla)
-        self.assertEqual(v.GetType(), vtk.VTK_UNICODE_STRING)
-        self.assertEqual(v.ToUnicodeString(), cedilla)
+        self.assertEqual(v.GetType(), vtk.VTK_STRING)
+        self.assertEqual(v.ToString(), cedilla)
 
     def testObjectConstructor(self):
         """Construct from VTK object"""
@@ -163,11 +163,6 @@ class TestVariant(Testing.vtkTest):
         d[vtk.vtkVariant(1.0)] = 'double'
         d[vtk.vtkVariant(1)] = 'int'
         self.assertEqual(d[vtk.vtkVariant('1')], 'int')
-
-        # strings and unicode have the same hash
-        d[vtk.vtkVariant('s').ToString()] = 'string'
-        d[vtk.vtkVariant('s').ToUnicodeString()] = 'unicode'
-        self.assertEqual(d[vtk.vtkVariant('s').ToString()], 'unicode')
 
         # every vtkObject is hashed by memory address
         o1 = vtk.vtkIntArray()

@@ -46,7 +46,7 @@ typedef boost::mpl::vector<vtkTypeFloat32, vtkTypeFloat64> vtkFloatingPointTypes
 typedef boost::mpl::joint_view<vtkIntegerTypes, vtkFloatingPointTypes> vtkNumericTypes;
 // Description:
 // Enumerates all string VTK types
-typedef boost::mpl::vector<vtkStdString, vtkUnicodeString> vtkStringTypes;
+typedef boost::mpl::vector<vtkStdString> vtkStringTypes;
 // Description:
 // Enumerates all VTK types
 typedef boost::mpl::joint_view<vtkNumericTypes, vtkStringTypes> vtkAllTypes;

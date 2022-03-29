@@ -114,31 +114,6 @@ struct IncrementValues
   }
 };
 
-// This functor converts strings in-place to a form suitable for case-insensitive comparison.  It's
-an example of
-// how you can write generic code while still specializing functionality on a case-by-case basis,
-since
-// in this situation we want to use some special functionality provided by vtkUnicodeString.
-struct FoldCase
-{
-  template<typename ValueT>
-  void operator()(vtkTypedArray<ValueT>* array) const
-  {
-    for(vtkIdType n = 0; n != array->GetNonNullSize(); ++n)
-      {
-      ValueT value = array->GetValueN(n);
-      boost::algorithm::to_lower(value);
-      array->SetValueN(n, value);
-      }
-  }
-
-  void operator()(vtkTypedArray<vtkUnicodeString>* array) const
-  {
-    for(vtkIdType n = 0; n != array->GetNonNullSize(); ++n)
-      array->SetValueN(n, array->GetValueN(n).fold_case());
-  }
-};
-
 // This functor efficiently creates a transposed array.  It's one example of how you can create an
 output array
 // with the same type as an input array.

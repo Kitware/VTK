@@ -159,9 +159,6 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
     case VTK_PARSE_STRING:
       typeChar = 's';
       break;
-    case VTK_PARSE_UNICODE_STRING:
-      typeChar = 'u';
-      break;
   }
 
   return typeChar;
@@ -256,10 +253,6 @@ static char* vtkWrapPython_ArgCheckString(ClassInfo* data, FunctionInfo* current
     else if (vtkWrap_IsString(arg))
     {
       c = 's';
-      if ((argtype & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING)
-      {
-        c = 'u';
-      }
     }
     else if (vtkWrap_IsCharPointer(arg))
     {

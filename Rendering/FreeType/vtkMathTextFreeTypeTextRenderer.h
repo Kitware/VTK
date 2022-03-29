@@ -81,24 +81,14 @@ protected:
    */
   bool GetBoundingBoxInternal(
     vtkTextProperty* tprop, const vtkStdString& str, int bbox[4], int dpi, int backend) override;
-  bool GetBoundingBoxInternal(vtkTextProperty* tprop, const vtkUnicodeString& str, int bbox[4],
-    int dpi, int backend) override;
   bool GetMetricsInternal(vtkTextProperty* tprop, const vtkStdString& str, Metrics& metrics,
-    int dpi, int backend) override;
-  bool GetMetricsInternal(vtkTextProperty* tprop, const vtkUnicodeString& str, Metrics& metrics,
     int dpi, int backend) override;
   bool RenderStringInternal(vtkTextProperty* tprop, const vtkStdString& str, vtkImageData* data,
     int textDims[2], int dpi, int backend) override;
-  bool RenderStringInternal(vtkTextProperty* tprop, const vtkUnicodeString& str, vtkImageData* data,
-    int textDims[2], int dpi, int backend) override;
   int GetConstrainedFontSizeInternal(const vtkStdString& str, vtkTextProperty* tprop,
-    int targetWidth, int targetHeight, int dpi, int backend) override;
-  int GetConstrainedFontSizeInternal(const vtkUnicodeString& str, vtkTextProperty* tprop,
     int targetWidth, int targetHeight, int dpi, int backend) override;
   bool StringToPathInternal(
     vtkTextProperty* tprop, const vtkStdString& str, vtkPath* path, int dpi, int backend) override;
-  bool StringToPathInternal(vtkTextProperty* tprop, const vtkUnicodeString& str, vtkPath* path,
-    int dpi, int backend) override;
   void SetScaleToPowerOfTwoInternal(bool scale) override;
   ///@}
 

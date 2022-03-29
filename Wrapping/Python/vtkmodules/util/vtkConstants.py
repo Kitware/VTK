@@ -36,10 +36,6 @@ VTK_UNSIGNED_LONG_LONG =17
 VTK_VARIANT =20
 VTK_OBJECT  =21
 
-# Storage for Unicode strings
-VTK_UNICODE_STRING  =22
-
-
 # Some constant required for correct template performance
 VTK_BIT_MIN = 0
 VTK_BIT_MAX = 1

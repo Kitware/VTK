@@ -2032,7 +2032,8 @@ int vtkOpenGLState::GetDefaultTextureInternalFormat(
   // 0 = none
   // 1 = float
   // 2 = int
-  if (vtktype >= VTK_UNICODE_STRING)
+  int dtypeCount = sizeof(this->TextureInternalFormats) / sizeof(this->TextureInternalFormats[0]);
+  if (vtktype >= dtypeCount)
   {
     return 0;
   }
@@ -2084,11 +2085,12 @@ void vtkOpenGLState::InitializeTextureInternalFormats()
   // 2 = int
 
   // initialize to zero
-  for (int dtype = 0; dtype < VTK_UNICODE_STRING; dtype++)
+  int dtypeCount = sizeof(this->TextureInternalFormats) / sizeof(this->TextureInternalFormats[0]);
+  for (int dtype = 0; dtype < dtypeCount; dtype++)
   {
     for (int ctype = 0; ctype < 3; ctype++)
     {
-      for (int comp = 0; comp <= 4; comp++)
+      for (int comp = 0; comp < 5; comp++)
       {
         this->TextureInternalFormats[dtype][ctype][comp] = 0;
       }

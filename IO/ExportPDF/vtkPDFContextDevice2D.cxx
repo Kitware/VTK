@@ -40,7 +40,6 @@
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTransform.h"
-#include "vtkUnicodeString.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVectorOperators.h"
 
@@ -1302,18 +1301,6 @@ void vtkPDFContextDevice2D::ComputeStringBounds(const vtkStdString& string, floa
   bounds[1] = 0.f;
   bounds[2] = helper.BBoxWidth;
   bounds[3] = helper.BBoxHeight;
-}
-
-//------------------------------------------------------------------------------
-void vtkPDFContextDevice2D::DrawString(float* point, const vtkUnicodeString& string)
-{
-  this->DrawString(point, std::string(string.utf8_str()));
-}
-
-//------------------------------------------------------------------------------
-void vtkPDFContextDevice2D::ComputeStringBounds(const vtkUnicodeString& string, float bounds[4])
-{
-  this->ComputeStringBounds(string.utf8_str(), bounds);
 }
 
 //------------------------------------------------------------------------------

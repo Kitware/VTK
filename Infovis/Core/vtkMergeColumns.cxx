@@ -18,9 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkMergeColumns.h"
 
 #include "vtkInformation.h"
@@ -28,7 +25,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkUnicodeStringArray.h"
 
 vtkStandardNewMacro(vtkMergeColumns);
 
@@ -108,23 +104,7 @@ int vtkMergeColumns::RequestData(
       }
       break;
     }
-    case VTK_UNICODE_STRING:
-    {
-      vtkUnicodeStringArray* col1Str = vtkArrayDownCast<vtkUnicodeStringArray>(col1);
-      vtkUnicodeStringArray* col2Str = vtkArrayDownCast<vtkUnicodeStringArray>(col2);
-      vtkUnicodeStringArray* mergedStr = vtkArrayDownCast<vtkUnicodeStringArray>(merged);
-      for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
-      {
-        vtkUnicodeString combined = col1Str->GetValue(i);
-        if (!col1Str->GetValue(i).empty() && !col2Str->GetValue(i).empty())
-        {
-          combined += vtkUnicodeString::from_utf8(" ");
-        }
-        combined += col2Str->GetValue(i);
-        mergedStr->SetValue(i, combined);
-      }
-      break;
-    }
+
       vtkTemplateMacro(vtkMergeColumnsCombine(static_cast<VTK_TT*>(col1->GetVoidPointer(0)),
         static_cast<VTK_TT*>(col2->GetVoidPointer(0)),
         static_cast<VTK_TT*>(merged->GetVoidPointer(0)), merged->GetNumberOfTuples()));

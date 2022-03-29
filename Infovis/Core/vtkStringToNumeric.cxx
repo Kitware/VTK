@@ -18,9 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkStringToNumeric.h"
 
 #include "vtkCellData.h"
@@ -36,7 +33,6 @@
 #include "vtkPointData.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkUnicodeStringArray.h"
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkStringToNumeric);
@@ -61,12 +57,7 @@ int vtkStringToNumeric::CountItemsToConvert(vtkFieldData* fieldData)
   {
     vtkAbstractArray* array = fieldData->GetAbstractArray(arr);
     vtkStringArray* stringArray = vtkArrayDownCast<vtkStringArray>(array);
-    vtkUnicodeStringArray* unicodeArray = vtkArrayDownCast<vtkUnicodeStringArray>(array);
-    if (!stringArray && !unicodeArray)
-    {
-      continue;
-    }
-    else
+    if (stringArray)
     {
       count += array->GetNumberOfTuples() * array->GetNumberOfComponents();
     }
@@ -155,27 +146,14 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
   {
     vtkStringArray* stringArray =
       vtkArrayDownCast<vtkStringArray>(fieldData->GetAbstractArray(arr));
-    vtkUnicodeStringArray* unicodeArray =
-      vtkArrayDownCast<vtkUnicodeStringArray>(fieldData->GetAbstractArray(arr));
-    if (!stringArray && !unicodeArray)
+    if (!stringArray)
     {
       continue;
     }
 
-    vtkIdType numTuples, numComps;
-    vtkStdString arrayName;
-    if (stringArray)
-    {
-      numTuples = stringArray->GetNumberOfTuples();
-      numComps = stringArray->GetNumberOfComponents();
-      arrayName = stringArray->GetName();
-    }
-    else
-    {
-      numTuples = unicodeArray->GetNumberOfTuples();
-      numComps = unicodeArray->GetNumberOfComponents();
-      arrayName = unicodeArray->GetName();
-    }
+    vtkIdType numTuples = stringArray->GetNumberOfTuples();
+    vtkIdType numComps = stringArray->GetNumberOfComponents();
+    vtkStdString arrayName = stringArray->GetName();
 
     // Set up the output array
     vtkDoubleArray* doubleArray = vtkDoubleArray::New();
@@ -201,15 +179,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
           static_cast<double>(this->ItemsConverted) / static_cast<double>(this->ItemsToConvert));
       }
 
-      vtkStdString str;
-      if (stringArray)
-      {
-        str = stringArray->GetValue(i);
-      }
-      else
-      {
-        str = unicodeArray->GetValue(i).utf8_str();
-      }
+      vtkStdString str = stringArray->GetValue(i);
 
       if (this->TrimWhitespacePriorToNumericConversion)
       {

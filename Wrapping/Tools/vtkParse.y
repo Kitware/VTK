@@ -1652,9 +1652,9 @@ static unsigned int add_indirection_to_array(unsigned int type)
    and five from '(' constructor_args ')' in initializer */
 %expect 10
 
-/* Expect 111 reduce/reduce conflicts, these can be cleared by removing
+/* Expect 110 reduce/reduce conflicts, these can be cleared by removing
    either '<' or angle_brackets_sig from constant_expression_item. */
-%expect-rr 111
+%expect-rr 110
 
 /* The parser will shift/reduce values <str> or <integer>, where
    <str> is for IDs and <integer> is for types, modifiers, etc. */
@@ -3025,7 +3025,6 @@ simple_type_specifier:
 
 type_name:
     StdString { typeSig($<str>1); $<integer>$ = VTK_PARSE_STRING; }
-  | UnicodeString { typeSig($<str>1); $<integer>$ = VTK_PARSE_UNICODE_STRING;}
   | OSTREAM { typeSig($<str>1); $<integer>$ = VTK_PARSE_OSTREAM; }
   | ISTREAM { typeSig($<str>1); $<integer>$ = VTK_PARSE_ISTREAM; }
   | ID { typeSig($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN; }
@@ -4080,10 +4079,6 @@ static unsigned int guess_id_type(const char* cp)
     if (strcmp(dp, "vtkStdString") == 0 || strcmp(cp, "std::string") == 0)
     {
       t = VTK_PARSE_STRING;
-    }
-    else if (strcmp(dp, "vtkUnicodeString") == 0)
-    {
-      t = VTK_PARSE_UNICODE_STRING;
     }
     else if (strncmp(dp, "vtk", 3) == 0)
     {

@@ -47,27 +47,15 @@ public:
   /**
    * Compute the bounds of a label. Must be performed after the renderer is set.
    */
-  void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4]) override
-  {
-    this->Superclass::ComputeLabelBounds(tprop, label, bds);
-  }
-  void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label, double bds[4]) override;
+  void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4]) override;
 
   ///@{
   /**
    * Render a label at a location in world coordinates.
    * Must be performed between StartFrame() and EndFrame() calls.
    */
-  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label) override
-  {
-    this->Superclass::RenderLabel(x, tprop, label);
-  }
-  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth) override
-  {
-    this->Superclass::RenderLabel(x, tprop, label, maxWidth);
-  }
-  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label) override;
-  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth) override;
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label) override;
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth) override;
   ///@}
 
   /**

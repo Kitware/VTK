@@ -481,7 +481,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex& idx, int role) const
     }
     else
     {
-      return QString::fromUtf8(v.ToString().c_str()).trimmed();
+      return QString::fromUtf8(v.ToString()).trimmed();
     }
   }
 

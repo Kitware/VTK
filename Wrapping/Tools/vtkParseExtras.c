@@ -450,7 +450,7 @@ size_t vtkParse_BasicTypeFromString(
 {
   /* The various typedefs and types specific to VTK */
   static struct vtk_type_struct vtktypes[] = { { 12, "vtkStdString", VTK_PARSE_STRING },
-    { 16, "vtkUnicodeString", VTK_PARSE_UNICODE_STRING }, { 0, 0, 0 } };
+    { 0, 0, 0 } };
 
   /* Other typedefs and types */
   static struct vtk_type_struct stdtypes[] = { { 6, "size_t", VTK_PARSE_SIZE_T },
@@ -1760,7 +1760,7 @@ const char** vtkParse_GetArrayTypes(void)
 {
   static const char* types[] = { "char", "signed char", "unsigned char", "short", "unsigned short",
     "int", "unsigned int", "long", "unsigned long", "long long", "unsigned long long", "float",
-    "double", "vtkStdString", "vtkUnicodeString", "vtkVariant", NULL };
+    "double", "vtkStdString", "vtkVariant", NULL };
 
   return types;
 }

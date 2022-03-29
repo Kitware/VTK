@@ -23,7 +23,7 @@ from vtk.test import Testing
 
 arrayTypes = ['char', 'int8', 'uint8', 'int16', 'uint16',
               'int32', 'uint32', int, 'uint', 'int64', 'uint64',
-              'float32', float, str, 'unicode', vtk.vtkVariant]
+              'float32', float, str, vtk.vtkVariant]
 
 arrayCodes = ['c', 'b', 'B', 'h', 'H',
               'i', 'I', 'l', 'L', 'q', 'Q',
@@ -63,7 +63,6 @@ class TestTemplates(Testing.vtkTest):
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
-            elif t in ['unicode']:
                 value = francois
                 a.SetValue(i, value)
                 result = a.GetValue(i)
@@ -105,7 +104,6 @@ class TestTemplates(Testing.vtkTest):
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
-            elif t in ['unicode']:
                 value = francois
                 a.SetValue(i, value)
                 result = a.GetValue(i)

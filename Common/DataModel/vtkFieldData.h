@@ -124,7 +124,7 @@ public:
    * Return the ith array in the field. A nullptr is returned if the
    * index i is out of range, or if the array at the given
    * index is not a vtkDataArray. To access vtkStringArray,
-   * vtkUnicodeStringArray, or vtkVariantArray, use GetAbstractArray(int i).
+   * or vtkVariantArray, use GetAbstractArray(int i).
    */
   vtkDataArray* GetArray(int i);
 
@@ -134,7 +134,7 @@ public:
    *
    * Return the array with the name given. Returns nullptr if array not found.
    * A nullptr is also returned if the array with the given name is not a
-   * vtkDataArray. To access vtkStringArray, vtkUnicodeStringArray, or
+   * vtkDataArray. To access vtkStringArray, or
    * vtkVariantArray, use GetAbstractArray(const char* arrayName, int &index).
    * Also returns the index of the array if found, -1 otherwise.
    */
@@ -147,7 +147,7 @@ public:
    *
    * Return the array with the name given. Returns nullptr if array not found.
    * A nullptr is also returned if the array with the given name is not a
-   * vtkDataArray. To access vtkStringArray, vtkUnicodeStringArray, or
+   * vtkDataArray. To access vtkStringArray, or
    * vtkVariantArray, use GetAbstractArray(const char *arrayName).
    */
   vtkDataArray* GetArray(const char* arrayName)

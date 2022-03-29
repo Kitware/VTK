@@ -40,8 +40,6 @@
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
-#include "vtkUnicodeString.h"
-#include "vtkUnicodeStringArray.h"
 #include "vtkXMLTreeReader.h"
 
 #include <sstream>

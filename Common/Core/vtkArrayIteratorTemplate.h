@@ -29,10 +29,9 @@
 #include "vtkArrayIterator.h"
 #include "vtkCommonCoreModule.h" // For export macro
 
-#include "vtkCompiler.h"      // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkStdString.h"     // For template instantiation
-#include "vtkUnicodeString.h" // For template instantiation
-#include "vtkVariant.h"       // For template instantiation
+#include "vtkCompiler.h"  // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkStdString.h" // For template instantiation
+#include "vtkVariant.h"   // For template instantiation
 
 template <class T>
 class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate : public vtkArrayIterator
@@ -127,8 +126,6 @@ private:
 #endif
 vtkInstantiateTemplateMacro(extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate);
 extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkStdString>;
-extern template class VTK_DEPRECATED_IN_9_1_0("Use vtkArrayIteratorTemplate<vtkStdString>")
-  VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkUnicodeString>;
 extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkVariant>;
 #ifdef _MSC_VER
 #pragma warning(pop)

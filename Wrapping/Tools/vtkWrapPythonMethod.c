@@ -284,8 +284,7 @@ void vtkWrapPython_GetSingleArgument(
   }
   else if (vtkWrap_IsString(arg) || (vtkWrap_IsCharPointer(arg) && vtkWrap_IsConst(arg)))
   {
-    if ((arg->Attributes & VTK_PARSE_FILEPATH) != 0 &&
-      (arg->Type & VTK_PARSE_BASE_TYPE) != VTK_PARSE_UNICODE_STRING)
+    if ((arg->Attributes & VTK_PARSE_FILEPATH) != 0)
     {
       fprintf(fp, "%sGetFilePath(%stemp%d)", prefix, argname, i);
     }

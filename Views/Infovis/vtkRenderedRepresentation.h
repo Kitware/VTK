@@ -28,7 +28,6 @@
 
 #include "vtkDataRepresentation.h"
 #include "vtkSmartPointer.h"       // for SP ivars
-#include "vtkUnicodeString.h"      // for string
 #include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkApplyColors;
@@ -74,20 +73,15 @@ protected:
   /**
    * Obtains the hover text for a particular prop and cell.
    * If the prop is not applicable to the representation, return an empty string.
-   * Subclasses should override GetHoverTextInternal, in which the prop and cell
+   * Subclasses should override GetHoverStringInternal, in which the prop and cell
    * are converted to an appropriate selection using ConvertSelection().
    */
   std::string GetHoverString(vtkView* view, vtkProp* prop, vtkIdType cell);
-  VTK_DEPRECATED_IN_9_1_0(
-    "Use void std::string GetHoverString(vtkView* view, vtkProp* prop, vtkIdType cell)")
-  vtkUnicodeString GetHoverText(vtkView* view, vtkProp* prop, vtkIdType cell);
 
   /**
    * Subclasses may override this method to generate the hover text.
    */
   virtual std::string GetHoverStringInternal(vtkSelection*) { return ""; }
-  VTK_DEPRECATED_IN_9_1_0("Use std::string GetHoverStringInternal(vtkSelection*)")
-  vtkUnicodeString GetHoverTextInternal(vtkSelection* selection);
 
   /**
    * The view will call this method before every render.

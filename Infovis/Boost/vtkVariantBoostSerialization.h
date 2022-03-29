@@ -57,22 +57,11 @@ void serialize(Archiver& ar, vtkStdString& str, const unsigned int vtkNotUsed(ve
 }
 
 //----------------------------------------------------------------------------
-// vtkUnicodeString serialization code
-//----------------------------------------------------------------------------
 
 template <typename Archiver>
 void save(Archiver& ar, const std::string& str, const unsigned int vtkNotUsed(version))
 {
   ar& str;
-}
-
-template <typename Archiver>
-VTK_DEPRECATED_IN_9_1_0(
-  "Use void save(Archiver& ar, const std::string& str, const unsigned int vtkNotUsed(version))")
-void save(Archiver& ar, const vtkUnicodeString& str, const unsigned int vtkNotUsed(version))
-{
-  std::string utf8(str.utf8_str());
-  save(ar, utf8);
 }
 
 template <typename Archiver>
@@ -82,18 +71,6 @@ void load(Archiver& ar, std::string& str, const unsigned int vtkNotUsed(version)
   ar& utf8;
   str = utf8;
 }
-
-template <typename Archiver>
-VTK_DEPRECATED_IN_9_1_0(
-  "Use void load(Archiver& ar, std::string& str, const unsigned int vtkNotUsed(version))")
-void load(Archiver& ar, vtkUnicodeString& str, const unsigned int vtkNotUsed(version))
-{
-  std::string utf8;
-  load(ar, utf8);
-  str = vtkUnicodeString::from_utf8(utf8);
-}
-
-BOOST_SERIALIZATION_SPLIT_FREE(vtkUnicodeString)
 
 //----------------------------------------------------------------------------
 // vtkVariant serialization code
@@ -125,7 +102,6 @@ void save(Archiver& ar, const vtkVariant& variant, const unsigned int vtkNotUsed
   switch (Type)
   {
     VTK_VARIANT_SAVE(VTK_STRING, vtkStdString, ToString);
-    VTK_VARIANT_SAVE(VTK_UNICODE_STRING, vtkUnicodeString, ToUnicodeString);
     VTK_VARIANT_SAVE(VTK_FLOAT, float, ToFloat);
     VTK_VARIANT_SAVE(VTK_DOUBLE, double, ToDouble);
     VTK_VARIANT_SAVE(VTK_CHAR, char, ToChar);
@@ -165,7 +141,6 @@ void load(Archiver& ar, vtkVariant& variant, const unsigned int vtkNotUsed(versi
       variant = vtkVariant();
       return;
       VTK_VARIANT_LOAD(VTK_STRING, vtkStdString);
-      VTK_VARIANT_LOAD(VTK_UNICODE_STRING, vtkUnicodeString);
       VTK_VARIANT_LOAD(VTK_FLOAT, float);
       VTK_VARIANT_LOAD(VTK_DOUBLE, double);
       VTK_VARIANT_LOAD(VTK_CHAR, char);

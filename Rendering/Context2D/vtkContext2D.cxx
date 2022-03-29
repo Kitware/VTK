@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkContext2D.h"
 
 #include "vtkBrush.h"
@@ -25,7 +22,6 @@
 #include "vtkPoints2D.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
-#include "vtkUnicodeString.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 
@@ -584,13 +580,6 @@ void vtkContext2D::DrawStringRect(vtkPoints2D* rect, const vtkStdString& string)
 }
 
 //------------------------------------------------------------------------------
-void vtkContext2D::DrawStringRect(vtkPoints2D* rect, const vtkUnicodeString& string)
-{
-  vtkVector2f p = this->CalculateTextPosition(rect);
-  this->DrawString(p.GetX(), p.GetY(), string);
-}
-
-//------------------------------------------------------------------------------
 void vtkContext2D::DrawStringRect(vtkPoints2D* rect, const char* string)
 {
   this->DrawStringRect(rect, vtkStdString(string));
@@ -598,13 +587,6 @@ void vtkContext2D::DrawStringRect(vtkPoints2D* rect, const char* string)
 
 //------------------------------------------------------------------------------
 void vtkContext2D::DrawStringRect(const float rect[4], const vtkStdString& string)
-{
-  vtkVector2f p = this->CalculateTextPosition(rect);
-  this->DrawString(p.GetX(), p.GetY(), string);
-}
-
-//------------------------------------------------------------------------------
-void vtkContext2D::DrawStringRect(const float rect[4], const vtkUnicodeString& string)
 {
   vtkVector2f p = this->CalculateTextPosition(rect);
   this->DrawString(p.GetX(), p.GetY(), string);
@@ -640,29 +622,6 @@ void vtkContext2D::DrawString(float x, float y, const vtkStdString& string)
 }
 
 //------------------------------------------------------------------------------
-void vtkContext2D::DrawString(vtkPoints2D* point, const vtkUnicodeString& string)
-{
-  float* f = vtkArrayDownCast<vtkFloatArray>(point->GetData())->GetPointer(0);
-  this->DrawString(f[0], f[1], string);
-}
-
-//------------------------------------------------------------------------------
-void vtkContext2D::DrawString(float x, float y, const vtkUnicodeString& string)
-{
-  if (!this->Device)
-  {
-    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
-    return;
-  }
-  if (string.empty())
-  {
-    return;
-  }
-  float f[] = { x, y };
-  this->Device->DrawString(&f[0], string);
-}
-
-//------------------------------------------------------------------------------
 void vtkContext2D::DrawString(vtkPoints2D* point, const char* string)
 {
   float* f = vtkArrayDownCast<vtkFloatArray>(point->GetData())->GetPointer(0);
@@ -685,25 +644,6 @@ void vtkContext2D::ComputeStringBounds(const vtkStdString& string, vtkPoints2D* 
 
 //------------------------------------------------------------------------------
 void vtkContext2D::ComputeStringBounds(const vtkStdString& string, float bounds[4])
-{
-  if (!this->Device)
-  {
-    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
-    return;
-  }
-  this->Device->ComputeStringBounds(string, bounds);
-}
-
-//------------------------------------------------------------------------------
-void vtkContext2D::ComputeStringBounds(const vtkUnicodeString& string, vtkPoints2D* bounds)
-{
-  bounds->SetNumberOfPoints(2);
-  float* f = vtkArrayDownCast<vtkFloatArray>(bounds->GetData())->GetPointer(0);
-  this->ComputeStringBounds(string, f);
-}
-
-//------------------------------------------------------------------------------
-void vtkContext2D::ComputeStringBounds(const vtkUnicodeString& string, float bounds[4])
 {
   if (!this->Device)
   {

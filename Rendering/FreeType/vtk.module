@@ -17,6 +17,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::FiltersGeneral
+  VTK::utf8
 TEST_DEPENDS
   VTK::RenderingContextOpenGL2
   VTK::RenderingOpenGL2

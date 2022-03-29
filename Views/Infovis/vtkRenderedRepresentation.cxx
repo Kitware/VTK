@@ -18,9 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkRenderedRepresentation.h"
 
 #include "vtkIdTypeArray.h"
@@ -104,19 +101,8 @@ std::string vtkRenderedRepresentation::GetHoverString(vtkView* view, vtkProp* pr
   return text;
 }
 
-vtkUnicodeString vtkRenderedRepresentation::GetHoverText(
-  vtkView* view, vtkProp* prop, vtkIdType cell)
-{
-  return vtkUnicodeString::from_utf8(GetHoverString(view, prop, cell));
-}
-
 void vtkRenderedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LabelRenderMode: " << this->LabelRenderMode << endl;
-}
-
-vtkUnicodeString vtkRenderedRepresentation::GetHoverTextInternal(vtkSelection* selection)
-{
-  return vtkUnicodeString::from_utf8(GetHoverStringInternal(selection));
 }

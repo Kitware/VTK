@@ -34,7 +34,7 @@
  * Set and Get methods to set delimiters that do not contain UTF8 in
  * the name when operating the reader in default ascii mode.  If the
  * SetUnicodeCharacterSet() method is called, the reader will output
- * vtkUnicodeString columns in the output table.  In addition, it is
+ * vtkStdString columns in the output table.  In addition, it is
  * necessary to use the Set and Get methods that contain UTF8 in the
  * name to specify delimiters when operating in unicode mode.
  *
@@ -66,7 +66,6 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkStdString.h"       // Needed for vtkStdString
 #include "vtkTableAlgorithm.h"
-#include "vtkUnicodeString.h" // Needed for vtkUnicodeString
 
 class VTKIOINFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 {
@@ -134,10 +133,6 @@ public:
    */
   void SetUTF8RecordDelimiters(const char* delimiters);
   const char* GetUTF8RecordDelimiters();
-  VTK_DEPRECATED_IN_9_1_0("Use void SetUTF8RecordDelimiters(const char* delimiters)")
-  void SetUnicodeRecordDelimiters(const vtkUnicodeString& delimiters);
-  VTK_DEPRECATED_IN_9_1_0("Use const char* GetUTF8RecordDelimiters()")
-  vtkUnicodeString GetUnicodeRecordDelimiters();
   ///@}
 
   ///@{
@@ -154,10 +149,6 @@ public:
 
   void SetUTF8FieldDelimiters(const char* delimiters);
   const char* GetUTF8FieldDelimiters();
-  VTK_DEPRECATED_IN_9_1_0("Use void SetUTF8FieldDelimiters(const char* delimiters)")
-  void SetUnicodeFieldDelimiters(const vtkUnicodeString& delimiters);
-  VTK_DEPRECATED_IN_9_1_0("Use const char* GetUTF8FieldDelimiters()")
-  vtkUnicodeString GetUnicodeFieldDelimiters();
 
   ///@{
   /**
@@ -175,10 +166,6 @@ public:
 
   void SetUTF8StringDelimiters(const char* delimiters);
   const char* GetUTF8StringDelimiters();
-  VTK_DEPRECATED_IN_9_1_0("Use void SetUTF8StringDelimiters(const char* delimiters)")
-  void SetUnicodeStringDelimiters(const vtkUnicodeString& delimiters);
-  VTK_DEPRECATED_IN_9_1_0("Use const char* GetUTF8StringDelimiters()")
-  vtkUnicodeString GetUnicodeStringDelimiters();
 
   ///@{
   /**
@@ -350,11 +337,11 @@ protected:
   int InputStringLength;
   char* UnicodeCharacterSet;
   vtkIdType MaxRecords;
-  vtkUnicodeString UnicodeRecordDelimiters;
-  vtkUnicodeString UnicodeFieldDelimiters;
-  vtkUnicodeString UnicodeStringDelimiters;
-  vtkUnicodeString UnicodeWhitespace;
-  vtkUnicodeString UnicodeEscapeCharacter;
+  std::string UnicodeRecordDelimiters;
+  std::string UnicodeFieldDelimiters;
+  std::string UnicodeStringDelimiters;
+  std::string UnicodeWhitespace;
+  std::string UnicodeEscapeCharacter;
   bool DetectNumericColumns;
   bool ForceDouble;
   bool TrimWhitespacePriorToNumericConversion;
@@ -364,7 +351,6 @@ protected:
   char StringDelimiter;
   bool UseStringDelimiter;
   bool HaveHeaders;
-  bool UnicodeOutputArrays;
   bool MergeConsecutiveDelimiters;
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;

@@ -13,15 +13,11 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkFreeTypeStringToImage.h"
 
 #include "vtkImageData.h"
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
-#include "vtkUnicodeString.h"
 #include "vtkVector.h"
 
 #include "vtkFreeTypeTools.h"
@@ -52,24 +48,6 @@ vtkFreeTypeStringToImage::~vtkFreeTypeStringToImage()
 
 //------------------------------------------------------------------------------
 vtkVector2i vtkFreeTypeStringToImage::GetBounds(
-  vtkTextProperty* property, const vtkUnicodeString& string, int dpi)
-{
-  int tmp[4] = { 0, 0, 0, 0 };
-  vtkVector2i recti(tmp);
-  if (!property)
-  {
-    return recti;
-  }
-
-  this->Implementation->FreeType->GetBoundingBox(property, string, dpi, tmp);
-
-  recti.Set(tmp[1] - tmp[0], tmp[3] - tmp[2]);
-
-  return recti;
-}
-
-//------------------------------------------------------------------------------
-vtkVector2i vtkFreeTypeStringToImage::GetBounds(
   vtkTextProperty* property, const vtkStdString& string, int dpi)
 {
   vtkVector2i recti(0, 0);
@@ -84,13 +62,6 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(
   recti.Set(tmp[1] - tmp[0], tmp[3] - tmp[2]);
 
   return recti;
-}
-
-//------------------------------------------------------------------------------
-int vtkFreeTypeStringToImage::RenderString(vtkTextProperty* property,
-  const vtkUnicodeString& string, int dpi, vtkImageData* data, int textDims[2])
-{
-  return this->Implementation->FreeType->RenderString(property, string, dpi, data, textDims);
 }
 
 //------------------------------------------------------------------------------

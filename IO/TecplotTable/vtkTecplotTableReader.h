@@ -36,7 +36,6 @@
 #include "vtkIOTecplotTableModule.h" // For export macro
 #include "vtkStdString.h"            // Needed for vtkStdString
 #include "vtkTableAlgorithm.h"
-#include "vtkUnicodeString.h" // Needed for vtkUnicodeString
 
 class VTKIOTECPLOTTABLE_EXPORT vtkTecplotTableReader : public vtkTableAlgorithm
 {

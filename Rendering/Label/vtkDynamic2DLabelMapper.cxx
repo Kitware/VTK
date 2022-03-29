@@ -18,9 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkDynamic2DLabelMapper.h"
 
 #include "vtkActor2D.h"
@@ -46,7 +43,6 @@
 #include "vtkTextProperty.h"
 #include "vtkTimerLog.h"
 #include "vtkTypeTraits.h"
-#include "vtkUnicodeStringArray.h"
 #include "vtkViewport.h"
 #include "vtksys/FStream.hxx"
 
@@ -113,7 +109,6 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
   vtkAbstractArray* abstractData;
   vtkDataArray* numericData;
   vtkStringArray* stringData;
-  vtkUnicodeStringArray* uStringData;
   vtkDataObject* input = this->GetExecutive()->GetInputData(0, 0);
 
   if (!input)
@@ -163,7 +158,6 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
     abstractData = nullptr;
     numericData = nullptr;
     stringData = nullptr;
-    uStringData = nullptr;
     switch (this->LabelMode)
     {
       case VTK_LABEL_IDS:
@@ -214,7 +208,6 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
         }
         numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
         stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
-        uStringData = vtkArrayDownCast<vtkUnicodeStringArray>(abstractData);
       };
       break;
     }
@@ -233,12 +226,6 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
         activeComp = (this->LabeledComponent < numComp ? this->LabeledComponent : numComp - 1);
         numComp = 1;
       }
-    }
-    else if (uStringData)
-    {
-      vtkWarningMacro(
-        "Unicode string arrays are not adequately supported by the vtkDynamic2DLabelMapper.  "
-        "Unicode strings will be converted to vtkStdStrings for rendering.");
     }
     else if (!stringData)
     {
@@ -330,10 +317,6 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
       {
         FormatString = "";
       }
-      else if (uStringData)
-      {
-        FormatString = "unicode";
-      }
       else
       {
         FormatString = "BUG - COULDN'T DETECT DATA TYPE";
@@ -422,14 +405,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
           // we'll sidestep a lot of snprintf nonsense.
           if (this->LabelFormat == nullptr)
           {
-            if (uStringData)
-            {
-              ResultString = uStringData->GetValue(i).utf8_str();
-            }
-            else
-            {
-              ResultString = stringData->GetValue(i);
-            }
+            ResultString = stringData->GetValue(i);
           }
           else // the user specified a label format
           {

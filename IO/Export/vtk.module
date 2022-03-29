@@ -26,6 +26,7 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
   VTK::jsoncpp
   VTK::libharu
+  VTK::utf8
 TEST_DEPENDS
   VTK::ChartsCore
   VTK::CommonColor

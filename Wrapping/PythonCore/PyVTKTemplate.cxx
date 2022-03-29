@@ -470,11 +470,6 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
               tname = "vtkStdString";
               n = 12;
             }
-            else if (n == 7 && strcmp(tname, "unicode") == 0)
-            {
-              tname = "vtkUnicodeString";
-              n = 16;
-            }
           }
           break;
         }
@@ -715,12 +710,7 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
             return nullptr;
           }
         }
-        if (j == 16 && strncmp(cp, "vtkUnicodeString", 16) == 0)
-        {
-          ptype = "unicode";
-          j = 7;
-        }
-        else if (j == 12 && strncmp(cp, "vtkStdString", 12) == 0)
+        if (j == 12 && strncmp(cp, "vtkStdString", 12) == 0)
         {
           ptype = "str";
           j = 3;
