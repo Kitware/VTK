@@ -79,6 +79,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   otherEmptyCell.cxx
   otherFieldData.cxx
   otherImageData.cxx
+  otherPolyData.cxx
   otherRectilinearGrid.cxx
   otherStructuredGrid.cxx
   otherUniformGrid.cxx
