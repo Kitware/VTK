@@ -52,6 +52,7 @@ extern "C"
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsZeroCopyPointer(ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStdVector(ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKObject(ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKSmartPointer(ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsSpecialObject(ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsPythonObject(ValueInfo* val);
   /*@}*/
@@ -284,9 +285,14 @@ extern "C"
 
   /**
    * Makes a superclass name into a valid identifier. Returns NULL if the given
-   * name is valid as-is.
+   * name is valid as-is, otherwise returns a malloc'd string.
    */
   VTKWRAPPINGTOOLS_EXPORT char* vtkWrap_SafeSuperclassName(const char* name);
+
+  /**
+   * Return the arg from "templated<T>" as a malloc'd string.
+   */
+  VTKWRAPPINGTOOLS_EXPORT char* vtkWrap_TemplateArg(const char* name);
 
 #ifdef __cplusplus
 }

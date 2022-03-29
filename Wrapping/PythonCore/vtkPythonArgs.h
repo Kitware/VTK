@@ -31,16 +31,17 @@ resulting in wrapper code that is faster and more compact.
 #include "PyVTKEnum.h"
 #include "PyVTKObject.h"
 #include "PyVTKTemplate.h"
-#include "vtkObjectBase.h"
 #include "vtkPythonUtil.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 
-#include "vtkCompiler.h"   // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkObjectBase.h" // for vtkObjectBase
+#include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
 
 #include <cassert>
 #include <cstring>
 #include <string>
+
+class vtkObjectBase;
+class vtkSmartPointerBase;
 
 class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs
 {
@@ -195,6 +196,15 @@ public:
     v = (T*)vtkPythonArgs::GetArgAsVTKObject(o, classname, b);
     return b;
   }
+  ///@}
+
+  ///@{
+  /**
+   * Get the next argument as a vtkObjectBase derived type,
+   * and put into a smart pointer.
+   */
+  bool GetVTKObject(vtkSmartPointerBase& v, const char* classname);
+  bool GetVTKObject(PyObject* o, vtkSmartPointerBase& v, const char* classname);
   ///@}
 
   ///@{
@@ -406,6 +416,7 @@ public:
   bool GetArray(long long* a, size_t n);
   bool GetArray(unsigned long long* a, size_t n);
   bool GetArray(std::string* a, size_t n);
+  bool GetArray(vtkSmartPointerBase* a, size_t n, const char* classname);
   ///@}
 
   ///@{
@@ -520,6 +531,12 @@ public:
   static PyObject* BuildVTKObject(const void* v);
 
   /**
+   * Build a vtkObjectBase object from a smart pointer.
+   * If pointer is empty, then None will be returned.
+   */
+  static PyObject* BuildVTKObject(vtkSmartPointerBase& v);
+
+  /**
    * Build a non-vtkObjectBase object of the specified type.
    */
   static PyObject* BuildSpecialObject(const void* v, const char* classname);
@@ -590,6 +607,7 @@ public:
   static PyObject* BuildTuple(const long long* a, size_t n);
   static PyObject* BuildTuple(const unsigned long long* a, size_t n);
   static PyObject* BuildTuple(const std::string* a, size_t n);
+  static PyObject* BuildTuple(vtkSmartPointerBase* a, size_t n);
   ///@}
 
   /**
@@ -839,11 +857,6 @@ inline PyObject* vtkPythonArgs::BuildNone()
   return Py_None;
 }
 
-inline PyObject* vtkPythonArgs::BuildVTKObject(const void* v)
-{
-  return vtkPythonUtil::GetObjectFromPointer(static_cast<vtkObjectBase*>(const_cast<void*>(v)));
-}
-
 inline PyObject* vtkPythonArgs::BuildSpecialObject(const void* v, const char* classname)
 {
   return PyVTKSpecialObject_CopyNew(classname, v);
@@ -979,14 +992,6 @@ inline PyObject* vtkPythonArgs::BuildBytes(const char* a, size_t n)
 #if defined(VTK_USE_EXTERN_TEMPLATE) && !defined(vtkPythonArgs_cxx)
 vtkPythonArgsTemplateMacro(extern template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array);
 #endif
-
-//--------------------------------------------------------------------
-// Inline method for deleting a vtkObjectBase* via void*
-//
-inline void vtkPythonArgs::DeleteVTKObject(void* v)
-{
-  return static_cast<vtkObjectBase*>(v)->Delete();
-}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkPythonArgs.h

@@ -237,6 +237,14 @@ static char* vtkWrapPython_ArgCheckString(ClassInfo* data, FunctionInfo* current
       c = 'V';
       vtkWrapText_PythonName(arg->Class, classname);
     }
+    else if (vtkWrap_IsVTKSmartPointer(arg))
+    {
+      char* templateArg = vtkWrap_TemplateArg(arg->Class);
+      argtype = VTK_PARSE_OBJECT_PTR;
+      c = 'V';
+      vtkWrapText_PythonName(templateArg, classname);
+      free(templateArg);
+    }
     else if (vtkWrap_IsSpecialObject(arg))
     {
       c = 'W';

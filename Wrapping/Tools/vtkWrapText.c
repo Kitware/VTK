@@ -1056,6 +1056,12 @@ static void vtkWrapText_PythonTypeSignature(
   {
     vtkWrapText_PythonStdVectorSignature(result, arg, braces);
   }
+  else if (vtkWrap_IsVTKSmartPointer(arg))
+  {
+    char* templateArg = vtkWrap_TemplateArg(arg->Class);
+    vtkWPString_Append(result, templateArg);
+    free(templateArg);
+  }
   else
   {
     vtkWPString_Append(result, classname);

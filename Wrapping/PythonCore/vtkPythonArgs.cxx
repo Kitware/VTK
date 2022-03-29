@@ -28,6 +28,9 @@ resulting in wrapper code that is faster and more compact.
 #include "PyVTKReference.h"
 #include "vtkPythonUtil.h"
 
+#include "vtkObject.h"
+#include "vtkSmartPointerBase.h"
+
 //------------------------------------------------------------------------------
 // Extract various C++ types from python objects.  The rules are
 // identical to PyArg_ParseTuple except that range checking is done
@@ -944,6 +947,50 @@ VTK_PYTHON_BUILD_TUPLE(long long)
 VTK_PYTHON_BUILD_TUPLE(unsigned long long)
 VTK_PYTHON_BUILD_TUPLE(std::string)
 
+// For an array of smart pointers
+PyObject* vtkPythonArgs::BuildTuple(vtkSmartPointerBase* a, size_t n)
+{
+  if (a)
+  {
+    Py_ssize_t m = static_cast<Py_ssize_t>(n);
+    PyObject* t = PyTuple_New(m);
+    for (Py_ssize_t i = 0; i < m; i++)
+    {
+      vtkObjectBase* ob = a[i].GetPointer();
+      if (ob)
+      {
+        PyTuple_SET_ITEM(t, i, vtkPythonUtil::GetObjectFromPointer(ob));
+      }
+      else
+      {
+        PyTuple_SET_ITEM(t, i, Py_None);
+        Py_INCREF(Py_None);
+      }
+    }
+    return t;
+  }
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+//------------------------------------------------------------------------------
+
+void vtkPythonArgs::DeleteVTKObject(void* v)
+{
+  return static_cast<vtkObjectBase*>(v)->Delete();
+}
+
+PyObject* vtkPythonArgs::BuildVTKObject(const void* v)
+{
+  return vtkPythonUtil::GetObjectFromPointer(static_cast<vtkObjectBase*>(const_cast<void*>(v)));
+}
+
+PyObject* vtkPythonArgs::BuildVTKObject(vtkSmartPointerBase& v)
+{
+  return vtkPythonUtil::GetObjectFromPointer(v.GetPointer());
+}
+
 //------------------------------------------------------------------------------
 
 PyObject* vtkPythonArgs::BuildEnumValue(int val, const char* enumname)
@@ -1071,6 +1118,23 @@ int vtkPythonArgs::GetArgAsEnum(PyObject* o, const char* enumname, bool& valid)
 }
 
 //------------------------------------------------------------------------------
+// Define GetVTKObject methods for smart pointers
+
+bool vtkPythonArgs::GetVTKObject(vtkSmartPointerBase& v, const char* classname)
+{
+  bool b;
+  v = this->GetArgAsVTKObject(classname, b);
+  return b;
+}
+
+bool vtkPythonArgs::GetVTKObject(PyObject* o, vtkSmartPointerBase& v, const char* classname)
+{
+  bool b;
+  v = vtkPythonArgs::GetArgAsVTKObject(o, classname, b);
+  return b;
+}
+
+//------------------------------------------------------------------------------
 // Define all the "GetValue" methods in the class.
 
 #define VTK_PYTHON_GET_ARG(T)                                                                      \
@@ -1162,6 +1226,45 @@ VTK_PYTHON_GET_ARRAY_ARG(unsigned long)
 VTK_PYTHON_GET_ARRAY_ARG(long long)
 VTK_PYTHON_GET_ARRAY_ARG(unsigned long long)
 VTK_PYTHON_GET_ARRAY_ARG(std::string)
+
+// For an array of smart pointers
+bool vtkPythonArgs::GetArray(vtkSmartPointerBase* a, size_t n, const char* classname)
+{
+  PyObject* o = PyTuple_GET_ITEM(this->Args, this->I++);
+  if (a)
+  {
+    Py_ssize_t m = static_cast<Py_ssize_t>(n);
+
+    if (PySequence_Check(o))
+    {
+      m = PySequence_Size(o);
+      if (m == static_cast<Py_ssize_t>(n))
+      {
+        bool r = true;
+        for (Py_ssize_t i = 0; i < m && r; i++)
+        {
+          r = false;
+          PyObject* s = PySequence_GetItem(o, i);
+          if (s)
+          {
+            vtkObjectBase* ob = vtkPythonUtil::GetPointerFromObject(s, classname);
+            if (ob || s == Py_None)
+            {
+              r = true;
+              a[i] = ob;
+            }
+            Py_DECREF(s);
+          }
+        }
+        return r;
+      }
+    }
+
+    return vtkPythonSequenceError(o, n, m);
+  }
+
+  return true;
+}
 
 //------------------------------------------------------------------------------
 // Define all the GetNArray methods in the class.

@@ -251,18 +251,26 @@ void vtkWrapPython_GetSingleArgument(
   {
     fprintf(fp, "%s%sGetPythonObject(temp%d)", prefix, argname, i);
   }
-  else if (vtkWrap_IsVTKObject(arg))
+  else if (vtkWrap_IsVTKObject(arg) || vtkWrap_IsVTKSmartPointer(arg))
   {
-    vtkWrapText_PythonName(arg->Class, pythonname);
-    if (strcmp(arg->Class, pythonname) != 0)
+    char* templateArg = NULL;
+    const char* classname = arg->Class;
+    if (vtkWrap_IsVTKSmartPointer(arg))
+    {
+      templateArg = vtkWrap_TemplateArg(arg->Class);
+      classname = templateArg;
+    }
+    vtkWrapText_PythonName(classname, pythonname);
+    if (strcmp(classname, pythonname) != 0)
     {
       /* use typeid() for templated names */
-      fprintf(fp, "%sGetVTKObject(%stemp%d, typeid(%s).name())", prefix, argname, i, arg->Class);
+      fprintf(fp, "%sGetVTKObject(%stemp%d, typeid(%s).name())", prefix, argname, i, classname);
     }
     else
     {
       fprintf(fp, "%sGetVTKObject(%stemp%d, \"%s\")", prefix, argname, i, pythonname);
     }
+    free(templateArg);
   }
   else if (vtkWrap_IsSpecialObject(arg) && !vtkWrap_IsNonConstRef(arg))
   {
@@ -312,7 +320,19 @@ void vtkWrapPython_GetSingleArgument(
   }
   else if (vtkWrap_IsStdVector(arg))
   {
-    fprintf(fp, "%sGetArray(%stemp%d.data(), temp%d.size())", prefix, argname, i, i);
+    char* valuetype = vtkWrap_TemplateArg(arg->Class);
+    if (strncmp(valuetype, "vtkSmartPointer<", 16) == 0)
+    {
+      char* classname = vtkWrap_TemplateArg(valuetype);
+      fprintf(
+        fp, "%sGetArray(%stemp%d.data(), temp%d.size(), \"%s\")", prefix, argname, i, i, classname);
+      free(classname);
+    }
+    else
+    {
+      fprintf(fp, "%sGetArray(%stemp%d.data(), temp%d.size())", prefix, argname, i, i);
+    }
+    free(valuetype);
   }
 }
 
@@ -614,6 +634,10 @@ void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int st
         "        PyVTKObject_SetFlag(result, VTK_PYTHON_IGNORE_UNREGISTER, 1);\n"
         "      }\n");
     }
+  }
+  else if (vtkWrap_IsVTKSmartPointer(val))
+  {
+    fprintf(fp, "      result = %sBuildVTKObject(tempr);\n", prefix);
   }
   else if (vtkWrap_IsSpecialObject(val) && vtkWrap_IsRef(val))
   {

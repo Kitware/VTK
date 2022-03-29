@@ -94,6 +94,12 @@ int vtkWrap_IsVTKObject(ValueInfo* val)
     !val->IsEnum);
 }
 
+int vtkWrap_IsVTKSmartPointer(ValueInfo* val)
+{
+  return ((val->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT && val->Class &&
+    strncmp(val->Class, "vtkSmartPointer<", 16) == 0);
+}
+
 int vtkWrap_IsSpecialObject(ValueInfo* val)
 {
   /* exclude classes in std:: space, they will have separate handlers */
@@ -101,7 +107,8 @@ int vtkWrap_IsSpecialObject(ValueInfo* val)
   return (
     (t == VTK_PARSE_UNKNOWN || t == VTK_PARSE_OBJECT || t == VTK_PARSE_QOBJECT ||
       t == VTK_PARSE_UNKNOWN_REF || t == VTK_PARSE_OBJECT_REF || t == VTK_PARSE_QOBJECT_REF) &&
-    !val->IsEnum && val->Class && strncmp(val->Class, "std::", 5) != 0);
+    !val->IsEnum && val->Class && strncmp(val->Class, "std::", 5) != 0 &&
+    strncmp(val->Class, "vtkSmartPointer<", 16) != 0);
 }
 
 int vtkWrap_IsPythonObject(ValueInfo* val)
@@ -1144,7 +1151,7 @@ void vtkWrap_DeclareVariable(
       vtkWrap_QualifyExpression(fp, data, val->Value);
     }
     else if (aType == VTK_PARSE_CHAR_PTR || aType == VTK_PARSE_VOID_PTR ||
-      (!val->IsEnum &&
+      (!val->IsEnum && !vtkWrap_IsVTKSmartPointer(val) &&
         (aType == VTK_PARSE_OBJECT_PTR || aType == VTK_PARSE_OBJECT_REF ||
           aType == VTK_PARSE_OBJECT)))
     {
@@ -1299,4 +1306,18 @@ char* vtkWrap_SafeSuperclassName(const char* name)
     return NULL;
   }
   return safe_name;
+}
+
+char* vtkWrap_TemplateArg(const char* name)
+{
+  /* ignore 2nd arg if present (e.g. std::vector allocator) */
+  const char* defaults[2] = { NULL, "" };
+  const char** args;
+  char* arg;
+
+  vtkParse_DecomposeTemplatedType(name, NULL, 2, &args, defaults);
+  arg = strdup(args[0]);
+  vtkParse_FreeTemplateDecomposition(NULL, 2, args);
+
+  return arg;
 }
