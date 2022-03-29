@@ -823,7 +823,7 @@ windows-vs2019-kits-mpi-python-qt-stdthread:test:
 # this `concurrent`-tagged job, it's just not going to work well. See
 # vtk/vtk-m#609 for tracking.
 #
-# Also, the `VTK_DLL_DIRS` ends up making a non-relocatable installation. See
+# Also, the `VTK_DLL_PATHS` ends up making a non-relocatable installation. See
 # `.gitlab/ci/configure_windows.cmake` for the relevant code.
 #
 # vtk:windows-vs2019-kits-mpi-python-qt:test-ext:

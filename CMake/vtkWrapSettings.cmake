@@ -13,7 +13,15 @@ set_property(CACHE VTK_PYTHON_VERSION
     STRINGS "2;3")
 
 if (VTK_PYTHON_VERSION STREQUAL "3")
-  set(VTK_DLL_PATHS ""
+  set(default_dll_paths)
+  if (NOT "$ENV{VTK_DLL_PATHS}" STREQUAL "")
+    if (CMAKE_HOST_WIN32)
+      file(TO_CMAKE_PATH "${vtk_dll_path}" default_dll_paths)
+    else ()
+      string(REPLACE ":" ";" default_dll_paths "$ENV{VTK_DLL_PATHS}")
+    endif ()
+  endif ()
+  set(VTK_DLL_PATHS "${default_dll_paths}"
     CACHE STRING "DLL paths to use during Python module loading.")
   mark_as_advanced(VTK_DLL_PATHS)
 endif ()

@@ -147,7 +147,7 @@
         - vtk # Since this is a bare runner, pin to a project.
         - msvc-19.28
         # - concurrent
-        - nonconcurrent # FIXME: non-relocatability in VTK-m and `VTK_DLL_DIRS`
+        - nonconcurrent # FIXME: non-relocatability in VTK-m and `VTK_DLL_PATHS`
         - shell
         - vs2019
         - windows
