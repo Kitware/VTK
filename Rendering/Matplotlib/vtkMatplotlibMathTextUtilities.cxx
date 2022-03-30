@@ -955,7 +955,8 @@ bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox
 }
 
 //------------------------------------------------------------------------------
-bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(vtkImageData* image, int bbox[4])
+bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(
+  vtkImageData* image, int bbox[4], vtkTextProperty* tprop)
 {
   if (!image)
   {
@@ -966,17 +967,21 @@ bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(vtkImageData* image, int 
   // Define line offsets to take line width into account
   int extraLinesMin = 0;
   int extraLinesMax = 0;
+  int width = tprop->GetInteriorLinesWidth();
+  double* doubleColor = tprop->GetInteriorLinesColor();
+  unsigned char color[3] = { static_cast<unsigned char>(doubleColor[0] * 255),
+    static_cast<unsigned char>(doubleColor[1] * 255),
+    static_cast<unsigned char>(doubleColor[2] * 255) };
 
   // Draw horizontal lines
   for (std::size_t lineIdx = 0; lineIdx < this->HorizontalLinesPosition.size(); ++lineIdx)
   {
     // Clamp line width to remain in bounds
-    extraLinesMin = ((this->HorizontalLinesPosition[lineIdx] - (this->InteriorLinesWidth / 2)) >= 0)
-      ? (-this->InteriorLinesWidth / 2)
+    extraLinesMin = ((this->HorizontalLinesPosition[lineIdx] - (width / 2)) >= 0)
+      ? (-width / 2)
       : (-this->HorizontalLinesPosition[lineIdx]);
-    extraLinesMax = ((this->HorizontalLinesPosition[lineIdx] + (this->InteriorLinesWidth / 2)) <=
-                      (bbox[3] - bbox[2]))
-      ? ((this->InteriorLinesWidth + 1) / 2)
+    extraLinesMax = ((this->HorizontalLinesPosition[lineIdx] + (width / 2)) <= (bbox[3] - bbox[2]))
+      ? ((width + 1) / 2)
       : ((bbox[3] - bbox[2]) - this->HorizontalLinesPosition[lineIdx]);
 
     for (int extraLineIdx = extraLinesMin; extraLineIdx < extraLinesMax; ++extraLineIdx)
@@ -985,9 +990,9 @@ bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(vtkImageData* image, int 
       {
         unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(
           colIdx, bbox[2] + this->HorizontalLinesPosition[lineIdx] + extraLineIdx, 0));
-        ptr[0] = static_cast<unsigned char>(this->InteriorLinesColor[0]);
-        ptr[1] = static_cast<unsigned char>(this->InteriorLinesColor[1]);
-        ptr[2] = static_cast<unsigned char>(this->InteriorLinesColor[2]);
+        ptr[0] = static_cast<unsigned char>(color[0]);
+        ptr[1] = static_cast<unsigned char>(color[1]);
+        ptr[2] = static_cast<unsigned char>(color[2]);
         ptr[3] = 255;
       }
     }
@@ -997,12 +1002,11 @@ bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(vtkImageData* image, int 
   for (std::size_t lineIdx = 0; lineIdx < this->VerticalLinesPosition.size(); ++lineIdx)
   {
     // Clamp line width to remain in bounds
-    extraLinesMin = ((this->VerticalLinesPosition[lineIdx] - (this->InteriorLinesWidth / 2)) >= 0)
-      ? (-this->InteriorLinesWidth / 2)
+    extraLinesMin = ((this->VerticalLinesPosition[lineIdx] - (width / 2)) >= 0)
+      ? (-width / 2)
       : (-this->VerticalLinesPosition[lineIdx]);
-    extraLinesMax = ((this->VerticalLinesPosition[lineIdx] + (this->InteriorLinesWidth / 2)) <=
-                      (bbox[1] - bbox[0]))
-      ? ((this->InteriorLinesWidth + 1) / 2)
+    extraLinesMax = ((this->VerticalLinesPosition[lineIdx] + (width / 2)) <= (bbox[1] - bbox[0]))
+      ? ((width + 1) / 2)
       : ((bbox[1] - bbox[0]) - this->VerticalLinesPosition[lineIdx]);
 
     for (int extraLineIdx = extraLinesMin; extraLineIdx < extraLinesMax; ++extraLineIdx)
@@ -1011,9 +1015,9 @@ bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(vtkImageData* image, int 
       {
         unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(
           bbox[0] + this->VerticalLinesPosition[lineIdx] + extraLineIdx, rowIdx, 0));
-        ptr[0] = static_cast<unsigned char>(this->InteriorLinesColor[0]);
-        ptr[1] = static_cast<unsigned char>(this->InteriorLinesColor[1]);
-        ptr[2] = static_cast<unsigned char>(this->InteriorLinesColor[2]);
+        ptr[0] = static_cast<unsigned char>(color[0]);
+        ptr[1] = static_cast<unsigned char>(color[1]);
+        ptr[2] = static_cast<unsigned char>(color[2]);
         ptr[3] = 255;
       }
     }
@@ -1251,9 +1255,9 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
   }
 
   // Draw interior lines between cells
-  if (this->InteriorLinesVisibility)
+  if (tprop->GetInteriorLinesVisibility())
   {
-    if (!this->DrawInteriorLines(image, bbox))
+    if (!this->DrawInteriorLines(image, bbox, tprop))
     {
       vtkErrorMacro("Failed to draw interior lines.");
       return false;

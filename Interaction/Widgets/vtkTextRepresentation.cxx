@@ -353,42 +353,6 @@ void vtkTextRepresentation::SetPadding(int padding)
 }
 
 //------------------------------------------------------------------------------
-void vtkTextRepresentation::SetInteriorLinesVisibility(bool visibility)
-{
-  // Interior lines can be displayed when using the Matplotlib backend
-  if (vtkMathTextFreeTypeTextRenderer* renderer =
-        vtkMathTextFreeTypeTextRenderer::SafeDownCast(vtkTextRenderer::GetInstance()))
-  {
-    renderer->SetInteriorLinesVisibility(visibility);
-    this->TextActor->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkTextRepresentation::SetInteriorLinesWidth(int width)
-{
-  // Interior lines can be displayed when using the Matplotlib backend
-  if (vtkMathTextFreeTypeTextRenderer* renderer =
-        vtkMathTextFreeTypeTextRenderer::SafeDownCast(vtkTextRenderer::GetInstance()))
-  {
-    renderer->SetInteriorLinesWidth(width);
-    this->TextActor->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkTextRepresentation::SetInteriorLinesColor(double colorR, double colorG, double colorB)
-{
-  // Interior lines can be displayed when using the Matplotlib backend
-  if (vtkMathTextFreeTypeTextRenderer* renderer =
-        vtkMathTextFreeTypeTextRenderer::SafeDownCast(vtkTextRenderer::GetInstance()))
-  {
-    renderer->SetInteriorLinesColor(colorR, colorG, colorB);
-    this->TextActor->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkTextRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

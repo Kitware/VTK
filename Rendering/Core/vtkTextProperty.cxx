@@ -105,6 +105,10 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty* tprop)
   this->SetCellOffset(tprop->GetCellOffset());
 
   this->SetShadowOffset(tprop->GetShadowOffset());
+
+  this->SetInteriorLinesVisibility(tprop->GetInteriorLinesVisibility());
+  this->SetInteriorLinesWidth(tprop->GetInteriorLinesWidth());
+  this->SetInteriorLinesColor(tprop->GetInteriorLinesColor());
 }
 
 //------------------------------------------------------------------------------
@@ -160,6 +164,11 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line Offset: " << this->LineOffset << "\n";
   os << indent << "Line Spacing: " << this->LineSpacing << "\n";
   os << indent << "Cell Offset: " << this->CellOffset << "\n";
+  os << indent
+     << "Interior Lines Visibility: " << (this->InteriorLinesVisibility ? "On\n" : "Off\n");
+  os << indent << "Interior Lines Width: " << (this->InteriorLinesWidth ? "On\n" : "Off\n");
+  os << indent << "Interior Lines Color: (" << this->InteriorLinesColor[0] << ", "
+     << this->InteriorLinesColor[1] << ", " << this->InteriorLinesColor[2] << ")\n";
 }
 
 //------------------------------------------------------------------------------
