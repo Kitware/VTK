@@ -114,9 +114,7 @@ int TestPDescriptiveStatistics(int argc, char* argv[])
 
   vtkNew<vtkPDescriptiveStatistics> stats;
   stats->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, table);
-  stats->G1SkewnessOn();
-  stats->G2KurtosisOn();
-  stats->UnbiasedVarianceOn();
+  stats->SampleEstimateOn();
   stats->SignedDeviationsOn();
   stats->AddColumn("Array 1");
   stats->AddColumn("Array 2");
@@ -130,9 +128,7 @@ int TestPDescriptiveStatistics(int argc, char* argv[])
 
   vtkNew<vtkDescriptiveStatistics> refStats;
   refStats->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, refTable);
-  refStats->G1SkewnessOn();
-  refStats->G2KurtosisOn();
-  refStats->UnbiasedVarianceOn();
+  refStats->SampleEstimateOn();
   refStats->SignedDeviationsOn();
   refStats->AddColumn("Array 1");
   refStats->AddColumn("Array 2");

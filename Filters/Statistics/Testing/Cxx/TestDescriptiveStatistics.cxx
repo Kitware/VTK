@@ -13,6 +13,7 @@
 #include "vtkDataObjectCollection.h"
 #include "vtkDescriptiveStatistics.h"
 #include "vtkDoubleArray.h"
+#include "vtkLogger.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStringArray.h"
@@ -176,8 +177,8 @@ int TestDescriptiveStatistics(int, char*[])
     cout << "   ";
     for (int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++i)
     {
-      cout << outputPrimary1->GetColumnName(i) << "=" << outputPrimary1->GetValue(r, i).ToString()
-           << "  ";
+      double val = outputPrimary1->GetValue(r, i).ToDouble();
+      cout << outputPrimary1->GetColumnName(i) << "=" << val << "  ";
     }
 
     // Verify some of the calculated primary statistics
@@ -192,11 +193,21 @@ int TestDescriptiveStatistics(int, char*[])
   cout << "\n## Calculated the following derived statistics for first data set:\n";
   for (vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++r)
   {
+    double error = false;
     cout << "   ";
     for (int i = 0; i < outputDerived1->GetNumberOfColumns(); ++i)
     {
-      cout << outputDerived1->GetColumnName(i) << "=" << outputDerived1->GetValue(r, i).ToString()
-           << "  ";
+      double val = outputDerived1->GetValue(r, i).ToDouble();
+      cout << outputDerived1->GetColumnName(i) << "=" << val << "  ";
+      // In this case, there is a zero variance, so skew and kurt should be NaN
+      if (r == 2 && (i == 2 || i == 3) && val == val)
+      {
+        error = true;
+      }
+    }
+    if (error)
+    {
+      vtkLog(ERROR, "When variance is zero, skew and kurt should be NaN");
     }
 
     // Verify some of the calculated derived statistics
@@ -485,8 +496,8 @@ int TestDescriptiveStatistics(int, char*[])
   double simpleData[] = {
     0,
     1,
-    2,
-    3,
+    -1,
+    -1,
     4,
     5,
     6,
@@ -509,10 +520,11 @@ int TestDescriptiveStatistics(int, char*[])
   simpleTable->AddColumn(datasetArr);
   datasetArr->Delete();
 
-  double mean = 4.5;
-  double variance = 9.16666666666667;
-  double skewness = 0.;
-  double kurtosis = -1.224242424;
+  double mean = 3.8;
+  double variance = 14.4;
+  double standardDeviation = 3.7947332;
+  double skewness = -0.0969911;
+  double kurtosis = -1.7033638;
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds3 = vtkDescriptiveStatistics::New();
@@ -533,7 +545,10 @@ int TestDescriptiveStatistics(int, char*[])
   ds3->SetDeriveOption(true);
   ds3->SetTestOption(false);
   ds3->SetAssessOption(false);
+  ds3->SampleEstimateOn();
   ds3->Update();
+
+  vtkLog(INFO, "### Testing Sample Statistics ###");
 
   // Get output data and meta tables
   vtkMultiBlockDataSet* outputMetaDS3 = vtkMultiBlockDataSet::SafeDownCast(
@@ -572,11 +587,61 @@ int TestDescriptiveStatistics(int, char*[])
     testStatus = 1;
   }
 
+  if (fabs(outputDerived3->GetValueByName(0, "Standard Deviation").ToDouble() - standardDeviation) >
+    1.e-6)
+  {
+    vtkGenericWarningMacro("Incorrect standard deviation");
+    testStatus = 1;
+  }
+
   if (fabs(outputDerived3->GetValueByName(0, "Skewness").ToDouble() - skewness) > 1.e-6)
   {
     vtkGenericWarningMacro("Incorrect skewness");
     testStatus = 1;
   }
+
+  if (fabs(outputDerived3->GetValueByName(0, "Kurtosis").ToDouble() - kurtosis) > 1.e-6)
+  {
+    vtkGenericWarningMacro("Incorrect kurtosis");
+    testStatus = 1;
+  }
+  cout << "\n";
+
+  vtkLog(INFO, "### Testing Population Statistics ###");
+
+  // Testing population estimate
+  ds3->SampleEstimateOff();
+  ds3->Update();
+  outputMetaDS3 = vtkMultiBlockDataSet::SafeDownCast(
+    ds3->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
+  outputDerived3 = vtkTable::SafeDownCast(outputMetaDS3->GetBlock(1));
+
+  variance = 12.96;
+  standardDeviation = 3.6;
+  skewness = -0.0817901;
+  kurtosis = -1.5089735;
+
+  // Verify some of the calculated derived statistics
+  if (fabs(outputDerived3->GetValueByName(0, "Variance").ToDouble() - variance) > 1.e-6)
+  {
+    vtkGenericWarningMacro("Incorrect variance");
+    testStatus = 1;
+  }
+
+  if (fabs(outputDerived3->GetValueByName(0, "Standard Deviation").ToDouble() - standardDeviation) >
+    1.e-6)
+  {
+    vtkGenericWarningMacro("Incorrect standard deviation");
+    testStatus = 1;
+  }
+
+  if (fabs(outputDerived3->GetValueByName(0, "Skewness").ToDouble() - skewness) > 1.e-6)
+
+    if (fabs(outputDerived3->GetValueByName(0, "Skewness").ToDouble() - skewness) > 1.e-6)
+    {
+      vtkGenericWarningMacro("Incorrect skewness");
+      testStatus = 1;
+    }
 
   if (fabs(outputDerived3->GetValueByName(0, "Kurtosis").ToDouble() - kurtosis) > 1.e-6)
   {

@@ -18,6 +18,9 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+// Hide VTK_DEPRECATED_IN_9_2_0() warnings for this class
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkDescriptiveStatistics.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 
@@ -47,10 +50,7 @@ vtkDescriptiveStatistics::vtkDescriptiveStatistics()
   this->AssessNames->SetValue(
     0, "d"); // relative deviation, i.e., when unsigned, 1D Mahalanobis distance
 
-  this->UnbiasedVariance =
-    1; // By default, use unbiased estimator of the variance (divided by cardinality-1)
-  this->G1Skewness = 0;       // By default, use g1 estimator of the skewness (G1 otherwise)
-  this->G2Kurtosis = 0;       // By default, use g2 estimator of the kurtosis (G2 otherwise)
+  this->SampleEstimate = true;
   this->SignedDeviations = 0; // By default, use unsigned deviation (1D Mahlanobis distance)
 }
 
@@ -61,10 +61,96 @@ vtkDescriptiveStatistics::~vtkDescriptiveStatistics() = default;
 void vtkDescriptiveStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "UnbiasedVariance: " << this->UnbiasedVariance << "\n";
-  os << indent << "G1Skewness: " << this->G1Skewness << "\n";
-  os << indent << "G2Kurtosis: " << this->G2Kurtosis << "\n";
+  os << indent << "Type of statistics: "
+     << (this->SampleEstimate ? "Sample Statistics" : "Population Statistics") << "\n";
   os << indent << "SignedDeviations: " << this->SignedDeviations << "\n";
+}
+
+//------------------------------------------------------------------------------
+void vtkDescriptiveStatistics::SetUnbiasedVariance(vtkTypeBool)
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::SetUnbiasedVariance, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use SetSampleEstimate instead.");
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkDescriptiveStatistics::GetUnbiasedVariance()
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::GetUnbiasedVariance, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use GetSampleEstimate instead.");
+  return this->SampleEstimate;
+}
+
+//------------------------------------------------------------------------------
+void vtkDescriptiveStatistics::UnbiasedVarianceOn()
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::UnbiasedVarianceOn, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOn instead.");
+}
+
+//------------------------------------------------------------------------------
+void vtkDescriptiveStatistics::UnbiasedVarianceOff()
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::UnbiasedVarianceOff, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOff instead.");
+}
+
+//------------------------------------------------------------------------------
+void vtkDescriptiveStatistics::SetG1Skewness(vtkTypeBool)
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::SetG1Skewness, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use SetSampleEstimate instead.");
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkDescriptiveStatistics::GetG1Skewness()
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::GetG1Skewness, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use GetSampleEstimate instead.");
+  return this->SampleEstimate;
+}
+
+//------------------------------------------------------------------------------
+void vtkDescriptiveStatistics::G1SkewnessOn()
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::G1SkewnessOn, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOn instead.");
+}
+
+//------------------------------------------------------------------------------
+void vtkDescriptiveStatistics::G1SkewnessOff()
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::G1SkewnessOff, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOff instead.");
+}
+
+//------------------------------------------------------------------------------
+void vtkDescriptiveStatistics::SetG2Kurtosis(vtkTypeBool)
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::SetG2Kurtosis, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use SetSampleEstimate instead.");
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkDescriptiveStatistics::GetG2Kurtosis()
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::GetG2Kurtosis, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use GetSampleEstimate instead.");
+  return this->SampleEstimate;
+}
+
+//------------------------------------------------------------------------------
+void vtkDescriptiveStatistics::G2KurtosisOn()
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::G2KurtosisOn, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOn instead.");
+}
+
+//------------------------------------------------------------------------------
+void vtkDescriptiveStatistics::G2KurtosisOff()
+{
+  VTK_LEGACY_BODY(vtkDescriptiveStatistics::G2KurtosisOff, "VTK 9.2");
+  vtkWarningMacro(<< "Nothing was done. Please use SampleEstimateOff instead.");
 }
 
 //------------------------------------------------------------------------------
@@ -419,55 +505,100 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
     vtkTypeInt64 numSamples = primaryTab->GetValueByName(i, "Cardinality").ToTypeInt64();
 
-    if (numSamples == 1 || mom2 < 1.e-150)
+    if (!numSamples)
     {
-      derivedVals[0] = 0.;
-      derivedVals[1] = 0.;
-      derivedVals[2] = 0.;
-      derivedVals[3] = 0.;
-      derivedVals[4] = 0.;
+      derivedVals[0] = std::numeric_limits<double>::quiet_NaN();
+      derivedVals[1] = std::numeric_limits<double>::quiet_NaN();
+      derivedVals[2] = std::numeric_limits<double>::quiet_NaN();
+      derivedVals[3] = std::numeric_limits<double>::quiet_NaN();
+      derivedVals[4] = std::numeric_limits<double>::quiet_NaN();
+
+      for (int j = 0; j < numDoubles; ++j)
+      {
+        derivedTab->SetValueByName(i, doubleNames[j], derivedVals[j]);
+      }
+
+      continue;
     }
-    else
+
+    double mean = primaryTab->GetValueByName(i, "Mean").ToDouble();
+
+    if (mom2 * mom2 <= FLT_EPSILON * std::abs(mean))
     {
+      derivedVals[0] = 0.0;
+      derivedVals[1] = 0.0;
+      derivedVals[2] = std::numeric_limits<double>::quiet_NaN();
+      derivedVals[3] = std::numeric_limits<double>::quiet_NaN();
+      derivedVals[4] = numSamples * mean;
 
-      double n = static_cast<double>(numSamples);
-      double inv_n = 1. / n;
-      double nm1 = n - 1.;
-
-      // Variance
-      if (this->UnbiasedVariance)
+      for (int j = 0; j < numDoubles; ++j)
       {
-        derivedVals[1] = mom2 / nm1;
-      }
-      else // use population variance
-      {
-        derivedVals[1] = mom2 * inv_n;
+        derivedTab->SetValueByName(i, doubleNames[j], derivedVals[j]);
       }
 
-      // Standard deviation
-      derivedVals[0] = sqrt(derivedVals[1]);
+      continue;
+    }
 
-      // Skeweness and kurtosis
-      double var_inv = nm1 / mom2;
-      double nvar_inv = var_inv * inv_n;
-      derivedVals[2] = nvar_inv * sqrt(var_inv) * mom3;
-      derivedVals[3] = n * mom4 / (mom2 * mom2) - 3.;
+    double n = static_cast<double>(numSamples);
 
-      if (this->G1Skewness && n > 2)
+    // Variance
+    if (this->SampleEstimate)
+    {
+      if (n > 1)
       {
-        // G1 skewness estimate
-        derivedVals[2] *= (n * n) / (nm1 * (nm1 - 1.));
+        derivedVals[1] = mom2 / (n - 1.);
       }
-
-      if (this->G2Kurtosis && n > 3)
+      else
       {
-        // G2 kurtosis estimate
-        derivedVals[3] = ((n + 1.) * derivedVals[3] + 6.) * nm1 / ((nm1 - 1.) * (nm1 - 2.));
+        derivedVals[1] = std::numeric_limits<double>::quiet_NaN();
       }
+    }
+    else // PopulationStatistics
+    {
+      derivedVals[1] = mom2 / n;
+    }
+
+    // Standard deviation
+    derivedVals[0] = sqrt(derivedVals[1]);
+
+    // Skewness
+    if (this->SampleEstimate)
+    {
+      if (n > 2)
+      {
+        derivedVals[2] = n / ((n - 1.) * (n - 2.)) * mom3 / (derivedVals[1] * derivedVals[0]);
+      }
+      else
+      {
+        derivedVals[2] = std::numeric_limits<double>::quiet_NaN();
+      }
+    }
+    else // PopulationStatistics
+    {
+      derivedVals[2] = mom3 / (n * derivedVals[1] * derivedVals[0]);
+    }
+
+    // Kurtosis
+    if (this->SampleEstimate)
+    {
+      if (n > 3)
+      {
+        derivedVals[3] = (n / (n - 1.)) * ((n + 1.) / (n - 2.)) / (n - 3.) * mom4 /
+            (derivedVals[1] * derivedVals[1]) -
+          3. * ((n - 1.) / (n - 2.)) * ((n - 1.) / (n - 3.));
+      }
+      else
+      {
+        derivedVals[3] = std::numeric_limits<double>::quiet_NaN();
+      }
+    }
+    else // PopulationStatistics
+    {
+      derivedVals[3] = mom4 / n / (derivedVals[1] * derivedVals[1]) - 3.;
     }
 
     // Sum
-    derivedVals[4] = numSamples * primaryTab->GetValueByName(i, "Mean").ToDouble();
+    derivedVals[4] = numSamples * mean;
 
     for (int j = 0; j < numDoubles; ++j)
     {
