@@ -1671,7 +1671,6 @@ static unsigned int add_indirection_to_array(unsigned int type)
 %token <str> VTK_ID
 %token <str> QT_ID
 %token <str> StdString
-%token <str> UnicodeString
 %token <str> OSTREAM
 %token <str> ISTREAM
 
@@ -2890,7 +2889,6 @@ simple_id:
   | ISTREAM { postSig($<str>1); }
   | OSTREAM { postSig($<str>1); }
   | StdString { postSig($<str>1); }
-  | UnicodeString { postSig($<str>1); }
   | NULLPTR_T { postSig($<str>1); }
   | SIZE_T { postSig($<str>1); }
   | SSIZE_T { postSig($<str>1); }
@@ -2906,7 +2904,6 @@ identifier:
   | ISTREAM
   | OSTREAM
   | StdString
-  | UnicodeString
 
 /*
  * Declaration specifiers
