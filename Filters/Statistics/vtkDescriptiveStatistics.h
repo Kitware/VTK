@@ -199,6 +199,21 @@ public:
   vtkBooleanMacro(SignedDeviations, vtkTypeBool);
   ///@}
 
+  ///@{
+  /**
+   * If there is a ghost array in the input, then ghosts matching `GhostsToSkip` mask
+   * will be skipped. It is set to 0xff by default (every ghosts types are skipped).
+   *
+   * @sa
+   * vtkDataSetAttributes
+   * vtkFieldData
+   * vtkPointData
+   * vtkCellData
+   */
+  vtkSetMacro(GhostsToSkip, unsigned char);
+  vtkGetMacro(GhostsToSkip, unsigned char);
+  ///@}
+
   /**
    * Given a collection of models, calculate aggregate model
    */
@@ -246,6 +261,7 @@ protected:
 
   bool SampleEstimate;
   vtkTypeBool SignedDeviations;
+  unsigned char GhostsToSkip;
 
 private:
   vtkDescriptiveStatistics(const vtkDescriptiveStatistics&) = delete;

@@ -25,6 +25,7 @@
 #include "vtkStatisticsAlgorithmPrivate.h"
 
 #include "vtkDataObjectCollection.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -34,6 +35,7 @@
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
 #include <limits>
@@ -52,6 +54,7 @@ vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 
   this->SampleEstimate = true;
   this->SignedDeviations = 0; // By default, use unsigned deviation (1D Mahlanobis distance)
+  this->GhostsToSkip = 0xff;
 }
 
 //------------------------------------------------------------------------------
@@ -298,7 +301,7 @@ void vtkDescriptiveStatistics::Aggregate(
       double n_c2 = n_c * n_c;
       double prod_n = n * n_c;
 
-      M4 += M4_c + prod_n * (n2 - prod_n + n_c2) * delta * delta_sur_N * delta2_sur_N2 +
+      M4 += M4_c + delta2_sur_N2 * delta2_sur_N2 * prod_n * (n * n2 + n_c * n_c2) +
         6. * (n2 * M2_c + n_c2 * M2) * delta2_sur_N2 + 4. * (n * M3_c - n_c * M3) * delta_sur_N;
 
       M3 += M3_c + prod_n * (n - n_c) * delta * delta2_sur_N2 +
@@ -384,8 +387,26 @@ void vtkDescriptiveStatistics::Learn(
   primaryTab->AddColumn(doubleCol);
   doubleCol->Delete();
 
+  vtkDataSetAttributes* dsa = inData->GetRowData();
+  vtkUnsignedCharArray* ghosts = dsa->GetGhostArray();
+
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
+  vtkIdType numberOfGhostlessRow = 0;
+  if (ghosts)
+  {
+    for (vtkIdType id = 0; id < ghosts->GetNumberOfValues(); ++id)
+    {
+      if (!(ghosts->GetValue(id) & this->GhostsToSkip))
+      {
+        ++numberOfGhostlessRow;
+      }
+    }
+  }
+  else
+  {
+    numberOfGhostlessRow = nRow;
+  }
   for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
        rit != this->Internals->Requests.end(); ++rit)
   {
@@ -399,37 +420,55 @@ void vtkDescriptiveStatistics::Learn(
       continue;
     }
 
-    double minVal = inData->GetValueByName(0, varName).ToDouble();
-    double maxVal = minVal;
-    double mean = 0.;
-    double mom2 = 0.;
-    double mom3 = 0.;
-    double mom4 = 0.;
-
-    double n, inv_n, val, delta, A, B;
-    for (vtkIdType r = 0; r < nRow; ++r)
+    double minVal, maxVal, mean, mom2, mom3, mom4;
+    if (numberOfGhostlessRow == 0)
     {
-      n = r + 1.;
-      inv_n = 1. / n;
+      minVal = std::numeric_limits<double>::quiet_NaN();
+      maxVal = std::numeric_limits<double>::quiet_NaN();
+      mean = std::numeric_limits<double>::quiet_NaN();
+      mom2 = std::numeric_limits<double>::quiet_NaN();
+      mom3 = std::numeric_limits<double>::quiet_NaN();
+      mom4 = std::numeric_limits<double>::quiet_NaN();
+    }
+    else
+    {
+      minVal = std::numeric_limits<double>::max();
+      maxVal = std::numeric_limits<double>::min();
+      mean = 0.;
+      mom2 = 0.;
+      mom3 = 0.;
+      mom4 = 0.;
+    }
 
-      val = inData->GetValueByName(r, varName).ToDouble();
-      delta = val - mean;
-
-      A = delta * inv_n;
-      mean += A;
-      mom4 += A * (A * A * delta * r * (n * (n - 3.) + 3.) + 6. * A * mom2 - 4. * mom3);
-
-      B = val - mean;
-      mom3 += A * (B * delta * (n - 2.) - 3. * mom2);
-      mom2 += delta * B;
-
-      if (val < minVal)
+    if (numberOfGhostlessRow)
+    {
+      double n, inv_n, val, delta, A, B;
+      vtkIdType numberOfSkippedElements = 0;
+      for (vtkIdType r = 0; r < nRow; ++r)
       {
-        minVal = val;
-      }
-      else if (val > maxVal)
-      {
-        maxVal = val;
+        if (ghosts && (ghosts->GetValue(r) & this->GhostsToSkip))
+        {
+          ++numberOfSkippedElements;
+          continue;
+        }
+        n = r + 1. - numberOfSkippedElements;
+        inv_n = 1. / n;
+
+        val = inData->GetValueByName(r, varName).ToDouble();
+        delta = val - mean;
+
+        A = delta * inv_n;
+        mean += A;
+        mom4 += A *
+          (A * A * delta * (r - numberOfSkippedElements) * (n * (n - 3.) + 3.) + 6. * A * mom2 -
+            4. * mom3);
+
+        B = val - mean;
+        mom3 += A * (B * delta * (n - 2.) - 3. * mom2);
+        mom2 += delta * B;
+
+        minVal = std::min(minVal, val);
+        maxVal = std::max(maxVal, val);
       }
     }
 
@@ -438,7 +477,7 @@ void vtkDescriptiveStatistics::Learn(
     row->SetNumberOfValues(8);
 
     row->SetValue(0, varName);
-    row->SetValue(1, nRow);
+    row->SetValue(1, numberOfGhostlessRow);
     row->SetValue(2, minVal);
     row->SetValue(3, maxVal);
     row->SetValue(4, mean);
