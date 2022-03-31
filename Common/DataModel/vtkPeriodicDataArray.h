@@ -329,6 +329,11 @@ protected:
    */
   virtual void Transform(Scalar* tuple) const = 0;
 
+  using Superclass::ComputeFiniteScalarRange;
+  using Superclass::ComputeFiniteVectorRange;
+  using Superclass::ComputeScalarRange;
+  using Superclass::ComputeVectorRange;
+
   /**
    * Get the transformed range by components
    */
