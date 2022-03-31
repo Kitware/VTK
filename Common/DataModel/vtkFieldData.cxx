@@ -15,14 +15,61 @@
 #include "vtkFieldData.h"
 
 #include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
+#include <limits>
+#include <tuple>
 #include <vector>
 
 vtkStandardNewMacro(vtkFieldData);
 vtkStandardExtendedNewMacro(vtkFieldData);
+
+namespace
+{
+using CachedGhostRangeType = std::tuple<vtkMTimeType, vtkMTimeType, double[2]>;
+
+//------------------------------------------------------------------------------
+// This function is used to generalize the call to vtkDataArray::GetRange
+// and vtkDataArray::GetFiniteRange without having to copy / paste.
+bool GetRangeImpl(vtkFieldData* self, int index, double range[2], int comp,
+  std::vector<std::vector<::CachedGhostRangeType>>& ranges,
+  void (vtkDataArray::*GetRangeMethod)(double*, int, const unsigned char*, unsigned char))
+{
+  auto array = vtkArrayDownCast<vtkDataArray>(self->GetAbstractArray(index));
+  if (array && comp < array->GetNumberOfComponents())
+  {
+    int rangeComp = comp == -1 ? array->GetNumberOfComponents() : comp;
+    CachedGhostRangeType& cache = ranges[index][rangeComp];
+    vtkMTimeType& arrayTime = std::get<0>(cache);
+    vtkMTimeType& ghostTime = std::get<1>(cache);
+    double* cachedRange = std::get<2>(cache);
+
+    vtkUnsignedCharArray* ghosts = self->GetGhostArray();
+
+    if (arrayTime != array->GetMTime() || ghostTime != (ghosts ? ghosts->GetMTime() : 0))
+    {
+      (array->*GetRangeMethod)(cachedRange, comp, ghosts ? ghosts->GetPointer(0) : nullptr,
+        ghosts ? self->GetGhostsToSkip() : 0);
+      arrayTime = array->GetMTime();
+      ghostTime = ghosts ? ghosts->GetMTime() : 0;
+    }
+
+    range[0] = cachedRange[0];
+    range[1] = cachedRange[1];
+    return true;
+  }
+
+  constexpr double NaN = std::numeric_limits<double>::quiet_NaN();
+  range[0] = NaN;
+  range[1] = NaN;
+  return false;
+}
+} // anonymous namespace
 
 //------------------------------------------------------------------------------
 void vtkFieldData::NullData(vtkIdType id)
@@ -186,6 +233,9 @@ vtkFieldData::vtkFieldData()
   this->DoCopyAllOn = 1;
   this->DoCopyAllOff = 0;
 
+  this->GhostsToSkip = 0;
+  this->GhostArray = nullptr;
+
   this->CopyAllOn();
 }
 
@@ -226,6 +276,33 @@ void vtkFieldData::Initialize()
   this->InitializeFields();
   this->CopyAllOn();
   this->ClearFieldFlags();
+}
+
+//------------------------------------------------------------------------------
+void vtkFieldData::SetGhostsToSkip(unsigned char ghostsToSkip)
+{
+  if (this->GhostsToSkip != ghostsToSkip)
+  {
+    this->GhostsToSkip = ghostsToSkip;
+    // We need to wipe the cached ranges.
+    // We reset the MTime of the ghost array so the field data acts as if the ghost array was
+    // changed.
+    for (auto& components : this->Ranges)
+    {
+      for (CachedGhostRangeType& cache : components)
+      {
+        std::get<1>(cache) = 0;
+      }
+    }
+    for (auto& components : this->FiniteRanges)
+    {
+      for (CachedGhostRangeType& cache : components)
+      {
+        std::get<1>(cache) = 0;
+      }
+    }
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -305,6 +382,8 @@ void vtkFieldData::AllocateArrays(int num)
     {
       if (this->Data[i])
       {
+        this->Ranges[i].clear();
+        this->FiniteRanges[i].clear();
         this->Data[i]->UnRegister(this);
       }
     }
@@ -313,6 +392,8 @@ void vtkFieldData::AllocateArrays(int num)
   else // num > this->NumberOfArrays
   {
     vtkAbstractArray** data = new vtkAbstractArray*[num];
+    this->Ranges.resize(num);
+    this->FiniteRanges.resize(num);
     // copy the original data
     for (i = 0; i < this->NumberOfArrays; i++)
     {
@@ -356,6 +437,12 @@ void vtkFieldData::SetArray(int i, vtkAbstractArray* data)
     this->NumberOfActiveArrays = i + 1;
   }
 
+  const char* name = data->GetName();
+  if (name && strcmp(name, vtkDataSetAttributes::GhostArrayName()) == 0)
+  {
+    this->GhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(data);
+  }
+
   if (this->Data[i] != data)
   {
     if (this->Data[i] != nullptr)
@@ -365,7 +452,26 @@ void vtkFieldData::SetArray(int i, vtkAbstractArray* data)
     this->Data[i] = data;
     if (this->Data[i] != nullptr)
     {
+      auto& finiteRange = this->FiniteRanges[i];
+      finiteRange.resize(data->GetNumberOfComponents() + 1);
+      for (int j = 0; j < static_cast<int>(finiteRange.size()); ++j)
+      {
+        std::get<0>(finiteRange[j]) = 0;
+        std::get<1>(finiteRange[j]) = 0;
+      }
+      auto& range = this->Ranges[i];
+      range.resize(data->GetNumberOfComponents() + 1);
+      for (int j = 0; j < static_cast<int>(range.size()); ++j)
+      {
+        std::get<0>(range[j]) = 0;
+        std::get<1>(range[j]) = 0;
+      }
       this->Data[i]->Register(this);
+    }
+    else
+    {
+      this->FiniteRanges[i].clear();
+      this->Ranges[i].clear();
     }
     this->Modified();
   }
@@ -397,6 +503,8 @@ void vtkFieldData::DeepCopy(vtkFieldData* f)
 {
   vtkAbstractArray *data, *newData;
 
+  this->SetGhostsToSkip(this->GetGhostsToSkip());
+
   this->AllocateArrays(f->GetNumberOfArrays());
   for (int i = 0; i < f->GetNumberOfArrays(); i++)
   {
@@ -419,6 +527,9 @@ void vtkFieldData::ShallowCopy(vtkFieldData* f)
 {
   this->AllocateArrays(f->GetNumberOfArrays());
   this->NumberOfActiveArrays = 0;
+
+  this->GhostsToSkip = f->GetGhostsToSkip();
+  this->GhostArray = f->GetGhostArray();
 
   for (int i = 0; i < f->GetNumberOfArrays(); i++)
   {
@@ -542,6 +653,38 @@ int vtkFieldData::AddArray(vtkAbstractArray* array)
 }
 
 //------------------------------------------------------------------------------
+bool vtkFieldData::GetRange(const char* name, double range[2], int comp)
+{
+  int index;
+  this->GetAbstractArray(name, index);
+  return this->GetRange(index, range, comp);
+}
+
+//------------------------------------------------------------------------------
+bool vtkFieldData::GetRange(int index, double range[2], int comp)
+{
+  void (vtkDataArray::*f)(double*, int, const unsigned char*, unsigned char) =
+    &vtkDataArray::GetRange;
+  return ::GetRangeImpl(this, index, range, comp, this->Ranges, f);
+}
+
+//------------------------------------------------------------------------------
+bool vtkFieldData::GetFiniteRange(const char* name, double range[2], int comp)
+{
+  int index;
+  this->GetAbstractArray(name, index);
+  return this->GetFiniteRange(index, range, comp);
+}
+
+//------------------------------------------------------------------------------
+bool vtkFieldData::GetFiniteRange(int index, double range[2], int comp)
+{
+  void (vtkDataArray::*f)(double*, int, const unsigned char*, unsigned char) =
+    &vtkDataArray::GetFiniteRange;
+  return ::GetRangeImpl(this, index, range, comp, this->FiniteRanges, f);
+}
+
+//------------------------------------------------------------------------------
 void vtkFieldData::RemoveArray(const char* name)
 {
   int i;
@@ -556,13 +699,21 @@ void vtkFieldData::RemoveArray(int index)
   {
     return;
   }
+  if (this->Data[index] == this->GhostArray)
+  {
+    this->GhostArray = nullptr;
+  }
   this->Data[index]->UnRegister(this);
   this->Data[index] = nullptr;
   this->NumberOfActiveArrays--;
   for (int i = index; i < this->NumberOfActiveArrays; i++)
   {
     this->Data[i] = this->Data[i + 1];
+    this->Ranges[i] = std::move(this->Ranges[i + 1]);
+    this->FiniteRanges[i] = std::move(this->FiniteRanges[i + 1]);
   }
+  this->Ranges[this->NumberOfActiveArrays] = std::vector<CachedGhostRangeType>();
+  this->FiniteRanges[this->NumberOfActiveArrays] = std::vector<CachedGhostRangeType>();
   this->Data[this->NumberOfActiveArrays] = nullptr;
   this->Modified();
 }
