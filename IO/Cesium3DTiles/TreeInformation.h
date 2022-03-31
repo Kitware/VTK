@@ -113,9 +113,6 @@ protected:
   std::array<double, 6> ComputeTightBB(vtkIdList* tileBuildings);
   std::string ContentTypeExtension() const;
 
-  void SetPointsPerCubeMeter(int value) { this->PointsPerCubeMeter = value; }
-  int GetPointsPerCubeMeter() const { return this->PointsPerCubeMeter; }
-
 private:
   /**
    * Buildings, Points or Mesh. @see vtkCesium3DTilesWriter::InputType
@@ -135,10 +132,6 @@ private:
   std::string TexturePath;
   bool SaveTextures;
   int BuildingsContentType;
-  // Number of points for which we consider the full volume as part of the error.
-  // We clamp the number of points to this value for a larger number of points,
-  // otherwise we scale the volume with numberOfPoints / PointsPerCubeMeter.
-  int PointsPerCubeMeter;
 
   const char* CRS;
   /**

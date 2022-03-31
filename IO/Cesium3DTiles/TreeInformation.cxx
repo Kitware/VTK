@@ -17,6 +17,7 @@
 #include "vtkCesium3DTilesWriter.h"
 #include "vtkCesiumPointCloudWriter.h"
 #include "vtkGLTFWriter.h"
+#include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include <vtkActor.h>
 #include <vtkAppendPolyData.h>
@@ -41,6 +42,8 @@ using namespace nlohmann;
 
 namespace
 {
+constexpr float POINTS_PER_METER = 10;
+
 //------------------------------------------------------------------------------
 /**
  * Compute the tight bounding box around all buildings in a tile.
@@ -77,6 +80,17 @@ std::array<double, 6> ComputeTightBBPoints(
     points->GetPoint(tileBuildings->GetId(i), point);
     bb = { { point[0], point[0], point[1], point[1], point[2], point[2] } };
     wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], &bb[0]);
+  }
+  // if one dimension is 0 make it at least 1 / POINTS_PER_METER,
+  // centered on original point
+  for (int i = 0; i < 3; ++i)
+  {
+    if (vtkMathUtilities::NearlyEqual(wholeBB[2 * i], wholeBB[2 * i + 1], 0.001))
+    {
+      double center = (wholeBB[2 * i] + wholeBB[2 * i + 1]) / 2.0;
+      wholeBB[2 * i] = center - 1.0 / POINTS_PER_METER;
+      wholeBB[2 * i] = center + 1.0 / POINTS_PER_METER;
+    }
   }
   return wholeBB;
 }
@@ -135,6 +149,7 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
 }
 
 std::array<std::string, 3> BuildingContentTypeExtension = { ".b3dm", ".glb", ".gltf" };
+
 }
 
 //------------------------------------------------------------------------------
@@ -149,7 +164,6 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , TexturePath(texturePath)
   , SaveTextures(saveTextures)
   , BuildingsContentType(contentType)
-  , PointsPerCubeMeter(1000)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -174,7 +188,6 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , OutputDir(output)
   , SaveTextures(false)
   , BuildingsContentType(vtkCesium3DTilesWriter::B3DM)
-  , PointsPerCubeMeter(1000)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -332,7 +345,7 @@ double TreeInformation::ComputeGeometricErrorTilesetBuildings()
 {
   double tilesetVolumeError;
   // buildings in child nodes contribute to the error in the parent
-  tilesetVolumeError = this->GeometricError[this->Root->GetID()];
+  tilesetVolumeError = std::pow(this->GeometricError[this->Root->GetID()], 3);
   vtkIdList* rootBuildings = this->Root->GetPointIdSet();
   if (rootBuildings)
   {
@@ -415,18 +428,14 @@ double TreeInformation::ComputeGeometricErrorTilesetPoints()
   vtkIdList* rootPoints = this->Root->GetPointIdSet();
   if (rootPoints)
   {
-    int numberOfPoints = rootPoints->GetNumberOfIds();
     double bb[6];
     this->Root->GetBounds(bb);
-    double volume = (bb[1] - bb[0]) * (bb[3] - bb[2]) * (bb[5] - bb[4]);
-    numberOfPoints = numberOfPoints > this->PointsPerCubeMeter * volume
-      ? this->PointsPerCubeMeter * volume
-      : numberOfPoints;
-    geometricError = std::max(geometricError,
-      // scale the volume with the number of points
-      volume * numberOfPoints / this->PointsPerCubeMeter);
+    double diagonal = std::pow((bb[1] - bb[0]) * (bb[1] - bb[0]) +
+        (bb[3] - bb[2]) * (bb[3] - bb[2]) + (bb[5] - bb[4]) * (bb[5] - bb[4]),
+      1.0 / 3);
+    geometricError = std::max(geometricError, diagonal);
   }
-  return std::pow(geometricError, 1.0 / 3);
+  return geometricError;
 }
 
 //------------------------------------------------------------------------------
@@ -435,29 +444,24 @@ double TreeInformation::ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode
   double geometricError = 0;
   if (!node->IsLeaf())
   {
-    double geometricError = 0;
     for (int i = 0; i < 8; ++i)
     {
       // buildings in child nodes contribute to the error in the parent
-      vtkIncrementalOctreeNode* child = node->GetChild(i);
-      geometricError = std::max(geometricError, std::pow(this->GeometricError[child->GetID()], 3));
-      vtkIdList* childPoints = child->GetPointIdSet();
+      vtkIncrementalOctreeNode* childNode = node->GetChild(i);
+      geometricError = std::max(geometricError, this->GeometricError[childNode->GetID()]);
+      vtkIdList* childPoints = childNode->GetPointIdSet();
       if (childPoints)
       {
-        int numberOfPoints = childPoints->GetNumberOfIds();
         double bb[6];
-        child->GetBounds(bb);
-        double volume = (bb[1] - bb[0]) * (bb[3] - bb[2]) * (bb[5] - bb[4]);
-        numberOfPoints = numberOfPoints > this->PointsPerCubeMeter * volume
-          ? this->PointsPerCubeMeter * volume
-          : numberOfPoints;
-        geometricError = std::max(geometricError,
-          // scale the volume with the number of points
-          volume * numberOfPoints / this->PointsPerCubeMeter);
+        childNode->GetBounds(bb);
+        double diagonal = std::pow((bb[1] - bb[0]) * (bb[1] - bb[0]) +
+            (bb[3] - bb[2]) * (bb[3] - bb[2]) + (bb[5] - bb[4]) * (bb[5] - bb[4]),
+          1.0 / 3);
+        geometricError = std::max(geometricError, diagonal);
       }
     }
   }
-  return std::pow(geometricError, 1 / 3.0);
+  return geometricError;
 }
 
 //------------------------------------------------------------------------------
@@ -481,11 +485,11 @@ std::array<double, 6> TreeInformation::ComputeTightBB(vtkIdList* tileBuildings)
 //------------------------------------------------------------------------------
 void TreeInformation::Compute(vtkIncrementalOctreeNode* node, void*)
 {
-  vtkIdList* nodeBuildings = node->GetPointIdSet();
+  vtkIdList* nodeFeatures = node->GetPointIdSet();
   // compute the bounding box for the current node
-  if (nodeBuildings)
+  if (nodeFeatures)
   {
-    this->NodeBounds[node->GetID()] = this->ComputeTightBB(nodeBuildings);
+    this->NodeBounds[node->GetID()] = this->ComputeTightBB(nodeFeatures);
     this->EmptyNode[node->GetID()] = false;
   }
   // propagate the node bounding box from the children.

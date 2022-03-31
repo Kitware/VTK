@@ -45,6 +45,7 @@
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTrivialProducer.h"
+#include "vtkTypeUInt16Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 
@@ -70,6 +71,33 @@ struct Header
   uint32_t batchTableJSONByteLength;
   uint32_t batchTableBinaryByteLength;
 };
+
+struct NoOpRgbArrayTypes
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* array)
+  {
+  }
+};
+
+struct SaveRgbArray
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* array, vtkIdList* pointIds, std::ofstream& out)
+  {
+    int numberOfComponents = array->GetNumberOfComponents();
+    for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
+    {
+      std::array<char, 4> rgba = { { 0, 0, 0, 0 } };
+      for (int j = 0; j < numberOfComponents; ++j)
+      {
+        rgba[j] = static_cast<char>(array->GetTypedComponent(pointIds->GetId(i), j));
+      }
+      out.write(&rgba[0], numberOfComponents);
+    }
+  }
+};
+
 }
 
 vtkStandardNewMacro(vtkCesiumPointCloudWriter);
@@ -105,9 +133,13 @@ void vtkCesiumPointCloudWriter::WriteData()
     vtkErrorMacro(<< "Please specify the point Ids to save");
     return;
   }
-  auto rgbArray = vtkUnsignedCharArray::SafeDownCast(pointSet->GetPointData()->GetScalars());
+  auto rgbArray = pointSet->GetPointData()->GetScalars();
+  using RgbArrayTypes =
+    vtkTypeList::Unique<vtkTypeList::Create<vtkUnsignedCharArray, vtkTypeUInt16Array>>::Result;
+  using RgbDispatch = vtkArrayDispatch::DispatchByArray<RgbArrayTypes>;
+  bool validRgbArray = RgbDispatch::Execute(rgbArray, NoOpRgbArrayTypes{});
   std::string rgbTypeName;
-  if (rgbArray)
+  if (validRgbArray)
   {
     switch (rgbArray->GetNumberOfComponents())
     {
@@ -119,7 +151,7 @@ void vtkCesiumPointCloudWriter::WriteData()
         break;
       default:
         // we don't know how to deal with arrays different than RGB or RGBA
-        rgbArray = nullptr;
+        validRgbArray = false;
     }
   }
   std::ofstream out;
@@ -139,7 +171,7 @@ void vtkCesiumPointCloudWriter::WriteData()
   featureTable["POINTS_LENGTH"] = this->PointIds->GetNumberOfIds();
   featureTable["RTC_CENTER"] = origin;
   featureTable["POSITION"]["byteOffset"] = 0;
-  if (rgbArray)
+  if (validRgbArray)
   {
     featureTable[rgbTypeName]["byteOffset"] = this->PointIds->GetNumberOfIds() * 3 * sizeof(float);
   }
@@ -160,7 +192,7 @@ void vtkCesiumPointCloudWriter::WriteData()
   // there is not start requirement for RGB
   // RGBA should start at 4-byte boundary
   vtkIdType featureTableBinarySize = this->PointIds->GetNumberOfIds() * 3 * sizeof(float);
-  if (rgbArray)
+  if (validRgbArray)
   {
     featureTableBinarySize += this->PointIds->GetNumberOfIds() * rgbArray->GetNumberOfComponents();
   }
@@ -196,13 +228,9 @@ void vtkCesiumPointCloudWriter::WriteData()
     vtkByteSwap::SwapWrite4LERange(pointf, 3, &out);
   }
   // write RGB or RGBA
-  if (rgbArray)
+  if (validRgbArray)
   {
-    for (vtkIdType i = 0; i < this->PointIds->GetNumberOfIds(); ++i)
-    {
-      const unsigned char* p = rgbArray->GetPointer(this->PointIds->GetId(i));
-      out.write(reinterpret_cast<const char*>(p), rgbArray->GetNumberOfComponents());
-    }
+    RgbDispatch::Execute(rgbArray, SaveRgbArray{}, this->PointIds, out);
   }
   // pad FeatureTableBinary
   char c = 0;
