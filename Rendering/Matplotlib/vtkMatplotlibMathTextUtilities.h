@@ -115,21 +115,6 @@ public:
   bool GetScaleToPowerOfTwo() override;
   ///@}
 
-  /**
-   * Set the visibility of the interior lines between cells. Default is false.
-   */
-  vtkSetMacroOverride(InteriorLinesVisibility, bool);
-
-  /**
-   * Set the width (in pixels) of the interior lines between cells. Default is 1.
-   */
-  vtkSetMacroOverride(InteriorLinesWidth, int);
-
-  /**
-   * Set the color of the interior lines between cells. Default is black (0.0, 0.0, 0.0).
-   */
-  vtkSetVector3MacroOverride(InteriorLinesColor, unsigned char);
-
 protected:
   vtkMatplotlibMathTextUtilities();
   ~vtkMatplotlibMathTextUtilities() override;
@@ -191,10 +176,6 @@ protected:
 
   std::vector<int> VerticalLinesPosition;
   std::vector<int> HorizontalLinesPosition;
-
-  bool InteriorLinesVisibility = false;
-  int InteriorLinesWidth = 1;
-  unsigned char InteriorLinesColor[3] = { 0, 0, 0 };
 
 private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&) = delete;
@@ -267,7 +248,7 @@ private:
   /**
    * Draw interior borders between cells.
    */
-  bool DrawInteriorLines(vtkImageData* image, int bbox[4]);
+  bool DrawInteriorLines(vtkImageData* image, int bbox[4], vtkTextProperty* tprop);
 };
 
 #endif

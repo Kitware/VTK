@@ -343,38 +343,6 @@ void vtkMathTextFreeTypeTextRenderer::SetScaleToPowerOfTwoInternal(bool scale)
 }
 
 //------------------------------------------------------------------------------
-void vtkMathTextFreeTypeTextRenderer::SetInteriorLinesVisibility(bool visibility)
-{
-  // Interior lines can be displayed when using the Matplotlib backend
-  if (this->MathTextUtilities)
-  {
-    this->MathTextUtilities->SetInteriorLinesVisibility(visibility);
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkMathTextFreeTypeTextRenderer::SetInteriorLinesWidth(int width)
-{
-  // Interior lines can be displayed when using the Matplotlib backend
-  if (this->MathTextUtilities)
-  {
-    this->MathTextUtilities->SetInteriorLinesWidth(width);
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkMathTextFreeTypeTextRenderer::SetInteriorLinesColor(
-  double colorR, double colorG, double colorB)
-{
-  // Interior lines can be displayed when using the Matplotlib backend
-  if (this->MathTextUtilities)
-  {
-    this->MathTextUtilities->SetInteriorLinesColor(static_cast<unsigned char>(colorR * 255),
-      static_cast<unsigned char>(colorG * 255), static_cast<unsigned char>(colorB * 255));
-  }
-}
-
-//------------------------------------------------------------------------------
 vtkMathTextFreeTypeTextRenderer::vtkMathTextFreeTypeTextRenderer()
 {
   this->FreeTypeTools = vtkFreeTypeTools::GetInstance();

@@ -266,6 +266,33 @@ public:
   vtkGetMacro(CellOffset, double);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the visibility of the interior lines between cells.
+   * Default is false.
+   */
+  vtkSetMacro(InteriorLinesVisibility, bool);
+  vtkGetMacro(InteriorLinesVisibility, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set the width (in pixels) of the interior lines between cells.
+   * Default is 1.
+   */
+  vtkSetMacro(InteriorLinesWidth, int);
+  vtkGetMacro(InteriorLinesWidth, int);
+  ///@}
+
+  ///@{
+  /**
+   * Set the color of the interior lines between cells.
+   * Default is black (0.0, 0.0, 0.0).
+   */
+  vtkSetVector3Macro(InteriorLinesColor, double);
+  vtkGetVector3Macro(InteriorLinesColor, double);
+  ///@}
+
   /**
    * Shallow copy of a text property.
    */
@@ -296,6 +323,9 @@ protected:
   double LineOffset;
   double LineSpacing;
   double CellOffset;
+  bool InteriorLinesVisibility = false;
+  int InteriorLinesWidth = 1;
+  double InteriorLinesColor[3] = { 0.0, 0.0, 0.0 };
 
 private:
   vtkTextProperty(const vtkTextProperty&) = delete;

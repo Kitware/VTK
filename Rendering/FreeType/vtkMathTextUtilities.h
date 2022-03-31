@@ -127,29 +127,6 @@ public:
   virtual void SetScaleToPowerOfTwo(bool scale) = 0;
   ///@}
 
-  /**
-   * Set the visibility of the interior lines when Matplotlib is used for the rendering.
-   * Default is false.
-   */
-  virtual void SetInteriorLinesVisibility(bool visibility) = 0;
-
-  /**
-   * Set the width (in pixels) of the interior lines when Matplotlib is used for the rendering.
-   * Default is 1.
-   */
-  virtual void SetInteriorLinesWidth(int width) = 0;
-
-  /**
-   * Set the color of the interior lines when Matplotlib is used for the rendering.
-   * Default is black (0, 0, 0).
-   */
-  virtual void SetInteriorLinesColor(
-    unsigned char colorR, unsigned char colorG, unsigned char colorB) = 0;
-  virtual void SetInteriorLinesColor(const unsigned char color[3])
-  {
-    this->SetInteriorLinesColor(color[0], color[1], color[2]);
-  }
-
 protected:
   vtkMathTextUtilities();
   ~vtkMathTextUtilities() override;
