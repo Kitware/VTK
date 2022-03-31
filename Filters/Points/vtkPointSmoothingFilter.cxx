@@ -1259,7 +1259,7 @@ int vtkPointSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request),
   else if (smoothingMode == SCALAR_SMOOTHING)
   {
     double range[2];
-    inScalars->GetRange(range);
+    inPD->GetRange(inScalars->GetName(), range);
     disp =
       new ScalarDisplacement(inScalars, radius, this->PackingFactor, this->AttractionFactor, range);
   }

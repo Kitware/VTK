@@ -25,6 +25,7 @@
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 #include "vtkMathUtilities.h"
@@ -226,12 +227,13 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
   for (vtkIdType i = 0; i < s->GetNumberOfTuples(); ++i)
   {
     double minmax[2] = { 0.0, 0.0 };
-    vtkStdString name(s->GetValue(i));
-    vtkDataArray* in = vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(name.c_str()));
-    if (in)
+    vtkDataSetAttributes* rowData = input->GetRowData();
+    const char* nameVal = s->GetValue(i);
+    if (rowData->GetRange(nameVal, minmax))
     {
+      vtkDataArray* in = rowData->GetArray(nameVal);
+      std::string name(nameVal);
       // The bin values are the centers, extending +/- half an inc either side
-      in->GetRange(minmax);
       if (minmax[0] == minmax[1])
       {
         minmax[1] = minmax[0] + 1.0;
@@ -1303,11 +1305,9 @@ void vtkScatterPlotMatrix::UpdateAxes()
   {
     double range[2] = { 0, 0 };
     std::string name(this->VisibleColumns->GetValue(i));
-    vtkDataArray* arr = vtkArrayDownCast<vtkDataArray>(this->Input->GetColumnByName(name.c_str()));
-    if (arr)
+    if (this->Input->GetRowData()->GetRange(name.c_str(), range))
     {
       PIMPL::ColumnSetting settings;
-      arr->GetRange(range);
       // Apply a little padding either side of the ranges.
       range[0] = range[0] - (0.01 * range[0]);
       range[1] = range[1] + (0.01 * range[1]);

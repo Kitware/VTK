@@ -21,6 +21,7 @@
 #include "vtkContext2D.h"
 #include "vtkContextDevice2D.h"
 #include "vtkContextMapper2D.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
@@ -613,6 +614,7 @@ void vtkPlotBar::GetBounds(double bounds[4], bool unscaled)
   vtkDataArray* x =
     this->UseIndexForXSeries ? nullptr : this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray* y = this->Data->GetInputArrayToProcess(1, table);
+  vtkDataSetAttributes* rowData = table->GetRowData();
   if (!y)
   {
     return;
@@ -625,7 +627,7 @@ void vtkPlotBar::GetBounds(double bounds[4], bool unscaled)
   }
   else if (x)
   {
-    x->GetRange(&bounds[seriesLow]);
+    rowData->GetRange(x->GetName(), &bounds[seriesLow]);
     // We surround our point by Width/2 on either side
     bounds[seriesLow] -= this->Width / 2.0 + this->Offset;
     bounds[seriesHigh] += this->Width / 2.0 - this->Offset;
@@ -635,7 +637,7 @@ void vtkPlotBar::GetBounds(double bounds[4], bool unscaled)
     return;
   }
 
-  y->GetRange(&bounds[valuesLow]);
+  rowData->GetRange(y->GetName(), &bounds[valuesLow]);
 
   double yRange[2];
   std::map<int, std::string>::iterator it;
@@ -643,7 +645,7 @@ void vtkPlotBar::GetBounds(double bounds[4], bool unscaled)
        ++it)
   {
     y = vtkArrayDownCast<vtkDataArray>(table->GetColumnByName((*it).second.c_str()));
-    y->GetRange(yRange);
+    rowData->GetRange(y->GetName(), yRange);
     bounds[valuesHigh] += yRange[1];
   }
 
@@ -1088,6 +1090,6 @@ void vtkPlotBar::GetDataBounds(double bounds[2])
   vtkDataArray* x = this->Data->GetInputArrayToProcess(0, table);
   if (x)
   {
-    x->GetRange(bounds);
+    table->GetRowData()->GetRange(x->GetName(), bounds);
   }
 }

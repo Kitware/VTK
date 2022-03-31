@@ -86,7 +86,17 @@ int vtkScalarsToColors::IsOpaque()
 // Description:
 // Return true if all of the values defining the mapping have an opacity
 // equal to 1. Default implementation return true.
-int vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int /*component*/)
+int vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component)
+{
+  return this->IsOpaque(scalars, colorMode, component, nullptr);
+}
+
+//------------------------------------------------------------------------------
+// Description:
+// Return true if all of the values defining the mapping have an opacity
+// equal to 1. Default implementation return true.
+int vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int,
+  vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
 {
   if (!scalars)
   {
@@ -110,10 +120,12 @@ int vtkScalarsToColors::IsOpaque(vtkAbstractArray* scalars, int colorMode, int /
     }
     // otherwise look at the range of the alpha channel
     unsigned char opacity = 0;
+    double range[2];
+    dataArray->GetRange(
+      range, numberOfComponents - 1, ghosts ? ghosts->GetPointer(0) : nullptr, ghostsToSkip);
     switch (scalars->GetDataType())
     {
-      vtkTemplateMacro(vtkScalarsToColors::ColorToUChar(
-        static_cast<VTK_TT>(dataArray->GetRange(numberOfComponents - 1)[0]), &opacity));
+      vtkTemplateMacro(vtkScalarsToColors::ColorToUChar(static_cast<VTK_TT>(range[0]), &opacity));
     }
     return ((opacity == 255) ? 1 : 0);
   }

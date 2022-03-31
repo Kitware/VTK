@@ -126,6 +126,7 @@ void vtkPairwiseExtractHistogram2D::Learn(
     // fill it up with new histogram filters
     for (int i = 0; i < numHistograms; i++)
     {
+      vtkDataSetAttributes* rowData = inData->GetRowData();
       vtkDataArray* col1 = vtkArrayDownCast<vtkDataArray>(inData->GetColumn(i));
       vtkDataArray* col2 = vtkArrayDownCast<vtkDataArray>(inData->GetColumn(i + 1));
 
@@ -154,13 +155,13 @@ void vtkPairwiseExtractHistogram2D::Learn(
       double r[2] = { 0, 0 };
       if (i == 0)
       {
-        col1->GetRange(r, 0);
+        rowData->GetRange(i, r, 0);
         this->Implementation->ColumnExtents[colpair.first.c_str()].clear();
         this->Implementation->ColumnExtents[colpair.first.c_str()].push_back(r[0]);
         this->Implementation->ColumnExtents[colpair.first.c_str()].push_back(r[1]);
       }
 
-      col2->GetRange(r, 0);
+      rowData->GetRange(i + 1, r, 0);
       this->Implementation->ColumnExtents[colpair.second.c_str()].clear();
       this->Implementation->ColumnExtents[colpair.second.c_str()].push_back(r[0]);
       this->Implementation->ColumnExtents[colpair.second.c_str()].push_back(r[1]);

@@ -200,7 +200,7 @@ int vtkTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   //
   if (inScalars)
   {
-    inScalars->GetRange(range, 0);
+    pd->GetRange(inScalars->GetName(), range, 0);
     if ((range[1] - range[0]) == 0.0)
     {
       if (this->VaryRadius == VTK_VARY_RADIUS_BY_SCALAR)

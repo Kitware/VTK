@@ -20,6 +20,7 @@
 #include "vtkContext2D.h"
 #include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -219,14 +220,12 @@ bool vtkScalarsToColorsItem::ConfigurePlotBar()
     this->PlotBar->SetYAxis(this->GetYAxis());
 
     // Configure the plot bar Y Axis
-    vtkDoubleArray* valueArray = vtkDoubleArray::SafeDownCast(this->HistogramTable->GetColumn(1));
-    if (!valueArray)
+    double valueRange[2];
+    if (!this->HistogramTable->GetRowData()->GetRange(1, valueRange))
     {
       vtkErrorMacro("HistogramTable is not containing expected data");
       return false;
     }
-    double valueRange[2];
-    valueArray->GetRange(valueRange);
     double val = 1 / valueRange[1];
     vtkRectd shiftScale = this->ShiftScale;
     shiftScale.SetHeight(shiftScale.GetHeight() * val);

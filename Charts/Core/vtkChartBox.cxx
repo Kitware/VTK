@@ -24,6 +24,7 @@
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -112,6 +113,7 @@ void vtkChartBox::Update()
     return;
   }
 
+  vtkDataSetAttributes* rowData = table->GetRowData();
   int nbCols = this->VisibleColumns->GetNumberOfTuples();
 
   this->Storage->XPosition.resize(nbCols);
@@ -120,12 +122,9 @@ void vtkChartBox::Update()
   // Now set up their ranges and locations
   for (int i = 0; i < nbCols; ++i)
   {
-    vtkDataArray* array =
-      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->VisibleColumns->GetValue(i)));
-    if (array)
+    double range[2];
+    if (rowData->GetRange(this->VisibleColumns->GetValue(i), range))
     {
-      double range[2];
-      array->GetRange(range);
       if (range[0] < grange[0])
       {
         grange[0] = range[0];

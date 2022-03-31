@@ -154,7 +154,7 @@ void vtkOMETIFFReader::vtkOMEInternals::UpdateCache(vtkImageData* source)
     for (int c = 0; c < this->SizeC; ++c)
     {
       vtkVector2d range;
-      scalar_arrays[c]->GetRange(range.GetData(), -1);
+      pd->GetRange(scalar_arrays[c]->GetName(), range.GetData(), -1);
       if (range[0] <= range[1])
       {
         channel_ranges[c][0] = std::min(channel_ranges[c][0], range[0]);

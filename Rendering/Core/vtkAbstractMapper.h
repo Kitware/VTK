@@ -47,6 +47,7 @@ class vtkPlane;
 class vtkPlaneCollection;
 class vtkPlanes;
 class vtkTimerLog;
+class vtkUnsignedCharArray;
 class vtkWindow;
 
 class VTKRENDERINGCORE_EXPORT vtkAbstractMapper : public vtkAlgorithm
@@ -126,6 +127,21 @@ public:
    */
   static vtkAbstractArray* GetAbstractScalars(vtkDataSet* input, int scalarMode,
     int arrayAccessMode, int arrayId, const char* arrayName, int& cellFlag);
+
+  /**
+   * Returns the ghost array associated with the corresponding scalar mode, if present.
+   * If no ghost array is available, this method returns `nullptr`. `ghostsToSkip` is an output,
+   * and is set to the bit mask associated with the ghost array in the `vtkFieldData` in which
+   * the ghost array lives. This bit mask can be ignored if `nullptr` is returned.
+   *
+   * @sa
+   * vtkFieldData
+   * vtkDataSetAttributes
+   * vtkCellData
+   * vtkPointData
+   */
+  static vtkUnsignedCharArray* GetGhostArray(
+    vtkDataSet* input, int scalarMode, unsigned char& ghostsToSkip);
 
   /**
    * Get the number of clipping planes.

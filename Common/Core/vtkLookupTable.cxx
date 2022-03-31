@@ -128,7 +128,15 @@ int vtkLookupTable::IsOpaque()
   return this->OpaqueFlag;
 }
 
+//------------------------------------------------------------------------------
 int vtkLookupTable::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component)
+{
+  return this->IsOpaque(scalars, colorMode, component, nullptr);
+}
+
+//------------------------------------------------------------------------------
+int vtkLookupTable::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
+  vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
 {
   // use superclass logic?
   vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
@@ -136,7 +144,7 @@ int vtkLookupTable::IsOpaque(vtkAbstractArray* scalars, int colorMode, int compo
         vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != nullptr) ||
     (colorMode == VTK_COLOR_MODE_DIRECT_SCALARS && dataArray))
   {
-    return this->Superclass::IsOpaque(scalars, colorMode, component);
+    return this->Superclass::IsOpaque(scalars, colorMode, component, ghosts, ghostsToSkip);
   }
   // otherwise look at our table
   return this->IsOpaque();

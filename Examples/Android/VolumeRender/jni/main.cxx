@@ -128,7 +128,8 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(
   mi->Update();
 
   double range[2];
-  mi->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
+  vtkPointData* pd = mi->GetOutput()->GetPointData();
+  pd->GetRange(pd->GetScalars()->GetName(), range);
   LOGI("Min %f Max %f type %s", range[0], range[1], mi->GetOutput()->GetScalarTypeAsString());
 
   volumeMapper->SetInputConnection(mi->GetOutputPort());

@@ -233,9 +233,12 @@ int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(
   for (int i = 0; i < numHistograms; i++)
   {
     vtkImageData* histogram = vtkImageData::SafeDownCast(histograms->GetItemAsObject(i));
-    histogram->GetPointData()->GetScalars()->GetRange(r, 0);
+    vtkPointData* pd = histogram->GetPointData();
+    pd->GetRange(pd->GetScalars()->GetName(), r, 0);
     if (r[1] > maxVal)
+    {
       maxVal = r[1];
+    }
   }
 
   double pctThreshold = .01;

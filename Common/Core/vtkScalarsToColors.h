@@ -55,6 +55,7 @@ class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkAbstractArray;
 class vtkStringArray;
+class vtkUnsignedCharArray;
 
 class VTKCOMMONCORE_EXPORT vtkScalarsToColors : public vtkObject
 {
@@ -71,6 +72,8 @@ public:
    */
   virtual int IsOpaque();
   virtual int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component);
+  virtual int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
+    vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip = 0xff);
   ///@}
 
   /**

@@ -21,6 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 //------------------------------------------------------------------------------
 #include "vtkArrayData.h"
 #include "vtkArrayIteratorIncludes.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkImageMedian3D.h"
@@ -106,9 +107,9 @@ void vtkExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 //------------------------------------------------------------------------------
 void vtkExtractHistogram2D::Learn(
-  vtkTable* vtkNotUsed(inData), vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
 {
-  if (!outMeta)
+  if (!outMeta || !inData)
   {
     return;
   }
@@ -128,7 +129,7 @@ void vtkExtractHistogram2D::Learn(
     return;
   }
 
-  this->ComputeBinExtents(col1, col2);
+  this->ComputeBinExtents(inData->GetRowData(), col1, col2);
 
   // The primary statistics table
   vtkTable* primaryTab = vtkTable::New();
@@ -336,8 +337,9 @@ int vtkExtractHistogram2D::RequestInformation(vtkInformation* vtkNotUsed(request
   {
     return 0;
   }
+  vtkTable* inData = vtkTable::SafeDownCast(this->GetInputDataObject(0, 0));
 
-  this->ComputeBinExtents(col1, col2);
+  this->ComputeBinExtents(inData->GetRowData(), col1, col2);
 
   double bw[2] = { 0, 0 };
   double* hext = this->GetHistogramExtents();
@@ -354,7 +356,8 @@ int vtkExtractHistogram2D::RequestInformation(vtkInformation* vtkNotUsed(request
   return 1;
 }
 //------------------------------------------------------------------------------
-int vtkExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2)
+int vtkExtractHistogram2D::ComputeBinExtents(
+  vtkDataSetAttributes* rowData, vtkDataArray* col1, vtkDataArray* col2)
 {
   if (!col1 || !col2)
     return 0;
@@ -362,8 +365,8 @@ int vtkExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* c
   // update histogram extents, if necessary
   if (!this->UseCustomHistogramExtents)
   {
-    col1->GetRange(this->HistogramExtents, this->ComponentsToProcess[0]);
-    col2->GetRange(this->HistogramExtents + 2, this->ComponentsToProcess[1]);
+    rowData->GetRange(col1->GetName(), this->HistogramExtents, this->ComponentsToProcess[0]);
+    rowData->GetRange(col2->GetName(), this->HistogramExtents + 2, this->ComponentsToProcess[1]);
   }
 
   return 1;

@@ -2757,9 +2757,9 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
       for (ar = 0; ar < ncellarrays; ar++)
       {
-        vtkDataArray* array = this->GetDataSet(set)->GetCellData()->GetArray(ar);
-
-        array->GetRange(range);
+        vtkCellData* cd = this->GetDataSet(set)->GetCellData();
+        cd->GetRange(ar, range);
+        vtkDataArray* array = cd->GetArray(ar);
 
         this->CellDataMin[nc] = range[0];
         this->CellDataMax[nc] = range[1];
@@ -2789,9 +2789,9 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
       for (ar = 0; ar < npointarrays; ar++)
       {
-        vtkDataArray* array = this->GetDataSet(set)->GetPointData()->GetArray(ar);
-
-        array->GetRange(range);
+        vtkPointData* pd = this->GetDataSet(set)->GetPointData();
+        pd->GetRange(ar, range);
+        vtkDataArray* array = pd->GetArray(ar);
 
         this->PointDataMin[np] = range[0];
         this->PointDataMax[np] = range[1];

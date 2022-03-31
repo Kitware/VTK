@@ -114,9 +114,7 @@ int main(int argc, char* argv[])
   double colorRange[2] = { 0, 1 };
   if (colorArray)
   {
-    vtkDataArray* color =
-      vtkArrayDownCast<vtkDataArray>(tree->GetVertexData()->GetAbstractArray(colorArray));
-    color->GetRange(colorRange);
+    tree->GetVertexData()->GetRange(colorArray, colorRange);
   }
 
   // Layout the tree using vtkGraphLayout.

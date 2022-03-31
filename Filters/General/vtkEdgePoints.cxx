@@ -82,7 +82,7 @@ int vtkEdgePoints::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  inScalars->GetRange(range, 0);
+  input->GetPointData()->GetRange(inScalars->GetName(), range, 0);
   if (this->Value < range[0] || this->Value > range[1])
   {
     vtkWarningMacro(<< "Value lies outside of scalar range");

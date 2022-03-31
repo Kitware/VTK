@@ -24,6 +24,7 @@
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
@@ -131,16 +132,13 @@ void vtkChartParallelCoordinates::Update()
     this->Storage->AxesSelections.resize(this->Storage->Axes.size(), vtkVector2f(0, 0));
   }
 
+  vtkDataSetAttributes* rowData = table->GetRowData();
+
   // Now set up their ranges and locations
   for (int i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
   {
     double range[2];
-    vtkDataArray* array =
-      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->VisibleColumns->GetValue(i)));
-    if (array)
-    {
-      array->GetRange(range);
-    }
+    rowData->GetRange(this->VisibleColumns->GetValue(i), range);
     vtkAxis* axis = this->Storage->Axes[i];
     if (axis->GetBehavior() == 0)
     {

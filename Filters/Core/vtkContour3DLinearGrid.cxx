@@ -1312,7 +1312,7 @@ void vtkContour3DLinearGrid::ProcessPiece(
   // Compute the scalar array range difference between min and max is 0.0, do not use
   // a scalar tree (no contour will be generated anyway).
   double scalarRange[2];
-  inScalars->GetRange(scalarRange);
+  input->GetPointData()->GetRange(inScalars->GetName(), scalarRange);
   double rangeDiff = scalarRange[1] - scalarRange[0];
 
   // If a scalar tree is requested, retrieve previous or if not found,
@@ -1548,7 +1548,7 @@ int vtkContour3DLinearGrid::RequestData(
     }
 
     double scalarRange[2];
-    inScalars->GetRange(scalarRange);
+    inputGrid->GetPointData()->GetRange(inScalars->GetName(), scalarRange);
     double rangeDiff = scalarRange[1] - scalarRange[0];
 
     // Use provided scalar tree if not a composite data set input and scalar array range

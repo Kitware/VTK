@@ -53,6 +53,7 @@
 class vtkColorTransferFunction;
 class vtkLookupTable;
 class vtkPiecewiseFunction;
+class vtkUnsignedCharArray;
 
 class VTKRENDERINGCORE_EXPORT vtkDiscretizableColorTransferFunction
   : public vtkColorTransferFunction
@@ -68,6 +69,8 @@ public:
    */
   int IsOpaque() override;
   int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component) override;
+  int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
+    vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip = 0xff) override;
   ///@}
 
   /**
