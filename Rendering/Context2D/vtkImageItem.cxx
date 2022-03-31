@@ -43,6 +43,13 @@ bool vtkImageItem::Paint(vtkContext2D* painter)
 {
   if (this->Image)
   {
+    int dims[3];
+    this->Image->GetDimensions(dims);
+    if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
+    {
+      return true;
+    }
+
     // Draw our image in the bottom left corner of the item
     painter->DrawImage(this->Position[0], this->Position[1], this->Image);
   }
