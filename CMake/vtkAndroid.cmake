@@ -22,9 +22,10 @@ if (DEFINED ENV{ANDROID_NDK})
 endif()
 set(ANDROID_NDK ${_ANDROID_NDK_DEFAULT} CACHE PATH
   "Set to the absolute path of the Android NDK root directory.\
- A \$\{ANDROID_NDK\}/platforms directory must exist."
+ A \$\{ANDROID_NDK\}/sources/android directory must exist."
   )
-if (NOT EXISTS "${ANDROID_NDK}/platforms")
+# Verify ANDROID_NDK path
+if (NOT EXISTS "${ANDROID_NDK}/sources/android")
   message(FATAL_ERROR "Please set a valid ANDROID_NDK path")
 endif()
 set(ANDROID_NATIVE_API_LEVEL "27" CACHE STRING "Android Native API Level")
