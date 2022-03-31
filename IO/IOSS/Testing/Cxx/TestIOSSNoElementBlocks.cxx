@@ -64,7 +64,7 @@ int TestIOSSNoElementBlocks(int argc, char* argv[])
   auto ds = pd ? pd->GetPartition(0) : nullptr;
   VERIFY((ds != nullptr), "expected block");
   VERIFY((ds->GetNumberOfPoints() == 1), "expected 1 points");
-  VERIFY(ds->GetPointData()->GetArray("Disp") != nullptr, "expected 'Disp' array");
-  VERIFY(ds->GetPointData()->GetArray("Rot") != nullptr, "expected 'Rot' array");
+  VERIFY(ds->GetPointData()->GetArray("disp") != nullptr, "expected 'disp' array");
+  VERIFY(ds->GetPointData()->GetArray("rot") != nullptr, "expected 'rot' array");
   return EXIT_SUCCESS;
 }
