@@ -30,7 +30,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/VertexClustering.h>
+#include <vtkm/filter/geometry_refinement/VertexClustering.h>
 // To handle computing custom coordinate sets bounds we need to include
 // the following
 
@@ -134,7 +134,7 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
       return 0;
     }
 
-    vtkm::filter::VertexClustering filter;
+    vtkm::filter::geometry_refinement::VertexClustering filter;
     filter.SetNumberOfDivisions(vtkm::make_Vec(
       this->NumberOfDivisions[0], this->NumberOfDivisions[1], this->NumberOfDivisions[2]));
 

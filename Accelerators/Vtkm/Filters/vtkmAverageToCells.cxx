@@ -26,7 +26,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/CellAverage.h>
+#include <vtkm/filter/field_conversion/CellAverage.h>
 
 vtkStandardNewMacro(vtkmAverageToCells);
 
@@ -67,8 +67,8 @@ int vtkmAverageToCells::RequestData(vtkInformation* vtkNotUsed(request),
     auto field = tovtkm::Convert(fieldArray, association);
     in.AddField(field);
 
-    vtkm::filter::CellAverage filter;
-    filter.SetActiveField(fieldName, vtkm::cont::Field::Association::POINTS);
+    vtkm::filter::field_conversion::CellAverage filter;
+    filter.SetActiveField(fieldName, vtkm::cont::Field::Association::Points);
     filter.SetOutputFieldName(fieldName); // should we expose this control?
 
     auto result = filter.Execute(in);

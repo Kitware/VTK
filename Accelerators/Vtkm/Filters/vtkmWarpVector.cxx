@@ -33,7 +33,7 @@
 #include "vtkm/cont/DataSetFieldAdd.h"
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/WarpVector.h>
+#include <vtkm/filter/field_transform/WarpVector.h>
 
 vtkStandardNewMacro(vtkmWarpVector);
 
@@ -99,13 +99,13 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
     vtkm::cont::Field vectorField = tovtkm::Convert(vectors, vectorsAssociation);
     in.AddField(vectorField);
 
-    vtkm::filter::WarpVector warpVector(this->ScaleFactor);
+    vtkm::filter::field_transform::WarpVector warpVector(this->ScaleFactor);
     warpVector.SetUseCoordinateSystemAsField(true);
     warpVector.SetVectorField(vectorField.GetName(), vectorField.GetAssociation());
     auto result = warpVector.Execute(in);
 
     vtkDataArray* warpVectorResult =
-      fromvtkm::Convert(result.GetField("warpvector", vtkm::cont::Field::Association::POINTS));
+      fromvtkm::Convert(result.GetField("warpvector", vtkm::cont::Field::Association::Points));
     vtkNew<vtkPoints> newPts;
 
     newPts->SetNumberOfPoints(warpVectorResult->GetNumberOfTuples());

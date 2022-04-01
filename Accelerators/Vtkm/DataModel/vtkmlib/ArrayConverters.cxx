@@ -140,12 +140,12 @@ bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
   {
     const vtkm::cont::Field& f = input.GetField(i);
     vtkDataArray* vfield = Convert(f);
-    if (vfield && f.GetAssociation() == vtkm::cont::Field::Association::POINTS)
+    if (vfield && f.GetAssociation() == vtkm::cont::Field::Association::Points)
     {
       pd->AddArray(vfield);
       vfield->FastDelete();
     }
-    else if (vfield && f.GetAssociation() == vtkm::cont::Field::Association::CELL_SET)
+    else if (vfield && f.GetAssociation() == vtkm::cont::Field::Association::Cells)
     {
       cd->AddArray(vfield);
       vfield->FastDelete();

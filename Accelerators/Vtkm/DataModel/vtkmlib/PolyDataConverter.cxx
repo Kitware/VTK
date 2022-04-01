@@ -98,14 +98,14 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     if (homoSize == 3)
     {
       // We are all triangles
-      vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_TRIANGLE, numPoints);
+      auto dcells = ConvertSingleType(cells, VTK_TRIANGLE, numPoints);
       dataset.SetCellSet(dcells);
       filled = true;
     }
     else if (homoSize == 4)
     {
       // We are all quads
-      vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_QUAD, numPoints);
+      auto dcells = ConvertSingleType(cells, VTK_QUAD, numPoints);
       dataset.SetCellSet(dcells);
       filled = true;
     }
@@ -120,7 +120,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
 
       cells->Visit(build_type_array{}, types.GetPointer());
 
-      vtkm::cont::DynamicCellSet dcells = Convert(types, cells, numPoints);
+      auto dcells = Convert(types, cells, numPoints);
       dataset.SetCellSet(dcells);
       filled = true;
     }
@@ -132,7 +132,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     if (homoSize == 2)
     {
       // We are all lines
-      vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_LINE, numPoints);
+      auto dcells = ConvertSingleType(cells, VTK_LINE, numPoints);
       dataset.SetCellSet(dcells);
       filled = true;
     }
@@ -150,7 +150,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     if (homoSize == 1)
     {
       // We are all single vertex
-      vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_VERTEX, numPoints);
+      auto dcells = ConvertSingleType(cells, VTK_VERTEX, numPoints);
       dataset.SetCellSet(dcells);
       filled = true;
     }
@@ -194,7 +194,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet
   // this should be fairly easy as the cells are all a single cell type
   // so we just need to determine what cell type it is and copy the results
   // into a new array
-  vtkm::cont::DynamicCellSet const& outCells = voutput.GetCellSet();
+  auto const& outCells = voutput.GetCellSet();
   vtkNew<vtkCellArray> cells;
   const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer());
   if (!cellsConverted)

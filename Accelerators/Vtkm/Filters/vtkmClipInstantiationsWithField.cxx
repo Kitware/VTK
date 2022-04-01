@@ -16,13 +16,13 @@
 #include "vtkmClipInternals.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include <vtkm/filter/ClipWithField.h>
+#include <vtkm/filter/contour/ClipWithField.h>
 
 //------------------------------------------------------------------------------
 vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithField(
   vtkm::cont::DataSet& in, vtkDataArray* scalars, int assoc)
 {
-  vtkm::filter::ClipWithField fieldFilter;
+  vtkm::filter::contour::ClipWithField fieldFilter;
   if (!this->ComputeScalars)
   {
     // explicitly convert just the field we need
@@ -30,10 +30,10 @@ vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithField(
     in.AddField(inField);
     // don't pass this field
     fieldFilter.SetFieldsToPass(
-      vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
+      vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None));
   }
 
-  fieldFilter.SetActiveField(scalars->GetName(), vtkm::cont::Field::Association::POINTS);
+  fieldFilter.SetActiveField(scalars->GetName(), vtkm::cont::Field::Association::Points);
   fieldFilter.SetClipValue(this->ClipValue);
   return fieldFilter.Execute(in);
 }

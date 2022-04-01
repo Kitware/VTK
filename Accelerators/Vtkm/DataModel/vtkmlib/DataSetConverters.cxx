@@ -237,7 +237,8 @@ bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtk
   using coordType =
     vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
       vtkm::cont::ArrayHandle<vtkm::FloatDefault>, vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
-  auto coordsArray = vtkm::cont::Cast<coordType>(vtkmOut.GetCoordinateSystem().GetData());
+  coordType coordsArray;
+  vtkmOut.GetCoordinateSystem().GetData().AsArrayHandle(coordsArray);
 
   vtkSmartPointer<vtkDataArray> xArray =
     Convert(vtkm::cont::make_FieldPoint("xArray", coordsArray.GetFirstArray()));

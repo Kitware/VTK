@@ -28,7 +28,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/PointElevation.h>
+#include <vtkm/filter/field_transform/PointElevation.h>
 
 vtkStandardNewMacro(vtkmPointElevation);
 
@@ -64,7 +64,7 @@ int vtkmPointElevation::RequestData(
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
 
     // Setup input
-    vtkm::filter::PointElevation filter;
+    vtkm::filter::field_transform::PointElevation filter;
     filter.SetLowPoint(this->LowPoint[0], this->LowPoint[1], this->LowPoint[2]);
     filter.SetHighPoint(this->HighPoint[0], this->HighPoint[1], this->HighPoint[2]);
     filter.SetRange(this->ScalarRange[0], this->ScalarRange[1]);

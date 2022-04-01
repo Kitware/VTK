@@ -21,7 +21,7 @@
 #include "vtkmConfigDataModel.h" //required for general vtkm setup
 
 #include <vtkType.h>
-#include <vtkm/cont/DynamicCellSet.h>
+#include <vtkm/cont/UnknownCellSet.h>
 
 class vtkCellArray;
 class vtkUnsignedCharArray;
@@ -30,11 +30,11 @@ class vtkIdTypeArray;
 namespace tovtkm
 {
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-vtkm::cont::DynamicCellSet ConvertSingleType(
+vtkm::cont::UnknownCellSet ConvertSingleType(
   vtkCellArray* cells, int cellType, vtkIdType numberOfPoints);
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-vtkm::cont::DynamicCellSet Convert(
+vtkm::cont::UnknownCellSet Convert(
   vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints);
 }
 
@@ -42,7 +42,7 @@ namespace fromvtkm
 {
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-bool Convert(const vtkm::cont::DynamicCellSet& toConvert, vtkCellArray* cells,
+bool Convert(const vtkm::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
   vtkUnsignedCharArray* types = nullptr);
 }
 

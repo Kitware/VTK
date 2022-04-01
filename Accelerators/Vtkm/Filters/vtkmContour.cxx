@@ -35,7 +35,7 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/ErrorFilterExecution.h>
-#include <vtkm/filter/Contour.h>
+#include <vtkm/filter/contour/Contour.h>
 
 vtkStandardNewMacro(vtkmContour);
 
@@ -127,7 +127,7 @@ int vtkmContour::RequestData(
     }
 
     vtkm::filter::Contour filter;
-    filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::POINTS);
+    filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::Points);
     filter.SetGenerateNormals(this->GetComputeNormals() != 0);
     filter.SetNumberOfIsoValues(numContours);
     for (int i = 0; i < numContours; ++i)
@@ -148,7 +148,8 @@ int vtkmContour::RequestData(
       auto inField = tovtkm::Convert(inputArray, association);
       in.AddField(inField);
       // don't pass this field
-      filter.SetFieldsToPass(vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
+      filter.SetFieldsToPass(
+        vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None));
     }
 
     vtkm::cont::DataSet result = filter.Execute(in);

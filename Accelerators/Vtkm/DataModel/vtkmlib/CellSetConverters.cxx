@@ -70,7 +70,7 @@ struct ReorderHex : vtkm::worklet::WorkletMapField
 struct BuildSingleTypeCellSetVisitor
 {
   template <typename CellStateT>
-  vtkm::cont::DynamicCellSet operator()(
+  vtkm::cont::UnknownCellSet operator()(
     CellStateT& state, vtkm::UInt8 cellType, vtkm::IdComponent cellSize, vtkIdType numPoints)
   {
     using VTKIdT = typename CellStateT::ValueType; // might not be vtkIdType...
@@ -98,7 +98,7 @@ struct BuildSingleTypeCellSetVisitor
 struct BuildSingleTypeVoxelCellSetVisitor
 {
   template <typename CellStateT>
-  vtkm::cont::DynamicCellSet operator()(CellStateT& state, vtkIdType numPoints)
+  vtkm::cont::UnknownCellSet operator()(CellStateT& state, vtkIdType numPoints)
   {
     vtkm::cont::ArrayHandle<vtkm::Id> connHandle;
     {
@@ -131,7 +131,7 @@ struct BuildSingleTypeVoxelCellSetVisitor
 } // end anon namespace
 
 // convert a cell array of a single type to a vtkm CellSetSingleType
-vtkm::cont::DynamicCellSet ConvertSingleType(
+vtkm::cont::UnknownCellSet ConvertSingleType(
   vtkCellArray* cells, int cellType, vtkIdType numberOfPoints)
 {
   switch (cellType)
@@ -186,7 +186,7 @@ namespace
 struct BuildExplicitCellSetVisitor
 {
   template <typename CellStateT, typename S>
-  vtkm::cont::DynamicCellSet operator()(CellStateT& state,
+  vtkm::cont::UnknownCellSet operator()(CellStateT& state,
     const vtkm::cont::ArrayHandle<vtkm::UInt8, S>& shapes, vtkm::Id numPoints) const
   {
     using VTKIdT = typename CellStateT::ValueType; // might not be vtkIdType...
@@ -220,7 +220,7 @@ struct BuildExplicitCellSetVisitor
 } // end anon namespace
 
 // convert a cell array of mixed types to a vtkm CellSetExplicit
-vtkm::cont::DynamicCellSet Convert(
+vtkm::cont::UnknownCellSet Convert(
   vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints)
 {
   using ShapeArrayType = vtkAOSDataArrayTemplate<vtkm::UInt8>;
@@ -233,7 +233,7 @@ vtkm::cont::DynamicCellSet Convert(
 namespace fromvtkm
 {
 
-bool Convert(const vtkm::cont::DynamicCellSet& toConvert, vtkCellArray* cells,
+bool Convert(const vtkm::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
   vtkUnsignedCharArray* typesArray)
 {
   const auto* cellset = toConvert.GetCellSetBase();

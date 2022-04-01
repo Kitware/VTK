@@ -57,7 +57,7 @@ struct VtkmLocator
 
 struct vtkmDataSet::DataMembers
 {
-  vtkm::cont::DynamicCellSet CellSet;
+  vtkm::cont::UnknownCellSet CellSet;
   vtkm::cont::CoordinateSystem Coordinates;
   vtkNew<vtkGenericCell> Cell;
 
