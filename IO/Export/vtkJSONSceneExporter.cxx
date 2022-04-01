@@ -364,10 +364,15 @@ std::string vtkJSONSceneExporter::ExtractActorRenderingSetup(vtkActor* actor)
 
 //------------------------------------------------------------------------------
 
+std::string vtkJSONSceneExporter::GetTemporaryPath() const
+{
+  return std::string(this->FileName) + ".pvtmp";
+}
+
 std::string vtkJSONSceneExporter::CurrentDataSetPath() const
 {
   std::stringstream path;
-  path << this->FileName << "/" << this->DatasetCount + 1;
+  path << this->GetTemporaryPath() << "/" << this->DatasetCount + 1;
   return vtksys::SystemTools::ConvertToOutputPath(path.str());
 }
 
@@ -542,9 +547,11 @@ void vtkJSONSceneExporter::WriteData()
     return;
   }
 
-  if (!vtksys::SystemTools::MakeDirectory(this->FileName))
+  std::string tmpPath = this->GetTemporaryPath();
+
+  if (!vtksys::SystemTools::MakeDirectory(tmpPath))
   {
-    vtkErrorMacro(<< "Can not create directory " << this->FileName);
+    vtkErrorMacro(<< "Cannot create directory " << tmpPath);
     return;
   }
 
@@ -592,12 +599,25 @@ void vtkJSONSceneExporter::WriteData()
 
   // Write meta-data file
   std::stringstream scenePath;
-  scenePath << this->FileName << "/index.json";
+  scenePath << tmpPath << "/index.json";
 
   vtksys::ofstream file;
   file.open(scenePath.str().c_str(), ios::out);
   file << sceneJsonFile.str().c_str();
   file.close();
+
+  if (vtksys::SystemTools::FileExists(this->FileName))
+  {
+    vtksys::SystemTools::RemoveFile(this->FileName);
+  }
+
+  int result = std::rename(tmpPath.c_str(), this->FileName);
+
+  if (result != 0)
+  {
+    vtkErrorMacro("Cannot rename temporary file.");
+    return;
+  }
 }
 
 namespace
@@ -683,7 +703,7 @@ std::string vtkJSONSceneExporter::WriteTextureLODSeries(vtkTexture* texture)
 
   // Write these into the parent directory of our file.
   // This next line also converts the path to unix slashes.
-  std::string path = vtksys::SystemTools::GetParentDirectory(this->FileName);
+  std::string path = vtksys::SystemTools::GetParentDirectory(this->GetTemporaryPath());
   path += "/";
   path = vtksys::SystemTools::ConvertToOutputPath(path);
 
@@ -763,7 +783,7 @@ vtkSmartPointer<vtkPolyData> vtkJSONSceneExporter::WritePolyLODSeries(
   // Write these into the parent directory of our file.
   // This next line also converts the path to unix slashes.
   vtkNew<vtkJSONDataSetWriter> dsWriter;
-  std::string path = vtksys::SystemTools::GetParentDirectory(this->FileName) + "/";
+  std::string path = vtksys::SystemTools::GetParentDirectory(this->GetTemporaryPath()) + "/";
   path = vtksys::SystemTools::ConvertToOutputPath(path);
 
   // If the new size is not at least 5% different from the old size,

@@ -19,6 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
@@ -256,15 +257,19 @@ void vtkImageTransform::TransformPointSet(
 
   if (transformNormals)
   {
+    vtkNew<vtkMatrix3x3> m3n;
+    vtkMatrix3x3::Transpose(m3, m3n);
+    m3n->Invert();
+
     vtkDataArray* normals = ps->GetPointData()->GetNormals();
     if (normals != nullptr)
     {
-      vtkImageTransform::TransformNormals(m3, ar, normals);
+      vtkImageTransform::TransformNormals(m3n, ar, normals);
     }
     normals = ps->GetCellData()->GetNormals();
     if (normals != nullptr)
     {
-      vtkImageTransform::TransformNormals(m3, ar, normals);
+      vtkImageTransform::TransformNormals(m3n, ar, normals);
     }
   }
 
