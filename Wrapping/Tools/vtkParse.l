@@ -73,7 +73,7 @@ static const char* raw_string(const char* begin);
 static void preprocessor_directive(const char* text, size_t l);
 static void print_preprocessor_error(int result, const char* cp, size_t n);
 static char* get_macro_arguments(void);
-static char* skip_macro_arguments(void);
+static void skip_macro_arguments(void);
 
 static void push_buffer(void);
 static int pop_buffer(void);
