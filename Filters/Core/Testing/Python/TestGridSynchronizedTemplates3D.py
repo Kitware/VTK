@@ -20,8 +20,7 @@ class TestGridSynchronizedTemplates3D(Testing.vtkTest):
         max = range[1]
         value = (min + max) / 2.0
 
-        # cf = vtk.vtkGridSynchronizedTemplates3D()
-        cf = vtk.vtkContourFilter()
+        cf = vtk.vtkGridSynchronizedTemplates3D()
         cf.SetInputData(pl3d_output)
         cf.SetValue(0, value)
         cf.GenerateTrianglesOff()

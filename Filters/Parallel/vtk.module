@@ -42,6 +42,7 @@ TEST_DEPENDS
   VTK::TestingCore
   VTK::TestingRendering
 TEST_OPTIONAL_DEPENDS
+  VTK::AcceleratorsVTKmFilters
   VTK::FiltersParallelGeometry
   VTK::FiltersParallelMPI
   VTK::ParallelMPI

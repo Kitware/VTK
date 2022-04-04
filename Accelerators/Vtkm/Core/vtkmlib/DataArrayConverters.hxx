@@ -59,15 +59,27 @@ vtkm::cont::UnknownArrayHandle vtkDataArrayToUnknownArrayHandle(DataArrayType* i
 template <typename DataArrayType>
 vtkm::cont::Field ConvertPointField(DataArrayType* input)
 {
+  const char* name = input->GetName();
+  if (!name || name[0] == '\0')
+  {
+    name = NoNameVTKFieldName();
+  }
+
   auto vhandle = vtkDataArrayToUnknownArrayHandle(input);
-  return vtkm::cont::make_FieldPoint(input->GetName(), vhandle);
+  return vtkm::cont::make_FieldPoint(name, vhandle);
 }
 
 template <typename DataArrayType>
 vtkm::cont::Field ConvertCellField(DataArrayType* input)
 {
+  const char* name = input->GetName();
+  if (!name || name[0] == '\0')
+  {
+    name = NoNameVTKFieldName();
+  }
+
   auto vhandle = vtkDataArrayToUnknownArrayHandle(input);
-  return vtkm::cont::make_FieldCell(input->GetName(), vhandle);
+  return vtkm::cont::make_FieldCell(name, vhandle);
 }
 
 } // tovtkm
