@@ -83,7 +83,6 @@ private:
   void operator=(const vtkPOpenFOAMReader&) = delete;
 
   void GatherMetaData();
-  void BroadcastStatus(int&);
   void Broadcast(vtkStringArray*);
   void AllGather(vtkStringArray*);
   void AllGather(vtkDataArraySelection*);
