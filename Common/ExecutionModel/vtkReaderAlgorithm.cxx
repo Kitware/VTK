@@ -125,6 +125,11 @@ vtkTypeBool vtkReaderAlgorithm::ProcessRequest(
       // cleanup output so we don't end up producing partial results.
       output->Initialize();
     }
+
+    if (hasTime && steps)
+    {
+      output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), steps[timeIndex]);
+    }
   }
 
   return result;
