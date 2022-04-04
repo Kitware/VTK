@@ -1604,18 +1604,14 @@ vtkPlaneCutter::vtkPlaneCutter()
   , BuildTree(true)
   , BuildHierarchy(true)
 {
-  this->Plane = vtkPlane::New();
-  this->ComputeNormals = false;
-  this->InterpolateAttributes = true;
-  this->GeneratePolygons = true;
-  this->BuildTree = true;
-  this->BuildHierarchy = true;
+  this->InputInfo = vtkInputInfo(nullptr, 0);
 }
 
 //------------------------------------------------------------------------------
 vtkPlaneCutter::~vtkPlaneCutter()
 {
   this->SetPlane(nullptr);
+  this->InputInfo = vtkInputInfo(nullptr, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -1714,6 +1710,13 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
 {
   vtkDebugMacro(<< "Executing plane cutter");
   auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  // reset sphere trees if the input has changed
+  if (this->InputInfo.Input != inputDO || this->InputInfo.LastMTime != inputDO->GetMTime())
+  {
+    this->InputInfo = vtkInputInfo(inputDO, inputDO->GetMTime());
+    this->SphereTrees.clear();
+  }
+
   if (auto inputMB = vtkMultiBlockDataSet::SafeDownCast(inputDO))
   {
     auto outputMB = vtkMultiBlockDataSet::GetData(outputVector, 0);

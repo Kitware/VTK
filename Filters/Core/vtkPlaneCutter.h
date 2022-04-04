@@ -186,6 +186,23 @@ protected:
   // Helpers
   vtkSphereTree* GetSphereTree(vtkDataSet*);
   std::map<vtkDataSet*, vtkSmartPointer<vtkSphereTree>> SphereTrees;
+  struct vtkInputInfo
+  {
+    vtkDataObject* Input;
+    vtkMTimeType LastMTime;
+
+    vtkInputInfo()
+      : Input(nullptr)
+      , LastMTime(0)
+    {
+    }
+    vtkInputInfo(vtkDataObject* input, vtkMTimeType mtime)
+      : Input(input)
+      , LastMTime(mtime)
+    {
+    }
+  };
+  vtkInputInfo InputInfo;
 
   // Pipeline-related methods
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
