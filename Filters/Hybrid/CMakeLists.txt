@@ -7,6 +7,7 @@ set(classes
   vtkEarthSource
   vtkFacetReader
   vtkForceTime
+  vtkGenerateTimeSteps
   vtkGreedyTerrainDecimation
   vtkGridTransform
   vtkImageToPolyDataFilter
