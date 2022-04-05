@@ -37,6 +37,7 @@
 #include <vtkm/filter/CleanGrid.h>
 
 #include <numeric>
+#include <utility>
 
 vtkInformationKeyMacro(vtkFidesReader, NUMBER_OF_BLOCKS, Integer);
 
@@ -49,9 +50,11 @@ struct vtkFidesReader::vtkFidesReaderImpl
   bool HasParsedDataModel{ false };
   bool AllDataSourcesSet{ false };
   bool UsePresetModel{ false };
-  bool HasReadMetadata{ false };
   int NumberOfDataSources{ 0 };
   vtkNew<vtkStringArray> SourceNames;
+
+  // first -> source name, second -> address of IO object
+  std::pair<std::string, std::string> IOObjectInfo;
 
   vtkStringArray* GetDataSourceNames()
   {
@@ -73,6 +76,20 @@ struct vtkFidesReader::vtkFidesReaderImpl
       auto names = this->Reader->GetDataSourceNames();
       this->NumberOfDataSources = names.size();
     }
+  }
+
+  void SetupInlineEngine()
+  {
+    if (this->IOObjectInfo.first.empty() || this->IOObjectInfo.second.empty())
+    {
+      return;
+    }
+
+    // params has to be set before setting data source
+    fides::DataSourceParams params;
+    params["engine_type"] = "Inline";
+    this->Reader->SetDataSourceParameters(this->IOObjectInfo.first, params);
+    this->Reader->SetDataSourceIO(this->IOObjectInfo.first, this->IOObjectInfo.second);
   }
 };
 
@@ -128,11 +145,20 @@ void vtkFidesReader::SetFileName(const std::string& fname)
   }
 }
 
+void vtkFidesReader::SetDataSourceIO(const std::string& name, const std::string& ioAddress)
+{
+  // can't call SetDataSourceIO in Fides yet, so just save the address for now
+  this->Impl->IOObjectInfo = std::make_pair(name, ioAddress);
+  this->StreamSteps = true;
+  this->Modified();
+}
+
 // This version is used when a json file with the data model is provided
 void vtkFidesReader::ParseDataModel(const std::string& fname)
 {
   this->Impl->Reader.reset(new fides::io::DataSetReader(fname));
   this->Impl->HasParsedDataModel = true;
+  this->Impl->SetupInlineEngine();
 }
 
 // This version is used when a pre-defined data model is being used
@@ -141,6 +167,7 @@ void vtkFidesReader::ParseDataModel()
   this->Impl->Reader.reset(
     new fides::io::DataSetReader(this->FileName, fides::io::DataSetReader::DataModelInput::BPFile));
   this->Impl->HasParsedDataModel = true;
+  this->Impl->SetupInlineEngine();
 }
 
 void vtkFidesReader::SetDataSourcePath(const std::string& name, const std::string& path)
@@ -149,6 +176,7 @@ void vtkFidesReader::SetDataSourcePath(const std::string& name, const std::strin
   {
     this->Impl->SetNumberOfDataSources();
   }
+  vtkDebugMacro(<< "Number of data sources: " << this->Impl->NumberOfDataSources);
   vtkDebugMacro(<< "source " << name << "'s path is " << path);
   this->Impl->Paths[name] = path;
   this->Modified();
@@ -169,7 +197,6 @@ void vtkFidesReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Use Preset model: " << this->Impl->UsePresetModel << "\n";
   os << indent << "Has parsed data model: " << this->Impl->HasParsedDataModel << "\n";
   os << indent << "All data sources set: " << this->Impl->AllDataSourcesSet << "\n";
-  os << indent << "Has read metadata: " << this->Impl->HasReadMetadata << "\n";
   os << indent << "Number of data sources: " << this->Impl->NumberOfDataSources << "\n";
 }
 
@@ -215,6 +242,15 @@ int vtkFidesReader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  if (this->Impl->NumberOfDataSources == 0)
+  {
+    this->Impl->SetNumberOfDataSources();
+    if (this->Impl->Paths.size() == static_cast<size_t>(this->Impl->NumberOfDataSources))
+    {
+      vtkDebugMacro(<< "All data sources have now been set");
+      this->Impl->AllDataSourcesSet = true;
+    }
+  }
 
   // If we're using a preset model, we'll have to do the call to ParseDataModel here
   if (this->Impl->UsePresetModel && !this->Impl->HasParsedDataModel)
@@ -252,16 +288,13 @@ int vtkFidesReader::RequestInformation(
     return 1;
   }
 
-  if (this->Impl->HasReadMetadata)
-  {
-    return 1;
-  }
   auto metaData = this->Impl->Reader->ReadMetaData(this->Impl->Paths);
-  this->Impl->HasReadMetadata = true;
   vtkDebugMacro(<< "MetaData has been read by Fides");
 
   auto nBlocks = metaData.Get<fides::metadata::Size>(fides::keys::NUMBER_OF_BLOCKS());
   outInfo->Set(NUMBER_OF_BLOCKS(), nBlocks.NumberOfItems);
+  vtkDebugMacro(<< "Number of blocks found in metadata: " << nBlocks.NumberOfItems);
+  outInfo->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
 
   if (metaData.Has(fides::keys::FIELDS()))
   {
@@ -336,7 +369,7 @@ fides::metadata::Vector<size_t> DetermineBlocksToRead(int nBlocks, int nPieces, 
     else
     {
       startPiece = nBlocks - 1;
-      endPiece = startPiece;
+      endPiece = startPiece + 1;
     }
   }
 
@@ -417,6 +450,7 @@ int vtkFidesReader::RequestData(
 
   int nPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  vtkDebugMacro(<< "nBlocks: " << nBlocks << ", nPieces: " << nPieces << ", piece: " << piece);
 
   fides::metadata::Vector<size_t> blocksToRead = DetermineBlocksToRead(nBlocks, nPieces, piece);
 
@@ -425,6 +459,7 @@ int vtkFidesReader::RequestData(
   {
     // nothing to read on this rank
     output->SetNumberOfPartitions(0);
+    vtkDebugMacro(<< "No blocks to read on this rank; returning");
     return 1;
   }
   selections.Set(fides::keys::BLOCK_SELECTION(), blocksToRead);
