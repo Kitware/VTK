@@ -47,8 +47,7 @@ public:
   enum BuildingsContentType
   {
     B3DM,
-    GLB,
-    GLTF
+    GLB
   };
 
   ///@{
@@ -115,7 +114,7 @@ public:
   //@{
   /**
    * What is the BuildingsContentType used for tiles. Default is B3DM.
-   * For BuildingsContentType GLB and GLTF we use 3DTILES_content_gltf extension.
+   * For BuildingsContentType GLB we use 3DTILES_content_gltf extension.
    * For BuildingsContentType B3DM and GLB, external programs are needed to convert
    * GLTF -> GLB -> B3DM. This field is only used for Buildings.
    *

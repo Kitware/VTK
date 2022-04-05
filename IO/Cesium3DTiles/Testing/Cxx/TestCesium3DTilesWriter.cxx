@@ -264,7 +264,7 @@ bool tiler(const std::vector<std::string>& input, int inputType, bool addColor,
   if (inputType == vtkCesium3DTilesWriter::Buildings)
   {
     writer->SetInputDataObject(mbData);
-    writer->SetBuildingsContentType(vtkCesium3DTilesWriter::GLTF);
+    writer->SetBuildingsContentType(vtkCesium3DTilesWriter::GLB);
   }
   else
   {

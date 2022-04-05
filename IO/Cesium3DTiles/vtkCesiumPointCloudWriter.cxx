@@ -214,7 +214,7 @@ void vtkCesiumPointCloudWriter::WriteData()
   vtkByteSwap::SwapWrite4LERange(&header.version, 6, &out);
   // write FeatureTableJSON
   out.write(ostr.str().c_str(), ostr.str().length());
-  // write POSITiON
+  // write POSITION
   for (vtkIdType i = 0; i < this->PointIds->GetNumberOfIds(); ++i)
   {
     double pointd[3];
