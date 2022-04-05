@@ -82,7 +82,9 @@
 
 // clang-format off
 #include "vtk_diy2.h" // Third party include
+#include VTK_DIY2(diy/assigner.hpp)
 #include VTK_DIY2(diy/master.hpp)
+#include VTK_DIY2(diy/partners/all-reduce.hpp)
 // clang-format on
 
 class vtkAbstractPointLocator;
@@ -166,6 +168,8 @@ protected:
      */
     ExtentType ShiftedExtent;
 
+    ExtentType ReceivedGhostExtent = ExtentType{ 1, -1, 1, -1, 1, -1 };
+
     /**
      * Binary mask encoding the adjacency of the neighboring block w.r.t. current block.
      * This mask shall be written / read using Adjacency enumeration.
@@ -191,6 +195,11 @@ protected:
     ExtentType ExtentGhostThickness;
   };
 
+  struct ImageDataInformation : public GridInformation
+  {
+    vtkImageData* Input;
+  };
+
   /**
    * Block structure storing information being communicated by neighboring blocks for
    * `vtkImageData`.
@@ -211,7 +220,7 @@ protected:
     /**
      * Copy constructor.
      */
-    ImageDataBlockStructure(vtkImageData* image, const GridInformation& info);
+    ImageDataBlockStructure(vtkImageData* image, const ImageDataInformation& info);
 
     /**
      * Origin of the neighboring `vtkImageData`.
@@ -246,6 +255,8 @@ protected:
      * the left side of the grid, the second the right side of the grid, and so on.
      */
     vtkSmartPointer<vtkDataArray> CoordinateGhosts[6];
+
+    vtkRectilinearGrid* Input;
   };
 
   /**
@@ -305,6 +316,8 @@ protected:
      * Handle on input points for current block.
      */
     vtkPoints* InputPoints;
+
+    vtkStructuredGrid* Input;
   };
 
   /**
@@ -711,7 +724,7 @@ public:
   /**
    * Block typedefs.
    */
-  using ImageDataBlock = Block<ImageDataBlockStructure, GridInformation>;
+  using ImageDataBlock = Block<ImageDataBlockStructure, ImageDataInformation>;
   using RectilinearGridBlock = Block<RectilinearGridBlockStructure, RectilinearGridInformation>;
   using StructuredGridBlock = Block<StructuredGridBlockStructure, StructuredGridInformation>;
   using UnstructuredDataBlock = Block<UnstructuredDataBlockStructure, UnstructuredDataInformation>;
@@ -888,7 +901,8 @@ protected:
    * a deep copy is done.
    */
   template <class DataSetT>
-  static void CopyInputsAndAllocateGhosts(const diy::Master& master, std::vector<DataSetT*>& inputs,
+  static void CopyInputsAndAllocateGhosts(diy::Master& master, diy::Assigner& assigner,
+    diy::RegularAllReducePartners& partners, std::vector<DataSetT*>& inputs,
     std::vector<DataSetT*>& outputs, int outputGhostLevels);
 
   ///@{
