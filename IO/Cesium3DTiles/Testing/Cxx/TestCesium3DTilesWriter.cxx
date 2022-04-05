@@ -249,9 +249,13 @@ bool tiler(const std::vector<std::string>& input, int inputType, bool addColor,
       vtkNew<vtkUnsignedCharArray> rgb;
       rgb->SetNumberOfComponents(3);
       rgb->SetNumberOfTuples(3);
-      rgb->SetTuple3(0, 255, 0, 0);
-      rgb->SetTuple3(1, 0, 255, 0);
-      rgb->SetTuple3(0, 0, 0, 255);
+      std::array<unsigned char, 3> a;
+      a = { { 255, 0, 0 } };
+      rgb->SetTypedTuple(0, &a[0]);
+      a = { { 0, 255, 0 } };
+      rgb->SetTypedTuple(1, &a[0]);
+      a = { { 0, 0, 255 } };
+      rgb->SetTypedTuple(2, &a[0]);
       rgb->SetName("rgb");
       polyData->GetPointData()->SetScalars(rgb);
     }

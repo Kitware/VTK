@@ -42,7 +42,6 @@ using namespace nlohmann;
 
 namespace
 {
-constexpr float POINTS_PER_METER = 10;
 constexpr double MIN_ERROR = 20;
 
 //------------------------------------------------------------------------------
@@ -81,17 +80,6 @@ std::array<double, 6> ComputeTightBBPoints(
     points->GetPoint(tileBuildings->GetId(i), point);
     bb = { { point[0], point[0], point[1], point[1], point[2], point[2] } };
     wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], &bb[0]);
-  }
-  // if one dimension is 0 make it at least 1 / POINTS_PER_METER,
-  // centered on original point
-  for (int i = 0; i < 3; ++i)
-  {
-    if (vtkMathUtilities::NearlyEqual(wholeBB[2 * i], wholeBB[2 * i + 1], 0.001))
-    {
-      double center = (wholeBB[2 * i] + wholeBB[2 * i + 1]) / 2.0;
-      wholeBB[2 * i] = center - 1.0 / POINTS_PER_METER;
-      wholeBB[2 * i] = center + 1.0 / POINTS_PER_METER;
-    }
   }
   return wholeBB;
 }
