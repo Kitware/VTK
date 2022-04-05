@@ -18,7 +18,7 @@ extern "C" {
 #include <cstdio>  // for nullptr
 #include <cstdlib> // for exit, EXIT_FAILURE
 #include <cstring> // for strlen
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <vtk_netcdf.h> // for NC_NOERR, nc_def_var, etc
 #include <ostream>  // for operator<<, etc

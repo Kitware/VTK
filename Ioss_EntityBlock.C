@@ -10,7 +10,7 @@
 #include <Ioss_Field.h>
 #include <Ioss_Property.h>
 #include <cstddef>
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <ostream>
 #include <string>

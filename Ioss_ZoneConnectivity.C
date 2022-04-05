@@ -7,7 +7,7 @@
 #include <Ioss_Utils.h>
 #include <Ioss_ZoneConnectivity.h>
 #include <cstddef> // for size_t
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <string> // for string
 #include <vector> // for vector

@@ -18,7 +18,7 @@
 #include <functional>
 #include <stdexcept>
 #include <numeric>
-#include "vtk_ioss_fmt.h" // xxx(kitware)
+#include "vtk_fmt.h" // xxx(kitware)
 #include VTK_FMT(fmt/ostream.h)
 
 // xxx(kitware)

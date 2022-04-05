@@ -32,7 +32,7 @@
 
 #include <Ioss_Utils.h> // for Utils, IOSS_ERROR, etc
 #include <climits>
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 
 #include <catalyst.hpp>
