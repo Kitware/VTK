@@ -11,7 +11,7 @@
 #include <Ioss_SmartAssert.h>
 #include <Ioss_Utils.h> // for Utils, IOSS_ERROR
 
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 
 #include <algorithm> // for copy

@@ -34,7 +34,7 @@
 #include <Ioss_Wedge18.h>
 #include <Ioss_Wedge6.h>
 
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/color.h)
 #include VTK_FMT(fmt/ostream.h)
 #include <numeric>

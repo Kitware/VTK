@@ -346,9 +346,7 @@ list(APPEND headers
 
   text_mesh/Iotm_TextMeshUtils.h
 
-  vtk_ioss_mangle.h
-  vtk_ioss_fmt.h
-  )
+  vtk_ioss_mangle.h)
 
 vtk_module_find_package(PACKAGE Threads)
 

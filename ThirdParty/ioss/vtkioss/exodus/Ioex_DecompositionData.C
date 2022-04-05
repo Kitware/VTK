@@ -21,7 +21,7 @@
 #include <cmath>
 #include <cstdlib> // for exit, EXIT_FAILURE
 #include <cstring>
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <iostream> // for operator<<, ostringstream, etc
 #include <iterator> // for distance
