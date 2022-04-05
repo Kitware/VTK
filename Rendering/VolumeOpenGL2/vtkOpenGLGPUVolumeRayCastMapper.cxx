@@ -865,16 +865,32 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingShaderParameters(
   vtkLightCollection* lc = ren->GetLights();
   vtkLight* light;
 
+  /*
+  XXX: This limit of lights is not a "real" limit in VTK. It is inherent to the way
+  the mapper was designed : there's also a trailing '6' in vtkShaderComposer, written
+  directly inside the built shader code
+  */
+  constexpr int maxLights = 6;
+
   vtkCollectionSimpleIterator sit;
-  float lightAmbientColor[6][3];
-  float lightDiffuseColor[6][3];
-  float lightSpecularColor[6][3];
-  float lightDirection[6][3];
+  float lightAmbientColor[maxLights][3];
+  float lightDiffuseColor[maxLights][3];
+  float lightSpecularColor[maxLights][3];
+  float lightDirection[maxLights][3];
   for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit));)
   {
     float status = light->GetSwitch();
     if (status > 0.0)
     {
+
+      if (numberOfLights >= maxLights)
+      {
+        vtkGenericWarningMacro(
+          "Currently, vtkOpenGLGPUVolumeRayCastMapper only supports 6 active lights or less. "
+          "Only the 6 first lights will be considered, the others will be ignored.");
+        break;
+      }
+
       double* aColor = light->GetAmbientColor();
       double* dColor = light->GetDiffuseColor();
       double* sColor = light->GetSpecularColor();
@@ -915,17 +931,26 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingShaderParameters(
   }
 
   // if positional lights pass down more parameters
-  float lightAttenuation[6][3];
-  float lightPosition[6][3];
-  float lightConeAngle[6];
-  float lightExponent[6];
-  int lightPositional[6];
+  float lightAttenuation[maxLights][3];
+  float lightPosition[maxLights][3];
+  float lightConeAngle[maxLights];
+  float lightExponent[maxLights];
+  int lightPositional[maxLights];
   numberOfLights = 0;
   for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit));)
   {
     float status = light->GetSwitch();
     if (status > 0.0)
     {
+
+      if (numberOfLights >= maxLights)
+      {
+        vtkGenericWarningMacro(
+          "Currently, vtkOpenGLGPUVolumeRayCastMapper only supports 6 active lights or less. "
+          "Only the 6 first lights will be considered, the others will be ignored.");
+        break;
+      }
+
       double* attn = light->GetAttenuationValues();
       lightAttenuation[numberOfLights][0] = attn[0];
       lightAttenuation[numberOfLights][1] = attn[1];
