@@ -8032,7 +8032,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
   internalMesh->Allocate(this->NumCells);
 
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-  if (this->Parent->GetDecomposePolyhedra())
+  if (this->Parent->DecomposePolyhedra)
   {
     // For polyhedral decomposition
     this->NumTotalAdditionalCells = 0;
@@ -8433,7 +8433,7 @@ bool vtkOpenFOAMReaderPrivate::MoveInternalMesh(
   const auto nOldPoints = internalMesh->GetPoints()->GetNumberOfPoints();
 
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-  if (this->Parent->GetDecomposePolyhedra() && this->AdditionalCellPoints &&
+  if (this->Parent->DecomposePolyhedra && this->AdditionalCellPoints &&
     !this->AdditionalCellPoints->empty())
   {
     const auto& addCellPoints = *this->AdditionalCellPoints;
@@ -9101,7 +9101,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   if (internalMesh != nullptr)
   {
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-    if (this->Parent->GetDecomposePolyhedra() && this->NumTotalAdditionalCells > 0)
+    if (this->Parent->DecomposePolyhedra && this->NumTotalAdditionalCells > 0)
     {
       // Add values for decomposed cells
       const vtkIdType nTuples = this->AdditionalCellIds->GetNumberOfTuples();
@@ -9136,7 +9136,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       }
 
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-      if (this->Parent->GetDecomposePolyhedra())
+      if (this->Parent->DecomposePolyhedra)
       {
         // assign cell values to additional points
         const vtkIdType nAddPoints = this->AdditionalCellIds->GetNumberOfTuples();
@@ -9595,7 +9595,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   if (internalMesh != nullptr)
   {
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-    if (this->Parent->GetDecomposePolyhedra() && this->AdditionalCellPoints &&
+    if (this->Parent->DecomposePolyhedra && this->AdditionalCellPoints &&
       !this->AdditionalCellPoints->empty())
     {
       // The point-to-cell interpolation to additional cell centroidal points for decomposed cells
@@ -11160,8 +11160,6 @@ void vtkOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CreateCellToPoint: " << this->CreateCellToPoint << endl;
   os << indent << "SizeAverageCellToPoint: " << this->SizeAverageCellToPoint << std::endl;
   os << indent << "CacheMesh: " << this->CacheMesh << endl;
-  os << indent << "DecomposePolyhedra: " << this->DecomposePolyhedra << endl;
-  os << indent << "PositionsIsIn13Format: " << this->PositionsIsIn13Format << endl;
   os << indent << "ReadZones: " << this->ReadZones << endl;
   os << indent << "AddDimensionsToArrayNames: " << this->AddDimensionsToArrayNames << endl;
 
@@ -11765,4 +11763,27 @@ void vtkOpenFOAMReader::UpdateProgress(double amount)
     (static_cast<double>(this->Parent->CurrentReaderIndex) + amount) /
     static_cast<double>(this->Parent->NumberOfReaders));
 }
+
+//------------------------------------------------------------------------------
+// Like using the set macro, but with deprecation / disabled warning
+void vtkOpenFOAMReader::SetDecomposePolyhedra(vtkTypeBool _arg)
+{
+#if defined(VTK_FOAMFILE_DECOMPOSE_POLYHEDRA) && VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+  if (this->DecomposePolyhedra != _arg)
+  {
+    this->DecomposePolyhedra = _arg;
+    this->Modified();
+    if (_arg)
+    {
+      vtkWarningMacro(<< "Decompose polyhedra is highly deprecated. Will be removed in the future");
+    }
+  }
+#else
+  if (_arg)
+  {
+    vtkWarningMacro(<< "Decompose polyhedra is compile-time disabled");
+  }
+#endif
+}
+
 VTK_ABI_NAMESPACE_END

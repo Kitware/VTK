@@ -47,6 +47,7 @@
 #ifndef vtkOpenFOAMReader_h
 #define vtkOpenFOAMReader_h
 
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
@@ -268,7 +269,8 @@ public:
   /**
    * Set/Get whether polyhedra are to be decomposed.
    */
-  vtkSetMacro(DecomposePolyhedra, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_1_0("Decomposing polyhedra will be removed.")
+  virtual void SetDecomposePolyhedra(vtkTypeBool _arg);
   vtkGetMacro(DecomposePolyhedra, vtkTypeBool);
   vtkBooleanMacro(DecomposePolyhedra, vtkTypeBool);
   ///@}
