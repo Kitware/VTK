@@ -81,10 +81,7 @@ public:
   static const char* GetStructureTypeAsString(const XrStructureType& structureType);
   //@}
 
-  constexpr static XrPosef IdentityPose = {
-    { 0.0, 0.0, 0.0, 1.0 }, // .orientation
-    { 0.0, 0.0, 0.0 }       // .position
-  };
+  static const XrPosef& GetIdentityPose();
 
 protected:
   vtkOpenXRUtilities() = default;
@@ -94,6 +91,16 @@ private:
   vtkOpenXRUtilities(const vtkOpenXRUtilities&) = delete;
   void operator=(const vtkOpenXRUtilities&) = delete;
 };
+
+//----------------------------------------------------------------------------
+inline const XrPosef& vtkOpenXRUtilities::GetIdentityPose()
+{
+  static const XrPosef pose = {
+    { 0.0, 0.0, 0.0, 1.0 }, // .orientation
+    { 0.0, 0.0, 0.0 }       // .position
+  };
+  return pose;
+}
 
 //----------------------------------------------------------------------------
 inline void vtkOpenXRUtilities::CreateProjectionFov(
@@ -223,7 +230,7 @@ inline void vtkOpenXRUtilities::SetMatrixFromXrPose(vtkMatrix4x4* result, const 
 }
 
 //----------------------------------------------------------------------------
-const char* vtkOpenXRUtilities::GetActionTypeAsString(const XrActionType& actionType)
+inline const char* vtkOpenXRUtilities::GetActionTypeAsString(const XrActionType& actionType)
 {
   switch (actionType)
   {
@@ -243,7 +250,7 @@ const char* vtkOpenXRUtilities::GetActionTypeAsString(const XrActionType& action
 }
 
 //----------------------------------------------------------------------------
-const char* vtkOpenXRUtilities::GetViewConfigurationTypeAsString(
+inline const char* vtkOpenXRUtilities::GetViewConfigurationTypeAsString(
   const XrViewConfigurationType& viewConfigType)
 {
   switch (viewConfigType)
@@ -262,7 +269,8 @@ const char* vtkOpenXRUtilities::GetViewConfigurationTypeAsString(
 }
 
 //----------------------------------------------------------------------------
-const char* vtkOpenXRUtilities::GetStructureTypeAsString(const XrStructureType& structureType)
+inline const char* vtkOpenXRUtilities::GetStructureTypeAsString(
+  const XrStructureType& structureType)
 {
   switch (structureType)
   {

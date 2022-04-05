@@ -205,10 +205,6 @@ bool vtkOpenXRManager::WaitAndBeginFrame()
     return false;
   }
 
-  // This vector will contains the XrCompositionLayerProjection that need to be submitted in
-  // XrEndFrame through the frameEndInfo. We can submit multiple layers
-  this->LayersToSubmit.clear();
-
   // Store the value of shouldRender to avoid a render
   this->ShouldRenderCurrentFrame = frameState.shouldRender;
 
@@ -362,11 +358,13 @@ void vtkOpenXRManager::ReleaseSwapchainImage(const uint32_t eye)
 //------------------------------------------------------------------------------
 bool vtkOpenXRManager::EndFrame()
 {
+  // The projection layer consists of projection layer views.
+  XrCompositionLayerProjection layer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
+  std::vector<XrCompositionLayerBaseHeader*> layers;
+
   // If the frame has been rendered, then we must submit the ProjectionLayerViews:
   if (this->ShouldRenderCurrentFrame)
   {
-    // The projection layer consists of projection layer views.
-    XrCompositionLayerProjection layer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
     // Inform the runtime that the app's submitted alpha channel has valid data for use during
     // composition. The primary display on HoloLens has an additive environment blend mode. It will
     // ignore the alpha channel. However, mixed reality capture uses the alpha channel if this bit
@@ -378,7 +376,7 @@ bool vtkOpenXRManager::EndFrame()
     layer.views = this->RenderResources->ProjectionLayerViews.data();
 
     // Add the layer to the submitted layers
-    this->LayersToSubmit.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&layer));
+    layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&layer));
   }
   // Reset should render state
   this->ShouldRenderCurrentFrame = false;
@@ -388,8 +386,8 @@ bool vtkOpenXRManager::EndFrame()
   XrFrameEndInfo frameEndInfo{ XR_TYPE_FRAME_END_INFO };
   frameEndInfo.displayTime = this->PredictedDisplayTime;
   frameEndInfo.environmentBlendMode = this->EnvironmentBlendMode;
-  frameEndInfo.layerCount = (uint32_t)this->LayersToSubmit.size();
-  frameEndInfo.layers = this->LayersToSubmit.data();
+  frameEndInfo.layerCount = (uint32_t)layers.size();
+  frameEndInfo.layers = layers.data();
   xrEndFrame(this->Session, &frameEndInfo);
 
   return true;
@@ -803,8 +801,8 @@ bool vtkOpenXRManager::CheckGraphicsRequirements()
   XrGraphicsRequirementsOpenGLKHR openGLReqs = {
     XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR, // .type
     nullptr,                                  // .next
-    { 0 },                                    // .minApiVersionSupported
-    { 0 }                                     // .maxApiVersionSupported
+    0,                                        // .minApiVersionSupported
+    0                                         // .maxApiVersionSupported
   };
 
   // this function pointer was loaded with xrGetInstanceProcAddr (see XrExtensions.h)
@@ -832,9 +830,9 @@ bool vtkOpenXRManager::CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow
       nullptr,                                  // .next
       nullptr,                                  // .xDisplay. a valid X11 display
       0,                                        // .visualid. a valid X11 visual id
-      { 0 },                                    // .glxFBConfig. a valid X11 OpenGL GLX GLXFBConfig
-      { 0 },                                    // .glxDrawable. a valid X11 OpenGL GLX GLXDrawable
-      { 0 }                                     // .glxContext. a valid X11 OpenGL GLX GLXContext
+      0,                                        // .glxFBConfig. a valid X11 OpenGL GLX GLXFBConfig
+      0,                                        // .glxDrawable. a valid X11 OpenGL GLX GLXDrawable
+      0                                         // .glxContext. a valid X11 OpenGL GLX GLXContext
     });
   this->GraphicsBinding = graphicsBindingGLX;
 
@@ -879,7 +877,7 @@ bool vtkOpenXRManager::CreateSession()
   XrSessionCreateInfo sessionCreateInfo = {
     XR_TYPE_SESSION_CREATE_INFO, // .type
     this->GraphicsBinding.get(), // .next
-    { 0 },                       // .createFlags
+    0,                           // .createFlags
     this->SystemId               // .systemId
   };
 
@@ -912,10 +910,10 @@ bool vtkOpenXRManager::CreateReferenceSpace()
   }
 
   XrReferenceSpaceCreateInfo refSpaceCreateInfo = {
-    XR_TYPE_REFERENCE_SPACE_CREATE_INFO, // .type
-    nullptr,                             // .next
-    this->ReferenceSpaceType,            // .referenceSpaceType
-    vtkOpenXRUtilities::IdentityPose     // .poseInReferenceSpace
+    XR_TYPE_REFERENCE_SPACE_CREATE_INFO,  // .type
+    nullptr,                              // .next
+    this->ReferenceSpaceType,             // .referenceSpaceType
+    vtkOpenXRUtilities::GetIdentityPose() // .poseInReferenceSpace
   };
 
   this->XrCheckError(
@@ -1230,7 +1228,7 @@ bool vtkOpenXRManager::CreateOneAction(
       { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
     {
       if (!this->CreateOneActionSpace(actionT.Action, this->SubactionPaths[hand],
-            vtkOpenXRUtilities::IdentityPose, actionT.PoseSpaces[hand]))
+            vtkOpenXRUtilities::GetIdentityPose(), actionT.PoseSpaces[hand]))
       {
         vtkErrorMacro(<< "Failed to create pose action space for "
                       << (hand == vtkOpenXRManager::ControllerIndex::Left ? "left" : "right")

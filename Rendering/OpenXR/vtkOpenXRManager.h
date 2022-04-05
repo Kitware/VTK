@@ -571,12 +571,6 @@ protected:
   XrActionSet* ActiveActionSet = nullptr;
 
   /**
-   * This vector contains the XrCompositionLayer that need to be
-   * submitted in XrEndFrame
-   */
-  std::vector<XrCompositionLayerBaseHeader*> LayersToSubmit;
-
-  /**
    * Store the frame predicted dispay time in WaitAndBeginFrame
    * To get the action data at this time and to submit it in EndFrame
    */
