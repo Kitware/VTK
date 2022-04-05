@@ -43,6 +43,7 @@ using namespace nlohmann;
 namespace
 {
 constexpr float POINTS_PER_METER = 10;
+constexpr double MIN_ERROR = 20;
 
 //------------------------------------------------------------------------------
 /**
@@ -441,9 +442,13 @@ double TreeInformation::ComputeGeometricErrorTilesetPoints()
 //------------------------------------------------------------------------------
 double TreeInformation::ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode* node)
 {
-  double geometricError = 0;
-  if (!node->IsLeaf())
+  if (node->IsLeaf())
   {
+    return 0.0;
+  }
+  else
+  {
+    double geometricError = 0;
     for (int i = 0; i < 8; ++i)
     {
       // buildings in child nodes contribute to the error in the parent
@@ -460,8 +465,8 @@ double TreeInformation::ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode
         geometricError = std::max(geometricError, diagonal);
       }
     }
+    return std::max(geometricError, MIN_ERROR);
   }
-  return geometricError;
 }
 
 //------------------------------------------------------------------------------
