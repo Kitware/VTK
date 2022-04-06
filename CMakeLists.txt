@@ -5,7 +5,7 @@ endif ()
 
 project(zlib C)
 
-set(VERSION "1.2.11")
+set(VERSION "1.2.12")
 
 if (FALSE) # XXX(kitware): remove these options from the cache.
 option(ASM686 "Enable building i686 assembly implementation")
