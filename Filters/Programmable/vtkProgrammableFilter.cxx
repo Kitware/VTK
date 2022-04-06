@@ -218,8 +218,10 @@ int vtkProgrammableFilter::RequestData(vtkInformation* vtkNotUsed(request),
         iter->Delete();
       }
     }
-
-    details::initializeOutput(objInput, objOutput, this->CopyArrays);
+    else
+    {
+      details::initializeOutput(objInput, objOutput, this->CopyArrays);
+    }
   }
 
   vtkDebugMacro(<< "Executing programmable filter");
