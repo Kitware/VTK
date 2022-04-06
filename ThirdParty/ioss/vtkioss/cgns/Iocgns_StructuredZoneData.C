@@ -8,7 +8,7 @@
 #include <Ioss_SmartAssert.h>
 #include <algorithm>
 #include <cgns/Iocgns_StructuredZoneData.h>
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/color.h)
 #include VTK_FMT(fmt/ostream.h)
 #include <tokenize.h>

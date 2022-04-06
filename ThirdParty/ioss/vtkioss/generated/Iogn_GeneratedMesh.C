@@ -17,7 +17,7 @@
 #include <cassert> // for assert
 #include <cmath>   // for atan2, cos, sin
 #include <cstdlib> // for nullptr, exit, etc
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <iostream>
 #include <numeric>

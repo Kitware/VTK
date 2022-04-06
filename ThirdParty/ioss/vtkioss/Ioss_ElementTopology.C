@@ -11,7 +11,7 @@
 
 #include <cassert> // for assert
 #include <cstddef> // for size_t
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <ostream> // for basic_ostream, etc
 #include <string>  // for string, char_traits, etc

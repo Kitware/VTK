@@ -10,7 +10,7 @@
 #include <Ioss_Utils.h> // for IOSS_ERROR
 #include <Ioss_Version.h>
 #include <cstddef> // for nullptr
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <map>     // for _Rb_tree_iterator, etc
 #include <ostream> // for basic_ostream, etc

@@ -22,7 +22,7 @@
 #include <cgns/Iocgns_Utils.h>
 #include <cstddef>
 #include <ctime>
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <fstream>
 #include <iostream>

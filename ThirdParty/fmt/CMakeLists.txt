@@ -1,14 +1,12 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkfmt/LICENSE.rst"
-    VERSION       "8.0.1"
+    VERSION       "8.1.1"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE fmt
     TARGETS fmt::fmt
-    # 8.1.0 is a version which is unreleased.
-    # The required PR from 8.1.0 is https://github.com/fmtlib/fmt/pull/2432
-    VERSION       "8.1.0"
+    VERSION       "8.1.1"
     STANDARD_INCLUDE_DIRS)
 
 configure_file(

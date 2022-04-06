@@ -13,7 +13,7 @@
 #include <Ioss_Utils.h>
 #include <algorithm>
 #include <cassert>
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <numeric>
 

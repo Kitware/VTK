@@ -13,7 +13,7 @@
 #include <Ioss_Region.h>
 #include <Ioss_SmartAssert.h>
 #include <Ioss_StructuredBlock.h>
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 
 #include <cstddef> // for size_t

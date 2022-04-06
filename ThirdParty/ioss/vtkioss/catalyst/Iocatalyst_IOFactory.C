@@ -12,7 +12,7 @@
 #include <string>   // for string
 
 #include <catalyst.hpp>
-#include "vtk_ioss_fmt.h"
+#include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 
 namespace Ioss {
