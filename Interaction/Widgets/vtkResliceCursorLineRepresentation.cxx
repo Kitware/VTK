@@ -56,7 +56,7 @@ vtkResliceCursorLineRepresentation::vtkResliceCursorLineRepresentation()
   this->ResliceCursorActor = vtkResliceCursorActor::New();
 
   this->Picker = vtkResliceCursorPicker::New();
-  this->Picker->SetTolerance(0.025);
+  this->ApplyTolerance();
 
   this->MatrixReslice = vtkMatrix4x4::New();
   this->MatrixView = vtkMatrix4x4::New();
@@ -471,6 +471,22 @@ void vtkResliceCursorLineRepresentation::SetUserMatrix(vtkMatrix4x4* m)
 {
   this->TexturePlaneActor->SetUserMatrix(m);
   this->ResliceCursorActor->SetUserMatrix(m);
+}
+
+//------------------------------------------------------------------------------
+void vtkResliceCursorLineRepresentation::SetTolerance(int t)
+{
+  this->Superclass::SetTolerance(t);
+  this->ApplyTolerance();
+}
+
+//------------------------------------------------------------------------------
+void vtkResliceCursorLineRepresentation::ApplyTolerance()
+{
+  // Tolerance is clamped to 100 in superclass. Picker expects tolerance values
+  // between 0.0 and 1.0 (fraction of the window size)
+  // dividing by 200.0 to allow specifying tolerance smaller than 0.01
+  this->Picker->SetTolerance(this->Tolerance / 200.0);
 }
 
 //------------------------------------------------------------------------------
