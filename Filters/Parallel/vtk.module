@@ -21,11 +21,11 @@ DEPENDS
   VTK::FiltersModeling
   VTK::FiltersSources
   VTK::FiltersTexture
+  VTK::ParallelCore
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::IOLegacy
-  VTK::ParallelCore
 TEST_DEPENDS
   VTK::FiltersFlowPaths
   VTK::FiltersParallelImaging
