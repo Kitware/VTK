@@ -527,11 +527,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(
 void vtkDemandDrivenPipeline::ExecuteDataEnd(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outputs)
 {
-  // The algorithm has either finished or aborted.
-  if (!this->Algorithm->GetAbortExecute())
-  {
-    this->Algorithm->UpdateProgress(1.0);
-  }
+  this->Algorithm->UpdateProgress(1.0);
 
   // Tell observers the algorithm is done executing.
   this->Algorithm->InvokeEvent(vtkCommand::EndEvent, nullptr);
