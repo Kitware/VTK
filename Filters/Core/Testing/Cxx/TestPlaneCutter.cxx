@@ -15,17 +15,14 @@
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkImageDataToPointSet.h"
 #include "vtkMappedUnstructuredGridGenerator.h"
-#include "vtkPartitionedDataSet.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCutter.h"
 #include "vtkPointDataToCellData.h"
-#include "vtkPoints.h"
-#include "vtkPolygonBuilder.h"
+#include "vtkPolyData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridBase.h"
-#include <cassert>
 
 #define Compare(output, expected)                                                                  \
   if (output->GetNumberOfCells() != expected)                                                      \
@@ -66,13 +63,12 @@ bool TestPlaneCutterStructured(int type, int expected)
 
   cutter->SetGeneratePolygons(true);
   cutter->Update();
-  vtkPartitionedDataSet* output =
-    vtkPartitionedDataSet::SafeDownCast(cutter->GetOutputDataObject(0));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   Compare(output, expected);
 
   cutter->SetGeneratePolygons(false);
   cutter->Update();
-  output = vtkPartitionedDataSet::SafeDownCast(cutter->GetOutputDataObject(0));
+  output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   Compare(output, 7);
   return true;
 }
@@ -94,13 +90,12 @@ bool TestPlaneCutterUnmapped(int expected)
   cutter->Update();
   mg->Delete();
 
-  vtkPartitionedDataSet* output =
-    vtkPartitionedDataSet::SafeDownCast(cutter->GetOutputDataObject(0));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   Compare(output, expected);
 
   cutter->SetGeneratePolygons(false);
   cutter->Update();
-  output = vtkPartitionedDataSet::SafeDownCast(cutter->GetOutputDataObject(0));
+  output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   Compare(output, expected);
   return true;
 }
@@ -122,13 +117,12 @@ bool TestPlaneCutterMapped(int expected)
   cutter->Update();
   mg->Delete();
 
-  vtkPartitionedDataSet* output =
-    vtkPartitionedDataSet::SafeDownCast(cutter->GetOutputDataObject(0));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   Compare(output, expected);
 
   cutter->SetGeneratePolygons(false);
   cutter->Update();
-  output = vtkPartitionedDataSet::SafeDownCast(cutter->GetOutputDataObject(0));
+  output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   Compare(output, expected);
   return true;
 }
@@ -158,13 +152,12 @@ bool TestPlaneCutterUnstructured(int expected)
   // so the number of expected cells is always the number of triangles.
   cutter->SetGeneratePolygons(true);
   cutter->Update();
-  vtkPartitionedDataSet* output =
-    vtkPartitionedDataSet::SafeDownCast(cutter->GetOutputDataObject(0));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   Compare(output, expected);
 
   cutter->SetGeneratePolygons(false);
   cutter->Update();
-  output = vtkPartitionedDataSet::SafeDownCast(cutter->GetOutputDataObject(0));
+  output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   Compare(output, expected);
   return true;
 }

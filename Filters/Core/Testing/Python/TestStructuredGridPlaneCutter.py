@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import vtk
 from vtk.util.misc import vtkGetDataRoot
+
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control debugging parameters
@@ -20,13 +21,13 @@ iren.SetRenderWindow(renWin)
 
 # Create a synthetic source: sample a sphere across a volume
 sphere = vtk.vtkSphere()
-sphere.SetCenter(0.0,0.0,0.0)
+sphere.SetCenter(0.0, 0.0, 0.0)
 sphere.SetRadius(0.25)
 
 sample = vtk.vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
-sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
-sample.SetSampleDimensions(res,res,res)
+sample.SetModelBounds(-0.5, 0.5, -0.5, 0.5, -0.5, 0.5)
+sample.SetSampleDimensions(res, res, res)
 sample.Update()
 
 # Handy dandy filter converts image data to structured grid
@@ -38,7 +39,7 @@ input = convert.GetOutput()
 # Create a cutting plane
 plane = vtk.vtkPlane()
 plane.SetOrigin(input.GetCenter())
-plane.SetNormal(1,1,1)
+plane.SetNormal(1, 1, 1)
 
 # First create the usual cutter
 cutter = vtk.vtkCutter()
@@ -52,7 +53,7 @@ cutterMapper.ScalarVisibilityOff()
 
 cutterActor = vtk.vtkActor()
 cutterActor.SetMapper(cutterMapper)
-cutterActor.GetProperty().SetColor(1,1,1)
+cutterActor.GetProperty().SetColor(1, 1, 1)
 
 # Throw in an outline
 outline = vtk.vtkOutlineFilter()
@@ -69,13 +70,13 @@ sCutter = vtk.vtkPlaneCutter()
 sCutter.SetInputData(input)
 sCutter.SetPlane(plane)
 
-sCutterMapper = vtk.vtkCompositePolyDataMapper()
+sCutterMapper = vtk.vtkPolyDataMapper()
 sCutterMapper.SetInputConnection(sCutter.GetOutputPort())
 sCutterMapper.ScalarVisibilityOff()
 
 sCutterActor = vtk.vtkActor()
 sCutterActor.SetMapper(sCutterMapper)
-sCutterActor.GetProperty().SetColor(1,1,1)
+sCutterActor.GetProperty().SetColor(1, 1, 1)
 
 # Now create the accelerated version.
 snCutter = vtk.vtkPlaneCutter()
@@ -83,13 +84,13 @@ snCutter.SetInputData(input)
 snCutter.SetPlane(plane)
 snCutter.BuildTreeOff()
 
-snCutterMapper = vtk.vtkCompositePolyDataMapper()
+snCutterMapper = vtk.vtkPolyDataMapper()
 snCutterMapper.SetInputConnection(sCutter.GetOutputPort())
 snCutterMapper.ScalarVisibilityOff()
 
 snCutterActor = vtk.vtkActor()
 snCutterActor.SetMapper(sCutterMapper)
-snCutterActor.GetProperty().SetColor(1,1,1)
+snCutterActor.GetProperty().SetColor(1, 1, 1)
 
 outlineT = vtk.vtkOutlineFilter()
 outlineT.SetInputData(input)
@@ -105,21 +106,21 @@ cutter_timer = vtk.vtkExecutionTimer()
 cutter_timer.SetFilter(cutter)
 cutter.Update()
 CT = cutter_timer.GetElapsedWallClockTime()
-print ("vtkCutter:", CT)
+print("vtkCutter:", CT)
 
 # Time the execution of the filter w/ sphere tree
 sCutter_timer = vtk.vtkExecutionTimer()
 sCutter_timer.SetFilter(sCutter)
 sCutter.Update()
 ST = sCutter_timer.GetElapsedWallClockTime()
-print ("Build sphere tree + execute once:", ST)
+print("Build sphere tree + execute once:", ST)
 
 sCutter_timer = vtk.vtkExecutionTimer()
 sCutter_timer.SetFilter(sCutter)
 plane.Modified()
 sCutter.Update()
 SC = sCutter_timer.GetElapsedWallClockTime()
-print ("vtkPlaneCutter:", SC)
+print("vtkPlaneCutter:", SC)
 
 # Add the actors to the renderer, set the background and size
 ren0.AddActor(outlineActor)
@@ -129,13 +130,13 @@ ren1.AddActor(sCutterActor)
 ren2.AddActor(outlineActorT)
 ren2.AddActor(snCutterActor)
 
-ren0.SetBackground(0,0,0)
-ren1.SetBackground(0,0,0)
-ren2.SetBackground(0,0,0)
-ren0.SetViewport(0,0,0.33,1);
-ren1.SetViewport(0.33,0,0.66,1);
-ren2.SetViewport(0.66,0,1,1);
-renWin.SetSize(900,300)
+ren0.SetBackground(0, 0, 0)
+ren1.SetBackground(0, 0, 0)
+ren2.SetBackground(0, 0, 0)
+ren0.SetViewport(0, 0, 0.33, 1)
+ren1.SetViewport(0.33, 0, 0.66, 1)
+ren2.SetViewport(0.66, 0, 1, 1)
+renWin.SetSize(900, 300)
 ren0.ResetCamera()
 ren1.ResetCamera()
 ren2.ResetCamera()

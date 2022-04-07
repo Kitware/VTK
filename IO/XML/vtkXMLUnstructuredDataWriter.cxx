@@ -159,9 +159,18 @@ vtkTypeBool vtkXMLUnstructuredDataWriter::ProcessRequest(
         }
         else
         {
-          vtkNew<vtkCellTypes> cellTypes;
-          dataSet->GetCellTypes(cellTypes);
-          if (vtkNeedsNewFileVersionV8toV9(cellTypes))
+          vtkNew<vtkUnsignedCharArray> cellTypesArray;
+          if (auto ug = vtkUnstructuredGrid::SafeDownCast(dataSet))
+          {
+            cellTypesArray->ShallowCopy(ug->GetDistinctCellTypesArray());
+          }
+          else
+          {
+            vtkNew<vtkCellTypes> cellTypes;
+            dataSet->GetCellTypes(cellTypes);
+            cellTypesArray->ShallowCopy(cellTypes->GetCellTypesArray());
+          }
+          if (vtkNeedsNewFileVersionV8toV9(cellTypesArray))
           {
             this->UsePreviousVersion = false;
           }

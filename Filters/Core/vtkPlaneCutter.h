@@ -38,8 +38,12 @@
  * filter typically works well.
  *
  * @warning
- * This filter outputs a vtkMultiBlockeDataSet. Each piece in the multiblock
- * output corresponds to the output from one thread.
+ * This filter chooses the output type based on the input type.
+ * 1) if input is vtkDataSet, output is vtkPolyData.
+ * 2) if input is vtkPartitionedDataSet, output is vtkPartitionedDataSet.
+ * 3) if input is vtkPartitionedDataSetCollection, output is vtkPartitionedDataSetCollection.
+ * 4) if input is vtkUniformGridAMR, output is vtkPartitionedDataSetCollection.
+ * 5) if input is vtkMultiBlockDataSet, output is vtkMultiBlockDataSet.
  *
  * @warning
  * This filter produces non-merged, potentially coincident points for all
@@ -70,12 +74,17 @@
 class vtkCellArray;
 class vtkCellData;
 class vtkImageData;
+class vtkMultiBlockDataSet;
 class vtkMultiPieceDataSet;
+class vtkPartitionedDataSet;
+class vtkPartitionedDataSetCollection;
 class vtkPlane;
 class vtkPointData;
 class vtkPoints;
+class vtkPolyData;
 class vtkSphereTree;
 class vtkStructuredGrid;
+class vtkUniformGridAMR;
 class vtkUnstructuredGrid;
 
 class VTKFILTERSCORE_EXPORT vtkPlaneCutter : public vtkDataObjectAlgorithm
@@ -177,6 +186,23 @@ protected:
   // Helpers
   vtkSphereTree* GetSphereTree(vtkDataSet*);
   std::map<vtkDataSet*, vtkSmartPointer<vtkSphereTree>> SphereTrees;
+  struct vtkInputInfo
+  {
+    vtkDataObject* Input;
+    vtkMTimeType LastMTime;
+
+    vtkInputInfo()
+      : Input(nullptr)
+      , LastMTime(0)
+    {
+    }
+    vtkInputInfo(vtkDataObject* input, vtkMTimeType mtime)
+      : Input(input)
+      , LastMTime(mtime)
+    {
+    }
+  };
+  vtkInputInfo InputInfo;
 
   // Pipeline-related methods
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -185,10 +211,15 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  virtual int ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* output);
+  int ExecuteMultiBlockDataSet(vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output);
+  int ExecuteUniformGridAMR(vtkUniformGridAMR* input, vtkPartitionedDataSetCollection* output);
+  int ExecutePartitionedDataCollection(
+    vtkPartitionedDataSetCollection* input, vtkPartitionedDataSetCollection* output);
+  int ExecutePartitionedData(
+    vtkPartitionedDataSet* input, vtkPartitionedDataSet* output, bool copyStructure);
+  int ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPolyData* output);
 
-  static void AddNormalArray(double* planeNormal, vtkDataSet* ds);
-  static void InitializeOutput(vtkMultiPieceDataSet* output);
+  static void AddNormalArray(double* planeNormal, vtkPolyData* polyData);
 
 private:
   vtkPlaneCutter(const vtkPlaneCutter&) = delete;
