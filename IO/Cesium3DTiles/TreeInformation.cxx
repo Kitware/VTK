@@ -144,7 +144,7 @@ std::array<std::string, 3> BuildingContentTypeExtension = { ".b3dm", ".glb", ".g
 //------------------------------------------------------------------------------
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings, const std::string& output,
-  const std::string& texturePath, bool saveTextures, int contentType, const char* crs)
+  const std::string& texturePath, bool saveTextures, bool contentGLTF, const char* crs)
   : InputType(vtkCesium3DTilesWriter::Buildings)
   , Root(root)
   , Buildings(buildings)
@@ -152,7 +152,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , OutputDir(output)
   , TexturePath(texturePath)
   , SaveTextures(saveTextures)
-  , BuildingsContentType(contentType)
+  , ContentGLTF(contentGLTF)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -176,7 +176,7 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , Points(points)
   , OutputDir(output)
   , SaveTextures(false)
-  , BuildingsContentType(vtkCesium3DTilesWriter::B3DM)
+  , ContentGLTF(false)
   , CRS(crs)
   , NodeBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
@@ -514,7 +514,7 @@ void TreeInformation::SaveTileset(vtkIncrementalOctreeNode* root, const std::str
 {
   json v;
   this->RootJson["asset"]["version"] = "1.0";
-  if (this->BuildingsContentType != vtkCesium3DTilesWriter::B3DM)
+  if (this->ContentGLTF)
   {
     std::string content_gltf = "3DTILES_content_gltf";
     std::string mesh_gpu_instancing = "EXT_mesh_gpu_instancing";
@@ -606,7 +606,7 @@ std::string TreeInformation::ContentTypeExtension() const
   switch (this->InputType)
   {
     case vtkCesium3DTilesWriter::Buildings:
-      return BuildingContentTypeExtension[this->BuildingsContentType];
+      return BuildingContentTypeExtension[this->ContentGLTF];
     case vtkCesium3DTilesWriter::Points:
       return ".pnts";
     default:

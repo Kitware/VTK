@@ -47,10 +47,9 @@ public:
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
     const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings,
     const std::string& outputDir, const std::string& texturePath, bool saveTextures,
-    int contentType, const char* crs);
+    bool contentGLTF, const char* crs);
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPointSet* points,
     const std::string& output, const char* crs);
-
   void PrintNode(vtkIncrementalOctreeNode* node);
 
   //@{
@@ -131,7 +130,7 @@ private:
   std::string OutputDir;
   std::string TexturePath;
   bool SaveTextures;
-  int BuildingsContentType;
+  bool ContentGLTF;
 
   const char* CRS;
   /**

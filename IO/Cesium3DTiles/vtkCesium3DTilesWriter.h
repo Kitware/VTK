@@ -44,12 +44,6 @@ public:
     Mesh
   };
 
-  enum BuildingsContentType
-  {
-    B3DM,
-    GLB
-  };
-
   ///@{
   /**
    * Accessor for name of the directory where Cesium3DTiles data is written
@@ -113,14 +107,16 @@ public:
 
   //@{
   /**
-   * What is the BuildingsContentType used for tiles. Default is B3DM.
-   * For BuildingsContentType GLB we use 3DTILES_content_gltf extension.
-   * For BuildingsContentType B3DM and GLB, external programs are needed to convert
-   * GLTF -> GLB -> B3DM. This field is only used for Buildings.
+   * What is the file type used to save tiles. If ContentGLTF is false
+   * (the default) we use B3DM for Buildings or Mesh and PNTS for
+   * PointCloud otherwise  we use GLB (3DTILES_content_gltf
+   * extension).  If the file type is B3DM or GLB, external programs are
+   * needed to convert GLTF -> GLB -> B3DM.
    *
    */
-  vtkSetMacro(BuildingsContentType, int);
-  vtkGetMacro(BuildingsContentType, int);
+  vtkSetMacro(ContentGLTF, bool);
+  vtkGetMacro(ContentGLTF, bool);
+  vtkBooleanMacro(ContentGLTF, bool);
   //@
 
   //@{
@@ -165,7 +161,7 @@ protected:
   double Offset[3];
   bool SaveTextures;
   int InputType;
-  int BuildingsContentType;
+  bool ContentGLTF;
   bool SaveTiles;
   bool MergeTilePolyData;
   int NumberOfFeaturesPerTile;
