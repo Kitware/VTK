@@ -213,12 +213,21 @@ struct TextPropertyKey
     assert("Hash is really a uint32" && static_cast<size_t>(hash) == id);
 
     // Since we cache the text metrics (which includes orientation and alignment
-    // info), we'll need to store the alignment options, since
-    // MapTextPropertyToId intentionally ignores these:
+    // info), we'll need to store additional options, since MapTextPropertyToId
+    // intentionally ignores them.
+    // These include cell spacing and interior lines for multi cell text, as well
+    // as text justification.
     int tmp = tprop->GetJustification();
     hash = vtkFreeTypeTools::HashBuffer(&tmp, sizeof(int), hash);
     tmp = tprop->GetVerticalJustification();
     hash = vtkFreeTypeTools::HashBuffer(&tmp, sizeof(int), hash);
+    tmp = tprop->GetCellOffset();
+    hash = vtkFreeTypeTools::HashBuffer(&tmp, sizeof(int), hash);
+    tmp = tprop->GetInteriorLinesVisibility();
+    hash = vtkFreeTypeTools::HashBuffer(&tmp, sizeof(int), hash);
+    tmp = tprop->GetInteriorLinesWidth();
+    hash = vtkFreeTypeTools::HashBuffer(&tmp, sizeof(int), hash);
+    hash = vtkFreeTypeTools::HashBuffer(tprop->GetInteriorLinesColor(), 3 * sizeof(double), hash);
 
     return hash;
   }
