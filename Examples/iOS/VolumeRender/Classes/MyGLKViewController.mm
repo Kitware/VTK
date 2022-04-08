@@ -135,7 +135,8 @@ PURPOSE.  See the above copyright notice for more information.
   mi->Update();
 
   double range[2];
-  mi->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
+  vtkPointData* pd = mi->GetOutput()->GetPointData();
+  pd->GetRange(pd->GetScalars()->GetName(), range);
 
   volumeMapper->SetInputConnection(mi->GetOutputPort());
 #endif

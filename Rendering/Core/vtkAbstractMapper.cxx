@@ -23,6 +23,7 @@
 #include "vtkPlanes.h"
 #include "vtkPointData.h"
 #include "vtkTimerLog.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkCxxSetObjectMacro(vtkAbstractMapper, ClippingPlanes, vtkPlaneCollection);
 
@@ -114,6 +115,40 @@ void vtkAbstractMapper::SetClippingPlanes(vtkPlanes* planes)
   }
 }
 
+//------------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkAbstractMapper::GetGhostArray(
+  vtkDataSet* input, int scalarMode, unsigned char& ghostsToSkip)
+{
+  switch (scalarMode)
+  {
+    case VTK_SCALAR_MODE_DEFAULT:
+    {
+      vtkUnsignedCharArray* ghosts = input->GetPointData()->GetGhostArray();
+      if (!ghosts)
+      {
+        ghostsToSkip = input->GetCellData()->GetGhostsToSkip();
+        return input->GetCellData()->GetGhostArray();
+      }
+      ghostsToSkip = input->GetPointData()->GetGhostsToSkip();
+      return ghosts;
+    }
+    case VTK_SCALAR_MODE_USE_POINT_DATA:
+    case VTK_SCALAR_MODE_USE_POINT_FIELD_DATA:
+      ghostsToSkip = input->GetPointData()->GetGhostsToSkip();
+      return input->GetPointData()->GetGhostArray();
+    case VTK_SCALAR_MODE_USE_CELL_DATA:
+    case VTK_SCALAR_MODE_USE_CELL_FIELD_DATA:
+      ghostsToSkip = input->GetCellData()->GetGhostsToSkip();
+      return input->GetCellData()->GetGhostArray();
+    case VTK_SCALAR_MODE_USE_FIELD_DATA:
+      ghostsToSkip = input->GetFieldData()->GetGhostsToSkip();
+      return input->GetFieldData()->GetGhostArray();
+    default:
+      return nullptr;
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkDataArray* vtkAbstractMapper::GetScalars(vtkDataSet* input, int scalarMode, int arrayAccessMode,
   int arrayId, const char* arrayName, int& cellFlag)
 {
@@ -123,6 +158,7 @@ vtkDataArray* vtkAbstractMapper::GetScalars(vtkDataSet* input, int scalarMode, i
   return scalars;
 }
 
+//------------------------------------------------------------------------------
 vtkAbstractArray* vtkAbstractMapper::GetAbstractScalars(vtkDataSet* input, int scalarMode,
   int arrayAccessMode, int arrayId, const char* arrayName, int& cellFlag)
 {

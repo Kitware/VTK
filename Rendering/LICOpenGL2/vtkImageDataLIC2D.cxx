@@ -327,8 +327,9 @@ int vtkImageDataLIC2D::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     double noiseRange[2];
+    vtkPointData* pd = noise->GetPointData();
     vtkDataArray* inVals = noise->GetPointData()->GetScalars();
-    inVals->GetRange(noiseRange);
+    pd->GetRange(inVals->GetName(), noiseRange);
     if ((noiseRange[0] < 0.0) || (noiseRange[1] > 1.0))
     {
       vtkErrorMacro("Noise dataset has values out of range 0.0 to 1.0."

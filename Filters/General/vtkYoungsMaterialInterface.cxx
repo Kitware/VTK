@@ -604,16 +604,13 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
              this->Internals->Materials.begin();
            it != this->Internals->Materials.end(); ++it, ++m)
       {
-        vtkDataArray* fraction = input->GetCellData()->GetArray((*it).volume().c_str());
+        double range[2];
         bool materialHasBlock = ((*it).blocks.find(composite_index) != (*it).blocks.end());
-        if (fraction && (this->UseAllBlocks || materialHasBlock))
+        if ((this->UseAllBlocks || materialHasBlock) &&
+          input->GetCellData()->GetRange(it->volume().c_str(), range) &&
+          range[1] > this->VolumeFractionRange[0])
         {
-          double range[2];
-          fraction->GetRange(range);
-          if (range[1] > this->VolumeFractionRange[0])
-          {
-            ++inputsPerMaterial[m];
-          }
+          ++inputsPerMaterial[m];
         }
       }
     }

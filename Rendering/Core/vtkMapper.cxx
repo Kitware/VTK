@@ -15,13 +15,16 @@
 #include "vtkMapper.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkCellData.h"
 #include "vtkColorSeries.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
+#include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
@@ -29,6 +32,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
 // Initialize static member that controls global coincidence resolution
@@ -701,20 +705,30 @@ bool vtkMapper::HasOpaqueGeometry()
 bool vtkMapper::HasTranslucentPolygonalGeometry()
 {
   // scalar visibility?
-  int cellFlag = 0; // not used
-  vtkAbstractArray* abstractArray = vtkAbstractMapper::GetAbstractScalars(this->GetInput(),
-    this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+  int cellFlag = 0;
+  vtkDataSet* input = this->GetInput();
+  if (!input)
+  {
+    return false;
+  }
+  vtkAbstractArray* abstractArray = vtkAbstractMapper::GetAbstractScalars(
+    input, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
   if (!this->ScalarVisibility || abstractArray == nullptr)
   { // No scalar colors.
     return false;
   }
+
+  unsigned char ghostsToSkip;
+  vtkUnsignedCharArray* ghosts =
+    vtkAbstractMapper::GetGhostArray(input, this->ScalarMode, ghostsToSkip);
 
   vtkScalarsToColors* lut = this->GetLookupTable();
   if (lut)
   {
     // Ensure that the lookup table is built
     lut->Build();
-    return (lut->IsOpaque(abstractArray, this->ColorMode, this->ArrayComponent) == 0);
+    return (lut->IsOpaque(
+              abstractArray, this->ColorMode, this->ArrayComponent, ghosts, ghostsToSkip) == 0);
   }
 
   return false;

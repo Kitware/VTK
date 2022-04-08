@@ -910,13 +910,6 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTypedComponent(
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(ValueType range[2], int comp)
-{
-  this->ComputeValueRange(range, comp);
-}
-
-//-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
 typename vtkGenericDataArray<DerivedT, ValueTypeT>::ValueType*
 vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(int comp)
 {
@@ -927,19 +920,27 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(int comp)
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::GetFiniteValueRange(ValueType range[2], int comp)
-{
-  this->ComputeFiniteValueRange(range, comp);
-}
-
-//-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
 typename vtkGenericDataArray<DerivedT, ValueTypeT>::ValueType*
 vtkGenericDataArray<DerivedT, ValueTypeT>::GetFiniteValueRange(int comp)
 {
   this->LegacyValueRange.resize(2);
   this->GetFiniteValueRange(this->LegacyValueRange.data(), comp);
   return &this->LegacyValueRange[0];
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::GetFiniteValueRange(ValueType range[2], int comp)
+{
+  this->GetFiniteValueRange(range, comp, nullptr);
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::GetFiniteValueRange(
+  ValueType range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
+  this->ComputeFiniteValueRange(range, comp, ghosts, ghostsToSkip);
 }
 
 //-----------------------------------------------------------------------------
@@ -1091,7 +1092,8 @@ struct IsSupported
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeValueRange(ValueType range[2], int comp)
+void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeValueRange(
+  ValueType range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
   using Supported = IsSupported<DerivedT, ValueTypeT>;
@@ -1106,7 +1108,7 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeValueRange(ValueType rang
   if (!Supported::value)
   {
     double tmpRange[2];
-    this->ComputeRange(tmpRange, comp);
+    this->ComputeRange(tmpRange, comp, ghosts, ghostsToSkip);
     range[0] = static_cast<ValueType>(tmpRange[0]);
     range[1] = static_cast<ValueType>(tmpRange[1]);
     return;
@@ -1129,12 +1131,12 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeValueRange(ValueType rang
   // for all of the information keys we need to cover all possible value types.
   if (comp < 0)
   {
-    this->ComputeVectorValueRange(range);
+    this->ComputeVectorValueRange(range, ghosts, ghostsToSkip);
   }
   else
   {
     this->LegacyValueRangeFull.resize(this->NumberOfComponents * 2);
-    if (this->ComputeScalarValueRange(this->LegacyValueRangeFull.data()))
+    if (this->ComputeScalarValueRange(this->LegacyValueRangeFull.data(), ghosts, ghostsToSkip))
     {
       range[0] = this->LegacyValueRangeFull[comp * 2];
       range[1] = this->LegacyValueRangeFull[comp * 2 + 1];
@@ -1144,8 +1146,23 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeValueRange(ValueType rang
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(ValueType range[2], int comp)
+{
+  this->GetValueRange(range, comp, nullptr);
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(
+  ValueType range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
+  this->ComputeValueRange(range, comp, ghosts, ghostsToSkip);
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
 void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteValueRange(
-  ValueType range[2], int comp)
+  ValueType range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
   using Supported = IsSupported<DerivedT, ValueTypeT>;
@@ -1183,12 +1200,13 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteValueRange(
   // for all of the information keys we need to cover all possible value types.
   if (comp < 0)
   {
-    this->ComputeFiniteVectorValueRange(range);
+    this->ComputeFiniteVectorValueRange(range, ghosts, ghostsToSkip);
   }
   else
   {
     this->LegacyValueRangeFull.resize(this->NumberOfComponents * 2);
-    if (this->ComputeFiniteScalarValueRange(this->LegacyValueRangeFull.data()))
+    if (this->ComputeFiniteScalarValueRange(
+          this->LegacyValueRangeFull.data(), ghosts, ghostsToSkip))
     {
       range[0] = this->LegacyValueRangeFull[comp * 2];
       range[1] = this->LegacyValueRangeFull[comp * 2 + 1];
@@ -1200,19 +1218,21 @@ namespace vtk_GDA_detail
 {
 
 template <typename ArrayType, typename ValueType, typename Tag>
-bool ComputeScalarValueRangeImpl(ArrayType* array, ValueType* range, Tag tag, std::true_type)
+bool ComputeScalarValueRangeImpl(ArrayType* array, ValueType* range, Tag tag, std::true_type,
+  const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
-  return ::vtkDataArrayPrivate::DoComputeScalarRange(array, range, tag);
+  return ::vtkDataArrayPrivate::DoComputeScalarRange(array, range, tag, ghosts, ghostsToSkip);
 }
 
 template <typename ArrayType, typename ValueType, typename Tag>
-bool ComputeScalarValueRangeImpl(ArrayType* array, ValueType* range, Tag tag, std::false_type)
+bool ComputeScalarValueRangeImpl(ArrayType* array, ValueType* range, Tag tag, std::false_type,
+  const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   // Compute the range at double precision.
   std::size_t numComps = static_cast<size_t>(array->GetNumberOfComponents());
   std::vector<double> tmpRange(numComps * 2);
   if (!::vtkDataArrayPrivate::DoComputeScalarRange(
-        static_cast<vtkDataArray*>(array), tmpRange.data(), tag))
+        static_cast<vtkDataArray*>(array), tmpRange.data(), tag, ghosts, ghostsToSkip))
   {
     return false;
   }
@@ -1226,18 +1246,20 @@ bool ComputeScalarValueRangeImpl(ArrayType* array, ValueType* range, Tag tag, st
 }
 
 template <typename ArrayType, typename ValueType, typename Tag>
-bool ComputeVectorValueRangeImpl(ArrayType* array, ValueType range[2], Tag tag, std::true_type)
+bool ComputeVectorValueRangeImpl(ArrayType* array, ValueType range[2], Tag tag, std::true_type,
+  const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
-  return ::vtkDataArrayPrivate::DoComputeVectorRange(array, range, tag);
+  return ::vtkDataArrayPrivate::DoComputeVectorRange(array, range, tag, ghosts, ghostsToSkip);
 }
 
 template <typename ArrayType, typename ValueType, typename Tag>
-bool ComputeVectorValueRangeImpl(ArrayType* array, ValueType range[2], Tag tag, std::false_type)
+bool ComputeVectorValueRangeImpl(ArrayType* array, ValueType range[2], Tag tag, std::false_type,
+  const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   // Compute the range at double precision.
   double tmpRange[2];
   if (!::vtkDataArrayPrivate::DoComputeVectorRange(
-        static_cast<vtkDataArray*>(array), tmpRange, tag))
+        static_cast<vtkDataArray*>(array), tmpRange, tag, ghosts, ghostsToSkip))
   {
     return false;
   }
@@ -1252,42 +1274,46 @@ bool ComputeVectorValueRangeImpl(ArrayType* array, ValueType range[2], Tag tag, 
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeScalarValueRange(ValueType* ranges)
+bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeScalarValueRange(
+  ValueType* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
   using Supported = IsSupported<DerivedT, ValueTypeT>;
-  return ComputeScalarValueRangeImpl(
-    static_cast<DerivedT*>(this), ranges, vtkDataArrayPrivate::AllValues{}, Supported{});
+  return ComputeScalarValueRangeImpl(static_cast<DerivedT*>(this), ranges,
+    vtkDataArrayPrivate::AllValues{}, Supported{}, ghosts, ghostsToSkip);
 }
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeVectorValueRange(ValueType range[2])
+bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeVectorValueRange(
+  ValueType range[2], const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
   using Supported = IsSupported<DerivedT, ValueTypeT>;
-  return ComputeVectorValueRangeImpl(
-    static_cast<DerivedT*>(this), range, vtkDataArrayPrivate::AllValues{}, Supported{});
+  return ComputeVectorValueRangeImpl(static_cast<DerivedT*>(this), range,
+    vtkDataArrayPrivate::AllValues{}, Supported{}, ghosts, ghostsToSkip);
 }
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteScalarValueRange(ValueType* range)
+bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteScalarValueRange(
+  ValueType* range, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
   using Supported = IsSupported<DerivedT, ValueTypeT>;
-  return ComputeScalarValueRangeImpl(
-    static_cast<DerivedT*>(this), range, vtkDataArrayPrivate::FiniteValues{}, Supported{});
+  return ComputeScalarValueRangeImpl(static_cast<DerivedT*>(this), range,
+    vtkDataArrayPrivate::FiniteValues{}, Supported{}, ghosts, ghostsToSkip);
 }
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteVectorValueRange(ValueType range[2])
+bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteVectorValueRange(
+  ValueType range[2], const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
   using Supported = IsSupported<DerivedT, ValueTypeT>;
-  return ComputeVectorValueRangeImpl(
-    static_cast<DerivedT*>(this), range, vtkDataArrayPrivate::FiniteValues{}, Supported{});
+  return ComputeVectorValueRangeImpl(static_cast<DerivedT*>(this), range,
+    vtkDataArrayPrivate::FiniteValues{}, Supported{}, ghosts, ghostsToSkip);
 }
 
 #undef vtkGenericDataArrayT

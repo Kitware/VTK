@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPExtractHistogram2D.h"
 
 #include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
@@ -110,13 +111,14 @@ void vtkPExtractHistogram2D::Learn(
   primaryTab->AddColumn(outImage->GetPointData()->GetScalars());
 }
 
-int vtkPExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2)
+int vtkPExtractHistogram2D::ComputeBinExtents(
+  vtkDataSetAttributes* rowData, vtkDataArray* col1, vtkDataArray* col2)
 {
   if (!this->Controller || this->Controller->GetNumberOfProcesses() <= 1 ||
     this->UseCustomHistogramExtents)
   {
     // Nothing extra to do for single process.
-    return this->Superclass::ComputeBinExtents(col1, col2);
+    return this->Superclass::ComputeBinExtents(rowData, col1, col2);
   }
 
   vtkCommunicator* comm = this->Controller->GetCommunicator();
@@ -129,7 +131,7 @@ int vtkPExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* 
   // have everyone compute their own bin extents
   double myRange[4] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
   double allRange[4] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
-  if (this->Superclass::ComputeBinExtents(col1, col2))
+  if (this->Superclass::ComputeBinExtents(rowData, col1, col2))
   {
     double* r = this->GetHistogramExtents();
     myRange[0] = r[0];

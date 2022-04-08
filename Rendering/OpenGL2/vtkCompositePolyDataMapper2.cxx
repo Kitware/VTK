@@ -24,11 +24,13 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeRange.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkLogger.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCellToVTKCellMap.h"
@@ -49,6 +51,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 
 #include <algorithm>
@@ -1430,7 +1433,12 @@ bool vtkCompositePolyDataMapper2::RecursiveHasTranslucentGeometry(
       int cellFlag;
       vtkDataArray* scalars = vtkCompositePolyDataMapper2::GetScalars(
         pd, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
-      if (lut->IsOpaque(scalars, this->ColorMode, this->ArrayComponent) == 0)
+
+      unsigned char ghostsToSkip;
+      vtkUnsignedCharArray* ghosts =
+        vtkAbstractMapper::GetGhostArray(pd, this->ScalarMode, ghostsToSkip);
+
+      if (lut->IsOpaque(scalars, this->ColorMode, this->ArrayComponent, ghosts, ghostsToSkip) == 0)
       {
         return true;
       }
@@ -2041,7 +2049,13 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
         int cellFlag;
         vtkDataArray* scalars = vtkCompositePolyDataMapper2::GetScalars(
           pd, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
-        if (lut->IsOpaque(scalars, this->ColorMode, this->ArrayComponent) == 0)
+
+        unsigned char ghostsToSkip;
+        vtkUnsignedCharArray* ghosts =
+          vtkAbstractMapper::GetGhostArray(pd, this->ScalarMode, ghostsToSkip);
+
+        if (lut->IsOpaque(scalars, this->ColorMode, this->ArrayComponent, ghosts, ghostsToSkip) ==
+          0)
         {
           helperData->IsOpaque = false;
         }

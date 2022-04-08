@@ -241,6 +241,8 @@ protected:
   double* InternalTuple; // used by vtkBridgeCell
   int InternalTupleCapacity;
 
+  double Range[2];
+
 private:
   vtkBridgeAttribute(const vtkBridgeAttribute&) = delete;
   void operator=(const vtkBridgeAttribute&) = delete;

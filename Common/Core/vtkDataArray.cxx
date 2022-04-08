@@ -1592,6 +1592,13 @@ int vtkDataArray::CopyInformation(vtkInformation* infoFrom, int deep)
 //------------------------------------------------------------------------------
 void vtkDataArray::ComputeFiniteRange(double range[2], int comp)
 {
+  this->ComputeFiniteRange(range, comp, nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataArray::ComputeFiniteRange(
+  double range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
   // this method needs a large refactoring to be way easier to read
 
   if (comp >= this->NumberOfComponents)
@@ -1611,11 +1618,15 @@ void vtkDataArray::ComputeFiniteRange(double range[2], int comp)
   vtkInformationDoubleVectorKey* rkey;
   if (comp < 0)
   {
+    if (ghosts)
+    {
+      this->ComputeFiniteVectorRange(range, ghosts, ghostsToSkip);
+      return;
+    }
     rkey = L2_NORM_FINITE_RANGE();
     // hasValidKey will update range to the cached value if it exists.
     if (!hasValidKey(info, rkey, range))
     {
-
       this->ComputeFiniteVectorRange(range);
       info->Set(rkey, range, 2);
     }
@@ -1623,6 +1634,11 @@ void vtkDataArray::ComputeFiniteRange(double range[2], int comp)
   }
   else
   {
+    if (ghosts)
+    {
+      this->ComputeFiniteScalarRange(range, ghosts, ghostsToSkip);
+      return;
+    }
     rkey = COMPONENT_RANGE();
 
     // hasValidKey will update range to the cached value if it exists.
@@ -1655,6 +1671,13 @@ void vtkDataArray::ComputeFiniteRange(double range[2], int comp)
 //------------------------------------------------------------------------------
 void vtkDataArray::ComputeRange(double range[2], int comp)
 {
+  this->ComputeRange(range, comp, nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataArray::ComputeRange(
+  double range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
   // this method needs a large refactoring to be way easier to read
 
   if (comp >= this->NumberOfComponents)
@@ -1674,6 +1697,11 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
   vtkInformationDoubleVectorKey* rkey;
   if (comp < 0)
   {
+    if (ghosts)
+    {
+      this->ComputeVectorRange(range, ghosts, ghostsToSkip);
+      return;
+    }
     rkey = L2_NORM_RANGE();
     // hasValidKey will update range to the cached value if it exists.
     if (!hasValidKey(info, rkey, range))
@@ -1685,6 +1713,11 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
   }
   else
   {
+    if (ghosts)
+    {
+      this->ComputeScalarRange(range, ghosts, ghostsToSkip);
+      return;
+    }
     rkey = COMPONENT_RANGE();
 
     // hasValidKey will update range to the cached value if it exists.
@@ -1736,18 +1769,23 @@ struct ScalarRangeDispatchWrapper
 {
   bool Success;
   double* Range;
+  const unsigned char* GhostArray;
+  unsigned char GhostTypesToSkip;
 
-  ScalarRangeDispatchWrapper(double* range)
+  ScalarRangeDispatchWrapper(
+    double* range, const unsigned char* ghostArray, unsigned char ghostTypesToSkip)
     : Success(false)
     , Range(range)
+    , GhostArray(ghostArray)
+    , GhostTypesToSkip(ghostTypesToSkip)
   {
   }
 
   template <typename ArrayT>
   void operator()(ArrayT* array)
   {
-    this->Success = vtkDataArrayPrivate::DoComputeScalarRange(
-      array, this->Range, vtkDataArrayPrivate::AllValues());
+    this->Success = vtkDataArrayPrivate::DoComputeScalarRange(array, this->Range,
+      vtkDataArrayPrivate::AllValues(), this->GhostArray, this->GhostTypesToSkip);
   }
 };
 
@@ -1755,18 +1793,23 @@ struct VectorRangeDispatchWrapper
 {
   bool Success;
   double* Range;
+  const unsigned char* GhostArray;
+  unsigned char GhostTypesToSkip;
 
-  VectorRangeDispatchWrapper(double* range)
+  VectorRangeDispatchWrapper(
+    double* range, const unsigned char* ghostArray, unsigned char ghostTypesToSkip)
     : Success(false)
     , Range(range)
+    , GhostArray(ghostArray)
+    , GhostTypesToSkip(ghostTypesToSkip)
   {
   }
 
   template <typename ArrayT>
   void operator()(ArrayT* array)
   {
-    this->Success = vtkDataArrayPrivate::DoComputeVectorRange(
-      array, this->Range, vtkDataArrayPrivate::AllValues());
+    this->Success = vtkDataArrayPrivate::DoComputeVectorRange(array, this->Range,
+      vtkDataArrayPrivate::AllValues(), this->GhostArray, this->GhostTypesToSkip);
   }
 };
 
@@ -1775,18 +1818,23 @@ struct FiniteScalarRangeDispatchWrapper
 {
   bool Success;
   double* Range;
+  const unsigned char* GhostArray;
+  unsigned char GhostTypesToSkip;
 
-  FiniteScalarRangeDispatchWrapper(double* range)
+  FiniteScalarRangeDispatchWrapper(
+    double* range, const unsigned char* ghostArray, unsigned char ghostTypesToSkip)
     : Success(false)
     , Range(range)
+    , GhostArray(ghostArray)
+    , GhostTypesToSkip(ghostTypesToSkip)
   {
   }
 
   template <typename ArrayT>
   void operator()(ArrayT* array)
   {
-    this->Success = vtkDataArrayPrivate::DoComputeScalarRange(
-      array, this->Range, vtkDataArrayPrivate::FiniteValues());
+    this->Success = vtkDataArrayPrivate::DoComputeScalarRange(array, this->Range,
+      vtkDataArrayPrivate::FiniteValues(), this->GhostArray, this->GhostTypesToSkip);
   }
 };
 
@@ -1794,18 +1842,23 @@ struct FiniteVectorRangeDispatchWrapper
 {
   bool Success;
   double* Range;
+  const unsigned char* GhostArray;
+  unsigned char GhostTypesToSkip;
 
-  FiniteVectorRangeDispatchWrapper(double* range)
+  FiniteVectorRangeDispatchWrapper(
+    double* range, const unsigned char* ghostArray, unsigned char ghostTypesToSkip)
     : Success(false)
     , Range(range)
+    , GhostArray(ghostArray)
+    , GhostTypesToSkip(ghostTypesToSkip)
   {
   }
 
   template <typename ArrayT>
   void operator()(ArrayT* array)
   {
-    this->Success = vtkDataArrayPrivate::DoComputeVectorRange(
-      array, this->Range, vtkDataArrayPrivate::FiniteValues());
+    this->Success = vtkDataArrayPrivate::DoComputeVectorRange(array, this->Range,
+      vtkDataArrayPrivate::FiniteValues(), this->GhostArray, this->GhostTypesToSkip);
   }
 };
 
@@ -1814,7 +1867,14 @@ struct FiniteVectorRangeDispatchWrapper
 //------------------------------------------------------------------------------
 bool vtkDataArray::ComputeScalarRange(double* ranges)
 {
-  ScalarRangeDispatchWrapper worker(ranges);
+  return this->ComputeScalarRange(ranges, nullptr);
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataArray::ComputeScalarRange(
+  double* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
+  ScalarRangeDispatchWrapper worker(ranges, ghosts, ghostsToSkip);
   if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
   {
     worker(this);
@@ -1823,9 +1883,16 @@ bool vtkDataArray::ComputeScalarRange(double* ranges)
 }
 
 //------------------------------------------------------------------------------
-bool vtkDataArray::ComputeVectorRange(double range[2])
+bool vtkDataArray::ComputeVectorRange(double* ranges)
 {
-  VectorRangeDispatchWrapper worker(range);
+  return this->ComputeVectorRange(ranges, nullptr);
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataArray::ComputeVectorRange(
+  double range[2], const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
+  VectorRangeDispatchWrapper worker(range, ghosts, ghostsToSkip);
   if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
   {
     worker(this);
@@ -1836,7 +1903,14 @@ bool vtkDataArray::ComputeVectorRange(double range[2])
 //------------------------------------------------------------------------------
 bool vtkDataArray::ComputeFiniteScalarRange(double* ranges)
 {
-  FiniteScalarRangeDispatchWrapper worker(ranges);
+  return this->ComputeFiniteScalarRange(ranges, nullptr);
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataArray::ComputeFiniteScalarRange(
+  double* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
+  FiniteScalarRangeDispatchWrapper worker(ranges, ghosts, ghostsToSkip);
   if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
   {
     worker(this);
@@ -1847,7 +1921,14 @@ bool vtkDataArray::ComputeFiniteScalarRange(double* ranges)
 //------------------------------------------------------------------------------
 bool vtkDataArray::ComputeFiniteVectorRange(double range[2])
 {
-  FiniteVectorRangeDispatchWrapper worker(range);
+  return this->ComputeFiniteVectorRange(range, nullptr);
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataArray::ComputeFiniteVectorRange(
+  double range[2], const unsigned char* ghosts, unsigned char ghostsToSkip)
+{
+  FiniteVectorRangeDispatchWrapper worker(range, ghosts, ghostsToSkip);
   if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
   {
     worker(this);

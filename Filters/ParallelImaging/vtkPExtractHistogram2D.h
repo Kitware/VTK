@@ -42,6 +42,7 @@
 #include "vtkExtractHistogram2D.h"
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 
+class vtkDataSetAttributes;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
@@ -61,7 +62,8 @@ protected:
 
   vtkMultiProcessController* Controller;
 
-  int ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2) override;
+  int ComputeBinExtents(
+    vtkDataSetAttributes* rowData, vtkDataArray* col1, vtkDataArray* col2) override;
 
   // Execute the calculations required by the Learn option.
   void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;

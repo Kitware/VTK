@@ -157,21 +157,29 @@ void vtkDataSet::ComputeScalarRange()
     ptScalars = this->PointData->GetScalars();
     cellScalars = this->CellData->GetScalars();
 
+    vtkUnsignedCharArray* ptGhosts = this->PointData->GetGhostArray();
+    const unsigned char* ptGhostsPtr = ptGhosts ? ptGhosts->GetPointer(0) : nullptr;
+    unsigned char ptGhostsToSkip = this->PointData->GetGhostsToSkip();
+
+    vtkUnsignedCharArray* cellGhosts = this->CellData->GetGhostArray();
+    const unsigned char* cellGhostsPtr = cellGhosts ? cellGhosts->GetPointer(0) : nullptr;
+    unsigned char cellGhostsToSkip = this->CellData->GetGhostsToSkip();
+
+    double r1[2], r2[2];
     if (ptScalars && cellScalars)
     {
-      double r1[2], r2[2];
-      ptScalars->GetRange(r1, 0);
-      cellScalars->GetRange(r2, 0);
+      ptScalars->GetRange(r1, 0, ptGhostsPtr, ptGhostsToSkip);
+      cellScalars->GetRange(r2, 0, cellGhostsPtr, cellGhostsToSkip);
       this->ScalarRange[0] = (r1[0] < r2[0] ? r1[0] : r2[0]);
       this->ScalarRange[1] = (r1[1] > r2[1] ? r1[1] : r2[1]);
     }
     else if (ptScalars)
     {
-      ptScalars->GetRange(this->ScalarRange, 0);
+      ptScalars->GetRange(this->ScalarRange, 0, ptGhostsPtr, ptGhostsToSkip);
     }
     else if (cellScalars)
     {
-      cellScalars->GetRange(this->ScalarRange, 0);
+      cellScalars->GetRange(this->ScalarRange, 0, cellGhostsPtr, cellGhostsToSkip);
     }
     else
     {

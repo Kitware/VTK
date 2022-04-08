@@ -1360,7 +1360,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents()
   {
     for (j = 0; j < pd->GetScalars()->GetNumberOfComponents(); j++)
     {
-      pd->GetScalars()->GetRange(range, j);
+      pd->GetRange(pd->GetScalars()->GetName(), range, j);
       maxRange = (maxRange < (range[1] - range[0]) ? (range[1] - range[0]) : maxRange);
     }
     if (maxRange != 0.0)
@@ -1379,7 +1379,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents()
   {
     for (j = 0; j < pd->GetVectors()->GetNumberOfComponents(); j++)
     {
-      pd->GetVectors()->GetRange(range, j);
+      pd->GetRange(pd->GetVectors()->GetName(), range, j);
       maxRange = (maxRange < (range[1] - range[0]) ? (range[1] - range[0]) : maxRange);
     }
     if (maxRange != 0.0)
@@ -1408,7 +1408,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents()
   {
     for (j = 0; j < pd->GetTCoords()->GetNumberOfComponents(); j++)
     {
-      pd->GetTCoords()->GetRange(range, j);
+      pd->GetRange(pd->GetTCoords()->GetName(), range, j);
       maxRange = (maxRange < (range[1] - range[0]) ? (range[1] - range[0]) : maxRange);
     }
     if (maxRange != 0.0)
@@ -1429,7 +1429,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents()
     int nComp = inTensors->GetNumberOfComponents();
     for (j = 0; j < nComp; j++)
     {
-      inTensors->GetRange(range, j);
+      pd->GetRange(inTensors->GetName(), range, j);
       maxRange = (maxRange < (range[1] - range[0]) ? (range[1] - range[0]) : maxRange);
     }
     if (maxRange != 0.0)

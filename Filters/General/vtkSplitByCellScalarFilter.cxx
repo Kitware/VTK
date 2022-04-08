@@ -62,8 +62,10 @@ int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
+  vtkCellData* inCD = input->GetCellData();
+
   double range[2];
-  inScalars->GetRange(range);
+  inCD->GetRange(inScalars->GetName(), range);
 
   vtkIdType nbCells = input->GetNumberOfCells();
 
@@ -86,7 +88,6 @@ int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkPointData* inPD = input->GetPointData();
-  vtkCellData* inCD = input->GetCellData();
   vtkPointSet* inputPS = vtkPointSet::SafeDownCast(input);
   vtkPolyData* inputPD = vtkPolyData::SafeDownCast(input);
   vtkUnstructuredGrid* inputUG = vtkUnstructuredGrid::SafeDownCast(input);

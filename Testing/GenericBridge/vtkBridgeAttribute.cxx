@@ -159,9 +159,8 @@ double* vtkBridgeAttribute::GetRange(int component)
 {
   assert(
     "pre: valid_component" && (component >= -1) && (component < this->GetNumberOfComponents()));
-  double* result = this->Data->GetArray(this->AttributeNumber)->GetRange(component);
-  assert("post: result_exists" && result != nullptr);
-  return result;
+  this->Data->GetRange(this->AttributeNumber, this->Range, component);
+  return this->Range;
 }
 
 //------------------------------------------------------------------------------
@@ -173,7 +172,7 @@ void vtkBridgeAttribute::GetRange(int component, double range[2])
 {
   assert(
     "pre: valid_component" && (component >= -1) && (component < this->GetNumberOfComponents()));
-  this->Data->GetArray(this->AttributeNumber)->GetRange(range, component);
+  this->Data->GetRange(this->AttributeNumber, range, component);
 }
 
 //------------------------------------------------------------------------------

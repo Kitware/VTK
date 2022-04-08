@@ -539,12 +539,14 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     return true; // just return the dataset bounds.
   }
 
+  vtkPointData* pd = ds->GetPointData();
+
   int indexRange[2] = { 0, 0 };
   vtkDataArray* indexArray = this->GetSourceIndexArray(ds);
   if (indexArray)
   {
     double range[2];
-    indexArray->GetRange(range, -1);
+    pd->GetRange(indexArray->GetName(), range, -1);
     for (int i = 0; i < 2; i++)
     {
       indexRange[i] = static_cast<int>((range[i] - this->Range[0]) * numberOfSources / den);
@@ -563,7 +565,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     switch (this->ScaleMode)
     {
       case SCALE_BY_MAGNITUDE:
-        scaleArray->GetRange(xScaleRange, -1);
+        pd->GetRange(scaleArray->GetName(), xScaleRange, -1);
         yScaleRange[0] = xScaleRange[0];
         yScaleRange[1] = xScaleRange[1];
         zScaleRange[0] = xScaleRange[0];
@@ -571,9 +573,9 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
         break;
 
       case SCALE_BY_COMPONENTS:
-        scaleArray->GetRange(xScaleRange, 0);
-        scaleArray->GetRange(yScaleRange, 1);
-        scaleArray->GetRange(zScaleRange, 2);
+        pd->GetRange(scaleArray->GetName(), xScaleRange, 0);
+        pd->GetRange(scaleArray->GetName(), yScaleRange, 1);
+        pd->GetRange(scaleArray->GetName(), zScaleRange, 2);
         break;
 
       default:

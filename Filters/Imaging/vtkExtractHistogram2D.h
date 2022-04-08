@@ -51,6 +51,7 @@
 #include "vtkFiltersImagingModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
 
+class vtkDataSetAttributes;
 class vtkImageData;
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
@@ -188,7 +189,7 @@ protected:
   int ScalarType;
   vtkDataArray* RowMask;
 
-  virtual int ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2);
+  virtual int ComputeBinExtents(vtkDataSetAttributes* dsa, vtkDataArray* col1, vtkDataArray* col2);
 
   /**
    * Execute the calculations required by the Learn option.
