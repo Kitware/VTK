@@ -44,10 +44,10 @@ int vtkSubdivisionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   numPts = input->GetNumberOfPoints();
   numCells = input->GetNumberOfCells();
 
-  if (numPts < 1 || numCells < 1)
+  if (numPts == 0 || numCells == 0)
   {
-    vtkErrorMacro(<< "No data to subdivide");
-    return 0;
+    vtkDebugMacro(<< "No data to subdivide");
+    return 1;
   }
 
   if (this->CheckForTriangles)
