@@ -990,6 +990,52 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         LIBRARY DESTINATION "${_vtk_python_MODULE_DESTINATION}"
         ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
     endif () # if (_vtk_python_BUILD_STATIC)
+
+    set(_vtk_python_pyi_files)
+    set(_vtk_python_modules)
+    set(_vtk_python_module_targets)
+    foreach (_vtk_python_module IN LISTS _vtk_python_all_wrapped_modules)
+      get_property(_vtk_python_library_name
+        TARGET    "${_vtk_python_module}"
+        PROPERTY  "INTERFACE_vtk_module_library_name")
+      list(APPEND _vtk_python_pyi_files
+        "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}/${_vtk_python_library_name}.pyi")
+      list(APPEND _vtk_python_modules "${_vtk_python_library_name}")
+      if (TARGET "${_vtk_python_library_name}Python")
+        list(APPEND _vtk_python_module_targets "${_vtk_python_library_name}Python")
+      endif ()
+    endforeach ()
+
+    if (TARGET VTK::vtkpython)
+      set(_vtk_python_exe $<TARGET_FILE:VTK::vtkpython>)
+    else ()
+      set(_vtk_python_exe "${Python3_EXECUTABLE}")
+    endif ()
+
+    # XXX(python2): Remove this conditional
+    if (NOT VTK_PYTHON_VERSION STREQUAL "2")
+      add_custom_command(
+        OUTPUT    ${_vtk_python_pyi_files}
+        COMMAND   "${_vtk_python_exe}"
+                  -m vtkmodules.generate_pyi
+                  -p "${_vtk_python_PYTHON_PACKAGE}"
+                  ${_vtk_python_modules}
+        WORKING_DIRECTORY
+                  "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}"
+        DEPENDS   ${_vtk_python_module_targets}
+                  ${_vtk_python_static_importer_name}
+                  "${_vtk_pyi_script}"
+        COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}")
+
+      install(
+        FILES       ${_vtk_python_pyi_files}
+        DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}"
+        COMPONENT   "${_vtk_python_component}")
+
+      add_custom_target("${_vtk_python_TARGET_NAME}_pyi" ALL
+        DEPENDS ${_vtk_python_pyi_files})
+    endif ()
+
   endif ()
 endfunction ()
 

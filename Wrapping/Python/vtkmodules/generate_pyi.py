@@ -18,19 +18,19 @@ With no arguments, the script runs with the defaults (the .pyi files
 are put inside the existing vtkmodules package).  This is equivalent
 to the following:
 
-    vtk_generate_pyi.py -p vtkmodules
+    python -m vtkmodules.generate_pyi -p vtkmodules
 
 To put the pyi files somewhere else, perhaps with a different suffix:
 
-    vtk_generate_pyi.py -o /path/to/vtkmodules -e .pyi
+    python -m vtkmodules.generate_pyi -o /path/to/vtkmodules -e .pyi
 
 To generate pyi files for just one or two modules:
 
-    vtk_generate_pyi.py -p vtkmodules vtkCommonCore vtkCommonDataModel
+    python -m vtkmodules.generate_pyi -p vtkmodules vtkCommonCore vtkCommonDataModel
 
 To generate pyi files for your own modules in your own package:
 
-    vtk_generate_pyi.py -p mypackage mymodule [mymodule2 ...]
+    python -m vtkmodules.generate_pyi -p mypackage mymodule [mymodule2 ...]
 
 """
 
@@ -39,10 +39,11 @@ from vtkmodules.vtkCommonCore import vtkObject, vtkSOADataArrayTemplate
 import sys
 import os
 import re
+import ast
 import argparse
 import builtins
 import inspect
-import importlib
+import importlib.util
 
 
 # ==== For type inspection ====
@@ -58,7 +59,6 @@ for m in ['Any', 'Buffer', 'Callback', 'None', 'Pointer', 'Template', 'Union']:
 # basic type checking methods
 ismethod = inspect.isroutine
 isclass = inspect.isclass
-isnamespace = inspect.ismodule
 
 # VTK methods have a special type
 vtkmethod = type(vtkObject.IsA)
@@ -67,6 +67,11 @@ template = type(vtkSOADataArrayTemplate)
 def isvtkmethod(m):
     """Check for VTK's custom method descriptor"""
     return (type(m) == vtkmethod)
+
+def isnamespace(m):
+    """Check for namespaces within a module"""
+    # until vtkmodules.vtkCommonCore.namespace is directly accessible
+    return (str(type(m)) == "<class 'vtkmodules.vtkCommonCore.namespace'>")
 
 def isenum(m):
    """Check for enums (currently derived from int)"""
@@ -193,6 +198,10 @@ def get_signatures(o):
     """
     doc = o.__doc__
     signatures = [] # output method signatures
+    if doc is None:
+        return signatures
+
+    # variables used for parsing the docstrings
     begin = 0 # beginning of current signature
     pos = 0 # current position in docstring
     delim_stack = [] # keep track of bracket depth
@@ -505,7 +514,7 @@ def main(argv=sys.argv):
     # parse the program arguments
     parser = argparse.ArgumentParser(
         prog=argv[0],
-        usage=f"python {progname} [-p package] [-o output_dir]",
+        usage="python " + progname + " [-p package] [-o output_dir]",
         description="A .pyi generator for the VTK python wrappers.")
     parser.add_argument('-p', '--package', type=str, default="vtkmodules",
                         help="Package name [vtkmodules].")
@@ -513,6 +522,8 @@ def main(argv=sys.argv):
                         help="Output directory [package directory].")
     parser.add_argument('-e', '--ext', type=str, default=".pyi",
                         help="Output file suffix [.pyi].")
+    parser.add_argument('--test', action='count', default=0,
+                        help="Test .pyi files instead of creating them.")
     parser.add_argument('modules', type=str, nargs='*',
                         help="Modules to process [all].")
     args = parser.parse_args(argv[1:])
@@ -527,33 +538,41 @@ def main(argv=sys.argv):
     mod = importlib.import_module(packagename)
     filename = inspect.getfile(mod)
     if os.path.basename(filename) != '__init__.py':
-        sys.stderr.write(f"{progname}: {packagename} has no __init__.py\n")
+        sys.stderr.write(progname + ": " + packagename + " has no __init__.py\n")
         return 1
     if basedir is None:
         basedir = os.path.dirname(filename)
     if len(modules) == 0:
-        modules = mod.__all__
+        for modname in mod.__all__:
+            # only generate .pyi files for the extension modules in __all__
+            try:
+                spec = importlib.util.find_spec(packagename + "." + modname)
+            except ValueError:
+                spec = None
+                if not errflag:
+                    errflag = True
+                    sys.stderr.write(progname + ": couldn't get loader for " + modname + "\n")
+            if spec is None:
+                continue
+            if not isinstance(spec.loader, importlib.machinery.ExtensionFileLoader):
+                continue
+            # the module is definitely an extension module
+            modules.append(modname)
 
     # iterate through the modules in the package
     errflag = False
     for modname in modules:
-        # inspect the module before loading it
-        try:
-            spec = importlib.util.find_spec(f"{packagename}.{modname}")
-        except ValueError:
-            spec = None
-            if not errflag:
-                errflag = True
-                sys.stderr.write(f"{progname}: couldn't get loader for {modname}\n")
-        if spec is None:
-            continue
-        if not isinstance(spec.loader, importlib.machinery.ExtensionFileLoader):
-            continue
-        # the module is definitely an extension module, so load it
-        mod = importlib.import_module(f"{packagename}.{modname}")
-        outfile = os.path.join(basedir, f"{modname}{ext}")
-        with open(outfile, "w") as output:
-            module_pyi(mod, output)
+        pyifile = os.path.join(basedir, modname + ext)
+        if args.test:
+            # test the syntax of the .pyi file
+            flags = ast.PyCF_TYPE_COMMENTS if sys.hexversion >= 0x3080000 else 0
+            with open(pyifile, 'r') as f:
+                compile(f.read(), pyifile, 'exec', flags)
+        else:
+            # generate the .pyi file for the module
+            mod = importlib.import_module(packagename + "." + modname)
+            with open(pyifile, "w") as f:
+                module_pyi(mod, f)
 
 if __name__ == '__main__':
     result = main(sys.argv)
