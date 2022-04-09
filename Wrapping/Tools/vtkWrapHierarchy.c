@@ -371,7 +371,7 @@ static char** append_class_contents(char** lines, size_t* np, ClassInfo* data, c
     {
       line = append_scope_to_line(line, &m, &maxlen, scope);
       line = append_enum_to_line(line, &m, &maxlen, data->Enums[data->Items[i].Index]);
-      if (data->Enums[data->Items[i].Index]->IsExcluded)
+      if (data->Enums[data->Items[i].Index]->IsExcluded || new_scope)
       {
         tmpflags = "WRAPEXCLUDE";
       }
@@ -393,7 +393,7 @@ static char** append_class_contents(char** lines, size_t* np, ClassInfo* data, c
     /* append the line to the file */
     lines = append_unique_line(lines, line, np);
 
-    /* for classes, add all typed defined within the class */
+    /* for classes, add all types defined within the class */
     if ((data->Items[i].Type == VTK_CLASS_INFO || data->Items[i].Type == VTK_STRUCT_INFO) &&
       data->Classes[data->Items[i].Index]->Name)
     {
@@ -462,7 +462,7 @@ static char** append_namespace_contents(char** lines, size_t* np, NamespaceInfo*
     if (data->Items[i].Type == VTK_CLASS_INFO || data->Items[i].Type == VTK_STRUCT_INFO)
     {
       ClassInfo* class_info = data->Classes[data->Items[i].Index];
-      if (class_info->IsExcluded)
+      if (class_info->IsExcluded || scope)
       {
         tmpflags = "WRAPEXCLUDE";
       }
@@ -473,7 +473,7 @@ static char** append_namespace_contents(char** lines, size_t* np, NamespaceInfo*
     else if (data->Items[i].Type == VTK_ENUM_INFO)
     {
       EnumInfo* enum_info = data->Enums[data->Items[i].Index];
-      if (enum_info->IsExcluded)
+      if (enum_info->IsExcluded || new_scope)
       {
         tmpflags = "WRAPEXCLUDE";
       }
@@ -512,8 +512,8 @@ static char** append_namespace_contents(char** lines, size_t* np, NamespaceInfo*
     /* for namespaces, add all types in the namespace */
     if (data->Items[i].Type == VTK_NAMESPACE_INFO && data->Namespaces[data->Items[i].Index]->Name)
     {
-      lines = append_namespace_contents(lines, np, data->Namespaces[data->Items[i].Index], scope,
-        header_file, module_name, "WRAPEXCLUDE");
+      lines = append_namespace_contents(
+        lines, np, data->Namespaces[data->Items[i].Index], scope, header_file, module_name, flags);
     }
   }
 
