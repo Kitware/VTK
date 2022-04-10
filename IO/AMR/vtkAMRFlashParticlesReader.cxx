@@ -30,11 +30,6 @@
 #include <cassert>
 #include <vector>
 
-#define FLASH_READER_MAX_DIMS 3
-#define FLASH_READER_LEAF_BLOCK 1
-#define FLASH_READER_FLASH3_FFV8 8
-#define FLASH_READER_FLASH3_FFV9 9
-
 //------------------------------------------------------------------------------
 // Description:
 // Helper function that reads the particle coordinates
