@@ -115,7 +115,9 @@ class vtkWorkQueue
       }
       else
       {
-        result->ShallowCopy(writer->GetResult());
+        // We must do a deep copy here as the writer reuse that array
+        // and will change its values concurrently during its next job...
+        result->DeepCopy(writer->GetResult());
       }
       writer->SetInputData(nullptr);
 
