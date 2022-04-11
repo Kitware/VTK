@@ -174,6 +174,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
     return nullptr;
   }
 
+  auto viewID = this->Internals->ObjectIdMap->GetGlobalId(view);
   vtkInternals::ImageCacheValueType& value = this->Internals->ImageCache[view];
   value.SetListener(view);
 
@@ -181,8 +182,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
     value.Data != nullptr /* FIXME SEB &&
     view->HasDirtyRepresentation() == false */)
   {
-    bool latest = this->Internals->Encoder->GetLatestOutput(
-      this->Internals->ObjectIdMap->GetGlobalId(view), value.Data);
+    bool latest = this->Internals->Encoder->GetLatestOutput(viewID, value.Data);
     value.HasImagesBeingProcessed = !latest;
     return value.Data;
   }
@@ -213,19 +213,17 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   // vtkTimerLog::MarkEndEvent("StillRenderToString");
   // vtkTimerLog::DumpLogWithIndents(&cout, 0.0);
 
-  this->Internals->Encoder->Push(
-    this->Internals->ObjectIdMap->GetGlobalId(view), image, quality, this->ImageEncoding);
+  this->Internals->Encoder->Push(viewID, image, quality, this->ImageEncoding);
 
   if (value.Data == nullptr)
   {
     // we need to wait till output is processed.
     // cout << "Flushing" << endl;
-    this->Internals->Encoder->Flush(this->Internals->ObjectIdMap->GetGlobalId(view));
+    this->Internals->Encoder->Flush(viewID);
     // cout << "Done Flushing" << endl;
   }
 
-  bool latest = this->Internals->Encoder->GetLatestOutput(
-    this->Internals->ObjectIdMap->GetGlobalId(view), value.Data);
+  bool latest = this->Internals->Encoder->GetLatestOutput(viewID, value.Data);
   value.HasImagesBeingProcessed = !latest;
   value.NeedsRender = false;
   return value.Data;
