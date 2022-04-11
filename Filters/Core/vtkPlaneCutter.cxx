@@ -1771,7 +1771,7 @@ int vtkPlaneCutter::ExecuteMultiBlockDataSet(
     ret += this->ExecuteDataSet(inputDS, this->GetSphereTree(inputDS), outputPolyData);
     dObj.SetDataObject(output, outputPolyData);
   }
-  return ret = inputRange.size() ? 1 : 0;
+  return static_cast<unsigned int>(ret) == inputRange.size() ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1793,7 +1793,7 @@ int vtkPlaneCutter::ExecuteUniformGridAMR(
       tempPDC->GetPartitionedDataSet(index), false /*copyStructure*/);
   }
   output->ShallowCopy(tempPDC);
-  return ret == tempPDC->GetNumberOfPartitionedDataSets() ? 1 : 0;
+  return static_cast<unsigned int>(ret) == tempPDC->GetNumberOfPartitionedDataSets() ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1808,7 +1808,7 @@ int vtkPlaneCutter::ExecutePartitionedDataCollection(
     ret += this->ExecutePartitionedData(input->GetPartitionedDataSet(index),
       output->GetPartitionedDataSet(index), false /*copyStructure*/);
   }
-  return ret == input->GetNumberOfPartitionedDataSets() ? 1 : 0;
+  return static_cast<unsigned int>(ret) == input->GetNumberOfPartitionedDataSets() ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1828,7 +1828,7 @@ int vtkPlaneCutter::ExecutePartitionedData(
     ret += this->ExecuteDataSet(inputDS, this->GetSphereTree(inputDS), outputPolyData);
     output->SetPartition(cc, outputPolyData);
   }
-  return ret == input->GetNumberOfPartitions() ? 1 : 0;
+  return static_cast<unsigned int>(ret) == input->GetNumberOfPartitions() ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
