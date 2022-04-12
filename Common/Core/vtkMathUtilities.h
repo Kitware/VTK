@@ -107,9 +107,17 @@ bool NearlyEqual(A a, A b, A tol = std::numeric_limits<A>::epsilon())
 template <class A>
 void UpdateRangeImpl(A& min0, A& max0, const A& value)
 {
-  std::tie(min0, max0) = (value < min0)
-    ? std::tie(value, max0 < value ? value : max0)
-    : ((value > max0) ? std::tie(min0 > value ? value : min0, value) : std::tie(min0, max0));
+  // need temporaries to handle const/non const ref mismatch
+  if (value < min0)
+  {
+    min0 = value;
+    max0 = max0 < value ? value : max0;
+  }
+  else if (value > max0)
+  {
+    min0 = min0 > value ? value : min0;
+    max0 = value;
+  }
 }
 
 template <class A> // Non floating point implementation not caring about NaN
