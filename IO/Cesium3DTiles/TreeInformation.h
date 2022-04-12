@@ -49,7 +49,7 @@ public:
     const std::string& outputDir, const std::string& texturePath, bool saveTextures,
     bool contentGLTF, const char* crs);
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPointSet* points,
-    const std::string& output, const char* crs);
+    int inputType, const std::string& output, const char* crs);
   void PrintNode(vtkIncrementalOctreeNode* node);
 
   //@{
@@ -58,9 +58,9 @@ public:
    * The versions that returns a bool returns true if the node is not empty,
    * false otherwise. For the third version we read the node index from 'node'.
    */
-  std::array<double, 6> GetNodeBounds(int i) { return NodeBounds[i]; }
-  bool GetNodeBounds(int i, double* bounds);
-  static bool GetNodeBounds(void* data, vtkIncrementalOctreeNode* node, double* bounds);
+  std::array<double, 6> GetNodeTightBounds(int i) { return NodeTightBounds[i]; }
+  bool GetNodeTightBounds(int i, double* bounds);
+  static bool GetNodeTightBounds(void* data, vtkIncrementalOctreeNode* node, double* bounds);
   //@}
 
   /**
@@ -89,28 +89,36 @@ public:
 protected:
   void PostOrderTraversal(void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node, void* aux),
     vtkIncrementalOctreeNode* node, void* aux);
+  void PreOrderTraversal(void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node, void* aux),
+    vtkIncrementalOctreeNode* node, void* aux);
   void SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output);
   nlohmann::json GenerateTileJson(vtkIncrementalOctreeNode* node);
   bool ConvertTileCartesianBuildings(vtkIncrementalOctreeNode* node);
   bool ConvertDataSetCartesianPoints();
 
+  ///@{
   /**
    * Computes the additional information for 'node'. This includes
    * the tight bounding box around the buildings, if the node is empty or not,
    * and the geometric error.
    */
   void Compute(vtkIncrementalOctreeNode* node, void* aux);
+  void VisitComputeGeometricError(vtkIncrementalOctreeNode* node, void* aux);
+  ///@}
   void SaveTileGLTF(vtkIncrementalOctreeNode* node, void* auxData);
   void SaveTilePnts(vtkIncrementalOctreeNode* node, void* auxData);
 
   double ComputeGeometricErrorTilesetBuildings();
   double ComputeGeometricErrorTilesetPoints();
+  double ComputeGeometricErrorTilesetMesh();
   double ComputeGeometricErrorTileset();
   double ComputeGeometricErrorNodeBuildings(vtkIncrementalOctreeNode* node);
   double ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode* node);
+  double ComputeGeometricErrorNodeMesh(vtkIncrementalOctreeNode* node);
   double ComputeGeometricErrorNode(vtkIncrementalOctreeNode* node);
   std::array<double, 6> ComputeTightBB(vtkIdList* tileBuildings);
   std::string ContentTypeExtension() const;
+  void initialize();
 
 private:
   /**
@@ -118,14 +126,14 @@ private:
    */
   int InputType;
   vtkIncrementalOctreeNode* Root;
+  ///@{
   /**
-   * buildings input indexed by building ID
+   * buildings indexed by building ID, Points or Mesh input.
    */
   const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* Buildings;
-  /**
-   * point cloud input
-   */
   vtkPointSet* Points;
+  vtkPolyData* Mesh;
+  ///@}
 
   std::string OutputDir;
   std::string TexturePath;
@@ -136,7 +144,7 @@ private:
   /**
    * tight bounds indexed by tile ID
    */
-  std::vector<std::array<double, 6>> NodeBounds;
+  std::vector<std::array<double, 6>> NodeTightBounds;
   /**
    * You can have leaf nodes that are empty, that is they don't have any points.
    */

@@ -241,7 +241,7 @@ bool tiler(const std::vector<std::string>& input, int inputType, bool addColor,
     mbData = READER[SystemTools::GetFilenameExtension(files[0])](
       numberOfBuildings, lod, files, fileOffset);
   }
-  else if (inputType == vtkCesium3DTilesWriter::Points)
+  else /*Points or Mesh*/
   {
     polyData = ReadOBJMesh(numberOfBuildings, lod, files, fileOffset);
     if (addColor)
@@ -520,6 +520,17 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
                   << dataRoot + "/Data/3DTiles/jacksonville-3dtiles-points.pnts");
     return EXIT_FAILURE;
   }
+
+  // // Test jacksonville-mesh
+  // destDir = tempDirectory + "/jacksonville-mesh";
+  // std::cout << "Test jacksonville mesh" << std::endl;
+  // if (! tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" }
+  // }, vtkCesium3DTilesWriter::Mesh, false/*addColor*/,
+  //             destDir, 3, 3, 2, std::vector<double>{ { 0, 0, 0 } },
+  //             true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N'))
+  // {
+  //   return EXIT_FAILURE;
+  // }
 
   // Test jacksonville-points with color
   destDir = tempDirectory + "/jacksonville-3dtiles-colorpoints";

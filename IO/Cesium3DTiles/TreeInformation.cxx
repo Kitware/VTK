@@ -14,26 +14,26 @@
 =========================================================================*/
 #include "TreeInformation.h"
 
+#include "vtkActor.h"
+#include "vtkAppendPolyData.h"
+#include "vtkCellData.h"
 #include "vtkCesium3DTilesWriter.h"
 #include "vtkCesiumPointCloudWriter.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkDirectory.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkGLTFWriter.h"
+#include "vtkIncrementalOctreeNode.h"
+#include "vtkLogger.h"
+#include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
-#include <vtkActor.h>
-#include <vtkAppendPolyData.h>
-#include <vtkCellData.h>
-#include <vtkCompositeDataSet.h>
-#include <vtkDirectory.h>
-#include <vtkDoubleArray.h>
-#include <vtkFloatArray.h>
-#include <vtkIncrementalOctreeNode.h>
-#include <vtkLogger.h>
-#include <vtkMath.h>
-#include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
-#include <vtkTransform.h>
+#include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
+#include "vtkTransform.h"
 
-#include <vtk_libproj.h>
+#include "vtk_libproj.h"
 
 #include <sstream>
 #include <vtksys/FStream.hxx>
@@ -47,7 +47,7 @@ constexpr double MIN_ERROR = 20;
 //------------------------------------------------------------------------------
 /**
  * Compute the tight bounding box around all buildings in a tile.
- * 'list', which stores all buildings in a tile as indexes into 'buildings' vector
+ * 'tileBuildings', stores all buildings in a tile as indexes into 'buildings'
  * which stores all buildings.
  */
 std::array<double, 6> ComputeTightBBBuildings(
@@ -66,18 +66,34 @@ std::array<double, 6> ComputeTightBBBuildings(
   return wholeBB;
 }
 
-std::array<double, 6> ComputeTightBBPoints(
-  const vtkSmartPointer<vtkPointSet> points, vtkIdList* tileBuildings)
+std::array<double, 6> ComputeTightBBMesh(
+  const vtkSmartPointer<vtkPolyData> mesh, vtkIdList* tileCells)
 {
   std::array<double, 6> wholeBB = { std::numeric_limits<double>::max(),
     std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
     std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
     std::numeric_limits<double>::lowest() };
-  for (int i = 0; i < tileBuildings->GetNumberOfIds(); ++i)
+  for (int i = 0; i < tileCells->GetNumberOfIds(); ++i)
+  {
+    double bb[6];
+    mesh->GetCell(tileCells->GetId(i))->GetBounds(bb);
+    wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], bb);
+  }
+  return wholeBB;
+}
+
+std::array<double, 6> ComputeTightBBPoints(
+  const vtkSmartPointer<vtkPointSet> points, vtkIdList* tilePoints)
+{
+  std::array<double, 6> wholeBB = { std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::lowest() };
+  for (int i = 0; i < tilePoints->GetNumberOfIds(); ++i)
   {
     std::array<double, 6> bb;
     double point[3];
-    points->GetPoint(tileBuildings->GetId(i), point);
+    points->GetPoint(tilePoints->GetId(i), point);
     bb = { { point[0], point[0], point[1], point[1], point[2], point[2] } };
     wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], &bb[0]);
   }
@@ -149,44 +165,50 @@ TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNod
   , Root(root)
   , Buildings(buildings)
   , Points(nullptr)
+  , Mesh(nullptr)
   , OutputDir(output)
   , TexturePath(texturePath)
   , SaveTextures(saveTextures)
   , ContentGLTF(contentGLTF)
   , CRS(crs)
-  , NodeBounds(numberOfNodes)
+  , NodeTightBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
   , GeometricError(numberOfNodes)
 {
-  std::array<double, 6> a = { std::numeric_limits<double>::max(),
-    std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
-    std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
-    std::numeric_limits<double>::lowest() };
-  std::fill(this->NodeBounds.begin(), this->NodeBounds.end(), a);
-  std::fill(this->EmptyNode.begin(), this->EmptyNode.end(), true);
-  std::fill(this->GeometricError.begin(), this->GeometricError.end(), 0);
+  initialize();
 }
 
 //------------------------------------------------------------------------------
 TreeInformation::TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
-  vtkPointSet* points, const std::string& output, const char* crs)
-  : InputType(vtkCesium3DTilesWriter::Points)
+  vtkPointSet* points, int inputType, const std::string& output, const char* crs)
+  : InputType(inputType)
   , Root(root)
   , Buildings(nullptr)
   , Points(points)
+  , Mesh(vtkPolyData::SafeDownCast(points))
   , OutputDir(output)
   , SaveTextures(false)
   , ContentGLTF(false)
   , CRS(crs)
-  , NodeBounds(numberOfNodes)
+  , NodeTightBounds(numberOfNodes)
   , EmptyNode(numberOfNodes)
   , GeometricError(numberOfNodes)
+{
+  if (inputType == vtkCesium3DTilesWriter::Mesh && this->Mesh == nullptr)
+  {
+    vtkLog(ERROR, "Mesh inputType with null Mesh");
+  }
+  initialize();
+}
+
+//------------------------------------------------------------------------------
+void TreeInformation::initialize()
 {
   std::array<double, 6> a = { std::numeric_limits<double>::max(),
     std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
     std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(),
     std::numeric_limits<double>::lowest() };
-  std::fill(this->NodeBounds.begin(), this->NodeBounds.end(), a);
+  std::fill(this->NodeTightBounds.begin(), this->NodeTightBounds.end(), a);
   std::fill(this->EmptyNode.begin(), this->EmptyNode.end(), true);
   std::fill(this->GeometricError.begin(), this->GeometricError.end(), 0);
 }
@@ -218,13 +240,21 @@ void TreeInformation::PrintNode(vtkIncrementalOctreeNode* node)
   node->GetBounds(&bounds[0]);
   std::cout << "Empty: " << this->EmptyNode[node->GetID()] << std::endl;
   // PrintBounds("Bounds", &bounds[0]);
-  // PrintBounds("NodeBounds", &this->NodeBounds[node->GetID()][0]);
+  // PrintBounds("NodeTightBounds", &this->NodeTightBounds[node->GetID()][0]);
 }
 
 //------------------------------------------------------------------------------
 void TreeInformation::Compute()
 {
   this->PostOrderTraversal(&TreeInformation::Compute, this->Root, nullptr);
+  if (this->InputType == vtkCesium3DTilesWriter::Mesh)
+  {
+    this->PreOrderTraversal(&TreeInformation::VisitComputeGeometricError, this->Root, nullptr);
+  }
+  else
+  {
+    this->PostOrderTraversal(&TreeInformation::VisitComputeGeometricError, this->Root, nullptr);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -252,6 +282,21 @@ void TreeInformation::PostOrderTraversal(
     }
   }
   (this->*Visit)(node, aux);
+}
+
+//------------------------------------------------------------------------------
+void TreeInformation::PreOrderTraversal(
+  void (TreeInformation::*Visit)(vtkIncrementalOctreeNode* node, void* aux),
+  vtkIncrementalOctreeNode* node, void* aux)
+{
+  (this->*Visit)(node, aux);
+  if (!node->IsLeaf())
+  {
+    for (int i = 0; i < 8; i++)
+    {
+      this->PreOrderTraversal(Visit, node->GetChild(i), aux);
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -332,34 +377,43 @@ void TreeInformation::SaveTilePnts(vtkIncrementalOctreeNode* node, void* auxData
 //------------------------------------------------------------------------------
 double TreeInformation::ComputeGeometricErrorTilesetBuildings()
 {
-  double tilesetVolumeError;
   // buildings in child nodes contribute to the error in the parent
-  tilesetVolumeError = std::pow(this->GeometricError[this->Root->GetID()], 3);
   vtkIdList* rootBuildings = this->Root->GetPointIdSet();
+  double geometricError = this->GeometricError[this->Root->GetID()];
   if (rootBuildings)
   {
+    double tilesetError = std::pow(geometricError, 2);
     for (int i = 0; i < rootBuildings->GetNumberOfIds(); ++i)
     {
       double bb[6];
       (*this->Buildings)[rootBuildings->GetId(i)]->GetBounds(bb);
-      double volume = (bb[1] - bb[0]) * (bb[3] - bb[2]) * (bb[5] - bb[4]);
-      tilesetVolumeError += volume;
+      std::array<double, 3> length = { { bb[1] - bb[0], bb[3] - bb[2], bb[5] - bb[4] } };
+      double length2 = length[0] * length[0] + length[1] * length[1] + length[2] * length[2];
+      tilesetError = std::max(tilesetError, length2);
     }
+    return std::pow(tilesetError, 1.0 / 2);
   }
-  return std::pow(tilesetVolumeError, 1.0 / 3);
+  else
+  {
+    return geometricError;
+  }
 }
 
 //------------------------------------------------------------------------------
 double TreeInformation::ComputeGeometricErrorNodeBuildings(vtkIncrementalOctreeNode* node)
 {
-  double geometricError = 0;
-  if (!node->IsLeaf())
+  if (node->IsLeaf())
   {
+    return 0;
+  }
+  else
+  {
+    double geometricError = 0;
     for (int i = 0; i < 8; ++i)
     {
       // buildings in child nodes contribute to the error in the parent
       vtkIncrementalOctreeNode* child = node->GetChild(i);
-      geometricError += std::pow(this->GeometricError[child->GetID()], 3);
+      geometricError = std::max(geometricError, std::pow(this->GeometricError[child->GetID()], 2));
       vtkIdList* childBuildings = child->GetPointIdSet();
       if (childBuildings)
       {
@@ -367,45 +421,14 @@ double TreeInformation::ComputeGeometricErrorNodeBuildings(vtkIncrementalOctreeN
         {
           double bb[6];
           (*this->Buildings)[childBuildings->GetId(j)]->GetBounds(bb);
-          double volume = (bb[1] - bb[0]) * (bb[3] - bb[2]) * (bb[5] - bb[4]);
-          geometricError += volume;
+          std::array<double, 3> length = { { bb[1] - bb[0], bb[3] - bb[2], bb[5] - bb[4] } };
+          double length2 = length[0] * length[0] + length[1] * length[1] + length[2] * length[2];
+          geometricError = std::max(geometricError, length2);
         }
       }
     }
+    return std::pow(geometricError, 1.0 / 2);
   }
-  return std::pow(geometricError, 1 / 3.0);
-}
-
-//------------------------------------------------------------------------------
-double TreeInformation::ComputeGeometricErrorTileset()
-{
-  double d = 0;
-  switch (this->InputType)
-  {
-    case vtkCesium3DTilesWriter::Buildings:
-      return ComputeGeometricErrorTilesetBuildings();
-    case vtkCesium3DTilesWriter::Points:
-      return ComputeGeometricErrorTilesetPoints();
-    default:
-      vtkLog(ERROR, "Invalid InputType " << this->InputType);
-  }
-  return d;
-}
-
-//------------------------------------------------------------------------------
-double TreeInformation::ComputeGeometricErrorNode(vtkIncrementalOctreeNode* node)
-{
-  double d = 0;
-  switch (this->InputType)
-  {
-    case vtkCesium3DTilesWriter::Buildings:
-      return ComputeGeometricErrorNodeBuildings(node);
-    case vtkCesium3DTilesWriter::Points:
-      return ComputeGeometricErrorNodePoints(node);
-    default:
-      vtkLog(ERROR, "Invalid InputType " << this->InputType);
-  }
-  return d;
 }
 
 //------------------------------------------------------------------------------
@@ -421,7 +444,7 @@ double TreeInformation::ComputeGeometricErrorTilesetPoints()
     this->Root->GetBounds(bb);
     double diagonal = std::pow((bb[1] - bb[0]) * (bb[1] - bb[0]) +
         (bb[3] - bb[2]) * (bb[3] - bb[2]) + (bb[5] - bb[4]) * (bb[5] - bb[4]),
-      1.0 / 3);
+      1.0 / 2);
     geometricError = std::max(geometricError, diagonal);
   }
   return geometricError;
@@ -449,7 +472,7 @@ double TreeInformation::ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode
         childNode->GetBounds(bb);
         double diagonal = std::pow((bb[1] - bb[0]) * (bb[1] - bb[0]) +
             (bb[3] - bb[2]) * (bb[3] - bb[2]) + (bb[5] - bb[4]) * (bb[5] - bb[4]),
-          1.0 / 3);
+          1.0 / 2);
         geometricError = std::max(geometricError, diagonal);
       }
     }
@@ -458,7 +481,89 @@ double TreeInformation::ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode
 }
 
 //------------------------------------------------------------------------------
-std::array<double, 6> TreeInformation::ComputeTightBB(vtkIdList* tileBuildings)
+double TreeInformation::ComputeGeometricErrorTilesetMesh()
+{
+  double tilesetVolumeError;
+  // buildings in child nodes contribute to the error in the parent
+  tilesetVolumeError = std::pow(this->GeometricError[this->Root->GetID()], 2);
+  vtkIdList* rootBuildings = this->Root->GetPointIdSet();
+  if (rootBuildings)
+  {
+    for (int i = 0; i < rootBuildings->GetNumberOfIds(); ++i)
+    {
+      double bb[6];
+      (*this->Buildings)[rootBuildings->GetId(i)]->GetBounds(bb);
+      double volume = (bb[1] - bb[0]) * (bb[3] - bb[2]) * (bb[5] - bb[4]);
+      tilesetVolumeError += volume;
+    }
+  }
+  return std::pow(tilesetVolumeError, 1.0 / 2);
+}
+
+//------------------------------------------------------------------------------
+double TreeInformation::ComputeGeometricErrorNodeMesh(vtkIncrementalOctreeNode* node)
+{
+  double geometricError = 0;
+  if (!node->IsLeaf())
+  {
+    double maxlength2 = 0;
+    for (int i = 0; i < 8; ++i)
+    {
+      // buildings in child nodes contribute to the error in the parent
+      vtkIncrementalOctreeNode* child = node->GetChild(i);
+      geometricError = std::max(geometricError, this->GeometricError[child->GetID()]);
+      vtkIdList* childCells = child->GetPointIdSet();
+      if (childCells)
+      {
+        for (vtkIdType j = 0; j < childCells->GetNumberOfIds(); ++j)
+        {
+          double length2 = this->Mesh->GetCell(childCells->GetId(j))->GetLength2();
+          maxlength2 = std::max(maxlength2, length2);
+        }
+      }
+    }
+  }
+  return std::pow(geometricError, 1.0 / 2);
+}
+
+//------------------------------------------------------------------------------
+double TreeInformation::ComputeGeometricErrorTileset()
+{
+  double d = 0;
+  switch (this->InputType)
+  {
+    case vtkCesium3DTilesWriter::Buildings:
+      return ComputeGeometricErrorTilesetBuildings();
+    case vtkCesium3DTilesWriter::Points:
+      return ComputeGeometricErrorTilesetPoints();
+    case vtkCesium3DTilesWriter::Mesh:
+      return ComputeGeometricErrorTilesetMesh();
+    default:
+      vtkLog(ERROR, "Invalid InputType " << this->InputType);
+  }
+  return d;
+}
+
+//------------------------------------------------------------------------------
+double TreeInformation::ComputeGeometricErrorNode(vtkIncrementalOctreeNode* node)
+{
+  double d = 0;
+  switch (this->InputType)
+  {
+    case vtkCesium3DTilesWriter::Buildings:
+      return ComputeGeometricErrorNodeBuildings(node);
+    case vtkCesium3DTilesWriter::Points:
+      return ComputeGeometricErrorNodePoints(node);
+    case vtkCesium3DTilesWriter::Mesh:
+      return ComputeGeometricErrorNodeMesh(node);
+    default:
+      vtkLog(ERROR, "Invalid InputType " << this->InputType);
+  }
+  return d;
+}
+
+//------------------------------------------------------------------------------
+std::array<double, 6> TreeInformation::ComputeTightBB(vtkIdList* tileFeatures)
 {
 
   std::array<double, 6> d;
@@ -466,13 +571,28 @@ std::array<double, 6> TreeInformation::ComputeTightBB(vtkIdList* tileBuildings)
   switch (this->InputType)
   {
     case vtkCesium3DTilesWriter::Buildings:
-      return ComputeTightBBBuildings(this->Buildings, tileBuildings);
+      return ComputeTightBBBuildings(this->Buildings, tileFeatures);
     case vtkCesium3DTilesWriter::Points:
-      return ComputeTightBBPoints(this->Points, tileBuildings);
+      return ComputeTightBBPoints(this->Points, tileFeatures);
+    case vtkCesium3DTilesWriter::Mesh:
+      return ComputeTightBBMesh(this->Mesh, tileFeatures);
     default:
       vtkLog(ERROR, "Invalid InputType " << this->InputType);
   }
   return d;
+}
+
+//------------------------------------------------------------------------------
+void TreeInformation::VisitComputeGeometricError(vtkIncrementalOctreeNode* node, void*)
+{
+  if (node->IsLeaf())
+  {
+    this->GeometricError[node->GetID()] = 0;
+  }
+  else
+  {
+    this->GeometricError[node->GetID()] = this->ComputeGeometricErrorNode(node);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -482,21 +602,20 @@ void TreeInformation::Compute(vtkIncrementalOctreeNode* node, void*)
   // compute the bounding box for the current node
   if (nodeFeatures)
   {
-    this->NodeBounds[node->GetID()] = this->ComputeTightBB(nodeFeatures);
+    this->NodeTightBounds[node->GetID()] = this->ComputeTightBB(nodeFeatures);
     this->EmptyNode[node->GetID()] = false;
   }
   // propagate the node bounding box from the children.
   if (!node->IsLeaf())
   {
-    this->GeometricError[node->GetID()] = this->ComputeGeometricErrorNode(node);
     for (int i = 0; i < 8; ++i)
     {
       // buildings in child nodes contribute to the error in the parent
       vtkIncrementalOctreeNode* child = node->GetChild(i);
       if (!this->EmptyNode[child->GetID()])
       {
-        this->NodeBounds[node->GetID()] =
-          ExpandBounds(&this->NodeBounds[node->GetID()][0], &this->NodeBounds[child->GetID()][0]);
+        this->NodeTightBounds[node->GetID()] = ExpandBounds(
+          &this->NodeTightBounds[node->GetID()][0], &this->NodeTightBounds[child->GetID()][0]);
         this->EmptyNode[node->GetID()] = false;
       }
     }
@@ -551,7 +670,7 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
 {
   json tree;
   json v;
-  std::array<double, 6> nodeBounds = this->NodeBounds[node->GetID()];
+  std::array<double, 6> nodeBounds = this->NodeTightBounds[node->GetID()];
   std::array<double, 6> lonLatRadiansHeight = ToLonLatRadiansHeight(this->CRS, nodeBounds);
   std::ostringstream ostr;
   for (int i = 0; i < 6; ++i)
@@ -749,20 +868,20 @@ bool TreeInformation::ConvertDataSetCartesianPoints()
 }
 
 //------------------------------------------------------------------------------
-bool TreeInformation::GetNodeBounds(int i, double* bounds)
+bool TreeInformation::GetNodeTightBounds(int i, double* bounds)
 {
   if (this->EmptyNode[i])
   {
     return false;
   }
-  std::copy(this->NodeBounds[i].begin(), this->NodeBounds[i].end(), bounds);
+  std::copy(this->NodeTightBounds[i].begin(), this->NodeTightBounds[i].end(), bounds);
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool TreeInformation::GetNodeBounds(void* data, vtkIncrementalOctreeNode* node, double* bounds)
+bool TreeInformation::GetNodeTightBounds(void* data, vtkIncrementalOctreeNode* node, double* bounds)
 {
-  return static_cast<TreeInformation*>(data)->GetNodeBounds(node->GetID(), bounds);
+  return static_cast<TreeInformation*>(data)->GetNodeTightBounds(node->GetID(), bounds);
 }
 
 //------------------------------------------------------------------------------
@@ -775,7 +894,7 @@ void TreeInformation::AddGeometricError(vtkPolyData* poly)
   for (int i = 0; i < indexArray->GetNumberOfTuples(); ++i)
   {
     int index = indexArray->GetValue(i);
-    error->SetValue(i, std::pow(this->GeometricError[index], 1.0 / 3));
+    error->SetValue(i, std::pow(this->GeometricError[index], 1.0 / 2));
   }
   poly->GetCellData()->AddArray(error);
 }
