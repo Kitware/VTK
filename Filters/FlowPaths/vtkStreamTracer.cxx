@@ -616,16 +616,16 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func, in
   }
 
   // Tweak special cases.
-  if (vtkAMRInterpolatedVelocityField::SafeDownCast(func))
+  if (auto amrVelocityField = vtkAMRInterpolatedVelocityField::SafeDownCast(func))
   {
     assert(amrData);
-    vtkAMRInterpolatedVelocityField::SafeDownCast(func)->SetAMRData(amrData);
+    amrVelocityField->SetAMRData(amrData);
     if (maxCellSize)
     {
       *maxCellSize = 8;
     }
   }
-  else if (vtkCompositeInterpolatedVelocityField::SafeDownCast(func))
+  else if (auto compVelocityField = vtkCompositeInterpolatedVelocityField::SafeDownCast(func))
   {
     iter->GoToFirstItem();
     while (!iter->IsDoneWithTraversal())
@@ -638,7 +638,7 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func, in
         {
           *maxCellSize = cellSize;
         }
-        vtkCompositeInterpolatedVelocityField::SafeDownCast(func)->AddDataSet(inp);
+        compVelocityField->AddDataSet(inp);
       }
       iter->GoToNextItem();
     }
