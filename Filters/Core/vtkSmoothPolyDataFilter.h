@@ -84,10 +84,12 @@
  * the surface may shrink towards the centroid. Enabling FeatureEdgeSmoothing
  * helps reduce this effect, but cannot entirely eliminate it. You may also
  * wish to try vtkWindowedSincPolyDataFilter. It does a better job of
- * minimizing shrinkage.
+ * minimizing shrinkage. Another option is vtkConstrainedSmoothingFilter
+ * which limits the distance that points can move.
  *
  * @sa
- * vtkWindowedSincPolyDataFilter vtkDecimate vtkDecimatePro
+ * vtkWindowedSincPolyDataFilter vtkConstrainedSmoothingFilter
+ * vtkDecimate vtkDecimatePro
  */
 
 #ifndef vtkSmoothPolyDataFilter_h
@@ -95,15 +97,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include <memory> // For std::unique_ptr<>
 
 class vtkSmoothPoints;
 
 class VTKFILTERSCORE_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkSmoothPolyDataFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
-
   /**
    * Construct object with number of iterations 20; relaxation factor .01;
    * feature edge smoothing turned off; feature
@@ -112,6 +112,15 @@ public:
    * convergence criterion is 0.0 of the bounding box diagonal.
    */
   static vtkSmoothPolyDataFilter* New();
+
+  ///@{
+  /**
+   * Standard methods to obtain type information, and print the
+   * state of a class instance.
+   */
+  vtkTypeMacro(vtkSmoothPolyDataFilter, vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   ///@{
   /**
@@ -233,7 +242,7 @@ protected:
   vtkTypeBool GenerateErrorVectors;
   int OutputPointsPrecision;
 
-  vtkSmoothPoints* SmoothPoints;
+  std::unique_ptr<vtkSmoothPoints> SmoothPoints;
 
 private:
   vtkSmoothPolyDataFilter(const vtkSmoothPolyDataFilter&) = delete;

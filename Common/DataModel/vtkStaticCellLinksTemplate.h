@@ -123,6 +123,18 @@ public:
    */
   void GetCells(vtkIdType npts, const vtkIdType* pts, vtkIdList* cells);
 
+  /**
+   * Return the total number of links represented after the links have
+   * been built.
+   */
+  TIds GetLinksSize() { return this->LinksSize; }
+
+  /**
+   * Obtain the offsets into the internal links array. This is useful for
+   * parallel computing.
+   */
+  TIds GetOffset(vtkIdType ptId) { return this->Offsets[ptId]; }
+
   ///@{
   /**
    * Support vtkAbstractCellLinks API.

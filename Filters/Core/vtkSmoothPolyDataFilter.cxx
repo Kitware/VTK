@@ -29,6 +29,7 @@
 #include "vtkTriangleFilter.h"
 
 #include <limits>
+#include <memory>
 
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
@@ -69,6 +70,7 @@ public:
   vtkIdType Extend;      // grow array by this amount
 };
 
+//------------------------------------------------------------------------------
 vtkSmoothPoints::vtkSmoothPoints()
 {
   this->MaxId = -1;
@@ -77,6 +79,7 @@ vtkSmoothPoints::vtkSmoothPoints()
   this->Extend = 5000;
 }
 
+//------------------------------------------------------------------------------
 vtkSmoothPoint* vtkSmoothPoints::Resize(vtkIdType sz)
 {
   vtkSmoothPoint* newArray;
@@ -110,6 +113,7 @@ vtkSmoothPoint* vtkSmoothPoints::Resize(vtkIdType sz)
 // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned
 // on. Error scalars and vectors are not generated (by default). The
 // convergence criterion is 0.0 of the bounding box diagonal.
+//------------------------------------------------------------------------------
 vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
 {
   this->Convergence = 0.0; // goes to number of specified iterations
@@ -133,11 +137,13 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
   this->SetNumberOfInputPorts(2);
 }
 
+//------------------------------------------------------------------------------
 void vtkSmoothPolyDataFilter::SetSourceData(vtkPolyData* source)
 {
   this->SetInputData(1, source);
 }
 
+//------------------------------------------------------------------------------
 vtkPolyData* vtkSmoothPolyDataFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -211,7 +217,7 @@ void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
     // position of its connected neighbors using the relaxation factor.
     for (vtkIdType i = 0; i < params.numPts; ++i)
     {
-      if (vertsPtr->type != VTK_FIXED_VERTEX && vertsPtr->edges != nullptr &&
+      if (vertsPtr->type != VTK_FIXED_VERTEX && vertsPtr->edges &&
         (npts = vertsPtr->edges->GetNumberOfIds()) > 0)
       {
         deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
@@ -278,6 +284,7 @@ void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
 
 } // namespace
 
+//------------------------------------------------------------------------------
 int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -304,15 +311,12 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   double x1[3], x2[3], x3[3], l1[3], l2[3];
   double CosFeatureAngle; // Cosine of angle between adjacent polys
   double CosEdgeAngle;    // Cosine of angle between adjacent edges
-  double closestPt[3], dist2, *w = nullptr;
+  double closestPt[3], dist2;
+  std::vector<double> w;
   vtkIdType numSimple = 0, numBEdges = 0, numFixed = 0, numFEdges = 0;
-  vtkPolyData *inMesh, *Mesh;
+  vtkPolyData* Mesh;
   vtkPoints* inPts;
-  vtkTriangleFilter* toTris = nullptr;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-  vtkPoints* newPts;
-  vtkMeshVertexPtr Verts;
-  vtkCellLocator* cellLocator = nullptr;
 
   // Check input
   //
@@ -353,7 +357,10 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // using a subset of the attached vertices.
   //
   vtkDebugMacro(<< "Analyzing topology...");
-  Verts = new vtkMeshVertex[numPts];
+
+  // Smart pointer to storage; use a raw pointer for operator[] array access.
+  std::unique_ptr<vtkMeshVertex> uVerts = std::unique_ptr<vtkMeshVertex>(new vtkMeshVertex[numPts]);
+  vtkMeshVertex* Verts = uVerts.get();
 
   inPts = input->GetPoints();
   conv = this->Convergence * input->GetLength();
@@ -420,20 +427,20 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdType numNeiPts;
     const vtkIdType* neiPts;
     double normal[3], neiNormal[3];
-    vtkIdList* neighbors;
 
-    neighbors = vtkIdList::New();
+    vtkNew<vtkIdList> neighbors;
     neighbors->Allocate(VTK_CELL_SIZE);
 
-    inMesh = vtkPolyData::New();
+    vtkNew<vtkPolyData> inMesh;
     inMesh->SetPoints(inPts);
     inMesh->SetPolys(inPolys);
     Mesh = inMesh;
 
+    vtkSmartPointer<vtkTriangleFilter> toTris;
     if ((numStrips = inStrips->GetNumberOfCells()) > 0)
     { // convert data to triangles
       inMesh->SetStrips(inStrips);
-      toTris = vtkTriangleFilter::New();
+      toTris.TakeReference(vtkTriangleFilter::New());
       toTris->SetInputData(inMesh);
       toTris->Update();
       Mesh = toTris->GetOutput();
@@ -540,14 +547,6 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
     }
-
-    inMesh->Delete();
-    if (toTris)
-    {
-      toTris->Delete();
-    }
-
-    neighbors->Delete();
   } // if strips or polys
 
   this->UpdateProgress(0.50);
@@ -620,7 +619,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   // We've setup the topology...now perform Laplacian smoothing
   //
-  newPts = vtkPoints::New();
+  vtkNew<vtkPoints> newPts;
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
@@ -638,15 +637,15 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   newPts->SetNumberOfPoints(numPts);
 
-  // If Source defined, we do constrained smoothing (that is, points are
+  // If a Source is defined, we do constrained smoothing (that is, points are
   // constrained to the surface of the mesh object).
+  vtkSmartPointer<vtkCellLocator> cellLocator;
   if (source)
   {
-    this->SmoothPoints = new vtkSmoothPoints;
+    this->SmoothPoints = std::unique_ptr<vtkSmoothPoints>(new vtkSmoothPoints);
     vtkSmoothPoint* sPtr;
-    cellLocator = vtkCellLocator::New();
-    w = new double[source->GetMaxCellSize()];
-
+    cellLocator.TakeReference(vtkCellLocator::New());
+    w.reserve(source->GetMaxCellSize());
     cellLocator->SetDataSet(source);
     cellLocator->BuildLocator();
 
@@ -669,7 +668,8 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   if (newPts->GetDataType() == VTK_DOUBLE)
   {
     vtkSPDF_InternalParams<double> params = { this, this->NumberOfIterations, newPts,
-      this->RelaxationFactor, conv, numPts, Verts, source, this->SmoothPoints, w, cellLocator };
+      this->RelaxationFactor, conv, numPts, Verts, source, this->SmoothPoints.get(), w.data(),
+      cellLocator };
 
     vtkSPDF_MovePoints(params);
   }
@@ -677,17 +677,13 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkSPDF_InternalParams<float> params = { this, this->NumberOfIterations, newPts,
       static_cast<float>(this->RelaxationFactor), static_cast<float>(conv), numPts, Verts, source,
-      this->SmoothPoints, w, cellLocator };
+      this->SmoothPoints.get(), w.data(), cellLocator };
 
     vtkSPDF_MovePoints(params);
   }
 
-  if (source)
-  {
-    cellLocator->Delete();
-    delete this->SmoothPoints;
-    delete[] w;
-  }
+  // Release memory if it's been allocated
+  this->SmoothPoints.reset(nullptr);
 
   // Update output. Only point coordinates have changed.
   //
@@ -696,7 +692,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->GenerateErrorScalars)
   {
-    vtkFloatArray* newScalars = vtkFloatArray::New();
+    vtkNew<vtkFloatArray> newScalars;
     newScalars->SetNumberOfTuples(numPts);
     for (i = 0; i < numPts; i++)
     {
@@ -706,12 +702,11 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-    newScalars->Delete();
   }
 
   if (this->GenerateErrorVectors)
   {
-    vtkFloatArray* newVectors = vtkFloatArray::New();
+    vtkNew<vtkFloatArray> newVectors;
     newVectors->SetNumberOfComponents(3);
     newVectors->SetNumberOfTuples(numPts);
     for (i = 0; i < numPts; i++)
@@ -725,11 +720,9 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
       newVectors->SetTuple(i, x3);
     }
     output->GetPointData()->SetVectors(newVectors);
-    newVectors->Delete();
   }
 
   output->SetPoints(newPts);
-  newPts->Delete();
 
   output->SetVerts(input->GetVerts());
   output->SetLines(input->GetLines());
@@ -739,17 +732,17 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // free up connectivity storage
   for (i = 0; i < numPts; i++)
   {
-    if (Verts[i].edges != nullptr)
+    if (Verts[i].edges)
     {
       Verts[i].edges->Delete();
       Verts[i].edges = nullptr;
     }
   }
-  delete[] Verts;
 
   return 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkSmoothPolyDataFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
@@ -764,6 +757,7 @@ int vtkSmoothPolyDataFilter::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
+//------------------------------------------------------------------------------
 void vtkSmoothPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

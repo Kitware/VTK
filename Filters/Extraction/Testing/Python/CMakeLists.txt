@@ -9,4 +9,6 @@ vtk_add_test_python(
   extractVectors.py
   TestExtractCellsByType.py,NO_RT,NO_VALID
   TestExtractCells.py
+  TestExtractEdges.py
+  TestExtractEdges2.py
   )
