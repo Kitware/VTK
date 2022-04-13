@@ -2041,7 +2041,7 @@ int vtkParsePreprocess_IncludeFile(
 #if PREPROC_DEBUG
   fprintf(stderr, "including file %s\n", path);
 #endif
-  fp = fopen(path, "r");
+  fp = vtkParse_FileOpen(path, "r");
 
   if (fp == NULL)
   {

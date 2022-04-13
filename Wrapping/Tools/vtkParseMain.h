@@ -46,6 +46,9 @@
 #include "vtkParseData.h"
 #include "vtkWrappingToolsModule.h"
 #include <stdio.h>
+#ifdef _WIN32
+#include <stddef.h> /* for wchar_t */
+#endif
 
 /**
  * Options for the wrappers
@@ -87,8 +90,37 @@ extern "C"
   VTKWRAPPINGTOOLS_EXPORT
   StringCache* vtkParse_MainMulti(int argc, char* argv[]);
 
+#ifdef _WIN32
+
+  /**
+   * Converts wmain args to utf8. This function can only be called once.
+   * The caller is permitted to modify the returned argument array.
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  char** vtkParse_WideArgsToUTF8(int argc, wchar_t* wargv[]);
+
+#endif /* _WIN32 */
+
 #ifdef __cplusplus
 } /* extern "C" */
+#endif
+
+#if defined(_WIN32) && !defined(__MINGW32__)
+
+/* This macro will define wmain() on Win32 and will handle conversion to UTF8 */
+#define VTK_PARSE_MAIN(a, b)                                                                       \
+  main_with_utf8_args(a, b);                                                                       \
+  int wmain(int argc, wchar_t* wargv[])                                                            \
+  {                                                                                                \
+    char** argv = vtkParse_WideArgsToUTF8(argc, wargv);                                            \
+    return main_with_utf8_args(argc, argv);                                                        \
+  }                                                                                                \
+  int main_with_utf8_args(a, b)
+
+#else
+
+#define VTK_PARSE_MAIN(a, b) main(a, b)
+
 #endif
 
 #endif

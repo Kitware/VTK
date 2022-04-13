@@ -1707,7 +1707,7 @@ void preprocessor_directive(const char* text, size_t l)
           (*cp != '\"' ? VTK_PARSE_SYSTEM_INCLUDE : VTK_PARSE_SOURCE_INCLUDE), &already_loaded);
         if (dp)
         {
-          yyin = fopen(dp, "r");
+          yyin = vtkParse_FileOpen(dp, "r");
           if (yyin)
           {
             push_include(dp);

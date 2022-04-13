@@ -1,3 +1,6 @@
+#include "vtkParseMain.h"
+#include "vtkParseSystem.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -157,7 +160,7 @@ static void CreateImplFile(const char* libName, const char* importName, int numD
   fprintf(fout, "}\n\n");
 }
 
-int main(int argc, char* argv[])
+int VTK_PARSE_MAIN(int argc, char* argv[])
 {
   FILE* file;
   FILE* fout_init;
@@ -177,7 +180,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  file = fopen(argv[1], "r");
+  file = vtkParse_FileOpen(argv[1], "r");
   if (!file)
   {
     fprintf(stderr, "Input file %s could not be opened\n", argv[1]);
@@ -211,13 +214,13 @@ int main(int argc, char* argv[])
   fclose(file);
   file = NULL;
 
-  fout_init = fopen(argv[2], "w");
+  fout_init = vtkParse_FileOpen(argv[2], "w");
   if (!fout_init)
   {
     return 1;
   }
 
-  fout_impl = fopen(argv[3], "w");
+  fout_impl = vtkParse_FileOpen(argv[3], "w");
   if (!fout_impl)
   {
     fclose(fout_init);

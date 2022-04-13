@@ -20,6 +20,7 @@
 #include <string.h>
 
 #ifdef _WIN32
+#include <stddef.h>
 #include <windows.h>
 #else
 #include <dirent.h>
@@ -55,6 +56,50 @@
 
 /* Use hash table size that is a power of two */
 #define FILE_HASH_TABLE_SIZE 1024u
+
+/* Whether to use wide filenames on WIN32 */
+#if defined(_WIN32) && !defined(__MINGW32__)
+#define USE_WIDE_FILENAMES
+#endif
+
+#if defined(_WIN32) && defined(USE_WIDE_FILENAMES)
+/**
+ * Convert a UTF string to wide.
+ * The returned wide string is malloc'd and must be freed.
+ */
+static wchar_t* system_utf8_to_wide(const char* str)
+{
+  wchar_t* ostr = NULL;
+  int n = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+  if (n > 0)
+  {
+    ostr = (wchar_t*)malloc(n * sizeof(wchar_t));
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, ostr, n);
+  }
+  return ostr;
+}
+#endif
+
+#if defined(_WIN32)
+/**
+ * On Win32, this interprets fname as UTF8 and then calls wstat().
+ */
+int system_win32_stat(const char* pathname, struct _stat* statbuf)
+{
+#if defined(USE_WIDE_FILENAMES)
+  int rval = -1;
+  wchar_t* wname = system_utf8_to_wide(pathname);
+  if (wname)
+  {
+    rval = _wstat(wname, statbuf);
+    free(wname);
+  }
+  return rval;
+#else
+  return _stat(pathname, statbuf);
+#endif
+}
+#endif
 
 /**
  * Add to the list of file system paths that are known to exist.
@@ -199,11 +244,18 @@ system_filetype_t vtkParse_FileExists(SystemInfo* info, const char* name)
   char* fullname;
   system_filetype_t type;
   system_filetype_t result;
-  struct stat fs;
 #if defined(_WIN32)
-  HANDLE dirhandle;
-  WIN32_FIND_DATA entry;
+  struct _stat fs;
+#if defined(USE_WIDE_FILENAMES)
+  int m;
+  wchar_t* wfullname;
+  WIN32_FIND_DATAW entry;
 #else
+  WIN32_FIND_DATA entry;
+#endif
+  HANDLE dirhandle;
+#else
+  struct stat fs;
   DIR* dirhandle;
   system_dirent* entry;
 #endif
@@ -211,18 +263,25 @@ system_filetype_t vtkParse_FileExists(SystemInfo* info, const char* name)
   /* if there is no cache, then go directly to the filesystem */
   if (!info)
   {
-    if (stat(name, &fs) == 0)
+#if defined(_WIN32)
+    if (system_win32_stat(name, &fs) == 0)
     {
-#if defined(_WIN32) && !defined(__CYGWIN__)
       if ((fs.st_mode & _S_IFMT) == _S_IFDIR)
-#else
-      if (S_ISDIR(fs.st_mode))
-#endif
       {
         return VTK_PARSE_ISDIR;
       }
       return VTK_PARSE_ISFILE;
     }
+#else
+    if (stat(name, &fs) == 0)
+    {
+      if (S_ISDIR(fs.st_mode))
+      {
+        return VTK_PARSE_ISDIR;
+      }
+      return VTK_PARSE_ISFILE;
+    }
+#endif
     return VTK_PARSE_NOFILE;
   }
 
@@ -270,34 +329,53 @@ system_filetype_t vtkParse_FileExists(SystemInfo* info, const char* name)
     fullname[l] = '/';
   }
 
-  /* begin the search, using local text encoding */
+  /* begin the directory search */
+#if defined(USE_WIDE_FILENAMES)
+  wfullname = system_utf8_to_wide(fullname);
+  dirhandle = FindFirstFileW(wfullname, &entry);
+  free(wfullname);
+#else
   dirhandle = FindFirstFile(fullname, &entry);
+#endif
   if (dirhandle != INVALID_HANDLE_VALUE)
   {
     do
     {
+      /* construct full path for this entry */
+#if defined(USE_WIDE_FILENAMES)
+      m = WideCharToMultiByte(CP_UTF8, 0, entry.cFileName, -1, NULL, 0, NULL, NULL);
+      fullname = vtkParse_NewString(info->Strings, l + m - 1);
+      memcpy(fullname, name, l);
+      WideCharToMultiByte(CP_UTF8, 0, entry.cFileName, -1, &fullname[l], m, NULL, NULL);
+#else
+      fullname = vtkParse_NewString(info->Strings, l + strlen(entry.cFileName));
+      memcpy(fullname, name, l);
+      strcpy(&fullname[l], entry.cFileName);
+#endif
+
       if (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
       {
         type = VTK_PARSE_ISDIR;
       }
       else
       {
-        /* construct full path for this entry, and add it to cache */
-        n = l + strlen(entry.cFileName);
-        fullname = vtkParse_NewString(info->Strings, n);
-        memcpy(fullname, name, l);
-        strcpy(&fullname[l], entry.cFileName);
+        /* entry is a file, so add it to the file cache */
         type = VTK_PARSE_ISFILE;
         system_file_add(info, fullname, type);
       }
 
       /* check if this directory entry is the file we are looking for */
-      if (result == VTK_PARSE_NOFILE && strcmp(entry.cFileName, &name[l]) == 0)
+      if (result == VTK_PARSE_NOFILE && strcmp(&fullname[l], &name[l]) == 0)
       {
         result = type;
       }
 
-    } while (FindNextFile(dirhandle, &entry));
+    }
+#if defined(USE_WIDE_FILENAMES)
+    while (FindNextFileW(dirhandle, &entry));
+#else
+    while (FindNextFile(dirhandle, &entry));
+#endif
     FindClose(dirhandle);
   }
 #elif defined(HAVE_DIRENT_D_TYPE)
@@ -400,4 +478,30 @@ void vtkParse_FreeFileCache(SystemInfo* info)
   info->Strings = NULL;
   info->FileHashTable = NULL;
   info->DirHashTable = NULL;
+}
+
+/**
+ * On Win32, this interpretes fname as UTF8 and then calls wfopen().
+ * The returned handle must be freed with fclose().
+ */
+FILE* vtkParse_FileOpen(const char* fname, const char* mode)
+{
+#if defined(_WIN32) && defined(USE_WIDE_FILENAMES)
+  int i;
+  FILE* fp = NULL;
+  wchar_t wmode[4] = { 0, 0, 0, 0 };
+  wchar_t* wname = system_utf8_to_wide(fname);
+  if (wname)
+  {
+    for (i = 0; i < 3 && mode[i] != '\0'; i++)
+    {
+      wmode[i] = mode[i];
+    }
+    fp = _wfopen(wname, wmode);
+    free(wname);
+  }
+  return fp;
+#else
+  return fopen(fname, mode);
+#endif
 }

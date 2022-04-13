@@ -80,6 +80,9 @@ if (NOT TARGET WrapPython)
     DEVELOPMENT
     BASENAME vtkWrapPythonInit
     vtkWrapPythonInit.c)
+  target_link_libraries(WrapPythonInit
+    PRIVATE
+      "${ns}::WrappingTools")
   add_executable("${ns}::WrapPythonInit" ALIAS
     WrapPythonInit)
 endif ()

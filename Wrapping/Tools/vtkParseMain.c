@@ -22,10 +22,15 @@ This file provides a unified front-end for the wrapper generators.
 #include "vtkParseMain.h"
 #include "vtkParse.h"
 #include "vtkParseData.h"
+#include "vtkParseSystem.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 /* This is the struct that contains the options */
 OptionInfo options;
@@ -103,7 +108,7 @@ static int read_option_file(StringCache* strings, const char* filename, int* arg
   int j;
   int in_string;
 
-  fp = fopen(filename, "r");
+  fp = vtkParse_FileOpen(filename, "r");
 
   if (fp == NULL)
   {
@@ -450,7 +455,7 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
   /* open the input file */
   options.InputFileName = options.Files[0];
 
-  if (!(ifile = fopen(options.InputFileName, "r")))
+  if (!(ifile = vtkParse_FileOpen(options.InputFileName, "r")))
   {
     fprintf(stderr, "Error opening input file %s\n", options.InputFileName);
     exit(1);
@@ -494,7 +499,7 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
     hfilename = options.HintFileNames[ihfiles];
     if (hfilename && hfilename[0] != '\0')
     {
-      if (!(hfile = fopen(hfilename, "r")))
+      if (!(hfile = vtkParse_FileOpen(hfilename, "r")))
       {
         fprintf(stderr, "Error opening hint file %s\n", hfilename);
         fclose(ifile);
@@ -566,3 +571,49 @@ StringCache* vtkParse_MainMulti(int argc, char* argv[])
   options.InputFileName = options.Files[0];
   return strings;
 }
+
+#ifdef _WIN32
+
+/* To hold the wmain() args after conversion to narrow args */
+static char** parse_win32_argv = NULL;
+
+/* Cleanup function to be called at exit, after wmain() */
+static void parse_win32_cleanup(void)
+{
+  free(parse_win32_argv);
+}
+
+/* Convert wchar_t args to utf8 */
+char** vtkParse_WideArgsToUTF8(int argc, wchar_t* wargv[])
+{
+  int i, n;
+  int cl = 0;
+  char** argv;
+  char* cp;
+
+  /* compute total command-line length */
+  for (i = 0; i < argc; i++)
+  {
+    cl += WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, NULL, 0, NULL, NULL);
+  }
+
+  /* allocate combined buffer for argv and arg strings */
+  argv = (char**)malloc(argc * sizeof(char*) + cl);
+  cp = (char*)(argv + argc);
+
+  /* convert all arguments */
+  for (i = 0; i < argc; i++)
+  {
+    argv[i] = cp;
+    n = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, argv[i], cl, NULL, NULL);
+    cp += n;
+    cl -= n;
+  }
+
+  /* use atexit() to handle the cleanup */
+  parse_win32_argv = argv;
+  atexit(parse_win32_cleanup);
+
+  return argv;
+}
+#endif

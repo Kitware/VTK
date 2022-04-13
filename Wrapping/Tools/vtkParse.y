@@ -129,6 +129,7 @@ to the more usual form y x; without parentheses.
 #include "vtkParse.h"
 #include "vtkParseData.h"
 #include "vtkParsePreprocess.h"
+#include "vtkParseSystem.h"
 
 /* Define the kinds of [[attributes]] to collect */
 enum
@@ -4741,7 +4742,7 @@ static void dump_macros(const char* filename)
 
   if (filename)
   {
-    ofile = fopen(filename, "w");
+    ofile = vtkParse_FileOpen(filename, "w");
     if (!ofile)
     {
       fprintf(stderr, "Error opening output file %s\n", filename);
