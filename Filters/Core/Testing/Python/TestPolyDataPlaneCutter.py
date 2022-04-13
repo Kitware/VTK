@@ -23,7 +23,10 @@ iren.SetRenderWindow(renWin)
 sphere = vtk.vtkSphereSource()
 sphere.SetCenter(0.0, 0.0, 0.0)
 sphere.SetRadius(0.25)
+sphere.SetPhiResolution(res)
+sphere.SetThetaResolution(2*res)
 sphere.Update()
+print("Num cells: ", sphere.GetOutput().GetNumberOfCells())
 
 # The cut plane
 plane = vtk.vtkPlane()
@@ -42,6 +45,7 @@ cutterMapper.ScalarVisibilityOff()
 cutterActor = vtk.vtkActor()
 cutterActor.SetMapper(cutterMapper)
 cutterActor.GetProperty().SetColor(1, 1, 1)
+cutterActor.GetProperty().SetInterpolationToFlat()
 
 # Throw in an outline
 outline = vtk.vtkOutlineFilter()
@@ -53,7 +57,7 @@ outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
-# Accelerated cutter
+# Accelerated cutter (uses a sphere tree)
 cut = vtk.vtkPlaneCutter()
 cut.SetInputConnection(sphere.GetOutputPort())
 cut.SetPlane(plane)
@@ -65,12 +69,13 @@ sCutterMapper.ScalarVisibilityOff()
 sCutterActor = vtk.vtkActor()
 sCutterActor.SetMapper(sCutterMapper)
 sCutterActor.GetProperty().SetColor(1, 1, 1)
+sCutterActor.GetProperty().SetInterpolationToFlat()
 
-# Accelerated cutter without tree
-ncut = vtk.vtkPlaneCutter()
+# Specialized plane cutting for convex polygons
+ncut = vtk.vtkPolyDataPlaneCutter()
 ncut.SetInputConnection(sphere.GetOutputPort())
 ncut.SetPlane(plane)
-ncut.BuildTreeOff()
+ncut.SetBatchSize(10)
 
 snCutterMapper = vtk.vtkPolyDataMapper()
 snCutterMapper.SetInputConnection(ncut.GetOutputPort())
@@ -79,6 +84,7 @@ snCutterMapper.ScalarVisibilityOff()
 snCutterActor = vtk.vtkActor()
 snCutterActor.SetMapper(snCutterMapper)
 snCutterActor.GetProperty().SetColor(1, 1, 1)
+snCutterActor.GetProperty().SetInterpolationToFlat()
 
 outlineT = vtk.vtkOutlineFilter()
 outlineT.SetInputConnection(sphere.GetOutputPort())
@@ -101,14 +107,20 @@ sCutter_timer = vtk.vtkExecutionTimer()
 sCutter_timer.SetFilter(cut)
 cut.Update()
 ST = sCutter_timer.GetElapsedWallClockTime()
-print("Build sphere tree + execute once:", ST)
+print("vtkPlaneCutter (including build sphere tree):", ST)
 
-# Time subsequent cuts
-sCutter_timer.SetFilter(cut)
+# Time the execution of the filter w/ sphere tree
 plane.Modified()
 cut.Update()
-SC = sCutter_timer.GetElapsedWallClockTime()
-print("vtkPlaneCutter:", SC)
+ST = sCutter_timer.GetElapsedWallClockTime()
+print("vtkPlaneCutter (reuse sphere tree):", ST)
+
+# Time subsequent cuts
+nCutter_timer = vtk.vtkExecutionTimer()
+nCutter_timer.SetFilter(ncut)
+ncut.Update()
+SN = nCutter_timer.GetElapsedWallClockTime()
+print("vtkPolyDataPlaneCutter:", SN)
 
 # Add the actors to the renderer, set the background and size
 ren0.AddActor(outlineActor)

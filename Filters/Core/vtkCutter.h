@@ -38,8 +38,15 @@
  * By default, if an implicit function is set it is used to clip the data
  * set, otherwise the dataset scalars are used to perform the clipping.
  *
+ * Note that specialized classes exist when cutting a dataset with a
+ * plane. vtkPlenCutter handles any type of vtkDataSet, and will delegate to
+ * internal instances of specialized plane cutters (e.g.,
+ * vtkFlyingEdgesPlaneCutter for vtkImageData; vtkPolyDataPlaneCutter for
+ * vtkPolyData containing convex polygons).
+ *
  * @sa
- * vtkImplicitFunction vtkClipPolyData
+ * vtkImplicitFunction vtkClipPolyData vtkPlaneCutter vtkFlyingEdgesPlaneCutter
+ * vtkPolyDataPlaneCutter
  */
 
 #ifndef vtkCutter_h
