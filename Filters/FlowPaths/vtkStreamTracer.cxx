@@ -1085,7 +1085,7 @@ struct TracerIntegrator
       inVectors = input->GetAttributesAsFieldData(vecType)->GetArray(vecName);
       // Convert intervals to arc-length unit
       input->GetCell(func->GetLastCellId(), cell);
-      cellLength = sqrt(static_cast<double>(cell->GetLength2()));
+      cellLength = std::sqrt(static_cast<double>(cell->GetLength2()));
       speed = vtkMath::Norm(velocity);
       // Never call conversion methods if speed == 0
       if (speed != 0.0)
@@ -1178,7 +1178,7 @@ struct TracerIntegrator
 
         // If, with the next step, propagation will be larger than
         // max, reduce it so that it is (approximately) equal to max.
-        aStep.Interval = fabs(stepSize.Interval);
+        aStep.Interval = std::abs(stepSize.Interval);
 
         if ((propagation + aStep.Interval) > this->MaximumPropagation)
         {
@@ -1245,7 +1245,7 @@ struct TracerIntegrator
 
         integrationTime += stepTaken / speed;
         // Calculate propagation (using the same units as MaximumPropagation
-        propagation += fabs(stepSize.Interval);
+        propagation += std::abs(stepSize.Interval);
 
         // Make sure we use the dataset found by the vtkAbstractInterpolatedVelocityField
         input = func->GetLastDataSet();
@@ -1254,7 +1254,7 @@ struct TracerIntegrator
 
         // Calculate cell length and speed to be used in unit conversions
         input->GetCell(func->GetLastCellId(), cell);
-        cellLength = sqrt(static_cast<double>(cell->GetLength2()));
+        cellLength = std::sqrt(static_cast<double>(cell->GetLength2()));
         speed = speed2;
 
         // Check if conversion to float will produce a point in same place
@@ -1328,13 +1328,13 @@ struct TracerIntegrator
         // size (unless it is specified in arc-length unit)
         if (integrator->IsAdaptive())
         {
-          if (fabs(stepSize.Interval) < fabs(minStep))
+          if (std::abs(stepSize.Interval) < std::abs(minStep))
           {
-            stepSize.Interval = fabs(minStep) * stepSize.Interval / fabs(stepSize.Interval);
+            stepSize.Interval = std::abs(minStep) * stepSize.Interval / std::abs(stepSize.Interval);
           }
-          else if (fabs(stepSize.Interval) > fabs(maxStep))
+          else if (std::abs(stepSize.Interval) > std::abs(maxStep))
           {
-            stepSize.Interval = fabs(maxStep) * stepSize.Interval / fabs(stepSize.Interval);
+            stepSize.Interval = std::abs(maxStep) * stepSize.Interval / std::abs(stepSize.Interval);
           }
         }
         else
@@ -1709,8 +1709,8 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal, 
       vtkMath::Normalize(local2);
       // Rotate the normal with theta
       rotation->GetTuple(ptId, &theta);
-      costheta = cos(theta);
-      sintheta = sin(theta);
+      costheta = std::cos(theta);
+      sintheta = std::sin(theta);
       for (auto j = 0; j < 3; j++)
       {
         normal[j] = length * (costheta * local1[j] + sintheta * local2[j]);
