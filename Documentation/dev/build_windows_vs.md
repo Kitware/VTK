@@ -67,7 +67,7 @@ Use CMake to generate a visual studio solution.
 1. Open CMake-GUI, either by typing cmake-gui on the command propmpt or from the start-menu.
 2. Enter the source and build directories
 
-![alt text](./Documentation/dev/images/cmake1.png)
+![cmake1](<./images/cmake1.png>)
 
 3. Click [Configure]
 4. You will now get a selection screen in which you can specify your "generator". Select the one you need. This guide was tested with Visual Studio 15 2017 Win64 in combination with the default options.
@@ -101,7 +101,7 @@ To be able to use VTK in other project it first needs to be installed.
 3. Hit [Configure]
 4. Set the "CMKAE_INSTALL_PREFIX" directory.
 
-![alt text](./Documentation/dev/images/cmake4.png)
+![cmake4](<./images/cmake4.png>)
 
 
 5. Click [Generate]
@@ -114,12 +114,12 @@ In Visual Studio
 
 At this moment Visual Studio may FAIL because it is not allowed to create the installation folder.
 
-![alt text](./Documentation/dev/images/adminerror1.png)
+![adminerror1](<./images/adminerror1.png>)
 
 
 If this happens then you have two options:
 - Either repeat the previous steps with a different install directory in CMAKE
-- Start Visual Studio as administrator by right-clicking on its icon and selecting "start as administrator". ![alt text](./Documentation/dev/images/vs4.png)
+- Start Visual Studio as administrator by right-clicking on its icon and selecting "start as administrator". ![vs4](<./images/vs4.png>)
 
 After installation where VTK should have been installed in the specified installation directory. Something like the following directories should now exist:
 
@@ -147,7 +147,7 @@ From [vtk-examples](https://kitware.github.io/vtk-examples/site/Cxx/) pick a sim
 3. Click [Configure]
 4. Verify that the VTK_DIR is set correctly. This folder should contain the file UseVTK.cmake
 
-![alt text](./Documentation/dev/images/cmake5.png)
+![cmake5](<./images/cmake5.png>)
 
 
 5. Click [Configure]
@@ -162,7 +162,7 @@ In visual sudio:
 8. Select the example (HighlightPickedActor) as start-up project. (right click -> set as start-up project)
 9. Run!
 
-![alt text](./Documentation/dev/images/TestHighlightPickedActor.png)
+![TestHighlightPickedActor](<./images/TestHighlightPickedActor.png>)
 
 If your program complains about missing DLLs then check if the .dll path (last step of INSTALL section) was added correctly.
 
