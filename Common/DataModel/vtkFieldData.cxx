@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <array>
 #include <limits>
 #include <tuple>
 #include <vector>
@@ -31,7 +32,7 @@ vtkStandardExtendedNewMacro(vtkFieldData);
 
 namespace
 {
-using CachedGhostRangeType = std::tuple<vtkMTimeType, vtkMTimeType, double[2]>;
+using CachedGhostRangeType = std::tuple<vtkMTimeType, vtkMTimeType, std::array<double, 2>>;
 
 //------------------------------------------------------------------------------
 // This function is used to generalize the call to vtkDataArray::GetRange
@@ -47,7 +48,7 @@ bool GetRangeImpl(vtkFieldData* self, int index, double range[2], int comp,
     CachedGhostRangeType& cache = ranges[index][rangeComp];
     vtkMTimeType& arrayTime = std::get<0>(cache);
     vtkMTimeType& ghostTime = std::get<1>(cache);
-    double* cachedRange = std::get<2>(cache);
+    double* cachedRange = std::get<2>(cache).data();
 
     vtkUnsignedCharArray* ghosts = self->GetGhostArray();
 
