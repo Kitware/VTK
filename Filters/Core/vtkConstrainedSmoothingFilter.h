@@ -48,9 +48,16 @@
  * the surface may shrink towards the centroid. The constraints on point
  * movement help significantly in preventing shrinkage from happening.
  *
+ * @warning
+ * This filter is used internally by the filters vtkSurfaceNets2D and
+ * vtkSurfaceNets3D. vtkConstrainedSmoothingFilter is used by these filters
+ * to smooth the extracted surface net, with the constraint distance set to a
+ * fraction of a volume voxel.
+ *
  * @sa
- * vtkWindowedSincPolyDataFilter vtkSmoothPolyDataFilter vtkAttributeSmoothingFilter
- * vtkExtractEdges
+ * vtkWindowedSincPolyDataFilter vtkSmoothPolyDataFilter
+ * vtkAttributeSmoothingFilter vtkExtractEdges vtkSurfaceNets2D
+ * vtkSurfaceNets3D
  */
 
 #ifndef vtkConstrainedSmoothingFilter_h
