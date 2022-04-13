@@ -2351,6 +2351,15 @@ bool TestUnstructuredGrid(
     }
   }
 
+  if (numberOfGhostLayers != 2)
+  {
+    // Following part of the code only works for 2 layers of ghosts
+    return retVal;
+  }
+
+  // ### WARNING ###
+  // From now on, the test only 2 number of ghost layers works.
+
   generator->Modified();
   generator->Update();
 
@@ -2769,7 +2778,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
   {
     vtkPolyData* pd = vtkPolyData::SafeDownCast(outPDSWithGID->GetPartition(id));
 
-    if (pd->GetNumberOfPoints() != (MaxExtent + 1) * (MaxExtent + 3))
+    if (pd->GetNumberOfPoints() != (MaxExtent + 1) * (MaxExtent + 1 + numberOfGhostLayers))
     {
       vtkLog(ERROR, "Ghost cells generation for poly data failed when using global ids");
       retVal = false;
@@ -3003,7 +3012,6 @@ int TestGhostCellsGenerator(int argc, char* argv[])
 
   int retVal = EXIT_SUCCESS;
   int myrank = contr->GetLocalProcessId();
-  int numberOfGhostLayers = 2;
 
   if (!TestPointPrecision(contr, myrank))
   {
@@ -3025,34 +3033,41 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     retVal = EXIT_FAILURE;
   }
 
-  if (!Test1DGrids(contr, myrank, numberOfGhostLayers))
+  for (int numberOfGhostLayers = 1; numberOfGhostLayers < 3; ++numberOfGhostLayers)
   {
-    retVal = EXIT_FAILURE;
-  }
+    if (!myrank)
+    {
+      vtkLog(INFO, "\n\n### Testing " << numberOfGhostLayers << " number of ghost layers");
+    }
+    if (!Test1DGrids(contr, myrank, numberOfGhostLayers))
+    {
+      retVal = EXIT_FAILURE;
+    }
 
-  if (!Test2DGrids(contr, myrank, numberOfGhostLayers))
-  {
-    retVal = EXIT_FAILURE;
-  }
+    if (!Test2DGrids(contr, myrank, numberOfGhostLayers))
+    {
+      retVal = EXIT_FAILURE;
+    }
 
-  if (!Test3DGrids(contr, myrank, numberOfGhostLayers))
-  {
-    retVal = EXIT_FAILURE;
-  }
+    if (!Test3DGrids(contr, myrank, numberOfGhostLayers))
+    {
+      retVal = EXIT_FAILURE;
+    }
 
-  if (!TestPolyData(contr, myrank, numberOfGhostLayers))
-  {
-    retVal = EXIT_FAILURE;
-  }
+    if (!TestPolyData(contr, myrank, numberOfGhostLayers))
+    {
+      retVal = EXIT_FAILURE;
+    }
 
-  if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers))
-  {
-    retVal = EXIT_FAILURE;
-  }
+    if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers))
+    {
+      retVal = EXIT_FAILURE;
+    }
 
-  if (!TestPartitionedDataSetCollection(myrank, numberOfGhostLayers))
-  {
-    retVal = EXIT_FAILURE;
+    if (!TestPartitionedDataSetCollection(myrank, numberOfGhostLayers))
+    {
+      retVal = EXIT_FAILURE;
+    }
   }
 
   vtkMultiProcessController::SetGlobalController(nullptr);

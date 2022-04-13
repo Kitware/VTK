@@ -4947,17 +4947,12 @@ void FillDuplicatePointGhostArrayForUnstructureData(vtkUnsignedCharArray* ghostA
   // of the corresponding block is lower than our global id.
   if (myGid > gid)
   {
-    std::map<vtkIdType, vtkIdType>& duplicatePointIds =
-      blockStructure.RedirectionMapForDuplicatePointIds;
     vtkIdTypeArray* pointIds = blockStructure.MatchingReceivedPointIds;
-
     for (vtkIdType id = 0; id < pointIds->GetNumberOfValues(); ++id)
     {
       vtkIdType pointId = pointIds->GetValue(id);
-      if (!duplicatePointIds.count(pointId))
-      {
-        ghostArray->SetValue(pointId, vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
-      }
+      ghostArray->SetValue(pointId,
+          ghostArray->GetValue(pointId) | vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
     }
   }
 
