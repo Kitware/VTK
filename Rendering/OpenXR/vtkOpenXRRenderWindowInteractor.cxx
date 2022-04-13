@@ -77,12 +77,7 @@ void vtkOpenXRRenderWindowInteractor::DoOneEvent(
 
   // Start a render
   this->InvokeEvent(vtkCommand::RenderEvent);
-  auto ostate = renWin->GetState();
-  renWin->MakeCurrent();
-  ostate->Reset();
-  ostate->Push();
   renWin->Render();
-  ostate->Pop();
 }
 
 //------------------------------------------------------------------------------
