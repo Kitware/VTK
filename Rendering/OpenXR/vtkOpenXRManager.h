@@ -17,16 +17,18 @@
  * @brief   Singleton class that holds a collection of utility functions
  *          and member variables to communicate with the OpenXR runtime
  *
- * vtkOpenXRManager
+ * vtkOpenXRManager is not a vtkObject, the singleton unique instance gets
+ * allocated on the stack the first time vtkOpenXRManager::GetInstance() is
+ * called.
  */
 
 #ifndef vtkOpenXRManager_h
 #define vtkOpenXRManager_h
 
-#include "vtkObject.h"
 #include "vtkRenderingOpenXRModule.h" // needed for exports
 
 #include "vtkOpenXR.h"
+#include "vtkSystemIncludes.h"
 
 #include <array>
 #include <memory>
@@ -35,17 +37,18 @@
 
 class vtkOpenGLRenderWindow;
 
-class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManager : public vtkObject
+class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManager
 {
 public:
-  static vtkOpenXRManager* New();
-  vtkTypeMacro(vtkOpenXRManager, vtkObject);
-
   //@{
   /**
-   * Return the singleton instance with no reference counting.
+   * Return the singleton instance.
    */
-  static vtkOpenXRManager* GetInstance();
+  static vtkOpenXRManager& GetInstance()
+  {
+    static vtkOpenXRManager UniqueInstance;
+    return UniqueInstance;
+  }
   //@}
 
   //@{
@@ -349,7 +352,7 @@ public:
 
 protected:
   vtkOpenXRManager() = default;
-  ~vtkOpenXRManager() override = default;
+  ~vtkOpenXRManager() = default;
 
   //@{
   /**
@@ -587,8 +590,6 @@ protected:
 private:
   vtkOpenXRManager(const vtkOpenXRManager&) = delete;
   void operator=(const vtkOpenXRManager&) = delete;
-
-  static vtkOpenXRManager* UniqueInstance;
 };
 
 #endif

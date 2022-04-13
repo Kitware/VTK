@@ -39,82 +39,65 @@ struct vtkXVisualInfo : public XVisualInfo
 #define VTK_CHECK_NULL_XRHANDLE(handle, msg)                                                       \
   if (handle == XR_NULL_HANDLE)                                                                    \
   {                                                                                                \
-    vtkErrorMacro(<< msg << " is a null handle.");                                                 \
+    vtkErrorWithObjectMacro(nullptr, << msg << " is a null handle.");                              \
     return false;                                                                                  \
   }
-
-vtkStandardNewMacro(vtkOpenXRManager);
-
-vtkOpenXRManager* vtkOpenXRManager::UniqueInstance = nullptr;
-
-//----------------------------------------------------------------------------
-vtkOpenXRManager* vtkOpenXRManager::GetInstance()
-{
-  if (!vtkOpenXRManager::UniqueInstance)
-  {
-    vtkOpenXRManager::UniqueInstance = new vtkOpenXRManager();
-  }
-
-  return vtkOpenXRManager::UniqueInstance;
-}
 
 //------------------------------------------------------------------------------
 bool vtkOpenXRManager::Initialize(vtkOpenGLRenderWindow* helperWindow)
 {
-  this->DebugOn();
-
   if (!this->CreateInstance())
   {
-    vtkWarningMacro("Initialize failed to CreateInstance");
+    vtkWarningWithObjectMacro(nullptr, "Initialize failed to CreateInstance");
     return false;
   }
 
   // Create the SubactionPaths (left / right hand and head)
   if (!this->CreateSubactionPaths())
   {
-    vtkWarningMacro("Initialize failed to CreateSubactionPaths");
+    vtkWarningWithObjectMacro(nullptr, "Initialize failed to CreateSubactionPaths");
     return false;
   }
 
   if (!this->CreateSystem())
   {
-    vtkWarningMacro("Initialize failed to CreateSystem");
+    vtkWarningWithObjectMacro(nullptr, "Initialize failed to CreateSystem");
     return false;
   }
 
   if (!this->CheckGraphicsRequirements())
   {
-    vtkWarningMacro("Initialize failed in CheckGraphicsRequirements");
+    vtkWarningWithObjectMacro(nullptr, "Initialize failed in CheckGraphicsRequirements");
     return false;
   }
 
   if (!this->CreateGraphicsBinding(helperWindow))
   {
-    vtkWarningMacro("Initialize failed to CreateGraphicsBinding");
+    vtkWarningWithObjectMacro(nullptr, "Initialize failed to CreateGraphicsBinding");
     return false;
   }
 
   if (!this->CreateSession())
   {
-    vtkWarningMacro("Initialize failed to CreateSession");
+    vtkWarningWithObjectMacro(nullptr, "Initialize failed to CreateSession");
     return false;
   }
 
   if (!this->CreateReferenceSpace())
   {
-    vtkWarningMacro("Initialize failed to CreateReferenceSpace");
+    vtkWarningWithObjectMacro(nullptr, "Initialize failed to CreateReferenceSpace");
     return false;
   }
 
   if (!this->CreateSwapchains())
   {
-    vtkWarningMacro("Initialize failed to CreateSwapChains");
+    vtkWarningWithObjectMacro(nullptr, "Initialize failed to CreateSwapChains");
     return false;
   }
 
   if (!this->LoadControllerModels())
   {
-    vtkWarningMacro("Initialize failed to LoadController Models");
+    vtkWarningWithObjectMacro(nullptr, "Initialize failed to LoadController Models");
     return false;
   }
 
@@ -232,8 +215,9 @@ bool vtkOpenXRManager::WaitAndBeginFrame()
 
     if (viewCountOutput != viewCount)
     {
-      vtkWarningMacro(<< "ViewCountOutput (" << viewCountOutput << ") is different than ViewCount ("
-                      << viewCount << ") !");
+      vtkWarningWithObjectMacro(nullptr, << "ViewCountOutput (" << viewCountOutput
+                                         << ") is different than ViewCount (" << viewCount
+                                         << ") !");
     }
   }
 
@@ -293,14 +277,16 @@ bool vtkOpenXRManager::PrepareRendering(
   {
     if (colorSwapchain.Width != depthSwapchain.Width)
     {
-      vtkErrorMacro(<< "Color swapchain width (" << colorSwapchain.Width
-                    << ") differs from depth swapchain width (" << depthSwapchain.Width << ").");
+      vtkErrorWithObjectMacro(nullptr, << "Color swapchain width (" << colorSwapchain.Width
+                                       << ") differs from depth swapchain width ("
+                                       << depthSwapchain.Width << ").");
       return false;
     }
     if (colorSwapchain.Height != depthSwapchain.Height)
     {
-      vtkErrorMacro(<< "Color swapchain height (" << colorSwapchain.Height
-                    << ") differs from depth swapchain height (" << depthSwapchain.Height << ").");
+      vtkErrorWithObjectMacro(nullptr, << "Color swapchain height (" << colorSwapchain.Height
+                                       << ") differs from depth swapchain height ("
+                                       << depthSwapchain.Height << ").");
       return false;
     }
   }
@@ -429,7 +415,7 @@ bool vtkOpenXRManager::XrCheckError(const XrResult& result, const std::string& m
   {
     char xRResultString[XR_MAX_RESULT_STRING_SIZE];
     xrResultToString(this->Instance, result, xRResultString);
-    vtkErrorMacro(<< message << " [" << xRResultString << "].");
+    vtkErrorWithObjectMacro(nullptr, << message << " [" << xRResultString << "].");
     return false;
   }
   return true;
@@ -442,7 +428,7 @@ bool vtkOpenXRManager::XrCheckWarn(const XrResult& result, const std::string& me
   {
     char xRResultString[XR_MAX_RESULT_STRING_SIZE];
     xrResultToString(this->Instance, result, xRResultString);
-    vtkWarningMacro(<< message << " [" << xRResultString << "].");
+    vtkWarningWithObjectMacro(nullptr, << message << " [" << xRResultString << "].");
     return false;
   }
   return true;
@@ -492,10 +478,6 @@ void vtkOpenXRManager::PrintSystemProperties(XrSystemProperties* systemPropertie
     {
       XrSystemHandTrackingPropertiesEXT* ht =
         static_cast<XrSystemHandTrackingPropertiesEXT*>(systemProperties->next);
-      if (!this->Debug)
-      {
-        (void)ht;
-      }
       std::cout << "\tHand Tracking       : " << ht->supportsHandTracking << std::endl;
     }
     next = next->next;
@@ -537,10 +519,6 @@ void vtkOpenXRManager::PrintViewConfigViewInfo(
   for (size_t i = 0; i < viewconfigViews.size(); ++i)
   {
     const auto& vcfgv = viewconfigViews[i];
-    if (!this->Debug)
-    {
-      (void)vcfgv;
-    }
     std::cout << "View Configuration View " << i << std::endl;
     std::cout << "\tResolution       : Recommended: " << vcfgv.recommendedImageRectWidth << "x"
               << vcfgv.recommendedImageRectHeight << ", Max: " << vcfgv.maxImageRectWidth << "x"
@@ -661,7 +639,7 @@ bool vtkOpenXRManager::CreateInstance()
   // For instance, only OpenGL extension is supported so is mandatory
   if (!this->HasOpenGLExtension)
   {
-    vtkErrorMacro(<< "OpenGL extension is not supported. Aborting.");
+    vtkErrorWithObjectMacro(nullptr, << "OpenGL extension is not supported. Aborting.");
     return false;
   }
 
@@ -778,7 +756,8 @@ bool vtkOpenXRManager::CreateSystem()
       "Failed to get environment blend modes count");
     if (count == 0)
     {
-      vtkErrorMacro("A system must support at least one environment blend mode.");
+      vtkErrorWithObjectMacro(
+        nullptr, "A system must support at least one environment blend mode.");
     }
 
     std::vector<XrEnvironmentBlendMode> environmentBlendModes(count);
@@ -870,7 +849,7 @@ bool vtkOpenXRManager::CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow
   graphicsBindingGLWin32->hGLRC = wglGetCurrentContext();
 
 #else
-  vtkErrorMacro(<< "Only X11 and Win32 are supported at the moment.");
+  vtkErrorWithObjectMacro(nullptr, << "Only X11 and Win32 are supported at the moment.");
   return false;
 #endif
 
@@ -976,8 +955,8 @@ std::tuple<int64_t, int64_t> vtkOpenXRManager::SelectSwapchainPixelFormats()
         std::begin(applicationSupportedFormats), std::end(applicationSupportedFormats));
     if (found == std::end(runtimePreferredFormats))
     {
-      vtkErrorMacro(<< "No runtime swapchain " << formatName
-                    << " format in the list is supported.");
+      vtkErrorWithObjectMacro(
+        nullptr, << "No runtime swapchain " << formatName << " format in the list is supported.");
       return (int64_t)-1;
     }
     return *found;
@@ -1102,8 +1081,8 @@ bool vtkOpenXRManager::CreateConfigViews()
     "Failed to get view configuration view count!");
   if (viewCount != this->StereoViewCount)
   {
-    vtkWarningMacro(<< "StereoViewCount (" << this->StereoViewCount
-                    << ") is different than viewCount (" << viewCount << ")");
+    vtkWarningWithObjectMacro(nullptr, << "StereoViewCount (" << this->StereoViewCount
+                                       << ") is different than viewCount (" << viewCount << ")");
   }
 
   this->RenderResources->ConfigViews.resize(viewCount, { XR_TYPE_VIEW_CONFIGURATION_VIEW });
@@ -1148,13 +1127,13 @@ bool vtkOpenXRManager::SelectActiveActionSet(unsigned int index)
 {
   if (this->ActionSets.size() == 0)
   {
-    vtkErrorMacro(<< "An action set must be created prior to select one.");
+    vtkErrorWithObjectMacro(nullptr, << "An action set must be created prior to select one.");
     return false;
   }
   if (index >= this->ActionSets.size())
   {
-    vtkWarningMacro(<< "The selected action set at index : " << index
-                    << " does not exist. Pick the first one");
+    vtkWarningWithObjectMacro(nullptr,
+      << "The selected action set at index : " << index << " does not exist. Pick the first one");
     index = 0;
   }
 
@@ -1241,9 +1220,9 @@ bool vtkOpenXRManager::CreateOneAction(
       if (!this->CreateOneActionSpace(actionT.Action, this->SubactionPaths[hand],
             vtkOpenXRUtilities::GetIdentityPose(), actionT.PoseSpaces[hand]))
       {
-        vtkErrorMacro(<< "Failed to create pose action space for "
-                      << (hand == vtkOpenXRManager::ControllerIndex::Left ? "left" : "right")
-                      << " hand");
+        vtkErrorWithObjectMacro(nullptr,
+          << "Failed to create pose action space for "
+          << (hand == vtkOpenXRManager::ControllerIndex::Left ? "left" : "right") << " hand");
         return false;
       };
     }
@@ -1407,9 +1386,10 @@ bool vtkOpenXRManager::ApplyVibration(const Action_t& actionT, const int hand,
 
   if (actionT.ActionType != XR_ACTION_TYPE_VIBRATION_OUTPUT)
   {
-    vtkErrorMacro(<< "vtkOpenXRManager::ApplyVibration must be called for an action of type "
-                     "XR_ACTION_TYPE_VIBRATION_OUTPUT, not a "
-                  << vtkOpenXRUtilities::GetActionTypeAsString(actionT.ActionType));
+    vtkErrorWithObjectMacro(
+      nullptr, << "vtkOpenXRManager::ApplyVibration must be called for an action of type "
+                  "XR_ACTION_TYPE_VIBRATION_OUTPUT, not a "
+               << vtkOpenXRUtilities::GetActionTypeAsString(actionT.ActionType));
     return false;
   }
 
