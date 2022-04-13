@@ -24,12 +24,12 @@
  * @par vtkSmartVolumeMapper::DefaultRenderMode:
  *          Allow the vtkSmartVolumeMapper to select the best mapper based on
  *          rendering parameters and hardware support. If GPU ray casting is
- *          supported, this mapper will be used for all rendering. If not,
- *          then the vtkFixedPointRayCastMapper will be used exclusively.
- *          This is the default requested render mode, and is generally the
- *          best option. When you use this option, your volume will always
- *          be rendered, but the method used to render it may vary based
- *          on parameters and platform.
+ *          supported, the vtkGPUVolumeRayCastMapper mapper will be used for
+ *          all rendering. If not, then the vtkFixedPointVolumeRayCastMapper
+ *          will be used exclusively. This is the default requested render
+ *          mode, and is generally the best option. When you use this option,
+ *          your volume will always be rendered, but the method used to render
+ *          it may vary based on parameters and platform.
  *
  * @par vtkSmartVolumeMapper::RayCastRenderMode:
  *          Use the vtkFixedPointVolumeRayCastMapper for both interactive and
