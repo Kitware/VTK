@@ -70,6 +70,8 @@ protected:
   vtkPCorrelativeStatistics();
   ~vtkPCorrelativeStatistics() override;
 
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
   vtkMultiProcessController* Controller;
 
 private:
