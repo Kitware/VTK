@@ -94,12 +94,9 @@ protected:
 
   /**
    * See vtkAMRBaseReader::GetAMRGridData
+   * Note: currently, nodal data is only supported in extra multifabs
    */
-  void GetAMRGridPointData(const int vtkNotUsed(blockIdx), vtkUniformGrid* vtkNotUsed(block),
-    const char* vtkNotUsed(field)) override
-  {
-    ;
-  }
+  void GetAMRGridPointData(const int blockIdx, vtkUniformGrid* block, const char* field) override;
 
   /**
    * See vtkAMRBaseReader::SetUpDataArraySelections
