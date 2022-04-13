@@ -1461,8 +1461,12 @@ int vtkPStreamTracer::RequestData(
   if (!vtkMPIController::SafeDownCast(this->Controller) ||
     this->Controller->GetNumberOfProcesses() == 1)
   {
+    this->SerialExecution = false;
+    this->ForceSerialExecution = false;
     this->GenerateNormalsInIntegrate = true;
     int result = vtkStreamTracer::RequestData(request, inputVector, outputVector);
+    this->SerialExecution = true;
+    this->ForceSerialExecution = true;
     this->GenerateNormalsInIntegrate = false;
     return result;
   }
