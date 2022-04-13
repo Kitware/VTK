@@ -250,6 +250,13 @@ void vtkDataSet::GetCenter(double center[3])
 // Return the length of the diagonal of the bounding box.
 double vtkDataSet::GetLength()
 {
+  return std::sqrt(this->GetLength2());
+}
+
+//------------------------------------------------------------------------------
+// Return the squared length of the diagonal of the bounding box.
+double vtkDataSet::GetLength2()
+{
   if (this->GetNumberOfPoints() == 0)
   {
     return 0;
@@ -264,8 +271,7 @@ double vtkDataSet::GetLength()
     diff = static_cast<double>(this->Bounds[2 * i + 1]) - static_cast<double>(this->Bounds[2 * i]);
     l += diff * diff;
   }
-  diff = sqrt(l);
-  return diff;
+  return l;
 }
 
 //------------------------------------------------------------------------------
