@@ -12,6 +12,14 @@ such as Python, Qt, CGNS, HDF5, etc. Some of these are included in the VTK
 source itself (e.g., HDF5), while others are expected to be present on the
 machine on which VTK is being built (e.g., Python, Qt).
 
+## New Users
+
+For new users of VTK or those wanting a quick setup, these instructions will be useful:
+
+* [Getting Started Using Linux](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Documentation/dev/getting_started_linux.md). This will will lead you step by step through the process of setting up VTK with Python wrapping in your home folder.
+
+Once you get everything working, don't forget to come back and read the rest of this document.
+
 ## Obtaining the source
 
 To obtain VTK's sources locally, clone this repository using

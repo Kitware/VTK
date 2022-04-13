@@ -140,7 +140,7 @@ TEST WITH AN EXAMPLE
 
 If everything went well then it should now be possible to compile and run the one of the C++ examples.
 
-From the [Examples](https://lorensen.github.io/VTKExamples/site/Cxx/) pick a simple but appealing one. In this guide we've used [this one](https://lorensen.github.io/VTKExamples/site/Cxx/Picking/HighlightPickedActor/)
+From [vtk-examples](https://kitware.github.io/vtk-examples/site/Cxx/) pick a simple but appealing one. In this guide we've used [this one](https://kitware.github.io/vtk-examples/site/Cxx/Picking/HighlightPickedActor/)
 
 1. Downloads or copy-paste the .cxx and CMakeLists.txt files and save them in the same folder.
 2. Open CMake and select the folder where the files were saves as "where is the source code" folder.
@@ -162,7 +162,7 @@ In visual sudio:
 8. Select the example (HighlightPickedActor) as start-up project. (right click -> set as start-up project)
 9. Run!
 
-![alt text](./Documentation/dev/images/done1.png)
+![alt text](./Documentation/dev/images/TestHighlightPickedActor.png)
 
 If your program complains about missing DLLs then check if the .dll path (last step of INSTALL section) was added correctly.
 
