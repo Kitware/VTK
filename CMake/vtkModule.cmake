@@ -1455,7 +1455,7 @@ endfunction ()
 @ingroup module
 @brief Add include directories to a module
 
-A wrapper around `add_dependencies` that works for modules.
+A wrapper around `target_include_directories` that works for modules.
 
 ~~~
 vtk_module_include(<module>
@@ -1506,9 +1506,9 @@ A wrapper around `target_compile_definitions` that works for modules.
 
 ~~~
 vtk_module_definitions(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <define>...]
+  [PRIVATE    <define>...]
+  [INTERFACE  <define>...])
 ~~~
 #]==]
 function (vtk_module_definitions module)
@@ -1546,9 +1546,9 @@ A wrapper around `target_compile_options` that works for modules.
 
 ~~~
 vtk_module_compile_options(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <option>...]
+  [PRIVATE    <option>...]
+  [INTERFACE  <option>...])
 ~~~
 #]==]
 function (vtk_module_compile_options module)
@@ -1586,9 +1586,9 @@ A wrapper around `target_compile_features` that works for modules.
 
 ~~~
 vtk_module_compile_features(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <feature>...]
+  [PRIVATE    <feature>...]
+  [INTERFACE  <feature>...])
 ~~~
 #]==]
 function (vtk_module_compile_features module)
@@ -1699,9 +1699,9 @@ builds.
 
 ~~~
 vtk_module_link(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <link item>...]
+  [PRIVATE    <link item>...]
+  [INTERFACE  <link item>...])
 ~~~
 #]==]
 function (vtk_module_link module)
@@ -1754,9 +1754,9 @@ A wrapper around `target_link_options` that works for modules.
 
 ~~~
 vtk_module_link_options(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <option>...]
+  [PRIVATE    <option>...]
+  [INTERFACE  <option>...])
 ~~~
 #]==]
 function (vtk_module_link_options module)
