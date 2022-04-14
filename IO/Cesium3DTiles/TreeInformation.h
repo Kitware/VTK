@@ -49,7 +49,7 @@ public:
     const std::string& outputDir, const std::string& texturePath, bool saveTextures,
     bool contentGLTF, const char* crs);
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPointSet* points,
-    int inputType, const std::string& output, const char* crs);
+    int inputType, const std::string& output, bool contentGLTF, const char* crs);
   void PrintNode(vtkIncrementalOctreeNode* node);
 
   //@{
@@ -76,7 +76,8 @@ public:
    * and the geometric error.
    */
   void Compute();
-  void SaveTilesGLTF(bool mergeTilePolyData);
+  void SaveTilesGLTFBuildings(bool mergeTilePolyData);
+  void SaveTilesGLTFMesh();
   void SaveTilesPnts();
   void SaveTileset(const std::string& output);
   static void PrintBounds(const char* name, const double* bounds);
@@ -94,7 +95,7 @@ protected:
   void SaveTileset(vtkIncrementalOctreeNode* root, const std::string& output);
   nlohmann::json GenerateTileJson(vtkIncrementalOctreeNode* node);
   bool ConvertTileCartesianBuildings(vtkIncrementalOctreeNode* node);
-  bool ConvertDataSetCartesianPoints();
+  bool ConvertDataSetCartesian(vtkPointSet* points);
 
   ///@{
   /**
@@ -102,23 +103,30 @@ protected:
    * the tight bounding box around the buildings, if the node is empty or not,
    * and the geometric error.
    */
-  void Compute(vtkIncrementalOctreeNode* node, void* aux);
+  void VisitCompute(vtkIncrementalOctreeNode* node, void* aux);
   void VisitComputeGeometricError(vtkIncrementalOctreeNode* node, void* aux);
   ///@}
-  void SaveTileGLTF(vtkIncrementalOctreeNode* node, void* auxData);
+  void SaveTileGLTFBuildings(vtkIncrementalOctreeNode* node, void* auxData);
+  void SaveTileGLTFMesh(vtkIncrementalOctreeNode* node, void* auxData);
   void SaveTilePnts(vtkIncrementalOctreeNode* node, void* auxData);
 
+  ///@{
+  /**
+   * Compute geometric error for the tileset and for a node.
+   */
   double ComputeGeometricErrorTilesetBuildings();
   double ComputeGeometricErrorTilesetPoints();
   double ComputeGeometricErrorTilesetMesh();
   double ComputeGeometricErrorTileset();
-  double ComputeGeometricErrorNodeBuildings(vtkIncrementalOctreeNode* node);
-  double ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode* node);
-  double ComputeGeometricErrorNodeMesh(vtkIncrementalOctreeNode* node);
-  double ComputeGeometricErrorNode(vtkIncrementalOctreeNode* node);
+  double ComputeGeometricErrorNodeBuildings(vtkIncrementalOctreeNode* node, void* aux);
+  double ComputeGeometricErrorNodePoints(vtkIncrementalOctreeNode* node, void* aux);
+  double ComputeGeometricErrorNodeMesh(vtkIncrementalOctreeNode* node, void* aux);
+  double ComputeGeometricErrorNode(vtkIncrementalOctreeNode* node, void* aux);
+  ///@}
   std::array<double, 6> ComputeTightBB(vtkIdList* tileBuildings);
   std::string ContentTypeExtension() const;
-  void initialize();
+  void Initialize();
+  double GetRootLength2();
 
 private:
   /**
@@ -147,11 +155,12 @@ private:
   std::vector<std::array<double, 6>> NodeTightBounds;
   /**
    * You can have leaf nodes that are empty, that is they don't have any points.
+   * indexed by tile ID.
    */
   std::vector<bool> EmptyNode;
   /**
    * volume difference between rendering this node and rendering the most detailed model.
-   * indexed by node ID
+   * indexed by tile ID
    */
   std::vector<double> GeometricError;
   nlohmann::json RootJson;

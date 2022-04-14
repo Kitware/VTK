@@ -18,9 +18,8 @@
  *
  *
  * Valid inputs include the vtkMultiBlockDataSet (as created by
- * vtkCityGMLReader) storing 3D buidlings or vtkPointSet
- * storing a point cloud. Note that currently the writer
- * cannot handle mixed inputs (buildings and point clouds).
+ * vtkCityGMLReader) storing 3D buidlings, vtkPointSet storing a point
+ * cloud or vtkPolyData for storing a mesh.
  *
  */
 
@@ -121,7 +120,7 @@ public:
 
   //@{
   /**
-   *
+   * Input is Buildings, Points or Mesh.
    */
   vtkSetMacro(InputType, int);
   vtkGetMacro(InputType, int);

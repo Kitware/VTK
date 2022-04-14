@@ -45,6 +45,13 @@ public:
   vtkTypeMacro(vtkGLTFWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  enum InputType
+  {
+    Buildings,
+    Points,
+    Mesh
+  };
+
   ///@{
   /**
    * Specify the name of the GLTF file to write.
@@ -60,6 +67,14 @@ public:
   vtkSetStringMacro(TextureBaseDirectory);
   vtkGetStringMacro(TextureBaseDirectory);
   ///@}
+
+  //@{
+  /**
+   * Input is Buildings (default), Points or Mesh.
+   */
+  vtkSetMacro(InputType, int);
+  vtkGetMacro(InputType, int);
+  //@
 
   ///@{
   /**
@@ -115,7 +130,7 @@ public:
   /**
    * Write the result to a provided ostream
    */
-  void WriteToStream(ostream& out, vtkMultiBlockDataSet* in);
+  void WriteToStream(ostream& out, vtkDataObject* in);
 
 protected:
   vtkGLTFWriter();
@@ -123,9 +138,11 @@ protected:
 
   void WriteData() override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
+  void WriteToStreamMultiBlock(ostream& out, vtkMultiBlockDataSet* in);
 
   char* FileName;
   char* TextureBaseDirectory;
+  int InputType;
   bool InlineData;
   bool SaveNormal;
   bool SaveBatchId;

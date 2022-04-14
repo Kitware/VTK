@@ -63,6 +63,7 @@ vtkGLTFWriter::vtkGLTFWriter()
 {
   this->FileName = nullptr;
   this->TextureBaseDirectory = nullptr;
+  this->InputType = Buildings;
   this->InlineData = false;
   this->SaveNormal = false;
   this->SaveBatchId = false;
@@ -602,27 +603,13 @@ void WriteMaterial(vtkPolyData* pd, Json::Value& materials, int textureIndex, bo
 
 std::string vtkGLTFWriter::WriteToString()
 {
-  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
-  if (mb == nullptr)
-  {
-    vtkErrorMacro(<< "This writer needs a vtkMultiBlockDataSet input");
-    return std::string();
-  }
   std::ostringstream result;
-
-  this->WriteToStream(result, mb);
-
+  this->WriteToStream(result, this->GetInput());
   return result.str();
 }
 
 void vtkGLTFWriter::WriteData()
 {
-  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
-  if (mb == nullptr)
-  {
-    vtkErrorMacro(<< "This writer needs a vtkMultiBlockDataSet input");
-    return;
-  }
   vtksys::ofstream output;
 
   // make sure the user specified a FileName or FilePointer
@@ -640,11 +627,67 @@ void vtkGLTFWriter::WriteData()
     return;
   }
 
-  this->WriteToStream(output, mb);
+  this->WriteToStream(output, this->GetInput());
   output.close();
 }
 
-void vtkGLTFWriter::WriteToStream(ostream& output, vtkMultiBlockDataSet* mb)
+void vtkGLTFWriter::WriteToStream(ostream& output, vtkDataObject* data)
+{
+  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
+  vtkPointSet* points = vtkPointSet::SafeDownCast(this->GetInput());
+  vtkPolyData* mesh = vtkPolyData::SafeDownCast(this->GetInput());
+  switch (this->InputType)
+  {
+    case Buildings:
+      if (mb == nullptr)
+      {
+        vtkErrorMacro(<< "For input Buildings we need vtkMultiBlockDataSet input but got: "
+                      << this->GetInput()->GetClassName());
+        return;
+      }
+      WriteToStreamMultiBlock(output, mb);
+      break;
+    case Points:
+    {
+      if (points == nullptr)
+      {
+        vtkErrorMacro(<< "For input Points we need vtkPointSet input but got: "
+                      << this->GetInput()->GetClassName());
+        return;
+      }
+      vtkNew<vtkMultiBlockDataSet> buildings;
+      vtkNew<vtkMultiBlockDataSet> building;
+      buildings->SetNumberOfBlocks(1);
+      buildings->SetNumberOfBlocks(1);
+      buildings->SetBlock(0, building);
+      building->SetBlock(0, points);
+      WriteToStreamMultiBlock(output, buildings);
+      break;
+    }
+    case Mesh:
+    {
+      if (mesh == nullptr)
+      {
+        vtkErrorMacro(<< "For input Mesh we need vtkPolyData input but got: "
+                      << this->GetInput()->GetClassName());
+        return;
+      }
+      vtkNew<vtkMultiBlockDataSet> buildings;
+      vtkNew<vtkMultiBlockDataSet> building;
+      buildings->SetNumberOfBlocks(1);
+      buildings->SetNumberOfBlocks(1);
+      buildings->SetBlock(0, building);
+      building->SetBlock(0, points);
+      WriteToStreamMultiBlock(output, buildings);
+      break;
+    }
+    default:
+      vtkErrorMacro(<< "Invalid input type: " << this->InputType);
+      break;
+  }
+}
+
+void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSet* mb)
 {
   Json::Value cameras;
   Json::Value bufferViews;
@@ -697,26 +740,29 @@ void vtkGLTFWriter::WriteToStream(ostream& output, vtkMultiBlockDataSet* mb)
     for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
     {
       auto pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
-      if (!pd)
+      if (pd)
       {
-        vtkLog(WARNING, "Expecting vtkPolyData but got: " << pd->GetClassName());
-      }
-
-      if (pd && pd->GetNumberOfCells() > 0)
-      {
-        foundVisibleProp = true;
-        WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, this->FileName,
-          this->InlineData, this->SaveNormal, this->SaveBatchId);
-        rendererNode["children"].append(nodes.size() - 1);
-        unsigned int oldTextureCount = textures.size();
-        std::string textureFileName = GetFieldAsString(pd, "texture_uri");
-        if (this->SaveTextures && !textureFileName.empty())
+        if (pd->GetNumberOfCells() > 0)
         {
-          WriteTexture(buffers, bufferViews, textures, samplers, images, this->InlineData,
-            textureMap, this->TextureBaseDirectory, textureFileName.c_str(), this->FileName);
+          foundVisibleProp = true;
+          WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, this->FileName,
+            this->InlineData, this->SaveNormal, this->SaveBatchId);
+          rendererNode["children"].append(nodes.size() - 1);
+          unsigned int oldTextureCount = textures.size();
+          std::string textureFileName = GetFieldAsString(pd, "texture_uri");
+          if (this->SaveTextures && !textureFileName.empty())
+          {
+            WriteTexture(buffers, bufferViews, textures, samplers, images, this->InlineData,
+              textureMap, this->TextureBaseDirectory, textureFileName.c_str(), this->FileName);
+          }
+          meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
+          WriteMaterial(pd, materials, oldTextureCount, oldTextureCount != textures.size());
         }
-        meshes[meshes.size() - 1]["primitives"][0]["material"] = materials.size();
-        WriteMaterial(pd, materials, oldTextureCount, oldTextureCount != textures.size());
+      }
+      else
+      {
+        vtkLog(
+          WARNING, "Expecting vtkPolyData but got: " << it->GetCurrentDataObject()->GetClassName());
       }
     }
   }
@@ -787,6 +833,22 @@ void vtkGLTFWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkGLTFWriter::FillInputPortInformation(int, vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
+  if (this->InputType == Buildings)
+  {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
+  }
+  else if (this->InputType == Points)
+  {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  }
+  else if (this->InputType == Mesh)
+  {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  }
+  else
+  {
+    vtkErrorMacro("Invalid InputType: " << this->InputType);
+    return 0;
+  }
   return 1;
 }

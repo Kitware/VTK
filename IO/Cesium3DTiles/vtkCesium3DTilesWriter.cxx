@@ -160,8 +160,11 @@ vtkSmartPointer<T> TranslateMeshOrPoints(T* rootPoints, const double* fileOffset
   t->Translate(fileOffset);
   f->SetTransform(t);
   f->SetInputData(rootPoints);
-  f->Update();
-  ret = T::SafeDownCast(f->GetOutputDataObject(0));
+  // generate normals - these are needed in Cesium if there are no textures
+  vtkNew<vtkPolyDataNormals> normals;
+  normals->SetInputConnection(f->GetOutputPort());
+  normals->Update();
+  ret = T::SafeDownCast(normals->GetOutputDataObject(0));
   return ret;
 }
 
@@ -260,7 +263,7 @@ void vtkCesium3DTilesWriter::WriteData()
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
-        treeInformation.SaveTilesGLTF(this->MergeTilePolyData);
+        treeInformation.SaveTilesGLTFBuildings(this->MergeTilePolyData);
       }
       vtkLog(INFO, "Deleting objects ...");
       break;
@@ -278,7 +281,7 @@ void vtkCesium3DTilesWriter::WriteData()
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctreePoints(pc, this->NumberOfFeaturesPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), pc,
-        this->InputType, this->DirectoryName, this->CRS);
+        this->InputType, this->DirectoryName, this->ContentGLTF, this->CRS);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
@@ -302,13 +305,13 @@ void vtkCesium3DTilesWriter::WriteData()
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctreeMesh(pc, this->NumberOfFeaturesPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), pc,
-        this->InputType, this->DirectoryName, this->CRS);
+        this->InputType, this->DirectoryName, this->ContentGLTF, this->CRS);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
-        treeInformation.SaveTilesGLTF(false /*mergePolyData*/);
+        treeInformation.SaveTilesGLTFMesh();
       }
       vtkLog(INFO, "Deleting objects ...");
       break;
