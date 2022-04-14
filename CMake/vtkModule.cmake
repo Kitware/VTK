@@ -1453,6 +1453,46 @@ endfunction ()
 
 #[==[
 @ingroup module
+@brief Add source files to a module
+
+A wrapper around `target_sources` that works for modules.
+
+~~~
+vtk_module_sources(<module>
+  [PUBLIC     <source>...]
+  [PRIVATE    <source>...]
+  [INTERFACE  <source>...])
+~~~
+#]==]
+function (vtk_module_sources module)
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_sources
+    ""
+    ""
+    "INTERFACE;PUBLIC;PRIVATE")
+
+  if (_vtk_sources_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for vtk_module_sources: "
+      "${_vtk_sources_UNPARSED_ARGUMENTS}.")
+  endif ()
+
+  _vtk_module_real_target(_vtk_sources_target "${module}")
+  _vtk_module_target_function(_vtk_sources)
+
+  if (NOT _vtk_sources_INTERFACE_args AND
+      NOT _vtk_sources_PUBLIC_args AND
+      NOT _vtk_sources_PRIVATE_args)
+    return ()
+  endif ()
+
+  target_sources("${_vtk_sources_target}"
+    ${_vtk_sources_INTERFACE_args}
+    ${_vtk_sources_PUBLIC_args}
+    ${_vtk_sources_PRIVATE_args})
+endfunction ()
+
+#[==[
+@ingroup module
 @brief Add include directories to a module
 
 A wrapper around `target_include_directories` that works for modules.
