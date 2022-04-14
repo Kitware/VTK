@@ -4063,7 +4063,7 @@ The following target properties are set based on the arguments to the calling
     `vtk_module_build(LIBRARY_NAME_SUFFIX)`)
   - `VERSION` (based on `vtk_module_build(VERSION)`)
   - `SOVERSION` (based on `vtk_module_build(SOVERSION)`)
-  - `DEBUG_POSTFIX` (on Windows)
+  - `DEBUG_POSTFIX` (on Windows unless already set via `CMAKE_DEBUG_POSTFIX`)
 #]==]
 function (_vtk_module_apply_properties target)
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_apply_properties
@@ -4117,7 +4117,7 @@ function (_vtk_module_apply_properties target)
         SOVERSION "${_vtk_build_SOVERSION}")
   endif ()
 
-  if (WIN32)
+  if (WIN32 AND NOT DEFINED CMAKE_DEBUG_POSTFIX)
     set_target_properties("${target}"
       PROPERTIES
         DEBUG_POSTFIX "d")
