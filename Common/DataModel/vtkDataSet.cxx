@@ -307,8 +307,7 @@ vtkCell* vtkDataSet::FindAndGetCell(double x[3], vtkCell* cell, vtkIdType cellId
 //------------------------------------------------------------------------------
 void vtkDataSet::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
 {
-  vtkIdType i, numPts;
-  vtkIdList* otherCells = vtkIdList::New();
+  vtkNew<vtkIdList> otherCells;
   otherCells->Allocate(VTK_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
@@ -318,14 +317,12 @@ void vtkDataSet::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList*
   // now perform multiple intersections on list
   if (cellIds->GetNumberOfIds() > 0)
   {
-    for (numPts = ptIds->GetNumberOfIds(), i = 1; i < numPts; i++)
+    for (vtkIdType numPts = ptIds->GetNumberOfIds(), i = 1; i < numPts; i++)
     {
       this->GetPointCells(ptIds->GetId(i), otherCells);
-      cellIds->IntersectWith(*otherCells);
+      cellIds->IntersectWith(otherCells);
     }
   }
-
-  otherCells->Delete();
 }
 
 //------------------------------------------------------------------------------

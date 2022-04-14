@@ -711,16 +711,6 @@ protected:
   vtkTimeStamp CellsBoundsTime;
 
 private:
-  // Hide these from the user and the compiler.
-
-  /**
-   * For legacy compatibility. Do not use.
-   */
-  void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
-  {
-    this->GetCellNeighbors(cellId, &ptIds, &cellIds);
-  }
-
   void Cleanup();
 
 private:
