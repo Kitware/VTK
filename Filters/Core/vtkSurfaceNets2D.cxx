@@ -210,10 +210,7 @@ struct SurfaceNets
 
   // Instantiate key data members.
   SurfaceNets()
-    : DyadCases(nullptr)
-    , DyadDims{ 0, 0 }
-    , EdgeMetaData(nullptr)
-    , Scalars(nullptr)
+    : Scalars(nullptr)
     , NewPts(nullptr)
     , NewLines(nullptr)
     , NewScalars(nullptr)
@@ -221,6 +218,9 @@ struct SurfaceNets
     , NumLabels(0)
     , LabelValues(nullptr)
     , BackgroundLabel(0)
+    , DyadCases(nullptr)
+    , DyadDims{ 0, 0 }
+    , EdgeMetaData(nullptr)
   {
   }
 
