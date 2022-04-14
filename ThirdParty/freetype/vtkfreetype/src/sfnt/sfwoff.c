@@ -4,7 +4,7 @@
  *
  *   WOFF format management (base).
  *
- * Copyright (C) 1996-2021 by
+ * Copyright (C) 1996-2022 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -21,6 +21,9 @@
 #include <freetype/internal/ftdebug.h>
 #include <freetype/internal/ftstream.h>
 #include <freetype/ftgzip.h>
+
+
+#ifdef FT_CONFIG_OPTION_USE_ZLIB
 
 
   /**************************************************************************
@@ -61,7 +64,6 @@
     FT_FREE( stream->base );
 
     stream->size  = 0;
-    stream->base  = NULL;
     stream->close = NULL;
   }
 
@@ -109,7 +111,7 @@
     FT_ULong        sfnt_offset;
 
     FT_Int          nn;
-    FT_ULong        old_tag = 0;
+    FT_Tag          old_tag = 0;
 
     static const FT_Frame_Field  woff_header_fields[] =
     {
@@ -360,8 +362,6 @@
       }
       else
       {
-#ifdef FT_CONFIG_OPTION_USE_ZLIB
-
         /* Uncompress with zlib. */
         FT_ULong  output_len = table->OrigLength;
 
@@ -377,13 +377,6 @@
           error = FT_THROW( Invalid_Table );
           goto Exit1;
         }
-
-#else /* !FT_CONFIG_OPTION_USE_ZLIB */
-
-        error = FT_THROW( Unimplemented_Feature );
-        goto Exit1;
-
-#endif /* !FT_CONFIG_OPTION_USE_ZLIB */
       }
 
       FT_FRAME_EXIT();
@@ -432,6 +425,13 @@
 
 #undef WRITE_USHORT
 #undef WRITE_ULONG
+
+#else /* !FT_CONFIG_OPTION_USE_ZLIB */
+
+  /* ANSI C doesn't like empty source files */
+  typedef int  _sfwoff_dummy;
+
+#endif /* !FT_CONFIG_OPTION_USE_ZLIB */
 
 
 /* END */

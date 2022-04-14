@@ -5,7 +5,7 @@
  *   FreeType glyph image formats and default raster interface
  *   (specification).
  *
- * Copyright (C) 1996-2021 by
+ * Copyright (C) 1996-2022 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -26,11 +26,6 @@
 
 #ifndef FTIMAGE_H_
 #define FTIMAGE_H_
-
-
-  /* STANDALONE_ is from ftgrays.c */
-#ifndef STANDALONE_
-#endif
 
 
 FT_BEGIN_HEADER
@@ -406,11 +401,11 @@ FT_BEGIN_HEADER
    *     information.
    *
    *   FT_OUTLINE_OVERLAP ::
-   *     This flag indicates that this outline contains overlapping contrours
-   *     and the anti-aliased renderer should perform oversampling to
-   *     mitigate possible artifacts.  This flag should _not_ be set for
-   *     well designed glyphs without overlaps because it quadruples the
-   *     rendering time.
+   *     [Since 2.10.3] This flag indicates that this outline contains
+   *     overlapping contours and the anti-aliased renderer should perform
+   *     oversampling to mitigate possible artifacts.  This flag should _not_
+   *     be set for well designed glyphs without overlaps because it quadruples
+   *     the rendering time.
    *
    *   FT_OUTLINE_HIGH_PRECISION ::
    *     This flag indicates that the scan-line converter should try to
@@ -700,11 +695,13 @@ FT_BEGIN_HEADER
    *   to get a simple enumeration without assigning special numbers.
    */
 #ifndef FT_IMAGE_TAG
-#define FT_IMAGE_TAG( value, _x1, _x2, _x3, _x4 )  \
-          value = ( ( (unsigned long)_x1 << 24 ) | \
-                    ( (unsigned long)_x2 << 16 ) | \
-                    ( (unsigned long)_x3 << 8  ) | \
-                      (unsigned long)_x4         )
+
+#define FT_IMAGE_TAG( value, _x1, _x2, _x3, _x4 )                         \
+          value = ( ( FT_STATIC_BYTE_CAST( unsigned long, _x1 ) << 24 ) | \
+                    ( FT_STATIC_BYTE_CAST( unsigned long, _x2 ) << 16 ) | \
+                    ( FT_STATIC_BYTE_CAST( unsigned long, _x3 ) << 8  ) | \
+                      FT_STATIC_BYTE_CAST( unsigned long, _x4 )         )
+
 #endif /* FT_IMAGE_TAG */
 
 
@@ -744,6 +741,10 @@ FT_BEGIN_HEADER
    *     contours.  Some Type~1 fonts, like those in the Hershey family,
    *     contain glyphs in this format.  These are described as @FT_Outline,
    *     but FreeType isn't currently capable of rendering them correctly.
+   *
+   *   FT_GLYPH_FORMAT_SVG ::
+   *     [Since 2.12] The glyph is represented by an SVG document in the
+   *     'SVG~' table.
    */
   typedef enum  FT_Glyph_Format_
   {
@@ -752,7 +753,8 @@ FT_BEGIN_HEADER
     FT_IMAGE_TAG( FT_GLYPH_FORMAT_COMPOSITE, 'c', 'o', 'm', 'p' ),
     FT_IMAGE_TAG( FT_GLYPH_FORMAT_BITMAP,    'b', 'i', 't', 's' ),
     FT_IMAGE_TAG( FT_GLYPH_FORMAT_OUTLINE,   'o', 'u', 't', 'l' ),
-    FT_IMAGE_TAG( FT_GLYPH_FORMAT_PLOTTER,   'p', 'l', 'o', 't' )
+    FT_IMAGE_TAG( FT_GLYPH_FORMAT_PLOTTER,   'p', 'l', 'o', 't' ),
+    FT_IMAGE_TAG( FT_GLYPH_FORMAT_SVG,       'S', 'V', 'G', ' ' )
 
   } FT_Glyph_Format;
 

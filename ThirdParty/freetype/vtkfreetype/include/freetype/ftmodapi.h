@@ -4,7 +4,7 @@
  *
  *   FreeType modules public interface (specification).
  *
- * Copyright (C) 1996-2021 by
+ * Copyright (C) 1996-2022 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -347,8 +347,9 @@ FT_BEGIN_HEADER
    *   2.11
    *
    */
-#define FT_FACE_DRIVER_NAME( face ) \
-          ( ( *(FT_Module_Class**)( ( face )->driver ) )->module_name )
+#define FT_FACE_DRIVER_NAME( face )                                     \
+          ( ( *FT_REINTERPRET_CAST( FT_Module_Class**,                  \
+                                    ( face )->driver ) )->module_name )
 
 
   /**************************************************************************

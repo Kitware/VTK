@@ -4,7 +4,7 @@
  *
  *   Embedded resource forks accessor (body).
  *
- * Copyright (C) 2004-2021 by
+ * Copyright (C) 2004-2022 by
  * Masatake YAMATO and Redhat K.K.
  *
  * FT_Raccess_Get_HeaderInfo() and raccess_guess_darwin_hfsplus() are
@@ -868,9 +868,7 @@
     const char*  tmp;
     const char*  slash;
     size_t       new_length;
-    FT_Error     error = FT_Err_Ok;
-
-    FT_UNUSED( error );
+    FT_Error     error;
 
 
     new_length = ft_strlen( original_name ) + ft_strlen( insertion );

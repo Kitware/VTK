@@ -64,6 +64,7 @@
 #define FT_Get_Charmap_Index vtkfreetype_FT_Get_Charmap_Index
 #define FT_Get_CMap_Format vtkfreetype_FT_Get_CMap_Format
 #define FT_Get_CMap_Language_ID vtkfreetype_FT_Get_CMap_Language_ID
+#define FT_Get_Color_Glyph_ClipBox vtkfreetype_FT_Get_Color_Glyph_ClipBox
 #define FT_Get_Color_Glyph_Layer vtkfreetype_FT_Get_Color_Glyph_Layer
 #define FT_Get_Color_Glyph_Paint vtkfreetype_FT_Get_Color_Glyph_Paint
 #define FT_Get_Colorline_Stops vtkfreetype_FT_Get_Colorline_Stops
@@ -189,6 +190,8 @@
 #define ft_standard_raster vtkfreetype_ft_standard_raster
 #define FT_Stream_OpenGzip vtkfreetype_FT_Stream_OpenGzip
 #define FT_Stream_OpenLZW vtkfreetype_FT_Stream_OpenLZW
+#define ft_svg_glyph_class vtkfreetype_ft_svg_glyph_class
+#define ft_svg_renderer_class vtkfreetype_ft_svg_renderer_class
 #define FT_Tan vtkfreetype_FT_Tan
 #define FT_Trace_Set_Default_Level vtkfreetype_FT_Trace_Set_Default_Level
 #define FT_Trace_Set_Level vtkfreetype_FT_Trace_Set_Level

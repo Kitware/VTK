@@ -4,7 +4,7 @@
  *
  *   WOFF2 format management (base).
  *
- * Copyright (C) 2019-2021 by
+ * Copyright (C) 2019-2022 by
  * Nikhil Ramakrishnan, David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -25,8 +25,6 @@
 #ifdef FT_CONFIG_OPTION_USE_BROTLI
 
 #include <brotli/decode.h>
-
-#endif
 
 
   /**************************************************************************
@@ -86,6 +84,8 @@
 #define BBOX_STREAM         5
 #define INSTRUCTION_STREAM  6
 
+#define HAVE_OVERLAP_SIMPLE_BITMAP  0x1
+
 
   static void
   stream_close( FT_Stream  stream )
@@ -96,7 +96,6 @@
     FT_FREE( stream->base );
 
     stream->size  = 0;
-    stream->base  = NULL;
     stream->close = NULL;
   }
 
@@ -108,8 +107,8 @@
     WOFF2_Table  table1 = *(WOFF2_Table*)a;
     WOFF2_Table  table2 = *(WOFF2_Table*)b;
 
-    FT_ULong  tag1 = table1->Tag;
-    FT_ULong  tag2 = table2->Tag;
+    FT_Tag  tag1 = table1->Tag;
+    FT_Tag  tag2 = table2->Tag;
 
 
     if ( tag1 > tag2 )
@@ -316,8 +315,6 @@
                     const FT_Byte*  src,
                     FT_ULong        src_size )
   {
-#ifdef FT_CONFIG_OPTION_USE_BROTLI
-
     /* this cast is only of importance on 32bit systems; */
     /* we don't validate it                              */
     FT_Offset            uncompressed_size = (FT_Offset)dst_size;
@@ -338,25 +335,13 @@
 
     FT_TRACE2(( "woff2_decompress: Brotli stream decompressed.\n" ));
     return FT_Err_Ok;
-
-#else /* !FT_CONFIG_OPTION_USE_BROTLI */
-
-    FT_UNUSED( dst );
-    FT_UNUSED( dst_size );
-    FT_UNUSED( src );
-    FT_UNUSED( src_size );
-
-    FT_ERROR(( "woff2_decompress: Brotli support not available.\n" ));
-    return FT_THROW( Unimplemented_Feature );
-
-#endif /* !FT_CONFIG_OPTION_USE_BROTLI */
   }
 
 
   static WOFF2_Table
   find_table( WOFF2_Table*  tables,
               FT_UShort     num_tables,
-              FT_ULong      tag )
+              FT_Tag        tag )
   {
     FT_Int  i;
 
@@ -539,6 +524,7 @@
                 const WOFF2_Point  points,
                 FT_UShort          n_contours,
                 FT_UShort          instruction_len,
+                FT_Bool            have_overlap,
                 FT_Byte*           dst,
                 FT_ULong           dst_size,
                 FT_ULong*          glyph_size )
@@ -565,6 +551,9 @@
       FT_Int   dx   = point.x - last_x;
       FT_Int   dy   = point.y - last_y;
 
+
+      if ( i == 0 && have_overlap )
+        flag |= GLYF_OVERLAP_SIMPLE;
 
       if ( dx == 0 )
         flag |= GLYF_THIS_X_IS_SAME;
@@ -850,15 +839,18 @@
 
     FT_UInt  num_substreams = 7;
 
+    FT_UShort  option_flags;
     FT_UShort  num_glyphs;
     FT_UShort  index_format;
     FT_ULong   expected_loca_length;
     FT_UInt    offset;
     FT_UInt    i;
     FT_ULong   points_size;
-    FT_ULong   bitmap_length;
     FT_ULong   glyph_buf_size;
     FT_ULong   bbox_bitmap_offset;
+    FT_ULong   bbox_bitmap_length;
+    FT_ULong   overlap_bitmap_offset = 0;
+    FT_ULong   overlap_bitmap_length = 0;
 
     const FT_ULong  glyf_start  = *out_offset;
     FT_ULong        dest_offset = *out_offset;
@@ -874,15 +866,17 @@
     if ( FT_NEW_ARRAY( substreams, num_substreams ) )
       goto Fail;
 
-    if ( FT_STREAM_SKIP( 4 ) )
+    if ( FT_STREAM_SKIP( 2 ) )
+      goto Fail;
+    if ( FT_READ_USHORT( option_flags ) )
       goto Fail;
     if ( FT_READ_USHORT( num_glyphs ) )
       goto Fail;
     if ( FT_READ_USHORT( index_format ) )
       goto Fail;
 
-    FT_TRACE4(( "num_glyphs = %u; index_format = %u\n",
-                num_glyphs, index_format ));
+    FT_TRACE4(( "option_flags = %u; num_glyphs = %u; index_format = %u\n",
+                option_flags, num_glyphs, index_format ));
 
     info->num_glyphs = num_glyphs;
 
@@ -895,7 +889,7 @@
     if ( info->loca_table->dst_length != expected_loca_length )
       goto Fail;
 
-    offset = ( 2 + num_substreams ) * 4;
+    offset = 2 + 2 + 2 + 2 + ( num_substreams * 4 );
     if ( offset > info->glyf_table->TransformLength )
       goto Fail;
 
@@ -918,6 +912,20 @@
       offset += substream_size;
     }
 
+    if ( option_flags & HAVE_OVERLAP_SIMPLE_BITMAP )
+    {
+      /* Size of overlapBitmap = floor((numGlyphs + 7) / 8) */
+      overlap_bitmap_length = ( num_glyphs + 7U ) >> 3;
+      if ( overlap_bitmap_length > info->glyf_table->TransformLength - offset )
+        goto Fail;
+
+      overlap_bitmap_offset = pos + offset;
+
+      FT_TRACE5(( "  Overlap bitmap: offset = %lu; size = %lu;\n",
+                  overlap_bitmap_offset, overlap_bitmap_length ));
+      offset += overlap_bitmap_length;
+    }
+
     if ( FT_NEW_ARRAY( loca_values, num_glyphs + 1 ) )
       goto Fail;
 
@@ -925,8 +933,9 @@
     bbox_bitmap_offset = substreams[BBOX_STREAM].offset;
 
     /* Size of bboxBitmap = 4 * floor((numGlyphs + 31) / 32) */
-    bitmap_length                   = ( ( num_glyphs + 31U ) >> 5 ) << 2;
-    substreams[BBOX_STREAM].offset += bitmap_length;
+    bbox_bitmap_length              = ( ( num_glyphs + 31U ) >> 5 ) << 2;
+    /* bboxStreamSize is the combined size of bboxBitmap and bboxStream. */
+    substreams[BBOX_STREAM].offset += bbox_bitmap_length;
 
     glyph_buf_size = WOFF2_DEFAULT_GLYPH_BUF;
     if ( FT_NEW_ARRAY( glyph_buf, glyph_buf_size ) )
@@ -1042,8 +1051,11 @@
         FT_ULong   flag_size;
         FT_ULong   triplet_size;
         FT_ULong   triplet_bytes_used;
-        FT_Byte*   flags_buf   = NULL;
-        FT_Byte*   triplet_buf = NULL;
+        FT_Bool    have_overlap  = FALSE;
+        FT_Byte    overlap_bitmap;
+        FT_ULong   overlap_offset;
+        FT_Byte*   flags_buf     = NULL;
+        FT_Byte*   triplet_buf   = NULL;
         FT_UShort  instruction_size;
         FT_ULong   size_needed;
         FT_Int     end_point;
@@ -1051,6 +1063,17 @@
 
         FT_Byte*   pointer = NULL;
 
+
+        /* Set `have_overlap`. */
+        if ( overlap_bitmap_offset )
+        {
+          overlap_offset = overlap_bitmap_offset + ( i >> 3 );
+          if ( FT_STREAM_SEEK( overlap_offset ) ||
+               FT_READ_BYTE( overlap_bitmap )   )
+            goto Fail;
+          if ( overlap_bitmap & ( 0x80 >> ( i & 7 ) ) )
+            have_overlap = TRUE;
+        }
 
         if ( FT_NEW_ARRAY( n_points_arr, n_contours ) )
           goto Fail;
@@ -1172,6 +1195,7 @@
                            points,
                            n_contours,
                            instruction_size,
+                           have_overlap,
                            glyph_buf,
                            glyph_buf_size,
                            &glyph_size ) )
@@ -2102,7 +2126,7 @@
     /* Validate requested face index. */
     *num_faces = woff2.num_fonts;
     /* value -(N+1) requests information on index N */
-    if ( *face_instance_index < 0 )
+    if ( *face_instance_index < 0 && face_index > 0 )
       face_index--;
 
     if ( face_index >= woff2.num_fonts )
@@ -2216,7 +2240,7 @@
     /* reject fonts that have multiple tables with the same tag */
     for ( nn = 1; nn < woff2.num_tables; nn++ )
     {
-      FT_ULong  tag = indices[nn]->Tag;
+      FT_Tag  tag = indices[nn]->Tag;
 
 
       if ( tag == indices[nn - 1]->Tag )
@@ -2355,6 +2379,13 @@
 #undef COMPOSITE_STREAM
 #undef BBOX_STREAM
 #undef INSTRUCTION_STREAM
+
+#else /* !FT_CONFIG_OPTION_USE_BROTLI */
+
+  /* ANSI C doesn't like empty source files */
+  typedef int  _sfwoff2_dummy;
+
+#endif /* !FT_CONFIG_OPTION_USE_BROTLI */
 
 
 /* END */

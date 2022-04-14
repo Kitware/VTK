@@ -4,7 +4,7 @@
  *
  *   OpenType common tables validation (specification).
  *
- * Copyright (C) 2004-2021 by
+ * Copyright (C) 2004-2022 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -180,24 +180,24 @@ FT_BEGIN_HEADER
 #define OTV_ENTER                                                                \
           FT_BEGIN_STMNT                                                         \
             otvalid->debug_indent += 2;                                          \
-            FT_TRACE4(( "%*.s", otvalid->debug_indent, 0 ));                     \
+            FT_TRACE4(( "%*.s", otvalid->debug_indent, "" ));                    \
             FT_TRACE4(( "%s table\n",                                            \
                         otvalid->debug_function_name[otvalid->nesting_level] )); \
           FT_END_STMNT
 
-#define OTV_NAME_ENTER( name )                               \
-          FT_BEGIN_STMNT                                     \
-            otvalid->debug_indent += 2;                      \
-            FT_TRACE4(( "%*.s", otvalid->debug_indent, 0 )); \
-            FT_TRACE4(( "%s table\n", name ));               \
+#define OTV_NAME_ENTER( name )                                \
+          FT_BEGIN_STMNT                                      \
+            otvalid->debug_indent += 2;                       \
+            FT_TRACE4(( "%*.s", otvalid->debug_indent, "" )); \
+            FT_TRACE4(( "%s table\n", name ));                \
           FT_END_STMNT
 
 #define OTV_EXIT  otvalid->debug_indent -= 2
 
-#define OTV_TRACE( s )                                       \
-          FT_BEGIN_STMNT                                     \
-            FT_TRACE4(( "%*.s", otvalid->debug_indent, 0 )); \
-            FT_TRACE4( s );                                  \
+#define OTV_TRACE( s )                                        \
+          FT_BEGIN_STMNT                                      \
+            FT_TRACE4(( "%*.s", otvalid->debug_indent, "" )); \
+            FT_TRACE4( s );                                   \
           FT_END_STMNT
 
 #else   /* !FT_DEBUG_LEVEL_TRACE */

@@ -4,7 +4,7 @@
  *
  *   Arithmetic computations (body).
  *
- * Copyright (C) 1996-2021 by
+ * Copyright (C) 1996-2022 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -46,7 +46,7 @@
 
 /* we need to emulate a 64-bit data type if a real one isn't available */
 
-#ifndef FT_LONG64
+#ifndef FT_INT64
 
   typedef struct  FT_Int64_
   {
@@ -55,7 +55,7 @@
 
   } FT_Int64;
 
-#endif /* !FT_LONG64 */
+#endif /* !FT_INT64 */
 
 
   /**************************************************************************
@@ -80,7 +80,7 @@
   FT_END_STMNT
 
   /* The following three functions are available regardless of whether */
-  /* FT_LONG64 is defined.                                             */
+  /* FT_INT64 is defined.                                              */
 
   /* documentation is in freetype.h */
 
@@ -165,7 +165,7 @@
   }
 
 
-#ifdef FT_LONG64
+#ifdef FT_INT64
 
 
   /* documentation is in freetype.h */
@@ -273,7 +273,7 @@
   }
 
 
-#else /* !FT_LONG64 */
+#else /* !FT_INT64 */
 
 
   static void
@@ -652,7 +652,7 @@
   }
 
 
-#endif /* !FT_LONG64 */
+#endif /* !FT_INT64 */
 
 
   /* documentation is in ftglyph.h */
@@ -986,7 +986,7 @@
     /* we silently ignore overflow errors since such large values */
     /* lead to even more (harmless) rendering errors later on     */
 
-#ifdef FT_LONG64
+#ifdef FT_INT64
 
     FT_Int64  delta = SUB_INT64( MUL_INT64( in_x, out_y ),
                                  MUL_INT64( in_y, out_x ) );
