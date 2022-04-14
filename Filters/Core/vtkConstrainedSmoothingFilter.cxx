@@ -336,10 +336,10 @@ struct AttrWorker
 {
   template <typename PT>
   void operator()(
-    PT* inPtsArray, vtkPoints* outPts, vtkPointSet* output, bool errorScalars, bool errorVectors)
+    PT* inPtsArray, vtkPoints* outputPts, vtkPointSet* output, bool errorScalars, bool errorVectors)
   {
     vtkIdType numPts = inPtsArray->GetNumberOfTuples();
-    PT* outPtsArray = static_cast<PT*>(outPts->GetData());
+    PT* outPtsArray = static_cast<PT*>(outputPts->GetData());
     int dataType = outPtsArray->GetDataType();
 
     vtkSmartPointer<vtkDataArray> scalars;
