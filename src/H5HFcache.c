@@ -742,7 +742,7 @@ H5HF__cache_hdr_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_NDEBUG_UN
     HDassert(len == hdr->heap_size);
 
     /* Set the shared heap header's file context for this operation */
-    hdr->f = (H5F_t *)f;
+    hdr->f = f;
 
     /* Magic number */
     H5MM_memcpy(image, H5HF_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
@@ -796,7 +796,7 @@ H5HF__cache_hdr_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_NDEBUG_UN
 
         /* Encode I/O filter information */
         if (H5O_msg_encode(hdr->f, H5O_PLINE_ID, FALSE, image, &(hdr->pline)) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTENCODE, FAIL, "can't encode I/O pipeline fiters")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTENCODE, FAIL, "can't encode I/O pipeline filters")
         image += hdr->filter_len;
     } /* end if */
 
@@ -895,7 +895,7 @@ H5HF__cache_iblock_get_initial_load_size(void *_udata, size_t *image_len)
  * Function:    H5HF__cache_iblock_verify_chksum
  *
  * Purpose:     Verify the computed checksum of the data structure is the
- *              same as the stored chksum.
+ *              same as the stored checksum.
  *
  * Return:      Success:        TRUE/FALSE
  *              Failure:        Negative
@@ -1328,7 +1328,7 @@ H5HF__cache_iblock_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_NDEBUG
     hdr = iblock->hdr;
 
     /* Set the shared heap header's file context for this operation */
-    hdr->f = (H5F_t *)f;
+    hdr->f = f;
 
     /* Magic number */
     H5MM_memcpy(image, H5HF_IBLOCK_MAGIC, (size_t)H5_SIZEOF_MAGIC);
@@ -1655,9 +1655,15 @@ H5HF__cache_dblock_verify_chksum(const void *_image, size_t len, void *_udata)
         /* Update info about direct block */
         udata->decompressed = TRUE;
         len                 = nbytes;
-    } /* end if */
-    else
-        read_buf = (void *)image; /* Casting away const OK - QAK */
+    }
+    else {
+        /* If the data are unfiltered, we just point to the image, which we
+         * never modify. Casting away const is okay here.
+         */
+        H5_GCC_CLANG_DIAG_OFF("cast-qual")
+        read_buf = (void *)image;
+        H5_GCC_CLANG_DIAG_OFF("cast-qual")
+    }
 
     /* Decode checksum */
     chk_size = (size_t)(H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr) - H5HF_SIZEOF_CHKSUM);

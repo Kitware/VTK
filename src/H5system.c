@@ -97,131 +97,6 @@ HDvasprintf(char **bufp, const char *fmt, va_list _ap)
 #endif /* H5_HAVE_VASPRINTF */
 
 /*-------------------------------------------------------------------------
- * Function:  HDstrtoll
- *
- * Purpose:  Converts the string S to an int64_t value according to the
- *    given BASE, which must be between 2 and 36 inclusive, or be
- *    the special value zero.
- *
- *    The string must begin with an arbitrary amount of white space
- *    (as determined by isspace(3c)) followed by a single optional
- *              `+' or `-' sign.  If BASE is zero or 16 the string may then
- *    include a `0x' or `0X' prefix, and the number will be read in
- *    base 16; otherwise a zero BASE is taken as 10 (decimal)
- *    unless the next character is a `0', in which case it is taken
- *    as 8 (octal).
- *
- *    The remainder of the string is converted to an int64_t in the
- *    obvious manner, stopping at the first character which is not
- *    a valid digit in the given base.  (In bases above 10, the
- *    letter `A' in either upper or lower case represetns 10, `B'
- *    represents 11, and so forth, with `Z' representing 35.)
- *
- *    If REST is not null, the address of the first invalid
- *    character in S is stored in *REST.  If there were no digits
- *    at all, the original value of S is stored in *REST.  Thus, if
- *    *S is not `\0' but **REST is `\0' on return the entire string
- *    was valid.
- *
- * Return:  Success:  The result.
- *
- *    Failure:  If the input string does not contain any
- *        digits then zero is returned and REST points
- *        to the original value of S.  If an overflow
- *        or underflow occurs then the maximum or
- *        minimum possible value is returned and the
- *        global `errno' is set to ERANGE.  If BASE is
- *        incorrect then zero is returned.
- *
- * Programmer:  Robb Matzke
- *              Thursday, April  9, 1998
- *
- *-------------------------------------------------------------------------
- */
-#ifndef HDstrtoll
-int64_t
-HDstrtoll(const char *s, const char **rest, int base)
-{
-    int64_t sign = 1, acc = 0;
-    hbool_t overflow = FALSE;
-
-    errno = 0;
-    if (!s || (base && (base < 2 || base > 36))) {
-        if (rest)
-            *rest = s;
-        return 0;
-    }
-
-    /* Skip white space */
-    while (HDisspace(*s))
-        s++;
-
-    /* Optional minus or plus sign */
-    if ('+' == *s) {
-        s++;
-    }
-    else if ('-' == *s) {
-        sign = -1;
-        s++;
-    }
-
-    /* Zero base prefix */
-    if (0 == base && '0' == *s && ('x' == s[1] || 'X' == s[1])) {
-        base = 16;
-        s += 2;
-    }
-    else if (0 == base && '0' == *s) {
-        base = 8;
-        s++;
-    }
-    else if (0 == base) {
-        base = 10;
-    }
-
-    /* Digits */
-    while ((base <= 10 && *s >= '0' && *s < '0' + base) ||
-           (base > 10 && ((*s >= '0' && *s <= '9') || (*s >= 'a' && *s < 'a' + base - 10) ||
-                          (*s >= 'A' && *s < 'A' + base - 10)))) {
-        if (!overflow) {
-            int64_t digit = 0;
-
-            if (*s >= '0' && *s <= '9')
-                digit = *s - '0';
-            else if (*s >= 'a' && *s <= 'z')
-                digit = (*s - 'a') + 10;
-            else
-                digit = (*s - 'A') + 10;
-
-            if (acc * base + digit < acc) {
-                overflow = TRUE;
-            }
-            else {
-                acc = acc * base + digit;
-            }
-        }
-        s++;
-    }
-
-    /* Overflow */
-    if (overflow) {
-        if (sign > 0) {
-            acc = ((uint64_t)1 << (8 * sizeof(int64_t) - 1)) - 1;
-        }
-        else {
-            acc = (int64_t)((uint64_t)1 << (8 * sizeof(int64_t) - 1));
-        }
-        errno = ERANGE;
-    }
-
-    /* Return values */
-    acc *= sign;
-    if (rest)
-        *rest = s;
-    return acc;
-} /* end HDstrtoll() */
-#endif
-
-/*-------------------------------------------------------------------------
  * Function:  HDrand/HDsrand
  *
  * Purpose:  Wrapper function for rand.  If rand_r exists on this system,
@@ -460,6 +335,9 @@ Wgettimeofday(struct timeval *tv, struct timezone *tz)
  *              Interestingly, getenv *is* available in the Windows
  *              POSIX layer, just not setenv.
  *
+ * Note:        Passing an empty string ("") for the value will remove
+ *              the variable from the environment (like unsetenv(3))
+ *
  * Return:      Success:    0
  *              Failure:    non-zero error code
  *
@@ -471,14 +349,14 @@ Wgettimeofday(struct timeval *tv, struct timezone *tz)
 int
 Wsetenv(const char *name, const char *value, int overwrite)
 {
-    size_t  bufsize;
-    errno_t err;
-
     /* If we're not overwriting, check if the environment variable exists.
      * If it does (i.e.: the required buffer size to store the variable's
      * value is non-zero), then return an error code.
      */
     if (!overwrite) {
+        size_t  bufsize;
+        errno_t err;
+
         err = getenv_s(&bufsize, NULL, 0, name);
         if (err || bufsize)
             return (int)err;
@@ -487,7 +365,7 @@ Wsetenv(const char *name, const char *value, int overwrite)
     return (int)_putenv_s(name, value);
 } /* end Wsetenv() */
 
-#ifdef H5_HAVE_WINSOCK2_H
+#ifdef H5_HAVE_WIN32_API
 #pragma comment(lib, "advapi32.lib")
 #endif
 
@@ -572,12 +450,12 @@ char *
 Wgetlogin(void)
 {
 
-#ifdef H5_HAVE_WINSOCK2_H
+#ifdef H5_HAVE_WIN32_API
     DWORD bufferCount = WloginBuffer_count;
     if (GetUserName(Wlogin_buffer, &bufferCount) != 0)
         return (Wlogin_buffer);
     else
-#endif /* H5_HAVE_WINSOCK2_H */
+#endif
         return NULL;
 }
 
@@ -964,10 +842,7 @@ done:
  *              Note that commodity hardware is probably going to have a
  *              resolution of milliseconds, not nanoseconds.
  *
- * Return:      SUCCEED/FAIL
- *
- * Programmer:  Quincey Koziol
- *              October 01, 2016
+ * Return:      void
  *--------------------------------------------------------------------------
  */
 void
@@ -976,21 +851,40 @@ H5_nanosleep(uint64_t nanosec)
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
 #ifdef H5_HAVE_WIN32_API
+    DWORD dwMilliseconds = (DWORD)HDceil(nanosec / 1.0e6);
+    DWORD ignore;
 
-    /* On Windows, Sleep() is in milliseconds. Passing 0 to Sleep()
-     * causes the thread to relinquish the rest of its time slice.
+    /* Windows can't sleep at a ns resolution. Best we can do is ~1 ms. We
+     * don't care about the return value since the second parameter
+     * (bAlertable) is FALSE, so it will always be zero.
      */
-    Sleep(nanosec / (1000 * 1000));
+    ignore = SleepEx(dwMilliseconds, FALSE);
 
 #else
-    {
-        struct timespec sleeptime; /* Struct to hold time to sleep */
 
-        /* Set up time to sleep */
-        sleeptime.tv_sec  = 0;
-        sleeptime.tv_nsec = (long)nanosec;
+    const uint64_t  nanosec_per_sec = 1000 * 1000 * 1000;
+    struct timespec sleeptime; /* Struct to hold time to sleep */
 
-        HDnanosleep(&sleeptime, NULL);
+    /* Set up time to sleep
+     *
+     * Assuming ILP32 or LP64 or wider architecture, (long)operand
+     * satisfies 0 <= operand < nanosec_per_sec < LONG_MAX.
+     *
+     * It's harder to be sure that we don't overflow time_t.
+     */
+    sleeptime.tv_sec  = (time_t)(nanosec / nanosec_per_sec);
+    sleeptime.tv_nsec = (long)(nanosec % nanosec_per_sec);
+
+    /* Sleep for up to `sleeptime` and, in the event of an interruption,
+     * save the unslept time back to `sleeptime`.
+     */
+    while (HDnanosleep(&sleeptime, &sleeptime) == -1) {
+        /* If we were just interrupted, sleep for the remaining time.
+         * Otherwise, the error was essentially impossible, so just stop
+         * sleeping.
+         */
+        if (errno != EINTR)
+            break;
     }
 #endif
 
@@ -1042,3 +936,167 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5_expand_windows_env_vars() */
 #endif /* H5_HAVE_WIN32_API */
+
+/* Global variables */
+int         H5_opterr = 1; /* Get_option prints errors if this is on */
+int         H5_optind = 1; /* Token pointer                          */
+const char *H5_optarg;     /* Flag argument (or value)               */
+
+/*-------------------------------------------------------------------------
+ * Function: H5_get_option
+ *
+ * Purpose:  Determine the command-line options a user specified. We can
+ *           accept both short and long type command-lines.
+ *
+ * Return:  Success:    The short valued "name" of the command line
+ *                      parameter or EOF if there are no more
+ *                      parameters to process.
+ *
+ *          Failure:    A question mark.
+ *-------------------------------------------------------------------------
+ */
+int
+H5_get_option(int argc, const char *const *argv, const char *opts, const struct h5_long_options *l_opts)
+{
+    static int sp      = 1;   /* character index in current token */
+    int        optchar = '?'; /* option character passed back to user */
+
+    if (sp == 1) {
+        /* check for more flag-like tokens */
+        if (H5_optind >= argc || argv[H5_optind][0] != '-' || argv[H5_optind][1] == '\0') {
+            return EOF;
+        }
+        else if (HDstrcmp(argv[H5_optind], "--") == 0) {
+            H5_optind++;
+            return EOF;
+        }
+    }
+
+    if (sp == 1 && argv[H5_optind][0] == '-' && argv[H5_optind][1] == '-') {
+        /* long command line option */
+        int        i;
+        const char ch      = '=';
+        char *     arg     = HDstrdup(&argv[H5_optind][2]);
+        size_t     arg_len = 0;
+
+        H5_optarg = strchr(&argv[H5_optind][2], ch);
+        arg_len   = HDstrlen(&argv[H5_optind][2]);
+        if (H5_optarg) {
+            arg_len -= HDstrlen(H5_optarg);
+            H5_optarg++; /* skip the equal sign */
+        }
+        arg[arg_len] = 0;
+
+        for (i = 0; l_opts && l_opts[i].name; i++) {
+            if (HDstrcmp(arg, l_opts[i].name) == 0) {
+                /* we've found a matching long command line flag */
+                optchar = l_opts[i].shortval;
+
+                if (l_opts[i].has_arg != no_arg) {
+                    if (H5_optarg == NULL) {
+                        if (l_opts[i].has_arg != optional_arg) {
+                            if (H5_optind < (argc - 1))
+                                if (argv[H5_optind + 1][0] != '-')
+                                    H5_optarg = argv[++H5_optind];
+                        }
+                        else if (l_opts[i].has_arg == require_arg) {
+                            if (H5_opterr)
+                                HDfprintf(stderr, "%s: option required for \"--%s\" flag\n", argv[0], arg);
+
+                            optchar = '?';
+                        }
+                    }
+                }
+                else {
+                    if (H5_optarg) {
+                        if (H5_opterr)
+                            HDfprintf(stderr, "%s: no option required for \"%s\" flag\n", argv[0], arg);
+
+                        optchar = '?';
+                    }
+                }
+                break;
+            }
+        }
+
+        if (l_opts[i].name == NULL) {
+            /* exhausted all of the l_opts we have and still didn't match */
+            if (H5_opterr)
+                HDfprintf(stderr, "%s: unknown option \"%s\"\n", argv[0], arg);
+
+            optchar = '?';
+        }
+
+        H5_optind++;
+        sp = 1;
+
+        HDfree(arg);
+    }
+    else {
+        register char *cp; /* pointer into current token */
+
+        /* short command line option */
+        optchar = argv[H5_optind][sp];
+
+        if (optchar == ':' || (cp = HDstrchr(opts, optchar)) == 0) {
+            if (H5_opterr)
+                HDfprintf(stderr, "%s: unknown option \"%c\"\n", argv[0], optchar);
+
+            /* if no chars left in this token, move to next token */
+            if (argv[H5_optind][++sp] == '\0') {
+                H5_optind++;
+                sp = 1;
+            }
+            return '?';
+        }
+
+        if (*++cp == ':') {
+            /* if a value is expected, get it */
+            if (argv[H5_optind][sp + 1] != '\0') {
+                /* flag value is rest of current token */
+                H5_optarg = &argv[H5_optind++][sp + 1];
+            }
+            else if (++H5_optind >= argc) {
+                if (H5_opterr)
+                    HDfprintf(stderr, "%s: value expected for option \"%c\"\n", argv[0], optchar);
+
+                optchar = '?';
+            }
+            else {
+                /* flag value is next token */
+                H5_optarg = argv[H5_optind++];
+            }
+
+            sp = 1;
+        }
+        /* wildcard argument */
+        else if (*cp == '*') {
+            /* check the next argument */
+            H5_optind++;
+            /* we do have an extra argument, check if not last */
+            if ((H5_optind + 1) < argc) {
+                if (argv[H5_optind][0] != '-') {
+                    H5_optarg = argv[H5_optind++];
+                }
+                else {
+                    H5_optarg = NULL;
+                }
+            }
+            else {
+                H5_optarg = NULL;
+            }
+        }
+        else {
+            /* set up to look at next char in token, next time */
+            if (argv[H5_optind][++sp] == '\0') {
+                /* no more in current token, so setup next token */
+                H5_optind++;
+                sp = 1;
+            }
+            H5_optarg = NULL;
+        }
+    }
+
+    /* return the current flag character found */
+    return optchar;
+}

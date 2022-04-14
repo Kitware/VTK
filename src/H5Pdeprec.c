@@ -220,8 +220,8 @@ H5Pregister1(hid_t cls_id, const char *name, size_t size, void *def_value, H5P_p
     herr_t          ret_value;   /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE10("e", "i*sz*xxxxxxx", cls_id, name, size, def_value, prp_create, prp_set, prp_get, prp_delete,
-              prp_copy, prp_close);
+    H5TRACE10("e", "i*sz*xPCPSPGPDPOPL", cls_id, name, size, def_value, prp_create, prp_set, prp_get,
+              prp_delete, prp_copy, prp_close);
 
     /* Check arguments. */
     if (NULL == (pclass = (H5P_genclass_t *)H5I_object_verify(cls_id, H5I_GENPROP_CLS)))
@@ -404,7 +404,7 @@ H5Pinsert1(hid_t plist_id, const char *name, size_t size, void *value, H5P_prp_s
     herr_t          ret_value; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE9("e", "i*sz*xxxxxx", plist_id, name, size, value, prp_set, prp_get, prp_delete, prp_copy,
+    H5TRACE9("e", "i*sz*xPSPGPDPOPL", plist_id, name, size, value, prp_set, prp_get, prp_delete, prp_copy,
              prp_close);
 
     /* Check arguments. */
@@ -459,7 +459,7 @@ H5Pget_version(hid_t plist_id, unsigned *super /*out*/, unsigned *freelist /*out
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Get values */
     if (super)
@@ -545,7 +545,7 @@ H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t thresh
     herr_t                ret_value     = SUCCEED;                      /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "iFfh", plist_id, strategy, threshold);
+    H5TRACE3("e", "iFth", plist_id, strategy, threshold);
 
     if ((unsigned)in_strategy >= H5F_FILE_SPACE_NTYPES)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid strategy")
@@ -606,7 +606,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy, hsize_t *threshold)
+H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy /*out*/, hsize_t *threshold /*out*/)
 {
     H5F_fspace_strategy_t new_strategy;        /* File space strategy type */
     hbool_t               new_persist;         /* Persisting free-space or not */
@@ -614,7 +614,7 @@ H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy, hsize_t *thre
     herr_t                ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "i*Ff*h", plist_id, strategy, threshold);
+    H5TRACE3("e", "ixx", plist_id, strategy, threshold);
 
     /* Get current file space info */
     if (H5Pget_file_space_strategy(plist_id, &new_strategy, &new_persist, &new_threshold) < 0)

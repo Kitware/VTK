@@ -150,7 +150,6 @@ static void       H5Z__xform_reduce_tree(H5Z_node *tree);
             HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "Unexpected type conversion operation")                \
     }
 
-#if H5_SIZEOF_LONG_DOUBLE != 0
 #if CHAR_MIN >= 0
 #define H5Z_XFORM_TYPE_OP(RESL, RESR, TYPE, OP, SIZE)                                                        \
     {                                                                                                        \
@@ -212,65 +211,6 @@ static void       H5Z__xform_reduce_tree(H5Z_node *tree);
             H5Z_XFORM_DO_OP1((RESL), (RESR), long double, OP, (SIZE))                                        \
     }
 #endif /* CHAR_MIN >= 0 */
-#else
-#if CHAR_MIN >= 0
-#define H5Z_XFORM_TYPE_OP(RESL, RESR, TYPE, OP, SIZE)                                                        \
-    {                                                                                                        \
-        if ((TYPE) == H5T_NATIVE_CHAR)                                                                       \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), char, OP, (SIZE))                                               \
-        else if ((TYPE) == H5T_NATIVE_SCHAR)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), signed char, OP, (SIZE))                                        \
-        else if ((TYPE) == H5T_NATIVE_SHORT)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), short, OP, (SIZE))                                              \
-        else if ((TYPE) == H5T_NATIVE_USHORT)                                                                \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), unsigned short, OP, (SIZE))                                     \
-        else if ((TYPE) == H5T_NATIVE_INT)                                                                   \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), int, OP, (SIZE))                                                \
-        else if ((TYPE) == H5T_NATIVE_UINT)                                                                  \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), unsigned int, OP, (SIZE))                                       \
-        else if ((TYPE) == H5T_NATIVE_LONG)                                                                  \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), long, OP, (SIZE))                                               \
-        else if ((TYPE) == H5T_NATIVE_ULONG)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), unsigned long, OP, (SIZE))                                      \
-        else if ((TYPE) == H5T_NATIVE_LLONG)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), long long, OP, (SIZE))                                          \
-        else if ((TYPE) == H5T_NATIVE_ULLONG)                                                                \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), unsigned long long, OP, (SIZE))                                 \
-        else if ((TYPE) == H5T_NATIVE_FLOAT)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), float, OP, (SIZE))                                              \
-        else if ((TYPE) == H5T_NATIVE_DOUBLE)                                                                \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), double, OP, (SIZE))                                             \
-    }
-#else /* CHAR_MIN >= 0 */
-#define H5Z_XFORM_TYPE_OP(RESL, RESR, TYPE, OP, SIZE)                                                        \
-    {                                                                                                        \
-        if ((TYPE) == H5T_NATIVE_CHAR)                                                                       \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), char, OP, (SIZE))                                               \
-        else if ((TYPE) == H5T_NATIVE_UCHAR)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), unsigned char, OP, (SIZE))                                      \
-        else if ((TYPE) == H5T_NATIVE_SHORT)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), short, OP, (SIZE))                                              \
-        else if ((TYPE) == H5T_NATIVE_USHORT)                                                                \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), unsigned short, OP, (SIZE))                                     \
-        else if ((TYPE) == H5T_NATIVE_INT)                                                                   \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), int, OP, (SIZE))                                                \
-        else if ((TYPE) == H5T_NATIVE_UINT)                                                                  \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), unsigned int, OP, (SIZE))                                       \
-        else if ((TYPE) == H5T_NATIVE_LONG)                                                                  \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), long, OP, (SIZE))                                               \
-        else if ((TYPE) == H5T_NATIVE_ULONG)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), unsigned long, OP, (SIZE))                                      \
-        else if ((TYPE) == H5T_NATIVE_LLONG)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), long long, OP, (SIZE))                                          \
-        else if ((TYPE) == H5T_NATIVE_ULLONG)                                                                \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), unsigned long long, OP, (SIZE))                                 \
-        else if ((TYPE) == H5T_NATIVE_FLOAT)                                                                 \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), float, OP, (SIZE))                                              \
-        else if ((TYPE) == H5T_NATIVE_DOUBLE)                                                                \
-            H5Z_XFORM_DO_OP1((RESL), (RESR), double, OP, (SIZE))                                             \
-    }
-#endif /* CHAR_MIN >= 0 */
-#endif /*H5_SIZEOF_LONG_DOUBLE */
 
 #define H5Z_XFORM_DO_OP3(OP)                                                                                 \
     {                                                                                                        \
@@ -1056,10 +996,8 @@ H5Z_xform_eval(H5Z_data_xform_t *data_xform_prop, void *array, size_t array_size
             H5Z_XFORM_DO_OP5(float, array_size)
         else if (array_type == H5T_NATIVE_DOUBLE)
             H5Z_XFORM_DO_OP5(double, array_size)
-#if H5_SIZEOF_LONG_DOUBLE != 0
         else if (array_type == H5T_NATIVE_LDOUBLE)
             H5Z_XFORM_DO_OP5(long double, array_size)
-#endif
 
     } /* end if */
     /* Otherwise, do the full data transform */
@@ -1267,11 +1205,9 @@ H5Z__xform_find_type(const H5T_t *type)
     /* Check for DOUBLE type */
     else if ((tmp = (H5T_t *)H5I_object(H5T_NATIVE_DOUBLE)) && 0 == H5T_cmp(type, tmp, FALSE))
         HGOTO_DONE(H5T_NATIVE_DOUBLE)
-#if H5_SIZEOF_LONG_DOUBLE != 0
     /* Check for LONGDOUBLE type */
     else if ((tmp = (H5T_t *)H5I_object(H5T_NATIVE_LDOUBLE)) && 0 == H5T_cmp(type, tmp, FALSE))
         HGOTO_DONE(H5T_NATIVE_LDOUBLE)
-#endif
     else
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "could not find matching type")
 
@@ -1416,7 +1352,7 @@ H5Z__op_is_numbs2(H5Z_node *_tree)
  * Function:    H5Z__xform_reduce_tree
  *
  * Purpose:     Simplifies parse tree passed in by performing any obvious
- *              and trivial arithemtic calculations.
+ *              and trivial arithmetic calculations.
  *
  * Return:      None.
  *
@@ -1547,11 +1483,11 @@ H5Z_xform_create(const char *expr)
                     (HDisdigit(expr[i - 1]) || (expr[i - 1] == '.')) &&
                     (HDisdigit(expr[i + 1]) || (expr[i + 1] == '-') || (expr[i + 1] == '+')))
                     continue;
-            }
+            } /* end if */
 
             count++;
-        }
-    }
+        } /* end if */
+    }     /* end for */
 
     /* When there are no "x"'s in the equation (ie, simple transform case),
      * we don't need to allocate any space since no array will have to be
@@ -1749,11 +1685,19 @@ done:
 hbool_t
 H5Z_xform_noop(const H5Z_data_xform_t *data_xform_prop)
 {
-    hbool_t ret_value = FALSE; /* Return value */
+    hbool_t ret_value = TRUE; /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    ret_value = (data_xform_prop ? FALSE : TRUE);
+    if (data_xform_prop) {
+        ret_value = FALSE;
+
+        /* Check for trivial data transformation: expression = "x" */
+        if ((HDstrlen(data_xform_prop->xform_exp) == 1) && data_xform_prop->dat_val_pointers &&
+            (data_xform_prop->dat_val_pointers->num_ptrs == 1)) {
+            ret_value = TRUE;
+        } /* end if */
+    }     /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5Z_xform_noop() */
@@ -1779,7 +1723,7 @@ H5Z_xform_extract_xform_str(const H5Z_data_xform_t *data_xform_prop)
 
     /* There should be no way that this can be NULL since the function
      * that calls this one checks to make sure it isn't before
-     * pasing them */
+     * passing them */
     HDassert(data_xform_prop);
 
     FUNC_LEAVE_NOAPI(data_xform_prop->xform_exp)

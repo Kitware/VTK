@@ -346,7 +346,7 @@ H5FL_EXTERN(H5AC_aux_t);
  *
  * The following field supports the metadata cache image feature.
  *
- * p0_image_len: unsiged integer containing the length of the metadata cache
+ * p0_image_len: unsigned integer containing the length of the metadata cache
  *		image constructed by MPI process 0.  This field should be 0
  *		if the value is unknown, or if cache image is not enabled.
  *
@@ -401,7 +401,12 @@ typedef struct H5AC_aux_t {
     unsigned p0_image_len;
 
 } H5AC_aux_t; /* struct H5AC_aux_t */
-#endif        /* H5_HAVE_PARALLEL */
+
+/* Typedefs for debugging function pointers */
+typedef void (*H5AC_sync_point_done_cb_t)(unsigned num_writes, haddr_t *written_entries_tbl);
+typedef void (*H5AC_write_done_cb_t)(void);
+
+#endif /* H5_HAVE_PARALLEL */
 
 /******************************/
 /* Package Private Prototypes */
@@ -417,10 +422,8 @@ H5_DLL herr_t H5AC__log_inserted_entry(const H5AC_info_t *entry_ptr);
 H5_DLL herr_t H5AC__log_moved_entry(const H5F_t *f, haddr_t old_addr, haddr_t new_addr);
 H5_DLL herr_t H5AC__flush_entries(H5F_t *f);
 H5_DLL herr_t H5AC__run_sync_point(H5F_t *f, int sync_point_op);
-H5_DLL herr_t H5AC__set_sync_point_done_callback(H5C_t *cache_ptr,
-                                                 void (*sync_point_done)(unsigned num_writes,
-                                                                         haddr_t *written_entries_tbl));
-H5_DLL herr_t H5AC__set_write_done_callback(H5C_t *cache_ptr, void (*write_done)(void));
+H5_DLL herr_t H5AC__set_sync_point_done_callback(H5C_t *cache_ptr, H5AC_sync_point_done_cb_t sync_point_done);
+H5_DLL herr_t H5AC__set_write_done_callback(H5C_t *cache_ptr, H5AC_write_done_cb_t write_done);
 #endif /* H5_HAVE_PARALLEL */
 
 #endif /* H5ACpkg_H */

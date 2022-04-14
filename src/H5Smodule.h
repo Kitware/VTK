@@ -30,29 +30,36 @@
 #define H5_MY_PKG_INIT YES
 
 /**\defgroup H5S H5S
- * \brief Dataspace Interface
  *
- * \details The Dataspace Interface provides functions for creating and
- *          working with dataspaces.
+ * Use the functions in this module to manage HDF5 dataspaces \Emph{and} selections.
  *
- *          A dataspace has two roles:
+ * HDF5 dataspaces describe the \Emph{shape} of datasets in memory or in HDF5
+ * files. Dataspaces can be empty (#H5S_NULL), a singleton (#H5S_SCALAR), or
+ * a multi-dimensional, regular grid (#H5S_SIMPLE). Dataspaces can be re-shaped.
  *
- *          \li It contains the spatial information (logical layout) of a
- *              dataset stored in a file.
- *          \li It describes an application’s data buffers and data elements
- *              participating in I/O. In other words, it can be used to
- *              select a portion or subset of a dataset.
+ * Subsets of dataspaces can be "book-marked" or used to restrict I/O operations
+ * using \Emph{selections}. Furthermore, certain set operations are supported
+ * for selections.
  *
- *          The spatial information of a dataset in a file includes the
- *          rank and dimensions of the dataset, which are a permanent part
- *          of the dataset definition. It can have dimensions that are fixed
- *          (unchanging) or unlimited, which means they can grow in size
- *          (or are extendible).
- *
- *          A dataspace can consist of:
- *          \li  no elements (NULL)
- *          \li  a single element (scalar), or
- *          \li  a simple array.
+ * <table>
+ * <tr><th>Create</th><th>Read</th></tr>
+ * <tr valign="top">
+ *   <td>
+ *   \snippet{lineno} H5S_examples.c create
+ *   </td>
+ *   <td>
+ *   \snippet{lineno} H5S_examples.c read
+ *   </td>
+ * <tr><th>Update</th><th>Delete</th></tr>
+ * <tr valign="top">
+ *   <td>
+ *   \snippet{lineno} H5S_examples.c update
+ *   </td>
+ *   <td>
+ *   \snippet{lineno} H5S_examples.c delete
+ *   </td>
+ * </tr>
+ * </table>
  *
  */
 

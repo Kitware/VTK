@@ -29,10 +29,38 @@
 #define H5_MY_PKG_ERR  H5E_DATATYPE
 #define H5_MY_PKG_INIT YES
 
-/**
- * \defgroup H5T H5T
- * \brief Datatype Interface
- * \todo Describe concisely what the functions in this module are about.
+/**\defgroup H5T H5T
+ *
+ * Use the functions in this module to manage HDF5 datatypes.
+ *
+ * HDF5 datatypes describe the element type of HDF5 datasets and attributes.
+ * There's a large set of predefined datatypes, but users may find it useful
+ * to define new datatypes through a process called \Emph{derivation}.
+ *
+ * The element type is automatically persisted as part of the HDF5 metadata of
+ * attributes and datasets. Additionally, datatype definitions can be persisted
+ * to HDF5 files and linked to groups as HDF5 datatype objects or so-called
+ * \Emph{committed datatypes}.
+ *
+ * <table>
+ * <tr><th>Create</th><th>Read</th></tr>
+ * <tr valign="top">
+ *   <td>
+ *   \snippet{lineno} H5T_examples.c create
+ *   </td>
+ *   <td>
+ *   \snippet{lineno} H5T_examples.c read
+ *   </td>
+ * <tr><th>Update</th><th>Delete</th></tr>
+ * <tr valign="top">
+ *   <td>
+ *   \snippet{lineno} H5T_examples.c update
+ *   </td>
+ *   <td>
+ *   \snippet{lineno} H5T_examples.c delete
+ *   </td>
+ * </tr>
+ * </table>
  *
  * \defgroup ARRAY Array Datatypes
  * \ingroup H5T

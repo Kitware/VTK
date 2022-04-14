@@ -32,25 +32,9 @@ if (HDF5_STRICT_FORMAT_CHECKS)
 endif ()
 MARK_AS_ADVANCED (HDF5_STRICT_FORMAT_CHECKS)
 
-#-----------------------------------------------------------------------------
-# Option for --enable-threadsafe
-#-----------------------------------------------------------------------------
-# Recursive RW locks are not supported on Windows (yet)
-if (NOT WINDOWS)
-  if (FALSE) # XXX(kitware): Hardcode settings.
-  option (HDF5_USE_RECURSIVE_RW_LOCKS "Whether to use recursive RW locks for thread-safety" OFF)
-  else ()
-  set(HDF5_USE_RECURSIVE_RW_LOCKS OFF)
-  endif ()
-  if (HDF5_USE_RECURSIVE_RW_LOCKS)
-    set (${HDF_PREFIX}_USE_RECURSIVE_RW_LOCKS 1)
-  endif ()
-  MARK_AS_ADVANCED (HDF5_USE_RECURSIVE_RW_LOCKS)
-endif ()
-
 # ----------------------------------------------------------------------
 # Decide whether the data accuracy has higher priority during data
-# conversions.  If not, some hard conversions will still be prefered even
+# conversions.  If not, some hard conversions will still be preferred even
 # though the data may be wrong (for example, some compilers don't
 # support denormalized floating values) to maximize speed.
 #-----------------------------------------------------------------------------
@@ -126,18 +110,6 @@ else ()
   set (HDF5_FILE_LOCKING_SETTING "no")
 endif ()
 
-#-----------------------------------------------------------------------------
-#  Are we going to use HSIZE_T
-#-----------------------------------------------------------------------------
-if (FALSE) # XXX(kitware): Hardcode settings.
-option (HDF5_ENABLE_HSIZET "Enable datasets larger than memory" ON)
-else ()
-set(HDF5_ENABLE_HSIZET OFF)
-endif ()
-if (HDF5_ENABLE_HSIZET)
-  set (${HDF_PREFIX}_HAVE_LARGE_HSIZET 1)
-endif ()
-
 # so far we have no check for this
 set (${HDF_PREFIX}_HAVE_TMPFILE 1)
 
@@ -169,7 +141,22 @@ endif ()
 # END of WINDOWS Hard code Values
 # ----------------------------------------------------------------------
 
-CHECK_FUNCTION_EXISTS (difftime          ${HDF_PREFIX}_HAVE_DIFFTIME)
+# Find the library containing clock_gettime()
+if (MINGW OR NOT WINDOWS)
+  CHECK_FUNCTION_EXISTS (clock_gettime CLOCK_GETTIME_IN_LIBC)
+  CHECK_LIBRARY_EXISTS (rt clock_gettime "" CLOCK_GETTIME_IN_LIBRT)
+  CHECK_LIBRARY_EXISTS (posix4 clock_gettime "" CLOCK_GETTIME_IN_LIBPOSIX4)
+  if (CLOCK_GETTIME_IN_LIBC)
+    set (${HDF_PREFIX}_HAVE_CLOCK_GETTIME 1)
+  elseif (CLOCK_GETTIME_IN_LIBRT)
+    set (${HDF_PREFIX}_HAVE_CLOCK_GETTIME 1)
+    list (APPEND LINK_LIBS rt)
+  elseif (CLOCK_GETTIME_IN_LIBPOSIX4)
+    set (${HDF_PREFIX}_HAVE_CLOCK_GETTIME 1)
+    list (APPEND LINK_LIBS posix4)
+  endif ()
+endif ()
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 #  Check if Direct I/O driver works
@@ -179,6 +166,7 @@ if (NOT WINDOWS)
   option (HDF5_ENABLE_DIRECT_VFD "Build the Direct I/O Virtual File Driver" OFF)
   else ()
   set(HDF5_ENABLE_DIRECT_VFD OFF)
+  add_definitions ("-D_GNU_SOURCE")
   endif ()
   if (HDF5_ENABLE_DIRECT_VFD)
     set (msg "Performing TEST_DIRECT_VFD_WORKS")
@@ -244,7 +232,7 @@ option (HDF5_ENABLE_MIRROR_VFD "Build the Mirror Virtual File Driver" OFF)
 else ()
 set(HDF5_ENABLE_MIRROR_VFD OFF)
 endif ()
-if (H5FD_ENABLE_MIRROR_VFD)
+if (HDF5_ENABLE_MIRROR_VFD)
   if ( ${HDF_PREFIX}_HAVE_NETINET_IN_H AND
        ${HDF_PREFIX}_HAVE_NETDB_H      AND
        ${HDF_PREFIX}_HAVE_ARPA_INET_H  AND

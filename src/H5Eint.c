@@ -772,11 +772,12 @@ H5E__push_stack(H5E_t *estack, const char *file, const char *func, unsigned line
         if (H5I_inc_ref(min_id, FALSE) < 0)
             HGOTO_DONE(FAIL)
         estack->slot[estack->nused].min_num = min_id;
-        if (NULL == (estack->slot[estack->nused].func_name = H5MM_xstrdup(func)))
-            HGOTO_DONE(FAIL)
-        if (NULL == (estack->slot[estack->nused].file_name = H5MM_xstrdup(file)))
-            HGOTO_DONE(FAIL)
-        estack->slot[estack->nused].line = line;
+        /* The 'func' & 'file' strings are statically allocated (by the compiler)
+         * there's no need to duplicate them.
+         */
+        estack->slot[estack->nused].func_name = func;
+        estack->slot[estack->nused].file_name = file;
+        estack->slot[estack->nused].line      = line;
         if (NULL == (estack->slot[estack->nused].desc = H5MM_xstrdup(desc)))
             HGOTO_DONE(FAIL)
         estack->nused++;
@@ -826,10 +827,11 @@ H5E__clear_entries(H5E_t *estack, size_t nentries)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTDEC, FAIL, "unable to decrement ref count on error class")
 
         /* Release strings */
-        if (error->func_name)
-            error->func_name = (const char *)H5MM_xfree_const(error->func_name);
-        if (error->file_name)
-            error->file_name = (const char *)H5MM_xfree_const(error->file_name);
+        /* The 'func' & 'file' strings are statically allocated (by the compiler)
+         * and are not allocated, so there's no need to free them.
+         */
+        error->func_name = NULL;
+        error->file_name = NULL;
         if (error->desc)
             error->desc = (const char *)H5MM_xfree_const(error->desc);
     }
@@ -928,7 +930,7 @@ H5E_dump_api_stack(hbool_t is_api)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_NOAPI_NOERR
 
     /* Only dump the error stack during an API call */
     if (is_api) {
@@ -951,6 +953,5 @@ H5E_dump_api_stack(hbool_t is_api)
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
     }  /* end if */
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_dump_api_stack() */

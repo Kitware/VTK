@@ -1,4 +1,5 @@
 -Werror=incompatible-pointer-types
+-Werror=int-conversion
 #
 # In GCC 4.4.7, the compiler gripes about shadowed global
 # declarations when a local variable uses the name of a

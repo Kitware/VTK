@@ -29,8 +29,7 @@
 #define H5_MY_PKG_ERR  H5E_FILE
 #define H5_MY_PKG_INIT YES
 
-/**
- * \defgroup H5F H5F
+/**\defgroup H5F H5F
  *
  * Use the functions in this module to manage HDF5 files.
  *
@@ -41,15 +40,23 @@
  * creation or access \c mode control the interaction with the underlying
  * storage such as file systems.
  *
- * \Emph{Proper error handling is part of the life cycle.}
  * <table>
- * <tr><th>Create</th><th>Open</th></tr>
+ * <tr><th>Create</th><th>Read</th></tr>
  * <tr valign="top">
  *   <td>
- *   \snippet H5F_examples.c life_cycle
+ *   \snippet{lineno} H5F_examples.c create
  *   </td>
  *   <td>
- *   \snippet H5F_examples.c life_cycle_w_open
+ *   \snippet{lineno} H5F_examples.c read
+ *   </td>
+ * </tr>
+ * <tr><th>Update</th><th>Delete</th></tr>
+ * <tr valign="top">
+ *   <td>
+ *   \snippet{lineno} H5F_examples.c update
+ *   </td>
+ *   <td>
+ *   \snippet{lineno} H5F_examples.c delete
  *   </td>
  * </tr>
  * </table>

@@ -53,7 +53,7 @@ const H5O_msg_class_t H5O_MSG_LINFO[1] = {{
     H5O_LINFO_ID,              /*message id number             */
     "linfo",                   /*message name for debugging    */
     sizeof(H5O_linfo_t),       /*native message size           */
-    0,                         /* messages are sharable?       */
+    0,                         /* messages are shareable?       */
     H5O__linfo_decode,         /*decode message                */
     H5O__linfo_encode,         /*encode message                */
     H5O__linfo_copy,           /*copy the native value         */

@@ -44,6 +44,7 @@
 /********************/
 /* Local Prototypes */
 /********************/
+static herr_t H5S__close_cb(void *space, void **request);
 static htri_t H5S__is_simple(const H5S_t *sdim);
 
 /*****************************/
@@ -54,14 +55,12 @@ static htri_t H5S__is_simple(const H5S_t *sdim);
 /* Package Variables */
 /*********************/
 
-/* Package initialization variable */
-hbool_t H5_PKG_INIT_VAR = FALSE;
-
 /* Format version bounds for dataspace */
 const unsigned H5O_sdspace_ver_bounds[] = {
     H5O_SDSPACE_VERSION_1,     /* H5F_LIBVER_EARLIEST */
     H5O_SDSPACE_VERSION_2,     /* H5F_LIBVER_V18 */
     H5O_SDSPACE_VERSION_2,     /* H5F_LIBVER_V110 */
+    H5O_SDSPACE_VERSION_2,     /* H5F_LIBVER_V112 */
     H5O_SDSPACE_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 
@@ -80,55 +79,48 @@ H5FL_ARR_DEFINE(hsize_t, H5S_MAX_RANK);
 
 /* Dataspace ID class */
 static const H5I_class_t H5I_DATASPACE_CLS[1] = {{
-    H5I_DATASPACE,        /* ID class value */
-    0,                    /* Class flags */
-    2,                    /* # of reserved IDs for class */
-    (H5I_free_t)H5S_close /* Callback routine for closing objects of this class */
+    H5I_DATASPACE,            /* ID class value */
+    0,                        /* Class flags */
+    3,                        /* # of reserved IDs for class */
+    (H5I_free_t)H5S__close_cb /* Callback routine for closing objects of this class */
 }};
 
 /* Dataspace selection iterator ID class */
 static const H5I_class_t H5I_SPACE_SEL_ITER_CLS[1] = {{
-    H5I_SPACE_SEL_ITER,            /* ID class value */
-    0,                             /* Class flags */
-    0,                             /* # of reserved IDs for class */
-    (H5I_free_t)H5S_sel_iter_close /* Callback routine for closing objects of this class */
+    H5I_SPACE_SEL_ITER,                /* ID class value */
+    0,                                 /* Class flags */
+    0,                                 /* # of reserved IDs for class */
+    (H5I_free_t)H5S__sel_iter_close_cb /* Callback routine for closing objects of this class */
 }};
 
-/* Flag indicating "top" of interface has been initialized */
-static hbool_t H5S_top_package_initialize_s = FALSE;
-
-/*--------------------------------------------------------------------------
-NAME
-   H5S__init_package -- Initialize interface-specific information
-USAGE
-    herr_t H5S__init_package()
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.
---------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+ * Function: H5S_init
+ *
+ * Purpose:  Initialize the interface from some other layer.
+ *
+ * Return:   Success:    non-negative
+ *           Failure:    negative
+ *-------------------------------------------------------------------------
+ */
 herr_t
-H5S__init_package(void)
+H5S_init(void)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_NOAPI(FAIL)
 
-    /* Initialize the atom group for the dataspace IDs */
+    /* Initialize the ID group for the dataspace IDs */
     if (H5I_register_type(H5I_DATASPACE_CLS) < 0)
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTINIT, FAIL, "unable to initialize dataspace ID class")
 
-    /* Initialize the atom group for the dataspace selction iterator IDs */
+    /* Initialize the ID group for the dataspace selection iterator IDs */
     if (H5I_register_type(H5I_SPACE_SEL_ITER_CLS) < 0)
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTINIT, FAIL,
                     "unable to initialize dataspace selection iterator ID class")
 
-    /* Mark "top" of interface as initialized, too */
-    H5S_top_package_initialize_s = TRUE;
-
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5S__init_package() */
+} /* end H5S_init() */
 
 /*--------------------------------------------------------------------------
  NAME
@@ -140,7 +132,7 @@ done:
  RETURNS
     Non-negative on success/Negative on failure
  DESCRIPTION
-    Release IDs for the atom group, deferring full interface shutdown
+    Release IDs for the ID group, deferring full interface shutdown
     until later (in H5S_term_package).
  GLOBAL VARIABLES
  COMMENTS, BUGS, ASSUMPTIONS
@@ -155,21 +147,14 @@ H5S_top_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if (H5S_top_package_initialize_s) {
-        if (H5I_nmembers(H5I_DATASPACE) > 0) {
-            (void)H5I_clear_type(H5I_DATASPACE, FALSE, FALSE);
-            n++; /*H5I*/
-        }        /* end if */
-
-        if (H5I_nmembers(H5I_SPACE_SEL_ITER) > 0) {
-            (void)H5I_clear_type(H5I_SPACE_SEL_ITER, FALSE, FALSE);
-            n++; /*H5I*/
-        }        /* end if */
-
-        /* Mark "top" of interface as closed */
-        if (0 == n)
-            H5S_top_package_initialize_s = FALSE;
-    } /* end if */
+    if (H5I_nmembers(H5I_DATASPACE) > 0) {
+        (void)H5I_clear_type(H5I_DATASPACE, FALSE, FALSE);
+        n++;
+    }
+    if (H5I_nmembers(H5I_SPACE_SEL_ITER) > 0) {
+        (void)H5I_clear_type(H5I_SPACE_SEL_ITER, FALSE, FALSE);
+        n++;
+    }
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5S_top_term_package() */
@@ -184,7 +169,7 @@ H5S_top_term_package(void)
  RETURNS
     Non-negative on success/Negative on failure
  DESCRIPTION
-    Release the atom group and any other resources allocated.
+    Release the ID group and any other resources allocated.
  GLOBAL VARIABLES
  COMMENTS, BUGS, ASSUMPTIONS
      Can't report errors...
@@ -201,74 +186,49 @@ H5S_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if (H5_PKG_INIT_VAR) {
-        /* Sanity checks */
-        HDassert(0 == H5I_nmembers(H5I_DATASPACE));
-        HDassert(0 == H5I_nmembers(H5I_SPACE_SEL_ITER));
-        HDassert(FALSE == H5S_top_package_initialize_s);
+    /* Sanity checks */
+    HDassert(0 == H5I_nmembers(H5I_DATASPACE));
+    HDassert(0 == H5I_nmembers(H5I_SPACE_SEL_ITER));
 
-        /* Destroy the dataspace object id group */
-        n += (H5I_dec_type_ref(H5I_DATASPACE) > 0);
+    /* Destroy the dataspace object id group */
+    n += (H5I_dec_type_ref(H5I_DATASPACE) > 0);
 
-        /* Destroy the dataspace selection iterator object id group */
-        n += (H5I_dec_type_ref(H5I_SPACE_SEL_ITER) > 0);
-
-        /* Mark interface as closed */
-        if (0 == n)
-            H5_PKG_INIT_VAR = FALSE;
-    } /* end if */
+    /* Destroy the dataspace selection iterator object id group */
+    n += (H5I_dec_type_ref(H5I_SPACE_SEL_ITER) > 0);
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5S_term_package() */
 
-/*--------------------------------------------------------------------------
- NAME
-    H5S_get_validiated_dataspace
- PURPOSE
-    Get a pointer to a validated H5S_t pointer
- USAGE
-   H5S_t *H5S_get_validated_space(dataspace_id, space)
-    hid_t           space_id;       IN: The ID of the dataspace
-    const H5S_t *   space;          OUT: A pointer to the dataspace
- RETURNS
-    SUCCEED/FAIL
- DESCRIPTION
-    Gets a pointer to a dataspace struct after validating it. The pointer
-    can be NULL (if the ID is H5S_ALL, for example).
- GLOBAL VARIABLES
- COMMENTS, BUGS, ASSUMPTIONS
- EXAMPLES
- REVISION LOG
---------------------------------------------------------------------------*/
-herr_t
-H5S_get_validated_dataspace(hid_t space_id, const H5S_t **space)
+/*-------------------------------------------------------------------------
+ * Function:    H5S__close_cb
+ *
+ * Purpose:     Called when the ref count reaches zero on a dataspace's ID
+ *
+ * Return:      SUCCEED / FAIL
+ *
+ * Programmer:	Quincey Koziol
+ *	        Wednesday, April 8, 2020
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5S__close_cb(void *_space, void H5_ATTR_UNUSED **request)
 {
-    herr_t ret_value = SUCCEED; /* Return value */
+    H5S_t *space     = (H5S_t *)_space; /* The dataspace to close */
+    herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_STATIC
 
+    /* Sanity check */
     HDassert(space);
 
-    /* Check for invalid ID */
-    if (space_id < 0)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid space_id (ID cannot be a negative number)")
-
-    /* No special dataspace struct for H5S_ALL */
-    if (H5S_ALL == space_id)
-        *space = NULL;
-    else {
-        /* Get the dataspace pointer */
-        if (NULL == (*space = (const H5S_t *)H5I_object_verify(space_id, H5I_DATASPACE)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "space_id is not a dataspace ID")
-
-        /* Check for valid selection */
-        if (H5S_SELECT_VALID(*space) != TRUE)
-            HGOTO_ERROR(H5E_DATASPACE, H5E_BADRANGE, FAIL, "selection + offset not within extent")
-    }
+    /* Close the dataspace object */
+    if (H5S_close(space) < 0)
+        HGOTO_ERROR(H5E_DATASPACE, H5E_CLOSEERROR, FAIL, "unable to close dataspace");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5S_get_validated_dataspace() */
+} /* end H5S__close_cb() */
 
 /*--------------------------------------------------------------------------
  NAME
@@ -381,9 +341,9 @@ H5Screate(H5S_class_t type)
     if (NULL == (new_ds = H5S_create(type)))
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTCREATE, FAIL, "unable to create dataspace")
 
-    /* Atomize */
+    /* Register */
     if ((ret_value = H5I_register(H5I_DATASPACE, new_ds, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register dataspace atom")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, FAIL, "unable to register dataspace ID")
 
 done:
     if (ret_value < 0)
@@ -530,9 +490,9 @@ H5Scopy(hid_t space_id)
     if (NULL == (dst = H5S_copy(src, FALSE, TRUE)))
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTINIT, H5I_INVALID_HID, "unable to copy dataspace")
 
-    /* Atomize */
+    /* Register */
     if ((ret_value = H5I_register(H5I_DATASPACE, dst, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register dataspace atom")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register dataspace ID")
 
 done:
     if (ret_value < 0)
@@ -754,7 +714,7 @@ H5S_get_simple_extent_npoints(const H5S_t *ds)
 {
     hssize_t ret_value = -1; /* Return value */
 
-    FUNC_ENTER_NOAPI(-1)
+    FUNC_ENTER_NOAPI_NOERR
 
     /* check args */
     HDassert(ds);
@@ -762,7 +722,6 @@ H5S_get_simple_extent_npoints(const H5S_t *ds)
     /* Get the number of elements in extent */
     ret_value = (hssize_t)ds->extent.nelem;
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5S_get_simple_extent_npoints() */
 
@@ -1229,7 +1188,7 @@ H5Sis_simple(hid_t space_id)
 
     /* Check args and all the boring stuff. */
     if (NULL == (space = (H5S_t *)H5I_object_verify(space_id, H5I_DATASPACE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "not a dataspace")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "not a dataspace")
 
     ret_value = H5S__is_simple(space);
 
@@ -1275,7 +1234,7 @@ H5Sset_extent_simple(hid_t space_id, int rank, const hsize_t dims[/*rank*/], con
 
     /* Check args */
     if (NULL == (space = (H5S_t *)H5I_object_verify(space_id, H5I_DATASPACE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "not a dataspace")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "not a dataspace")
     if (rank > 0 && dims == NULL)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no dimensions specified")
     if (rank < 0 || rank > H5S_MAX_RANK)
@@ -1431,9 +1390,9 @@ H5Screate_simple(int rank, const hsize_t dims[/*rank*/], const hsize_t maxdims[/
     if (NULL == (space = H5S_create_simple((unsigned)rank, dims, maxdims)))
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTCREATE, H5I_INVALID_HID, "can't create simple dataspace")
 
-    /* Atomize */
+    /* Register */
     if ((ret_value = H5I_register(H5I_DATASPACE, space, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register dataspace ID")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register dataspace ID")
 
 done:
     if (ret_value < 0)
@@ -1735,13 +1694,12 @@ H5S_get_simple_extent_type(const H5S_t *space)
 {
     H5S_class_t ret_value = H5S_NO_CLASS; /* Return value */
 
-    FUNC_ENTER_NOAPI(H5S_NO_CLASS)
+    FUNC_ENTER_NOAPI_NOERR
 
     HDassert(space);
 
     ret_value = H5S_GET_EXTENT_TYPE(space);
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5S_get_simple_extent_type() */
 
@@ -1803,7 +1761,7 @@ H5Sset_extent_none(hid_t space_id)
 
     /* Check args */
     if (NULL == (space = (H5S_t *)H5I_object_verify(space_id, H5I_DATASPACE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "not a dataspace")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "not a dataspace")
 
     /* Clear the previous extent from the dataspace */
     if (H5S__extent_release(&space->extent) < 0)

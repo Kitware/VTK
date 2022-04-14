@@ -51,7 +51,7 @@ const H5O_msg_class_t H5O_MSG_MDCI[1] = {{
     H5O_MDCI_MSG_ID,    /* message id number              */
     "mdci",             /* message name for debugging     */
     sizeof(H5O_mdci_t), /* native message size            */
-    0,                  /* messages are sharable?         */
+    0,                  /* messages are shareable?         */
     H5O__mdci_decode,   /* decode message                 */
     H5O__mdci_encode,   /* encode message                 */
     H5O__mdci_copy,     /* copy method                    */

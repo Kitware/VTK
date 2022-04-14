@@ -213,7 +213,7 @@
 #define H5C_DO_TAGGING_SANITY_CHECKS 1
 #define H5C_DO_EXTREME_SANITY_CHECKS 0
 #else /* NDEBUG */
-/* With rare execptions, the following defines should be set
+/* With rare exceptions, the following defines should be set
  * to 0 if NDEBUG is defined
  */
 #define H5C_DO_SANITY_CHECKS         0
@@ -1428,7 +1428,7 @@ typedef int H5C_ring_t;
  *        with no flush dependency children.
  *
  *        Since the image_fd_height is used to order entries in the
- *        cache image so that fd parents preceed fd children, for
+ *        cache image so that fd parents precede fd children, for
  *        purposes of this field, and entry is at flush dependency
  *        level 0 if it either has no children, or if all of its
  *        children are not in the cache image.
@@ -1543,7 +1543,7 @@ typedef int H5C_ring_t;
  *        number of times each entry is serialized during cache
  *        serialization.  While no entry should be serialized more than
  *        once in any serialization call, throw an assertion if any
- *        flush depencency parent is serialized more than once during
+ *        flush dependency parent is serialized more than once during
  *        a single cache serialization.
  *
  *        This is a debugging field, and thus is maintained only if
@@ -1734,7 +1734,7 @@ typedef struct H5C_cache_entry_t {
  *              with no flush dependency children.
  *
  *              Since the image_fd_height is used to order entries in the
- *              cache image so that fd parents preceed fd children, for
+ *              cache image so that fd parents precede fd children, for
  *              purposes of this field, an entry is at flush dependency
  *              level 0 if it either has no children, or if all of its
  *              children are not in the cache image.
@@ -2177,7 +2177,7 @@ typedef struct H5C_auto_size_ctl_t {
  *      equivalent of H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE.
  *
  * flags: Unsigned integer containing flags controlling which aspects of the
- *    cache image functinality is actually executed.  The primary impetus
+ *    cache image functionality is actually executed.  The primary impetus
  *    behind this field is to allow development of tests for partial
  *    implementations that will require little if any modification to run
  *    with the full implementation.  In normal operation, all flags should
@@ -2242,10 +2242,10 @@ herr_t H5C_verify_tag(int id, haddr_t tag);
 H5_DLL herr_t H5C_flush_to_min_clean(H5F_t *f);
 H5_DLL herr_t H5C_get_cache_auto_resize_config(const H5C_t *cache_ptr, H5C_auto_size_ctl_t *config_ptr);
 H5_DLL herr_t H5C_get_cache_image_config(const H5C_t *cache_ptr, H5C_cache_image_ctl_t *config_ptr);
-H5_DLL herr_t H5C_get_cache_size(H5C_t *cache_ptr, size_t *max_size_ptr, size_t *min_clean_size_ptr,
+H5_DLL herr_t H5C_get_cache_size(const H5C_t *cache_ptr, size_t *max_size_ptr, size_t *min_clean_size_ptr,
                                  size_t *cur_size_ptr, uint32_t *cur_num_entries_ptr);
-H5_DLL herr_t H5C_get_cache_flush_in_progress(H5C_t *cache_ptr, hbool_t *flush_in_progress_ptr);
-H5_DLL herr_t H5C_get_cache_hit_rate(H5C_t *cache_ptr, double *hit_rate_ptr);
+H5_DLL herr_t H5C_get_cache_flush_in_progress(const H5C_t *cache_ptr, hbool_t *flush_in_progress_ptr);
+H5_DLL herr_t H5C_get_cache_hit_rate(const H5C_t *cache_ptr, double *hit_rate_ptr);
 H5_DLL herr_t H5C_get_entry_status(const H5F_t *f, haddr_t addr, size_t *size_ptr, hbool_t *in_cache_ptr,
                                    hbool_t *is_dirty_ptr, hbool_t *is_protected_ptr, hbool_t *is_pinned_ptr,
                                    hbool_t *is_corked_ptr, hbool_t *is_flush_dep_parent_ptr,
@@ -2290,7 +2290,17 @@ H5_DLL herr_t   H5C_unsettle_ring(H5F_t *f, H5C_ring_t ring);
 H5_DLL herr_t   H5C_remove_entry(void *thing);
 H5_DLL herr_t   H5C_cache_image_status(H5F_t *f, hbool_t *load_ci_ptr, hbool_t *write_ci_ptr);
 H5_DLL hbool_t  H5C_cache_image_pending(const H5C_t *cache_ptr);
-H5_DLL herr_t   H5C_get_mdc_image_info(H5C_t *cache_ptr, haddr_t *image_addr, hsize_t *image_len);
+H5_DLL herr_t   H5C_get_mdc_image_info(const H5C_t *cache_ptr, haddr_t *image_addr, hsize_t *image_len);
+
+#if H5C_DO_SLIST_SANITY_CHECKS
+H5_DLL hbool_t H5C_entry_in_skip_list(H5C_t *cache_ptr, H5C_cache_entry_t *target_ptr);
+#endif
+
+#if H5C_DO_EXTREME_SANITY_CHECKS
+H5_DLL herr_t H5C_validate_lru_list(H5C_t *cache_ptr);
+H5_DLL herr_t H5C_validate_pinned_entry_list(H5C_t *cache_ptr);
+H5_DLL herr_t H5C_validate_protected_entry_list(H5C_t *cache_ptr);
+#endif /* H5C_DO_EXTREME_SANITY_CHECKS */
 
 /* Logging functions */
 H5_DLL herr_t H5C_start_logging(H5C_t *cache);

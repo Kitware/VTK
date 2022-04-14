@@ -84,9 +84,6 @@ static size_t  H5HG__alloc(H5F_t *f, H5HG_heap_t *heap, size_t size, unsigned *h
 /* Package Variables */
 /*********************/
 
-/* Package initialization variable */
-hbool_t H5_PKG_INIT_VAR = FALSE;
-
 /* Declare a free list to manage the H5HG_heap_t struct */
 H5FL_DEFINE(H5HG_heap_t);
 

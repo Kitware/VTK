@@ -20,7 +20,8 @@
 #ifndef H5FDfamily_H
 #define H5FDfamily_H
 
-#define H5FD_FAMILY (H5FD_family_init())
+#define H5FD_FAMILY       (H5FDperform_init(H5FD_family_init))
+#define H5FD_FAMILY_VALUE H5_VFD_FAMILY
 
 #ifdef __cplusplus
 extern "C" {

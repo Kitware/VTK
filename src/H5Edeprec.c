@@ -334,14 +334,14 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Eget_auto1(H5E_auto1_t *func, void **client_data)
+H5Eget_auto1(H5E_auto1_t *func /*out*/, void **client_data /*out*/)
 {
     H5E_t *       estack;              /* Error stack to operate on */
     H5E_auto_op_t auto_op;             /* Error stack operator */
     herr_t        ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "*x**x", func, client_data);
+    H5TRACE2("e", "xx", func, client_data);
 
     /* Retrieve default error stack */
     if (NULL == (estack = H5E__get_my_stack())) /*lint !e506 !e774 Make lint 'constant value Boolean' in
@@ -395,7 +395,7 @@ H5Eset_auto1(H5E_auto1_t func, void *client_data)
 
     /* Don't clear the error stack! :-) */
     FUNC_ENTER_API_NOCLEAR(FAIL)
-    H5TRACE2("e", "x*x", func, client_data);
+    H5TRACE2("e", "Ea*x", func, client_data);
 
     if (NULL == (estack = H5E__get_my_stack())) /*lint !e506 !e774 Make lint 'constant value Boolean' in
                                                    non-threaded case */

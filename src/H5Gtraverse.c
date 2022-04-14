@@ -218,7 +218,7 @@ H5G__traverse_ud(const H5G_loc_t *grp_loc /*in,out*/, const H5O_link_t *lnk, H5G
         } /* end if */
         /* else, we really needed to open the object */
         else
-            HGOTO_ERROR(H5E_SYM, H5E_BADATOM, FAIL, "traversal callback returned invalid ID")
+            HGOTO_ERROR(H5E_SYM, H5E_BADID, FAIL, "traversal callback returned invalid ID")
     } /* end if */
 
     /* Get the object location information from the ID the user callback returned */
@@ -241,16 +241,16 @@ H5G__traverse_ud(const H5G_loc_t *grp_loc /*in,out*/, const H5O_link_t *lnk, H5G
      * Close the open ID the user passed back.
      */
     if (H5I_dec_ref(cb_return) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close atom from UD callback")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close ID from UD callback")
     cb_return = (hid_t)(-1);
 
 done:
     /* Close location given to callback. */
     if (cur_grp > 0 && H5I_dec_ref(cur_grp) < 0)
-        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close atom for current location")
+        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close ID for current location")
 
     if (ret_value < 0 && cb_return > 0 && H5I_dec_ref(cb_return) < 0)
-        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close atom from UD callback")
+        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close ID from UD callback")
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G__traverse_ud() */
@@ -535,7 +535,7 @@ H5G__traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target, H5G
     /* Traverse the path */
     while ((name = H5G__component(name, &nchars)) && *name) {
         const char *s;             /* Temporary string pointer */
-        htri_t      lookup_status; /* Status from object lookup */
+        hbool_t     lookup_status; /* Status from object lookup */
         hbool_t     obj_exists;    /* Whether the object exists */
 
         /*
@@ -564,7 +564,8 @@ H5G__traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target, H5G
         } /* end if */
 
         /* Get information for object in current group */
-        if ((lookup_status = H5G__obj_lookup(grp_loc.oloc, comp, &lnk /*out*/)) < 0)
+        lookup_status = FALSE;
+        if (H5G__obj_lookup(grp_loc.oloc, comp, &lookup_status, &lnk /*out*/) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "can't look up component")
         obj_exists = FALSE;
 

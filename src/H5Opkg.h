@@ -111,7 +111,7 @@
  * Size of object header message prefix
  */
 #define H5O_SIZEOF_MSGHDR_VERS(V, C)                                                                         \
-    (((V) == H5O_VERSION_1) ? H5O_ALIGN_OLD(2u + /*message type		*/                                           \
+    (((V) == H5O_VERSION_1) ? H5O_ALIGN_OLD(2 + /*message type		*/                                           \
                                             2 + /*sizeof message data	*/                                     \
                                             1 + /*flags              	*/                                     \
                                             3)  /*reserved		*/                                               \
@@ -378,7 +378,7 @@ typedef struct H5O_chunk_proxy_t {
     H5O_t *  oh;      /* Object header for this chunk */
     unsigned chunkno; /* Chunk number for this chunk */
 
-    /* Flush depencency parent information (not stored)
+    /* Flush dependency parent information (not stored)
      *
      * The following field is used to store a pointer
      * to the in-core representation of a new chunk proxy's flush dependency
@@ -551,7 +551,7 @@ H5_DLL herr_t H5O__visit(H5G_loc_t *loc, const char *obj_name, H5_index_t idx_ty
                          H5O_iterate2_t op, void *op_data, unsigned fields);
 H5_DLL herr_t H5O__inc_rc(H5O_t *oh);
 H5_DLL herr_t H5O__dec_rc(H5O_t *oh);
-H5_DLL herr_t H5O__free(H5O_t *oh);
+H5_DLL herr_t H5O__free(H5O_t *oh, hbool_t force);
 
 /* Object header message routines */
 H5_DLL herr_t   H5O__msg_alloc(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type, unsigned *mesg_flags,
@@ -580,6 +580,11 @@ H5_DLL herr_t             H5O__chunk_update_idx(H5F_t *f, H5O_t *oh, unsigned id
 H5_DLL herr_t             H5O__chunk_resize(H5O_t *oh, H5O_chunk_proxy_t *chk_proxy);
 H5_DLL herr_t             H5O__chunk_delete(H5F_t *f, H5O_t *oh, unsigned idx);
 H5_DLL herr_t             H5O__chunk_dest(H5O_chunk_proxy_t *chunk_proxy);
+
+/* Cache corking functions */
+H5_DLL herr_t H5O__disable_mdc_flushes(H5O_loc_t *oloc);
+H5_DLL herr_t H5O__enable_mdc_flushes(H5O_loc_t *oloc);
+H5_DLL herr_t H5O__are_mdc_flushes_disabled(const H5O_loc_t *oloc, hbool_t *are_disabled);
 
 /* Collect storage info for btree and heap */
 H5_DLL herr_t H5O__attr_bh_info(H5F_t *f, H5O_t *oh, H5_ih_info_t *bh_info);

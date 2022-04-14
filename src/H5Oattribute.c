@@ -93,6 +93,15 @@ typedef struct {
     hbool_t found; /* Found attribute to delete */
 } H5O_iter_rm_t;
 
+/* User data for iteration when checking if an attribute exists */
+typedef struct {
+    /* down */
+    const char *name; /* Name of attribute to open */
+
+    /* up */
+    hbool_t *exists; /* Pointer to flag to indicate attribute exists */
+} H5O_iter_xst_t;
+
 /********************/
 /* Package Typedefs */
 /********************/
@@ -239,19 +248,19 @@ H5O__attr_create(const H5O_loc_t *loc, H5A_t *attr)
 
         /* Check if switching to "dense" attribute storage is possible */
         if (!H5F_addr_defined(ainfo.fheap_addr)) {
-            htri_t sharable;     /* Whether the attribute will be shared */
+            htri_t shareable;    /* Whether the attribute will be shared */
             size_t raw_size = 0; /* Raw size of message */
 
-            /* Check for attribute being sharable */
-            if ((sharable = H5SM_can_share(loc->file, NULL, NULL, H5O_ATTR_ID, attr)) < 0)
+            /* Check for attribute being shareable */
+            if ((shareable = H5SM_can_share(loc->file, NULL, NULL, H5O_ATTR_ID, attr)) < 0)
                 HGOTO_ERROR(H5E_ATTR, H5E_BADMESG, FAIL, "can't determine attribute sharing status")
-            else if (sharable == FALSE) {
+            else if (shareable == FALSE) {
                 /* Compute the size needed to encode the attribute */
                 raw_size = (H5O_MSG_ATTR->raw_size)(loc->file, FALSE, attr);
             } /* end if */
 
             /* Check for condititions for switching to "dense" attribute storage are met */
-            if (ainfo.nattrs == oh->max_compact || (!sharable && raw_size >= H5O_MESG_MAX_SIZE)) {
+            if (ainfo.nattrs == oh->max_compact || (!shareable && raw_size >= H5O_MESG_MAX_SIZE)) {
                 H5O_iter_cvt_t      udata; /* User data for callback */
                 H5O_mesg_operator_t op;    /* Wrapper for operator */
 
@@ -1723,19 +1732,19 @@ static herr_t
 H5O__attr_exists_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR_UNUSED sequence,
                     unsigned H5_ATTR_UNUSED *oh_modified, void *_udata /*in,out*/)
 {
-    H5O_iter_rm_t *udata     = (H5O_iter_rm_t *)_udata; /* Operator user data */
-    herr_t         ret_value = H5_ITER_CONT;            /* Return value */
+    H5O_iter_xst_t *udata     = (H5O_iter_xst_t *)_udata; /* Operator user data */
+    herr_t          ret_value = H5_ITER_CONT;             /* Return value */
 
     FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(mesg);
-    HDassert(!udata->found);
+    HDassert(udata->exists && !*udata->exists);
 
     /* Check for correct attribute message */
     if (HDstrcmp(((H5A_t *)mesg->native)->shared->name, udata->name) == 0) {
         /* Indicate that this message is the attribute sought */
-        udata->found = TRUE;
+        *udata->exists = TRUE;
 
         /* Stop iterating */
         ret_value = H5_ITER_STOP;
@@ -1756,18 +1765,19 @@ H5O__attr_exists_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg /*in,out*/, unsig
  *
  *-------------------------------------------------------------------------
  */
-htri_t
-H5O__attr_exists(const H5O_loc_t *loc, const char *name)
+herr_t
+H5O__attr_exists(const H5O_loc_t *loc, const char *name, hbool_t *attr_exists)
 {
-    H5O_t *     oh = NULL;        /* Pointer to actual object header */
-    H5O_ainfo_t ainfo;            /* Attribute information for object */
-    htri_t      ret_value = FAIL; /* Return value */
+    H5O_t *     oh = NULL;           /* Pointer to actual object header */
+    H5O_ainfo_t ainfo;               /* Attribute information for object */
+    herr_t      ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE_TAG(loc->addr)
 
     /* Check arguments */
     HDassert(loc);
     HDassert(name);
+    HDassert(attr_exists);
 
     /* Protect the object header to iterate over */
     if (NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
@@ -1784,26 +1794,22 @@ H5O__attr_exists(const H5O_loc_t *loc, const char *name)
     /* Check for attributes stored densely */
     if (H5F_addr_defined(ainfo.fheap_addr)) {
         /* Check if attribute exists in dense storage */
-        if ((ret_value = H5A__dense_exists(loc->file, &ainfo, name)) < 0)
+        if (H5A__dense_exists(loc->file, &ainfo, name, attr_exists) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_BADITER, FAIL, "error checking for existence of attribute")
     } /* end if */
     else {
-        H5O_iter_rm_t       udata; /* User data for callback */
+        H5O_iter_xst_t      udata; /* User data for callback */
         H5O_mesg_operator_t op;    /* Wrapper for operator */
 
         /* Set up user data for callback */
-        udata.f     = loc->file;
-        udata.name  = name;
-        udata.found = FALSE;
+        udata.name   = name;
+        udata.exists = attr_exists;
 
         /* Iterate over existing attributes, checking for attribute with same name */
         op.op_type  = H5O_MESG_OP_LIB;
         op.u.lib_op = H5O__attr_exists_cb;
         if (H5O__msg_iterate_real(loc->file, oh, H5O_MSG_ATTR, &op, &udata) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_BADITER, FAIL, "error checking for existence of attribute")
-
-        /* Check that we found the attribute */
-        ret_value = (htri_t)udata.found;
     } /* end else */
 
 done:

@@ -169,7 +169,7 @@ typedef struct {
     size_t name_size; /* Size of name buffer to fill       */
 
     /* upward */
-    ssize_t name_len; /* Full length of name               */
+    size_t name_len; /* Full length of name               */
 } H5G_bt2_ud_gnbi_t;
 
 /*
@@ -185,7 +185,7 @@ typedef struct {
     size_t name_size; /* Size of name buffer to fill       */
 
     /* upward */
-    ssize_t name_len; /* Full length of name               */
+    size_t name_len; /* Full length of name               */
 } H5G_fh_ud_gnbi_t;
 
 /*
@@ -479,20 +479,20 @@ done:
  *
  * Purpose:	Look up a link within a group that uses dense link storage
  *
- * Return:	Non-negative (TRUE/FALSE) on success/Negative on failure
+ * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
  *		Sep 11 2006
  *
  *-------------------------------------------------------------------------
  */
-htri_t
-H5G__dense_lookup(H5F_t *f, const H5O_linfo_t *linfo, const char *name, H5O_link_t *lnk)
+herr_t
+H5G__dense_lookup(H5F_t *f, const H5O_linfo_t *linfo, const char *name, hbool_t *found, H5O_link_t *lnk)
 {
-    H5G_bt2_ud_common_t udata;            /* User data for v2 B-tree link lookup */
-    H5HF_t *            fheap     = NULL; /* Fractal heap handle */
-    H5B2_t *            bt2_name  = NULL; /* v2 B-tree handle for name index */
-    htri_t              ret_value = FAIL; /* Return value */
+    H5G_bt2_ud_common_t udata;               /* User data for v2 B-tree link lookup */
+    H5HF_t *            fheap     = NULL;    /* Fractal heap handle */
+    H5B2_t *            bt2_name  = NULL;    /* v2 B-tree handle for name index */
+    herr_t              ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -502,6 +502,7 @@ H5G__dense_lookup(H5F_t *f, const H5O_linfo_t *linfo, const char *name, H5O_link
     HDassert(f);
     HDassert(linfo);
     HDassert(name && *name);
+    HDassert(found);
     HDassert(lnk);
 
     /* Open the fractal heap */
@@ -521,7 +522,7 @@ H5G__dense_lookup(H5F_t *f, const H5O_linfo_t *linfo, const char *name, H5O_link
     udata.found_op_data = lnk;
 
     /* Find & copy the named link in the 'name' index */
-    if ((ret_value = H5B2_find(bt2_name, &udata, NULL, NULL)) < 0)
+    if (H5B2_find(bt2_name, &udata, found, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINSERT, FAIL, "unable to locate link in name index")
 
 done:
@@ -1045,12 +1046,12 @@ H5G__dense_get_name_by_idx_fh_cb(const void *obj, size_t obj_len, void *_udata)
         HGOTO_ERROR(H5E_SYM, H5E_CANTDECODE, FAIL, "can't decode link")
 
     /* Get the length of the name */
-    udata->name_len = (ssize_t)HDstrlen(lnk->name);
+    udata->name_len = HDstrlen(lnk->name);
 
     /* Copy the name into the user's buffer, if given */
     if (udata->name) {
-        HDstrncpy(udata->name, lnk->name, MIN((size_t)(udata->name_len + 1), udata->name_size));
-        if ((size_t)udata->name_len >= udata->name_size)
+        HDstrncpy(udata->name, lnk->name, MIN((udata->name_len + 1), udata->name_size));
+        if (udata->name_len >= udata->name_size)
             udata->name[udata->name_size - 1] = '\0';
     } /* end if */
 
@@ -1105,23 +1106,22 @@ done:
  *
  * Purpose:     Returns the name of objects in the group by giving index.
  *
- * Return:	Success:        Non-negative, length of name
- *		Failure:	Negative
+ * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
  *		Sep 19 2006
  *
  *-------------------------------------------------------------------------
  */
-ssize_t
+herr_t
 H5G__dense_get_name_by_idx(H5F_t *f, H5O_linfo_t *linfo, H5_index_t idx_type, H5_iter_order_t order,
-                           hsize_t n, char *name, size_t size)
+                           hsize_t n, char *name, size_t name_size, size_t *name_len)
 {
-    H5HF_t *         fheap  = NULL;      /* Fractal heap handle */
-    H5G_link_table_t ltable = {0, NULL}; /* Table of links */
-    H5B2_t *         bt2    = NULL;      /* v2 B-tree handle for index */
-    haddr_t          bt2_addr;           /* Address of v2 B-tree to use for lookup */
-    ssize_t          ret_value = -1;     /* Return value */
+    H5HF_t *         fheap  = NULL;       /* Fractal heap handle */
+    H5G_link_table_t ltable = {0, NULL};  /* Table of links */
+    H5B2_t *         bt2    = NULL;       /* v2 B-tree handle for index */
+    haddr_t          bt2_addr;            /* Address of v2 B-tree to use for lookup */
+    herr_t           ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -1175,14 +1175,14 @@ H5G__dense_get_name_by_idx(H5F_t *f, H5O_linfo_t *linfo, H5_index_t idx_type, H5
         udata.f         = f;
         udata.fheap     = fheap;
         udata.name      = name;
-        udata.name_size = size;
+        udata.name_size = name_size;
 
         /* Retrieve the name according to the v2 B-tree's index order */
         if (H5B2_index(bt2, order, n, H5G__dense_get_name_by_idx_bt2_cb, &udata) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTLIST, FAIL, "can't locate object in v2 B-tree")
 
         /* Set return value */
-        ret_value = udata.name_len;
+        *name_len = udata.name_len;
     }      /* end if */
     else { /* Otherwise, we need to build a table of the links and sort it */
         /* Build the table of links for this group */
@@ -1194,13 +1194,13 @@ H5G__dense_get_name_by_idx(H5F_t *f, H5O_linfo_t *linfo, H5_index_t idx_type, H5
             HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "index out of bound")
 
         /* Get the length of the name */
-        ret_value = (ssize_t)HDstrlen(ltable.lnks[n].name);
+        *name_len = HDstrlen(ltable.lnks[n].name);
 
         /* Copy the name into the user's buffer, if given */
         if (name) {
-            HDstrncpy(name, ltable.lnks[n].name, size);
-            if ((size_t)ret_value >= size)
-                name[size - 1] = '\0';
+            HDstrncpy(name, ltable.lnks[n].name, name_size);
+            if (*name_len >= name_size)
+                name[name_size - 1] = '\0';
         } /* end if */
     }     /* end else */
 

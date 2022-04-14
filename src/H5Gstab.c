@@ -705,22 +705,22 @@ done:
  *
  * Purpose:     Returns the name of objects in the group by giving index.
  *
- * Return:	Success:        Non-negative, length of name
- *		Failure:	Negative
+ * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Raymond Lu
  *	        Nov 20, 2002
  *
  *-------------------------------------------------------------------------
  */
-ssize_t
-H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t n, char *name, size_t size)
+herr_t
+H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t n, char *name,
+                          size_t name_size, size_t *name_len)
 {
-    H5HL_t *         heap = NULL;         /* Pointer to local heap */
-    H5O_stab_t       stab;                /* Info about local heap & B-tree */
-    H5G_bt_it_gnbi_t udata;               /* Iteration information */
-    hbool_t          udata_valid = FALSE; /* Whether iteration information is valid */
-    ssize_t          ret_value   = -1;    /* Return value */
+    H5HL_t *         heap = NULL;           /* Pointer to local heap */
+    H5O_stab_t       stab;                  /* Info about local heap & B-tree */
+    H5G_bt_it_gnbi_t udata;                 /* Iteration information */
+    hbool_t          udata_valid = FALSE;   /* Whether iteration information is valid */
+    herr_t           ret_value   = SUCCEED; /* Return value */
 
     /* Portably clear udata struct (before FUNC_ENTER) */
     HDmemset(&udata, 0, sizeof(udata));
@@ -767,13 +767,13 @@ H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t 
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "index out of bound")
 
     /* Get the length of the name */
-    ret_value = (ssize_t)HDstrlen(udata.name);
+    *name_len = HDstrlen(udata.name);
 
     /* Copy the name into the user's buffer, if given */
     if (name) {
-        HDstrncpy(name, udata.name, size);
-        if ((size_t)ret_value >= size)
-            name[size - 1] = '\0';
+        HDstrncpy(name, udata.name, name_size);
+        if (*name_len >= name_size)
+            name[name_size - 1] = '\0';
     } /* end if */
 
 done:
@@ -832,20 +832,21 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-htri_t
-H5G__stab_lookup(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *lnk)
+herr_t
+H5G__stab_lookup(const H5O_loc_t *grp_oloc, const char *name, hbool_t *found, H5O_link_t *lnk)
 {
-    H5HL_t *          heap = NULL;      /* Pointer to local heap */
-    H5G_bt_lkp_t      bt_udata;         /* Data to pass through B-tree	*/
-    H5G_stab_fnd_ud_t udata;            /* 'User data' to give to callback */
-    H5O_stab_t        stab;             /* Symbol table message		*/
-    htri_t            ret_value = FAIL; /* Return value */
+    H5HL_t *          heap = NULL;         /* Pointer to local heap */
+    H5G_bt_lkp_t      bt_udata;            /* Data to pass through B-tree	*/
+    H5G_stab_fnd_ud_t udata;               /* 'User data' to give to callback */
+    H5O_stab_t        stab;                /* Symbol table message		*/
+    herr_t            ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* check arguments */
     HDassert(grp_oloc && grp_oloc->file);
     HDassert(name && *name);
+    HDassert(found);
     HDassert(lnk);
 
     /* Retrieve the symbol table message for the group */
@@ -868,7 +869,7 @@ H5G__stab_lookup(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *lnk)
     bt_udata.op_data     = &udata;
 
     /* Search the B-tree */
-    if ((ret_value = H5B_find(grp_oloc->file, H5B_SNODE, stab.btree_addr, &bt_udata)) < 0)
+    if (H5B_find(grp_oloc->file, H5B_SNODE, stab.btree_addr, found, &bt_udata) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "not found")
 
 done:

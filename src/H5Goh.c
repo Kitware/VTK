@@ -291,7 +291,7 @@ H5O__group_get_oloc(hid_t obj_id)
 
     /* Get the group */
     if (NULL == (grp = (H5G_t *)H5VL_object(obj_id)))
-        HGOTO_ERROR(H5E_OHDR, H5E_BADATOM, NULL, "couldn't get object from ID")
+        HGOTO_ERROR(H5E_OHDR, H5E_BADID, NULL, "couldn't get object from ID")
 
     /* Get the group's object header location */
     if (NULL == (ret_value = H5G_oloc(grp)))

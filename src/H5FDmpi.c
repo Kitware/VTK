@@ -41,25 +41,41 @@
  * Programmer:	Quincey Koziol
  *              Friday, January 30, 2004
  *
+ * Changes:     Reworked function to use the ctl callback so we can get
+ *              rid of H5FD_class_mpi_t.  Since there are no real limits
+ *              on what the ctl callback can do, its file parameter can't
+ *              be constant.  Thus, I had to remove the const qualifier
+ *              on this functions file parameter as well.  Note also the
+ *              circumlocution required to use the ctl callbacks output
+ *              parameter to pass back the rank without introducing
+ *              compiler warnings.
+ *                                             JRM -- 8/13/21
+ *
  *-------------------------------------------------------------------------
  */
 int
-H5FD_mpi_get_rank(const H5FD_t *file)
+H5FD_mpi_get_rank(H5FD_t *file)
 {
-    const H5FD_class_mpi_t *cls;
-
-    int ret_value;
+    const H5FD_class_t *cls;
+    uint64_t            flags    = H5FD_CTL__FAIL_IF_UNKNOWN_FLAG | H5FD_CTL__ROUTE_TO_TERMINAL_VFD_FLAG;
+    int                 rank     = -1;
+    void *              rank_ptr = (void *)(&rank);
+    int                 ret_value;
 
     FUNC_ENTER_NOAPI(FAIL)
 
     HDassert(file);
-    cls = (const H5FD_class_mpi_t *)(file->cls);
+    cls = (const H5FD_class_t *)(file->cls);
     HDassert(cls);
-    HDassert(cls->get_rank); /* All MPI drivers must implement this */
+    HDassert(cls->ctl); /* All MPI drivers must implement this */
 
     /* Dispatch to driver */
-    if ((ret_value = (cls->get_rank)(file)) < 0)
+    if ((cls->ctl)(file, H5FD_CTL__GET_MPI_RANK_OPCODE, flags, NULL, &rank_ptr) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "driver get_rank request failed")
+
+    HDassert(rank >= 0);
+
+    ret_value = rank;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -77,24 +93,42 @@ done:
  * Programmer:	Quincey Koziol
  *              Friday, January 30, 2004
  *
+ * Changes:     Reworked function to use the ctl callback so we can get
+ *              rid of H5FD_class_mpi_t.  Since there are no real limits
+ *              on what the ctl callback can do, its file parameter can't
+ *              be constant.  Thus, I had to remove the const qualifier
+ *              on this functions file parameter as well.  Note also the
+ *              circumlocution required to use the ctl callbacks output
+ *              parameter to pass back the rank without introducing
+ *              compiler warnings.
+ *                                             JRM -- 8/13/21
+ *
  *-------------------------------------------------------------------------
  */
 int
-H5FD_mpi_get_size(const H5FD_t *file)
+H5FD_mpi_get_size(H5FD_t *file)
 {
-    const H5FD_class_mpi_t *cls;
-    int                     ret_value;
+    const H5FD_class_t *cls;
+    uint64_t            flags    = H5FD_CTL__FAIL_IF_UNKNOWN_FLAG | H5FD_CTL__ROUTE_TO_TERMINAL_VFD_FLAG;
+    int                 size     = 0;
+    void *              size_ptr = (void *)(&size);
+    int                 ret_value;
 
     FUNC_ENTER_NOAPI(FAIL)
 
     HDassert(file);
-    cls = (const H5FD_class_mpi_t *)(file->cls);
+    cls = (const H5FD_class_t *)(file->cls);
     HDassert(cls);
-    HDassert(cls->get_size); /* All MPI drivers must implement this */
+    HDassert(cls->ctl); /* All MPI drivers must implement this */
 
     /* Dispatch to driver */
-    if ((ret_value = (cls->get_size)(file)) < 0)
+    if ((cls->ctl)(file, H5FD_CTL__GET_MPI_SIZE_OPCODE, flags, NULL, &size_ptr) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "driver get_size request failed")
+
+    if (0 >= size)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "driver get_size request returned bad value")
+
+    ret_value = size;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -112,24 +146,42 @@ done:
  * Programmer:	Quincey Koziol
  *              Friday, January 30, 2004
  *
+ * Changes:     Reworked function to use the ctl callback so we can get
+ *              rid of H5FD_class_mpi_t.  Since there are no real limits
+ *              on what the ctl callback can do, its file parameter can't
+ *              be constant.  Thus, I had to remove the const qualifier
+ *              on this functions file parameter as well.  Note also the
+ *              circumlocution required to use the ctl callbacks output
+ *              parameter to pass back the rank without introducing
+ *              compiler warnings.
+ *                                             JRM -- 8/13/21
+ *
  *-------------------------------------------------------------------------
  */
 MPI_Comm
-H5FD_mpi_get_comm(const H5FD_t *file)
+H5FD_mpi_get_comm(H5FD_t *file)
 {
-    const H5FD_class_mpi_t *cls;
-    MPI_Comm                ret_value;
+    const H5FD_class_t *cls;
+    uint64_t            flags    = H5FD_CTL__FAIL_IF_UNKNOWN_FLAG | H5FD_CTL__ROUTE_TO_TERMINAL_VFD_FLAG;
+    MPI_Comm            comm     = MPI_COMM_NULL;
+    void *              comm_ptr = (void *)(&comm);
+    MPI_Comm            ret_value;
 
     FUNC_ENTER_NOAPI(MPI_COMM_NULL)
 
     HDassert(file);
-    cls = (const H5FD_class_mpi_t *)(file->cls);
+    cls = (const H5FD_class_t *)(file->cls);
     HDassert(cls);
-    HDassert(cls->get_comm); /* All MPI drivers must implement this */
+    HDassert(cls->ctl); /* All MPI drivers must implement this */
 
     /* Dispatch to driver */
-    if ((ret_value = (cls->get_comm)(file)) == MPI_COMM_NULL)
+    if ((cls->ctl)(file, H5FD_CTL__GET_MPI_COMMUNICATOR_OPCODE, flags, NULL, &comm_ptr) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTGET, MPI_COMM_NULL, "driver get_comm request failed")
+
+    if (comm == MPI_COMM_NULL)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTGET, MPI_COMM_NULL, "driver get_comm request failed -- bad comm")
+
+    ret_value = comm;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

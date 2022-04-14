@@ -225,7 +225,7 @@ macro (TARGET_C_PROPERTIES wintarget libtype)
 endmacro ()
 
 #-----------------------------------------------------------------------------
-# Configure the README.txt file for the binary package
+# Configure the README.md file for the binary package
 #-----------------------------------------------------------------------------
 macro (HDF_README_PROPERTIES target_fortran)
   set (BINARY_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
@@ -303,8 +303,8 @@ macro (HDF_README_PROPERTIES target_fortran)
   endif ()
 
   configure_file (
-      ${HDF_RESOURCES_DIR}/README.txt.cmake.in
-      ${CMAKE_BINARY_DIR}/README.txt @ONLY
+      ${HDF_RESOURCES_DIR}/README.md.cmake.in
+      ${CMAKE_BINARY_DIR}/README.md @ONLY
   )
 endmacro ()
 
@@ -358,7 +358,7 @@ macro (HDF_DIR_PATHS package_prefix)
     endif ()
   endif ()
   if (NOT ${package_prefix}_INSTALL_CMAKE_DIR)
-    set (${package_prefix}_INSTALL_CMAKE_DIR share/cmake)
+    set (${package_prefix}_INSTALL_CMAKE_DIR cmake)
   endif ()
 
   if (FALSE) # XXX(kitware): VTK handles library naming.
@@ -434,7 +434,7 @@ macro (HDF_DIR_PATHS package_prefix)
     endif ()
   endif ()
 
-  if (FALSE AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT) # VTK doesn't need HDF5's help for the install prefix.
+  if (FALSE AND NOT ${package_prefix}_EXTERNALLY_CONFIGURED AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT) # VTK doesn't need HDF5's help for the install prefix.
     if (CMAKE_HOST_UNIX)
       set (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/HDF_Group/${HDF5_PACKAGE_NAME}/${HDF5_PACKAGE_VERSION}"
         CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
@@ -471,6 +471,9 @@ macro (ADD_H5_FLAGS h5_flag_var infile)
       list (GET TEST_FLAG_STREAM ${line} str_flag)
       string (REGEX REPLACE "^#.*" "" str_flag "${str_flag}")
       #message (TRACE "str_flag=${str_flag}")
+      if (NOT HDF5_ENABLE_WARNINGS_AS_ERRORS)
+        string (REGEX REPLACE "-Werror=" "-W" str_flag "${str_flag}")
+      endif ()
       if (str_flag)
         list (APPEND ${h5_flag_var} "${str_flag}")
       endif ()

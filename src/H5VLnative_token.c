@@ -14,6 +14,10 @@
  * Purpose:     Object token callbacks for the native VOL connector
  */
 
+/****************/
+/* Module Setup */
+/****************/
+
 /***********/
 /* Headers */
 /***********/
@@ -108,7 +112,7 @@ H5VL__native_token_to_str(void *obj, H5I_type_t obj_type, const H5O_token_t *tok
     if (NULL == (*token_str = H5MM_malloc(addr_ndigits + 1)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL, "can't allocate buffer for token string")
 
-    HDsnprintf(*token_str, addr_ndigits + 1, H5_PRINTF_HADDR_FMT, addr);
+    HDsnprintf(*token_str, addr_ndigits + 1, "%" PRIuHADDR, addr);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -135,7 +139,7 @@ H5VL__native_str_to_token(void *obj, H5I_type_t obj_type, const char *token_str,
     /* Check parameters */
     HDassert(token_str);
 
-    HDsscanf(token_str, H5_PRINTF_HADDR_FMT, &addr);
+    HDsscanf(token_str, "%" PRIuHADDR, &addr);
 
     if (H5VL_native_addr_to_token(obj, obj_type, addr, token) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTDECODE, FAIL, "can't convert address to object token")

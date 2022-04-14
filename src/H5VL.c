@@ -85,7 +85,7 @@ H5VLregister_connector(const H5VL_class_t *cls, hid_t vipl_id)
     hid_t ret_value = H5I_INVALID_HID; /* Return value */
 
     FUNC_ENTER_API(H5I_INVALID_HID)
-    H5TRACE2("i", "*xi", cls, vipl_id);
+    H5TRACE2("i", "*#i", cls, vipl_id);
 
     /* Check VOL initialization property list */
     if (H5P_DEFAULT == vipl_id)
@@ -609,6 +609,7 @@ H5VLwrap_register(void *obj, H5I_type_t type)
         case H5I_ERROR_MSG:
         case H5I_ERROR_STACK:
         case H5I_SPACE_SEL_ITER:
+        case H5I_EVENTSET:
         case H5I_NTYPES:
         default:
             HGOTO_ERROR(H5E_VOL, H5E_BADRANGE, H5I_INVALID_HID, "invalid type number")
@@ -654,6 +655,39 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5VLobject() */
 
+/*---------------------------------------------------------------------------
+ * Function:    H5VLobject_is_native
+ *
+ * Purpose:     Determines whether an object ID represents a native VOL
+ *              connector object.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ *---------------------------------------------------------------------------
+ */
+herr_t
+H5VLobject_is_native(hid_t obj_id, hbool_t *is_native)
+{
+    H5VL_object_t *vol_obj   = NULL;
+    herr_t         ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "i*b", obj_id, is_native);
+
+    if (!is_native)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "`is_native` argument is NULL")
+
+    /* Get the location object for the ID */
+    if (NULL == (vol_obj = H5VL_vol_object(obj_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid object identifier")
+
+    if (H5VL_object_is_native(vol_obj, is_native) < 0)
+        HGOTO_ERROR(H5E_VOL, H5E_CANTGET, FAIL, "can't determine if object is a native connector object")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5VLobject_is_native() */
+
 /*-------------------------------------------------------------------------
  * Function:    H5VLget_file_type
  *
@@ -667,7 +701,7 @@ done:
 hid_t
 H5VLget_file_type(void *file_obj, hid_t connector_id, hid_t dtype_id)
 {
-    H5T_t *        dtype;               /* unatomized type         */
+    H5T_t *        dtype;               /* unregistered type       */
     H5T_t *        file_type    = NULL; /* copied file type        */
     hid_t          file_type_id = -1;   /* copied file type id     */
     H5VL_object_t *file_vol_obj = NULL; /* VOL object for file     */
@@ -742,13 +776,13 @@ done:
  *---------------------------------------------------------------------------
  */
 herr_t
-H5VLretrieve_lib_state(void **state)
+H5VLretrieve_lib_state(void **state /*out*/)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
     /* Must use this, to avoid modifying the API context stack in FUNC_ENTER */
     FUNC_ENTER_API_NOINIT
-    H5TRACE1("e", "**x", state);
+    H5TRACE1("e", "x", state);
 
     /* Check args */
     if (NULL == state)
@@ -761,6 +795,39 @@ H5VLretrieve_lib_state(void **state)
 done:
     FUNC_LEAVE_API_NOINIT(ret_value)
 } /* H5VLretrieve_lib_state() */
+
+/*---------------------------------------------------------------------------
+ * Function:    H5VLstart_lib_state
+ *
+ * Purpose:     Opens a new internal state for the HDF5 library.
+ *
+ * Note:        This routine is _only_ for HDF5 VOL connector authors!  It is
+ *              _not_ part of the public API for HDF5 application developers.
+ *
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
+ *
+ * Programmer:  Quincey Koziol
+ *              Friday, February 5, 2021
+ *
+ *---------------------------------------------------------------------------
+ */
+herr_t
+H5VLstart_lib_state(void)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    /* Must use this, to avoid modifying the API context stack in FUNC_ENTER */
+    FUNC_ENTER_API_NOINIT
+    H5TRACE0("e", "");
+
+    /* Start a new library state */
+    if (H5VL_start_lib_state() < 0)
+        HGOTO_ERROR(H5E_VOL, H5E_CANTSET, FAIL, "can't start new library state")
+
+done:
+    FUNC_LEAVE_API_NOINIT(ret_value)
+} /* H5VLstart_lib_state() */
 
 /*---------------------------------------------------------------------------
  * Function:    H5VLrestore_lib_state
@@ -800,16 +867,16 @@ done:
 } /* H5VLrestore_lib_state() */
 
 /*---------------------------------------------------------------------------
- * Function:    H5VLreset_lib_state
+ * Function:    H5VLfinish_lib_state
  *
- * Purpose:     Resets the internal state of the HDF5 library, undoing the
- *              affects of H5VLrestore_lib_state.
+ * Purpose:     Closes the internal state of the HDF5 library, undoing the
+ *              affects of H5VLstart_lib_state.
  *
  * Note:        This routine is _only_ for HDF5 VOL connector authors!  It is
  *              _not_ part of the public API for HDF5 application developers.
  *
  * Note:        This routine must be called as a "pair" with
- *              H5VLrestore_lib_state.  It can be called before / after /
+ *              H5VLstart_lib_state.  It can be called before / after /
  *              independently of H5VLfree_lib_state.
  *
  * Return:      Success:    Non-negative
@@ -821,7 +888,7 @@ done:
  *---------------------------------------------------------------------------
  */
 herr_t
-H5VLreset_lib_state(void)
+H5VLfinish_lib_state(void)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -830,12 +897,12 @@ H5VLreset_lib_state(void)
     H5TRACE0("e", "");
 
     /* Reset the library state */
-    if (H5VL_reset_lib_state() < 0)
+    if (H5VL_finish_lib_state() < 0)
         HGOTO_ERROR(H5E_VOL, H5E_CANTRESET, FAIL, "can't reset library state")
 
 done:
     FUNC_LEAVE_API_NOINIT(ret_value)
-} /* H5VLreset_lib_state() */
+} /* H5VLfinish_lib_state() */
 
 /*---------------------------------------------------------------------------
  * Function:    H5VLfree_lib_state
@@ -880,7 +947,8 @@ done:
  * Function:    H5VLquery_optional
  *
  * Purpose:     Determine if a VOL connector supports a particular optional
- *              callback operation.
+ *              callback operation, and a general sense of the operation's
+ *              behavior.
  *
  * Return:      Success:    Non-negative
  *              Failure:    Negative
@@ -888,24 +956,157 @@ done:
  *---------------------------------------------------------------------------
  */
 herr_t
-H5VLquery_optional(hid_t obj_id, H5VL_subclass_t subcls, int opt_type, hbool_t *supported)
+H5VLquery_optional(hid_t obj_id, H5VL_subclass_t subcls, int opt_type, uint64_t *flags /*out*/)
 {
     H5VL_object_t *vol_obj   = NULL;
     herr_t         ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "iVSIs*b", obj_id, subcls, opt_type, supported);
+    H5TRACE4("e", "iVSIsx", obj_id, subcls, opt_type, flags);
 
     /* Check args */
-    if (NULL == supported)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid supported pointer")
+    if (NULL == flags)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid 'flags' pointer")
     if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(obj_id)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid object identifier")
 
     /* Query the connector */
-    if (H5VL_introspect_opt_query(vol_obj, subcls, opt_type, supported) < 0)
-        HGOTO_ERROR(H5E_VOL, H5E_CANTGET, FAIL, "unable to query VOL connector support")
+    if (H5VL_introspect_opt_query(vol_obj, subcls, opt_type, flags) < 0)
+        HGOTO_ERROR(H5E_VOL, H5E_CANTGET, FAIL, "unable to query VOL connector operation")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* H5VLquery_optional() */
+
+/*---------------------------------------------------------------------------
+ * Function:    H5VLregister_opt_operation
+ *
+ * Purpose:     Allow a VOL connector to register a new optional operation
+ *              for a VOL object subclass.   The operation name must be runtime
+ *              unique for each operation, preferably avoiding naming clashes
+ *              by using a Uniform Type Identifier (UTI,
+ *https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/understanding_utis/understand_utis_conc/understand_utis_conc.html)
+ *              for each operation name.  The value returned in the 'op_val'
+ *              pointer will be unique for that VOL connector to use for its
+ *              operation on that subclass.
+ *
+ *              For example, registering a 'prefetch' operation for the
+ *              caching VOL connector written at the ALCF at Argonne National
+ *              Laboratory could have a UTI of: "gov.anl.alcf.cache.prefetch",
+ *              and the "evict" operation for the same connector could have a
+ *              UTI of: "gov.anl.alcf.cache.evict".   Registering a "suspend
+ *              background threads" operation for the asynchronous VOL connector
+ *              written at NERSC at Lawrence Berkeley National Laboratory could
+ *              have a UTI of: "gov.lbnl.nersc.async.suspend_bkg_threads".
+ *
+ * Note:        The first 1024 values of each subclass's optional operations
+ *              are reserved for the native VOL connector's use.
+ *
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
+ *
+ *---------------------------------------------------------------------------
+ */
+herr_t
+H5VLregister_opt_operation(H5VL_subclass_t subcls, const char *op_name, int *op_val /*out*/)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE3("e", "VS*sx", subcls, op_name, op_val);
+
+    /* Check args */
+    if (NULL == op_val)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid op_val pointer")
+    if (NULL == op_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid op_name pointer")
+    if ('\0' == *op_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid op_name string")
+    if (!((H5VL_SUBCLS_ATTR == subcls) || (H5VL_SUBCLS_DATASET == subcls) ||
+          (H5VL_SUBCLS_DATATYPE == subcls) || (H5VL_SUBCLS_FILE == subcls) || (H5VL_SUBCLS_GROUP == subcls) ||
+          (H5VL_SUBCLS_OBJECT == subcls) || (H5VL_SUBCLS_LINK == subcls) || (H5VL_SUBCLS_REQUEST == subcls)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid VOL subclass type")
+
+    /* Register the operation */
+    if (H5VL__register_opt_operation(subcls, op_name, op_val) < 0)
+        HGOTO_ERROR(H5E_VOL, H5E_CANTREGISTER, FAIL, "can't register dynamic optional operation: '%s'",
+                    op_name)
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5VLregister_opt_operation() */
+
+/*---------------------------------------------------------------------------
+ * Function:    H5VLfind_opt_operation
+ *
+ * Purpose:     Look up a optional operation for a VOL object subclass, by name.
+ *
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
+ *
+ *---------------------------------------------------------------------------
+ */
+herr_t
+H5VLfind_opt_operation(H5VL_subclass_t subcls, const char *op_name, int *op_val /*out*/)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE3("e", "VS*sx", subcls, op_name, op_val);
+
+    /* Check args */
+    if (NULL == op_val)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid op_val pointer")
+    if (NULL == op_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid op_name pointer")
+    if ('\0' == *op_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid op_name string")
+    if (!((H5VL_SUBCLS_ATTR == subcls) || (H5VL_SUBCLS_DATASET == subcls) ||
+          (H5VL_SUBCLS_DATATYPE == subcls) || (H5VL_SUBCLS_FILE == subcls) || (H5VL_SUBCLS_GROUP == subcls) ||
+          (H5VL_SUBCLS_OBJECT == subcls) || (H5VL_SUBCLS_LINK == subcls) || (H5VL_SUBCLS_REQUEST == subcls)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid VOL subclass type")
+
+    /* Find the operation */
+    if (H5VL__find_opt_operation(subcls, op_name, op_val) < 0)
+        HGOTO_ERROR(H5E_VOL, H5E_NOTFOUND, FAIL, "can't find dynamic optional operation: '%s'", op_name)
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5VLfind_opt_operation() */
+
+/*---------------------------------------------------------------------------
+ * Function:    H5VLunregister_opt_operation
+ *
+ * Purpose:     Unregister a optional operation for a VOL object subclass, by name.
+ *
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
+ *
+ *---------------------------------------------------------------------------
+ */
+herr_t
+H5VLunregister_opt_operation(H5VL_subclass_t subcls, const char *op_name)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "VS*s", subcls, op_name);
+
+    /* Check args */
+    if (NULL == op_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid op_name pointer")
+    if ('\0' == *op_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid op_name string")
+    if (!((H5VL_SUBCLS_ATTR == subcls) || (H5VL_SUBCLS_DATASET == subcls) ||
+          (H5VL_SUBCLS_DATATYPE == subcls) || (H5VL_SUBCLS_FILE == subcls) || (H5VL_SUBCLS_GROUP == subcls) ||
+          (H5VL_SUBCLS_OBJECT == subcls) || (H5VL_SUBCLS_LINK == subcls) || (H5VL_SUBCLS_REQUEST == subcls)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid VOL subclass type")
+
+    /* Unregister the operation */
+    if (H5VL__unregister_opt_operation(subcls, op_name) < 0)
+        HGOTO_ERROR(H5E_VOL, H5E_CANTREMOVE, FAIL, "can't unregister dynamic optional operation: '%s'",
+                    op_name)
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5VLunregister_opt_operation() */

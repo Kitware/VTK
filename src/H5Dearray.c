@@ -417,7 +417,7 @@ H5D__earray_debug(FILE *stream, int indent, int fwidth, hsize_t idx, const void 
     HDassert(elmt);
 
     /* Print element */
-    HDsprintf(temp_str, "Element #%" PRIuHSIZE ":", idx);
+    HDsnprintf(temp_str, sizeof(temp_str), "Element #%" PRIuHSIZE ":", idx);
     HDfprintf(stream, "%*s%-*s %" PRIuHADDR "\n", indent, "", fwidth, temp_str, *(const haddr_t *)elmt);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -573,7 +573,7 @@ H5D__earray_filt_debug(FILE *stream, int indent, int fwidth, hsize_t idx, const 
     HDassert(elmt);
 
     /* Print element */
-    HDsprintf(temp_str, "Element #%" PRIuHSIZE ":", idx);
+    HDsnprintf(temp_str, sizeof(temp_str), "Element #%" PRIuHSIZE ":", idx);
     HDfprintf(stream, "%*s%-*s {%" PRIuHADDR ", %u, %0x}\n", indent, "", fwidth, temp_str, elmt->addr,
               elmt->nbytes, elmt->filter_mask);
 

@@ -44,8 +44,8 @@
 /* Local Prototypes */
 /********************/
 
-static herr_t H5D__select_io(const H5D_io_info_t *io_info, size_t elmt_size, size_t nelmts,
-                             const H5S_t *file_space, const H5S_t *mem_space);
+static herr_t H5D__select_io(const H5D_io_info_t *io_info, size_t elmt_size, size_t nelmts, H5S_t *file_space,
+                             H5S_t *mem_space);
 
 /*********************/
 /* Package Variables */
@@ -77,8 +77,8 @@ H5FL_EXTERN(H5S_sel_iter_t);
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5D__select_io(const H5D_io_info_t *io_info, size_t elmt_size, size_t nelmts, const H5S_t *file_space,
-               const H5S_t *mem_space)
+H5D__select_io(const H5D_io_info_t *io_info, size_t elmt_size, size_t nelmts, H5S_t *file_space,
+               H5S_t *mem_space)
 {
     H5S_sel_iter_t *mem_iter       = NULL;  /* Memory selection iteration info */
     hbool_t         mem_iter_init  = FALSE; /* Memory selection iteration info has been initialized */
@@ -104,6 +104,9 @@ H5D__select_io(const H5D_io_info_t *io_info, size_t elmt_size, size_t nelmts, co
     HDassert(io_info->dset);
     HDassert(io_info->store);
     HDassert(io_info->u.rbuf);
+
+    if (elmt_size == 0)
+        HGOTO_ERROR(H5E_DATASPACE, H5E_BADVALUE, FAIL, "invalid elmt_size of 0")
 
     /* Check for only one element in selection */
     if (nelmts == 1) {
@@ -226,8 +229,6 @@ H5D__select_io(const H5D_io_info_t *io_info, size_t elmt_size, size_t nelmts, co
 
             /* Decrement number of elements left to process */
             HDassert(((size_t)tmp_file_len % elmt_size) == 0);
-            if (elmt_size == 0)
-                HGOTO_ERROR(H5E_DATASPACE, H5E_BADVALUE, FAIL, "Resulted in division by zero")
             nelmts -= ((size_t)tmp_file_len / elmt_size);
         } /* end while */
     }     /* end else */
@@ -257,6 +258,188 @@ done:
 } /* end H5D__select_io() */
 
 /*-------------------------------------------------------------------------
+ * Function:    H5D_select_io_mem
+ *
+ * Purpose:     Perform memory copies directly between two memory buffers
+ *              according to the selections in the `dst_space` and
+ *              `src_space` dataspaces.
+ *
+ * Note:        This routine is [basically] the same as H5D__select_io,
+ *              with the only difference being that the readvv/writevv
+ *              calls are exchanged for H5VM_memcpyvv calls. Changes should
+ *              be made to both routines.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5D_select_io_mem(void *dst_buf, const H5S_t *dst_space, const void *src_buf, const H5S_t *src_space,
+                  size_t elmt_size, size_t nelmts)
+{
+    H5S_sel_iter_t *dst_sel_iter      = NULL;  /* Destination dataspace iteration info */
+    H5S_sel_iter_t *src_sel_iter      = NULL;  /* Source dataspace iteration info */
+    hbool_t         dst_sel_iter_init = FALSE; /* Destination dataspace selection iterator initialized? */
+    hbool_t         src_sel_iter_init = FALSE; /* Source dataspace selection iterator initialized? */
+    hsize_t *       dst_off           = NULL;  /* Pointer to sequence offsets in destination buffer */
+    hsize_t *       src_off           = NULL;  /* Pointer to sequence offsets in source buffer */
+    size_t *        dst_len           = NULL;  /* Pointer to sequence lengths in destination buffer */
+    size_t *        src_len           = NULL;  /* Pointer to sequence lengths in source buffer */
+    size_t          curr_dst_seq;              /* Current destination buffer sequence to operate on */
+    size_t          curr_src_seq;              /* Current source buffer sequence to operate on */
+    size_t          dst_nseq;                  /* Number of sequences generated for destination buffer */
+    size_t          src_nseq;                  /* Number of sequences generated for source buffer */
+    size_t          dxpl_vec_size;             /* Vector length from API context's DXPL */
+    size_t          vec_size;                  /* Vector length */
+    ssize_t         bytes_copied;
+    herr_t          ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    HDassert(dst_buf);
+    HDassert(dst_space);
+    HDassert(src_buf);
+    HDassert(src_space);
+
+    if (elmt_size == 0)
+        HGOTO_ERROR(H5E_DATASPACE, H5E_BADVALUE, FAIL, "invalid elmt_size of 0")
+
+    /* Check for only one element in selection */
+    if (nelmts == 1) {
+        hsize_t single_dst_off; /* Offset in dst_space */
+        hsize_t single_src_off; /* Offset in src_space */
+        size_t  single_dst_len; /* Length in dst_space */
+        size_t  single_src_len; /* Length in src_space */
+
+        /* Get offset of first element in selections */
+        if (H5S_SELECT_OFFSET(dst_space, &single_dst_off) < 0)
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't retrieve destination selection offset")
+        if (H5S_SELECT_OFFSET(src_space, &single_src_off) < 0)
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "can't retrieve source selection offset")
+
+        /* Set up necessary information for I/O operation */
+        dst_nseq = src_nseq = 1;
+        curr_dst_seq = curr_src_seq = 0;
+        single_dst_off *= elmt_size;
+        single_src_off *= elmt_size;
+        single_dst_len = single_src_len = elmt_size;
+
+        /* Perform vectorized memcpy from src_buf to dst_buf */
+        if ((bytes_copied =
+                 H5VM_memcpyvv(dst_buf, dst_nseq, &curr_dst_seq, &single_dst_len, &single_dst_off, src_buf,
+                               src_nseq, &curr_src_seq, &single_src_len, &single_src_off)) < 0)
+            HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "vectorized memcpy failed")
+
+        HDassert(((size_t)bytes_copied % elmt_size) == 0);
+    }
+    else {
+        unsigned sel_iter_flags = H5S_SEL_ITER_GET_SEQ_LIST_SORTED | H5S_SEL_ITER_SHARE_WITH_DATASPACE;
+        size_t   dst_nelem; /* Number of elements used in destination buffer sequences */
+        size_t   src_nelem; /* Number of elements used in source buffer sequences */
+
+        /* Get info from API context */
+        if (H5CX_get_vec_size(&dxpl_vec_size) < 0)
+            HGOTO_ERROR(H5E_IO, H5E_CANTGET, FAIL, "can't retrieve I/O vector size")
+
+        /* Allocate the vector I/O arrays */
+        if (dxpl_vec_size > H5D_IO_VECTOR_SIZE)
+            vec_size = dxpl_vec_size;
+        else
+            vec_size = H5D_IO_VECTOR_SIZE;
+
+        if (NULL == (dst_len = H5FL_SEQ_MALLOC(size_t, vec_size)))
+            HGOTO_ERROR(H5E_IO, H5E_CANTALLOC, FAIL, "can't allocate I/O length vector array")
+        if (NULL == (dst_off = H5FL_SEQ_MALLOC(hsize_t, vec_size)))
+            HGOTO_ERROR(H5E_IO, H5E_CANTALLOC, FAIL, "can't allocate I/O offset vector array")
+        if (NULL == (src_len = H5FL_SEQ_MALLOC(size_t, vec_size)))
+            HGOTO_ERROR(H5E_IO, H5E_CANTALLOC, FAIL, "can't allocate I/O length vector array")
+        if (NULL == (src_off = H5FL_SEQ_MALLOC(hsize_t, vec_size)))
+            HGOTO_ERROR(H5E_IO, H5E_CANTALLOC, FAIL, "can't allocate I/O offset vector array")
+
+        /* Allocate the dataspace selection iterators */
+        if (NULL == (dst_sel_iter = H5FL_MALLOC(H5S_sel_iter_t)))
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTALLOC, FAIL, "can't allocate destination selection iterator")
+        if (NULL == (src_sel_iter = H5FL_MALLOC(H5S_sel_iter_t)))
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTALLOC, FAIL, "can't allocate source selection iterator")
+
+        /* Initialize destination selection iterator */
+        if (H5S_select_iter_init(dst_sel_iter, dst_space, elmt_size, sel_iter_flags) < 0)
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTINIT, FAIL, "unable to initialize selection iterator")
+        dst_sel_iter_init = TRUE; /* Destination selection iteration info has been initialized */
+
+        /* Initialize source selection iterator */
+        if (H5S_select_iter_init(src_sel_iter, src_space, elmt_size, H5S_SEL_ITER_SHARE_WITH_DATASPACE) < 0)
+            HGOTO_ERROR(H5E_DATASPACE, H5E_CANTINIT, FAIL, "unable to initialize selection iterator")
+        src_sel_iter_init = TRUE; /* Source selection iteration info has been initialized */
+
+        /* Initialize sequence counts */
+        curr_dst_seq = curr_src_seq = 0;
+        dst_nseq = src_nseq = 0;
+
+        /* Loop, until all bytes are processed */
+        while (nelmts > 0) {
+            /* Check if more destination buffer sequences are needed */
+            if (curr_dst_seq >= dst_nseq) {
+                /* Get sequences for destination selection */
+                if (H5S_SELECT_ITER_GET_SEQ_LIST(dst_sel_iter, vec_size, nelmts, &dst_nseq, &dst_nelem,
+                                                 dst_off, dst_len) < 0)
+                    HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "sequence length generation failed")
+
+                /* Start at the beginning of the sequences again */
+                curr_dst_seq = 0;
+            }
+
+            /* Check if more source buffer sequences are needed */
+            if (curr_src_seq >= src_nseq) {
+                /* Get sequences for source selection */
+                if (H5S_SELECT_ITER_GET_SEQ_LIST(src_sel_iter, vec_size, nelmts, &src_nseq, &src_nelem,
+                                                 src_off, src_len) < 0)
+                    HGOTO_ERROR(H5E_DATASPACE, H5E_CANTGET, FAIL, "sequence length generation failed")
+
+                /* Start at the beginning of the sequences again */
+                curr_src_seq = 0;
+            } /* end if */
+
+            /* Perform vectorized memcpy from src_buf to dst_buf */
+            if ((bytes_copied = H5VM_memcpyvv(dst_buf, dst_nseq, &curr_dst_seq, dst_len, dst_off, src_buf,
+                                              src_nseq, &curr_src_seq, src_len, src_off)) < 0)
+                HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "vectorized memcpy failed")
+
+            /* Decrement number of elements left to process */
+            HDassert(((size_t)bytes_copied % elmt_size) == 0);
+            nelmts -= ((size_t)bytes_copied / elmt_size);
+        }
+    }
+
+done:
+    /* Release selection iterators */
+    if (src_sel_iter) {
+        if (src_sel_iter_init && H5S_SELECT_ITER_RELEASE(src_sel_iter) < 0)
+            HDONE_ERROR(H5E_DATASPACE, H5E_CANTRELEASE, FAIL, "unable to release selection iterator")
+
+        src_sel_iter = H5FL_FREE(H5S_sel_iter_t, src_sel_iter);
+    }
+    if (dst_sel_iter) {
+        if (dst_sel_iter_init && H5S_SELECT_ITER_RELEASE(dst_sel_iter) < 0)
+            HDONE_ERROR(H5E_DATASPACE, H5E_CANTRELEASE, FAIL, "unable to release selection iterator")
+
+        dst_sel_iter = H5FL_FREE(H5S_sel_iter_t, dst_sel_iter);
+    }
+
+    /* Release vector arrays, if allocated */
+    if (src_off)
+        src_off = H5FL_SEQ_FREE(hsize_t, src_off);
+    if (src_len)
+        src_len = H5FL_SEQ_FREE(size_t, src_len);
+    if (dst_off)
+        dst_off = H5FL_SEQ_FREE(hsize_t, dst_off);
+    if (dst_len)
+        dst_len = H5FL_SEQ_FREE(size_t, dst_len);
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5D_select_io_mem() */
+
+/*-------------------------------------------------------------------------
  * Function:	H5D__select_read
  *
  * Purpose:	Reads directly from file into application memory.
@@ -270,7 +453,7 @@ done:
  */
 herr_t
 H5D__select_read(const H5D_io_info_t *io_info, const H5D_type_info_t *type_info, hsize_t nelmts,
-                 const H5S_t *file_space, const H5S_t *mem_space)
+                 H5S_t *file_space, H5S_t *mem_space)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -299,7 +482,7 @@ done:
  */
 herr_t
 H5D__select_write(const H5D_io_info_t *io_info, const H5D_type_info_t *type_info, hsize_t nelmts,
-                  const H5S_t *file_space, const H5S_t *mem_space)
+                  H5S_t *file_space, H5S_t *mem_space)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 

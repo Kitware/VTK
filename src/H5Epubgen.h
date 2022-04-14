@@ -38,6 +38,8 @@ extern "C" {
 #define H5E_REFERENCE        (H5OPEN H5E_REFERENCE_g)
 #define H5E_DATASPACE        (H5OPEN H5E_DATASPACE_g)
 #define H5E_RESOURCE         (H5OPEN H5E_RESOURCE_g)
+#define H5E_EVENTSET         (H5OPEN H5E_EVENTSET_g)
+#define H5E_ID               (H5OPEN H5E_ID_g)
 #define H5E_RS               (H5OPEN H5E_RS_g)
 #define H5E_FARRAY           (H5OPEN H5E_FARRAY_g)
 #define H5E_HEAP             (H5OPEN H5E_HEAP_g)
@@ -55,7 +57,6 @@ extern "C" {
 #define H5E_PLIST            (H5OPEN H5E_PLIST_g)
 #define H5E_DATATYPE         (H5OPEN H5E_DATATYPE_g)
 #define H5E_OHDR             (H5OPEN H5E_OHDR_g)
-#define H5E_ATOM             (H5OPEN H5E_ATOM_g)
 #define H5E_NONE_MAJOR       (H5OPEN H5E_NONE_MAJOR_g)
 #define H5E_SLIST            (H5OPEN H5E_SLIST_g)
 #define H5E_ARGS             (H5OPEN H5E_ARGS_g)
@@ -76,6 +77,8 @@ H5_DLLVAR hid_t H5E_BTREE_g;         /* B-Tree node */
 H5_DLLVAR hid_t H5E_REFERENCE_g;     /* References */
 H5_DLLVAR hid_t H5E_DATASPACE_g;     /* Dataspace */
 H5_DLLVAR hid_t H5E_RESOURCE_g;      /* Resource unavailable */
+H5_DLLVAR hid_t H5E_EVENTSET_g;      /* Event Set */
+H5_DLLVAR hid_t H5E_ID_g;            /* Object ID */
 H5_DLLVAR hid_t H5E_RS_g;            /* Reference Counted Strings */
 H5_DLLVAR hid_t H5E_FARRAY_g;        /* Fixed Array */
 H5_DLLVAR hid_t H5E_HEAP_g;          /* Heap */
@@ -93,7 +96,6 @@ H5_DLLVAR hid_t H5E_LINK_g;          /* Links */
 H5_DLLVAR hid_t H5E_PLIST_g;         /* Property lists */
 H5_DLLVAR hid_t H5E_DATATYPE_g;      /* Datatype */
 H5_DLLVAR hid_t H5E_OHDR_g;          /* Object header */
-H5_DLLVAR hid_t H5E_ATOM_g;          /* Object atom */
 H5_DLLVAR hid_t H5E_NONE_MAJOR_g;    /* No error */
 H5_DLLVAR hid_t H5E_SLIST_g;         /* Skip Lists */
 H5_DLLVAR hid_t H5E_ARGS_g;          /* Invalid arguments to routine */
@@ -106,6 +108,20 @@ H5_DLLVAR hid_t H5E_CACHE_g;         /* Object cache */
 /*********************/
 /* Minor error codes */
 /*********************/
+
+/* Object ID related errors */
+#define H5E_BADID            (H5OPEN H5E_BADID_g)
+#define H5E_BADGROUP         (H5OPEN H5E_BADGROUP_g)
+#define H5E_CANTREGISTER     (H5OPEN H5E_CANTREGISTER_g)
+#define H5E_CANTINC          (H5OPEN H5E_CANTINC_g)
+#define H5E_CANTDEC          (H5OPEN H5E_CANTDEC_g)
+#define H5E_NOIDS            (H5OPEN H5E_NOIDS_g)
+H5_DLLVAR hid_t H5E_BADID_g;         /* Unable to find ID information (already closed?) */
+H5_DLLVAR hid_t H5E_BADGROUP_g;      /* Unable to find ID group information */
+H5_DLLVAR hid_t H5E_CANTREGISTER_g;  /* Unable to register new ID */
+H5_DLLVAR hid_t H5E_CANTINC_g;       /* Unable to increment reference count */
+H5_DLLVAR hid_t H5E_CANTDEC_g;       /* Unable to decrement reference count */
+H5_DLLVAR hid_t H5E_NOIDS_g;         /* Out of IDs for group */
 
 /* Generic low-level file I/O errors */
 #define H5E_SEEKERROR        (H5OPEN H5E_SEEKERROR_g)
@@ -157,6 +173,10 @@ H5_DLLVAR hid_t H5E_CANTATTACH_g;    /* Can't attach object */
 H5_DLLVAR hid_t H5E_CANTUPDATE_g;    /* Can't update object */
 H5_DLLVAR hid_t H5E_CANTOPERATE_g;   /* Can't operate on object */
 
+/* Map related errors */
+#define H5E_CANTPUT          (H5OPEN H5E_CANTPUT_g)
+H5_DLLVAR hid_t H5E_CANTPUT_g;       /* Can't put value */
+
 /* Function entry/exit interface errors */
 #define H5E_CANTINIT         (H5OPEN H5E_CANTINIT_g)
 #define H5E_ALREADYINIT      (H5OPEN H5E_ALREADYINIT_g)
@@ -174,6 +194,12 @@ H5_DLLVAR hid_t H5E_CANTGET_g;       /* Can't get value */
 H5_DLLVAR hid_t H5E_CANTSET_g;       /* Can't set value */
 H5_DLLVAR hid_t H5E_DUPCLASS_g;      /* Duplicate class name in parent class */
 H5_DLLVAR hid_t H5E_SETDISALLOWED_g; /* Disallowed operation */
+
+/* Asynchronous operation errors */
+#define H5E_CANTWAIT         (H5OPEN H5E_CANTWAIT_g)
+#define H5E_CANTCANCEL       (H5OPEN H5E_CANTCANCEL_g)
+H5_DLLVAR hid_t H5E_CANTWAIT_g;      /* Can't wait on operation */
+H5_DLLVAR hid_t H5E_CANTCANCEL_g;    /* Can't cancel operation */
 
 /* Free space errors */
 #define H5E_CANTMERGE        (H5OPEN H5E_CANTMERGE_g)
@@ -249,6 +275,7 @@ H5_DLLVAR hid_t H5E_OPENERROR_g;     /* Can't open directory or file */
 #define H5E_BADFILE          (H5OPEN H5E_BADFILE_g)
 #define H5E_TRUNCATED        (H5OPEN H5E_TRUNCATED_g)
 #define H5E_MOUNT            (H5OPEN H5E_MOUNT_g)
+#define H5E_UNMOUNT          (H5OPEN H5E_UNMOUNT_g)
 #define H5E_CANTDELETEFILE   (H5OPEN H5E_CANTDELETEFILE_g)
 #define H5E_CANTLOCKFILE     (H5OPEN H5E_CANTLOCKFILE_g)
 #define H5E_CANTUNLOCKFILE   (H5OPEN H5E_CANTUNLOCKFILE_g)
@@ -261,23 +288,10 @@ H5_DLLVAR hid_t H5E_NOTHDF5_g;       /* Not an HDF5 file */
 H5_DLLVAR hid_t H5E_BADFILE_g;       /* Bad file ID accessed */
 H5_DLLVAR hid_t H5E_TRUNCATED_g;     /* File has been truncated */
 H5_DLLVAR hid_t H5E_MOUNT_g;         /* File mount error */
+H5_DLLVAR hid_t H5E_UNMOUNT_g;       /* File unmount error */
 H5_DLLVAR hid_t H5E_CANTDELETEFILE_g; /* Unable to delete file */
 H5_DLLVAR hid_t H5E_CANTLOCKFILE_g;  /* Unable to lock file */
 H5_DLLVAR hid_t H5E_CANTUNLOCKFILE_g; /* Unable to unlock file */
-
-/* Object atom related errors */
-#define H5E_BADATOM          (H5OPEN H5E_BADATOM_g)
-#define H5E_BADGROUP         (H5OPEN H5E_BADGROUP_g)
-#define H5E_CANTREGISTER     (H5OPEN H5E_CANTREGISTER_g)
-#define H5E_CANTINC          (H5OPEN H5E_CANTINC_g)
-#define H5E_CANTDEC          (H5OPEN H5E_CANTDEC_g)
-#define H5E_NOIDS            (H5OPEN H5E_NOIDS_g)
-H5_DLLVAR hid_t H5E_BADATOM_g;       /* Unable to find atom information (already closed?) */
-H5_DLLVAR hid_t H5E_BADGROUP_g;      /* Unable to find ID group information */
-H5_DLLVAR hid_t H5E_CANTREGISTER_g;  /* Unable to register new atom */
-H5_DLLVAR hid_t H5E_CANTINC_g;       /* Unable to increment reference count */
-H5_DLLVAR hid_t H5E_CANTDEC_g;       /* Unable to decrement reference count */
-H5_DLLVAR hid_t H5E_NOIDS_g;         /* Out of IDs for group */
 
 /* Cache related errors */
 #define H5E_CANTFLUSH        (H5OPEN H5E_CANTFLUSH_g)
@@ -401,6 +415,7 @@ H5_DLLVAR hid_t H5E_BADVALUE_g;      /* Bad value */
 #define H5E_CANTLIST         (H5OPEN H5E_CANTLIST_g)
 #define H5E_CANTMODIFY       (H5OPEN H5E_CANTMODIFY_g)
 #define H5E_CANTREMOVE       (H5OPEN H5E_CANTREMOVE_g)
+#define H5E_CANTFIND         (H5OPEN H5E_CANTFIND_g)
 H5_DLLVAR hid_t H5E_NOTFOUND_g;      /* Object not found */
 H5_DLLVAR hid_t H5E_EXISTS_g;        /* Object already exists */
 H5_DLLVAR hid_t H5E_CANTENCODE_g;    /* Unable to encode value */
@@ -412,6 +427,7 @@ H5_DLLVAR hid_t H5E_CANTINSERT_g;    /* Unable to insert object */
 H5_DLLVAR hid_t H5E_CANTLIST_g;      /* Unable to list node */
 H5_DLLVAR hid_t H5E_CANTMODIFY_g;    /* Unable to modify record */
 H5_DLLVAR hid_t H5E_CANTREMOVE_g;    /* Unable to remove object */
+H5_DLLVAR hid_t H5E_CANTFIND_g;      /* Unable to check for record */
 
 /* Datatype conversion errors */
 #define H5E_CANTCONVERT      (H5OPEN H5E_CANTCONVERT_g)

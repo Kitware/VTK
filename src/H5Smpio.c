@@ -685,7 +685,7 @@ H5S__mpio_reg_hyper_type(const H5S_t *space, size_t elmt_size, MPI_Datatype *new
         rank = sel_iter.u.hyp.iter_rank;
 #ifdef H5S_DEBUG
         if (H5DEBUG(S))
-            HDfprintf(H5DEBUG(S), "%s: Flattened selection\n", FUNC);
+            HDfprintf(H5DEBUG(S), "%s: Flattened selection\n", __func__);
 #endif
         for (u = 0; u < rank; ++u) {
             H5_CHECK_OVERFLOW(diminfo[u].start, hsize_t, hssize_t)
@@ -700,7 +700,7 @@ H5S__mpio_reg_hyper_type(const H5S_t *space, size_t elmt_size, MPI_Datatype *new
                 HDfprintf(H5DEBUG(S),
                           "%s: start=%" PRIdHSIZE "  stride=%" PRIuHSIZE "  count=%" PRIuHSIZE
                           "  block=%" PRIuHSIZE "  xtent=%" PRIuHSIZE,
-                          FUNC, d[u].start, d[u].strid, d[u].count, d[u].block, d[u].xtent);
+                          __func__, d[u].start, d[u].strid, d[u].count, d[u].block, d[u].xtent);
                 if (u == 0)
                     HDfprintf(H5DEBUG(S), "  rank=%u\n", rank);
                 else
@@ -719,7 +719,7 @@ H5S__mpio_reg_hyper_type(const H5S_t *space, size_t elmt_size, MPI_Datatype *new
         rank = space->extent.rank;
 #ifdef H5S_DEBUG
         if (H5DEBUG(S))
-            HDfprintf(H5DEBUG(S), "%s: Non-flattened selection\n", FUNC);
+            HDfprintf(H5DEBUG(S), "%s: Non-flattened selection\n", __func__);
 #endif
         for (u = 0; u < rank; ++u) {
             H5_CHECK_OVERFLOW(diminfo[u].start, hsize_t, hssize_t)
@@ -734,7 +734,7 @@ H5S__mpio_reg_hyper_type(const H5S_t *space, size_t elmt_size, MPI_Datatype *new
                 HDfprintf(H5DEBUG(S),
                           "%s: start=%" PRIdHSIZE "  stride=%" PRIuHSIZE "  count=%" PRIuHSIZE
                           "  block=%" PRIuHSIZE "  xtent=%" PRIuHSIZE,
-                          FUNC, d[u].start, d[u].strid, d[u].count, d[u].block, d[u].xtent);
+                          __func__, d[u].start, d[u].strid, d[u].count, d[u].block, d[u].xtent);
                 if (u == 0)
                     HDfprintf(H5DEBUG(S), "  rank=%u\n", rank);
                 else
@@ -783,7 +783,7 @@ H5S__mpio_reg_hyper_type(const H5S_t *space, size_t elmt_size, MPI_Datatype *new
  *******************************************************/
 #ifdef H5S_DEBUG
     if (H5DEBUG(S)) {
-        HDfprintf(H5DEBUG(S), "%s: Making contig type %zu MPI_BYTEs\n", FUNC, elmt_size);
+        HDfprintf(H5DEBUG(S), "%s: Making contig type %zu MPI_BYTEs\n", __func__, elmt_size);
         for (i = ((int)rank) - 1; i >= 0; --i)
             HDfprintf(H5DEBUG(S), "d[%d].xtent=%" PRIuHSIZE "\n", i, d[i].xtent);
     }
@@ -817,12 +817,12 @@ H5S__mpio_reg_hyper_type(const H5S_t *space, size_t elmt_size, MPI_Datatype *new
                       "%s: Dimension i=%d \n"
                       "start=%" PRIdHSIZE " count=%" PRIuHSIZE " block=%" PRIuHSIZE " stride=%" PRIuHSIZE
                       ", xtent=%" PRIuHSIZE " max_xtent=%" PRIuHSIZE "\n",
-                      FUNC, i, d[i].start, d[i].count, d[i].block, d[i].strid, d[i].xtent, max_xtent[i]);
+                      __func__, i, d[i].start, d[i].count, d[i].block, d[i].strid, d[i].xtent, max_xtent[i]);
 #endif
 
 #ifdef H5S_DEBUG
         if (H5DEBUG(S))
-            HDfprintf(H5DEBUG(S), "%s: i=%d  Making vector-type \n", FUNC, i);
+            HDfprintf(H5DEBUG(S), "%s: i=%d  Making vector-type \n", __func__, i);
 #endif
         /****************************************
          * Build vector type of the selection.
@@ -957,7 +957,7 @@ done:
 
 #ifdef H5S_DEBUG
     if (H5DEBUG(S))
-        HDfprintf(H5DEBUG(S), "Leave %s, count=%d  is_derived_type=%s\n", FUNC, *count,
+        HDfprintf(H5DEBUG(S), "Leave %s, count=%d  is_derived_type=%s\n", __func__, *count,
                   (*is_derived_type) ? "TRUE" : "FALSE");
 #endif
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1145,7 +1145,7 @@ H5S__obtain_datatype(H5S_hyper_span_info_t *spans, const hsize_t *down, size_t e
         /* If this is the fastest changing dimension, it is the base case for derived datatype. */
         span = spans->head;
         if (NULL == span->down) {
-            hbool_t large_block = FALSE; /* Wether the block length is larger than 32 bit integer */
+            hbool_t large_block = FALSE; /* Whether the block length is larger than 32 bit integer */
 
             outercount = 0;
             while (span) {

@@ -46,9 +46,6 @@
 /* Package Variables */
 /*********************/
 
-/* Package initialization variable */
-hbool_t H5_PKG_INIT_VAR = FALSE;
-
 /*****************************/
 /* Library Private Variables */
 /*****************************/
@@ -123,28 +120,27 @@ H5PL__set_plugin_control_mask(unsigned int mask)
 } /* end H5PL__set_plugin_control_mask() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5PL__init_package
+ * Function:    H5PL_init
  *
- * Purpose:     Initialize any package-specific data and call any init
- *              routines for the package.
+ * Purpose:     Initialize the interface from some other layer.
  *
- * Return:      SUCCEED/FAIL
- *
+ * Return:      Success:        non-negative
+ *              Failure:        negative
  *-------------------------------------------------------------------------
  */
 herr_t
-H5PL__init_package(void)
+H5PL_init(void)
 {
     char * env_var   = NULL;
     herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check the environment variable to determine if the user wants
      * to ignore plugins. The special symbol H5PL_NO_PLUGIN (defined in
      * H5PLpublic.h) means we don't want to load plugins.
      */
-    if (NULL != (env_var = HDgetenv("HDF5_PLUGIN_PRELOAD")))
+    if (NULL != (env_var = HDgetenv(HDF5_PLUGIN_PRELOAD)))
         if (!HDstrcmp(env_var, H5PL_NO_PLUGIN)) {
             H5PL_plugin_control_mask_g = 0;
             H5PL_allow_plugins_g       = FALSE;
@@ -160,7 +156,7 @@ H5PL__init_package(void)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5PL__init_package() */
+}
 
 /*-------------------------------------------------------------------------
  * Function:    H5PL_term_package
@@ -183,24 +179,17 @@ H5PL_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT
 
-    if (H5_PKG_INIT_VAR) {
+    /* Close the plugin cache.
+     * We need to bump the return value if we did any real work here.
+     */
+    if (H5PL__close_plugin_cache(&already_closed) < 0)
+        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, (-1), "problem closing plugin cache")
+    if (!already_closed)
+        ret_value++;
 
-        /* Close the plugin cache.
-         * We need to bump the return value if we did any real work here.
-         */
-        if (H5PL__close_plugin_cache(&already_closed) < 0)
-            HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, (-1), "problem closing plugin cache")
-        if (!already_closed)
-            ret_value++;
-
-        /* Close the search path table and free the paths */
-        if (H5PL__close_path_table() < 0)
-            HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, (-1), "problem closing search path table")
-
-        /* Mark the interface as uninitialized */
-        if (0 == ret_value)
-            H5_PKG_INIT_VAR = FALSE;
-    } /* end if */
+    /* Close the search path table and free the paths */
+    if (H5PL__close_path_table() < 0)
+        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, (-1), "problem closing search path table")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -236,11 +225,18 @@ H5PL_load(H5PL_type_t type, const H5PL_key_t *key)
             if ((H5PL_plugin_control_mask_g & H5PL_FILTER_PLUGIN) == 0)
                 HGOTO_ERROR(H5E_PLUGIN, H5E_CANTLOAD, NULL, "filter plugins disabled")
             break;
+
         case H5PL_TYPE_VOL:
             if ((H5PL_plugin_control_mask_g & H5PL_VOL_PLUGIN) == 0)
                 HGOTO_ERROR(H5E_PLUGIN, H5E_CANTLOAD, NULL,
                             "Virtual Object Layer (VOL) driver plugins disabled")
             break;
+
+        case H5PL_TYPE_VFD:
+            if ((H5PL_plugin_control_mask_g & H5PL_VFD_PLUGIN) == 0)
+                HGOTO_ERROR(H5E_PLUGIN, H5E_CANTLOAD, NULL, "Virtual File Driver (VFD) plugins disabled")
+            break;
+
         case H5PL_TYPE_ERROR:
         case H5PL_TYPE_NONE:
         default:
@@ -273,9 +269,31 @@ done:
  *
  * Purpose:     Opens a plugin.
  *
- *              The success parameter will be set to TRUE and the plugin_info
- *              parameter will be filled in on success. Otherwise, they
- *              will be FALSE and NULL, respectively.
+ *              `path` specifies the path to the plugin library file.
+ *
+ *              `type` specifies the type of plugin being searched for and
+ *              will be used to verify that a loaded plugin matches the
+ *              type requested. H5PL_TYPE_NONE may be passed, in which case
+ *              no plugin type verification is performed. This is most
+ *              useful when iterating over available plugins without regard
+ *              to their types.
+ *
+ *              `key` specifies the information that will be used to find a
+ *              specific plugin. For filter plugins, this is typically an
+ *              integer identifier. For VOL connector and VFD plugins, this
+ *              is typically either an integer identifier or a name string.
+ *              After a plugin has been opened, this information will be
+ *              compared against the relevant information provided by the
+ *              plugin to ensure that the plugin is a match. If
+ *              H5PL_TYPE_NONE is provided for `type`, then `key` should be
+ *              NULL.
+ *
+ *              On successful open of a plugin, the `success` parameter
+ *              will be set to TRUE and the `plugin_type` and `plugin_info`
+ *              parameters will be filled appropriately. On failure, the
+ *              `success` parameter will be set to FALSE, the `plugin_type`
+ *              parameter will be set to H5PL_TYPE_ERROR and the
+ *              `plugin_info` parameter will be set to NULL.
  *
  * Return:      SUCCEED/FAIL
  *
@@ -290,7 +308,7 @@ done:
  *       get_plugin_info function pointer, but early (4.4.7, at least) gcc
  *       only allows diagnostic pragmas to be toggled outside of functions.
  */
-H5_GCC_DIAG_OFF("pedantic")
+H5_GCC_CLANG_DIAG_OFF("pedantic")
 herr_t
 H5PL__open(const char *path, H5PL_type_t type, const H5PL_key_t *key, hbool_t *success,
            H5PL_type_t *plugin_type, const void **plugin_info)
@@ -306,6 +324,8 @@ H5PL__open(const char *path, H5PL_type_t type, const H5PL_key_t *key, hbool_t *s
 
     /* Check args - Just assert on package functions */
     HDassert(path);
+    if (type == H5PL_TYPE_NONE)
+        HDassert(!key);
     HDassert(success);
     HDassert(plugin_info);
 
@@ -394,6 +414,34 @@ H5PL__open(const char *path, H5PL_type_t type, const H5PL_key_t *key, hbool_t *s
             break;
         }
 
+        case H5PL_TYPE_VFD: {
+            const void *cls;
+
+            /* Get the plugin info */
+            if (NULL == (cls = (const void *)(*get_plugin_info)()))
+                HGOTO_ERROR(H5E_PLUGIN, H5E_CANTGET, FAIL, "can't get VFD info from plugin")
+
+            /* Setup temporary plugin key if one wasn't supplied */
+            if (!key) {
+                tmp_key.vfd.kind   = H5FD_GET_DRIVER_BY_NAME;
+                tmp_key.vfd.u.name = ((const H5FD_class_t *)cls)->name;
+                key                = &tmp_key;
+            }
+
+            /* Ask VFD interface if this class is the one we are looking for and is compatible, etc */
+            if (H5FD_check_plugin_load(cls, key, success) < 0)
+                HGOTO_ERROR(H5E_PLUGIN, H5E_CANTLOAD, FAIL, "VFD compatibility check failed")
+
+            /* Check for finding the correct plugin */
+            if (*success) {
+                if (plugin_type)
+                    *plugin_type = H5PL_TYPE_VFD;
+                *plugin_info = cls;
+            }
+
+            break;
+        }
+
         case H5PL_TYPE_ERROR:
         case H5PL_TYPE_NONE:
         default:
@@ -412,7 +460,7 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PL__open() */
-H5_GCC_DIAG_ON("pedantic")
+H5_GCC_CLANG_DIAG_ON("pedantic")
 
 /*-------------------------------------------------------------------------
  * Function:    H5PL__close
@@ -451,10 +499,9 @@ H5PL_iterate(H5PL_iterate_type_t iter_type, H5PL_iterate_t iter_op, void *op_dat
 {
     herr_t ret_value = H5_ITER_CONT;
 
-    FUNC_ENTER_NOAPI(H5_ITER_ERROR)
+    FUNC_ENTER_NOAPI_NOERR
 
     ret_value = H5PL__path_table_iterate(iter_type, iter_op, op_data);
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PL_iterate() */

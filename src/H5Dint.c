@@ -75,7 +75,7 @@ typedef struct {
 
 /* General stuff */
 static H5D_shared_t *H5D__new(hid_t dcpl_id, hid_t dapl_id, hbool_t creating, hbool_t vl_type);
-static herr_t        H5D__init_type(H5F_t *file, const H5D_t *dset, hid_t type_id, H5T_t *type);
+static herr_t        H5D__init_type(H5F_t *file, const H5D_t *dset, hid_t type_id, const H5T_t *type);
 static herr_t        H5D__cache_dataspace_info(const H5D_t *dset);
 static herr_t        H5D__init_space(H5F_t *file, const H5D_t *dset, const H5S_t *space);
 static herr_t        H5D__update_oh_info(H5F_t *file, H5D_t *dset, hid_t dapl_id);
@@ -83,7 +83,7 @@ static herr_t H5D__build_file_prefix(const H5D_t *dset, H5F_prefix_open_t prefix
 static herr_t H5D__open_oid(H5D_t *dataset, hid_t dapl_id);
 static herr_t H5D__init_storage(const H5D_io_info_t *io_info, hbool_t full_overwrite, hsize_t old_dim[]);
 static herr_t H5D__append_flush_setup(H5D_t *dset, hid_t dapl_id);
-static herr_t H5D__close_cb(H5VL_object_t *dset_vol_obj);
+static herr_t H5D__close_cb(H5VL_object_t *dset_vol_obj, void **request);
 static herr_t H5D__use_minimized_dset_headers(H5F_t *file, hbool_t *minimize);
 static herr_t H5D__prepare_minimized_oh(H5F_t *file, H5D_t *dset, H5O_loc_t *oloc);
 static size_t H5D__calculate_minimum_header_size(H5F_t *file, H5D_t *dset, H5O_t *ohdr);
@@ -139,9 +139,6 @@ static const H5I_class_t H5I_DATASET_CLS[1] = {{
     (H5I_free_t)H5D__close_cb /* Callback routine for closing objects of this class */
 }};
 
-/* Flag indicating "top" of interface has been initialized */
-static hbool_t H5D_top_package_initialize_s = FALSE;
-
 /* Prefixes of VDS and external file from the environment variables
  * HDF5_EXTFILE_PREFIX and HDF5_VDS_PREFIX */
 static const char *H5D_prefix_ext_env = NULL;
@@ -160,39 +157,12 @@ static const char *H5D_prefix_vds_env = NULL;
 herr_t
 H5D_init(void)
 {
-    herr_t ret_value = SUCCEED; /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-    /* FUNC_ENTER() does all the work */
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5D_init() */
-
-/*--------------------------------------------------------------------------
-NAME
-    H5D__init_package -- Initialize interface-specific information
-USAGE
-    herr_t H5D__init_package()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.
-NOTES
-    Care must be taken when using the H5P functions, since they can cause
-    a deadlock in the library when the library is attempting to terminate -QAK
-
---------------------------------------------------------------------------*/
-herr_t
-H5D__init_package(void)
-{
     H5P_genplist_t *def_dcpl;            /* Default Dataset Creation Property list */
     herr_t          ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_NOAPI(FAIL)
 
-    /* Initialize the atom group for the dataset IDs */
+    /* Initialize the ID group for the dataset IDs */
     if (H5I_register_type(H5I_DATASET_CLS) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize interface")
 
@@ -220,16 +190,13 @@ H5D__init_package(void)
     if (H5P_get(def_dcpl, H5O_CRT_PIPELINE_NAME, &H5D_def_dset.dcpl_cache.pline) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't retrieve pipeline filter")
 
-    /* Mark "top" of interface as initialized, too */
-    H5D_top_package_initialize_s = TRUE;
-
     /* Retrieve the prefixes of VDS and external file from the environment variable */
     H5D_prefix_vds_env = HDgetenv("HDF5_VDS_PREFIX");
     H5D_prefix_ext_env = HDgetenv("HDF5_EXTFILE_PREFIX");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5D__init_package() */
+} /* end H5D_init() */
 
 /*-------------------------------------------------------------------------
  * Function: H5D_top_term_package
@@ -248,38 +215,32 @@ H5D_top_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if (H5D_top_package_initialize_s) {
-        if (H5I_nmembers(H5I_DATASET) > 0) {
-            /* The dataset API uses the "force" flag set to true because it
-             * is using the "file objects" (H5FO) API functions to track open
-             * objects in the file.  Using the H5FO code means that dataset
-             * IDs can have reference counts >1, when an existing dataset is
-             * opened more than once.  However, the H5I code does not attempt
-             * to close objects with reference counts>1 unless the "force" flag
-             * is set to true.
-             *
-             * At some point (probably after the group and datatypes use the
-             * the H5FO code), the H5FO code might need to be switched around
-             * to storing pointers to the objects being tracked (H5D_t, H5G_t,
-             * etc) and reference count those itself instead of relying on the
-             * reference counting in the H5I layer.  Then, the "force" flag can
-             * be put back to false.
-             *
-             * Setting the "force" flag to true for all the interfaces won't
-             * work because the "file driver" (H5FD) APIs use the H5I reference
-             * counting to avoid closing a file driver out from underneath an
-             * open file...
-             *
-             * QAK - 5/13/03
-             */
-            (void)H5I_clear_type(H5I_DATASET, TRUE, FALSE);
-            n++; /*H5I*/
-        }        /* end if */
-
-        /* Mark closed */
-        if (0 == n)
-            H5D_top_package_initialize_s = FALSE;
-    } /* end if */
+    if (H5I_nmembers(H5I_DATASET) > 0) {
+        /* The dataset API uses the "force" flag set to true because it
+         * is using the "file objects" (H5FO) API functions to track open
+         * objects in the file.  Using the H5FO code means that dataset
+         * IDs can have reference counts >1, when an existing dataset is
+         * opened more than once.  However, the H5I code does not attempt
+         * to close objects with reference counts>1 unless the "force" flag
+         * is set to true.
+         *
+         * At some point (probably after the group and datatypes use the
+         * the H5FO code), the H5FO code might need to be switched around
+         * to storing pointers to the objects being tracked (H5D_t, H5G_t,
+         * etc) and reference count those itself instead of relying on the
+         * reference counting in the H5I layer.  Then, the "force" flag can
+         * be put back to false.
+         *
+         * Setting the "force" flag to true for all the interfaces won't
+         * work because the "file driver" (H5FD) APIs use the H5I reference
+         * counting to avoid closing a file driver out from underneath an
+         * open file...
+         *
+         * QAK - 5/13/03
+         */
+        (void)H5I_clear_type(H5I_DATASET, TRUE, FALSE);
+        n++; /*H5I*/
+    }
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5D_top_term_package() */
@@ -304,18 +265,11 @@ H5D_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if (H5_PKG_INIT_VAR) {
-        /* Sanity checks */
-        HDassert(0 == H5I_nmembers(H5I_DATASET));
-        HDassert(FALSE == H5D_top_package_initialize_s);
+    /* Sanity checks */
+    HDassert(0 == H5I_nmembers(H5I_DATASET));
 
-        /* Destroy the dataset object id group */
-        n += (H5I_dec_type_ref(H5I_DATASET) > 0);
-
-        /* Mark closed */
-        if (0 == n)
-            H5_PKG_INIT_VAR = FALSE;
-    } /* end if */
+    /* Destroy the dataset object id group */
+    n += (H5I_dec_type_ref(H5I_DATASET) > 0);
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5D_term_package() */
@@ -330,7 +284,7 @@ H5D_term_package(void)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5D__close_cb(H5VL_object_t *dset_vol_obj)
+H5D__close_cb(H5VL_object_t *dset_vol_obj, void **request)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -340,7 +294,7 @@ H5D__close_cb(H5VL_object_t *dset_vol_obj)
     HDassert(dset_vol_obj);
 
     /* Close the dataset */
-    if (H5VL_dataset_close(dset_vol_obj, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
+    if (H5VL_dataset_close(dset_vol_obj, H5P_DATASET_XFER_DEFAULT, request) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CLOSEERROR, FAIL, "unable to close dataset");
 
 done:
@@ -410,7 +364,7 @@ done:
  *
  * Return:
  *              Success:        Non-negative
- *              Failture:       Negative
+ *              Failure:       Negative
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -424,40 +378,18 @@ H5D__get_space_status(const H5D_t *dset, H5D_space_status_t *allocation)
 
     /* Check for chunked layout */
     if (dset->shared->layout.type == H5D_CHUNKED) {
-        hsize_t  space_allocated; /* The number of bytes allocated for chunks */
-        hssize_t snelmts;         /* Temporary holder for number of elements in dataspace */
-        hsize_t  nelmts;          /* Number of elements in dataspace */
-        size_t   dt_size;         /* Size of datatype */
-        hsize_t  full_size;       /* The number of bytes in the dataset when fully populated */
+        hsize_t n_chunks_total = dset->shared->layout.u.chunk.nchunks;
+        hsize_t n_chunks_alloc = 0;
 
-        /* For chunked layout set the space status by the storage size */
-        /* Get the dataset's dataspace */
-        HDassert(dset->shared->space);
+        if (H5D__get_num_chunks(dset, dset->shared->space, &n_chunks_alloc) < 0)
+            HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL,
+                        "unable to retrieve number of allocated chunks in dataset")
 
-        /* Get the total number of elements in dataset's dataspace */
-        if ((snelmts = H5S_GET_EXTENT_NPOINTS(dset->shared->space)) < 0)
-            HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "unable to retrieve number of elements in dataspace")
-        nelmts = (hsize_t)snelmts;
+        HDassert(n_chunks_alloc <= n_chunks_total);
 
-        /* Get the size of the dataset's datatype */
-        if (0 == (dt_size = H5T_GET_SIZE(dset->shared->type)))
-            HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "unable to retrieve size of datatype")
-
-        /* Compute the maximum size of the dataset in bytes */
-        full_size = nelmts * dt_size;
-
-        /* Check for overflow during multiplication */
-        if (nelmts != (full_size / dt_size))
-            HGOTO_ERROR(H5E_DATASET, H5E_OVERFLOW, FAIL, "size of dataset's storage overflowed")
-
-        /* Difficult to error check, since the error value is 0 and 0 is a valid value... :-/ */
-        if (H5D__get_storage_size(dset, &space_allocated) < 0)
-            HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get size of dataset's storage")
-
-        /* Decide on how much of the space is allocated */
-        if (space_allocated == 0)
+        if (n_chunks_alloc == 0)
             *allocation = H5D_SPACE_STATUS_NOT_ALLOCATED;
-        else if (space_allocated == full_size)
+        else if (n_chunks_alloc == n_chunks_total)
             *allocation = H5D_SPACE_STATUS_ALLOCATED;
         else
             *allocation = H5D_SPACE_STATUS_PART_ALLOCATED;
@@ -556,7 +488,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5D__init_type(H5F_t *file, const H5D_t *dset, hid_t type_id, H5T_t *type)
+H5D__init_type(H5F_t *file, const H5D_t *dset, hid_t type_id, const H5T_t *type)
 {
     htri_t  relocatable;         /* Flag whether the type is relocatable */
     htri_t  immutable;           /* Flag whether the type is immutable */
@@ -757,7 +689,7 @@ H5D__calculate_minimum_header_size(H5F_t *file, H5D_t *dset, H5O_t *ohdr)
     H5T_t *     type             = NULL;
     H5O_fill_t *fill_prop        = NULL;
     hbool_t     use_at_least_v18 = FALSE;
-    const char  continuation[1]  = ""; /* requred for work-around */
+    const char  continuation[1]  = ""; /* required for work-around */
     size_t      get_value        = 0;
     size_t      ret_value        = 0;
 
@@ -804,7 +736,7 @@ H5D__calculate_minimum_header_size(H5F_t *file, H5D_t *dset, H5O_t *ohdr)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, 0, "can't get size of continuation message")
     ret_value += get_value;
 
-    /* Fill Value (backwards compatability) message size */
+    /* Fill Value (backwards compatibility) message size */
     if (fill_prop->buf && !use_at_least_v18) {
         H5O_fill_t old_fill_prop; /* Copy for writing "old" fill value */
 
@@ -893,7 +825,7 @@ H5D__prepare_minimized_oh(H5F_t *file, H5D_t *dset, H5O_loc_t *oloc)
     if (ohdr_size == 0)
         HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, FAIL, "computed header size is invalid")
 
-    /* Special allocation of space for compact datsets is handled by the call here. */
+    /* Special allocation of space for compact datasets is handled by the call here. */
     if (H5O_apply_ohdr(file, oh, dset->shared->dcpl_id, ohdr_size, (size_t)1, oloc) == FAIL)
         HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, FAIL, "can't apply object header to file")
 
@@ -1347,8 +1279,17 @@ H5D__create(H5F_t *file, hid_t type_id, const H5S_t *space, hid_t dcpl_id, hid_t
             HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, NULL, "can't set latest indexing")
     } /* end if */
 
-    /* Check if this dataset is going into a parallel file and set space allocation time */
+    /* Check if the file driver would like to force early space allocation */
     if (H5F_HAS_FEATURE(file, H5FD_FEAT_ALLOCATE_EARLY))
+        new_dset->shared->dcpl_cache.fill.alloc_time = H5D_ALLOC_TIME_EARLY;
+
+    /*
+     * Check if this dataset is going into a parallel file and set space allocation time.
+     * If the dataset has filters applied to it, writes to the dataset must be collective,
+     * so we don't need to force early space allocation. Otherwise, we force early space
+     * allocation to facilitate independent raw data operations.
+     */
+    if (H5F_HAS_FEATURE(file, H5FD_FEAT_HAS_MPI) && (new_dset->shared->dcpl_cache.pline.nused == 0))
         new_dset->shared->dcpl_cache.fill.alloc_time = H5D_ALLOC_TIME_EARLY;
 
     /* Set the dataset's I/O operations */
@@ -1672,7 +1613,7 @@ H5D__append_flush_setup(H5D_t *dset, hid_t dapl_id)
 
         /* Get dataset access property list */
         if (NULL == (dapl = (H5P_genplist_t *)H5I_object(dapl_id)))
-            HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for dapl ID");
+            HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for dapl ID");
 
         /* Check if append flush property exists */
         if (H5P_exist_plist(dapl, H5D_ACS_APPEND_FLUSH_NAME) > 0) {
@@ -2853,13 +2794,14 @@ H5D__vlen_get_buf_size_gen(H5VL_object_t *vol_obj, hid_t type_id, hid_t space_id
 {
     H5D_vlen_bufsize_generic_t vlen_bufsize = {
         NULL, H5I_INVALID_HID, NULL, H5I_INVALID_HID, H5I_INVALID_HID, {NULL, NULL, 0, 0}};
-    H5P_genplist_t *  dxpl   = NULL;       /* DXPL for operation */
-    H5S_t *           mspace = NULL;       /* Memory dataspace */
-    char              bogus;               /* Bogus value to pass to H5Diterate() */
-    H5S_t *           space;               /* Dataspace for iteration */
-    H5T_t *           type;                /* Datatype */
-    H5S_sel_iter_op_t dset_op;             /* Operator for iteration */
-    herr_t            ret_value = SUCCEED; /* Return value */
+    H5P_genplist_t *        dxpl   = NULL;       /* DXPL for operation */
+    H5S_t *                 mspace = NULL;       /* Memory dataspace */
+    char                    bogus;               /* Bogus value to pass to H5Diterate() */
+    H5S_t *                 space;               /* Dataspace for iteration */
+    H5T_t *                 type;                /* Datatype */
+    H5S_sel_iter_op_t       dset_op;             /* Operator for iteration */
+    H5VL_dataset_get_args_t vol_cb_args;         /* Arguments to VOL callback */
+    herr_t                  ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -2874,10 +2816,14 @@ H5D__vlen_get_buf_size_gen(H5VL_object_t *vol_obj, hid_t type_id, hid_t space_id
     /* Save the dataset */
     vlen_bufsize.dset_vol_obj = vol_obj;
 
+    /* Set up VOL callback arguments */
+    vol_cb_args.op_type                 = H5VL_DATASET_GET_SPACE;
+    vol_cb_args.args.get_space.space_id = H5I_INVALID_HID;
+
     /* Get a copy of the dataset's dataspace */
-    if (H5VL_dataset_get(vol_obj, H5VL_DATASET_GET_SPACE, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL,
-                         &vlen_bufsize.fspace_id) < 0)
+    if (H5VL_dataset_get(vol_obj, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get dataspace")
+    vlen_bufsize.fspace_id = vol_cb_args.args.get_space.space_id;
     if (NULL == (vlen_bufsize.fspace = (H5S_t *)H5I_object(vlen_bufsize.fspace_id)))
         HGOTO_ERROR(H5E_DATASET, H5E_BADTYPE, FAIL, "not a dataspace")
 
@@ -3867,9 +3813,9 @@ H5D__get_space(const H5D_t *dset)
     if (NULL == (space = H5S_copy(dset->shared->space, FALSE, TRUE)))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to get dataspace")
 
-    /* Create an atom */
+    /* Create an ID */
     if ((ret_value = H5I_register(H5I_DATASPACE, space, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register dataspace")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, FAIL, "unable to register dataspace")
 
 done:
     if (ret_value < 0)
@@ -3914,17 +3860,17 @@ H5D__get_type(const H5D_t *dset)
     if (H5T_lock(dt, FALSE) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to lock transient datatype")
 
-    /* Create an atom */
+    /* Create an ID */
     if (H5T_is_named(dt)) {
         /* If this is a committed datatype, we need to recreate the
          * two-level IDs, where the VOL object is a copy of the
          * returned datatype.
          */
         if ((ret_value = H5VL_wrap_register(H5I_DATATYPE, dt, TRUE)) < 0)
-            HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register datatype")
+            HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, FAIL, "unable to register datatype")
     } /* end if */
     else if ((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register datatype")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, FAIL, "unable to register datatype")
 
 done:
     if (ret_value < 0)
@@ -3943,7 +3889,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5D__refresh(hid_t dset_id, H5D_t *dset)
+H5D__refresh(H5D_t *dset, hid_t dset_id)
 {
     H5D_virtual_held_file_t *head            = NULL;    /* Pointer to list of files held open */
     hbool_t                  virt_dsets_held = FALSE;   /* Whether virtual datasets' files are held open */
@@ -3968,7 +3914,7 @@ H5D__refresh(hid_t dset_id, H5D_t *dset)
     } /* end if */
 
     /* Refresh dataset object */
-    if ((H5O_refresh_metadata(dset_id, dset->oloc)) < 0)
+    if ((H5O_refresh_metadata(&dset->oloc, dset_id)) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTFLUSH, FAIL, "unable to refresh dataset")
 
 done:

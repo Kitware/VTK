@@ -1244,7 +1244,7 @@ H5VM_chunk_index_scaled(unsigned ndims, const hsize_t *coord, const uint32_t *ch
  * Function:	H5VM_opvv
  *
  * Purpose:     Perform an operation on a source & destination sequences
- *              of offset/length pairs.  Each set of sequnces has an array
+ *              of offset/length pairs.  Each set of sequences has an array
  *              of lengths, an array of offsets, the maximum number of
  *              sequences and the current sequence to start at in the sequence.
  *

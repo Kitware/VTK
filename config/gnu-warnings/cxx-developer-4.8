@@ -1,0 +1,16 @@
+# developer warning flags added for GCC >= 4.5
+#
+# developer warning flag added for GCC >= 4.6
+-Wsuggest-attribute=const
+
+# developer warning flags added for GCC >= 4.7
+-Wsuggest-attribute=noreturn
+-Wsuggest-attribute=pure
+#
+# It's not clear that -Wvector-operation-performance warnings are
+# actionable, so they are demoted to "developer" warnings.
+#
+-Wvector-operation-performance
+
+# developer warning flag added for GCC >= 4.8
+-Wsuggest-attribute=format

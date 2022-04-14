@@ -75,7 +75,7 @@ static herr_t    H5G__node_create(H5F_t *f, H5B_ins_t op, void *_lt_key, void *_
                                   haddr_t *addr_p /*out*/);
 static int       H5G__node_cmp2(void *_lt_key, void *_udata, void *_rt_key);
 static int       H5G__node_cmp3(void *_lt_key, void *_udata, void *_rt_key);
-static htri_t    H5G__node_found(H5F_t *f, haddr_t addr, const void *_lt_key, void *_udata);
+static herr_t    H5G__node_found(H5F_t *f, haddr_t addr, const void *_lt_key, hbool_t *found, void *_udata);
 static H5B_ins_t H5G__node_insert(H5F_t *f, haddr_t addr, void *_lt_key, hbool_t *lt_key_changed,
                                   void *_md_key, void *_udata, void *_rt_key, hbool_t *rt_key_changed,
                                   haddr_t *new_node_p /*out*/);
@@ -463,8 +463,7 @@ done:
  *              UDATA entry field to the symbol table.
  *
  * Return:      Success:    Non-negative (TRUE/FALSE) if found and data
- *                          returned through the UDATA pointer.
- *
+ *                          returned through the UDATA pointer, if *FOUND is true.
  *              Failure:    Negative if not found.
  *
  * Programmer:  Robb Matzke
@@ -472,15 +471,15 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static htri_t
-H5G__node_found(H5F_t *f, haddr_t addr, const void H5_ATTR_UNUSED *_lt_key, void *_udata)
+static herr_t
+H5G__node_found(H5F_t *f, haddr_t addr, const void H5_ATTR_UNUSED *_lt_key, hbool_t *found, void *_udata)
 {
     H5G_bt_lkp_t *udata = (H5G_bt_lkp_t *)_udata;
     H5G_node_t *  sn    = NULL;
     unsigned      lt = 0, idx = 0, rt;
     int           cmp = 1;
     const char *  s;
-    htri_t        ret_value = TRUE; /* Return value */
+    herr_t        ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -489,6 +488,7 @@ H5G__node_found(H5F_t *f, haddr_t addr, const void H5_ATTR_UNUSED *_lt_key, void
      */
     HDassert(f);
     HDassert(H5F_addr_defined(addr));
+    HDassert(found);
     HDassert(udata && udata->common.heap);
 
     /*
@@ -515,11 +515,15 @@ H5G__node_found(H5F_t *f, haddr_t addr, const void H5_ATTR_UNUSED *_lt_key, void
     } /* end while */
 
     if (cmp)
-        HGOTO_DONE(FALSE)
+        *found = FALSE;
+    else {
+        /* Set the 'found it' flag */
+        *found = TRUE;
 
-    /* Call user's callback operator */
-    if ((udata->op)(&sn->entry[idx], udata->op_data) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "iterator callback failed")
+        /* Call user's callback operator */
+        if ((udata->op)(&sn->entry[idx], udata->op_data) < 0)
+            HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "iterator callback failed")
+    } /* end else */
 
 done:
     if (sn && H5AC_unprotect(f, H5AC_SNODE, addr, sn, H5AC__NO_FLAGS_SET) < 0)
@@ -1206,7 +1210,7 @@ H5G__node_copy(H5F_t *f, const void H5_ATTR_UNUSED *_lt_key, haddr_t addr, const
             &(sn->entry[i]);             /* Convenience variable to refer to current source group entry */
         H5O_link_t          lnk;         /* Link to insert */
         const char *        name;        /* Name of source object */
-        H5G_entry_t         tmp_src_ent; /* Temperary copy. Change will not affect the cache */
+        H5G_entry_t         tmp_src_ent; /* Temporary copy. Change will not affect the cache */
         H5O_type_t          obj_type = H5O_TYPE_UNKNOWN; /* Target object type */
         H5G_copy_file_ud_t *cpy_udata;                   /* Copy file udata */
         H5G_obj_create_t    gcrt_info;                   /* Group creation info */

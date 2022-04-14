@@ -33,6 +33,7 @@
 #include "H5private.h"   /* Generic Functions                        */
 #include "H5ACprivate.h" /* Metadata cache                           */
 #include "H5Bprivate.h"  /* B-trees                                  */
+#include "H5FDprivate.h" /* File drivers                             */
 #include "H5FLprivate.h" /* Free Lists                               */
 #include "H5FOprivate.h" /* File objects                             */
 #include "H5FSprivate.h" /* File free space                          */
@@ -78,7 +79,7 @@
 #define H5F_SUPERBLOCK_FIXED_SIZE (H5F_SIGNATURE_LEN + 1) /* superblock version */
 
 /* The H5F_SUPERBLOCK_MINIMAL_VARLEN_SIZE is the minimal amount of super block
- * variable length data guarnateed to load the sizeof offsets and the sizeof
+ * variable length data guaranteed to load the sizeof offsets and the sizeof
  * lengths fields in all versions of the superblock.
  *
  * This is necessary in the V3 cache, as on the initial load, we need to
@@ -351,7 +352,7 @@ struct H5F_shared_t {
     /* Metadata retry info */
     unsigned  read_attempts;        /* The # of reads to try when reading metadata with checksum */
     unsigned  retries_nbins;        /* # of bins for each retries[] */
-    uint32_t *retries[H5AC_NTYPES]; /* Track # of read retries for metdata items with checksum */
+    uint32_t *retries[H5AC_NTYPES]; /* Track # of read retries for metadata items with checksum */
 
     /* Object flush info */
     H5F_object_flush_t object_flush;           /* Information for object flush callback */
@@ -404,21 +405,20 @@ H5_DLLVAR htri_t use_locks_env_g;
 
 /* General routines */
 H5_DLL herr_t H5F__post_open(H5F_t *f);
-H5_DLL H5F_t * H5F__reopen(H5F_t *f);
-H5_DLL herr_t  H5F__flush(H5F_t *f);
-H5_DLL htri_t  H5F__is_hdf5(const char *name, hid_t fapl_id);
-H5_DLL ssize_t H5F__get_file_image(H5F_t *f, void *buf_ptr, size_t buf_len);
-H5_DLL herr_t  H5F__get_info(H5F_t *f, H5F_info2_t *finfo);
-H5_DLL herr_t  H5F__format_convert(H5F_t *f);
-H5_DLL herr_t  H5F__start_swmr_write(H5F_t *f);
-H5_DLL herr_t  H5F__close(H5F_t *f);
-H5_DLL herr_t  H5F__set_libver_bounds(H5F_t *f, H5F_libver_t low, H5F_libver_t high);
-H5_DLL herr_t  H5F__get_cont_info(const H5F_t *f, H5VL_file_cont_info_t *info);
-H5_DLL herr_t  H5F__parse_file_lock_env_var(htri_t *use_locks);
+H5_DLL H5F_t *H5F__reopen(H5F_t *f);
+H5_DLL herr_t H5F__flush(H5F_t *f);
+H5_DLL htri_t H5F__is_hdf5(const char *name, hid_t fapl_id);
+H5_DLL herr_t H5F__get_file_image(H5F_t *f, void *buf_ptr, size_t buf_len, size_t *image_len);
+H5_DLL herr_t H5F__get_info(H5F_t *f, H5F_info2_t *finfo);
+H5_DLL herr_t H5F__format_convert(H5F_t *f);
+H5_DLL herr_t H5F__start_swmr_write(H5F_t *f);
+H5_DLL herr_t H5F__close(H5F_t *f);
+H5_DLL herr_t H5F__set_libver_bounds(H5F_t *f, H5F_libver_t low, H5F_libver_t high);
+H5_DLL herr_t H5F__get_cont_info(const H5F_t *f, H5VL_file_cont_info_t *info);
+H5_DLL herr_t H5F__parse_file_lock_env_var(htri_t *use_locks);
+H5_DLL herr_t H5F__delete(const char *filename, hid_t fapl_id);
 
 /* File mount related routines */
-H5_DLL herr_t H5F__mount(H5G_loc_t *loc, const char *name, H5F_t *child, hid_t plist_id);
-H5_DLL herr_t H5F__unmount(H5G_loc_t *loc, const char *name);
 H5_DLL herr_t H5F__close_mounts(H5F_t *f);
 H5_DLL herr_t H5F__mount_count_ids(H5F_t *f, unsigned *nopen_files, unsigned *nopen_objs);
 
@@ -447,6 +447,12 @@ H5_DLL herr_t H5F__accum_reset(H5F_shared_t *f_sh, hbool_t flush);
 H5_DLL herr_t H5F__sfile_add(H5F_shared_t *shared);
 H5_DLL H5F_shared_t *H5F__sfile_search(H5FD_t *lf);
 H5_DLL herr_t        H5F__sfile_remove(H5F_shared_t *shared);
+
+/* Parallel I/O (i.e. MPI) related routines */
+#ifdef H5_HAVE_PARALLEL
+H5_DLL herr_t H5F__get_mpi_atomicity(const H5F_t *file, hbool_t *flag);
+H5_DLL herr_t H5F__set_mpi_atomicity(H5F_t *file, hbool_t flag);
+#endif /* H5_HAVE_PARALLEL */
 
 /* External file cache routines */
 H5_DLL H5F_efc_t *H5F__efc_create(unsigned max_nfiles);

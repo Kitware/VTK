@@ -51,7 +51,7 @@ const H5O_msg_class_t H5O_MSG_STAB[1] = {{
     H5O_STAB_ID,              /*message id number             */
     "stab",                   /*message name for debugging    */
     sizeof(H5O_stab_t),       /*native message size           */
-    0,                        /* messages are sharable?       */
+    0,                        /* messages are shareable?       */
     H5O__stab_decode,         /*decode message                */
     H5O__stab_encode,         /*encode message                */
     H5O__stab_copy,           /*copy the native value         */

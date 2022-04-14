@@ -123,7 +123,7 @@
 #endif
 
 /* Define an internal macro for converting unsigned long long to long double.  SGI compilers give
- * some incorect conversion.  64-bit Solaris does different rounding.   Windows Visual Studio 6 does
+ * some incorrect conversion.  64-bit Solaris does different rounding.   Windows Visual Studio 6 does
  * not support unsigned long long.  For FreeBSD(sleipnir), the last 2 bytes of mantissa are lost when
  * compiler tries to do the conversion.  For Cygwin, compiler doesn't do rounding correctly.
  * Mac OS 10.4 gives some incorrect result. */
@@ -401,9 +401,7 @@ H5_DLLVAR size_t H5T_NATIVE_LONG_COMP_ALIGN_g;
 H5_DLLVAR size_t H5T_NATIVE_LLONG_COMP_ALIGN_g;
 H5_DLLVAR size_t H5T_NATIVE_FLOAT_COMP_ALIGN_g;
 H5_DLLVAR size_t H5T_NATIVE_DOUBLE_COMP_ALIGN_g;
-#if H5_SIZEOF_LONG_DOUBLE != 0
 H5_DLLVAR size_t H5T_NATIVE_LDOUBLE_COMP_ALIGN_g;
-#endif
 
 H5_DLLVAR size_t H5T_POINTER_COMP_ALIGN_g;
 H5_DLLVAR size_t H5T_HVL_COMP_ALIGN_g;
@@ -429,9 +427,7 @@ H5_DLLVAR size_t H5T_NATIVE_LLONG_ALIGN_g;
 H5_DLLVAR size_t H5T_NATIVE_ULLONG_ALIGN_g;
 H5_DLLVAR size_t H5T_NATIVE_FLOAT_ALIGN_g;
 H5_DLLVAR size_t H5T_NATIVE_DOUBLE_ALIGN_g;
-#if H5_SIZEOF_LONG_DOUBLE != 0
 H5_DLLVAR size_t H5T_NATIVE_LDOUBLE_ALIGN_g;
-#endif
 
 /* C9x alignment constraints */
 H5_DLLVAR size_t H5T_NATIVE_INT8_ALIGN_g;
@@ -468,10 +464,8 @@ H5_DLLVAR float  H5T_NATIVE_FLOAT_POS_INF_g;
 H5_DLLVAR float  H5T_NATIVE_FLOAT_NEG_INF_g;
 H5_DLLVAR double H5T_NATIVE_DOUBLE_POS_INF_g;
 H5_DLLVAR double H5T_NATIVE_DOUBLE_NEG_INF_g;
-#if H5_SIZEOF_LONG_DOUBLE != 0
 H5_DLLVAR double H5T_NATIVE_LDOUBLE_POS_INF_g;
 H5_DLLVAR double H5T_NATIVE_LDOUBLE_NEG_INF_g;
-#endif
 
 /* Declare extern the free lists for H5T_t's and H5T_shared_t's */
 H5FL_EXTERN(H5T_t);
@@ -859,7 +853,7 @@ H5_DLL hbool_t  H5T__bit_dec(uint8_t *buf, size_t start, size_t size);
 H5_DLL void     H5T__bit_neg(uint8_t *buf, size_t start, size_t size);
 
 /* VL functions */
-H5_DLL H5T_t *H5T__vlen_create(H5T_t *base);
+H5_DLL H5T_t *H5T__vlen_create(const H5T_t *base);
 H5_DLL herr_t H5T__vlen_reclaim(void *elem, const H5T_t *dt, H5T_vlen_alloc_info_t *alloc_info);
 H5_DLL htri_t H5T__vlen_set_loc(H5T_t *dt, H5VL_object_t *file, H5T_loc_t loc);
 
@@ -873,13 +867,13 @@ H5_DLL herr_t H5T__ref_reclaim(void *elem, const H5T_t *dt);
 H5_DLL htri_t H5T__ref_set_loc(H5T_t *dt, H5VL_object_t *file, H5T_loc_t loc);
 
 /* Compound functions */
-H5_DLL herr_t H5T__insert(H5T_t *parent, const char *name, size_t offset, H5T_t *member);
+H5_DLL herr_t H5T__insert(H5T_t *parent, const char *name, size_t offset, const H5T_t *member);
 H5_DLL size_t H5T__get_member_size(const H5T_t *dt, unsigned membno);
 H5_DLL void   H5T__update_packed(const H5T_t *dt);
 H5_DLL H5T_subset_info_t *H5T__conv_struct_subset(const H5T_cdata_t *cdata);
 
 /* Enumerated type functions */
-H5_DLL H5T_t *H5T__enum_create(H5T_t *parent);
+H5_DLL H5T_t *H5T__enum_create(const H5T_t *parent);
 H5_DLL herr_t H5T__enum_insert(const H5T_t *dt, const char *name, const void *value);
 H5_DLL herr_t H5T__get_member_value(const H5T_t *dt, unsigned membno, void *value);
 

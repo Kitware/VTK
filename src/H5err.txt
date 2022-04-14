@@ -50,7 +50,7 @@ MAJOR, H5E_LIB, General library infrastructure
 MAJOR, H5E_FILE, File accessibility
 MAJOR, H5E_IO, Low-level I/O
 MAJOR, H5E_FUNC, Function entry/exit
-MAJOR, H5E_ATOM, Object atom
+MAJOR, H5E_ID, Object ID
 MAJOR, H5E_CACHE, Object cache
 MAJOR, H5E_LINK, Links
 MAJOR, H5E_BTREE, B-Tree node
@@ -80,6 +80,7 @@ MAJOR, H5E_PLUGIN, Plugin for dynamically loaded library
 MAJOR, H5E_PAGEBUF, Page Buffering
 MAJOR, H5E_CONTEXT, API Context
 MAJOR, H5E_MAP, Map
+MAJOR, H5E_EVENTSET, Event Set
 MAJOR, H5E_NONE_MAJOR, No error
 
 # Sections (for grouping minor errors)
@@ -88,7 +89,7 @@ SECTION, RESOURCE, Resource errors
 SECTION, FILEACC, File accessibility errors
 SECTION, FILE, Generic low-level file I/O errors
 SECTION, FUNC, Function entry/exit interface errors
-SECTION, ATOM, Object atom related errors
+SECTION, ID, Object ID related errors
 SECTION, CACHE, Cache related errors
 SECTION, LINK, Link related errors
 SECTION, BTREE, B-tree related errors
@@ -103,6 +104,8 @@ SECTION, FSPACE, Free space errors
 SECTION, PIPELINE, I/O pipeline errors
 SECTION, SYSTEM, System level errors
 SECTION, PLUGIN, Plugin errors
+SECTION, MAP, Map related errors
+SECTION, ASYNC, Asynchronous operation errors
 SECTION, NONE, No error
 
 # Minor errors
@@ -136,6 +139,7 @@ MINOR, FILEACC, H5E_NOTHDF5, Not an HDF5 file
 MINOR, FILEACC, H5E_BADFILE, Bad file ID accessed
 MINOR, FILEACC, H5E_TRUNCATED, File has been truncated
 MINOR, FILEACC, H5E_MOUNT, File mount error
+MINOR, FILEACC, H5E_UNMOUNT, File unmount error
 MINOR, FILEACC, H5E_CANTDELETEFILE, Unable to delete file
 MINOR, FILEACC, H5E_CANTLOCKFILE, Unable to lock file
 MINOR, FILEACC, H5E_CANTUNLOCKFILE, Unable to unlock file
@@ -153,13 +157,13 @@ MINOR, FUNC, H5E_CANTINIT, Unable to initialize object
 MINOR, FUNC, H5E_ALREADYINIT, Object already initialized
 MINOR, FUNC, H5E_CANTRELEASE, Unable to release object
 
-# Object atom related errors
-MINOR, ATOM, H5E_BADATOM, Unable to find atom information (already closed?)
-MINOR, ATOM, H5E_BADGROUP, Unable to find ID group information
-MINOR, ATOM, H5E_CANTREGISTER, Unable to register new atom
-MINOR, ATOM, H5E_CANTINC, Unable to increment reference count
-MINOR, ATOM, H5E_CANTDEC, Unable to decrement reference count
-MINOR, ATOM, H5E_NOIDS, Out of IDs for group
+# Object ID related errors
+MINOR, ID, H5E_BADID, Unable to find ID information (already closed?)
+MINOR, ID, H5E_BADGROUP, Unable to find ID group information
+MINOR, ID, H5E_CANTREGISTER, Unable to register new ID
+MINOR, ID, H5E_CANTINC, Unable to increment reference count
+MINOR, ID, H5E_CANTDEC, Unable to decrement reference count
+MINOR, ID, H5E_NOIDS, Out of IDs for group
 
 # Cache related errors
 MINOR, CACHE, H5E_CANTFLUSH, Unable to flush data from cache
@@ -202,6 +206,7 @@ MINOR, BTREE, H5E_CANTINSERT, Unable to insert object
 MINOR, BTREE, H5E_CANTLIST, Unable to list node
 MINOR, BTREE, H5E_CANTMODIFY, Unable to modify record
 MINOR, BTREE, H5E_CANTREMOVE, Unable to remove object
+MINOR, BTREE, H5E_CANTFIND, Unable to check for record
 
 # Object header related errors
 MINOR, OHDR, H5E_LINKCOUNT, Bad object header link count
@@ -280,6 +285,13 @@ MINOR, SYSTEM, H5E_SYSERRSTR, System error message
 
 # Plugin errors
 MINOR, PLUGIN, H5E_OPENERROR, Can't open directory or file
+
+# Map related errors
+MINOR, MAP, H5E_CANTPUT, Can't put value
+
+# Asynchronous operation errors
+MINOR, ASYNC, H5E_CANTWAIT, Can't wait on operation
+MINOR, ASYNC, H5E_CANTCANCEL, Can't cancel operation
 
 # No error, for backward compatibility */
 MINOR, NONE, H5E_NONE_MINOR, No error

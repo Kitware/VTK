@@ -15,8 +15,15 @@
  *
  */
 
+/****************/
+/* Module Setup */
+/****************/
+
 #define H5G_FRIEND /* Suppress error about including H5Gpkg    */
 
+/***********/
+/* Headers */
+/***********/
 #include "H5private.h"   /* Generic Functions                        */
 #include "H5Eprivate.h"  /* Error handling                           */
 #include "H5Gpkg.h"      /* Groups                                   */
@@ -26,6 +33,30 @@
 #include "H5VLprivate.h" /* Virtual Object Layer                     */
 
 #include "H5VLnative_private.h" /* Native VOL connector                     */
+
+/****************/
+/* Local Macros */
+/****************/
+
+/******************/
+/* Local Typedefs */
+/******************/
+
+/********************/
+/* Local Prototypes */
+/********************/
+
+/*********************/
+/* Package Variables */
+/*********************/
+
+/*****************************/
+/* Library Private Variables */
+/*****************************/
+
+/*******************/
+/* Local Variables */
+/*******************/
 
 /*-------------------------------------------------------------------------
  * Function:    H5VL__native_group_create
@@ -138,55 +169,54 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5VL__native_group_get(void *obj, H5VL_group_get_t get_type, hid_t H5_ATTR_UNUSED dxpl_id,
-                       void H5_ATTR_UNUSED **req, va_list arguments)
+H5VL__native_group_get(void *obj, H5VL_group_get_args_t *args, hid_t H5_ATTR_UNUSED dxpl_id,
+                       void H5_ATTR_UNUSED **req)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
-    switch (get_type) {
+    switch (args->op_type) {
         /* H5Gget_create_plist */
         case H5VL_GROUP_GET_GCPL: {
-            hid_t *new_gcpl_id = HDva_arg(arguments, hid_t *);
-            H5G_t *grp         = (H5G_t *)obj;
+            if ((args->args.get_gcpl.gcpl_id = H5G_get_create_plist((H5G_t *)obj)) < 0)
+                HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get creation property list for group")
 
-            if ((*new_gcpl_id = H5G_get_create_plist(grp)) < 0)
-                HGOTO_ERROR(H5E_ARGS, H5E_CANTGET, FAIL, "can't get creation property list for group")
             break;
         }
 
         /* H5Gget_info */
         case H5VL_GROUP_GET_INFO: {
-            const H5VL_loc_params_t *loc_params = HDva_arg(arguments, const H5VL_loc_params_t *);
-            H5G_info_t *             group_info = HDva_arg(arguments, H5G_info_t *);
-            H5G_loc_t                loc;
+            H5VL_group_get_info_args_t *get_info_args = &args->args.get_info;
+            H5G_loc_t                   loc;
 
-            if (H5G_loc_real(obj, loc_params->obj_type, &loc) < 0)
+            if (H5G_loc_real(obj, get_info_args->loc_params.obj_type, &loc) < 0)
                 HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file or file object")
 
-            if (loc_params->type == H5VL_OBJECT_BY_SELF) {
+            if (get_info_args->loc_params.type == H5VL_OBJECT_BY_SELF) {
                 /* H5Gget_info */
 
                 /* Retrieve the group's information */
-                if (H5G__obj_info(loc.oloc, group_info) < 0)
+                if (H5G__obj_info(loc.oloc, get_info_args->ginfo) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve group info")
             } /* end if */
-            else if (loc_params->type == H5VL_OBJECT_BY_NAME) {
+            else if (get_info_args->loc_params.type == H5VL_OBJECT_BY_NAME) {
                 /* H5Gget_info_by_name */
 
                 /* Retrieve the group's information */
-                if (H5G__get_info_by_name(&loc, loc_params->loc_data.loc_by_name.name, group_info) < 0)
+                if (H5G__get_info_by_name(&loc, get_info_args->loc_params.loc_data.loc_by_name.name,
+                                          get_info_args->ginfo) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve group info")
             } /* end else-if */
-            else if (loc_params->type == H5VL_OBJECT_BY_IDX) {
+            else if (get_info_args->loc_params.type == H5VL_OBJECT_BY_IDX) {
                 /* H5Gget_info_by_idx */
 
                 /* Retrieve the group's information */
-                if (H5G__get_info_by_idx(&loc, loc_params->loc_data.loc_by_idx.name,
-                                         loc_params->loc_data.loc_by_idx.idx_type,
-                                         loc_params->loc_data.loc_by_idx.order,
-                                         loc_params->loc_data.loc_by_idx.n, group_info) < 0)
+                if (H5G__get_info_by_idx(&loc, get_info_args->loc_params.loc_data.loc_by_idx.name,
+                                         get_info_args->loc_params.loc_data.loc_by_idx.idx_type,
+                                         get_info_args->loc_params.loc_data.loc_by_idx.order,
+                                         get_info_args->loc_params.loc_data.loc_by_idx.n,
+                                         get_info_args->ginfo) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve group info")
             } /* end else-if */
             else
@@ -212,30 +242,53 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5VL__native_group_specific(void *obj, H5VL_group_specific_t specific_type, hid_t H5_ATTR_UNUSED dxpl_id,
-                            void H5_ATTR_UNUSED **req, va_list arguments)
+H5VL__native_group_specific(void *obj, H5VL_group_specific_args_t *args, hid_t H5_ATTR_UNUSED dxpl_id,
+                            void H5_ATTR_UNUSED **req)
 {
     H5G_t *grp       = (H5G_t *)obj;
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
-    switch (specific_type) {
-        case H5VL_GROUP_FLUSH: {
-            hid_t group_id = HDva_arg(arguments, hid_t);
+    switch (args->op_type) {
+        /* H5Fmount */
+        case H5VL_GROUP_MOUNT: {
+            H5G_loc_t loc;
 
-            /* Flush object's metadata to file */
-            if (H5O_flush_common(&grp->oloc, group_id) < 0)
+            if (H5G_loc_real(grp, H5I_GROUP, &loc) < 0)
+                HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group object")
+
+            if (H5F_mount(&loc, args->args.mount.name, args->args.mount.child_file,
+                          args->args.mount.fmpl_id) < 0)
+                HGOTO_ERROR(H5E_FILE, H5E_MOUNT, FAIL, "unable to mount file")
+
+            break;
+        }
+
+        /* H5Funmount */
+        case H5VL_GROUP_UNMOUNT: {
+            H5G_loc_t loc;
+
+            if (H5G_loc_real(grp, H5I_GROUP, &loc) < 0)
+                HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group object")
+
+            if (H5F_unmount(&loc, args->args.unmount.name) < 0)
+                HGOTO_ERROR(H5E_FILE, H5E_UNMOUNT, FAIL, "unable to unmount file")
+
+            break;
+        }
+
+        /* H5Gflush */
+        case H5VL_GROUP_FLUSH: {
+            if (H5O_flush_common(&grp->oloc, args->args.flush.grp_id) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_CANTFLUSH, FAIL, "unable to flush group")
 
             break;
         }
 
+        /* H5Grefresh */
         case H5VL_GROUP_REFRESH: {
-            hid_t group_id = HDva_arg(arguments, hid_t);
-
-            /* Call private function to refresh group object */
-            if ((H5O_refresh_metadata(group_id, grp->oloc)) < 0)
+            if ((H5O_refresh_metadata(&grp->oloc, args->args.refresh.grp_id)) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_CANTLOAD, FAIL, "unable to refresh group")
 
             break;
@@ -259,50 +312,53 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5VL__native_group_optional(void H5_ATTR_UNUSED *obj, H5VL_group_optional_t optional_type,
-                            hid_t H5_ATTR_UNUSED dxpl_id, void H5_ATTR_UNUSED **req,
-                            va_list H5_ATTR_DEPRECATED_USED arguments)
+H5VL__native_group_optional(void H5_ATTR_UNUSED *obj, H5VL_optional_args_t *args,
+                            hid_t H5_ATTR_UNUSED dxpl_id, void H5_ATTR_UNUSED **req)
 {
-    herr_t ret_value = SUCCEED; /* Return value */
+#ifndef H5_NO_DEPRECATED_SYMBOLS
+    H5VL_native_group_optional_args_t *opt_args = args->args; /* Pointer to native operation's arguments */
+#endif                                                        /* H5_NO_DEPRECATED_SYMBOLS */
+    herr_t ret_value = SUCCEED;                               /* Return value */
 
     FUNC_ENTER_PACKAGE
 
-    switch (optional_type) {
+    switch (args->op_type) {
 #ifndef H5_NO_DEPRECATED_SYMBOLS
         /* H5Giterate (deprecated) */
         case H5VL_NATIVE_GROUP_ITERATE_OLD: {
-            const H5VL_loc_params_t * loc_params = HDva_arg(arguments, const H5VL_loc_params_t *);
-            hsize_t                   idx        = HDva_arg(arguments, hsize_t);
-            hsize_t *                 last_obj   = HDva_arg(arguments, hsize_t *);
-            const H5G_link_iterate_t *lnk_op     = HDva_arg(arguments, const H5G_link_iterate_t *);
-            void *                    op_data    = HDva_arg(arguments, void *);
-            H5G_loc_t                 grp_loc;
+            H5VL_native_group_iterate_old_t *iter_args = &opt_args->iterate_old;
+            H5G_link_iterate_t               lnk_op; /* Link operator                    */
+            H5G_loc_t                        grp_loc;
 
             /* Get the location struct for the object */
-            if (H5G_loc_real(obj, loc_params->obj_type, &grp_loc) < 0)
+            if (H5G_loc_real(obj, iter_args->loc_params.obj_type, &grp_loc) < 0)
                 HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file or file object")
 
+            /* Set up link iteration callback struct */
+            lnk_op.op_type        = H5G_LINK_OP_OLD;
+            lnk_op.op_func.op_old = iter_args->op;
+
             /* Call the actual iteration routine */
-            if ((ret_value = H5G_iterate(&grp_loc, loc_params->loc_data.loc_by_name.name, H5_INDEX_NAME,
-                                         H5_ITER_INC, idx, last_obj, lnk_op, op_data)) < 0)
-                HERROR(H5E_VOL, H5E_BADITER, "error iterating over group's links");
+            if ((ret_value = H5G_iterate(&grp_loc, iter_args->loc_params.loc_data.loc_by_name.name,
+                                         H5_INDEX_NAME, H5_ITER_INC, iter_args->idx, iter_args->last_obj,
+                                         &lnk_op, iter_args->op_data)) < 0)
+                HERROR(H5E_SYM, H5E_BADITER, "error iterating over group's links");
 
             break;
         }
 
         /* H5Gget_objinfo (deprecated) */
         case H5VL_NATIVE_GROUP_GET_OBJINFO: {
-            const H5VL_loc_params_t *loc_params  = HDva_arg(arguments, const H5VL_loc_params_t *);
-            hbool_t                  follow_link = (hbool_t)HDva_arg(arguments, unsigned);
-            H5G_stat_t *             statbuf     = HDva_arg(arguments, H5G_stat_t *);
-            H5G_loc_t                grp_loc;
+            H5VL_native_group_get_objinfo_t *goi_args = &opt_args->get_objinfo;
+            H5G_loc_t                        grp_loc;
 
             /* Get the location struct for the object */
-            if (H5G_loc_real(obj, loc_params->obj_type, &grp_loc) < 0)
+            if (H5G_loc_real(obj, goi_args->loc_params.obj_type, &grp_loc) < 0)
                 HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file or file object")
 
             /* Call the actual group objinfo routine */
-            if (H5G__get_objinfo(&grp_loc, loc_params->loc_data.loc_by_name.name, follow_link, statbuf) < 0)
+            if (H5G__get_objinfo(&grp_loc, goi_args->loc_params.loc_data.loc_by_name.name,
+                                 goi_args->follow_link, goi_args->statbuf) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "cannot stat object")
 
             break;

@@ -46,6 +46,7 @@ const unsigned H5O_layout_ver_bounds[] = {
     H5O_LAYOUT_VERSION_1,                      /* H5F_LIBVER_EARLIEST */
     H5O_LAYOUT_VERSION_3, /* H5F_LIBVER_V18 */ /* H5O_LAYOUT_VERSION_DEFAULT */
     H5O_LAYOUT_VERSION_4,                      /* H5F_LIBVER_V110 */
+    H5O_LAYOUT_VERSION_4,                      /* H5F_LIBVER_V112 */
     H5O_LAYOUT_VERSION_LATEST                  /* H5F_LIBVER_LATEST */
 };
 
@@ -212,7 +213,7 @@ H5D__layout_meta_size(const H5F_t *f, const H5O_layout_t *layout, hbool_t includ
                 ret_value++;
 
                 /* Dimension sizes */
-                ret_value += layout->u.chunk.ndims * layout->u.chunk.enc_bytes_per_dim;
+                ret_value += layout->u.chunk.ndims * (size_t)layout->u.chunk.enc_bytes_per_dim;
 
                 /* Type of chunk index */
                 ret_value++;

@@ -328,7 +328,7 @@ H5O__dset_get_oloc(hid_t obj_id)
 
     /* Get the dataset */
     if (NULL == (dset = (H5D_t *)H5VL_object(obj_id)))
-        HGOTO_ERROR(H5E_OHDR, H5E_BADATOM, NULL, "couldn't get object from ID")
+        HGOTO_ERROR(H5E_OHDR, H5E_BADID, NULL, "couldn't get object from ID")
 
     /* Get the dataset's object header location */
     if (NULL == (ret_value = H5D_oloc(dset)))

@@ -126,7 +126,7 @@ H5O__add_gap(H5F_t H5_ATTR_NDEBUG_UNUSED *f, H5O_t *oh, unsigned chunkno, hbool_
 
         /* Make certain that object header is protected */
         HDassert(chk_proxy_status & H5AC_ES__IS_PROTECTED);
-    }  /* end if */
+    } /* end if */
 #else
     (void)f;
 #endif /* NDEBUG */

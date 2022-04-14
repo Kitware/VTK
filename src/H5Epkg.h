@@ -48,7 +48,7 @@
  * each thread individually. The association of stacks to threads will
  * be handled by the pthread library.
  *
- * In order for this macro to work, H5E__get_my_stack() must be preceeded
+ * In order for this macro to work, H5E__get_my_stack() must be preceded
  * by "H5E_t *estack =".
  */
 #define H5E__get_my_stack() H5E__get_stack()

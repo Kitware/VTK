@@ -79,13 +79,16 @@
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
-           H5FA__hdr_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
-                           const H5FA_class_t *cls, haddr_t obj_addr))
-
+herr_t
+H5FA__hdr_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth, const H5FA_class_t *cls,
+                haddr_t obj_addr)
+{
     /* Local variables */
-    H5FA_hdr_t *hdr     = NULL; /* Shared fixed array header */
-    void *      dbg_ctx = NULL; /* Fixed array debugging context */
+    H5FA_hdr_t *hdr       = NULL;    /* Shared fixed array header */
+    void *      dbg_ctx   = NULL;    /* Fixed array debugging context */
+    herr_t      ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     HDassert(f);
@@ -100,11 +103,11 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
     if (cls->crt_dbg_ctx)
         /* Create debugging context */
         if (NULL == (dbg_ctx = cls->crt_dbg_ctx(f, obj_addr)))
-            H5E_THROW(H5E_CANTGET, "unable to create fixed array debugging context")
+            HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "unable to create fixed array debugging context")
 
     /* Load the fixed array header */
     if (NULL == (hdr = H5FA__hdr_protect(f, addr, dbg_ctx, H5AC__READ_ONLY_FLAG)))
-        H5E_THROW(H5E_CANTPROTECT, "unable to load fixed array header")
+        HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL, "unable to load fixed array header")
 
     /* Print opening message */
     HDfprintf(stream, "%*sFixed Array Header...\n", indent, "");
@@ -126,13 +129,14 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
     HDfprintf(stream, "%*s%-*s %" PRIuHADDR "\n", indent, "", fwidth,
               "Fixed Array Data Block Address:", hdr->dblk_addr);
 
-    CATCH
+done:
     if (dbg_ctx && cls->dst_dbg_ctx(dbg_ctx) < 0)
-        H5E_THROW(H5E_CANTRELEASE, "unable to release fixed array debugging context")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTRELEASE, FAIL, "unable to release fixed array debugging context")
     if (hdr && H5FA__hdr_unprotect(hdr, H5AC__NO_FLAGS_SET) < 0)
-        H5E_THROW(H5E_CANTUNPROTECT, "unable to release fixed array header")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release fixed array header")
 
-END_FUNC(PKG) /* end H5FA__hdr_debug() */
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FA__hdr_debug() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5FA__dblock_debug
@@ -146,15 +150,18 @@ END_FUNC(PKG) /* end H5FA__hdr_debug() */
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
-           H5FA__dblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
-                              const H5FA_class_t *cls, haddr_t hdr_addr, haddr_t obj_addr))
-
+herr_t
+H5FA__dblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth, const H5FA_class_t *cls,
+                   haddr_t hdr_addr, haddr_t obj_addr)
+{
     /* Local variables */
-    H5FA_hdr_t *   hdr     = NULL; /* Shared fixed array header */
-    H5FA_dblock_t *dblock  = NULL; /* Fixed array data block */
-    void *         dbg_ctx = NULL; /* Fixed array context */
-    size_t         u;              /* Local index variable */
+    H5FA_hdr_t *   hdr     = NULL;      /* Shared fixed array header */
+    H5FA_dblock_t *dblock  = NULL;      /* Fixed array data block */
+    void *         dbg_ctx = NULL;      /* Fixed array context */
+    size_t         u;                   /* Local index variable */
+    herr_t         ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     HDassert(f);
@@ -170,16 +177,16 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
     if (cls->crt_dbg_ctx)
         /* Create debugging context */
         if (NULL == (dbg_ctx = cls->crt_dbg_ctx(f, obj_addr)))
-            H5E_THROW(H5E_CANTGET, "unable to create fixed array debugging context")
+            HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "unable to create fixed array debugging context")
 
     /* Load the fixed array header */
     if (NULL == (hdr = H5FA__hdr_protect(f, hdr_addr, dbg_ctx, H5AC__READ_ONLY_FLAG)))
-        H5E_THROW(H5E_CANTPROTECT, "unable to load fixed array header")
+        HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL, "unable to load fixed array header")
 
     /* Protect data block */
     if (NULL == (dblock = H5FA__dblock_protect(hdr, addr, H5AC__READ_ONLY_FLAG)))
-        H5E_THROW(H5E_CANTPROTECT, "unable to protect fixed array data block, address = %llu",
-                  (unsigned long long)addr)
+        HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL,
+                    "unable to protect fixed array data block, address = %llu", (unsigned long long)addr)
 
     /* Print opening message */
     HDfprintf(stream, "%*sFixed Array data Block...\n", indent, "");
@@ -222,9 +229,9 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
 
                 if (NULL == (dblk_page = H5FA__dblk_page_protect(hdr, dblk_page_addr, dblk_page_nelmts,
                                                                  H5AC__READ_ONLY_FLAG)))
-                    H5E_THROW(H5E_CANTPROTECT,
-                              "unable to protect fixed array data block page, address = %llu",
-                              (unsigned long long)dblk_page_addr)
+                    HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL,
+                                "unable to protect fixed array data block page, address = %llu",
+                                (unsigned long long)dblk_page_addr)
 
                 HDfprintf(stream, "%*sElements in page %zu:\n", indent, "", page_idx);
                 for (u = 0; u < dblk_page_nelmts; u++) {
@@ -232,10 +239,11 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
                     if ((hdr->cparam.cls->debug)(stream, (indent + 3), MAX(0, (fwidth - 3)), (hsize_t)u,
                                                  ((uint8_t *)dblk_page->elmts) +
                                                      (hdr->cparam.cls->nat_elmt_size * u)) < 0)
-                        H5E_THROW(H5E_CANTGET, "can't get element for debugging")
+                        HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "can't get element for debugging")
                 } /* end for */
                 if (H5FA__dblk_page_unprotect(dblk_page, H5AC__NO_FLAGS_SET) < 0)
-                    H5E_THROW(H5E_CANTUNPROTECT, "unable to release fixed array data block page")
+                    HGOTO_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL,
+                                "unable to release fixed array data block page")
 
                 /* Advance to next page address */
                 dblk_page_addr += dblock->dblk_page_size;
@@ -250,16 +258,17 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
             if ((hdr->cparam.cls->debug)(stream, (indent + 3), MAX(0, (fwidth - 3)), (hsize_t)u,
                                          ((uint8_t *)dblock->elmts) + (hdr->cparam.cls->nat_elmt_size * u)) <
                 0)
-                H5E_THROW(H5E_CANTGET, "can't get element for debugging")
+                HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "can't get element for debugging")
         } /* end for */
     }     /* end else */
 
-    CATCH
+done:
     if (dbg_ctx && cls->dst_dbg_ctx(dbg_ctx) < 0)
-        H5E_THROW(H5E_CANTRELEASE, "unable to release fixed array debugging context")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTRELEASE, FAIL, "unable to release fixed array debugging context")
     if (dblock && H5FA__dblock_unprotect(dblock, H5AC__NO_FLAGS_SET) < 0)
-        H5E_THROW(H5E_CANTUNPROTECT, "unable to release fixed array data block")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release fixed array data block")
     if (hdr && H5FA__hdr_unprotect(hdr, H5AC__NO_FLAGS_SET) < 0)
-        H5E_THROW(H5E_CANTUNPROTECT, "unable to release fixed array header")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release fixed array header")
 
-END_FUNC(PKG) /* end H5FA__dblock_debug() */
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FA__dblock_debug() */

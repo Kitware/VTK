@@ -82,6 +82,16 @@ if((msg = H5E__create_msg(cls, H5E_MAJOR, "Resource unavailable"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_RESOURCE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_EVENTSET_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MAJOR, "Event Set"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_EVENTSET_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_ID_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MAJOR, "Object ID"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_ID_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 HDassert(H5E_RS_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MAJOR, "Reference Counted Strings"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
@@ -167,11 +177,6 @@ if((msg = H5E__create_msg(cls, H5E_MAJOR, "Object header"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_OHDR_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-HDassert(H5E_ATOM_g==(-1));
-if((msg = H5E__create_msg(cls, H5E_MAJOR, "Object atom"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_ATOM_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 HDassert(H5E_NONE_MAJOR_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MAJOR, "No error"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
@@ -217,6 +222,38 @@ if((H5E_CACHE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
 /* Minor error codes */
 /*********************/
 
+
+/* Object ID related errors */
+HDassert(H5E_BADID_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to find ID information (already closed?)"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_BADID_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_BADGROUP_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to find ID group information"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_BADGROUP_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_CANTREGISTER_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to register new ID"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTREGISTER_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_CANTINC_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to increment reference count"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTINC_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_CANTDEC_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to decrement reference count"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTDEC_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_NOIDS_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Out of IDs for group"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_NOIDS_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 
 /* Generic low-level file I/O errors */
 HDassert(H5E_SEEKERROR_g==(-1));
@@ -334,6 +371,13 @@ if((msg = H5E__create_msg(cls, H5E_MINOR, "Can't operate on object"))==NULL)
 if((H5E_CANTOPERATE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 
+/* Map related errors */
+HDassert(H5E_CANTPUT_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Can't put value"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTPUT_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+
 /* Function entry/exit interface errors */
 HDassert(H5E_CANTINIT_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to initialize object"))==NULL)
@@ -371,6 +415,18 @@ HDassert(H5E_SETDISALLOWED_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MINOR, "Disallowed operation"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_SETDISALLOWED_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+
+/* Asynchronous operation errors */
+HDassert(H5E_CANTWAIT_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Can't wait on operation"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTWAIT_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_CANTCANCEL_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Can't cancel operation"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTCANCEL_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 
 /* Free space errors */
@@ -558,6 +614,11 @@ if((msg = H5E__create_msg(cls, H5E_MINOR, "File mount error"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_MOUNT_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_UNMOUNT_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "File unmount error"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_UNMOUNT_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 HDassert(H5E_CANTDELETEFILE_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to delete file"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
@@ -572,38 +633,6 @@ HDassert(H5E_CANTUNLOCKFILE_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to unlock file"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_CANTUNLOCKFILE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-
-/* Object atom related errors */
-HDassert(H5E_BADATOM_g==(-1));
-if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to find atom information (already closed?)"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_BADATOM_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-HDassert(H5E_BADGROUP_g==(-1));
-if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to find ID group information"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_BADGROUP_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-HDassert(H5E_CANTREGISTER_g==(-1));
-if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to register new atom"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_CANTREGISTER_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-HDassert(H5E_CANTINC_g==(-1));
-if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to increment reference count"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_CANTINC_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-HDassert(H5E_CANTDEC_g==(-1));
-if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to decrement reference count"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_CANTDEC_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-HDassert(H5E_NOIDS_g==(-1));
-if((msg = H5E__create_msg(cls, H5E_MINOR, "Out of IDs for group"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_NOIDS_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 
 /* Cache related errors */
@@ -921,6 +950,11 @@ HDassert(H5E_CANTREMOVE_g==(-1));
 if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to remove object"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_CANTREMOVE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+HDassert(H5E_CANTFIND_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Unable to check for record"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTFIND_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 
 /* Datatype conversion errors */
