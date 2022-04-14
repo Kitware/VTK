@@ -156,6 +156,9 @@ static herr_t H5FD_dsm_write(H5FD_t *_file, H5FD_mem_t type, hid_t fapl_id, hadd
 }
 
 static const H5FD_class_t H5FD_dsm_g = {
+#if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=13))
+    H5_VFD_RESERVED + 0xd3f2,   /*value         */
+#endif
     "dsm",                      /*name          */
     MAXADDR,                    /*maxaddr       */
     H5F_CLOSE_WEAK,             /*fc_degree     */
@@ -193,6 +196,10 @@ static const H5FD_class_t H5FD_dsm_g = {
 #endif
     NULL,                       /*lock          */
     NULL,                       /*unlock        */
+#if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=13))
+    NULL,                       /*del           */
+    NULL,                       /*ctl           */
+#endif
     H5FD_FLMAP_SINGLE           /*fl_map        */
 };
 
