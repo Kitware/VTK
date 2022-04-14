@@ -1485,6 +1485,12 @@ function (vtk_module_include module)
     set(_vtk_include_system_arg SYSTEM)
   endif ()
 
+  if (NOT _vtk_include_INTERFACE_args AND
+      NOT _vtk_include_PUBLIC_args AND
+      NOT _vtk_include_PRIVATE_args)
+    return ()
+  endif ()
+
   target_include_directories("${_vtk_include_target}"
     ${_vtk_include_system_arg}
     ${_vtk_include_INTERFACE_args}
@@ -1520,6 +1526,12 @@ function (vtk_module_definitions module)
   _vtk_module_real_target(_vtk_definitions_target "${module}")
   _vtk_module_target_function(_vtk_definitions)
 
+  if (NOT _vtk_definitions_INTERFACE_args AND
+      NOT _vtk_definitions_PUBLIC_args AND
+      NOT _vtk_definitions_PRIVATE_args)
+    return ()
+  endif ()
+
   target_compile_definitions("${_vtk_definitions_target}"
     ${_vtk_definitions_INTERFACE_args}
     ${_vtk_definitions_PUBLIC_args}
@@ -1554,6 +1566,12 @@ function (vtk_module_compile_options module)
   _vtk_module_real_target(_vtk_compile_options_target "${module}")
   _vtk_module_target_function(_vtk_compile_options)
 
+  if (NOT _vtk_compile_options_INTERFACE_args AND
+      NOT _vtk_compile_options_PUBLIC_args AND
+      NOT _vtk_compile_options_PRIVATE_args)
+    return ()
+  endif ()
+
   target_compile_options("${_vtk_compile_options_target}"
     ${_vtk_compile_options_INTERFACE_args}
     ${_vtk_compile_options_PUBLIC_args}
@@ -1587,6 +1605,12 @@ function (vtk_module_compile_features module)
 
   _vtk_module_real_target(_vtk_compile_features_target "${module}")
   _vtk_module_target_function(_vtk_compile_features)
+
+  if (NOT _vtk_compile_features_INTERFACE_args AND
+      NOT _vtk_compile_features_PUBLIC_args AND
+      NOT _vtk_compile_features_PRIVATE_args)
+    return ()
+  endif ()
 
   target_compile_features("${_vtk_compile_features_target}"
     ${_vtk_compile_features_INTERFACE_args}
@@ -1710,6 +1734,12 @@ function (vtk_module_link module)
     endif ()
   endif ()
 
+  if (NOT _vtk_link_INTERFACE_args AND
+      NOT _vtk_link_PUBLIC_args AND
+      NOT _vtk_link_PRIVATE_args)
+    return ()
+  endif ()
+
   target_link_libraries("${_vtk_link_target}"
     ${_vtk_link_INTERFACE_args}
     ${_vtk_link_PUBLIC_args}
@@ -1743,6 +1773,12 @@ function (vtk_module_link_options module)
 
   _vtk_module_real_target(_vtk_link_options_target "${module}")
   _vtk_module_target_function(_vtk_link_options)
+
+  if (NOT _vtk_link_options_INTERFACE_args AND
+      NOT _vtk_link_options_PUBLIC_args AND
+      NOT _vtk_link_options_PRIVATE_args)
+    return ()
+  endif ()
 
   target_link_options("${_vtk_link_options_target}"
     ${_vtk_link_options_INTERFACE_args}
