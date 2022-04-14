@@ -24,10 +24,10 @@
 
 #include "H5Omodule.h" /* This source code file is part of the H5O module */
 
-#include "H5private.h"   /* Generic Functions            */
-#include "H5Eprivate.h"  /* Error handling              */
-#include "H5MMprivate.h" /* Memory management            */
-#include "H5Opkg.h"      /* Object headers            */
+#include "H5private.h"   /* Generic Functions			*/
+#include "H5Eprivate.h"  /* Error handling		  	*/
+#include "H5MMprivate.h" /* Memory management			*/
+#include "H5Opkg.h"      /* Object headers			*/
 
 /* PRIVATE PROTOTYPES */
 static void *H5O__name_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags, unsigned *ioflags, size_t p_size,
@@ -43,22 +43,22 @@ const H5O_msg_class_t H5O_MSG_NAME[1] = {{
     H5O_NAME_ID,        /*message id number             */
     "name",             /*message name for debugging    */
     sizeof(H5O_name_t), /*native message size           */
-    0,                  /* messages are sharable?       */
+    0,                  /* messages are shareable?       */
     H5O__name_decode,   /*decode message                */
     H5O__name_encode,   /*encode message                */
     H5O__name_copy,     /*copy the native value         */
     H5O__name_size,     /*raw message size              */
     H5O__name_reset,    /*free internal memory          */
-    NULL,               /* free method            */
-    NULL,               /* file delete method        */
-    NULL,               /* link method            */
-    NULL,               /*set share method        */
-    NULL,               /*can share method        */
+    NULL,               /* free method			*/
+    NULL,               /* file delete method		*/
+    NULL,               /* link method			*/
+    NULL,               /*set share method		*/
+    NULL,               /*can share method		*/
     NULL,               /* pre copy native value to file */
     NULL,               /* copy native value to file    */
     NULL,               /* post copy native value to file    */
-    NULL,               /* get creation index        */
-    NULL,               /* set creation index        */
+    NULL,               /* get creation index		*/
+    NULL,               /* set creation index		*/
     H5O__name_debug     /*debug the message             */
 }};
 

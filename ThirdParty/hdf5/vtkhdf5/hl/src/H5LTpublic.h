@@ -22,7 +22,7 @@
 #define H5LT_FILE_IMAGE_DONT_COPY 0x0002 /* The HDF5 lib won't copy   */
 /* user supplied image buffer. The same image is open with the core driver.  */
 #define H5LT_FILE_IMAGE_DONT_RELEASE 0x0004 /* The HDF5 lib won't        */
-/* deallocate user supplied image buffer. The user application is reponsible */
+/* deallocate user supplied image buffer. The user application is responsible */
 /* for doing so.                                                             */
 #define H5LT_FILE_IMAGE_ALL 0x0007
 
@@ -142,6 +142,9 @@ H5_HLDLL herr_t H5LTset_attribute_long_long(hid_t loc_id, const char *obj_name, 
 H5_HLDLL herr_t H5LTset_attribute_ulong(hid_t loc_id, const char *obj_name, const char *attr_name,
                                         const unsigned long *buffer, size_t size);
 
+H5_HLDLL herr_t H5LTset_attribute_ullong(hid_t loc_id, const char *obj_name, const char *attr_name,
+                                         const unsigned long long *buffer, size_t size);
+
 H5_HLDLL herr_t H5LTset_attribute_float(hid_t loc_id, const char *obj_name, const char *attr_name,
                                         const float *buffer, size_t size);
 
@@ -184,6 +187,9 @@ H5_HLDLL herr_t H5LTget_attribute_long_long(hid_t loc_id, const char *obj_name, 
 
 H5_HLDLL herr_t H5LTget_attribute_ulong(hid_t loc_id, const char *obj_name, const char *attr_name,
                                         unsigned long *data);
+
+H5_HLDLL herr_t H5LTget_attribute_ullong(hid_t loc_id, const char *obj_name, const char *attr_name,
+                                         unsigned long long *data);
 
 H5_HLDLL herr_t H5LTget_attribute_float(hid_t loc_id, const char *obj_name, const char *attr_name,
                                         float *data);

@@ -63,9 +63,6 @@
 /* Package Variables */
 /*********************/
 
-/* Package initialization variable */
-hbool_t H5_PKG_INIT_VAR = FALSE;
-
 /*****************************/
 /* Library Private Variables */
 /*****************************/
@@ -117,8 +114,14 @@ H5HF__op_write(const void *obj, size_t obj_len, void *op_data)
 {
     FUNC_ENTER_PACKAGE_NOERR
 
-    /* Perform "write", using memcpy() */
-    H5MM_memcpy((void *)obj, op_data, obj_len); /* Casting away const OK -QAK */
+    /* Perform "write", using memcpy()
+     *
+     * We cast away const here because no obj pointer that was originally
+     * const should ever arrive here.
+     */
+    H5_GCC_CLANG_DIAG_OFF("cast-qual")
+    H5MM_memcpy((void *)obj, op_data, obj_len);
+    H5_GCC_CLANG_DIAG_ON("cast-qual")
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5HF__op_write() */
@@ -350,10 +353,15 @@ H5HF_insert(H5HF_t *fh, size_t size, const void *obj, void *id /*out*/)
 
     /* Check for 'huge' object */
     if (size > hdr->max_man_size) {
-        /* Store 'huge' object in heap */
-        /* (Casting away const OK - QAK) */
+        /* Store 'huge' object in heap
+         *
+         * Although not ideal, we can quiet the const warning here because no
+         * obj pointer that was originally const should ever arrive here.
+         */
+        H5_GCC_CLANG_DIAG_OFF("cast-qual")
         if (H5HF__huge_insert(hdr, size, (void *)obj, id) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTINSERT, FAIL, "can't store 'huge' object in fractal heap")
+        H5_GCC_CLANG_DIAG_ON("cast-qual")
     } /* end if */
     /* Check for 'tiny' object */
     else if (size <= hdr->tiny_max_len) {
@@ -429,7 +437,7 @@ H5HF_get_obj_len(H5HF_t *fh, const void *_id, size_t *obj_len_p)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't get 'tiny' object's length")
     } /* end if */
     else {
-        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", FUNC);
+        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", __func__);
         HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "heap ID type not supported yet")
     } /* end else */
 
@@ -489,7 +497,7 @@ H5HF_get_obj_off(H5HF_t *fh, const void *_id, hsize_t *obj_off_p)
         *obj_off_p = (hsize_t)0;
     } /* end if */
     else {
-        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", FUNC);
+        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", __func__);
         HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "heap ID type not supported yet")
     } /* end else */
 
@@ -552,7 +560,7 @@ H5HF_read(H5HF_t *fh, const void *_id, void *obj /*out*/)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't read 'tiny' object from fractal heap")
     } /* end if */
     else {
-        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", FUNC);
+        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", __func__);
         HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "heap ID type not supported yet")
     } /* end else */
 
@@ -628,7 +636,7 @@ H5HF_write(H5HF_t *fh, void *_id, hbool_t H5_ATTR_UNUSED *id_changed, const void
         HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "modifying 'tiny' object not supported yet")
     } /* end if */
     else {
-        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", FUNC);
+        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", __func__);
         HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "heap ID type not supported yet")
     } /* end else */
 
@@ -696,7 +704,7 @@ H5HF_op(H5HF_t *fh, const void *_id, H5HF_operator_t op, void *op_data)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "can't operate on 'tiny' object from fractal heap")
     } /* end if */
     else {
-        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", FUNC);
+        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", __func__);
         HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "heap ID type not supported yet")
     } /* end else */
 
@@ -759,7 +767,7 @@ H5HF_remove(H5HF_t *fh, const void *_id)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTREMOVE, FAIL, "can't remove 'tiny' object from fractal heap")
     } /* end if */
     else {
-        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", FUNC);
+        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", __func__);
         HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "heap ID type not supported yet")
     } /* end else */
 

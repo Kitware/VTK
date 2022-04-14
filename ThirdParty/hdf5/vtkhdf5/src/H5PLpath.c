@@ -248,7 +248,7 @@ H5PL__create_path_table(void)
     /* Retrieve paths from HDF5_PLUGIN_PATH if the user sets it
      * or from the default paths if it isn't set.
      */
-    env_var = HDgetenv("HDF5_PLUGIN_PATH");
+    env_var = HDgetenv(HDF5_PLUGIN_PATH);
     if (NULL == env_var)
         paths = H5MM_strdup(H5PL_DEFAULT_PATH);
     else
@@ -322,7 +322,7 @@ H5PL__close_path_table(void)
  * Purpose:     Gets the number of plugin paths that have been stored.
  *
  * Return:      Success:    The number of paths
- *              Failture:   Can't fail
+ *              Failure:   Can't fail
  *-------------------------------------------------------------------------
  */
 unsigned
@@ -571,12 +571,12 @@ H5PL__path_table_iterate(H5PL_iterate_type_t iter_type, H5PL_iterate_t iter_op, 
 
     FUNC_ENTER_PACKAGE
 
-    for (u = 0; (u < H5PL_num_paths_g) && (ret_value == H5_ITER_CONT); u++)
-        ret_value = H5PL__path_table_iterate_process_path(H5PL_paths_g[u], iter_type, iter_op, op_data);
-
-    if (ret_value < 0)
-        HGOTO_ERROR(H5E_PLUGIN, H5E_BADITER, H5_ITER_ERROR, "can't iterate over plugins in plugin path '%s'",
-                    H5PL_paths_g[u]);
+    for (u = 0; (u < H5PL_num_paths_g) && (ret_value == H5_ITER_CONT); u++) {
+        if ((ret_value =
+                 H5PL__path_table_iterate_process_path(H5PL_paths_g[u], iter_type, iter_op, op_data)) < 0)
+            HGOTO_ERROR(H5E_PLUGIN, H5E_BADITER, H5_ITER_ERROR,
+                        "can't iterate over plugins in plugin path '%s'", H5PL_paths_g[u]);
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value);
@@ -615,9 +615,9 @@ H5PL__path_table_iterate_process_path(const char *plugin_path, H5PL_iterate_type
     HDassert(plugin_path);
     HDassert(iter_op);
 
-    /* Open the directory */
+    /* Open the directory - skip the path if the directory can't be opened */
     if (!(dirp = HDopendir(plugin_path)))
-        HGOTO_ERROR(H5E_PLUGIN, H5E_OPENERROR, H5_ITER_ERROR, "can't open directory: %s", plugin_path)
+        HGOTO_DONE(H5_ITER_CONT)
 
     /* Iterate through all entries in the directory */
     while (NULL != (dp = HDreaddir(dirp))) {
@@ -663,7 +663,8 @@ H5PL__path_table_iterate_process_path(const char *plugin_path, H5PL_iterate_type
             /* Determine if we should process this plugin */
             plugin_matches = (iter_type == H5PL_ITER_TYPE_ALL) ||
                              ((iter_type == H5PL_ITER_TYPE_FILTER) && (plugin_type == H5PL_TYPE_FILTER)) ||
-                             ((iter_type == H5PL_ITER_TYPE_VOL) && (plugin_type == H5PL_TYPE_VOL));
+                             ((iter_type == H5PL_ITER_TYPE_VOL) && (plugin_type == H5PL_TYPE_VOL)) ||
+                             ((iter_type == H5PL_ITER_TYPE_VFD) && (plugin_type == H5PL_TYPE_VFD));
 
             /* If the plugin was successfully loaded, call supplied callback function on plugin */
             if (plugin_loaded && plugin_matches && (ret_value = iter_op(plugin_type, plugin_info, op_data)))
@@ -706,10 +707,11 @@ H5PL__path_table_iterate_process_path(const char *plugin_path, H5PL_iterate_type
     HDassert(plugin_path);
     HDassert(iter_op);
 
-    /* Specify a file mask. *.* = We want everything! */
-    HDsprintf(service, "%s\\*.dll", plugin_path);
+    /* Specify a file mask. *.* = We want everything! -
+     * skip the path if the directory can't be opened */
+    HDsnprintf(service, sizeof(service), "%s\\*.dll", plugin_path);
     if ((hFind = FindFirstFileA(service, &fdFile)) == INVALID_HANDLE_VALUE)
-        HGOTO_ERROR(H5E_PLUGIN, H5E_OPENERROR, H5_ITER_ERROR, "can't open directory")
+        HGOTO_DONE(H5_ITER_CONT)
 
     /* Loop over all the files */
     do {
@@ -740,7 +742,8 @@ H5PL__path_table_iterate_process_path(const char *plugin_path, H5PL_iterate_type
             /* Determine if we should process this plugin */
             plugin_matches = (iter_type == H5PL_ITER_TYPE_ALL) ||
                              ((iter_type == H5PL_ITER_TYPE_FILTER) && (plugin_type == H5PL_TYPE_FILTER)) ||
-                             ((iter_type == H5PL_ITER_TYPE_VOL) && (plugin_type == H5PL_TYPE_VOL));
+                             ((iter_type == H5PL_ITER_TYPE_VOL) && (plugin_type == H5PL_TYPE_VOL)) ||
+                             ((iter_type == H5PL_ITER_TYPE_VFD) && (plugin_type == H5PL_TYPE_VFD));
 
             /* If the plugin was successfully loaded, call supplied callback function on plugin */
             if (plugin_loaded && plugin_matches && (ret_value = iter_op(plugin_type, plugin_info, op_data)))
@@ -931,7 +934,7 @@ H5PL__find_plugin_in_path(const H5PL_search_params_t *search_params, hbool_t *fo
     *found = FALSE;
 
     /* Specify a file mask. *.* = We want everything! */
-    HDsprintf(service, "%s\\*.dll", dir);
+    HDsnprintf(service, sizeof(service), "%s\\*.dll", dir);
     if ((hFind = FindFirstFileA(service, &fdFile)) == INVALID_HANDLE_VALUE)
         HGOTO_ERROR(H5E_PLUGIN, H5E_OPENERROR, FAIL, "can't open directory")
 

@@ -20,7 +20,8 @@
 #ifndef H5FDsec2_H
 #define H5FDsec2_H
 
-#define H5FD_SEC2 (H5FD_sec2_init())
+#define H5FD_SEC2       (H5FDperform_init(H5FD_sec2_init))
+#define H5FD_SEC2_VALUE H5_VFD_SEC2
 
 #ifdef __cplusplus
 extern "C" {

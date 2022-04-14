@@ -56,7 +56,7 @@ const H5O_msg_class_t H5O_MSG_LINK[1] = {{
     H5O_LINK_ID,              /*message id number             */
     "link",                   /*message name for debugging    */
     sizeof(H5O_link_t),       /*native message size           */
-    0,                        /* messages are sharable?       */
+    0,                        /* messages are shareable?       */
     H5O__link_decode,         /*decode message                */
     H5O__link_encode,         /*encode message                */
     H5O__link_copy,           /*copy the native value         */

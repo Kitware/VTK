@@ -27,10 +27,12 @@
 #define H5_MY_PKG_ERR  H5E_VOL
 #define H5_MY_PKG_INIT YES
 
-/**
- * \defgroup H5VL H5VL
- * \brief Virtual Object Layer Interface
- * \todo Describe concisely what the functions in this module are about.
+/**\defgroup H5VL H5VL
+ *
+ * \todo Describe the VOL plugin life cycle.
+ *
+ * \defgroup ASYNC Asynchronous Functions
+ * \brief Asynchronous Functions
  *
  * \defgroup H5VLDEF Definitions
  * \ingroup H5VL

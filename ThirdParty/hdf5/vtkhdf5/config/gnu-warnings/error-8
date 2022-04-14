@@ -1,7 +1,4 @@
-# NOTE: src/ files are not compatible with these warnings as errors
-#     src/H5Dchunk.c
-#       -Werror=cast-function-type
--Wcast-function-type
+-Werror=cast-function-type
 #
 # For GCC 8, promote maybe-initialized warnings to an error.  GCC 8
 # reports 0 maybe-uninitialized warnings where earlier versions

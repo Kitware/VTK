@@ -30,9 +30,46 @@
 #define H5_MY_PKG_INIT YES
 
 /**\defgroup H5O H5O
- * \brief Object Interface
  *
- * \todo Describe concisely what the functions in this module are about.
+ * Use the functions in this module to manage HDF5 objects.
+ *
+ * HDF5 objects (groups, datasets, datatype objects) are usually created
+ * using functions in the object-specific modules (\ref H5G, \ref H5D,
+ * \ref H5T). However, new objects can also be created by copying existing
+ * objects.
+ *
+ * Many functions in this module are variations on object introspection,
+ * that is, the retrieval of detailed information about HDF5 objects in a file.
+ * Objects in an HDF5 file can be "visited" in an iterative fashion.
+ *
+ * HDF5 objects are usually updated using functions in the object-specific
+ * modules. However, there are certain generic object properties, such as
+ * reference counts, that can be manipulated using functions in this module.
+ *
+ * HDF5 objects are deleted as a side effect of rendering them unreachable
+ * from the root group. The net effect is the diminution of the object's
+ * reference count to zero, which can (but should not usually) be effected
+ * by a function in this module.
+ *
+ * <table>
+ * <tr><th>Create</th><th>Read</th></tr>
+ * <tr valign="top">
+ *   <td>
+ *   \snippet{lineno} H5O_examples.c create
+ *   </td>
+ *   <td>
+ *   \snippet{lineno} H5O_examples.c read
+ *   </td>
+ * <tr><th>Update</th><th>Delete</th></tr>
+ * <tr valign="top">
+ *   <td>
+ *   \snippet{lineno} H5O_examples.c update
+ *   </td>
+ *   <td>
+ *   \snippet{lineno} H5O_examples.c delete
+ *   </td>
+ * </tr>
+ * </table>
  *
  */
 #endif /* H5Omodule_H */

@@ -76,9 +76,6 @@ static herr_t  H5SM__read_mesg(H5F_t *f, const H5SM_sohm_t *mesg, H5HF_t *fheap,
 /* Package Variables */
 /*********************/
 
-/* Package initialization variable */
-hbool_t H5_PKG_INIT_VAR = FALSE;
-
 H5FL_DEFINE(H5SM_master_table_t);
 H5FL_ARR_DEFINE(H5SM_index_header_t, H5O_SHMESG_MAX_NINDEXES);
 H5FL_DEFINE(H5SM_list_t);
@@ -117,7 +114,7 @@ H5SM_init(H5F_t *f, H5P_genplist_t *fc_plist, const H5O_loc_t *ext_loc)
     haddr_t              table_addr = HADDR_UNDEF;   /* Address of SOHM master table in file */
     unsigned             list_max, btree_min;        /* Phase change limits for SOHM indices */
     unsigned             index_type_flags[H5O_SHMESG_MAX_NINDEXES]; /* Messages types stored in each index */
-    unsigned minsizes[H5O_SHMESG_MAX_NINDEXES]; /* Message size sharing threshhold for each index */
+    unsigned minsizes[H5O_SHMESG_MAX_NINDEXES]; /* Message size sharing threshold for each index */
     unsigned type_flags_used;                   /* Message type flags used, for sanity checking */
     unsigned x;                                 /* Local index variable */
     herr_t   ret_value = SUCCEED;               /* Return value */
@@ -1079,7 +1076,7 @@ H5SM_try_share(H5F_t *f, H5O_t *open_oh, unsigned defer_flags, unsigned type_id,
     ssize_t               index_num;
     htri_t                tri_ret;
 #ifndef NDEBUG
-    unsigned deferred_type = -1u;
+    unsigned deferred_type = -1U;
 #endif
     htri_t ret_value = TRUE;
 
@@ -1364,16 +1361,13 @@ H5SM__write_mesg(H5F_t *f, H5O_t *open_oh, H5SM_index_header_t *header, hbool_t 
             HGOTO_ERROR(H5E_SOHM, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for SOHM index")
 
         if (defer) {
-            htri_t bt2_find; /* Result from searching in the v2 B-tree */
-
             /* If this returns 0, it means that the message wasn't found. */
             /* If it return 1, set the heap_id in the shared struct.  It will
              * return a heap ID, since a message with a reference count greater
              * than 1 is always shared in the heap.
              */
-            if ((bt2_find = H5B2_find(bt2, &key, NULL, NULL)) < 0)
+            if (H5B2_find(bt2, &key, &found, NULL, NULL) < 0)
                 HGOTO_ERROR(H5E_SOHM, H5E_NOTFOUND, FAIL, "can't search for message in index")
-            found = (hbool_t)bt2_find;
         } /* end if */
         else {
             H5SM_incr_ref_opdata op_data;
@@ -1602,7 +1596,7 @@ H5SM_delete(H5F_t *f, H5O_t *open_oh, H5O_shared_t *sh_mesg)
      */
     if (H5SM__delete_from_index(f, open_oh, &(table->indexes[index_num]), sh_mesg, &cache_flags, &mesg_size,
                                 &mesg_buf) < 0)
-        HGOTO_ERROR(H5E_SOHM, H5E_CANTDELETE, FAIL, "unable to delete mesage from SOHM index")
+        HGOTO_ERROR(H5E_SOHM, H5E_CANTDELETE, FAIL, "unable to delete message from SOHM index")
 
     /* Release the master SOHM table */
     if (H5AC_unprotect(f, H5AC_SOHM_TABLE, H5F_SOHM_ADDR(f), table, cache_flags) < 0)
@@ -2236,7 +2230,7 @@ H5SM_get_refcount(H5F_t *f, unsigned type_id, const H5O_shared_t *sh_mesg, hsize
         message = list->messages[list_pos];
     } /* end if */
     else {
-        htri_t msg_exists; /* Whether the message exists in the v2 B-tree */
+        hbool_t msg_exists; /* Whether the message exists in the v2 B-tree */
 
         /* Index is a B-tree */
         HDassert(header->index_type == H5SM_BTREE);
@@ -2246,7 +2240,8 @@ H5SM_get_refcount(H5F_t *f, unsigned type_id, const H5O_shared_t *sh_mesg, hsize
             HGOTO_ERROR(H5E_SOHM, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for SOHM index")
 
         /* Look up the message in the v2 B-tree */
-        if ((msg_exists = H5B2_find(bt2, &key, H5SM__get_refcount_bt2_cb, &message)) < 0)
+        msg_exists = FALSE;
+        if (H5B2_find(bt2, &key, &msg_exists, H5SM__get_refcount_bt2_cb, &message) < 0)
             HGOTO_ERROR(H5E_SOHM, H5E_CANTGET, FAIL, "error finding message in index")
         if (!msg_exists)
             HGOTO_ERROR(H5E_SOHM, H5E_NOTFOUND, FAIL, "message not in index")

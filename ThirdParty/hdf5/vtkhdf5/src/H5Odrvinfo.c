@@ -38,7 +38,7 @@ const H5O_msg_class_t H5O_MSG_DRVINFO[1] = {{
     H5O_DRVINFO_ID,        /*message id number                     */
     "driver info",         /*message name for debugging            */
     sizeof(H5O_drvinfo_t), /*native message size                   */
-    0,                     /* messages are sharable?               */
+    0,                     /* messages are shareable?               */
     H5O__drvinfo_decode,   /*decode message                        */
     H5O__drvinfo_encode,   /*encode message                        */
     H5O__drvinfo_copy,     /*copy the native value                 */

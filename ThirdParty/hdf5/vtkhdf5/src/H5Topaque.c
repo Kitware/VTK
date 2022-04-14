@@ -70,7 +70,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Tget_tag
  *
- * Purpose:	Get tha tag associated with an opaque datatype.
+ * Purpose:	Get the tag associated with an opaque datatype.
  *
  * Return:	A pointer to an allocated string. The caller should free
  *              the string. NULL is returned for errors.

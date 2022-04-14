@@ -67,7 +67,7 @@
  *              the special "::" string.
  *
  * Return:      Success:    Non-negative
- *              Failture:   Negative
+ *              Failure:   Negative
  *
  *-------------------------------------------------------------------------
  */
@@ -99,17 +99,17 @@ done:
  *              Positive if one or more of the plugin types are enabled
  *
  * Return:      Success:    Non-negative
- *              Failture:   Negative
+ *              Failure:   Negative
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5PLget_loading_state(unsigned int *plugin_control_mask)
+H5PLget_loading_state(unsigned *plugin_control_mask /*out*/)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE1("e", "*Iu", plugin_control_mask);
+    H5TRACE1("e", "x", plugin_control_mask);
 
     if (NULL == plugin_control_mask)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "plugin_control_mask parameter cannot be NULL")
@@ -128,7 +128,7 @@ done:
  * Purpose:     Insert a plugin search path at the end of the list.
  *
  * Return:      Success:    Non-negative
- *              Failture:   Negative
+ *              Failure:   Negative
  *
  *-------------------------------------------------------------------------
  */
@@ -160,7 +160,7 @@ done:
  * Purpose:     Insert a plugin search path at the beginning of the list.
  *
  * Return:      Success:    Non-negative
- *              Failture:   Negative
+ *              Failure:   Negative
  *
  *-------------------------------------------------------------------------
  */
@@ -234,7 +234,7 @@ done:
  *              other paths after the index.
  *
  * Return:      Success:    Non-negative
- *              Failture:   Negative
+ *              Failure:   Negative
  *
  *-------------------------------------------------------------------------
  */
@@ -270,11 +270,11 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5PLremove
  *
- * Purpose:     Remove the plugin path at the specifed index and compact
+ * Purpose:     Remove the plugin path at the specified index and compact
  *              the list.
  *
  * Return:      Success:    Non-negative
- *              Failture:   Negative
+ *              Failure:   Negative
  *
  * Return:      Non-negative or success.
  *
@@ -360,7 +360,8 @@ H5PLget(unsigned int idx, char *path_buf, size_t buf_size)
     /* If the path buffer is not NULL, copy the path to the buffer */
     if (path_buf) {
         HDstrncpy(path_buf, path, buf_size);
-        path_buf[buf_size - 1] = '\0';
+        if ((size_t)path_len >= buf_size)
+            path_buf[buf_size - 1] = '\0';
     } /* end if */
 
     /* Set return value */

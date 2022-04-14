@@ -37,7 +37,7 @@ const H5O_msg_class_t H5O_MSG_UNKNOWN[1] = {{
     H5O_UNKNOWN_ID,    /*message id number             */
     "unknown",         /*message name for debugging    */
     0,                 /*native message size           */
-    0,                 /* messages are sharable?       */
+    0,                 /* messages are shareable?       */
     NULL,              /*decode message                */
     NULL,              /*encode message                */
     NULL,              /*copy the native value         */

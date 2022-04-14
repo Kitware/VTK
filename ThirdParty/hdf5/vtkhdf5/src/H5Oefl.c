@@ -41,7 +41,7 @@ const H5O_msg_class_t H5O_MSG_EFL[1] = {{
     H5O_EFL_ID,           /*message id number		*/
     "external file list", /*message name for debugging    */
     sizeof(H5O_efl_t),    /*native message size	    	*/
-    0,                    /* messages are sharable?       */
+    0,                    /* messages are shareable?       */
     H5O__efl_decode,      /*decode message		*/
     H5O__efl_encode,      /*encode message		*/
     H5O__efl_copy,        /*copy native value		*/

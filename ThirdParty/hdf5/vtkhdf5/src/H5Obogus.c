@@ -47,7 +47,7 @@ const H5O_msg_class_t H5O_MSG_BOGUS_VALID[1] = {{
     H5O_BOGUS_VALID_ID,    /*message id number             */
     "bogus valid",         /*message name for debugging    */
     0,                     /*native message size           */
-    H5O_SHARE_IS_SHARABLE, /* messages are sharable?       */
+    H5O_SHARE_IS_SHARABLE, /* messages are shareable?       */
     H5O__bogus_decode,     /*decode message                */
     H5O__bogus_encode,     /*encode message                */
     NULL,                  /*copy the native value         */
@@ -71,7 +71,7 @@ const H5O_msg_class_t H5O_MSG_BOGUS_INVALID[1] = {{
     H5O_BOGUS_INVALID_ID,  /*message id number             */
     "bogus invalid",       /*message name for debugging    */
     0,                     /*native message size           */
-    H5O_SHARE_IS_SHARABLE, /* messages are sharable?       */
+    H5O_SHARE_IS_SHARABLE, /* messages are shareable?       */
     H5O__bogus_decode,     /*decode message                */
     H5O__bogus_encode,     /*encode message                */
     NULL,                  /*copy the native value         */

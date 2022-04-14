@@ -1597,7 +1597,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  *            H5C_DO_SLIST_SANITY_CHECKS
  *
- *        can be selected independantly.  This is easy to miss as the
+ *        can be selected independently.  This is easy to miss as the
  *        two #defines are easy to confuse.
  */
 

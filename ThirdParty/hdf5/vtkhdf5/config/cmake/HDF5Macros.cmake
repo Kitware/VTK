@@ -58,5 +58,46 @@ macro (H5_SET_LIB_OPTIONS libtarget libname libtype libpackage)
       endif ()
     endif ()
   endif ()
+endmacro ()
 
+# Initialize the list of VFDs to be used for testing and create a test folder for each VFD
+macro (H5_SET_VFD_LIST)
+  set (VFD_LIST
+      sec2
+      stdio
+      core
+      core_paged
+      split
+      multi
+      family
+      splitter
+      #log - log VFD currently has file space allocation bugs
+  )
+
+  if (H5_HAVE_DIRECT)
+    set (VFD_LIST ${VFD_LIST} direct)
+  endif ()
+  if (H5_HAVE_PARALLEL)
+    # MPI I/O VFD is currently incompatible with too many tests in the VFD test set
+    # set (VFD_LIST ${VFD_LIST} mpio)
+  endif ()
+  if (H5_HAVE_MIRROR_VFD)
+    set (VFD_LIST ${VFD_LIST} mirror)
+  endif ()
+  if (H5_HAVE_ROS3_VFD)
+    set (VFD_LIST ${VFD_LIST} ros3)
+  endif ()
+  if (H5_HAVE_LIBHDFS)
+    set (VFD_LIST ${VFD_LIST} hdfs)
+  endif ()
+  if (H5_HAVE_WINDOWS)
+    set (VFD_LIST ${VFD_LIST} windows)
+  endif ()
+endmacro ()
+
+# Initialize the list of VFDs to be used for testing and create a test folder for each VFD
+macro (H5_CREATE_VFD_DIR)
+  foreach (vfdtest ${VFD_LIST})
+    file (MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/${vfdtest}")
+  endforeach ()
 endmacro ()

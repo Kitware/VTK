@@ -74,6 +74,11 @@ typedef struct H5I_id_info_t {
     unsigned    app_count; /* Ref. count of application visible IDs */
     const void *object;    /* Pointer associated with the ID */
 
+    /* Future ID info */
+    hbool_t                   is_future;  /* Whether this ID represents a future object */
+    H5I_future_realize_func_t realize_cb; /* 'realize' callback for future object */
+    H5I_future_discard_func_t discard_cb; /* 'discard' callback for future object */
+
     /* Hash table ID fields */
     hbool_t        marked; /* Marked for deletion */
     UT_hash_handle hh;     /* Hash table handle (must be LAST) */
@@ -109,6 +114,8 @@ H5_DLLVAR int H5I_next_type_g;
 /* Package Private Prototypes */
 /******************************/
 
+H5_DLL hid_t H5I__register(H5I_type_t type, const void *object, hbool_t app_ref,
+                           H5I_future_realize_func_t realize_cb, H5I_future_discard_func_t discard_cb);
 H5_DLL int   H5I__destroy_type(H5I_type_t type);
 H5_DLL void *H5I__remove_verify(hid_t id, H5I_type_t type);
 H5_DLL int   H5I__inc_type_ref(H5I_type_t type);

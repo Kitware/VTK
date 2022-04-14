@@ -421,7 +421,7 @@ H5AC_proxy_entry_dest(H5AC_proxy_entry_t *pentry)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_NOAPI_NOERR
 
     /* Sanity checks */
     HDassert(pentry);
@@ -433,7 +433,6 @@ H5AC_proxy_entry_dest(H5AC_proxy_entry_t *pentry)
     /* Free the proxy entry object */
     pentry = H5FL_FREE(H5AC_proxy_entry_t, pentry);
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5AC_proxy_entry_dest() */
 

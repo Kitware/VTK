@@ -210,3 +210,34 @@ if (NOT WIN32 AND NOT MINGW)
   )
 endif ()
 endif ()
+
+if (FALSE) # XXX(kitware): VTK doesn't care about Doxygen for hdf5
+#-----------------------------------------------------------------------------
+# Option to build documentation
+#-----------------------------------------------------------------------------
+if (DOXYGEN_FOUND)
+# This cmake function requires that the non-default doxyfile settings are provided with set (DOXYGEN_xxx) commands
+# In addition the doxyfile aliases @INCLUDE option is not supported and would need to be provided in a set (DOXYGEN_ALIASES) command.
+#  doxygen_add_docs (hdf5lib_doc
+##      ${HL_SOURCES} ${HL_HEADERS} ${HDF5_DOXYGEN_DIR}/dox
+#      ${DOXYGEN_INPUT_DIRECTORY}
+#      ALL
+#      WORKING_DIRECTORY ${HDF5_HL_SRC_DIR}
+#      COMMENT "Generating HDF5 HL library Source Documentation"
+#  )
+
+# This custom target and doxygen/configure work together
+  # Replace variables inside @@ with the current values
+  add_custom_target (hdf5hllib_doc ALL
+        COMMAND ${DOXYGEN_EXECUTABLE} ${HDF5_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${HDF5_HL_SRC_DIR}
+        COMMENT "Generating HDF5 HL library Source API documentation with Doxygen"
+        VERBATIM )
+
+  if (NOT TARGET doxygen)
+    add_custom_target (doxygen)
+  endif ()
+
+  add_dependencies (doxygen hdf5hllib_doc)
+endif ()
+endif ()

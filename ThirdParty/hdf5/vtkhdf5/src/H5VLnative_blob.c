@@ -145,7 +145,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5VL__native_blob_specific(void *obj, void *blob_id, H5VL_blob_specific_t specific_type, va_list arguments)
+H5VL__native_blob_specific(void *obj, void *blob_id, H5VL_blob_specific_args_t *args)
 {
     H5F_t *f         = (H5F_t *)obj; /* Retrieve file pointer */
     herr_t ret_value = SUCCEED;      /* Return value */
@@ -156,44 +156,24 @@ H5VL__native_blob_specific(void *obj, void *blob_id, H5VL_blob_specific_t specif
     HDassert(f);
     HDassert(blob_id);
 
-    switch (specific_type) {
-        case H5VL_BLOB_GETSIZE: {
-            const uint8_t *id   = (const uint8_t *)blob_id; /* Pointer to the blob ID */
-            size_t *       size = HDva_arg(arguments, size_t *);
-            H5HG_t         hobjid; /* blob's heap ID */
-
-            /* Get heap information */
-            H5F_addr_decode(f, &id, &(hobjid.addr));
-            UINT32DECODE(id, hobjid.idx);
-
-            /* Get heap object's size */
-            if (hobjid.addr > 0) {
-                if (H5HG_get_obj_size(f, &hobjid, size) < 0)
-                    HGOTO_ERROR(H5E_VOL, H5E_CANTREMOVE, FAIL, "unable to remove heap object")
-            } /* end if */
-            else
-                *size = 0; /* Return '0' size for 'nil' blob ID */
-
-            break;
-        }
-
+    switch (args->op_type) {
         case H5VL_BLOB_ISNULL: {
-            const uint8_t *id     = (const uint8_t *)blob_id; /* Pointer to the blob ID */
-            hbool_t *      isnull = HDva_arg(arguments, hbool_t *);
-            haddr_t        addr; /* Sequence's heap address */
+            const uint8_t *id = (const uint8_t *)blob_id; /* Pointer to the blob ID */
+            haddr_t        addr;                          /* Sequence's heap address */
 
             /* Get the heap address */
             H5F_addr_decode(f, &id, &addr);
 
             /* Check if heap address is 'nil' */
-            *isnull = (addr == 0 ? TRUE : FALSE);
+            *args->args.is_null.isnull = (addr == 0 ? TRUE : FALSE);
 
             break;
         }
 
         case H5VL_BLOB_SETNULL: {
             uint8_t *id = (uint8_t *)blob_id; /* Pointer to the blob ID */
-            /* Encode the "nil" heap pointer information */
+
+            /* Encode the 'nil' heap pointer information */
             H5F_addr_encode(f, &id, (haddr_t)0);
             UINT32ENCODE(id, 0);
 

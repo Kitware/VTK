@@ -185,12 +185,13 @@ H5S__check_spans_tail_ptr(const H5S_hyper_span_info_t *span_lst)
         if (NULL != cur_elem->down)
             if ((ret_value = H5S__check_spans_tail_ptr(cur_elem->down)) < 0)
                 HGOTO_ERROR(H5E_DATASPACE, H5E_INCONSISTENTSTATE, FAIL,
-                            "the seletion has inconsistent tail pointers")
+                            "the selection has inconsistent tail pointers")
 
         cur_elem = cur_elem->next;
     } /* end while */
     if (actual_tail != span_lst->tail)
-        HGOTO_ERROR(H5E_DATASPACE, H5E_INCONSISTENTSTATE, FAIL, "the seletion has inconsistent tail pointers")
+        HGOTO_ERROR(H5E_DATASPACE, H5E_INCONSISTENTSTATE, FAIL,
+                    "the selection has inconsistent tail pointers")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -231,7 +232,8 @@ H5S__check_points_tail_ptr(const H5S_pnt_list_t *pnt_lst)
         cur_elem    = cur_elem->next;
     } /* end while */
     if (actual_tail != pnt_lst->tail)
-        HGOTO_ERROR(H5E_DATASPACE, H5E_INCONSISTENTSTATE, FAIL, "the seletion has inconsistent tail pointers")
+        HGOTO_ERROR(H5E_DATASPACE, H5E_INCONSISTENTSTATE, FAIL,
+                    "the selection has inconsistent tail pointers")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -314,7 +316,7 @@ H5S__check_internal_consistency(const H5S_t *space)
         if ((NULL != hslab) && (NULL != hslab->span_lst))
             if (H5S__check_spans_tail_ptr(hslab->span_lst) < 0)
                 HGOTO_ERROR(H5E_DATASPACE, H5E_INCONSISTENTSTATE, FAIL,
-                            "the seletion has inconsistent tail pointers")
+                            "the selection has inconsistent tail pointers")
     } /* end if */
     else if (space->select.type->type == H5S_SEL_POINTS) {
         H5S_pnt_list_t *pnt_lst = space->select.sel_info.pnt_lst;
@@ -322,7 +324,7 @@ H5S__check_internal_consistency(const H5S_t *space)
         if (NULL != pnt_lst)
             if (H5S__check_points_tail_ptr(pnt_lst) < 0)
                 HGOTO_ERROR(H5E_DATASPACE, H5E_INCONSISTENTSTATE, FAIL,
-                            "the seletion has inconsistent tail pointers")
+                            "the selection has inconsistent tail pointers")
     } /* end else-if */
 
 done:

@@ -177,22 +177,20 @@ H5_DLLVAR const H5B2_class_t H5A_BT2_CORDER[1];
 /******************************/
 
 /* Function prototypes for H5A package scope */
-H5_DLL H5A_t *H5A__create(const H5G_loc_t *loc, const char *attr_name, H5T_t *type, const H5S_t *space,
+H5_DLL H5A_t *H5A__create(const H5G_loc_t *loc, const char *attr_name, const H5T_t *type, const H5S_t *space,
                           hid_t acpl_id);
 H5_DLL H5A_t *H5A__create_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name,
-                                  H5T_t *type, const H5S_t *space, hid_t acpl_id);
+                                  const H5T_t *type, const H5S_t *space, hid_t acpl_id);
 H5_DLL H5A_t *H5A__open(const H5G_loc_t *loc, const char *attr_name);
 H5_DLL H5A_t *H5A__open_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name);
 H5_DLL H5A_t *H5A__open_by_idx(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type,
                                H5_iter_order_t order, hsize_t n);
-H5_DLL herr_t H5A__open_common(const H5G_loc_t *loc, H5A_t *attr);
 H5_DLL H5A_t *H5A__copy(H5A_t *new_attr, const H5A_t *old_attr);
 H5_DLL hid_t  H5A__get_type(H5A_t *attr);
 H5_DLL herr_t H5A__get_info(const H5A_t *attr, H5A_info_t *ainfo);
 H5_DLL hid_t  H5A__get_create_plist(H5A_t *attr);
 H5_DLL herr_t H5A__shared_free(H5A_t *attr);
 H5_DLL herr_t H5A__close(H5A_t *attr);
-H5_DLL herr_t H5A__close_cb(H5VL_object_t *attr_vol_obj);
 H5_DLL htri_t H5A__get_ainfo(H5F_t *f, H5O_t *oh, H5O_ainfo_t *ainfo);
 H5_DLL herr_t H5A__set_version(const H5F_t *f, H5A_t *attr);
 H5_DLL herr_t H5A__rename_by_name(H5G_loc_t loc, const char *obj_name, const char *old_attr_name,
@@ -202,13 +200,14 @@ H5_DLL herr_t H5A__iterate(const H5G_loc_t *loc, const char *obj_name, H5_index_
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 H5_DLL herr_t H5A__iterate_old(hid_t loc_id, unsigned *attr_num, H5A_operator1_t op, void *op_data);
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
-H5_DLL herr_t  H5A__delete_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name);
-H5_DLL herr_t  H5A__delete_by_idx(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type,
-                                  H5_iter_order_t order, hsize_t n);
-H5_DLL htri_t  H5A__exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name);
-H5_DLL herr_t  H5A__write(H5A_t *attr, H5T_t *mem_type, const void *buf);
-H5_DLL herr_t  H5A__read(const H5A_t *attr, H5T_t *mem_type, void *buf);
-H5_DLL ssize_t H5A__get_name(H5A_t *attr, size_t buf_size, char *buf);
+H5_DLL herr_t H5A__delete_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name);
+H5_DLL herr_t H5A__delete_by_idx(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type,
+                                 H5_iter_order_t order, hsize_t n);
+H5_DLL herr_t H5A__exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name,
+                                  hbool_t *attr_exists);
+H5_DLL herr_t H5A__write(H5A_t *attr, const H5T_t *mem_type, const void *buf);
+H5_DLL herr_t H5A__read(const H5A_t *attr, const H5T_t *mem_type, void *buf);
+H5_DLL herr_t H5A__get_name(H5A_t *attr, size_t buf_size, char *buf, size_t *attr_name_len);
 
 /* Attribute "dense" storage routines */
 H5_DLL herr_t H5A__dense_create(H5F_t *f, H5O_ainfo_t *ainfo);
@@ -223,7 +222,7 @@ H5_DLL herr_t H5A__dense_iterate(H5F_t *f, hid_t loc_id, const H5O_ainfo_t *ainf
 H5_DLL herr_t H5A__dense_remove(H5F_t *f, const H5O_ainfo_t *ainfo, const char *name);
 H5_DLL herr_t H5A__dense_remove_by_idx(H5F_t *f, const H5O_ainfo_t *ainfo, H5_index_t idx_type,
                                        H5_iter_order_t order, hsize_t n);
-H5_DLL htri_t H5A__dense_exists(H5F_t *f, const H5O_ainfo_t *ainfo, const char *name);
+H5_DLL herr_t H5A__dense_exists(H5F_t *f, const H5O_ainfo_t *ainfo, const char *name, hbool_t *attr_exists);
 H5_DLL herr_t H5A__dense_delete(H5F_t *f, H5O_ainfo_t *ainfo);
 
 /* Attribute table operations */
@@ -248,7 +247,7 @@ H5_DLL herr_t H5O__attr_iterate(hid_t loc_id, H5_index_t idx_type, H5_iter_order
 H5_DLL herr_t H5O__attr_remove(const H5O_loc_t *loc, const char *name);
 H5_DLL herr_t H5O__attr_remove_by_idx(const H5O_loc_t *loc, H5_index_t idx_type, H5_iter_order_t order,
                                       hsize_t n);
-H5_DLL htri_t H5O__attr_exists(const H5O_loc_t *loc, const char *name);
+H5_DLL herr_t H5O__attr_exists(const H5O_loc_t *loc, const char *name, hbool_t *attr_exists);
 H5_DLL H5A_t *H5A__attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_size,
                                   H5O_copy_t *cpy_info);
 H5_DLL herr_t H5A__attr_post_copy_file(const H5O_loc_t *src_oloc, const H5A_t *mesg_src, H5O_loc_t *dst_oloc,

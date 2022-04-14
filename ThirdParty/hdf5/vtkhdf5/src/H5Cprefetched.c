@@ -302,7 +302,7 @@ H5C__prefetched_entry_free_icr(void *_thing)
         HDassert(entry_ptr->fd_parent_count == 0);
 
     if (entry_ptr->image_ptr != NULL)
-        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "prefetched entry image buffer still attatched?")
+        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "prefetched entry image buffer still attached?")
 
     entry_ptr = H5FL_FREE(H5C_cache_entry_t, entry_ptr);
 

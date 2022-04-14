@@ -43,6 +43,7 @@
 /******************************/
 /* Package Private Prototypes */
 /******************************/
+H5_DLL herr_t  H5VL__set_def_conn(void);
 H5_DLL hid_t   H5VL__register_connector(const void *cls, hbool_t app_ref, hid_t vipl_id);
 H5_DLL hid_t   H5VL__register_connector_by_class(const H5VL_class_t *cls, hbool_t app_ref, hid_t vipl_id);
 H5_DLL hid_t   H5VL__register_connector_by_name(const char *name, hbool_t app_ref, hid_t vipl_id);
@@ -56,5 +57,16 @@ H5_DLL hid_t   H5VL__peek_connector_id_by_name(const char *name);
 H5_DLL hid_t   H5VL__peek_connector_id_by_value(H5VL_class_value_t value);
 H5_DLL herr_t  H5VL__connector_str_to_info(const char *str, hid_t connector_id, void **info);
 H5_DLL ssize_t H5VL__get_connector_name(hid_t id, char *name /*out*/, size_t size);
+H5_DLL void    H5VL__is_default_conn(hid_t fapl_id, hid_t connector_id, hbool_t *is_default);
+H5_DLL herr_t  H5VL__register_opt_operation(H5VL_subclass_t subcls, const char *op_name, int *op_val);
+H5_DLL size_t  H5VL__num_opt_operation(void);
+H5_DLL herr_t  H5VL__find_opt_operation(H5VL_subclass_t subcls, const char *op_name, int *op_val);
+H5_DLL herr_t  H5VL__unregister_opt_operation(H5VL_subclass_t subcls, const char *op_name);
+H5_DLL herr_t  H5VL__term_opt_operation(void);
+
+/* Testing functions */
+#ifdef H5VL_TESTING
+H5_DLL herr_t H5VL__reparse_def_vol_conn_variable_test(void);
+#endif /* H5VL_TESTING */
 
 #endif /* H5VLpkg_H */

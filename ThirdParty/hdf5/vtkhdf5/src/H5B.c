@@ -17,75 +17,75 @@
  *                  Jul 10 1997
  *                  Robb Matzke
  *
- * Purpose:        Implements balanced, sibling-linked, N-ary trees
- *            capable of storing any type of data with unique key
- *            values.
+ * Purpose:		Implements balanced, sibling-linked, N-ary trees
+ *			capable of storing any type of data with unique key
+ *			values.
  *
- *            A B-link-tree is a balanced tree where each node has
- *            a pointer to its left and right siblings.  A
- *            B-link-tree is a rooted tree having the following
- *            properties:
+ *			A B-link-tree is a balanced tree where each node has
+ *			a pointer to its left and right siblings.  A
+ *			B-link-tree is a rooted tree having the following
+ *			properties:
  *
- *            1. Every node, x, has the following fields:
+ *			1. Every node, x, has the following fields:
  *
- *               a. level[x], the level in the tree at which node
- *                  x appears.  Leaf nodes are at level zero.
+ *			   a. level[x], the level in the tree at which node
+ *			      x appears.  Leaf nodes are at level zero.
  *
- *               b. n[x], the number of children pointed to by the
- *                  node.  Internal nodes point to subtrees while
- *                  leaf nodes point to arbitrary data.
+ *			   b. n[x], the number of children pointed to by the
+ *			      node.  Internal nodes point to subtrees while
+ *			      leaf nodes point to arbitrary data.
  *
- *               c. The child pointers themselves, child[x,i] such
- *                  that 0 <= i < n[x].
+ *			   c. The child pointers themselves, child[x,i] such
+ *			      that 0 <= i < n[x].
  *
- *               d. n[x]+1 key values stored in increasing
- *                  order:
+ *			   d. n[x]+1 key values stored in increasing
+ *			      order:
  *
- *                key[x,0] < key[x,1] < ... < key[x,n[x]].
+ *				key[x,0] < key[x,1] < ... < key[x,n[x]].
  *
- *               e. left[x] is a pointer to the node's left sibling
- *                  or the null pointer if this is the left-most
- *                  node at this level in the tree.
+ *			   e. left[x] is a pointer to the node's left sibling
+ *			      or the null pointer if this is the left-most
+ *			      node at this level in the tree.
  *
- *               f. right[x] is a pointer to the node's right
- *                  sibling or the null pointer if this is the
- *                  right-most node at this level in the tree.
+ *			   f. right[x] is a pointer to the node's right
+ *			      sibling or the null pointer if this is the
+ *			      right-most node at this level in the tree.
  *
- *            3. The keys key[x,i] partition the key spaces of the
- *               children of x:
+ *			3. The keys key[x,i] partition the key spaces of the
+ *			   children of x:
  *
- *                  key[x,i] <= key[child[x,i],j] <= key[x,i+1]
+ *			      key[x,i] <= key[child[x,i],j] <= key[x,i+1]
  *
- *               for any valid combination of i and j.
+ *			   for any valid combination of i and j.
  *
- *            4. There are lower and upper bounds on the number of
- *               child pointers a node can contain.  These bounds
- *               can be expressed in terms of a fixed integer k>=2
- *               called the `minimum degree' of the B-tree.
+ *			4. There are lower and upper bounds on the number of
+ *			   child pointers a node can contain.  These bounds
+ *			   can be expressed in terms of a fixed integer k>=2
+ *			   called the `minimum degree' of the B-tree.
  *
- *               a. Every node other than the root must have at least
- *                  k child pointers and k+1 keys.  If the tree is
- *                  nonempty, the root must have at least one child
- *                  pointer and two keys.
+ *			   a. Every node other than the root must have at least
+ *			      k child pointers and k+1 keys.  If the tree is
+ *			      nonempty, the root must have at least one child
+ *			      pointer and two keys.
  *
- *               b. Every node can contain at most 2k child pointers
- *                  and 2k+1 keys.  A node is `full' if it contains
- *                  exactly 2k child pointers and 2k+1 keys.
+ *			   b. Every node can contain at most 2k child pointers
+ *			      and 2k+1 keys.  A node is `full' if it contains
+ *			      exactly 2k child pointers and 2k+1 keys.
  *
- *            5. When searching for a particular value, V, and
- *               key[V] = key[x,i] for some node x and entry i,
- *               then:
+ *			5. When searching for a particular value, V, and
+ *			   key[V] = key[x,i] for some node x and entry i,
+ *			   then:
  *
- *               a. If i=0 the child[0] is followed.
+ *			   a. If i=0 the child[0] is followed.
  *
- *               b. If i=n[x] the child[n[x]-1] is followed.
+ *			   b. If i=n[x] the child[n[x]-1] is followed.
  *
- *               c. Otherwise, the child that is followed
- *                  (either child[x,i-1] or child[x,i]) is
- *                  determined by the type of object to which the
- *                  leaf nodes of the tree point and is controlled
- *                  by the key comparison function registered for
- *                  that type of B-tree.
+ *			   c. Otherwise, the child that is followed
+ *			      (either child[x,i-1] or child[x,i]) is
+ *			      determined by the type of object to which the
+ *			      leaf nodes of the tree point and is controlled
+ *			      by the key comparison function registered for
+ *			      that type of B-tree.
  *
  *
  *-------------------------------------------------------------------------
@@ -100,22 +100,22 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"   /* Generic Functions            */
-#include "H5Bpkg.h"      /* B-link trees                */
+#include "H5private.h"   /* Generic Functions			*/
+#include "H5Bpkg.h"      /* B-link trees				*/
 #include "H5CXprivate.h" /* API Contexts                         */
-#include "H5Eprivate.h"  /* Error handling              */
-#include "H5Iprivate.h"  /* IDs                      */
-#include "H5MFprivate.h" /* File memory management        */
-#include "H5MMprivate.h" /* Memory management            */
+#include "H5Eprivate.h"  /* Error handling		  	*/
+#include "H5Iprivate.h"  /* IDs			  		*/
+#include "H5MFprivate.h" /* File memory management		*/
+#include "H5MMprivate.h" /* Memory management			*/
 #include "H5Pprivate.h"  /* Property lists                       */
 
 /****************/
 /* Local Macros */
 /****************/
 #define H5B_SIZEOF_HDR(F)                                                                                    \
-    (H5_SIZEOF_MAGIC +       /*magic number                  */                                              \
-     4 +                     /*type, level, num entries          */                                          \
-     2 * H5F_SIZEOF_ADDR(F)) /*left and right sibling addresses      */
+    (H5_SIZEOF_MAGIC +       /*magic number				  */                                                          \
+     4 +                     /*type, level, num entries		  */                                                \
+     2 * H5F_SIZEOF_ADDR(F)) /*left and right sibling addresses	  */
 
 /* Default initializer for H5B_ins_ud_t */
 #define H5B_INS_UD_T_NULL                                                                                    \
@@ -157,9 +157,6 @@ static H5B_t *H5B__copy(const H5B_t *old_bt);
 /* Package Variables */
 /*********************/
 
-/* Package initialization variable */
-hbool_t H5_PKG_INIT_VAR = FALSE;
-
 /* Declare a free list to manage the haddr_t sequence information */
 H5FL_SEQ_DEFINE(haddr_t);
 
@@ -187,19 +184,19 @@ H5FL_BLK_DEFINE_STATIC(page);
 H5FL_SEQ_DEFINE_STATIC(size_t);
 
 /*-------------------------------------------------------------------------
- * Function:    H5B_create
+ * Function:	H5B_create
  *
- * Purpose:    Creates a new empty B-tree leaf node.  The UDATA pointer is
- *        passed as an argument to the sizeof_rkey() method for the
- *        B-tree.
+ * Purpose:	Creates a new empty B-tree leaf node.  The UDATA pointer is
+ *		passed as an argument to the sizeof_rkey() method for the
+ *		B-tree.
  *
- * Return:    Success:    Non-negative, and the address of new node is
- *                returned through the ADDR_P argument.
+ * Return:	Success:	Non-negative, and the address of new node is
+ *				returned through the ADDR_P argument.
  *
- *         Failure:    Negative
+ * 		Failure:	Negative
  *
- * Programmer:    Robb Matzke
- *        Jun 23 1997
+ * Programmer:	Robb Matzke
+ *		Jun 23 1997
  *
  *-------------------------------------------------------------------------
  */
@@ -265,29 +262,29 @@ done:
 } /* end H5B_create() */ /*lint !e818 Can't make udata a pointer to const */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B_find
+ * Function:	H5B_find
  *
- * Purpose:    Locate the specified information in a B-tree and return
- *        that information by filling in fields of the caller-supplied
- *        UDATA pointer depending on the type of leaf node
- *        requested.  The UDATA can point to additional data passed
- *        to the key comparison function.
+ * Purpose:	Locate the specified information in a B-tree and return
+ *		that information by filling in fields of the caller-supplied
+ *		UDATA pointer depending on the type of leaf node
+ *		requested.  The UDATA can point to additional data passed
+ *		to the key comparison function.
  *
- * Note:    This function does not follow the left/right sibling
- *        pointers since it assumes that all nodes can be reached
- *        from the parent node.
+ * Note:	This function does not follow the left/right sibling
+ *		pointers since it assumes that all nodes can be reached
+ *		from the parent node.
  *
- * Return:    Non-negative (TRUE/FALSE) on success (if found, values returned
+ * Return:	Non-negative (TRUE/FALSE) on success (if found, values returned
  *              through the UDATA argument). Negative on failure (if not found,
  *              UDATA is undefined).
  *
- * Programmer:    Robb Matzke
- *        Jun 23 1997
+ * Programmer:	Robb Matzke
+ *		Jun 23 1997
  *
  *-------------------------------------------------------------------------
  */
-htri_t
-H5B_find(H5F_t *f, const H5B_class_t *type, haddr_t addr, void *udata)
+herr_t
+H5B_find(H5F_t *f, const H5B_class_t *type, haddr_t addr, hbool_t *found, void *udata)
 {
     H5B_t *        bt = NULL;
     H5UC_t *       rc_shared;           /* Ref-counted shared info */
@@ -295,7 +292,7 @@ H5B_find(H5F_t *f, const H5B_class_t *type, haddr_t addr, void *udata)
     H5B_cache_ud_t cache_udata;         /* User-data for metadata cache callback */
     unsigned       idx = 0, lt = 0, rt; /* Final, left & right key indices */
     int            cmp       = 1;       /* Key comparison value */
-    htri_t         ret_value = FAIL;    /* Return value */
+    herr_t         ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -334,23 +331,25 @@ H5B_find(H5F_t *f, const H5B_class_t *type, haddr_t addr, void *udata)
         else
             lt = idx + 1;
     } /* end while */
+
     /* Check if not found */
     if (cmp)
-        HGOTO_DONE(FALSE)
-
-    /*
-     * Follow the link to the subtree or to the data node.
-     */
-    HDassert(idx < bt->nchildren);
-
-    if (bt->level > 0) {
-        if ((ret_value = H5B_find(f, type, bt->child[idx], udata)) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "can't lookup key in subtree")
-    } /* end if */
+        *found = FALSE;
     else {
-        if ((ret_value = (type->found)(f, bt->child[idx], H5B_NKEY(bt, shared, idx), udata)) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "can't lookup key in leaf node")
-    } /* end else */
+        /*
+         * Follow the link to the subtree or to the data node.
+         */
+        HDassert(idx < bt->nchildren);
+
+        if (bt->level > 0) {
+            if ((ret_value = H5B_find(f, type, bt->child[idx], found, udata)) < 0)
+                HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "can't lookup key in subtree")
+        } /* end if */
+        else {
+            if ((ret_value = (type->found)(f, bt->child[idx], H5B_NKEY(bt, shared, idx), found, udata)) < 0)
+                HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "can't lookup key in leaf node")
+        } /* end else */
+    }     /* end else */
 
 done:
     if (bt && H5AC_unprotect(f, H5AC_BT, addr, bt, H5AC__NO_FLAGS_SET) < 0)
@@ -360,23 +359,23 @@ done:
 } /* end H5B_find() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B__split
+ * Function:	H5B__split
  *
- * Purpose:    Split a single node into two nodes.  The old node will
- *        contain the left children and the new node will contain the
- *        right children.
+ * Purpose:	Split a single node into two nodes.  The old node will
+ *		contain the left children and the new node will contain the
+ *		right children.
  *
- *        The UDATA pointer is passed to the sizeof_rkey() method but is
- *        otherwise unused.
+ *		The UDATA pointer is passed to the sizeof_rkey() method but is
+ *		otherwise unused.
  *
- *        The BT_UD argument is a pointer to a protected B-tree
- *        node.
+ *		The BT_UD argument is a pointer to a protected B-tree
+ *		node.
  *
- * Return:    Non-negative on success (The address of the new node is
+ * Return:	Non-negative on success (The address of the new node is
  *              returned through the NEW_ADDR argument). Negative on failure.
  *
- * Programmer:    Robb Matzke
- *        Jul  3 1997
+ * Programmer:	Robb Matzke
+ *		Jul  3 1997
  *
  *-------------------------------------------------------------------------
  */
@@ -521,14 +520,14 @@ done:
 } /* end H5B__split() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B_insert
+ * Function:	H5B_insert
  *
- * Purpose:    Adds a new item to the B-tree.
+ * Purpose:	Adds a new item to the B-tree.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:    Robb Matzke
- *        Jun 23 1997
+ * Programmer:	Robb Matzke
+ *		Jun 23 1997
  *
  *-------------------------------------------------------------------------
  */
@@ -674,16 +673,16 @@ done:
 } /* end H5B_insert() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B__insert_child
+ * Function:	H5B__insert_child
  *
- * Purpose:    Insert a child to the left or right of child[IDX] depending
- *        on whether ANCHOR is H5B_INS_LEFT or H5B_INS_RIGHT. The BT
- *        argument is a pointer to a protected B-tree node.
+ * Purpose:	Insert a child to the left or right of child[IDX] depending
+ *		on whether ANCHOR is H5B_INS_LEFT or H5B_INS_RIGHT. The BT
+ *		argument is a pointer to a protected B-tree node.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:    Robb Matzke
- *        Jul  8 1997
+ * Programmer:	Robb Matzke
+ *		Jul  8 1997
  *
  *-------------------------------------------------------------------------
  */
@@ -743,32 +742,32 @@ H5B__insert_child(H5B_t *bt, unsigned *bt_flags, unsigned idx, haddr_t child, H5
 } /* end H5B_insert_child() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B__insert_helper
+ * Function:	H5B__insert_helper
  *
- * Purpose:    Inserts the item UDATA into the tree rooted at ADDR and having
- *        the specified type.
+ * Purpose:	Inserts the item UDATA into the tree rooted at ADDR and having
+ *		the specified type.
  *
- *        On return, if LT_KEY_CHANGED is non-zero, then LT_KEY is
- *        the new native left key.  Similarly for RT_KEY_CHANGED
- *        and RT_KEY.
+ *		On return, if LT_KEY_CHANGED is non-zero, then LT_KEY is
+ *		the new native left key.  Similarly for RT_KEY_CHANGED
+ *		and RT_KEY.
  *
- *        If the node splits, then MD_KEY contains the key that
- *        was split between the two nodes (that is, the key that
- *        appears as the max key in the left node and the min key
- *        in the right node).
+ *		If the node splits, then MD_KEY contains the key that
+ *		was split between the two nodes (that is, the key that
+ *		appears as the max key in the left node and the min key
+ *		in the right node).
  *
- * Return:    Success:    A B-tree operation.  The address of the new
- *                node, if the node splits, is returned through
- *                the NEW_NODE_P argument. The new node is always
- *                to the right of the previous node.  This
- *                function is called recursively and the return
- *                value influences the behavior of the caller.
- *                See also, declaration of H5B_ins_t.
+ * Return:	Success:	A B-tree operation.  The address of the new
+ *				node, if the node splits, is returned through
+ *				the NEW_NODE_P argument. The new node is always
+ *				to the right of the previous node.  This
+ *				function is called recursively and the return
+ *				value influences the behavior of the caller.
+ *				See also, declaration of H5B_ins_t.
  *
- *        Failure:    H5B_INS_ERROR
+ *		Failure:	H5B_INS_ERROR
  *
- * Programmer:    Robb Matzke
- *        Jul  9 1997
+ * Programmer:	Robb Matzke
+ *		Jul  9 1997
  *
  *-------------------------------------------------------------------------
  */
@@ -1099,15 +1098,15 @@ done:
 } /* end H5B_insert_helper() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B__iterate_helper
+ * Function:	H5B__iterate_helper
  *
- * Purpose:    Calls the list callback for each leaf node of the
- *        B-tree, passing it the caller's UDATA structure.
+ * Purpose:	Calls the list callback for each leaf node of the
+ *		B-tree, passing it the caller's UDATA structure.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:    Robb Matzke
- *        Jun 23 1997
+ * Programmer:	Robb Matzke
+ *		Jun 23 1997
  *
  *-------------------------------------------------------------------------
  */
@@ -1163,15 +1162,15 @@ done:
 } /* end H5B__iterate_helper() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B_iterate
+ * Function:	H5B_iterate
  *
- * Purpose:    Calls the list callback for each leaf node of the
- *        B-tree, passing it the UDATA structure.
+ * Purpose:	Calls the list callback for each leaf node of the
+ *		B-tree, passing it the UDATA structure.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:    Robb Matzke
- *        Jun 23 1997
+ * Programmer:	Robb Matzke
+ *		Jun 23 1997
  *
  *-------------------------------------------------------------------------
  */
@@ -1199,25 +1198,25 @@ H5B_iterate(H5F_t *f, const H5B_class_t *type, haddr_t addr, H5B_operator_t op, 
 } /* end H5B_iterate() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B__remove_helper
+ * Function:	H5B__remove_helper
  *
- * Purpose:    The recursive part of removing an item from a B-tree.  The
- *        sub B-tree that is being considered is located at ADDR and
- *        the item to remove is described by UDATA.  If the removed
- *        item falls at the left or right end of the current level then
- *        it might be necessary to adjust the left and/or right keys
- *        (LT_KEY and/or RT_KEY) to to indicate that they changed by
- *         setting LT_KEY_CHANGED and/or RT_KEY_CHANGED.
+ * Purpose:	The recursive part of removing an item from a B-tree.  The
+ *		sub B-tree that is being considered is located at ADDR and
+ *		the item to remove is described by UDATA.  If the removed
+ *		item falls at the left or right end of the current level then
+ *		it might be necessary to adjust the left and/or right keys
+ *		(LT_KEY and/or RT_KEY) to to indicate that they changed by
+ * 		setting LT_KEY_CHANGED and/or RT_KEY_CHANGED.
  *
- * Return:    Success:    A B-tree operation, see comments for
- *                H5B_ins_t declaration.  This function is
- *                called recursively and the return value
- *                influences the actions of the caller. It is
- *                also called by H5B_remove().
+ * Return:	Success:	A B-tree operation, see comments for
+ *				H5B_ins_t declaration.  This function is
+ *				called recursively and the return value
+ *				influences the actions of the caller. It is
+ *				also called by H5B_remove().
  *
- *        Failure:    H5B_INS_ERROR, a negative value.
+ *		Failure:	H5B_INS_ERROR, a negative value.
  *
- * Programmer:    Robb Matzke
+ * Programmer:	Robb Matzke
  *              Wednesday, September 16, 1998
  *
  *-------------------------------------------------------------------------
@@ -1536,17 +1535,17 @@ done:
 } /* end H5B__remove_helper() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B_remove
+ * Function:	H5B_remove
  *
- * Purpose:    Removes an item from a B-tree.
+ * Purpose:	Removes an item from a B-tree.
  *
- * Note:    The current version does not attempt to rebalance the tree.
+ * Note:	The current version does not attempt to rebalance the tree.
  *              (Read the paper Yao & Lehman paper for details on why)
  *
- * Return:    Non-negative on success/Negative on failure (failure includes
- *        not being able to find the object which is to be removed).
+ * Return:	Non-negative on success/Negative on failure (failure includes
+ *		not being able to find the object which is to be removed).
  *
- * Programmer:    Robb Matzke
+ * Programmer:	Robb Matzke
  *              Wednesday, September 16, 1998
  *
  *-------------------------------------------------------------------------
@@ -1583,14 +1582,14 @@ done:
 } /* end H5B_remove() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B_delete
+ * Function:	H5B_delete
  *
- * Purpose:    Deletes an entire B-tree from the file, calling the 'remove'
+ * Purpose:	Deletes an entire B-tree from the file, calling the 'remove'
  *              callbacks for each node.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:    Quincey Koziol
+ * Programmer:	Quincey Koziol
  *              Thursday, March 20, 2003
  *
  *-------------------------------------------------------------------------
@@ -1656,15 +1655,15 @@ done:
 } /* end H5B_delete() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B_shared_new
+ * Function:	H5B_shared_new
  *
- * Purpose:    Allocates & constructs a shared v1 B-tree struct for client.
+ * Purpose:	Allocates & constructs a shared v1 B-tree struct for client.
  *
- * Return:    Success:    non-NULL pointer to struct allocated
- *        Failure:    NULL
+ * Return:	Success:	non-NULL pointer to struct allocated
+ *		Failure:	NULL
  *
- * Programmer:    Quincey Koziol
- *        May 27 2008
+ * Programmer:	Quincey Koziol
+ *		May 27 2008
  *
  *-------------------------------------------------------------------------
  */
@@ -1694,9 +1693,9 @@ H5B_shared_new(const H5F_t *f, const H5B_class_t *type, size_t sizeof_rkey)
     shared->sizeof_rkey = sizeof_rkey;
     HDassert(shared->sizeof_rkey);
     shared->sizeof_keys  = (shared->two_k + 1) * type->sizeof_nkey;
-    shared->sizeof_rnode = ((size_t)H5B_SIZEOF_HDR(f) +                 /*node header    */
+    shared->sizeof_rnode = ((size_t)H5B_SIZEOF_HDR(f) +                 /*node header	*/
                             shared->two_k * H5F_SIZEOF_ADDR(f) +        /*child pointers */
-                            (shared->two_k + 1) * shared->sizeof_rkey); /*keys        */
+                            (shared->two_k + 1) * shared->sizeof_rkey); /*keys		*/
     HDassert(shared->sizeof_rnode);
 
     /* Allocate and clear shared buffers */
@@ -1728,13 +1727,13 @@ done:
 } /* end H5B_shared_new() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B_shared_free
+ * Function:	H5B_shared_free
  *
- * Purpose:    Free B-tree shared info
+ * Purpose:	Free B-tree shared info
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:    Quincey Koziol
+ * Programmer:	Quincey Koziol
  *              Tuesday, May 27, 2008
  *
  *-------------------------------------------------------------------------
@@ -1759,16 +1758,16 @@ H5B_shared_free(void *_shared)
 } /* end H5B_shared_free() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B__copy
+ * Function:	H5B__copy
  *
- * Purpose:    Deep copies an existing H5B_t node.
+ * Purpose:	Deep copies an existing H5B_t node.
  *
- * Return:    Success:    Pointer to H5B_t object.
+ * Return:	Success:	Pointer to H5B_t object.
  *
- *         Failure:    NULL
+ * 		Failure:	NULL
  *
- * Programmer:    Quincey Koziol
- *        Apr 18 2000
+ * Programmer:	Quincey Koziol
+ *		Apr 18 2000
  *
  *-------------------------------------------------------------------------
  */
@@ -1825,14 +1824,14 @@ done:
 } /* end H5B__copy() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5B__get_info_helper
+ * Function:	H5B__get_info_helper
  *
- * Purpose:    Walks the B-tree nodes, getting information for all of them.
+ * Purpose:	Walks the B-tree nodes, getting information for all of them.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:    Quincey Koziol
- *        Jun  3 2008
+ * Programmer:	Quincey Koziol
+ *		Jun  3 2008
  *
  *-------------------------------------------------------------------------
  */
@@ -1843,8 +1842,8 @@ H5B__get_info_helper(H5F_t *f, const H5B_class_t *type, haddr_t addr, const H5B_
     H5UC_t *       rc_shared;           /* Ref-counted shared info */
     H5B_shared_t * shared;              /* Pointer to shared B-tree info */
     H5B_cache_ud_t cache_udata;         /* User-data for metadata cache callback */
-    unsigned       level;               /* Node level                 */
-    size_t         sizeof_rnode;        /* Size of raw (disk) node         */
+    unsigned       level;               /* Node level			     */
+    size_t         sizeof_rnode;        /* Size of raw (disk) node	     */
     haddr_t        next_addr;           /* Address of next node to the right */
     haddr_t        left_child;          /* Address of left-most child in node */
     herr_t         ret_value = SUCCEED; /* Return value */

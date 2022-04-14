@@ -321,7 +321,7 @@ extern const H5B2_class_t *const H5B2_client_class_g[H5B2_NUM_BTREE_ID];
 
 /* Generic routines */
 H5_DLL herr_t H5B2__create_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t *child_entry);
-H5_DLL herr_t H5B2__update_flush_depend(H5B2_hdr_t *hdr, unsigned depth, const H5B2_node_ptr_t *node_ptr,
+H5_DLL herr_t H5B2__update_flush_depend(H5B2_hdr_t *hdr, unsigned depth, H5B2_node_ptr_t *node_ptr,
                                         void *old_parent, void *new_parent);
 H5_DLL herr_t H5B2__destroy_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t *child_entry);
 
@@ -390,9 +390,9 @@ H5_DLL herr_t H5B2__update_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr,
                                 void *op_data);
 
 /* Routines for iterating over nodes/records */
-H5_DLL herr_t H5B2__iterate_node(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_node,
-                                 void *parent, H5B2_operator_t op, void *op_data);
-H5_DLL herr_t H5B2__node_size(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_node, void *parent,
+H5_DLL herr_t H5B2__iterate_node(H5B2_hdr_t *hdr, uint16_t depth, H5B2_node_ptr_t *curr_node, void *parent,
+                                 H5B2_operator_t op, void *op_data);
+H5_DLL herr_t H5B2__node_size(H5B2_hdr_t *hdr, uint16_t depth, H5B2_node_ptr_t *curr_node, void *parent,
                               hsize_t *op_data);
 
 /* Routines for locating records */
@@ -423,8 +423,8 @@ H5_DLL herr_t H5B2__remove_leaf_by_idx(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_no
                                        void *op_data);
 
 /* Routines for deleting nodes */
-H5_DLL herr_t H5B2__delete_node(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_node,
-                                void *parent, H5B2_remove_t op, void *op_data);
+H5_DLL herr_t H5B2__delete_node(H5B2_hdr_t *hdr, uint16_t depth, H5B2_node_ptr_t *curr_node, void *parent,
+                                H5B2_remove_t op, void *op_data);
 
 /* Debugging routines for dumping file structures */
 H5_DLL herr_t H5B2__hdr_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,

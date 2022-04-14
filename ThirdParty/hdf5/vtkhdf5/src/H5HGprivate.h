@@ -50,7 +50,7 @@ typedef struct H5HG_heap_t H5HG_heap_t;
 
 /* Size of encoded global heap ID */
 /* (size of file address + 32-bit integer) */
-#define H5HG_HEAP_ID_SIZE(F) ((size_t)H5F_SIZEOF_ADDR(F) + H5_SIZEOF_UINT32_T)
+#define H5HG_HEAP_ID_SIZE(F) ((size_t)H5F_SIZEOF_ADDR(F) + sizeof(uint32_t))
 
 /* Main global heap routines */
 H5_DLL herr_t H5HG_insert(H5F_t *f, size_t size, const void *obj, H5HG_t *hobj /*out*/);

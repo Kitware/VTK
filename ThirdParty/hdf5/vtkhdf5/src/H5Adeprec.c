@@ -209,7 +209,7 @@ H5Aopen_name(hid_t loc_id, const char *name)
 
     /* Register the attribute and get an ID for it */
     if ((ret_value = H5VL_register(H5I_ATTR, attr, vol_obj->connector, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATTR, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to atomize attribute handle")
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register attribute handle")
 
 done:
     /* Clean up on failure */
@@ -277,7 +277,7 @@ H5Aopen_idx(hid_t loc_id, unsigned idx)
 
     /* Register the attribute and get an ID for it */
     if ((ret_value = H5VL_register(H5I_ATTR, attr, vol_obj->connector, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATTR, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to atomize attribute handle")
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register attribute handle")
 
 done:
     /* Clean up on failure */
@@ -309,10 +309,11 @@ done:
 int
 H5Aget_num_attrs(hid_t loc_id)
 {
-    H5VL_object_t *   vol_obj = NULL; /* Object of loc_id */
-    H5VL_loc_params_t loc_params;
-    H5O_info2_t       oinfo;
-    int               ret_value = -1;
+    H5VL_object_t *        vol_obj = NULL; /* Object of loc_id */
+    H5VL_object_get_args_t vol_cb_args;    /* Arguments to VOL callback */
+    H5VL_loc_params_t      loc_params;
+    H5O_info2_t            oinfo;
+    int                    ret_value = -1;
 
     FUNC_ENTER_API((-1))
     H5TRACE1("Is", "i", loc_id);
@@ -324,9 +325,13 @@ H5Aget_num_attrs(hid_t loc_id)
     if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, (-1), "invalid location identifier")
 
+    /* Set up VOL callback arguments */
+    vol_cb_args.op_type              = H5VL_OBJECT_GET_INFO;
+    vol_cb_args.args.get_info.oinfo  = &oinfo;
+    vol_cb_args.args.get_info.fields = H5O_INFO_NUM_ATTRS;
+
     /* Get the number of attributes for the object */
-    if (H5VL_object_get(vol_obj, &loc_params, H5VL_OBJECT_GET_INFO, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL,
-                        &oinfo, H5O_INFO_NUM_ATTRS) < 0)
+    if (H5VL_object_get(vol_obj, &loc_params, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, (-1), "unable to get attribute count for object")
 
     H5_CHECKED_ASSIGN(ret_value, int, oinfo.num_attrs, hsize_t);
@@ -351,7 +356,7 @@ done:
     last operator if it was non-zero, or zero if all attributes were processed.
 
  DESCRIPTION
-        This function interates over the attributes of dataset or group
+        This function iterates over the attributes of dataset or group
     specified with 'loc_id'.  For each attribute of the object, the
     'op_data' and some additional information (specified below) are passed
     to the 'op' function.  The iteration begins with the '*attr_number'
@@ -373,13 +378,15 @@ done:
     Deprecated in favor of H5Aiterate2
 --------------------------------------------------------------------------*/
 herr_t
-H5Aiterate1(hid_t loc_id, unsigned *attr_num, H5A_operator1_t op, void *op_data)
+H5Aiterate1(hid_t loc_id, unsigned *attr_num /*in,out*/, H5A_operator1_t op, void *op_data)
 {
-    H5VL_object_t *vol_obj = NULL; /* Object of loc_id */
-    herr_t         ret_value;      /* Return value */
+    H5VL_object_t *                  vol_obj = NULL; /* Object of loc_id */
+    H5VL_optional_args_t             vol_cb_args;    /* Arguments to VOL callback */
+    H5VL_native_attr_optional_args_t attr_opt_args;  /* Arguments for optional operation */
+    herr_t                           ret_value;      /* Return value */
 
     FUNC_ENTER_API(H5_ITER_ERROR)
-    H5TRACE4("e", "i*Iux*x", loc_id, attr_num, op, op_data);
+    H5TRACE4("e", "i*IuAo*x", loc_id, attr_num, op, op_data);
 
     /* check arguments */
     if (H5I_ATTR == H5I_get_type(loc_id))
@@ -387,12 +394,20 @@ H5Aiterate1(hid_t loc_id, unsigned *attr_num, H5A_operator1_t op, void *op_data)
 
     /* Get the location object */
     if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
-        HGOTO_ERROR(H5E_VOL, H5E_BADTYPE, H5_ITER_ERROR, "invalid location identifier")
+        HGOTO_ERROR(H5E_ATTR, H5E_BADTYPE, H5_ITER_ERROR, "invalid location identifier")
+
+    /* Set up VOL callback arguments */
+    attr_opt_args.iterate_old.loc_id   = loc_id;
+    attr_opt_args.iterate_old.attr_num = attr_num;
+    attr_opt_args.iterate_old.op       = op;
+    attr_opt_args.iterate_old.op_data  = op_data;
+    vol_cb_args.op_type                = H5VL_NATIVE_ATTR_ITERATE_OLD;
+    vol_cb_args.args                   = &attr_opt_args;
 
     /* Call attribute iteration routine */
-    if ((ret_value = H5VL_attr_optional(vol_obj, H5VL_NATIVE_ATTR_ITERATE_OLD, H5P_DATASET_XFER_DEFAULT,
-                                        H5_REQUEST_NULL, loc_id, attr_num, op, op_data)) < 0)
-        HERROR(H5E_VOL, H5E_BADITER, "error iterating over attributes");
+    if ((ret_value = H5VL_attr_optional(vol_obj, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL)) <
+        0)
+        HERROR(H5E_ATTR, H5E_BADITER, "error iterating over attributes");
 
 done:
     FUNC_LEAVE_API(ret_value)

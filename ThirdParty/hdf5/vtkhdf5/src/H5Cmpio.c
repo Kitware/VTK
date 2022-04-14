@@ -195,7 +195,7 @@ H5C_apply_candidate_list(H5F_t *f, H5C_t *cache_ptr, unsigned num_candidates, ha
     HDmemset(entries_to_clear, 0, sizeof(entries_to_clear));
 
 #if H5C_APPLY_CANDIDATE_LIST__DEBUG
-    HDfprintf(stdout, "%s:%d: setting up candidate assignment table.\n", FUNC, mpi_rank);
+    HDfprintf(stdout, "%s:%d: setting up candidate assignment table.\n", __func__, mpi_rank);
 
     HDmemset(tbl_buf, 0, sizeof(tbl_buf));
 
@@ -272,10 +272,10 @@ H5C_apply_candidate_list(H5F_t *f, H5C_t *cache_ptr, unsigned num_candidates, ha
     HDsprintf(&(tbl_buf[HDstrlen(tbl_buf)]), "\n");
     HDfprintf(stdout, "%s", tbl_buf);
 
-    HDfprintf(stdout, "%s:%d: flush entries [%u, %u].\n", FUNC, mpi_rank, first_entry_to_flush,
+    HDfprintf(stdout, "%s:%d: flush entries [%u, %u].\n", __func__, mpi_rank, first_entry_to_flush,
               last_entry_to_flush);
 
-    HDfprintf(stdout, "%s:%d: marking entries.\n", FUNC, mpi_rank);
+    HDfprintf(stdout, "%s:%d: marking entries.\n", __func__, mpi_rank);
 #endif /* H5C_APPLY_CANDIDATE_LIST__DEBUG */
 
     for (u = 0; u < num_candidates; u++) {
@@ -353,8 +353,8 @@ H5C_apply_candidate_list(H5F_t *f, H5C_t *cache_ptr, unsigned num_candidates, ha
 #endif /* H5C_DO_SANITY_CHECKS */
 
 #if H5C_APPLY_CANDIDATE_LIST__DEBUG
-    HDfprintf(stdout, "%s:%d: num candidates/to clear/to flush = %u/%u/%u.\n", FUNC, mpi_rank, num_candidates,
-              total_entries_to_clear, total_entries_to_flush);
+    HDfprintf(stdout, "%s:%d: num candidates/to clear/to flush = %u/%u/%u.\n", __func__, mpi_rank,
+              num_candidates, total_entries_to_clear, total_entries_to_flush);
 #endif /* H5C_APPLY_CANDIDATE_LIST__DEBUG */
 
     /* We have now marked all the entries on the candidate list for
@@ -919,7 +919,9 @@ H5C_clear_coll_entries(H5C_t *cache_ptr, hbool_t partial)
         entry_ptr = prev_ptr;
     } /* end while */
 
+#ifdef H5C_DO_SANITY_CHECKS
 done:
+#endif /* H5C_DO_SANITY_CHECKS */
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C_clear_coll_entries */
 
@@ -1095,7 +1097,7 @@ done:
  *
  *              Note that this function is a modified version of
  *              H5C_flush_cache() -- any changes there may need to be
- *              reflected here and vise versa.
+ *              reflected here and vice versa.
  *
  * Return:      Non-negative on success/Negative on failure.
  *

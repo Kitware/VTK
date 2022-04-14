@@ -44,6 +44,29 @@
 #define my_strdup strdup
 #endif
 
+/* Macros for enabling/disabling particular GCC / clang warnings
+ *
+ * These are (renamed) duplicates of macros in H5private.h. If you make changes
+ * here, be sure to update those as well.
+ *
+ * (see the following web-sites for more info:
+ *      http://www.dbp-consulting.com/tutorials/SuppressingGCCWarnings.html
+ *      http://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html#Diagnostic-Pragmas
+ */
+/* These pragmas are only implemented usefully in gcc 4.6+ */
+#if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406
+#define H5_MULTI_GCC_DIAG_JOINSTR(x, y) x y
+#define H5_MULTI_GCC_DIAG_DO_PRAGMA(x)  _Pragma(#x)
+#define H5_MULTI_GCC_DIAG_PRAGMA(x)     H5_MULTI_GCC_DIAG_DO_PRAGMA(GCC diagnostic x)
+
+#define H5_MULTI_GCC_DIAG_OFF(x)                                                                             \
+    H5_MULTI_GCC_DIAG_PRAGMA(push) H5_MULTI_GCC_DIAG_PRAGMA(ignored H5_MULTI_GCC_DIAG_JOINSTR("-W", x))
+#define H5_MULTI_GCC_DIAG_ON(x) H5_MULTI_GCC_DIAG_PRAGMA(pop)
+#else
+#define H5_MULTI_GCC_DIAG_OFF(x)
+#define H5_MULTI_GCC_DIAG_ON(x)
+#endif
+
 /* Loop through all mapped files */
 #define UNIQUE_MEMBERS_CORE(MAP, ITER, SEEN, LOOPVAR)                                                        \
     {                                                                                                        \
@@ -112,8 +135,13 @@ typedef struct H5FD_multi_dxpl_t {
 } H5FD_multi_dxpl_t;
 
 /* Private functions */
-static int compute_next(H5FD_multi_t *file);
-static int open_members(H5FD_multi_t *file);
+static herr_t H5FD_split_populate_config(const char *meta_ext, hid_t meta_plist_id, const char *raw_ext,
+                                         hid_t raw_plist_id, hbool_t relax, H5FD_multi_fapl_t *fa_out);
+static herr_t H5FD_multi_populate_config(const H5FD_mem_t *memb_map, const hid_t *memb_fapl,
+                                         const char *const *memb_name, const haddr_t *memb_addr,
+                                         hbool_t relax, H5FD_multi_fapl_t *fa_out);
+static int    compute_next(H5FD_multi_t *file);
+static int    open_members(H5FD_multi_t *file);
 
 /* Callback prototypes */
 static herr_t  H5FD_multi_term(void);
@@ -142,41 +170,47 @@ static herr_t  H5FD_multi_flush(H5FD_t *_file, hid_t dxpl_id, hbool_t closing);
 static herr_t  H5FD_multi_truncate(H5FD_t *_file, hid_t dxpl_id, hbool_t closing);
 static herr_t  H5FD_multi_lock(H5FD_t *_file, hbool_t rw);
 static herr_t  H5FD_multi_unlock(H5FD_t *_file);
+static herr_t  H5FD_multi_delete(const char *filename, hid_t fapl_id);
+static herr_t  H5FD_multi_ctl(H5FD_t *_file, uint64_t op_code, uint64_t flags, const void *input,
+                              void **output);
 
 /* The class struct */
 static const H5FD_class_t H5FD_multi_g = {
-    "multi",                   /*name            */
-    HADDR_MAX,                 /*maxaddr        */
-    H5F_CLOSE_WEAK,            /* fc_degree        */
-    H5FD_multi_term,           /*terminate             */
-    H5FD_multi_sb_size,        /*sb_size        */
-    H5FD_multi_sb_encode,      /*sb_encode        */
-    H5FD_multi_sb_decode,      /*sb_decode        */
-    sizeof(H5FD_multi_fapl_t), /*fapl_size        */
-    H5FD_multi_fapl_get,       /*fapl_get        */
-    H5FD_multi_fapl_copy,      /*fapl_copy        */
-    H5FD_multi_fapl_free,      /*fapl_free        */
-    0,                         /*dxpl_size        */
-    NULL,                      /*dxpl_copy        */
-    NULL,                      /*dxpl_free        */
-    H5FD_multi_open,           /*open            */
-    H5FD_multi_close,          /*close            */
-    H5FD_multi_cmp,            /*cmp            */
-    H5FD_multi_query,          /*query            */
-    H5FD_multi_get_type_map,   /*get_type_map        */
-    H5FD_multi_alloc,          /*alloc            */
-    H5FD_multi_free,           /*free            */
-    H5FD_multi_get_eoa,        /*get_eoa        */
-    H5FD_multi_set_eoa,        /*set_eoa        */
-    H5FD_multi_get_eof,        /*get_eof        */
-    H5FD_multi_get_handle,     /*get_handle            */
-    H5FD_multi_read,           /*read            */
-    H5FD_multi_write,          /*write            */
-    H5FD_multi_flush,          /*flush            */
-    H5FD_multi_truncate,       /*truncate        */
-    H5FD_multi_lock,           /*lock                  */
-    H5FD_multi_unlock,         /*unlock                */
-    H5FD_FLMAP_DEFAULT         /*fl_map        */
+    H5_VFD_MULTI,              /* value             */
+    "multi",                   /* name              */
+    HADDR_MAX,                 /* maxaddr           */
+    H5F_CLOSE_WEAK,            /* fc_degree         */
+    H5FD_multi_term,           /* terminate         */
+    H5FD_multi_sb_size,        /* sb_size           */
+    H5FD_multi_sb_encode,      /* sb_encode         */
+    H5FD_multi_sb_decode,      /* sb_decode         */
+    sizeof(H5FD_multi_fapl_t), /* fapl_size         */
+    H5FD_multi_fapl_get,       /* fapl_get          */
+    H5FD_multi_fapl_copy,      /* fapl_copy         */
+    H5FD_multi_fapl_free,      /* fapl_free         */
+    0,                         /* dxpl_size         */
+    NULL,                      /* dxpl_copy         */
+    NULL,                      /* dxpl_free         */
+    H5FD_multi_open,           /* open              */
+    H5FD_multi_close,          /* close             */
+    H5FD_multi_cmp,            /* cmp               */
+    H5FD_multi_query,          /* query             */
+    H5FD_multi_get_type_map,   /* get_type_map      */
+    H5FD_multi_alloc,          /* alloc             */
+    H5FD_multi_free,           /* free              */
+    H5FD_multi_get_eoa,        /* get_eoa           */
+    H5FD_multi_set_eoa,        /* set_eoa           */
+    H5FD_multi_get_eof,        /* get_eof           */
+    H5FD_multi_get_handle,     /* get_handle        */
+    H5FD_multi_read,           /* read              */
+    H5FD_multi_write,          /* write             */
+    H5FD_multi_flush,          /* flush             */
+    H5FD_multi_truncate,       /* truncate          */
+    H5FD_multi_lock,           /* lock              */
+    H5FD_multi_unlock,         /* unlock            */
+    H5FD_multi_delete,         /* del               */
+    H5FD_multi_ctl,            /* ctl               */
+    H5FD_FLMAP_DEFAULT         /* fl_map            */
 };
 
 /*-------------------------------------------------------------------------
@@ -246,74 +280,19 @@ herr_t
 H5Pset_fapl_split(hid_t fapl, const char *meta_ext, hid_t meta_plist_id, const char *raw_ext,
                   hid_t raw_plist_id)
 {
-    H5FD_mem_t  memb_map[H5FD_MEM_NTYPES];
-    hid_t       memb_fapl[H5FD_MEM_NTYPES];
-    const char *memb_name[H5FD_MEM_NTYPES];
-    char        meta_name[H5FD_MULT_MAX_FILE_NAME_LEN];
-    char        raw_name[H5FD_MULT_MAX_FILE_NAME_LEN];
-    haddr_t     memb_addr[H5FD_MEM_NTYPES];
+    H5FD_multi_fapl_t  fa;
+    static const char *func = "H5Pset_fapl_split"; /* Function Name for error reporting */
 
     /*NO TRACE*/
 
     /* Clear the error stack */
     H5Eclear2(H5E_DEFAULT);
 
-    /* Initialize */
-    ALL_MEMBERS (mt) {
-        /* Treat global heap as raw data, not metadata */
-        memb_map[mt]  = ((mt == H5FD_MEM_DRAW || mt == H5FD_MEM_GHEAP) ? H5FD_MEM_DRAW : H5FD_MEM_SUPER);
-        memb_fapl[mt] = -1;
-        memb_name[mt] = NULL;
-        memb_addr[mt] = HADDR_UNDEF;
-    }
-    END_MEMBERS;
+    if (H5FD_split_populate_config(meta_ext, meta_plist_id, raw_ext, raw_plist_id, TRUE, &fa) < 0)
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_CANTSET, "can't setup split driver configuration",
+                    -1);
 
-    /* The file access properties */
-    memb_fapl[H5FD_MEM_SUPER] = meta_plist_id;
-    memb_fapl[H5FD_MEM_DRAW]  = raw_plist_id;
-
-    /* The names */
-    /* process meta filename */
-    if (meta_ext) {
-        if (strstr(meta_ext, "%s")) {
-            /* Note: this doesn't accommodate for when the '%s' in the user's
-             *  string is at a position >sizeof(meta_name) - QK & JK - 2013/01/17
-             */
-            strncpy(meta_name, meta_ext, sizeof(meta_name));
-            meta_name[sizeof(meta_name) - 1] = '\0';
-        }
-        else
-            sprintf(meta_name, "%%s%s", meta_ext);
-    }
-    else {
-        strncpy(meta_name, "%s.meta", sizeof(meta_name));
-        meta_name[sizeof(meta_name) - 1] = '\0';
-    }
-    memb_name[H5FD_MEM_SUPER] = meta_name;
-
-    /* process raw filename */
-    if (raw_ext) {
-        if (strstr(raw_ext, "%s")) {
-            /* Note: this doesn't accommodate for when the '%s' in the user's
-             *  string is at a position >sizeof(raw_name) - QK & JK - 2013/01/17
-             */
-            strncpy(raw_name, raw_ext, sizeof(raw_name));
-            raw_name[sizeof(raw_name) - 1] = '\0';
-        }
-        else
-            sprintf(raw_name, "%%s%s", raw_ext);
-    }
-    else {
-        strncpy(raw_name, "%s.raw", sizeof(raw_name));
-        raw_name[sizeof(raw_name) - 1] = '\0';
-    }
-    memb_name[H5FD_MEM_DRAW] = raw_name;
-
-    /* The sizes */
-    memb_addr[H5FD_MEM_SUPER] = 0;
-    memb_addr[H5FD_MEM_DRAW]  = HADDR_MAX / 2;
-
-    return H5Pset_fapl_multi(fapl, memb_map, memb_fapl, memb_name, memb_addr, TRUE);
+    return H5Pset_driver(fapl, H5FD_MULTI, &fa);
 }
 
 /*-------------------------------------------------------------------------
@@ -397,14 +376,7 @@ H5Pset_fapl_multi(hid_t fapl_id, const H5FD_mem_t *memb_map, const hid_t *memb_f
                   const char *const *memb_name, const haddr_t *memb_addr, hbool_t relax)
 {
     H5FD_multi_fapl_t  fa;
-    H5FD_mem_t         mt, mmt;
-    H5FD_mem_t         _memb_map[H5FD_MEM_NTYPES];
-    hid_t              _memb_fapl[H5FD_MEM_NTYPES];
-    char               _memb_name[H5FD_MEM_NTYPES][16];
-    const char *       _memb_name_ptrs[H5FD_MEM_NTYPES];
-    haddr_t            _memb_addr[H5FD_MEM_NTYPES];
-    static const char *letters = "Xsbrglo";
-    static const char *func    = "H5FDset_fapl_multi"; /* Function Name for error reporting */
+    static const char *func = "H5FDset_fapl_multi"; /* Function Name for error reporting */
 
     /*NO TRACE*/
 
@@ -414,21 +386,256 @@ H5Pset_fapl_multi(hid_t fapl_id, const H5FD_mem_t *memb_map, const hid_t *memb_f
     /* Check arguments and supply default values */
     if (H5I_GENPROP_LST != H5Iget_type(fapl_id) || TRUE != H5Pisa_class(fapl_id, H5P_FILE_ACCESS))
         H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADVALUE, "not an access list", -1);
+    if (H5FD_multi_populate_config(memb_map, memb_fapl, memb_name, memb_addr, relax, &fa) < 0)
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_CANTSET, "can't setup driver configuration", -1);
+
+    return H5Pset_driver(fapl_id, H5FD_MULTI, &fa);
+}
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Pget_fapl_multi
+ *
+ * Purpose:    Returns information about the multi file access property
+ *        list though the function arguments which are the same as for
+ *        H5Pset_fapl_multi() above.
+ *
+ * Return:    Success:    Non-negative
+ *
+ *            Failure:    Negative
+ *
+ * Programmer:    Robb Matzke
+ *              Wednesday, August  4, 1999
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Pget_fapl_multi(hid_t fapl_id, H5FD_mem_t *memb_map /*out*/, hid_t *memb_fapl /*out*/,
+                  char **memb_name /*out*/, haddr_t *memb_addr /*out*/, hbool_t *relax)
+{
+    const H5FD_multi_fapl_t *fa;
+    H5FD_multi_fapl_t        default_fa;
+    H5FD_mem_t               mt;
+    static const char *      func = "H5FDget_fapl_multi"; /* Function Name for error reporting */
+
+    /*NO TRACE*/
+
+    /* Clear the error stack */
+    H5Eclear2(H5E_DEFAULT);
+
+    if (H5I_GENPROP_LST != H5Iget_type(fapl_id) || TRUE != H5Pisa_class(fapl_id, H5P_FILE_ACCESS))
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADTYPE, "not an access list", -1);
+    if (H5FD_MULTI != H5Pget_driver(fapl_id))
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADVALUE, "incorrect VFL driver", -1);
+    H5E_BEGIN_TRY
+    {
+        fa = (const H5FD_multi_fapl_t *)H5Pget_driver_info(fapl_id);
+    }
+    H5E_END_TRY;
+    if (!fa || (H5P_FILE_ACCESS_DEFAULT == fapl_id)) {
+        if (H5FD_multi_populate_config(NULL, NULL, NULL, NULL, TRUE, &default_fa) < 0)
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_VFL, H5E_CANTSET, "can't setup default driver configuration",
+                        -1);
+        fa = &default_fa;
+    }
+
+    if (memb_map)
+        memcpy(memb_map, fa->memb_map, H5FD_MEM_NTYPES * sizeof(H5FD_mem_t));
+    if (memb_fapl) {
+        for (mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
+            if (fa->memb_fapl[mt] >= 0)
+                memb_fapl[mt] = H5Pcopy(fa->memb_fapl[mt]);
+            else
+                memb_fapl[mt] = fa->memb_fapl[mt]; /*default or bad ID*/
+        }
+    }
+    if (memb_name) {
+        for (mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
+            if (fa->memb_name[mt])
+                memb_name[mt] = my_strdup(fa->memb_name[mt]);
+            else
+                memb_name[mt] = NULL;
+        }
+    }
+    if (memb_addr)
+        memcpy(memb_addr, fa->memb_addr, H5FD_MEM_NTYPES * sizeof(haddr_t));
+    if (relax)
+        *relax = fa->relax;
+
+    return 0;
+}
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_split_populate_config
+ *
+ * Purpose:    Populates a H5FD_multi_fapl_t structure with the provided
+ *             split driver values, supplying defaults where values are not
+ *             provided.
+ *
+ * Return:    Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD_split_populate_config(const char *meta_ext, hid_t meta_plist_id, const char *raw_ext, hid_t raw_plist_id,
+                           hbool_t relax, H5FD_multi_fapl_t *fa_out)
+{
+    static const char *func = "H5FD_split_populate_config"; /* Function Name for error reporting */
+    static char
+        meta_name_g[H5FD_MULT_MAX_FILE_NAME_LEN]; /* Static scratch buffer to store metadata member name */
+    static char
+                raw_name_g[H5FD_MULT_MAX_FILE_NAME_LEN]; /* Static scratch buffer to store raw data member name */
+    const char *_memb_name[H5FD_MEM_NTYPES];
+    H5FD_mem_t  _memb_map[H5FD_MEM_NTYPES];
+    hid_t       _memb_fapl[H5FD_MEM_NTYPES];
+    haddr_t     _memb_addr[H5FD_MEM_NTYPES];
+    herr_t      ret_value = 0;
+
+    assert(fa_out);
+
+    /* Initialize */
+    ALL_MEMBERS (mt) {
+        /* Treat global heap as raw data, not metadata */
+        _memb_map[mt]  = ((mt == H5FD_MEM_DRAW || mt == H5FD_MEM_GHEAP) ? H5FD_MEM_DRAW : H5FD_MEM_SUPER);
+        _memb_fapl[mt] = H5P_DEFAULT;
+        _memb_name[mt] = NULL;
+        _memb_addr[mt] = HADDR_UNDEF;
+    }
+    END_MEMBERS;
+
+    /* The file access properties */
+    _memb_fapl[H5FD_MEM_SUPER] = meta_plist_id;
+    _memb_fapl[H5FD_MEM_DRAW]  = raw_plist_id;
+
+    /* The names */
+    /* process meta filename */
+    if (meta_ext) {
+        if (strstr(meta_ext, "%s")) {
+            /* Note: this doesn't accommodate for when the '%s' in the user's
+             *  string is at a position >sizeof(meta_name) - QK & JK - 2013/01/17
+             */
+            strncpy(meta_name_g, meta_ext, sizeof(meta_name_g));
+            meta_name_g[sizeof(meta_name_g) - 1] = '\0';
+        }
+        else
+            snprintf(meta_name_g, sizeof(meta_name_g), "%%s%s", meta_ext);
+    }
+    else {
+        strncpy(meta_name_g, "%s.meta", sizeof(meta_name_g));
+        meta_name_g[sizeof(meta_name_g) - 1] = '\0';
+    }
+    _memb_name[H5FD_MEM_SUPER] = meta_name_g;
+
+    /* process raw filename */
+    if (raw_ext) {
+        if (strstr(raw_ext, "%s")) {
+            /* Note: this doesn't accommodate for when the '%s' in the user's
+             *  string is at a position >sizeof(raw_name) - QK & JK - 2013/01/17
+             */
+            strncpy(raw_name_g, raw_ext, sizeof(raw_name_g));
+            raw_name_g[sizeof(raw_name_g) - 1] = '\0';
+        }
+        else
+            snprintf(raw_name_g, sizeof(raw_name_g), "%%s%s", raw_ext);
+    }
+    else {
+        strncpy(raw_name_g, "%s.raw", sizeof(raw_name_g));
+        raw_name_g[sizeof(raw_name_g) - 1] = '\0';
+    }
+    _memb_name[H5FD_MEM_DRAW] = raw_name_g;
+
+    /* The sizes */
+    _memb_addr[H5FD_MEM_SUPER] = 0;
+    _memb_addr[H5FD_MEM_DRAW]  = HADDR_MAX / 2;
+
+    ALL_MEMBERS (mt) {
+        /* Map usage type */
+        H5FD_mem_t mmt = _memb_map[mt];
+        if (mmt < 0 || mmt >= H5FD_MEM_NTYPES)
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_BADRANGE, "file resource type out of range", -1);
+
+        /*
+         * All members of MEMB_FAPL must be either defaults or actual file
+         * access property lists.
+         */
+        if (H5P_DEFAULT != _memb_fapl[mmt] && TRUE != H5Pisa_class(_memb_fapl[mmt], H5P_FILE_ACCESS))
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_BADVALUE, "file resource type incorrect", -1);
+
+        /* All names must be defined */
+        if (!_memb_name[mmt] || !_memb_name[mmt][0])
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_BADVALUE, "file resource type not set", -1);
+    }
+    END_MEMBERS;
+
+    /*
+     * Initialize driver specific information. No need to copy it into the FA
+     * struct since all members will be copied by H5Pset_driver().
+     */
+    memset(fa_out, 0, sizeof(H5FD_multi_fapl_t));
+    memcpy(fa_out->memb_map, _memb_map, H5FD_MEM_NTYPES * sizeof(H5FD_mem_t));
+    memcpy(fa_out->memb_fapl, _memb_fapl, H5FD_MEM_NTYPES * sizeof(hid_t));
+    memcpy(fa_out->memb_name, _memb_name, H5FD_MEM_NTYPES * sizeof(char *));
+    memcpy(fa_out->memb_addr, _memb_addr, H5FD_MEM_NTYPES * sizeof(haddr_t));
+    fa_out->relax = relax;
+
+    /* Patch up H5P_DEFAULT property lists for members */
+    ALL_MEMBERS (mt) {
+        if (fa_out->memb_fapl[mt] == H5P_DEFAULT) {
+            fa_out->memb_fapl[mt] = H5Pcreate(H5P_FILE_ACCESS);
+            if (H5Pset_fapl_sec2(fa_out->memb_fapl[mt]) < 0)
+                H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_CANTSET,
+                            "can't set sec2 driver on member FAPL", -1);
+        }
+    }
+    END_MEMBERS;
+
+    return ret_value;
+}
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_multi_populate_config
+ *
+ * Purpose:    Populates a H5FD_multi_fapl_t structure with the provided
+ *             values, supplying defaults where values are not provided.
+ *
+ * Return:    Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD_multi_populate_config(const H5FD_mem_t *memb_map, const hid_t *memb_fapl, const char *const *memb_name,
+                           const haddr_t *memb_addr, hbool_t relax, H5FD_multi_fapl_t *fa_out)
+{
+    static const char *func    = "H5FD_multi_populate_config"; /* Function Name for error reporting */
+    static const char *letters = "Xsbrglo";
+    static char        _memb_name_g[H5FD_MEM_NTYPES][16]; /* Static scratch buffer to store member names */
+    H5FD_mem_t         mt, mmt;
+    H5FD_mem_t         _memb_map[H5FD_MEM_NTYPES];
+    hid_t              _memb_fapl[H5FD_MEM_NTYPES];
+    const char *       _memb_name_ptrs[H5FD_MEM_NTYPES];
+    haddr_t            _memb_addr[H5FD_MEM_NTYPES];
+    herr_t             ret_value = 0;
+
+    assert(fa_out);
+
     if (!memb_map) {
         for (mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1))
             _memb_map[mt] = H5FD_MEM_DEFAULT;
         memb_map = _memb_map;
     }
     if (!memb_fapl) {
-        for (mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1))
+        for (mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
             _memb_fapl[mt] = H5Pcreate(H5P_FILE_ACCESS);
+            if (H5Pset_fapl_sec2(_memb_fapl[mt]) < 0)
+                H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_CANTSET,
+                            "can't set sec2 driver on member FAPL", -1);
+        }
         memb_fapl = _memb_fapl;
     }
     if (!memb_name) {
         assert(strlen(letters) == H5FD_MEM_NTYPES);
         for (mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
-            sprintf(_memb_name[mt], "%%s-%c.h5", letters[mt]);
-            _memb_name_ptrs[mt] = _memb_name[mt];
+            snprintf(_memb_name_g[mt], 16, "%%s-%c.h5", letters[mt]);
+            _memb_name_ptrs[mt] = _memb_name_g[mt];
         }
         memb_name = _memb_name_ptrs;
     }
@@ -462,82 +669,25 @@ H5Pset_fapl_multi(hid_t fapl_id, const H5FD_mem_t *memb_map, const hid_t *memb_f
      * Initialize driver specific information. No need to copy it into the FA
      * struct since all members will be copied by H5Pset_driver().
      */
-    memset(&fa, 0, sizeof(H5FD_multi_fapl_t));
-    memcpy(fa.memb_map, memb_map, H5FD_MEM_NTYPES * sizeof(H5FD_mem_t));
-    memcpy(fa.memb_fapl, memb_fapl, H5FD_MEM_NTYPES * sizeof(hid_t));
-    memcpy(fa.memb_name, memb_name, H5FD_MEM_NTYPES * sizeof(char *));
-    memcpy(fa.memb_addr, memb_addr, H5FD_MEM_NTYPES * sizeof(haddr_t));
-    fa.relax = relax;
+    memset(fa_out, 0, sizeof(H5FD_multi_fapl_t));
+    memcpy(fa_out->memb_map, memb_map, H5FD_MEM_NTYPES * sizeof(H5FD_mem_t));
+    memcpy(fa_out->memb_fapl, memb_fapl, H5FD_MEM_NTYPES * sizeof(hid_t));
+    memcpy(fa_out->memb_name, memb_name, H5FD_MEM_NTYPES * sizeof(char *));
+    memcpy(fa_out->memb_addr, memb_addr, H5FD_MEM_NTYPES * sizeof(haddr_t));
+    fa_out->relax = relax;
 
     /* Patch up H5P_DEFAULT property lists for members */
     for (mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
-        if (fa.memb_fapl[mt] == H5P_DEFAULT)
-            fa.memb_fapl[mt] = H5Pcreate(H5P_FILE_ACCESS);
-    }
-    return H5Pset_driver(fapl_id, H5FD_MULTI, &fa);
-}
-
-/*-------------------------------------------------------------------------
- * Function:    H5Pget_fapl_multi
- *
- * Purpose:    Returns information about the multi file access property
- *        list though the function arguments which are the same as for
- *        H5Pset_fapl_multi() above.
- *
- * Return:    Success:    Non-negative
- *
- *            Failure:    Negative
- *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5Pget_fapl_multi(hid_t fapl_id, H5FD_mem_t *memb_map /*out*/, hid_t *memb_fapl /*out*/,
-                  char **memb_name /*out*/, haddr_t *memb_addr /*out*/, hbool_t *relax)
-{
-    const H5FD_multi_fapl_t *fa;
-    H5FD_mem_t               mt;
-    static const char *      func = "H5FDget_fapl_multi"; /* Function Name for error reporting */
-
-    /*NO TRACE*/
-
-    /* Clear the error stack */
-    H5Eclear2(H5E_DEFAULT);
-
-    if (H5I_GENPROP_LST != H5Iget_type(fapl_id) || TRUE != H5Pisa_class(fapl_id, H5P_FILE_ACCESS))
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADTYPE, "not an access list", -1);
-    if (H5FD_MULTI != H5Pget_driver(fapl_id))
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADVALUE, "incorrect VFL driver", -1);
-    if (NULL == (fa = (const H5FD_multi_fapl_t *)H5Pget_driver_info(fapl_id)))
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADVALUE, "bad VFL driver info", -1);
-
-    if (memb_map)
-        memcpy(memb_map, fa->memb_map, H5FD_MEM_NTYPES * sizeof(H5FD_mem_t));
-    if (memb_fapl) {
-        for (mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
-            if (fa->memb_fapl[mt] >= 0)
-                memb_fapl[mt] = H5Pcopy(fa->memb_fapl[mt]);
-            else
-                memb_fapl[mt] = fa->memb_fapl[mt]; /*default or bad ID*/
+        if (fa_out->memb_fapl[mt] == H5P_DEFAULT) {
+            fa_out->memb_fapl[mt] = H5Pcreate(H5P_FILE_ACCESS);
+            if (H5Pset_fapl_sec2(fa_out->memb_fapl[mt]) < 0)
+                H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_CANTSET,
+                            "can't set sec2 driver on member FAPL", -1);
         }
     }
-    if (memb_name) {
-        for (mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
-            if (fa->memb_name[mt])
-                memb_name[mt] = my_strdup(fa->memb_name[mt]);
-            else
-                memb_name[mt] = NULL;
-        }
-    }
-    if (memb_addr)
-        memcpy(memb_addr, fa->memb_addr, H5FD_MEM_NTYPES * sizeof(haddr_t));
-    if (relax)
-        *relax = fa->relax;
 
-    return 0;
-}
+    return ret_value;
+} /* end H5FD_multi_populate_config() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5FD_multi_sb_size
@@ -621,7 +771,7 @@ H5FD_multi_sb_encode(H5FD_t *_file, char *name /*out*/, unsigned char *buf /*out
     H5Eclear2(H5E_DEFAULT);
 
     /* Name and version number */
-    strncpy(name, "NCSAmulti", (size_t)8);
+    strcpy(name, "NCSAmult");
     name[8] = '\0';
 
     assert(7 == H5FD_MEM_NTYPES);
@@ -984,12 +1134,26 @@ H5FD_multi_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr
      */
     if (NULL == (file = (H5FD_multi_t *)calloc((size_t)1, sizeof(H5FD_multi_t))))
         H5Epush_ret(func, H5E_ERR_CLS, H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed", NULL);
-    if (H5P_FILE_ACCESS_DEFAULT == fapl_id || H5FD_MULTI != H5Pget_driver(fapl_id)) {
-        close_fapl = fapl_id = H5Pcreate(H5P_FILE_ACCESS);
-        if (H5Pset_fapl_multi(fapl_id, NULL, NULL, NULL, NULL, TRUE) < 0)
-            H5Epush_goto(func, H5E_ERR_CLS, H5E_FILE, H5E_CANTSET, "can't set property value", error)
+    H5E_BEGIN_TRY
+    {
+        fa = (const H5FD_multi_fapl_t *)H5Pget_driver_info(fapl_id);
     }
-    fa = (const H5FD_multi_fapl_t *)H5Pget_driver_info(fapl_id);
+    H5E_END_TRY;
+    if (!fa || (H5P_FILE_ACCESS_DEFAULT == fapl_id) || (H5FD_MULTI != H5Pget_driver(fapl_id))) {
+        char *env = getenv(HDF5_DRIVER);
+
+        close_fapl = fapl_id = H5Pcreate(H5P_FILE_ACCESS);
+        if (env && !strcmp(env, "split")) {
+            if (H5Pset_fapl_split(fapl_id, NULL, H5P_DEFAULT, NULL, H5P_DEFAULT) < 0)
+                H5Epush_goto(func, H5E_ERR_CLS, H5E_FILE, H5E_CANTSET, "can't set property value", error)
+        }
+        else {
+            if (H5Pset_fapl_multi(fapl_id, NULL, NULL, NULL, NULL, TRUE) < 0)
+                H5Epush_goto(func, H5E_ERR_CLS, H5E_FILE, H5E_CANTSET, "can't set property value", error)
+        }
+
+        fa = (const H5FD_multi_fapl_t *)H5Pget_driver_info(fapl_id);
+    }
     assert(fa);
     ALL_MEMBERS (mt) {
         file->fa.memb_map[mt]  = fa->memb_map[mt];
@@ -1950,19 +2114,20 @@ compute_next(H5FD_multi_t *file)
  *
  *-------------------------------------------------------------------------
  */
-/* Disable warning for "format not a string literal" here -QAK */
-/*
+/* Disable warning for "format not a string literal" here
+ *
  *      This pragma only needs to surround the snprintf() call with
  *      tmp in the code below, but early (4.4.7, at least) gcc only
  *      allows diagnostic pragmas to be toggled outside of functions.
  */
-H5_GCC_DIAG_OFF("format-nonliteral")
+H5_MULTI_GCC_DIAG_OFF("format-nonliteral")
 static int
 open_members(H5FD_multi_t *file)
 {
     char               tmp[H5FD_MULT_MAX_FILE_NAME_LEN];
     int                nerrors = 0;
-    static const char *func    = "(H5FD_multi)open_members"; /* Function Name for error reporting */
+    int                nchars;
+    static const char *func = "(H5FD_multi)open_members"; /* Function Name for error reporting */
 
     /* Clear the error stack */
     H5Eclear2(H5E_DEFAULT);
@@ -1971,11 +2136,11 @@ open_members(H5FD_multi_t *file)
         if (file->memb[mt])
             continue; /*already open*/
         assert(file->fa.memb_name[mt]);
-        /* Note: This truncates the user's filename down to only sizeof(tmp)
-         *      characters. -QK & JK, 2013/01/17
-         */
-        sprintf(tmp, file->fa.memb_name[mt], file->name);
-        tmp[sizeof(tmp) - 1] = '\0';
+
+        nchars = snprintf(tmp, sizeof(tmp), file->fa.memb_name[mt], file->name);
+        if (nchars < 0 || nchars >= (int)sizeof(tmp))
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_VFL, H5E_BADVALUE,
+                        "filename is too long and would be truncated", -1);
 
         H5E_BEGIN_TRY
         {
@@ -1993,7 +2158,120 @@ open_members(H5FD_multi_t *file)
 
     return 0;
 }
-H5_GCC_DIAG_ON("format-nonliteral")
+H5_MULTI_GCC_DIAG_ON("format-nonliteral")
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_multi_delete
+ *
+ * Purpose:     Delete a file
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ *-------------------------------------------------------------------------
+ */
+H5_MULTI_GCC_DIAG_OFF("format-nonliteral")
+static herr_t
+H5FD_multi_delete(const char *filename, hid_t fapl_id)
+{
+    char                     full_filename[H5FD_MULT_MAX_FILE_NAME_LEN];
+    int                      nchars;
+    const H5FD_multi_fapl_t *fa;
+    H5FD_multi_fapl_t        default_fa;
+    static const char *      func = "H5FD_multi_delete"; /* Function Name for error reporting    */
+
+    /* Clear the error stack */
+    H5Eclear2(H5E_DEFAULT);
+
+    assert(filename);
+
+    /* Get the driver info */
+    H5E_BEGIN_TRY
+    {
+        fa = (const H5FD_multi_fapl_t *)H5Pget_driver_info(fapl_id);
+    }
+    H5E_END_TRY;
+    if (!fa) {
+        char *env = getenv(HDF5_DRIVER);
+
+        if (env && !strcmp(env, "split")) {
+            if (H5FD_split_populate_config(NULL, H5P_DEFAULT, NULL, H5P_DEFAULT, TRUE, &default_fa) < 0)
+                H5Epush_ret(func, H5E_ERR_CLS, H5E_VFL, H5E_CANTSET, "can't setup driver configuration", -1);
+        }
+        else {
+            if (H5FD_multi_populate_config(NULL, NULL, NULL, NULL, TRUE, &default_fa) < 0)
+                H5Epush_ret(func, H5E_ERR_CLS, H5E_VFL, H5E_CANTSET, "can't setup driver configuration", -1);
+        }
+
+        fa = &default_fa;
+    }
+    assert(fa);
+
+    /* Delete each member file using the underlying fapl */
+    UNIQUE_MEMBERS (fa->memb_map, mt) {
+        assert(fa->memb_name[mt]);
+        assert(fa->memb_fapl[mt] >= 0);
+
+        nchars = snprintf(full_filename, sizeof(full_filename), fa->memb_name[mt], filename);
+        if (nchars < 0 || nchars >= (int)sizeof(full_filename))
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_VFL, H5E_BADVALUE,
+                        "filename is too long and would be truncated", -1);
+
+        if (H5FDdelete(full_filename, fa->memb_fapl[mt]) < 0)
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_VFL, H5E_BADVALUE, "error deleting member files", -1);
+    }
+    END_MEMBERS;
+
+    return 0;
+} /* end H5FD_multi_delete() */
+H5_MULTI_GCC_DIAG_ON("format-nonliteral")
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_multi_ctl
+ *
+ * Purpose:     Multi VFD version of the ctl callback.
+ *
+ *              The desired operation is specified by the op_code
+ *              parameter.
+ *
+ *              The flags parameter controls management of op_codes that
+ *              are unknown to the callback
+ *
+ *              The input and output parameters allow op_code specific
+ *              input and output
+ *
+ *              At present, this VFD supports no op codes of its own.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD_multi_ctl(H5FD_t *_file, uint64_t op_code, uint64_t flags, const void *input, void **output)
+{
+    H5FD_multi_t *     file      = (H5FD_multi_t *)_file;
+    static const char *func      = "H5FD_multi_ctl"; /* Function Name for error reporting */
+    herr_t             ret_value = 0;
+
+    /* Silence compiler */
+    (void)file;
+    (void)input;
+    (void)output;
+
+    /* Clear the error stack */
+    H5Eclear2(H5E_DEFAULT);
+
+    switch (op_code) {
+        /* Unknown op code */
+        default:
+            if (flags & H5FD_CTL__FAIL_IF_UNKNOWN_FLAG)
+                H5Epush_ret(func, H5E_ERR_CLS, H5E_VFL, H5E_FCNTL,
+                            "VFD ctl request failed (unknown op code and fail if unknown flag is set)", -1);
+
+            break;
+    }
+
+    return ret_value;
+} /* end H5FD_multi_ctl() */
 
 #ifdef H5private_H
 /*

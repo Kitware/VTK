@@ -179,7 +179,7 @@
  * HTTP header fields, of particular use when composing an
  * "S3 Canonical Request" for authentication.
  *
- * - The creation of a Canoncial Request involves:
+ * - The creation of a Canonical Request involves:
  *     - convert field names to lower case
  *     - sort by this lower-case name
  *     - convert ": " name-value separator in HTTP string to ":"
@@ -459,7 +459,7 @@ typedef struct {
  *
  *     Pointer to NULL-terminated string for "secret" access id to S3 resource.
  *
- *     Requred to authenticate.
+ *     Required to authenticate.
  *
  * `signing_key` (unsigned char *)
  *
@@ -470,7 +470,7 @@ typedef struct {
  *     which may be re-used for several (up to seven (7)) days from creation?
  *     Computed once upon file open.
  *
- *     Requred to authenticate.
+ *     Required to authenticate.
  *
  *----------------------------------------------------------------------------
  */

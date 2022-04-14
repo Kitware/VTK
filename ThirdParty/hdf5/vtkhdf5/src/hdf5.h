@@ -24,6 +24,7 @@
 #include "H5ACpublic.h" /* Metadata cache                           */
 #include "H5Dpublic.h"  /* Datasets                                 */
 #include "H5Epublic.h"  /* Errors                                   */
+#include "H5ESpublic.h" /* Event Sets                               */
 #include "H5Fpublic.h"  /* Files                                    */
 #include "H5FDpublic.h" /* File drivers                             */
 #include "H5Gpublic.h"  /* Groups                                   */
@@ -39,6 +40,20 @@
 #include "H5Tpublic.h"  /* Datatypes                                */
 #include "H5VLpublic.h" /* Virtual Object Layer                     */
 #include "H5Zpublic.h"  /* Data filters                             */
+
+/* Plugin/component developer headers */
+#include "H5ESdevelop.h" /* Event Sets */
+#include "H5FDdevelop.h" /* File drivers */
+#include "H5Idevelop.h"  /* ID management */
+#include "H5Ldevelop.h"  /* Links */
+#include "H5Tdevelop.h"  /* Datatypes */
+#include "H5TSdevelop.h" /* Threadsafety */
+#include "H5Zdevelop.h"  /* Data filters */
+
+/* Virtual object layer (VOL) connector developer support */
+#include "H5VLconnector.h"          /* VOL connector author routines */
+#include "H5VLconnector_passthru.h" /* Pass-through VOL connector author routines */
+#include "H5VLnative.h"             /* Native VOL connector macros, for VOL connector authors */
 
 /* Predefined file drivers */
 #include "H5FDcore.h"     /* Files stored entirely in memory          */

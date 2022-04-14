@@ -20,7 +20,8 @@
 #ifndef H5FDcore_H
 #define H5FDcore_H
 
-#define H5FD_CORE (H5FD_core_init())
+#define H5FD_CORE       (H5FDperform_init(H5FD_core_init))
+#define H5FD_CORE_VALUE H5_VFD_CORE
 
 #ifdef __cplusplus
 extern "C" {

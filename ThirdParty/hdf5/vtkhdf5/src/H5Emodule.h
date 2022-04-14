@@ -29,33 +29,54 @@
 #define H5_MY_PKG_ERR  H5E_ERROR
 #define H5_MY_PKG_INIT YES
 
-/**
- * \defgroup H5E H5E
- * \brief Error Handling Interface
+/**\defgroup H5E H5E
  *
- * \details The Error interface provides error handling in the form of a stack.
- *          The \Code{FUNC_ENTER} macro clears the error stack whenever an
- *          interface function is entered. When an error is detected, an entry
- *          is pushed onto the stack. As the functions unwind, additional
- *          entries are pushed onto the stack. The API function will return some
- *          indication that an error occurred and the application can print the
- *          error stack.
+ * Use the functions in this module to manage HDF5 error stacks and error
+ * messages.
  *
- *          Certain API functions in the \c H5E package, such as H5Eprint1(), do
- *          not clear the error stack. Otherwise, any function which does not
- *          have an underscore immediately after the package name will clear the
- *          error stack. For instance, H5Fopen() clears the error stack while
- *          \Code{H5F_open} does not.
+ * <table>
+ * <tr><th>Create</th><th>Read</th></tr>
+ * <tr valign="top">
+ *   <td>
+ *   \snippet{lineno} H5E_examples.c create
+ *   </td>
+ *   <td>
+ *   \snippet{lineno} H5E_examples.c read
+ *   </td>
+ * <tr><th>Update</th><th>Delete</th></tr>
+ * <tr valign="top">
+ *   <td>
+ *   \snippet{lineno} H5E_examples.c update
+ *   </td>
+ *   <td>
+ *   \snippet{lineno} H5E_examples.c delete
+ *   </td>
+ * </tr>
+ * </table>
  *
- *          An error stack has a fixed maximum size. If this size is exceeded
- *          then the stack will be truncated and only the inner-most functions
- *          will have entries on the stack. This is expected to be a rare
- *          condition.
+ * \internal The \c FUNC_ENTER macro clears the error stack whenever an
+ *           interface function is entered. When an error is detected, an entry
+ *           is pushed onto the stack. As the functions unwind, additional
+ *           entries are pushed onto the stack. The API function will return
+ *           some indication that an error occurred and the application can
+ *           print the error stack.
  *
- *          Each thread has its own error stack, but since multi-threading has
- *          not been added to the library yet, this package maintains a single
- *          error stack. The error stack is statically allocated to reduce the
- *          complexity of handling errors within the \c H5E package.
+ * \internal Certain API functions in the \ref H5E package, such as H5Eprint(),
+ *           do not clear the error stack. Otherwise, any function which does
+ *           not have an underscore immediately after the package name will
+ *           clear the error stack. For instance, H5Fopen() clears the error
+ *           stack while \Code{H5F_open} does not.
+ *
+ * \internal An error stack has a fixed maximum size. If this size is exceeded
+ *           then the stack will be truncated and only the inner-most functions
+ *           will have entries on the stack. This is expected to be a rare
+ *           condition.
+ *
+ * \internal Each thread has its own error stack, but since multi-threading has
+ *           not been added to the library yet, this package maintains a single
+ *           error stack. The error stack is statically allocated to reduce the
+ *           complexity of handling errors within the \ref H5E package.
+ *
  */
 
 #endif /* H5Emodule_H */

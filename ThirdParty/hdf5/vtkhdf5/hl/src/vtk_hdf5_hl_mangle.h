@@ -14,6 +14,7 @@
 #define H5DSiterate_scales vtkhdf5_hl_H5DSiterate_scales
 #define H5DSset_label vtkhdf5_hl_H5DSset_label
 #define H5DSset_scale vtkhdf5_hl_H5DSset_scale
+#define H5DSwith_new_ref vtkhdf5_hl_H5DSwith_new_ref
 #define H5IM_find_palette vtkhdf5_hl_H5IM_find_palette
 #define H5IMget_image_info vtkhdf5_hl_H5IMget_image_info
 #define H5IMget_npalettes vtkhdf5_hl_H5IMget_npalettes
@@ -52,6 +53,7 @@
 #define H5LTget_attribute_uchar vtkhdf5_hl_H5LTget_attribute_uchar
 #define H5LTget_attribute_uint vtkhdf5_hl_H5LTget_attribute_uint
 #define H5LTget_attribute_ulong vtkhdf5_hl_H5LTget_attribute_ulong
+#define H5LTget_attribute_ullong vtkhdf5_hl_H5LTget_attribute_ullong
 #define H5LTget_attribute_ushort vtkhdf5_hl_H5LTget_attribute_ushort
 #define H5LTget_dataset_info vtkhdf5_hl_H5LTget_dataset_info
 #define H5LTget_dataset_ndims vtkhdf5_hl_H5LTget_dataset_ndims
@@ -86,6 +88,7 @@
 #define H5LTset_attribute_uchar vtkhdf5_hl_H5LTset_attribute_uchar
 #define H5LTset_attribute_uint vtkhdf5_hl_H5LTset_attribute_uint
 #define H5LTset_attribute_ulong vtkhdf5_hl_H5LTset_attribute_ulong
+#define H5LTset_attribute_ullong vtkhdf5_hl_H5LTset_attribute_ullong
 #define H5LTset_attribute_ushort vtkhdf5_hl_H5LTset_attribute_ushort
 #define H5LTtext_to_dtype vtkhdf5_hl_H5LTtext_to_dtype
 #define H5LTyyalloc vtkhdf5_hl_H5LTyyalloc

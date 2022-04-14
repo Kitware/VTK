@@ -85,11 +85,13 @@ H5FL_DEFINE_STATIC(H5EA_dblock_t);
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PKG, ERR, H5EA_dblock_t *, NULL, NULL,
-           H5EA__dblock_alloc(H5EA_hdr_t *hdr, void *parent, size_t nelmts))
+H5EA_dblock_t *
+H5EA__dblock_alloc(H5EA_hdr_t *hdr, void *parent, size_t nelmts)
+{
+    H5EA_dblock_t *dblock    = NULL; /* Extensible array data block */
+    H5EA_dblock_t *ret_value = NULL;
 
-    /* Local variables */
-    H5EA_dblock_t *dblock = NULL; /* Extensible array data block */
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     HDassert(hdr);
@@ -98,11 +100,12 @@ BEGIN_FUNC(PKG, ERR, H5EA_dblock_t *, NULL, NULL,
 
     /* Allocate memory for the data block */
     if (NULL == (dblock = H5FL_CALLOC(H5EA_dblock_t)))
-        H5E_THROW(H5E_CANTALLOC, "memory allocation failed for extensible array data block")
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTALLOC, NULL,
+                    "memory allocation failed for extensible array data block")
 
     /* Share common array information */
     if (H5EA__hdr_incr(hdr) < 0)
-        H5E_THROW(H5E_CANTINC, "can't increment reference count on shared array header")
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTINC, NULL, "can't increment reference count on shared array header")
     dblock->hdr = hdr;
 
     /* Set non-zero internal fields */
@@ -118,18 +121,20 @@ BEGIN_FUNC(PKG, ERR, H5EA_dblock_t *, NULL, NULL,
     else {
         /* Allocate buffer for elements in data block */
         if (NULL == (dblock->elmts = H5EA__hdr_alloc_elmts(hdr, nelmts)))
-            H5E_THROW(H5E_CANTALLOC, "memory allocation failed for data block element buffer")
+            HGOTO_ERROR(H5E_EARRAY, H5E_CANTALLOC, NULL,
+                        "memory allocation failed for data block element buffer")
     } /* end else */
 
     /* Set the return value */
     ret_value = dblock;
 
-    CATCH
+done:
     if (!ret_value)
         if (dblock && H5EA__dblock_dest(dblock) < 0)
-            H5E_THROW(H5E_CANTFREE, "unable to destroy extensible array data block")
+            HDONE_ERROR(H5E_EARRAY, H5E_CANTFREE, NULL, "unable to destroy extensible array data block")
 
-END_FUNC(PKG) /* end H5EA__dblock_alloc() */
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5EA__dblock_alloc() */
 
 /*-------------------------------------------------------------------------
  * Function:	H5EA__dblock_create
@@ -143,14 +148,15 @@ END_FUNC(PKG) /* end H5EA__dblock_alloc() */
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PKG, ERR, haddr_t, HADDR_UNDEF, HADDR_UNDEF,
-           H5EA__dblock_create(H5EA_hdr_t *hdr, void *parent, hbool_t *stats_changed, hsize_t dblk_off,
-                               size_t nelmts))
+haddr_t
+H5EA__dblock_create(H5EA_hdr_t *hdr, void *parent, hbool_t *stats_changed, hsize_t dblk_off, size_t nelmts)
+{
+    H5EA_dblock_t *dblock = NULL;     /* Extensible array data block */
+    haddr_t        dblock_addr;       /* Extensible array data block address */
+    hbool_t        inserted  = FALSE; /* Whether the header was inserted into cache */
+    haddr_t        ret_value = HADDR_UNDEF;
 
-    /* Local variables */
-    H5EA_dblock_t *dblock = NULL;    /* Extensible array data block */
-    haddr_t        dblock_addr;      /* Extensible array data block address */
-    hbool_t        inserted = FALSE; /* Whether the header was inserted into cache */
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(hdr);
@@ -159,7 +165,8 @@ BEGIN_FUNC(PKG, ERR, haddr_t, HADDR_UNDEF, HADDR_UNDEF,
 
     /* Allocate the data block */
     if (NULL == (dblock = H5EA__dblock_alloc(hdr, parent, nelmts)))
-        H5E_THROW(H5E_CANTALLOC, "memory allocation failed for extensible array data block")
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTALLOC, HADDR_UNDEF,
+                    "memory allocation failed for extensible array data block")
 
     /* Set size of data block on disk */
     dblock->size = H5EA_DBLOCK_SIZE(dblock);
@@ -169,24 +176,27 @@ BEGIN_FUNC(PKG, ERR, haddr_t, HADDR_UNDEF, HADDR_UNDEF,
 
     /* Allocate space for the data block on disk */
     if (HADDR_UNDEF == (dblock_addr = H5MF_alloc(hdr->f, H5FD_MEM_EARRAY_DBLOCK, (hsize_t)dblock->size)))
-        H5E_THROW(H5E_CANTALLOC, "file allocation failed for extensible array data block")
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTALLOC, HADDR_UNDEF,
+                    "file allocation failed for extensible array data block")
     dblock->addr = dblock_addr;
 
     /* Don't initialize elements if paged */
     if (!dblock->npages)
         /* Clear any elements in data block to fill value */
         if ((hdr->cparam.cls->fill)(dblock->elmts, (size_t)dblock->nelmts) < 0)
-            H5E_THROW(H5E_CANTSET, "can't set extensible array data block elements to class's fill value")
+            HGOTO_ERROR(H5E_EARRAY, H5E_CANTSET, HADDR_UNDEF,
+                        "can't set extensible array data block elements to class's fill value")
 
     /* Cache the new extensible array data block */
     if (H5AC_insert_entry(hdr->f, H5AC_EARRAY_DBLOCK, dblock_addr, dblock, H5AC__NO_FLAGS_SET) < 0)
-        H5E_THROW(H5E_CANTINSERT, "can't add extensible array data block to cache")
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTINSERT, HADDR_UNDEF, "can't add extensible array data block to cache")
     inserted = TRUE;
 
     /* Add data block as child of 'top' proxy */
     if (hdr->top_proxy) {
         if (H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dblock) < 0)
-            H5E_THROW(H5E_CANTSET, "unable to add extensible array entry as child of array proxy")
+            HGOTO_ERROR(H5E_EARRAY, H5E_CANTSET, HADDR_UNDEF,
+                        "unable to add extensible array entry as child of array proxy")
         dblock->top_proxy = hdr->top_proxy;
     } /* end if */
 
@@ -203,25 +213,29 @@ BEGIN_FUNC(PKG, ERR, haddr_t, HADDR_UNDEF, HADDR_UNDEF,
     /* Set address of data block to return */
     ret_value = dblock_addr;
 
-    CATCH
+done:
     if (!H5F_addr_defined(ret_value))
         if (dblock) {
             /* Remove from cache, if inserted */
             if (inserted)
                 if (H5AC_remove_entry(dblock) < 0)
-                    H5E_THROW(H5E_CANTREMOVE, "unable to remove extensible array data block from cache")
+                    HDONE_ERROR(H5E_EARRAY, H5E_CANTREMOVE, HADDR_UNDEF,
+                                "unable to remove extensible array data block from cache")
 
             /* Release data block's disk space */
             if (H5F_addr_defined(dblock->addr) &&
                 H5MF_xfree(hdr->f, H5FD_MEM_EARRAY_DBLOCK, dblock->addr, (hsize_t)dblock->size) < 0)
-                H5E_THROW(H5E_CANTFREE, "unable to release extensible array data block")
+                HDONE_ERROR(H5E_EARRAY, H5E_CANTFREE, HADDR_UNDEF,
+                            "unable to release extensible array data block")
 
             /* Destroy data block */
             if (H5EA__dblock_dest(dblock) < 0)
-                H5E_THROW(H5E_CANTFREE, "unable to destroy extensible array data block")
+                HDONE_ERROR(H5E_EARRAY, H5E_CANTFREE, HADDR_UNDEF,
+                            "unable to destroy extensible array data block")
         } /* end if */
 
-END_FUNC(PKG) /* end H5EA__dblock_create() */
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5EA__dblock_create() */
 
 /*-------------------------------------------------------------------------
  * Function:	H5EA__dblock_sblk_idx
@@ -236,10 +250,12 @@ END_FUNC(PKG) /* end H5EA__dblock_create() */
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PKG, NOERR, unsigned, 0, -, H5EA__dblock_sblk_idx(const H5EA_hdr_t *hdr, hsize_t idx))
+unsigned
+H5EA__dblock_sblk_idx(const H5EA_hdr_t *hdr, hsize_t idx)
+{
+    unsigned sblk_idx = 0; /* Which superblock does this index fall in? */
 
-    /* Local variables */
-    unsigned sblk_idx; /* Which superblock does this index fall in? */
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
     HDassert(hdr);
@@ -252,10 +268,8 @@ BEGIN_FUNC(PKG, NOERR, unsigned, 0, -, H5EA__dblock_sblk_idx(const H5EA_hdr_t *h
     H5_CHECK_OVERFLOW(idx, /*From:*/ hsize_t, /*To:*/ uint64_t);
     sblk_idx = H5VM_log2_gen((uint64_t)((idx / hdr->cparam.data_blk_min_elmts) + 1));
 
-    /* Set return value */
-    ret_value = sblk_idx;
-
-END_FUNC(PKG) /* end H5EA__dblock_sblk_idx() */
+    FUNC_LEAVE_NOAPI(sblk_idx)
+} /* end H5EA__dblock_sblk_idx() */
 
 /*-------------------------------------------------------------------------
  * Function:	H5EA__dblock_protect
@@ -269,13 +283,14 @@ END_FUNC(PKG) /* end H5EA__dblock_sblk_idx() */
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PKG, ERR, H5EA_dblock_t *, NULL, NULL,
-           H5EA__dblock_protect(H5EA_hdr_t *hdr, void *parent, haddr_t dblk_addr, size_t dblk_nelmts,
-                                unsigned flags))
-
-    /* Local variables */
+H5EA_dblock_t *
+H5EA__dblock_protect(H5EA_hdr_t *hdr, void *parent, haddr_t dblk_addr, size_t dblk_nelmts, unsigned flags)
+{
     H5EA_dblock_t *        dblock; /* Extensible array data block */
     H5EA_dblock_cache_ud_t udata;  /* Information needed for loading data block */
+    H5EA_dblock_t *        ret_value = NULL;
+
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(hdr);
@@ -294,32 +309,36 @@ BEGIN_FUNC(PKG, ERR, H5EA_dblock_t *, NULL, NULL,
     /* Protect the data block */
     if (NULL ==
         (dblock = (H5EA_dblock_t *)H5AC_protect(hdr->f, H5AC_EARRAY_DBLOCK, dblk_addr, &udata, flags)))
-        H5E_THROW(H5E_CANTPROTECT, "unable to protect extensible array data block, address = %llu",
-                  (unsigned long long)dblk_addr)
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTPROTECT, NULL,
+                    "unable to protect extensible array data block, address = %llu",
+                    (unsigned long long)dblk_addr)
 
     /* Create top proxy, if it doesn't exist */
     if (hdr->top_proxy && NULL == dblock->top_proxy) {
         /* Add data block as child of 'top' proxy */
         if (H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dblock) < 0)
-            H5E_THROW(H5E_CANTSET, "unable to add extensible array entry as child of array proxy")
+            HGOTO_ERROR(H5E_EARRAY, H5E_CANTSET, NULL,
+                        "unable to add extensible array entry as child of array proxy")
         dblock->top_proxy = hdr->top_proxy;
-    } /* end if */
+    }
 
     /* Set return value */
     ret_value = dblock;
 
-    CATCH
+done:
 
     /* Clean up on error */
     if (!ret_value) {
         /* Release the data block, if it was protected */
         if (dblock &&
             H5AC_unprotect(hdr->f, H5AC_EARRAY_DBLOCK, dblock->addr, dblock, H5AC__NO_FLAGS_SET) < 0)
-            H5E_THROW(H5E_CANTUNPROTECT, "unable to unprotect extensible array data block, address = %llu",
-                      (unsigned long long)dblock->addr)
-    } /* end if */
+            HDONE_ERROR(H5E_EARRAY, H5E_CANTUNPROTECT, NULL,
+                        "unable to unprotect extensible array data block, address = %llu",
+                        (unsigned long long)dblock->addr)
+    }
 
-END_FUNC(PKG) /* end H5EA__dblock_protect() */
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5EA__dblock_protect() */
 
 /*-------------------------------------------------------------------------
  * Function:	H5EA__dblock_unprotect
@@ -333,22 +352,26 @@ END_FUNC(PKG) /* end H5EA__dblock_protect() */
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
-           H5EA__dblock_unprotect(H5EA_dblock_t *dblock, unsigned cache_flags))
+herr_t
+H5EA__dblock_unprotect(H5EA_dblock_t *dblock, unsigned cache_flags)
+{
+    herr_t ret_value = SUCCEED;
 
-    /* Local variables */
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(dblock);
 
     /* Unprotect the data block */
     if (H5AC_unprotect(dblock->hdr->f, H5AC_EARRAY_DBLOCK, dblock->addr, dblock, cache_flags) < 0)
-        H5E_THROW(H5E_CANTUNPROTECT, "unable to unprotect extensible array data block, address = %llu",
-                  (unsigned long long)dblock->addr)
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTUNPROTECT, FAIL,
+                    "unable to unprotect extensible array data block, address = %llu",
+                    (unsigned long long)dblock->addr)
 
-    CATCH
+done:
 
-END_FUNC(PKG) /* end H5EA__dblock_unprotect() */
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5EA__dblock_unprotect() */
 
 /*-------------------------------------------------------------------------
  * Function:	H5EA__dblock_delete
@@ -362,11 +385,13 @@ END_FUNC(PKG) /* end H5EA__dblock_unprotect() */
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
-           H5EA__dblock_delete(H5EA_hdr_t *hdr, void *parent, haddr_t dblk_addr, size_t dblk_nelmts))
+herr_t
+H5EA__dblock_delete(H5EA_hdr_t *hdr, void *parent, haddr_t dblk_addr, size_t dblk_nelmts)
+{
+    H5EA_dblock_t *dblock    = NULL; /* Pointer to data block */
+    herr_t         ret_value = SUCCEED;
 
-    /* Local variables */
-    H5EA_dblock_t *dblock = NULL; /* Pointer to data block */
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(hdr);
@@ -376,8 +401,9 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
 
     /* Protect data block */
     if (NULL == (dblock = H5EA__dblock_protect(hdr, parent, dblk_addr, dblk_nelmts, H5AC__NO_FLAGS_SET)))
-        H5E_THROW(H5E_CANTPROTECT, "unable to protect extensible array data block, address = %llu",
-                  (unsigned long long)dblk_addr)
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTPROTECT, FAIL,
+                    "unable to protect extensible array data block, address = %llu",
+                    (unsigned long long)dblk_addr)
 
     /* Check if this is a paged data block */
     if (dblk_nelmts > hdr->dblk_page_nelmts) {
@@ -395,20 +421,22 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL,
             /* Evict the data block page from the metadata cache */
             /* (OK to call if it doesn't exist in the cache) */
             if (H5AC_expunge_entry(hdr->f, H5AC_EARRAY_DBLK_PAGE, dblk_page_addr, H5AC__NO_FLAGS_SET) < 0)
-                H5E_THROW(H5E_CANTEXPUNGE, "unable to remove array data block page from metadata cache")
+                HGOTO_ERROR(H5E_EARRAY, H5E_CANTEXPUNGE, FAIL,
+                            "unable to remove array data block page from metadata cache")
 
             /* Advance to next page address */
             dblk_page_addr += dblk_page_size;
         } /* end for */
     }     /* end if */
 
-    CATCH
+done:
     /* Finished deleting data block in metadata cache */
     if (dblock && H5EA__dblock_unprotect(dblock, H5AC__DIRTIED_FLAG | H5AC__DELETED_FLAG |
                                                      H5AC__FREE_FILE_SPACE_FLAG) < 0)
-        H5E_THROW(H5E_CANTUNPROTECT, "unable to release extensible array data block")
+        HDONE_ERROR(H5E_EARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release extensible array data block")
 
-END_FUNC(PKG) /* end H5EA__dblock_delete() */
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5EA__dblock_delete() */
 
 /*-------------------------------------------------------------------------
  * Function:	H5EA__dblock_dest
@@ -422,7 +450,12 @@ END_FUNC(PKG) /* end H5EA__dblock_delete() */
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL, H5EA__dblock_dest(H5EA_dblock_t *dblock))
+herr_t
+H5EA__dblock_dest(H5EA_dblock_t *dblock)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(dblock);
@@ -435,14 +468,16 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL, H5EA__dblock_dest(H5EA_dblock_t *dbl
             /* Free buffer for data block elements */
             HDassert(dblock->nelmts > 0);
             if (H5EA__hdr_free_elmts(dblock->hdr, dblock->nelmts, dblock->elmts) < 0)
-                H5E_THROW(H5E_CANTFREE, "unable to free extensible array data block element buffer")
+                HGOTO_ERROR(H5E_EARRAY, H5E_CANTFREE, FAIL,
+                            "unable to free extensible array data block element buffer")
             dblock->elmts  = NULL;
             dblock->nelmts = 0;
         } /* end if */
 
         /* Decrement reference count on shared info */
         if (H5EA__hdr_decr(dblock->hdr) < 0)
-            H5E_THROW(H5E_CANTDEC, "can't decrement reference count on shared array header")
+            HGOTO_ERROR(H5E_EARRAY, H5E_CANTDEC, FAIL,
+                        "can't decrement reference count on shared array header")
         dblock->hdr = NULL;
     } /* end if */
 
@@ -452,6 +487,6 @@ BEGIN_FUNC(PKG, ERR, herr_t, SUCCEED, FAIL, H5EA__dblock_dest(H5EA_dblock_t *dbl
     /* Free the data block itself */
     dblock = H5FL_FREE(H5EA_dblock_t, dblock);
 
-    CATCH
-
-END_FUNC(PKG) /* end H5EA__dblock_dest() */
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5EA__dblock_dest() */

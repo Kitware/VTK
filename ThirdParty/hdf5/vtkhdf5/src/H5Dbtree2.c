@@ -969,6 +969,7 @@ H5D__bt2_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata)
     H5D_bt2_ud_t    bt2_udata;           /* User data for v2 B-tree calls */
     H5D_chunk_rec_t found_rec;           /* Record found from searching for object */
     unsigned        u;                   /* Local index variable */
+    hbool_t         found;               /* Whether chunk was found */
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_STATIC
@@ -1010,16 +1011,17 @@ H5D__bt2_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata)
         bt2_udata.rec.scaled[u] = udata->common.scaled[u];
 
     /* Go get chunk information from v2 B-tree */
-    if (H5B2_find(bt2, &bt2_udata, H5D__bt2_found_cb, &found_rec) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_NOTFOUND, FAIL, "can't find object in v2 B-tree")
+    found = FALSE;
+    if (H5B2_find(bt2, &bt2_udata, &found, H5D__bt2_found_cb, &found_rec) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTFIND, FAIL, "can't check for chunk in v2 B-tree")
 
-    /* Set common info for the chunk */
-    udata->chunk_block.offset = found_rec.chunk_addr;
-
-    /* Check for setting other info */
-    if (H5F_addr_defined(udata->chunk_block.offset)) {
+    /* Check if chunk was found */
+    if (found) {
         /* Sanity check */
         HDassert(0 != found_rec.nbytes);
+
+        /* Set common info for the chunk */
+        udata->chunk_block.offset = found_rec.chunk_addr;
 
         /* Set other info for the chunk */
         if (idx_info->pline->nused > 0) { /* filtered chunk */
@@ -1032,6 +1034,7 @@ H5D__bt2_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata)
         } /* end else */
     }     /* end if */
     else {
+        udata->chunk_block.offset = HADDR_UNDEF;
         udata->chunk_block.length = 0;
         udata->filter_mask        = 0;
     } /* end else */

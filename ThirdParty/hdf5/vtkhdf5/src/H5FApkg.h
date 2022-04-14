@@ -179,8 +179,8 @@ typedef struct H5FA_dblock_t {
     /* Computed/cached values (not stored) */
     haddr_t addr;             /* Address of this data block on disk                   */
     hsize_t size;             /* Size of data block on disk                           */
-    size_t  npages;           /* Nummber of pages in data block (zero if not paged)   */
-    size_t  last_page_nelmts; /* Nummber of elements in last page, if paged           */
+    size_t  npages;           /* Number of pages in data block (zero if not paged)   */
+    size_t  last_page_nelmts; /* Number of elements in last page, if paged           */
 
     /* Fixed Array data block information (not stored) */
     size_t dblk_page_nelmts;    /* # of elements per data block page                    */

@@ -15,8 +15,15 @@
  *
  */
 
+/****************/
+/* Module Setup */
+/****************/
+
 #define H5T_FRIEND /* Suppress error about including H5Tpkg    */
 
+/***********/
+/* Headers */
+/***********/
 #include "H5private.h"   /* Generic Functions                        */
 #include "H5Eprivate.h"  /* Error handling                           */
 #include "H5Gprivate.h"  /* Groups                                   */
@@ -27,6 +34,30 @@
 #include "H5VLprivate.h" /* Virtual Object Layer                     */
 
 #include "H5VLnative_private.h" /* Native VOL connector                     */
+
+/****************/
+/* Local Macros */
+/****************/
+
+/******************/
+/* Local Typedefs */
+/******************/
+
+/********************/
+/* Local Prototypes */
+/********************/
+
+/*********************/
+/* Package Variables */
+/*********************/
+
+/*****************************/
+/* Library Private Variables */
+/*****************************/
+
+/*******************/
+/* Local Variables */
+/*******************/
 
 /*-------------------------------------------------------------------------
  * Function:    H5VL__native_datatype_commit
@@ -144,32 +175,34 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5VL__native_datatype_get(void *obj, H5VL_datatype_get_t get_type, hid_t H5_ATTR_UNUSED dxpl_id,
-                          void H5_ATTR_UNUSED **req, va_list arguments)
+H5VL__native_datatype_get(void *obj, H5VL_datatype_get_args_t *args, hid_t H5_ATTR_UNUSED dxpl_id,
+                          void H5_ATTR_UNUSED **req)
 {
     H5T_t *dt        = (H5T_t *)obj;
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
-    switch (get_type) {
+    switch (args->op_type) {
+        /* H5T_construct_datatype (library private routine) */
+        case H5VL_DATATYPE_GET_BINARY_SIZE: {
+            if (H5T_encode(dt, NULL, args->args.get_binary_size.size) < 0)
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTGET, FAIL, "can't determine serialized length of datatype")
+
+            break;
+        }
+
+        /* H5T_construct_datatype (library private routine) */
         case H5VL_DATATYPE_GET_BINARY: {
-            ssize_t *nalloc = HDva_arg(arguments, ssize_t *);
-            void *   buf    = HDva_arg(arguments, void *);
-            size_t   size   = HDva_arg(arguments, size_t);
+            if (H5T_encode(dt, args->args.get_binary.buf, &args->args.get_binary.buf_size) < 0)
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSERIALIZE, FAIL, "can't serialize datatype")
 
-            if (H5T_encode(dt, (unsigned char *)buf, &size) < 0)
-                HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't determine serialized length of datatype")
-
-            *nalloc = (ssize_t)size;
             break;
         }
 
         /* H5Tget_create_plist */
         case H5VL_DATATYPE_GET_TCPL: {
-            hid_t *ret_id = HDva_arg(arguments, hid_t *);
-
-            if (H5I_INVALID_HID == (*ret_id = H5T__get_create_plist(dt)))
+            if (H5I_INVALID_HID == (args->args.get_tcpl.tcpl_id = H5T__get_create_plist(dt)))
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTGET, FAIL, "can't get object creation info");
 
             break;
@@ -193,30 +226,26 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5VL__native_datatype_specific(void *obj, H5VL_datatype_specific_t specific_type,
-                               hid_t H5_ATTR_UNUSED dxpl_id, void H5_ATTR_UNUSED **req, va_list arguments)
+H5VL__native_datatype_specific(void *obj, H5VL_datatype_specific_args_t *args, hid_t H5_ATTR_UNUSED dxpl_id,
+                               void H5_ATTR_UNUSED **req)
 {
     H5T_t *dt        = (H5T_t *)obj;
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
-    switch (specific_type) {
+    switch (args->op_type) {
+        /* H5VL_DATATYPE_FLUSH */
         case H5VL_DATATYPE_FLUSH: {
-            hid_t type_id = HDva_arg(arguments, hid_t);
-
-            /* To flush metadata and invoke flush callback if there is */
-            if (H5O_flush_common(&dt->oloc, type_id) < 0)
+            if (H5O_flush_common(&dt->oloc, args->args.flush.type_id) < 0)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFLUSH, FAIL, "unable to flush datatype")
 
             break;
         }
 
+        /* H5VL_DATATYPE_REFRESH */
         case H5VL_DATATYPE_REFRESH: {
-            hid_t type_id = HDva_arg(arguments, hid_t);
-
-            /* Call private function to refresh datatype object */
-            if ((H5O_refresh_metadata(type_id, dt->oloc)) < 0)
+            if ((H5O_refresh_metadata(&dt->oloc, args->args.refresh.type_id)) < 0)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTLOAD, FAIL, "unable to refresh datatype")
 
             break;

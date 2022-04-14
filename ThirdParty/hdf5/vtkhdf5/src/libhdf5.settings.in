@@ -67,28 +67,29 @@ Languages:
 
 Features:
 ---------
-                   Parallel HDF5: @PARALLEL@
-Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
-              Large Parallel I/O: @LARGE_PARALLEL_IO@
-              High-level library: @HDF5_HL@
-                Build HDF5 Tests: @HDF5_TESTS@
-                Build HDF5 Tools: @HDF5_TOOLS@
-                    Threadsafety: @THREADSAFE@ (recursive RW locks: @RECURSIVE_RW_LOCKS@)
-             Default API mapping: @DEFAULT_API_VERSION@
-  With deprecated public symbols: @DEPRECATED_SYMBOLS@
-          I/O filters (external): @EXTERNAL_FILTERS@
-                             MPE: @MPE@
-                   Map (H5M) API: @MAP_API@
-                      Direct VFD: @DIRECT_VFD@
-                      Mirror VFD: @MIRROR_VFD@
-              (Read-Only) S3 VFD: @ROS3_VFD@
-            (Read-Only) HDFS VFD: @HAVE_LIBHDFS@
-                         dmalloc: @HAVE_DMALLOC@
-  Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@
-                     API tracing: @TRACE_API@
-            Using memory checker: @USINGMEMCHECKER@
- Memory allocation sanity checks: @MEMORYALLOCSANITYCHECK@
-          Function stack tracing: @CODESTACK@
-                Use file locking: @DESIRED_FILE_LOCKING@
-       Strict file format checks: @STRICT_FORMAT_CHECKS@
-    Optimization instrumentation: @INSTRUMENT_LIBRARY@
+                     Parallel HDF5: @PARALLEL@
+  Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
+                Large Parallel I/O: @LARGE_PARALLEL_IO@
+                High-level library: @HDF5_HL@
+Dimension scales w/ new references: @DIMENSION_SCALES_WITH_NEW_REF@
+                  Build HDF5 Tests: @HDF5_TESTS@
+                  Build HDF5 Tools: @HDF5_TOOLS@
+                      Threadsafety: @THREADSAFE@
+               Default API mapping: @DEFAULT_API_VERSION@
+    With deprecated public symbols: @DEPRECATED_SYMBOLS@
+            I/O filters (external): @EXTERNAL_FILTERS@
+                               MPE: @MPE@
+                     Map (H5M) API: @MAP_API@
+                        Direct VFD: @DIRECT_VFD@
+                        Mirror VFD: @MIRROR_VFD@
+                (Read-Only) S3 VFD: @ROS3_VFD@
+              (Read-Only) HDFS VFD: @HAVE_LIBHDFS@
+                           dmalloc: @HAVE_DMALLOC@
+    Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@
+                       API tracing: @TRACE_API@
+              Using memory checker: @USINGMEMCHECKER@
+   Memory allocation sanity checks: @MEMORYALLOCSANITYCHECK@
+            Function stack tracing: @CODESTACK@
+                  Use file locking: @DESIRED_FILE_LOCKING@
+         Strict file format checks: @STRICT_FORMAT_CHECKS@
+      Optimization instrumentation: @INSTRUMENT_LIBRARY@

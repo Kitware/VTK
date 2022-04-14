@@ -50,7 +50,7 @@
 /* User data for direct block debugging iterator callback */
 typedef struct {
     FILE *   stream;      /* Stream for output */
-    int      indent;      /* Indention amount */
+    int      indent;      /* Indentation amount */
     int      fwidth;      /* Field width mount */
     haddr_t  dblock_addr; /* Direct block's address */
     hsize_t  dblock_size; /* Direct block's size */
@@ -63,7 +63,7 @@ typedef struct {
 typedef struct {
     H5FS_t *fspace; /* Free space manager */
     FILE *  stream; /* Stream for output */
-    int     indent; /* Indention amount */
+    int     indent; /* Indentation amount */
     int     fwidth; /* Field width mount */
 } H5HF_debug_iter_ud2_t;
 
@@ -140,7 +140,7 @@ H5HF_id_print(H5HF_t *fh, const void *_id, FILE *stream, int indent, int fwidth)
         id_type = 'T';
     } /* end if */
     else {
-        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", FUNC);
+        HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", __func__);
         HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "heap ID type not supported yet")
     } /* end else */
 

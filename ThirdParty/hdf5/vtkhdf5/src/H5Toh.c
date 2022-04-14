@@ -209,7 +209,7 @@ H5O__dtype_get_oloc(hid_t obj_id)
 
     /* Get the datatype */
     if (NULL == (dt = (H5T_t *)H5I_object(obj_id)))
-        HGOTO_ERROR(H5E_OHDR, H5E_BADATOM, NULL, "couldn't get object from ID")
+        HGOTO_ERROR(H5E_OHDR, H5E_BADID, NULL, "couldn't get object from ID")
 
     /* If this is a named datatype, get the VOL driver pointer to the datatype */
     type = (H5T_t *)H5T_get_actual_type(dt);

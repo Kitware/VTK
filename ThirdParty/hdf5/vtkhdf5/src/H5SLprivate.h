@@ -60,9 +60,6 @@ typedef int (*H5SL_cmp_t)(const void *key1, const void *key2);
 /* Typedef for iteration operations */
 typedef herr_t (*H5SL_operator_t)(void *item, void *key, void *operator_data /*in,out*/);
 
-/* Typedef for H5SL_try_free_safe operation callback */
-typedef htri_t (*H5SL_try_free_op_t)(void *item, void *key, void *operator_data /*in,out*/);
-
 /********************/
 /* Private routines */
 /********************/
@@ -86,9 +83,9 @@ H5_DLL void *       H5SL_item(H5SL_node_t *slist_node);
 H5_DLL herr_t       H5SL_iterate(H5SL_t *slist, H5SL_operator_t op, void *op_data);
 H5_DLL herr_t       H5SL_release(H5SL_t *slist);
 H5_DLL herr_t       H5SL_free(H5SL_t *slist, H5SL_operator_t op, void *op_data);
-H5_DLL herr_t       H5SL_try_free_safe(H5SL_t *slist, H5SL_try_free_op_t op, void *op_data);
 H5_DLL herr_t       H5SL_close(H5SL_t *slist);
 H5_DLL herr_t       H5SL_destroy(H5SL_t *slist, H5SL_operator_t op, void *op_data);
+H5_DLL herr_t       H5SL_init(void);
 H5_DLL int          H5SL_term_interface(void);
 
 #endif /* H5SLprivate_H */

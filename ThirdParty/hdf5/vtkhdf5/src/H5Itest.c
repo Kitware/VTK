@@ -71,6 +71,7 @@ H5I__get_name_test(hid_t id, char *name /*out*/, size_t size, hbool_t *cached)
     H5G_loc_t      loc;                     /* Object location */
     hbool_t        api_ctx_pushed  = FALSE; /* Whether API context pushed */
     hbool_t        vol_wrapper_set = FALSE; /* Whether the VOL object wrapping context was set up */
+    size_t         name_len        = 0;     /* Length of name */
     ssize_t        ret_value       = -1;    /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -82,27 +83,30 @@ H5I__get_name_test(hid_t id, char *name /*out*/, size_t size, hbool_t *cached)
 
     /* Get the object pointer */
     if (NULL == (vol_obj = H5VL_vol_object(id)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADTYPE, (-1), "invalid identifier")
+        HGOTO_ERROR(H5E_ID, H5E_BADTYPE, (-1), "invalid identifier")
 
     /* Set wrapper info in API context */
     if (H5VL_set_vol_wrapper(vol_obj) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTSET, FAIL, "can't set VOL wrapper info")
+        HGOTO_ERROR(H5E_ID, H5E_CANTSET, (-1), "can't set VOL wrapper info")
     vol_wrapper_set = TRUE;
 
     /* Get object location */
     if (H5G_loc(id, &loc) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, (-1), "can't retrieve object location")
+        HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't retrieve object location")
 
     /* Call internal group routine to retrieve object's name */
-    if ((ret_value = H5G_get_name(&loc, name, size, cached)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, (-1), "can't retrieve object name")
+    if (H5G_get_name(&loc, name, size, &name_len, cached) < 0)
+        HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't retrieve object name")
+
+    /* Set return value */
+    ret_value = (ssize_t)name_len;
 
 done:
     /* Reset object wrapping info in API context */
     if (vol_wrapper_set && H5VL_reset_vol_wrapper() < 0)
-        HDONE_ERROR(H5E_ATOM, H5E_CANTRESET, FAIL, "can't reset VOL wrapper info")
+        HDONE_ERROR(H5E_ID, H5E_CANTRESET, (-1), "can't reset VOL wrapper info")
 
-    if (api_ctx_pushed && H5CX_pop() < 0)
+    if (api_ctx_pushed && H5CX_pop(FALSE) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTRESET, (-1), "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)

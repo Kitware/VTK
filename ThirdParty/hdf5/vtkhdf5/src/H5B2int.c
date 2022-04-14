@@ -52,9 +52,9 @@
 /********************/
 /* Local Prototypes */
 /********************/
-static herr_t H5B2__update_child_flush_depends(H5B2_hdr_t *hdr, unsigned depth,
-                                               const H5B2_node_ptr_t *node_ptrs, unsigned start_idx,
-                                               unsigned end_idx, void *old_parent, void *new_parent);
+static herr_t H5B2__update_child_flush_depends(H5B2_hdr_t *hdr, unsigned depth, H5B2_node_ptr_t *node_ptrs,
+                                               unsigned start_idx, unsigned end_idx, void *old_parent,
+                                               void *new_parent);
 
 /*********************/
 /* Package Variables */
@@ -1617,7 +1617,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__iterate_node(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_node, void *parent,
+H5B2__iterate_node(H5B2_hdr_t *hdr, uint16_t depth, H5B2_node_ptr_t *curr_node, void *parent,
                    H5B2_operator_t op, void *op_data)
 {
     const H5AC_class_t *curr_node_class = NULL;   /* Pointer to current node's class info */
@@ -1642,8 +1642,7 @@ H5B2__iterate_node(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_
 
         /* Lock the current B-tree node */
         if (NULL ==
-            (internal = H5B2__protect_internal(hdr, parent, (H5B2_node_ptr_t *)curr_node, depth, FALSE,
-                                               H5AC__READ_ONLY_FLAG))) /* Casting away const OK -QAK */
+            (internal = H5B2__protect_internal(hdr, parent, curr_node, depth, FALSE, H5AC__READ_ONLY_FLAG)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
 
         /* Set up information about current node */
@@ -1739,8 +1738,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__delete_node(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_node, void *parent,
-                  H5B2_remove_t op, void *op_data)
+H5B2__delete_node(H5B2_hdr_t *hdr, uint16_t depth, H5B2_node_ptr_t *curr_node, void *parent, H5B2_remove_t op,
+                  void *op_data)
 {
     const H5AC_class_t *curr_node_class = NULL; /* Pointer to current node's class info */
     void *              node            = NULL; /* Pointers to current node */
@@ -1759,8 +1758,7 @@ H5B2__delete_node(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_n
 
         /* Lock the current B-tree node */
         if (NULL ==
-            (internal = H5B2__protect_internal(hdr, parent, (H5B2_node_ptr_t *)curr_node, depth, FALSE,
-                                               H5AC__NO_FLAGS_SET))) /* Casting away const OK -QAK */
+            (internal = H5B2__protect_internal(hdr, parent, curr_node, depth, FALSE, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
 
         /* Set up information about current node */
@@ -1824,7 +1822,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__node_size(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_node, void *parent,
+H5B2__node_size(H5B2_hdr_t *hdr, uint16_t depth, H5B2_node_ptr_t *curr_node, void *parent,
                 hsize_t *btree_size)
 {
     H5B2_internal_t *internal  = NULL;    /* Pointer to internal node */
@@ -1839,8 +1837,8 @@ H5B2__node_size(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_nod
     HDassert(depth > 0);
 
     /* Lock the current B-tree node */
-    if (NULL == (internal = H5B2__protect_internal(hdr, parent, (H5B2_node_ptr_t *)curr_node, depth, FALSE,
-                                                   H5AC__READ_ONLY_FLAG))) /* Casting away const OK -QAK */
+    if (NULL ==
+        (internal = H5B2__protect_internal(hdr, parent, curr_node, depth, FALSE, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
 
     /* Recursively descend into child nodes, if we are above the "twig" level in the B-tree */
@@ -1910,7 +1908,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__update_flush_depend(H5B2_hdr_t *hdr, unsigned depth, const H5B2_node_ptr_t *node_ptr, void *old_parent,
+H5B2__update_flush_depend(H5B2_hdr_t *hdr, unsigned depth, H5B2_node_ptr_t *node_ptr, void *old_parent,
                           void *new_parent)
 {
     const H5AC_class_t *child_class;           /* Pointer to child node's class info */
@@ -1941,9 +1939,8 @@ H5B2__update_flush_depend(H5B2_hdr_t *hdr, unsigned depth, const H5B2_node_ptr_t
             H5B2_internal_t *child_int;
 
             /* Protect child */
-            if (NULL == (child_int = H5B2__protect_internal(
-                             hdr, new_parent, (H5B2_node_ptr_t *)node_ptr, (uint16_t)(depth - 1), FALSE,
-                             H5AC__NO_FLAGS_SET))) /* Casting away const OK -QAK */
+            if (NULL == (child_int = H5B2__protect_internal(hdr, new_parent, node_ptr, (uint16_t)(depth - 1),
+                                                            FALSE, H5AC__NO_FLAGS_SET)))
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
             child_class = H5AC_BT2_INT;
             child       = child_int;
@@ -2010,7 +2007,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__update_child_flush_depends(H5B2_hdr_t *hdr, unsigned depth, const H5B2_node_ptr_t *node_ptrs,
+H5B2__update_child_flush_depends(H5B2_hdr_t *hdr, unsigned depth, H5B2_node_ptr_t *node_ptrs,
                                  unsigned start_idx, unsigned end_idx, void *old_parent, void *new_parent)
 {
     unsigned u;                   /* Local index variable */

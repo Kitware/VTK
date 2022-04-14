@@ -20,8 +20,9 @@
 #ifndef H5Iprivate_H
 #define H5Iprivate_H
 
-/* Include package's public header */
+/* Include package's public headers */
 #include "H5Ipublic.h"
+#include "H5Idevelop.h"
 
 /* Private headers needed by this file */
 #include "H5private.h"
@@ -70,7 +71,9 @@ H5_DLL int        H5I_get_ref(hid_t id, hbool_t app_ref);
 H5_DLL int        H5I_inc_ref(hid_t id, hbool_t app_ref);
 H5_DLL int        H5I_dec_ref(hid_t id);
 H5_DLL int        H5I_dec_app_ref(hid_t id);
+H5_DLL int        H5I_dec_app_ref_async(hid_t id, void **token);
 H5_DLL int        H5I_dec_app_ref_always_close(hid_t id);
+H5_DLL int        H5I_dec_app_ref_always_close_async(hid_t id, void **token);
 H5_DLL int        H5I_dec_type_ref(H5I_type_t type);
 H5_DLL herr_t     H5I_find_id(const void *object, H5I_type_t type, hid_t *id /*out*/);
 

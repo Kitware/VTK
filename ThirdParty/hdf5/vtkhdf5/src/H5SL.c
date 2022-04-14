@@ -36,13 +36,6 @@
  *               skip list.  The implementation in that document hurts
  *               performance, at least for integer keys. -NAF)
  *
- *              (Also, this implementation has a couple of home-grown
- *               optimizations, including setting the "update" vector to the
- *               actual 'forward' pointer to update, instead of the node
- *               containing the forward pointer -QAK
- *              -No longer uses update vector, as insertions/deletions are now
- *               always at level 0. -NAF)
- *
  *              (Note: This implementation does not have the information for
  *               implementing the "Linear List Operations" (like insert/delete/
  *               search by position) in section 3.4 of "A Skip List Cookbook",
@@ -71,25 +64,14 @@
 /* Define the code template for searches for the "OP" in the H5SL_LOCATE macro */
 #define H5SL_LOCATE_SEARCH_FOUND(SLIST, X, I)                                                                \
     {                                                                                                        \
-        HDassert(!X->removed);                                                                               \
         HGOTO_DONE(X->item);                                                                                 \
-    } /* end block */
-
-/* Define the code template for deferred removals for the "OP" in the
- * H5SL_LOCATE macro */
-#define H5SL_LOCATE_SEARCH_DEFER_REMOVE_FOUND(SLIST, X, I)                                                   \
-    {                                                                                                        \
-        HDassert(!X->removed);                                                                               \
-        X->removed = TRUE;                                                                                   \
-        HGOTO_DONE(X->item);                                                                                 \
-    } /* end block */
+    }
 
 /* Define the code template for finds for the "OP" in the H5SL_LOCATE macro */
 #define H5SL_LOCATE_FIND_FOUND(SLIST, X, I)                                                                  \
     {                                                                                                        \
-        HDassert(!X->removed);                                                                               \
         HGOTO_DONE(X);                                                                                       \
-    } /* end block */
+    }
 
 /* Define a code template for comparing scalar keys for the "CMP" in the H5SL_LOCATE macro */
 #define H5SL_LOCATE_SCALAR_CMP(SLIST, TYPE, PNODE, PKEY, HASHVAL) (*(TYPE *)((PNODE)->key) < *(TYPE *)PKEY)
@@ -155,51 +137,19 @@
                    H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, X->forward[_i], KEY, HASHVAL)) {           \
                 X = X->forward[_i];                                                                          \
                 _count++;                                                                                    \
-            } /* end while */                                                                                \
-        }     /* end for */                                                                                  \
+            }                                                                                                \
+        }                                                                                                    \
         X = X->forward[0];                                                                                   \
         if (X != NULL && H5_GLUE3(H5SL_LOCATE_, CMP, _EQ)(SLIST, TYPE, X, KEY, HASHVAL)) {                   \
             /* What to do when a node is found */                                                            \
             H5_GLUE3(H5SL_LOCATE_, OP, _FOUND)(SLIST, X, _i)                                                 \
-        } /* end if */                                                                                       \
-    }
-
-/* Macro used to find node for operation, if there may be "removed" nodes in the
- * list (whose keys cannot be read) */
-#define H5SL_LOCATE_SAFE(OP, CMP, SLIST, X, TYPE, KEY, HASHVAL)                                              \
-    {                                                                                                        \
-        int          _i; /* Local index variable */                                                          \
-        H5SL_node_t *_low  = X;                                                                              \
-        H5SL_node_t *_high = NULL;                                                                           \
-                                                                                                             \
-        H5_GLUE3(H5SL_LOCATE_, CMP, _HASHINIT)                                                               \
-        (KEY, HASHVAL) for (_i = (int)SLIST->curr_level; _i >= 0; _i--)                                      \
-        {                                                                                                    \
-            X = _low->forward[_i];                                                                           \
-            while (X != _high) {                                                                             \
-                if (!X->removed) {                                                                           \
-                    if (H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, X, KEY, HASHVAL))                     \
-                        _low = X;                                                                            \
-                    else                                                                                     \
-                        break;                                                                               \
-                } /* end if */                                                                               \
-                X = X->forward[_i];                                                                          \
-            } /* end while */                                                                                \
-            _high = X;                                                                                       \
-            if (X != NULL && H5_GLUE3(H5SL_LOCATE_, CMP, _EQ)(SLIST, TYPE, X, KEY, HASHVAL)) {               \
-                /* What to do when a node is found */                                                        \
-                H5_GLUE3(H5SL_LOCATE_, OP, _FOUND)(SLIST, X, _i) break;                                      \
-            } /* end if */                                                                                   \
-        }     /* end for */                                                                                  \
+        }                                                                                                    \
     }
 
 /* Macro used to find node for operation */
 #define H5SL_LOCATE(OP, CMP, SLIST, X, TYPE, KEY, HASHVAL)                                                   \
     {                                                                                                        \
-        if ((SLIST)->safe_iterating)                                                                         \
-            H5SL_LOCATE_SAFE(OP, CMP, SLIST, X, TYPE, KEY, HASHVAL)                                          \
-        else                                                                                                 \
-            H5SL_LOCATE_OPT(OP, CMP, SLIST, X, TYPE, KEY, HASHVAL)                                           \
+        H5SL_LOCATE_OPT(OP, CMP, SLIST, X, TYPE, KEY, HASHVAL)                                               \
     }
 
 /* Macro used to grow a node by 1.  Does not update pointers. LVL is the current
@@ -209,7 +159,7 @@
         /* Check if we need to increase allocation of forward pointers */                                    \
         if (LVL + 1 >= 1u << X->log_nalloc) {                                                                \
             H5SL_node_t **_tmp;                                                                              \
-            HDassert(LVL + 1 == 1u << X->log_nalloc);                                                        \
+            HDassert(LVL + 1 == 1U << X->log_nalloc);                                                        \
             /* Double the amount of allocated space */                                                       \
             X->log_nalloc++;                                                                                 \
                                                                                                              \
@@ -225,13 +175,13 @@
                     if (NULL == (H5SL_fac_g = (H5FL_fac_head_t **)H5MM_realloc(                              \
                                      (void *)H5SL_fac_g, H5SL_fac_nalloc_g * sizeof(H5FL_fac_head_t *))))    \
                         HGOTO_ERROR(H5E_SLIST, H5E_CANTALLOC, ERR, "memory allocation failed")               \
-                } /* end if */                                                                               \
+                }                                                                                            \
                                                                                                              \
                 /* Create the new factory */                                                                 \
                 H5SL_fac_g[H5SL_fac_nused_g] =                                                               \
                     H5FL_fac_init((1u << H5SL_fac_nused_g) * sizeof(H5SL_node_t *));                         \
                 H5SL_fac_nused_g++;                                                                          \
-            } /* end if */                                                                                   \
+            }                                                                                                \
                                                                                                              \
             /* Allocate space for new forward pointers */                                                    \
             if (NULL == (_tmp = (H5SL_node_t **)H5FL_FAC_MALLOC(H5SL_fac_g[X->log_nalloc])))                 \
@@ -239,7 +189,7 @@
             H5MM_memcpy((void *)_tmp, (const void *)X->forward, (LVL + 1) * sizeof(H5SL_node_t *));          \
             X->forward = (H5SL_node_t **)H5FL_FAC_FREE(H5SL_fac_g[X->log_nalloc - 1], (void *)X->forward);   \
             X->forward = _tmp;                                                                               \
-        } /* end if */                                                                                       \
+        }                                                                                                    \
                                                                                                              \
         X->level++;                                                                                          \
     }
@@ -251,7 +201,7 @@
         /* Check if we can reduce the allocation of forward pointers */                                      \
         if (LVL <= 1u << (X->log_nalloc - 1)) {                                                              \
             H5SL_node_t **_tmp;                                                                              \
-            HDassert(LVL == 1u << (X->log_nalloc - 1));                                                      \
+            HDassert(LVL == 1U << (X->log_nalloc - 1));                                                      \
             X->log_nalloc--;                                                                                 \
                                                                                                              \
             /* Allocate space for new forward pointers */                                                    \
@@ -260,7 +210,7 @@
             H5MM_memcpy((void *)_tmp, (const void *)X->forward, (LVL) * sizeof(H5SL_node_t *));              \
             X->forward = (H5SL_node_t **)H5FL_FAC_FREE(H5SL_fac_g[X->log_nalloc + 1], (void *)X->forward);   \
             X->forward = _tmp;                                                                               \
-        } /* end if */                                                                                       \
+        }                                                                                                    \
                                                                                                              \
         X->level--;                                                                                          \
     }
@@ -284,12 +234,12 @@
         else {                                                                                               \
             HDassert(_lvl < (size_t)SLIST->curr_level);                                                      \
             X->forward[_lvl + 1] = PREV->forward[_lvl + 1];                                                  \
-        } /* end else */                                                                                     \
+        }                                                                                                    \
         PREV->forward[_lvl + 1] = X;                                                                         \
     }
 
 /* Macro used to reduce the level of a node by 1.  Does not update the head node
- * "current level".  PREV is the previous node of the currrent height of X. */
+ * "current level".  PREV is the previous node of the current height of X. */
 #define H5SL_DEMOTE(X, PREV)                                                                                 \
     {                                                                                                        \
         size_t _lvl = X->level;                                                                              \
@@ -305,7 +255,7 @@
 #define H5SL_INSERT(CMP, SLIST, X, TYPE, KEY, HASHVAL)                                                       \
     {                                                                                                        \
         H5SL_node_t *_last = X;    /* Lowest node in the current gap */                                      \
-        H5SL_node_t *_next = NULL; /* Highest node in the currect gap */                                     \
+        H5SL_node_t *_next = NULL; /* Highest node in the current gap */                                     \
         H5SL_node_t *_drop;        /* Low node of the gap to drop into */                                    \
         int          _count;       /* Number of nodes in the current gap */                                  \
         int          _i;                                                                                     \
@@ -322,7 +272,7 @@
                     if (!_drop)                                                                              \
                         _drop = X;                                                                           \
                     break;                                                                                   \
-                } /* end if */                                                                               \
+                }                                                                                            \
                                                                                                              \
                 /* Check if this node is the start of the next gap */                                        \
                 if (!_drop && !H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, X->forward[_i], KEY, HASHVAL)) \
@@ -337,7 +287,7 @@
                     break;                                                                                   \
                 }                                                                                            \
                 X = X->forward[_i];                                                                          \
-            } /* end for */                                                                                  \
+            }                                                                                                \
             HDassert(!_drop->forward[_i] ||                                                                  \
                      !H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, _drop->forward[_i], KEY, HASHVAL));     \
                                                                                                              \
@@ -350,7 +300,7 @@
             /* Prepare to drop down */                                                                       \
             X = _last = _drop;                                                                               \
             _next     = _drop->forward[_i];                                                                  \
-        } /* end for */                                                                                      \
+        }                                                                                                    \
                                                                                                              \
         if (_next && H5_GLUE3(H5SL_LOCATE_, CMP, _EQ)(SLIST, TYPE, _next, KEY, HASHVAL))                     \
             HGOTO_ERROR(H5E_SLIST, H5E_CANTINSERT, NULL, "can't insert duplicate key")                       \
@@ -359,172 +309,167 @@
 /* Macro used to remove node */
 #define H5SL_REMOVE(CMP, SLIST, X, TYPE, KEY, HASHVAL)                                                       \
     {                                                                                                        \
-        /* Check for deferred removal */                                                                     \
-        if (SLIST->safe_iterating)                                                                           \
-            H5SL_LOCATE(SEARCH_DEFER_REMOVE, CMP, SLIST, X, TYPE, KEY, HASHVAL)                              \
-        else {                                                                                               \
-            H5SL_node_t *_last  = X;             /* Lowest node in the current gap */                        \
-            H5SL_node_t *_llast = X;             /* Lowest node in the previous gap */                       \
-            H5SL_node_t *_next  = NULL;          /* Highest node in the currect gap */                       \
-            H5SL_node_t *_drop  = NULL;          /* Low node of the gap to drop into */                      \
-            H5SL_node_t *_ldrop = NULL;          /* Low node of gap before the one to drop into */           \
-            H5SL_node_t *_head  = SLIST->header; /* Head of the skip list */                                 \
-            int          _count;                 /* Number of nodes in the current gap */                    \
-            int          _i = (int)SLIST->curr_level;                                                        \
+        H5SL_node_t *_last  = X;             /* Lowest node in the current gap */                            \
+        H5SL_node_t *_llast = X;             /* Lowest node in the previous gap */                           \
+        H5SL_node_t *_next  = NULL;          /* Highest node in the current gap */                           \
+        H5SL_node_t *_drop  = NULL;          /* Low node of the gap to drop into */                          \
+        H5SL_node_t *_ldrop = NULL;          /* Low node of gap before the one to drop into */               \
+        H5SL_node_t *_head  = SLIST->header; /* Head of the skip list */                                     \
+        int          _count;                 /* Number of nodes in the current gap */                        \
+        int          _i = (int)SLIST->curr_level;                                                            \
                                                                                                              \
-            if (_i < 0)                                                                                      \
-                HGOTO_DONE(NULL);                                                                            \
+        if (_i < 0)                                                                                          \
+            HGOTO_DONE(NULL);                                                                                \
                                                                                                              \
-            H5_GLUE3(H5SL_LOCATE_, CMP, _HASHINIT)                                                           \
-            (KEY, HASHVAL)                                                                                   \
+        H5_GLUE3(H5SL_LOCATE_, CMP, _HASHINIT)                                                               \
+        (KEY, HASHVAL)                                                                                       \
                                                                                                              \
-                /* Find the gap to drop in to at the highest level */                                        \
-                while (X && (!X->key || H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, X, KEY, HASHVAL)))    \
-            {                                                                                                \
-                _llast = _last;                                                                              \
-                _last  = X;                                                                                  \
-                X      = X->forward[_i];                                                                     \
-            }                                                                                                \
-            _next = X;                                                                                       \
+            /* Find the gap to drop in to at the highest level */                                            \
+            while (X && (!X->key || H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, X, KEY, HASHVAL)))        \
+        {                                                                                                    \
+            _llast = _last;                                                                                  \
+            _last  = X;                                                                                      \
+            X      = X->forward[_i];                                                                         \
+        }                                                                                                    \
+        _next = X;                                                                                           \
                                                                                                              \
-            /* Main loop */                                                                                  \
-            for (_i--; _i >= 0; _i--) {                                                                      \
-                /* Search for the node to drop into, also count the number of */                             \
-                /* nodes of height _i in this gap and keep track of of the node */                           \
-                /* before the one to drop into (_ldrop will become _llast, */                                \
-                /* _drop will become _last). */                                                              \
-                X = _ldrop = _last;                                                                          \
-                _drop      = NULL;                                                                           \
-                for (_count = 0;; _count++) {                                                                \
-                    /* Terminate if this is the last node in the gap */                                      \
-                    if (X->forward[_i] == _next) {                                                           \
-                        if (!_drop)                                                                          \
-                            _drop = X;                                                                       \
-                        break;                                                                               \
-                    } /* end if */                                                                           \
+        /* Main loop */                                                                                      \
+        for (_i--; _i >= 0; _i--) {                                                                          \
+            /* Search for the node to drop into, also count the number of */                                 \
+            /* nodes of height _i in this gap and keep track of of the node */                               \
+            /* before the one to drop into (_ldrop will become _llast, */                                    \
+            /* _drop will become _last). */                                                                  \
+            X = _ldrop = _last;                                                                              \
+            _drop      = NULL;                                                                               \
+            for (_count = 0;; _count++) {                                                                    \
+                /* Terminate if this is the last node in the gap */                                          \
+                if (X->forward[_i] == _next) {                                                               \
+                    if (!_drop)                                                                              \
+                        _drop = X;                                                                           \
+                    break;                                                                                   \
+                }                                                                                            \
                                                                                                              \
-                    /* If we have already found the node to drop into and there */                           \
-                    /* is more than one node in this gap, we can stop searching */                           \
-                    if (_drop) {                                                                             \
-                        HDassert(_count >= 1);                                                               \
-                        _count = 2;                                                                          \
-                        break;                                                                               \
-                    }                                                                                        \
-                    else { /* !_drop */                                                                      \
-                        /* Check if this node is the start of the next gap */                                \
-                        if (!H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, X->forward[_i], KEY, HASHVAL)) { \
-                            _drop = X;                                                                       \
-                            /* Again check if we can stop searching */                                       \
-                            if (_count) {                                                                    \
-                                _count = 2;                                                                  \
-                                break;                                                                       \
-                            } /* end if */                                                                   \
-                        }     /* end if */                                                                   \
-                        else                                                                                 \
-                            _ldrop = X;                                                                      \
-                    } /* end else */                                                                         \
-                                                                                                             \
-                    /* No need to check the last node in the gap if there are */                             \
-                    /* 3, as there cannot be a fourth */                                                     \
-                    if (_count == 2) {                                                                       \
-                        if (!_drop)                                                                          \
-                            _drop = X->forward[_i];                                                          \
-                        break;                                                                               \
-                    } /* end if */                                                                           \
-                    X = X->forward[_i];                                                                      \
-                } /* end for */                                                                              \
-                HDassert(_count >= 1 && _count <= 3);                                                        \
-                HDassert(!_drop->forward[_i] ||                                                              \
-                         !H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, _drop->forward[_i], KEY, HASHVAL)); \
-                                                                                                             \
-                /* Check if we need to adjust node heights */                                                \
-                if (_count == 1) {                                                                           \
-                    /* Check if we are in the first gap */                                                   \
-                    if (_llast == _last) {                                                                   \
-                        /* We are in the first gap, count the number of nodes */                             \
-                        /* of height _i in the next gap.  We need only check */                              \
-                        /* onenode to see if we should promote the first node */                             \
-                        /* in the next gap */                                                                \
-                        _llast = _next->forward[_i + 1];                                                     \
-                                                                                                             \
-                        /* Demote the separator node */                                                      \
-                        H5SL_DEMOTE(_next, _last)                                                            \
-                                                                                                             \
-                        /* If there are 2 or more nodes, promote the first */                                \
-                        if (_next->forward[_i]->forward[_i] != _llast) {                                     \
-                            X = _next->forward[_i];                                                          \
-                            H5SL_PROMOTE(SLIST, X, _last, NULL)                                              \
+                /* If we have already found the node to drop into and there */                               \
+                /* is more than one node in this gap, we can stop searching */                               \
+                if (_drop) {                                                                                 \
+                    HDassert(_count >= 1);                                                                   \
+                    _count = 2;                                                                              \
+                    break;                                                                                   \
+                }                                                                                            \
+                else { /* !_drop */                                                                          \
+                    /* Check if this node is the start of the next gap */                                    \
+                    if (!H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, X->forward[_i], KEY, HASHVAL)) {     \
+                        _drop = X;                                                                           \
+                        /* Again check if we can stop searching */                                           \
+                        if (_count) {                                                                        \
+                            _count = 2;                                                                      \
+                            break;                                                                           \
                         }                                                                                    \
-                        else if (!_head->forward[_i + 1]) {                                                  \
-                            /* shrink the header */                                                          \
-                            HDassert(_i == SLIST->curr_level - 1);                                           \
-                            HDassert((size_t)SLIST->curr_level == _head->level);                             \
-                                                                                                             \
-                            H5SL_SHRINK(_head, (size_t)(_i + 1))                                             \
-                            SLIST->curr_level--;                                                             \
-                        } /* end else */                                                                     \
                     }                                                                                        \
-                    else {                                                                                   \
-                        /* We are not in the first gap, count the number of */                               \
-                        /* nodes of height _i in the previous gap.  Note we */                               \
-                        /* "look ahead" in this loop so X has the value of the */                            \
-                        /* last node in the previous gap. */                                                 \
-                        X = _llast->forward[_i];                                                             \
-                        for (_count = 1; _count < 3 && X->forward[_i] != _last; _count++)                    \
-                            X = X->forward[_i];                                                              \
-                        HDassert(X->forward[_i] == _last);                                                   \
+                    else                                                                                     \
+                        _ldrop = X;                                                                          \
+                }                                                                                            \
                                                                                                              \
-                        /* Demote the separator node */                                                      \
-                        H5SL_DEMOTE(_last, _llast)                                                           \
+                /* No need to check the last node in the gap if there are */                                 \
+                /* 3, as there cannot be a fourth */                                                         \
+                if (_count == 2) {                                                                           \
+                    if (!_drop)                                                                              \
+                        _drop = X->forward[_i];                                                              \
+                    break;                                                                                   \
+                }                                                                                            \
+                X = X->forward[_i];                                                                          \
+            }                                                                                                \
+            HDassert(_count >= 1 && _count <= 3);                                                            \
+            HDassert(!_drop->forward[_i] ||                                                                  \
+                     !H5_GLUE3(H5SL_LOCATE_, CMP, _CMP)(SLIST, TYPE, _drop->forward[_i], KEY, HASHVAL));     \
                                                                                                              \
-                        /* If there are 2 or more nodes, promote the last */                                 \
-                        if (_count >= 2)                                                                     \
-                            H5SL_PROMOTE(SLIST, X, _llast, NULL)                                             \
-                        else if (!_head->forward[_i + 1]) {                                                  \
-                            /* shrink the header */                                                          \
-                            HDassert(_i == SLIST->curr_level - 1);                                           \
-                            HDassert((size_t)SLIST->curr_level == _head->level);                             \
+            /* Check if we need to adjust node heights */                                                    \
+            if (_count == 1) {                                                                               \
+                /* Check if we are in the first gap */                                                       \
+                if (_llast == _last) {                                                                       \
+                    /* We are in the first gap, count the number of nodes */                                 \
+                    /* of height _i in the next gap.  We need only check */                                  \
+                    /* onenode to see if we should promote the first node */                                 \
+                    /* in the next gap */                                                                    \
+                    _llast = _next->forward[_i + 1];                                                         \
                                                                                                              \
-                            H5SL_SHRINK(_head, (size_t)(_i + 1))                                             \
-                            SLIST->curr_level--;                                                             \
-                        } /* end else */                                                                     \
-                    }     /* end else */                                                                     \
-                }         /* end if */                                                                       \
+                    /* Demote the separator node */                                                          \
+                    H5SL_DEMOTE(_next, _last)                                                                \
                                                                                                              \
-                /* Prepare to drop down */                                                                   \
-                _llast = _ldrop;                                                                             \
-                _last  = _drop;                                                                              \
-                _next  = _drop->forward[_i];                                                                 \
-            } /* end for */                                                                                  \
+                    /* If there are 2 or more nodes, promote the first */                                    \
+                    if (_next->forward[_i]->forward[_i] != _llast) {                                         \
+                        X = _next->forward[_i];                                                              \
+                        H5SL_PROMOTE(SLIST, X, _last, NULL)                                                  \
+                    }                                                                                        \
+                    else if (!_head->forward[_i + 1]) {                                                      \
+                        /* shrink the header */                                                              \
+                        HDassert(_i == SLIST->curr_level - 1);                                               \
+                        HDassert((size_t)SLIST->curr_level == _head->level);                                 \
                                                                                                              \
-            /* Check if we've found the node */                                                              \
-            if (_next && H5_GLUE3(H5SL_LOCATE_, CMP, _EQ)(SLIST, TYPE, _next, KEY, HASHVAL)) {               \
-                void *tmp = _next->item;                                                                     \
-                X         = _next;                                                                           \
+                        H5SL_SHRINK(_head, (size_t)(_i + 1))                                                 \
+                        SLIST->curr_level--;                                                                 \
+                    }                                                                                        \
+                }                                                                                            \
+                else {                                                                                       \
+                    /* We are not in the first gap, count the number of */                                   \
+                    /* nodes of height _i in the previous gap.  Note we */                                   \
+                    /* "look ahead" in this loop so X has the value of the */                                \
+                    /* last node in the previous gap. */                                                     \
+                    X = _llast->forward[_i];                                                                 \
+                    for (_count = 1; _count < 3 && X->forward[_i] != _last; _count++)                        \
+                        X = X->forward[_i];                                                                  \
+                    HDassert(X->forward[_i] == _last);                                                       \
                                                                                                              \
-                /* If the node has a height > 0, swap it with its (lower) */                                 \
-                /* neighbor */                                                                               \
-                if (X->level) {                                                                              \
-                    X              = X->backward;                                                            \
-                    _next->key     = X->key;                                                                 \
-                    _next->item    = X->item;                                                                \
-                    _next->hashval = X->hashval;                                                             \
-                } /* end if */                                                                               \
-                HDassert(!X->level);                                                                         \
+                    /* Demote the separator node */                                                          \
+                    H5SL_DEMOTE(_last, _llast)                                                               \
                                                                                                              \
-                /* Remove the node */                                                                        \
-                X->backward->forward[0] = X->forward[0];                                                     \
-                if (SLIST->last == X)                                                                        \
-                    SLIST->last = X->backward;                                                               \
-                else                                                                                         \
-                    X->forward[0]->backward = X->backward;                                                   \
-                SLIST->nobjs--;                                                                              \
-                X->forward = (H5SL_node_t **)H5FL_FAC_FREE(H5SL_fac_g[0], X->forward);                       \
-                X          = H5FL_FREE(H5SL_node_t, X);                                                      \
+                    /* If there are 2 or more nodes, promote the last */                                     \
+                    if (_count >= 2)                                                                         \
+                        H5SL_PROMOTE(SLIST, X, _llast, NULL)                                                 \
+                    else if (!_head->forward[_i + 1]) {                                                      \
+                        /* shrink the header */                                                              \
+                        HDassert(_i == SLIST->curr_level - 1);                                               \
+                        HDassert((size_t)SLIST->curr_level == _head->level);                                 \
                                                                                                              \
-                HGOTO_DONE(tmp);                                                                             \
-            } /* end if */                                                                                   \
-        }     /* end else */                                                                                 \
+                        H5SL_SHRINK(_head, (size_t)(_i + 1))                                                 \
+                        SLIST->curr_level--;                                                                 \
+                    }                                                                                        \
+                }                                                                                            \
+            }                                                                                                \
+                                                                                                             \
+            /* Prepare to drop down */                                                                       \
+            _llast = _ldrop;                                                                                 \
+            _last  = _drop;                                                                                  \
+            _next  = _drop->forward[_i];                                                                     \
+        }                                                                                                    \
+                                                                                                             \
+        /* Check if we've found the node */                                                                  \
+        if (_next && H5_GLUE3(H5SL_LOCATE_, CMP, _EQ)(SLIST, TYPE, _next, KEY, HASHVAL)) {                   \
+            void *tmp = _next->item;                                                                         \
+            X         = _next;                                                                               \
+                                                                                                             \
+            /* If the node has a height > 0, swap it with its (lower) */                                     \
+            /* neighbor */                                                                                   \
+            if (X->level) {                                                                                  \
+                X              = X->backward;                                                                \
+                _next->key     = X->key;                                                                     \
+                _next->item    = X->item;                                                                    \
+                _next->hashval = X->hashval;                                                                 \
+            }                                                                                                \
+            HDassert(!X->level);                                                                             \
+                                                                                                             \
+            /* Remove the node */                                                                            \
+            X->backward->forward[0] = X->forward[0];                                                         \
+            if (SLIST->last == X)                                                                            \
+                SLIST->last = X->backward;                                                                   \
+            else                                                                                             \
+                X->forward[0]->backward = X->backward;                                                       \
+            SLIST->nobjs--;                                                                                  \
+            X->forward = (H5SL_node_t **)H5FL_FAC_FREE(H5SL_fac_g[0], X->forward);                           \
+            X          = H5FL_FREE(H5SL_node_t, X);                                                          \
+                                                                                                             \
+            HGOTO_DONE(tmp);                                                                                 \
+        }                                                                                                    \
     }
 
 /* Macro used to search for node */
@@ -542,7 +487,6 @@ struct H5SL_node_t {
     size_t               level;      /* The level of this node */
     size_t               log_nalloc; /* log2(Number of slots allocated in forward) */
     uint32_t             hashval;    /* Hash value for key (only for strings, currently) */
-    hbool_t              removed;    /* Whether the node is "removed" (actual removal deferred) */
     struct H5SL_node_t **forward;    /* Array of forward pointers from this node */
     struct H5SL_node_t * backward;   /* Backward pointer from this node */
 };
@@ -558,8 +502,6 @@ struct H5SL_t {
     size_t       nobjs;      /* Number of active objects in skip list */
     H5SL_node_t *header;     /* Header for nodes in skip list */
     H5SL_node_t *last;       /* Pointer to last node in skip list */
-    hbool_t safe_iterating;  /* Whether a routine is "safely" iterating over the list and removals should be
-                                deferred */
 };
 
 /* Static functions */
@@ -567,9 +509,6 @@ static H5SL_node_t *H5SL__new_node(void *item, const void *key, uint32_t hashval
 static H5SL_node_t *H5SL__insert_common(H5SL_t *slist, void *item, const void *key);
 static herr_t       H5SL__release_common(H5SL_t *slist, H5SL_operator_t op, void *op_data);
 static herr_t       H5SL__close_common(H5SL_t *slist, H5SL_operator_t op, void *op_data);
-
-/* Package initialization variable */
-hbool_t H5_PKG_INIT_VAR = FALSE;
 
 /* Declare a free list to manage the H5SL_t struct */
 H5FL_DEFINE_STATIC(H5SL_t);
@@ -582,26 +521,21 @@ static H5FL_fac_head_t **H5SL_fac_g;
 static size_t            H5SL_fac_nused_g;
 static size_t            H5SL_fac_nalloc_g;
 
-/*--------------------------------------------------------------------------
- NAME
-    H5SL__init_package
- PURPOSE
-    Initialize interface-specific information
- USAGE
-    herr_t H5SL__init_package()
- RETURNS
-    Non-negative on success/Negative on failure
- DESCRIPTION
-    Initializes any interface-specific data or routines.
- GLOBAL VARIABLES
- COMMENTS, BUGS, ASSUMPTIONS
- EXAMPLES
- REVISION LOG
---------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+ * Function:    H5SL_init
+ *
+ * Purpose:     Initialize the interface from some other layer.
+ *
+ * Return:      Success:        non-negative
+ *              Failure:        negative
+ *-------------------------------------------------------------------------
+ */
 herr_t
-H5SL__init_package(void)
+H5SL_init(void)
 {
-    FUNC_ENTER_PACKAGE_NOERR
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI_NOERR
 
     /* Allocate space for array of factories */
     H5SL_fac_g = (H5FL_fac_head_t **)H5MM_malloc(sizeof(H5FL_fac_head_t *));
@@ -613,8 +547,8 @@ H5SL__init_package(void)
     HDassert(H5SL_fac_g[0]);
     H5SL_fac_nused_g = 1;
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5SL__init_package() */
+    FUNC_LEAVE_NOAPI(ret_value)
+}
 
 /*--------------------------------------------------------------------------
  NAME
@@ -642,33 +576,27 @@ H5SL_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if (H5_PKG_INIT_VAR) {
-        /* Terminate all the factories */
-        if (H5SL_fac_nused_g > 0) {
-            size_t                       i;
-            herr_t H5_ATTR_NDEBUG_UNUSED ret;
+    /* Terminate all the factories */
+    if (H5SL_fac_nused_g > 0) {
+        size_t                       i;
+        herr_t H5_ATTR_NDEBUG_UNUSED ret;
 
-            for (i = 0; i < H5SL_fac_nused_g; i++) {
-                ret = H5FL_fac_term(H5SL_fac_g[i]);
-                HDassert(ret >= 0);
-            } /* end if */
-            H5SL_fac_nused_g = 0;
+        for (i = 0; i < H5SL_fac_nused_g; i++) {
+            ret = H5FL_fac_term(H5SL_fac_g[i]);
+            HDassert(ret >= 0);
+        }
+        H5SL_fac_nused_g = 0;
 
-            n++;
-        } /* end if */
+        n++;
+    }
 
-        /* Free the list of factories */
-        if (H5SL_fac_g) {
-            H5SL_fac_g        = (H5FL_fac_head_t **)H5MM_xfree((void *)H5SL_fac_g);
-            H5SL_fac_nalloc_g = 0;
+    /* Free the list of factories */
+    if (H5SL_fac_g) {
+        H5SL_fac_g        = (H5FL_fac_head_t **)H5MM_xfree((void *)H5SL_fac_g);
+        H5SL_fac_nalloc_g = 0;
 
-            n++;
-        } /* end if */
-
-        /* Mark the interface as uninitialized */
-        if (0 == n)
-            H5_PKG_INIT_VAR = FALSE;
-    } /* end if */
+        n++;
+    }
 
     FUNC_LEAVE_NOAPI(n)
 } /* H5SL_term_package() */
@@ -711,11 +639,10 @@ H5SL__new_node(void *item, const void *key, uint32_t hashval)
     ret_value->item    = item;
     ret_value->level   = 0;
     ret_value->hashval = hashval;
-    ret_value->removed = FALSE;
     if (NULL == (ret_value->forward = (H5SL_node_t **)H5FL_FAC_MALLOC(H5SL_fac_g[0]))) {
         ret_value = H5FL_FREE(H5SL_node_t, ret_value);
         HGOTO_ERROR(H5E_SLIST, H5E_NOSPACE, NULL, "memory allocation failed")
-    } /* end if */
+    }
     ret_value->log_nalloc = 0;
 
 done:
@@ -805,7 +732,7 @@ H5SL__insert_common(H5SL_t *slist, void *item, const void *key)
 
         default:
             HDassert(0 && "Unknown skiplist type!");
-    } /* end switch */
+    }
 
     /* 'key' must not have been found in existing list, if we get here */
 
@@ -880,15 +807,22 @@ H5SL__release_common(H5SL_t *slist, H5SL_operator_t op, void *op_data)
     while (node) {
         next_node = node->forward[0];
 
-        /* Call callback, if one is given */
+        /* Call callback, if one is given.
+         *
+         * Ignoring const here is fine as we only need the value to be const
+         * with respect to the list code, which should never modify the
+         * elements. The library code that is making use of the skip list
+         * container can do what it likes with the elements.
+         */
+        H5_GCC_CLANG_DIAG_OFF("cast-qual")
         if (op)
-            /* Casting away const OK -QAK */
             (void)(op)(node->item, (void *)node->key, op_data);
+        H5_GCC_CLANG_DIAG_ON("cast-qual")
 
         node->forward = (H5SL_node_t **)H5FL_FAC_FREE(H5SL_fac_g[node->log_nalloc], node->forward);
         node          = H5FL_FREE(H5SL_node_t, node);
         node          = next_node;
-    } /* end while */
+    }
 
     /* Reset the header pointers */
     slist->header->forward =
@@ -1001,9 +935,8 @@ H5SL_create(H5SL_type_t type, H5SL_cmp_t cmp)
     new_slist->cmp = cmp;
 
     /* Set the dynamic internal fields */
-    new_slist->curr_level     = -1;
-    new_slist->nobjs          = 0;
-    new_slist->safe_iterating = FALSE;
+    new_slist->curr_level = -1;
+    new_slist->nobjs      = 0;
 
     /* Allocate the header node */
     if (NULL == (header = H5SL__new_node(NULL, NULL, (uint32_t)ULONG_MAX)))
@@ -1027,7 +960,7 @@ done:
     if (ret_value == NULL) {
         if (new_slist != NULL)
             new_slist = H5FL_FREE(H5SL_t, new_slist);
-    } /* end if */
+    }
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5SL_create() */
@@ -1057,9 +990,6 @@ H5SL_count(H5SL_t *slist)
 
     /* Check args */
     HDassert(slist);
-
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
 
     /* Check internal consistency */
     /* (Pre-condition) */
@@ -1098,9 +1028,6 @@ H5SL_insert(H5SL_t *slist, void *item, const void *key)
     /* Check args */
     HDassert(slist);
     HDassert(key);
-
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
 
     /* Check internal consistency */
     /* (Pre-condition) */
@@ -1147,9 +1074,6 @@ H5SL_add(H5SL_t *slist, void *item, const void *key)
     /* Check args */
     HDassert(slist);
     HDassert(key);
-
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
 
     /* Check internal consistency */
     /* (Pre-condition) */
@@ -1242,7 +1166,7 @@ H5SL_remove(H5SL_t *slist, const void *key)
 
         default:
             HDassert(0 && "Unknown skiplist type!");
-    } /* end switch */
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1280,9 +1204,6 @@ H5SL_remove_first(H5SL_t *slist)
 
     /* Check args */
     HDassert(slist);
-
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
 
     /* Assign level */
     H5_CHECK_OVERFLOW(slist->curr_level, int, size_t);
@@ -1345,12 +1266,12 @@ H5SL_remove_first(H5SL_t *slist)
 
                     H5SL_SHRINK(head, level)
                     slist->curr_level--;
-                } /* end else */
+                }
             }
             else
                 break;
-        } /* end for */
-    }     /* end if */
+        }
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1436,7 +1357,7 @@ H5SL_search(H5SL_t *slist, const void *key)
 
         default:
             HDassert(0 && "Unknown skiplist type!");
-    } /* end switch */
+    }
 
     /* 'key' must not have been found in list, if we get here */
     ret_value = NULL;
@@ -1480,9 +1401,6 @@ H5SL_less(H5SL_t *slist, const void *key)
     HDassert(slist);
     HDassert(key);
 
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
-
     /* Check internal consistency */
     /* (Pre-condition) */
 
@@ -1531,7 +1449,7 @@ H5SL_less(H5SL_t *slist, const void *key)
 
         default:
             HDassert(0 && "Unknown skiplist type!");
-    } /* end switch */
+    }
 
     /* An exact match for 'key' must not have been found in list, if we get here */
     /* Check for a node with a key that is less than the given 'key' */
@@ -1541,13 +1459,13 @@ H5SL_less(H5SL_t *slist, const void *key)
             ret_value = slist->last->item;
         else
             ret_value = NULL;
-    } /* end if */
+    }
     else {
         if (x->backward != slist->header)
             ret_value = x->backward->item;
         else
             ret_value = NULL;
-    } /* end else */
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1588,9 +1506,6 @@ H5SL_greater(H5SL_t *slist, const void *key)
     HDassert(slist);
     HDassert(key);
 
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
-
     /* Check internal consistency */
     /* (Pre-condition) */
 
@@ -1639,7 +1554,7 @@ H5SL_greater(H5SL_t *slist, const void *key)
 
         default:
             HDassert(0 && "Unknown skiplist type!");
-    } /* end switch */
+    }
 
     /* An exact match for 'key' must not have been found in list, if we get here */
     /* ('x' must be the next node with a key greater than the 'key', or NULL) */
@@ -1734,7 +1649,7 @@ H5SL_find(H5SL_t *slist, const void *key)
 
         default:
             HDassert(0 && "Unknown skiplist type!");
-    } /* end switch */
+    }
 
     /* 'key' must not have been found in list, if we get here */
     ret_value = NULL;
@@ -1826,7 +1741,7 @@ H5SL_below(H5SL_t *slist, const void *key)
 
         default:
             HDassert(0 && "Unknown skiplist type!");
-    } /* end switch */
+    }
 
     /* An exact match for 'key' must not have been found in list, if we get here */
     /* Check for a node with a key that is less than the given 'key' */
@@ -1836,13 +1751,13 @@ H5SL_below(H5SL_t *slist, const void *key)
             ret_value = slist->last;
         else
             ret_value = NULL;
-    } /* end if */
+    }
     else {
         if (x->backward != slist->header)
             ret_value = x->backward;
         else
             ret_value = NULL;
-    } /* end else */
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1931,7 +1846,7 @@ H5SL_above(H5SL_t *slist, const void *key)
 
         default:
             HDassert(0 && "Unknown skiplist type!");
-    } /* end switch */
+    }
 
     /* An exact match for 'key' must not have been found in list, if we get here */
     /* ('x' must be the next node with a key greater than the 'key', or NULL) */
@@ -1971,9 +1886,6 @@ H5SL_first(H5SL_t *slist)
     /* Check args */
     HDassert(slist);
 
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
-
     /* Check internal consistency */
     /* (Pre-condition) */
 
@@ -2007,9 +1919,6 @@ H5SL_next(H5SL_node_t *slist_node)
     /* Check args */
     HDassert(slist_node);
 
-    /* Not currently supported */
-    HDassert(!slist_node->removed);
-
     /* Check internal consistency */
     /* (Pre-condition) */
 
@@ -2020,7 +1929,7 @@ H5SL_next(H5SL_node_t *slist_node)
  NAME
     H5SL_prev
  PURPOSE
-    Gets a pointer to the previos node in a skip list
+    Gets a pointer to the previous node in a skip list
  USAGE
     H5SL_node_t *H5SL_prev(slist_node)
         H5SL_node_t *slist_node;          IN: Pointer to skip list node
@@ -2042,9 +1951,6 @@ H5SL_prev(H5SL_node_t *slist_node)
 
     /* Check args */
     HDassert(slist_node);
-
-    /* Not currently supported */
-    HDassert(!slist_node->removed);
 
     /* Check internal consistency */
     /* (Pre-condition) */
@@ -2080,9 +1986,6 @@ H5SL_last(H5SL_t *slist)
     /* Check args */
     HDassert(slist);
 
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
-
     /* Check internal consistency */
     /* (Pre-condition) */
 
@@ -2115,9 +2018,6 @@ H5SL_item(H5SL_node_t *slist_node)
 
     /* Check args */
     HDassert(slist_node);
-
-    /* Not currently supported */
-    HDassert(!slist_node->removed);
 
     /* Check internal consistency */
     /* (Pre-condition) */
@@ -2179,15 +2079,21 @@ H5SL_iterate(H5SL_t *slist, H5SL_operator_t op, void *op_data)
         /* Protect against the node being deleted by the callback */
         next = node->forward[0];
 
-        /* Call the iterator callback */
-        /* Casting away const OK -QAK */
-        if (!node->removed)
-            if ((ret_value = (op)(node->item, (void *)node->key, op_data)) != 0)
-                break;
+        /* Call the iterator callback
+         *
+         * Ignoring const here is fine as we only need the value to be const
+         * with respect to the list code, which should never modify the
+         * elements. The library code that is making use of the skip list
+         * container can do what it likes with the elements.
+         */
+        H5_GCC_CLANG_DIAG_OFF("cast-qual")
+        if ((ret_value = (op)(node->item, (void *)node->key, op_data)) != 0)
+            break;
+        H5_GCC_CLANG_DIAG_ON("cast-qual")
 
         /* Advance to next node */
         node = next;
-    } /* end while */
+    }
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5SL_iterate() */
@@ -2222,9 +2128,6 @@ H5SL_release(H5SL_t *slist)
     /* Check args */
     HDassert(slist);
 
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
-
     /* Check internal consistency */
     /* (Pre-condition) */
 
@@ -2233,7 +2136,7 @@ H5SL_release(H5SL_t *slist)
         HGOTO_ERROR(H5E_SLIST, H5E_CANTFREE, FAIL, "can't release skip list nodes")
 
 done:
-    FUNC_LEAVE_NOAPI(SUCCEED)
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5SL_release() */
 
 /*--------------------------------------------------------------------------
@@ -2274,9 +2177,6 @@ H5SL_free(H5SL_t *slist, H5SL_operator_t op, void *op_data)
     /* Check args */
     HDassert(slist);
 
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
-
     /* Check internal consistency */
     /* (Pre-condition) */
 
@@ -2287,186 +2187,6 @@ H5SL_free(H5SL_t *slist, H5SL_operator_t op, void *op_data)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5SL_free() */
-
-/*--------------------------------------------------------------------------
- NAME
-    H5SL_try_free_safe
- PURPOSE
-    Makes the supplied callback on all nodes in the skip list, freeing each
-    node that the callback returns TRUE for.
- USAGE
-    herr_t PURPOSE(slist,op,opdata)
-        H5SL_t *slist;          IN/OUT: Pointer to skip list to release nodes
-        H5SL_try_free_op_t op;  IN: Callback function to try to free item & key
-        void *op_data;          IN/OUT: Pointer to application data for callback
-
- RETURNS
-    Returns non-negative on success, negative on failure.
- DESCRIPTION
-    Makes the supplied callback on all nodes in the skip list, freeing each
-    node that the callback returns TRUE for.  The iteration is performed in
-    a safe manner, such that the callback can call H5SL_remove(),
-    H5SL_search(), H5SL_find(), and H5SL_iterate() on nodes in this
-    skiplist, except H5SL_remove() may not be call on *this* node.
- GLOBAL VARIABLES
- COMMENTS, BUGS, ASSUMPTIONS
-    This function is written to be most efficient when most nodes are
-    removed from the skiplist, as it rebuilds the nodes afterwards.
- EXAMPLES
- REVISION LOG
---------------------------------------------------------------------------*/
-herr_t
-H5SL_try_free_safe(H5SL_t *slist, H5SL_try_free_op_t op, void *op_data)
-{
-    H5SL_node_t *node, *next_node, *last_node; /* Pointers to skip list nodes */
-    htri_t       op_ret;
-    herr_t       ret_value = SUCCEED;
-
-    FUNC_ENTER_NOAPI_NOINIT
-
-    /* Check args */
-    HDassert(slist);
-    HDassert(op);
-
-    /* Not currently supported */
-    HDassert(!slist->safe_iterating);
-
-    /* Check internal consistency */
-    /* (Pre-condition) */
-
-    /* Mark skip list as safe iterating, so nodes aren't freed out from under
-     * us */
-    slist->safe_iterating = TRUE;
-
-    /* Iterate over skip list nodes, making the callback for each and marking
-     * them as removed if requested by the callback */
-    node = slist->header->forward[0];
-    while (node) {
-        /* Check if the node was already removed */
-        if (!node->removed) {
-            /* Call callback */
-            /* Casting away const OK -NAF */
-            if ((op_ret = (op)(node->item, (void *)node->key, op_data)) < 0)
-                HGOTO_ERROR(H5E_SLIST, H5E_CALLBACK, FAIL, "callback operation failed")
-
-            /* Check if op indicated that the node should be removed */
-            if (op_ret)
-                /* Mark the node as removed */
-                node->removed = TRUE;
-        } /* end if */
-
-        /* Advance node */
-        node = node->forward[0];
-    } /* end while */
-
-    /* Reset safe_iterating */
-    slist->safe_iterating = FALSE;
-
-    /* Iterate over nodes, freeing ones marked as removed */
-    node      = slist->header->forward[0];
-    last_node = slist->header;
-    while (node) {
-        /* Save next node */
-        next_node = node->forward[0];
-
-        /* Check if the node was marked as removed */
-        if (node->removed) {
-            /* Remove the node */
-            node->forward = (H5SL_node_t **)H5FL_FAC_FREE(H5SL_fac_g[node->log_nalloc], node->forward);
-            node          = H5FL_FREE(H5SL_node_t, node);
-            slist->nobjs--;
-        } /* end if */
-        else {
-            /* Update backwards and forwards[0] pointers, and set the level to
-             * 0.  Since the list is flattened we must rebuild the skiplist
-             * afterwards. */
-            /* Set level to 0.  Note there is no need to preserve
-             * node->forward[0] since it was cached above and will always be
-             * updated later. */
-            if (node->level > 0) {
-                node->forward =
-                    (H5SL_node_t **)H5FL_FAC_FREE(H5SL_fac_g[node->log_nalloc], (void *)node->forward);
-                if (NULL == (node->forward = (H5SL_node_t **)H5FL_FAC_MALLOC(H5SL_fac_g[0])))
-                    HGOTO_ERROR(H5E_SLIST, H5E_CANTALLOC, FAIL, "memory allocation failed")
-                node->log_nalloc = 0;
-                node->level      = 0;
-            } /* end if */
-
-            /* Update pointers */
-            last_node->forward[0] = node;
-            node->backward        = last_node;
-            last_node             = node;
-        } /* end else */
-
-        /* Advance node */
-        node = next_node;
-    } /* end while */
-
-    /* Final pointer update */
-    last_node->forward[0] = NULL;
-    slist->last           = last_node;
-
-    /* Demote skip list to level 0 */
-    if (slist->curr_level > 0) {
-        HDassert(slist->header->level == (size_t)slist->curr_level);
-
-        node                   = slist->header->forward[0];
-        slist->header->forward = (H5SL_node_t **)H5FL_FAC_FREE(H5SL_fac_g[slist->header->log_nalloc],
-                                                               (void *)slist->header->forward);
-        if (NULL == (slist->header->forward = (H5SL_node_t **)H5FL_FAC_MALLOC(H5SL_fac_g[0])))
-            HGOTO_ERROR(H5E_SLIST, H5E_CANTALLOC, FAIL, "memory allocation failed")
-        slist->header->forward[0] = node;
-        slist->header->log_nalloc = 0;
-        slist->header->level      = 0;
-    } /* end if */
-
-    /* Check if there are any nodes left */
-    if (slist->nobjs > 0) {
-        int i;
-
-        HDassert(slist->header->forward[0]);
-
-        /* Set skiplist level to 0 */
-        slist->curr_level = 0;
-
-        /* Rebuild the forward arrays */
-        for (i = 0; slist->curr_level >= i; i++) {
-            HDassert(slist->curr_level == i);
-
-            /* Promote every third node this level until we run out of nodes */
-            node = last_node = slist->header;
-            while (1) {
-                /* Check second node in gap, if not present, no need to promote
-                 * further this level. */
-                HDassert(node->forward[i]);
-                node = node->forward[i]->forward[i];
-                if (!node)
-                    break;
-
-                /* Check third and fourth node in gap, if either is not present,
-                 * no need to promote further this level. */
-                node = node->forward[i];
-                if (!node || !node->forward[i])
-                    break;
-
-                /* Promote the third node in the gap */
-                H5SL_PROMOTE(slist, node, last_node, FAIL)
-                last_node = node;
-            } /* end while */
-        }     /* end for */
-    }         /* end if */
-    else {
-        HDassert(!slist->header->forward[0]);
-        HDassert(slist->last == slist->header);
-        HDassert(slist->nobjs == 0);
-
-        /* Reset the skiplist level */
-        slist->curr_level = -1;
-    } /* end else */
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5SL_try_free_safe() */
 
 /*--------------------------------------------------------------------------
  NAME

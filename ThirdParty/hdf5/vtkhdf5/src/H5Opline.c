@@ -67,7 +67,7 @@ const H5O_msg_class_t H5O_MSG_PLINE[1] = {{
     H5O_PLINE_ID,                              /* message id number            */
     "filter pipeline",                         /* message name for debugging   */
     sizeof(H5O_pline_t),                       /* native message size          */
-    H5O_SHARE_IS_SHARABLE | H5O_SHARE_IN_OHDR, /* messages are sharable?       */
+    H5O_SHARE_IS_SHARABLE | H5O_SHARE_IN_OHDR, /* messages are shareable?       */
     H5O__pline_shared_decode,                  /* decode message               */
     H5O__pline_shared_encode,                  /* encode message               */
     H5O__pline_copy,                           /* copy the native value        */
@@ -86,11 +86,12 @@ const H5O_msg_class_t H5O_MSG_PLINE[1] = {{
     H5O__pline_shared_debug                    /* debug the message            */
 }};
 
-/* Format version bounds for filter pipleline */
+/* Format version bounds for filter pipeline */
 const unsigned H5O_pline_ver_bounds[] = {
     H5O_PLINE_VERSION_1,     /* H5F_LIBVER_EARLIEST */
     H5O_PLINE_VERSION_2,     /* H5F_LIBVER_V18 */
     H5O_PLINE_VERSION_2,     /* H5F_LIBVER_V110 */
+    H5O_PLINE_VERSION_2,     /* H5F_LIBVER_V112 */
     H5O_PLINE_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 

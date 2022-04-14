@@ -91,8 +91,7 @@ typedef struct H5D_contig_writevv_ud_t {
 static herr_t  H5D__contig_construct(H5F_t *f, H5D_t *dset);
 static herr_t  H5D__contig_init(H5F_t *f, const H5D_t *dset, hid_t dapl_id);
 static herr_t  H5D__contig_io_init(const H5D_io_info_t *io_info, const H5D_type_info_t *type_info,
-                                   hsize_t nelmts, const H5S_t *file_space, const H5S_t *mem_space,
-                                   H5D_chunk_map_t *cm);
+                                   hsize_t nelmts, H5S_t *file_space, H5S_t *mem_space, H5D_chunk_map_t *cm);
 static ssize_t H5D__contig_readvv(const H5D_io_info_t *io_info, size_t dset_max_nseq, size_t *dset_curr_seq,
                                   size_t dset_len_arr[], hsize_t dset_offset_arr[], size_t mem_max_nseq,
                                   size_t *mem_curr_seq, size_t mem_len_arr[], hsize_t mem_offset_arr[]);
@@ -109,13 +108,24 @@ static herr_t H5D__contig_write_one(H5D_io_info_t *io_info, hsize_t offset, size
 /*********************/
 
 /* Contiguous storage layout I/O ops */
-const H5D_layout_ops_t H5D_LOPS_CONTIG[1] = {
-    {H5D__contig_construct, H5D__contig_init, H5D__contig_is_space_alloc, H5D__contig_is_data_cached,
-     H5D__contig_io_init, H5D__contig_read, H5D__contig_write,
+const H5D_layout_ops_t H5D_LOPS_CONTIG[1] = {{
+    H5D__contig_construct,      /* construct */
+    H5D__contig_init,           /* init */
+    H5D__contig_is_space_alloc, /* is_space_alloc */
+    H5D__contig_is_data_cached, /* is_data_cached */
+    H5D__contig_io_init,        /* io_init */
+    H5D__contig_read,           /* ser_read */
+    H5D__contig_write,          /* ser_write */
 #ifdef H5_HAVE_PARALLEL
-     H5D__contig_collective_read, H5D__contig_collective_write,
-#endif /* H5_HAVE_PARALLEL */
-     H5D__contig_readvv, H5D__contig_writevv, H5D__contig_flush, NULL, NULL}};
+    H5D__contig_collective_read,  /* par_read */
+    H5D__contig_collective_write, /* par_write */
+#endif
+    H5D__contig_readvv,  /* readvv */
+    H5D__contig_writevv, /* writevv */
+    H5D__contig_flush,   /* flush */
+    NULL,                /* io_term */
+    NULL                 /* dest */
+}};
 
 /*******************/
 /* Local Variables */
@@ -268,9 +278,16 @@ H5D__contig_fill(const H5D_io_info_t *io_info)
         if (using_mpi) {
             /* Write the chunks out from only one process */
             /* !! Use the internal "independent" DXPL!! -QAK */
-            if (H5_PAR_META_WRITE == mpi_rank)
-                if (H5D__contig_write_one(&ioinfo, offset, size) < 0)
-                    HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to write fill value to dataset")
+            if (H5_PAR_META_WRITE == mpi_rank) {
+                if (H5D__contig_write_one(&ioinfo, offset, size) < 0) {
+                    /* If writing fails, push an error and stop writing, but
+                     * still participate in following MPI_Barrier.
+                     */
+                    blocks_written = TRUE;
+                    HDONE_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to write fill value to dataset")
+                    break;
+                }
+            }
 
             /* Indicate that blocks are being written */
             blocks_written = TRUE;
@@ -550,8 +567,8 @@ H5D__contig_is_data_cached(const H5D_shared_t *shared_dset)
  */
 static herr_t
 H5D__contig_io_init(const H5D_io_info_t *io_info, const H5D_type_info_t H5_ATTR_UNUSED *type_info,
-                    hsize_t H5_ATTR_UNUSED nelmts, const H5S_t H5_ATTR_UNUSED *file_space,
-                    const H5S_t H5_ATTR_UNUSED *mem_space, H5D_chunk_map_t H5_ATTR_UNUSED *cm)
+                    hsize_t H5_ATTR_UNUSED nelmts, H5S_t H5_ATTR_UNUSED *file_space,
+                    H5S_t H5_ATTR_UNUSED *mem_space, H5D_chunk_map_t H5_ATTR_UNUSED *cm)
 {
     FUNC_ENTER_STATIC_NOERR
 
@@ -574,8 +591,8 @@ H5D__contig_io_init(const H5D_io_info_t *io_info, const H5D_type_info_t H5_ATTR_
  *-------------------------------------------------------------------------
  */
 herr_t
-H5D__contig_read(H5D_io_info_t *io_info, const H5D_type_info_t *type_info, hsize_t nelmts,
-                 const H5S_t *file_space, const H5S_t *mem_space, H5D_chunk_map_t H5_ATTR_UNUSED *fm)
+H5D__contig_read(H5D_io_info_t *io_info, const H5D_type_info_t *type_info, hsize_t nelmts, H5S_t *file_space,
+                 H5S_t *mem_space, H5D_chunk_map_t H5_ATTR_UNUSED *fm)
 {
     herr_t ret_value = SUCCEED; /*return value		*/
 
@@ -609,8 +626,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5D__contig_write(H5D_io_info_t *io_info, const H5D_type_info_t *type_info, hsize_t nelmts,
-                  const H5S_t *file_space, const H5S_t *mem_space, H5D_chunk_map_t H5_ATTR_UNUSED *fm)
+H5D__contig_write(H5D_io_info_t *io_info, const H5D_type_info_t *type_info, hsize_t nelmts, H5S_t *file_space,
+                  H5S_t *mem_space, H5D_chunk_map_t H5_ATTR_UNUSED *fm)
 {
     herr_t ret_value = SUCCEED; /*return value		*/
 
@@ -1414,10 +1431,10 @@ H5D__contig_copy(H5F_t *f_src, const H5O_storage_contig_t *storage_src, H5F_t *f
         if (NULL == (buf_space = H5S_create_simple((unsigned)1, buf_dim, NULL)))
             HGOTO_ERROR(H5E_DATASPACE, H5E_CANTCREATE, FAIL, "can't create simple dataspace")
 
-        /* Atomize */
+        /* Register */
         if ((buf_sid = H5I_register(H5I_DATASPACE, buf_space, FALSE)) < 0) {
             H5S_close(buf_space);
-            HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register dataspace ID")
+            HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, FAIL, "unable to register dataspace ID")
         } /* end if */
 
         /* Set flag to do type conversion */

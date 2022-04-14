@@ -43,7 +43,7 @@ static herr_t H5T__cmp_offset(size_t *comp_size, size_t *offset, size_t elem_siz
  *
  * Purpose:     High-level API to return the native type of a datatype.
  *              The native type is chosen by matching the size and class of
- *              querried datatype from the following native premitive
+ *              queried datatype from the following native primitive
  *              datatypes:
  *                      H5T_NATIVE_CHAR         H5T_NATIVE_UCHAR
  *                      H5T_NATIVE_SHORT        H5T_NATIVE_USHORT
@@ -56,7 +56,7 @@ static herr_t H5T__cmp_offset(size_t *comp_size, size_t *offset, size_t elem_siz
  *                      H5T_NATIVE_LDOUBLE
  *
  *              Compound, array, enum, and VL types all choose among these
- *              types for theire members.  Time, Bifield, Opaque, Reference
+ *              types for their members.  Time, Bitfield, Opaque, Reference
  *              types are only copy out.
  *
  * Return:      Success:        Returns the native data type if successful.
@@ -696,7 +696,7 @@ H5_GCC_DIAG_OFF("duplicated-branches")
 /*-------------------------------------------------------------------------
  * Function:    H5T__get_native_float
  *
- * Purpose:     Returns the native floatt type of a datatype.
+ * Purpose:     Returns the native float type of a datatype.
  *
  * Return:      Success:        Returns the native data type if successful.
  *
@@ -718,9 +718,7 @@ H5T__get_native_float(size_t size, H5T_direction_t direction, size_t *struct_ali
     enum match_type {          /* The different kinds of floating point types we can match */
                       H5T_NATIVE_FLOAT_MATCH_FLOAT,
                       H5T_NATIVE_FLOAT_MATCH_DOUBLE,
-#if H5_SIZEOF_LONG_DOUBLE != 0
                       H5T_NATIVE_FLOAT_MATCH_LDOUBLE,
-#endif
                       H5T_NATIVE_FLOAT_MATCH_UNKNOWN
     } match          = H5T_NATIVE_FLOAT_MATCH_UNKNOWN;
     H5T_t *ret_value = NULL; /* Return value */
@@ -738,24 +736,16 @@ H5T__get_native_float(size_t size, H5T_direction_t direction, size_t *struct_ali
             match       = H5T_NATIVE_FLOAT_MATCH_DOUBLE;
             native_size = sizeof(double);
         }
-#if H5_SIZEOF_LONG_DOUBLE != 0
         else if (size <= sizeof(long double)) {
             match       = H5T_NATIVE_FLOAT_MATCH_LDOUBLE;
             native_size = sizeof(long double);
         }
-#endif
         else { /* If not match, return the biggest datatype */
-#if H5_SIZEOF_LONG_DOUBLE != 0
             match       = H5T_NATIVE_FLOAT_MATCH_LDOUBLE;
             native_size = sizeof(long double);
-#else
-            match       = H5T_NATIVE_FLOAT_MATCH_DOUBLE;
-            native_size = sizeof(double);
-#endif
         }
     }
     else {
-#if H5_SIZEOF_LONG_DOUBLE != 0
         if (size > sizeof(double)) {
             match       = H5T_NATIVE_FLOAT_MATCH_LDOUBLE;
             native_size = sizeof(long double);
@@ -768,16 +758,6 @@ H5T__get_native_float(size_t size, H5T_direction_t direction, size_t *struct_ali
             match       = H5T_NATIVE_FLOAT_MATCH_FLOAT;
             native_size = sizeof(float);
         }
-#else
-        if (size > sizeof(float)) {
-            match = H5T_NATIVE_FLOAT_MATCH_DOUBLE;
-            native_size = sizeof(double);
-        }
-        else {
-            match = H5T_NATIVE_FLOAT_MATCH_FLOAT;
-            native_size = sizeof(float);
-        }
-#endif
     }
 
     /* Set the appropriate native floating point information */
@@ -792,12 +772,11 @@ H5T__get_native_float(size_t size, H5T_direction_t direction, size_t *struct_ali
             align = H5T_NATIVE_DOUBLE_COMP_ALIGN_g;
             break;
 
-#if H5_SIZEOF_LONG_DOUBLE != 0
         case H5T_NATIVE_FLOAT_MATCH_LDOUBLE:
             tid   = H5T_NATIVE_LDOUBLE;
             align = H5T_NATIVE_LDOUBLE_COMP_ALIGN_g;
             break;
-#endif
+
         case H5T_NATIVE_FLOAT_MATCH_UNKNOWN:
         default:
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "Unknown native floating-point match")

@@ -397,7 +397,7 @@ H5HF__man_dblock_new(H5HF_hdr_t *hdr, size_t request, H5HF_free_section_t **ret_
             HDfprintf(
                 stderr,
                 "%s: Skipping direct block sizes not supported, min_dblock_size = %zu, next_size = %zu\n",
-                FUNC, min_dblock_size, next_size);
+                __func__, min_dblock_size, next_size);
             HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "skipping direct block sizes not supported yet")
         } /* end if */
 
@@ -432,7 +432,7 @@ H5HF__man_dblock_protect(H5HF_hdr_t *hdr, haddr_t dblock_addr, size_t dblock_siz
                          H5HF_indirect_t *par_iblock, unsigned par_entry, unsigned flags)
 {
     H5HF_direct_t *        dblock;           /* Direct block from cache */
-    H5HF_dblock_cache_ud_t udata;            /* parent and other infor for deserializing direct block */
+    H5HF_dblock_cache_ud_t udata;            /* parent and other info for deserializing direct block */
     H5HF_direct_t *        ret_value = NULL; /* Return value */
 
     FUNC_ENTER_PACKAGE

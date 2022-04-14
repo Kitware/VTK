@@ -234,27 +234,27 @@ typedef struct H5AC_proxy_entry_t {
   /* hbool_t     evictions_enabled      = */ TRUE,                            \
   /* hbool_t     set_initial_size       = */ TRUE,                            \
   /* size_t      initial_size           = */ ( 2 * 1024 * 1024),              \
-  /* double      min_clean_fraction     = */ 0.3f,                            \
+  /* double      min_clean_fraction     = */ 0.3,                            \
   /* size_t      max_size               = */ (32 * 1024 * 1024),              \
   /* size_t      min_size               = */ (1 * 1024 * 1024),               \
   /* long int    epoch_length           = */ 50000,                           \
   /* enum H5C_cache_incr_mode incr_mode = */ H5C_incr__threshold,             \
-  /* double      lower_hr_threshold     = */ 0.9f,                            \
-  /* double      increment              = */ 2.0f,                            \
+  /* double      lower_hr_threshold     = */ 0.9,                            \
+  /* double      increment              = */ 2.0,                            \
   /* hbool_t     apply_max_increment    = */ TRUE,                            \
   /* size_t      max_increment          = */ (4 * 1024 * 1024),               \
   /* enum H5C_cache_flash_incr_mode       */                                  \
   /*                    flash_incr_mode = */ H5C_flash_incr__add_space,       \
-  /* double      flash_multiple         = */ 1.0f,                            \
-  /* double      flash_threshold        = */ 0.25f,                           \
+  /* double      flash_multiple         = */ 1.0,                            \
+  /* double      flash_threshold        = */ 0.25,                           \
   /* enum H5C_cache_decr_mode decr_mode = */ H5C_decr__age_out_with_threshold, \
-  /* double      upper_hr_threshold     = */ 0.999f,                          \
-  /* double      decrement              = */ 0.9f,                            \
+  /* double      upper_hr_threshold     = */ 0.999,                          \
+  /* double      decrement              = */ 0.9,                           \
   /* hbool_t     apply_max_decrement    = */ TRUE,                            \
   /* size_t      max_decrement          = */ (1 * 1024 * 1024),               \
   /* int         epochs_before_eviction = */ 3,                               \
   /* hbool_t     apply_empty_reserve    = */ TRUE,                            \
-  /* double      empty_reserve          = */ 0.1f,                            \
+  /* double      empty_reserve          = */ 0.1,                            \
   /* size_t      dirty_bytes_threshold  = */ (256 * 1024),                    \
   /* int         metadata_write_strategy = */                                  \
                     H5AC__DEFAULT_METADATA_WRITE_STRATEGY  \
@@ -270,29 +270,29 @@ typedef struct H5AC_proxy_entry_t {
   /* hbool_t     evictions_enabled      = */ TRUE,                            \
   /* hbool_t     set_initial_size       = */ TRUE,                            \
   /* size_t      initial_size           = */ ( 2 * 1024 * 1024),              \
-  /* double      min_clean_fraction     = */ 0.01f,                           \
+  /* double      min_clean_fraction     = */ 0.01,                           \
   /* size_t      max_size               = */ (32 * 1024 * 1024),              \
   /* size_t      min_size               = */ ( 1 * 1024 * 1024),              \
   /* long int    epoch_length           = */ 50000,                           \
   /* enum H5C_cache_incr_mode incr_mode = */ H5C_incr__threshold,             \
-  /* double      lower_hr_threshold     = */ 0.9f,                            \
-  /* double      increment              = */ 2.0f,                            \
+  /* double      lower_hr_threshold     = */ 0.9,                             \
+  /* double      increment              = */ 2.0,                             \
   /* hbool_t     apply_max_increment    = */ TRUE,                            \
   /* size_t      max_increment          = */ (4 * 1024 * 1024),               \
   /* enum H5C_cache_flash_incr_mode       */                                  \
   /*                    flash_incr_mode = */ H5C_flash_incr__add_space,       \
-  /* double      flash_multiple         = */ 1.4f,                            \
-  /* double      flash_threshold        = */ 0.25f,                           \
+  /* double      flash_multiple         = */ 1.4,                             \
+  /* double      flash_threshold        = */ 0.25,                            \
   /* enum H5C_cache_decr_mode decr_mode = */ H5C_decr__age_out_with_threshold,\
-  /* double      upper_hr_threshold     = */ 0.999f,                          \
-  /* double      decrement              = */ 0.9f,                            \
+  /* double      upper_hr_threshold     = */ 0.999,                           \
+  /* double      decrement              = */ 0.9,                             \
   /* hbool_t     apply_max_decrement    = */ TRUE,                            \
   /* size_t      max_decrement          = */ (1 * 1024 * 1024),               \
   /* int         epochs_before_eviction = */ 3,                               \
   /* hbool_t     apply_empty_reserve    = */ TRUE,                            \
-  /* double      empty_reserve          = */ 0.1f,                            \
+  /* double      empty_reserve          = */ 0.1,                             \
   /* size_t      dirty_bytes_threshold  = */ (256 * 1024),                    \
-  /* int         metadata_write_strategy = */                                  \
+  /* int         metadata_write_strategy = */                                 \
                     H5AC__DEFAULT_METADATA_WRITE_STRATEGY  \
 }
 #endif /* H5_HAVE_PARALLEL */
@@ -404,20 +404,20 @@ H5_DLL herr_t H5AC_evict(H5F_t *f);
 H5_DLL herr_t H5AC_expunge_entry(H5F_t *f, const H5AC_class_t *type, haddr_t addr, unsigned flags);
 H5_DLL herr_t H5AC_remove_entry(void *entry);
 H5_DLL herr_t H5AC_get_cache_auto_resize_config(const H5AC_t *cache_ptr, H5AC_cache_config_t *config_ptr);
-H5_DLL herr_t H5AC_get_cache_size(H5AC_t *cache_ptr, size_t *max_size_ptr, size_t *min_clean_size_ptr,
+H5_DLL herr_t H5AC_get_cache_size(const H5AC_t *cache_ptr, size_t *max_size_ptr, size_t *min_clean_size_ptr,
                                   size_t *cur_size_ptr, uint32_t *cur_num_entries_ptr);
 H5_DLL herr_t H5AC_get_cache_flush_in_progress(H5AC_t *cache_ptr, hbool_t *flush_in_progress_ptr);
-H5_DLL herr_t H5AC_get_cache_hit_rate(H5AC_t *cache_ptr, double *hit_rate_ptr);
+H5_DLL herr_t H5AC_get_cache_hit_rate(const H5AC_t *cache_ptr, double *hit_rate_ptr);
 H5_DLL herr_t H5AC_reset_cache_hit_rate_stats(H5AC_t *cache_ptr);
-H5_DLL herr_t H5AC_set_cache_auto_resize_config(H5AC_t *cache_ptr, H5AC_cache_config_t *config_ptr);
-H5_DLL herr_t H5AC_validate_config(H5AC_cache_config_t *config_ptr);
+H5_DLL herr_t H5AC_set_cache_auto_resize_config(H5AC_t *cache_ptr, const H5AC_cache_config_t *config_ptr);
+H5_DLL herr_t H5AC_validate_config(const H5AC_cache_config_t *config_ptr);
 
 /* Cache image routines */
 H5_DLL herr_t  H5AC_load_cache_image_on_next_protect(H5F_t *f, haddr_t addr, hsize_t len, hbool_t rw);
 H5_DLL herr_t  H5AC_validate_cache_image_config(H5AC_cache_image_config_t *config_ptr);
 H5_DLL hbool_t H5AC_cache_image_pending(const H5F_t *f);
 H5_DLL herr_t  H5AC_force_cache_image_load(H5F_t *f);
-H5_DLL herr_t  H5AC_get_mdc_image_info(H5AC_t *cache_ptr, haddr_t *image_addr, hsize_t *image_len);
+H5_DLL herr_t  H5AC_get_mdc_image_info(const H5AC_t *cache_ptr, haddr_t *image_addr, hsize_t *image_len);
 
 /* Tag & Ring routines */
 H5_DLL void   H5AC_tag(haddr_t metadata_tag, haddr_t *prev_tag);

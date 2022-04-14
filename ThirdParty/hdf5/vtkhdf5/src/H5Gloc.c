@@ -53,12 +53,6 @@ typedef struct {
     H5G_loc_t *loc; /* Group location to set */
 } H5G_loc_fnd_t;
 
-/* User data for checking if an object exists */
-typedef struct {
-    /* upward */
-    htri_t exists; /* Whether the object exists */
-} H5G_loc_exists_t;
-
 /* User data for looking up an object in a group by index */
 typedef struct {
     /* downward */
@@ -103,7 +97,7 @@ typedef struct {
     size_t bufsize; /* Size of object comment buffer */
 
     /* upward */
-    ssize_t comment_size; /* Actual size of object comment */
+    size_t comment_size; /* Actual size of object comment */
 } H5G_loc_gc_t;
 
 /********************/
@@ -234,6 +228,9 @@ H5G_loc_real(void *obj, H5I_type_t type, H5G_loc_t *loc)
         case H5I_SPACE_SEL_ITER:
             HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL,
                         "unable to get group location of a dataspace selection iterator")
+
+        case H5I_EVENTSET:
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unable to get group location of a event set")
 
         case H5I_UNINIT:
         case H5I_BADID:
@@ -613,24 +610,26 @@ H5G__loc_exists_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc /*in*/, const char H5_ATTR_
                    const H5O_link_t H5_ATTR_UNUSED *lnk, H5G_loc_t *obj_loc, void *_udata /*in,out*/,
                    H5G_own_loc_t *own_loc /*out*/)
 {
-    H5G_loc_exists_t *udata = (H5G_loc_exists_t *)_udata; /* User data passed in */
+    hbool_t *exists    = (hbool_t *)_udata; /* User data passed in */
+    herr_t   ret_value = SUCCEED;           /* Return value */
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_STATIC
 
     /* Check if the name in this group resolved to a valid object */
     if (obj_loc == NULL)
         if (lnk)
-            udata->exists = FALSE;
+            *exists = FALSE;
         else
-            udata->exists = FAIL;
+            HGOTO_ERROR(H5E_SYM, H5E_INTERNAL, FAIL, "no object or link info?")
     else
-        udata->exists = TRUE;
+        *exists = TRUE;
 
     /* Indicate that this callback didn't take ownership of the group *
      * location for the object */
     *own_loc = H5G_OWN_NONE;
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G__loc_exists_cb() */
 
 /*-------------------------------------------------------------------------
@@ -646,27 +645,21 @@ H5G__loc_exists_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc /*in*/, const char H5_ATTR_
  *
  *-------------------------------------------------------------------------
  */
-htri_t
-H5G_loc_exists(const H5G_loc_t *loc, const char *name)
+herr_t
+H5G_loc_exists(const H5G_loc_t *loc, const char *name, hbool_t *exists)
 {
-    H5G_loc_exists_t udata;            /* User data for traversal callback */
-    htri_t           ret_value = FAIL; /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args. */
     HDassert(loc);
     HDassert(name && *name);
-
-    /* Set up user data for locating object */
-    udata.exists = FALSE;
+    HDassert(exists);
 
     /* Traverse group hierarchy to locate object */
-    if (H5G_traverse(loc, name, H5G_TARGET_EXISTS, H5G__loc_exists_cb, &udata) < 0)
+    if (H5G_traverse(loc, name, H5G_TARGET_EXISTS, H5G__loc_exists_cb, exists) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "can't check if object exists")
-
-    /* Set return value */
-    ret_value = udata.exists;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1021,7 +1014,7 @@ H5G__loc_get_comment_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc /*in*/, const char H5_
     else {
         if (udata->comment && udata->bufsize)
             HDstrncpy(udata->comment, comment.s, udata->bufsize);
-        udata->comment_size = (ssize_t)HDstrlen(comment.s);
+        udata->comment_size = HDstrlen(comment.s);
         H5O_msg_reset(H5O_NAME_ID, &comment);
     }
 
@@ -1040,22 +1033,19 @@ done:
  * Purpose:	Retrieve the information for an object from a group location
  *              and path to that object
  *
- * Return:	Success:	Number of bytes in the comment excluding the
- *				null terminator.  Zero if the object has no
- *				comment.
- *
- *		Failure:	Negative
+ * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
  *		Thursday, August 30, 2007
  *
  *-------------------------------------------------------------------------
  */
-ssize_t
-H5G_loc_get_comment(const H5G_loc_t *loc, const char *name, char *comment /*out*/, size_t bufsize)
+herr_t
+H5G_loc_get_comment(const H5G_loc_t *loc, const char *name, char *comment /*out*/, size_t bufsize,
+                    size_t *comment_len)
 {
-    H5G_loc_gc_t udata;          /* User data for traversal callback */
-    ssize_t      ret_value = -1; /* Return value */
+    H5G_loc_gc_t udata;               /* User data for traversal callback */
+    herr_t       ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -1066,14 +1056,15 @@ H5G_loc_get_comment(const H5G_loc_t *loc, const char *name, char *comment /*out*
     /* Set up user data for locating object */
     udata.comment      = comment;
     udata.bufsize      = bufsize;
-    udata.comment_size = (-1);
+    udata.comment_size = 0;
 
     /* Traverse group hierarchy to locate object */
     if (H5G_traverse(loc, name, H5G_TARGET_NORMAL, H5G__loc_get_comment_cb, &udata) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "can't find object")
 
-    /* Set the return value */
-    ret_value = udata.comment_size;
+    /* Set value to return */
+    if (comment_len)
+        *comment_len = udata.comment_size;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

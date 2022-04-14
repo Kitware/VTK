@@ -21,8 +21,9 @@
 /* Early typedefs to avoid circular dependencies */
 typedef struct H5Z_filter_info_t H5Z_filter_info_t;
 
-/* Include package's public header */
+/* Include package's public headers */
 #include "H5Zpublic.h"
+#include "H5Zdevelop.h"
 
 /* Private headers needed by this file */
 #include "H5Tprivate.h" /* Datatypes				*/

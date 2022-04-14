@@ -131,7 +131,7 @@ H5_DLL H5B2_t *H5B2_open(H5F_t *f, haddr_t addr, void *ctx_udata);
 H5_DLL herr_t  H5B2_get_addr(const H5B2_t *bt2, haddr_t *addr /*out*/);
 H5_DLL herr_t  H5B2_insert(H5B2_t *bt2, void *udata);
 H5_DLL herr_t  H5B2_iterate(H5B2_t *bt2, H5B2_operator_t op, void *op_data);
-H5_DLL htri_t  H5B2_find(H5B2_t *bt2, void *udata, H5B2_found_t op, void *op_data);
+H5_DLL herr_t  H5B2_find(H5B2_t *bt2, void *udata, hbool_t *found, H5B2_found_t op, void *op_data);
 H5_DLL herr_t  H5B2_index(H5B2_t *bt2, H5_iter_order_t order, hsize_t idx, H5B2_found_t op, void *op_data);
 H5_DLL herr_t  H5B2_neighbor(H5B2_t *bt2, H5B2_compare_t range, void *udata, H5B2_found_t op, void *op_data);
 H5_DLL herr_t  H5B2_modify(H5B2_t *bt2, void *udata, H5B2_modify_t op, void *op_data);

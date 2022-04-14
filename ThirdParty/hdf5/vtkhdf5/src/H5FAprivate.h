@@ -134,7 +134,7 @@ H5_DLL herr_t  H5FA_patch_file(H5FA_t *fa, H5F_t *f);
 H5_DLL herr_t H5FA_get_stats(const H5FA_t *ea, H5FA_stat_t *stats);
 
 /* Debugging routines */
-#ifdef H5FA_DEBUGGING
-#endif /* H5FA_DEBUGGING */
+#ifdef H5FA_DEBUG
+#endif /* H5FA_DEBUG */
 
 #endif /* H5FAprivate_H */
