@@ -48,6 +48,7 @@
 
 #include "vtkAbstractArray.h" // Needed for inline methods.
 
+#include <array>  // For CachedGhostRangeType
 #include <tuple>  // For CachedGhostRangeType
 #include <vector> // For list indices
 
@@ -455,7 +456,7 @@ protected:
    *
    * When there is no ghost array, the ghost array time stamp is defined as equal to 0.
    */
-  using CachedGhostRangeType = std::tuple<vtkMTimeType, vtkMTimeType, double[2]>;
+  using CachedGhostRangeType = std::tuple<vtkMTimeType, vtkMTimeType, std::array<double, 2>>;
   unsigned char GhostsToSkip;
   vtkUnsignedCharArray* GhostArray;
   std::vector<std::vector<CachedGhostRangeType>> Ranges;
