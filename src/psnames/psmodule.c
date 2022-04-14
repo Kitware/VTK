@@ -4,7 +4,7 @@
  *
  *   psnames module implementation (body).
  *
- * Copyright (C) 1996-2021 by
+ * Copyright (C) 1996-2022 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -325,7 +325,6 @@
 
     /* we first allocate the table */
     table->num_maps = 0;
-    table->maps     = NULL;
 
     if ( !FT_QNEW_ARRAY( table->maps, num_glyphs + EXTRA_GLYPH_LIST_SIZE ) )
     {
@@ -390,9 +389,9 @@
         /* Reallocate if the number of used entries is much smaller. */
         if ( count < num_glyphs / 2 )
         {
-          (void)FT_QRENEW_ARRAY( table->maps,
-                                 num_glyphs + EXTRA_GLYPH_LIST_SIZE,
-                                 count );
+          FT_MEM_QRENEW_ARRAY( table->maps,
+                               num_glyphs + EXTRA_GLYPH_LIST_SIZE,
+                               count );
           error = FT_Err_Ok;
         }
 

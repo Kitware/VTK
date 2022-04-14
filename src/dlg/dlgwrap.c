@@ -4,7 +4,7 @@
  *
  *   Wrapper file for the 'dlg' library (body only)
  *
- * Copyright (C) 2020-2021 by
+ * Copyright (C) 2020-2022 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -16,15 +16,12 @@
  */
 
 
-  /* We have to duplicate these feature test macros from `dlg.c` */
-  /* since `freetype.h` loads some affected standard headers.    */
-#define _XOPEN_SOURCE
-#define _POSIX_C_SOURCE 200809L
-
-#include <freetype/freetype.h>
+#include <ft2build.h>
+#include FT_CONFIG_OPTIONS_H
 
 
 #ifdef FT_DEBUG_LOGGING
+#define DLG_STATIC
 #include "dlg.c"
 #else
   /* ANSI C doesn't like empty source files */
