@@ -276,6 +276,7 @@ vtk_module_add_module(VTK::xdmf2
           ${XdmfModelSource}
   SOURCES ${XdmfExtraSource}
   HEADERS Xdmf.h
+          XdmfExport.h
           "${CMAKE_CURRENT_BINARY_DIR}/XdmfConfig.h"
   HEADERS_SUBDIR "vtkxdmf2/libsrc")
 set_target_properties(xdmf2
