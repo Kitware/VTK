@@ -3,6 +3,7 @@
 
 #include "vtkDataObject.h"
 #include "vtkDataObjectCollection.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -11,9 +12,11 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrderStatistics.h"
+#include "vtkSMPTools.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
 #include <map>
@@ -28,12 +31,52 @@
 
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
+namespace
+{
+//==============================================================================
+struct GhostsCounter
+{
+  GhostsCounter(vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
+    : Ghosts(ghosts)
+    , GhostsToSkip(ghostsToSkip)
+    , GlobalNumberOfGhosts(0)
+  {
+  }
+
+  void Initialize() { this->NumberOfGhosts.Local() = 0; }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    vtkIdType& numberOfGhosts = this->NumberOfGhosts.Local();
+    for (vtkIdType id = startId; id < endId; ++id)
+    {
+      numberOfGhosts += (this->Ghosts->GetValue(id) & this->GhostsToSkip) != 0;
+    }
+  }
+
+  void Reduce()
+  {
+    for (vtkIdType numberOfGhosts : this->NumberOfGhosts)
+    {
+      this->GlobalNumberOfGhosts += numberOfGhosts;
+    }
+  }
+
+  vtkUnsignedCharArray* Ghosts;
+  unsigned char GhostsToSkip;
+  vtkIdType GlobalNumberOfGhosts;
+  vtkSMPThreadLocal<vtkIdType> NumberOfGhosts;
+};
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 vtkMultiCorrelativeStatistics::vtkMultiCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues(1);
   this->AssessNames->SetValue(0, "d^2"); // Squared Mahalanobis distance
   this->MedianAbsoluteDeviation = false;
+  this->NumberOfGhosts = 0;
+  this->GhostsToSkip = 0xff;
 }
 
 //------------------------------------------------------------------------------
@@ -43,6 +86,29 @@ vtkMultiCorrelativeStatistics::~vtkMultiCorrelativeStatistics() = default;
 void vtkMultiCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
+int vtkMultiCorrelativeStatistics::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (vtkTable* inData = vtkTable::GetData(inputVector[INPUT_DATA], 0))
+  {
+    vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
+
+    if (ghosts)
+    {
+      ::GhostsCounter counter(ghosts, this->GhostsToSkip);
+      vtkSMPTools::For(0, ghosts->GetNumberOfValues(), counter);
+      this->NumberOfGhosts = counter.GlobalNumberOfGhosts;
+    }
+    else
+    {
+      this->NumberOfGhosts = 0;
+    }
+  }
+
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
 //------------------------------------------------------------------------------
@@ -317,7 +383,8 @@ void vtkMultiCorrelativeStatistics::Learn(
     {
       // Ignore invalid column names
       vtkDataArray* arr = vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colIt->c_str()));
-      if (arr)
+      vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
+      if (arr && (!ghosts || vtkArrayDownCast<vtkUnsignedCharArray>(arr) != ghosts))
       {
         allColumns.insert(std::pair<vtkStdString, vtkDataArray*>(*colIt, arr));
       }
@@ -399,8 +466,10 @@ void vtkMultiCorrelativeStatistics::Learn(
 
   // Retrieve pointer to values and skip Cardinality entry
   double* rv = col3->GetPointer(0);
-  *rv = static_cast<double>(nRow);
+  *rv = static_cast<double>(nRow - this->NumberOfGhosts);
   ++rv;
+
+  vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
 
   if (this->MedianAbsoluteDeviation)
   {
@@ -426,14 +495,18 @@ void vtkMultiCorrelativeStatistics::Learn(
       std::ostringstream nameStr;
       nameStr << "Cov{" << j << "," << k << "}";
       vtkNew<vtkDoubleArray> col;
-      col->SetNumberOfTuples(nRow);
+      col->SetNumberOfTuples(nRow - this->NumberOfGhosts);
       col->SetName(nameStr.str().c_str());
       inDataMAD->AddColumn(col);
+      vtkIdType outId = 0;
       // Iterate over rows
       for (i = 0; i < nRow; ++i)
       {
-        inDataMAD->SetValue(i, l,
-          (int)fabs((colPtrs[j]->GetTuple(i)[0] - rv[j]) * (colPtrs[k]->GetTuple(i)[0] - rv[k])));
+        if (!ghosts || !(ghosts->GetValue(i) & this->GhostsToSkip))
+        {
+          inDataMAD->SetValue(outId++, l,
+            (int)fabs((colPtrs[j]->GetTuple(i)[0] - rv[j]) * (colPtrs[k]->GetTuple(i)[0] - rv[k])));
+        }
       }
     }
     // Computes the MAD matrix
@@ -449,9 +522,15 @@ void vtkMultiCorrelativeStatistics::Learn(
   }
   else
   {
+    vtkIdType counter = 0;
     // Iterate over rows
     for (i = 0; i < nRow; ++i)
     {
+      if (ghosts && (ghosts->GetValue(i) & this->GhostsToSkip))
+      {
+        continue;
+      }
+
       // First fetch column values
       for (vtkIdType j = 0; j < m; ++j)
       {
@@ -466,14 +545,15 @@ void vtkMultiCorrelativeStatistics::Learn(
         // cpIt->first.second is the index of v or t
         *x += (v[cpIt->first.first] - rv[cpIt->first.first]) * // \delta_{u,2,1} = s - \mu_{u,1}
           (v[cpIt->first.second] - rv[cpIt->first.second]) *   // \delta_{v,2,1} = t - \mu_{v,1}
-          i / (i + 1.); // \frac{n_1 n_2}{n_1 + n_2} = \frac{n_1}{n_1 + 1}
+          counter / (counter + 1.); // \frac{n_1 n_2}{n_1 + n_2} = \frac{n_1}{n_1 + 1}
       }
       // Update running column averages. Equation 1.1 from the SAND report.
       x = rv;
       for (vtkIdType j = 0; j < m; ++j, ++x)
       {
-        *x += (v[j] - *x) / (i + 1);
+        *x += (v[j] - *x) / (counter + 1);
       }
+      ++counter;
     }
   }
 
@@ -675,6 +755,9 @@ void vtkMultiCorrelativeStatistics::Assess(
     return;
   }
 
+  vtkDataSetAttributes* rowData = inData->GetRowData();
+  vtkUnsignedCharArray* ghosts = rowData->GetGhostArray();
+
   // For each request, add a column to the output data related to the probability
   // of observing each input datum with respect to the model in the request
   // NB: Column names of the metadata and input data are assumed to match
@@ -729,15 +812,21 @@ void vtkMultiCorrelativeStatistics::Assess(
       assessValues->Delete();
     }
 
+    vtkIdType count = 0;
     // Assess each entry of the column
     vtkDoubleArray* assessResult = vtkDoubleArray::New();
     for (vtkIdType r = 0; r < nRow; ++r)
     {
+      if (ghosts && (ghosts->GetValue(r) & this->GhostsToSkip))
+      {
+        continue;
+      }
       (*dfunc)(assessResult, r);
       for (int v = 0; v < nv; ++v)
       {
         outData->SetValueByName(r, names[v], assessResult->GetValue(v));
       }
+      ++count;
     }
 
     assessResult->Delete();
