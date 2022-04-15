@@ -840,24 +840,30 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n    {\
           \n    normal = vec3(0.0, 0.0, 0.0);\
           \n    }\
-          \n   float nDotL = dot(normal, g_ldir[0]);\
-          \n   float nDotH = dot(normal, g_h[0]);\
+          \n   // XXX: normal is oriented inside the volume, so we take -g_ldir/-g_vdir \
+          \n   /* XXX: so lightingComplexity = 1 means 'only 1 light which is a headlight with intensity = 1.0'\
+          \n    so two things :\
+          \n   1- that's very specific \
+          \n   2- I think it implies g_ldir=g_vdir=g_h in every case ? ... maybe ? idk */\
+          \n   float nDotL = dot(normal, -g_ldir[0]);\
+          \n   vec3 r = normalize(2.0 * nDotL * normal + g_ldir[0]);\
+          \n   float vDotR = dot(r, -g_vdir[0]);\
           \n   if (nDotL < 0.0 && in_twoSidedLighting)\
           \n     {\
           \n     nDotL = -nDotL;\
           \n     }\
-          \n   if (nDotH < 0.0 && in_twoSidedLighting)\
+          \n   if (vDotR < 0.0 && in_twoSidedLighting)\
           \n     {\
-          \n     nDotH = -nDotH;\
+          \n     vDotR = -vDotR;\
           \n     }\
           \n   if (nDotL > 0.0)\
           \n     {\
-          \n     diffuse = nDotL * in_diffuse[component] *\
+          \n        diffuse = nDotL * in_diffuse[component] *\
           \n               in_lightDiffuseColor[0] * color.rgb;\
-          \n     }\
-          \n    specular = pow(nDotH, in_shininess[component]) *\
+          \n        specular = pow(vDotR, in_shininess[component]) *\
           \n                 in_specular[component] *\
           \n                 in_lightSpecularColor[0];\
+          \n     }\
           \n  // For the headlight, ignore the light's ambient color\
           \n  // for now as it is causing the old mapper tests to fail\
           \n  finalColor.xyz = in_ambient[component] * color.rgb +\
@@ -868,12 +874,12 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
     {
       shaderStr += std::string("\
           \n  g_fragWorldPos = in_modelViewMatrix * in_volumeMatrix[0] *\
-          \n                      in_textureDatasetMatrix[0] * vec4(-g_dataPos, 1.0);\
+          \n                      in_textureDatasetMatrix[0] * vec4(g_dataPos, 1.0);\
           \n  if (g_fragWorldPos.w != 0.0)\
           \n   {\
           \n   g_fragWorldPos /= g_fragWorldPos.w;\
           \n   }\
-          \n  vec3 vdir = normalize(g_fragWorldPos.xyz);\
+          \n  vec3 vdir = normalize(-g_fragWorldPos.xyz);\
           \n  vec3 normal = gradient.xyz;\
           \n  vec3 ambient = vec3(0.0);\
           \n  vec3 diffuse = vec3(0.0);\
@@ -890,12 +896,6 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n  for (int lightNum = 0; lightNum < in_numberOfLights; lightNum++)\
           \n    {\
           \n    vec3 ldir = in_lightDirection[lightNum].xyz;\
-          \n    vec3 h = normalize(ldir + vdir);\
-          \n    float nDotH = dot(normal, h);\
-          \n    if (nDotH < 0.0 && in_twoSidedLighting)\
-          \n     {\
-          \n     nDotH = -nDotH;\
-          \n     }\
           \n  float nDotL = dot(normal, ldir);\
           \n  if (nDotL < 0.0 && in_twoSidedLighting)\
           \n    {\
@@ -903,12 +903,18 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n    }\
           \n  if (nDotL > 0.0)\
           \n    {\
-          \n    diffuse += in_lightDiffuseColor[lightNum] * nDotL;\
-          \n    }\
-          \n  if (nDotH > 0.0)\
-          \n    {\
-          \n    specular = in_lightSpecularColor[lightNum] *\
-          \n               pow(nDotH, in_shininess[component]);\
+          \n      diffuse += in_lightDiffuseColor[lightNum] * nDotL;\
+          \n      vec3 r = normalize(2.0 * nDotL * normal - ldir);\
+          \n      float rDotV = dot(r, -vdir);\
+          \n      if (rDotV < 0.0 && in_twoSidedLighting)\
+          \n      {\
+          \n        rDotV = -rDotV;\
+          \n      }\
+          \n      if (rDotV > 0.0)\
+          \n      {\
+          \n        specular = in_lightSpecularColor[lightNum] *\
+          \n               pow(rDotV, in_shininess[component]);\
+          \n      }\
           \n    }\
           \n  ambient += in_lightAmbientColor[lightNum];\
           \n  }\
@@ -973,19 +979,19 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n    }\
           \n  if (nDotL > 0.0)\
           \n    {\
-          \n    float df = max(0.0, attenuation * nDotL);\
-          \n    diffuse += (df * in_lightDiffuseColor[lightNum]);\
-          \n    }\
-          \n  vec3 h = normalize(vertLightDirection + viewDirection);\
-          \n  float nDotH = dot(normal, h);\
-          \n  if (nDotH < 0.0 && in_twoSidedLighting)\
-          \n    {\
-          \n    nDotH = -nDotH;\
-          \n    }\
-          \n  if (nDotH > 0.0)\
-          \n    {\
-          \n    float sf = attenuation * pow(nDotH, in_shininess[component]);\
-          \n    specular += (sf * in_lightSpecularColor[lightNum]);\
+          \n      float df = max(0.0, attenuation * nDotL);\
+          \n      diffuse += (df * in_lightDiffuseColor[lightNum]);\
+          \n      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);\
+          \n      float rDotV = dot(-viewDirection, r);\
+          \n      if (rDotV < 0.0 && in_twoSidedLighting)\
+          \n      {\
+          \n        rDotV = -rDotV;\
+          \n      }\
+          \n      if (rDotV > 0.0)\
+          \n      {\
+          \n        float sf = attenuation * pow(rDotV, in_shininess[component]);\
+          \n        specular += (sf * in_lightSpecularColor[lightNum]);\
+          \n      }\
           \n    }\
           \n    ambient += in_lightAmbientColor[lightNum];\
           \n  }\
@@ -1105,27 +1111,29 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
         \n    {\
         \n    normal = vec3(0.0, 0.0, 0.0);\
         \n    }\
-        \n   float nDotL = dot(normal, g_ldir[volIdx]);\
-        \n   float nDotH = dot(normal, g_h[volIdx]);\
+        \n   // normal is oriented inside the volume (because normal = gradient, oriented inside the volume)\
+        \n   // the we have to take minus everything. very clever\
+        \n   // it would probably be better to take normal = - gradient, but I'm afraid of breaking things\
+        \n   float nDotL = dot(normal, -g_ldir[volIdx]);\
+        \n   vec3 r = normalize(2.0 * nDotL * normal + g_ldir[volIdx]);\
+        \n   float vDotR = dot(r, -g_vdir[volIdx]);\
         \n   if (nDotL < 0.0 && in_twoSidedLighting)\
         \n     {\
         \n     nDotL = -nDotL;\
         \n     }\
-        \n   if (nDotH < 0.0 && in_twoSidedLighting)\
+        \n   if (vDotR < 0.0 && in_twoSidedLighting)\
         \n     {\
-        \n     nDotH = -nDotH;\
+        \n     vDotR = -vDotR;\
         \n     }\
         \n   if (nDotL > 0.0)\
         \n     {\
-        \n     diffuse = nDotL * in_diffuse[component] *\
-        \n               in_lightDiffuseColor[0] * color.rgb;\
+        \n        diffuse = nDotL * in_diffuse[component] *\
+        \n                 in_lightDiffuseColor[0] * color.rgb;\
+        \n        specular = pow(vDotR, in_shininess[component]) *\
+        \n                   in_specular[component] *\
+        \n                   in_lightSpecularColor[0];\
         \n     }\
-        \n    specular = pow(nDotH, in_shininess[component]) *\
-        \n                 in_specular[component] *\
-        \n                 in_lightSpecularColor[0];\
-        \n  // For the headlight, ignore the light's ambient color\
-        \n  // for now as it is causing the old mapper tests to fail\
-        \n  finalColor.xyz = in_ambient[component] * color.rgb +\
+        \n  finalColor.xyz = in_ambient[component] * color.rgb * in_lightAmbientColor[0] +\
         \n                   diffuse + specular;\
         \n");
   }
