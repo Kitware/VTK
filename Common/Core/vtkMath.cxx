@@ -2960,10 +2960,11 @@ vtkTypeBool vtkMath::BoundsIsWithinOtherBounds(
   }
   for (int i = 0; i < 6; i += 2)
   {
-
     if (bounds1[i] + delta[i / 2] < bounds2[i] || bounds1[i] - delta[i / 2] > bounds2[i + 1] ||
       bounds1[i + 1] + delta[i / 2] < bounds2[i] || bounds1[i + 1] - delta[i / 2] > bounds2[i + 1])
+    {
       return 0;
+    }
   }
   return 1;
 }
@@ -2976,14 +2977,9 @@ vtkTypeBool vtkMath::PointIsWithinBounds(
   {
     return 0;
   }
-  for (int i = 0; i < 3; ++i)
-  {
-    if (point[i] + delta[i] < bounds[2 * i] || point[i] - delta[i] > bounds[2 * i + 1])
-    {
-      return 0;
-    }
-  }
-  return 1;
+  return /*i = 0*/ point[0] + delta[0] >= bounds[0] && point[0] - delta[0] <= bounds[1] &&
+    /*i = 1*/ point[1] + delta[1] >= bounds[2] && point[1] - delta[1] <= bounds[3] &&
+    /*i = 2*/ point[2] + delta[2] >= bounds[4] && point[2] - delta[2] <= bounds[5];
 }
 
 //------------------------------------------------------------------------------
