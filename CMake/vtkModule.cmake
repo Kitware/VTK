@@ -1453,9 +1453,49 @@ endfunction ()
 
 #[==[
 @ingroup module
+@brief Add source files to a module
+
+A wrapper around `target_sources` that works for modules.
+
+~~~
+vtk_module_sources(<module>
+  [PUBLIC     <source>...]
+  [PRIVATE    <source>...]
+  [INTERFACE  <source>...])
+~~~
+#]==]
+function (vtk_module_sources module)
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_sources
+    ""
+    ""
+    "INTERFACE;PUBLIC;PRIVATE")
+
+  if (_vtk_sources_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for vtk_module_sources: "
+      "${_vtk_sources_UNPARSED_ARGUMENTS}.")
+  endif ()
+
+  _vtk_module_real_target(_vtk_sources_target "${module}")
+  _vtk_module_target_function(_vtk_sources)
+
+  if (NOT _vtk_sources_INTERFACE_args AND
+      NOT _vtk_sources_PUBLIC_args AND
+      NOT _vtk_sources_PRIVATE_args)
+    return ()
+  endif ()
+
+  target_sources("${_vtk_sources_target}"
+    ${_vtk_sources_INTERFACE_args}
+    ${_vtk_sources_PUBLIC_args}
+    ${_vtk_sources_PRIVATE_args})
+endfunction ()
+
+#[==[
+@ingroup module
 @brief Add include directories to a module
 
-A wrapper around `add_dependencies` that works for modules.
+A wrapper around `target_include_directories` that works for modules.
 
 ~~~
 vtk_module_include(<module>
@@ -1485,6 +1525,12 @@ function (vtk_module_include module)
     set(_vtk_include_system_arg SYSTEM)
   endif ()
 
+  if (NOT _vtk_include_INTERFACE_args AND
+      NOT _vtk_include_PUBLIC_args AND
+      NOT _vtk_include_PRIVATE_args)
+    return ()
+  endif ()
+
   target_include_directories("${_vtk_include_target}"
     ${_vtk_include_system_arg}
     ${_vtk_include_INTERFACE_args}
@@ -1500,9 +1546,9 @@ A wrapper around `target_compile_definitions` that works for modules.
 
 ~~~
 vtk_module_definitions(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <define>...]
+  [PRIVATE    <define>...]
+  [INTERFACE  <define>...])
 ~~~
 #]==]
 function (vtk_module_definitions module)
@@ -1520,6 +1566,12 @@ function (vtk_module_definitions module)
   _vtk_module_real_target(_vtk_definitions_target "${module}")
   _vtk_module_target_function(_vtk_definitions)
 
+  if (NOT _vtk_definitions_INTERFACE_args AND
+      NOT _vtk_definitions_PUBLIC_args AND
+      NOT _vtk_definitions_PRIVATE_args)
+    return ()
+  endif ()
+
   target_compile_definitions("${_vtk_definitions_target}"
     ${_vtk_definitions_INTERFACE_args}
     ${_vtk_definitions_PUBLIC_args}
@@ -1534,9 +1586,9 @@ A wrapper around `target_compile_options` that works for modules.
 
 ~~~
 vtk_module_compile_options(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <option>...]
+  [PRIVATE    <option>...]
+  [INTERFACE  <option>...])
 ~~~
 #]==]
 function (vtk_module_compile_options module)
@@ -1554,6 +1606,12 @@ function (vtk_module_compile_options module)
   _vtk_module_real_target(_vtk_compile_options_target "${module}")
   _vtk_module_target_function(_vtk_compile_options)
 
+  if (NOT _vtk_compile_options_INTERFACE_args AND
+      NOT _vtk_compile_options_PUBLIC_args AND
+      NOT _vtk_compile_options_PRIVATE_args)
+    return ()
+  endif ()
+
   target_compile_options("${_vtk_compile_options_target}"
     ${_vtk_compile_options_INTERFACE_args}
     ${_vtk_compile_options_PUBLIC_args}
@@ -1568,9 +1626,9 @@ A wrapper around `target_compile_features` that works for modules.
 
 ~~~
 vtk_module_compile_features(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <feature>...]
+  [PRIVATE    <feature>...]
+  [INTERFACE  <feature>...])
 ~~~
 #]==]
 function (vtk_module_compile_features module)
@@ -1587,6 +1645,12 @@ function (vtk_module_compile_features module)
 
   _vtk_module_real_target(_vtk_compile_features_target "${module}")
   _vtk_module_target_function(_vtk_compile_features)
+
+  if (NOT _vtk_compile_features_INTERFACE_args AND
+      NOT _vtk_compile_features_PUBLIC_args AND
+      NOT _vtk_compile_features_PRIVATE_args)
+    return ()
+  endif ()
 
   target_compile_features("${_vtk_compile_features_target}"
     ${_vtk_compile_features_INTERFACE_args}
@@ -1675,9 +1739,9 @@ builds.
 
 ~~~
 vtk_module_link(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <link item>...]
+  [PRIVATE    <link item>...]
+  [INTERFACE  <link item>...])
 ~~~
 #]==]
 function (vtk_module_link module)
@@ -1710,6 +1774,12 @@ function (vtk_module_link module)
     endif ()
   endif ()
 
+  if (NOT _vtk_link_INTERFACE_args AND
+      NOT _vtk_link_PUBLIC_args AND
+      NOT _vtk_link_PRIVATE_args)
+    return ()
+  endif ()
+
   target_link_libraries("${_vtk_link_target}"
     ${_vtk_link_INTERFACE_args}
     ${_vtk_link_PUBLIC_args}
@@ -1724,9 +1794,9 @@ A wrapper around `target_link_options` that works for modules.
 
 ~~~
 vtk_module_link_options(<module>
-  [PUBLIC     <directory>...]
-  [PRIVATE    <directory>...]
-  [INTERFACE  <directory>...])
+  [PUBLIC     <option>...]
+  [PRIVATE    <option>...]
+  [INTERFACE  <option>...])
 ~~~
 #]==]
 function (vtk_module_link_options module)
@@ -1743,6 +1813,12 @@ function (vtk_module_link_options module)
 
   _vtk_module_real_target(_vtk_link_options_target "${module}")
   _vtk_module_target_function(_vtk_link_options)
+
+  if (NOT _vtk_link_options_INTERFACE_args AND
+      NOT _vtk_link_options_PUBLIC_args AND
+      NOT _vtk_link_options_PRIVATE_args)
+    return ()
+  endif ()
 
   target_link_options("${_vtk_link_options_target}"
     ${_vtk_link_options_INTERFACE_args}
