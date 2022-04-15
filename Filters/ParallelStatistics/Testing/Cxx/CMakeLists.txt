@@ -1,4 +1,5 @@
 vtk_add_test_mpi(vtkFiltersParallelStatisticsCxxTests-MPI tests
+  TestPCorrelativeStatistics.cxx
   TestRandomPContingencyStatisticsMPI.cxx
   TestRandomPKMeansStatisticsMPI.cxx
   TestRandomPMomentStatisticsMPI.cxx
