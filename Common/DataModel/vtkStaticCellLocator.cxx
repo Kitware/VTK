@@ -20,18 +20,14 @@
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
-#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkSMPThreadLocal.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 
-#include <functional>
 #include <queue>
 #include <vector>
 
@@ -608,7 +604,7 @@ void CellProcessor<T>::FindCellsAlongLine(
 
   // Initialize intersection query array if necessary. This is done
   // locally to ensure thread safety.
-  std::vector<unsigned char> cellHasBeenVisited(this->NumCells, 0);
+  std::vector<bool> cellHasBeenVisited(this->NumCells, false);
 
   // Get the i-j-k point of intersection and bin index. This is
   // clamped to the boundary of the locator. Also get the exit bin
@@ -648,9 +644,9 @@ void CellProcessor<T>::FindCellsAlongLine(
       for (i = 0; i < numCellsInBin; i++)
       {
         cId = cellIds[i].CellId;
-        if (cellHasBeenVisited[cId] == 0)
+        if (!cellHasBeenVisited[cId])
         {
-          cellHasBeenVisited[cId] = 1;
+          cellHasBeenVisited[cId] = true;
 
           // check whether we intersect the cell bounds
           int hitCellBounds = vtkBox::IntersectBox(this->CellBounds + (6 * cId), a0, rayDir,
@@ -1086,7 +1082,7 @@ int CellProcessor<T>::IntersectWithLine(const double a0[3], const double a1[3], 
 
   // Initialize intersection query array if necessary. This is done
   // locally to ensure thread safety.
-  std::vector<unsigned char> cellHasBeenVisited(this->NumCells, 0);
+  std::vector<bool> cellHasBeenVisited(this->NumCells, false);
 
   // Get the i-j-k point of intersection and bin index. This is
   // clamped to the boundary of the locator.
@@ -1124,9 +1120,9 @@ int CellProcessor<T>::IntersectWithLine(const double a0[3], const double a1[3], 
       for (i = 0; i < numCellsInBin; i++)
       {
         cId = cellIds[i].CellId;
-        if (cellHasBeenVisited[cId] == 0)
+        if (!cellHasBeenVisited[cId])
         {
-          cellHasBeenVisited[cId] = 1;
+          cellHasBeenVisited[cId] = true;
 
           // check whether we intersect the cell bounds
           int hitCellBounds = vtkBox::IntersectBox(
@@ -1143,7 +1139,7 @@ int CellProcessor<T>::IntersectWithLine(const double a0[3], const double a1[3], 
               // intersections can occur behind this bin which are not the correct answer.
               if (!CellProcessor::IsInBounds(binBounds, x, binTol))
               {
-                cellHasBeenVisited[cId] = 0; // mark the cell non-visited
+                cellHasBeenVisited[cId] = false; // mark the cell non-visited
               }
               else
               {
