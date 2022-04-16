@@ -504,7 +504,7 @@ vtkIdType CellProcessor<T>::FindCell(
     int subId;
     vtkIdType cellId;
 
-    for (int j = 0; j < numIds; j++)
+    for (T j = 0; j < numIds; j++)
     {
       cellId = cellIds[j].CellId;
       bounds = this->CellBounds + 6 * cellId;
@@ -910,7 +910,7 @@ void CellProcessor<T>::FindCellsAlongPlane(
 // WARNING!!!!! Be very careful altering this routine.  Simple changes to this
 // routine can make it 25% slower!!!!
 // Return closest point (if any) AND the cell on which this closest point lies
-double Distance2ToBounds(const double x[3], double bounds[6])
+double Distance2ToBounds(const double x[3], const double bounds[6])
 {
   double distance;
   double deltas[3];
@@ -969,13 +969,13 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
   double& minDist2, int& inside)
 {
   std::vector<bool> binHasBeenQueued(this->NumBins, false);
-  std::vector<bool> cellHasBeenVisited(this->NumCells, false);
   std::vector<double> weights(6);
-  double pcoords[3], point[3], bds[6];
-  double distance2ToCellBounds, dist2;
-  int subId;
-  int ijk[3];
+  double pcoords[3], point[3], bds[6], *bounds;
+  double distance2ToCellBounds, dist2, binDist2;
+  int subId, stat, ijk[3];
   vtkIdType retVal = 0;
+  T numIds, j, cellId;
+  size_t nPoints;
 
   using node = std::pair<double, vtkIdType>;
   std::priority_queue<node, std::vector<node>, std::greater<node>> queue;
@@ -985,41 +985,34 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
   queue.push(std::make_pair(0.0, binId));
   binHasBeenQueued[binId] = true;
 
-  // distance to closest point
+  // minimum squared distance to the closest point
   minDist2 = radius * radius;
 
   // Process the queue of candidate bins until the candidate bins are
   // further away than the current closest point.
   while (!queue.empty())
   {
-    binId = queue.top().second;
-    double binDist2 = queue.top().first;
-    queue.pop();
+    auto& top = queue.top();
+    binId = top.second;
+    binDist2 = top.first;
 
     // stop if bounding box is further away than current closest point
     if (binDist2 > minDist2)
     {
       break;
     }
+    // perform pop after ensuring that the bin is within the bounds
+    queue.pop();
 
     // compute distance to cells in bin, if any
-    T numIds = this->GetNumberOfIds(binId);
+    numIds = this->GetNumberOfIds(binId);
     if (numIds >= 1)
     {
       const CellFragments<T>* cellIds = this->GetIds(binId);
-      double* bounds;
-      vtkIdType cellId;
 
-      for (int j = 0; j < numIds; j++)
+      for (j = 0; j < numIds; j++)
       {
         cellId = cellIds[j].CellId;
-
-        // skip if cell was already visited
-        if (cellHasBeenVisited[cellId])
-        {
-          continue;
-        }
-        cellHasBeenVisited[cellId] = true;
 
         // compute distance to cell bounding box
         bounds = this->CellBounds + 6 * cellId;
@@ -1031,7 +1024,7 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
           this->DataSet->GetCell(cellId, cell);
 
           // make sure we have enough storage space for the weights
-          unsigned nPoints = static_cast<unsigned>(cell->GetPointIds()->GetNumberOfIds());
+          nPoints = static_cast<size_t>(cell->GetPointIds()->GetNumberOfIds());
           if (nPoints > weights.size())
           {
             weights.resize(2 * nPoints);
@@ -1042,7 +1035,7 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
           // stat=1 means inside. However, for real world performance,
           // we sometime select stat==0 cells if the distance is close
           // enough
-          int stat = cell->EvaluatePosition(x, point, subId, pcoords, dist2, weights.data());
+          stat = cell->EvaluatePosition(x, point, subId, pcoords, dist2, weights.data());
 
           if (stat != -1 && dist2 < minDist2)
           {
