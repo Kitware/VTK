@@ -435,7 +435,8 @@ const float* vtkPLYWriter::GetNormals(vtkIdType num, vtkDataSetAttributes* dsa)
   vtkFloatArray* normalArray = vtkArrayDownCast<vtkFloatArray>(normals);
   if (!normalArray)
   {
-    vtkErrorMacro(<< "PLY writer only supports float normal vectors");
+    vtkWarningMacro(<< "PLY writer only supports float normal vectors");
+    return nullptr;
   }
 
   return normalArray->GetPointer(0);
