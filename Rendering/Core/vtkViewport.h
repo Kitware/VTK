@@ -198,7 +198,7 @@ public:
   /**
    * Is a given display point in this Viewport's viewport.
    */
-  virtual int IsInViewport(int x, int y);
+  virtual vtkTypeBool IsInViewport(int x, int y);
 
   /**
    * Return the vtkWindow that owns this vtkViewport.

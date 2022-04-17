@@ -1656,7 +1656,7 @@ void vtkAlgorithm::ReleaseDataFlagOff()
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::SetReleaseDataFlag(int val)
+void vtkAlgorithm::SetReleaseDataFlag(vtkTypeBool val)
 {
   if (vtkDemandDrivenPipeline* ddp = vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
   {
@@ -1668,7 +1668,7 @@ void vtkAlgorithm::SetReleaseDataFlag(int val)
 }
 
 //------------------------------------------------------------------------------
-int vtkAlgorithm::GetReleaseDataFlag()
+vtkTypeBool vtkAlgorithm::GetReleaseDataFlag()
 {
   if (vtkDemandDrivenPipeline* ddp = vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
   {

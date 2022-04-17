@@ -138,9 +138,9 @@ public:
    * Option to set the cell scalars of the output. The scalars will be the
    * contour values. By default this flag is on.
    */
-  vtkSetMacro(ComputeScalars, int);
-  vtkGetMacro(ComputeScalars, int);
-  vtkBooleanMacro(ComputeScalars, int);
+  vtkSetMacro(ComputeScalars, vtkTypeBool);
+  vtkGetMacro(ComputeScalars, vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars, vtkTypeBool);
   ///@}
 
   ///@{
@@ -160,7 +160,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkContourValues* ContourValues;
-  int ComputeScalars;
+  vtkTypeBool ComputeScalars;
   int ArrayComponent;
 
 private:

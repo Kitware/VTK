@@ -96,11 +96,11 @@ vtkLookupTable::~vtkLookupTable()
 // Description:
 // Return true if all of the values defining the mapping have an opacity
 // equal to 1. Default implementation returns true.
-int vtkLookupTable::IsOpaque()
+vtkTypeBool vtkLookupTable::IsOpaque()
 {
   if (this->OpaqueFlagBuildTime < this->GetMTime())
   {
-    int opaque = 1;
+    vtkTypeBool opaque = 1;
     if (this->NanColor[3] < 1.0)
     {
       opaque = 0;
@@ -130,13 +130,13 @@ int vtkLookupTable::IsOpaque()
 }
 
 //------------------------------------------------------------------------------
-int vtkLookupTable::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component)
+vtkTypeBool vtkLookupTable::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component)
 {
   return this->IsOpaque(scalars, colorMode, component, nullptr);
 }
 
 //------------------------------------------------------------------------------
-int vtkLookupTable::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
+vtkTypeBool vtkLookupTable::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
   vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
 {
   // use superclass logic?

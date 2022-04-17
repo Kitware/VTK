@@ -49,7 +49,7 @@ public:
    * set to zero when the transformation is first created, and
    * is flipped each time Inverse() is called.
    */
-  vtkGetMacro(InverseFlag, int);
+  vtkGetMacro(InverseFlag, vtkTypeBool);
   ///@}
 
   ///@{
@@ -179,7 +179,7 @@ protected:
     const double in[3], double out[3], double derivative[3][3]);
   ///@}
 
-  int InverseFlag;
+  vtkTypeBool InverseFlag;
   int InverseIterations;
   double InverseTolerance;
 

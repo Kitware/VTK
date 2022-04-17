@@ -176,9 +176,9 @@ struct ComputeGradientWorker
     int contNum, jOffset, ii, index, *vert;
     vtkIdType kOffset, idx;
     vtkIdType ptIds[3];
-    int ComputeNormals = newNormals != nullptr;
-    int ComputeGradients = newGradients != nullptr;
-    int ComputeScalars = newScalars != nullptr;
+    vtkTypeBool ComputeNormals = newNormals != nullptr;
+    vtkTypeBool ComputeGradients = newGradients != nullptr;
+    vtkTypeBool ComputeScalars = newScalars != nullptr;
     int NeedGradients;
     int extent[6];
     double t, *x1, *x2, x[3], *n1, *n2, n[3], min, max;

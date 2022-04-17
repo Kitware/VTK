@@ -311,7 +311,7 @@ void vtkAbstractArray::ExportToVoidPointer(void* dest)
 }
 
 //------------------------------------------------------------------------------
-int vtkAbstractArray::CopyInformation(vtkInformation* infoFrom, int deep)
+int vtkAbstractArray::CopyInformation(vtkInformation* infoFrom, vtkTypeBool deep)
 {
   // Copy all keys. NOTE: subclasses rely on this.
   vtkInformation* myInfo = this->GetInformation();

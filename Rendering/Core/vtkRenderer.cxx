@@ -2041,7 +2041,7 @@ void vtkRenderer::ExpandBounds(double bounds[6], vtkMatrix4x4* matrix)
   bounds[5] = max[2];
 }
 
-int vtkRenderer::Transparent()
+vtkTypeBool vtkRenderer::Transparent()
 {
   return this->PreserveColorBuffer;
 }

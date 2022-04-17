@@ -1542,7 +1542,7 @@ void vtkContour3DLinearGrid::ProcessPiece(
   CellIter* cellIter = new CellIter(numCells, cellTypes, input->GetCells());
 
   // Now produce the output: fast path or general path
-  int mergePoints = this->MergePoints | this->ComputeNormals | this->InterpolateAttributes;
+  bool mergePoints = this->MergePoints || this->ComputeNormals || this->InterpolateAttributes;
   if (!mergePoints)
   { // fast path
     // Generate all of the points at once (for multiple contours) and then produce the triangles.

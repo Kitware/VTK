@@ -159,10 +159,10 @@ public:
   ~vtkGarbageCollectorSingleton();
 
   // Internal implementation of vtkGarbageCollector::GiveReference.
-  int GiveReference(vtkObjectBase* obj);
+  vtkTypeBool GiveReference(vtkObjectBase* obj);
 
   // Internal implementation of vtkGarbageCollector::TakeReference.
-  int TakeReference(vtkObjectBase* obj);
+  vtkTypeBool TakeReference(vtkObjectBase* obj);
 
   // Called by GiveReference to decide whether to accept a reference.
   vtkTypeBool CheckAccept();
@@ -928,7 +928,7 @@ void vtkGarbageCollector::DeferredCollectionPop()
 }
 
 //------------------------------------------------------------------------------
-int vtkGarbageCollector::GiveReference(vtkObjectBase* obj)
+vtkTypeBool vtkGarbageCollector::GiveReference(vtkObjectBase* obj)
 {
   // We must have an object.
   assert(obj != nullptr);
@@ -944,7 +944,7 @@ int vtkGarbageCollector::GiveReference(vtkObjectBase* obj)
 }
 
 //------------------------------------------------------------------------------
-int vtkGarbageCollector::TakeReference(vtkObjectBase* obj)
+vtkTypeBool vtkGarbageCollector::TakeReference(vtkObjectBase* obj)
 {
   // We must have an object.
   assert(obj != nullptr);
@@ -974,7 +974,7 @@ vtkGarbageCollectorSingleton::~vtkGarbageCollectorSingleton()
 }
 
 //------------------------------------------------------------------------------
-int vtkGarbageCollectorSingleton::GiveReference(vtkObjectBase* obj)
+vtkTypeBool vtkGarbageCollectorSingleton::GiveReference(vtkObjectBase* obj)
 {
   // Check if we can store a reference to the object in the map.
   if (this->CheckAccept())
@@ -999,7 +999,7 @@ int vtkGarbageCollectorSingleton::GiveReference(vtkObjectBase* obj)
 }
 
 //------------------------------------------------------------------------------
-int vtkGarbageCollectorSingleton::TakeReference(vtkObjectBase* obj)
+vtkTypeBool vtkGarbageCollectorSingleton::TakeReference(vtkObjectBase* obj)
 {
   // If we have a reference to the object hand it back to the caller.
   ReferencesType::iterator i = this->References.find(obj);

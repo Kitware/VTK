@@ -1016,7 +1016,7 @@ void vtkTransformConcatenationStack::Pop(vtkTransformConcatenation** concat)
   }
 
   // get the previous PreMultiplyFlag
-  int preMultiplyFlag = (*concat)->GetPreMultiplyFlag();
+  vtkTypeBool preMultiplyFlag = (*concat)->GetPreMultiplyFlag();
 
   // delete the previous item
   (*concat)->Delete();

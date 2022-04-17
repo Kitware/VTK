@@ -579,7 +579,7 @@ public:
    * keys they do not wish to be copied. The subclass will not need to
    * explicitly copy the keys as it's handled here.
    */
-  virtual int CopyInformation(vtkInformation* infoFrom, int deep = 1);
+  virtual int CopyInformation(vtkInformation* infoFrom, vtkTypeBool deep = 1);
 
   /**
    * This key is a hint to end user interface that this array

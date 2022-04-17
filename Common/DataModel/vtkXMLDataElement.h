@@ -308,7 +308,7 @@ protected:
 
   // Tags that have specialized character data handlers
   // can set this flag to improve performance. The default is unset.
-  int IgnoreCharacterData;
+  vtkTypeBool IgnoreCharacterData;
 
   // Get/Set the stream position of the elements inline data.
   vtkGetMacro(InlineDataPosition, vtkTypeInt64);

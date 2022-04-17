@@ -148,7 +148,7 @@ void vtkDiscretizableColorTransferFunction::GetIndexedColor(vtkIdType i, double 
 }
 
 //------------------------------------------------------------------------------
-void vtkDiscretizableColorTransferFunction::SetUseLogScale(int useLogScale)
+void vtkDiscretizableColorTransferFunction::SetUseLogScale(vtkTypeBool useLogScale)
 {
   if (this->UseLogScale != useLogScale)
   {
@@ -169,21 +169,21 @@ void vtkDiscretizableColorTransferFunction::SetUseLogScale(int useLogScale)
 }
 
 //------------------------------------------------------------------------------
-int vtkDiscretizableColorTransferFunction::IsOpaque()
+vtkTypeBool vtkDiscretizableColorTransferFunction::IsOpaque()
 {
   return !this->EnableOpacityMapping;
 }
 
 //------------------------------------------------------------------------------
-int vtkDiscretizableColorTransferFunction::IsOpaque(
+vtkTypeBool vtkDiscretizableColorTransferFunction::IsOpaque(
   vtkAbstractArray* scalars, int colorMode, int component)
 {
   return this->IsOpaque(scalars, colorMode, component, nullptr);
 }
 
 //------------------------------------------------------------------------------
-int vtkDiscretizableColorTransferFunction::IsOpaque(vtkAbstractArray* scalars, int colorMode,
-  int component, vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
+vtkTypeBool vtkDiscretizableColorTransferFunction::IsOpaque(vtkAbstractArray* scalars,
+  int colorMode, int component, vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
 {
   // use superclass logic?
   vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(scalars);

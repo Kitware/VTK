@@ -67,7 +67,7 @@ vtkInformationKeyRestrictedMacro(vtkDataObject, BOUNDING_BOX, DoubleVector, 6);
 
 // Initialize static member that controls global data release
 // after use by filter
-static int vtkDataObjectGlobalReleaseDataFlag = 0;
+static vtkTypeBool vtkDataObjectGlobalReleaseDataFlag = 0;
 
 // this list must be kept in-sync with the FieldAssociations enum
 static const char* FieldAssociationsNames[] = { "vtkDataObject::FIELD_ASSOCIATION_POINTS",
@@ -164,7 +164,7 @@ void vtkDataObject::Initialize()
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObject::SetGlobalReleaseDataFlag(int val)
+void vtkDataObject::SetGlobalReleaseDataFlag(vtkTypeBool val)
 {
   if (val == vtkDataObjectGlobalReleaseDataFlag)
   {
@@ -467,7 +467,7 @@ void vtkDataObject::DataHasBeenGenerated()
 }
 
 //------------------------------------------------------------------------------
-int vtkDataObject::GetGlobalReleaseDataFlag()
+vtkTypeBool vtkDataObject::GetGlobalReleaseDataFlag()
 {
   return vtkDataObjectGlobalReleaseDataFlag;
 }

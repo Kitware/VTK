@@ -86,12 +86,12 @@ public:
    * Set whether the given output port releases data when it is
    * consumed.  Returns 1 if the value changes and 0 otherwise.
    */
-  virtual int SetReleaseDataFlag(int port, int n);
+  virtual int SetReleaseDataFlag(int port, vtkTypeBool n);
 
   /**
    * Get whether the given output port releases data when it is consumed.
    */
-  virtual int GetReleaseDataFlag(int port);
+  virtual vtkTypeBool GetReleaseDataFlag(int port);
 
   /**
    * Bring the PipelineMTime up to date.

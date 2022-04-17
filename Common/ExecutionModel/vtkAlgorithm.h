@@ -668,8 +668,8 @@ public:
   /**
    * Turn release data flag on or off for all output ports.
    */
-  virtual void SetReleaseDataFlag(int);
-  virtual int GetReleaseDataFlag();
+  virtual void SetReleaseDataFlag(vtkTypeBool);
+  virtual vtkTypeBool GetReleaseDataFlag();
   void ReleaseDataFlagOn();
   void ReleaseDataFlagOff();
   ///@}

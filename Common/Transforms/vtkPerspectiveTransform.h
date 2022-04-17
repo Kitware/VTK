@@ -342,7 +342,7 @@ public:
    * flipped every time Inverse() is called.  The InverseFlag
    * is off when a transform is first created.
    */
-  int GetInverseFlag() { return this->Concatenation->GetInverseFlag(); }
+  vtkTypeBool GetInverseFlag() { return this->Concatenation->GetInverseFlag(); }
 
   ///@{
   /**

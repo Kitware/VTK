@@ -85,7 +85,7 @@ public:
    * instances of any contained vtkInformation and vtkInformationVector
    * objects are created).
    */
-  void Copy(vtkInformationVector* from, int deep = 0);
+  void Copy(vtkInformationVector* from, vtkTypeBool deep = 0);
 
 protected:
   vtkInformationVector();
