@@ -535,12 +535,13 @@ def main(argv=sys.argv):
     ext = args.ext
 
     # get information about the package
-    mod = importlib.import_module(packagename)
-    filename = inspect.getfile(mod)
-    if os.path.basename(filename) != '__init__.py':
-        sys.stderr.write(progname + ": " + packagename + " has no __init__.py\n")
-        return 1
+    if basedir is None or len(modules) == 0:
+        mod = importlib.import_module(packagename)
     if basedir is None:
+        filename = getattr(mod, '__file__', None)
+        if filename is None or os.path.basename(filename) != '__init__.py':
+            sys.stderr.write(progname + ": " + packagename + " has no __init__.py\n")
+            return 1
         basedir = os.path.dirname(filename)
     if len(modules) == 0:
         for modname in mod.__all__:

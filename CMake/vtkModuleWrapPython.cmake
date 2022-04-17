@@ -1019,6 +1019,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         COMMAND   "${_vtk_python_exe}"
                   -m vtkmodules.generate_pyi
                   -p "${_vtk_python_PYTHON_PACKAGE}"
+                  -o "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}"
                   ${_vtk_python_modules}
         WORKING_DIRECTORY
                   "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}"
