@@ -105,7 +105,8 @@ public:
   /**
    * Overridden to setup the `Reader` and then forward the pass to the reader.
    */
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkCGNSFileSeriesReader();

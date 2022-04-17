@@ -146,7 +146,7 @@ void vtkCGNSFileSeriesReader::OnReaderModifiedEvent()
 }
 
 //----------------------------------------------------------------------------
-int vtkCGNSFileSeriesReader::ProcessRequest(
+vtkTypeBool vtkCGNSFileSeriesReader::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (!this->Reader)

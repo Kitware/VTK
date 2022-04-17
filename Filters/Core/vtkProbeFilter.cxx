@@ -1262,6 +1262,9 @@ int vtkProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   // extent of the output to divide up the source.
   if (this->SpatialMatch == 2)
   {
+    vtkErrorMacro("SpatialMatch should be boolean, don't pass other than 0 or 1.");
+
+#if !VTK_USE_FUTURE_BOOL
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
@@ -1271,6 +1274,7 @@ int vtkProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
     sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+#endif
   }
   return 1;
 }
