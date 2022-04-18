@@ -1,4 +1,5 @@
 vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
+  TestAlignImageDataSetFilter.cxx,NO_VALID
   TestAngularPeriodicFilter.cxx
   TestPOutlineFilter.cxx, NO_VALID
   )

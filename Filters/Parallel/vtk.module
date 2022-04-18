@@ -29,12 +29,13 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::FiltersFlowPaths
   VTK::FiltersParallelImaging
+  VTK::ImagingCore
+  VTK::InteractionStyle
   VTK::IOExodus
   VTK::IOImage
   VTK::IOLegacy
   VTK::IOParallelExodus
   VTK::IOXML
-  VTK::InteractionStyle
   VTK::ParallelCore
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
