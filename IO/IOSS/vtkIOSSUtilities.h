@@ -101,6 +101,27 @@ private:
   CacheInternals* Internals;
 };
 
+/**
+ * A helper to instantiate on stack to temporarily redirect non-critical messsages
+ * emanating from IOSS. See paraview/paraview#21193
+ */
+class CaptureNonErrorMessages
+{
+public:
+  CaptureNonErrorMessages();
+  ~CaptureNonErrorMessages();
+
+  /**
+   * Provides access to the accumulated messages.
+   */
+  std::string GetMessages() const;
+
+private:
+  std::ostringstream Stream;
+  std::ostream* DebugStream;
+  std::ostream* WarningStream;
+};
+
 using EntityNameType = std::pair<vtkTypeUInt64, std::string>;
 
 /**

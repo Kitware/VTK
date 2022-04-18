@@ -146,6 +146,29 @@ void Cache::Insert(
   value.second = true;
 }
 
+//============================================================================
+CaptureNonErrorMessages::CaptureNonErrorMessages()
+  : DebugStream(&Ioss::Utils::get_debug_stream())
+  , WarningStream(&Ioss::Utils::get_warning_stream())
+{
+  Ioss::Utils::set_debug_stream(this->Stream);
+  Ioss::Utils::set_warning_stream(this->Stream);
+}
+
+//----------------------------------------------------------------------------
+CaptureNonErrorMessages::~CaptureNonErrorMessages()
+{
+  Ioss::Utils::set_warning_stream(*this->WarningStream);
+  Ioss::Utils::set_debug_stream(*this->DebugStream);
+}
+
+//----------------------------------------------------------------------------
+std::string CaptureNonErrorMessages::GetMessages() const
+{
+  return this->Stream.str();
+}
+
+//============================================================================
 //----------------------------------------------------------------------------
 std::vector<std::pair<int, double>> GetTime(const Ioss::Region* region)
 {
