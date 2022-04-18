@@ -39,7 +39,8 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkClipPolyData vtkClipClosedSurface vtkPlaneCutter vtkTriangleFilter vtkCutter
+ * vtkClipPolyData vtkClipClosedSurface vtkPolyDataPlaneCutter vtkPlaneCutter
+ * vtkTriangleFilter vtkCutter
  */
 
 #ifndef vtkPolyDataPlaneClipper_h

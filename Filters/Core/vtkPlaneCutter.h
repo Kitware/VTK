@@ -61,6 +61,7 @@
  *
  * @sa
  * vtkFlyingEdgesPlaneCutter vtk3DLinearGridPlaneCutter vtkCutter vtkPlane
+ * vtkPolyDataPlaneCutter
  */
 
 #ifndef vtkPlaneCutter_h

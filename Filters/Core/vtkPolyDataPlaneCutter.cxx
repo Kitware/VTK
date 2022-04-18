@@ -1,0 +1,638 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkPolyDataPlaneCutter.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include "vtkPolyDataPlaneCutter.h"
+
+#include "vtkArrayDispatch.h"
+#include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
+#include "vtkCellData.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationVector.h"
+#include "vtkLogger.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkSMPThreadLocal.h"
+#include "vtkSMPTools.h"
+#include "vtkStaticCellLinks.h"
+#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+
+vtkObjectFactoryNewMacro(vtkPolyDataPlaneCutter);
+
+//------------------------------------------------------------------------------
+// A high level overview of the algorithms is as follows. All steps are
+// performed in parallel. 1) Points are evaluated against the plane equation
+// and marked as in/out the plane. 2) A traversal of the cells is made in
+// order to configure and prepare for generating the output. 3) A second
+// traversal of the cells is made, producing line segments. 4) The end points
+// of the line segments are determined by plane / cell edge intersection.
+// These end points are collected into a edge locator, and sorted to identify
+// duplicate points. 5) Output point ids are assigned to the end points, and
+// used to update the line connectivity array. 6) Cut edges are processed to
+// produce the xyz coordinates of the cut/line end points and inserted into the
+// array of output points. 7) Point and cell attributes are generated and
+// interpolated as necessary.
+
+namespace // begin anonymous namespace
+{
+
+// Evaluate the plane equation for each input point. Mark points as to whether
+// they are above or below the plane.
+template <typename TP>
+struct EvaluatePoints
+{
+  TP* Points;                        // Input points to the filter
+  double Origin[3];                  // Plane origin
+  double Normal[3];                  // Plane normal
+  std::vector<unsigned char>& PtMap; // 0/1 values indicating below and above plane
+  bool Intersects;
+
+  // These are used to determine whether the plane
+  // intersects the polydata - enables a quick cull of the input.
+  vtkSMPThreadLocal<unsigned char> BelowPlane;
+  vtkSMPThreadLocal<unsigned char> AbovePlane;
+
+  EvaluatePoints(TP* pts, vtkPlane* plane, std::vector<unsigned char>& ptMap)
+    : Points(pts)
+    , PtMap(ptMap)
+  {
+    plane->GetOrigin(Origin);
+    plane->GetNormal(Normal);
+    vtkMath::Normalize(Normal);
+  }
+
+  void Initialize()
+  {
+    this->BelowPlane.Local() = 0;
+    this->AbovePlane.Local() = 0;
+  }
+
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  {
+    const auto pts = vtk::DataArrayTupleRange<3>(this->Points);
+    double p[3], *n = this->Normal, *o = this->Origin;
+
+    for (; ptId < endPtId; ++ptId)
+    {
+      auto pt = pts[ptId];
+      p[0] = pt[0];
+      p[1] = pt[1];
+      p[2] = pt[2];
+
+      // Points above the plane are marked 1; 0 otherwise
+      auto val = vtkPlane::Evaluate(n, o, p);
+      if (val > 0.0)
+      {
+        this->PtMap[ptId] = 1;
+        this->AbovePlane.Local() = 1;
+      }
+      else
+      {
+        this->PtMap[ptId] = 0;
+        this->BelowPlane.Local() = 1;
+      }
+    }
+  }
+
+  // Determine if there are intersections with any cell.
+  void Reduce()
+  {
+    bool belowPlane = false, abovePlane = false;
+    this->Intersects = false;
+
+    for (auto bItr = this->BelowPlane.begin(); bItr != this->BelowPlane.end(); ++bItr)
+    {
+      if (*bItr > 0)
+      {
+        belowPlane = true;
+      }
+    }
+    for (auto aItr = this->AbovePlane.begin(); aItr != this->AbovePlane.end(); ++aItr)
+    {
+      if (*aItr > 0)
+      {
+        abovePlane = true;
+      }
+    }
+
+    this->Intersects = (belowPlane && abovePlane ? true : false);
+  }
+}; // EvaluatePoints
+
+// Support point-type-based dispatching.
+struct EvaluatePointsWorker
+{
+  bool Intersects;
+
+  EvaluatePointsWorker() {}
+
+  template <typename DataT>
+  void operator()(DataT* pts, vtkPlane* plane, std::vector<unsigned char>& ptMap)
+  {
+    vtkIdType numPts = pts->GetNumberOfTuples();
+    EvaluatePoints<DataT> ep(pts, plane, ptMap);
+    vtkSMPTools::For(0, numPts, ep);
+    this->Intersects = ep.Intersects;
+  }
+}; // EvaluatePointsWorker
+
+// Determine whether a cell is cut by the plane. This requires at least one
+// point above the plane, and at least one point below the plane.
+bool CellIntersectsPlane(
+  vtkIdType npts, const vtkIdType* cell, const std::vector<unsigned char>& ptMap)
+{
+  bool belowPlane = false, abovePlane = false;
+  for (auto i = 0; i < npts; ++i)
+  {
+    unsigned char val = ptMap[cell[i]];
+    if (val > 0)
+    {
+      abovePlane = true;
+    }
+    else
+    {
+      belowPlane = true;
+    }
+  }
+
+  return (belowPlane && abovePlane);
+} // CellIntersectsPlane
+
+// Gather information on the size of the output. Basically, count the
+// number of line segments created in each batch. Then roll up these
+// counts to create offsets which are later used to generate the output
+// lines and points.
+struct EvaluateCells
+{
+  const std::vector<unsigned char>& PtMap;
+  vtkCellArray* Cells;
+  vtkIdType NumCells;
+  vtkIdType BatchSize;
+  vtkIdType NumBatches;
+  std::vector<vtkIdType> LineOffsets;
+  std::vector<unsigned char> CellMap;
+  vtkIdType NumLines;
+  vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+
+  EvaluateCells(const std::vector<unsigned char>& ptMap, vtkCellArray* cells, int batchSize)
+    : PtMap(ptMap)
+    , Cells(cells)
+    , BatchSize(batchSize)
+  {
+    this->NumCells = this->Cells->GetNumberOfCells();
+    this->NumBatches = ((this->NumCells - 1) / batchSize) + 1;
+    this->LineOffsets.resize(this->NumBatches + 1); // added one for offset
+    this->CellMap.resize(this->NumCells);
+  }
+
+  void Initialize() { this->CellIterator.Local().TakeReference(this->Cells->NewIterator()); }
+
+  void operator()(vtkIdType batchNum, vtkIdType endBatchNum)
+  {
+    vtkIdType npts;
+    const vtkIdType* cell;
+    vtkCellArrayIterator* cellIter = this->CellIterator.Local();
+
+    // Over batches of cells
+    for (; batchNum < endBatchNum; ++batchNum)
+    {
+      vtkIdType cellId = batchNum * this->BatchSize;
+      vtkIdType endCellId =
+        (cellId + this->BatchSize > this->NumCells ? this->NumCells : cellId + this->BatchSize);
+      vtkIdType numLines = 0;
+
+      // For all cells making up this batch
+      for (; cellId < endCellId; ++cellId)
+      {
+        cellIter->GetCellAtId(cellId, npts, cell);
+
+        // If cell is intersected, count and mark
+        if (CellIntersectsPlane(npts, cell, this->PtMap))
+        {
+          numLines++;
+          this->CellMap[cellId] = 1;
+        }
+        else
+        {
+          this->CellMap[cellId] = 0;
+        }
+      } // for each cell in this batch
+
+      // Keep track of the number of cell intersections for each batch. A
+      // subsequent prefix sum will produce offsets from this information.
+      this->LineOffsets[batchNum] = numLines;
+    } // for each batch of cells
+  }
+
+  // Reduce() basically builds offsets and such so that the output can be
+  // generated in the next pass.
+  void Reduce()
+  {
+    // Prefix sum over the batches to roll up total output.
+    vtkIdType numLines, totalNumLines = 0;
+    for (auto batchNum = 0; batchNum < this->NumBatches; ++batchNum)
+    {
+      numLines = this->LineOffsets[batchNum];
+      this->LineOffsets[batchNum] = totalNumLines;
+      totalNumLines += numLines;
+    }
+    this->LineOffsets[this->NumBatches] = totalNumLines;
+    this->NumLines = totalNumLines;
+  } // Reduce
+
+  void Execute() { vtkSMPTools::For(0, this->NumBatches, *this); }
+}; // EvaluateCells
+
+// Represent cut edges. A cut edge has two values: (V0,V1) defining the
+// edge, plus the edge data LIdx, which is the output location (an index)
+// into the line connectivity array. After sorting via MergeEdges(), this
+// index is used to update line connectivity arrays to use the newly
+// generated point ids. The struct below is used in conjunction with
+// vtkStaticEdgeLocatorTemplate to associate data with the edges.
+struct IdxType
+{
+  vtkIdType LIdx;
+};
+using EdgeTupleType = EdgeTuple<vtkIdType, IdxType>;
+using EdgeLocatorType = vtkStaticEdgeLocatorTemplate<vtkIdType, IdxType>;
+
+// Extract the lines. Also copy cell data.
+struct ExtractLines
+{
+  const EvaluateCells& EC;
+  const std::vector<unsigned char>& PtMap;
+  vtkCellArray* Cells;
+  vtkIdType NumCells;
+  const std::vector<unsigned char>& CellMap;
+  vtkIdType* LineConn;
+  vtkIdType* LineOffsets;
+  std::vector<EdgeTupleType>& Edges;
+  ArrayList& Arrays;
+  vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
+
+  ExtractLines(EvaluateCells& ec, const std::vector<unsigned char>& ptMap, vtkCellArray* cells,
+    std::vector<unsigned char>& cellMap, vtkIdTypeArray* lineConn, vtkIdTypeArray* lineOffsets,
+    std::vector<EdgeTupleType>& e, ArrayList& arrays)
+    : EC(ec)
+    , PtMap(ptMap)
+    , Cells(cells)
+    , CellMap(cellMap)
+    , Edges(e)
+    , Arrays(arrays)
+  {
+    this->NumCells = this->Cells->GetNumberOfCells();
+    this->LineConn = lineConn->GetPointer(0);
+    this->LineOffsets = lineOffsets->GetPointer(0);
+  }
+
+  void Initialize() { this->CellIterator.Local().TakeReference(this->Cells->NewIterator()); }
+
+  void operator()(vtkIdType batchNum, vtkIdType endBatchNum)
+  {
+    vtkIdType npts;
+    const vtkIdType* cell;
+    vtkCellArrayIterator* cellIter = this->CellIterator.Local();
+    const std::vector<unsigned char>& ptMap = this->PtMap;
+    const std::vector<unsigned char>& cellMap = this->CellMap;
+    std::vector<EdgeTupleType>& edges = this->Edges;
+    ArrayList& arrays = this->Arrays;
+
+    // For each batch, process the intersected cells in the batch.
+    for (; batchNum < endBatchNum; ++batchNum)
+    {
+      vtkIdType cellId = batchNum * this->EC.BatchSize;
+      vtkIdType endCellId =
+        (cellId + this->EC.BatchSize > this->NumCells ? this->NumCells
+                                                      : cellId + this->EC.BatchSize);
+
+      // What's going on here is the line offsets are being updated, and
+      // the merged edges are being created with indices into the line
+      // connectivity array. Later, after edge sorting and when the final
+      // point ids are defined, the edge connectivity array is updated with
+      // the output point ids.
+      vtkIdType lineNum = this->EC.LineOffsets[batchNum];
+      vtkIdType lineConnIdx = 2 * lineNum;
+      vtkIdType* lineOffsets = this->LineOffsets + lineNum;
+      vtkIdType lineOffset = 2 * lineNum;
+
+      // For all cells in this batch
+      for (; cellId < endCellId; ++cellId)
+      {
+        if (cellMap[cellId] != 0) // if the cell is cut
+        {
+          cellIter->GetCellAtId(cellId, npts, cell);
+          vtkIdType numEdgeCuts = 0;
+          for (auto i = 0; i < npts && numEdgeCuts < 2; ++i) // loop over all cell points and edges
+          {
+            vtkIdType ptId = cell[i];
+            vtkIdType nextId = cell[(i + 1) % npts];
+
+            // If the edge points are on either side of the plane, then create
+            // a cut point. Make sure that there are no more that two edges cut
+            // (as a result of the convex requirement on the cell).
+            if (ptMap[ptId] != ptMap[nextId])
+            {
+              EdgeTupleType& edge = edges[2 * lineNum + numEdgeCuts++];
+              edge.Define(ptId, nextId);
+              edge.Data.LIdx = lineConnIdx++;
+            } // if edge cut
+
+          } // over all cell edges, with no more than 2 cuts
+          *lineOffsets++ = lineOffset;
+          lineOffset += 2;
+          arrays.Copy(cellId, lineNum++);
+        } // if cell is cut
+      }   // for each cell in this batch
+    }     // for each batch of cells
+  }
+
+  void Reduce() {}
+
+  void Execute() { vtkSMPTools::For(0, this->EC.NumBatches, *this); }
+}; // ExtractLines
+
+// Update the line connectivity with new point ids.
+struct OutputLines
+{
+  vtkIdType NumNewPts;
+  const EdgeTupleType* MergeEdges;
+  const vtkIdType* MergeOffsets;
+  vtkIdType* OutLinesConn;
+
+  OutputLines(vtkIdType numNewPts, const EdgeTupleType* mergeEdges, const vtkIdType* mergeOffsets,
+    vtkIdTypeArray* outLines)
+    : NumNewPts(numNewPts)
+    , MergeEdges(mergeEdges)
+    , MergeOffsets(mergeOffsets)
+    , OutLinesConn(outLines->GetPointer(0))
+  {
+  }
+
+  void Execute()
+  {
+    vtkIdType numNewPts = this->NumNewPts;
+    const EdgeTupleType* edges = this->MergeEdges;
+    const vtkIdType* offsets = this->MergeOffsets;
+    vtkIdType* linesConn = this->OutLinesConn;
+
+    vtkSMPTools::For(
+      0, numNewPts, [&, edges, offsets, linesConn](vtkIdType newPtId, vtkIdType endNewPtId) {
+        const EdgeTupleType* edge;
+
+        for (; newPtId < endNewPtId; ++newPtId)
+        {
+          vtkIdType numEdges = offsets[newPtId + 1] - offsets[newPtId];
+          vtkIdType updatedId = newPtId;
+          for (auto i = 0; i < numEdges; ++i)
+          {
+            edge = edges + offsets[newPtId] + i;
+            linesConn[edge->Data.LIdx] = updatedId;
+          }
+        }
+      }); // end lambda
+  }
+}; // OutputLines
+
+// Interpolate and write the points to the output. Also copy / interpolate
+// point data to the filter output.
+struct OutputPointsWorker
+{
+  template <typename InPtsT, typename OutPtsT>
+  void operator()(InPtsT* inPts, OutPtsT* outPts, vtkIdType numNewPts,
+    const EdgeTupleType* mergeEdges, const vtkIdType* mergeOffsets, vtkPlane* plane,
+    ArrayList* arrays)
+  {
+    // Interpolate new points on cut edges. Since we are going to the trouble of
+    // computing the t parametric coordinate along the edge, also interpolate the
+    // point attributes at the same time.
+    double origin[3], normal[3];
+    plane->GetOrigin(origin);
+    plane->GetNormal(normal);
+    vtkMath::Normalize(normal);
+    vtkSMPTools::For(0, numNewPts,
+      [&, outPts, mergeEdges, mergeOffsets, arrays](vtkIdType newPtId, vtkIdType endNewPtId) {
+        const auto in = vtk::DataArrayTupleRange<3>(inPts);
+        auto out = vtk::DataArrayTupleRange<3>(outPts);
+        double x0[3], x1[3];
+
+        for (; newPtId < endNewPtId; ++newPtId)
+        {
+          const EdgeTupleType* edge = mergeEdges + mergeOffsets[newPtId];
+          const auto x0T = in[edge->V0];
+          x0[0] = x0T[0];
+          x0[1] = x0T[1];
+          x0[2] = x0T[2];
+          const auto x1T = in[edge->V1];
+          x1[0] = x1T[0];
+          x1[1] = x1T[1];
+          x1[2] = x1T[2];
+          double v0 = vtkPlane::Evaluate(normal, origin, x0);
+          double v1 = vtkPlane::Evaluate(normal, origin, x1);
+          double delta = (v1 - v0);
+          double t = (delta == 0.0 ? 0.0 : (-v0 / delta));
+          auto xout = out[newPtId];
+          xout[0] = x0[0] + t * (x1[0] - x0[0]);
+          xout[1] = x0[1] + t * (x1[1] - x0[1]);
+          xout[2] = x0[2] + t * (x1[2] - x0[2]);
+          arrays->InterpolateEdge(edge->V0, edge->V1, t, newPtId);
+        }
+      }); // end lambda
+  }
+}; // OutputPointsWorker
+
+} // anonymous namespace
+
+//==============================================================================
+//------------------------------------------------------------------------------
+// Here is the VTK class proper.
+vtkPolyDataPlaneCutter::vtkPolyDataPlaneCutter()
+{
+  this->Plane = nullptr;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
+  this->BatchSize = 10000;
+}
+
+//------------------------------------------------------------------------------
+vtkPolyDataPlaneCutter::~vtkPolyDataPlaneCutter() = default;
+
+//------------------------------------------------------------------------------
+// Specify the plane (an implicit function) used to cut the input vtkPolyData.
+void vtkPolyDataPlaneCutter::SetPlane(vtkPlane* plane)
+{
+  if (plane != this->Plane)
+  {
+    this->Plane = plane;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+// Overload standard modified time function. If the plane definition is modified,
+// then this object is modified as well.
+vtkMTimeType vtkPolyDataPlaneCutter::GetMTime()
+{
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  if (this->Plane != nullptr)
+  {
+    vtkMTimeType mTime2 = this->Plane->GetMTime();
+    return (mTime2 > mTime ? mTime2 : mTime);
+  }
+  else
+  {
+    return mTime;
+  }
+}
+
+//------------------------------------------------------------------------------
+// This method drives the various threaded functors to implement the
+// plane cutting algorithm.
+int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkLog(INFO, "Executing vtkPolyData plane cutter");
+
+  // Get the input and output
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  // Make sure there is input
+  vtkIdType numPts, numCells;
+  vtkCellArray* cells = input->GetPolys();
+  numCells = cells->GetNumberOfCells();
+  if ((numPts = input->GetNumberOfPoints()) < 1 || (numCells = input->GetNumberOfCells()) < 1 ||
+    this->Plane == nullptr)
+  {
+    return 1;
+  }
+
+  // Evaluate the plane equation across all points.
+  vtkPoints* inPts = input->GetPoints();
+  using EvaluatePointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  EvaluatePointsWorker epWorker;
+  std::vector<unsigned char> ptMap(numPts);
+  if (!EvaluatePointsDispatch::Execute(inPts->GetData(), epWorker, this->Plane, ptMap))
+  {
+    epWorker(inPts->GetData(), this->Plane, ptMap);
+  }
+
+  // Return quickly when no cells are cut.
+  if (!epWorker.Intersects)
+  { // return empty
+    return 1;
+  }
+
+  // Now process the convex cells to determine the size of the output (i.e.,
+  // the number of output line segments). We are going to process cells in
+  // batches, and to avoid the use of thread local storage and to facilitate
+  // threading, keep track of information regarding the size of the output.
+  EvaluateCells evalCells(ptMap, cells, this->BatchSize);
+  evalCells.Execute();
+
+  // Build the cell array for the output lines. Also generate cut edges (and
+  // associated intersection points), which are edges cut by the plane, which
+  // are eventually merged. This avoids using the relatively slow point locator.
+  vtkIdType numLines = evalCells.NumLines;
+  std::vector<EdgeTupleType> mergeEdges(2 * numLines);
+  vtkNew<vtkIdTypeArray> lineConn;
+  lineConn->SetNumberOfTuples(2 * numLines);
+  vtkNew<vtkIdTypeArray> lineOffsets;
+  lineOffsets->SetNumberOfTuples(numLines + 1);
+
+  // Each line segment has cell data copied from the intersected cell.
+  ArrayList cellArrays;
+  output->GetCellData()->InterpolateAllocate(input->GetCellData(), numLines);
+  cellArrays.AddArrays(numLines, input->GetCellData(), output->GetCellData());
+
+  // Extract the line segments.
+  ExtractLines extLines(
+    evalCells, ptMap, cells, evalCells.CellMap, lineConn, lineOffsets, mergeEdges, cellArrays);
+  extLines.Execute();
+  lineOffsets->SetComponent(numLines, 0, 2 * numLines);
+
+  // New points are generated from groups of duplicate edges. The groups are
+  // formed via sorting. The number of points in a group represents the number
+  // of duplicate points on that edge.
+  vtkIdType numOutPts;
+  EdgeLocatorType edgeLocator;
+  const vtkIdType* mergeOffsets =
+    edgeLocator.MergeEdges(2 * numLines, mergeEdges.data(), numOutPts);
+
+  // By merging edges into groups, we've identified the new cut points (i.e.,
+  // each group of duplicate edges generates one new cut point). Now update
+  // the line connectivity array with new point ids.
+  vtkNew<vtkCellArray> outLines;
+  OutputLines ol(numOutPts, mergeEdges.data(), mergeOffsets, lineConn);
+  ol.Execute();
+  outLines->SetData(lineOffsets, lineConn);
+
+  // Now output the cut lines.
+  output->SetLines(outLines);
+
+  // Create and initialize the generated/interpolated cut points.
+  vtkNew<vtkPoints> outPts;
+  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+  {
+    outPts->SetDataType(inPts->GetDataType());
+  }
+  else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  {
+    outPts->SetDataType(VTK_FLOAT);
+  }
+  else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  {
+    outPts->SetDataType(VTK_DOUBLE);
+  }
+  outPts->SetNumberOfPoints(numOutPts);
+  output->SetPoints(outPts);
+
+  // Prepare to copy / interpolate point data
+  ArrayList ptArrays;
+  output->GetPointData()->InterpolateAllocate(input->GetPointData(), numOutPts);
+  ptArrays.AddArrays(numOutPts, input->GetPointData(), output->GetPointData());
+
+  // Generate the new points coordinates, and interpolate point data.
+  using OutputPointsDispatch =
+    vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  OutputPointsWorker opWorker;
+  if (!OutputPointsDispatch::Execute(inPts->GetData(), outPts->GetData(), opWorker, numOutPts,
+        mergeEdges.data(), mergeOffsets, this->Plane, &ptArrays))
+  {
+    opWorker(inPts->GetData(), outPts->GetData(), numOutPts, mergeEdges.data(), mergeOffsets,
+      this->Plane, &ptArrays);
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkPolyDataPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Plane: " << this->Plane << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
+  os << indent << "Batch Size: " << this->BatchSize << "\n";
+}
