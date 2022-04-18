@@ -21,6 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrderStatistics.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -28,8 +29,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
 #include <cmath>
@@ -37,6 +40,44 @@ PURPOSE.  See the above copyright notice for more information.
 #include <map>
 #include <set>
 #include <vector>
+
+namespace
+{
+//==============================================================================
+struct GhostsCounter
+{
+  GhostsCounter(vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
+    : Ghosts(ghosts)
+    , GhostsToSkip(ghostsToSkip)
+    , GlobalNumberOfGhosts(0)
+  {
+  }
+
+  void Initialize() { this->NumberOfGhosts.Local() = 0; }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    vtkIdType& numberOfGhosts = this->NumberOfGhosts.Local();
+    for (vtkIdType id = startId; id < endId; ++id)
+    {
+      numberOfGhosts += (this->Ghosts->GetValue(id) & this->GhostsToSkip) != 0;
+    }
+  }
+
+  void Reduce()
+  {
+    for (vtkIdType numberOfGhosts : this->NumberOfGhosts)
+    {
+      this->GlobalNumberOfGhosts += numberOfGhosts;
+    }
+  }
+
+  vtkUnsignedCharArray* Ghosts;
+  unsigned char GhostsToSkip;
+  vtkIdType GlobalNumberOfGhosts;
+  vtkSMPThreadLocal<vtkIdType> NumberOfGhosts;
+};
+} // anonymous namespace
 
 vtkStandardNewMacro(vtkOrderStatistics);
 
@@ -52,6 +93,9 @@ vtkOrderStatistics::vtkOrderStatistics()
 
   this->AssessNames->SetNumberOfValues(1);
   this->AssessNames->SetValue(0, "Quantile");
+
+  this->NumberOfGhosts = 0;
+  this->GhostsToSkip = 0xff;
 }
 
 //------------------------------------------------------------------------------
@@ -65,6 +109,29 @@ void vtkOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "QuantileDefinition: " << this->QuantileDefinition << endl;
   os << indent << "Quantize: " << this->Quantize << endl;
   os << indent << "MaximumHistogramSize: " << this->MaximumHistogramSize << endl;
+}
+
+//------------------------------------------------------------------------------
+int vtkOrderStatistics::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (vtkTable* inData = vtkTable::GetData(inputVector[INPUT_DATA], 0))
+  {
+    vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
+
+    if (ghosts)
+    {
+      ::GhostsCounter counter(ghosts, this->GhostsToSkip);
+      vtkSMPTools::For(0, ghosts->GetNumberOfValues(), counter);
+      this->NumberOfGhosts = counter.GlobalNumberOfGhosts;
+    }
+    else
+    {
+      this->NumberOfGhosts = 0;
+    }
+  }
+
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
 //------------------------------------------------------------------------------
@@ -119,6 +186,8 @@ void vtkOrderStatistics::Learn(
   {
     return;
   }
+
+  vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
@@ -188,7 +257,10 @@ void vtkOrderStatistics::Learn(
       std::map<double, vtkIdType> histogram;
       for (vtkIdType r = 0; r < nRow; ++r)
       {
-        ++histogram[dvals->GetTuple1(r)];
+        if (!ghosts || !(ghosts->GetValue(r) & this->GhostsToSkip))
+        {
+          ++histogram[dvals->GetTuple1(r)];
+        }
       }
 
       // If maximum size was requested, make sure it is satisfied
@@ -214,6 +286,10 @@ void vtkOrderStatistics::Learn(
           double quantum;
           for (vtkIdType r = 0; r < nRow; ++r)
           {
+            if (ghosts && (ghosts->GetValue(r) & this->GhostsToSkip))
+            {
+              continue;
+            }
             reading = dvals->GetTuple1(r);
             quantum = mini + std::round((reading - mini) / width) * width;
             ++histogram[quantum];
@@ -242,7 +318,10 @@ void vtkOrderStatistics::Learn(
       std::map<vtkStdString, vtkIdType> histogram;
       for (vtkIdType r = 0; r < nRow; ++r)
       {
-        ++histogram[svals->GetValue(r)];
+        if (!ghosts || !(ghosts->GetValue(r) & this->GhostsToSkip))
+        {
+          ++histogram[svals->GetValue(r)];
+        }
       }
 
       // Store histogram
@@ -263,7 +342,10 @@ void vtkOrderStatistics::Learn(
       std::map<vtkVariant, vtkIdType> histogram;
       for (vtkIdType r = 0; r < nRow; ++r)
       {
-        ++histogram[vvals->GetVariantValue(r)];
+        if (!ghosts || !(ghosts->GetValue(r) & this->GhostsToSkip))
+        {
+          ++histogram[vvals->GetVariantValue(r)];
+        }
       }
 
       // Store histogram
