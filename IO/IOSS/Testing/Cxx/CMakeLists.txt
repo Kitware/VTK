@@ -1,14 +1,16 @@
 vtk_add_test_cxx(vtkIOIOSSCxxTests tests
-  TestIOSSAssemblies.cxx,NO_VALID
-  TestIOSSCGNS.cxx
   TestIOSSApplyDisplacementsCGNS.cxx
-  TestIOSSExodusRestarts.cxx,NO_VALID
-  TestIOSSExodus.cxx,NO_VALID
-  TestIOSSUnsupported.cxx,NO_VALID
+  TestIOSSAssemblies.cxx,NO_VALID
   TestIOSSAttributes.cxx,NO_VALID
-  TestIOSSNoElementBlocks.cxx,NO_VALID
+  TestIOSSCGNS.cxx
+  TestIOSSExodus.cxx,NO_VALID
+  TestIOSSExodusRestarts.cxx,NO_VALID
+  TestIOSSExodusSetArrays.cxx
   TestIOSSFilePatternMatching.cxx,NO_VALID
-  TestIOSSTri6.cxx)
+  TestIOSSNoElementBlocks.cxx,NO_VALID
+  TestIOSSTri6.cxx
+  TestIOSSUnsupported.cxx,NO_VALID
+)
 
 if (VTK_USE_LARGE_DATA)
   vtk_add_test_cxx(vtkIOIOSSCxxTests tests
