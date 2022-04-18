@@ -4,14 +4,17 @@
 #include "vtkStringArray.h"
 
 #include "vtkDataObject.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
 #include <map>
@@ -20,6 +23,44 @@
 
 vtkStandardNewMacro(vtkKMeansStatistics);
 vtkCxxSetObjectMacro(vtkKMeansStatistics, DistanceFunctor, vtkKMeansDistanceFunctor);
+
+namespace
+{
+//==============================================================================
+struct GhostsCounter
+{
+  GhostsCounter(vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
+    : Ghosts(ghosts)
+    , GhostsToSkip(ghostsToSkip)
+    , GlobalNumberOfGhosts(0)
+  {
+  }
+
+  void Initialize() { this->NumberOfGhosts.Local() = 0; }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    vtkIdType& numberOfGhosts = this->NumberOfGhosts.Local();
+    for (vtkIdType id = startId; id < endId; ++id)
+    {
+      numberOfGhosts += (this->Ghosts->GetValue(id) & this->GhostsToSkip) != 0;
+    }
+  }
+
+  void Reduce()
+  {
+    for (vtkIdType numberOfGhosts : this->NumberOfGhosts)
+    {
+      this->GlobalNumberOfGhosts += numberOfGhosts;
+    }
+  }
+
+  vtkUnsignedCharArray* Ghosts;
+  unsigned char GhostsToSkip;
+  vtkIdType GlobalNumberOfGhosts;
+  vtkSMPThreadLocal<vtkIdType> NumberOfGhosts;
+};
+} // anonymous namespace
 
 //------------------------------------------------------------------------------
 vtkKMeansStatistics::vtkKMeansStatistics()
@@ -33,6 +74,8 @@ vtkKMeansStatistics::vtkKMeansStatistics()
   this->SetKValuesArrayName("K");
   this->MaxNumIterations = 50;
   this->DistanceFunctor = vtkKMeansDistanceFunctor::New();
+  this->NumberOfGhosts = 0;
+  this->GhostsToSkip = 0xff;
 }
 
 //------------------------------------------------------------------------------
@@ -52,6 +95,28 @@ void vtkKMeansStatistics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxNumIterations: " << this->MaxNumIterations << endl;
   os << indent << "Tolerance: " << this->Tolerance << endl;
   os << indent << "DistanceFunctor: " << this->DistanceFunctor << endl;
+}
+
+//------------------------------------------------------------------------------
+int vtkKMeansStatistics::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (vtkTable* inData = vtkTable::GetData(inputVector[INPUT_DATA], 0))
+  {
+    vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
+    if (ghosts)
+    {
+      ::GhostsCounter counter(ghosts, this->GhostsToSkip);
+      vtkSMPTools::For(0, ghosts->GetNumberOfValues(), counter);
+      this->NumberOfGhosts = counter.GlobalNumberOfGhosts;
+    }
+    else
+    {
+      this->NumberOfGhosts = 0;
+    }
+  }
+
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
 //------------------------------------------------------------------------------
@@ -124,7 +189,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
           condensedTable->AddColumn(pArr);
           dataElements->AddColumn(dArr);
         }
-        else
+        else if (dArr != inData->GetRowData()->GetGhostArray())
         {
           vtkWarningMacro("Skipping requested column \"" << colItr->c_str() << "\".");
         }
@@ -138,9 +203,9 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
   {
     // otherwise create an initial set of cluster coords
     numRuns = 1;
-    numToAllocate = this->DefaultNumberOfClusters < inData->GetNumberOfRows()
+    numToAllocate = this->DefaultNumberOfClusters < inData->GetNumberOfRows() - this->NumberOfGhosts
       ? this->DefaultNumberOfClusters
-      : inData->GetNumberOfRows();
+      : inData->GetNumberOfRows() - this->NumberOfGhosts;
     startRunID->InsertNextValue(0);
     endRunID->InsertNextValue(numToAllocate);
     numberOfClusters->SetName(this->KValuesArrayName);
@@ -194,8 +259,21 @@ void vtkKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
   }
   reqIt = this->Internals->Requests.begin();
 
+  vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
+  vtkIdType count = -1;
   for (vtkIdType i = 0; i < numToAllocate; ++i)
   {
+    if (ghosts)
+    {
+      // The following loop cannot be an infinite loop
+      // because numToAllocate is at most as large as number of input rows - number of ghosts
+      while (ghosts->GetValue(++count) & this->GhostsToSkip)
+        ;
+    }
+    else
+    {
+      ++count;
+    }
     numberOfClusters->InsertNextValue(numToAllocate);
     vtkVariantArray* curRow = vtkVariantArray::New();
     vtkVariantArray* newRow = vtkVariantArray::New();
@@ -203,8 +281,8 @@ void vtkKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
     {
       if (reqIt->find(inData->GetColumnName(j)) != reqIt->end())
       {
-        curRow->InsertNextValue(inData->GetValue(i, j));
-        newRow->InsertNextValue(inData->GetValue(i, j));
+        curRow->InsertNextValue(inData->GetValue(count, j));
+        newRow->InsertNextValue(inData->GetValue(count, j));
       }
     }
     curClusterElements->InsertNextRow(curRow);
@@ -322,7 +400,7 @@ void vtkKMeansStatistics::Learn(
     return;
   }
 
-  vtkIdType numObservations = inData->GetNumberOfRows();
+  vtkIdType numObservations = inData->GetNumberOfRows() - this->NumberOfGhosts;
   vtkIdType totalNumberOfObservations = this->GetTotalNumberOfObservations(numObservations);
   vtkIdType numToAllocate = curClusterElements->GetNumberOfRows();
   vtkIdTypeArray* numIterations = vtkIdTypeArray::New();
@@ -359,6 +437,8 @@ void vtkKMeansStatistics::Learn(
   int allConverged, numIter = 0;
   clusterMemberID->FillComponent(0, -1);
 
+  vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
+
   // Iterate until new cluster centers have converged OR we have reached a max number of iterations
   do
   {
@@ -383,8 +463,14 @@ void vtkKMeansStatistics::Learn(
     // then assign the observation to the nearest cluster.
     vtkIdType localMemberID, offsetLocalMemberID;
     double minDistance, curDistance;
+    vtkIdType numberOfSkipedObservations = 0;
     for (vtkIdType observation = 0; observation < dataElements->GetNumberOfRows(); observation++)
     {
+      if (ghosts && (ghosts->GetValue(observation) & this->GhostsToSkip))
+      {
+        ++numberOfSkipedObservations;
+        continue;
+      }
       for (int runID = 0; runID < numRuns; runID++)
       {
         if (computeRun->GetValue(runID))
@@ -413,11 +499,12 @@ void vtkKMeansStatistics::Learn(
               offsetLocalMemberID = j;
             }
           }
+          vtkIdType id = (observation - numberOfSkipedObservations) * numRuns + runID;
           // We've located the nearest cluster center. Has it changed since the last iteration?
-          if (clusterMemberID->GetValue(observation * numRuns + runID) != localMemberID)
+          if (clusterMemberID->GetValue(id) != localMemberID)
           {
             numMembershipChanges->SetValue(runID, numMembershipChanges->GetValue(runID) + 1);
-            clusterMemberID->SetValue(observation * numRuns + runID, localMemberID);
+            clusterMemberID->SetValue(id, localMemberID);
           }
           // Give the distance functor a chance to modify any derived quantities used to
           // change the cluster centers between iterations, now that we know which cluster
@@ -660,10 +747,16 @@ void vtkKMeansStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta,
     }
   }
 
+  vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
+
   // Assess each entry of the column
   vtkDoubleArray* assessResult = vtkDoubleArray::New();
   for (vtkIdType r = 0; r < nRow; ++r)
   {
+    if (ghosts && (ghosts->GetValue(r) & this->GhostsToSkip))
+    {
+      continue;
+    }
     (*dfunc)(assessResult, r);
     for (vtkIdType j = 0; j < nv * numRuns; ++j)
     {

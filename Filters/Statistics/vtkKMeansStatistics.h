@@ -166,9 +166,26 @@ public:
    */
   bool SetParameter(const char* parameter, int index, vtkVariant value) override;
 
+  ///@{
+  /**
+   * If there is a ghost array in the input, then ghosts matching `GhostsToSkip` mask
+   * will be skipped. It is set to 0xff by default (every ghosts types are skipped).
+   *
+   * @sa
+   * vtkDataSetAttributes
+   * vtkFieldData
+   * vtkPointData
+   * vtkCellData
+   */
+  vtkSetMacro(GhostsToSkip, unsigned char);
+  vtkGetMacro(GhostsToSkip, unsigned char);
+  ///@}
+
 protected:
   vtkKMeansStatistics();
   ~vtkKMeansStatistics() override;
+
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Execute the calculations required by the Learn option.
@@ -256,6 +273,13 @@ protected:
    * overridden.
    */
   vtkKMeansDistanceFunctor* DistanceFunctor;
+
+  /**
+   * Number of ghosts in input data.
+   */
+  vtkIdType NumberOfGhosts;
+
+  unsigned char GhostsToSkip;
 
 private:
   vtkKMeansStatistics(const vtkKMeansStatistics&) = delete;
