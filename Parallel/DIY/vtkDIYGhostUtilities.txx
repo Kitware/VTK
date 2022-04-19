@@ -43,6 +43,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <atomic>
+#include <functional>
 #include <limits>
 #include <string>
 #include <type_traits>
@@ -54,6 +55,7 @@
 #include VTK_DIY2(diy/link.hpp)
 #include VTK_DIY2(diy/master.hpp)
 #include VTK_DIY2(diy/mpi.hpp)
+#include VTK_DIY2(diy/partners/all-reduce.hpp)
 #include VTK_DIY2(diy/reduce-operations.hpp)
 // clang-format on
 
@@ -206,93 +208,129 @@ struct GhostFinder
   std::atomic<bool> FoundGhost;
 };
 
+static constexpr unsigned char GHOST_CELL_BIT = 1;
+static constexpr unsigned char GHOST_POINT_BIT = 2;
+
 //----------------------------------------------------------------------------
 template <class StructuredDataSetT>
-vtkSmartPointer<StructuredDataSetT> CleanGhostsIfPossibleForStructuredData(
-  typename vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<StructuredDataSetT>::BlockType*
-    block,
-  StructuredDataSetT* ds)
+unsigned char CleanGhostsReduceAllForStructuredData(
+  diy::Master& master, diy::Assigner& assigner, diy::RegularAllReducePartners& partners)
 {
+  using BlockType =
+    typename vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<StructuredDataSetT>::BlockType;
   using ExtentType = vtkDIYGhostUtilities::ExtentType;
 
-  vtkSmartPointer<StructuredDataSetT> cleanedDS = vtkSmartPointer<StructuredDataSetT>::New();
-  cleanedDS->ShallowCopy(ds);
-  const ExtentType& extent = block->Information.Extent;
-  const int* dsExtent = ds->GetExtent();
-  const ExtentType fullExtent{ dsExtent[0], dsExtent[1], dsExtent[2], dsExtent[3], dsExtent[4],
-    dsExtent[5] };
+  unsigned char cleanGhostMask = 0;
 
-  if (vtkUnsignedCharArray* ghostCells = ds->GetCellGhostArray())
-  {
-    const vtkIdType numberOfCells = vtkStructuredData::GetNumberOfCells(extent.data());
-    vtkDIYGhostUtilities_detail::GhostFinder<true> worker(
-      ghostCells, fullExtent, extent, vtkDataSetAttributes::HIDDENCELL);
-    vtkSMPTools::For(0, numberOfCells, worker);
-    if (!worker.FoundGhost)
-    {
-      cleanedDS->GetCellData()->RemoveArray(ghostCells->GetName());
-    }
-  }
-  if (vtkUnsignedCharArray* ghostPoints = ds->GetPointGhostArray())
-  {
-    const vtkIdType numberOfPoints = vtkStructuredData::GetNumberOfPoints(extent.data());
-    vtkDIYGhostUtilities_detail::GhostFinder<false> worker(
-      ghostPoints, fullExtent, extent, vtkDataSetAttributes::HIDDENPOINT);
-    vtkSMPTools::For(0, numberOfPoints, worker);
-    if (!worker.FoundGhost)
-    {
-      cleanedDS->GetPointData()->RemoveArray(ghostPoints->GetName());
-    }
-  }
+  diy::reduce(master, assigner, partners,
+    [&](BlockType* block, const diy::ReduceProxy& rp, const diy::RegularAllReducePartners&) {
+      // step 1 dequeue and merge
+      for (int i = 0; i < rp.in_link().size(); ++i)
+      {
+        int gid = rp.in_link().target(i).gid;
 
-  return cleanedDS;
+        unsigned char currentMask;
+        rp.dequeue(gid, &currentMask, 1);
+        cleanGhostMask |= currentMask;
+      }
+
+      unsigned char foundGhost = 0;
+      const ExtentType& extent = block->Information.Extent;
+      StructuredDataSetT* ds = block->Information.Input;
+      const int* dsExtent = ds->GetExtent();
+      const ExtentType fullExtent{ dsExtent[0], dsExtent[1], dsExtent[2], dsExtent[3], dsExtent[4],
+        dsExtent[5] };
+      if (vtkUnsignedCharArray* ghostCells = ds->GetCellGhostArray())
+      {
+        const vtkIdType numberOfCells = vtkStructuredData::GetNumberOfCells(extent.data());
+        vtkDIYGhostUtilities_detail::GhostFinder<true> worker(
+          ghostCells, fullExtent, extent, vtkDataSetAttributes::HIDDENCELL);
+        vtkSMPTools::For(0, numberOfCells, worker);
+
+        foundGhost |= GHOST_CELL_BIT * worker.FoundGhost;
+      }
+      if (vtkUnsignedCharArray* ghostPoints = ds->GetPointGhostArray())
+      {
+        const vtkIdType numberOfPoints = vtkStructuredData::GetNumberOfPoints(extent.data());
+        vtkDIYGhostUtilities_detail::GhostFinder<false> worker(
+          ghostPoints, fullExtent, extent, vtkDataSetAttributes::HIDDENPOINT);
+        vtkSMPTools::For(0, numberOfPoints, worker);
+
+        foundGhost |= GHOST_POINT_BIT * worker.FoundGhost;
+      }
+
+      // step 2 enqueue
+      for (int i = 0; i < rp.out_link().size(); ++i)
+      {
+        rp.enqueue(rp.out_link().target(i), &foundGhost, 1);
+      }
+    });
+
+  return cleanGhostMask;
 }
 
 //============================================================================
 template <bool IsUnstructuredDataT>
-struct CleanGhostsIfPossibleWorkerImpl;
+struct CleanGhostsReduceAllWorkerImpl;
 
 //============================================================================
 template <>
-struct CleanGhostsIfPossibleWorkerImpl<true>
+struct CleanGhostsReduceAllWorkerImpl<true>
 {
   template <class DataSetT>
-  vtkSmartPointer<DataSetT> operator()(
-    typename vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<DataSetT>::BlockType*,
-    DataSetT* ds)
+  unsigned char operator()(diy::Master&, diy::Assigner&, diy::RegularAllReducePartners&)
   {
-    return ds;
+    return 0;
   }
 };
 
 //============================================================================
 template <>
-struct CleanGhostsIfPossibleWorkerImpl<false>
+struct CleanGhostsReduceAllWorkerImpl<false>
 {
   template <class DataSetT>
-  vtkSmartPointer<DataSetT> operator()(
-    typename vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<DataSetT>::BlockType* block,
-    DataSetT* ds)
+  unsigned char operator()(
+    diy::Master& master, diy::Assigner& assigner, diy::RegularAllReducePartners& partners)
   {
-    return vtkDIYGhostUtilities_detail::CleanGhostsIfPossibleForStructuredData(block, ds);
+    return vtkDIYGhostUtilities_detail::CleanGhostsReduceAllForStructuredData<DataSetT>(
+      master, assigner, partners);
   }
 };
 
 //============================================================================
 template <class DataSetT>
-struct CleanGhostsIfPossibleWorker
+struct CleanGhostsReduceAllWorker
 {
   using DataSetInfo = vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<DataSetT>;
   using BlockType = typename DataSetInfo::BlockType;
   static constexpr bool IsUnstructuredData = DataSetInfo::IsUnstructuredData;
 
-  vtkSmartPointer<DataSetT> operator()(BlockType* block, DataSetT* ds)
+  unsigned char operator()(
+    diy::Master& master, diy::Assigner& assigner, diy::RegularAllReducePartners& partners)
   {
-    return this->Impl(block, ds);
+    return this->Impl.template operator()<DataSetT>(master, assigner, partners);
   }
 
-  CleanGhostsIfPossibleWorkerImpl<IsUnstructuredData> Impl;
+  CleanGhostsReduceAllWorkerImpl<IsUnstructuredData> Impl;
 };
+
+//============================================================================
+template <class DataSetT>
+vtkSmartPointer<DataSetT> RemoveGhostArraysIfNeeded(
+  DataSetT* input, unsigned char ghostCleaningMask)
+{
+  vtkSmartPointer<DataSetT> ds = vtkSmartPointer<DataSetT>::New();
+  ds->ShallowCopy(input);
+  if (!(ghostCleaningMask & GHOST_CELL_BIT))
+  {
+    ds->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+  }
+  if (!(ghostCleaningMask & GHOST_POINT_BIT))
+  {
+    ds->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+  }
+  return ds;
+}
 } // namesapce vtkDIYGhostUtilities_detail
 
 //----------------------------------------------------------------------------
@@ -405,28 +443,30 @@ vtkDIYGhostUtilities::LinkMap vtkDIYGhostUtilities::ComputeLinkMapUsingBoundingB
 
 //----------------------------------------------------------------------------
 template <class DataSetT>
-void vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(const diy::Master& master,
-  std::vector<DataSetT*>& inputs, std::vector<DataSetT*>& outputs, int outputGhostLevels)
+void vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(diy::Master& master, diy::Assigner& assigner,
+  diy::RegularAllReducePartners& partners, std::vector<DataSetT*>& inputs,
+  std::vector<DataSetT*>& outputs, int outputGhostLevels)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
+
+  vtkDIYGhostUtilities_detail::CleanGhostsReduceAllWorker<DataSetT> cleaner;
+  unsigned char ghostCleaningMask = cleaner(master, assigner, partners);
 
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
   {
     DataSetT* input = inputs[localId];
     DataSetT* output = outputs[localId];
-    BlockType* block = master.block<BlockType>(localId);
 
-    vtkUnsignedCharArray* ghostCells = input->GetCellGhostArray();
-
-    if (outputGhostLevels == 0 && !ghostCells)
+    if (outputGhostLevels == 0 &&
+      !(ghostCleaningMask & vtkDIYGhostUtilities_detail::GHOST_CELL_BIT))
     {
       output->ShallowCopy(input);
     }
     else
     {
-      vtkDIYGhostUtilities_detail::CleanGhostsIfPossibleWorker<DataSetT> cleaner;
-      vtkSmartPointer<DataSetT> cleanedInput = cleaner(block, input);
-
+      BlockType* block = master.block<BlockType>(localId);
+      vtkSmartPointer<DataSetT> cleanedInput =
+        vtkDIYGhostUtilities_detail::RemoveGhostArraysIfNeeded(input, ghostCleaningMask);
       vtkDIYGhostUtilities::DeepCopyInputAndAllocateGhosts(block, cleanedInput, output);
     }
   }
@@ -565,6 +605,8 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   decomposer.decompose(comm.rank(), assigner, master);
   vtkLogEndScope("Decomposing master");
 
+  diy::RegularAllReducePartners partners(decomposer, 2);
+
   // At this step, we gather data from the inputs and store it inside the local blocks
   // so we don't have to carry extra parameters later.
   vtkLogStartScope(TRACE, "Setup block self information.");
@@ -608,7 +650,8 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   vtkLogEndScope("Exchanging ghost data between blocks");
 
   vtkLogStartScope(TRACE, "Allocating ghosts in outputs");
-  vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(master, inputs, outputs, outputGhostLevels);
+  vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(
+    master, assigner, partners, inputs, outputs, outputGhostLevels);
   vtkLogEndScope("Allocating ghosts in outputs");
 
   vtkLogStartScope(TRACE, "Initializing ghost arrays in outputs");

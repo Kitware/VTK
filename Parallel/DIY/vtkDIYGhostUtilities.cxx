@@ -147,7 +147,7 @@ bool IsExtentValid(const int* extent)
 
 //----------------------------------------------------------------------------
 /**
- * This function fills an input cell `array` mapped with input `grid` given the input extent.
+ * This function tags an input cell ghost `array` mapped with input `grid` given the input extent.
  * `array` needs to be already allocated.
  */
 template <class ArrayT, class GridDataSetT>
@@ -174,7 +174,7 @@ void FillCellArrayForStructuredData(ArrayT* array, GridDataSetT* grid, int imin,
 
 //----------------------------------------------------------------------------
 /**
- * This function fills an input point `array` mapped with input `grid` given the input extent.
+ * This function fills an input point ghost `array` mapped with input `grid` given the input extent.
  * `array` needs to be already allocated.
  */
 template <class ArrayT, class GridDataSetT>
@@ -311,7 +311,15 @@ void CloneGeometricStructuresForStructuredData(std::vector<StructuredDataSetT*>&
 {
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
   {
-    outputs[localId]->CopyStructure(inputs[localId]);
+    StructuredDataSetT* output = outputs[localId];
+    output->CopyStructure(inputs[localId]);
+
+    // If there is blanking using a ghost array, the ghost array is copied
+    // by CopyStructure in vtkStructuredGrid's implementation.
+    // We DO NOT WANT this array right now, we'll deal with it ourself,
+    // so let's delete it.
+    output->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+    output->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
   }
 }
 
@@ -484,6 +492,7 @@ void AddGhostLayerToGrid(int idx, int outputGhostLevels,
 {
   const ::ExtentType& extent = blockStructure.ShiftedExtent;
   ::ExtentType& shiftedExtentWithNewGhosts = blockStructure.ShiftedExtentWithNewGhosts;
+  ::ExtentType& receivedGhostExtent = blockStructure.ReceivedGhostExtent;
 
   bool upperBound = idx % 2;
   int oppositeIdx = upperBound ? idx - 1 : idx + 1;
@@ -492,7 +501,10 @@ void AddGhostLayerToGrid(int idx, int outputGhostLevels,
   blockInformation.ExtentGhostThickness[idx] =
     std::max(blockInformation.ExtentGhostThickness[idx], localOutputGhostLevels);
 
+  receivedGhostExtent[oppositeIdx] = shiftedExtentWithNewGhosts[oppositeIdx];
   shiftedExtentWithNewGhosts[oppositeIdx] += (upperBound ? -1.0 : 1.0) * localOutputGhostLevels;
+  receivedGhostExtent[idx] = receivedGhostExtent[oppositeIdx] +
+    (upperBound ? 1.0 : -1.0) * localOutputGhostLevels;
 
   ::AddGhostLayerOfGridPoints(idx, blockInformation, blockStructure);
 }
@@ -2151,6 +2163,18 @@ void InitializeInformationIdsForUnstructuredData(vtkUnstructuredGrid* input,
 }
 
 //----------------------------------------------------------------------------
+template<class StructuredDataSetT>
+void InitializeBlocksForStructuredData(diy::Master& master,
+    std::vector<StructuredDataSetT*>& inputs)
+{
+  using BlockType = typename ::DataSetTypeToBlockTypeConverter<StructuredDataSetT>::BlockType;
+  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  {
+    master.block<BlockType>(localId)->Information.Input = inputs[localId];
+  }
+}
+
+//----------------------------------------------------------------------------
 template<class PointSetT>
 void InitializeBlocksForUnstructuredData(diy::Master& master,
     std::vector<PointSetT*>& inputs)
@@ -3589,11 +3613,11 @@ void ClonePoints(vtkPointSet* ps, vtkPointSet* clone, ::UnstructuredDataInformat
 
 //============================================================================
 template<class ArrayT>
-struct ArrayFiller
+struct ArrayBinaryTagger
 {
   using ValueType = typename ArrayT::ValueType;
 
-  ArrayFiller(ArrayT* array, ValueType value) : Array(array), Value(value)
+  ArrayBinaryTagger(ArrayT* array, ValueType value) : Array(array), Value(value)
   {
   }
 
@@ -3601,7 +3625,7 @@ struct ArrayFiller
   {
     for (vtkIdType id = startId; id < endId; ++id)
     {
-      this->Array->SetValue(id, this->Value);
+      this->Array->SetValue(id, this->Array->GetValue(id) | this->Value);
     }
   }
 
@@ -4792,12 +4816,14 @@ template <class GridDataSetT>
 void FillHiddenGhostsForStructuredData(const diy::Master& master, std::vector<GridDataSetT*>& outputs)
 {
   using BlockType = typename ::DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+
   static constexpr unsigned char CELL_GHOST_VALUE =
     vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL
     | vtkDataSetAttributes::CellGhostTypes::HIDDENCELL;
   static constexpr unsigned char POINT_GHOST_VALUE =
     vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT
     | vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT;
+
   for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
   {
     auto& output = outputs[localId];
@@ -4822,58 +4848,58 @@ void FillHiddenGhostsForStructuredData(const diy::Master& master, std::vector<Gr
     if (!isDimensionDegenerate[0])
     {
       ::FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
-        localExtentWithNoGhosts[0], localExtent[2], localExtent[3] + isDimensionDegenerate[1],
-        localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
+      localExtentWithNoGhosts[0], localExtent[2], localExtent[3] + isDimensionDegenerate[1],
+      localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
       ::FillCellArrayForStructuredData(ghostCellArray, output, localExtentWithNoGhosts[1],
-        localExtent[1], localExtent[2], localExtent[3] + isDimensionDegenerate[1], localExtent[4],
-        localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
+      localExtent[1], localExtent[2], localExtent[3] + isDimensionDegenerate[1], localExtent[4],
+      localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
       ::FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0],
-        localExtentWithNoGhosts[0] - 1, localExtent[2], localExtent[3], localExtent[4],
-        localExtent[5], POINT_GHOST_VALUE);
+      localExtentWithNoGhosts[0] - 1, localExtent[2], localExtent[3], localExtent[4],
+      localExtent[5], POINT_GHOST_VALUE);
 
       ::FillPointArrayForStructuredData(ghostPointArray, output, localExtentWithNoGhosts[1] + 1,
-        localExtent[1], localExtent[2], localExtent[3], localExtent[4], localExtent[5],
-        POINT_GHOST_VALUE);
+      localExtent[1], localExtent[2], localExtent[3], localExtent[4], localExtent[5],
+      POINT_GHOST_VALUE);
     }
     if (!isDimensionDegenerate[1])
     {
       ::FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
-        localExtent[1] + isDimensionDegenerate[0], localExtent[2], localExtentWithNoGhosts[2],
-        localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
+      localExtent[1] + isDimensionDegenerate[0], localExtent[2], localExtentWithNoGhosts[2],
+      localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
       ::FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
-        localExtent[1] + isDimensionDegenerate[0], localExtentWithNoGhosts[3], localExtent[3],
-        localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
+      localExtent[1] + isDimensionDegenerate[0], localExtentWithNoGhosts[3], localExtent[3],
+      localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
       ::FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0], localExtent[1],
-        localExtent[2], localExtentWithNoGhosts[2] - 1, localExtent[4], localExtent[5],
-        POINT_GHOST_VALUE);
+      localExtent[2], localExtentWithNoGhosts[2] - 1, localExtent[4], localExtent[5],
+      POINT_GHOST_VALUE);
 
       ::FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0], localExtent[1],
-        localExtentWithNoGhosts[3] + 1, localExtent[3], localExtent[4], localExtent[5],
-        POINT_GHOST_VALUE);
+      localExtentWithNoGhosts[3] + 1, localExtent[3], localExtent[4], localExtent[5],
+      POINT_GHOST_VALUE);
     }
     if (!isDimensionDegenerate[2])
     {
       ::FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
-        localExtent[1] + isDimensionDegenerate[0], localExtent[2],
-        localExtent[3] + isDimensionDegenerate[1], localExtent[4], localExtentWithNoGhosts[4],
-        CELL_GHOST_VALUE);
+      localExtent[1] + isDimensionDegenerate[0], localExtent[2],
+      localExtent[3] + isDimensionDegenerate[1], localExtent[4], localExtentWithNoGhosts[4],
+      CELL_GHOST_VALUE);
 
       ::FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
-        localExtent[1] + isDimensionDegenerate[0], localExtent[2],
-        localExtent[3] + isDimensionDegenerate[1], localExtentWithNoGhosts[5], localExtent[5],
-        CELL_GHOST_VALUE);
+      localExtent[1] + isDimensionDegenerate[0], localExtent[2],
+      localExtent[3] + isDimensionDegenerate[1], localExtentWithNoGhosts[5], localExtent[5],
+      CELL_GHOST_VALUE);
 
       ::FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0], localExtent[1],
-        localExtent[2], localExtent[3], localExtent[4], localExtentWithNoGhosts[4] - 1,
-        POINT_GHOST_VALUE);
+      localExtent[2], localExtent[3], localExtent[4], localExtentWithNoGhosts[4] - 1,
+      POINT_GHOST_VALUE);
 
       ::FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0], localExtent[1],
-        localExtent[2], localExtent[3], localExtentWithNoGhosts[5] + 1, localExtent[5],
-        POINT_GHOST_VALUE);
+      localExtent[2], localExtent[3], localExtentWithNoGhosts[5] + 1, localExtent[5],
+      POINT_GHOST_VALUE);
     }
   }
 }
@@ -4882,21 +4908,17 @@ void FillHiddenGhostsForStructuredData(const diy::Master& master, std::vector<Gr
 void FillReceivedGhostFieldData(vtkFieldData* sourceFD, vtkFieldData* destFD,
     vtkIdList* sourceIds, vtkIdList* destIds)
 {
-  if (!sourceFD)
+  if (!sourceFD || !sourceFD->GetNumberOfTuples())
   {
     return;
   }
 
-  for (int arrayId = 0; arrayId < sourceFD->GetNumberOfArrays(); ++arrayId)
+  for (int arrayId = 0; arrayId < destFD->GetNumberOfArrays(); ++arrayId)
   {
-    vtkAbstractArray* sourceArray = sourceFD->GetArray(arrayId);
-    if (strcmp(sourceArray->GetName(), vtkDataSetAttributes::GhostArrayName()) != 0)
+    vtkAbstractArray* destArray = destFD->GetAbstractArray(arrayId);
+    if (vtkAbstractArray* sourceArray = sourceFD->GetAbstractArray(destArray->GetName()))
     {
-      vtkAbstractArray* destArray = destFD->GetAbstractArray(sourceArray->GetName());
-      if (destArray)
-      {
-        destArray->InsertTuples(destIds, sourceIds, sourceArray);
-      }
+      destArray->InsertTuples(destIds, sourceIds, sourceArray);
     }
   }
 }
@@ -4905,7 +4927,7 @@ void FillReceivedGhostFieldData(vtkFieldData* sourceFD, vtkFieldData* destFD,
 void FillReceivedGhostFieldDataForStructuredData(vtkFieldData* sourceFD, vtkFieldData* destFD,
     vtkIdList* ids)
 {
-  if (!sourceFD)
+  if (!sourceFD || !sourceFD->GetNumberOfTuples())
   {
     return;
   }
@@ -4923,7 +4945,9 @@ void FillDuplicatePointGhostArrayForStructuredData(vtkUnsignedCharArray* ghostAr
 {
   for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
   {
-    ghostArray->SetValue(pointIds->GetId(i), vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
+    vtkIdType pointId = pointIds->GetId(i);
+    ghostArray->SetValue(pointId,
+        ghostArray->GetValue(pointId) | vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
   }
 }
 
@@ -4933,7 +4957,9 @@ void FillDuplicateCellGhostArrayForStructuredData(vtkUnsignedCharArray* ghostArr
 {
   for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); ++i)
   {
-    ghostArray->SetValue(cellIds->GetId(i), vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
+    vtkIdType cellId = cellIds->GetId(i);
+    ghostArray->SetValue(cellId,
+        ghostArray->GetValue(cellId) | vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
   }
 }
 
@@ -4956,7 +4982,7 @@ void FillDuplicatePointGhostArrayForUnstructureData(vtkUnsignedCharArray* ghostA
     }
   }
 
-  ::ArrayFiller<vtkUnsignedCharArray> filler(ghostArray,
+  ::ArrayBinaryTagger<vtkUnsignedCharArray> filler(ghostArray,
       vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
 
   vtkSMPTools::For(currentMaxPointId, currentMaxPointId + numberOfAddedPoints, filler);
@@ -4966,7 +4992,7 @@ void FillDuplicatePointGhostArrayForUnstructureData(vtkUnsignedCharArray* ghostA
 void FillDuplicateCellGhostArrayForUnstructureData(vtkUnsignedCharArray* ghostArray,
     vtkIdType currentMaxCellId, vtkIdType numberOfAddedCells)
 {\
-  ::ArrayFiller<vtkUnsignedCharArray> filler(ghostArray,
+  ::ArrayBinaryTagger<vtkUnsignedCharArray> filler(ghostArray,
       vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
 
   vtkSMPTools::For(currentMaxCellId, currentMaxCellId + numberOfAddedCells, filler);
@@ -4982,17 +5008,13 @@ void FillReceivedGhostFieldData(vtkFieldData* sourceFD,
     return;
   }
 
-  for (int arrayId = 0; arrayId < sourceFD->GetNumberOfArrays(); ++arrayId)
+  for (int arrayId = 0; arrayId < destFD->GetNumberOfArrays(); ++arrayId)
   {
-    vtkAbstractArray* sourceArray = sourceFD->GetArray(arrayId);
-    if (strcmp(sourceArray->GetName(), vtkDataSetAttributes::GhostArrayName()) != 0)
+    vtkAbstractArray* destArray = destFD->GetAbstractArray(arrayId);
+    if (vtkAbstractArray* sourceArray = sourceFD->GetAbstractArray(destArray->GetName()))
     {
-      vtkAbstractArray* destArray = destFD->GetAbstractArray(sourceArray->GetName());
-      if (destArray)
-      {
-        destArray->InsertTuples(currentNumberOfElements, numberOfAddedElements, sourceOffset,
-            sourceArray);
-      }
+      destArray->InsertTuples(currentNumberOfElements, numberOfAddedElements, sourceOffset,
+          sourceArray);
     }
   }
 }
@@ -5017,25 +5039,31 @@ void FillReceivedGhostPointsForStructuredData(vtkPoints* sourcePoints,
 void FillReceivedGhosts(::ImageDataBlock* block, int vtkNotUsed(myGid), int vtkNotUsed(gid),
     ::ImageDataBlockStructure& blockStructure, vtkImageData* output, int outputGhostLevels)
 {
-  if (outputGhostLevels)
-  {
-    vtkSmartPointer<vtkIdList> pointIds =
-      ::ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output);
-    FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
-    FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
-        output->GetPointData(), pointIds);
-  }
+  vtkSmartPointer<vtkIdList> pointIds =
+    ::ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output);
+  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
+      output->GetPointData(), pointIds);
+
+  // It is important to this function after filling received ghosts.
+  // If not, we might write over hidden ghosts from other blocks
+  FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
 
   vtkSmartPointer<vtkIdList> pointOwnershipIds =
     ::ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output,
         true /* restrictToInterfaceOwnership */);
   FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointOwnershipIds);
 
-  vtkSmartPointer<vtkIdList> cellIds =
-    ::ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
-  FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
-  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostCellData,
-      output->GetCellData(), cellIds);
+  if (outputGhostLevels)
+  {
+    vtkSmartPointer<vtkIdList> cellIds =
+      ::ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
+    FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostCellData,
+        output->GetCellData(), cellIds);
+
+    // It is important to this function after filling received ghosts.
+    // If not, we might write over hidden ghosts from other blocks
+    FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -5043,52 +5071,64 @@ void FillReceivedGhosts(::RectilinearGridBlock* block, int vtkNotUsed(myGid), in
     ::RectilinearGridBlockStructure& blockStructure, vtkRectilinearGrid* output,
     int outputGhostLevels)
 {
-  if (outputGhostLevels)
-  {
-    vtkSmartPointer<vtkIdList> pointIds =
-      ::ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output);
-    FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
-    FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
-        output->GetPointData(), pointIds);
-  }
+  vtkSmartPointer<vtkIdList> pointIds =
+    ::ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output);
+  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
+      output->GetPointData(), pointIds);
+
+  // It is important to this function after filling received ghosts.
+  // If not, we might write over hidden ghosts from other blocks
+  FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
 
   vtkSmartPointer<vtkIdList> pointOwnershipIds =
     ::ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output,
         true /* restrictToInterfaceOwnership */);
   FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointOwnershipIds);
 
-  vtkSmartPointer<vtkIdList> cellIds =
-    ::ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
-  FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
-  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostCellData,
-      output->GetCellData(), cellIds);
+  if (outputGhostLevels)
+  {
+    vtkSmartPointer<vtkIdList> cellIds =
+      ::ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
+    FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostCellData,
+        output->GetCellData(), cellIds);
+
+    // It is important to this function after filling received ghosts.
+    // If not, we might write over hidden ghosts from other blocks
+    FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
+  }
 }
 
 //----------------------------------------------------------------------------
 void FillReceivedGhosts(::StructuredGridBlock* block, int vtkNotUsed(myGid), int vtkNotUsed(gid),
     ::StructuredGridBlockStructure& blockStructure, vtkStructuredGrid* output, int outputGhostLevels)
 {
-  if (outputGhostLevels)
-  {
-    vtkSmartPointer<vtkIdList> pointIds =
-      ::ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output);
-    FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
-    FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
-        output->GetPointData(), pointIds);
-    ::FillReceivedGhostPointsForStructuredData(blockStructure.GhostPoints, output->GetPoints(),
-        pointIds);
-  }
+  vtkSmartPointer<vtkIdList> pointIds =
+    ::ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output);
+  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
+      output->GetPointData(), pointIds);
+  ::FillReceivedGhostPointsForStructuredData(blockStructure.GhostPoints, output->GetPoints(),
+      pointIds);
+
+  // It is important to this function after filling received ghosts.
+  // If not, we might write over hidden ghosts from other blocks
+  FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
 
   vtkSmartPointer<vtkIdList> pointOwnershipIds =
     ::ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output,
         true /* restrictToInterfaceOwnership */);
   FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointOwnershipIds);
 
-  vtkSmartPointer<vtkIdList> cellIds =
-    ::ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
-  FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
-  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostCellData,
-      output->GetCellData(), cellIds);
+  if (outputGhostLevels)
+  {
+    vtkSmartPointer<vtkIdList> cellIds =
+      ::ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
+    FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostCellData,
+        output->GetCellData(), cellIds);
+
+    // It is important to this function after filling received ghosts.
+    // If not, we might write over hidden ghosts from other blocks
+    FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -5472,17 +5512,17 @@ vtkDIYGhostUtilities::StructuredGridBlockStructure::StructuredGridBlockStructure
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& vtkNotUsed(master),
-    std::vector<vtkImageData*>& vtkNotUsed(inputs))
+void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master,
+    std::vector<vtkImageData*>& inputs)
 {
-  // Do nothing, there is no extra information needed from input for vtkImageData.
+  ::InitializeBlocksForStructuredData(master, inputs);
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& vtkNotUsed(master),
-    std::vector<vtkRectilinearGrid*>& vtkNotUsed(inputs))
+void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master,
+    std::vector<vtkRectilinearGrid*>& inputs)
 {
-  // Do nothing, there is no extra information needed from input for vtkRectilinearGrid.
+  ::InitializeBlocksForStructuredData(master, inputs);
 }
 
 //----------------------------------------------------------------------------
@@ -5490,6 +5530,9 @@ void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master,
     std::vector<vtkStructuredGrid*>& inputs)
 {
   using BlockType = StructuredGridBlock;
+
+  ::InitializeBlocksForStructuredData(master, inputs);
+
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
   {
     vtkStructuredGrid* input = inputs[localId];
