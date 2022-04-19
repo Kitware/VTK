@@ -18,7 +18,7 @@
  *			Quincey Koziol
  *
  * Purpose:		Implements the "wrapped buffer" code for wrapping
- *                      an existing [staticly sized] buffer, in order to
+ *                      an existing [statically sized] buffer, in order to
  *                      avoid lots of memory allocation calls.
  *
  *-------------------------------------------------------------------------

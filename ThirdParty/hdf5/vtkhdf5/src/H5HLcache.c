@@ -250,7 +250,7 @@ H5HL__fl_deserialize(H5HL_t *heap)
             heap->freelist = fl;
         tail = fl;
         fl   = NULL;
-    } /* end while */
+    }
 
 done:
     if (ret_value < 0)
@@ -296,7 +296,7 @@ H5HL__fl_serialize(const H5HL_t *heap)
             H5F_ENCODE_LENGTH_LEN(image, H5HL_FREE_NULL, heap->sizeof_size)
 
         H5F_ENCODE_LENGTH_LEN(image, fl->size, heap->sizeof_size)
-    } /* end for */
+    }
 
     FUNC_LEAVE_NOAPI_VOID
 
@@ -450,13 +450,13 @@ H5HL__cache_prefix_deserialize(const void *_image, size_t H5_ATTR_NDEBUG_UNUSED 
             /* Build free list */
             if (H5HL__fl_deserialize(heap) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, NULL, "can't initialize free list")
-        } /* end if */
+        }
         else
             /* Note that the heap should _NOT_ be a single
              * object in the cache
              */
             heap->single_cache_obj = FALSE;
-    } /* end if */
+    }
 
     /* Set return value */
     ret_value = prfx;
@@ -467,12 +467,12 @@ done:
         if (prfx) {
             if (FAIL == H5HL__prfx_dest(prfx))
                 HDONE_ERROR(H5E_HEAP, H5E_CANTRELEASE, NULL, "unable to destroy local heap prefix");
-        } /* end if */
+        }
         else {
             if (heap && FAIL == H5HL__dest(heap))
                 HDONE_ERROR(H5E_HEAP, H5E_CANTRELEASE, NULL, "unable to destroy local heap");
-        } /* end else */
-    }     /* end if */
+        }
+    }
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HL__cache_prefix_deserialize() */
@@ -588,7 +588,7 @@ H5HL__cache_prefix_serialize(const H5_ATTR_NDEBUG_UNUSED H5F_t *f, void *_image,
             gap = heap->prfx_size - (size_t)(image - (uint8_t *)_image);
             HDmemset(image, 0, gap);
             image += gap;
-        } /* end if */
+        }
 
         /* Serialize the free list into the heap data's image */
         H5HL__fl_serialize(heap);
@@ -598,14 +598,14 @@ H5HL__cache_prefix_serialize(const H5_ATTR_NDEBUG_UNUSED H5F_t *f, void *_image,
 
         /* Sanity check */
         HDassert((size_t)(image - (uint8_t *)_image) + heap->dblk_size == len);
-    } /* end if */
+    }
     else {
         /* Sanity check */
         HDassert((size_t)(image - (uint8_t *)_image) <= len);
 
         /* Clear rest of local heap */
         HDmemset(image, 0, len - (size_t)(image - (uint8_t *)_image));
-    } /* end else */
+    }
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5HL__cache_prefix_serialize() */
@@ -736,7 +736,7 @@ H5HL__cache_datablock_deserialize(const void *image, size_t len, void *_udata, h
         /* Build free list */
         if (FAIL == H5HL__fl_deserialize(heap))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, NULL, "can't initialize free list");
-    } /* end if */
+    }
 
     /* Set return value */
     ret_value = dblk;
@@ -892,7 +892,7 @@ H5HL__cache_datablock_notify(H5C_notify_action_t action, void *_thing)
         default:
             HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown action from metadata cache")
             break;
-    } /* end switch */
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

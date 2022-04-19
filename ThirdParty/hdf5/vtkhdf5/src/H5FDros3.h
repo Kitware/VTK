@@ -22,9 +22,11 @@
 #define H5FDros3_H
 
 #ifdef H5_HAVE_ROS3_VFD
-#define H5FD_ROS3 (H5FD_ros3_init())
+#define H5FD_ROS3       (H5FDperform_init(H5FD_ros3_init))
+#define H5FD_ROS3_VALUE H5_VFD_ROS3
 #else
-#define H5FD_ROS3 (H5I_INVALID_HID)
+#define H5FD_ROS3       (H5I_INVALID_HID)
+#define H5FD_ROS3_VALUE H5_VFD_INVALID
 #endif /* H5_HAVE_ROS3_VFD */
 
 #ifdef H5_HAVE_ROS3_VFD

@@ -138,8 +138,12 @@ static herr_t  H5FD__sec2_write(H5FD_t *_file, H5FD_mem_t type, hid_t fapl_id, h
 static herr_t  H5FD__sec2_truncate(H5FD_t *_file, hid_t dxpl_id, hbool_t closing);
 static herr_t  H5FD__sec2_lock(H5FD_t *_file, hbool_t rw);
 static herr_t  H5FD__sec2_unlock(H5FD_t *_file);
+static herr_t  H5FD__sec2_delete(const char *filename, hid_t fapl_id);
+static herr_t  H5FD__sec2_ctl(H5FD_t *_file, uint64_t op_code, uint64_t flags, const void *input,
+                              void **output);
 
 static const H5FD_class_t H5FD_sec2_g = {
+    H5FD_SEC2_VALUE,       /* value                */
     "sec2",                /* name                 */
     MAXADDR,               /* maxaddr              */
     H5F_CLOSE_WEAK,        /* fc_degree            */
@@ -171,44 +175,13 @@ static const H5FD_class_t H5FD_sec2_g = {
     H5FD__sec2_truncate,   /* truncate             */
     H5FD__sec2_lock,       /* lock                 */
     H5FD__sec2_unlock,     /* unlock               */
+    H5FD__sec2_delete,     /* del                  */
+    H5FD__sec2_ctl,        /* ctl                  */
     H5FD_FLMAP_DICHOTOMY   /* fl_map               */
 };
 
 /* Declare a free list to manage the H5FD_sec2_t struct */
 H5FL_DEFINE_STATIC(H5FD_sec2_t);
-
-/*-------------------------------------------------------------------------
- * Function:    H5FD__init_package
- *
- * Purpose:     Initializes any interface-specific data or routines.
- *
- * Return:      Non-negative on success/Negative on failure
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5FD__init_package(void)
-{
-    char * lock_env_var = NULL; /* Environment variable pointer */
-    herr_t ret_value    = SUCCEED;
-
-    FUNC_ENTER_STATIC
-
-    /* Check the use disabled file locks environment variable */
-    lock_env_var = HDgetenv("HDF5_USE_FILE_LOCKING");
-    if (lock_env_var && !HDstrcmp(lock_env_var, "BEST_EFFORT"))
-        ignore_disabled_file_locks_s = TRUE; /* Override: Ignore disabled locks */
-    else if (lock_env_var && (!HDstrcmp(lock_env_var, "TRUE") || !HDstrcmp(lock_env_var, "1")))
-        ignore_disabled_file_locks_s = FALSE; /* Override: Don't ignore disabled locks */
-    else
-        ignore_disabled_file_locks_s = FAIL; /* Environment variable not set, or not set correctly */
-
-    if (H5FD_sec2_init() < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to initialize sec2 VFD")
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* H5FD__init_package() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5FD_sec2_init
@@ -227,9 +200,19 @@ done:
 hid_t
 H5FD_sec2_init(void)
 {
-    hid_t ret_value = H5I_INVALID_HID; /* Return value */
+    char *lock_env_var = NULL;            /* Environment variable pointer */
+    hid_t ret_value    = H5I_INVALID_HID; /* Return value */
 
-    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
+    FUNC_ENTER_NOAPI_NOERR
+
+    /* Check the use disabled file locks environment variable */
+    lock_env_var = HDgetenv(HDF5_USE_FILE_LOCKING);
+    if (lock_env_var && !HDstrcmp(lock_env_var, "BEST_EFFORT"))
+        ignore_disabled_file_locks_s = TRUE; /* Override: Ignore disabled locks */
+    else if (lock_env_var && (!HDstrcmp(lock_env_var, "TRUE") || !HDstrcmp(lock_env_var, "1")))
+        ignore_disabled_file_locks_s = FALSE; /* Override: Don't ignore disabled locks */
+    else
+        ignore_disabled_file_locks_s = FAIL; /* Environment variable not set, or not set correctly */
 
     if (H5I_VFL != H5I_get_type(H5FD_SEC2_g))
         H5FD_SEC2_g = H5FD_register(&H5FD_sec2_g, sizeof(H5FD_class_t), FALSE);
@@ -237,7 +220,6 @@ H5FD_sec2_init(void)
     /* Set return value */
     ret_value = H5FD_SEC2_g;
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_sec2_init() */
 
@@ -290,7 +272,7 @@ H5Pset_fapl_sec2(hid_t fapl_id)
     if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
 
-    ret_value = H5P_set_driver(plist, H5FD_SEC2, NULL);
+    ret_value = H5P_set_driver(plist, H5FD_SEC2, NULL, NULL);
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1041,3 +1023,73 @@ H5FD__sec2_unlock(H5FD_t *_file)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD__sec2_unlock() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD__sec2_delete
+ *
+ * Purpose:     Delete a file
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD__sec2_delete(const char *filename, hid_t H5_ATTR_UNUSED fapl_id)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_STATIC
+
+    HDassert(filename);
+
+    if (HDremove(filename) < 0)
+        HSYS_GOTO_ERROR(H5E_VFL, H5E_CANTDELETEFILE, FAIL, "unable to delete file")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD__sec2_delete() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD__sec2_ctl
+ *
+ * Purpose:     Sec2 VFD version of the ctl callback.
+ *
+ *              The desired operation is specified by the op_code
+ *              parameter.
+ *
+ *              The flags parameter controls management of op_codes that
+ *              are unknown to the callback
+ *
+ *              The input and output parameters allow op_code specific
+ *              input and output
+ *
+ *              At present, no op codes are supported by this VFD.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD__sec2_ctl(H5FD_t *_file, uint64_t op_code, uint64_t flags, const void H5_ATTR_UNUSED *input,
+               void H5_ATTR_UNUSED **output)
+{
+    H5FD_sec2_t *file      = (H5FD_sec2_t *)_file;
+    herr_t       ret_value = SUCCEED;
+
+    FUNC_ENTER_STATIC
+
+    /* Sanity checks */
+    HDassert(file);
+    (void)file;
+
+    switch (op_code) {
+        /* Unknown op code */
+        default:
+            if (flags & H5FD_CTL__FAIL_IF_UNKNOWN_FLAG)
+                HGOTO_ERROR(H5E_VFL, H5E_FCNTL, FAIL, "unknown op_code and fail if unknown flag is set")
+            break;
+    }
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD__sec2_ctl() */

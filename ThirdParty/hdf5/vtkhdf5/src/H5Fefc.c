@@ -36,10 +36,10 @@
 #include "H5Pprivate.h"  /* Property lists                       */
 
 /* Special values for the "tag" field below */
-#define H5F_EFC_TAG_DEFAULT   -1
-#define H5F_EFC_TAG_LOCK      -2
-#define H5F_EFC_TAG_CLOSE     -3
-#define H5F_EFC_TAG_DONTCLOSE -4
+#define H5F_EFC_TAG_DEFAULT   (-1)
+#define H5F_EFC_TAG_LOCK      (-2)
+#define H5F_EFC_TAG_CLOSE     (-3)
+#define H5F_EFC_TAG_DONTCLOSE (-4)
 
 /* Structure for each entry in a file's external file cache */
 typedef struct H5F_efc_ent_t {
@@ -450,7 +450,7 @@ H5F__efc_release_real(H5F_efc_t *efc)
     /* Sanity checks */
     HDassert(efc);
 
-    /* Lock the EFC to prevent manipulation of the EFC wile we are releasing it.
+    /* Lock the EFC to prevent manipulation of the EFC while we are releasing it.
      * The EFC should never be locked when we enter this function because that
      * would require a cycle, a cycle would necessarily invoke
      * H5F__efc_try_close(), and that function checks the status of the lock

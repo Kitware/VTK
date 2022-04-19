@@ -1995,7 +1995,7 @@ H5Pset_layout(hid_t plist_id, H5D_layout_t layout_type)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
 #ifndef H5_HAVE_C99_DESIGNATED_INITIALIZER
     /* If the compiler doesn't support C99 designated initializers, check if
@@ -2064,7 +2064,7 @@ H5Pget_layout(hid_t plist_id)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, H5D_LAYOUT_ERROR, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, H5D_LAYOUT_ERROR, "can't find object for ID")
 
     /* Peek at layout property */
     if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &layout) < 0)
@@ -2140,7 +2140,7 @@ H5Pset_chunk(hid_t plist_id, int ndims, const hsize_t dim[/*ndims*/])
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Set chunk information in property list */
     chunk_layout.u.chunk.ndims = (unsigned)ndims;
@@ -2180,7 +2180,7 @@ H5Pget_chunk(hid_t plist_id, int max_ndims, hsize_t dim[] /*out*/)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Peek at the layout property */
     if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &layout) < 0)
@@ -2265,7 +2265,7 @@ H5Pset_virtual(hid_t dcpl_id, hid_t vspace_id, const char *src_file_name, const 
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Get the current layout */
     if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &virtual_layout) < 0)
@@ -2419,7 +2419,7 @@ H5Pget_virtual_count(hid_t dcpl_id, size_t *count /*out*/)
     if (count) {
         /* Get the plist structure */
         if (NULL == (plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE)))
-            HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+            HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
         /* Retrieve the layout property */
         if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &layout) < 0)
@@ -2464,7 +2464,7 @@ H5Pget_virtual_vspace(hid_t dcpl_id, size_t idx)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Retrieve the layout property */
     if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &layout) < 0)
@@ -2481,7 +2481,7 @@ H5Pget_virtual_vspace(hid_t dcpl_id, size_t idx)
 
     /* Register ID */
     if ((ret_value = H5I_register(H5I_DATASPACE, space, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register dataspace")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, FAIL, "unable to register dataspace")
 
 done:
     /* Free space on failure */
@@ -2521,7 +2521,7 @@ H5Pget_virtual_srcspace(hid_t dcpl_id, size_t idx)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Retrieve the layout property */
     if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &layout) < 0)
@@ -2572,7 +2572,7 @@ H5Pget_virtual_srcspace(hid_t dcpl_id, size_t idx)
 
     /* Register ID */
     if ((ret_value = H5I_register(H5I_DATASPACE, space, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register dataspace")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, FAIL, "unable to register dataspace")
 
 done:
     /* Free space on failure */
@@ -2624,7 +2624,7 @@ H5Pget_virtual_filename(hid_t dcpl_id, size_t idx, char *name /*out*/, size_t si
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Retrieve the layout property */
     if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &layout) < 0)
@@ -2685,7 +2685,7 @@ H5Pget_virtual_dsetname(hid_t dcpl_id, size_t idx, char *name /*out*/, size_t si
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Retrieve the layout property */
     if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &layout) < 0)
@@ -2745,7 +2745,7 @@ H5Pset_chunk_opts(hid_t plist_id, unsigned options)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Retrieve the layout property */
     if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &layout) < 0)
@@ -2785,14 +2785,14 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pget_chunk_opts(hid_t plist_id, unsigned *options)
+H5Pget_chunk_opts(hid_t plist_id, unsigned *options /*out*/)
 {
     H5P_genplist_t *plist;               /* Property list pointer */
     H5O_layout_t    layout;              /* Layout information for setting chunk info */
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "i*Iu", plist_id, options);
+    H5TRACE2("e", "ix", plist_id, options);
 
 #ifndef H5_HAVE_C99_DESIGNATED_INITIALIZER
     /* If the compiler doesn't support C99 designated initializers, check if
@@ -2805,7 +2805,7 @@ H5Pget_chunk_opts(hid_t plist_id, unsigned *options)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Retrieve the layout property */
     if (H5P_peek(plist, H5D_CRT_LAYOUT_NAME, &layout) < 0)
@@ -2868,7 +2868,7 @@ H5Pset_external(hid_t plist_id, const char *name, off_t offset, hsize_t size)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     if (H5P_peek(plist, H5D_CRT_EXT_FILE_LIST_NAME, &efl) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get external file list")
@@ -2933,7 +2933,7 @@ H5Pget_external_count(hid_t plist_id)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Get value */
     if (H5P_peek(plist, H5D_CRT_EXT_FILE_LIST_NAME, &efl) < 0)
@@ -2983,7 +2983,7 @@ H5Pget_external(hid_t plist_id, unsigned idx, size_t name_size, char *name /*out
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Get value */
     if (H5P_peek(plist, H5D_CRT_EXT_FILE_LIST_NAME, &efl) < 0)
@@ -3046,7 +3046,7 @@ H5Pset_szip(hid_t plist_id, unsigned options_mask, unsigned pixels_per_block)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Always set K13 compression (and un-set CHIP compression) */
     options_mask &= (unsigned)(~H5_SZIP_CHIP_OPTION_MASK);
@@ -3105,7 +3105,7 @@ H5Pset_shuffle(hid_t plist_id)
 
     /* Get the plist structure */
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(plist_id)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Add the filter */
     if (H5P_peek(plist, H5O_CRT_PIPELINE_NAME, &pline) < 0)
@@ -3147,7 +3147,7 @@ H5Pset_nbit(hid_t plist_id)
 
     /* Get the plist structure */
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(plist_id)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Add the nbit filter */
     if (H5P_peek(plist, H5O_CRT_PIPELINE_NAME, &pline) < 0)
@@ -3211,7 +3211,7 @@ H5Pset_scaleoffset(hid_t plist_id, H5Z_SO_scale_type_t scale_type, int scale_fac
 
     /* Get the plist structure */
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(plist_id)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Set parameters for the filter
      * scale_type = 0:     floating-point type, filter uses variable-minimum-bits method,
@@ -3265,7 +3265,7 @@ H5Pset_fill_value(hid_t plist_id, hid_t type_id, const void *value)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Get the current fill value */
     if (H5P_peek(plist, H5D_CRT_FILL_VALUE_NAME, &fill) < 0)
@@ -3344,7 +3344,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P_get_fill_value(H5P_genplist_t *plist, H5T_t *type, void *value /*out*/)
+H5P_get_fill_value(H5P_genplist_t *plist, const H5T_t *type, void *value /*out*/)
 {
     H5O_fill_t  fill;                /* Fill value to retrieve */
     H5T_path_t *tpath;               /*type conversion info	*/
@@ -3454,7 +3454,7 @@ H5Pget_fill_value(hid_t plist_id, hid_t type_id, void *value /*out*/)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Get the fill value */
     if (H5P_get_fill_value(plist, type, value) < 0)
@@ -3563,7 +3563,7 @@ H5Pfill_value_defined(hid_t plist_id, H5D_fill_value_t *status)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Get the fill-value status */
     if (H5P_fill_value_defined(plist, status) < 0)
@@ -3604,7 +3604,7 @@ H5Pset_alloc_time(hid_t plist_id, H5D_alloc_time_t alloc_time)
 
     /* Get the property list structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Check for resetting to default for layout type */
     if (alloc_time == H5D_ALLOC_TIME_DEFAULT) {
@@ -3691,7 +3691,7 @@ H5Pget_alloc_time(hid_t plist_id, H5D_alloc_time_t *alloc_time /*out*/)
 
         /* Get the property list structure */
         if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-            HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+            HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
         /* Retrieve fill value settings */
         if (H5P_peek(plist, H5D_CRT_FILL_VALUE_NAME, &fill) < 0)
@@ -3734,7 +3734,7 @@ H5Pset_fill_time(hid_t plist_id, H5D_fill_time_t fill_time)
 
     /* Get the property list structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Retrieve previous fill value settings */
     if (H5P_peek(plist, H5D_CRT_FILL_VALUE_NAME, &fill) < 0)
@@ -3779,7 +3779,7 @@ H5Pget_fill_time(hid_t plist_id, H5D_fill_time_t *fill_time /*out*/)
 
         /* Get the property list structure */
         if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_CREATE)))
-            HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+            HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
         /* Retrieve fill value settings */
         if (H5P_peek(plist, H5D_CRT_FILL_VALUE_NAME, &fill) < 0)
@@ -3812,21 +3812,21 @@ done:
  *-----------------------------------------------------------------------------
  */
 herr_t
-H5Pget_dset_no_attrs_hint(hid_t dcpl_id, hbool_t *minimize)
+H5Pget_dset_no_attrs_hint(hid_t dcpl_id, hbool_t *minimize /*out*/)
 {
     hbool_t         setting   = FALSE;
     H5P_genplist_t *plist     = NULL;
     herr_t          ret_value = SUCCEED;
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "i*b", dcpl_id, minimize);
+    H5TRACE2("e", "ix", dcpl_id, minimize);
 
     if (NULL == minimize)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "receiving pointer cannot be NULL")
 
     plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE);
     if (NULL == plist)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     if (H5P_peek(plist, H5D_CRT_MIN_DSET_HDR_SIZE_NAME, &setting) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get dset oh minimize flag value")
@@ -3867,7 +3867,7 @@ H5Pset_dset_no_attrs_hint(hid_t dcpl_id, hbool_t minimize)
 
     plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE);
     if (NULL == plist)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     if (H5P_peek(plist, H5D_CRT_MIN_DSET_HDR_SIZE_NAME, &prev_set) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get extant dset oh minimize flag value")

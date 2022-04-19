@@ -56,7 +56,7 @@ H5Pset_fapl_windows(hid_t fapl_id)
     if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
 
-    ret_value = H5P_set_driver(plist, H5FD_WINDOWS, NULL);
+    ret_value = H5P_set_driver(plist, H5FD_WINDOWS, NULL, NULL);
 
 done:
     FUNC_LEAVE_API(ret_value)

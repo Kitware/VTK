@@ -371,7 +371,7 @@ H5O__msg_write_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type, unsigned m
         HDassert(((H5O_shared_t *)idx_msg->native)->type != H5O_SHARE_TYPE_COMMITTED);
 
         /* Also, sanity check that a message doesn't switch status from being
-         *      shared (or sharable) to being unsharable.  (Which could cause
+         *      shared (or shareable) to being unshareable.  (Which could cause
          *      a message to increase in size in the object header)
          */
         HDassert(!(mesg_flags & H5O_MSG_FLAG_DONTSHARE));
@@ -1131,7 +1131,7 @@ done:
  *		Nov 19 2004
  *
  * Description:
- *      This function interates over the object headers of an object
+ *      This function iterates over the object headers of an object
  *  specified with 'loc' of type 'type_id'.  For each object header of the
  *  object, the 'op_data' and some additional information (specified below) are
  *  passed to the 'op' function.
@@ -1194,7 +1194,7 @@ done:
  *		Sep  6 2005
  *
  * Description:
- *      This function interates over the object headers of an object
+ *      This function iterates over the object headers of an object
  *  specified with 'ent' of type 'type_id'.  For each object header of the
  *  object, the 'op_data' and some additional information (specified below) are
  *  passed to the 'op' function.
@@ -1544,7 +1544,7 @@ H5O_msg_is_shared(unsigned type_id, const void *mesg)
         HDassert(type);
         HDassert(mesg);
 
-        /* If messages in a class aren't sharable, then obviously this message isn't shared! :-) */
+        /* If messages in a class aren't shareable, then obviously this message isn't shared! :-) */
         if (type->share_flags & H5O_SHARE_IS_SHARABLE)
             ret_value = H5O_IS_STORED_SHARED(((const H5O_shared_t *)mesg)->type);
         else

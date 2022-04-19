@@ -49,17 +49,17 @@
 static herr_t   H5S__none_copy(H5S_t *dst, const H5S_t *src, hbool_t share_selection);
 static herr_t   H5S__none_release(H5S_t *space);
 static htri_t   H5S__none_is_valid(const H5S_t *space);
-static hssize_t H5S__none_serial_size(const H5S_t *space);
-static herr_t   H5S__none_serialize(const H5S_t *space, uint8_t **p);
+static hssize_t H5S__none_serial_size(H5S_t *space);
+static herr_t   H5S__none_serialize(H5S_t *space, uint8_t **p);
 static herr_t   H5S__none_deserialize(H5S_t **space, const uint8_t **p);
 static herr_t   H5S__none_bounds(const H5S_t *space, hsize_t *start, hsize_t *end);
 static herr_t   H5S__none_offset(const H5S_t *space, hsize_t *off);
 static int      H5S__none_unlim_dim(const H5S_t *space);
 static htri_t   H5S__none_is_contiguous(const H5S_t *space);
 static htri_t   H5S__none_is_single(const H5S_t *space);
-static htri_t   H5S__none_is_regular(const H5S_t *space);
-static htri_t   H5S__none_shape_same(const H5S_t *space1, const H5S_t *space2);
-static htri_t   H5S__none_intersect_block(const H5S_t *space, const hsize_t *start, const hsize_t *end);
+static htri_t   H5S__none_is_regular(H5S_t *space);
+static htri_t   H5S__none_shape_same(H5S_t *space1, H5S_t *space2);
+static htri_t   H5S__none_intersect_block(H5S_t *space, const hsize_t *start, const hsize_t *end);
 static herr_t   H5S__none_adjust_u(H5S_t *space, const hsize_t *offset);
 static herr_t   H5S__none_adjust_s(H5S_t *space, const hssize_t *offset);
 static herr_t   H5S__none_project_scalar(const H5S_t *space, hsize_t *offset);
@@ -513,7 +513,7 @@ H5S__none_is_valid(const H5S_t H5_ATTR_UNUSED *space)
  REVISION LOG
 --------------------------------------------------------------------------*/
 static hssize_t
-H5S__none_serial_size(const H5S_t H5_ATTR_UNUSED *space)
+H5S__none_serial_size(H5S_t H5_ATTR_UNUSED *space)
 {
     FUNC_ENTER_STATIC_NOERR
 
@@ -533,7 +533,7 @@ H5S__none_serial_size(const H5S_t H5_ATTR_UNUSED *space)
     Serialize the current selection into a user-provided buffer.
  USAGE
     herr_t H5S__none_serialize(space, p)
-        const H5S_t *space;     IN: Dataspace with selection to serialize
+        H5S_t *space;           IN: Dataspace with selection to serialize
         uint8_t **p;            OUT: Pointer to buffer to put serialized
                                 selection.  Will be advanced to end of
                                 serialized selection.
@@ -548,7 +548,7 @@ H5S__none_serial_size(const H5S_t H5_ATTR_UNUSED *space)
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5S__none_serialize(const H5S_t *space, uint8_t **p)
+H5S__none_serialize(H5S_t *space, uint8_t **p)
 {
     uint8_t *pp = (*p); /* Local pointer for decoding */
 
@@ -803,7 +803,7 @@ H5S__none_is_single(const H5S_t H5_ATTR_UNUSED *space)
     Check if a "none" selection is "regular"
  USAGE
     htri_t H5S__none_is_regular(space)
-        const H5S_t *space;     IN: Dataspace pointer to check
+        H5S_t *space;     IN: Dataspace pointer to check
  RETURNS
     TRUE/FALSE/FAIL
  DESCRIPTION
@@ -816,7 +816,7 @@ H5S__none_is_single(const H5S_t H5_ATTR_UNUSED *space)
  REVISION LOG
 --------------------------------------------------------------------------*/
 static htri_t
-H5S__none_is_regular(const H5S_t H5_ATTR_UNUSED *space)
+H5S__none_is_regular(H5S_t H5_ATTR_UNUSED *space)
 {
     FUNC_ENTER_STATIC_NOERR
 
@@ -833,8 +833,8 @@ H5S__none_is_regular(const H5S_t H5_ATTR_UNUSED *space)
     Check if a two "none" selections are the same shape
  USAGE
     htri_t H5S__none_shape_same(space1, space2)
-        const H5S_t *space1;     IN: First dataspace to check
-        const H5S_t *space2;     IN: Second dataspace to check
+        H5S_t *space1;           IN: First dataspace to check
+        H5S_t *space2;           IN: Second dataspace to check
  RETURNS
     TRUE / FALSE / FAIL
  DESCRIPTION
@@ -846,7 +846,7 @@ H5S__none_is_regular(const H5S_t H5_ATTR_UNUSED *space)
  REVISION LOG
 --------------------------------------------------------------------------*/
 static htri_t
-H5S__none_shape_same(const H5S_t H5_ATTR_UNUSED *space1, const H5S_t H5_ATTR_UNUSED *space2)
+H5S__none_shape_same(H5S_t H5_ATTR_UNUSED *space1, H5S_t H5_ATTR_UNUSED *space2)
 {
     FUNC_ENTER_STATIC_NOERR
 
@@ -864,7 +864,7 @@ H5S__none_shape_same(const H5S_t H5_ATTR_UNUSED *space1, const H5S_t H5_ATTR_UNU
     Detect intersections of selection with block
  USAGE
     htri_t H5S__none_intersect_block(space, start, end)
-        const H5S_t *space;     IN: Dataspace with selection to use
+        H5S_t *space;           IN: Dataspace with selection to use
         const hsize_t *start;   IN: Starting coordinate for block
         const hsize_t *end;     IN: Ending coordinate for block
  RETURNS
@@ -877,7 +877,7 @@ H5S__none_shape_same(const H5S_t H5_ATTR_UNUSED *space1, const H5S_t H5_ATTR_UNU
  REVISION LOG
 --------------------------------------------------------------------------*/
 htri_t
-H5S__none_intersect_block(const H5S_t H5_ATTR_UNUSED *space, const hsize_t H5_ATTR_UNUSED *start,
+H5S__none_intersect_block(H5S_t H5_ATTR_UNUSED *space, const hsize_t H5_ATTR_UNUSED *start,
                           const hsize_t H5_ATTR_UNUSED *end)
 {
     FUNC_ENTER_STATIC_NOERR

@@ -82,9 +82,6 @@ static herr_t                 H5O__reset_info2(H5O_info2_t *oinfo);
 /* Package Variables */
 /*********************/
 
-/* Package initialization variable */
-hbool_t H5_PKG_INIT_VAR = FALSE;
-
 /* Header message ID to class mapping
  *
  * Remember to increment H5O_MSG_TYPES in H5Opkg.h when adding a new
@@ -128,6 +125,7 @@ const unsigned H5O_obj_ver_bounds[] = {
     H5O_VERSION_1,     /* H5F_LIBVER_EARLIEST */
     H5O_VERSION_2,     /* H5F_LIBVER_V18 */
     H5O_VERSION_2,     /* H5F_LIBVER_V110 */
+    H5O_VERSION_2,     /* H5F_LIBVER_V112 */
     H5O_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 
@@ -177,21 +175,20 @@ static const H5O_obj_class_t *const H5O_obj_class_g[] = {
 };
 
 /*-------------------------------------------------------------------------
- * Function:    H5O__init_package
+ * Function:    H5O_init
  *
- * Purpose:    Initialize information specific to H5O interface.
+ * Purpose:     Initialize the interface from some other layer.
  *
- * Return:    Non-negative on success/Negative on failure
- *
- * Programmer:    Quincey Koziol
- *              Thursday, January 18, 2007
- *
+ * Return:      Success:        non-negative
+ *              Failure:        negative
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O__init_package(void)
+H5O_init(void)
 {
-    FUNC_ENTER_PACKAGE_NOERR
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_NOAPI_NOERR
 
     /* H5O interface sanity checks */
     HDcompile_assert(H5O_MSG_TYPES == NELMTS(H5O_msg_class_g));
@@ -199,8 +196,8 @@ H5O__init_package(void)
 
     HDcompile_assert(H5O_UNKNOWN_ID < H5O_MSG_TYPES);
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O__init_package() */
+    FUNC_LEAVE_NOAPI(ret_value)
+}
 
 /*-------------------------------------------------------------------------
  * Function:    H5O__set_version
@@ -292,7 +289,7 @@ H5O_create(H5F_t *f, size_t size_hint, size_t initial_rc, hid_t ocpl_id, H5O_loc
         HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, FAIL, "Can't apply object header to file")
 
 done:
-    if ((FAIL == ret_value) && (NULL != oh) && (H5O__free(oh) < 0))
+    if ((FAIL == ret_value) && (NULL != oh) && (H5O__free(oh, TRUE) < 0))
         HDONE_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "can't delete object header")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -356,7 +353,7 @@ H5O_create_ohdr(H5F_t *f, hid_t ocpl_id)
     ret_value = oh;
 
 done:
-    if ((NULL == ret_value) && (NULL != oh) && (H5O__free(oh) < 0))
+    if ((NULL == ret_value) && (NULL != oh) && (H5O__free(oh, TRUE) < 0))
         HDONE_ERROR(H5E_OHDR, H5E_CANTFREE, NULL, "can't delete object header")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -566,7 +563,7 @@ H5O_open(H5O_loc_t *loc)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_NOAPI_NOERR
 
     /* Check args */
     HDassert(loc);
@@ -583,7 +580,6 @@ H5O_open(H5O_loc_t *loc)
     else
         H5F_INCR_NOPEN_OBJS(loc->file);
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_open() */
 
@@ -1500,7 +1496,7 @@ H5O_bogus_oh(H5F_t *f, H5O_t *oh, unsigned bogus_id, unsigned mesg_flags)
         else if (bogus_id == H5O_BOGUS_INVALID_ID)
             type = H5O_MSG_BOGUS_INVALID;
         else
-            HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "invalid ID for 'bogus' message")
+            HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "invalid ID for 'bogus' message")
 
         /* Allocate space in the object header for bogus message */
         if (H5O__msg_alloc(f, oh, type, &mesg_flags, bogus, &idx) < 0)
@@ -1830,6 +1826,7 @@ H5O_get_loc(hid_t object_id)
         case H5I_ERROR_MSG:
         case H5I_ERROR_STACK:
         case H5I_SPACE_SEL_ITER:
+        case H5I_EVENTSET:
         case H5I_NTYPES:
         default:
             HGOTO_ERROR(H5E_OHDR, H5E_BADTYPE, NULL, "invalid object type")
@@ -2795,7 +2792,7 @@ H5O__visit(H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type, H5_iter_or
 
     /* Get an ID for the visited object */
     if ((obj_id = H5VL_wrap_register(opened_type, obj, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register visited object")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, FAIL, "unable to register visited object")
 
     /* Make callback for starting object */
     if ((ret_value = op(obj_id, ".", &oinfo, op_data)) < 0)
@@ -2925,7 +2922,8 @@ H5O__dec_rc(H5O_t *oh)
     FUNC_ENTER_PACKAGE
 
     /* check args */
-    HDassert(oh);
+    if (!oh)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid object header")
 
     /* Decrement reference count */
     oh->rc--;
@@ -3016,7 +3014,7 @@ H5O_get_proxy(const H5O_t *oh)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O__free(H5O_t *oh)
+H5O__free(H5O_t *oh, hbool_t force)
 {
     unsigned u;                   /* Local index variable */
     herr_t   ret_value = SUCCEED; /* Return value */
@@ -3040,11 +3038,15 @@ H5O__free(H5O_t *oh)
         for (u = 0; u < oh->nmesgs; u++) {
 #ifndef NDEBUG
             /* Verify that message is clean, unless it could have been marked
-             * dirty by decoding */
+             * dirty by decoding, or if this is a forced free (in case of
+             * failure during creation of the object some messages may be dirty)
+             */
             if (oh->ndecode_dirtied && oh->mesg[u].dirty)
                 oh->ndecode_dirtied--;
-            else
+            else if (!force)
                 HDassert(oh->mesg[u].dirty == 0);
+#else
+            (void)force;
 #endif /* NDEBUG */
 
             H5O__msg_free_mesg(&oh->mesg[u]);

@@ -698,7 +698,7 @@ H5F__cache_superblock_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNU
             HGOTO_ERROR(H5E_RESOURCE, H5E_CANTGET, FAIL, "driver get_eoa request failed")
         H5F_addr_encode(f, &image, (rel_eof + sblock->base_addr));
 
-        /* Encode the driver informaton block address */
+        /* Encode the driver information block address */
         H5F_addr_encode(f, &image, sblock->driver_addr);
 
         /* Encode the root group object entry, including the cached stab info */
@@ -797,7 +797,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5F__cache_drvrinfo_get_initial_load_size
  *
- * Purpose:     Compute the intiial size of the data structure on disk.
+ * Purpose:     Compute the initial size of the data structure on disk.
  *
  * Return:      Non-negative on success/Negative on failure
  *

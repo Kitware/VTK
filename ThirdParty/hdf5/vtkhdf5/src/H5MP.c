@@ -58,9 +58,6 @@
 /* Package Variable Definitions */
 /********************************/
 
-/* Package initialization variable */
-hbool_t H5_PKG_INIT_VAR = FALSE;
-
 /********************/
 /* Static Variables */
 /********************/

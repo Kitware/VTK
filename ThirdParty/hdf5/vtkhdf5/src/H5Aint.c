@@ -83,6 +83,7 @@ typedef struct {
 /* Local Prototypes */
 /********************/
 
+static herr_t H5A__close_cb(H5VL_object_t *attr_vol_obj, void **request);
 static herr_t H5A__compact_build_table_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned sequence,
                                           unsigned *oh_flags_ptr, void *_udata /*in,out*/);
 static herr_t H5A__dense_build_table_cb(const H5A_t *attr, void *_udata);
@@ -103,6 +104,7 @@ const unsigned H5O_attr_ver_bounds[] = {
     H5O_ATTR_VERSION_1,     /* H5F_LIBVER_EARLIEST */
     H5O_ATTR_VERSION_3,     /* H5F_LIBVER_V18 */
     H5O_ATTR_VERSION_3,     /* H5F_LIBVER_V110 */
+    H5O_ATTR_VERSION_3,     /* H5F_LIBVER_V112 */
     H5O_ATTR_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 
@@ -114,8 +116,119 @@ const unsigned H5O_attr_ver_bounds[] = {
 /* Local Variables */
 /*******************/
 
+/* Declare the free lists of H5A_t */
+H5FL_DEFINE(H5A_t);
+
+/* Declare the free lists for H5A_shared_t's */
+H5FL_DEFINE(H5A_shared_t);
+
+/* Declare a free list to manage blocks of type conversion data */
+H5FL_BLK_DEFINE(attr_buf);
+
 typedef H5A_t *H5A_t_ptr;
-H5FL_SEQ_DEFINE(H5A_t_ptr);
+H5FL_SEQ_DEFINE_STATIC(H5A_t_ptr);
+
+/* Attribute ID class */
+static const H5I_class_t H5I_ATTR_CLS[1] = {{
+    H5I_ATTR,                 /* ID class value */
+    0,                        /* Class flags */
+    0,                        /* # of reserved IDs for class */
+    (H5I_free_t)H5A__close_cb /* Callback routine for closing objects of this class */
+}};
+
+/*-------------------------------------------------------------------------
+ * Function: H5A_init
+ *
+ * Purpose:  Initialize the interface from some other layer.
+ *
+ * Return:   Success:    non-negative
+ *
+ *           Failure:    negative
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5A_init(void)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /*
+     * Create attribute ID type.
+     */
+    if (H5I_register_type(H5I_ATTR_CLS) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, FAIL, "unable to initialize interface")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5A_init() */
+
+/*--------------------------------------------------------------------------
+ NAME
+    H5A_top_term_package
+ PURPOSE
+    Terminate various H5A objects
+ USAGE
+    void H5A_top_term_package()
+ RETURNS
+ DESCRIPTION
+    Release IDs for the atom group, deferring full interface shutdown
+    until later (in H5A_term_package).
+ GLOBAL VARIABLES
+ COMMENTS, BUGS, ASSUMPTIONS
+     Can't report errors...
+ EXAMPLES
+ REVISION LOG
+--------------------------------------------------------------------------*/
+int
+H5A_top_term_package(void)
+{
+    int n = 0;
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    if (H5I_nmembers(H5I_ATTR) > 0) {
+        (void)H5I_clear_type(H5I_ATTR, FALSE, FALSE);
+        n++; /*H5I*/
+    }        /* end if */
+
+    FUNC_LEAVE_NOAPI(n)
+} /* H5A_top_term_package() */
+
+/*--------------------------------------------------------------------------
+ NAME
+    H5A_term_package
+ PURPOSE
+    Terminate various H5A objects
+ USAGE
+    void H5A_term_package()
+ RETURNS
+ DESCRIPTION
+    Release any other resources allocated.
+ GLOBAL VARIABLES
+ COMMENTS, BUGS, ASSUMPTIONS
+     Can't report errors...
+
+     Finishes shutting down the interface, after H5A_top_term_package()
+     is called
+ EXAMPLES
+ REVISION LOG
+--------------------------------------------------------------------------*/
+int
+H5A_term_package(void)
+{
+    int n = 0;
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    /* Sanity checks */
+    HDassert(0 == H5I_nmembers(H5I_ATTR));
+
+    /* Destroy the attribute object id group */
+    n += (H5I_dec_type_ref(H5I_ATTR) > 0);
+
+    FUNC_LEAVE_NOAPI(n)
+} /* H5A_term_package() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5A__create
@@ -130,12 +243,12 @@ H5FL_SEQ_DEFINE(H5A_t_ptr);
  *-------------------------------------------------------------------------
  */
 H5A_t *
-H5A__create(const H5G_loc_t *loc, const char *attr_name, H5T_t *type, const H5S_t *space, hid_t acpl_id)
+H5A__create(const H5G_loc_t *loc, const char *attr_name, const H5T_t *type, const H5S_t *space, hid_t acpl_id)
 {
     H5A_t *  attr = NULL;      /* Attribute created */
     hssize_t snelmts;          /* elements in attribute */
     size_t   nelmts;           /* elements in attribute */
-    htri_t   exists;           /* Whether attribute exists */
+    hbool_t  exists;           /* Whether attribute exists */
     H5A_t *  ret_value = NULL; /* Return value */
 
     FUNC_ENTER_PACKAGE_TAG(loc->oloc->addr)
@@ -151,9 +264,10 @@ H5A__create(const H5G_loc_t *loc, const char *attr_name, H5T_t *type, const H5S_
      *  name, but it's going to be hard to unwind all the special cases on
      *  failure, so just check first, for now - QAK)
      */
-    if ((exists = H5O__attr_exists(loc->oloc, attr_name)) < 0)
+    exists = FALSE;
+    if (H5O__attr_exists(loc->oloc, attr_name, &exists) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, NULL, "error checking attributes")
-    else if (exists > 0)
+    if (exists)
         HGOTO_ERROR(H5E_ATTR, H5E_ALREADYEXISTS, NULL, "attribute already exists")
 
     /* Check if the dataspace has an extent set (or is NULL) */
@@ -291,7 +405,7 @@ done:
  *-------------------------------------------------------------------------
  */
 H5A_t *
-H5A__create_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name, H5T_t *type,
+H5A__create_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name, const H5T_t *type,
                     const H5S_t *space, hid_t acpl_id)
 {
     H5G_loc_t  obj_loc;           /* Location used to open group */
@@ -355,12 +469,12 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-herr_t
+static herr_t
 H5A__open_common(const H5G_loc_t *loc, H5A_t *attr)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(loc);
@@ -572,7 +686,7 @@ done:
  USAGE
     herr_t H5A__read (attr, mem_type, buf)
         H5A_t *attr;         IN: Attribute to read
-        H5T_t *mem_type;     IN: Memory datatype of buffer
+        const H5T_t *mem_type;     IN: Memory datatype of buffer
         void *buf;           IN: Buffer for data to read
  RETURNS
     Non-negative on success/Negative on failure
@@ -581,14 +695,14 @@ done:
     This function reads a complete attribute from disk.
 --------------------------------------------------------------------------*/
 herr_t
-H5A__read(const H5A_t *attr, H5T_t *mem_type, void *buf)
+H5A__read(const H5A_t *attr, const H5T_t *mem_type, void *buf)
 {
     uint8_t *   tconv_buf = NULL;         /* datatype conv buffer*/
     uint8_t *   bkg_buf   = NULL;         /* background buffer */
     hssize_t    snelmts;                  /* elements in attribute */
     size_t      nelmts;                   /* elements in attribute*/
     H5T_path_t *tpath  = NULL;            /* type conversion info    */
-    hid_t       src_id = -1, dst_id = -1; /* temporary type atoms*/
+    hid_t       src_id = -1, dst_id = -1; /* temporary type IDs*/
     size_t      src_type_size;            /* size of source type     */
     size_t      dst_type_size;            /* size of destination type */
     size_t      buf_size;                 /* desired buffer size    */
@@ -680,16 +794,15 @@ done:
  USAGE
     herr_t H5A__write (attr, mem_type, buf)
         H5A_t *attr;         IN: Attribute to write
-        H5T_t *mem_type;     IN: Memory datatype of buffer
+        const H5T_t *mem_type;     IN: Memory datatype of buffer
         const void *buf;           IN: Buffer of data to write
  RETURNS
     Non-negative on success/Negative on failure
-
  DESCRIPTION
     This function writes a complete attribute to disk.
 --------------------------------------------------------------------------*/
 herr_t
-H5A__write(H5A_t *attr, H5T_t *mem_type, const void *buf)
+H5A__write(H5A_t *attr, const H5T_t *mem_type, const void *buf)
 {
     uint8_t *   tconv_buf   = NULL;       /* datatype conv buffer */
     hbool_t     tconv_owned = FALSE;      /* Whether the datatype conv buffer is owned by attribute */
@@ -697,7 +810,7 @@ H5A__write(H5A_t *attr, H5T_t *mem_type, const void *buf)
     hssize_t    snelmts;                  /* elements in attribute */
     size_t      nelmts;                   /* elements in attribute */
     H5T_path_t *tpath  = NULL;            /* conversion information*/
-    hid_t       src_id = -1, dst_id = -1; /* temporary type atoms */
+    hid_t       src_id = -1, dst_id = -1; /* temporary type IDs */
     size_t      src_type_size;            /* size of source type    */
     size_t      dst_type_size;            /* size of destination type*/
     size_t      buf_size;                 /* desired buffer size    */
@@ -789,31 +902,33 @@ done:
  NAME
     H5A__get_name
  PURPOSE
-    Private function for H5Aget_name.  Gets a copy of the name for an
-    attribute
+    Gets a copy of the name for an attribute
  RETURNS
-    This function returns the length of the attribute's name (which may be
-    longer than 'buf_size') on success or negative for failure.
+    Non-negative on success/Negative on failure
  DESCRIPTION
         This function retrieves the name of an attribute for an attribute ID.
     Up to 'buf_size' characters are stored in 'buf' followed by a '\0' string
     terminator.  If the name of the attribute is longer than 'buf_size'-1,
     the string terminator is stored in the last position of the buffer to
     properly terminate the string.
+        This function returns the length of the attribute's name (which may be
+    longer than 'buf_size') in the 'attr_name_len' parameter.
 --------------------------------------------------------------------------*/
-ssize_t
-H5A__get_name(H5A_t *attr, size_t buf_size, char *buf)
+herr_t
+H5A__get_name(H5A_t *attr, size_t buf_size, char *buf, size_t *attr_name_len)
 {
-    size_t  copy_len, nbytes;
-    ssize_t ret_value = -1; /* Return value */
+    size_t copy_len, nbytes;
 
     FUNC_ENTER_PACKAGE_NOERR
 
-    /* get the real attribute length */
-    nbytes = HDstrlen(attr->shared->name);
-    HDassert((ssize_t)nbytes >= 0); /*overflow, pretty unlikely --rpm*/
+    /* Sanity checks */
+    HDassert(attr);
+    HDassert(attr_name_len);
 
-    /* compute the string length which will fit into the user's buffer */
+    /* Get the real attribute length */
+    nbytes = HDstrlen(attr->shared->name);
+
+    /* Compute the string length which will fit into the user's buffer */
     copy_len = MIN(buf_size - 1, nbytes);
 
     /* Copy all/some of the name */
@@ -824,10 +939,10 @@ H5A__get_name(H5A_t *attr, size_t buf_size, char *buf)
         buf[copy_len] = '\0';
     } /* end if */
 
-    /* Set return value */
-    ret_value = (ssize_t)nbytes;
+    /* Set actual attribute name length */
+    *attr_name_len = nbytes;
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5A__get_name() */
 
 /*-------------------------------------------------------------------------
@@ -855,9 +970,9 @@ H5A_get_space(H5A_t *attr)
     if (NULL == (ds = H5S_copy(attr->shared->ds, FALSE, TRUE)))
         HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, H5I_INVALID_HID, "unable to copy dataspace")
 
-    /* Atomize */
+    /* Register */
     if ((ret_value = H5I_register(H5I_DATASPACE, ds, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register dataspace atom")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register dataspace ID")
 
 done:
     if (H5I_INVALID_HID == ret_value && ds && H5S_close(ds) < 0)
@@ -905,18 +1020,18 @@ H5A__get_type(H5A_t *attr)
     if (H5T_lock(dt, FALSE) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, H5I_INVALID_HID, "unable to lock transient datatype")
 
-    /* Atomize */
+    /* Register */
     if (H5T_is_named(dt)) {
         /* If this is a committed datatype, we need to recreate the
          * two level IDs, where the VOL object is a copy of the
          * returned datatype
          */
         if ((ret_value = H5VL_wrap_register(H5I_DATATYPE, dt, TRUE)) < 0)
-            HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to atomize file handle")
+            HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register file handle")
     }
     else {
         if ((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
-            HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register datatype")
+            HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register datatype")
     }
 
 done:
@@ -931,13 +1046,10 @@ done:
  NAME
     H5A__get_create_plist
  PURPOSE
-    private version of H5Aget_create_plist
+    Private version of H5Aget_create_plist
  RETURNS
     This function returns the ID of a copy of the attribute's creation
     property list, or negative on failure.
-
- ERRORS
-
  DESCRIPTION
         This function returns a copy of the creation property list for
     an attribute.  The resulting ID must be closed with H5Pclose() or
@@ -990,7 +1102,7 @@ H5A__get_info(const H5A_t *attr, H5A_info_t *ainfo)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_NOAPI_NOERR
 
     /* Check args */
     HDassert(attr);
@@ -1008,7 +1120,6 @@ H5A__get_info(const H5A_t *attr, H5A_info_t *ainfo)
         ainfo->corder       = attr->shared->crt_idx;
     } /* end else */
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5A__get_info() */
 
@@ -1133,18 +1244,18 @@ H5A__shared_free(H5A_t *attr)
  *
  *-------------------------------------------------------------------------
  */
-herr_t
-H5A__close_cb(H5VL_object_t *attr_vol_obj)
+static herr_t
+H5A__close_cb(H5VL_object_t *attr_vol_obj, void **request)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_STATIC
 
     /* Sanity check */
     HDassert(attr_vol_obj);
 
     /* Close the attribute */
-    if ((ret_value = H5VL_attr_close(attr_vol_obj, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL)) < 0)
+    if (H5VL_attr_close(attr_vol_obj, H5P_DATASET_XFER_DEFAULT, request) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CLOSEERROR, FAIL, "problem closing attribute")
 
     /* Free the VOL object */
@@ -1225,14 +1336,13 @@ H5A_oloc(H5A_t *attr)
 {
     H5O_loc_t *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_NOAPI(NULL)
+    FUNC_ENTER_NOAPI_NOERR
 
     HDassert(attr);
 
     /* Set return value */
     ret_value = &(attr->oloc);
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5A_oloc() */
 
@@ -1256,14 +1366,13 @@ H5A_nameof(H5A_t *attr)
 {
     H5G_name_t *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_NOAPI(NULL)
+    FUNC_ENTER_NOAPI_NOERR
 
     HDassert(attr);
 
     /* Set return value */
     ret_value = &(attr->path);
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5A_nameof() */
 
@@ -1285,14 +1394,13 @@ H5A_type(const H5A_t *attr)
 {
     H5T_t *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_NOAPI(NULL)
+    FUNC_ENTER_NOAPI_NOERR
 
     HDassert(attr);
 
     /* Set return value */
     ret_value = attr->shared->dt;
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5A_type() */
 
@@ -1308,16 +1416,21 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-htri_t
-H5A__exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name)
+herr_t
+H5A__exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name, hbool_t *attr_exists)
 {
-    H5G_loc_t  obj_loc;           /* Location used to open group */
-    H5G_name_t obj_path;          /* Opened object group hier. path */
-    H5O_loc_t  obj_oloc;          /* Opened object object location */
-    hbool_t    loc_found = FALSE; /* Entry at 'obj_name' found */
-    htri_t     ret_value = FAIL;  /* Return value */
+    H5G_loc_t  obj_loc;             /* Location used to open group */
+    H5G_name_t obj_path;            /* Opened object group hier. path */
+    H5O_loc_t  obj_oloc;            /* Opened object object location */
+    hbool_t    loc_found = FALSE;   /* Entry at 'obj_name' found */
+    herr_t     ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
+
+    /* Sanity check */
+    HDassert(obj_name);
+    HDassert(attr_name);
+    HDassert(attr_exists);
 
     /* Set up opened group location to fill in */
     obj_loc.oloc = &obj_oloc;
@@ -1330,7 +1443,7 @@ H5A__exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name)
     loc_found = TRUE;
 
     /* Check if the attribute exists */
-    if ((ret_value = H5O__attr_exists(obj_loc.oloc, attr_name)) < 0)
+    if (H5O__attr_exists(obj_loc.oloc, attr_name, attr_exists) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, FAIL, "unable to determine if attribute exists")
 
 done:
@@ -2189,10 +2302,10 @@ H5A__attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_s
             if (NULL == (buf_space = H5S_create_simple((unsigned)1, &buf_dim, NULL)))
                 HGOTO_ERROR(H5E_DATASPACE, H5E_CANTCREATE, NULL, "can't create simple dataspace")
 
-            /* Atomize */
+            /* Register */
             if ((buf_sid = H5I_register(H5I_DATASPACE, buf_space, FALSE)) < 0) {
                 H5S_close(buf_space);
-                HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, NULL, "unable to register dataspace ID")
+                HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, NULL, "unable to register dataspace ID")
             } /* end if */
 
             /* Allocate memory for recclaim buf */
@@ -2600,11 +2713,11 @@ H5A__iterate(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type, H5
 
     /* Get an ID for the object */
     if ((obj_loc_id = H5VL_wrap_register(obj_type, temp_obj, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register datatype");
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, FAIL, "unable to register datatype");
 
     /* Call internal attribute iteration routine */
     if ((ret_value = H5A__iterate_common(obj_loc_id, idx_type, order, idx, &attr_op, op_data)) < 0)
-        HGOTO_ERROR(H5E_ATTR, H5E_BADITER, FAIL, "error iterating over attributes")
+        HERROR(H5E_ATTR, H5E_BADITER, "error iterating over attributes");
 
 done:
     /* Release resources */

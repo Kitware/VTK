@@ -116,7 +116,7 @@ typedef struct H5FS_section_class_t {
         const struct H5FS_section_class_t *, const uint8_t *, haddr_t, hsize_t,
         unsigned *); /* Routine to deserialize a buffer into a "live" section */
     htri_t (*can_merge)(const H5FS_section_info_t *, const H5FS_section_info_t *,
-                        void *); /* Routine to determine if two nodes are mergable */
+                        void *); /* Routine to determine if two nodes are mergeable */
     herr_t (*merge)(H5FS_section_info_t **, H5FS_section_info_t *, void *); /* Routine to merge two nodes */
     htri_t (*can_shrink)(const H5FS_section_info_t *,
                          void *);                     /* Routine to determine if node can shrink container */
@@ -185,9 +185,6 @@ H5FL_SEQ_EXTERN(H5FS_section_class_t);
 /***************************************/
 /* Library-private Function Prototypes */
 /***************************************/
-
-/* Package initialization routine */
-H5_DLL herr_t H5FS_init(void);
 
 /* Free space manager routines */
 H5_DLL H5FS_t *H5FS_create(H5F_t *f, haddr_t *fs_addr, const H5FS_create_t *fs_create, uint16_t nclasses,

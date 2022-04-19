@@ -102,7 +102,7 @@ static herr_t    H5D__btree_new_node(H5F_t *f, H5B_ins_t, void *_lt_key, void *_
                                      haddr_t *addr_p /*out*/);
 static int       H5D__btree_cmp2(void *_lt_key, void *_udata, void *_rt_key);
 static int       H5D__btree_cmp3(void *_lt_key, void *_udata, void *_rt_key);
-static htri_t    H5D__btree_found(H5F_t *f, haddr_t addr, const void *_lt_key, void *_udata);
+static htri_t    H5D__btree_found(H5F_t *f, haddr_t addr, const void *_lt_key, hbool_t *found, void *_udata);
 static H5B_ins_t H5D__btree_insert(H5F_t *f, haddr_t addr, void *_lt_key, hbool_t *lt_key_changed,
                                    void *_md_key, void *_udata, void *_rt_key, hbool_t *rt_key_changed,
                                    haddr_t *new_node /*out*/);
@@ -407,8 +407,9 @@ H5D__btree_cmp3(void *_lt_key, void *_udata, void *_rt_key)
  *		called with the maximum stored chunk indices less than the
  *		requested chunk indices.
  *
- * Return:	Non-negative (TRUE/FALSE) on success with information about the
- *              chunk returned through the UDATA argument. Negative on failure.
+ * Return:	Non-negative on success with information about the
+ *              chunk returned through the UDATA argument, if *FOUND is true.
+ *              Negative on failure.
  *
  * Programmer:	Robb Matzke
  *		Thursday, October  9, 1997
@@ -416,31 +417,35 @@ H5D__btree_cmp3(void *_lt_key, void *_udata, void *_rt_key)
  *-------------------------------------------------------------------------
  */
 static htri_t
-H5D__btree_found(H5F_t H5_ATTR_UNUSED *f, haddr_t addr, const void *_lt_key, void *_udata)
+H5D__btree_found(H5F_t H5_ATTR_UNUSED *f, haddr_t addr, const void *_lt_key, hbool_t *found, void *_udata)
 {
     H5D_chunk_ud_t *       udata  = (H5D_chunk_ud_t *)_udata;
     const H5D_btree_key_t *lt_key = (const H5D_btree_key_t *)_lt_key;
     unsigned               u;
-    htri_t                 ret_value = TRUE; /* Return value */
+    herr_t                 ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_STATIC_NOERR
 
     /* Check arguments */
     HDassert(f);
     HDassert(H5F_addr_defined(addr));
-    HDassert(udata);
     HDassert(lt_key);
+    HDassert(found);
+    HDassert(udata);
 
     /* Is this *really* the requested chunk? */
     for (u = 0; u < udata->common.layout->ndims; u++)
-        if (udata->common.scaled[u] >= (lt_key->scaled[u] + 1))
-            HGOTO_DONE(FALSE)
+        if (udata->common.scaled[u] >= (lt_key->scaled[u] + 1)) {
+            *found = FALSE;
+            HGOTO_DONE(SUCCEED)
+        }
 
     /* Initialize return values */
     HDassert(lt_key->nbytes > 0);
     udata->chunk_block.offset = addr;
     udata->chunk_block.length = lt_key->nbytes;
     udata->filter_mask        = lt_key->filter_mask;
+    *found                    = TRUE;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -990,7 +995,8 @@ done:
 static herr_t
 H5D__btree_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata)
 {
-    herr_t ret_value = SUCCEED; /* Return value */
+    hbool_t found;               /* Whether chunk was found */
+    herr_t  ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -1004,8 +1010,9 @@ H5D__btree_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udat
     HDassert(udata);
 
     /* Go get the chunk information from the B-tree */
-    if (H5B_find(idx_info->f, H5B_BTREE, idx_info->storage->idx_addr, udata) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get chunk info")
+    found = FALSE;
+    if (H5B_find(idx_info->f, H5B_BTREE, idx_info->storage->idx_addr, &found, udata) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTFIND, FAIL, "can't check for chunk in B-tree")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

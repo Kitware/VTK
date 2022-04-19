@@ -178,7 +178,7 @@ H5G__is_empty_test(hid_t gid)
     } /* end if */
 
 done:
-    if (api_ctx_pushed && H5CX_pop() < 0)
+    if (api_ctx_pushed && H5CX_pop(FALSE) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -245,7 +245,7 @@ H5G__has_links_test(hid_t gid, unsigned *nmsgs)
     } /* end if */
 
 done:
-    if (api_ctx_pushed && H5CX_pop() < 0)
+    if (api_ctx_pushed && H5CX_pop(FALSE) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -301,7 +301,7 @@ H5G__has_stab_test(hid_t gid)
         HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "both symbol table and link messages found")
 
 done:
-    if (api_ctx_pushed && H5CX_pop() < 0)
+    if (api_ctx_pushed && H5CX_pop(FALSE) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -376,7 +376,7 @@ H5G__is_new_dense_test(hid_t gid)
     } /* end if */
 
 done:
-    if (api_ctx_pushed && H5CX_pop() < 0)
+    if (api_ctx_pushed && H5CX_pop(FALSE) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -469,7 +469,7 @@ done:
         HDONE_ERROR(H5E_SYM, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for name index")
     if (bt2_corder && H5B2_close(bt2_corder) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for creation order index")
-    if (api_ctx_pushed && H5CX_pop() < 0)
+    if (api_ctx_pushed && H5CX_pop(FALSE) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -522,7 +522,7 @@ H5G__lheap_size_test(hid_t gid, size_t *lheap_size)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGETSIZE, FAIL, "can't query local heap size")
 
 done:
-    if (api_ctx_pushed && H5CX_pop() < 0)
+    if (api_ctx_pushed && H5CX_pop(FALSE) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -553,10 +553,10 @@ done:
 herr_t
 H5G__user_path_test(hid_t obj_id, char *user_path, size_t *user_path_len, unsigned *obj_hidden)
 {
-    void *      obj_ptr;                  /* Pointer to object for ID */
-    H5G_name_t *obj_path;                 /* Pointer to group hier. path for obj */
-    hbool_t     api_ctx_pushed = FALSE;   /* Whether API context pushed */
-    herr_t      ret_value      = SUCCEED; /* Return value */
+    void *            obj_ptr;                  /* Pointer to object for ID */
+    const H5G_name_t *obj_path;                 /* Pointer to group hier. path for obj */
+    hbool_t           api_ctx_pushed = FALSE;   /* Whether API context pushed */
+    herr_t            ret_value      = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -607,6 +607,7 @@ H5G__user_path_test(hid_t obj_id, char *user_path, size_t *user_path_len, unsign
         case H5I_ERROR_MSG:
         case H5I_ERROR_STACK:
         case H5I_SPACE_SEL_ITER:
+        case H5I_EVENTSET:
         case H5I_NTYPES:
         default:
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "unknown data object type")
@@ -615,14 +616,14 @@ H5G__user_path_test(hid_t obj_id, char *user_path, size_t *user_path_len, unsign
 
     /* Retrieve a copy of the user path and put it into the buffer */
     if (obj_path->user_path_r) {
-        ssize_t len = H5RS_len(obj_path->user_path_r);
+        size_t len = H5RS_len(obj_path->user_path_r);
 
         /* Set the user path, if given */
         if (user_path)
-            HDstrncpy(user_path, H5RS_get_str(obj_path->user_path_r), (size_t)(len + 1));
+            HDstrncpy(user_path, H5RS_get_str(obj_path->user_path_r), (len + 1));
 
         /* Set the length of the path */
-        *user_path_len = (size_t)len;
+        *user_path_len = len;
 
         /* Set the user path hidden flag */
         *obj_hidden = obj_path->obj_hidden;
@@ -633,7 +634,7 @@ H5G__user_path_test(hid_t obj_id, char *user_path, size_t *user_path_len, unsign
     } /* end else */
 
 done:
-    if (api_ctx_pushed && H5CX_pop() < 0)
+    if (api_ctx_pushed && H5CX_pop(FALSE) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)

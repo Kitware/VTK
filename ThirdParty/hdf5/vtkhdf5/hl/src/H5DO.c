@@ -182,7 +182,7 @@ H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension, hid_t 
     if (FAIL == H5Sselect_hyperslab(new_space_id, H5S_SELECT_SET, start, stride, count, block))
         goto done;
 
-    /* The # of elemnts in the new extended dataspace */
+    /* The # of elements in the new extended dataspace */
     if ((snelmts = H5Sget_select_npoints(new_space_id)) < 0)
         goto done;
     nelmts = (hsize_t)snelmts;

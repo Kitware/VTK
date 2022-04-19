@@ -70,6 +70,7 @@ static const unsigned HDF5_superblock_ver_bounds[] = {
     HDF5_SUPERBLOCK_VERSION_DEF,   /* H5F_LIBVER_EARLIEST */
     HDF5_SUPERBLOCK_VERSION_2,     /* H5F_LIBVER_V18 */
     HDF5_SUPERBLOCK_VERSION_3,     /* H5F_LIBVER_V110 */
+    HDF5_SUPERBLOCK_VERSION_3,     /* H5F_LIBVER_V112 */
     HDF5_SUPERBLOCK_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 
@@ -374,7 +375,7 @@ H5F__super_read(H5F_t *f, H5P_genplist_t *fa_plist, hbool_t initial_read)
         if (0 == mpi_rank) {
             herr_t status;
 
-            /* Try detecting file's siganture */
+            /* Try detecting file's signature */
             /* (Don't leave before Bcast, to avoid hang on error) */
             H5E_BEGIN_TRY
             {
@@ -466,7 +467,7 @@ H5F__super_read(H5F_t *f, H5P_genplist_t *fa_plist, hbool_t initial_read)
      *
      * After upgrading low_bound, the library will check to ensure that the
      * superblock version does not exceed the version allowed by high_bound.
-     * Otherise fail file open.
+     * Otherwise fail file open.
      *
      * For details, please see RFC:Setting Bounds for Object Creation in HDF5 1.10.0.
      */
@@ -1042,7 +1043,7 @@ done:
                 HDONE_ERROR(H5E_FILE, H5E_CANTUNPIN, FAIL, "unable to unpin driver info")
 
             /* Evict the driver info block from the cache */
-            if (H5AC_expunge_entry(f, H5AC_DRVRINFO, sblock->driver_addr, H5AC__NO_FLAGS_SET) < 0)
+            if (sblock && H5AC_expunge_entry(f, H5AC_DRVRINFO, sblock->driver_addr, H5AC__NO_FLAGS_SET) < 0)
                 HDONE_ERROR(H5E_FILE, H5E_CANTEXPUNGE, FAIL, "unable to expunge driver info block")
         } /* end if */
 

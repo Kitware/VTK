@@ -45,7 +45,7 @@ const H5O_msg_class_t H5O_MSG_REFCOUNT[1] = {{
     H5O_REFCOUNT_ID,             /*message id number             */
     "refcount",                  /*message name for debugging    */
     sizeof(H5O_refcount_t),      /*native message size           */
-    0,                           /* messages are sharable?       */
+    0,                           /* messages are shareable?       */
     H5O__refcount_decode,        /*decode message                */
     H5O__refcount_encode,        /*encode message                */
     H5O__refcount_copy,          /*copy the native value         */

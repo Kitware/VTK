@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Module Info: This module contains commond functionality for fields in
+ * Module Info: This module contains command functionality for fields in
  *      enumerated & compound datatypes in the H5T interface.
  */
 

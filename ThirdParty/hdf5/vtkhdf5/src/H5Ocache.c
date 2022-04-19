@@ -78,8 +78,8 @@ static herr_t H5O__cache_chk_free_icr(void *thing);
 static herr_t H5O__prefix_deserialize(const uint8_t *image, H5O_cache_ud_t *udata);
 
 /* Chunk routines */
-static herr_t H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t len, const uint8_t *image,
-                                     H5O_common_cache_ud_t *udata, hbool_t *dirty);
+static herr_t H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t chunk_size, const uint8_t *image,
+                                     size_t len, H5O_common_cache_ud_t *udata, hbool_t *dirty);
 static herr_t H5O__chunk_serialize(const H5F_t *f, H5O_t *oh, unsigned chunkno);
 
 /* Misc. routines */
@@ -276,7 +276,7 @@ H5O__cache_verify_chksum(const void *_image, size_t len, void *_udata)
  *
  *		Note that the object header is read with with a speculative read.
  *		If the initial read is too small, make note of this fact and return
- *     		without error.  H5C__load_entry() will note the size discrepency
+ *     		without error.  H5C__load_entry() will note the size discrepancy
  *		and retry the deserialize operation with the correct size read.
  *
  * Return:      Success:        Pointer to in core representation
@@ -288,7 +288,7 @@ H5O__cache_verify_chksum(const void *_image, size_t len, void *_udata)
  *-------------------------------------------------------------------------
  */
 static void *
-H5O__cache_deserialize(const void *image, size_t H5_ATTR_NDEBUG_UNUSED len, void *_udata, hbool_t *dirty)
+H5O__cache_deserialize(const void *image, size_t len, void *_udata, hbool_t *dirty)
 {
     H5O_t *         oh        = NULL;                     /* Object header read in */
     H5O_cache_ud_t *udata     = (H5O_cache_ud_t *)_udata; /* User data for callback */
@@ -335,7 +335,7 @@ H5O__cache_deserialize(const void *image, size_t H5_ATTR_NDEBUG_UNUSED len, void
         oh->proxy = NULL;
 
     /* Parse the first chunk */
-    if (H5O__chunk_deserialize(oh, udata->common.addr, udata->chunk0_size, (const uint8_t *)image,
+    if (H5O__chunk_deserialize(oh, udata->common.addr, udata->chunk0_size, (const uint8_t *)image, len,
                                &(udata->common), dirty) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL, "can't deserialize first object header chunk")
 
@@ -348,7 +348,7 @@ H5O__cache_deserialize(const void *image, size_t H5_ATTR_NDEBUG_UNUSED len, void
 done:
     /* Release the [possibly partially initialized] object header on errors */
     if (!ret_value && oh)
-        if (H5O__free(oh) < 0)
+        if (H5O__free(oh, FALSE) < 0)
             HDONE_ERROR(H5E_OHDR, H5E_CANTRELEASE, NULL, "unable to destroy object header data")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -641,7 +641,7 @@ H5O__cache_free_icr(void *_thing)
     HDassert(oh->cache_info.type == H5AC_OHDR);
 
     /* Destroy object header */
-    if (H5O__free(oh) < 0)
+    if (H5O__free(oh, FALSE) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "can't destroy object header")
 
 done:
@@ -738,7 +738,7 @@ H5O__cache_chk_verify_chksum(const void *_image, size_t len, void *_udata)
  *-------------------------------------------------------------------------
  */
 static void *
-H5O__cache_chk_deserialize(const void *image, size_t H5_ATTR_NDEBUG_UNUSED len, void *_udata, hbool_t *dirty)
+H5O__cache_chk_deserialize(const void *image, size_t len, void *_udata, hbool_t *dirty)
 {
     H5O_chunk_proxy_t * chk_proxy = NULL;                         /* Chunk proxy object */
     H5O_chk_cache_ud_t *udata     = (H5O_chk_cache_ud_t *)_udata; /* User data for callback */
@@ -766,7 +766,7 @@ H5O__cache_chk_deserialize(const void *image, size_t H5_ATTR_NDEBUG_UNUSED len, 
         HDassert(udata->common.cont_msg_info);
 
         /* Parse the chunk */
-        if (H5O__chunk_deserialize(udata->oh, udata->common.addr, udata->size, (const uint8_t *)image,
+        if (H5O__chunk_deserialize(udata->oh, udata->common.addr, udata->size, (const uint8_t *)image, len,
                                    &(udata->common), dirty) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL, "can't deserialize object header chunk")
 
@@ -1245,7 +1245,7 @@ H5O__prefix_deserialize(const uint8_t *_image, H5O_cache_ud_t *udata)
 
         /* Save the object header for later use in 'deserialize' callback */
         udata->oh = oh;
-        if (H5O__free(saved_oh) < 0)
+        if (H5O__free(saved_oh, FALSE) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "can't destroy object header")
         udata->free_oh = FALSE;
     }
@@ -1258,7 +1258,7 @@ H5O__prefix_deserialize(const uint8_t *_image, H5O_cache_ud_t *udata)
 done:
     /* Release the [possibly partially initialized] object header on errors */
     if (ret_value < 0 && oh)
-        if (H5O__free(oh) < 0)
+        if (H5O__free(oh, FALSE) < 0)
             HDONE_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "unable to destroy object header data")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1278,7 +1278,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t len, const uint8_t *image,
+H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t chunk_size, const uint8_t *image, size_t len,
                        H5O_common_cache_ud_t *udata, hbool_t *dirty)
 {
     const uint8_t *chunk_image;          /* Pointer into buffer to decode */
@@ -1298,6 +1298,7 @@ H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t len, const uint8_t *image
     HDassert(oh);
     HDassert(H5F_addr_defined(addr));
     HDassert(image);
+    HDassert(len);
     HDassert(udata->f);
     HDassert(udata->cont_msg_info);
 
@@ -1318,14 +1319,16 @@ H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t len, const uint8_t *image
     oh->chunk[chunkno].addr = addr;
     if (chunkno == 0)
         /* First chunk's 'image' includes room for the object header prefix */
-        oh->chunk[0].size = len + (size_t)H5O_SIZEOF_HDR(oh);
+        oh->chunk[0].size = chunk_size + (size_t)H5O_SIZEOF_HDR(oh);
     else
-        oh->chunk[chunkno].size = len;
+        oh->chunk[chunkno].size = chunk_size;
     if (NULL == (oh->chunk[chunkno].image = H5FL_BLK_MALLOC(chunk_image, oh->chunk[chunkno].size)))
         HGOTO_ERROR(H5E_OHDR, H5E_CANTALLOC, FAIL, "memory allocation failed")
     oh->chunk[chunkno].chunk_proxy = NULL;
 
     /* Copy disk image into chunk's image */
+    if (len < oh->chunk[chunkno].size)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "attempted to copy too many disk image bytes into buffer")
     H5MM_memcpy(oh->chunk[chunkno].image, image, oh->chunk[chunkno].size);
 
     /* Point into chunk image to decode */

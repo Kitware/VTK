@@ -44,18 +44,18 @@
  * <tr><th>Create</th><th>Read</th></tr>
  * <tr valign="top">
  *   <td>
- *   \snippet H5D_examples.c create
+ *   \snippet{lineno} H5D_examples.c create
  *   </td>
  *   <td>
- *   \snippet H5D_examples.c read
+ *   \snippet{lineno} H5D_examples.c read
  *   </td>
  * <tr><th>Update</th><th>Delete</th></tr>
  * <tr valign="top">
  *   <td>
- *   \snippet H5D_examples.c update
+ *   \snippet{lineno} H5D_examples.c update
  *   </td>
  *   <td>
- *   \snippet H5D_examples.c delete
+ *   \snippet{lineno} H5D_examples.c delete
  *   </td>
  * </tr>
  * </table>

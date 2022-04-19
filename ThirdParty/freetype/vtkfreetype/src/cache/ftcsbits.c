@@ -4,7 +4,7 @@
  *
  *   FreeType sbits manager (body).
  *
- * Copyright (C) 2000-2021 by
+ * Copyright (C) 2000-2022 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -111,7 +111,7 @@
     FTC_SFamilyClass  clazz;
 
 
-    if ( (FT_UInt)(gindex - gnode->gindex) >= snode->count )
+    if ( gindex - gnode->gindex >= snode->count )
     {
       FT_ERROR(( "ftc_snode_load: invalid glyph index" ));
       return FT_THROW( Invalid_Argument );
@@ -233,7 +233,7 @@
       goto Exit;
     }
 
-    if ( !FT_NEW( snode ) )
+    if ( !FT_QNEW( snode ) )
     {
       FT_UInt  count, start;
 
@@ -248,7 +248,9 @@
       snode->count = count;
       for ( node_count = 0; node_count < count; node_count++ )
       {
-        snode->sbits[node_count].width = 255;
+        snode->sbits[node_count].width  = 255;
+        snode->sbits[node_count].height = 0;
+        snode->sbits[node_count].buffer = NULL;
       }
 
       error = ftc_snode_load( snode,
@@ -342,8 +344,8 @@
 
     if (list_changed)
       *list_changed = FALSE;
-    result = FT_BOOL( gnode->family == gquery->family                    &&
-                      (FT_UInt)( gindex - gnode->gindex ) < snode->count );
+    result = FT_BOOL( gnode->family == gquery->family       &&
+                      gindex - gnode->gindex < snode->count );
     if ( result )
     {
       /* check if we need to load the glyph bitmap now */

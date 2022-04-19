@@ -64,27 +64,29 @@ Languages:
 
 Features:
 ---------
-                   Parallel HDF5: @HDF5_ENABLE_PARALLEL@
-Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
-              Large Parallel I/O: @LARGE_PARALLEL_IO@
-              High-level library: @HDF5_BUILD_HL_LIB@
-                Build HDF5 Tests: @BUILD_TESTING@
-                Build HDF5 Tools: @HDF5_BUILD_TOOLS@
-                    Threadsafety: @HDF5_ENABLE_THREADSAFE@ (recursive RW locks: @HDF5_USE_RECURSIVE_RW_LOCKS@) 
-             Default API mapping: @DEFAULT_API_VERSION@
-  With deprecated public symbols: @HDF5_ENABLE_DEPRECATED_SYMBOLS@
-          I/O filters (external): @EXTERNAL_FILTERS@
-                             MPE: @H5_HAVE_LIBLMPE@
-                      Direct VFD: @H5_HAVE_DIRECT@
-                      Mirror VFD: @H5_HAVE_MIRROR_VFD@
-              (Read-Only) S3 VFD: @H5_HAVE_ROS3_VFD@
-            (Read-Only) HDFS VFD: @H5_HAVE_LIBHDFS@
-                         dmalloc: @H5_HAVE_LIBDMALLOC@
-  Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@
-                     API Tracing: @HDF5_ENABLE_TRACE@
-            Using memory checker: @HDF5_ENABLE_USING_MEMCHECKER@
- Memory allocation sanity checks: @HDF5_MEMORY_ALLOC_SANITY_CHECK@
-          Function Stack Tracing: @HDF5_ENABLE_CODESTACK@
-                Use file locking: @HDF5_FILE_LOCKING_SETTING@
-       Strict File Format Checks: @HDF5_STRICT_FORMAT_CHECKS@
-    Optimization Instrumentation: @HDF5_Enable_Instrument@
+                     Parallel HDF5: @HDF5_ENABLE_PARALLEL@
+  Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
+                Large Parallel I/O: @LARGE_PARALLEL_IO@
+                High-level library: @HDF5_BUILD_HL_LIB@
+Dimension scales w/ new references: @DIMENSION_SCALES_WITH_NEW_REF@
+                  Build HDF5 Tests: @BUILD_TESTING@
+                  Build HDF5 Tools: @HDF5_BUILD_TOOLS@
+       Build High-level HDF5 Tools: @HDF5_BUILD_HL_TOOLS@
+                      Threadsafety: @HDF5_ENABLE_THREADSAFE@
+               Default API mapping: @DEFAULT_API_VERSION@
+    With deprecated public symbols: @HDF5_ENABLE_DEPRECATED_SYMBOLS@
+            I/O filters (external): @EXTERNAL_FILTERS@
+                               MPE: @H5_HAVE_LIBLMPE@
+                        Direct VFD: @H5_HAVE_DIRECT@
+                        Mirror VFD: @H5_HAVE_MIRROR_VFD@
+                (Read-Only) S3 VFD: @H5_HAVE_ROS3_VFD@
+              (Read-Only) HDFS VFD: @H5_HAVE_LIBHDFS@
+                           dmalloc: @H5_HAVE_LIBDMALLOC@
+    Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@
+                       API Tracing: @HDF5_ENABLE_TRACE@
+              Using memory checker: @HDF5_ENABLE_USING_MEMCHECKER@
+   Memory allocation sanity checks: @HDF5_MEMORY_ALLOC_SANITY_CHECK@
+            Function Stack Tracing: @HDF5_ENABLE_CODESTACK@
+                  Use file locking: @HDF5_FILE_LOCKING_SETTING@
+         Strict File Format Checks: @HDF5_STRICT_FORMAT_CHECKS@
+      Optimization Instrumentation: @HDF5_Enable_Instrument@

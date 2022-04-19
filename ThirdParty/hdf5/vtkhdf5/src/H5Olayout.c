@@ -51,7 +51,7 @@ const H5O_msg_class_t H5O_MSG_LAYOUT[1] = {{
     H5O_LAYOUT_ID,             /* message id number                    */
     "layout",                  /* message name for debugging           */
     sizeof(H5O_layout_t),      /* native message size                  */
-    0,                         /* messages are sharable?               */
+    0,                         /* messages are shareable?               */
     H5O__layout_decode,        /* decode message                       */
     H5O__layout_encode,        /* encode message                       */
     H5O__layout_copy,          /* copy the native value                */

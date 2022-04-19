@@ -44,35 +44,6 @@ main ()
 
 #endif
 
-#ifdef HAVE_C99_FUNC
-
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
- const char *fname = __func__;
-  ;
-  return 0;
-}
-
-#endif
-
-#ifdef STDC_HEADERS
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <float.h>
-int main() { return 0; }
-#endif /* STDC_HEADERS */
-
-
 #ifdef HAVE_ATTRIBUTE
 
 #if 0
@@ -98,26 +69,6 @@ int __attribute__((unused)) x
 
 
 #endif /* HAVE_ATTRIBUTE */
-
-#ifdef HAVE_FUNCTION
-
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-(void)__FUNCTION__
-  ;
-  return 0;
-}
-
-#endif /* HAVE_FUNCTION */
 
 #ifdef HAVE_TIMEZONE
 
@@ -164,8 +115,8 @@ int main(void)
   for (currentArg = llwidthArgs; *currentArg != NULL; currentArg++)
     {
     char formatString[64];
-    sprintf(formatString, "%%%sd", *currentArg);
-    sprintf(s, formatString, x);
+    snprintf(formatString, sizeof(formatString), "%%%sd", *currentArg);
+    snprintf(s, 128, formatString, x);
     if (strcmp(s, "1099511627776") == 0)
       {
       printf("PRINTF_LL_WIDTH=[%s]\n", *currentArg);
@@ -337,20 +288,3 @@ int main ()
 }
 
 #endif /* HAVE_IOEO */
-
-#if defined( HAVE_INLINE ) || defined( HAVE___INLINE__ ) || defined( HAVE___INLINE )
-#ifndef __cplusplus
-#if defined( HAVE_INLINE )
-#  define INLINE_KW inline
-#elif defined ( HAVE___INLINE__ )
-#  define INLINE_KW __inline__
-#elif defined ( HAVE___INLINE )
-#  define INLINE_KW __inline
-#endif /* HAVE_INLINE */
-typedef int foo_t;
-static INLINE_KW foo_t static_foo () { return 0; }
-INLINE_KW foo_t foo () {return 0; }
-int main(void) { return 0; }
-#endif /* __cplusplus */
-#endif /* defined( HAVE_INLINE ) || defined( HAVE___INLINE__ ) || defined( HAVE___INLINE ) */
-

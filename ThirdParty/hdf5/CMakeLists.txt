@@ -4,7 +4,7 @@ vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkhdf5/COPYING"
                   "vtkhdf5/COPYING_LBNL_HDF5"
-    VERSION       "1.12.1"
+    VERSION       "1.13.1"
     STANDARD_INCLUDE_DIRS
     INTERFACE
   EXTERNAL

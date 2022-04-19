@@ -98,7 +98,7 @@ H5Iregister_type(size_t H5_ATTR_DEBUG_API_USED hash_size, unsigned reserved, H5I
     H5I_type_t   ret_value = H5I_BADID; /* Return value */
 
     FUNC_ENTER_API(H5I_BADID)
-    H5TRACE3("It", "zIux", hash_size, reserved, free_func);
+    H5TRACE3("It", "zIuIf", hash_size, reserved, free_func);
 
     /* Generate a new H5I_type_t value */
 
@@ -123,12 +123,12 @@ H5Iregister_type(size_t H5_ATTR_DEBUG_API_USED hash_size, unsigned reserved, H5I
 
         /* Verify that we found a type to give out */
         if (done == FALSE)
-            HGOTO_ERROR(H5E_ATOM, H5E_NOSPACE, H5I_BADID, "Maximum number of ID types exceeded")
+            HGOTO_ERROR(H5E_ID, H5E_NOSPACE, H5I_BADID, "Maximum number of ID types exceeded")
     }
 
     /* Allocate new ID class */
     if (NULL == (cls = H5MM_calloc(sizeof(H5I_class_t))))
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTALLOC, H5I_BADID, "ID class allocation failed")
+        HGOTO_ERROR(H5E_ID, H5E_CANTALLOC, H5I_BADID, "ID class allocation failed")
 
     /* Initialize class fields */
     cls->type      = new_type;
@@ -138,7 +138,7 @@ H5Iregister_type(size_t H5_ATTR_DEBUG_API_USED hash_size, unsigned reserved, H5I
 
     /* Register the new ID class */
     if (H5I_register_type(cls) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTINIT, H5I_BADID, "can't initialize ID class")
+        HGOTO_ERROR(H5E_ID, H5E_CANTINIT, H5I_BADID, "can't initialize ID class")
 
     /* Set return value */
     ret_value = new_type;
@@ -172,7 +172,7 @@ H5Itype_exists(H5I_type_t type)
 
     /* Validate parameter */
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, FAIL, "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "cannot call public function on library type")
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number")
 
@@ -208,7 +208,7 @@ H5Inmembers(H5I_type_t type, hsize_t *num_members)
     H5TRACE2("e", "It*h", type, num_members);
 
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, FAIL, "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "cannot call public function on library type")
 
     /* Validate parameters.  This needs to be done here, instead of letting
      * the private interface handle it, because the public interface throws
@@ -223,7 +223,7 @@ H5Inmembers(H5I_type_t type, hsize_t *num_members)
         int64_t members;
 
         if ((members = H5I_nmembers(type)) < 0)
-            HGOTO_ERROR(H5E_ATOM, H5E_CANTCOUNT, FAIL, "can't compute number of members")
+            HGOTO_ERROR(H5E_ID, H5E_CANTCOUNT, FAIL, "can't compute number of members")
 
         H5_CHECKED_ASSIGN(*num_members, hsize_t, members, int64_t);
     }
@@ -256,7 +256,7 @@ H5Iclear_type(H5I_type_t type, hbool_t force)
     H5TRACE2("e", "Itb", type, force);
 
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, FAIL, "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "cannot call public function on library type")
 
     ret_value = H5I_clear_type(type, force, TRUE);
 
@@ -289,7 +289,7 @@ H5Idestroy_type(H5I_type_t type)
     H5TRACE1("e", "It", type);
 
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, FAIL, "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "cannot call public function on library type")
 
     ret_value = H5I__destroy_type(type);
 
@@ -316,13 +316,48 @@ H5Iregister(H5I_type_t type, const void *object)
     H5TRACE2("i", "It*x", type, object);
 
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, H5I_INVALID_HID, "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, H5I_INVALID_HID, "cannot call public function on library type")
 
-    ret_value = H5I_register(type, object, TRUE);
+    /* Register the object */
+    if ((ret_value = H5I__register(type, object, TRUE, NULL, NULL)) < 0)
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register object")
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Iregister() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Iregister_future
+ *
+ * Purpose:     Register a "future" object.
+ *
+ * Return:      Success:    New future object ID
+ *              Failure:    H5I_INVALID_HID
+ *
+ *-------------------------------------------------------------------------
+ */
+hid_t
+H5Iregister_future(H5I_type_t type, const void *object, H5I_future_realize_func_t realize_cb,
+                   H5I_future_discard_func_t discard_cb)
+{
+    hid_t ret_value = H5I_INVALID_HID; /* Return value */
+
+    FUNC_ENTER_API(H5I_INVALID_HID)
+    H5TRACE4("i", "It*xIRID", type, object, realize_cb, discard_cb);
+
+    /* Check arguments */
+    if (NULL == realize_cb)
+        HGOTO_ERROR(H5E_ID, H5E_BADVALUE, H5I_INVALID_HID, "NULL pointer for realize_cb not allowed")
+    if (NULL == discard_cb)
+        HGOTO_ERROR(H5E_ID, H5E_BADVALUE, H5I_INVALID_HID, "NULL pointer for realize_cb not allowed")
+
+    /* Register the future object */
+    if ((ret_value = H5I__register(type, object, TRUE, realize_cb, discard_cb)) < 0)
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register object")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Iregister_future() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5Iobject_verify
@@ -347,9 +382,9 @@ H5Iobject_verify(hid_t id, H5I_type_t type)
 
     /* Validate parameters */
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, NULL, "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, NULL, "cannot call public function on library type")
     if (type < 1 || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, NULL, "identifier has invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, NULL, "identifier has invalid type")
 
     ret_value = H5I_object_verify(id, type);
 
@@ -415,7 +450,7 @@ H5Iremove_verify(hid_t id, H5I_type_t type)
     H5TRACE2("*x", "iIt", id, type);
 
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, NULL, "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, NULL, "cannot call public function on library type")
 
     /* Remove the id */
     ret_value = H5I__remove_verify(id, type);
@@ -449,11 +484,11 @@ H5Idec_ref(hid_t id)
 
     /* Check arguments */
     if (id < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, (-1), "invalid ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "invalid ID")
 
     /* Do actual decrement operation */
     if ((ret_value = H5I_dec_app_ref(id)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTDEC, (-1), "can't decrement ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -479,11 +514,11 @@ H5Iinc_ref(hid_t id)
 
     /* Check arguments */
     if (id < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, (-1), "invalid ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "invalid ID")
 
     /* Do actual increment operation */
     if ((ret_value = H5I_inc_ref(id, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTINC, (-1), "can't increment ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTINC, (-1), "can't increment ID ref count")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -509,11 +544,11 @@ H5Iget_ref(hid_t id)
 
     /* Check arguments */
     if (id < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, (-1), "invalid ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "invalid ID")
 
     /* Do actual retrieve operation */
     if ((ret_value = H5I_get_ref(id, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, (-1), "can't get ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't get ID ref count")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -539,13 +574,13 @@ H5Iinc_type_ref(H5I_type_t type)
 
     /* Check arguments */
     if (type <= 0 || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, (-1), "invalid ID type")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "invalid ID type")
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, (-1), "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "cannot call public function on library type")
 
     /* Do actual increment operation */
     if ((ret_value = H5I__inc_type_ref(type)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTINC, (-1), "can't increment ID type ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTINC, (-1), "can't increment ID type ref count")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -584,7 +619,7 @@ H5Idec_type_ref(H5I_type_t type)
     H5TRACE1("e", "It", type);
 
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, (-1), "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "cannot call public function on library type")
 
     ret_value = H5I_dec_type_ref(type);
 
@@ -612,13 +647,13 @@ H5Iget_type_ref(H5I_type_t type)
 
     /* Check arguments */
     if (type <= 0 || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, (-1), "invalid ID type")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "invalid ID type")
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, (-1), "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "cannot call public function on library type")
 
     /* Do actual retrieve operation */
     if ((ret_value = H5I__get_type_ref(type)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, (-1), "can't get ID type ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't get ID type ref count")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -714,11 +749,11 @@ H5Isearch(H5I_type_t type, H5I_search_func_t func, void *key)
     void *          ret_value = NULL; /* Return value */
 
     FUNC_ENTER_API(NULL)
-    H5TRACE3("*x", "Itx*x", type, func, key);
+    H5TRACE3("*x", "ItIS*x", type, func, key);
 
     /* Check arguments */
     if (H5I_IS_LIB_TYPE(type))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADGROUP, NULL, "cannot call public function on library type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, NULL, "cannot call public function on library type")
 
     /* Set up udata struct */
     udata.app_cb  = func;
@@ -779,7 +814,7 @@ H5I__iterate_pub_cb(void H5_ATTR_UNUSED *obj, hid_t id, void *_udata)
 /*-------------------------------------------------------------------------
  * Function:    H5Iiterate
  *
- * Purpose:     Call the callback funciton op for each member of the id
+ * Purpose:     Call the callback function op for each member of the id
  *              type type.  op takes as parameters the id and a
  *              passthrough of op_data, and returns an herr_t.  A positive
  *              return from op will cause the iteration to stop and
@@ -806,7 +841,7 @@ H5Iiterate(H5I_type_t type, H5I_iterate_func_t op, void *op_data)
     herr_t               ret_value = FAIL; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "Itx*x", type, op, op_data);
+    H5TRACE3("e", "ItII*x", type, op, op_data);
 
     /* Set up udata struct */
     int_udata.op      = op;
@@ -816,7 +851,7 @@ H5Iiterate(H5I_type_t type, H5I_iterate_func_t op, void *op_data)
      * here, as we can't do anything with it without revising the API.
      */
     if ((ret_value = H5I_iterate(type, H5I__iterate_pub_cb, &int_udata, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADITER, FAIL, "can't iterate over ids")
+        HGOTO_ERROR(H5E_ID, H5E_BADITER, FAIL, "can't iterate over ids")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -853,11 +888,11 @@ H5Iget_file_id(hid_t obj_id)
 
         /* Get the VOL object */
         if (NULL == (vol_obj = H5VL_vol_object(obj_id)))
-            HGOTO_ERROR(H5E_ATOM, H5E_BADTYPE, H5I_INVALID_HID, "invalid location identifier")
+            HGOTO_ERROR(H5E_ID, H5E_BADTYPE, H5I_INVALID_HID, "invalid location identifier")
 
         /* Get the file ID */
         if ((ret_value = H5F_get_file_id(vol_obj, type, TRUE)) < 0)
-            HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, H5I_INVALID_HID, "can't retrieve file ID")
+            HGOTO_ERROR(H5E_ID, H5E_CANTGET, H5I_INVALID_HID, "can't retrieve file ID")
     }
     else
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, H5I_INVALID_HID, "not an ID of a file object")
@@ -890,25 +925,35 @@ done:
 ssize_t
 H5Iget_name(hid_t id, char *name /*out*/, size_t size)
 {
-    H5VL_object_t *   vol_obj = NULL; /* Object stored in ID */
-    H5VL_loc_params_t loc_params;
-    ssize_t           ret_value = -1; /* Return value */
+    H5VL_object_t *        vol_obj = NULL; /* Object stored in ID */
+    H5VL_object_get_args_t vol_cb_args;    /* Arguments to VOL callback */
+    H5VL_loc_params_t      loc_params;
+    size_t                 obj_name_len = 0;  /* Length of object's name */
+    ssize_t                ret_value    = -1; /* Return value */
 
     FUNC_ENTER_API((-1))
     H5TRACE3("Zs", "ixz", id, name, size);
 
     /* Get the object pointer */
     if (NULL == (vol_obj = H5VL_vol_object(id)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADTYPE, (-1), "invalid identifier")
+        HGOTO_ERROR(H5E_ID, H5E_BADTYPE, (-1), "invalid identifier")
 
     /* Set location parameters */
     loc_params.type     = H5VL_OBJECT_BY_SELF;
     loc_params.obj_type = H5I_get_type(id);
 
+    /* Set up VOL callback arguments */
+    vol_cb_args.op_type                = H5VL_OBJECT_GET_NAME;
+    vol_cb_args.args.get_name.buf_size = size;
+    vol_cb_args.args.get_name.buf      = name;
+    vol_cb_args.args.get_name.name_len = &obj_name_len;
+
     /* Retrieve object's name */
-    if (H5VL_object_get(vol_obj, &loc_params, H5VL_OBJECT_GET_NAME, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL,
-                        &ret_value, name, size) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, (-1), "can't retrieve object name")
+    if (H5VL_object_get(vol_obj, &loc_params, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
+        HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't retrieve object name")
+
+    /* Set return value */
+    ret_value = (ssize_t)obj_name_len;
 
 done:
     FUNC_LEAVE_API(ret_value)

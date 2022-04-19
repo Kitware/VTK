@@ -126,6 +126,14 @@ extern "C" {
 H5_DLL hid_t H5Gcreate2(hid_t loc_id, const char *name, hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id);
 
 /**
+ * --------------------------------------------------------------------------
+ * \ingroup ASYNC
+ * \async_variant_of{H5Gcreate}
+ */
+H5_DLL hid_t H5Gcreate_async(const char *app_file, const char *app_func, unsigned app_line, hid_t loc_id,
+                             const char *name, hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id, hid_t es_id);
+
+/**
  *-------------------------------------------------------------------------
  * \ingroup H5G
  *
@@ -205,6 +213,14 @@ H5_DLL hid_t H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id);
 H5_DLL hid_t H5Gopen2(hid_t loc_id, const char *name, hid_t gapl_id);
 
 /**
+ * --------------------------------------------------------------------------
+ * \ingroup ASYNC
+ * \async_variant_of{H5Gopen}
+ */
+H5_DLL hid_t H5Gopen_async(const char *app_file, const char *app_func, unsigned app_line, hid_t loc_id,
+                           const char *name, hid_t gapl_id, hid_t es_id);
+
+/**
  *-------------------------------------------------------------------------
  * \ingroup H5G
  *
@@ -256,6 +272,14 @@ H5_DLL hid_t H5Gget_create_plist(hid_t group_id);
 H5_DLL herr_t H5Gget_info(hid_t loc_id, H5G_info_t *ginfo);
 
 /**
+ * --------------------------------------------------------------------------
+ * \ingroup ASYNC
+ * \async_variant_of{H5Gget_info}
+ */
+H5_DLL herr_t H5Gget_info_async(const char *app_file, const char *app_func, unsigned app_line, hid_t loc_id,
+                                H5G_info_t *ginfo /*out*/, hid_t es_id);
+
+/**
  *-------------------------------------------------------------------------
  * \ingroup H5G
  *
@@ -288,6 +312,15 @@ H5_DLL herr_t H5Gget_info(hid_t loc_id, H5G_info_t *ginfo);
  *
  */
 H5_DLL herr_t H5Gget_info_by_name(hid_t loc_id, const char *name, H5G_info_t *ginfo, hid_t lapl_id);
+
+/**
+ * --------------------------------------------------------------------------
+ * \ingroup ASYNC
+ * \async_variant_of{H5Gget_info_by_name}
+ */
+H5_DLL herr_t H5Gget_info_by_name_async(const char *app_file, const char *app_func, unsigned app_line,
+                                        hid_t loc_id, const char *name, H5G_info_t *ginfo /*out*/,
+                                        hid_t lapl_id, hid_t es_id);
 
 /**
  *-------------------------------------------------------------------------
@@ -336,6 +369,16 @@ H5_DLL herr_t H5Gget_info_by_name(hid_t loc_id, const char *name, H5G_info_t *gi
  */
 H5_DLL herr_t H5Gget_info_by_idx(hid_t loc_id, const char *group_name, H5_index_t idx_type,
                                  H5_iter_order_t order, hsize_t n, H5G_info_t *ginfo, hid_t lapl_id);
+
+/**
+ * --------------------------------------------------------------------------
+ * \ingroup ASYNC
+ * \async_variant_of{H5Gget_info_by_idx}
+ */
+H5_DLL herr_t H5Gget_info_by_idx_async(const char *app_file, const char *app_func, unsigned app_line,
+                                       hid_t loc_id, const char *group_name, H5_index_t idx_type,
+                                       H5_iter_order_t order, hsize_t n, H5G_info_t *ginfo /*out*/,
+                                       hid_t lapl_id, hid_t es_id);
 
 /**
  *-------------------------------------------------------------------------
@@ -415,6 +458,38 @@ H5_DLL herr_t H5Grefresh(hid_t group_id);
  *
  */
 H5_DLL herr_t H5Gclose(hid_t group_id);
+
+/**
+ * --------------------------------------------------------------------------
+ * \ingroup ASYNC
+ * \async_variant_of{H5Gclose}
+ */
+H5_DLL herr_t H5Gclose_async(const char *app_file, const char *app_func, unsigned app_line, hid_t group_id,
+                             hid_t es_id);
+
+/// \cond DEV
+/* API Wrappers for async routines */
+/* (Must be defined _after_ the function prototype) */
+/* (And must only defined when included in application code, not the library) */
+#ifndef H5G_MODULE
+#define vtkhdf5_H5Gcreate_async(...)           vtkhdf5_H5Gcreate_async(__FILE__, __func__, __LINE__, __VA_ARGS__)
+#define vtkhdf5_H5Gopen_async(...)             vtkhdf5_H5Gopen_async(__FILE__, __func__, __LINE__, __VA_ARGS__)
+#define vtkhdf5_H5Gget_info_async(...)         vtkhdf5_H5Gget_info_async(__FILE__, __func__, __LINE__, __VA_ARGS__)
+#define vtkhdf5_H5Gget_info_by_name_async(...) vtkhdf5_H5Gget_info_by_name_async(__FILE__, __func__, __LINE__, __VA_ARGS__)
+#define vtkhdf5_H5Gget_info_by_idx_async(...)  vtkhdf5_H5Gget_info_by_idx_async(__FILE__, __func__, __LINE__, __VA_ARGS__)
+#define vtkhdf5_H5Gclose_async(...)            vtkhdf5_H5Gclose_async(__FILE__, __func__, __LINE__, __VA_ARGS__)
+
+/* Define "wrapper" versions of function calls, to allow compile-time values to
+ *      be passed in by language wrapper or library layer on top of HDF5.
+ */
+#define vtkhdf5_H5Gcreate_async_wrap           H5_NO_EXPAND(vtkhdf5_H5Gcreate_async)
+#define vtkhdf5_H5Gopen_async_wrap             H5_NO_EXPAND(vtkhdf5_H5Gopen_async)
+#define vtkhdf5_H5Gget_info_async_wrap         H5_NO_EXPAND(vtkhdf5_H5Gget_info_async)
+#define vtkhdf5_H5Gget_info_by_name_async_wrap H5_NO_EXPAND(vtkhdf5_H5Gget_info_by_name_async)
+#define vtkhdf5_H5Gget_info_by_idx_async_wrap  H5_NO_EXPAND(vtkhdf5_H5Gget_info_by_idx_async)
+#define vtkhdf5_H5Gclose_async_wrap            H5_NO_EXPAND(vtkhdf5_H5Gclose_async)
+#endif /* H5G_MODULE */
+/// \endcond
 
 /* Symbols defined for compatibility with previous versions of the HDF5 API.
  *
@@ -1038,7 +1113,7 @@ H5_DLL herr_t H5Gget_objinfo(hid_t loc_id, const char *name, hbool_t follow_link
  *          actual object name length, the object name is truncated to
  *          \Code{max_size - 1} characters.
  *
- *          Note that if the size of the object's name is unkown, a preliminary
+ *          Note that if the size of the object's name is unknown, a preliminary
  *          call to H5Gget_objname_by_idx() with \p name set to \c NULL will
  *          return the length of the object's name. A second call to
  *          H5Gget_objname_by_idx() can then be used to retrieve the actual

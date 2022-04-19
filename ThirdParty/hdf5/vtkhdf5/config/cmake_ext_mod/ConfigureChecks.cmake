@@ -53,7 +53,6 @@ if (MINGW)
   set (${HDF_PREFIX}_HAVE_MINGW 1)
   set (WINDOWS 1) # MinGW tries to imitate Windows
   set (CMAKE_REQUIRED_FLAGS "-DWIN32_LEAN_AND_MEAN=1 -DNOGDI=1")
-  set (${HDF_PREFIX}_HAVE_WINSOCK2_H 1)
   set (__USE_MINGW_ANSI_STDIO 1)
 endif ()
 
@@ -72,11 +71,8 @@ if (WINDOWS)
   set (${HDF_PREFIX}_HAVE_WIN32_API 1)
   set (${HDF_PREFIX}_HAVE_LIBM 1)
   set (${HDF_PREFIX}_HAVE_STRDUP 1)
-  set (${HDF_PREFIX}_HAVE_SYSTEM 1)
-  set (${HDF_PREFIX}_HAVE_LONGJMP 1)
   if (NOT MINGW)
     set (${HDF_PREFIX}_HAVE_GETHOSTNAME 1)
-    set (${HDF_PREFIX}_HAVE_FUNCTION 1)
   endif ()
   if (NOT UNIX AND NOT CYGWIN)
     set (${HDF_PREFIX}_HAVE_GETCONSOLESCREENBUFFERINFO 1)
@@ -112,31 +108,23 @@ endmacro ()
 CHECK_INCLUDE_FILE_CONCAT ("sys/file.h"      ${HDF_PREFIX}_HAVE_SYS_FILE_H)
 CHECK_INCLUDE_FILE_CONCAT ("sys/ioctl.h"     ${HDF_PREFIX}_HAVE_SYS_IOCTL_H)
 CHECK_INCLUDE_FILE_CONCAT ("sys/resource.h"  ${HDF_PREFIX}_HAVE_SYS_RESOURCE_H)
+CHECK_INCLUDE_FILE_CONCAT ("sys/socket.h"    ${HDF_PREFIX}_HAVE_SYS_SOCKET_H)
 CHECK_INCLUDE_FILE_CONCAT ("sys/stat.h"      ${HDF_PREFIX}_HAVE_SYS_STAT_H)
 CHECK_INCLUDE_FILE_CONCAT ("sys/time.h"      ${HDF_PREFIX}_HAVE_SYS_TIME_H)
 CHECK_INCLUDE_FILE_CONCAT ("sys/types.h"     ${HDF_PREFIX}_HAVE_SYS_TYPES_H)
 CHECK_INCLUDE_FILE_CONCAT ("features.h"      ${HDF_PREFIX}_HAVE_FEATURES_H)
 CHECK_INCLUDE_FILE_CONCAT ("dirent.h"        ${HDF_PREFIX}_HAVE_DIRENT_H)
-CHECK_INCLUDE_FILE_CONCAT ("setjmp.h"        ${HDF_PREFIX}_HAVE_SETJMP_H)
-CHECK_INCLUDE_FILE_CONCAT ("stddef.h"        ${HDF_PREFIX}_HAVE_STDDEF_H)
-CHECK_INCLUDE_FILE_CONCAT ("stdint.h"        ${HDF_PREFIX}_HAVE_STDINT_H)
 CHECK_INCLUDE_FILE_CONCAT ("unistd.h"        ${HDF_PREFIX}_HAVE_UNISTD_H)
-
-# Windows
-CHECK_INCLUDE_FILE_CONCAT ("io.h"            ${HDF_PREFIX}_HAVE_IO_H)
-if (NOT CYGWIN)
-  CHECK_INCLUDE_FILE_CONCAT ("winsock2.h"      ${HDF_PREFIX}_HAVE_WINSOCK2_H)
-endif ()
-
+CHECK_INCLUDE_FILE_CONCAT ("pwd.h"           ${HDF_PREFIX}_HAVE_PWD_H)
+CHECK_INCLUDE_FILE_CONCAT ("globus/common.h" ${HDF_PREFIX}_HAVE_GLOBUS_COMMON_H)
+CHECK_INCLUDE_FILE_CONCAT ("pdb.h"           ${HDF_PREFIX}_HAVE_PDB_H)
 CHECK_INCLUDE_FILE_CONCAT ("pthread.h"       ${HDF_PREFIX}_HAVE_PTHREAD_H)
 CHECK_INCLUDE_FILE_CONCAT ("dlfcn.h"         ${HDF_PREFIX}_HAVE_DLFCN_H)
-CHECK_INCLUDE_FILE_CONCAT ("inttypes.h"      ${HDF_PREFIX}_HAVE_INTTYPES_H)
+CHECK_INCLUDE_FILE_CONCAT ("netinet/in.h"    ${HDF_PREFIX}_HAVE_NETINET_IN_H)
 CHECK_INCLUDE_FILE_CONCAT ("netdb.h"         ${HDF_PREFIX}_HAVE_NETDB_H)
 CHECK_INCLUDE_FILE_CONCAT ("arpa/inet.h"     ${HDF_PREFIX}_HAVE_ARPA_INET_H)
-# _Bool type support
-CHECK_INCLUDE_FILE_CONCAT (stdbool.h    ${HDF_PREFIX}_HAVE_STDBOOL_H)
 
-## Check for non-standard extenstion quadmath.h
+## Check for non-standard extension quadmath.h
 
 CHECK_INCLUDE_FILES(quadmath.h C_HAVE_QUADMATH)
 if (${C_HAVE_QUADMATH})
@@ -147,6 +135,10 @@ endif ()
 
 if (CYGWIN)
   set (${HDF_PREFIX}_HAVE_LSEEK64 0)
+endif ()
+
+if (MINGW OR NOT WINDOWS)
+  CHECK_LIBRARY_EXISTS_CONCAT ("m" ceil     ${HDF_PREFIX}_HAVE_LIBM)
 endif ()
 
 # For other tests to use the same libraries
@@ -207,11 +199,6 @@ macro (HDF_FUNCTION_TEST OTHER_TEST)
 endmacro ()
 
 #-----------------------------------------------------------------------------
-# Check for these functions before the time headers are checked
-#-----------------------------------------------------------------------------
-HDF_FUNCTION_TEST (STDC_HEADERS)
-
-#-----------------------------------------------------------------------------
 #  Check for large file support
 #-----------------------------------------------------------------------------
 
@@ -221,69 +208,67 @@ set (LINUX_LFS 0)
 set (HDF_EXTRA_C_FLAGS)
 set (HDF_EXTRA_FLAGS)
 if (MINGW OR NOT WINDOWS)
-  # Might want to check explicitly for Linux and possibly Cygwin
-  # instead of checking for not Solaris or Darwin.
-  if (NOT ${HDF_PREFIX}_HAVE_SOLARIS AND NOT ${HDF_PREFIX}_HAVE_DARWIN)
-  # Linux Specific flags
-  # This was originally defined as _POSIX_SOURCE which was updated to
-  # _POSIX_C_SOURCE=199506L to expose a greater amount of POSIX
-  # functionality so clock_gettime and CLOCK_MONOTONIC are defined
-  # correctly. This was later updated to 200112L so that
-  # posix_memalign() is visible for the direct VFD code on Linux
-  # systems.
-  # POSIX feature information can be found in the gcc manual at:
-  # http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
-  set (HDF_EXTRA_C_FLAGS -D_POSIX_C_SOURCE=200809L)
+  if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    # Linux Specific flags
+    # This was originally defined as _POSIX_SOURCE which was updated to
+    # _POSIX_C_SOURCE=199506L to expose a greater amount of POSIX
+    # functionality so clock_gettime and CLOCK_MONOTONIC are defined
+    # correctly. This was later updated to 200112L so that
+    # posix_memalign() is visible for the direct VFD code on Linux
+    # systems.
+    # POSIX feature information can be found in the gcc manual at:
+    # http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
+    set (HDF_EXTRA_C_FLAGS -D_POSIX_C_SOURCE=200809L)
 
-  # Need to add this so that O_DIRECT is visible for the direct
-  # VFD on Linux systems.
-  set (HDF_EXTRA_C_FLAGS ${HDF_EXTRA_C_FLAGS} -D_GNU_SOURCE)
+    # Need to add this so that O_DIRECT is visible for the direct
+    # VFD on Linux systems.
+    set (HDF_EXTRA_C_FLAGS ${HDF_EXTRA_C_FLAGS} -D_GNU_SOURCE)
 
-  if (FALSE) # XXX(kitware): Hardcode settings.
-  option (HDF_ENABLE_LARGE_FILE "Enable support for large (64-bit) files on Linux." ON)
-  else ()
-  set(HDF_ENABLE_LARGE_FILE ON)
-  endif ()
-  if (HDF_ENABLE_LARGE_FILE AND NOT DEFINED TEST_LFS_WORKS_RUN)
-    set (msg "Performing TEST_LFS_WORKS")
-    try_run (TEST_LFS_WORKS_RUN   TEST_LFS_WORKS_COMPILE
-        ${CMAKE_BINARY_DIR}
-        ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
-        COMPILE_DEFINITIONS "-DTEST_LFS_WORKS"
-    )
+    if (FALSE) # XXX(kitware): Hardcode settings.
+    option (HDF_ENABLE_LARGE_FILE "Enable support for large (64-bit) files on Linux." ON)
+    else ()
+    set(HDF_ENABLE_LARGE_FILE ON)
+    endif ()
+    if (HDF_ENABLE_LARGE_FILE AND NOT DEFINED TEST_LFS_WORKS_RUN)
+      set (msg "Performing TEST_LFS_WORKS")
+      try_run (TEST_LFS_WORKS_RUN   TEST_LFS_WORKS_COMPILE
+          ${CMAKE_BINARY_DIR}
+          ${HDF_RESOURCES_EXT_DIR}/HDFTests.c
+          COMPILE_DEFINITIONS "-DTEST_LFS_WORKS"
+      )
 
-    # The LARGEFILE definitions were from the transition period
-    # and are probably no longer needed. The FILE_OFFSET_BITS
-    # check should be generalized for all POSIX systems as it
-    # is in the Autotools.
-    if (TEST_LFS_WORKS_COMPILE)
-      if (TEST_LFS_WORKS_RUN MATCHES 0)
-        set (TEST_LFS_WORKS 1 CACHE INTERNAL ${msg})
-        set (LARGEFILE 1)
-        set (HDF_EXTRA_FLAGS ${HDF_EXTRA_FLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE)
-        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
-          message (VERBOSE "${msg}... yes")
+      # The LARGEFILE definitions were from the transition period
+      # and are probably no longer needed. The FILE_OFFSET_BITS
+      # check should be generalized for all POSIX systems as it
+      # is in the Autotools.
+      if (TEST_LFS_WORKS_COMPILE)
+        if (TEST_LFS_WORKS_RUN MATCHES 0)
+          set (TEST_LFS_WORKS 1 CACHE INTERNAL ${msg})
+          set (LARGEFILE 1)
+          set (HDF_EXTRA_FLAGS ${HDF_EXTRA_FLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE)
+          if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+            message (VERBOSE "${msg}... yes")
+          endif ()
+        else ()
+          set (TEST_LFS_WORKS "" CACHE INTERNAL ${msg})
+          if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
+            message (VERBOSE "${msg}... no")
+          endif ()
+          file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+                "Test TEST_LFS_WORKS Run failed with the following exit code:\n ${TEST_LFS_WORKS_RUN}\n"
+          )
         endif ()
       else ()
         set (TEST_LFS_WORKS "" CACHE INTERNAL ${msg})
         if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
-          message (VERBOSE "${msg}... no")
+            message (VERBOSE "${msg}... no")
         endif ()
         file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-              "Test TEST_LFS_WORKS Run failed with the following exit code:\n ${TEST_LFS_WORKS_RUN}\n"
+            "Test TEST_LFS_WORKS Compile failed\n"
         )
       endif ()
-    else ()
-      set (TEST_LFS_WORKS "" CACHE INTERNAL ${msg})
-      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15.0")
-          message (VERBOSE "${msg}... no")
-      endif ()
-      file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-          "Test TEST_LFS_WORKS Compile failed\n"
-      )
     endif ()
-  endif ()
-  set (CMAKE_REQUIRED_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS} ${HDF_EXTRA_FLAGS})
+    set (CMAKE_REQUIRED_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS} ${HDF_EXTRA_FLAGS})
   endif ()
 endif ()
 
@@ -367,15 +352,13 @@ HDF_CHECK_TYPE_SIZE (uint_least64_t ${HDF_PREFIX}_SIZEOF_UINT_LEAST64_T)
 HDF_CHECK_TYPE_SIZE (int_fast64_t   ${HDF_PREFIX}_SIZEOF_INT_FAST64_T)
 HDF_CHECK_TYPE_SIZE (uint_fast64_t  ${HDF_PREFIX}_SIZEOF_UINT_FAST64_T)
 
-if (NOT APPLE)
-  HDF_CHECK_TYPE_SIZE (size_t       ${HDF_PREFIX}_SIZEOF_SIZE_T)
-  HDF_CHECK_TYPE_SIZE (ssize_t      ${HDF_PREFIX}_SIZEOF_SSIZE_T)
-  if (NOT ${HDF_PREFIX}_SIZEOF_SSIZE_T)
-    set (${HDF_PREFIX}_SIZEOF_SSIZE_T 0)
-  endif ()
-  if (MINGW OR NOT WINDOWS)
-    HDF_CHECK_TYPE_SIZE (ptrdiff_t    ${HDF_PREFIX}_SIZEOF_PTRDIFF_T)
-  endif ()
+HDF_CHECK_TYPE_SIZE (size_t       ${HDF_PREFIX}_SIZEOF_SIZE_T)
+HDF_CHECK_TYPE_SIZE (ssize_t      ${HDF_PREFIX}_SIZEOF_SSIZE_T)
+if (NOT ${HDF_PREFIX}_SIZEOF_SSIZE_T)
+  set (${HDF_PREFIX}_SIZEOF_SSIZE_T 0)
+endif ()
+if (MINGW OR NOT WINDOWS)
+  HDF_CHECK_TYPE_SIZE (ptrdiff_t    ${HDF_PREFIX}_SIZEOF_PTRDIFF_T)
 endif ()
 
 HDF_CHECK_TYPE_SIZE (off_t          ${HDF_PREFIX}_SIZEOF_OFF_T)
@@ -389,13 +372,9 @@ HDF_CHECK_TYPE_SIZE (time_t          ${HDF_PREFIX}_SIZEOF_TIME_T)
 # Extra C99 types
 #-----------------------------------------------------------------------------
 
-# _Bool type support
-if (HAVE_STDBOOL_H)
-  set (CMAKE_EXTRA_INCLUDE_FILES stdbool.h)
-  HDF_CHECK_TYPE_SIZE (bool         ${HDF_PREFIX}_SIZEOF_BOOL)
-else ()
-  HDF_CHECK_TYPE_SIZE (_Bool        ${HDF_PREFIX}_SIZEOF_BOOL)
-endif ()
+# Size of bool
+set (CMAKE_EXTRA_INCLUDE_FILES stdbool.h)
+HDF_CHECK_TYPE_SIZE (_Bool        ${HDF_PREFIX}_SIZEOF_BOOL)
 
 if (MINGW OR NOT WINDOWS)
   #-----------------------------------------------------------------------------
@@ -408,7 +387,6 @@ if (MINGW OR NOT WINDOWS)
   #-----------------------------------------------------------------------------
   CHECK_STRUCT_HAS_MEMBER("struct tm" tm_gmtoff "time.h" ${HDF_PREFIX}_HAVE_TM_GMTOFF)
   CHECK_STRUCT_HAS_MEMBER("struct tm" __tm_gmtoff "time.h" ${HDF_PREFIX}_HAVE___TM_GMTOFF)
-  CHECK_STRUCT_HAS_MEMBER("struct tm" tm_sec "sys/types.h;sys/time.h;time.h" ${HDF_PREFIX}_TIME_WITH_SYS_TIME)
   if (${HDF_PREFIX}_HAVE_SYS_TIME_H)
     CHECK_STRUCT_HAS_MEMBER("struct tm" tz_minuteswest "sys/types.h;sys/time.h;time.h" ${HDF_PREFIX}_HAVE_STRUCT_TIMEZONE)
   else ()
@@ -462,8 +440,6 @@ CHECK_FUNCTION_EXISTS (alarm             ${HDF_PREFIX}_HAVE_ALARM)
 CHECK_FUNCTION_EXISTS (fcntl             ${HDF_PREFIX}_HAVE_FCNTL)
 CHECK_FUNCTION_EXISTS (flock             ${HDF_PREFIX}_HAVE_FLOCK)
 CHECK_FUNCTION_EXISTS (fork              ${HDF_PREFIX}_HAVE_FORK)
-CHECK_FUNCTION_EXISTS (frexpf            ${HDF_PREFIX}_HAVE_FREXPF)
-CHECK_FUNCTION_EXISTS (frexpl            ${HDF_PREFIX}_HAVE_FREXPL)
 
 CHECK_FUNCTION_EXISTS (gethostname       ${HDF_PREFIX}_HAVE_GETHOSTNAME)
 CHECK_FUNCTION_EXISTS (getrusage         ${HDF_PREFIX}_HAVE_GETRUSAGE)
@@ -474,18 +450,12 @@ CHECK_FUNCTION_EXISTS (rand_r            ${HDF_PREFIX}_HAVE_RAND_R)
 CHECK_FUNCTION_EXISTS (random            ${HDF_PREFIX}_HAVE_RANDOM)
 CHECK_FUNCTION_EXISTS (setsysinfo        ${HDF_PREFIX}_HAVE_SETSYSINFO)
 
-CHECK_FUNCTION_EXISTS (signal            ${HDF_PREFIX}_HAVE_SIGNAL)
-CHECK_FUNCTION_EXISTS (longjmp           ${HDF_PREFIX}_HAVE_LONGJMP)
-CHECK_FUNCTION_EXISTS (setjmp            ${HDF_PREFIX}_HAVE_SETJMP)
 CHECK_FUNCTION_EXISTS (siglongjmp        ${HDF_PREFIX}_HAVE_SIGLONGJMP)
 CHECK_FUNCTION_EXISTS (sigsetjmp         ${HDF_PREFIX}_HAVE_SIGSETJMP)
 CHECK_FUNCTION_EXISTS (sigprocmask       ${HDF_PREFIX}_HAVE_SIGPROCMASK)
 
 CHECK_FUNCTION_EXISTS (strdup            ${HDF_PREFIX}_HAVE_STRDUP)
-CHECK_FUNCTION_EXISTS (strtoll           ${HDF_PREFIX}_HAVE_STRTOLL)
-CHECK_FUNCTION_EXISTS (strtoull          ${HDF_PREFIX}_HAVE_STRTOULL)
 CHECK_FUNCTION_EXISTS (symlink           ${HDF_PREFIX}_HAVE_SYMLINK)
-CHECK_FUNCTION_EXISTS (system            ${HDF_PREFIX}_HAVE_SYSTEM)
 
 CHECK_FUNCTION_EXISTS (tmpfile           ${HDF_PREFIX}_HAVE_TMPFILE)
 CHECK_FUNCTION_EXISTS (asprintf          ${HDF_PREFIX}_HAVE_ASPRINTF)
@@ -496,11 +466,9 @@ CHECK_FUNCTION_EXISTS (waitpid           ${HDF_PREFIX}_HAVE_WAITPID)
 # sigsetjmp is special; may actually be a macro
 #-----------------------------------------------------------------------------
 if (NOT ${HDF_PREFIX}_HAVE_SIGSETJMP)
-  if (${HDF_PREFIX}_HAVE_SETJMP_H)
-    CHECK_SYMBOL_EXISTS (sigsetjmp "setjmp.h" ${HDF_PREFIX}_HAVE_MACRO_SIGSETJMP)
-    if (${HDF_PREFIX}_HAVE_MACRO_SIGSETJMP)
-      set (${HDF_PREFIX}_HAVE_SIGSETJMP 1)
-    endif ()
+  CHECK_SYMBOL_EXISTS (sigsetjmp "setjmp.h" ${HDF_PREFIX}_HAVE_MACRO_SIGSETJMP)
+  if (${HDF_PREFIX}_HAVE_MACRO_SIGSETJMP)
+    set (${HDF_PREFIX}_HAVE_SIGSETJMP 1)
   endif ()
 endif ()
 
@@ -510,9 +478,6 @@ endif ()
 if (MINGW OR NOT WINDOWS)
   foreach (other_test
       HAVE_ATTRIBUTE
-      HAVE_C99_FUNC
-#      STDC_HEADERS
-      HAVE_FUNCTION
       HAVE_C99_DESIGNATED_INITIALIZER
       SYSTEM_SCOPE_THREADS
       HAVE_SOCKLEN_T
@@ -561,7 +526,7 @@ if (WINDOWS)
         message (VERBOSE "Performing Test InitOnceExecuteOnce - Success")
       endif ()
       file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
-        "Performing C SOURCE FILE Test InitOnceExecuteOnce succeded with the following output:\n"
+        "Performing C SOURCE FILE Test InitOnceExecuteOnce succeeded with the following output:\n"
         "${OUTPUT}\n"
         "Return value: ${HAVE_IOEO}\n")
     else ()
@@ -582,14 +547,6 @@ if (WINDOWS)
   endif ()
   endif ()
 endif ()
-
-#-----------------------------------------------------------------------------
-# Determine how 'inline' is used
-#-----------------------------------------------------------------------------
-foreach (inline_test inline __inline__ __inline)
-  string (TOUPPER ${inline_test} INLINE_TEST_MACRO)
-  HDF_FUNCTION_TEST (HAVE_${INLINE_TEST_MACRO})
-endforeach ()
 
 #-----------------------------------------------------------------------------
 # Check how to print a Long Long integer

@@ -663,7 +663,7 @@ done:
         on failure.
  DESCRIPTION
      Decodes a property list from a binary buffer. The contents of the buffer
-     contain the values for the correponding properties of the plist. The decode
+     contain the values for the corresponding properties of the plist. The decode
      callback of a certain property decodes its value from the buffer and sets it
      in the property list.
  GLOBAL VARIABLES

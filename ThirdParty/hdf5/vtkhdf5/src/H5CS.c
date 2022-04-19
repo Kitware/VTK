@@ -47,7 +47,7 @@ typedef struct H5CS_t {
  * each thread individually. The association of stacks to threads will
  * be handled by the pthread library.
  *
- * In order for this macro to work, H5CS_get_my_stack() must be preceeded
+ * In order for this macro to work, H5CS_get_my_stack() must be preceded
  * by "H5CS_t *fstack =".
  */
 static H5CS_t *H5CS__get_stack(void);
@@ -127,7 +127,7 @@ H5CS__get_stack(void)
 herr_t
 H5CS_print_stack(const H5CS_t *fstack, FILE *stream)
 {
-    const int indent = 2; /* Indention level */
+    const int indent = 2; /* Indentation level */
     int       i;          /* Local index ariable */
 
     /* Don't push this function on the function stack... :-) */
@@ -262,9 +262,9 @@ H5CS_copy_stack(void)
     if (NULL == (new_stack->rec = HDcalloc(old_stack->nused, sizeof(const char *))))
         HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, NULL, "can't allocate function stack records")
 
-    /* Copy old stack to new one, duplicating the strings */
-    for (u = 0; u < old_stack->nused; u++)
-        new_stack->rec[u] = HDstrdup(old_stack->rec[u]);
+    /* Copy pointers on old stack to new one */
+    /* (Strings don't need to be duplicated, they are statically allocated) */
+    HDmemcpy(new_stack->rec, old_stack->rec, sizeof(char *) * old_stack->nused);
     new_stack->nused = new_stack->nalloc = old_stack->nused;
 
     /* Set the return value */
@@ -298,11 +298,9 @@ H5CS_close_stack(H5CS_t *stack)
     HDassert(stack);
 
     /* Free stack */
-    for (u = 0; u < stack->nused; u++) {
-        if (stack->rec[u])
-            HDfree((void *)stack->rec[u]);
-        stack->rec[u] = NULL;
-    } /* end for */
+    /* The function name string are statically allocated (by the compiler)
+     * and are not allocated, so there's no need to free them.
+     */
     if (stack->rec) {
         HDfree(stack->rec);
         stack->rec = NULL;

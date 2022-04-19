@@ -160,7 +160,7 @@ H5Pset_map_iterate_hints(hid_t mapl_id, size_t key_prefetch_size, size_t key_all
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(mapl_id, H5P_MAP_ACCESS)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID");
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set sizes */
     if (H5P_set(plist, H5M_ACS_KEY_PREFETCH_SIZE_NAME, &key_prefetch_size) < 0)
@@ -182,17 +182,17 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pget_map_iterate_hints(hid_t mapl_id, size_t *key_prefetch_size, size_t *key_alloc_size)
+H5Pget_map_iterate_hints(hid_t mapl_id, size_t *key_prefetch_size /*out*/, size_t *key_alloc_size /*out*/)
 {
     H5P_genplist_t *plist;               /* Property list pointer */
     herr_t          ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "i*z*z", mapl_id, key_prefetch_size, key_alloc_size);
+    H5TRACE3("e", "ixx", mapl_id, key_prefetch_size, key_alloc_size);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(mapl_id, H5P_MAP_ACCESS)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID");
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get the properties */
     if (key_prefetch_size) {

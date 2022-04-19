@@ -35,6 +35,7 @@
 #include "H5Fprivate.h"  /* File access                              */
 #include "H5FDpkg.h"     /* File Drivers                             */
 #include "H5Iprivate.h"  /* IDs                                      */
+#include "H5PLprivate.h" /* Plugins                                  */
 
 /****************/
 /* Local Macros */
@@ -44,6 +45,20 @@
 /* Local Typedefs */
 /******************/
 
+/* Information needed for iterating over the registered VFD hid_t IDs.
+ * The name or value of the new VFD that is being registered is stored
+ * in the name (or value) field and the found_id field is initialized to
+ * H5I_INVALID_HID (-1).  If we find a VFD with the same name / value,
+ * we set the found_id field to the existing ID for return to the function.
+ */
+typedef struct H5FD_get_driver_ud_t {
+    /* IN */
+    H5PL_vfd_key_t key;
+
+    /* OUT */
+    hid_t found_id; /* The driver ID, if we found a match */
+} H5FD_get_driver_ud_t;
+
 /********************/
 /* Package Typedefs */
 /********************/
@@ -51,6 +66,7 @@
 /********************/
 /* Local Prototypes */
 /********************/
+static int H5FD__get_driver_cb(void *obj, hid_t id, void *_op_data);
 
 /*********************/
 /* Package Variables */
@@ -381,3 +397,401 @@ H5FD_driver_query(const H5FD_class_t *driver, unsigned long *flags /*out*/)
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_driver_query() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_delete
+ *
+ * Purpose:     Private version of H5FDdelete()
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5FD_delete(const char *filename, hid_t fapl_id)
+{
+    H5FD_class_t *     driver;              /* VFD for file */
+    H5FD_driver_prop_t driver_prop;         /* Property for driver ID & info */
+    H5P_genplist_t *   plist;               /* Property list pointer */
+    herr_t             ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity checks */
+    HDassert(filename);
+
+    /* Get file access property list */
+    if (NULL == (plist = (H5P_genplist_t *)H5I_object(fapl_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
+
+    /* Get the VFD to open the file with */
+    if (H5P_peek(plist, H5F_ACS_FILE_DRV_NAME, &driver_prop) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get driver ID & info")
+
+    /* Get driver info */
+    if (NULL == (driver = (H5FD_class_t *)H5I_object(driver_prop.driver_id)))
+        HGOTO_ERROR(H5E_VFL, H5E_BADVALUE, FAIL, "invalid driver ID in file access property list")
+    if (NULL == driver->del)
+        HGOTO_ERROR(H5E_VFL, H5E_UNSUPPORTED, FAIL, "file driver has no 'del' method")
+
+    /* Dispatch to file driver */
+    if ((driver->del)(filename, fapl_id))
+        HGOTO_ERROR(H5E_VFL, H5E_CANTDELETEFILE, FAIL, "delete failed")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_delete() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_check_plugin_load
+ *
+ * Purpose:     Check if a VFD plugin matches the search criteria, and can
+ *              be loaded.
+ *
+ * Note:        Matching the driver's name / value, but the driver having
+ *              an incompatible version is not an error, but means that the
+ *              driver isn't a "match".  Setting the SUCCEED value to FALSE
+ *              and not failing for that case allows the plugin framework
+ *              to keep looking for other DLLs that match and have a
+ *              compatible version.
+ *
+ * Return:      SUCCEED / FAIL
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5FD_check_plugin_load(const H5FD_class_t *cls, const H5PL_key_t *key, hbool_t *success)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_NOAPI_NOERR
+
+    /* Sanity checks */
+    HDassert(cls);
+    HDassert(key);
+    HDassert(success);
+
+    /* Which kind of key are we looking for? */
+    if (key->vfd.kind == H5FD_GET_DRIVER_BY_NAME) {
+        /* Check if plugin name matches VFD class name */
+        if (cls->name && !HDstrcmp(cls->name, key->vfd.u.name))
+            *success = TRUE;
+    }
+    else {
+        /* Sanity check */
+        HDassert(key->vfd.kind == H5FD_GET_DRIVER_BY_VALUE);
+
+        /* Check if plugin value matches VFD class value */
+        if (cls->value == key->vfd.u.value)
+            *success = TRUE;
+    }
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_check_plugin_load() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD__get_driver_cb
+ *
+ * Purpose:     Callback routine to search through registered VFDs
+ *
+ * Return:      Success:    H5_ITER_STOP if the class and op_data name
+ *                          members match. H5_ITER_CONT otherwise.
+ *              Failure:    Can't fail
+ *
+ *-------------------------------------------------------------------------
+ */
+static int
+H5FD__get_driver_cb(void *obj, hid_t id, void *_op_data)
+{
+    H5FD_get_driver_ud_t *op_data   = (H5FD_get_driver_ud_t *)_op_data; /* User data for callback */
+    H5FD_class_t *        cls       = (H5FD_class_t *)obj;
+    int                   ret_value = H5_ITER_CONT; /* Callback return value */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    if (H5FD_GET_DRIVER_BY_NAME == op_data->key.kind) {
+        if (0 == HDstrcmp(cls->name, op_data->key.u.name)) {
+            op_data->found_id = id;
+            ret_value         = H5_ITER_STOP;
+        } /* end if */
+    }     /* end if */
+    else {
+        HDassert(H5FD_GET_DRIVER_BY_VALUE == op_data->key.kind);
+        if (cls->value == op_data->key.u.value) {
+            op_data->found_id = id;
+            ret_value         = H5_ITER_STOP;
+        } /* end if */
+    }     /* end else */
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD__get_driver_cb() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_register_driver_by_name
+ *
+ * Purpose:     Registers a new VFD as a member of the virtual file driver
+ *              class.
+ *
+ * Return:      Success:    A VFD ID which is good until the library is
+ *                          closed.
+ *
+ *              Failure:    H5I_INVALID_HID
+ *
+ *-------------------------------------------------------------------------
+ */
+hid_t
+H5FD_register_driver_by_name(const char *name, hbool_t app_ref)
+{
+    htri_t driver_is_registered = FALSE;
+    hid_t  driver_id            = H5I_INVALID_HID;
+    hid_t  ret_value            = H5I_INVALID_HID; /* Return value */
+
+    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
+
+    /* Check if driver is already registered */
+    if ((driver_is_registered = H5FD_is_driver_registered_by_name(name, &driver_id)) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_BADITER, H5I_INVALID_HID, "can't check if driver is already registered")
+
+    /* If driver is already registered, increment ref count on ID and return ID */
+    if (driver_is_registered) {
+        HDassert(driver_id >= 0);
+
+        if (H5I_inc_ref(driver_id, app_ref) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINC, H5I_INVALID_HID, "unable to increment ref count on VFD")
+    } /* end if */
+    else {
+        H5PL_key_t          key;
+        const H5FD_class_t *cls;
+
+        /* Try loading the driver */
+        key.vfd.kind   = H5FD_GET_DRIVER_BY_NAME;
+        key.vfd.u.name = name;
+        if (NULL == (cls = (const H5FD_class_t *)H5PL_load(H5PL_TYPE_VFD, &key)))
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, H5I_INVALID_HID, "unable to load VFD")
+
+        /* Register the driver we loaded */
+        if ((driver_id = H5FD_register(cls, sizeof(*cls), app_ref)) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register VFD ID")
+    } /* end else */
+
+    ret_value = driver_id;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_register_driver_by_name() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_register_driver_by_value
+ *
+ * Purpose:     Registers a new VFD as a member of the virtual file driver
+ *              class.
+ *
+ * Return:      Success:    A VFD ID which is good until the library is
+ *                          closed.
+ *
+ *              Failure:    H5I_INVALID_HID
+ *
+ *-------------------------------------------------------------------------
+ */
+hid_t
+H5FD_register_driver_by_value(H5FD_class_value_t value, hbool_t app_ref)
+{
+    htri_t driver_is_registered = FALSE;
+    hid_t  driver_id            = H5I_INVALID_HID;
+    hid_t  ret_value            = H5I_INVALID_HID; /* Return value */
+
+    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
+
+    /* Check if driver is already registered */
+    if ((driver_is_registered = H5FD_is_driver_registered_by_value(value, &driver_id)) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_BADITER, H5I_INVALID_HID, "can't check if driver is already registered")
+
+    /* If driver is already registered, increment ref count on ID and return ID */
+    if (driver_is_registered) {
+        HDassert(driver_id >= 0);
+
+        if (H5I_inc_ref(driver_id, app_ref) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINC, H5I_INVALID_HID, "unable to increment ref count on VFD")
+    } /* end if */
+    else {
+        H5PL_key_t          key;
+        const H5FD_class_t *cls;
+
+        /* Try loading the driver */
+        key.vfd.kind    = H5FD_GET_DRIVER_BY_VALUE;
+        key.vfd.u.value = value;
+        if (NULL == (cls = (const H5FD_class_t *)H5PL_load(H5PL_TYPE_VFD, &key)))
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, H5I_INVALID_HID, "unable to load VFD")
+
+        /* Register the driver we loaded */
+        if ((driver_id = H5FD_register(cls, sizeof(*cls), app_ref)) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register VFD ID")
+    } /* end else */
+
+    ret_value = driver_id;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_register_driver_by_value() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_is_driver_registered_by_name
+ *
+ * Purpose:     Checks if a driver with a particular name is registered.
+ *              If `registered_id` is non-NULL and a driver with the
+ *              specified name has been registered, the driver's ID will be
+ *              returned in `registered_id`.
+ *
+ * Return:      >0 if a VFD with that name has been registered
+ *              0 if a VFD with that name has NOT been registered
+ *              <0 on errors
+ *
+ *-------------------------------------------------------------------------
+ */
+htri_t
+H5FD_is_driver_registered_by_name(const char *driver_name, hid_t *registered_id)
+{
+    H5FD_get_driver_ud_t op_data;           /* Callback info for driver search */
+    htri_t               ret_value = FALSE; /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Set up op data for iteration */
+    op_data.key.kind   = H5FD_GET_DRIVER_BY_NAME;
+    op_data.key.u.name = driver_name;
+    op_data.found_id   = H5I_INVALID_HID;
+
+    /* Find driver with name */
+    if (H5I_iterate(H5I_VFL, H5FD__get_driver_cb, &op_data, FALSE) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_BADITER, FAIL, "can't iterate over VFDs")
+
+    /* Found a driver with that name */
+    if (op_data.found_id != H5I_INVALID_HID) {
+        if (registered_id)
+            *registered_id = op_data.found_id;
+        ret_value = TRUE;
+    }
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_is_driver_registered_by_name() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_is_driver_registered_by_value
+ *
+ * Purpose:     Checks if a driver with a particular value (ID) is
+ *              registered. If `registered_id` is non-NULL and a driver
+ *              with the specified value has been registered, the driver's
+ *              ID will be returned in `registered_id`.
+ *
+ * Return:      >0 if a VFD with that value has been registered
+ *              0 if a VFD with that value has NOT been registered
+ *              <0 on errors
+ *
+ *-------------------------------------------------------------------------
+ */
+htri_t
+H5FD_is_driver_registered_by_value(H5FD_class_value_t driver_value, hid_t *registered_id)
+{
+    H5FD_get_driver_ud_t op_data;           /* Callback info for driver search */
+    htri_t               ret_value = FALSE; /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Set up op data for iteration */
+    op_data.key.kind    = H5FD_GET_DRIVER_BY_VALUE;
+    op_data.key.u.value = driver_value;
+    op_data.found_id    = H5I_INVALID_HID;
+
+    /* Find driver with value */
+    if (H5I_iterate(H5I_VFL, H5FD__get_driver_cb, &op_data, FALSE) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_BADITER, FAIL, "can't iterate over VFDs")
+
+    /* Found a driver with that value */
+    if (op_data.found_id != H5I_INVALID_HID) {
+        if (registered_id)
+            *registered_id = op_data.found_id;
+        ret_value = TRUE;
+    }
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_is_driver_registered_by_value() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_get_driver_id_by_name
+ *
+ * Purpose:     Retrieves the ID for a registered VFL driver.
+ *
+ * Return:      Positive if the VFL driver has been registered
+ *              Negative on error (if the driver is not a valid driver or
+ *                  is not registered)
+ *
+ *-------------------------------------------------------------------------
+ */
+hid_t
+H5FD_get_driver_id_by_name(const char *name, hbool_t is_api)
+{
+    H5FD_get_driver_ud_t op_data;
+    hid_t                ret_value = H5I_INVALID_HID; /* Return value */
+
+    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
+
+    /* Set up op data for iteration */
+    op_data.key.kind   = H5FD_GET_DRIVER_BY_NAME;
+    op_data.key.u.name = name;
+    op_data.found_id   = H5I_INVALID_HID;
+
+    /* Find driver with specified name */
+    if (H5I_iterate(H5I_VFL, H5FD__get_driver_cb, &op_data, FALSE) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_BADITER, H5I_INVALID_HID, "can't iterate over VFL drivers")
+
+    /* Found a driver with that name */
+    if (op_data.found_id != H5I_INVALID_HID) {
+        ret_value = op_data.found_id;
+        if (H5I_inc_ref(ret_value, is_api) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINC, H5I_INVALID_HID, "unable to increment ref count on VFL driver")
+    }
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_get_driver_id_by_name() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_get_driver_id_by_value
+ *
+ * Purpose:     Retrieves the ID for a registered VFL driver.
+ *
+ * Return:      Positive if the VFL driver has been registered
+ *              Negative on error (if the driver is not a valid driver or
+ *                  is not registered)
+ *
+ *-------------------------------------------------------------------------
+ */
+hid_t
+H5FD_get_driver_id_by_value(H5FD_class_value_t value, hbool_t is_api)
+{
+    H5FD_get_driver_ud_t op_data;
+    hid_t                ret_value = H5I_INVALID_HID; /* Return value */
+
+    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
+
+    /* Set up op data for iteration */
+    op_data.key.kind    = H5FD_GET_DRIVER_BY_VALUE;
+    op_data.key.u.value = value;
+    op_data.found_id    = H5I_INVALID_HID;
+
+    /* Find driver with specified value */
+    if (H5I_iterate(H5I_VFL, H5FD__get_driver_cb, &op_data, FALSE) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_BADITER, H5I_INVALID_HID, "can't iterate over VFL drivers")
+
+    /* Found a driver with that value */
+    if (op_data.found_id != H5I_INVALID_HID) {
+        ret_value = op_data.found_id;
+        if (H5I_inc_ref(ret_value, is_api) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINC, H5I_INVALID_HID, "unable to increment ref count on VFL driver")
+    }
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_get_driver_id_by_value() */

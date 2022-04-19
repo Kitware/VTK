@@ -202,9 +202,9 @@ H5Dopen1(hid_t loc_id, const char *name)
                                           H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL)))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, H5I_INVALID_HID, "unable to open dataset")
 
-    /* Get an atom for the dataset */
+    /* Get an ID for the dataset */
     if ((ret_value = H5VL_register(H5I_DATASET, dset, vol_obj->connector, TRUE)) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTREGISTER, H5I_INVALID_HID, "can't register dataset atom")
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTREGISTER, H5I_INVALID_HID, "can't register dataset ID")
 
 done:
     if (H5I_INVALID_HID == ret_value)
@@ -233,13 +233,15 @@ done:
 herr_t
 H5Dextend(hid_t dset_id, const hsize_t size[])
 {
-    H5VL_object_t *vol_obj = NULL;            /* Dataset structure */
-    hid_t          sid     = H5I_INVALID_HID; /* Dataspace ID */
-    H5S_t *        ds      = NULL;            /* Dataspace struct */
-    int            ndims;                     /* Dataset/space rank */
-    hsize_t        dset_dims[H5S_MAX_RANK];   /* Current dataset dimensions */
-    int            i;                         /* Local index variable */
-    herr_t         ret_value = SUCCEED;       /* Return value */
+    H5VL_object_t *              vol_obj;                 /* Object for loc_id */
+    H5VL_dataset_get_args_t      vol_get_cb_args;         /* Arguments to VOL callback */
+    H5VL_dataset_specific_args_t vol_spec_cb_args;        /* Arguments to VOL callback */
+    hid_t                        sid = H5I_INVALID_HID;   /* Dataspace ID */
+    H5S_t *                      ds  = NULL;              /* Dataspace struct */
+    int                          ndims;                   /* Dataset/space rank */
+    hsize_t                      dset_dims[H5S_MAX_RANK]; /* Current dataset dimensions */
+    int                          i;                       /* Local index variable */
+    herr_t                       ret_value = SUCCEED;     /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "i*h", dset_id, size);
@@ -250,10 +252,14 @@ H5Dextend(hid_t dset_id, const hsize_t size[])
     if (!size)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no size specified")
 
+    /* Set up VOL callback arguments */
+    vol_get_cb_args.op_type                 = H5VL_DATASET_GET_SPACE;
+    vol_get_cb_args.args.get_space.space_id = H5I_INVALID_HID;
+
     /* Get the dataspace pointer for the dataset */
-    if (H5VL_dataset_get(vol_obj, H5VL_DATASET_GET_SPACE, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL, &sid) <
-        0)
+    if (H5VL_dataset_get(vol_obj, &vol_get_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "unable to get dataspace")
+    sid = vol_get_cb_args.args.get_space.space_id;
     if (H5I_INVALID_HID == sid)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "received an invalid dataspace from the dataset")
     if (NULL == (ds = (H5S_t *)H5I_object_verify(sid, H5I_DATASPACE)))
@@ -281,9 +287,12 @@ H5Dextend(hid_t dset_id, const hsize_t size[])
     if (H5CX_set_loc(dset_id) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set collective metadata read info")
 
+    /* Set up VOL callback arguments */
+    vol_spec_cb_args.op_type              = H5VL_DATASET_SET_EXTENT;
+    vol_spec_cb_args.args.set_extent.size = dset_dims;
+
     /* Increase size */
-    if ((ret_value = H5VL_dataset_specific(vol_obj, H5VL_DATASET_SET_EXTENT, H5P_DATASET_XFER_DEFAULT,
-                                           H5_REQUEST_NULL, dset_dims)) < 0)
+    if (H5VL_dataset_specific(vol_obj, &vol_spec_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "unable to extend dataset")
 
 done:

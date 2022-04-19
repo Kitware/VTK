@@ -1,8 +1,2 @@
--Wextra-tokens
--Wformat
--Wformat-security
 -Wic-pointer
--Wshadow
 -Wsign-compare
--Wtrigraphs
--Wwrite-strings

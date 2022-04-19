@@ -43,7 +43,7 @@
 #define H5R_REF_ATTRNAME(x) ((x)->info.attr.name)
 
 /* Header size */
-#define H5R_ENCODE_HEADER_SIZE (2 * H5_SIZEOF_UINT8_T)
+#define H5R_ENCODE_HEADER_SIZE (2 * sizeof(uint8_t))
 
 /****************************/
 /* Package Private Typedefs */

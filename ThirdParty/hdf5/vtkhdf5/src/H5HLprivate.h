@@ -66,4 +66,4 @@ H5_DLL herr_t  H5HL_unprotect(H5HL_t *heap);
 /* Debugging routines for dumping file structures */
 H5_DLL herr_t H5HL_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth);
 
-#endif
+#endif /* H5HLprivate_H */

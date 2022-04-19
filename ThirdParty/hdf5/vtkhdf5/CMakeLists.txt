@@ -267,9 +267,9 @@ set (HDF5_JAVA_JNI_SRC_DIR         ${HDF5_SOURCE_DIR}/java/src/jni)
 set (HDF5_JAVA_HDF5_SRC_DIR        ${HDF5_SOURCE_DIR}/java/src/hdf)
 set (HDF5_JAVA_TEST_SRC_DIR        ${HDF5_SOURCE_DIR}/java/test)
 set (HDF5_JAVA_LIB_DIR             ${HDF5_SOURCE_DIR}/java/lib)
-set (HDF5_JAVA_LOGGING_JAR         ${HDF5_SOURCE_DIR}/java/lib/slf4j-api-1.7.25.jar)
-set (HDF5_JAVA_LOGGING_NOP_JAR     ${HDF5_SOURCE_DIR}/java/lib/ext/slf4j-nop-1.7.25.jar)
-set (HDF5_JAVA_LOGGING_SIMPLE_JAR  ${HDF5_SOURCE_DIR}/java/lib/ext/slf4j-simple-1.7.25.jar)
+set (HDF5_JAVA_LOGGING_JAR         ${HDF5_SOURCE_DIR}/java/lib/slf4j-api-1.7.33.jar)
+set (HDF5_JAVA_LOGGING_NOP_JAR     ${HDF5_SOURCE_DIR}/java/lib/ext/slf4j-nop-1.7.33.jar)
+set (HDF5_JAVA_LOGGING_SIMPLE_JAR  ${HDF5_SOURCE_DIR}/java/lib/ext/slf4j-simple-1.7.33.jar)
 set (HDF5_DOXYGEN_DIR              ${HDF5_SOURCE_DIR}/doxygen)
 
 #-----------------------------------------------------------------------------
@@ -632,20 +632,6 @@ endif ()
 # endif ()
 
 #-----------------------------------------------------------------------------
-# Option to build documentation
-#-----------------------------------------------------------------------------
-option (HDF5_BUILD_DOC "Build documentation" OFF)
-if (HDF5_BUILD_DOC AND EXISTS "${HDF5_DOXYGEN_DIR}" AND IS_DIRECTORY "${HDF5_DOXYGEN_DIR}")
-# check if Doxygen is installed
-  find_package(Doxygen)
-  if (DOXYGEN_FOUND)
-    message(STATUS "Doxygen version: ${DOXYGEN_VERSION}")
-  else ()
-    message(STATUS "Doxygen needs to be installed to generate the doxygen documentation")
-  endif ()
-endif ()
-
-#-----------------------------------------------------------------------------
 # Option to indicate using a memory checker
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_USING_MEMCHECKER "Indicate that a memory checker is used" OFF)
@@ -813,10 +799,14 @@ if (HDF5_ENABLE_PARALLEL)
 
     # Used by Parallel Compression feature
     set (PARALLEL_FILTERED_WRITES ON)
-    CHECK_SYMBOL_EXISTS (MPI_Mprobe "mpi.h" H5_HAVE_MPI_Mprobe)
-    CHECK_SYMBOL_EXISTS (MPI_Imrecv "mpi.h" H5_HAVE_MPI_Imrecv)
-    if (NOT H5_HAVE_MPI_Mprobe OR NOT H5_HAVE_MPI_Imrecv)
-      message (WARNING "The MPI_Mprobe and/or MPI_Imrecv functions could not be located.
+    CHECK_SYMBOL_EXISTS (MPI_Ibarrier "mpi.h" H5_HAVE_MPI_Ibarrier)
+    CHECK_SYMBOL_EXISTS (MPI_Issend "mpi.h" H5_HAVE_MPI_Issend)
+    CHECK_SYMBOL_EXISTS (MPI_Iprobe "mpi.h" H5_HAVE_MPI_Iprobe)
+    CHECK_SYMBOL_EXISTS (MPI_Irecv "mpi.h" H5_HAVE_MPI_Irecv)
+    if (H5_HAVE_MPI_Ibarrier AND H5_HAVE_MPI_Issend AND H5_HAVE_MPI_Iprobe AND H5_HAVE_MPI_Irecv)
+      set (H5_HAVE_PARALLEL_FILTERED_WRITES 1)
+    else ()
+      message (WARNING "The MPI_Ibarrier/MPI_Issend/MPI_Iprobe/MPI_Irecv functions could not be located.
                Parallel writes of filtered data will be disabled.")
       set (PARALLEL_FILTERED_WRITES OFF)
     endif ()
@@ -847,9 +837,12 @@ set(HDF5_ENABLE_PARALLEL OFF)
 endif ()
 
 if (FALSE) # XXX(kitware): Hardcode settings.
-#option (DEFAULT_API_VERSION "Enable v1.12 API (v16, v18, v110, v112)" "v112")
-set (DEFAULT_API_VERSION "v112" CACHE STRING "Enable v1.12 API (v16, v18, v110, v112)")
-set_property (CACHE DEFAULT_API_VERSION PROPERTY STRINGS v16 v18 v110 v112)
+#option (DEFAULT_API_VERSION "Enable v1.14 API (v16, v18, v110, v112, v114)" "v114")
+set (DEFAULT_API_VERSION "v114" CACHE STRING "Enable v1.14 API (v16, v18, v110, v112, v114)")
+set_property (CACHE DEFAULT_API_VERSION PROPERTY STRINGS v16 v18 v110 v112 v114)
+else ()
+set (DEFAULT_API_VERSION "v114")
+endif ()
 #-----------------------------------------------------------------------------
 # Option to use 1.6.x API
 #-----------------------------------------------------------------------------
@@ -884,12 +877,16 @@ set (H5_USE_112_API_DEFAULT 0)
 if (DEFAULT_API_VERSION MATCHES "v112")
   set (H5_USE_112_API_DEFAULT 1)
 endif ()
-else ()
-set (H5_USE_16_API_DEFAULT 0)
-set (H5_USE_18_API_DEFAULT 0)
-set (H5_USE_110_API_DEFAULT 0)
-set (H5_USE_112_API_DEFAULT 0)
-set (DEFAULT_API_VERSION "v112")
+
+#-----------------------------------------------------------------------------
+# Option to use 1.14.x API
+#-----------------------------------------------------------------------------
+if (NOT DEFAULT_API_VERSION)
+  set (DEFAULT_API_VERSION "v114")
+endif ()
+set (H5_USE_114_API_DEFAULT 0)
+if (DEFAULT_API_VERSION MATCHES "v114")
+  set (H5_USE_114_API_DEFAULT 1)
 endif ()
 
 #-----------------------------------------------------------------------------
@@ -1009,10 +1006,10 @@ if (FALSE) # XXX(kitware): Hardcode settings.
 if (HDF5_ALLOW_EXTERNAL_SUPPORT MATCHES "GIT" OR HDF5_ALLOW_EXTERNAL_SUPPORT MATCHES "TGZ")
   if (ZLIB_FOUND AND ZLIB_USE_EXTERNAL)
     if (NOT ONLY_SHARED_LIBS)
-      add_dependencies (${HDF5_LIB_TARGET} ZLIB)
+      add_dependencies (${HDF5_LIB_TARGET} HDF5_ZLIB)
     endif ()
     if (BUILD_SHARED_LIBS)
-      add_dependencies (${HDF5_LIBSH_TARGET} ZLIB)
+      add_dependencies (${HDF5_LIBSH_TARGET} HDF5_ZLIB)
     endif ()
   endif ()
   if (SZIP_FOUND AND SZIP_USE_EXTERNAL)
@@ -1027,6 +1024,21 @@ endif ()
 endif ()
 
 if (FALSE) # XXX(kitware): Disable testing of HDF5.
+#-----------------------------------------------------------------------------
+# Option to build documentation
+#-----------------------------------------------------------------------------
+option (HDF5_BUILD_DOC "Build documentation" OFF)
+if (HDF5_BUILD_DOC AND EXISTS "${HDF5_DOXYGEN_DIR}" AND IS_DIRECTORY "${HDF5_DOXYGEN_DIR}")
+# check if Doxygen is installed
+  find_package(Doxygen)
+  if (DOXYGEN_FOUND)
+    message(STATUS "Doxygen version: ${DOXYGEN_VERSION}")
+    add_subdirectory (doxygen)
+  else ()
+    message(STATUS "Doxygen needs to be installed to generate the doxygen documentation")
+  endif ()
+endif ()
+
 #-----------------------------------------------------------------------------
 # Dashboard and Testing Settings
 #-----------------------------------------------------------------------------
@@ -1047,6 +1059,9 @@ if (BUILD_TESTING)
   if (HDF5_TEST_VFD)
     option (HDF5_TEST_FHEAP_VFD "Execute tests with different VFDs" ON)
     mark_as_advanced (HDF5_TEST_FHEAP_VFD)
+
+    # Initialize the list of VFDs to be used for testing and create a test folder for each VFD
+    H5_SET_VFD_LIST()
   endif ()
 
   option (HDF5_TEST_PASSTHROUGH_VOL "Execute tests with different passthrough VOL connectors" OFF)
@@ -1105,10 +1120,32 @@ endif ()
 # Option to build HDF5 Utilities
 #-----------------------------------------------------------------------------
 if (EXISTS "${HDF5_SOURCE_DIR}/utils" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/utils")
-  option (HDF5_BUILD_UTILS  "Build HDF5 Utils" ON)
-  if (HDF5_BUILD_UTILS)
-    add_subdirectory (utils)
+  option (HDF5_BUILD_PARALLEL_TOOLS  "Build Parallel HDF5 Tools" OFF)
+  if (HDF5_BUILD_PARALLEL_TOOLS AND HDF5_ENABLE_PARALLEL)
+    set (CMAKE_PREFIX_PATH "$HDF_RESOURCES_DIR")
+    find_package(MFU REQUIRED)
+    if (MFU_FOUND)
+      message(STATUS "LL_PATH=${LL_PATH}")
+      set (H5_HAVE_LIBMFU 1)
+      set (H5_HAVE_MFU_H 1)
+      set (CMAKE_REQUIRED_INCLUDES "${MFU_INCLUDE_DIR}")
+      set (MFU_LIBRARY_DEBUG "$MFU_LIBRARY")
+      set (MFU_LIBRARY_RELEASE "$MFU_LIBRARY")
+    endif ()
+    find_package(CIRCLE REQUIRED)
+    if (CIRCLE_FOUND)
+      set (H5_HAVE_LIBCIRCLE 1)
+      set (H5_HAVE_CIRCLE_H 1)
+      set (CMAKE_REQUIRED_INCLUDES "${CIRCLE_INCLUDE_DIR}")
+    endif ()
+    find_package(DTCMP REQUIRED)
+    if (DTCMP_FOUND)
+      set (H5_HAVE_LIBDTCMP 1)
+      set (H5_HAVE_DTCMP_H 1)
+      set (CMAKE_REQUIRED_INCLUDES "${DTCMP_INCLUDE_DIR}")
+    endif ()
   endif ()
+  add_subdirectory (utils)
 endif ()
 
 endif () # end IF (FALSE) # XXX(kitware)
@@ -1246,7 +1283,6 @@ if (EXISTS "${HDF5_SOURCE_DIR}/c++" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/c++")
       endif ()
     endif ()
 
-    include (${HDF_RESOURCES_EXT_DIR}/HDFUseCXX.cmake)
     include (${HDF_RESOURCES_DIR}/HDFCXXCompilerFlags.cmake)
 
     add_subdirectory (c++)

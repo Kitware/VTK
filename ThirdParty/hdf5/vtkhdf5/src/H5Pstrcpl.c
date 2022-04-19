@@ -156,7 +156,7 @@ H5Pset_char_encoding(hid_t plist_id, H5T_cset_t encoding)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_STRING_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Set the character encoding */
     if (H5P_set(plist, H5P_STRCRT_CHAR_ENCODING_NAME, &encoding) < 0)
@@ -188,7 +188,7 @@ H5Pget_char_encoding(hid_t plist_id, H5T_cset_t *encoding /*out*/)
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_STRING_CREATE)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
 
     /* Get value */
     if (encoding)

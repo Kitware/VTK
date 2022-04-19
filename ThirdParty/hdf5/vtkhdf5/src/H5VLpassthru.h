@@ -25,7 +25,7 @@
 
 /* Characteristics of the pass-through VOL connector */
 #define H5VL_PASSTHRU_NAME    "pass_through"
-#define H5VL_PASSTHRU_VALUE   505 /* VOL connector ID */
+#define H5VL_PASSTHRU_VALUE   1 /* VOL connector ID */
 #define H5VL_PASSTHRU_VERSION 0
 
 /* Pass-through VOL connector info */

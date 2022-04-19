@@ -160,7 +160,7 @@ H5Tvlen_create(hid_t base_id)
     if ((dt = H5T__vlen_create(base)) == NULL)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "invalid VL location")
 
-    /* Atomize the type */
+    /* Register the type */
     if ((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to register datatype")
 
@@ -184,7 +184,7 @@ done:
  *-------------------------------------------------------------------------
  */
 H5T_t *
-H5T__vlen_create(H5T_t *base)
+H5T__vlen_create(const H5T_t *base)
 {
     H5T_t *dt        = NULL; /* New VL datatype */
     H5T_t *ret_value = NULL; /* Return value */
@@ -247,8 +247,7 @@ done:
 htri_t
 H5T__vlen_set_loc(H5T_t *dt, H5VL_object_t *file, H5T_loc_t loc)
 {
-    H5VL_file_cont_info_t cont_info = {H5VL_CONTAINER_INFO_VERSION, 0, 0, 0};
-    htri_t                ret_value = FALSE; /* Indicate success, but no location change */
+    htri_t ret_value = FALSE; /* Indicate success, but no location change */
 
     FUNC_ENTER_PACKAGE
 
@@ -293,15 +292,22 @@ H5T__vlen_set_loc(H5T_t *dt, H5VL_object_t *file, H5T_loc_t loc)
                 dt->shared->u.vlen.file = NULL;
                 break;
 
-            case H5T_LOC_DISK: /* Disk based VL datatype */
+            /* Disk based VL datatype */
+            case H5T_LOC_DISK: {
+                H5VL_file_cont_info_t cont_info = {H5VL_CONTAINER_INFO_VERSION, 0, 0, 0};
+                H5VL_file_get_args_t  vol_cb_args; /* Arguments to VOL callback */
+
                 HDassert(file);
 
                 /* Mark this type as being stored on disk */
                 dt->shared->u.vlen.loc = H5T_LOC_DISK;
 
+                /* Set up VOL callback arguments */
+                vol_cb_args.op_type                 = H5VL_FILE_GET_CONT_INFO;
+                vol_cb_args.args.get_cont_info.info = &cont_info;
+
                 /* Get container info */
-                if (H5VL_file_get(file, H5VL_FILE_GET_CONT_INFO, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL,
-                                  &cont_info) < 0)
+                if (H5VL_file_get(file, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
                     HGOTO_ERROR(H5E_DATATYPE, H5E_CANTGET, FAIL, "unable to get container info")
 
                 /* The datatype size is equal to 4 bytes for the sequence length
@@ -319,6 +325,7 @@ H5T__vlen_set_loc(H5T_t *dt, H5VL_object_t *file, H5T_loc_t loc)
                 if (H5T_own_vol_obj(dt, file) < 0)
                     HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "can't give ownership of VOL object")
                 break;
+            }
 
             case H5T_LOC_BADLOC:
                 /* Allow undefined location. In H5Odtype.c, H5O_dtype_decode sets undefined
@@ -841,8 +848,9 @@ H5T__vlen_disk_getlen(H5VL_object_t H5_ATTR_UNUSED *file, const void *_vl, size_
 static herr_t
 H5T__vlen_disk_isnull(const H5VL_object_t *file, void *_vl, hbool_t *isnull)
 {
-    uint8_t *vl        = (uint8_t *)_vl; /* Pointer to the user's hvl_t information */
-    herr_t   ret_value = SUCCEED;        /* Return value */
+    H5VL_blob_specific_args_t vol_cb_args;                /* Arguments to VOL callback */
+    uint8_t *                 vl        = (uint8_t *)_vl; /* Pointer to the user's hvl_t information */
+    herr_t                    ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -854,8 +862,12 @@ H5T__vlen_disk_isnull(const H5VL_object_t *file, void *_vl, hbool_t *isnull)
     /* Skip the sequence's length */
     vl += 4;
 
+    /* Set up VOL callback arguments */
+    vol_cb_args.op_type             = H5VL_BLOB_ISNULL;
+    vol_cb_args.args.is_null.isnull = isnull;
+
     /* Check if blob ID is "nil" */
-    if (H5VL_blob_specific(file, vl, H5VL_BLOB_ISNULL, isnull) < 0)
+    if (H5VL_blob_specific(file, vl, &vol_cb_args) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTGET, FAIL, "unable to check if a blob ID is 'nil'")
 
 done:
@@ -877,8 +889,9 @@ done:
 static herr_t
 H5T__vlen_disk_setnull(H5VL_object_t *file, void *_vl, void *bg)
 {
-    uint8_t *vl        = (uint8_t *)_vl; /* Pointer to the user's hvl_t information */
-    herr_t   ret_value = SUCCEED;        /* Return value */
+    H5VL_blob_specific_args_t vol_cb_args;                /* Arguments to VOL callback */
+    uint8_t *                 vl        = (uint8_t *)_vl; /* Pointer to the user's hvl_t information */
+    herr_t                    ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -895,8 +908,11 @@ H5T__vlen_disk_setnull(H5VL_object_t *file, void *_vl, void *bg)
     /* Set the length of the sequence */
     UINT32ENCODE(vl, 0);
 
+    /* Set up VOL callback arguments */
+    vol_cb_args.op_type = H5VL_BLOB_SETNULL;
+
     /* Set blob ID to "nil" */
-    if (H5VL_blob_specific(file, vl, H5VL_BLOB_SETNULL) < 0)
+    if (H5VL_blob_specific(file, vl, &vol_cb_args) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "unable to set a blob ID to 'nil'")
 
 done:
@@ -1013,10 +1029,16 @@ H5T__vlen_disk_delete(H5VL_object_t *file, const void *_vl)
         UINT32DECODE(vl, seq_len);
 
         /* Delete object, if length > 0 */
-        if (seq_len > 0)
-            if (H5VL_blob_specific(file, (void *)vl, H5VL_BLOB_DELETE) < 0) /* Casting away 'const' OK -QAK */
+        if (seq_len > 0) {
+            H5VL_blob_specific_args_t vol_cb_args; /* Arguments to VOL callback */
+
+            /* Set up VOL callback arguments */
+            vol_cb_args.op_type = H5VL_BLOB_DELETE;
+
+            if (H5VL_blob_specific(file, (void *)vl, &vol_cb_args) < 0) /* Casting away 'const' OK -QAK */
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREMOVE, FAIL, "unable to delete blob")
-    } /* end if */
+        } /* end if */
+    }     /* end if */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

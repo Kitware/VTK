@@ -35,7 +35,6 @@
 #include "H5HFprivate.h" /* Fractal heaps            */
 #include "H5HLprivate.h" /* Local Heaps                */
 #include "H5Oprivate.h"  /* Object headers              */
-#include "H5SLprivate.h" /* Skip lists                */
 
 /**************************/
 /* Package Private Macros */
@@ -359,14 +358,14 @@ H5_DLL herr_t H5G__stab_iterate(const H5O_loc_t *oloc, H5_iter_order_t order, hs
                                 H5G_lib_iterate_t op, void *op_data);
 H5_DLL herr_t H5G__stab_count(const struct H5O_loc_t *oloc, hsize_t *num_objs);
 H5_DLL herr_t H5G__stab_bh_size(H5F_t *f, const H5O_stab_t *stab, H5_ih_info_t *bh_info);
-H5_DLL ssize_t H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t n, char *name,
-                                         size_t size);
-H5_DLL herr_t  H5G__stab_remove(const H5O_loc_t *oloc, H5RS_str_t *grp_full_path_r, const char *name);
-H5_DLL herr_t  H5G__stab_remove_by_idx(const H5O_loc_t *oloc, H5RS_str_t *grp_full_path_r,
-                                       H5_iter_order_t order, hsize_t n);
-H5_DLL herr_t  H5G__stab_lookup(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *lnk);
-H5_DLL herr_t  H5G__stab_lookup_by_idx(const H5O_loc_t *grp_oloc, H5_iter_order_t order, hsize_t n,
-                                       H5O_link_t *lnk);
+H5_DLL herr_t H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t n, char *name,
+                                        size_t name_size, size_t *name_len);
+H5_DLL herr_t H5G__stab_remove(const H5O_loc_t *oloc, H5RS_str_t *grp_full_path_r, const char *name);
+H5_DLL herr_t H5G__stab_remove_by_idx(const H5O_loc_t *oloc, H5RS_str_t *grp_full_path_r,
+                                      H5_iter_order_t order, hsize_t n);
+H5_DLL herr_t H5G__stab_lookup(const H5O_loc_t *grp_oloc, const char *name, hbool_t *found, H5O_link_t *lnk);
+H5_DLL herr_t H5G__stab_lookup_by_idx(const H5O_loc_t *grp_oloc, H5_iter_order_t order, hsize_t n,
+                                      H5O_link_t *lnk);
 #ifndef H5_STRICT_FORMAT_CHECKS
 H5_DLL herr_t H5G__stab_valid(H5O_loc_t *grp_oloc, H5O_stab_t *alt_stab);
 #endif /* H5_STRICT_FORMAT_CHECKS */
@@ -406,39 +405,42 @@ H5_DLL herr_t H5G__link_release_table(H5G_link_table_t *ltable);
 H5_DLL herr_t H5G__link_name_replace(H5F_t *file, H5RS_str_t *grp_full_path_r, const H5O_link_t *lnk);
 
 /* Functions that understand "compact" link storage */
-H5_DLL herr_t  H5G__compact_insert(const H5O_loc_t *grp_oloc, H5O_link_t *obj_lnk);
-H5_DLL ssize_t H5G__compact_get_name_by_idx(const H5O_loc_t *oloc, const H5O_linfo_t *linfo,
-                                            H5_index_t idx_type, H5_iter_order_t order, hsize_t idx,
-                                            char *name, size_t size);
-H5_DLL herr_t  H5G__compact_remove(const H5O_loc_t *oloc, H5RS_str_t *grp_full_path_r, const char *name);
-H5_DLL herr_t  H5G__compact_remove_by_idx(const H5O_loc_t *oloc, const H5O_linfo_t *linfo,
-                                          H5RS_str_t *grp_full_path_r, H5_index_t idx_type,
-                                          H5_iter_order_t order, hsize_t n);
-H5_DLL herr_t  H5G__compact_iterate(const H5O_loc_t *oloc, const H5O_linfo_t *linfo, H5_index_t idx_type,
-                                    H5_iter_order_t order, hsize_t skip, hsize_t *last_lnk,
-                                    H5G_lib_iterate_t op, void *op_data);
-H5_DLL htri_t  H5G__compact_lookup(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *lnk);
+H5_DLL herr_t H5G__compact_insert(const H5O_loc_t *grp_oloc, H5O_link_t *obj_lnk);
+H5_DLL herr_t H5G__compact_get_name_by_idx(const H5O_loc_t *oloc, const H5O_linfo_t *linfo,
+                                           H5_index_t idx_type, H5_iter_order_t order, hsize_t idx,
+                                           char *name, size_t name_size, size_t *name_len);
+H5_DLL herr_t H5G__compact_remove(const H5O_loc_t *oloc, H5RS_str_t *grp_full_path_r, const char *name);
+H5_DLL herr_t H5G__compact_remove_by_idx(const H5O_loc_t *oloc, const H5O_linfo_t *linfo,
+                                         H5RS_str_t *grp_full_path_r, H5_index_t idx_type,
+                                         H5_iter_order_t order, hsize_t n);
+H5_DLL herr_t H5G__compact_iterate(const H5O_loc_t *oloc, const H5O_linfo_t *linfo, H5_index_t idx_type,
+                                   H5_iter_order_t order, hsize_t skip, hsize_t *last_lnk,
+                                   H5G_lib_iterate_t op, void *op_data);
+H5_DLL herr_t H5G__compact_lookup(const H5O_loc_t *grp_oloc, const char *name, hbool_t *found,
+                                  H5O_link_t *lnk);
 H5_DLL herr_t H5G__compact_lookup_by_idx(const H5O_loc_t *oloc, const H5O_linfo_t *linfo, H5_index_t idx_type,
                                          H5_iter_order_t order, hsize_t n, H5O_link_t *lnk);
 
 /* Functions that understand "dense" link storage */
-H5_DLL herr_t  H5G__dense_build_table(H5F_t *f, const H5O_linfo_t *linfo, H5_index_t idx_type,
-                                      H5_iter_order_t order, H5G_link_table_t *ltable);
-H5_DLL herr_t  H5G__dense_create(H5F_t *f, H5O_linfo_t *linfo, const H5O_pline_t *pline);
-H5_DLL herr_t  H5G__dense_insert(H5F_t *f, const H5O_linfo_t *linfo, const H5O_link_t *lnk);
-H5_DLL htri_t  H5G__dense_lookup(H5F_t *f, const H5O_linfo_t *linfo, const char *name, H5O_link_t *lnk);
-H5_DLL herr_t  H5G__dense_lookup_by_idx(H5F_t *f, const H5O_linfo_t *linfo, H5_index_t idx_type,
-                                        H5_iter_order_t order, hsize_t n, H5O_link_t *lnk);
-H5_DLL herr_t  H5G__dense_iterate(H5F_t *f, const H5O_linfo_t *linfo, H5_index_t idx_type,
-                                  H5_iter_order_t order, hsize_t skip, hsize_t *last_lnk, H5G_lib_iterate_t op,
-                                  void *op_data);
-H5_DLL ssize_t H5G__dense_get_name_by_idx(H5F_t *f, H5O_linfo_t *linfo, H5_index_t idx_type,
-                                          H5_iter_order_t order, hsize_t n, char *name, size_t size);
-H5_DLL herr_t  H5G__dense_remove(H5F_t *f, const H5O_linfo_t *linfo, H5RS_str_t *grp_full_path_r,
-                                 const char *name);
-H5_DLL herr_t  H5G__dense_remove_by_idx(H5F_t *f, const H5O_linfo_t *linfo, H5RS_str_t *grp_full_path_r,
-                                        H5_index_t idx_type, H5_iter_order_t order, hsize_t n);
-H5_DLL herr_t  H5G__dense_delete(H5F_t *f, H5O_linfo_t *linfo, hbool_t adj_link);
+H5_DLL herr_t H5G__dense_build_table(H5F_t *f, const H5O_linfo_t *linfo, H5_index_t idx_type,
+                                     H5_iter_order_t order, H5G_link_table_t *ltable);
+H5_DLL herr_t H5G__dense_create(H5F_t *f, H5O_linfo_t *linfo, const H5O_pline_t *pline);
+H5_DLL herr_t H5G__dense_insert(H5F_t *f, const H5O_linfo_t *linfo, const H5O_link_t *lnk);
+H5_DLL herr_t H5G__dense_lookup(H5F_t *f, const H5O_linfo_t *linfo, const char *name, hbool_t *found,
+                                H5O_link_t *lnk);
+H5_DLL herr_t H5G__dense_lookup_by_idx(H5F_t *f, const H5O_linfo_t *linfo, H5_index_t idx_type,
+                                       H5_iter_order_t order, hsize_t n, H5O_link_t *lnk);
+H5_DLL herr_t H5G__dense_iterate(H5F_t *f, const H5O_linfo_t *linfo, H5_index_t idx_type,
+                                 H5_iter_order_t order, hsize_t skip, hsize_t *last_lnk, H5G_lib_iterate_t op,
+                                 void *op_data);
+H5_DLL herr_t H5G__dense_get_name_by_idx(H5F_t *f, H5O_linfo_t *linfo, H5_index_t idx_type,
+                                         H5_iter_order_t order, hsize_t n, char *name, size_t name_size,
+                                         size_t *name_len);
+H5_DLL herr_t H5G__dense_remove(H5F_t *f, const H5O_linfo_t *linfo, H5RS_str_t *grp_full_path_r,
+                                const char *name);
+H5_DLL herr_t H5G__dense_remove_by_idx(H5F_t *f, const H5O_linfo_t *linfo, H5RS_str_t *grp_full_path_r,
+                                       H5_index_t idx_type, H5_iter_order_t order, hsize_t n);
+H5_DLL herr_t H5G__dense_delete(H5F_t *f, H5O_linfo_t *linfo, hbool_t adj_link);
 
 /* Functions that understand group objects */
 H5_DLL herr_t H5G__obj_create(H5F_t *f, H5G_obj_create_t *gcrt_info, H5O_loc_t *oloc /*out*/);
@@ -449,7 +451,7 @@ H5_DLL htri_t H5G__obj_get_linfo(const H5O_loc_t *grp_oloc, H5O_linfo_t *linfo);
 H5_DLL herr_t H5G__obj_iterate(const H5O_loc_t *grp_oloc, H5_index_t idx_type, H5_iter_order_t order,
                                hsize_t skip, hsize_t *last_lnk, H5G_lib_iterate_t op, void *op_data);
 H5_DLL herr_t H5G__obj_info(const H5O_loc_t *oloc, H5G_info_t *grp_info);
-H5_DLL htri_t H5G__obj_lookup(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *lnk);
+H5_DLL herr_t H5G__obj_lookup(const H5O_loc_t *grp_oloc, const char *name, hbool_t *found, H5O_link_t *lnk);
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 H5_DLL herr_t H5G__get_objinfo(const H5G_loc_t *loc, const char *name, hbool_t follow_link,
                                H5G_stat_t *statbuf /*out*/);

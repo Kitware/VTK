@@ -54,7 +54,7 @@ H5FL_BLK_EXTERN(lheap_chunk);
 #define H5_MY_PKG      H5HL
 #define H5_MY_PKG_ERR  H5E_HEAP
 #define H5_MY_PKG_INIT NO
-#endif /* H5HL_PACKAGE */
+#endif
 
 #define H5HL_SIZEOF_HDR(F)                                                                                   \
     H5HL_ALIGN(H5_SIZEOF_MAGIC +    /* heap signature   */                                                   \

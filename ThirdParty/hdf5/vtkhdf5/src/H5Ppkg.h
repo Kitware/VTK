@@ -166,7 +166,7 @@ H5_DLL herr_t H5P__unregister(H5P_genclass_t *pclass, const char *name);
 H5_DLL char * H5P__get_class_path(H5P_genclass_t *pclass);
 H5_DLL H5P_genclass_t *H5P__open_class_path(const char *path);
 H5_DLL H5P_genclass_t *H5P__get_class_parent(const H5P_genclass_t *pclass);
-H5_DLL herr_t          H5P__close_class(void *_pclass);
+H5_DLL herr_t          H5P__close_class(H5P_genclass_t *pclass);
 H5_DLL H5P_genprop_t *H5P__find_prop_plist(const H5P_genplist_t *plist, const char *name);
 H5_DLL hid_t          H5P__new_plist_of_type(H5P_plist_type_t type);
 
@@ -187,6 +187,9 @@ H5_DLL herr_t H5P__decode_hbool_t(const void **_pp, void *value);
 H5_DLL herr_t H5P__decode_double(const void **_pp, void *value);
 H5_DLL herr_t H5P__encode_coll_md_read_flag_t(const void *value, void **_pp, size_t *size);
 H5_DLL herr_t H5P__decode_coll_md_read_flag_t(const void **_pp, void *value);
+
+/* Private FAPL routines */
+H5_DLL herr_t H5P__facc_set_def_driver(void);
 
 /* Private OCPL routines */
 H5_DLL herr_t H5P__get_filter(const struct H5Z_filter_info_t *filter, unsigned int *flags, size_t *cd_nelmts,

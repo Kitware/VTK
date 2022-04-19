@@ -65,7 +65,7 @@ const H5O_msg_class_t H5O_MSG_ATTR[1] = {{
     H5O_ATTR_ID,                     /* message id number                */
     "attribute",                     /* message name for debugging       */
     sizeof(H5A_t),                   /* native message size              */
-    H5O_SHARE_IS_SHARABLE,           /* messages are sharable?           */
+    H5O_SHARE_IS_SHARABLE,           /* messages are shareable?           */
     H5O__attr_shared_decode,         /* decode message                   */
     H5O__attr_shared_encode,         /* encode message                   */
     H5O__attr_copy,                  /* copy the native value            */

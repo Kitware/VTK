@@ -301,7 +301,7 @@ typedef struct H5EA_dblock_t {
 
     /* Computed/cached values (not stored) */
     size_t nelmts; /* Number of elements in block                */
-    size_t npages; /* Nummber of pages in a block (zero if not paged) */
+    size_t npages; /* Number of pages in a block (zero if not paged) */
 } H5EA_dblock_t;
 
 /* The extensible array data block page information */
