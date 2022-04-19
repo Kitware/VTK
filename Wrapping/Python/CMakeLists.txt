@@ -109,6 +109,7 @@ list(APPEND _vtk_python_files
 if (BUILD_SHARED_LIBS)
   install(
     FILES       "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/all.py"
+                "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/generate_pyi.py"
     DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules"
     COMPONENT   "python")
 endif ()
