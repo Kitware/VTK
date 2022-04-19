@@ -128,6 +128,7 @@ public:
    */
   virtual int GetNumberOfBuckets(void);
 
+  ///@{
   /**
    * Find the cell containing a given point. returns -1 if no cell found
    * the cell parameters are copied into the supplied variables, a cell must
@@ -135,6 +136,9 @@ public:
    */
   vtkIdType FindCell(
     double x[3], double tol2, vtkGenericCell* GenCell, double pcoords[3], double* weights) override;
+  vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* GenCell, int& subId,
+    double pcoords[3], double* weights) override;
+  ///@}
 
   /**
    * Return a list of unique cell ids inside of a given bounding box. The

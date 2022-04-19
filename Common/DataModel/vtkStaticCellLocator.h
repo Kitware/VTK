@@ -76,12 +76,16 @@ public:
   using vtkAbstractCellLocator::FindClosestPoint;
   using vtkAbstractCellLocator::FindClosestPointWithinRadius;
 
+  ///@{
   /**
    * Test a point to find if it is inside a cell. Returns the cellId if inside
    * or -1 if not.
    */
   vtkIdType FindCell(double pos[3], double vtkNotUsed(tol2), vtkGenericCell* cell,
     double pcoords[3], double* weights) override;
+  vtkIdType FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* GenCell, int& subId,
+    double pcoords[3], double* weights) override;
+  ///@}
 
   /**
    * Reimplemented from vtkAbstractCellLocator to support bad compilers.

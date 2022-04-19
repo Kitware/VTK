@@ -1010,7 +1010,14 @@ int vtkModifiedBSPTree::IntersectCellInternal(vtkIdType cell_ID, const double p1
 bool vtkModifiedBSPTree_Inside(double bounds[6], double point[3]);
 //------------------------------------------------------------------------------
 vtkIdType vtkModifiedBSPTree::FindCell(
-  double x[3], double, vtkGenericCell* cell, double pcoords[3], double* weights)
+  double x[3], double tol2, vtkGenericCell* cell, double pcoords[3], double* weights)
+{
+  int subId;
+  return this->FindCell(x, tol2, cell, subId, pcoords, weights);
+}
+//------------------------------------------------------------------------------
+vtkIdType vtkModifiedBSPTree::FindCell(
+  double x[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
   //
   this->BuildLocatorIfNeeded();
@@ -1019,7 +1026,6 @@ vtkIdType vtkModifiedBSPTree::FindCell(
   BSPNode* node;
   ns.push(this->mRoot);
   double closestPoint[3], dist2;
-  int subId;
   //
   while (!ns.empty())
   {

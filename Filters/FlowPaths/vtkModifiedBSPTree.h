@@ -220,12 +220,16 @@ public:
   virtual int IntersectWithLine(const double p1[3], const double p2[3], const double tol,
     vtkPoints* points, vtkIdList* cellIds);
 
+  ///@{
   /**
    * Test a point to find if it is inside a cell. Returns the cellId if inside
    * or -1 if not.
    */
   vtkIdType FindCell(
     double x[3], double tol2, vtkGenericCell* GenCell, double pcoords[3], double* weights) override;
+  vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* GenCell, int& subId,
+    double pcoords[3], double* weights) override;
+  ///@}
 
   bool InsideCellBounds(double x[3], vtkIdType cell_ID) override;
 

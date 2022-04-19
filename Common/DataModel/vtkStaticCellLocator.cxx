@@ -277,6 +277,8 @@ struct vtkCellProcessor
   // Satisfy cell locator API
   virtual vtkIdType FindCell(
     const double pos[3], vtkGenericCell* cell, double pcoords[3], double* weights) = 0;
+  virtual vtkIdType FindCell(
+    const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3], double* weights) = 0;
   virtual void FindCellsWithinBounds(double* bbox, vtkIdList* cells) = 0;
   virtual void FindCellsAlongLine(
     const double p1[3], const double p2[3], double tol, vtkIdList* cells) = 0;
@@ -356,6 +358,8 @@ struct CellProcessor : public vtkCellProcessor
   // Methods to satisfy vtkCellProcessor virtual API
   vtkIdType FindCell(
     const double pos[3], vtkGenericCell* cell, double pcoords[3], double* weights) override;
+  vtkIdType FindCell(const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3],
+    double* weights) override;
   void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
   void FindCellsAlongLine(
     const double p1[3], const double p2[3], double tol, vtkIdList* cells) override;
@@ -488,6 +492,15 @@ template <typename T>
 vtkIdType CellProcessor<T>::FindCell(
   const double pos[3], vtkGenericCell* cell, double pcoords[3], double* weights)
 {
+  int subId;
+  return this->FindCell(pos, cell, subId, pcoords, weights);
+}
+
+//------------------------------------------------------------------------------
+template <typename T>
+vtkIdType CellProcessor<T>::FindCell(
+  const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
+{
   vtkIdType binId = this->Binner->GetBinIndex(pos);
   T numIds = this->GetNumberOfIds(binId);
 
@@ -503,7 +516,6 @@ vtkIdType CellProcessor<T>::FindCell(
     const CellFragments<T>* cellIds = this->GetIds(binId);
     double tol = this->Binner->binTol;
     double dist2, *bounds, delta[3] = { tol, tol, tol };
-    int subId;
     vtkIdType cellId;
 
     for (T j = 0; j < numIds; j++)
@@ -1272,6 +1284,14 @@ void vtkStaticCellLocator::FreeSearchStructure()
 vtkIdType vtkStaticCellLocator::FindCell(
   double pos[3], double, vtkGenericCell* cell, double pcoords[3], double* weights)
 {
+  int subId;
+  return this->FindCell(pos, 0 /*not used*/, cell, subId, pcoords, weights);
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkStaticCellLocator::FindCell(
+  double pos[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
+{
   this->BuildLocator();
   if (!this->Processor)
   {
@@ -1458,9 +1478,9 @@ void vtkStaticCellLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPoly
     return;
   }
 
-  vtkPoints* pts = vtkPoints::New();
+  vtkNew<vtkPoints> pts;
   pts->SetDataTypeToFloat();
-  vtkCellArray* polys = vtkCellArray::New();
+  vtkNew<vtkCellArray> polys;
   pd->SetPoints(pts);
   pd->SetPolys(polys);
 
@@ -1474,7 +1494,7 @@ void vtkStaticCellLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPoly
   origin[2] = this->Bounds[4];
 
   // A locator is used to avoid duplicate points
-  vtkMergePoints* locator = vtkMergePoints::New();
+  vtkNew<vtkMergePoints> locator;
   locator->InitPointInsertion(pts, this->Bounds, dims[0] * dims[1] * dims[2]);
 
   for (k = 0; k < dims[2]; k++)
@@ -1594,11 +1614,6 @@ void vtkStaticCellLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPoly
       }   // x
     }     // y
   }       // z
-
-  // Clean up
-  locator->Delete();
-  polys->Delete();
-  pts->Delete();
 }
 
 //------------------------------------------------------------------------------

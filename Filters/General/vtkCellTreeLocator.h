@@ -61,12 +61,16 @@ public:
    */
   static vtkCellTreeLocator* New();
 
+  ///@{
   /**
    * Test a point to find if it is inside a cell. Returns the cellId if inside
    * or -1 if not.
    */
   vtkIdType FindCell(double pos[3], double vtkNotUsed(tol2), vtkGenericCell* cell,
     double pcoords[3], double* weights) override;
+  vtkIdType FindCell(double pos[3], double vtkNotUsed(tol2), vtkGenericCell* cell, int& subId,
+    double pcoords[3], double* weights) override;
+  ///@}
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
@@ -82,13 +86,8 @@ public:
    */
   void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
 
-  /*
-    if the borland compiler is ever removed, we can use these declarations
-    instead of reimplementaing the calls in this subclass
-    using vtkAbstractCellLocator::IntersectWithLine;
-    using vtkAbstractCellLocator::FindClosestPoint;
-    using vtkAbstractCellLocator::FindClosestPointWithinRadius;
-  */
+  using vtkAbstractCellLocator::FindClosestPoint;
+  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
 
   /**
    * reimplemented from vtkAbstractCellLocator to support bad compilers
@@ -150,7 +149,7 @@ public:
     ///@}
 
   public:
-    float DataBBox[6]; // This store the bounding values of the dataset
+    double DataBBox[6]; // This store the bounding values of the dataset
   };
 
   /**
@@ -168,25 +167,24 @@ public:
   public:
   protected:
     unsigned int Index;
-    float LeftMax;  // left max value
-    float RightMin; // right min value
+    double LeftMax;  // left max value
+    double RightMin; // right min value
 
     unsigned int Sz; // size
     unsigned int St; // start
 
-    friend class vtkCellTree;
     friend class vtkCellPointTraversal;
     friend class vtkCellTreeBuilder;
 
   public:
-    void MakeNode(unsigned int left, unsigned int d, float b[2]);
+    void MakeNode(unsigned int left, unsigned int d, double b[2]);
     void SetChildren(unsigned int left);
     bool IsNode() const;
     unsigned int GetLeftChildIndex() const;
     unsigned int GetRightChildIndex() const;
     unsigned int GetDimension() const;
-    const float& GetLeftMaxValue() const;
-    const float& GetRightMinValue() const;
+    const double& GetLeftMaxValue() const;
+    const double& GetRightMinValue() const;
     void MakeLeaf(unsigned int start, unsigned int size);
     bool IsLeaf() const;
     unsigned int Start() const;

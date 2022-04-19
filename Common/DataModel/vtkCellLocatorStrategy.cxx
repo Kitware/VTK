@@ -129,8 +129,7 @@ vtkIdType vtkCellLocatorStrategy::FindCell(double x[3], vtkCell* cell, vtkGeneri
   }
 
   // Okay cache miss, try the cell locator
-  subId = 0; // The cell locator FindCell API should return subId.
-  return this->CellLocator->FindCell(x, tol2, gencell, pcoords, weights);
+  return this->CellLocator->FindCell(x, tol2, gencell, subId, pcoords, weights);
 }
 
 //------------------------------------------------------------------------------

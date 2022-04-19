@@ -180,8 +180,14 @@ vtkIdType vtkAbstractCellLocator::FindCell(double x[3])
 vtkIdType vtkAbstractCellLocator::FindCell(
   double x[3], double tol2, vtkGenericCell* GenCell, double pcoords[3], double* weights)
 {
-  vtkIdType returnVal = -1;
   int subId;
+  return this->FindCell(x, tol2, GenCell, subId, pcoords, weights);
+}
+//------------------------------------------------------------------------------
+vtkIdType vtkAbstractCellLocator::FindCell(
+  double x[3], double tol2, vtkGenericCell* GenCell, int& subId, double pcoords[3], double* weights)
+{
+  vtkIdType returnVal = -1;
   //
   static bool warning_shown = false;
   if (!warning_shown)

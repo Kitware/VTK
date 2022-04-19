@@ -1652,11 +1652,17 @@ static bool vtkCellLocator_Inside(const double bounds[6], const double point[3])
 }
 //------------------------------------------------------------------------------
 vtkIdType vtkCellLocator::FindCell(
-  double x[3], double vtkNotUsed(tol2), vtkGenericCell* cell, double pcoords[3], double* weights)
+  double x[3], double tol2, vtkGenericCell* cell, double pcoords[3], double* weights)
+{
+  int subId;
+  return this->FindCell(x, tol2, cell, subId, pcoords, weights);
+}
+//------------------------------------------------------------------------------
+vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* cell,
+  int& subId, double pcoords[3], double* weights)
 {
   vtkIdList* cellIds;
   int ijk[3];
-  int subId;
   double dist2;
   double cellBounds[6];
 
