@@ -44,6 +44,9 @@ endif()
 set(intel_oneapi_compiler_detections)
 set(intel_oneapi_compiler_version_min "2021.2.0")
 foreach (lang IN ITEMS C CXX Fortran)
+  if (CMAKE_VERSION VERSION_LESS "3.14" AND lang STREQUAL "Fortran") # XXX(cmake-3.14): `Fortran_COMPILER_ID` genex
+    continue ()
+  endif ()
   # Detect the IntelLLVM compiler for the given language.
   set(is_lang "$<COMPILE_LANGUAGE:${lang}>")
   set(is_intelllvm "$<${lang}_COMPILER_ID:IntelLLVM>")

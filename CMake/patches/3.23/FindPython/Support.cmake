@@ -681,16 +681,18 @@ function (_PYTHON_GET_LAUNCHER _PYTHON_PGL_NAME)
       AND NOT SYSTEM_NAME MATCHES "Windows|Linux")
     if (_PGL_INTERPRETER)
       get_filename_component (name "${_${_PYTHON_PREFIX}_EXECUTABLE}" NAME)
-      get_filename_component (ext "${_${_PYTHON_PREFIX}_EXECUTABLE}" LAST_EXT)
+      # XXX(cmake-3.14) use LAST_EXT for get_filename_component
+      get_filename_component (ext "${_${_PYTHON_PREFIX}_EXECUTABLE}" EXT)
       if (name IN_LIST _${_PYTHON_PREFIX}_IRON_PYTHON_INTERPRETER_NAMES
-          AND ext STREQUAL ".exe")
+          AND ext MATCHES "[.]exe$")
         set (${_PYTHON_PGL_NAME} "${${_PYTHON_PREFIX}_DOTNET_LAUNCHER}" PARENT_SCOPE)
       endif()
     else()
       get_filename_component (name "${_${_PYTHON_PREFIX}_COMPILER}" NAME)
-      get_filename_component (ext "${_${_PYTHON_PREFIX}_COMPILER}" LAST_EXT)
+      # XXX(cmake-3.14) use LAST_EXT for get_filename_component
+      get_filename_component (ext "${_${_PYTHON_PREFIX}_COMPILER}" EXT)
       if (name IN_LIST _${_PYTHON_PREFIX}_IRON_PYTHON_COMPILER_NAMES
-          AND ext STREQUAL ".exe")
+          AND ext MATCHES "[.]exe$")
         set (${_PYTHON_PGL_NAME} "${${_PYTHON_PREFIX}_DOTNET_LAUNCHER}" PARENT_SCOPE)
       endif()
     endif()
