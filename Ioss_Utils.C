@@ -145,6 +145,43 @@ namespace {
   }
 } // namespace
 
+void Ioss::Utils::set_all_streams(std::ostream &out_stream)
+{
+  m_outputStream  = &out_stream;
+  m_debugStream   = &out_stream;
+  m_warningStream = &out_stream;
+}
+
+void Ioss::Utils::set_output_stream(std::ostream &out_stream)
+{
+  m_outputStream  = &out_stream;
+}
+
+void Ioss::Utils::set_debug_stream(std::ostream &out_stream)
+{
+  m_debugStream   = &out_stream;
+}
+
+void Ioss::Utils::set_warning_stream(std::ostream &out_stream)
+{
+  m_warningStream = &out_stream;
+}
+
+std::ostream& Ioss::Utils::get_output_stream()
+{
+  return *m_outputStream;
+}
+
+std::ostream& Ioss::Utils::get_warning_stream()
+{
+  return *m_warningStream;
+}
+
+std::ostream& Ioss::Utils::get_debug_stream()
+{
+  return *m_debugStream;
+}
+
 void Ioss::Utils::time_and_date(char *time_string, char *date_string, size_t length)
 {
   std::time_t t    = std::time(nullptr);
