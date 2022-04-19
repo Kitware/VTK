@@ -34,6 +34,7 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
+#include <cstdint>
 
 namespace details
 {
