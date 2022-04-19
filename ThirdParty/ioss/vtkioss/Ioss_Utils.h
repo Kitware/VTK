@@ -80,27 +80,31 @@ namespace Ioss {
     /** \brief set the stream for all streams (output, debug, and warning) to the specified
      * `out_stream`
      */
-    static void set_all_streams(std::ostream &out_stream)
-    {
-      m_outputStream  = &out_stream;
-      m_debugStream   = &out_stream;
-      m_warningStream = &out_stream;
-    }
+    static void set_all_streams(std::ostream &out_stream);
+
+    /** \brief get the debug stream.
+     */
+    static std::ostream& get_debug_stream();
+
+    /** \brief get the warning stream.
+     */
+    static std::ostream& get_warning_stream();
+
+    /** \brief get the output stream.
+     */
+    static std::ostream& get_output_stream();
 
     /** \brief set the output stream to the specified `output_stream`
      */
-    static void set_output_stream(std::ostream &output_stream) { m_outputStream = &output_stream; }
+    static void set_output_stream(std::ostream &output_stream);
 
     /** \brief set the debug stream to the specified `debug_stream`
      */
-    static void set_debug_stream(std::ostream &debug_stream) { m_debugStream = &debug_stream; }
+    static void set_debug_stream(std::ostream &debug_stream);
 
     /** \brief set the warning stream to the specified `warning_stream`
      */
-    static void set_warning_stream(std::ostream &warning_stream)
-    {
-      m_warningStream = &warning_stream;
-    }
+    static void set_warning_stream(std::ostream &warning_stream);
 
     /** \brief set the pre-warning text
      * Sets the text output prior to a warning to the specified text.

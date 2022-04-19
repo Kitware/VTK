@@ -3003,6 +3003,8 @@ int vtkIOSSReader::GetNumberOfFileNames() const
 int vtkIOSSReader::ReadMetaData(vtkInformation* metadata)
 {
   vtkLogScopeF(TRACE, "ReadMetaData");
+  vtkIOSSUtilities::CaptureNonErrorMessages captureMessagesRAII;
+
   auto& internals = (*this->Internals);
   if (!internals.UpdateDatabaseNames(this))
   {
@@ -3055,6 +3057,7 @@ int vtkIOSSReader::ReadMesh(
   int piece, int npieces, int vtkNotUsed(nghosts), int timestep, vtkDataObject* output)
 {
   auto& internals = (*this->Internals);
+  vtkIOSSUtilities::CaptureNonErrorMessages captureMessagesRAII;
 
   if (!internals.UpdateDatabaseNames(this))
   {
