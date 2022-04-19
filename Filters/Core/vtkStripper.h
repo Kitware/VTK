@@ -44,6 +44,9 @@
  *    the input.
  * The field data order is same as cell data i.e. (verts,line,polys,tsrips).
  *
+ * If there is a ghost cell array in the input, the ghost array is discarded.
+ * Any cell tagged as ghost is skipped when stripping. Ghost points are kept.
+ *
  * @warning
  * If triangle strips or poly-lines exist in the input data they will
  * be passed through to the output data. This filter will only construct

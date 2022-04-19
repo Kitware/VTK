@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -24,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkStripper);
 
@@ -97,7 +99,9 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
     // pass through verts
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
-    output->GetCellData()->PassData(input->GetCellData());
+    vtkCellData* outCD = output->GetCellData();
+    outCD->PassData(input->GetCellData());
+    outCD->RemoveArray(vtkDataSetAttributes::GhostArrayName());
     mesh->Delete();
     vtkDebugMacro(<< "No data to strip!");
     return 1;
@@ -128,6 +132,8 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
     // present strips are.
     newfdStrips->Allocate(3 * inNumPolys + 3);
   }
+
+  vtkUnsignedCharArray* ghostCells = input->GetCellData()->GetGhostArray();
 
   vtkIdTypeArray* OriginalCellIds = nullptr;
   vtkIdTypeArray* origPolyIds = nullptr;
@@ -161,6 +167,10 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
     cellId = inNumVerts + inNumLines + inNumPolys;
     for (inStrips->InitTraversal(); inStrips->GetNextCell(numStripPts, stripPts);)
     {
+      if (ghostCells && ghostCells->GetValue(cellId))
+      {
+        continue;
+      }
       newStrips->InsertNextCell(numStripPts, stripPts);
       if (this->PassCellDataAsFieldData)
       {
@@ -192,6 +202,10 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
     cellId = inNumVerts;
     for (inLines->InitTraversal(); inLines->GetNextCell(numLinePts, linePts); cellId++)
     {
+      if (ghostCells && ghostCells->GetValue(cellId))
+      {
+        continue;
+      }
       if (numLinePts > 2)
       {
         newLines->InsertNextCell(numLinePts, linePts);
@@ -211,7 +225,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
   visited = new char[numCells];
   for (i = 0; i < numCells; i++)
   {
-    visited[i] = 0;
+    visited[i] = ghostCells && ghostCells->GetValue(i) ? 1 : 0;
   }
 
   // Loop over all cells and find one that hasn't been visited.
@@ -229,6 +243,10 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType progressInterval = numCells / 20 + 1;
   for (cellId = 0; cellId < numCells && !abort; cellId++)
   {
+    if (ghostCells && ghostCells->GetValue(cellId))
+    {
+      continue;
+    }
     if (!(cellId % progressInterval))
     {
       this->UpdateProgress((float)cellId / numCells);
