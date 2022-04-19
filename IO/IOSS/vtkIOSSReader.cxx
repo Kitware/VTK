@@ -1393,6 +1393,9 @@ Ioss::Region* vtkIOSSReader::vtkInternals::GetRegion(const std::string& dbasenam
     // Do not treat numeric suffixes for a variable as vector components.
     properties.add(Ioss::Property("IGNORE_REALN_FIELDS", "on"));
 
+    // Only read timestep information from 0th file.
+    properties.add(Ioss::Property("EXODUS_CALL_GET_ALL_TIMES", processor == 0 ? "on" : "off"));
+
     // Fillup with user-specified properties.
     Ioss::NameList names;
     this->DatabaseProperties.describe(&names);
