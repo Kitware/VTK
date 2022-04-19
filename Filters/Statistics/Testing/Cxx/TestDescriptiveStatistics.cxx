@@ -11,14 +11,17 @@
 // for implementing this test.
 
 #include "vtkDataObjectCollection.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDescriptiveStatistics.h"
 #include "vtkDoubleArray.h"
 #include "vtkLogger.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
+#include "vtkUnsignedCharArray.h"
 
 //=============================================================================
 int TestDescriptiveStatistics(int, char*[])
@@ -496,16 +499,38 @@ int TestDescriptiveStatistics(int, char*[])
   double simpleData[] = {
     0,
     1,
+    999, // ghost
     -1,
     -1,
     4,
+    999, // ghost
     5,
     6,
     7,
     8,
+    999, // ghost
     9,
   };
-  int nSimpleVals = 10;
+  unsigned char simpleGhosts[] = {
+    // Only ghosts in for binary form xxxx xxx1 should be skipped
+    64,
+    128,
+    5, // to be skipped
+    2,
+    0,
+    0,
+    9, // to be skipped
+    4,
+    0,
+    32,
+    16,
+    1, // to be skipped
+    8,
+  };
+  int nSimpleVals = 13;
+
+  vtkNew<vtkUnsignedCharArray> ghosts;
+  ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
 
   vtkDoubleArray* datasetArr = vtkDoubleArray::New();
   datasetArr->SetNumberOfComponents(1);
@@ -514,10 +539,12 @@ int TestDescriptiveStatistics(int, char*[])
   for (int i = 0; i < nSimpleVals; ++i)
   {
     datasetArr->InsertNextValue(simpleData[i]);
+    ghosts->InsertNextValue(simpleGhosts[i]);
   }
 
   vtkTable* simpleTable = vtkTable::New();
   simpleTable->AddColumn(datasetArr);
+  simpleTable->AddColumn(ghosts);
   datasetArr->Delete();
 
   double mean = 3.8;
@@ -529,6 +556,7 @@ int TestDescriptiveStatistics(int, char*[])
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds3 = vtkDescriptiveStatistics::New();
   ds3->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, simpleTable);
+  ds3->SetGhostsToSkip(1);
   simpleTable->Delete();
 
   // Select column of interest
@@ -611,6 +639,7 @@ int TestDescriptiveStatistics(int, char*[])
 
   // Testing population estimate
   ds3->SampleEstimateOff();
+  ds3->SetGhostsToSkip(1);
   ds3->Update();
   outputMetaDS3 = vtkMultiBlockDataSet::SafeDownCast(
     ds3->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
