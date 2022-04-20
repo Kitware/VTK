@@ -252,6 +252,7 @@ struct vtkCellProcessor
   int BatchSize;
   int NumBatches;
   vtkIdType xD, xyD;
+  size_t MaxCellSize;
 
   vtkCellProcessor(vtkCellBinner* cb)
     : Binner(cb)
@@ -264,10 +265,11 @@ struct vtkCellProcessor
     this->NumBins = cb->NumBins;
     this->BatchSize = 10000; // building the offset array
     this->NumBatches =
-      static_cast<int>(ceil(static_cast<double>(this->NumFragments) / this->BatchSize));
+      static_cast<int>(std::ceil(static_cast<double>(this->NumFragments) / this->BatchSize));
 
-    xD = cb->xD; // for speeding up computation
-    xyD = cb->xyD;
+    this->xD = cb->xD; // for speeding up computation
+    this->xyD = cb->xyD;
+    this->MaxCellSize = static_cast<size_t>(cb->DataSet->GetMaxCellSize());
   }
 
   virtual ~vtkCellProcessor() = default;
@@ -933,13 +935,12 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
   double& minDist2, int& inside)
 {
   std::vector<bool> binHasBeenQueued(this->NumBins, false);
-  std::vector<double> weights(6);
+  std::vector<double> weights(this->MaxCellSize);
   double pcoords[3], point[3], bds[6], *bounds;
   double distance2ToCellBounds, dist2, binDist2;
   int subId, stat, ijk[3];
   vtkIdType retVal = 0;
   T numIds, j, cellId;
-  size_t nPoints;
 
   using node = std::pair<double, vtkIdType>;
   std::priority_queue<node, std::vector<node>, std::greater<node>> queue;
@@ -986,13 +987,6 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
         if (distance2ToCellBounds < minDist2)
         {
           this->DataSet->GetCell(cellId, cell);
-
-          // make sure we have enough storage space for the weights
-          nPoints = static_cast<size_t>(cell->GetPointIds()->GetNumberOfIds());
-          if (nPoints > weights.size())
-          {
-            weights.resize(2 * nPoints);
-          }
 
           // evaluate the position to find the closest point
           // stat==(-1) is numerical error; stat==0 means outside;
