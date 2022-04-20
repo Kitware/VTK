@@ -610,38 +610,42 @@ std::string ComputeGradientOpacity1DDecl(vtkVolume* vol, int noOfComponents,
   }
 
   std::string shaderStr = ss.str();
-  if (volProperty->HasGradientOpacity() && (noOfComponents == 1 || !independentComponents))
+
+  if (volProperty->HasGradientOpacity() && noOfComponents > 0)
   {
-    shaderStr += std::string("\
-        \nfloat computeGradientOpacity(vec4 grad)\
-        \n  {\
-        \n  return texture2D(" +
-      gradientTableMap[0] + ", vec2(grad.w, 0.0)).r;\
-        \n  }");
-  }
-  else if (noOfComponents > 1 && independentComponents && volProperty->HasGradientOpacity())
-  {
-    shaderStr += std::string("\
+    if (noOfComponents == 1 || !independentComponents)
+    {
+      shaderStr += std::string("\
+          \nfloat computeGradientOpacity(vec4 grad)\
+          \n  {\
+          \n  return texture2D(" +
+        gradientTableMap[0] + ", vec2(grad.w, 0.0)).r;\
+          \n  }");
+    }
+    else
+    {
+      shaderStr += std::string("\
         \nfloat computeGradientOpacity(vec4 grad, int component)\
         \n  {");
 
-    for (int i = 0; i < noOfComponents; ++i)
-    {
-      std::ostringstream toString;
-      toString << i;
-      shaderStr += std::string("\
-          \n  if (component == " +
-        toString.str() + ")");
+      for (int i = 0; i < noOfComponents; ++i)
+      {
+        std::ostringstream toString;
+        toString << i;
+        shaderStr += std::string("\
+            \n  if (component == " +
+          toString.str() + ")");
+
+        shaderStr += std::string("\
+            \n    {\
+            \n    return texture2D(" +
+          gradientTableMap[i] + ", vec2(grad.w, 0.0)).r;\
+            \n    }");
+      }
 
       shaderStr += std::string("\
-          \n    {\
-          \n    return texture2D(" +
-        gradientTableMap[i] + ", vec2(grad.w, 0.0)).r;\
-          \n    }");
+          \n  }");
     }
-
-    shaderStr += std::string("\
-        \n  }");
   }
 
   if (useLabelGradientOpacity)
@@ -788,15 +792,343 @@ std::string ComputeGradientDeclaration(
 }
 
 //--------------------------------------------------------------------------
+std::string ComputeOpacity2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(ren),
+  vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol), int noOfComponents,
+  int independentComponents, std::map<int, std::string> opacityTableMap, int useGradient)
+{
+  std::string resStr;
+  std::string functionBody;
+  bool severalIndpt = noOfComponents > 1 && independentComponents;
+  std::string functionSignature = severalIndpt
+    ? "float computeOpacityWithGrad(vec4 scalar, vec4 grad, int component)\n"
+    : "float computeOpacityWithGrad(vec4 scalar, vec4 grad)\n";
+
+  if (severalIndpt)
+  {
+    // Multiple independent components
+
+    if (!useGradient)
+    {
+      functionBody +=
+        "vec4 yscalar = texture3D(in_transfer2DYAxis, g_dataPos);\n"
+        "for (int i = 0; i < 4; ++i)\n"
+        "{\n"
+        "  yscalar[i] = yscalar[i] * in_transfer2DYAxis_scale[i] + in_transfer2DYAxis_bias[i];\n"
+        "}\n";
+    }
+
+    for (int i = 0; i < noOfComponents; ++i)
+    {
+      std::string secondAxis(useGradient
+          // we take the same grad for all components so we have to be sure that
+          //  the one given as a parameter is computed wrt the right component
+          ? "grad.w"
+          : std::string("yscalar[") + std::to_string(i) + "]");
+
+      functionBody += "  if(component == " + std::to_string(i) +
+        ")\n"
+        "  {\n"
+        "    return texture2D(" +
+        opacityTableMap[i] + ",\n" + "    vec2(scalar[" + std::to_string(i) + "], " + secondAxis +
+        ")).a\n" + "  }\n";
+    }
+  }
+
+  else if (noOfComponents == 2 && !independentComponents)
+  {
+    std::string secondAxis(useGradient ? "grad.w" : "yscalar.y");
+
+    functionBody += "  return texture2D(" + opacityTableMap[0] +
+      ",\n"
+      "    vec2(scalar.y, " +
+      secondAxis + ")).a;\n";
+  }
+
+  else
+  {
+    if (useGradient)
+    {
+      // Dependent components (RGBA) || Single component
+      functionBody += "  return texture2D(" + opacityTableMap[0] +
+        ",\n"
+        "    vec2(scalar.a, grad.w)).a;\n";
+    }
+    else
+    {
+      // Dependent compoennts (RGBA) || Single component
+      functionBody +=
+        "  vec4 yscalar = texture3D(in_transfer2DYAxis, g_dataPos);\n"
+        "  yscalar.r = yscalar.r * in_transfer2DYAxis_scale.r + in_transfer2DYAxis_bias.r;\n"
+        "  yscalar = vec4(yscalar.r);\n"
+        "  return texture2D(" +
+        opacityTableMap[0] +
+        ",\n"
+        "    vec2(scalar.a, yscalar.w)).a;\n";
+    }
+  }
+
+  resStr = functionSignature + "{\n" + functionBody + "}\n";
+
+  return resStr;
+}
+
+//-----------------------------------------------------------------------
+std::string ComputeOpacityEvaluationCall(vtkOpenGLGPUVolumeRayCastMapper* vtkNotUsed(mapper),
+  vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, int noOfComponents,
+  int independentComponents, int useGradYAxis, std::string position)
+{
+  std::string resStr;
+
+  if (inputs.size() > 1)
+  {
+    // Multi Volume
+    const bool hasGradOp = ::HasGradientOpacity(inputs);
+    resStr += "  opacity = computeOpacity(vec4(scalar), opacityTF);\n";
+    // either all volumes have a TF either none have one, so we can have
+    // the same opacity call for all volumes
+    if (hasGradOp)
+    {
+      resStr += std::string("  gradient = computeGradient(") + position + ", c, volume, index);\n";
+      resStr += "  opacity *= computeGradientOpacity(gradient, gradTF);\n";
+    }
+  }
+  else
+  {
+    // Single Volume
+    vtkVolumeProperty* volProp = inputs[0].Volume->GetProperty();
+    const bool hasGradOp = volProp->HasGradientOpacity() && !volProp->GetDisableGradientOpacity();
+    const bool useLabelGradientOpacity = (volProp->HasLabelGradientOpacity() &&
+      (noOfComponents == 1 || !independentComponents) && !volProp->GetDisableGradientOpacity());
+
+    const int tfMode = volProp->GetTransferFunctionMode();
+
+    bool indpComps = (noOfComponents > 1 && independentComponents);
+    std::string compArgument = (indpComps) ? std::string(", c") : std::string();
+
+    const bool needGrad = (tfMode == vtkVolumeProperty::TF_2D && useGradYAxis); // to be sure
+
+    if (tfMode == vtkVolumeProperty::TF_1D)
+    {
+
+      std::string compWeights = indpComps ? std::string(" * in_componentWeight[c]") : std::string();
+
+      resStr += std::string("  opacity = computeOpacity(vec4(scalar)") + compArgument +
+        std::string(")") + compWeights + ";\n";
+
+      if (hasGradOp || useLabelGradientOpacity)
+      {
+        resStr += std::string("  gradient = computeGradient(") + position +
+          std::string(", c, volume, index);\n"
+                      "  if(gradient.w >= 0.0) {\n") +
+          (hasGradOp ? (std::string("    opacity *= computeGradientOpacity(gradient") +
+                         compArgument + ")" + compWeights + ";\n")
+                     : std::string())
+
+          + (useLabelGradientOpacity
+                ? (std::string("    opacity *= computeGradientOpacityForLabel(gradient, label);\n"))
+                : std::string())
+
+          + std::string("  }\n");
+      }
+    }
+    else
+    {
+      // 2D TF
+      if (needGrad)
+      {
+        resStr +=
+          std::string("  gradient = computeGradient(") + position + ", c, volume, index);\n";
+      }
+      resStr += std::string("  opacity = computeOpacityWithGrad(vec4(scalar), gradient") +
+        compArgument + std::string(");\n");
+    }
+  }
+
+  return resStr;
+}
+
+//--------------------------------------------------------------------------
+std::string ComputeDensityGradientDeclaration(vtkOpenGLGPUVolumeRayCastMapper* mapper,
+  vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, int noOfComponents,
+  int independentComponents, int useGradYAxis)
+{
+  const bool hasLighting = ::HasLighting(inputs);
+  const bool hasGradientOp = ::HasGradientOpacity(inputs);
+
+  std::string functionSignature;
+
+  if (inputs.size() > 1)
+  {
+    if (hasGradientOp)
+    {
+      functionSignature = std::string(
+        "vec4 computeDensityGradient(in vec3 texPos, in int c, in sampler3D volume, "
+        "const in sampler2D opacityTF, const in sampler2D gradTF, in int index, float label)\n");
+    }
+    else
+    {
+      functionSignature =
+        std::string("vec4 computeDensityGradient(in vec3 texPos, in int c, in sampler3D volume, "
+                    "const in sampler2D opacityTF, in int index, float label)\n");
+    }
+  }
+  else
+  {
+    functionSignature = std::string("vec4 computeDensityGradient(in vec3 texPos, in int c, in "
+                                    "sampler3D volume, in int index, float label)\n");
+  }
+
+  std::string shaderStr;
+  if (hasLighting || hasGradientOp)
+  {
+
+    std::string opacityTFcall;
+    std::string gradComput;
+    // this table remembers the correspondance results <-> texture coordinates
+    static const std::array<std::pair<const char*, const char*>, 6> results_texPos = { {
+      { "  g1.x", "texPosPvec[0]" },
+      { "  g1.y", "texPosPvec[1]" },
+      { "  g1.z", "texPosPvec[2]" },
+      { "  g2.x", "texPosNvec[0]" },
+      { "  g2.y", "texPosNvec[1]" },
+      { "  g2.z", "texPosNvec[2]" },
+    } };
+
+    shaderStr += std::string("// c is short for component\n") + functionSignature +
+      std::string("{\n"
+                  "  // Approximate Nabla(F) derivatives with central differences.\n"
+                  "  vec3 g1; // F_front\n"
+                  "  vec3 g2; // F_back\n"
+                  "  vec3 xvec = vec3(in_cellStep[index].x, 0.0, 0.0);\n"
+                  "  vec3 yvec = vec3(0.0, in_cellStep[index].y, 0.0);\n"
+                  "  vec3 zvec = vec3(0.0, 0.0, in_cellStep[index].z);\n"
+                  "  vec3 texPosPvec[3];\n"
+                  "  texPosPvec[0] = texPos + xvec;\n"
+                  "  texPosPvec[1] = texPos + yvec;\n"
+                  "  texPosPvec[2] = texPos + zvec;\n"
+                  "  vec3 texPosNvec[3];\n"
+                  "  texPosNvec[0] = texPos - xvec;\n"
+                  "  texPosNvec[1] = texPos - yvec;\n"
+                  "  texPosNvec[2] = texPos - zvec;\n"
+                  "  float scalar;\n"
+                  "  float opacity;\n"
+                  "  vec4 gradient;\n"
+                  "\n");
+
+    for (auto& gradComp : results_texPos)
+    {
+      // opacityTFcall corresponds to code snippet used to compute the opacity
+      opacityTFcall = ComputeOpacityEvaluationCall(
+        mapper, inputs, noOfComponents, independentComponents, useGradYAxis, gradComp.second);
+      shaderStr += std::string("  scalar = texture3D(volume,") + gradComp.second +
+        std::string(")[c];\n"
+                    "  scalar = scalar * in_volume_scale[index][c] + in_volume_bias[index][c];\n") +
+        opacityTFcall + gradComp.first + " = opacity;\n";
+    }
+
+    if (::UseClippedVoxelIntensity(inputs) && mapper->GetClippingPlanes())
+    {
+      shaderStr +=
+        std::string("  vec4 g1ObjDataPos[3], g2ObjDataPos[3];\n"
+                    "  for (int i = 0; i < 3; ++i)\n"
+                    "  {\n"
+                    "    g1ObjDataPos[i] = clip_texToObjMat * vec4(texPosPvec[i], 1.0);\n"
+                    "    if (g1ObjDataPos[i].w != 0.0)\n"
+                    "    {\n"
+                    "      g1ObjDataPos[i] /= g1ObjDataPos[i].w;\n"
+                    "    }\n"
+                    "    g2ObjDataPos[i] = clip_texToObjMat * vec4(texPosNvec[i], 1.0);\n"
+                    "    if (g2ObjDataPos[i].w != 0.0)\n"
+                    "    {\n"
+                    "      g2ObjDataPos[i] /= g2ObjDataPos[i].w;\n"
+                    "    }\n"
+                    "  }\n"
+                    "\n"
+                    "  for (int i = 0; i < clip_numPlanes && !g_skip; i = i + 6)\n"
+                    "  {\n"
+                    "    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\n"
+                    "                            in_clippingPlanes[i + 2],\n"
+                    "                            in_clippingPlanes[i + 3]);\n"
+                    "    vec3 planeNormal = normalize(vec3(in_clippingPlanes[i + 4],\n"
+                    "                                      in_clippingPlanes[i + 5],\n"
+                    "                                      in_clippingPlanes[i + 6]));\n"
+                    "    for (int j = 0; j < 3; ++j)\n"
+                    "    {\n"
+                    "      if (dot(vec3(planeOrigin - g1ObjDataPos[j].xyz), planeNormal) > 0)\n"
+                    "      {\n"
+                    "        g1[j] = in_clippedVoxelIntensity;\n"
+                    "      }\n"
+                    "      if (dot(vec3(planeOrigin - g2ObjDataPos[j].xyz), planeNormal) > 0)\n"
+                    "      {\n"
+                    "        g2[j] = in_clippedVoxelIntensity;\n"
+                    "      }\n"
+                    "    }\n"
+                    "  }\n"
+                    "\n");
+    }
+
+    if (!hasGradientOp)
+    {
+      shaderStr +=
+        std::string("  // Central differences: (F_front - F_back) / 2h\n"
+                    "  // This version of computeGradient() is only used for lighting\n"
+                    "  // calculations (only direction matters), hence the difference is\n"
+                    "  // not scaled by 2h and a dummy gradient mag is returned (-1.).\n"
+                    "  return vec4((g1 - g2) / in_cellSpacing[index], -1.0);\n"
+                    "}\n");
+    }
+    else
+    {
+      shaderStr += std::string(
+        "  // Scale values the actual scalar range.\n"
+        "  float range = in_scalarsRange[4*index+c][1] - in_scalarsRange[4*index+c][0];\n"
+        "  g1 = in_scalarsRange[4*index+c][0] + range * g1;\n"
+        "  g2 = in_scalarsRange[4*index+c][0] + range * g2;\n"
+        "\n"
+        "  // Central differences: (F_front - F_back) / 2h\n"
+        "  g2 = g1 - g2;\n"
+        "\n"
+        "  float avgSpacing = (in_cellSpacing[index].x +\n"
+        "   in_cellSpacing[index].y + in_cellSpacing[index].z) / 3.0;\n"
+        "  vec3 aspect = in_cellSpacing[index] * 2.0 / avgSpacing;\n"
+        "  g2 /= aspect;\n"
+        "  float grad_mag = length(g2);\n"
+        "\n"
+        "  // Handle normalizing with grad_mag == 0.0\n"
+        "  g2 = grad_mag > 0.0 ? normalize(g2) : vec3(0.0);\n"
+        "\n"
+        "  // Since the actual range of the gradient magnitude is unknown,\n"
+        "  // assume it is in the range [0, 0.25 * dataRange].\n"
+        "  range = range != 0 ? range : 1.0;\n"
+        "  grad_mag = grad_mag / (0.25 * range);\n"
+        "  grad_mag = clamp(grad_mag, 0.0, 1.0);\n"
+        "\n"
+        "  return vec4(g2.xyz, grad_mag);\n"
+        "}\n");
+    }
+  }
+  else
+  {
+    shaderStr += functionSignature +
+      std::string("{\n"
+                  "  return vec4(0.0);\n"
+                  "}\n");
+  }
+
+  return shaderStr;
+}
+
+//--------------------------------------------------------------------------
 std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
   vtkVolume* vol, int noOfComponents, int independentComponents, int vtkNotUsed(numberOfLights),
   int lightingComplexity)
 {
+  auto glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   vtkVolumeProperty* volProperty = vol->GetProperty();
   std::string shaderStr = std::string("\
       \nvec4 computeLighting(vec4 color, int component, float label)\
-      \n  {\
-      \n  vec4 finalColor = vec4(0.0);");
+      \n{\
+      \n  vec4 finalColor = vec4(0.0);\n");
 
   // Shading for composite blending only
   int const shadeReqd = volProperty->GetShade() &&
@@ -806,20 +1138,37 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
 
   int const transferMode = volProperty->GetTransferFunctionMode();
 
-  if (shadeReqd || volProperty->HasGradientOpacity() || volProperty->HasLabelGradientOpacity())
+  // If shading is required, we compute a shading gradient (used for the shading model)
+  if (shadeReqd)
   {
-    switch (transferMode)
+    if (glMapper->GetComputeNormalFromOpacity())
     {
-      case vtkVolumeProperty::TF_1D:
-        shaderStr += std::string(
-          "  // Compute gradient function only once\n"
-          "  vec4 gradient = computeGradient(g_dataPos, component, in_volume[0], 0);\n");
-        break;
-      case vtkVolumeProperty::TF_2D:
-        shaderStr += std::string("  // TransferFunction2D is enabled so the gradient for\n"
-                                 "  // each component has already been cached\n"
-                                 "  vec4 gradient = g_gradients_0[component];\n");
-        break;
+      // we compute the gradienty according to the volume's opacity !
+      shaderStr +=
+        std::string("  vec4 shading_gradient = computeDensityGradient(g_dataPos, component, "
+                    "in_volume[0], 0, label);\n");
+    }
+    else
+    {
+      // otherwise we take the scalar gradient directly
+      shaderStr += std::string(
+        "  vec4 shading_gradient = computeGradient(g_dataPos, component, in_volume[0], 0);\n");
+    }
+  }
+
+  // If we need the scalar gradient (typically to sample a transfer function)
+  if (volProperty->HasGradientOpacity() || volProperty->HasLabelGradientOpacity())
+  {
+    // If we didn't compute it before, we compute it
+    if (!shadeReqd || glMapper->GetComputeNormalFromOpacity())
+    {
+      shaderStr +=
+        std::string("  vec4 gradient = computeGradient(g_dataPos, component, in_volume[0], 0);\n");
+    }
+    // otherwise, we use what we already computed
+    else
+    {
+      shaderStr += std::string("  vec4 gradient = shading_gradient;\n");
     }
   }
 
@@ -830,7 +1179,7 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
       shaderStr += std::string("\
           \n  vec3 diffuse = vec3(0.0);\
           \n  vec3 specular = vec3(0.0);\
-          \n  vec3 normal = gradient.xyz;\
+          \n  vec3 normal = shading_gradient.xyz;\
           \n  float normalLength = length(normal);\
           \n  if (normalLength > 0.0)\
           \n    {\
@@ -841,10 +1190,6 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n    normal = vec3(0.0, 0.0, 0.0);\
           \n    }\
           \n   // XXX: normal is oriented inside the volume, so we take -g_ldir/-g_vdir \
-          \n   /* XXX: so lightingComplexity = 1 means 'only 1 light which is a headlight with intensity = 1.0'\
-          \n    so two things :\
-          \n   1- that's very specific \
-          \n   2- I think it implies g_ldir=g_vdir=g_h in every case ? ... maybe ? idk */\
           \n   float nDotL = dot(normal, -g_ldir[0]);\
           \n   vec3 r = normalize(2.0 * nDotL * normal + g_ldir[0]);\
           \n   float vDotR = dot(r, -g_vdir[0]);\
@@ -880,7 +1225,7 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n   g_fragWorldPos /= g_fragWorldPos.w;\
           \n   }\
           \n  vec3 vdir = normalize(-g_fragWorldPos.xyz);\
-          \n  vec3 normal = gradient.xyz;\
+          \n  vec3 normal = shading_gradient.xyz;\
           \n  vec3 ambient = vec3(0.0);\
           \n  vec3 diffuse = vec3(0.0);\
           \n  vec3 specular = vec3(0.0);\
@@ -936,7 +1281,7 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n  vec3 diffuse = vec3(0,0,0);\
           \n  vec3 specular = vec3(0,0,0);\
           \n  vec3 vertLightDirection;\
-          \n  vec3 normal = normalize((in_textureToEye[0] * vec4(gradient.xyz, 0.0)).xyz);\
+          \n  vec3 normal = normalize((in_textureToEye[0] * vec4(shading_gradient.xyz, 0.0)).xyz);\
           \n  vec3 lightDir;\
           \n  for (int lightNum = 0; lightNum < in_numberOfLights; lightNum++)\
           \n    {\
@@ -1006,7 +1351,6 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
     shaderStr += std::string("\n  finalColor = vec4(color.rgb, 0.0);");
   }
 
-  auto glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   // For 1D transfers only (2D transfer functions hold scalar and
   // gradient-magnitude opacities combined in the same table).
   // For multiple inputs, a different computeGradientOpacity() signature
@@ -1059,24 +1403,24 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
   vtkVolume* vol, int noOfComponents, int independentComponents, int vtkNotUsed(numberOfLights),
   int lightingComplexity)
 {
+  auto glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   vtkVolumeProperty* volProperty = vol->GetProperty();
-
   std::string shaderStr = std::string();
 
   // if no gradient TF is needed, don't add it into the function signature
   if (volProperty->HasGradientOpacity())
   {
     shaderStr += std::string("\
-      \nvec4 computeLighting(vec3 texPos, vec4 color, const in sampler2D gradientTF, const in sampler3D volume, const int volIdx, int component)\
+      \nvec4 computeLighting(vec3 texPos, vec4 color, const in sampler2D gradientTF, const in sampler3D volume, const in sampler2D opacityTF, const int volIdx, int component)\
       \n  {\
-      \n  vec4 finalColor = vec4(0.0);");
+      \n  vec4 finalColor = vec4(0.0);\n");
   }
   else
   {
     shaderStr += std::string("\
-      \nvec4 computeLighting(vec3 texPos, vec4 color, const in sampler3D volume, const int volIdx, int component)\
+      \nvec4 computeLighting(vec3 texPos, vec4 color, const in sampler3D volume, const in sampler2D opacityTF, const int volIdx, int component)\
       \n  {\
-      \n  vec4 finalColor = vec4(0.0);");
+      \n  vec4 finalColor = vec4(0.0);\n");
   }
 
   // Shading for composite blending only
@@ -1086,14 +1430,46 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
 
   int const transferMode = volProperty->GetTransferFunctionMode();
 
-  if (shadeReqd || volProperty->HasGradientOpacity())
+  // If shading is required, we compute a shading gradient (used for the shading model)
+  if (shadeReqd)
   {
     /*
     We compute the gradient every time, because the alternative would be to test whether
     the volume has gradient cache or not. But as both branches will be evaluated anyway
     on GPU, we might as well compute the gradient every time.
     */
-    shaderStr += "  vec4 gradient = computeGradient(texPos, component, volume, volIdx);\n";
+    if (glMapper->GetComputeNormalFromOpacity())
+    {
+      if (volProperty->HasGradientOpacity())
+      {
+        shaderStr += "  vec4 shading_gradient = computeDensityGradient(texPos, component, volume, "
+                     "opacityTF, gradientTF, volIdx, 0.0);\n";
+      }
+      else
+      {
+        shaderStr += "  vec4 shading_gradient = computeDensityGradient(texPos, component, volume, "
+                     "opacityTF, volIdx, 0.0);\n";
+      }
+    }
+    else
+    {
+      shaderStr +=
+        "  vec4 shading_gradient = computeGradient(texPos, component, volume, volIdx);\n";
+    }
+  }
+
+  // If we need the scalar gradient (typically to sample a transfer function)
+  if (volProperty->HasGradientOpacity())
+  {
+    if (!shadeReqd || glMapper->GetComputeNormalFromOpacity())
+    {
+      shaderStr += "  vec4 gradient = computeGradient(texPos, component, volume, volIdx);\n";
+    }
+    else
+    {
+      // if we already computed it
+      shaderStr += "  vec4 gradient = shading_gradient;\n";
+    }
   }
 
   if (shadeReqd && lightingComplexity == 1)
@@ -1101,7 +1477,7 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
     shaderStr += std::string("\
         \n  vec3 diffuse = vec3(0.0);\
         \n  vec3 specular = vec3(0.0);\
-        \n  vec3 normal = gradient.xyz;\
+        \n  vec3 normal = shading_gradient.xyz;\
         \n  float normalLength = length(normal);\
         \n  if (normalLength > 0.0)\
         \n    {\
@@ -1112,8 +1488,7 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
         \n    normal = vec3(0.0, 0.0, 0.0);\
         \n    }\
         \n   // normal is oriented inside the volume (because normal = gradient, oriented inside the volume)\
-        \n   // the we have to take minus everything. very clever\
-        \n   // it would probably be better to take normal = - gradient, but I'm afraid of breaking things\
+        \n   // thus we have to take minus everything\
         \n   float nDotL = dot(normal, -g_ldir[volIdx]);\
         \n   vec3 r = normalize(2.0 * nDotL * normal + g_ldir[volIdx]);\
         \n   float vDotR = dot(r, -g_vdir[volIdx]);\
@@ -1304,10 +1679,12 @@ std::string ComputeColorMultiDeclaration(
     {
       ss
         << "vec4 computeColor(vec3 texPos, vec4 scalar, float opacity, const in sampler2D colorTF, "
-           "const in sampler2D gradientTF, const in sampler3D volume, const int volIdx)\n"
+           "const in sampler2D gradientTF, const in sampler3D volume, const in sampler2D "
+           "opacityTF, const int volIdx)\n\n"
            "{\n"
            "  return clamp(computeLighting(texPos, vec4(texture2D(colorTF,\n"
            "                         vec2(scalar.w, 0.0)).xyz, opacity), gradientTF, volume, "
+           "opacityTF,"
            "volIdx, 0), 0.0, 1.0);\n"
            "}\n";
     }
@@ -1315,10 +1692,10 @@ std::string ComputeColorMultiDeclaration(
     {
       ss
         << "vec4 computeColor(vec3 texPos, vec4 scalar, float opacity, const in sampler2D colorTF, "
-           "const in sampler3D volume, const int volIdx)\n"
+           "const in sampler3D volume, const in sampler2D opacityTF, const int volIdx)\n\n"
            "{\n"
            "  return clamp(computeLighting(texPos, vec4(texture2D(colorTF,\n"
-           "                         vec2(scalar.w, 0.0)).xyz, opacity), volume, "
+           "                         vec2(scalar.w, 0.0)).xyz, opacity), volume, opacityTF,"
            "volIdx, 0), 0.0, 1.0);\n"
            "}\n";
     }
@@ -1880,7 +2257,7 @@ std::string ShadingMultipleInputs(
                          "        {\n"
                          "          g_srcColor = computeColor(texPos, scalar, g_srcColor.a, "
                       << input.RGBTablesMap[0] << ", " << gradientopacity_param << "in_volume[" << i
-                      << "], " << i << ");\n";
+                      << "], " << input.OpacityTablesMap[0] << ", " << i << ");\n";
 
           if (property->HasGradientOpacity())
           {

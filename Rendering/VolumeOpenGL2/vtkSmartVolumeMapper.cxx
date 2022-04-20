@@ -94,6 +94,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   // also true for the GPU ray cast mapper.
   this->RayCastMapper->LockSampleDistanceToInputSpacingOn();
   this->GPUMapper->LockSampleDistanceToInputSpacingOn();
+  this->GPUMapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
 
   // Default to the default mode - which will use the best option that
   // is supported by the hardware
@@ -465,6 +466,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
       this->GPUMapper->SetFinalColorLevel(this->FinalColorLevel);
       this->GPUMapper->SetSampleDistance(this->SampleDistance);
       this->GPUMapper->SetTransfer2DYAxisArray(this->Transfer2DYAxisArray);
+      this->GPUMapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
 
       // Make the window current because we need the OpenGL context
       win->MakeCurrent();

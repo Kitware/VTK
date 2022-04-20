@@ -78,11 +78,15 @@ vec3 g_terminatePos;
 
 //VTK::Transfer2D::Dec
 
+//VTK::ComputeGradientOpacity1D::Dec
+
 //VTK::ComputeOpacity::Dec
+
+//VTK::ComputeOpacity2DWithGradient::Dec
 
 //VTK::ComputeGradient::Dec
 
-//VTK::ComputeGradientOpacity1D::Dec
+//VTK::ComputeDensityGradient::Dec
 
 //VTK::ComputeLighting::Dec
 
