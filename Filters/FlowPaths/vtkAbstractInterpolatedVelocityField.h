@@ -84,7 +84,8 @@
 #include "vtkFunctionSet.h"
 #include "vtkNew.h" // for vtkNew
 
-#include <map> // for cache
+#include <map>    // for cache
+#include <vector> // for weights
 
 class vtkCompositeDataSet;
 class vtkDataObject;
@@ -275,24 +276,21 @@ protected:
 
   int CacheHit;
   int CacheMiss;
-  int WeightsSize;
   bool Caching;
   bool NormalizeVector;
   bool ForceSurfaceTangentVector;
   bool SurfaceDataset;
   int VectorsType;
   char* VectorsSelection;
-  double* Weights;
+  std::vector<double> Weights;
   double LastPCoords[3];
   int LastSubId;
+  double LastClosestPoint[3];
   vtkIdType LastCellId;
   vtkDataSet* LastDataSet;
   vtkNew<vtkGenericCell> LastCell;
   vtkNew<vtkGenericCell> CurrentCell;
   vtkNew<vtkIdList> PointIds;
-  vtkNew<vtkIdList> CellList;
-  vtkNew<vtkIdList> BoundaryPoints;
-  vtkNew<vtkIdList> NeighCells;
 
   /**
    * Make sure the velocity field is initialized: record the
@@ -343,11 +341,6 @@ protected:
    * three point of the cell
    */
   virtual int FunctionValues(vtkDataSet* ds, double* x, double* f);
-
-  /**
-   * Check that all three pcoords are between 0 and 1 included.
-   */
-  virtual bool CheckPCoords(double pcoords[3]);
 
   /**
    * Try to find the cell closest to provided x point in provided dataset,

@@ -56,7 +56,7 @@ vtkCxxSetObjectMacro(vtkAMRInterpolatedVelocityField, AmrDataSet, vtkOverlapping
 //------------------------------------------------------------------------------
 vtkAMRInterpolatedVelocityField::vtkAMRInterpolatedVelocityField()
 {
-  this->Weights = new double[8];
+  this->Weights.resize(8);
   this->AmrDataSet = nullptr;
   this->LastLevel = this->LastId = -1;
 }
@@ -65,9 +65,7 @@ vtkAMRInterpolatedVelocityField::vtkAMRInterpolatedVelocityField()
 vtkAMRInterpolatedVelocityField::~vtkAMRInterpolatedVelocityField()
 {
   this->SetAmrDataSet(nullptr);
-
-  delete[] this->Weights;
-  this->Weights = nullptr;
+  this->Weights.clear();
 }
 
 //------------------------------------------------------------------------------

@@ -115,16 +115,11 @@ protected:
   }
 
   int LastDataSetIndex;
-  vtkCompositeInterpolatedVelocityFieldDataSetsType* DataSets;
+  std::vector<vtkDataSet*> DataSets;
 
 private:
   vtkCompositeInterpolatedVelocityField(const vtkCompositeInterpolatedVelocityField&) = delete;
   void operator=(const vtkCompositeInterpolatedVelocityField&) = delete;
-};
-
-typedef std::vector<vtkDataSet*> DataSetsTypeBase;
-class vtkCompositeInterpolatedVelocityFieldDataSetsType : public DataSetsTypeBase
-{
 };
 
 #endif

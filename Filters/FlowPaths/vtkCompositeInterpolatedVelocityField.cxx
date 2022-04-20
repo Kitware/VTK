@@ -25,15 +25,10 @@
 vtkCompositeInterpolatedVelocityField::vtkCompositeInterpolatedVelocityField()
 {
   this->LastDataSetIndex = 0;
-  this->DataSets = new vtkCompositeInterpolatedVelocityFieldDataSetsType;
 }
 
 //------------------------------------------------------------------------------
-vtkCompositeInterpolatedVelocityField::~vtkCompositeInterpolatedVelocityField()
-{
-  delete this->DataSets;
-  this->DataSets = nullptr;
-}
+vtkCompositeInterpolatedVelocityField::~vtkCompositeInterpolatedVelocityField() = default;
 
 //------------------------------------------------------------------------------
 // Copy the list of datasets to copy from.
@@ -49,12 +44,10 @@ void vtkCompositeInterpolatedVelocityField::CopyParameters(
   {
     return;
   }
-  *(this->DataSets) = *(obj->DataSets);
+  this->DataSets = obj->DataSets;
 
   // The weights must be copied as well
-  this->WeightsSize = obj->WeightsSize;
-  delete[] this->Weights;
-  this->Weights = new double[obj->WeightsSize];
+  this->Weights.resize(obj->Weights.size());
 }
 
 //------------------------------------------------------------------------------
@@ -67,14 +60,12 @@ void vtkCompositeInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
   }
 
   // insert the dataset (do NOT register the dataset to 'this')
-  this->DataSets->push_back(dataset);
+  this->DataSets.push_back(dataset);
 
-  int size = dataset->GetMaxCellSize();
-  if (size > this->WeightsSize)
+  size_t size = dataset->GetMaxCellSize();
+  if (size > this->Weights.size())
   {
-    this->WeightsSize = size;
-    delete[] this->Weights;
-    this->Weights = new double[size];
+    this->Weights.resize(size);
   }
 }
 
@@ -82,7 +73,7 @@ void vtkCompositeInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
 void vtkCompositeInterpolatedVelocityField::SetLastCellId(vtkIdType c, int dataindex)
 {
   this->LastCellId = c;
-  this->LastDataSet = (*this->DataSets)[dataindex];
+  this->LastDataSet = this->DataSets[dataindex];
 
   // If the dataset changes, then the cached cell is invalidated. We might as
   // well prefetch the cached cell either way.
@@ -98,9 +89,9 @@ void vtkCompositeInterpolatedVelocityField::SetLastCellId(vtkIdType c, int datai
 int vtkCompositeInterpolatedVelocityField::FunctionValues(double* x, double* f)
 {
   vtkDataSet* ds;
-  if (!this->LastDataSet && !this->DataSets->empty())
+  if (!this->LastDataSet && !this->DataSets.empty())
   {
-    ds = (*this->DataSets)[0];
+    ds = this->DataSets[0];
     this->LastDataSet = ds;
     this->LastDataSetIndex = 0;
   }
@@ -116,10 +107,9 @@ int vtkCompositeInterpolatedVelocityField::FunctionValues(double* x, double* f)
   {
     // Okay need to check other datasets since we are outside of the current dataset.
     for (this->LastDataSetIndex = 0;
-         this->LastDataSetIndex < static_cast<int>(this->DataSets->size());
-         this->LastDataSetIndex++)
+         this->LastDataSetIndex < static_cast<int>(this->DataSets.size()); this->LastDataSetIndex++)
     {
-      ds = this->DataSets->operator[](this->LastDataSetIndex);
+      ds = this->DataSets[this->LastDataSetIndex];
       if (ds && ds->GetNumberOfPoints() > 0 && ds != this->LastDataSet)
       {
         this->ClearLastCellId();
@@ -133,7 +123,7 @@ int vtkCompositeInterpolatedVelocityField::FunctionValues(double* x, double* f)
     }
     this->LastCellId = -1;
     this->LastDataSetIndex = 0;
-    this->LastDataSet = (*this->DataSets)[0];
+    this->LastDataSet = this->DataSets[0];
     return 0;
   }
 
@@ -154,9 +144,9 @@ int vtkCompositeInterpolatedVelocityField::SnapPointOnCell(double* pOrigin, doub
   {
     return 0;
   }
-  double dist2;
-  this->CurrentCell->EvaluatePosition(
-    pOrigin, pSnap, this->LastSubId, this->LastPCoords, dist2, this->Weights);
+  pSnap[0] = this->LastClosestPoint[0];
+  pSnap[1] = this->LastClosestPoint[1];
+  pSnap[2] = this->LastClosestPoint[2];
   return 1;
 }
 
@@ -165,6 +155,6 @@ void vtkCompositeInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent ind
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "DataSets: " << this->DataSets << endl;
+  os << indent << "Number of DataSets: " << this->DataSets.size() << endl;
   os << indent << "Last Dataset Index: " << this->LastDataSetIndex << endl;
 }

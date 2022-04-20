@@ -42,8 +42,6 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
 {
   this->NumFuncs = 3;     // u, v, w
   this->NumIndepVars = 4; // x, y, z, t
-  this->Weights = nullptr;
-  this->WeightsSize = 0;
 
   this->Caching = true; // Caching on by default
   this->CacheHit = 0;
@@ -54,6 +52,10 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
   this->LastPCoords[0] = 0.0;
   this->LastPCoords[1] = 0.0;
   this->LastPCoords[2] = 0.0;
+
+  this->LastClosestPoint[0] = 0.0;
+  this->LastClosestPoint[1] = 0.0;
+  this->LastClosestPoint[2] = 0.0;
 
   this->VectorsType = 0;
   this->VectorsSelection = nullptr;
@@ -73,9 +75,6 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
 
   this->LastDataSet = nullptr;
   this->SetVectorsSelection(nullptr);
-
-  delete[] this->Weights;
-  this->Weights = nullptr;
 
   // Need to free strategies and other information associated with each
   // dataset. There is a special case where the strategy cannot be deleted
@@ -299,176 +298,115 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset, do
 }
 
 //------------------------------------------------------------------------------
-bool vtkAbstractInterpolatedVelocityField::CheckPCoords(double pcoords[3])
-{
-  for (int i = 0; i < 3; i++)
-  {
-    if (pcoords[i] < 0 || pcoords[i] > 1)
-    {
-      return false;
-    }
-  }
-  return true;
-}
-
-//------------------------------------------------------------------------------
 bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
   vtkDataSet* dataset, vtkFindCellStrategy* strategy, double* x)
 {
-  double tol2, dist2;
-  if (this->SurfaceDataset)
-  {
-    tol2 = dataset->GetLength() * dataset->GetLength() *
-      vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE;
-  }
-  else
-  {
-    tol2 = dataset->GetLength() * dataset->GetLength() *
-      vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE;
-  }
+  const double diagonalLength2 = dataset->GetLength2();
+  const double tol2 = diagonalLength2 *
+    (this->SurfaceDataset ? vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE
+                          : vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE);
+  const double tol = std::sqrt(tol2);
 
-  double closest[3];
-  bool found = false;
-  if (this->Caching)
+  double dist2;
+  int inside;
+  vtkIdType closestPointFound;
+  bool foundInCache = false;
+  // See if the point is in the cached cell
+  if (this->Caching && this->LastCellId != -1)
   {
-    bool out = false;
+    // Use cache cell only if point is inside
+    int ret = this->CurrentCell->EvaluatePosition(
+      x, this->LastClosestPoint, this->LastSubId, this->LastPCoords, dist2, this->Weights.data());
+    // this->LastClosestPoint has been computed
 
-    // See if the point is in the cached cell
-    if (this->LastCellId != -1)
+    // check if point is inside the cell
+    if (ret == 1)
     {
-      // Use cache cell only if point is inside
-      // or , with surface , not far and in pccords
-      int ret = this->CurrentCell->EvaluatePosition(
-        x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
-      if (ret == -1 || (ret == 0 && !this->SurfaceDataset) ||
-        (this->SurfaceDataset && (dist2 > tol2 || !this->CheckPCoords(this->LastPCoords))))
-      {
-        out = true;
-      }
-
-      if (out)
-      {
-        this->CacheMiss++;
-
-        dataset->GetCell(this->LastCellId, this->LastCell);
-
-        this->LastCellId = (strategy == nullptr
-            ? dataset->FindCell(x, this->LastCell, this->CurrentCell, this->LastCellId, tol2,
-                this->LastSubId, this->LastPCoords, this->Weights)
-            : strategy->FindCell(x, this->LastCell, this->CurrentCell, this->LastCellId, tol2,
-                this->LastSubId, this->LastPCoords, this->Weights));
-
-        if (this->LastCellId != -1 &&
-          (!this->SurfaceDataset || this->CheckPCoords(this->LastPCoords)))
-        {
-          dataset->GetCell(this->LastCellId, this->CurrentCell);
-          found = true;
-        }
-      }
-      else
-      {
-        this->CacheHit++;
-        found = true;
-      }
+      this->CacheHit++;
+      foundInCache = true;
     }
-  } // if caching
-
-  if (!found)
+  }
+  if (!foundInCache)
   {
-    // if the cell is not found in cache, do a global search (ignore initial
-    // cell if there is one)
-    this->LastCellId =
-      (strategy == nullptr ? dataset->FindCell(x, nullptr, this->CurrentCell, -1, tol2,
-                               this->LastSubId, this->LastPCoords, this->Weights)
-                           : strategy->FindCell(x, nullptr, this->CurrentCell, -1, tol2,
-                               this->LastSubId, this->LastPCoords, this->Weights));
-
-    if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords(this->LastPCoords)))
+    if (strategy)
     {
-      dataset->GetCell(this->LastCellId, this->CurrentCell);
+      // strategies are used for subclasses of vtkPointSet
+      if (vtkCellLocatorStrategy::SafeDownCast(strategy))
+      {
+        // this location strategy uses a vtkStaticCellLocator which is a 3D grid with bins
+        // and each bin has the cellIds that are inside this bin (robust but possibly slower)
+        this->LastCellId = strategy->FindCell(x, nullptr, this->CurrentCell, -1, tol2 /*not used*/,
+          this->LastSubId, this->LastPCoords, this->Weights.data());
+        // this strategy once it finds a cell where the given point is inside it stops
+        // immediately, so this->CurrentCell contains the cell we want
+      }
+      else // vtkClosestPointStrategy
+      {
+        // this location strategy will first look at the neighbor cells of the cached cell (if any)
+        // and if that fails it will use jump and walk technique (not robust but possibly faster)
+        if (this->Caching && this->LastCellId != -1)
+        {
+          // closest-point cell location can benefit from the initial cached cell, so we extract it
+          dataset->GetCell(this->LastCellId, this->LastCell);
+          this->LastCellId = strategy->FindCell(x, this->LastCell, this->CurrentCell,
+            this->LastCellId, tol2, this->LastSubId, this->LastPCoords, this->Weights.data());
+          foundInCache = this->LastCellId != -1;
+        }
+        else
+        {
+          this->LastCellId = strategy->FindCell(x, nullptr, this->CurrentCell, -1, tol2,
+            this->LastSubId, this->LastPCoords, this->Weights.data());
+        }
+        // this strategy once it finds a cell where the given point is inside it stops
+        // immediately, so this->CurrentCell contains the cell we want
+      }
     }
     else
     {
+      // the classes that do not use a strategy are vtkUniformGrid, vtkImageData, vtkRectilinearGrid
+      this->LastCellId = dataset->FindCell(
+        x, nullptr, nullptr, -1, tol2, this->LastSubId, this->LastPCoords, this->Weights.data());
+      // these classes don't use CurrentCell, so we will need to extract it if we found something
+    }
+    // if we found a cell
+    if (this->LastCellId != -1)
+    {
+      if (foundInCache)
+      {
+        this->CacheHit++;
+      }
+      else
+      {
+        this->CacheMiss++;
+      }
+      // extract the cell that we found if we didn't use a strategy
+      if (!strategy)
+      {
+        dataset->GetCell(this->LastCellId, this->CurrentCell);
+      }
+      // pcoords, weights and subid are all valid, so we can compute the closest point
+      // using EvaluateLocation
+      this->CurrentCell->EvaluateLocation(
+        this->LastSubId, this->LastPCoords, this->LastClosestPoint, this->Weights.data());
+    }
+    else
+    {
+      this->CacheMiss++;
       if (this->SurfaceDataset)
       {
-        // Still cannot find cell, use a locator to find a (arbitrary) cell, for 2D surface
-        vtkIdType idPoint = dataset->FindPoint(x);
-        if (idPoint < 0)
+        // if we are on a surface dataset, we can use the strategy to find the closest point
+        closestPointFound = strategy->FindClosestPointWithinRadius(x, tol, this->LastClosestPoint,
+          this->CurrentCell, this->LastCellId, this->LastSubId, dist2, inside);
+        // FindClosestPointWithinRadius does not return the correct CurrentCell, so in case we find
+        // something we need to extract it and calculate the weights
+        if (closestPointFound == 1)
         {
-          this->LastCellId = -1;
-          return false;
-        }
-
-        dataset->GetPointCells(idPoint, this->CellList);
-        double minDist2 = dataset->GetLength() * dataset->GetLength();
-        vtkIdType minDistId = -1;
-        for (vtkIdType idCell = 0; idCell < this->CellList->GetNumberOfIds(); idCell++)
-        {
-          this->LastCellId = this->CellList->GetId(idCell);
           dataset->GetCell(this->LastCellId, this->CurrentCell);
-          int ret = this->CurrentCell->EvaluatePosition(
-            x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
-          if (ret != -1 && dist2 < minDist2)
-          {
-            minDistId = this->LastCellId;
-            minDist2 = dist2;
-          }
+          // we don't need to calculate the closest point, but we do need to calculate the weights
+          this->CurrentCell->EvaluatePosition(x, nullptr /*closestPoint*/, this->LastSubId,
+            this->LastPCoords, dist2, this->Weights.data());
         }
-
-        if (minDistId == -1)
-        {
-          this->LastCellId = -1;
-          return false;
-        }
-
-        // Recover closest cell info
-        this->LastCellId = minDistId;
-        dataset->GetCell(this->LastCellId, this->CurrentCell);
-        int ret = this->CurrentCell->EvaluatePosition(
-          x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
-
-        // Find Point being not perfect to find cell, check for closer cells
-        bool edge = false;
-        bool closer;
-        while (true)
-        {
-          this->CurrentCell->CellBoundary(this->LastSubId, this->LastPCoords, this->BoundaryPoints);
-          dataset->GetCellNeighbors(this->LastCellId, this->BoundaryPoints, this->NeighCells);
-          if (this->NeighCells->GetNumberOfIds() == 0)
-          {
-            edge = true;
-            break;
-          }
-          closer = false;
-          for (vtkIdType neighCellId = 0; neighCellId < this->NeighCells->GetNumberOfIds();
-               neighCellId++)
-          {
-            this->LastCellId = this->NeighCells->GetId(neighCellId);
-            dataset->GetCell(this->LastCellId, this->CurrentCell);
-            ret = this->CurrentCell->EvaluatePosition(
-              x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
-            if (ret != -1 && dist2 < minDist2)
-            {
-              minDistId = this->LastCellId;
-              minDist2 = dist2;
-              closer = true;
-            }
-          }
-          if (!closer)
-          {
-            break;
-          }
-        }
-
-        // Recover closest cell info
-        if (!edge)
-        {
-          this->LastCellId = minDistId;
-          dataset->GetCell(this->LastCellId, this->CurrentCell);
-          this->CurrentCell->EvaluatePosition(
-            x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
-        }
-        if (minDist2 > tol2 || (!this->CheckPCoords(this->LastPCoords) && edge))
+        else
         {
           this->LastCellId = -1;
           return false;
@@ -543,7 +481,7 @@ bool vtkAbstractInterpolatedVelocityField::InterpolatePoint(vtkPointData* outPD,
   }
 
   outPD->InterpolatePoint(
-    this->LastDataSet->GetPointData(), outIndex, this->CurrentCell->PointIds, this->Weights);
+    this->LastDataSet->GetPointData(), outIndex, this->CurrentCell->PointIds, this->Weights.data());
   return true;
 }
 
@@ -623,9 +561,10 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inde
   this->CurrentCell->PrintSelf(os, indent);
   os << indent << "Last P-Coords: " << this->LastPCoords[0] << ", " << this->LastPCoords[1] << ", "
      << this->LastPCoords[2] << endl;
-  os << indent << "Weights Size: " << this->WeightsSize << endl;
+  os << indent << "Last ClosestPoint: " << this->LastClosestPoint[0] << ", "
+     << this->LastClosestPoint[1] << ", " << this->LastClosestPoint[2] << endl;
   os << indent << "Last Weights: " << endl;
-  for (int i = 0; i < this->WeightsSize; ++i)
+  for (size_t i = 0; i < this->Weights.size(); ++i)
   {
     os << indent << this->Weights[i] << ", ";
   }
