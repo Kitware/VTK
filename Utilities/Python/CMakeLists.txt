@@ -159,7 +159,11 @@ if (VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
   set(should_use "$<OR:${is_exe},${direct_link}>")
   # Intel's Fortran compiler doesn't like some flags, so mask it out when using
   # the Intel Fortran Compiler (OneAPI).
-  set(ifx_mask "$<NOT:$<COMPILE_LANG_AND_ID:Fortran,IntelLLVM>>")
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15") # XXX(cmake-3.15): `COMPILE_LANG_AND_ID` genex
+    set(ifx_mask "$<NOT:$<COMPILE_LANG_AND_ID:Fortran,IntelLLVM>>")
+  else ()
+    set(ifx_mask 1)
+  endif ()
   set(platform_flags
     # Apple flags.
     "$<$<PLATFORM_ID:Darwin>:-undefined;dynamic_lookup>"
