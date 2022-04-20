@@ -2567,7 +2567,7 @@ void interpolateDGFieldToNodes(
 //----------------------------------------------------------------------------
 bool vtkIOSSReader::vtkInternals::FieldIsDG(std::string blockname, std::string fieldname)
 {
-  auto dgFields = this->DGInfo.fields[blockname];
+  const auto& dgFields = this->DGInfo.fields[blockname];
   for (const auto& field : dgFields)
   {
     if (fieldname.find(field) != std::string::npos)
