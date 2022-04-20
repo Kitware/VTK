@@ -109,9 +109,25 @@ public:
   vtkBooleanMacro(MedianAbsoluteDeviation, bool);
   ///@}
 
+  ///@{
+  /** If there is a ghost array in the input, then ghosts matching `GhostsToSkip` mask
+   * will be skipped. It is set to 0xff by default (every ghosts types are skipped).
+   *
+   * @sa
+   * vtkDataSetAttributes
+   * vtkFieldData
+   * vtkPointData
+   * vtkCellData
+   */
+  vtkSetMacro(GhostsToSkip, unsigned char);
+  vtkGetMacro(GhostsToSkip, unsigned char);
+  ///@}
+
 protected:
   vtkMultiCorrelativeStatistics();
   ~vtkMultiCorrelativeStatistics() override;
+
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Execute the calculations required by the Learn option.
@@ -151,6 +167,13 @@ protected:
   virtual vtkOrderStatistics* CreateOrderStatisticsInstance();
 
   bool MedianAbsoluteDeviation;
+
+  /**
+   * Storing the number of ghosts in the input to avoid computing this value multiple times.
+   */
+  vtkIdType NumberOfGhosts;
+
+  unsigned char GhostsToSkip;
 
 private:
   vtkMultiCorrelativeStatistics(const vtkMultiCorrelativeStatistics&) = delete;

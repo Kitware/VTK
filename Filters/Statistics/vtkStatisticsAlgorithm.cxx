@@ -21,6 +21,7 @@
 #include "vtkStatisticsAlgorithm.h"
 
 #include "vtkDataObjectCollection.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -220,6 +221,7 @@ int vtkStatisticsAlgorithm::RequestData(
   if (inData)
   {
     outData->ShallowCopy(inData);
+    outData->GetRowData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
   }
 
   // If there are any columns selected in the buffer which have not been

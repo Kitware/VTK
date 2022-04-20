@@ -10,11 +10,14 @@
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiCorrelativeStatistics.h"
+#include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 
 //=============================================================================
 int TestMultiCorrelativeStatistics(int, char*[])
@@ -22,41 +25,79 @@ int TestMultiCorrelativeStatistics(int, char*[])
   int testStatus = 0;
 
   /* */
-  double mingledData[] = {
-    46, 45, //
-    47, 49, //
-    46, 47, //
-    46, 46, //
-    47, 46, //
-    47, 49, //
-    49, 49, //
-    47, 45, //
-    50, 50, //
-    46, 46, //
-    51, 50, //
-    48, 48, //
-    52, 54, //
-    48, 47, //
-    52, 52, //
-    49, 49, //
-    53, 54, //
-    50, 50, //
-    53, 54, //
-    50, 52, //
-    53, 53, //
-    50, 51, //
-    54, 54, //
-    49, 49, //
-    52, 52, //
-    50, 51, //
-    52, 52, //
-    49, 47, //
-    48, 48, //
-    48, 50, //
-    46, 48, //
-    47, 47  //
+  unsigned char ghostArray[] = {
+    0, // 1
+    0, // 2
+    0, // 3
+    0, // 4
+    0, // 5
+    0, // 6
+    0, // 7
+    0, // 8
+    0, // 9
+    0, // 10
+    0, // 11
+    0, // 12
+    0, // 13
+    0, // 14
+    0, // 15
+    0, // 16
+    0, // 17
+    0, // 18
+    0, // 19
+    0, // 20
+    0, // 21
+    0, // 22
+    0, // 23
+    1, // 24
+    0, // 25
+    0, // 26
+    0, // 27
+    0, // 28
+    0, // 29
+    0, // 30
+    0, // 31
+    0, // 32
+    0, // 33
   };
-  int nVals = 32;
+
+  /* */
+  double mingledData[] = {
+    46, 45,   //
+    47, 49,   //
+    46, 47,   //
+    46, 46,   //
+    47, 46,   //
+    47, 49,   //
+    49, 49,   //
+    47, 45,   //
+    50, 50,   //
+    46, 46,   //
+    51, 50,   //
+    48, 48,   //
+    52, 54,   //
+    48, 47,   //
+    52, 52,   //
+    49, 49,   //
+    53, 54,   //
+    50, 50,   //
+    53, 54,   //
+    50, 52,   //
+    53, 53,   //
+    50, 51,   //
+    54, 54,   //
+    999, 999, // 24 (ghosts)
+    49, 49,   //
+    52, 52,   //
+    50, 51,   //
+    52, 52,   //
+    49, 47,   //
+    48, 48,   //
+    48, 50,   //
+    46, 48,   //
+    47, 47    //
+  };
+  int nVals = 33;
 
   const char m0Name[] = "M0";
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
@@ -73,12 +114,16 @@ int TestMultiCorrelativeStatistics(int, char*[])
   dataset3Arr->SetNumberOfComponents(1);
   dataset3Arr->SetName(m2Name);
 
+  vtkNew<vtkUnsignedCharArray> ghosts;
+  ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+
   for (int i = 0; i < nVals; ++i)
   {
     int ti = i << 1;
     dataset1Arr->InsertNextValue(mingledData[ti]);
     dataset2Arr->InsertNextValue(mingledData[ti + 1]);
     dataset3Arr->InsertNextValue(i != 12 ? -1. : -1.001);
+    ghosts->InsertNextValue(ghostArray[i]);
   }
 
   vtkTable* datasetTable = vtkTable::New();
@@ -88,6 +133,8 @@ int TestMultiCorrelativeStatistics(int, char*[])
   dataset2Arr->Delete();
   datasetTable->AddColumn(dataset3Arr);
   dataset3Arr->Delete();
+  datasetTable->AddColumn(ghosts);
+  datasetTable->GetRowData()->SetGhostsToSkip(1);
 
   // Set multi-correlative statistics algorithm and its input data port
   vtkMultiCorrelativeStatistics* mcs = vtkMultiCorrelativeStatistics::New();
