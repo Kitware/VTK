@@ -56,13 +56,11 @@
  * objects (i.e., extracting just one segmented object from a volume) and
  * multi-label (multiple object extraction).
  *
- * Sarah F. Frisken. Constrained Elastic SurfaceNets: Generating Smooth
- * Models from Binary Segmented Data. MITSUBISHI ELECTRIC RESEARCH
- * LABORATORIES. TR99-24 December 1999.
+ * S. Frisken (Gibson), “Constrained Elastic SurfaceNets: Generating Smooth
+ * Surfaces from Binary Segmented Data”, Proc. MICCAI, 1998, pp. 888-898.
  *
- * Sarah F. Frisken. "SurfaceNets for Multi-Label Segmentations with
- * Preservation of Sharp Boundaries." Journal of Computer Graphics
- * Techniques.
+ * S. Frisken, “SurfaceNets for Multi-Label Segmentations with Preservation
+ * of Sharp Boundaries”, J. Computer Graphics Techniques, 2022.
  *
  * Note that one nice feature of this filter is that algorithm execution
  * occurs only once no matter the number of object labels / contour
