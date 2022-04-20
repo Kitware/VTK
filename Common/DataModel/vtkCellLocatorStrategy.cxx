@@ -133,6 +133,15 @@ vtkIdType vtkCellLocatorStrategy::FindCell(double x[3], vtkCell* cell, vtkGeneri
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkCellLocatorStrategy::FindClosestPointWithinRadius(double x[3], double radius,
+  double closestPoint[3], vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2,
+  int& inside)
+{
+  return this->CellLocator->FindClosestPointWithinRadius(
+    x, radius, closestPoint, cell, cellId, subId, dist2, inside);
+}
+
+//------------------------------------------------------------------------------
 void vtkCellLocatorStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -115,6 +115,7 @@ int vtkClosestPointStrategy::Initialize(vtkPointSet* ps)
     this->PointLocator = psPL;
     this->OwnsLocator = false;
   }
+  this->Weights.resize(8);
 
   this->InitializeTime.Modified();
 
@@ -267,6 +268,98 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
   // points (if using a point locator approach). In this latter case, a cell
   // locator is necessary.
   return -1;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkClosestPointStrategy::FindClosestPointWithinRadius(double x[3], double radius,
+  double closestPoint[3], vtkGenericCell* genCell, vtkIdType& closestCellId, int& closestSubId,
+  double& minDist2, int& inside)
+{
+  // the implementation of this function is a copy of an old approach in
+  // vtkAbstractInterpolatedVelocityField, check git history for more info
+  // in the future something better could be implemented
+  vtkIdType retVal = 0;
+
+  // find the point closest to the coordinates
+  // given and search the attached cells.
+  vtkIdType ptId = this->PointLocator->FindClosestPoint(x);
+  if (ptId < 0)
+  {
+    return retVal;
+  }
+  // find the cells adjacent to the closest point
+  this->PointSet->GetPointCells(ptId, this->CellIds);
+  double point[3], pcoords[3], dist2, closestPcoords[3];
+  int subId, stat;
+  vtkIdType cellId;
+  closestSubId = -1;
+  closestCellId = -1;
+  minDist2 = this->PointSet->GetLength2();
+  // find the closest adjacent cell
+  for (vtkIdType id = 0, max = this->CellIds->GetNumberOfIds(); id < max; ++id)
+  {
+    cellId = this->CellIds->GetId(id);
+    this->PointSet->GetCell(cellId, genCell);
+    if (this->Weights.size() < static_cast<size_t>(genCell->GetNumberOfPoints()))
+    {
+      this->Weights.resize(static_cast<size_t>(genCell->GetNumberOfPoints()));
+    }
+    stat = genCell->EvaluatePosition(x, point, subId, pcoords, dist2, this->Weights.data());
+    if (stat != -1 && dist2 < minDist2)
+    {
+      retVal = 1;
+      inside = stat;
+      minDist2 = dist2;
+      closestCellId = cellId;
+      closestSubId = subId;
+      closestPoint[0] = point[0];
+      closestPoint[1] = point[1];
+      closestPoint[2] = point[2];
+      closestPcoords[0] = pcoords[0];
+      closestPcoords[1] = pcoords[1];
+      closestPcoords[2] = pcoords[2];
+    }
+  }
+  if (closestCellId == -1)
+  {
+    return retVal;
+  }
+  // Recover the closest cell
+  this->PointSet->GetCell(closestCellId, genCell);
+  // get the boundary point ids closest to the parametric coordinates
+  genCell->CellBoundary(closestSubId, closestPcoords, this->PointIds);
+  // get the neighbors cells of the boundary points
+  this->PointSet->GetCellNeighbors(closestCellId, this->PointIds, this->Neighbors);
+  // check if any of the neighbors is closer to the query point
+  for (vtkIdType neighCellId = 0, max = this->Neighbors->GetNumberOfIds(); neighCellId < max;
+       ++neighCellId)
+  {
+    cellId = this->Neighbors->GetId(neighCellId);
+    this->PointSet->GetCell(cellId, genCell);
+    if (this->Weights.size() < static_cast<size_t>(genCell->GetNumberOfPoints()))
+    {
+      this->Weights.resize(static_cast<size_t>(genCell->GetNumberOfPoints()));
+    }
+    stat = genCell->EvaluatePosition(x, point, subId, pcoords, dist2, this->Weights.data());
+    if (stat != -1 && dist2 < minDist2)
+    {
+      retVal = 1;
+      inside = stat;
+      minDist2 = dist2;
+      closestCellId = cellId;
+      closestSubId = subId;
+      closestPoint[0] = point[0];
+      closestPoint[1] = point[1];
+      closestPoint[2] = point[2];
+      // pcoords are not used again
+    }
+  }
+  // the closest is within the given radius
+  if (minDist2 > radius * radius)
+  {
+    retVal = 0;
+  }
+  return retVal;
 }
 
 //------------------------------------------------------------------------------

@@ -74,6 +74,13 @@ public:
   vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
     double tol2, int& subId, double pcoords[3], double* weights) override;
 
+  /**
+   * Implement the specific strategy. This method should only be called
+   * after the Initialize() method has been invoked.
+   */
+  vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
+    vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside) override;
+
   ///@{
   /**
    * Set / get an instance of vtkAbstractPointLocator which is used to
@@ -107,6 +114,7 @@ protected:
   vtkNew<vtkIdList> Neighbors;
   vtkNew<vtkIdList> CellIds;
   vtkNew<vtkIdList> NearPointIds;
+  std::vector<double> Weights;
 
   vtkAbstractPointLocator* PointLocator;
   bool OwnsLocator; // was the locator specified? or taken from associated point set
