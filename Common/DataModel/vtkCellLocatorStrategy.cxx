@@ -26,8 +26,8 @@ vtkStandardNewMacro(vtkCellLocatorStrategy);
 //------------------------------------------------------------------------------
 vtkCellLocatorStrategy::vtkCellLocatorStrategy()
 {
-  // You may ask, why this OwnsLocator rigamarole. The reason is because the
-  // reference counting garbage collecter gets confused when the locator,
+  // You may ask why this OwnsLocator rigamarole. The reason is that the
+  // reference counting garbage collector gets confused when the locator,
   // point set, and strategy are all mixed together; resulting in memory
   // leaks etc.
   this->OwnsLocator = false;

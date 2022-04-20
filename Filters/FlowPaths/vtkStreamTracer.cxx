@@ -23,7 +23,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDataSetAttributesFieldList.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkGenericCell.h"
@@ -44,7 +43,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta2.h"
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkStaticCellLocator.h"
@@ -173,20 +171,12 @@ void vtkStreamTracer::SetInterpolatorType(int interpType)
   {
     // create an interpolator equipped with a cell locator
     vtkNew<vtkCellLocatorInterpolatedVelocityField> cellLoc;
-
-    // specify the type of the cell locator attached to the interpolator
-    constexpr double tolerance = 1e-6;
-    vtkNew<vtkStaticCellLocator> cellLocType;
-    cellLocType->SetTolerance(tolerance);
-    cellLocType->UseDiagonalLengthToleranceOn();
-
     this->SetInterpolatorPrototype(cellLoc);
   }
   else
   {
     // create an interpolator equipped with a point locator (by default)
-    vtkSmartPointer<vtkInterpolatedVelocityField> pntLoc =
-      vtkSmartPointer<vtkInterpolatedVelocityField>::New();
+    vtkNew<vtkInterpolatedVelocityField> pntLoc;
     this->SetInterpolatorPrototype(pntLoc);
   }
 }
@@ -998,10 +988,10 @@ struct TracerIntegrator
     integrator->SetFunctionSet(func);
 
     // Check Surface option
-    vtkInterpolatedVelocityField* surfaceFunc = nullptr;
+    vtkCompositeInterpolatedVelocityField* surfaceFunc = nullptr;
     if (this->SurfaceStreamlines)
     {
-      surfaceFunc = vtkInterpolatedVelocityField::SafeDownCast(func);
+      surfaceFunc = vtkCompositeInterpolatedVelocityField::SafeDownCast(func);
       if (surfaceFunc)
       {
         surfaceFunc->SetForceSurfaceTangentVector(true);
@@ -1387,7 +1377,6 @@ struct TracerIntegrator
     vtkIdType* CAOffsets;
     vtkIdType* CAConn;
     vtkPointData* OutPD;
-    vtkIdList* InputSeedIds;
     vtkIdList* SeedIds;
     int* OutSeedIds;
     int* OutRetVals;

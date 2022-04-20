@@ -55,7 +55,6 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 
 class vtkAbstractCellLocator;
-class vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkCellLocatorInterpolatedVelocityField
   : public vtkCompositeInterpolatedVelocityField
@@ -70,60 +69,11 @@ public:
    */
   static vtkCellLocatorInterpolatedVelocityField* New();
 
-  /**
-   * Add a dataset coupled with a cell locator (of type vtkAbstractCellLocator)
-   * for vector function evaluation. Note the use of a vtkAbstractCellLocator
-   * enables robust cell location. If more than one dataset is added, the
-   * evaluation point is searched in all until a match is found. THIS FUNCTION
-   * DOES NOT CHANGE THE REFERENCE COUNT OF dataset FOR THREAD SAFETY REASONS.
-   */
-  void AddDataSet(vtkDataSet* dataset) override;
-
-  using Superclass::FunctionValues;
-  /**
-   * Evaluate the velocity field f at point (x, y, z).
-   */
-  int FunctionValues(double* x, double* f) override;
-
-  /**
-   * Set the cell id cached by the last evaluation within a specified dataset.
-   */
-  void SetLastCellId(vtkIdType c, int dataindex) override;
-
-  /**
-   * Set the cell id cached by the last evaluation.
-   */
-  void SetLastCellId(vtkIdType c) override { this->Superclass::SetLastCellId(c); }
-
-  ///@{
-  /**
-   * Set/Get the prototype of the cell locator that is used for interpolating
-   * the velocity field during integration. The prototype is used to
-   * instantiate locators for performing interpolation. By default, a
-   * vtkModifiedBSPTree is used - other classes such as vtkStaticCellLocator
-   * can be faster.
-   */
-  void SetCellLocatorPrototype(vtkAbstractCellLocator* prototype);
-  vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
-  ///@}
-
 protected:
   vtkCellLocatorInterpolatedVelocityField();
   ~vtkCellLocatorInterpolatedVelocityField() override;
 
-  /**
-   * Evaluate the velocity field f at point (x, y, z) in a specified dataset
-   * (of type vtkImageData or vtkRectilinearGrid only) by invoking FindCell()
-   * to locate the next cell if the given point is outside the current cell.
-   */
-  int FunctionValues(vtkDataSet* ds, double* x, double* f) override
-  {
-    return this->Superclass::FunctionValues(ds, x, f);
-  }
-
 private:
-  vtkAbstractCellLocator* CellLocatorPrototype;
-
   vtkCellLocatorInterpolatedVelocityField(const vtkCellLocatorInterpolatedVelocityField&) = delete;
   void operator=(const vtkCellLocatorInterpolatedVelocityField&) = delete;
 };

@@ -80,19 +80,20 @@
 #ifndef vtkAbstractInterpolatedVelocityField_h
 #define vtkAbstractInterpolatedVelocityField_h
 
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkFunctionSet.h"
+#include "vtkNew.h" // for vtkNew
+
+#include <map> // for cache
 
 class vtkCompositeDataSet;
 class vtkDataObject;
 class vtkDataSet;
 class vtkDataArray;
+class vtkIdList;
 class vtkPointData;
 class vtkGenericCell;
-class vtkAbstractInterpolatedVelocityFieldDataSetsType;
 class vtkFindCellStrategy;
-struct vtkFunctionCacheMap;
-
-#include "vtkFiltersFlowPathsModule.h" // For export macro
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkAbstractInterpolatedVelocityField : public vtkFunctionSet
 {
@@ -286,8 +287,12 @@ protected:
   int LastSubId;
   vtkIdType LastCellId;
   vtkDataSet* LastDataSet;
-  vtkGenericCell* Cell;
-  vtkGenericCell* GenCell; // the current cell
+  vtkNew<vtkGenericCell> LastCell;
+  vtkNew<vtkGenericCell> CurrentCell;
+  vtkNew<vtkIdList> PointIds;
+  vtkNew<vtkIdList> CellList;
+  vtkNew<vtkIdList> BoundaryPoints;
+  vtkNew<vtkIdList> NeighCells;
 
   /**
    * Make sure the velocity field is initialized: record the
@@ -295,13 +300,28 @@ protected:
    */
   int InitializationState;
 
+  // This is used to keep track of the find cell strategy and vector array
+  // associated with each dataset forming the velocity field. Note that the
+  // find cells strategy can be null, this means the find cell is invoked
+  // using the dataset's FindCell() method.
+  struct vtkFunctionCache
+  {
+    vtkFindCellStrategy* Strategy;
+    vtkDataArray* Vectors;
+
+    vtkFunctionCache(vtkFindCellStrategy* strategy, vtkDataArray* vectors)
+      : Strategy(strategy)
+      , Vectors(vectors)
+    {
+    }
+  };
   ///@{
   /**
    * Define a FindCell() strategy, keep track of the strategies (and other
-   * cahced information) associated with each dataset.
+   * cached information) associated with each dataset.
    */
   vtkFindCellStrategy* FindCellStrategy;
-  vtkFunctionCacheMap* FunctionCacheMap;
+  std::map<vtkDataSet*, vtkFunctionCache> FunctionCacheMap;
   ///@}
 
   ///@{
@@ -336,7 +356,7 @@ protected:
    * Then , only if surfacic is activated finding the closest cell
    * using FindPoint and comparing distance with tolerance
    */
-  virtual bool FindAndUpdateCell(vtkDataSet* ds, double* x);
+  virtual bool FindAndUpdateCell(vtkDataSet* ds, vtkFindCellStrategy* strategy, double* x);
 
   friend class vtkTemporalInterpolatedVelocityField;
   ///@{
@@ -348,7 +368,10 @@ protected:
    */
   void FastCompute(vtkDataArray* vectors, double f[3]);
   bool InterpolatePoint(vtkPointData* outPD, vtkIdType outIndex);
-  vtkGenericCell* GetLastCell() { return (this->LastCellId != -1) ? this->GenCell : nullptr; }
+  vtkGenericCell* GetLastCell()
+  {
+    return (this->LastCellId != -1) ? this->CurrentCell.Get() : nullptr;
+  }
   ///@}
 
   ///@{
@@ -359,7 +382,7 @@ protected:
    * a dataset, find cell strtegy, and associated vectors to FunctionHashMap.
    */
   virtual int SelfInitialize() { return 0; }
-  void AddToFunctionCache(vtkDataObject*, vtkFindCellStrategy*, vtkDataArray* vectors);
+  void AddToFunctionCache(vtkDataSet*, vtkFindCellStrategy*, vtkDataArray* vectors);
   size_t GetFunctionCacheSize();
   ///@}
 

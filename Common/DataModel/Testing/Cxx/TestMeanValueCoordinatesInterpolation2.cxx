@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestMeanValueCoordinatesInterpolation.cxx
+  Module:    TestMeanValueCoordinatesInterpolation2.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.

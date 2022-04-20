@@ -30,17 +30,13 @@ vtkStandardNewMacro(vtkClosestPointStrategy);
 vtkClosestPointStrategy::vtkClosestPointStrategy()
 {
   // Preallocate for performance
-  this->PointIds = vtkIdList::New();
   this->PointIds->Allocate(16);
-  this->Neighbors = vtkIdList::New();
   this->Neighbors->Allocate(32);
-  this->CellIds = vtkIdList::New();
   this->CellIds->Allocate(32);
-  this->NearPointIds = vtkIdList::New();
   this->NearPointIds->Allocate(32);
 
-  // You may ask, why this OwnsLocator rigamarole. The reason is because the
-  // reference counting garbage collecter gets confused when the locator,
+  // You may ask why this OwnsLocator rigamarole. The reason is that the
+  // reference counting garbage collector gets confused when the locator,
   // point set, and strategy are all mixed together; resulting in memory
   // leaks etc.
   this->OwnsLocator = false;
@@ -50,11 +46,6 @@ vtkClosestPointStrategy::vtkClosestPointStrategy()
 //------------------------------------------------------------------------------
 vtkClosestPointStrategy::~vtkClosestPointStrategy()
 {
-  this->PointIds->Delete();
-  this->Neighbors->Delete();
-  this->CellIds->Delete();
-  this->NearPointIds->Delete();
-
   if (this->OwnsLocator && this->PointLocator != nullptr)
   {
     this->PointLocator->Delete();
@@ -151,7 +142,9 @@ vtkIdType FindCellWalk(vtkClosestPointStrategy* self, vtkPointSet* ps, double x[
   {
     // Check to see if we already visited this cell.
     if (visitedCells.find(cellId) != visitedCells.end())
+    {
       break;
+    }
     visitedCells.insert(cellId);
 
     // Get information for the cell.
@@ -171,7 +164,9 @@ vtkIdType FindCellWalk(vtkClosestPointStrategy* self, vtkPointSet* ps, double x[
     ps->GetCellNeighbors(cellId, ptIds, neighbors);
     // If there is no next one, exit.
     if (neighbors->GetNumberOfIds() < 1)
+    {
       break;
+    }
     // Set the next cell as the current one and iterate.
     cellId = neighbors->GetId(0);
     cell = nullptr;
@@ -209,7 +204,7 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
   // Check to see if the point is within the bounds of the data.  This is not
   // a strict check, but it is fast.
   const double* bounds = this->Bounds;
-  double tol = sqrt(tol2);
+  const double tol = std::sqrt(tol2);
   if ((x[0] < bounds[0] - tol) || (x[0] > bounds[1] + tol) || (x[1] < bounds[2] - tol) ||
     (x[1] > bounds[3] + tol) || (x[2] < bounds[4] - tol) || (x[2] > bounds[5] + tol))
   {
@@ -235,7 +230,9 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
   // given and search the attached cells.
   vtkIdType ptId = this->PointLocator->FindClosestPoint(x);
   if (ptId < 0)
+  {
     return -1;
+  }
   this->PointSet->GetPointCells(ptId, this->CellIds);
   foundCell = FindCellWalk(this, this->PointSet, x, gencell, this->CellIds, tol2, subId, pcoords,
     weights, this->VisitedCells, this->PointIds, this->Neighbors);
@@ -244,7 +241,7 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
     return foundCell;
   }
 
-  // It is possible that the toplogy is not fully connected as points may be
+  // It is possible that the topology is not fully connected as points may be
   // coincident.  Handle this by looking at every point within the tolerance
   // and consider all cells connected.  It has been suggested that we should
   // really do this coincident point check at every point as we walk through
@@ -252,10 +249,9 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
   // implemented, this step might become unnecessary.
   double ptCoord[3];
   this->PointSet->GetPoint(ptId, ptCoord);
-  this->PointLocator->FindPointsWithinRadius(sqrt(tol2), ptCoord, this->NearPointIds);
+  this->PointLocator->FindPointsWithinRadius(tol, ptCoord, this->NearPointIds);
   this->NearPointIds->DeleteId(ptId); // Already searched this one.
-  vtkIdType i, numPts = this->NearPointIds->GetNumberOfIds();
-  for (i = 0; i < numPts; i++)
+  for (vtkIdType i = 0, numPts = this->NearPointIds->GetNumberOfIds(); i < numPts; i++)
   {
     this->PointSet->GetPointCells(this->NearPointIds->GetId(i), this->CellIds);
     foundCell = FindCellWalk(this, this->PointSet, x, gencell, this->CellIds, tol2, subId, pcoords,

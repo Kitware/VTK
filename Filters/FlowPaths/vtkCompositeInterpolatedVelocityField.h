@@ -58,7 +58,28 @@ public:
    * match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF
    * dataset FOR THREAD SAFETY REASONS.
    */
-  virtual void AddDataSet(vtkDataSet* dataset) = 0;
+  virtual void AddDataSet(vtkDataSet* dataset);
+
+  using Superclass::FunctionValues;
+  /**
+   * Evaluate the velocity field f at point (x, y, z).
+   */
+  int FunctionValues(double* x, double* f) override;
+
+  /**
+   * Project the provided point on current cell, current dataset.
+   */
+  virtual int SnapPointOnCell(double* pOrigin, double* pProj);
+
+  /**
+   * Set the cell id cached by the last evaluation within a specified dataset.
+   */
+  void SetLastCellId(vtkIdType c, int dataindex) override;
+
+  /**
+   * Set the cell id cached by the last evaluation.
+   */
+  void SetLastCellId(vtkIdType c) override { this->Superclass::SetLastCellId(c); }
 
   ///@{
   /**
@@ -80,6 +101,18 @@ public:
 protected:
   vtkCompositeInterpolatedVelocityField();
   ~vtkCompositeInterpolatedVelocityField() override;
+
+  /**
+   * Evaluate the velocity field f at point (x, y, z) in a specified dataset
+   * by either involving vtkPointLocator, via vtkPointSet::FindCell(), in
+   * locating the next cell (for datasets of type vtkPointSet) or simply
+   * invoking vtkImageData::FindCell() or vtkRectilinearGrid::FindCell() to
+   * fulfill the same task if the point is outside the current cell.
+   */
+  int FunctionValues(vtkDataSet* ds, double* x, double* f) override
+  {
+    return this->Superclass::FunctionValues(ds, x, f);
+  }
 
   int LastDataSetIndex;
   vtkCompositeInterpolatedVelocityFieldDataSetsType* DataSets;

@@ -103,10 +103,10 @@ protected:
   ~vtkClosestPointStrategy() override;
 
   std::set<vtkIdType> VisitedCells;
-  vtkIdList* PointIds;
-  vtkIdList* Neighbors;
-  vtkIdList* CellIds;
-  vtkIdList* NearPointIds;
+  vtkNew<vtkIdList> PointIds;
+  vtkNew<vtkIdList> Neighbors;
+  vtkNew<vtkIdList> CellIds;
+  vtkNew<vtkIdList> NearPointIds;
 
   vtkAbstractPointLocator* PointLocator;
   bool OwnsLocator; // was the locator specified? or taken from associated point set

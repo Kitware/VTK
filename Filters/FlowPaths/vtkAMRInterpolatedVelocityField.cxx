@@ -22,8 +22,6 @@
 #include "vtkPointData.h"
 #include "vtkUniformGrid.h"
 
-#include <cassert>
-
 //------------------------------------------------------------------------------
 namespace
 {
@@ -93,14 +91,14 @@ int vtkAMRInterpolatedVelocityField::SelfInitialize()
   // Add information into the interpolation function cache. Note that no find cell strategy
   // is required. If no vectors are specified, use the local dataset vectors.
   vtkDataArray* vectors;
-  for (size_t cc = 0; cc < datasets.size(); ++cc)
+  for (auto& dataset : datasets)
   {
-    vectors = (gVectors ? gVectors
-                        : vectors = datasets[cc]
-                                      ->GetAttributesAsFieldData(this->VectorsType)
-                                      ->GetArray(this->VectorsSelection));
+    vectors = (gVectors
+        ? gVectors
+        : vectors =
+            dataset->GetAttributesAsFieldData(this->VectorsType)->GetArray(this->VectorsSelection));
 
-    this->AddToFunctionCache(datasets[cc], nullptr, vectors);
+    this->AddToFunctionCache(dataset, nullptr, vectors);
   }
 
   // Indicate that the subclass has taken over initialization.
@@ -167,7 +165,7 @@ int vtkAMRInterpolatedVelocityField::FunctionValues(double* x, double* f)
   this->LastLevel = level;
   this->LastId = gridId;
 
-  vtkDataSet* ds = this->AmrDataSet->GetDataSet(level, gridId);
+  auto ds = this->AmrDataSet->GetDataSet(level, gridId);
   if (!ds)
   {
     return 0;
