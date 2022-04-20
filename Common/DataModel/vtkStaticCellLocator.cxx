@@ -912,53 +912,17 @@ void CellProcessor<T>::FindCellsAlongPlane(
 // Return closest point (if any) AND the cell on which this closest point lies
 double Distance2ToBounds(const double x[3], const double bounds[6])
 {
-  double distance;
-  double deltas[3];
-
   // Are we within the bounds?
   if (x[0] >= bounds[0] && x[0] <= bounds[1] && x[1] >= bounds[2] && x[1] <= bounds[3] &&
     x[2] >= bounds[4] && x[2] <= bounds[5])
   {
     return 0.0;
   }
-
-  deltas[0] = deltas[1] = deltas[2] = 0.0;
-
-  // dx
-  //
-  if (x[0] < bounds[0])
-  {
-    deltas[0] = bounds[0] - x[0];
-  }
-  else if (x[0] > bounds[1])
-  {
-    deltas[0] = x[0] - bounds[1];
-  }
-
-  // dy
-  //
-  if (x[1] < bounds[2])
-  {
-    deltas[1] = bounds[2] - x[1];
-  }
-  else if (x[1] > bounds[3])
-  {
-    deltas[1] = x[1] - bounds[3];
-  }
-
-  // dz
-  //
-  if (x[2] < bounds[4])
-  {
-    deltas[2] = bounds[4] - x[2];
-  }
-  else if (x[2] > bounds[5])
-  {
-    deltas[2] = x[2] - bounds[5];
-  }
-
-  distance = vtkMath::Dot(deltas, deltas);
-  return distance;
+  double deltas[3];
+  deltas[0] = x[0] < bounds[0] ? bounds[0] - x[0] : (x[0] > bounds[1] ? x[0] - bounds[1] : 0.0);
+  deltas[1] = x[1] < bounds[2] ? bounds[2] - x[1] : (x[1] > bounds[3] ? x[1] - bounds[3] : 0.0);
+  deltas[2] = x[2] < bounds[4] ? bounds[4] - x[2] : (x[2] > bounds[5] ? x[2] - bounds[5] : 0.0);
+  return vtkMath::SquaredNorm(deltas);
 }
 
 //------------------------------------------------------------------------------

@@ -121,7 +121,7 @@ void vtkPlane::GeneralizedProjectPoint(
   xo[2] = x[2] - origin[2];
 
   t = vtkMath::Dot(normal, xo);
-  n2 = vtkMath::Dot(normal, normal);
+  n2 = vtkMath::SquaredNorm(normal);
 
   if (n2 != 0)
   {
