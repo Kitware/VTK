@@ -194,12 +194,12 @@ struct DGInformation
 {
   // list of element types ordered with blocks
   // assumes each block will have a single element type
-  std::map<std::string, std::string> elementTypes;
+  std::map<std::string, std::string> ElementTypes;
 
   // list of fields present on each block
-  std::map<std::string, std::vector<std::string>> fields;
+  std::map<std::string, std::vector<std::string>> Fields;
 
-  bool BlockIsDG(std::string name) { return elementTypes.count(name); }
+  bool BlockIsDG(std::string name) const { return this->ElementTypes.count(name); }
 };
 
 std::vector<std::string> split(const std::string& inString, const std::string& delimeter)
@@ -236,11 +236,11 @@ void parseDGInfo(DGInformation& dgInfo, const std::vector<std::string>& info_rec
     // get if its a basis or a field
     if (data[2] == "basis")
     {
-      dgInfo.elementTypes[name] = data[3];
+      dgInfo.ElementTypes[name] = data[3];
     }
     else if (data[2] == "field")
     {
-      dgInfo.fields[name].push_back(data[3]);
+      dgInfo.Fields[name].push_back(data[3]);
     }
   }
 }
@@ -2072,7 +2072,7 @@ bool vtkIOSSReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
   // cell is disconnected from every other cell
   if (this->DGInfo.BlockIsDG(blockname))
   {
-    this->ExplodeDGMesh(dataset, this->DGInfo.elementTypes[blockname], remove_unused_points);
+    this->ExplodeDGMesh(dataset, this->DGInfo.ElementTypes[blockname], remove_unused_points);
 
     if (remove_unused_points)
     {
@@ -2567,7 +2567,7 @@ void interpolateDGFieldToNodes(
 //----------------------------------------------------------------------------
 bool vtkIOSSReader::vtkInternals::FieldIsDG(std::string blockname, std::string fieldname)
 {
-  const auto& dgFields = this->DGInfo.fields[blockname];
+  const auto& dgFields = this->DGInfo.Fields[blockname];
   for (const auto& field : dgFields)
   {
     if (fieldname.find(field) != std::string::npos)
@@ -2617,7 +2617,7 @@ bool vtkIOSSReader::vtkInternals::GetDGFields(vtkUnstructuredGrid* ds,
       nodalData->SetNumberOfTuples(ds->GetNumberOfPoints());
       nodalData->SetName(fieldname.c_str());
       // interpolate the dg data onto the nodes
-      interpolateDGFieldToNodes(nodalData, dgData, this->DGInfo.elementTypes[group_entity->name()]);
+      interpolateDGFieldToNodes(nodalData, dgData, this->DGInfo.ElementTypes[group_entity->name()]);
 
       // add the nodal field array
       ds->GetPointData()->AddArray(nodalData);
