@@ -1207,6 +1207,7 @@ void vtkCellLocator::BuildLocatorInternal()
     vtkErrorMacro(<< "No cells to subdivide");
     return;
   }
+  this->DataSet->ComputeBounds();
 
   //  Make sure the appropriate data is available
   //
@@ -1645,12 +1646,6 @@ double vtkCellLocator::Distance2ToBounds(const double x[3], double bounds[6])
   return distance;
 }
 //------------------------------------------------------------------------------
-static bool vtkCellLocator_Inside(const double bounds[6], const double point[3])
-{
-  return bounds[0] <= point[0] && point[0] <= bounds[1] && bounds[2] <= point[1] &&
-    point[1] <= bounds[3] && bounds[4] <= point[2] && point[2] <= bounds[5];
-}
-//------------------------------------------------------------------------------
 vtkIdType vtkCellLocator::FindCell(
   double x[3], double tol2, vtkGenericCell* cell, double pcoords[3], double* weights)
 {
@@ -1670,6 +1665,11 @@ vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGene
   if (this->Tree == nullptr)
   {
     // empty tree, most likely there are no cells in the input data set
+    return -1;
+  }
+  // check if x outside of bounds
+  if (!vtkAbstractCellLocator::IsInBounds(this->DataSet->GetBounds(), x))
+  {
     return -1;
   }
 
@@ -1718,7 +1718,7 @@ vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGene
       else
       {
         this->DataSet->GetCellBounds(cellId, cellBounds);
-        if (vtkCellLocator_Inside(cellBounds, x))
+        if (vtkCellLocator::IsInBounds(cellBounds, x))
         {
           this->DataSet->GetCell(cellId, cell);
           if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 1)

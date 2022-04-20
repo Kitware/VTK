@@ -244,6 +244,7 @@ struct vtkCellProcessor
 {
   vtkCellBinner* Binner;
   vtkDataSet* DataSet;
+  double DataSetBounds[6];
   double* CellBounds;
   vtkIdType* Counts;
   vtkIdType NumFragments;
@@ -258,6 +259,7 @@ struct vtkCellProcessor
     : Binner(cb)
   {
     this->DataSet = cb->DataSet;
+    this->DataSet->GetBounds(this->DataSetBounds);
     this->CellBounds = cb->CellBounds;
     this->Counts = cb->Counts;
     this->NumCells = cb->NumCells;
@@ -275,8 +277,6 @@ struct vtkCellProcessor
   virtual ~vtkCellProcessor() = default;
 
   // Satisfy cell locator API
-  virtual vtkIdType FindCell(
-    const double pos[3], vtkGenericCell* cell, double pcoords[3], double* weights) = 0;
   virtual vtkIdType FindCell(
     const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3], double* weights) = 0;
   virtual void FindCellsWithinBounds(double* bbox, vtkIdList* cells) = 0;
@@ -341,23 +341,13 @@ struct CellProcessor : public vtkCellProcessor
     binBounds[5] = binBounds[4] + h[2];
   }
 
-  int IsInBinBounds(double binBounds[6], double x[3], double binTol = 0.0)
+  static bool IsInBounds(const double bounds[6], const double x[3], const double tol = 0.0)
   {
-    if ((binBounds[0] - binTol) <= x[0] && x[0] <= (binBounds[1] + binTol) &&
-      (binBounds[2] - binTol) <= x[1] && x[1] <= (binBounds[3] + binTol) &&
-      (binBounds[4] - binTol) <= x[2] && x[2] <= (binBounds[5] + binTol))
-    {
-      return 1;
-    }
-    else
-    {
-      return 0;
-    }
+    return (bounds[0] - tol) <= x[0] && x[0] <= (bounds[1] + tol) && (bounds[2] - tol) <= x[1] &&
+      x[1] <= (bounds[3] + tol) && (bounds[4] - tol) <= x[2] && x[2] <= (bounds[5] + tol);
   }
 
   // Methods to satisfy vtkCellProcessor virtual API
-  vtkIdType FindCell(
-    const double pos[3], vtkGenericCell* cell, double pcoords[3], double* weights) override;
   vtkIdType FindCell(const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3],
     double* weights) override;
   void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
@@ -490,17 +480,13 @@ struct MapOffsets
 //------------------------------------------------------------------------------
 template <typename T>
 vtkIdType CellProcessor<T>::FindCell(
-  const double pos[3], vtkGenericCell* cell, double pcoords[3], double* weights)
-{
-  int subId;
-  return this->FindCell(pos, cell, subId, pcoords, weights);
-}
-
-//------------------------------------------------------------------------------
-template <typename T>
-vtkIdType CellProcessor<T>::FindCell(
   const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
+  // check if pos outside of bounds
+  if (!CellProcessor::IsInBounds(this->DataSetBounds, pos))
+  {
+    return -1;
+  }
   vtkIdType binId = this->Binner->GetBinIndex(pos);
   T numIds = this->GetNumberOfIds(binId);
 
@@ -515,7 +501,7 @@ vtkIdType CellProcessor<T>::FindCell(
   {
     const CellFragments<T>* cellIds = this->GetIds(binId);
     double tol = this->Binner->binTol;
-    double dist2, *bounds, delta[3] = { tol, tol, tol };
+    double dist2, *bounds;
     vtkIdType cellId;
 
     for (T j = 0; j < numIds; j++)
@@ -523,7 +509,8 @@ vtkIdType CellProcessor<T>::FindCell(
       cellId = cellIds[j].CellId;
       bounds = this->CellBounds + 6 * cellId;
 
-      if (vtkMath::PointIsWithinBounds(pos, bounds, delta))
+      // IsInBounds is identical to vtkMath::PointIsWithinBounds without the invalid values check
+      if (CellProcessor::IsInBounds(bounds, pos, tol))
       {
         this->DataSet->GetCell(cellId, cell);
         if (cell->EvaluatePosition(pos, nullptr, subId, pcoords, dist2, weights) == 1)
@@ -1154,7 +1141,7 @@ int CellProcessor<T>::IntersectWithLine(const double a0[3], const double a1[3], 
             {
               // Make sure that intersection occurs within this bin or else spurious cell
               // intersections can occur behind this bin which are not the correct answer.
-              if (!this->IsInBinBounds(binBounds, x, binTol))
+              if (!CellProcessor::IsInBounds(binBounds, x, binTol))
               {
                 cellHasBeenVisited[cId] = 0; // mark the cell non-visited
               }
@@ -1282,10 +1269,10 @@ void vtkStaticCellLocator::FreeSearchStructure()
 
 //------------------------------------------------------------------------------
 vtkIdType vtkStaticCellLocator::FindCell(
-  double pos[3], double, vtkGenericCell* cell, double pcoords[3], double* weights)
+  double pos[3], double tol2, vtkGenericCell* cell, double pcoords[3], double* weights)
 {
   int subId;
-  return this->FindCell(pos, 0 /*not used*/, cell, subId, pcoords, weights);
+  return this->FindCell(pos, tol2, cell, subId, pcoords, weights);
 }
 
 //------------------------------------------------------------------------------
@@ -1297,7 +1284,7 @@ vtkIdType vtkStaticCellLocator::FindCell(
   {
     return -1;
   }
-  return this->Processor->FindCell(pos, cell, pcoords, weights);
+  return this->Processor->FindCell(pos, cell, subId, pcoords, weights);
 }
 
 //------------------------------------------------------------------------------

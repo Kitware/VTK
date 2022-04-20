@@ -298,6 +298,8 @@ protected:
    */
   vtkTimeStamp WeightsTime;
 
+  static bool IsInBounds(const double bounds[6], const double x[3], const double tol = 0.0);
+
   /**
    * This array is resized so that it can fit points from the cell hosting the most in the input
    * data set. Resizing is done in `UpdateInternalWeights`.

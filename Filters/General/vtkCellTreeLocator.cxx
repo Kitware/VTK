@@ -589,6 +589,7 @@ void vtkCellTreeLocator::BuildLocatorInternal()
     vtkErrorMacro(<< " No Cells in the data set\n");
     return;
   }
+  this->DataSet->ComputeBounds();
   //
   if (this->CacheCellBounds)
   {
@@ -625,6 +626,11 @@ vtkIdType vtkCellTreeLocator::FindCell(
   double pos[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
   if (this->Tree == nullptr)
+  {
+    return -1;
+  }
+  // check if pos outside of bounds
+  if (!vtkAbstractCellLocator::IsInBounds(this->DataSet->GetBounds(), pos))
   {
     return -1;
   }
