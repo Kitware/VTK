@@ -188,21 +188,8 @@ vtkSmartPointer<vtkAbstractArray> JoinArrays(
   assert(offset == numTuples);
   return result;
 }
-}
 
-struct DGInformation
-{
-  // list of element types ordered with blocks
-  // assumes each block will have a single element type
-  std::map<std::string, std::string> ElementTypes;
-
-  // list of fields present on each block
-  std::map<std::string, std::vector<std::string>> Fields;
-
-  bool BlockIsDG(std::string name) const { return this->ElementTypes.count(name); }
-};
-
-std::vector<std::string> split(const std::string& inString, const std::string& delimeter)
+std::vector<std::string> Split(const std::string& inString, const std::string& delimeter)
 {
   std::vector<std::string> subStrings;
   size_t sIdx = 0;
@@ -219,31 +206,56 @@ std::vector<std::string> split(const std::string& inString, const std::string& d
   return subStrings;
 }
 
-void parseDGInfo(DGInformation& dgInfo, const std::vector<std::string>& info_records)
+} // end of namespace {}
+
+struct DGInformation
 {
-  for (auto& record : info_records)
+  // list of element types ordered with blocks
+  // assumes each block will have a single element type
+  std::map<std::string, std::string> ElementTypes;
+
+  // list of fields present on each block
+  std::map<std::string, std::vector<std::string>> Fields;
+
+  bool BlockIsDG(std::string name) const { return this->ElementTypes.count(name); }
+
+  // populate using an Ioss region's info records.
+  void Populate(Ioss::Region* region)
   {
-    auto data = split(record, "::");
-    // check if the row in the record is a DG callout
-    if (data.size() < 4 || data[0] != "DG")
+    assert(region != nullptr);
+    for (const auto& record : region->get_information_records())
     {
-      continue;
-    }
+      auto data = ::Split(record, "::");
+      // check if the row in the record is a DG callout
+      if (data.size() < 4 || data[0] != "DG")
+      {
+        continue;
+      }
 
-    // get the block associated with that callout
-    std::string name = data[1];
+      // get the block associated with that callout
+      const std::string& name = data[1];
 
-    // get if its a basis or a field
-    if (data[2] == "basis")
-    {
-      dgInfo.ElementTypes[name] = data[3];
-    }
-    else if (data[2] == "field")
-    {
-      dgInfo.Fields[name].push_back(data[3]);
+      // get if its a basis or a field
+      if (data[2] == "basis")
+      {
+        this->ElementTypes[name] = std::move(data[3]);
+      }
+      else if (data[2] == "field")
+      {
+        this->Fields[name].push_back(std::move(data[3]));
+      }
     }
   }
-}
+
+  void Synchronize(vtkMultiProcessController* controller)
+  {
+    if (controller && controller->GetNumberOfProcesses() > 1)
+    {
+      ::Broadcast(controller, this->ElementTypes, 0);
+      ::Broadcast(controller, this->Fields, 0);
+    }
+  }
+};
 
 class vtkIOSSReader::vtkInternals
 {
@@ -570,6 +582,7 @@ private:
    * @return true if the field is a DG field
    */
   bool FieldIsDG(std::string blockname, std::string fieldname);
+
   /**
    * @brief like GetFields and GetNodalFields, but uses DG info records to parse
    * which fields are DG fields, and properly reinterprets these fields as nodal
@@ -1031,6 +1044,7 @@ bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* 
   // see paraview/paraview#20873.
   const bool readAllFilesForMetaData = (this->Format == vtkIOSSUtilities::DatabaseFormatType::CGNS);
 
+  DGInformation dgInfo;
   for (const auto& pair : this->DatabaseNames)
   {
     auto fileids = this->GetFileIds(pair.first, rank, numRanks);
@@ -1092,6 +1106,9 @@ bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* 
             Ioss::NodeBlockContainer({ &sb->get_node_block() }), unused,
             field_names[vtkIOSSReader::NODEBLOCK]);
         }
+
+        // Parse DG information.
+        dgInfo.Populate(region);
       }
       // necessary to avoid errors from IO libraries, e.g. CGNS, about
       // too many files open.
@@ -1101,9 +1118,12 @@ bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* 
 
   if (numRanks > 1)
   {
-    //// sync selections across all ranks.
+    // sync selections across all ranks.
     ::Synchronize(controller, entity_names, entity_names);
     ::Synchronize(controller, field_names, field_names);
+
+    // sync DG info.
+    dgInfo.Synchronize(controller);
 
     // Sync format. Needed since all ranks may not have read entity information
     // thus may not have format setup correctly.
@@ -1145,6 +1165,7 @@ bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* 
     }
   }
 
+  this->DGInfo = dgInfo;
   this->SelectionsMTime.Modified();
   return true;
 }
@@ -1740,7 +1761,7 @@ bool vtkIOSSReader::vtkInternals::ExplodeDGMesh(vtkUnstructuredGrid* dataset,
   int type = dataset->GetCellType(0);
   const vtkIdType nCells = dataset->GetCells()->GetNumberOfCells();
   vtkIdType nPts;
-  std::vector<std::string> field_props = split(dg_field_name, "_");
+  std::vector<std::string> field_props = ::Split(dg_field_name, "_");
 
   // naive check to make sure we have all the properties in expected order
   // i.e. Intrepid2_HGRAD_QUAD_C2_FEM
@@ -2525,7 +2546,7 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
 void interpolateDGFieldToNodes(
   vtkDataArray* nodalData, vtkDataArray* dgData, const std::string& dg_field_name)
 {
-  std::vector<std::string> field_props = split(dg_field_name, "_");
+  std::vector<std::string> field_props = ::Split(dg_field_name, "_");
 
   // naive check to make sure we have all the properties in expected order
   // i.e. Intrepid2_HGRAD_QUAD_C2_FEM
@@ -2826,9 +2847,6 @@ bool vtkIOSSReader::vtkInternals::GetQAAndInformationRecords(
   {
     info_records->InsertNextValue(n);
   }
-
-  // parse potential info about DG blocks
-  parseDGInfo(this->DGInfo, info);
 
   fd->AddArray(info_records);
   fd->AddArray(qa_records);
