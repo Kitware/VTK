@@ -140,7 +140,7 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
     proj_destroy(P);
     P = P_for_GIS;
   }
-  PJ_COORD c, c_out;
+  PJ_COORD c = { { 0, 0, 0, 0 } }, c_out;
   for (int i = 0; i < 2; ++i)
   {
     c.xy.x = bb[i];
@@ -157,7 +157,8 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
   return lonlatheight;
 }
 
-std::array<std::string, 3> BuildingContentTypeExtension = { ".b3dm", ".glb" };
+std::array<std::string, 3> BuildingsContentTypeExtension = { ".b3dm", ".glb" };
+std::array<std::string, 3> PointsContentTypeExtension = { ".pnts", ".glb" };
 
 }
 
@@ -264,21 +265,23 @@ void TreeInformation::Compute()
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTilesGLTFBuildings(bool mergeTilePolyData)
+void TreeInformation::SaveTilesBuildings(bool mergeTilePolyData)
 {
-  this->PostOrderTraversal(&TreeInformation::SaveTileGLTFBuildings, this->Root, &mergeTilePolyData);
+  this->PostOrderTraversal(&TreeInformation::SaveTileBuildings, this->Root, &mergeTilePolyData);
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTilesGLTFMesh()
+void TreeInformation::SaveTilesMesh()
 {
-  this->PostOrderTraversal(&TreeInformation::SaveTileGLTFMesh, this->Root, nullptr);
+  int selectionField = vtkSelectionNode::CELL;
+  this->PostOrderTraversal(&TreeInformation::SaveTileMesh, this->Root, &selectionField);
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTilesPnts()
+void TreeInformation::SaveTilesPoints()
 {
-  this->PostOrderTraversal(&TreeInformation::SaveTilePnts, this->Root, nullptr);
+  int selectionField = vtkSelectionNode::POINT;
+  this->PostOrderTraversal(&TreeInformation::SaveTilePoints, this->Root, &selectionField);
 }
 
 //------------------------------------------------------------------------------
@@ -312,7 +315,7 @@ void TreeInformation::PreOrderTraversal(
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTileGLTFBuildings(vtkIncrementalOctreeNode* node, void* aux)
+void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* aux)
 {
   bool mergeTilePolyData = *static_cast<bool*>(aux);
   if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
@@ -369,17 +372,18 @@ void TreeInformation::SaveTileGLTFBuildings(vtkIncrementalOctreeNode* node, void
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTileGLTFMesh(vtkIncrementalOctreeNode* node, void*)
+void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* aux)
 {
   if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
   {
+    int selectionField = *static_cast<int*>(aux);
     std::ostringstream ostr;
     vtkIdList* cellIdList = node->GetPointIds();
     vtkNew<vtkIdTypeArray> cellIds;
     cellIds->SetArray(cellIdList->GetPointer(0), cellIdList->GetNumberOfIds(), 1 /*save*/);
     vtkNew<vtkSelectionNode> selectionNode;
     selectionNode->SetSelectionList(cellIds);
-    selectionNode->SetFieldType(vtkSelectionNode::CELL);
+    selectionNode->SetFieldType(selectionField);
     selectionNode->SetContentType(vtkSelectionNode::INDICES);
     vtkNew<vtkSelection> selection;
     selection->AddNode(selectionNode);
@@ -390,7 +394,10 @@ void TreeInformation::SaveTileGLTFMesh(vtkIncrementalOctreeNode* node, void*)
     extractBoundary->SetInputConnection(extractSelection->GetOutputPort());
     extractBoundary->Update();
     vtkPolyData* tileMesh = vtkPolyData::SafeDownCast(extractBoundary->GetOutput());
-    vtkLog(INFO, "Saving GLTF file for " << cellIdList->GetNumberOfIds() << " cells...");
+    vtkLog(INFO,
+      "Saving GLTF file for " << cellIdList->GetNumberOfIds()
+                              << (selectionField == vtkSelectionNode::CELL ? " cells..."
+                                                                           : " points..."));
     vtkNew<vtkGLTFWriter> writer;
     writer->SetInputData(tileMesh);
     ostr.str("");
@@ -398,18 +405,26 @@ void TreeInformation::SaveTileGLTFMesh(vtkIncrementalOctreeNode* node, void*)
     vtkDirectory::MakeDirectory(ostr.str().c_str());
     ostr << "/" << node->GetID() << ".gltf";
     writer->SetFileName(ostr.str().c_str());
-    writer->SetInputType(vtkGLTFWriter::Mesh);
+    writer->SetInputType(
+      selectionField == vtkSelectionNode::CELL ? vtkGLTFWriter::Mesh : vtkGLTFWriter::Points);
     writer->SetTextureBaseDirectory(this->TexturePath.c_str());
     writer->SetSaveTextures(this->SaveTextures);
-    writer->SetSaveNormal(true);
+    if (selectionField == vtkSelectionNode::CELL)
+    {
+      writer->SetSaveNormal(true);
+    }
     writer->Write();
   }
 }
 
 //------------------------------------------------------------------------------
-void TreeInformation::SaveTilePnts(vtkIncrementalOctreeNode* node, void* aux)
+void TreeInformation::SaveTilePoints(vtkIncrementalOctreeNode* node, void* aux)
 {
-  if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
+  if (this->ContentGLTF)
+  {
+    SaveTileMesh(node, aux);
+  }
+  else if (node->IsLeaf() && !this->EmptyNode[node->GetID()])
   {
     vtkSmartPointer<vtkIdList> pointIds = node->GetPointIds();
     vtkNew<vtkCesiumPointCloudWriter> writer;
@@ -710,7 +725,7 @@ json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
   if (node == this->Root)
   {
     tree["refine"] = "REPLACE";
-    if (this->InputType != vtkCesium3DTilesWriter::Points)
+    if (this->InputType != vtkCesium3DTilesWriter::Points || this->ContentGLTF)
     {
       // gltf y-up to 3d-tiles z-up transform
       std::array<double, 16> t = { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
@@ -753,11 +768,11 @@ std::string TreeInformation::ContentTypeExtension() const
   switch (this->InputType)
   {
     case vtkCesium3DTilesWriter::Buildings:
-      return BuildingContentTypeExtension[this->ContentGLTF];
+      return BuildingsContentTypeExtension[this->ContentGLTF];
     case vtkCesium3DTilesWriter::Points:
-      return ".pnts";
+      return PointsContentTypeExtension[this->ContentGLTF];
     case vtkCesium3DTilesWriter::Mesh:
-      return BuildingContentTypeExtension[this->ContentGLTF];
+      return BuildingsContentTypeExtension[this->ContentGLTF];
     default:
       vtkLog(ERROR, "Invalid InputType " << this->InputType);
       return "";

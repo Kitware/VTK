@@ -263,7 +263,7 @@ void vtkCesium3DTilesWriter::WriteData()
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
-        treeInformation.SaveTilesGLTFBuildings(this->MergeTilePolyData);
+        treeInformation.SaveTilesBuildings(this->MergeTilePolyData);
       }
       vtkLog(INFO, "Deleting objects ...");
       break;
@@ -287,7 +287,7 @@ void vtkCesium3DTilesWriter::WriteData()
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
-        treeInformation.SaveTilesPnts();
+        treeInformation.SaveTilesPoints();
       }
       vtkLog(INFO, "Deleting objects ...");
       break;
@@ -311,7 +311,7 @@ void vtkCesium3DTilesWriter::WriteData()
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
-        treeInformation.SaveTilesGLTFMesh();
+        treeInformation.SaveTilesMesh();
       }
       vtkLog(INFO, "Deleting objects ...");
       break;

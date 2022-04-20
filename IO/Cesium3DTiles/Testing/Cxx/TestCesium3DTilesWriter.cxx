@@ -221,7 +221,7 @@ std::vector<std::string> getFiles(const std::vector<std::string>& input)
 //------------------------------------------------------------------------------
 
 void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
-  const std::string& output, int numberOfBuildings, int buildingsPerTile, int lod,
+  const std::string& output, bool contentGLTF, int numberOfBuildings, int buildingsPerTile, int lod,
   const std::vector<double>& inputOffset, bool saveTiles, bool saveTextures, std::string crs,
   const int utmZone, char utmHemisphere)
 {
@@ -273,7 +273,7 @@ void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
   {
     writer->SetInputDataObject(polyData);
   }
-  writer->ContentGLTFOn();
+  writer->SetContentGLTF(contentGLTF);
   writer->SetInputType(inputType);
   writer->SetDirectoryName(output.c_str());
   writer->SetTexturePath(texturePath.c_str());
@@ -406,8 +406,8 @@ void TestJacksonvilleTriangle(const std::string& dataRoot, const std::string& te
   std::cout << "Test jacksonville buildings" << std::endl;
   tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
     vtkCesium3DTilesWriter::Buildings, false /*addColor*/, tempDirectory + "/jacksonville-3dtiles",
-    1, 1, 2, std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17,
-    'N');
+    true /*contentGLTF*/, 1, 1, 2, std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/,
+    false /*saveTextures*/, "", 17, 'N');
   in = { { { { 799099.7216079829959199, -5452032.6613515587523580, 3201501.3033391013741493 } },
     { { 797899.9930383440805599, -5452124.7368548354133964, 3201444.7161126118153334 } },
     { { 797971.0970941731939092, -5452573.6701772613450885, 3200667.5626786206848919 } } } };
@@ -443,20 +443,23 @@ void TestJacksonvilleTriangle(const std::string& dataRoot, const std::string& te
   }
 }
 
-void TestJacksonvillePoints(const std::string& dataRoot, const std::string& tempDirectory)
+void TestJacksonvillePoints(
+  const std::string& dataRoot, const std::string& tempDirectory, bool contentGLTF)
 {
-  std::string destDir = tempDirectory + "/jacksonville-3dtiles-points";
-  std::cout << "Test jacksonville points" << std::endl;
+  std::string destDir =
+    tempDirectory + "/jacksonville-3dtiles-points-" + (contentGLTF ? "gltf" : "pnts");
+  std::cout << "Test jacksonville points " << (contentGLTF ? "gltf" : "pnts") << std::endl;
   tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-    vtkCesium3DTilesWriter::Points, false /*addColor*/, destDir, 3, 3, 2,
+    vtkCesium3DTilesWriter::Points, false /*addColor*/, destDir, contentGLTF, 3, 3, 2,
     std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
-  if (SystemTools::FilesDiffer(
-        destDir + "/0/0.pnts", dataRoot + "/Data/3DTiles/jacksonville-3dtiles-points.pnts"))
+  if (!contentGLTF &&
+    SystemTools::FilesDiffer(
+      destDir + "/0/0.pnts", dataRoot + "/Data/3DTiles/jacksonville-3dtiles-points.pnts"))
   {
     std::ostringstream ostr;
     ostr << "Error: File differ " << destDir + "/0/0.pnts, "
          << dataRoot + "/Data/3DTiles/jacksonville-3dtiles-points.pnts";
-    throw std::runtime_error("ostr.str()");
+    throw std::runtime_error(ostr.str());
   }
 }
 
@@ -465,7 +468,7 @@ void TestJacksonvilleColorPoints(const std::string& dataRoot, const std::string&
   std::string destDir = tempDirectory + "/jacksonville-3dtiles-colorpoints";
   std::cout << "Test jacksonville points" << std::endl;
   tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-    vtkCesium3DTilesWriter::Points, true /*addColor*/, destDir, 3, 3, 2,
+    vtkCesium3DTilesWriter::Points, true /*addColor*/, destDir, false /*contentGLTF*/, 3, 3, 2,
     std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
   if (SystemTools::FilesDiffer(
         destDir + "/0/0.pnts", dataRoot + "/Data/3DTiles/jacksonville-3dtiles-colorpoints.pnts"))
@@ -482,7 +485,7 @@ void TestJacksonvilleMesh(const std::string& dataRoot, const std::string& tempDi
   std::string destDir = tempDirectory + "/jacksonville-3dtiles-mesh";
   std::cout << "Test jacksonville mesh" << std::endl;
   tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-    vtkCesium3DTilesWriter::Mesh, false /*addColor*/, destDir, 3, 3, 2,
+    vtkCesium3DTilesWriter::Mesh, false /*addColor*/, destDir, true /*contentGLTF*/, 3, 3, 2,
     std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
 }
 
@@ -491,8 +494,9 @@ void TestBerlinTriangle(const std::string& dataRoot, const std::string& tempDire
   std::array<std::array<double, 3>, 3> in;
   std::cout << "Test berlin buildings (citygml)" << std::endl;
   tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/berlin-triangle.gml" } },
-    vtkCesium3DTilesWriter::Buildings, false /*addColor*/, tempDirectory + "/berlin-3dtiles", 1, 1,
-    2, std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 33, 'N');
+    vtkCesium3DTilesWriter::Buildings, false /*addColor*/, tempDirectory + "/berlin-3dtiles",
+    true /*contentGLTF*/, 1, 1, 2, std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/,
+    false /*saveTextures*/, "", 33, 'N');
   in = { { { { 3782648.3888294636271894, 894381.1232001162134111, 5039949.8578473944216967 } },
     { { 3782647.9758559409528971, 894384.6010377000784501, 5039955.8512009736150503 } },
     { { 3782645.8996075680479407, 894380.4562150554265827, 5039951.8311523543670774 } } } };
@@ -550,7 +554,8 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
     TestJacksonvilleTriangle(dataRoot, tempDirectory);
     TestBerlinTriangle(dataRoot, tempDirectory);
 
-    TestJacksonvillePoints(dataRoot, tempDirectory);
+    TestJacksonvillePoints(dataRoot, tempDirectory, false /*contentGLTF*/);
+    TestJacksonvillePoints(dataRoot, tempDirectory, true /*contentGLTF*/);
     TestJacksonvilleColorPoints(dataRoot, tempDirectory);
 
     TestJacksonvilleMesh(dataRoot, tempDirectory);

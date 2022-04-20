@@ -76,9 +76,9 @@ public:
    * and the geometric error.
    */
   void Compute();
-  void SaveTilesGLTFBuildings(bool mergeTilePolyData);
-  void SaveTilesGLTFMesh();
-  void SaveTilesPnts();
+  void SaveTilesBuildings(bool mergeTilePolyData);
+  void SaveTilesMesh();
+  void SaveTilesPoints();
   void SaveTileset(const std::string& output);
   static void PrintBounds(const char* name, const double* bounds);
   static void PrintBounds(const std::string& name, const double* bounds)
@@ -106,9 +106,9 @@ protected:
   void VisitCompute(vtkIncrementalOctreeNode* node, void* aux);
   void VisitComputeGeometricError(vtkIncrementalOctreeNode* node, void* aux);
   ///@}
-  void SaveTileGLTFBuildings(vtkIncrementalOctreeNode* node, void* auxData);
-  void SaveTileGLTFMesh(vtkIncrementalOctreeNode* node, void* auxData);
-  void SaveTilePnts(vtkIncrementalOctreeNode* node, void* auxData);
+  void SaveTileBuildings(vtkIncrementalOctreeNode* node, void* auxData);
+  void SaveTileMesh(vtkIncrementalOctreeNode* node, void* auxData);
+  void SaveTilePoints(vtkIncrementalOctreeNode* node, void* auxData);
 
   ///@{
   /**
