@@ -2595,15 +2595,6 @@ bool vtkIOSSReader::vtkInternals::FieldIsDG(std::string blockname, std::string f
     {
       return true;
     }
-    // fields with uppercase characters sometimes get set to lower case in the
-    // selection array
-    std::string lowerCaseField = field;
-    std::transform(lowerCaseField.begin(), lowerCaseField.end(), lowerCaseField.begin(),
-      [](unsigned char c) { return std::tolower(c); });
-    if (fieldname.find(lowerCaseField) != std::string::npos)
-    {
-      return true;
-    }
   }
   return false;
 }
