@@ -26,7 +26,7 @@
 
 namespace
 {
-constexpr vtkIdType N = 20;
+constexpr vtkIdType NUMBER_OF_VALS = 20;
 
 constexpr double VALS[] = { 0, 1, 2, 3, 4, 5, 6, 7, 999, 25, 21, 1, 2, 4, 5, 6, 7, 3, 75, -10 };
 
@@ -52,18 +52,18 @@ bool TestGhostAwareRange()
   }
 
   vtkNew<vtkFieldData> fd;
-  fd->SetNumberOfTuples(N);
+  fd->SetNumberOfTuples(NUMBER_OF_VALS);
   fd->SetGhostsToSkip(0xff);
 
   vtkNew<vtkDoubleArray> values;
   values->SetName("Values");
-  values->SetNumberOfValues(N);
+  values->SetNumberOfValues(NUMBER_OF_VALS);
 
   vtkNew<vtkUnsignedCharArray> ghosts;
   ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
-  ghosts->SetNumberOfValues(N);
+  ghosts->SetNumberOfValues(NUMBER_OF_VALS);
 
-  for (vtkIdType id = 0; id < N; ++id)
+  for (vtkIdType id = 0; id < NUMBER_OF_VALS; ++id)
   {
     values->SetValue(id, VALS[id]);
     ghosts->SetValue(id, GHOSTS[id] ? fd->GetGhostsToSkip() : 0);
@@ -141,7 +141,7 @@ bool TestGhostAwareRange()
     retVal = false;
   }
 
-  ghosts->SetValue(N - 1, fd->GetGhostsToSkip());
+  ghosts->SetValue(NUMBER_OF_VALS - 1, fd->GetGhostsToSkip());
   ghosts->Modified();
 
   fd->GetRange(0, range);
