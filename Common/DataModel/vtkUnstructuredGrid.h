@@ -331,11 +331,13 @@ public:
    * a boundary entity of a specified cell (indicated by cellId). A boundary
    * entity is a topological feature used by exactly one cell. This method is
    * related to GetCellNeighbors() except that it simply indicates whether a
-   * topological feature is boundary - hence the method is faster.  THIS
-   * METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND THE
-   * DATASET IS NOT MODIFIED.
+   * topological feature is boundary - hence the method is faster. CellIds in the
+   * second version are used as a temp buffer to avoid allocation internally, and
+   * it's faster. THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A
+   * SINGLE THREAD AND THE DATASET IS NOT MODIFIED.
    */
   bool IsCellBoundary(vtkIdType cellId, vtkIdType npts, const vtkIdType* ptIds);
+  bool IsCellBoundary(vtkIdType cellId, vtkIdType npts, const vtkIdType* ptIds, vtkIdList* cellIds);
   ///@}
 
   ///@{
