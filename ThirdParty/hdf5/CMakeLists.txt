@@ -34,4 +34,4 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_hdf5.h")
 
 vtk_module_install_headers(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_hdf5.h")
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_hdf5.h" vtkHDF5ScopedHandle.h)
