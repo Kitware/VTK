@@ -107,12 +107,16 @@ static void pop_scope(const char* id)
   }
 }
 #endif
+#ifdef VTK_HAS_THREADLOCAL
+static thread_local std::string ThreadName;
+#else
+static std::string ThreadName;
+#endif
 }
 
 //=============================================================================
 bool vtkLogger::EnableUnsafeSignalHandler = true;
 vtkLogger::Verbosity vtkLogger::InternalVerbosityLevel = vtkLogger::VERBOSITY_1;
-std::string vtkLogger::ThreadName;
 
 //------------------------------------------------------------------------------
 vtkLogger::vtkLogger() = default;
@@ -144,9 +148,9 @@ void vtkLogger::Init(int& argc, char* argv[], const char* verbosity_flag /*= "-v
   loguru::Options options;
   options.verbosity_flag = verbosity_flag;
   options.unsafe_signal_handler = vtkLogger::EnableUnsafeSignalHandler;
-  if (!vtkLogger::ThreadName.empty())
+  if (!detail::ThreadName.empty())
   {
-    options.main_thread_name = vtkLogger::ThreadName.c_str();
+    options.main_thread_name = detail::ThreadName.c_str();
   }
   loguru::init(argc, argv, options);
   loguru::g_stderr_verbosity = current_stderr_verbosity;
@@ -218,7 +222,7 @@ void vtkLogger::SetThreadName(const std::string& name)
   loguru::set_thread_name(name.c_str());
   // Save threadname so if this is called before `Init`, we can pass the thread
   // name to loguru::init().
-  vtkLogger::ThreadName = name;
+  detail::ThreadName = name;
 #else
   (void)name;
 #endif

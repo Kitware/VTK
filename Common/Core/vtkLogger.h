@@ -440,7 +440,6 @@ private:
   vtkLogger(const vtkLogger&) = delete;
   void operator=(const vtkLogger&) = delete;
   static vtkLogger::Verbosity InternalVerbosityLevel;
-  static std::string ThreadName;
 };
 
 ///@{
