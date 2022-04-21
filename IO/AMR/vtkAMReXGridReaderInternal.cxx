@@ -379,7 +379,6 @@ bool vtkAMReXGridHeader::ParseGenericHeader(const std::string& headerData)
   double tmpTime;
   int tmpLevelSteps;
   this->levelCells.resize(this->finestLevel + 1);
-  std::string pathName;
   this->levelPrefix.resize(this->finestLevel + 1);
   this->multiFabPrefix.resize(this->finestLevel + 1);
   for (int level = 0; level <= this->finestLevel; ++level)
@@ -407,6 +406,7 @@ bool vtkAMReXGridHeader::ParseGenericHeader(const std::string& headerData)
         }
       }
     }
+    std::string pathName;
     hstream >> pathName;
     size_t pos = 0;
     pos = pathName.find(deliminater);
