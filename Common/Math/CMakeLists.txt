@@ -9,13 +9,20 @@ set(classes
   vtkQuaternionInterpolator
   vtkRungeKutta2
   vtkRungeKutta4
-  vtkRungeKutta45)
+  vtkRungeKutta45
+)
 
 set(template_classes
-  vtkQuaternion)
+  vtkQuaternion
+)
 
 set(headers
-  vtkTuple.h)
+  vtkTuple.h
+)
+
+set(nowrap_classes
+  vtkReservoirSampler
+)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   set_source_files_properties(vtkPolynomialSolversUnivariate.cxx
@@ -26,4 +33,6 @@ endif()
 vtk_module_add_module(VTK::CommonMath
   CLASSES           ${classes}
   TEMPLATE_CLASSES  ${template_classes}
-  HEADERS           ${headers})
+  HEADERS           ${headers}
+  NOWRAP_CLASSES    ${nowrap_classes}
+)

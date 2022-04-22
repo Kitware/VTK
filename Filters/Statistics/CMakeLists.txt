@@ -12,6 +12,7 @@ set(classes
   vtkKMeansDistanceFunctor
   vtkKMeansDistanceFunctorCalculator
   vtkKMeansStatistics
+  vtkLengthDistribution
   vtkMultiCorrelativeStatistics
   vtkOrderStatistics
   vtkPCAStatistics

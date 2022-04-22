@@ -11,9 +11,11 @@ DEPENDS
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
   VTK::CommonDataModel
+  VTK::CommonMath
   VTK::CommonMisc
   VTK::eigen
   VTK::FiltersGeneral
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::TestingCore
+  VTK::IOLegacy
