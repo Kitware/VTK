@@ -119,9 +119,26 @@ public:
    */
   void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override { return; }
 
+  ///@{
+  /**
+   * If there is a ghost array in the input, then ghosts matching `GhostsToSkip` mask
+   * will be skipped. It is set to 0xff by default (every ghosts types are skipped).
+   *
+   * @sa
+   * vtkDataSetAttributes
+   * vtkFieldData
+   * vtkPointData
+   * vtkCellData
+   */
+  vtkSetMacro(GhostsToSkip, unsigned char);
+  vtkGetMacro(GhostsToSkip, unsigned char);
+  ///@}
+
 protected:
   vtkOrderStatistics();
   ~vtkOrderStatistics() override;
+
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Execute the calculations required by the Learn option.
@@ -156,6 +173,8 @@ protected:
   QuantileDefinitionType QuantileDefinition;
   bool Quantize;
   vtkIdType MaximumHistogramSize;
+  vtkIdType NumberOfGhosts;
+  unsigned char GhostsToSkip;
 
 private:
   vtkOrderStatistics(const vtkOrderStatistics&) = delete;

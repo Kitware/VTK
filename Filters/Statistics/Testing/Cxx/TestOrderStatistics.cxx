@@ -10,6 +10,7 @@
 // Thanks to Philippe Pebay from Sandia National Laboratories
 // for implementing this test.
 
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
@@ -17,6 +18,7 @@
 #include "vtkOrderStatistics.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <map>
 #include <vector>
@@ -26,7 +28,59 @@ int TestOrderStatistics(int, char*[])
 {
   int testStatus = 0;
 
+  unsigned char ghosts[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0 };
+
   double mingledData[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     46,
     45,
     47,
@@ -92,7 +146,8 @@ int TestOrderStatistics(int, char*[])
     47,
     47,
   };
-  int nVals = 32;
+  int nVals = 56;
+  int numberOfGhosts = 24;
 
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents(1);
@@ -106,12 +161,16 @@ int TestOrderStatistics(int, char*[])
   dataset3Arr->SetNumberOfComponents(1);
   dataset3Arr->SetName("Metric 2");
 
+  vtkNew<vtkUnsignedCharArray> ghostArray;
+  ghostArray->SetName(vtkDataSetAttributes::GhostArrayName());
+
   for (int i = 0; i < nVals; ++i)
   {
     int ti = i << 1;
     dataset1Arr->InsertNextValue(mingledData[ti]);
     dataset2Arr->InsertNextValue(mingledData[ti + 1]);
-    dataset3Arr->InsertNextValue(static_cast<double>(i));
+    dataset3Arr->InsertNextValue(static_cast<double>(i - numberOfGhosts));
+    ghostArray->InsertNextValue(ghosts[i]);
   }
 
   vtkTable* datasetTable = vtkTable::New();
@@ -121,6 +180,7 @@ int TestOrderStatistics(int, char*[])
   dataset2Arr->Delete();
   datasetTable->AddColumn(dataset3Arr);
   dataset3Arr->Delete();
+  datasetTable->AddColumn(ghostArray);
 
   int nMetrics = 3;
   vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
@@ -258,10 +318,10 @@ int TestOrderStatistics(int, char*[])
 
     // Check whether total cardinality is correct
     int testIntValue = outputCard->GetValueByName(r, "Cardinality").ToInt();
-    if (testIntValue != outputData->GetNumberOfRows())
+    if (testIntValue + numberOfGhosts != outputData->GetNumberOfRows())
     {
-      vtkGenericWarningMacro("Incorrect histogram count: " << testIntValue << " != "
-                                                           << outputData->GetNumberOfRows() << ".");
+      vtkGenericWarningMacro("Incorrect histogram count: "
+        << testIntValue + numberOfGhosts << " != " << outputData->GetNumberOfRows() << ".");
       testStatus = 1;
     }
 
