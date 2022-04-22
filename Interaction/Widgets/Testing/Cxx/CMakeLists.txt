@@ -42,6 +42,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestLogoWidget.cxx
   TestLogoWidgetAlphaBlending.cxx
   TestLogoWidgetDepthPeeling.cxx
+  TestLineWidget2b.cxx,NO_VALID
   TestMeasurementCubeHandleRepresentation3D.cxx
   TestMultipleViewports.cxx
   TestOrientationMarkerWidget.cxx
