@@ -584,6 +584,36 @@ void PIOAdaptor::collectVariableMetaData()
       }
     }
   }
+  // IF xdt, ydt, zdt, rho are not already included, include them
+  // If we used a set std::set<std::string> s; we could  simply add these items again without
+  // worrying if they were in there in the first place. And we could check in log time rather than
+  // linear time.
+  // We should probably only expose ydt and zdt if there are as many dimensions.
+  const double* amhc_i = this->pioData->GetPIOData("amhc_i");
+  uint32_t mydimensions = uint32_t(amhc_i[Nnumdim]); // Nnumdim is an enum element in PIOData.h --42
+  if (!(std::find(this->variableName.begin(), this->variableName.end(), "xdt") !=
+        this->variableName.end()))
+  {
+    this->variableName.emplace_back("xdt");
+  }
+  if (!(std::find(this->variableName.begin(), this->variableName.end(), "ydt") !=
+        this->variableName.end()) &&
+    mydimensions > 1)
+  {
+    this->variableName.emplace_back("ydt");
+  }
+  if (!(std::find(this->variableName.begin(), this->variableName.end(), "zdt") !=
+        this->variableName.end()) &&
+    mydimensions > 2)
+  {
+    this->variableName.emplace_back("zdt");
+  }
+  if (!(std::find(this->variableName.begin(), this->variableName.end(), "rho") !=
+        this->variableName.end()))
+  {
+    this->variableName.emplace_back("rho");
+    this->variableDefault.emplace_back("rho"); // and enable by default
+  }
   sort(this->variableName.begin(), this->variableName.end());
 
   //
@@ -1672,8 +1702,16 @@ void PIOAdaptor::load_variable_data_UG(
         numberOfCells = this->Impl->countCell[0];
         numberOfComponents =
           static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));
-        dataVector = new double*[numberOfComponents];
 
+        const char* thisvar = this->variableName[var].c_str();
+        // detect a derived array which is not in the VarMMap and set its # of components
+        // pioData->set_scalar_field() will know what to do with these variables
+        if (strcmp(thisvar, "xdt") == 0 || strcmp(thisvar, "ydt") == 0 ||
+          strcmp(thisvar, "zdt") == 0 || strcmp(thisvar, "rho") == 0)
+        {
+          numberOfComponents = 1;
+        }
+        dataVector = new double*[numberOfComponents];
         bool status = true;
         if (numberOfComponents == 1)
         {
@@ -1778,6 +1816,14 @@ void PIOAdaptor::load_variable_data_HTG(
         // Using PIOData fetch the variable data from the file
         numberOfComponents =
           static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));
+        const char* thisvar = this->variableName[var].c_str();
+        // detect a derived array which is not in the VarMMap and set its # of components
+        // pioData->set_scalar_field() will know what to do with these variables
+        if (strcmp(thisvar, "xdt") == 0 || strcmp(thisvar, "ydt") == 0 ||
+          strcmp(thisvar, "zdt") == 0 || strcmp(thisvar, "rho") == 0)
+        {
+          numberOfComponents = 1;
+        }
         dataVector = new double*[numberOfComponents];
         if (numberOfComponents == 1)
         {
