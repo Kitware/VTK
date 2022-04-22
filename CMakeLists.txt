@@ -361,6 +361,12 @@ if (NOT DEFINED vtk_cmake_destination)
 endif ()
 install(TARGETS vtkbuild EXPORT "${vtk_install_export}")
 
+if (NOT DEFINED vtk_hierarchy_destination_args)
+  set(vtk_hierarchy_destination_args
+    HIERARCHY_DESTINATION
+    "${CMAKE_INSTALL_LIBDIR}/vtk${vtk_version_suffix}/hierarchy/VTK")
+endif ()
+
 set(VTK_CUSTOM_LIBRARY_SUFFIX "<DEFAULT>"
   CACHE STRING "Custom library file name suffix (defaults to the version number)")
 mark_as_advanced(VTK_CUSTOM_LIBRARY_SUFFIX)
