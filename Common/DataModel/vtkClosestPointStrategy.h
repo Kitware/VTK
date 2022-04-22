@@ -38,7 +38,7 @@
 #include "vtkGenericCell.h" //inline SelectCell
 #include "vtkPointSet.h"    //inline SelectCell
 
-#include <set> // For tracking visited cells
+#include <vector> // For tracking visited cells
 
 class vtkIdList;
 class vtkAbstractPointLocator;
@@ -109,7 +109,8 @@ protected:
   vtkClosestPointStrategy();
   ~vtkClosestPointStrategy() override;
 
-  std::set<vtkIdType> VisitedCells;
+  std::vector<unsigned char> VisitedCells; // boolean array to track visited cells
+  vtkNew<vtkIdList> VisitedCellIds;        // list of visited cell ids to reset boolean array
   vtkNew<vtkIdList> PointIds;
   vtkNew<vtkIdList> Neighbors;
   vtkNew<vtkIdList> CellIds;

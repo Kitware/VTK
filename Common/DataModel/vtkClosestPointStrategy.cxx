@@ -15,13 +15,10 @@
 #include "vtkClosestPointStrategy.h"
 
 #include "vtkAbstractPointLocator.h"
-#include "vtkCell.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
-
-#include <set>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkClosestPointStrategy);
@@ -115,6 +112,7 @@ int vtkClosestPointStrategy::Initialize(vtkPointSet* ps)
     this->PointLocator = psPL;
     this->OwnsLocator = false;
   }
+  this->VisitedCells.resize(static_cast<size_t>(ps->GetNumberOfCells()));
   this->Weights.resize(8);
 
   this->InitializeTime.Modified();
@@ -136,24 +134,26 @@ namespace
 // reallocated.
 vtkIdType FindCellWalk(vtkClosestPointStrategy* self, vtkPointSet* ps, double x[3], vtkCell* cell,
   vtkGenericCell* gencell, vtkIdType cellId, double tol2, int& subId, double pcoords[3],
-  double* weights, std::set<vtkIdType>& visitedCells, vtkIdList* ptIds, vtkIdList* neighbors)
+  double* weights, std::vector<unsigned char>& visitedCells, vtkIdList* visitedCellIds,
+  vtkIdList* ptIds, vtkIdList* neighbors)
 {
   const int VTK_MAX_WALK = 12;
+  double closestPoint[3];
+  double dist2;
   for (int walk = 0; walk < VTK_MAX_WALK; walk++)
   {
     // Check to see if we already visited this cell.
-    if (visitedCells.find(cellId) != visitedCells.end())
+    if (visitedCells[cellId])
     {
       break;
     }
-    visitedCells.insert(cellId);
+    visitedCells[cellId] = true;
+    visitedCellIds->InsertNextId(cellId);
 
     // Get information for the cell.
     cell = self->SelectCell(ps, cellId, cell, gencell);
 
     // Check to see if the current, cached cell contains the point.
-    double closestPoint[3];
-    double dist2;
     if ((cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) == 1) &&
       (dist2 <= tol2))
     {
@@ -180,14 +180,15 @@ vtkIdType FindCellWalk(vtkClosestPointStrategy* self, vtkPointSet* ps, double x[
 //------------------------------------------------------------------------------
 vtkIdType FindCellWalk(vtkClosestPointStrategy* self, vtkPointSet* ps, double x[3],
   vtkGenericCell* gencell, vtkIdList* cellIds, double tol2, int& subId, double pcoords[3],
-  double* weights, std::set<vtkIdType>& visitedCells, vtkIdList* ptIds, vtkIdList* neighbors)
+  double* weights, std::vector<unsigned char>& visitedCells, vtkIdList* visitedCellIds,
+  vtkIdList* ptIds, vtkIdList* neighbors)
 {
   vtkIdType numCellIds = cellIds->GetNumberOfIds();
   for (vtkIdType i = 0; i < numCellIds; i++)
   {
     vtkIdType cellId = cellIds->GetId(i);
     vtkIdType foundCell = FindCellWalk(self, ps, x, nullptr, gencell, cellId, tol2, subId, pcoords,
-      weights, visitedCells, ptIds, neighbors);
+      weights, visitedCells, visitedCellIds, ptIds, neighbors);
     if (foundCell >= 0)
     {
       return foundCell;
@@ -212,15 +213,19 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
     return -1;
   }
 
-  // Implement the strategy proper
-  this->VisitedCells.clear();
+  // reset the visited cells
+  for (vtkIdType i = 0, max = this->VisitedCellIds->GetNumberOfIds(); i < max; ++i)
+  {
+    this->VisitedCells[this->VisitedCellIds->GetId(i)] = false;
+  }
+  this->VisitedCellIds->Reset();
 
   // If we are given a starting cell, try that.
   vtkIdType foundCell;
   if (cell && (cellId >= 0))
   {
     foundCell = FindCellWalk(this, this->PointSet, x, cell, gencell, cellId, tol2, subId, pcoords,
-      weights, this->VisitedCells, this->PointIds, this->Neighbors);
+      weights, this->VisitedCells, this->VisitedCellIds, this->PointIds, this->Neighbors);
     if (foundCell >= 0)
     {
       return foundCell;
@@ -236,7 +241,7 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
   }
   this->PointSet->GetPointCells(ptId, this->CellIds);
   foundCell = FindCellWalk(this, this->PointSet, x, gencell, this->CellIds, tol2, subId, pcoords,
-    weights, this->VisitedCells, this->PointIds, this->Neighbors);
+    weights, this->VisitedCells, this->VisitedCellIds, this->PointIds, this->Neighbors);
   if (foundCell >= 0)
   {
     return foundCell;
@@ -256,7 +261,7 @@ vtkIdType vtkClosestPointStrategy::FindCell(double x[3], vtkCell* cell, vtkGener
   {
     this->PointSet->GetPointCells(this->NearPointIds->GetId(i), this->CellIds);
     foundCell = FindCellWalk(this, this->PointSet, x, gencell, this->CellIds, tol2, subId, pcoords,
-      weights, this->VisitedCells, this->PointIds, this->Neighbors);
+      weights, this->VisitedCells, this->VisitedCellIds, this->PointIds, this->Neighbors);
     if (foundCell >= 0)
     {
       return foundCell;

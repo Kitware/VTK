@@ -70,7 +70,7 @@ vtkIdType vtkClosestNPointsStrategy::FindCell(double x[3], vtkCell* cell, vtkGen
     for (j = 0; j < numCells; j++)
     {
       cellId = this->CellIds->GetId(j);
-      if (this->VisitedCells.find(cellId) == this->VisitedCells.end())
+      if (!this->VisitedCells[cellId])
       {
         cell = this->SelectCell(this->PointSet, cellId, nullptr, gencell);
         ret = cell->EvaluatePosition(x, closest, subId, pcoords, dist2, weights);
@@ -78,7 +78,8 @@ vtkIdType vtkClosestNPointsStrategy::FindCell(double x[3], vtkCell* cell, vtkGen
         {
           return cellId;
         }
-        this->VisitedCells.insert(cellId);
+        this->VisitedCells[cellId] = true;
+        this->VisitedCellIds->InsertNextId(cellId);
       }
     }
   }
