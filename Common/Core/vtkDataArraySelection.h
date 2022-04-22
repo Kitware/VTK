@@ -13,14 +13,24 @@
 
 =========================================================================*/
 /**
- * @class   vtkDataArraySelection
- * @brief   Store on/off settings for data arrays for a vtkSource.
+ * @class vtkDataArraySelection
+ * @brief Store on/off settings for data arrays, etc.
  *
- * vtkDataArraySelection can be used by vtkSource subclasses to store
- * on/off settings for whether each vtkDataArray in its input should
- * be passed in the source's output.  This is primarily intended to
- * allow file readers to configure what data arrays are read from the
- * file.
+ * vtkDataArraySelection is intended to be used by algorithms that want to
+ * expose a API that allow the user to enable/disable a collection of entities,
+ * such as arrays. Readers, for example, can use vtkDataArraySelection to let
+ * the user choose which array to read from the file.
+ *
+ * Originally intended for selecting data arrays (hence the name), this class
+ * can be used for letting users choose other items too, for example,
+ * vtkIOSSReader uses vtkDataArraySelection to let users choose
+ * which blocks to read.
+ *
+ * Unlike most other vtkObject subclasses, vtkDataArraySelection has public API
+ * that need not modify the MTime for the object. These M-Time non-modifying
+ * methods are typically intended for use within the algorithm or reader to
+ * populate the vtkDataArraySelection instance with available array names and
+ * their default values.
  */
 
 #ifndef vtkDataArraySelection_h
