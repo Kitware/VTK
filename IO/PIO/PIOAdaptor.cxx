@@ -276,8 +276,8 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
           // try to open it and see if it is a valid pio file
           std::ostringstream tmpStr;
           tmpStr << this->dumpDirectory[dir] << Slash << fileName;
-          PIO_DATA* pioData = new PIO_DATA(tmpStr.str().c_str());
-          if (pioData->good_read())
+          PIO_DATA* pioDataPtr = new PIO_DATA(tmpStr.str().c_str());
+          if (pioDataPtr->good_read())
           {
             // Collect metadata of dump file
             // cycle number is the first integer in the controller_i array
@@ -286,14 +286,14 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
             // will not have the correct values
             std::valarray<int> controller_i;
             std::valarray<double> controller_r8;
-            pioData->set_scalar_field(controller_i, "controller_i");
-            pioData->set_scalar_field(controller_r8, "controller_r8");
+            pioDataPtr->set_scalar_field(controller_i, "controller_i");
+            pioDataPtr->set_scalar_field(controller_r8, "controller_r8");
             cycleIndex.emplace_back(controller_i[0]);
             simulationTime.emplace_back(controller_r8[0]);
             fileNames.emplace_back(tmpStr.str());
             numDumps++;
           }
-          delete pioData;
+          delete pioDataPtr;
         }
       }
       if (numDumps == 0)

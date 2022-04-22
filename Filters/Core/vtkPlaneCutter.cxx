@@ -347,7 +347,7 @@ struct CuttingFunctor
   void Reduce()
   {
     this->OutputMP->Initialize();
-    this->OutputMP->SetNumberOfPieces(this->LocalData.size());
+    this->OutputMP->SetNumberOfPieces(static_cast<unsigned int>(this->LocalData.size()));
     // Create the final multi-piece
     int count = 0;
     for (auto& out : this->LocalData)
@@ -1771,7 +1771,7 @@ int vtkPlaneCutter::ExecuteMultiBlockDataSet(
     ret += this->ExecuteDataSet(inputDS, this->GetSphereTree(inputDS), outputPolyData);
     dObj.SetDataObject(output, outputPolyData);
   }
-  return static_cast<unsigned int>(ret) == inputRange.size() ? 1 : 0;
+  return ret == static_cast<int>(inputRange.size()) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
