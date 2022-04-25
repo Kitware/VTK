@@ -412,12 +412,14 @@ public:
     // Appended to the latter version string are either "_single" or "_double" to
     // indicate how the particles were written.
     // "Version_Two_Dot_Zero" -- this is the AMReX particle file format
+    // All Version 2.0 to 2.x should support appending "_single", or "_double"
+    // to indicate file format
     if (version.find("Version_One_Dot_Zero") != std::string::npos)
     {
       this->real_type = 64;
     }
     else if (version.find("Version_One_Dot_One") != std::string::npos ||
-      version.find("Version_Two_Dot_Zero") != std::string::npos)
+      version.find("Version_Two_Dot") != std::string::npos)
     {
       if (version.find("_single") != std::string::npos)
       {
@@ -667,10 +669,7 @@ int vtkAMReXParticlesReader::CanReadFile(const char* fname, const char* particle
           std::string header_line;
           if (std::getline(ifp, header_line))
           {
-            return (header_line == "Version_Two_Dot_Zero_double" ||
-                     header_line == "Version_Two_Dot_Zero_float")
-              ? 1
-              : 0;
+            return (header_line.find("Version_Two_Dot") != std::string::npos) ? 1 : 0;
           }
         }
       }
