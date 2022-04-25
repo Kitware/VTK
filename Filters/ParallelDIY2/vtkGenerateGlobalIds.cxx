@@ -79,45 +79,6 @@ static vtkBoundingBox AllReduceBounds(
   return bbox;
 }
 
-class ExplicitAssigner : public ::diy::StaticAssigner
-{
-  std::vector<int> GIDs;
-
-public:
-  ExplicitAssigner(const std::vector<int>& counts)
-    : diy::StaticAssigner(
-        static_cast<int>(counts.size()), std::accumulate(counts.begin(), counts.end(), 0))
-    , GIDs(counts)
-  {
-    for (size_t cc = 1; cc < this->GIDs.size(); ++cc)
-    {
-      this->GIDs[cc] += this->GIDs[cc - 1];
-    }
-  }
-
-  //! returns the process rank of the block with global id gid (need not be local)
-  int rank(int gid) const override
-  {
-    for (size_t cc = 0; cc < this->GIDs.size(); ++cc)
-    {
-      if (gid < this->GIDs[cc])
-      {
-        return static_cast<int>(cc);
-      }
-    }
-    abort();
-  }
-
-  //! gets the local gids for a given process rank
-  void local_gids(int rank, std::vector<int>& gids) const override
-  {
-    const auto min = rank == 0 ? 0 : this->GIDs[rank - 1];
-    const auto max = this->GIDs[rank];
-    gids.resize(max - min);
-    std::iota(gids.begin(), gids.end(), min);
-  }
-};
-
 /**
  * This is the main implementation of the global id generation algorithm.
  * The code is similar for both point and cell ids generation except small
