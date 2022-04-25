@@ -17,12 +17,15 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -30,6 +33,9 @@
 #include "vtkPolyData.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
+#include "vtkUnsignedCharArray.h"
+
+#include <atomic>
 
 vtkStandardNewMacro(vtkCellCenters);
 
@@ -86,6 +92,74 @@ public:
       this->CellCenters->SetTypedTuple(cellId, x);
     }
   }
+};
+
+//==============================================================================
+struct InputGhostCellFinder
+{
+  InputGhostCellFinder(vtkUnsignedCharArray* ghostCells, vtkIdList* cellIdList)
+    : GhostCells(ghostCells)
+    , CellIdList(cellIdList)
+    , HasInputGhostCells(false)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    auto ghosts = vtk::DataArrayValueRange<1>(this->GhostCells);
+    for (vtkIdType id = startId; id < endId; ++id)
+    {
+      if (this->HasInputGhostCells)
+      {
+        return;
+      }
+      if (ghosts[this->CellIdList->GetId(id)] &
+        (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL |
+          vtkDataSetAttributes::REFINEDCELL))
+      {
+        this->HasInputGhostCells = true;
+      }
+    }
+  }
+
+  vtkUnsignedCharArray* GhostCells;
+  vtkIdList* CellIdList;
+  std::atomic<bool> HasInputGhostCells;
+};
+
+//==============================================================================
+struct GhostCellsToGhostPointsConverter
+{
+  GhostCellsToGhostPointsConverter(
+    vtkUnsignedCharArray* ghostCells, vtkUnsignedCharArray* ghostPoints, vtkIdList* cellIdList)
+    : GhostCells(ghostCells)
+    , GhostPoints(ghostPoints)
+    , CellIdList(cellIdList)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    auto ghostPoints = vtk::DataArrayValueRange<1>(this->GhostPoints);
+    auto ghostCells = vtk::DataArrayValueRange<1>(this->GhostCells);
+    for (vtkIdType id = startId; id < endId; ++id)
+    {
+      unsigned char ghost = ghostCells[this->CellIdList->GetId(id)];
+      ghostPoints[id] = 0;
+      if (ghost & vtkDataSetAttributes::DUPLICATECELL)
+      {
+        ghostPoints[id] |= vtkDataSetAttributes::DUPLICATEPOINT;
+      }
+      if (ghost & (vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL))
+      {
+        ghostPoints[id] |= vtkDataSetAttributes::HIDDENPOINT;
+      }
+    }
+  }
+
+  vtkUnsignedCharArray* GhostCells;
+  vtkUnsignedCharArray* GhostPoints;
+  vtkIdList* CellIdList;
 };
 
 } // end anonymous namespace
@@ -189,6 +263,22 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
     else
     {
       outPD->PassData(inCD); // because number of points == number of cells
+    }
+  }
+
+  if (vtkUnsignedCharArray* inputGhostCells = input->GetCellData()->GetGhostArray())
+  {
+    ::InputGhostCellFinder finder(inputGhostCells, cellIdList);
+    vtkSMPTools::For(0, numPoints, finder);
+    if (finder.HasInputGhostCells)
+    {
+      vtkNew<vtkUnsignedCharArray> ghostPoints;
+      ghostPoints->SetNumberOfValues(numPoints);
+      ghostPoints->SetName(vtkDataSetAttributes::GhostArrayName());
+
+      ::GhostCellsToGhostPointsConverter worker(inputGhostCells, ghostPoints, cellIdList);
+      vtkSMPTools::For(0, numPoints, worker);
+      outPD->AddArray(ghostPoints);
     }
   }
 
