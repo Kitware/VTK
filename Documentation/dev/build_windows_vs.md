@@ -1,5 +1,21 @@
 # Building VTK using Visual Studio on Windows
 
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Prerequisites](#prerequisites)
+    1. [Get CMake](#get-cmake)
+    2. [Get Visual Studio](#get-visual-studio)
+    3. [Get VTK Source-code](#get-vtk-source-code)
+3. [BUILD SOLUTION](#build-solution)
+    1. [Prepare folder structure](#prepare-folder-structure)
+    2. [Run CMake](#run-cmake)
+    3. [Build](#build)
+4. [INSTALL](#install)
+5. [TEST WITH AN EXAMPLE](#test-with-an-example)
+6. [Guide created using](#guide-created-using)
+
+
 ## Introduction
 
 This page describes how to build and install VTK using Visual Studio on Windows in recipe-style fashion. It is also possible to build VTK on Windows without using Visual Studio directly, this is covered in [Building VTK](<./build.md>).
@@ -17,7 +33,7 @@ For this guide you will need to following:
 
 If you have these then you can skip the rest of this section and proceed to BUILD SOLUTION.
 
-### 1. Get CMake
+### Get CMake
 
 CMake is a tool that makes cross-platform building simple. On several systems it will probably be already installed. If it is not, please use the following instructions to install it.
 There are several precompiled binaries available at the [CMake download page](https://cmake.org/download/). Download version 3.10 or later.
@@ -25,19 +41,18 @@ Add CMake to your PATH environment variable if you downloaded an archive and not
 
 This guide was tested using cmake 3.13.4 64bit installed by dowloading the .msi installer. [cmake-3.13.4-win64-x64.msi]
 
-### 2. Get Visual Studio
+### Get Visual Studio
 
 This guide uses Visual Studio / C++ as IDE and compiler. Visual studio can be installed from [Download](https://visualstudio.microsoft.com/vs/community/).
 This howto uses the free community edition.
 During installation select the "desktop development with C++" workload.
 
-### 3. Get VTK Source-code
+### Get VTK Source-code
 
 Download VTK source for the version you want from [https://vtk.org/download/](https://vtk.org/download/)  (zip or tar.gz (Do NOT download the exe - this is not the VTK library.) )
 You will probably want the latest one (highest version number) unless you have a specific reason to use an older one.
 
 Alternatively the source-code can be obtained from the repository as well. This is recommended only if you intent to make changes and contribute to VTK.
-
 
 ## BUILD SOLUTION
 
