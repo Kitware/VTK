@@ -1080,11 +1080,14 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
 
   int const transferMode = volProperty->GetTransferFunctionMode();
 
-  if ((shadeReqd || volProperty->HasGradientOpacity()) && transferMode == vtkVolumeProperty::TF_1D)
+  if (shadeReqd || volProperty->HasGradientOpacity())
   {
-    shaderStr +=
-      std::string("  // Compute gradient function only once\n"
-                  "  vec4 gradient = computeGradient(texPos, component, volume, volIdx);\n");
+    /*
+    We compute the gradient every time, because the alternative would be to test whether
+    the volume has gradient cache or not. But as both branches will be evaluated anyway
+    on GPU, we might as well compute the gradient every time.
+    */
+    shaderStr += "  vec4 gradient = computeGradient(texPos, component, volume, volIdx);\n";
   }
 
   if (shadeReqd && lightingComplexity == 1)
