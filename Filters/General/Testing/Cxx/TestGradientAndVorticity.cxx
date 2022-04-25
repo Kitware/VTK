@@ -18,6 +18,7 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkCell.h"
+#include "vtkCellCenters.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkCellTypeSource.h"
@@ -29,16 +30,25 @@
 #include "vtkHigherOrderHexahedron.h"
 #include "vtkHigherOrderQuadrilateral.h"
 #include "vtkHigherOrderWedge.h"
+#include "vtkIOSSReader.h"
+#include "vtkImageData.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
+#include "vtkPointDataToCellData.h"
+#include "vtkResampleToImage.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
+#include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
+#include "vtkThreshold.h"
 #include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
+#include <limits>
 #include <vector>
 
 #define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
@@ -424,6 +434,65 @@ int TestGradient(int* cellTypes, vtkGeneralTransform* transform)
   return EXIT_SUCCESS;
 }
 
+//------------------------------------------------------------------------------
+int TestPoints(vtkImageData* grid, vtkUnstructuredGrid* ref)
+{
+  auto gridArray = vtkArrayDownCast<vtkDoubleArray>(grid->GetPointData()->GetAbstractArray("Pres"));
+  auto refArray = vtkArrayDownCast<vtkDoubleArray>(ref->GetPointData()->GetAbstractArray("Pres"));
+  double refPoint[3];
+  double bounds[6];
+  int extent[6];
+  grid->GetBounds(bounds);
+  grid->GetExtent(extent);
+  int width[3];
+  vtkStructuredData::GetDimensionsFromExtent(extent, width);
+  int ijk[3];
+  for (vtkIdType pointId = 0; pointId < ref->GetNumberOfPoints(); ++pointId)
+  {
+    ref->GetPoint(pointId, refPoint);
+    ijk[0] = (refPoint[0] - bounds[0]) / (bounds[1] - bounds[0]) * width[0];
+    ijk[1] = (refPoint[1] - bounds[2]) / (bounds[3] - bounds[2]) * width[1];
+    ijk[2] = (refPoint[2] - bounds[4]) / (bounds[5] - bounds[4]) * width[2];
+    vtkIdType gridPointId = vtkStructuredData::ComputePointId(width, ijk);
+
+    if (std::abs(gridArray->GetValue(gridPointId) - refArray->GetValue(pointId)) > 1e-6)
+    {
+      vtkGenericWarningMacro("Computing gradient on a grid with hidden points failed");
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestCells(vtkImageData* grid, vtkUnstructuredGrid* ref)
+{
+  auto gridArray = vtkArrayDownCast<vtkDoubleArray>(grid->GetCellData()->GetAbstractArray("Pres"));
+  auto refArray = vtkArrayDownCast<vtkDoubleArray>(ref->GetPointData()->GetAbstractArray("Pres"));
+  double refPoint[3];
+  double bounds[6];
+  int extent[6];
+  grid->GetBounds(bounds);
+  grid->GetExtent(extent);
+  int width[3];
+  vtkStructuredData::GetDimensionsFromExtent(extent, width);
+  int ijk[3];
+  for (vtkIdType pointId = 0; pointId < ref->GetNumberOfPoints(); ++pointId)
+  {
+    ref->GetPoint(pointId, refPoint);
+    ijk[0] = (refPoint[0] - bounds[0]) / (bounds[1] - bounds[0]) * width[0];
+    ijk[1] = (refPoint[1] - bounds[2]) / (bounds[3] - bounds[2]) * width[1];
+    ijk[2] = (refPoint[2] - bounds[4]) / (bounds[5] - bounds[4]) * width[2];
+    vtkIdType gridPointId = vtkStructuredData::ComputeCellId(width, ijk);
+
+    if (std::abs(gridArray->GetValue(gridPointId) - refArray->GetValue(pointId)) > 1e-6)
+    {
+      vtkGenericWarningMacro("Computing gradient on a grid with hidden cells failed");
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
 } // end local namespace
 
 //------------------------------------------------------------------------------
@@ -514,6 +583,76 @@ int TestGradientAndVorticity(int argc, char* argv[])
     -1 // mark as end
   };
   if (TestGradient(threeDCells, transform))
+  {
+    return EXIT_FAILURE;
+  }
+
+  // Testing handling of hidden cells and points
+  std::string disk_out_ref = data_root;
+  disk_out_ref += "/Data/disk_out_ref.ex2";
+  vtkNew<vtkIOSSReader> iossReader;
+  iossReader->SetFileName(disk_out_ref.c_str());
+  iossReader->Update();
+  vtkUnstructuredGrid* disk = vtkUnstructuredGrid::SafeDownCast(vtkPartitionedDataSet::SafeDownCast(
+    vtkPartitionedDataSetCollection::SafeDownCast(iossReader->GetOutputDataObject(0))
+      ->GetPartitionedDataSet(0))
+                                                                  ->GetPartition(0));
+
+  vtkNew<vtkResampleToImage> resampler;
+  resampler->SetInputDataObject(disk);
+  resampler->SetSamplingDimensions(50, 50, 50);
+  resampler->SetUseInputBounds(true);
+
+  vtkNew<vtkGradientFilter> pointGradient;
+  pointGradient->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Pres");
+  pointGradient->SetInputConnection(resampler->GetOutputPort());
+
+  vtkNew<vtkThreshold> ugPointConverter;
+  ugPointConverter->SetInputConnection(resampler->GetOutputPort());
+  ugPointConverter->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Pres");
+  ugPointConverter->SetLowerThreshold(-std::numeric_limits<double>::infinity());
+  ugPointConverter->SetUpperThreshold(std::numeric_limits<double>::infinity());
+
+  vtkNew<vtkGradientFilter> pointRefGradient;
+  pointRefGradient->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Pres");
+  pointRefGradient->SetInputConnection(ugPointConverter->GetOutputPort());
+
+  pointRefGradient->Update();
+  pointGradient->Update();
+
+  if (TestPoints(vtkImageData::SafeDownCast(pointGradient->GetOutput()),
+        vtkUnstructuredGrid::SafeDownCast(pointRefGradient->GetOutput())))
+  {
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+
+  vtkNew<vtkPointDataToCellData> point2cell;
+  point2cell->SetInputConnection(resampler->GetOutputPort());
+
+  vtkNew<vtkGradientFilter> cellGradient;
+  cellGradient->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "Pres");
+  cellGradient->SetInputConnection(point2cell->GetOutputPort());
+
+  vtkNew<vtkThreshold> ugCellConverter;
+  ugCellConverter->SetInputConnection(cellGradient->GetOutputPort());
+  ugCellConverter->SetLowerThreshold(-std::numeric_limits<double>::infinity());
+  ugCellConverter->SetUpperThreshold(std::numeric_limits<double>::infinity());
+
+  vtkNew<vtkGradientFilter> cellRefGradient;
+  cellRefGradient->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "Pres");
+  cellRefGradient->SetInputConnection(ugCellConverter->GetOutputPort());
+
+  vtkNew<vtkCellCenters> cellCenterRefGradient;
+  cellCenterRefGradient->SetInputConnection(cellRefGradient->GetOutputPort());
+
+  cellCenterRefGradient->Update();
+  cellGradient->Update();
+
+  if (TestCells(vtkImageData::SafeDownCast(cellGradient->GetOutput()),
+        vtkUnstructuredGrid::SafeDownCast(cellCenterRefGradient->GetOutput())))
   {
     return EXIT_FAILURE;
   }

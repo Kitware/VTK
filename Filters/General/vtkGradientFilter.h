@@ -49,6 +49,8 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
+class vtkUnsignedCharArray;
+
 class VTKFILTERSGENERAL_EXPORT vtkGradientFilter : public vtkDataSetAlgorithm
 {
 public:
@@ -233,8 +235,9 @@ protected:
    * a vtkStructuredGrid.  Computes the gradient using finite differences.
    * Returns non-zero if the operation was successful.
    */
-  virtual int ComputeRegularGridGradient(vtkDataArray* Array, int fieldAssociation,
-    bool computeVorticity, bool computeQCriterion, bool computeDivergence, vtkDataSet* output);
+  virtual int ComputeRegularGridGradient(vtkDataArray* Array, int* dims, int fieldAssociation,
+    bool computeVorticity, bool computeQCriterion, bool computeDivergence, vtkDataSet* output,
+    vtkUnsignedCharArray* ghosts, unsigned char hiddenGhost);
 
   /**
    * Get the proper array type to compute requested derivative quantities for.
