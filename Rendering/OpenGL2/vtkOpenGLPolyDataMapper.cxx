@@ -616,7 +616,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
       "float emix = clamp(0.5 + 0.5*lineWidth - min( min( edist[0], edist[1]), edist[2]), 0.0, "
       "1.0);\n";
 
-    if (actor->GetProperty()->GetRenderLinesAsTubes())
+    bool canRenderLinesAsTube =
+      actor->GetProperty()->GetRenderLinesAsTubes() && ren->GetLights()->GetNumberOfItems() > 0;
+    if (canRenderLinesAsTube)
     {
       fsimpl += "  diffuseColor = mix(diffuseColor, diffuseIntensity*edgeColor, emix);\n"
                 "  ambientColor = mix(ambientColor, ambientIntensity*edgeColor, emix);\n"
@@ -634,7 +636,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
 
     // even more fake tubes, for surface with edges this implementation
     // just adjusts the normal calculation but not the zbuffer
-    if (actor->GetProperty()->GetRenderLinesAsTubes())
+    if (canRenderLinesAsTube)
     {
       vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
         "//VTK::Normal::Impl\n"
