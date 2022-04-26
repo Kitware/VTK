@@ -1137,9 +1137,14 @@ bool vtkIOSSReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIOSSReader* 
   for (int cc = ENTITY_START; cc < ENTITY_END; ++cc)
   {
     auto entitySelection = self->GetEntitySelection(cc);
+    auto& entityIdMap = self->EntityIdMap[cc];
     for (auto& name : entity_names[cc])
     {
       entitySelection->AddArray(name.second.c_str(), vtkIOSSReader::GetEntityTypeIsBlock(cc));
+      if (name.first != 0)
+      {
+        entityIdMap[name.second] = name.first;
+      }
     }
 
     auto fieldSelection = self->GetFieldSelection(cc);
@@ -3221,6 +3226,47 @@ vtkDataArraySelection* vtkIOSSReader::GetFieldSelection(int type)
     return nullptr;
   }
   return this->EntityFieldSelection[type];
+}
+
+//----------------------------------------------------------------------------
+const std::map<std::string, vtkTypeInt64>& vtkIOSSReader::GetEntityIdMap(int type) const
+{
+  if (type < 0 || type >= NUMBER_OF_ENTITY_TYPES)
+  {
+    vtkErrorMacro("Invalid type '" << type
+                                   << "'. Supported values are "
+                                      "vtkIOSSReader::NODEBLOCK (0), ... vtkIOSSReader::SIDESET ("
+                                   << vtkIOSSReader::SIDESET << ").");
+    return this->EntityIdMap[NUMBER_OF_ENTITY_TYPES];
+  }
+
+  return this->EntityIdMap[type];
+}
+
+//----------------------------------------------------------------------------
+vtkStringArray* vtkIOSSReader::GetEntityIdMapAsString(int type) const
+{
+  if (type < 0 || type >= NUMBER_OF_ENTITY_TYPES)
+  {
+    vtkErrorMacro("Invalid type '" << type
+                                   << "'. Supported values are "
+                                      "vtkIOSSReader::NODEBLOCK (0), ... vtkIOSSReader::SIDESET ("
+                                   << vtkIOSSReader::SIDESET << ").");
+    return this->EntityIdMapStrings[NUMBER_OF_ENTITY_TYPES];
+  }
+
+  const auto& map = this->GetEntityIdMap(type);
+  auto& strings = this->EntityIdMapStrings[type];
+  strings->SetNumberOfTuples(map.size() * 2);
+
+  vtkIdType index = 0;
+  for (const auto& pair : map)
+  {
+    strings->SetValue(index++, pair.first);
+    strings->SetValue(index++, std::to_string(pair.second));
+  }
+
+  return strings;
 }
 
 //----------------------------------------------------------------------------

@@ -17,6 +17,7 @@
 #include <vtkDataObject.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkIOSSReader.h>
+#include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
@@ -58,6 +59,17 @@ int TestIOSSExodus(int argc, char* argv[])
   cam->SetViewUp(0., 0.4, 1.);
   ren->ResetCamera();
   renWin->Render();
+
+  // let verify id maps are built properly
+  auto& elementMap = reader->GetElementBlockIdMap();
+  auto& nodeSetMap = reader->GetNodeSetIdMap();
+  auto& sideSetMap = reader->GetSideSetIdMap();
+  if (elementMap.at("block_1") != 1 || elementMap.at("block_2") != 2 ||
+    nodeSetMap.at("nodelist_1") != 1 || nodeSetMap.at("nodelist_100") != 100 ||
+    sideSetMap.at("surface_4") != 4)
+  {
+    vtkLogF(ERROR, "id map mismatch!");
+  }
 
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
