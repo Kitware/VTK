@@ -12,7 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkCellData.h"
 #include "vtkDataObject.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
@@ -20,6 +22,7 @@
 #include "vtkRTAnalyticSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkThreshold.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 int TestThreshold(int, char*[])
@@ -28,8 +31,26 @@ int TestThreshold(int, char*[])
   // Test using different thresholding methods
   //---------------------------------------------------
   vtkNew<vtkRTAnalyticSource> source;
+
+  // We're setting a ghost array with one hidden ghost cell
+  // This cell should disappear after thresholding
+  source->Update();
+  vtkIdType numberOfHiddenCells = 1;
+
+  vtkNew<vtkImageData> ghostedWavelet;
+  ghostedWavelet->ShallowCopy(source->GetOutputDataObject(0));
+
+  vtkNew<vtkUnsignedCharArray> ghosts;
+  ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+  ghosts->SetNumberOfValues(ghostedWavelet->GetNumberOfCells());
+  ghosts->Fill(0);
+
+  ghosts->SetValue(19, vtkDataSetAttributes::HIDDENCELL);
+
+  ghostedWavelet->GetCellData()->AddArray(ghosts);
+
   vtkNew<vtkThreshold> filter;
-  filter->SetInputConnection(source->GetOutputPort());
+  filter->SetInputData(ghostedWavelet);
 
   double L = 100.0;
   double U = 200.0;
@@ -75,7 +96,7 @@ int TestThreshold(int, char*[])
   filter->InvertOn();
   filter->Update();
   int invertedCellCount = filter->GetOutput()->GetNumberOfCells();
-  if (invertedCellCount + thresholdedCellCount != totalCellCount)
+  if (invertedCellCount + thresholdedCellCount != totalCellCount - numberOfHiddenCells)
   {
     std::cerr << "Cell count and inverted cell count inconsistent" << std::endl;
     return EXIT_FAILURE;
@@ -90,7 +111,7 @@ int TestThreshold(int, char*[])
   filter->SetThresholdFunction(vtkThreshold::THRESHOLD_LOWER);
   filter->SetLowerThreshold(L);
   filter->Update();
-  if (filter->GetOutput()->GetNumberOfCells() != 132)
+  if (filter->GetOutput()->GetNumberOfCells() != 131)
   {
     std::cerr << "Unexpected cell count after thresholding below" << std::endl;
     return EXIT_FAILURE;
