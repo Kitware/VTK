@@ -236,8 +236,12 @@ void vtkQuadraticQuad::InterpolateAttributes(
     this->PointData->CopyData(inPd, this->PointIds->GetId(i), i);
     this->CellScalars->SetValue(i, cellScalars->GetTuple1(i));
   }
-  // copy the cell data over to the linear cell
-  this->CellData->CopyData(inCd, cellId, 0);
+
+  // copy the cell data over to the linear cells
+  for (i = 0; i < 4; i++)
+  {
+    this->CellData->CopyData(inCd, cellId, i);
+  }
 
   // Interpolate new values
   double p[3];
