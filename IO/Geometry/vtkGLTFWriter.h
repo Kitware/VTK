@@ -116,10 +116,31 @@ public:
 
   ///@{
   /**
+   * If true (default) we save textures. We only include a reference to the
+   * texture file unless you want to include the binary data in the json file using
+   * InlineData in which case we have to load the texture in memory and save
+   * it encoded in the json file.
+   * @sa
+   * TextureBaseDirectory
    */
   vtkGetMacro(SaveTextures, bool);
   vtkSetMacro(SaveTextures, bool);
   vtkBooleanMacro(SaveTextures, bool);
+  ///@}
+
+  ///@{
+  /**
+   * If true, the writer looks at the active scalar and if it finds a
+   * 3 or 4 component, float, unsigned char or unsigned short it
+   * stores a RGB or RGBA attribute called COLOR_0 in the GLTF
+   * file. The default is false.  Note a float component has to be
+   * bewtween [0, 1] while the unsigned chars and unsigned short are
+   * OpenGL normalized integers (are used to store a float between [0,
+   * 1]).
+   */
+  vtkGetMacro(SaveActivePointColor, bool);
+  vtkSetMacro(SaveActivePointColor, bool);
+  vtkBooleanMacro(SaveActivePointColor, bool);
   ///@}
 
   /**
@@ -147,6 +168,7 @@ protected:
   bool SaveNormal;
   bool SaveBatchId;
   bool SaveTextures;
+  bool SaveActivePointColor;
 
 private:
   vtkGLTFWriter(const vtkGLTFWriter&) = delete;

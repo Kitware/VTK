@@ -13,12 +13,14 @@
 
 =========================================================================*/
 #include "vtkGLTFWriter.h"
+#include "vtkDataArray.h"
 #include "vtkGLTFWriterUtils.h"
 
 #include <cstdio>
 #include <memory>
 #include <sstream>
 
+#include "vtkUnsignedShortArray.h"
 #include "vtk_jsoncpp.h"
 
 #include "vtkArrayDispatch.h"
@@ -68,6 +70,7 @@ vtkGLTFWriter::vtkGLTFWriter()
   this->SaveNormal = false;
   this->SaveBatchId = false;
   this->SaveTextures = true;
+  this->SaveActivePointColor = false;
 }
 
 vtkGLTFWriter::~vtkGLTFWriter()
@@ -190,7 +193,7 @@ std::string GetMimeType(const char* textureFileName)
   }
 }
 
-std::string WriteBufferAndView(const char* gltfRelativeTexturePath, const char* texturePath,
+std::string WriteTextureBufferAndView(const char* gltfRelativeTexturePath, const char* texturePath,
   bool inlineData, Json::Value& buffers, Json::Value& bufferViews)
 {
   // if inline then base64 encode the data. In this case we need to read the texture
@@ -276,9 +279,23 @@ std::string WriteBufferAndView(const char* gltfRelativeTexturePath, const char* 
   return mimeType;
 }
 
+std::map<int, int> vtkToGLType = { { VTK_UNSIGNED_CHAR, GL_UNSIGNED_BYTE },
+  { VTK_UNSIGNED_SHORT, GL_UNSIGNED_SHORT }, { VTK_FLOAT, GL_FLOAT } };
+
+int GetGLType(vtkDataArray* da)
+{
+  int vtkType = da->GetDataType();
+  if (vtkToGLType.find(vtkType) == vtkToGLType.end())
+  {
+    vtkLog(WARNING, "No GL type mapping for VTK type: " << vtkType);
+    return GL_UNSIGNED_BYTE;
+  }
+  return vtkToGLType[vtkType];
+}
+
 void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& bufferViews,
   Json::Value& meshes, Json::Value& nodes, vtkPolyData* pd, const char* fileName, bool inlineData,
-  bool saveNormal, bool saveBatchId)
+  bool saveNormal, bool saveBatchId, bool saveActivePointColor)
 {
   vtkNew<vtkTriangleFilter> trif;
   trif->SetInputData(pd);
@@ -316,6 +333,9 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
 
   std::vector<vtkDataArray*> arraysToSave;
   vtkNew<vtkFloatArray> normals;
+  vtkNew<vtkUnsignedCharArray> ucColor0;
+  vtkNew<vtkUnsignedShortArray> usColor0;
+  vtkNew<vtkFloatArray> fColor0;
   if (saveBatchId)
   {
     vtkDataArray* a;
@@ -334,6 +354,40 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
       arraysToSave.push_back(normals);
     }
   }
+  if (saveActivePointColor)
+  {
+    vtkDataArray* da = pd->GetPointData()->GetScalars();
+    auto uca = vtkUnsignedCharArray::SafeDownCast(da);
+    auto usa = vtkUnsignedShortArray::SafeDownCast(da);
+    auto fa = vtkFloatArray::SafeDownCast(da);
+    static const char* gltfColorName = "COLOR_0";
+    if (uca)
+    {
+      ucColor0->ShallowCopy(uca);
+      ucColor0->SetName(gltfColorName);
+      arraysToSave.push_back(ucColor0);
+    }
+    else if (usa)
+    {
+      usColor0->ShallowCopy(usa);
+      usColor0->SetName(gltfColorName);
+      arraysToSave.push_back(usColor0);
+    }
+    else if (fa)
+    {
+      fColor0->ShallowCopy(fa);
+      fColor0->SetName(gltfColorName);
+      arraysToSave.push_back(fColor0);
+    }
+    else
+    {
+      vtkLog(WARNING,
+        "Color array has to be unsigned char, unsigned short or float "
+        "with 3 or 4 components. Got: "
+          << (da ? da->GetClassName() : "nullptr")
+          << " number of components: " << (da ? da->GetNumberOfComponents() : 0));
+    }
+  }
   int userAccessorsStart = accessors.size();
   for (size_t i = 0; i < arraysToSave.size(); ++i)
   {
@@ -344,8 +398,10 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     Json::Value acc;
     acc["bufferView"] = bufferViews.size() - 1;
     acc["byteOffset"] = 0;
-    acc["type"] = da->GetNumberOfComponents() == 3 ? "VEC3" : "SCALAR";
-    acc["componentType"] = GL_FLOAT;
+    acc["type"] = da->GetNumberOfComponents() == 4
+      ? "VEC4"
+      : (da->GetNumberOfComponents() == 3 ? "VEC3" : "SCALAR");
+    acc["componentType"] = GetGLType(da);
     acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfTuples());
     accessors.append(acc);
   }
@@ -385,7 +441,7 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     Json::Value attribs;
 
     vtkCellArray* da = tris->GetVerts();
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteCellBufferAndView(da, fileName, inlineData, buffers, bufferViews);
 
     // write the accessor
     Json::Value acc;
@@ -419,7 +475,7 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     Json::Value attribs;
 
     vtkCellArray* da = tris->GetLines();
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteCellBufferAndView(da, fileName, inlineData, buffers, bufferViews);
 
     // write the accessor
     Json::Value acc;
@@ -453,7 +509,7 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     Json::Value attribs;
 
     vtkCellArray* da = tris->GetPolys();
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteCellBufferAndView(da, fileName, inlineData, buffers, bufferViews);
 
     // write the accessor
     Json::Value acc;
@@ -533,7 +589,7 @@ void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& t
     std::string textureFullPath = vtksys::SystemTools::CollapseFullPath(texturePath);
     std::string gltfRelativeTexturePath =
       vtksys::SystemTools::RelativePath(gltfFullDir, textureFullPath);
-    std::string mimeType = WriteBufferAndView(
+    std::string mimeType = WriteTextureBufferAndView(
       gltfRelativeTexturePath.c_str(), texturePath.c_str(), inlineData, buffers, bufferViews);
     if (mimeType.empty())
     {
@@ -735,7 +791,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
   for (buildingIt->InitTraversal(); !buildingIt->IsDoneWithTraversal(); buildingIt->GoToNextItem())
   {
     auto building = vtkMultiBlockDataSet::SafeDownCast(buildingIt->GetCurrentDataObject());
-    // all parts - actors (all parts of a buildings)
+    // all parts of a buildings
     auto it = vtk::TakeSmartPointer(building->NewIterator());
     for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
     {
@@ -746,7 +802,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
         {
           foundVisibleProp = true;
           WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, this->FileName,
-            this->InlineData, this->SaveNormal, this->SaveBatchId);
+            this->InlineData, this->SaveNormal, this->SaveBatchId, this->SaveActivePointColor);
           rendererNode["children"].append(nodes.size() - 1);
           unsigned int oldTextureCount = textures.size();
           std::string textureFileName = GetFieldAsString(pd, "texture_uri");

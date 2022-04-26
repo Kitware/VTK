@@ -400,45 +400,47 @@ bool jsonEqual(json& l, json& r) noexcept
   return false;
 }
 
-void TestJacksonvilleTriangle(const std::string& dataRoot, const std::string& tempDirectory)
+std::array<std::array<double, 3>, 3> triangleJacksonville = {
+  { { { 799099.7216079829959199, -5452032.6613515587523580, 3201501.3033391013741493 } },
+    { { 797899.9930383440805599, -5452124.7368548354133964, 3201444.7161126118153334 } },
+    { { 797971.0970941731939092, -5452573.6701772613450885, 3200667.5626786206848919 } } }
+};
+
+json ReadTileset(const std::string& fileName)
 {
-  std::array<std::array<double, 3>, 3> in;
+  vtksys::ifstream fileStream(fileName.c_str());
+  if (fileStream.fail())
+  {
+    std::ostringstream ostr;
+    ostr << "Cannot open: " << fileName << std::endl;
+    throw std::runtime_error(ostr.str());
+  }
+  json tilesetJson = json::parse(fileStream);
+  return tilesetJson;
+}
+
+void TestJacksonvilleBuildings(const std::string& dataRoot, const std::string& tempDirectory)
+{
   std::cout << "Test jacksonville buildings" << std::endl;
   tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
     vtkCesium3DTilesWriter::Buildings, false /*addColor*/, tempDirectory + "/jacksonville-3dtiles",
     true /*contentGLTF*/, 1, 1, 2, std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/,
     false /*saveTextures*/, "", 17, 'N');
-  in = { { { { 799099.7216079829959199, -5452032.6613515587523580, 3201501.3033391013741493 } },
-    { { 797899.9930383440805599, -5452124.7368548354133964, 3201444.7161126118153334 } },
-    { { 797971.0970941731939092, -5452573.6701772613450885, 3200667.5626786206848919 } } } };
-  if (TrianglesDiffer(in, tempDirectory + "/jacksonville-3dtiles/0/0.gltf"))
+  std::string gltfFile = tempDirectory + "/jacksonville-3dtiles/0/0.gltf";
+  if (TrianglesDiffer(triangleJacksonville, gltfFile))
   {
-    throw std::runtime_error("TrianglesDiffer failure");
+    throw std::runtime_error("Triangles differ: " + gltfFile);
   }
-  std::string basefname = dataRoot + "/Data/3DTiles/jacksonville-tileset.json";
-  vtksys::ifstream baselineFile(basefname.c_str());
-  if (baselineFile.fail())
-  {
-    std::ostringstream ostr;
-    ostr << "Cannot open: " << basefname << std::endl;
-    throw std::runtime_error(ostr.str());
-  }
-  json baseline = json::parse(baselineFile);
-  std::string testfname = tempDirectory + "/jacksonville-3dtiles/tileset.json";
-  vtksys::ifstream testFile(testfname.c_str());
-  if (testFile.fail())
-  {
-    std::ostringstream ostr;
-    ostr << "Cannot open: " << testfname << std::endl;
-    throw std::runtime_error(ostr.str());
-  }
-  json test = json::parse(testFile);
+  std::string baselineFile = dataRoot + "/Data/3DTiles/jacksonville-tileset.json";
+  std::string testFile = tempDirectory + "/jacksonville-3dtiles/tileset.json";
+  json baseline = ReadTileset(baselineFile);
+  json test = ReadTileset(testFile);
   if (!jsonEqual(baseline, test))
   {
     std::ostringstream ostr;
     ostr << "Jacksonville data produced a different tileset than expected:" << std::endl
-         << basefname << std::endl
-         << testfname << std::endl;
+         << baselineFile << std::endl
+         << testFile << std::endl;
     throw std::runtime_error(ostr.str());
   }
 }
@@ -452,31 +454,26 @@ void TestJacksonvillePoints(
   tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
     vtkCesium3DTilesWriter::Points, false /*addColor*/, destDir, contentGLTF, 3, 3, 2,
     std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
-  if (!contentGLTF &&
-    SystemTools::FilesDiffer(
-      destDir + "/0/0.pnts", dataRoot + "/Data/3DTiles/jacksonville-3dtiles-points.pnts"))
+  std::string gltfFile = tempDirectory + "/jacksonville-3dtiles-points-gltf/0/0.gltf";
+  if (contentGLTF && TrianglesDiffer(triangleJacksonville, gltfFile))
   {
-    std::ostringstream ostr;
-    ostr << "Error: File differ " << destDir + "/0/0.pnts, "
-         << dataRoot + "/Data/3DTiles/jacksonville-3dtiles-points.pnts";
-    throw std::runtime_error(ostr.str());
+    throw std::runtime_error("Triangles differ: " + gltfFile);
   }
 }
 
-void TestJacksonvilleColorPoints(const std::string& dataRoot, const std::string& tempDirectory)
+void TestJacksonvilleColorPoints(
+  const std::string& dataRoot, const std::string& tempDirectory, bool contentGLTF)
 {
-  std::string destDir = tempDirectory + "/jacksonville-3dtiles-colorpoints";
-  std::cout << "Test jacksonville points" << std::endl;
+  std::string destDir =
+    tempDirectory + "/jacksonville-3dtiles-colorpoints-" + (contentGLTF ? "gltf" : "pnts");
+  std::cout << "Test jacksonville color points " << (contentGLTF ? "gltf" : "pnts") << std::endl;
   tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
-    vtkCesium3DTilesWriter::Points, true /*addColor*/, destDir, false /*contentGLTF*/, 3, 3, 2,
+    vtkCesium3DTilesWriter::Points, true /*addColor*/, destDir, contentGLTF, 3, 3, 2,
     std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
-  if (SystemTools::FilesDiffer(
-        destDir + "/0/0.pnts", dataRoot + "/Data/3DTiles/jacksonville-3dtiles-colorpoints.pnts"))
+  std::string gltfFile = tempDirectory + "/jacksonville-3dtiles-colorpoints-gltf/0/0.gltf";
+  if (contentGLTF && TrianglesDiffer(triangleJacksonville, gltfFile))
   {
-    std::ostringstream ostr;
-    ostr << "Error: File differ " << destDir + "/0/0.pnts, "
-         << dataRoot + "/Data/3DTiles/jacksonville-3dtiles-colorpoints.pnts";
-    throw std::runtime_error(ostr.str());
+    throw std::runtime_error("Triangles differ: " + gltfFile);
   }
 }
 
@@ -487,9 +484,14 @@ void TestJacksonvilleMesh(const std::string& dataRoot, const std::string& tempDi
   tiler(std::vector<std::string>{ { dataRoot + "/Data/3DTiles/jacksonville-triangle.obj" } },
     vtkCesium3DTilesWriter::Mesh, false /*addColor*/, destDir, true /*contentGLTF*/, 3, 3, 2,
     std::vector<double>{ { 0, 0, 0 } }, true /*saveTiles*/, false /*saveTextures*/, "", 17, 'N');
+  std::string gltfFile = tempDirectory + "/jacksonville-3dtiles-mesh/0/0.gltf";
+  if (TrianglesDiffer(triangleJacksonville, gltfFile))
+  {
+    throw std::runtime_error("Triangles differ: " + gltfFile);
+  }
 }
 
-void TestBerlinTriangle(const std::string& dataRoot, const std::string& tempDirectory)
+void TestBerlinBuildings(const std::string& dataRoot, const std::string& tempDirectory)
 {
   std::array<std::array<double, 3>, 3> in;
   std::cout << "Test berlin buildings (citygml)" << std::endl;
@@ -502,26 +504,12 @@ void TestBerlinTriangle(const std::string& dataRoot, const std::string& tempDire
     { { 3782645.8996075680479407, 894380.4562150554265827, 5039951.8311523543670774 } } } };
   if (TrianglesDiffer(in, tempDirectory + "/berlin-3dtiles/0/0.gltf"))
   {
-    throw std::runtime_error("TrianglesDiffer failure");
+    throw std::runtime_error("Triangles differ failure");
   }
   std::string basefname = dataRoot + "/Data/3DTiles/berlin-tileset.json";
-  vtksys::ifstream baselineFile((basefname.c_str()));
-  if (baselineFile.fail())
-  {
-    std::ostringstream ostr;
-    ostr << "Cannot open: " << basefname << std::endl;
-    throw std::runtime_error(ostr.str());
-  }
-  json baseline = json::parse(baselineFile);
+  json baseline = ReadTileset(basefname);
   std::string testfname = tempDirectory + "/berlin-3dtiles/tileset.json";
-  vtksys::ifstream testFile(testfname.c_str());
-  if (testFile.fail())
-  {
-    std::ostringstream ostr;
-    ostr << "Cannot open: " << testfname << std::endl;
-    throw std::runtime_error(ostr.str());
-  }
-  json test = json::parse(testFile);
+  json test = ReadTileset(testfname);
   if (!jsonEqual(baseline, test))
   {
     std::ostringstream ostr;
@@ -551,12 +539,13 @@ int TestCesium3DTilesWriter(int argc, char* argv[])
   std::string tempDirectory = testHelper->GetTempDirectory();
   try
   {
-    TestJacksonvilleTriangle(dataRoot, tempDirectory);
-    TestBerlinTriangle(dataRoot, tempDirectory);
+    TestJacksonvilleBuildings(dataRoot, tempDirectory);
+    TestBerlinBuildings(dataRoot, tempDirectory);
 
     TestJacksonvillePoints(dataRoot, tempDirectory, false /*contentGLTF*/);
     TestJacksonvillePoints(dataRoot, tempDirectory, true /*contentGLTF*/);
-    TestJacksonvilleColorPoints(dataRoot, tempDirectory);
+    TestJacksonvilleColorPoints(dataRoot, tempDirectory, false /*contentGLTF*/);
+    TestJacksonvilleColorPoints(dataRoot, tempDirectory, true /*contentGLTF*/);
 
     TestJacksonvilleMesh(dataRoot, tempDirectory);
   }

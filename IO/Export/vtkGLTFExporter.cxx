@@ -218,7 +218,7 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     Json::Value attribs;
 
     vtkCellArray* da = tris->GetVerts();
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteCellBufferAndView(da, fileName, inlineData, buffers, bufferViews);
 
     // write the accessor
     Json::Value acc;
@@ -256,7 +256,7 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     Json::Value attribs;
 
     vtkCellArray* da = tris->GetLines();
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteCellBufferAndView(da, fileName, inlineData, buffers, bufferViews);
 
     // write the accessor
     Json::Value acc;
@@ -294,7 +294,7 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     Json::Value attribs;
 
     vtkCellArray* da = tris->GetPolys();
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteCellBufferAndView(da, fileName, inlineData, buffers, bufferViews);
 
     // write the accessor
     Json::Value acc;

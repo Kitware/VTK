@@ -43,7 +43,7 @@ public:
   VTK_WRAPEXCLUDE static void WriteValues(vtkDataArray* ca, vtkBase64OutputStream* ostr);
   VTK_WRAPEXCLUDE static void WriteBufferAndView(vtkDataArray* inda, const char* fileName,
     bool inlineData, Json::Value& buffers, Json::Value& bufferViews);
-  VTK_WRAPEXCLUDE static void WriteBufferAndView(vtkCellArray* ca, const char* fileName,
+  VTK_WRAPEXCLUDE static void WriteCellBufferAndView(vtkCellArray* ca, const char* fileName,
     bool inlineData, Json::Value& buffers, Json::Value& bufferViews);
 };
 

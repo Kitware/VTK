@@ -108,8 +108,8 @@ void vtkGLTFWriterUtils::WriteBufferAndView(vtkDataArray* inda, const char* file
   }
 }
 
-void vtkGLTFWriterUtils::WriteBufferAndView(vtkCellArray* ca, const char* fileName, bool inlineData,
-  Json::Value& buffers, Json::Value& bufferViews)
+void vtkGLTFWriterUtils::WriteCellBufferAndView(vtkCellArray* ca, const char* fileName,
+  bool inlineData, Json::Value& buffers, Json::Value& bufferViews)
 {
   vtkUnsignedIntArray* ia = vtkUnsignedIntArray::New();
   vtkIdType npts;
