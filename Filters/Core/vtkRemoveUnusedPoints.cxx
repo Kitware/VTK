@@ -190,8 +190,7 @@ int vtkRemoveUnusedPoints::RequestData(vtkInformation* vtkNotUsed(request),
       if (oldid < 0 || oldid >= numPoints)
       {
         vtkErrorMacro("Invalid point id '" << oldid << "' in cell '" << cellId
-                                           << "'. "
-                                              "Data maybe corrupt or incorrect.");
+                                           << "'. Data maybe corrupt or incorrect.");
         output->Initialize();
         return 0;
       }
@@ -202,6 +201,23 @@ int vtkRemoveUnusedPoints::RequestData(vtkInformation* vtkNotUsed(request),
         originalIds->InsertId(newid, oldid);
       }
     }
+  }
+
+  if (nextPtId == numPoints)
+  {
+    // if all point are used, then skip extracting points.
+    output->ShallowCopy(input);
+    if (this->GenerateOriginalPointIds)
+    {
+      // reset original ids to be 0..n
+      std::iota(originalIds->GetPointer(0), originalIds->GetPointer(0) + numPoints, 0);
+      vtkNew<vtkIdTypeArray> opids;
+      opids->SetName(this->OriginalPointIdsArrayName);
+      opids->SetArray(
+        originalIds->Release(), nextPtId, /*save=*/0, vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
+      output->GetPointData()->AddArray(opids);
+    }
+    return 1;
   }
 
   if (!::CopyConnectivity(input, output, pointMap))
