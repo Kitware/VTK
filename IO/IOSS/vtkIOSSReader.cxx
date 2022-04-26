@@ -473,6 +473,13 @@ public:
   }
 
   /**
+   * Little more aggressive than `ReleaseHandles` but less intense than `Reset`,
+   * releases all IOSS regions and thus all the meta-data IOSS may have cached
+   * as well.
+   */
+  void ReleaseRegions() { this->RegionMap.clear(); }
+
+  /**
    * Clear all regions, databases etc.
    */
   void Reset()
@@ -3197,6 +3204,7 @@ int vtkIOSSReader::ReadMesh(
   }
 
   internals.ClearCacheUnused();
+  internals.ReleaseRegions();
   return 1;
 }
 
