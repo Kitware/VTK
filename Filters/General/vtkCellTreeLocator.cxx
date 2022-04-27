@@ -643,10 +643,13 @@ vtkIdType vtkCellTreeLocator::FindCell(
 
     for (; begin != end; ++begin)
     {
-      this->DataSet->GetCell(*begin, cell);
-      if (cell->EvaluatePosition(pos, nullptr, subId, pcoords, dist2, weights) == 1)
+      if (this->InsideCellBounds(pos, *begin))
       {
-        return *begin;
+        this->DataSet->GetCell(*begin, cell);
+        if (cell->EvaluatePosition(pos, nullptr, subId, pcoords, dist2, weights) == 1)
+        {
+          return *begin;
+        }
       }
     }
   }
