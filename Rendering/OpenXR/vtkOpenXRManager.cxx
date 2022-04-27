@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkOpenXRManager.h"
 
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenXRUtilities.h"
@@ -28,6 +29,7 @@
 // Work-around to get forward declarations of C typedef of anonymous
 // structs working. We do not want to include XUtil.h in the header as
 // it populates the global namespace.
+#include "GL/glx.h"
 #include <X11/Xutil.h>
 struct vtkXVisualInfo : public XVisualInfo
 {
@@ -836,14 +838,23 @@ bool vtkOpenXRManager::CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow
     });
   this->GraphicsBinding = graphicsBindingGLX;
 
-  graphicsBindingGLX->xDisplay = reinterpret_cast<Display*>(helperWindow->GetGenericDisplayId());
-  graphicsBindingGLX->glxDrawable =
-    reinterpret_cast<GLXDrawable>(helperWindow->GetGenericDrawable());
-  graphicsBindingGLX->glxContext = reinterpret_cast<GLXContext>(helperWindow->GetGenericContext());
+  vtkNew<vtkXOpenGLRenderWindow> xoglRenWin;
+  vtkXOpenGLRenderWindow* glxHelperWindow = vtkXOpenGLRenderWindow::SafeDownCast(helperWindow);
 
-  auto glxHelperWindow = vtkXOpenGLRenderWindow::SafeDownCast(helperWindow);
-  vtkXVisualInfo* visualInfo = glxHelperWindow->GetDesiredVisualInfo();
-  graphicsBindingGLX->visualid = visualInfo->visualid;
+  if (glxHelperWindow == nullptr)
+  {
+    xoglRenWin->InitializeFromCurrentContext();
+    glxHelperWindow = xoglRenWin;
+  }
+
+  vtkXVisualInfo* v = glxHelperWindow->GetDesiredVisualInfo();
+  GLXFBConfig* fbConfig = reinterpret_cast<GLXFBConfig*>(glxHelperWindow->GetGenericFBConfig());
+
+  graphicsBindingGLX->xDisplay = glxHelperWindow->GetDisplayId();
+  graphicsBindingGLX->glxDrawable = glxHelperWindow->GetWindowId();
+  graphicsBindingGLX->glxContext = glXGetCurrentContext();
+  graphicsBindingGLX->visualid = v->visualid;
+  graphicsBindingGLX->glxFBConfig = *fbConfig;
 
 #elif _WIN32
   auto graphicsBindingGLWin32 =

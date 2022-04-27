@@ -167,6 +167,8 @@ public:
   void* GetGenericContext() override;
   void* GetGenericDrawable() override { return reinterpret_cast<void*>(this->WindowId); }
 
+  void* GetGenericFBConfig();
+
   /**
    * Get the current size of the screen in pixels.
    * An HDTV for example would be 1920 x 1080 pixels.
