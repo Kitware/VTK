@@ -357,7 +357,7 @@ void vtkAMReXGridReader::SetUpDataArraySelections()
   }
 
   // add extra multifab variables
-  for (int fab = 0; fab < this->Internal->Header->extraMultiFabVariables.size(); ++fab)
+  for (size_t fab = 0; fab < this->Internal->Header->extraMultiFabVariables.size(); ++fab)
   {
     const int fabTopology = this->Internal->Header->extraMultiFabVarTopology[fab];
     for (const auto& variable : this->Internal->Header->extraMultiFabParsedVarNames)

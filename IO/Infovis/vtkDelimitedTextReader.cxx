@@ -296,7 +296,6 @@ private:
   std::set<vtkTypeUInt32> Whitespace;
   std::set<vtkTypeUInt32> EscapeDelimiter;
   bool HaveHeaders;
-  bool UnicodeArrayOutput;
   bool WhiteSpaceOnlyString;
   vtkTable* OutputTable;
   vtkIdType CurrentRecordIndex;

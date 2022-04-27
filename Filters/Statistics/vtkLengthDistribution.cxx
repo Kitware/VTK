@@ -96,7 +96,7 @@ int vtkLengthDistribution::RequestData(
   vtkReservoirSampler<vtkIdType> sampler;
   std::vector<vtkIdType> ids = sampler(numSamples, dataIn->GetNumberOfCells());
   vtkSMPTools::For(0, static_cast<vtkIdType>(ids.size()),
-    [&dataIn, &table, &lengths, &sampler, &ids](vtkIdType begin, vtkIdType end) {
+    [&dataIn, &lengths, &sampler, &ids](vtkIdType begin, vtkIdType end) {
       vtkNew<vtkIdList> points;
       std::array<vtkVector3d, 2> endpoints;
       for (vtkIdType ii = begin; ii < end; ++ii)
