@@ -25,6 +25,20 @@
 
 class vtkMultiProcessController;
 
+// class to hold information about chunk/material variables
+class PIOMaterialVariable
+{
+public:
+  std::string prefix;
+  std::string var;
+  std::string material_name; // full name of the material
+  uint32_t material_number;
+
+  // whether the variable should be scaled. scaled means the variable
+  // needs to be divided by volume (vcell)
+  bool scale;
+};
+
 class PIOAdaptor
 {
 public:
@@ -65,6 +79,8 @@ protected:
   int parsePIOFile(const char* DumpDescFile);
   int collectMetaData(const char* DumpDescFile);
   void collectVariableMetaData();
+  void collectMaterialVariableMetaData();
+  void addMaterialVariable(vtkStdString& pioFieldName, std::vector<std::string> matident);
   std::string trimString(const std::string& str);
 
   // Create the unstructured grid for tracers
@@ -121,9 +137,6 @@ protected:
   // Structure to access the dump file data
   PIO_DATA* pioData;
 
-  // Fields of interest in dump file
-  std::list<std::string> fieldsToRead;
-
   // Time series of dumps
   std::string descFileName;               // name.pio
   std::string dumpBaseName;               // base name to use for dumps
@@ -145,9 +158,17 @@ protected:
   std::vector<std::string> variableName;
   std::vector<std::string> variableDefault;
 
+  // total number of cells in the mesh. needed when loading material variables.
+  // obtained by summing all values in pio field global_numcells
+  int64_t numCells;
+
   // Record the ordering of the cells when building the hypertree grid
   // Needed so that the data will line up correctly
   std::vector<int> indexNodeLeaf;
+
+  // list of material variables
+  std::map<std::string, PIOMaterialVariable*> matVariables;
+  int numMaterials;
 
   struct AdaptorImpl;
   AdaptorImpl* Impl;

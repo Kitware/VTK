@@ -32,6 +32,7 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <string>
 #include <vtksys/FStream.hxx>
 
 #ifdef _WIN32
@@ -134,7 +135,7 @@ struct PIOAdaptor::AdaptorImpl
   int* countCell;
 
   // mpi tag
-  const int mpiTag = 2564961;
+  const int mpiTag = 18131;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -162,6 +163,8 @@ PIOAdaptor::PIOAdaptor(vtkMultiProcessController* ctrl)
     this->TotalRank = 1;
   }
   this->pioData = nullptr;
+  this->numMaterials = 0;
+  this->numCells = 0;
 
   // For load balancing in unstructured grid
   this->Impl->startCell = new int[this->TotalRank];
@@ -177,6 +180,13 @@ PIOAdaptor::~PIOAdaptor()
   delete[] this->Impl->startCell;
   delete[] this->Impl->endCell;
   delete[] this->Impl->countCell;
+
+  for (std::map<std::string, PIOMaterialVariable*>::iterator it = this->matVariables.begin();
+       it != this->matVariables.end(); it++)
+  {
+    delete it->second;
+  }
+  this->matVariables.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -207,7 +217,6 @@ int PIOAdaptor::initializeGlobal(const char* PIOFileName)
   BroadcastStringVector(this->Controller, this->dumpFileName, this->Rank);
   BroadcastStringVector(this->Controller, this->variableName, this->Rank);
   BroadcastStringVector(this->Controller, this->variableDefault, this->Rank);
-  BroadcastStringList(this->Controller, this->fieldsToRead, this->Rank);
   BroadcastDoubleVector(this->Controller, this->CycleIndex, this->Rank);
   BroadcastDoubleVector(this->Controller, this->SimulationTime, this->Rank);
   BroadcastDoubleVector(this->Controller, this->PIOFileIndex, this->Rank);
@@ -534,7 +543,7 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Read the variable meta data from first pio dump file
+// Read the variable meta data from a pio dump file
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -555,7 +564,7 @@ void PIOAdaptor::collectVariableMetaData()
       this->hasTracers = true;
     }
 
-    // Default variable names that are initially enabled for loading if pres
+    // Default variable names that are initially enabled for loading if present
     if ((strcmp(pioName, "tev") == 0) || (strcmp(pioName, "pres") == 0) ||
       (strcmp(pioName, "rho") == 0) || (strcmp(pioName, "rade") == 0) ||
       (strcmp(pioName, "cell_energy") == 0) || (strcmp(pioName, "kemax") == 0) ||
@@ -577,13 +586,15 @@ void PIOAdaptor::collectVariableMetaData()
         if ((numberOfComponents <= 9) && (strcmp(pioName, "cell_has_tracers") != 0) &&
           (strcmp(pioName, "cell_level") != 0) && (strcmp(pioName, "cell_mother") != 0) &&
           (strcmp(pioName, "cell_daughter") != 0) && (strcmp(pioName, "cell_center") != 0) &&
-          (strcmp(pioName, "cell_active") != 0) && (strcmp(pioName, "amr_tag") != 0))
+          (strcmp(pioName, "cell_active") != 0) && (strcmp(pioName, "amr_tag") != 0) &&
+          (strcmp(pioName, "chunk_nummat") != 0))
         {
           this->variableName.emplace_back(pioName);
         }
       }
     }
   }
+
   // IF xdt, ydt, zdt, rho are not already included, include them
   // If we used a set std::set<std::string> s; we could  simply add these items again without
   // worrying if they were in there in the first place. And we could check in log time rather than
@@ -614,42 +625,185 @@ void PIOAdaptor::collectVariableMetaData()
     this->variableName.emplace_back("rho");
     this->variableDefault.emplace_back("rho"); // and enable by default
   }
+
+  collectMaterialVariableMetaData();
+
   sort(this->variableName.begin(), this->variableName.end());
+}
 
-  //
-  // List of all data fields to read from dump files
-  //
-  this->fieldsToRead.emplace_back("amhc_i");
-  this->fieldsToRead.emplace_back("amhc_r8");
-  this->fieldsToRead.emplace_back("amhc_l");
-  this->fieldsToRead.emplace_back("cell_center");
-  this->fieldsToRead.emplace_back("cell_daughter");
-  this->fieldsToRead.emplace_back("cell_level");
-  this->fieldsToRead.emplace_back("global_numcell");
-  this->fieldsToRead.emplace_back("hist_cycle");
-  this->fieldsToRead.emplace_back("hist_time");
-  this->fieldsToRead.emplace_back("hist_size");
-  this->fieldsToRead.emplace_back("l_eap_version");
-  this->fieldsToRead.emplace_back("hist_usernm");
-  this->fieldsToRead.emplace_back("hist_prbnm");
-  this->fieldsToRead.emplace_back("controller_i");
-  this->fieldsToRead.emplace_back("controller_r8");
+///////////////////////////////////////////////////////////////////////////////
+//
+// Gather material variable metadata
+//
+///////////////////////////////////////////////////////////////////////////////
 
-  // If tracers are contained in the file
-  if (this->hasTracers)
+void PIOAdaptor::collectMaterialVariableMetaData()
+{
+  // collect material variables.
+  // material variables are chunked, so we need to collect information about each
+  // material variable, and reconstruct the data later.
+  std::valarray<int> histsize;
+  this->pioData->set_scalar_field(histsize, "hist_size");
+  int numberOfFields = this->pioData->get_pio_num();
+  PIO_FIELD* pioField = this->pioData->get_pio_field();
+
+  // get names of materials
+  this->numMaterials = static_cast<int>(this->pioData->VarMMap.count("matdef"));
+  std::vector<std::string> matident; // name of materials
+  matident.resize(0);
+  if (this->pioData->VarMMap.count("matident") > 0)
   {
-    this->fieldsToRead.emplace_back("tracer_num_pnts");
-    this->fieldsToRead.emplace_back("tracer_num_vars");
-    this->fieldsToRead.emplace_back("tracer_record_count");
-    this->fieldsToRead.emplace_back("tracer_type");
-    this->fieldsToRead.emplace_back("tracer_position");
-    this->fieldsToRead.emplace_back("tracer_data");
+    // the matident field contains the material names as strings
+    PIO_FIELD* pio_field = this->pioData->VarMMap.equal_range("matident").first->second;
+    matident.resize(this->numMaterials);
+    const char* cdata;
+    this->pioData->GetPIOData(*pio_field, cdata);
+    size_t cdata_len = pio_field->cdata_len;
+    for (int i = 0; i < this->numMaterials; i++)
+    {
+      matident[i] = cdata + i * cdata_len;
+      // Hackaround, remove any trailing #'s from matident[i]
+      std::string::size_type len = matident[i].length();
+      std::string::size_type first_sharp = matident[i].find_first_of('#', 0);
+      if (first_sharp == 0)
+      {
+        std::ostringstream ost;
+        ost << "UnknownMat" << i;
+        matident[i] = ost.str();
+      }
+      else if (first_sharp != std::string::npos)
+      {
+        matident[i].erase(first_sharp, len - first_sharp);
+      }
+    }
+  }
+  else
+  {
+    // the matident field is not present. obtain a material number from
+    // the material's matdef field, aka, matdef_1, matdef_2, etc.
+    matident.resize(this->numMaterials);
+    VMP b = this->pioData->VarMMap.equal_range("matdef");
+    VMI ii = b.first;
+    int nd = 0;
+    for (int n = this->numMaterials; n > 0 || n % 10; n /= 10)
+      ++nd;
+    for (int i = 0; i < this->numMaterials; ++i)
+    {
+      std::ostringstream ost;
+      ost.width(nd);
+      ost.fill('0');
+      ost << i + 1;
+      matident[i] = std::string("Mat-") + ost.str();
+    }
+    for (int i = 0; (i < this->numMaterials) && (ii != b.second); i++, ii++)
+    {
+      const double* data = this->pioData->GetPIOData(*ii->second);
+      double sesid = data[0];
+      std::ostringstream ost;
+      ost << "-" << sesid;
+      matident[i] += ost.str();
+    }
   }
 
-  // Requested variable fields from pio meta file
-  for (size_t i = 0; i < this->variableName.size(); i++)
+  // identify material variables.
+  // material variables begin with a prefix, which is usually 'chunk_', but it could be
+  // something else. the full material name is then <prefix>_<var>. for each material variable
+  // prefix, there should be a matching <prefix>_nummat field, so find all material prefixes,
+  // then a material variable is any field that begins with a possible prefix.
+  std::vector<std::string> prefixes;
+  for (int i = 0; i < numberOfFields; i++)
   {
-    this->fieldsToRead.push_back(this->variableName[i]);
+    // check if this field name ends in '_nummat'
+    vtkStdString pioFieldName = vtkStdString(pioField[i].pio_name);
+    vtkStdString nummatStr = vtkStdString("_nummat");
+    std::size_t matchNummat = pioFieldName.find(nummatStr);
+    if (matchNummat != std::string::npos)
+    {
+      if (matchNummat + nummatStr.length() == pioFieldName.length())
+      {
+        // found a material prefix, store the prefix, including the underscore
+        vtkStdString prefix =
+          pioFieldName.substr(0, pioFieldName.length() - nummatStr.length() + 1);
+        prefixes.emplace_back(prefix);
+      }
+    }
+  }
+
+  // if a field starts with any prefix, it is a material variable
+  for (int i = 0; i < numberOfFields; i++)
+  {
+    vtkStdString pioFieldName = vtkStdString(pioField[i].pio_name);
+    for (size_t j = 0; j < prefixes.size(); j++)
+    {
+      std::size_t matchPrefix = pioFieldName.find(prefixes[j]);
+      if (matchPrefix == 0)
+      {
+        // exclude <prefix>_nummat and <prefix>_mat
+        std::size_t matchNummat = pioFieldName.find("_nummat");
+        std::size_t matchMat = pioFieldName.find("_mat");
+        if ((matchNummat == std::string::npos) && (matchMat == std::string::npos))
+        {
+          // found a material variable
+          addMaterialVariable(pioFieldName, matident);
+        }
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Given a pio field name that is a material variable, create variable
+// entries for each material.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+void PIOAdaptor::addMaterialVariable(vtkStdString& pioFieldName, std::vector<std::string> matident)
+{
+  // material/chunk variables should have an underscore in them, with the part before the
+  // underscore being the prefix. the prefix is usually chunk. the part after the underscore is
+  // the variable name. check if the field name has an underscore.
+  std::size_t matchUnderscore = pioFieldName.rfind("_");
+  if (matchUnderscore == std::string::npos)
+  {
+    vtkGenericWarningMacro("Possible material variable "
+      << pioFieldName
+      << " does not have an underscore in the name, and is not a valid material name.");
+    return;
+  }
+  std::string prefix = pioFieldName.substr(0, matchUnderscore);
+  std::string fieldVar =
+    pioFieldName.substr(matchUnderscore + 1, pioFieldName.size() - matchUnderscore);
+
+  // if var is vol (material volume), we actually want to instead add the volume fraction, which
+  // is material volume (vol) divided by cell volume (vcell). volume fraction is called fvol.
+  std::string varname = fieldVar;
+  if (varname == "vol")
+  {
+    varname = "fvol";
+  }
+
+  // for each material, create a material variable entry
+  for (int j = 1; j <= this->numMaterials; j++)
+  {
+    // the material name is <var>_<material number>_<material_name>
+    vtkStdString matName = varname + "_" + std::to_string(j) + "_" + matident[j - 1];
+    this->variableName.emplace_back(matName);
+
+    PIOMaterialVariable* matvar = new PIOMaterialVariable();
+    matvar->prefix = prefix;
+    matvar->var = fieldVar;
+    matvar->material_name = matident[j - 1];
+    matvar->material_number = j;
+    matvar->scale = false;
+
+    // for fvol, set the variable to be scaled (divided by vcell)
+    if (varname == "fvol")
+    {
+      matvar->scale = true;
+    }
+
+    this->matVariables[matName] = matvar;
   }
 }
 
@@ -675,13 +829,23 @@ int PIOAdaptor::initializeDump(int timeStep)
     // Create one PIOData which accesses the PIO file to fetch data
     if (this->pioData == nullptr)
     {
-      this->pioData = new PIO_DATA(this->dumpFileName[timeStep].c_str(), &this->fieldsToRead);
+      this->pioData = new PIO_DATA(this->dumpFileName[timeStep].c_str());
       if (this->pioData->good_read())
       {
         // First collect the sizes of the domains
         const double* amhc_i = this->pioData->GetPIOData("amhc_i");
         const double* amhc_r8 = this->pioData->GetPIOData("amhc_r8");
         const double* amhc_l = this->pioData->GetPIOData("amhc_l");
+
+        // find the total number of cells in the mesh
+        // do this by summing up all values in global_numcell
+        std::valarray<int> numcell;
+        this->pioData->set_scalar_field(numcell, "global_numcell");
+        this->numCells = 0;
+        for (size_t i = 0; i < numcell.size(); i++)
+        {
+          this->numCells += numcell[i];
+        }
 
         if (amhc_i != nullptr && amhc_r8 != nullptr && amhc_l != nullptr)
         {
@@ -1671,6 +1835,7 @@ void PIOAdaptor::load_variable_data(
   }
   else
   {
+    // TODO: add material data support to HTG
     load_variable_data_HTG(grid, cellDataArraySelection);
   }
 }
@@ -1699,32 +1864,60 @@ void PIOAdaptor::load_variable_data_UG(
       // Using PIOData fetch the variable data from the file only on proc 0
       if (this->Rank == 0)
       {
+        bool status = false;
         numberOfCells = this->Impl->countCell[0];
-        numberOfComponents =
-          static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));
 
-        const char* thisvar = this->variableName[var].c_str();
-        // detect a derived array which is not in the VarMMap and set its # of components
-        // pioData->set_scalar_field() will know what to do with these variables
-        if (strcmp(thisvar, "xdt") == 0 || strcmp(thisvar, "ydt") == 0 ||
-          strcmp(thisvar, "zdt") == 0 || strcmp(thisvar, "rho") == 0)
+        // check if variable is a material variable
+        if (this->matVariables.count(this->variableName[var]) > 0)
         {
           numberOfComponents = 1;
-        }
-        dataVector = new double*[numberOfComponents];
-        bool status = true;
-        if (numberOfComponents == 1)
-        {
-          status = this->pioData->set_scalar_field(scalarArray, this->variableName[var].c_str());
+          dataVector = new double*[numberOfComponents];
+          PIOMaterialVariable* matvar = this->matVariables[this->variableName[var]];
+
+          // reconstruct the material variable
+          status = this->pioData->reconstruct_chunk_field(this->numCells, scalarArray,
+            matvar->prefix.c_str(), matvar->var.c_str(), matvar->material_number);
           dataVector[0] = &scalarArray[0];
+
+          if (status && matvar->scale)
+          {
+            // scale variable by dividing values by volume
+            std::valarray<double> volume;
+            bool vcell_status = this->pioData->set_scalar_field(volume, "vcell");
+            if (vcell_status)
+            {
+              scalarArray = scalarArray / volume;
+            }
+          }
         }
         else
         {
-          status = this->pioData->set_vector_field(vectorArray, this->variableName[var].c_str());
-          for (int d = 0; d < numberOfComponents; d++)
+          // not a material variable, must be a normal variable
+          numberOfComponents =
+            static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));
+
+          const char* thisvar = this->variableName[var].c_str();
+          // detect a derived array which is not in the VarMMap and set its # of components
+          // pioData->set_scalar_field() will know what to do with these variables
+          if (strcmp(thisvar, "xdt") == 0 || strcmp(thisvar, "ydt") == 0 ||
+            strcmp(thisvar, "zdt") == 0 || strcmp(thisvar, "rho") == 0)
           {
-            dataVector[d] = &vectorArray[d][0];
-          };
+            numberOfComponents = 1;
+          }
+          dataVector = new double*[numberOfComponents];
+          if (numberOfComponents == 1)
+          {
+            status = this->pioData->set_scalar_field(scalarArray, this->variableName[var].c_str());
+            dataVector[0] = &scalarArray[0];
+          }
+          else
+          {
+            status = this->pioData->set_vector_field(vectorArray, this->variableName[var].c_str());
+            for (int d = 0; d < numberOfComponents; d++)
+            {
+              dataVector[d] = &vectorArray[d][0];
+            }
+          }
         }
 
         if (!status)
@@ -1813,68 +2006,125 @@ void PIOAdaptor::load_variable_data_HTG(
     {
       if (this->Rank == 0)
       {
-        // Using PIOData fetch the variable data from the file
-        numberOfComponents =
-          static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));
-        const char* thisvar = this->variableName[var].c_str();
-        // detect a derived array which is not in the VarMMap and set its # of components
-        // pioData->set_scalar_field() will know what to do with these variables
-        if (strcmp(thisvar, "xdt") == 0 || strcmp(thisvar, "ydt") == 0 ||
-          strcmp(thisvar, "zdt") == 0 || strcmp(thisvar, "rho") == 0)
+        bool status = false;
+
+        // check if variable is a material variable
+        if (this->matVariables.count(this->variableName[var]) > 0)
         {
+          numberOfCells = this->numCells;
           numberOfComponents = 1;
-        }
-        dataVector = new double*[numberOfComponents];
-        if (numberOfComponents == 1)
-        {
-          this->pioData->set_scalar_field(scalarArray, this->variableName[var].c_str());
-          numberOfCells = static_cast<int>(scalarArray.size());
+          dataVector = new double*[numberOfComponents];
+          PIOMaterialVariable* matvar = this->matVariables[this->variableName[var]];
+
+          // reconstruct the material variable
+          status = this->pioData->reconstruct_chunk_field(this->numCells, scalarArray,
+            matvar->prefix.c_str(), matvar->var.c_str(), matvar->material_number);
           dataVector[0] = &scalarArray[0];
+
+          if (status && matvar->scale)
+          {
+            // scale variable by dividing values by volume
+            std::valarray<double> volume;
+            bool vcell_status = this->pioData->set_scalar_field(volume, "vcell");
+            if (vcell_status)
+            {
+              scalarArray = scalarArray / volume;
+            }
+          }
         }
         else
         {
-          this->pioData->set_vector_field(vectorArray, this->variableName[var].c_str());
-          numberOfCells = static_cast<int>(vectorArray[0].size());
-          for (int d = 0; d < numberOfComponents; d++)
+          // not a material variable, must be a normal variable
+          numberOfComponents =
+            static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));
+          const char* thisvar = this->variableName[var].c_str();
+          // detect a derived array which is not in the VarMMap and set its # of components
+          // pioData->set_scalar_field() will know what to do with these variables
+          if (strcmp(thisvar, "xdt") == 0 || strcmp(thisvar, "ydt") == 0 ||
+            strcmp(thisvar, "zdt") == 0 || strcmp(thisvar, "rho") == 0)
           {
-            dataVector[d] = &vectorArray[d][0];
+            numberOfComponents = 1;
+          }
+          dataVector = new double*[numberOfComponents];
+          if (numberOfComponents == 1)
+          {
+            status = this->pioData->set_scalar_field(scalarArray, this->variableName[var].c_str());
+            numberOfCells = static_cast<int>(scalarArray.size());
+            dataVector[0] = &scalarArray[0];
+          }
+          else
+          {
+            status = this->pioData->set_vector_field(vectorArray, this->variableName[var].c_str());
+            numberOfCells = static_cast<int>(vectorArray[0].size());
+            for (int d = 0; d < numberOfComponents; d++)
+            {
+              dataVector[d] = &vectorArray[d][0];
+            }
           }
         }
+
+        if (!status)
+        {
+          // send a -1 as the number of cells to signal to other ranks to skip this variable
+          int negative_one = -1;
+          for (int rank = 1; rank < this->TotalRank; rank++)
+          {
+            this->Controller->Send(&negative_one, 1, rank, this->Impl->mpiTag);
+          }
+          vtkGenericWarningMacro("Error, PIO data was not retrieved: " << this->variableName[var]);
+        }
+        else
+        {
+          // send number of cells, number of components, and data
+          for (int rank = 1; rank < this->TotalRank; rank++)
+          {
+            this->Controller->Send(&numberOfCells, 1, rank, this->Impl->mpiTag);
+            this->Controller->Send(&numberOfComponents, 1, rank, this->Impl->mpiTag);
+            for (int d = 0; d < numberOfComponents; d++)
+            {
+              this->Controller->Send(&dataVector[d][0], numberOfCells, rank, this->Impl->mpiTag);
+            }
+          }
+
+          // Adding data to hypertree grid uses indirect array built when geometry was built
+          add_amr_HTG_scalar(grid, this->variableName[var], dataVector, numberOfComponents);
+
+          delete[] dataVector;
+        }
       }
-
-      // Broadcast number of components and number of cells
-      this->Controller->Broadcast(&numberOfCells, 1, 0);
-      this->Controller->Broadcast(&numberOfComponents, 1, 0);
-
-      // Other processors allocate dataVector
-      if (this->Rank > 0)
+      else
       {
+        // ranks other than rank 0
+        this->Controller->Receive(&numberOfCells, 1, 0, this->Impl->mpiTag);
+        if (numberOfCells == -1)
+        {
+          // there was a problem reading this variable, skip
+          continue;
+        }
+        this->Controller->Receive(&numberOfComponents, 1, 0, this->Impl->mpiTag);
+
         // Allocate space to receive data
         dataVector = new double*[numberOfComponents];
         for (int d = 0; d < numberOfComponents; d++)
         {
           dataVector[d] = new double[numberOfCells];
         }
-      }
 
-      // Broadcast the data
-      for (int d = 0; d < numberOfComponents; d++)
-      {
-        this->Controller->Broadcast(dataVector[d], numberOfCells, 0);
-      }
+        for (int d = 0; d < numberOfComponents; d++)
+        {
+          this->Controller->Receive(&dataVector[d][0], numberOfCells, 0, this->Impl->mpiTag);
+        }
 
-      // Adding data to hypertree grid uses indirect array built when geometry was built
-      add_amr_HTG_scalar(grid, this->variableName[var], dataVector, numberOfComponents);
+        // Adding data to hypertree grid uses indirect array built when geometry was built
+        add_amr_HTG_scalar(grid, this->variableName[var], dataVector, numberOfComponents);
 
-      // Clear out allocated data for other processors
-      if (this->Rank > 0)
-      {
+        // Clear out allocated data
         for (int d = 0; d < numberOfComponents; d++)
         {
           delete[] dataVector[d];
         }
+        delete[] dataVector;
       }
-      delete[] dataVector;
     }
   }
 }
