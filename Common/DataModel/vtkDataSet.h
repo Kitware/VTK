@@ -320,6 +320,13 @@ public:
   double GetLength();
 
   /**
+   * Return the squared length of the diagonal of the bounding box.
+   * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+   * THE DATASET IS NOT MODIFIED
+   */
+  double GetLength2();
+
+  /**
    * Restore data object to initial state.
    * THIS METHOD IS NOT THREAD SAFE.
    */

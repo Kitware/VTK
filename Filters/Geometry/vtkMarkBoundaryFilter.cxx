@@ -329,7 +329,7 @@ int PolyDataExecute(vtkDataSet* dsInput, const unsigned char* ghosts, unsigned c
 // with unstructured grids.
 void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkIdType npts,
   const vtkIdType* pts, vtkUnstructuredGridCellIterator* cellIter, vtkGenericCell* cell,
-  MarkCellBoundary* marker)
+  MarkCellBoundary* marker, vtkIdList* cellIds)
 {
   vtkIdType faceId, numEdgePts, numFacePts;
   const int MAX_FACE_POINTS = 32;
@@ -353,11 +353,11 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
     case VTK_LINE:
     case VTK_POLY_LINE:
       // The end points, used by one line, are boundary
-      if (input->IsCellBoundary(cellId, 1, pts))
+      if (input->IsCellBoundary(cellId, 1, pts, cellIds))
       {
         marker->MarkCell(cellId, 0, 1, pts);
       }
-      if (input->IsCellBoundary(cellId, 1, pts + npts - 1))
+      if (input->IsCellBoundary(cellId, 1, pts + npts - 1, cellIds))
       {
         marker->MarkCell(cellId, 1, 1, pts + npts - 1);
       }
@@ -371,7 +371,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
       {
         edgePts[0] = pts[i];
         edgePts[1] = pts[(i + 1) % npts];
-        if (input->IsCellBoundary(cellId, 2, edgePts))
+        if (input->IsCellBoundary(cellId, 2, edgePts, cellIds))
         {
           marker->MarkCell(cellId, i, 2, edgePts);
         }
@@ -390,7 +390,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
       {
         edgePts[0] = pts[pixelConvert[i]];
         edgePts[1] = pts[pixelConvert[(i + 1) % npts]];
-        if (input->IsCellBoundary(cellId, 2, edgePts))
+        if (input->IsCellBoundary(cellId, 2, edgePts, cellIds))
         {
           marker->MarkCell(cellId, i, 2, edgePts);
         }
@@ -405,7 +405,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
         ptIds[0] = pts[faceVerts[0]];
         ptIds[1] = pts[faceVerts[1]];
         ptIds[2] = pts[faceVerts[2]];
-        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         if (insertFace)
         {
           marker->MarkCell(cellId, faceId, numFacePts, ptIds);
@@ -422,7 +422,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
         ptIds[1] = pts[faceVerts[pixelConvert[1]]];
         ptIds[2] = pts[faceVerts[pixelConvert[2]]];
         ptIds[3] = pts[faceVerts[pixelConvert[3]]];
-        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         if (insertFace)
         {
           marker->MarkCell(cellId, faceId, numFacePts, ptIds);
@@ -439,7 +439,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
         ptIds[1] = pts[faceVerts[1]];
         ptIds[2] = pts[faceVerts[2]];
         ptIds[3] = pts[faceVerts[3]];
-        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         if (insertFace)
         {
           marker->MarkCell(cellId, faceId, numFacePts, ptIds);
@@ -460,7 +460,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
           ptIds[3] = pts[faceVerts[3]];
           numFacePts = 4;
         }
-        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         if (insertFace)
         {
           marker->MarkCell(cellId, faceId, numFacePts, ptIds);
@@ -481,7 +481,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
           ptIds[3] = pts[faceVerts[3]];
           numFacePts = 4;
         }
-        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         if (insertFace)
         {
           marker->MarkCell(cellId, faceId, numFacePts, ptIds);
@@ -504,7 +504,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
           ptIds[5] = pts[faceVerts[5]];
           numFacePts = 6;
         }
-        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         if (insertFace)
         {
           marker->MarkCell(cellId, faceId, numFacePts, ptIds);
@@ -526,7 +526,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
           ptIds[4] = pts[faceVerts[4]];
           numFacePts = 5;
         }
-        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+        insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         if (insertFace)
         {
           marker->MarkCell(cellId, faceId, numFacePts, ptIds);
@@ -544,7 +544,8 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
         {
           vtkCell* face = cell->GetFace(j);
           numFacePts = face->PointIds->GetNumberOfIds();
-          insertFace = input->IsCellBoundary(cellId, numFacePts, face->PointIds->GetPointer(0));
+          insertFace =
+            input->IsCellBoundary(cellId, numFacePts, face->PointIds->GetPointer(0), cellIds);
           if (insertFace)
           {
             marker->MarkCell(cellId, j, numFacePts, face->PointIds->GetPointer(0));
@@ -558,7 +559,8 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
         {
           vtkCell* edge = cell->GetEdge(j);
           numEdgePts = edge->PointIds->GetNumberOfIds();
-          insertEdge = input->IsCellBoundary(cellId, numEdgePts, edge->PointIds->GetPointer(0));
+          insertEdge =
+            input->IsCellBoundary(cellId, numEdgePts, edge->PointIds->GetPointer(0), cellIds);
           if (insertEdge)
           {
             marker->MarkCell(cellId, j, numEdgePts, edge->PointIds->GetPointer(0));
@@ -578,6 +580,7 @@ struct MarkUGrid : MarkCellBoundary
   // Working objects to avoid repeated allocation
   vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell;
   vtkSMPThreadLocal<vtkSmartPointer<vtkUnstructuredGridCellIterator>> CellIter;
+  vtkSMPThreadLocal<vtkSmartPointer<vtkIdList>> CellIds;
 
   MarkUGrid(vtkUnstructuredGrid* grid, const unsigned char* ghosts, unsigned char* ptMarks,
     unsigned char* cellMarks, vtkIdType* faceMarks)
@@ -591,12 +594,14 @@ struct MarkUGrid : MarkCellBoundary
     this->Cell.Local().TakeReference(vtkGenericCell::New());
     this->CellIter.Local().TakeReference(
       static_cast<vtkUnstructuredGridCellIterator*>(this->Grid->NewCellIterator()));
+    this->CellIds.Local().TakeReference(vtkIdList::New());
   }
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
     auto& cell = this->Cell.Local();
     auto& cellIter = this->CellIter.Local();
+    auto& cellIds = this->CellIds.Local();
 
     for (cellIter->GoToCell(cellId); cellId < endCellId; ++cellId, cellIter->GoToNextCell())
     {
@@ -611,7 +616,7 @@ struct MarkUGrid : MarkCellBoundary
       vtkIdType npts = pointIdList->GetNumberOfIds();
       vtkIdType* pts = pointIdList->GetPointer(0);
 
-      MarkUGCell(this->Grid, cellId, type, npts, pts, cellIter, cell, this);
+      MarkUGCell(this->Grid, cellId, type, npts, pts, cellIter, cell, this, cellIds);
     } // for all cells in this batch
   }
 

@@ -30,11 +30,11 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLagrangeHexahedron.h"
 #include "vtkLagrangeQuadrilateral.h"
 #include "vtkLagrangeWedge.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
+#include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredData.h"
 
@@ -106,36 +106,78 @@ vtkCellIterator* vtkDataSet::NewCellIterator()
 }
 
 //------------------------------------------------------------------------------
+struct ComputeBoundsFunctor
+{
+  vtkDataSet* DataSet;
+  vtkSMPThreadLocal<std::array<double, 6>> TLBounds;
+  std::array<double, 6> Bounds{};
+
+  ComputeBoundsFunctor(vtkDataSet* dataset)
+    : DataSet(dataset)
+  {
+  }
+
+  void Initialize()
+  {
+    auto& bounds = this->TLBounds.Local();
+    bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] = VTK_DOUBLE_MIN;
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double x[3];
+    uint8_t j;
+    auto& bounds = this->TLBounds.Local();
+    for (vtkIdType pointId = begin; pointId < end; ++pointId)
+    {
+      this->DataSet->GetPoint(pointId, x);
+      for (j = 0; j < 3; j++)
+      {
+        if (x[j] < bounds[2 * j])
+        {
+          bounds[2 * j] = x[j];
+        }
+        if (x[j] > bounds[2 * j + 1])
+        {
+          bounds[2 * j + 1] = x[j];
+        }
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = VTK_DOUBLE_MIN;
+    for (const auto& bounds : this->TLBounds)
+    {
+      for (uint8_t j = 0; j < 3; j++)
+      {
+        if (bounds[2 * j] < this->Bounds[2 * j])
+        {
+          this->Bounds[2 * j] = bounds[2 * j];
+        }
+        if (bounds[2 * j + 1] > this->Bounds[2 * j + 1])
+        {
+          this->Bounds[2 * j + 1] = bounds[2 * j + 1];
+        }
+      }
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
 // Compute the data bounding box from data points.
 void vtkDataSet::ComputeBounds()
 {
-  int j;
-  vtkIdType i;
-  double* x;
-
   if (this->GetMTime() > this->ComputeTime)
   {
     if (this->GetNumberOfPoints())
     {
-      x = this->GetPoint(0);
-      this->Bounds[0] = this->Bounds[1] = x[0];
-      this->Bounds[2] = this->Bounds[3] = x[1];
-      this->Bounds[4] = this->Bounds[5] = x[2];
-      for (i = 1; i < this->GetNumberOfPoints(); i++)
-      {
-        x = this->GetPoint(i);
-        for (j = 0; j < 3; j++)
-        {
-          if (x[j] < this->Bounds[2 * j])
-          {
-            this->Bounds[2 * j] = x[j];
-          }
-          if (x[j] > this->Bounds[2 * j + 1])
-          {
-            this->Bounds[2 * j + 1] = x[j];
-          }
-        }
-      }
+      ComputeBoundsFunctor functor(this);
+      vtkSMPTools::For(0, this->GetNumberOfPoints(), functor);
+      std::copy(functor.Bounds.begin(), functor.Bounds.end(), this->Bounds);
     }
     else
     {
@@ -250,6 +292,13 @@ void vtkDataSet::GetCenter(double center[3])
 // Return the length of the diagonal of the bounding box.
 double vtkDataSet::GetLength()
 {
+  return std::sqrt(this->GetLength2());
+}
+
+//------------------------------------------------------------------------------
+// Return the squared length of the diagonal of the bounding box.
+double vtkDataSet::GetLength2()
+{
   if (this->GetNumberOfPoints() == 0)
   {
     return 0;
@@ -264,8 +313,7 @@ double vtkDataSet::GetLength()
     diff = static_cast<double>(this->Bounds[2 * i + 1]) - static_cast<double>(this->Bounds[2 * i]);
     l += diff * diff;
   }
-  diff = sqrt(l);
-  return diff;
+  return l;
 }
 
 //------------------------------------------------------------------------------
@@ -301,8 +349,7 @@ vtkCell* vtkDataSet::FindAndGetCell(double x[3], vtkCell* cell, vtkIdType cellId
 //------------------------------------------------------------------------------
 void vtkDataSet::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
 {
-  vtkIdType i, numPts;
-  vtkIdList* otherCells = vtkIdList::New();
+  vtkNew<vtkIdList> otherCells;
   otherCells->Allocate(VTK_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
@@ -312,14 +359,12 @@ void vtkDataSet::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList*
   // now perform multiple intersections on list
   if (cellIds->GetNumberOfIds() > 0)
   {
-    for (numPts = ptIds->GetNumberOfIds(), i = 1; i < numPts; i++)
+    for (vtkIdType numPts = ptIds->GetNumberOfIds(), i = 1; i < numPts; i++)
     {
       this->GetPointCells(ptIds->GetId(i), otherCells);
-      cellIds->IntersectWith(*otherCells);
+      cellIds->IntersectWith(otherCells);
     }
   }
-
-  otherCells->Delete();
 }
 
 //------------------------------------------------------------------------------

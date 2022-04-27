@@ -269,7 +269,7 @@ int vtkCachingInterpolatedVelocityField::InsideTest(double* x)
 int vtkCachingInterpolatedVelocityField::InsideTest(IVFDataSetInfo* data, double* x)
 {
   int cellId =
-    data->BSPTree->FindCell(x, data->Tolerance, data->Cell, data->PCoords, &this->Weights[0]);
+    data->BSPTree->FindCell(x, data->Tolerance, data->Cell, data->PCoords, this->Weights.data());
   if (cellId != -1)
   {
     this->LastCellId = cellId;
@@ -304,7 +304,7 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(IVFDataSetInfo* data, do
   if (data->BSPTree)
   {
     int cellId =
-      data->BSPTree->FindCell(x, data->Tolerance, data->Cell, data->PCoords, &this->Weights[0]);
+      data->BSPTree->FindCell(x, data->Tolerance, data->Cell, data->PCoords, this->Weights.data());
     this->LastCellId = cellId;
   }
   else
@@ -316,7 +316,7 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(IVFDataSetInfo* data, do
       tmpCell = this->TempCell;
     }
     this->LastCellId = data->DataSet->FindCell(x, tmpCell, data->Cell, this->LastCellId,
-      data->Tolerance, subId, data->PCoords, &this->Weights[0]);
+      data->Tolerance, subId, data->PCoords, this->Weights.data());
     if (this->LastCellId != -1)
     {
       data->DataSet->GetCell(this->LastCellId, data->Cell);

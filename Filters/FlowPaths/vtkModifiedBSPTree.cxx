@@ -192,6 +192,7 @@ void vtkModifiedBSPTree::BuildLocatorInternal()
     vtkDebugMacro(<< "No Cells to divide");
     numCells = 0;
   }
+  this->DataSet->ComputeBounds();
   vtkDebugMacro(<< "Creating BSPTree for " << numCells << " cells");
 
   //
@@ -1007,19 +1008,28 @@ int vtkModifiedBSPTree::IntersectCellInternal(vtkIdType cell_ID, const double p1
 // FindCell stuff
 //////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------
-bool vtkModifiedBSPTree_Inside(double bounds[6], double point[3]);
+vtkIdType vtkModifiedBSPTree::FindCell(
+  double x[3], double tol2, vtkGenericCell* cell, double pcoords[3], double* weights)
+{
+  int subId;
+  return this->FindCell(x, tol2, cell, subId, pcoords, weights);
+}
 //------------------------------------------------------------------------------
 vtkIdType vtkModifiedBSPTree::FindCell(
-  double x[3], double, vtkGenericCell* cell, double pcoords[3], double* weights)
+  double x[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
   //
   this->BuildLocatorIfNeeded();
   //
+  // check if x outside of bounds
+  if (!vtkAbstractCellLocator::IsInBounds(this->DataSet->GetBounds(), x))
+  {
+    return -1;
+  }
   nodestack ns;
   BSPNode* node;
   ns.push(this->mRoot);
   double closestPoint[3], dist2;
-  int subId;
   //
   while (!ns.empty())
   {
@@ -1040,7 +1050,7 @@ vtkIdType vtkModifiedBSPTree::FindCell(
       {
         int cell_ID = node->sorted_cell_lists[0][i];
         //
-        if (vtkModifiedBSPTree_Inside(CellBounds[cell_ID], x))
+        if (vtkAbstractCellLocator::IsInBounds(CellBounds[cell_ID], x))
         {
           this->DataSet->GetCell(cell_ID, cell);
           if (cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) == 1)
@@ -1060,7 +1070,7 @@ bool vtkModifiedBSPTree::InsideCellBounds(double x[3], vtkIdType cell_ID)
   //
   this->BuildLocatorIfNeeded();
   //
-  return vtkModifiedBSPTree_Inside(this->CellBounds[cell_ID], x);
+  return vtkAbstractCellLocator::IsInBounds(this->CellBounds[cell_ID], x);
 }
 //------------------------------------------------------------------------------
 vtkIdListCollection* vtkModifiedBSPTree::GetLeafNodeCellInformation()
@@ -1451,10 +1461,4 @@ bool BSPNode::Inside(double point[3]) const
   return this->Bounds[0] <= point[0] && point[0] <= this->Bounds[1] &&
     this->Bounds[2] <= point[1] && point[1] <= this->Bounds[3] && this->Bounds[4] <= point[2] &&
     point[2] <= this->Bounds[5];
-}
-//------------------------------------------------------------------------------
-bool vtkModifiedBSPTree_Inside(double bounds[6], double point[3])
-{
-  return bounds[0] <= point[0] && point[0] <= bounds[1] && bounds[2] <= point[1] &&
-    point[1] <= bounds[3] && bounds[4] <= point[2] && point[2] <= bounds[5];
 }

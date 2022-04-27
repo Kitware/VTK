@@ -29,7 +29,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
-#include "vtkMergePoints.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPentagonalPrism.h"
@@ -37,14 +36,11 @@
 #include "vtkPolyData.h"
 #include "vtkPyramid.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkRectilinearGridGeometryFilter.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticCellLinksTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
-#include "vtkStructuredGridGeometryFilter.h"
 #include "vtkStructuredPoints.h"
 #include "vtkTetra.h"
 #include "vtkUniformGrid.h"
@@ -733,7 +729,7 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
         ptIds[2] = pts[faceVerts[2]];
         if (!cellVis) // most common, fastpath: geometry not cropped
         {
-          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         }
         else // slower path, geometry cropped via point id, cell id, and/or extent
         {
@@ -758,7 +754,7 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
         ptIds[3] = pts[faceVerts[pixelConvert[3]]];
         if (!cellVis) // most common, fastpath: geometry not cropped
         {
-          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         }
         else // slower path, geometry cropped via point id, cell id, and/or extent
         {
@@ -783,7 +779,7 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
         ptIds[3] = pts[faceVerts[3]];
         if (!cellVis) // most common, fastpath: geometry not cropped
         {
-          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         }
         else // slower path, geometry cropped via point id, cell id, and/or extent
         {
@@ -812,7 +808,7 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
         }
         if (!cellVis) // most common, fastpath: geometry not cropped
         {
-          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         }
         else // slower path, geometry cropped via point id, cell id, and/or extent
         {
@@ -841,7 +837,7 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
         }
         if (!cellVis) // most common, fastpath: geometry not cropped
         {
-          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         }
         else // slower path, geometry cropped via point id, cell id, and/or extent
         {
@@ -872,7 +868,7 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
         }
         if (!cellVis) // most common, fastpath: geometry not cropped
         {
-          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         }
         else // slower path, geometry cropped via point id, cell id, and/or extent
         {
@@ -902,7 +898,7 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
         }
         if (!cellVis) // most common, fastpath: geometry not cropped
         {
-          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds);
+          insertFace = input->IsCellBoundary(cellId, numFacePts, ptIds, cellIds);
         }
         else // slower path, geometry cropped via point id, cell id, and/or extent
         {
@@ -929,7 +925,8 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
           numFacePts = face->PointIds->GetNumberOfIds();
           if (!cellVis) // most common, fastpath: geometry not cropped
           {
-            insertFace = input->IsCellBoundary(cellId, numFacePts, face->PointIds->GetPointer(0));
+            insertFace =
+              input->IsCellBoundary(cellId, numFacePts, face->PointIds->GetPointer(0), cellIds);
           }
           else // slower path, geometry cropped via point id, cell id, and/or extent
           {

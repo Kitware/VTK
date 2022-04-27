@@ -30,8 +30,6 @@
 
 #include "vtkSmartPointer.h"
 
-#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 vtkStandardNewMacro(vtkPointSet);
 vtkStandardExtendedNewMacro(vtkPointSet);
 
@@ -246,7 +244,7 @@ vtkIdType vtkPointSet::FindPoint(double x[3])
 vtkIdType vtkPointSet::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
   vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
-  VTK_CREATE(vtkClosestPointStrategy, strategy);
+  vtkNew<vtkClosestPointStrategy> strategy;
   strategy->Initialize(this);
   return strategy->FindCell(x, cell, gencell, cellId, tol2, subId, pcoords, weights);
 }

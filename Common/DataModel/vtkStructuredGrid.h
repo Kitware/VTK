@@ -260,14 +260,6 @@ protected:
   void ComputeScalarRange() override;
 
 private:
-  /**
-   * For legacy compatibility. Do not use.
-   */
-  void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
-  {
-    this->GetCellNeighbors(cellId, &ptIds, &cellIds);
-  }
-
   // Internal method used by DeepCopy and ShallowCopy.
   void InternalStructuredGridCopy(vtkStructuredGrid* src);
 

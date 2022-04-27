@@ -177,11 +177,6 @@ public:
    */
   vtkIdType* Resize(const vtkIdType sz);
 
-  /**
-   * Intersect one id list with another. This method should become legacy.
-   */
-  void IntersectWith(vtkIdList& otherIds) { this->IntersectWith(&otherIds); }
-
 #ifndef __VTK_WRAP__
   /**
    * This releases the ownership of the internal vtkIdType array and returns the

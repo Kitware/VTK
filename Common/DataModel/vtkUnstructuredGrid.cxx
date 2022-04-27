@@ -2002,34 +2002,41 @@ namespace
 // by only one cell), or whether the points define an interior entity (used
 // by more than one cell).
 template <class TLinks>
-inline bool IsCellBoundaryImp(TLinks* links, vtkIdType cellId, vtkIdType npts, const vtkIdType* pts)
+inline bool IsCellBoundaryImp(
+  TLinks* links, vtkIdType cellId, vtkIdType npts, const vtkIdType* pts, vtkIdList* cellIdsList)
 {
-  std::vector<vtkIdType> cellSet;
-  cellSet.reserve(256); // avoid reallocs if possible
-
+  vtkIdType numberOfCells;
+  const vtkIdType* cells;
   // Combine all of the cell lists, and then sort them.
-  for (auto i = 0; i < npts; ++i)
+  for (vtkIdType i = 0; i < npts; ++i)
   {
-    vtkIdType numCells = links->GetNcells(pts[i]);
-    const vtkIdType* cells = links->GetCells(pts[i]);
-    cellSet.insert(cellSet.end(), cells, cells + numCells);
+    numberOfCells = links->GetNcells(pts[i]);
+    cells = links->GetCells(pts[i]);
+    for (vtkIdType j = 0; j < numberOfCells; ++j)
+    {
+      cellIdsList->InsertNextId(cells[j]);
+    }
   }
-  std::sort(cellSet.begin(), cellSet.end());
+  vtkIdType numberOfIds = cellIdsList->GetNumberOfIds();
+  vtkIdType* cellIds = cellIdsList->GetPointer(0);
+  vtkIdType* endCellIds = cellIds + numberOfIds;
+  std::sort(cellIds, endCellIds);
 
   // Sorting will have grouped the cells into contiguous runs. Determine the
   // length of the runs - if equal to npts, then a cell is present in all
   // sets, and if this cell is not the user-provided cellId, then there is a
   // cell common to all sets, hence this is not a boundary cell.
-  auto itr = cellSet.begin();
-  while (itr != cellSet.end())
+  vtkIdType *itr = cellIds, *start;
+  vtkIdType currentCell;
+  while (itr != endCellIds)
   {
-    auto start = itr;
-    vtkIdType currentCell = *itr;
-    while (itr != cellSet.end() && *itr == currentCell)
+    start = itr;
+    currentCell = *itr;
+    while (itr != endCellIds && *itr == currentCell)
       ++itr; // advance across this contiguous run
 
     // What is the size of the contiguous run? If equal to
-    // the number of sets, then this is an interior boundary.
+    // the number of sets, then this is a neighboring cell.
     if (((itr - start) >= npts) && (currentCell != cellId))
     {
       return false;
@@ -2043,39 +2050,55 @@ inline bool IsCellBoundaryImp(TLinks* links, vtkIdType cellId, vtkIdType npts, c
 // use all the points in the points list (pts).
 template <class TLinks>
 inline void GetCellNeighborsImp(
-  TLinks* links, vtkIdType cellId, vtkIdType npts, const vtkIdType* pts, vtkIdList* cellIds)
+  TLinks* links, vtkIdType cellId, vtkIdType npts, const vtkIdType* pts, vtkIdList* cellIdsList)
 {
-  std::vector<vtkIdType> cellSet;
-  cellSet.reserve(256); // avoid reallocs if possible
-
+  vtkIdType numberOfCells;
+  const vtkIdType* cells;
   // Combine all of the cell lists, and then sort them.
-  for (auto i = 0; i < npts; ++i)
+  for (vtkIdType i = 0; i < npts; ++i)
   {
-    vtkIdType numCells = links->GetNcells(pts[i]);
-    const vtkIdType* cells = links->GetCells(pts[i]);
-    cellSet.insert(cellSet.end(), cells, cells + numCells);
+    numberOfCells = links->GetNcells(pts[i]);
+    cells = links->GetCells(pts[i]);
+    for (vtkIdType j = 0; j < numberOfCells; ++j)
+    {
+      cellIdsList->InsertNextId(cells[j]);
+    }
   }
-  std::sort(cellSet.begin(), cellSet.end());
+  vtkIdType numberOfIds = cellIdsList->GetNumberOfIds();
+  vtkIdType* cellIds = cellIdsList->GetPointer(0);
+  vtkIdType* endCellIds = cellIds + numberOfIds;
+  std::sort(cellIds, endCellIds);
 
   // Sorting will have grouped the cells into contiguous runs. Determine the
   // length of the runs - if equal to npts, then a cell is present in all
   // sets, and if this cell is not the user-provided cellId, then this is a
   // cell common to all sets, hence it is a neighboring cell.
-  auto itr = cellSet.begin();
-  while (itr != cellSet.end())
+  if (numberOfIds == 0)
   {
-    auto start = itr;
-    vtkIdType currentCell = *itr;
-    while (itr != cellSet.end() && *itr == currentCell)
+    // no id will be returned
+    cellIdsList->Reset();
+    return;
+  }
+  vtkIdType *itr = cellIds, *start;
+  vtkIdType numberOfOutputIds = 0, currentCell;
+  while (itr != endCellIds)
+  {
+    start = itr;
+    currentCell = *itr;
+    while (itr != endCellIds && *itr == currentCell)
       ++itr; // advance across this contiguous run
 
     // What is the size of the contiguous run? If equal to
     // the number of sets, then this is a neighboring cell.
     if (((itr - start) >= npts) && (currentCell != cellId))
     {
-      cellIds->InsertNextId(currentCell);
+      // since this id will not be revisited, we can write the results in place
+      cellIds[numberOfOutputIds++] = currentCell;
     }
   } // while over the cell set
+  // change the length of the list to the number of neighbors
+  // the allocated space will not be touched
+  cellIdsList->SetNumberOfIds(numberOfOutputIds);
 }
 
 } // end anonymous namespace
@@ -2083,6 +2106,18 @@ inline void GetCellNeighborsImp(
 //----------------------------------------------------------------------------
 bool vtkUnstructuredGrid::IsCellBoundary(vtkIdType cellId, vtkIdType npts, const vtkIdType* pts)
 {
+  vtkNew<vtkIdList> cellIds;
+  cellIds->Allocate(256);
+  return this->IsCellBoundary(cellId, npts, pts, cellIds);
+}
+
+//----------------------------------------------------------------------------
+bool vtkUnstructuredGrid::IsCellBoundary(
+  vtkIdType cellId, vtkIdType npts, const vtkIdType* pts, vtkIdList* cellIds)
+{
+  // Empty the list
+  cellIds->Reset();
+
   // Ensure that a valid neighborhood request is made.
   if (npts <= 0)
   {
@@ -2100,12 +2135,12 @@ bool vtkUnstructuredGrid::IsCellBoundary(vtkIdType cellId, vtkIdType npts, const
   if (!this->Editable)
   {
     vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
-    return IsCellBoundaryImp<vtkStaticCellLinks>(links, cellId, npts, pts);
+    return IsCellBoundaryImp<vtkStaticCellLinks>(links, cellId, npts, pts, cellIds);
   }
   else
   {
     vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
-    return IsCellBoundaryImp<vtkCellLinks>(links, cellId, npts, pts);
+    return IsCellBoundaryImp<vtkCellLinks>(links, cellId, npts, pts, cellIds);
   }
 }
 

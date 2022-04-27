@@ -267,11 +267,11 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  auto evaluate = [&selectors, assoc, &selection](vtkDataObject* dobj) {
+  auto evaluate = [&selectors, assoc, &selection](vtkDataObject* dobj) -> bool {
     auto fieldData = dobj->GetAttributes(assoc);
     if (!fieldData)
     {
-      return;
+      return true;
     }
 
     // Iterate over operators and set up a map from selection node name to insidedness
@@ -292,8 +292,16 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
 
     // Evaluate the map of insidedness arrays
     auto blockInsidedness = selection->Evaluate(arrayMap);
-    blockInsidedness->SetName("__vtkInsidedness__");
-    fieldData->AddArray(blockInsidedness);
+    if (blockInsidedness)
+    {
+      blockInsidedness->SetName("__vtkInsidedness__");
+      fieldData->AddArray(blockInsidedness);
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   };
 
   auto extract = [&assoc, this](
@@ -342,14 +350,24 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     // combine all the insidedness arrays.
     vtkSmartPointer<vtkCompositeDataIterator> outIter;
     outIter.TakeReference(outputCD->NewIterator());
+    bool evaluateResult = true;
     for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
     {
       auto outputBlock = outIter->GetCurrentDataObject();
       assert(outputBlock != nullptr);
       // Evaluate the expression.
-      evaluate(outputBlock);
+      if (!evaluate(outputBlock))
+      {
+        evaluateResult = false;
+        break;
+      }
     }
     vtkLogEndScope("evaluate expression");
+    // check for evaluate result errors
+    if (!evaluateResult)
+    {
+      return 0;
+    }
 
     vtkLogStartScope(TRACE, "extract output");
     // input iterator is needed because if inputCD is subclass of vtkUniformGridAMR,
@@ -380,8 +398,13 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     vtkLogEndScope("execute selectors");
 
     vtkLogStartScope(TRACE, "evaluate expression");
-    evaluate(clone);
+    bool evaluateResult = evaluate(clone);
     vtkLogEndScope("evaluate expression");
+    // check for evaluate result errors
+    if (!evaluateResult)
+    {
+      return 0;
+    }
 
     vtkLogStartScope(TRACE, "extract output");
     if (auto result = extract(input, clone))

@@ -26,8 +26,8 @@ vtkStandardNewMacro(vtkCellLocatorStrategy);
 //------------------------------------------------------------------------------
 vtkCellLocatorStrategy::vtkCellLocatorStrategy()
 {
-  // You may ask, why this OwnsLocator rigamarole. The reason is because the
-  // reference counting garbage collecter gets confused when the locator,
+  // You may ask why this OwnsLocator rigamarole. The reason is that the
+  // reference counting garbage collector gets confused when the locator,
   // point set, and strategy are all mixed together; resulting in memory
   // leaks etc.
   this->OwnsLocator = false;
@@ -129,8 +129,16 @@ vtkIdType vtkCellLocatorStrategy::FindCell(double x[3], vtkCell* cell, vtkGeneri
   }
 
   // Okay cache miss, try the cell locator
-  subId = 0; // The cell locator FindCell API should return subId.
-  return this->CellLocator->FindCell(x, tol2, gencell, pcoords, weights);
+  return this->CellLocator->FindCell(x, tol2, gencell, subId, pcoords, weights);
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkCellLocatorStrategy::FindClosestPointWithinRadius(double x[3], double radius,
+  double closestPoint[3], vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2,
+  int& inside)
+{
+  return this->CellLocator->FindClosestPointWithinRadius(
+    x, radius, closestPoint, cell, cellId, subId, dist2, inside);
 }
 
 //------------------------------------------------------------------------------

@@ -16,7 +16,6 @@
 #include "vtkAbstractCellLocator.h"
 
 #include "vtkCellArray.h"
-#include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
@@ -26,7 +25,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkSMPTools.h"
 #include "vtkUnstructuredGrid.h"
 
 //------------------------------------------------------------------------------
@@ -80,6 +78,13 @@ void vtkAbstractCellLocator::UpdateInternalWeights()
 
   this->Weights.resize(this->DataSet->GetMaxCellSize());
   this->WeightsTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkAbstractCellLocator::IsInBounds(const double bounds[6], const double x[3], const double tol)
+{
+  return (bounds[0] - tol) <= x[0] && x[0] <= (bounds[1] + tol) && (bounds[2] - tol) <= x[1] &&
+    x[1] <= (bounds[3] + tol) && (bounds[4] - tol) <= x[2] && x[2] <= (bounds[5] + tol);
 }
 
 //------------------------------------------------------------------------------
@@ -180,8 +185,14 @@ vtkIdType vtkAbstractCellLocator::FindCell(double x[3])
 vtkIdType vtkAbstractCellLocator::FindCell(
   double x[3], double tol2, vtkGenericCell* GenCell, double pcoords[3], double* weights)
 {
-  vtkIdType returnVal = -1;
   int subId;
+  return this->FindCell(x, tol2, GenCell, subId, pcoords, weights);
+}
+//------------------------------------------------------------------------------
+vtkIdType vtkAbstractCellLocator::FindCell(
+  double x[3], double tol2, vtkGenericCell* GenCell, int& subId, double pcoords[3], double* weights)
+{
+  vtkIdType returnVal = -1;
   //
   static bool warning_shown = false;
   if (!warning_shown)
