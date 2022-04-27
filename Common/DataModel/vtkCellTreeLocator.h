@@ -15,10 +15,7 @@
 /**
  * @class   vtkCellTreeLocator
  * @brief   This class implements the data structures, construction
- * algorithms for fast cell location presented in "Fast, Memory-Efficient Cell
- * location in Unstructured Grids for Visualization" by Christoph Garth and Kenneth
- * I. Joy in VisWeek, 2011.
- *
+ * algorithms for fast cell location.
  *
  * Cell Tree is a bounding interval hierarchy based data structure, where child boxes
  * do not form an exact split of the parent boxes along a dimension.  Therefore two axis-
@@ -26,12 +23,26 @@
  * dimension. This class implements the data structure (Cell Tree Node) and its build
  * and traversal algorithms described in the paper.
  * Some methods in building and traversing the cell tree in this class were derived
- * avtCellLocatorBIH class in the VisIT Visualization Tool
+ * from avtCellLocatorBIH class in the VisIT Visualization Tool.
  *
+ * vtkCellTreeLocator utilizes the following parent class parameters:
+ * - NumberOfCellsPerNode        (default 8)
+ * - CacheCellBounds             (default false)
+ * - UseExistingSearchStructure  (default false)
+ * - LazyEvaluation              (default false)
  *
+ * vtkCellTreeLocator does NOT utilize the following parameters:
+ * - Automatic
+ * - Level
+ * - MaxLevel
+ * - Tolerance
+ * - RetainCellLists
+ *
+ * @cite "Fast, Memory-Efficient Cell location in Unstructured Grids for Visualization" by
+ * Christoph Garth and Kenneth I. Joy in VisWeek, 2011.
  *
  * @sa
- * vtkLocator vtkCellLocator vtkModifiedBSPTree
+ * vtkAbstractCellLocator vtkCellLocator vtkStaticCellLocator vtkModifiedBSPTree vtkOBBTree
  */
 
 #ifndef vtkCellTreeLocator_h

@@ -20,7 +20,6 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkPlane.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
@@ -72,14 +71,13 @@ vtkOBBNode::~vtkOBBNode()
 vtkOBBTree::vtkOBBTree()
 {
   this->DataSet = nullptr;
-  this->Level = 4;
+  this->Level = 0;
   this->MaxLevel = 12;
-  this->Automatic = 1;
   this->Tolerance = 0.01;
   this->Tree = nullptr;
   this->PointsList = nullptr;
   this->InsertedPoints = nullptr;
-  this->OBBCount = this->Level = 0;
+  this->OBBCount = 0;
 }
 
 vtkOBBTree::~vtkOBBTree()

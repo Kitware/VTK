@@ -26,17 +26,31 @@
  * candidate cells.
  *
  * @warning
+ * vtkCellLocator utilizes the following parent class parameters:
+ * - Automatic                   (default true)
+ * - Level                       (default 8)
+ * - MaxLevel                    (default 8)
+ * - NumberOfCellsPerNode        (default 25)
+ * - CacheCellBounds             (default false)
+ * - UseExistingSearchStructure  (default false)
+ * - LazyEvaluation              (default false)
+ *
+ * vtkCellLocator does NOT utilize the following parameters:
+ * - Tolerance
+ * - RetainCellLists
+ *
+ * @warning
  * Many other types of spatial locators have been developed, such as
- * variable depth octrees and kd-trees. These are often more efficient
- * for the operations described here. vtkCellLocator has been designed
- * for subclassing; so these locators can be derived if necessary.
+ * variable depth octrees and bih-trees. These are often more efficient
+ * for the operations described here.
  *
  * @warning
  * Most of the methods of this class are not thread-safe. For a thread-safe,
- * more efficient generic implementation, please use vtkStaticCellLocator
+ * more efficient generic implementation, please use vtkStaticCellLocator,
+ * vtkCellTreeLocator.
  *
  * @sa
- * vtkLocator vtkPointLocator vtkOBBTree vtkStaticCellLocator
+ * vtkAbstractCellLocator vtkStaticCellLocator vtkCellTreeLocator vtkModifiedBSPTree vtkOBBTree
  */
 
 #ifndef vtkCellLocator_h

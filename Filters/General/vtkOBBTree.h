@@ -34,6 +34,20 @@
  * Siggraph `96.
  *
  * @warning
+ * vtkOBBTree utilizes the following parent class parameters:
+ * - Tolerance                   (default 0.01)
+ * - Level                       (default 4)
+ * - MaxLevel                    (default 12)
+ * - NumberOfCellsPerNode        (default 32)
+ * - RetainCellLists             (default true)
+ *
+ * vtkOBBTree does NOT utilize the following parameters:
+ * - Automatic
+ * - CacheCellBounds
+ * - UseExistingSearchStructure
+ * - LazyEvaluation
+ *
+ * @warning
  * Since this algorithms works from a list of cells, the OBB tree will only
  * bound the "geometry" attached to the cells if the convex hull of the
  * cells bounds the geometry.
@@ -47,7 +61,7 @@
  * go a long way to correcting this problem.
  *
  * @sa
- * vtkLocator vtkCellLocator vtkPointLocator
+ * vtkAbstractCellLocator vtkCellLocator vtkStaticCellLocator vtkCellTreeLocator vtkModifiedBSPTree
  */
 
 #ifndef vtkOBBTree_h

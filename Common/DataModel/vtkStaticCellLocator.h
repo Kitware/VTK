@@ -26,15 +26,25 @@
  * (i.e., incremental cell insertion is not supported).
  *
  * @warning
+ * vtkStaticCellLocator utilizes the following parent class parameters:
+ * - Tolerance                   (default 0.001)
+ * - Automatic                   (default true)
+ * - NumberOfCellsPerNode        (default 10)
+ *
+ * vtkStaticCellLocator does NOT utilize the following parameters:
+ * - CacheCellBounds             (always cached)
+ * - UseExistingSearchStructure
+ * - LazyEvaluation
+ * - Level
+ * - MaxLevel
+ * - RetainCellLists
+ *
+ * @warning
  * This class is templated. It may run slower than serial execution if the code
  * is not optimized during compilation. Build in Release or ReleaseWithDebugInfo.
  *
- * @warning
- * This class *always* caches cell bounds.
- *
  * @sa
- * vtkLocator vakAbstractCellLocator vtkCellLocator vtkCellTreeLocator
- * vtkModifiedBSPTree
+ * vtkAbstractCellLocator vtkCellLocator vtkCellTreeLocator vtkModifiedBSPTree vtkOBBTree
  */
 
 #ifndef vtkStaticCellLocator_h

@@ -29,9 +29,8 @@
  *  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
  * \endverbatim
  *
- *
  * @sa
- * vtkLocator vtkPointLocator vtkOBBTree vtkCellLocator
+ * vtkLocator vtkCellLocator vtkStaticCellLocator vtkCellTreeLocator vtkModifiedBSPTree vtkOBBTree
  */
 
 #ifndef vtkAbstractCellLocator_h

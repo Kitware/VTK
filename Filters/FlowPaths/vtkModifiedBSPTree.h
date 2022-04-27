@@ -34,7 +34,7 @@
 =========================================================================*/
 /**
  * @class   vtkModifiedBSPTree
- * @brief   Generate axis aligned BBox tree for raycasting and other Locator based searches
+ * @brief   Generate axis aligned BBox tree for ray-casting and other Locator based searches
  *
  *
  * vtkModifiedBSPTree creates an evenly balanced BSP tree using a top down
@@ -78,7 +78,7 @@
  * The memory requirement of the nodes themselves is usually of minor
  * significance.
  *
- * Subdividision is controlled by MaxCellsPerNode - any node with more than
+ * Subdivision is controlled by MaxCellsPerNode - any node with more than
  * this number will be subdivided providing a good split plane can be found and
  * the max depth is not exceeded.
  *
@@ -88,12 +88,26 @@
  * Subdividing down to very small cells per node is not generally suggested
  * as then the 6 stored cell lists are effectively redundant.
  *
- * Values of MaxcellsPerNode of around 16->128 depending on dataset size will
+ * Values of MaxCellsPerNode of around 16->128 depending on dataset size will
  * usually give good results.
  *
  * Cells are only sorted into 6 lists once - before tree creation, each node
  * segments the lists and passes them down to the new child nodes whilst
  * maintaining sorted order. This makes for an efficient subdivision strategy.
+ *
+ * @warning
+ * vtkModifiedBSPTree utilizes the following parent class parameters:
+ * - Level                       (default 8)
+ * - MaxLevel                    (default 8)
+ * - NumberOfCellsPerNode        (default 32)
+ * - UseExistingSearchStructure  (default false)
+ * - LazyEvaluation              (default true)
+ *
+ * vtkModifiedBSPTree does NOT utilize the following parameters:
+ * - CacheCellBounds             (always cached)
+ * - Automatic
+ * - Tolerance
+ * - RetainCellLists
  *
  * NB. The following reference has been sent to me
  * \code
@@ -136,10 +150,12 @@
  * @par Style:
  * --------------
  * This class is currently maintained by J. Biddiscombe who has specially
- * requested that the code style not be modified to the kitware standard.
+ * requested that the code style not be modified to the Kitware standard.
  * Please respect the contribution of this class by keeping the style
  * as close as possible to the author's original.
  *
+ * @sa
+ * vtkAbstractCellLocator vtkCellLocator vtkStaticCellLocator vtkCellTreeLocator vtkOBBTree
  */
 
 #ifndef vtkModifiedBSPTree_h
