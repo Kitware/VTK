@@ -145,8 +145,8 @@ namespace {
               if(!found) {
                 std::ostringstream errmsg;
                 fmt::print(errmsg,
-                    "ERROR: Could not find sub-assembly with id: {} and name: {}"
-                    "       [{}]\n", assembly.id, assembly.name);
+                    "ERROR: Could not find sub-assembly with id: {} and name: {}",
+                    assembly.id, assembly.name);
                 IOSS_ERROR(errmsg);
               }
             }
@@ -442,7 +442,7 @@ namespace Ioex {
     // Check byte-size of integers stored on the database...
     if ((ex_int64_status(m_exodusFilePtr) & EX_ALL_INT64_DB) != 0) {
       if (myProcessor == 0 && !sixty_four_bit_message_output) {
-        fmt::print(Ioss::OUTPUT(),
+        fmt::print(Ioss::DEBUG(),
                    "IOSS: Input database contains 8-byte integers. Setting Ioss to use "
                    "8-byte integers.\n");
         sixty_four_bit_message_output = true;
@@ -646,16 +646,6 @@ namespace Ioex {
   {
     Ioss::SerializeIO serializeIO__(this);
 
-    if (!assemblyOmissions.empty() && !assemblyInclusions.empty()) {
-      // Only one can be non-empty
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: Only one of assembly omission or inclusion can be non-empty"
-                 "       [{}]\n",
-                 get_filename());
-      IOSS_ERROR(errmsg);
-    }
-
     if (!assemblyOmissions.empty()) {
       assert(blockInclusions.empty());
     }
@@ -768,16 +758,17 @@ namespace Ioex {
 
         for (int j = 0; j < assembly.entity_count; j++) {
           auto *ge = get_region()->get_entity(assembly.entity_list[j], type);
-          if (ge != nullptr && !Ioss::Utils::block_is_omitted(ge)) {
-            assem->add(ge);
-            num_added_entities++;
-          }
-          else {
+          if (ge == nullptr) {
             std::ostringstream errmsg;
             fmt::print(errmsg,
-                       "Error: Failed to find entity of type {} with id {} for Assembly {}.\n",
+                       "Error: Failed to find entity of type {} with id {} for assembly {}.\n",
                        type, assembly.entity_list[j], assem->name());
             IOSS_ERROR(errmsg);
+          }
+
+          if (!Ioss::Utils::block_is_omitted(ge)) {
+            assem->add(ge);
+            num_added_entities++;
           }
         }
         SMART_ASSERT(assem->member_count() == num_added_entities)

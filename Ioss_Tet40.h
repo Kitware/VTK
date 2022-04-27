@@ -27,6 +27,7 @@ namespace Ioss {
     int          spatial_dimension() const override;
     int          parametric_dimension() const override;
     bool         is_element() const override { return true; }
+    bool         is_shell() const override { return false; }
     int          order() const override;
 
     int number_corner_nodes() const override;
@@ -51,8 +52,6 @@ namespace Ioss {
     Tet40();
 
   private:
-    static Tet40 instance_;
-
     Tet40(const Tet40 &) = delete;
   };
 } // namespace Ioss

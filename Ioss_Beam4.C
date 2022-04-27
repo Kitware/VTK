@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -86,11 +86,13 @@ Ioss::IntVector Ioss::Beam4::edge_connectivity(int edge_number) const
     connectivity[0] = 0;
     connectivity[1] = 1;
     connectivity[2] = 2;
+    connectivity[3] = 3;
   }
   else {
     connectivity[0] = 1;
     connectivity[1] = 0;
-    connectivity[2] = 2;
+    connectivity[2] = 3;
+    connectivity[3] = 2;
   }
   return connectivity;
 }

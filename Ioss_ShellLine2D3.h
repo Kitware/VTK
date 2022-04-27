@@ -27,6 +27,7 @@ namespace Ioss {
     int          spatial_dimension() const override;
     int          parametric_dimension() const override;
     bool         is_element() const override { return true; }
+    bool         is_shell() const override { return true; }
     int          order() const override;
 
     int number_corner_nodes() const override;
@@ -49,8 +50,6 @@ namespace Ioss {
     ShellLine2D3();
 
   private:
-    static ShellLine2D3 instance_;
-
     ShellLine2D3(const ShellLine2D3 &) = delete;
   };
 } // namespace Ioss

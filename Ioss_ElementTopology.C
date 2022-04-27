@@ -4,7 +4,8 @@
 //
 // See packages/seacas/LICENSE for details
 
-#include <Ioss_CodeTypes.h> // for IntVector
+#include <Ioss_CodeTypes.h>          // for IntVector
+#include <Ioss_ElementPermutation.h> // for ElementPermutation
 #include <Ioss_ElementTopology.h>
 #include <Ioss_Super.h> // for Super
 #include <Ioss_Utils.h>
@@ -358,4 +359,48 @@ bool Ioss::ElementTopology::operator!=(const Ioss::ElementTopology &rhs) const
 bool Ioss::ElementTopology::equal(const Ioss::ElementTopology &rhs) const
 {
   return equal_(rhs, false);
+}
+
+Ioss::ElementPermutation *Ioss::ElementTopology::permutation() const
+{
+  auto perm = Ioss::ElementPermutation::factory(base_topology_permutation_name());
+  assert(perm != nullptr);
+  if (validate_permutation_nodes()) {
+    if (static_cast<int>(perm->num_permutation_nodes()) != number_corner_nodes()) {
+      std::ostringstream errmsg;
+      fmt::print(errmsg,
+                 "ERROR: The permutation node count: {} for topology '{}' does not match expected "
+                 "value: {}.",
+                 perm->num_permutation_nodes(), name(), number_corner_nodes());
+      IOSS_ERROR(errmsg);
+    }
+  }
+  return perm;
+}
+
+const std::string &Ioss::ElementTopology::base_topology_permutation_name() const
+{
+  return topology_shape_to_permutation_name(shape());
+}
+
+const std::string &
+Ioss::ElementTopology::topology_shape_to_permutation_name(Ioss::ElementShape topoShape)
+{
+  static ElementShapeMap shapeToPermutationNameMap_ = {
+      {ElementShape::UNKNOWN, "none"},    {ElementShape::POINT, "none"},
+      {ElementShape::SPHERE, "sphere"},   {ElementShape::LINE, "line"},
+      {ElementShape::SPRING, "spring"},   {ElementShape::TRI, "tri"},
+      {ElementShape::QUAD, "quad"},       {ElementShape::TET, "tet"},
+      {ElementShape::PYRAMID, "pyramid"}, {ElementShape::WEDGE, "wedge"},
+      {ElementShape::HEX, "hex"},         {ElementShape::SUPER, "super"}};
+
+  auto iter = shapeToPermutationNameMap_.find(topoShape);
+  if (iter == shapeToPermutationNameMap_.end()) {
+    std::ostringstream errmsg;
+    fmt::print(errmsg, "ERROR: The topology shape '{}' is not supported.",
+               Ioss::Utils::shape_to_string(topoShape));
+    IOSS_ERROR(errmsg);
+  }
+
+  return iter->second;
 }

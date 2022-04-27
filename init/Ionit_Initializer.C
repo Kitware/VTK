@@ -14,7 +14,8 @@
 #include <gen_struc/Iogs_DatabaseIO.h>
 #include <generated/Iogn_DatabaseIO.h>
 #include <heartbeat/Iohb_DatabaseIO.h>
-#include <text_mesh/Iotm_DatabaseIO.h>
+// xxx(kitware)
+// #include <text_mesh/Iotm_DatabaseIO.h>
 
 #ifdef HAVE_SEACASIOSS_ADIOS2
 #include <adios/Ioad_Initializer.h>
@@ -85,7 +86,8 @@ namespace Ioss {
 #endif
       Iohb::IOFactory::factory(); // HeartBeat
       Iogn::IOFactory::factory(); // Generated
-      Iotm::IOFactory::factory(); // TextMesh
+      // xxx(kitware)
+      // Iotm::IOFactory::factory(); // TextMesh
       Iogs::IOFactory::factory(); // Structured Mesh Generator
       Ioss::StorageInitializer();
       Ioss::Initializer();

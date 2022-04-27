@@ -393,12 +393,14 @@ namespace Ioss {
 #if DO_TIMING
     auto endf = std::chrono::steady_clock::now();
 #endif
-    size_t face_count = 0;
     for (auto &eb : ebs) {
       resolve_parallel_faces(region_, faces_[eb->name()], hashIds_, (INT)0);
-      face_count += faces_[eb->name()].size();
     }
 #if DO_TIMING
+    size_t face_count = 0;
+    for (auto &eb : ebs) {
+      face_count += faces_[eb->name()].size();
+    }
     auto endp  = std::chrono::steady_clock::now();
     auto diffh = endh - starth;
     auto difff = endf - endh;
