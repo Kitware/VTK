@@ -240,7 +240,7 @@ struct vtkCellProcessor
 {
   vtkCellBinner* Binner;
   vtkDataSet* DataSet;
-  double DataSetBounds[6];
+  double* Bounds;
   double* CellBounds;
   vtkIdType* Counts;
   vtkIdType NumFragments;
@@ -255,7 +255,7 @@ struct vtkCellProcessor
     : Binner(cb)
   {
     this->DataSet = cb->DataSet;
-    this->DataSet->GetBounds(this->DataSetBounds);
+    this->Bounds = cb->Bounds;
     this->CellBounds = cb->CellBounds;
     this->Counts = cb->Counts;
     this->NumCells = cb->NumCells;
@@ -282,6 +282,7 @@ struct vtkCellProcessor
     const double o[3], const double n[3], double tolerance, vtkIdList* cells) = 0;
   virtual int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) = 0;
+  virtual bool InsideCellBounds(const double x[3], vtkIdType cellId) = 0;
   virtual vtkIdType FindClosestPointWithinRadius(const double x[3], double radius,
     double closestPoint[3], vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2,
     int& inside) = 0;
@@ -353,6 +354,7 @@ struct CellProcessor : public vtkCellProcessor
     const double o[3], const double n[3], double tolerance, vtkIdList* cells) override;
   int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
+  bool InsideCellBounds(const double x[3], vtkIdType cellId) override;
   vtkIdType FindClosestPointWithinRadius(const double x[3], double radius, double closestPoint[3],
     vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside) override;
   int IsEmpty(vtkIdType binId) override
@@ -479,7 +481,7 @@ vtkIdType CellProcessor<T>::FindCell(
   const double pos[3], vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
   // check if pos outside of bounds
-  if (!CellProcessor::IsInBounds(this->DataSetBounds, pos))
+  if (!CellProcessor::IsInBounds(this->Bounds, pos))
   {
     return -1;
   }
@@ -496,17 +498,14 @@ vtkIdType CellProcessor<T>::FindCell(
   else
   {
     const CellFragments<T>* cellIds = this->GetIds(binId);
-    double tol = this->Binner->binTol;
-    double dist2, *bounds;
+    double dist2;
     vtkIdType cellId;
 
     for (T j = 0; j < numIds; j++)
     {
       cellId = cellIds[j].CellId;
-      bounds = this->CellBounds + 6 * cellId;
 
-      // IsInBounds is identical to vtkMath::PointIsWithinBounds without the invalid values check
-      if (CellProcessor::IsInBounds(bounds, pos, tol))
+      if (this->InsideCellBounds(pos, cellId))
       {
         this->DataSet->GetCell(cellId, cell);
         if (cell->EvaluatePosition(pos, nullptr, subId, pcoords, dist2, weights) == 1)
@@ -1216,7 +1215,14 @@ int CellProcessor<T>::IntersectWithLine(const double a0[3], const double a1[3], 
 
   return 0;
 }
-
+//------------------------------------------------------------------------------
+template <typename T>
+bool CellProcessor<T>::InsideCellBounds(const double x[3], vtkIdType cellId)
+{
+  // In the future we should consider removing the (bin) tolerance
+  // because all the other locators have a check without tolerance
+  return CellProcessor::IsInBounds(this->CellBounds + 6 * cellId, x, this->Binner->binTol);
+}
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -1353,6 +1359,12 @@ int vtkStaticCellLocator::IntersectWithLine(const double p1[3], const double p2[
     return 0;
   }
   return this->Processor->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId, cellId, cell);
+}
+
+//------------------------------------------------------------------------------
+bool vtkStaticCellLocator::InsideCellBounds(double x[3], vtkIdType cellId)
+{
+  return this->Processor->InsideCellBounds(x, cellId);
 }
 
 //------------------------------------------------------------------------------

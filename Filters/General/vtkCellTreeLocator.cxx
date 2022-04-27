@@ -567,7 +567,8 @@ void vtkCellTreeLocator::ForceBuildLocator()
 {
   //
   // don't rebuild if build time is newer than modified and dataset modified time
-  if ((this->Tree) && (this->BuildTime > this->MTime) && (this->BuildTime > DataSet->GetMTime()))
+  if ((this->Tree) && (this->BuildTime > this->MTime) &&
+    (this->BuildTime > this->DataSet->GetMTime()))
   {
     return;
   }
@@ -630,7 +631,7 @@ vtkIdType vtkCellTreeLocator::FindCell(
     return -1;
   }
   // check if pos outside of bounds
-  if (!vtkAbstractCellLocator::IsInBounds(this->DataSet->GetBounds(), pos))
+  if (!vtkAbstractCellLocator::IsInBounds(this->Tree->DataBBox, pos))
   {
     return -1;
   }
@@ -1386,12 +1387,8 @@ void vtkCellTreeLocator::GenerateRepresentation(int level, vtkPolyData* pd)
       ns.push(nodeBoxLevel(n2, boxLevel(rbox, lev + 1)));
     }
   }
-  //
-  //
-  //
   // For each node, add the bbox to our polydata
-  int s = (int)bl.size();
-  for (int i = 0; i < s; i++)
+  for (auto i = 0; i < bl.size(); i++)
   {
     double bounds[6];
     bl[i].first.GetBounds(bounds);

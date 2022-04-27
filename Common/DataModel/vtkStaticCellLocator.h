@@ -188,6 +188,11 @@ public:
     return this->Superclass::IntersectWithLine(p1, p2, points, cellIds);
   }
 
+  /**
+   * Quickly test if a point is inside the bounds of a particular cell.
+   */
+  bool InsideCellBounds(double x[3], vtkIdType cellId) override;
+
   ///@{
   /**
    * Satisfy vtkLocator abstract interface.

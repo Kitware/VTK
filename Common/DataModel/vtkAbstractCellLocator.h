@@ -69,7 +69,7 @@ public:
    * Boolean controls whether the bounds of each cell are computed only
    * once and then saved.  Should be 10 to 20% faster if repeatedly
    * calling any of the Intersect/Find routines and the extra memory
-   * won't cause disk caching (24 extra bytes per cell are required to
+   * won't cause disk caching (48 extra bytes per cell are required to
    * save the bounds).
    */
   vtkSetMacro(CacheCellBounds, vtkTypeBool);
@@ -259,7 +259,7 @@ public:
   /**
    * Quickly test if a point is inside the bounds of a particular cell.
    * Some locators cache cell bounds and this function can make use
-   * of fast access to the data.
+   * of fast access to the data. This function should be used ONLY after the locator is built.
    */
   virtual bool InsideCellBounds(double x[3], vtkIdType cell_ID);
 

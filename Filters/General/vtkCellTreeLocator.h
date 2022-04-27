@@ -16,7 +16,7 @@
  * @class   vtkCellTreeLocator
  * @brief   This class implements the data structures, construction
  * algorithms for fast cell location presented in "Fast, Memory-Efficient Cell
- * location in Unstructured Grids for Visualization" by Christop Garth and Kenneth
+ * location in Unstructured Grids for Visualization" by Christoph Garth and Kenneth
  * I. Joy in VisWeek, 2011.
  *
  *

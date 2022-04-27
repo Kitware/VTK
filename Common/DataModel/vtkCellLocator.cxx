@@ -1221,7 +1221,6 @@ void vtkCellLocator::BuildLocatorInternal()
 
   //  Size the root cell.  Initialize cell data structure, compute
   //  level and divisions.
-  //
   const double* bounds = this->DataSet->GetBounds();
   length = this->DataSet->GetLength();
   for (i = 0; i < 3; i++)
@@ -1668,7 +1667,7 @@ vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGene
     return -1;
   }
   // check if x outside of bounds
-  if (!vtkAbstractCellLocator::IsInBounds(this->DataSet->GetBounds(), x))
+  if (!vtkAbstractCellLocator::IsInBounds(this->Bounds, x))
   {
     return -1;
   }
@@ -1704,27 +1703,12 @@ vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGene
       vtkIdType cellId = cellIds->GetId(j);
       // check whether we could be close enough to the cell by
       // testing the cell bounds
-      if (this->CacheCellBounds)
+      if (this->InsideCellBounds(x, cellId))
       {
-        if (this->InsideCellBounds(x, cellId))
+        this->DataSet->GetCell(cellId, cell);
+        if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 1)
         {
-          this->DataSet->GetCell(cellId, cell);
-          if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 1)
-          {
-            return cellId;
-          }
-        }
-      }
-      else
-      {
-        this->DataSet->GetCellBounds(cellId, cellBounds);
-        if (vtkCellLocator::IsInBounds(cellBounds, x))
-        {
-          this->DataSet->GetCell(cellId, cell);
-          if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 1)
-          {
-            return cellId;
-          }
+          return cellId;
         }
       }
     }

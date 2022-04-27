@@ -105,8 +105,8 @@ public:
   {
     for (int i = 0; i < 3; i++)
     {
-      delete[](Mins[i]);
-      delete[](Maxs[i]);
+      delete[](this->Mins[i]);
+      delete[](this->Maxs[i]);
     }
     global_list_count -= 1;
   }
@@ -169,7 +169,8 @@ void vtkModifiedBSPTree::ForceBuildLocator()
 {
   //
   // don't rebuild if build time is newer than modified and dataset modified time
-  if ((this->mRoot) && (this->BuildTime > this->MTime) && (this->BuildTime > DataSet->GetMTime()))
+  if ((this->mRoot) && (this->BuildTime > this->MTime) &&
+    (this->BuildTime > this->DataSet->GetMTime()))
   {
     return;
   }
@@ -192,7 +193,6 @@ void vtkModifiedBSPTree::BuildLocatorInternal()
     vtkDebugMacro(<< "No Cells to divide");
     numCells = 0;
   }
-  this->DataSet->ComputeBounds();
   vtkDebugMacro(<< "Creating BSPTree for " << numCells << " cells");
 
   //
@@ -261,8 +261,8 @@ void vtkModifiedBSPTree::BuildLocatorInternal()
 void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lists,
   vtkDataSet* dataset, vtkIdType nCells, int depth, int maxlevel, vtkIdType maxCells, int& MaxDepth)
 {
-  //
   // We've got lists sorted on the axes, so we can easily get BBox
+  // NOTE: this->mRoot->Bounds is set here
   node->setMin(lists->Mins[0][0].min, lists->Mins[1][0].min, lists->Mins[2][0].min);
   node->setMax(lists->Maxs[0][0].max, lists->Maxs[1][0].max, lists->Maxs[2][0].max);
   // Update depth info
@@ -1022,7 +1022,7 @@ vtkIdType vtkModifiedBSPTree::FindCell(
   this->BuildLocatorIfNeeded();
   //
   // check if x outside of bounds
-  if (!vtkAbstractCellLocator::IsInBounds(this->DataSet->GetBounds(), x))
+  if (!vtkAbstractCellLocator::IsInBounds(this->mRoot->Bounds, x))
   {
     return -1;
   }
@@ -1067,9 +1067,7 @@ vtkIdType vtkModifiedBSPTree::FindCell(
 //------------------------------------------------------------------------------
 bool vtkModifiedBSPTree::InsideCellBounds(double x[3], vtkIdType cell_ID)
 {
-  //
-  this->BuildLocatorIfNeeded();
-  //
+  // vtkModifiedBSPTree stores cell bounds always
   return vtkAbstractCellLocator::IsInBounds(this->CellBounds[cell_ID], x);
 }
 //------------------------------------------------------------------------------
