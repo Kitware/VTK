@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   ${memkind_tests}
   LagrangeHexahedron.cxx
   BezierInterpolation.cxx
+  CellTreeLocator.cxx
   TestBezier.cxx
   TestAngularPeriodicDataArray.cxx
   TestArrayListTemplate.cxx
