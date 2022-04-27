@@ -600,8 +600,8 @@ void vtkCellTreeLocator::BuildLocatorInternal()
   this->Tree = new vtkCellTree;
   vtkCellTreeBuilder builder;
   builder.m_leafsize = this->NumberOfCellsPerNode;
-  builder.m_buckets = NumberOfBuckets;
-  builder.Build(this, *(Tree), this->DataSet);
+  builder.m_buckets = this->NumberOfBuckets;
+  builder.Build(this, *(this->Tree), this->DataSet);
   this->BuildTime.Modified();
 }
 
@@ -626,10 +626,7 @@ vtkIdType vtkCellTreeLocator::FindCell(
 vtkIdType vtkCellTreeLocator::FindCell(
   double pos[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
-  if (this->Tree == nullptr)
-  {
-    return -1;
-  }
+  this->BuildLocatorIfNeeded();
   // check if pos outside of bounds
   if (!vtkAbstractCellLocator::IsInBounds(this->Tree->DataBBox, pos))
   {
@@ -703,14 +700,12 @@ int vtkCellTreeLocator::IntersectWithLine(const double p1[3], const double p2[3]
 int vtkCellTreeLocator::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellIds)
 {
-  //
+  this->BuildLocatorIfNeeded();
   vtkCellTreeNode *node, *nearNode, *farNode;
   double ctmin, ctmax, tmin, tmax, _tmin, _tmax, tDist;
   double ray_vec[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
 
   double cellBounds[6];
-
-  this->BuildLocatorIfNeeded();
 
   // Does ray pass through root BBox
   tmin = 0;
