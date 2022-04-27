@@ -991,6 +991,9 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
     endif () # if (_vtk_python_BUILD_STATIC)
 
+    # convert package "x.y" into "x/y" to access its contents on the filesystem
+    string(REPLACE "." "/" _vtk_python_package_dir "${_vtk_python_PYTHON_PACKAGE}")
+
     set(_vtk_python_pyi_files)
     set(_vtk_python_modules)
     set(_vtk_python_module_targets)
@@ -999,7 +1002,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         TARGET    "${_vtk_python_module}"
         PROPERTY  "INTERFACE_vtk_module_library_name")
       list(APPEND _vtk_python_pyi_files
-        "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}/${_vtk_python_library_name}.pyi")
+        "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}/${_vtk_python_library_name}.pyi")
       list(APPEND _vtk_python_modules "${_vtk_python_library_name}")
       if (TARGET "${_vtk_python_library_name}Python")
         list(APPEND _vtk_python_module_targets "${_vtk_python_library_name}Python")
@@ -1019,7 +1022,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         COMMAND   "${_vtk_python_exe}"
                   -m vtkmodules.generate_pyi
                   -p "${_vtk_python_PYTHON_PACKAGE}"
-                  -o "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}"
+                  -o "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}"
                   ${_vtk_python_modules}
         WORKING_DIRECTORY
                   "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}"
@@ -1030,7 +1033,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
 
       install(
         FILES       ${_vtk_python_pyi_files}
-        DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_PYTHON_PACKAGE}"
+        DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_dir}"
         COMPONENT   "${_vtk_python_component}")
 
       add_custom_target("${_vtk_python_TARGET_NAME}_pyi" ALL
