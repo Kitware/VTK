@@ -517,20 +517,9 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkFloatingPointExceptionsConfigure.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
 
-# Allow work arounds for lack of thread_local on odd compilers
-set(vtk_logger_defines)
-if (NOT (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0) )
-  list(APPEND vtk_object_base_defines "VTK_HAS_THREADLOCAL")
-  list(APPEND vtk_logger_defines "VTK_HAS_THREADLOCAL")
-endif ()
-
 set_property(SOURCE vtkObjectBase.cxx
   PROPERTY
      COMPILE_DEFINITIONS ${vtk_object_base_defines})
-
-set_property(SOURCE vtkLogger.cxx
-  PROPERTY
-     COMPILE_DEFINITIONS ${vtk_logger_defines})
 
 if(MSVC)
   set_source_files_properties(

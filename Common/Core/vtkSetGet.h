@@ -1232,6 +1232,16 @@ public:
 #define VTK_FALLTHROUGH ((void)0)
 #endif
 
+// XXX(xcode-8)
+// AppleClang first supported thread_local only by Xcode 8, for older Xcodes
+// fall back to the non-standard __thread which is equivalent for many, but
+// not all, cases.  Notably, it has limitations on variable scope.
+#if defined(__apple_build_version__) && (__clang_major__ < 8)
+#define VTK_THREAD_LOCAL _Thread_local
+#else
+#define VTK_THREAD_LOCAL thread_local
+#endif
+
 //----------------------------------------------------------------------------
 // Macro to generate bitflag operators for C++11 scoped enums.
 

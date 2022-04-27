@@ -56,7 +56,7 @@ public:
   /// This will throw an exception if kk <= 0.
   const std::vector<Integer>& operator()(Integer kk, Integer nn) const
   {
-    thread_local static std::vector<Integer> data;
+    VTK_THREAD_LOCAL static std::vector<Integer> data;
     this->GenerateSample(kk, nn, data);
     return data;
   }
@@ -66,7 +66,7 @@ public:
   /// This will throw an exception if kk <= 0.
   const std::vector<Integer>& operator()(Integer kk, vtkAbstractArray* array) const
   {
-    thread_local static std::vector<Integer> data;
+    VTK_THREAD_LOCAL static std::vector<Integer> data;
     if (!array)
     {
       throw std::invalid_argument("Null arrays are disallowed.");

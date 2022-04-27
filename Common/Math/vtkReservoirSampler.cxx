@@ -16,6 +16,6 @@
 
 vtkReservoirSamplerBase::SeedType vtkReservoirSamplerBase::RandomSeed()
 {
-  thread_local std::random_device device;
+  VTK_THREAD_LOCAL std::random_device device;
   return device();
 }
