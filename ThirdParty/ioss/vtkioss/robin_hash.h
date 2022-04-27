@@ -176,7 +176,8 @@ namespace tsl {
       using distance_type = std::int16_t;
 
       bucket_entry() noexcept
-          : bucket_hash(), m_dist_from_ideal_bucket(EMPTY_MARKER_DIST_FROM_IDEAL_BUCKET)
+          : bucket_hash(), m_dist_from_ideal_bucket(EMPTY_MARKER_DIST_FROM_IDEAL_BUCKET),
+            m_last_bucket(false)
       {
         tsl_rh_assert(empty());
       }
@@ -327,7 +328,7 @@ namespace tsl {
       using storage = typename std::aligned_storage<sizeof(value_type), alignof(value_type)>::type;
 
       distance_type m_dist_from_ideal_bucket;
-      bool          m_last_bucket{false};
+      bool          m_last_bucket;
       storage       m_value;
     };
 
@@ -415,8 +416,8 @@ namespace tsl {
           return true;
         }
         else if (STORE_HASH && is_power_of_two_policy<GrowthPolicy>::value) {
-          tsl_rh_assert(bucket_count > 0);
-          return (bucket_count - 1) <= std::numeric_limits<truncated_hash_type>::max();
+          return bucket_count == 0 ||
+                 (bucket_count - 1) <= std::numeric_limits<truncated_hash_type>::max();
         }
         else {
           TSL_RH_UNUSED(bucket_count);

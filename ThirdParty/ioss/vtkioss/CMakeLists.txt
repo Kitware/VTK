@@ -43,6 +43,7 @@ set(classes
   Ioss_EdgeBlock
   Ioss_EdgeSet
   Ioss_ElementBlock
+  Ioss_ElementPermutation
   Ioss_ElementSet
   Ioss_ElementTopology
   Ioss_EntityBlock
@@ -158,9 +159,6 @@ set(classes
   heartbeat/Iohb_Layout
 
   init/Ionit_Initializer
-
-  text_mesh/Iotm_DatabaseIO
-  text_mesh/Iotm_TextMesh
 
   transform/Iotr_Initializer
   transform/Iotr_MinMax
@@ -343,8 +341,6 @@ list(APPEND headers
   robin_map.h
   robin_set.h
   tokenize.h
-
-  text_mesh/Iotm_TextMeshUtils.h
 
   vtk_ioss_mangle.h)
 

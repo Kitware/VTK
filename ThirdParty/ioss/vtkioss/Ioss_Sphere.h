@@ -24,10 +24,11 @@ namespace Ioss {
     ~Sphere() override     = default;
     Sphere(const Sphere &) = delete;
 
-    ElementShape shape() const override { return ElementShape::POINT; }
+    ElementShape shape() const override { return ElementShape::SPHERE; }
     int          spatial_dimension() const override;
     int          parametric_dimension() const override;
     bool         is_element() const override { return true; }
+    bool         is_shell() const override { return false; }
     int          order() const override;
 
     int number_corner_nodes() const override;
@@ -46,10 +47,9 @@ namespace Ioss {
     Ioss::ElementTopology *face_type(int face_number = 0) const override;
     Ioss::ElementTopology *edge_type(int edge_number = 0) const override;
 
+    const std::string &base_topology_permutation_name() const override;
+
   protected:
     Sphere();
-
-  private:
-    static Sphere instance_;
   };
 } // namespace Ioss

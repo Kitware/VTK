@@ -9,6 +9,7 @@
 #include "vtk_ioss_mangle.h"
 
 #include <Ioss_CodeTypes.h>
+#include <Ioss_ElementTopology.h>
 #include <Ioss_Field.h>
 #include <Ioss_Property.h>
 #include <Ioss_Sort.h>
@@ -196,7 +197,7 @@ namespace Ioss {
 
     template <size_t size> static void copy_string(char (&output)[size], const char *source)
     {
-      // Copy the string — don’t copy too many bytes.
+      // Copy the string don't copy too many bytes.
       copy_string(output, source, size);
     }
 
@@ -359,6 +360,13 @@ namespace Ioss {
      */
     static std::string fixup_type(const std::string &base, int nodes_per_element, int spatial);
 
+    /** \brief Uppercase the first letter of the string
+     *
+     *  \param[in] name The string to convert.
+     *  \returns The converted string.
+     */
+    static std::string capitalize(std::string name);
+
     /** \brief Convert a string to upper case.
      *
      *  \param[in] name The string to convert.
@@ -487,6 +495,8 @@ namespace Ioss {
     //! It also converts name to lowercase and converts spaces to `_`
     static std::string variable_name_kluge(const std::string &name, size_t component_count,
                                            size_t copies, size_t max_var_len);
+
+    static std::string shape_to_string(const Ioss::ElementShape &shape);
 
     /** \brief Create a nominal mesh for use in history databases.
      *
