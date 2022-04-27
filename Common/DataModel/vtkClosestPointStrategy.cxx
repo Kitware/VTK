@@ -368,6 +368,15 @@ vtkIdType vtkClosestPointStrategy::FindClosestPointWithinRadius(double x[3], dou
 }
 
 //------------------------------------------------------------------------------
+bool vtkClosestPointStrategy::InsideCellBounds(double x[3], vtkIdType cellId)
+{
+  double bounds[6];
+  this->PointSet->GetCellBounds(cellId, bounds);
+  return bounds[0] <= x[0] && x[0] <= bounds[1] && bounds[2] <= x[1] && x[1] <= bounds[3] &&
+    bounds[4] <= x[2] && x[2] <= bounds[5];
+}
+
+//------------------------------------------------------------------------------
 void vtkClosestPointStrategy::CopyParameters(vtkFindCellStrategy* from)
 {
 

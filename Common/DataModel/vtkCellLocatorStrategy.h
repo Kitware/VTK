@@ -67,6 +67,11 @@ public:
   vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
     vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside) override;
 
+  /**
+   * Implement the specific strategy.
+   */
+  bool InsideCellBounds(double x[3], vtkIdType cellId) override;
+
   ///@{
   /**
    * Set / get an instance of vtkAbstractCellLocator which is used to
