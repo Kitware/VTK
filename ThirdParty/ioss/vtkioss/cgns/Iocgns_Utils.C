@@ -1631,7 +1631,7 @@ void Iocgns::Utils::add_sidesets(int cgns_file_ptr, Ioss::DatabaseIO *db)
       }
       if (id == 0) {
         id = Ioss::Utils::extract_id(ss_name);
-        if (id == 0) {
+        if (id == 0 && ss_name != "Unspecified") {
           // Assign a fake_id to this sideset.  No checking to make
           // sure there are no duplicates...
           id = fake_id--;
@@ -1691,7 +1691,7 @@ void Iocgns::Utils::add_assemblies(int cgns_file_ptr, Ioss::DatabaseIO *db)
           }
           cg_free(dtext);
         }
-        if (!assem_name.empty()) {
+        if (!assem_name.empty() && assem_name != "Unspecified") {
           // Create an assembly with this name...
           auto *assem = new Ioss::Assembly(db, assem_name);
           db->get_region()->add(assem);
@@ -2639,14 +2639,12 @@ int Iocgns::Utils::pre_split(std::vector<Iocgns::StructuredZoneData *> &zones, d
   int  new_zone_id = static_cast<int>(zones.size()) + 1;
 
   // See if can split each zone over a set of procs...
-  double           total_work = 0.0;
   std::vector<int> splits(zones.size());
 
   for (size_t i = 0; i < zones.size(); i++) {
     auto zone = zones[i];
     if (zone->m_lineOrdinal != 7) {
       double work = zone->work();
-      total_work += work;
       if (load_balance <= 1.2) {
         splits[i] = int(std::ceil(work / avg_work));
       }

@@ -24,10 +24,11 @@ namespace Ioss {
     ~Spring3() override      = default;
     Spring3(const Spring3 &) = delete;
 
-    ElementShape shape() const override { return ElementShape::LINE; }
+    ElementShape shape() const override { return ElementShape::SPRING; }
     int          spatial_dimension() const override;
     int          parametric_dimension() const override;
     bool         is_element() const override { return true; }
+    bool         is_shell() const override { return false; }
     int          order() const override;
 
     int number_corner_nodes() const override;
@@ -48,8 +49,5 @@ namespace Ioss {
 
   protected:
     Spring3();
-
-  private:
-    static Spring3 instance_;
   };
 } // namespace Ioss

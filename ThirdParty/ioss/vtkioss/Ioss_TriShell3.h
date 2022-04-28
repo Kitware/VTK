@@ -28,6 +28,7 @@ namespace Ioss {
     int          spatial_dimension() const override;
     int          parametric_dimension() const override;
     bool         is_element() const override { return true; }
+    bool         is_shell() const override { return true; }
     int          order() const override;
 
     int number_corner_nodes() const override;
@@ -52,8 +53,6 @@ namespace Ioss {
     TriShell3();
 
   private:
-    static TriShell3 instance_;
-
     TriShell3(const TriShell3 &) = delete;
   };
 } // namespace Ioss

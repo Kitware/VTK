@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------
 // Define a variable type for storage of this elements connectivity
 #include "Ioss_CodeTypes.h"           // for IntVector
+#include "Ioss_ElementPermutation.h"  // for ElementPermutation
 #include "Ioss_ElementTopology.h"     // for ElementTopology
 #include <Ioss_ElementVariableType.h> // for ElementVariableType
 #include <Ioss_Node.h>

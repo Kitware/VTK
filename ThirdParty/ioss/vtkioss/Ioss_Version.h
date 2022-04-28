@@ -9,5 +9,5 @@
 #include "vtk_ioss_mangle.h"
 
 namespace Ioss {
-  inline const char *Version() { return "2021-10-12"; }
+  inline const char *Version() { return "2022-03-15"; }
 } // namespace Ioss

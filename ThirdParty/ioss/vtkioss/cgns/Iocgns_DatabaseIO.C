@@ -1573,9 +1573,10 @@ namespace Iocgns {
     int  cell_dimension = 0;
     int  phys_dimension = 0;
     CGCHECKM(cg_base_read(get_file_pointer(), base, basename, &cell_dimension, &phys_dimension));
-    if (phys_dimension != 3) {
+    if (phys_dimension != 3 && mesh_type == Ioss::MeshType::STRUCTURED) {
       std::ostringstream errmsg;
-      fmt::print(errmsg, "ERROR: The model is {}D.  Only 3D models are supported.", phys_dimension);
+      fmt::print(errmsg, "ERROR: The model is {}D.  Only 3D structured models are supported.",
+                 phys_dimension);
       IOSS_ERROR(errmsg);
     }
 
@@ -2721,8 +2722,10 @@ namespace Iocgns {
             int field_byte_size            = (field.get_type() == Ioss::Field::INT32) ? 32 : 64;
             if (field_byte_size == CG_SIZEOF_SIZE) {
               Utils::unmap_cgns_connectivity(eb->topology(), num_to_get, (cgsize_t *)data);
-              CGCHECKM(cg_section_write(get_file_pointer(), base, zone, "HexElements", type, 1,
-                                        num_to_get, 0, (cgsize_t *)data, &sect));
+              std::string element_type =
+                  fmt::format("{}Elements", Ioss::Utils::shape_to_string(eb->topology()->shape()));
+              CGCHECKM(cg_section_write(get_file_pointer(), base, zone, element_type.c_str(), type,
+                                        1, num_to_get, 0, (cgsize_t *)data, &sect));
             }
             else {
               CGNSIntVector connect;
@@ -2740,8 +2743,10 @@ namespace Iocgns {
                 }
               }
               Utils::unmap_cgns_connectivity(eb->topology(), num_to_get, connect.data());
-              CGCHECKM(cg_section_write(get_file_pointer(), base, zone, "HexElements", type, 1,
-                                        num_to_get, 0, connect.data(), &sect));
+              std::string element_type =
+                  fmt::format("{}Elements", Ioss::Utils::shape_to_string(eb->topology()->shape()));
+              CGCHECKM(cg_section_write(get_file_pointer(), base, zone, element_type.c_str(), type,
+                                        1, num_to_get, 0, connect.data(), &sect));
             }
             m_bcOffset[zone] += num_to_get;
             eb->property_update("section", sect);
@@ -3097,8 +3102,10 @@ namespace Iocgns {
         CGCHECKM(
             cg_goto(get_file_pointer(), base, "Zone_t", zone, "ZoneBC_t", 1, "BC_t", sect, "end"));
         CGCHECKM(cg_famname_write(name.c_str()));
-        CGCHECKM(cg_boco_gridlocation_write(get_file_pointer(), base, zone, sect,
-                                            CGNS_ENUMV(FaceCenter)));
+
+        int  phys_dimension = get_region()->get_property("spatial_dimension").get_int();
+        auto location       = phys_dimension == 2 ? CGNS_ENUMV(EdgeCenter) : CGNS_ENUMV(FaceCenter);
+        CGCHECKM(cg_boco_gridlocation_write(get_file_pointer(), base, zone, sect, location));
 
         CGCHECKM(cg_section_partial_write(get_file_pointer(), base, zone, sb_name.c_str(), type,
                                           cg_start, cg_end, 0, &sect));

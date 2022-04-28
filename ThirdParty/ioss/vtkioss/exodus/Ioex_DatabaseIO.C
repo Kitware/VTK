@@ -649,7 +649,6 @@ namespace Ioex {
 
   void DatabaseIO::get_step_times__()
   {
-    double              t_begin        = Ioss::Utils::timer();
     bool                exists         = false;
     double              last_time      = DBL_MAX;
     int                 timestep_count = 0;
@@ -772,9 +771,6 @@ namespace Ioex {
         }
       }
     }
-    double t_end    = Ioss::Utils::timer();
-    double duration = t_end - t_begin;
-    fmt::print(Ioss::DEBUG(), "Get Step Times = {}\n", duration);
   }
 
   void DatabaseIO::read_communication_metadata()
@@ -1388,7 +1384,6 @@ namespace Ioex {
     {
       // Check whether we already populated the element/sides vectors.
       if (element.empty() && sides.empty() && number_sides > 0) {
-        fmt::print("IOSS DEBUG: Reading data for {} element/sides\n", number_sides);
         element.resize(number_sides);
         sides.resize(number_sides);
         // Easier below here if the element and sides are a known 64-bit size...

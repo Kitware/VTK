@@ -1056,6 +1056,25 @@ int64_t Ioss::Utils::get_side_offset(const Ioss::SideBlock *sb)
   return side_offset;
 }
 
+std::string Ioss::Utils::shape_to_string(const Ioss::ElementShape &shape)
+{
+  switch (shape) {
+  case Ioss::ElementShape::UNKNOWN: return std::string("Unknown");
+  case Ioss::ElementShape::POINT: return std::string("Point");
+  case Ioss::ElementShape::SPHERE: return std::string("Sphere");
+  case Ioss::ElementShape::LINE: return std::string("Line");
+  case Ioss::ElementShape::SPRING: return std::string("Spring");
+  case Ioss::ElementShape::TRI: return std::string("Tri");
+  case Ioss::ElementShape::QUAD: return std::string("Quad");
+  case Ioss::ElementShape::TET: return std::string("Tet");
+  case Ioss::ElementShape::PYRAMID: return std::string("Pyramid");
+  case Ioss::ElementShape::WEDGE: return std::string("Wedge");
+  case Ioss::ElementShape::HEX: return std::string("Hex");
+  case Ioss::ElementShape::SUPER: return std::string("Super");
+  }
+  return std::string("Invalid shape [") + std::to_string(unsigned(shape)) + std::string("]");
+}
+
 unsigned int Ioss::Utils::hash(const std::string &name)
 {
   // Hash function from Aho, Sethi, Ullman "Compilers: Principles,
@@ -1124,6 +1143,12 @@ bool Ioss::Utils::str_equal(const std::string &s1, const std::string &s2)
 bool Ioss::Utils::substr_equal(const std::string &prefix, const std::string &str)
 {
   return (str.size() >= prefix.size()) && str_equal(prefix, str.substr(0, prefix.size()));
+}
+
+std::string Ioss::Utils::capitalize(std::string name)
+{
+  name[0] = std::toupper(name[0]);
+  return name;
 }
 
 std::string Ioss::Utils::uppercase(std::string name)
