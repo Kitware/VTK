@@ -39,16 +39,6 @@
  * - Tolerance
  * - RetainCellLists
  *
- * @warning
- * Many other types of spatial locators have been developed, such as
- * variable depth octrees and bih-trees. These are often more efficient
- * for the operations described here.
- *
- * @warning
- * Most of the methods of this class are not thread-safe. For a thread-safe,
- * more efficient generic implementation, please use vtkStaticCellLocator,
- * vtkCellTreeLocator.
- *
  * @sa
  * vtkAbstractCellLocator vtkStaticCellLocator vtkCellTreeLocator vtkModifiedBSPTree vtkOBBTree
  */
@@ -58,8 +48,9 @@
 
 #include "vtkAbstractCellLocator.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkNew.h"                   // For vtkNew
 
-class vtkNeighborCells;
+class vtkIntArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkCellLocator : public vtkAbstractCellLocator
 {
@@ -90,7 +81,6 @@ public:
    * the finite line. The cell is returned as a cell id and as a generic
    * cell.  For other IntersectWithLine signatures, see
    * vtkAbstractCellLocator.
-   * THIS METHOD IS NOT THREAD SAFE.
    */
   int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
@@ -105,7 +95,6 @@ public:
    * deallocation can be done only once outside the for loop.  If a cell is
    * found, "cell" contains the points and ptIds for the cell "cellId" upon
    * exit.
-   * THIS METHOD IS NOT THREAD SAFE.
    */
   void FindClosestPoint(const double x[3], double closestPoint[3], vtkGenericCell* cell,
     vtkIdType& cellId, int& subId, double& dist2) override;
@@ -126,7 +115,6 @@ public:
    * inside returns the return value of the EvaluatePosition call to the
    * closest cell; inside(=1) or outside(=0). For other
    * FindClosestPointWithinRadius signatures, see vtkAbstractCellLocator.
-   * THIS METHOD IS NOT THREAD SAFE.
    */
   vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
     vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside) override;
@@ -167,7 +155,6 @@ public:
    * that an empty cell list is returned. The user must provide the vtkIdList
    * to populate. This method returns data only after the locator has been
    * built.
-   * THIS METHOD IS NOT THREAD SAFE.
    */
   void FindCellsAlongLine(
     const double p1[3], const double p2[3], double tolerance, vtkIdList* cells) override;
@@ -188,48 +175,41 @@ protected:
   vtkCellLocator();
   ~vtkCellLocator() override;
 
-  void GetBucketNeighbors(int ijk[3], int ndivs, int level);
-  void GetOverlappingBuckets(
-    const double x[3], int ijk[3], double dist, int prevMinLevel[3], int prevMaxLevel[3]);
+  //------------------------------------------------------------------------------
+  class vtkNeighborCells
+  {
+  public:
+    vtkNeighborCells(int size);
 
-  void ClearCellHasBeenVisited();
-  void ClearCellHasBeenVisited(vtkIdType id);
+    inline int GetNumberOfNeighbors();
+
+    inline void Reset();
+
+    inline int* GetPoint(int i);
+
+    inline int InsertNextPoint(int* x);
+
+  protected:
+    vtkNew<vtkIntArray> Points;
+  };
+
+  void GetOverlappingBuckets(vtkNeighborCells& buckets, const double x[3], double dist,
+    int prevMinLevel[3], int prevMaxLevel[3]);
 
   double Distance2ToBucket(const double x[3], int nei[3]);
   double Distance2ToBounds(const double x[3], double bounds[6]);
 
   int NumberOfOctants;   // number of octants in tree
   double Bounds[6];      // bounding box root octant
-  int NumberOfParents;   // number of parent octants
   double H[3];           // width of leaf octant in x-y-z directions
   int NumberOfDivisions; // number of "leaf" octant sub-divisions
   vtkIdList** Tree;      // octree
 
   void MarkParents(void*, int, int, int, int, int);
-  void GetChildren(int idx, int level, int children[8]);
   int GenerateIndex(int offset, int numDivs, int i, int j, int k, vtkIdType& idx);
   void GenerateFace(
     int face, int numDivs, int i, int j, int k, vtkPoints* pts, vtkCellArray* polys);
-
-  vtkNeighborCells* Buckets;
-  unsigned char* CellHasBeenVisited;
-  unsigned char QueryNumber;
-
-  void ComputeOctantBounds(int i, int j, int k);
-  double OctantBounds[6]; // the bounds of the current octant
-  int IsInOctantBounds(const double x[3], double tol = 0.0)
-  {
-    if (this->OctantBounds[0] - tol <= x[0] && x[0] <= this->OctantBounds[1] + tol &&
-      this->OctantBounds[2] - tol <= x[1] && x[1] <= this->OctantBounds[3] + tol &&
-      this->OctantBounds[4] - tol <= x[2] && x[2] <= this->OctantBounds[5] + tol)
-    {
-      return 1;
-    }
-    else
-    {
-      return 0;
-    }
-  }
+  void ComputeOctantBounds(double octantBounds[6], int i, int j, int k);
 
 private:
   vtkCellLocator(const vtkCellLocator&) = delete;
