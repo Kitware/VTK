@@ -78,6 +78,7 @@
 #include <array>
 #include <cassert>
 #include <cctype>
+#include <functional>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -309,7 +310,7 @@ public:
   vtkIOSSUtilities::DatabaseFormatType GetFormat() const { return this->Format; }
 
   void SetDisplacementMagnitude(double s) { this->DisplacementMagnitude = s; }
-  bool GetDisplacementMagnitude() { return this->DisplacementMagnitude; }
+  double GetDisplacementMagnitude() { return this->DisplacementMagnitude; }
 
   //@{
   /**
@@ -2742,7 +2743,8 @@ bool vtkIOSSReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Re
   }
 
   auto& cache = this->Cache;
-  const auto xformPtsCacheKey = "__vtk_xformed_pts_" + std::to_string(timestep);
+  const auto xformPtsCacheKey = "__vtk_xformed_pts_" + std::to_string(timestep) +
+    std::to_string(std::hash<double>{}(this->DisplacementMagnitude));
   if (auto xformedPts = vtkPoints::SafeDownCast(cache.Find(group_entity, xformPtsCacheKey)))
   {
     assert(xformedPts->GetNumberOfPoints() == grid->GetNumberOfPoints());
