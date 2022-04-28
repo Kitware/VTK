@@ -316,18 +316,28 @@ int vtkFidesReader::RequestInformation(
 
   if (!this->StreamSteps && metaData.Has(fides::keys::NUMBER_OF_STEPS()))
   {
-    vtkDebugMacro(<< "We are not streaming steps and metadata contains number of steps info");
-    size_t nSteps =
-      metaData.Get<fides::metadata::Size>(fides::keys::NUMBER_OF_STEPS()).NumberOfItems;
+    // If there's a time array provided, we'll use that, otherwise, just create an array
+    // with consecutive integers for the time
+    std::vector<double> times;
+    int nSteps;
+    if (metaData.Has(fides::keys::TIME_ARRAY()))
+    {
+      times = metaData.Get<fides::metadata::Vector<double>>(fides::keys::TIME_ARRAY()).Data;
+      nSteps = static_cast<int>(times.size());
+    }
+    else
+    {
+      nSteps = metaData.Get<fides::metadata::Size>(fides::keys::NUMBER_OF_STEPS()).NumberOfItems;
 
-    std::vector<double> times(nSteps);
-    std::iota(times.begin(), times.end(), 0);
+      times.resize(nSteps);
+      std::iota(times.begin(), times.end(), 0);
+    }
 
     double timeRange[2];
     timeRange[0] = times[0];
     timeRange[1] = times[nSteps - 1];
 
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], (int)nSteps);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], nSteps);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
 
@@ -433,6 +443,40 @@ int vtkFidesReader::GetNextStepStatus()
 {
   vtkDebugMacro(<< "GetNextStepStatus = " << this->NextStepStatus);
   return this->NextStepStatus;
+}
+
+double vtkFidesReader::GetTimeOfCurrentStep()
+{
+  if (!this->StreamSteps)
+  {
+    vtkErrorMacro("GetTimeOfCurrentStep() can only be called in streaming mode");
+    return 0.0;
+  }
+
+  if (this->Impl->NumberOfDataSources == 0)
+  {
+    this->Impl->SetNumberOfDataSources();
+    if (this->Impl->Paths.size() == static_cast<size_t>(this->Impl->NumberOfDataSources))
+    {
+      vtkDebugMacro(<< "All data sources have now been set");
+      this->Impl->AllDataSourcesSet = true;
+    }
+  }
+
+  if (!this->Impl->HasParsedDataModel || !this->Impl->AllDataSourcesSet)
+  {
+    vtkErrorMacro(<< "data model has not been parsed or all data sources have not been set");
+    return 0.0;
+  }
+
+  auto metaData = this->Impl->Reader->ReadMetaData(this->Impl->Paths);
+  if (metaData.Has(fides::keys::TIME_VALUE()))
+  {
+    return metaData.Get<fides::metadata::Time>(fides::keys::TIME_VALUE()).Data;
+  }
+
+  vtkErrorMacro(<< "Couldn't grab the time from the Fides metadata");
+  return 0.0;
 }
 
 int vtkFidesReader::RequestData(

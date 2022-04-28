@@ -122,6 +122,12 @@ public:
    */
   int GetNextStepStatus();
 
+  /**
+   * Gets the time (from the specified ADIOS variable) of the current step.
+   * Should only be used in streaming mode.
+   */
+  double GetTimeOfCurrentStep();
+
   ///@{
   /**
    * Methods to determine whether to output a set of vtkmDataSets
