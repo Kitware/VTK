@@ -61,7 +61,7 @@ mkdir -p ~/dev/{vtk/{src,build},my-tests}
 cd ~/dev/vtk/
 git clone --recursive https://gitlab.kitware.com/vtk/vtk.git src
 cd ~/dev/vtk/build
-cmake -S"~/dev/vtk/src" -DVTK_WRAP_PYTHON:STR=ON -GNinja
+cmake ../src -DVTK_WRAP_PYTHON=ON -GNinja
 # Build using the generator specified in cmake.
 cmake --build .
 ```
@@ -79,7 +79,7 @@ Now download the VTK source from [VTK Releases][vtk-download], untar it into `~/
 
 ``` bash
 cd ~/dev/vtk/build
-cmake -S"~/dev/vtk/VTK-x.y.z" -DVTK_WRAP_PYTHON:STR=ON -GNinja
+cmake ../VTK-x.y.z -DVTK_WRAP_PYTHON=ON -GNinja
 # Build using the generator specified in cmake.
 cmake --build .
 ```
@@ -106,7 +106,7 @@ vtkpython CylinderExample.py
 python3 CylinderExample.py
 # Build the C++ version.
 cd ~/dev/my-tests/CylinderExample/build
-cmake -S".." -GNinja
+cmake .. -GNinja
 # Build using the generator specified in cmake.
 cmake --build .
 # Test the C++ build.
