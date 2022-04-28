@@ -25,7 +25,9 @@
 #include "vtkCellData.h"
 #include "vtkCellDataToPointData.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
@@ -42,6 +44,7 @@
 #include "vtkStaticCellLinks.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <limits>
@@ -93,8 +96,9 @@ int GetCellParametricData(
 
 // Functions for image data and structured grids
 template <class GridT, class DataT>
-void ComputeGradientsSG(GridT* output, DataT* array, DataT* gradients, int numberOfInputComponents,
-  int fieldAssociation, DataT* vorticity, DataT* qCriterion, DataT* divergence);
+void ComputeGradientsSG(GridT* output, int* dims, DataT* array, DataT* gradients,
+  int numberOfInputComponents, int fieldAssociation, DataT* vorticity, DataT* qCriterion,
+  DataT* divergence, vtkUnsignedCharArray* ghosts, unsigned char hiddenGhost);
 
 bool vtkGradientFilterHasArray(vtkFieldData* fieldData, vtkDataArray* array)
 {
@@ -346,8 +350,36 @@ int vtkGradientFilter::RequestData(vtkInformation* vtkNotUsed(request),
   if (output->IsA("vtkImageData") || output->IsA("vtkStructuredGrid") ||
     output->IsA("vtkRectilinearGrid"))
   {
-    this->ComputeRegularGridGradient(
-      array, fieldAssociation, computeVorticity, computeQCriterion, computeDivergence, output);
+    vtkUnsignedCharArray* ghosts = nullptr;
+    unsigned char hiddenGhost;
+    int dims[3];
+    if (auto im = vtkImageData::SafeDownCast(output))
+    {
+      im->GetDimensions(dims);
+    }
+    else if (auto rect = vtkRectilinearGrid::SafeDownCast(output))
+    {
+      rect->GetDimensions(dims);
+    }
+    else if (auto sg = vtkStructuredGrid::SafeDownCast(output))
+    {
+      sg->GetDimensions(dims);
+    }
+    if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    {
+      ghosts = input->GetPointData()->GetGhostArray();
+      hiddenGhost = vtkDataSetAttributes::HIDDENPOINT;
+    }
+    if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS)
+    {
+      ghosts = input->GetCellData()->GetGhostArray();
+      hiddenGhost = vtkDataSetAttributes::HIDDENCELL;
+      dims[0] -= (dims[0] != 1);
+      dims[1] -= (dims[1] != 1);
+      dims[2] -= (dims[2] != 1);
+    }
+    this->ComputeRegularGridGradient(array, dims, fieldAssociation, computeVorticity,
+      computeQCriterion, computeDivergence, output, ghosts, hiddenGhost);
   }
   else
   {
@@ -648,26 +680,26 @@ struct CellGradientsWorker
 struct StructuredGradientsWorker
 {
   template <class DataT>
-  void operator()(DataT* array, vtkDataSet* output, vtkDataArray* gradients,
+  void operator()(DataT* array, vtkDataSet* output, int* dims, vtkDataArray* gradients,
     vtkDataArray* vorticity, vtkDataArray* qCriterion, vtkDataArray* divergence,
-    int fieldAssociation)
+    int fieldAssociation, vtkUnsignedCharArray* ghosts, unsigned char hiddenGhost)
   {
     int numComp = array->GetNumberOfComponents();
 
     if (vtkStructuredGrid* sGrid = vtkStructuredGrid::SafeDownCast(output))
     {
-      ComputeGradientsSG(sGrid, array, (DataT*)gradients, numComp, fieldAssociation,
-        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence);
+      ComputeGradientsSG(sGrid, dims, array, (DataT*)gradients, numComp, fieldAssociation,
+        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence, ghosts, hiddenGhost);
     }
     else if (vtkImageData* image = vtkImageData::SafeDownCast(output))
     {
-      ComputeGradientsSG(image, array, (DataT*)gradients, numComp, fieldAssociation,
-        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence);
+      ComputeGradientsSG(image, dims, array, (DataT*)gradients, numComp, fieldAssociation,
+        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence, ghosts, hiddenGhost);
     }
     else if (vtkRectilinearGrid* rgrid = vtkRectilinearGrid::SafeDownCast(output))
     {
-      ComputeGradientsSG(rgrid, array, (DataT*)gradients, numComp, fieldAssociation,
-        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence);
+      ComputeGradientsSG(rgrid, dims, array, (DataT*)gradients, numComp, fieldAssociation,
+        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence, ghosts, hiddenGhost);
     }
   }
 };
@@ -963,8 +995,9 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
 }
 
 //------------------------------------------------------------------------------
-int vtkGradientFilter::ComputeRegularGridGradient(vtkDataArray* array, int fieldAssociation,
-  bool computeVorticity, bool computeQCriterion, bool computeDivergence, vtkDataSet* output)
+int vtkGradientFilter::ComputeRegularGridGradient(vtkDataArray* array, int* dims,
+  int fieldAssociation, bool computeVorticity, bool computeQCriterion, bool computeDivergence,
+  vtkDataSet* output, vtkUnsignedCharArray* ghosts, unsigned char hiddenGhost)
 {
   int arrayType = this->GetOutputArrayType(array);
   int numberOfInputComponents = array->GetNumberOfComponents();
@@ -1031,10 +1064,11 @@ int vtkGradientFilter::ComputeRegularGridGradient(vtkDataArray* array, int field
   using StructuredGradientsDispatch =
     vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
   StructuredGradientsWorker sgWorker;
-  if (!StructuredGradientsDispatch::Execute(
-        array, sgWorker, output, gradients, vorticity, qCriterion, divergence, fieldAssociation))
+  if (!StructuredGradientsDispatch::Execute(array, sgWorker, output, dims, gradients, vorticity,
+        qCriterion, divergence, fieldAssociation, ghosts, hiddenGhost))
   {
-    sgWorker(array, output, gradients, vorticity, qCriterion, divergence, fieldAssociation);
+    sgWorker(array, output, dims, gradients, vorticity, qCriterion, divergence, fieldAssociation,
+      ghosts, hiddenGhost);
   }
 
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
@@ -1129,6 +1163,22 @@ int GetCellParametricData(
 }
 
 //------------------------------------------------------------------------------
+void HandleDegenerateDimension(double* xp, double* xm, int numComp, std::vector<double>& plusvalues,
+  std::vector<double>& minusvalues, double& factor, int dim)
+{
+  factor = 1.0;
+  for (int ii = 0; ii < 3; ii++)
+  {
+    xp[ii] = xm[ii] = 0.0;
+  }
+  xp[dim] = 1.0;
+  for (int inputComponent = 0; inputComponent < numComp; inputComponent++)
+  {
+    plusvalues[inputComponent] = minusvalues[inputComponent] = 0;
+  }
+}
+
+//------------------------------------------------------------------------------
 // Threaded computation (on a slice-by-slice basis) of structured gradients.
 template <class GridT, class DataT>
 struct ComputeStructuredSlice : public GradientsBase<DataT>
@@ -1136,14 +1186,19 @@ struct ComputeStructuredSlice : public GradientsBase<DataT>
   GridT* Grid;
   int* Dims;
   int FieldAssociation;
+  vtkUnsignedCharArray* Ghosts;
+  unsigned char HiddenGhost;
   vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell; // prevent repeated instantiation
 
   ComputeStructuredSlice(GridT* output, int* dims, DataT* array, DataT* g, int numComp,
-    int fieldAssociation, DataT* v, DataT* q, DataT* d)
+    int fieldAssociation, DataT* v, DataT* q, DataT* d, vtkUnsignedCharArray* ghosts,
+    unsigned char hiddenGhost)
     : GradientsBase<DataT>(array, numComp, g, v, q, d)
     , Grid(output)
     , Dims(dims)
     , FieldAssociation(fieldAssociation)
+    , Ghosts(ghosts)
+    , HiddenGhost(hiddenGhost)
   {
   }
 
@@ -1184,63 +1239,64 @@ struct ComputeStructuredSlice : public GradientsBase<DataT>
       {
         for (int i = 0; i < dims[0]; i++)
         {
+          if (this->Ghosts &&
+            (this->Ghosts->GetValue(i + j * dims[0] + k * ijsize) & this->HiddenGhost))
+          {
+            continue;
+          }
           //  Xi derivatives.
           if (dims[0] == 1) // 2D in this direction
           {
-            factor = 1.0;
-            for (int ii = 0; ii < 3; ii++)
-            {
-              xp[ii] = xm[ii] = 0.0;
-            }
-            xp[0] = 1.0;
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
-            {
-              plusvalues[inputComponent] = minusvalues[inputComponent] = 0;
-            }
-          }
-          else if (i == 0)
-          {
-            factor = 1.0;
-            idx = (i + 1) + j * dims[0] + k * ijsize;
-            idx2 = i + j * dims[0] + k * ijsize;
-            GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
-            GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
-            auto a1 = array[idx];
-            auto a2 = array[idx2];
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
-            {
-              plusvalues[inputComponent] = a1[inputComponent];
-              minusvalues[inputComponent] = a2[inputComponent];
-            }
-          }
-          else if (i == (dims[0] - 1))
-          {
-            factor = 1.0;
-            idx = i + j * dims[0] + k * ijsize;
-            idx2 = i - 1 + j * dims[0] + k * ijsize;
-            GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
-            GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
-            auto a1 = array[idx];
-            auto a2 = array[idx2];
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
-            {
-              plusvalues[inputComponent] = a1[inputComponent];
-              minusvalues[inputComponent] = a2[inputComponent];
-            }
+            HandleDegenerateDimension(xp, xm, numComp, plusvalues, minusvalues, factor, 0);
           }
           else
           {
-            factor = 0.5;
-            idx = (i + 1) + j * dims[0] + k * ijsize;
-            idx2 = (i - 1) + j * dims[0] + k * ijsize;
-            GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
-            GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
-            auto a1 = array[idx];
-            auto a2 = array[idx2];
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
+            if (i == 0)
             {
-              plusvalues[inputComponent] = a1[inputComponent];
-              minusvalues[inputComponent] = a2[inputComponent];
+              factor = 1.0;
+              idx = (i + 1) + j * dims[0] + k * ijsize;
+              idx2 = i + j * dims[0] + k * ijsize;
+            }
+            else if (i == (dims[0] - 1))
+            {
+              factor = 1.0;
+              idx = i + j * dims[0] + k * ijsize;
+              idx2 = i - 1 + j * dims[0] + k * ijsize;
+            }
+            else
+            {
+              factor = 0.5;
+              idx = (i + 1) + j * dims[0] + k * ijsize;
+              idx2 = (i - 1) + j * dims[0] + k * ijsize;
+            }
+            if (this->Ghosts)
+            {
+              if (this->Ghosts->GetValue(idx2) & this->HiddenGhost)
+              {
+                ++idx2;
+                factor += 0.5;
+              }
+              if (this->Ghosts->GetValue(idx) & this->HiddenGhost)
+              {
+                --idx;
+                factor += 0.5;
+              }
+            }
+            if (idx == idx2)
+            {
+              HandleDegenerateDimension(xp, xm, numComp, plusvalues, minusvalues, factor, 0);
+            }
+            else
+            {
+              GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
+              GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
+              auto a1 = array[idx];
+              auto a2 = array[idx2];
+              for (inputComponent = 0; inputComponent < numComp; inputComponent++)
+              {
+                plusvalues[inputComponent] = a1[inputComponent];
+                minusvalues[inputComponent] = a2[inputComponent];
+              }
             }
           }
 
@@ -1256,60 +1312,56 @@ struct ComputeStructuredSlice : public GradientsBase<DataT>
           //  Eta derivatives.
           if (dims[1] == 1) // 2D in this direction
           {
-            factor = 1.0;
-            for (int ii = 0; ii < 3; ii++)
-            {
-              xp[ii] = xm[ii] = 0.0;
-            }
-            xp[1] = 1.0;
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
-            {
-              plusvalues[inputComponent] = minusvalues[inputComponent] = 0;
-            }
-          }
-          else if (j == 0)
-          {
-            factor = 1.0;
-            idx = i + (j + 1) * dims[0] + k * ijsize;
-            idx2 = i + j * dims[0] + k * ijsize;
-            GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
-            GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
-            auto a1 = array[idx];
-            auto a2 = array[idx2];
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
-            {
-              plusvalues[inputComponent] = a1[inputComponent];
-              minusvalues[inputComponent] = a2[inputComponent];
-            }
-          }
-          else if (j == (dims[1] - 1))
-          {
-            factor = 1.0;
-            idx = i + j * dims[0] + k * ijsize;
-            idx2 = i + (j - 1) * dims[0] + k * ijsize;
-            GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
-            GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
-            auto a1 = array[idx];
-            auto a2 = array[idx2];
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
-            {
-              plusvalues[inputComponent] = a1[inputComponent];
-              minusvalues[inputComponent] = a2[inputComponent];
-            }
+            HandleDegenerateDimension(xp, xm, numComp, plusvalues, minusvalues, factor, 1);
           }
           else
           {
-            factor = 0.5;
-            idx = i + (j + 1) * dims[0] + k * ijsize;
-            idx2 = i + (j - 1) * dims[0] + k * ijsize;
-            GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
-            GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
-            auto a1 = array[idx];
-            auto a2 = array[idx2];
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
+            if (j == 0)
             {
-              plusvalues[inputComponent] = a1[inputComponent];
-              minusvalues[inputComponent] = a2[inputComponent];
+              factor = 1.0;
+              idx = i + (j + 1) * dims[0] + k * ijsize;
+              idx2 = i + j * dims[0] + k * ijsize;
+            }
+            else if (j == (dims[1] - 1))
+            {
+              factor = 1.0;
+              idx = i + j * dims[0] + k * ijsize;
+              idx2 = i + (j - 1) * dims[0] + k * ijsize;
+            }
+            else
+            {
+              factor = 0.5;
+              idx = i + (j + 1) * dims[0] + k * ijsize;
+              idx2 = i + (j - 1) * dims[0] + k * ijsize;
+            }
+            if (this->Ghosts)
+            {
+              if (this->Ghosts->GetValue(idx2) & this->HiddenGhost)
+              {
+                idx2 += dims[0];
+                factor += 0.5;
+              }
+              if (this->Ghosts->GetValue(idx) & this->HiddenGhost)
+              {
+                idx -= dims[0];
+                factor += 0.5;
+              }
+            }
+            if (idx == idx2)
+            {
+              HandleDegenerateDimension(xp, xm, numComp, plusvalues, minusvalues, factor, 1);
+            }
+            else
+            {
+              GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
+              GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
+              auto a1 = array[idx];
+              auto a2 = array[idx2];
+              for (inputComponent = 0; inputComponent < numComp; inputComponent++)
+              {
+                plusvalues[inputComponent] = a1[inputComponent];
+                minusvalues[inputComponent] = a2[inputComponent];
+              }
             }
           }
 
@@ -1325,60 +1377,56 @@ struct ComputeStructuredSlice : public GradientsBase<DataT>
           //  Zeta derivatives.
           if (dims[2] == 1) // 2D in this direction
           {
-            factor = 1.0;
-            for (int ii = 0; ii < 3; ii++)
-            {
-              xp[ii] = xm[ii] = 0.0;
-            }
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
-            {
-              plusvalues[inputComponent] = minusvalues[inputComponent] = 0;
-            }
-            xp[2] = 1.0;
-          }
-          else if (k == 0)
-          {
-            factor = 1.0;
-            idx = i + j * dims[0] + (k + 1) * ijsize;
-            idx2 = i + j * dims[0] + k * ijsize;
-            GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
-            GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
-            auto a1 = array[idx];
-            auto a2 = array[idx2];
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
-            {
-              plusvalues[inputComponent] = a1[inputComponent];
-              minusvalues[inputComponent] = a2[inputComponent];
-            }
-          }
-          else if (k == (dims[2] - 1))
-          {
-            factor = 1.0;
-            idx = i + j * dims[0] + k * ijsize;
-            idx2 = i + j * dims[0] + (k - 1) * ijsize;
-            GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
-            GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
-            auto a1 = array[idx];
-            auto a2 = array[idx2];
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
-            {
-              plusvalues[inputComponent] = a1[inputComponent];
-              minusvalues[inputComponent] = a2[inputComponent];
-            }
+            HandleDegenerateDimension(xp, xm, numComp, plusvalues, minusvalues, factor, 2);
           }
           else
           {
-            factor = 0.5;
-            idx = i + j * dims[0] + (k + 1) * ijsize;
-            idx2 = i + j * dims[0] + (k - 1) * ijsize;
-            GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
-            GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
-            auto a1 = array[idx];
-            auto a2 = array[idx2];
-            for (inputComponent = 0; inputComponent < numComp; inputComponent++)
+            if (k == 0)
             {
-              plusvalues[inputComponent] = a1[inputComponent];
-              minusvalues[inputComponent] = a2[inputComponent];
+              factor = 1.0;
+              idx = i + j * dims[0] + (k + 1) * ijsize;
+              idx2 = i + j * dims[0] + k * ijsize;
+            }
+            else if (k == (dims[2] - 1))
+            {
+              factor = 1.0;
+              idx = i + j * dims[0] + k * ijsize;
+              idx2 = i + j * dims[0] + (k - 1) * ijsize;
+            }
+            else
+            {
+              factor = 0.5;
+              idx = i + j * dims[0] + (k + 1) * ijsize;
+              idx2 = i + j * dims[0] + (k - 1) * ijsize;
+            }
+            if (this->Ghosts)
+            {
+              if (this->Ghosts->GetValue(idx2) & this->HiddenGhost)
+              {
+                idx2 += ijsize;
+                factor += 0.5;
+              }
+              if (this->Ghosts->GetValue(idx) & this->HiddenGhost)
+              {
+                idx -= ijsize;
+                factor += 0.5;
+              }
+            }
+            if (idx == idx2)
+            {
+              HandleDegenerateDimension(xp, xm, numComp, plusvalues, minusvalues, factor, 2);
+            }
+            else
+            {
+              GetGridEntityCoordinate(output, fieldAssociation, idx, xp, cell);
+              GetGridEntityCoordinate(output, fieldAssociation, idx2, xm, cell);
+              auto a1 = array[idx];
+              auto a2 = array[idx2];
+              for (inputComponent = 0; inputComponent < numComp; inputComponent++)
+              {
+                plusvalues[inputComponent] = a1[inputComponent];
+                minusvalues[inputComponent] = a2[inputComponent];
+              }
             }
           }
 
@@ -1467,22 +1515,12 @@ struct ComputeStructuredSlice : public GradientsBase<DataT>
 //------------------------------------------------------------------------------
 // Process structured dataset types. Thread slice-by-slice.
 template <class GridT, class DataT>
-void ComputeGradientsSG(GridT* output, DataT* array, DataT* gradients, int numComp,
-  int fieldAssociation, DataT* vorticity, DataT* qCriterion, DataT* divergence)
+void ComputeGradientsSG(GridT* output, int* dims, DataT* array, DataT* gradients, int numComp,
+  int fieldAssociation, DataT* vorticity, DataT* qCriterion, DataT* divergence,
+  vtkUnsignedCharArray* ghosts, unsigned char hiddenGhost)
 {
-  int dims[3];
-  output->GetDimensions(dims);
-  if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS)
-  {
-    // reduce the dimensions by 1 for cells
-    for (int i = 0; i < 3; i++)
-    {
-      dims[i]--;
-    }
-  }
-
-  ComputeStructuredSlice<GridT, DataT> structuredSliceWorker(
-    output, dims, array, gradients, numComp, fieldAssociation, vorticity, qCriterion, divergence);
+  ComputeStructuredSlice<GridT, DataT> structuredSliceWorker(output, dims, array, gradients,
+    numComp, fieldAssociation, vorticity, qCriterion, divergence, ghosts, hiddenGhost);
 
   vtkSMPTools::For(0, dims[2], structuredSliceWorker);
 }
