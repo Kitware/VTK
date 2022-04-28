@@ -101,10 +101,9 @@
  * - MaxLevel                    (default 8)
  * - NumberOfCellsPerNode        (default 32)
  * - UseExistingSearchStructure  (default false)
- * - LazyEvaluation              (default true)
+ * - CacheCellBounds             (default true)
  *
  * vtkModifiedBSPTree does NOT utilize the following parameters:
- * - CacheCellBounds             (always cached)
  * - Automatic
  * - Tolerance
  * - RetainCellLists
@@ -176,7 +175,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
 public:
   ///@{
   /**
-   * Standard Type-Macro
+   * Standard methods to print and obtain type-related information.
    */
   vtkTypeMacro(vtkModifiedBSPTree, vtkAbstractCellLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -192,35 +191,10 @@ public:
   using vtkAbstractCellLocator::IntersectWithLine;
 
   /**
-   * Free tree memory
-   */
-  void FreeSearchStructure() override;
-
-  /**
-   * Build Tree
-   */
-  void BuildLocator() override;
-
-  /**
-   * Generate BBox representation of Nth level
-   */
-  void GenerateRepresentation(int level, vtkPolyData* pd) override;
-
-  /**
-   * Generate BBox representation of all leaf nodes
-   */
-  virtual void GenerateRepresentationLeafs(vtkPolyData* pd);
-
-  /**
-   * Return intersection point (if any) AND the cell which was intersected by
-   * the finite line. Uses fast tree-search BBox rejection tests.
-   */
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
-    double pcoords[3], int& subId, vtkIdType& cellId) override;
-
-  /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. The cell is returned as a cell id and as a generic cell.
+   *
+   * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
@@ -228,26 +202,38 @@ public:
   /**
    * Take the passed line segment and intersect it with the data set.
    * The return value of the function is 0 if no intersections were found.
-   * For each intersection found, the vtkPoints and CellIds objects
-   * have the relevant information added in order of intersection increasing
-   * from ray start to end. If either vtkPoints or CellIds are nullptr
-   * pointers, then no information is generated for that list.
+   * For each intersection with the bounds of a cell or with a cell (if a cell is provided),
+   * the points and cellIds have the relevant information added sorted by t.
+   * If points or cellIds are nullptr pointers, then no information is generated for that list.
+   *
+   * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */
-  virtual int IntersectWithLine(const double p1[3], const double p2[3], const double tol,
-    vtkPoints* points, vtkIdList* cellIds);
+  int IntersectWithLine(const double p1[3], const double p2[3], const double tol, vtkPoints* points,
+    vtkIdList* cellIds, vtkGenericCell* cell) override;
 
-  ///@{
   /**
-   * Test a point to find if it is inside a cell. Returns the cellId if inside
-   * or -1 if not.
+   * Take the passed line segment and intersect it with the data set.
+   * For each intersection with the bounds of a cell, the cellIds
+   * have the relevant information added sort by t. If cellIds is nullptr
+   * pointer, then no information is generated for that list.
+   *
+   * Reimplemented from vtkAbstractCellLocator to showcase that it's a supported function.
    */
-  vtkIdType FindCell(
-    double x[3], double tol2, vtkGenericCell* GenCell, double pcoords[3], double* weights) override;
-  vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* GenCell, int& subId,
-    double pcoords[3], double* weights) override;
-  ///@}
+  void FindCellsAlongLine(
+    const double p1[3], const double p2[3], double tolerance, vtkIdList* cellsIds) override
+  {
+    this->Superclass::FindCellsAlongLine(p1, p2, tolerance, cellsIds);
+  }
 
-  bool InsideCellBounds(double x[3], vtkIdType cell_ID) override;
+  /**
+   * Find the cell containing a given point. returns -1 if no cell found
+   * the cell parameters are copied into the supplied variables, a cell must
+   * be provided to store the information.
+   *
+   * For other FindCell signatures, see vtkAbstractCellLocator.
+   */
+  vtkIdType FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* GenCell, int& subId,
+    double pcoords[3], double* weights) override;
 
   /**
    * After subdivision has completed, one may wish to query the tree to find
@@ -255,6 +241,21 @@ public:
    * which holds a cell Id list for each leaf node.
    */
   vtkIdListCollection* GetLeafNodeCellInformation();
+
+  /**
+   * Generate BBox representation of all leaf nodes
+   */
+  virtual void GenerateRepresentationLeafs(vtkPolyData* pd);
+
+  ///@{
+  /**
+   * Satisfy vtkLocator abstract interface.
+   */
+  void GenerateRepresentation(int level, vtkPolyData* pd) override;
+  void FreeSearchStructure() override;
+  void BuildLocator() override;
+  void ForceBuildLocator() override;
+  ///@}
 
 protected:
   vtkModifiedBSPTree();
@@ -270,16 +271,7 @@ protected:
   void Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lists, vtkDataSet* dataSet,
     vtkIdType nCells, int depth, int maxlevel, vtkIdType maxCells, int& MaxDepth);
 
-  // We provide a function which does the cell/ray test so that
-  // it can be overridden by subclasses to perform special treatment
-  // (Example : Particles stored in tree, have no dimension, so we must
-  // override the cell test to return a value based on some particle size
-  virtual int IntersectCellInternal(vtkIdType cell_ID, const double p1[3], const double p2[3],
-    const double tol, double& t, double ipt[3], double pcoords[3], int& subId);
-
-  void BuildLocatorIfNeeded();
-  void ForceBuildLocator();
-  void BuildLocatorInternal();
+  void BuildLocatorInternal() override;
 
 private:
   vtkModifiedBSPTree(const vtkModifiedBSPTree&) = delete;
@@ -348,15 +340,9 @@ protected:
   // Order nodes as near/mid far relative to ray
   void Classify(const double origin[3], const double dir[3], double& rDist, BSPNode*& Near,
     BSPNode*& Mid, BSPNode*& Far) const;
-  // Test ray against node BBox : clip t values to extremes
-  bool RayMinMaxT(const double origin[3], const double dir[3], double& rTmin, double& rTmax) const;
-  //
   friend class vtkModifiedBSPTree;
-  friend class vtkParticleBoxTree;
 
 public:
-  static bool VTKFILTERSFLOWPATHS_EXPORT RayMinMaxT(const double bounds[6], const double origin[3],
-    const double dir[3], double& rTmin, double& rTmax);
   static int VTKFILTERSFLOWPATHS_EXPORT getDominantAxis(const double dir[3]);
 };
 

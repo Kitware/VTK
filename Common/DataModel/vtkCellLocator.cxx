@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
+#include <array>
 #include <cmath>
 
 vtkStandardNewMacro(vtkCellLocator);
@@ -141,10 +142,24 @@ void vtkCellLocator::ComputeOctantBounds(double octantBounds[6], int i, int j, i
 }
 
 //------------------------------------------------------------------------------
+void vtkCellLocator::GetBucketIndices(const double x[3], int ijk[3])
+{
+  ijk[0] = static_cast<int>((x[0] - this->Bounds[0]) / this->H[0]);
+  ijk[1] = static_cast<int>((x[1] - this->Bounds[2]) / this->H[1]);
+  ijk[2] = static_cast<int>((x[2] - this->Bounds[4]) / this->H[2]);
+
+  ijk[0] =
+    (ijk[0] < 0 ? 0 : (ijk[0] >= this->NumberOfDivisions ? this->NumberOfDivisions - 1 : ijk[0]));
+  ijk[1] =
+    (ijk[1] < 0 ? 0 : (ijk[1] >= this->NumberOfDivisions ? this->NumberOfDivisions - 1 : ijk[1]));
+  ijk[2] =
+    (ijk[2] < 0 ? 0 : (ijk[2] >= this->NumberOfDivisions ? this->NumberOfDivisions - 1 : ijk[2]));
+}
+
+//------------------------------------------------------------------------------
 // Return intersection point (if any) AND the cell which was intersected by
 // finite line.
-//
-int vtkCellLocator::IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t,
+int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
   double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell)
 {
   this->BuildLocatorIfNeeded();
@@ -153,225 +168,179 @@ int vtkCellLocator::IntersectWithLine(const double a0[3], const double a1[3], do
     // empty tree, most likely there are no cells in the input data set
     return 0;
   }
-  double origin[3];
-  double direction1[3];
-  double direction2[3];
-  double direction3[3];
-  double hitPosition[3];
-  double hitCellBoundsPosition[3], cellBounds[6];
-  double result;
-  double bounds2[6];
+  double* bounds = this->Bounds;
+  double* h = this->H;
+  double t0, t1, x0[3], x1[3], tHitCell;
+  double hitCellBoundsPosition[3], cellBounds[6], *cellBoundsPtr;
+  cellBoundsPtr = cellBounds;
   double octantBounds[6];
-  int i, leafStart, prod, loop;
-  vtkIdType bestCellId = -1, cId;
-  int idx;
-  double tMax, dist[3];
-  int npos[3];
-  int pos[3];
-  int bestDir;
-  double stopDist, currDist;
-  double deltaT, pDistance, minPDistance = 1.0e38;
-  double length, maxLength = 0.0;
+  int prod = this->NumberOfDivisions * this->NumberOfDivisions;
+  vtkIdType cellIdBest = -1, cId, i, idx, numberOfCellsInBucket;
+  int ijk[3], ijkEnd[3];
+  int plane0, plane1, subIdBest = -1, hitCellBounds;
+  double tBest = VTK_FLOAT_MAX, xBest[3], pCoordsBest[3], step[3], next[3], tMax[3], tDelta[3];
+  double rayDir[3];
+  vtkMath::Subtract(p2, p1, rayDir);
+  int leafStart = this->NumberOfOctants -
+    this->NumberOfDivisions * this->NumberOfDivisions * this->NumberOfDivisions;
 
-  // convert the line into i,j,k coordinates
-  tMax = 0.0;
-  for (i = 0; i < 3; i++)
+  // Make sure the bounding box of the locator is hit. Also, determine the
+  // entry and exit points into and out of the locator. This is used to
+  // determine the bins where the ray starts and ends.
+  cellId = -1;
+  subId = 0;
+  if (vtkBox::IntersectWithLine(bounds, p1, p2, t0, t1, x0, x1, plane0, plane1) == 0)
   {
-    direction1[i] = a1[i] - a0[i];
-    length = this->Bounds[2 * i + 1] - this->Bounds[2 * i];
-    if (length > maxLength)
-    {
-      maxLength = length;
-    }
-    origin[i] = (a0[i] - this->Bounds[2 * i]) / length;
-    direction2[i] = direction1[i] / length;
-
-    bounds2[2 * i] = 0.0;
-    bounds2[2 * i + 1] = 1.0;
-    tMax += direction2[i] * direction2[i];
+    return 0; // No intersections possible, line is outside the locator
   }
 
-  tMax = std::sqrt(tMax);
+  // Initialize intersection query array if necessary. This is done
+  // locally to ensure thread safety.
+  std::vector<bool> cellHasBeenVisited(this->DataSet->GetNumberOfCells(), false);
 
-  // create a parametric range around the tolerance
-  deltaT = tol / maxLength;
+  // Get the i-j-k point of intersection and bin index. This is
+  // clamped to the boundary of the locator.
+  this->GetBucketIndices(x0, ijk);
+  this->GetBucketIndices(x1, ijkEnd);
+  idx = leafStart + ijk[0] + ijk[1] * this->NumberOfDivisions + ijk[2] * prod;
 
-  stopDist = tMax * this->NumberOfDivisions;
-  for (i = 0; i < 3; i++)
+  // Set up some traversal parameters for traversing through bins
+  step[0] = (rayDir[0] >= 0.0) ? 1.0 : -1.0;
+  step[1] = (rayDir[1] >= 0.0) ? 1.0 : -1.0;
+  step[2] = (rayDir[2] >= 0.0) ? 1.0 : -1.0;
+
+  // If the ray is going in the negative direction, then the next voxel boundary
+  // is on the "-" direction so we stay in the current voxel.
+  next[0] = bounds[0] + h[0] * (rayDir[0] >= 0.0 ? (ijk[0] + step[0]) : ijk[0]);
+  next[1] = bounds[2] + h[1] * (rayDir[1] >= 0.0 ? (ijk[1] + step[1]) : ijk[1]);
+  next[2] = bounds[4] + h[2] * (rayDir[2] >= 0.0 ? (ijk[2] + step[2]) : ijk[2]);
+
+  tMax[0] = (rayDir[0] != 0.0) ? (next[0] - x0[0]) / rayDir[0] : VTK_FLOAT_MAX;
+  tMax[1] = (rayDir[1] != 0.0) ? (next[1] - x0[1]) / rayDir[1] : VTK_FLOAT_MAX;
+  tMax[2] = (rayDir[2] != 0.0) ? (next[2] - x0[2]) / rayDir[2] : VTK_FLOAT_MAX;
+
+  tDelta[0] = (rayDir[0] != 0.0) ? (h[0] / rayDir[0]) * step[0] : VTK_FLOAT_MAX;
+  tDelta[1] = (rayDir[1] != 0.0) ? (h[1] / rayDir[1]) * step[1] : VTK_FLOAT_MAX;
+  tDelta[2] = (rayDir[2] != 0.0) ? (h[2] / rayDir[2]) * step[2] : VTK_FLOAT_MAX;
+
+  for (cellIdBest = (-1); cellIdBest < 0;)
   {
-    direction3[i] = direction2[i] / tMax;
-  }
-
-  if (vtkBox::IntersectBox(bounds2, origin, direction2, hitPosition, result))
-  {
-    std::vector<bool> cellHasBeenVisited(this->DataSet->GetNumberOfCells(), false);
-
-    // start walking through the octants
-    prod = this->NumberOfDivisions * this->NumberOfDivisions;
-    leafStart = this->NumberOfOctants - this->NumberOfDivisions * prod;
-    bestCellId = -1;
-
-    // set up curr and stop dist
-    currDist = 0;
-    for (i = 0; i < 3; i++)
+    if (this->Tree[idx] &&
+      (numberOfCellsInBucket = this->Tree[idx]->GetNumberOfIds()) > 0) // there are some cell here
     {
-      currDist += (hitPosition[i] - origin[i]) * (hitPosition[i] - origin[i]);
-    }
-    currDist = std::sqrt(currDist) * this->NumberOfDivisions;
-
-    // add one offset due to the problems around zero
-    for (loop = 0; loop < 3; loop++)
-    {
-      hitPosition[loop] = hitPosition[loop] * this->NumberOfDivisions + 1.0;
-      pos[loop] = static_cast<int>(hitPosition[loop]);
-      // Adjust right boundary condition: if we intersect from the top, right,
-      // or back; then pos must be adjusted to a valid octant index
-      if (pos[loop] > this->NumberOfDivisions)
+      this->ComputeOctantBounds(octantBounds, ijk[0], ijk[1], ijk[2]);
+      for (i = 0; i < numberOfCellsInBucket; ++i)
       {
-        pos[loop] = this->NumberOfDivisions;
-      }
-    }
-
-    idx = leafStart + pos[0] - 1 + (pos[1] - 1) * this->NumberOfDivisions + (pos[2] - 1) * prod;
-
-    while ((bestCellId < 0) && (pos[0] > 0) && (pos[1] > 0) && (pos[2] > 0) &&
-      (pos[0] <= this->NumberOfDivisions) && (pos[1] <= this->NumberOfDivisions) &&
-      (pos[2] <= this->NumberOfDivisions) && (currDist < stopDist))
-    {
-      if (this->Tree[idx])
-      {
-        this->ComputeOctantBounds(octantBounds, pos[0] - 1, pos[1] - 1, pos[2] - 1);
-        for (tMax = VTK_DOUBLE_MAX, cellId = 0; cellId < this->Tree[idx]->GetNumberOfIds();
-             cellId++)
+        cId = this->Tree[idx]->GetId(i);
+        if (!cellHasBeenVisited[cId])
         {
-          cId = this->Tree[idx]->GetId(cellId);
-          if (!cellHasBeenVisited[cId])
+          cellHasBeenVisited[cId] = true;
+
+          // check whether we intersect the cell bounds
+          this->GetCellBounds(cId, cellBoundsPtr);
+          hitCellBounds =
+            vtkBox::IntersectBox(cellBoundsPtr, p1, rayDir, hitCellBoundsPosition, tHitCell, tol);
+
+          if (hitCellBounds)
           {
-            cellHasBeenVisited[cId] = true;
-            int hitCellBounds = 0;
-
-            // check whether we intersect the cell bounds
-            if (this->CacheCellBounds)
+            // now, do the expensive GetCell call and the expensive
+            // intersect with line call
+            this->DataSet->GetCell(cId, cell);
+            if (cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
             {
-              hitCellBounds = vtkBox::IntersectBox(
-                this->CellBounds[cId], a0, direction1, hitCellBoundsPosition, result);
-            }
-            else
-            {
-              this->DataSet->GetCellBounds(cId, cellBounds);
-              hitCellBounds =
-                vtkBox::IntersectBox(cellBounds, a0, direction1, hitCellBoundsPosition, result);
-            }
-
-            if (hitCellBounds)
-            {
-              // now, do the expensive GetCell call and the expensive
-              // intersect with line call
-              this->DataSet->GetCell(cId, cell);
-              if (cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId))
+              // Make sure that intersection occurs within this octant or else spurious cell
+              // intersections can occur behind this bin which are not the correct answer.
+              if (!vtkAbstractCellLocator::IsInBounds(octantBounds, x, tol))
               {
-                if (!vtkAbstractCellLocator::IsInBounds(octantBounds, x, tol))
-                {
-                  cellHasBeenVisited[cId] = false; // mark the cell non-visited
-                }
-                else
-                {
-                  if (t < (tMax + deltaT)) // it might be close
-                  {
-                    pDistance = cell->GetParametricDistance(pcoords);
-                    if (pDistance < minPDistance || (pDistance == minPDistance && t < tMax))
-                    {
-                      tMax = t;
-                      minPDistance = pDistance;
-                      bestCellId = cId;
-                    }
-                  } // intersection point is in current octant
-                }   // if within current parametric range
-              }     // if intersection
-            }       // if (hitCellBounds)
-          }         // if (!CellHasBeenVisited[cId])
-        }
+                cellHasBeenVisited[cId] = false; // mark the cell non-visited
+              }
+              else
+              {
+                tBest = t;
+                xBest[0] = x[0];
+                xBest[1] = x[1];
+                xBest[2] = x[2];
+                pCoordsBest[0] = pcoords[0];
+                pCoordsBest[1] = pcoords[1];
+                pCoordsBest[2] = pcoords[2];
+                subIdBest = subId;
+                cellIdBest = cId;
+              } // intersection point is in current octant
+            }   // if intersection
+          }     // if (hitCellBounds)
+        }       // if (!CellHasBeenVisited[cId])
       }
-
-      // move to the next octant
-      tMax = VTK_DOUBLE_MAX;
-      bestDir = 0;
-      for (loop = 0; loop < 3; loop++)
-      {
-        if (direction3[loop] > 0)
-        {
-          npos[loop] = pos[loop] + 1;
-          dist[loop] = (1.0 - hitPosition[loop] + pos[loop]) / direction3[loop];
-          if (dist[loop] == 0)
-          {
-            dist[loop] = 1.0 / direction3[loop];
-          }
-          if (dist[loop] < 0)
-          {
-            dist[loop] = 0;
-          }
-          if (dist[loop] < tMax)
-          {
-            bestDir = loop;
-            tMax = dist[loop];
-          }
-        }
-        if (direction3[loop] < 0)
-        {
-          npos[loop] = pos[loop] - 1;
-          dist[loop] = (pos[loop] - hitPosition[loop]) / direction3[loop];
-          if (dist[loop] == 0)
-          {
-            dist[loop] = -0.01 / direction3[loop];
-          }
-          if (dist[loop] < 0)
-          {
-            dist[loop] = 0;
-          }
-          if (dist[loop] < tMax)
-          {
-            bestDir = loop;
-            tMax = dist[loop];
-          }
-        }
-      }
-      // update our position
-      for (loop = 0; loop < 3; loop++)
-      {
-        hitPosition[loop] += dist[bestDir] * direction3[loop];
-      }
-      currDist += dist[bestDir];
-      // now make the move, find the smallest distance
-      // only cross one boundary at a time
-      pos[bestDir] = npos[bestDir];
-
-      idx = leafStart + pos[0] - 1 + (pos[1] - 1) * this->NumberOfDivisions + (pos[2] - 1) * prod;
     }
-  } // if (vtkBox::IntersectBox(...))
 
-  if (bestCellId >= 0)
+    // Exit before end of ray, saves a few cycles
+    if (cellIdBest >= 0)
+    {
+      break;
+    }
+
+    // See if the traversal is complete (reached the end of the line).
+    if (ijk[0] == ijkEnd[0] && ijk[1] == ijkEnd[1] && ijk[2] == ijkEnd[2])
+    {
+      break;
+    }
+
+    // move to the next octant
+    // Advance to next voxel
+    if (tMax[0] < tMax[1])
+    {
+      if (tMax[0] < tMax[2])
+      {
+        ijk[0] += static_cast<int>(step[0]);
+        tMax[0] += tDelta[0];
+      }
+      else
+      {
+        ijk[2] += static_cast<int>(step[2]);
+        tMax[2] += tDelta[2];
+      }
+    }
+    else
+    {
+      if (tMax[1] < tMax[2])
+      {
+        ijk[1] += static_cast<int>(step[1]);
+        tMax[1] += tDelta[1];
+      }
+      else
+      {
+        ijk[2] += static_cast<int>(step[2]);
+        tMax[2] += tDelta[2];
+      }
+    }
+
+    if (ijk[0] < 0 || ijk[0] >= this->NumberOfDivisions || ijk[1] < 0 ||
+      ijk[1] >= this->NumberOfDivisions || ijk[2] < 0 || ijk[2] >= this->NumberOfDivisions)
+    {
+      break;
+    }
+    else
+    {
+      idx = leafStart + ijk[0] + ijk[1] * this->NumberOfDivisions + ijk[2] * prod;
+    }
+  }
+
+  // If a cell has been intersected, recover the information and return.
+  if (cellIdBest >= 0)
   {
-    this->DataSet->GetCell(bestCellId, cell);
-    cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId);
-
-    // store the best cell id in the return "parameter"
-    cellId = bestCellId;
+    this->DataSet->GetCell(cellIdBest, cell);
+    t = tBest;
+    x[0] = xBest[0];
+    x[1] = xBest[1];
+    x[2] = xBest[2];
+    pcoords[0] = pCoordsBest[0];
+    pcoords[1] = pCoordsBest[1];
+    pcoords[2] = pCoordsBest[2];
+    subId = subIdBest;
+    cellId = cellIdBest;
     return 1;
   }
 
   return 0;
-}
-
-//------------------------------------------------------------------------------
-// Return closest point (if any) AND the cell on which this closest point lies
-void vtkCellLocator::FindClosestPoint(const double x[3], double closestPoint[3],
-  vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2)
-{
-  int inside;
-  double radius = vtkMath::Inf();
-  double point[3] = { x[0], x[1], x[2] };
-  this->FindClosestPointWithinRadius(
-    point, radius, closestPoint, cell, cellId, subId, dist2, inside);
 }
 
 //------------------------------------------------------------------------------
@@ -401,7 +370,8 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
   std::vector<double> weights(8);
 
   double distance2ToBucket;
-  double distance2ToCellBounds, cellBounds[6], currentRadius;
+  double distance2ToCellBounds, cellBounds[6], *cellBoundsPtr, currentRadius;
+  cellBoundsPtr = cellBounds;
   double distance2ToDataBounds, maxDistance;
   int ii, radiusLevels[3], radiusLevel, prevMinLevel[3], prevMaxLevel[3];
 
@@ -421,20 +391,7 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
   double refinedRadius2 = radius2;
 
   // Find bucket point is in.
-  //
-  for (j = 0; j < 3; j++)
-  {
-    ijk[j] = static_cast<int>((x[j] - this->Bounds[2 * j]) / this->H[j]);
-
-    if (ijk[j] < 0)
-    {
-      ijk[j] = 0;
-    }
-    else if (ijk[j] >= this->NumberOfDivisions)
-    {
-      ijk[j] = this->NumberOfDivisions - 1;
-    }
-  }
+  this->GetBucketIndices(x, ijk);
 
   // Start by searching the bucket that the point is in.
   //
@@ -446,48 +403,43 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
     {
       // get the cell
       cellId = cellIds->GetId(j);
-      if (!cellHasBeenVisited[cellId])
+      // skip if it has been visited
+      if (cellHasBeenVisited[cellId])
       {
-        cellHasBeenVisited[cellId] = true;
+        continue;
+      }
+      cellHasBeenVisited[cellId] = true;
 
-        // check whether we could be close enough to the cell by
-        // testing the cell bounds
-        if (this->CacheCellBounds)
+      // check whether we could be close enough to the cell by
+      this->GetCellBounds(cellId, cellBoundsPtr);
+      // testing the cell bounds
+      distance2ToCellBounds = this->Distance2ToBounds(x, cellBoundsPtr);
+
+      if (distance2ToCellBounds < refinedRadius2)
+      {
+        this->DataSet->GetCell(cellId, cell);
+
+        // make sure we have enough storage space for the weights
+        nPoints = static_cast<size_t>(cell->GetPointIds()->GetNumberOfIds());
+        if (weights.size() < nPoints)
         {
-          distance2ToCellBounds = this->Distance2ToBounds(x, this->CellBounds[cellId]);
+          weights.resize(2 * nPoints);
         }
-        else
+
+        // evaluate the position to find the closest point
+        tmpInside = cell->EvaluatePosition(x, point, subId, pcoords, dist2, weights.data());
+        if (dist2 < minDist2)
         {
-          this->DataSet->GetCellBounds(cellId, cellBounds);
-          distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+          inside = tmpInside;
+          closestCell = cellId;
+          closestSubCell = subId;
+          minDist2 = dist2;
+          cachedPoint[0] = point[0];
+          cachedPoint[1] = point[1];
+          cachedPoint[2] = point[2];
+          refinedRadius2 = dist2;
         }
-
-        if (distance2ToCellBounds < refinedRadius2)
-        {
-          this->DataSet->GetCell(cellId, cell);
-
-          // make sure we have enough storage space for the weights
-          nPoints = static_cast<size_t>(cell->GetPointIds()->GetNumberOfIds());
-          if (weights.size() < nPoints)
-          {
-            weights.resize(2 * nPoints);
-          }
-
-          // evaluate the position to find the closest point
-          tmpInside = cell->EvaluatePosition(x, point, subId, pcoords, dist2, weights.data());
-          if (dist2 < minDist2)
-          {
-            inside = tmpInside;
-            closestCell = cellId;
-            closestSubCell = subId;
-            minDist2 = dist2;
-            cachedPoint[0] = point[0];
-            cachedPoint[1] = point[1];
-            cachedPoint[2] = point[2];
-            refinedRadius2 = dist2;
-          }
-        }
-      } // if (CellHasBeenVisited[cellId])
+      }
     }
   }
 
@@ -568,54 +520,49 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
           {
             // get the cell
             cellId = cellIds->GetId(j);
-            if (!cellHasBeenVisited[cellId])
+            // skip if it has been visited
+            if (cellHasBeenVisited[cellId])
             {
-              cellHasBeenVisited[cellId] = true;
+              continue;
+            }
+            cellHasBeenVisited[cellId] = true;
 
-              // check whether we could be close enough to the cell by
-              // testing the cell bounds
-              if (this->CacheCellBounds)
+            // check whether we could be close enough to the cell by
+            this->GetCellBounds(cellId, cellBoundsPtr);
+            // testing the cell bounds
+            distance2ToCellBounds = this->Distance2ToBounds(x, cellBoundsPtr);
+
+            if (distance2ToCellBounds < refinedRadius2)
+            {
+              this->DataSet->GetCell(cellId, cell);
+
+              // make sure we have enough storage space for the weights
+              nPoints = static_cast<size_t>(cell->GetPointIds()->GetNumberOfIds());
+              if (weights.size() < nPoints)
               {
-                distance2ToCellBounds = this->Distance2ToBounds(x, this->CellBounds[cellId]);
+                weights.resize(2 * nPoints);
               }
-              else
+
+              // evaluate the position to find the closest point
+              tmpInside = cell->EvaluatePosition(x, point, subId, pcoords, dist2, weights.data());
+
+              if (dist2 < minDist2)
               {
-                this->DataSet->GetCellBounds(cellId, cellBounds);
-                distance2ToCellBounds = this->Distance2ToBounds(x, cellBounds);
+                inside = tmpInside;
+                closestCell = cellId;
+                closestSubCell = subId;
+                minDist2 = dist2;
+                cachedPoint[0] = point[0];
+                cachedPoint[1] = point[1];
+                cachedPoint[2] = point[2];
+                refinedRadius = std::sqrt(minDist2);
+                refinedRadius2 = minDist2;
               }
-
-              if (distance2ToCellBounds < refinedRadius2)
-              {
-                this->DataSet->GetCell(cellId, cell);
-
-                // make sure we have enough storage space for the weights
-                nPoints = static_cast<size_t>(cell->GetPointIds()->GetNumberOfIds());
-                if (weights.size() < nPoints)
-                {
-                  weights.resize(2 * nPoints);
-                }
-
-                // evaluate the position to find the closest point
-                tmpInside = cell->EvaluatePosition(x, point, subId, pcoords, dist2, weights.data());
-
-                if (dist2 < minDist2)
-                {
-                  inside = tmpInside;
-                  closestCell = cellId;
-                  closestSubCell = subId;
-                  minDist2 = dist2;
-                  cachedPoint[0] = point[0];
-                  cachedPoint[1] = point[1];
-                  cachedPoint[2] = point[2];
-                  refinedRadius = std::sqrt(minDist2);
-                  refinedRadius2 = minDist2;
-                }
-              } // if point close enough to cell bounds
-            }   // if cell has not been visited
-          }     // for each cell in bucket
-        }       // if bucket is within the current best distance
-      }         // if cells in bucket
-    }           // for each overlapping bucket
+            } // if point close enough to cell bounds
+          }   // for each cell in bucket
+        }     // if bucket is within the current best distance
+      }       // if cells in bucket
+    }         // for each overlapping bucket
 
     // don't want to checker a smaller radius than we just checked so update
     // ii appropriately
@@ -651,7 +598,6 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
 // These indices must be offset by number of octants before the leaf node
 // layer before they can be used. Only buckets that have cells are placed
 // in the bucket list.
-//
 void vtkCellLocator::GetOverlappingBuckets(vtkNeighborCells& buckets, const double x[3],
   double dist, int prevMinLevel[3], int prevMaxLevel[3])
 {
@@ -821,7 +767,8 @@ void vtkCellLocator::ForceBuildLocator()
 //  The result is directly addressable and of uniform subdivision.
 void vtkCellLocator::BuildLocatorInternal()
 {
-  double length, cellBounds[6], *boundsPtr;
+  double length, cellBounds[6], *cellBoundsPtr;
+  cellBoundsPtr = cellBounds;
   vtkIdType numCells;
   int ndivs, product;
   int i, j, k, ijkMin[3], ijkMax[3];
@@ -842,11 +789,7 @@ void vtkCellLocator::BuildLocatorInternal()
   this->DataSet->ComputeBounds();
 
   //  Make sure the appropriate data is available
-  if (this->Tree)
-  {
-    this->FreeSearchStructure();
-  }
-  this->FreeCellBounds();
+  this->FreeSearchStructure();
 
   //  Size the root cell.  Initialize cell data structure, compute
   //  level and divisions.
@@ -888,11 +831,11 @@ void vtkCellLocator::BuildLocatorInternal()
 
   if (this->CacheCellBounds)
   {
+    this->FreeCellBounds();
     this->StoreCellBounds();
   }
 
   //  Compute width of leaf octant in three directions
-  //
   for (i = 0; i < 3; i++)
   {
     this->H[i] = (this->Bounds[2 * i + 1] - this->Bounds[2 * i]) / ndivs;
@@ -903,24 +846,17 @@ void vtkCellLocator::BuildLocatorInternal()
   //  falls within octant.
   parentOffset = numOctants - (ndivs * ndivs * ndivs);
   product = ndivs * ndivs;
-  boundsPtr = cellBounds;
   for (cellId = 0; cellId < numCells; cellId++)
   {
-    if (this->CellBounds)
-    {
-      boundsPtr = this->CellBounds[cellId];
-    }
-    else
-    {
-      this->DataSet->GetCellBounds(cellId, cellBounds);
-    }
+    this->GetCellBounds(cellId, cellBoundsPtr);
 
     // find min/max locations of bounding box
     for (i = 0; i < 3; i++)
     {
-      ijkMin[i] = static_cast<int>((boundsPtr[2 * i] - this->Bounds[2 * i] - hTol[i]) / this->H[i]);
+      ijkMin[i] =
+        static_cast<int>((cellBoundsPtr[2 * i] - this->Bounds[2 * i] - hTol[i]) / this->H[i]);
       ijkMax[i] =
-        static_cast<int>((boundsPtr[2 * i + 1] - this->Bounds[2 * i] + hTol[i]) / this->H[i]);
+        static_cast<int>((cellBoundsPtr[2 * i + 1] - this->Bounds[2 * i] + hTol[i]) / this->H[i]);
 
       if (ijkMin[i] < 0)
       {
@@ -1216,14 +1152,6 @@ double vtkCellLocator::Distance2ToBounds(const double x[3], double bounds[6])
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkCellLocator::FindCell(
-  double x[3], double tol2, vtkGenericCell* cell, double pcoords[3], double* weights)
-{
-  int subId;
-  return this->FindCell(x, tol2, cell, subId, pcoords, weights);
-}
-
-//------------------------------------------------------------------------------
 vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* cell,
   int& subId, double pcoords[3], double* weights)
 {
@@ -1242,36 +1170,23 @@ vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGene
   vtkIdList* cellIds;
   int ijk[3];
   double dist2;
+  vtkIdType idx, cellId;
 
   int leafStart = this->NumberOfOctants -
     this->NumberOfDivisions * this->NumberOfDivisions * this->NumberOfDivisions;
 
   // Find bucket point is in.
-  //
-  for (int j = 0; j < 3; j++)
-  {
-    ijk[j] = static_cast<int>((x[j] - this->Bounds[2 * j]) / this->H[j]);
-
-    if (ijk[j] < 0)
-    {
-      ijk[j] = 0;
-    }
-    else if (ijk[j] >= this->NumberOfDivisions)
-    {
-      ijk[j] = this->NumberOfDivisions - 1;
-    }
-  }
+  this->GetBucketIndices(x, ijk);
 
   // Search the bucket that the point is in.
-  //
   if ((cellIds = this->Tree[leafStart + ijk[0] + ijk[1] * this->NumberOfDivisions +
          ijk[2] * this->NumberOfDivisions * this->NumberOfDivisions]) != nullptr)
   {
     // query each cell
-    for (int j = 0; j < cellIds->GetNumberOfIds(); j++)
+    for (idx = 0; idx < cellIds->GetNumberOfIds(); ++idx)
     {
       // get the cell
-      vtkIdType cellId = cellIds->GetId(j);
+      cellId = cellIds->GetId(idx);
       // check whether we could be close enough to the cell by
       // testing the cell bounds
       if (this->InsideCellBounds(x, cellId))
@@ -1313,30 +1228,15 @@ void vtkCellLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
   int ijk[2][3];
 
   //  Find bucket the points are in
-  //
-  int i, j, k;
-  for (i = 0; i < 2; i++)
-  {
-    for (j = 0; j < 3; j++)
-    {
-      ijk[i][j] = static_cast<int>((p[i][j] - this->Bounds[2 * j]) / this->H[j]);
-
-      if (ijk[i][j] < 0)
-      {
-        ijk[i][j] = 0;
-      }
-      else if (ijk[i][j] >= this->NumberOfDivisions)
-      {
-        ijk[i][j] = this->NumberOfDivisions - 1;
-      }
-    }
-  }
+  this->GetBucketIndices(p1, ijk[0]);
+  this->GetBucketIndices(p2, ijk[1]);
 
   // Now loop over block to load in ids
   int leafStart = this->NumberOfOctants -
     this->NumberOfDivisions * this->NumberOfDivisions * this->NumberOfDivisions;
   vtkIdList* cellIds;
   vtkIdType idx;
+  int i, j, k;
   for (k = ijk[0][2]; k <= ijk[1][2]; k++)
   {
     for (j = ijk[0][1]; j <= ijk[1][1]; j++)
@@ -1357,182 +1257,214 @@ void vtkCellLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
 }
 
 //------------------------------------------------------------------------------
-void vtkCellLocator::FindCellsAlongLine(
-  const double p1[3], const double p2[3], double vtkNotUsed(tol), vtkIdList* cells)
+struct IntersectionInfo
+{
+  vtkIdType CellId;
+  std::array<double, 3> IntersectionPoint;
+  double T;
+
+  IntersectionInfo(vtkIdType cellId, double x[3], double t)
+    : CellId(cellId)
+    , IntersectionPoint({ x[0], x[1], x[2] })
+    , T(t)
+  {
+  }
+};
+
+//------------------------------------------------------------------------------
+int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+  vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
   this->BuildLocatorIfNeeded();
   if (this->Tree == nullptr)
   {
     // empty tree, most likely there are no cells in the input data set
-    return;
+    return 0;
   }
-  cells->Reset();
-
-  double origin[3];
-  double direction1[3];
-  double direction2[3];
-  double direction3[3];
-  double hitPosition[3];
-  double hitCellBoundsPosition[3], cellBounds[6];
-  int hitCellBounds;
-  double result;
-  double bounds2[6];
-  int i, leafStart, prod, loop;
-  vtkIdType cellId, cId;
-  int idx;
-  double tMax, dist[3];
-  int npos[3];
-  int pos[3];
-  int bestDir;
-  double stopDist, currDist;
-  double length, maxLength = 0.0;
-
-  // convert the line into i,j,k coordinates
-  tMax = 0.0;
-  for (i = 0; i < 3; i++)
+  // Initialize the list of points/cells
+  if (points)
   {
-    direction1[i] = p2[i] - p1[i];
-    length = this->Bounds[2 * i + 1] - this->Bounds[2 * i];
-    if (length > maxLength)
-    {
-      maxLength = length;
-    }
-    origin[i] = (p1[i] - this->Bounds[2 * i]) / length;
-    direction2[i] = direction1[i] / length;
-
-    bounds2[2 * i] = 0.0;
-    bounds2[2 * i + 1] = 1.0;
-    tMax += direction2[i] * direction2[i];
+    points->Reset();
   }
-  tMax = std::sqrt(tMax);
-
-  // create a parametric range around the tolerance
-  stopDist = tMax * this->NumberOfDivisions;
-  for (i = 0; i < 3; i++)
+  if (cellIds)
   {
-    direction3[i] = direction2[i] / tMax;
+    cellIds->Reset();
+  }
+  double* bounds = this->Bounds;
+  double* h = this->H;
+  double t0, t1, x0[3], x1[3], tHitCell;
+  double hitCellBoundsPosition[3], cellBounds[6], *cellBoundsPtr;
+  cellBoundsPtr = cellBounds;
+  double octantBounds[6];
+  int prod = this->NumberOfDivisions * this->NumberOfDivisions;
+  vtkIdType cellIdBest = -1, cId, i, idx, numberOfCellsInBucket;
+  int ijk[3], ijkEnd[3];
+  int plane0, plane1, hitCellBounds, subId;
+  double step[3], next[3], tMax[3], tDelta[3];
+  double rayDir[3];
+  vtkMath::Subtract(p2, p1, rayDir);
+  double t, x[3], pcoords[3];
+  int leafStart = this->NumberOfOctants -
+    this->NumberOfDivisions * this->NumberOfDivisions * this->NumberOfDivisions;
+
+  // Make sure the bounding box of the locator is hit. Also, determine the
+  // entry and exit points into and out of the locator. This is used to
+  // determine the bins where the ray starts and ends.
+  if (vtkBox::IntersectWithLine(bounds, p1, p2, t0, t1, x0, x1, plane0, plane1) == 0)
+  {
+    return 0; // No intersections possible, line is outside the locator
   }
 
-  if (vtkBox::IntersectBox(bounds2, origin, direction2, hitPosition, result))
+  // Initialize intersection query array if necessary. This is done
+  // locally to ensure thread safety.
+  std::vector<bool> cellHasBeenVisited(this->DataSet->GetNumberOfCells(), false);
+
+  // Get the i-j-k point of intersection and bin index. This is
+  // clamped to the boundary of the locator.
+  this->GetBucketIndices(x0, ijk);
+  this->GetBucketIndices(x1, ijkEnd);
+  idx = leafStart + ijk[0] + ijk[1] * this->NumberOfDivisions + ijk[2] * prod;
+
+  // Set up some traversal parameters for traversing through bins
+  step[0] = (rayDir[0] >= 0.0) ? 1.0 : -1.0;
+  step[1] = (rayDir[1] >= 0.0) ? 1.0 : -1.0;
+  step[2] = (rayDir[2] >= 0.0) ? 1.0 : -1.0;
+
+  // If the ray is going in the negative direction, then the next voxel boundary
+  // is on the "-" direction so we stay in the current voxel.
+  next[0] = bounds[0] + h[0] * (rayDir[0] >= 0.0 ? (ijk[0] + step[0]) : ijk[0]);
+  next[1] = bounds[2] + h[1] * (rayDir[1] >= 0.0 ? (ijk[1] + step[1]) : ijk[1]);
+  next[2] = bounds[4] + h[2] * (rayDir[2] >= 0.0 ? (ijk[2] + step[2]) : ijk[2]);
+
+  tMax[0] = (rayDir[0] != 0.0) ? (next[0] - x0[0]) / rayDir[0] : VTK_FLOAT_MAX;
+  tMax[1] = (rayDir[1] != 0.0) ? (next[1] - x0[1]) / rayDir[1] : VTK_FLOAT_MAX;
+  tMax[2] = (rayDir[2] != 0.0) ? (next[2] - x0[2]) / rayDir[2] : VTK_FLOAT_MAX;
+
+  tDelta[0] = (rayDir[0] != 0.0) ? (h[0] / rayDir[0]) * step[0] : VTK_FLOAT_MAX;
+  tDelta[1] = (rayDir[1] != 0.0) ? (h[1] / rayDir[1]) * step[1] : VTK_FLOAT_MAX;
+  tDelta[2] = (rayDir[2] != 0.0) ? (h[2] / rayDir[2]) * step[2] : VTK_FLOAT_MAX;
+
+  // we will sort intersections by t, so keep track using these lists
+  std::vector<IntersectionInfo> cellIntersections;
+
+  for (cellIdBest = (-1); cellIdBest < 0;)
   {
-    std::vector<bool> cellHasBeenVisited(this->DataSet->GetNumberOfCells(), false);
-
-    // start walking through the octants
-    prod = this->NumberOfDivisions * this->NumberOfDivisions;
-    leafStart = this->NumberOfOctants - this->NumberOfDivisions * prod;
-
-    // set up curr and stop dist
-    currDist = 0;
-    for (i = 0; i < 3; i++)
+    if (this->Tree[idx] &&
+      (numberOfCellsInBucket = this->Tree[idx]->GetNumberOfIds()) > 0) // there are some cell here
     {
-      currDist += (hitPosition[i] - origin[i]) * (hitPosition[i] - origin[i]);
-    }
-    currDist = std::sqrt(currDist) * this->NumberOfDivisions;
-
-    // add one offset due to the problems around zero
-    for (loop = 0; loop < 3; loop++)
-    {
-      hitPosition[loop] = hitPosition[loop] * this->NumberOfDivisions + 1.0;
-      pos[loop] = static_cast<int>(hitPosition[loop]);
-      // Adjust right boundary condition: if we intersect from the top, right,
-      // or back; then pos must be adjusted to a valid octant index
-      if (pos[loop] > this->NumberOfDivisions)
+      this->ComputeOctantBounds(octantBounds, ijk[0], ijk[1], ijk[2]);
+      for (i = 0; i < numberOfCellsInBucket; ++i)
       {
-        pos[loop] = this->NumberOfDivisions;
-      }
-    }
-
-    idx = leafStart + pos[0] - 1 + (pos[1] - 1) * this->NumberOfDivisions + (pos[2] - 1) * prod;
-
-    while ((pos[0] > 0) && (pos[1] > 0) && (pos[2] > 0) && (pos[0] <= this->NumberOfDivisions) &&
-      (pos[1] <= this->NumberOfDivisions) && (pos[2] <= this->NumberOfDivisions) &&
-      (currDist < stopDist))
-    {
-      if (this->Tree[idx])
-      {
-        for (cellId = 0; cellId < this->Tree[idx]->GetNumberOfIds(); cellId++)
+        cId = this->Tree[idx]->GetId(i);
+        if (!cellHasBeenVisited[cId])
         {
-          cId = this->Tree[idx]->GetId(cellId);
-          if (!cellHasBeenVisited[cId])
-          {
-            cellHasBeenVisited[cId] = true;
+          cellHasBeenVisited[cId] = true;
 
-            // check whether we intersect the cell bounds
-            if (this->CacheCellBounds)
+          // check whether we intersect the cell bounds
+          this->GetCellBounds(cId, cellBoundsPtr);
+          hitCellBounds =
+            vtkBox::IntersectBox(cellBoundsPtr, p1, rayDir, hitCellBoundsPosition, tHitCell, tol);
+
+          if (hitCellBounds)
+          {
+            // Note because of cellHasBeenVisited[], we know this cId is unique
+            if (cell)
             {
-              hitCellBounds = vtkBox::IntersectBox(
-                this->CellBounds[cId], p1, direction1, hitCellBoundsPosition, result);
+              this->DataSet->GetCell(cId, cell);
+              if (cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
+              {
+                // Make sure that intersection occurs within this octant or else spurious cell
+                // intersections can occur behind this bin which are not the correct answer.
+                if (!vtkAbstractCellLocator::IsInBounds(octantBounds, x, tol))
+                {
+                  cellHasBeenVisited[cId] = false; // mark the cell non-visited
+                }
+                else
+                {
+                  cellIntersections.emplace_back(cId, x, t);
+                }
+              }
             }
             else
             {
-              this->DataSet->GetCellBounds(cId, cellBounds);
-              hitCellBounds =
-                vtkBox::IntersectBox(cellBounds, p1, direction1, hitCellBoundsPosition, result);
+              cellIntersections.emplace_back(cId, hitCellBoundsPosition, tHitCell);
             }
-
-            if (hitCellBounds)
-            {
-              cells->InsertUniqueId(cId);
-            } // if (hitCellBounds)
-          }   // if (!CellHasBeenVisited[cId])
-        }
+          } // if (hitCellBounds)
+        }   // if (!CellHasBeenVisited[cId])
       }
+    }
 
-      // move to the next octant
-      tMax = VTK_DOUBLE_MAX;
-      bestDir = 0;
-      for (loop = 0; loop < 3; loop++)
+    // See if the traversal is complete (reached the end of the line).
+    if (ijk[0] == ijkEnd[0] && ijk[1] == ijkEnd[1] && ijk[2] == ijkEnd[2])
+    {
+      break;
+    }
+
+    // move to the next octant
+    // Advance to next voxel
+    if (tMax[0] < tMax[1])
+    {
+      if (tMax[0] < tMax[2])
       {
-        if (direction3[loop] > 0)
-        {
-          npos[loop] = pos[loop] + 1;
-          dist[loop] = (1.0 - hitPosition[loop] + pos[loop]) / direction3[loop];
-          if (dist[loop] == 0)
-          {
-            dist[loop] = 1.0 / direction3[loop];
-          }
-          if (dist[loop] < 0)
-          {
-            dist[loop] = 0;
-          }
-          if (dist[loop] < tMax)
-          {
-            bestDir = loop;
-            tMax = dist[loop];
-          }
-        }
-        if (direction3[loop] < 0)
-        {
-          npos[loop] = pos[loop] - 1;
-          dist[loop] = (pos[loop] - hitPosition[loop]) / direction3[loop];
-          if (dist[loop] == 0)
-          {
-            dist[loop] = -0.01 / direction3[loop];
-          }
-          if (dist[loop] < 0)
-          {
-            dist[loop] = 0;
-          }
-          if (dist[loop] < tMax)
-          {
-            bestDir = loop;
-            tMax = dist[loop];
-          }
-        }
+        ijk[0] += static_cast<int>(step[0]);
+        tMax[0] += tDelta[0];
       }
-      // update our position
-      for (loop = 0; loop < 3; loop++)
+      else
       {
-        hitPosition[loop] += dist[bestDir] * direction3[loop];
+        ijk[2] += static_cast<int>(step[2]);
+        tMax[2] += tDelta[2];
       }
-      currDist += dist[bestDir];
-      // now make the move, find the smallest distance
-      // only cross one boundary at a time
-      pos[bestDir] = npos[bestDir];
+    }
+    else
+    {
+      if (tMax[1] < tMax[2])
+      {
+        ijk[1] += static_cast<int>(step[1]);
+        tMax[1] += tDelta[1];
+      }
+      else
+      {
+        ijk[2] += static_cast<int>(step[2]);
+        tMax[2] += tDelta[2];
+      }
+    }
 
-      idx = leafStart + pos[0] - 1 + (pos[1] - 1) * this->NumberOfDivisions + (pos[2] - 1) * prod;
+    if (ijk[0] < 0 || ijk[0] >= this->NumberOfDivisions || ijk[1] < 0 ||
+      ijk[1] >= this->NumberOfDivisions || ijk[2] < 0 || ijk[2] >= this->NumberOfDivisions)
+    {
+      break;
+    }
+    else
+    {
+      idx = leafStart + ijk[0] + ijk[1] * this->NumberOfDivisions + ijk[2] * prod;
     }
   }
+
+  // if we had intersections, sort them by increasing t
+  if (!cellIntersections.empty())
+  {
+    vtkIdType numIntersections = static_cast<vtkIdType>(cellIntersections.size());
+    std::sort(cellIntersections.begin(), cellIntersections.end(),
+      [&](const IntersectionInfo& a, const IntersectionInfo b) { return a.T < b.T; });
+    if (points)
+    {
+      points->SetNumberOfPoints(numIntersections);
+      for (i = 0; i < numIntersections; ++i)
+      {
+        points->SetPoint(i, cellIntersections[i].IntersectionPoint.data());
+      }
+    }
+    if (cellIds)
+    {
+      cellIds->SetNumberOfIds(numIntersections);
+      for (i = 0; i < numIntersections; ++i)
+      {
+        cellIds->SetId(i, cellIntersections[i].CellId);
+      }
+    }
+    return 1;
+  }
+  return 0;
 }
 
 //------------------------------------------------------------------------------

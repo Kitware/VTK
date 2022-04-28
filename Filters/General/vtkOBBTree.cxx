@@ -958,25 +958,22 @@ int vtkOBBTree::IntersectWithLine(const double a0[3], const double a1[3], double
     }
   } // end while
 
-  // even though we may not have intersected with the line we at least give
-  // the best intersection result. It's on the calling function to check
-  // the return value in order to interpret the results.
-  t = tBest;
-  x[0] = xBest[0];
-  x[1] = xBest[1];
-  x[2] = xBest[2];
-  pcoords[0] = pcoordsBest[0];
-  pcoords[1] = pcoordsBest[1];
-  pcoords[2] = pcoordsBest[2];
-  subId = subIdBest;
-  cellId = cellIdBest;
-
-  if (cellIdBest < 0)
+  // If a cell has been intersected, recover the information and return.
+  if (cellIdBest >= 0)
   {
-    // didn't find an intersection
-    return 0;
+    this->DataSet->GetCell(cellIdBest, cell);
+    t = tBest;
+    x[0] = xBest[0];
+    x[1] = xBest[1];
+    x[2] = xBest[2];
+    pcoords[0] = pcoordsBest[0];
+    pcoords[1] = pcoordsBest[1];
+    pcoords[2] = pcoordsBest[2];
+    subId = subIdBest;
+    cellId = cellIdBest;
+    return 1;
   }
-  return 1;
+  return 0;
 }
 
 void vtkOBBNode::DebugPrintTree(int level, double* leaf_vol, int* minCells, int* maxCells)

@@ -39,14 +39,10 @@ vtkAbstractCellLocator::vtkAbstractCellLocator()
   this->NumberOfCellsPerNode = 32;
   this->UseExistingSearchStructure = 0;
   this->LazyEvaluation = 0;
-  this->GenericCell = vtkGenericCell::New();
 }
 
 //------------------------------------------------------------------------------
-vtkAbstractCellLocator::~vtkAbstractCellLocator()
-{
-  this->GenericCell->Delete();
-}
+vtkAbstractCellLocator::~vtkAbstractCellLocator() = default;
 
 //------------------------------------------------------------------------------
 bool vtkAbstractCellLocator::StoreCellBounds()
@@ -140,6 +136,23 @@ int vtkAbstractCellLocator::IntersectWithLine(const double vtkNotUsed(p1)[3],
 }
 
 //------------------------------------------------------------------------------
+int vtkAbstractCellLocator::IntersectWithLine(
+  const double p1[3], const double p2[3], const double tol, vtkPoints* points, vtkIdList* cellIds)
+{
+  return this->IntersectWithLine(p1, p2, tol, points, cellIds, this->GenericCell);
+}
+
+//------------------------------------------------------------------------------
+int vtkAbstractCellLocator::IntersectWithLine(const double vtkNotUsed(p1)[3],
+  const double vtkNotUsed(p2)[3], double vtkNotUsed(tol), vtkPoints* vtkNotUsed(points),
+  vtkIdList* vtkNotUsed(cellIds), vtkGenericCell* vtkNotUsed(cell))
+{
+  vtkErrorMacro(<< "The locator class - " << this->GetClassName()
+                << " does not yet support this IntersectWithLine interface");
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 void vtkAbstractCellLocator::FindClosestPoint(
   const double x[3], double closestPoint[3], vtkIdType& cellId, int& subId, double& dist2)
 {
@@ -147,12 +160,14 @@ void vtkAbstractCellLocator::FindClosestPoint(
 }
 
 //------------------------------------------------------------------------------
-void vtkAbstractCellLocator::FindClosestPoint(const double vtkNotUsed(x)[3],
-  double vtkNotUsed(closestPoint)[3], vtkGenericCell* vtkNotUsed(cell),
-  vtkIdType& vtkNotUsed(cellId), int& vtkNotUsed(subId), double& vtkNotUsed(dist2))
+void vtkAbstractCellLocator::FindClosestPoint(const double x[3], double closestPoint[3],
+  vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2)
 {
-  vtkErrorMacro(<< "The locator class - " << this->GetClassName()
-                << " does not yet support FindClosestPoint");
+  int inside;
+  double radius = vtkMath::Inf();
+  double point[3] = { x[0], x[1], x[2] };
+  this->FindClosestPointWithinRadius(
+    point, radius, closestPoint, cell, cellId, subId, dist2, inside);
 }
 
 //------------------------------------------------------------------------------
@@ -180,7 +195,7 @@ vtkIdType vtkAbstractCellLocator::FindClosestPointWithinRadius(double vtkNotUsed
   int& vtkNotUsed(inside))
 {
   vtkErrorMacro(<< "The locator class - " << this->GetClassName()
-                << " does not yet support FindClosestPoint");
+                << " does not yet support FindClosestPointWithinRadius");
   return 0;
 }
 
@@ -193,11 +208,18 @@ void vtkAbstractCellLocator::FindCellsWithinBounds(
 }
 
 //------------------------------------------------------------------------------
-void vtkAbstractCellLocator::FindCellsAlongLine(const double vtkNotUsed(p1)[3],
-  const double vtkNotUsed(p2)[3], double vtkNotUsed(tolerance), vtkIdList* vtkNotUsed(cells))
+void vtkAbstractCellLocator::FindCellsAlongLine(
+  const double p1[3], const double p2[3], double tolerance, vtkIdList* cells)
+{
+  this->IntersectWithLine(p1, p2, tolerance, nullptr, cells, nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkAbstractCellLocator::FindCellsAlongPlane(const double vtkNotUsed(o)[3],
+  const double vtkNotUsed(n)[3], double vtkNotUsed(tolerance), vtkIdList* vtkNotUsed(cells))
 {
   vtkErrorMacro(<< "The locator " << this->GetClassName()
-                << " does not yet support FindCellsAlongLine");
+                << " does not yet support FindCellsAlongPlane");
 }
 
 //------------------------------------------------------------------------------
@@ -249,6 +271,19 @@ bool vtkAbstractCellLocator::InsideCellBounds(double x[3], vtkIdType cell_ID)
     double cellBounds[6];
     this->DataSet->GetCellBounds(cell_ID, cellBounds);
     return vtkAbstractCellLocator::IsInBounds(cellBounds, x);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkAbstractCellLocator::GetCellBounds(vtkIdType cellId, double*& cellBoundsPtr)
+{
+  if (this->CacheCellBounds)
+  {
+    cellBoundsPtr = this->CellBounds[cellId];
+  }
+  else
+  {
+    this->DataSet->GetCellBounds(cellId, cellBoundsPtr);
   }
 }
 
