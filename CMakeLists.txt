@@ -424,6 +424,9 @@ if (VTK_WRAP_PYTHON)
   cmake_dependent_option(VTK_WINDOWS_PYTHON_DEBUGGABLE "Append `_d` to Python module names" OFF
     "WIN32;VTK_WRAP_PYTHON" OFF)
   mark_as_advanced(VTK_WINDOWS_PYTHON_DEBUGGABLE)
+  cmake_dependent_option(VTK_BUILD_PYI_FILES "Build `.pyi` files for VTK's Python modules" OFF
+    "VTK_WRAP_PYTHON" OFF)
+  mark_as_advanced(VTK_BUILD_PYI_FILES)
 
   if (APPLE AND VTK_WHEEL_BUILD)
     list(APPEND CMAKE_INSTALL_RPATH
@@ -440,6 +443,7 @@ if (VTK_WRAP_PYTHON)
     MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
     CMAKE_DESTINATION   "${vtk_cmake_destination}"
     INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
+    BUILD_PYI_FILES     "${VTK_BUILD_PYI_FILES}"
     SOABI               "${vtk_soabi}"
     USE_DEBUG_SUFFIX    "${VTK_WINDOWS_PYTHON_DEBUGGABLE}"
     UTILITY_TARGET      "VTK::vtkbuild"
