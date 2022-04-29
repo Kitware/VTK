@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// VTK_DEPRECATED_IN_9_2_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkModifiedBSPTree.h"
 
 #include "vtkAppendPolyData.h"
@@ -50,8 +53,6 @@ vtkModifiedBSPTree::vtkModifiedBSPTree()
   this->NumberOfCellsPerNode = 32;
   this->mRoot = nullptr;
   this->UseExistingSearchStructure = 0;
-  this->LazyEvaluation = 1;
-  //
   this->npn = this->nln = this->tot_depth = 0;
 }
 
@@ -65,10 +66,13 @@ vtkModifiedBSPTree::~vtkModifiedBSPTree()
 //------------------------------------------------------------------------------
 void vtkModifiedBSPTree::FreeSearchStructure()
 {
-  delete this->mRoot;
-  this->mRoot = nullptr;
-  this->Level = 0;
-  this->npn = this->nln = this->tot_depth = 0;
+  if (this->mRoot)
+  {
+    delete this->mRoot;
+    this->mRoot = nullptr;
+    this->Level = 0;
+    this->npn = this->nln = this->tot_depth = 0;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -143,39 +147,13 @@ extern "C" int CompareMax(const void* pA, const void* B)
 //------------------------------------------------------------------------------
 void vtkModifiedBSPTree::BuildLocator()
 {
-  if (this->LazyEvaluation)
-  {
-    return;
-  }
-  this->ForceBuildLocator();
-}
-
-//------------------------------------------------------------------------------
-void vtkModifiedBSPTree::BuildLocatorIfNeeded()
-{
-  if (this->LazyEvaluation)
-  {
-    if (!this->mRoot || (this->MTime > this->BuildTime))
-    {
-      this->Modified();
-      vtkDebugMacro(<< "Forcing BuildLocator");
-      this->ForceBuildLocator();
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkModifiedBSPTree::ForceBuildLocator()
-{
-  //
   // don't rebuild if build time is newer than modified and dataset modified time
-  if ((this->mRoot) && (this->BuildTime > this->MTime) &&
-    (this->BuildTime > this->DataSet->GetMTime()))
+  if (this->mRoot && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
   {
     return;
   }
-  // don't rebuild if UseExistingSearchStructure is ON and a tree structure already exists
-  if ((this->mRoot) && this->UseExistingSearchStructure)
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->mRoot && this->UseExistingSearchStructure)
   {
     this->BuildTime.Modified();
     vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
@@ -185,9 +163,14 @@ void vtkModifiedBSPTree::ForceBuildLocator()
 }
 
 //------------------------------------------------------------------------------
+void vtkModifiedBSPTree::ForceBuildLocator()
+{
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::BuildLocatorInternal()
 {
-  //
   vtkIdType numCells;
   if (!this->DataSet || (numCells = this->DataSet->GetNumberOfCells()) < 1)
   {
@@ -547,10 +530,14 @@ typedef std::stack<BSPNode*, std::vector<BSPNode*>> nodestack;
 //------------------------------------------------------------------------------
 void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData* pd)
 {
+  this->BuildLocator();
+  if (this->mRoot == nullptr)
+  {
+    return;
+  }
   nodestack ns;
   boxlist bl;
   BSPNode* node;
-  this->BuildLocatorIfNeeded();
   ns.push(this->mRoot);
   // lets walk the tree and get all the level n node boxes
   while (!ns.empty())
@@ -656,7 +643,11 @@ int BSPNode::getDominantAxis(const double dir[3])
 int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
+  if (this->mRoot == nullptr)
+  {
+    return 0;
+  }
   BSPNode *node, *Near, *Mid, *Far;
   double tmin, tmax, tDist, tHitCell, tBest = VTK_DOUBLE_MAX, xBest[3], pCoordsBest[3];
   double rayDir[3], x0[3], x1[3], hitCellBoundsPosition[3], cellBounds[6], *cellBoundsPtr;
@@ -825,7 +816,11 @@ struct IntersectionInfo
 int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3], const double tol,
   vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
+  if (this->mRoot == nullptr)
+  {
+    return 0;
+  }
   // Initialize the list of points/cells
   if (points)
   {
@@ -975,7 +970,11 @@ int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3]
 vtkIdType vtkModifiedBSPTree::FindCell(
   double x[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
+  if (this->mRoot == nullptr)
+  {
+    return -1;
+  }
   // check if x outside of bounds
   if (!vtkAbstractCellLocator::IsInBounds(this->mRoot->Bounds, x))
   {
@@ -1028,11 +1027,10 @@ vtkIdType vtkModifiedBSPTree::FindCell(
 //------------------------------------------------------------------------------
 vtkIdListCollection* vtkModifiedBSPTree::GetLeafNodeCellInformation()
 {
-  if (!this->mRoot)
+  if (this->mRoot == nullptr)
   {
     return nullptr;
   }
-  this->BuildLocatorIfNeeded();
   //
   vtkIdListCollection* LeafCellsList = vtkIdListCollection::New();
   nodestack ns;

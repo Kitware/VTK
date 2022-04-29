@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// VTK_DEPRECATED_IN_9_2_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkCellLocator.h"
 
 #include "vtkBox.h"
@@ -162,17 +165,15 @@ void vtkCellLocator::GetBucketIndices(const double x[3], int ijk[3])
 int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
   double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
   if (this->Tree == nullptr)
   {
-    // empty tree, most likely there are no cells in the input data set
     return 0;
   }
   double* bounds = this->Bounds;
   double* h = this->H;
   double t0, t1, x0[3], x1[3], tHitCell;
   double hitCellBoundsPosition[3], cellBounds[6], *cellBoundsPtr;
-  cellBoundsPtr = cellBounds;
   double octantBounds[6];
   int prod = this->NumberOfDivisions * this->NumberOfDivisions;
   vtkIdType cellIdBest = -1, cId, i, idx, numberOfCellsInBucket;
@@ -237,6 +238,7 @@ int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], do
           cellHasBeenVisited[cId] = true;
 
           // check whether we intersect the cell bounds
+          cellBoundsPtr = cellBounds;
           this->GetCellBounds(cId, cellBoundsPtr);
           hitCellBounds =
             vtkBox::IntersectBox(cellBoundsPtr, p1, rayDir, hitCellBoundsPosition, tHitCell, tol);
@@ -348,10 +350,9 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
   double closestPoint[3], vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2,
   int& inside)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
   if (this->Tree == nullptr)
   {
-    // empty tree, most likely there are no cells in the input data set
     return 0;
   }
   int i;
@@ -605,8 +606,6 @@ void vtkCellLocator::GetOverlappingBuckets(vtkNeighborCells& buckets, const doub
   int leafStart, kFactor, jFactor;
   int numberOfBucketsPerPlane, jkSkipFlag, kSkipFlag;
 
-  this->BuildLocatorIfNeeded();
-
   numberOfBucketsPerPlane = this->NumberOfDivisions * this->NumberOfDivisions;
   leafStart = this->NumberOfOctants - numberOfBucketsPerPlane * this->NumberOfDivisions;
 
@@ -721,43 +720,24 @@ vtkIdList* vtkCellLocator::GetCells(int octantId)
 //------------------------------------------------------------------------------
 void vtkCellLocator::BuildLocator()
 {
-  if (this->LazyEvaluation)
-  {
-    return;
-  }
-  this->ForceBuildLocator();
-}
-
-//------------------------------------------------------------------------------
-void vtkCellLocator::BuildLocatorIfNeeded()
-{
-  if (this->LazyEvaluation)
-  {
-    if (!this->Tree || (this->MTime > this->BuildTime))
-    {
-      this->Modified();
-      vtkDebugMacro(<< "Forcing BuildLocator");
-      this->ForceBuildLocator();
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkCellLocator::ForceBuildLocator()
-{
   // don't rebuild if build time is newer than modified and dataset modified time
-  if ((this->Tree) && (this->BuildTime > this->MTime) &&
-    (this->BuildTime > this->DataSet->GetMTime()))
+  if (this->Tree && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
   {
     return;
   }
-  // don't rebuild if UseExistingSearchStructure is ON and a tree structure already exists
-  if ((this->Tree) && this->UseExistingSearchStructure)
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->Tree && this->UseExistingSearchStructure)
   {
     this->BuildTime.Modified();
     vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
     return;
   }
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkCellLocator::ForceBuildLocator()
+{
   this->BuildLocatorInternal();
 }
 
@@ -931,20 +911,17 @@ void vtkCellLocator::MarkParents(void* a, int i, int j, int k, int ndivs, int le
 //------------------------------------------------------------------------------
 void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData* pd)
 {
+  this->BuildLocator();
+  if (this->Tree == nullptr)
+  {
+    return;
+  }
   vtkPoints* pts;
   vtkCellArray* polys;
   int l, i, j, k, ii, boundary[3];
   vtkIdType idx = 0;
   vtkIdList *inside, *Inside[3] = { nullptr, nullptr, nullptr };
   int numDivs = 1;
-
-  this->BuildLocatorIfNeeded();
-
-  if (this->Tree == nullptr)
-  {
-    vtkErrorMacro(<< "No tree to generate representation from");
-    return;
-  }
 
   pts = vtkPoints::New();
   pts->Allocate(5000);
@@ -1155,10 +1132,9 @@ double vtkCellLocator::Distance2ToBounds(const double x[3], double bounds[6])
 vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* cell,
   int& subId, double pcoords[3], double* weights)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
   if (this->Tree == nullptr)
   {
-    // empty tree, most likely there are no cells in the input data set
     return -1;
   }
   // check if x outside of bounds
@@ -1206,13 +1182,14 @@ vtkIdType vtkCellLocator::FindCell(double x[3], double vtkNotUsed(tol2), vtkGene
 //------------------------------------------------------------------------------
 void vtkCellLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
 {
-  this->BuildLocatorIfNeeded();
-
-  cells->Reset();
+  this->BuildLocator();
   if (this->Tree == nullptr)
   {
-    // empty tree, most likely there are no cells in the input data set
     return;
+  }
+  if (cells)
+  {
+    cells->Reset();
   }
 
   // Get the locator locations for the two extreme corners of the bounding box
@@ -1248,7 +1225,10 @@ void vtkCellLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
         {
           for (idx = 0; idx < cellIds->GetNumberOfIds(); idx++)
           {
-            cells->InsertUniqueId(cellIds->GetId(idx));
+            if (cells)
+            {
+              cells->InsertUniqueId(cellIds->GetId(idx));
+            }
           }
         }
       }
@@ -1275,10 +1255,9 @@ struct IntersectionInfo
 int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], const double tol,
   vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
   if (this->Tree == nullptr)
   {
-    // empty tree, most likely there are no cells in the input data set
     return 0;
   }
   // Initialize the list of points/cells

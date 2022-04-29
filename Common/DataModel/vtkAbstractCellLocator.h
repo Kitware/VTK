@@ -38,6 +38,7 @@
 #define vtkAbstractCellLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkLocator.h"
 #include "vtkNew.h" // For vtkNew
 
@@ -96,22 +97,14 @@ public:
    * If LazyEvaluation is supported, this turns on/off the feature.
    * if not supported, it is ignored.
    */
-  vtkSetMacro(LazyEvaluation, vtkTypeBool);
-  vtkGetMacro(LazyEvaluation, vtkTypeBool);
-  vtkBooleanMacro(LazyEvaluation, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Some locators support querying a new dataset without rebuilding
-   * the search structure (typically this may occur when a dataset
-   * changes due to a time update, but is actually the same topology)
-   * Turning on this flag enables some locators to skip the rebuilding
-   * phase
-   */
-  vtkSetMacro(UseExistingSearchStructure, vtkTypeBool);
-  vtkGetMacro(UseExistingSearchStructure, vtkTypeBool);
-  vtkBooleanMacro(UseExistingSearchStructure, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
+  virtual void SetLazyEvaluation(vtkTypeBool) {}
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
+  virtual vtkTypeBool GetLazyEvaluation() { return 0; }
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
+  virtual void LazyEvaluationOn() {}
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
+  virtual void LazyEvaluationOff() {}
   ///@}
 
   /**
@@ -348,8 +341,6 @@ protected:
   int NumberOfCellsPerNode;
   vtkTypeBool RetainCellLists;
   vtkTypeBool CacheCellBounds;
-  vtkTypeBool LazyEvaluation;
-  vtkTypeBool UseExistingSearchStructure;
   vtkNew<vtkGenericCell> GenericCell;
   double (*CellBounds)[6];
 

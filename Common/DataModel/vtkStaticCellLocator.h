@@ -29,12 +29,11 @@
  * vtkStaticCellLocator utilizes the following parent class parameters:
  * - Automatic                   (default true)
  * - NumberOfCellsPerNode        (default 10)
+ * - UseExistingSearchStructure  (default false)
  *
  * vtkStaticCellLocator does NOT utilize the following parameters:
  * - CacheCellBounds             (always cached)
  * - Tolerance
- * - UseExistingSearchStructure
- * - LazyEvaluation
  * - Level
  * - MaxLevel
  * - RetainCellLists
@@ -255,11 +254,14 @@ public:
   void GenerateRepresentation(int level, vtkPolyData* pd) override;
   void FreeSearchStructure() override;
   void BuildLocator() override;
+  void ForceBuildLocator() override;
   ///@}
 
 protected:
   vtkStaticCellLocator();
   ~vtkStaticCellLocator() override;
+
+  void BuildLocatorInternal() override;
 
   double Bounds[6]; // Bounding box of the whole dataset
   int Divisions[3]; // Number of sub-divisions in x-y-z directions

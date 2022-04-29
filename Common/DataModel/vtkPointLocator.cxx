@@ -170,6 +170,11 @@ void vtkPointLocator::ComputePerformanceFactors()
 // Given a position x, return the id of the point closest to it.
 vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
 {
+  this->BuildLocator();
+  if (this->HashTable == nullptr)
+  {
+    return -1;
+  }
   int i, j;
   double minDist2;
   double dist2 = VTK_DOUBLE_MAX;
@@ -180,16 +185,7 @@ vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
   int ijk[3], *nei;
   vtkNeighborPoints buckets;
 
-  if (!this->DataSet || this->DataSet->GetNumberOfPoints() < 1)
-  {
-    return -1;
-  }
-
-  this->BuildLocator(); // will subdivide if modified; otherwise returns
-
-  //
   //  Find bucket point is in.
-  //
   this->GetBucketIndices(x, ijk);
 
   //
@@ -268,6 +264,11 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(
 vtkIdType vtkPointLocator::FindClosestPointWithinRadius(
   double radius, const double x[3], double inputDataLength, double& dist2)
 {
+  this->BuildLocator();
+  if (this->HashTable == nullptr)
+  {
+    return -1;
+  }
   int i, j;
   double pt[3];
   vtkIdType ptId, nids, closest = -1;
@@ -280,8 +281,6 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(
   double distance2ToDataBounds, maxDistance;
   int ii, radiusLevels[3], radiusLevel, prevMinLevel[3], prevMaxLevel[3];
   vtkNeighborPoints buckets;
-
-  this->BuildLocator(); // will subdivide if modified; otherwise returns
 
   dist2 = -1.0;
   radius2 = radius * radius;
@@ -517,6 +516,11 @@ static double GetMax(const double foo[8])
 //------------------------------------------------------------------------------
 void vtkPointLocator::FindDistributedPoints(int N, const double x[3], vtkIdList* result, int M)
 {
+  this->BuildLocator();
+  if (this->HashTable == nullptr)
+  {
+    return;
+  }
   int i, j;
   double dist2;
   double pt[3];
@@ -530,8 +534,6 @@ void vtkPointLocator::FindDistributedPoints(int N, const double x[3], vtkIdList*
 
   // clear out the result
   result->Reset();
-
-  this->BuildLocator(); // will subdivide if modified; otherwise returns
   //
   //  Make sure candidate point is in bounds.  If not, it is outside.
   //
@@ -658,6 +660,11 @@ void vtkPointLocator::FindDistributedPoints(int N, const double x[3], vtkIdList*
 //------------------------------------------------------------------------------
 void vtkPointLocator::FindClosestNPoints(int N, const double x[3], vtkIdList* result)
 {
+  this->BuildLocator();
+  if (this->HashTable == nullptr)
+  {
+    return;
+  }
   int i, j;
   double dist2;
   double pt[3];
@@ -670,11 +677,7 @@ void vtkPointLocator::FindClosestNPoints(int N, const double x[3], vtkIdList* re
   // clear out the result
   result->Reset();
 
-  this->BuildLocator(); // will subdivide if modified; otherwise returns
-
-  //
   //  Find bucket point is in.
-  //
   this->GetBucketIndices(x, ijk);
 
   // there are two steps, first a simple expanding wave of buckets until
@@ -772,6 +775,11 @@ void vtkPointLocator::FindClosestNPoints(int N, const double x[3], vtkIdList* re
 //------------------------------------------------------------------------------
 void vtkPointLocator::FindPointsWithinRadius(double R, const double x[3], vtkIdList* result)
 {
+  this->BuildLocator();
+  if (this->HashTable == nullptr)
+  {
+    return;
+  }
   int i, j;
   double dist2;
   double pt[3];
@@ -781,10 +789,7 @@ void vtkPointLocator::FindPointsWithinRadius(double R, const double x[3], vtkIdL
   double R2 = R * R;
   vtkNeighborPoints buckets;
 
-  this->BuildLocator(); // will subdivide if modified; otherwise returns
-  //
   //  Find bucket point is in.
-  //
   this->GetBucketIndices(x, ijk);
 
   // get all buckets within a distance
@@ -818,11 +823,35 @@ void vtkPointLocator::FindPointsWithinRadius(double R, const double x[3], vtkIdL
 }
 
 //------------------------------------------------------------------------------
+void vtkPointLocator::BuildLocator()
+{
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->HashTable && this->BuildTime > this->MTime &&
+    this->BuildTime > this->DataSet->GetMTime())
+  {
+    return;
+  }
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->HashTable && this->UseExistingSearchStructure)
+  {
+    this->BuildTime.Modified();
+    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
+    return;
+  }
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkPointLocator::ForceBuildLocator()
+{
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
 //  Method to form subdivision of space based on the points provided and
 //  subject to the constraints of levels and NumberOfPointsPerBucket.
 //  The result is directly addressable and of uniform subdivision.
-//
-void vtkPointLocator::BuildLocator()
+void vtkPointLocator::BuildLocatorInternal()
 {
   int ndivs[3];
   vtkIdType idx;
@@ -830,12 +859,6 @@ void vtkPointLocator::BuildLocator()
   vtkIdType numPts;
   double x[3];
   typedef vtkIdList* vtkIdListPtr;
-
-  if ((this->HashTable != nullptr) && (this->BuildTime > this->MTime) &&
-    (this->BuildTime > this->DataSet->GetMTime()))
-  {
-    return;
-  }
 
   vtkDebugMacro(<< "Hashing points...");
   this->Level = 1; // only single lowest level
@@ -845,17 +868,12 @@ void vtkPointLocator::BuildLocator()
     vtkErrorMacro(<< "No points to subdivide");
     return;
   }
-  //
+
   //  Make sure the appropriate data is available
-  //
-  if (this->HashTable)
-  {
-    this->FreeSearchStructure();
-  }
-  //
+  this->FreeSearchStructure();
+
   //  Size the root bucket.  Initialize bucket data structure, compute
   //  level and divisions.
-  //
   const double* bounds = this->DataSet->GetBounds();
   vtkIdType numBuckets = static_cast<vtkIdType>(
     static_cast<double>(numPts) / static_cast<double>(this->NumberOfPointsPerBucket));

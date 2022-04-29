@@ -1432,15 +1432,31 @@ bool vtkStaticCellLocator::InsideCellBounds(double x[3], vtkIdType cellId)
 //------------------------------------------------------------------------------
 void vtkStaticCellLocator::BuildLocator()
 {
-  vtkDebugMacro(<< "Building static cell locator");
-
-  // Do we need to build?
-  if ((this->Binner != nullptr) && (this->BuildTime > this->MTime) &&
-    (this->BuildTime > this->DataSet->GetMTime()))
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->Binner && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
   {
     return;
   }
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->Binner && this->UseExistingSearchStructure)
+  {
+    this->BuildTime.Modified();
+    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
+    return;
+  }
+  this->BuildLocatorInternal();
+}
 
+//------------------------------------------------------------------------------
+void vtkStaticCellLocator::ForceBuildLocator()
+{
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkStaticCellLocator::BuildLocatorInternal()
+{
+  vtkDebugMacro(<< "Building static cell locator");
   vtkIdType numCells;
   if (!this->DataSet || (numCells = this->DataSet->GetNumberOfCells()) < 1)
   {
@@ -1449,10 +1465,7 @@ void vtkStaticCellLocator::BuildLocator()
   }
 
   // Prepare
-  if (this->Binner)
-  {
-    this->FreeSearchStructure();
-  }
+  this->FreeSearchStructure();
 
   // The bounding box can be slow
   int i, ndivs[3];

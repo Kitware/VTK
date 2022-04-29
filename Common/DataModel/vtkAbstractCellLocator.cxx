@@ -38,7 +38,6 @@ vtkAbstractCellLocator::vtkAbstractCellLocator()
   this->RetainCellLists = 1;
   this->NumberOfCellsPerNode = 32;
   this->UseExistingSearchStructure = 0;
-  this->LazyEvaluation = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -294,6 +293,4 @@ void vtkAbstractCellLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cache Cell Bounds: " << this->CacheCellBounds << "\n";
   os << indent << "Retain Cell Lists: " << (this->RetainCellLists ? "On\n" : "Off\n");
   os << indent << "Number of Cells Per Bucket: " << this->NumberOfCellsPerNode << "\n";
-  os << indent << "UseExistingSearchStructure: " << this->UseExistingSearchStructure << "\n";
-  os << indent << "LazyEvaluation: " << this->LazyEvaluation << "\n";
 }

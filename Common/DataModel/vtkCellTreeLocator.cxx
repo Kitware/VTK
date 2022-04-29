@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// VTK_DEPRECATED_IN_9_2_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkCellTreeLocator.h"
 
 #include "vtkBoundingBox.h"
@@ -540,36 +543,26 @@ vtkCellTreeLocator::~vtkCellTreeLocator()
 }
 
 //------------------------------------------------------------------------------
-void vtkCellTreeLocator::BuildLocatorIfNeeded()
+void vtkCellTreeLocator::BuildLocator()
 {
-  if (this->LazyEvaluation)
-  {
-    if (!this->Tree || (this->MTime > this->BuildTime))
-    {
-      this->Modified();
-      vtkDebugMacro(<< "Forcing BuildLocator");
-      this->ForceBuildLocator();
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkCellTreeLocator::ForceBuildLocator()
-{
-  //
   // don't rebuild if build time is newer than modified and dataset modified time
-  if ((this->Tree) && (this->BuildTime > this->MTime) &&
-    (this->BuildTime > this->DataSet->GetMTime()))
+  if (this->Tree && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
   {
     return;
   }
-  // don't rebuild if UseExistingSearchStructure is ON and a tree structure already exists
-  if ((this->Tree) && this->UseExistingSearchStructure)
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->Tree && this->UseExistingSearchStructure)
   {
     this->BuildTime.Modified();
     vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
     return;
   }
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkCellTreeLocator::ForceBuildLocator()
+{
   this->BuildLocatorInternal();
 }
 
@@ -596,20 +589,14 @@ void vtkCellTreeLocator::BuildLocatorInternal()
 }
 
 //------------------------------------------------------------------------------
-void vtkCellTreeLocator::BuildLocator()
-{
-  if (this->LazyEvaluation)
-  {
-    return;
-  }
-  this->ForceBuildLocator();
-}
-
-//------------------------------------------------------------------------------
 vtkIdType vtkCellTreeLocator::FindCell(
   double pos[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
+  if (this->Tree == nullptr)
+  {
+    return -1;
+  }
   // check if pos outside of bounds
   if (!vtkAbstractCellLocator::IsInBounds(this->Tree->DataBBox, pos))
   {
@@ -672,7 +659,11 @@ double _getMinDistNEG_Z(const double origin[3], const double dir[3], const doubl
 int vtkCellTreeLocator::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
+  if (this->Tree == nullptr)
+  {
+    return 0;
+  }
   vtkCellTreeNode *node, *nearNode, *farNode;
   double tmin, tmax, tDist, tHitCell, tBest = VTK_DOUBLE_MAX, xBest[3], pCoordsBest[3];
   double rayDir[3], x0[3], x1[3], hitCellBoundsPosition[3];
@@ -843,7 +834,11 @@ struct IntersectionInfo
 int vtkCellTreeLocator::IntersectWithLine(const double p1[3], const double p2[3], const double tol,
   vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
-  this->BuildLocatorIfNeeded();
+  this->BuildLocator();
+  if (this->Tree == nullptr)
+  {
+    return 0;
+  }
   // Initialize the list of points/cells
   if (points)
   {
@@ -1180,8 +1175,11 @@ static void AddBox(vtkPolyData* pd, double* bounds, int level)
 //------------------------------------------------------------------------------
 void vtkCellTreeLocator::GenerateRepresentation(int level, vtkPolyData* pd)
 {
-  this->BuildLocatorIfNeeded();
-  //
+  this->BuildLocator();
+  if (this->Tree == nullptr)
+  {
+    return;
+  }
   nodeinfostack ns;
   boxlist bl;
   //
@@ -1226,8 +1224,11 @@ void vtkCellTreeLocator::GenerateRepresentation(int level, vtkPolyData* pd)
 //------------------------------------------------------------------------------
 void vtkCellTreeLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
 {
-  this->BuildLocatorIfNeeded();
-  //
+  this->BuildLocator();
+  if (this->Tree == nullptr)
+  {
+    return;
+  }
   nodeinfostack ns;
   double cellBounds[6], *cellBoundsPtr;
   cellBoundsPtr = cellBounds;

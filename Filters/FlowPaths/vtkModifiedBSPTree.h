@@ -260,18 +260,16 @@ public:
 protected:
   vtkModifiedBSPTree();
   ~vtkModifiedBSPTree() override;
-  //
+
+  void BuildLocatorInternal() override;
   BSPNode* mRoot; // bounding box root node
   int npn;
   int nln;
   int tot_depth;
 
-  //
   // The main subdivision routine
   void Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lists, vtkDataSet* dataSet,
     vtkIdType nCells, int depth, int maxlevel, vtkIdType maxCells, int& MaxDepth);
-
-  void BuildLocatorInternal() override;
 
 private:
   vtkModifiedBSPTree(const vtkModifiedBSPTree&) = delete;

@@ -1955,21 +1955,39 @@ void vtkStaticPointLocator::FreeSearchStructure()
 }
 
 //------------------------------------------------------------------------------
+void vtkStaticPointLocator::BuildLocator()
+{
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->Buckets && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+  {
+    return;
+  }
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->Buckets && this->UseExistingSearchStructure)
+  {
+    this->BuildTime.Modified();
+    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
+    return;
+  }
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkStaticPointLocator::ForceBuildLocator()
+{
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
 //  Method to form subdivision of space based on the points provided and
 //  subject to the constraints of levels and NumberOfPointsPerBucket.
 //  The result is directly addressable and of uniform subdivision.
 //
-void vtkStaticPointLocator::BuildLocator()
+void vtkStaticPointLocator::BuildLocatorInternal()
 {
   int ndivs[3];
   int i;
   vtkIdType numPts;
-
-  if ((this->Buckets != nullptr) && (this->BuildTime > this->MTime) &&
-    (this->BuildTime > this->DataSet->GetMTime()))
-  {
-    return;
-  }
 
   vtkDebugMacro(<< "Hashing points...");
   this->Level = 1; // only single lowest level - from superclass
@@ -1981,11 +1999,7 @@ void vtkStaticPointLocator::BuildLocator()
   }
 
   //  Make sure the appropriate data is available
-  //
-  if (this->Buckets)
-  {
-    this->FreeSearchStructure();
-  }
+  this->FreeSearchStructure();
 
   // Size the root bucket.  Initialize bucket data structure, compute
   // level and divisions. The GetBounds() method below can be very slow;
@@ -2018,7 +2032,6 @@ void vtkStaticPointLocator::BuildLocator()
     static_cast<vtkIdType>(ndivs[1]) * static_cast<vtkIdType>(ndivs[2]);
 
   //  Compute width of bucket in three directions
-  //
   for (i = 0; i < 3; i++)
   {
     this->H[i] = (this->Bounds[2 * i + 1] - this->Bounds[2 * i]) / static_cast<double>(ndivs[i]);
@@ -2027,7 +2040,6 @@ void vtkStaticPointLocator::BuildLocator()
   // Instantiate the locator. The type is related to the maximum point id.
   // This is done for performance (e.g., the sort is faster) and significant
   // memory savings.
-  //
   if (numPts >= VTK_INT_MAX || numBuckets >= VTK_INT_MAX)
   {
     this->LargeIds = true;
@@ -2049,15 +2061,17 @@ void vtkStaticPointLocator::BuildLocator()
 //  Method to form subdivision of space based on the points provided and
 //  subject to the constraints of levels and NumberOfPointsPerBucket.
 //  The result is directly addressable and of uniform subdivision.
-//
+
 void vtkStaticPointLocator::BuildLocator(const double* inBounds)
 {
   int ndivs[3];
   int i;
   vtkIdType numPts;
 
-  if ((this->Buckets != nullptr) && (this->BuildTime > this->MTime) &&
-    (this->BuildTime > this->DataSet->GetMTime()))
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->Buckets &&
+    (this->UseExistingSearchStructure ||
+      (this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())))
   {
     return;
   }

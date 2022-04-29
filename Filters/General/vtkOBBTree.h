@@ -40,12 +40,11 @@
  * - MaxLevel                    (default 12)
  * - NumberOfCellsPerNode        (default 32)
  * - RetainCellLists             (default true)
+ * - UseExistingSearchStructure  (default false)
  *
  * vtkOBBTree does NOT utilize the following parameters:
  * - Automatic
  * - CacheCellBounds
- * - UseExistingSearchStructure
- * - LazyEvaluation
  *
  * @warning
  * Since this algorithms works from a list of cells, the OBB tree will only
@@ -189,6 +188,7 @@ public:
    */
   void FreeSearchStructure() override;
   void BuildLocator() override;
+  void ForceBuildLocator() override;
   ///@}
 
   /**
@@ -205,6 +205,8 @@ public:
 protected:
   vtkOBBTree();
   ~vtkOBBTree() override;
+
+  void BuildLocatorInternal() override;
 
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added

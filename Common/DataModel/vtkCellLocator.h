@@ -33,7 +33,6 @@
  * - NumberOfCellsPerNode        (default 25)
  * - CacheCellBounds             (default false)
  * - UseExistingSearchStructure  (default false)
- * - LazyEvaluation              (default false)
  *
  * vtkCellLocator does NOT utilize the following parameters:
  * - Tolerance
@@ -48,6 +47,7 @@
 
 #include "vtkAbstractCellLocator.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkNew.h"                   // For vtkNew
 
 class vtkIntArray;
@@ -168,11 +168,12 @@ public:
    */
   void FreeSearchStructure() override;
   void BuildLocator() override;
-  virtual void BuildLocatorIfNeeded();
-  virtual void ForceBuildLocator();
-  virtual void BuildLocatorInternal();
+  void ForceBuildLocator() override;
   void GenerateRepresentation(int level, vtkPolyData* pd) override;
   ///@}
+
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because LazyEvaluation has been deprecated")
+  virtual void BuildLocatorIfNeeded() {}
 
   /**
    * Get the cells in a particular bucket.
@@ -188,6 +189,8 @@ public:
 protected:
   vtkCellLocator();
   ~vtkCellLocator() override;
+
+  void BuildLocatorInternal() override;
 
   //------------------------------------------------------------------------------
   class vtkNeighborCells

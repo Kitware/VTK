@@ -29,7 +29,6 @@
  * - NumberOfCellsPerNode        (default 8)
  * - CacheCellBounds             (default false)
  * - UseExistingSearchStructure  (default false)
- * - LazyEvaluation              (default false)
  *
  * vtkCellTreeLocator does NOT utilize the following parameters:
  * - Automatic
@@ -50,6 +49,7 @@
 
 #include "vtkAbstractCellLocator.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include <vector>                     // Needed for internal class
 
 class vtkCellPointTraversal;
@@ -139,12 +139,13 @@ public:
    * Satisfy vtkLocator abstract interface.
    */
   void FreeSearchStructure() override;
-  void GenerateRepresentation(int level, vtkPolyData* pd) override;
-  virtual void BuildLocatorInternal();
-  virtual void BuildLocatorIfNeeded();
-  virtual void ForceBuildLocator();
   void BuildLocator() override;
+  void ForceBuildLocator() override;
+  void GenerateRepresentation(int level, vtkPolyData* pd) override;
   ///@}
+
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because LazyEvaluation has been deprecated")
+  virtual void BuildLocatorIfNeeded() {}
 
   class vtkCellTree;
   class vtkCellTreeNode;
@@ -207,6 +208,8 @@ public:
 protected:
   vtkCellTreeLocator();
   ~vtkCellTreeLocator() override;
+
+  void BuildLocatorInternal() override;
 
   int getDominantAxis(const double dir[3]);
 
