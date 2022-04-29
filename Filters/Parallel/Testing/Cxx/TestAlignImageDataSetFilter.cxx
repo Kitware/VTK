@@ -59,7 +59,7 @@ bool Validate(vtkDataObject* dobj, vtkVector3d origin)
 
 }
 
-int TestAlignImageDataSetFilter(int argc, char* argv[])
+int TestAlignImageDataSetFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkPartitionedDataSet> pd;
 

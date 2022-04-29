@@ -351,7 +351,7 @@ int vtkGradientFilter::RequestData(vtkInformation* vtkNotUsed(request),
     output->IsA("vtkRectilinearGrid"))
   {
     vtkUnsignedCharArray* ghosts = nullptr;
-    unsigned char hiddenGhost;
+    unsigned char hiddenGhost = 0;
     int dims[3];
     if (auto im = vtkImageData::SafeDownCast(output))
     {

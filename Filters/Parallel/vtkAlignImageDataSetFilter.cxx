@@ -106,7 +106,7 @@ vtkAlignImageDataSetFilter::~vtkAlignImageDataSetFilter()
 }
 
 //-----------------------------------------------------------------------------
-int vtkAlignImageDataSetFilter::FillInputPortInformation(int port, vtkInformation* info)
+int vtkAlignImageDataSetFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");

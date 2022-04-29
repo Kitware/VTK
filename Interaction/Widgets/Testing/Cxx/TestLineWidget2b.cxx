@@ -33,7 +33,7 @@ static const char* eventLog = "# StreamVersion 1.1\n"
                               "MouseMoveEvent 572 111 0 0 0 0\n"
                               "MouseMoveEvent 578 139 0 0 0 0\n";
 
-int TestLineWidget2b(int argc, char* argv[])
+int TestLineWidget2b(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // We want to test the handle behavior of widget representation
   // when the camera is far away from the origin
