@@ -228,8 +228,7 @@ public:
       {
         if (!detail::isinf(value))
         {
-          range[j] = detail::min(range[j], value);
-          range[j + 1] = detail::max(range[j + 1], value);
+          vtkMathUtilities::UpdateRange(range[j], range[j + 1], value);
         }
         j += 2;
       }
