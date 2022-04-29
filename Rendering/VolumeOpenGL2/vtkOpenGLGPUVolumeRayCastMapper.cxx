@@ -969,6 +969,27 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingShaderParameters(
     prog->SetUniform1fv("in_lightExponent", this->NumberPositionalLights, lightExponent.data());
     prog->SetUniform1fv("in_lightConeAngle", this->NumberPositionalLights, lightConeAngle.data());
   }
+
+  // Shadows extent parameter
+  if (this->Parent->GetVolumetricShadow())
+  {
+    float shadowExtent = this->Parent->GetGlobalIlluminationReach();
+    // we map the shadow extent from [0, 1] to [sampleDistance, sqrt(3)]
+    // 0.1 corresponds to the minimum length of a shadow ray (the texture unit cube has size 1)
+    // sqrt(3) corresponds to the maximum (the diagonal of the cube)
+    float* invTexMat = this->InvTexMatVec.data();
+    float minCoef = VTK_FLOAT_MAX;
+    // only take 3x3 sub-matrix because it will be multplied by a vec4(..., 0.0) normalized vec
+    for (int i = 0; i < 3; i++)
+    {
+      // diagonal coefficient
+      minCoef = std::min(minCoef, std::abs(invTexMat[5 * i]));
+    }
+    float minExtent = minCoef * this->ActualSampleDistance;
+    constexpr float maxExtent = 1.73205;
+    shadowExtent = (minExtent - maxExtent) * std::pow(1.0 - shadowExtent, 0.33) + maxExtent;
+    prog->SetUniformf("in_giReach", shadowExtent);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -2429,6 +2450,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeDensityGradient::Dec",
       vtkvolume::ComputeDensityGradientDeclaration(this, this->AssembledInputs, numComps,
         independentComponents, this->Impl->Transfer2DUseGradient));
+  }
+
+  if (this->GetVolumetricShadow())
+  {
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeVolumetricShadow::Dec",
+      vtkvolume::ComputeVolumetricShadowDec(this, vol, numComps, independentComponents,
+        this->AssembledInputs, this->Impl->Transfer2DUseGradient));
   }
 
   if (this->Impl->MultiVolume)

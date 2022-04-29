@@ -273,6 +273,11 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
     toShaderStr << "uniform bool in_twoSidedLighting;\n";
   }
 
+  if (mapper->GetVolumetricShadow())
+  {
+    toShaderStr << "uniform float in_giReach;\n";
+  }
+
   if (totalNumberOfLights > 0)
   {
     std::string totalLights = std::to_string(totalNumberOfLights);
@@ -438,7 +443,12 @@ std::string BaseInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
       \n  // sub-step size we need to take at each raymarching step\
       \n  g_dirStep = (ip_inverseTextureDataAdjusted *\
       \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
+      \n  g_lengthStep = length(g_dirStep);\
       \n";
+
+  shaderStr << "\
+          \n float jitterValue = 0.0;\
+          \n";
 
   if (glMapper->GetBlendMode() != vtkVolumeMapper::SLICE_BLEND)
   {
@@ -446,7 +456,7 @@ std::string BaseInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
     if (glMapper->GetUseJittering())
     {
       shaderStr << "\
-          \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy /\
+          \n    jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy /\
                                               vec2(textureSize(in_noiseSampler, 0))).x;\
           \n    g_rayJitter = g_dirStep * jitterValue;\
           \n";
@@ -893,6 +903,8 @@ std::string ComputeOpacityEvaluationCall(vtkOpenGLGPUVolumeRayCastMapper* vtkNot
   vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, int noOfComponents,
   int independentComponents, int useGradYAxis, std::string position)
 {
+  // relies on the declaration of variables opacity, gradient, c, volume, index, scalar, gradTF,
+  // opacityTF, label in the scope
   std::string resStr;
 
   if (inputs.size() > 1)
@@ -1154,6 +1166,14 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
 
   int const transferMode = volProperty->GetTransferFunctionMode();
 
+  bool const volumetricShadow = glMapper->GetVolumetricShadow();
+  std::string volumetricCall = volumetricShadow
+    ? "\n   vol_shadow = volumeShadow(g_dataPos, tex_light.xyz, 0.0, component, in_volume[0], "
+      "0, label);"
+    : "";
+  std::string volumetricDeclarations =
+    volumetricShadow ? "\n  float vol_shadow = 1.0;\n  vec4 tex_light = vec4(0.0);\n" : "\n";
+
   // If shading is required, we compute a shading gradient (used for the shading model)
   if (shadeReqd)
   {
@@ -1195,7 +1215,8 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
       shaderStr += std::string("\
           \n  vec3 diffuse = vec3(0.0);\
           \n  vec3 specular = vec3(0.0);\
-          \n  vec3 normal = shading_gradient.xyz;\
+          \n  vec3 normal = shading_gradient.xyz;") +
+        volumetricDeclarations + std::string("\
           \n  float normalLength = length(normal);\
           \n  if (normalLength > 0.0)\
           \n    {\
@@ -1206,8 +1227,9 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n    normal = vec3(0.0, 0.0, 0.0);\
           \n    }\
           \n   // XXX: normal is oriented inside the volume, so we take -g_ldir/-g_vdir \
-          \n   float nDotL = dot(normal, -g_ldir[0]);\
-          \n   vec3 r = normalize(2.0 * nDotL * normal + g_ldir[0]);\
+          \n   float nDotL = dot(normal, -g_ldir[0]);") +
+        (volumetricShadow ? std::string("\n   tex_light = vec4(g_ldir[0], 0.0);") : std::string()) +
+        volumetricCall + std::string("\n   vec3 r = normalize(2.0 * nDotL * normal + g_ldir[0]);\
           \n   float vDotR = dot(r, -g_vdir[0]);\
           \n   if (nDotL < 0.0 && in_twoSidedLighting)\
           \n     {\
@@ -1219,10 +1241,14 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n     }\
           \n   if (nDotL > 0.0)\
           \n     {\
-          \n        diffuse = nDotL * in_diffuse[component] *\
+          \n        diffuse = ") +
+        (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
+        std::string("nDotL * in_diffuse[component] *\
           \n               in_lightDiffuseColor[0] * color.rgb;\
           \n        vDotR = max(vDotR, 0.0);\
-          \n        specular = pow(vDotR, in_shininess[component]) *\
+          \n        specular = ") +
+        (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
+        std::string(" pow(vDotR, in_shininess[component]) *\
           \n                 in_specular[component] *\
           \n                 in_lightSpecularColor[0];\
           \n     }\
@@ -1245,7 +1271,8 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n  vec3 diffuse = vec3(0,0,0);\
           \n  vec3 specular = vec3(0,0,0);\
           \n  vec3 vertLightDirection;\
-          \n  vec3 normal = normalize((in_textureToEye[0] * vec4(shading_gradient.xyz, 0.0)).xyz);\
+          \n  vec3 normal = normalize((in_textureToEye[0] * vec4(shading_gradient.xyz, 0.0)).xyz);") +
+        volumetricDeclarations + std::string("\
           \n  vec3 lightDir;");
 
       if (numberPositionalLights > 0)
@@ -1256,7 +1283,13 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n    lightDir = in_lightDirection[posNum];\
           \n    vertLightDirection = (g_fragWorldPos.xyz - in_lightPosition[posNum]);\
           \n    float distance = length(vertLightDirection);\
-          \n    vertLightDirection = normalize(vertLightDirection);\
+          \n    vertLightDirection = normalize(vertLightDirection);") +
+          (volumetricShadow ? std::string("\
+          \n    tex_light = g_eyeToTexture * vec4(in_lightPosition[posNum], 1.0);\
+          \n    if(tex_light.w > 0.0) tex_light /= tex_light.w;\
+          \n    vol_shadow = volumeShadow(g_dataPos, tex_light.xyz, 1.0, component, in_volume[0], 0, label);")
+                            : std::string()) +
+          std::string("\
           \n    attenuation = 1.0 /\
           \n                  (in_lightAttenuation[posNum].x\
           \n                  + in_lightAttenuation[posNum].y * distance\
@@ -1283,7 +1316,9 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n    }\
           \n    if (nDotL > 0.0)\
           \n    {\
-          \n      float df = max(0.0, attenuation * nDotL);\
+          \n      float df = max(0.0, ") +
+          (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
+          std::string(" attenuation * nDotL);\
           \n      diffuse += (df * in_lightDiffuseColor[posNum]);\
           \n      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);\
           \n      float rDotV = dot(-viewDirection, r);\
@@ -1293,7 +1328,9 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n      }\
           \n      if (rDotV > 0.0)\
           \n      {\
-          \n        float sf = attenuation * pow(rDotV, in_shininess[component]);\
+          \n        float sf = ") +
+          (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
+          std::string(" attenuation * pow(rDotV, in_shininess[component]);\
           \n        specular += (sf * in_lightSpecularColor[posNum]);\
           \n      }\
           \n    }\
@@ -1301,10 +1338,16 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n  }");
       }
 
-      shaderStr += std::string(
-        "\n  for (int dirNum = NUMBER_POS_LIGHTS; dirNum < TOTAL_NUMBER_LIGHTS; dirNum++)\
+      shaderStr +=
+        std::string(
+          "\n  for (int dirNum = NUMBER_POS_LIGHTS; dirNum < TOTAL_NUMBER_LIGHTS; dirNum++)\
           \n  {\
-          \n    vertLightDirection = in_lightDirection[dirNum];\
+          \n    vertLightDirection = in_lightDirection[dirNum];") +
+        (volumetricShadow ? std::string("\
+          \n    tex_light = g_eyeToTexture * vec4(-vertLightDirection, 0.0);\
+          \n    if(tex_light.w > 0.0) tex_light /= tex_light.w;")
+                          : std::string()) +
+        volumetricCall + std::string("\
           \n    float nDotL = dot(normal, vertLightDirection);\
           \n    if (nDotL < 0.0 && in_twoSidedLighting)\
           \n    {\
@@ -1312,7 +1355,8 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n    }\
           \n    if (nDotL > 0.0)\
           \n    {\
-          \n      float df = max(0.0, nDotL);\
+          \n      float df = max(0.0, ") +
+        (volumetricShadow ? std::string("vol_shadow * ") : std::string()) + std::string(" nDotL);\
           \n      diffuse += (df * in_lightDiffuseColor[dirNum]);\
           \n      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);\
           \n      float rDotV = dot(-viewDirection, r);\
@@ -1322,7 +1366,9 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n      }\
           \n      if (rDotV > 0.0)\
           \n      {\
-          \n        float sf = pow(rDotV, in_shininess[component]);\
+          \n        float sf = ") +
+        (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
+        std::string(" pow(rDotV, in_shininess[component]);\
           \n        specular += (sf * in_lightSpecularColor[dirNum]);\
           \n      }\
           \n    }\
@@ -2038,6 +2084,107 @@ std::string ComputeOpacity2DDeclaration(vtkRenderer* vtkNotUsed(ren),
     }
   }
   return toString.str();
+}
+
+//--------------------------------------------------------------------------
+std::string ComputeVolumetricShadowDec(vtkOpenGLGPUVolumeRayCastMapper* mapper,
+  vtkVolume* vtkNotUsed(vol), int noOfComponents, int independentComponents,
+  vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, int useGradYAxis)
+{
+  std::string resStr;
+  std::string declarations;
+  std::string functionSignature;
+  std::string opacityEval;
+  std::string rayInit;
+
+  const size_t numInputs = inputs.size();
+  const bool hasGradOp = ::HasGradientOpacity(inputs);
+
+  // for now, shadow is mono-chromatic (we only sample opacity)
+  // it could be RGB
+
+  functionSignature = "float volumeShadow(vec3 sample_position, vec3 light_pos_dir, float is_Pos, "
+                      " in int c, in sampler3D volume, " +
+    (numInputs > 1 ? std::string("in sampler2D opacityTF, ") : std::string()) +
+    (numInputs > 1 && hasGradOp ? std::string("in sampler2D gradTF, ") : std::string()) +
+    "int index, float label)\n";
+
+  declarations +=
+    R"***(
+  float shadow = 1.0;
+  vec3 direction = vec3(0.0);
+  vec3 norm_dir = vec3(0.0);
+  float maxdist = 0.0;
+  float scalar;
+  vec4 gradient;
+  float opacity = 0.0;
+  Ray ray;
+  Hit hit;
+  float sampled_dist = 0.0;
+  vec3 sampled_point = vec3(0.0);
+    )***";
+
+  rayInit +=
+    R"***(
+  // direction is light_pos_dir when light is directional
+  // and light_pos_dir - sample_position when positional
+  direction = light_pos_dir - is_Pos * sample_position;
+  norm_dir = normalize(direction);
+  // introduce little offset to avoid sampling shadows at the exact
+  // sample position
+  sample_position += g_lengthStep * norm_dir;
+  direction = light_pos_dir - is_Pos * sample_position;
+  ray.origin = sample_position;
+  ray.dir = norm_dir;
+  safe_0_vector(ray);
+  ray.invDir = 1.0/ray.dir;
+  if(!BBoxIntersect(vec3(0.0), vec3(1.0), ray, hit))
+  {
+    // it can happen around the bounding box
+    return 1.0;
+  }
+  if(hit.tmax < g_lengthStep)
+  {
+    // if we're too close to the bounding box
+    return 1.0;
+  }
+  // in case of directional light, we want direction not to be normalized but to go
+  // all the way to the bbox
+  direction *= pow(hit.tmax / length(direction), 1.0 - is_Pos);
+  maxdist = min(hit.tmax, length(direction));
+  maxdist = min(in_giReach, maxdist);
+  if(maxdist < EPSILON) return 1.0;
+
+    )***";
+
+  // slight imprecision for the last sample : it can be something else (less) than g_lengthStep
+  // because the last step is clamped to the end of the ray
+  opacityEval += "  scalar = texture3D(volume, sampled_point)[c];\n"
+                 "  scalar = scalar * in_volume_scale[index][c] + in_volume_bias[index][c];\n";
+  opacityEval += ComputeOpacityEvaluationCall(
+    mapper, inputs, noOfComponents, independentComponents, useGradYAxis, "sampled_point");
+
+  resStr += functionSignature + "{\n" + declarations + rayInit +
+    R"***(
+  float current_dist = 0.0;
+  float current_step = g_lengthStep;
+  float clamped_step = 0.0;
+  while(current_dist < maxdist)
+  {
+    clamped_step = min(maxdist - current_dist, current_step);
+    sampled_dist = current_dist + clamped_step * g_jitterValue;
+    sampled_point = sample_position + sampled_dist * norm_dir;
+    )***" +
+    opacityEval +
+    R"***(
+    shadow *= 1.0 - opacity;
+    current_dist += current_step;
+  }
+  return shadow;
+}
+  )***";
+
+  return resStr;
 }
 
 //--------------------------------------------------------------------------

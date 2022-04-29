@@ -267,6 +267,18 @@ public:
 
   ///@{
   /**
+   * This parameter acts as a balance between localness
+   * and globalness of shadows.
+   * A value of 0.0 will be faster, but we'll only capture local shadows.
+   * A value of 1.0 will be slower, but we'll capture all shadows.
+   * The default value is 0.0.
+   */
+  vtkSetClampMacro(GlobalIlluminationReach, float, 0.0f, 1.0f);
+  vtkGetMacro(GlobalIlluminationReach, float);
+  ///@}
+
+  ///@{
+  /**
    * Enable or disable setting output of volume rendering to be
    * color and depth textures. By default this is set to 0 (off).
    * It should be noted that it is possible that underlying API specific
@@ -520,6 +532,9 @@ protected:
 
   // Enable / disable stochastic jittering
   vtkTypeBool UseJittering;
+
+  // Secondary rays ambient/global adjustement coefficient
+  float GlobalIlluminationReach = 0.0;
 
   // Enable / disable two pass rendering
   vtkTypeBool UseDepthPass;

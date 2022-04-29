@@ -95,6 +95,8 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->RayCastMapper->LockSampleDistanceToInputSpacingOn();
   this->GPUMapper->LockSampleDistanceToInputSpacingOn();
   this->GPUMapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
+  this->GPUMapper->SetVolumetricShadow(this->VolumetricShadow);
+  this->GPUMapper->SetGlobalIlluminationReach(this->GlobalIlluminationReach);
 
   // Default to the default mode - which will use the best option that
   // is supported by the hardware
@@ -467,6 +469,8 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
       this->GPUMapper->SetSampleDistance(this->SampleDistance);
       this->GPUMapper->SetTransfer2DYAxisArray(this->Transfer2DYAxisArray);
       this->GPUMapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
+      this->GPUMapper->SetVolumetricShadow(this->VolumetricShadow);
+      this->GPUMapper->SetGlobalIlluminationReach(this->GlobalIlluminationReach);
 
       // Make the window current because we need the OpenGL context
       win->MakeCurrent();
