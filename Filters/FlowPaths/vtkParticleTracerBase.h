@@ -162,8 +162,8 @@ public:
    * redundant as the particles will be reinjected whenever the source changes
    * anyway
    */
-  vtkGetMacro(ForceReinjectionEveryNSteps, int);
-  void SetForceReinjectionEveryNSteps(int);
+  vtkGetMacro(ForceReinjectionEveryNSteps, vtkTypeBool);
+  void SetForceReinjectionEveryNSteps(vtkTypeBool);
   ///@}
 
   ///@{
@@ -202,8 +202,8 @@ public:
    * the motion will be ignored and results will not be as expected.
    * The default is that StaticSeeds is 0.
    */
-  vtkSetMacro(StaticSeeds, int);
-  vtkGetMacro(StaticSeeds, int);
+  vtkSetMacro(StaticSeeds, vtkTypeBool);
+  vtkGetMacro(StaticSeeds, vtkTypeBool);
   ///@}
 
   ///@{
@@ -216,8 +216,8 @@ public:
    * as this will invalidate all results.
    * The default is that StaticMesh is 0.
    */
-  vtkSetMacro(StaticMesh, int);
-  vtkGetMacro(StaticMesh, int);
+  vtkSetMacro(StaticMesh, vtkTypeBool);
+  vtkGetMacro(StaticMesh, vtkTypeBool);
   ///@}
 
   ///@{
@@ -502,9 +502,9 @@ private:
   int ReinjectionCounter;
 
   // Important for Caching of Cells/Ids/Weights etc
-  int AllFixedGeometry;
-  int StaticMesh;
-  int StaticSeeds;
+  vtkTypeBool AllFixedGeometry;
+  vtkTypeBool StaticMesh;
+  vtkTypeBool StaticSeeds;
 
   std::vector<double> InputTimeValues;
   double StartTime;
@@ -518,7 +518,7 @@ private:
   bool FirstIteration;
 
   // Innjection parameters
-  int ForceReinjectionEveryNSteps;
+  vtkTypeBool ForceReinjectionEveryNSteps;
   vtkTimeStamp ParticleInjectionTime;
   bool HasCache;
 
@@ -532,7 +532,6 @@ private:
 
   // The velocity interpolator
   vtkSmartPointer<vtkTemporalInterpolatedVelocityField> Interpolator;
-  vtkAbstractInterpolatedVelocityField* InterpolatorPrototype;
 
   // Data for time step CurrentTimeStep-1 and CurrentTimeStep
   vtkSmartPointer<vtkMultiBlockDataSet> CachedData[2];
