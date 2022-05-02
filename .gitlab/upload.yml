@@ -17,6 +17,24 @@
         - ssh-keygen -y -f $RSYNC_BINARY_KEY > $RSYNC_BINARY_KEY.pub
         - rsync -tv --recursive -e "ssh -i $RSYNC_BINARY_KEY -o StrictHostKeyChecking=no" build/$SRC_SUBDIR kitware@web.kitware.com:$RSYNC_DESTINATION/
 
+.rsync_upload_wheel_sdk:
+    image: "fedora:34"
+    stage: upload
+    tags:
+        - docker
+        - linux
+        - build
+    environment:
+        name: rsync-upload-wheel-sdk
+
+    script:
+        - ls build/
+        - dnf install -y --setopt=install_weak_deps=False rsync openssh-clients
+        - chmod 400 $RSYNC_WHEEL_SDK_KEY
+        - ssh-keygen -y -f $RSYNC_WHEEL_SDK_KEY > $RSYNC_WHEEL_SDK_KEY.pub
+        - rsync -tv --recursive -e "ssh -i $RSYNC_WHEEL_SDK_KEY -o StrictHostKeyChecking=no" $RSYNC_SOURCE kitware@vtk.org:$RSYNC_DESTINATION/
+
+
 .pypi_upload:
     image: "fedora:34"
     stage: upload

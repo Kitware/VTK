@@ -12,6 +12,9 @@
 .wheel_macos_arm64:
     extends: .macos
 
+    variables:
+        VTK_INSTALL: 1
+
 .wheel_macos39_arm64:
     extends: .wheel_macos_arm64
 
@@ -30,6 +33,9 @@
 
 .wheel_macos_x86_64:
     extends: .macos
+
+    variables:
+        VTK_INSTALL: 1
 
 .wheel_macos36_x86_64:
     extends: .wheel_macos_x86_64
@@ -213,6 +219,13 @@
         - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
         - venv/bin/pip install wheel
         - venv/bin/python3 setup.py bdist_wheel
+        - pushd .
+        - cd dist
+        - 'sdk_name="$( ls *.whl  | sed -e "s/\.whl/-sdk/" )"'
+        - popd
+        - mv install $sdk_name
+        - tar czf $sdk_name.tar.xz $sdk_name
+        - mv $sdk_name install
         # XXX: `delocate` can't handle `@loader_path` or do recursive
         # dependency scanning. Ignore it and just do it manually because
         # apparently VTK is the most complicated wheel in the world.

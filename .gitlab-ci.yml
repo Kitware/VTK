@@ -448,6 +448,58 @@ wheel:vtk:upload:
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python310-x86_64:test
 
+wheel-sdk:upload:
+    extends:
+        - .rsync_upload_wheel_sdk
+        - .weekly_upload_only
+    dependencies:
+        - wheel-linux-python37-x86_64:build
+        - wheel-linux-python38-x86_64:build
+        - wheel-linux-python39-x86_64:build
+        - wheel-linux-python310-x86_64:build
+        - wheel-macos-python37-x86_64:build
+        - wheel-macos-python38-x86_64:build
+        - wheel-macos-python39-arm64:build
+        - wheel-macos-python39-x86_64:build
+        - wheel-macos-python310-arm64:build
+        - wheel-macos-python310-x86_64:build
+        - wheel-windows-python37-x86_64:build
+        - wheel-windows-python38-x86_64:build
+        - wheel-windows-python39-x86_64:build
+        - wheel-windows-python310-x86_64:build
+    needs:
+        - wheel-linux-python37-x86_64:build
+        - wheel-linux-python37-x86_64:test
+        - wheel-linux-python38-x86_64:build
+        - wheel-linux-python38-x86_64:test
+        - wheel-linux-python39-x86_64:build
+        - wheel-linux-python39-x86_64:test
+        - wheel-linux-python310-x86_64:build
+        - wheel-linux-python310-x86_64:test
+        - wheel-macos-python37-x86_64:build
+        - wheel-macos-python37-x86_64:test
+        - wheel-macos-python38-x86_64:build
+        - wheel-macos-python38-x86_64:test
+        - wheel-macos-python39-arm64:build
+        - wheel-macos-python39-arm64:test
+        - wheel-macos-python39-x86_64:build
+        - wheel-macos-python39-x86_64:test
+        - wheel-macos-python310-arm64:build
+        - wheel-macos-python310-arm64:test
+        - wheel-macos-python310-x86_64:build
+        - wheel-macos-python310-x86_64:test
+        - wheel-windows-python37-x86_64:build
+        - wheel-windows-python37-x86_64:test
+        - wheel-windows-python38-x86_64:build
+        - wheel-windows-python38-x86_64:test
+        - wheel-windows-python39-x86_64:build
+        - wheel-windows-python39-x86_64:test
+        - wheel-windows-python310-x86_64:build
+        - wheel-windows-python310-x86_64:test
+    variables:
+        RSYNC_SOURCE: build/*-sdk.tar.xz
+        RSYNC_DESTINATION: wheel-sdks/
+
 ## Static analysis builds
 
 fedora34-tidy:build:
