@@ -548,6 +548,7 @@ public:
 
 protected:
   friend class vtkPoints;
+  friend class vtkFieldData;
 
   ///@{
   /**
