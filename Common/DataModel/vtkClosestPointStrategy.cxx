@@ -32,11 +32,6 @@ vtkClosestPointStrategy::vtkClosestPointStrategy()
   this->CellIds->Allocate(32);
   this->NearPointIds->Allocate(32);
 
-  // You may ask why this OwnsLocator rigamarole. The reason is that the
-  // reference counting garbage collector gets confused when the locator,
-  // point set, and strategy are all mixed together; resulting in memory
-  // leaks etc.
-  this->OwnsLocator = false;
   this->PointLocator = nullptr;
 }
 
@@ -94,7 +89,7 @@ int vtkClosestPointStrategy::Initialize(vtkPointSet* ps)
   vtkAbstractPointLocator* psPL = ps->GetPointLocator();
   if (psPL == nullptr)
   {
-    if (this->PointLocator != nullptr && this->OwnsLocator)
+    if (this->PointLocator != nullptr)
     {
       this->PointLocator->SetDataSet(ps);
       this->PointLocator->BuildLocator();
@@ -379,14 +374,11 @@ bool vtkClosestPointStrategy::InsideCellBounds(double x[3], vtkIdType cellId)
 //------------------------------------------------------------------------------
 void vtkClosestPointStrategy::CopyParameters(vtkFindCellStrategy* from)
 {
-
   this->Superclass::CopyParameters(from);
 
-  vtkClosestPointStrategy* strategy = vtkClosestPointStrategy::SafeDownCast(from);
-  if (strategy)
+  if (auto strategy = vtkClosestPointStrategy::SafeDownCast(from))
   {
     this->PointLocator = strategy->PointLocator;
-    this->OwnsLocator = false;
   }
 }
 

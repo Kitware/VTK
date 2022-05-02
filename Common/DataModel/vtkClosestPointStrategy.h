@@ -123,7 +123,6 @@ protected:
   std::vector<double> Weights;
 
   vtkAbstractPointLocator* PointLocator;
-  bool OwnsLocator; // was the locator specified? or taken from associated point set
 
 private:
   vtkClosestPointStrategy(const vtkClosestPointStrategy&) = delete;

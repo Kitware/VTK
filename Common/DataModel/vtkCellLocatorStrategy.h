@@ -82,12 +82,19 @@ public:
   vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
   ///@}
 
+  /**
+   * Copy essential parameters between instances of this class. This
+   * generally is used to copy from instance prototype to another, or to copy
+   * strategies between thread instances.  Sub-classes can contribute to
+   * the parameter copying process via chaining.
+   */
+  void CopyParameters(vtkFindCellStrategy* from) override;
+
 protected:
   vtkCellLocatorStrategy();
   ~vtkCellLocatorStrategy() override;
 
   vtkAbstractCellLocator* CellLocator;
-  bool OwnsLocator; // was the locator specified? or taken from associated point set
 
 private:
   vtkCellLocatorStrategy(const vtkCellLocatorStrategy&) = delete;

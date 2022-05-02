@@ -26,11 +26,6 @@ vtkStandardNewMacro(vtkCellLocatorStrategy);
 //------------------------------------------------------------------------------
 vtkCellLocatorStrategy::vtkCellLocatorStrategy()
 {
-  // You may ask why this OwnsLocator rigamarole. The reason is that the
-  // reference counting garbage collector gets confused when the locator,
-  // point set, and strategy are all mixed together; resulting in memory
-  // leaks etc.
-  this->OwnsLocator = false;
   this->CellLocator = nullptr;
 }
 
@@ -88,7 +83,7 @@ int vtkCellLocatorStrategy::Initialize(vtkPointSet* ps)
   vtkAbstractCellLocator* psCL = ps->GetCellLocator();
   if (psCL == nullptr)
   {
-    if (this->CellLocator != nullptr && this->OwnsLocator)
+    if (this->CellLocator != nullptr)
     {
       this->CellLocator->SetDataSet(ps);
       this->CellLocator->BuildLocator();
@@ -145,6 +140,17 @@ vtkIdType vtkCellLocatorStrategy::FindClosestPointWithinRadius(double x[3], doub
 bool vtkCellLocatorStrategy::InsideCellBounds(double x[3], vtkIdType cellId)
 {
   return this->CellLocator->InsideCellBounds(x, cellId);
+}
+
+//------------------------------------------------------------------------------
+void vtkCellLocatorStrategy::CopyParameters(vtkFindCellStrategy* from)
+{
+  this->Superclass::CopyParameters(from);
+
+  if (auto strategy = vtkCellLocatorStrategy::SafeDownCast(from))
+  {
+    this->CellLocator = strategy->CellLocator;
+  }
 }
 
 //------------------------------------------------------------------------------
