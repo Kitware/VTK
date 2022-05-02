@@ -79,7 +79,6 @@ locator2 = vtk.vtkStaticCellLocator()
 locator2.SetDataSet(output)
 locator2.AutomaticOn()
 locator2.SetNumberOfCellsPerNode(20)
-locator2.CacheCellBoundsOn()
 
 timer.StartTimer()
 locator2.BuildLocator()

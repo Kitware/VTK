@@ -31,7 +31,7 @@
 //------------------------------------------------------------------------------
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
-  this->CacheCellBounds = 0;
+  this->CacheCellBounds = 1;
   this->CellBounds = nullptr;
   this->MaxLevel = 8;
   this->Level = 0;

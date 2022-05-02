@@ -27,7 +27,7 @@
  *
  * vtkCellTreeLocator utilizes the following parent class parameters:
  * - NumberOfCellsPerNode        (default 8)
- * - CacheCellBounds             (default false)
+ * - CacheCellBounds             (default true)
  * - UseExistingSearchStructure  (default false)
  *
  * vtkCellTreeLocator does NOT utilize the following parameters:

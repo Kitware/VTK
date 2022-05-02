@@ -31,7 +31,7 @@
  * - Level                       (default 8)
  * - MaxLevel                    (default 8)
  * - NumberOfCellsPerNode        (default 25)
- * - CacheCellBounds             (default false)
+ * - CacheCellBounds             (default true)
  * - UseExistingSearchStructure  (default false)
  *
  * vtkCellLocator does NOT utilize the following parameters:
