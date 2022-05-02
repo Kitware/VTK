@@ -237,7 +237,7 @@ int vtkParticleTracerBase::RequestInformation(vtkInformation* vtkNotUsed(request
     //
     // Get list of input time step values
     this->InputTimeValues.resize(numberOfInputTimeSteps);
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->InputTimeValues[0]);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->InputTimeValues.data());
     if (numberOfInputTimeSteps == 1 && this->DisableResetCache == 0)
     { // warning would be skipped in coprocessing work flow
       vtkWarningMacro(<< "Not enough input time steps for particle integration");
@@ -489,35 +489,13 @@ int vtkParticleTracerBase::InitializeInterpolator()
 std::vector<vtkDataSet*> vtkParticleTracerBase::GetSeedSources(
   vtkInformationVector* inputVector, int vtkNotUsed(timeStep))
 {
-  int numSources = inputVector->GetNumberOfInformationObjects();
   std::vector<vtkDataSet*> seedSources;
-  for (int idx = 0; idx < numSources; ++idx)
+  for (int idx = 0, max = inputVector->GetNumberOfInformationObjects(); idx < max; ++idx)
   {
     if (vtkInformation* inInfo = inputVector->GetInformationObject(idx))
     {
-      vtkDataSet* dataSet = vtkDataSet::GetData(inInfo);
-      if (dataSet)
-      {
-        seedSources.push_back(dataSet);
-        continue;
-      }
-
-      vtkDataObjectTree* dot = vtkDataObjectTree::GetData(inInfo);
-      if (dot)
-      {
-        // Add invididual blocks as seed sources to handle composite data seed sources
-        using Opts = vtk::DataObjectTreeOptions;
-        auto range =
-          vtk::Range(dot, Opts::TraverseSubTree | Opts::VisitOnlyLeaves | Opts::SkipEmptyNodes);
-        for (auto treeDobj : range)
-        {
-          vtkDataSet* treeDataSet = vtkDataSet::SafeDownCast(treeDobj);
-          if (treeDataSet)
-          {
-            seedSources.push_back(treeDataSet);
-          }
-        }
-      }
+      auto datasets = vtkCompositeDataSet::GetDataSets(vtkDataObject::GetData(inInfo));
+      seedSources.insert(seedSources.end(), datasets.begin(), datasets.end());
     }
   }
   return seedSources;
