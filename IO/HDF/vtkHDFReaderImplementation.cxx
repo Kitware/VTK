@@ -1144,7 +1144,7 @@ bool vtkHDFReader::Implementation::ReadLevel(unsigned int level, const std::stri
         if (datasetID < 0)
         {
           vtkErrorWithObjectMacro(this->Reader, "Can't open array " << name);
-          return 0;
+          return false;
         }
 
         vtkSmartPointer<vtkDataArray> array;
@@ -1165,7 +1165,7 @@ bool vtkHDFReader::Implementation::ReadLevel(unsigned int level, const std::stri
                this->NewArray(attributeType, name.c_str(), dataOffset, dataSize))) == nullptr)
         {
           vtkErrorWithObjectMacro(this->Reader, "Error reading array " << name);
-          return 0;
+          return false;
         }
         array->SetName(name.c_str());
         dataSet->GetAttributesAsFieldData(attributeType)->AddArray(array);
