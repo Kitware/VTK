@@ -145,8 +145,7 @@ public:
 
   /**
    * Set the type of the velocity field interpolator to determine whether
-   * vtkInterpolatedVelocityField (INTERPOLATOR_WITH_DATASET_POINT_LOCATOR) or
-   * vtkCellLocatorInterpolatedVelocityField (INTERPOLATOR_WITH_CELL_LOCATOR) is employed for
+   * INTERPOLATOR_WITH_DATASET_POINT_LOCATOR or INTERPOLATOR_WITH_CELL_LOCATOR is employed for
    * locating cells during streamline integration.
    */
   void SetInterpolatorType(int interpType);

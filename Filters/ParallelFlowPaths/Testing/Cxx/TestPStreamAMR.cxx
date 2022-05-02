@@ -22,7 +22,6 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkInterpolatedVelocityField.h"
 #include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkNew.h"

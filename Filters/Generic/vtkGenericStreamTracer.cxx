@@ -978,7 +978,7 @@ void vtkGenericStreamTracer::Integrate(vtkGenericDataSet* input0, vtkPolyData* o
         break;
       }
 
-      // Make sure we use the dataset found by the vtkInterpolatedVelocityField
+      // Make sure we use the dataset found by the vtkCompositeInterpolatedVelocityField
       input = func->GetLastDataSet();
 
       inVectors = input->GetAttributes()->GetAttribute(

@@ -68,7 +68,7 @@ line.Update()
 
 rk4 = vtk.vtkRungeKutta4()
 strategy = vtk.vtkClosestNPointsStrategy()
-ivp = vtk.vtkInterpolatedVelocityField()
+ivp = vtk.vtkCompositeInterpolatedVelocityField()
 ivp.SetFindCellStrategy(strategy)
 
 streamer = vtk.vtkStreamTracer()

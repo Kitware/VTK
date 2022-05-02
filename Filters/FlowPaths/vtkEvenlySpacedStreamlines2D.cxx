@@ -17,23 +17,20 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAMRInterpolatedVelocityField.h"
 #include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkAppendPolyData.h"
-#include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCellLocatorInterpolatedVelocityField.h"
 #include "vtkCellLocatorStrategy.h"
+#include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeInterpolatedVelocityField.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
-#include "vtkExecutive.h"
 #include "vtkGenericCell.h"
-#include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkModifiedBSPTree.h"
@@ -48,14 +45,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPolyLine.h"
 #include "vtkRungeKutta2.h"
 #include "vtkRungeKutta4.h"
-#include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamTracer.h"
 
 #include <algorithm>
 #include <array>
 #include <iostream>
-#include <iterator>
 #include <vector>
 
 vtkObjectFactoryNewMacro(vtkEvenlySpacedStreamlines2D);
@@ -504,29 +499,23 @@ void vtkEvenlySpacedStreamlines2D::SetInterpolatorTypeToCellLocator()
 //------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::SetInterpolatorType(int interpType)
 {
+  vtkNew<vtkCompositeInterpolatedVelocityField> cIVF;
   if (interpType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
   {
     // create an interpolator equipped with a cell locator
-    vtkSmartPointer<vtkCellLocatorInterpolatedVelocityField> cellLoc =
-      vtkSmartPointer<vtkCellLocatorInterpolatedVelocityField>::New();
-
-    // create the locator (FindCell()) strategy
-    vtkSmartPointer<vtkCellLocatorStrategy> strategy =
-      vtkSmartPointer<vtkCellLocatorStrategy>::New();
-
+    vtkNew<vtkCellLocatorStrategy> strategy;
     // specify the type of the cell locator attached to the interpolator
-    vtkSmartPointer<vtkModifiedBSPTree> cellLocType = vtkSmartPointer<vtkModifiedBSPTree>::New();
+    vtkNew<vtkModifiedBSPTree> cellLocType;
     strategy->SetCellLocator(cellLocType);
-
-    this->SetInterpolatorPrototype(cellLoc);
+    cIVF->SetFindCellStrategy(strategy);
   }
   else
   {
     // create an interpolator equipped with a point locator (by default)
-    vtkSmartPointer<vtkInterpolatedVelocityField> pntLoc =
-      vtkSmartPointer<vtkInterpolatedVelocityField>::New();
-    this->SetInterpolatorPrototype(pntLoc);
+    vtkNew<vtkClosestPointStrategy> strategy;
+    cIVF->SetFindCellStrategy(strategy);
   }
+  this->SetInterpolatorPrototype(cIVF);
 }
 
 //------------------------------------------------------------------------------
@@ -659,7 +648,7 @@ int vtkEvenlySpacedStreamlines2D::CheckInputs(
     }
     else
     {
-      func = vtkInterpolatedVelocityField::New();
+      func = vtkCompositeInterpolatedVelocityField::New();
     }
   }
   else

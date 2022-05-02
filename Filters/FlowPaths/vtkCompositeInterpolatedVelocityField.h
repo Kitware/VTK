@@ -19,14 +19,15 @@
  *
  *  vtkCompositeInterpolatedVelocityField acts as a continuous velocity field
  *  by performing cell interpolation on one or more underlying vtkDataSets. That is,
- *  composite datasets are combined to create a continuous velocity field.
+ *  composite datasets are combined to create a continuous velocity field. The default
+ *  strategy is to use the closest point strategy.
  *
  * @warning
  *  vtkCompositeInterpolatedVelocityField is not thread safe. A new instance
  *  should be created by each thread.
  *
  * @sa
- *  vtkInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField
+ *  vtkAbstractInterpolatedVelocityField vtkAMRInterpolatedVelocityField
  *  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
  *  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
  */
@@ -43,15 +44,25 @@ class vtkDataSet;
 class vtkDataArray;
 class vtkPointData;
 class vtkGenericCell;
-class vtkCompositeInterpolatedVelocityFieldDataSetsType;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkCompositeInterpolatedVelocityField
   : public vtkAbstractInterpolatedVelocityField
 {
 public:
+  ///@{
+  /**
+   * Standard methods for type information and printing.
+   */
   vtkTypeMacro(vtkCompositeInterpolatedVelocityField, vtkAbstractInterpolatedVelocityField);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
+  /**
+   * Construct a vtkCompositeInterpolatedVelocityField class.
+   */
+  static vtkCompositeInterpolatedVelocityField* New();
+
+  ///@{
   /**
    * Add a dataset for implicit velocity function evaluation. If more than
    * one dataset is added, the evaluation point is searched in all until a

@@ -18,10 +18,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCellLocatorInterpolatedVelocityField.h"
+#include "vtkCellLocatorStrategy.h"
+#include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeInterpolatedVelocityField.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
@@ -30,7 +32,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -45,7 +46,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
-#include "vtkStaticCellLocator.h"
 
 #include <vector>
 
@@ -167,18 +167,20 @@ void vtkStreamTracer::SetInterpolatorTypeToCellLocator()
 //------------------------------------------------------------------------------
 void vtkStreamTracer::SetInterpolatorType(int interpType)
 {
+  vtkNew<vtkCompositeInterpolatedVelocityField> cIVF;
   if (interpType == INTERPOLATOR_WITH_CELL_LOCATOR)
   {
     // create an interpolator equipped with a cell locator
-    vtkNew<vtkCellLocatorInterpolatedVelocityField> cellLoc;
-    this->SetInterpolatorPrototype(cellLoc);
+    vtkNew<vtkCellLocatorStrategy> strategy;
+    cIVF->SetFindCellStrategy(strategy);
   }
   else
   {
     // create an interpolator equipped with a point locator (by default)
-    vtkNew<vtkInterpolatedVelocityField> pntLoc;
-    this->SetInterpolatorPrototype(pntLoc);
+    vtkNew<vtkClosestPointStrategy> strategy;
+    cIVF->SetFindCellStrategy(strategy);
   }
+  this->SetInterpolatorPrototype(cIVF);
 }
 
 //------------------------------------------------------------------------------
@@ -586,7 +588,7 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func, in
     }
     else
     {
-      func = vtkInterpolatedVelocityField::New();
+      func = vtkCompositeInterpolatedVelocityField::New();
     }
   }
   else
@@ -926,6 +928,7 @@ struct TracerIntegrator
       localOutput.VelocityVectors->SetName(this->VecName);
       localOutput.VelocityVectors->SetNumberOfComponents(3);
     }
+    this->LocalThreadOutput.Local().Weights.resize(this->MaxCellSize);
 
     // Note: We have to use a specific value (safe to employ the maximum number
     //       of steps) as the size of the initial memory allocation here. The
@@ -959,7 +962,6 @@ struct TracerIntegrator
     double& lastUsedStepSize = localOutput.LastUsedStepSize;
 
     // Initialize in preparation for stream tracer production
-    int maxCellSize = this->MaxCellSize;
     vtkDataArray* seedSource = this->SeedSource;
     vtkIdList* seedIds = this->SeedIds;
     vtkIntArray* integrationDirections = this->IntegrationDirections;
@@ -977,13 +979,6 @@ struct TracerIntegrator
     vtkDataArray* inVectors;
 
     int direction = 1;
-    double* weightsPtr = nullptr;
-    if (maxCellSize > 0)
-    {
-      weights.resize(maxCellSize);
-      weightsPtr = weights.data();
-    }
-
     // Associate the interpolation function with the integrator
     integrator->SetFunctionSet(func);
 
@@ -1085,9 +1080,9 @@ struct TracerIntegrator
       }
 
       // Interpolate all point attributes on first point
-      func->GetLastWeights(weightsPtr);
-      InterpolatePoint(
-        outputPD, inputPD, nextPoint, cell->PointIds, weightsPtr, this->HasMatchingPointAttributes);
+      func->GetLastWeights(weights.data());
+      InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights.data(),
+        this->HasMatchingPointAttributes);
       // handle both point and cell velocity attributes.
       vtkDataArray* outputVelocityVectors = outputPD->GetArray(vecName);
       if (vecType != vtkDataObject::POINT)
@@ -1263,8 +1258,8 @@ struct TracerIntegrator
           time->InsertNextValue(integrationTime);
 
           // Interpolate all point attributes on current point
-          func->GetLastWeights(weightsPtr);
-          InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weightsPtr,
+          func->GetLastWeights(weights.data());
+          InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights.data(),
             this->HasMatchingPointAttributes);
 
           if (vecType != vtkDataObject::POINT)

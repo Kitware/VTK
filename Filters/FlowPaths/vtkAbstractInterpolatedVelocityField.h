@@ -34,7 +34,8 @@
  *  information). Writing a threaded operations requires separate instances of
  *  vtkAbstractInterpolatedVelocityField for each thread.
  *
- *  For vtkInterpolatedVelocityField, level #0 begins with intra-cell caching.
+ *  For vtkCompositeInterpolatedVelocityField with CLOSEST_POINT strategy,
+ *  level #0 begins with intra-cell caching.
  *  Specifically if the previous cell is valid and the next point is still in
  *  it ( i.e., vtkCell::EvaluatePosition() returns 1, coupled with newly created
  *  parametric coordinates & weights ), the function values can be interpolated
@@ -54,11 +55,7 @@
  *  or vtkCellLocator via vtkCellLocatorStrategy) improves robustness at some
  *  cost to performance. Originally, these different behaviors (i.e., using
  *  different locators) was codified into different subclasses of
- *  vtkAbstractInterpolatedVelocityField.  For example, vtkInterpolatedVelocityField
- *  used a point locator, while vtkCellLocatorInterpolatedVelocityField used a
- *  cell locator. With the recent introduction of vtkFindCellStrategy, this
- *  approach is obsoleted (i.e., different subclasses are not reall necessary)
- *  but retained for backwards compatibility reasons.
+ *  vtkAbstractInterpolatedVelocityField.
  *
  *  Note that topologically structured classes such as vtkImageData and
  *  vtkRectilinearGrid are able to provide fast robust cell location. Hence
@@ -71,7 +68,7 @@
  *  should be created by each thread.
  *
  * @sa
- *  vtkInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField
+ *  vtkCompositeInterpolatedVelocityField vtkAMRInterpolatedVelocityField
  *  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
  *  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
  *  vtkFindCellStrategy
@@ -82,11 +79,15 @@
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkFunctionSet.h"
-#include "vtkNew.h" // for vtkNew
+#include "vtkNew.h"          // for vtkNew
+#include "vtkSmartPointer.h" // for vtkSmartPointer
 
 #include <map>    // for cache
 #include <vector> // for weights
 
+class vtkCellLocatorStrategy;
+class vtkClosestPointStrategy;
+class vtkClosestNPointsStrategy;
 class vtkCompositeDataSet;
 class vtkDataObject;
 class vtkDataSet;
@@ -140,10 +141,9 @@ public:
   ///@{
   /**
    * Set/Get the caching flag. If this flag is turned ON, there are two levels
-   * of caching for derived concrete class vtkInterpolatedVelocityField and one
-   * level of caching for derived concrete class vtkCellLocatorInterpolatedVelocityField.
-   * Otherwise a global cell location is always invoked for evaluating the
-   * function values at any point.
+   * of caching for when the strategy is CLOSEST_POINT and one level of caching
+   * when the strategy is CELL_LOCATOR. Otherwise a global cell location is always
+   * invoked for evaluating the function values at any point.
    */
   vtkSetMacro(Caching, bool);
   vtkGetMacro(Caching, bool);
@@ -333,10 +333,10 @@ protected:
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset
    * by invoking vtkDataSet::FindCell() to locate the next cell if the given
    * point is outside the current cell. To address vtkPointSet, vtkPointLocator
-   * is involved via vtkPointSet::FindCell() in vtkInterpolatedVelocityField
-   * for cell location. In vtkCellLocatorInterpolatedVelocityField, this function
-   * is invoked just to handle vtkImageData and vtkRectilinearGrid that are not
-   * assigned with any vtkAbstractCellLocatot-type cell locator.
+   * is involved via vtkPointSet::FindCell() using CLOSEST_POINT strategy
+   * for cell location. In vtkCompositeInterpolatedVelocityField with a CELL_LOCATOR strategy,
+   * this function is invoked just to handle vtkImageData and vtkRectilinearGrid that are not
+   * assigned with any vtkAbstractCellLocator-type cell locator.
    * If activated, returned vector will be tangential to the first
    * three point of the cell
    */
@@ -345,9 +345,8 @@ protected:
   /**
    * Try to find the cell closest to provided x point in provided dataset,
    * By first testing inclusion in it's cached cell and neighbor
-   * Then testing globally
-   * Then , only if surfacic is activated finding the closest cell
-   * using FindPoint and comparing distance with tolerance
+   * Then testing globally. Then, only if surface is activated finding the
+   * closest cell using FindClosestPointWithinRadius
    */
   virtual bool FindAndUpdateCell(vtkDataSet* ds, vtkFindCellStrategy* strategy, double* x);
 

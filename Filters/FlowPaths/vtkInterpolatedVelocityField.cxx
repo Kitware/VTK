@@ -12,7 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// VTK_DEPRECATED_IN_9_2_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkInterpolatedVelocityField.h"
+
 #include "vtkClosestPointStrategy.h"
 #include "vtkObjectFactory.h"
 

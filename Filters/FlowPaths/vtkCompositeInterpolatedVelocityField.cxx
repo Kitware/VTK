@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkCompositeInterpolatedVelocityField.h"
 
-#include "vtkDataArray.h"
+#include "vtkClosestPointStrategy.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 #include "vtkMath.h"
@@ -22,8 +22,12 @@
 #include "vtkPointData.h"
 
 //------------------------------------------------------------------------------
+vtkStandardNewMacro(vtkCompositeInterpolatedVelocityField);
+
+//------------------------------------------------------------------------------
 vtkCompositeInterpolatedVelocityField::vtkCompositeInterpolatedVelocityField()
 {
+  this->SetFindCellStrategy(vtkSmartPointer<vtkClosestPointStrategy>::New());
   this->LastDataSetIndex = 0;
 }
 

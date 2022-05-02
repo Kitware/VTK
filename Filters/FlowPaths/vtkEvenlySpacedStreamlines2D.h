@@ -82,9 +82,8 @@
  * vtkStreamTracer vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
  * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkParticleTracerBase
  * vtkParticleTracer vtkParticlePathFilter vtkStreaklineFilter
- * vtkAbstractInterpolatedVelocityField vtkInterpolatedVelocityField
- * vtkCellLocatorInterpolatedVelocityField
- *
+ * vtkAbstractInterpolatedVelocityField vtkCompositeInterpolatedVelocityField
+ * vtkAMRInterpolatedVelocityField
  */
 
 #ifndef vtkEvenlySpacedStreamlines2D_h
@@ -267,8 +266,7 @@ public:
 
   /**
    * Set the type of the velocity field interpolator to determine whether
-   * vtkInterpolatedVelocityField (INTERPOLATOR_WITH_DATASET_POINT_LOCATOR) or
-   * vtkCellLocatorInterpolatedVelocityField (INTERPOLATOR_WITH_CELL_LOCATOR)
+   * INTERPOLATOR_WITH_DATASET_POINT_LOCATOR or INTERPOLATOR_WITH_CELL_LOCATOR
    * is employed for locating cells during streamline integration. The latter
    * (adopting vtkAbstractCellLocator sub-classes such as vtkCellLocator and
    * vtkModifiedBSPTree) is more robust then the former (through vtkDataSet /

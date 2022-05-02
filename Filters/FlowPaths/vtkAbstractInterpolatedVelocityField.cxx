@@ -57,7 +57,7 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
   this->LastClosestPoint[1] = 0.0;
   this->LastClosestPoint[2] = 0.0;
 
-  this->VectorsType = 0;
+  this->VectorsType = vtkDataObject::POINT;
   this->VectorsSelection = nullptr;
   this->NormalizeVector = false;
   this->ForceSurfaceTangentVector = false;
@@ -140,24 +140,22 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
     }
 
     strategyClone = nullptr;
-    if (auto pointSet = vtkPointSet::SafeDownCast(dataset))
+    if (vtkPointSet::SafeDownCast(dataset))
     {
       strategyClone = strategy->NewInstance();
     }
-
-    this->FunctionCacheMap.insert(
-      std::make_pair(dataset, vtkFunctionCache(strategyClone, vectors)));
+    this->AddToFunctionCache(dataset, strategyClone, vectors);
   } // for all datasets of composite dataset
 
   // Now initialize the new strategies
-  for (auto& dataset : datasets)
+  for (auto& functionCache : this->FunctionCacheMap)
   {
+    auto& dataset = functionCache.first;
+    auto& strategyLocal = functionCache.second.Strategy;
     if (auto pointSet = vtkPointSet::SafeDownCast(dataset))
     {
-      auto datasetFunctionCacheIter = this->FunctionCacheMap.find(dataset);
-      strategyClone = datasetFunctionCacheIter->second.Strategy;
-      strategyClone->CopyParameters(strategy);
-      strategyClone->Initialize(pointSet);
+      strategyLocal->CopyParameters(strategy);
+      strategyLocal->Initialize(pointSet);
     }
   }
 
@@ -429,12 +427,7 @@ int vtkAbstractInterpolatedVelocityField::GetLastWeights(double* w)
   {
     return 0;
   }
-
-  int numPts = this->CurrentCell->GetNumberOfPoints();
-  for (int i = 0; i < numPts; i++)
-  {
-    w[i] = this->Weights[i];
-  }
+  std::copy_n(this->Weights.data(), this->CurrentCell->GetNumberOfPoints(), w);
 
   return 1;
 }
@@ -512,8 +505,7 @@ void vtkAbstractInterpolatedVelocityField::CopyParameters(
       strategy->Initialize(vtkPointSet::SafeDownCast(cacheMap.first));
     }
     vtkDataArray* vectors = cacheMap.second.Vectors;
-    this->FunctionCacheMap.insert(
-      std::make_pair(cacheMap.first, vtkFunctionCache(strategy, vectors)));
+    this->AddToFunctionCache(cacheMap.first, strategy, vectors);
   }
 }
 
