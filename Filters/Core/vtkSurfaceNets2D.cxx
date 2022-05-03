@@ -351,7 +351,6 @@ struct SurfaceNets
       // The point on which the stencil operates
       vtkIdType pId = pIds[1];
 
-      using ValueType = typename CellStateT::ValueType;
       auto* offsets = state.GetOffsets();
       auto* conn = state.GetConnectivity();
 
