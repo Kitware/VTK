@@ -157,7 +157,7 @@ public:
   {
   public:
     std::vector<vtkCellTreeNode> Nodes;
-    std::vector<unsigned int> Leaves;
+    std::vector<vtkIdType> Leaves;
     friend class vtkCellPointTraversal;
     friend class vtkCellTreeNode;
     friend class vtkCellTreeBuilder;
@@ -180,29 +180,29 @@ public:
   {
   public:
   protected:
-    unsigned int Index;
+    vtkIdType Index;
     double LeftMax;  // left max value
     double RightMin; // right min value
 
-    unsigned int Sz; // size
-    unsigned int St; // start
+    vtkIdType Sz; // size
+    vtkIdType St; // start
 
     friend class vtkCellPointTraversal;
     friend class vtkCellTreeBuilder;
 
   public:
-    void MakeNode(unsigned int left, unsigned int d, double b[2]);
-    void SetChildren(unsigned int left);
+    void MakeNode(vtkIdType left, vtkIdType d, double b[2]);
+    void SetChildren(vtkIdType left);
     bool IsNode() const;
-    unsigned int GetLeftChildIndex() const;
-    unsigned int GetRightChildIndex() const;
-    unsigned int GetDimension() const;
+    vtkIdType GetLeftChildIndex() const;
+    vtkIdType GetRightChildIndex() const;
+    vtkIdType GetDimension() const;
     const double& GetLeftMaxValue() const;
     const double& GetRightMinValue() const;
-    void MakeLeaf(unsigned int start, unsigned int size);
+    void MakeLeaf(vtkIdType start, vtkIdType size);
     bool IsLeaf() const;
-    unsigned int Start() const;
-    unsigned int Size() const;
+    vtkIdType Start() const;
+    vtkIdType Size() const;
   };
 
 protected:

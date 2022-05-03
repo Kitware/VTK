@@ -55,7 +55,7 @@ enum
 // the bounding planes for all 3 dimensions in a single node. LeftMax and rm defines the bounding
 // planes. start is the location in the cell tree. e.g. for root node start is zero. size is the
 // number of the nodes under the tree
-inline void vtkCellTreeLocator::vtkCellTreeNode::MakeNode(unsigned int left, unsigned int d,
+inline void vtkCellTreeLocator::vtkCellTreeNode::MakeNode(vtkIdType left, vtkIdType d,
   double b[2]) // b is an array containing left max and right min values
 {
   this->Index = (d & 3) | (left << 2);
@@ -64,7 +64,7 @@ inline void vtkCellTreeLocator::vtkCellTreeNode::MakeNode(unsigned int left, uns
 }
 
 //------------------------------------------------------------------------------
-inline void vtkCellTreeLocator::vtkCellTreeNode::SetChildren(unsigned int left)
+inline void vtkCellTreeLocator::vtkCellTreeNode::SetChildren(vtkIdType left)
 {
   this->Index = GetDimension() | (left << 2); // In index 2 LSBs (Least Significant Bits) store the
                                               // dimension. MSBs store the position
@@ -77,20 +77,20 @@ inline bool vtkCellTreeLocator::vtkCellTreeNode::IsNode() const
 }
 
 //------------------------------------------------------------------------------
-inline unsigned int vtkCellTreeLocator::vtkCellTreeNode::GetLeftChildIndex() const
+inline vtkIdType vtkCellTreeLocator::vtkCellTreeNode::GetLeftChildIndex() const
 {
   return (this->Index >> 2);
 }
 
 //------------------------------------------------------------------------------
-inline unsigned int vtkCellTreeLocator::vtkCellTreeNode::GetRightChildIndex() const
+inline vtkIdType vtkCellTreeLocator::vtkCellTreeNode::GetRightChildIndex() const
 {
   return (this->Index >> 2) +
     1; // Right child node is adjacent to the Left child node in the data structure
 }
 
 //------------------------------------------------------------------------------
-inline unsigned int vtkCellTreeLocator::vtkCellTreeNode::GetDimension() const
+inline vtkIdType vtkCellTreeLocator::vtkCellTreeNode::GetDimension() const
 {
   return this->Index & 3;
 }
@@ -108,7 +108,7 @@ inline const double& vtkCellTreeLocator::vtkCellTreeNode::GetRightMinValue() con
 }
 
 //------------------------------------------------------------------------------
-inline void vtkCellTreeLocator::vtkCellTreeNode::MakeLeaf(unsigned int start, unsigned int size)
+inline void vtkCellTreeLocator::vtkCellTreeNode::MakeLeaf(vtkIdType start, vtkIdType size)
 {
   this->Index = 3;
   this->Sz = size;
@@ -122,13 +122,13 @@ bool vtkCellTreeLocator::vtkCellTreeNode::IsLeaf() const
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkCellTreeLocator::vtkCellTreeNode::Start() const
+vtkIdType vtkCellTreeLocator::vtkCellTreeNode::Start() const
 {
   return this->St;
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkCellTreeLocator::vtkCellTreeNode::Size() const
+vtkIdType vtkCellTreeLocator::vtkCellTreeNode::Size() const
 {
   return this->Sz;
 }
@@ -140,8 +140,8 @@ class vtkCellPointTraversal
 {
 private:
   const vtkCellTreeLocator::vtkCellTree& m_ct;
-  unsigned int m_stack[CELLTREE_MAX_DEPTH];
-  unsigned int* m_sp;  // stack pointer
+  vtkIdType m_stack[CELLTREE_MAX_DEPTH];
+  vtkIdType* m_sp;     // stack pointer
   const double* m_pos; // 3-D coordinates of the points
   vtkCellPointTraversal(const vtkCellPointTraversal&) = delete;
   void operator=(vtkCellPointTraversal&) = delete;
@@ -179,7 +179,7 @@ public:
       }
 
       const double p = m_pos[n->GetDimension()];
-      const unsigned int left = n->GetLeftChildIndex();
+      const vtkIdType left = n->GetLeftChildIndex();
 
       bool l = p <= n->GetLeftMaxValue();  // Check if the points is within the left sub tree
       bool r = p >= n->GetRightMinValue(); // Check if the point is within the right sub tree
@@ -221,7 +221,7 @@ private:
   {
     double Min;
     double Max;
-    unsigned int Cnt;
+    vtkIdType Cnt;
 
     Bucket()
     {
@@ -250,13 +250,13 @@ private:
   {
     double Min[3];
     double Max[3];
-    unsigned int Ind;
+    vtkIdType Ind;
   };
 
   struct CenterOrder
   {
-    unsigned int d;
-    CenterOrder(unsigned int _d)
+    vtkIdType d;
+    CenterOrder(vtkIdType _d)
       : d(_d)
     {
     }
@@ -269,9 +269,9 @@ private:
 
   struct LeftPredicate
   {
-    unsigned int d;
+    vtkIdType d;
     double p;
-    LeftPredicate(unsigned int _d, double _p)
+    LeftPredicate(vtkIdType _d, double _p)
       : d(_d)
       , p(2.0f * _p)
     {
@@ -289,7 +289,7 @@ private:
       return;
     }
 
-    for (unsigned int d = 0; d < 3; ++d)
+    for (vtkIdType d = 0; d < 3; ++d)
     {
       min[d] = begin->Min[d];
       max[d] = begin->Max[d];
@@ -297,7 +297,7 @@ private:
 
     while (++begin != end)
     {
-      for (unsigned int d = 0; d < 3; ++d)
+      for (vtkIdType d = 0; d < 3; ++d)
       {
         if (begin->Min[d] < min[d])
           min[d] = begin->Min[d];
@@ -309,10 +309,10 @@ private:
 
   // -------------------------------------------------------------------------
 
-  void Split(unsigned int index, double min[3], double max[3])
+  void Split(vtkIdType index, double min[3], double max[3])
   {
-    unsigned int start = this->m_nodes[index].Start();
-    unsigned int size = this->m_nodes[index].Size();
+    vtkIdType start = this->m_nodes[index].Start();
+    vtkIdType size = this->m_nodes[index].Size();
 
     if (size < this->m_leafsize)
     {
@@ -332,7 +332,7 @@ private:
 
     for (const PerCell* pc = begin; pc != end; ++pc)
     {
-      for (unsigned int d = 0; d < 3; ++d)
+      for (vtkIdType d = 0; d < 3; ++d)
       {
         double cen = (pc->Min[d] + pc->Max[d]) / 2.0f;
         int ind = (int)((cen - min[d]) * iext[d]);
@@ -352,19 +352,19 @@ private:
     }
 
     double cost = std::numeric_limits<double>::max();
-    double plane = VTK_DOUBLE_MIN;  // bad value in case it doesn't get setx
-    unsigned int dim = VTK_INT_MAX; // bad value in case it doesn't get set
+    double plane = VTK_DOUBLE_MIN; // bad value in case it doesn't get setx
+    vtkIdType dim = VTK_INT_MAX;   // bad value in case it doesn't get set
 
-    for (unsigned int d = 0; d < 3; ++d)
+    for (vtkIdType d = 0; d < 3; ++d)
     {
-      unsigned int sum = 0;
+      vtkIdType sum = 0;
 
-      for (unsigned int n = 0; n < (unsigned int)nbuckets - 1; ++n)
+      for (vtkIdType n = 0; n < (vtkIdType)nbuckets - 1; ++n)
       {
         double lmax = -std::numeric_limits<double>::max();
         double rmin = std::numeric_limits<double>::max();
 
-        for (unsigned int m = 0; m <= n; ++m)
+        for (vtkIdType m = 0; m <= n; ++m)
         {
           if (b[d][m].Max > lmax)
           {
@@ -372,7 +372,7 @@ private:
           }
         }
 
-        for (unsigned int m = n + 1; m < (unsigned int)nbuckets; ++m)
+        for (vtkIdType m = n + 1; m < (vtkIdType)nbuckets; ++m)
         {
           if (b[d][m].Min < rmin)
           {
@@ -516,8 +516,8 @@ public:
     this->m_pc.clear();
   }
 
-  unsigned int m_buckets;
-  unsigned int m_leafsize;
+  vtkIdType m_buckets;
+  vtkIdType m_leafsize;
   std::vector<PerCell> m_pc;
   std::vector<vtkCellTreeLocator::vtkCellTreeNode> m_nodes;
 };
@@ -608,8 +608,8 @@ vtkIdType vtkCellTreeLocator::FindCell(
   vtkCellPointTraversal pt(*(this->Tree), pos);
   while (const vtkCellTreeNode* n = pt.Next())
   {
-    const unsigned int* begin = &(this->Tree->Leaves[n->Start()]);
-    const unsigned int* end = begin + n->Size();
+    const vtkIdType* begin = &(this->Tree->Leaves[n->Start()]);
+    const vtkIdType* end = begin + n->Size();
 
     for (; begin != end; ++begin)
     {
@@ -759,7 +759,7 @@ int vtkCellTreeLocator::IntersectWithLine(const double p1[3], const double p2[3]
     }
     // Ok, so we're a leaf node, first check the BBox against the ray
     // then test the candidates in our sorted ray direction order
-    for (unsigned int i = 0; i < node->Size(); i++)
+    for (vtkIdType i = 0; i < node->Size(); i++)
     {
       cId = this->Tree->Leaves[node->Start() + i];
       if (!cellHasBeenVisited[cId])
@@ -922,7 +922,7 @@ int vtkCellTreeLocator::IntersectWithLine(const double p1[3], const double p2[3]
     }
     // Ok, so we're a leaf node, first check the BBox against the ray
     // then test the candidates in our sorted ray direction order
-    for (unsigned int i = 0; i < node->Size(); i++)
+    for (vtkIdType i = 0; i < node->Size(); i++)
     {
       cId = this->Tree->Leaves[node->Start() + i];
       if (!cellHasBeenVisited[cId])
