@@ -1,5 +1,28 @@
 # Building VTK
 
+## Table of Contents
+
+1. [Linux Getting Started](#linux-getting-started)
+2. [Obtaining the source](#obtaining-the-source)
+3. [Building](#building)
+    1. [Prerequisites](#prerequisites)
+        1. [Installing CMake](#installing-cmake)
+        2. [Installing Qt](#installing-qt)
+    2. [Optional Additions](#optional-additions)
+        1. [Download And Install ffmpeg movie libraries](#download-and-install-ffmpeg-movie-libraries)
+        2. [MPI](#mpi)
+        3. [Python](#python)
+        4. [OSMesa](#osmesa)
+4. [Creating the Build Environment](#creating-the-build-environment)
+    1. [Linux (Ubuntu/Debian)](#linux-(ubuntu/debian))
+    2. [Windows](#windows)
+5. [Building](#building)
+    1. [Missing dependencies](#missing-dependencies)
+    2. [Build Settings](#build-settings)
+        1. [Mobile devices](#mobile-devices)
+        2. [Python wheels](#python-wheels)
+6. [Building documentation](#building-documentation)
+
 This page describes how to build and install VTK. It covers building for
 development, on both Unix-type systems (Linux, HP-UX, Solaris, macOS), and
 Windows. Note that Unix-like environments such as Cygwin and MinGW are not
@@ -11,6 +34,14 @@ A full-featured build of VTK depends on several open source tools and libraries
 such as Python, Qt, CGNS, HDF5, etc. Some of these are included in the VTK
 source itself (e.g., HDF5), while others are expected to be present on the
 machine on which VTK is being built (e.g., Python, Qt).
+
+## Linux Getting Started
+
+For new users of VTK or those wanting a quick setup on linux, these instructions will be useful:
+
+* [Getting Started Using Linux](<./getting_started_linux.md>). This will will lead you step by step through the process of setting up VTK in your home folder.
+
+Once you get everything working, don't forget to come back and read the rest of this document.
 
 ## Obtaining the source
 
@@ -71,7 +102,7 @@ compiler version used to build Qt.
 
 ### Optional Additions
 
-#### Download And Install ffmpeg (`.avi`) movie libraries
+#### Download And Install ffmpeg movie libraries
 
 When the ability to write `.avi` files is desired, and writing these files is
 not supported by the OS, VTK can use the ffmpeg library. This is generally

@@ -1,13 +1,30 @@
-Building VTK using Visual Studio on Windows
-=============================================
+# Building VTK using Visual Studio on Windows
 
-This page describes how to build and install VTK using Visual Studio on Windows in recipe-style fashion.
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Prerequisites](#prerequisites)
+    1. [Get CMake](#get-cmake)
+    2. [Get Visual Studio](#get-visual-studio)
+    3. [Get VTK Source-code](#get-vtk-source-code)
+3. [BUILD SOLUTION](#build-solution)
+    1. [Prepare folder structure](#prepare-folder-structure)
+    2. [Run CMake](#run-cmake)
+    3. [Build](#build)
+4. [INSTALL](#install)
+5. [TEST WITH AN EXAMPLE](#test-with-an-example)
+6. [Guide created using](#guide-created-using)
+
+
+## Introduction
+
+This page describes how to build and install VTK using Visual Studio on Windows in recipe-style fashion. It is also possible to build VTK on Windows without using Visual Studio directly, this is covered in [Building VTK](<./build.md>).
 
 Adapted from the [Paraview build instructions](https://gitlab.kitware.com/paraview/paraview/-/blob/master/Documentation/dev/build.md) and [VTK wiki](https://vtk.org/Wiki/VTK/Building/Windows).
 Inspired by [This video](https://www.youtube.com/watch?v=IgvbhyDh8r0)
 
-Prerequisites
-=============
+## Prerequisites
+
 For this guide you will need to following:
 
 1. CMake [CMake](http://www.cmake.org/) version 3.10 or higher and a working compiler.
@@ -16,8 +33,7 @@ For this guide you will need to following:
 
 If you have these then you can skip the rest of this section and proceed to BUILD SOLUTION.
 
-
-### 1. Get CMake
+### Get CMake
 
 CMake is a tool that makes cross-platform building simple. On several systems it will probably be already installed. If it is not, please use the following instructions to install it.
 There are several precompiled binaries available at the [CMake download page](https://cmake.org/download/). Download version 3.10 or later.
@@ -25,23 +41,21 @@ Add CMake to your PATH environment variable if you downloaded an archive and not
 
 This guide was tested using cmake 3.13.4 64bit installed by dowloading the .msi installer. [cmake-3.13.4-win64-x64.msi]
 
-
-### 2. Get Visual Studio
+### Get Visual Studio
 
 This guide uses Visual Studio / C++ as IDE and compiler. Visual studio can be installed from [Download](https://visualstudio.microsoft.com/vs/community/).
 This howto uses the free community edition.
 During installation select the "desktop development with C++" workload.
 
-### 3. Get VTK Source-code
+### Get VTK Source-code
 
 Download VTK source for the version you want from [https://vtk.org/download/](https://vtk.org/download/)  (zip or tar.gz (Do NOT download the exe - this is not the VTK library.) )
 You will probably want the latest one (highest version number) unless you have a specific reason to use an older one.
 
 Alternatively the source-code can be obtained from the repository as well. This is recommended only if you intent to make changes and contribute to VTK.
 
+## BUILD SOLUTION
 
-BUILD SOLUTION
-===============
 Use CMake to create a solution that visual studio can open.
 
 ### Prepare folder structure
@@ -52,7 +66,7 @@ Use CMake to create a solution that visual studio can open.
 
 You should now have something like:
 
-```
+``` cmd
 c:\data\cpp\vtk\build    <--empty
 c:\data\cpp\vtk\src
 c:\data\cpp\vtk\src\Accelerators
@@ -67,12 +81,12 @@ Use CMake to generate a visual studio solution.
 1. Open CMake-GUI, either by typing cmake-gui on the command propmpt or from the start-menu.
 2. Enter the source and build directories
 
-![alt text](./Documentation/dev/images/cmake1.png)
+   ![cmake1](<./images/cmake1.png>)
 
 3. Click [Configure]
 4. You will now get a selection screen in which you can specify your "generator". Select the one you need. This guide was tested with Visual Studio 15 2017 Win64 in combination with the default options.
 
-This will take some time. You may want to spend this time usefull by reading [cmake overview](https://cmake.org/overview/) and [cmake example](https://cmake.org/examples) and even the [cmake tutorial](https://cmake.org/cmake-tutorial/).
+   This will take some time. You may want to spend this time usefull by reading [cmake overview](https://cmake.org/overview/) and [cmake example](https://cmake.org/examples) and even the [cmake tutorial](https://cmake.org/cmake-tutorial/).
 
 5. We are now presented with a few options that can be turned on or off as desired. For this guide the only change made is to
    - Check the box after CMAKE_CXX_MP_FLAG. This enables building using multi-core.
@@ -92,8 +106,8 @@ Again, this will take a while [About ten mintues on a 2-core i7].
 
 After this there should be a folder /build/bin/Release containing the created .dll libraries.
 
-INSTALL
-========
+## INSTALL
+
 To be able to use VTK in other project it first needs to be installed.
 
 1. Start CMake-gui (again)
@@ -101,74 +115,68 @@ To be able to use VTK in other project it first needs to be installed.
 3. Hit [Configure]
 4. Set the "CMKAE_INSTALL_PREFIX" directory.
 
-![alt text](./Documentation/dev/images/cmake4.png)
-
+   ![cmake4](<./images/cmake4.png>)
 
 5. Click [Generate]
 6. Click [Open Project]
 
-In Visual Studio
+   In Visual Studio
 
-7. Build the "ALL_BUILD" project again. Should be very quick this time.
-8. Build the "INSTALL" project.
+   1. Build the "ALL_BUILD" project again. Should be very quick this time.
+   2. Build the "INSTALL" project.
 
-At this moment Visual Studio may FAIL because it is not allowed to create the installation folder.
+   At this moment Visual Studio may FAIL because it is not allowed to create the installation folder.
 
-![alt text](./Documentation/dev/images/adminerror1.png)
+   ![adminerror1](<./images/adminerror1.png>)
 
+   If this happens then you have two options:
 
-If this happens then you have two options:
-- Either repeat the previous steps with a different install directory in CMAKE
-- Start Visual Studio as administrator by right-clicking on its icon and selecting "start as administrator". ![alt text](./Documentation/dev/images/vs4.png)
+   - Either repeat the previous steps with a different install directory in CMAKE
+   - Start Visual Studio as administrator by right-clicking on its icon and selecting "start as administrator". ![vs4](<./images/vs4.png>)
 
-After installation where VTK should have been installed in the specified installation directory. Something like the following directories should now exist:
+   After installation where VTK should have been installed in the specified installation directory. Something like the following directories should now exist:
 
-```
-c:\program file\VTK\bin
-c:\program file\VTK\include
-c:\program file\VTK\lib
-c:\program file\VTK\share
-```
+   ``` cmd
+   c:\program file\VTK\bin
+   c:\program file\VTK\include
+   c:\program file\VTK\lib
+   c:\program file\VTK\share
+   ```
 
-The /bin folder contains all the .dll files that are needed to run an application using VTK. In order to be able to find these files it needs to be added to the path environment variable.
+   The /bin folder contains all the .dll files that are needed to run an application using VTK. In order to be able to find these files it needs to be added to the path environment variable.
 
-9. Add the folder /bin folder to the windows path. [start -> Edit the system environment variables -> Advanced -> Environment Variables -> Path -> Edit -> New]
+7. Add the folder /bin folder to the windows path. [start -> Edit the system environment variables -> Advanced -> Environment Variables -> Path -> Edit -> New]
 
-
-TEST WITH AN EXAMPLE
-=====================
+## TEST WITH AN EXAMPLE
 
 If everything went well then it should now be possible to compile and run the one of the C++ examples.
 
-From the [Examples](https://lorensen.github.io/VTKExamples/site/Cxx/) pick a simple but appealing one. In this guide we've used [this one](https://lorensen.github.io/VTKExamples/site/Cxx/Picking/HighlightPickedActor/)
+From [vtk-examples](https://kitware.github.io/vtk-examples/site/Cxx/) pick a simple but appealing one. In this guide we've used [this one](https://kitware.github.io/vtk-examples/site/Cxx/Picking/HighlightPickedActor/)
 
 1. Downloads or copy-paste the .cxx and CMakeLists.txt files and save them in the same folder.
 2. Open CMake and select the folder where the files were saves as "where is the source code" folder.
 3. Click [Configure]
 4. Verify that the VTK_DIR is set correctly. This folder should contain the file UseVTK.cmake
 
-![alt text](./Documentation/dev/images/cmake5.png)
-
+   ![cmake5](<./images/cmake5.png>)
 
 5. Click [Configure]
 6. Click [Generate]
 
-If you get an error then make sure that the file-names specified in CMakeLists.txt match the source file. Visual studio used .cpp as extension for C++ files while the cmake files contain references to .cxx
+   If you get an error then make sure that the file-names specified in CMakeLists.txt match the source file. Visual studio used .cpp as extension for C++ files while the cmake files contain references to .cxx
 
 7. Click [Open Project]
 
-In visual sudio:
+   In visual sudio:
 
-8. Select the example (HighlightPickedActor) as start-up project. (right click -> set as start-up project)
-9. Run!
+   1. Select the example (HighlightPickedActor) as start-up project. (right click -> set as start-up project)
+   2. Run!
 
-![alt text](./Documentation/dev/images/done1.png)
+![TestHighlightPickedActor](<./images/TestHighlightPickedActor.png>)
 
 If your program complains about missing DLLs then check if the .dll path (last step of INSTALL section) was added correctly.
 
-
-Guide created using
---------------------
+## Guide created using
 
 - VTK 8.2.0
 - CMake 3.13.4
