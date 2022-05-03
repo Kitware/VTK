@@ -323,7 +323,7 @@ bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfF
   return false;
 }
 
-bool jsonEqual(json& l, json& r) noexcept
+bool JsonEqual(json& l, json& r) noexcept
 {
   try
   {
@@ -360,7 +360,7 @@ bool jsonEqual(json& l, json& r) noexcept
         {
           return false;
         }
-        if (!jsonEqual(itL.value(), itR.value()))
+        if (!JsonEqual(itL.value(), itR.value()))
         {
           return false;
         }
@@ -379,7 +379,7 @@ bool jsonEqual(json& l, json& r) noexcept
       json::iterator itR = r.begin();
       while (itL != l.end() && itR != r.end())
       {
-        if (!jsonEqual(*itL, *itR))
+        if (!JsonEqual(*itL, *itR))
         {
           return false;
         }
@@ -435,10 +435,10 @@ void TestJacksonvilleBuildings(const std::string& dataRoot, const std::string& t
   std::string testFile = tempDirectory + "/jacksonville-3dtiles/tileset.json";
   json baseline = ReadTileset(baselineFile);
   json test = ReadTileset(testFile);
-  if (!jsonEqual(baseline, test))
+  if (!JsonEqual(baseline, test))
   {
     std::ostringstream ostr;
-    ostr << "Jacksonville data produced a different tileset than expected:" << std::endl
+    ostr << "Error: different tileset than expected:" << std::endl
          << baselineFile << std::endl
          << testFile << std::endl;
     throw std::runtime_error(ostr.str());
@@ -510,10 +510,10 @@ void TestBerlinBuildings(const std::string& dataRoot, const std::string& tempDir
   json baseline = ReadTileset(basefname);
   std::string testfname = tempDirectory + "/berlin-3dtiles/tileset.json";
   json test = ReadTileset(testfname);
-  if (!jsonEqual(baseline, test))
+  if (!JsonEqual(baseline, test))
   {
     std::ostringstream ostr;
-    ostr << "Berlin data produced a different tileset than expected" << std::endl
+    ostr << "Error: different tileset than expected" << std::endl
          << basefname << std::endl
          << testfname << std::endl;
     throw std::runtime_error(ostr.str());
