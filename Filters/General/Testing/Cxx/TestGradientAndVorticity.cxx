@@ -465,7 +465,7 @@ int TestPoints(vtkImageData* grid, vtkUnstructuredGrid* ref)
 }
 
 //------------------------------------------------------------------------------
-int TestCells(vtkImageData* grid, vtkUnstructuredGrid* ref)
+int TestCells(vtkImageData* grid, vtkPointSet* ref)
 {
   auto gridArray = vtkArrayDownCast<vtkDoubleArray>(grid->GetCellData()->GetAbstractArray("Pres"));
   auto refArray = vtkArrayDownCast<vtkDoubleArray>(ref->GetPointData()->GetAbstractArray("Pres"));
@@ -480,9 +480,9 @@ int TestCells(vtkImageData* grid, vtkUnstructuredGrid* ref)
   for (vtkIdType pointId = 0; pointId < ref->GetNumberOfPoints(); ++pointId)
   {
     ref->GetPoint(pointId, refPoint);
-    ijk[0] = (refPoint[0] - bounds[0]) / (bounds[1] - bounds[0]) * width[0];
-    ijk[1] = (refPoint[1] - bounds[2]) / (bounds[3] - bounds[2]) * width[1];
-    ijk[2] = (refPoint[2] - bounds[4]) / (bounds[5] - bounds[4]) * width[2];
+    ijk[0] = (refPoint[0] - bounds[0]) / (bounds[1] - bounds[0]) * (width[0] - 1);
+    ijk[1] = (refPoint[1] - bounds[2]) / (bounds[3] - bounds[2]) * (width[1] - 1);
+    ijk[2] = (refPoint[2] - bounds[4]) / (bounds[5] - bounds[4]) * (width[2] - 1);
     vtkIdType gridPointId = vtkStructuredData::ComputeCellId(width, ijk);
 
     if (std::abs(gridArray->GetValue(gridPointId) - refArray->GetValue(pointId)) > 1e-6)
@@ -627,7 +627,6 @@ int TestGradientAndVorticity(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
-  return EXIT_SUCCESS;
 
   vtkNew<vtkPointDataToCellData> point2cell;
   point2cell->SetInputConnection(resampler->GetOutputPort());
@@ -638,6 +637,7 @@ int TestGradientAndVorticity(int argc, char* argv[])
 
   vtkNew<vtkThreshold> ugCellConverter;
   ugCellConverter->SetInputConnection(cellGradient->GetOutputPort());
+  ugCellConverter->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "Pres");
   ugCellConverter->SetLowerThreshold(-std::numeric_limits<double>::infinity());
   ugCellConverter->SetUpperThreshold(std::numeric_limits<double>::infinity());
 
@@ -646,13 +646,14 @@ int TestGradientAndVorticity(int argc, char* argv[])
   cellRefGradient->SetInputConnection(ugCellConverter->GetOutputPort());
 
   vtkNew<vtkCellCenters> cellCenterRefGradient;
+  cellCenterRefGradient->CopyArraysOn();
   cellCenterRefGradient->SetInputConnection(cellRefGradient->GetOutputPort());
 
   cellCenterRefGradient->Update();
   cellGradient->Update();
 
   if (TestCells(vtkImageData::SafeDownCast(cellGradient->GetOutput()),
-        vtkUnstructuredGrid::SafeDownCast(cellCenterRefGradient->GetOutput())))
+        vtkPointSet::SafeDownCast(cellCenterRefGradient->GetOutput())))
   {
     return EXIT_FAILURE;
   }
