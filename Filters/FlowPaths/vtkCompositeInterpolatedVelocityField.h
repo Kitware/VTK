@@ -38,12 +38,10 @@
 #include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 
-#include <vector> // STL Header; Required for vector
+#include <array>  // For array
+#include <vector> // For vector
 
 class vtkDataSet;
-class vtkDataArray;
-class vtkPointData;
-class vtkGenericCell;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkCompositeInterpolatedVelocityField
   : public vtkAbstractInterpolatedVelocityField
@@ -62,7 +60,6 @@ public:
    */
   static vtkCompositeInterpolatedVelocityField* New();
 
-  ///@{
   /**
    * Add a dataset for implicit velocity function evaluation. If more than
    * one dataset is added, the evaluation point is searched in all until a
@@ -76,6 +73,11 @@ public:
    * Evaluate the velocity field f at point (x, y, z).
    */
   int FunctionValues(double* x, double* f) override;
+
+  /**
+   * Check if point x is inside the dataset.
+   */
+  int InsideTest(double* x);
 
   /**
    * Project the provided point on current cell, current dataset.
@@ -136,7 +138,14 @@ protected:
   int CacheDataSetHit;
   int CacheDataSetMiss;
   int LastDataSetIndex;
-  std::vector<vtkDataSet*> DataSets;
+  struct DataSetBoundsInformation
+  {
+    vtkDataSet* DataSet;
+    std::array<double, 6> Bounds{};
+    DataSetBoundsInformation();
+    DataSetBoundsInformation(vtkDataSet* ds);
+  };
+  std::vector<DataSetBoundsInformation> DataSetsBoundsInfo;
 
 private:
   vtkCompositeInterpolatedVelocityField(const vtkCompositeInterpolatedVelocityField&) = delete;

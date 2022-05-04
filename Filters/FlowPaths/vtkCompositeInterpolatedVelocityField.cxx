@@ -21,6 +21,22 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+#include <array>
+
+//------------------------------------------------------------------------------
+vtkCompositeInterpolatedVelocityField::DataSetBoundsInformation::DataSetBoundsInformation()
+  : DataSet(nullptr)
+{
+}
+
+//------------------------------------------------------------------------------
+vtkCompositeInterpolatedVelocityField::DataSetBoundsInformation::DataSetBoundsInformation(
+  vtkDataSet* ds)
+  : DataSet(ds)
+{
+  ds->GetBounds(this->Bounds.data());
+}
+
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCompositeInterpolatedVelocityField);
 
@@ -50,14 +66,14 @@ void vtkCompositeInterpolatedVelocityField::CopyParameters(
   {
     return;
   }
-  this->DataSets = obj->DataSets;
+  this->DataSetsBoundsInfo = obj->DataSetsBoundsInfo;
 
   // The weights must be copied as well
   this->Weights.resize(obj->Weights.size());
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositeInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
+void vtkCompositeInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset, size_t maxCellSize)
 {
   if (!dataset)
   {
@@ -66,12 +82,15 @@ void vtkCompositeInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
   }
 
   // insert the dataset (do NOT register the dataset to 'this')
-  this->DataSets.push_back(dataset);
+  this->DataSetsBoundsInfo.emplace_back(dataset);
 
-  size_t size = dataset->GetMaxCellSize();
-  if (size > this->Weights.size())
+  if (maxCellSize == 0)
   {
-    this->Weights.resize(size);
+    maxCellSize = dataset->GetMaxCellSize();
+  }
+  if (maxCellSize > this->Weights.size())
+  {
+    this->Weights.resize(maxCellSize);
   }
 }
 
@@ -81,7 +100,7 @@ void vtkCompositeInterpolatedVelocityField::SetLastCellId(vtkIdType c, int datai
   if (this->LastCellId != c || this->LastDataSetIndex != dataindex)
   {
     this->LastCellId = c;
-    this->LastDataSet = this->DataSets[dataindex];
+    this->LastDataSet = this->DataSetsBoundsInfo[dataindex].DataSet;
 
     // If the dataset changes, then the cached cell is invalidated. We might as
     // well prefetch the cached cell either way.
@@ -98,9 +117,9 @@ void vtkCompositeInterpolatedVelocityField::SetLastCellId(vtkIdType c, int datai
 int vtkCompositeInterpolatedVelocityField::FunctionValues(double* x, double* f)
 {
   vtkDataSet* ds;
-  if (!this->LastDataSet && !this->DataSets.empty())
+  if (!this->LastDataSet && !this->DataSetsBoundsInfo.empty())
   {
-    ds = this->DataSets[0];
+    ds = this->DataSetsBoundsInfo[0].DataSet;
     this->LastDataSet = ds;
     this->LastDataSetIndex = 0;
   }
@@ -116,24 +135,90 @@ int vtkCompositeInterpolatedVelocityField::FunctionValues(double* x, double* f)
   {
     this->CacheDataSetMiss++;
     // Okay need to check other datasets since we are outside the current dataset.
-    for (this->LastDataSetIndex = 0;
-         this->LastDataSetIndex < static_cast<int>(this->DataSets.size()); this->LastDataSetIndex++)
+    const int datasetsInfoSize = static_cast<int>(this->DataSetsBoundsInfo.size());
+    static const double delta[3] = { 0.0, 0.0, 0.0 };
+    for (this->LastDataSetIndex = 0; this->LastDataSetIndex < datasetsInfoSize;
+         ++this->LastDataSetIndex)
     {
-      ds = this->DataSets[this->LastDataSetIndex];
+      ds = this->DataSetsBoundsInfo[this->LastDataSetIndex].DataSet;
       if (ds && ds->GetNumberOfPoints() > 0 && ds != this->LastDataSet)
       {
         this->ClearLastCellId();
-        retVal = this->FunctionValues(ds, x, f);
+        const auto& bounds = this->DataSetsBoundsInfo[this->LastDataSetIndex].Bounds;
+        retVal = vtkMath::PointIsWithinBounds(x, bounds.data(), delta);
         if (retVal)
         {
-          this->LastDataSet = ds;
-          return retVal;
+          retVal = this->FunctionValues(ds, x, f);
+          if (retVal)
+          {
+            this->LastDataSet = ds;
+            return retVal;
+          }
         }
       }
     }
     this->LastCellId = -1;
     this->LastDataSetIndex = 0;
-    this->LastDataSet = this->DataSets[0];
+    this->LastDataSet = this->DataSetsBoundsInfo[0].DataSet;
+    return 0;
+  }
+  else
+  {
+    this->CacheDataSetHit++;
+  }
+
+  return retVal;
+}
+
+//------------------------------------------------------------------------------
+int vtkCompositeInterpolatedVelocityField::InsideTest(double* x)
+{
+  vtkDataSet* ds;
+  if (!this->LastDataSet && !this->DataSetsBoundsInfo.empty())
+  {
+    ds = this->DataSetsBoundsInfo[0].DataSet;
+    this->LastDataSet = ds;
+    this->LastDataSetIndex = 0;
+  }
+  else
+  {
+    ds = this->LastDataSet;
+  }
+
+  // Use the superclass's method first as it is faster.
+  auto strategy = this->FunctionCacheMap.find(ds)->second.Strategy;
+  int retVal = this->FindAndUpdateCell(ds, strategy, x);
+
+  if (!retVal)
+  {
+    this->CacheDataSetMiss++;
+    // Okay need to check other datasets since we are outside the current dataset.
+    const int datasetsInfoSize = static_cast<int>(this->DataSetsBoundsInfo.size());
+    static const double delta[3] = { 0.0, 0.0, 0.0 };
+    for (this->LastDataSetIndex = 0; this->LastDataSetIndex < datasetsInfoSize;
+         this->LastDataSetIndex++)
+    {
+      ds = this->DataSetsBoundsInfo[this->LastDataSetIndex].DataSet;
+      if (ds && ds->GetNumberOfPoints() > 0 && ds != this->LastDataSet)
+      {
+        this->ClearLastCellId();
+        const auto& bounds = this->DataSetsBoundsInfo[this->LastDataSetIndex].Bounds;
+        retVal = vtkMath::PointIsWithinBounds(x, bounds.data(), delta);
+        if (retVal)
+        {
+          strategy = this->FunctionCacheMap.find(ds)->second.Strategy;
+          retVal = this->FindAndUpdateCell(ds, strategy, x);
+          if (retVal)
+          {
+            this->LastDataSet = ds;
+            return retVal;
+          }
+        }
+      }
+    }
+    this->LastCellId = -1;
+    this->LastDataSetIndex = 0;
+    this->LastDataSet = this->DataSetsBoundsInfo[0].DataSet;
     return 0;
   }
   else
@@ -169,7 +254,7 @@ void vtkCompositeInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent ind
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Number of DataSets: " << this->DataSets.size() << endl;
+  os << indent << "Number of DataSets: " << this->DataSetsBoundsInfo.size() << endl;
   os << indent << "Last Dataset Index: " << this->LastDataSetIndex << endl;
   os << indent << "CacheDataSetHit: " << this->CacheDataSetHit << endl;
   os << indent << "CacheDataSetMiss: " << this->CacheDataSetMiss << endl;
