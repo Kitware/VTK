@@ -453,21 +453,25 @@ wheel-sdk:upload:
         - .rsync_upload_wheel_sdk
         - .weekly_upload_only
     dependencies:
+        - wheel-linux-python36-x86_64:build
         - wheel-linux-python37-x86_64:build
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python310-x86_64:build
+        - wheel-macos-python36-x86_64:build
         - wheel-macos-python37-x86_64:build
         - wheel-macos-python38-x86_64:build
         - wheel-macos-python39-arm64:build
         - wheel-macos-python39-x86_64:build
         - wheel-macos-python310-arm64:build
         - wheel-macos-python310-x86_64:build
+        - wheel-windows-python36-x86_64:build
         - wheel-windows-python37-x86_64:build
         - wheel-windows-python38-x86_64:build
         - wheel-windows-python39-x86_64:build
         - wheel-windows-python310-x86_64:build
     needs:
+        - wheel-linux-python36-x86_64:build
         - wheel-linux-python37-x86_64:build
         - wheel-linux-python37-x86_64:test
         - wheel-linux-python38-x86_64:build
@@ -476,6 +480,8 @@ wheel-sdk:upload:
         - wheel-linux-python39-x86_64:test
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
+        - wheel-macos-python36-x86_64:build
+        - wheel-macos-python36-x86_64:test
         - wheel-macos-python37-x86_64:build
         - wheel-macos-python37-x86_64:test
         - wheel-macos-python38-x86_64:build
@@ -488,6 +494,7 @@ wheel-sdk:upload:
         - wheel-macos-python310-arm64:test
         - wheel-macos-python310-x86_64:build
         - wheel-macos-python310-x86_64:test
+        - wheel-windows-python36-x86_64:build
         - wheel-windows-python37-x86_64:build
         - wheel-windows-python37-x86_64:test
         - wheel-windows-python38-x86_64:build
