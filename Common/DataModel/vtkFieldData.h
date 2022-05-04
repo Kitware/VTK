@@ -450,17 +450,27 @@ protected:
   int DoCopyAllOff;
 
   /*
-   * This tuple holds: [array time stamp, ghost array time stamp, cached range].
+   * This tuple holds: [array time stamp, ghost array time stamp, cached ranges].
    * Those time stamps are used to decide whether the cached range should be recomputed or not.
    * when requesting the range of an array.
    *
    * When there is no ghost array, the ghost array time stamp is defined as equal to 0.
    */
-  using CachedGhostRangeType = std::tuple<vtkMTimeType, vtkMTimeType, std::array<double, 2>>;
+  using CachedGhostRangeType = std::tuple<vtkMTimeType, vtkMTimeType, std::vector<double>>;
   unsigned char GhostsToSkip;
   vtkUnsignedCharArray* GhostArray;
-  std::vector<std::vector<CachedGhostRangeType>> Ranges;
-  std::vector<std::vector<CachedGhostRangeType>> FiniteRanges;
+
+  ///@{
+  /**
+   * `Ranges` and `FiniteRanges` store cached ranges for arrays stored in this field data.
+   * Given the array at index `idx`, 2 ranges are stored: the magnitude range at `Ranges[idx][0]`,
+   * and all the component ranges at `Ranges[idx][1]`. The ranges are stored in the third
+   * component of the tuple `CachedGhostRangeType`. For the component ranges, they are stored
+   * in an array of size 2 times the number of components, storing `[min0, max0, ..., minn, maxn]`.
+   */
+  std::vector<std::array<CachedGhostRangeType, 2>> Ranges;
+  std::vector<std::array<CachedGhostRangeType, 2>> FiniteRanges;
+  ///@}
 
 private:
   vtkFieldData(const vtkFieldData&) = delete;

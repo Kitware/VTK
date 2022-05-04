@@ -32,37 +32,50 @@ vtkStandardExtendedNewMacro(vtkFieldData);
 
 namespace
 {
-using CachedGhostRangeType = std::tuple<vtkMTimeType, vtkMTimeType, std::array<double, 2>>;
+using CachedGhostRangeType = std::tuple<vtkMTimeType, vtkMTimeType, std::vector<double>>;
 
 //------------------------------------------------------------------------------
 // This function is used to generalize the call to vtkDataArray::GetRange
 // and vtkDataArray::GetFiniteRange without having to copy / paste.
 bool GetRangeImpl(vtkFieldData* self, int index, double range[2], int comp,
-  std::vector<std::vector<::CachedGhostRangeType>>& ranges,
-  void (vtkDataArray::*GetRangeMethod)(double*, int, const unsigned char*, unsigned char))
+  std::vector<std::array<::CachedGhostRangeType, 2>>& ranges,
+  bool (vtkDataArray::*ComputeVectorRangeMethod)(double*, const unsigned char*, unsigned char),
+  bool (vtkDataArray::*ComputeScalarRangeMethod)(double*, const unsigned char*, unsigned char))
 {
   auto array = vtkArrayDownCast<vtkDataArray>(self->GetAbstractArray(index));
-  if (array && comp < array->GetNumberOfComponents())
+  if (array && (comp < array->GetNumberOfComponents() || comp == -1))
   {
-    int rangeComp = comp == -1 ? array->GetNumberOfComponents() : comp;
-    CachedGhostRangeType& cache = ranges[index][rangeComp];
+    if (comp == -1 && array->GetNumberOfComponents() == 1)
+    {
+      comp = 0;
+    }
+    CachedGhostRangeType& cache = ranges[index][comp == -1 ? 0 : 1];
     vtkMTimeType& arrayTime = std::get<0>(cache);
     vtkMTimeType& ghostTime = std::get<1>(cache);
     double* cachedRange = std::get<2>(cache).data();
 
     vtkUnsignedCharArray* ghosts = self->GetGhostArray();
+    bool retVal = true;
 
     if (arrayTime != array->GetMTime() || ghostTime != (ghosts ? ghosts->GetMTime() : 0))
     {
-      (array->*GetRangeMethod)(cachedRange, comp, ghosts ? ghosts->GetPointer(0) : nullptr,
-        ghosts ? self->GetGhostsToSkip() : 0);
+      if (comp < 0)
+      {
+        retVal = (array->*ComputeVectorRangeMethod)(cachedRange,
+          ghosts ? ghosts->GetPointer(0) : nullptr, ghosts ? self->GetGhostsToSkip() : 0);
+      }
+      else
+      {
+        retVal = (array->*ComputeScalarRangeMethod)(cachedRange,
+          ghosts ? ghosts->GetPointer(0) : nullptr, ghosts ? self->GetGhostsToSkip() : 0);
+      }
       arrayTime = array->GetMTime();
       ghostTime = ghosts ? ghosts->GetMTime() : 0;
     }
 
-    range[0] = cachedRange[0];
-    range[1] = cachedRange[1];
-    return true;
+    range[0] = cachedRange[std::max(0, comp * 2)];
+    range[1] = cachedRange[std::max(1, comp * 2 + 1)];
+    return retVal;
   }
 
   constexpr double NaN = std::numeric_limits<double>::quiet_NaN();
@@ -383,8 +396,6 @@ void vtkFieldData::AllocateArrays(int num)
     {
       if (this->Data[i])
       {
-        this->Ranges[i].clear();
-        this->FiniteRanges[i].clear();
         this->Data[i]->UnRegister(this);
       }
     }
@@ -453,26 +464,26 @@ void vtkFieldData::SetArray(int i, vtkAbstractArray* data)
     this->Data[i] = data;
     if (this->Data[i] != nullptr)
     {
+      // range[0] -> cached range for comp == -1
+      // range[1] -> cached range for comp in [0, number of components - 1]
+      // std::get<0> -> cached array MTime
+      // std::get<1> -> cached ghost array MTime
+      // std::get<2> -> cached range buffer
       auto& finiteRange = this->FiniteRanges[i];
-      finiteRange.resize(data->GetNumberOfComponents() + 1);
-      for (int j = 0; j < static_cast<int>(finiteRange.size()); ++j)
-      {
-        std::get<0>(finiteRange[j]) = 0;
-        std::get<1>(finiteRange[j]) = 0;
-      }
+      std::get<0>(finiteRange[0]) = 0;
+      std::get<1>(finiteRange[0]) = 0;
+      std::get<2>(finiteRange[0]).resize(2);
+      std::get<0>(finiteRange[1]) = 0;
+      std::get<1>(finiteRange[1]) = 0;
+      std::get<2>(finiteRange[1]).resize(2 * data->GetNumberOfComponents());
       auto& range = this->Ranges[i];
-      range.resize(data->GetNumberOfComponents() + 1);
-      for (int j = 0; j < static_cast<int>(range.size()); ++j)
-      {
-        std::get<0>(range[j]) = 0;
-        std::get<1>(range[j]) = 0;
-      }
+      std::get<0>(range[0]) = 0;
+      std::get<1>(range[0]) = 0;
+      std::get<2>(range[0]).resize(2);
+      std::get<0>(range[1]) = 0;
+      std::get<1>(range[1]) = 0;
+      std::get<2>(range[1]).resize(2 * data->GetNumberOfComponents());
       this->Data[i]->Register(this);
-    }
-    else
-    {
-      this->FiniteRanges[i].clear();
-      this->Ranges[i].clear();
     }
     this->Modified();
   }
@@ -664,9 +675,8 @@ bool vtkFieldData::GetRange(const char* name, double range[2], int comp)
 //------------------------------------------------------------------------------
 bool vtkFieldData::GetRange(int index, double range[2], int comp)
 {
-  void (vtkDataArray::*f)(double*, int, const unsigned char*, unsigned char) =
-    &vtkDataArray::GetRange;
-  return ::GetRangeImpl(this, index, range, comp, this->Ranges, f);
+  return ::GetRangeImpl(this, index, range, comp, this->Ranges, &vtkDataArray::ComputeVectorRange,
+    &vtkDataArray::ComputeScalarRange);
 }
 
 //------------------------------------------------------------------------------
@@ -680,9 +690,8 @@ bool vtkFieldData::GetFiniteRange(const char* name, double range[2], int comp)
 //------------------------------------------------------------------------------
 bool vtkFieldData::GetFiniteRange(int index, double range[2], int comp)
 {
-  void (vtkDataArray::*f)(double*, int, const unsigned char*, unsigned char) =
-    &vtkDataArray::GetFiniteRange;
-  return ::GetRangeImpl(this, index, range, comp, this->FiniteRanges, f);
+  return ::GetRangeImpl(this, index, range, comp, this->FiniteRanges,
+    &vtkDataArray::ComputeFiniteVectorRange, &vtkDataArray::ComputeFiniteScalarRange);
 }
 
 //------------------------------------------------------------------------------
@@ -713,8 +722,8 @@ void vtkFieldData::RemoveArray(int index)
     this->Ranges[i] = std::move(this->Ranges[i + 1]);
     this->FiniteRanges[i] = std::move(this->FiniteRanges[i + 1]);
   }
-  this->Ranges[this->NumberOfActiveArrays] = std::vector<CachedGhostRangeType>();
-  this->FiniteRanges[this->NumberOfActiveArrays] = std::vector<CachedGhostRangeType>();
+  this->Ranges[this->NumberOfActiveArrays] = std::array<CachedGhostRangeType, 2>();
+  this->FiniteRanges[this->NumberOfActiveArrays] = std::array<CachedGhostRangeType, 2>();
   this->Data[this->NumberOfActiveArrays] = nullptr;
   this->Modified();
 }
