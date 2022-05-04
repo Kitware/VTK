@@ -433,9 +433,12 @@ vtkHyperTreeGrid* vtkHyperTreeGrid::GetData(vtkInformationVector* v, int i)
 //------------------------------------------------------------------------------
 void vtkHyperTreeGrid::CopyEmptyStructure(vtkDataObject* ds)
 {
-  assert("pre: ds_exists" && ds != nullptr);
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(ds);
-  assert("pre: same_type" && htg != nullptr);
+  if (!htg)
+  {
+    vtkErrorMacro("Unable to copy empty structure of a non-HTG or empty data object in an HTG");
+    return;
+  }
 
   // RectilinearGrid
   memcpy(this->Dimensions, htg->GetDimensions(), 3 * sizeof(unsigned int));
@@ -472,9 +475,12 @@ void vtkHyperTreeGrid::CopyEmptyStructure(vtkDataObject* ds)
 //------------------------------------------------------------------------------
 void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
 {
-  assert("pre: ds_exists" && ds != nullptr);
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(ds);
-  assert("pre: same_type" && htg != nullptr);
+  if (!htg)
+  {
+    vtkErrorMacro("Unable to copy structure of a non-HTG or empty data object in an HTG");
+    return;
+  }
 
   // RectilinearGrid
   memcpy(this->Dimensions, htg->GetDimensions(), 3 * sizeof(unsigned int));
