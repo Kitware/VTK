@@ -33,8 +33,8 @@
 #include "vtkTable.h"
 #include "vtkTimeStamp.h"
 
+#include <algorithm>
 #include <array>
-#include <cstring>
 #include <functional>
 #include <iterator>
 #include <numeric>
@@ -50,7 +50,7 @@ typename std::iterator_traits<InputIt>::value_type WindowEnergy(InputIt begin, I
   using T = typename std::iterator_traits<InputIt>::value_type;
   constexpr T zero(0);
   return std::inner_product(begin, end, begin, zero, std::plus<T>(), std::multiplies<T>()) /
-    std::distance(begin, end);
+    static_cast<T>(std::distance(begin, end));
 }
 
 // Easy access to the right windowing function using vtkTableFFT enumeration.
@@ -79,7 +79,7 @@ struct vtkTableFFT::vtkInternal
 
   bool Average = false;
 
-  void UpdateWindow(int window, int size)
+  void UpdateWindow(int window, std::size_t size)
   {
     this->Window.resize(size);
 
@@ -102,10 +102,7 @@ vtkTableFFT::vtkTableFFT()
 }
 
 //------------------------------------------------------------------------------
-vtkTableFFT::~vtkTableFFT()
-{
-  delete this->Internals;
-}
+vtkTableFFT::~vtkTableFFT() = default;
 
 //------------------------------------------------------------------------------
 int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
@@ -121,63 +118,62 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
   }
   if (input->GetNumberOfRows() == 0)
   {
-    // Input is empty, nothing to do
     return 1;
   }
 
+  // Initialize internal state such as output size, sampling frequency, etc
   this->Initialize(input);
 
+  // Process every column of the input
   vtkIdType numColumns = input->GetNumberOfColumns();
   for (vtkIdType col = 0; col < numColumns; col++)
   {
-    vtkDataArray* array = vtkArrayDownCast<vtkDataArray>(input->GetColumn(col));
-    if (!array || array->GetNumberOfComponents() != 1)
-    {
-      continue;
-    }
-    const char* name = array->GetName();
-    if (name)
-    {
-      if (vtksys::SystemTools::Strucmp(name, "time") == 0)
-      {
-        continue;
-      }
-      if (strcmp(name, "vtkValidPointMask") == 0)
-      {
-        if (this->OptimizeForRealInput)
-        {
-          vtkSmartPointer<vtkDataArray> half;
-          half.TakeReference(array->NewInstance());
-          half->DeepCopy(array);
-          half->SetNumberOfTuples(this->Internals->OutputSize);
-          half->Squeeze();
-          output->AddColumn(half);
-        }
-        else
-        {
-          output->AddColumn(array);
-        }
-        continue;
-      }
-    }
-    if (array->IsA("vtkIdTypeArray"))
-    {
-      continue;
-    }
+    vtkAbstractArray* array = input->GetColumn(col);
+    const char* arrayName = array->GetName();
+    vtkDataArray* dataArray = vtkDataArray::SafeDownCast(array);
 
-    vtkSmartPointer<vtkDataArray> fft = this->DoFFT(array);
-    auto namefft = std::string("FFT_").append(name);
-    fft->SetName(namefft.c_str());
-    output->AddColumn(fft);
+    // If array is the time array, skip
+    if (vtksys::SystemTools::Strucmp(arrayName, "time") == 0)
+    {
+      continue;
+    }
+    // else if we can and should process the data array for the FFT, do it
+    else if (dataArray && !vtksys::SystemTools::StringStartsWith(arrayName, "vtk") &&
+      dataArray->GetNumberOfComponents() == 1 && !array->IsA("vtkIdTypeArray"))
+    {
+      vtkSmartPointer<vtkDataArray> fft = this->DoFFT(dataArray);
+      auto namefft = std::string("FFT_").append(arrayName);
+      fft->SetName(namefft.c_str());
+      output->AddColumn(fft);
+    }
+    // else pass the array to the output
+    else
+    {
+      if (this->OptimizeForRealInput)
+      {
+        vtkSmartPointer<vtkAbstractArray> half;
+        half.TakeReference(array->NewInstance());
+        half->DeepCopy(array);
+        half->SetNumberOfTuples(this->Internals->OutputSize);
+        half->Squeeze();
+        output->AddColumn(half);
+      }
+      else
+      {
+        output->AddColumn(array);
+      }
+    }
   }
 
+  // Create the frequency column if needed
   if (this->CreateFrequencyColumn)
   {
-    vtkIdType size = this->Internals->Window.size();
+    std::size_t size = this->Internals->Window.size();
     double spacing = 1.0 / this->Internals->SampleRate;
 
-    std::vector<double> stdFreq =
-      this->OptimizeForRealInput ? vtkFFT::RFftFreq(size, spacing) : vtkFFT::FftFreq(size, spacing);
+    std::vector<double> stdFreq = this->OptimizeForRealInput
+      ? vtkFFT::RFftFreq(static_cast<int>(size), spacing)
+      : vtkFFT::FftFreq(static_cast<int>(size), spacing);
 
     vtkNew<vtkDoubleArray> frequencies;
     frequencies->SetName("Frequency");
@@ -196,7 +192,7 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 void vtkTableFFT::Initialize(vtkTable* input)
 {
-  // Get temporal information
+  // Find time array and compute sample rate
   std::size_t nTimestep = input->GetNumberOfRows();
   vtkDataArray* timeArray = nullptr;
   vtkIdType numColumns = input->GetNumberOfColumns();
@@ -208,28 +204,22 @@ void vtkTableFFT::Initialize(vtkTable* input)
       break;
     }
   }
-  double deltaT = 0.0;
   if (timeArray && timeArray->GetNumberOfTuples() > 1)
   {
-    deltaT = timeArray->GetTuple1(1) - timeArray->GetTuple1(0);
+    double deltaT = timeArray->GetTuple1(1) - timeArray->GetTuple1(0);
+    this->Internals->SampleRate = 1.0 / deltaT;
   }
-
-  if (deltaT == 0.0)
+  else
   {
-    if (this->Normalize || this->CreateFrequencyColumn)
-    {
-      vtkWarningMacro("'Time' information not found, we will assume a 10'000 Hz sampling rate");
-    }
-    deltaT = 1.0e-4;
+    this->Internals->SampleRate = this->DefaultSampleRate;
   }
-  this->Internals->SampleRate = 1.0 / deltaT;
 
-  // Generate windowing function
+  // Check if we can average and compute the size of the windowing function
   std::size_t actualSize = nTimestep;
   this->Internals->Average = this->AverageFft;
   if (this->AverageFft)
   {
-    actualSize = vtkMath::NearestPowerOfTwo(this->BlockSize);
+    actualSize = vtkMath::NearestPowerOfTwo(static_cast<int>(this->BlockSize));
     if (actualSize > (nTimestep - this->NumberOfBlock))
     {
       vtkWarningMacro(
@@ -239,11 +229,13 @@ void vtkTableFFT::Initialize(vtkTable* input)
       actualSize = nTimestep;
     }
   }
+
+  // Generate windowing function
   // We're caching the windowing function for more efficiency when applying this filter
   // on different tables multiple times
   if (this->Internals->WindowLastUpdated < this->Internals->WindowTimeStamp.GetMTime())
   {
-    this->Internals->UpdateWindow(this->WindowingFunction, static_cast<int>(actualSize));
+    this->Internals->UpdateWindow(this->WindowingFunction, actualSize);
     this->Internals->WindowLastUpdated = this->Internals->WindowTimeStamp.GetMTime();
   }
 
@@ -353,11 +345,8 @@ void vtkTableFFT::SetBlockSize(int _arg)
 void vtkTableFFT::SetWindowingFunction(int _arg)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
-                << "WindowingFunction"
-                   " to "
-                << _arg);
-  int clamped =
-    (_arg < 0 ? 0 : (_arg >= MAX_WINDOWING_FUNCTION ? (MAX_WINDOWING_FUNCTION - 1) : _arg));
+                << "WindowingFunction to " << _arg);
+  int clamped = std::min(std::max(_arg, 0), static_cast<int>(MAX_WINDOWING_FUNCTION));
   if (this->WindowingFunction != clamped)
   {
     this->WindowingFunction = clamped;
