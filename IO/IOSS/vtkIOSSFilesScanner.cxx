@@ -108,6 +108,8 @@ std::set<std::string> vtkIOSSFilesScanner::GetRelatedFiles(
   // where `-s{RS}` and/or `.{NUMRANKS}.{RANK}` is optional.
   vtksys::RegularExpression extensionRegexExodus(
     R"(^(.*\.[eg][^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
+  vtksys::RegularExpression extensionRegexExodus2(
+    R"(^(.*\.exo[^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
   vtksys::RegularExpression extensionRegexCGNS(
     R"(^(.*\.cgns[^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
 
@@ -136,7 +138,13 @@ std::set<std::string> vtkIOSSFilesScanner::GetRelatedFiles(
       // this happens if the unix_fname was not a full path.
       fname_wo_path = unix_fname;
     }
-    if (extensionRegexExodus.find(fname_wo_path))
+
+    if (extensionRegexExodus2.find(fname_wo_path))
+    {
+      prefixes.insert(
+        std::make_pair(extensionRegexExodus2.match(1), getProcessCount(fname_wo_path)));
+    }
+    else if (extensionRegexExodus.find(fname_wo_path))
     {
       prefixes.insert(
         std::make_pair(extensionRegexExodus.match(1), getProcessCount(fname_wo_path)));
@@ -212,6 +220,20 @@ bool vtkIOSSFilesScanner::DoTestFilePatternMatching()
   if (!verify({ "mysimoutput.e-s.000" },
         { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
         { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" }))
+  {
+    return false;
+  }
+
+  if (!verify({ "mysimoutput.exo-s.000" },
+        { "mysimoutput.exo-s.000", "mysimoutput.exo-s.001", "mysimoutput.exo-s.002" },
+        { "mysimoutput.exo-s.000", "mysimoutput.exo-s.001", "mysimoutput.exo-s.002" }))
+  {
+    return false;
+  }
+
+  if (!verify({ "mysimoutput.exo-s00" },
+        { "mysimoutput.exo-s00", "mysimoutput.exo-s01", "mysimoutput.exo-s02" },
+        { "mysimoutput.exo-s00", "mysimoutput.exo-s01", "mysimoutput.exo-s02" }))
   {
     return false;
   }
