@@ -103,6 +103,14 @@ public:
   vtkGetMacro(LastDataSetIndex, int);
   ///@}
 
+  ///@{
+  /**
+   * Get Cache DataSet hits and misses.
+   */
+  vtkGetMacro(CacheDataSetHit, int);
+  vtkGetMacro(CacheDataSetMiss, int);
+  ///@}
+
   /**
    * Copy essential parameters between instances of this class. See
    * vtkAbstractInterpolatedVelocityField for more information.
@@ -125,6 +133,8 @@ protected:
     return this->Superclass::FunctionValues(ds, x, f);
   }
 
+  int CacheDataSetHit;
+  int CacheDataSetMiss;
   int LastDataSetIndex;
   std::vector<vtkDataSet*> DataSets;
 

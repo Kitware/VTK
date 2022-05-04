@@ -29,6 +29,8 @@ vtkCompositeInterpolatedVelocityField::vtkCompositeInterpolatedVelocityField()
 {
   this->SetFindCellStrategy(vtkSmartPointer<vtkClosestPointStrategy>::New());
   this->LastDataSetIndex = 0;
+  this->CacheDataSetHit = 0;
+  this->CacheDataSetMiss = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -76,17 +78,20 @@ void vtkCompositeInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
 //------------------------------------------------------------------------------
 void vtkCompositeInterpolatedVelocityField::SetLastCellId(vtkIdType c, int dataindex)
 {
-  this->LastCellId = c;
-  this->LastDataSet = this->DataSets[dataindex];
-
-  // If the dataset changes, then the cached cell is invalidated. We might as
-  // well prefetch the cached cell either way.
-  if (this->LastCellId != -1)
+  if (this->LastCellId != c || this->LastDataSetIndex != dataindex)
   {
-    this->LastDataSet->GetCell(this->LastCellId, this->CurrentCell);
-  }
+    this->LastCellId = c;
+    this->LastDataSet = this->DataSets[dataindex];
 
-  this->LastDataSetIndex = dataindex;
+    // If the dataset changes, then the cached cell is invalidated. We might as
+    // well prefetch the cached cell either way.
+    if (this->LastCellId != -1)
+    {
+      this->LastDataSet->GetCell(this->LastCellId, this->CurrentCell);
+    }
+
+    this->LastDataSetIndex = dataindex;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -109,7 +114,8 @@ int vtkCompositeInterpolatedVelocityField::FunctionValues(double* x, double* f)
 
   if (!retVal)
   {
-    // Okay need to check other datasets since we are outside of the current dataset.
+    this->CacheDataSetMiss++;
+    // Okay need to check other datasets since we are outside the current dataset.
     for (this->LastDataSetIndex = 0;
          this->LastDataSetIndex < static_cast<int>(this->DataSets.size()); this->LastDataSetIndex++)
     {
@@ -129,6 +135,10 @@ int vtkCompositeInterpolatedVelocityField::FunctionValues(double* x, double* f)
     this->LastDataSetIndex = 0;
     this->LastDataSet = this->DataSets[0];
     return 0;
+  }
+  else
+  {
+    this->CacheDataSetHit++;
   }
 
   return retVal;
@@ -161,4 +171,6 @@ void vtkCompositeInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent ind
 
   os << indent << "Number of DataSets: " << this->DataSets.size() << endl;
   os << indent << "Last Dataset Index: " << this->LastDataSetIndex << endl;
+  os << indent << "CacheDataSetHit: " << this->CacheDataSetHit << endl;
+  os << indent << "CacheDataSetMiss: " << this->CacheDataSetMiss << endl;
 }
