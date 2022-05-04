@@ -79,7 +79,6 @@ locator2 = vtk.vtkStaticCellLocator()
 locator2.SetDataSet(output)
 locator2.AutomaticOn()
 locator2.SetNumberOfCellsPerNode(20)
-locator2.CacheCellBoundsOn()
 
 timer.StartTimer()
 locator2.BuildLocator()
@@ -169,7 +168,6 @@ print("\n")
 #############################################################
 # Time the creation and building of the bsp tree
 locator3 = vtk.vtkModifiedBSPTree()
-locator3.LazyEvaluationOff()
 locator3.SetDataSet(output)
 locator3.AutomaticOn()
 
@@ -200,7 +198,6 @@ print("\n")
 #############################################################
 # Time the creation and building of the obb tree
 locator4 = vtk.vtkOBBTree()
-locator4.LazyEvaluationOff()
 locator4.SetDataSet(output)
 locator4.AutomaticOn()
 

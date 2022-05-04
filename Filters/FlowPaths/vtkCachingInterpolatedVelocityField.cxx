@@ -60,7 +60,6 @@ void IVFDataSetInfo::SetDataSet(
     {
       this->BSPTree = vtkSmartPointer<vtkCellLocator>::New();
     }
-    this->BSPTree->SetLazyEvaluation(1);
     this->BSPTree->SetDataSet(this->DataSet);
     this->BSPTree->SetUseExistingSearchStructure(this->StaticDataSet);
   }

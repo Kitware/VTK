@@ -34,6 +34,19 @@
  * Siggraph `96.
  *
  * @warning
+ * vtkOBBTree utilizes the following parent class parameters:
+ * - Tolerance                   (default 0.01)
+ * - Level                       (default 4)
+ * - MaxLevel                    (default 12)
+ * - NumberOfCellsPerNode        (default 32)
+ * - RetainCellLists             (default true)
+ * - UseExistingSearchStructure  (default false)
+ *
+ * vtkOBBTree does NOT utilize the following parameters:
+ * - Automatic
+ * - CacheCellBounds
+ *
+ * @warning
  * Since this algorithms works from a list of cells, the OBB tree will only
  * bound the "geometry" attached to the cells if the convex hull of the
  * cells bounds the geometry.
@@ -47,7 +60,7 @@
  * go a long way to correcting this problem.
  *
  * @sa
- * vtkLocator vtkCellLocator vtkPointLocator
+ * vtkAbstractCellLocator vtkCellLocator vtkStaticCellLocator vtkCellTreeLocator vtkModifiedBSPTree
  */
 
 #ifndef vtkOBBTree_h
@@ -59,9 +72,6 @@
 class vtkMatrix4x4;
 
 // Special class defines node for the OBB tree
-//
-
-//
 class VTKFILTERSGENERAL_EXPORT vtkOBBNode
 { //;prevent man page generation
 public:
@@ -80,13 +90,16 @@ private:
   vtkOBBNode& operator=(const vtkOBBNode& rhs) = delete;
 };
 
-//
-
 class VTKFILTERSGENERAL_EXPORT vtkOBBTree : public vtkAbstractCellLocator
 {
 public:
+  ///@{
+  /**
+   * Standard methods to print and obtain type-related information.
+   */
   vtkTypeMacro(vtkOBBTree, vtkAbstractCellLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   /**
    * Construct with automatic computation of divisions, averaging
@@ -96,6 +109,15 @@ public:
 
   // Re-use any superclass signatures that we don't override.
   using vtkAbstractCellLocator::IntersectWithLine;
+
+  /**
+   * Return the first intersection of the specified line segment with
+   * the OBB tree, as well as information about the cell which the
+   * line segment intersected. A return value of 1 indicates an intersection
+   * and 0 indicates no intersection.
+   */
+  int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
 
   /**
    * Take the passed line segment and intersect it with the data set.
@@ -110,15 +132,6 @@ public:
    */
   int IntersectWithLine(
     const double a0[3], const double a1[3], vtkPoints* points, vtkIdList* cellIds) override;
-
-  /**
-   * Return the first intersection of the specified line segment with
-   * the OBB tree, as well as information about the cell which the
-   * line segment intersected. A return value of 1 indicates an intersection
-   * and 0 indicates no intersection.
-   */
-  int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t, double x[3],
-    double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
 
   /**
    * Compute an OBB from the list of points given. Return the corner point
@@ -175,6 +188,7 @@ public:
    */
   void FreeSearchStructure() override;
   void BuildLocator() override;
+  void ForceBuildLocator() override;
   ///@}
 
   /**
@@ -191,6 +205,8 @@ public:
 protected:
   vtkOBBTree();
   ~vtkOBBTree() override;
+
+  void BuildLocatorInternal() override;
 
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added

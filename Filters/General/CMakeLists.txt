@@ -13,7 +13,6 @@ set(classes
   vtkBoxClipDataSet
   vtkBrownianPoints
   vtkCellDerivatives
-  vtkCellTreeLocator
   vtkCellValidator
   vtkClipClosedSurface
   vtkClipConvexPolyData

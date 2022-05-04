@@ -42,7 +42,6 @@ boneStripper.SetMaximumLength(5)
 
 boneLocator = vtk.vtkCellLocator()
 boneLocator.SetDataSet(boneStripper.GetOutput())
-boneLocator.LazyEvaluationOn()
 
 boneMapper = vtk.vtkPolyDataMapper()
 boneMapper.SetInputConnection(boneStripper.GetOutputPort())

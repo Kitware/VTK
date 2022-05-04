@@ -188,6 +188,7 @@ private:
 };
 }
 
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkKdTree);
 
 //------------------------------------------------------------------------------
@@ -334,6 +335,7 @@ vtkKdTree::~vtkKdTree()
   this->SetCalculator(nullptr);
   this->SetCuts(nullptr);
 }
+
 //------------------------------------------------------------------------------
 void vtkKdTree::SetCalculator(vtkKdNode* kd)
 {
@@ -363,11 +365,13 @@ void vtkKdTree::SetCalculator(vtkKdNode* kd)
   this->BSPCalculator = vtkBSPIntersections::New();
   this->BSPCalculator->SetCuts(this->Cuts);
 }
+
 //------------------------------------------------------------------------------
 void vtkKdTree::SetCuts(vtkBSPCuts* cuts)
 {
   this->SetCuts(cuts, 1);
 }
+
 //------------------------------------------------------------------------------
 void vtkKdTree::SetCuts(vtkBSPCuts* cuts, int userDefined)
 {
@@ -421,13 +425,14 @@ void vtkKdTree::SetCuts(vtkBSPCuts* cuts, int userDefined)
 // the geometry has changed, and we check for that with NewGeometry in
 // BuildLocator.  We Modify() for changes that definitely require a
 // rebuild of the tree, like changing the depth of the k-d tree.
-
 void vtkKdTree::SetDataSet(vtkDataSet* set)
 {
   this->DataSets->RemoveAllItems();
   this->AddDataSet(set);
+  this->Modified();
 }
 
+//------------------------------------------------------------------------------
 void vtkKdTree::AddDataSet(vtkDataSet* set)
 {
   if (set == nullptr)
@@ -443,28 +448,31 @@ void vtkKdTree::AddDataSet(vtkDataSet* set)
   this->DataSets->AddItem(set);
 }
 
+//------------------------------------------------------------------------------
 void vtkKdTree::RemoveDataSet(vtkDataSet* set)
 {
   this->DataSets->RemoveItem(set);
 }
 
+//------------------------------------------------------------------------------
 void vtkKdTree::RemoveDataSet(int index)
 {
   this->DataSets->RemoveItem(index);
 }
 
+//------------------------------------------------------------------------------
 void vtkKdTree::RemoveAllDataSets()
 {
   this->DataSets->RemoveAllItems();
 }
 
 //------------------------------------------------------------------------------
-
 int vtkKdTree::GetNumberOfDataSets()
 {
   return this->DataSets->GetNumberOfItems();
 }
 
+//------------------------------------------------------------------------------
 int vtkKdTree::GetDataSetIndex(vtkDataSet* set)
 {
   // This is weird, but IsItemPresent returns the index + 1 (so that 0
@@ -472,11 +480,13 @@ int vtkKdTree::GetDataSetIndex(vtkDataSet* set)
   return this->DataSets->IsItemPresent(set) - 1;
 }
 
+//------------------------------------------------------------------------------
 vtkDataSet* vtkKdTree::GetDataSet(int index)
 {
   return this->DataSets->GetItem(index);
 }
 
+//------------------------------------------------------------------------------
 int vtkKdTree::GetDataSetsNumberOfCells(int from, int to)
 {
   int numCells = 0;
@@ -752,8 +762,32 @@ void vtkKdTree::ComputeCellCenter(vtkCell* cell, double* center, double* weights
 
 //------------------------------------------------------------------------------
 // Build the kdtree structure based on location of cell centroids.
-//
 void vtkKdTree::BuildLocator()
+{
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->Top && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+  {
+    return;
+  }
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->Top && this->UseExistingSearchStructure)
+  {
+    this->BuildTime.Modified();
+    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
+    return;
+  }
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkKdTree::ForceBuildLocator()
+{
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+// Build the kdtree structure based on location of cell centroids.
+void vtkKdTree::BuildLocatorInternal()
 {
   SCOPETIMER("BuildLocator");
 
@@ -761,7 +795,7 @@ void vtkKdTree::BuildLocator()
   int nCells = 0;
   int i;
 
-  if ((this->Top != nullptr) && (this->BuildTime > this->GetMTime()) && (this->NewGeometry() == 0))
+  if (this->NewGeometry())
   {
     return;
   }
@@ -919,6 +953,7 @@ void vtkKdTree::BuildLocator()
   this->UpdateProgress(1.0);
 }
 
+//------------------------------------------------------------------------------
 int vtkKdTree::ProcessUserDefinedCuts(double* minBounds)
 {
   SCOPETIMER("ProcessUserDefinedCuts");
@@ -973,6 +1008,7 @@ int vtkKdTree::ProcessUserDefinedCuts(double* minBounds)
 
   return 0;
 }
+
 //------------------------------------------------------------------------------
 void vtkKdTree::ZeroNumberOfPoints(vtkKdNode* kd)
 {
@@ -984,6 +1020,7 @@ void vtkKdTree::ZeroNumberOfPoints(vtkKdNode* kd)
     vtkKdTree::ZeroNumberOfPoints(kd->GetRight());
   }
 }
+
 //------------------------------------------------------------------------------
 void vtkKdTree::SetNewBounds(double* bounds)
 {
@@ -1036,6 +1073,7 @@ void vtkKdTree::SetNewBounds(double* bounds)
     }
   }
 }
+
 //------------------------------------------------------------------------------
 void vtkKdTree::SetNewBounds_(vtkKdNode* kd, double* b, int* fixDim)
 {
@@ -1072,6 +1110,7 @@ void vtkKdTree::SetNewBounds_(vtkKdNode* kd, double* b, int* fixDim)
     }
   }
 }
+
 //------------------------------------------------------------------------------
 vtkKdNode* vtkKdTree::CopyTree(vtkKdNode* kd)
 {
@@ -1081,6 +1120,7 @@ vtkKdNode* vtkKdTree::CopyTree(vtkKdNode* kd)
 
   return top;
 }
+
 //------------------------------------------------------------------------------
 void vtkKdTree::CopyChildNodes(vtkKdNode* to, vtkKdNode* from)
 {
@@ -1098,6 +1138,7 @@ void vtkKdTree::CopyChildNodes(vtkKdNode* to, vtkKdNode* from)
     vtkKdTree::CopyChildNodes(to->GetRight(), from->GetRight());
   }
 }
+
 //------------------------------------------------------------------------------
 void vtkKdTree::CopyKdNode(vtkKdNode* to, vtkKdNode* from)
 {
@@ -1138,6 +1179,7 @@ int vtkKdTree::ComputeLevel(vtkKdNode* kd)
   }
   return iam;
 }
+
 //------------------------------------------------------------------------------
 void vtkKdTree::SetDataBoundsToSpatialBounds(vtkKdNode* kd)
 {
@@ -1150,6 +1192,7 @@ void vtkKdTree::SetDataBoundsToSpatialBounds(vtkKdNode* kd)
     vtkKdTree::SetDataBoundsToSpatialBounds(kd->GetRight());
   }
 }
+
 //------------------------------------------------------------------------------
 int vtkKdTree::SelectCutDirection(vtkKdNode* kd)
 {
@@ -1206,6 +1249,7 @@ int vtkKdTree::SelectCutDirection(vtkKdNode* kd)
   }
   return dim;
 }
+
 //------------------------------------------------------------------------------
 int vtkKdTree::DivideTest(int size, int level)
 {
@@ -1227,6 +1271,7 @@ int vtkKdTree::DivideTest(int size, int level)
 
   return 1;
 }
+
 //------------------------------------------------------------------------------
 int vtkKdTree::DivideRegion(vtkKdNode* kd, float* c1, int* ids, int level)
 {
@@ -1641,6 +1686,7 @@ int vtkKdTree::SelfOrder(int startId, vtkKdNode* kd)
   return nextId;
 }
 
+//------------------------------------------------------------------------------
 void vtkKdTree::BuildRegionList()
 {
   SCOPETIMER("BuildRegionList");
@@ -1665,6 +1711,7 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPointSet* pointset)
   this->BuildLocatorFromPoints(pointset->GetPoints());
 }
 
+//------------------------------------------------------------------------------
 void vtkKdTree::BuildLocatorFromPoints(vtkPoints* ptArray)
 {
   this->BuildLocatorFromPoints(&ptArray, 1);
@@ -2895,6 +2942,8 @@ int vtkKdTree::NewGeometry()
 
   return itsNew;
 }
+
+//------------------------------------------------------------------------------
 int vtkKdTree::NewGeometry(vtkDataSet** sets, int numSets)
 {
   int newGeometry = 0;
@@ -4494,6 +4543,7 @@ int vtkKdTree::ViewOrderRegionsFromPosition_(
 
   return size;
 }
+
 //------------------------------------------------------------------------------
 int vtkKdTree::ViewOrderRegionsFromPosition_P(
   vtkKdNode* node, vtkIntArray* list, vtkIntArray* IdsOfInterest, const double pos[3], int nextId)

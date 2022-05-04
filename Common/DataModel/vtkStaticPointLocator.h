@@ -194,6 +194,7 @@ public:
   void Initialize() override;
   void FreeSearchStructure() override;
   void BuildLocator() override;
+  void ForceBuildLocator() override;
   void BuildLocator(const double* inBounds);
   ///@}
 
@@ -295,6 +296,8 @@ public:
 protected:
   vtkStaticPointLocator();
   ~vtkStaticPointLocator() override;
+
+  void BuildLocatorInternal() override;
 
   int NumberOfPointsPerBucket;  // Used with AutomaticOn to control subdivide
   int Divisions[3];             // Number of sub-divisions in x-y-z directions

@@ -15,10 +15,7 @@
 /**
  * @class   vtkCellTreeLocator
  * @brief   This class implements the data structures, construction
- * algorithms for fast cell location presented in "Fast, Memory-Efficient Cell
- * location in Unstructured Grids for Visualization" by Christop Garth and Kenneth
- * I. Joy in VisWeek, 2011.
- *
+ * algorithms for fast cell location.
  *
  * Cell Tree is a bounding interval hierarchy based data structure, where child boxes
  * do not form an exact split of the parent boxes along a dimension.  Therefore two axis-
@@ -26,33 +23,49 @@
  * dimension. This class implements the data structure (Cell Tree Node) and its build
  * and traversal algorithms described in the paper.
  * Some methods in building and traversing the cell tree in this class were derived
- * avtCellLocatorBIH class in the VisIT Visualization Tool
+ * from avtCellLocatorBIH class in the VisIT Visualization Tool.
  *
+ * vtkCellTreeLocator utilizes the following parent class parameters:
+ * - NumberOfCellsPerNode        (default 8)
+ * - CacheCellBounds             (default true)
+ * - UseExistingSearchStructure  (default false)
  *
+ * vtkCellTreeLocator does NOT utilize the following parameters:
+ * - Automatic
+ * - Level
+ * - MaxLevel
+ * - Tolerance
+ * - RetainCellLists
+ *
+ * @cite "Fast, Memory-Efficient Cell location in Unstructured Grids for Visualization" by
+ * Christoph Garth and Kenneth I. Joy in VisWeek, 2011.
  *
  * @sa
- * vtkLocator vtkCellLocator vtkModifiedBSPTree
+ * vtkAbstractCellLocator vtkCellLocator vtkStaticCellLocator vtkModifiedBSPTree vtkOBBTree
  */
 
 #ifndef vtkCellTreeLocator_h
 #define vtkCellTreeLocator_h
 
 #include "vtkAbstractCellLocator.h"
-#include "vtkFiltersGeneralModule.h" // For export macro
-#include <vector>                    // Needed for internal class
+#include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
+#include <vector>                     // Needed for internal class
 
 class vtkCellPointTraversal;
 class vtkIdTypeArray;
 class vtkCellArray;
 
-class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
+class VTKCOMMONDATAMODEL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
 {
 public:
-  class vtkCellTree;
-  class vtkCellTreeNode;
-
+  ///@{
+  /**
+   * Standard methods to print and obtain type-related information.
+   */
   vtkTypeMacro(vtkCellTreeLocator, vtkAbstractCellLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   /**
    * Constructor sets the maximum number of cells in a leaf to 8
@@ -63,14 +76,15 @@ public:
 
   ///@{
   /**
-   * Test a point to find if it is inside a cell. Returns the cellId if inside
-   * or -1 if not.
+   * Set/Get the number of buckets.
    */
-  vtkIdType FindCell(double pos[3], double vtkNotUsed(tol2), vtkGenericCell* cell,
-    double pcoords[3], double* weights) override;
-  vtkIdType FindCell(double pos[3], double vtkNotUsed(tol2), vtkGenericCell* cell, int& subId,
-    double pcoords[3], double* weights) override;
+  vtkSetMacro(NumberOfBuckets, int);
+  vtkGetMacro(NumberOfBuckets, int);
   ///@}
+
+  // Re-use any superclass signatures that we don't override.
+  using vtkAbstractCellLocator::FindCell;
+  using vtkAbstractCellLocator::IntersectWithLine;
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
@@ -80,73 +94,73 @@ public:
     double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
 
   /**
+   * Take the passed line segment and intersect it with the data set.
+   * The return value of the function is 0 if no intersections were found.
+   * For each intersection with the bounds of a cell or with a cell (if a cell is provided),
+   * the points and cellIds have the relevant information added sorted by t.
+   * If points or cellIds are nullptr pointers, then no information is generated for that list.
+   *
+   * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
+   */
+  int IntersectWithLine(const double p1[3], const double p2[3], const double tol, vtkPoints* points,
+    vtkIdList* cellIds, vtkGenericCell* cell) override;
+
+  /**
    * Return a list of unique cell ids inside of a given bounding box. The
    * user must provide the vtkIdList to populate. This method returns data
    * only after the locator has been built.
    */
   void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
 
-  using vtkAbstractCellLocator::FindClosestPoint;
-  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
-
   /**
-   * reimplemented from vtkAbstractCellLocator to support bad compilers
+   * Take the passed line segment and intersect it with the data set.
+   * For each intersection with the bounds of a cell, the cellIds
+   * have the relevant information added sort by t. If cellIds is nullptr
+   * pointer, then no information is generated for that list.
+   *
+   * Reimplemented from vtkAbstractCellLocator to showcase that it's a supported function.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
-    double pcoords[3], int& subId) override
+  void FindCellsAlongLine(
+    const double p1[3], const double p2[3], double tolerance, vtkIdList* cellsIds) override
   {
-    return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
+    this->Superclass::FindCellsAlongLine(p1, p2, tolerance, cellsIds);
   }
 
   /**
-   * Return intersection point (if any) AND the cell which was intersected by
-   * the finite line. The cell is returned as a cell id and as a generic cell.
-   * This function is a modification from the vtkModifiedBSPTree class using the
-   * data structures in the paper to find intersections.
+   * Find the cell containing a given point. returns -1 if no cell found
+   * the cell parameters are copied into the supplied variables, a cell must
+   * be provided to store the information.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
-    double pcoords[3], int& subId, vtkIdType& cellId) override;
-
-  /**
-   * reimplemented from vtkAbstractCellLocator to support bad compilers
-   */
-  int IntersectWithLine(
-    const double p1[3], const double p2[3], vtkPoints* points, vtkIdList* cellIds) override
-  {
-    return this->Superclass::IntersectWithLine(p1, p2, points, cellIds);
-  }
-
-  /**
-   * reimplemented from vtkAbstractCellLocator to support bad compilers
-   */
-  vtkIdType FindCell(double x[3]) override { return this->Superclass::FindCell(x); }
+  vtkIdType FindCell(double pos[3], double vtkNotUsed(tol2), vtkGenericCell* cell, int& subId,
+    double pcoords[3], double* weights) override;
 
   ///@{
   /**
    * Satisfy vtkLocator abstract interface.
    */
   void FreeSearchStructure() override;
-  void GenerateRepresentation(int level, vtkPolyData* pd) override;
-  virtual void BuildLocatorInternal();
-  virtual void BuildLocatorIfNeeded();
-  virtual void ForceBuildLocator();
   void BuildLocator() override;
+  void ForceBuildLocator() override;
+  void GenerateRepresentation(int level, vtkPolyData* pd) override;
   ///@}
 
-  ///@{
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because LazyEvaluation has been deprecated")
+  virtual void BuildLocatorIfNeeded() {}
+
+  class vtkCellTree;
+  class vtkCellTreeNode;
   /**
    * Internal classes made public to allow subclasses to create
    * customized some traversal algorithms
    */
-  class VTKFILTERSGENERAL_EXPORT vtkCellTree
+  class VTKCOMMONDATAMODEL_EXPORT vtkCellTree
   {
   public:
     std::vector<vtkCellTreeNode> Nodes;
-    std::vector<unsigned int> Leaves;
+    std::vector<vtkIdType> Leaves;
     friend class vtkCellPointTraversal;
     friend class vtkCellTreeNode;
     friend class vtkCellTreeBuilder;
-    ///@}
 
   public:
     double DataBBox[6]; // This store the bounding values of the dataset
@@ -162,58 +176,46 @@ public:
    * start is the location in the cell tree. e.g. for root node start is zero.
    * size is the number of the nodes under the (sub-)tree
    */
-  class VTKFILTERSGENERAL_EXPORT vtkCellTreeNode
+  class VTKCOMMONDATAMODEL_EXPORT vtkCellTreeNode
   {
   public:
   protected:
-    unsigned int Index;
+    vtkIdType Index;
     double LeftMax;  // left max value
     double RightMin; // right min value
 
-    unsigned int Sz; // size
-    unsigned int St; // start
+    vtkIdType Sz; // size
+    vtkIdType St; // start
 
     friend class vtkCellPointTraversal;
     friend class vtkCellTreeBuilder;
 
   public:
-    void MakeNode(unsigned int left, unsigned int d, double b[2]);
-    void SetChildren(unsigned int left);
+    void MakeNode(vtkIdType left, vtkIdType d, double b[2]);
+    void SetChildren(vtkIdType left);
     bool IsNode() const;
-    unsigned int GetLeftChildIndex() const;
-    unsigned int GetRightChildIndex() const;
-    unsigned int GetDimension() const;
+    vtkIdType GetLeftChildIndex() const;
+    vtkIdType GetRightChildIndex() const;
+    vtkIdType GetDimension() const;
     const double& GetLeftMaxValue() const;
     const double& GetRightMinValue() const;
-    void MakeLeaf(unsigned int start, unsigned int size);
+    void MakeLeaf(vtkIdType start, vtkIdType size);
     bool IsLeaf() const;
-    unsigned int Start() const;
-    unsigned int Size() const;
+    vtkIdType Start() const;
+    vtkIdType Size() const;
   };
 
 protected:
   vtkCellTreeLocator();
   ~vtkCellTreeLocator() override;
 
-  // Test ray against node BBox : clip t values to extremes
-  bool RayMinMaxT(const double origin[3], const double dir[3], double& rTmin, double& rTmax);
-
-  bool RayMinMaxT(const double bounds[6], const double origin[3], const double dir[3],
-    double& rTmin, double& rTmax);
+  void BuildLocatorInternal() override;
 
   int getDominantAxis(const double dir[3]);
 
   // Order nodes as near/far relative to ray
   void Classify(const double origin[3], const double dir[3], double& rDist, vtkCellTreeNode*& near,
     vtkCellTreeNode*& mid, vtkCellTreeNode*& far, int& mustCheck);
-
-  // From vtkModifiedBSPTRee
-  // We provide a function which does the cell/ray test so that
-  // it can be overridden by subclasses to perform special treatment
-  // (Example : Particles stored in tree, have no dimension, so we must
-  // override the cell test to return a value based on some particle size
-  virtual int IntersectCellInternal(vtkIdType cell_ID, const double p1[3], const double p2[3],
-    const double tol, double& t, double ipt[3], double pcoords[3], int& subId);
 
   int NumberOfBuckets;
 

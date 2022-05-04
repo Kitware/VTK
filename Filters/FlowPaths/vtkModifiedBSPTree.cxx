@@ -12,26 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// VTK_DEPRECATED_IN_9_2_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkModifiedBSPTree.h"
+
+#include "vtkAppendPolyData.h"
+#include "vtkBox.h"
+#include "vtkCubeSource.h"
 #include "vtkGenericCell.h"
 #include "vtkIdListCollection.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkSMPTools.h"
 
 #include <algorithm>
-#include <functional>
+#include <array>
 #include <stack>
 #include <vector>
 
-#include "vtkAppendPolyData.h"
-#include "vtkCubeSource.h"
-//
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkModifiedBSPTree);
+
 //------------------------------------------------------------------------------
-//
-//
 enum
 {
   POS_X,
@@ -41,8 +44,6 @@ enum
   POS_Z,
   NEG_Z
 };
-//
-const double Epsilon_ = 1E-8;
 
 //////////////////////////////////////////////////////////////////////////////
 // Main management and support for tree
@@ -52,25 +53,27 @@ vtkModifiedBSPTree::vtkModifiedBSPTree()
   this->NumberOfCellsPerNode = 32;
   this->mRoot = nullptr;
   this->UseExistingSearchStructure = 0;
-  this->LazyEvaluation = 1;
-  //
   this->npn = this->nln = this->tot_depth = 0;
 }
+
 //------------------------------------------------------------------------------
 vtkModifiedBSPTree::~vtkModifiedBSPTree()
 {
   this->FreeSearchStructure();
   this->FreeCellBounds();
 }
+
 //------------------------------------------------------------------------------
 void vtkModifiedBSPTree::FreeSearchStructure()
 {
-  delete this->mRoot;
-  this->mRoot = nullptr;
-  this->Level = 0;
-  this->npn = this->nln = this->tot_depth = 0;
+  if (this->mRoot)
+  {
+    delete this->mRoot;
+    this->mRoot = nullptr;
+    this->Level = 0;
+    this->npn = this->nln = this->tot_depth = 0;
+  }
 }
-//------------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////////
 // Here's the stuff for spatial subdivision
@@ -86,6 +89,7 @@ typedef cell_extents* cell_extents_List;
 
 static int global_list_count = 0;
 
+//------------------------------------------------------------------------------
 class Sorted_cell_extents_Lists
 {
 public:
@@ -105,8 +109,8 @@ public:
   {
     for (int i = 0; i < 3; i++)
     {
-      delete[](Mins[i]);
-      delete[](Maxs[i]);
+      delete[](this->Mins[i]);
+      delete[](this->Maxs[i]);
     }
     global_list_count -= 1;
   }
@@ -141,40 +145,15 @@ extern "C" int CompareMax(const void* pA, const void* B)
 }
 
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 void vtkModifiedBSPTree::BuildLocator()
 {
-  if (this->LazyEvaluation)
-  {
-    return;
-  }
-  this->ForceBuildLocator();
-}
-//------------------------------------------------------------------------------
-void vtkModifiedBSPTree::BuildLocatorIfNeeded()
-{
-  if (this->LazyEvaluation)
-  {
-    if (!this->mRoot || (this->MTime > this->BuildTime))
-    {
-      this->Modified();
-      vtkDebugMacro(<< "Forcing BuildLocator");
-      this->ForceBuildLocator();
-    }
-  }
-}
-//------------------------------------------------------------------------------
-void vtkModifiedBSPTree::ForceBuildLocator()
-{
-  //
   // don't rebuild if build time is newer than modified and dataset modified time
-  if ((this->mRoot) && (this->BuildTime > this->MTime) && (this->BuildTime > DataSet->GetMTime()))
+  if (this->mRoot && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
   {
     return;
   }
-  // don't rebuild if UseExistingSearchStructure is ON and a tree structure already exists
-  if ((this->mRoot) && this->UseExistingSearchStructure)
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->mRoot && this->UseExistingSearchStructure)
   {
     this->BuildTime.Modified();
     vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
@@ -182,87 +161,87 @@ void vtkModifiedBSPTree::ForceBuildLocator()
   }
   this->BuildLocatorInternal();
 }
+
+//------------------------------------------------------------------------------
+void vtkModifiedBSPTree::ForceBuildLocator()
+{
+  this->BuildLocatorInternal();
+}
+
 //------------------------------------------------------------------------------
 void vtkModifiedBSPTree::BuildLocatorInternal()
 {
-  //
   vtkIdType numCells;
   if (!this->DataSet || (numCells = this->DataSet->GetNumberOfCells()) < 1)
   {
     vtkDebugMacro(<< "No Cells to divide");
-    numCells = 0;
+    return;
   }
-  this->DataSet->ComputeBounds();
   vtkDebugMacro(<< "Creating BSPTree for " << numCells << " cells");
 
-  //
   //  Make sure the appropriate data is available
-  //
   this->FreeSearchStructure();
-  this->FreeCellBounds();
 
   // create the root node
   this->mRoot = new BSPNode();
   this->mRoot->mAxis = rand() % 3;
   this->mRoot->depth = 0;
-  //
-  if (numCells == 0)
+
+  if (this->CacheCellBounds)
   {
-    return;
+    this->FreeCellBounds();
+    this->StoreCellBounds();
   }
-  //
-  this->StoreCellBounds();
-  //
+
   // sort the cells into 6 lists using structure for subdividing tests
   Sorted_cell_extents_Lists* lists = new Sorted_cell_extents_Lists(numCells);
-  for (int i = 0; i < 3; i++)
-  { // loop over each axis
-    for (vtkIdType j = 0; j < numCells; j++)
-    {                                                   // loop over each cell
-      lists->Mins[i][j].min = CellBounds[j][i * 2];     // i=0 xmin, i=1 ymin, i=2 zmin
-      lists->Mins[i][j].max = CellBounds[j][i * 2 + 1]; // i=0 xmax, i=1 ymax, i=2 zmax
-      lists->Mins[i][j].cell_ID = j;
-      //
-      lists->Maxs[i][j].min = CellBounds[j][i * 2];
-      lists->Maxs[i][j].max = CellBounds[j][i * 2 + 1];
-      lists->Maxs[i][j].cell_ID = j;
+  vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+    double cellBounds[6], *cellBoundsPtr;
+    cellBoundsPtr = cellBounds;
+    for (uint8_t i = 0; i < 3; ++i)
+    {
+      for (vtkIdType j = begin; j < end; ++j)
+      {
+        this->GetCellBounds(j, cellBoundsPtr);
+        lists->Mins[i][j].min = cellBoundsPtr[i * 2];
+        lists->Mins[i][j].max = cellBoundsPtr[i * 2 + 1];
+        lists->Mins[i][j].cell_ID = j;
+        lists->Maxs[i][j].min = cellBoundsPtr[i * 2];
+        lists->Maxs[i][j].max = cellBoundsPtr[i * 2 + 1];
+        lists->Maxs[i][j].cell_ID = j;
+      }
     }
-    // Sort
-    qsort(lists->Mins[i], numCells, sizeof(cell_extents), CompareMin);
-    qsort(lists->Maxs[i], numCells, sizeof(cell_extents), CompareMax);
-  }
-  //
-  // call the recursive subdivision routine
-  //
-  vtkDebugMacro(<< "Beginning Subdivision");
-  //
-  if (numCells > 0)
+  });
+  for (uint8_t i = 0; i < 3; i++)
   {
-    Subdivide(this->mRoot, lists, this->DataSet, numCells, 0, this->MaxLevel,
-      this->NumberOfCellsPerNode, this->Level);
+    // Sort
+    vtkSMPTools::Sort(lists->Mins[i], lists->Mins[i] + numCells,
+      [&](const cell_extents& tA, const cell_extents& tB) { return tA.min < tB.min; });
+    vtkSMPTools::Sort(lists->Maxs[i], lists->Maxs[i] + numCells,
+      [&](const cell_extents& tA, const cell_extents& tB) { return tA.max > tB.max; });
   }
+  // call the recursive subdivision routine
+  vtkDebugMacro(<< "Beginning Subdivision");
+
+  Subdivide(this->mRoot, lists, this->DataSet, numCells, 0, this->MaxLevel,
+    this->NumberOfCellsPerNode, this->Level);
   delete lists;
+
   // Child nodes are responsible for freeing the temporary sorted lists
-  //
   this->BuildTime.Modified();
-  //
-  double av_depth = (double)tot_depth / nln;
-  (void)av_depth;
   vtkDebugMacro(<< "BSP Tree Statistics \n"
                 << "Num Parent/Leaf Nodes " << npn << "/" << nln << "\n"
-                << "Average Depth " << av_depth << " Original : " << numCells);
+                << "Average Depth " << double(tot_depth) / nln << " Original : " << numCells);
 }
 
 //------------------------------------------------------------------------------
-//
 // The main BSP subdivision routine : The code which does the division is only
 // a small part of this, the rest is just bookkeeping - it looks worse than it is.
-//
 void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lists,
   vtkDataSet* dataset, vtkIdType nCells, int depth, int maxlevel, vtkIdType maxCells, int& MaxDepth)
 {
-  //
   // We've got lists sorted on the axes, so we can easily get BBox
+  // NOTE: this->mRoot->Bounds is set here
   node->setMin(lists->Mins[0][0].min, lists->Mins[1][0].min, lists->Mins[2][0].min);
   node->setMax(lists->Maxs[0][0].max, lists->Maxs[1][0].max, lists->Maxs[2][0].max);
   // Update depth info
@@ -277,6 +256,8 @@ void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lis
   // Do we want to subdivide this node ?
   //
   double pDiv = 0.0;
+  double cellBounds[6], *cellBoundsPtr;
+  cellBoundsPtr = cellBounds;
   if ((nCells > maxCells) && (depth < maxlevel))
   {
     // test for optimal subdivision
@@ -295,7 +276,7 @@ void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lis
         // in and out, and whichever crosses first - bingo !
         if (lists->Mins[Daxis][j].min > lists->Maxs[Daxis][j].max)
         {
-          pDiv = lists->Mins[Daxis][j].min - Epsilon_;
+          pDiv = lists->Mins[Daxis][j].min - VTK_TOL;
           node->mAxis = Daxis;
           found = true;
           break;
@@ -377,11 +358,13 @@ void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lis
         {
           // process the MIN-List
           cell_extents ext = lists->Mins[Daxis][i];
-          if (this->CellBounds[ext.cell_ID][2 * node->mAxis + 1] < pDiv)
+          // check whether we intersect the cell bounds
+          this->GetCellBounds(ext.cell_ID, cellBoundsPtr);
+          if (cellBoundsPtr[2 * node->mAxis + 1] < pDiv)
           {
             left->Mins[Daxis][Cmin_l[Daxis]++] = ext;
           }
-          else if (this->CellBounds[ext.cell_ID][2 * node->mAxis] > pDiv)
+          else if (cellBoundsPtr[2 * node->mAxis] > pDiv)
           {
             right->Mins[Daxis][Cmin_r[Daxis]++] = ext;
           }
@@ -392,11 +375,11 @@ void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lis
           //
           // process the MAX-List
           ext = lists->Maxs[Daxis][i];
-          if (this->CellBounds[ext.cell_ID][2 * node->mAxis + 1] < pDiv)
+          if (cellBoundsPtr[2 * node->mAxis + 1] < pDiv)
           {
             left->Maxs[Daxis][Cmax_l[Daxis]++] = ext;
           }
-          else if (this->CellBounds[ext.cell_ID][2 * node->mAxis] > pDiv)
+          else if (cellBoundsPtr[2 * node->mAxis] > pDiv)
           {
             right->Maxs[Daxis][Cmax_r[Daxis]++] = ext;
           }
@@ -527,7 +510,6 @@ void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lis
 //////////////////////////////////////////////////////////////////////////////
 // OK so this is a quick a dirty one for testing, but I can't be arsed
 // working out which faces are visible
-
 class box
 {
 public:
@@ -541,16 +523,21 @@ public:
   };
 };
 
+//------------------------------------------------------------------------------
 typedef std::vector<box> boxlist;
 typedef std::stack<BSPNode*, std::vector<BSPNode*>> nodestack;
 
 //------------------------------------------------------------------------------
 void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData* pd)
 {
+  this->BuildLocator();
+  if (this->mRoot == nullptr)
+  {
+    return;
+  }
   nodestack ns;
   boxlist bl;
   BSPNode* node;
-  this->BuildLocatorIfNeeded();
   ns.push(this->mRoot);
   // lets walk the tree and get all the level n node boxes
   while (!ns.empty())
@@ -651,41 +638,36 @@ int BSPNode::getDominantAxis(const double dir[3])
     return ((dir[2] > 0) ? POS_Z : NEG_Z);
   }
 }
+
 //------------------------------------------------------------------------------
 int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell)
 {
-  int hit = this->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId, cellId);
-  if (hit)
+  this->BuildLocator();
+  if (this->mRoot == nullptr)
   {
-    this->DataSet->GetCell(cellId, cell);
+    return 0;
   }
-  return hit;
-}
-//------------------------------------------------------------------------------
-int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3], double tol,
-  double& t, double x[3], double pcoords[3], int& subId, vtkIdType& cellId)
-{
-  //
   BSPNode *node, *Near, *Mid, *Far;
-  double ctmin, ctmax, tmin, tmax, _tmin, _tmax, tDist;
-  double ray_vec[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
-  //
-  this->BuildLocatorIfNeeded();
-  //
+  double tmin, tmax, tDist, tHitCell, tBest = VTK_DOUBLE_MAX, xBest[3], pCoordsBest[3];
+  double rayDir[3], x0[3], x1[3], hitCellBoundsPosition[3], cellBounds[6], *cellBoundsPtr;
+  cellBoundsPtr = cellBounds;
+  int plane1, plane2, subIdBest = -1;
+  vtkMath::Subtract(p2, p1, rayDir);
+  vtkIdType cId, cellIdBest = -1;
+  double* bounds = this->mRoot->Bounds;
+  cellId = -1;
+
   // Does ray pass through root BBox
-  tmin = 0;
-  tmax = 1;
-  if (!this->mRoot->RayMinMaxT(p1, ray_vec, tmin, tmax))
+  if (vtkBox::IntersectWithLine(bounds, p1, p2, tmin, tmax, x0, x1, plane1, plane2) == 0)
   {
     return false;
   }
+  std::vector<bool> cellHasBeenVisited(this->DataSet->GetNumberOfCells(), false);
   // Ok, setup a stack and various params
   nodestack ns;
-  double closest_intersection = VTK_FLOAT_MAX;
-  bool HIT = false;
   // setup our axis optimized ray box edge stuff
-  int axis = BSPNode::getDominantAxis(ray_vec);
+  int axis = BSPNode::getDominantAxis(rayDir);
   double (*_getMinDist)(const double origin[3], const double dir[3], const double B[6]);
   switch (axis)
   {
@@ -708,9 +690,7 @@ int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3]
       _getMinDist = getMinDistNEG_Z;
       break;
   }
-  //
   // OK, lets walk the tree and find intersections
-  //
   ns.push(this->mRoot);
   while (!ns.empty())
   {
@@ -726,7 +706,7 @@ int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3]
     while (node->mChild[0]) // this must be a parent node
     {
       // Which child node is closest to ray origin - given direction
-      node->Classify(p1, ray_vec, tDist, Near, Mid, Far);
+      node->Classify(p1, rayDir, tDist, Near, Mid, Far);
       // if the distance to the far edge of the near box is > tmax, no need to test far box
       // (we still need to test Mid because it may overlap slightly)
       if ((tDist > tmax) || (tDist <= 0)) // <=0 for ray on edge
@@ -761,124 +741,122 @@ int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3]
         node = Near;
       }
     }
-    double t_hit, ipt[3];
     // Ok, so we're a leaf node, first check the BBox against the ray
     // then test the candidates in our sorted ray direction order
-    _tmin = tmin;
-    _tmax = tmax;
-    //    if (node->RayMinMaxT(p1, ray_vec, _tmin, _tmax)) {
-    // Was the closest point on the box was > intersection point
-    //      if (_tmax>closest_intersection) break;
-    //
     for (int i = 0; i < node->num_cells; i++)
     {
-      vtkIdType cell_ID = node->sorted_cell_lists[axis][i];
-      //
-      if (_getMinDist(p1, ray_vec, CellBounds[cell_ID]) > closest_intersection)
+      cId = node->sorted_cell_lists[axis][i];
+      if (!cellHasBeenVisited[cId])
       {
-        break;
-      }
-      //
-      ctmin = _tmin;
-      ctmax = _tmax;
-      if (BSPNode::RayMinMaxT(CellBounds[cell_ID], p1, ray_vec, ctmin, ctmax))
-      {
-        if (this->IntersectCellInternal(cell_ID, p1, p2, tol, t_hit, ipt, pcoords, subId))
+        cellHasBeenVisited[cId] = true;
+        this->GetCellBounds(cId, cellBoundsPtr);
+        if (_getMinDist(p1, rayDir, cellBoundsPtr) > tBest)
         {
-          if (t_hit < closest_intersection)
+          break;
+        }
+        // check whether we intersect the cell bounds
+        int hitCellBounds =
+          vtkBox::IntersectBox(cellBoundsPtr, p1, rayDir, hitCellBoundsPosition, tHitCell, tol);
+        if (hitCellBounds)
+        {
+          this->DataSet->GetCell(cId, cell);
+          if (cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
           {
-            HIT = true;
-            closest_intersection = t_hit;
-            cellId = cell_ID;
-            x[0] = ipt[0];
-            x[1] = ipt[1];
-            x[2] = ipt[2];
+            if (t < tBest)
+            {
+              tBest = t;
+              xBest[0] = x[0];
+              xBest[1] = x[1];
+              xBest[2] = x[2];
+              pCoordsBest[0] = pcoords[0];
+              pCoordsBest[1] = pcoords[1];
+              pCoordsBest[2] = pcoords[2];
+              subIdBest = subId;
+              cellIdBest = cId;
+            }
           }
         }
       }
     }
-    //    }
   }
-  if (HIT)
+  // If a cell has been intersected, recover the information and return.
+  if (cellIdBest >= 0)
   {
-    t = closest_intersection;
+    this->DataSet->GetCell(cellIdBest, cell);
+    t = tBest;
+    x[0] = xBest[0];
+    x[1] = xBest[1];
+    x[2] = xBest[2];
+    pcoords[0] = pCoordsBest[0];
+    pcoords[1] = pCoordsBest[1];
+    pcoords[2] = pCoordsBest[2];
+    subId = subIdBest;
+    cellId = cellIdBest;
+    return 1;
   }
-  //
-  return HIT;
+  return 0;
 }
-//------------------------------------------------------------------------------
-typedef std::pair<double, int> Intersection;
-//
-struct Isort : public std::binary_function<Intersection, Intersection, bool>
-{
-  bool operator()(const Intersection& x, const Intersection& y) { return x.first < y.first; }
-};
-//------------------------------------------------------------------------------
-int vtkModifiedBSPTree::IntersectWithLine(
-  const double p1[3], const double p2[3], const double tol, vtkPoints* points, vtkIdList* cellIds)
-{
-  //
-  BSPNode *node, *Near, *Mid, *Far;
-  double ctmin, ctmax, tmin, tmax, _tmin, _tmax, tDist, pcoords[3];
-  double ray_vec[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
-  int subId;
-  //
-  this->BuildLocatorIfNeeded();
-  //
-  // Does ray pass through root BBox
-  tmin = 0;
-  tmax = 1;
-  if (!this->mRoot->RayMinMaxT(p1, ray_vec, tmin, tmax))
-  {
-    return false;
-  }
-  // Ok, setup a stack and various params
-  nodestack ns;
-  double closest_intersection = VTK_FLOAT_MAX;
-  bool HIT = false;
-  // setup our axis optimized ray box edge stuff
-  int axis = BSPNode::getDominantAxis(ray_vec);
-  double (*_getMinDist)(const double origin[3], const double dir[3], const double B[6]);
-  switch (axis)
-  {
-    case POS_X:
-      _getMinDist = getMinDistPOS_X;
-      break;
-    case NEG_X:
-      _getMinDist = getMinDistNEG_X;
-      break;
-    case POS_Y:
-      _getMinDist = getMinDistPOS_Y;
-      break;
-    case NEG_Y:
-      _getMinDist = getMinDistNEG_Y;
-      break;
-    case POS_Z:
-      _getMinDist = getMinDistPOS_Z;
-      break;
-    default:
-      _getMinDist = getMinDistNEG_Z;
-      break;
-  }
 
-  //
-  // we will sort intersections by t, so keep track using these lists
-  //
-  std::vector<Intersection> t_list;
-  vtkSmartPointer<vtkPoints> tempPoints;
-  vtkSmartPointer<vtkIdList> tempIds;
+//------------------------------------------------------------------------------
+struct IntersectionInfo
+{
+  vtkIdType CellId;
+  std::array<double, 3> IntersectionPoint;
+  double T;
+
+  IntersectionInfo(vtkIdType cellId, double x[3], double t)
+    : CellId(cellId)
+    , IntersectionPoint({ x[0], x[1], x[2] })
+    , T(t)
+  {
+  }
+};
+
+//------------------------------------------------------------------------------
+int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+  vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
+{
+  this->BuildLocator();
+  if (this->mRoot == nullptr)
+  {
+    return 0;
+  }
+  // Initialize the list of points/cells
   if (points)
   {
-    tempPoints = vtkSmartPointer<vtkPoints>::New();
+    points->Reset();
   }
   if (cellIds)
   {
-    tempIds = vtkSmartPointer<vtkIdList>::New();
+    cellIds->Reset();
   }
-  int icount = 0;
-  //
+  BSPNode *node, *Near, *Mid, *Far;
+  double tmin, tmax, tDist, tHitCell;
+  double rayDir[3], x0[3], x1[3], hitCellBoundsPosition[3], cellBounds[6], *cellBoundsPtr;
+  cellBoundsPtr = cellBounds;
+  vtkMath::Subtract(p2, p1, rayDir);
+  double* bounds = this->mRoot->Bounds;
+  vtkIdType cId;
+  int plane0, plane1, subId;
+  double t, x[3], pcoords[3];
+
+  // Does ray pass through root BBox
+  if (vtkBox::IntersectWithLine(bounds, p1, p2, tmin, tmax, x0, x1, plane0, plane1) == 0)
+  {
+    return 0; // No intersections possible, line is outside the locator
+  }
+
+  // Initialize intersection query array if necessary. This is done
+  // locally to ensure thread safety.
+  std::vector<bool> cellHasBeenVisited(this->DataSet->GetNumberOfCells(), false);
+
+  // Ok, setup a stack and various params
+  nodestack ns;
+  // setup our axis optimized ray box edge stuff
+  int axis = BSPNode::getDominantAxis(rayDir);
+  // we will sort intersections by t, so keep track using these lists
+  std::vector<IntersectionInfo> cellIntersections;
   // OK, lets walk the tree and find intersections
-  //
   ns.push(this->mRoot);
   while (!ns.empty())
   {
@@ -894,7 +872,7 @@ int vtkModifiedBSPTree::IntersectWithLine(
     while (node->mChild[0])
     { // this must be a parent node
       // Which child node is closest to ray origin - given direction
-      node->Classify(p1, ray_vec, tDist, Near, Mid, Far);
+      node->Classify(p1, rayDir, tDist, Near, Mid, Far);
       // if the distance to the far edge of the near box is > tmax, no need to test far box
       // (we still need to test Mid because it may overlap slightly)
       if ((tDist > tmax) || (tDist <= 0))
@@ -929,103 +907,80 @@ int vtkModifiedBSPTree::IntersectWithLine(
         node = Near;
       }
     }
-    double t_hit, ipt[3];
     // Ok, so we're a leaf node, first check the BBox against the ray
     // then test the candidates in our sorted ray direction order
-    _tmin = tmin;
-    _tmax = tmax;
-    //    if (node->RayMinMaxT(p1, ray_vec, _tmin, _tmax)) {
-    // Was the closest point on the box > intersection point
-    //      if (_tmax>closest_intersection) break;
-    //
     for (int i = 0; i < node->num_cells; i++)
     {
-      vtkIdType cell_ID = node->sorted_cell_lists[axis][i];
-      //
-      if (_getMinDist(p1, ray_vec, CellBounds[cell_ID]) > closest_intersection)
+      cId = node->sorted_cell_lists[axis][i];
+      if (!cellHasBeenVisited[cId])
       {
-        break;
-      }
-      //
-      ctmin = _tmin;
-      ctmax = _tmax;
-      if (BSPNode::RayMinMaxT(CellBounds[cell_ID], p1, ray_vec, ctmin, ctmax))
-      {
-        if (this->IntersectCellInternal(cell_ID, p1, p2, tol, t_hit, ipt, pcoords, subId))
+        cellHasBeenVisited[cId] = true;
+        this->GetCellBounds(cId, cellBoundsPtr);
+        // check whether we intersect the cell bounds
+        int hitCellBounds =
+          vtkBox::IntersectBox(cellBoundsPtr, p1, rayDir, hitCellBoundsPosition, tHitCell, tol);
+
+        if (hitCellBounds)
         {
-          if (points)
+          // Note because of cellHasBeenVisited[], we know this cId is unique
+          if (cell)
           {
-            tempPoints->InsertNextPoint(ipt);
+            this->DataSet->GetCell(cId, cell);
+            if (cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId))
+            {
+              cellIntersections.emplace_back(cId, x, t);
+            }
           }
-          if (cellIds)
+          else
           {
-            tempIds->InsertNextId(cell_ID);
+            cellIntersections.emplace_back(cId, hitCellBoundsPosition, tHitCell);
           }
-          t_list.emplace_back(t_hit, icount++);
-          HIT = true;
         }
       }
     }
-    //    }
   }
-  if (HIT)
+  // if we had intersections, sort them by increasing t
+  if (!cellIntersections.empty())
   {
-    std::sort(t_list.begin(), t_list.end(), Isort());
-    int N = static_cast<int>(t_list.size());
+    vtkIdType numIntersections = static_cast<vtkIdType>(cellIntersections.size());
+    std::sort(cellIntersections.begin(), cellIntersections.end(),
+      [&](const IntersectionInfo& a, const IntersectionInfo b) { return a.T < b.T; });
     if (points)
     {
-      points->SetNumberOfPoints(N);
+      points->SetNumberOfPoints(numIntersections);
+      for (vtkIdType i = 0; i < numIntersections; ++i)
+      {
+        points->SetPoint(i, cellIntersections[i].IntersectionPoint.data());
+      }
     }
     if (cellIds)
     {
-      cellIds->SetNumberOfIds(N);
-    }
-    for (int n = 0; n < N; n++)
-    {
-      Intersection& i = t_list[n];
-      if (points)
+      cellIds->SetNumberOfIds(numIntersections);
+      for (vtkIdType i = 0; i < numIntersections; ++i)
       {
-        points->SetPoint(n, tempPoints->GetPoint(i.second));
-      }
-      if (cellIds)
-      {
-        cellIds->SetId(n, tempIds->GetId(i.second));
+        cellIds->SetId(i, cellIntersections[i].CellId);
       }
     }
+    return 1;
   }
-  //
-  return HIT;
+  return 0;
 }
-//------------------------------------------------------------------------------
-int vtkModifiedBSPTree::IntersectCellInternal(vtkIdType cell_ID, const double p1[3],
-  const double p2[3], const double tol, double& t, double ipt[3], double pcoords[3], int& subId)
-{
-  this->DataSet->GetCell(cell_ID, this->GenericCell);
-  return this->GenericCell->IntersectWithLine(
-    const_cast<double*>(p1), const_cast<double*>(p2), tol, t, ipt, pcoords, subId);
-}
-//////////////////////////////////////////////////////////////////////////////
-// FindCell stuff
-//////////////////////////////////////////////////////////////////////////////
-//------------------------------------------------------------------------------
-vtkIdType vtkModifiedBSPTree::FindCell(
-  double x[3], double tol2, vtkGenericCell* cell, double pcoords[3], double* weights)
-{
-  int subId;
-  return this->FindCell(x, tol2, cell, subId, pcoords, weights);
-}
+
 //------------------------------------------------------------------------------
 vtkIdType vtkModifiedBSPTree::FindCell(
   double x[3], double, vtkGenericCell* cell, int& subId, double pcoords[3], double* weights)
 {
-  //
-  this->BuildLocatorIfNeeded();
-  //
-  // check if x outside of bounds
-  if (!vtkAbstractCellLocator::IsInBounds(this->DataSet->GetBounds(), x))
+  this->BuildLocator();
+  if (this->mRoot == nullptr)
   {
     return -1;
   }
+  // check if x outside of bounds
+  if (!vtkAbstractCellLocator::IsInBounds(this->mRoot->Bounds, x))
+  {
+    return -1;
+  }
+  vtkIdType cellId;
   nodestack ns;
   BSPNode* node;
   ns.push(this->mRoot);
@@ -1038,48 +993,44 @@ vtkIdType vtkModifiedBSPTree::FindCell(
     if (node->mChild[0])
     { // this must be a parent node
       if (node->mChild[0]->Inside(x))
+      {
         ns.push(node->mChild[0]);
+      }
       if (node->mChild[1] && node->mChild[1]->Inside(x))
+      {
         ns.push(node->mChild[1]);
+      }
       if (node->mChild[2]->Inside(x))
+      {
         ns.push(node->mChild[2]);
+      }
     }
     else
     { // a leaf, so test the cells
       for (int i = 0; i < node->num_cells; i++)
       {
-        int cell_ID = node->sorted_cell_lists[0][i];
-        //
-        if (vtkAbstractCellLocator::IsInBounds(CellBounds[cell_ID], x))
+        cellId = node->sorted_cell_lists[0][i];
+        if (vtkAbstractCellLocator::InsideCellBounds(x, cellId))
         {
-          this->DataSet->GetCell(cell_ID, cell);
+          this->DataSet->GetCell(cellId, cell);
           if (cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) == 1)
           {
-            return cell_ID;
+            return cellId;
           }
-          //          if (dist2<tol2) return cell_ID;
         }
       }
     }
   }
   return -1;
 }
-//------------------------------------------------------------------------------
-bool vtkModifiedBSPTree::InsideCellBounds(double x[3], vtkIdType cell_ID)
-{
-  //
-  this->BuildLocatorIfNeeded();
-  //
-  return vtkAbstractCellLocator::IsInBounds(this->CellBounds[cell_ID], x);
-}
+
 //------------------------------------------------------------------------------
 vtkIdListCollection* vtkModifiedBSPTree::GetLeafNodeCellInformation()
 {
-  if (!this->mRoot)
+  if (this->mRoot == nullptr)
   {
     return nullptr;
   }
-  this->BuildLocatorIfNeeded();
   //
   vtkIdListCollection* LeafCellsList = vtkIdListCollection::New();
   nodestack ns;
@@ -1115,6 +1066,7 @@ vtkIdListCollection* vtkModifiedBSPTree::GetLeafNodeCellInformation()
   }
   return LeafCellsList;
 }
+
 //------------------------------------------------------------------------------
 void vtkModifiedBSPTree::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -1159,302 +1111,7 @@ void BSPNode::Classify(const double origin[3], const double dir[3], double& rDis
   }
   rDist = (tDivDirection) ? tOriginToDivPlane / tDivDirection : VTK_FLOAT_MAX;
 }
-//------------------------------------------------------------------------------
-// Update the two t values for the ray against the box, return false if misses
-bool BSPNode::RayMinMaxT(
-  const double origin[3], const double dir[3], double& rTmin, double& rTmax) const
-{
-  double tT;
-  // X-Axis
-  if (dir[0] < -Epsilon_)
-  { // ray travelling in -x direction
-    tT = (this->Bounds[0] - origin[0]) / dir[0];
-    if (tT < rTmin)
-    {
-      return (false); // ray already left of box. Can't hit
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT; // update new tmax
-    }
-    tT = (this->Bounds[1] - origin[0]) / dir[0]; // distance to right edge
-    if (tT >= rTmin)
-    { // can't see this ever happening
-      if (tT > rTmax)
-      {
-        return false; // clip start of ray to right edge
-      }
-      rTmin = tT;
-    }
-  }
-  else if (dir[0] > Epsilon_)
-  {
-    tT = (this->Bounds[1] - origin[0]) / dir[0];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT;
-    }
-    tT = (this->Bounds[0] - origin[0]) / dir[0];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (origin[0] < this->Bounds[0] || origin[0] > this->Bounds[1])
-  {
-    return (false);
-  }
-  // Y-Axis
-  if (dir[1] < -Epsilon_)
-  {
-    tT = (this->Bounds[2] - origin[1]) / dir[1];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT;
-    }
-    tT = (this->Bounds[3] - origin[1]) / dir[1];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (dir[1] > Epsilon_)
-  {
-    tT = (this->Bounds[3] - origin[1]) / dir[1];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT;
-    }
-    tT = (this->Bounds[2] - origin[1]) / dir[1];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (origin[1] < this->Bounds[2] || origin[1] > this->Bounds[3])
-  {
-    return (false);
-  }
-  // Z-Axis
-  if (dir[2] < -Epsilon_)
-  {
-    tT = (this->Bounds[4] - origin[2]) / dir[2];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT;
-    }
-    tT = (this->Bounds[5] - origin[2]) / dir[2];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (dir[2] > Epsilon_)
-  {
-    tT = (this->Bounds[5] - origin[2]) / dir[2];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT;
-    }
-    tT = (this->Bounds[4] - origin[2]) / dir[2];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (origin[2] < this->Bounds[4] || origin[2] > this->Bounds[5])
-  {
-    return (false);
-  }
-  return (true);
-}
-//------------------------------------------------------------------------------
-// Update the two t values for the ray against the box, return false if misses
-bool BSPNode::RayMinMaxT(
-  const double bounds[6], const double origin[3], const double dir[3], double& rTmin, double& rTmax)
-{
-  double tT;
-  // X-Axis
-  if (dir[0] < -Epsilon_)
-  {                                        // ray travelling in -x direction
-    tT = (bounds[0] - origin[0]) / dir[0]; // Ipoint less than minT - ray outside box!
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT; // update new tmax
-    }
-    tT = (bounds[1] - origin[0]) / dir[0]; // distance to right edge
-    if (tT >= rTmin)
-    { // can't see this ever happening
-      if (tT > rTmax)
-      {
-        return false; // clip start of ray to right edge
-      }
-      rTmin = tT;
-    }
-  }
-  else if (dir[0] > Epsilon_)
-  {
-    tT = (bounds[1] - origin[0]) / dir[0];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT;
-    }
-    tT = (bounds[0] - origin[0]) / dir[0];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (origin[0] < bounds[0] || origin[0] > bounds[1])
-  {
-    return (false);
-  }
-  // Y-Axis
-  if (dir[1] < -Epsilon_)
-  {
-    tT = (bounds[2] - origin[1]) / dir[1];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-      rTmax = tT;
-    tT = (bounds[3] - origin[1]) / dir[1];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (dir[1] > Epsilon_)
-  {
-    tT = (bounds[3] - origin[1]) / dir[1];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT;
-    }
-    tT = (bounds[2] - origin[1]) / dir[1];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (origin[1] < bounds[2] || origin[1] > bounds[3])
-  {
-    return (false);
-  }
-  // Z-Axis
-  if (dir[2] < -Epsilon_)
-  {
-    tT = (bounds[4] - origin[2]) / dir[2];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT;
-    }
-    tT = (bounds[5] - origin[2]) / dir[2];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (dir[2] > Epsilon_)
-  {
-    tT = (bounds[5] - origin[2]) / dir[2];
-    if (tT < rTmin)
-    {
-      return (false);
-    }
-    if (tT <= rTmax)
-    {
-      rTmax = tT;
-    }
-    tT = (bounds[4] - origin[2]) / dir[2];
-    if (tT >= rTmin)
-    {
-      if (tT > rTmax)
-      {
-        return (false);
-      }
-      rTmin = tT;
-    }
-  }
-  else if (origin[2] < bounds[4] || origin[2] > bounds[5])
-  {
-    return (false);
-  }
-  return (true);
-}
+
 //------------------------------------------------------------------------------
 bool BSPNode::Inside(double point[3]) const
 {

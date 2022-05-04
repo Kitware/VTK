@@ -79,12 +79,15 @@ public:
    */
   void FreeSearchStructure() override;
   void BuildLocator() override;
+  void ForceBuildLocator() override;
   void GenerateRepresentation(int level, vtkPolyData* pd) override;
   ///@}
 
 protected:
   vtkKdTreePointLocator();
   ~vtkKdTreePointLocator() override;
+
+  void BuildLocatorInternal() override;
 
   vtkKdTree* KdTree;
 

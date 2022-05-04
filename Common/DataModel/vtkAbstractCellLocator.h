@@ -27,18 +27,20 @@
  *  using vtkAbstractCellLocator::IntersectWithLine;
  *  using vtkAbstractCellLocator::FindClosestPoint;
  *  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
+ *  using vtkAbstractCellLocator::FindCell;
  * \endverbatim
  *
- *
  * @sa
- * vtkLocator vtkPointLocator vtkOBBTree vtkCellLocator
+ * vtkLocator vtkCellLocator vtkStaticCellLocator vtkCellTreeLocator vtkModifiedBSPTree vtkOBBTree
  */
 
 #ifndef vtkAbstractCellLocator_h
 #define vtkAbstractCellLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkLocator.h"
+#include "vtkNew.h" // For vtkNew
 
 #include <vector> // For Weights
 
@@ -69,7 +71,7 @@ public:
    * Boolean controls whether the bounds of each cell are computed only
    * once and then saved.  Should be 10 to 20% faster if repeatedly
    * calling any of the Intersect/Find routines and the extra memory
-   * won't cause disk caching (24 extra bytes per cell are required to
+   * won't cause disk caching (48 extra bytes per cell are required to
    * save the bounds).
    */
   vtkSetMacro(CacheCellBounds, vtkTypeBool);
@@ -95,27 +97,21 @@ public:
    * If LazyEvaluation is supported, this turns on/off the feature.
    * if not supported, it is ignored.
    */
-  vtkSetMacro(LazyEvaluation, vtkTypeBool);
-  vtkGetMacro(LazyEvaluation, vtkTypeBool);
-  vtkBooleanMacro(LazyEvaluation, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Some locators support querying a new dataset without rebuilding
-   * the search structure (typically this may occur when a dataset
-   * changes due to a time update, but is actually the same topology)
-   * Turning on this flag enables some locators to skip the rebuilding
-   * phase
-   */
-  vtkSetMacro(UseExistingSearchStructure, vtkTypeBool);
-  vtkGetMacro(UseExistingSearchStructure, vtkTypeBool);
-  vtkBooleanMacro(UseExistingSearchStructure, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
+  virtual void SetLazyEvaluation(vtkTypeBool) {}
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
+  virtual vtkTypeBool GetLazyEvaluation() { return 0; }
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
+  virtual void LazyEvaluationOn() {}
+  VTK_DEPRECATED_IN_9_2_0("This method is deprecated because it can lead to thread-safety issues")
+  virtual void LazyEvaluationOff() {}
   ///@}
 
   /**
    * Return intersection point (if any) of finite line with cells contained
    * in cell locator. See vtkCell.h parameters documentation.
+   *
+   * THIS FUNCTION IS NOT THREAD SAFE.
    */
   virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId);
@@ -123,37 +119,76 @@ public:
   /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line.
+   *
+   * THIS FUNCTION IS NOT THREAD SAFE.
    */
   virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId);
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
-   * the finite line. The cell is returned as a cell id and as a generic
-   * cell.
+   * the finite line. The cell is returned as a cell id and as a generic cell.
+   *
+   * This function takes in a vtkGenericCell to avoid using the internal vtkGenericCell.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    */
   virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell);
 
   /**
    * Take the passed line segment and intersect it with the data set.
-   * This method assumes that the data set is a vtkPolyData that describes
-   * a closed surface, and the intersection points that are returned in
-   * 'points' alternate between entrance points and exit points.
    * The return value of the function is 0 if no intersections were found,
    * -1 if point 'a0' lies inside the closed surface, or +1 if point 'a0'
-   * lies outside the closed surface.
+   * lies outside the closed surface. This method assumes that the data set
+   * is a vtkPolyData that describes a closed surface, and the intersection
+   * points that are returned in 'points' alternate between entrance points and exit points.
+   *
    * Either 'points' or 'cellIds' can be set to nullptr if you don't want
-   * to receive that information. This method is currently only implemented
-   * in vtkOBBTree.
+   * to receive that information.
+   *
+   * This method is only implemented in vtkOBBTree.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    */
   virtual int IntersectWithLine(
     const double p1[3], const double p2[3], vtkPoints* points, vtkIdList* cellIds);
 
   /**
+   * Take the passed line segment and intersect it with the data set.
+   * The return value of the function is 0 if no intersections were found.
+   * For each intersection with a cell, the points and cellIds have the relevant information
+   * added sorted by t. If points or cellIds are nullptr pointers, then no information is
+   * generated for that list.
+   *
+   * THIS FUNCTION IS NOT THREAD SAFE.
+   */
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+    vtkPoints* points, vtkIdList* cellIds);
+
+  /**
+   * Take the passed line segment and intersect it with the data set.
+   * The return value of the function is 0 if no intersections were found.
+   * For each intersection with the bounds of a cell or with a cell (if a cell is provided),
+   * the points and cellIds have the relevant information added sorted by t.
+   * If points or cellIds are nullptr pointers, then no information is generated for that list.
+   *
+   * This function takes in a vtkGenericCell to avoid using the internal vtkGenericCell.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
+   */
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+    vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell);
+
+  /**
    * Return the closest point and the cell which is closest to the point x.
    * The closest point is somewhere on a cell, it need not be one of the
    * vertices of the cell.
+   *
+   * A vtkAbstractCellLocator subclass needs to implement FindClosestPointWithinRadius
+   * which is used internally to implement FindClosestPoint.
+   *
+   * THIS FUNCTION IS NOT THREAD SAFE.
    */
   virtual void FindClosestPoint(
     const double x[3], double closestPoint[3], vtkIdType& cellId, int& subId, double& dist2);
@@ -161,13 +196,14 @@ public:
   /**
    * Return the closest point and the cell which is closest to the point x.
    * The closest point is somewhere on a cell, it need not be one of the
-   * vertices of the cell.  This version takes in a vtkGenericCell
-   * to avoid allocating and deallocating the cell.  This is much faster than
-   * the version which does not take a *cell, especially when this function is
-   * called many times in a row such as by a for loop, where the allocation and
-   * deallocation can be done only once outside the for loop.  If a cell is
-   * found, "cell" contains the points and ptIds for the cell "cellId" upon
-   * exit.
+   * vertices of the cell.
+   *
+   * A vtkAbstractCellLocator subclass needs to implement FindClosestPointWithinRadius
+   * which is used internally to implement FindClosestPoint.
+   *
+   * This function takes in a vtkGenericCell to avoid using the internal vtkGenericCell.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    */
   virtual void FindClosestPoint(const double x[3], double closestPoint[3], vtkGenericCell* cell,
     vtkIdType& cellId, int& subId, double& dist2);
@@ -179,6 +215,8 @@ public:
    * a point is found within the specified radius. If there are no cells within
    * the specified radius, the method returns 0 and the values of closestPoint,
    * cellId, subId, and dist2 are undefined.
+   *
+   * THIS FUNCTION IS NOT THREAD SAFE.
    */
   virtual vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
     vtkIdType& cellId, int& subId, double& dist2);
@@ -186,16 +224,14 @@ public:
   /**
    * Return the closest point within a specified radius and the cell which is
    * closest to the point x. The closest point is somewhere on a cell, it
-   * need not be one of the vertices of the cell. This method returns 1 if a
-   * point is found within the specified radius. If there are no cells within
-   * the specified radius, the method returns 0 and the values of
-   * closestPoint, cellId, subId, and dist2 are undefined. This version takes
-   * in a vtkGenericCell to avoid allocating and deallocating the cell.  This
-   * is much faster than the version which does not take a *cell, especially
-   * when this function is called many times in a row such as by a for loop,
-   * where the allocation and deallocation can be done only once outside the
-   * for loop.  If a closest point is found, "cell" contains the points and
-   * ptIds for the cell "cellId" upon exit.
+   * need not be one of the vertices of the cell. This method returns 1 if
+   * a point is found within the specified radius. If there are no cells within
+   * the specified radius, the method returns 0 and the values of closestPoint,
+   * cellId, subId, and dist2 are undefined.
+   *
+   * This function takes in a vtkGenericCell to avoid using the internal vtkGenericCell.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    */
   virtual vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
     vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2);
@@ -206,41 +242,56 @@ public:
    * need not be one of the vertices of the cell. This method returns 1 if a
    * point is found within the specified radius. If there are no cells within
    * the specified radius, the method returns 0 and the values of
-   * closestPoint, cellId, subId, and dist2 are undefined. This version takes
-   * in a vtkGenericCell to avoid allocating and deallocating the cell.  This
-   * is much faster than the version which does not take a *cell, especially
-   * when this function is called many times in a row such as by a for loop,
-   * where the allocation and dealloction can be done only once outside the
-   * for loop.  If a closest point is found, "cell" contains the points and
-   * ptIds for the cell "cellId" upon exit.  If a closest point is found,
-   * inside returns the return value of the EvaluatePosition call to the
-   * closest cell; inside(=1) or outside(=0).
+   * closestPoint, cellId, subId, and dist2 are undefined. If a closest point
+   * is found, inside returns the return value of the EvaluatePosition call to
+   * the closest cell; inside(=1) or outside(=0).
+   *
+   * This function takes in a vtkGenericCell to avoid using the internal vtkGenericCell.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    */
   virtual vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
     vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside);
 
   /**
    * Return a list of unique cell ids inside of a given bounding box. The
-   * user must provide the vtkIdList to populate. This method returns data
-   * only after the locator has been built.
+   * user must provide the vtkIdList to populate.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    */
   virtual void FindCellsWithinBounds(double* bbox, vtkIdList* cells);
 
   /**
-   * Given a finite line defined by the two points (p1,p2), return the list
-   * of unique cell ids in the buckets containing the line. It is possible
-   * that an empty cell list is returned. The user must provide the vtkIdList
-   * to populate. This method returns data only after the locator has been
-   * built.
+   * Take the passed line segment and intersect it with the data set.
+   * For each intersection with the bounds of a cell, the cellIds
+   * have the relevant information added sort by t. If cellIds is nullptr
+   * pointer, then no information is generated for that list.
+   *
+   * A vtkAbstractCellLocator subclass needs to implement IntersectWithLine that
+   * takes cells ids, which is used internally to implement FindCellsAlongLine.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    */
   virtual void FindCellsAlongLine(
     const double p1[3], const double p2[3], double tolerance, vtkIdList* cells);
 
   /**
+   * Given an unbounded plane defined by an origin o[3] and unit normal n[3],
+   * return the list of unique cell ids in the buckets containing the
+   * plane. It is possible that an empty cell list is returned. The user must
+   * provide the vtkIdList cell list to populate. This method returns data
+   * only after the locator has been built.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
+   */
+  virtual void FindCellsAlongPlane(
+    const double o[3], const double n[3], double tolerance, vtkIdList* cells);
+
+  /**
    * Returns the Id of the cell containing the point,
    * returns -1 if no cell found. This interface uses a tolerance of zero
    *
-   * @warning: This method is not thread safe!
+   * THIS FUNCTION IS NOT THREAD SAFE.
    */
   virtual vtkIdType FindCell(double x[3]);
 
@@ -249,6 +300,8 @@ public:
    * Find the cell containing a given point. returns -1 if no cell found
    * the cell parameters are copied into the supplied variables, a cell must
    * be provided to store the information.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    */
   virtual vtkIdType FindCell(
     double x[3], double tol2, vtkGenericCell* GenCell, double pcoords[3], double* weights);
@@ -259,7 +312,7 @@ public:
   /**
    * Quickly test if a point is inside the bounds of a particular cell.
    * Some locators cache cell bounds and this function can make use
-   * of fast access to the data.
+   * of fast access to the data. This function should be used ONLY after the locator is built.
    */
   virtual bool InsideCellBounds(double x[3], vtkIdType cell_ID);
 
@@ -288,9 +341,7 @@ protected:
   int NumberOfCellsPerNode;
   vtkTypeBool RetainCellLists;
   vtkTypeBool CacheCellBounds;
-  vtkTypeBool LazyEvaluation;
-  vtkTypeBool UseExistingSearchStructure;
-  vtkGenericCell* GenericCell;
+  vtkNew<vtkGenericCell> GenericCell;
   double (*CellBounds)[6];
 
   /**
@@ -299,6 +350,12 @@ protected:
   vtkTimeStamp WeightsTime;
 
   static bool IsInBounds(const double bounds[6], const double x[3], const double tol = 0.0);
+
+  /*
+   *  This function should be used ONLY after the locator is built.
+   *  cellBoundsPtr should be assigned to a double cellBounds[6] BEFORE calling this function.
+   */
+  void GetCellBounds(vtkIdType cellId, double*& cellBoundsPtr);
 
   /**
    * This array is resized so that it can fit points from the cell hosting the most in the input

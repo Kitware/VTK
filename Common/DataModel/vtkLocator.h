@@ -125,6 +125,23 @@ public:
   vtkGetMacro(Tolerance, double);
   ///@}
 
+  ///@{
+  /**
+   * Get/Set UseExistingSearchStructure, which when enabled it allows the locator to NOT be
+   * built again. This is useful when you have a dataset that either changes because
+   * the FieldData (PointData/CellData) changed or the actual dataset object changed
+   * but it's actually the same geometry (useful when a dataset has timesteps).
+   *
+   * When this flag is on you need to use ForceBuildLocator() to rebuild the locator,
+   * if your dataset changes.
+   *
+   * Default is off.
+   */
+  vtkSetMacro(UseExistingSearchStructure, vtkTypeBool);
+  vtkGetMacro(UseExistingSearchStructure, vtkTypeBool);
+  vtkBooleanMacro(UseExistingSearchStructure, vtkTypeBool);
+  ///@}
+
   /**
    * Cause the locator to rebuild itself if it or its input dataset has
    * changed.
@@ -137,9 +154,14 @@ public:
   virtual void Initialize();
 
   /**
-   * Build the locator from the input dataset.
+   * Build the locator from the input dataset. This will NOT do anything if StaticDataSet is on.
    */
   virtual void BuildLocator() = 0;
+
+  /**
+   * Build the locator from the input dataset (even if StaticDataSet is on).
+   */
+  virtual void ForceBuildLocator() = 0;
 
   /**
    * Free the memory required for the spatial data structure.
@@ -172,7 +194,10 @@ protected:
   vtkLocator();
   ~vtkLocator() override;
 
+  virtual void BuildLocatorInternal() = 0;
+
   vtkDataSet* DataSet;
+  vtkTypeBool UseExistingSearchStructure;
   vtkTypeBool Automatic; // boolean controls automatic subdivision (or uses user spec.)
   double Tolerance;      // for performing merging
   int MaxLevel;

@@ -165,8 +165,14 @@ public:
   /**
    * Load points from a dataset to construct an octree for point location.
    * This function resorts to InitPointInsertion() to fulfill some of the work.
+   * This will NOT do anything if StaticDataSet is on.
    */
   void BuildLocator() override;
+
+  /**
+   * Build the locator from the input dataset (even if UseExistingSearchStructure is on).
+   */
+  void ForceBuildLocator() override;
 
   /**
    * Given a point x, return the id of the closest point. BuildLocator() should
@@ -346,6 +352,8 @@ private:
   vtkPoints* LocatorPoints;
   vtkIncrementalOctreeNode* OctreeRootNode;
   int NumberOfNodes;
+
+  void BuildLocatorInternal() override;
 
   /**
    * Delete all descendants of a node.

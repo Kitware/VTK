@@ -116,8 +116,15 @@ public:
    * Create the octree decomposition of the cells of the data set
    * or data sets.  Cells are assigned to octree spatial regions
    * based on the location of their centroids.
+   *
+   * This will NOT do anything if StaticDataSet is on.
    */
   void BuildLocator() override;
+
+  /**
+   * Build the locator from the input dataset (even if UseExistingSearchStructure is on).
+   */
+  void ForceBuildLocator() override;
 
   ///@{
   /**
@@ -188,6 +195,8 @@ public:
 protected:
   vtkOctreePointLocator();
   ~vtkOctreePointLocator() override;
+
+  void BuildLocatorInternal() override;
 
   vtkOctreePointLocatorNode* Top;
   vtkOctreePointLocatorNode** LeafNodeList; // indexed by region/node ID

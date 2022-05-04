@@ -501,6 +501,31 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPointInSphere(const doubl
 //------------------------------------------------------------------------------
 void vtkIncrementalOctreePointLocator::BuildLocator()
 {
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->OctreeRootNode && this->BuildTime > this->MTime &&
+    this->BuildTime > this->DataSet->GetMTime())
+  {
+    return;
+  }
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->OctreeRootNode && this->UseExistingSearchStructure)
+  {
+    this->BuildTime.Modified();
+    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
+    return;
+  }
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkIncrementalOctreePointLocator::ForceBuildLocator()
+{
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkIncrementalOctreePointLocator::BuildLocatorInternal()
+{
   // assume point location is necessary for vtkPointSet data only
   if (!this->DataSet || !this->DataSet->IsA("vtkPointSet"))
   {
@@ -515,12 +540,6 @@ void vtkIncrementalOctreePointLocator::BuildLocator()
     // due to performance consideration
     vtkErrorMacro(<< "No points to build an octree with or ");
     vtkErrorMacro(<< "failure to support 64-bit point ids");
-    return;
-  }
-
-  // construct an octree only if necessary
-  if ((this->BuildTime > this->MTime) && (this->BuildTime > this->DataSet->GetMTime()))
-  {
     return;
   }
   vtkDebugMacro(<< "Creating an incremental octree");

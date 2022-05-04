@@ -1740,21 +1740,39 @@ void vtkStaticPointLocator2D::FreeSearchStructure()
 }
 
 //------------------------------------------------------------------------------
+void vtkStaticPointLocator2D::BuildLocator()
+{
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->Buckets && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+  {
+    return;
+  }
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->Buckets && this->UseExistingSearchStructure)
+  {
+    this->BuildTime.Modified();
+    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
+    return;
+  }
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkStaticPointLocator2D::ForceBuildLocator()
+{
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
 //  Method to form subdivision of space based on the points provided and
 //  subject to the constraints of levels and NumberOfPointsPerBucket.
 //  The result is directly addressable and of uniform subdivision.
 //
-void vtkStaticPointLocator2D::BuildLocator()
+void vtkStaticPointLocator2D::BuildLocatorInternal()
 {
   int ndivs[3];
   int i;
   vtkIdType numPts;
-
-  if ((this->Buckets != nullptr) && (this->BuildTime > this->MTime) &&
-    (this->BuildTime > this->DataSet->GetMTime()))
-  {
-    return;
-  }
 
   vtkDebugMacro(<< "Hashing points...");
   this->Level = 1; // only single lowest level - from superclass

@@ -89,9 +89,7 @@ public:
    * Add a locator for one of the data sets that will be included in the
    * scene.  You must set up the locator with exactly the same data set
    * that was input to the mapper of one or more of the actors in the
-   * scene.  As well, you must either build the locator before doing the
-   * pick, or you must turn on LazyEvaluation in the locator to make it
-   * build itself on the first pick.  Note that if you try to add the
+   * scene. Note that if you try to add the
    * same locator to the picker twice, the second addition will be ignored.
    */
   void AddLocator(vtkAbstractCellLocator* locator);

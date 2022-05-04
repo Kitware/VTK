@@ -22,14 +22,11 @@
 #include "vtkCellArray.h"
 #include "vtkCommand.h"
 #include "vtkDataSet.h"
-#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOctreePointLocatorNode.h"
-#include "vtkPointSet.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
@@ -295,18 +292,37 @@ void vtkOctreePointLocator::DivideRegion(vtkOctreePointLocatorNode* node, int* o
 //------------------------------------------------------------------------------
 void vtkOctreePointLocator::BuildLocator()
 {
-  if (!this->GetDataSet())
+  // don't rebuild if build time is newer than modified and dataset modified time
+  if (this->Top && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
   {
-    vtkErrorMacro("Must set a valid data set first.");
+    return;
+  }
+  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
+  if (this->Top && this->UseExistingSearchStructure)
+  {
+    this->BuildTime.Modified();
+    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
+    return;
+  }
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkOctreePointLocator::ForceBuildLocator()
+{
+  this->BuildLocatorInternal();
+}
+
+//------------------------------------------------------------------------------
+void vtkOctreePointLocator::BuildLocatorInternal()
+{
+  if (!this->DataSet || this->DataSet->GetNumberOfPoints() == 0)
+  {
+    vtkErrorMacro("No data set");
+    return;
   }
 
   int numPoints = this->GetDataSet()->GetNumberOfPoints();
-
-  if (numPoints < 1)
-  {
-    vtkErrorMacro(<< "No points to build from.");
-    return;
-  }
 
   if (numPoints >= VTK_INT_MAX)
   {
@@ -320,11 +336,6 @@ void vtkOctreePointLocator::BuildLocator()
   }
 
   vtkDebugMacro(<< "Creating octree");
-
-  if ((this->BuildTime > this->MTime) && (this->BuildTime > this->DataSet->GetMTime()))
-  {
-    return;
-  }
   this->FreeSearchStructure();
 
   // Fix bounds - (1) push out a little if flat

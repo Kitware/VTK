@@ -37,6 +37,7 @@ set(classes
   vtkCellLinks
   vtkCellLocator
   vtkCellLocatorStrategy
+  vtkCellTreeLocator
   vtkCellTypes
   vtkClosestNPointsStrategy
   vtkClosestPointStrategy

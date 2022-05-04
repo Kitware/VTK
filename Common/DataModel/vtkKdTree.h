@@ -406,6 +406,11 @@ public:
   void BuildLocator() override;
 
   /**
+   * Build the locator from the input dataset (even if UseExistingSearchStructure is on).
+   */
+  void ForceBuildLocator() override;
+
+  /**
    * Given a list of region IDs, determine the decomposition of
    * these regions into the minimal number of convex subregions.  Due
    * to the way the k-d tree is constructed, those convex subregions
@@ -631,6 +636,8 @@ public:
 protected:
   vtkKdTree();
   ~vtkKdTree() override;
+
+  void BuildLocatorInternal() override;
 
   vtkBSPIntersections* BSPCalculator;
   int UserDefinedCuts;

@@ -240,12 +240,15 @@ public:
   void Initialize() override;
   void FreeSearchStructure() override;
   void BuildLocator() override;
+  void ForceBuildLocator() override;
   void GenerateRepresentation(int level, vtkPolyData* pd) override;
   ///@}
 
 protected:
   vtkPointLocator();
   ~vtkPointLocator() override;
+
+  void BuildLocatorInternal() override;
 
   // place points in appropriate buckets
   void GetBucketNeighbors(

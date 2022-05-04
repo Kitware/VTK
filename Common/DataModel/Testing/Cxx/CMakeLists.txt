@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   ${memkind_tests}
   LagrangeHexahedron.cxx
   BezierInterpolation.cxx
+  CellTreeLocator.cxx
   TestBezier.cxx
   TestAngularPeriodicDataArray.cxx
   TestArrayListTemplate.cxx
@@ -116,6 +117,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   )
 # add to the list but don't define a test
 list(APPEND data_tests
+  TestCellLocatorsEdgeCases.cxx
   TestPolyhedron2.cxx
   TestPolyhedronContouring.cxx
   TestPolyhedronCutter.cxx
@@ -124,6 +126,11 @@ list(APPEND data_tests
 
 vtk_add_test_cxx(vtkCommonDataModelCxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
+  )
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::CommonDataModelCxxTests-TestCellLocatorsEdgeCases
+  COMMAND vtkCommonDataModelCxxTests TestCellLocatorsEdgeCases
+  DATA{../Data/test_surface.vtp}
   )
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::CommonDataModelCxxTests-TestPolyhedron2

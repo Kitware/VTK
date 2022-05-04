@@ -94,7 +94,6 @@ struct vtkProbeLineFilter::vtkInternals
 
         vtkNew<vtkStaticCellLocator> locator;
         locator->SetDataSet(ds);
-        locator->UseDiagonalLengthToleranceOff();
         locator->SetTolerance(tolerance);
         locator->BuildLocator();
 

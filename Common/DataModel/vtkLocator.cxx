@@ -17,8 +17,10 @@
 #include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
 
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkLocator, DataSet, vtkDataSet);
 
+//------------------------------------------------------------------------------
 vtkLocator::vtkLocator()
 {
   this->DataSet = nullptr;
@@ -26,8 +28,10 @@ vtkLocator::vtkLocator()
   this->Automatic = 1;
   this->MaxLevel = 8;
   this->Level = 8;
+  this->UseExistingSearchStructure = 0;
 }
 
+//------------------------------------------------------------------------------
 vtkLocator::~vtkLocator()
 {
   // commented out because of compiler problems in g++
@@ -35,12 +39,14 @@ vtkLocator::~vtkLocator()
   this->SetDataSet(nullptr);
 }
 
+//------------------------------------------------------------------------------
 void vtkLocator::Initialize()
 {
   // free up hash table
   this->FreeSearchStructure();
 }
 
+//------------------------------------------------------------------------------
 void vtkLocator::Update()
 {
   if (!this->DataSet)
@@ -54,6 +60,7 @@ void vtkLocator::Update()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -72,6 +79,7 @@ void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Build Time: " << this->BuildTime.GetMTime() << "\n";
   os << indent << "MaxLevel: " << this->MaxLevel << "\n";
   os << indent << "Level: " << this->Level << "\n";
+  os << indent << "UseExistingSearchStructure: " << this->UseExistingSearchStructure << "\n";
 }
 
 //------------------------------------------------------------------------------
