@@ -27,6 +27,13 @@
  * vtkTableFFT performs the Fast Fourier Transform on the columns of a table.
  * It can perform the FFT per block in order to resample the input and have a
  * smaller output, and also offer a interface for windowing the input signal.
+ *
+ * The filter will look for a "Time" array (case insensitive) to determine the
+ * sampling frequency. "Time" array is considered to have the same frequency
+ * all along. If no "Time" array is found then the filter use the default frequency
+ * value.
+ *
+ * This filter will not apply the FFT on any arrays which names begin with 'vtk'.
  */
 
 #ifndef vtkTableFFT_h
@@ -35,6 +42,8 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkSmartPointer.h"         // For internal method.
 #include "vtkTableAlgorithm.h"
+
+#include <memory> // For unique_ptr
 
 class VTKFILTERSGENERAL_EXPORT vtkTableFFT : public vtkTableAlgorithm
 {
@@ -103,6 +112,17 @@ public:
 
   //@{
   /**
+   * If the "Time" column is not found then this value will be used.
+   * Expressed in Hz.
+   *
+   * Default is 10000 (Hz)
+   */
+  vtkGetMacro(DefaultSampleRate, double);
+  vtkSetMacro(DefaultSampleRate, double);
+  //@}
+
+  //@{
+  /**
    * Only used if @c AverageFft is true
    *
    * Specify the number of blocks to use when computing the average fft over
@@ -112,7 +132,7 @@ public:
    * This parameter is ignored if @c BlockSize is superior
    * to the number of samples of the input array.
    *
-   * Default is 2.
+   * Default is 2
    */
   vtkGetMacro(NumberOfBlock, int);
   vtkSetMacro(NumberOfBlock, int);
@@ -137,7 +157,7 @@ public:
    * If @c AverageFft is true the windowing function will be
    * applied per block and not on the whole input
    *
-   * Default is RECTANGULAR (does nothing).
+   * Default is RECTANGULAR (does nothing)
    */
   vtkGetMacro(WindowingFunction, int);
   virtual void SetWindowingFunction(int);
@@ -173,9 +193,10 @@ private:
   int NumberOfBlock = 2;
   vtkIdType BlockSize = 1024;
   int WindowingFunction = RECTANGULAR;
+  double DefaultSampleRate = 1e4;
 
   struct vtkInternal;
-  vtkInternal* Internals;
+  std::unique_ptr<vtkInternal> Internals;
 };
 
 #endif // vtkTableFFT_h

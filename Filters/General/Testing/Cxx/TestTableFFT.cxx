@@ -57,6 +57,8 @@ constexpr std::array<double, Length* 2> e_col2 = { { Length, 0.0, 0.0, 0.0, 0.0,
   0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
 constexpr std::array<double, Length> e_freq = { { 0.0, 0.125, 0.25, 0.375, -0.5, -0.375, -0.25,
   -0.125 } };
+constexpr std::array<double, Length> e_freq2 = { { 0.0, 1.25, 2.5, 3.75, -5.0, -3.75, -2.5,
+  -1.25 } };
 
 // ----------------------------------------------------------------------------
 void InitializeTableInput(vtkTable* table)
@@ -105,9 +107,39 @@ void InitializeTableReference(vtkTable* table)
   columnFreq->SetArray(const_cast<double*>(e_freq.data()), Length, /*save*/ 1);
   columnFreq->SetName("Frequency");
 
+  vtkNew<vtkDoubleArray> columnFreq2;
+  columnFreq2->SetNumberOfTuples(Length);
+  columnFreq2->SetNumberOfComponents(1);
+  columnFreq2->SetArray(const_cast<double*>(e_freq2.data()), Length, /*save*/ 1);
+  columnFreq2->SetName("Frequency2");
+
   table->AddColumn(column1);
   table->AddColumn(column2);
   table->AddColumn(columnFreq);
+  table->AddColumn(columnFreq2);
+}
+
+// ----------------------------------------------------------------------------
+bool FuzzyCompare(vtkDoubleArray* inArray, vtkDoubleArray* expected, double epsilon)
+{
+  bool status = true;
+
+  for (vtkIdType i = 0; i < inArray->GetNumberOfValues(); ++i)
+  {
+    if (!vtkMathUtilities::NearlyEqual(inArray->GetValue(i), expected->GetValue(i), epsilon))
+    {
+      status = false;
+
+      std::cerr << "[TestTableFFT] FAILURE for column <" << inArray->GetName() << ">" << std::endl;
+      std::cerr << "Expected : ";
+      PrintArray(expected);
+      std::cerr << "But got  : ";
+      PrintArray(inArray);
+      break;
+    }
+  }
+
+  return status;
 }
 
 // ----------------------------------------------------------------------------
@@ -120,29 +152,12 @@ bool FuzzyCompare(vtkTable* in, vtkTable* expected, double epsilon)
     vtkDoubleArray* inArray = vtkDoubleArray::SafeDownCast(in->GetColumn(col));
     vtkDoubleArray* expArray = vtkDoubleArray::SafeDownCast(expected->GetColumn(col));
 
-    for (vtkIdType i = 0; i < inArray->GetNumberOfValues(); ++i)
-    {
-      if (!vtkMathUtilities::NearlyEqual(inArray->GetValue(i), expArray->GetValue(i), epsilon))
-      {
-        status = false;
-
-        std::cerr << "[TestTableFFT] FAILURE for column <" << inArray->GetName() << ">"
-                  << std::endl;
-        std::cerr << "Expected : ";
-        PrintArray(expArray);
-        std::cerr << "But got  : ";
-        PrintArray(inArray);
-        break;
-      }
-    }
+    status = status && FuzzyCompare(inArray, expArray, epsilon);
   }
 
-  if (status)
-  {
-    std::cerr << "[TestTableFFT] We're all clear" << std::endl;
-  }
   return status;
 }
+
 }
 
 // ----------------------------------------------------------------------------
@@ -159,18 +174,26 @@ int TestTableFFT(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   fftFilter->Update();
   status += static_cast<int>(!details::FuzzyCompare(fftFilter->GetOutput(), empty, 1.0e-6));
 
-  // Initialize data
+  // Test actual data
   vtkNew<vtkTable> input;
   details::InitializeTableInput(input);
   vtkNew<vtkTable> reference;
   details::InitializeTableReference(reference);
 
-  // Test actual data
   fftFilter->SetInputData(input);
   fftFilter->CreateFrequencyColumnOn();
   fftFilter->SetWindowingFunction(vtkTableFFT::RECTANGULAR);
   fftFilter->Update();
   status += static_cast<int>(!details::FuzzyCompare(fftFilter->GetOutput(), reference, 1.0e-6));
+
+  // Test with a different sampling rate
+  input->RemoveColumnByName("Time");
+  fftFilter->SetInputData(input);
+  fftFilter->SetDefaultSampleRate(10);
+  fftFilter->Update();
+  auto* result = vtkDoubleArray::SafeDownCast(fftFilter->GetOutput()->GetColumnByName("Frequency"));
+  auto* expected = vtkDoubleArray::SafeDownCast(reference->GetColumnByName("Frequency2"));
+  status += static_cast<int>(!details::FuzzyCompare(result, expected, 1.0e-6));
 
   return status;
 }
