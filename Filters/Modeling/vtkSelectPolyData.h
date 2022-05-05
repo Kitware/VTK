@@ -52,7 +52,7 @@
  * B) Dijkstra shortest path. This method guarantees to find the shortest
  * path between the loop points.
  *
- * By default the greedu edge tracking method is used to preserve
+ * By default the greedy edge tracking method is used to preserve
  * backward compatibility, but generally the Dijkstra shortest path
  * method is recommended due to its robustness.
  *
