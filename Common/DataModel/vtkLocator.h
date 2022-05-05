@@ -154,14 +154,17 @@ public:
   virtual void Initialize();
 
   /**
-   * Build the locator from the input dataset. This will NOT do anything if StaticDataSet is on.
+   * Build the locator from the input dataset. This will NOT do anything if
+   * UseExistingSearchStructure is on.
    */
   virtual void BuildLocator() = 0;
 
   /**
-   * Build the locator from the input dataset (even if StaticDataSet is on).
+   * Build the locator from the input dataset (even if UseExistingSearchStructure is on).
+   *
+   * This function is not pure virtual to maintain backwards compatibility.
    */
-  virtual void ForceBuildLocator() = 0;
+  virtual void ForceBuildLocator() {}
 
   /**
    * Free the memory required for the spatial data structure.
@@ -194,7 +197,10 @@ protected:
   vtkLocator();
   ~vtkLocator() override;
 
-  virtual void BuildLocatorInternal() = 0;
+  /**
+   * This function is not pure virtual to maintain backwards compatibility.
+   */
+  virtual void BuildLocatorInternal(){};
 
   vtkDataSet* DataSet;
   vtkTypeBool UseExistingSearchStructure;

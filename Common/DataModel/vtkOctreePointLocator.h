@@ -117,7 +117,7 @@ public:
    * or data sets.  Cells are assigned to octree spatial regions
    * based on the location of their centroids.
    *
-   * This will NOT do anything if StaticDataSet is on.
+   * This will NOT do anything if UseExistingSearchStructure is on.
    */
   void BuildLocator() override;
 
