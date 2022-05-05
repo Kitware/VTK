@@ -165,7 +165,7 @@ public:
   /**
    * Load points from a dataset to construct an octree for point location.
    * This function resorts to InitPointInsertion() to fulfill some of the work.
-   * This will NOT do anything if StaticDataSet is on.
+   * This will NOT do anything if UseExistingSearchStructure is on.
    */
   void BuildLocator() override;
 
