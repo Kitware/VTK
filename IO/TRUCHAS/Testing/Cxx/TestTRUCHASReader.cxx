@@ -202,7 +202,7 @@ int TestTRUCHASReader(int argc, char* argv[])
     double tNext = tAlpha - 0.1 + i * (tOmega - tAlpha) * 2.5 / divs;
     reader->UpdateTimeStep(tNext);
     grid = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput()->GetBlock(1));
-    da = vtkDoubleArray::SafeDownCast(grid->GetCellData()->GetArray("dTdt"));
+    da = vtkDoubleArray::SafeDownCast(grid->GetCellData()->GetArray("dT/dt"));
     double* mM = da->GetRange();
     cerr << "ts " << i << ":" << tNext << " got " << mM[0] << "," << mM[1] << endl;
     if (!AE(mM[0], expectedRanges[i][0]) || !AE(mM[1], expectedRanges[i][1]))
