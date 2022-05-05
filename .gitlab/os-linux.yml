@@ -395,13 +395,7 @@
         - auditwheel repair dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
         - mv -v dist/ dist-orig/
         - mv -v wheelhouse/ dist/
-        - pushd .
-        - cd dist
-        - 'sdk_name="$( ls *.whl  | sed -e "s/\.whl/-sdk/" )"'
-        - popd
-        - mv install $sdk_name
-        - tar czf $sdk_name.tar.xz $sdk_name
-        - mv $sdk_name install
+        - "$PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/wheel_sdk.py"
 
     interruptible: true
 
