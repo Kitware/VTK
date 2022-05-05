@@ -54,6 +54,8 @@
 #include <set>
 
 class vtkCellArray;
+class vtkDataSet;
+
 namespace vtkIOSSUtilities
 {
 
@@ -216,6 +218,15 @@ vtkSmartPointer<vtkDataArray> GetData(const Ioss::GroupingEntity* entity,
 int GetCellType(const Ioss::ElementTopology* topology);
 
 /**
+ * Returns an Ioss topology element, if possible, given a VTK cell type.
+ *
+ * This is inverse of GetCellType.
+ *
+ * Throws `std::runtime_error` for unknown and unsupported element types.
+ */
+const Ioss::ElementTopology* GetElementTopology(int vtk_cell_type);
+
+/**
  * Read connectivity information from the group_entity.
  *
  * Returns the `vtkCellArray` and the element type for all elements in this
@@ -244,10 +255,13 @@ vtkSmartPointer<vtkPoints> GetMeshModelCoordinates(
  */
 bool IsFieldTransient(Ioss::GroupingEntity* entity, const std::string& fieldname);
 
+///@{
 /**
  * Finds a displacement field name. Returns empty string if none can be found.
  */
 std::string GetDisplacementFieldName(Ioss::GroupingEntity* nodeblock);
+std::string GetDisplacementFieldName(vtkDataSet* dataset);
+///@}
 
 /**
  * Must be called before using any Ioss library functions. Necessary to

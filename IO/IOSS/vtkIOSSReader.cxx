@@ -2494,9 +2494,11 @@ bool vtkIOSSReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
       case Ioss::EntityType::EDGEBLOCK:
       case Ioss::EntityType::FACEBLOCK:
       case Ioss::EntityType::ELEMENTBLOCK:
-      case Ioss::EntityType::NODESET:
         fieldnames.emplace_back("ids");
         globalIdsFieldName = "ids";
+        break;
+
+      case Ioss::EntityType::NODESET:
         break;
 
       case Ioss::EntityType::STRUCTUREDBLOCK:
