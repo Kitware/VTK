@@ -108,7 +108,7 @@
             - wheel_output.log
 
             - build/dist/*.whl
-            - build/*-sdk.tar.xz
+            - build/vtk-wheel-sdk-*.tar.xz
 
 .cmake_release_artifacts:
     artifacts:
