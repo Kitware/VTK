@@ -2145,9 +2145,6 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLGPUVolumeRayCastMapper>(
     this, &vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources);
-
-  //  this->VolumeTexture = vtkVolumeTexture::New();
-  //  this->VolumeTexture->SetMapper(this);
 }
 
 //------------------------------------------------------------------------------
@@ -2428,6 +2425,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
   vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeGradient::Dec",
     vtkvolume::ComputeGradientDeclaration(this, this->AssembledInputs));
 
+  if (this->ComputeNormalFromOpacity)
+  {
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeDensityGradient::Dec",
+      vtkvolume::ComputeDensityGradientDeclaration(this, this->AssembledInputs, numComps,
+        independentComponents, this->Impl->Transfer2DUseGradient));
+  }
+
   if (this->Impl->MultiVolume)
   {
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::GradientCache::Dec",
@@ -2476,6 +2480,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
         vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeOpacity::Dec",
           vtkvolume::ComputeOpacity2DDeclaration(ren, this, vol, numComps, independentComponents,
             this->AssembledInputs[0].TransferFunctions2DMap, this->Impl->Transfer2DUseGradient));
+
+        vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeOpacity2DWithGradient::Dec",
+          vtkvolume::ComputeOpacity2DWithGradientDeclaration(ren, this, vol, numComps,
+            independentComponents, this->AssembledInputs[0].TransferFunctions2DMap,
+            this->Impl->Transfer2DUseGradient));
 
         vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeColor::Dec",
           vtkvolume::ComputeColor2DDeclaration(ren, this, vol, numComps, independentComponents,

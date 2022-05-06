@@ -18,6 +18,7 @@ set (VolumeCxxTests
   TestGPURayCastCompositeMask.cxx
   TestGPURayCastCompositeMaskBlend.cxx
   TestGPURayCastCompositeToMIP.cxx
+  TestGPURayCastComputeNormalFromOpacity.cxx
   TestGPURayCastCropping.cxx
   TestGPURayCastCropping1.cxx
   TestGPURayCastDataTypesMIP.cxx
