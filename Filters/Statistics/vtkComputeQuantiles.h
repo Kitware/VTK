@@ -41,6 +41,7 @@
 class vtkDataSet;
 class vtkDoubleArray;
 class vtkFieldData;
+class vtkOrderStatistics;
 class vtkTable;
 
 class VTKFILTERSSTATISTICS_EXPORT vtkComputeQuantiles : public vtkTableAlgorithm
@@ -69,6 +70,8 @@ protected:
     vtkInformationVector* outputVector) override;
 
   void ComputeTable(vtkDataObject*, vtkTable*, vtkIdType);
+
+  virtual vtkOrderStatistics* CreateOrderStatisticsFilter();
 
   int FieldAssociation = -1;
   int NumberOfIntervals = 4;
