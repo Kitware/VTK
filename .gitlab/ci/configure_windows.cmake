@@ -23,6 +23,7 @@ set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "") # openxr
 set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "") # ospray
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # adios
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # boost
+set(VTK_ENABLE_CATALYST OFF CACHE BOOL "") # catalyst
 
 # Windows-only features
 set(VTK_USE_MICROSOFT_MEDIA_FOUNDATION ON CACHE BOOL "")

@@ -59,5 +59,6 @@ set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "") # OpenXR
 set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "") # OSPRay
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # ADIOS2
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # Boost
+set(VTK_ENABLE_CATALYST OFF CACHE BOOL "") # catalyst
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_common.cmake")

@@ -1,0 +1,15 @@
+NAME
+  VTK::IOCatalystConduit
+LIBRARY_NAME
+  vtkIOCatalystConduit
+DESCRIPTION
+  Catalyst implementation for VTK, including Conduit to/from VTK conversion.
+KIT
+  VTK::IO
+DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+TEST_DEPENDS
+  VTK::TestingCore

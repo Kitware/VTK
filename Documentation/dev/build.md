@@ -213,6 +213,8 @@ Less common, but variables which may be of interest to some:
     will be implemented by default. Must be either `Sequential`, `STDThread`,
     `OpenMP` or `TBB`. The backend can be changed at runtime if the desired
     backend has his option `VTK_SMP_ENABLE_<backend_name>` set to `ON`.
+  * `VTK_ENABLE_CATALYST` (default `OFF`): Enable the CatlystConduit module
+  and build the VTK Catalyst implementation. Depends on an external Catalyst.
 
 More advanced options:
 
