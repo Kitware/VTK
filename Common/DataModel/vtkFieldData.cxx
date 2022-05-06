@@ -52,6 +52,14 @@ bool GetRangeImpl(vtkFieldData* self, int index, double range[2], int comp,
     CachedGhostRangeType& cache = ranges[index][comp == -1 ? 0 : 1];
     vtkMTimeType& arrayTime = std::get<0>(cache);
     vtkMTimeType& ghostTime = std::get<1>(cache);
+
+    // It is possible that the number of components get changed at some point.
+    // If it happens, just update the cache size. The range will be recomputed no matter
+    // what thanks to the time stamp
+    if (comp != -1)
+    {
+      std::get<2>(cache).resize(array->GetNumberOfComponents() * 2);
+    }
     double* cachedRange = std::get<2>(cache).data();
 
     vtkUnsignedCharArray* ghosts = self->GetGhostArray();
