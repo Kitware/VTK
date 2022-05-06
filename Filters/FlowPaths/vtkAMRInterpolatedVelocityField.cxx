@@ -96,7 +96,7 @@ int vtkAMRInterpolatedVelocityField::SelfInitialize()
         : vectors =
             dataset->GetAttributesAsFieldData(this->VectorsType)->GetArray(this->VectorsSelection));
 
-    this->AddToFunctionCache(dataset, nullptr, vectors);
+    this->AddToDataSetsInfo(dataset, nullptr, vectors);
   }
 
   // Indicate that the subclass has taken over initialization.

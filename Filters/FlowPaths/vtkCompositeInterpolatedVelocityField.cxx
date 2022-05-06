@@ -186,7 +186,7 @@ int vtkCompositeInterpolatedVelocityField::InsideTest(double* x)
   }
 
   // Use the superclass's method first as it is faster.
-  auto strategy = this->FunctionCacheMap.find(ds)->second.Strategy;
+  auto strategy = this->GetDataSetInfo(ds)->Strategy;
   int retVal = this->FindAndUpdateCell(ds, strategy, x);
 
   if (!retVal)
@@ -206,7 +206,7 @@ int vtkCompositeInterpolatedVelocityField::InsideTest(double* x)
         retVal = vtkMath::PointIsWithinBounds(x, bounds.data(), delta);
         if (retVal)
         {
-          strategy = this->FunctionCacheMap.find(ds)->second.Strategy;
+          strategy = this->GetDataSetInfo(ds)->Strategy;
           retVal = this->FindAndUpdateCell(ds, strategy, x);
           if (retVal)
           {
@@ -236,10 +236,9 @@ int vtkCompositeInterpolatedVelocityField::SnapPointOnCell(double* pOrigin, doub
   {
     return 0;
   }
-  auto datasetFunctionCacheIter = this->FunctionCacheMap.find(this->LastDataSet);
+  auto datasetInfo = this->GetDataSetInfo(this->LastDataSet);
   // Find the closest cell
-  if (!this->FindAndUpdateCell(
-        this->LastDataSet, datasetFunctionCacheIter->second.Strategy, pOrigin))
+  if (!this->FindAndUpdateCell(this->LastDataSet, datasetInfo->Strategy, pOrigin))
   {
     return 0;
   }

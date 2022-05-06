@@ -82,7 +82,6 @@
 #include "vtkNew.h"          // for vtkNew
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 
-#include <map>    // for cache
 #include <vector> // for weights
 
 class vtkCellLocatorStrategy;
@@ -302,13 +301,15 @@ protected:
   // associated with each dataset forming the velocity field. Note that the
   // find cells strategy can be null, this means the find cell is invoked
   // using the dataset's FindCell() method.
-  struct vtkFunctionCache
+  struct vtkDataSetInformation
   {
+    vtkDataSet* DataSet;
     vtkFindCellStrategy* Strategy;
     vtkDataArray* Vectors;
 
-    vtkFunctionCache(vtkFindCellStrategy* strategy, vtkDataArray* vectors)
-      : Strategy(strategy)
+    vtkDataSetInformation(vtkDataSet* dataSet, vtkFindCellStrategy* strategy, vtkDataArray* vectors)
+      : DataSet(dataSet)
+      , Strategy(strategy)
       , Vectors(vectors)
     {
     }
@@ -319,7 +320,8 @@ protected:
    * cached information) associated with each dataset.
    */
   vtkFindCellStrategy* FindCellStrategy;
-  std::map<vtkDataSet*, vtkFunctionCache> FunctionCacheMap;
+  std::vector<vtkDataSetInformation> DataSetsInfo;
+  std::vector<vtkDataSetInformation>::iterator GetDataSetInfo(vtkDataSet* dataset);
   ///@}
 
   ///@{
@@ -374,8 +376,8 @@ protected:
    * a dataset, find cell strtegy, and associated vectors to FunctionHashMap.
    */
   virtual int SelfInitialize() { return 0; }
-  void AddToFunctionCache(vtkDataSet*, vtkFindCellStrategy*, vtkDataArray* vectors);
-  size_t GetFunctionCacheSize();
+  void AddToDataSetsInfo(vtkDataSet*, vtkFindCellStrategy*, vtkDataArray* vectors);
+  size_t GetDataSetsInfoSize();
   ///@}
 
 private:

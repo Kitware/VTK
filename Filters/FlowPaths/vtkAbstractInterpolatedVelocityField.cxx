@@ -28,8 +28,6 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <utility> //make_pair
-
 //------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkAbstractInterpolatedVelocityField, FindCellStrategy, vtkFindCellStrategy);
 
@@ -79,16 +77,14 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
   // Need to free strategies and other information associated with each
   // dataset. There is a special case where the strategy cannot be deleted
   // because is has been specified by the user.
-  vtkFindCellStrategy* strategy;
-  for (auto& functionCache : this->FunctionCacheMap)
+  for (auto& datasetInfo : this->DataSetsInfo)
   {
-    strategy = functionCache.second.Strategy;
-    if (strategy != nullptr)
+    if (datasetInfo.Strategy != nullptr)
     {
-      strategy->Delete();
+      datasetInfo.Strategy->Delete();
     }
   }
-  this->FunctionCacheMap.clear();
+  this->DataSetsInfo.clear();
 
   this->SetFindCellStrategy(nullptr);
 }
@@ -96,8 +92,8 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
 //------------------------------------------------------------------------------
 void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compDS, int initStrategy)
 {
-  // Clear the function cache, subclasses may want to put stuff into it.
-  this->FunctionCacheMap.clear();
+  // Clear the datasets info, subclasses may want to put stuff into it.
+  this->DataSetsInfo.clear();
 
   // See whether the subclass should take over the initialization process.
   if (this->SelfInitialize())
@@ -144,38 +140,34 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
     {
       strategyClone = strategy->NewInstance();
     }
-    this->AddToFunctionCache(dataset, strategyClone, vectors);
+    this->AddToDataSetsInfo(dataset, strategyClone, vectors);
   } // for all datasets of composite dataset
 
   // Now initialize the new strategies
-  for (auto& functionCache : this->FunctionCacheMap)
+  for (auto& datasetInfo : this->DataSetsInfo)
   {
-    auto& dataset = functionCache.first;
-    auto& strategyLocal = functionCache.second.Strategy;
-    if (auto pointSet = vtkPointSet::SafeDownCast(dataset))
+    if (auto pointSet = vtkPointSet::SafeDownCast(datasetInfo.DataSet))
     {
-      strategyLocal->CopyParameters(strategy);
-      strategyLocal->Initialize(pointSet);
+      datasetInfo.Strategy->CopyParameters(strategy);
+      datasetInfo.Strategy->Initialize(pointSet);
     }
   }
 
   // Now perform initialization on certain data sets
-  for (auto& functionCache : this->FunctionCacheMap)
+  for (auto& datasetInfo : this->DataSetsInfo)
   {
-    auto& dataset = functionCache.first;
-    dataset->ComputeBounds();
-    if (auto polyData = vtkPolyData::SafeDownCast(dataset))
+    datasetInfo.DataSet->ComputeBounds();
+    if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
     {
       polyData->BuildCells();
     }
-    if (functionCache.second.Strategy != nullptr &&
-      vtkClosestPointStrategy::SafeDownCast(functionCache.second.Strategy) != nullptr)
+    if (vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
     {
-      if (auto ugrid = vtkUnstructuredGrid::SafeDownCast(dataset))
+      if (auto ugrid = vtkUnstructuredGrid::SafeDownCast(datasetInfo.DataSet))
       {
         ugrid->BuildLinks();
       }
-      else if (auto polyData = vtkPolyData::SafeDownCast(dataset))
+      else if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
       {
         polyData->BuildLinks();
       }
@@ -205,10 +197,10 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset, do
 
   // Retrieve cached function array
   vtkDataArray* vectors = nullptr;
-  auto datasetFunctionCacheIter = this->FunctionCacheMap.find(dataset);
-  if (datasetFunctionCacheIter != this->FunctionCacheMap.end())
+  auto datasetInfoIter = this->GetDataSetInfo(dataset);
+  if (datasetInfoIter != this->DataSetsInfo.end())
   {
-    vectors = datasetFunctionCacheIter->second.Vectors;
+    vectors = datasetInfoIter->Vectors;
   }
 
   if (!vectors)
@@ -220,7 +212,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset, do
   // Compute function values for the dataset
   f[0] = f[1] = f[2] = 0.0;
 
-  if (!this->FindAndUpdateCell(dataset, datasetFunctionCacheIter->second.Strategy, x))
+  if (!this->FindAndUpdateCell(dataset, datasetInfoIter->Strategy, x))
   {
     vectors = nullptr;
     return 0;
@@ -490,36 +482,42 @@ void vtkAbstractInterpolatedVelocityField::CopyParameters(
   this->VectorsType = from->VectorsType;
   this->SetVectorsSelection(from->VectorsSelection);
 
-  // Copy the function cache, including possibly strategies, from the
+  // Copy the datasets' info, including possibly strategies, from the
   // prototype. In a threaded situation, there must be separate strategies
   // for each interpolated velocity field.
   this->InitializationState = from->InitializationState;
-  this->FunctionCacheMap.clear();
-  for (const auto& cacheMap : from->FunctionCacheMap)
+  this->DataSetsInfo.clear();
+  for (const auto& datasetInfo : from->DataSetsInfo)
   {
     vtkFindCellStrategy* strategy = nullptr;
-    if (cacheMap.second.Strategy != nullptr)
+    if (datasetInfo.Strategy != nullptr)
     {
-      strategy = cacheMap.second.Strategy->NewInstance();
-      strategy->CopyParameters(cacheMap.second.Strategy);
-      strategy->Initialize(vtkPointSet::SafeDownCast(cacheMap.first));
+      strategy = datasetInfo.Strategy->NewInstance();
+      strategy->CopyParameters(datasetInfo.Strategy);
+      strategy->Initialize(vtkPointSet::SafeDownCast(datasetInfo.DataSet));
     }
-    vtkDataArray* vectors = cacheMap.second.Vectors;
-    this->AddToFunctionCache(cacheMap.first, strategy, vectors);
+    this->AddToDataSetsInfo(datasetInfo.DataSet, strategy, datasetInfo.Vectors);
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkAbstractInterpolatedVelocityField::AddToFunctionCache(
+void vtkAbstractInterpolatedVelocityField::AddToDataSetsInfo(
   vtkDataSet* ds, vtkFindCellStrategy* s, vtkDataArray* vectors)
 {
-  this->FunctionCacheMap.insert(std::make_pair(ds, vtkFunctionCache(s, vectors)));
+  this->DataSetsInfo.emplace_back(ds, s, vectors);
+}
+
+std::vector<vtkAbstractInterpolatedVelocityField::vtkDataSetInformation>::iterator
+vtkAbstractInterpolatedVelocityField::GetDataSetInfo(vtkDataSet* dataset)
+{
+  return std::find_if(this->DataSetsInfo.begin(), this->DataSetsInfo.end(),
+    [dataset](const vtkDataSetInformation& datasetInfo) { return datasetInfo.DataSet == dataset; });
 }
 
 //------------------------------------------------------------------------------
-size_t vtkAbstractInterpolatedVelocityField::GetFunctionCacheSize()
+size_t vtkAbstractInterpolatedVelocityField::GetDataSetsInfoSize()
 {
-  return this->FunctionCacheMap.size();
+  return this->DataSetsInfo.size();
 }
 
 //------------------------------------------------------------------------------

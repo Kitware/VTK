@@ -64,9 +64,10 @@ public:
    * Add a dataset for implicit velocity function evaluation. If more than
    * one dataset is added, the evaluation point is searched in all until a
    * match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF
-   * dataset FOR THREAD SAFETY REASONS.
+   * dataset FOR THREAD SAFETY REASONS. MaxCellSize can be passed to avoid
+   * recomputing GetMaxCellSize().
    */
-  virtual void AddDataSet(vtkDataSet* dataset);
+  virtual void AddDataSet(vtkDataSet* dataset, size_t maxCellSize = 0);
 
   using Superclass::FunctionValues;
   /**
