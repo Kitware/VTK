@@ -109,20 +109,29 @@ template <typename FunctorInternal>
 void vtkSMPToolsImpl<BackendType::TBB>::For(
   vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
 {
-  if (this->IsParallel && !this->NestedActivated)
+  if (!this->NestedActivated && this->IsParallel)
   {
     fi.Execute(first, last);
   }
   else
   {
-    // this->IsParallel may have threads conficts but it will be always between true and true,
-    // it is set to false only in sequential code.
     // /!\ This behaviour should be changed if we want more control on nested
     // (e.g only the 2 first nested For are in parallel)
-    bool fromParallelCode = this->IsParallel;
-    this->IsParallel = true;
+    bool fromParallelCode = this->IsParallel.exchange(true);
+
     vtkSMPToolsImplForTBB(first, last, grain, ExecuteFunctorTBB<FunctorInternal>, &fi);
-    this->IsParallel &= fromParallelCode;
+
+    // Atomic contortion to achieve this->IsParallel &= fromParallelCode.
+    // This compare&exchange basically boils down to:
+    // if (IsParallel == trueFlag)
+    //   IsParallel = fromParallelCode;
+    // else
+    //   trueFlag = IsParallel;
+    // Which either leaves IsParallel as false or sets it to fromParallelCode (i.e. &=).
+    // Note that the return value of compare_exchange_weak() is not needed,
+    // and that no looping is necessary.
+    bool trueFlag = true;
+    this->IsParallel.compare_exchange_weak(trueFlag, fromParallelCode);
   }
 }
 
