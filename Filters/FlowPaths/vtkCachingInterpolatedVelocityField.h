@@ -44,6 +44,7 @@
 #ifndef vtkCachingInterpolatedVelocityField_h
 #define vtkCachingInterpolatedVelocityField_h
 
+#include "vtkDeprecation.h"            // for VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkFunctionSet.h"
 #include "vtkSmartPointer.h" // this is allowed
@@ -64,7 +65,10 @@ class IVFCacheList : public std::vector<IVFDataSetInfo>
 };
 //---------------------------------------------------------------------------
 
-class VTKFILTERSFLOWPATHS_EXPORT vtkCachingInterpolatedVelocityField : public vtkFunctionSet
+class VTK_DEPRECATED_IN_9_2_0(
+  "Use vtkCompositeInterpolatedVelocityField instead of vtkCachingInterpolatedVelocityField "
+  "and set the desired strategy.") VTKFILTERSFLOWPATHS_EXPORT vtkCachingInterpolatedVelocityField
+  : public vtkFunctionSet
 {
 public:
   vtkTypeMacro(vtkCachingInterpolatedVelocityField, vtkFunctionSet);
@@ -214,3 +218,5 @@ public:
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkCachingInterpolatedVelocityField.h

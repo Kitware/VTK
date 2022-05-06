@@ -361,7 +361,10 @@ protected:
    * vtkTemporalInterpolatedVelocityField
    */
   void FastCompute(vtkDataArray* vectors, double f[3]);
+  void FastCompute(vtkAbstractInterpolatedVelocityField* inIVF, vtkDataArray* vectors, double f[3]);
   bool InterpolatePoint(vtkPointData* outPD, vtkIdType outIndex);
+  bool InterpolatePoint(
+    vtkAbstractInterpolatedVelocityField* inIVF, vtkPointData* outPD, vtkIdType outIndex);
   vtkGenericCell* GetLastCell()
   {
     return (this->LastCellId != -1) ? this->CurrentCell.Get() : nullptr;

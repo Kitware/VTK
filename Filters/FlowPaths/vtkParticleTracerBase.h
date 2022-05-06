@@ -28,14 +28,14 @@
 #ifndef vtkParticleTracerBase_h
 #define vtkParticleTracerBase_h
 
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h" // For protected ivars.
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include <list>   // STL Header
 #include <vector> // STL Header
 
-class vtkAbstractInterpolatedVelocityField;
 class vtkAbstractParticleWriter;
 class vtkCellArray;
 class vtkCompositeDataSet;
@@ -84,7 +84,7 @@ struct ParticleInformation_t
   float angularVel;
   float time;
   float speed;
-  // once the partice is added, PointId is valid and is the tuple location
+  // once the particle is added, PointId is valid and is the tuple location
   // in ProtoPD.
   vtkIdType PointId;
   // if PointId is negative then in parallel this particle was just
@@ -206,6 +206,34 @@ public:
   vtkGetMacro(StaticSeeds, vtkTypeBool);
   ///@}
 
+  /**
+   * Types of Variance of Mesh over time
+   */
+  enum MeshOverTimeTypes
+  {
+    DIFFERENT = 0,
+    STATIC = 1,
+    LINEAR_TRANSFORMATION = 2,
+    SAME_TOPOLOGY = 3
+  };
+
+  ///@{
+  /*
+   * Set/Get the type of variance of the mesh over time.
+   *
+   * DIFFERENT = 0,
+   * STATIC = 1,
+   * LINEAR_TRANSFORMATION = 2
+   * SAME_TOPOLOGY = 3
+   */
+  vtkSetClampMacro(MeshOverTime, int, DIFFERENT, LINEAR_TRANSFORMATION);
+  void SetMeshOverTimeToDifferent() { this->SetMeshOverTime(DIFFERENT); }
+  void SetMeshOverTimeToStatic() { this->SetMeshOverTime(STATIC); }
+  void SetMeshOverTimeToLinearTransformation() { this->SetMeshOverTime(LINEAR_TRANSFORMATION); }
+  void SetMeshOverTimeToSameTopology() { this->SetMeshOverTime(SAME_TOPOLOGY); }
+  vtkGetMacro(MeshOverTime, int);
+  ///@}
+
   ///@{
   /**
    * if StaticMesh is set, many optimizations for cell caching
@@ -216,9 +244,50 @@ public:
    * as this will invalidate all results.
    * The default is that StaticMesh is 0.
    */
-  vtkSetMacro(StaticMesh, vtkTypeBool);
-  vtkGetMacro(StaticMesh, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_2_0("Use SetMeshOverTime instead")
+  virtual void SetStaticMesh(vtkTypeBool staticMesh)
+  {
+    this->SetMeshOverTime(staticMesh ? STATIC : DIFFERENT);
+  }
+  VTK_DEPRECATED_IN_9_2_0("Use GetMeshOverTime instead")
+  virtual vtkTypeBool GetStaticMesh() { return this->MeshOverTime == STATIC; }
   ///@}
+
+  enum
+  {
+    INTERPOLATOR_WITH_DATASET_POINT_LOCATOR,
+    INTERPOLATOR_WITH_CELL_LOCATOR
+  };
+
+  /**
+   * Set the type of the velocity field interpolator to determine whether
+   * INTERPOLATOR_WITH_DATASET_POINT_LOCATOR or INTERPOLATOR_WITH_CELL_LOCATOR
+   * is employed for locating cells during streamline integration. The latter
+   * (adopting vtkAbstractCellLocator sub-classes such as vtkCellLocator and
+   * vtkModifiedBSPTree) is more robust than the former (through vtkDataSet /
+   * vtkPointSet::FindCell() coupled with vtkPointLocator). However the former
+   * can be much faster and produce adequate results.
+   *
+   * Default is INTERPOLATOR_WITH_CELL_LOCATOR (to maintain backwards compatibility).
+   */
+  void SetInterpolatorType(int interpolatorType);
+
+  /**
+   * Set the velocity field interpolator type to one that uses a point
+   * locator to perform local spatial searching. Typically a point locator is
+   * faster than searches with a cell locator, but it may not always find the
+   * correct cells enclosing a point. This is particularly true with meshes
+   * that are disjoint at seams, or abut meshes in an incompatible manner.
+   */
+  void SetInterpolatorTypeToDataSetPointLocator();
+
+  /**
+   * Set the velocity field interpolator type to one that uses a cell locator
+   * to perform spatial searching. Using a cell locator should always return
+   * the correct results, but it can be much slower that point locator-based
+   * searches. * By default a cell locator is used.
+   */
+  void SetInterpolatorTypeToCellLocator();
 
   ///@{
   /**
@@ -344,9 +413,7 @@ protected:
    */
   virtual std::vector<vtkDataSet*> GetSeedSources(vtkInformationVector* inputVector, int timeStep);
 
-  //
   // Initialization of input (vector-field) geometry
-  //
   int InitializeInterpolator();
   int UpdateDataCache(vtkDataObject* td);
 
@@ -472,11 +539,6 @@ protected:
 
 private:
   /**
-   * Hide this because we require a new interpolator type
-   */
-  void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
-
-  /**
    * When particles leave the domain, they must be collected
    * and sent to the other processes for possible continuation.
    * These routines manage the collection and sending after each main iteration.
@@ -503,7 +565,7 @@ private:
 
   // Important for Caching of Cells/Ids/Weights etc
   vtkTypeBool AllFixedGeometry;
-  vtkTypeBool StaticMesh;
+  int MeshOverTime;
   vtkTypeBool StaticSeeds;
 
   std::vector<double> InputTimeValues;

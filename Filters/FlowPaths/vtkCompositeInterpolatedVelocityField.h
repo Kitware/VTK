@@ -124,6 +124,7 @@ protected:
   vtkCompositeInterpolatedVelocityField();
   ~vtkCompositeInterpolatedVelocityField() override;
 
+  friend class vtkTemporalInterpolatedVelocityField;
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset
    * by either involving vtkPointLocator, via vtkPointSet::FindCell(), in

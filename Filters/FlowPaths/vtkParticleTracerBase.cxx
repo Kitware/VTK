@@ -12,15 +12,19 @@
   PURPOSE.  See the above copyright notice for more information.
 
   =========================================================================*/
+// VTK_DEPRECATED_IN_9_2_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkParticleTracerBase.h"
 
 #include "vtkAbstractParticleWriter.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellLocatorStrategy.h"
+#include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDoubleArray.h"
-#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -38,7 +42,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemporalInterpolatedVelocityField.h"
-#include <cassert>
 
 #include <algorithm>
 #include <functional>
@@ -57,7 +60,9 @@
 const double vtkParticleTracerBase::Epsilon = 1.0E-12;
 
 using namespace vtkParticleTracerBaseNamespace;
+using IDStates = vtkTemporalInterpolatedVelocityField::IDStates;
 
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkParticleTracerBase, ParticleWriter, vtkAbstractParticleWriter);
 vtkCxxSetObjectMacro(vtkParticleTracerBase, Integrator, vtkInitialValueProblemSolver);
 
@@ -114,7 +119,7 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   this->ForceReinjectionEveryNSteps = 0;
   this->ReinjectionCounter = 0;
   this->AllFixedGeometry = 1;
-  this->StaticMesh = 0;
+  this->MeshOverTime = MeshOverTimeTypes::DIFFERENT;
   this->StaticSeeds = 0;
   this->ComputeVorticity = true;
   this->IgnorePipelineTime = 1;
@@ -163,7 +168,6 @@ vtkParticleTracerBase::~vtkParticleTracerBase()
   this->CachedData[1] = nullptr;
 
   this->SetIntegrator(nullptr);
-  this->SetInterpolatorPrototype(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -365,6 +369,36 @@ int vtkParticleTracerBase::RequestUpdateExtent(vtkInformation* vtkNotUsed(reques
 }
 
 //------------------------------------------------------------------------------
+void vtkParticleTracerBase::SetInterpolatorType(int interpolatorType)
+{
+  this->Interpolator->SetMeshOverTime(this->MeshOverTime);
+  if (interpolatorType == INTERPOLATOR_WITH_CELL_LOCATOR)
+  {
+    // create an interpolator equipped with a cell locator (by default)
+    vtkNew<vtkCellLocatorStrategy> strategy;
+    this->Interpolator->SetFindCellStrategy(strategy);
+  }
+  else
+  {
+    // create an interpolator equipped with a point locator
+    auto strategy = vtkSmartPointer<vtkClosestPointStrategy>::New();
+    this->Interpolator->SetFindCellStrategy(strategy);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkParticleTracerBase::SetInterpolatorTypeToDataSetPointLocator()
+{
+  this->SetInterpolatorType(static_cast<int>(INTERPOLATOR_WITH_DATASET_POINT_LOCATOR));
+}
+
+//------------------------------------------------------------------------------
+void vtkParticleTracerBase::SetInterpolatorTypeToCellLocator()
+{
+  this->SetInterpolatorType(static_cast<int>(INTERPOLATOR_WITH_CELL_LOCATOR));
+}
+
+//------------------------------------------------------------------------------
 int vtkParticleTracerBase::InitializeInterpolator()
 {
   if (!this->CachedData[0] || !this->CachedData[1])
@@ -372,11 +406,9 @@ int vtkParticleTracerBase::InitializeInterpolator()
     vtkErrorMacro("Missing data set to process.");
     return VTK_ERROR;
   }
-  //
   // When Multiblock arrays are processed, some may be empty
   // if the first is empty, we won't find the correct vector name
   // so scan until we get one
-  //
   vtkSmartPointer<vtkCompositeDataIterator> iterP;
   iterP.TakeReference(this->CachedData[0]->NewIterator());
   iterP->GoToFirstItem();
@@ -397,25 +429,27 @@ int vtkParticleTracerBase::InitializeInterpolator()
     return VTK_ERROR;
   }
 
-  vtkDebugMacro(<< "Interpolator using array " << vecname);
+  // create Interpolator if needed
+  if (this->Interpolator->GetFindCellStrategy() == nullptr)
+  {
+    // cell locator is the default;
+    this->SetInterpolatorTypeToCellLocator();
+  }
   this->Interpolator->SelectVectors(vecname);
 
-  this->AllFixedGeometry = 1;
-
+  vtkDebugMacro(<< "Interpolator using array " << vecname);
   int numValidInputBlocks[2] = { 0, 0 };
   int numTotalInputBlocks[2] = { 0, 0 };
   this->DataReferenceT[0] = this->DataReferenceT[1] = nullptr;
   for (int T = 0; T < 2; T++)
   {
     this->CachedBounds[T].clear();
-    int index = 0;
     // iterate over all blocks of input and cache the bounds information
     // and determine fixed/dynamic mesh status.
-
     vtkSmartPointer<vtkCompositeDataIterator> anotherIterP;
     anotherIterP.TakeReference(this->CachedData[T]->NewIterator());
-    anotherIterP->GoToFirstItem();
-    while (!anotherIterP->IsDoneWithTraversal())
+    for (anotherIterP->GoToFirstItem(); !anotherIterP->IsDoneWithTraversal();
+         anotherIterP->GoToNextItem())
     {
       numTotalInputBlocks[T]++;
       vtkDataSet* inp = vtkDataSet::SafeDownCast(anotherIterP->GetCurrentDataObject());
@@ -431,29 +465,19 @@ int vtkParticleTracerBase::InitializeInterpolator()
         }
         else
         {
-          // vtkDebugMacro("pass " << i << " Found dataset with " << inp->GetNumberOfCells() << "
-          // cells");
-          //
           // store the bounding boxes of each local dataset for faster 'point-in-dataset' testing
-          //
           bounds bbox;
-          inp->ComputeBounds();
           inp->GetBounds(&bbox.b[0]);
           this->CachedBounds[T].push_back(bbox);
-          bool static_dataset = (this->StaticMesh != 0);
-          this->AllFixedGeometry = this->AllFixedGeometry && static_dataset;
           // add the dataset to the interpolator
-          this->Interpolator->SetDataSetAtTime(
-            index++, T, this->GetCacheDataTime(T), inp, static_dataset);
+          this->Interpolator->AddDataSetAtTime(T, this->GetCacheDataTime(T), inp);
           if (!this->DataReferenceT[T])
           {
             this->DataReferenceT[T] = inp;
           }
-          //
           numValidInputBlocks[T]++;
         }
       }
-      anotherIterP->GoToNextItem();
     }
   }
   if (numValidInputBlocks[0] == 0 || numValidInputBlocks[1] == 0)
@@ -462,26 +486,27 @@ int vtkParticleTracerBase::InitializeInterpolator()
       << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
     return VTK_ERROR;
   }
-  if (numValidInputBlocks[0] != numValidInputBlocks[1] && this->StaticMesh)
+  if (numValidInputBlocks[0] != numValidInputBlocks[1] &&
+    this->MeshOverTime != MeshOverTimeTypes::DIFFERENT)
   {
     vtkErrorMacro(
-      "StaticMesh is set to True but the number of datasets is different between time steps "
+      "MeshOverTime is set to STATIC/LINEAR_INTERPOLATION/SAME_TOPOLOGY but the number of "
+      "datasets is different between time steps "
       << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
-    return VTK_ERROR;
   }
-  //
   vtkDebugMacro("Number of Valid input blocks is " << numValidInputBlocks[0] << " from "
                                                    << numTotalInputBlocks[0]);
   vtkDebugMacro("AllFixedGeometry " << this->AllFixedGeometry);
 
   // force optimizations if StaticMesh is set.
-  if (this->StaticMesh)
+  this->AllFixedGeometry = this->MeshOverTime == MeshOverTimeTypes::STATIC;
+  if (this->MeshOverTime == MeshOverTimeTypes::STATIC)
   {
     vtkDebugMacro("Static Mesh optimizations Forced ON");
-    this->AllFixedGeometry = 1;
   }
 
-  //
+  this->Interpolator->Initialize(this->CachedData[0], this->CachedData[1]);
+
   return VTK_OK;
 }
 
@@ -618,7 +643,7 @@ void vtkParticleTracerBase::TestParticles(
       // since this is first test, avoid bad cache tests
       this->Interpolator->ClearCache();
       info.LocationState = this->Interpolator->TestPoint(pos);
-      if (info.LocationState == ID_OUTSIDE_ALL /*|| location==ID_OUTSIDE_T0*/)
+      if (info.LocationState == IDStates::OUTSIDE_ALL /*|| location==IDStates::OUTSIDE_T0*/)
       {
         // can't really use this particle.
         vtkDebugMacro(<< "TestParticles rejected particle");
@@ -1184,7 +1209,7 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
       // the integrator were ok, but the final step may just pass out)
       // if it moves out, we can't interpolate scalars, so we must send it away
       info.LocationState = this->Interpolator->TestPoint(info.CurrentPosition.x);
-      if (info.LocationState == ID_OUTSIDE_ALL)
+      if (info.LocationState == IDStates::OUTSIDE_ALL)
       {
         info.ErrorCode = 2;
         // if the particle is sent, remove it from the list
@@ -1252,9 +1277,27 @@ void vtkParticleTracerBase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ForceReinjectionEveryNSteps: " << this->ForceReinjectionEveryNSteps << endl;
   os << indent << "EnableParticleWriting: " << this->EnableParticleWriting << endl;
   os << indent << "IgnorePipelineTime: " << this->IgnorePipelineTime << endl;
-  os << indent << "StaticMesh: " << this->StaticMesh << endl;
-  os << indent << "TerminationTime: " << this->TerminationTime << endl;
   os << indent << "StaticSeeds: " << this->StaticSeeds << endl;
+  os << indent << "MeshOverTime: ";
+  switch (this->MeshOverTime)
+  {
+    case MeshOverTimeTypes::DIFFERENT:
+      os << "DIFFERENT" << endl;
+      break;
+    case MeshOverTimeTypes::STATIC:
+      os << "STATIC" << endl;
+      break;
+    case MeshOverTimeTypes::LINEAR_TRANSFORMATION:
+      os << "LINEAR_TRANSFORMATION" << endl;
+      break;
+    case MeshOverTimeTypes::SAME_TOPOLOGY:
+      os << "SAME_TOPOLOGY" << endl;
+      break;
+    default:
+      os << "UNKNOWN" << endl;
+      break;
+  }
+  os << indent << "TerminationTime: " << this->TerminationTime << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -1458,7 +1501,7 @@ bool vtkParticleTracerBase::RetryWithPush(
 
   info.LocationState = this->Interpolator->TestPoint(point1);
 
-  if (info.LocationState == ID_OUTSIDE_ALL)
+  if (info.LocationState == IDStates::OUTSIDE_ALL)
   {
     // something is wrong, the particle has left the building completely
     // we can't get the last good velocity as it won't be valid
@@ -1473,13 +1516,13 @@ bool vtkParticleTracerBase::RetryWithPush(
     }
     info.ErrorCode = 3;
   }
-  else if (info.LocationState == ID_OUTSIDE_T0)
+  else if (info.LocationState == IDStates::OUTSIDE_T0)
   {
     // the particle left the volume but can be tested at T2, so use the velocity at T2
     this->Interpolator->GetLastGoodVelocity(velocity);
     info.ErrorCode = 4;
   }
-  else if (info.LocationState == ID_OUTSIDE_T1)
+  else if (info.LocationState == IDStates::OUTSIDE_T1)
   {
     // the particle left the volume but can be tested at T1, so use the velocity at T1
     this->Interpolator->GetLastGoodVelocity(velocity);
@@ -1502,7 +1545,7 @@ bool vtkParticleTracerBase::RetryWithPush(
   info.age += delT;
   info.SimulationTime += delT; // = this->GetCurrentTimeValue();
 
-  if (info.LocationState != ID_OUTSIDE_ALL)
+  if (info.LocationState != IDStates::OUTSIDE_ALL)
   {
     // a push helped the particle get back into a dataset,
     info.ErrorCode = 6;
@@ -1537,7 +1580,7 @@ void vtkParticleTracerBase::AddParticle(
   // between T0 and T1, just fetch the values
   // of the spatially interpolated scalars from T1.
   //
-  if (info.LocationState == ID_OUTSIDE_T1)
+  if (info.LocationState == IDStates::OUTSIDE_T1)
   {
     this->Interpolator->InterpolatePoint(0, this->OutputPointData, tempId);
   }
@@ -1554,7 +1597,7 @@ void vtkParticleTracerBase::AddParticle(
     double pcoords[3], vorticity[3], weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
     double rotation, omega;
     // have to use T0 if particle is out at T1, otherwise use T1
-    if (info.LocationState == ID_OUTSIDE_T1)
+    if (info.LocationState == IDStates::OUTSIDE_T1)
     {
       this->Interpolator->GetVorticityData(0, pcoords, weights, cell, this->CellVectors);
     }

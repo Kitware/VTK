@@ -157,10 +157,6 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
   for (auto& datasetInfo : this->DataSetsInfo)
   {
     datasetInfo.DataSet->ComputeBounds();
-    if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
-    {
-      polyData->BuildCells();
-    }
     if (vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
     {
       if (auto ugrid = vtkUnstructuredGrid::SafeDownCast(datasetInfo.DataSet))
@@ -169,6 +165,7 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
       }
       else if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
       {
+        // Build links calls BuildCells internally
         polyData->BuildLinks();
       }
     }
@@ -442,14 +439,21 @@ int vtkAbstractInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords
 //------------------------------------------------------------------------------
 void vtkAbstractInterpolatedVelocityField::FastCompute(vtkDataArray* vectors, double f[3])
 {
+  this->FastCompute(this, vectors, f);
+}
+
+//------------------------------------------------------------------------------
+void vtkAbstractInterpolatedVelocityField::FastCompute(
+  vtkAbstractInterpolatedVelocityField* inIVF, vtkDataArray* vectors, double f[3])
+{
   int pntIdx;
-  int numPts = this->CurrentCell->GetNumberOfPoints();
+  int numPts = inIVF->CurrentCell->GetNumberOfPoints();
   double vector[3];
   f[0] = f[1] = f[2] = 0.0;
 
   for (int i = 0; i < numPts; i++)
   {
-    pntIdx = this->CurrentCell->PointIds->GetId(i);
+    pntIdx = inIVF->CurrentCell->PointIds->GetId(i);
     vectors->GetTuple(pntIdx, vector);
     f[0] += vector[0] * this->Weights[i];
     f[1] += vector[1] * this->Weights[i];
@@ -460,13 +464,19 @@ void vtkAbstractInterpolatedVelocityField::FastCompute(vtkDataArray* vectors, do
 //------------------------------------------------------------------------------
 bool vtkAbstractInterpolatedVelocityField::InterpolatePoint(vtkPointData* outPD, vtkIdType outIndex)
 {
+  return this->InterpolatePoint(this, outPD, outIndex);
+}
+
+//------------------------------------------------------------------------------
+bool vtkAbstractInterpolatedVelocityField::InterpolatePoint(
+  vtkAbstractInterpolatedVelocityField* inIVF, vtkPointData* outPD, vtkIdType outIndex)
+{
   if (!this->LastDataSet)
   {
     return false;
   }
-
-  outPD->InterpolatePoint(
-    this->LastDataSet->GetPointData(), outIndex, this->CurrentCell->PointIds, this->Weights.data());
+  vtkPointData* inPD = inIVF->LastDataSet->GetPointData();
+  outPD->InterpolatePoint(inPD, outIndex, this->CurrentCell->PointIds, this->Weights.data());
   return true;
 }
 

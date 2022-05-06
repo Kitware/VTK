@@ -380,6 +380,12 @@ public:
   void BuildLinks(int initialSize = 0);
 
   /**
+   * Set/Get the links that you created possibly without using BuildLinks.
+   */
+  vtkSetSmartPointerMacro(Links, vtkCellLinks);
+  vtkGetSmartPointerMacro(Links, vtkCellLinks);
+
+  /**
    * Release data structure that allows random access of the cells. This must
    * be done before a 2nd call to BuildLinks(). DeleteCells implicitly deletes
    * the links as well since they are no longer valid.
