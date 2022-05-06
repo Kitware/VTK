@@ -47,7 +47,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
   vtkIdType updateInterval;
-  vtkCellArray *cells, *newCells;
+  vtkCellArray* cells;
   vtkPoints* inPts = input->GetPoints();
 
   int abort = 0;
@@ -144,9 +144,14 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkNew<vtkIdList> ptIds;
     ptIds->Allocate(VTK_CELL_SIZE);
     int numSimplices;
-    vtkNew<vtkPolygon> poly;
-    poly->SetTolerance(1.0e-08); // Tighten tessellation tolerance
     vtkIdType triPts[3];
+    // It may be necessary to specify a custom tessellation
+    // tolerance.
+    vtkNew<vtkPolygon> poly;
+    if (this->Tolerance > 0.0)
+    {
+      poly->SetTolerance(this->Tolerance); // Tighten tessellation tolerance
+    }
 
     for (cells->InitTraversal(); cells->GetNextCell(npts, pts) && !abort; cellNum++)
     {
