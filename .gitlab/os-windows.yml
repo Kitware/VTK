@@ -256,7 +256,7 @@
         - . .\venv\Scripts\Activate.ps1
         - pip install wheel
         - python setup.py bdist_wheel
-        - python "$env:GIT_CLONE_PATH\.gitlab\ci\wheel_sdk.py"
+        - python "$env:GIT_CLONE_PATH\.gitlab\ci\create_wheel_sdk_archive.py"
         # XXX(delvewheel): It is finding 32bit Visual Studio libraries and
         # bailing instead of continuing to search for 64bit versions of the
         # DLL.

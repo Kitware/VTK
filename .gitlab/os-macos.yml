@@ -219,7 +219,7 @@
         - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
         - venv/bin/pip install wheel
         - venv/bin/python3 setup.py bdist_wheel
-        - venv/bin/python3 $GIT_CLONE_PATH/.gitlab/ci/wheel_sdk.py
+        - venv/bin/python3 $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py
         # XXX: `delocate` can't handle `@loader_path` or do recursive
         # dependency scanning. Ignore it and just do it manually because
         # apparently VTK is the most complicated wheel in the world.
