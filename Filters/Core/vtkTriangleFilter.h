@@ -59,10 +59,25 @@ public:
   vtkGetMacro(PassLines, vtkTypeBool);
   ///@}
 
+  ///@{
+  /**
+   * Optionally specify the polygon triangulation tolerance to use.  This
+   * simply passes the tolerance to the internal vtkPolygon::Tolerance used
+   * for triangulation of polygons.  This is for advanced usage, and
+   * generally does not need to be set unless tessellation of n-sided
+   * polygons with n>4 is required, and special accuracy requirements are
+   * needed.  Note that by default if a value <=0 is specified, then the
+   * default vtkPolygon::Tolerance is used.
+   */
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
+  ///@}
+
 protected:
   vtkTriangleFilter()
     : PassVerts(1)
     , PassLines(1)
+    , Tolerance(-1.0) // use default vtkPolygon::Tolerance
   {
   }
   ~vtkTriangleFilter() override = default;
@@ -72,6 +87,7 @@ protected:
 
   vtkTypeBool PassVerts;
   vtkTypeBool PassLines;
+  double Tolerance;
 
 private:
   vtkTriangleFilter(const vtkTriangleFilter&) = delete;

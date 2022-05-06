@@ -26,6 +26,7 @@
 
 vtkStandardNewMacro(vtkTriangleFilter);
 
+//-------------------------------------------------------------------------
 int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -46,7 +47,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
   vtkIdType updateInterval;
-  vtkCellArray *cells, *newCells;
+  vtkCellArray* cells;
   vtkPoints* inPts = input->GetPoints();
 
   int abort = 0;
@@ -61,7 +62,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
     if (this->PassVerts)
     {
       newId = output->GetNumberOfCells();
-      newCells = vtkCellArray::New();
+      vtkNew<vtkCellArray> newCells;
       newCells->AllocateCopy(cells);
       for (cells->InitTraversal(); cells->GetNextCell(npts, pts) && !abort; cellNum++)
       {
@@ -85,7 +86,6 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
       output->SetVerts(newCells);
-      newCells->Delete();
     }
     else
     {
@@ -100,7 +100,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
     if (this->PassLines)
     {
       newId = output->GetNumberOfCells();
-      newCells = vtkCellArray::New();
+      vtkNew<vtkCellArray> newCells;
       newCells->AllocateCopy(cells);
       for (cells->InitTraversal(); cells->GetNextCell(npts, pts) && !abort; cellNum++)
       {
@@ -124,7 +124,6 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
       } // for all lines
       output->SetLines(newCells);
-      newCells->Delete();
     }
     else
     {
@@ -132,19 +131,27 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  vtkCellArray* newPolys = nullptr;
+  // Output from polygons and triangle strips cell arrays are placed
+  // in newPolys.
+  vtkSmartPointer<vtkCellArray> newPolys;
   if (!abort && input->GetPolys()->GetNumberOfCells() > 0)
   {
     cells = input->GetPolys();
     newId = output->GetNumberOfCells();
-    newPolys = vtkCellArray::New();
+    newPolys = vtkSmartPointer<vtkCellArray>::New();
     newPolys->AllocateCopy(cells);
     output->SetPolys(newPolys);
-    vtkIdList* ptIds = vtkIdList::New();
+    vtkNew<vtkIdList> ptIds;
     ptIds->Allocate(VTK_CELL_SIZE);
     int numSimplices;
-    vtkPolygon* poly = vtkPolygon::New();
     vtkIdType triPts[3];
+    // It may be necessary to specify a custom tessellation
+    // tolerance.
+    vtkNew<vtkPolygon> poly;
+    if (this->Tolerance > 0.0)
+    {
+      poly->SetTolerance(this->Tolerance); // Tighten tessellation tolerance
+    }
 
     for (cells->InitTraversal(); cells->GetNextCell(npts, pts) && !abort; cellNum++)
     {
@@ -186,8 +193,6 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
         } // for each simplex
       }   // triangulate polygon
     }
-    ptIds->Delete();
-    poly->Delete();
   }
 
   // strips
@@ -197,7 +202,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
     newId = output->GetNumberOfCells();
     if (newPolys == nullptr)
     {
-      newPolys = vtkCellArray::New();
+      newPolys = vtkSmartPointer<vtkCellArray>::New();
       newPolys->AllocateCopy(cells);
       output->SetPolys(newPolys);
     }
@@ -216,11 +221,6 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
     } // for all strips
   }
 
-  if (newPolys != nullptr)
-  {
-    newPolys->Delete();
-  }
-
   // Update output
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(input->GetPointData());
@@ -232,6 +232,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//-------------------------------------------------------------------------
 void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
