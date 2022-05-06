@@ -32,6 +32,7 @@
 #include "vtkLegacy.h"
 #include "vtkOptions.h"
 #include "vtkSystemIncludes.h"
+#include "vtksys/SystemTools.hxx"
 #include <type_traits> // for std::underlying type.
 #include <typeinfo>
 
@@ -776,7 +777,8 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       vtkmsg << "" x;                                                                              \
-      vtkOutputWindowDisplayGenericWarningText(__FILE__, __LINE__, vtkmsg.str());                  \
+      std::string filename = vtksys::SystemTools::GetFilenameName(__FILE__);                       \
+      vtkOutputWindowDisplayGenericWarningText(filename.c_str(), __LINE__, vtkmsg.str());          \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
   } while (false)
@@ -824,7 +826,8 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      vtkOutputWindowDisplayErrorText(__FILE__, __LINE__, vtkmsg.str(), _object);                  \
+      std::string filename = vtksys::SystemTools::GetFilenameName(__FILE__);                       \
+      vtkOutputWindowDisplayErrorText(filename.c_str(), __LINE__, vtkmsg.str(), _object);          \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
       vtkObject::BreakOnError();                                                                   \
     }                                                                                              \
@@ -855,7 +858,8 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      vtkOutputWindowDisplayWarningText(__FILE__, __LINE__, vtkmsg.str(), _object);                \
+      std::string filename = vtksys::SystemTools::GetFilenameName(__FILE__);                       \
+      vtkOutputWindowDisplayWarningText(filename.c_str(), __LINE__, vtkmsg.str(), _object);        \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
   } while (false)
@@ -891,7 +895,8 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      vtkOutputWindowDisplayDebugText(__FILE__, __LINE__, vtkmsg.str(), _object);                  \
+      std::string filename = vtksys::SystemTools::GetFilenameName(__FILE__);                       \
+      vtkOutputWindowDisplayDebugText(filename.c_str(), __LINE__, vtkmsg.str(), _object);          \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
   } while (false)
