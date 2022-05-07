@@ -44,6 +44,7 @@ set(classes
   vtkExtractGhostCells
   vtkExtractSelectedFrustum
   vtkExtractSelectionBase
+  vtkFiniteElementFieldDistributor
   vtkGradientFilter
   vtkGraphLayoutFilter
   vtkGraphToPoints
@@ -119,6 +120,7 @@ set(classes
   vtkTransformFilter
   vtkTransformPolyDataFilter
   vtkUncertaintyTubeFilter
+  vtkVectorBasisLagrangeProducts
   vtkVertexGlyphFilter
   vtkVolumeContourSpectrumFilter
   vtkVoxelContoursToSurfaceFilter
@@ -133,4 +135,5 @@ set(templates
 
 vtk_module_add_module(VTK::FiltersGeneral
   CLASSES ${classes}
-  TEMPLATES ${templates})
+  TEMPLATES ${templates}
+  PRIVATE_HEADERS ${private_headers})
