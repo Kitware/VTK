@@ -10,6 +10,6 @@ tarball_name = f'{sdk_name}.tar.xz'
 
 install_path.rename(sdk_name)
 try:
-    subprocess.check_call(['tar', 'czf', tarball_name, sdk_name])
+    subprocess.check_call(['tar', 'cJf', tarball_name, sdk_name])
 finally:
     Path(sdk_name).rename(install_path)
