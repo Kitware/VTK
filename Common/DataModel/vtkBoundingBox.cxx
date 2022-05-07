@@ -237,6 +237,22 @@ void vtkBoundingBox::Inflate()
 }
 
 //------------------------------------------------------------------------------
+// Make sure the length of all sides of the bounding box are non-zero, and at
+// least 2*delta thick.
+void vtkBoundingBox::InflateSlice(double delta)
+{
+  for (auto i = 0; i < 3; ++i)
+  {
+    double w = this->MaxPnt[i] - this->MinPnt[i];
+    if (w < (2.0 * delta))
+    {
+      this->MinPnt[i] -= delta;
+      this->MaxPnt[i] += delta;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkBoundingBox::IntersectBox(const vtkBoundingBox& bbox)
 {
   // if either box is not valid don't do the operation
