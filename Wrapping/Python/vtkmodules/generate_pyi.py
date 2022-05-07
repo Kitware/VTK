@@ -161,8 +161,8 @@ def topologically_sorted_items(d):
 
 # regular expressions for parsing
 string = re.compile(r"""("([^\\"]|\\.)*"|'([^\\']|\\.)*')""")
-identifier = re.compile(r"""[ \t]*([A-Za-z_]([A-Za-z0-9_]|[.][A-Za-z_])*)""")
-indent = re.compile(r"[ \t]+\S")
+identifier = re.compile(r"""([A-Za-z_]([A-Za-z0-9_]|[.][A-Za-z_])*)""")
+indent = re.compile(r"[ \t]+(?=\S)")
 has_self = re.compile(r"[(]self[,)]")
 
 # important characters for rapidly parsing code
@@ -181,17 +181,18 @@ def parse_error(message, text, begin, pos):
 def push_signature(o, l, signature):
     """Process a method signature and add it to the list.
     """
+    # eliminate newlines and indents
     signature = re.sub(r"\s+", " ", signature)
+    # no space after opening delimiter or ':' or '='
+    signature = re.sub(r"([({\[:=]) ", "\\1", signature)
     if signature.startswith('C++:'):
-        # if C++ method is static, mark Python signature static
-        if isvtkmethod(o) and signature.find(" static ") != -1 and len(l) > 0:
-            if not l[-1].startswith("@staticmethod"):
-                l[-1] = "@staticmethod\n" + l[-1]
+        # the C++ method signatures are unused
+        pass
     elif signature.startswith(o.__name__ + "("):
         if isvtkmethod(o) and not has_self.search(signature):
-            if not signature.startswith("@staticmethod"):
-                signature = "@staticmethod\n" + signature
-        l.append(signature)
+            signature = "@staticmethod\n" + signature
+        if signature not in l:
+            l.append(signature)
 
 def get_signatures(o):
     """Return a list of method signatures found in the docstring.
@@ -209,7 +210,7 @@ def get_signatures(o):
     # loop through docstring using longest strides possible
     # (this will go line-by-line or until first ( ) { } [ ] " ' : >)
     while pos < len(doc):
-        # look for the next "character of insterest" in docstring
+        # look for the next "character of interest" in docstring
         match = keychar.search(doc, pos)
         # did we find a match before the end of docstring?
         if match:
@@ -235,7 +236,10 @@ def get_signatures(o):
                     break
             elif c == ':' or (c == '>' and doc[pos-1] == '-'):
                 # what follows is a type
-                m = identifier.match(doc, pos+1)
+                m = indent.match(doc, end)
+                if m:
+                    pos,end = m.span()
+                m = identifier.match(doc, end)
                 if m:
                     pos,end = m.span(1)
                     name = m.group(1)
@@ -247,7 +251,7 @@ def get_signatures(o):
                 # a newline not followed by an indent marks end of signature,
                 # except for within brackets
                 signature = doc[begin:pos].strip()
-                if signature and signature not in signatures:
+                if signature:
                     push_signature(o, signatures, signature)
                     begin = end
                 else:
@@ -258,7 +262,7 @@ def get_signatures(o):
             end = len(doc)
             if not delim_stack:
                 signature = doc[begin:pos].strip()
-                if signature and signature not in signatures:
+                if signature:
                     push_signature(o, signatures, signature)
             else:
                 parse_error("Unmatched bracket", doc, begin, pos)
@@ -299,7 +303,7 @@ def make_def(s, indent):
     """
     pos = 0
     out = ""
-    while pos < len(s) and s[pos] == '@':
+    while s.startswith('@', pos):
         end = s.find('\n', pos) + 1
         if end == 0:
             end = len(s)
