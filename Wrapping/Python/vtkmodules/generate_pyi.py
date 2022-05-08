@@ -166,7 +166,7 @@ indent = re.compile(r"[ \t]+(?=\S)")
 has_self = re.compile(r"[(]self[,)]")
 
 # important characters for rapidly parsing code
-keychar = re.compile(r"[\'\"{}\[\]()>:\n]")
+keychar = re.compile(r"[\'\"{}\[\]()\n]")
 
 def parse_error(message, text, begin, pos):
     """Print a parse error, syntax or otherwise.
@@ -178,6 +178,17 @@ def parse_error(message, text, begin, pos):
     sys.stderr.write(text[begin:end] + "\n");
     sys.stderr.write('-' * (pos - begin) + "^\n")
 
+def annotation_text(a, text, is_return):
+    """Return the new text to be used for an annotation.
+    """
+    if isinstance(a, ast.Name):
+        name = a.id
+        if name not in types:
+            # quote the type, in case it isn't yet defined
+            text = '\'' + name + '\''
+
+    return text
+
 def fix_annotations(signature):
     """Fix the annotations in a method definition.
     The signature must be a single-line function def, no decorators.
@@ -185,17 +196,17 @@ def fix_annotations(signature):
     # get the FunctionDef object from the parse tree
     definition = ast.parse(signature).body[0]
     annotations = [arg.annotation for arg in definition.args.args]
+    return_i = len(annotations) # index of annotation for return
     annotations.append(definition.returns)
 
     # create a list of changes to apply to the annotations
     changes = []
-    for a in annotations:
-        if isinstance(a, ast.Name):
-            name = a.id
-            if name not in types:
-                # quote the type
-                name = '\'' + name + '\''
-                changes.append((a.col_offset, a.end_col_offset,  name))
+    for i,a in enumerate(annotations):
+        if a is not None:
+            old_text = signature[a.col_offset:a.end_col_offset]
+            text = annotation_text(a, old_text, (i == return_i))
+            if text != old_text:
+                changes.append((a.col_offset, a.end_col_offset,  text))
 
     # apply changes to generate a new signature
     if changes:
@@ -224,6 +235,7 @@ def push_signature(o, l, signature):
     elif signature.startswith(o.__name__ + "("):
         # make it into a python method definition
         signature = "def " + signature + ': ...'
+        signature = fix_annotations(signature)
         if signature not in l:
             l.append(signature)
 
@@ -241,7 +253,7 @@ def get_signatures(o):
     delim_stack = [] # keep track of bracket depth
 
     # loop through docstring using longest strides possible
-    # (this will go line-by-line or until first ( ) { } [ ] " ' : >)
+    # (this will go line-by-line or until first ( ) { } [ ] " ')
     while pos < len(doc):
         # look for the next "character of interest" in docstring
         match = keychar.search(doc, pos)
@@ -267,19 +279,6 @@ def get_signatures(o):
                 if not delim_stack or c != delim_stack.pop():
                     parse_error("Unmatched bracket", doc, begin, pos)
                     break
-            elif c == ':' or (c == '>' and doc[pos-1] == '-'):
-                # what follows is a type
-                m = indent.match(doc, end)
-                if m:
-                    pos,end = m.span()
-                m = identifier.match(doc, end)
-                if m:
-                    pos,end = m.span(1)
-                    name = m.group(1)
-                    if name not in types:
-                        # quote the type
-                        doc = doc[0:pos] + ('\'' + name + '\'') + doc[end:]
-                        end += 2
             elif c == '\n' and not (delim_stack or indent.match(doc, end)):
                 # a newline not followed by an indent marks end of signature,
                 # except for within brackets
