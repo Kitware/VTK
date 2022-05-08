@@ -190,9 +190,6 @@ public:
    * @param assoc One of vtkDataObject::FIELD_ASSOCIATION_CELLS or
    vtkDataObject::FIELD_ASSOCIATION_POINTS indicating whether
    * a point or cell array should be used.
-   * @param arrayName The name of the array to use for thresholding
-   * @param attribType The attribute to use for thresholding.
-   * One of vtkDataSetAttributes::SCALARS, VECTORS, TENSORS, NORMALS, TCOORDS, or GLOBALIDS.
    * @param component The number of the component to threshold on or one of the following enumerants
    for norms:
    * LINFINITY_NORM, L2_NORM, L1_NORM.
@@ -202,6 +199,11 @@ public:
    * @return An index used to identify the cells selected by the interval or -1 if the interval
    specification was invalid.
    * If a valid value is returned, you may pass it to OutputSet().
+   *
+   * arrayName The name of the array to use for thresholding
+   * attribType The attribute to use for thresholding.
+   * One of vtkDataSetAttributes::SCALARS, VECTORS, TENSORS, NORMALS, TCOORDS, or GLOBALIDS.
+   *
    */
   int AddIntervalSet(double xmin, double xmax, int omin, int omax, int assoc, const char* arrayName,
     int component, int allScalars);
