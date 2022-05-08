@@ -186,6 +186,25 @@ def annotation_text(a, text, is_return):
         if name not in types:
             # quote the type, in case it isn't yet defined
             text = '\'' + name + '\''
+    elif isinstance(a, (ast.Tuple, ast.List)):
+        size = len(a.elts)
+        e = a.elts[0]
+        offset = a.col_offset
+        old_name = text[e.col_offset - offset:e.end_col_offset - offset]
+        name = annotation_text(e, old_name, is_return)
+
+        if is_return:
+            # use concrete types for return values
+            if isinstance(a, ast.Tuple):
+                text = 'Tuple[' + ', '.join([name]*size) + ']'
+            else:
+                text = 'List[' + name + ']'
+        else:
+            # use generic sequence types for args
+            if isinstance(a, ast.Tuple):
+                text = 'Sequence[' + name + ']'
+            else:
+                text = 'MutableSequence[' + name + ']'
 
     return text
 
@@ -446,7 +465,9 @@ def module_pyi(mod, output):
     """Generate the contents of a .pyi file for a VTK module.
     """
     # needed stuff from typing module
-    output.write("from typing import overload, Any, Callable, TypeVar, Union\n\n")
+    output.write("from typing import overload, Any, Callable, TypeVar, Union\n")
+    output.write("from typing import Tuple, List, Sequence, MutableSequence\n")
+    output.write("\n")
     output.write("Callback = Union[Callable[..., None], None]\n")
     output.write("Buffer = TypeVar('Buffer')\n")
     output.write("Pointer = TypeVar('Pointer')\n")
