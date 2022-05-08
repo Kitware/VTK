@@ -82,12 +82,16 @@ PURPOSE.  See the above copyright notice for more information.
  *    Kurt{X} = \frac{1}{N}\frac{\sum_{k=1}^N \left(x_k - \bar{x}\right)^3 }{\sigma^4} - 3
  *   \f]
  *
+ * \verbatim
+ *
  * \f(\sigma\f) is the population standard deviation, and \f(s\f) is the sample standard deviation.
  * Note that the kurtosis is corrected so the kurtosis of a gaussian distribution should yield 0.
  *
  * In the instance where \f(\sigma = 0\f) or \f(s = 0\f), the skewness and kurtosis are undefined.
  * Thus they output a `NaN`. Similarly, if there are no samples, then all derived statistics
  * yield a `NaN`.
+ *
+ * \endverbatim
  *
  * @par Thanks:
  * Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
