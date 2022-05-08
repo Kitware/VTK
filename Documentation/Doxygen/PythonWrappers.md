@@ -133,13 +133,13 @@ becoming confused about what exactly the '`vtk`' module is.
 ## Classes Derived from vtkObjectBase {#vtkobject-classes}
 
 In C++, classes derived from `vtkObjectBase` are instantiated by calling
-`::New()`.  In Python, these classes are instantiated by simply calling the
+`New()`.  In Python, these classes are instantiated by simply calling the
 constructor:
 
     o = vtkObject()
 
 For factory classes, the returned object's type might be a subtype of the
-class.  This occurs because the Python wrappers are actually calling `::New()`
+class.  This occurs because the Python wrappers are actually calling `New()`
 for you, which allows the VTK factory overrides to occur:
 
     >>> a = vtkActor()
@@ -180,7 +180,7 @@ most important of these is `vtkVariant`, which can hold any type of object:
 
 The wrapping of these classes is fully automatic, but is done in a slightly
 different manner than `vtkObjectBase`-derived classes.  First, these classes
-have no `::New()` method, and instead the public C++ constructors are wrapped
+have no `New()` method, and instead the public C++ constructors are wrapped
 to create an equivalent Python contructor.  Second, the Python object
 contains its own copy of the C++ object, rather than containing just a
 pointer to the C++ object.  The vast majority of these classes are lightweight
