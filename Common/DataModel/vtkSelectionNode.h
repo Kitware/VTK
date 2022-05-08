@@ -87,7 +87,7 @@
  *   `BLOCK_SELECTORS`, `PROCESS_ID` etc. are needed to correctly identify the
  *   chosen element(s) in case of composite or distributed datasets.
  *
- * * `vtkSelectionNode::FRUSTUM: this type is used to define a frustum in world
+ * * `vtkSelectionNode::FRUSTUM`: this type is used to define a frustum in world
  *   coordinates that identifies the selected elements. In this case, the
  *   selection list is a vtkDoubleArray with 32 values specifying the 8 frustum
  *   corners in homogeneous world coordinates.
