@@ -777,8 +777,8 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       vtkmsg << "" x;                                                                              \
-      std::string filename = vtksys::SystemTools::GetFilenameName(__FILE__);                       \
-      vtkOutputWindowDisplayGenericWarningText(filename.c_str(), __LINE__, vtkmsg.str());          \
+      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      vtkOutputWindowDisplayGenericWarningText(_filename.c_str(), __LINE__, vtkmsg.str());         \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
   } while (false)
@@ -826,8 +826,8 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      std::string filename = vtksys::SystemTools::GetFilenameName(__FILE__);                       \
-      vtkOutputWindowDisplayErrorText(filename.c_str(), __LINE__, vtkmsg.str(), _object);          \
+      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      vtkOutputWindowDisplayErrorText(_filename.c_str(), __LINE__, vtkmsg.str(), _object);         \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
       vtkObject::BreakOnError();                                                                   \
     }                                                                                              \
@@ -858,8 +858,8 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      std::string filename = vtksys::SystemTools::GetFilenameName(__FILE__);                       \
-      vtkOutputWindowDisplayWarningText(filename.c_str(), __LINE__, vtkmsg.str(), _object);        \
+      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      vtkOutputWindowDisplayWarningText(_filename.c_str(), __LINE__, vtkmsg.str(), _object);       \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
   } while (false)
@@ -895,8 +895,8 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      std::string filename = vtksys::SystemTools::GetFilenameName(__FILE__);                       \
-      vtkOutputWindowDisplayDebugText(filename.c_str(), __LINE__, vtkmsg.str(), _object);          \
+      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      vtkOutputWindowDisplayDebugText(_filename.c_str(), __LINE__, vtkmsg.str(), _object);         \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
   } while (false)
