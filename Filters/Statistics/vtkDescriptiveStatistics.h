@@ -56,6 +56,8 @@ PURPOSE.  See the above copyright notice for more information.
  * either state of `SampleEstimate` should yield very similar results
  * (see explicit formulas below).
  *
+ * \verbatim
+ *
  * The formulas used are as follows, writing \f( \bar{X} \f) the mean of \f( X \f) and \f( N \f)
  * the number of samples:
  * - Sample estimate:
@@ -81,8 +83,6 @@ PURPOSE.  See the above copyright notice for more information.
  *   \f[
  *    Kurt{X} = \frac{1}{N}\frac{\sum_{k=1}^N \left(x_k - \bar{x}\right)^3 }{\sigma^4} - 3
  *   \f]
- *
- * \verbatim
  *
  * \f(\sigma\f) is the population standard deviation, and \f(s\f) is the sample standard deviation.
  * Note that the kurtosis is corrected so the kurtosis of a gaussian distribution should yield 0.
