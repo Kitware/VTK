@@ -52,19 +52,19 @@ public:
    */
   int GetNumberOfArrays(int attributeType);
   /**
-   * Get the input array name from @idx in @attributeType field data.
+   * Get the input array name from \p idx in \p attributeType field data.
    */
   const char* GetArrayOriginalName(int attributeType, int idx);
   /**
-   * Get the new array name from @idx in @attributeType field data.
+   * Get the new array name from \p idx in \p attributeType field data.
    */
   const char* GetArrayNewName(int attributeType, int idx);
   /**
-   * Set the new array name from @idx in @attributeType field data.
+   * Set the new array name from \p idx in \p attributeType field data.
    */
   void SetArrayName(int attributeType, int idx, const char* newName);
   /**
-   * Set the new array name from @inputName in @attributeType field data.
+   * Set the new array name from \p inputName in \p attributeType field data.
    */
   void SetArrayName(int attributeType, const char* inputName, const char* newName);
   /**
