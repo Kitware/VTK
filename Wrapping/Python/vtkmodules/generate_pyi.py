@@ -178,6 +178,38 @@ def parse_error(message, text, begin, pos):
     sys.stderr.write(text[begin:end] + "\n");
     sys.stderr.write('-' * (pos - begin) + "^\n")
 
+def fix_annotations(signature):
+    """Fix the annotations in a method definition.
+    The signature must be a single-line function def, no decorators.
+    """
+    # get the FunctionDef object from the parse tree
+    definition = ast.parse(signature).body[0]
+    annotations = [arg.annotation for arg in definition.args.args]
+    annotations.append(definition.returns)
+
+    # create a list of changes to apply to the annotations
+    changes = []
+    for a in annotations:
+        if isinstance(a, ast.Name):
+            name = a.id
+            if name not in types:
+                # quote the type
+                name = '\'' + name + '\''
+                changes.append((a.col_offset, a.end_col_offset,  name))
+
+    # apply changes to generate a new signature
+    if changes:
+        newsig = ""
+        lastpos = 0
+        for begin,end,text in changes:
+            newsig += signature[lastpos:begin]
+            newsig += text
+            lastpos = end
+        newsig += signature[lastpos:]
+        signature = newsig
+
+    return signature
+
 def push_signature(o, l, signature):
     """Process a method signature and add it to the list.
     """
@@ -185,12 +217,13 @@ def push_signature(o, l, signature):
     signature = re.sub(r"\s+", " ", signature)
     # no space after opening delimiter or ':' or '='
     signature = re.sub(r"([({\[:=]) ", "\\1", signature)
+
     if signature.startswith('C++:'):
         # the C++ method signatures are unused
         pass
     elif signature.startswith(o.__name__ + "("):
-        if isvtkmethod(o) and not has_self.search(signature):
-            signature = "@staticmethod\n" + signature
+        # make it into a python method definition
+        signature = "def " + signature + ': ...'
         if signature not in l:
             l.append(signature)
 
@@ -284,38 +317,25 @@ def get_constructors(c):
         return constructors
     signatures = get_signatures(c)
     for signature in signatures:
-        if signature.startswith(name + "("):
+        if signature.startswith("def " + name + "("):
             signature = re.sub("-> \'?" + name + "\'?", "-> None", signature)
-            if signature.startswith(name + "()"):
+            if signature.startswith("def " + name + "()"):
                 constructors.append(re.sub(name + r"\(", "__init__(self", signature, 1))
             else:
                 constructors.append(re.sub(name + r"\(", "__init__(self, ", signature, 1))
     return constructors
 
+def handle_static(o, signature):
+    """If method has no "self", add @static decorator."""
+    if isvtkmethod(o) and not has_self.search(signature):
+        return "@staticmethod\n" + signature
+    else:
+        return signature
+
 def add_indent(s, indent):
     """Add the given indent before every line in the string.
     """
     return indent + re.sub(r"\n(?=([^\n]))", "\n" + indent, s)
-
-def make_def(s, indent):
-    """Generate a method definition stub from the signature and an indent.
-    The indent is a string (tabs or spaces).
-    """
-    pos = 0
-    out = ""
-    while s.startswith('@', pos):
-        end = s.find('\n', pos) + 1
-        if end == 0:
-            end = len(s)
-        out += indent
-        out += s[pos:end]
-        pos = end
-    if pos < len(s):
-        out += indent
-        out += "def "
-        out += s[pos:]
-        out += ": ..."
-    return out
 
 def namespace_pyi(c, mod):
     """Fake a namespace by creating a dummy class.
@@ -394,10 +414,10 @@ def class_pyi(c):
     else:
         count += 1
         if len(constructors) == 1:
-            out += make_def(constructors[0], "    ") + "\n"
+            out += add_indent(constructors[0], "    ") + "\n"
         else:
             for overload in constructors:
-                out += make_def("@overload\n" + overload, "    ") + "\n"
+                out += add_indent("@overload\n" + overload, "    ") + "\n"
 
     # do the methods
     items = others
@@ -409,10 +429,12 @@ def class_pyi(c):
                 continue
             count += 1
             if len(signatures) == 1:
-                 out += make_def(signatures[0], "    ") + "\n"
+                 signature = handle_static(o, signatures[0])
+                 out += add_indent(signature, "    ") + "\n"
                  continue
             for overload in signatures:
-                 out += make_def("@overload\n" + overload, "    ") + "\n"
+                 signature = handle_static(o, overload)
+                 out += add_indent("@overload\n" + signature, "    ") + "\n"
         else:
             others.append((m, o))
 
