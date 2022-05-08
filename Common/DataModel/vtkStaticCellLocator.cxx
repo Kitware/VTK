@@ -278,7 +278,7 @@ struct vtkCellProcessor
     const double o[3], const double n[3], double tolerance, vtkIdList* cells) = 0;
   virtual int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) = 0;
-  virtual int IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol,
     vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell) = 0;
   virtual bool InsideCellBounds(const double x[3], vtkIdType cellId) = 0;
   virtual vtkIdType FindClosestPointWithinRadius(const double x[3], double radius,
@@ -336,7 +336,7 @@ struct CellProcessor : public vtkCellProcessor
     binBounds[5] = binBounds[4] + h[2];
   }
 
-  static bool IsInBounds(const double bounds[6], const double x[3], const double tol = 0.0)
+  static bool IsInBounds(const double bounds[6], const double x[3], double tol = 0.0)
   {
     return (bounds[0] - tol) <= x[0] && x[0] <= (bounds[1] + tol) && (bounds[2] - tol) <= x[1] &&
       x[1] <= (bounds[3] + tol) && (bounds[4] - tol) <= x[2] && x[2] <= (bounds[5] + tol);
@@ -350,7 +350,7 @@ struct CellProcessor : public vtkCellProcessor
     const double o[3], const double n[3], double tolerance, vtkIdList* cells) override;
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
-  int IntersectWithLine(const double p1[3], const double p2[3], const double tol, vtkPoints* points,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, vtkPoints* points,
     vtkIdList* cellIds, vtkGenericCell* cell) override;
   bool InsideCellBounds(const double x[3], vtkIdType cellId) override;
   vtkIdType FindClosestPointWithinRadius(const double x[3], double radius, double closestPoint[3],
@@ -583,7 +583,7 @@ struct IntersectionInfo
 // cells in intersected bins are placed into the output cellId vtkIdList. See
 // the IntersectWithLine method for more information on voxel traversal.
 template <typename T>
-int CellProcessor<T>::IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+int CellProcessor<T>::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
   // Initialize the list of points/cells
