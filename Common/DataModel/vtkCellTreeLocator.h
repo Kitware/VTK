@@ -37,8 +37,8 @@
  * - Tolerance
  * - RetainCellLists
  *
- * @cite "Fast, Memory-Efficient Cell location in Unstructured Grids for Visualization" by
- * Christoph Garth and Kenneth I. Joy in VisWeek, 2011.
+ * From the article: "Fast, Memory-Efficient Cell location in Unstructured Grids for Visualization"
+ * by Christoph Garth and Kenneth I. Joy in VisWeek, 2011.
  *
  * @sa
  * vtkAbstractCellLocator vtkCellLocator vtkStaticCellLocator vtkModifiedBSPTree vtkOBBTree
