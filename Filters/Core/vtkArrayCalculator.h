@@ -26,7 +26,7 @@
  * parallel using vtkSMPTools.
  *
  * The functions that this array calculator understands is:
- * <pre>
+ *
  * standard operations:
  * +
  * -
@@ -57,7 +57,7 @@
  * sqrt
  * tan
  * tanh
- * </pre>
+ *
  * Note that some of these operations work on scalars, some on vectors, and some on
  * both (e.g., you can multiply a scalar times a vector). The operations are performed
  * tuple-wise (i.e., tuple-by-tuple). The user must specify which arrays to use as
