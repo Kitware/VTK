@@ -144,8 +144,6 @@ struct EvaluatePointsWorker
 {
   bool Intersects;
 
-  EvaluatePointsWorker() {}
-
   template <typename DataT>
   void operator()(DataT* pts, vtkPlane* plane, std::vector<unsigned char>& ptMap)
   {
