@@ -88,6 +88,7 @@ readability-*,\
 -readability-redundant-declaration,\
 -readability-redundant-preprocessor,\
 -readability-simplify-boolean-expr,\
+-readability-static-accessed-through-instance,\
 -readability-uppercase-literal-suffix,\
 -readability-use-anyofallof,\
 "
