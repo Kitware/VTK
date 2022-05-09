@@ -1093,7 +1093,7 @@ void vtkAMReXGridReaderInternal::GetExtraMultiFabBlockAttribute(
     constexpr long ieee_double[] = { 64L, 11L, 52L, 0L, 1L, 12L, 0L, 0x3FFL };
 
     // get the index of the extra multifab
-    if (this->Header->extraMultiFabParsedVarNames[attribute].size() == 0)
+    if (this->Header->extraMultiFabParsedVarNames[attribute].empty())
     {
       return; // variable is malformed or nonexistent
     }
