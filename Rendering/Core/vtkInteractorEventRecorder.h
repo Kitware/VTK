@@ -34,8 +34,11 @@
 #ifndef vtkInteractorEventRecorder_h
 #define vtkInteractorEventRecorder_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractorObserver.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+
+class vtkStringArray;
 
 // The superclass that all commands should be subclasses of
 class VTKRENDERINGCORE_EXPORT vtkInteractorEventRecorder : public vtkInteractorObserver
@@ -126,7 +129,14 @@ protected:
   virtual void WriteEvent(
     const char* event, int pos[2], int modifiers, int keyCode, int repeatCount, char* keySym);
 
-  virtual void ReadEvent();
+  VTK_DEPRECATED_IN_9_2_0(
+    "This method was not used at all and has been replaced by ReadEvent(const std::string&)")
+  virtual void ReadEvent(){};
+
+  /**
+   * A method that parse a event line and invoke the corresponding event
+   */
+  virtual void ReadEvent(const std::string& line);
 
   // Manage the state of the recorder
   int State;
@@ -146,6 +156,7 @@ protected:
   };
 
   static float StreamVersion;
+  float CurrentStreamVersion;
 
 private:
   vtkInteractorEventRecorder(const vtkInteractorEventRecorder&) = delete;
