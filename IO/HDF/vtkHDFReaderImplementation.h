@@ -174,6 +174,8 @@ protected:
    */
   vtkDataArray* NewArrayForGroup(
     hid_t group, const char* name, const std::vector<hsize_t>& fileExtent);
+  vtkDataArray* NewArrayForGroup(hid_t dataset, const hid_t nativeType,
+    const std::vector<hsize_t>& dims, const std::vector<hsize_t>& fileExtent);
   template <typename T>
   vtkDataArray* NewArray(
     hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents);
@@ -215,9 +217,10 @@ private:
   bool ComputeAMRBlocksPerLevels(std::vector<int>& levels);
   bool ReadLevelSpacing(hid_t levelGroupID, double* spacing);
   bool ReadAMRBoxRawValues(hid_t levelGroupID, std::vector<int>& amrBoxRawData);
-  bool ReadAMRAttributeGroupIDs(hid_t levelGroupID);
-  bool ReadLevel(unsigned int level, const std::string& levelGroupName, vtkOverlappingAMR* data,
-    double origin[3], vtkDataArraySelection* dataArraySelection[3]);
+  bool ReadLevelTopology(unsigned int level, const std::string& levelGroupName,
+    vtkOverlappingAMR* data, double origin[3]);
+  bool ReadLevelData(unsigned int level, const std::string& levelGroupName, vtkOverlappingAMR* data,
+    vtkDataArraySelection* dataArraySelection[3]);
   //@}
 };
 
