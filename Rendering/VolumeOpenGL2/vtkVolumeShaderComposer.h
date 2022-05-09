@@ -1205,6 +1205,7 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n     {\
           \n        diffuse = nDotL * in_diffuse[component] *\
           \n               in_lightDiffuseColor[0] * color.rgb;\
+          \n        vDotR = max(vDotR, 0.0);\
           \n        specular = pow(vDotR, in_shininess[component]) *\
           \n                 in_specular[component] *\
           \n                 in_lightSpecularColor[0];\
@@ -1504,6 +1505,7 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
         \n     {\
         \n        diffuse = nDotL * in_diffuse[component] *\
         \n                 in_lightDiffuseColor[0] * color.rgb;\
+        \n        vDotR = max(vDotR, 0.0);\
         \n        specular = pow(vDotR, in_shininess[component]) *\
         \n                   in_specular[component] *\
         \n                   in_lightSpecularColor[0];\
