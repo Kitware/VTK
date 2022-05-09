@@ -131,7 +131,7 @@ static vtkSmartPointer<vtkDataArray> ChangeComponentsAOS(vtkDataArray* array, in
   using Dispatch = vtkArrayDispatch::DispatchByArray<AOSArrays>;
   if (!Dispatch::Execute(result, worker))
   {
-    std::runtime_error("Failed to strip extra components from array!");
+    throw std::runtime_error("Failed to strip extra components from array!");
   }
   return result;
 }
@@ -170,7 +170,7 @@ static vtkSmartPointer<vtkDataArray> ChangeComponentsSOA(vtkDataArray* array, in
   using Dispatch = vtkArrayDispatch::DispatchByArray<SOAArrays>;
   if (!Dispatch::Execute(array, worker))
   {
-    std::runtime_error("Failed to strip extra components from array!");
+    throw std::runtime_error("Failed to strip extra components from array!");
   }
   return array;
 }
