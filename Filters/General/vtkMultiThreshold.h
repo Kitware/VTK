@@ -181,29 +181,27 @@ public:
    \f$\infty\f$
    * or both endpoints set to \f$-\infty\f$ in order to locate cells with problematic values.
 
-   * @param xmin The minimum attribute value
-   * @param xmax The maximum attribute value
-   * @param omin Whether the interval should be open or closed at \a xmin. Use
+   * xmin: The minimum attribute value
+   * xmax: The maximum attribute value
+   * omin: Whether the interval should be open or closed at \a xmin. Use
    vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
-   * @param omax Whether the interval should be open or closed at \a xmax. Use
+   * omax: Whether the interval should be open or closed at \a xmax. Use
    vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
-   * @param assoc One of vtkDataObject::FIELD_ASSOCIATION_CELLS or
+   * assoc: One of vtkDataObject::FIELD_ASSOCIATION_CELLS or
    vtkDataObject::FIELD_ASSOCIATION_POINTS indicating whether
    * a point or cell array should be used.
-   * @param component The number of the component to threshold on or one of the following enumerants
+   * arrayName: The name of the array to use for thresholding
+   * attribType: The attribute to use for thresholding.
+   * One of vtkDataSetAttributes::SCALARS, VECTORS, TENSORS, NORMALS, TCOORDS, or GLOBALIDS.
+   * component: The number of the component to threshold on or one of the following enumerants
    for norms:
    * LINFINITY_NORM, L2_NORM, L1_NORM.
-   * @param allScalars When \a center is vtkDataObject::FIELD_ASSOCIATION_POINTS, must all scalars
+   * allScalars: When \a center is vtkDataObject::FIELD_ASSOCIATION_POINTS, must all scalars
    be in the interval for
    * the cell to be passed to the output, or just a single point's scalar?
    * @return An index used to identify the cells selected by the interval or -1 if the interval
    specification was invalid.
    * If a valid value is returned, you may pass it to OutputSet().
-   *
-   * arrayName The name of the array to use for thresholding
-   * attribType The attribute to use for thresholding.
-   * One of vtkDataSetAttributes::SCALARS, VECTORS, TENSORS, NORMALS, TCOORDS, or GLOBALIDS.
-   *
    */
   int AddIntervalSet(double xmin, double xmax, int omin, int omax, int assoc, const char* arrayName,
     int component, int allScalars);
