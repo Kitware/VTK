@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkPolygon.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkBox.h"
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
@@ -36,6 +37,8 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkPolygon);
+
+#define VTK_POLYGON_TOL 1.e-08 // Absolute tolerance for testing near polygon boundary
 
 //------------------------------------------------------------------------------
 // Instantiate polygon.
@@ -352,7 +355,7 @@ int vtkPolygon::EvaluatePosition(const double x[3], double closestPoint[3], int&
 {
   int i;
   double p0[3], p10[3], l10, p20[3], l20, n[3], cp[3];
-  double ray[3];
+  double ray[3], bounds[6];
 
   subId = 0;
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
@@ -367,9 +370,16 @@ int vtkPolygon::EvaluatePosition(const double x[3], double closestPoint[3], int&
   pcoords[1] = vtkMath::Dot(ray, p20) / (l20 * l20);
   pcoords[2] = 0.0;
 
+  // Make sure that the bounding box has non-zero volume, so that all
+  // bounding box sides have non-zero thickness. This prevents tolerancing
+  // issues when the polygon lies exactly on a coordinate plane.
+  vtkBoundingBox bbox(this->GetBounds());
+  bbox.InflateSlice(VTK_POLYGON_TOL);
+  bbox.GetBounds(bounds);
+
   if (pcoords[0] >= 0.0 && pcoords[0] <= 1.0 && pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
     (vtkPolygon::PointInPolygon(cp, this->Points->GetNumberOfPoints(),
-       static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0), this->GetBounds(),
+       static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0), bounds,
        n) == VTK_POLYGON_INSIDE))
   {
     if (closestPoint)
@@ -670,8 +680,6 @@ inline double PointLocation(int axis0, int axis1, double* p0, double* p1, double
     ((x[axis0] - p0[axis0]) * (p1[axis1] - p0[axis1])));
 }
 }
-
-#define VTK_POLYGON_TOL 1.e-08 // Tolerance for testing on polygon boundary
 
 //------------------------------------------------------------------------------
 // Determine whether a point is inside a polygon. The function uses a winding

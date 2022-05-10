@@ -281,14 +281,18 @@ public:
   /**
    * Expand the bounding box. Inflate(delta) expands by delta on each side,
    * the box will grow by 2*delta in x, y, and z. Inflate(dx,dy,dz) expands
-   * by the given amounts in each of the x, y, z directions. Finally,
-   * Inflate() expands the bounds so that it has non-zero volume. Edges that
-   * are inflated are adjusted 1% of the longest edge. Or if an edge is
-   * zero length, the bounding box is inflated by 1 unit in that direction.
+   * by the given amounts in each of the x, y, z directions.  Inflate()
+   * expands the bounds so that it has non-zero volume. Sides that are
+   * inflated are adjusted by 1% of the longest edge. Or if an edge is zero
+   * length, the bounding box is inflated by 1 unit in that direction.
+   * Finally, InflateSlice(delta) will expand any side of the bounding box by
+   * +/- delta if that side has length <2*delta (i.e., it is a slice as
+   * measured by the user-specified delta)).
    */
   void Inflate(double delta);
   void Inflate(double deltaX, double deltaY, double deltaZ);
   void Inflate();
+  void InflateSlice(double delta);
   ///@}
 
   ///@{
