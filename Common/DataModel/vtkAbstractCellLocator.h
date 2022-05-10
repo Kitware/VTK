@@ -42,6 +42,7 @@
 #include "vtkLocator.h"
 #include "vtkNew.h" // For vtkNew
 
+#include <memory> // For shared_ptr
 #include <vector> // For Weights
 
 class vtkCellArray;
@@ -316,6 +317,11 @@ public:
    */
   virtual bool InsideCellBounds(double x[3], vtkIdType cell_ID);
 
+  /**
+   * Shallow copy of a vtkAbstractCellLocator.
+   */
+  virtual void ShallowCopy(vtkAbstractCellLocator*) {}
+
 protected:
   vtkAbstractCellLocator();
   ~vtkAbstractCellLocator() override;
@@ -342,7 +348,8 @@ protected:
   vtkTypeBool RetainCellLists;
   vtkTypeBool CacheCellBounds;
   vtkNew<vtkGenericCell> GenericCell;
-  double (*CellBounds)[6];
+  std::shared_ptr<std::vector<double>> CellBoundsSharedPtr;
+  double* CellBounds; // The is just used for simplicity in the internal code
 
   /**
    * This time stamp helps us decide if we want to update internal `Weights` array size.

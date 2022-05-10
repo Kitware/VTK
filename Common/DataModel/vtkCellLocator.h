@@ -186,6 +186,11 @@ public:
    */
   virtual int GetNumberOfBuckets(void);
 
+  /**
+   * Shallow copy of a vtkCellLocator.
+   */
+  void ShallowCopy(vtkAbstractCellLocator* locator) override;
+
 protected:
   vtkCellLocator();
   ~vtkCellLocator() override;
@@ -222,9 +227,10 @@ protected:
   double Bounds[6];      // bounding box root octant
   double H[3];           // width of leaf octant in x-y-z directions
   int NumberOfDivisions; // number of "leaf" octant sub-divisions
-  vtkIdList** Tree;      // octree
+  std::shared_ptr<std::vector<vtkSmartPointer<vtkIdList>>> TreeSharedPtr;
+  vtkSmartPointer<vtkIdList>* Tree; // octree
 
-  void MarkParents(void*, int, int, int, int, int);
+  void MarkParents(const vtkSmartPointer<vtkIdList>&, int, int, int, int, int);
   int GenerateIndex(int offset, int numDivs, int i, int j, int k, vtkIdType& idx);
   void GenerateFace(
     int face, int numDivs, int i, int j, int k, vtkPoints* pts, vtkCellArray* polys);
