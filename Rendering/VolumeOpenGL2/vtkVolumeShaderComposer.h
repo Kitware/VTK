@@ -149,8 +149,8 @@ std::string BaseDeclarationVertex(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper*
 
 //--------------------------------------------------------------------------
 std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
-  vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, int vtkNotUsed(numberOfLights),
-  int lightingComplexity, int noOfComponents, int independentComponents)
+  vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, int totalNumberOfLights,
+  int numberPositionalLights, bool defaultLighting, int noOfComponents, int independentComponents)
 {
   const int numInputs = static_cast<int>(inputs.size());
 
@@ -255,50 +255,53 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
   toShaderStr << "vec4 g_eyePosObjs[" << numInputs << "];\n";
 
   const bool hasGradientOpacity = HasGradientOpacity(inputs);
-  if (lightingComplexity > 0 || hasGradientOpacity)
+  if (totalNumberOfLights > 0 || hasGradientOpacity)
   {
     toShaderStr << "uniform bool in_twoSidedLighting;\n";
   }
 
-  if (lightingComplexity == 3)
+  if (totalNumberOfLights > 0)
   {
-    toShaderStr << "vec4 g_fragWorldPos;\n"
-                   "uniform int in_numberOfLights;\n"
-                   "uniform vec3 in_lightAmbientColor[6];\n"
-                   "uniform vec3 in_lightDiffuseColor[6];\n"
-                   "uniform vec3 in_lightSpecularColor[6];\n"
-                   "uniform vec3 in_lightDirection[6];\n"
-                   "uniform vec3 in_lightPosition[6];\n"
-                   "uniform vec3 in_lightAttenuation[6];\n"
-                   "uniform float in_lightConeAngle[6];\n"
-                   "uniform float in_lightExponent[6];\n"
-                   "uniform int in_lightPositional[6];\n";
-  }
-  else if (lightingComplexity == 2)
-  {
-    toShaderStr << "vec4 g_fragWorldPos;\n"
-                   "uniform int in_numberOfLights;\n"
-                   "uniform vec3 in_lightAmbientColor[6];\n"
-                   "uniform vec3 in_lightDiffuseColor[6];\n"
-                   "uniform vec3 in_lightSpecularColor[6];\n"
-                   "uniform vec3 in_lightDirection[6];\n";
-  }
-  else
-  {
-    toShaderStr << "uniform vec3 in_lightAmbientColor[1];\n"
-                   "uniform vec3 in_lightDiffuseColor[1];\n"
-                   "uniform vec3 in_lightSpecularColor[1];\n"
-                   "vec4 g_lightPosObj["
-                << numInputs
-                << "];\n"
-                   "vec3 g_ldir["
-                << numInputs
-                << "];\n"
-                   "vec3 g_vdir["
-                << numInputs
-                << "];\n"
-                   "vec3 g_h["
-                << numInputs << "];\n";
+    std::string totalLights = std::to_string(totalNumberOfLights);
+    std::string positionalLights = std::to_string(numberPositionalLights);
+
+    if (!defaultLighting)
+    {
+      toShaderStr << "#define TOTAL_NUMBER_LIGHTS " << totalLights
+                  << "\n"
+                     "#define NUMBER_POS_LIGHTS "
+                  << positionalLights
+                  << "\n"
+                     "vec4 g_fragWorldPos;\n"
+                     "uniform vec3 in_lightAmbientColor[TOTAL_NUMBER_LIGHTS];\n"
+                     "uniform vec3 in_lightDiffuseColor[TOTAL_NUMBER_LIGHTS];\n"
+                     "uniform vec3 in_lightSpecularColor[TOTAL_NUMBER_LIGHTS];\n"
+                     "uniform vec3 in_lightDirection[TOTAL_NUMBER_LIGHTS];\n";
+      if (numberPositionalLights > 0)
+      {
+        toShaderStr << "uniform vec3 in_lightPosition[NUMBER_POS_LIGHTS];\n"
+                       "uniform vec3 in_lightAttenuation[NUMBER_POS_LIGHTS];\n"
+                       "uniform float in_lightConeAngle[NUMBER_POS_LIGHTS];\n"
+                       "uniform float in_lightExponent[NUMBER_POS_LIGHTS];\n";
+      }
+    }
+    else
+    {
+      toShaderStr << "uniform vec3 in_lightAmbientColor[1];\n"
+                     "uniform vec3 in_lightDiffuseColor[1];\n"
+                     "uniform vec3 in_lightSpecularColor[1];\n"
+                     "vec4 g_lightPosObj["
+                  << numInputs
+                  << "];\n"
+                     "vec3 g_ldir["
+                  << numInputs
+                  << "];\n"
+                     "vec3 g_vdir["
+                  << numInputs
+                  << "];\n"
+                     "vec3 g_h["
+                  << numInputs << "];\n";
+    }
   }
 
   if (noOfComponents > 1 && independentComponents)
@@ -357,7 +360,7 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
 
 //--------------------------------------------------------------------------
 std::string BaseInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
-  vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, int lightingComplexity)
+  vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, bool defaultLighting)
 {
   vtkOpenGLGPUVolumeRayCastMapper* glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   vtkVolume* vol = inputs.begin()->second.Volume;
@@ -450,7 +453,7 @@ std::string BaseInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
       \n  // Flag to determine if voxel should be considered for the rendering\
       \n  g_skip = false;";
 
-  if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
+  if (vol->GetProperty()->GetShade() && defaultLighting)
   {
     shaderStr << "\
         \n  // Light position in dataset space";
@@ -1120,8 +1123,8 @@ std::string ComputeDensityGradientDeclaration(vtkOpenGLGPUVolumeRayCastMapper* m
 
 //--------------------------------------------------------------------------
 std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
-  vtkVolume* vol, int noOfComponents, int independentComponents, int vtkNotUsed(numberOfLights),
-  int lightingComplexity)
+  vtkVolume* vol, int noOfComponents, int independentComponents, int totalNumberOfLights,
+  int numberPositionalLights, bool defaultLighting)
 {
   auto glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   vtkVolumeProperty* volProperty = vol->GetProperty();
@@ -1174,7 +1177,7 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
 
   if (shadeReqd)
   {
-    if (lightingComplexity == 1)
+    if (defaultLighting)
     {
       shaderStr += std::string("\
           \n  vec3 diffuse = vec3(0.0);\
@@ -1216,59 +1219,7 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n                   diffuse + specular;\
           \n");
     }
-    else if (lightingComplexity == 2)
-    {
-      shaderStr += std::string("\
-          \n  g_fragWorldPos = in_modelViewMatrix * in_volumeMatrix[0] *\
-          \n                      in_textureDatasetMatrix[0] * vec4(g_dataPos, 1.0);\
-          \n  if (g_fragWorldPos.w != 0.0)\
-          \n   {\
-          \n   g_fragWorldPos /= g_fragWorldPos.w;\
-          \n   }\
-          \n  vec3 vdir = normalize(-g_fragWorldPos.xyz);\
-          \n  vec3 normal = shading_gradient.xyz;\
-          \n  vec3 ambient = vec3(0.0);\
-          \n  vec3 diffuse = vec3(0.0);\
-          \n  vec3 specular = vec3(0.0);\
-          \n  float normalLength = length(normal);\
-          \n  if (normalLength > 0.0)\
-          \n    {\
-          \n    normal = normalize((in_textureToEye[0] * vec4(normal, 0.0)).xyz);\
-          \n    }\
-          \n  else\
-          \n    {\
-          \n    normal = vec3(0.0, 0.0, 0.0);\
-          \n    }\
-          \n  for (int lightNum = 0; lightNum < in_numberOfLights; lightNum++)\
-          \n    {\
-          \n    vec3 ldir = in_lightDirection[lightNum].xyz;\
-          \n  float nDotL = dot(normal, ldir);\
-          \n  if (nDotL < 0.0 && in_twoSidedLighting)\
-          \n    {\
-          \n    nDotL = -nDotL;\
-          \n    }\
-          \n  if (nDotL > 0.0)\
-          \n    {\
-          \n      diffuse += in_lightDiffuseColor[lightNum] * nDotL;\
-          \n      vec3 r = normalize(2.0 * nDotL * normal - ldir);\
-          \n      float rDotV = dot(r, -vdir);\
-          \n      if (rDotV < 0.0 && in_twoSidedLighting)\
-          \n      {\
-          \n        rDotV = -rDotV;\
-          \n      }\
-          \n      if (rDotV > 0.0)\
-          \n      {\
-          \n        specular = in_lightSpecularColor[lightNum] *\
-          \n               pow(rDotV, in_shininess[component]);\
-          \n      }\
-          \n    }\
-          \n  ambient += in_lightAmbientColor[lightNum];\
-          \n  }\
-          \n  finalColor.xyz = in_ambient[component] * ambient +\
-          \n                   in_diffuse[component] * diffuse * color.rgb +\
-          \n                   in_specular[component] * specular;");
-    }
-    else if (lightingComplexity == 3)
+    else if (totalNumberOfLights > 0)
     {
       shaderStr += std::string("\
           \n  g_fragWorldPos = in_modelViewMatrix * in_volumeMatrix[0] *\
@@ -1283,50 +1234,45 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n  vec3 specular = vec3(0,0,0);\
           \n  vec3 vertLightDirection;\
           \n  vec3 normal = normalize((in_textureToEye[0] * vec4(shading_gradient.xyz, 0.0)).xyz);\
-          \n  vec3 lightDir;\
-          \n  for (int lightNum = 0; lightNum < in_numberOfLights; lightNum++)\
-          \n    {\
+          \n  vec3 lightDir;");
+
+      if (numberPositionalLights > 0)
+      {
+        shaderStr += std::string("\n  for (int posNum = 0; posNum < NUMBER_POS_LIGHTS; posNum++)\
+          \n  {\
           \n    float attenuation = 1.0;\
-          \n    // directional\
-          \n    lightDir = in_lightDirection[lightNum];\
-          \n    if (in_lightPositional[lightNum] == 0)\
-          \n      {\
-          \n      vertLightDirection = lightDir;\
-          \n      }\
-          \n    else\
-          \n      {\
-          \n      vertLightDirection = (g_fragWorldPos.xyz - in_lightPosition[lightNum]);\
-          \n      float distance = length(vertLightDirection);\
-          \n      vertLightDirection = normalize(vertLightDirection);\
-          \n      attenuation = 1.0 /\
-          \n                    (in_lightAttenuation[lightNum].x\
-          \n                    + in_lightAttenuation[lightNum].y * distance\
-          \n                    + in_lightAttenuation[lightNum].z * distance * distance);\
-          \n      // per OpenGL standard cone angle is 90 or less for a spot light\
-          \n      if (in_lightConeAngle[lightNum] <= 90.0)\
-          \n        {\
-          \n        float coneDot = dot(vertLightDirection, lightDir);\
-          \n        // if inside the cone\
-          \n        if (coneDot >= cos(radians(in_lightConeAngle[lightNum])))\
-          \n          {\
-          \n          attenuation = attenuation * pow(coneDot, in_lightExponent[lightNum]);\
-          \n          }\
-          \n        else\
-          \n          {\
-          \n          attenuation = 0.0;\
-          \n          }\
-          \n        }\
-          \n      }\
-          \n  // diffuse and specular lighting\
-          \n  float nDotL = dot(normal, vertLightDirection);\
-          \n  if (nDotL < 0.0 && in_twoSidedLighting)\
+          \n    lightDir = in_lightDirection[posNum];\
+          \n    vertLightDirection = (g_fragWorldPos.xyz - in_lightPosition[posNum]);\
+          \n    float distance = length(vertLightDirection);\
+          \n    vertLightDirection = normalize(vertLightDirection);\
+          \n    attenuation = 1.0 /\
+          \n                  (in_lightAttenuation[posNum].x\
+          \n                  + in_lightAttenuation[posNum].y * distance\
+          \n                  + in_lightAttenuation[posNum].z * distance * distance);\
+          \n    // per OpenGL standard cone angle is 90 or less for a spot light\
+          \n    if (in_lightConeAngle[posNum] <= 90.0)\
           \n    {\
-          \n    nDotL = -nDotL;\
+          \n      float coneDot = dot(vertLightDirection, lightDir);\
+          \n      // if inside the cone\
+          \n      if (coneDot >= cos(radians(in_lightConeAngle[posNum])))\
+          \n      {\
+          \n        attenuation = attenuation * pow(coneDot, in_lightExponent[posNum]);\
+          \n      }\
+          \n      else\
+          \n      {\
+          \n        attenuation = 0.0;\
+          \n      }\
           \n    }\
-          \n  if (nDotL > 0.0)\
+          \n    \
+          \n    float nDotL = dot(normal, vertLightDirection);\
+          \n    if (nDotL < 0.0 && in_twoSidedLighting)\
+          \n    {\
+          \n      nDotL = -nDotL;\
+          \n    }\
+          \n    if (nDotL > 0.0)\
           \n    {\
           \n      float df = max(0.0, attenuation * nDotL);\
-          \n      diffuse += (df * in_lightDiffuseColor[lightNum]);\
+          \n      diffuse += (df * in_lightDiffuseColor[posNum]);\
           \n      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);\
           \n      float rDotV = dot(-viewDirection, r);\
           \n      if (rDotV < 0.0 && in_twoSidedLighting)\
@@ -1336,10 +1282,39 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n      if (rDotV > 0.0)\
           \n      {\
           \n        float sf = attenuation * pow(rDotV, in_shininess[component]);\
-          \n        specular += (sf * in_lightSpecularColor[lightNum]);\
+          \n        specular += (sf * in_lightSpecularColor[posNum]);\
           \n      }\
           \n    }\
-          \n    ambient += in_lightAmbientColor[lightNum];\
+          \n    ambient += in_lightAmbientColor[posNum];\
+          \n  }");
+      }
+
+      shaderStr += std::string(
+        "\n  for (int dirNum = NUMBER_POS_LIGHTS; dirNum < TOTAL_NUMBER_LIGHTS; dirNum++)\
+          \n  {\
+          \n    vertLightDirection = in_lightDirection[dirNum];\
+          \n    float nDotL = dot(normal, vertLightDirection);\
+          \n    if (nDotL < 0.0 && in_twoSidedLighting)\
+          \n    {\
+          \n      nDotL = -nDotL;\
+          \n    }\
+          \n    if (nDotL > 0.0)\
+          \n    {\
+          \n      float df = max(0.0, nDotL);\
+          \n      diffuse += (df * in_lightDiffuseColor[dirNum]);\
+          \n      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);\
+          \n      float rDotV = dot(-viewDirection, r);\
+          \n      if (rDotV < 0.0 && in_twoSidedLighting)\
+          \n      {\
+          \n        rDotV = -rDotV;\
+          \n      }\
+          \n      if (rDotV > 0.0)\
+          \n      {\
+          \n        float sf = pow(rDotV, in_shininess[component]);\
+          \n        specular += (sf * in_lightSpecularColor[dirNum]);\
+          \n      }\
+          \n    }\
+          \n    ambient += in_lightAmbientColor[dirNum];\
           \n  }\
           \n  finalColor.xyz = in_ambient[component] * ambient +\
           \n                   in_diffuse[component] * diffuse * color.rgb +\
@@ -1401,8 +1376,8 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
 
 //--------------------------------------------------------------------------
 std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
-  vtkVolume* vol, int noOfComponents, int independentComponents, int vtkNotUsed(numberOfLights),
-  int lightingComplexity)
+  vtkVolume* vol, int noOfComponents, int independentComponents,
+  int vtkNotUsed(totalNumberOfLights), bool defaultLighting)
 {
   auto glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   vtkVolumeProperty* volProperty = vol->GetProperty();
@@ -1473,7 +1448,7 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
     }
   }
 
-  if (shadeReqd && lightingComplexity == 1)
+  if (shadeReqd && defaultLighting)
   {
     shaderStr += std::string("\
         \n  vec3 diffuse = vec3(0.0);\
