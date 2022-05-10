@@ -50,7 +50,8 @@
 #include "vtkAbstractCellLocator.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
-#include <vector>                     // Needed for internal class
+
+#include <vector> // Needed for internal class
 
 class vtkCellPointTraversal;
 class vtkIdTypeArray;
@@ -107,8 +108,7 @@ public:
 
   /**
    * Return a list of unique cell ids inside of a given bounding box. The
-   * user must provide the vtkIdList to populate. This method returns data
-   * only after the locator has been built.
+   * user must provide the vtkIdList to populate.
    */
   void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
 
@@ -205,6 +205,11 @@ public:
     vtkIdType Size() const;
   };
 
+  /**
+   * Shallow copy of a vtkCellTreeLocator.
+   */
+  void ShallowCopy(vtkAbstractCellLocator* locator) override;
+
 protected:
   vtkCellTreeLocator();
   ~vtkCellTreeLocator() override;
@@ -219,7 +224,7 @@ protected:
 
   int NumberOfBuckets;
 
-  vtkCellTree* Tree;
+  std::shared_ptr<vtkCellTree> Tree;
 
   friend class vtkCellPointTraversal;
   friend class vtkCellTreeNode;
