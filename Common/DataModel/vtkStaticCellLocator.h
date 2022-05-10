@@ -257,6 +257,11 @@ public:
   void ForceBuildLocator() override;
   ///@}
 
+  /**
+   * Shallow copy of a vtkStaticCellLocator.
+   */
+  void ShallowCopy(vtkAbstractCellLocator* locator) override;
+
 protected:
   vtkStaticCellLocator();
   ~vtkStaticCellLocator() override;

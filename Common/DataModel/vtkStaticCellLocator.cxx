@@ -72,7 +72,7 @@ vtkStandardNewMacro(vtkStaticCellLocator);
 // PIMPLd class which wraps binning functionality.
 struct vtkCellBinner
 {
-  vtkStaticCellLocator* Locator; // locater
+  vtkStaticCellLocator* Locator; // locator
   vtkIdType NumCells;            // the number of cells to bin
   vtkIdType NumBins;
   vtkIdType NumFragments; // total number of (cellId,binId) tuples
@@ -81,12 +81,16 @@ struct vtkCellBinner
   vtkDataSet* DataSet;
   int Divisions[3];
   double Bounds[6];
+  std::shared_ptr<std::vector<double>> CellBoundsSharedPtr;
   double* CellBounds;
+  std::shared_ptr<std::vector<vtkIdType>> CountsSharedPtr;
   vtkIdType* Counts;
   double H[3];
   double hX, hY, hZ;
   double fX, fY, fZ, bX, bY, bZ;
   vtkIdType xD, yD, zD, xyD;
+
+  vtkCellBinner() = default;
 
   // Construction
   vtkCellBinner(vtkStaticCellLocator* loc, vtkIdType numCells, vtkIdType numBins)
@@ -99,8 +103,11 @@ struct vtkCellBinner
     loc->GetDivisions(this->Divisions);
 
     // Allocate data. Note that these arrays are deleted elsewhere
-    this->CellBounds = new double[numCells * 6];
-    this->Counts = new vtkIdType[numCells + 1]; // one extra holds total count
+    this->CellBoundsSharedPtr = std::make_shared<std::vector<double>>(numCells * 6);
+    this->CellBounds = this->CellBoundsSharedPtr->data();
+    this->CountsSharedPtr =
+      std::make_shared<std::vector<vtkIdType>>(numCells + 1); // one extra holds total count
+    this->Counts = this->CountsSharedPtr->data();
 
     // This is done to cause non-thread safe initialization to occur due to
     // side effects from GetCellBounds().
@@ -127,8 +134,10 @@ struct vtkCellBinner
 
   ~vtkCellBinner()
   {
-    delete[] this->CellBounds;
-    delete[] this->Counts;
+    this->CellBoundsSharedPtr.reset();
+    this->CellBounds = nullptr;
+    this->CountsSharedPtr.reset();
+    this->Counts = nullptr;
   }
 
   void GetBinIndices(const double* x, int ijk[3]) const
@@ -249,6 +258,8 @@ struct vtkCellProcessor
   vtkIdType xD, xyD;
   size_t MaxCellSize;
 
+  vtkCellProcessor() = default;
+
   vtkCellProcessor(vtkCellBinner* cb)
     : Binner(cb)
   {
@@ -297,24 +308,32 @@ template <typename T>
 struct CellProcessor : public vtkCellProcessor
 {
   // Type dependent members
-  CellFragments<T>* Map; // the map to be sorted
-  T* Offsets;            // offsets for each bin into the map
+  std::shared_ptr<std::vector<CellFragments<T>>> MapSharedPtr; // SharedPtr of map
+  CellFragments<T>* Map;                                       // the map to be sorted
+  std::shared_ptr<std::vector<T>> OffsetsShardPtr;             // SharedPtr of offsets
+  T* Offsets;                                                  // offsets for each bin into the map
+
+  CellProcessor() = default;
 
   CellProcessor(vtkCellBinner* cb)
     : vtkCellProcessor(cb)
   {
     // Prepare to sort
     // one extra to simplify traversal
-    this->Map = new CellFragments<T>[this->NumFragments + 1];
+    this->MapSharedPtr = std::make_shared<std::vector<CellFragments<T>>>(this->NumFragments + 1);
+    this->Map = this->MapSharedPtr->data();
     this->Map[this->NumFragments].BinId = this->NumBins;
-    this->Offsets = new T[this->NumBins + 1];
+    this->OffsetsShardPtr = std::make_shared<std::vector<T>>(this->NumBins + 1);
+    this->Offsets = this->OffsetsShardPtr->data();
     this->Offsets[this->NumBins] = this->NumFragments;
   }
 
   ~CellProcessor() override
   {
-    delete[] this->Map;
-    delete[] this->Offsets;
+    this->MapSharedPtr.reset();
+    this->Map = nullptr;
+    this->OffsetsShardPtr.reset();
+    this->Offsets = nullptr;
   }
 
   // The number of cell ids in a bin is determined by computing the
@@ -496,7 +515,7 @@ vtkIdType CellProcessor<T>::FindCell(
   {
     const CellFragments<T>* cellIds = this->GetIds(binId);
     double dist2;
-    vtkIdType cellId;
+    T cellId;
 
     for (T j = 0; j < numIds; j++)
     {
@@ -525,6 +544,11 @@ void CellProcessor<T>::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
   double pMin[3], pMax[3];
   const CellFragments<T>* ids;
 
+  // Initialize the list of cells
+  if (!cells)
+  {
+    return;
+  }
   cells->Reset();
 
   // Get the locator locations for the two extreme corners of the bounding box
@@ -928,18 +952,16 @@ void CellProcessor<T>::FindCellsAlongPlane(
   const double o[3], const double n[3], double vtkNotUsed(tol), vtkIdList* cells)
 {
   // Initialize the list of cells
+  if (!cells)
+  {
+    return;
+  }
   cells->Reset();
 
   // Make sure that the bounding box of the locator is intersected.
   double* bounds = this->Binner->Bounds;
-  double origin[3];
-  origin[0] = o[0];
-  origin[1] = o[1];
-  origin[2] = o[2];
-  double normal[3];
-  normal[0] = n[0];
-  normal[1] = n[1];
-  normal[2] = n[2];
+  double origin[3] = { o[0], o[1], o[2] };
+  double normal[3] = { n[0], n[1], n[2] };
   if (vtkBox::IntersectWithPlane(bounds, origin, normal) == 0)
   {
     return;
@@ -947,7 +969,7 @@ void CellProcessor<T>::FindCellsAlongPlane(
 
   // Okay now evaluate which bins intersect the plane, and then the cells in
   // the bins. We do this in parallel and mark the cells. Later the marked
-  // cells will be added (in serial) to the output list. cellHasBeenVisited
+  // cells will be added (serially) to the output list. cellHasBeenVisited
   // has three states: 0(not visited), 1(visited but not intersecting),
   // 2(visited and potential intersection candidate).
   std::vector<unsigned char> cellHasBeenVisited(this->NumCells, 0);
@@ -1684,6 +1706,109 @@ void vtkStaticCellLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPoly
       }   // x
     }     // y
   }       // z
+}
+
+//------------------------------------------------------------------------------
+void vtkStaticCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
+{
+  vtkStaticCellLocator* cellLocator = vtkStaticCellLocator::SafeDownCast(locator);
+  if (!cellLocator)
+  {
+    vtkErrorMacro("Cannot cast " << locator->GetClassName() << " to vtkStaticCellLocator.");
+    return;
+  }
+  // we only copy what's actually used by vtkStaticCellLocator
+
+  // vtkLocator parameters
+  this->SetDataSet(cellLocator->GetDataSet());
+  this->SetUseExistingSearchStructure(cellLocator->GetUseExistingSearchStructure());
+  this->SetAutomatic(cellLocator->GetAutomatic());
+
+  // vtkAbstractCellLocator parameters
+  this->SetNumberOfCellsPerNode(cellLocator->GetNumberOfCellsPerNode());
+
+  // vtkStaticCellLocator parameters
+  std::copy_n(cellLocator->Bounds, 6, this->Bounds);
+  std::copy_n(cellLocator->Divisions, 3, this->Divisions);
+  std::copy_n(cellLocator->H, 3, this->H);
+  this->SetMaxNumberOfBuckets(cellLocator->GetMaxNumberOfBuckets());
+  this->LargeIds = cellLocator->LargeIds;
+  // copy binner
+  this->Binner = new vtkCellBinner();
+  this->Binner->Locator = this; // this should be different
+  this->Binner->NumCells = cellLocator->Binner->NumCells;
+  this->Binner->NumBins = cellLocator->Binner->NumBins;
+  this->Binner->NumFragments = cellLocator->Binner->NumFragments;
+  this->Binner->DataSet = this->DataSet; // this should be different
+  std::copy_n(cellLocator->Binner->Divisions, 3, this->Binner->Divisions);
+  std::copy_n(cellLocator->Binner->Bounds, 6, this->Binner->Bounds);
+  this->Binner->CellBoundsSharedPtr = cellLocator->Binner->CellBoundsSharedPtr; // this is important
+  this->Binner->CellBounds =
+    this->Binner->CellBoundsSharedPtr.get() ? this->Binner->CellBoundsSharedPtr->data() : nullptr;
+  this->Binner->CountsSharedPtr = cellLocator->Binner->CountsSharedPtr; // this is important
+  this->Binner->Counts =
+    this->Binner->CountsSharedPtr.get() ? this->Binner->CountsSharedPtr->data() : nullptr;
+  std::copy_n(cellLocator->Binner->H, 3, this->Binner->H);
+  this->Binner->hX = cellLocator->Binner->hX;
+  this->Binner->hY = cellLocator->Binner->hY;
+  this->Binner->hZ = cellLocator->Binner->hZ;
+  this->Binner->fX = cellLocator->Binner->fX;
+  this->Binner->fY = cellLocator->Binner->fY;
+  this->Binner->fZ = cellLocator->Binner->fZ;
+  this->Binner->bX = cellLocator->Binner->bX;
+  this->Binner->bY = cellLocator->Binner->bY;
+  this->Binner->bZ = cellLocator->Binner->bZ;
+  this->Binner->xD = cellLocator->Binner->xD;
+  this->Binner->yD = cellLocator->Binner->yD;
+  this->Binner->zD = cellLocator->Binner->zD;
+  this->Binner->xyD = cellLocator->Binner->xyD;
+  // copy processor
+  if (this->LargeIds)
+  {
+    auto cellLocatorProcessor = static_cast<CellProcessor<vtkIdType>*>(cellLocator->Processor);
+    CellProcessor<vtkIdType>* processor = new CellProcessor<vtkIdType>();
+    processor->Binner = this->Binner;
+    processor->DataSet = this->DataSet;
+    processor->Bounds = this->Binner->Bounds;
+    processor->CellBounds = this->Binner->CellBounds;
+    processor->Counts = this->Binner->Counts;
+    processor->NumCells = this->Binner->NumCells;
+    processor->NumBins = this->Binner->NumBins;
+    processor->BatchSize = cellLocatorProcessor->BatchSize;
+    processor->NumBatches = cellLocatorProcessor->NumBatches;
+    processor->xD = this->Binner->xD;
+    processor->xyD = this->Binner->xyD;
+    processor->MaxCellSize = cellLocatorProcessor->MaxCellSize;
+    processor->MapSharedPtr = cellLocatorProcessor->MapSharedPtr; // this is important
+    processor->Map = processor->MapSharedPtr.get() ? processor->MapSharedPtr->data() : nullptr;
+    processor->OffsetsShardPtr = cellLocatorProcessor->OffsetsShardPtr; // this is important
+    processor->Offsets =
+      processor->OffsetsShardPtr.get() ? processor->OffsetsShardPtr->data() : nullptr;
+    this->Processor = processor;
+  }
+  else
+  {
+    auto cellLocatorProcessor = static_cast<CellProcessor<int>*>(cellLocator->Processor);
+    CellProcessor<int>* processor = new CellProcessor<int>();
+    processor->Binner = this->Binner;
+    processor->DataSet = this->DataSet;
+    processor->Bounds = this->Binner->Bounds;
+    processor->CellBounds = this->Binner->CellBounds;
+    processor->Counts = this->Binner->Counts;
+    processor->NumCells = this->Binner->NumCells;
+    processor->NumBins = this->Binner->NumBins;
+    processor->BatchSize = cellLocatorProcessor->BatchSize;
+    processor->NumBatches = cellLocatorProcessor->NumBatches;
+    processor->xD = this->Binner->xD;
+    processor->xyD = this->Binner->xyD;
+    processor->MaxCellSize = cellLocatorProcessor->MaxCellSize;
+    processor->MapSharedPtr = cellLocatorProcessor->MapSharedPtr; // this is important
+    processor->Map = processor->MapSharedPtr.get() ? processor->MapSharedPtr->data() : nullptr;
+    processor->OffsetsShardPtr = cellLocatorProcessor->OffsetsShardPtr; // this is important
+    processor->Offsets =
+      processor->OffsetsShardPtr.get() ? processor->OffsetsShardPtr->data() : nullptr;
+    this->Processor = processor;
+  }
 }
 
 //------------------------------------------------------------------------------
