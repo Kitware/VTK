@@ -34,8 +34,6 @@ vtkFunctionParser::vtkFunctionParser()
   this->StackSize = 0;
   this->StackPointer = 0;
 
-  this->EvaluateMTime.Modified();
-  this->VariableMTime.Modified();
   this->ParseMTime.Modified();
   this->FunctionMTime.Modified();
   this->CheckMTime.Modified();
@@ -844,19 +842,15 @@ bool vtkFunctionParser::Evaluate()
   }
   this->StackPointer = stackPosition;
 
-  this->EvaluateMTime.Modified();
-
   return true;
 }
 
 //------------------------------------------------------------------------------
 int vtkFunctionParser::IsScalarResult()
 {
-  if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
-    this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
+  if (!this->Evaluate())
   {
-    if (!this->Evaluate())
-      return 0;
+    return 0;
   }
   return (this->StackPointer == 0);
 }
@@ -874,11 +868,9 @@ double vtkFunctionParser::GetScalarResult()
 
 int vtkFunctionParser::IsVectorResult()
 {
-  if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
-    this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
+  if (!this->Evaluate())
   {
-    if (!this->Evaluate())
-      return 0;
+    return 0;
   }
   return (this->StackPointer == 2);
 }
@@ -954,7 +946,6 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName, doubl
       if (this->ScalarVariableValues[i] != value)
       {
         this->ScalarVariableValues[i] = value;
-        this->VariableMTime.Modified();
         this->Modified();
       }
       delete[] variableName;
@@ -963,7 +954,6 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName, doubl
   }
   this->ScalarVariableValues.push_back(value);
   this->ScalarVariableNames.emplace_back(variableName);
-  this->VariableMTime.Modified();
   this->Modified();
   delete[] variableName;
 }
@@ -979,9 +969,7 @@ void vtkFunctionParser::SetScalarVariableValue(int i, double value)
   if (this->ScalarVariableValues[i] != value)
   {
     this->ScalarVariableValues[i] = value;
-    this->VariableMTime.Modified();
   }
-  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -1029,7 +1017,6 @@ void vtkFunctionParser::SetVectorVariableValue(
         this->VectorVariableValues[i][0] = xValue;
         this->VectorVariableValues[i][1] = yValue;
         this->VectorVariableValues[i][2] = zValue;
-        this->VariableMTime.Modified();
         this->Modified();
       }
       delete[] variableName;
@@ -1044,7 +1031,6 @@ void vtkFunctionParser::SetVectorVariableValue(
   val[2] = zValue;
   this->VectorVariableValues.push_back(val);
 
-  this->VariableMTime.Modified();
   this->Modified();
   delete[] variableName;
 }
@@ -1062,8 +1048,6 @@ void vtkFunctionParser::SetVectorVariableValue(int i, double xValue, double yVal
     this->VectorVariableValues[i][0] = xValue;
     this->VectorVariableValues[i][1] = yValue;
     this->VectorVariableValues[i][2] = zValue;
-    this->VariableMTime.Modified();
-    this->Modified();
   }
 }
 
@@ -2202,14 +2186,6 @@ vtkMTimeType vtkFunctionParser::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
 
-  if (this->EvaluateMTime > mTime)
-  {
-    mTime = this->EvaluateMTime;
-  }
-  if (this->VariableMTime > mTime)
-  {
-    mTime = this->VariableMTime;
-  }
   if (this->ParseMTime > mTime)
   {
     mTime = this->ParseMTime;
@@ -2249,9 +2225,7 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
        << this->GetVectorVariableValue(i)[2] << ")" << endl;
   }
 
-  if (this->EvaluateMTime.GetMTime() > this->FunctionMTime.GetMTime() &&
-    this->EvaluateMTime.GetMTime() > this->VariableMTime.GetMTime() &&
-    (this->StackPointer == 0 || this->StackPointer == 2))
+  if (this->Function != nullptr && (this->StackPointer == 0 || this->StackPointer == 2))
   {
     if (this->StackPointer == 0)
     {
