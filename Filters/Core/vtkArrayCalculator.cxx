@@ -128,6 +128,11 @@ private:
   std::vector<int> SelectedCoordinateScalarComponents;
   std::vector<vtkTuple<int, 3>> SelectedCoordinateVectorComponents;
 
+  int ScalarArrayNamesSize;
+  int VectorArrayNamesSize;
+  int CoordinateScalarVariableNamesSize;
+  int CoordinateVectorVariableNamesSize;
+
   std::vector<vtkDataArray*> ScalarArrays;
   std::vector<vtkDataArray*> VectorArrays;
   std::vector<int> ScalarArrayIndices;
@@ -172,6 +177,10 @@ public:
     , CoordinateVectorVariableNames(coordinateVectorVariableNames)
     , SelectedCoordinateScalarComponents(selectedCoordinateScalarComponents)
     , SelectedCoordinateVectorComponents(selectedCoordinateVectorComponents)
+    , ScalarArrayNamesSize(static_cast<int>(scalarArrayNames.size()))
+    , VectorArrayNamesSize(static_cast<int>(vectorArrayNames.size()))
+    , CoordinateScalarVariableNamesSize(static_cast<int>(coordinateScalarVariableNames.size()))
+    , CoordinateVectorVariableNamesSize(static_cast<int>(coordinateVectorVariableNames.size()))
     , ScalarArrays(scalarArrays)
     , VectorArrays(vectorArrays)
     , ScalarArrayIndices(scalarArrayIndices)
@@ -186,6 +195,7 @@ public:
   void Initialize()
   {
     auto& functionParser = FunctionParser.Local();
+    int i;
 
     functionParser = vtkSmartPointer<TFunctionParser>::New();
     functionParser->SetFunction(this->Function);
@@ -194,7 +204,7 @@ public:
 
     // Tell the parser about scalar arrays
     vtkDataArray* currentArray;
-    for (size_t i = 0; i < this->ScalarArrayNames.size(); i++)
+    for (i = 0; i < this->ScalarArrayNamesSize; i++)
     {
       currentArray = this->InFD->GetArray(this->ScalarArrayNames[i].c_str());
       if (currentArray)
@@ -223,7 +233,7 @@ public:
     }
 
     // Tell the parser about vector arrays
-    for (size_t i = 0; i < this->VectorArrayNames.size(); i++)
+    for (i = 0; i < this->VectorArrayNamesSize; i++)
     {
       currentArray = this->InFD->GetArray(this->VectorArrayNames[i].c_str());
       if (currentArray)
@@ -259,7 +269,7 @@ public:
     if (this->AttributeType == vtkDataObject::POINT || AttributeType == vtkDataObject::VERTEX)
     {
       double pt[3];
-      for (size_t i = 0; i < this->CoordinateScalarVariableNames.size(); i++)
+      for (i = 0; i < this->CoordinateScalarVariableNamesSize; i++)
       {
         if (this->DsInput)
         {
@@ -273,7 +283,7 @@ public:
           this->CoordinateScalarVariableNames[i], pt[this->SelectedCoordinateScalarComponents[i]]);
       }
 
-      for (size_t i = 0; i < this->CoordinateVectorVariableNames.size(); i++)
+      for (i = 0; i < this->CoordinateVectorVariableNamesSize; i++)
       {
         if (this->DsInput)
         {
@@ -295,10 +305,11 @@ public:
   {
     auto& functionParser = FunctionParser.Local();
     vtkDataArray* currentArray;
+    int j = 0;
 
     for (vtkIdType i = begin; i < end; i++)
     {
-      for (size_t j = 0; j < this->ScalarArrayNames.size(); j++)
+      for (j = 0; j < this->ScalarArrayNamesSize; j++)
       {
         if ((currentArray = this->ScalarArrays[j]))
         {
@@ -306,7 +317,7 @@ public:
             currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
         }
       }
-      for (size_t j = 0; j < this->VectorArrayNames.size(); j++)
+      for (j = 0; j < this->VectorArrayNamesSize; j++)
       {
         if ((currentArray = this->VectorArrays[j]))
         {
@@ -328,16 +339,14 @@ public:
         {
           this->GraphInput->GetPoint(i, pt);
         }
-        for (size_t j = 0; j < this->CoordinateScalarVariableNames.size(); j++)
+        for (j = 0; j < this->CoordinateScalarVariableNamesSize; j++)
         {
           functionParser->SetScalarVariableValue(
-            static_cast<int>(j + this->ScalarArrayNames.size()),
-            pt[this->SelectedCoordinateScalarComponents[j]]);
+            j + this->ScalarArrayNamesSize, pt[this->SelectedCoordinateScalarComponents[j]]);
         }
-        for (size_t j = 0; j < this->CoordinateVectorVariableNames.size(); j++)
+        for (j = 0; j < this->CoordinateVectorVariableNamesSize; j++)
         {
-          functionParser->SetVectorVariableValue(
-            static_cast<int>(j + this->VectorArrayNames.size()),
+          functionParser->SetVectorVariableValue(j + this->VectorArrayNamesSize,
             pt[this->SelectedCoordinateVectorComponents[j][0]],
             pt[this->SelectedCoordinateVectorComponents[j][1]],
             pt[this->SelectedCoordinateVectorComponents[j][2]]);
