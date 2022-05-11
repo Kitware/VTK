@@ -732,7 +732,7 @@ int vtkArrayCalculator::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDataObject* inputDataObject = cdIter->GetCurrentDataObject();
       vtkDataObject* outputDataObject = inputDataObject->NewInstance();
-      outputDataObject->DeepCopy(inputDataObject);
+      outputDataObject->ShallowCopy(inputDataObject);
       outputCD->SetDataSet(cdIter, outputDataObject);
       outputDataObject->FastDelete();
 
