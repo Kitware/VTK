@@ -21,6 +21,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
 endif ()
 
 set(VTK_WHEEL_BUILD ON CACHE BOOL "")
+set(VTK_INSTALL_SDK ON CACHE BOOL "")
+
 set(CMAKE_PREFIX_PATH "$ENV{PYTHON_PREFIX}" CACHE STRING "")
 set(Python3_EXECUTABLE "$ENV{PYTHON_PREFIX}/${python_subdir}python$ENV{PYTHON_VERSION_SUFFIX}" CACHE FILEPATH "")
 # We always want the Python specified here, not the system one.

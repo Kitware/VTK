@@ -12,6 +12,7 @@
 
     variables:
         GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
+        VTK_INSTALL: 1
 
 .wheel_linux36_x86_64:
     extends: .manylinux2014_x86_64
@@ -394,6 +395,8 @@
         - auditwheel repair dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
         - mv -v dist/ dist-orig/
         - mv -v wheelhouse/ dist/
+        - "$PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py"
+
     interruptible: true
 
 .cmake_test_wheel_linux:

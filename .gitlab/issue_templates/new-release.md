@@ -67,8 +67,10 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
     - [ ] Source (from the `build:source` CI job in the tag pipeline)
     - [ ] Documentation (from the `release-prep:documentation` CI job in the tag pipeline)
     - [ ] Wheels (from the `build:wheel-*` jobs).
+    - [ ] Wheel SDKs (from the `build:wheel-*` jobs (`vtk-wheel-sdk-*.tar.xz`)).
   - Upload assets to `vtk.org`
-    - [ ] `rsync -rptv $tarballs $wheels user@host:vtk_release/@MAJOR@.@MINOR@/`
+    - [ ] `rsync -rptv $tarballs $wheels $wheel_sdks user@host:vtk_release/@MAJOR@.@MINOR@/`
+    - [ ] `rsync -rptv $wheel_sdks user@host:wheel-sdks/`
   - [ ] Update `vtk.org/download` with the new release (email
         `comm@kitware.com` with filenames and hashes)
   - Software process updates (these can all be done independently)
