@@ -148,29 +148,13 @@ int TestPDescriptiveStatistics(int argc, char* argv[])
 
   vtkLog(INFO, "Testing Model");
 
-  // Testing measured statistics. Rank other than 0 should not have any data.
-  if (myrank == 0)
-  {
-    auto outPrimaryTable = vtkTable::SafeDownCast(outModel->GetBlock(0));
-    auto outRefPrimaryTable = vtkTable::SafeDownCast(outRefModel->GetBlock(0));
+  auto outPrimaryTable = vtkTable::SafeDownCast(outModel->GetBlock(0));
+  auto outRefPrimaryTable = vtkTable::SafeDownCast(outRefModel->GetBlock(0));
 
-    if (!TablesAreSame(outPrimaryTable, outRefPrimaryTable))
-    {
-      vtkLog(ERROR, "Measured statistics mismatch between single-process and multi-process.");
-      retVal = EXIT_FAILURE;
-    }
-  }
-  else
+  if (!TablesAreSame(outPrimaryTable, outRefPrimaryTable))
   {
-    std::vector<vtkTable*> outputs = vtkCompositeDataSet::GetDataSets<vtkTable>(outModel);
-    for (vtkTable* output : outputs)
-    {
-      if (output->GetNumberOfColumns())
-      {
-        vtkLog(ERROR, "Output other than rank 0 has a non-empty output model.");
-        retVal = EXIT_FAILURE;
-      }
-    }
+    vtkLog(ERROR, "Measured statistics mismatch between single-process and multi-process.");
+    retVal = EXIT_FAILURE;
   }
 
   vtkLog(INFO, "Testing Assess");

@@ -73,8 +73,6 @@ protected:
 
   vtkMultiProcessController* Controller;
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
 private:
   vtkPDescriptiveStatistics(const vtkPDescriptiveStatistics&) = delete;
   void operator=(const vtkPDescriptiveStatistics&) = delete;

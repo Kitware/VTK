@@ -187,22 +187,3 @@ void vtkPDescriptiveStatistics::Learn(
   }
   delete[] n_g;
 }
-
-//------------------------------------------------------------------------------
-int vtkPDescriptiveStatistics::RequestData(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
-{
-  int retVal = this->Superclass::RequestData(request, inputVector, outputVector);
-
-  if (this->Controller && this->Controller->GetLocalProcessId() != 0)
-  {
-    vtkMultiBlockDataSet* outModel = vtkMultiBlockDataSet::GetData(outputVector, OUTPUT_MODEL);
-    std::vector<vtkDataObject*> outputs = vtkCompositeDataSet::GetDataSets<vtkDataObject>(outModel);
-    for (vtkDataObject* output : outputs)
-    {
-      output->Initialize();
-    }
-  }
-
-  return retVal;
-}
