@@ -57,6 +57,11 @@ public:
   bool Paint(vtkContext2D* painter) override;
 
   /**
+   * Draw a rect on a specific axis
+   */
+  bool PaintRect(vtkContext2D* painter, int axis, float min, float max);
+
+  /**
    * Set the visibility of the specified column.
    */
   void SetColumnVisibility(const vtkStdString& name, bool visible);
@@ -149,6 +154,12 @@ public:
    */
   bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
 
+  /**
+   * Update the selection of an axis based on the current selectionMode we
+   * have previously set.
+   */
+  void UpdateCurrentAxisSelection(int axisId);
+
 protected:
   vtkChartParallelCoordinates();
   ~vtkChartParallelCoordinates() override;
@@ -179,7 +190,7 @@ protected:
   vtkTimeStamp BuildTime;
 
   void ResetSelection();
-  bool ResetAxeSelection(int axe);
+  void ResetAxeSelection(int axe);
   void ResetAxesSelection();
   void UpdateGeometry();
   void CalculatePlotTransform();
