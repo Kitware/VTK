@@ -331,8 +331,6 @@ vtkStandardNewMacro(vtkExprTkFunctionParser);
 //------------------------------------------------------------------------------
 vtkExprTkFunctionParser::vtkExprTkFunctionParser()
 {
-  this->EvaluateMTime.Modified();
-  this->VariableMTime.Modified();
   this->ParseMTime.Modified();
   this->FunctionMTime.Modified();
 
@@ -788,19 +786,15 @@ bool vtkExprTkFunctionParser::Evaluate()
       return false;
   }
 
-  this->EvaluateMTime.Modified();
-
   return true;
 }
 
 //------------------------------------------------------------------------------
 int vtkExprTkFunctionParser::IsScalarResult()
 {
-  if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
-    this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
+  if (!this->Evaluate())
   {
-    if (!this->Evaluate())
-      return 0;
+    return 0;
   }
   return (this->ResultType == ExprTkResultType::e_scalar);
 }
@@ -819,11 +813,9 @@ double vtkExprTkFunctionParser::GetScalarResult()
 //------------------------------------------------------------------------------
 int vtkExprTkFunctionParser::IsVectorResult()
 {
-  if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
-    this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
+  if (!this->Evaluate())
   {
-    if (!this->Evaluate())
-      return 0;
+    return 0;
   }
   return (this->ResultType == ExprTkResultType::e_vector);
 }
@@ -885,7 +877,6 @@ void vtkExprTkFunctionParser::SetScalarVariableValue(
       if (*this->ScalarVariableValues[i] != value)
       {
         *this->ScalarVariableValues[i] = value;
-        this->VariableMTime.Modified();
         this->Modified();
       }
       return;
@@ -908,7 +899,6 @@ void vtkExprTkFunctionParser::SetScalarVariableValue(
     this->OriginalScalarVariableNames.push_back(inVariableName);
     this->UsedScalarVariableNames.push_back(variableName);
 
-    this->VariableMTime.Modified();
     this->Modified();
   }
   else
@@ -929,9 +919,7 @@ void vtkExprTkFunctionParser::SetScalarVariableValue(int i, double value)
   if (*this->ScalarVariableValues[i] != value)
   {
     *this->ScalarVariableValues[i] = value;
-    this->VariableMTime.Modified();
   }
-  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -991,7 +979,6 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
         (*this->VectorVariableValues[i])[0] = xValue;
         (*this->VectorVariableValues[i])[1] = yValue;
         (*this->VectorVariableValues[i])[2] = zValue;
-        this->VariableMTime.Modified();
         this->Modified();
       }
       return;
@@ -1017,8 +1004,6 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
     this->VectorVariableValues.push_back(vector);
     this->OriginalVectorVariableNames.push_back(inVariableName);
     this->UsedVectorVariableNames.push_back(variableName);
-
-    this->VariableMTime.Modified();
     this->Modified();
   }
   else
@@ -1042,8 +1027,6 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
     (*this->VectorVariableValues[i])[0] = xValue;
     (*this->VectorVariableValues[i])[1] = yValue;
     (*this->VectorVariableValues[i])[2] = zValue;
-    this->VariableMTime.Modified();
-    this->Modified();
   }
 }
 
@@ -1115,14 +1098,6 @@ vtkMTimeType vtkExprTkFunctionParser::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
 
-  if (this->EvaluateMTime > mTime)
-  {
-    mTime = this->EvaluateMTime;
-  }
-  if (this->VariableMTime > mTime)
-  {
-    mTime = this->VariableMTime;
-  }
   if (this->ParseMTime > mTime)
   {
     mTime = this->ParseMTime;
@@ -1164,9 +1139,7 @@ void vtkExprTkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
        << endl;
   }
 
-  if (this->EvaluateMTime.GetMTime() > this->FunctionMTime.GetMTime() &&
-    this->EvaluateMTime.GetMTime() > this->VariableMTime.GetMTime() &&
-    this->ExprTkTools->Expression.results().count() > 0)
+  if (!this->Function.empty() && this->ExprTkTools->Expression.results().count() > 0)
   {
     if (this->ResultType == ExprTkResultType::e_scalar)
     {
