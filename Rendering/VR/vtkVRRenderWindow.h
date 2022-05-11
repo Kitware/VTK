@@ -386,6 +386,11 @@ public:
    */
   virtual void UpdateHMDMatrixPose(){};
 
+  /**
+   * Get whether the window has been initialized successfully.
+   */
+  vtkGetMacro(Initialized, bool);
+
 protected:
   vtkVRRenderWindow();
   ~vtkVRRenderWindow() override;
