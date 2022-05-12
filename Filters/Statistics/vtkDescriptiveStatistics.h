@@ -56,6 +56,8 @@ PURPOSE.  See the above copyright notice for more information.
  * either state of `SampleEstimate` should yield very similar results
  * (see explicit formulas below).
  *
+ * \verbatim
+ *
  * The formulas used are as follows, writing \f( \bar{X} \f) the mean of \f( X \f) and \f( N \f)
  * the number of samples:
  * - Sample estimate:
@@ -88,6 +90,8 @@ PURPOSE.  See the above copyright notice for more information.
  * In the instance where \f(\sigma = 0\f) or \f(s = 0\f), the skewness and kurtosis are undefined.
  * Thus they output a `NaN`. Similarly, if there are no samples, then all derived statistics
  * yield a `NaN`.
+ *
+ * \endverbatim
  *
  * @par Thanks:
  * Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories

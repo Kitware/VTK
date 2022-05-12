@@ -63,13 +63,9 @@ public:
    * filter.  Setting the connection with this method removes all
    * other connections from the port.  To add more than one connection
    * use AddInputConnection().
-
    * The input for the connection is the output port of another
    * filter, which is obtained with GetOutputPort().  Typical usage is
-
    * filter2->SetInputConnection(0, filter1->GetOutputPort(0)).
-
-   * \link vtkAlgorithm
    */
   using Superclass::SetInputConnection;
   void SetInputDataObject(int port, vtkDataObject* input) override;
@@ -109,7 +105,6 @@ public:
    * Fill the input port information objects for this algorithm.  This
    * is invoked by the first call to GetInputPortInformation for each
    * port so subclasses can specify what they can handle.
-   * \link vtkAlgorithm
    */
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
