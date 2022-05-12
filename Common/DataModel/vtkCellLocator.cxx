@@ -27,12 +27,8 @@
 #include <array>
 #include <cmath>
 
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCellLocator);
-
-#define VTK_CELL_OUTSIDE 0
-#define VTK_CELL_INSIDE 1
-
-typedef vtkIdList* vtkIdListPtr;
 
 //------------------------------------------------------------------------------
 vtkCellLocator::vtkNeighborCells::vtkNeighborCells(const int size)
@@ -83,6 +79,7 @@ vtkCellLocator::vtkCellLocator()
   this->NumberOfOctants = 0;
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = VTK_DOUBLE_MIN;
+  this->Tree = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -95,24 +92,9 @@ vtkCellLocator::~vtkCellLocator()
 //------------------------------------------------------------------------------
 void vtkCellLocator::FreeSearchStructure()
 {
-  vtkIdList* cellIds;
-  int i;
-
   if (this->Tree)
   {
-    for (i = 0; i < this->NumberOfOctants; i++)
-    {
-      cellIds = this->Tree[i];
-      if (cellIds == reinterpret_cast<void*>(VTK_CELL_INSIDE))
-      {
-        cellIds = nullptr;
-      }
-      if (cellIds)
-      {
-        cellIds->Delete();
-      }
-    }
-    delete[] this->Tree;
+    this->TreeSharedPtr.reset();
     this->Tree = nullptr;
   }
 }
@@ -754,7 +736,7 @@ void vtkCellLocator::BuildLocatorInternal()
   int i, j, k, ijkMin[3], ijkMax[3];
   vtkIdType cellId, idx;
   int parentOffset;
-  vtkIdList* octant;
+  vtkSmartPointer<vtkIdList> octant;
   int numCellsPerBucket = this->NumberOfCellsPerNode;
   int prod, numOctants;
   double hTol[3];
@@ -805,9 +787,9 @@ void vtkCellLocator::BuildLocatorInternal()
   this->NumberOfDivisions = ndivs;
   this->NumberOfOctants = numOctants;
 
-  this->Tree = new vtkIdListPtr[numOctants];
-  // NOLINTNEXTLINE(bugprone-sizeof-expression)
-  memset(this->Tree, 0, numOctants * sizeof(*this->Tree));
+  this->TreeSharedPtr =
+    std::make_shared<std::vector<vtkSmartPointer<vtkIdList>>>(numOctants, nullptr);
+  this->Tree = TreeSharedPtr->data();
 
   if (this->CacheCellBounds)
   {
@@ -826,6 +808,7 @@ void vtkCellLocator::BuildLocatorInternal()
   //  falls within octant.
   parentOffset = numOctants - (ndivs * ndivs * ndivs);
   product = ndivs * ndivs;
+  auto parentOctant = vtkSmartPointer<vtkIdList>::New(); // This is just a place-holder for parents
   for (cellId = 0; cellId < numCells; cellId++)
   {
     this->GetCellBounds(cellId, cellBoundsPtr);
@@ -856,11 +839,11 @@ void vtkCellLocator::BuildLocatorInternal()
         for (i = ijkMin[0]; i <= ijkMax[0]; i++)
         {
           idx = parentOffset + i + j * ndivs + k * product;
-          this->MarkParents(reinterpret_cast<void*>(VTK_CELL_INSIDE), i, j, k, ndivs, this->Level);
+          this->MarkParents(parentOctant, i, j, k, ndivs, this->Level);
           octant = this->Tree[idx];
           if (!octant)
           {
-            octant = vtkIdList::New();
+            octant = vtkSmartPointer<vtkIdList>::New();
             octant->Allocate(numCellsPerBucket, numCellsPerBucket / 2);
             this->Tree[idx] = octant;
           }
@@ -874,7 +857,8 @@ void vtkCellLocator::BuildLocatorInternal()
 }
 
 //------------------------------------------------------------------------------
-void vtkCellLocator::MarkParents(void* a, int i, int j, int k, int ndivs, int level)
+void vtkCellLocator::MarkParents(
+  const vtkSmartPointer<vtkIdList>& parentOctant, int i, int j, int k, int ndivs, int level)
 {
   int offset, prod, ii;
   vtkIdType parentIdx;
@@ -896,12 +880,12 @@ void vtkCellLocator::MarkParents(void* a, int i, int j, int k, int ndivs, int le
     parentIdx = offset + i + j * ndivs + k * ndivs * ndivs;
 
     // if it already matches just return
-    if (a == this->Tree[parentIdx])
+    if (parentOctant == this->Tree[parentIdx])
     {
       return;
     }
 
-    this->Tree[parentIdx] = static_cast<vtkIdList*>(a);
+    this->Tree[parentIdx] = parentOctant;
 
     prod = prod >> 3;
     offset -= prod;
@@ -1187,10 +1171,11 @@ void vtkCellLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
   {
     return;
   }
-  if (cells)
+  if (!cells)
   {
-    cells->Reset();
+    return;
   }
+  cells->Reset();
 
   // Get the locator locations for the two extreme corners of the bounding box
   double p1[3], p2[3], *p[2];
@@ -1225,10 +1210,7 @@ void vtkCellLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
         {
           for (idx = 0; idx < cellIds->GetNumberOfIds(); idx++)
           {
-            if (cells)
-            {
-              cells->InsertUniqueId(cellIds->GetId(idx));
-            }
+            cells->InsertUniqueId(cellIds->GetId(idx));
           }
         }
       }
@@ -1447,7 +1429,45 @@ int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], co
 }
 
 //------------------------------------------------------------------------------
+void vtkCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
+{
+  vtkCellLocator* cellLocator = vtkCellLocator::SafeDownCast(locator);
+  if (!cellLocator)
+  {
+    vtkErrorMacro("Cannot cast " << locator->GetClassName() << " to vtkCellLocator.");
+    return;
+  }
+  // we only copy what's actually used by vtkCellLocator
+
+  // vtkLocator parameters
+  this->SetDataSet(cellLocator->GetDataSet());
+  this->SetUseExistingSearchStructure(cellLocator->GetUseExistingSearchStructure());
+  this->SetAutomatic(cellLocator->GetAutomatic());
+  this->SetMaxLevel(cellLocator->GetMaxLevel());
+  this->Level = cellLocator->Level;
+
+  // vtkAbstractCellLocator parameters
+  this->SetNumberOfCellsPerNode(cellLocator->GetNumberOfCellsPerNode());
+  this->CacheCellBounds = cellLocator->CacheCellBounds;
+  this->CellBoundsSharedPtr = cellLocator->CellBoundsSharedPtr; // This is important
+  this->CellBounds = this->CellBoundsSharedPtr.get() ? this->CellBoundsSharedPtr->data() : nullptr;
+
+  // vtkCellLocator parameters
+  this->NumberOfOctants = cellLocator->NumberOfOctants;
+  std::copy_n(cellLocator->Bounds, 6, this->Bounds);
+  std::copy_n(cellLocator->H, 3, this->H);
+  this->NumberOfDivisions = cellLocator->NumberOfDivisions;
+  this->TreeSharedPtr = cellLocator->TreeSharedPtr; // This is important
+  this->Tree = this->TreeSharedPtr.get() ? this->TreeSharedPtr->data() : nullptr;
+}
+
+//------------------------------------------------------------------------------
 void vtkCellLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "NumberOfOctants: " << this->NumberOfOctants << "\n";
+  os << indent << "Bounds: " << this->Bounds[0] << " " << this->Bounds[1] << " " << this->Bounds[2]
+     << " " << this->Bounds[3] << " " << this->Bounds[4] << " " << this->Bounds[5] << "\n";
+  os << indent << "H: " << this->H[0] << " " << this->H[1] << " " << this->H[2] << "\n";
+  os << indent << "NumberOfDivisions: " << this->NumberOfDivisions << "\n";
 }

@@ -56,16 +56,17 @@ bool vtkAbstractCellLocator::StoreCellBounds()
   }
   // Allocate space for cell bounds storage, then fill
   vtkIdType numCells = this->DataSet->GetNumberOfCells();
-  this->CellBounds = new double[numCells][6];
+  this->CellBoundsSharedPtr = std::make_shared<std::vector<double>>(numCells * 6);
+  this->CellBounds = this->CellBoundsSharedPtr->data();
 
   // This is done to cause non-thread safe initialization to occur due to
   // side effects from GetCellBounds().
-  this->DataSet->GetCellBounds(0, this->CellBounds[0]);
+  this->DataSet->GetCellBounds(0, &this->CellBounds[0]);
 
   vtkSMPTools::For(1, numCells, [&](vtkIdType begin, vtkIdType end) {
     for (vtkIdType cellId = begin; cellId < end; cellId++)
     {
-      this->DataSet->GetCellBounds(cellId, this->CellBounds[cellId]);
+      this->DataSet->GetCellBounds(cellId, &this->CellBounds[cellId * 6]);
     }
   });
   return true;
@@ -74,7 +75,7 @@ bool vtkAbstractCellLocator::StoreCellBounds()
 //------------------------------------------------------------------------------
 void vtkAbstractCellLocator::FreeCellBounds()
 {
-  delete[] this->CellBounds;
+  this->CellBoundsSharedPtr.reset();
   this->CellBounds = nullptr;
 }
 
@@ -263,7 +264,7 @@ bool vtkAbstractCellLocator::InsideCellBounds(double x[3], vtkIdType cell_ID)
 {
   if (this->CacheCellBounds)
   {
-    return vtkAbstractCellLocator::IsInBounds(this->CellBounds[cell_ID], x);
+    return vtkAbstractCellLocator::IsInBounds(&this->CellBounds[cell_ID * 6], x);
   }
   else
   {
@@ -278,7 +279,7 @@ void vtkAbstractCellLocator::GetCellBounds(vtkIdType cellId, double*& cellBounds
 {
   if (this->CacheCellBounds)
   {
-    cellBoundsPtr = this->CellBounds[cellId];
+    cellBoundsPtr = &this->CellBounds[cellId * 6];
   }
   else
   {

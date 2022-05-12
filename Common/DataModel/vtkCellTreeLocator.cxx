@@ -546,12 +546,13 @@ vtkCellTreeLocator::~vtkCellTreeLocator()
 void vtkCellTreeLocator::BuildLocator()
 {
   // don't rebuild if build time is newer than modified and dataset modified time
-  if (this->Tree && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+  if (this->Tree.get() && this->BuildTime > this->MTime &&
+    this->BuildTime > this->DataSet->GetMTime())
   {
     return;
   }
   // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
-  if (this->Tree && this->UseExistingSearchStructure)
+  if (this->Tree.get() && this->UseExistingSearchStructure)
   {
     this->BuildTime.Modified();
     vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
@@ -580,7 +581,7 @@ void vtkCellTreeLocator::BuildLocatorInternal()
     this->FreeCellBounds();
     this->StoreCellBounds();
   }
-  this->Tree = new vtkCellTree;
+  this->Tree = std::make_shared<vtkCellTree>();
   vtkCellTreeBuilder builder;
   builder.m_leafsize = this->NumberOfCellsPerNode;
   builder.m_buckets = this->NumberOfBuckets;
@@ -1054,8 +1055,7 @@ void vtkCellTreeLocator::Classify(const double origin[3], const double dir[3], d
 //------------------------------------------------------------------------------
 void vtkCellTreeLocator::FreeSearchStructure()
 {
-  delete this->Tree;
-  this->Tree = nullptr;
+  this->Tree.reset();
 }
 
 //------------------------------------------------------------------------------
@@ -1276,6 +1276,32 @@ void vtkCellTreeLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
       ns.pop();
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkCellTreeLocator::ShallowCopy(vtkAbstractCellLocator* locator)
+{
+  vtkCellTreeLocator* cellLocator = vtkCellTreeLocator::SafeDownCast(locator);
+  if (!cellLocator)
+  {
+    vtkErrorMacro("Cannot cast " << locator->GetClassName() << " to vtkCellTreeLocator.");
+    return;
+  }
+  // we only copy what's actually used by vtkCellTreeLocator
+
+  // vtkLocator parameters
+  this->SetDataSet(cellLocator->GetDataSet());
+  this->SetUseExistingSearchStructure(cellLocator->GetUseExistingSearchStructure());
+
+  // vtkAbstractCellLocator parameters
+  this->SetNumberOfCellsPerNode(cellLocator->GetNumberOfCellsPerNode());
+  this->CacheCellBounds = cellLocator->CacheCellBounds;
+  this->CellBoundsSharedPtr = cellLocator->CellBoundsSharedPtr; // This is important
+  this->CellBounds = this->CellBoundsSharedPtr.get() ? this->CellBoundsSharedPtr->data() : nullptr;
+
+  // vtkCellTreeLocator parameters
+  this->NumberOfBuckets = cellLocator->NumberOfBuckets;
+  this->Tree = cellLocator->Tree;
 }
 
 //------------------------------------------------------------------------------

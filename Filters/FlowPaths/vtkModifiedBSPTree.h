@@ -257,12 +257,17 @@ public:
   void ForceBuildLocator() override;
   ///@}
 
+  /**
+   * Shallow copy of a vtkModifiedBSPTree.
+   */
+  void ShallowCopy(vtkAbstractCellLocator* locator) override;
+
 protected:
   vtkModifiedBSPTree();
   ~vtkModifiedBSPTree() override;
 
   void BuildLocatorInternal() override;
-  BSPNode* mRoot; // bounding box root node
+  std::shared_ptr<BSPNode> mRoot; // bounding box root node
   int npn;
   int nln;
   int tot_depth;

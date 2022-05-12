@@ -15,6 +15,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestAngularPeriodicDataArray.cxx
   TestArrayListTemplate.cxx
   TestCellInflation.cxx
+  TestCellLocatorsLinearTransform.cxx
   TestColor.cxx
   TestCoordinateFrame.cxx
   TestVector.cxx
