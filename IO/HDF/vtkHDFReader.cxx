@@ -542,8 +542,11 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkOverlappingAMR* data)
 {
   data->SetOrigin(this->Origin);
 
-  this->Impl->FillAMR(
-    data, this->MaximumLevelsToReadByDefaultForAMR, this->Origin, this->DataArraySelection);
+  if (!this->Impl->FillAMR(
+        data, this->MaximumLevelsToReadByDefaultForAMR, this->Origin, this->DataArraySelection))
+  {
+    return 0;
+  }
 
   return 1;
 }

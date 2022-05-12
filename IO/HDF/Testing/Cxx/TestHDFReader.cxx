@@ -333,7 +333,6 @@ int TestHDFReader(int argc, char* argv[])
   }
   if (TestOverlappingAMR(dataRoot))
   {
-
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
