@@ -238,7 +238,6 @@ int vtkParticleTracerBase::RequestInformation(vtkInformation* vtkNotUsed(request
     vtkDebugMacro(<< "vtkParticleTracerBase "
                      "inputVector TIME_STEPS "
                   << numberOfInputTimeSteps);
-    //
     // Get list of input time step values
     this->InputTimeValues.resize(numberOfInputTimeSteps);
     inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->InputTimeValues.data());
@@ -275,7 +274,6 @@ int vtkParticleTracerBase::RequestUpdateExtent(vtkInformation* vtkNotUsed(reques
 
   PRINT("RUE: " << this->HasCache << " " << this->FirstIteration << " " << this->StartTime << " "
                 << this->TerminationTime << " " << this->CurrentTimeStep);
-  //
   // The output has requested a time value, what times must we ask from our input
   // do this only for the first time
   if (this->FirstIteration)
@@ -663,12 +661,9 @@ void vtkParticleTracerBase::AssignSeedsToProcessors(double time, vtkDataSet* sou
   int ptId, ParticleVector& localSeedPoints, int& localAssignedCount)
 {
   ParticleVector candidates;
-  //
   // take points from the source object and create a particle list
-  //
   vtkIdType numSeeds = source->GetNumberOfPoints();
   candidates.resize(numSeeds);
-  //
   for (vtkIdType i = 0; i < numSeeds; i++)
   {
     ParticleInformation& info = candidates[i];
@@ -694,9 +689,7 @@ void vtkParticleTracerBase::AssignSeedsToProcessors(double time, vtkDataSet* sou
     info.PointId = -1;
     info.TailPointId = -1;
   }
-  //
   // Gather all Seeds to all processors for classification
-  //
   this->TestParticles(candidates, localSeedPoints, localAssignedCount);
 
   // Assign unique identifiers taking into account uneven distribution
@@ -721,7 +714,6 @@ void vtkParticleTracerBase::AssignUniqueIds(
 void vtkParticleTracerBase::UpdateParticleList(ParticleVector& candidates)
 {
   int numSeedsNew = static_cast<int>(candidates.size());
-  //
   for (int i = 0; i < numSeedsNew; i++)
   {
     // allocate a new particle on the list and get a reference to it
@@ -769,9 +761,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 
   // set up the output
   vtkPolyData* output = vtkPolyData::New();
-  //
   // Add the datasets to an interpolator object
-  //
   if (this->InitializeInterpolator() != VTK_OK)
   {
     if (this->CachedData[0])
@@ -831,16 +821,12 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   std::vector<vtkDataSet*> seedSources =
     this->GetSeedSources(inputVector[1], this->CurrentTimeStep);
 
-  //
   // Setup some variables
-  //
   vtkSmartPointer<vtkInitialValueProblemSolver> integrator;
   integrator.TakeReference(this->GetIntegrator()->NewInstance());
   integrator->SetFunctionSet(this->Interpolator);
 
-  //
   // Make sure the Particle Positions are initialized with Seed particles
-  //
   if (this->StartTimeStep == this->CurrentTimeStep)
   {
     Assert(!this->HasCache); // shouldn't have cache if restarting
@@ -887,7 +873,6 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     ParticleListIterator it_last = this->ParticleHistories.end();
     ParticleListIterator it_next;
 
-    //
     // Perform multiple passes. The number of passes is equal to one more than
     // the maximum times a particle gets migrated between processes.
     bool continueExecuting = true;
@@ -1116,11 +1101,8 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
   else
   {
     Assert(point1[3] >= (currenttime - epsilon) && point1[3] <= (targettime + epsilon));
-
-    //
     // begin interpolation between available time values, if the particle has
     // a cached cell ID and dataset - try to use it,
-    //
     if (this->AllFixedGeometry)
     {
       this->Interpolator->SetCachedCellIds(info.CachedCellId, info.CachedDataSetId);
@@ -1135,9 +1117,7 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
 
     while (point1[3] < (targettime - epsilon))
     {
-      //
-      // Here beginneth the real work
-      //
+      // Here begin the real work
       double error = 0;
 
       // If, with the next step, propagation will be larger than
@@ -1235,7 +1215,6 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
     }
   }
 
-  //
   // We got this far without error :
   // Insert the point into the output
   // Create any new scalars and interpolate existing ones
@@ -1243,13 +1222,11 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
   //
   if (particle_good)
   {
-    //
     // store the last Cell Ids and dataset indices for next time particle is updated
     //
     this->Interpolator->GetCachedCellIds(info.CachedCellId, info.CachedDataSetId);
     //
     info.TimeStepAge += 1;
-    //
     // Now generate the output geometry and scalars
     //
     this->AddParticle(info, velocity);
@@ -1573,13 +1550,11 @@ void vtkParticleTracerBase::AddParticle(
   info.PointId = tempId;
   info.TailPointId = -1;
 
-  //
   // Interpolate all existing point attributes
   // In principle we always integrate the particle until it reaches Time2
   // - so we don't need to do any interpolation of the scalars
   // between T0 and T1, just fetch the values
   // of the spatially interpolated scalars from T1.
-  //
   if (info.LocationState == IDStates::OUTSIDE_T1)
   {
     this->Interpolator->InterpolatePoint(0, this->OutputPointData, tempId);
@@ -1588,9 +1563,7 @@ void vtkParticleTracerBase::AddParticle(
   {
     this->Interpolator->InterpolatePoint(1, this->OutputPointData, tempId);
   }
-  //
   // Compute vorticity
-  //
   if (this->ComputeVorticity)
   {
     vtkGenericCell* cell(nullptr);
