@@ -587,6 +587,11 @@ void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& t
     std::string gltfFullDir = vtksys::SystemTools::GetFilenamePath(gltfFullPath);
     std::string texturePath = std::string(textureBaseDirectory) + "/" + textureFileName;
     std::string textureFullPath = vtksys::SystemTools::CollapseFullPath(texturePath);
+    if (!vtksys::SystemTools::FileExists(textureFullPath, true /*isFile*/))
+    {
+      vtkLog(ERROR, "Invalid texture file: " << textureFullPath);
+      return;
+    }
     std::string gltfRelativeTexturePath =
       vtksys::SystemTools::RelativePath(gltfFullDir, textureFullPath);
     std::string mimeType = WriteTextureBufferAndView(
