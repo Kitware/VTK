@@ -135,13 +135,6 @@ public:
 
   //@{
   /**
-   * True if the window has been initialized successfully.
-   */
-  vtkGetMacro(Initialized, bool);
-  //@}
-
-  //@{
-  /**
    * Set the active state (active: true / inactive: false) of the specified hand.
    */
   void SetModelActiveState(const int hand, bool state) { this->ModelsActiveState[hand] = state; }

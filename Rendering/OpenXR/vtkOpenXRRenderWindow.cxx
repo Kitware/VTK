@@ -122,6 +122,8 @@ void vtkOpenXRRenderWindow::Initialize()
   vtkOpenXRManager* xrManager = vtkOpenXRManager::GetInstance();
   if (!xrManager->Initialize(this->HelperWindow))
   {
+    // Set to false because the above init of the HelperWindow sets it to true
+    this->Initialized = false;
     vtkErrorMacro(<< "Failed to initialize OpenXRManager");
     return;
   }
