@@ -1406,7 +1406,7 @@ int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], co
   {
     vtkIdType numIntersections = static_cast<vtkIdType>(cellIntersections.size());
     std::sort(cellIntersections.begin(), cellIntersections.end(),
-      [&](const IntersectionInfo& a, const IntersectionInfo b) { return a.T < b.T; });
+      [&](const IntersectionInfo& a, const IntersectionInfo& b) { return a.T < b.T; });
     if (points)
     {
       points->SetNumberOfPoints(numIntersections);
