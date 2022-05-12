@@ -45,7 +45,8 @@ protected:
   void ResetCache() override;
   int OutputParticles(vtkPolyData* poly) override;
   void InitializeExtraPointDataArrays(vtkPointData* outputPD) override;
-  void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation&) override;
+  void SetToExtraPointDataArrays(
+    vtkIdType particleId, vtkParticleTracerBaseNamespace::ParticleInformation&) override;
   void Finalize() override;
 
   //

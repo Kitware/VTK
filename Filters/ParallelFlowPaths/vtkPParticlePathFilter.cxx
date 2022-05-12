@@ -138,11 +138,11 @@ void vtkPParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* output
   outputPD->AddArray(this->SimulationTimeStep);
 }
 
-void vtkPParticlePathFilter::AppendToExtraPointDataArrays(
-  vtkParticleTracerBaseNamespace::ParticleInformation& info)
+void vtkPParticlePathFilter::SetToExtraPointDataArrays(
+  vtkIdType particleId, vtkParticleTracerBaseNamespace::ParticleInformation& info)
 {
-  this->SimulationTime->InsertNextValue(info.SimulationTime);
-  this->SimulationTimeStep->InsertNextValue(info.InjectedStepId + info.TimeStepAge);
+  this->SimulationTime->SetValue(particleId, info.SimulationTime);
+  this->SimulationTimeStep->SetValue(particleId, info.InjectedStepId + info.TimeStepAge);
 }
 
 void vtkPParticlePathFilter::Finalize()

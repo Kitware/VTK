@@ -20,6 +20,7 @@
 #include "vtkDataArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMPIController.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
@@ -40,6 +41,7 @@ vtkPParticleTracerBase::vtkPParticleTracerBase()
 {
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
+  this->ForceSerialExecution = true;
 }
 
 //------------------------------------------------------------------------------
@@ -52,6 +54,11 @@ vtkPParticleTracerBase::~vtkPParticleTracerBase()
 //------------------------------------------------------------------------------
 vtkPolyData* vtkPParticleTracerBase::Execute(vtkInformationVector** inputVector)
 {
+  if (!vtkMPIController::SafeDownCast(this->Controller) ||
+    this->Controller->GetNumberOfProcesses() == 1)
+  {
+    this->ForceSerialExecution = false;
+  }
   vtkDebugMacro(<< "Clear MPI send list ");
   this->MPISendList.clear();
   this->Tail.clear();

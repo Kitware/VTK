@@ -38,13 +38,16 @@
 #include "vtkRungeKutta2.h"
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
+#include "vtkSMPTools.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemporalInterpolatedVelocityField.h"
 
 #include <algorithm>
+#include <atomic>
 #include <functional>
+#include <mutex>
 #ifdef DEBUGPARTICLETRACE
 #define Assert(x) assert(x)
 #define PRINT(x) cout << __LINE__ << ": " << x << endl;
@@ -156,6 +159,7 @@ vtkParticleTracerBase::vtkParticleTracerBase()
 
   this->SetIntegratorType(RUNGE_KUTTA4);
   this->DisableResetCache = 0;
+  this->ForceSerialExecution = false;
 }
 
 //------------------------------------------------------------------------------
@@ -500,7 +504,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
   this->AllFixedGeometry = this->MeshOverTime == MeshOverTimeTypes::STATIC;
   if (this->MeshOverTime == MeshOverTimeTypes::STATIC)
   {
-    vtkDebugMacro("Static Mesh optimizations Forced ON");
+    vtkDebugMacro("Static Mesh over time optimizations Forced ON");
   }
 
   this->Interpolator->Initialize(this->CachedData[0], this->CachedData[1]);
@@ -748,6 +752,106 @@ int vtkParticleTracerBase::ProcessInput(vtkInformationVector** inputVector)
 }
 
 //------------------------------------------------------------------------------
+namespace vtkParticleTracerBaseNamespace
+{
+struct ParticleTracerFunctor
+{
+  vtkParticleTracerBase* PT;
+  double FromTime;
+  bool Sequential;
+
+  std::vector<std::list<ParticleInformation>::iterator> ParticleHistories;
+  std::atomic<vtkIdType> ParticleCount;
+  std::mutex EraseMutex;
+
+  vtkSMPThreadLocal<vtkSmartPointer<vtkInitialValueProblemSolver>> TLIntegrator;
+  vtkSMPThreadLocal<vtkSmartPointer<vtkTemporalInterpolatedVelocityField>> TLInterpolator;
+  vtkSMPThreadLocal<vtkSmartPointer<vtkDoubleArray>> TLCellVectors;
+
+  ParticleTracerFunctor(vtkParticleTracerBase* pt, double fromTime, bool sequential)
+    : PT(pt)
+    , FromTime(fromTime)
+    , Sequential(sequential)
+  {
+    this->ParticleCount = 0;
+    size_t particleSize = pt->ParticleHistories.size();
+    // Copy the particle histories into a vector for O(1) access
+    this->ParticleHistories.reserve(particleSize);
+    for (auto it = pt->ParticleHistories.begin(), end = pt->ParticleHistories.end(); it != end;
+         ++it)
+    {
+      this->ParticleHistories.push_back(it);
+    }
+
+    this->PT->ResizeArrays(static_cast<vtkIdType>(particleSize));
+  }
+
+  void Initialize()
+  {
+    // Some data members of the local output require per-thread initialization.
+    auto& interpolator = this->TLInterpolator.Local();
+    interpolator.TakeReference(this->PT->Interpolator->NewInstance());
+    interpolator->CopyParameters(this->PT->Interpolator);
+    auto& integrator = this->TLIntegrator.Local();
+    integrator.TakeReference(this->PT->GetIntegrator()->NewInstance());
+    integrator->SetFunctionSet(interpolator);
+    auto& cellVectors = this->TLCellVectors.Local();
+    cellVectors.TakeReference(vtkDoubleArray::New());
+
+    if (this->PT->ComputeVorticity)
+    {
+      cellVectors->SetNumberOfComponents(3);
+      cellVectors->Allocate(3 * VTK_CELL_SIZE);
+    }
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    auto& integrator = this->TLIntegrator.Local();
+    auto& interpolator = this->TLInterpolator.Local();
+    auto& cellVectors = this->TLCellVectors.Local();
+    const double& currentTime = this->FromTime;
+    const double& targetTime = this->PT->CurrentTimeValue;
+
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      auto it = this->ParticleHistories[i];
+      this->PT->IntegrateParticle(it, currentTime, targetTime, integrator, interpolator,
+        cellVectors, this->ParticleCount, this->EraseMutex, this->Sequential);
+      if (this->PT->GetAbortExecute())
+      {
+        vtkErrorWithObjectMacro(this->PT, "Execute aborted");
+        break;
+      }
+    }
+  }
+
+  void Reduce()
+  {
+    // squeeze possibly extra space
+    this->PT->ResizeArrays(this->ParticleCount);
+  }
+};
+}
+
+void vtkParticleTracerBase::ResizeArrays(vtkIdType numTuples)
+{
+  // resize first so that if you already have data, you don't lose them
+  this->OutputCoordinates->Resize(numTuples);
+  this->ParticleCellsOffsets->Resize(numTuples);
+  this->ParticleCellsConnectivity->Resize(numTuples);
+  for (int i = 0; i < this->OutputPointData->GetNumberOfArrays(); ++i)
+  {
+    this->OutputPointData->GetArray(i)->Resize(numTuples);
+  }
+  // set number number of tuples because resize does not do that
+  this->OutputCoordinates->SetNumberOfPoints(numTuples);
+  this->ParticleCellsOffsets->SetNumberOfValues(numTuples);
+  this->ParticleCellsConnectivity->SetNumberOfValues(numTuples);
+  this->OutputPointData->SetNumberOfTuples(numTuples);
+}
+
+//------------------------------------------------------------------------------
 vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 {
   Assert(this->CurrentTimeStep >= this->StartTimeStep);
@@ -775,8 +879,12 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     vtkErrorMacro(<< "InitializeInterpolator failed");
     return output;
   }
+  vtkDebugMacro(<< "About to allocate arrays ");
+  this->OutputCoordinates = vtkSmartPointer<vtkPoints>::New();
+  this->ParticleCellsOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
+  this->ParticleCellsConnectivity = vtkSmartPointer<vtkIdTypeArray>::New();
+  this->ParticleCells = vtkSmartPointer<vtkCellArray>::New();
 
-  vtkDebugMacro(<< "About to allocate point arrays ");
   this->ParticleAge = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleIds = vtkSmartPointer<vtkIntArray>::New();
   this->ParticleSourceIds = vtkSmartPointer<vtkSignedCharArray>::New();
@@ -786,9 +894,6 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   this->ParticleVorticity = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleRotation = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleAngularVel = vtkSmartPointer<vtkFloatArray>::New();
-  this->CellVectors = vtkSmartPointer<vtkDoubleArray>::New();
-  this->ParticleCells = vtkSmartPointer<vtkCellArray>::New();
-  this->OutputCoordinates = vtkSmartPointer<vtkPoints>::New();
 
   this->OutputPointData = output->GetPointData();
   this->OutputPointData->Initialize();
@@ -801,6 +906,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   this->InjectedStepIds->SetName("InjectionStepId");
   this->ErrorCodeArray->SetName("ErrorCode");
 
+  this->CellVectors = vtkSmartPointer<vtkDoubleArray>::New();
   if (this->ComputeVorticity)
   {
     this->CellVectors->SetNumberOfComponents(3);
@@ -808,6 +914,18 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     this->ParticleVorticity->SetName("Vorticity");
     this->ParticleRotation->SetName("Rotation");
     this->ParticleAngularVel->SetName("AngularVelocity");
+  }
+  this->OutputPointData->AddArray(this->ParticleIds);
+  this->OutputPointData->AddArray(this->ParticleSourceIds);
+  this->OutputPointData->AddArray(this->InjectedPointIds);
+  this->OutputPointData->AddArray(this->InjectedStepIds);
+  this->OutputPointData->AddArray(this->ErrorCodeArray);
+  this->OutputPointData->AddArray(this->ParticleAge);
+  if (this->ComputeVorticity)
+  {
+    this->OutputPointData->AddArray(this->ParticleVorticity);
+    this->OutputPointData->AddArray(this->ParticleRotation);
+    this->OutputPointData->AddArray(this->ParticleAngularVel);
   }
   this->InitializeExtraPointDataArrays(output->GetPointData());
 
@@ -856,22 +974,24 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 
   if (this->CurrentTimeStep == this->StartTimeStep) // just add all the particles
   {
+    // resize arrays
+    this->ResizeArrays(static_cast<vtkIdType>(this->ParticleHistories.size()));
+    vtkIdType counter = 0;
     for (ParticleListIterator itr = this->ParticleHistories.begin();
-         itr != this->ParticleHistories.end(); itr++)
+         itr != this->ParticleHistories.end(); itr++, counter++)
     {
       ParticleInformation& info(*itr);
       this->Interpolator->TestPoint(info.CurrentPosition.x);
       double velocity[3];
       this->Interpolator->GetLastGoodVelocity(velocity);
       info.speed = vtkMath::Norm(velocity);
-      this->AddParticle(*itr, velocity);
+      this->SetParticle(*itr, velocity, this->Interpolator, counter, this->CellVectors);
     }
   }
   else
   {
     ParticleListIterator it_first = this->ParticleHistories.begin();
     ParticleListIterator it_last = this->ParticleHistories.end();
-    ParticleListIterator it_next;
 
     // Perform multiple passes. The number of passes is equal to one more than
     // the maximum times a particle gets migrated between processes.
@@ -881,18 +1001,17 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     {
       vtkDebugMacro(<< "Begin Pass " << pass << " with " << this->ParticleHistories.size()
                     << " Particles");
-      for (ParticleListIterator it = it_first; it != it_last;)
+      bool sequential = this->ForceSerialExecution || this->ParticleHistories.size() < 100;
+      ParticleTracerFunctor particleTracerFunctor(this, from, sequential);
+      if (sequential)
       {
-        // Keep the 'next' iterator handy because if a particle is terminated
-        // or leaves the domain, the 'current' iterator will be deleted.
-        it_next = it;
-        it_next++;
-        this->IntegrateParticle(it, from, this->CurrentTimeValue, integrator);
-        if (this->GetAbortExecute())
-        {
-          break;
-        }
-        it = it_next;
+        particleTracerFunctor.Initialize();
+        particleTracerFunctor(0, this->ParticleHistories.size());
+        particleTracerFunctor.Reduce();
+      }
+      else
+      {
+        vtkSMPTools::For(0, this->ParticleHistories.size(), particleTracerFunctor);
       }
       // Particles might have been deleted during the first pass as they move
       // out of domain or age. Before adding any new particles that are sent
@@ -955,28 +1074,21 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       itr = this->ParticleHistories.begin();
     }
 
-    for (; itr != this->ParticleHistories.end(); ++itr)
+    // resize arrays
+    vtkIdType numTuples = this->OutputPointData->GetNumberOfTuples();
+    auto extraSpace = static_cast<vtkIdType>(std::distance(itr, this->ParticleHistories.end()));
+    this->ResizeArrays(numTuples + extraSpace);
+    vtkIdType counter = 0;
+    for (; itr != this->ParticleHistories.end(); ++itr, counter++)
     {
       this->Interpolator->TestPoint(itr->CurrentPosition.x);
       double velocity[3];
       this->Interpolator->GetLastGoodVelocity(velocity);
       itr->speed = vtkMath::Norm(velocity);
-      this->AddParticle(*itr, velocity);
+      this->SetParticle(*itr, velocity, this->Interpolator, numTuples + counter, this->CellVectors);
     }
   }
-
-  this->OutputPointData->AddArray(this->ParticleIds);
-  this->OutputPointData->AddArray(this->ParticleSourceIds);
-  this->OutputPointData->AddArray(this->InjectedPointIds);
-  this->OutputPointData->AddArray(this->InjectedStepIds);
-  this->OutputPointData->AddArray(this->ErrorCodeArray);
-  this->OutputPointData->AddArray(this->ParticleAge);
-  if (this->ComputeVorticity)
-  {
-    this->OutputPointData->AddArray(this->ParticleVorticity);
-    this->OutputPointData->AddArray(this->ParticleRotation);
-    this->OutputPointData->AddArray(this->ParticleAngularVel);
-  }
+  this->ParticleCells->SetData(this->ParticleCellsOffsets, this->ParticleCellsConnectivity);
 
   this->ParticlePointData = vtkSmartPointer<vtkPointData>::New();
   this->ParticlePointData->ShallowCopy(this->OutputPointData);
@@ -1076,25 +1188,27 @@ int vtkParticleTracerBase::RequestData(
 }
 
 //------------------------------------------------------------------------------
-void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double currenttime,
-  double targettime, vtkInitialValueProblemSolver* integrator)
+void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double currentTime,
+  double targetTime, vtkInitialValueProblemSolver* integrator,
+  vtkTemporalInterpolatedVelocityField* interpolator, vtkDoubleArray* cellVectors,
+  std::atomic<vtkIdType>& particleCount, std::mutex& eraseMutex, bool sequential)
 {
-  double epsilon = (targettime - currenttime) / 100.0;
+  double epsilon = (targetTime - currentTime) / 100.0;
   double velocity[3], point1[4], point2[4] = { 0.0, 0.0, 0.0, 0.0 };
   double minStep = 0, maxStep = 0;
   double stepWanted, stepTaken = 0.0;
-  int substeps = 0;
+  int subSteps = 0;
 
-  ParticleInformation& info = (*it);
-  ParticleInformation previous = (*it);
-  bool particle_good = true;
+  ParticleInformation& info = *it;
+  ParticleInformation previous = *it;
+  bool particleGood = true;
 
   info.ErrorCode = 0;
 
   // Get the Initial point {x,y,z,t}
   memcpy(point1, &info.CurrentPosition, sizeof(Position));
 
-  if (currenttime == targettime)
+  if (currentTime == targetTime)
   {
     Assert(point1[3] == currenttime);
   }
@@ -1105,17 +1219,17 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
     // a cached cell ID and dataset - try to use it,
     if (this->AllFixedGeometry)
     {
-      this->Interpolator->SetCachedCellIds(info.CachedCellId, info.CachedDataSetId);
+      interpolator->SetCachedCellIds(info.CachedCellId, info.CachedDataSetId);
     }
     else
     {
-      this->Interpolator->ClearCache();
+      interpolator->ClearCache();
     }
 
-    double delT = (targettime - currenttime) * this->IntegrationStep;
+    double delT = (targetTime - currentTime) * this->IntegrationStep;
     epsilon = delT * 1E-3;
 
-    while (point1[3] < (targettime - epsilon))
+    while (point1[3] < (targetTime - epsilon))
     {
       // Here begin the real work
       double error = 0;
@@ -1123,9 +1237,9 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
       // If, with the next step, propagation will be larger than
       // max, reduce it so that it is (approximately) equal to max.
       stepWanted = delT;
-      if ((point1[3] + stepWanted) > targettime)
+      if ((point1[3] + stepWanted) > targetTime)
       {
-        stepWanted = targettime - point1[3];
+        stepWanted = targetTime - point1[3];
         maxStep = stepWanted;
       }
 
@@ -1136,7 +1250,7 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
       {
         // if the particle is sent, remove it from the list
         info.ErrorCode = 1;
-        if (!this->RetryWithPush(info, point1, delT, substeps))
+        if (!this->RetryWithPush(info, point1, delT, subSteps, interpolator))
         {
           if (previous.PointId < 0 && previous.TailPointId < 0)
           {
@@ -1144,22 +1258,33 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
           }
           else
           {
-            this->SendParticleToAnotherProcess(info, previous, this->ParticlePointData);
+            if (sequential)
+            {
+              this->SendParticleToAnotherProcess(info, previous, this->ParticlePointData);
+            }
           }
-          this->ParticleHistories.erase(it);
-          particle_good = false;
+          if (sequential)
+          {
+            this->ParticleHistories.erase(it);
+          }
+          else
+          {
+            const std::lock_guard<std::mutex> lock(eraseMutex);
+            this->ParticleHistories.erase(it);
+          }
+          particleGood = false;
           break;
         }
         else
         {
           // particle was not sent, retry saved it, so copy info back
-          substeps++;
+          subSteps++;
           memcpy(point1, &info.CurrentPosition, sizeof(Position));
         }
       }
       else // success, increment position/time
       {
-        substeps++;
+        subSteps++;
 
         // increment the particle time
         point2[3] = point1[3] + stepTaken;
@@ -1182,35 +1307,51 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
       }
     }
 
-    if (particle_good)
+    if (particleGood)
     {
       // The integration succeeded, but check the computed final position
       // is actually inside the domain (the intermediate steps taken inside
       // the integrator were ok, but the final step may just pass out)
       // if it moves out, we can't interpolate scalars, so we must send it away
-      info.LocationState = this->Interpolator->TestPoint(info.CurrentPosition.x);
+      info.LocationState = interpolator->TestPoint(info.CurrentPosition.x);
       if (info.LocationState == IDStates::OUTSIDE_ALL)
       {
         info.ErrorCode = 2;
         // if the particle is sent, remove it from the list
-        if (this->SendParticleToAnotherProcess(info, previous, this->OutputPointData))
+        if (!sequential ||
+          this->SendParticleToAnotherProcess(info, previous, this->OutputPointData))
         {
-          this->ParticleHistories.erase(it);
-          particle_good = false;
+          if (sequential)
+          {
+            this->ParticleHistories.erase(it);
+          }
+          else
+          {
+            const std::lock_guard<std::mutex> lock(eraseMutex);
+            this->ParticleHistories.erase(it);
+          }
+          particleGood = false;
         }
       }
     }
 
     // Has this particle stagnated
-    //
-    if (particle_good)
+    if (particleGood)
     {
-      this->Interpolator->GetLastGoodVelocity(velocity);
+      interpolator->GetLastGoodVelocity(velocity);
       info.speed = vtkMath::Norm(velocity);
       if (it->speed <= this->TerminalSpeed)
       {
-        this->ParticleHistories.erase(it);
-        particle_good = false;
+        if (sequential)
+        {
+          this->ParticleHistories.erase(it);
+        }
+        else
+        {
+          const std::lock_guard<std::mutex> lock(eraseMutex);
+          this->ParticleHistories.erase(it);
+        }
+        particleGood = false;
       }
     }
   }
@@ -1219,21 +1360,17 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
   // Insert the point into the output
   // Create any new scalars and interpolate existing ones
   // Cache cell ids and datasets
-  //
-  if (particle_good)
+  if (particleGood)
   {
     // store the last Cell Ids and dataset indices for next time particle is updated
-    //
-    this->Interpolator->GetCachedCellIds(info.CachedCellId, info.CachedDataSetId);
-    //
+    interpolator->GetCachedCellIds(info.CachedCellId, info.CachedDataSetId);
     info.TimeStepAge += 1;
     // Now generate the output geometry and scalars
-    //
-    this->AddParticle(info, velocity);
+    this->SetParticle(info, velocity, interpolator, particleCount++, cellVectors);
   }
   else
   {
-    this->Interpolator->ClearCache();
+    interpolator->ClearCache();
   }
 
 #ifdef DEBUGPARTICLETRACE
@@ -1356,7 +1493,7 @@ void vtkParticleTracerBase::CalculateVorticity(
   vtkGenericCell* cell, double pcoords[3], vtkDoubleArray* cellVectors, double vorticity[3])
 {
   double* cellVel;
-  double derivs[9];
+  double derivs[VTK_MAXIMUM_NUMBER_OF_POINTS * 3];
 
   cellVel = cellVectors->GetPointer(0);
   cell->Derivatives(0, pcoords, cellVel, 3, derivs);
@@ -1470,13 +1607,13 @@ void vtkParticleTracerBase::CreateProtoPD(vtkDataObject* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkParticleTracerBase::RetryWithPush(
-  ParticleInformation& info, double* point1, double delT, int substeps)
+bool vtkParticleTracerBase::RetryWithPush(ParticleInformation& info, double* point1, double delT,
+  int substeps, vtkTemporalInterpolatedVelocityField* interpolator)
 {
   double velocity[3];
-  this->Interpolator->ClearCache();
+  interpolator->ClearCache();
 
-  info.LocationState = this->Interpolator->TestPoint(point1);
+  info.LocationState = interpolator->TestPoint(point1);
 
   if (info.LocationState == IDStates::OUTSIDE_ALL)
   {
@@ -1485,7 +1622,7 @@ bool vtkParticleTracerBase::RetryWithPush(
     // send the particle 'as is' and hope it lands in another process
     if (substeps > 0)
     {
-      this->Interpolator->GetLastGoodVelocity(velocity);
+      interpolator->GetLastGoodVelocity(velocity);
     }
     else
     {
@@ -1496,19 +1633,19 @@ bool vtkParticleTracerBase::RetryWithPush(
   else if (info.LocationState == IDStates::OUTSIDE_T0)
   {
     // the particle left the volume but can be tested at T2, so use the velocity at T2
-    this->Interpolator->GetLastGoodVelocity(velocity);
+    interpolator->GetLastGoodVelocity(velocity);
     info.ErrorCode = 4;
   }
   else if (info.LocationState == IDStates::OUTSIDE_T1)
   {
     // the particle left the volume but can be tested at T1, so use the velocity at T1
-    this->Interpolator->GetLastGoodVelocity(velocity);
+    interpolator->GetLastGoodVelocity(velocity);
     info.ErrorCode = 5;
   }
   else
   {
     // The test returned INSIDE_ALL, so test failed near start of integration,
-    this->Interpolator->GetLastGoodVelocity(velocity);
+    interpolator->GetLastGoodVelocity(velocity);
   }
 
   // try adding a one increment push to the particle to get over a rotating/moving boundary
@@ -1518,7 +1655,7 @@ bool vtkParticleTracerBase::RetryWithPush(
   }
 
   info.CurrentPosition.x[3] += delT;
-  info.LocationState = this->Interpolator->TestPoint(info.CurrentPosition.x);
+  info.LocationState = interpolator->TestPoint(info.CurrentPosition.x);
   info.age += delT;
   info.SimulationTime += delT; // = this->GetCurrentTimeValue();
 
@@ -1532,22 +1669,24 @@ bool vtkParticleTracerBase::RetryWithPush(
 }
 
 //------------------------------------------------------------------------------
-void vtkParticleTracerBase::AddParticle(
-  vtkParticleTracerBaseNamespace::ParticleInformation& info, double* velocity)
+void vtkParticleTracerBase::SetParticle(vtkParticleTracerBaseNamespace::ParticleInformation& info,
+  double* velocity, vtkTemporalInterpolatedVelocityField* interpolator, vtkIdType particleId,
+  vtkDoubleArray* cellVectors)
 {
   const double* coord = info.CurrentPosition.x;
-  vtkIdType tempId = this->OutputCoordinates->InsertNextPoint(coord);
+  this->OutputCoordinates->SetPoint(particleId, coord);
   // create the cell
-  this->ParticleCells->InsertNextCell(1, &tempId);
+  this->ParticleCellsOffsets->SetValue(particleId, particleId + 1);
+  this->ParticleCellsConnectivity->SetValue(particleId, particleId);
   // set the easy scalars for this particle
-  this->ParticleIds->InsertNextValue(info.UniqueParticleId);
-  this->ParticleSourceIds->InsertNextValue(info.SourceID);
-  this->InjectedPointIds->InsertNextValue(info.InjectedPointId);
-  this->InjectedStepIds->InsertNextValue(info.InjectedStepId);
-  this->ErrorCodeArray->InsertNextValue(info.ErrorCode);
-  this->ParticleAge->InsertNextValue(info.age);
-  this->AppendToExtraPointDataArrays(info);
-  info.PointId = tempId;
+  this->ParticleIds->SetValue(particleId, info.UniqueParticleId);
+  this->ParticleSourceIds->SetValue(particleId, info.SourceID);
+  this->InjectedPointIds->SetValue(particleId, info.InjectedPointId);
+  this->InjectedStepIds->SetValue(particleId, info.InjectedStepId);
+  this->ErrorCodeArray->SetValue(particleId, info.ErrorCode);
+  this->ParticleAge->SetValue(particleId, info.age);
+  this->SetToExtraPointDataArrays(particleId, info);
+  info.PointId = particleId;
   info.TailPointId = -1;
 
   // Interpolate all existing point attributes
@@ -1557,11 +1696,11 @@ void vtkParticleTracerBase::AddParticle(
   // of the spatially interpolated scalars from T1.
   if (info.LocationState == IDStates::OUTSIDE_T1)
   {
-    this->Interpolator->InterpolatePoint(0, this->OutputPointData, tempId);
+    interpolator->InterpolatePoint(0, this->OutputPointData, particleId);
   }
   else
   {
-    this->Interpolator->InterpolatePoint(1, this->OutputPointData, tempId);
+    interpolator->InterpolatePoint(1, this->OutputPointData, particleId);
   }
   // Compute vorticity
   if (this->ComputeVorticity)
@@ -1572,15 +1711,15 @@ void vtkParticleTracerBase::AddParticle(
     // have to use T0 if particle is out at T1, otherwise use T1
     if (info.LocationState == IDStates::OUTSIDE_T1)
     {
-      this->Interpolator->GetVorticityData(0, pcoords, weights, cell, this->CellVectors);
+      interpolator->GetVorticityData(0, pcoords, weights, cell, cellVectors);
     }
     else
     {
-      this->Interpolator->GetVorticityData(1, pcoords, weights, cell, this->CellVectors);
+      interpolator->GetVorticityData(1, pcoords, weights, cell, cellVectors);
     }
 
-    this->CalculateVorticity(cell, pcoords, CellVectors, vorticity);
-    this->ParticleVorticity->InsertNextTuple(vorticity);
+    this->CalculateVorticity(cell, pcoords, cellVectors, vorticity);
+    this->ParticleVorticity->SetTuple(particleId, vorticity);
     // local rotation = vorticity . unit tangent ( i.e. velocity/speed )
     if (info.speed != 0.0)
     {
@@ -1592,8 +1731,8 @@ void vtkParticleTracerBase::AddParticle(
     {
       omega = 0.0;
     }
-    vtkIdType index = this->ParticleAngularVel->InsertNextValue(omega);
-    if (index > 0)
+    this->ParticleAngularVel->SetValue(particleId, omega);
+    if (particleId > 0)
     {
       rotation =
         info.rotation + (info.angularVel + omega) / 2 * (info.CurrentPosition.x[3] - info.time);
@@ -1602,7 +1741,7 @@ void vtkParticleTracerBase::AddParticle(
     {
       rotation = 0.0;
     }
-    this->ParticleRotation->InsertNextValue(rotation);
+    this->ParticleRotation->SetValue(particleId, rotation);
     info.rotation = rotation;
     info.angularVel = omega;
     info.time = info.CurrentPosition.x[3];

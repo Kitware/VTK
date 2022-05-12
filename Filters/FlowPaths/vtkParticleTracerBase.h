@@ -34,6 +34,7 @@
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include <list>   // STL Header
+#include <mutex>  // STL Header
 #include <vector> // STL Header
 
 class vtkAbstractParticleWriter;
@@ -97,11 +98,13 @@ typedef std::vector<ParticleInformation> ParticleVector;
 typedef ParticleVector::iterator ParticleIterator;
 typedef std::list<ParticleInformation> ParticleDataList;
 typedef ParticleDataList::iterator ParticleListIterator;
+struct ParticleTracerFunctor;
 };
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracerBase : public vtkPolyDataAlgorithm
 {
 public:
+  friend struct vtkParticleTracerBaseNamespace::ParticleTracerFunctor;
   enum Solvers
   {
     RUNGE_KUTTA2,
@@ -338,6 +341,15 @@ public:
   void RemoveAllSources();
   ///@}
 
+  ///@{
+  /**
+   * Force the filter to run particle tracer in serial. This affects
+   * the filter only if more than 100 particles is to be generated.
+   */
+  vtkGetMacro(ForceSerialExecution, bool);
+  vtkSetMacro(ForceSerialExecution, bool);
+  vtkBooleanMacro(ForceSerialExecution, bool);
+  ///@}
 protected:
   vtkSmartPointer<vtkPolyData> Output; // managed by child classes
   ///@{
@@ -354,6 +366,9 @@ protected:
   vtkTypeBool IgnorePipelineTime; // whether to use the pipeline time for termination
   vtkTypeBool DisableResetCache;  // whether to enable ResetCache() method
   ///@}
+
+  // Control execution as serial or threaded
+  bool ForceSerialExecution;
 
   vtkParticleTracerBase();
   ~vtkParticleTracerBase() override;
@@ -459,7 +474,9 @@ protected:
    * particle between the two times supplied.
    */
   void IntegrateParticle(vtkParticleTracerBaseNamespace::ParticleListIterator& it,
-    double currenttime, double terminationtime, vtkInitialValueProblemSolver* integrator);
+    double currentTime, double targetTime, vtkInitialValueProblemSolver* integrator,
+    vtkTemporalInterpolatedVelocityField* interpolator, vtkDoubleArray* cellVectors,
+    std::atomic<vtkIdType>& particleCount, std::mutex& eraseMutex, bool sequential);
 
   // if the particle is added to send list, then returns value is 1,
   // if it is kept on this process after a retry return value is 0
@@ -505,7 +522,9 @@ protected:
   double GetCacheDataTime();
 
   virtual void ResetCache();
-  void AddParticle(vtkParticleTracerBaseNamespace::ParticleInformation& info, double* velocity);
+  void SetParticle(vtkParticleTracerBaseNamespace::ParticleInformation& info, double* velocity,
+    vtkTemporalInterpolatedVelocityField* interpolator, vtkIdType particleId,
+    vtkDoubleArray* cellVectors);
 
   ///@{
   /**
@@ -521,13 +540,18 @@ protected:
   vtkGetMacro(ReinjectionCounter, int);
   vtkGetMacro(CurrentTimeValue, double);
 
+  void ResizeArrays(vtkIdType numTuples);
+
   /**
    * Methods to append values to existing point data arrays that may
    * only be desired on specific concrete derived classes.
    */
   virtual void InitializeExtraPointDataArrays(vtkPointData* vtkNotUsed(outputPD)) {}
 
-  virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation&) {}
+  virtual void SetToExtraPointDataArrays(
+    vtkIdType, vtkParticleTracerBaseNamespace::ParticleInformation&)
+  {
+  }
 
   vtkTemporalInterpolatedVelocityField* GetInterpolator();
 
@@ -548,7 +572,7 @@ private:
    * to the integrator that is used.
    */
   bool RetryWithPush(vtkParticleTracerBaseNamespace::ParticleInformation& info, double* point1,
-    double delT, int subSteps);
+    double delT, int subSteps, vtkTemporalInterpolatedVelocityField* interpolator);
 
   bool SetTerminationTimeNoModify(double t);
 
@@ -606,9 +630,15 @@ private:
   using bounds = struct bounds_t;
   std::vector<bounds> CachedBounds[2];
 
-  // temporary variables used by Exeucte(), for convenience only
+  // variables used by Execute() to produce output
+
+  vtkSmartPointer<vtkDataSet> DataReferenceT[2];
 
   vtkSmartPointer<vtkPoints> OutputCoordinates;
+  vtkSmartPointer<vtkIdTypeArray> ParticleCellsConnectivity;
+  vtkSmartPointer<vtkIdTypeArray> ParticleCellsOffsets;
+  vtkSmartPointer<vtkCellArray> ParticleCells;
+
   vtkSmartPointer<vtkFloatArray> ParticleAge;
   vtkSmartPointer<vtkIntArray> ParticleIds;
   vtkSmartPointer<vtkSignedCharArray> ParticleSourceIds;
@@ -618,10 +648,10 @@ private:
   vtkSmartPointer<vtkFloatArray> ParticleVorticity;
   vtkSmartPointer<vtkFloatArray> ParticleRotation;
   vtkSmartPointer<vtkFloatArray> ParticleAngularVel;
-  vtkSmartPointer<vtkDoubleArray> CellVectors;
   vtkSmartPointer<vtkPointData> OutputPointData;
-  vtkSmartPointer<vtkDataSet> DataReferenceT[2];
-  vtkSmartPointer<vtkCellArray> ParticleCells;
+
+  // temp array
+  vtkSmartPointer<vtkDoubleArray> CellVectors;
 
   vtkParticleTracerBase(const vtkParticleTracerBase&) = delete;
   void operator=(const vtkParticleTracerBase&) = delete;
