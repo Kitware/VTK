@@ -212,7 +212,7 @@ void vtkGeoTransform::InternalTransformPoints(double* x, vtkIdType numPts, int s
 #if PROJ_VERSION_MAJOR >= 5
       c.lp.lam = coord[0];
       c.lp.phi = coord[1];
-      c_out = proj_trans(src, PJ_FWD, c);
+      c_out = proj_trans(dst, PJ_FWD, c);
       coord[0] = c_out.xy.x;
       coord[1] = c_out.xy.y;
 #else
