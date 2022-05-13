@@ -33,9 +33,12 @@
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-#define VTK_IMAGE_BORDER_CLAMP 0
-#define VTK_IMAGE_BORDER_REPEAT 1
-#define VTK_IMAGE_BORDER_MIRROR 2
+enum vtkImageBorderMode : int
+{
+  VTK_IMAGE_BORDER_CLAMP = 0,
+  VTK_IMAGE_BORDER_REPEAT = 1,
+  VTK_IMAGE_BORDER_MIRROR = 2,
+};
 
 class vtkDataObject;
 class vtkImageData;
@@ -164,11 +167,11 @@ public:
    * bounds.  The other modes wrap around to the opposite boundary, or
    * mirror the image at the boundary.
    */
-  void SetBorderMode(int mode);
+  void SetBorderMode(vtkImageBorderMode mode);
   void SetBorderModeToClamp() { this->SetBorderMode(VTK_IMAGE_BORDER_CLAMP); }
   void SetBorderModeToRepeat() { this->SetBorderMode(VTK_IMAGE_BORDER_REPEAT); }
   void SetBorderModeToMirror() { this->SetBorderMode(VTK_IMAGE_BORDER_MIRROR); }
-  int GetBorderMode() { return this->BorderMode; }
+  vtkImageBorderMode GetBorderMode() { return this->BorderMode; }
   const char* GetBorderModeAsString();
   ///@}
 
@@ -308,7 +311,7 @@ protected:
   double Origin[3];
   double OutValue;
   double Tolerance;
-  int BorderMode;
+  vtkImageBorderMode BorderMode;
   int ComponentOffset;
   int ComponentCount;
   bool SlidingWindow;

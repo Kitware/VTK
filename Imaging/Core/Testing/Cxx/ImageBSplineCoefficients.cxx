@@ -89,7 +89,8 @@ int ImageBSplineCoefficients(int argc, char* argv[])
     { 6.08451, 185.60837, 0.0 },
   };
 
-  int modes[3] = { VTK_IMAGE_BORDER_CLAMP, VTK_IMAGE_BORDER_REPEAT, VTK_IMAGE_BORDER_MIRROR };
+  vtkImageBorderMode modes[3] = { VTK_IMAGE_BORDER_CLAMP, VTK_IMAGE_BORDER_REPEAT,
+    VTK_IMAGE_BORDER_MIRROR };
 
   int m = VTK_IMAGE_BSPLINE_DEGREE_MAX;
 
@@ -97,7 +98,7 @@ int ImageBSplineCoefficients(int argc, char* argv[])
   {
     for (int jj = 0; jj < 3; jj++)
     {
-      int mode = modes[jj];
+      vtkImageBorderMode mode = modes[jj];
 
       coeffs->SetSplineDegree(j);
       coeffs->SetBorderMode(mode);
