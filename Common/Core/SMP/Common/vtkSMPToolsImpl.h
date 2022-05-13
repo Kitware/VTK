@@ -20,6 +20,8 @@
 #include "vtkObject.h"
 #include "vtkSMP.h"
 
+#include <atomic>
+
 #define VTK_SMP_MAX_BACKENDS_NB 4
 
 #define VTK_SMP_BACKEND_SEQUENTIAL 0
@@ -98,7 +100,7 @@ public:
 
 private:
   bool NestedActivated = true;
-  bool IsParallel = false;
+  std::atomic<bool> IsParallel{ false };
 };
 
 using ExecuteFunctorPtrType = void (*)(void*, vtkIdType, vtkIdType, vtkIdType);
