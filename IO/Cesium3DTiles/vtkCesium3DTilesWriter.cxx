@@ -168,6 +168,18 @@ vtkSmartPointer<T> TranslateMeshOrPoints(T* rootPoints, const double* fileOffset
   return ret;
 }
 
+vtkPolyData* GetMesh(vtkMultiBlockDataSet* mbMesh)
+{
+  auto buildingIt = vtk::TakeSmartPointer(mbMesh->NewTreeIterator());
+  buildingIt->VisitOnlyLeavesOff();
+  buildingIt->TraverseSubTreeOff();
+  buildingIt->InitTraversal();
+  auto building = vtkMultiBlockDataSet::SafeDownCast(buildingIt->GetCurrentDataObject());
+  auto it = vtk::TakeSmartPointer(building->NewIterator());
+  it->InitTraversal();
+  auto pd = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+  return pd;
+}
 };
 
 //------------------------------------------------------------------------------
@@ -175,7 +187,7 @@ vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
 {
   this->SetNumberOfInputPorts(1);
   this->DirectoryName = nullptr;
-  this->TexturePath = nullptr;
+  this->TextureBaseDirectory = nullptr;
   std::fill(this->Offset, this->Offset + 3, 0);
   this->SaveTextures = true;
   this->SaveTiles = true;
@@ -190,7 +202,7 @@ vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
 vtkCesium3DTilesWriter::~vtkCesium3DTilesWriter()
 {
   this->SetDirectoryName(nullptr);
-  this->SetTexturePath(nullptr);
+  this->SetTextureBaseDirectory(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -198,7 +210,9 @@ void vtkCesium3DTilesWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "DirectoryName: " << (this->DirectoryName ? this->DirectoryName : "NONE")
-     << indent << "TexturePath: " << (this->TexturePath ? this->TexturePath : "NONE") << endl;
+     << indent
+     << "TexturePath: " << (this->TextureBaseDirectory ? this->TextureBaseDirectory : "NONE")
+     << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -214,7 +228,7 @@ int vtkCesium3DTilesWriter::FillInputPortInformation(int port, vtkInformation* i
   }
   else if (this->InputType == Mesh)
   {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   }
   else
   {
@@ -230,7 +244,7 @@ void vtkCesium3DTilesWriter::WriteData()
   auto root = this->GetInput(0);
   auto rootBuildings = vtkMultiBlockDataSet::SafeDownCast(root);
   auto rootPoints = vtkPointSet::SafeDownCast(root);
-  auto rootMesh = vtkPolyData::SafeDownCast(root);
+  auto mbMesh = vtkMultiBlockDataSet::SafeDownCast(root);
   switch (this->InputType)
   {
     case Buildings:
@@ -257,7 +271,8 @@ void vtkCesium3DTilesWriter::WriteData()
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctreeBuildings(buildings, wholeBB, this->NumberOfFeaturesPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), &buildings,
-        this->DirectoryName, this->TexturePath, this->SaveTextures, this->ContentGLTF, this->CRS);
+        this->TextureBaseDirectory, this->SaveTextures, this->ContentGLTF, this->CRS,
+        this->DirectoryName);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
@@ -281,7 +296,7 @@ void vtkCesium3DTilesWriter::WriteData()
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctreePoints(pc, this->NumberOfFeaturesPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), pc,
-        this->InputType, this->DirectoryName, this->ContentGLTF, this->CRS);
+        this->ContentGLTF, this->CRS, this->DirectoryName);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
@@ -294,18 +309,21 @@ void vtkCesium3DTilesWriter::WriteData()
     }
     case Mesh:
     {
-      if (!rootMesh)
+      if (!mbMesh)
       {
-        vtkLog(
-          ERROR, "Expecting vtkPointSet but got " << (root ? root->GetClassName() : "nullptr"));
+        vtkLog(ERROR,
+          "Expecting vtkMultiBlockDataSet but got " << (root ? root->GetClassName() : "nullptr"));
         return;
       }
+
+      vtkPolyData* rootMesh = GetMesh(mbMesh);
       vtkDirectory::MakeDirectory(this->DirectoryName);
       vtkSmartPointer<vtkPolyData> pc = TranslateMeshOrPoints(rootMesh, this->Offset);
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
         BuildOctreeMesh(pc, this->NumberOfFeaturesPerTile);
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), pc,
-        this->InputType, this->DirectoryName, this->ContentGLTF, this->CRS);
+        this->TextureBaseDirectory, this->SaveTextures, this->ContentGLTF, this->CRS,
+        this->DirectoryName);
       treeInformation.Compute();
       vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");

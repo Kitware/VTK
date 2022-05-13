@@ -99,7 +99,8 @@ std::array<double, 3> ReadOBJOffset(const char* comment)
 std::string GetOBJTextureFileName(const std::string& file)
 {
   std::string fileNoExt = SystemTools::GetFilenameWithoutExtension(file);
-  return fileNoExt + ".png";
+  std::string textureFileName = fileNoExt + ".png";
+  return SystemTools::FileExists(textureFileName, true /*isFile*/) ? textureFileName : "";
 }
 
 vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJBuildings(int numberOfBuildings, int vtkNotUsed(lod),
@@ -117,7 +118,10 @@ vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJBuildings(int numberOfBuildings, in
     }
     auto polyData = reader->GetOutput();
     std::string textureFileName = GetOBJTextureFileName(files[i]);
-    SetField(polyData, "texture_uri", textureFileName.c_str());
+    if (!textureFileName.empty())
+    {
+      SetField(polyData, "texture_uri", textureFileName.c_str());
+    }
     auto building = vtkSmartPointer<vtkMultiBlockDataSet>::New();
     building->SetBlock(0, polyData);
     root->SetBlock(root->GetNumberOfBlocks(), building);
@@ -236,12 +240,12 @@ void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
 
     std::array<double, 3>
       fileOffset = { { 0, 0, 0 } };
-  if (inputType == vtkCesium3DTilesWriter::Buildings)
+  if (inputType == vtkCesium3DTilesWriter::Buildings || inputType == vtkCesium3DTilesWriter::Mesh)
   {
     mbData = READER[SystemTools::GetFilenameExtension(files[0])](
       numberOfBuildings, lod, files, fileOffset);
   }
-  else /*Points or Mesh*/
+  else /*Points*/
   {
     polyData = ReadOBJMesh(numberOfBuildings, lod, files, fileOffset);
     if (addColor)
@@ -262,10 +266,10 @@ void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
   }
   std::transform(fileOffset.begin(), fileOffset.end(), inputOffset.begin(), fileOffset.begin(),
     std::plus<double>());
-  std::string texturePath = SystemTools::GetFilenamePath(files[0]);
+  std::string textureBaseDirectory = SystemTools::GetFilenamePath(files[0]);
 
   vtkNew<vtkCesium3DTilesWriter> writer;
-  if (inputType == vtkCesium3DTilesWriter::Buildings)
+  if (inputType == vtkCesium3DTilesWriter::Buildings || inputType == vtkCesium3DTilesWriter::Mesh)
   {
     writer->SetInputDataObject(mbData);
   }
@@ -276,7 +280,7 @@ void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
   writer->SetContentGLTF(contentGLTF);
   writer->SetInputType(inputType);
   writer->SetDirectoryName(output.c_str());
-  writer->SetTexturePath(texturePath.c_str());
+  writer->SetTextureBaseDirectory(textureBaseDirectory.c_str());
   writer->SetOffset(&fileOffset[0]);
   writer->SetSaveTextures(saveTextures);
   writer->SetNumberOfFeaturesPerTile(buildingsPerTile);

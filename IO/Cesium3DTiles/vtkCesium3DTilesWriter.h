@@ -56,8 +56,8 @@ public:
    * Path used to prefix all texture paths stored as fields in the input data.
    * @see vtkCityGMLReader
    */
-  vtkSetFilePathMacro(TexturePath);
-  vtkGetFilePathMacro(TexturePath);
+  vtkSetFilePathMacro(TextureBaseDirectory);
+  vtkGetFilePathMacro(TextureBaseDirectory);
   ///@}
 
   //@{
@@ -156,7 +156,7 @@ protected:
   void WriteData() override;
 
   char* DirectoryName;
-  char* TexturePath;
+  char* TextureBaseDirectory;
   double Offset[3];
   bool SaveTextures;
   int InputType;

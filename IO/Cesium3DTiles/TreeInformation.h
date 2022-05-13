@@ -34,6 +34,7 @@
 class vtkActor;
 class vtkCompositeDataSet;
 class vtkIdList;
+class vtkImageData;
 class vtkIntArray;
 class vtkPolyData;
 class vtkPointSet;
@@ -44,12 +45,21 @@ class vtkIncrementalOctreeNode;
 class TreeInformation
 {
 public:
+  //@{
+  /**
+   * Constructors for buildings, points and meshes.
+   */
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes,
     const std::vector<vtkSmartPointer<vtkCompositeDataSet>>* buildings,
-    const std::string& outputDir, const std::string& texturePath, bool saveTextures,
-    bool contentGLTF, const char* crs);
+    const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
+    const std::string& outputDir);
   TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPointSet* points,
-    int inputType, const std::string& output, bool contentGLTF, const char* crs);
+    bool contentGLTF, const char* crs, const std::string& output);
+  TreeInformation(vtkIncrementalOctreeNode* root, int numberOfNodes, vtkPolyData* mesh,
+    const std::string& textureBaseDirectory, bool saveTextures, bool contentGLTF, const char* crs,
+    const std::string& output);
+  //@}
+
   void PrintNode(vtkIncrementalOctreeNode* node);
 
   //@{
@@ -108,6 +118,11 @@ protected:
   ///@}
   void SaveTileBuildings(vtkIncrementalOctreeNode* node, void* auxData);
   void SaveTileMesh(vtkIncrementalOctreeNode* node, void* auxData);
+  /**
+   * Compute the texture image for the tile and recompute texture coordinates
+   */
+  vtkSmartPointer<vtkImageData> ComputeTileMeshTexture(
+    vtkPolyData* tileMesh, vtkImageData* textureImage);
   void SaveTilePoints(vtkIncrementalOctreeNode* node, void* auxData);
 
   ///@{
@@ -144,7 +159,7 @@ private:
   ///@}
 
   std::string OutputDir;
-  std::string TexturePath;
+  std::string TextureBaseDirectory;
   bool SaveTextures;
   bool ContentGLTF;
 
