@@ -91,6 +91,112 @@
 vtkStandardNewMacro(vtkUnstructuredGrid);
 vtkStandardExtendedNewMacro(vtkUnstructuredGrid);
 
+namespace
+{
+//==============================================================================
+struct RemoveGhostCellsWorker
+{
+  vtkNew<vtkIdList> NewPointIdMap;
+  vtkNew<vtkIdList> NewCellIdMap;
+
+  template <class ArrayT1, class ArrayT2>
+  void operator()(ArrayT1* inputOffsets, ArrayT2* outputOffsets, vtkDataArray* inputConnectivityDA,
+    vtkDataArray* outputConnectivityDA, vtkUnsignedCharArray* types,
+    vtkUnsignedCharArray* ghostCells, vtkIdType numPoints, vtkIdTypeArray* inputFaces,
+    vtkIdTypeArray* inputFaceLocations, vtkIdTypeArray* outputFaces,
+    vtkIdTypeArray* outputFaceLocations)
+  {
+    if (!inputOffsets->GetNumberOfValues())
+    {
+      return;
+    }
+
+    auto inputConnectivity = vtkArrayDownCast<ArrayT1>(inputConnectivityDA);
+    auto outputConnectivity = vtkArrayDownCast<ArrayT2>(outputConnectivityDA);
+
+    outputOffsets->SetNumberOfValues(inputOffsets->GetNumberOfValues());
+    outputConnectivity->SetNumberOfValues(inputConnectivity->GetNumberOfValues());
+
+    auto inputOffsetsRange = vtk::DataArrayValueRange<1>(inputOffsets);
+    auto inputConnectivityRange = vtk::DataArrayValueRange<1>(inputConnectivity);
+    using InputValueType = typename decltype(inputOffsetsRange)::ValueType;
+
+    auto outputOffsetsRange = vtk::DataArrayValueRange<1>(outputOffsets);
+    auto outputConnectivityRange = vtk::DataArrayValueRange<1>(outputConnectivity);
+    using OutputValueType = typename decltype(outputOffsetsRange)::ValueType;
+
+    auto typesRange = vtk::DataArrayValueRange<1>(types);
+    auto ghostCellsRange = vtk::DataArrayValueRange<1>(ghostCells);
+
+    std::vector<vtkIdType> pointIdRedirectionMap(numPoints, -1);
+
+    this->NewPointIdMap->Allocate(numPoints);
+    this->NewCellIdMap->Allocate(types->GetNumberOfValues());
+
+    vtkIdType newPointsMaxId = -1;
+    InputValueType startId = inputOffsetsRange[0];
+    vtkIdType newCellsMaxId = -1;
+    OutputValueType currentOutputOffset = 0;
+
+    for (vtkIdType cellId = 0; cellId < inputOffsets->GetNumberOfValues() - 1; ++cellId)
+    {
+      if (ghostCellsRange[cellId] &
+        (vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::DUPLICATECELL))
+      {
+        startId = inputOffsetsRange[cellId + 1];
+        continue;
+      }
+
+      this->NewCellIdMap->InsertNextId(cellId);
+
+      InputValueType endId = inputOffsetsRange[cellId + 1];
+      InputValueType size = endId - startId;
+
+      outputOffsetsRange[++newCellsMaxId] = currentOutputOffset;
+      outputOffsetsRange[newCellsMaxId + 1] = currentOutputOffset + size;
+
+      for (InputValueType cellPointId = 0; cellPointId < size; ++cellPointId)
+      {
+        vtkIdType pointId = inputConnectivityRange[startId + cellPointId];
+        if (pointIdRedirectionMap[pointId] == -1)
+        {
+          pointIdRedirectionMap[pointId] = ++newPointsMaxId;
+          this->NewPointIdMap->InsertNextId(pointId);
+        }
+        outputConnectivityRange[currentOutputOffset + cellPointId] = pointIdRedirectionMap[pointId];
+      }
+
+      if (typesRange[cellId] == VTK_POLYHEDRON)
+      {
+        outputFaceLocations->SetValue(newCellsMaxId, outputFaces->GetNumberOfValues());
+        vtkIdType inId = inputFaceLocations->GetValue(cellId);
+        vtkIdType numberOfFaces = inputFaces->GetValue(inId++);
+        outputFaces->InsertNextValue(numberOfFaces);
+        for (vtkIdType faceId = 0; faceId < numberOfFaces; ++faceId)
+        {
+          vtkIdType faceSize = inputFaces->GetValue(inId++);
+          outputFaces->InsertNextValue(faceSize);
+          for (vtkIdType pointId = 0; pointId < faceSize; ++pointId)
+          {
+            outputFaces->InsertNextValue(pointIdRedirectionMap[inputFaces->GetValue(inId++)]);
+          }
+        }
+      }
+
+      currentOutputOffset += size;
+      startId = endId;
+    }
+
+    if (outputFaceLocations)
+    {
+      outputFaceLocations->Resize(newCellsMaxId + 1);
+    }
+    outputOffsets->Resize(newCellsMaxId + 2);
+    outputConnectivity->Resize(currentOutputOffset + 1);
+  }
+};
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 vtkIdTypeArray* vtkUnstructuredGrid::GetCellLocationsArray()
 {
@@ -2215,102 +2321,67 @@ void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIdTypeArray* array)
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::RemoveGhostCells()
 {
-  vtkUnstructuredGrid* newGrid = vtkUnstructuredGrid::New();
-  vtkUnsignedCharArray* temp;
-  unsigned char* cellGhosts;
-
-  vtkIdType cellId, newCellId;
-  vtkIdList *cellPts, *pointMap;
-  vtkIdList* newCellPts;
-  vtkCell* cell;
-  vtkPoints* newPoints;
-  vtkIdType i, ptId, newId, numPts;
-  vtkIdType numCellPts;
-  double* x;
-  vtkPointData* pd = this->GetPointData();
-  vtkPointData* outPD = newGrid->GetPointData();
-  vtkCellData* cd = this->GetCellData();
-  vtkCellData* outCD = newGrid->GetCellData();
-
-  // Get a pointer to the cell ghost array.
-  temp = this->GetCellGhostArray();
-  if (temp == nullptr)
+  if (!this->CellData->GetGhostArray())
   {
-    vtkDebugMacro("Could not find cell ghost array.");
-    newGrid->Delete();
     return;
   }
-  if ((temp->GetNumberOfComponents() != 1) ||
-    (temp->GetNumberOfTuples() < this->GetNumberOfCells()))
+  vtkNew<vtkUnstructuredGrid> newGrid;
+
+  vtkSmartPointer<vtkIdTypeArray> newFaces, newFaceLocations;
+  if (this->GetFaces())
   {
-    vtkErrorMacro("Poorly formed ghost array.");
-    newGrid->Delete();
-    return;
+    newFaces = vtkSmartPointer<vtkIdTypeArray>::New();
+    newFaces->Allocate(this->GetFaces()->GetNumberOfValues());
+    newFaceLocations = vtkSmartPointer<vtkIdTypeArray>::New();
+    newFaceLocations->SetNumberOfValues(this->GetNumberOfCells());
+    newFaceLocations->Fill(-1);
   }
-  cellGhosts = temp->GetPointer(0);
 
-  // Now threshold based on the cell ghost array.
+  vtkNew<vtkCellArray> newCells;
+#ifdef VTK_USE_64BIT_IDS
+  if (!(this->GetNumberOfPoints() >> 32))
+  {
+    newCells->ConvertTo32BitStorage();
+  }
+#endif
 
-  // ensure that all attributes are copied over, including global ids.
-  outPD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
-  outCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkCellArray::StorageArrayList,
+    vtkCellArray::StorageArrayList>;
+  ::RemoveGhostCellsWorker worker;
 
-  outPD->CopyAllocate(pd);
-  outCD->CopyAllocate(cd);
+  if (!Dispatcher::Execute(this->Connectivity->GetOffsetsArray(), newCells->GetOffsetsArray(),
+        worker, this->Connectivity->GetConnectivityArray(), newCells->GetConnectivityArray(),
+        this->Types, this->CellData->GetGhostArray(), this->GetNumberOfPoints(), this->Faces,
+        this->FaceLocations, newFaces, newFaceLocations))
+  {
+    worker(this->Connectivity->GetOffsetsArray(), newCells->GetOffsetsArray(),
+      this->Connectivity->GetConnectivityArray(), newCells->GetConnectivityArray(), this->Types,
+      this->CellData->GetGhostArray(), this->GetNumberOfPoints(), this->Faces, this->FaceLocations,
+      newFaces, newFaceLocations);
+  }
 
-  numPts = this->GetNumberOfPoints();
-  newGrid->Allocate(this->GetNumberOfCells());
-  newPoints = vtkPoints::New();
+  vtkNew<vtkUnsignedCharArray> newTypes;
+  newTypes->InsertTuplesStartingAt(0, worker.NewCellIdMap, this->Types);
+
+  vtkNew<vtkPoints> newPoints;
   newPoints->SetDataType(this->GetPoints()->GetDataType());
-  newPoints->Allocate(numPts);
-
-  pointMap = vtkIdList::New(); // maps old point ids into new
-  pointMap->SetNumberOfIds(numPts);
-  pointMap->Fill(-1);
-
-  newCellPts = vtkIdList::New();
-
-  // Check that the scalars of each cell satisfy the threshold criterion
-  for (cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
-  {
-    cell = this->GetCell(cellId);
-    cellPts = cell->GetPointIds();
-    numCellPts = cell->GetNumberOfPoints();
-
-    if ((cellGhosts[cellId] &
-          (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)) ==
-      0) // Keep the cell.
-    {
-      for (i = 0; i < numCellPts; i++)
-      {
-        ptId = cellPts->GetId(i);
-        if ((newId = pointMap->GetId(ptId)) < 0)
-        {
-          x = this->GetPoint(ptId);
-          newId = newPoints->InsertNextPoint(x);
-          pointMap->SetId(ptId, newId);
-          outPD->CopyData(pd, ptId, newId);
-        }
-        newCellPts->InsertId(i, newId);
-      }
-      newCellId = newGrid->InsertNextCell(cell->GetCellType(), newCellPts);
-      outCD->CopyData(cd, cellId, newCellId);
-      newCellPts->Reset();
-    } // satisfied thresholding
-  }   // for all cells
-
-  // now clean up / update ourselves
-  pointMap->Delete();
-  newCellPts->Delete();
-
+  newPoints->GetData()->InsertTuplesStartingAt(0, worker.NewPointIdMap, this->Points->GetData());
   newGrid->SetPoints(newPoints);
-  newPoints->Delete();
+
+  vtkCellData* outCD = newGrid->GetCellData();
+  outCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  outCD->CopyAllocate(this->CellData);
+  outCD->CopyData(this->CellData, worker.NewCellIdMap);
+
+  vtkPointData* outPD = newGrid->GetPointData();
+  outPD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  outPD->CopyAllocate(this->PointData);
+  outPD->CopyData(this->PointData, worker.NewPointIdMap);
 
   this->CopyStructure(newGrid);
   this->GetPointData()->ShallowCopy(newGrid->GetPointData());
   this->GetCellData()->ShallowCopy(newGrid->GetCellData());
-  newGrid->Delete();
-  newGrid = nullptr;
+  this->SetCells(newTypes, newCells, newFaceLocations, newFaces);
 
   this->Squeeze();
 }

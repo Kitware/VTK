@@ -44,6 +44,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkRemoveGhosts.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
@@ -2347,6 +2348,24 @@ bool TestUnstructuredGrid(
   for (int id = 0; id < 4; ++id)
   {
     vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(outPDS->GetPartition(id));
+
+    // Testing vtkUnstructuredGrid::RemoveGhostCells
+    vtkNew<vtkRemoveGhosts> ghostRemover;
+    ghostRemover->SetInputData(ug);
+    ghostRemover->Update();
+
+    auto ghostlessUG = vtkUnstructuredGrid::SafeDownCast(ghostRemover->GetOutput());
+    if (ghostlessUG->GetNumberOfCells() != MaxExtent * MaxExtent * MaxExtent)
+    {
+      vtkLog(ERROR, "Wrong number of cell when removing ghost cells");
+      retVal = false;
+    }
+
+    if (ghostlessUG->GetNumberOfPoints() != (MaxExtent + 1) * (MaxExtent + 1) * (MaxExtent + 1))
+    {
+      vtkLog(ERROR, "Wrong number of cell when removing ghost points");
+      retVal = false;
+    }
 
     if (!TestVoxelCellsVolume(ug))
     {
