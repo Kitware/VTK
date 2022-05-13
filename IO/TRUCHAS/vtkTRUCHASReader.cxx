@@ -959,6 +959,22 @@ int vtkTRUCHASReader::RequestData(
       continue;
     }
 
+    // get the visualization field name
+    char field_name[MAX_NAME + 1];
+    if (H5Aexists_by_name(now_gid, array_name, "FIELDNAME", H5P_DEFAULT))
+    {
+      memset(field_name, 0, strlen(field_name));
+      hid_t attr = H5Aopen(did, "FIELDNAME", H5P_DEFAULT);
+      hid_t atype = H5Aget_type(attr);
+      hid_t atype_mem = H5Tget_native_type(atype, H5T_DIR_ASCEND);
+      H5Aread(attr, atype_mem, field_name);
+      H5Aclose(attr);
+    }
+    else
+    {
+      strncpy(field_name, array_name, MAX_NAME);
+    }
+
     bool isFloat = this->Internals->array_isFloat[array_name];
     double** vals_out = nullptr;
     int** ivals_out = nullptr;
@@ -1032,8 +1048,26 @@ int vtkTRUCHASReader::RequestData(
           {
             vArray = vtkIntArray::New();
           }
-          vArray->SetName(array_name);
+          vArray->SetName(field_name);
           vArray->SetNumberOfComponents(dims[1]);
+          if (strncmp(array_name, "VOF", 3) == 0)
+          {
+            // For the VOF field, name the components by the given FIELDNAMEX attribute.
+            for (int i = 0; i < dims[1]; i++)
+            {
+              std::string attr_name = "FIELDNAME" + std::to_string(i + 1);
+              if (!H5Aexists_by_name(now_gid, array_name, attr_name.c_str(), H5P_DEFAULT))
+                continue;
+              hid_t attr = H5Aopen(did, attr_name.c_str(), H5P_DEFAULT);
+              hid_t atype = H5Aget_type(attr);
+              hid_t atype_mem = H5Tget_native_type(atype, H5T_DIR_ASCEND);
+              char component_name[MAX_NAME + 1];
+              memset(component_name, 0, MAX_NAME);
+              H5Aread(attr, atype_mem, component_name);
+              H5Aclose(attr);
+              vArray->SetComponentName(i, component_name);
+            }
+          }
           vArray->SetNumberOfTuples(grid[b]->GetNumberOfCells());
           arrayGroup->AddArray(vArray);
           vArray->Delete();
@@ -1062,7 +1096,7 @@ int vtkTRUCHASReader::RequestData(
               {
                 mArray = vtkIntArray::New();
               }
-              mArray->SetName(array_name);
+              mArray->SetName(field_name);
               mArray->SetNumberOfComponents(dims[1]);
               mArray->SetNumberOfTuples(totalNumPoints);
               this->Internals->PointData->AddArray(mArray);
