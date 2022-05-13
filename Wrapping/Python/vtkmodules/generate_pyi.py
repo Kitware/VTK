@@ -161,12 +161,12 @@ def topologically_sorted_items(d):
 
 # regular expressions for parsing
 string = re.compile(r"""("([^\\"]|\\.)*"|'([^\\']|\\.)*')""")
-identifier = re.compile(r"""[ \t]*([A-Za-z_]([A-Za-z0-9_]|[.][A-Za-z_])*)""")
-indent = re.compile(r"[ \t]+\S")
+identifier = re.compile(r"""([A-Za-z_]([A-Za-z0-9_]|[.][A-Za-z_])*)""")
+indent = re.compile(r"[ \t]+(?=\S)")
 has_self = re.compile(r"[(]self[,)]")
 
 # important characters for rapidly parsing code
-keychar = re.compile(r"[\'\"{}\[\]()>:\n]")
+keychar = re.compile(r"[\'\"{}\[\]()\n]")
 
 def parse_error(message, text, begin, pos):
     """Print a parse error, syntax or otherwise.
@@ -178,20 +178,85 @@ def parse_error(message, text, begin, pos):
     sys.stderr.write(text[begin:end] + "\n");
     sys.stderr.write('-' * (pos - begin) + "^\n")
 
+def annotation_text(a, text, is_return):
+    """Return the new text to be used for an annotation.
+    """
+    if isinstance(a, ast.Name):
+        name = a.id
+        if name not in types:
+            # quote the type, in case it isn't yet defined
+            text = '\'' + name + '\''
+    elif isinstance(a, (ast.Tuple, ast.List)):
+        size = len(a.elts)
+        e = a.elts[0]
+        offset = a.col_offset
+        old_name = text[e.col_offset - offset:e.end_col_offset - offset]
+        name = annotation_text(e, old_name, is_return)
+
+        if is_return:
+            # use concrete types for return values
+            if isinstance(a, ast.Tuple):
+                text = 'Tuple[' + ', '.join([name]*size) + ']'
+            else:
+                text = 'List[' + name + ']'
+        else:
+            # use generic sequence types for args
+            if isinstance(a, ast.Tuple):
+                text = 'Sequence[' + name + ']'
+            else:
+                text = 'MutableSequence[' + name + ']'
+
+    return text
+
+def fix_annotations(signature):
+    """Fix the annotations in a method definition.
+    The signature must be a single-line function def, no decorators.
+    """
+    # get the FunctionDef object from the parse tree
+    definition = ast.parse(signature).body[0]
+    annotations = [arg.annotation for arg in definition.args.args]
+    return_i = len(annotations) # index of annotation for return
+    annotations.append(definition.returns)
+
+    # create a list of changes to apply to the annotations
+    changes = []
+    for i,a in enumerate(annotations):
+        if a is not None:
+            old_text = signature[a.col_offset:a.end_col_offset]
+            text = annotation_text(a, old_text, (i == return_i))
+            if text != old_text:
+                changes.append((a.col_offset, a.end_col_offset,  text))
+
+    # apply changes to generate a new signature
+    if changes:
+        newsig = ""
+        lastpos = 0
+        for begin,end,text in changes:
+            newsig += signature[lastpos:begin]
+            newsig += text
+            lastpos = end
+        newsig += signature[lastpos:]
+        signature = newsig
+
+    return signature
+
 def push_signature(o, l, signature):
     """Process a method signature and add it to the list.
     """
+    # eliminate newlines and indents
     signature = re.sub(r"\s+", " ", signature)
+    # no space after opening delimiter or ':' or '='
+    signature = re.sub(r"([({\[:=]) ", "\\1", signature)
+
     if signature.startswith('C++:'):
-        # if C++ method is static, mark Python signature static
-        if isvtkmethod(o) and signature.find(" static ") != -1 and len(l) > 0:
-            if not l[-1].startswith("@staticmethod"):
-                l[-1] = "@staticmethod\n" + l[-1]
+        # the C++ method signatures are unused
+        pass
     elif signature.startswith(o.__name__ + "("):
-        if isvtkmethod(o) and not has_self.search(signature):
-            if not signature.startswith("@staticmethod"):
-                signature = "@staticmethod\n" + signature
-        l.append(signature)
+        # make it into a python method definition
+        signature = "def " + signature + ': ...'
+        signature = fix_annotations(signature)
+        if signature not in l:
+            l.append(signature)
 
 def get_signatures(o):
     """Return a list of method signatures found in the docstring.
@@ -207,9 +272,9 @@ def get_signatures(o):
     delim_stack = [] # keep track of bracket depth
 
     # loop through docstring using longest strides possible
-    # (this will go line-by-line or until first ( ) { } [ ] " ' : >)
+    # (this will go line-by-line or until first ( ) { } [ ] " ')
     while pos < len(doc):
-        # look for the next "character of insterest" in docstring
+        # look for the next "character of interest" in docstring
         match = keychar.search(doc, pos)
         # did we find a match before the end of docstring?
         if match:
@@ -233,21 +298,11 @@ def get_signatures(o):
                 if not delim_stack or c != delim_stack.pop():
                     parse_error("Unmatched bracket", doc, begin, pos)
                     break
-            elif c == ':' or (c == '>' and doc[pos-1] == '-'):
-                # what follows is a type
-                m = identifier.match(doc, pos+1)
-                if m:
-                    pos,end = m.span(1)
-                    name = m.group(1)
-                    if name not in types:
-                        # quote the type
-                        doc = doc[0:pos] + ('\'' + name + '\'') + doc[end:]
-                        end += 2
             elif c == '\n' and not (delim_stack or indent.match(doc, end)):
                 # a newline not followed by an indent marks end of signature,
                 # except for within brackets
                 signature = doc[begin:pos].strip()
-                if signature and signature not in signatures:
+                if signature:
                     push_signature(o, signatures, signature)
                     begin = end
                 else:
@@ -258,7 +313,7 @@ def get_signatures(o):
             end = len(doc)
             if not delim_stack:
                 signature = doc[begin:pos].strip()
-                if signature and signature not in signatures:
+                if signature:
                     push_signature(o, signatures, signature)
             else:
                 parse_error("Unmatched bracket", doc, begin, pos)
@@ -280,38 +335,25 @@ def get_constructors(c):
         return constructors
     signatures = get_signatures(c)
     for signature in signatures:
-        if signature.startswith(name + "("):
+        if signature.startswith("def " + name + "("):
             signature = re.sub("-> \'?" + name + "\'?", "-> None", signature)
-            if signature.startswith(name + "()"):
+            if signature.startswith("def " + name + "()"):
                 constructors.append(re.sub(name + r"\(", "__init__(self", signature, 1))
             else:
                 constructors.append(re.sub(name + r"\(", "__init__(self, ", signature, 1))
     return constructors
 
+def handle_static(o, signature):
+    """If method has no "self", add @static decorator."""
+    if isvtkmethod(o) and not has_self.search(signature):
+        return "@staticmethod\n" + signature
+    else:
+        return signature
+
 def add_indent(s, indent):
     """Add the given indent before every line in the string.
     """
     return indent + re.sub(r"\n(?=([^\n]))", "\n" + indent, s)
-
-def make_def(s, indent):
-    """Generate a method definition stub from the signature and an indent.
-    The indent is a string (tabs or spaces).
-    """
-    pos = 0
-    out = ""
-    while pos < len(s) and s[pos] == '@':
-        end = s.find('\n', pos) + 1
-        if end == 0:
-            end = len(s)
-        out += indent
-        out += s[pos:end]
-        pos = end
-    if pos < len(s):
-        out += indent
-        out += "def "
-        out += s[pos:]
-        out += ": ..."
-    return out
 
 def namespace_pyi(c, mod):
     """Fake a namespace by creating a dummy class.
@@ -390,10 +432,10 @@ def class_pyi(c):
     else:
         count += 1
         if len(constructors) == 1:
-            out += make_def(constructors[0], "    ") + "\n"
+            out += add_indent(constructors[0], "    ") + "\n"
         else:
             for overload in constructors:
-                out += make_def("@overload\n" + overload, "    ") + "\n"
+                out += add_indent("@overload\n" + overload, "    ") + "\n"
 
     # do the methods
     items = others
@@ -405,10 +447,12 @@ def class_pyi(c):
                 continue
             count += 1
             if len(signatures) == 1:
-                 out += make_def(signatures[0], "    ") + "\n"
+                 signature = handle_static(o, signatures[0])
+                 out += add_indent(signature, "    ") + "\n"
                  continue
             for overload in signatures:
-                 out += make_def("@overload\n" + overload, "    ") + "\n"
+                 signature = handle_static(o, overload)
+                 out += add_indent("@overload\n" + signature, "    ") + "\n"
         else:
             others.append((m, o))
 
@@ -421,7 +465,9 @@ def module_pyi(mod, output):
     """Generate the contents of a .pyi file for a VTK module.
     """
     # needed stuff from typing module
-    output.write("from typing import overload, Any, Callable, TypeVar, Union\n\n")
+    output.write("from typing import overload, Any, Callable, TypeVar, Union\n")
+    output.write("from typing import Tuple, List, Sequence, MutableSequence\n")
+    output.write("\n")
     output.write("Callback = Union[Callable[..., None], None]\n")
     output.write("Buffer = TypeVar('Buffer')\n")
     output.write("Pointer = TypeVar('Pointer')\n")
