@@ -229,7 +229,7 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D* painter)
   // Draw all stored range
   for (int axis = 0; axis < this->Storage->AxesSelections.size(); ++axis)
   {
-    int size = this->Storage->AxesSelections[axis].size();
+    size_t size = this->Storage->AxesSelections[axis].size();
     size = size - size % 2;
     for (int j = 0; j < size; j += 2)
     {
@@ -723,7 +723,7 @@ void vtkChartParallelCoordinates::ResetSelection()
 
   for (size_t axe = 0; axe < this->Storage->AxesSelections.size(); axe++)
   {
-    if (this->Storage->AxesSelections[axe].size() > 0)
+    if (!this->Storage->AxesSelections[axe].empty())
     {
       this->Storage->Plot->SetSelectionRange(
         static_cast<int>(axe), this->Storage->AxesSelections[axe]);
@@ -791,7 +791,7 @@ void vtkChartParallelCoordinates::UpdateCurrentAxisSelection(int axisId)
   bool startAMerge = false;
 
   // Invalid range will be set to -1
-  int size = this->Storage->AxesSelections[axisId].size();
+  size_t size = this->Storage->AxesSelections[axisId].size();
   size =
     this->Storage->AxesSelections[axisId].size() - this->Storage->AxesSelections[axisId].size() % 2;
   for (int i = 0; i < size; i += 2)

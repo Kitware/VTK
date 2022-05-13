@@ -320,8 +320,8 @@ static const char* eventLog = "# StreamVersion 1.1\n"
 
 namespace
 {
-static void UpdateSelectionMode(vtkObject* caller, unsigned long vtkNotUsed(eventId),
-  void* clientData, void* vtkNotUsed(callData))
+void UpdateSelectionMode(vtkObject* caller, unsigned long vtkNotUsed(eventId), void* clientData,
+  void* vtkNotUsed(callData))
 {
   const auto iren = static_cast<vtkRenderWindowInteractor*>(caller);
   auto chart = static_cast<vtkChartParallelCoordinates*>(clientData);

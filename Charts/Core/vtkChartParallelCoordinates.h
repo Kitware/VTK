@@ -168,7 +168,7 @@ protected:
   /**
    * Private storage object - where we hide all of our STL objects...
    */
-  class Private;
+  struct Private;
   Private* Storage;
   ///@}
 
