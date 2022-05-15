@@ -237,7 +237,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
   list(APPEND test_exclusions
     # Timeout; needs investigated
     # See #18477
-    "^VTK::FiltersModelingPython-TestCookieCutter4$")
+    "^VTK::FiltersModelingPython-TestCookieCutter4$"
+   
+    # Masking is inconsistent with STDThread 
+    # See #18549
+    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperMasking$")
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
