@@ -78,7 +78,7 @@ set (VolumeCxxTests
   TestGPURayCastVolumeUniformGridBlanking.cxx
   TestGPURayCastVolumeUpdate.cxx
   TestGPUVolumeRayCastMapper.cxx
-  TestGPUVolumeRayCastMapperManyLights.cxx,NO_VALID
+  TestGPUVolumeRayCastMapperManyLights.cxx
   TestMinIntensityRendering.cxx
   TestMultiBlockMapper.cxx
   TestMultiBlockMapperRectilinearGrid.cxx
