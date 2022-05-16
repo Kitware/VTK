@@ -17,6 +17,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStringArray.h"
 
 #include <cassert>
 #include <locale>
@@ -27,7 +28,7 @@
 
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
-float vtkInteractorEventRecorder::StreamVersion = 1.1f;
+float vtkInteractorEventRecorder::StreamVersion = 1.2f;
 
 //------------------------------------------------------------------------------
 vtkInteractorEventRecorder::vtkInteractorEventRecorder()
@@ -297,7 +298,7 @@ void vtkInteractorEventRecorder::ProcessCharEvent(
 
 //------------------------------------------------------------------------------
 void vtkInteractorEventRecorder::ProcessEvents(
-  vtkObject* object, unsigned long event, void* clientData, void* vtkNotUsed(callData))
+  vtkObject* object, unsigned long event, void* clientData, void* callData)
 {
   vtkInteractorEventRecorder* self = reinterpret_cast<vtkInteractorEventRecorder*>(clientData);
   vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor*>(object);
@@ -333,7 +334,7 @@ void vtkInteractorEventRecorder::ProcessEvents(
             m |= ModifierKey::AltKey;
           }
           self->WriteEvent(vtkCommand::GetStringFromEventId(event), rwi->GetEventPosition(), m,
-            rwi->GetKeyCode(), rwi->GetRepeatCount(), rwi->GetKeySym());
+            rwi->GetKeyCode(), rwi->GetRepeatCount(), rwi->GetKeySym(), callData);
         }
     }
     self->OutputStream->flush();
@@ -341,18 +342,42 @@ void vtkInteractorEventRecorder::ProcessEvents(
 }
 
 //------------------------------------------------------------------------------
-void vtkInteractorEventRecorder::WriteEvent(
-  const char* event, int pos[2], int modifiers, int keyCode, int repeatCount, char* keySym)
+void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2], int modifiers,
+  int keyCode, int repeatCount, char* keySym, void* callData)
 {
   *this->OutputStream << event << " " << pos[0] << " " << pos[1] << " " << modifiers << " "
                       << keyCode << " " << repeatCount << " ";
   if (keySym)
   {
-    *this->OutputStream << keySym << "\n";
+    *this->OutputStream << keySym;
   }
   else
   {
-    *this->OutputStream << "0\n";
+    *this->OutputStream << "0";
+  }
+
+  unsigned int eventId = vtkCommand::GetEventIdFromString(event);
+  if (eventId == vtkCommand::DropFilesEvent)
+  {
+    *this->OutputStream << static_cast<int>(vtkEventDataType::StringArray);
+    // This should go into its own method once more events are supported
+    vtkStringArray* filesArr = static_cast<vtkStringArray*>(callData);
+    vtkIdType dataNum = filesArr->GetNumberOfValues();
+
+    *this->OutputStream << dataNum;
+
+    if (dataNum > 0)
+    {
+      for (vtkIdType i = 0; i < dataNum; i++)
+      {
+        *this->OutputStream << filesArr->GetValue(i);
+      }
+    }
+    *this->OutputStream << "\n";
+  }
+  else
+  {
+    *this->OutputStream << static_cast<int>(vtkEventDataType::None) << "\n";
   }
 }
 
@@ -418,6 +443,28 @@ void vtkInteractorEventRecorder::ReadEvent(const std::string& line)
       iss >> repeatCount;
       iss >> keySym;
 
+      void* callData = nullptr;
+      vtkSmartPointer<vtkStringArray> stringArray;
+      if (this->CurrentStreamVersion >= 1.2)
+      {
+        int tmp;
+        iss >> tmp;
+        vtkEventDataType dataType = static_cast<vtkEventDataType>(tmp);
+        if (dataType == vtkEventDataType::StringArray)
+        {
+          vtkIdType dataNum;
+          iss >> dataNum;
+          stringArray = vtkSmartPointer<vtkStringArray>::New();
+          for (vtkIdType i = 0; i < dataNum; i++)
+          {
+            std::string str;
+            iss >> str;
+            stringArray->InsertNextValue(str);
+          }
+          callData = stringArray.Get();
+        }
+      }
+
       this->Interactor->SetEventPosition(pos);
       this->Interactor->SetControlKey(ctrlKey);
       this->Interactor->SetShiftKey(shiftKey);
@@ -426,7 +473,7 @@ void vtkInteractorEventRecorder::ReadEvent(const std::string& line)
       this->Interactor->SetRepeatCount(repeatCount);
       this->Interactor->SetKeySym(keySym);
 
-      this->Interactor->InvokeEvent(ievent, nullptr);
+      this->Interactor->InvokeEvent(ievent, callData);
     }
   }
   assert(iss.good() || iss.eof());

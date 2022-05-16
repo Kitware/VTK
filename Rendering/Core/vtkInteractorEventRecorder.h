@@ -23,9 +23,16 @@
  * back and invoke them on an vtkRenderWindowInteractor. (Note: the events
  * can also be played back from a file or string.)
  *
+ * Event client data can be recorded as args and will be provided on replay.
+ * The following event current support data to be recorded:
+ *  - DropFilesEvents: record a string array
+ *
  * The format of the event file is simple. It is:
- *  EventName X Y ctrl shift keycode repeatCount keySym
+ *  EventName X Y ctrl shift keycode repeatCount keySym dataType [dataNum] [dataVal] [dataVal]
  * The format also allows "#" comments.
+ * dataType is defined as follows:
+ *  - 0 -> None
+ *  - 1 -> StringArray
  *
  * @sa
  * vtkInteractorObserver vtkCallback
@@ -47,6 +54,13 @@ public:
   static vtkInteractorEventRecorder* New();
   vtkTypeMacro(vtkInteractorEventRecorder, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  // enumeration of data type
+  enum class vtkEventDataType : int
+  {
+    None = 0,
+    StringArray
+  };
 
   // Satisfy the superclass API. Enable/disable listening for events.
   void SetEnabled(int) override;
@@ -126,8 +140,8 @@ protected:
   static void ProcessEvents(
     vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
-  virtual void WriteEvent(
-    const char* event, int pos[2], int modifiers, int keyCode, int repeatCount, char* keySym);
+  virtual void WriteEvent(const char* event, int pos[2], int modifiers, int keyCode,
+    int repeatCount, char* keySym, void* callData = nullptr);
 
   VTK_DEPRECATED_IN_9_2_0(
     "This method was not used at all and has been replaced by ReadEvent(const std::string&)")
