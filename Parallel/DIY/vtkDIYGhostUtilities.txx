@@ -243,8 +243,8 @@ unsigned char CleanGhostsReduceAllForStructuredData(
       if (vtkUnsignedCharArray* ghostCells = ds->GetCellGhostArray())
       {
         const vtkIdType numberOfCells = vtkStructuredData::GetNumberOfCells(extent.data());
-        vtkDIYGhostUtilities_detail::GhostFinder<true> worker(
-          ghostCells, fullExtent, extent, vtkDataSetAttributes::HIDDENCELL);
+        vtkDIYGhostUtilities_detail::GhostFinder<true> worker(ghostCells, fullExtent, extent,
+          vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::DUPLICATECELL);
         vtkSMPTools::For(0, numberOfCells, worker);
 
         foundGhost |= GHOST_CELL_BIT * worker.FoundGhost;
@@ -252,8 +252,8 @@ unsigned char CleanGhostsReduceAllForStructuredData(
       if (vtkUnsignedCharArray* ghostPoints = ds->GetPointGhostArray())
       {
         const vtkIdType numberOfPoints = vtkStructuredData::GetNumberOfPoints(extent.data());
-        vtkDIYGhostUtilities_detail::GhostFinder<false> worker(
-          ghostPoints, fullExtent, extent, vtkDataSetAttributes::HIDDENPOINT);
+        vtkDIYGhostUtilities_detail::GhostFinder<false> worker(ghostPoints, fullExtent, extent,
+          vtkDataSetAttributes::HIDDENPOINT | vtkDataSetAttributes::DUPLICATEPOINT);
         vtkSMPTools::For(0, numberOfPoints, worker);
 
         foundGhost |= GHOST_POINT_BIT * worker.FoundGhost;
@@ -264,6 +264,8 @@ unsigned char CleanGhostsReduceAllForStructuredData(
       {
         rp.enqueue(rp.out_link().target(i), &foundGhost, 1);
       }
+
+      cleanGhostMask |= foundGhost;
     });
 
   return cleanGhostMask;
@@ -457,16 +459,30 @@ void vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(diy::Master& master, diy:
     DataSetT* input = inputs[localId];
     DataSetT* output = outputs[localId];
 
-    if (outputGhostLevels == 0 &&
+    BlockType* block = master.block<BlockType>(localId);
+    vtkSmartPointer<DataSetT> cleanedInput =
+      vtkDIYGhostUtilities_detail::RemoveGhostArraysIfNeeded(input, ghostCleaningMask);
+
+    // If we are isolated (no connection with other blocks), just shallow-copy
+    if (block->BlockStructures.empty())
+    {
+      output->ShallowCopy(cleanedInput);
+    }
+    // If we fetch 0 levels of ghosts AND there were no ghost cells in the input,
+    // we can partially shallow copy (we can't shallow copy points as the interfaces
+    // can be written over by other blocks)
+    else if (outputGhostLevels == 0 && !block->Information.InputNeedsGhostsPeeledOff() &&
       !(ghostCleaningMask & vtkDIYGhostUtilities_detail::GHOST_CELL_BIT))
     {
-      output->ShallowCopy(input);
+      output->CopyStructure(input);
+      output->GetPointData()->DeepCopy(cleanedInput->GetPointData());
+      output->GetCellData()->ShallowCopy(cleanedInput->GetCellData());
+      output->GetFieldData()->ShallowCopy(input->GetFieldData());
     }
+    // In the general case, deep copy the input and allocate the geometry
+    // for the new ghost cells.
     else
     {
-      BlockType* block = master.block<BlockType>(localId);
-      vtkSmartPointer<DataSetT> cleanedInput =
-        vtkDIYGhostUtilities_detail::RemoveGhostArraysIfNeeded(input, ghostCleaningMask);
       vtkDIYGhostUtilities::DeepCopyInputAndAllocateGhosts(block, cleanedInput, output);
     }
   }
@@ -528,6 +544,11 @@ void vtkDIYGhostUtilities::InitializeGhostCellArray(
     ghostCellArray->SetNumberOfValues(output->GetNumberOfCells());
     ghostCellArray->Fill(0);
   }
+  else
+  {
+    vtkDIYGhostUtilities::ReinitializeSelectedBits(
+      ghostCellArray, vtkDataSetAttributes::DUPLICATECELL);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -544,6 +565,11 @@ void vtkDIYGhostUtilities::InitializeGhostPointArray(
     ghostPointArray->SetNumberOfComponents(1);
     ghostPointArray->SetNumberOfValues(output->GetNumberOfPoints());
     ghostPointArray->Fill(0);
+  }
+  else
+  {
+    vtkDIYGhostUtilities::ReinitializeSelectedBits(
+      ghostPointArray, vtkDataSetAttributes::DUPLICATEPOINT);
   }
 }
 

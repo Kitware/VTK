@@ -53,6 +53,10 @@
  * data set (`vtkImageData`, `vtkRectilinearGrid`, or `vtkStructuredGrid`), and has hidden ghosts
  * within its valid extent (extent when duplicate ghosts are peeled off).
  *
+ * Points at the interface between 2 partitions are edited depending on the ownership of the point
+ * after the ghost points are generated. One can keep track of which process owns a non-ghost copy
+ * of the point if an array associating each point with its process id is available in the input.
+ *
  * @warning If an input already holds ghosts, the input ghost cells should be tagged as
  * `CELLDUPLICATE` in order for this filter to work properly.
  *

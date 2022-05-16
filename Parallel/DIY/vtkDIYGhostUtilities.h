@@ -52,6 +52,10 @@
  *   points if point global ids are not present, and point global ids are used instead if they are
  *   present.
  *
+ * Points at the interface between 2 partitions are edited depending on the ownership of the point
+ * after the ghost points are generated. One can keep track of which process owns a non-ghost copy
+ * of the point if an array associating each point with its process id is available in the input.
+ *
  * @note Currently, only `vtkImageData`, `vtkRectilinearGrid`, `vtkStructuredGrid`,
  * `vtkUnstructuredGrid` and `vtkPolyData` are
  * implemented. Unless there is determining structural data added to subclasses of those classes,
@@ -142,6 +146,14 @@ protected:
     vtkSmartPointer<vtkFieldData> GhostPointData = nullptr;
   };
 
+  struct DataSetInformation
+  {
+    /**
+     * @warning This method does not work before the link map between blocks is computed.
+     */
+    virtual bool InputNeedsGhostsPeeledOff() const = 0;
+  };
+
   /**
    * Structure to inherit from for data sets having a structured grid topology.
    */
@@ -185,12 +197,19 @@ protected:
   /**
    * Structure storing information needed by a block on it's own grid structure.
    */
-  struct GridInformation
+  struct GridInformation : public DataSetInformation
   {
+    bool InputNeedsGhostsPeeledOff() const override { return this->Extent != this->InputExtent; }
+
     /**
      * Extent without ghost layers.
      */
     ExtentType Extent = ExtentType{ 1, -1, 1, -1, 1, -1 };
+
+    /**
+     * Input extent without any modification.
+     */
+    ExtentType InputExtent = ExtentType{ 1, -1, 1, -1, 1, -1 };
 
     ExtentType ExtentGhostThickness;
   };
@@ -400,6 +419,11 @@ protected:
 
   struct UnstructuredDataInformation
   {
+    bool InputNeedsGhostsPeeledOff() const
+    {
+      return this->OutputToInputCellIdRedirectionMap != nullptr;
+    };
+
     /**
      * Bounding box of input.
      */
@@ -442,7 +466,7 @@ protected:
     /**
      * Handle to the point ids of the input surface, if present.
      */
-    vtkIdTypeArray* InterfaceGlobalPointIds;
+    vtkSmartPointer<vtkIdTypeArray> InterfaceGlobalPointIds;
 
     ///@{
     /*
@@ -469,13 +493,13 @@ protected:
      * This lists the matching point ids to the interfacing points that are exchanged with current
      * neighboring block. Those ids correspond to local point ordering as indexed in the input.
      */
-    vtkNew<vtkIdTypeArray> MatchingReceivedPointIds;
+    vtkNew<vtkIdList> MatchingReceivedPointIds;
 
     /**
      * This array describes the same points as `MatchingReceivedPointIds`, but points are ordered
      * like in the current neighboring block. Point ids stored in this array map to the output.
      */
-    vtkNew<vtkIdTypeArray> RemappedMatchingReceivedPointIdsSortedLikeTarget;
+    vtkNew<vtkIdList> RemappedMatchingReceivedPointIdsSortedLikeTarget;
 
     /**
      * These are the interfacing points sent by the current neighboring block. They should match
@@ -527,6 +551,12 @@ protected:
      * block.
      */
     vtkNew<vtkIdList> CellIdsToSend;
+
+    /**
+     * Point data at the interface sent by our neighbor. We only receive point data from neighbors
+     * of lower block id than us.
+     */
+    vtkSmartPointer<vtkFieldData> InterfacingPointData;
   };
 
   struct UnstructuredGridInformation : public UnstructuredDataInformation
@@ -770,6 +800,11 @@ public:
 protected:
   vtkDIYGhostUtilities();
   ~vtkDIYGhostUtilities() override;
+
+  /**
+   * Reinitializes the bits that match the input bit mask in the input array to zero.
+   */
+  static void ReinitializeSelectedBits(vtkUnsignedCharArray* ghosts, unsigned char mask);
 
   /**
    * This method will set all ghosts points in `output` to zero. It will also
