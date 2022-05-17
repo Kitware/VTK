@@ -349,28 +349,36 @@ void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2], int m
                       << keyCode << " " << repeatCount << " ";
   if (keySym)
   {
-    *this->OutputStream << keySym;
+    *this->OutputStream << keySym << " ";
   }
   else
   {
-    *this->OutputStream << "0";
+    *this->OutputStream << "0 ";
   }
 
   unsigned int eventId = vtkCommand::GetEventIdFromString(event);
   if (eventId == vtkCommand::DropFilesEvent)
   {
-    *this->OutputStream << static_cast<int>(vtkEventDataType::StringArray);
+    *this->OutputStream << static_cast<int>(vtkEventDataType::StringArray) << " ";
     // This should go into its own method once more events are supported
     vtkStringArray* filesArr = static_cast<vtkStringArray*>(callData);
+
+    // Sanity check
+    if (!filesArr)
+    {
+      *this->OutputStream << "0 ";
+      return;
+    }
+
     vtkIdType dataNum = filesArr->GetNumberOfValues();
 
-    *this->OutputStream << dataNum;
+    *this->OutputStream << dataNum << " ";
 
     if (dataNum > 0)
     {
       for (vtkIdType i = 0; i < dataNum; i++)
       {
-        *this->OutputStream << filesArr->GetValue(i);
+        *this->OutputStream << filesArr->GetValue(i) << " ";
       }
     }
     *this->OutputStream << "\n";
