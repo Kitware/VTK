@@ -1,6 +1,5 @@
 set(classes
-  vtkMappedUnstructuredGridGenerator
-  vtkTestHTGGenerator)
+  vtkMappedUnstructuredGridGenerator)
 
 vtk_module_add_module(VTK::TestingDataModel
   CLASSES ${classes})

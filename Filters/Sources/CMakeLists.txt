@@ -15,6 +15,7 @@ set(classes
   vtkGlyphSource2D
   vtkGraphToPolyData
   vtkHandleSource
+  vtkHyperTreeGridPreConfiguredSource
   vtkHyperTreeGridSource
   vtkLineSource
   vtkOutlineCornerFilter
