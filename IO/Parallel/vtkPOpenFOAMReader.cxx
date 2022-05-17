@@ -66,6 +66,7 @@
 #include "vtkDataArraySelection.h"
 #include "vtkDirectory.h"
 #include "vtkDoubleArray.h"
+#include "vtkDummyController.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -350,6 +351,7 @@ vtkPOpenFOAMReader::vtkPOpenFOAMReader()
   this->SetController(vtkMultiProcessController::GetGlobalController());
   if (this->Controller == nullptr)
   {
+    this->SetController(vtkDummyController::New());
     this->NumProcesses = 1;
     this->ProcessId = 0;
   }
