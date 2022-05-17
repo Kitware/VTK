@@ -183,7 +183,10 @@ Ioss::Property::~Property()
 
 Ioss::Property &Ioss::Property::operator=(Ioss::Property rhs)
 {
-  std::swap(*this, rhs);
+  std::swap(this->name_, rhs.name_);
+  std::swap(this->type_, rhs.type_);
+  std::swap(this->origin_, rhs.origin_);
+  std::swap(this->data_, rhs.data_);
   return *this;
 }
 
