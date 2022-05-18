@@ -107,11 +107,8 @@ static void pop_scope(const char* id)
   }
 }
 #endif
-#ifdef VTK_HAS_THREADLOCAL
-static thread_local std::string ThreadName;
-#else
-static std::string ThreadName;
-#endif
+
+static VTK_THREAD_LOCAL std::string ThreadName;
 }
 
 //=============================================================================

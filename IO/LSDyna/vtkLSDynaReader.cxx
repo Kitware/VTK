@@ -745,7 +745,7 @@ std::string vtkLSDynaReader::GetDatabaseDirectory()
 #else
 const char* vtkLSDynaReader::GetDatabaseDirectory()
 {
-  static thread_local std::string surrogate;
+  static VTK_THREAD_LOCAL std::string surrogate;
   surrogate = this->P->Fam.GetDatabaseDirectory();
   return surrogate.c_str();
 }
@@ -810,7 +810,7 @@ std::string vtkLSDynaReader::GetFileName()
 #else
 const char* vtkLSDynaReader::GetFileName()
 {
-  static thread_local std::string surrogate;
+  static VTK_THREAD_LOCAL std::string surrogate;
   surrogate = this->P->Fam.GetDatabaseDirectory() + "/d3plot";
   return surrogate.c_str();
 }
