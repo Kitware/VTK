@@ -78,12 +78,10 @@ int vtkContourTriangulator::RequestData(vtkInformation* vtkNotUsed(request),
 
   input->BuildCells();
 
-  vtkCellArray* polys = vtkCellArray::New();
+  vtkNew<vtkCellArray> polys;
   output->SetPolys(polys);
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(input->GetPointData());
-
-  polys->Delete();
 
   this->TriangulationError = !vtkContourTriangulator::TriangulateContours(
     input, input->GetNumberOfVerts(), lines->GetNumberOfCells(), polys, nullptr);
@@ -870,10 +868,10 @@ int vtkCCSSplitAtPinchPoints(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
   std::vector<vtkCCSPolyGroup>& polyGroups, std::vector<vtkCCSPolyEdges>& polyEdges,
   const double normal[3], bool oriented)
 {
-  vtkPoints* tryPoints = vtkPoints::New();
+  vtkNew<vtkPoints> tryPoints;
   tryPoints->SetDataTypeToDouble();
 
-  vtkIncrementalOctreePointLocator* locator = vtkIncrementalOctreePointLocator::New();
+  vtkNew<vtkIncrementalOctreePointLocator> locator;
 
   int splitCount = 0;
 
@@ -1012,9 +1010,6 @@ int vtkCCSSplitAtPinchPoints(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
       }
     }
   }
-
-  tryPoints->Delete();
-  locator->Delete();
 
   return splitCount;
 }

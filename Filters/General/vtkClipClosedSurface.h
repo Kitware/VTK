@@ -40,8 +40,11 @@
  * There are also rare cases where the triangulation will fail to produce
  * a watertight output.  Turn on TriangulationErrorDisplay to be notified
  * of these failures.
+ *
  * @sa
  * vtkOutlineFilter vtkOutlineSource vtkVolumeOutlineSource
+ * vtkContourTriangulator
+ *
  * @par Thanks:
  * Thanks to David Gobbi for contributing this class to VTK.
  */
@@ -73,9 +76,14 @@ enum
 class VTKFILTERSGENERAL_EXPORT vtkClipClosedSurface : public vtkPolyDataAlgorithm
 {
 public:
+  ///@{
+  /**
+   * Standard methods for instantiation, obtaining type information, and printing.
+   */
   static vtkClipClosedSurface* New();
   vtkTypeMacro(vtkClipClosedSurface, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   ///@{
   /**
