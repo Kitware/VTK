@@ -164,6 +164,23 @@ public:
 
   ///@{
   /**
+   * If enabled, the volume(s) whose shading is enabled will use the gradient
+   * of opacity instead of the scalar gradient to estimate the surface's normal
+   * when applying the shading model. The opacity considered for the gradient
+   * is then the scalars converted to opacity by the transfer function(s).
+   * For now it is only supported in vtkGPUVolumeRayCastMapper.
+   * In vtkSmartVolumeMapper and in vtkMultiBlockVolumeMapper, this parameter
+   * is used when the GPU mapper is effectively used.
+   * Note that enabling it might affect performances, espacially when
+   * using a 2D TF or a gradient opacity. It is disabled by default.
+   */
+  vtkSetMacro(ComputeNormalFromOpacity, bool);
+  vtkGetMacro(ComputeNormalFromOpacity, bool);
+  vtkBooleanMacro(ComputeNormalFromOpacity, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set the flags for the cropping regions. The clipping planes divide the
    * volume into 27 regions - there is one bit for each region. The regions
    * start from the one containing voxel (0,0,0), moving along the x axis
@@ -269,6 +286,11 @@ protected:
   double SpacingAdjustedSampleDistance(double inputSpacing[3], int inputExtent[6]);
 
   int BlendMode;
+
+  /**
+   * Is the normal for volume shading computed from opacity or from scalars
+   */
+  bool ComputeNormalFromOpacity = false;
 
   /**
    * Threshold range for average intensity projection

@@ -342,6 +342,7 @@ vtkSmartVolumeMapper* vtkMultiBlockVolumeMapper::CreateMapper()
   if (glMapper != nullptr)
   {
     glMapper->UseJitteringOn();
+    glMapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
   }
   return mapper;
 }
@@ -539,6 +540,20 @@ void vtkMultiBlockVolumeMapper::SetRequestedRenderMode(int mode)
       mapper->SetRequestedRenderMode(mode);
     }
     this->RequestedRenderMode = mode;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetComputeNormalFromOpacity(bool val)
+{
+  if (this->ComputeNormalFromOpacity != val)
+  {
+    for (auto& mapper : this->Mappers)
+    {
+      mapper->SetComputeNormalFromOpacity(val);
+    }
+    this->ComputeNormalFromOpacity = val;
     this->Modified();
   }
 }

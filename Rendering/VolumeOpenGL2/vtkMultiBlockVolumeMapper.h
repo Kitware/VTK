@@ -104,6 +104,14 @@ public:
 
   ///@{
   /**
+   * ComputeNormalFromOpacity exposed
+   * \sa vtkVolumeMapper::SetComputeNormalFromOpacity
+   */
+  void SetComputeNormalFromOpacity(bool val) override;
+  ///@}
+
+  ///@{
+  /**
    * Cropping API from vtkVolumeMapper
    * \sa vtkVolumeMapper::SetCropping
    */
