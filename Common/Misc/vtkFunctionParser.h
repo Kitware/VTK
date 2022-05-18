@@ -444,8 +444,6 @@ protected:
 
   vtkTimeStamp FunctionMTime;
   vtkTimeStamp ParseMTime;
-  vtkTimeStamp VariableMTime;
-  vtkTimeStamp EvaluateMTime;
   vtkTimeStamp CheckMTime;
 
   vtkTypeBool ReplaceInvalidValues;

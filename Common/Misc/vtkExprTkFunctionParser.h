@@ -348,8 +348,6 @@ protected:
 
   vtkTimeStamp FunctionMTime;
   vtkTimeStamp ParseMTime;
-  vtkTimeStamp VariableMTime;
-  vtkTimeStamp EvaluateMTime;
 
   vtkTypeBool ReplaceInvalidValues;
   double ReplacementValue;
