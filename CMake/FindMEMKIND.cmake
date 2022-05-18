@@ -48,8 +48,8 @@ find_package_handle_standard_args(MEMKIND
 
 # Copy the results to the output variables and target.
 if(MEMKIND_FOUND)
-  set(MEMKIND_LIBRARIES ${MEMKIND_LIBRARY})
-  set(MEMKIND_INCLUDE_DIRS ${MEMKIND_INCLUDE_DIR})
+  set(MEMKIND_LIBRARIES "${MEMKIND_LIBRARY}")
+  set(MEMKIND_INCLUDE_DIRS "${MEMKIND_INCLUDE_DIR}")
 
   if(NOT TARGET MEMKIND::MEMKIND)
     add_library(MEMKIND::MEMKIND UNKNOWN IMPORTED)
