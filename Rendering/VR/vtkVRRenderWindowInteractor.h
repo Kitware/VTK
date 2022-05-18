@@ -70,11 +70,32 @@ public:
 
   ///@{
   /**
-   * Set/Get the optional translation to map world coordinates into the
-   * 3D physical space (meters, 0,0,0).
+   * Set/get position of the physical coordinate system -Z axis in world coordinates.
+   */
+  void SetPhysicalViewDirection(double, double, double) override;
+  double* GetPhysicalViewDirection() override;
+  ///@}
+
+  ///@{
+  /**
+   * Set/get position of the physical coordinate system +Y axis in world coordinates.
+   */
+  void SetPhysicalViewUp(double, double, double) override;
+  double* GetPhysicalViewUp() override;
+  ///@}
+
+  ///@{
+  /**
+   * Set/get position of the physical coordinate system origin in world coordinates.
    */
   void SetPhysicalTranslation(vtkCamera*, double, double, double) override;
   double* GetPhysicalTranslation(vtkCamera*) override;
+  ///@}
+
+  ///@{
+  /**
+   * Set/get the physical scale (world / physical distance ratio)
+   */
   void SetPhysicalScale(double) override;
   double GetPhysicalScale() override;
   ///@}

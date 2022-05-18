@@ -95,6 +95,9 @@ public:
   virtual void LoadNextCameraPose() = 0;
   ///@}
 
+  // TODO
+  void Move3D(vtkEventDataDevice3D*);
+
   ///@{
   /**
    * Map controller inputs to actions.
@@ -246,6 +249,9 @@ protected:
   int InteractionState[vtkEventDataNumberOfDevices];
   std::vector<vtkSmartPointer<vtkProp3D>> InteractionProps;
   std::vector<vtkSmartPointer<vtkPlane>> ClippingPlanes;
+
+  // Store headset world orientation
+  double HeadsetDir[3] = { 0, 0, 0 };
 
 private:
   vtkVRInteractorStyle(const vtkVRInteractorStyle&) = delete;

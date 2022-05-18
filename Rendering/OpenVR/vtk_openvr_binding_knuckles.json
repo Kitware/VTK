@@ -19,6 +19,18 @@
         },
         {
           "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/startelevation"
+            },
+            "position": {
+              "output": "/actions/vtk/in/elevation"
+            }
+          },
+          "mode": "joystick",
+          "path": "/user/hand/right/input/thumbstick"
+        },
+        {
+          "inputs": {
             "value": {
               "output": "/actions/vtk/in/rightgripaction"
             }
@@ -61,6 +73,24 @@
           },
           "mode": "button",
           "path": "/user/hand/right/input/trigger"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/leftgripaction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/a"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/rightgripaction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/a"
         }
       ]
     }

@@ -1,23 +1,19 @@
 {
   "actions": [
     {
-      "name": "/actions/vtk/in/NextCameraPose",
+      "name": "/actions/vtk/in/BackThickCrop",
       "type": "boolean"
     },
     {
-      "name": "/actions/vtk/in/TriggerAction",
+      "name": "/actions/vtk/in/Elevation",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/vtk/in/ForwardThickCrop",
       "type": "boolean"
     },
     {
-      "name": "/actions/vtk/in/PositionProp",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/vtk/in/ShowMenu",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/vtk/in/StartMovement",
+      "name": "/actions/vtk/in/LeftGripAction",
       "type": "boolean"
     },
     {
@@ -25,19 +21,39 @@
       "type": "vector2"
     },
     {
-      "name": "/actions/vtk/in/LeftGripAction",
+      "name": "/actions/vtk/in/NextCameraPose",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/PositionProp",
       "type": "boolean"
     },
     {
       "name": "/actions/vtk/in/RightGripAction",
       "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/ShowMenu",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/ShowNavigationPanel",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/StartElevation",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/StartMovement",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/vtk/in/TriggerAction",
+      "type": "boolean"
     }
   ],
   "default_bindings": [
-    {
-      "binding_url": "vtk_openvr_binding_oculus_touch.json",
-      "controller_type": "generic"
-    },
     {
       "binding_url": "vtk_openvr_binding_hpmotioncontroller.json",
       "controller_type": "hpmotioncontroller"
@@ -57,14 +73,19 @@
   ],
   "localization": [
     {
+      "/actions/vtk/in/BackThickCrop": "Move Thick Crop Back",
+      "/actions/vtk/in/Elevation": "Trackpad Elevation",
+      "/actions/vtk/in/ForwardThickCrop": "Move Thick Crop Forward",
       "/actions/vtk/in/LeftGripAction": "Left Grip Action",
-      "/actions/vtk/in/RightGripAction": "Right Grip Action",
-      "/actions/vtk/in/AnalogInput": "Movement",
-      "/actions/vtk/in/StartMovement": "Start Movement",
-      "/actions/vtk/in/ShowMenu": "Show Menu",
+      "/actions/vtk/in/Movement": "Movement",
       "/actions/vtk/in/NextCameraPose": "Next Camera Pose",
-      "/actions/vtk/in/TriggerAction": "Trigger Action",
       "/actions/vtk/in/PositionProp": "Position Prop",
+      "/actions/vtk/in/RightGripAction": "Right Grip Action",
+      "/actions/vtk/in/ShowMenu": "Show Menu",
+      "/actions/vtk/in/ShowNavigationPanel": "Show Navigation Panel",
+      "/actions/vtk/in/StartElevation": "Start Elevation",
+      "/actions/vtk/in/StartMovement": "Start Movement",
+      "/actions/vtk/in/TriggerAction": "Trigger Action",
       "language_tag": "en_US"
     }
   ]

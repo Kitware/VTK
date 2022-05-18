@@ -29,39 +29,34 @@
               "output": "movement"
             }
           },
-          "path": "/user/hand/right/input/trackpad"
+          "path": "/user/hand/left/input/thumbstick"
         },
         {
           "inputs": {
-            "pose": {
-              "output": "handposehandgrip"
+            "touch": {
+              "output": "startelevation"
+            },
+            "position": {
+              "output": "elevation"
             }
           },
-          "path": "/user/hand/right/input/squeeze"
-        },
-        {
-          "inputs": {
-            "pose": {
-              "output": "handposehandgrip"
-            }
-          },
-          "path": "/user/hand/left/input/squeeze"
+          "path": "/user/hand/right/input/thumbstick"
         },
         {
           "inputs": {
             "click": {
-              "output": "showmenu"
+              "output": "leftgripaction"
+            }
+          },
+          "path": "/user/hand/left/input/a"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "rightgripaction"
             }
           },
           "path": "/user/hand/right/input/a"
-        },
-        {
-          "inputs": {
-            "click": {
-              "output": "nextcamerapose"
-            }
-          },
-          "path": "/user/hand/left/input/trigger"
         },
         {
           "inputs": {
@@ -73,11 +68,11 @@
         },
         {
           "inputs": {
-            "force": {
-              "output": "squeezeforce"
+            "click": {
+              "output": "showmenu"
             }
           },
-          "path": "/user/hand/right/input/squeeze"
+          "path": "/user/hand/right/input/b"
         }
       ]
     }
