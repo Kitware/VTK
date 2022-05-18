@@ -95,6 +95,17 @@ public:
   vtkGetMacro(BatchSize, unsigned int);
   ///@}
 
+  /**
+   * This helper method can be used to determine the if the input vtkPolyData
+   * contains convex polygonal cells, and therefore is suitable for
+   * processing by this filter. (The name of the method is consistent with
+   * other filters that perform similar operations.) This method returns true
+   * when the input contains only polygons (i.e., no verts, lines, or
+   * triangle strips); and each polygon is convex. It returns false
+   * otherwise.
+   */
+  static bool CanFullyProcessDataObject(vtkDataObject* object);
+
 protected:
   vtkPolyDataPlaneCutter();
   ~vtkPolyDataPlaneCutter() override;

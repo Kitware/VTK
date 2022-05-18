@@ -1863,7 +1863,9 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     plane->GetTransform()->TransformPoint(planeOrigin, planeOrigin);
   }
 
-  // Delegate the processing to the matching algorithm
+  // Delegate the processing to the matching algorithm. If the input data is vtkImageData,
+  // then delegation to vtkFlyingEdgesPlaneCutter. If the input data is vtkPolyData, and
+  // the input cells are convex polygons, then delegate to vtkPolyDataPlaneCutter.
   if (vtkImageData::SafeDownCast(input))
   {
     vtkDataSet* tmpInput = input;
@@ -1912,6 +1914,13 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     return 1;
   }
 
+  // Check whether we have convex, vtkPolyData cells. Cache the computation
+  // of convexity so it only needs be done once if the input does not change.
+  if (vtkPolyData::SafeDownCast(input))
+  {
+  }
+
+  // If here, then we use more general methods to produce the cut.
   // Prepare the output
   if (tree)
   {

@@ -46,13 +46,18 @@
  * 5) if input is vtkMultiBlockDataSet, output is vtkMultiBlockDataSet.
  *
  * @warning
- * This filter produces non-merged, potentially coincident points for all
- * input dataset types except vtkImageData (which uses
- * vtkFlyingEdgesPlaneCutter under the hood - which does merge points).
+ * This filter produces may produce non-merged, potentially coincident points
+ * for all input dataset types except 1) vtkImageData (which uses
+ * vtkFlyingEdgesPlaneCutter under the hood - which does merge points); and
+ * 2) vtkPolyData if all input cells are convex polygons.
  *
  * @warning
  * This filter delegates to vtkFlyingEdgesPlaneCutter to process image
  * data, but output and input have been standardized when possible.
+ *
+ * @warning
+ * This filter delegates to vtkPolyDataPlaneCutter to process input
+ * vtkPolyData if all the input cells are convex polygons.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other

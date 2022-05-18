@@ -626,6 +626,13 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
+// Assess whether this data object can be processed by this filter.
+bool vtkPolyDataPlaneCutter::CanFullyProcessDataObject(vtkDataObject* object)
+{
+  return true;
+}
+
+//------------------------------------------------------------------------------
 void vtkPolyDataPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
