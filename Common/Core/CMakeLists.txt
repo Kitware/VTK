@@ -59,9 +59,15 @@ if (VTK_USE_MEMKIND)
     PACKAGE MEMKIND)
   list(APPEND vtk_memkind_libraries
     MEMKIND::MEMKIND)
-  get_target_property(memkind_version_minor MEMKIND::MEMKIND MEMKIND_VERSION_MINOR)
-  list(APPEND vtk_object_base_defines "MEMKIND_VERSION_MINOR=${memkind_version_minor}")
-endif()
+  # XXX(memkind-1.10): Once 1.10 is required, this is always true.
+  file(READ "${MEMKIND_INCLUDE_DIR}/memkind.h" memkind_h_contents)
+  set(memkind_has_dax_kmem 0)
+  # Look for the symbol in the header.
+  if (memkind_h_contents MATCHES " MEMKIND_DAX_KMEM[ ;\n]")
+    set(memkind_has_dax_kmem 1)
+  endif ()
+  list(APPEND vtk_object_base_defines "VTK_MEMKIND_HAS_DAX_KMEM=$<BOOL:${memkind_has_dax_kmem}>")
+endif ()
 
 # Generate the vtkTypeList_Create macros:
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateTypeListMacros.cmake")
