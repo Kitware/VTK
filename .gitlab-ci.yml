@@ -123,9 +123,9 @@ el8-python:test:
     needs:
         - el8-python:build
 
-fedora34-mpi-renderless:build:
+fedora39-mpi-renderless:build:
     extends:
-        - .fedora34_mpi_renderless
+        - .fedora39_mpi_renderless
         - .cmake_build_linux
         - .linux_builder_tags
         - .cmake_build_artifacts
@@ -133,33 +133,33 @@ fedora34-mpi-renderless:build:
     dependencies: []
     needs: []
 
-fedora34-mpi-renderless:test:
+fedora39-mpi-renderless:test:
     extends:
-        - .fedora34_mpi_renderless
+        - .fedora39_mpi_renderless
         - .cmake_test_linux
         - .linux_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mpi-renderless:build
+        - fedora39-mpi-renderless:build
     needs:
-        - fedora34-mpi-renderless:build
+        - fedora39-mpi-renderless:build
 
-vtk:fedora34-mpi-renderless:test-ext:
+vtk:fedora39-mpi-renderless:test-ext:
     extends:
-        - .fedora34_mpi_renderless_ext_vtk
+        - .fedora39_mpi_renderless_ext_vtk
         - .cmake_test_external_linux
         - .linux_builder_tags
         - .cmake_junit_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mpi-renderless:test
+        - fedora39-mpi-renderless:test
     needs:
-        - fedora34-mpi-renderless:test
+        - fedora39-mpi-renderless:test
 
-fedora34-cuda-mpi:build:
+fedora39-cuda-mpi:build:
     extends:
-        - .fedora34_cuda_mpi
+        - .fedora39_cuda_mpi
         - .cmake_build_linux
         - .cmake_build_artifacts
         - .linux_cuda_builder_tags
@@ -170,39 +170,39 @@ fedora34-cuda-mpi:build:
     dependencies: []
     needs: []
 
-fedora34-cuda-mpi:test:
+fedora39-cuda-mpi:test:
     extends:
-        - .fedora34_cuda_mpi
+        - .fedora39_cuda_mpi
         - .cmake_test_linux
         - .cmake_test_artifacts
         - .linux_cuda_tester_tags
         - .run_automatically
     dependencies:
-        - fedora34-cuda-mpi:build
+        - fedora39-cuda-mpi:build
     needs:
-        - fedora34-cuda-mpi:build
+        - fedora39-cuda-mpi:build
     variables:
         CTEST_MAX_PARALLELISM: 8
     timeout: 2 hours
 
-vtk:fedora34-cuda-mpi:test-ext:
+vtk:fedora39-cuda-mpi:test-ext:
     extends:
-        - .fedora34_cuda_mpi_ext_vtk
+        - .fedora39_cuda_mpi_ext_vtk
         - .cmake_test_external_linux
         - .cmake_tidy_artifacts
         - .linux_cuda_tester_tags
         - .run_automatically
     dependencies:
-        - fedora34-cuda-mpi:test
+        - fedora39-cuda-mpi:test
     needs:
-        - fedora34-cuda-mpi:test
+        - fedora39-cuda-mpi:test
     variables:
         CTEST_MAX_PARALLELISM: 8
     timeout: 150 minutes
 
-fedora34-mpi-offscreen-osmesa-python:build:
+fedora39-mpi-offscreen-osmesa-python:build:
     extends:
-        - .fedora34_mpi_offscreen_osmesa_python
+        - .fedora39_mpi_offscreen_osmesa_python
         - .cmake_build_linux
         - .linux_builder_tags
         - .cmake_build_artifacts
@@ -210,34 +210,34 @@ fedora34-mpi-offscreen-osmesa-python:build:
     dependencies: []
     needs: []
 
-fedora34-mpi-offscreen-osmesa-python:test:
+fedora39-mpi-offscreen-osmesa-python:test:
     extends:
-        - .fedora34_mpi_offscreen_osmesa_python
+        - .fedora39_mpi_offscreen_osmesa_python
         - .cmake_test_linux
         - .linux_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mpi-offscreen-osmesa-python:build
+        - fedora39-mpi-offscreen-osmesa-python:build
     needs:
-        - fedora34-mpi-offscreen-osmesa-python:build
+        - fedora39-mpi-offscreen-osmesa-python:build
 
-vtk:fedora34-mpi-offscreen-osmesa-python:test-ext:
+vtk:fedora39-mpi-offscreen-osmesa-python:test-ext:
     extends:
-        - .fedora34_mpi_offscreen_osmesa_python_ext_vtk
+        - .fedora39_mpi_offscreen_osmesa_python_ext_vtk
         - .cmake_test_external_linux
         - .linux_builder_tags
         - .cmake_junit_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mpi-offscreen-osmesa-python:test
+        - fedora39-mpi-offscreen-osmesa-python:test
     needs:
-        - fedora34-mpi-offscreen-osmesa-python:test
+        - fedora39-mpi-offscreen-osmesa-python:test
     timeout: 90 minutes
 
-fedora34-mpi-ospray-python-qt-tbb:build:
+fedora39-mpi-ospray-python-qt-tbb:build:
     extends:
-        - .fedora34_mpi_ospray_python_qt_tbb
+        - .fedora39_mpi_ospray_python_qt_tbb
         - .cmake_build_linux
         - .linux_fast_builder_tags
         - .cmake_build_artifacts
@@ -245,21 +245,21 @@ fedora34-mpi-ospray-python-qt-tbb:build:
     timeout: 90 minutes
     stage: quick
 
-fedora34-mpi-ospray-python-qt-tbb:test:
+fedora39-mpi-ospray-python-qt-tbb:test:
     extends:
-        - .fedora34_mpi_ospray_python_qt_tbb
+        - .fedora39_mpi_ospray_python_qt_tbb
         - .cmake_test_linux
         - .linux_fast_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mpi-ospray-python-qt-tbb:build
+        - fedora39-mpi-ospray-python-qt-tbb:build
     needs:
-        - fedora34-mpi-ospray-python-qt-tbb:build
+        - fedora39-mpi-ospray-python-qt-tbb:build
 
-# fedora34-java-mpi-qt-tbb:build:
+# fedora39-java-mpi-qt-tbb:build:
 #     extends:
-#         - .fedora34_java_mpi_qt_tbb
+#         - .fedora39_java_mpi_qt_tbb
 #         - .cmake_build_linux
 #         - .linux_builder_tags
 #         - .cmake_build_artifacts
@@ -269,21 +269,21 @@ fedora34-mpi-ospray-python-qt-tbb:test:
 #     dependencies: []
 #     needs: []
 
-# fedora34-java-mpi-qt-tbb:test:
+# fedora39-java-mpi-qt-tbb:test:
 #     extends:
-#         - .fedora34_java_mpi_qt_tbb
+#         - .fedora39_java_mpi_qt_tbb
 #         - .cmake_test_linux
 #         - .linux_tester_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     dependencies:
-#         - fedora34-java-mpi-qt-tbb:build
+#         - fedora39-java-mpi-qt-tbb:build
 #     needs:
-#         - fedora34-java-mpi-qt-tbb:build
+#         - fedora39-java-mpi-qt-tbb:build
 
-fedora34-mpi-python-qt-tbb:build:
+fedora39-mpi-python-qt-tbb:build:
     extends:
-        - .fedora34_mpi_python_qt_tbb
+        - .fedora39_mpi_python_qt_tbb
         - .cmake_build_linux
         - .linux_builder_tags
         - .cmake_build_artifacts
@@ -292,33 +292,33 @@ fedora34-mpi-python-qt-tbb:build:
     dependencies: []
     needs: []
 
-fedora34-mpi-python-qt-tbb:test:
+fedora39-mpi-python-qt-tbb:test:
     extends:
-        - .fedora34_mpi_python_qt_tbb
+        - .fedora39_mpi_python_qt_tbb
         - .cmake_test_linux
         - .linux_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mpi-python-qt-tbb:build
+        - fedora39-mpi-python-qt-tbb:build
     needs:
-        - fedora34-mpi-python-qt-tbb:build
+        - fedora39-mpi-python-qt-tbb:build
 
-vtk:fedora34-mpi-python-qt-tbb:test-ext:
+vtk:fedora39-mpi-python-qt-tbb:test-ext:
     extends:
-        - .fedora34_mpi_python_qt_tbb_ext_vtk
+        - .fedora39_mpi_python_qt_tbb_ext_vtk
         - .cmake_test_external_linux
         - .linux_tester_tags
         - .cmake_junit_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mpi-python-qt-tbb:test
+        - fedora39-mpi-python-qt-tbb:test
     needs:
-        - fedora34-mpi-python-qt-tbb:test
+        - fedora39-mpi-python-qt-tbb:test
 
-fedora34-mpi-python-qt-stdthread:test:
+fedora39-mpi-python-qt-stdthread:test:
     extends:
-        - .fedora34_mpi_python_qt_stdthread
+        - .fedora39_mpi_python_qt_stdthread
         - .smp_backend_stdthread_env_variable
         - .ctest_new_cdash_submission
         - .cmake_test_linux
@@ -326,13 +326,13 @@ fedora34-mpi-python-qt-stdthread:test:
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mpi-python-qt-tbb:build
+        - fedora39-mpi-python-qt-tbb:build
     needs:
-        - fedora34-mpi-python-qt-tbb:build
+        - fedora39-mpi-python-qt-tbb:build
 
-fedora34-mangling:build:
+fedora39-mangling:build:
     extends:
-        - .fedora34_mangling
+        - .fedora39_mangling
         - .cmake_build_linux
         - .linux_builder_tags
         - .cmake_build_artifacts
@@ -340,21 +340,21 @@ fedora34-mangling:build:
     timeout: 90 minutes
     stage: quick
 
-fedora34-mangling:test:
+fedora39-mangling:test:
     extends:
-        - .fedora34_mangling
+        - .fedora39_mangling
         - .cmake_test_linux
         - .linux_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mangling:build
+        - fedora39-mangling:build
     needs:
-        - fedora34-mangling:build
+        - fedora39-mangling:build
 
-fedora34-mpi-python-vtkmoverride:build:
+fedora39-mpi-python-vtkmoverride:build:
     extends:
-        - .fedora34_mpi_python_vtkmoverride
+        - .fedora39_mpi_python_vtkmoverride
         - .cmake_build_linux
         - .linux_builder_tags
         - .cmake_build_artifacts
@@ -363,17 +363,17 @@ fedora34-mpi-python-vtkmoverride:build:
     dependencies: []
     needs: []
 
-fedora34-mpi-python-vtkmoverride:test:
+fedora39-mpi-python-vtkmoverride:test:
     extends:
-        - .fedora34_mpi_python_vtkmoverride
+        - .fedora39_mpi_python_vtkmoverride
         - .cmake_test_linux
         - .linux_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - fedora34-mpi-python-vtkmoverride:build
+        - fedora39-mpi-python-vtkmoverride:build
     needs:
-        - fedora34-mpi-python-vtkmoverride:build
+        - fedora39-mpi-python-vtkmoverride:build
 
 ## Webassembly build
 webassembly:build:
@@ -1255,9 +1255,9 @@ wheel-sdk:upload:
 
 ## Static analysis builds
 
-fedora34-tidy:build:
+fedora39-tidy:build:
     extends:
-        - .fedora34_tidy
+        - .fedora39_tidy
         - .cmake_build_linux
         - .linux_fast_builder_tags
         - .cmake_tidy_artifacts
@@ -1276,9 +1276,9 @@ fedora34-tidy:build:
 
 ## Sanitizer builds
 
-# fedora34-asan:build:
+# fedora39-asan:build:
 #     extends:
-#         - .fedora34_asan
+#         - .fedora39_asan
 #         - .cmake_build_linux
 #         - .linux_builder_tags
 #         - .cmake_build_artifacts
@@ -1286,21 +1286,21 @@ fedora34-tidy:build:
 #     dependencies: []
 #     needs: []
 #
-# fedora34-asan:test:
+# fedora39-asan:test:
 #     extends:
-#         - .fedora34_asan
+#         - .fedora39_asan
 #         - .cmake_memcheck_linux
 #         - .linux_tester_priv_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     dependencies:
-#         - fedora34-asan:build
+#         - fedora39-asan:build
 #     needs:
-#         - fedora34-asan:build
+#         - fedora39-asan:build
 #
-# fedora34-tsan:build:
+# fedora39-tsan:build:
 #     extends:
-#         - .fedora34_tsan
+#         - .fedora39_tsan
 #         - .cmake_build_linux
 #         - .linux_builder_tags
 #         - .cmake_build_artifacts
@@ -1308,21 +1308,21 @@ fedora34-tidy:build:
 #     dependencies: []
 #     needs: []
 #
-# fedora34-tsan:test:
+# fedora39-tsan:test:
 #     extends:
-#         - .fedora34_tsan
+#         - .fedora39_tsan
 #         - .cmake_memcheck_linux
 #         - .linux_tester_priv_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     dependencies:
-#         - fedora34-tsan:build
+#         - fedora39-tsan:build
 #     needs:
-#         - fedora34-tsan:build
+#         - fedora39-tsan:build
 #
-# fedora34-ubsan:build:
+# fedora39-ubsan:build:
 #     extends:
-#         - .fedora34_ubsan
+#         - .fedora39_ubsan
 #         - .cmake_build_linux
 #         - .linux_builder_tags
 #         - .cmake_build_artifacts
@@ -1330,23 +1330,23 @@ fedora34-tidy:build:
 #     dependencies: []
 #     needs: []
 #
-# fedora34-ubsan:test:
+# fedora39-ubsan:test:
 #     extends:
-#         - .fedora34_ubsan
+#         - .fedora39_ubsan
 #         - .cmake_memcheck_linux
 #         - .linux_tester_priv_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     dependencies:
-#         - fedora34-ubsan:build
+#         - fedora39-ubsan:build
 #     needs:
-#         - fedora34-ubsan:build
+#         - fedora39-ubsan:build
 
 ## Documentation
 
 documentation:build:
     extends:
-        - .fedora34_doxygen_mpi_python_qt_tbb
+        - .fedora39_doxygen_mpi_python_qt_tbb
         - .cmake_build_linux
         - .linux_builder_tags
         - .cmake_doxygen_artifacts
