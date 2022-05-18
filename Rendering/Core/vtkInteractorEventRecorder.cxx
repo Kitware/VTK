@@ -363,17 +363,9 @@ void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2], int m
     // This should go into its own method once more events are supported
     vtkStringArray* filesArr = static_cast<vtkStringArray*>(callData);
 
-    // Sanity check
-    if (!filesArr)
-    {
-      *this->OutputStream << "0 ";
-      return;
-    }
-
-    vtkIdType dataNum = filesArr->GetNumberOfValues();
-
+    // Recover the number of string, with a sanity check
+    vtkIdType dataNum = filesArr ? filesArr->GetNumberOfValues() : 0;
     *this->OutputStream << dataNum << " ";
-
     if (dataNum > 0)
     {
       for (vtkIdType i = 0; i < dataNum; i++)
