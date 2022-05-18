@@ -53,7 +53,7 @@ public:
    * Getter/Setter methods for setting the vtkHyperTreeGrid
    */
   vtkGetObjectMacro(HTG, vtkHyperTreeGrid);
-  virtual void SetHyperTreeGrid(vtkHyperTreeGrid* candHTG);
+  virtual void SetHTG(vtkHyperTreeGrid* candHTG);
   ///@}
 
   ///@{

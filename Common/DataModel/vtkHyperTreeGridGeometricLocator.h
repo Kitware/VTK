@@ -39,7 +39,7 @@
 
 class vtkGenericCell;
 
-class vtkHyperTreeGridGeometricLocator : public vtkHyperTreeGridLocator
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridGeometricLocator : public vtkHyperTreeGridLocator
 {
 public:
   ///@{
@@ -95,8 +95,8 @@ public:
   ///@}
 
 protected:
-  vtkHyperTreeGridGeometricLocator() = default;
-  ~vtkHyperTreeGridGeometricLocator() = default;
+  vtkHyperTreeGridGeometricLocator();
+  virtual ~vtkHyperTreeGridGeometricLocator() = default;
 
 private:
   vtkHyperTreeGridGeometricLocator(const vtkHyperTreeGridGeometricLocator&) = delete;
@@ -105,7 +105,7 @@ private:
   /**
    * Helper method for determining if a point is held within an extent
    */
-  bool isInExtent(const double pt[3], const double extent[6]);
+  static bool IsInExtent(const double pt[3], const double extent[6]);
 
 }; // vtkHyperTreeGridGeometricLocator
 

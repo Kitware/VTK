@@ -19,14 +19,14 @@
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridLocator::vtkHyperTreeGridLocator()
+  : HTG(nullptr)
 {
-  this->HTG = nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridLocator::~vtkHyperTreeGridLocator()
 {
-  this->SetHyperTreeGrid(nullptr);
+  this->SetHTG(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void vtkHyperTreeGridLocator::Update()
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridLocator::SetHyperTreeGrid(vtkHyperTreeGrid* candHTG)
+void vtkHyperTreeGridLocator::SetHTG(vtkHyperTreeGrid* candHTG)
 {
   this->HTG = candHTG;
 }

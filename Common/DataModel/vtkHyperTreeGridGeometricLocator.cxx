@@ -20,6 +20,12 @@
 vtkStandardNewMacro(vtkHyperTreeGridGeometricLocator);
 
 //------------------------------------------------------------------------------
+vtkHyperTreeGridGeometricLocator::vtkHyperTreeGridGeometricLocator()
+  : vtkHyperTreeGridLocator()
+{
+}
+
+//------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometricLocator::Search(const double point[3])
 {
   return -1;
@@ -39,3 +45,9 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
 {
   return 0;
 } // IntersectWithLine
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridGeometricLocator::IsInExtent(const double pt[3], const double extent[6])
+{
+  return false;
+} // IsInExtent

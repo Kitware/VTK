@@ -99,8 +99,8 @@ set(classes
   vtkHyperTree
   vtkHyperTreeCursor
   vtkHyperTreeGrid
-  vtkHyperTreeGridGeometricLocator
   vtkHyperTreeGridLocator
+  vtkHyperTreeGridGeometricLocator
   vtkHyperTreeGridNonOrientedCursor
   vtkHyperTreeGridNonOrientedGeometryCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursor
