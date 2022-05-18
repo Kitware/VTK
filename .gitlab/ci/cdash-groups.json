@@ -168,27 +168,27 @@
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[windows_vs2019_kits_mpi_python_qt]"
+            "buildname": "[windows_vs2022_kits_mpi_python_qt]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[windows_vs2019_kits_mpi_python_qt_stdthread]"
+            "buildname": "[windows_vs2022_kits_mpi_python_qt_stdthread]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[windows_vs2019_kits_mpi_python_qt_ext_vtk]"
+            "buildname": "[windows_vs2022_kits_mpi_python_qt_ext_vtk]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[windows_vs2019_mpi_python_qt]"
+            "buildname": "[windows_vs2022_mpi_python_qt]"
         },
         {
             "group": "master",
             "site": "gitlab-ci",
-            "buildname": "[windows_vs2019_mpi_python_qt_static]"
+            "buildname": "[windows_vs2022_mpi_python_qt_static]"
         }
     ]
 }
