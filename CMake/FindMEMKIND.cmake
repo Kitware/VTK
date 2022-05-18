@@ -34,11 +34,13 @@ include(CMakeFindDependencyMacro)
 find_path(MEMKIND_INCLUDE_DIR
   NAMES memkind.h
   DOC "memkind include directory")
+mark_as_advanced(MEMKIND_INCLUDE_DIR)
 
 # Look for the library.
 find_library(MEMKIND_LIBRARY
   NAMES memkind libmemkind
   DOC "memkind library")
+mark_as_advanced(MEMKIND_LIBRARY)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(MEMKIND
@@ -67,5 +69,3 @@ if(MEMKIND_FOUND)
       MEMKIND_VERSION_MINOR "${MEMKIND_VERSION_MINOR}")
   endif()
 endif()
-
-mark_as_advanced(MEMKIND_INCLUDE_DIR MEMKIND_LIBRARY)
