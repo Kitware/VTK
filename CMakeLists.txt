@@ -211,7 +211,7 @@ if (VTK_ENABLE_LOGGING)
     "via `VTK_ENABLE_LOGGING`")
 endif ()
 if (VTK_ENABLE_CATALYST)
-  list(APPEND vtk_request_modules
+  list(APPEND vtk_requested_modules
     VTK::IOCatalystConduit)
 else()
   list(APPEND vtk_rejected_modules
