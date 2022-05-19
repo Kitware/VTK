@@ -225,6 +225,19 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
                  "uniform vec3 in_cellStep["
               << numInputs << "];\n";
 
+  if (mapper->GetVolumetricShadow())
+  {
+
+    toShaderStr << "mat4 g_eyeToTexture = in_inverseTextureDatasetMatrix[0] *"
+                   " in_inverseVolumeMatrix[0] * in_inverseModelViewMatrix;\n";
+  }
+
+  if (inputs[0].Volume->GetProperty()->GetShade() && !defaultLighting && totalNumberOfLights > 0)
+  {
+    toShaderStr << "mat4 g_texToView = in_modelViewMatrix * in_volumeMatrix[0] *"
+                   "in_textureDatasetMatrix[0];\n";
+  }
+
   toShaderStr << "uniform vec2 in_scalarsRange[" << numInputs * 4
               << "];\n"
                  "uniform vec3 in_cellSpacing["
@@ -1222,8 +1235,7 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
     else if (totalNumberOfLights > 0)
     {
       shaderStr += std::string("\
-          \n  g_fragWorldPos = in_modelViewMatrix * in_volumeMatrix[0] *\
-          \n                      in_textureDatasetMatrix[0] * vec4(g_dataPos, 1.0);\
+          \n  g_fragWorldPos = g_texToView * vec4(g_dataPos, 1.0);\
           \n  if (g_fragWorldPos.w != 0.0)\
           \n    {\
           \n    g_fragWorldPos /= g_fragWorldPos.w;\
