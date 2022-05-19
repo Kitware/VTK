@@ -29,6 +29,11 @@
  * polygonal cells.
  *
  * @warning
+ * The method CanFullyProcessDataObject() is available to see whether the
+ * input data can be successully processed by this filter. Use this method
+ * sparingly because it can be slow.
+ *
+ * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
@@ -65,6 +70,28 @@ public:
    */
   void SetPlane(vtkPlane*);
   vtkGetObjectMacro(Plane, vtkPlane);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the computation of normals. The normal generated is simply the
+   * cut plane normal. The normals are associated with the output points. By
+   * default the computation of normals is disabled.
+   */
+  vtkSetMacro(ComputeNormals, bool);
+  vtkGetMacro(ComputeNormals, bool);
+  vtkBooleanMacro(ComputeNormals, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Indicate whether to interpolate attribute data. By default this is
+   * enabled. Note that both cell data and point data is interpolated and
+   * output.
+   */
+  vtkSetMacro(InterpolateAttributes, bool);
+  vtkGetMacro(InterpolateAttributes, bool);
+  vtkBooleanMacro(InterpolateAttributes, bool);
   ///@}
 
   ///@{
@@ -111,6 +138,8 @@ protected:
   ~vtkPolyDataPlaneCutter() override;
 
   vtkSmartPointer<vtkPlane> Plane;
+  bool ComputeNormals;
+  bool InterpolateAttributes;
   int OutputPointsPrecision;
   unsigned int BatchSize;
 

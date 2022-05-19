@@ -34,6 +34,11 @@
  * cap(s) will be generated.
  *
  * @warning
+ * The method CanFullyProcessDataObject() is available to see whether the
+ * input data can be successully processed by this filter. Use this method
+ * sparingly because it can be slow.
+ *
+ * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
@@ -49,7 +54,8 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPlane.h"             // For clipping plane
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h" // For SmartPointer
+#include "vtkPolyDataPlaneCutter.h" // For CanFullyProcessDataObject() method
+#include "vtkSmartPointer.h"        // For SmartPointer
 
 class VTKFILTERSCORE_EXPORT vtkPolyDataPlaneClipper : public vtkPolyDataAlgorithm
 {
@@ -148,6 +154,20 @@ public:
   vtkSetClampMacro(BatchSize, unsigned int, 1, VTK_INT_MAX);
   vtkGetMacro(BatchSize, unsigned int);
   ///@}
+
+  /**
+   * This helper method can be used to determine the if the input vtkPolyData
+   * contains convex polygonal cells, and therefore is suitable for
+   * processing by this filter. (The name of the method is consistent with
+   * other filters that perform similar operations.) This method returns true
+   * when the input contains only polygons (i.e., no verts, lines, or
+   * triangle strips); and each polygon is convex. It returns false
+   * otherwise.
+   */
+  static bool CanFullyProcessDataObject(vtkDataObject* object)
+  {
+    return vtkPolyDataPlaneCutter::CanFullyProcessDataObject(object);
+  }
 
 protected:
   vtkPolyDataPlaneClipper();
