@@ -2339,7 +2339,7 @@ void vtkUnstructuredGrid::RemoveGhostCells()
 
   vtkNew<vtkCellArray> newCells;
 #ifdef VTK_USE_64BIT_IDS
-  if (!(this->GetNumberOfPoints() >> 32))
+  if (!(this->GetNumberOfPoints() >> 31))
   {
     newCells->ConvertTo32BitStorage();
   }

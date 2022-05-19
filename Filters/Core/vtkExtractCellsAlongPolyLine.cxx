@@ -662,7 +662,7 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
   vtkNew<vtkUnsignedCharArray> outputCellTypes;
 
 #ifdef VTK_USE_64BIT_IDS
-  if (!(numberOfPoints >> 32))
+  if (!(numberOfPoints >> 31))
   {
     outputCells->ConvertTo32BitStorage();
   }

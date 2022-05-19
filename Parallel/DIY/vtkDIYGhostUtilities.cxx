@@ -2770,7 +2770,7 @@ void FillUnstructuredDataTopologyBuffer(
 
   // We're being careful to account for different storage options in cell arrays
 #ifdef VTK_USE_64BIT_IDS
-  if (!(maxPointId >> 32))
+  if (!(maxPointId >> 31))
   {
     cellArray->ConvertTo32BitStorage();
   }
@@ -2825,7 +2825,7 @@ void FillUnstructuredDataTopologyBuffer(
 
     // We're being careful to account for different storage options in cell arrays
 #ifdef VTK_USE_64BIT_IDS
-    if (!(maxPointId >> 32))
+    if (!(maxPointId >> 31))
     {
       cells->ConvertTo32BitStorage();
     }
@@ -4532,7 +4532,7 @@ void DeepCopyInputAndAllocateGhosts(::UnstructuredGridBlock* block,
 
 // We're being careful to account for different storage options in cell arrays
 #ifdef VTK_USE_64BIT_IDS
-  if (!(numberOfPoints >> 32))
+  if (!(numberOfPoints >> 31))
   {
     outputCellArray->ConvertTo32BitStorage();
   }
@@ -4614,7 +4614,7 @@ void DeepCopyInputAndAllocateGhosts(::PolyDataBlock* block,
 
 // We're being careful to account for different storage options in cell arrays
 #ifdef VTK_USE_64BIT_IDS
-  if (!(numberOfPoints >> 32))
+  if (!(numberOfPoints >> 31))
   {
     outputPolys->ConvertTo32BitStorage();
     outputStrips->ConvertTo32BitStorage();
