@@ -241,7 +241,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
    
     # Masking is inconsistent with STDThread 
     # See #18549
-    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperMasking$"
+    "^VTK::RenderingCoreCxx-TestGlyph3DMapperMasking$"
     
     # Test fails sometimes with STDThread
     # See #18555
