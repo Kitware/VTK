@@ -95,6 +95,7 @@ set(vtk_cmake_module_files
   FindLibXml2.cmake
   FindLZ4.cmake
   FindLZMA.cmake
+  FindMEMKIND.cmake
   Findmpi4py.cmake
   FindMySQL.cmake
   FindNetCDF.cmake
