@@ -23,7 +23,7 @@
  * vtkHyperTreeGridNonOrientedGeometricCursor. The arborescent structure of the HTG should be
  * sufficient to accelerate the search and achieve good performance in general.
  *
- * All methods in this class should be thread safe since it is meantto be used in a multithreaded
+ * All methods in this class should be thread safe since it is meantto be used in a multi-threaded
  * environment out of the box.
  *
  * @sa
@@ -38,6 +38,7 @@
 #include "vtkHyperTreeGridLocator.h"
 
 class vtkGenericCell;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridGeometricLocator : public vtkHyperTreeGridLocator
 {
@@ -56,6 +57,8 @@ public:
   static vtkHyperTreeGridGeometricLocator* New();
   ///@}
 
+  void SetHTG(vtkHyperTreeGrid* candHTG) override;
+
   ///@{
   /**
    * Basic search for cell holding a given point
@@ -63,6 +66,14 @@ public:
    * @return the global index of the cell holding the point (-1 if cell not found)
    */
   vtkIdType Search(const double point[3]) override;
+
+  /**
+   * Basic search for cell holding a given point that also return a cursor
+   * @param point coordinated of sought point
+   * @param[out] cursor the cursor at the cell holding the point
+   * @return the global index of the cell holding the point (-1 if cell not found)
+   */
+  vtkIdType Search(const double point[3], vtkHyperTreeGridNonOrientedGeometryCursor* cursor);
 
   /**
    * Find the cell where a given point lies
@@ -98,14 +109,40 @@ protected:
   vtkHyperTreeGridGeometricLocator();
   virtual ~vtkHyperTreeGridGeometricLocator() = default;
 
+  /**
+   * The recursive part of the point search
+   */
+  vtkIdType RecursiveSearch(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, const double pt[3]);
+
 private:
   vtkHyperTreeGridGeometricLocator(const vtkHyperTreeGridGeometricLocator&) = delete;
   void operator=(const vtkHyperTreeGridGeometricLocator&) = delete;
 
   /**
-   * Helper method for determining if a point is held within an extent
+   * Helper method for determining whether a cursor is a leaf or if all its children are masked
+   * (does not deal with current cursor masked)
+   * @param cursor the cursor to check
    */
-  static bool IsInExtent(const double pt[3], const double extent[6]);
+  bool CheckLeafOrChildrenMasked(vtkHyperTreeGridNonOrientedGeometryCursor* cursor) const;
+
+  /**
+   * Helper method for determining the index of a child where the point is held
+   */
+  vtkIdType FindChildIndex(
+    const unsigned int dim, const unsigned int bf, const double normalizedPt[3]) const;
+
+  /**
+   * Helper method for constructing a cell from a cursor
+   * @param cursor the cursor pointing to the HTG cell one wishes to construct
+   * @param[out] cell an already allocated cell to fill with the values from cursor
+   * @return false for failure and true for success
+   */
+  bool ConstructCell(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkGenericCell* cell) const;
+
+  /**
+   * An array holding the 1D bin divisions given the branching factor
+   */
+  std::vector<double> Bins1D;
 
 }; // vtkHyperTreeGridGeometricLocator
 
