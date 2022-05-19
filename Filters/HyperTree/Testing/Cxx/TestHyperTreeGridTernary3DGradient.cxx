@@ -16,58 +16,70 @@
 // This test was written by Charles Gueunet, 2022
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
+#include "vtkArrowSource.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkGlyph3D.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridCellCenters.h"
 #include "vtkHyperTreeGridGradient.h"
-#include "vtkHyperTreeGridMapper.h"
-#include "vtkHyperTreeGridSource.h"
+#include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkXMLHyperTreeGridReader.h"
 
 int TestHyperTreeGridTernary3DGradient(int argc, char* argv[])
 {
-  // Hyper tree grid
-  // From the TestHyperTreeGridTernary3DContour
-  vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 5;
-  htGrid->SetMaxDepth(maxLevel);
-  htGrid->SetDimensions(4, 4, 3); // GridCell 3, 3, 2
-  htGrid->SetGridScale(1.5, 1., .7);
-  htGrid->SetBranchFactor(3);
-  htGrid->SetDescriptor(
-    "RRR .R. .RR ..R ..R .R.|R.......................... ........................... "
-    "........................... .............R............. ....RR.RR........R......... "
-    ".....RRRR.....R.RR......... ........................... ........................... "
-    "...........................|........................... ........................... "
-    "........................... ...RR.RR.......RR.......... ........................... "
-    "RR......................... ........................... ........................... "
-    "........................... ........................... ........................... "
-    "........................... ........................... "
-    "............RRR............|........................... ........................... "
-    ".......RR.................. ........................... ........................... "
-    "........................... ........................... ........................... "
-    "........................... ........................... "
-    "...........................|........................... ...........................");
+
+  char* fileNameC = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMR/htg3d.htg");
+  std::string fileName(fileNameC);
+  delete[] fileNameC;
+
+  vtkNew<vtkXMLHyperTreeGridReader> htGrid;
+  htGrid->SetFileName(fileName.c_str());
   htGrid->Update();
-  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
-  htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
+  vtkHyperTreeGrid* ht = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutputDataObject(0));
+  ht->GetCellData()->SetActiveScalars("Depth");
 
   // Gradient
   vtkNew<vtkHyperTreeGridGradient> gradient;
   gradient->SetInputConnection(htGrid->GetOutputPort());
-  gradient->Update();
-  gradient->Print(std::cout);
 
-  // Mappers
-  // Surfacic, only shows the boundary. Not the best fit for a gradient computation
-  vtkNew<vtkHyperTreeGridMapper> mapper1;
-  mapper1->SetInputConnection(gradient->GetOutputPort());
+  // extract cell centers
+  vtkNew<vtkHyperTreeGridCellCenters> centers;
+  centers->SetInputConnection(gradient->GetOutputPort());
+  centers->SetVertexCells(true);
+
+  // Generate glyphs
+  vtkNew<vtkArrowSource> glyph;
+  vtkNew<vtkGlyph3D> glypher;
+  glypher->SetInputConnection(centers->GetOutputPort());
+  glypher->SetSourceConnection(glyph->GetOutputPort());
+  glypher->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Gradient");
+  glypher->OrientOn();
+  glypher->SetVectorModeToUseVector();
+  glypher->ScalingOn();
+  glypher->SetScaleModeToScaleByVector();
+  glypher->SetScaleFactor(0.3);
+
+  // mapper
+  vtkNew<vtkPolyDataMapper> mapper1;
+  mapper1->SetInputConnection(glypher->GetOutputPort());
+  mapper1->SetColorModeToDefault();
+  mapper1->SetScalarVisibility(true);
+  mapper1->SetScalarRange(10, 50);
+  // color by magnitude
+  vtkNew<vtkLookupTable> colormap;
+  colormap->SetVectorModeToMagnitude();
+  colormap->Build();
+  mapper1->SetLookupTable(colormap);
 
   // Actors
   vtkNew<vtkActor> actor1;
@@ -81,7 +93,7 @@ int TestHyperTreeGridTernary3DGradient(int argc, char* argv[])
   // Render window
   vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(renderer);
-  renWin->SetSize(400, 400);
+  renWin->SetSize(600, 600);
   renWin->SetMultiSamples(0);
 
   // Interactor

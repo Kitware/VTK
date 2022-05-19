@@ -17,15 +17,14 @@
  * @brief   Compute the gradient of a scalar field
  * on a Hyper Tree Grid.
  *
- * This filter compute the gradient of the cell scalars
- * on a Hyper Tree Grid data set. This result in a new array
- * attached to the original input.
+ * This filter compute the gradient of a given cell scalars array on a
+ * Hyper Tree Grid. This result in a new array attached to the original input.
  *
  * @sa
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm vtkGradientFilter
  *
  * @par Thanks:
- * This class was modified by Charles Gueunet, 2022
+ * This class was created by Charles Gueunet, 2022
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
  */
@@ -34,15 +33,15 @@
 #define vtkHyperTreeGridGradient_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
-#include "vtkHyperTreeGridAlgorithm.h"
-#include "vtkNew.h"
 
-#include <forward_list> // For STL
-#include <vector>
+#include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkNew.h"          // for internal fields
+#include "vtkSmartPointer.h" // for internal fields
+
+#include <string> // for internal fields
 
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 class vtkHyperTreeGridNonOrientedMooreSuperCursor;
-class vtkIdList;
 class vtkBitArray;
 class vtkDoubleArray;
 class vtkUnsignedCharArray;
@@ -53,6 +52,14 @@ public:
   static vtkHyperTreeGridGradient* New();
   vtkTypeMacro(vtkHyperTreeGridGradient, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  ///@{
+  /**
+   * Set/Get the name of computed vector array.
+   */
+  vtkSetMacro(ResultArrayName, std::string);
+  vtkGetMacro(ResultArrayName, std::string);
+  ///@}
 
 protected:
   vtkHyperTreeGridGradient();
@@ -66,34 +73,26 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedMooreSuperCursor*);
+  template <class Worker>
+  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedMooreSuperCursor*, Worker&);
 
   // Fields
 
-  vtkIdList* Leaves;
+  std::string ResultArrayName = "Gradient";
 
   /**
    * Keep track of selected input scalars
    */
-  vtkDataArray* InScalars;
-  vtkDataArray* CellScalars;
-
-  vtkBitArray* InMask;
-  vtkUnsignedCharArray* InGhostArray;
-
-  ///@{
-  /**
-   * Intermediate array for efficient comuptation:
-   * Avg scalars on coarse cells
-   * and cell centers
-   */
-  unsigned int* Dims;
-  ///@}
+  vtkSmartPointer<vtkDataArray> InScalars;
 
   /**
    * Computed gradient
    */
   vtkNew<vtkDoubleArray> OutGradient;
+
+  // shortcut to HTG fields
+  vtkBitArray* InMask = nullptr;
+  vtkUnsignedCharArray* InGhostArray = nullptr;
 
 private:
   vtkHyperTreeGridGradient(const vtkHyperTreeGridGradient&) = delete;
