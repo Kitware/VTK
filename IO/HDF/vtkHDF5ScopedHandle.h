@@ -46,3 +46,4 @@ DefineScopedHandle(S);
 DefineScopedHandle(T);
 
 #endif
+// VTK-HeaderTest-Exclude: vtkHDF5ScopedHandle.h
