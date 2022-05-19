@@ -209,12 +209,12 @@ public:
    * - VTK_MARKER_CIRCLE
    * - VTK_MARKER_DIAMOND
    * Marker size is determined by the current pen width.
-   * shape: the shape of the marker
-   * highlight: whether to highlight the marker or not
-   * points: where to draw the markers
-   * n: number of points
-   * colors: is an optional array of colors.
-   * nc_comps: is the number of components for the color.
+   * \param shape the shape of the marker
+   * \param highlight whether to highlight the marker or not
+   * \param points where to draw the markers
+   * \param n number of points
+   * \param colors is an optional array of colors.
+   * \param nc_comps is the number of components for the color.
    */
   virtual void DrawMarkers(
     int shape, bool highlight, float* points, int n, unsigned char* colors, int nc_comps);

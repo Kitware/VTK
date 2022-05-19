@@ -181,22 +181,22 @@ public:
    \f$\infty\f$
    * or both endpoints set to \f$-\infty\f$ in order to locate cells with problematic values.
 
-   * xmin: The minimum attribute value
-   * xmax: The maximum attribute value
-   * omin: Whether the interval should be open or closed at \a xmin. Use
+   * @param xmin The minimum attribute value
+   * @param xmax The maximum attribute value
+   * @param omin Whether the interval should be open or closed at \a xmin. Use
    vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
-   * omax: Whether the interval should be open or closed at \a xmax. Use
+   * @param omax Whether the interval should be open or closed at \a xmax. Use
    vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
-   * assoc: One of vtkDataObject::FIELD_ASSOCIATION_CELLS or
+   * @param assoc One of vtkDataObject::FIELD_ASSOCIATION_CELLS or
    vtkDataObject::FIELD_ASSOCIATION_POINTS indicating whether
    * a point or cell array should be used.
-   * arrayName: The name of the array to use for thresholding
-   * attribType: The attribute to use for thresholding.
+   * @param arrayName The name of the array to use for thresholding
+   * @param attribType The attribute to use for thresholding.
    * One of vtkDataSetAttributes::SCALARS, VECTORS, TENSORS, NORMALS, TCOORDS, or GLOBALIDS.
-   * component: The number of the component to threshold on or one of the following enumerants
+   * @param component The number of the component to threshold on or one of the following enumerants
    for norms:
    * LINFINITY_NORM, L2_NORM, L1_NORM.
-   * allScalars: When \a center is vtkDataObject::FIELD_ASSOCIATION_POINTS, must all scalars
+   * @param allScalars When \a center is vtkDataObject::FIELD_ASSOCIATION_POINTS, must all scalars
    be in the interval for
    * the cell to be passed to the output, or just a single point's scalar?
    * @return An index used to identify the cells selected by the interval or -1 if the interval
