@@ -241,7 +241,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
    
     # Masking is inconsistent with STDThread 
     # See #18549
-    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperMasking$")
+    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperMasking$"
+    
+    # Test fails sometimes with STDThread
+    # See #18555
+    "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
+    )
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
