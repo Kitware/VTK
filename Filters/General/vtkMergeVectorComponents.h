@@ -21,6 +21,11 @@
  * 3 components. The type of the output vector is vtkDoubleArray. The user
  * needs to define the names of the single-component arrays and the attribute-type
  * of the arrays, i.e. point-data or cell-data.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  */
 
 #ifndef vtkMergeVectorComponents_h
