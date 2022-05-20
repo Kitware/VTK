@@ -1050,12 +1050,11 @@ void vtkScalarsToColorsRGBAToRGBA(const T* inPtr, unsigned char* outPtr, vtkIdTy
 //------------------------------------------------------------------------------
 unsigned char* vtkScalarsToColorsUnpackBits(void* inPtr, vtkIdType numValues)
 {
-  vtkIdType n = (numValues + 7) % 8;
-  unsigned char* newPtr = new unsigned char[n];
+  unsigned char* newPtr = new unsigned char[numValues];
 
   unsigned char* tmpPtr = newPtr;
   unsigned char* bitdata = static_cast<unsigned char*>(inPtr);
-  for (vtkIdType i = 0; i < n; i += 8)
+  for (vtkIdType i = 0; i < numValues; i += 8)
   {
     unsigned char b = *bitdata++;
     int j = 8;
