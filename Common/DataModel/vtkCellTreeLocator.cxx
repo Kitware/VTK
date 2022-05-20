@@ -70,7 +70,7 @@ struct vtkCellTree
   virtual void FindCellsWithinBounds(double* bbox, vtkIdList* cells) = 0;
   virtual int IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) = 0;
-  virtual int IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol,
     vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell) = 0;
   virtual void GenerateRepresentation(int level, vtkPolyData* pd) = 0;
 
