@@ -59,15 +59,17 @@
 #define vtkInterpolatedVelocityField_h
 
 #include "vtkCompositeInterpolatedVelocityField.h"
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 
-class VTKFILTERSFLOWPATHS_EXPORT vtkInterpolatedVelocityField
+class VTK_DEPRECATED_IN_9_2_0(
+  "Use vtkCompositeInterpolatedVelocityField instead of vtkCellLocatorInterpolatedVelocityField "
+  "and set the desired strategy.") VTKFILTERSFLOWPATHS_EXPORT vtkInterpolatedVelocityField
   : public vtkCompositeInterpolatedVelocityField
 {
 public:
   /**
-   * Construct a vtkInterpolatedVelocityField without an initial dataset.
-   * Caching is set on and LastCellId is set to -1.
+   * Construct a vtkCompositeInterpolatedVelocityField subclass.
    */
   static vtkInterpolatedVelocityField* New();
 
@@ -89,3 +91,5 @@ private:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkInterpolatedVelocityField.h

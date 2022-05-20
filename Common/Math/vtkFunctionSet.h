@@ -22,7 +22,7 @@
  * The only supported operation is the function evaluation at x_j.
  *
  * @sa
- * vtkImplicitDataSet vtkInterpolatedVelocityField
+ * vtkImplicitDataSet vtkCompositeInterpolatedVelocityField vtkAMRInterpolatedVelocityField
  * vtkInitialValueProblemSolver
  */
 

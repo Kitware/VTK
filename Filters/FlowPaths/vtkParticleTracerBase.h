@@ -28,14 +28,15 @@
 #ifndef vtkParticleTracerBase_h
 #define vtkParticleTracerBase_h
 
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h" // For protected ivars.
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include <list>   // STL Header
+#include <mutex>  // STL Header
 #include <vector> // STL Header
 
-class vtkAbstractInterpolatedVelocityField;
 class vtkAbstractParticleWriter;
 class vtkCellArray;
 class vtkCompositeDataSet;
@@ -84,7 +85,7 @@ struct ParticleInformation_t
   float angularVel;
   float time;
   float speed;
-  // once the partice is added, PointId is valid and is the tuple location
+  // once the particle is added, PointId is valid and is the tuple location
   // in ProtoPD.
   vtkIdType PointId;
   // if PointId is negative then in parallel this particle was just
@@ -97,11 +98,13 @@ typedef std::vector<ParticleInformation> ParticleVector;
 typedef ParticleVector::iterator ParticleIterator;
 typedef std::list<ParticleInformation> ParticleDataList;
 typedef ParticleDataList::iterator ParticleListIterator;
+struct ParticleTracerFunctor;
 };
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracerBase : public vtkPolyDataAlgorithm
 {
 public:
+  friend struct vtkParticleTracerBaseNamespace::ParticleTracerFunctor;
   enum Solvers
   {
     RUNGE_KUTTA2,
@@ -162,8 +165,8 @@ public:
    * redundant as the particles will be reinjected whenever the source changes
    * anyway
    */
-  vtkGetMacro(ForceReinjectionEveryNSteps, int);
-  void SetForceReinjectionEveryNSteps(int);
+  vtkGetMacro(ForceReinjectionEveryNSteps, vtkTypeBool);
+  void SetForceReinjectionEveryNSteps(vtkTypeBool);
   ///@}
 
   ///@{
@@ -202,8 +205,36 @@ public:
    * the motion will be ignored and results will not be as expected.
    * The default is that StaticSeeds is 0.
    */
-  vtkSetMacro(StaticSeeds, int);
-  vtkGetMacro(StaticSeeds, int);
+  vtkSetMacro(StaticSeeds, vtkTypeBool);
+  vtkGetMacro(StaticSeeds, vtkTypeBool);
+  ///@}
+
+  /**
+   * Types of Variance of Mesh over time
+   */
+  enum MeshOverTimeTypes
+  {
+    DIFFERENT = 0,
+    STATIC = 1,
+    LINEAR_TRANSFORMATION = 2,
+    SAME_TOPOLOGY = 3
+  };
+
+  ///@{
+  /*
+   * Set/Get the type of variance of the mesh over time.
+   *
+   * DIFFERENT = 0,
+   * STATIC = 1,
+   * LINEAR_TRANSFORMATION = 2
+   * SAME_TOPOLOGY = 3
+   */
+  vtkSetClampMacro(MeshOverTime, int, DIFFERENT, LINEAR_TRANSFORMATION);
+  void SetMeshOverTimeToDifferent() { this->SetMeshOverTime(DIFFERENT); }
+  void SetMeshOverTimeToStatic() { this->SetMeshOverTime(STATIC); }
+  void SetMeshOverTimeToLinearTransformation() { this->SetMeshOverTime(LINEAR_TRANSFORMATION); }
+  void SetMeshOverTimeToSameTopology() { this->SetMeshOverTime(SAME_TOPOLOGY); }
+  vtkGetMacro(MeshOverTime, int);
   ///@}
 
   ///@{
@@ -216,9 +247,50 @@ public:
    * as this will invalidate all results.
    * The default is that StaticMesh is 0.
    */
-  vtkSetMacro(StaticMesh, int);
-  vtkGetMacro(StaticMesh, int);
+  VTK_DEPRECATED_IN_9_2_0("Use SetMeshOverTime instead")
+  virtual void SetStaticMesh(vtkTypeBool staticMesh)
+  {
+    this->SetMeshOverTime(staticMesh ? STATIC : DIFFERENT);
+  }
+  VTK_DEPRECATED_IN_9_2_0("Use GetMeshOverTime instead")
+  virtual vtkTypeBool GetStaticMesh() { return this->MeshOverTime == STATIC; }
   ///@}
+
+  enum
+  {
+    INTERPOLATOR_WITH_DATASET_POINT_LOCATOR,
+    INTERPOLATOR_WITH_CELL_LOCATOR
+  };
+
+  /**
+   * Set the type of the velocity field interpolator to determine whether
+   * INTERPOLATOR_WITH_DATASET_POINT_LOCATOR or INTERPOLATOR_WITH_CELL_LOCATOR
+   * is employed for locating cells during streamline integration. The latter
+   * (adopting vtkAbstractCellLocator sub-classes such as vtkCellLocator and
+   * vtkModifiedBSPTree) is more robust than the former (through vtkDataSet /
+   * vtkPointSet::FindCell() coupled with vtkPointLocator). However the former
+   * can be much faster and produce adequate results.
+   *
+   * Default is INTERPOLATOR_WITH_CELL_LOCATOR (to maintain backwards compatibility).
+   */
+  void SetInterpolatorType(int interpolatorType);
+
+  /**
+   * Set the velocity field interpolator type to one that uses a point
+   * locator to perform local spatial searching. Typically a point locator is
+   * faster than searches with a cell locator, but it may not always find the
+   * correct cells enclosing a point. This is particularly true with meshes
+   * that are disjoint at seams, or abut meshes in an incompatible manner.
+   */
+  void SetInterpolatorTypeToDataSetPointLocator();
+
+  /**
+   * Set the velocity field interpolator type to one that uses a cell locator
+   * to perform spatial searching. Using a cell locator should always return
+   * the correct results, but it can be much slower that point locator-based
+   * searches. * By default a cell locator is used.
+   */
+  void SetInterpolatorTypeToCellLocator();
 
   ///@{
   /**
@@ -269,6 +341,15 @@ public:
   void RemoveAllSources();
   ///@}
 
+  ///@{
+  /**
+   * Force the filter to run particle tracer in serial. This affects
+   * the filter only if more than 100 particles is to be generated.
+   */
+  vtkGetMacro(ForceSerialExecution, bool);
+  vtkSetMacro(ForceSerialExecution, bool);
+  vtkBooleanMacro(ForceSerialExecution, bool);
+  ///@}
 protected:
   vtkSmartPointer<vtkPolyData> Output; // managed by child classes
   ///@{
@@ -285,6 +366,9 @@ protected:
   vtkTypeBool IgnorePipelineTime; // whether to use the pipeline time for termination
   vtkTypeBool DisableResetCache;  // whether to enable ResetCache() method
   ///@}
+
+  // Control execution as serial or threaded
+  bool ForceSerialExecution;
 
   vtkParticleTracerBase();
   ~vtkParticleTracerBase() override;
@@ -344,9 +428,7 @@ protected:
    */
   virtual std::vector<vtkDataSet*> GetSeedSources(vtkInformationVector* inputVector, int timeStep);
 
-  //
   // Initialization of input (vector-field) geometry
-  //
   int InitializeInterpolator();
   int UpdateDataCache(vtkDataObject* td);
 
@@ -392,7 +474,9 @@ protected:
    * particle between the two times supplied.
    */
   void IntegrateParticle(vtkParticleTracerBaseNamespace::ParticleListIterator& it,
-    double currenttime, double terminationtime, vtkInitialValueProblemSolver* integrator);
+    double currentTime, double targetTime, vtkInitialValueProblemSolver* integrator,
+    vtkTemporalInterpolatedVelocityField* interpolator, vtkDoubleArray* cellVectors,
+    std::atomic<vtkIdType>& particleCount, std::mutex& eraseMutex, bool sequential);
 
   // if the particle is added to send list, then returns value is 1,
   // if it is kept on this process after a retry return value is 0
@@ -438,7 +522,9 @@ protected:
   double GetCacheDataTime();
 
   virtual void ResetCache();
-  void AddParticle(vtkParticleTracerBaseNamespace::ParticleInformation& info, double* velocity);
+  void SetParticle(vtkParticleTracerBaseNamespace::ParticleInformation& info, double* velocity,
+    vtkTemporalInterpolatedVelocityField* interpolator, vtkIdType particleId,
+    vtkDoubleArray* cellVectors);
 
   ///@{
   /**
@@ -454,13 +540,18 @@ protected:
   vtkGetMacro(ReinjectionCounter, int);
   vtkGetMacro(CurrentTimeValue, double);
 
+  void ResizeArrays(vtkIdType numTuples);
+
   /**
    * Methods to append values to existing point data arrays that may
    * only be desired on specific concrete derived classes.
    */
   virtual void InitializeExtraPointDataArrays(vtkPointData* vtkNotUsed(outputPD)) {}
 
-  virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation&) {}
+  virtual void SetToExtraPointDataArrays(
+    vtkIdType, vtkParticleTracerBaseNamespace::ParticleInformation&)
+  {
+  }
 
   vtkTemporalInterpolatedVelocityField* GetInterpolator();
 
@@ -472,11 +563,6 @@ protected:
 
 private:
   /**
-   * Hide this because we require a new interpolator type
-   */
-  void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
-
-  /**
    * When particles leave the domain, they must be collected
    * and sent to the other processes for possible continuation.
    * These routines manage the collection and sending after each main iteration.
@@ -486,7 +572,7 @@ private:
    * to the integrator that is used.
    */
   bool RetryWithPush(vtkParticleTracerBaseNamespace::ParticleInformation& info, double* point1,
-    double delT, int subSteps);
+    double delT, int subSteps, vtkTemporalInterpolatedVelocityField* interpolator);
 
   bool SetTerminationTimeNoModify(double t);
 
@@ -502,9 +588,9 @@ private:
   int ReinjectionCounter;
 
   // Important for Caching of Cells/Ids/Weights etc
-  int AllFixedGeometry;
-  int StaticMesh;
-  int StaticSeeds;
+  vtkTypeBool AllFixedGeometry;
+  int MeshOverTime;
+  vtkTypeBool StaticSeeds;
 
   std::vector<double> InputTimeValues;
   double StartTime;
@@ -518,7 +604,7 @@ private:
   bool FirstIteration;
 
   // Innjection parameters
-  int ForceReinjectionEveryNSteps;
+  vtkTypeBool ForceReinjectionEveryNSteps;
   vtkTimeStamp ParticleInjectionTime;
   bool HasCache;
 
@@ -532,7 +618,6 @@ private:
 
   // The velocity interpolator
   vtkSmartPointer<vtkTemporalInterpolatedVelocityField> Interpolator;
-  vtkAbstractInterpolatedVelocityField* InterpolatorPrototype;
 
   // Data for time step CurrentTimeStep-1 and CurrentTimeStep
   vtkSmartPointer<vtkMultiBlockDataSet> CachedData[2];
@@ -545,9 +630,15 @@ private:
   using bounds = struct bounds_t;
   std::vector<bounds> CachedBounds[2];
 
-  // temporary variables used by Exeucte(), for convenience only
+  // variables used by Execute() to produce output
+
+  vtkSmartPointer<vtkDataSet> DataReferenceT[2];
 
   vtkSmartPointer<vtkPoints> OutputCoordinates;
+  vtkSmartPointer<vtkIdTypeArray> ParticleCellsConnectivity;
+  vtkSmartPointer<vtkIdTypeArray> ParticleCellsOffsets;
+  vtkSmartPointer<vtkCellArray> ParticleCells;
+
   vtkSmartPointer<vtkFloatArray> ParticleAge;
   vtkSmartPointer<vtkIntArray> ParticleIds;
   vtkSmartPointer<vtkSignedCharArray> ParticleSourceIds;
@@ -557,10 +648,10 @@ private:
   vtkSmartPointer<vtkFloatArray> ParticleVorticity;
   vtkSmartPointer<vtkFloatArray> ParticleRotation;
   vtkSmartPointer<vtkFloatArray> ParticleAngularVel;
-  vtkSmartPointer<vtkDoubleArray> CellVectors;
   vtkSmartPointer<vtkPointData> OutputPointData;
-  vtkSmartPointer<vtkDataSet> DataReferenceT[2];
-  vtkSmartPointer<vtkCellArray> ParticleCells;
+
+  // temp array
+  vtkSmartPointer<vtkDoubleArray> CellVectors;
 
   vtkParticleTracerBase(const vtkParticleTracerBase&) = delete;
   void operator=(const vtkParticleTracerBase&) = delete;

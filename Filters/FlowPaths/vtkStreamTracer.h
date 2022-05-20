@@ -84,10 +84,8 @@
  * vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
  * vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkParticleTracerBase
  * vtkParticleTracer vtkParticlePathFilter vtkStreaklineFilter
- * vtkAbstractInterpolatedVelocityField vtkInterpolatedVelocityField
- * vtkCellLocatorInterpolatedVelocityField vtkSMPTools
- * vtkPStreamTracer
- *
+ * vtkAbstractInterpolatedVelocityField vtkCompositeInterpolatedVelocityField
+ * vtkAMRInterpolatedVelocityField vtkSMPTools vtkPStreamTracer
  */
 
 #ifndef vtkStreamTracer_h
@@ -399,13 +397,15 @@ public:
    * of the same class as this prototype. The performance of streamline
    * generations can be significantly affected by the choice of the
    * interpolator, particularly its use of the locator to use.
+   *
+   * For non AMR datasets, initialize a vtkCompositeInterpolatedVelocityField
+   * and set the FindCellStrategyType.
    */
   void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField* ivf);
 
   /**
    * Set the type of the velocity field interpolator to determine whether
-   * vtkInterpolatedVelocityField (INTERPOLATOR_WITH_DATASET_POINT_LOCATOR) or
-   * vtkCellLocatorInterpolatedVelocityField (INTERPOLATOR_WITH_CELL_LOCATOR)
+   * INTERPOLATOR_WITH_DATASET_POINT_LOCATOR or INTERPOLATOR_WITH_CELL_LOCATOR
    * is employed for locating cells during streamline integration. The latter
    * (adopting vtkAbstractCellLocator sub-classes such as vtkCellLocator and
    * vtkModifiedBSPTree) is more robust than the former (through vtkDataSet /

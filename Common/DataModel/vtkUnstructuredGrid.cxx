@@ -1550,8 +1550,8 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::BuildLinks()
 {
-  // Create appropriate locator. Currently it's either a vtkCellLocator (when
-  // the dataset is editable) or vtkStaticCellLocator (when the dataset is
+  // Create appropriate links. Currently, it's either a vtkCellLinks (when
+  // the dataset is editable) or vtkStaticCellLinks (when the dataset is
   // not editable).
   vtkIdType numPts = this->GetNumberOfPoints();
   if (!this->Editable)

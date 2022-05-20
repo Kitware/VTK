@@ -28,10 +28,11 @@
 #ifndef vtkUnstructuredGrid_h
 #define vtkUnstructuredGrid_h
 
-#include "vtkCellArray.h"             //inline GetCellPoints()
+#include "vtkAbstractCellLinks.h"     // For vtkAbstractCellLinks
+#include "vtkCellArray.h"             // inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDeprecation.h"           // For deprecation
-#include "vtkIdTypeArray.h"           //inline GetCellPoints()
+#include "vtkIdTypeArray.h"           // inline GetCellPoints()
 #include "vtkUnstructuredGridBase.h"
 
 #include "vtkSmartPointer.h" // for smart pointer
@@ -259,6 +260,12 @@ public:
    * See vtkAbstractCellLinks for more information.
    */
   void BuildLinks();
+
+  /**
+   * Set/Get the links that you created possibly without using BuildLinks.
+   */
+  vtkSetSmartPointerMacro(Links, vtkAbstractCellLinks);
+  vtkGetSmartPointerMacro(Links, vtkAbstractCellLinks);
 
   /**
    * Get the cell links. The cell links will be one of nullptr=0;

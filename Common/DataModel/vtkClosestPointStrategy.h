@@ -81,6 +81,11 @@ public:
   vtkIdType FindClosestPointWithinRadius(double x[3], double radius, double closestPoint[3],
     vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside) override;
 
+  /**
+   * Implement the specific strategy.
+   */
+  bool InsideCellBounds(double x[3], vtkIdType cellId) override;
+
   ///@{
   /**
    * Set / get an instance of vtkAbstractPointLocator which is used to
@@ -118,7 +123,6 @@ protected:
   std::vector<double> Weights;
 
   vtkAbstractPointLocator* PointLocator;
-  bool OwnsLocator; // was the locator specified? or taken from associated point set
 
 private:
   vtkClosestPointStrategy(const vtkClosestPointStrategy&) = delete;

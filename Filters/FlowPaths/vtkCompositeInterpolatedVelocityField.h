@@ -19,14 +19,15 @@
  *
  *  vtkCompositeInterpolatedVelocityField acts as a continuous velocity field
  *  by performing cell interpolation on one or more underlying vtkDataSets. That is,
- *  composite datasets are combined to create a continuous velocity field.
+ *  composite datasets are combined to create a continuous velocity field. The default
+ *  strategy is to use the closest point strategy.
  *
  * @warning
  *  vtkCompositeInterpolatedVelocityField is not thread safe. A new instance
  *  should be created by each thread.
  *
  * @sa
- *  vtkInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField
+ *  vtkAbstractInterpolatedVelocityField vtkAMRInterpolatedVelocityField
  *  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
  *  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
  */
@@ -37,34 +38,47 @@
 #include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 
-#include <vector> // STL Header; Required for vector
+#include <array>  // For array
+#include <vector> // For vector
 
 class vtkDataSet;
-class vtkDataArray;
-class vtkPointData;
-class vtkGenericCell;
-class vtkCompositeInterpolatedVelocityFieldDataSetsType;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkCompositeInterpolatedVelocityField
   : public vtkAbstractInterpolatedVelocityField
 {
 public:
+  ///@{
+  /**
+   * Standard methods for type information and printing.
+   */
   vtkTypeMacro(vtkCompositeInterpolatedVelocityField, vtkAbstractInterpolatedVelocityField);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
+
+  /**
+   * Construct a vtkCompositeInterpolatedVelocityField class.
+   */
+  static vtkCompositeInterpolatedVelocityField* New();
 
   /**
    * Add a dataset for implicit velocity function evaluation. If more than
    * one dataset is added, the evaluation point is searched in all until a
    * match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF
-   * dataset FOR THREAD SAFETY REASONS.
+   * dataset FOR THREAD SAFETY REASONS. MaxCellSize can be passed to avoid
+   * recomputing GetMaxCellSize().
    */
-  virtual void AddDataSet(vtkDataSet* dataset);
+  virtual void AddDataSet(vtkDataSet* dataset, size_t maxCellSize = 0);
 
   using Superclass::FunctionValues;
   /**
    * Evaluate the velocity field f at point (x, y, z).
    */
   int FunctionValues(double* x, double* f) override;
+
+  /**
+   * Check if point x is inside the dataset.
+   */
+  int InsideTest(double* x);
 
   /**
    * Project the provided point on current cell, current dataset.
@@ -92,6 +106,14 @@ public:
   vtkGetMacro(LastDataSetIndex, int);
   ///@}
 
+  ///@{
+  /**
+   * Get Cache DataSet hits and misses.
+   */
+  vtkGetMacro(CacheDataSetHit, int);
+  vtkGetMacro(CacheDataSetMiss, int);
+  ///@}
+
   /**
    * Copy essential parameters between instances of this class. See
    * vtkAbstractInterpolatedVelocityField for more information.
@@ -102,6 +124,7 @@ protected:
   vtkCompositeInterpolatedVelocityField();
   ~vtkCompositeInterpolatedVelocityField() override;
 
+  friend class vtkTemporalInterpolatedVelocityField;
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset
    * by either involving vtkPointLocator, via vtkPointSet::FindCell(), in
@@ -114,8 +137,17 @@ protected:
     return this->Superclass::FunctionValues(ds, x, f);
   }
 
+  int CacheDataSetHit;
+  int CacheDataSetMiss;
   int LastDataSetIndex;
-  std::vector<vtkDataSet*> DataSets;
+  struct DataSetBoundsInformation
+  {
+    vtkDataSet* DataSet;
+    std::array<double, 6> Bounds{};
+    DataSetBoundsInformation();
+    DataSetBoundsInformation(vtkDataSet* ds);
+  };
+  std::vector<DataSetBoundsInformation> DataSetsBoundsInfo;
 
 private:
   vtkCompositeInterpolatedVelocityField(const vtkCompositeInterpolatedVelocityField&) = delete;

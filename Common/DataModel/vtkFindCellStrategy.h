@@ -106,6 +106,11 @@ public:
     vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside) = 0;
 
   /**
+   * Quickly test if a point is inside the bounds of a particular cell.
+   */
+  virtual bool InsideCellBounds(double x[3], vtkIdType cellId) = 0;
+
+  /**
    * Copy essential parameters between instances of this class. This
    * generally is used to copy from instance prototype to another, or to copy
    * strategies between thread instances.  Sub-classes can contribute to
@@ -117,6 +122,11 @@ protected:
   vtkFindCellStrategy();
   ~vtkFindCellStrategy() override;
 
+  // You may ask why this OwnsLocator rigamarole. The reason is that the reference counting garbage
+  // collector gets confused when the  (cell/point) locator, point set, and strategy are all mixed
+  // together; resulting in memory leaks etc, So this defines if the locator specified or taken from
+  // another strategy instance or the dataset.
+  bool OwnsLocator;
   vtkPointSet* PointSet; // vtkPointSet which this strategy is associated with
   double Bounds[6];      // bounding box of vtkPointSet
 

@@ -14,13 +14,12 @@
 =========================================================================*/
 /**
  * @class   vtkTemporalInterpolatedVelocityField
- * @brief   A helper class for
- * interpolating between times during particle tracing
+ * @brief   A helper class for interpolating between times during particle tracing
  *
  * vtkTemporalInterpolatedVelocityField is a general purpose
  * helper for the temporal particle tracing code (vtkParticleTracerBase)
  *
- * It maintains two copies of vtkCachingInterpolatedVelocityField internally
+ * It maintains two copies of vtkCompositeInterpolatedVelocityField internally
  * and uses them to obtain velocity values at time T0 and T1.
  *
  * In fact the class does quite a bit more than this because when the geometry
@@ -30,7 +29,7 @@
  * values and computing vorticity etc.
  *
  * @warning
- * vtkTemporalInterpolatedVelocityField is probably not thread safe.
+ * vtkTemporalInterpolatedVelocityField is not thread safe.
  * A new instance should be created by each thread.
  *
  * @warning
@@ -41,30 +40,30 @@
  *
  *
  * @sa
- * vtkCachingInterpolatedVelocityField vtkParticleTracerBase
+ * vtkCompositeInterpolatedVelocityField vtkParticleTracerBase
  * vtkParticleTracer vtkParticlePathFilter vtkStreaklineFilter
  */
 
 #ifndef vtkTemporalInterpolatedVelocityField_h
 #define vtkTemporalInterpolatedVelocityField_h
 
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkFunctionSet.h"
 #include "vtkSmartPointer.h" // because it is good
 
 #include <vector> // Because they are good
 
-#define ID_INSIDE_ALL 00
-#define ID_OUTSIDE_ALL 01
-#define ID_OUTSIDE_T0 02
-#define ID_OUTSIDE_T1 03
-
-class vtkDataSet;
+class vtkAbstractCellLinks;
+class vtkCompositeDataSet;
+class vtkCompositeInterpolatedVelocityField;
 class vtkDataArray;
-class vtkPointData;
-class vtkGenericCell;
+class vtkDataSet;
 class vtkDoubleArray;
-class vtkCachingInterpolatedVelocityField;
+class vtkFindCellStrategy;
+class vtkGenericCell;
+class vtkLocator;
+class vtkPointData;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalInterpolatedVelocityField : public vtkFunctionSet
 {
@@ -77,6 +76,62 @@ public:
    * Caching is on. LastCellId is set to -1.
    */
   static vtkTemporalInterpolatedVelocityField* New();
+
+  /**
+   * States that define where the cell id are
+   */
+  enum IDStates
+  {
+    INSIDE_ALL = 0,
+    OUTSIDE_ALL = 1,
+    OUTSIDE_T0 = 2,
+    OUTSIDE_T1 = 3
+  };
+
+  /**
+   * Types of Variance of Mesh over time
+   */
+  enum MeshOverTimeTypes
+  {
+    DIFFERENT = 0,
+    STATIC = 1,
+    LINEAR_TRANSFORMATION = 2,
+    SAME_TOPOLOGY = 3
+  };
+
+  ///@{
+  /*
+   * Set/Get the type of variance of the mesh over time.
+   *
+   * DIFFERENT = 0,
+   * STATIC = 1,
+   * LINEAR_TRANSFORMATION = 2
+   * SAME_TOPOLOGY = 3
+   */
+  vtkSetClampMacro(MeshOverTime, int, DIFFERENT, LINEAR_TRANSFORMATION);
+  void SetMeshOverTimeToDifferent() { this->SetMeshOverTime(DIFFERENT); }
+  void SetMeshOverTimeToStatic() { this->SetMeshOverTime(STATIC); }
+  void SetMeshOverTimeToLinearTransformation() { this->SetMeshOverTime(LINEAR_TRANSFORMATION); }
+  void SetMeshOverTimeToSameTopology() { this->SetMeshOverTime(SAME_TOPOLOGY); }
+  vtkGetMacro(MeshOverTime, int);
+  ///@}
+
+  /**
+   * The Initialize() method is used to build and cache supporting structures
+   * (such as locators) which are used when operating on the interpolated
+   * velocity field. This method is needed mainly to deal with thread safety
+   * issues; i.e., these supporting structures must be built at the right
+   * time to avoid race conditions.
+   */
+  void Initialize(vtkCompositeDataSet* t0, vtkCompositeDataSet* t1);
+
+  /**
+   * Copy essential parameters between instances of this class. This
+   * generally is used to copy from instance prototype to another, or to copy
+   * interpolators between thread instances.  Sub-classes can contribute to
+   * the parameter copying process via chaining.
+   */
+  virtual void CopyParameters(vtkTemporalInterpolatedVelocityField* from);
 
   using Superclass::FunctionValues;
   ///@{
@@ -95,12 +150,16 @@ public:
    */
   void SelectVectors(const char* fieldName) { this->SetVectorsSelection(fieldName); }
 
+  ///@{
   /**
    * In order to use this class, two sets of data must be supplied,
    * corresponding to times T1 and T2. Data is added via
    * this function.
    */
-  void SetDataSetAtTime(int I, int N, double T, vtkDataSet* dataset, bool staticdataset);
+  void AddDataSetAtTime(int N, double T, vtkDataSet* dataset);
+  VTK_DEPRECATED_IN_9_2_0("Use AddDataSetAtTime and SetMeshOverTime instead")
+  void SetDataSetAtTime(int, int, double, vtkDataSet*, bool) {}
+  ///@}
 
   ///@{
   /**
@@ -150,21 +209,48 @@ public:
     int T, double pcoords[3], double* weights, vtkGenericCell*& cell, vtkDoubleArray* cellVectors);
 
   void ShowCacheResults();
-  bool IsStatic(int datasetIndex);
+  VTK_DEPRECATED_IN_9_2_0("Use GetMeshOverTime() instead.")
+  bool IsStatic(int) { return this->MeshOverTime == STATIC; }
 
   void AdvanceOneTimeStep();
+
+  ///@{
+  /**
+   * Set / get the strategy used to perform the FindCell() operation. This
+   * strategy is used when operating on vtkPointSet subclasses. Note if the
+   * input is a composite dataset then the strategy will be used to clone
+   * one strategy per leaf dataset.
+   */
+  virtual void SetFindCellStrategy(vtkFindCellStrategy*);
+  vtkGetObjectMacro(FindCellStrategy, vtkFindCellStrategy);
+  ///@}
 
 protected:
   vtkTemporalInterpolatedVelocityField();
   ~vtkTemporalInterpolatedVelocityField() override;
 
-  int FunctionValues(vtkDataSet* ds, double* x, double* f);
   virtual void SetVectorsSelection(const char* v);
+
+  int MeshOverTime = MeshOverTimeTypes::DIFFERENT;
+
+  void InitializeWithLocators(vtkCompositeInterpolatedVelocityField* ivf,
+    const std::vector<vtkDataSet*>& datasets, vtkFindCellStrategy* strategy,
+    const std::vector<vtkSmartPointer<vtkLocator>>& locators,
+    const std::vector<vtkSmartPointer<vtkAbstractCellLinks>>& links);
+
+  void CreateLocators(const std::vector<vtkDataSet*>& datasets, vtkFindCellStrategy* strategy,
+    std::vector<vtkSmartPointer<vtkLocator>>& locators);
+  void CreateLinks(const std::vector<vtkDataSet*>& datasets,
+    std::vector<vtkSmartPointer<vtkAbstractCellLinks>>& links);
+  void CreateLinearTransformCellLocators(const std::vector<vtkSmartPointer<vtkLocator>>& locators,
+    std::vector<vtkSmartPointer<vtkLocator>>& linearCellLocators);
 
   double Vals1[3];
   double Vals2[3];
   double Times[2];
   double LastGoodVelocity[3];
+
+  static const double WEIGHT_TO_TOLERANCE;
 
   // The weight (0.0->1.0) of the value of T between the two available
   // time values for the current computation
@@ -174,9 +260,13 @@ protected:
   // A scaling factor used when calculating the CurrentWeight { 1.0/(T2-T1) }
   double ScaleCoeff;
 
-  vtkSmartPointer<vtkCachingInterpolatedVelocityField> IVF[2];
-  // we want to keep track of static datasets so we can optimize caching
-  std::vector<bool> StaticDataSets;
+  vtkSmartPointer<vtkCompositeInterpolatedVelocityField> IVF[2];
+  std::vector<vtkSmartPointer<vtkLocator>> Locators[2];
+  std::vector<vtkSmartPointer<vtkLocator>> InitialCellLocators;
+  std::vector<vtkSmartPointer<vtkAbstractCellLinks>> Links[2];
+  std::vector<size_t> MaxCellSizes[2];
+
+  vtkFindCellStrategy* FindCellStrategy;
 
 private:
   // Hide this since we need multiple time steps and are using a different

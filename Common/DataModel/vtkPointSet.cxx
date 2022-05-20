@@ -174,7 +174,6 @@ void vtkPointSet::BuildPointLocator()
   }
   else if (this->Points->GetMTime() > this->PointLocator->GetMTime())
   {
-    cout << "Building supplied point locator\n";
     this->PointLocator->SetDataSet(this);
   }
 

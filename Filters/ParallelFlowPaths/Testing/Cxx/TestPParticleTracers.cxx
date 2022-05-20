@@ -288,7 +288,7 @@ int TestPParticleTracer(vtkMPIController* c, int staticOption)
   ps->SetPoints(points);
 
   vtkNew<vtkPParticleTracer> filter;
-  filter->SetStaticMesh(staticOption);
+  filter->SetMeshOverTime(staticOption);
   filter->SetStaticSeeds(staticOption);
   filter->SetInputConnection(0, imageSource->GetOutputPort());
   filter->SetInputData(1, ps);
@@ -349,7 +349,7 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
   ps->SetPoints(points);
 
   vtkNew<vtkParticlePathFilter> filter;
-  filter->SetStaticMesh(staticOption);
+  filter->SetMeshOverTime(staticOption);
   filter->SetStaticSeeds(staticOption);
   filter->SetInputConnection(0, imageSource->GetOutputPort());
   filter->SetInputData(1, ps);
@@ -417,7 +417,7 @@ int TestPStreaklineFilter(vtkMPIController* c, int staticOption)
   ps->SetPoints(points);
 
   vtkNew<vtkPStreaklineFilter> filter;
-  filter->SetStaticMesh(staticOption);
+  filter->SetMeshOverTime(staticOption);
   filter->SetStaticSeeds(staticOption);
   filter->SetInputConnection(0, imageSource->GetOutputPort());
   filter->SetInputData(1, ps);
