@@ -22,6 +22,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
+#include <algorithm>
 #include <list>
 
 #include <cmath>
@@ -1057,7 +1058,7 @@ unsigned char* vtkScalarsToColorsUnpackBits(void* inPtr, vtkIdType numValues)
   for (vtkIdType i = 0; i < numValues; i += 8)
   {
     unsigned char b = *bitdata++;
-    int j = 8;
+    int j = std::min(static_cast<vtkIdType>(8), numValues - i);
     do
     {
       *tmpPtr++ = ((b >> (--j)) & 0x01);
