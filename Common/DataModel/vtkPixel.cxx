@@ -425,22 +425,17 @@ void vtkPixel::InterpolationDerivs(const double pcoords[3], double derivs[8])
 int vtkPixel::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
   double x[3], double pcoords[3], int& subId)
 {
-  double pt1[3], pt4[3], n[3];
-  double tol2 = tol * tol;
-  double closestPoint[3];
-  double dist2, weights[4];
-  int i;
-
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
-  //
-  // Get normal for triangle
-  //
+  double pt1[3], pt4[3];
   this->Points->GetPoint(0, pt1);
   this->Points->GetPoint(3, pt4);
 
-  n[0] = n[1] = n[2] = 0.0;
-  for (i = 0; i < 3; i++)
+  //
+  // Get normal for triangle
+  //
+  double n[3] = { 0.0, 0.0, 0.0 };
+  for (int i = 0; i < 3; i++)
   {
     if ((pt4[i] - pt1[i]) <= 0.0)
     {
@@ -448,25 +443,60 @@ int vtkPixel::IntersectWithLine(const double p1[3], const double p2[3], double t
       break;
     }
   }
-  //
-  // Intersect plane of pixel with line
-  //
-  if (!vtkPlane::IntersectWithLine(p1, p2, n, pt1, t, x))
+
+  // Because vtkPlane::IntersectWithLine cannot handle intersection with finite
+  // plane, we need to handle the coplanar case ourself and find the closest x/t possible.
+  // EvaluatePosition will take care of filling values for subId and pcoords.
+  const double v1[3] = { p1[0] - pt1[0], p1[1] - pt1[1], p1[2] - pt1[2] };
+  const double v2[3] = { p2[0] - pt1[0], p2[1] - pt1[1], p2[2] - pt1[2] };
+  bool isCoplanar = (std::abs(vtkMath::Dot(v1, n)) < tol) && (std::abs(vtkMath::Dot(v2, n)) < tol);
+  if (isCoplanar)
+  {
+    // if p1 is inside the pixel then return p1.
+    if (p1[0] <= pt4[0] && p1[0] >= pt1[0] && p1[1] <= pt4[1] && p1[1] >= pt1[1] &&
+      p1[2] <= pt4[2] && p1[2] >= pt1[2])
+    {
+      t = 0;
+      x[0] = p1[0];
+      x[1] = p1[1];
+      x[2] = p1[2];
+    }
+    // Else we check if we intersect any edges. If we dont that means we do not intersect the pixel.
+    else
+    {
+      double mint = VTK_DOUBLE_MAX;
+      double tmpt, tmpx[3], tmppcoords[3];
+      int tmpid;
+      for (int i = 0; i < 4; ++i)
+      {
+        bool res = this->GetEdge(i)->IntersectWithLine(p1, p2, tol, tmpt, tmpx, tmppcoords, tmpid);
+        if (res && (tmpt < mint))
+        {
+          mint = tmpt;
+          t = tmpt;
+          x[0] = tmpx[0];
+          x[1] = tmpx[1];
+          x[2] = tmpx[2];
+        }
+      }
+
+      if (mint == VTK_DOUBLE_MAX)
+      {
+        return 0;
+      }
+    }
+  }
+  else if (!vtkPlane::IntersectWithLine(p1, p2, n, pt1, t, x))
   {
     return 0;
   }
+
   //
   // Use evaluate position
   //
-  if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights))
-  {
-    if (dist2 <= tol2)
-    {
-      return 1;
-    }
-  }
-
-  return 0;
+  double closestPoint[3], dist2, weights[4];
+  return this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) &&
+    (dist2 <= (tol * tol));
 }
 
 //------------------------------------------------------------------------------
