@@ -1594,7 +1594,7 @@ void vtkPolyData::RemoveGhostCells()
   vtkCellData* newCellData = newPD->GetCellData();
 
 #ifdef VTK_USE_64BIT_IDS
-  if (!(numPoints >> 32))
+  if (!(numPoints >> 31))
   {
     newVerts->ConvertTo32BitStorage();
     newLines->ConvertTo32BitStorage();
