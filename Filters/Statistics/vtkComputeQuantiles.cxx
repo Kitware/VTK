@@ -154,7 +154,8 @@ void vtkComputeQuantiles::ComputeTable(
 
   // Fill table for descriptive statistics input.
   vtkNew<vtkTable> inDescStats;
-  vtkNew<vtkOrderStatistics> os;
+  vtkSmartPointer<vtkOrderStatistics> os =
+    vtkSmartPointer<vtkOrderStatistics>::Take(this->CreateOrderStatisticsFilter());
   os->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inDescStats);
   os->SetNumberOfIntervals(this->NumberOfIntervals);
 
@@ -227,4 +228,10 @@ void vtkComputeQuantiles::ComputeTable(
       outputTable->SetValue(k, currLen + j, col ? col->GetVariantValue(k).ToDouble() : 0.0);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+vtkOrderStatistics* vtkComputeQuantiles::CreateOrderStatisticsFilter()
+{
+  return vtkOrderStatistics::New();
 }

@@ -1,6 +1,8 @@
 set(classes
   vtkPAutoCorrelativeStatistics
   vtkPBivariateLinearTableThreshold
+  vtkPComputeQuantiles
+  vtkPComputeQuartiles
   vtkPContingencyStatistics
   vtkPCorrelativeStatistics
   vtkPDescriptiveStatistics
