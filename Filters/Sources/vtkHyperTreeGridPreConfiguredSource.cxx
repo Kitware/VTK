@@ -30,19 +30,21 @@
 vtkStandardNewMacro(vtkHyperTreeGridPreConfiguredSource);
 
 vtkHyperTreeGridPreConfiguredSource::vtkHyperTreeGridPreConfiguredSource()
-  : CustomDim(2)
+  : HTGMode(UNBALANCED_3DEPTH_2BRANCH_2X3)
+  , CustomArchitecture(UNBALANCED)
+  , CustomDim(2)
   , CustomFactor(2)
   , CustomDepth(2)
-  , CustomSubdivisions(2, 2)
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 
   this->AppropriateOutput = true;
 
-  this->CustomExtent.resize(4);
-  this->CustomExtent[0] = this->CustomExtent[2] = 0.0;
-  this->CustomExtent[1] = this->CustomExtent[3] = 1.0;
+  this->CustomExtent[0] = this->CustomExtent[2] = this->CustomExtent[4] = 0.0;
+  this->CustomExtent[1] = this->CustomExtent[3] = this->CustomExtent[5] = 1.0;
+
+  this->CustomSubdivisions[0] = this->CustomSubdivisions[1] = this->CustomSubdivisions[2] = 2;
 }
 
 int vtkHyperTreeGridPreConfiguredSource::FillOutputPortInformation(int, vtkInformation* info)
@@ -59,8 +61,8 @@ int vtkHyperTreeGridPreConfiguredSource::RequestInformation(
     return 0;
   }
   int wholeExtent[6] = { 0, 1, 0, 1, 0, 1 };
-  int dimension = 2;
-  int depth = 3;
+  unsigned int dimension = 2;
+  unsigned int depth = 3;
   switch (this->HTGMode)
   {
     case UNBALANCED_3DEPTH_2BRANCH_2X3:
@@ -86,9 +88,12 @@ int vtkHyperTreeGridPreConfiguredSource::RequestInformation(
       depth = 2;
       break;
     case CUSTOM:
-      std::copy(this->CustomExtent.begin(), this->CustomExtent.end(), wholeExtent);
+      wholeExtent[1] = this->CustomSubdivisions[0] - 1;
+      wholeExtent[3] = this->CustomSubdivisions[1] - 1;
+      wholeExtent[5] = this->CustomSubdivisions[2] - 1;
       dimension = this->CustomDim;
       depth = this->CustomDepth;
+      break;
     default:
       vtkErrorMacro("No suitable HTG mode found.");
       return 0;
@@ -159,8 +164,9 @@ int vtkHyperTreeGridPreConfiguredSource::ProcessTrees(
   return 1;
 }
 
-void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced(vtkHyperTreeGrid* HTG, int dim,
-  int factor, int depth, const std::vector<double>& extent, const std::vector<int>& subdivisions)
+void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced(vtkHyperTreeGrid* HTG,
+  unsigned int dim, unsigned int factor, unsigned int depth, const std::vector<double>& extent,
+  const std::vector<unsigned int>& subdivisions)
 {
   this->Preprocess(HTG, dim, factor, extent, subdivisions);
 
@@ -189,11 +195,7 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced(vtkHyperTreeGrid* H
   }
   vtkIdType treeOffset = cursor->GetTree()->GetNumberOfVertices();
 
-  int nTrees = 1;
-  for (auto sub : subdivisions)
-  {
-    nTrees *= (sub - 1);
-  }
+  vtkIdType nTrees = HTG->GetMaxNumberOfTrees();
   for (int iT = 1; iT < nTrees; iT++)
   {
     cursor = vtk::TakeSmartPointer(HTG->NewNonOrientedCursor(iT, true));
@@ -205,8 +207,9 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced(vtkHyperTreeGrid* H
   }
 }
 
-void vtkHyperTreeGridPreConfiguredSource::GenerateBalanced(vtkHyperTreeGrid* HTG, int dim,
-  int factor, int depth, const std::vector<double>& extent, const std::vector<int>& subdivisions)
+void vtkHyperTreeGridPreConfiguredSource::GenerateBalanced(vtkHyperTreeGrid* HTG, unsigned int dim,
+  unsigned int factor, unsigned int depth, const std::vector<double>& extent,
+  const std::vector<unsigned int>& subdivisions)
 {
   this->Preprocess(HTG, dim, factor, extent, subdivisions);
 
@@ -217,11 +220,7 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateBalanced(vtkHyperTreeGrid* HTG
   HTG->GetCellData()->AddArray(levels);
 
   vtkIdType treeOffset = 0;
-  int nTrees = 1;
-  for (auto sub : subdivisions)
-  {
-    nTrees *= (sub - 1);
-  }
+  vtkIdType nTrees = HTG->GetMaxNumberOfTrees();
   for (int iT = 0; iT < nTrees; iT++)
   {
     auto cursor = vtk::TakeSmartPointer(HTG->NewNonOrientedCursor(iT, true));
@@ -261,8 +260,9 @@ void vtkHyperTreeGridPreConfiguredSource::RecurseBalanced(
   }
 }
 
-void vtkHyperTreeGridPreConfiguredSource::Preprocess(vtkHyperTreeGrid* HTG, int dim, int factor,
-  const std::vector<double>& extent, const std::vector<int>& subdivisions)
+void vtkHyperTreeGridPreConfiguredSource::Preprocess(vtkHyperTreeGrid* HTG, unsigned int dim,
+  unsigned int factor, const std::vector<double>& extent,
+  const std::vector<unsigned int>& subdivisions)
 {
   if (extent.size() < static_cast<unsigned int>(2 * dim))
   {
@@ -275,46 +275,53 @@ void vtkHyperTreeGridPreConfiguredSource::Preprocess(vtkHyperTreeGrid* HTG, int 
     return;
   }
   HTG->Initialize();
-  std::array<int, 3> subdivisions3d = { 1, 1, 1 };
+  std::array<unsigned int, 3> subdivisions3d = { 1, 1, 1 };
   std::copy(subdivisions.begin(), subdivisions.end(), subdivisions3d.begin());
   HTG->SetDimensions(subdivisions3d.data());
   HTG->SetBranchFactor(factor);
-  for (int d = 0; d < dim; d++)
+
+  auto fillArray = [](
+                     vtkDoubleArray* array, vtkIdType numPoints, double minBound, double maxBound) {
+    array->SetNumberOfComponents(1);
+    array->SetNumberOfTuples(numPoints);
+    double step = (maxBound - minBound) / static_cast<double>(numPoints - 1);
+    for (int i = 0; i < numPoints; ++i)
+    {
+      array->SetTypedComponent(i, 0, minBound + step * i);
+    }
+  };
   {
     vtkNew<vtkDoubleArray> vtkCoords;
-    vtkCoords->SetNumberOfComponents(1);
-    vtkCoords->SetNumberOfTuples(subdivisions[d]);
-    double step = (extent[d * 2 + 1] - extent[d * 2]) / (subdivisions[d] - 1.0);
-    for (int i = 0; i < subdivisions[d]; i++)
-    {
-      vtkCoords->InsertValue(i, extent[d * 2] + step * i);
-    }
-    switch (d)
-    {
-      case (0):
-        HTG->SetXCoordinates(vtkCoords);
-        break;
-      case (1):
-        HTG->SetYCoordinates(vtkCoords);
-        break;
-      case (2):
-        HTG->SetZCoordinates(vtkCoords);
-        break;
-    }
+    fillArray(vtkCoords, subdivisions[0], extent[0], extent[1]);
+    HTG->SetXCoordinates(vtkCoords);
+  }
+
+  if (dim > 1)
+  {
+    vtkNew<vtkDoubleArray> vtkCoords;
+    fillArray(vtkCoords, subdivisions[1], extent[2], extent[3]);
+    HTG->SetYCoordinates(vtkCoords);
+  }
+
+  if (dim > 2)
+  {
+    vtkNew<vtkDoubleArray> vtkCoords;
+    fillArray(vtkCoords, subdivisions[2], extent[4], extent[5]);
+    HTG->SetZCoordinates(vtkCoords);
   }
 }
 
 void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced3DepthQuadTree2x3(vtkHyperTreeGrid* HTG)
 {
   std::vector<double> extent = { -1.0, 1.0, -1.0, 1.0 };
-  std::vector<int> subdivisions = { 2, 3 };
+  std::vector<unsigned int> subdivisions = { 2, 3 };
   this->GenerateUnbalanced(HTG, 2, 2, 3, extent, subdivisions);
 }
 
 void vtkHyperTreeGridPreConfiguredSource::GenerateBalanced3DepthQuadTree2x3(vtkHyperTreeGrid* HTG)
 {
   std::vector<double> extent = { -1.0, 1.0, -1.0, 1.0 };
-  std::vector<int> subdivisions = { 2, 3 };
+  std::vector<unsigned int> subdivisions = { 2, 3 };
   this->GenerateBalanced(HTG, 2, 2, 3, extent, subdivisions);
 }
 
@@ -322,7 +329,7 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced2Depth3BranchTree3x3
   vtkHyperTreeGrid* HTG)
 {
   std::vector<double> extent = { -1.0, 1.0, -1.0, 1.0 };
-  std::vector<int> subdivisions = { 3, 3 };
+  std::vector<unsigned int> subdivisions = { 3, 3 };
   this->GenerateUnbalanced(HTG, 2, 3, 2, extent, subdivisions);
 }
 
@@ -330,7 +337,7 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateBalanced4Depth3BranchTree2x2(
   vtkHyperTreeGrid* HTG)
 {
   std::vector<double> extent = { -1.0, 1.0, -1.0, 1.0 };
-  std::vector<int> subdivisions = { 2, 2 };
+  std::vector<unsigned int> subdivisions = { 2, 2 };
   this->GenerateBalanced(HTG, 2, 3, 4, extent, subdivisions);
 }
 
@@ -338,7 +345,7 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced3DepthOctTree3x2x3(
   vtkHyperTreeGrid* HTG)
 {
   std::vector<double> extent = { -1.0, 1.0, -1.0, 1.0, -1.0, 1.0 };
-  std::vector<int> subdivisions = { 3, 2, 3 };
+  std::vector<unsigned int> subdivisions = { 3, 2, 3 };
   this->GenerateUnbalanced(HTG, 3, 2, 3, extent, subdivisions);
 }
 
@@ -346,56 +353,33 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateBalanced2Depth3BranchTree3x3x2
   vtkHyperTreeGrid* HTG)
 {
   std::vector<double> extent = { -1.0, 1.0, -1.0, 1.0, -1.0, 1.0 };
-  std::vector<int> subdivisions = { 3, 3, 2 };
+  std::vector<unsigned int> subdivisions = { 3, 3, 2 };
   this->GenerateBalanced(HTG, 3, 3, 2, extent, subdivisions);
 }
 
 int vtkHyperTreeGridPreConfiguredSource::GenerateCustom(vtkHyperTreeGrid* HTG)
 {
-  if (this->CustomExtent.size() < static_cast<unsigned int>(this->CustomDim * 2))
-  {
-    vtkErrorMacro("Custom extent array is not long enough");
-    return 0;
-  }
-
-  if (this->CustomSubdivisions.size() < static_cast<unsigned int>(this->CustomDim))
-  {
-    vtkErrorMacro("Custom subdivisions array is not long enough");
-    return 0;
-  }
-
   switch (this->CustomArchitecture)
   {
     case BALANCED:
     {
       this->GenerateBalanced(HTG, this->CustomDim, this->CustomFactor, this->CustomDepth,
-        this->CustomExtent, this->CustomSubdivisions);
+        std::vector<double>(this->CustomExtent, this->CustomExtent + this->CustomDim * 2),
+        std::vector<unsigned int>(
+          this->CustomSubdivisions, this->CustomSubdivisions + this->CustomDim));
       break;
     }
     case UNBALANCED:
     {
       this->GenerateUnbalanced(HTG, this->CustomDim, this->CustomFactor, this->CustomDepth,
-        this->CustomExtent, this->CustomSubdivisions);
+        std::vector<double>(this->CustomExtent, this->CustomExtent + this->CustomDim * 2),
+        std::vector<unsigned int>(
+          this->CustomSubdivisions, this->CustomSubdivisions + this->CustomDim));
       break;
     }
     default:
+      vtkErrorMacro("Using an HTGArchitecture not yet supported by the source");
       return 0;
   }
   return 1;
-}
-
-void vtkHyperTreeGridPreConfiguredSource::SetCustomExtent(int extentSize, double* extent)
-{
-  vtkDebugMacro(<< "setting CustomExtent dynamically");
-  this->CustomExtent.resize(extentSize);
-  std::copy(extent, extent + extentSize, this->CustomExtent.begin());
-  this->Modified();
-}
-
-void vtkHyperTreeGridPreConfiguredSource::SetCustomSubdivisions(int subSize, int* subdivisions)
-{
-  vtkDebugMacro(<< "setting CustomSubdivisons dynamically");
-  this->CustomSubdivisions.resize(subSize);
-  std::copy(subdivisions, subdivisions + subSize, this->CustomSubdivisions.begin());
-  this->Modified();
 }

@@ -44,16 +44,18 @@ public:
   /**
    * Helper methods for generating HTGs
    */
-  void GenerateUnbalanced(vtkHyperTreeGrid* HTG, int dim, int factor, int depth,
-    const std::vector<double>& extent, const std::vector<int>& subdivisions);
+  void GenerateUnbalanced(vtkHyperTreeGrid* HTG, unsigned int dim, unsigned int factor,
+    unsigned int depth, const std::vector<double>& extent,
+    const std::vector<unsigned int>& subdivisions);
 
-  void GenerateBalanced(vtkHyperTreeGrid* HTG, int dim, int factor, int depth,
-    const std::vector<double>& extent, const std::vector<int>& subdivisions);
+  void GenerateBalanced(vtkHyperTreeGrid* HTG, unsigned int dim, unsigned int factor,
+    unsigned int depth, const std::vector<double>& extent,
+    const std::vector<unsigned int>& subdivisions);
   ///@}
 
   ///@{
   /**
-   * \enum An enum type for referencing preconfigured HTGs
+   * An enum type for referencing preconfigured HTGs
    */
   enum HTGType
   {
@@ -69,7 +71,7 @@ public:
 
   ///@{
   /**
-   * \enum An enum type for configuring the type of generation for the CUSTOM HTG type
+   * An enum type for configuring the type of generation for the CUSTOM HTG type
    */
   enum HTGArchitecture
   {
@@ -112,14 +114,14 @@ public:
   /**
    * Get/Set for custom extent in coordinate space
    */
-  void SetCustomExtent(int extentSize, double* extent);
-  double* GetCustomExtent() { return CustomExtent.data(); };
+  vtkGetVector6Macro(CustomExtent, double);
+  vtkSetVector6Macro(CustomExtent, double);
 
   /**
    * Get/Set for custom subdivisions of the extent
    */
-  void SetCustomSubdivisions(int subSize, int* subdivisions);
-  int* GetCustomSubdivisions() { return CustomSubdivisions.data(); };
+  vtkGetVector3Macro(CustomSubdivisions, unsigned int);
+  vtkSetVector3Macro(CustomSubdivisions, unsigned int);
   ///@}
 
   ///@{
@@ -162,8 +164,8 @@ protected:
   /**
    * Common preprocessing for setting up the HyperTreeGrid for all types
    */
-  void Preprocess(vtkHyperTreeGrid* HTG, int dim, int factor, const std::vector<double>& extent,
-    const std::vector<int>& subdivisions);
+  void Preprocess(vtkHyperTreeGrid* HTG, unsigned int dim, unsigned int factor,
+    const std::vector<double>& extent, const std::vector<unsigned int>& subdivisions);
 
   /**
    * Recursive helper for the BALANCED architecture
@@ -185,8 +187,8 @@ protected:
   unsigned int CustomDim;
   unsigned int CustomFactor;
   unsigned int CustomDepth;
-  std::vector<double> CustomExtent;
-  std::vector<int> CustomSubdivisions;
+  double CustomExtent[6];
+  unsigned int CustomSubdivisions[3];
   ///@}
 
 }; // vtkHyperTreeGridPreConfiguredSource
