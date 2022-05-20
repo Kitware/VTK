@@ -232,7 +232,8 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
                    " in_inverseVolumeMatrix[0] * in_inverseModelViewMatrix;\n";
   }
 
-  if (inputs[0].Volume->GetProperty()->GetShade() && !defaultLighting && totalNumberOfLights > 0)
+  if (inputs[0].Volume->GetProperty() && inputs[0].Volume->GetProperty()->GetShade() &&
+    !defaultLighting && totalNumberOfLights > 0)
   {
     toShaderStr << "mat4 g_texToView = in_modelViewMatrix * in_volumeMatrix[0] *"
                    "in_textureDatasetMatrix[0];\n";

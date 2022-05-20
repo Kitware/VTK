@@ -55,11 +55,8 @@ static inline void coordsToIdx(double coords[3], double spacing[3], double origi
 {
   for (int s = 0; s < 3; s++)
   {
-    res[s] = (int)ceil((coords[s] - origin[s]) / spacing[s]);
-    if (res[s] < 0)
-    {
-      res[s] = 0;
-    }
+    res[s] = static_cast<int>(ceil((coords[s] - origin[s]) / spacing[s]));
+    res[s] = std::max(res[s], 0);
   }
 }
 
