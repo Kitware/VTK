@@ -21,6 +21,7 @@ if (WIN32) # for now we only support remoting with D3D11
 endif ()
 
 if (OpenXR_USE_REMOTING)
+  vtk_module_find_package(PACKAGE OpenXRRemoting)
   list(APPEND classes vtkOpenXRRemotingRenderWindow)
   list(APPEND nowrap_classes vtkOpenXRManagerD3DGraphics)
 endif ()
@@ -36,6 +37,9 @@ vtk_module_link(VTK::RenderingOpenXR
     OpenXR::OpenXR)
 
 if (OpenXR_USE_REMOTING)
+  vtk_module_link(VTK::RenderingOpenXR 
+    PUBLIC
+      OpenXR::OpenXRRemoting)
   target_compile_definitions(RenderingOpenXR PUBLIC OpenXR_USE_REMOTING)
 endif ()
 
