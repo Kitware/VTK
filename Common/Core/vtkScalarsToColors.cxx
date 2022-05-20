@@ -1049,6 +1049,7 @@ void vtkScalarsToColorsRGBAToRGBA(const T* inPtr, unsigned char* outPtr, vtkIdTy
 }
 
 //------------------------------------------------------------------------------
+// Unpack an array of bits into an array of `unsigned char`.
 unsigned char* vtkScalarsToColorsUnpackBits(void* inPtr, vtkIdType numValues)
 {
   unsigned char* newPtr = new unsigned char[numValues];
