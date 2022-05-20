@@ -263,7 +263,7 @@ void vtkPolygon::ComputeNormal(int numPts, double* pts, double n[3])
 // Determine whether or not a polygon is convex from a points list and a list
 // of point ids that index into the points list. Parameter pts can be nullptr,
 // indicating that the polygon indexing is {0, 1, ..., numPts-1}.
-bool vtkPolygon::IsConvex(vtkPoints* p, int numPts, vtkIdType* pts)
+bool vtkPolygon::IsConvex(vtkPoints* p, int numPts, const vtkIdType* pts)
 {
   int i;
   double v[3][3], *v0 = v[0], *v1 = v[1], *v2 = v[2], *tmp, a[3], aMag, b[3], bMag;

@@ -57,7 +57,7 @@ outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
-# Accelerated cutter (uses a sphere tree)
+# Accelerated cutter (uses a sphere tree, or vtkPolyDataPlaneCutter)
 cut = vtk.vtkPlaneCutter()
 cut.SetInputConnection(sphere.GetOutputPort())
 cut.SetPlane(plane)
@@ -102,25 +102,63 @@ cutter.Update()
 CT = cutter_timer.GetElapsedWallClockTime()
 print("vtkCutter:", CT)
 
-# Time the execution of the filter w/ sphere tree
+# Time the execution of the vtkPlaneCutter filter, including initial build
+# (of the sphere tree, or convexity check)
 sCutter_timer = vtk.vtkExecutionTimer()
 sCutter_timer.SetFilter(cut)
 cut.Update()
 ST = sCutter_timer.GetElapsedWallClockTime()
-print("vtkPlaneCutter (including build sphere tree):", ST)
+print("vtkPlaneCutter (including internal structures build):", ST)
 
-# Time the execution of the filter w/ sphere tree
+# Time the execution of the vtkPlaneCutter filter after modifying plane
 plane.Modified()
 cut.Update()
 ST = sCutter_timer.GetElapsedWallClockTime()
-print("vtkPlaneCutter (reuse sphere tree):", ST)
+print("vtkPlaneCutter (reuse cached internal structures):", ST)
 
-# Time subsequent cuts
+# Time vtkPolyDataPlaneCutter
 nCutter_timer = vtk.vtkExecutionTimer()
 nCutter_timer.SetFilter(ncut)
 ncut.Update()
 SN = nCutter_timer.GetElapsedWallClockTime()
 print("vtkPolyDataPlaneCutter:", SN)
+
+# Compute normals on; attributes off (just to make sure
+# these options are working).
+ncut.ComputeNormalsOn()
+ncut.InterpolateAttributesOff()
+ncut.Update()
+SN = nCutter_timer.GetElapsedWallClockTime()
+print("vtkPolyDataPlaneCutter (with normals, no attributes):", SN)
+
+# Finally, create some data to exercise the convexity check
+cvxPData = vtk.vtkPolyData()
+cvxPts = vtk.vtkPoints()
+cvxPolys = vtk.vtkCellArray()
+cvxPData.SetPoints(cvxPts)
+cvxPData.SetPolys(cvxPolys)
+
+cvxPts.SetNumberOfPoints(5)
+cvxPts.SetPoint(0, 0,0,0)
+cvxPts.SetPoint(1, 1,0,0)
+cvxPts.SetPoint(2, 2,0,0)
+cvxPts.SetPoint(3, 1,1,0)
+cvxPts.SetPoint(4, 0,1,0)
+
+cell = [0,1,3,4]
+cvxPolys.InsertNextCell(4,cell)
+cell = [1,2,3]
+cvxPolys.InsertNextCell(3,cell)
+
+print("Convex: (should be true): ", ncut.CanFullyProcessDataObject(cvxPData))
+assert ncut.CanFullyProcessDataObject(cvxPData) == True
+
+# Warp the quad
+cvxPts.SetPoint(0,0.75,0.75,0)
+cvxPts.Modified()
+
+print("Convex: (should be false): ", ncut.CanFullyProcessDataObject(cvxPData))
+assert ncut.CanFullyProcessDataObject(cvxPData) == False
 
 # Add the actors to the renderer, set the background and size
 ren0.AddActor(outlineActor)

@@ -40,6 +40,7 @@
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataPlaneCutter.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
@@ -1603,6 +1604,8 @@ vtkPlaneCutter::vtkPlaneCutter()
   , GeneratePolygons(true)
   , BuildTree(true)
   , BuildHierarchy(true)
+  , DataChanged(true)
+  , IsPolyDataConvex(false)
 {
   this->InputInfo = vtkInputInfo(nullptr, 0);
 }
@@ -1711,10 +1714,12 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Executing plane cutter");
   auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
   // reset sphere trees if the input has changed
+  this->DataChanged = false;
   if (this->InputInfo.Input != inputDO || this->InputInfo.LastMTime != inputDO->GetMTime())
   {
     this->InputInfo = vtkInputInfo(inputDO, inputDO->GetMTime());
     this->SphereTrees.clear();
+    this->DataChanged = true;
   }
 
   if (auto inputMB = vtkMultiBlockDataSet::SafeDownCast(inputDO))
@@ -1863,7 +1868,9 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     plane->GetTransform()->TransformPoint(planeOrigin, planeOrigin);
   }
 
-  // Delegate the processing to the matching algorithm
+  // Delegate the processing to the matching algorithm. If the input data is vtkImageData,
+  // then delegation to vtkFlyingEdgesPlaneCutter. If the input data is vtkPolyData, and
+  // the input cells are convex polygons, then delegate to vtkPolyDataPlaneCutter.
   if (vtkImageData::SafeDownCast(input))
   {
     vtkDataSet* tmpInput = input;
@@ -1883,7 +1890,6 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
 
     // let flying edges do the work
     vtkNew<vtkFlyingEdgesPlaneCutter> flyingEdges;
-    flyingEdges->SetPlane(this->Plane);
     vtkNew<vtkPlane> xPlane;
     xPlane->SetOrigin(planeOrigin);
     xPlane->SetNormal(planeNormal);
@@ -1912,7 +1918,33 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     return 1;
   }
 
-  // Prepare the output
+  // Check whether we have convex, vtkPolyData cells. Cache the computation
+  // of convexity so it only needs be done once if the input does not change.
+  if (vtkPolyData::SafeDownCast(input))
+  {
+    if (this->DataChanged) // cache convexity check - it can be expensive
+    {
+      this->IsPolyDataConvex = vtkPolyDataPlaneCutter::CanFullyProcessDataObject(input);
+    }
+    if (this->IsPolyDataConvex)
+    {
+      vtkNew<vtkPlane> xPlane; // create temp transformed plane
+      xPlane->SetNormal(planeNormal);
+      xPlane->SetOrigin(planeOrigin);
+      vtkNew<vtkPolyDataPlaneCutter> planeCutter;
+      planeCutter->SetInputData(input);
+      planeCutter->SetPlane(xPlane);
+      planeCutter->SetComputeNormals(this->ComputeNormals);
+      planeCutter->SetInterpolateAttributes(this->InterpolateAttributes);
+      planeCutter->Update();
+      vtkDataSet* outPlane = planeCutter->GetOutput();
+      output->ShallowCopy(outPlane);
+      return 1;
+    }
+  }
+
+  // If here, then we use more general methods to produce the cut.
+  // This means building a sphere tree.
   if (tree)
   {
     tree->SetBuildHierarchy(this->BuildHierarchy);

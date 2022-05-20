@@ -119,7 +119,7 @@ public:
    * Determine whether or not a polygon is convex. If pts=nullptr, point indexing
    * is assumed to be {0, 1, ..., numPts-1}.
    */
-  static bool IsConvex(vtkPoints* p, int numPts, vtkIdType* pts);
+  static bool IsConvex(vtkPoints* p, int numPts, const vtkIdType* pts);
   static bool IsConvex(vtkIdTypeArray* ids, vtkPoints* p);
   static bool IsConvex(vtkPoints* p);
   ///@}
