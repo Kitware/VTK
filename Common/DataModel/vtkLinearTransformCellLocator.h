@@ -21,15 +21,15 @@
  * vtkStaticCellLocator, vtkCellLocator, calculate the transformation matrix from the cell
  * locator adaptor's dataset to the given dataset inside BuildLocator, and then use the cell locator
  * and transformation to perform cell locator operations. The transformation matrix is computed
- * using the https://en.wikipedia.org/wiki/Kabsch_algorithm. UseAllPoints allows to compute the
- * transformation using all the points of the dataset (use that when you are not if it's a linear
- * transformation) or 100 sample points (or less if the dataset is smaller) that are chosen
+ * using the https://en.wikipedia.org/wiki/Kabsch_algorithm. UseAllPoints allows you to compute the
+ * transformation using all the points of the dataset (use that when you are not sure if it's a
+ * linear transformation) or 100 sample points (or less if the dataset is smaller) that are chosen
  * every-nth. IsLinearTransformation validates if the dataset is a linear transformation of the cell
  * locator's dataset based on the used points.
  *
  * @warning The cell locator adaptor MUST be built before using it.
  *
- * vtkCellTreeLocator does NOT utilize ANY vtkLocator/vtkAbstractCellLocator parameter:
+ * vtkLinearTransformCellLocator does NOT utilize ANY vtkLocator/vtkAbstractCellLocator parameter:
  *
  * @sa
  * vtkAbstractCellLocator vtkCellLocator vtkStaticCellLocator vtkCellTreeLocator vtkModifiedBSPTree
