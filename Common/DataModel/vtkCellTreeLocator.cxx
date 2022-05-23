@@ -1346,11 +1346,7 @@ void vtkCellTreeLocator::BuildLocatorInternal()
     return;
   }
   this->FreeSearchStructure();
-  if (this->CacheCellBounds)
-  {
-    this->FreeCellBounds();
-    this->StoreCellBounds();
-  }
+  this->ComputeCellBounds();
   // Create sorted cell fragments tuples of (cellId,binId). Depending
   // on problem size, different types are used.
   if (numCells >= VTK_INT_MAX)

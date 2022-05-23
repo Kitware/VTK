@@ -80,6 +80,16 @@ void vtkAbstractCellLocator::FreeCellBounds()
 }
 
 //------------------------------------------------------------------------------
+void vtkAbstractCellLocator::ComputeCellBounds()
+{
+  if (this->CacheCellBounds)
+  {
+    this->FreeCellBounds();
+    this->StoreCellBounds();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkAbstractCellLocator::UpdateInternalWeights()
 {
   if (this->WeightsTime > this->MTime || !this->DataSet)
