@@ -12,7 +12,7 @@ pioreader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/PIO/simple.pio")
 pioreader.UpdateInformation()
 
 # confirm default arrays are enabled
-default_arrays = ["tev", "pres", "rho", "rade", "cell_energy", "kemax",
+default_arrays = ["tev", "pres", "rade", "cell_energy", "kemax",
         "vel", "eng"]
 selection = pioreader.GetCellDataArraySelection()
 for name in default_arrays:

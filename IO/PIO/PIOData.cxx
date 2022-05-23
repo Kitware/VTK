@@ -178,6 +178,8 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
 {
   double two;
 
+  // Read the first 8 characters of the PIO file and validate that the
+  // PIO file is indeed a pio file as it will start with the chars "pio_file"
   this->Infile->seekg(0, std::ios::beg);
   name = read_pio_char_string(8);
   if (strcmp(name, "pio_file") != 0)
@@ -192,7 +194,7 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
   read_pio_word(PIO_NAME_LENGTH);
   read_pio_word(PIO_HEADER_LENGTH);
   read_pio_word(PIO_INDEX_LENGTH);
-  pio_dandt = read_pio_char_string(16);
+  pio_dandt = read_pio_char_string(16); // date and time
   read_pio_word(pio_num);
   pio_position = sizeof(double) * read_pio_word(pio_position);
   read_pio_word(pio_signature);
@@ -203,6 +205,12 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
     this->Infile = nullptr;
     return true;
   }
+  if (verbose)
+  {
+    std::cerr << "PIO_DATA::read pio_num" << pio_num << std::endl;
+  }
+  // PIO_FIELD is a class defined in PIOAdaptor.h
+  // zero the memory for the PIO_FIELD array
   pio_field = new PIO_FIELD[pio_num];
   memset((void*)pio_field, 0, pio_num * sizeof(PIO_FIELD));
   this->Infile->seekg(pio_position, std::ios::beg);
@@ -222,6 +230,12 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
     num_read -= sizeof(double);
     this->Infile->seekg(num_read, std::ios::cur);
     pio_field[i].read_field_data = read_field(pio_field[i].pio_name, fields_to_read);
+    if (verbose)
+    {
+      std::cerr << "PIO_DATA read loop pio_name:" << pio_field[i].pio_name
+                << " namelen: " << PIO_NAME_LENGTH << " field idx " << pio_field[i].index
+                << " field len " << pio_field[i].length << std::endl;
+    }
   }
 
   matident_len = sizeof(double);
@@ -268,7 +282,7 @@ bool PIO_DATA::set_scalar_field(std::valarray<int>& v, const char* fieldname)
     if (free_data)
       FreePIOData(*Pio_field);
     if (verbose)
-      std::cerr << "Set integer scalar field " << fieldname << "\n";
+      std::cerr << "PIO_DATA::set_scalar_field Set integer scalar field " << fieldname << "\n";
     return true;
   }
   v.resize(0);
@@ -295,7 +309,7 @@ bool PIO_DATA::set_scalar_field(std::valarray<int64_t>& v, const char* fieldname
     if (free_data)
       FreePIOData(*Pio_field);
     if (verbose)
-      std::cerr << "Set int64_t scalar field " << fieldname << "\n";
+      std::cerr << "PIO_DATA::set_scalar_field Set int64_t scalar field " << fieldname << "\n";
     return true;
   }
   v.resize(0);
@@ -322,7 +336,7 @@ bool PIO_DATA::set_scalar_field(std::valarray<uint64_t>& v, const char* fieldnam
     if (free_data)
       FreePIOData(*Pio_field);
     if (verbose)
-      std::cerr << "Set uint64_t scalar field " << fieldname << "\n";
+      std::cerr << "PIO_DATA::set_scalar_field Set uint64_t scalar field " << fieldname << "\n";
     return true;
   }
   v.resize(0);
@@ -331,12 +345,73 @@ bool PIO_DATA::set_scalar_field(std::valarray<uint64_t>& v, const char* fieldnam
 
 bool PIO_DATA::set_scalar_field(std::valarray<double>& v, const char* fieldname)
 {
+  // if xdt ydt zdt rho is not in the varMMap so we have to derive it.
+  // It needs Momentum and Mass element wise divide and returned in v
+  // "cell_momentum" & "mass"
+  // If we are given a derived field that does not exist in the PIO file, we have to derive it
+  // Each derived field (diagnostic) is derived from prognostic fields(fields required for restart)
+  // Each will have a different calculation to create the derived field from the prognostics
+  // We therefore, have to "catch" the attempt to request a diagnostic field, check if it exists,
+  // if so, return that, if not calculate it and return that.
+  if (strcmp(fieldname, "xdt") == 0 && VarMMap.count(fieldname) != 1)
+  {
+    std::valarray<std::valarray<double>> cell_momentum;
+    std::valarray<double> mass;
+    set_vector_field(cell_momentum, "cell_momentum");
+    set_scalar_field(mass, "mass");
+    v = cell_momentum[0] / mass;
+    return true;
+  }
+  if (strcmp(fieldname, "ydt") == 0 && VarMMap.count(fieldname) != 1)
+  {
+    std::valarray<std::valarray<double>> cell_momentum;
+    std::valarray<double> mass;
+    set_vector_field(cell_momentum, "cell_momentum");
+    set_scalar_field(mass, "mass");
+    if (cell_momentum.size() >= 2)
+    {
+      v = cell_momentum[1] / mass;
+      return true;
+    }
+    else
+    {
+      v.resize(0);
+      return false;
+    }
+  }
+  if (strcmp(fieldname, "zdt") == 0 && VarMMap.count(fieldname) != 1)
+  {
+    std::valarray<std::valarray<double>> cell_momentum;
+    std::valarray<double> mass;
+    set_vector_field(cell_momentum, "cell_momentum");
+    set_scalar_field(mass, "mass");
+    if (cell_momentum.size() >= 3)
+    {
+      v = cell_momentum[2] / mass;
+      return true;
+    }
+    else
+    {
+      v.resize(0);
+      return false;
+    }
+  }
+  if (strcmp(fieldname, "rho") == 0 && VarMMap.count(fieldname) != 1)
+  {
+    std::valarray<double> vcell;
+    std::valarray<double> mass;
+    set_scalar_field(vcell, "vcell");
+    set_scalar_field(mass, "mass");
+    v = mass / vcell;
+    return true;
+  }
   if (VarMMap.count(fieldname) != 1)
   {
     v.resize(0);
     return false;
   }
   PIO_FIELD* Pio_field = VarMMap.equal_range(fieldname).first->second;
+
   bool free_data = (Pio_field->data == nullptr);
   const double* cl = GetPIOData(*Pio_field);
   if (cl != nullptr)
@@ -369,7 +444,7 @@ bool PIO_DATA::set_scalar_field(std::valarray<double>& v, const char* fieldname)
     if (FreePf)
       FreePIOData(*Pf);
     if (verbose)
-      std::cerr << "Set double scalar field " << fieldname << "\n";
+      std::cerr << "PIO_DATA::set_scalar_field Set double scalar field " << fieldname << "\n";
     return true;
   }
   v.resize(0);
@@ -378,6 +453,8 @@ bool PIO_DATA::set_scalar_field(std::valarray<double>& v, const char* fieldname)
 
 bool PIO_DATA::set_vector_field(std::valarray<std::valarray<double>>& v, const char* fieldname)
 {
+  // count the number of times the fieldname appears in VarMMap
+  // this is the dimension of the array that needs to be created
   uint32_t numdim = static_cast<uint32_t>(VarMMap.count(fieldname));
   if (numdim <= 0)
   {
@@ -432,7 +509,7 @@ bool PIO_DATA::set_vector_field(std::valarray<std::valarray<double>>& v, const c
   if (FreePf)
     FreePIOData(*Pf);
   if (verbose)
-    std::cerr << "Set double vector field " << fieldname << "\n";
+    std::cerr << "PIO_DATA::set_vector_field Set double vector field " << fieldname << "\n";
   return true;
 } // End PIO_DATA::set_vector_field
 
