@@ -396,7 +396,7 @@ void vtkObjectBase::SetMemkindDirectory(const char* directoryname)
     {
       if (!strncmp(directoryname, "DAX_KMEM", 8))
       {
-#if MEMKIND_VERSION_MINOR > 9
+#if VTK_MEMKIND_HAS_DAX_KMEM
         MemkindHandle = MEMKIND_DAX_KMEM;
 #else
         vtkGenericWarningMacro(<< "Warning, DAX_KMEM requires memkind >= 1.10");
