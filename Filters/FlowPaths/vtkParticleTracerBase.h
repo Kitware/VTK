@@ -229,7 +229,9 @@ public:
    * LINEAR_TRANSFORMATION = 2
    * SAME_TOPOLOGY = 3
    */
-  vtkSetClampMacro(MeshOverTime, int, DIFFERENT, LINEAR_TRANSFORMATION);
+  virtual void SetMeshOverTime(int meshOverTime);
+  virtual int GetMeshOverTimeMinValue() { return DIFFERENT; }
+  virtual int GetMeshOverTimeMaxValue() { return SAME_TOPOLOGY; }
   void SetMeshOverTimeToDifferent() { this->SetMeshOverTime(DIFFERENT); }
   void SetMeshOverTimeToStatic() { this->SetMeshOverTime(STATIC); }
   void SetMeshOverTimeToLinearTransformation() { this->SetMeshOverTime(LINEAR_TRANSFORMATION); }
