@@ -1,6 +1,9 @@
 #ifndef vtkHDF5ScopedHandle_h
 #define vtkHDF5ScopedHandle_h
 
+namespace vtkHDF
+{
+
 /**
  * RAII class for automatically closing H5 handles.
  */
@@ -44,6 +47,8 @@ DefineScopedHandle(S);
 
 // Defines ScopedH5THandle closed with H5Tclose
 DefineScopedHandle(T);
+
+}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkHDF5ScopedHandle.h

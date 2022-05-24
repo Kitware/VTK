@@ -75,14 +75,14 @@ bool GroupExists(hid_t fileId, const char* groupName)
  */
 hsize_t GetDataLength(hid_t fileId, const char* pathName)
 {
-  ScopedH5DHandle arrayId = H5Dopen(fileId, pathName);
+  vtkHDF::ScopedH5DHandle arrayId = H5Dopen(fileId, pathName);
   if (arrayId < 0)
   {
     vtkGenericWarningMacro("No array named " << pathName << " available");
     return 0;
   }
 
-  ScopedH5DHandle dataspace = H5Dget_space(arrayId);
+  vtkHDF::ScopedH5DHandle dataspace = H5Dget_space(arrayId);
   if (H5Sget_simple_extent_ndims(dataspace) != 1)
   {
     vtkGenericWarningMacro("Array " << pathName << " dimensionality is not 1");
@@ -111,15 +111,15 @@ hsize_t GetDataLength(hid_t fileId, const char* pathName)
 template <typename T>
 bool ReadArray(hid_t fileId, const char* pathName, T* data, hsize_t n)
 {
-  ScopedH5DHandle arrayId = H5Dopen(fileId, pathName);
+  vtkHDF::ScopedH5DHandle arrayId = H5Dopen(fileId, pathName);
   if (arrayId < 0)
   {
     return false;
   }
 
-  ScopedH5DHandle rawType = H5Dget_type(arrayId);
-  ScopedH5THandle dataType = H5Tget_native_type(rawType, H5T_DIR_ASCEND);
-  ScopedH5DHandle dataspace = H5Dget_space(arrayId);
+  vtkHDF::ScopedH5DHandle rawType = H5Dget_type(arrayId);
+  vtkHDF::ScopedH5THandle dataType = H5Tget_native_type(rawType, H5T_DIR_ASCEND);
+  vtkHDF::ScopedH5DHandle dataspace = H5Dget_space(arrayId);
   if (H5Sget_simple_extent_ndims(dataspace) != 1)
   {
     vtkGenericWarningMacro("Array " << pathName << " dimensionality is not 1");
@@ -157,18 +157,18 @@ bool ReadArray(hid_t fileId, const char* pathName, T* data, hsize_t n)
  */
 bool ReadStrings(hid_t fileId, const char* path, std::vector<std::string>& strings)
 {
-  ScopedH5DHandle stringsId = H5Dopen(fileId, path);
+  vtkHDF::ScopedH5DHandle stringsId = H5Dopen(fileId, path);
   if (stringsId < 0)
   {
     vtkGenericWarningMacro("Could not read " << path);
     return false;
   }
 
-  ScopedH5THandle filetype = H5Dget_type(stringsId);
+  vtkHDF::ScopedH5THandle filetype = H5Dget_type(stringsId);
   size_t sdim = H5Tget_size(filetype);
   sdim++; /* Make room for null terminator */
 
-  ScopedH5SHandle space = H5Dget_space(stringsId);
+  vtkHDF::ScopedH5SHandle space = H5Dget_space(stringsId);
   hsize_t dim;
   int ndims = H5Sget_simple_extent_dims(space, &dim, nullptr);
   if (ndims != 1)
@@ -184,7 +184,7 @@ bool ReadStrings(hid_t fileId, const char* path, std::vector<std::string>& strin
     rdata[i] = rdata[0] + i * sdim;
   }
 
-  ScopedH5THandle memtype = H5Tcopy(H5T_C_S1);
+  vtkHDF::ScopedH5THandle memtype = H5Tcopy(H5T_C_S1);
   H5Tset_size(memtype, sdim);
   if (H5Dread(stringsId, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, rdata[0]) < 0)
   {
@@ -438,7 +438,7 @@ int vtkCONVERGECFDReader::RequestInformation(
   // Reset internal information
   this->Internal->Reset();
 
-  ScopedH5FHandle fileId = H5Fopen(this->FileName, H5F_ACC_RDONLY, H5P_DEFAULT);
+  vtkHDF::ScopedH5FHandle fileId = H5Fopen(this->FileName, H5F_ACC_RDONLY, H5P_DEFAULT);
   if (fileId < 0)
   {
     vtkErrorMacro("Could not open HDF5 file '" << this->FileName << "'");
@@ -462,7 +462,7 @@ int vtkCONVERGECFDReader::RequestInformation(
     }
 
     // Open the group
-    ScopedH5GHandle streamId = H5Gopen(fileId, streamName.str().c_str());
+    vtkHDF::ScopedH5GHandle streamId = H5Gopen(fileId, streamName.str().c_str());
     if (streamId < 0)
     {
       // Group exists, but could not be opened
@@ -502,7 +502,7 @@ int vtkCONVERGECFDReader::RequestInformation(
     else
     {
       // 3.1 and later format
-      ScopedH5GHandle varNamesHandle = H5Gopen(streamId, "VARIABLE_NAMES");
+      vtkHDF::ScopedH5GHandle varNamesHandle = H5Gopen(streamId, "VARIABLE_NAMES");
       if (varNamesHandle < 0)
       {
         vtkErrorMacro("Cannot open /" << streamId << "/VARIABLE_NAMES");
@@ -666,14 +666,14 @@ int vtkCONVERGECFDReader::RequestData(
   hierarchy->Initialize();
   outputPDC->SetDataAssembly(hierarchy);
 
-  ScopedH5FHandle fileId = H5Fopen(fileName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  vtkHDF::ScopedH5FHandle fileId = H5Fopen(fileName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
   if (fileId < 0)
   {
     vtkErrorMacro("Could not open HDF5 file '" << fileName << "'");
     return 0;
   }
 
-  ScopedH5GHandle boundaryHandle = H5Gopen(fileId, "/BOUNDARIES");
+  vtkHDF::ScopedH5GHandle boundaryHandle = H5Gopen(fileId, "/BOUNDARIES");
   if (boundaryHandle < 0)
   {
     vtkErrorMacro("Cannot open group/BOUNDARIES");
@@ -703,7 +703,7 @@ int vtkCONVERGECFDReader::RequestData(
     }
 
     // Open the group
-    ScopedH5GHandle streamId = H5Gopen(fileId, streamName.str().c_str());
+    vtkHDF::ScopedH5GHandle streamId = H5Gopen(fileId, streamName.str().c_str());
     if (streamId < 0)
     {
       vtkErrorMacro("Could not open stream " << streamName.str());
@@ -1121,7 +1121,7 @@ int vtkCONVERGECFDReader::RequestData(
         // Handle 3.1 or above version
 
         // Get parcel data type names
-        ScopedH5GHandle parcelDataTypesHandle = H5Gopen(streamId, "PARCEL_DATA");
+        vtkHDF::ScopedH5GHandle parcelDataTypesHandle = H5Gopen(streamId, "PARCEL_DATA");
         // We already checked that the group exists, so no need to check again.
 
         hsize_t numParcelDataTypes = 0;
@@ -1152,7 +1152,7 @@ int vtkCONVERGECFDReader::RequestData(
           std::string dataType(groupName);
           std::string dataTypeGroupName("PARCEL_DATA/");
           dataTypeGroupName += dataType;
-          ScopedH5GHandle dataTypeHandle = H5Gopen(streamId, dataTypeGroupName.c_str());
+          vtkHDF::ScopedH5GHandle dataTypeHandle = H5Gopen(streamId, dataTypeGroupName.c_str());
           if (dataTypeHandle < 0)
           {
             vtkErrorMacro("Cannot open group " << dataTypeGroupName);
@@ -1325,7 +1325,7 @@ bool vtkCONVERGECFDReader::ReadOutputTime(const std::string& filePath, double& t
     return false;
   }
 
-  ScopedH5FHandle fileId = H5Fopen(filePath.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  vtkHDF::ScopedH5FHandle fileId = H5Fopen(filePath.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
   if (fileId < 0)
   {
     return false;
@@ -1333,10 +1333,10 @@ bool vtkCONVERGECFDReader::ReadOutputTime(const std::string& filePath, double& t
 
   if (H5Aexists(fileId, "OUTPUT_TIME"))
   {
-    ScopedH5AHandle outputTimeId =
+    vtkHDF::ScopedH5AHandle outputTimeId =
       H5Aopen_by_name(fileId, ".", "OUTPUT_TIME", H5P_DEFAULT, H5P_DEFAULT);
-    ScopedH5THandle rawType = H5Aget_type(outputTimeId);
-    ScopedH5THandle dataType = H5Tget_native_type(rawType, H5T_DIR_ASCEND);
+    vtkHDF::ScopedH5THandle rawType = H5Aget_type(outputTimeId);
+    vtkHDF::ScopedH5THandle dataType = H5Tget_native_type(rawType, H5T_DIR_ASCEND);
 
     double outputTime = 0.0;
     if (H5Aread(outputTimeId, dataType, &outputTime) >= 0)
@@ -1385,7 +1385,7 @@ int vtkCONVERGECFDReader::CanReadFile(const char* fname)
     return 0;
   }
 
-  ScopedH5FHandle fileId = H5Fopen(fname, H5F_ACC_RDONLY, H5P_DEFAULT);
+  vtkHDF::ScopedH5FHandle fileId = H5Fopen(fname, H5F_ACC_RDONLY, H5P_DEFAULT);
   if (fileId < 0)
   {
     return 0;
