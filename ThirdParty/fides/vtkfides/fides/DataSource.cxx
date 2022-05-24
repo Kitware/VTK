@@ -56,6 +56,14 @@ void DataSource::SetDataSourceIO(void* io)
   this->OpenSource(this->ReaderID);
 }
 
+void DataSource::SetDataSourceIO(const std::string& ioAddress)
+{
+  long long hexAddress = std::stoll(ioAddress, nullptr, 16);
+  this->AdiosIO = *(reinterpret_cast<adios2::IO*>(hexAddress));
+  this->SetupEngine();
+  this->OpenSource(this->ReaderID);
+}
+
 void DataSource::SetupEngine()
 {
   auto it = this->SourceParams.find("engine_type");
@@ -84,15 +92,6 @@ void DataSource::SetupEngine()
                                "a valid pointer to an adios2::IO object.");
     }
     this->AdiosIO.SetEngine("Inline");
-
-    it = this->SourceParams.find("writer_id");
-    if (it == this->SourceParams.end())
-    {
-      throw std::runtime_error("Inline engine requires a valid writer_id.");
-    }
-    this->AdiosIO.SetParameter("writerID", it->second);
-
-    this->AdiosIO.SetParameter("readerID", this->ReaderID);
   }
   else
   {
@@ -526,7 +525,33 @@ std::vector<vtkm::cont::UnknownArrayHandle> GetScalarVariableInternal(
   arrayHandle.Allocate(1);
   VariableType* buffer = arrayHandle.GetWritePointer();
   valueAH = arrayHandle;
-  reader.Get(varADIOS2, buffer);
+  // because we're getting a single value, we can use sync mode here
+  // I think for most engines, it doesn't actually matter to specify this for
+  // a single value (it will still be performed in sync),
+  // but for Inline engine, you'll get an error if you don't specify sync mode
+  reader.Get(varADIOS2, buffer, adios2::Mode::Sync);
+  retVal.push_back(valueAH);
+
+  return retVal;
+}
+
+template <typename VariableType>
+std::vector<vtkm::cont::UnknownArrayHandle> GetTimeArrayInternal(
+  adios2::IO& adiosIO,
+  adios2::Engine& reader,
+  const std::string& varName,
+  const fides::metadata::MetaData& fidesNotUsed(selections))
+{
+  auto varADIOS2 = adiosIO.InquireVariable<VariableType>(varName);
+  auto numSteps = varADIOS2.Steps();
+  varADIOS2.SetStepSelection({ varADIOS2.StepsStart(), numSteps });
+  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
+  vtkm::cont::UnknownArrayHandle valueAH;
+  vtkm::cont::ArrayHandleBasic<VariableType> arrayHandle;
+  arrayHandle.Allocate(numSteps);
+  VariableType* buffer = arrayHandle.GetWritePointer();
+  valueAH = arrayHandle;
+  reader.Get(varADIOS2, buffer, adios2::Mode::Sync);
   retVal.push_back(valueAH);
 
   return retVal;
@@ -700,6 +725,40 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetScalarVariable(
 
   fidesTemplateMacro(
     GetScalarVariableInternal<fides_TT>(this->AdiosIO, this->Reader, varName, selections));
+
+  throw std::runtime_error("Unsupported variable type " + type);
+}
+
+std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetTimeArray(
+  const std::string& varName,
+  const fides::metadata::MetaData& selections)
+{
+  if (!this->Reader)
+  {
+    throw std::runtime_error("Cannot read variable without setting the adios engine.");
+  }
+
+  if (this->AdiosEngineType != EngineType::BPFile)
+  {
+    throw std::runtime_error("A full time array can only be read when using BP files");
+  }
+
+  auto itr = this->AvailVars.find(varName);
+  if (itr == this->AvailVars.end())
+  {
+    // previously we were throwing an error if the variable could not be found,
+    // but it's possible that a variable may just not be available on a certain timestep.
+    return std::vector<vtkm::cont::UnknownArrayHandle>();
+  }
+
+  const std::string& type = itr->second["Type"];
+  if (type.empty())
+  {
+    throw std::runtime_error("Variable type unavailable.");
+  }
+
+  fidesTemplateMacro(
+    GetTimeArrayInternal<fides_TT>(this->AdiosIO, this->Reader, varName, selections));
 
   throw std::runtime_error("Unsupported variable type " + type);
 }
