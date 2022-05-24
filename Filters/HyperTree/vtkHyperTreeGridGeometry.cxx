@@ -936,8 +936,8 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
   }
 
   // Storage for face vertex IDs
-  vtkIdType ids[4];
-  unsigned int nPts = 4;
+  std::vector<vtkIdType> ids;
+  ids.reserve(6);
 
   // Keep track of face axes
   unsigned int axis1 = orientation ? 0 : 1;
@@ -987,7 +987,6 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
       // Storage for points
       double coordsB[3];
       double coordsC[3];
-      nPts = 0;
 
       // Distinguish between relevant types
       if (type == 1)
@@ -1009,8 +1008,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
           // Add point when necessary
           if (create && A <= 0.)
           {
-            ids[nPts] = this->Points->InsertNextPoint(coordsA);
-            ++nPts;
+            ids.emplace_back(this->Points->InsertNextPoint(coordsA));
           }
           if (A * B < 0)
           {
@@ -1027,8 +1025,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             } // if ( this->EdgesB[i] == -1 )
 
             // Update points
-            ids[nPts] = this->EdgesB[i];
-            ++nPts;
+            ids.emplace_back(this->EdgesB[i]);
             if (indPair)
             {
               pair[1] = i;
@@ -1073,8 +1070,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
           // Add point when necessary
           if (create && A1 >= 0. && A2 <= 0.)
           {
-            ids[nPts] = this->Points->InsertNextPoint(coordsA);
-            ++nPts;
+            ids.emplace_back(this->Points->InsertNextPoint(coordsA));
           }
           if (A1 < 0. && A1 * B1 < 0.)
           {
@@ -1091,8 +1087,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             } // if ( this->EdgesB[i] == -1 )
 
             // Update points
-            ids[nPts] = this->EdgesA[i];
-            ++nPts;
+            ids.emplace_back(this->EdgesA[i]);
             if (indPairA)
             {
               pairA[1] = i;
@@ -1118,8 +1113,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             } // if ( this->EdgesA[i] == -1 )
 
             // Update points
-            ids[nPts] = this->EdgesB[i];
-            ++nPts;
+            ids.emplace_back(this->EdgesB[i]);
             if (indPairB)
             {
               pairB[1] = i;
@@ -1145,8 +1139,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             } // if ( this->EdgesA[i] == -1 )
 
             // Update points
-            ids[nPts] = this->EdgesA[i];
-            ++nPts;
+            ids.emplace_back(this->EdgesA[i]);
             if (indPairA)
             {
               pairA[1] = i;
@@ -1188,8 +1181,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
           // Add point when necessary
           if (create && A >= 0.)
           {
-            ids[nPts] = this->Points->InsertNextPoint(coordsA);
-            ++nPts;
+            ids.emplace_back(this->Points->InsertNextPoint(coordsA));
           }
           if (A * B < 0.)
           {
@@ -1206,8 +1198,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
             } // if ( this->EdgesB[i] == -1 )
 
             // Update points
-            ids[nPts] = this->EdgesA[i];
-            ++nPts;
+            ids.emplace_back(this->EdgesA[i]);
             if (indPair)
             {
               pair[1] = i;
@@ -1229,6 +1220,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
     }   // if ( type < 2 )
     else
     {
+      ids.resize(4);
       // Create quadrangle vertices depending on orientation
       ids[0] = this->Points->InsertNextPoint(pt);
       pt[axis1] += size[axis1];
@@ -1241,6 +1233,7 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
   }   // if ( this->HasInterface )
   else
   {
+    ids.resize(4);
     // Create quadrangle vertices depending on orientation
     ids[0] = this->Points->InsertNextPoint(pt);
     pt[axis1] += size[axis1];
@@ -1252,10 +1245,10 @@ void vtkHyperTreeGridGeometry::AddFace2(vtkIdType inId, vtkIdType useId, const d
   } // else
 
   // Insert next face if needed
-  if (create)
+  if (create && !ids.empty())
   {
     // Create cell and corresponding ID
-    vtkIdType outId = this->Cells->InsertNextCell(nPts, ids);
+    vtkIdType outId = this->Cells->InsertNextCell(ids.size(), ids.data());
 
     // Copy face data from that of the cell from which it comes
     this->OutData->CopyData(this->InData, useId, outId);
