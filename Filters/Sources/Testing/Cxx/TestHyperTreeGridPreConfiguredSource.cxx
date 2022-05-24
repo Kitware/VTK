@@ -17,9 +17,15 @@
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridPreConfiguredSource.h"
 
+#include "vtkActor.h"
+#include "vtkLookupTable.h"
 #include "vtkNew.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-// Mostly smoke test
 int TestHyperTreeGridPreConfiguredSource(int, char*[])
 {
   vtkNew<vtkHyperTreeGridPreConfiguredSource> myGenerator;
@@ -55,12 +61,44 @@ int TestHyperTreeGridPreConfiguredSource(int, char*[])
 
   geom->Update();
 
-  myGenerator->SetCustomArchitecture(vtkHyperTreeGridPreConfiguredSource::BALANCED);
-  myGenerator->SetCustomDim(3);
-  myGenerator->SetCustomFactor(2);
+  myGenerator->SetCustomArchitecture(vtkHyperTreeGridPreConfiguredSource::UNBALANCED);
+  myGenerator->SetCustomDim(2);
+  myGenerator->SetCustomFactor(3);
   myGenerator->SetCustomDepth(4);
 
   geom->Update();
+
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputConnection(geom->GetOutputPort());
+
+  vtkNew<vtkLookupTable> lut;
+  lut->SetNumberOfTableValues(5);
+  lut->SetTableRange(0, 4);
+
+  mapper->ScalarVisibilityOn();
+  mapper->SetLookupTable(lut);
+  mapper->UseLookupTableScalarRangeOn();
+  mapper->SetScalarModeToUseCellFieldData();
+  mapper->ColorByArrayComponent("Depth", 0);
+  mapper->InterpolateScalarsBeforeMappingOn();
+
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
+  actor->GetProperty()->SetRepresentationToSurface();
+  actor->GetProperty()->EdgeVisibilityOn();
+
+  vtkNew<vtkRenderer> renderer;
+  renderer->AddActor(actor);
+
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->AddRenderer(renderer.Get());
+
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin.Get());
+
+  renWin->Render();
+
+  iren->Start();
 
   return EXIT_SUCCESS;
 }
