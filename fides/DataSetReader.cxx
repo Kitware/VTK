@@ -135,6 +135,17 @@ public:
     ds.SetDataSourceIO(io);
   }
 
+  void SetDataSourceIO(const std::string source, const std::string& io)
+  {
+    auto it = this->DataSources.find(source);
+    if (it == this->DataSources.end())
+    {
+      throw std::runtime_error("Source name was not found in DataSources.");
+    }
+    auto& ds = *(it->second);
+    ds.SetDataSourceIO(io);
+  }
+
   template <typename ValueType>
   void ProcessDataSources(const ValueType& dataSources)
   {
@@ -254,6 +265,10 @@ public:
       throw std::runtime_error("step_information needs a data_source.");
     }
     this->StepSource = sInf["data_source"].GetString();
+    if (sInf.HasMember("variable"))
+    {
+      this->TimeVariable = sInf["variable"].GetString();
+    }
   }
 
   template <typename ValueType>
@@ -435,6 +450,15 @@ public:
     }
   }
 
+  struct GetTimeValueFunctor
+  {
+    template <typename T, typename S>
+    VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>& array, double& time) const
+    {
+      time = static_cast<double>(array.ReadPortal().Get(0));
+    }
+  };
+
   fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths)
   {
     if (!this->CoordinateSystem)
@@ -466,6 +490,62 @@ public:
       fides::metadata::Size nStepsM(nSteps);
       metaData.Set(fides::keys::NUMBER_OF_STEPS(), nStepsM);
     }
+
+    auto it = this->DataSources.find(this->StepSource);
+    if (it != this->DataSources.end())
+    {
+      auto ds = it->second;
+      auto itr = paths.find(this->StepSource);
+      if (itr == paths.end())
+      {
+        throw std::runtime_error("Could not find data_source with name " + this->StepSource +
+                                 " among the input paths.");
+      }
+      std::string path = itr->second + ds->FileName;
+      ds->OpenSource(path);
+
+      // StreamingMode only gets set on the first PrepareNextStep, but
+      // for streaming PrepareNextStep has to be called before ReadMetaData anyway
+      if (this->StreamingMode)
+      {
+        auto timeVec = ds->GetScalarVariable(this->TimeVariable, metadata::MetaData());
+        if (!timeVec.empty())
+        {
+          auto& timeAH = timeVec[0];
+          if (timeAH.GetNumberOfValues() == 1)
+          {
+            double timeVal;
+            timeAH.CastAndCallForTypes<vtkm::TypeListScalarAll,
+                                       vtkm::List<vtkm::cont::StorageTagBasic>>(
+              GetTimeValueFunctor(), timeVal);
+            fides::metadata::Time time(timeVal);
+            metaData.Set(fides::keys::TIME_VALUE(), time);
+          }
+        }
+      }
+      else
+      {
+        auto timeVec = ds->GetTimeArray(this->TimeVariable, metadata::MetaData());
+        if (!timeVec.empty())
+        {
+          auto& timeAH = timeVec[0];
+          if (!timeAH.CanConvert<vtkm::cont::ArrayHandle<vtkm::Float64>>())
+          {
+            std::runtime_error("can't convert time array to double");
+          }
+          vtkm::cont::ArrayHandle<vtkm::Float64> timeCasted =
+            timeAH.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float64>>();
+
+          auto timePortal = timeCasted.ReadPortal();
+          fides::metadata::Vector<double> time;
+          time.Data.resize(timePortal.GetNumberOfValues());
+          vtkm::cont::ArrayPortalToIterators<decltype(timePortal)> iterators(timePortal);
+          std::copy(iterators.GetBegin(), iterators.GetEnd(), time.Data.begin());
+          metaData.Set(fides::keys::TIME_ARRAY(), time);
+        }
+      }
+    }
+
     return metaData;
   }
 
@@ -541,6 +621,7 @@ public:
   using FieldsKeyType = std::pair<std::string, vtkm::cont::Field::Association>;
   std::map<FieldsKeyType, std::shared_ptr<fides::datamodel::Field>> Fields;
   std::string StepSource;
+  std::string TimeVariable;
   bool StreamingMode = false;
 };
 
@@ -741,6 +822,11 @@ void DataSetReader::SetDataSourceParameters(const std::string source,
 }
 
 void DataSetReader::SetDataSourceIO(const std::string source, void* io)
+{
+  this->Impl->SetDataSourceIO(source, io);
+}
+
+void DataSetReader::SetDataSourceIO(const std::string source, const std::string& io)
 {
   this->Impl->SetDataSourceIO(source, io);
 }

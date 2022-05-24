@@ -31,8 +31,13 @@ size_t CoordinateSystem::GetNumberOfBlocks(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
-  // blocks can change per timestep
-  this->NumberOfBlocks = this->Array->GetNumberOfBlocks(paths, sources);
+  // blocks can change per timestep, but it's also possible that the
+  // mesh is written once, so we have to handle both situations
+  auto nBlocks = this->Array->GetNumberOfBlocks(paths, sources);
+  if (nBlocks > 0)
+  {
+    this->NumberOfBlocks = nBlocks;
+  }
   return this->NumberOfBlocks;
 }
 

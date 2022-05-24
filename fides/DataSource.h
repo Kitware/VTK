@@ -95,6 +95,12 @@ struct DataSource
   /// using the inline engine and must be called before attempting to read.
   void SetDataSourceIO(void* io);
 
+  /// Set the IO object for this data source. The \c ioAddress argument is
+  /// the pointer address to an ADIOS::IO object stored in a string.
+  /// This call is only required when
+  /// using the inline engine and must be called before attempting to read.
+  void SetDataSourceIO(const std::string& ioAddress);
+
   /// Prepare data source for reading. This needs to be called before
   /// any meta-data or heavy-data operations can be performed.
   /// In most cases, useMPI should be true (the default value), but in some
@@ -128,6 +134,10 @@ struct DataSource
   /// Reads a scalar variable and can be used when when an
   /// actual value is needed immediately.
   std::vector<vtkm::cont::UnknownArrayHandle> GetScalarVariable(
+    const std::string& varName,
+    const fides::metadata::MetaData& selections);
+
+  std::vector<vtkm::cont::UnknownArrayHandle> GetTimeArray(
     const std::string& varName,
     const fides::metadata::MetaData& selections);
 

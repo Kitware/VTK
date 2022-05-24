@@ -89,6 +89,19 @@ protected:
   virtual Index* CloneImpl() const override { return new Index(*this); }
 };
 
+/// \brief Meta-data item to store a double time value.
+struct FIDES_EXPORT Time : public MetaDataItem
+{
+  Time(double time)
+    : Data(time)
+  {
+  }
+  double Data;
+
+protected:
+  virtual Time* CloneImpl() const override { return new Time(*this); }
+};
+
 /// \brief Simple struct representing field information.
 struct FIDES_EXPORT FieldInformation
 {
