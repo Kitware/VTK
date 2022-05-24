@@ -50,9 +50,9 @@
 #include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkFunctionSet.h"
-#include "vtkSmartPointer.h" // because it is good
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <vector> // Because they are good
+#include <vector> // For internal structures
 
 class vtkAbstractCellLinks;
 class vtkCompositeDataSet;

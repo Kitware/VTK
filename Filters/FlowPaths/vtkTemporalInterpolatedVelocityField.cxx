@@ -123,25 +123,34 @@ void vtkTemporalInterpolatedVelocityField::CreateLocators(const std::vector<vtkD
   locators.reserve(datasets.size());
   for (const auto& dataset : datasets)
   {
-    if (vtkPointSet::SafeDownCast(dataset))
+    if (auto pointSet = vtkPointSet::SafeDownCast(dataset))
     {
       if (vtkCellLocatorStrategy::SafeDownCast(strategy))
       {
-        auto cellLocator = vtkSmartPointer<vtkStaticCellLocator>::New();
-        cellLocator->SetDataSet(dataset);
-        cellLocator->CacheCellBoundsOn();
+        if (!pointSet->GetCellLocator())
+        {
+          pointSet->BuildCellLocator();
+        }
+        auto cellLocator = pointSet->GetCellLocator();
+        // if cache cell bounds were not on, enable them and compute cell bounds
+        if (cellLocator->GetCacheCellBounds() == 0)
+        {
+          cellLocator->CacheCellBoundsOn();
+          cellLocator->ComputeCellBounds();
+        }
         cellLocator->SetUseExistingSearchStructure(
           this->MeshOverTime != MeshOverTimeTypes::DIFFERENT);
-        cellLocator->BuildLocator();
         locators.emplace_back(cellLocator);
       }
       else // vtkClosestPointStrategy
       {
-        auto pointLocator = vtkSmartPointer<vtkStaticPointLocator>::New();
-        pointLocator->SetDataSet(dataset);
+        if (!pointSet->GetPointLocator())
+        {
+          pointSet->BuildPointLocator();
+        }
+        auto pointLocator = pointSet->GetPointLocator();
         pointLocator->SetUseExistingSearchStructure(
           this->MeshOverTime != MeshOverTimeTypes::DIFFERENT);
-        pointLocator->BuildLocator();
         locators.emplace_back(pointLocator);
       }
     }
@@ -164,12 +173,19 @@ void vtkTemporalInterpolatedVelocityField::CreateLinks(const std::vector<vtkData
     {
       if (auto ugrid = vtkUnstructuredGrid::SafeDownCast(dataset))
       {
-        ugrid->BuildLinks();
+        if (ugrid->GetLinks() == nullptr)
+        {
+          ugrid->BuildLinks();
+        }
         datasetLinks.emplace_back(ugrid->GetLinks());
       }
       else if (auto polyData = vtkPolyData::SafeDownCast(dataset))
       {
-        polyData->BuildLinks();
+        if (polyData->GetLinks() == nullptr)
+        {
+          // Build links calls BuildCells internally
+          polyData->BuildLinks();
+        }
         datasetLinks.emplace_back(polyData->GetLinks());
       }
     }
@@ -206,7 +222,7 @@ void vtkTemporalInterpolatedVelocityField::CreateLinearTransformCellLocators(
 void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
   vtkCompositeInterpolatedVelocityField* ivf, const std::vector<vtkDataSet*>& datasets,
   vtkFindCellStrategy* strategy, const std::vector<vtkSmartPointer<vtkLocator>>& locators,
-  const std::vector<vtkSmartPointer<vtkAbstractCellLinks>>& datasetLinks)
+  const std::vector<vtkSmartPointer<vtkAbstractCellLinks>>& links)
 {
   // Clear the datasets info, subclasses may want to put stuff into it.
   ivf->DataSetsInfo.clear();
@@ -269,17 +285,18 @@ void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
     datasetInfo.DataSet->ComputeBounds();
     if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
     {
+      // build cells is needed for both vtkClosestPointStrategy and vtkCellLocatorStrategy
       polyData->BuildCells();
     }
     if (vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
     {
       if (auto ugrid = vtkUnstructuredGrid::SafeDownCast(datasetInfo.DataSet))
       {
-        ugrid->SetLinks(datasetLinks[i]);
+        ugrid->SetLinks(links[i]);
       }
       else if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
       {
-        polyData->SetLinks(vtkCellLinks::SafeDownCast(datasetLinks[i]));
+        polyData->SetLinks(vtkCellLinks::SafeDownCast(links[i]));
       }
     }
   }

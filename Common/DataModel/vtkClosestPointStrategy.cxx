@@ -104,8 +104,11 @@ int vtkClosestPointStrategy::Initialize(vtkPointSet* ps)
   }
   else
   {
-    this->PointLocator = psPL;
-    this->OwnsLocator = false;
+    if (psPL != this->PointLocator)
+    {
+      this->PointLocator = psPL;
+      this->OwnsLocator = false;
+    }
   }
   this->VisitedCells.resize(static_cast<size_t>(ps->GetNumberOfCells()));
   this->Weights.resize(8);
