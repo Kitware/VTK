@@ -104,6 +104,30 @@ public:
 
   ///@{
   /**
+   * ComputeNormalFromOpacity exposed
+   * \sa vtkVolumeMapper::SetComputeNormalFromOpacity
+   */
+  void SetComputeNormalFromOpacity(bool val) override;
+  ///@}
+
+  ///@{
+  /**
+   * VolumetricShadow exposed
+   * \sa vtkVolumeMapper::SetVolumetricShadow
+   */
+  void SetVolumetricShadow(bool val) override;
+  ///@}
+
+  ///@{
+  /**
+   * @copydoc vtkSmartVolumeMapper::SetGlobalIlluminationReach(float)
+   */
+  void SetGlobalIlluminationReach(float val);
+  vtkGetMacro(GlobalIlluminationReach, float);
+  ///@}
+
+  ///@{
+  /**
    * Cropping API from vtkVolumeMapper
    * \sa vtkVolumeMapper::SetCropping
    */
@@ -207,6 +231,11 @@ private:
   int VectorMode;
   int VectorComponent;
   int RequestedRenderMode;
+
+  /**
+   * Secondary rays ambient/global adjustement coefficient
+   */
+  float GlobalIlluminationReach = 0.0;
 
   char* Transfer2DYAxisArray;
 };

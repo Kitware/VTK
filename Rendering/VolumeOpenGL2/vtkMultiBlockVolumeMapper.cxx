@@ -335,6 +335,9 @@ vtkSmartVolumeMapper* vtkMultiBlockVolumeMapper::CreateMapper()
   mapper->SetCroppingRegionFlags(this->GetCroppingRegionFlags());
   mapper->SetCroppingRegionPlanes(this->GetCroppingRegionPlanes());
   mapper->SetTransfer2DYAxisArray(this->Transfer2DYAxisArray);
+  mapper->SetVolumetricShadow(this->VolumetricShadow);
+  mapper->SetGlobalIlluminationReach(this->GlobalIlluminationReach);
+  mapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
 
   vtkOpenGLGPUVolumeRayCastMapper* glMapper =
     vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper->GetGPUMapper());
@@ -342,6 +345,9 @@ vtkSmartVolumeMapper* vtkMultiBlockVolumeMapper::CreateMapper()
   if (glMapper != nullptr)
   {
     glMapper->UseJitteringOn();
+    glMapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
+    glMapper->SetVolumetricShadow(this->VolumetricShadow);
+    glMapper->SetGlobalIlluminationReach(this->GlobalIlluminationReach);
   }
   return mapper;
 }
@@ -539,6 +545,48 @@ void vtkMultiBlockVolumeMapper::SetRequestedRenderMode(int mode)
       mapper->SetRequestedRenderMode(mode);
     }
     this->RequestedRenderMode = mode;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetComputeNormalFromOpacity(bool val)
+{
+  if (this->ComputeNormalFromOpacity != val)
+  {
+    for (auto& mapper : this->Mappers)
+    {
+      mapper->SetComputeNormalFromOpacity(val);
+    }
+    this->ComputeNormalFromOpacity = val;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetVolumetricShadow(bool val)
+{
+  if (this->VolumetricShadow != val)
+  {
+    for (auto& mapper : this->Mappers)
+    {
+      mapper->SetVolumetricShadow(val);
+    }
+    this->VolumetricShadow = val;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetGlobalIlluminationReach(float val)
+{
+  if (this->GlobalIlluminationReach != val)
+  {
+    for (auto& mapper : this->Mappers)
+    {
+      mapper->SetGlobalIlluminationReach(val);
+    }
+    this->GlobalIlluminationReach = val;
     this->Modified();
   }
 }

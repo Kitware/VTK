@@ -295,17 +295,13 @@ public:
 
   ///@{
   /**
-   * If enabled, the volume(s) whose shading is enabled will use the gradient
-   * of opacity instead of the scalar gradient to estimate the surface's normal
-   * when applying the shading model. The opacity considered for the gradient
-   * is then the scalars converted to opacity by the transfer function(s).
-   * For now it is only supported in vtkGPUVolumeRayCastMapper.
-   * Note that enabling it might affect performances, espacially when
-   * using a 2D TF or a gradient opacity. It is disabled by default.
+   * @copydoc vtkGPUVolumeRayCastMapper::SetGlobalIlluminationReach(float)
+   *
+   * This parameter is only used when the underlying mapper
+   * is a vtkGPUVolumeRayCastMapper.
    */
-  vtkSetMacro(ComputeNormalFromOpacity, bool);
-  vtkGetMacro(ComputeNormalFromOpacity, bool);
-  vtkBooleanMacro(ComputeNormalFromOpacity, bool);
+  vtkSetClampMacro(GlobalIlluminationReach, float, 0.0f, 1.0f);
+  vtkGetMacro(GlobalIlluminationReach, float);
   ///@}
 
   /**
@@ -472,9 +468,9 @@ protected:
   float SampleDistance;
 
   /**
-   * Is the normal for volume shading computed from opacity or from scalars
+   * Secondary rays ambient/global adjustement coefficient
    */
-  bool ComputeNormalFromOpacity = false;
+  float GlobalIlluminationReach = 0.0;
 
   /**
    * Set whether or not the sample distance should be automatically calculated
