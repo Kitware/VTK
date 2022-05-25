@@ -5,6 +5,14 @@
 #include "vtkRenderingOpenGLConfigure.h"
 #include "vtk_glew.h"
 
+#if defined(VTK_USE_X)
+// X11 defines globally some names that conflict with things in these classes
+//     X11/Xutil.h contains "#define AllValues 	0x000F"
+//     X11/Xlib.h contains "#define Status int"
+#include "vtkGenericDataArray.h"
+#include <vtksys/Status.hxx>
+#endif
+
 #ifdef _WIN32
 #define XR_USE_PLATFORM_WIN32
 #include "GL/gl.h"

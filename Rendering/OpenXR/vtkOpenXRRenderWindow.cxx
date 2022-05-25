@@ -29,9 +29,11 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkVRCamera.h"
 
 // include what we need for the helper window
-#ifdef _WIN32
+#if defined(_WIN32)
 #include "vtkWin32OpenGLRenderWindow.h"
-#elif VTK_USE_X
+#endif
+
+#if defined(VTK_USE_X)
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 

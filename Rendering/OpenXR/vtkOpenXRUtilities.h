@@ -63,14 +63,14 @@ public:
   /**
    * Return string representation of given XrActionType.
    */
-  constexpr static const char* GetActionTypeAsString(const XrActionType& actionType);
+  static const char* GetActionTypeAsString(const XrActionType& actionType);
   //@}
 
   //@{
   /**
    * Return string representation of given XrViewConfigurationType.
    */
-  constexpr static const char* GetViewConfigurationTypeAsString(
+  static const char* GetViewConfigurationTypeAsString(
     const XrViewConfigurationType& viewConfigType);
   //@}
 
@@ -78,13 +78,10 @@ public:
   /**
    * Return string representation of given XrStructureType.
    */
-  constexpr static const char* GetStructureTypeAsString(const XrStructureType& structureType);
+  static const char* GetStructureTypeAsString(const XrStructureType& structureType);
   //@}
 
-  constexpr static XrPosef IdentityPose = {
-    { 0.0, 0.0, 0.0, 1.0 }, // .orientation
-    { 0.0, 0.0, 0.0 }       // .position
-  };
+  static const XrPosef& GetIdentityPose();
 
 protected:
   vtkOpenXRUtilities() = default;
@@ -94,6 +91,16 @@ private:
   vtkOpenXRUtilities(const vtkOpenXRUtilities&) = delete;
   void operator=(const vtkOpenXRUtilities&) = delete;
 };
+
+//----------------------------------------------------------------------------
+inline const XrPosef& vtkOpenXRUtilities::GetIdentityPose()
+{
+  static const XrPosef pose = {
+    { 0.0, 0.0, 0.0, 1.0 }, // .orientation
+    { 0.0, 0.0, 0.0 }       // .position
+  };
+  return pose;
+}
 
 //----------------------------------------------------------------------------
 inline void vtkOpenXRUtilities::CreateProjectionFov(
@@ -223,7 +230,7 @@ inline void vtkOpenXRUtilities::SetMatrixFromXrPose(vtkMatrix4x4* result, const 
 }
 
 //----------------------------------------------------------------------------
-constexpr const char* vtkOpenXRUtilities::GetActionTypeAsString(const XrActionType& actionType)
+inline const char* vtkOpenXRUtilities::GetActionTypeAsString(const XrActionType& actionType)
 {
   switch (actionType)
   {
@@ -243,7 +250,7 @@ constexpr const char* vtkOpenXRUtilities::GetActionTypeAsString(const XrActionTy
 }
 
 //----------------------------------------------------------------------------
-constexpr const char* vtkOpenXRUtilities::GetViewConfigurationTypeAsString(
+inline const char* vtkOpenXRUtilities::GetViewConfigurationTypeAsString(
   const XrViewConfigurationType& viewConfigType)
 {
   switch (viewConfigType)
@@ -262,7 +269,7 @@ constexpr const char* vtkOpenXRUtilities::GetViewConfigurationTypeAsString(
 }
 
 //----------------------------------------------------------------------------
-constexpr const char* vtkOpenXRUtilities::GetStructureTypeAsString(
+inline const char* vtkOpenXRUtilities::GetStructureTypeAsString(
   const XrStructureType& structureType)
 {
   switch (structureType)

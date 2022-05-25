@@ -1186,6 +1186,11 @@ void* vtkXOpenGLRenderWindow::GetGenericContext()
   return static_cast<void*>(gc);
 }
 
+void* vtkXOpenGLRenderWindow::GetGenericFBConfig()
+{
+  return reinterpret_cast<void*>(&(this->Internal->FBConfig));
+}
+
 vtkTypeBool vtkXOpenGLRenderWindow::GetEventPending()
 {
   XEvent report;
