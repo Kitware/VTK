@@ -791,11 +791,7 @@ void vtkCellLocator::BuildLocatorInternal()
     std::make_shared<std::vector<vtkSmartPointer<vtkIdList>>>(numOctants, nullptr);
   this->Tree = TreeSharedPtr->data();
 
-  if (this->CacheCellBounds)
-  {
-    this->FreeCellBounds();
-    this->StoreCellBounds();
-  }
+  this->ComputeCellBounds();
 
   //  Compute width of leaf octant in three directions
   for (i = 0; i < 3; i++)

@@ -98,8 +98,11 @@ int vtkCellLocatorStrategy::Initialize(vtkPointSet* ps)
   }
   else
   {
-    this->CellLocator = psCL;
-    this->OwnsLocator = false;
+    if (psCL != this->CellLocator)
+    {
+      this->CellLocator = psCL;
+      this->OwnsLocator = false;
+    }
   }
 
   this->InitializeTime.Modified();

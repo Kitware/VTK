@@ -157,16 +157,26 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
   for (auto& datasetInfo : this->DataSetsInfo)
   {
     datasetInfo.DataSet->ComputeBounds();
+    if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
+    {
+      // build cells is needed for both vtkClosestPointStrategy and vtkCellLocatorStrategy
+      polyData->BuildCells();
+    }
     if (vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
     {
       if (auto ugrid = vtkUnstructuredGrid::SafeDownCast(datasetInfo.DataSet))
       {
-        ugrid->BuildLinks();
+        if (ugrid->GetLinks() == nullptr)
+        {
+          ugrid->BuildLinks();
+        }
       }
       else if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
       {
-        // Build links calls BuildCells internally
-        polyData->BuildLinks();
+        if (polyData->GetLinks() == nullptr)
+        {
+          polyData->BuildLinks();
+        }
       }
     }
   }

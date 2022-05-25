@@ -80,6 +80,12 @@ public:
   vtkBooleanMacro(CacheCellBounds, vtkTypeBool);
   ///@}
 
+  /**
+   * This function can be used either internally or externally to compute only the cached
+   * cell bounds if CacheCellBounds is on.
+   */
+  void ComputeCellBounds();
+
   ///@{
   /**
    * Boolean controls whether to maintain list of cells in each node.

@@ -156,11 +156,7 @@ void vtkModifiedBSPTree::BuildLocatorInternal()
   this->mRoot->mAxis = rand() % 3;
   this->mRoot->depth = 0;
 
-  if (this->CacheCellBounds)
-  {
-    this->FreeCellBounds();
-    this->StoreCellBounds();
-  }
+  this->ComputeCellBounds();
 
   // sort the cells into 6 lists using structure for subdividing tests
   Sorted_cell_extents_Lists* lists = new Sorted_cell_extents_Lists(numCells);

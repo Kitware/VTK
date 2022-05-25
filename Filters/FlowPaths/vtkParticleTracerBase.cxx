@@ -371,9 +371,24 @@ int vtkParticleTracerBase::RequestUpdateExtent(vtkInformation* vtkNotUsed(reques
 }
 
 //------------------------------------------------------------------------------
+void vtkParticleTracerBase::SetMeshOverTime(int meshOverTime)
+{
+  if (this->MeshOverTime !=
+    (meshOverTime < DIFFERENT ? DIFFERENT
+                              : (meshOverTime > SAME_TOPOLOGY ? SAME_TOPOLOGY : meshOverTime)))
+  {
+    this->MeshOverTime =
+      (meshOverTime < DIFFERENT ? DIFFERENT
+                                : (meshOverTime > SAME_TOPOLOGY ? SAME_TOPOLOGY : meshOverTime));
+    this->Modified();
+    // Needed since the value needs to be set at the same time.
+    this->Interpolator->SetMeshOverTime(this->MeshOverTime);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkParticleTracerBase::SetInterpolatorType(int interpolatorType)
 {
-  this->Interpolator->SetMeshOverTime(this->MeshOverTime);
   if (interpolatorType == INTERPOLATOR_WITH_CELL_LOCATOR)
   {
     // create an interpolator equipped with a cell locator (by default)
@@ -431,7 +446,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
     return VTK_ERROR;
   }
 
-  // create Interpolator if needed
+  // set strategy if needed
   if (this->Interpolator->GetFindCellStrategy() == nullptr)
   {
     // cell locator is the default;
@@ -838,7 +853,7 @@ void vtkParticleTracerBase::ResizeArrays(vtkIdType numTuples)
 {
   // resize first so that if you already have data, you don't lose them
   this->OutputCoordinates->Resize(numTuples);
-  this->ParticleCellsOffsets->Resize(numTuples);
+  this->ParticleCellsOffsets->Resize(numTuples + 1);
   this->ParticleCellsConnectivity->Resize(numTuples);
   for (int i = 0; i < this->OutputPointData->GetNumberOfArrays(); ++i)
   {
@@ -846,7 +861,7 @@ void vtkParticleTracerBase::ResizeArrays(vtkIdType numTuples)
   }
   // set number number of tuples because resize does not do that
   this->OutputCoordinates->SetNumberOfPoints(numTuples);
-  this->ParticleCellsOffsets->SetNumberOfValues(numTuples);
+  this->ParticleCellsOffsets->SetNumberOfValues(numTuples + 1);
   this->ParticleCellsConnectivity->SetNumberOfValues(numTuples);
   this->OutputPointData->SetNumberOfTuples(numTuples);
 }
@@ -882,6 +897,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   vtkDebugMacro(<< "About to allocate arrays ");
   this->OutputCoordinates = vtkSmartPointer<vtkPoints>::New();
   this->ParticleCellsOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
+  this->ParticleCellsOffsets->InsertNextValue(0);
   this->ParticleCellsConnectivity = vtkSmartPointer<vtkIdTypeArray>::New();
   this->ParticleCells = vtkSmartPointer<vtkCellArray>::New();
 
@@ -1676,7 +1692,7 @@ void vtkParticleTracerBase::SetParticle(vtkParticleTracerBaseNamespace::Particle
   const double* coord = info.CurrentPosition.x;
   this->OutputCoordinates->SetPoint(particleId, coord);
   // create the cell
-  this->ParticleCellsOffsets->SetValue(particleId, particleId + 1);
+  this->ParticleCellsOffsets->SetValue(particleId + 1, particleId + 1);
   this->ParticleCellsConnectivity->SetValue(particleId, particleId);
   // set the easy scalars for this particle
   this->ParticleIds->SetValue(particleId, info.UniqueParticleId);

@@ -365,8 +365,7 @@ int vtkPointDataToCellData::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType cellId, ptId, pointId;
-  vtkIdType numCells, numPts;
+  vtkIdType numCells;
   vtkPointData* inputInPD = input->GetPointData();
   vtkSmartPointer<vtkPointData> inPD;
   vtkCellData* outCD = output->GetCellData();
