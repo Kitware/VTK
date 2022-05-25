@@ -178,6 +178,18 @@ public:
 
   ///@{
   /**
+   * Indicate whether to merge coincident points. Merging can take extra time
+   * and produces fewer output points, creating a "watertight" output
+   * surface. On the other hand, merging reduced output data size and may be
+   * just as fast especially for smaller data. By default this is off.
+   */
+  vtkSetMacro(MergePoints, bool);
+  vtkGetMacro(MergePoints, bool);
+  vtkBooleanMacro(MergePoints, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
@@ -196,6 +208,7 @@ protected:
   bool GeneratePolygons;
   bool BuildTree;
   bool BuildHierarchy;
+  bool MergePoints;
   int OutputPointsPrecision;
 
   // Helpers

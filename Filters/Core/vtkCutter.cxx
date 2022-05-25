@@ -356,8 +356,14 @@ int vtkCutter::RequestData(
 
   vtkPlane* plane = vtkPlane::SafeDownCast(this->CutFunction);
   auto executePlaneCutter = [&]() {
+    if (this->Locator == nullptr)
+    {
+      this->CreateDefaultLocator();
+    }
     this->PlaneCutter->SetInputData(input);
     this->PlaneCutter->SetPlane(plane);
+    bool mergePoints = this->GetLocator() && !this->GetLocator()->IsA("vtkNonMergingPointLocator");
+    this->PlaneCutter->SetMergePoints(mergePoints);
     this->PlaneCutter->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
     this->PlaneCutter->SetGeneratePolygons(!this->GetGenerateTriangles());
     this->PlaneCutter->BuildTreeOff();

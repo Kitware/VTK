@@ -15,7 +15,7 @@
 #include "vtkPlaneCutter.h"
 
 #include "vtk3DLinearGridPlaneCutter.h"
-#include "vtkAppendPolyData.h"
+#include "vtkAppendDataSets.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -714,6 +714,7 @@ vtkPlaneCutter::vtkPlaneCutter()
   , GeneratePolygons(true)
   , BuildTree(true)
   , BuildHierarchy(true)
+  , MergePoints(false)
   , OutputPointsPrecision(DEFAULT_PRECISION)
   , DataChanged(true)
   , IsPolyDataConvex(false)
@@ -1072,6 +1073,7 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
       xPlane->SetOrigin(planeOrigin);
       vtkNew<vtk3DLinearGridPlaneCutter> planeCutter;
       planeCutter->SetOutputPointsPrecision(this->OutputPointsPrecision);
+      planeCutter->SetMergePoints(this->MergePoints);
       planeCutter->SetInputData(input);
       planeCutter->SetPlane(xPlane);
       planeCutter->SetComputeNormals(this->ComputeNormals);
@@ -1161,8 +1163,10 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     }
   }
   // append all pieces into one
-  vtkNew<vtkAppendPolyData> append;
+  vtkNew<vtkAppendDataSets> append;
+  append->SetOutputDataSetType(VTK_POLY_DATA);
   append->SetOutputPointsPrecision(this->OutputPointsPrecision);
+  append->SetMergePoints(this->MergePoints);
   for (vtkDataObject* dObj : tempOutputMPRange)
   {
     append->AddInputData(vtkPolyData::SafeDownCast(dObj));
@@ -1199,5 +1203,6 @@ void vtkPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Polygons: " << (this->GeneratePolygons ? "On\n" : "Off\n");
   os << indent << "Build Tree: " << (this->BuildTree ? "On\n" : "Off\n");
   os << indent << "Build Hierarchy: " << (this->BuildHierarchy ? "On\n" : "Off\n");
+  os << indent << "Merge Points: " << (this->MergePoints ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
