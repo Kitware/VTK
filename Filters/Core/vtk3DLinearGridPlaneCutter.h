@@ -65,7 +65,7 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkCutter vtkFlyingEdgesPlaneCutter vtkPlaneCutter vtkPlane vtkSphereTree
+ * vtkCutter vtkFlyingEdgesPlaneCutter vtkPlaneCutter vtkPlane
  * vtkContour3DLinearGrid
  */
 
@@ -77,7 +77,6 @@
 
 class vtkPlane;
 class vtkUnstructuredGrid;
-class vtkSphereTree;
 class vtkPolyData;
 
 class VTKFILTERSCORE_EXPORT vtk3DLinearGridPlaneCutter : public vtkDataObjectAlgorithm

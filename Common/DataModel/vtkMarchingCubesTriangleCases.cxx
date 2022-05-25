@@ -15,7 +15,7 @@
 
 #include "vtkMarchingCubesTriangleCases.h"
 
-//
+//=============================================================================
 // Edges to intersect.  Three at a time form a triangle. Comments at
 // end of line indicate case number (0->255) and base case number (0->15).
 //

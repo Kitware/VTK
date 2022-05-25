@@ -176,6 +176,16 @@ public:
   vtkBooleanMacro(BuildHierarchy, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
+  vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
+
 protected:
   vtkPlaneCutter();
   ~vtkPlaneCutter() override;
@@ -186,6 +196,7 @@ protected:
   bool GeneratePolygons;
   bool BuildTree;
   bool BuildHierarchy;
+  int OutputPointsPrecision;
 
   // Helpers
   // Support delegation to vtkPolyDataPlaneCutter. Checking convexity can be

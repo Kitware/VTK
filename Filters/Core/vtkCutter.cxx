@@ -358,6 +358,7 @@ int vtkCutter::RequestData(
   auto executePlaneCutter = [&]() {
     this->PlaneCutter->SetInputData(input);
     this->PlaneCutter->SetPlane(plane);
+    this->PlaneCutter->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
     this->PlaneCutter->SetGeneratePolygons(!this->GetGenerateTriangles());
     this->PlaneCutter->BuildTreeOff();
     this->PlaneCutter->ComputeNormalsOff();
