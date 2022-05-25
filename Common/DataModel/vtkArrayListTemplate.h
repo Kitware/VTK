@@ -73,6 +73,8 @@ struct BaseArrayPair
   virtual void Interpolate(
     int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId) = 0;
   virtual void Average(int numPts, const vtkIdType* ids, vtkIdType outId) = 0;
+  virtual void WeightedAverage(
+    int numPts, const vtkIdType* ids, const double* weights, vtkIdType outId) = 0;
   virtual void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId) = 0;
   virtual void AssignNullValue(vtkIdType outId) = 0;
   virtual void Realloc(vtkIdType sze) = 0;
@@ -127,6 +129,20 @@ struct ArrayPair : public BaseArrayPair
         v += static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
       }
       v /= static_cast<double>(numPts);
+      this->Output[outId * this->NumComp + j] = static_cast<T>(v);
+    }
+  }
+
+  void WeightedAverage(
+    int numPts, const vtkIdType* ids, const double* weights, vtkIdType outId) override
+  {
+    for (int j = 0; j < this->NumComp; ++j)
+    {
+      double v = 0.0;
+      for (vtkIdType i = 0; i < numPts; ++i)
+      {
+        v += (weights[i] + static_cast<double>(this->Input[ids[i] * this->NumComp + j]));
+      }
       this->Output[outId * this->NumComp + j] = static_cast<T>(v);
     }
   }
@@ -211,6 +227,20 @@ struct RealArrayPair : public BaseArrayPair
         v += static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
       }
       v /= static_cast<double>(numPts);
+      this->Output[outId * this->NumComp + j] = static_cast<TOutput>(v);
+    }
+  }
+
+  void WeightedAverage(
+    int numPts, const vtkIdType* ids, const double* weights, vtkIdType outId) override
+  {
+    for (int j = 0; j < this->NumComp; ++j)
+    {
+      double v = 0.0;
+      for (vtkIdType i = 0; i < numPts; ++i)
+      {
+        v += (weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]));
+      }
       this->Output[outId * this->NumComp + j] = static_cast<TOutput>(v);
     }
   }
@@ -302,6 +332,15 @@ struct ArrayList
     for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
     {
       (*it)->Average(numPts, ids, outId);
+    }
+  }
+
+  // Loop over the arrays and weighted average the attributes. The weights should sum to 1.0.
+  void WeightedAverage(int numPts, const vtkIdType* ids, const double* weights, vtkIdType outId)
+  {
+    for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin(); it != Arrays.end(); ++it)
+    {
+      (*it)->WeightedAverage(numPts, ids, weights, outId);
     }
   }
 

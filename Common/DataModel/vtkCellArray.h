@@ -340,6 +340,21 @@ public:
   }
 
   /**
+   * Get the offset (into the connectivity) for a specified cell id.
+   */
+  vtkIdType GetOffset(vtkIdType cellId)
+  {
+    if (this->Storage.Is64Bit())
+    {
+      return this->Storage.GetArrays64().Offsets->GetValue(cellId);
+    }
+    else
+    {
+      return this->Storage.GetArrays32().Offsets->GetValue(cellId);
+    }
+  }
+
+  /**
    * Get the size of the connectivity array that stores the point ids.
    * @note Do not confuse this with the deprecated
    * GetNumberOfConnectivityEntries(), which refers to the legacy memory
