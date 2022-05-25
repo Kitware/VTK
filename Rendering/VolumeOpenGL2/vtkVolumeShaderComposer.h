@@ -1236,10 +1236,6 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n     {\
           \n     nDotL = -nDotL;\
           \n     }\
-          \n   if (vDotR < 0.0 && in_twoSidedLighting)\
-          \n     {\
-          \n     vDotR = -vDotR;\
-          \n     }\
           \n   if (nDotL > 0.0)\
           \n     {\
           \n        diffuse = ") +
@@ -1361,10 +1357,6 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
           \n      diffuse += (df * in_lightDiffuseColor[dirNum]);\
           \n      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);\
           \n      float rDotV = dot(-viewDirection, r);\
-          \n      if (rDotV < 0.0 && in_twoSidedLighting)\
-          \n      {\
-          \n        rDotV = -rDotV;\
-          \n      }\
           \n      if (rDotV > 0.0)\
           \n      {\
           \n        float sf = ") +
@@ -1530,10 +1522,6 @@ std::string ComputeLightingMultiDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVol
         \n   if (nDotL < 0.0 && in_twoSidedLighting)\
         \n     {\
         \n     nDotL = -nDotL;\
-        \n     }\
-        \n   if (vDotR < 0.0 && in_twoSidedLighting)\
-        \n     {\
-        \n     vDotR = -vDotR;\
         \n     }\
         \n   if (nDotL > 0.0)\
         \n     {\
