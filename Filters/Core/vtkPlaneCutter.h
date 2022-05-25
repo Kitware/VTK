@@ -26,10 +26,7 @@
  * high-performance cutting algorithm, and/or it may build (in a
  * preprocessing step) a spatial search structure that accelerates the plane
  * cuts. The search structure, which is typically a sphere tree, is used to
- * quickly cull candidate cells.  As mentioned, certain types of input data
- * are delegated to other, internal classes--for example image data is
- * delegated to vtkFlyingEdgesPlaneCutter, and convex vtkPolyData is
- * delegated to vtkPolyDataPlaneCutter.
+ * quickly cull candidate cells.
  *
  * Because this filter may build an initial data structure during a
  * preprocessing step, the first execution of the filter may take longer than
@@ -48,18 +45,17 @@
  * 5) if input is vtkMultiBlockDataSet, output is vtkMultiBlockDataSet.
  *
  * @warning
- * This filter produces may produce non-merged, potentially coincident points
- * for all input dataset types except 1) vtkImageData (which uses
- * vtkFlyingEdgesPlaneCutter under the hood - which does merge points); and
- * 2) vtkPolyData if all input cells are convex polygons.
+ * Delegations to other filters:
+ * 1) vtkImageData delegates vtkFlyingEdgesPlaneCutter,
+ * 2) vtkPolyData with convex cells delegates to vtkPolyDataPlaneCutter.
+ * 3) vtkUnstructuredGrid with linear cells delegates to vtk3DLinearGridPlaneCutter.
  *
  * @warning
- * This filter delegates to vtkFlyingEdgesPlaneCutter to process image
- * data, but output and input have been standardized when possible.
- *
- * @warning
- * This filter delegates to vtkPolyDataPlaneCutter to process input
- * vtkPolyData if all the input cells are convex polygons.
+ * This filter may produce non-merged, potentially coincident points
+ * for all input dataset types except:
+ * 1) vtkImageData, which does merge points;
+ * 2) vtkPolyData,, if all input cells are convex polygons, which does merge points.
+ * 3) vtkUnstructuredGrid, if all input cells are linear, which optionally does merge points
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -196,6 +192,7 @@ protected:
   // time consuming.
   bool DataChanged;
   bool IsPolyDataConvex;
+  bool IsUnstructuredGrid3DLinear;
 
   vtkSphereTree* GetSphereTree(vtkDataSet*);
   std::map<vtkDataSet*, vtkSmartPointer<vtkSphereTree>> SphereTrees;

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkPlaneCutter.h"
 
+#include "vtk3DLinearGridPlaneCutter.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -49,7 +50,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTransform.h"
 #include "vtkUniformGridAMR.h"
-#include "vtkUnstructuredGridBase.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <cmath>
 
@@ -1606,6 +1607,7 @@ vtkPlaneCutter::vtkPlaneCutter()
   , BuildHierarchy(true)
   , DataChanged(true)
   , IsPolyDataConvex(false)
+  , IsUnstructuredGrid3DLinear(false)
 {
   this->InputInfo = vtkInputInfo(nullptr, 0);
 }
@@ -1870,7 +1872,9 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
 
   // Delegate the processing to the matching algorithm. If the input data is vtkImageData,
   // then delegation to vtkFlyingEdgesPlaneCutter. If the input data is vtkPolyData, and
-  // the input cells are convex polygons, then delegate to vtkPolyDataPlaneCutter.
+  // the input cells are convex polygons, then delegate to vtkPolyDataPlaneCutter. If the
+  // input is an vtkUnstructuredGrid and the input cells are 3d linear, then delegate to
+  // vtk3DLinearGridPlaneCutter.
   if (vtkImageData::SafeDownCast(input))
   {
     vtkDataSet* tmpInput = input;
@@ -1917,11 +1921,10 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     }
     return 1;
   }
-
-  // Check whether we have convex, vtkPolyData cells. Cache the computation
-  // of convexity so it only needs be done once if the input does not change.
-  if (vtkPolyData::SafeDownCast(input))
+  else if (vtkPolyData::SafeDownCast(input))
   {
+    // Check whether we have convex, vtkPolyData cells. Cache the computation
+    // of convexity, so it only needs be done once if the input does not change.
     if (this->DataChanged) // cache convexity check - it can be expensive
     {
       this->IsPolyDataConvex = vtkPolyDataPlaneCutter::CanFullyProcessDataObject(input);
@@ -1938,6 +1941,31 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
       planeCutter->SetInterpolateAttributes(this->InterpolateAttributes);
       planeCutter->Update();
       vtkDataSet* outPlane = planeCutter->GetOutput();
+      output->ShallowCopy(outPlane);
+      return 1;
+    }
+  }
+  else if (vtkUnstructuredGrid::SafeDownCast(input))
+  {
+    // Check whether we have 3d linear cells. Cache the computation
+    // of linearity, so it only needs be done once if the input does not change.
+    if (this->DataChanged)
+    {
+      this->IsUnstructuredGrid3DLinear =
+        vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(input);
+    }
+    if (this->IsUnstructuredGrid3DLinear)
+    {
+      vtkNew<vtkPlane> xPlane; // create temp transformed plane
+      xPlane->SetNormal(planeNormal);
+      xPlane->SetOrigin(planeOrigin);
+      vtkNew<vtk3DLinearGridPlaneCutter> planeCutter;
+      planeCutter->SetInputData(input);
+      planeCutter->SetPlane(xPlane);
+      planeCutter->SetComputeNormals(this->ComputeNormals);
+      planeCutter->SetInterpolateAttributes(this->InterpolateAttributes);
+      planeCutter->Update();
+      vtkDataSet* outPlane = vtkDataSet::SafeDownCast(planeCutter->GetOutput());
       output->ShallowCopy(outPlane);
       return 1;
     }
