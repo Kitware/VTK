@@ -83,6 +83,8 @@ public:
   void GetPIOData(const char*, const char*&);
   const double* GetPIOData(const char*);
   double GetPIOData(const char*, int);
+  bool reconstruct_chunk_field(int64_t numcell, std::valarray<double>& va, const char* prefix,
+    const char* var, int materialId);
   void AddRealData(const char* _name)
   {
     if (RealData.find(_name) == RealData.end())

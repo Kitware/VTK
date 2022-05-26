@@ -431,7 +431,9 @@ bool PIO_DATA::set_scalar_field(std::valarray<double>& v, const char* fieldname)
       }
     }
     if (v.size() < size_t(length))
+    {
       v.resize(length);
+    }
     for (int64_t i = 0; i < length; ++i)
     {
       if (cell_active && (cell_active[i] == 0.0))
@@ -959,4 +961,37 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
       }
     }
   }
+}
+
+bool PIO_DATA::reconstruct_chunk_field(
+  int64_t numcell, std::valarray<double>& va, const char* prefix, const char* var, int materialId)
+{
+  std::string PreFix = std::string(prefix);
+  std::string matname = PreFix + "_" + var;
+  std::string chunk_nummat_string = PreFix + "_nummat";
+  std::string chunk_mat_string = PreFix + "_mat";
+
+  if ((VarMMap.count(matname.c_str()) != 1) || (VarMMap.count(chunk_nummat_string.c_str()) != 1) ||
+    (VarMMap.count(chunk_mat_string.c_str()) != 1))
+  {
+    return false;
+  }
+  const double* cl = GetPIOData(matname.c_str());
+  const double* chunk_nummat = GetPIOData(chunk_nummat_string.c_str());
+  const double* chunk_mat = GetPIOData(chunk_mat_string.c_str());
+  va.resize(numcell);
+  va = 0;
+  for (int64_t l = 0; l < numcell; ++l)
+  {
+    for (int j = 0; j < chunk_nummat[l]; ++j)
+    {
+      if ((int(*chunk_mat)) == materialId)
+      {
+        va[l] = *cl;
+      }
+      chunk_mat++;
+      cl++;
+    }
+  }
+  return true;
 }
