@@ -29,8 +29,8 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/Gradient.h>
-#include <vtkm/filter/PointAverage.h>
+#include <vtkm/filter/field_conversion/PointAverage.h>
+#include <vtkm/filter/vector_analysis/Gradient.h>
 
 vtkStandardNewMacro(vtkmGradient);
 
@@ -89,8 +89,8 @@ int vtkmGradient::RequestData(
     vtkm::cont::Field field = tovtkm::Convert(inputArray, association);
     in.AddField(field);
 
-    const bool fieldIsPoint = field.GetAssociation() == vtkm::cont::Field::Association::POINTS;
-    const bool fieldIsCell = field.GetAssociation() == vtkm::cont::Field::Association::CELL_SET;
+    const bool fieldIsPoint = field.GetAssociation() == vtkm::cont::Field::Association::Points;
+    const bool fieldIsCell = field.GetAssociation() == vtkm::cont::Field::Association::Cells;
     const bool fieldIsVec = (inputArray->GetNumberOfComponents() == 3);
     const bool fieldIsScalar =
       inputArray->GetDataType() == VTK_FLOAT || inputArray->GetDataType() == VTK_DOUBLE;
@@ -104,8 +104,8 @@ int vtkmGradient::RequestData(
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
-    auto passNoFields = vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE);
-    vtkm::filter::Gradient filter;
+    auto passNoFields = vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None);
+    vtkm::filter::vector_analysis::Gradient filter;
     filter.SetFieldsToPass(passNoFields);
     filter.SetColumnMajorOrdering();
 
@@ -146,7 +146,7 @@ int vtkmGradient::RequestData(
     if (fieldIsPoint)
     {
       filter.SetComputePointGradient(!this->FasterApproximation);
-      filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::POINTS);
+      filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::Points);
       result = filter.Execute(in);
 
       // When we have faster approximation enabled the VTK-m gradient will output
@@ -154,7 +154,7 @@ int vtkmGradient::RequestData(
       // back to a point field
       if (this->FasterApproximation)
       {
-        vtkm::filter::PointAverage cellToPoint;
+        vtkm::filter::field_conversion::PointAverage cellToPoint;
         cellToPoint.SetFieldsToPass(passNoFields);
 
         auto c2pIn = result;
@@ -163,28 +163,28 @@ int vtkmGradient::RequestData(
         if (this->ComputeGradient)
         {
           cellToPoint.SetActiveField(
-            filter.GetOutputFieldName(), vtkm::cont::Field::Association::CELL_SET);
+            filter.GetOutputFieldName(), vtkm::cont::Field::Association::Cells);
           auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeDivergence && fieldIsVec)
         {
           cellToPoint.SetActiveField(
-            filter.GetDivergenceName(), vtkm::cont::Field::Association::CELL_SET);
+            filter.GetDivergenceName(), vtkm::cont::Field::Association::Cells);
           auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeVorticity && fieldIsVec)
         {
           cellToPoint.SetActiveField(
-            filter.GetVorticityName(), vtkm::cont::Field::Association::CELL_SET);
+            filter.GetVorticityName(), vtkm::cont::Field::Association::Cells);
           auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeQCriterion && fieldIsVec)
         {
           cellToPoint.SetActiveField(
-            filter.GetQCriterionName(), vtkm::cont::Field::Association::CELL_SET);
+            filter.GetQCriterionName(), vtkm::cont::Field::Association::Cells);
           auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
@@ -193,14 +193,14 @@ int vtkmGradient::RequestData(
     else
     {
       // we need to convert the field to be a point field
-      vtkm::filter::PointAverage cellToPoint;
+      vtkm::filter::field_conversion::PointAverage cellToPoint;
       cellToPoint.SetFieldsToPass(passNoFields);
       cellToPoint.SetActiveField(field.GetName(), field.GetAssociation());
       cellToPoint.SetOutputFieldName(field.GetName());
       in = cellToPoint.Execute(in);
 
       filter.SetComputePointGradient(false);
-      filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::POINTS);
+      filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::Points);
       result = filter.Execute(in);
     }
 

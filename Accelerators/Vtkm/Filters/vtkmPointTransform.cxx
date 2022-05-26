@@ -32,7 +32,7 @@
 #include "vtkmlib/DataSetConverters.h"
 
 #include "vtkm/cont/Error.h"
-#include "vtkm/filter/PointTransform.h"
+#include "vtkm/filter/field_transform/PointTransform.h"
 
 #include "vtkmFilterPolicy.h"
 
@@ -132,13 +132,13 @@ int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
 
-    vtkm::filter::PointTransform pointTransform;
+    vtkm::filter::field_transform::PointTransform pointTransform;
     pointTransform.SetUseCoordinateSystemAsField(true);
     pointTransform.SetTransform(vtkmMatrix);
 
     auto result = pointTransform.Execute(in);
     vtkDataArray* pointTransformResult =
-      fromvtkm::Convert(result.GetField("transform", vtkm::cont::Field::Association::POINTS));
+      fromvtkm::Convert(result.GetField("transform", vtkm::cont::Field::Association::Points));
     vtkPoints* newPts = vtkPoints::New();
     // Update points
     newPts->SetNumberOfPoints(pointTransformResult->GetNumberOfTuples());

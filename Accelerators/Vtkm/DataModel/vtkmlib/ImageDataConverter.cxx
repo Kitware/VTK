@@ -53,9 +53,9 @@ struct ComputeExtents
 
 struct SetGlobalPointIndexStart
 {
-  template <vtkm::IdComponent Dim, typename DynamicCellSetType>
+  template <vtkm::IdComponent Dim>
   void operator()(const vtkm::cont::CellSetStructured<Dim>&, const vtkm::Id3& structuredCoordsDims,
-    const int extent[6], DynamicCellSetType& dcs) const
+    const int extent[6], vtkm::cont::UnknownCellSet& dcs) const
   {
     typename vtkm::cont::CellSetStructured<Dim>::SchedulingRangeType extStart{};
     for (int i = 0, ii = 0; i < 3; ++i)
@@ -65,7 +65,10 @@ struct SetGlobalPointIndexStart
         vtkm::VecTraits<decltype(extStart)>::SetComponent(extStart, ii++, extent[2 * i]);
       }
     }
-    vtkm::cont::Cast<vtkm::cont::CellSetStructured<Dim>>(dcs).SetGlobalPointIndexStart(extStart);
+
+    vtkm::cont::CellSetStructured<Dim> cs;
+    dcs.AsCellSet(cs);
+    cs.SetGlobalPointIndexStart(extStart);
   }
 };
 

@@ -27,7 +27,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/PointAverage.h>
+#include <vtkm/filter/field_conversion/PointAverage.h>
 
 vtkStandardNewMacro(vtkmAverageToPoints);
 
@@ -68,8 +68,8 @@ int vtkmAverageToPoints::RequestData(vtkInformation* vtkNotUsed(request),
     auto field = tovtkm::Convert(fieldArray, association);
     in.AddField(field);
 
-    vtkm::filter::PointAverage filter;
-    filter.SetActiveField(fieldName, vtkm::cont::Field::Association::CELL_SET);
+    vtkm::filter::field_conversion::PointAverage filter;
+    filter.SetActiveField(fieldName, vtkm::cont::Field::Association::Cells);
     filter.SetOutputFieldName(fieldName); // should we expose this control?
 
     auto result = filter.Execute(in);

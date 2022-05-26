@@ -30,7 +30,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/Threshold.h>
+#include <vtkm/filter/entity_extraction/Threshold.h>
 
 vtkStandardNewMacro(vtkmThreshold);
 
@@ -63,7 +63,7 @@ int vtkmThreshold::RequestData(
     // convert the input dataset to a vtkm::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
-    vtkm::filter::Threshold filter;
+    vtkm::filter::entity_extraction::Threshold filter;
     filter.SetActiveField(inputArray->GetName());
     filter.SetLowerThreshold(this->GetLowerThreshold());
     filter.SetUpperThreshold(this->GetUpperThreshold());

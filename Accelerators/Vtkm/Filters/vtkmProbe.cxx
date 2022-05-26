@@ -108,7 +108,7 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
     {
       const vtkm::cont::Field& field = result.GetField(i);
       vtkDataArray* fieldArray = fromvtkm::Convert(field);
-      if (field.GetAssociation() == vtkm::cont::Field::Association::POINTS)
+      if (field.GetAssociation() == vtkm::cont::Field::Association::Points)
       {
         if (strcmp(fieldArray->GetName(), "HIDDEN") == 0)
         {
@@ -116,7 +116,7 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
         }
         output->GetPointData()->AddArray(fieldArray);
       }
-      else if (field.GetAssociation() == vtkm::cont::Field::Association::CELL_SET)
+      else if (field.GetAssociation() == vtkm::cont::Field::Association::Cells)
       {
         if (strcmp(fieldArray->GetName(), "HIDDEN") == 0)
         {

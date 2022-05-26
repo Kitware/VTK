@@ -2,8 +2,8 @@
 # issue: https://gitlab.kitware.com/vtk/fides/-/issues/13
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "")
 
-# Lowest-common denominator.
-set(VTKm_CUDA_Architecture "pascal" CACHE STRING "")
+# Lowest-common denominator. Pascal = 60
+set(CMAKE_CUDA_ARCHITECTURES 60 CACHE STRING "")
 
 # catalyst is not installed on cuda image
 set(VTK_ENABLE_CATALYST OFF CACHE BOOL "")

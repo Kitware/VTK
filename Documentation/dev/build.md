@@ -312,7 +312,7 @@ More advanced options:
     `vtkObjectFactoryNewMacro` or `vtkAbstractObjectFactoryNewMacro`.
   * `VTK_ENABLE_VTKM_OVERRIDES` (default `OFF`): If `ON`, enables factory override
      of certain VTK filters by their VTK-m counterparts. There is also a runtime
-     switch that should also be turned on to enable this feature.
+     switch that can be used to enable/disable the overrides at run-time (on by default).
      It can be accessed using the static function `vtkmFilterOverrides::SetEnabled(bool)`.
 
 The VTK module system provides a number of variables to control modules which

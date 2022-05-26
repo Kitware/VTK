@@ -29,7 +29,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/CleanGrid.h>
+#include <vtkm/filter/clean_grid/CleanGrid.h>
 
 vtkStandardNewMacro(vtkmCleanGrid);
 
@@ -74,7 +74,7 @@ int vtkmCleanGrid::RequestData(vtkInformation* vtkNotUsed(request),
     vtkm::cont::DataSet in = tovtkm::Convert(input, fieldsFlag);
 
     // apply the filter
-    vtkm::filter::CleanGrid filter;
+    vtkm::filter::clean_grid::CleanGrid filter;
     filter.SetCompactPointFields(this->CompactPoints);
     auto result = filter.Execute(in);
 

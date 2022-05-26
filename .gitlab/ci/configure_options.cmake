@@ -77,3 +77,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "shared")
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "static")
   set(VTK_BUILD_SHARED_LIBS OFF CACHE BOOL "")
 endif ()
+
+# vtkmoverride
+configuration_flag(VTK_ENABLE_VTKM_OVERRIDES "vtkmoverride")

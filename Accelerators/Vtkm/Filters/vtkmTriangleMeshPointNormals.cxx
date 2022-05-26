@@ -27,7 +27,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include "vtkm/filter/SurfaceNormals.h"
+#include "vtkm/filter/vector_analysis/SurfaceNormals.h"
 
 vtkStandardNewMacro(vtkmTriangleMeshPointNormals);
 
@@ -67,7 +67,7 @@ int vtkmTriangleMeshPointNormals::RequestData(
     // convert the input dataset to a vtkm::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
 
-    vtkm::filter::SurfaceNormals filter;
+    vtkm::filter::vector_analysis::SurfaceNormals filter;
     filter.SetGenerateCellNormals(false);
     filter.SetNormalizeCellNormals(false);
     filter.SetGeneratePointNormals(true);

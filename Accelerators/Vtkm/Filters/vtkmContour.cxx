@@ -35,7 +35,8 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/ErrorFilterExecution.h>
-#include <vtkm/filter/Contour.h>
+#include <vtkm/filter/contour/Contour.h>
+#include <vtkm/worklet/WorkletMapField.h>
 
 vtkStandardNewMacro(vtkmContour);
 
@@ -52,12 +53,29 @@ void vtkmContour::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-bool vtkmContour::IsSupportedInput(vtkDataSet* input)
+bool vtkmContour::CanProcessInput(vtkDataSet* input)
 {
+  // vtkm::filter::contour::Contour currently does not support gradient field generation
+  if (this->GetComputeGradients())
+  {
+    return false;
+  }
+
+  // currently, vtkm::filter::contour::Contour always generates single precision points
+  auto pointSet = vtkPointSet::SafeDownCast(input);
+  if ((this->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION) ||
+    (this->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION && pointSet &&
+      pointSet->GetPoints()->GetDataType() != VTK_FLOAT))
+  {
+    return false;
+  }
+
   auto imageData = vtkImageData::SafeDownCast(input);
   if (imageData && imageData->GetDataDimension() == 3)
   {
-    return true;
+    // Currently, vtkm's flying edges implementation crashes for some cases.
+    // Temporarily disabling this code path
+    return false;
   }
 
   auto rectilinearGrid = vtkRectilinearGrid::SafeDownCast(input);
@@ -95,6 +113,56 @@ bool vtkmContour::IsSupportedInput(vtkDataSet* input)
 }
 
 //------------------------------------------------------------------------------
+struct OrientationTransform : vtkm::worklet::WorkletMapField
+{
+  using ControlSignature = void(FieldIn, WholeArrayInOut);
+  using ExecutionSignature = void(_1, _2);
+
+  template <typename ConnPortal>
+  VTKM_EXEC void operator()(vtkm::Id idx, ConnPortal conn) const
+  {
+    auto temp = conn.Get(idx);
+    conn.Set(idx, conn.Get(idx + 2));
+    conn.Set(idx + 2, temp);
+  }
+};
+
+struct Negate : vtkm::worklet::WorkletMapField
+{
+  using ControlSignature = void(FieldInOut);
+  using ExecutionSignature = void(_1);
+
+  template <typename T>
+  VTKM_EXEC void operator()(T& v) const
+  {
+    v *= T(-1);
+  }
+};
+
+void ChangeTriangleOrientation(vtkm::cont::DataSet& dataset)
+{
+  vtkm::cont::Invoker invoke;
+
+  vtkm::cont::CellSetSingleType<> cs;
+  dataset.GetCellSet().AsCellSet(cs);
+  vtkm::cont::ArrayHandle<vtkm::Id> conn =
+    cs.GetConnectivityArray(vtkm::TopologyElementTagCell(), vtkm::TopologyElementTagPoint());
+  invoke(OrientationTransform{},
+    vtkm::cont::make_ArrayHandleCounting(0, 3, conn.GetNumberOfValues() / 3), conn);
+
+  auto numPoints = cs.GetNumberOfPoints();
+  cs.Fill(numPoints, vtkm::CellShapeTagTriangle::Id, 3, conn);
+  dataset.SetCellSet(cs);
+
+  if (dataset.HasPointField("Normals"))
+  {
+    vtkm::cont::ArrayHandle<vtkm::Vec3f> normals;
+    dataset.GetPointField("Normals").GetData().AsArrayHandle(normals);
+    invoke(Negate{}, normals);
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkmContour::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -103,32 +171,40 @@ int vtkmContour::RequestData(
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  // Nothing to process, return early
+  if (this->GetNumberOfContours() == 0 || input->GetNumberOfCells() == 0)
+  {
+    return 1;
+  }
+
   // Find the scalar array:
   int association = this->GetInputArrayAssociation(0, inputVector);
   vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
-  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS || inputArray == nullptr ||
-    inputArray->GetName() == nullptr || inputArray->GetName()[0] == '\0')
+  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS || inputArray == nullptr)
   {
     vtkErrorMacro("Invalid scalar array; array missing or not a point array.");
     return 0;
   }
 
-  const int numContours = this->GetNumberOfContours();
-  if (numContours == 0)
-  {
-    return 1;
-  }
-
   try
   {
-    if (!vtkmContour::IsSupportedInput(input))
+    if (!this->CanProcessInput(input))
     {
-      throw vtkm::cont::ErrorFilterExecution("Input dataset is not supported by vtkmContour.");
+      throw vtkm::cont::ErrorFilterExecution(
+        "Input dataset/parameters not supported by vtkmContour.");
     }
 
-    vtkm::filter::Contour filter;
-    filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::POINTS);
+    const char* scalarFieldName = inputArray->GetName();
+    if (!scalarFieldName || scalarFieldName[0] == '\0')
+    {
+      scalarFieldName = tovtkm::NoNameVTKFieldName();
+    }
+
+    const int numContours = this->GetNumberOfContours();
+    vtkm::filter::contour::Contour filter;
+    filter.SetActiveField(scalarFieldName, vtkm::cont::Field::Association::Points);
     filter.SetGenerateNormals(this->GetComputeNormals() != 0);
+    filter.SetNormalArrayName("Normals");
     filter.SetNumberOfIsoValues(numContours);
     for (int i = 0; i < numContours; ++i)
     {
@@ -148,10 +224,12 @@ int vtkmContour::RequestData(
       auto inField = tovtkm::Convert(inputArray, association);
       in.AddField(inField);
       // don't pass this field
-      filter.SetFieldsToPass(vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
+      filter.SetFieldsToPass(
+        vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None));
     }
 
     vtkm::cont::DataSet result = filter.Execute(in);
+    ChangeTriangleOrientation(result);
 
     // convert back the dataset to VTK
     if (!fromvtkm::Convert(result, output, input))
@@ -171,7 +249,7 @@ int vtkmContour::RequestData(
   }
   catch (const vtkm::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage() << "\n"
+    vtkWarningMacro(<< "VTK-m failed with message: " << e.GetMessage() << "\n"
                     << "Falling back to the default VTK implementation.");
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }

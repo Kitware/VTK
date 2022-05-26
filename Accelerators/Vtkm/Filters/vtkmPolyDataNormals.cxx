@@ -26,7 +26,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include "vtkm/filter/SurfaceNormals.h"
+#include "vtkm/filter/vector_analysis/SurfaceNormals.h"
 
 vtkStandardNewMacro(vtkmPolyDataNormals);
 
@@ -74,7 +74,7 @@ int vtkmPolyDataNormals::RequestData(
     bool unsupported = this->Splitting != 0;
     if (!unsupported)
     {
-      vtkm::filter::SurfaceNormals filter;
+      vtkm::filter::vector_analysis::SurfaceNormals filter;
       filter.SetGenerateCellNormals((this->ComputeCellNormals != 0));
       filter.SetCellNormalsName("Normals");
       filter.SetGeneratePointNormals((this->ComputePointNormals != 0));

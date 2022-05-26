@@ -34,7 +34,7 @@
 
 #include <fides/DataSetReader.h>
 
-#include <vtkm/filter/CleanGrid.h>
+#include <vtkm/filter/clean_grid/CleanGrid.h>
 
 #include <numeric>
 
@@ -270,11 +270,11 @@ int vtkFidesReader::RequestInformation(
       fides::keys::FIELDS());
     for (auto& field : fields.Data)
     {
-      if (field.Association == vtkm::cont::Field::Association::POINTS)
+      if (field.Association == vtkm::cont::Field::Association::Points)
       {
         this->PointDataArraySelection->AddArray(field.Name.c_str());
       }
-      else if (field.Association == vtkm::cont::Field::Association::CELL_SET)
+      else if (field.Association == vtkm::cont::Field::Association::Cells)
       {
         this->CellDataArraySelection->AddArray(field.Name.c_str());
       }
@@ -372,7 +372,7 @@ vtkDataSet* ConvertDataSet(const vtkm::cont::DataSet& ds)
       return image;
     }
   }
-  vtkm::filter::CleanGrid filter;
+  vtkm::filter::clean_grid::CleanGrid filter;
   filter.SetCompactPointFields(false);
   auto result = filter.Execute(ds);
   return ConvertDataSet(result);
@@ -446,7 +446,7 @@ int vtkFidesReader::RequestData(
     const char* aname = this->PointDataArraySelection->GetArrayName(i);
     if (this->PointDataArraySelection->ArrayIsEnabled(aname))
     {
-      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::POINTS);
+      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::Points);
     }
   }
   int nCArrays = this->CellDataArraySelection->GetNumberOfArrays();
@@ -455,7 +455,7 @@ int vtkFidesReader::RequestData(
     const char* aname = this->CellDataArraySelection->GetArrayName(i);
     if (this->CellDataArraySelection->ArrayIsEnabled(aname))
     {
-      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::CELL_SET);
+      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::Cells);
     }
   }
   selections.Set(fides::keys::FIELDS(), arraySelection);

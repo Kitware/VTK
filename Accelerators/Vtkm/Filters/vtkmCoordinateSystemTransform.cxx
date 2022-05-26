@@ -33,7 +33,8 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/CoordinateSystemTransform.h>
+#include <vtkm/filter/field_transform/CylindricalCoordinateTransform.h>
+#include <vtkm/filter/field_transform/SphericalCoordinateTransform.h>
 
 vtkStandardNewMacro(vtkmCoordinateSystemTransform);
 
@@ -160,7 +161,7 @@ int vtkmCoordinateSystemTransform::RequestData(
     if (this->TransformType == TransformTypes::CarToCyl ||
       this->TransformType == TransformTypes::CylToCar)
     { // Cylindrical coordinate transform
-      vtkm::filter::CylindricalCoordinateTransform cylindricalCT;
+      vtkm::filter::field_transform::CylindricalCoordinateTransform cylindricalCT;
       cylindricalCT.SetUseCoordinateSystemAsField(true);
       (this->TransformType == TransformTypes::CarToCyl) ? cylindricalCT.SetCartesianToCylindrical()
                                                         : cylindricalCT.SetCylindricalToCartesian();
@@ -169,7 +170,7 @@ int vtkmCoordinateSystemTransform::RequestData(
     }
     else
     { // Spherical coordinate system
-      vtkm::filter::SphericalCoordinateTransform sphericalCT;
+      vtkm::filter::field_transform::SphericalCoordinateTransform sphericalCT;
       sphericalCT.SetUseCoordinateSystemAsField(true);
       (this->TransformType == TransformTypes::CarToSph) ? sphericalCT.SetCartesianToSpherical()
                                                         : sphericalCT.SetSphericalToCartesian();

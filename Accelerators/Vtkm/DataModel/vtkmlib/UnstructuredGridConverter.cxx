@@ -60,13 +60,12 @@ vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
   if (input->IsHomogeneous())
   {
     int cellType = input->GetCellType(0); // get the celltype
-    vtkm::cont::DynamicCellSet cells = ConvertSingleType(input->GetCells(), cellType, numPoints);
+    auto cells = ConvertSingleType(input->GetCells(), cellType, numPoints);
     dataset.SetCellSet(cells);
   }
   else
   {
-    vtkm::cont::DynamicCellSet cells =
-      Convert(input->GetCellTypesArray(), input->GetCells(), numPoints);
+    auto cells = Convert(input->GetCellTypesArray(), input->GetCells(), numPoints);
     dataset.SetCellSet(cells);
   }
 
@@ -96,7 +95,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vt
   // vtkm to vtk
   vtkNew<vtkCellArray> cells;
   vtkNew<vtkUnsignedCharArray> types;
-  vtkm::cont::DynamicCellSet const& outCells = voutput.GetCellSet();
+  auto const& outCells = voutput.GetCellSet();
 
   const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer(), types.GetPointer());
 

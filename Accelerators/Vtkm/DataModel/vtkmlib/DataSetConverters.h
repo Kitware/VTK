@@ -43,6 +43,10 @@ vtkm::cont::CoordinateSystem Convert(vtkPoints* points);
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::DataSet Convert(vtkStructuredGrid* input, FieldsFlag fields = FieldsFlag::None);
 
+// convert a rectilinear grid type
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
+vtkm::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields);
+
 // determine the type and call the proper Convert routine
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields = FieldsFlag::None);

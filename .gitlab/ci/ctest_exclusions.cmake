@@ -249,6 +249,14 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
     )
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vtkmoverride")
+  list(APPEND test_exclusions
+    # vtkmContour behaves differently than vtkContourFilter for these tests.
+    # Further investigation is needed to determine how to best handle these cases.
+    "^VTK::FiltersModelingPython-TestBoxFunction$"
+    "^VTK::FiltersCorePython-TestContourCases$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")

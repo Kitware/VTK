@@ -32,7 +32,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/ExternalFaces.h>
+#include <vtkm/filter/entity_extraction/ExternalFaces.h>
 
 vtkStandardNewMacro(vtkmExternalFaces);
 
@@ -112,7 +112,7 @@ int vtkmExternalFaces::RequestData(vtkInformation* vtkNotUsed(request),
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
     // apply the filter
-    vtkm::filter::ExternalFaces filter;
+    vtkm::filter::entity_extraction::ExternalFaces filter;
     filter.SetCompactPoints(this->CompactPoints);
     filter.SetPassPolyData(true);
     auto result = filter.Execute(in);

@@ -30,7 +30,7 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include <vtkm/filter/NDHistogram.h>
+#include <vtkm/filter/density_estimate/NDHistogram.h>
 
 vtkStandardNewMacro(vtkmNDHistogram);
 
@@ -126,7 +126,7 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
-    vtkm::filter::NDHistogram filter;
+    vtkm::filter::density_estimate::NDHistogram filter;
     for (size_t i = 0; i < this->FieldNames.size(); i++)
     {
       filter.AddFieldAndBin(this->FieldNames[i], this->NumberOfBins[i]);

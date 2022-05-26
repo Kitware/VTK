@@ -43,6 +43,15 @@ class CoordinateSystem;
 namespace tovtkm
 {
 
+/// Temporary name for arrays converted from VTK that do not have a name.
+/// Unnamed arrays seem to be supported by VTK, but VTK-m requires all fields to have a name.
+///
+inline static const char* NoNameVTKFieldName()
+{
+  static const char* name = "NoNameVTKField";
+  return name;
+}
+
 template <typename DataArrayType, vtkm::IdComponent NumComponents>
 struct DataArrayToArrayHandle;
 

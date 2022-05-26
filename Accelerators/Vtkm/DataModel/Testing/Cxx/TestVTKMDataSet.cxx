@@ -310,7 +310,9 @@ void TestUniformDataSet()
 void TestCurvilinearDataSet()
 {
   auto dataset = Maker.Make3DRegularDataSet0();
-  auto dims = dataset.GetCellSet().Cast<vtkm::cont::CellSetStructured<3>>().GetPointDimensions();
+  vtkm::cont::CellSetStructured<3> css3;
+  dataset.GetCellSet().AsCellSet(css3);
+  auto dims = css3.GetPointDimensions();
 
   vtkNew<vtkPoints> points;
   CoordsCopy(dataset.GetCoordinateSystem(), points);

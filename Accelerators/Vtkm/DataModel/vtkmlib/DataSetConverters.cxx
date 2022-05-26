@@ -144,6 +144,119 @@ vtkm::cont::DataSet Convert(vtkStructuredGrid* input, FieldsFlag fields)
 }
 
 //------------------------------------------------------------------------------
+// convert rectilinear coordinates
+template <typename T>
+vtkm::cont::CoordinateSystem ConvertRectilinearPoints(
+  vtkDataArray* xArray, vtkDataArray* yArray, vtkDataArray* zArray)
+{
+  vtkDataArray* vtkCompArrays[3] = { xArray, yArray, zArray };
+  vtkm::cont::ArrayHandle<T> vtkmCompArrays[3];
+
+  for (int i = 0; i < 3; ++i)
+  {
+    vtkAOSDataArrayTemplate<T>* aos = vtkAOSDataArrayTemplate<T>::FastDownCast(vtkCompArrays[i]);
+    if (aos)
+    {
+      vtkmCompArrays[i] = DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, 1>::Wrap(aos);
+      continue;
+    }
+
+    vtkSOADataArrayTemplate<T>* soa = vtkSOADataArrayTemplate<T>::FastDownCast(vtkCompArrays[i]);
+    if (soa)
+    {
+      vtkmCompArrays[i] = DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, 1>::Wrap(soa);
+      continue;
+    }
+
+    throw vtkm::cont::ErrorBadType("Unexpected rectilinear component array type (VTK)");
+  }
+
+  return vtkm::cont::CoordinateSystem("coords",
+    vtkm::cont::make_ArrayHandleCartesianProduct(
+      vtkmCompArrays[0], vtkmCompArrays[1], vtkmCompArrays[2]));
+}
+
+//------------------------------------------------------------------------------
+// convert a rectilinear grid type
+vtkm::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields)
+{
+  const int dimensionality = input->GetDataDimension();
+  int dims[3];
+  input->GetDimensions(dims);
+
+  int extent[6];
+  input->GetExtent(extent);
+
+  vtkm::cont::DataSet dataset;
+
+  // first step, convert the points x, y aqnd z arrays over
+  if (input->GetXCoordinates()->GetDataType() == VTK_DOUBLE)
+  {
+    dataset.AddCoordinateSystem(ConvertRectilinearPoints<double>(
+      input->GetXCoordinates(), input->GetYCoordinates(), input->GetZCoordinates()));
+  }
+  else // assume float
+  {
+    dataset.AddCoordinateSystem(ConvertRectilinearPoints<float>(
+      input->GetXCoordinates(), input->GetYCoordinates(), input->GetZCoordinates()));
+  }
+
+  // second step is to create structured cellset that represe
+  if (dimensionality == 1)
+  {
+    vtkm::cont::CellSetStructured<1> cells;
+    if (dims[0] > 1)
+    {
+      cells.SetPointDimensions(dims[0]);
+      cells.SetGlobalPointIndexStart(extent[0]);
+    }
+    else if (dims[1] > 1)
+    {
+      cells.SetPointDimensions(dims[1]);
+      cells.SetGlobalPointIndexStart(extent[2]);
+    }
+    else
+    {
+      cells.SetPointDimensions(dims[2]);
+      cells.SetGlobalPointIndexStart(extent[4]);
+    }
+    dataset.SetCellSet(cells);
+  }
+  else if (dimensionality == 2)
+  {
+    vtkm::cont::CellSetStructured<2> cells;
+    if (dims[0] == 1)
+    {
+      cells.SetPointDimensions(vtkm::make_Vec(dims[1], dims[2]));
+      cells.SetGlobalPointIndexStart(vtkm::make_Vec(extent[2], extent[4]));
+    }
+    else if (dims[1] == 1)
+    {
+      cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[2]));
+      cells.SetGlobalPointIndexStart(vtkm::make_Vec(extent[0], extent[4]));
+    }
+    else
+    {
+      cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[1]));
+      cells.SetGlobalPointIndexStart(vtkm::make_Vec(extent[0], extent[2]));
+    }
+
+    dataset.SetCellSet(cells);
+  }
+  else // going to presume 3d for everything else
+  {
+    vtkm::cont::CellSetStructured<3> cells;
+    cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[1], dims[2]));
+    cells.SetGlobalPointIndexStart(vtkm::make_Vec(extent[0], extent[2], extent[4]));
+    dataset.SetCellSet(cells);
+  }
+
+  ProcessFields(input, dataset, fields);
+
+  return dataset;
+}
+
+//------------------------------------------------------------------------------
 // determine the type and call the proper Convert routine
 vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields)
 {
@@ -158,9 +271,10 @@ vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields)
       return Convert(vtkImageData::SafeDownCast(input), fields);
     case VTK_POLY_DATA:
       return Convert(vtkPolyData::SafeDownCast(input), fields);
+    case VTK_RECTILINEAR_GRID:
+      return Convert(vtkRectilinearGrid::SafeDownCast(input), fields);
 
     case VTK_UNSTRUCTURED_GRID_BASE:
-    case VTK_RECTILINEAR_GRID:
     case VTK_STRUCTURED_POINTS:
     default:
       return vtkm::cont::DataSet();
@@ -234,17 +348,37 @@ bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtk
     vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3>>;
   auto cellSet = vtkmOut.GetCellSet().ResetCellSetList(ListCellSetStructured{});
 
-  using coordType =
-    vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
-      vtkm::cont::ArrayHandle<vtkm::FloatDefault>, vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
-  auto coordsArray = vtkm::cont::Cast<coordType>(vtkmOut.GetCoordinateSystem().GetData());
+  vtkSmartPointer<vtkDataArray> xArray, yArray, zArray;
+  if (vtkmOut.GetCoordinateSystem().GetData().template IsValueType<vtkm::Float32>())
+  {
+    using coordArrayType =
+      vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::Float32>,
+        vtkm::cont::ArrayHandle<vtkm::Float32>, vtkm::cont::ArrayHandle<vtkm::Float32>>;
+    coordArrayType coordsArray;
+    vtkmOut.GetCoordinateSystem().GetData().AsArrayHandle(coordsArray);
 
-  vtkSmartPointer<vtkDataArray> xArray =
-    Convert(vtkm::cont::make_FieldPoint("xArray", coordsArray.GetFirstArray()));
-  vtkSmartPointer<vtkDataArray> yArray =
-    Convert(vtkm::cont::make_FieldPoint("yArray", coordsArray.GetSecondArray()));
-  vtkSmartPointer<vtkDataArray> zArray =
-    Convert(vtkm::cont::make_FieldPoint("zArray", coordsArray.GetThirdArray()));
+    xArray.TakeReference(
+      Convert(vtkm::cont::make_FieldPoint("xArray", coordsArray.GetFirstArray())));
+    yArray.TakeReference(
+      Convert(vtkm::cont::make_FieldPoint("yArray", coordsArray.GetSecondArray())));
+    zArray.TakeReference(
+      Convert(vtkm::cont::make_FieldPoint("zArray", coordsArray.GetThirdArray())));
+  }
+  else // vtkm::Float64
+  {
+    using coordArrayType =
+      vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::Float64>,
+        vtkm::cont::ArrayHandle<vtkm::Float64>, vtkm::cont::ArrayHandle<vtkm::Float64>>;
+    coordArrayType coordsArray;
+    vtkmOut.GetCoordinateSystem().GetData().AsArrayHandle(coordsArray);
+
+    xArray.TakeReference(
+      Convert(vtkm::cont::make_FieldPoint("xArray", coordsArray.GetFirstArray())));
+    yArray.TakeReference(
+      Convert(vtkm::cont::make_FieldPoint("yArray", coordsArray.GetSecondArray())));
+    zArray.TakeReference(
+      Convert(vtkm::cont::make_FieldPoint("zArray", coordsArray.GetThirdArray())));
+  }
 
   if (!xArray || !yArray || !zArray)
   {

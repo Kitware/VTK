@@ -33,7 +33,7 @@
 #include "vtkm/cont/DataSetFieldAdd.h"
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/WarpScalar.h>
+#include <vtkm/filter/field_transform/WarpScalar.h>
 
 vtkStandardNewMacro(vtkmWarpScalar);
 
@@ -108,7 +108,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
     vtkm::Id numberOfPoints = in.GetCoordinateSystem().GetData().GetNumberOfValues();
 
     // ScaleFactor in vtk is the scalarAmount in vtk-m.
-    vtkm::filter::WarpScalar warpScalar(this->ScaleFactor);
+    vtkm::filter::field_transform::WarpScalar warpScalar(this->ScaleFactor);
     warpScalar.SetUseCoordinateSystemAsField(true);
 
     // Get/generate the normal field
@@ -156,7 +156,7 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
 
     auto result = warpScalar.Execute(in);
     vtkDataArray* warpScalarResult =
-      fromvtkm::Convert(result.GetField("warpscalar", vtkm::cont::Field::Association::POINTS));
+      fromvtkm::Convert(result.GetField("warpscalar", vtkm::cont::Field::Association::Points));
     vtkPoints* newPts = vtkPoints::New();
     // Update points
     newPts->SetNumberOfPoints(warpScalarResult->GetNumberOfTuples());

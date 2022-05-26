@@ -14,7 +14,7 @@ class TestContourGrid(Testing.vtkTest):
 
     input = reader.GetOutput().GetBlock(0).GetBlock(0);
 
-    cf = vtk.vtkContourFilter()
+    cf = vtk.vtkContourGrid()
     cf.SetInputData(input)
     cf.SetValue(0,400)
     cf.SetInputArrayToProcess(0, 0, 0, 0, "Temp");

@@ -158,7 +158,7 @@ vtkDataArray* Convert(const vtkm::cont::Field& input)
   {
     vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicyFieldNotActive(input, policy), aConverter);
     data = aConverter.Data;
-    if (data)
+    if (data && (input.GetName() != tovtkm::NoNameVTKFieldName()))
     {
       data->SetName(input.GetName().c_str());
     }
@@ -180,7 +180,7 @@ vtkDataArray* Convert(const vtkm::cont::UnknownArrayHandle& input, const char* n
   {
     vtkm::cont::CastAndCall(input, aConverter);
     data = aConverter.Data;
-    if (data && name)
+    if (data && name && (std::string(name) != tovtkm::NoNameVTKFieldName()))
     {
       data->SetName(name);
     }

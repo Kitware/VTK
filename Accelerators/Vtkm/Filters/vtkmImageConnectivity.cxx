@@ -27,7 +27,7 @@
 
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/ImageConnectivity.h>
+#include <vtkm/filter/connected_components/ImageConnectivity.h>
 
 vtkStandardNewMacro(vtkmImageConnectivity);
 
@@ -65,8 +65,8 @@ int vtkmImageConnectivity::RequestData(
 
   try
   {
-    vtkm::filter::ImageConnectivity filter;
-    filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::POINTS);
+    vtkm::filter::connected_components::ImageConnectivity filter;
+    filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::Points);
     // the field should be named 'RegionId'
     filter.SetOutputFieldName("RegionId");
 
@@ -76,7 +76,7 @@ int vtkmImageConnectivity::RequestData(
     inData.AddField(inField);
 
     // don't pass this field
-    filter.SetFieldsToPass(vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
+    filter.SetFieldsToPass(vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None));
 
     vtkm::cont::DataSet result;
     result = filter.Execute(inData);

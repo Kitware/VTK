@@ -14,7 +14,7 @@ class TestSynchronizedTemplates3D(Testing.vtkTest):
     reader.SetDataMask(0x7fff)
     # write isosurface to file
     #vtkSynchronizedTemplates3D stemp
-    stemp = vtk.vtkContourFilter()
+    stemp = vtk.vtkSynchronizedTemplates3D()
     stemp.SetInputConnection(reader.GetOutputPort())
     stemp.SetValue(0,1150)
 

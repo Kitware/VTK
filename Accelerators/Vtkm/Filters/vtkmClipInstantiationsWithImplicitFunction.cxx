@@ -16,7 +16,7 @@
 #include "vtkmClipInternals.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include <vtkm/filter/ClipWithImplicitFunction.h>
+#include <vtkm/filter/contour/ClipWithImplicitFunction.h>
 
 //------------------------------------------------------------------------------
 vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithImplicitFunction(vtkm::cont::DataSet& in)
@@ -24,7 +24,7 @@ vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithImplicitFunction(vtkm::c
   auto function = this->ClipFunctionConverter->Get();
 
   vtkm::cont::DataSet result;
-  vtkm::filter::ClipWithImplicitFunction functionFilter;
+  vtkm::filter::contour::ClipWithImplicitFunction functionFilter;
   functionFilter.SetImplicitFunction(function);
   result = functionFilter.Execute(in);
 
