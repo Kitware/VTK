@@ -20,8 +20,9 @@
  * points on the boundary of a dataset. The output of the filter is identical
  * to the input, with the exception that two, new data arrays are added to
  * the output that indicate which input points, and input cells, are on the
- * boundary. (Cells and points on the boundary are indicated by a non-zero
- * value, accessed in the appropriate data array by cell id or point id.)
+ * boundary. (Cells and points on the boundary are indicated by a value ==1,
+ * otherwise ==0, and are accessed in the appropriate data array by cell id
+ * or point id. The output data arrays are of type vtkUnsignedChar.)
  *
  * In general, n-dimensional faces are on the boundary of a (n+1)-dataset if
  * used by a single (n+1)-dimensional cell. So for example the boundary cells
