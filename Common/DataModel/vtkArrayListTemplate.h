@@ -141,7 +141,7 @@ struct ArrayPair : public BaseArrayPair
       double v = 0.0;
       for (vtkIdType i = 0; i < numPts; ++i)
       {
-        v += (weights[i] + static_cast<double>(this->Input[ids[i] * this->NumComp + j]));
+        v += (weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]));
       }
       this->Output[outId * this->NumComp + j] = static_cast<T>(v);
     }
