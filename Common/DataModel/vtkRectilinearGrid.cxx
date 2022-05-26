@@ -15,7 +15,9 @@
 
 #include "vtkRectilinearGrid.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -26,6 +28,7 @@
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkSMPTools.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
@@ -542,18 +545,132 @@ unsigned char vtkRectilinearGrid::IsCellVisible(vtkIdType cellId)
     this->GetCellGhostArray(), this->GetPointGhostArray());
 }
 
+namespace
+{
+//------------------------------------------------------------------------------
+template <typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ>
+class MergeCoordinatesFunctor
+{
+  ArrayTypeX* ArrayX;
+  ArrayTypeY* ArrayY;
+  ArrayTypeZ* ArrayZ;
+  vtkDoubleArray* Vector;
+  std::array<int, 3> Dimensions;
+  vtkIdType DataDescription;
+
+public:
+  MergeCoordinatesFunctor(ArrayTypeX* arrayX, ArrayTypeY* arrayY, ArrayTypeZ* arrayZ,
+    vtkDoubleArray* vector, int dimensions[3], vtkIdType dataDescription)
+    : ArrayX(arrayX)
+    , ArrayY(arrayY)
+    , ArrayZ(arrayZ)
+    , Vector(vector)
+    , Dimensions({ dimensions[0], dimensions[1], dimensions[2] })
+    , DataDescription(dataDescription)
+  {
+  }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    // mark out ranges as single component for better perf
+    const auto& inX = vtk::DataArrayValueRange<1>(this->ArrayX);
+    const auto& inY = vtk::DataArrayValueRange<1>(this->ArrayY);
+    const auto& inZ = vtk::DataArrayValueRange<1>(this->ArrayZ);
+    auto outVector = vtk::DataArrayTupleRange<3>(this->Vector, begin, end);
+
+    vtkIdType ptId = begin;
+    int loc[3];
+    for (auto point : outVector)
+    {
+      switch (this->DataDescription)
+      {
+        case VTK_SINGLE_POINT:
+          loc[0] = loc[1] = loc[2] = 0;
+          break;
+
+        case VTK_X_LINE:
+          loc[1] = loc[2] = 0;
+          loc[0] = ptId;
+          break;
+
+        case VTK_Y_LINE:
+          loc[0] = loc[2] = 0;
+          loc[1] = ptId;
+          break;
+
+        case VTK_Z_LINE:
+          loc[0] = loc[1] = 0;
+          loc[2] = ptId;
+          break;
+
+        case VTK_XY_PLANE:
+          loc[2] = 0;
+          loc[0] = ptId % this->Dimensions[0];
+          loc[1] = ptId / this->Dimensions[0];
+          break;
+
+        case VTK_YZ_PLANE:
+          loc[0] = 0;
+          loc[1] = ptId % this->Dimensions[1];
+          loc[2] = ptId / this->Dimensions[1];
+          break;
+
+        case VTK_XZ_PLANE:
+          loc[1] = 0;
+          loc[0] = ptId % this->Dimensions[0];
+          loc[2] = ptId / this->Dimensions[0];
+          break;
+
+        case VTK_XYZ_GRID:
+          loc[0] = ptId % this->Dimensions[0];
+          loc[1] = (ptId / this->Dimensions[0]) % this->Dimensions[1];
+          loc[2] = ptId / (this->Dimensions[0] * this->Dimensions[1]);
+          break;
+
+        default:
+          loc[0] = loc[1] = loc[2] = 0;
+          break;
+      }
+      point[0] = static_cast<double>(inX[loc[0]]);
+      point[1] = static_cast<double>(inY[loc[1]]);
+      point[2] = static_cast<double>(inZ[loc[2]]);
+      ptId++;
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
+struct MergeCoordinatesWorker
+{
+  template <typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ>
+  void operator()(ArrayTypeX* arrayX, ArrayTypeY* arrayY, ArrayTypeZ* arrayZ,
+    vtkDoubleArray* vector, int dimensions[3], vtkIdType dataDescription)
+  {
+    MergeCoordinatesFunctor<ArrayTypeX, ArrayTypeY, ArrayTypeZ> functor(
+      arrayX, arrayY, arrayZ, vector, dimensions, dataDescription);
+    vtkSMPTools::For(0, vector->GetNumberOfTuples(), functor);
+  }
+};
+}
+
 //------------------------------------------------------------------------------
 void vtkRectilinearGrid::GetPoints(vtkPoints* pnts)
 {
   assert("pre: points object should not be nullptr" && (pnts != nullptr));
 
   pnts->Initialize();
-  pnts->SetNumberOfPoints(this->GetNumberOfPoints());
-  vtkIdType pntIdx = 0;
-  for (; pntIdx < this->GetNumberOfPoints(); ++pntIdx)
+  vtkNew<vtkDoubleArray> coords;
+  coords->SetNumberOfComponents(3);
+  coords->SetNumberOfTuples(this->GetNumberOfPoints());
+  MergeCoordinatesWorker mergeCoordinatesWorker;
+  using Dispatcher = vtkArrayDispatch::Dispatch3BySameValueType<vtkArrayDispatch::Reals>;
+  if (!Dispatcher::Execute(this->XCoordinates, this->YCoordinates, this->ZCoordinates,
+        mergeCoordinatesWorker, coords.Get(), this->Dimensions, this->DataDescription))
   {
-    pnts->SetPoint(pntIdx, this->GetPoint(pntIdx));
-  } // END for all points
+    mergeCoordinatesWorker(this->XCoordinates, this->YCoordinates, this->ZCoordinates, coords.Get(),
+      this->Dimensions, this->DataDescription);
+  }
+  pnts->SetData(coords.Get());
 }
 
 //------------------------------------------------------------------------------
