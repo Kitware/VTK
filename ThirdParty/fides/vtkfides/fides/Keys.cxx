@@ -39,6 +39,16 @@ KeyType STEP_SELECTION()
   return reinterpret_cast<KeyType>(&STEP_SELECTION);
 }
 
+KeyType TIME_VALUE()
+{
+  return reinterpret_cast<KeyType>(&TIME_VALUE);
+}
+
+KeyType TIME_ARRAY()
+{
+  return reinterpret_cast<KeyType>(&TIME_ARRAY);
+}
+
 KeyType PLANE_SELECTION()
 {
   return reinterpret_cast<KeyType>(&PLANE_SELECTION);
@@ -64,6 +74,11 @@ KeyType ADD_R_FIELD()
 KeyType ADD_PHI_FIELD()
 {
   return reinterpret_cast<KeyType>(&ADD_PHI_FIELD);
+}
+
+KeyType FUSION_PERIODIC_CELLSET()
+{
+  return reinterpret_cast<KeyType>(&FUSION_PERIODIC_CELLSET);
 }
 
 KeyType ADD_PSI_FIELD()

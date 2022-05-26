@@ -667,6 +667,9 @@ void CellSetGTC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
     addR = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_R_FIELD()).Value;
   if (selections.Has(fides::keys::fusion::ADD_PHI_FIELD()))
     addPhi = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_PHI_FIELD()).Value;
+  if (selections.Has(fides::keys::fusion::FUSION_PERIODIC_CELLSET()))
+    this->PeriodicCellSet =
+      selections.Get<fides::metadata::Bool>(fides::keys::fusion::FUSION_PERIODIC_CELLSET()).Value;
 
   auto& dataSet = partitions[0];
   if (this->IsCached)
@@ -846,43 +849,46 @@ std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
     }
   }
 
-  //Connect the first/last plane.
-  //Uses index-shift to map between flux surfaces.
-  auto indexShiftPortal = indexShift.ReadPortal();
-  std::vector<vtkm::Id> pn(this->NumberOfPointsPerPlane, -1);
-  vtkm::Id n = igridPortal.GetNumberOfValues();
-  for (vtkm::Id gi = 0; gi < n - 1; gi++)
+  if (this->PeriodicCellSet)
   {
-    vtkm::Id n0 = igridPortal.Get(gi);
-    vtkm::Id nn = igridPortal.Get(gi + 1) - 1;
-    vtkm::Id shift = static_cast<vtkm::Id>(indexShiftPortal.Get(gi));
-
-    for (vtkm::Id i = 0; i < (nn - n0); i++)
+    //Connect the first/last plane.
+    //Uses index-shift to map between flux surfaces.
+    auto indexShiftPortal = indexShift.ReadPortal();
+    std::vector<vtkm::Id> pn(this->NumberOfPointsPerPlane, -1);
+    vtkm::Id n = igridPortal.GetNumberOfValues();
+    for (vtkm::Id gi = 0; gi < n - 1; gi++)
     {
-      vtkm::Id i0 = i;
-      vtkm::Id i1 = i - shift;
-      if (i1 < 0)
-        i1 = i1 + (nn - n0);
-      pn[n0 + i0] = n0 + i1;
+      vtkm::Id n0 = igridPortal.Get(gi);
+      vtkm::Id nn = igridPortal.Get(gi + 1) - 1;
+      vtkm::Id shift = static_cast<vtkm::Id>(indexShiftPortal.Get(gi));
+
+      for (vtkm::Id i = 0; i < (nn - n0); i++)
+      {
+        vtkm::Id i0 = i;
+        vtkm::Id i1 = i - shift;
+        if (i1 < 0)
+          i1 = i1 + (nn - n0);
+        pn[n0 + i0] = n0 + i1;
+      }
     }
-  }
 
-  vtkm::Id offset = nNodes * (this->NumberOfPlanes - 1);
-  for (vtkm::Id i = 0; i < nElements; i++)
-  {
-    vtkm::Id ids[3] = { connIds[i * 6 + 0], connIds[i * 6 + 1], connIds[i * 6 + 2] };
-    if (!(ids[0] < nNodes && ids[1] < nNodes && ids[2] < nNodes))
-      throw std::runtime_error("Invalid connectivity for GTC Cellset.");
+    vtkm::Id offset = nNodes * (this->NumberOfPlanes - 1);
+    for (vtkm::Id i = 0; i < nElements; i++)
+    {
+      vtkm::Id ids[3] = { connIds[i * 6 + 0], connIds[i * 6 + 1], connIds[i * 6 + 2] };
+      if (!(ids[0] < nNodes && ids[1] < nNodes && ids[2] < nNodes))
+        throw std::runtime_error("Invalid connectivity for GTC Cellset.");
 
-    //plane N-1
-    connIds.push_back(pn[ids[0]] + offset);
-    connIds.push_back(pn[ids[1]] + offset);
-    connIds.push_back(pn[ids[2]] + offset);
+      //plane N-1
+      connIds.push_back(pn[ids[0]] + offset);
+      connIds.push_back(pn[ids[1]] + offset);
+      connIds.push_back(pn[ids[2]] + offset);
 
-    //plane 0
-    connIds.push_back(ids[0]);
-    connIds.push_back(ids[1]);
-    connIds.push_back(ids[2]);
+      //plane 0
+      connIds.push_back(ids[0]);
+      connIds.push_back(ids[1]);
+      connIds.push_back(ids[2]);
+    }
   }
 
   return connIds;

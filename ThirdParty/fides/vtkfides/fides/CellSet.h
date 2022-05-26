@@ -254,6 +254,7 @@ private:
   bool PhiArrayCached = false;
   vtkm::cont::ArrayHandle<vtkm::Float32> RArray;
   vtkm::cont::ArrayHandle<vtkm::Float32> PhiArray;
+  bool PeriodicCellSet = true;
 };
 
 }

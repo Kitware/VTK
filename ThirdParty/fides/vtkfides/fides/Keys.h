@@ -42,6 +42,16 @@ FIDES_EXPORT KeyType FIELDS();
 /// Uses fides::metadata::Index
 FIDES_EXPORT KeyType STEP_SELECTION();
 
+/// Key used for retrieving the time value of a step.
+/// Should only be used when streaming.
+/// Uses fides::metadata::Time
+FIDES_EXPORT KeyType TIME_VALUE();
+
+/// Key used for retreiving the full array of time step values.
+/// Used in random access mode
+/// Uses fides::metadata::Vector<double>
+FIDES_EXPORT KeyType TIME_ARRAY();
+
 /// Key used for selecting planes for XGC data.
 /// Should only be used internally.
 /// Uses fides::metadata::Set
@@ -61,6 +71,11 @@ FIDES_EXPORT KeyType PLANE_INSERTION();
 /// for GTC and XGC data.
 /// Uses fides::metadata::Bool
 FIDES_EXPORT KeyType ADD_R_FIELD();
+
+/// Key used for specifying that the mesh should be periodic
+/// for GTC and XGC data.
+/// Uses fides::metadata::Bool
+FIDES_EXPORT KeyType FUSION_PERIODIC_CELLSET();
 
 /// Key used for specifying that the Phi field should be added.
 /// for GTC and XGC data.

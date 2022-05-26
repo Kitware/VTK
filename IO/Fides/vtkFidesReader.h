@@ -93,6 +93,14 @@ public:
   void SetDataSourcePath(const std::string& name, VTK_FILEPATH const std::string& path);
 
   /**
+   * Set the ADIOS2::IO object to be used for setting up the Inline engine reader.
+   * This should not be used for any other engine type.
+   * ioAddress is a string containing the address of the IO object, which Fides
+   * will cast to a IO pointer.
+   */
+  void SetDataSourceIO(const std::string& name, const std::string& ioAddress);
+
+  /**
    * Implements various pipeline passes.
    */
   int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -113,6 +121,12 @@ public:
    * NotReady after reading a step.
    */
   int GetNextStepStatus();
+
+  /**
+   * Gets the time (from the specified ADIOS variable) of the current step.
+   * Should only be used in streaming mode.
+   */
+  double GetTimeOfCurrentStep();
 
   ///@{
   /**
