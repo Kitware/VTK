@@ -188,6 +188,7 @@ int TestGPURayCastMapperShadows(int argc, char* argv[])
   vtkNew<vtkVolumeProperty> volProp;
   volProp->SetDiffuse(1.0);
   volProp->SetSpecular(1.0);
+  volProp->SetAmbient(1.0);
   volProp->SetSpecularPower(100.0);
   volProp->SetShade(1);
   volProp->SetInterpolationType(VTK_NEAREST_INTERPOLATION);
@@ -217,8 +218,8 @@ int TestGPURayCastMapperShadows(int argc, char* argv[])
   volMapper->SetSampleDistance(spacing[0] * 0.5);
   volMapper->SetInputData(grid);
   volMapper->SetBlendModeToComposite();
-  volMapper->SetVolumetricShadow(true);
   volMapper->SetGlobalIlluminationReach(0.82);
+  volMapper->SetVolumetricScatteringBlending(2.0);
 
   // Volume
   vtkNew<vtkVolume> vol;
@@ -240,6 +241,7 @@ int TestGPURayCastMapperShadows(int argc, char* argv[])
   light->SetLightTypeToSceneLight();
   light->SetPosition(lightPosition);
   light->SetPositional(true);
+  light->SetAmbientColor(0.3, 0.2, 0.1);
   light->SetConeAngle(60);
   light->SetFocalPoint(lightFocalPoint);
   light->SetIntensity(1.0);

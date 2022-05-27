@@ -875,6 +875,27 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingShaderParameters(
 
   prog->SetUniformi("in_twoSidedLighting", ren->GetTwoSidedLighting());
 
+  // Shadows extent parameter
+  if (this->Parent->GetVolumetricScatteringBlending() > 0.0)
+  {
+    float shadowExtent = this->Parent->GetGlobalIlluminationReach();
+    // we map the shadow extent from [0, 1] to [sampleDistance, sqrt(3)]
+    // 0.1 corresponds to the minimum length of a shadow ray (the texture unit cube has size 1)
+    // sqrt(3) corresponds to the maximum (the diagonal of the cube)
+    float* invTexMat = this->InvTexMatVec.data();
+    float minCoef = VTK_FLOAT_MAX;
+    // only take 3x3 sub-matrix because it will be multplied by a vec4(..., 0.0) normalized vec
+    for (int i = 0; i < 3; i++)
+    {
+      // diagonal coefficient
+      minCoef = std::min(minCoef, std::abs(invTexMat[5 * i]));
+    }
+    float minExtent = minCoef * this->ActualSampleDistance;
+    constexpr float maxExtent = 1.73205;
+    shadowExtent = (minExtent - maxExtent) * std::pow(1.0 - shadowExtent, 0.33) + maxExtent;
+    prog->SetUniformf("in_giReach", shadowExtent);
+  }
+
   // for lightkit case there are some parameters to set
   vtkCamera* cam = ren->GetActiveCamera();
   vtkTransform* viewTF = cam->GetModelViewTransformObject();
@@ -968,27 +989,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingShaderParameters(
       "in_lightPosition", this->NumberPositionalLights, lightPosition.data()->data());
     prog->SetUniform1fv("in_lightExponent", this->NumberPositionalLights, lightExponent.data());
     prog->SetUniform1fv("in_lightConeAngle", this->NumberPositionalLights, lightConeAngle.data());
-  }
-
-  // Shadows extent parameter
-  if (this->Parent->GetVolumetricShadow())
-  {
-    float shadowExtent = this->Parent->GetGlobalIlluminationReach();
-    // we map the shadow extent from [0, 1] to [sampleDistance, sqrt(3)]
-    // 0.1 corresponds to the minimum length of a shadow ray (the texture unit cube has size 1)
-    // sqrt(3) corresponds to the maximum (the diagonal of the cube)
-    float* invTexMat = this->InvTexMatVec.data();
-    float minCoef = VTK_FLOAT_MAX;
-    // only take 3x3 sub-matrix because it will be multiplied by a vec4(..., 0.0) normalized vec
-    for (int i = 0; i < 3; i++)
-    {
-      // diagonal coefficient
-      minCoef = std::min(minCoef, std::abs(invTexMat[5 * i]));
-    }
-    float minExtent = minCoef * this->ActualSampleDistance;
-    constexpr float maxExtent = 1.73205;
-    shadowExtent = (minExtent - maxExtent) * std::pow(1.0 - shadowExtent, 0.33) + maxExtent;
-    prog->SetUniformf("in_giReach", shadowExtent);
   }
 }
 
@@ -2452,12 +2452,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
         independentComponents, this->Impl->Transfer2DUseGradient));
   }
 
-  if (this->GetVolumetricShadow())
+  if (this->GetVolumetricScatteringBlending() > 0.0 && this->Impl->TotalNumberOfLights > 0.0)
   {
+    vtkShaderProgram::Substitute(fragmentShader, "//VTK::PhaseFunction::Dec",
+      vtkvolume::PhaseFunctionDeclaration(ren, this, vol));
+
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeVolumetricShadow::Dec",
       vtkvolume::ComputeVolumetricShadowDec(this, vol, numComps, independentComponents,
         this->AssembledInputs, this->Impl->Transfer2DUseGradient));
+
+    if (!this->Impl->DefaultLighting)
+    {
+      vtkShaderProgram::Substitute(fragmentShader, "//VTK::Matrices::Init",
+        vtkvolume::ComputeMatricesInit(this, this->Impl->NumberPositionalLights));
+    }
   }
+
+  vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeColor::Unif",
+    vtkvolume::ComputeColorUniforms(this->AssembledInputs, numComps, volumeProperty));
 
   if (this->Impl->MultiVolume)
   {
@@ -2508,8 +2520,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
           vtkvolume::ComputeOpacity2DDeclaration(ren, this, vol, numComps, independentComponents,
             this->AssembledInputs[0].TransferFunctions2DMap, this->Impl->Transfer2DUseGradient));
 
-        vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeOpacity2DWithGradient::Dec",
-          vtkvolume::ComputeOpacity2DWithGradientDeclaration(ren, this, vol, numComps,
+        vtkShaderProgram::Substitute(fragmentShader, "//VTK::ComputeRGBA2DWithGradient::Dec",
+          vtkvolume::ComputeRGBA2DWithGradientDeclaration(ren, this, vol, numComps,
             independentComponents, this->AssembledInputs[0].TransferFunctions2DMap,
             this->Impl->Transfer2DUseGradient));
 
@@ -3555,6 +3567,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetVolumeShaderParameters(
     "in_cellStep", numInputs, reinterpret_cast<const float(*)[3]>(this->StepVec.data()));
   prog->SetUniform3fv(
     "in_cellSpacing", numInputs, reinterpret_cast<const float(*)[3]>(this->SpacingVec.data()));
+
+  if (this->Parent->GetVolumetricScatteringBlending() > 0.0)
+  {
+    // set anisotropy of the first volume
+    prog->SetUniformf("in_anisotropy",
+      this->Parent->AssembledInputs[0].Volume->GetProperty()->GetScatteringAnisotropy());
+    prog->SetUniformf(
+      "in_volumetricScatteringBlending", this->Parent->GetVolumetricScatteringBlending() / 2.0);
+  }
 }
 
 ////----------------------------------------------------------------------------

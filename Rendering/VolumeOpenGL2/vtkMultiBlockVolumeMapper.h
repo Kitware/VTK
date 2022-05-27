@@ -112,18 +112,18 @@ public:
 
   ///@{
   /**
-   * VolumetricShadow exposed
-   * \sa vtkVolumeMapper::SetVolumetricShadow
-   */
-  void SetVolumetricShadow(bool val) override;
-  ///@}
-
-  ///@{
-  /**
    * @copydoc vtkSmartVolumeMapper::SetGlobalIlluminationReach(float)
    */
   void SetGlobalIlluminationReach(float val);
   vtkGetMacro(GlobalIlluminationReach, float);
+  ///@}
+
+  ///@{
+  /**
+   * @copydoc vtkSmartVolumeMapper::SetVolumetricScatteringBlending(float)
+   */
+  void SetVolumetricScatteringBlending(float val);
+  vtkGetMacro(VolumetricScatteringBlending, float);
   ///@}
 
   ///@{
@@ -236,6 +236,11 @@ private:
    * Secondary rays ambient/global adjustment coefficient
    */
   float GlobalIlluminationReach = 0.0;
+
+  /**
+   * Blending coefficient between surfacic and volumetric models in GPU Mapper
+   */
+  float VolumetricScatteringBlending = 0.0;
 
   char* Transfer2DYAxisArray;
 };

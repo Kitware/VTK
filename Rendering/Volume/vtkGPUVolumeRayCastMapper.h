@@ -279,6 +279,22 @@ public:
 
   ///@{
   /**
+   * This parameter controls the blending between surfacic approximation
+   * and volumetric multi-scattering. It is only considered when
+   * Shade is enabled.
+   * A value of 0.0 means that no scattered rays will be cast, no volumetric shadows
+   * A value of 1.0 means that the shader will smartly blend between the two models
+   * A value of 2.0 means that the shader only uses the volumetric scattering model.
+   * The blending is not uniform, and is done in the following way:
+   * a value in [0, 1] biases the shader to choose between the two models, and a value
+   * in [1, 2] forces the shader to use more the volumetric model.
+   */
+  vtkSetClampMacro(VolumetricScatteringBlending, float, 0.0f, 2.0f);
+  vtkGetMacro(VolumetricScatteringBlending, float);
+  ///@}
+
+  ///@{
+  /**
    * Enable or disable setting output of volume rendering to be
    * color and depth textures. By default this is set to 0 (off).
    * It should be noted that it is possible that underlying API specific
@@ -535,6 +551,8 @@ protected:
 
   // Secondary rays ambient/global adjustment coefficient
   float GlobalIlluminationReach = 0.0;
+
+  float VolumetricScatteringBlending = 0.0;
 
   // Enable / disable two pass rendering
   vtkTypeBool UseDepthPass;

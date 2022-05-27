@@ -14,7 +14,9 @@ has also been improved.
 ## Add shadow rays
 
 When the shading of a volume is enabled, you can now render volumetric shadows. These shadows are cast by the volume on itself,
-not by surfaces. There is now an option in vtkVolumeMapper to enable it.
+not by surfaces. There is now an option in vtkVolumeMapper to enable it. This option controls the volumetric scattering blending
+between the gradient-based shading approach, and the volumetric scattering model with shadow rays.
 This option is considered only if the shading is also enabled.
+You can now specify a volume anisotropy in the volume's property, which will be used in the volumetric scattering model.
 A global illumination reach parameter controls the scope of secondary rays. A value of 0 means only local shadows and 1 means
 that shadows will be computed through the whole volume. The higher this parameter is, the slower the rendering will be.
