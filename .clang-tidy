@@ -78,6 +78,7 @@ readability-*,\
 -readability-braces-around-statements,\
 -readability-convert-member-functions-to-static,\
 -readability-else-after-return,\
+-readability-identifier-length,\
 -readability-function-cognitive-complexity,\
 -readability-function-size,\
 -readability-implicit-bool-conversion,\
