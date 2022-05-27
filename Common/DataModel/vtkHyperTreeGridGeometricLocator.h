@@ -38,6 +38,8 @@
 #include "vtkHyperTreeGridLocator.h"
 
 class vtkGenericCell;
+class vtkPoints;
+class vtkIdList;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridGeometricLocator : public vtkHyperTreeGridLocator
@@ -80,7 +82,7 @@ public:
    * @param[in] point an array holding the coordinates of the point to search for
    * @param[in] tol tolerance level
    * @param[out] cell pointer to a cell configured with information from return value cell index
-   * @param[out] subId
+   * @param[out] subId index of the sub cell if composite cell
    * @param[out] pcoords parametric coordinates of the point in the cell
    * @param[out] weights interpolation weights of the sought point in the cell
    * @return the global index of the cell holding the point (-1 if no cell is found)
@@ -96,13 +98,26 @@ public:
    * @param[out] t pseudo-time along line path at intersection
    * @param[out] x intersection point
    * @param[out] pcoords parametric coordinatesof intersection
-   * @param[out] subId
+   * @param[out] subId index of the sub cell if composite cell
    * @param[out] cellId the global index of the intersected cell
    * @param[out] cell pointer to a vtkCell object corresponding to cellId
    * @return an integer with 0 if no intersection could be found
    */
-  int IntersectWithLine(const double p0[3], const double p[2], const double tol, double& t,
+  int IntersectWithLine(const double p0[3], const double p1[2], const double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) override;
+
+  /**
+   * Find all intersections of the line defined by (p0, p1) with the HTG
+   * @param[in] p0 first point of the line
+   * @param[in] p1 second point of the line
+   * @param[in] tol tolerance level
+   * @param[out] points array of points on the line intersecting the HTG
+   * @param[out] cellIds array of cellIds holding the different points of the points array
+   * @param[out] cell pointer to a vtkCell object corresponding to the last cellId found
+   * @return an integer with 0 if no intersection could be found
+   */
+  int IntersectWithLine(const double p0[3], const double p1[3], const double tol, vtkPoints* points,
+    vtkIdList* cellIds, vtkGenericCell* cell) override;
   ///@}
 
 protected:
@@ -113,6 +128,20 @@ protected:
    * The recursive part of the point search
    */
   vtkIdType RecursiveSearch(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, const double pt[3]);
+
+  /**
+   * Recursive part of single line intersection search
+   */
+  vtkIdType RecurseSingleIntersectWithLine(const double p0[3], const double p1[3], const double tol,
+    vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkGenericCell* cell, double& t, int& subId,
+    double x[3], double pcoords[3]) const;
+
+  /**
+   * Recursive part of all line intersections search
+   */
+  void RecurseAllIntersectsWithLine(const double p0[3], const double p1[3], const double tol,
+    vtkHyperTreeGridNonOrientedGeometryCursor* cursor, std::vector<double>* ts, vtkPoints* points,
+    vtkIdList* cellIds, vtkGenericCell* cell) const;
 
 private:
   vtkHyperTreeGridGeometricLocator(const vtkHyperTreeGridGeometricLocator&) = delete;
@@ -138,6 +167,27 @@ private:
    * @return false for failure and true for success
    */
   bool ConstructCell(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkGenericCell* cell) const;
+
+  /**
+   * Helper method for constructing a cell from origin and size vectors
+   * @param origin origin point coordinates of the point
+   * @param size sizes in each dimension of the cell
+   * @param[out] cell an already allocated cell to fill with the values from cursor
+   * @return false for failure and true for success
+   */
+  bool ConstructCell(const double* origin, const double* size, vtkGenericCell* cell) const;
+
+  /**
+   * Helper method for getting origin and size vector for entire HTG
+   * @param[out] origin pointer to origin data
+   * @param[out] sizes pointer to size data
+   */
+  void GetZeroLevelOriginAndSize(double* origin, double* sizes) const;
+
+  /**
+   * Helper method for sorting indexes based on the other vector
+   */
+  void GetSortingMap(const std::vector<double>& other, std::vector<int>* map) const;
 
   /**
    * An array holding the 1D bin divisions given the branching factor

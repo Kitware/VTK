@@ -13,16 +13,25 @@
 
 =========================================================================*/
 
+#include <cmath>
 #include <limits>
+#include <numeric>
+#include <vector>
+
+#include "vtk_eigen.h"
+#include VTK_EIGEN(Core)
 
 #include "vtkNew.h"
 
 #include "vtkBitArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkGenericCell.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridPreConfiguredSource.h"
+#include "vtkIdList.h"
+#include "vtkPoints.h"
 
 namespace htggeomlocator
 {
@@ -33,6 +42,9 @@ struct TestResults
   bool OutsidePointSearch = false;
   bool OuterEdgeSearch = false;
   bool MaskedSearch = false;
+  bool IntersectDiagonal = false;
+  bool IntersectMaskedDiagonal = false;
+  bool AllIntersectsDiagonal = false;
   std::vector<SearchPair> points;
 }; // TestResult
 
@@ -142,22 +154,25 @@ bool runAllMaskedPointSearch(vtkHyperTreeGridGeometricLocator* htgLoc, TestResul
 
 bool runPointSearch(vtkHyperTreeGridGeometricLocator* htgLoc, const double pt[3])
 {
-  bool success = false;
+  bool success = true;
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
   vtkIdType globId = htgLoc->Search(pt, cursor);
   if (globId == -1)
   {
-    return false;
+    success = false;
   }
-  const double* origin = cursor->GetOrigin();
-  const double* size = cursor->GetSize();
-  for (unsigned int d = 0; d < htgLoc->GetHTG()->GetDimension(); d++)
+  if (success)
   {
-    double buff = pt[d] - origin[d];
-    success = (buff < size[d]) && (buff >= 0.0);
-    if (!success)
+    const double* origin = cursor->GetOrigin();
+    const double* size = cursor->GetSize();
+    for (unsigned int d = 0; d < htgLoc->GetHTG()->GetDimension(); d++)
     {
-      break;
+      double buff = pt[d] - origin[d];
+      success = (buff < size[d]) && (buff >= 0.0);
+      if (!success)
+      {
+        break;
+      }
     }
   }
   if (!success)
@@ -172,6 +187,267 @@ bool runPointSearch(vtkHyperTreeGridGeometricLocator* htgLoc, const double pt[3]
   return success;
 } // runPointSearch
 
+bool runFindCell(vtkHyperTreeGridGeometricLocator* htgLoc, const double pt[3])
+{
+  bool success = false;
+  vtkNew<vtkGenericCell> cell;
+  int subId = 0;
+  std::vector<double> pcoords(3, 0.0);
+  std::vector<double> weights(
+    static_cast<size_t>(std::pow(2, htgLoc->GetHTG()->GetDimension())), 0.0);
+  vtkIdType globId = htgLoc->FindCell(pt, 0.0, cell, subId, pcoords.data(), weights.data());
+  success = (globId >= 0);
+  double eps = 1e-3;
+  success = success && (1 - std::accumulate(weights.begin(), weights.end(), 0.0) < eps);
+  if (!success)
+  {
+    std::cout << "FindCell failed for point: \n";
+    for (unsigned int d = 0; d < htgLoc->GetHTG()->GetDimension(); d++)
+    {
+      std::cout << pt[d] << ",";
+    }
+    std::cout << std::endl;
+  }
+  return success;
+}
+
+bool runIntersectDiagonal(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* theseResults)
+{
+  bool success = false;
+  std::vector<double> origin(3, 0.0);
+  std::vector<double> diagPt(3, 0.0);
+  unsigned int dim = htgLoc->GetHTG()->GetDimension();
+  auto getDiagonalComponents = [](vtkDataArray* compArray, double& first, double& last) {
+    first = compArray->GetComponent(0, 0);
+    last = compArray->GetComponent(compArray->GetNumberOfTuples() - 1, 0);
+  };
+  getDiagonalComponents(htgLoc->GetHTG()->GetXCoordinates(), origin[0], diagPt[0]);
+  if (dim > 1)
+  {
+    getDiagonalComponents(htgLoc->GetHTG()->GetYCoordinates(), origin[1], diagPt[1]);
+  }
+  if (dim > 2)
+  {
+    getDiagonalComponents(htgLoc->GetHTG()->GetZCoordinates(), origin[2], diagPt[2]);
+  }
+  double t = -1;
+  std::vector<double> intercept(3, 0.0);
+  std::vector<double> pcoords(3, 0.0);
+  int subId = 0;
+  vtkIdType cellId = -1;
+  vtkNew<vtkGenericCell> cell;
+  int resInter = htgLoc->IntersectWithLine(
+    origin.data(), diagPt.data(), 0.0, t, intercept.data(), pcoords.data(), subId, cellId, cell);
+  if (resInter != 0)
+  {
+    success = true;
+  }
+  if (success)
+  {
+    success = (cellId >= 0);
+  }
+  if (success)
+  {
+    success = (t < 1e-6);
+  }
+  if (success)
+  {
+    for (unsigned int d = 0; d < dim; d++)
+    {
+      success = (intercept[d] == origin[d]);
+      if (!success)
+      {
+        break;
+      }
+    }
+  }
+  theseResults->IntersectDiagonal = success;
+  if (!success)
+  {
+    std::cout << "Failed diagonal intersection" << std::endl;
+  }
+  return success;
+}
+
+bool runIntersectWithPoints(vtkHyperTreeGridGeometricLocator* htgLoc, const double pt[3])
+{
+  bool success = false;
+  double ref[3] = { -1, 1, 0.0 };
+  unsigned int dim = htgLoc->GetHTG()->GetDimension();
+  if (dim == 3)
+  {
+    ref[2] = -1.0;
+  }
+  vtkNew<vtkGenericCell> cell;
+  int subId = 0;
+  std::vector<double> intercept(3, 0.0);
+  std::vector<double> pcoords(3, 0.0);
+  vtkIdType cellId = -1;
+  double t = -1;
+  double copyPt[3] = { 0.0, 0.0, 0.0 };
+  std::copy(pt, pt + dim, copyPt);
+  int resInter = htgLoc->IntersectWithLine(
+    copyPt, ref, 0.0, t, intercept.data(), pcoords.data(), subId, cellId, cell);
+  if (resInter != 0)
+  {
+    success = true;
+  }
+  if (success)
+  {
+    success = (cellId >= 0);
+  }
+  if (success)
+  {
+    vtkIdType searchId = htgLoc->Search(pt);
+    success = (cellId == searchId);
+  }
+  if (!success)
+  {
+    std::cout << "Intersect with points failed for point: \n";
+    for (unsigned int d = 0; d < htgLoc->GetHTG()->GetDimension(); d++)
+    {
+      std::cout << pt[d] << ",";
+    }
+    std::cout << std::endl;
+  }
+  return success;
+}
+
+bool runIntersectWithMaskDiagonal(
+  vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* theseResults)
+{
+  bool success = false;
+  std::vector<double> origin(3, 0.0);
+  std::vector<double> diagPt(3, 0.0);
+  unsigned int dim = htgLoc->GetHTG()->GetDimension();
+  auto getDiagonalComponents = [](vtkDataArray* compArray, double& first, double& last) {
+    first = compArray->GetComponent(0, 0);
+    last = compArray->GetComponent(compArray->GetNumberOfTuples() - 1, 0);
+  };
+  getDiagonalComponents(htgLoc->GetHTG()->GetXCoordinates(), origin[0], diagPt[0]);
+  if (dim > 1)
+  {
+    getDiagonalComponents(htgLoc->GetHTG()->GetYCoordinates(), origin[1], diagPt[1]);
+  }
+  if (dim > 2)
+  {
+    getDiagonalComponents(htgLoc->GetHTG()->GetZCoordinates(), origin[2], diagPt[2]);
+  }
+  vtkNew<vtkGenericCell> cell;
+  int subId = 0;
+  std::vector<double> intercept(3, 0.0);
+  std::vector<double> pcoords(3, 0.0);
+  vtkIdType cellId = -1;
+  double t = -1;
+  // first mask the cell where the first point is
+  vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
+  vtkIdType maskedId = htgLoc->Search(origin.data(), cursor);
+  cursor->SetMask(true);
+  int resInter = htgLoc->IntersectWithLine(
+    origin.data(), diagPt.data(), 0.0, t, intercept.data(), pcoords.data(), subId, cellId, cell);
+  cursor->SetMask(false);
+  if (resInter != 0)
+  {
+    success = true;
+  }
+  if (success)
+  {
+    success = (cellId >= 0);
+  }
+  if (success)
+  {
+    success = (cellId != maskedId);
+  }
+  theseResults->IntersectMaskedDiagonal = success;
+  if (!success)
+  {
+    std::cout << "Intersect diagonal with masked point failed" << std::endl;
+  }
+  return success;
+}
+
+bool runAllIntersectsDiagonal(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* theseResults)
+{
+  bool success = false;
+  std::vector<double> origin(3, 0.0);
+  std::vector<double> diagPt(3, 0.0);
+  unsigned int dim = htgLoc->GetHTG()->GetDimension();
+  auto getDiagonalComponents = [](vtkDataArray* compArray, double& first, double& last) {
+    first = compArray->GetComponent(0, 0);
+    last = compArray->GetComponent(compArray->GetNumberOfTuples() - 1, 0);
+  };
+  getDiagonalComponents(htgLoc->GetHTG()->GetXCoordinates(), origin[0], diagPt[0]);
+  if (dim > 1)
+  {
+    getDiagonalComponents(htgLoc->GetHTG()->GetYCoordinates(), origin[1], diagPt[1]);
+  }
+  if (dim > 2)
+  {
+    getDiagonalComponents(htgLoc->GetHTG()->GetZCoordinates(), origin[2], diagPt[2]);
+  }
+  vtkNew<vtkPoints> points;
+  points->Initialize();
+  vtkNew<vtkIdList> cellIds;
+  cellIds->Initialize();
+  vtkNew<vtkGenericCell> cell;
+  int resInter =
+    htgLoc->IntersectWithLine(origin.data(), diagPt.data(), 0.0, points, cellIds, cell);
+  if (resInter != 0)
+  {
+    success = true;
+  }
+  if (success)
+  {
+    success = (points->GetNumberOfPoints() > 0);
+  }
+  if (success)
+  {
+    success = (cellIds->GetNumberOfIds() > 0);
+  }
+  if (success)
+  {
+    success = (points->GetNumberOfPoints() == cellIds->GetNumberOfIds());
+  }
+  if (success)
+  {
+    Eigen::Map<const Eigen::Vector3d> vOri(origin.data());
+    Eigen::Map<const Eigen::Vector3d> vDiag(diagPt.data());
+    vtkNew<vtkGenericCell> cell;
+    std::vector<double> pcoords(3, 0.0);
+    std::vector<double> weights(std::pow(2, dim), 0.0);
+    int subId = 0;
+    double dtot = (vDiag - vOri).norm();
+    for (unsigned int iP = 0; iP < points->GetNumberOfPoints(); iP++)
+    {
+      Eigen::Map<const Eigen::Vector3d> pt(points->GetPoint(iP));
+      double d = (pt - vOri).norm();
+      d += (pt - vDiag).norm();
+      success = success && std::abs(dtot - d) < 1e-6;
+      if (!success)
+      {
+        break;
+      }
+
+      htgLoc->FindCell(pt.data(), 0.0, cell, subId, pcoords.data(), weights.data());
+      double t = 0.0;
+      std::vector<double> x(3, 0.0);
+      success = success &&
+        (cell->IntersectWithLine(
+           origin.data(), diagPt.data(), 0.0, t, x.data(), pcoords.data(), subId) != 0);
+      if (!success)
+      {
+        break;
+      }
+    }
+  }
+  theseResults->AllIntersectsDiagonal = success;
+  if (!success)
+  {
+    std::cout << "Failed diagonal all intersections with line" << std::endl;
+  }
+  return success;
+}
+
 bool RunTests(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* thisResult)
 {
   bool success = true;
@@ -181,9 +457,16 @@ bool RunTests(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* thisResult)
   {
     it->second = runPointSearch(htgLoc, it->first.data());
     success = success && it->second;
+    it->second = runFindCell(htgLoc, it->first.data());
+    success = success && it->second;
+    it->second = runIntersectWithPoints(htgLoc, it->first.data());
+    success = success && it->second;
   }
   success = runMaskedPointSearch(htgLoc, thisResult) && success;
   success = runAllMaskedPointSearch(htgLoc, thisResult) && success;
+  success = runIntersectDiagonal(htgLoc, thisResult) && success;
+  success = runIntersectWithMaskDiagonal(htgLoc, thisResult) && success;
+  success = runAllIntersectsDiagonal(htgLoc, thisResult) && success;
   return success;
 } // RunTests
 
