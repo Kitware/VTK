@@ -589,7 +589,7 @@ void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& t
     std::string textureFullPath = vtksys::SystemTools::CollapseFullPath(texturePath);
     if (!vtksys::SystemTools::FileExists(textureFullPath, true /*isFile*/))
     {
-      vtkLog(ERROR, "Invalid texture file: " << textureFullPath);
+      vtkLog(WARNING, "Invalid texture file: " << textureFullPath);
       return;
     }
     std::string gltfRelativeTexturePath =
