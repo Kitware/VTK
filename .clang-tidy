@@ -4,6 +4,7 @@ boost-*,\
 bugprone-*,\
 -bugprone-argument-comment,\
 -bugprone-branch-clone,\
+-bugprone-easily-swappable-parameters,\
 -bugprone-fold-init-type,\
 -bugprone-implicit-widening-of-multiplication-result,\
 -bugprone-incorrect-roundings,\
