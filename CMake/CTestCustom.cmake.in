@@ -114,9 +114,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "vtk[^\\.]+(Java|Python).cxx:.*\\[(readability-redundant-string-init)\\]"
 
   # Ignore some doxygen warnings
-  "warning: Found ';' while parsing initializer list! \\(doxygen could be confused by a macro call without semicolon\\)"
   "warning: documented symbol 'template class .*' was not declared or defined."
-  "warning: found </em> tag without matching <em>"
   "warning: argument '.*' of command @param is not found in the argument list of"
   )
 

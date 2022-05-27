@@ -52,7 +52,7 @@
  * - vtkIdType GetNumberOfCells()
  * - int GetCellType(vtkIdType cellId)
  * - void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
- * - void GetFaceStream(vtkIdType cellId, vtkIdList* ptIds)
+ * - void GetFaceStream(vtkIdType cellId, vtkIdList *ptIds)
  * - void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
  * - int GetMaxCellSize()
  * - void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
