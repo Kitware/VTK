@@ -43,11 +43,13 @@ public:
    * Write data to output. Method executes subclasses WriteData() method, as
    * well as StartWrite() and EndWrite() methods.
    */
+  VTK_UNBLOCKTHREADS
   virtual void Write();
 
   /**
    * Convenient alias for Write() method.
    */
+  VTK_UNBLOCKTHREADS
   void Update();
 
   ///@{

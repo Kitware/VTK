@@ -157,6 +157,7 @@ public:
    * Ask each viewport owned by this Window to render its image and
    * synchronize this process.
    */
+  VTK_UNBLOCKTHREADS
   virtual void Render() {}
 
   /**
