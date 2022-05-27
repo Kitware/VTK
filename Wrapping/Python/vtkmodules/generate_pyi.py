@@ -254,7 +254,9 @@ def push_signature(o, l, signature):
     elif signature.startswith(o.__name__ + "("):
         # make it into a python method definition
         signature = "def " + signature + ': ...'
-        signature = fix_annotations(signature)
+        if sys.hexversion >= 0x3080000:
+            # XXX(Python 3.8) uses ast features from 3.8
+            signature = fix_annotations(signature)
         if signature not in l:
             l.append(signature)
 
