@@ -19,8 +19,8 @@
  *
  * vtkPlaneCutter is a specialization of the vtkCutter algorithm to cut a
  * dataset grid with a single plane. It is designed for performance and an
- * exploratory, fast workflow. It produces output polygons that result from
- * cutting the input dataset with the specified plane.
+ * exploratory, fast workflow. It produces output triangles/polygons that
+ * result from cutting the input dataset with the specified plane.
  *
  * This algorithm is fast because it is threaded, it may delegate to a
  * high-performance cutting algorithm, and/or it may build (in a
@@ -37,11 +37,14 @@
  * filter typically works well.
  *
  * @warning
+ * Polygons can NOT be generated when the input is vtkPolyData/vtkUnstructuredGridBase.
+ *
+ * @warning
  * This filter chooses the output type based on the input type.
  * 1) if input is vtkDataSet, output is vtkPolyData.
  * 2) if input is vtkPartitionedDataSet, output is vtkPartitionedDataSet.
  * 3) if input is vtkPartitionedDataSetCollection, output is vtkPartitionedDataSetCollection.
- * 4) if input is vtkUniformGridAMR, output is vtkPartitionedDataSetCollection.
+ * 4) if input is vtkUniformGridAMR, output is vtkMultiBlockDataSet.
  * 5) if input is vtkMultiBlockDataSet, output is vtkMultiBlockDataSet.
  *
  * @warning
@@ -51,11 +54,9 @@
  * 3) vtkUnstructuredGrid with linear cells delegates to vtk3DLinearGridPlaneCutter.
  *
  * @warning
- * This filter may produce non-merged, potentially coincident points
- * for all input dataset types except:
- * 1) vtkImageData/vtkRectilinearGrid/vtkStructuredGrid, which does merge points.
- * 2) vtkPolyData,, if all input cells are convex polygons, which does merge points.
- * 3) vtkUnstructuredGrid, if all input cells are linear, which optionally does merge points.
+ * This filter can optionally produce output, using MergePoints=false, that has duplicate points.
+ * only for vtkUnstructuredGrid, and vtkPolyData that all of its input cells are NOT convex
+ * polygons. For all the other input types, the output has unique points.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -75,21 +76,10 @@
 #include "vtkSmartPointer.h"      // For SmartPointer
 #include <map>                    // For std::map
 
-class vtkCellArray;
-class vtkCellData;
-class vtkImageData;
-class vtkMultiBlockDataSet;
-class vtkMultiPieceDataSet;
-class vtkPartitionedDataSet;
-class vtkPartitionedDataSetCollection;
+class vtkDataObjectTree;
 class vtkPlane;
-class vtkPointData;
-class vtkPoints;
 class vtkPolyData;
 class vtkSphereTree;
-class vtkStructuredGrid;
-class vtkUniformGridAMR;
-class vtkUnstructuredGrid;
 
 class VTKFILTERSCORE_EXPORT vtkPlaneCutter : public vtkDataObjectAlgorithm
 {
@@ -181,7 +171,9 @@ public:
    * Indicate whether to merge coincident points. Merging can take extra time
    * and produces fewer output points, creating a "watertight" output
    * surface. On the other hand, merging reduced output data size and may be
-   * just as fast especially for smaller data. By default this is off.
+   * just as fast. MergingPoints = off is meaningful only for vtkUnstructuredGrid,
+   * and vtkPolyData that all of its input cells are NOT convex polygons. For all the
+   * other input types, the output has unique points. Default is off.
    */
   vtkSetMacro(MergePoints, bool);
   vtkGetMacro(MergePoints, bool);
@@ -241,12 +233,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  int ExecuteMultiBlockDataSet(vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output);
-  int ExecuteUniformGridAMR(vtkUniformGridAMR* input, vtkPartitionedDataSetCollection* output);
-  int ExecutePartitionedDataCollection(
-    vtkPartitionedDataSetCollection* input, vtkPartitionedDataSetCollection* output);
-  int ExecutePartitionedData(
-    vtkPartitionedDataSet* input, vtkPartitionedDataSet* output, bool copyStructure);
+  int ExecuteDataObjectTree(vtkDataObjectTree* input, vtkDataObjectTree* output);
   int ExecuteDataSet(vtkDataSet* input, vtkPolyData* output);
 
   static void AddNormalArray(double* planeNormal, vtkPolyData* polyData);

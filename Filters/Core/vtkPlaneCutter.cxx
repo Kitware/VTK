@@ -19,8 +19,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkDataAssembly.h"
-#include "vtkDataAssemblyUtilities.h"
+#include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -547,14 +546,11 @@ int vtkPlaneCutter::RequestDataObject(vtkInformation* vtkNotUsed(request),
   {
     outputType = VTK_PARTITIONED_DATA_SET;
   }
-  else if (vtkPartitionedDataSetCollection::SafeDownCast(inputDO) ||
-    vtkUniformGridAMR::SafeDownCast(inputDO))
+  else if (vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
   {
-    // for vtkUniformGridAMR, we create a vtkPartitionedDataSetCollection
-    // because the output datasets per level will be vtkPolyData instead of vtkStructuredGrid.
     outputType = VTK_PARTITIONED_DATA_SET_COLLECTION;
   }
-  else if (vtkMultiBlockDataSet::SafeDownCast(inputDO))
+  else if (vtkMultiBlockDataSet::SafeDownCast(inputDO) || vtkUniformGridAMR::SafeDownCast(inputDO))
   {
     outputType = VTK_MULTIBLOCK_DATA_SET;
   }
@@ -600,7 +596,13 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
 {
   vtkDebugMacro(<< "Executing plane cutter");
   auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
-  // reset sphere trees if the input has changed
+  auto outputDO = vtkDataObject::GetData(outputVector, 0);
+  if (inputDO == nullptr)
+  {
+    vtkErrorMacro("Input is nullptr");
+    return 0;
+  }
+  // reset cached info if the input has changed
   this->DataChanged = false;
   if (this->InputInfo.Input != inputDO || this->InputInfo.LastMTime != inputDO->GetMTime())
   {
@@ -610,29 +612,21 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
     this->DataChanged = true;
   }
 
-  if (auto inputMB = vtkMultiBlockDataSet::SafeDownCast(inputDO))
+  if (auto inputDOT = vtkDataObjectTree::SafeDownCast(inputDO))
   {
-    auto outputMB = vtkMultiBlockDataSet::GetData(outputVector, 0);
-    assert(outputMB != nullptr);
-    return this->ExecuteMultiBlockDataSet(inputMB, outputMB);
+    auto outputDOT = vtkDataObjectTree::SafeDownCast(outputDO);
+    assert(outputDOT != nullptr);
+    return this->ExecuteDataObjectTree(inputDOT, outputDOT);
   }
-  else if (auto inputAMR = vtkUniformGridAMR::SafeDownCast(inputDO))
+  else if (vtkUniformGridAMR::SafeDownCast(inputDO))
   {
-    auto outputPDC = vtkPartitionedDataSetCollection::GetData(outputVector, 0);
-    assert(outputPDC != nullptr);
-    return this->ExecuteUniformGridAMR(inputAMR, outputPDC);
-  }
-  else if (auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
-  {
-    auto outputPDC = vtkPartitionedDataSetCollection::GetData(outputVector, 0);
-    assert(outputPDC != nullptr);
-    return this->ExecutePartitionedDataCollection(inputPDC, outputPDC);
-  }
-  else if (auto inputPD = vtkPartitionedDataSet::SafeDownCast(inputDO))
-  {
-    auto outputPD = vtkPartitionedDataSet::GetData(outputVector, 0);
-    assert(outputPD != nullptr);
-    return this->ExecutePartitionedData(inputPD, outputPD, true /*copyStructure*/);
+    vtkNew<vtkConvertToMultiBlockDataSet> toMBDS;
+    toMBDS->SetInputData(inputDO);
+    toMBDS->Update();
+    auto convertInputDOT = vtkMultiBlockDataSet::SafeDownCast(toMBDS->GetOutput());
+    auto outputDOT = vtkDataObjectTree::SafeDownCast(outputDO);
+    assert(outputDOT != nullptr);
+    return this->ExecuteDataObjectTree(convertInputDOT, outputDOT);
   }
   else if (auto inputDS = vtkDataSet::SafeDownCast(inputDO))
   {
@@ -648,10 +642,8 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-int vtkPlaneCutter::ExecuteMultiBlockDataSet(
-  vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output)
+int vtkPlaneCutter::ExecuteDataObjectTree(vtkDataObjectTree* input, vtkDataObjectTree* output)
 {
-  assert(output != nullptr);
   output->CopyStructure(input);
   int ret = 0;
   using Opts = vtk::DataObjectTreeOptions;
@@ -665,63 +657,6 @@ int vtkPlaneCutter::ExecuteMultiBlockDataSet(
     dObj.SetDataObject(output, outputPolyData);
   }
   return ret == static_cast<int>(inputRange.size()) ? 1 : 0;
-}
-
-//------------------------------------------------------------------------------
-int vtkPlaneCutter::ExecuteUniformGridAMR(
-  vtkUniformGridAMR* input, vtkPartitionedDataSetCollection* output)
-{
-  assert(output != nullptr);
-  vtkNew<vtkDataAssembly> hierarchyUnused;
-  vtkNew<vtkPartitionedDataSetCollection> tempPDC;
-  if (!vtkDataAssemblyUtilities::GenerateHierarchy(input, hierarchyUnused, tempPDC))
-  {
-    vtkErrorMacro("Failed to generate hierarchy for input!");
-    return 0;
-  }
-  int ret = 0;
-  for (unsigned int index = 0; index < tempPDC->GetNumberOfPartitionedDataSets(); ++index)
-  {
-    ret += this->ExecutePartitionedData(tempPDC->GetPartitionedDataSet(index),
-      tempPDC->GetPartitionedDataSet(index), false /*copyStructure*/);
-  }
-  output->ShallowCopy(tempPDC);
-  return ret == static_cast<int>(tempPDC->GetNumberOfPartitionedDataSets()) ? 1 : 0;
-}
-
-//------------------------------------------------------------------------------
-int vtkPlaneCutter::ExecutePartitionedDataCollection(
-  vtkPartitionedDataSetCollection* input, vtkPartitionedDataSetCollection* output)
-{
-  assert(output != nullptr);
-  output->CopyStructure(input);
-  int ret = 0;
-  for (unsigned int index = 0; index < input->GetNumberOfPartitionedDataSets(); ++index)
-  {
-    ret += this->ExecutePartitionedData(input->GetPartitionedDataSet(index),
-      output->GetPartitionedDataSet(index), false /*copyStructure*/);
-  }
-  return ret == static_cast<int>(input->GetNumberOfPartitionedDataSets()) ? 1 : 0;
-}
-
-//------------------------------------------------------------------------------
-int vtkPlaneCutter::ExecutePartitionedData(
-  vtkPartitionedDataSet* input, vtkPartitionedDataSet* output, bool copyStructure)
-{
-  assert(output != nullptr);
-  if (copyStructure)
-  {
-    output->CopyStructure(input);
-  }
-  int ret = 0;
-  for (unsigned int cc = 0, max = input->GetNumberOfPartitions(); cc < max; ++cc)
-  {
-    auto inputDS = input->GetPartition(cc);
-    vtkNew<vtkPolyData> outputPolyData;
-    ret += this->ExecuteDataSet(inputDS, outputPolyData);
-    output->SetPartition(cc, outputPolyData);
-  }
-  return ret == static_cast<int>(input->GetNumberOfPartitions()) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
