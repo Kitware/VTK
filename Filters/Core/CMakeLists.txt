@@ -93,6 +93,7 @@ set(classes
   vtkSimpleElevationFilter
   vtkSmoothPolyDataFilter
   vtkSphereTreeFilter
+  vtkStructuredDataPlaneCutter
   vtkStaticCleanPolyData
   vtkStaticCleanUnstructuredGrid
   vtkStreamerBase

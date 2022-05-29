@@ -46,16 +46,16 @@
  *
  * @warning
  * Delegations to other filters:
- * 1) vtkImageData delegates vtkFlyingEdgesPlaneCutter,
+ * 1) vtkImageData/vtkRectilinearGrid/vtkStructuredGrid delegates vtkStructuredDataPlaneCutter.
  * 2) vtkPolyData with convex cells delegates to vtkPolyDataPlaneCutter.
  * 3) vtkUnstructuredGrid with linear cells delegates to vtk3DLinearGridPlaneCutter.
  *
  * @warning
  * This filter may produce non-merged, potentially coincident points
  * for all input dataset types except:
- * 1) vtkImageData, which does merge points;
+ * 1) vtkImageData/vtkRectilinearGrid/vtkStructuredGrid, which does merge points.
  * 2) vtkPolyData,, if all input cells are convex polygons, which does merge points.
- * 3) vtkUnstructuredGrid, if all input cells are linear, which optionally does merge points
+ * 3) vtkUnstructuredGrid, if all input cells are linear, which optionally does merge points.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -63,8 +63,8 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkFlyingEdgesPlaneCutter vtk3DLinearGridPlaneCutter vtkCutter vtkPlane
- * vtkPolyDataPlaneCutter
+ * vtkFlyingEdgesPlaneCutter vtkStructuredDataPlaneCutter vtkPolyDataPlaneCutter
+ * vtk3DLinearGridPlaneCutter vtkCutter vtkPlane
  */
 
 #ifndef vtkPlaneCutter_h
@@ -211,15 +211,11 @@ protected:
   bool MergePoints;
   int OutputPointsPrecision;
 
-  // Helpers
-  // Support delegation to vtkPolyDataPlaneCutter. Checking convexity can be
-  // time consuming.
+  // Support delegation to vtkPolyDataPlaneCutter/vtk3DLinearGridPlaneCutter.
   bool DataChanged;
-  bool IsPolyDataConvex;
-  bool IsUnstructuredGrid3DLinear;
 
-  vtkSphereTree* GetSphereTree(vtkDataSet*);
   std::map<vtkDataSet*, vtkSmartPointer<vtkSphereTree>> SphereTrees;
+  std::map<vtkDataSet*, bool> CanBeFullyProcessed;
   struct vtkInputInfo
   {
     vtkDataObject* Input;
@@ -251,7 +247,7 @@ protected:
     vtkPartitionedDataSetCollection* input, vtkPartitionedDataSetCollection* output);
   int ExecutePartitionedData(
     vtkPartitionedDataSet* input, vtkPartitionedDataSet* output, bool copyStructure);
-  int ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPolyData* output);
+  int ExecuteDataSet(vtkDataSet* input, vtkPolyData* output);
 
   static void AddNormalArray(double* planeNormal, vtkPolyData* polyData);
 

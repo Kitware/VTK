@@ -164,10 +164,9 @@ bool TestPlaneCutterUnstructured(int expected)
 
 int TestPlaneCutter(int, char*[])
 {
-  int expected[] = { 7, 4 };
   for (int type = 0; type < 2; type++)
   {
-    if (!TestPlaneCutterStructured(type, expected[type]))
+    if (!TestPlaneCutterStructured(type, 4))
     {
       cerr << "Cutting Structured failed" << endl;
       return EXIT_FAILURE;

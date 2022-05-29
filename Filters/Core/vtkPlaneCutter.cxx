@@ -24,16 +24,12 @@
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkElevationFilter.h"
 #include "vtkFloatArray.h"
-#include "vtkFlyingEdgesPlaneCutter.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMarchingCubesPolygonCases.h"
-#include "vtkMarchingCubesTriangleCases.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
@@ -50,6 +46,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSphereTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredDataPlaneCutter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTransform.h"
 #include "vtkUniformGridAMR.h"
@@ -164,11 +161,10 @@ struct CuttingFunctor
   double* Normal;
   vtkIdType NumSelected;
   bool Interpolate;
-  bool GeneratePolygons;
 
   CuttingFunctor(vtkDataSet* input, TPointsArray* pointsArray, int outputPrecision,
     vtkMultiPieceDataSet* outputMP, vtkPlane* plane, vtkSphereTree* tree, double* origin,
-    double* normal, bool interpolate, bool generatePolygons = false)
+    double* normal, bool interpolate)
     : Input(input)
     , InPointsArray(pointsArray)
     , OutputPrecision(outputPrecision)
@@ -179,7 +175,6 @@ struct CuttingFunctor
     , Origin(origin)
     , Normal(normal)
     , Interpolate(interpolate)
-    , GeneratePolygons(generatePolygons)
   {
   }
 
@@ -495,213 +490,6 @@ struct UnstructuredDataWorker
     vtkSMPTools::For(0, inputGrid->GetNumberOfCells(), functor);
   }
 };
-
-//------------------------------------------------------------------------------
-int edges[12][2] = { { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, { 4, 5 }, { 5, 6 }, { 7, 6 }, { 4, 7 },
-  { 0, 4 }, { 1, 5 }, { 3, 7 }, { 2, 6 } };
-
-// Process rectilinear grids with the same algo as structured grid
-template <class TGrid, class TPointsArray>
-struct StructuredDataFunctor : public CuttingFunctor<TPointsArray>
-{
-  StructuredDataFunctor(TGrid* inputGrid, TPointsArray* pointsArray, int outputPrecision,
-    vtkMultiPieceDataSet* outputMP, vtkPlane* plane, vtkSphereTree* tree, double* origin,
-    double* normal, bool interpolate, bool generatePolygons)
-    : CuttingFunctor<TPointsArray>(inputGrid, pointsArray, outputPrecision, outputMP, plane, tree,
-        origin, normal, interpolate, generatePolygons)
-  {
-  }
-
-  void Initialize() override { CuttingFunctor<TPointsArray>::Initialize(); }
-
-  void operator()(vtkIdType beginCellId, vtkIdType endCellId)
-  {
-    // Actual computation.
-    // Note the usage of thread local objects. These objects
-    // persist for each thread across multiple execution of the
-    // functor.
-    vtkLocalDataType& localData = this->LocalData.Local();
-    vtkPointLocator* loc = localData.Locator;
-    vtkPoints* newPoints = loc->GetPoints();
-
-    vtkPointData* inPD = this->Input->GetPointData();
-    vtkCellData* inCD = this->Input->GetCellData();
-
-    vtkPolyData* output = localData.Output;
-    vtkPointData* outPD = nullptr;
-    vtkCellData* outCD = nullptr;
-
-    if (this->Interpolate)
-    {
-      outPD = output->GetPointData();
-      outCD = output->GetCellData();
-    }
-
-    vtkCellArray* newPolys = this->NewPolys.Local();
-
-    // Loop over the cell spheres, processing those cells whose
-    // bounding sphere intersect with the plane.
-    vtkIdType cellI, cellJ, cellK;
-    vtkIdType ptId;
-    int dims[3], cellDims[3];
-    TGrid* sgrid = TGrid::SafeDownCast(this->Input);
-    sgrid->GetDimensions(dims);
-    cellDims[0] = dims[0] - 1;
-    cellDims[1] = dims[1] - 1;
-    cellDims[2] = dims[2] - 1;
-    vtkIdType sliceOffset = static_cast<vtkIdType>(dims[0]) * dims[1];
-    vtkIdType cellSliceOffset = static_cast<vtkIdType>(cellDims[0]) * cellDims[1];
-    double* planeOrigin = this->Origin;
-    double* planeNormal = this->Normal;
-    auto points = vtk::DataArrayTupleRange<3>(this->InPointsArray);
-    const unsigned char* selected = this->Selected + beginCellId;
-
-    static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
-    EDGE_LIST* edge;
-    int i, j, idx, *vert;
-
-    // Here we have to retrieve the cell points and cell ids and do the hard work
-    int v1, v2, newCellId;
-    vtkIdType npts, newIds[12];
-    double t, x[3], deltaScalar;
-    vtkIdType p1, p2;
-    vtkIdType cellIds[8];
-    double s[8];
-
-    // Traverse this batch of cells (whose bounding sphere possibly
-    // intersects the plane).
-    bool needCell;
-    vtkIdList*& cellPointIds = this->CellPointIds.Local();
-    for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
-    {
-      needCell = false;
-      if (this->SphereTree)
-      {
-        if (*selected++)
-        {
-          needCell = true;
-        }
-      }
-      else
-      {
-        needCell = this->IsCellSlicedByPlane(cellId, cellPointIds);
-      }
-      if (needCell)
-      {
-        cellI = cellId % cellDims[0];
-        cellJ = (cellId / cellDims[0]) % cellDims[1];
-        cellK = cellId / cellSliceOffset;
-        ptId = cellI + cellJ * dims[0] + cellK * sliceOffset;
-
-        cellIds[0] = ptId;
-        cellIds[1] = cellIds[0] + 1;
-        cellIds[2] = cellIds[0] + 1 + dims[0];
-        cellIds[3] = cellIds[0] + dims[0];
-        cellIds[4] = cellIds[0] + sliceOffset;
-        cellIds[5] = cellIds[1] + sliceOffset;
-        cellIds[6] = cellIds[2] + sliceOffset;
-        cellIds[7] = cellIds[3] + sliceOffset;
-
-        // Get the points
-        for (i = 0; i < 8; ++i)
-        {
-          const auto& cellPoint = points[cellIds[i]];
-          s[i] = (cellPoint[0] - planeOrigin[0]) * planeNormal[0] +
-            (cellPoint[1] - planeOrigin[1]) * planeNormal[1] +
-            (cellPoint[2] - planeOrigin[2]) * planeNormal[2];
-        }
-
-        // Return if we are not producing anything
-        if ((s[0] >= 0.0 && s[1] >= 0.0 && s[2] >= 0.0 && s[3] >= 0.0 && s[4] >= 0.0 &&
-              s[5] >= 0.0 && s[6] >= 0.0 && s[7] >= 0.0) ||
-          (s[0] < 0.0 && s[1] < 0.0 && s[2] < 0.0 && s[3] < 0.0 && s[4] < 0.0 && s[5] < 0.0 &&
-            s[6] < 0.0 && s[7] < 0.0))
-        {
-          continue;
-        }
-
-        // Build the case table and start producing sn output polygon as necessary
-        for (i = 0, idx = 0; i < 8; ++i)
-        {
-          if (s[i] >= 0.0)
-          {
-            idx |= CASE_MASK[i];
-          }
-        }
-
-        if (this->GeneratePolygons)
-        {
-          vtkMarchingCubesPolygonCases* polyCase = vtkMarchingCubesPolygonCases::GetCases() + idx;
-          edge = polyCase->edges;
-        }
-        else
-        {
-          vtkMarchingCubesTriangleCases* triCase = vtkMarchingCubesTriangleCases::GetCases() + idx;
-          edge = triCase->edges;
-        }
-
-        // Produce the intersections
-        while (*edge > -1) // for all polygons
-        {
-          npts = this->GeneratePolygons ? *edge++ : 3;
-          // start polygon/triangle edge intersections
-          for (i = 0; i < npts; i++, ++edge)
-          {
-            vert = edges[*edge];
-            deltaScalar = s[vert[1]] - s[vert[0]];
-            v1 = vert[0];
-            v2 = vert[1];
-
-            // linear interpolation
-            t = (deltaScalar == 0.0 ? 0.0 : (-s[v1]) / deltaScalar);
-
-            const auto& x1 = points[cellIds[v1]];
-            const auto& x2 = points[cellIds[v2]];
-
-            for (j = 0; j < 3; j++)
-            {
-              x[j] = x1[j] + t * (x2[j] - x1[j]);
-            }
-            if ((newIds[i] = newPoints->InsertNextPoint(x)) >= 0)
-            {
-              if (outPD)
-              {
-                p1 = cellIds[v1];
-                p2 = cellIds[v2];
-                outPD->InterpolateEdge(inPD, newIds[i], p1, p2, t);
-              }
-            }
-          } // for all edges of polygon/triangle
-
-          // insert polygon
-          newCellId = newPolys->InsertNextCell(npts, newIds);
-          if (outCD)
-          {
-            outCD->CopyData(inCD, cellId, newCellId);
-          }
-        } // for each polygon/triangle
-      }   // for all selected cells
-    }     // for each cell
-  }       // operator()
-
-  void Reduce() override { CuttingFunctor<TPointsArray>::Reduce(); }
-};
-
-//------------------------------------------------------------------------------
-template <class TGrid>
-struct StructuredDataWorker
-{
-  template <typename TPointsArray>
-  void operator()(TPointsArray* pointsArray, TGrid* inputGrid, int outputPrecision,
-    vtkMultiPieceDataSet* outputMP, vtkPlane* plane, vtkSphereTree* tree, double* origin,
-    double* normal, bool interpolate, bool generatePolygons)
-  {
-    StructuredDataFunctor<TGrid, TPointsArray> functor(inputGrid, pointsArray, outputPrecision,
-      outputMP, plane, tree, origin, normal, interpolate, generatePolygons);
-    functor.BuildAccelerationStructure();
-    vtkSMPTools::For(0, inputGrid->GetNumberOfCells(), functor);
-  }
-};
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -717,8 +505,6 @@ vtkPlaneCutter::vtkPlaneCutter()
   , MergePoints(false)
   , OutputPointsPrecision(DEFAULT_PRECISION)
   , DataChanged(true)
-  , IsPolyDataConvex(false)
-  , IsUnstructuredGrid3DLinear(false)
 {
   this->InputInfo = vtkInputInfo(nullptr, 0);
 }
@@ -808,18 +594,6 @@ int vtkPlaneCutter::FillOutputPortInformation(int vtkNotUsed(port), vtkInformati
 }
 
 //------------------------------------------------------------------------------
-vtkSphereTree* vtkPlaneCutter::GetSphereTree(vtkDataSet* ds)
-{
-  if (this->BuildTree)
-  {
-    auto pair =
-      this->SphereTrees.insert(std::make_pair(ds, vtk::TakeSmartPointer(vtkSphereTree::New())));
-    return pair.first->second.GetPointer();
-  }
-  return nullptr;
-}
-
-//------------------------------------------------------------------------------
 // This method delegates to the appropriate algorithm
 int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -832,6 +606,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     this->InputInfo = vtkInputInfo(inputDO, inputDO->GetMTime());
     this->SphereTrees.clear();
+    this->CanBeFullyProcessed.clear();
     this->DataChanged = true;
   }
 
@@ -863,7 +638,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     auto outputPolyData = vtkPolyData::GetData(outputVector, 0);
     assert(outputPolyData != nullptr);
-    return this->ExecuteDataSet(inputDS, this->GetSphereTree(inputDS), outputPolyData);
+    return this->ExecuteDataSet(inputDS, outputPolyData);
   }
   else
   {
@@ -886,7 +661,7 @@ int vtkPlaneCutter::ExecuteMultiBlockDataSet(
   {
     vtkDataSet* inputDS = vtkDataSet::SafeDownCast(dObj);
     vtkNew<vtkPolyData> outputPolyData;
-    ret += this->ExecuteDataSet(inputDS, this->GetSphereTree(inputDS), outputPolyData);
+    ret += this->ExecuteDataSet(inputDS, outputPolyData);
     dObj.SetDataObject(output, outputPolyData);
   }
   return ret == static_cast<int>(inputRange.size()) ? 1 : 0;
@@ -943,7 +718,7 @@ int vtkPlaneCutter::ExecutePartitionedData(
   {
     auto inputDS = input->GetPartition(cc);
     vtkNew<vtkPolyData> outputPolyData;
-    ret += this->ExecuteDataSet(inputDS, this->GetSphereTree(inputDS), outputPolyData);
+    ret += this->ExecuteDataSet(inputDS, outputPolyData);
     output->SetPartition(cc, outputPolyData);
   }
   return ret == static_cast<int>(input->GetNumberOfPartitions()) ? 1 : 0;
@@ -951,7 +726,7 @@ int vtkPlaneCutter::ExecutePartitionedData(
 
 //------------------------------------------------------------------------------
 // This method delegates to the appropriate algorithm
-int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPolyData* output)
+int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkPolyData* output)
 {
   assert(output != nullptr);
   vtkPlane* plane = this->Plane;
@@ -970,6 +745,17 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     return 1;
   }
 
+  // Get Cached info (sphere tree and can be fully processed)
+  vtkSphereTree* sphereTree = nullptr;
+  if (this->BuildTree)
+  {
+    auto pair =
+      this->SphereTrees.insert(std::make_pair(input, vtk::TakeSmartPointer(vtkSphereTree::New())));
+    sphereTree = pair.first->second.GetPointer();
+  }
+  bool& canBeFullyProcessed =
+    this->CanBeFullyProcessed.insert(std::make_pair(input, false)).first->second;
+
   // Set up the cut operation
   double planeOrigin[3], planeNormal[3];
   plane->GetNormal(planeNormal);
@@ -981,55 +767,30 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     plane->GetTransform()->TransformPoint(planeOrigin, planeOrigin);
   }
 
-  // Delegate the processing to the matching algorithm. If the input data is vtkImageData,
-  // then delegation to vtkFlyingEdgesPlaneCutter. If the input data is vtkPolyData, and
-  // the input cells are convex polygons, then delegate to vtkPolyDataPlaneCutter. If the
-  // input is an vtkUnstructuredGrid and the input cells are 3d linear, then delegate to
-  // vtk3DLinearGridPlaneCutter.
-  if (vtkImageData::SafeDownCast(input))
+  // Delegate the processing to the matching algorithm. If the input data is vtkImageData/
+  // vtkRectilinearGrid/vtkStructuredGrid, then delegate to vtkStructuredDataPlaneCutter.
+  // If the input data is vtkPolyData, and the input cells are convex polygons, then delegate
+  // to vtkPolyDataPlaneCutter. If the input is an vtkUnstructuredGrid and the input cells are
+  // 3d linear, then delegate to vtk3DLinearGridPlaneCutter.
+  if (vtkImageData::SafeDownCast(input) || vtkStructuredGrid::SafeDownCast(input) ||
+    vtkRectilinearGrid::SafeDownCast(input))
   {
-    vtkDataSet* tmpInput = input;
-    bool elevationFlag = false;
-
-    // Check to see if there is a scalar associated with the image
-    if (!input->GetPointData()->GetScalars())
-    {
-      // Add an elevation scalar
-      vtkNew<vtkElevationFilter> elevation;
-      elevation->SetInputData(tmpInput);
-      elevation->Update();
-      tmpInput = elevation->GetOutput();
-      tmpInput->Register(this);
-      elevationFlag = true;
-    }
-
-    // let flying edges do the work
-    vtkNew<vtkFlyingEdgesPlaneCutter> planeCutter;
-    vtkNew<vtkPlane> xPlane;
-    xPlane->SetOrigin(planeOrigin);
+    vtkNew<vtkPlane> xPlane; // create temp transformed plane
     xPlane->SetNormal(planeNormal);
+    xPlane->SetOrigin(planeOrigin);
+    vtkNew<vtkStructuredDataPlaneCutter> planeCutter;
+    planeCutter->SetOutputPointsPrecision(this->OutputPointsPrecision);
+    planeCutter->SetInputData(input);
     planeCutter->SetPlane(xPlane);
+    planeCutter->SetSphereTree(sphereTree);
+    planeCutter->SetBuildTree(this->BuildTree);
+    planeCutter->SetBuildHierarchy(this->BuildHierarchy);
+    planeCutter->SetGeneratePolygons(this->GeneratePolygons);
     planeCutter->SetComputeNormals(this->ComputeNormals);
     planeCutter->SetInterpolateAttributes(this->InterpolateAttributes);
-    planeCutter->SetInputData(tmpInput);
     planeCutter->Update();
-    vtkDataSet* slice = planeCutter->GetOutput();
-    output->ShallowCopy(slice);
-
-    // Remove elevation data
-    if (elevationFlag)
-    {
-      slice->GetPointData()->RemoveArray("Elevation");
-      tmpInput->Delete();
-    }
-    else if (!this->InterpolateAttributes)
-    {
-      // Remove unwanted point data
-      // In this case, Flying edges outputs only a single array in point data
-      // scalars cannot be null
-      vtkDataArray* scalars = slice->GetPointData()->GetScalars();
-      slice->GetPointData()->RemoveArray(scalars->GetName());
-    }
+    vtkDataSet* outPlane = planeCutter->GetOutput();
+    output->ShallowCopy(outPlane);
     return 1;
   }
   else if (vtkPolyData::SafeDownCast(input))
@@ -1038,9 +799,9 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     // of convexity, so it only needs be done once if the input does not change.
     if (this->DataChanged) // cache convexity check - it can be expensive
     {
-      this->IsPolyDataConvex = vtkPolyDataPlaneCutter::CanFullyProcessDataObject(input);
+      canBeFullyProcessed = vtkPolyDataPlaneCutter::CanFullyProcessDataObject(input);
     }
-    if (this->IsPolyDataConvex)
+    if (canBeFullyProcessed)
     {
       vtkNew<vtkPlane> xPlane; // create temp transformed plane
       xPlane->SetNormal(planeNormal);
@@ -1063,10 +824,9 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     // of linearity, so it only needs be done once if the input does not change.
     if (this->DataChanged)
     {
-      this->IsUnstructuredGrid3DLinear =
-        vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(input);
+      canBeFullyProcessed = vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(input);
     }
-    if (this->IsUnstructuredGrid3DLinear)
+    if (canBeFullyProcessed)
     {
       vtkNew<vtkPlane> xPlane; // create temp transformed plane
       xPlane->SetNormal(planeNormal);
@@ -1087,50 +847,24 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
 
   // If here, then we use more general methods to produce the cut.
   // This means building a sphere tree.
-  if (tree)
+  if (sphereTree)
   {
-    tree->SetBuildHierarchy(this->BuildHierarchy);
-    tree->Build(input);
+    sphereTree->SetBuildHierarchy(this->BuildHierarchy);
+    sphereTree->Build(input);
   }
 
   auto tempOutputMP = vtkSmartPointer<vtkMultiPieceDataSet>::New();
   // Threaded execute
   using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
-  if (auto inputSG = vtkStructuredGrid::SafeDownCast(input))
-  {
-    StructuredDataWorker<vtkStructuredGrid> worker;
-    auto pointsArray = inputSG->GetPoints()->GetData();
-    if (!Dispatcher::Execute(pointsArray, worker, inputSG, this->OutputPointsPrecision,
-          tempOutputMP, plane, tree, planeOrigin, planeNormal, this->InterpolateAttributes,
-          this->GeneratePolygons))
-    {
-      worker(pointsArray, inputSG, this->OutputPointsPrecision, tempOutputMP, plane, tree,
-        planeOrigin, planeNormal, this->InterpolateAttributes, this->GeneratePolygons);
-    }
-  }
-  else if (auto inputRG = vtkRectilinearGrid::SafeDownCast(input))
-  {
-    StructuredDataWorker<vtkRectilinearGrid> worker;
-    vtkNew<vtkPoints> points;
-    inputRG->GetPoints(points);
-    auto pointsArray = points->GetData();
-    if (!Dispatcher::Execute(pointsArray, worker, inputRG, this->OutputPointsPrecision,
-          tempOutputMP, plane, tree, planeOrigin, planeNormal, this->InterpolateAttributes,
-          this->GeneratePolygons))
-    {
-      worker(pointsArray, inputRG, this->OutputPointsPrecision, tempOutputMP, plane, tree,
-        planeOrigin, planeNormal, this->InterpolateAttributes, this->GeneratePolygons);
-    }
-  }
-  else if (auto inputPolyData = vtkPolyData::SafeDownCast(input))
+  if (auto inputPolyData = vtkPolyData::SafeDownCast(input))
   {
     UnstructuredDataWorker<vtkPolyData> worker;
     auto pointsArray = inputPolyData->GetPoints()->GetData();
     if (!Dispatcher::Execute(pointsArray, worker, inputPolyData, this->OutputPointsPrecision,
-          tempOutputMP, plane, tree, planeOrigin, planeNormal, this->InterpolateAttributes))
+          tempOutputMP, plane, sphereTree, planeOrigin, planeNormal, this->InterpolateAttributes))
     {
-      worker(pointsArray, inputPolyData, this->OutputPointsPrecision, tempOutputMP, plane, tree,
-        planeOrigin, planeNormal, this->InterpolateAttributes);
+      worker(pointsArray, inputPolyData, this->OutputPointsPrecision, tempOutputMP, plane,
+        sphereTree, planeOrigin, planeNormal, this->InterpolateAttributes);
     }
   }
   // get any implementations of vtkUnstructuredGridBase
@@ -1139,9 +873,9 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkPo
     UnstructuredDataWorker<vtkUnstructuredGridBase> worker;
     auto pointsArray = inputUG->GetPoints()->GetData();
     if (!Dispatcher::Execute(pointsArray, worker, inputUG, this->OutputPointsPrecision,
-          tempOutputMP, plane, tree, planeOrigin, planeNormal, this->InterpolateAttributes))
+          tempOutputMP, plane, sphereTree, planeOrigin, planeNormal, this->InterpolateAttributes))
     {
-      worker(pointsArray, inputUG, this->OutputPointsPrecision, tempOutputMP, plane, tree,
+      worker(pointsArray, inputUG, this->OutputPointsPrecision, tempOutputMP, plane, sphereTree,
         planeOrigin, planeNormal, this->InterpolateAttributes);
     }
   }
