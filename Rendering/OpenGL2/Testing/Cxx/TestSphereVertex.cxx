@@ -25,8 +25,6 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-#include "vtkOpenGLRenderWindow.h"
-
 //------------------------------------------------------------------------------
 int TestSphereVertex(int argc, char* argv[])
 {

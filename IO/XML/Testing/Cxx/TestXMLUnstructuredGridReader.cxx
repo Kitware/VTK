@@ -28,7 +28,6 @@
 #include "vtkRenderer.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-#include "vtkNew.h"
 #include <string>
 
 static const char* testXML1 = R"==(<?xml version="1.0"?>

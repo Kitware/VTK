@@ -37,13 +37,9 @@
 
 #include "vtkPointData.h"
 
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkTextActor3D.h"
-#include "vtkTextProperty.h"
-#include "vtkTextPropertyCollection.h"
 
 #include "vtkTextRenderer.h"
 #include "vtkTimerLog.h"

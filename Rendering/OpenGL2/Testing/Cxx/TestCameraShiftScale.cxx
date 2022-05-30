@@ -29,8 +29,6 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-#include "vtkOpenGLRenderWindow.h"
-
 namespace
 {
 

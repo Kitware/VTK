@@ -17,7 +17,6 @@
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
-#include "vtkImageCroppingRegionsWidget.h"
 #include "vtkImageData.h"
 #include "vtkLineSource.h"
 #include "vtkObjectFactory.h"

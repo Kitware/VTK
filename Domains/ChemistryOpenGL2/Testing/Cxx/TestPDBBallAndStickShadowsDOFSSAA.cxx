@@ -44,7 +44,6 @@
 #include "vtkLookupTable.h"
 #include "vtkPeriodicTable.h"
 
-#include "vtkCamera.h"
 #include "vtkTimerLog.h"
 
 int TestPDBBallAndStickShadowsDOFSSAA(int argc, char* argv[])

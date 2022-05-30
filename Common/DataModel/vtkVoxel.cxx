@@ -21,7 +21,6 @@
 #include "vtkDataArrayRange.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
-#include "vtkMarchingCubesTriangleCases.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"

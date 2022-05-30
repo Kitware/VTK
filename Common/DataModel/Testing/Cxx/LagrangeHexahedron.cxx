@@ -33,7 +33,6 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTable.h"
 
 #include <sstream>
 #include <vector>

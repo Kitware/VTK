@@ -37,7 +37,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSequencePass.h"
 #include "vtkSmartPointer.h"
-#include "vtkTestUtilities.h"
 
 int TestLightingMapNormalsPass(int argc, char* argv[])
 {

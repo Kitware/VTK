@@ -20,7 +20,6 @@
 
 #include "vtkClipDataSet.h"
 #include "vtkNew.h"
-#include "vtkPlane.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkUnstructuredGridReader.h"

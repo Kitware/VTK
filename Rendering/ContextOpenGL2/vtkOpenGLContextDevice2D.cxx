@@ -55,8 +55,6 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-#include "vtkObjectFactory.h"
-
 #include "vtkOpenGLContextDevice2DPrivate.h"
 
 #include <algorithm>

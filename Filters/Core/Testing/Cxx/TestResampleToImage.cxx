@@ -29,7 +29,6 @@
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkResampleToImage.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include <iostream>

@@ -27,7 +27,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-#include "vtkCamera.h"
 #include "vtkTimerLog.h"
 
 int TestPDBBallAndStick(int argc, char* argv[])

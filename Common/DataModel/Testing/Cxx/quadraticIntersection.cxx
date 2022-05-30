@@ -46,14 +46,12 @@
 
 #include <vtkActor.h>
 #include <vtkCellArray.h>
-#include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkSmartPointer.h>
 #include <vtkVersion.h>
 
 void ViewportRange(int testNum, double* range)

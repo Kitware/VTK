@@ -30,7 +30,6 @@
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
-#include "vtkExtractCTHPart.h"
 #include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"

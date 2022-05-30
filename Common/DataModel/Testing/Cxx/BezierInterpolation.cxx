@@ -26,7 +26,6 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTable.h"
 
 #include <cmath>
 #include <sstream>

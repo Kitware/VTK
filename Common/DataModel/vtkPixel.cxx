@@ -19,7 +19,6 @@
 #include "vtkDataArrayRange.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
-#include "vtkMarchingSquaresLineCases.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"

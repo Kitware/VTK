@@ -32,8 +32,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkTextProperty.h"
 
-#include "vtkCubeAxesActor.h"
-
 int TestCubeAxes2DMode(int argc, char* argv[])
 {
   // Create plane source

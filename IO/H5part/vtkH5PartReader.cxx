@@ -62,15 +62,7 @@
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 //
-#include "vtkCharArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkShortArray.h"
 #include "vtkSmartPointer.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedShortArray.h"
 
 #include <algorithm>
 

@@ -30,7 +30,6 @@
 #include <vector>
 
 // Concrete classes for testing:
-#include "vtkAOSDataArrayTemplate.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"

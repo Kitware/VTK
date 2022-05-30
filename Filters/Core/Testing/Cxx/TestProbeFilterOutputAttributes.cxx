@@ -22,7 +22,6 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkProbeFilter.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
