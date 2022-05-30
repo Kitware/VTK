@@ -188,7 +188,6 @@ void vtkCMLParser::NewMolecule(const char**)
 
 void vtkCMLParser::NewAtom(const char** attr)
 {
-  vtkAtom atom = this->Target->AppendAtom();
   int attrInd = 0;
   unsigned short atomicNum = 0;
   float pos[3];
@@ -222,6 +221,13 @@ void vtkCMLParser::NewAtom(const char** attr)
     ++attrInd;
   }
 
+  if (!id)
+  {
+    vtkErrorMacro(<< "Found an atom without an id; skipping");
+    return;
+  }
+
+  vtkAtom atom = this->Target->AppendAtom();
   atom.SetAtomicNumber(atomicNum);
   atom.SetPosition(pos);
 
