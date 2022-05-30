@@ -65,6 +65,7 @@ vtkChartMatrix::vtkChartMatrix()
   this->Borders[vtkAxis::BOTTOM] = 40;
   this->Borders[vtkAxis::RIGHT] = 50;
   this->Borders[vtkAxis::TOP] = 40;
+  this->Padding = 0.05;
   this->LayoutIsDirty = true;
 }
 
@@ -332,6 +333,14 @@ void vtkChartMatrix::SetGutterY(float value)
 {
   this->Gutter.SetY(value);
   this->LayoutIsDirty = true;
+}
+
+//------------------------------------------------------------------------------
+void vtkChartMatrix::SetPadding(const float& padding)
+{
+  this->Padding = padding;
+  this->LayoutIsDirty = true;
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------

@@ -1309,10 +1309,11 @@ void vtkScatterPlotMatrix::UpdateAxes()
     {
       PIMPL::ColumnSetting settings;
       // Apply a little padding either side of the ranges.
-      range[0] = range[0] - (0.01 * range[0]);
-      range[1] = range[1] + (0.01 * range[1]);
+      float padding = this->Padding * (range[1] - range[0]);
+      range[0] = range[0] - padding;
+      range[1] = range[1] + padding;
+
       axis->SetUnscaledRange(range);
-      axis->AutoScale();
       settings.min = axis->GetUnscaledMinimum();
       settings.max = axis->GetUnscaledMaximum();
       settings.nTicks = axis->GetNumberOfTicks();
@@ -1437,6 +1438,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
       {
         // This big plot in the top-right
         this->Private->BigChart = this->GetChart(pos);
+        this->ApplyAxisSetting(this->Private->BigChart, column, row);
         this->Private->BigChartPos = pos;
         this->Private->BigChart->SetAnnotationLink(this->Private->Link);
         this->Private->BigChart->AddObserver(vtkCommand::SelectionChangedEvent, this,

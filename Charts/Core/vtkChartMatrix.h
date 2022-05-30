@@ -98,6 +98,13 @@ public:
 
   ///@{
   /**
+   * Set the gutter that should be left between the charts in the matrix.
+   */
+  virtual void SetPadding(const float& padding);
+  ///@}
+
+  ///@{
+  /**
    * Set a specific resize that will move the bottom left point of a chart.
    */
   virtual void SetSpecificResize(const vtkVector2i& index, const vtkVector2f& resize);
@@ -279,6 +286,9 @@ protected:
 
   // The gutter between each chart.
   vtkVector2f Gutter;
+
+  // The padding used inside each chart
+  float Padding;
   std::map<vtkVector2i, vtkVector2f> SpecificResize;
   int Borders[4];
   bool LayoutIsDirty;
