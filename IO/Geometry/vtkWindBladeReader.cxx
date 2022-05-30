@@ -1672,7 +1672,7 @@ void vtkWindBladeReader::ProcessZCoords(float* topoData, float* zValues)
     }
 
     // Call spline with zcoeff being the answer
-    this->Spline(&zdata[0], zcrdata, npoints, 99.0e31, 99.0e31, &zcoeff[0]);
+    this->Spline(zdata.data(), zcrdata, npoints, 99.0e31, 99.0e31, zcoeff.data());
   }
 
   // Fill the zValues array depending on compression
@@ -1693,7 +1693,7 @@ void vtkWindBladeReader::ProcessZCoords(float* topoData, float* zValues)
         {
           // Use spline interpolation
           float zinterp;
-          this->Splint(&zdata[0], zcrdata, &zcoeff[0], npoints, z[k], &zinterp, flag);
+          this->Splint(zdata.data(), zcrdata, zcoeff.data(), npoints, z[k], &zinterp, flag);
           zValues[index] = zinterp;
         }
         else

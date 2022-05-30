@@ -203,7 +203,7 @@ void SetPolyhedralCells(
     }
 
     connectivity->InsertNextCell(
-      static_cast<vtkIdType>(cellPoints.size()), cellPoints.empty() ? nullptr : &cellPoints[0]);
+      static_cast<vtkIdType>(cellPoints.size()), cellPoints.empty() ? nullptr : cellPoints.data());
   }
 
   connectivity->Squeeze();

@@ -498,7 +498,7 @@ unsigned int* vtkAMRInformation::GetParents(
 
   num = static_cast<unsigned int>(this->AllParents[level][index].size());
 
-  return &this->AllParents[level][index][0];
+  return this->AllParents[level][index].data();
 }
 
 unsigned int* vtkAMRInformation::GetChildren(
@@ -513,7 +513,7 @@ unsigned int* vtkAMRInformation::GetChildren(
 
   size = static_cast<unsigned int>(this->AllChildren[level][index].size());
 
-  return &this->AllChildren[level][index][0];
+  return this->AllChildren[level][index].data();
 }
 
 void vtkAMRInformation::PrintParentChildInfo(unsigned int level, unsigned int index)

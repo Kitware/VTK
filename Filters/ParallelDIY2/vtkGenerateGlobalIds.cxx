@@ -344,7 +344,7 @@ struct PointTT
     locator->SetDataSet(grid);
     locator->SetTolerance(tolerance);
     locator->BuildLocator();
-    locator->MergePoints(tolerance, &mergemap[0]);
+    locator->MergePoints(tolerance, mergemap.data());
     return mergemap;
   }
 };

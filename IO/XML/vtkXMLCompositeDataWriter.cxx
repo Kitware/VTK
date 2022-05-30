@@ -121,7 +121,7 @@ unsigned int vtkXMLCompositeDataWriter::GetNumberOfDataTypes()
 //------------------------------------------------------------------------------
 int* vtkXMLCompositeDataWriter::GetDataTypesPointer()
 {
-  return &this->Internal->DataTypes[0];
+  return this->Internal->DataTypes.data();
 }
 
 //------------------------------------------------------------------------------

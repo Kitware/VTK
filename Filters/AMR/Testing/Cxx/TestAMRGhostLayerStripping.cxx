@@ -223,7 +223,7 @@ vtkOverlappingAMR* GetGhostedDataSet(const int dimension, const int NG, vtkOverl
   blocksPerLevel[0] = 1;
   blocksPerLevel[1] = 2;
 
-  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0]);
+  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
   ghostedAMR->SetGridDescription(inputAMR->GetGridDescription());
   ghostedAMR->SetOrigin(inputAMR->GetOrigin());
 

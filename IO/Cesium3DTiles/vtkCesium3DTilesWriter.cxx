@@ -65,9 +65,9 @@ vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctreeBuildings(
   points->SetDataTypeToDouble();
   vtkNew<vtkIncrementalOctreePointLocator> octree;
   octree->SetMaxPointsPerLeaf(buildingsPerTile);
-  octree->InitPointInsertion(points, &wholeBB[0]);
+  octree->InitPointInsertion(points, wholeBB.data());
 
-  // TreeInformation::PrintBounds("octreeBB", &wholeBB[0]);
+  // TreeInformation::PrintBounds("octreeBB", wholeBB.data());
   for (size_t i = 0; i < buildings.size(); ++i)
   {
     double bb[6];
@@ -116,7 +116,7 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* rootBuildings,
   const double* fileOffset, std::vector<vtkSmartPointer<vtkCompositeDataSet>>& buildings)
 {
   std::array<double, 6> wholeBB;
-  rootBuildings->GetBounds(&wholeBB[0]);
+  rootBuildings->GetBounds(wholeBB.data());
 
   vtkNew<vtkTransformFilter> f;
   vtkNew<vtkTransform> t;
@@ -126,7 +126,7 @@ std::array<double, 6> TranslateBuildings(vtkMultiBlockDataSet* rootBuildings,
   f->SetInputData(rootBuildings);
   f->Update();
   vtkMultiBlockDataSet* tr = vtkMultiBlockDataSet::SafeDownCast(f->GetOutputDataObject(0));
-  tr->GetBounds(&wholeBB[0]);
+  tr->GetBounds(wholeBB.data());
 
   // generate normals - these are needed in Cesium if there are no textures
   vtkNew<vtkPolyDataNormals> normals;

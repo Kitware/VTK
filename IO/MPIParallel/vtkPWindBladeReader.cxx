@@ -280,14 +280,14 @@ bool vtkPWindBladeReader::ReadGlobalData()
   {
     if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
     {
-      MPICall(MPI_File_read_all(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), tempSize - i);
+      MPICall(MPI_File_read_all(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), tempSize - i);
     }
     else
     {
-      MPICall(
-        MPI_File_read_all(tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+      MPICall(MPI_File_read_all(
+        tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
     }
   }
 
@@ -421,14 +421,14 @@ void vtkPWindBladeReader::SetupBladeData()
   {
     if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
     {
-      MPICall(MPI_File_read_all(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), tempSize - i);
+      MPICall(MPI_File_read_all(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), tempSize - i);
     }
     else
     {
-      MPICall(
-        MPI_File_read_all(tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+      MPICall(MPI_File_read_all(
+        tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
     }
   }
 
@@ -461,14 +461,14 @@ void vtkPWindBladeReader::SetupBladeData()
   {
     if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
     {
-      MPICall(MPI_File_read_all(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-      inStr2.write(&(inBuf[0]), tempSize - i);
+      MPICall(MPI_File_read_all(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+      inStr2.write(inBuf.data(), tempSize - i);
     }
     else
     {
-      MPICall(
-        MPI_File_read_all(tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-      inStr2.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+      MPICall(MPI_File_read_all(
+        tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+      inStr2.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
     }
   }
 
@@ -501,14 +501,14 @@ void vtkPWindBladeReader::SetupBladeData()
       {
         if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
         {
-          MPICall(MPI_File_read_all(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-          inStr2.write(&(inBuf[0]), tempSize - i);
+          MPICall(MPI_File_read_all(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+          inStr2.write(inBuf.data(), tempSize - i);
         }
         else
         {
           MPICall(MPI_File_read_all(
-            tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-          inStr2.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+            tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+          inStr2.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
         }
       }
       MPICall(MPI_File_close(&tempFile));
@@ -535,13 +535,13 @@ void vtkPWindBladeReader::SetupBladeData()
     // five items per line in header, so skip those lines
     this->NumberOfLinesToSkip = this->NumberOfBladeTowers * (int)ceil(numColumns / 5.0);
     // now skip the first few lines based on header, if that applies
-    while (inStr2.getline(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE) &&
+    while (inStr2.getline(inBuf.data(), vtkWindBladeReader::LINE_SIZE) &&
       linesSkipped < this->NumberOfLinesToSkip - 1)
     {
       linesSkipped++;
     }
   }
-  while (inStr2.getline(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE))
+  while (inStr2.getline(inBuf.data(), vtkWindBladeReader::LINE_SIZE))
   {
     this->NumberOfBladeCells++;
   }
@@ -588,14 +588,14 @@ void vtkPWindBladeReader::LoadBladeData(int timeStep)
   {
     if (i + vtkWindBladeReader::LINE_SIZE > tempSize)
     {
-      MPICall(MPI_File_read(tempFile, &(inBuf[0]), tempSize - i, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), tempSize - i);
+      MPICall(MPI_File_read(tempFile, inBuf.data(), tempSize - i, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), tempSize - i);
     }
     else
     {
       MPICall(
-        MPI_File_read(tempFile, &(inBuf[0]), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
-      inStr.write(&(inBuf[0]), vtkWindBladeReader::LINE_SIZE);
+        MPI_File_read(tempFile, inBuf.data(), vtkWindBladeReader::LINE_SIZE, MPI_BYTE, &status));
+      inStr.write(inBuf.data(), vtkWindBladeReader::LINE_SIZE);
     }
   }
   MPICall(MPI_File_close(&tempFile));

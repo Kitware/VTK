@@ -33,7 +33,7 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::Fft(const std::vector<ComplexNumber>&
   {
     std::vector<vtkFFT::ComplexNumber> result(in.size());
 
-    kiss_fft(cfg, in.data(), &result[0]);
+    kiss_fft(cfg, in.data(), result.data());
     kiss_fft_free(cfg);
 
     return result;
@@ -75,7 +75,7 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::RFft(const std::vector<ScalarNumber>&
   {
     std::vector<vtkFFT::ComplexNumber> result(outSize);
 
-    kiss_fftr(cfg, in.data(), &result[0]);
+    kiss_fftr(cfg, in.data(), result.data());
     kiss_fftr_free(cfg);
 
     return result;
@@ -98,7 +98,7 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::IFft(const std::vector<vtkFFT::Comple
   {
     std::vector<vtkFFT::ComplexNumber> result(outSize);
 
-    kiss_fft(cfg, in.data(), &result[0]);
+    kiss_fft(cfg, in.data(), result.data());
     std::for_each(result.begin(), result.end(), [outSize](vtkFFT::ComplexNumber& x) {
       x = vtkFFT::ComplexNumber{ x.r / outSize, x.i / outSize };
     });
@@ -124,7 +124,7 @@ std::vector<vtkFFT::ScalarNumber> vtkFFT::IRFft(const std::vector<vtkFFT::Comple
   {
     std::vector<vtkFFT::ScalarNumber> result(outSize);
 
-    kiss_fftri(cfg, in.data(), &result[0]);
+    kiss_fftri(cfg, in.data(), result.data());
     std::for_each(result.begin(), result.end(),
       [outSize](vtkFFT::ScalarNumber& num) { num /= static_cast<vtkFFT::ScalarNumber>(outSize); });
     kiss_fftr_free(cfg);

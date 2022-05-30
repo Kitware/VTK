@@ -293,10 +293,10 @@ vtkMultiProcessController* vtkMultiProcessController::PartitionController(
   int numProc = this->GetNumberOfProcesses();
 
   std::vector<int> allColors(numProc);
-  this->AllGather(&localColor, &allColors[0], 1);
+  this->AllGather(&localColor, allColors.data(), 1);
 
   std::vector<int> allKeys(numProc);
-  this->AllGather(&localKey, &allKeys[0], 1);
+  this->AllGather(&localKey, allKeys.data(), 1);
 
   std::vector<bool> inPartition;
   inPartition.assign(numProc, false);

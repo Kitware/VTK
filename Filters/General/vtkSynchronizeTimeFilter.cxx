@@ -139,7 +139,7 @@ int vtkSynchronizeTimeFilter::RequestInformation(vtkInformation* vtkNotUsed(requ
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     double timeRange[2] = { this->OutputTimeStepValues[0],
       this->OutputTimeStepValues[numberOfTimeSteps - 1] };
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->OutputTimeStepValues[0],
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->OutputTimeStepValues.data(),
       numberOfTimeSteps);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }

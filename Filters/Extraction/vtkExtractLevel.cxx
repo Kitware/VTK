@@ -117,7 +117,7 @@ int vtkExtractLevel::RequestUpdateExtent(
         }
       }
 
-      inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &blocksToLoad[0],
+      inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), blocksToLoad.data(),
         static_cast<int>(blocksToLoad.size()));
     }
   }

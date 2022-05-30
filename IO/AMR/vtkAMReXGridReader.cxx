@@ -135,7 +135,7 @@ int vtkAMReXGridReader::FillMetaData()
   {
     numberOfBlocks[i] = this->Internal->Header->levelSize[i];
   }
-  this->Metadata->Initialize(numberOfLevels, &numberOfBlocks[0]);
+  this->Metadata->Initialize(numberOfLevels, numberOfBlocks.data());
   // The AMRBox always has 3 dimensions
   double origin[3] = { 0.0, 0.0, 0.0 };
   double spacing[3] = { 0.0, 0.0, 0.0 };

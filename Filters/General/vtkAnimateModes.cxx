@@ -95,7 +95,7 @@ int vtkAnimateModes::RequestInformation(
   {
     const auto length = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     this->InputTimeSteps.resize(length);
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->InputTimeSteps[0]);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->InputTimeSteps.data());
     this->ModeShapesRange[0] = 1;
     this->ModeShapesRange[1] = length;
   }

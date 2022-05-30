@@ -239,7 +239,7 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   {
     // initialize vtkAMRInformation.
     this->Metadata->Initialize(
-      static_cast<int>(blocks_per_level.size()), reinterpret_cast<int*>(&blocks_per_level[0]));
+      static_cast<int>(blocks_per_level.size()), reinterpret_cast<int*>(blocks_per_level.data()));
 
     double origin[3] = { 0, 0, 0 };
     if (!ePrimary->GetVectorAttribute("origin", 3, origin))
@@ -397,7 +397,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
     std::vector<unsigned int> blocks_per_level;
     vtkReadMetaData(element, blocks_per_level);
     noamr->Initialize(
-      static_cast<int>(blocks_per_level.size()), reinterpret_cast<int*>(&blocks_per_level[0]));
+      static_cast<int>(blocks_per_level.size()), reinterpret_cast<int*>(blocks_per_level.data()));
   }
 
   // Now, simply scan the xml for dataset elements and read them as needed.

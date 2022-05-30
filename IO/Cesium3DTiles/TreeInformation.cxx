@@ -77,7 +77,7 @@ std::array<double, 6> ComputeTightBBBuildings(
   {
     double bb[6];
     (*buildings)[tileBuildings->GetId(i)]->GetBounds(bb);
-    wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], bb);
+    wholeBB = TreeInformation::ExpandBounds(wholeBB.data(), bb);
   }
   return wholeBB;
 }
@@ -93,7 +93,7 @@ std::array<double, 6> ComputeTightBBMesh(
   {
     double bb[6];
     mesh->GetCell(tileCells->GetId(i))->GetBounds(bb);
-    wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], bb);
+    wholeBB = TreeInformation::ExpandBounds(wholeBB.data(), bb);
   }
   return wholeBB;
 }
@@ -111,7 +111,7 @@ std::array<double, 6> ComputeTightBBPoints(
     double point[3];
     points->GetPoint(tilePoints->GetId(i), point);
     bb = { { point[0], point[0], point[1], point[1], point[2], point[2] } };
-    wholeBB = TreeInformation::ExpandBounds(&wholeBB[0], &bb[0]);
+    wholeBB = TreeInformation::ExpandBounds(wholeBB.data(), bb.data());
   }
   return wholeBB;
 }
@@ -251,8 +251,8 @@ struct CopyScalarsWorker
   {
     using Type = vtk::GetAPIType<Array>;
 
-    vtkImageIterator<Type> itDataset(datasetImage, &datasetRegion[0]);
-    vtkImageIterator<Type> itTile(tileImage, &tileRegion[0]);
+    vtkImageIterator<Type> itDataset(datasetImage, datasetRegion.data());
+    vtkImageIterator<Type> itTile(tileImage, tileRegion.data());
     while (!itDataset.IsAtEnd())
     {
       Type* datasetPtr = itDataset.BeginSpan();
@@ -393,9 +393,9 @@ void TreeInformation::PrintNode(vtkIncrementalOctreeNode* node)
   }
   std::cout << std::endl;
   std::array<double, 6> bounds;
-  node->GetBounds(&bounds[0]);
+  node->GetBounds(bounds.data());
   std::cout << "Empty: " << this->EmptyNode[node->GetID()] << std::endl;
-  // PrintBounds("Bounds", &bounds[0]);
+  // PrintBounds("Bounds", bounds.data());
   // PrintBounds("NodeTightBounds", &this->NodeTightBounds[node->GetID()][0]);
 }
 
@@ -636,7 +636,7 @@ vtkSmartPointer<vtkImageData> TreeInformation::ComputeTileMeshTexture(
     tileDims[1] += rowWidthHeight[i][1];
   }
   auto tileImage = vtkSmartPointer<vtkImageData>::New();
-  tileImage->SetDimensions(&tileDims[0]);
+  tileImage->SetDimensions(tileDims.data());
   vtkDataArray* colors = datasetImage->GetPointData()->GetScalars();
   auto tileColors = vtk::TakeSmartPointer<vtkDataArray>(colors->NewInstance());
   tileColors->SetNumberOfComponents(colors->GetNumberOfComponents());
@@ -1016,8 +1016,9 @@ void TreeInformation::VisitCompute(vtkIncrementalOctreeNode* node, void*)
       vtkIncrementalOctreeNode* child = node->GetChild(i);
       if (!this->EmptyNode[child->GetID()])
       {
-        this->NodeTightBounds[node->GetID()] = ExpandBounds(
-          &this->NodeTightBounds[node->GetID()][0], &this->NodeTightBounds[child->GetID()][0]);
+        this->NodeTightBounds[node->GetID()] =
+          ExpandBounds(this->NodeTightBounds[node->GetID()].data(),
+            this->NodeTightBounds[child->GetID()].data());
         this->EmptyNode[node->GetID()] = false;
       }
     }

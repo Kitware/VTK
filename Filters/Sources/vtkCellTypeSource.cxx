@@ -1582,7 +1582,7 @@ void vtkCellTypeSource::GenerateLagrangeCurves(vtkUnstructuredGrid* output, int 
       vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
       conn[j + 1] = innerPointId;
     }
-    output->InsertNextCell(VTK_LAGRANGE_CURVE, this->CellOrder + 1, &conn[0]);
+    output->InsertNextCell(VTK_LAGRANGE_CURVE, this->CellOrder + 1, conn.data());
   }
 }
 
@@ -1665,8 +1665,8 @@ void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int ex
         pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
         this->Locator->InsertUniquePoint(pm.GetData(), ctb[numPtsPerCell - 1]);
       }
-      output->InsertNextCell(VTK_LAGRANGE_TRIANGLE, numPtsPerCell, &cta[0]);
-      output->InsertNextCell(VTK_LAGRANGE_TRIANGLE, numPtsPerCell, &ctb[0]);
+      output->InsertNextCell(VTK_LAGRANGE_TRIANGLE, numPtsPerCell, cta.data());
+      output->InsertNextCell(VTK_LAGRANGE_TRIANGLE, numPtsPerCell, ctb.data());
     }
   }
 }
@@ -1716,7 +1716,7 @@ void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int e
           conn[connidx] = innerPointId;
         }
       }
-      output->InsertNextCell(VTK_LAGRANGE_QUADRILATERAL, numPtsPerCell, &conn[0]);
+      output->InsertNextCell(VTK_LAGRANGE_QUADRILATERAL, numPtsPerCell, conn.data());
     }
   }
 }
@@ -1835,7 +1835,7 @@ void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int ex
             this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
             conn[14] = innerPointId;
           }
-          output->InsertNextCell(VTK_LAGRANGE_TETRAHEDRON, numPtsPerCell, &conn[0]);
+          output->InsertNextCell(VTK_LAGRANGE_TETRAHEDRON, numPtsPerCell, conn.data());
         }
       }
     }
@@ -1906,7 +1906,7 @@ void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int e
             }
           }
         }
-        output->InsertNextCell(VTK_LAGRANGE_HEXAHEDRON, numPtsPerCell, &conn[0]);
+        output->InsertNextCell(VTK_LAGRANGE_HEXAHEDRON, numPtsPerCell, conn.data());
       } // i
     }   // j
   }     // k
@@ -2043,8 +2043,8 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
           cta[20] = innerA;
           ctb[20] = innerB;
         }
-        output->InsertNextCell(VTK_LAGRANGE_WEDGE, numPtsPerCell, &cta[0]);
-        output->InsertNextCell(VTK_LAGRANGE_WEDGE, numPtsPerCell, &ctb[0]);
+        output->InsertNextCell(VTK_LAGRANGE_WEDGE, numPtsPerCell, cta.data());
+        output->InsertNextCell(VTK_LAGRANGE_WEDGE, numPtsPerCell, ctb.data());
       }
     }
   }
@@ -2079,7 +2079,7 @@ void vtkCellTypeSource::GenerateBezierCurves(vtkUnstructuredGrid* output, int ex
       vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
       conn[j + 1] = innerPointId;
     }
-    output->InsertNextCell(VTK_BEZIER_CURVE, this->CellOrder + 1, &conn[0]);
+    output->InsertNextCell(VTK_BEZIER_CURVE, this->CellOrder + 1, conn.data());
   }
 }
 
@@ -2162,8 +2162,8 @@ void vtkCellTypeSource::GenerateBezierTris(vtkUnstructuredGrid* output, int exte
         pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
         this->Locator->InsertUniquePoint(pm.GetData(), ctb[numPtsPerCell - 1]);
       }
-      output->InsertNextCell(VTK_BEZIER_TRIANGLE, numPtsPerCell, &cta[0]);
-      output->InsertNextCell(VTK_BEZIER_TRIANGLE, numPtsPerCell, &ctb[0]);
+      output->InsertNextCell(VTK_BEZIER_TRIANGLE, numPtsPerCell, cta.data());
+      output->InsertNextCell(VTK_BEZIER_TRIANGLE, numPtsPerCell, ctb.data());
     }
   }
 }
@@ -2213,7 +2213,7 @@ void vtkCellTypeSource::GenerateBezierQuads(vtkUnstructuredGrid* output, int ext
           conn[connidx] = innerPointId;
         }
       }
-      output->InsertNextCell(VTK_BEZIER_QUADRILATERAL, numPtsPerCell, &conn[0]);
+      output->InsertNextCell(VTK_BEZIER_QUADRILATERAL, numPtsPerCell, conn.data());
     }
   }
 }
@@ -2332,7 +2332,7 @@ void vtkCellTypeSource::GenerateBezierTets(vtkUnstructuredGrid* output, int exte
             this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
             conn[14] = innerPointId;
           }
-          output->InsertNextCell(VTK_BEZIER_TETRAHEDRON, numPtsPerCell, &conn[0]);
+          output->InsertNextCell(VTK_BEZIER_TETRAHEDRON, numPtsPerCell, conn.data());
         }
       }
     }
@@ -2403,7 +2403,7 @@ void vtkCellTypeSource::GenerateBezierHexes(vtkUnstructuredGrid* output, int ext
             }
           }
         }
-        output->InsertNextCell(VTK_BEZIER_HEXAHEDRON, numPtsPerCell, &conn[0]);
+        output->InsertNextCell(VTK_BEZIER_HEXAHEDRON, numPtsPerCell, conn.data());
       } // i
     }   // j
   }     // k
@@ -2540,8 +2540,8 @@ void vtkCellTypeSource::GenerateBezierWedges(vtkUnstructuredGrid* output, int ex
           cta[20] = innerA;
           ctb[20] = innerB;
         }
-        output->InsertNextCell(VTK_BEZIER_WEDGE, numPtsPerCell, &cta[0]);
-        output->InsertNextCell(VTK_BEZIER_WEDGE, numPtsPerCell, &ctb[0]);
+        output->InsertNextCell(VTK_BEZIER_WEDGE, numPtsPerCell, cta.data());
+        output->InsertNextCell(VTK_BEZIER_WEDGE, numPtsPerCell, ctb.data());
       }
     }
   }

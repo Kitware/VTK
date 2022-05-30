@@ -150,7 +150,7 @@ vtkSmartPointer<vtkTable> CreateShapeFunctionTable(const int order[N], T& testpt
   for (unsigned i = 0; i < static_cast<unsigned>(numtests); ++i)
   {
     vtkVector3d pcoord(testpts->GetPoint(i));
-    method(order, pcoord.GetData(), &shape[0]);
+    method(order, pcoord.GetData(), shape.data());
     printShape<N>(order, pcoord, shape);
     ok &= testShape(order, shape, i);
     rst->SetTuple(row, pcoord.GetData());
@@ -163,7 +163,7 @@ vtkSmartPointer<vtkTable> CreateShapeFunctionTable(const int order[N], T& testpt
       for (double xx = dd; xx < 1.0; xx += dd)
       {
         vtkVector3d xp = p0 * xx + p1 * (1. - xx);
-        method(order, xp.GetData(), &shape[0]);
+        method(order, xp.GetData(), shape.data());
         rst->SetTuple(row, xp.GetData());
         InsertTableRow(row, all, shape);
       }
@@ -307,13 +307,13 @@ bool SumShapeFunctions(const int order[N], T tab, U world, V lpd)
     switch (N)
     {
       case 1:
-        interp->Tensor1ShapeDerivatives(order, uu.GetData(), &derivs[0]);
+        interp->Tensor1ShapeDerivatives(order, uu.GetData(), derivs.data());
         break;
       case 2:
-        interp->Tensor2ShapeDerivatives(order, uu.GetData(), &derivs[0]);
+        interp->Tensor2ShapeDerivatives(order, uu.GetData(), derivs.data());
         break;
       case 3:
-        interp->Tensor3ShapeDerivatives(order, uu.GetData(), &derivs[0]);
+        interp->Tensor3ShapeDerivatives(order, uu.GetData(), derivs.data());
         break;
       default:
         std::cerr << "Unsupported dimension " << N << ". No way to obtain derivatives.\n";
@@ -360,7 +360,7 @@ bool SumShapeFunctions(const int order[N], T tab, U world, V lpd)
     }
     time->SetValue(rr, rr);
   }
-  polyline->InsertNextCell(static_cast<vtkIdType>(conn.size()), &conn[0]);
+  polyline->InsertNextCell(static_cast<vtkIdType>(conn.size()), conn.data());
   lpd->Initialize();
   lpd->SetPoints(ppt.GetPointer());
   lpd->SetLines(polyline.GetPointer());
@@ -419,7 +419,7 @@ bool SumWedgeShapeFunctions(const int order[N], T tab, U world, V lpd)
     ppt->SetPoint(rr, pt.GetData());
     time->SetValue(rr, rr);
   }
-  polyline->InsertNextCell(static_cast<vtkIdType>(conn.size()), &conn[0]);
+  polyline->InsertNextCell(static_cast<vtkIdType>(conn.size()), conn.data());
   lpd->Initialize();
   lpd->SetPoints(ppt.GetPointer());
   lpd->SetLines(polyline.GetPointer());

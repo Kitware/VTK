@@ -1339,14 +1339,14 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
         std::vector<vtkIdType> vals(numComp);
         for (vtkIdType jj = 0; jj < size; jj++)
         {
-          data2->GetTypedTuple(jj, &vals[0]);
+          data2->GetTypedTuple(jj, vals.data());
           for (i = 0; i < numComp; i++)
           {
             intArray[jj * numComp + i] = vals[i];
           }
         }
       }
-      vtkWriteDataArray(fp, &intArray[0], this->FileType, "%d ", num, numComp);
+      vtkWriteDataArray(fp, intArray.data(), this->FileType, "%d ", num, numComp);
     }
     break;
 

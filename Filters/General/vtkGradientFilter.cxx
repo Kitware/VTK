@@ -128,7 +128,7 @@ void GetGridEntityCoordinate(
     double pcoords[3];
     int subId = cell->GetParametricCenter(pcoords);
     std::vector<double> weights(cell->GetNumberOfPoints() + 1);
-    cell->EvaluateLocation(subId, pcoords, coords, &weights[0]);
+    cell->EvaluateLocation(subId, pcoords, coords, weights.data());
   }
 }
 
@@ -1157,7 +1157,7 @@ int GetCellParametricData(
   std::vector<double> values(numpoints);
   // Get parametric position of point.
   cell->EvaluatePosition(
-    pointCoord, nullptr, subId, parametricCoord, dummy, &values[0] /*Really another dummy.*/);
+    pointCoord, nullptr, subId, parametricCoord, dummy, values.data() /*Really another dummy.*/);
 
   return 1;
 }
@@ -1492,17 +1492,17 @@ struct ComputeStructuredSlice : public GradientsBase<DataT>
           if (this->Vorticity)
           {
             auto vort = vtk::DataArrayTupleRange(this->Vorticity);
-            ComputeVorticityFromGradient(&localGradients[0], vort[idx]);
+            ComputeVorticityFromGradient(localGradients.data(), vort[idx]);
           }
           if (this->QCriterion)
           {
             auto qCrit = vtk::DataArrayTupleRange(this->QCriterion);
-            ComputeQCriterionFromGradient(&localGradients[0], qCrit[idx]);
+            ComputeQCriterionFromGradient(localGradients.data(), qCrit[idx]);
           }
           if (this->Divergence)
           {
             auto div = vtk::DataArrayTupleRange(this->Divergence);
-            ComputeDivergenceFromGradient(&localGradients[0], div[idx]);
+            ComputeDivergenceFromGradient(localGradients.data(), div[idx]);
           }
         } // i
       }   // j

@@ -384,7 +384,7 @@ public:
     // approximate number of nodes in the tree
     vtkIdType splitsSize = totalNumberOfPoints / (NUM_POINTS_PER_BIN / 2);
     this->Splits.resize(splitsSize);
-    this->RecursiveSplit(&this->Nodes[0], &this->Nodes[totalNumberOfPoints], &this->Splits[0],
+    this->RecursiveSplit(this->Nodes.data(), &this->Nodes[totalNumberOfPoints], this->Splits.data(),
       &this->Splits[splitsSize], 0);
   }
 
@@ -403,7 +403,7 @@ public:
 
     vtkIdType numPoints = static_cast<vtkIdType>(this->Nodes.size());
     vtkIdType splitSize = static_cast<vtkIdType>(this->Splits.size());
-    this->RecursiveSearch(bounds, &this->Nodes[0], &this->Nodes[numPoints], &this->Splits[0],
+    this->RecursiveSearch(bounds, this->Nodes.data(), &this->Nodes[numPoints], this->Splits.data(),
       &this->Splits[splitSize], 0, tag, points);
   }
 
@@ -865,7 +865,7 @@ void PerformResampling(
         cp.enqueue(bid, blockId);
         cp.enqueue(bid, static_cast<vtkIdType>(pointIds.size())); // send valid points only
         cp.enqueue(bid, resPD->GetNumberOfArrays());
-        cp.enqueue(bid, &pointIds[0], pointIds.size());
+        cp.enqueue(bid, pointIds.data(), pointIds.size());
 
         enqueuer.SetMaskArray(masks);
         enqueuer.SetRange(blockBegin, blockEnd);
@@ -1013,7 +1013,7 @@ void ReceiveResampledPoints(
       vtkDataSet* ds = block->OutputBlocks[blockId];
 
       pointIds.resize(numberOfPoints);
-      cp.dequeue(i->first, &pointIds[0], numberOfPoints);
+      cp.dequeue(i->first, pointIds.data(), numberOfPoints);
 
       dequeuer.SetPointIds(pointIds);
       for (int j = 0; j < numberOfArrays; ++j)

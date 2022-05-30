@@ -596,7 +596,7 @@ int vtkXMLReader::RequestInformation(vtkInformation* request,
       std::vector<double> timeSteps(numTimesteps);
       std::iota(timeSteps.begin(), timeSteps.end(), 0.0);
       double timeRange[2] = { timeSteps[0], timeSteps[numTimesteps - 1] };
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeSteps[0], numTimesteps);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeSteps.data(), numTimesteps);
       outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
     }
     else
@@ -1171,7 +1171,7 @@ bool readVectorInfo(KeyType* key, vtkInformation* info, vtkXMLDataElement* eleme
     }
     values.push_back(value);
   }
-  info->Set(key, &values[0], length);
+  info->Set(key, values.data(), length);
 
   return true;
 }

@@ -391,7 +391,7 @@ int vtkPlot3DMetaReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   size_t numSteps = timeValues.size();
   if (numSteps > 0)
   {
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeValues[0], (int)numSteps);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeValues.data(), (int)numSteps);
 
     double timeRange[2];
     timeRange[0] = timeValues[0];

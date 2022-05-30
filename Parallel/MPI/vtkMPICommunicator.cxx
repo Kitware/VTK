@@ -1133,7 +1133,7 @@ int vtkMPICommunicator::GatherVVoidArray(const void* sendBuffer, void* recvBuffe
     }
     return CheckForMPIError(
       MPI_Gatherv(const_cast<void*>(sendBuffer), sendLength, mpiType, recvBuffer,
-        &mpiRecvLengths[0], &mpiOffsets[0], mpiType, destProcessId, *this->MPIComm->Handle));
+        mpiRecvLengths.data(), mpiOffsets.data(), mpiType, destProcessId, *this->MPIComm->Handle));
   }
   else
   {
@@ -1198,7 +1198,7 @@ int vtkMPICommunicator::ScatterVVoidArray(const void* sendBuffer, void* recvBuff
       mpiOffsets[i] = offsets[i];
     }
     return CheckForMPIError(
-      MPI_Scatterv(const_cast<void*>(sendBuffer), &mpiSendLengths[0], &mpiOffsets[0], mpiType,
+      MPI_Scatterv(const_cast<void*>(sendBuffer), mpiSendLengths.data(), mpiOffsets.data(), mpiType,
         recvBuffer, recvLength, mpiType, srcProcessId, *this->MPIComm->Handle));
   }
   else
@@ -1277,7 +1277,7 @@ int vtkMPICommunicator::AllGatherVVoidArray(const void* sendBuffer, void* recvBu
     mpiOffsets[i] = offsets[i];
   }
   return CheckForMPIError(MPI_Allgatherv(const_cast<void*>(sendBuffer), sendLength, mpiType,
-    recvBuffer, &mpiRecvLengths[0], &mpiOffsets[0], mpiType, *this->MPIComm->Handle));
+    recvBuffer, mpiRecvLengths.data(), mpiOffsets.data(), mpiType, *this->MPIComm->Handle));
 }
 
 //------------------------------------------------------------------------------

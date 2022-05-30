@@ -530,24 +530,24 @@ int TestReciprocalResult(vtkRandom* seq, unsigned nTests)
   {
     for (int i = 0; i < 6; i++)
     {
-      RandomPoint(seq, &p[i][0]);
+      RandomPoint(seq, p[i].data());
     }
     std::sort(std::begin(p), std::end(p));
     do
     {
-      int returnValue1 =
-        vtkTriangle::TrianglesIntersect(&p[0][0], &p[1][0], &p[2][0], &p[3][0], &p[4][0], &p[5][0]);
-      int returnValue2 =
-        vtkTriangle::TrianglesIntersect(&p[3][0], &p[4][0], &p[5][0], &p[0][0], &p[1][0], &p[2][0]);
+      int returnValue1 = vtkTriangle::TrianglesIntersect(
+        p[0].data(), p[1].data(), p[2].data(), p[3].data(), p[4].data(), p[5].data());
+      int returnValue2 = vtkTriangle::TrianglesIntersect(
+        p[3].data(), p[4].data(), p[5].data(), p[0].data(), p[1].data(), p[2].data());
 
       if (returnValue1 != returnValue2)
       {
-        std::cout << "Triangles " << TriangleToString(&p[0][0], &p[1][0], &p[2][0]) << " and "
-                  << TriangleToString(&p[3][0], &p[4][0], &p[5][0])
+        std::cout << "Triangles " << TriangleToString(p[0].data(), p[1].data(), p[2].data())
+                  << " and " << TriangleToString(p[3].data(), p[4].data(), p[5].data())
                   << " disagree about intersection." << std::endl;
         std::cout << "return values: " << returnValue1 << " " << returnValue2 << std::endl;
 #ifdef VISUAL_DEBUG
-        DrawTriangles(&p[0][0], &p[1][0], &p[2][0], &p[3][0], &p[4][0], &p[5][0]);
+        DrawTriangles(p[0].data(), p[1].data(), p[2].data(), p[3].data(), p[4].data(), p[5].data());
 #endif
         return EXIT_FAILURE;
       }

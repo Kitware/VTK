@@ -254,11 +254,11 @@ void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
       rgb->SetNumberOfTuples(3);
       std::array<unsigned char, 3> a;
       a = { { 255, 0, 0 } };
-      rgb->SetTypedTuple(0, &a[0]);
+      rgb->SetTypedTuple(0, a.data());
       a = { { 0, 255, 0 } };
-      rgb->SetTypedTuple(1, &a[0]);
+      rgb->SetTypedTuple(1, a.data());
       a = { { 0, 0, 255 } };
-      rgb->SetTypedTuple(2, &a[0]);
+      rgb->SetTypedTuple(2, a.data());
       rgb->SetName("rgb");
       polyData->GetPointData()->SetScalars(rgb);
     }
@@ -280,7 +280,7 @@ void tiler(const std::vector<std::string>& input, int inputType, bool addColor,
   writer->SetInputType(inputType);
   writer->SetDirectoryName(output.c_str());
   writer->SetTextureBaseDirectory(textureBaseDirectory.c_str());
-  writer->SetOffset(&fileOffset[0]);
+  writer->SetOffset(fileOffset.data());
   writer->SetSaveTextures(saveTextures);
   writer->SetNumberOfFeaturesPerTile(buildingsPerTile);
   writer->SetSaveTiles(saveTiles);
@@ -311,7 +311,7 @@ bool TrianglesDiffer(std::array<std::array<double, 3>, 3>& in, std::string gltfF
   for (int i = 0; i < 3; ++i)
   {
     std::array<double, 3> outputPoint;
-    outputPoints->GetPoint(i, &outputPoint[0]);
+    outputPoints->GetPoint(i, outputPoint.data());
     for (size_t j = 0; j < in[i].size(); ++j)
     {
       if (!vtkMathUtilities::NearlyEqual(in[i][j], outputPoint[j], 0.001))

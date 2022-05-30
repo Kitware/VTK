@@ -144,7 +144,7 @@ static void vtkMultiCorrelativeInvertCholesky(std::vector<double*>& chol, std::v
 static void vtkMultiCorrelativeTransposeTriangular(std::vector<double>& a, vtkIdType m)
 {
   std::vector<double> b(a.begin(), a.end());
-  double* bp = &b[0];
+  double* bp = b.data();
   vtkIdType i, j;
   a.clear();
   double* v;
@@ -176,9 +176,9 @@ void vtkMultiCorrelativeAssessFunctor::operator()(vtkDoubleArray* result, vtkIdT
   vtkIdType m = static_cast<vtkIdType>(this->Columns.size());
   vtkIdType i, j;
   this->Tuple = this->EmptyTuple; // initialize Tuple to 0.0
-  double* x = &this->Tuple[0];
+  double* x = this->Tuple.data();
   double* y;
-  double* ci = &this->Factor[0];
+  double* ci = this->Factor.data();
   double v;
   for (i = 0; i < m; ++i)
   {

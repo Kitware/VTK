@@ -548,8 +548,8 @@ struct mpi_datatype<Array<T, Len>>
   typedef Array<T, Len> ArrayType;
 
   static MPI_Datatype datatype() { return get_mpi_datatype<T>(); }
-  static const void* address(const ArrayType& x) { return &x[0]; }
-  static void* address(ArrayType& x) { return &x[0]; }
+  static const void* address(const ArrayType& x) { return x.data(); }
+  static void* address(ArrayType& x) { return x.data(); }
   static int count(const ArrayType&) { return Len; }
 };
 

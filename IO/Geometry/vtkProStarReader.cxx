@@ -352,7 +352,7 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
           }
         }
 
-        output->InsertNextCell(VTK_POLYHEDRON, nFaces, &(faceStream[0]));
+        output->InsertNextCell(VTK_POLYHEDRON, nFaces, faceStream.data());
         cellTableId->InsertNextValue(tableId);
       }
       else
@@ -367,13 +367,13 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
         {
           // 0-D
           case starcdPoint:
-            output->InsertNextCell(VTK_VERTEX, 1, &(starLabels[0]));
+            output->InsertNextCell(VTK_VERTEX, 1, starLabels.data());
             cellTableId->InsertNextValue(tableId);
             break;
 
           // 1-D
           case starcdLine:
-            output->InsertNextCell(VTK_LINE, 2, &(starLabels[0]));
+            output->InsertNextCell(VTK_LINE, 2, starLabels.data());
             cellTableId->InsertNextValue(tableId);
             break;
 
@@ -382,13 +382,13 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
             switch (nLabels)
             {
               case 3:
-                output->InsertNextCell(VTK_TRIANGLE, 3, &(starLabels[0]));
+                output->InsertNextCell(VTK_TRIANGLE, 3, starLabels.data());
                 break;
               case 4:
-                output->InsertNextCell(VTK_QUAD, 4, &(starLabels[0]));
+                output->InsertNextCell(VTK_QUAD, 4, starLabels.data());
                 break;
               default:
-                output->InsertNextCell(VTK_POLYGON, nLabels, &(starLabels[0]));
+                output->InsertNextCell(VTK_POLYGON, nLabels, starLabels.data());
                 break;
             }
             cellTableId->InsertNextValue(tableId);
@@ -396,7 +396,7 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
 
           // 3-D
           case starcdHex:
-            output->InsertNextCell(VTK_HEXAHEDRON, 8, &(starLabels[0]));
+            output->InsertNextCell(VTK_HEXAHEDRON, 8, starLabels.data());
             cellTableId->InsertNextValue(tableId);
             break;
 
@@ -404,17 +404,17 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
             // the VTK definition has outwards normals for the triangles!!
             std::swap(starLabels[1], starLabels[2]);
             std::swap(starLabels[4], starLabels[5]);
-            output->InsertNextCell(VTK_WEDGE, 6, &(starLabels[0]));
+            output->InsertNextCell(VTK_WEDGE, 6, starLabels.data());
             cellTableId->InsertNextValue(tableId);
             break;
 
           case starcdTet:
-            output->InsertNextCell(VTK_TETRA, 4, &(starLabels[0]));
+            output->InsertNextCell(VTK_TETRA, 4, starLabels.data());
             cellTableId->InsertNextValue(tableId);
             break;
 
           case starcdPyr:
-            output->InsertNextCell(VTK_PYRAMID, 5, &(starLabels[0]));
+            output->InsertNextCell(VTK_PYRAMID, 5, starLabels.data());
             cellTableId->InsertNextValue(tableId);
             break;
 

@@ -162,7 +162,7 @@ int vtkVASPAnimationReader::RequestInformation(
     vtkInformation* outInfo = outInfos->GetInformationObject(0);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
     outInfo->Set(
-      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], static_cast<int>(times.size()));
+      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), times.data(), static_cast<int>(times.size()));
   }
 
   return 1;

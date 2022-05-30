@@ -312,7 +312,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData* data, int* uExtent)
       pngText[i].lang_key = nullptr;
 #endif
     }
-    png_set_text(png_ptr, info_ptr, &pngText[0], static_cast<int>(pngText.size()));
+    png_set_text(png_ptr, info_ptr, pngText.data(), static_cast<int>(pngText.size()));
   }
 
   // interlace_type - PNG_INTERLACE_NONE or

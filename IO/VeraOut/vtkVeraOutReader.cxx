@@ -867,8 +867,8 @@ int vtkVeraOutReader::RequestInformation(
   this->TimeSteps.resize(this->NumberOfTimeSteps);
   std::iota(this->TimeSteps.begin(), this->TimeSteps.end(), 1.0);
 
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->TimeSteps[0], this->NumberOfTimeSteps);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeSteps.data(),
+    this->NumberOfTimeSteps);
 
   double tRange[2];
   tRange[0] = this->NumberOfTimeSteps ? this->TimeSteps[0] : 0;

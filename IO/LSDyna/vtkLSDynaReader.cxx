@@ -2469,8 +2469,8 @@ int vtkLSDynaReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   // Every output object has all the time steps.
   vtkInformation* outInfo = oinfo->GetInformationObject(0);
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &p->TimeValues[0], (int)p->TimeValues.size());
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), p->TimeValues.data(),
+    (int)p->TimeValues.size());
   double timeRange[2];
   timeRange[0] = p->TimeValues[0];
   timeRange[1] = p->TimeValues[p->TimeValues.size() - 1];

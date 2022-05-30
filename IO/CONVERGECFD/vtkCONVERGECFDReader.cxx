@@ -920,7 +920,7 @@ int vtkCONVERGECFDReader::RequestData(
         vtkIdType ptId = polygons[polygonOffsets[polyId] + id];
         ptIds[id] = blocksOriginalToBlockPointId[boundaryIndex][ptId];
       }
-      polyData->GetPolys()->InsertNextCell(numCellPts, &ptIds[0]);
+      polyData->GetPolys()->InsertNextCell(numCellPts, ptIds.data());
     }
 
     // Clear some memory
@@ -1313,7 +1313,7 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
     double timeRange[2] = { times[0], times[times.size() - 1] };
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
     outInfo->Set(
-      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], static_cast<int>(times.size()));
+      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), times.data(), static_cast<int>(times.size()));
   }
 }
 

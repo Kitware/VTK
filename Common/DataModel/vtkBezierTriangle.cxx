@@ -103,7 +103,7 @@ void vtkBezierTriangle::InterpolateFunctions(const double pcoords[3], double* we
   const int deg = GetOrder();
   const vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   std::vector<double> coeffs(nPoints, 0.0);
-  vtkBezierInterpolation::DeCasteljauSimplex(dim, deg, pcoords, &coeffs[0]);
+  vtkBezierInterpolation::DeCasteljauSimplex(dim, deg, pcoords, coeffs.data());
   for (vtkIdType i = 0; i < nPoints; ++i)
   {
     vtkVector3i bv = vtkBezierInterpolation::UnFlattenSimplex(dim, deg, i);
@@ -135,7 +135,7 @@ void vtkBezierTriangle::InterpolateDerivs(const double pcoords[3], double* deriv
   const int deg = GetOrder();
   const vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   std::vector<double> coeffs(nPoints, 0.0);
-  vtkBezierInterpolation::DeCasteljauSimplexDeriv(dim, deg, pcoords, &coeffs[0]);
+  vtkBezierInterpolation::DeCasteljauSimplexDeriv(dim, deg, pcoords, coeffs.data());
   for (vtkIdType i = 0; i < nPoints; ++i)
   {
     vtkVector3i bv = vtkBezierInterpolation::UnFlattenSimplex(dim, deg, i);

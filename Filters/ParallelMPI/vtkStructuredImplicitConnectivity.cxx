@@ -769,7 +769,7 @@ void CommunicationManager::AllocateRcvBuffers(vtkMPIController* comm)
   // STEP 3: WaitAll
   if (!this->Requests.empty())
   {
-    comm->WaitAll(this->NumMsgs(), &this->Requests[0]);
+    comm->WaitAll(this->NumMsgs(), this->Requests.data());
   }
   this->Requests.clear();
 
@@ -824,7 +824,7 @@ void CommunicationManager::Exchange(vtkMPIController* comm)
   // STEP 4: WaitAll
   if (!this->Requests.empty())
   {
-    comm->WaitAll(this->NumMsgs(), &this->Requests[0]);
+    comm->WaitAll(this->NumMsgs(), this->Requests.data());
   }
   this->Requests.clear();
 }
@@ -998,7 +998,7 @@ void vtkStructuredImplicitConnectivity::ExchangeExtents()
   this->DomainInfo->ExtentListInfo.resize(7 * nranks, 0);
 
   // STEP 2: AllGather
-  int* rcvbuffer = &(this->DomainInfo->ExtentListInfo)[0];
+  int* rcvbuffer = this->DomainInfo->ExtentListInfo.data();
   this->Controller->AllGather(extbuffer, rcvbuffer, 7);
 }
 

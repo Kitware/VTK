@@ -102,7 +102,7 @@ int vtkPComputeHistogram2DOutliers::RequestData(
     std::vector<vtkIdType> recvOffsets(numProcesses, 0);
 
     // gathers all of the array lengths together
-    comm->AllGather(&myLength, &recvLengths[0], 1);
+    comm->AllGather(&myLength, recvLengths.data(), 1);
 
     // compute the displacements
     vtkIdType typeSize = col->GetDataTypeSize();
@@ -120,7 +120,7 @@ int vtkPComputeHistogram2DOutliers::RequestData(
     char* sendBuf = (char*)col->GetVoidPointer(0);
     char* recvBuf = (char*)received->GetVoidPointer(0);
 
-    comm->AllGatherV(sendBuf, recvBuf, myLength * typeSize, &recvLengths[0], &recvOffsets[0]);
+    comm->AllGatherV(sendBuf, recvBuf, myLength * typeSize, recvLengths.data(), recvOffsets.data());
 
     gatheredTable->AddColumn(received);
     received->Delete();

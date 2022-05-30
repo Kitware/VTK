@@ -536,7 +536,7 @@ int vtkThreadedImageAlgorithm::RequestData(
   // set pointers to the lists of data objects and input ports
   if (numInputPorts)
   {
-    inputs = &ports[0];
+    inputs = ports.data();
     for (int i = 0; i < numInputPorts; i++)
     {
       inputs[i] = &connections[offset];

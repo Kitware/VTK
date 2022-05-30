@@ -127,7 +127,7 @@ int vtkCompositeCutter::RequestUpdateExtent(
       }
     }
     PRINT("Cutter demand " << intersected.size() << " blocks");
-    inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), &intersected[0],
+    inInfo->Set(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(), intersected.data(),
       static_cast<int>(intersected.size()));
   }
   return 1;

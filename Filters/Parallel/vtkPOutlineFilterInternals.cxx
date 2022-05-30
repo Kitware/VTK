@@ -178,8 +178,8 @@ int vtkPOutlineFilterInternals::RequestData(vtkDataObjectTree* input, vtkPolyDat
     AddBoundsListOperator operation;
     double* temp = new double[6 * this->BoundsList.size()];
     this->Controller->Reduce(
-      &boundsList[0], temp, static_cast<vtkIdType>(6 * this->BoundsList.size()), &operation, 0);
-    memcpy(&boundsList[0], temp, 6 * this->BoundsList.size() * sizeof(double));
+      boundsList.data(), temp, static_cast<vtkIdType>(6 * this->BoundsList.size()), &operation, 0);
+    memcpy(boundsList.data(), temp, 6 * this->BoundsList.size() * sizeof(double));
     delete[] temp;
 
     if (this->Controller->GetLocalProcessId() > 0)

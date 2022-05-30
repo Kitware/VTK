@@ -539,7 +539,7 @@ int vtkXdmf3Reader::RequestInformation(
   // Publish the times that we have data for
   if (!this->Internal->TimeSteps.empty())
   {
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Internal->TimeSteps[0],
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->Internal->TimeSteps.data(),
       static_cast<int>(this->Internal->TimeSteps.size()));
     double timeRange[2];
     timeRange[0] = this->Internal->TimeSteps.front();

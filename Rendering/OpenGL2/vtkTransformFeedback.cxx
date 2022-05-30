@@ -123,7 +123,7 @@ void vtkTransformFeedback::BindVaryings(vtkShaderProgram* prog)
   }
 
   glTransformFeedbackVaryings(static_cast<GLuint>(prog->GetHandle()),
-    static_cast<GLsizei>(vars.size()), &vars[0], static_cast<GLenum>(this->BufferMode));
+    static_cast<GLsizei>(vars.size()), vars.data(), static_cast<GLenum>(this->BufferMode));
 
   this->VaryingsBound = true;
 

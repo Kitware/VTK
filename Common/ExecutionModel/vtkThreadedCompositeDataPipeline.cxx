@@ -124,7 +124,7 @@ public:
     , InObjs(inObjs)
   {
     int numInputPorts = this->Exec->GetNumberOfInputPorts();
-    this->OutObjs = &outObjs[0];
+    this->OutObjs = outObjs.data();
     this->InfoPrototype = vtkSmartPointer<ProcessBlockData>::New();
     this->InfoPrototype->Construct(this->InInfoVec, numInputPorts, this->OutInfoVec);
   }

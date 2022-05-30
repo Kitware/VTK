@@ -81,7 +81,7 @@ int TestSetZBuffer(int argc, char* argv[])
   renderer->SetPreserveDepthBuffer(1);
   for (int i = 0; i < 4; i++)
   {
-    renderWindow->SetZbufferData(0, 0, 299, 299, &(depth[0]));
+    renderWindow->SetZbufferData(0, 0, 299, 299, depth.data());
     renderWindow->Render();
   }
   renderer->SetPreserveColorBuffer(1);

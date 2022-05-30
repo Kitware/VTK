@@ -77,7 +77,7 @@ int vtkPConvertToMultiBlockDataSet::RequestData(
 
   std::vector<unsigned int> result(piece_counts.size());
   this->Controller->AllReduce(
-    &piece_counts[0], &result[0], static_cast<vtkIdType>(count), vtkCommunicator::MAX_OP);
+    piece_counts.data(), result.data(), static_cast<vtkIdType>(count), vtkCommunicator::MAX_OP);
 
   for (unsigned int cc = 0; cc < count; ++cc)
   {

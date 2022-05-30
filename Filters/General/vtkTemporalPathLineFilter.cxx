@@ -595,7 +595,7 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
       }
       if (tp->length > 1)
       {
-        this->PolyLines->InsertNextCell(tp->length, &TempIds[0]);
+        this->PolyLines->InsertNextCell(tp->length, TempIds.data());
       }
       this->Vertices->InsertNextCell(1, &VertexId);
     }

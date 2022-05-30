@@ -177,7 +177,7 @@ std::vector<float> GetFieldAsFloat(
     return d;
   }
   std::vector<float> v(d.size());
-  fa->GetTypedTuple(0, &v[0]);
+  fa->GetTypedTuple(0, v.data());
   return v;
 }
 

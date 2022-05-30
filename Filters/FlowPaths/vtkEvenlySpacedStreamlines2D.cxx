@@ -125,7 +125,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request
   }
   std::array<double, 3> v = { { bounds[1] - bounds[0], bounds[3] - bounds[2],
     bounds[5] - bounds[4] } };
-  double length = vtkMath::Norm(&v[0]);
+  double length = vtkMath::Norm(v.data());
 
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -214,15 +214,15 @@ int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request
       double point[3];
       streamline->GetPoint(pointId, point);
       std::array<std::array<double, 3>, 2> newSeeds;
-      vtkMath::Add(point, newSeedVector, &newSeeds[0][0]);
-      vtkMath::Subtract(point, newSeedVector, &newSeeds[1][0]);
+      vtkMath::Add(point, newSeedVector, newSeeds[0].data());
+      vtkMath::Subtract(point, newSeedVector, newSeeds[1].data());
 
       for (auto newSeed : newSeeds)
       {
-        if (vtkMath::PointIsWithinBounds(&newSeed[0], bounds, delta) &&
-          !this->ForEachCell(&newSeed[0], &vtkEvenlySpacedStreamlines2D::IsTooClose<DISTANCE>))
+        if (vtkMath::PointIsWithinBounds(newSeed.data(), bounds, delta) &&
+          !this->ForEachCell(newSeed.data(), &vtkEvenlySpacedStreamlines2D::IsTooClose<DISTANCE>))
         {
-          streamTracer->SetStartPosition(&newSeed[0]);
+          streamTracer->SetStartPosition(newSeed.data());
           streamTracer->Update();
           auto newStreamline = vtkSmartPointer<vtkPolyData>::New();
           newStreamline->ShallowCopy(streamTracer->GetOutput());
@@ -366,7 +366,7 @@ bool vtkEvenlySpacedStreamlines2D::ForEachCell(
   this->SuperposedGrid->GetExtent(extent);
   for (auto cellPos : around)
   {
-    cellId = this->SuperposedGrid->ComputeCellId(&cellPos[0]);
+    cellId = this->SuperposedGrid->ComputeCellId(cellPos.data());
     if (cellPos[0] >= extent[0] && cellPos[0] < extent[1] && cellPos[1] >= extent[2] &&
       cellPos[1] < extent[3] && (this->*checker)(point, cellId, points, velocity, direction))
     {
@@ -457,7 +457,7 @@ bool vtkEvenlySpacedStreamlines2D::IsTooClose(
   }
   for (auto cellPoint : this->AllPoints[cellId])
   {
-    double distance2 = vtkMath::Distance2BetweenPoints(point, &cellPoint[0]);
+    double distance2 = vtkMath::Distance2BetweenPoints(point, cellPoint.data());
     if (distance2 < testDistance2)
     {
       return true;

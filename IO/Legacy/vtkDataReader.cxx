@@ -2841,7 +2841,7 @@ int vtkDataReader::ReadInformation(vtkInformation* info, vtkIdType numKeys)
         }
         if (values.size() == static_cast<size_t>(length))
         {
-          info->Set(dvKey, &values[0], length);
+          info->Set(dvKey, values.data(), length);
         }
 
         // Pop off the trailing newline:
@@ -2908,7 +2908,7 @@ int vtkDataReader::ReadInformation(vtkInformation* info, vtkIdType numKeys)
         }
         if (values.size() == static_cast<size_t>(length))
         {
-          info->Set(ivKey, &values[0], length);
+          info->Set(ivKey, values.data(), length);
         }
 
         // Pop off the trailing newline:

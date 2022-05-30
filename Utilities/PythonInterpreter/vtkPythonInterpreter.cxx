@@ -122,8 +122,8 @@ std::string vtk_Py_WideToUTF8(const wchar_t* arg)
   if (length > 0)
   {
     std::vector<char> chars(length + 1);
-    vtksysEncoding_wcstombs(&chars[0], arg, length + 1);
-    result.assign(&chars[0], length);
+    vtksysEncoding_wcstombs(chars.data(), arg, length + 1);
+    result.assign(chars.data(), length);
   }
 
   return result;

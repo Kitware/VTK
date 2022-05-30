@@ -166,7 +166,7 @@ int vtkExtractTimeSteps::RequestInformation(
 
     if (!outTimes.empty())
     {
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &outTimes[0],
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTimes.data(),
         static_cast<int>(outTimes.size()));
 
       double range[2] = { outTimes.front(), outTimes.back() };

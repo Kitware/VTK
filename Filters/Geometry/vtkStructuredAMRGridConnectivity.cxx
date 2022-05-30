@@ -764,7 +764,7 @@ void vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromFinerLevel(
 
             if (!sourceIds.empty())
             {
-              this->AverageFieldData(this->GridCellData[nei.NeighborID], &sourceIds[0],
+              this->AverageFieldData(this->GridCellData[nei.NeighborID], sourceIds.data(),
                 static_cast<int>(sourceIds.size()), this->GhostedGridCellData[gridID], targetIdx);
 
               this->CellCenteredDonorLevel[gridID][targetIdx] = nei.NeighborLevel;

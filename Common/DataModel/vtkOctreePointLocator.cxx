@@ -277,7 +277,7 @@ void vtkOctreePointLocator::DivideRegion(vtkOctreePointLocatorNode* node, int* o
     counter += subOctantNumberOfPoints[i];
     if (!points[i].empty())
     {
-      memcpy(ordering + counter, &(points[i][0]), subOctantNumberOfPoints[i + 1] * sizeOfInt);
+      memcpy(ordering + counter, points[i].data(), subOctantNumberOfPoints[i + 1] * sizeOfInt);
     }
   }
   counter = 0;

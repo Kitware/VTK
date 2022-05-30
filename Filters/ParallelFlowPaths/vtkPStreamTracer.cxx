@@ -337,7 +337,7 @@ public:
           double& xj(xi[j]);
           stream >> xj;
         }
-        pointData->GetArray(i)->InsertNextTuple(&xi[0]);
+        pointData->GetArray(i)->InsertNextTuple(xi.data());
       }
     }
     else
@@ -471,7 +471,7 @@ public:
     }
 
     PRINT(bb[0] << " " << bb[1] << " " << bb[2] << " " << bb[3] << " " << bb[4] << " " << bb[5]);
-    this->Controller->AllGather(bb, &this->BoundingBoxes[0], 6);
+    this->Controller->AllGather(bb, this->BoundingBoxes.data(), 6);
 
 #ifdef DEBUGTRACE
     cout << "(" << Rank << ") BoundingBoxes: ";
@@ -1022,7 +1022,7 @@ public:
     std::fill(this->HasData.begin(), this->HasData.end(), 0);
     {
       const int self_hasdata = hasData ? 1 : 0;
-      this->Controller->AllGather(&self_hasdata, &this->HasData[0], 1);
+      this->Controller->AllGather(&self_hasdata, this->HasData.data(), 1);
     }
 
     for (int i = 0; i < NumProcs; i++)
@@ -1048,7 +1048,7 @@ public:
 
     std::vector<int> processMap(MaxId + 1);
     this->Controller->AllReduce(
-      &processMap0[0], &processMap[0], MaxId + 1, vtkCommunicator::MAX_OP);
+      processMap0.data(), processMap.data(), MaxId + 1, vtkCommunicator::MAX_OP);
 
     int totalNumTasks = std::accumulate(processMap.begin(), processMap.end(), 0,
       [](int accumlatedSum, int b) { return accumlatedSum + (b >= 0 ? 1 : 0); });
@@ -1689,7 +1689,8 @@ int vtkPStreamTracer::RequestData(
     lengths[id] += length;
   }
   std::vector<double> totalLengths(maxSeeds);
-  this->Controller->AllReduce(&lengths[0], &totalLengths[0], maxSeeds, vtkCommunicator::SUM_OP);
+  this->Controller->AllReduce(
+    lengths.data(), totalLengths.data(), maxSeeds, vtkCommunicator::SUM_OP);
 
   int numNonZeros(0);
   double totalLength(0);

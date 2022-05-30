@@ -269,7 +269,7 @@ int vtkPDistributedDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
       {
         std::vector<int> receivedTypes;
         receivedTypes.resize(numLeaves, -1);
-        if (!this->Controller->Receive(&receivedTypes[0], numLeaves, cc, 1020202))
+        if (!this->Controller->Receive(receivedTypes.data(), numLeaves, cc, 1020202))
         {
           vtkErrorMacro("Communication error.");
           return 0;
@@ -288,13 +288,13 @@ int vtkPDistributedDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
       }
       for (int kk = 1; kk < numProcs; kk++)
       {
-        this->Controller->Send(&leafTypes[0], numLeaves, kk, 1020203);
+        this->Controller->Send(leafTypes.data(), numLeaves, kk, 1020203);
       }
     }
     else
     {
-      this->Controller->Send(&leafTypes[0], numLeaves, 0, 1020202);
-      this->Controller->Receive(&leafTypes[0], numLeaves, 0, 1020203);
+      this->Controller->Send(leafTypes.data(), numLeaves, 0, 1020202);
+      this->Controller->Receive(leafTypes.data(), numLeaves, 0, 1020203);
     }
   }
   TimeLog::EndEvent("Classify leaves", this->Timing);
@@ -599,7 +599,7 @@ int vtkPDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet* set
     }
     else
     {
-      this->Kdtree->AssignRegions(&this->UserRegionAssignments[0], nregions);
+      this->Kdtree->AssignRegions(this->UserRegionAssignments.data(), nregions);
     }
   }
 

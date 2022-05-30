@@ -376,7 +376,7 @@ int vtkPDataSetWriter::WriteImageMetaData(
       for (int count = 0; iter != this->Extents.end(); ++iter, ++count)
       {
         sendBuffer[count * 7] = iter->first;
-        memcpy(sendBuffer.data() + count * 7 + 1, &iter->second[0], 6 * sizeof(int));
+        memcpy(sendBuffer.data() + count * 7 + 1, iter->second.data(), 6 * sizeof(int));
       }
     }
     std::vector<int> recvBuffer;
@@ -404,7 +404,7 @@ int vtkPDataSetWriter::WriteImageMetaData(
 
   for (int i = 0; i < this->NumberOfPieces; ++i)
   {
-    pi = &this->Extents[i][0];
+    pi = this->Extents[i].data();
     snprintf(str, strSize, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " " << pi[3] << " "
@@ -438,7 +438,7 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
   {
-    pi = &this->Extents[i][0];
+    pi = this->Extents[i].data();
     snprintf(str, strSize, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " " << pi[3] << " "
@@ -473,7 +473,7 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
   {
-    pi = &this->Extents[i][0];
+    pi = this->Extents[i].data();
     snprintf(str, strSize, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " " << pi[3] << " "

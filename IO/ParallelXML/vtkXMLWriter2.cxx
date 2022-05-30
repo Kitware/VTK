@@ -167,7 +167,7 @@ int vtkXMLWriter2::ExclusiveScanSum(vtkMultiProcessController* controller, int c
 
   std::vector<int> gatheredResult(numRanks);
   // need to use AllGather since vtkMultiProcessController does not support MPI_Scan equivalent yet.
-  controller->AllGather(&count, &gatheredResult[0], 1);
+  controller->AllGather(&count, gatheredResult.data(), 1);
   return std::accumulate(gatheredResult.begin(), std::next(gatheredResult.begin(), myRank), 0);
 }
 

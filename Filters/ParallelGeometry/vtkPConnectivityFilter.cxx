@@ -359,8 +359,8 @@ struct SendReceivePointsWorker : public WorkerBase
       }
     }
 
-    this->SubController->WaitAll(requestIdx, &recvRequestsPoints[0]);
-    this->SubController->WaitAll(requestIdx, &recvRequestsRegionIds[0]);
+    this->SubController->WaitAll(requestIdx, recvRequestsPoints.data());
+    this->SubController->WaitAll(requestIdx, recvRequestsRegionIds.data());
   }
 
 protected:
@@ -402,7 +402,7 @@ void ExchangeNumberOfPointsToSend(vtkMPIController* subController,
     subController->NoBlockSend(
       &sendLengths[toRank], 1, toRank, PCF_SIZE_EXCHANGE_TAG, sendRequests[toRank]);
   }
-  subController->WaitAll(requestIdx, &recvRequests[0]);
+  subController->WaitAll(requestIdx, recvRequests.data());
 }
 
 } // end anonymous namespace
@@ -516,7 +516,7 @@ int vtkPConnectivityFilter::RequestData(
   int numRegions = this->GetNumberOfExtractedRegions();
   std::vector<int> regionCounts(numRanks, 0);
   std::vector<int> regionStarts(numRanks + 1, 0);
-  subController->AllGather(&numRegions, &regionCounts[0], 1);
+  subController->AllGather(&numRegions, regionCounts.data(), 1);
 
   // Compute starting region Ids on each rank
   std::partial_sum(regionCounts.begin(), regionCounts.end(), regionStarts.begin() + 1);
@@ -653,7 +653,7 @@ int vtkPConnectivityFilter::RequestData(
   vtkIdType localNumLinks = static_cast<vtkIdType>(localLinks.size());
   std::vector<vtkIdType> linkCounts(numRanks, -1);
   std::vector<vtkIdType> linkStarts(numRanks + 1, 0);
-  subController->AllGather(&localNumLinks, &linkCounts[0], 1);
+  subController->AllGather(&localNumLinks, linkCounts.data(), 1);
 
   // Compute starting region IDs on each rank
   for (int i = 0; i < numRanks; ++i)
@@ -663,8 +663,8 @@ int vtkPConnectivityFilter::RequestData(
 
   std::vector<vtkIdType> allLinks(linkStarts[numRanks]);
 
-  subController->AllGatherV(&localLinks[0], &allLinks[0], static_cast<vtkIdType>(localLinks.size()),
-    &linkCounts[0], &linkStarts[0]);
+  subController->AllGatherV(localLinks.data(), allLinks.data(),
+    static_cast<vtkIdType>(localLinks.size()), linkCounts.data(), linkStarts.data());
 
   // Set up a graph of all the region-to-region links.
   typedef struct _RegionNode
@@ -782,8 +782,8 @@ int vtkPConnectivityFilter::RequestData(
 
   // AllReduce to sum up the number of cells in each region on each process.
   std::vector<vtkIdType> globalRegionSizes(numContiguousLabels, 0);
-  subController->AllReduce(
-    &localRegionSizes[0], &globalRegionSizes[0], numContiguousLabels, vtkCommunicator::SUM_OP);
+  subController->AllReduce(localRegionSizes.data(), globalRegionSizes.data(), numContiguousLabels,
+    vtkCommunicator::SUM_OP);
 
   // Store the region sizes
   this->RegionSizes->Reset();

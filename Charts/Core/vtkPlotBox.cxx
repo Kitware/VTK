@@ -144,7 +144,7 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char* rgba, double x, vtkContext2D*
   double hBoxW = this->BoxWidth * 0.25;
 
   // Fetch the quartiles and median
-  double* q = &colQuartiles[0];
+  double* q = colQuartiles.data();
 
   // Draw the box
   painter->DrawQuad(xpos, q[1], xneg, q[1], xneg, q[3], xpos, q[3]);

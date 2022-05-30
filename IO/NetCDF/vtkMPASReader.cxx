@@ -593,7 +593,7 @@ bool vtkMPASReader::Internal::LoadDataArray(int nc_var, vtkDataArray* array, boo
     return false;
   }
 
-  if (nc_err(nc_get_vara<ValueType>(ncFile, nc_var, &cursor[0], &counts[0], dataBlock)))
+  if (nc_err(nc_get_vara<ValueType>(ncFile, nc_var, cursor.data(), counts.data(), dataBlock)))
   {
     vtkWarningWithObjectMacro(reader, "Reading " << size << " elements failed.");
     return false;
@@ -678,7 +678,7 @@ int vtkMPASReader::Internal::LoadPointVarDataImpl(int nc_var, vtkDataArray* arra
 
     tempData.resize(reader->MaximumPoints);
     size_t vertPointOffset = reader->MaximumNVertLevels * reader->PointOffset;
-    ValueType* dataPtr = &tempData[0] + vertPointOffset;
+    ValueType* dataPtr = tempData.data() + vertPointOffset;
 
     assert(varSize < array->GetNumberOfTuples());
     assert(varSize < static_cast<vtkIdType>(reader->MaximumPoints - vertPointOffset));
@@ -1126,7 +1126,7 @@ int vtkMPASReader::RequestInformation(
     {
       timeSteps.push_back(static_cast<double>(i));
     }
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeSteps[0],
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeSteps.data(),
       static_cast<int>(timeSteps.size()));
 
     double tRange[2];
@@ -2453,7 +2453,7 @@ void vtkMPASReader::OutputCells()
           polygon[k] = conns[k];
         }
       }
-      output->InsertNextCell(cellType, static_cast<vtkIdType>(pointsPerPolygon), &polygon[0]);
+      output->InsertNextCell(cellType, static_cast<vtkIdType>(pointsPerPolygon), polygon.data());
     }
     else
     { // multilayer
@@ -2485,7 +2485,7 @@ void vtkMPASReader::OutputCells()
         }
         // vtkDebugMacro
         //("InsertingCell j: " << j << " level: " << levelNum << endl);
-        output->InsertNextCell(cellType, static_cast<vtkIdType>(pointsPerPolygon), &polygon[0]);
+        output->InsertNextCell(cellType, static_cast<vtkIdType>(pointsPerPolygon), polygon.data());
       }
     }
   }
@@ -2649,6 +2649,7 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid* dataset)
         size_t start[] = { this->Internals->GetCursorForDimension(dimid), 0 };
         size_t count[] = { 1, strLen };
         if (this->Internals->nc_err(
+              // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
               nc_get_vara_text(this->Internals->ncFile, varid, start, count, &time[0])))
         {
           // Trim off trailing whitespace:

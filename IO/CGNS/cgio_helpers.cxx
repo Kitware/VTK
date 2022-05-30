@@ -80,7 +80,7 @@ int readNodeData<char>(int cgioNum, double nodeId, std::vector<char>& data)
   data.resize(size + 1);
 
   // read data
-  if (cgio_read_all_data_type(cgioNum, nodeId, "C1", &data[0]) != CG_OK)
+  if (cgio_read_all_data_type(cgioNum, nodeId, "C1", data.data()) != CG_OK)
   {
     return 1;
   }

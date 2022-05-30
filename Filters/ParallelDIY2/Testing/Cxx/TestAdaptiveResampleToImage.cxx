@@ -53,7 +53,7 @@ bool ValidateDataset(vtkPartitionedDataSet* pds, vtkMultiProcessController* cont
   std::vector<int> parts(controller->GetNumberOfProcesses());
   parts[controller->GetLocalProcessId()] = numParts;
 
-  controller->AllGather(&numParts, &parts[0], 1);
+  controller->AllGather(&numParts, parts.data(), 1);
 
   std::vector<double> local_boxes(6 * numParts);
   for (int cc = 0; cc < numParts; ++cc)
@@ -64,8 +64,8 @@ bool ValidateDataset(vtkPartitionedDataSet* pds, vtkMultiProcessController* cont
 
   std::vector<vtkIdType> recvLengths(controller->GetNumberOfProcesses());
   std::vector<vtkIdType> offsets(controller->GetNumberOfProcesses());
-  controller->AllGatherV(&local_boxes[0], &boxes[0], static_cast<vtkIdType>(local_boxes.size()),
-    &recvLengths[0], &offsets[0]);
+  controller->AllGatherV(local_boxes.data(), boxes.data(),
+    static_cast<vtkIdType>(local_boxes.size()), recvLengths.data(), offsets.data());
   if (controller->GetNumberOfProcesses() == 1)
   {
     boxes = local_boxes;

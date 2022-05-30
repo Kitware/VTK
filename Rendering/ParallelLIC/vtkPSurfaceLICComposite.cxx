@@ -741,18 +741,18 @@ int vtkPSurfaceLICComposite::MakeDecompDisjoint(
   // accumulate contrib from remote data
   size_t remSize = 4 * ne;
   vector<int> rem(remSize);
-  int* pRem = ne ? &rem[0] : nullptr;
+  int* pRem = ne ? rem.data() : nullptr;
   for (size_t e = 0; e < ne; ++e, pRem += 4)
   {
     tmpOut1[e].second.GetData(pRem);
   }
   MPI_Comm comm = *(static_cast<MPI_Comm*>(this->PainterComm->GetCommunicator()));
   MPI_Op parUnion = this->PixelOps->GetUnion();
-  MPI_Allreduce(MPI_IN_PLACE, ne ? &rem[0] : nullptr, (int)remSize, MPI_INT, parUnion, comm);
+  MPI_Allreduce(MPI_IN_PLACE, ne ? rem.data() : nullptr, (int)remSize, MPI_INT, parUnion, comm);
 
   // move from flat order back to rank indexed order and remove
   // empty extents
-  pRem = ne ? &rem[0] : nullptr;
+  pRem = ne ? rem.data() : nullptr;
   out.resize(this->CommSize);
   for (size_t e = 0; e < ne; ++e, pRem += 4)
   {
@@ -1345,7 +1345,7 @@ int vtkPSurfaceLICComposite::Gather(
     // wait for the completion of one of the recvs
     MPI_Status stat;
     int reqId;
-    int iErr = MPI_Waitany(nRecvReqs, &mpiRecvReqs[0], &reqId, &stat);
+    int iErr = MPI_Waitany(nRecvReqs, mpiRecvReqs.data(), &reqId, &stat);
     if (iErr)
     {
       vtkErrorMacro("comm error in recv");
@@ -1418,7 +1418,7 @@ int vtkPSurfaceLICComposite::Gather(
   int nSendReqs = static_cast<int>(mpiSendReqs.size());
   if (nSendReqs)
   {
-    int iErr = MPI_Waitall(nSendReqs, &mpiSendReqs[0], MPI_STATUSES_IGNORE);
+    int iErr = MPI_Waitall(nSendReqs, mpiSendReqs.data(), MPI_STATUSES_IGNORE);
     if (iErr)
     {
       vtkErrorMacro("comm error in send");
@@ -1595,7 +1595,7 @@ int vtkPSurfaceLICComposite::Scatter(
   int nRecvReqs = static_cast<int>(mpiRecvReqs.size());
   if (nRecvReqs)
   {
-    iErr = MPI_Waitall(nRecvReqs, &mpiRecvReqs[0], MPI_STATUSES_IGNORE);
+    iErr = MPI_Waitall(nRecvReqs, mpiRecvReqs.data(), MPI_STATUSES_IGNORE);
     if (iErr)
     {
       vtkErrorMacro("comm error in recv");
@@ -1635,7 +1635,7 @@ int vtkPSurfaceLICComposite::Scatter(
   int nSendReqs = static_cast<int>(mpiSendReqs.size());
   if (nSendReqs)
   {
-    iErr = MPI_Waitall(nSendReqs, &mpiSendReqs[0], MPI_STATUSES_IGNORE);
+    iErr = MPI_Waitall(nSendReqs, mpiSendReqs.data(), MPI_STATUSES_IGNORE);
     if (iErr)
     {
       vtkErrorMacro("comm error in send");

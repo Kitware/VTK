@@ -2552,7 +2552,7 @@ int vtkIOSSReader::ReadMetaData(vtkInformation* metadata)
     const auto& timesteps = internals.GetTimeSteps();
     if (!timesteps.empty())
     {
-      metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timesteps[0],
+      metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timesteps.data(),
         static_cast<int>(timesteps.size()));
       double time_range[2] = { timesteps.front(), timesteps.back() };
       metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), time_range, 2);

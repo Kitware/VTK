@@ -103,7 +103,7 @@ vtkInformationVector** vtkExecutiveInternals::GetInputInformation(int newNumberO
   // Return the array of information vector pointers.
   if (newNumberOfPorts > 0)
   {
-    return &this->InputInformation[0];
+    return this->InputInformation.data();
   }
   else
   {

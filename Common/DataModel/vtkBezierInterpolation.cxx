@@ -234,7 +234,7 @@ void vtkBezierInterpolation::DeCasteljauSimplexDeriv(
 {
   const int num_funcs = NumberOfSimplexFunctions(dim, deg - 1);
   std::vector<double> evals(num_funcs);
-  DeCasteljauSimplex(dim, deg - 1, pcoords, &evals[0]);
+  DeCasteljauSimplex(dim, deg - 1, pcoords, evals.data());
   for (int idim = 0; idim < dim; ++idim)
   {
     for (int ifunc = 0; ifunc < num_funcs; ++ifunc)
@@ -282,7 +282,7 @@ void vtkBezierInterpolation::EvaluateShapeAndGradient(
   std::vector<double> shape_deriv(order + 1);
 
   EvaluateShapeFunctions(order, pcoord, shape);
-  EvaluateShapeFunctions(order - 1, pcoord, &shape_deriv[0]);
+  EvaluateShapeFunctions(order - 1, pcoord, shape_deriv.data());
 
   for (int ifunc_l = 0; ifunc_l <= order; ++ifunc_l)
   {

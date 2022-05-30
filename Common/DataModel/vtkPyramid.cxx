@@ -856,10 +856,10 @@ void vtkPyramid::Derivatives(
     // derivatives which really ends up as the same thing.
     double pcoords1[3] = { .5, .5, 2. * .998 - pcoords[2] };
     std::vector<double> derivs1(3 * dim);
-    this->Derivatives(subId, pcoords1, values, dim, &(derivs1[0]));
+    this->Derivatives(subId, pcoords1, values, dim, derivs1.data());
     double pcoords2[3] = { .5, .5, .998 };
     std::vector<double> derivs2(3 * dim);
-    this->Derivatives(subId, pcoords2, values, dim, &(derivs2[0]));
+    this->Derivatives(subId, pcoords2, values, dim, derivs2.data());
     for (int i = 0; i < dim * 3; i++)
     {
       derivs[i] = 2. * derivs2[i] - derivs1[i];

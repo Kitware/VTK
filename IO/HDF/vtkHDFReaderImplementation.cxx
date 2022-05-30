@@ -193,7 +193,7 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
     }
     // turn on error logging and restore error function
     H5Eset_auto(H5E_DEFAULT, f, client_data);
-    if (!GetAttribute("Version", this->Version.size(), &this->Version[0]))
+    if (!GetAttribute("Version", this->Version.size(), this->Version.data()))
     {
       return false;
     }
@@ -652,7 +652,7 @@ hid_t vtkHDFReader::Implementation::OpenDataSet(
     return -1;
   }
   dims.resize(ndims);
-  if (H5Sget_simple_extent_dims(dataspace, &dims[0], nullptr) < 0)
+  if (H5Sget_simple_extent_dims(dataspace, dims.data(), nullptr) < 0)
   {
     vtkErrorWithObjectMacro(this->Reader, << std::string("Cannot find dimension for ") + name);
     return -1;
@@ -696,7 +696,7 @@ vtkStringArray* vtkHDFReader::Implementation::NewStringArray(hid_t dataset, hsiz
   /*
    * Read the data.
    */
-  if (H5Dread(dataset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, &rdata[0]) < 0)
+  if (H5Dread(dataset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, rdata.data()) < 0)
   {
     vtkErrorWithObjectMacro(this->Reader, << "Error H5Dread");
   }
@@ -715,7 +715,7 @@ vtkStringArray* vtkHDFReader::Implementation::NewStringArray(hid_t dataset, hsiz
    * in rdata, as H5Tvlen_reclaim only frees the data these point to.
    */
   vtkHDF::ScopedH5SHandle space = H5Dget_space(dataset);
-  if (H5Dvlen_reclaim(memtype, space, H5P_DEFAULT, &rdata[0]) < 0)
+  if (H5Dvlen_reclaim(memtype, space, H5P_DEFAULT, rdata.data()) < 0)
   {
     vtkErrorWithObjectMacro(this->Reader, << "Error H5Dvlen_reclaim");
   }
@@ -908,7 +908,7 @@ bool vtkHDFReader::Implementation::NewArray(
     start.push_back(0);
   }
   vtkHDF::ScopedH5SHandle memspace =
-    H5Screate_simple(static_cast<int>(count.size()), &count[0], nullptr);
+    H5Screate_simple(static_cast<int>(count.size()), count.data(), nullptr);
   if (memspace < 0)
   {
     vtkErrorWithObjectMacro(this->Reader, << "Error H5Screate_simple for memory space");
@@ -921,7 +921,8 @@ bool vtkHDFReader::Implementation::NewArray(
     vtkErrorWithObjectMacro(this->Reader, << "Error H5Dget_space for imagedata");
     return false;
   }
-  if (H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &start[0], nullptr, &count[0], nullptr) < 0)
+  if (H5Sselect_hyperslab(filespace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr) <
+    0)
   {
     std::ostringstream ostr;
     std::ostream_iterator<int> oi(ostr, " ");

@@ -401,7 +401,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames(
     bool stop = true;
     for (glommer = glommers.begin(); glommer != glommers.end(); ++glommer)
     {
-      if ((*glommer)->Start(var_names[i], &tmpTruth[0], num_obj))
+      if ((*glommer)->Start(var_names[i], tmpTruth.data(), num_obj))
       {
         stop = false;
       }
@@ -414,7 +414,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames(
       stop = true;
       for (glommer = glommers.begin(); glommer != glommers.end(); ++glommer)
       {
-        if ((*glommer)->Add(var_names[j], &tmpTruth[0]))
+        if ((*glommer)->Add(var_names[j], tmpTruth.data()))
         {
           stop = false;
         }
@@ -1153,7 +1153,7 @@ vtkIdType vtkExodusIIReaderPrivate::GetPolyhedronFaceConnectivity(
   // II. Now that we have a cache for the face block, look up the
   //     one face in the block we currently need:
   vtkIdType numPoints = static_cast<vtkIdType>(fcit->second[blockLocalFaceId].size());
-  facePtIds = &fcit->second[blockLocalFaceId][0];
+  facePtIds = fcit->second[blockLocalFaceId].data();
   return numPoints;
 }
 
@@ -1202,7 +1202,7 @@ void vtkExodusIIReaderPrivate::InsertBlockPolyhedra(
           this->SqueezePoints ? this->GetSqueezePointId(binfo, facePtsRaw[pp]) : facePtsRaw[pp]);
       }
     }
-    binfo->CachedConnectivity->InsertNextCell(VTK_POLYHEDRON, numFacesThisCell, &vtkCellPts[0]);
+    binfo->CachedConnectivity->InsertNextCell(VTK_POLYHEDRON, numFacesThisCell, vtkCellPts.data());
   }
   this->FreePolyhedronFaceArrays();
 }
@@ -1295,7 +1295,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       }
       // cout << "\n";
       // cout << " " <<
-      binfo->CachedConnectivity->InsertNextCell(binfo->CellType, entitiesPerCell, &cellIds[0]);
+      binfo->CachedConnectivity->InsertNextCell(binfo->CellType, entitiesPerCell, cellIds.data());
       srcIds += entitiesPerCell;
     }
     // cout << "\n";
@@ -1487,7 +1487,7 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies(
       vtkIdType off = (pref[0] + 2 - binfop->FileOffset) * nnpe - 1;
       for (int k = 0; k < nnpe; ++k)
         tmpTuple[k] = nodeconn[off - k];
-      cellConn = &tmpTuple[0];
+      cellConn = tmpTuple.data();
     }
     else
 #ifndef VTK_USE_64BIT_IDS
@@ -1497,7 +1497,7 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies(
       vtkIdType off = (pref[0] + 1 - binfop->FileOffset) * nnpe;
       for (int k = 0; k < nnpe; ++k)
         tmpTuple[k] = nodeconn[off + k];
-      cellConn = &tmpTuple[0];
+      cellConn = tmpTuple.data();
     }
 #ifndef VTK_USE_64BIT_IDS
     else
@@ -1553,7 +1553,7 @@ void vtkExodusIIReaderPrivate::InsertSetSides(
       {
         cellConn[k] = this->GetSqueezePointId(sinfo, sideNodes[k]);
       }
-      sinfo->CachedConnectivity->InsertNextCell(sideCellTypes[nnpe], nnpe, &cellConn[0]);
+      sinfo->CachedConnectivity->InsertNextCell(sideCellTypes[nnpe], nnpe, cellConn.data());
       sideNodes += nnpe;
     }
   }
@@ -1568,7 +1568,7 @@ void vtkExodusIIReaderPrivate::InsertSetSides(
       {
         cellConn[k] = sideNodes[k];
       }
-      sinfo->CachedConnectivity->InsertNextCell(sideCellTypes[nnpe], nnpe, &cellConn[0]);
+      sinfo->CachedConnectivity->InsertNextCell(sideCellTypes[nnpe], nnpe, cellConn.data());
 #else  // VTK_USE_64BIT_IDS
       sinfo->CachedConnectivity->InsertNextCell(sideCellTypes[nnpe], nnpe, sideNodes);
 #endif // VTK_USE_64BIT_IDS
@@ -1661,7 +1661,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         vtkIdType N = this->ModelParameters.num_nodes;
         tmpVal[c].resize(N);
         if (ex_get_var(exoid, key.Time + 1, static_cast<ex_entity_type>(key.ObjectType),
-              ainfop->OriginalIndices[c], 0, arr->GetNumberOfTuples(), &tmpVal[c][0]) < 0)
+              ainfop->OriginalIndices[c], 0, arr->GetNumberOfTuples(), tmpVal[c].data()) < 0)
         {
           vtkErrorMacro(
             "Could not read nodal result variable " << ainfop->OriginalNames[c].c_str() << ".");
@@ -1686,7 +1686,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
           tmpTuple[0] = tmpVal[0][t];
           tmpTuple[1] = tmpVal[1][t];
           tmpTuple[2] = tmpVal[2][t];
-          arr->SetTuple(t, &tmpTuple[0]);
+          arr->SetTuple(t, tmpTuple.data());
         }
       }
       else
@@ -1697,7 +1697,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
           {
             tmpTuple[c] = tmpVal[c][t];
           }
-          arr->SetTuple(t, &tmpTuple[0]);
+          arr->SetTuple(t, tmpTuple.data());
         }
       }
     }
@@ -1723,7 +1723,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         vtkIdType N = this->GetNumberOfTimeSteps();
         tmpVal[c].resize(N);
         if (ex_get_var_time(exoid, EX_GLOBAL, ainfop->OriginalIndices[c], key.ObjectId, 1,
-              this->GetNumberOfTimeSteps(), &tmpVal[c][0]) < 0)
+              this->GetNumberOfTimeSteps(), tmpVal[c].data()) < 0)
         {
           vtkErrorMacro("Could not read temporal global result variable "
             << ainfop->OriginalNames[c].c_str() << ".");
@@ -1741,7 +1741,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         {
           tmpTuple[c] = tmpVal[c][t];
         }
-        arr->SetTuple(t, &tmpTuple[0]);
+        arr->SetTuple(t, tmpTuple.data());
       }
     }
     else if (ex_get_var_time(exoid, EX_GLOBAL, ainfop->OriginalIndices[0], key.ObjectId, 1,
@@ -1786,7 +1786,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         vtkIdType N = this->GetNumberOfTimeSteps();
         tmpVal[c].resize(N);
         if (ex_get_var_time(exoid, EX_NODAL, ainfop->OriginalIndices[c], key.ObjectId, 1,
-              this->GetNumberOfTimeSteps(), &tmpVal[c][0]) < 0)
+              this->GetNumberOfTimeSteps(), tmpVal[c].data()) < 0)
         {
           vtkErrorMacro("Could not read temporal nodal result variable "
             << ainfop->OriginalNames[c].c_str() << ".");
@@ -1804,7 +1804,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         {
           tmpTuple[c] = tmpVal[c][t];
         }
-        arr->SetTuple(t, &tmpTuple[0]);
+        arr->SetTuple(t, tmpTuple.data());
       }
     }
   }
@@ -1839,7 +1839,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         vtkIdType N = this->GetNumberOfTimeSteps();
         tmpVal[c].resize(N);
         if (ex_get_var_time(exoid, EX_ELEM_BLOCK, ainfop->OriginalIndices[c], key.ObjectId, 1,
-              this->GetNumberOfTimeSteps(), &tmpVal[c][0]) < 0)
+              this->GetNumberOfTimeSteps(), tmpVal[c].data()) < 0)
         {
           vtkErrorMacro("Could not read temporal element result variable "
             << ainfop->OriginalNames[c].c_str() << ".");
@@ -1857,7 +1857,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         {
           tmpTuple[c] = tmpVal[c][t];
         }
-        arr->SetTuple(t, &tmpTuple[0]);
+        arr->SetTuple(t, tmpTuple.data());
       }
     }
   }
@@ -1910,7 +1910,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         tmpVal[c].resize(N + 1); // + 1 to avoid errors when N == 0.
                                  // BUG #8746.
         if (ex_get_var(exoid, key.Time + 1, static_cast<ex_entity_type>(key.ObjectType),
-              ainfop->OriginalIndices[c], oinfop->Id, arr->GetNumberOfTuples(), &tmpVal[c][0]) < 0)
+              ainfop->OriginalIndices[c], oinfop->Id, arr->GetNumberOfTuples(),
+              tmpVal[c].data()) < 0)
         {
           vtkErrorMacro("Could not read result variable "
             << ainfop->OriginalNames[c].c_str() << " for " << objtype_names[otypidx] << " "
@@ -1931,7 +1932,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         {
           tmpTuple[c] = tmpVal[c][t];
         }
-        arr->SetTuple(t, &tmpTuple[0]);
+        arr->SetTuple(t, tmpTuple.data());
       }
     }
   }
@@ -2495,7 +2496,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     tmpOrient.resize(sinfop->Size);
 
     if (ex_get_set(exoid, static_cast<ex_entity_type>(otyp), sinfop->Id, iarr->GetPointer(0),
-          &tmpOrient[0]) < 0)
+          tmpOrient.data()) < 0)
     {
       vtkErrorMacro("Unable to read " << objtype_names[otypidx] << " " << sinfop->Id << " (index "
                                       << key.ObjectId << ") nodal connectivity.");
@@ -2556,7 +2557,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       SetInfoType* sinfop = &this->SetInfo[vtkExodusIIReader::SIDE_SET][key.ObjectId];
       std::vector<vtkIdType> side_set_elem_list(sinfop->Size);
       std::vector<vtkIdType> side_set_side_list(sinfop->Size);
-      if (ex_get_side_set(exoid, sinfop->Id, &side_set_elem_list[0], &side_set_side_list[0]) < 0)
+      if (ex_get_side_set(exoid, sinfop->Id, side_set_elem_list.data(), side_set_side_list.data()) <
+        0)
       {
         vtkErrorMacro("Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id
                                                     << ") node list");
@@ -2601,7 +2603,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       switch (c)
       {
         case 0:
-          xc = &coordTmp[0];
+          xc = coordTmp.data();
           break;
         case 1:
           yc = xc;
@@ -3927,7 +3929,7 @@ int vtkExodusIIReaderPrivate::UpdateTimeInformation()
   {
     this->Times.resize(num_timesteps);
 
-    int exo_err = ex_get_all_times(this->Exoid, &this->Times[0]);
+    int exo_err = ex_get_all_times(this->Exoid, this->Times.data());
     if (exo_err < 0 || this->IgnoreFileTime)
     {
       for (i = 0; i < num_timesteps; ++i)
@@ -4046,7 +4048,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     if ( num_timesteps > 0 )
       {
       this->Times.resize( num_timesteps );
-      VTK_EXO_FUNC( ex_get_all_times( this->Exoid, &this->Times[0] ), "Could not retrieve time
+      VTK_EXO_FUNC( ex_get_all_times( this->Exoid, this->Times.data() ), "Could not retrieve time
     values." );
       }
   */
@@ -4447,7 +4449,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
       dummy_truth.push_back(1);
     }
 
-    this->GlomArrayNames(vtkExodusIIReader::NODAL, nids, num_vars, var_names, &dummy_truth[0]);
+    this->GlomArrayNames(vtkExodusIIReader::NODAL, nids, num_vars, var_names, dummy_truth.data());
 
     for (j = 0; j < num_vars; ++j)
     {
@@ -4480,7 +4482,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
       dummy_truth.push_back(1);
     }
 
-    this->GlomArrayNames(vtkExodusIIReader::GLOBAL, nids, num_vars, var_names, &dummy_truth[0]);
+    this->GlomArrayNames(vtkExodusIIReader::GLOBAL, nids, num_vars, var_names, dummy_truth.data());
 
     for (j = 0; j < num_vars; ++j)
     {
@@ -6697,7 +6699,7 @@ void vtkExodusIIReader::AdvertiseTimeSteps(vtkInformation* outInfo)
       double timeRange[2];
       timeRange[0] = 0;
       timeRange[1] = nTimes - 1;
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], nTimes);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), times.data(), nTimes);
       outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
     }
     else
@@ -6708,7 +6710,7 @@ void vtkExodusIIReader::AdvertiseTimeSteps(vtkInformation* outInfo)
         timeRange[0] = this->Metadata->Times[0];
         timeRange[1] = this->Metadata->Times[nTimes - 1];
         outInfo->Set(
-          vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes);
+          vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->Metadata->Times.data(), nTimes);
         outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
       }
     }

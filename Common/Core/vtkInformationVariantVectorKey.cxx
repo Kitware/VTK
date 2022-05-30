@@ -95,7 +95,7 @@ const vtkVariant* vtkInformationVariantVectorKey::Get(vtkInformation* info) cons
 {
   const vtkInformationVariantVectorValue* v =
     static_cast<const vtkInformationVariantVectorValue*>(this->GetAsObjectBase(info));
-  return (v && !v->Value.empty()) ? (&v->Value[0]) : nullptr;
+  return (v && !v->Value.empty()) ? v->Value.data() : nullptr;
 }
 
 //------------------------------------------------------------------------------

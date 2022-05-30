@@ -61,7 +61,7 @@ void Validate(vtkSelection* expr, const char* exprstr,
   const std::vector<vtkSignedCharArray*>& arrays, const Functor& f)
 {
   expr->SetExpression(exprstr);
-  auto result = expr->Evaluate(&arrays[0], static_cast<unsigned int>(arrays.size()));
+  auto result = expr->Evaluate(arrays.data(), static_cast<unsigned int>(arrays.size()));
   if (!result)
   {
     throw std::runtime_error("null result");

@@ -530,7 +530,7 @@ public:
           iss >> p[j];
         }
       }
-      points->InsertNextPoint(&p[0]);
+      points->InsertNextPoint(p.data());
       vtkIdType firstPointIndex = points->GetNumberOfPoints() - 1;
       vtkIdType i = 1;
       for (++it; it != nodeRing.end(); ++it, ++i)
@@ -548,7 +548,7 @@ public:
         line->GetPointIds()->SetId(0, points->GetNumberOfPoints() - 1);
         if (i < n - 1)
         {
-          points->InsertNextPoint(&p[0]);
+          points->InsertNextPoint(p.data());
           line->GetPointIds()->SetId(1, points->GetNumberOfPoints() - 1);
         }
         else
@@ -665,9 +665,9 @@ public:
           {
             Material material = this->Materials[materialIndex];
             vtkCityGMLReader::Implementation::SetField(
-              polyData, "diffuse_color", &material.Diffuse[0], 3);
+              polyData, "diffuse_color", material.Diffuse.data(), 3);
             vtkCityGMLReader::Implementation::SetField(
-              polyData, "specular_color", &material.Specular[0], 3);
+              polyData, "specular_color", material.Specular.data(), 3);
             vtkCityGMLReader::Implementation::SetField(
               polyData, "transparency", &material.Transparency, 1);
             vtkCityGMLReader::Implementation::SetField(
