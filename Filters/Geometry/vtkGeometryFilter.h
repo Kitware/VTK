@@ -256,7 +256,9 @@ public:
    * of vtkMergePoints is used. (This method is now deprecated and has no
    * effect.)
    */
+  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
   void SetLocator(vtkIncrementalPointLocator* locator);
+  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   ///@}
 
@@ -264,6 +266,7 @@ public:
    * Create default locator. Used to create one when none is specified.
    * This method is now deprecated.
    */
+  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
   void CreateDefaultLocator();
 
   // The following are methods compatible with vtkDataSetSurfaceFilter.
@@ -403,7 +406,7 @@ protected:
   bool FastMode;
   unsigned int Degree;
 
-  // This methods support compatability with vtkDataSetSurfaceFilter
+  // These methods support compatibility with vtkDataSetSurfaceFilter
   int PieceInvariant;
   vtkTypeBool PassThroughCellIds;
   char* OriginalCellIdsName;
