@@ -1281,7 +1281,8 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OriginalCellIdsName: " << this->GetOriginalCellIdsName() << endl;
   os << indent << "OriginalPointIdsName: " << this->GetOriginalPointIdsName() << endl;
   os << indent << "NonlinearSubdivisionLevel: " << this->GetNonlinearSubdivisionLevel() << endl;
-  os << indent << "FastMode: " << this->FastMode << endl;
+  os << indent << "FastMode: " << this->GetFastMode() << endl;
+  os << indent << "Delegation: " << this->GetDelegation() << endl;
 }
 
 //========================================================================
