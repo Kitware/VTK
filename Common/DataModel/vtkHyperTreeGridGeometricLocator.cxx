@@ -47,7 +47,8 @@ vtkHyperTreeGridGeometricLocator::vtkHyperTreeGridGeometricLocator()
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometricLocator::SetHTG(vtkHyperTreeGrid* cand)
 {
-  this->Superclass::SetHTG(cand); // classic Set method
+  this->Superclass::SetHTG(
+    cand); // Set method from vtkSetCxxObjectMacro needed for calling modified etc.
   const unsigned int bf = this->HTG->GetBranchFactor();
   this->Bins1D.resize(bf - 1);
   for (unsigned int b = 0; b < bf - 1; b++)
@@ -68,8 +69,7 @@ vtkIdType vtkHyperTreeGridGeometricLocator::Search(
   const double point[3], vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
   // Check bounds
-  std::array<unsigned int, 3> bin;
-  std::fill(bin.begin(), bin.end(), 0);
+  std::array<unsigned int, 3> bin{};
   const int dim = this->HTG->GetDimension();
   bin[0] =
     this->HTG->FindDichotomicX(point[0]); // I expect this and subsequent calls to be thread safe
@@ -182,7 +182,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
     bool isIn = true;
     for (unsigned int d = 0; d < dim; d++)
     {
-      isIn = (isIn && (query[d] - origin[d]) < sizes[d]);
+      isIn &= ((query[d] - origin[d]) < sizes[d]);
     }
     return isIn;
   };

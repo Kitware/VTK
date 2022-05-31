@@ -43,16 +43,10 @@ void vtkHyperTreeGridLocator::Update()
 {
   if (!this->HTG)
   {
-    vtkErrorMacro("HyperTreeGrid not set befor updating.");
+    vtkErrorMacro("HyperTreeGrid not set before updating.");
     return;
   }
 }
-
-//------------------------------------------------------------------------------
-// void vtkHyperTreeGridLocator::SetHTG(vtkHyperTreeGrid* candHTG)
-//{
-// this->HTG = candHTG;
-//}
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridLocator::PrintSelf(std::ostream& os, vtkIndent indent)

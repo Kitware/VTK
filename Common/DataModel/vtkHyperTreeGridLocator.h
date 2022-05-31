@@ -24,6 +24,10 @@
  * leverage the specific structure of HyperTrees and HyperTreeGrids to deliver accelerated search
  * algorithms through their data.
  *
+ * As a side comment: ideally we would inherit from vtkLocator which only supports vtkDataSets right
+ * now. Hopefully in the future vtkHyperTreeGrid will become a vtkDataSet and we could accomplish
+ * just that with minimal refactoring.
+ *
  * @sa
  * vtkHyperTreeGrid, vtkHyperTree, vtkHyperTreeGridOrientedCursor, vtkHyperTreeGridNonOrientedCursor
  */
@@ -42,13 +46,8 @@ class vtkGenericCell;
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridLocator : public vtkObject
 {
 public:
-  ///@{
-  /**
-   * Standard type and print methods.
-   */
   vtkTypeMacro(vtkHyperTreeGridLocator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  ///@}
 
   ///@{
   /**

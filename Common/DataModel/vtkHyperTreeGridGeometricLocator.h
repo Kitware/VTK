@@ -23,8 +23,8 @@
  * vtkHyperTreeGridNonOrientedGeometricCursor. The arborescent structure of the HTG should be
  * sufficient to accelerate the search and achieve good performance in general.
  *
- * All methods in this class should be thread safe since it is meantto be used in a multi-threaded
- * environment out of the box.
+ * All methods in this class should be thread safe since it is meant to be used in a multi-threaded
+ * environment out of the box (except SetHTG which should be called by the main thread first).
  *
  * @sa
  * vtkHyperTreeGridLocator, vtkHyperTreeGrid, vtkHyperTree, vtkHyperTreeGridOrientedCursor,
@@ -45,21 +45,16 @@ class vtkHyperTreeGridNonOrientedGeometryCursor;
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridGeometricLocator : public vtkHyperTreeGridLocator
 {
 public:
-  ///@{
-  /**
-   * Standard type methods.
-   */
   vtkTypeMacro(vtkHyperTreeGridGeometricLocator, vtkHyperTreeGridLocator);
-  ///@}
+
+  static vtkHyperTreeGridGeometricLocator* New();
 
   ///@{
   /**
-   * Construct a new default locator
+   * Set the vtkHyperTreeGrid to use for locating
    */
-  static vtkHyperTreeGridGeometricLocator* New();
-  ///@}
-
   void SetHTG(vtkHyperTreeGrid* candHTG) override;
+  ///@}
 
   ///@{
   /**
