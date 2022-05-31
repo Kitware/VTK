@@ -58,6 +58,7 @@ public:
   void OnViewerMovement3D(vtkEventData* edata) override;
   void OnMove3D(vtkEventData* edata) override;
   void OnMenu3D(vtkEventData* edata) override;
+  void OnElevation3D(vtkEventData* edata) override;
   ///@}
 
   ///@{
@@ -74,6 +75,8 @@ public:
   void EndClip(vtkEventDataDevice3D*);
   void StartDolly3D(vtkEventDataDevice3D*);
   void EndDolly3D(vtkEventDataDevice3D*);
+  void StartElevation3D(vtkEventDataDevice3D*);
+  void EndElevation3D(vtkEventDataDevice3D*);
   ///@}
 
   ///@{
@@ -97,6 +100,7 @@ public:
 
   // TODO
   void Move3D(vtkEventDataDevice3D*);
+  void Elevation3D(vtkEventDataDevice3D*);
 
   ///@{
   /**
@@ -138,6 +142,21 @@ public:
   vtkSetMacro(GrabWithRay, bool);
   vtkGetMacro(GrabWithRay, bool);
   vtkBooleanMacro(GrabWithRay, bool);
+  ///@}
+
+  enum MovementStyle
+  {
+    FLY_STYLE,
+    GROUNDED_STYLE
+  };
+
+  ///@{
+  /**
+   * Specify the movement style between 'Flying" and "Grounded".
+   * Default is Flying.
+   */
+  vtkSetMacro(Style, MovementStyle);
+  vtkGetMacro(Style, MovementStyle);
   ///@}
 
   /**
@@ -252,6 +271,9 @@ protected:
 
   // Store headset world orientation
   double HeadsetDir[3] = { 0, 0, 0 };
+
+  // Store movement style
+  MovementStyle Style = FLY_STYLE;
 
 private:
   vtkVRInteractorStyle(const vtkVRInteractorStyle&) = delete;
