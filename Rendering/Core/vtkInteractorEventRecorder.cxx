@@ -221,6 +221,28 @@ void vtkInteractorEventRecorder::Stop()
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
+void vtkInteractorEventRecorder::Clear()
+{
+  this->Stop();
+
+  if (this->InputStream)
+  {
+    this->InputStream->clear();
+    delete this->InputStream;
+    this->InputStream = nullptr;
+  }
+
+  if (this->OutputStream)
+  {
+    delete this->OutputStream;
+    this->OutputStream = nullptr;
+  }
+
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkInteractorEventRecorder::Rewind()
 {
   if (!this->InputStream) // need to already have an open file
