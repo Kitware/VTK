@@ -1418,11 +1418,35 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkAxis* axis = chart->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name);
         axis->SetLabelsVisible(false);
+
         // Show the labels on the right for populations of bins.
         axis = chart->GetAxis(vtkAxis::RIGHT);
         axis->SetLabelsVisible(true);
-        axis->SetBehavior(vtkAxis::AUTO);
-        axis->AutoScale();
+        std::string rowName = name + "_pops";
+        auto arr = this->Private->Histogram->GetRowData()->GetArray(rowName.c_str());
+        if (arr)
+        {
+          int max = INT_MIN;
+
+          for (int id = 0; id < arr->GetNumberOfValues(); id++)
+          {
+            if (arr->GetVariantValue(id) > max)
+            {
+              max = arr->GetVariantValue(id).ToInt();
+            }
+          }
+
+          // Apply manually the padding
+          max += this->Padding * max;
+
+          axis->SetRange(0, max);
+        }
+        else
+        {
+          axis->SetBehavior(vtkAxis::AUTO);
+          axis->AutoScale();
+        }
+
         // Set the plot corner to the top-right
         vtkChartXY* xy = vtkChartXY::SafeDownCast(chart);
         if (xy)
