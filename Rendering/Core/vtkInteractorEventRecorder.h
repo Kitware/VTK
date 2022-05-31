@@ -69,6 +69,7 @@ public:
   ///@{
   /**
    * Set/Get the name of a file events should be written to/from.
+   * Will be ignored once record/play has been called.
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
@@ -77,12 +78,14 @@ public:
   /**
    * Invoke this method to begin recording events. The events will be
    * recorded to the filename indicated.
+   * Once record has been called once, filename will be ignored.
    */
   void Record();
 
   /**
    * Invoke this method to begin playing events from the current position.
    * The events will be played back from the filename indicated.
+   * Once play has been called once, filename will be ignored.
    */
   void Play();
 
@@ -92,7 +95,13 @@ public:
   void Stop();
 
   /**
-   * Rewind to the beginning of the file.
+   * Invoke this method to clear recording/playing stream and be able to open
+   * another file using the same recorder.
+   */
+  void Clear();
+
+  /**
+   * Rewind the play stream to the beginning of the file.
    */
   void Rewind();
 
