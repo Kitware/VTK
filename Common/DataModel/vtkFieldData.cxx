@@ -285,6 +285,7 @@ void vtkFieldData::InitializeFields()
     this->Data = nullptr;
   }
 
+  this->GhostArray = nullptr;
   this->NumberOfArrays = 0;
   this->NumberOfActiveArrays = 0;
   this->Modified();
