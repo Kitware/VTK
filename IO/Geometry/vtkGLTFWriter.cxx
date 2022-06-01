@@ -59,14 +59,41 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
+namespace
+{
+struct FileHeader
+{
+  uint32_t Magic = 0x46546C67; // glTF
+  uint32_t Version = 2;
+  uint32_t Length;
+};
+
+struct ChunkHeader
+{
+  void SetBin(uint32_t length)
+  {
+    this->Length = length;
+    this->Type = 0x004E4942; // BIN
+  }
+  void SetJSON(uint32_t length)
+  {
+    this->Length = length;
+    this->Type = 0x4E4F534A; // JSON
+  }
+  uint32_t Length;
+  uint32_t Type;
+};
+
+}
+
 vtkStandardNewMacro(vtkGLTFWriter);
 
 vtkGLTFWriter::vtkGLTFWriter()
 {
   this->FileName = nullptr;
   this->TextureBaseDirectory = nullptr;
-  this->InputType = Buildings;
   this->InlineData = false;
+  this->BinaryGLTF = false;
   this->SaveNormal = false;
   this->SaveBatchId = false;
   this->SaveTextures = true;
@@ -690,62 +717,21 @@ void vtkGLTFWriter::WriteData()
 
   this->WriteToStream(output, this->GetInput());
   output.close();
+  if (this->BinaryGLTF)
+  {
+  }
 }
 
 void vtkGLTFWriter::WriteToStream(ostream& output, vtkDataObject* data)
 {
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->GetInput());
-  vtkPointSet* points = vtkPointSet::SafeDownCast(this->GetInput());
-  vtkPolyData* mesh = vtkPolyData::SafeDownCast(this->GetInput());
-  switch (this->InputType)
+  if (mb == nullptr)
   {
-    case Buildings:
-      if (mb == nullptr)
-      {
-        vtkErrorMacro(<< "For input Buildings we need vtkMultiBlockDataSet input but got: "
-                      << this->GetInput()->GetClassName());
-        return;
-      }
-      WriteToStreamMultiBlock(output, mb);
-      break;
-    case Points:
-    {
-      if (points == nullptr)
-      {
-        vtkErrorMacro(<< "For input Points we need vtkPointSet input but got: "
-                      << this->GetInput()->GetClassName());
-        return;
-      }
-      vtkNew<vtkMultiBlockDataSet> buildings;
-      vtkNew<vtkMultiBlockDataSet> building;
-      buildings->SetNumberOfBlocks(1);
-      buildings->SetNumberOfBlocks(1);
-      buildings->SetBlock(0, building);
-      building->SetBlock(0, points);
-      WriteToStreamMultiBlock(output, buildings);
-      break;
-    }
-    case Mesh:
-    {
-      if (mesh == nullptr)
-      {
-        vtkErrorMacro(<< "For input Mesh we need vtkPolyData input but got: "
-                      << this->GetInput()->GetClassName());
-        return;
-      }
-      vtkNew<vtkMultiBlockDataSet> buildings;
-      vtkNew<vtkMultiBlockDataSet> building;
-      buildings->SetNumberOfBlocks(1);
-      buildings->SetNumberOfBlocks(1);
-      buildings->SetBlock(0, building);
-      building->SetBlock(0, points);
-      WriteToStreamMultiBlock(output, buildings);
-      break;
-    }
-    default:
-      vtkErrorMacro(<< "Invalid input type: " << this->InputType);
-      break;
+    vtkErrorMacro(<< "We need vtkMultiBlockDataSet input but got: "
+                  << this->GetInput()->GetClassName());
+    return;
   }
+  WriteToStreamMultiBlock(output, mb);
 }
 
 void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSet* mb)
@@ -894,22 +880,6 @@ void vtkGLTFWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkGLTFWriter::FillInputPortInformation(int, vtkInformation* info)
 {
-  if (this->InputType == Buildings)
-  {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
-  }
-  else if (this->InputType == Points)
-  {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
-  }
-  else if (this->InputType == Mesh)
-  {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-  }
-  else
-  {
-    vtkErrorMacro("Invalid InputType: " << this->InputType);
-    return 0;
-  }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   return 1;
 }

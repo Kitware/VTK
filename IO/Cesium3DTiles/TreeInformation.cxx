@@ -750,12 +750,19 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
           (std::to_string(node->GetID()) + "/" + std::to_string(node->GetID()) + ".png").c_str());
       }
     }
+    // store tileMesh into a multiblock
+    vtkNew<vtkMultiBlockDataSet> buildings;
+    vtkNew<vtkMultiBlockDataSet> building;
+    buildings->SetNumberOfBlocks(1);
+    building->SetNumberOfBlocks(1);
+    buildings->SetBlock(0, building);
+    building->SetBlock(0, tileMesh);
+
+    // write tileMesh to GLTF
     vtkNew<vtkGLTFWriter> writer;
-    writer->SetInputData(tileMesh);
+    writer->SetInputData(buildings);
     std::string fileName = ostr.str() + ".gltf";
     writer->SetFileName(fileName.c_str());
-    writer->SetInputType(
-      aux->SelectionField == vtkSelectionNode::CELL ? vtkGLTFWriter::Mesh : vtkGLTFWriter::Points);
     writer->SetTextureBaseDirectory(this->OutputDir.c_str());
     writer->SetSaveTextures(this->SaveTextures);
     if (aux->SelectionField == vtkSelectionNode::CELL)

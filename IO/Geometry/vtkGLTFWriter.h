@@ -18,15 +18,22 @@
  *
  * vtkGLTFWriter is a concrete subclass of vtkWriter that writes GLTF
  * 2.0 files. Its input is a multiblock dataset as it is produced by
- * the CityGML reader. The dataset contains a list of buildings, each
- * building is made of pieces (polydata), each piece could potentially
- * have a different texture. Materials, including textures, are
- * described as fields in the polydata. If InlineData is false, we
- * only refer to textures files refered in the data, otherwise we read
- * the textures and save them encoded in the file.
+ * the CityGML reader. The dataset contains a list of buildings, a mesh
+ * or a point cloud.
+ *
+ * For buildings, each building is made of pieces (polydata), each
+ * piece could potentially have a different texture. The mesh input
+ * is the same as one building. The point cloud input, is the same as
+ * mesh input but with Verts instead of Polys.
+
+ * Materials, including textures, are described as fields in the
+ * polydata. If InlineData is false, we only refer to textures files
+ * refered in the data, otherwise we read the textures and save them
+ * encoded in the file.
  *
  * @sa
  * vtkCityGMLReader
+ * vtkPolyData
  */
 
 #ifndef vtkGLTFWriter_h
@@ -45,13 +52,6 @@ public:
   vtkTypeMacro(vtkGLTFWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum InputType
-  {
-    Buildings,
-    Points,
-    Mesh
-  };
-
   ///@{
   /**
    * Specify the name of the GLTF file to write.
@@ -68,14 +68,6 @@ public:
   vtkGetStringMacro(TextureBaseDirectory);
   ///@}
 
-  //@{
-  /**
-   * Input is Buildings (default), Points or Mesh.
-   */
-  vtkSetMacro(InputType, int);
-  vtkGetMacro(InputType, int);
-  //@
-
   ///@{
   /**
    * Should the binary data be included in the json file as a base64
@@ -84,6 +76,15 @@ public:
   vtkGetMacro(InlineData, bool);
   vtkSetMacro(InlineData, bool);
   vtkBooleanMacro(InlineData, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Is data saved as binary GLTF
+   */
+  vtkGetMacro(BinaryGLTF, bool);
+  vtkSetMacro(BinaryGLTF, bool);
+  vtkBooleanMacro(BinaryGLTF, bool);
   ///@}
 
   ///@{
@@ -163,8 +164,8 @@ protected:
 
   char* FileName;
   char* TextureBaseDirectory;
-  int InputType;
   bool InlineData;
+  bool BinaryGLTF;
   bool SaveNormal;
   bool SaveBatchId;
   bool SaveTextures;
