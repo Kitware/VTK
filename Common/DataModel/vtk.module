@@ -15,7 +15,6 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
-  VTK::eigen
   VTK::pugixml
   VTK::vtksys
 TEST_DEPENDS
@@ -24,7 +23,6 @@ TEST_DEPENDS
   VTK::CommonExecutionModel
   VTK::CommonSystem
   VTK::FiltersExtraction
-  VTK::FiltersFlowPaths
   VTK::FiltersGeneric
   VTK::FiltersGeometry
   VTK::FiltersModeling

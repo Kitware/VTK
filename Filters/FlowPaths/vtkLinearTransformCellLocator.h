@@ -39,12 +39,12 @@
 #define vtkLinearTransformCellLocator_h
 
 #include "vtkAbstractCellLocator.h"
-#include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkSmartPointer.h"          // For vtkSmartPointer
+#include "vtkFiltersFlowPathsModule.h" // For export macro
+#include "vtkSmartPointer.h"           // For vtkSmartPointer
 
 class vtkTransform;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkLinearTransformCellLocator : public vtkAbstractCellLocator
+class VTKFILTERSFLOWPATHS_EXPORT vtkLinearTransformCellLocator : public vtkAbstractCellLocator
 {
 public:
   ///@{
