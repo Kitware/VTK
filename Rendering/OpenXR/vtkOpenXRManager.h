@@ -130,7 +130,7 @@ public:
     {
       return nullptr;
     }
-    return &(this->RenderResources->ProjectionLayerViews[eye].pose);
+    return &(this->RenderResources->Views[eye].pose);
   }
   //@}
 
@@ -146,7 +146,7 @@ public:
     {
       return nullptr;
     }
-    return &(this->RenderResources->ProjectionLayerViews[eye].fov);
+    return &(this->RenderResources->Views[eye].fov);
   }
   //@}
 
