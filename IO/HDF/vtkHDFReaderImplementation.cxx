@@ -893,7 +893,9 @@ bool vtkHDFReader::Implementation::NewArray(
 {
   hid_t nativeType = TemplateTypeToHdfNativeType<T>();
 
-  // create the memory space, reverse axis order for VTK fortran order
+  // Create the memory space, reverse axis order for VTK fortran order,
+  // because VTK stores 2D/3D arrays in memory along columns (fortran order) rather
+  // than along rows (C order).
   std::vector<hsize_t> count(fileExtent.size() >> 1), start(fileExtent.size() >> 1);
   for (size_t i = 0; i < count.size(); ++i)
   {
