@@ -22,7 +22,7 @@
 namespace
 {
 
-bool vtkmFilterOverridesEnabled = static_cast<bool>(VTK_ENABLE_VTKM_OVERRIDES);
+bool vtkmFilterOverridesEnabled = VTK_ENABLE_VTKM_OVERRIDES != 0;
 
 struct FilterOverrides
 {
