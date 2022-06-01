@@ -358,7 +358,6 @@ bool vtkHyperTreeGridProbeFilter::DoProbing(
   vtkNew<vtkIdList> locCellIds;
   locCellIds->Initialize();
   ::ProbingWorklet worker(probe, this->Locator, localPointIds, locCellIds);
-
   // XXX: force sequential for now because of https://gitlab.kitware.com/vtk/vtk/-/issues/18629
   vtkSMPTools::LocalScope(
     vtkSMPTools::Config{ 1, "Sequential", false }, [&]() { vtkSMPTools::For(0, nPoints, worker); });

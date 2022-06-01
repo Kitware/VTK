@@ -201,7 +201,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
-   * Generate sampling point for a given cell. Supports line and polyline cells.
+   * Generate sampling point for a given cell with their probed data.
+   * Supports line and polyline cells.
    * This functions is expected to return a polydata with a single polyline in it.
    */
   vtkSmartPointer<vtkPolyData> CreateSamplingPolyLine(
@@ -209,18 +210,18 @@ protected:
 
   ///@{
   /**
-   * Generate sampling point between p1 and p2 according to @c SamplingPattern.
+   * Generate sampling points and their probed data between p1 and p2 according
+   * to @c SamplingPattern.
    * This functions is expected to return a polydata with a single polyline in it.
    */
-  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
-    vtkDataObject* input, const double tolerance) const;
-  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
-    const std::vector<vtkDataSet*>& input, const double tolerance) const;
-  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
-    vtkHyperTreeGrid* input, const double tolerance) const;
+  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(
+    const vtkVector3d& p1, const vtkVector3d& p2, vtkDataObject* input, double tolerance) const;
   vtkSmartPointer<vtkPolyData> SampleLineUniformly(
-    const vtkVector3d& p1, const vtkVector3d& p2) const;
+    const vtkVector3d& p1, const vtkVector3d& p2, vtkDataObject* input, double tolerance) const;
   ///@}
+
+  vtkSmartPointer<vtkPolyData> IntersectCells(
+    const vtkVector3d& p1, const vtkVector3d& p2, vtkDataSet* dataset, double tolerance) const;
 
   vtkMultiProcessController* Controller = nullptr;
 
