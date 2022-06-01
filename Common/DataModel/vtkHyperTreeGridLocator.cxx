@@ -18,9 +18,6 @@
 #include "vtkHyperTreeGrid.h"
 
 //------------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkHyperTreeGridLocator, HTG, vtkHyperTreeGrid);
-
-//------------------------------------------------------------------------------
 vtkHyperTreeGridLocator::vtkHyperTreeGridLocator()
   : HTG(nullptr)
 {
@@ -33,10 +30,19 @@ vtkHyperTreeGridLocator::~vtkHyperTreeGridLocator()
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridLocator::Initialize()
+void vtkHyperTreeGridLocator::SetHTG(vtkHyperTreeGrid* cand)
 {
-  // Do nothing
+  this->HTG = cand;
 }
+
+//------------------------------------------------------------------------------
+vtkHyperTreeGrid* vtkHyperTreeGridLocator::GetHTG()
+{
+  return this->HTG;
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridLocator::Initialize() {}
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridLocator::Update()

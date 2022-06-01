@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtkHyperTreeGridPProbeFilter);
 vtkCxxSetObjectMacro(vtkHyperTreeGridPProbeFilter, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkHyperTreeGridPProbeFilter, Locator, vtkHyperTreeGridLocator);
+vtkCxxSetSmartPointerMacro(vtkHyperTreeGridPProbeFilter, Locator, vtkHyperTreeGridLocator);
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridPProbeFilter::vtkHyperTreeGridPProbeFilter()
@@ -52,10 +52,10 @@ vtkHyperTreeGridPProbeFilter::vtkHyperTreeGridPProbeFilter()
   , PassPointArrays(false)
   , PassFieldArrays(true)
 {
-  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  this->Locator = nullptr;
-  this->SetLocator(vtkHyperTreeGridGeometricLocator::New()); // default to GeometricLocator
+  vtkNew<vtkHyperTreeGridGeometricLocator> thisLocator;
+  this->SetLocator(thisLocator); // default to GeometricLocator
+  this->SetNumberOfInputPorts(2);
 } // vtkHyperTreeGridPProbeFilter
 
 //------------------------------------------------------------------------------
@@ -64,6 +64,12 @@ vtkHyperTreeGridPProbeFilter::~vtkHyperTreeGridPProbeFilter()
   this->SetController(nullptr);
   this->SetLocator(nullptr);
 } //~vtkHyperTreeGridPProbeFilter
+
+//------------------------------------------------------------------------------
+vtkHyperTreeGridLocator* vtkHyperTreeGridPProbeFilter::GetLocator()
+{
+  return this->Locator;
+}
 
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridPProbeFilter::FillInputPortInformation(int port, vtkInformation* info)
@@ -160,8 +166,10 @@ int vtkHyperTreeGridPProbeFilter::RequestData(vtkInformation* vtkNotUsed(request
 
   this->UpdateProgress(0.1);
 
+  vtkNew<vtkIdList> localPointIds;
+  localPointIds->Initialize();
   // run probing on each source individually
-  if (!(this->DoProbing(input, source, output)))
+  if (!(this->DoProbing(input, source, output, localPointIds)))
   {
     vtkErrorMacro("Could not perform serial probing correctly");
     return 0;
@@ -170,7 +178,7 @@ int vtkHyperTreeGridPProbeFilter::RequestData(vtkInformation* vtkNotUsed(request
   this->UpdateProgress(0.7);
 
   // gather the results to the master process
-  if (!(this->Reduce(source, output)))
+  if (!(this->Reduce(source, output, localPointIds)))
   {
     vtkErrorMacro("Failed to communicate results to master process");
     return 0;
@@ -191,15 +199,10 @@ int vtkHyperTreeGridPProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
 
-  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
   return 1;
 } // RequestUpdateExtent
-
-//------------------------------------------------------------------------------
-int vtkHyperTreeGridPProbeFilter::ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*)
-{
-  return 1;
-}
 
 //------------------------------------------------------------------------------
 class vtkHyperTreeGridPProbeFilter::ProbingWorklet
@@ -273,13 +276,13 @@ public:
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridPProbeFilter::DoProbing(
-  vtkDataSet* probe, vtkHyperTreeGrid* source, vtkDataSet* output)
+  vtkDataSet* probe, vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds)
 {
   // locate all present points of probe
   unsigned int nPoints = probe->GetNumberOfPoints();
   vtkNew<vtkIdList> locCellIds;
   locCellIds->Initialize();
-  ProbingWorklet worker(probe, this->Locator, this->LocalPointIds, locCellIds);
+  ProbingWorklet worker(probe, this->Locator, localPointIds, locCellIds);
   vtkSMPTools::For(0, nPoints, worker);
 
   // copy values from source
@@ -325,18 +328,14 @@ bool vtkHyperTreeGridPProbeFilter::Initialize(
       localInstance->Initialize();
     }
   }
-  if (!(this->LocalPointIds))
-  {
-    this->LocalPointIds = vtk::TakeSmartPointer(vtkIdList::New());
-  }
-  this->LocalPointIds->Initialize();
 
   this->Locator->SetHTG(source);
   return true;
 } // Initialize
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridPProbeFilter::Reduce(vtkHyperTreeGrid* source, vtkDataSet* output)
+bool vtkHyperTreeGridPProbeFilter::Reduce(
+  vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds)
 {
   int procId = 0;
   int numProcs = 1;
@@ -346,70 +345,75 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(vtkHyperTreeGrid* source, vtkDataSet* 
     numProcs = this->Controller->GetNumberOfProcesses();
   }
 
-  vtkIdType numPointsFound = this->LocalPointIds->GetNumberOfIds();
+  vtkIdType numPointsFound = localPointIds->GetNumberOfIds();
   if (procId != 0)
   {
     this->Controller->Send(&numPointsFound, 1, 0, HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
     if (numPointsFound > 0)
     {
       this->Controller->Send(output, 0, HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
-      this->Controller->Send(this->LocalPointIds->GetPointer(0), numPointsFound, 0,
-        HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
+      this->Controller->Send(
+        localPointIds->GetPointer(0), numPointsFound, 0, HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
     }
     output->ReleaseData();
-    this->LocalPointIds->Initialize();
+    localPointIds->Initialize();
   }
-  else if (numProcs > 1)
+  else
   {
     auto dealWithRemote = [](vtkIdList* remotePointIds, vtkDataSet* remoteOutput,
                             vtkHyperTreeGrid* source, vtkDataSet* totOutput) {
-      vtkNew<vtkIdList> iotaIds;
-      iotaIds->SetNumberOfIds(remotePointIds->GetNumberOfIds());
-      std::iota(iotaIds->begin(), iotaIds->end(), 0);
-      unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
-      for (unsigned int iA = 0; iA < numArrays; iA++)
+      if (remotePointIds->GetNumberOfIds() > 0)
       {
-        vtkDataArray* remoteArray =
-          remoteOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
-        vtkDataArray* totArray =
-          totOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
-        totArray->InsertTuples(remotePointIds, iotaIds, remoteArray);
+        vtkNew<vtkIdList> iotaIds;
+        iotaIds->SetNumberOfIds(remotePointIds->GetNumberOfIds());
+        std::iota(iotaIds->begin(), iotaIds->end(), 0);
+        unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
+        for (unsigned int iA = 0; iA < numArrays; iA++)
+        {
+          vtkDataArray* remoteArray =
+            remoteOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
+          vtkDataArray* totArray =
+            totOutput->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
+          totArray->InsertTuples(remotePointIds, iotaIds, remoteArray);
+        }
       }
     };
     vtkIdType numRemotePoints = 0;
     vtkSmartPointer<vtkDataSet> remoteOutput = vtk::TakeSmartPointer(output->NewInstance());
     vtkNew<vtkIdList> remotePointIds;
     // deal with master process
-    if (this->LocalPointIds->GetNumberOfIds() > 0)
+    remoteOutput->CopyStructure(output);
+    unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
+    for (unsigned int iA = 0; iA < numArrays; iA++)
     {
-      remoteOutput->CopyStructure(output);
-      unsigned int numArrays = source->GetCellData()->GetNumberOfArrays();
-      for (unsigned int iA = 0; iA < numArrays; iA++)
-      {
-        vtkDataArray* da =
-          output->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
-        auto localInstance = vtk::TakeSmartPointer(da->NewInstance());
-        localInstance->DeepCopy(da);
-        remoteOutput->GetPointData()->AddArray(localInstance);
-        da->SetNumberOfTuples(output->GetNumberOfPoints());
-        da->Fill(vtkMath::Nan());
-      }
-      dealWithRemote(this->LocalPointIds, remoteOutput, source, output);
-      remoteOutput->Initialize();
+      vtkDataArray* da =
+        output->GetPointData()->GetArray(source->GetCellData()->GetArray(iA)->GetName());
+      auto localInstance = vtk::TakeSmartPointer(da->NewInstance());
+      localInstance->DeepCopy(da);
+      remoteOutput->GetPointData()->AddArray(localInstance);
+      da->SetNumberOfTuples(output->GetNumberOfPoints());
+      da->Fill(vtkMath::Nan());
     }
-    // deal with rest of processes
-    for (int iProc = 1; iProc < numProcs; iProc++)
+    dealWithRemote(localPointIds, remoteOutput, source, output);
+    remoteOutput->Initialize();
+
+    // deal with other processes
+    if (numProcs > 1)
     {
-      this->Controller->Receive(&numRemotePoints, 1, iProc, HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
-      if (numRemotePoints > 0)
+      for (int iProc = 1; iProc < numProcs; iProc++)
       {
-        this->Controller->Receive(remoteOutput, iProc, HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
-        remotePointIds->Initialize();
-        remotePointIds->SetNumberOfIds(numRemotePoints);
-        this->Controller->Receive(remotePointIds->GetPointer(0), numRemotePoints, iProc,
-          HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
-        dealWithRemote(remotePointIds, remoteOutput, source, output);
-        remoteOutput->Initialize();
+        this->Controller->Receive(
+          &numRemotePoints, 1, iProc, HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
+        if (numRemotePoints > 0)
+        {
+          this->Controller->Receive(remoteOutput, iProc, HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
+          remotePointIds->Initialize();
+          remotePointIds->SetNumberOfIds(numRemotePoints);
+          this->Controller->Receive(remotePointIds->GetPointer(0), numRemotePoints, iProc,
+            HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
+          dealWithRemote(remotePointIds, remoteOutput, source, output);
+          remoteOutput->Initialize();
+        }
       }
     }
   }

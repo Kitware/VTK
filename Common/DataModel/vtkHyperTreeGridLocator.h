@@ -37,6 +37,7 @@
 
 #include "vtkCommonDataModelModule.h" //For export macro
 #include "vtkObject.h"
+#include "vtkWeakPointer.h"
 
 class vtkHyperTreeGrid;
 class vtkPoints;
@@ -49,30 +50,24 @@ public:
   vtkTypeMacro(vtkHyperTreeGridLocator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  ///@{
   /**
    * Getter/Setter methods for setting the vtkHyperTreeGrid
    */
-  vtkGetObjectMacro(HTG, vtkHyperTreeGrid);
-  virtual void SetHTG(vtkHyperTreeGrid* candHTG);
-  ///@}
+  virtual vtkHyperTreeGrid* GetHTG();
+  virtual void SetHTG(vtkHyperTreeGrid*);
 
-  ///@{
   /**
    * Initialize or reinitialize the locator (setting or re-setting clean objects in memory)
+   * (Does nothing)
    */
   virtual void Initialize();
-  ///@}
 
-  ///@{
   /**
    * Update the locator's internal variables with respect to changes that could have happened
    * outside.
    */
   virtual void Update();
-  ///@}
 
-  ///@{
   /**
    * Basic search for cell holding a given point
    * @param point coordinated of sought point
@@ -121,28 +116,23 @@ public:
    */
   virtual int IntersectWithLine(const double p0[3], const double p1[3], const double tol,
     vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell) = 0;
-  ///@}
 
 protected:
   // Constructor/Destructor defaults
   vtkHyperTreeGridLocator();
   ~vtkHyperTreeGridLocator() override;
 
-  ///@{
   /**
    * Internal reference to the HyperTreeGrid one wants to search over
    */
-  vtkHyperTreeGrid* HTG;
-  ///@}
+  vtkWeakPointer<vtkHyperTreeGrid> HTG;
 
 private:
-  ///@{
   /**
    * Deletion of copy constructors
    */
   vtkHyperTreeGridLocator(const vtkHyperTreeGridLocator&) = delete;
   void operator=(const vtkHyperTreeGridLocator&) = delete;
-  ///@}
 
 }; // vtkHyperTreeGridLocator
 

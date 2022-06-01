@@ -30,8 +30,9 @@
 #ifndef vtkHyperTreeGridPProbeFilter_h
 #define vtkHyperTreeGridPProbeFilter_h
 
+#include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersParallelModule.h"
-#include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkSmartPointer.h"
 
 class vtkMultiProcessController;
 class vtkIdList;
@@ -39,10 +40,10 @@ class vtkDataSet;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridLocator;
 
-class VTKFILTERSPARALLEL_EXPORT vtkHyperTreeGridPProbeFilter : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkHyperTreeGridPProbeFilter : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkHyperTreeGridPProbeFilter, vtkHyperTreeGridAlgorithm);
+  vtkTypeMacro(vtkHyperTreeGridPProbeFilter, vtkDataSetAlgorithm);
 
   static vtkHyperTreeGridPProbeFilter* New();
 
@@ -77,8 +78,8 @@ public:
   /**
    * Set and get the locator object
    */
-  void SetLocator(vtkHyperTreeGridLocator* locator);
-  vtkGetObjectMacro(Locator, vtkHyperTreeGridLocator);
+  virtual vtkHyperTreeGridLocator* GetLocator();
+  virtual void SetLocator(vtkHyperTreeGridLocator*);
   ///@}
 
   ///@{
@@ -127,12 +128,6 @@ protected:
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   ///@}
 
-  /**
-   * Necessary for vtkHyperTreeGridAlgorithm interface
-   * Not used here.
-   */
-  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
-
   ///@{
   /**
    * Input port should have 2 inputs: input (a dataset) and a source (an HTG).
@@ -155,12 +150,13 @@ protected:
   /**
    * Helper method for perfoming the probing
    */
-  bool DoProbing(vtkDataSet* input, vtkHyperTreeGrid* source, vtkDataSet* output);
+  bool DoProbing(
+    vtkDataSet* input, vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds);
 
   /**
    * Helper method for reducing the distributed data to the master process
    */
-  bool Reduce(vtkHyperTreeGrid* source, vtkDataSet* output);
+  bool Reduce(vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds);
   ///@}
 
   enum
@@ -170,7 +166,7 @@ protected:
 
   vtkMultiProcessController* Controller;
 
-  vtkHyperTreeGridLocator* Locator;
+  vtkSmartPointer<vtkHyperTreeGridLocator> Locator;
 
   vtkTypeBool PassCellArrays;
   vtkTypeBool PassPointArrays;
@@ -179,13 +175,6 @@ protected:
 private:
   vtkHyperTreeGridPProbeFilter(const vtkHyperTreeGridPProbeFilter&) = delete;
   void operator=(const vtkHyperTreeGridPProbeFilter&) = delete;
-
-  ///@{
-  /**
-   * The indexes of the points present on this process
-   */
-  vtkIdList* LocalPointIds;
-  ///@}
 
   class ProbingWorklet;
 }; // vtkHyperTreeGridPProbeFilter

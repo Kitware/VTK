@@ -49,14 +49,11 @@ public:
 
   static vtkHyperTreeGridGeometricLocator* New();
 
-  ///@{
   /**
    * Set the vtkHyperTreeGrid to use for locating
    */
   void SetHTG(vtkHyperTreeGrid* candHTG) override;
-  ///@}
 
-  ///@{
   /**
    * Basic search for cell holding a given point
    * @param point coordinated of sought point
@@ -113,7 +110,6 @@ public:
    */
   int IntersectWithLine(const double p0[3], const double p1[3], const double tol, vtkPoints* points,
     vtkIdList* cellIds, vtkGenericCell* cell) override;
-  ///@}
 
 protected:
   vtkHyperTreeGridGeometricLocator();

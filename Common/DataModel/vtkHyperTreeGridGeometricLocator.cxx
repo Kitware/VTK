@@ -25,11 +25,10 @@
 #include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkUnsignedCharArray.h"
 
+#include "vtkMath.h"
 #include "vtkSMPTools.h"
-
-#include "vtk_eigen.h"
-#include VTK_EIGEN(Core)
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
@@ -102,7 +101,9 @@ vtkIdType vtkHyperTreeGridGeometricLocator::Search(
 vtkIdType vtkHyperTreeGridGeometricLocator::RecursiveSearch(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor, const double pt[3])
 {
-  if (cursor->IsMasked())
+  if (cursor->IsMasked() ||
+    (this->HTG->HasAnyGhostCells() &&
+      this->HTG->GetGhostCells()->GetTuple1(cursor->GetGlobalNodeIndex())))
   {
     return -1;
   }
@@ -174,7 +175,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
   std::fill(pcoords, pcoords + 3, 0.0);
   // setup calculation
   unsigned int dim = this->HTG->GetDimension();
-  Eigen::VectorXd sizes = Eigen::VectorXd::Zero(dim);
+  std::vector<double> sizes(dim, 0.0);
   std::vector<double> origin(dim, 0.0);
   this->GetZeroLevelOriginAndSize(origin.data(), sizes.data());
   // find intersection point with entire grid
@@ -194,19 +195,20 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
       vtkErrorMacro("Could not construct cell");
       return -1;
     }
-    if (cell->IntersectWithLine(p0, p1, tol, t, x, pcoords, subId) ==
-      0) // line does not intersect grid at all
+    // line does not intersect grid at all
+    if (cell->IntersectWithLine(p0, p1, tol, t, x, pcoords, subId) == 0)
     {
       return 0;
     }
     // run FindCell on the intersection point + epsilon so we're sure we're in the cell
-    Eigen::Vector3d tangent =
-      Eigen::Map<const Eigen::Vector3d>(p1) - Eigen::Map<const Eigen::Vector3d>(p0);
-    tangent.normalize();
-    Eigen::Map<Eigen::Vector3d> vecX(x);
+    std::vector<double> tangent(3, 0.0);
+    vtkMath::Subtract(p1, p0, tangent.data());
+    vtkMath::Normalize(tangent.data());
     double epsilon = 0.01 *
-      (sizes.norm() / std::pow(this->HTG->GetBranchFactor(), this->HTG->GetNumberOfLevels()));
-    vecX += epsilon * tangent;
+      (vtkMath::Norm(sizes.data()) /
+        std::pow(this->HTG->GetBranchFactor(), this->HTG->GetNumberOfLevels()));
+    vtkMath::MultiplyScalar(tangent.data(), epsilon);
+    vtkMath::Add(x, tangent.data(), x);
   }
   else
   {
@@ -300,7 +302,9 @@ vtkIdType vtkHyperTreeGridGeometricLocator::RecurseSingleIntersectWithLine(const
     for (unsigned int iC = 0; iC < nChildren; iC++)
     {
       cursor->ToChild(iC);
-      if (cursor->IsMasked())
+      if (cursor->IsMasked() ||
+        (this->HTG->HasAnyGhostCells() &&
+          this->HTG->GetGhostCells()->GetTuple1(cursor->GetGlobalNodeIndex())))
       {
         cursor->ToParent();
         continue;
@@ -501,7 +505,9 @@ void vtkHyperTreeGridGeometricLocator::RecurseAllIntersectsWithLine(const double
   const double p1[3], const double tol, vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
   std::vector<double>* ts, vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell) const
 {
-  if (cursor->IsMasked())
+  if (cursor->IsMasked() ||
+    (this->HTG->HasAnyGhostCells() &&
+      this->HTG->GetGhostCells()->GetTuple1(cursor->GetGlobalNodeIndex())))
   {
     return;
   }
@@ -569,7 +575,9 @@ bool vtkHyperTreeGridGeometricLocator::CheckLeafOrChildrenMasked(
   for (unsigned int iChild = 0; iChild < cursor->GetNumberOfChildren(); iChild++)
   {
     cursor->ToChild(iChild);
-    allMasked = (cursor->IsMasked());
+    allMasked = (cursor->IsMasked()) ||
+      (this->HTG->HasAnyGhostCells() &&
+        this->HTG->GetGhostCells()->GetTuple1(cursor->GetGlobalNodeIndex()));
     cursor->ToParent();
     if (!allMasked)
     {
