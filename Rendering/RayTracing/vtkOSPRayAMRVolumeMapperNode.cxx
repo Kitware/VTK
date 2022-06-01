@@ -237,7 +237,7 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
     ospSetObject(this->OSPRayVolumeModel, "transferFunction", this->TransferFunction);
     const float densityScale = 1.0f / volProperty->GetScalarOpacityUnitDistance();
     ospSetFloat(this->OSPRayVolumeModel, "densityScale", densityScale);
-    const float anisotropy = orn->GetVolumeAnisotropy(ren);
+    const float anisotropy = volProperty->GetScatteringAnisotropy();
     ospSetFloat(this->OSPRayVolumeModel, "anisotropy", anisotropy);
     ospSetFloat(
       this->OSPRayVolumeModel, "gradientShadingScale", volProperty->GetShade() ? 0.5 : 0.0);

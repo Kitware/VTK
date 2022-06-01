@@ -640,33 +640,6 @@ int vtkOSPRayRendererNode::GetRouletteDepth(vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
-void vtkOSPRayRendererNode::SetVolumeAnisotropy(double value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkOSPRayRendererNode::VOLUME_ANISOTROPY(), value);
-}
-
-//----------------------------------------------------------------------------
-double vtkOSPRayRendererNode::GetVolumeAnisotropy(vtkRenderer* renderer)
-{
-  constexpr double DEFAULT_VOLUME_ANISOTROPY = 0.0;
-  if (!renderer)
-  {
-    return DEFAULT_VOLUME_ANISOTROPY;
-  }
-  vtkInformation* info = renderer->GetInformation();
-  if (info && info->Has(vtkOSPRayRendererNode::VOLUME_ANISOTROPY()))
-  {
-    return (info->Get(vtkOSPRayRendererNode::VOLUME_ANISOTROPY()));
-  }
-  return DEFAULT_VOLUME_ANISOTROPY;
-}
-
-//----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::SetVarianceThreshold(double value, vtkRenderer* renderer)
 {
   if (!renderer)
