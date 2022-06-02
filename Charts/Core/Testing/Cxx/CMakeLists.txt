@@ -108,6 +108,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestScalarsToColors.cxx
   TestScatterPlot.cxx
   TestScatterPlotMatrix.cxx
+  TestScatterPlotMatrixHistogram.cxx
   TestScatterPlotMatrixVehicles.cxx
   TestScatterPlotMatrixVisible.cxx
   TestScientificPlot.cxx
