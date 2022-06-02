@@ -70,7 +70,7 @@ vtk_module_set_property(VTK::AcceleratorsVTKmCore
 
 if (TARGET vtkm::cuda)
   list(TRANSFORM nowrap_classes APPEND ".cxx" OUTPUT_VARIABLE cuda_impl)
-  set(cuda_impl vtkmDataArray.cxx ${nowrap_classes})
+  set(cuda_impl ${cuda_impl})
   set_source_files_properties(${cuda_impl} PROPERTIES
     LANGUAGE CUDA
     CUDA_SOURCE_PROPERTY_FORMAT OBJ
