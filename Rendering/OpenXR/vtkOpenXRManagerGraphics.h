@@ -32,6 +32,7 @@
 #include "vtkRenderingOpenXRModule.h" // For export macro
 
 #include "vtkOpenXR.h"
+#include <memory>
 #include <vector>
 
 class vtkOpenGLRenderWindow;

@@ -18,6 +18,22 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenXRManager.h"
 
+// include what we need for the helper window
+#ifdef VTK_USE_X
+// We need to cast to a XOpenGLRenderWindow for vtkXVisualInfo->visualid
+#include "vtkXOpenGLRenderWindow.h"
+
+// From vtkXOpenGLRenderWindow.cxx :
+// Work-around to get forward declarations of C typedef of anonymous
+// structs working. We do not want to include XUtil.h in the header as
+// it populates the global namespace.
+#include "GL/glx.h"
+#include <X11/Xutil.h>
+struct vtkXVisualInfo : public XVisualInfo
+{
+};
+#endif // VTK_USE_X
+
 vtkStandardNewMacro(vtkOpenXRManagerOpenGLGraphics);
 
 //------------------------------------------------------------------------------
