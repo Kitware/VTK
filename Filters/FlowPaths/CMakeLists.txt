@@ -10,6 +10,7 @@ set(classes
   vtkLagrangianMatidaIntegrationModel
   vtkLagrangianParticle
   vtkLagrangianParticleTracker
+  vtkLinearTransformCellLocator
   vtkModifiedBSPTree
   vtkParallelVectors
   vtkParticlePathFilter

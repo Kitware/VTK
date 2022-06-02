@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
   TestBSPTree.cxx
+  TestCellLocatorsLinearTransform.cxx
   TestEvenlySpacedStreamlines2D.cxx
   TestStreamTracer.cxx,NO_VALID
   TestStreamTracerSurface.cxx

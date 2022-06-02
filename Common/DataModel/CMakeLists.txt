@@ -138,7 +138,6 @@ set(classes
   vtkLagrangeTriangle
   vtkLagrangeWedge
   vtkLine
-  vtkLinearTransformCellLocator
   vtkLocator
   vtkMarchingCubesTriangleCases
   vtkMarchingSquaresLineCases
