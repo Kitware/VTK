@@ -1,16 +1,8 @@
 {
   "actions": [
     {
-      "name": "backthickcrop",
-      "type": "boolean"
-    },
-    {
       "name": "elevation",
       "type": "vector2"
-    },
-    {
-      "name": "forwardthickcrop",
-      "type": "boolean"
     },
     {
       "name": "handpose",
@@ -46,10 +38,6 @@
     },
     {
       "name": "showmenu",
-      "type": "boolean"
-    },
-    {
-      "name": "shownavigationpanel",
       "type": "boolean"
     },
     {
@@ -115,8 +103,8 @@
       "squeezeforce": "Squeeze Force",
       "startelevation": "Start Elevation",
       "startmovement": "Start Movement",
-      "thickcropdirection": "what direction to move",
-      "thickcropstart": "Start moving the trick crop",
+      "thickcropdirection": "Thick Crop Direction",
+      "thickcropstart": "Start Thick Crop Movement",
       "triggeraction": "Trigger Action",
       "language_tag": "en_US"
     }

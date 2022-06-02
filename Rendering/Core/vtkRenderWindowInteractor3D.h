@@ -244,7 +244,7 @@ public:
 
   ///@{
   /**
-   * Set/get position of the physical coordinate system -Z axis in world coordinates.
+   * Set/get the direction of the physical coordinate system -Z axis in world coordinates.
    */
   virtual void SetPhysicalViewDirection(double, double, double){};
   virtual double* GetPhysicalViewDirection() { return nullptr; };
@@ -252,7 +252,7 @@ public:
 
   ///@{
   /**
-   * Set/get position of the physical coordinate system +Y axis in world coordinates.
+   * Set/get the direction of the physical coordinate system +Y axis in world coordinates.
    */
   virtual void SetPhysicalViewUp(double, double, double){};
   virtual double* GetPhysicalViewUp() { return nullptr; };

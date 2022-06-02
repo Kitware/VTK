@@ -140,14 +140,7 @@ void vtkVRRenderWindowInteractor::SetPhysicalViewDirection(double x, double y, d
 double* vtkVRRenderWindowInteractor::GetPhysicalViewDirection()
 {
   vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
-  if (win)
-  {
-    return win->GetPhysicalViewDirection();
-  }
-  else
-  {
-    return nullptr;
-  }
+  return win ? win->GetPhysicalViewDirection() : nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -164,14 +157,7 @@ void vtkVRRenderWindowInteractor::SetPhysicalViewUp(double x, double y, double z
 double* vtkVRRenderWindowInteractor::GetPhysicalViewUp()
 {
   vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
-  if (win)
-  {
-    return win->GetPhysicalViewUp();
-  }
-  else
-  {
-    return nullptr;
-  }
+  return win ? win->GetPhysicalViewUp() : nullptr;
 }
 
 //------------------------------------------------------------------------------

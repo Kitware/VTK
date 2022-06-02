@@ -119,7 +119,8 @@
 #define VTKIS_MENU 17                 // invoke an application menu
 #define VTKIS_GESTURE 18              // touch interaction in progress
 #define VTKIS_ENV_ROTATE 19           // rotate the renderer environment texture
-#define VTKIS_ELEVATION 20
+#define VTKIS_GROUNDMOVEMENT 20       // horizontal movement according to the 4 directions
+#define VTKIS_ELEVATION 21            // vertical movement (up and down)
 
 #define VTKIS_ANIM_OFF 0
 #define VTKIS_ANIM_ON 1

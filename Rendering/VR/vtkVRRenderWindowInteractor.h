@@ -70,7 +70,7 @@ public:
 
   ///@{
   /**
-   * Set/get position of the physical coordinate system -Z axis in world coordinates.
+   * Set/get the direction of the physical coordinate system -Z axis in world coordinates.
    */
   void SetPhysicalViewDirection(double, double, double) override;
   double* GetPhysicalViewDirection() override;
@@ -78,7 +78,7 @@ public:
 
   ///@{
   /**
-   * Set/get position of the physical coordinate system +Y axis in world coordinates.
+   * Set/get the direction of the physical coordinate system +Y axis in world coordinates.
    */
   void SetPhysicalViewUp(double, double, double) override;
   double* GetPhysicalViewUp() override;

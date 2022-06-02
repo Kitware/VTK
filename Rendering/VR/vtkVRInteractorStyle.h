@@ -73,10 +73,8 @@ public:
   void EndPositionProp(vtkEventDataDevice3D*);
   void StartClip(vtkEventDataDevice3D*);
   void EndClip(vtkEventDataDevice3D*);
-  void StartDolly3D(vtkEventDataDevice3D*);
-  void EndDolly3D(vtkEventDataDevice3D*);
-  void StartElevation3D(vtkEventDataDevice3D*);
-  void EndElevation3D(vtkEventDataDevice3D*);
+  void StartMovement3D(int interactionState, vtkEventDataDevice3D*);
+  void EndMovement3D(vtkEventDataDevice3D*);
   ///@}
 
   ///@{
@@ -98,8 +96,16 @@ public:
   virtual void LoadNextCameraPose() = 0;
   ///@}
 
-  // TODO
-  void Move3D(vtkEventDataDevice3D*);
+  /**
+   * Move the camera on the "XY" plan (ground) using the thumbstick/trackpad position
+   * (up/down and left/right), according to the headset view direction.
+   */
+  void GroundMovement3D(vtkEventDataDevice3D*);
+
+  /**
+   * Move the camera following the "Z" axis (elevation) using the thumbstick/trackpad
+   * position (up/down).
+   */
   void Elevation3D(vtkEventDataDevice3D*);
 
   ///@{
@@ -248,6 +254,11 @@ protected:
    */
   bool HardwareSelect(vtkEventDataDevice controller, bool actorPassOnly);
 
+  /**
+   * Update the 3D movement according to the given interaction state.
+   */
+  void Movement3D(int interactionState, vtkEventData* edata);
+
   bool HoverPick = false;
   bool GrabWithRay = true;
 
@@ -273,7 +284,7 @@ protected:
   double HeadsetDir[3] = { 0, 0, 0 };
 
   // Store movement style
-  MovementStyle Style = FLY_STYLE;
+  MovementStyle Style = vtkVRInteractorStyle::FLY_STYLE;
 
 private:
   vtkVRInteractorStyle(const vtkVRInteractorStyle&) = delete;

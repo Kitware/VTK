@@ -1,16 +1,8 @@
 {
   "actions": [
     {
-      "name": "/actions/vtk/in/BackThickCrop",
-      "type": "boolean"
-    },
-    {
       "name": "/actions/vtk/in/Elevation",
       "type": "vector2"
-    },
-    {
-      "name": "/actions/vtk/in/ForwardThickCrop",
-      "type": "boolean"
     },
     {
       "name": "/actions/vtk/in/LeftGripAction",
@@ -34,10 +26,6 @@
     },
     {
       "name": "/actions/vtk/in/ShowMenu",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/vtk/in/ShowNavigationPanel",
       "type": "boolean"
     },
     {
