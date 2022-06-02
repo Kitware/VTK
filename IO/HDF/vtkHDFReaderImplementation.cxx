@@ -288,16 +288,8 @@ bool vtkHDFReader::Implementation::ReadDataSetType()
   }
   else
   {
-    // Legacy vtkhdf: we need to check the presence of WholeExtent attribute to get the correct
-    // data set type.
-    if (H5Aexists(this->VTKGroup, "WholeExtent"))
-    {
-      this->DataSetType = VTK_IMAGE_DATA;
-    }
-    else
-    {
-      this->DataSetType = VTK_UNSTRUCTURED_GRID;
-    }
+    vtkErrorWithObjectMacro(this->Reader, "Can't find the `Type` attribute.");
+    return false;
   }
   return true;
 }
