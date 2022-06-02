@@ -1,7 +1,6 @@
 #include "vtkFiniteElementFieldDistributor.h"
 
 #include "vtkCellArray.h"
-#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataAssembly.h"
@@ -31,6 +30,7 @@
 #include "vtkWedge.h"
 
 #include <numeric>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -39,14 +39,14 @@
 namespace
 {
 
-std::string GetEdgeCoeffArrName(const std::string& name)
+std::string GetEdgeOrtArrName(const std::string& name)
 {
-  return std::string("EDGE_COEFF_") + name;
+  return std::string("EDGE_ORT_") + name;
 }
 
-std::string GetFaceCoeffArrName(const std::string& name)
+std::string GetFaceOrtArrName(const std::string& name)
 {
-  return std::string("FACE_COEFF_") + name;
+  return std::string("FACE_ORT_") + name;
 }
 
 struct vtkFiniteElementSpec
@@ -83,6 +83,36 @@ std::vector<std::string> Split(const std::string& inString, const std::string& d
   return subStrings;
 }
 
+vtkIdType FindCellWithPoints(vtkUnstructuredGrid* mesh, vtkIdList* const ptIds)
+{
+  std::unordered_map<vtkIdType, int> cellCounts;
+  if (mesh->GetCellLinks() == nullptr)
+  {
+    mesh->BuildLinks();
+  }
+  for (auto pt = ptIds->begin(); pt != ptIds->end(); ++pt)
+  {
+    vtkIdType nCells = 0;
+    vtkIdType* cellIds = nullptr;
+    mesh->GetPointCells(*pt, nCells, cellIds);
+
+    for (vtkIdType i = 0; i < nCells; ++i)
+    {
+      cellCounts[cellIds[i]] = cellCounts[cellIds[i]] + 1;
+    }
+  }
+  vtkIdType result = -1;
+  for (const auto& cellCount : cellCounts)
+  {
+    if (cellCount.second == ptIds->GetNumberOfIds())
+    {
+      result = cellCount.first;
+      break;
+    }
+  }
+  return result;
+}
+
 vtkPartitionedDataSet* GetNamedPartitionedDataSet(
   const std::string& name, vtkPartitionedDataSetCollection* input)
 {
@@ -103,34 +133,63 @@ vtkPartitionedDataSet* GetNamedPartitionedDataSet(
   return input->GetPartitionedDataSet(ids[0]);
 }
 
-std::vector<double> GetEdgeAttributes(
-  const std::string& name, vtkCellData* cd, const vtkIdType& cellId)
+enum class SubCellType : int
+{
+  Edge,
+  Face
+};
+
+std::vector<double> GetSubCellAttributes(const std::string& name, vtkGenericCell* element,
+  vtkUnstructuredGrid* subCellMesh, const SubCellType& subCell)
 {
   std::vector<double> attrs;
-  vtkDataArray* coeffs = cd->GetArray(::GetEdgeCoeffArrName(name).c_str());
-  if (coeffs == nullptr)
+  if (element == nullptr || subCellMesh == nullptr)
   {
     return attrs;
   }
-  const int& nEdges = coeffs->GetNumberOfComponents();
-  attrs.resize(nEdges);
-  coeffs->GetTuple(cellId, attrs.data());
+  vtkCellData* cd = subCellMesh->GetCellData();
+  vtkDataArray* arr = cd->GetArray(name.c_str());
+  if (arr == nullptr)
+  {
+    return attrs;
+  }
+
+  const int& n =
+    subCell == SubCellType::Edge ? element->GetNumberOfEdges() : element->GetNumberOfFaces();
+  attrs.resize(n, 0);
+
+  for (int i = 0; i < n; ++i)
+  {
+    vtkIdList* pts = subCell == SubCellType::Edge ? element->GetEdge(i)->GetPointIds()
+                                                  : element->GetFace(i)->GetPointIds();
+    const vtkIdType subCId = ::FindCellWithPoints(subCellMesh, pts);
+    if (subCId >= 0)
+    {
+      arr->GetTuple(subCId, &attrs[i]);
+    }
+    else
+    {
+      std::stringstream ptsStr;
+      for (const auto& pt : *(pts))
+      {
+        ptsStr << pt << " ";
+      }
+      vtkLog(WARNING,
+        "Could not find a subcell with " << pts->GetNumberOfIds()
+                                         << " points : " << ptsStr.str().c_str());
+    }
+  }
   return attrs;
 }
 
-std::vector<double> GetFaceAttributes(
-  const std::string& name, vtkCellData* cd, const vtkIdType& cellId)
+void ReorientFieldCoeffecients(
+  std::vector<double>& coeffs, const std::vector<double>& orientationMap)
 {
-  std::vector<double> attrs;
-  vtkDataArray* coeffs = cd->GetArray(::GetFaceCoeffArrName(name).c_str());
-  if (coeffs == nullptr)
+  assert(orientationMap.size() == coeffs.size());
+  for (std::size_t i = 0; i < orientationMap.size(); ++i)
   {
-    return attrs;
+    coeffs[i] *= orientationMap[i];
   }
-  const int& nFaces = coeffs->GetNumberOfComponents();
-  attrs.resize(nFaces);
-  coeffs->GetTuple(cellId, attrs.data());
-  return attrs;
 }
 
 using VblpMatrixType = vtkVectorBasisLagrangeProducts::VblpMatrixType;
@@ -368,7 +427,7 @@ public:
 
   void Allocate(vtkPoints* newPoints, vtkCellArray* newCells, vtkUnsignedCharArray* newCellTypes,
     vtkPointData* hGradFields, vtkPointData* hCurlFields, vtkPointData* hDivFields,
-    vtkUnstructuredGrid* elements);
+    vtkUnstructuredGrid* elements, vtkUnstructuredGrid* edges, vtkUnstructuredGrid* faces);
 
   //  takes a continuous mesh and explodes the point set such that each element has
   // its own collection of points unshared by any other element. This also
@@ -379,9 +438,10 @@ public:
 
   // Interpolates edge -> nodal dofs.
   // Interpolates face -> nodal dofs.
-  void InterpolateCellToNodes(const vtkIdType& cellId, vtkCellArray* oldCells,
-    vtkCellArray* newCells, vtkCellData* oldCd, vtkPointData* hCurlFields,
-    vtkPointData* hDivFields);
+  void InterpolateCellToNodes(const vtkIdType& cellId, const unsigned char& cellType,
+    vtkCellArray* oldCells, vtkCellArray* newCells, vtkCellData* oldCd, vtkPointData* hCurlFields,
+    vtkPointData* hDivFields, vtkUnstructuredGrid* edges, vtkUnstructuredGrid* faces,
+    const bool useOrientationMap = true);
 
   // clear the three slots of femSpecs.
   void ResetFemSpecs();
@@ -396,7 +456,8 @@ private:
     vtkUnsignedCharArray* newCellTypes, const vtkIdType& numCells);
 
   void AllocateFields(vtkPointData* hGradFields, vtkPointData* hCurlFields,
-    vtkPointData* hDivFields, vtkUnstructuredGrid* elements, const vtkIdType& maxNumPoints);
+    vtkPointData* hDivFields, vtkUnstructuredGrid* elements, vtkUnstructuredGrid* edges,
+    vtkUnstructuredGrid* faces, const vtkIdType& maxNumPoints);
 
   static void ExplodeDGHGradCellCenteredField(vtkCellData* inCd, vtkPointData* outPd,
     const char* name, const vtkIdType& cellId, const vtkIdType& npts, const vtkIdType* pts,
@@ -417,6 +478,7 @@ private:
   int Order = 0;
   vtkNew<vtkDoubleArray> weights; // resized to maxCellSize in AllocateGeometry. Use it as you wish.
   // typed vtkCell instances allows easy access to parametric coordinates, edges, faces, ...
+  vtkNew<vtkGenericCell> genCell;
   vtkNew<vtkHexahedron> hex;
   vtkNew<vtkLine> line;
   vtkNew<vtkQuad> quad;
@@ -470,8 +532,12 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateGeometry(vtkPoints*
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData* hGradFields,
   vtkPointData* hCurlFields, vtkPointData* hDivFields, vtkUnstructuredGrid* elements,
-  const vtkIdType& maxNumPoints)
+  vtkUnstructuredGrid* edges, vtkUnstructuredGrid* faces, const vtkIdType& maxNumPoints)
 {
+  if (elements == nullptr)
+  {
+    return;
+  }
   vtkCellData* elemCd = elements->GetCellData();
 
   // Prepare HGRAD fields
@@ -487,30 +553,38 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData
     arr->Allocate(maxNumPoints);
     hGradFields->AddArray(arr);
   }
-  // The new nodal form of HCurl fields will go into point data.
-  for (const auto& fieldName : this->hCurlSpec().Fields)
+
+  if (edges != nullptr)
   {
-    const std::string& name = ::GetEdgeCoeffArrName(fieldName);
-    vtkDataArray* inArr = elemCd->GetArray(name.c_str());
-    auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, fieldName, 3, 0));
-    arr->Allocate(maxNumPoints);
-    hCurlFields->AddArray(arr);
+    // The new nodal form of HCurl fields will go into point data.
+    for (const auto& fieldName : this->hCurlSpec().Fields)
+    {
+      const char* name = fieldName.c_str();
+      vtkDataArray* inArr = edges->GetCellData()->GetArray(name);
+      auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, fieldName, 3, 0));
+      arr->Allocate(maxNumPoints);
+      hCurlFields->AddArray(arr);
+    }
   }
-  // The new nodal form of HDiv fields will go into point data.
-  for (const auto& fieldName : this->hDivSpec().Fields)
+  if (faces != nullptr)
   {
-    const std::string& name = ::GetFaceCoeffArrName(fieldName);
-    vtkDataArray* inArr = elemCd->GetArray(name.c_str());
-    auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, fieldName, 3, 0));
-    arr->Allocate(maxNumPoints);
-    hDivFields->AddArray(arr);
+    // The new nodal form of HDiv fields will go into point data.
+    for (const auto& fieldName : this->hDivSpec().Fields)
+    {
+      const char* name = fieldName.c_str();
+      vtkDataArray* inArr = faces->GetCellData()->GetArray(name);
+      auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, fieldName, 3, 0));
+      arr->Allocate(maxNumPoints);
+      hDivFields->AddArray(arr);
+    }
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::Allocate(vtkPoints* newPoints,
   vtkCellArray* newCells, vtkUnsignedCharArray* newCellTypes, vtkPointData* hGradFields,
-  vtkPointData* hCurlFields, vtkPointData* hDivFields, vtkUnstructuredGrid* elements)
+  vtkPointData* hCurlFields, vtkPointData* hDivFields, vtkUnstructuredGrid* elements,
+  vtkUnstructuredGrid* edges, vtkUnstructuredGrid* faces)
 {
   if (elements == nullptr)
   {
@@ -525,7 +599,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::Allocate(vtkPoints* newPoin
   const vtkIdType& maxCellSize = elements->GetCells()->GetMaxCellSize();
   const vtkIdType maxNpts = nCells * maxCellSize;
   this->AllocateGeometry(newPoints, maxCellSize, newCells, newCellTypes, nCells);
-  this->AllocateFields(hGradFields, hCurlFields, hDivFields, elements, maxNpts);
+  this->AllocateFields(hGradFields, hCurlFields, hDivFields, elements, edges, faces, maxNpts);
 }
 
 //----------------------------------------------------------------------------
@@ -886,13 +960,21 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeDGHGradCellCenteredF
 
 //----------------------------------------------------------------------------
 void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(const vtkIdType& cellId,
-  vtkCellArray* oldCells, vtkCellArray* newCells, vtkCellData* oldCd, vtkPointData* hCurlFields,
-  vtkPointData* hDivFields)
+  const unsigned char& cellType, vtkCellArray* oldCells, vtkCellArray* newCells, vtkCellData* oldCd,
+  vtkPointData* hCurlFields, vtkPointData* hDivFields, vtkUnstructuredGrid* edges,
+  vtkUnstructuredGrid* faces, const bool useOrientationMap /*=true*/)
 {
   // we will interpolate onto the points found at new point ids. (from cell explosion)
-  const vtkIdType* newPts = nullptr;
-  vtkIdType newNpts = 0;
+  const vtkIdType *newPts = nullptr, *oldPts = nullptr;
+  vtkIdType newNpts = 0, oldNpts = 0;
   newCells->GetCellAtId(cellId, newNpts, newPts);
+  oldCells->GetCellAtId(cellId, oldNpts, oldPts);
+
+  this->genCell->SetCellType(cellType);
+  this->genCell->PointIds->SetNumberOfIds(oldNpts);
+  this->genCell->Points->SetNumberOfPoints(oldNpts);
+  std::copy(oldPts, oldPts + oldNpts, this->genCell->PointIds->begin());
+
   if (this->Vblps.RequiresInitialization(this->RefElement, nullptr, newNpts))
   {
     auto pCoords = this->GetLagrangePCoords(this->RefElement, newNpts);
@@ -907,10 +989,18 @@ void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(cons
 
   for (const auto& fieldName : this->hCurlSpec().Fields)
   {
-    std::vector<double> coeffs = ::GetEdgeAttributes(fieldName, oldCd, cellId);
+    std::vector<double> coeffs =
+      ::GetSubCellAttributes(fieldName, this->genCell, edges, ::SubCellType::Edge);
     if (coeffs.empty())
     {
       continue;
+    }
+    if (useOrientationMap)
+    {
+      vtkDataArray* orientArr = oldCd->GetArray(::GetEdgeOrtArrName(fieldName.c_str()).c_str());
+      std::vector<double> orts(orientArr->GetNumberOfComponents(), 0);
+      orientArr->GetTuple(cellId, orts.data());
+      ::ReorientFieldCoeffecients(coeffs, orts);
     }
     vtkDataArray* outArr = hCurlFields->GetArray(fieldName.c_str());
     const auto vblpmat = this->Vblps.GetVblp(::SpaceType::HCurl, this->RefElement);
@@ -925,15 +1015,24 @@ void vtkFiniteElementFieldDistributor::vtkInternals::InterpolateCellToNodes(cons
     std::vector<double> coeffs;
     if (this->RefElement == VTK_QUAD || this->RefElement == VTK_TRIANGLE)
     {
-      coeffs = std::move(::GetEdgeAttributes(fieldName, oldCd, cellId));
+      coeffs =
+        std::move(::GetSubCellAttributes(fieldName, this->genCell, faces, ::SubCellType::Face));
     }
     else
     {
-      coeffs = std::move(::GetFaceAttributes(fieldName, oldCd, cellId));
+      coeffs =
+        std::move(::GetSubCellAttributes(fieldName, this->genCell, faces, ::SubCellType::Face));
     }
     if (coeffs.empty())
     {
       continue;
+    }
+    if (useOrientationMap)
+    {
+      vtkDataArray* orientArr = oldCd->GetArray(::GetFaceOrtArrName(fieldName.c_str()).c_str());
+      std::vector<double> orts(orientArr->GetNumberOfComponents(), 0);
+      orientArr->GetTuple(cellId, orts.data());
+      ::ReorientFieldCoeffecients(coeffs, orts);
     }
     vtkDataArray* outArr = hDivFields->GetArray(fieldName.c_str());
     const auto vblpmat = this->Vblps.GetVblp(::SpaceType::HDiv, this->RefElement);
@@ -982,7 +1081,8 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
 
   // Parse the information records.
   int refElementOrder = 0;
-  std::unordered_set<std::string> elementBlockNames;
+  std::unordered_map<std::string, std::unordered_set<std::string>> block2Basis;
+  std::unordered_set<std::string> blockNames;
   for (vtkIdType i = 0; i < infoRecords->GetNumberOfValues(); ++i)
   {
     const auto& record = infoRecords->GetValue(i);
@@ -1005,25 +1105,21 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
     {
       continue;
     }
-    // within this context, an entity is either a basis or a field.
     const std::string& basisType = data[0];
     const std::string& blockName = data[1];
     const std::string& galerkinType = data[2];
-    const std::string& entityType = data[3];
+    const std::string& recordType = data[3];
     const std::string& entityName = data[4];
     // Look for valid FEM element callouts.
     if (!(basisType == "HCURL" || basisType == "HDIV" || basisType == "HGRAD"))
     {
       continue;
     }
-    if (basisType == "HGRAD")
-    { // only element block has a HGRAD basis definition
-      elementBlockNames.insert(blockName);
-    }
-
+    blockNames.insert(blockName);
+    block2Basis[blockName].insert(basisType);
     femSpec = &(this->Internals->femSpecs[basisType]);
-
-    if (entityType == "basis")
+    // within this context, the type of a 'record' is either a basis or a field.
+    if (recordType == "basis")
     {
       const auto& intrepidName = entityName;
       const std::vector<std::string> nameParts = ::Split(intrepidName, "_");
@@ -1069,7 +1165,7 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
         femSpec->RefElement = VTK_WEDGE;
       }
     }
-    else if (entityType == "field" && femSpec != nullptr)
+    else if (recordType == "field" && femSpec != nullptr)
     {
       // these fields will be attached to a basis.
       if (galerkinType == "CG" && basisType != "HGRAD")
@@ -1082,132 +1178,175 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
       }
     }
   }
-  if (elementBlockNames.empty())
-  {
-    vtkErrorMacro(<< "Failed to find element blocks!");
-    return 0;
-  }
 
-  this->Internals->InitializeReferenceElement(refElementOrder);
-
-  bool abortNow = false;
-  unsigned int pdsIdx = 0;
-  for (const auto& blockName : elementBlockNames)
+  // figure out element block, edge block and face block.
+  std::string elBlock, edBlock, faBlock;
+  for (const auto& name : blockNames)
   {
-    if (abortNow)
+    // found element block
+    if (elBlock.empty() && block2Basis[name].count("HGRAD"))
     {
+      elBlock = name;
       break;
     }
-    vtkPartitionedDataSet* elementsPds = nullptr;
-    // Find an element block.
-    if (!blockName.empty())
+  }
+  for (const auto& name : blockNames)
+  {
+    // found edge block
+    if (edBlock.empty() && block2Basis[name].count("HCURL") && name != elBlock)
     {
-      elementsPds = ::GetNamedPartitionedDataSet(blockName, input);
+      edBlock = name;
     }
-    if (elementsPds == nullptr)
+    // found face block
+    if (faBlock.empty() && block2Basis[name].count("HDIV") && name != elBlock)
+    {
+      faBlock = name;
+    }
+  }
+  if (elBlock.empty())
+  {
+    vtkErrorMacro(<< "Failed to find an element block!");
+    return 0;
+  }
+  vtkPartitionedDataSet *elementsPds = nullptr, *edgesPds = nullptr, *facesPds = nullptr;
+  elementsPds = ::GetNamedPartitionedDataSet(elBlock, input);
+  if (!edBlock.empty())
+  {
+    edgesPds = ::GetNamedPartitionedDataSet(edBlock, input);
+  }
+  if (!faBlock.empty())
+  {
+    facesPds = ::GetNamedPartitionedDataSet(faBlock, input);
+  }
+
+  // Sanity check for equivalent no. of partitions.
+  if (edgesPds != nullptr &&
+    (edgesPds->GetNumberOfPartitions() != elementsPds->GetNumberOfPartitions()))
+  {
+    vtkErrorMacro(<< "No. of edge block partitions (" << edgesPds->GetNumberOfPartitions()
+                  << ") != No. of element block partitions ("
+                  << elementsPds->GetNumberOfPartitions() << ")");
+    return 0;
+  }
+  if (facesPds != nullptr &&
+    (facesPds->GetNumberOfPartitions() != elementsPds->GetNumberOfPartitions()))
+  {
+    vtkErrorMacro(<< "No. of face block partitions (" << facesPds->GetNumberOfPartitions()
+                  << ") != No. of element block partitions ("
+                  << elementsPds->GetNumberOfPartitions() << ")");
+    return 0;
+  }
+  this->Internals->InitializeReferenceElement(refElementOrder);
+
+  // TODO: mpi-fy this thing..
+  bool abortNow = false;
+  const unsigned int numParts = elementsPds->GetNumberOfPartitions();
+  output->SetNumberOfPartitionedDataSets(1);
+  output->SetNumberOfPartitions(0, numParts);
+  output->GetMetaData(static_cast<int>(0))->Set(vtkCompositeDataSet::NAME(), elBlock.c_str());
+  for (unsigned int partIdx = 0; partIdx < numParts && !abortNow; ++partIdx)
+  {
+    vtkUnstructuredGrid* elements =
+      vtkUnstructuredGrid::SafeDownCast(elementsPds->GetPartition(partIdx));
+    if (elements == nullptr || elements->GetNumberOfPoints() == 0 ||
+      elements->GetNumberOfCells() == 0)
+    {
+      continue;
+    }
+    vtkUnstructuredGrid* edges = edgesPds == nullptr
+      ? nullptr
+      : vtkUnstructuredGrid::SafeDownCast(edgesPds->GetPartition(partIdx));
+    vtkUnstructuredGrid* faces = facesPds == nullptr
+      ? nullptr
+      : vtkUnstructuredGrid::SafeDownCast(facesPds->GetPartition(partIdx));
+
+    vtkPoints* oldPoints = elements->GetPoints();
+    vtkCellArray* oldCells = elements->GetCells();
+    vtkUnsignedCharArray* oldCellTypes = elements->GetCellTypesArray();
+
+    // peek at the elements block to allocate appropriate output.
+    vtkNew<vtkUnstructuredGrid> newMesh;
+    vtkNew<vtkUnsignedCharArray> newCellTypes;
+    vtkNew<vtkPointData> hGradFields, hCurlFields, hDivFields;
+    auto newPoints = vtk::TakeSmartPointer(oldPoints->NewInstance());
+    auto newCells = vtk::TakeSmartPointer(oldCells->NewInstance());
+    this->Internals->Allocate(newPoints, newCells, newCellTypes, hGradFields, hCurlFields,
+      hDivFields, elements, edges, faces);
+
+    // copy/interpolate dataset attributes.
+    vtkCellData *oldCd = elements->GetCellData(), *newCd = newMesh->GetCellData();
+    vtkPointData *oldPd = elements->GetPointData(), *newPd = newMesh->GetPointData();
+    vtkFieldData *oldFd = elements->GetFieldData(), *newFd = newMesh->GetFieldData();
+    // when we bump cell order, new points are created. requires weighted interpolation for
+    // CG (Continuous Galerkin) point data arrays.
+    newPd->InterpolateAllocate(oldPd);
+    newCd->CopyAllocate(oldCd);
+    newFd->DeepCopy(oldFd);
+
+    // explode geometry, interpolate fields.
+    const double progressGranularity = 0.1;
+    const vtkIdType& nCells = oldCells->GetNumberOfCells();
+    const vtkIdType reportEveryNCells = progressGranularity * nCells;
+    for (vtkIdType c = 0; c < nCells && !abortNow; ++c)
+    {
+      const unsigned char& cType = oldCellTypes->GetValue(c);
+
+      this->Internals->ExplodeCell(c, oldPoints, newPoints, oldCells, newCells, newCellTypes, oldPd,
+        newPd, oldCd, hGradFields);
+      this->Internals->InterpolateCellToNodes(c, cType, oldCells, newCells, oldCd, hCurlFields,
+        hDivFields, edges, faces, this->UseOrientationMap);
+
+      newCd->CopyData(oldCd, c, c);
+
+      if (c % reportEveryNCells == 0)
+      {
+        abortNow = this->GetAbortExecute();
+        this->UpdateProgress(static_cast<double>(c) / nCells);
+      }
+    } // for each cell
+    if (abortNow)
     {
       continue;
     }
 
-    // TODO: mpi-fy this thing..
-    const unsigned int numParts = elementsPds->GetNumberOfPartitions();
-    for (unsigned int partIdx = 0; partIdx < numParts && !abortNow; ++partIdx)
+    // Finalize geometry, topology of output mesh.
+    newMesh->SetPoints(newPoints);
+    newMesh->SetCells(newCellTypes, newCells);
+    output->SetPartition(0, partIdx, newMesh);
+
+    // Copy over the hgrad/hcurl/hdiv fields into output point data.
+    for (int i = 0; i < hGradFields->GetNumberOfArrays(); ++i)
     {
-      vtkUnstructuredGrid* elements =
-        vtkUnstructuredGrid::SafeDownCast(elementsPds->GetPartition(partIdx));
-      if (elements == nullptr || elements->GetNumberOfPoints() == 0 ||
-        elements->GetNumberOfCells() == 0)
+      if (vtkDataArray* arr = hGradFields->GetArray(i))
       {
-        continue;
-      }
-
-      vtkPoints* oldPoints = elements->GetPoints();
-      vtkCellArray* oldCells = elements->GetCells();
-
-      // peek at the elements block to allocate appropriate output.
-      vtkNew<vtkUnstructuredGrid> newMesh;
-      vtkNew<vtkUnsignedCharArray> newCellTypes;
-      vtkNew<vtkPointData> hGradFields, hCurlFields, hDivFields;
-      auto newPoints = vtk::TakeSmartPointer(oldPoints->NewInstance());
-      auto newCells = vtk::TakeSmartPointer(oldCells->NewInstance());
-      this->Internals->Allocate(
-        newPoints, newCells, newCellTypes, hGradFields, hCurlFields, hDivFields, elements);
-
-      // copy/interpolate dataset attributes.
-      vtkCellData *oldCd = elements->GetCellData(), *newCd = newMesh->GetCellData();
-      vtkPointData *oldPd = elements->GetPointData(), *newPd = newMesh->GetPointData();
-      vtkFieldData *oldFd = elements->GetFieldData(), *newFd = newMesh->GetFieldData();
-      // when we bump cell order, new points are created. requires weighted interpolation for
-      // CG (Continuous Galerkin) point data arrays.
-      newPd->InterpolateAllocate(oldPd);
-      newCd->CopyAllocate(oldCd);
-      newFd->DeepCopy(oldFd);
-
-      // explode geometry, interpolate fields.
-      const double progressGranularity = 0.1;
-      const vtkIdType& nCells = oldCells->GetNumberOfCells();
-      const vtkIdType reportEveryNCells = progressGranularity * nCells;
-      for (vtkIdType c = 0; c < nCells && !abortNow; ++c)
-      {
-        this->Internals->ExplodeCell(c, oldPoints, newPoints, oldCells, newCells, newCellTypes,
-          oldPd, newPd, oldCd, hGradFields);
-        this->Internals->InterpolateCellToNodes(
-          c, oldCells, newCells, oldCd, hCurlFields, hDivFields);
-
-        newCd->CopyData(oldCd, c, c);
-
-        if (c % reportEveryNCells == 0)
+        if (arr->GetNumberOfTuples())
         {
-          abortNow = this->GetAbortExecute();
-          this->UpdateProgress(static_cast<double>(c) / nCells);
-        }
-      } // for each cell
-      if (abortNow)
-      {
-        continue;
-      }
-
-      // Finalize geometry, topology of output mesh.
-      newMesh->SetPoints(newPoints);
-      newMesh->SetCells(newCellTypes, newCells);
-      output->SetPartition(pdsIdx, partIdx, newMesh);
-      output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
-
-      // Copy over the hgrad/hcurl/hdiv fields into output point data.
-      for (int i = 0; i < hGradFields->GetNumberOfArrays(); ++i)
-      {
-        if (vtkDataArray* arr = hGradFields->GetArray(i))
-        {
-          if (arr->GetNumberOfTuples())
-          {
-            const char* name = hGradFields->GetArrayName(i);
-            newPd->AddArray(arr);
-            newCd->RemoveArray(name); // less clutter in the drop down menu in paraview.
-          }
+          const char* name = hGradFields->GetArrayName(i);
+          newPd->AddArray(arr);
+          newCd->RemoveArray(name); // less clutter in the drop down menu in paraview.
         }
       }
-      for (int i = 0; i < hCurlFields->GetNumberOfArrays(); ++i)
+    }
+    for (int i = 0; i < hCurlFields->GetNumberOfArrays(); ++i)
+    {
+      if (vtkDataArray* arr = hCurlFields->GetArray(i))
       {
-        if (vtkDataArray* arr = hCurlFields->GetArray(i))
+        if (arr->GetNumberOfTuples())
         {
-          if (arr->GetNumberOfTuples())
-          {
-            newPd->AddArray(arr);
-          }
+          newPd->AddArray(arr);
         }
       }
-      for (int i = 0; i < hDivFields->GetNumberOfArrays(); ++i)
+    }
+    for (int i = 0; i < hDivFields->GetNumberOfArrays(); ++i)
+    {
+      if (vtkDataArray* arr = hDivFields->GetArray(i))
       {
-        if (vtkDataArray* arr = hDivFields->GetArray(i))
+        if (arr->GetNumberOfTuples())
         {
-          if (arr->GetNumberOfTuples())
-          {
-            newPd->AddArray(arr);
-          }
+          newPd->AddArray(arr);
         }
       }
-    } // for each partition
-    ++pdsIdx;
-  } // for each element block
+    }
+  } // for each partition
   return 1;
 }
