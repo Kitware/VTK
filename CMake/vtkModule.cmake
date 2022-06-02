@@ -4098,7 +4098,7 @@ function (_vtk_module_install target)
     ${ARGN}
     ARCHIVE
       DESTINATION "${_vtk_build_ARCHIVE_DESTINATION}"
-      COMPONENT   "${_vtk_install_headers_component}"
+      COMPONENT   "${_vtk_install_targets_component}"
     LIBRARY
       DESTINATION "${_vtk_build_LIBRARY_DESTINATION}"
       COMPONENT   "${_vtk_install_targets_component}"
