@@ -1277,7 +1277,6 @@ bool vtkHDFReader::Implementation::ReadAMRBoxRawValues(
     return false;
   }
 
-  // auto amrBoxDatasetID = H5Dopen(levelGroupID, "AMRBox", H5P_DEFAULT);
   vtkHDF::ScopedH5DHandle amrBoxDatasetID = H5Dopen(levelGroupID, "AMRBox", H5P_DEFAULT);
   if (amrBoxDatasetID == H5I_INVALID_HID)
   {
