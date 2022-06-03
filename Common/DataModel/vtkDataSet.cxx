@@ -921,7 +921,14 @@ void vtkDataSet::UpdatePointGhostArrayCache()
 {
   this->PointGhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(
     this->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
-  this->PointGhostArrayCached = true;
+  if (this->PointGhostArray)
+  {
+    this->PointGhostArrayCached = true;
+  }
+  else
+  {
+    this->PointGhostArrayCached = false;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -962,7 +969,14 @@ void vtkDataSet::UpdateCellGhostArrayCache()
 {
   this->CellGhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(
     this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
-  this->CellGhostArrayCached = true;
+  if (this->CellGhostArray)
+  {
+    this->CellGhostArrayCached = true;
+  }
+  else
+  {
+    this->CellGhostArrayCached = false;
+  }
 }
 
 //------------------------------------------------------------------------------
