@@ -80,15 +80,6 @@ public:
 
   ///@{
   /**
-   * Is data saved as binary GLTF
-   */
-  vtkGetMacro(BinaryGLTF, bool);
-  vtkSetMacro(BinaryGLTF, bool);
-  vtkBooleanMacro(BinaryGLTF, bool);
-  ///@}
-
-  ///@{
-  /**
    * It looks for the normals point attribute and saves it in the
    * GLTF file if found with the name NORMAL
    * Cesium needs this to render buildings correctly
@@ -165,7 +156,6 @@ protected:
   char* FileName;
   char* TextureBaseDirectory;
   bool InlineData;
-  bool BinaryGLTF;
   bool SaveNormal;
   bool SaveBatchId;
   bool SaveTextures;

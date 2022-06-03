@@ -94,7 +94,6 @@ vtkGLTFWriter::vtkGLTFWriter()
   this->FileName = nullptr;
   this->TextureBaseDirectory = nullptr;
   this->InlineData = false;
-  this->BinaryGLTF = false;
   this->SaveNormal = false;
   this->SaveBatchId = false;
   this->SaveTextures = true;
@@ -717,9 +716,6 @@ void vtkGLTFWriter::WriteData()
 
   this->WriteToStream(output, this->GetInput());
   output.close();
-  if (this->BinaryGLTF)
-  {
-  }
 }
 
 void vtkGLTFWriter::WriteToStream(ostream& output, vtkDataObject* data)
