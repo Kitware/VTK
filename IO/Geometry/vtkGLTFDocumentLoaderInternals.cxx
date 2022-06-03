@@ -1473,9 +1473,12 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaDataFromFile(
   }
 
   // Load extensions
-  if (!this->Self->GetUsedExtensions().empty() && root["extensions"].is_object())
+  auto rootExtensionsIt = root.find("extensions");
+  if (!this->Self->GetUsedExtensions().empty() && rootExtensionsIt != root.end() &&
+    rootExtensionsIt.value().is_object())
   {
-    this->LoadExtensions(root["extensions"], this->Self->GetInternalModel()->ExtensionMetaData);
+    this->LoadExtensions(
+      rootExtensionsIt.value(), this->Self->GetInternalModel()->ExtensionMetaData);
   }
 
   // Save buffer metadata but don't load buffers
@@ -1623,12 +1626,14 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
 bool vtkGLTFDocumentLoaderInternals::LoadNodeExtensions(
   const nlohmann::json& root, vtkGLTFDocumentLoader::Node::Extensions& nodeExtensions)
 {
+  auto rootLightsPunctualIt = root.find("KHR_lights_punctual");
   for (const std::string& usedExtensionName : this->Self->GetUsedExtensions())
   {
-    if (usedExtensionName == "KHR_lights_punctual" && root["KHR_lights_punctual"].is_object())
+    if (usedExtensionName == "KHR_lights_punctual" && rootLightsPunctualIt != root.end() &&
+      rootLightsPunctualIt.value().is_object())
     {
       this->LoadKHRLightsPunctualNodeExtension(
-        root["KHR_lights_punctual"], nodeExtensions.KHRLightsPunctualMetaData);
+        rootLightsPunctualIt.value(), nodeExtensions.KHRLightsPunctualMetaData);
     }
     // New node extensions should be loaded from here
   }
@@ -1639,12 +1644,14 @@ bool vtkGLTFDocumentLoaderInternals::LoadNodeExtensions(
 bool vtkGLTFDocumentLoaderInternals::LoadExtensions(
   const nlohmann::json& root, vtkGLTFDocumentLoader::Extensions& extensions)
 {
+  auto rootLightsPunctualIt = root.find("KHR_lights_punctual");
   for (const std::string& usedExtensionName : this->Self->GetUsedExtensions())
   {
-    if (usedExtensionName == "KHR_lights_punctual" && root["KHR_lights_punctual"].is_object())
+    if (usedExtensionName == "KHR_lights_punctual" && rootLightsPunctualIt != root.end() &&
+      rootLightsPunctualIt.value().is_object())
     {
       this->LoadKHRLightsPunctualExtension(
-        root["KHR_lights_punctual"], extensions.KHRLightsPunctualMetaData);
+        rootLightsPunctualIt.value(), extensions.KHRLightsPunctualMetaData);
     }
   }
   return true;
