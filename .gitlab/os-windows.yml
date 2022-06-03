@@ -21,12 +21,14 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows36_x86_64
+        VTK_DISABLE_PYI_TESTING: 1
 
 .wheel_windows37_x86_64:
     extends: .wheel_windows_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows37_x86_64
+        VTK_DISABLE_PYI_TESTING: 1
 
 .wheel_windows38_x86_64:
     extends: .wheel_windows_x86_64
@@ -280,5 +282,5 @@
         - twine check (Get-ChildItem build\dist\*.whl | % FullName)
         - pip install (Get-ChildItem build\dist\*.whl | % FullName)
         - python -c "import vtk"
-        - python -m vtkmodules.generate_pyi --test -p vtkmodules
+        - if ( "$env:VTK_DISABLE_PYI_TESTING" -ne "1" ) { python -m vtkmodules.generate_pyi --test -p vtkmodules } else { echo "pyi test is disabled." }
     interruptible: true
