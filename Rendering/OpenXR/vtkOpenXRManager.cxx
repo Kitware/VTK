@@ -161,7 +161,7 @@ bool vtkOpenXRManager::BeginSession()
     return false;
   }
 
-  vtkDebugMacro(<< "Session started.");
+  vtkDebugWithObjectMacro(nullptr, "Session started.");
 
   this->SessionRunning = true;
 
@@ -708,8 +708,8 @@ bool vtkOpenXRManager::CreateSystem()
   this->XrCheckError(xrGetSystem(this->Instance, &system_get_info, &this->SystemId),
     "Failed to get system for HMD form factor.");
 
-  vtkDebugMacro(<< "Successfully got XrSystem with id " << this->SystemId
-                << " for HMD form factor.");
+  vtkDebugWithObjectMacro(
+    nullptr, "Successfully got XrSystem with id " << this->SystemId << " for HMD form factor.");
 
   // checking system properties is generally  optional, but we are interested in hand tracking
   // support
@@ -878,9 +878,9 @@ bool vtkOpenXRManager::CreateSession()
   }
 
 #ifdef XR_USE_GRAPHICS_API_OPENGL
-  vtkDebugMacro(<< "Successfully created a session with OpenGL!");
+  vtkDebugWithObjectMacro(nullptr, "Successfully created a session with OpenGL!");
 #elif XR_USE_GRAPHICS_API_D3D11
-  vtkDebugMacro(<< "Successfully created a session with DirectX!");
+  vtkDebugWithObjectMacro(nullptr, "Successfully created a session with DirectX!");
 #endif
 
   return true;
@@ -939,7 +939,8 @@ std::tuple<int64_t, int64_t> vtkOpenXRManager::SelectSwapchainPixelFormats()
   this->XrCheckError(xrEnumerateSwapchainFormats(this->Session, 0, &swapchainFormatsCount, nullptr),
     "Failed to get number of supported swapchain formats");
 
-  vtkDebugMacro(<< "Runtime supports " << swapchainFormatsCount << " swapchain formats");
+  vtkDebugWithObjectMacro(
+    nullptr, "Runtime supports " << swapchainFormatsCount << " swapchain formats");
 
   std::vector<int64_t> swapchainFormats(swapchainFormatsCount);
   this->XrCheckError(xrEnumerateSwapchainFormats(this->Session, swapchainFormatsCount,
@@ -971,7 +972,8 @@ std::tuple<int64_t, int64_t> vtkOpenXRManager::SelectSwapchainPixelFormats()
       selectPixelFormat(swapchainFormats, this->GetSupportedDepthFormats(), "depth");
     if (depthSwapchainFormat == -1)
     {
-      vtkDebugMacro(<< "Disabling depth extension as no depth format are supported");
+      vtkDebugWithObjectMacro(
+        nullptr, "Disabling depth extension as no depth format are supported");
       this->OptionalExtensions.DepthExtensionSupported = false;
     }
   }
@@ -1104,7 +1106,8 @@ bool vtkOpenXRManager::CreateConfigViews()
 bool vtkOpenXRManager::CreateActionSet(
   const std::string& actionSetName, const std::string& localizedActionSetName)
 {
-  vtkDebugMacro(<< "Create action set " << actionSetName << ": " << localizedActionSetName);
+  vtkDebugWithObjectMacro(
+    nullptr, "Create action set " << actionSetName << ": " << localizedActionSetName);
 
   XrActionSetCreateInfo actionSetInfo{ XR_TYPE_ACTION_SET_CREATE_INFO };
 
@@ -1252,7 +1255,7 @@ bool vtkOpenXRManager::CreateOneActionSpace(const XrAction& action, const XrPath
 bool vtkOpenXRManager::SuggestActions(
   const std::string& profile, std::vector<XrActionSuggestedBinding>& actionSuggestedBindings)
 {
-  vtkDebugMacro(<< "SuggestActions for profile : " << profile);
+  vtkDebugWithObjectMacro(nullptr, "SuggestActions for profile : " << profile);
   VTK_CHECK_NULL_XRHANDLE(this->Instance, "vtkOpenXRManager::SuggestActions, Instance");
 
   XrPath interactionProfilePath;
