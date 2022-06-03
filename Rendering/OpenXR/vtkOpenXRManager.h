@@ -103,6 +103,13 @@ public:
   std::tuple<uint32_t, uint32_t> GetRecommendedImageRectSize();
   ///@}
 
+  //@{
+  /**
+   * Return the recommended swapchain sample count.
+   */
+  uint32_t GetRecommendedSampleCount();
+  //@}
+
   /**
    * Return the number of OpenXR views (typically one per physical display / eye)
    */
@@ -354,6 +361,23 @@ public:
 
   ///@{
   /**
+   * Get/set whether OpenXR remoting is used.
+   */
+  vtkGetMacro(Remoting, bool);
+  void SetRemoting(bool remoting);
+  vtkBooleanMacro(Remoting, bool);
+  //@}
+
+  //@{
+  /**
+   * Specify the address to connect to when using remoting.
+   */
+  void SetRemotingIPAddress(const std::string& ip);
+  vtkGetMacro(RemotingIPAddress, std::string);
+  //@}
+
+  //@{
+  /**
    * Set/Get the rendering backend strategy.
    */
   void SetGraphicsStrategy(vtkOpenXRManagerGraphics* strategy);
@@ -389,6 +413,14 @@ protected:
   ///@}
 
   ///@{
+  /**
+   * Enable system properties such as hand tracking,
+   * and choose environment blend modes.
+   */
+  bool CreateSystemProperties();
+  //@}
+
+  //@{
   /**
    * Create the session and pass the GraphicsBinding to the next pointer
    * of the XrSessionCreateInfo
@@ -478,7 +510,7 @@ protected:
   // Three available types: VIEW, LOCAL and STAGE.  We use LOCAL space which
   // establishes a world-locked origin, rather than VIEW space, which tracks the
   // view origin.
-  constexpr static XrReferenceSpaceType ReferenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
+  XrReferenceSpaceType ReferenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
 
   // Communication with the runtime happens through this instance
   XrInstance Instance;
@@ -514,7 +546,9 @@ protected:
     bool ControllerModelExtensionSupported{ false };
     bool UnboundedRefSpaceSupported{ false };
     bool SpatialAnchorSupported{ false };
+    bool HandInteractionSupported{ false };
     bool HandTrackingSupported{ false };
+    bool RemotingSupported{ false };
   } OptionalExtensions;
   ///@}
 
@@ -575,6 +609,23 @@ protected:
   bool StorePoseVelocities = false;
 
   vtkSmartPointer<vtkOpenXRManagerGraphics> GraphicsStrategy;
+
+  /**
+   * Look for the runtime RemotingXR.json file and set the
+   * corresponding XR_RUNTIME_JSON environment variable to enable remoting.
+   */
+  bool InitializeRemoting();
+
+  /**
+   * Initialize holographic remoting connection
+   */
+  bool ConnectToRemote();
+
+  // Enable OpenXR remoting
+  bool Remoting = false;
+
+  // IP Address to connect to when using remoting
+  std::string RemotingIPAddress;
 
 private:
   vtkOpenXRManager(const vtkOpenXRManager&) = delete;

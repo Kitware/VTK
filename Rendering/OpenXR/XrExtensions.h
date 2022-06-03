@@ -105,6 +105,24 @@
 #define FOR_EACH_SCENE_UNDERSTANDING_SERIALIZATION_FUNCTION(_)
 #endif
 
+#if XR_MSFT_holographic_remoting
+#define FOR_EACH_HAR_EXPERIMENTAL_EXTENSION_FUNCTION(_)                                            \
+  _(xrRemotingSetContextPropertiesMSFT)                                                            \
+  _(xrRemotingConnectMSFT)                                                                         \
+  _(xrRemotingListenMSFT)                                                                          \
+  _(xrRemotingDisconnectMSFT)                                                                      \
+  _(xrRemotingGetConnectionStateMSFT)                                                              \
+  _(xrRemotingSetSecureConnectionClientCallbacksMSFT)                                              \
+  _(xrRemotingSetSecureConnectionServerCallbacksMSFT)                                              \
+  _(xrCreateRemotingDataChannelMSFT)                                                               \
+  _(xrDestroyRemotingDataChannelMSFT)                                                              \
+  _(xrGetRemotingDataChannelStateMSFT)                                                             \
+  _(xrSendRemotingDataMSFT)                                                                        \
+  _(xrRetrieveRemotingDataMSFT)
+#else
+#define FOR_EACH_HAR_EXPERIMENTAL_EXTENSION_FUNCTION(_)
+#endif
+
 #define FOR_EACH_EXTENSION_FUNCTION(_)                                                             \
   FOR_EACH_WIN32_EXTENSION_FUNCTION(_)                                                             \
   FOR_EACH_OPENGL_EXTENSION_FUNCTION(_)                                                            \
@@ -117,7 +135,8 @@
   FOR_EACH_CONTROLLER_MODEL_EXTENSION_FUNCTION(_)                                                  \
   FOR_EACH_PERCEPTION_ANCHOR_INTEROP_FUNCTION(_)                                                   \
   FOR_EACH_SCENE_UNDERSTANDING_FUNCTION(_)                                                         \
-  FOR_EACH_SCENE_UNDERSTANDING_SERIALIZATION_FUNCTION(_)
+  FOR_EACH_SCENE_UNDERSTANDING_SERIALIZATION_FUNCTION(_)                                           \
+  FOR_EACH_HAR_EXPERIMENTAL_EXTENSION_FUNCTION(_)
 
 #define GET_INSTANCE_PROC_ADDRESS(name)                                                            \
   (void)xrGetInstanceProcAddr(                                                                     \

@@ -28,12 +28,21 @@
 #endif
 
 // Needed for XR_KHR_OPENGL_ENABLE_EXTENSION_NAME
-// We only supports OpenGL
 #define XR_USE_GRAPHICS_API_OPENGL
+
+#ifdef OpenXR_USE_REMOTING
+// Needed for XR_KHR_D3D11_ENABLE_EXTENSION_NAME
+#define XR_USE_GRAPHICS_API_D3D11
+// Required headers for the XrGraphicsRequirementsD3D11KHR struct
+#include "d3d11.h"
+#endif
 
 #include <openxr.h>
 #include <openxr_platform.h>
 #include <openxr_reflection.h>
+#ifdef OpenXR_USE_REMOTING
+#include <openxr/openxr_msft_holographic_remoting.h>
+#endif
 
 #include "XrExtensions.h"
 

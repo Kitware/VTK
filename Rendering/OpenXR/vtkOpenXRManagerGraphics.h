@@ -21,7 +21,8 @@
  * It handles creation and management of the OpenXR rendering ressources,
  * based on the rendering backend implemented by subclasses.
  *
- * @see vtkOpenXRManagerOpenGLGraphics
+ * @sa
+ * vtkOpenXRManagerOpenGLGraphics vtkOpenXRManagerD3DGraphics
  */
 
 #ifndef vtkOpenXRManagerGraphics_h

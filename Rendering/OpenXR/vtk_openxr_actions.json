@@ -81,6 +81,10 @@
     {
       "binding_url": "vtk_openxr_binding_knuckles.json",
       "controller_type": "knuckles"
+    },
+    {
+      "binding_url": "vtk_openxr_binding_microsoft_hand_interaction.json",
+      "controller_type": "microsoft_hand_interaction"
     }
   ],
   "action_sets": [
