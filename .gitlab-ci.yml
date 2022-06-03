@@ -129,7 +129,7 @@ vtk:fedora34-cuda-mpi:test-ext:
         - fedora34-cuda-mpi:test
     variables:
         CTEST_MAX_PARALLELISM: 8
-    timeout: 2 hours
+    timeout: 150 minutes
 
 fedora34-mpi-offscreen-osmesa-python:build:
     extends:
@@ -162,6 +162,7 @@ vtk:fedora34-mpi-offscreen-osmesa-python:test-ext:
         - fedora34-mpi-offscreen-osmesa-python:test
     needs:
         - fedora34-mpi-offscreen-osmesa-python:test
+    timeout: 90 minutes
 
 # fedora34-java-mpi-qt-tbb:build:
 #     extends:
@@ -546,7 +547,7 @@ fedora34-tidy:build:
     dependencies: []
     # clang-tidy really hampers compilation cache improvements, so it takes
     # longer.
-    timeout: 150 minutes
+    timeout: 180 minutes
 
 ## Sanitizer builds
 
