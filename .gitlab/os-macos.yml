@@ -242,5 +242,5 @@
         - venv/bin/twine check build/dist/*.whl
         - venv/bin/pip install build/dist/*.whl
         - venv/bin/python -c "import vtk"
-        - venv/bin/python -m vtkmodules.generate_pyi --test -p vtkmodules
+        - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then venv/bin/python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
     interruptible: true
