@@ -26,7 +26,8 @@
 #ifndef vtkGLTFUtils_h
 #define vtkGLTFUtils_h
 
-#include "vtk_jsoncpp_fwd.h" // For Json forward declaration
+#include <vtk_nlohmannjson.h>
+#include VTK_NLOHMANN_JSON(json.hpp)
 
 #include <string> // For string
 #include <vector> // For vector
@@ -57,52 +58,53 @@ bool ExtractGLBFileInformation(const std::string& fileName, std::string& magic, 
 /**
  * Get int value from Json variable, with existence and type checks.
  */
-bool GetIntValue(const Json::Value& root, int& value);
+bool GetIntValue(const nlohmann::json& root, const std::string& key, int& value);
 
 /**
  * Get int value from Json variable, with existence and type checks.
  */
-bool GetUIntValue(const Json::Value& root, unsigned int& value);
+bool GetUIntValue(const nlohmann::json& root, const std::string& key, unsigned int& value);
 
 /**
  * Get double value from Json variable, with existence and type checks.
  */
-bool GetDoubleValue(const Json::Value& root, double& value);
+bool GetDoubleValue(const nlohmann::json& root, const std::string& key, double& value);
 
 /**
  * Get string value from Json variable, with existence and type checks.
  */
-bool GetStringValue(const Json::Value& root, std::string& value);
+bool GetStringValue(const nlohmann::json& root, const std::string& key, std::string& value);
 
 /**
  * Get bool value from Json variable, with existence and type checks.
  */
-bool GetBoolValue(const Json::Value& root, bool& value);
+bool GetBoolValue(const nlohmann::json& root, const std::string& key, bool& value);
 
 /**
  * Get int array from Json variable, with existence and type checks.
  */
-bool GetIntArray(const Json::Value& root, std::vector<int>& value);
+bool GetIntArray(const nlohmann::json& root, const std::string& key, std::vector<int>& value);
 
 /**
  * Get int array from Json variable, with existence and type checks.
  */
-bool GetUIntArray(const Json::Value& root, std::vector<unsigned int>& value);
+bool GetUIntArray(
+  const nlohmann::json& root, const std::string& key, std::vector<unsigned int>& value);
 
 /**
  * Get float array from Json variable, with existence and type checks.
  */
-bool GetFloatArray(const Json::Value& root, std::vector<float>& value);
+bool GetFloatArray(const nlohmann::json& root, const std::string& key, std::vector<float>& value);
 
 /**
  * Get double array from Json variable, with existence and type checks.
  */
-bool GetDoubleArray(const Json::Value& root, std::vector<double>& value);
+bool GetDoubleArray(const nlohmann::json& root, const std::string& key, std::vector<double>& value);
 
 /**
  * Check document version. Currently supporting glTF 2.0 only.
  */
-bool CheckVersion(const Json::Value& glTFAsset);
+bool CheckVersion(const nlohmann::json& glTFAsset);
 
 /**
  * Compute the path to a resource from its path as specified in the glTF file, and the glTF

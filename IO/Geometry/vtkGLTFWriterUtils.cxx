@@ -15,8 +15,6 @@
 
 #include "vtkGLTFWriterUtils.h"
 
-#include "vtk_jsoncpp.h"
-
 #include "vtkBase64OutputStream.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
@@ -41,7 +39,7 @@ void vtkGLTFWriterUtils::WriteValues(vtkDataArray* ca, vtkBase64OutputStream* os
 }
 
 void vtkGLTFWriterUtils::WriteBufferAndView(vtkDataArray* inda, const char* fileName,
-  bool inlineData, Json::Value& buffers, Json::Value& bufferViews)
+  bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews)
 {
   vtkDataArray* da = inda;
 
@@ -86,20 +84,20 @@ void vtkGLTFWriterUtils::WriteBufferAndView(vtkDataArray* inda, const char* file
     myFile.close();
   }
 
-  Json::Value buffer;
-  Json::Value view;
+  nlohmann::json buffer;
+  nlohmann::json view;
 
   unsigned int count = da->GetNumberOfTuples() * da->GetNumberOfComponents();
   unsigned int byteLength = da->GetElementComponentSize() * count;
-  buffer["byteLength"] = static_cast<Json::Value::Int64>(byteLength);
+  buffer["byteLength"] = byteLength;
   buffer["uri"] = result;
-  buffers.append(buffer);
+  buffers.emplace_back(buffer);
 
   // write the buffer views
   view["buffer"] = buffers.size() - 1;
   view["byteOffset"] = 0;
-  view["byteLength"] = static_cast<Json::Value::Int64>(byteLength);
-  bufferViews.append(view);
+  view["byteLength"] = byteLength;
+  bufferViews.emplace_back(view);
 
   // delete double to float conversion array
   if (da != inda)
@@ -109,7 +107,7 @@ void vtkGLTFWriterUtils::WriteBufferAndView(vtkDataArray* inda, const char* file
 }
 
 void vtkGLTFWriterUtils::WriteCellBufferAndView(vtkCellArray* ca, const char* fileName,
-  bool inlineData, Json::Value& buffers, Json::Value& bufferViews)
+  bool inlineData, nlohmann::json& buffers, nlohmann::json& bufferViews)
 {
   vtkUnsignedIntArray* ia = vtkUnsignedIntArray::New();
   vtkIdType npts;

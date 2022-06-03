@@ -16,7 +16,6 @@
 #include "vtkGLTFUtils.h"
 
 #include "vtkBase64Utilities.h"
-#include "vtk_jsoncpp.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -26,65 +25,72 @@
 
 #define MIN_GLTF_VERSION "2.0"
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetBoolValue(const Json::Value& root, bool& value)
+bool vtkGLTFUtils::GetBoolValue(const nlohmann::json& root, const std::string& key, bool& value)
 {
-  if (root.empty() || !root.isBool())
+  auto it = root.find(key);
+  if (it == root.end() || !it.value().is_boolean())
   {
     return false;
   }
-  value = root.asBool();
+  value = it.value();
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetIntValue(const Json::Value& root, int& value)
+bool vtkGLTFUtils::GetIntValue(const nlohmann::json& root, const std::string& key, int& value)
 {
-  if (root.empty() || !root.isInt())
+  auto it = root.find(key);
+  if (it == root.end() || !it.value().is_number_integer())
   {
     return false;
   }
-  value = root.asInt();
+  value = it.value();
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetUIntValue(const Json::Value& root, unsigned int& value)
+bool vtkGLTFUtils::GetUIntValue(
+  const nlohmann::json& root, const std::string& key, unsigned int& value)
 {
-  if (root.empty() || !root.isUInt())
+  auto it = root.find(key);
+  if (it == root.end() || !it.value().is_number_unsigned())
   {
     return false;
   }
-  value = root.asUInt();
+  value = it.value();
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetDoubleValue(const Json::Value& root, double& value)
+bool vtkGLTFUtils::GetDoubleValue(const nlohmann::json& root, const std::string& key, double& value)
 {
-  if (root.empty() || !root.isDouble())
+  auto it = root.find(key);
+  if (it == root.end() || !it.value().is_number())
   {
     return false;
   }
-  value = root.asDouble();
+  value = it.value();
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetIntArray(const Json::Value& root, std::vector<int>& value)
+bool vtkGLTFUtils::GetIntArray(
+  const nlohmann::json& root, const std::string& key, std::vector<int>& value)
 {
-  if (root.empty() || !root.isArray())
+  auto it = root.find(key);
+  if (it == root.end() || !it.value().is_array())
   {
     return false;
   }
-  value.reserve(root.size());
-  for (const auto& intValue : root)
+  value.reserve(it.value().size());
+  for (const auto& intValue : it.value())
   {
-    if (intValue.empty() && !intValue.isInt())
+    if (intValue.empty() && !intValue.is_number_integer())
     {
       value.clear();
       return false;
     }
-    value.push_back(intValue.asInt());
+    value.push_back(intValue);
   }
   if (value.empty())
   {
@@ -95,21 +101,23 @@ bool vtkGLTFUtils::GetIntArray(const Json::Value& root, std::vector<int>& value)
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetUIntArray(const Json::Value& root, std::vector<unsigned int>& value)
+bool vtkGLTFUtils::GetUIntArray(
+  const nlohmann::json& root, const std::string& key, std::vector<unsigned int>& value)
 {
-  if (root.empty() || !root.isArray())
+  auto it = root.find(key);
+  if (it == root.end() || !it.value().is_array())
   {
     return false;
   }
-  value.reserve(root.size());
-  for (const auto& uIntValue : root)
+  value.reserve(it.value().size());
+  for (const auto& uIntValue : it.value())
   {
-    if (uIntValue.empty() && !uIntValue.isUInt())
+    if (uIntValue.empty() && !uIntValue.is_number_unsigned())
     {
       value.clear();
       return false;
     }
-    value.push_back(uIntValue.asUInt());
+    value.push_back(uIntValue);
   }
   if (value.empty())
   {
@@ -120,21 +128,23 @@ bool vtkGLTFUtils::GetUIntArray(const Json::Value& root, std::vector<unsigned in
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetFloatArray(const Json::Value& root, std::vector<float>& value)
+bool vtkGLTFUtils::GetFloatArray(
+  const nlohmann::json& root, const std::string& key, std::vector<float>& value)
 {
-  if (root.empty() || !root.isArray())
+  auto it = root.find(key);
+  if (it == root.end() || !it.value().is_array())
   {
     return false;
   }
-  value.reserve(root.size());
-  for (const auto& floatValue : root)
+  value.reserve(it.value().size());
+  for (const auto& floatValue : it.value())
   {
-    if (floatValue.empty() && !floatValue.isDouble())
+    if (floatValue.empty() && !floatValue.is_number())
     {
       value.clear();
       return false;
     }
-    value.push_back(floatValue.asDouble());
+    value.push_back(floatValue);
   }
   if (value.empty())
   {
@@ -145,21 +155,23 @@ bool vtkGLTFUtils::GetFloatArray(const Json::Value& root, std::vector<float>& va
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetDoubleArray(const Json::Value& root, std::vector<double>& value)
+bool vtkGLTFUtils::GetDoubleArray(
+  const nlohmann::json& root, const std::string& key, std::vector<double>& value)
 {
-  if (root.empty() || !root.isArray())
+  auto it = root.find(key);
+  if (it == root.end() || !it.value().is_array())
   {
     return false;
   }
-  value.reserve(root.size());
-  for (const auto& doubleValue : root)
+  value.reserve(it.value().size());
+  for (const auto& doubleValue : it.value())
   {
-    if (doubleValue.empty() && !doubleValue.isDouble())
+    if (doubleValue.empty() && !doubleValue.is_number())
     {
       value.clear();
       return false;
     }
-    value.push_back(doubleValue.asDouble());
+    value.push_back(doubleValue);
   }
   if (value.empty())
   {
@@ -170,33 +182,34 @@ bool vtkGLTFUtils::GetDoubleArray(const Json::Value& root, std::vector<double>& 
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::GetStringValue(const Json::Value& root, std::string& value)
+bool vtkGLTFUtils::GetStringValue(
+  const nlohmann::json& root, const std::string& key, std::string& value)
 {
-  if (root.empty() || !root.isString())
+  auto it = root.find(key);
+  if (it == root.end() || !it.value().is_string())
   {
     return false;
   }
-  value = root.asString();
+  value = it.value();
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFUtils::CheckVersion(const Json::Value& glTFAsset)
+bool vtkGLTFUtils::CheckVersion(const nlohmann::json& glTFAsset)
 {
-  Json::Value assetMinVersion = glTFAsset["minVersion"];
-  Json::Value assetVersion = glTFAsset["version"];
+  auto assetMinVersionIt = glTFAsset.find("minVersion");
+  auto assetVersionIt = glTFAsset.find("version");
 
-  if (!assetMinVersion.empty())
+  if (assetMinVersionIt != glTFAsset.end())
   {
-    if (assetMinVersion != MIN_GLTF_VERSION)
+    if (assetMinVersionIt.value() != MIN_GLTF_VERSION)
     {
       return false;
     }
   }
-  else if (!assetVersion.empty())
+  else if (assetVersionIt != glTFAsset.end())
   {
-    std::string assetVersionStr = glTFAsset["version"].asString();
-    if (assetVersionStr != MIN_GLTF_VERSION)
+    if (assetVersionIt.value() != MIN_GLTF_VERSION)
     {
       return false;
     }
