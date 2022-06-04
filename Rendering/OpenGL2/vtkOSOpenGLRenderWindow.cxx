@@ -229,10 +229,17 @@ void vtkOSOpenGLRenderWindow::DestroyOffScreenWindow()
 
 void vtkOSOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
 {
-  if (this->Internal->OffScreenContextId)
+  auto& internal = (*this->Internal);
+  if (internal.OffScreenContextId)
   {
-    this->DestroyOffScreenWindow();
-    this->CreateOffScreenWindow(width, height);
+    // in past, we used to destroy the context and recreate one on resize. this
+    // is totally unnecessary; we just recreate the buffer and make it current.
+    vtkOSMesaDestroyWindow(internal.OffScreenWindow);
+    internal.OffScreenWindow = vtkOSMesaCreateWindow(width, height);
+
+    // Call MakeCurrent to ensure that we're no longer using the old memory
+    // buffer.
+    this->MakeCurrent();
   }
 }
 
