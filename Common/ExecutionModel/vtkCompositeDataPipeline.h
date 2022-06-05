@@ -26,7 +26,7 @@
  * * REQUEST_INFORMATION: The producers have to provide information about
  * the contents of the composite dataset in this pass.
  * Sources that can produce more than one piece (note that a piece is
- * different than a block; each piece consistes of 0 or more blocks) should
+ * different than a block; each piece consists of 0 or more blocks) should
  * set CAN_HANDLE_PIECE_REQUEST.
  *
  * * REQUEST_UPDATE_EXTENT: This pass is identical to the one implemented

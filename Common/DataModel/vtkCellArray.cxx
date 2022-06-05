@@ -270,7 +270,7 @@ struct ExtractAndInitialize
   template <typename SourceArrayT, typename TargetArrayT>
   bool Process(SourceArrayT* src, TargetArrayT* dst) const
   {
-    // Check that allocation suceeds:
+    // Check that allocation succeeds:
     if (!dst->Resize(src->GetNumberOfTuples()))
     {
       return false;

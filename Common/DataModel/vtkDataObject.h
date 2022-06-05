@@ -288,14 +288,14 @@ public:
    * GetAttributesAsFieldData.
    *
    * @warning This method NEEDS to be
-   * overriden in subclasses to work as documented.
+   * overridden in subclasses to work as documented.
    * If not, it returns nullptr for any type but FIELD.
    */
   virtual vtkDataSetAttributes* GetAttributes(int type);
 
   /**
    * Returns the ghost arrays of the data object of the specified
-   * atribute type. The type may be:
+   * attribute type. The type may be:
    * <ul>
    * <li>POINT    - Defined in vtkDataSet subclasses
    * <li>CELL   - Defined in vtkDataSet subclasses.

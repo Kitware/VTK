@@ -88,14 +88,14 @@ public:
 
   /**
    * Initialize with no ghost cell arrays, from the definition in
-   * the given box. The box is expetced to be 3D, if you have 2D
+   * the given box. The box is expected to be 3D, if you have 2D
    * data the set the third dimensions 0. eg. (X,X,0)(X,X,0)
    * Returns 0 if the initialization failed.
    */
   int Initialize(const vtkAMRBox* def, double* origin, double* spacing);
   /**
    * Initialize from the definition in the given box, with ghost cell
-   * arrays nGhosts cells thick in all directions. The box is expetced
+   * arrays nGhosts cells thick in all directions. The box is expected
    * to be 3D, if you have 2D data the set the third dimensions 0.
    * eg. (X,X,0)(X,X,0)
    * Returns 0 if the initialization failed.

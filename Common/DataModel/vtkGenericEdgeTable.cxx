@@ -192,12 +192,12 @@ vtkGenericEdgeTable::vtkGenericEdgeTable()
   // Default to only one component
   this->NumberOfComponents = 1;
 
-  // The whole problem is here to find the proper size for a descent hash table
-  // Since we do not allow check our size as we go the hash table
+  // The whole problem here is to find the proper size for a descent hash table
+  // Since we do not allow size check as we go through the hash table
   // Should be big enough from the beginning otherwise we'll lose the
   // constant time access
   // But on the other hand we do not want it to be too big for mem consumption
-  // A compromise of 4093 was found fo be working in a lot of case
+  // A compromise of 4093 was found to be working in a lot of cases
 #if 1
   this->EdgeTable->Vector.resize(4093);
   this->EdgeTable->Modulo = 4093;

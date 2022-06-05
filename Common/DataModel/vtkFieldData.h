@@ -366,7 +366,7 @@ public:
   ///@{
   /**
    * Computes the range of the input data array (specified through its `name` or the `index`
-   * in this field data). If the targetted array is not polymorphic
+   * in this field data). If the targeted array is not polymorphic
    * with a `vtkDataArray`, or if no array match the input `name` or `index`, or
    * if `comp` is out of bounds, then the returned range is `[NaN, NaN]`.
    *

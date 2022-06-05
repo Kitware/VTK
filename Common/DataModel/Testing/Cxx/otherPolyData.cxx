@@ -140,7 +140,7 @@ bool TestRemoveGhostCells()
   // The first point should have been removed.
   if (pd->GetNumberOfPoints() != 4)
   {
-    vtkLog(ERROR, "Removing ghosts failes... Wrong number of points.");
+    vtkLog(ERROR, "Removing ghosts fails... Wrong number of points.");
     return false;
   }
 

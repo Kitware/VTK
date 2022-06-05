@@ -50,7 +50,7 @@ int TestExecutableRunner(int, char*[])
 
   // ---
   process->SetCommand("abcdefghijklmnopqrstuvw");
-  // Disable gloabal logger for this test as we don't want the error returned by the filter
+  // Disable global logger for this test as we don't want the error returned by the filter
   // to mess with our test
   int warning = vtkObject::GetGlobalWarningDisplay();
   vtkObject::SetGlobalWarningDisplay(0);

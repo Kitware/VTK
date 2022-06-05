@@ -50,14 +50,14 @@ public:
 
   ///@{
   /**
-   * Open the arhive for writing.
+   * Open the archive for writing.
    */
   virtual void OpenArchive();
   ///@}
 
   ///@{
   /**
-   * Close the arhive.
+   * Close the archive.
    */
   virtual void CloseArchive();
   ///@}

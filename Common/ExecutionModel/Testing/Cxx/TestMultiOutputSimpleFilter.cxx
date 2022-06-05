@@ -108,7 +108,7 @@ void AddPerBlockFieldData(vtkCompositeDataSet* data)
       array->SetValue(0, iter->GetCurrentFlatIndex());
       array->SetName("compositeIndexBasedData");
       fd->AddArray(array);
-      std::cout << "Assinging field data " << iter->GetCurrentFlatIndex() << std::endl;
+      std::cout << "Assigning field data " << iter->GetCurrentFlatIndex() << std::endl;
     }
   }
 }

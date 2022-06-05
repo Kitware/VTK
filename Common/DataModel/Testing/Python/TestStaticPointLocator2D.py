@@ -76,7 +76,7 @@ staticClosestN = vtk.vtkIdList()
 staticLocator.FindClosestNPoints(10, probePoints.GetPoint(0), staticClosestN)
 
 # Intersect with line
-# Out of plane line intersecction
+# Out of plane line intersection
 a0 = [0.5, 0.5, 1]
 a1 = [0.5, 0.5, -1]
 tol = 0.001

@@ -1025,7 +1025,7 @@ struct BucketList : public vtkBucketList
     }
 
     // Now group the points into contiguous runs within buckets (recall that
-    // sorting is occuring based on bin/bucket id).
+    // sorting is occurring based on bin/bucket id).
     vtkSMPTools::Sort(this->Map, this->Map + this->NumPts);
 
     // Build the offsets into the Map. The offsets are the positions of
@@ -1405,7 +1405,7 @@ void BucketList<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* r
 }
 
 //------------------------------------------------------------------------------
-// The Radius defines a block of buckets which the sphere of radis R may
+// The Radius defines a block of buckets which the sphere of radius R may
 // touch.
 template <typename TIds>
 void BucketList<TIds>::FindPointsWithinRadius(double R, const double x[3], vtkIdList* result)

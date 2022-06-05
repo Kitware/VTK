@@ -736,7 +736,7 @@ protected:
   int OutputPortIndexInRange(int index, const char* action);
 
   /**
-   * Get the assocition of the actual data array for the input array specified
+   * Get the association of the actual data array for the input array specified
    * by idx, this is only reasonable during the REQUEST_DATA pass.
    */
   int GetInputArrayAssociation(int idx, vtkInformationVector** inputVector);

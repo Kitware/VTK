@@ -21,7 +21,7 @@
  * The current implementation uses the third-party library kissfft.
  *
  * The terminology tries to follow the Numpy terminology, that is :
- *  - Fft means the Fast Fourier Tranform algorithm
+ *  - Fft means the Fast Fourier Transform algorithm
  *  - Prefix `R` stands for Real (meaning optimized function for real inputs)
  *  - Prefix `I` stands for Inverse
  */

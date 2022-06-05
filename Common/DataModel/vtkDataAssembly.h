@@ -91,11 +91,11 @@
  *   nodes rather than the nodes themselves.
  *
  * * '/nodename1/nodename2' selects all nodes named 'nodename2' which are
- *   childen of nodes with name 'nodename1' that are themselves children of the
- *   root node.
+ *   children of nodes with name 'nodename1' that are themselves children of
+ *   the root node.
  *
  * * '//nodename1/nodename2' finds all nodes in the tree named 'nodename1' and
- *   then selects all chidren of these found nodes that are named 'nodename2'.
+ *   then selects all children of these found nodes that are named 'nodename2'.
  *
  * @section Applications Applications
  *

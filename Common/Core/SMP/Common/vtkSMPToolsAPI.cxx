@@ -50,7 +50,7 @@ vtkSMPToolsAPI::vtkSMPToolsAPI()
     new vtkSMPToolsImpl<BackendType::OpenMP>());
 #endif
 
-  // Set backend from env if setted
+  // Set backend from env if set
   const char* vtkSMPBackendInUse = std::getenv("VTK_SMP_BACKEND_IN_USE");
   if (vtkSMPBackendInUse)
   {

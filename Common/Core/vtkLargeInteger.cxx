@@ -351,7 +351,7 @@ bool vtkLargeInteger::IsGreater(const vtkLargeInteger& n) const
 
 bool vtkLargeInteger::operator<(const vtkLargeInteger& n) const
 {
-  if (this->Negative && !n.Negative) // try to make judgement using signs
+  if (this->Negative && !n.Negative) // try to make judgment using signs
     return true;
   else if ((!this->Negative) && n.Negative)
     return false;

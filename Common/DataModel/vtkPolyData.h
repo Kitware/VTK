@@ -149,7 +149,7 @@ public:
    * not return the same bounds as before. This behavior is probably the one you want
    * when using bounds.
    *
-   * The previous behavior is still availble through vtkPolyData::ComputeCellsBounds()
+   * The previous behavior is still available through vtkPolyData::ComputeCellsBounds()
    * and vtkPolyData::GetCellsBounds(). This is mainly used for rendering purpose.
    */
   void ComputeCellsBounds();

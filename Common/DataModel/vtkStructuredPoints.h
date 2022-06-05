@@ -17,7 +17,7 @@
  * @brief   A subclass of ImageData.
  *
  * StructuredPoints is a subclass of ImageData that requires the data extent
- * to exactly match the update extent. Normall image data allows that the
+ * to exactly match the update extent. Normal image data allows that the
  * data extent may be larger than the update extent.
  * StructuredPoints also defines the origin differently that vtkImageData.
  * For structured points the origin is the location of first point.

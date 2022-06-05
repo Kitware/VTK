@@ -156,7 +156,7 @@ public:
   /**
    * Determine whether a point is inside the specified polygon. The function
    * computes the winding number to assess inclusion. It works for arbitrary
-   * polygon shapes (e.g., non-convex) oriented arbitraily in 3D
+   * polygon shapes (e.g., non-convex) oriented arbitrarily in 3D
    * space. Returns 0 if the point is not in the polygon; 1 if it is.  Can
    * also return -1 to indicate a degenerate polygon. Parameters passed into
    * the method include the point in question x[3]; the polygon defined by
@@ -274,7 +274,7 @@ protected:
   bool UseMVCInterpolation;
 
   // Helper methods for triangulation------------------------------
-  // Made public for extenal access
+  // Made public for external access
 public:
   // Ear cut triangulation options. The order in which vertices are
   // removed are controlled by different measures. Changing this can

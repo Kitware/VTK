@@ -39,14 +39,14 @@ public:
 
   ///@{
   /**
-   * Open the arhive for writing.
+   * Open the archive for writing.
    */
   void OpenArchive() override;
   ///@}
 
   ///@{
   /**
-   * Close the arhive.
+   * Close the archive.
    */
   void CloseArchive() override;
   ///@}

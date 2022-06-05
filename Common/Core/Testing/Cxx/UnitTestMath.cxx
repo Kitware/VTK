@@ -211,7 +211,7 @@ int TestPi()
   return status;
 }
 
-// Validate against RadiansFromDegress
+// Validate against RadiansFromDegrees
 int TestDegreesFromRadians()
 {
   int status = 0;
@@ -2859,7 +2859,7 @@ int LUSolveLinearSystemEstimateMatrixCondition()
   return status;
 }
 
-// Validate by obervation that the condition of a hilbert matrix
+// Validate by observation that the condition of a hilbert matrix
 // increases with dimension
 int TestLUSolveLinearSystemEstimateMatrixCondition()
 {

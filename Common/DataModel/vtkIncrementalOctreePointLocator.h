@@ -315,7 +315,7 @@ public:
    * InitPointInsertion() should have been called prior to this function. In
    * addition, IsInsertedPoint() should have been called in advance to ensure
    * that the given point has not been inserted unless point duplication is
-   * allowed (in this case, this function invovles a repeated leaf container
+   * allowed (in this case, this function involves a repeated leaf container
    * location). vtkPoints::InsertNextPoint() is invoked.
    */
   vtkIdType InsertNextPoint(const double x[3]) override;

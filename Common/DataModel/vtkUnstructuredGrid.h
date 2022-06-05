@@ -590,7 +590,7 @@ protected:
   // Attribute data (i.e., point and cell data (i.e., scalars, vectors, normals, tcoords)
   // derived from vtkDataSet.
 
-  // The heart of the data represention. The points are managed by the
+  // The heart of the data representation. The points are managed by the
   // superclass vtkPointSet. A cell is defined by its connectivity (i.e., the
   // point ids that define the cell) and the cell type, represented by the
   // Connectivity and Types arrays.

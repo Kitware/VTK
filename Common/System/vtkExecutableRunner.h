@@ -20,7 +20,7 @@
 
 #include "vtksys/Process.h" // For class vtksysProcess
 
-#include <string> // fot class std::string
+#include <string> // for class std::string
 
 /**
  * @class   vtkExecutableRunner

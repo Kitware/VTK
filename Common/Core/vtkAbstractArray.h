@@ -152,7 +152,7 @@ public:
   bool HasAComponentName() const;
 
   /**
-   * Copies the component names from the inputed array to the current array
+   * Copies the component names from the inputted array to the current array
    * make sure that the current array has the same number of components as the input array
    */
   int CopyComponentNames(vtkAbstractArray* da);

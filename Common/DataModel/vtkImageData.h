@@ -568,7 +568,7 @@ public:
   void GetArrayIncrements(vtkDataArray* array, vtkIdType increments[3]);
 
   /**
-   * Given how many pixel are required on a side for bounrary conditions (in
+   * Given how many pixel are required on a side for boundary conditions (in
    * bnds), the target extent to traverse, compute the internal extent (the
    * extent for this ImageData that does not suffer from any boundary
    * conditions) and place it in intExt

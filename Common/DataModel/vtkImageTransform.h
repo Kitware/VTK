@@ -18,7 +18,7 @@
  *
  * vtkImageTransform is a helper class to transform the output of
  * image filters (i.e., filter that input vtkImageData) by applying the
- * Index to Physical transformation frmo the input image, which can
+ * Index to Physical transformation from the input image, which can
  * include origin, spacing, direction. The transformation process is
  * threaded with vtkSMPTools for performance.
  *

@@ -74,7 +74,7 @@ public:
 
   ///@{
   /**
-   * Standard methdos for type information and printing.
+   * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkPointSet, vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;

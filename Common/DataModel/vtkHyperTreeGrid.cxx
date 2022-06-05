@@ -1288,7 +1288,7 @@ bool vtkHyperTreeGrid::RecursivelyInitializePureMask(
   //  Dot recurse if node is masked or is a leaf
   if (!mask && !cursor->IsLeaf())
   {
-    // Iterate over all chidren
+    // Iterate over all children
     unsigned int numChildren = this->GetNumberOfChildren();
     bool pure = false;
     for (unsigned int child = 0; child < numChildren; ++child)

@@ -37,7 +37,7 @@ bool TestCopy(vtkCompositeDataSet* src)
   // Create tree structure:
   dst->CopyStructure(src);
 
-  { // Copy dataset pointer into new datset:
+  { // Copy dataset pointer into new dataset:
     const auto srcRange = vtk::Range(src);
     const auto dstRange = vtk::Range(dst);
     std::copy(srcRange.begin(), srcRange.end(), dstRange.begin());

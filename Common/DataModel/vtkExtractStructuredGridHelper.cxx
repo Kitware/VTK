@@ -564,7 +564,7 @@ void vtkExtractStructuredGridHelper::GetPartitionedVOI(const int globalVOI[6],
   // Start with filter's VOI (Ex: [3, 17] | [3, 17] )
   std::copy(globalVOI, globalVOI + 6, partitionedVOI);
 
-  // Clamp to paritioned data (Ex: [3, 10] | [10, 17] )
+  // Clamp to partitioned data (Ex: [3, 10] | [10, 17] )
   vtkStructuredExtent::Clamp(partitionedVOI, partitionedExtent);
 
   // Adjust for spacing: (Ex: [3, 9] | [11, 17] )

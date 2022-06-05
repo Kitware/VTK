@@ -23,7 +23,7 @@ import vtk
 class SliceOrder(object):
     '''
         These transformations permute medical image data to maintain proper
-        orientation regardless of the acqusition order.
+        orientation regardless of the acquisition order.
         After applying these transforms with vtkTransformFilter,
         a view up of 0,-1,0 will result in the body part
         facing the viewer.
