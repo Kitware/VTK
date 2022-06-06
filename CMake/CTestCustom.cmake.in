@@ -115,7 +115,6 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
 
   # Ignore some doxygen warnings
   "warning: documented symbol 'template class .*' was not declared or defined."
-  "warning: argument '.*' of command @param is not found in the argument list of"
   )
 
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")
