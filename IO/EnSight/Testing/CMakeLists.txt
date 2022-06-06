@@ -3,6 +3,7 @@ if (VTK_WRAP_PYTHON)
     Data/EnSight/,REGEX:.*
     Data/EnSight/UndefAndPartial/,REGEX:.*
     Data/EnSight/UndefAndPartialAscii/,REGEX:.*
+    Data/EnSight/particles/,REGEX:.*
     )
 
   add_subdirectory(Python)
