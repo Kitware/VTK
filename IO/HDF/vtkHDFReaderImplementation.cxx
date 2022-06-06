@@ -259,6 +259,13 @@ bool vtkHDFReader::Implementation::ReadDataSetType()
       return false;
     }
 
+    hsize_t stringLength = H5Aget_storage_size(typeAttributeHID);
+    if (stringLength < 1 || stringLength > 32)
+    {
+      vtkErrorWithObjectMacro(this->Reader,
+        "Wrong length of Type attribute (expected between 1 and 32): " << stringLength);
+      return false;
+    }
     std::array<char, 32> stringArray;
     if (H5Aread(typeAttributeHID, hdfType, stringArray.data()) < 0)
     {
@@ -266,7 +273,7 @@ bool vtkHDFReader::Implementation::ReadDataSetType()
         this->Reader, "Not an ASCII string character type: " << characterType);
       return false;
     }
-    std::string typeName(stringArray.data());
+    std::string typeName(stringArray.data(), stringLength);
 
     if (typeName == "OverlappingAMR")
     {
