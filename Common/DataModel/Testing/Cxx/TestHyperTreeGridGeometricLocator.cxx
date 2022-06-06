@@ -18,10 +18,6 @@
 #include <numeric>
 #include <vector>
 
-#include "vtkMath.h"
-
-#include "vtkNew.h"
-
 #include "vtkBitArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
@@ -30,6 +26,8 @@
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridPreConfiguredSource.h"
 #include "vtkIdList.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkPoints.h"
 
 namespace testhtggeomlocator
@@ -61,7 +59,7 @@ bool runOutsidePointSearch(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults
     std::cout << "Outside Point Search failed, found global ID " << globId << "\n";
   }
   return success;
-} // runOutsidePointSearch
+}
 
 bool runOuterEdgeSearch(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* theseResults)
 {
@@ -80,7 +78,7 @@ bool runOuterEdgeSearch(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* t
     std::cout << "Outer Edge Search failed, found global ID " << globId << "\n";
   }
   return success;
-} // runOuterEdgeSearch
+}
 
 bool runMaskedPointSearch(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* theseResults)
 {
@@ -112,7 +110,8 @@ bool runMaskedPointSearch(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults*
   return success;
 }
 
-bool runAllMaskedPointSearch(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* theseResults)
+bool runAllMaskedPointSearch(
+  vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* vtkNotUsed(theseResults))
 {
   double pt[3] = { htgLoc->GetHTG()->GetXCoordinates()->GetComponent(0, 0) + epsilon,
     htgLoc->GetHTG()->GetYCoordinates()->GetComponent(0, 0) + epsilon,
@@ -176,7 +175,7 @@ bool runPointSearch(vtkHyperTreeGridGeometricLocator* htgLoc, const double pt[3]
     std::cout << std::endl;
   }
   return success;
-} // runPointSearch
+}
 
 bool runFindCell(vtkHyperTreeGridGeometricLocator* htgLoc, const double pt[3])
 {
@@ -224,8 +223,8 @@ bool runIntersectDiagonal(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults*
   int subId = 0;
   vtkIdType cellId = -1;
   vtkNew<vtkGenericCell> cell;
-  bool success = (htgLoc->IntersectWithLine(origin.data(), diagPt.data(), 0.0, t, intercept.data(),
-                    pcoords.data(), subId, cellId, cell) != 0);
+  bool success = (htgLoc->IntersectWithLine(origin.data(), diagPt.data(), epsilon, t,
+                    intercept.data(), pcoords.data(), subId, cellId, cell) != 0);
   success &= (cellId >= 0);
   success &= (t < epsilon);
   if (success)
@@ -263,8 +262,8 @@ bool runIntersectWithPoints(vtkHyperTreeGridGeometricLocator* htgLoc, const doub
   double t = -1;
   double copyPt[3] = { 0.0, 0.0, 0.0 };
   std::copy(pt, pt + dim, copyPt);
-  bool success = (htgLoc->IntersectWithLine(copyPt, ref, 0.0, t, intercept.data(), pcoords.data(),
-                    subId, cellId, cell) != 0);
+  bool success = (htgLoc->IntersectWithLine(copyPt, ref, epsilon, t, intercept.data(),
+                    pcoords.data(), subId, cellId, cell) != 0);
   success &= (cellId >= 0);
   success &= (htgLoc->Search(pt) == cellId);
   if (!success)
@@ -308,8 +307,8 @@ bool runIntersectWithMaskDiagonal(
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
   vtkIdType maskedId = htgLoc->Search(origin.data(), cursor);
   cursor->SetMask(true);
-  bool success = (htgLoc->IntersectWithLine(origin.data(), diagPt.data(), 0.0, t, intercept.data(),
-                    pcoords.data(), subId, cellId, cell) != 0);
+  bool success = (htgLoc->IntersectWithLine(origin.data(), diagPt.data(), epsilon, t,
+                    intercept.data(), pcoords.data(), subId, cellId, cell) != 0);
   cursor->SetMask(false);
   success &= (cellId >= 0);
   success &= (cellId != maskedId);
@@ -345,13 +344,12 @@ bool runAllIntersectsDiagonal(vtkHyperTreeGridGeometricLocator* htgLoc, TestResu
   cellIds->Initialize();
   vtkNew<vtkGenericCell> cell;
   bool success =
-    (htgLoc->IntersectWithLine(origin.data(), diagPt.data(), 0.0, points, cellIds, cell) != 0);
+    (htgLoc->IntersectWithLine(origin.data(), diagPt.data(), epsilon, points, cellIds, cell) != 0);
   success &= (points->GetNumberOfPoints() > 0);
   success &= (cellIds->GetNumberOfIds() > 0);
   success &= (points->GetNumberOfPoints() == cellIds->GetNumberOfIds());
   if (success)
   {
-    vtkNew<vtkGenericCell> cell;
     std::vector<double> pcoords(3, 0.0);
     std::vector<double> weights(std::pow(2, dim), 0.0);
     int subId = 0;
@@ -370,13 +368,17 @@ bool runAllIntersectsDiagonal(vtkHyperTreeGridGeometricLocator* htgLoc, TestResu
         break;
       }
 
-      htgLoc->FindCell(points->GetPoint(iP), 0.0, cell, subId, pcoords.data(), weights.data());
+      vtkIdType cellId =
+        htgLoc->FindCell(points->GetPoint(iP), 0.0, cell, subId, pcoords.data(), weights.data());
       double t = 0.0;
       std::vector<double> x(3, 0.0);
-      success &= (cell->IntersectWithLine(
-                    origin.data(), diagPt.data(), 0.0, t, x.data(), pcoords.data(), subId) != 0);
+      success &= (cell->IntersectWithLine(origin.data(), diagPt.data(), epsilon, t, x.data(),
+                    pcoords.data(), subId) != 0);
       if (!success)
       {
+        cell->PrintSelf(std::cout, vtkIndent());
+        std::cout << points->GetPoint(iP)[0] << ", " << points->GetPoint(iP)[1] << ", "
+                  << points->GetPoint(iP)[2] << std::endl;
         break;
       }
     }
@@ -408,9 +410,9 @@ bool RunTests(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* thisResult)
   success = runIntersectWithMaskDiagonal(htgLoc, thisResult) && success;
   success = runAllIntersectsDiagonal(htgLoc, thisResult) && success;
   return success;
-} // RunTests
+}
 
-}; // testhtggeomlocator
+};
 
 int TestHyperTreeGridGeometricLocator(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -418,7 +420,7 @@ int TestHyperTreeGridGeometricLocator(int vtkNotUsed(argc), char* vtkNotUsed(arg
   vtkNew<vtkHyperTreeGridGeometricLocator> myLocator;
 
   // Setup HTG loop
-  int nHTGs = 6;
+  unsigned int nHTGs = 6;
   std::vector<vtkHyperTreeGridPreConfiguredSource::HTGType> myHTGTypes(nHTGs);
   myHTGTypes[0] = vtkHyperTreeGridPreConfiguredSource::UNBALANCED_3DEPTH_2BRANCH_2X3;
   myHTGTypes[1] = vtkHyperTreeGridPreConfiguredSource::BALANCED_3DEPTH_2BRANCH_2X3;
@@ -432,7 +434,7 @@ int TestHyperTreeGridGeometricLocator(int vtkNotUsed(argc), char* vtkNotUsed(arg
   std::vector<SearchPair> commonPoints;
   commonPoints.emplace_back(std::vector<double>(3, 0.5), false);
   commonPoints.emplace_back(std::vector<double>(3, 0.0), false);
-  commonPoints.emplace_back(std::vector<double>(3, -1.0), false);
+  commonPoints.emplace_back(std::vector<double>(3, -1.0 + epsilon), false);
   commonPoints.emplace_back(std::vector<double>(3, 1.0 - epsilon), false);
   {
     std::vector<double> randPt = { -0.2, 0.6, -0.7 };
@@ -453,7 +455,7 @@ int TestHyperTreeGridGeometricLocator(int vtkNotUsed(argc), char* vtkNotUsed(arg
 
   // Loop over HTGs
   bool success = true;
-  for (int iHTG = 0; iHTG < nHTGs; iHTG++)
+  for (iHTG = 0; iHTG < nHTGs; iHTG++)
   {
     std::cout << "iHTG: " << iHTG << "\n" << std::endl;
     // Generate HTG
@@ -479,4 +481,4 @@ int TestHyperTreeGridGeometricLocator(int vtkNotUsed(argc), char* vtkNotUsed(arg
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
-} // TestHyperTreeGridGeometricLocator
+}

@@ -14,28 +14,27 @@
 =========================================================================*/
 #include "vtkHyperTreeGridPProbeFilter.h"
 
-#include <numeric>
-#include <vector>
-
-#include "vtkExecutive.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkMath.h"
-#include "vtkMultiProcessController.h"
-#include "vtkObjectFactory.h"
-#include "vtkSMPTools.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-
 #include "vtkAbstractArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkExecutive.h"
 #include "vtkFieldData.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkHyperTreeGridLocator.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+
+#include <numeric>
+#include <vector>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkHyperTreeGridPProbeFilter);
@@ -48,22 +47,36 @@ vtkCxxSetSmartPointerMacro(vtkHyperTreeGridPProbeFilter, Locator, vtkHyperTreeGr
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridPProbeFilter::vtkHyperTreeGridPProbeFilter()
-  : PassCellArrays(false)
-  , PassPointArrays(false)
-  , PassFieldArrays(true)
+  : Controller(nullptr)
+  , Locator(vtkSmartPointer<vtkHyperTreeGridGeometricLocator>::New())
 {
-  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  vtkNew<vtkHyperTreeGridGeometricLocator> thisLocator;
-  this->SetLocator(thisLocator); // default to GeometricLocator
   this->SetNumberOfInputPorts(2);
-} // vtkHyperTreeGridPProbeFilter
+}
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridPProbeFilter::~vtkHyperTreeGridPProbeFilter()
 {
   this->SetController(nullptr);
-} //~vtkHyperTreeGridPProbeFilter
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridPProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  if (this->Locator)
+  {
+    os << indent << "Locator: ";
+    this->Locator->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Locator: none\n";
+  }
+  os << indent << "PassCellArrays: " << (this->PassCellArrays ? "On\n" : "Off\n");
+  os << indent << "PassPointArrays: " << (this->PassPointArrays ? "On\n" : "Off\n");
+  os << indent << "PassFieldArrays: " << (this->PassFieldArrays ? "On\n" : "Off\n");
+}
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridLocator* vtkHyperTreeGridPProbeFilter::GetLocator()
@@ -83,19 +96,19 @@ int vtkHyperTreeGridPProbeFilter::FillInputPortInformation(int port, vtkInformat
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   }
   return 1;
-} // FillInputPortInformation
+}
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridPProbeFilter::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
-} // SetSourceConnection
+}
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridPProbeFilter::SetSourceData(vtkHyperTreeGrid* input)
 {
   this->SetInputData(1, input);
-} // SetSourceData
+}
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkHyperTreeGridPProbeFilter::GetSource()
@@ -106,7 +119,7 @@ vtkHyperTreeGrid* vtkHyperTreeGridPProbeFilter::GetSource()
   }
 
   return vtkHyperTreeGrid::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
-} // GetSource
+}
 
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridPProbeFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
@@ -122,7 +135,7 @@ int vtkHyperTreeGridPProbeFilter::RequestInformation(vtkInformation* vtkNotUsed(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
   return 1;
-} // RequestInformation
+}
 
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridPProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
@@ -141,19 +154,9 @@ int vtkHyperTreeGridPProbeFilter::RequestData(vtkInformation* vtkNotUsed(request
     vtkHyperTreeGrid::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (!input)
+  if (!input || !source || !output)
   {
-    vtkErrorMacro("Could not get vtkDataSet input");
-    return 0;
-  }
-  if (!source)
-  {
-    vtkErrorMacro("Could not get vtkHyperTreeGrid source");
-    return 0;
-  }
-  if (!output)
-  {
-    vtkErrorMacro("Could not get output");
+    vtkErrorMacro("Could not get either the input, source or output");
     return 0;
   }
 
@@ -186,11 +189,11 @@ int vtkHyperTreeGridPProbeFilter::RequestData(vtkInformation* vtkNotUsed(request
 
   this->UpdateProgress(1.0);
   return 1;
-} // RequestData
+}
 
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridPProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
@@ -202,7 +205,7 @@ int vtkHyperTreeGridPProbeFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed
   sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
     sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
   return 1;
-} // RequestUpdateExtent
+}
 
 //------------------------------------------------------------------------------
 class vtkHyperTreeGridPProbeFilter::ProbingWorklet
@@ -271,8 +274,7 @@ public:
       it->cellIds.resize(0);
     }
   }
-
-}; // ProbingWorklet
+};
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridPProbeFilter::DoProbing(
@@ -299,7 +301,7 @@ bool vtkHyperTreeGridPProbeFilter::DoProbing(
     outputArray->InsertTuplesStartingAt(0, locCellIds, sourceArray);
   }
   return true;
-} // DoProbing
+}
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridPProbeFilter::Initialize(
@@ -331,7 +333,7 @@ bool vtkHyperTreeGridPProbeFilter::Initialize(
 
   this->Locator->SetHTG(source);
   return true;
-} // Initialize
+}
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridPProbeFilter::Reduce(
@@ -404,6 +406,7 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
       {
         this->Controller->Receive(
           &numRemotePoints, 1, iProc, HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
+        remotePointIds->SetNumberOfIds(numRemotePoints);
         if (numRemotePoints > 0)
         {
           this->Controller->Receive(remoteOutput, iProc, HYPERTREEGRID_PROBE_COMMUNICATION_TAG);
@@ -418,7 +421,7 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
     }
   }
   return true;
-} // Initialize
+}
 
 //------------------------------------------------------------------------------
 // Straight up copy from vtkProbeFilter

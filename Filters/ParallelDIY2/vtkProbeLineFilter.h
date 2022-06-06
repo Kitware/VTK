@@ -53,6 +53,7 @@
 #include <vector> // For sampling line
 
 class vtkDataSet;
+class vtkHyperTreeGrid;
 class vtkIdList;
 class vtkMultiProcessController;
 class vtkPoints;
@@ -212,7 +213,11 @@ protected:
    * This functions is expected to return a polydata with a single polyline in it.
    */
   vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
+    vtkDataObject* input, const double tolerance) const;
+  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
     const std::vector<vtkDataSet*>& input, const double tolerance) const;
+  vtkSmartPointer<vtkPolyData> SampleLineAtEachCell(const vtkVector3d& p1, const vtkVector3d& p2,
+    vtkHyperTreeGrid* input, const double tolerance) const;
   vtkSmartPointer<vtkPolyData> SampleLineUniformly(
     const vtkVector3d& p1, const vtkVector3d& p2) const;
   ///@}

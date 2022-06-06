@@ -14,6 +14,15 @@
 =========================================================================*/
 #include "vtkHyperTreeGridGeometricLocator.h"
 
+#include "vtkGenericCell.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkSMPTools.h"
+#include "vtkUnsignedCharArray.h"
+
 #include <algorithm>
 #include <array>
 #include <bitset>
@@ -22,39 +31,20 @@
 #include <numeric>
 #include <vector>
 
-#include "vtkGenericCell.h"
-#include "vtkObjectFactory.h"
-#include "vtkPoints.h"
-#include "vtkUnsignedCharArray.h"
-
-#include "vtkMath.h"
-#include "vtkSMPTools.h"
-
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkHyperTreeGridGeometricLocator);
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridGeometricLocator::vtkHyperTreeGridGeometricLocator()
-  : vtkHyperTreeGridLocator()
-  , Bins1D(0)
-{
-}
-
-//------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometricLocator::SetHTG(vtkHyperTreeGrid* cand)
 {
-  this->Superclass::SetHTG(
-    cand); // Set method from vtkSetCxxObjectMacro needed for calling modified etc.
+  this->Superclass::SetHTG(cand);
   const unsigned int bf = this->HTG->GetBranchFactor();
   this->Bins1D.resize(bf - 1);
   for (unsigned int b = 0; b < bf - 1; b++)
   {
     this->Bins1D[b] = static_cast<double>(b + 1) / static_cast<double>(bf);
   }
-} // SetHTG
+}
 
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometricLocator::Search(const double point[3])
@@ -71,7 +61,7 @@ vtkIdType vtkHyperTreeGridGeometricLocator::Search(
   std::array<unsigned int, 3> bin{};
   const int dim = this->HTG->GetDimension();
   bin[0] =
-    this->HTG->FindDichotomicX(point[0]); // I expect this and subsequent calls to be thread safe
+    this->HTG->FindDichotomicX(point[0]); // This and subsequent calls expected to be thread safe
   if (dim > 1)
   {
     bin[1] = this->HTG->FindDichotomicY(point[1]);
@@ -95,7 +85,7 @@ vtkIdType vtkHyperTreeGridGeometricLocator::Search(
   this->HTG->InitializeNonOrientedGeometryCursor(cursor, treeId, false);
   // recurse
   return this->RecursiveSearch(cursor, point);
-} // Search
+}
 
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometricLocator::RecursiveSearch(
@@ -135,7 +125,7 @@ vtkIdType vtkHyperTreeGridGeometricLocator::RecursiveSearch(
   vtkIdType childIndex = this->FindChildIndex(dim, bf, normalizedPt);
   cursor->ToChild(childIndex);
   return this->RecursiveSearch(cursor, pt);
-} // RecursiveSearch
+}
 
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometricLocator::FindCell(const double point[3],
@@ -160,7 +150,7 @@ vtkIdType vtkHyperTreeGridGeometricLocator::FindCell(const double point[3],
     return -1;
   }
   return globId;
-} // FindCell
+}
 
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], const double p1[3],
@@ -250,7 +240,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
                             locPCoords.data() + offset, subIds[iT]) != 0);
       }
       unsigned int rightTree = std::distance(ts.begin(), std::min_element(ts.begin(), ts.end()));
-      if ((intersects[rightTree]) && (ts[rightTree] >= 0.0) && (ts[rightTree] <= 1.0))
+      if (intersects[rightTree] && (ts[rightTree] >= 0.0) && (ts[rightTree] <= 1.0))
       {
         t = ts[rightTree];
         subId = subIds[rightTree];
@@ -275,13 +265,10 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
       cellId =
         this->RecurseSingleIntersectWithLine(p0, p1, tol, cursor, cell, t, subId, x, pcoords);
     }
-    if (cellId < 0)
-    {
-      return 0;
-    }
-    return 1;
+
+    return (cellId >= 0);
   }
-} // IntersectWithLine
+}
 
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometricLocator::RecurseSingleIntersectWithLine(const double p0[3],
@@ -340,21 +327,109 @@ vtkIdType vtkHyperTreeGridGeometricLocator::RecurseSingleIntersectWithLine(const
     }
   }
   return this->RecurseSingleIntersectWithLine(p0, p1, tol, cursor, cell, t, subId, x, pcoords);
-} // RecurseSingleIntersectWithLine
+}
+
+//------------------------------------------------------------------------------
+
+struct vtkHyperTreeGridGeometricLocator::RecurseTreesFunctor
+{
+  vtkHyperTreeGridGeometricLocator* HTGLoc;
+  const double* Pt0;
+  const double* Pt1;
+  double Tol;
+  std::vector<double>* GlobTs;
+  vtkPoints* GlobPts;
+  vtkIdList* GlobCellIds;
+  struct LocalData
+  {
+    std::vector<double> LocTs;
+    vtkSmartPointer<vtkPoints> LocPts;
+    vtkSmartPointer<vtkIdList> LocCellIds;
+  };
+  vtkSMPThreadLocal<LocalData> Loc;
+
+  RecurseTreesFunctor(vtkHyperTreeGridGeometricLocator* htgloc, const double* pt0,
+    const double* pt1, double tol, std::vector<double>* ts, vtkPoints* pts, vtkIdList* cIds)
+  {
+    this->HTGLoc = htgloc;
+    this->Pt0 = pt0;
+    this->Pt1 = pt1;
+    this->Tol = tol;
+    this->GlobTs = ts;
+    this->GlobPts = pts;
+    this->GlobCellIds = cIds;
+  }
+
+  void Initialize()
+  {
+    this->Loc.Local().LocTs = std::vector<double>();
+    this->Loc.Local().LocPts = vtk::TakeSmartPointer(vtkPoints::New());
+    this->Loc.Local().LocPts->Initialize();
+    this->Loc.Local().LocCellIds = vtk::TakeSmartPointer(vtkIdList::New());
+    this->Loc.Local().LocCellIds->Initialize();
+  }
+
+  void operator()(vtkIdType first, vtkIdType last)
+  {
+    vtkNew<vtkGenericCell> locCell;
+    vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
+    for (int iT = first; iT < last; iT++)
+    {
+      this->HTGLoc->GetHTG()->InitializeNonOrientedGeometryCursor(cursor, iT, false);
+      this->HTGLoc->RecurseAllIntersectsWithLine(this->Pt0, this->Pt1, this->Tol, cursor,
+        &(this->Loc.Local().LocTs), this->Loc.Local().LocPts, this->Loc.Local().LocCellIds,
+        locCell);
+    }
+  }
+
+  void Reduce()
+  {
+    unsigned int nPoints = 0;
+    unsigned int nCells = 0;
+    size_t nT = 0;
+    for (auto it = this->Loc.begin(); it != this->Loc.end(); it++)
+    {
+      nT += it->LocTs.size();
+      nPoints += it->LocPts->GetNumberOfPoints();
+      nCells += it->LocCellIds->GetNumberOfIds();
+    }
+    unsigned int initPoints = this->GlobPts->GetNumberOfPoints();
+    unsigned int initCells = this->GlobCellIds->GetNumberOfIds();
+    this->GlobTs->resize(nT);
+    this->GlobPts->Resize(initPoints + nPoints);
+    this->GlobCellIds->Resize(initCells + nCells);
+    nT = 0;
+    nPoints = initPoints;
+    nCells = initCells;
+    for (auto it = this->Loc.begin(); it != this->Loc.end(); it++)
+    {
+      std::copy(it->LocTs.begin(), it->LocTs.end(), this->GlobTs->begin() + nT);
+      nT += it->LocTs.size();
+      it->LocTs.resize(0);
+      this->GlobPts->InsertPoints(nPoints, it->LocPts->GetNumberOfPoints(), 0, it->LocPts);
+      nPoints += it->LocPts->GetNumberOfPoints();
+      if (it->LocPts->Resize(0) == 0)
+      {
+        vtkErrorWithObjectMacro(nullptr, << "Could not release local point memory.");
+      }
+      for (unsigned int i = 0; i < it->LocCellIds->GetNumberOfIds(); i++)
+      {
+        this->GlobCellIds->InsertId(nCells + i, it->LocCellIds->GetId(i));
+      }
+      nCells += it->LocCellIds->GetNumberOfIds();
+      it->LocCellIds->SetNumberOfIds(0);
+    }
+  }
+};
 
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], const double p1[3],
   const double tol, vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
   // do checks
-  if (!points)
+  if (!points || !cellIds)
   {
-    vtkErrorMacro("The points pointer is nullptr");
-    return 0;
-  }
-  if (!cellIds)
-  {
-    vtkErrorMacro("The cellIds pointer in nullptr");
+    vtkErrorMacro("The points or cellIds are nullptr");
     return 0;
   }
   // setup computation
@@ -378,96 +453,6 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
       return 0;
     }
   }
-  struct RecurseTreesFunctor
-  {
-    vtkHyperTreeGridGeometricLocator* HTGLoc;
-    const double* Pt0;
-    const double* Pt1;
-    double Tol;
-    std::vector<double>* GlobTs;
-    vtkPoints* GlobPts;
-    vtkIdList* GlobCellIds;
-    struct LocalData
-    {
-      std::vector<double> LocTs;
-      vtkSmartPointer<vtkPoints> LocPts;
-      vtkSmartPointer<vtkIdList> LocCellIds;
-    };
-    vtkSMPThreadLocal<LocalData> Loc;
-
-    RecurseTreesFunctor(vtkHyperTreeGridGeometricLocator* htgloc, const double* pt0,
-      const double* pt1, double tol, std::vector<double>* ts, vtkPoints* pts, vtkIdList* cIds)
-    {
-      this->HTGLoc = htgloc;
-      this->Pt0 = pt0;
-      this->Pt1 = pt1;
-      this->Tol = tol;
-      this->GlobTs = ts;
-      this->GlobPts = pts;
-      this->GlobCellIds = cIds;
-    }
-
-    void Initialize()
-    {
-      this->Loc.Local().LocTs = std::vector<double>();
-      this->Loc.Local().LocPts = vtk::TakeSmartPointer(vtkPoints::New());
-      this->Loc.Local().LocPts->Initialize();
-      this->Loc.Local().LocCellIds = vtk::TakeSmartPointer(vtkIdList::New());
-      this->Loc.Local().LocCellIds->Initialize();
-    }
-
-    void operator()(vtkIdType first, vtkIdType last)
-    {
-      vtkNew<vtkGenericCell> locCell;
-      vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
-      for (int iT = first; iT < last; iT++)
-      {
-        this->HTGLoc->HTG->InitializeNonOrientedGeometryCursor(cursor, iT, false);
-        this->HTGLoc->RecurseAllIntersectsWithLine(this->Pt0, this->Pt1, this->Tol, cursor,
-          &(this->Loc.Local().LocTs), this->Loc.Local().LocPts, this->Loc.Local().LocCellIds,
-          locCell);
-      }
-    }
-
-    void Reduce()
-    {
-      unsigned int nPoints = 0;
-      unsigned int nCells = 0;
-      unsigned int nT = 0;
-      for (auto it = this->Loc.begin(); it != this->Loc.end(); it++)
-      {
-        nT += it->LocTs.size();
-        nPoints += it->LocPts->GetNumberOfPoints();
-        nCells += it->LocCellIds->GetNumberOfIds();
-      }
-      unsigned int initPoints = this->GlobPts->GetNumberOfPoints();
-      unsigned int initCells = this->GlobCellIds->GetNumberOfIds();
-      this->GlobTs->resize(nT);
-      this->GlobPts->SetNumberOfPoints(initPoints + nPoints);
-      this->GlobCellIds->SetNumberOfIds(initCells + nCells);
-      nT = 0;
-      nPoints = initPoints;
-      nCells = initCells;
-      for (auto it = this->Loc.begin(); it != this->Loc.end(); it++)
-      {
-        std::copy(it->LocTs.begin(), it->LocTs.end(), this->GlobTs->begin() + nT);
-        nT += it->LocTs.size();
-        it->LocTs.resize(0);
-        this->GlobPts->InsertPoints(nPoints, it->LocPts->GetNumberOfPoints(), 0, it->LocPts);
-        nPoints += it->LocPts->GetNumberOfPoints();
-        if (it->LocPts->Resize(0) == 0)
-        {
-          vtkErrorWithObjectMacro(nullptr, << "Could not release local point memory.");
-        }
-        for (unsigned int i = 0; i < it->LocCellIds->GetNumberOfIds(); i++)
-        {
-          this->GlobCellIds->SetId(nCells + i, it->LocCellIds->GetId(i));
-        }
-        nCells += it->LocCellIds->GetNumberOfIds();
-        it->LocCellIds->SetNumberOfIds(0);
-      }
-    }
-  };
 
   // iterate over trees
   RecurseTreesFunctor thisFunctor(this, p0, p1, tol, &ts, points, cellIds);
@@ -493,11 +478,7 @@ int vtkHyperTreeGridGeometricLocator::IntersectWithLine(const double p0[3], cons
     std::swap(buffTs, ts);
   }
 
-  if (points->GetNumberOfPoints() == nInitialPoints)
-  {
-    return 0;
-  }
-  return 1;
+  return !(points->GetNumberOfPoints() == nInitialPoints);
 }
 
 //------------------------------------------------------------------------------
@@ -527,7 +508,7 @@ void vtkHyperTreeGridGeometricLocator::RecurseAllIntersectsWithLine(const double
     }
     if (this->CheckLeafOrChildrenMasked(cursor))
     {
-      ts->push_back(t);
+      ts->emplace_back(t);
       points->InsertNextPoint(x.data());
       cellIds->InsertNextId(cursor->GetGlobalNodeIndex());
       return;
@@ -540,7 +521,7 @@ void vtkHyperTreeGridGeometricLocator::RecurseAllIntersectsWithLine(const double
     this->RecurseAllIntersectsWithLine(p0, p1, tol, cursor, ts, points, cellIds, cell);
     cursor->ToParent();
   }
-} // RecurseAllIntersectsWithLine
+}
 
 //------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGridGeometricLocator::FindChildIndex(
@@ -584,7 +565,7 @@ bool vtkHyperTreeGridGeometricLocator::CheckLeafOrChildrenMasked(
       break;
     }
   }
-  return (allMasked);
+  return allMasked;
 }
 
 //------------------------------------------------------------------------------
@@ -601,19 +582,9 @@ bool vtkHyperTreeGridGeometricLocator::ConstructCell(
 bool vtkHyperTreeGridGeometricLocator::ConstructCell(
   const double* origin, const double* size, vtkGenericCell* cell) const
 {
-  if (cell == nullptr)
+  if (cell == nullptr || origin == nullptr || size == nullptr)
   {
-    vtkErrorMacro("Cell that was passed is nullptr");
-    return false;
-  }
-  if (origin == nullptr)
-  {
-    vtkErrorMacro("Cursor has no origin");
-    return false;
-  }
-  if (size == nullptr)
-  {
-    vtkErrorMacro("Cursor has no size");
+    vtkErrorMacro("Cell, origin or size that was passed is nullptr");
     return false;
   }
 
@@ -624,10 +595,10 @@ bool vtkHyperTreeGridGeometricLocator::ConstructCell(
       cell->SetCellTypeToLine();
       break;
     case (2):
-      cell->SetCellTypeToQuad();
+      cell->SetCellTypeToPixel();
       break;
     case (3):
-      cell->SetCellTypeToHexahedron();
+      cell->SetCellTypeToVoxel();
       break;
     default:
       vtkErrorMacro("Wrong HyperTreeGrid dimension");
@@ -650,19 +621,19 @@ bool vtkHyperTreeGridGeometricLocator::ConstructCell(
   std::vector<std::bitset<3>> positions(8);
   positions[0] = 0; // 000
   positions[1] = 1; // 001 -> +x
-  positions[2] = 3; // 011 -> +xy
-  positions[3] = 2; // 010 -> +y
+  positions[2] = 2; // 010 -> +y
+  positions[3] = 3; // 011 -> +xy
   positions[4] = 4; // 100 -> +z
   positions[5] = 5; // 101 -> +zx
-  positions[6] = 7; // 111 -> +zxy
-  positions[7] = 6; // 110 -> +zy
+  positions[6] = 6; // 110 -> +zy
+  positions[7] = 7; // 111 -> +zxy
   for (unsigned int iP = 0; iP < nPoints; iP++)
   {
     cubePoint(positions[iP], &pt);
     cell->Points->SetPoint(iP, pt.data());
   }
   return true;
-} // ConstructCell
+}
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometricLocator::GetZeroLevelOriginAndSize(
@@ -682,7 +653,7 @@ void vtkHyperTreeGridGeometricLocator::GetZeroLevelOriginAndSize(
   {
     getOriginSize(this->HTG->GetZCoordinates(), origin[2], sizes[2]);
   }
-} // GetZeroLevelOriginAndSize
+}
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGeometricLocator::GetSortingMap(

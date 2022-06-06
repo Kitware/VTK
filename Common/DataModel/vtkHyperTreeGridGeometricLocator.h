@@ -24,7 +24,8 @@
  * sufficient to accelerate the search and achieve good performance in general.
  *
  * All methods in this class should be thread safe since it is meant to be used in a multi-threaded
- * environment out of the box (except SetHTG which should be called by the main thread first).
+ * environment out of the box (except SetHTG which should be called outside any multi-threaded
+ * setting).
  *
  * @sa
  * vtkHyperTreeGridLocator, vtkHyperTreeGrid, vtkHyperTree, vtkHyperTreeGridOrientedCursor,
@@ -47,6 +48,8 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridGeometricLocator : public vtkHyp
 public:
   vtkTypeMacro(vtkHyperTreeGridGeometricLocator, vtkHyperTreeGridLocator);
 
+  using vtkHyperTreeGridLocator::PrintSelf;
+
   static vtkHyperTreeGridGeometricLocator* New();
 
   /**
@@ -57,7 +60,7 @@ public:
   /**
    * Basic search for cell holding a given point
    * @param point coordinated of sought point
-   * @return the global index of the cell holding the point (-1 if cell not found)
+   * @return the global index of the cell holding the point (-1 if cell not found or masked)
    */
   vtkIdType Search(const double point[3]) override;
 
@@ -65,7 +68,7 @@ public:
    * Basic search for cell holding a given point that also return a cursor
    * @param point coordinated of sought point
    * @param[out] cursor the cursor at the cell holding the point
-   * @return the global index of the cell holding the point (-1 if cell not found)
+   * @return the global index of the cell holding the point (-1 if cell not found or masked)
    */
   vtkIdType Search(const double point[3], vtkHyperTreeGridNonOrientedGeometryCursor* cursor);
 
@@ -77,7 +80,7 @@ public:
    * @param[out] subId index of the sub cell if composite cell
    * @param[out] pcoords parametric coordinates of the point in the cell
    * @param[out] weights interpolation weights of the sought point in the cell
-   * @return the global index of the cell holding the point (-1 if no cell is found)
+   * @return the global index of the cell holding the point (-1 if no cell is found or is masked)
    */
   vtkIdType FindCell(const double point[3], const double tol, vtkGenericCell* cell, int& subId,
     double pcoords[3], double* weights) override;
@@ -112,7 +115,7 @@ public:
     vtkIdList* cellIds, vtkGenericCell* cell) override;
 
 protected:
-  vtkHyperTreeGridGeometricLocator();
+  vtkHyperTreeGridGeometricLocator() = default;
   virtual ~vtkHyperTreeGridGeometricLocator() = default;
 
   /**
@@ -137,6 +140,8 @@ protected:
 private:
   vtkHyperTreeGridGeometricLocator(const vtkHyperTreeGridGeometricLocator&) = delete;
   void operator=(const vtkHyperTreeGridGeometricLocator&) = delete;
+
+  struct RecurseTreesFunctor;
 
   /**
    * Helper method for determining whether a cursor is a leaf or if all its children are masked

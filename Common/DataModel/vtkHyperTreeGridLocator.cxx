@@ -14,25 +14,32 @@
 =========================================================================*/
 
 #include "vtkHyperTreeGridLocator.h"
-
 #include "vtkHyperTreeGrid.h"
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridLocator::vtkHyperTreeGridLocator()
-  : HTG(nullptr)
+void vtkHyperTreeGridLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os, indent);
+  if (this->HTG)
+  {
+    os << indent << "HyperTreeGrid: ";
+    this->HTG->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "HyperTreeGrid: none\n";
+  }
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridLocator::~vtkHyperTreeGridLocator()
+void vtkHyperTreeGridLocator::SetHTG(vtkHyperTreeGrid* htg)
 {
-  this->SetHTG(nullptr);
-}
-
-//------------------------------------------------------------------------------
-void vtkHyperTreeGridLocator::SetHTG(vtkHyperTreeGrid* cand)
-{
-  this->HTG = cand;
+  vtkDebugMacro(<< " setting HTG to " << htg);
+  if (this->HTG != htg)
+  {
+    this->HTG = htg;
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -42,30 +49,11 @@ vtkHyperTreeGrid* vtkHyperTreeGridLocator::GetHTG()
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridLocator::Initialize() {}
-
-//------------------------------------------------------------------------------
 void vtkHyperTreeGridLocator::Update()
 {
   if (!this->HTG)
   {
-    vtkErrorMacro("HyperTreeGrid not set before updating.");
+    vtkErrorMacro("HyperTreeGrid is nullptr while updating.");
     return;
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkHyperTreeGridLocator::PrintSelf(std::ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-
-  os << this->GetObjectName() << " acting on:\n";
-  if (this->HTG)
-  {
-    HTG->PrintSelf(os, indent);
-  }
-  else
-  {
-    os << indent << "HyperTreeGrid: none\n";
   }
 }

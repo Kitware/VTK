@@ -15,6 +15,7 @@
 #include "vtkCutter.h"
 #include "vtkDataArray.h"
 #include "vtkDummyController.h"
+#include "vtkHyperTreeGridPreConfiguredSource.h"
 #include "vtkLineSource.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
@@ -52,6 +53,8 @@ static constexpr std::array<double, 40> ProbingAtCellBoundaries_2D = { 0, 0.9999
 
 static const std::array<double, 20> ProbingAtSegmentCenters_2D = { 0, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5,
   7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.1 };
+
+static constexpr double eps = 1e-6;
 
 // ----------------------------------------------------------------------------
 int CheckForErrors(vtkPolyData* pd, const double* expected, vtkIdType size, const char* arrayName,
@@ -95,6 +98,123 @@ int CheckForErrors(vtkPolyData* pd, const double* expected, vtkIdType size, cons
     }
   }
   return code;
+}
+
+// ----------------------------------------------------------------------------
+int Check2DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
+{
+  int numPoints = outDataSet->GetNumberOfPoints();
+  vtkDataArray* da = outDataSet->GetPointData()->GetArray("Depth");
+  std::vector<double> pt(3, 0.0);
+  int retVal = EXIT_SUCCESS;
+  if (contr->GetLocalProcessId() == 0)
+  {
+    for (int i = 0; i < numPoints; i++)
+    {
+      outDataSet->GetPoint(i, pt.data());
+      int foundDepth = vtkMath::Nan();
+      bool isDemarcation = false;
+      if (std::abs(pt[0]) < 1.0 && std::abs(pt[1]) < 1.0)
+      {
+        foundDepth = 0.0;
+      }
+      else if ((std::abs(pt[0]) - 1.0) < eps && (std::abs(pt[1]) - 1.0) < eps)
+      {
+        foundDepth = 0.0;
+        if (vtkMath::IsNan(da->GetComponent(i, 0)))
+        {
+          continue;
+        }
+      }
+      for (int d = 0; d < 4; d++) // iterate over depth
+      {
+        double demarcation = 0.5 / std::pow(2, d);
+        if (std::abs(pt[0]) < demarcation && std::abs(pt[1]) < demarcation)
+        {
+          foundDepth = d;
+          continue;
+        }
+        else if ((std::abs(pt[0]) - demarcation) < eps && (std::abs(pt[1]) - demarcation) < eps)
+        {
+          isDemarcation = true;
+        }
+        else
+        {
+          break;
+        }
+      }
+      if (!((foundDepth - da->GetComponent(i, 0) < 1) ||
+            (isDemarcation && ((foundDepth - da->GetComponent(i, 0) + 1) < 1))))
+      {
+        vtkLog(ERROR, << "Probe Line on HTG 2D failed for point " << pt[0] << ", " << pt[1]
+                      << " with depth " << da->GetComponent(i, 0) << " when it should be "
+                      << foundDepth);
+        retVal = EXIT_FAILURE;
+        break;
+      }
+    }
+  }
+  return retVal;
+}
+
+// ----------------------------------------------------------------------------
+int Check3DHTG(vtkMultiProcessController* contr, vtkDataSet* outDataSet)
+{
+  int numPoints = outDataSet->GetNumberOfPoints();
+  vtkDataArray* da = outDataSet->GetPointData()->GetArray("Depth");
+  std::vector<double> pt(3, 0.0);
+  int retVal = EXIT_SUCCESS;
+  if (contr->GetLocalProcessId() == 0)
+  {
+    for (int i = 0; i < numPoints; i++)
+    {
+      outDataSet->GetPoint(i, pt.data());
+      int foundDepth = vtkMath::Nan();
+      bool isDemarcation = false;
+      if (std::abs(pt[0]) < 1.0 && std::abs(pt[1]) < 1.0 && std::abs(pt[2]))
+      {
+        foundDepth = 0.0;
+      }
+      else if ((std::abs(pt[0]) - 1.0) < eps && (std::abs(pt[1]) - 1.0) < eps &&
+        (std::abs(pt[2]) - 1.0) < eps)
+      {
+        foundDepth = 0.0;
+        if (vtkMath::IsNan(da->GetComponent(i, 0)))
+        {
+          continue;
+        }
+      }
+      for (int d = 0; d < 4; d++) // iterate over depth
+      {
+        double demarcation = 0.5 / std::pow(2, d);
+        if (std::abs(pt[0]) < demarcation && std::abs(pt[1]) < demarcation &&
+          std::abs(pt[2]) < demarcation)
+        {
+          foundDepth = d;
+          continue;
+        }
+        else if ((std::abs(pt[0]) - demarcation) < eps && (std::abs(pt[1]) - demarcation) < eps &&
+          (std::abs(pt[2]) - demarcation) < eps)
+        {
+          isDemarcation = true;
+        }
+        else
+        {
+          break;
+        }
+      }
+      if (!((foundDepth - da->GetComponent(i, 0) < 1) ||
+            (isDemarcation && ((foundDepth - da->GetComponent(i, 0) + 1) < 1))))
+      {
+        vtkLog(ERROR, << "Probe Line on HTG 3D failed for point " << pt[0] << ", " << pt[1]
+                      << " with depth " << da->GetComponent(i, 0) << " when it should be "
+                      << foundDepth);
+        retVal = EXIT_FAILURE;
+        break;
+      }
+    }
+  }
+  return retVal;
 }
 
 // ----------------------------------------------------------------------------
@@ -284,6 +404,92 @@ int Test3DProbing(vtkMultiProcessController* controller)
 }
 
 // ----------------------------------------------------------------------------
+int Test2DProbingHTG(vtkMultiProcessController* contr)
+{
+  vtkLog(INFO, << "Testing vtkProbeLineFilter with 2D HyperTreeGrid input");
+  vtkNew<vtkHyperTreeGridPreConfiguredSource> htgSource;
+  htgSource->SetHTGMode(vtkHyperTreeGridPreConfiguredSource::CUSTOM);
+  htgSource->SetCustomArchitecture(vtkHyperTreeGridPreConfiguredSource::UNBALANCED);
+  htgSource->SetCustomDim(2);
+  htgSource->SetCustomFactor(2);
+  htgSource->SetCustomDepth(3);
+  htgSource->SetCustomExtent(0.0, 1.0, 0.0, 1.0, 0.0, 0.0);
+  htgSource->SetCustomSubdivisions(3, 3, 0);
+  htgSource->Update();
+
+  vtkNew<vtkLineSource> line;
+  line->SetResolution(1);
+  line->SetPoint1(0.01, 0.01, 0.01);
+  line->SetPoint2(0.99, 0.99, 0.99);
+  line->Update();
+
+  vtkNew<vtkProbeLineFilter> probeLine;
+  probeLine->SetInputConnection(htgSource->GetOutputPort());
+  probeLine->SetSourceConnection(line->GetOutputPort());
+  probeLine->SetController(contr);
+  probeLine->SetLineResolution(10);
+  probeLine->SetTolerance(eps);
+  probeLine->Update();
+
+  vtkDataSet* outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
+  int retVal = Check2DHTG(contr, outDataSet);
+
+  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS);
+  probeLine->Update();
+  outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
+  retVal &= Check2DHTG(contr, outDataSet);
+
+  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
+  probeLine->Update();
+  outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
+  retVal &= Check2DHTG(contr, outDataSet);
+  return retVal;
+}
+
+// ----------------------------------------------------------------------------
+int Test3DProbingHTG(vtkMultiProcessController* contr)
+{
+  vtkLog(INFO, << "Testing vtkProbeLineFilter with 3D HyperTreeGrid input");
+  vtkNew<vtkHyperTreeGridPreConfiguredSource> htgSource;
+  htgSource->SetHTGMode(vtkHyperTreeGridPreConfiguredSource::CUSTOM);
+  htgSource->SetCustomArchitecture(vtkHyperTreeGridPreConfiguredSource::UNBALANCED);
+  htgSource->SetCustomDim(3);
+  htgSource->SetCustomFactor(2);
+  htgSource->SetCustomDepth(3);
+  htgSource->SetCustomExtent(0.0, 1.0, 0.0, 1.0, 0.0, 1.0);
+  htgSource->SetCustomSubdivisions(3, 3, 3);
+  htgSource->Update();
+
+  vtkNew<vtkLineSource> line;
+  line->SetResolution(1);
+  line->SetPoint1(0.01, 0.01, 0.01);
+  line->SetPoint2(0.99, 0.99, 0.99);
+  line->Update();
+
+  vtkNew<vtkProbeLineFilter> probeLine;
+  probeLine->SetInputConnection(htgSource->GetOutputPort());
+  probeLine->SetSourceConnection(line->GetOutputPort());
+  probeLine->SetController(contr);
+  probeLine->SetLineResolution(10);
+  probeLine->SetTolerance(eps);
+  probeLine->Update();
+
+  vtkDataSet* outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
+  int retVal = Check3DHTG(contr, outDataSet);
+
+  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_SEGMENT_CENTERS);
+  probeLine->Update();
+  outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
+  retVal &= Check3DHTG(contr, outDataSet);
+
+  probeLine->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_UNIFORMLY);
+  probeLine->Update();
+  outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
+  retVal &= Check3DHTG(contr, outDataSet);
+  return retVal;
+}
+
+// ----------------------------------------------------------------------------
 int TestProbeLineFilter(int argc, char* argv[])
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
@@ -299,6 +505,8 @@ int TestProbeLineFilter(int argc, char* argv[])
 
   retVal |= Test2DProbing(contr);
   retVal |= Test3DProbing(contr);
+  retVal |= Test2DProbingHTG(contr);
+  retVal |= Test3DProbingHTG(contr);
 
   vtkMultiProcessController::SetGlobalController(nullptr);
   contr->Finalize();

@@ -19,6 +19,10 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetMapper.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGeometricLocator.h"
+#include "vtkHyperTreeGridPProbeFilter.h"
+#include "vtkHyperTreeGridPreConfiguredSource.h"
 #include "vtkLookupTable.h"
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
@@ -30,11 +34,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridGeometricLocator.h"
-#include "vtkHyperTreeGridPProbeFilter.h"
-#include "vtkHyperTreeGridPreConfiguredSource.h"
 
 class MyProcess : public vtkProcess
 {
@@ -150,14 +149,12 @@ int TestHyperTreeGridPProbeFilter(int argc, char* argv[])
   controller->Initialize(&argc, &argv, 0);
   vtkMultiProcessController::SetGlobalController(controller);
 
-  int retVal = 1;
-
   vtkNew<MyProcess> p;
   p->SetArgs(argc, argv);
   controller->SetSingleProcessObject(p);
   controller->SingleMethodExecute();
 
-  retVal = p->GetReturnValue();
+  int retVal = p->GetReturnValue();
 
   controller->Finalize();
   return !retVal;

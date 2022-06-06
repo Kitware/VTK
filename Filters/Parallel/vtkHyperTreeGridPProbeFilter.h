@@ -31,8 +31,8 @@
 #define vtkHyperTreeGridPProbeFilter_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkFiltersParallelModule.h"
-#include "vtkSmartPointer.h"
+#include "vtkFiltersParallelModule.h" //For export Macro
+#include "vtkSmartPointer.h"          //For Locator member
 
 class vtkMultiProcessController;
 class vtkIdList;
@@ -44,6 +44,8 @@ class VTKFILTERSPARALLEL_EXPORT vtkHyperTreeGridPProbeFilter : public vtkDataSet
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridPProbeFilter, vtkDataSetAlgorithm);
+
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkHyperTreeGridPProbeFilter* New();
 
@@ -164,13 +166,13 @@ protected:
     HYPERTREEGRID_PROBE_COMMUNICATION_TAG = 4242
   };
 
-  vtkMultiProcessController* Controller;
+  vtkMultiProcessController* Controller = nullptr;
 
   vtkSmartPointer<vtkHyperTreeGridLocator> Locator;
 
-  vtkTypeBool PassCellArrays;
-  vtkTypeBool PassPointArrays;
-  vtkTypeBool PassFieldArrays;
+  vtkTypeBool PassCellArrays = false;
+  vtkTypeBool PassPointArrays = false;
+  vtkTypeBool PassFieldArrays = true;
 
 private:
   vtkHyperTreeGridPProbeFilter(const vtkHyperTreeGridPProbeFilter&) = delete;

@@ -25,8 +25,8 @@
  * algorithms through their data.
  *
  * As a side comment: ideally we would inherit from vtkLocator which only supports vtkDataSets right
- * now. Hopefully in the future vtkHyperTreeGrid will become a vtkDataSet and we could accomplish
- * just that with minimal refactoring.
+ * now. Hopefully in the future vtkHyperTreeGrid will become a vtkDataSet or vtkCompositeDataSet and
+ * we could accomplish just that with minimal refactoring.
  *
  * @sa
  * vtkHyperTreeGrid, vtkHyperTree, vtkHyperTreeGridOrientedCursor, vtkHyperTreeGridNonOrientedCursor
@@ -37,7 +37,7 @@
 
 #include "vtkCommonDataModelModule.h" //For export macro
 #include "vtkObject.h"
-#include "vtkWeakPointer.h"
+#include "vtkWeakPointer.h" //For HTG member
 
 class vtkHyperTreeGrid;
 class vtkPoints;
@@ -48,6 +48,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridLocator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridLocator, vtkObject);
+
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -60,7 +61,7 @@ public:
    * Initialize or reinitialize the locator (setting or re-setting clean objects in memory)
    * (Does nothing)
    */
-  virtual void Initialize();
+  virtual void Initialize(){};
 
   /**
    * Update the locator's internal variables with respect to changes that could have happened
@@ -71,7 +72,7 @@ public:
   /**
    * Basic search for cell holding a given point
    * @param point coordinated of sought point
-   * @return the global index of the cell holding the point (-1 if cell not found)
+   * @return the global index of the cell holding the point (-1 if cell not found or masked)
    */
   virtual vtkIdType Search(const double point[3]) = 0;
 
@@ -83,7 +84,7 @@ public:
    * @param[out] subId index of the sub cell if composite cell
    * @param[out] pcoords parametric coordinates of the point in the cell
    * @param[out] weights interpolation weights of the sought point in the cell
-   * @return the global index of the cell holding the point (-1 if no cell is found)
+   * @return the global index of the cell holding the point (-1 if no cell is found or masked)
    */
   virtual vtkIdType FindCell(const double point[3], const double tol, vtkGenericCell* cell,
     int& subId, double pcoords[3], double* weights) = 0;
@@ -101,7 +102,7 @@ public:
    * @param[out] cell pointer to a vtkCell object corresponding to cellId
    * @return an integer with 0 if no intersection could be found
    */
-  virtual int IntersectWithLine(const double p0[3], const double p[2], const double tol, double& t,
+  virtual int IntersectWithLine(const double p0[3], const double p1[3], const double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) = 0;
 
   /**
@@ -119,8 +120,8 @@ public:
 
 protected:
   // Constructor/Destructor defaults
-  vtkHyperTreeGridLocator();
-  ~vtkHyperTreeGridLocator() override;
+  vtkHyperTreeGridLocator() = default;
+  virtual ~vtkHyperTreeGridLocator() = default;
 
   /**
    * Internal reference to the HyperTreeGrid one wants to search over
