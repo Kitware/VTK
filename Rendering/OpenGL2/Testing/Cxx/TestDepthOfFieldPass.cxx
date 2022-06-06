@@ -103,7 +103,7 @@ int TestDepthOfFieldPass(int argc, char* argv[])
   // create the basic VTK render steps
   vtkNew<vtkRenderStepsPass> basicPasses;
 
-  // finally add the DOF passs
+  // finally add the DOF pass
   vtkNew<vtkDepthOfFieldPass> dofp;
   dofp->SetDelegatePass(basicPasses);
   dofp->AutomaticFocalDistanceOff();

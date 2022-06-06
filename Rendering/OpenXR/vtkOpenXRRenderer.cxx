@@ -11,7 +11,7 @@ This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
-Parts Copyright Valve Coproration from hellovr_opengl_main.cpp
+Parts Copyright Valve Corporation from hellovr_opengl_main.cpp
 under their BSD license found here:
 https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 

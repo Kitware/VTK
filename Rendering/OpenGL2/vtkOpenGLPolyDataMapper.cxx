@@ -3943,7 +3943,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer* ren, vtkActor* act, vtkPolyD
     (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
 
   // do we really need to rebuild the IBO? Since the operation is costly we
-  // construst a string of values that impact the IBO and see if that string has
+  // construct a string of values that impact the IBO and see if that string has
   // changed
 
   // So...polydata can return a dummy CellArray when there are no lines

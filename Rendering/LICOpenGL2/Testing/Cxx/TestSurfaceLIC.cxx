@@ -85,7 +85,7 @@ int TestSurfaceLIC(int argc, char* argv[])
   arg.AddArgument(
     "--step-size", argT::EQUAL_ARGUMENT, &step_size, "(optional: default 0.4) Step size in pixels");
   arg.AddArgument("--enhanced-lic", argT::EQUAL_ARGUMENT, &enhanced_lic,
-    "(optional: default 1) Enable enhanced algoruthm");
+    "(optional: default 1) Enable enhanced algorithm");
   arg.AddArgument("--color-by-mag", argT::EQUAL_ARGUMENT, &color_by_mag,
     "(optional: default 0) when set compute the magnitude of the vector and color the lic by this");
   arg.AddArgument("--vectors", argT::EQUAL_ARGUMENT, &vectors,

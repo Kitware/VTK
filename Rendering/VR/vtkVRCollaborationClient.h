@@ -14,7 +14,7 @@
 
 // This class provides collaboration support for VR using avatars
 // It relies on ZeroMQ to communicate with a collaboration server
-// to exchance avatar names and poses and potentially other messages.
+// to exchange avatar names and poses and potentially other messages.
 
 #ifndef vtkVRCollaborationClient_h
 #define vtkVRCollaborationClient_h

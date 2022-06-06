@@ -214,7 +214,7 @@ std::array<double, 6> vtkMultiVolume::ComputeAABounds(double bounds[6], vtkMatri
   using Point = vtkVector4d;
   using PointVec = std::vector<Point>;
 
-  // Create all corner poiints of the bounding box
+  // Create all corner points of the bounding box
   vtkVector3d dim(bounds[1] - bounds[0], bounds[3] - bounds[2], bounds[5] - bounds[4]);
 
   Point minPoint(bounds[0], bounds[2], bounds[4], 1.0);

@@ -1488,7 +1488,7 @@ VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays(void* arg)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-// Create an image into the vtkImageData argmument. Used generally for
+// Create an image into the vtkImageData argument. Used generally for
 // creating thumbnail images
 void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView(
   vtkVolume* vol, vtkImageData* image, int blend_mode, double direction[3], double viewUp[3])

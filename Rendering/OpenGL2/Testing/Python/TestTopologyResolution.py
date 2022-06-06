@@ -66,7 +66,7 @@ x=0
 dx=float(1)/len(mappers)
 
 # Define the property: lighting intensities, color,
-# edge visibility, point visibilty
+# edge visibility, point visibility
 p1=vtk.vtkProperty()
 p1.SetColor(1,0,0)
 p1.LightingOff()

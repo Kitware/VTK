@@ -19,8 +19,8 @@
  *
  * vtkAxisFollower is a subclass of vtkFollower that always follows its
  * specified axis. More specifically it will not change its position or scale,
- * but it will continually update its orientation so that it is aliged with the
- * axis and facing at angle to the camera to provide maximum visibilty.
+ * but it will continually update its orientation so that it is aligned with
+ * the axis and facing at angle to the camera to provide maximum visibility.
  * This is typically used for text labels for 3d plots.
  * @sa
  * vtkActor vtkFollower vtkCamera vtkAxisActor vtkCubeAxesActor
@@ -136,7 +136,7 @@ public:
   ///@}
 
   /**
-   * Overriden to disable this function, and use ComputeTransformMatrix instead, as
+   * Overridden to disable this function, and use ComputeTransformMatrix instead, as
    * we need a renderer to compute the transform matrix
    */
   virtual void ComputeMatrix() override{};

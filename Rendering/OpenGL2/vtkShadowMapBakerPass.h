@@ -137,7 +137,7 @@ public:
    * INTERNAL USE ONLY.
    * Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
 
-   * Give access the cameras builds from the ligths.
+   * Give access the cameras builds from the lights.
    */
   std::vector<vtkSmartPointer<vtkCamera>>* GetLightCameras();
 

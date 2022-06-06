@@ -1013,7 +1013,7 @@ std::string ComputeDensityGradientDeclaration(vtkOpenGLGPUVolumeRayCastMapper* m
 
     std::string opacityTFcall;
     std::string gradComput;
-    // this table remembers the correspondance results <-> texture coordinates
+    // this table remembers the correspondence results <-> texture coordinates
     static const std::array<std::pair<const char*, const char*>, 6> results_texPos = { {
       { "  g1.x", "texPosPvec[0]" },
       { "  g1.y", "texPosPvec[1]" },

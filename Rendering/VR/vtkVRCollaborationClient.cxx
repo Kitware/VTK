@@ -102,7 +102,7 @@ public:
   vtkVRCollaborationClientInternal()
     : CollabPollItems{ { nullptr, 0, ZMQ_POLLIN, 0 }, { nullptr, 0, ZMQ_POLLIN, 0 } }
   {
-    // ceate context
+    // create context
     this->Context = zmq_ctx_new();
     assert(this->Context);
     int rc = zmq_ctx_set(this->Context, ZMQ_IO_THREADS, 1);

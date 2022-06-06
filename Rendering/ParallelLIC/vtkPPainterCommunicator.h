@@ -65,7 +65,7 @@ public:
 
   ///@{
   /**
-   * Querry MPI for information about the communicator.
+   * Query MPI for information about the communicator.
    */
   virtual int GetRank();
   virtual int GetSize();
@@ -74,14 +74,14 @@ public:
 
   ///@{
   /**
-   * Querry MPI for information about the world communicator.
+   * Query MPI for information about the world communicator.
    */
   virtual int GetWorldRank();
   virtual int GetWorldSize();
   ///@}
 
   /**
-   * Querry MPI state.
+   * Query MPI state.
    */
   virtual bool GetMPIInitialized() { return this->MPIInitialized(); }
   virtual bool GetMPIFinalized() { return this->MPIFinalized(); }

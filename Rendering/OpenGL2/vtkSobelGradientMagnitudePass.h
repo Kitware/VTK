@@ -17,7 +17,7 @@
  * @brief   Implement a post-processing edge
  * detection with a Sobel gradient magnitude render pass.
  *
- * Detect the edges of the image renderered by its delegate. Edge-detection
+ * Detect the edges of the image rendered by its delegate. Edge-detection
  * uses a Sobel high-pass filter (3x3 kernel).
  *
  * This pass expects an initialized depth buffer and color buffer.

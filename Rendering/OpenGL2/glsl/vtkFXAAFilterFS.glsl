@@ -548,7 +548,7 @@ void main()
   /****************************************************************************
    * Compute Local Contrast Range And Early Abort                             *
    *==========================================================================*
-   * Determine the contrast range for the current pixel and its neightbors    *
+   * Determine the contrast range for the current pixel and its neighbors     *
    * to the North, South, West, and East. If the range is less than both of:  *
    *                                                                          *
    * a) RelativeContrastThreshold * lumMax                                    *

@@ -102,7 +102,7 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   // first handle renaming any Fragment shader inputs
   // if we have a geometry shader. By default fragment shaders
   // assume their inputs come from a Vertex Shader. When we
-  // have a Geometry shader we rename the frament shader inputs
+  // have a Geometry shader we rename the fragment shader inputs
   // to come from the geometry shader
   if (!GSSource.empty())
   {

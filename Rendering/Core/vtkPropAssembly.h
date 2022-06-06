@@ -28,7 +28,7 @@
  *
  * vtkPropAssembly's and vtkProp's that compose a prop assembly need not be
  * added to a renderer's list of props, as long as the parent assembly is in
- * the prop list. This is because they are automatically renderered during
+ * the prop list. This is because they are automatically rendered during
  * the hierarchical traversal process.
  *
  * @warning

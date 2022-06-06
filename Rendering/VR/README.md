@@ -13,7 +13,7 @@ https://gitlab.kitware.com/vtk/vtk/-/issues/18302
 With VR the transformations between coordinate systems can quickly become
 confusing. To help with this note that most matrices in the VR code are
 stored in vtk convention. That is `a = Mx` where x is a column vector in
-homogeneous coordinates. Matrices are named accroding to what spaces they
+homogeneous coordinates. Matrices are named according to what spaces they
 transform between. For example PhysicalToLeftEyeMatrix. Some common
 coordinate systems are listed below in order of coordinate flow.
 
@@ -51,7 +51,7 @@ names such as WCDCMatrix, the names correspond to
 
 - MC = model coordinates (same as above)
 - WC = world coordinates (same as above)
-- VC = view coordinates, world coordinates translated and rotated tothe
+- VC = view coordinates, world coordinates translated and rotated to the
   camera, similar to the LeftEye space
 - DC = device coordinates (device in this context is a GPU, so same as
   projection coordinates above)

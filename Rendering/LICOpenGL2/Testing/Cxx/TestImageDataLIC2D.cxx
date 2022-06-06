@@ -304,7 +304,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   licData->SetNumberOfComponents(3);
   licData->SetNumberOfTuples(licDataSize);
 
-  // for each piece in the paritioned dataset compute lic and
+  // for each piece in the partitioned dataset compute lic and
   // copy into the output.
   for (int kk = 0; kk < num_partitions; kk++)
   {

@@ -16,7 +16,7 @@
  * @brief   Render fluid from position data (and color, if available)
  *
  * An OpenGL mapper that display fluid volume using a screen space
- * fluid rendering technique. Thanks to Nghia Truong for the algorihtm
+ * fluid rendering technique. Thanks to Nghia Truong for the algorithm
  * and initial implementation.
  */
 
@@ -223,8 +223,8 @@ public:
   ///@{
   /**
    * Get/Set the fluid volume attenuation scale, which will be multiplied
-   * with attennuation color Default value is 1.0, and can be set to any
-   * non-negative number The larger attennuation scale, the darker fluid
+   * with attenuation color Default value is 1.0, and can be set to any
+   * non-negative number The larger attenuation scale, the darker fluid
    * color
    */
   vtkSetMacro(AttenuationScale, float);

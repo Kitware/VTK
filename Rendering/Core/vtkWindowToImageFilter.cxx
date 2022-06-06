@@ -576,7 +576,7 @@ void vtkWindowToImageFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
 //------------------------------------------------------------------------------
 // On each tile we must subtract the origin of each actor to ensure
-// it appears in the corrrect relative location
+// it appears in the correct relative location
 void vtkWindowToImageFilter::Restore2DActors()
 {
   vtkActor2D* actor;

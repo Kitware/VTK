@@ -665,7 +665,7 @@ public:
   void CopyToFrameBuffer(int srcXmin, int srcYmin, int srcXmax, int srcYmax, int dstXmin,
     int dstYmin, int dstXmax, int dstYmax, int dstSizeX, int dstSizeY, vtkShaderProgram* program,
     vtkOpenGLVertexArrayObject* vao);
-  // copy part of a texure to part of a viewport, no scalaing
+  // copy part of a texture to part of a viewport, no scalaing
   void CopyToFrameBuffer(int srcXmin, int srcYmin, int srcXmax, int srcYmax, int dstXmin,
     int dstYmin, int dstSizeX, int dstSizeY, vtkShaderProgram* program,
     vtkOpenGLVertexArrayObject* vao);

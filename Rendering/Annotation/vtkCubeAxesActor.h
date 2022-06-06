@@ -580,7 +580,7 @@ public:
    * Enable/Disable centering of axes when the Sticky option is
    * on. If on, the axes bounds will be centered in the
    * viewport. Otherwise, the axes can move about the longer of the
-   * horizontal or verical directions of the viewport to follow the
+   * horizontal or vertical directions of the viewport to follow the
    * data. Defaults to on.
    */
   vtkSetMacro(CenterStickyAxes, vtkTypeBool);

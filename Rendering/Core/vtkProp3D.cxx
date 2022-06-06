@@ -178,7 +178,7 @@ void vtkProp3D::SetPropertiesFromModelToWorldMatrix(vtkMatrix4x4* modelToWorld)
   {
     // model -> intermediate -> user -> physical
     // so
-    // modeltointermediate = modeltoworld * worldToPhyscial * inverseUserMatrix
+    // modeltointermediate = modeltoworld * worldToPhysical * inverseUserMatrix
     vtkRenderWindow* renWin =
       static_cast<vtkRenderWindow*>(this->CoordinateSystemRenderer->GetVTKWindow());
     renWin->GetPhysicalToWorldMatrix(this->TempMatrix4x4);

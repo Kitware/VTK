@@ -76,7 +76,7 @@ public:
   vtkGetVector2Macro(Bounds, double);
   ///@}
 
-  // Descrption:
+  // Description:
   // Set/get the maximum number of intersections returned with a call to
   // GetNextIntersections.  Set to 32 by default.
   vtkSetMacro(MaxNumberOfIntersections, vtkIdType);

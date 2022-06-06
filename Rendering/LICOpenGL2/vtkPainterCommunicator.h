@@ -58,20 +58,20 @@ public:
   virtual void Duplicate(const vtkPainterCommunicator*) {}
 
   /**
-   * Querry MPI about the communicator.
+   * Query MPI about the communicator.
    */
   virtual int GetRank() { return 0; }
   virtual int GetSize() { return 1; }
   virtual bool GetIsNull() { return false; }
 
   /**
-   * Querry MPI about the world communicator.
+   * Query MPI about the world communicator.
    */
   virtual int GetWorldRank() { return 0; }
   virtual int GetWorldSize() { return 1; }
 
   /**
-   * Querry MPI about its state.
+   * Query MPI about its state.
    */
   virtual bool GetMPIInitialized() { return false; }
   virtual bool GetMPIFinalized() { return true; }

@@ -771,7 +771,7 @@ private:
   void InitExponent();
 
   /**
-   * This methdod set the text and set the base position of the follower from the axis
+   * This method set the text and set the base position of the follower from the axis
    * The position will be modified in vtkAxisFollower::Render() sub-functions according to the
    * camera position
    * for convenience purpose.

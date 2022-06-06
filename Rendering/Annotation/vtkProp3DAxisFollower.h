@@ -20,7 +20,7 @@
  * vtkProp3DAxisFollower is a subclass of vtkProp3DFollower that always follows
  * its specified axis. More specifically it will not change its position or
  * scale, but it will continually update its orientation so that it is aligned
- * with the axis and facing at angle to the camera to provide maximum visibilty.
+ * with the axis and facing at angle to the camera to provide maximum visibility.
  * This is typically used for text labels for 3d plots.
  * @sa
  * vtkFollower vtkAxisFollower vtkProp3DFollower

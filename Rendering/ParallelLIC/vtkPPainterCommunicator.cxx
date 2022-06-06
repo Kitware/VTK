@@ -96,7 +96,7 @@ void vtkPPainterCommunicatorInternals::DuplicateCommunicator(MPI_Comm comm)
   this->SetCommunicator(MPI_COMM_NULL);
   if (comm != MPI_COMM_NULL)
   {
-    // duplcate
+    // duplicate
     this->Ownership = true;
     MPI_Comm_dup(comm, &this->Communicator);
   }

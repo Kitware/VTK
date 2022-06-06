@@ -22,7 +22,7 @@
  * framebuffer such as created with a standard window/context or
  * it can be a user created Framebuffer objects. When draw and read
  * commands are invoked, they apply to the current draw and/or read
- * frambuffers.
+ * framebuffers.
  *
  * A framebuffer consists of color buffers and an optional depth buffer.
  * The FramebufferObject does not hold the memory for these buffers, it

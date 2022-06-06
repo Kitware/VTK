@@ -108,7 +108,7 @@ int TestPointFillPass(int argc, char* argv[])
   // create the basic VTK render steps
   vtkNew<vtkRenderStepsPass> basicPasses;
 
-  // finally add the PF passs
+  // finally add the PF pass
   vtkNew<vtkPointFillPass> pfp;
   pfp->SetDelegatePass(basicPasses);
   // tell the renderer to use our render pass pipeline

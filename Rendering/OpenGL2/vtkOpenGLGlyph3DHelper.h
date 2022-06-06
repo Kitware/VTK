@@ -89,7 +89,7 @@ protected:
   ///@}
 
   /**
-   * Set the shader parameteres related to the actor/mapper
+   * Set the shader parameters related to the actor/mapper
    */
   void SetMapperShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
 

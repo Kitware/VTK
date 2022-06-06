@@ -233,7 +233,7 @@ private:
   int RequestedRenderMode;
 
   /**
-   * Secondary rays ambient/global adjustement coefficient
+   * Secondary rays ambient/global adjustment coefficient
    */
   float GlobalIlluminationReach = 0.0;
 

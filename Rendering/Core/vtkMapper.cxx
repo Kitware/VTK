@@ -496,7 +496,7 @@ vtkUnsignedCharArray* vtkMapper::MapScalars(vtkDataSet* input, double alpha, int
   }
 
   // Vertex colors are being used.
-  // Get rid of texure Color arrays.  Only texture or vertex coloring
+  // Get rid of texture Color arrays.  Only texture or vertex coloring
   // can be active at one time.  The existence of the array is the
   // signal to use that technique.
   if (this->ColorCoordinates)
@@ -510,7 +510,7 @@ vtkUnsignedCharArray* vtkMapper::MapScalars(vtkDataSet* input, double alpha, int
     this->ColorTextureMap = nullptr;
   }
 
-  // Lets try to resuse the old colors.
+  // Lets try to reuse the old colors.
   if (this->Colors)
   {
     if (this->LookupTable && this->LookupTable->GetAlpha() == alpha)

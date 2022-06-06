@@ -163,7 +163,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char* argv[])
   ren->SetMaximumNumberOfPeels(17);
   ren->SetUseDepthPeelingForVolumes(true);
 
-  // Fully trasnparent sphere
+  // Fully transparent sphere
   vtkNew<vtkRenderer> ren2;
   ren2->SetBackground(1.0, 1.0, 1.0);
   ren2->SetViewport(0.5, 0.0, 1.0, 1.0);

@@ -171,7 +171,7 @@ public:
    * For now it is only supported in vtkGPUVolumeRayCastMapper.
    * In vtkSmartVolumeMapper and in vtkMultiBlockVolumeMapper, this parameter
    * is used when the GPU mapper is effectively used.
-   * Note that enabling it might affect performances, espacially when
+   * Note that enabling it might affect performances, especially when
    * using a 2D TF or a gradient opacity. It is disabled by default.
    */
   vtkSetMacro(ComputeNormalFromOpacity, bool);
