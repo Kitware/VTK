@@ -4,7 +4,8 @@ set(CTEST_SOURCE_DIRECTORY "${CTEST_SOURCE_DIRECTORY}/Testing/External")
 set(cmake_args
   "-DCMAKE_BUILD_TYPE:STRING=Release"
   "-DCMAKE_PREFIX_PATH:PATH=${CTEST_BINARY_DIRECTORY}/install"
-  "-DVTK_USE_LARGE_DATA:BOOL=ON")
+  "-DVTK_USE_LARGE_DATA:BOOL=ON"
+  "--no-warn-unused-cli")
 
 # Create an entry in CDash.
 ctest_start(Experimental TRACK "${ctest_track}")
