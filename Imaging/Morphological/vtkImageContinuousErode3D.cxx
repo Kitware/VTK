@@ -58,7 +58,7 @@ void vtkImageContinuousErode3D::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 // This method sets the size of the neighborhood.  It also sets the
-// default middle of the neighborhood and computes the eliptical foot print.
+// default middle of the neighborhood and computes the elliptical foot print.
 void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
 {
   int modified = 0;
@@ -104,89 +104,72 @@ void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
 // This templated function executes the filter on any region,
 // whether it needs boundary checking or not.
 // If the filter needs to be faster, the function could be duplicated
-// for strictly center (no boundary ) processing.
+// for strictly center (no boundary) processing.
 template <class T>
 void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D* self, vtkImageData* mask,
-  vtkImageData* inData, T* inPtr, vtkImageData* outData, int* outExt, T* outPtr, int id,
+  vtkImageData* inData, T* inPtr, vtkImageData* outData, const int* outExt, T* outPtr, int id,
   vtkDataArray* inArray, vtkInformation* inInfo)
 {
-  int *kernelMiddle, *kernelSize;
-  // For looping though output (and input) pixels.
-  int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
-  int outIdx0, outIdx1, outIdx2;
-  vtkIdType inInc0, inInc1, inInc2;
-  vtkIdType outInc0, outInc1, outInc2;
-  T *inPtr0, *inPtr1, *inPtr2;
-  T *outPtr0, *outPtr1, *outPtr2;
-  int numComps, outIdxC;
-  // For looping through hood pixels
-  int hoodMin0, hoodMax0, hoodMin1, hoodMax1, hoodMin2, hoodMax2;
-  int hoodIdx0, hoodIdx1, hoodIdx2;
-  T *hoodPtr0, *hoodPtr1, *hoodPtr2;
-  // For looping through the mask.
-  unsigned char *maskPtr, *maskPtr0, *maskPtr1, *maskPtr2;
-  vtkIdType maskInc0, maskInc1, maskInc2;
-  // The extent of the whole input image
-  int inImageMin0, inImageMin1, inImageMin2;
-  int inImageMax0, inImageMax1, inImageMax2;
-  int inImageExt[6];
   // to compute the range
-  T pixelMin;
   unsigned long count = 0;
-  unsigned long target;
-  int* inExt = inData->GetExtent();
+
+  const int* inExt = inData->GetExtent();
 
   // Get information to march through data
+  vtkIdType inInc0, inInc1, inInc2;
   inData->GetIncrements(inInc0, inInc1, inInc2);
+  int inImageExt[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
-  inImageMin0 = inImageExt[0];
-  inImageMax0 = inImageExt[1];
-  inImageMin1 = inImageExt[2];
-  inImageMax1 = inImageExt[3];
-  inImageMin2 = inImageExt[4];
-  inImageMax2 = inImageExt[5];
+  int inImageMin0 = inImageExt[0];
+  int inImageMax0 = inImageExt[1];
+  int inImageMin1 = inImageExt[2];
+  int inImageMax1 = inImageExt[3];
+  int inImageMin2 = inImageExt[4];
+  int inImageMax2 = inImageExt[5];
+  vtkIdType outInc0, outInc1, outInc2;
   outData->GetIncrements(outInc0, outInc1, outInc2);
-  outMin0 = outExt[0];
-  outMax0 = outExt[1];
-  outMin1 = outExt[2];
-  outMax1 = outExt[3];
-  outMin2 = outExt[4];
-  outMax2 = outExt[5];
-  numComps = outData->GetNumberOfScalarComponents();
+  int outMin0 = outExt[0];
+  int outMax0 = outExt[1];
+  int outMin1 = outExt[2];
+  int outMax1 = outExt[3];
+  int outMin2 = outExt[4];
+  int outMax2 = outExt[5];
+  int numComps = outData->GetNumberOfScalarComponents();
 
   // Get ivars of this object (easier than making friends)
-  kernelSize = self->GetKernelSize();
-  kernelMiddle = self->GetKernelMiddle();
-  hoodMin0 = -kernelMiddle[0];
-  hoodMin1 = -kernelMiddle[1];
-  hoodMin2 = -kernelMiddle[2];
-  hoodMax0 = hoodMin0 + kernelSize[0] - 1;
-  hoodMax1 = hoodMin1 + kernelSize[1] - 1;
-  hoodMax2 = hoodMin2 + kernelSize[2] - 1;
+  const int* kernelSize = self->GetKernelSize();
+  const int* kernelMiddle = self->GetKernelMiddle();
+  int hoodMin0 = -kernelMiddle[0];
+  int hoodMin1 = -kernelMiddle[1];
+  int hoodMin2 = -kernelMiddle[2];
+  int hoodMax0 = hoodMin0 + kernelSize[0] - 1;
+  int hoodMax1 = hoodMin1 + kernelSize[1] - 1;
+  int hoodMax2 = hoodMin2 + kernelSize[2] - 1;
 
   // Setup mask info
-  maskPtr = static_cast<unsigned char*>(mask->GetScalarPointer());
+  const unsigned char* maskPtr = static_cast<unsigned char*>(mask->GetScalarPointer());
+  vtkIdType maskInc0, maskInc1, maskInc2;
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
 
   // in and out should be marching through corresponding pixels.
   inPtr = static_cast<T*>(inArray->GetVoidPointer(
     (outMin0 - inExt[0]) * inInc0 + (outMin1 - inExt[2]) * inInc1 + (outMin2 - inExt[4]) * inInc2));
 
-  target =
+  unsigned long target =
     static_cast<unsigned long>(numComps * (outMax2 - outMin2 + 1) * (outMax1 - outMin1 + 1) / 50.0);
   target++;
 
   // loop through components
-  for (outIdxC = 0; outIdxC < numComps; ++outIdxC)
+  for (int outIdxC = 0; outIdxC < numComps; ++outIdxC)
   {
     // loop through pixels of output
-    outPtr2 = outPtr;
-    inPtr2 = inPtr;
-    for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
+    T* outPtr2 = outPtr;
+    const T* inPtr2 = inPtr;
+    for (int outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
     {
-      outPtr1 = outPtr2;
-      inPtr1 = inPtr2;
-      for (outIdx1 = outMin1; !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
+      T* outPtr1 = outPtr2;
+      const T* inPtr1 = inPtr2;
+      for (int outIdx1 = outMin1; !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
       {
         if (!id)
         {
@@ -196,35 +179,35 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D* self, vtkImageD
           }
           count++;
         }
-        outPtr0 = outPtr1;
-        inPtr0 = inPtr1;
-        for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
-        {
 
+        T* outPtr0 = outPtr1;
+        const T* inPtr0 = inPtr1;
+        for (int outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
+        {
           // Find min
-          pixelMin = *inPtr0;
+          T pixelMin = *inPtr0;
           // loop through neighborhood pixels
           // as sort of a hack to handle boundaries,
           // input pointer will be marching through data that does not exist.
-          hoodPtr2 =
+          const T* hoodPtr2 =
             inPtr0 - kernelMiddle[0] * inInc0 - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
-          maskPtr2 = maskPtr;
-          for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
+          const unsigned char* maskPtr2 = maskPtr;
+          for (int hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
           {
-            hoodPtr1 = hoodPtr2;
-            maskPtr1 = maskPtr2;
-            for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
+            const T* hoodPtr1 = hoodPtr2;
+            const unsigned char* maskPtr1 = maskPtr2;
+            for (int hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
             {
-              hoodPtr0 = hoodPtr1;
-              maskPtr0 = maskPtr1;
-              for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+              const T* hoodPtr0 = hoodPtr1;
+              const unsigned char* maskPtr0 = maskPtr1;
+              for (int hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
               {
                 // A quick but rather expensive way to handle boundaries
                 if (outIdx0 + hoodIdx0 >= inImageMin0 && outIdx0 + hoodIdx0 <= inImageMax0 &&
                   outIdx1 + hoodIdx1 >= inImageMin1 && outIdx1 + hoodIdx1 <= inImageMax1 &&
                   outIdx2 + hoodIdx2 >= inImageMin2 && outIdx2 + hoodIdx2 <= inImageMax2)
                 {
-                  if (*maskPtr0)
+                  if (*maskPtr0 != 0)
                   {
                     if (*hoodPtr0 < pixelMin)
                     {
