@@ -30,5 +30,6 @@ vtk_add_test_python(
   EnSightSelectArrays.py
   EnSightTensorsInversion.py
   EnSightTensorsInversionBin.py
+  EnSightTimeChange.py,NO_VALID,NO_RT
   nacaBinary.py
   )

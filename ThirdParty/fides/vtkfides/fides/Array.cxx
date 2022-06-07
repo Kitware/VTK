@@ -66,9 +66,14 @@ public:
       vtkm::Id outIdx = (firstOutputPlaneIndex + i + 1) * this->PtsPerPlane + pt0Offset;
       if (outIdx > numOutCoords)
       {
+#if defined(VTKM_ENABLE_CUDA) || defined(VTKM_ENABLE_KOKKOS)
+        // cuda doesn't like std::string::data
+        this->RaiseError("Output index is outside the bounds of output array");
+#else
         std::string err = "Output index is computed to be " + std::to_string(outIdx) +
           ", but the output array has size " + std::to_string(numOutCoords);
         this->RaiseError(err.data());
+#endif
       }
       // To see this is correct, consider insertion of 1 plane.
       // Then y = (y0 + y1)/2.
@@ -364,7 +369,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayUniformPointCoordinates::Read(
     this->SpacingArrays = this->Spacing->Read(paths, sources, selections);
 
     // In the case of CellSets that use data read from the ADIOS files,
-    // we create empty DynamicCellSets for each partition and return a
+    // we create empty UnknownCellSets for each partition and return a
     // vector of those. For CoordinateSystem, we'll actually create those
     // objects at PostRead and just return an empty vector here.
   }
@@ -777,7 +782,7 @@ void ArrayXGCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
   if (!cs.IsType<vtkm::cont::CellSetExtrude>())
     throw std::runtime_error("Wrong type of cell set for XGC dataset.");
 
-  auto cellSet = cs.Cast<vtkm::cont::CellSetExtrude>();
+  auto cellSet = cs.AsCellSet<vtkm::cont::CellSetExtrude>();
   vtkm::Id ptsPerPlane = cellSet.GetNumberOfPointsPerPlane();
   vtkm::Id numPlanes = this->NumberOfPlanes;
   vtkm::Id totNumPlanes = numPlanes + (numPlanes * numInsertPlanes);
@@ -966,9 +971,14 @@ public:
       vtkm::Id outIdx = (firstOutputPlaneIndex + i + 1) * this->PtsPerPlane + pt0Offset;
       if (outIdx > numOutCoords)
       {
+#if defined(VTKM_ENABLE_CUDA) || defined(VTKM_ENABLE_KOKKOS)
+        // cuda doesn't like std::string::data
+        this->RaiseError("Output index is outside the bounds of output array");
+#else
         std::string err = "Output index is computed to be " + std::to_string(outIdx) +
           ", but the output array has size " + std::to_string(numOutCoords);
         this->RaiseError(err.data());
+#endif
       }
       //interpolate phi, convert to cartesian.
       auto phi = phi0 + t * (phi1 - phi0);

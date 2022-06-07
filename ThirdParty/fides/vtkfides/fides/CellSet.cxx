@@ -114,7 +114,7 @@ void CellSet::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources
   this->CellSetImpl->ProcessJSON(json, sources);
 }
 
-std::vector<vtkm::cont::DynamicCellSet> CellSet::Read(
+std::vector<vtkm::cont::UnknownCellSet> CellSet::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -176,7 +176,7 @@ void CellSetSingleType::ProcessJSON(const rapidjson::Value& json, DataSourcesTyp
   }
 }
 
-std::vector<vtkm::cont::DynamicCellSet> CellSetSingleType::Read(
+std::vector<vtkm::cont::UnknownCellSet> CellSetSingleType::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -192,7 +192,7 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetSingleType::Read(
   this->IsStatic = false;
   this->ConnectivityArrays = this->ReadSelf(paths, sources, selections);
   this->IsStatic = isStatic;
-  std::vector<vtkm::cont::DynamicCellSet> cellSets;
+  std::vector<vtkm::cont::UnknownCellSet> cellSets;
   size_t nArrays = this->ConnectivityArrays.size();
   cellSets.reserve(nArrays);
   for (size_t i = 0; i < nArrays; i++)
@@ -216,11 +216,12 @@ void CellSetSingleType::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
     auto& pds = partitions[i];
     vtkm::cont::ArrayHandle<vtkm::Id> connCasted =
       this->ConnectivityArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
-    auto& cellSet = pds.GetCellSet().Cast<vtkm::cont::CellSetSingleType<>>();
+    auto cellSet = pds.GetCellSet().AsCellSet<vtkm::cont::CellSetSingleType<>>();
     cellSet.Fill(pds.GetNumberOfPoints(),
                  this->CellInformation.first,
                  this->CellInformation.second,
                  connCasted);
+    pds.SetCellSet(cellSet);
   }
   if (!this->IsStatic)
   {
@@ -261,7 +262,7 @@ void CellSetExplicit::ProcessJSON(const rapidjson::Value& json, DataSourcesType&
   this->Connectivity->ProcessJSON(conn, sources);
 }
 
-std::vector<vtkm::cont::DynamicCellSet> CellSetExplicit::Read(
+std::vector<vtkm::cont::UnknownCellSet> CellSetExplicit::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -275,7 +276,7 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetExplicit::Read(
   this->NumberOfVerticesArrays = this->NumberOfVertices->Read(paths, sources, selections);
   this->CellTypesArrays = this->CellTypes->Read(paths, sources, selections);
 
-  std::vector<vtkm::cont::DynamicCellSet> cellSets;
+  std::vector<vtkm::cont::UnknownCellSet> cellSets;
   size_t nArrays = this->ConnectivityArrays.size();
   cellSets.reserve(nArrays);
   for (size_t i = 0; i < nArrays; i++)
@@ -296,7 +297,7 @@ void CellSetExplicit::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   size_t nParts = partitions.size();
   for (size_t i = 0; i < nParts; i++)
   {
-    const auto& pds = partitions[i];
+    auto& pds = partitions[i];
     vtkm::cont::ArrayHandle<vtkm::IdComponent> nVertsCasted =
       this->NumberOfVerticesArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::IdComponent>>();
     vtkm::cont::ArrayHandle<vtkm::Id> offsets;
@@ -308,8 +309,9 @@ void CellSetExplicit::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
       this->ConnectivityArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
     vtkm::cont::ArrayHandle<vtkm::UInt8> typesCasted =
       this->CellTypesArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
-    auto& cellSet = pds.GetCellSet().Cast<vtkm::cont::CellSetExplicit<>>();
+    auto cellSet = pds.GetCellSet().AsCellSet<vtkm::cont::CellSetExplicit<>>();
     cellSet.Fill(pds.GetNumberOfPoints(), typesCasted, connCasted, offsets);
+    pds.SetCellSet(cellSet);
   }
   if (!this->IsStatic)
   {
@@ -330,7 +332,7 @@ void CellSetStructured::ProcessJSON(const rapidjson::Value& json, DataSourcesTyp
   this->Dimensions->ProcessJSON(dimensions, sources);
 }
 
-std::vector<vtkm::cont::DynamicCellSet> CellSetStructured::Read(
+std::vector<vtkm::cont::UnknownCellSet> CellSetStructured::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -338,7 +340,7 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetStructured::Read(
   this->DimensionArrays = this->Dimensions->Read(paths, sources, selections);
 
   std::size_t nArrays = this->DimensionArrays.size();
-  std::vector<vtkm::cont::DynamicCellSet> ret;
+  std::vector<vtkm::cont::UnknownCellSet> ret;
   ret.reserve(nArrays);
 
   for (std::size_t i = 0; i < nArrays; i++)
@@ -356,8 +358,8 @@ void CellSetStructured::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
 
   for (std::size_t i = 0; i < nParts; i++)
   {
-    const auto& ds = partitions[i];
-    auto& cellSet = ds.GetCellSet().Cast<vtkm::cont::CellSetStructured<3>>();
+    auto& ds = partitions[i];
+    auto cellSet = ds.GetCellSet().AsCellSet<vtkm::cont::CellSetStructured<3>>();
     const auto& dimArray =
       this->DimensionArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<std::size_t>>();
     auto dimPortal = dimArray.ReadPortal();
@@ -374,6 +376,7 @@ void CellSetStructured::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
                       static_cast<vtkm::Id>(dimPortal.Get(5)));
       cellSet.SetGlobalPointIndexStart(start);
     }
+    ds.SetCellSet(cellSet);
   }
 }
 
@@ -400,7 +403,7 @@ void CellSetXGC::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sour
   }
 }
 
-std::vector<vtkm::cont::DynamicCellSet> CellSetXGC::Read(
+std::vector<vtkm::cont::UnknownCellSet> CellSetXGC::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -425,7 +428,7 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetXGC::Read(
   fides::metadata::MetaData newSelections = selections;
   newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
-  std::vector<vtkm::cont::DynamicCellSet> cellSets;
+  std::vector<vtkm::cont::UnknownCellSet> cellSets;
 
   //load the connect_list
   std::vector<vtkm::cont::UnknownArrayHandle> connectivityVec =
@@ -537,7 +540,7 @@ void CellSetXGC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   //This is a hack until we decide with XGC how to cellset connectivity.
   for (auto& ds : partitions)
   {
-    auto& cs = ds.GetCellSet().Cast<vtkm::cont::CellSetExtrude>();
+    auto cs = ds.GetCellSet().AsCellSet<vtkm::cont::CellSetExtrude>();
     vtkm::cont::ArrayHandle<int> nextNode;
     vtkm::Id n = cs.GetNumberOfPointsPerPlane() * cs.GetNumberOfPlanes();
     nextNode.Allocate(n);
@@ -569,7 +572,7 @@ void CellSetXGC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
       using CellSetType = vtkm::cont::CellSetExtrude;
       using CoordsType = vtkm::cont::ArrayHandleXGCCoordinates<double>;
 
-      const auto& cs = ds.GetCellSet().Cast<CellSetType>();
+      const auto& cs = ds.GetCellSet().AsCellSet<CellSetType>();
       const auto& coords = ds.GetCoordinateSystem().GetData().AsArrayHandle<CoordsType>();
 
       vtkm::cont::Invoker invoke;
@@ -623,12 +626,12 @@ void CellSetGTC::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sour
   this->IndexShift->ProcessJSON(json["index_shift"], sources);
 }
 
-std::vector<vtkm::cont::DynamicCellSet> CellSetGTC::Read(
+std::vector<vtkm::cont::UnknownCellSet> CellSetGTC::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::DynamicCellSet> cellSets;
+  std::vector<vtkm::cont::UnknownCellSet> cellSets;
 
   if (!this->IsCached)
   {
@@ -932,9 +935,10 @@ void CellSetGTC::ComputeCellSet(vtkm::cont::DataSet& dataSet)
     throw std::runtime_error("Unsupported cellset type for GTC.");
   }
 
-  auto& cellSet = dataSet.GetCellSet().Cast<vtkm::cont::CellSetSingleType<>>();
+  auto cellSet = dataSet.GetCellSet().AsCellSet<vtkm::cont::CellSetSingleType<>>();
   auto connIdsAH = vtkm::cont::make_ArrayHandle(connIds, vtkm::CopyFlag::On);
   cellSet.Fill(numCoords, vtkm::CELL_SHAPE_WEDGE, 6, connIdsAH);
+  dataSet.SetCellSet(cellSet);
 
   this->CachedCellSet = cellSet;
   this->IsCached = true;
