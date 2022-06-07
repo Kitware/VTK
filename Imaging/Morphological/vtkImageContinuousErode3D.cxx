@@ -31,9 +31,11 @@ vtkStandardNewMacro(vtkImageContinuousErode3D);
 vtkImageContinuousErode3D::vtkImageContinuousErode3D()
 {
   this->HandleBoundaries = 1;
-  this->KernelSize[0] = 1;
-  this->KernelSize[1] = 1;
-  this->KernelSize[2] = 1;
+
+  // Initialize to 0 so that the SetKernelSize() below does its work.
+  this->KernelSize[0] = 0;
+  this->KernelSize[1] = 0;
+  this->KernelSize[2] = 0;
 
   this->Ellipse = vtkImageEllipsoidSource::New();
   // Setup the Ellipse to default size

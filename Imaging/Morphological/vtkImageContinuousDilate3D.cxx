@@ -31,6 +31,8 @@ vtkStandardNewMacro(vtkImageContinuousDilate3D);
 vtkImageContinuousDilate3D::vtkImageContinuousDilate3D()
 {
   this->HandleBoundaries = 1;
+
+  // Initialize to 0 so that the SetKernelSize() below does its work.
   this->KernelSize[0] = 0;
   this->KernelSize[1] = 0;
   this->KernelSize[2] = 0;

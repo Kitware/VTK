@@ -28,9 +28,11 @@ vtkStandardNewMacro(vtkImageDilateErode3D);
 vtkImageDilateErode3D::vtkImageDilateErode3D()
 {
   this->HandleBoundaries = 1;
-  this->KernelSize[0] = 1;
-  this->KernelSize[1] = 1;
-  this->KernelSize[2] = 1;
+
+  // Initialize to 0 so that the SetKernelSize() below does its work.
+  this->KernelSize[0] = 0;
+  this->KernelSize[1] = 0;
+  this->KernelSize[2] = 0;
 
   this->DilateValue = 0.0;
   this->ErodeValue = 255.0;
