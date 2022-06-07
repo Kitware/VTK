@@ -112,8 +112,7 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
 // for strictly center (no boundary) processing.
 template <class T>
 void vtkImageDilateErode3DExecute(vtkImageDilateErode3D* self, vtkImageData* mask,
-  vtkImageData* inData, T* inPtr, vtkImageData* outData, const int* outExt, T* outPtr, int id,
-  vtkInformation* inInfo)
+  vtkImageData* inData, T* inPtr, vtkImageData* outData, const int* outExt, T* outPtr, int id)
 {
   // to compute the range
   unsigned long count = 0;
@@ -121,14 +120,13 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D* self, vtkImageData* mas
   // Get information to march through data
   vtkIdType inInc0, inInc1, inInc2;
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  int inImageExt[6];
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
-  int inImageMin0 = inImageExt[0];
-  int inImageMax0 = inImageExt[1];
-  int inImageMin1 = inImageExt[2];
-  int inImageMax1 = inImageExt[3];
-  int inImageMin2 = inImageExt[4];
-  int inImageMax2 = inImageExt[5];
+  const int* inExt = inData->GetExtent();
+  int inImageMin0 = inExt[0];
+  int inImageMax0 = inExt[1];
+  int inImageMin1 = inExt[2];
+  int inImageMax1 = inExt[3];
+  int inImageMin2 = inExt[4];
+  int inImageMax2 = inExt[5];
   vtkIdType outInc0, outInc1, outInc2;
   outData->GetIncrements(outInc0, outInc1, outInc2);
   int outMin0 = outExt[0];
@@ -280,7 +278,7 @@ void vtkImageDilateErode3D::ThreadedRequestData(vtkInformation* vtkNotUsed(reque
   switch (inData[0][0]->GetScalarType())
   {
     vtkTemplateMacro(vtkImageDilateErode3DExecute(this, mask, inData[0][0],
-      static_cast<VTK_TT*>(inPtr), outData[0], outExt, static_cast<VTK_TT*>(outPtr), id, inInfo));
+      static_cast<VTK_TT*>(inPtr), outData[0], outExt, static_cast<VTK_TT*>(outPtr), id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
