@@ -2,8 +2,6 @@ NAME
   VTK::IOCesium3DTiles
 LIBRARY_NAME
   vtkIOCesium3DTiles
-KIT
-  VTK::IO
 GROUPS
   StandAlone
 DEPENDS
