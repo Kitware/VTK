@@ -43,19 +43,6 @@
  * The output precision of created points (if they need to be created) can
  * also be specified.
  *
- * In some cases (especially for large unstructured grids) the
- * vtkGeometryFilter can be slow. Consequently the filter has an optional
- * "fast mode" that may execute significantly faster (>4-5x) than normal
- * execution. The fast mode visits a subset of cells that may be on the
- * boundary of the dataset (and skips interior cells which contribute nothing
- * to the output). The set of subsetted cells is determined by inspecting
- * the topological connectivity degree of each point (i.e., the number of
- * unique cells using a particular point is that point's degree). With fast
- * mode enabled, those cells connected to a point with degree <= Degree
- * are visited. Note that this approach may miss some cells which contribute
- * boundary faces--thus the output is an approximation to the normal
- * execution of vtkGeometryFilter.
- *
  * Finally, this filter takes an optional second, vtkPolyData input. This
  * input represents a list of faces that are to be excluded from the output
  * of vtkGeometryFilter.
@@ -63,14 +50,14 @@
  * @warning
  * While vtkGeometryFilter and vtkDataSetSurfaceFilter perform similar operations,
  * there are important differences as follows:
- * 1. vtkGeometryFilter preserves topological connectivity. vtkDataSetSurfaceFilter
- *    produces output primitives which may be disconnected from one another.
+ * 1. vtkGeometryFilter can preserve (using RemoveGhostInterfaces) topological connectivity.
+ *    vtkDataSetSurfaceFilter produces output primitives which may be disconnected from one another.
  * 2. vtkGeometryFilter can generate output based on cell ids, point ids, and/or
  *    extent (bounding box) clipping. vtkDataSetSurfaceFilter strictly extracts
  *    the boundary surface of a dataset.
- * 3. vtkGeometryFilter is much faster than vtkDataSetSurfaceFilter, especially
- *    for vtkUnstructuredGrids. As a result, vtkDataSetSurfaceFilter will
- *    delegate the processing of linear unstructured grids to vtkGeometryFilter.
+ * 3. vtkGeometryFilter is much faster than vtkDataSetSurfaceFilter, because it's
+ *    multi-threaded. As a result, vtkDataSetSurfaceFilter will delegate the processing
+ *    of linear unstructured grids to vtkGeometryFilter.
  * 4. vtkGeometryFilter can (currently) only handle linear cells. The filter
  *    will delegate to vtkDataSetSurfaceFilter for higher-order cells. (This
  *    is a historical artifact and may be rectified in the future.)
@@ -101,7 +88,7 @@
 
 class vtkIncrementalPointLocator;
 class vtkStructuredGrid;
-class vtkUnstructuredGrid;
+class vtkUnstructuredGridBase;
 class vtkGeometryFilter;
 class vtkDataSetSurfaceFilter;
 struct vtkGeometryFilterHelper;
@@ -111,7 +98,7 @@ struct vtkExcludedFaces;
 struct VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilterHelper
 {
   unsigned char IsLinear;
-  static vtkGeometryFilterHelper* CharacterizeUnstructuredGrid(vtkUnstructuredGrid*);
+  static vtkGeometryFilterHelper* CharacterizeUnstructuredGrid(vtkUnstructuredGridBase*);
   static void CopyFilterParams(vtkGeometryFilter* gf, vtkDataSetSurfaceFilter* dssf);
   static void CopyFilterParams(vtkDataSetSurfaceFilter* dssf, vtkGeometryFilter* gf);
 };
@@ -230,8 +217,7 @@ public:
   /**
    * Turn on/off fast mode execution. If enabled, fast mode typically runs
    * much faster (2-3x) than the standard algorithm, however the output is an
-   * approximation to the correct result. Also, note that the FastMode
-   * depends on the data member Degree for its execution.
+   * approximation to the correct result.
    */
   vtkSetMacro(FastMode, bool);
   vtkGetMacro(FastMode, bool);
@@ -246,8 +232,14 @@ public:
    * located on the boundary of datasets - thus attached cells frequently
    * produce output boundary fragments.
    */
-  vtkSetClampMacro(Degree, unsigned int, 1, VTK_INT_MAX);
-  vtkGetMacro(Degree, unsigned int);
+  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
+  virtual void SetDegree(unsigned int vtkNotUsed(arg)) {}
+  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
+  virtual unsigned int GetDegreeMinValue() { return 1; }
+  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
+  virtual unsigned int GetDegreeMaxValue() { return static_cast<int>(~0u >> 1); }
+  VTK_DEPRECATED_IN_9_2_0("This method is no longer used and has no effect.")
+  virtual unsigned int GetDegree() { return 4; }
   ///@}
 
   ///@{
@@ -361,6 +353,22 @@ public:
 
   ///@{
   /**
+   * Set/Get if Ghost interfaces will be removed.
+   * When you are rendering you want to remove ghost interfaces.
+   * There are certain algorithms though that need the ghost interfaces.
+   *
+   * Since Rendering is the most common case, the Default is on.
+   *
+   * Note: This flag is meaningful only for vtkUnstructuredGrid/vtkUnstructuredGridBase.
+   * DON'T change it if there are no ghost cells.
+   */
+  vtkSetMacro(RemoveGhostInterfaces, bool);
+  vtkBooleanMacro(RemoveGhostInterfaces, bool);
+  vtkGetMacro(RemoveGhostInterfaces, bool);
+  ///@}
+
+  ///@{
+  /**
    * Direct access methods so that this class can be used as an
    * algorithm without using it as a filter (i.e., no pipeline updates).
    * Also some internal methods with additional options.
@@ -399,12 +407,12 @@ protected:
   bool CellClipping;
   bool ExtentClipping;
   int OutputPointsPrecision;
+  bool RemoveGhostInterfaces;
 
   bool Merging;
   vtkIncrementalPointLocator* Locator;
 
   bool FastMode;
-  unsigned int Degree;
 
   // These methods support compatibility with vtkDataSetSurfaceFilter
   int PieceInvariant;

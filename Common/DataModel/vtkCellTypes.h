@@ -166,6 +166,11 @@ public:
    */
   static int IsLinear(unsigned char type);
 
+  /**
+   * Get the dimension of a cell.
+   */
+  static int GetDimension(unsigned char type);
+
   ///@{
   /**
    * Methods for obtaining the arrays representing types and locations.
