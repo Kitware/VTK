@@ -33,8 +33,12 @@ vtk_module_find_package(PACKAGE ADIOS2)
 endif ()
 
 if (FALSE) # XXX(kitware): VTK handles building shared libs/testing and MPI
+if (VTKm_ENABLE_CUDA)
+  enable_language(CUDA)
+endif()
+
 option(BUILD_SHARED_LIBS "Build fides with shared libraries" ON)
-set(FIDES_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+
 option(FIDES_ENABLE_TESTING "Enable Fides Testing" ON)
 option(FIDES_ENABLE_EXAMPLES "Build Fides Examples" ON)
 

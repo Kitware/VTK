@@ -17,8 +17,8 @@
 #include <fides/xgc/XGCCommon.h>
 
 #include <vtkm/cont/ArrayHandleSOA.h>
-#include <vtkm/cont/DynamicCellSet.h>
 #include <vtkm/cont/PartitionedDataSet.h>
+#include <vtkm/cont/UnknownCellSet.h>
 
 namespace fides
 {
@@ -35,7 +35,7 @@ struct CellSetBase : public DataModelBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  virtual std::vector<vtkm::cont::DynamicCellSet> Read(
+  virtual std::vector<vtkm::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) = 0;
@@ -63,7 +63,7 @@ struct CellSet : public DataModelBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::DynamicCellSet> Read(
+  std::vector<vtkm::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
@@ -90,7 +90,7 @@ struct CellSetSingleType : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::DynamicCellSet> Read(
+  std::vector<vtkm::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -104,7 +104,7 @@ struct CellSetSingleType : public CellSetBase
 
 protected:
   std::pair<unsigned char, int> CellInformation;
-  std::vector<vtkm::cont::DynamicCellSet> CellSetCache;
+  std::vector<vtkm::cont::UnknownCellSet> CellSetCache;
   std::vector<vtkm::cont::UnknownArrayHandle> ConnectivityArrays;
 };
 
@@ -120,7 +120,7 @@ struct CellSetExplicit : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::DynamicCellSet> Read(
+  std::vector<vtkm::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -133,7 +133,7 @@ struct CellSetExplicit : public CellSetBase
                         const fides::metadata::MetaData& selections) override;
 
 protected:
-  std::vector<vtkm::cont::DynamicCellSet> CellSetCache;
+  std::vector<vtkm::cont::UnknownCellSet> CellSetCache;
   std::unique_ptr<Array> CellTypes = nullptr;
   std::unique_ptr<Array> NumberOfVertices = nullptr;
   std::unique_ptr<Array> Connectivity = nullptr;
@@ -154,7 +154,7 @@ struct CellSetStructured : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::DynamicCellSet> Read(
+  std::vector<vtkm::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -189,7 +189,7 @@ struct CellSetXGC : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::DynamicCellSet> Read(
+  std::vector<vtkm::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -197,15 +197,16 @@ struct CellSetXGC : public CellSetBase
   virtual void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
                         const fides::metadata::MetaData& selections) override;
 
+  // cuda doesn't like this class being private...
+  class CalcPsi;
+
 private:
-  std::vector<vtkm::cont::DynamicCellSet> CellSetCache;
+  std::vector<vtkm::cont::UnknownCellSet> CellSetCache;
   std::unique_ptr<Array> CellConnectivity = nullptr;
   std::unique_ptr<Array> PlaneConnectivity = nullptr;
   vtkm::Id NumberOfPlanes = -1;
   bool IsPeriodic = true;
   std::unique_ptr<XGCCommon> CommonImpl;
-
-  class CalcPsi;
 };
 
 /// \brief Class to read GTC cell set.
@@ -220,7 +221,7 @@ struct CellSetGTC : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::DynamicCellSet> Read(
+  std::vector<vtkm::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -233,7 +234,7 @@ private:
   using GTCCoordsType64 = vtkm::cont::ArrayHandleSOA<vtkm::Vec3f_64>;
 
   bool IsCached = false;
-  vtkm::cont::DynamicCellSet CachedCellSet;
+  vtkm::cont::UnknownCellSet CachedCellSet;
 
   void ComputeCellSet(vtkm::cont::DataSet& dataSet);
 
