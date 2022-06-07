@@ -6,6 +6,7 @@ set(classes
   vtkApproximatingSubdivisionFilter
   vtkAreaContourSpectrumFilter
   vtkAxes
+  vtkBandFiltering
   vtkBlankStructuredGrid
   vtkBlankStructuredGridWithImage
   vtkBlockIdScalars
