@@ -20,11 +20,11 @@ vtkm::cont::Field::Association ConvertToVTKmAssociation(fides::Association assoc
   switch (assoc)
   {
     case fides::Association::POINTS:
-      return vtkm::cont::Field::Association::POINTS;
+      return vtkm::cont::Field::Association::Points;
     case fides::Association::CELL_SET:
-      return vtkm::cont::Field::Association::CELL_SET;
+      return vtkm::cont::Field::Association::Cells;
     case fides::Association::FIELD_DATA:
-      return vtkm::cont::Field::Association::WHOLE_MESH;
+      return vtkm::cont::Field::Association::WholeMesh;
     default:
       throw std::runtime_error("unknown association provided");
   }
@@ -34,9 +34,9 @@ fides::Association ConvertVTKmAssociationToFides(vtkm::cont::Field::Association 
 {
   switch (assoc)
   {
-    case vtkm::cont::Field::Association::POINTS:
+    case vtkm::cont::Field::Association::Points:
       return fides::Association::POINTS;
-    case vtkm::cont::Field::Association::CELL_SET:
+    case vtkm::cont::Field::Association::Cells:
       return fides::Association::CELL_SET;
     default:
       throw std::runtime_error("Can only convert POINTS and CELL_SET to an fides::Association");

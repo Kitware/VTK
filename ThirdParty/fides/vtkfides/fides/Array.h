@@ -310,6 +310,9 @@ struct ArrayGTCCoordinates : public ArrayBase
   void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
                 const fides::metadata::MetaData& metaData) override;
 
+  // cuda does not like this being private, so moved it to public...
+  class PlaneInserter;
+
 private:
   using GTCCoordsType32 = vtkm::cont::ArrayHandleSOA<vtkm::Vec3f_32>;
   using GTCCoordsType64 = vtkm::cont::ArrayHandleSOA<vtkm::Vec3f_64>;
@@ -320,8 +323,6 @@ private:
   std::unique_ptr<ArrayBasic> XArray = nullptr;
   std::unique_ptr<ArrayBasic> YArray = nullptr;
   std::unique_ptr<ArrayBasic> ZArray = nullptr;
-
-  class PlaneInserter;
 };
 
 /// \brief Class to read \c ArrayGTCField objects.

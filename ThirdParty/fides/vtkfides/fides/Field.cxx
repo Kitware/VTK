@@ -40,15 +40,15 @@ void Field::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
     const std::string& assoc = json["association"].GetString();
     if (assoc == "points")
     {
-      this->Association = vtkm::cont::Field::Association::POINTS;
+      this->Association = vtkm::cont::Field::Association::Points;
     }
     else if (assoc == "cell_set")
     {
-      this->Association = vtkm::cont::Field::Association::CELL_SET;
+      this->Association = vtkm::cont::Field::Association::Cells;
     }
     else if (assoc == "field_data")
     {
-      this->Association = vtkm::cont::Field::Association::WHOLE_MESH;
+      this->Association = vtkm::cont::Field::Association::WholeMesh;
     }
     else
     {
@@ -109,15 +109,15 @@ void Field::ProcessExpandedField(const std::string& name,
   this->WildcardField = false; // no longer a wildcard field now
   if (assoc == "points")
   {
-    this->Association = vtkm::cont::Field::Association::POINTS;
+    this->Association = vtkm::cont::Field::Association::Points;
   }
   else if (assoc == "cell_set")
   {
-    this->Association = vtkm::cont::Field::Association::CELL_SET;
+    this->Association = vtkm::cont::Field::Association::Cells;
   }
   else if (assoc == "field_data")
   {
-    this->Association = vtkm::cont::Field::Association::WHOLE_MESH;
+    this->Association = vtkm::cont::Field::Association::WholeMesh;
   }
   else
   {

@@ -27,7 +27,7 @@
 
 #include <vtkm/cont/CoordinateSystem.h>
 #include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/DynamicCellSet.h>
+#include <vtkm/cont/UnknownCellSet.h>
 
 #include <fides/CellSet.h>
 #include <fides/CoordinateSystem.h>
@@ -377,7 +377,7 @@ public:
     return this->CoordinateSystem->Read(paths, this->DataSources, selections);
   }
 
-  std::vector<vtkm::cont::DynamicCellSet> ReadCellSet(
+  std::vector<vtkm::cont::UnknownCellSet> ReadCellSet(
     const std::unordered_map<std::string, std::string>& paths,
     const fides::metadata::MetaData& selections)
   {
@@ -760,7 +760,7 @@ std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
 {
   std::vector<vtkm::cont::CoordinateSystem> coordSystems =
     this->Impl->ReadCoordinateSystem(paths, selections);
-  std::vector<vtkm::cont::DynamicCellSet> cellSets = this->Impl->ReadCellSet(paths, selections);
+  std::vector<vtkm::cont::UnknownCellSet> cellSets = this->Impl->ReadCellSet(paths, selections);
   size_t nPartitions = cellSets.size();
   std::vector<vtkm::cont::DataSet> dataSets(nPartitions);
   for (size_t i = 0; i < nPartitions; i++)

@@ -654,7 +654,7 @@ UnstructuredSingleTypeDataModel::GetAttributes()
   attrMap[CoordinatesAttrName] = std::vector<std::string>(1, "coordinates");
   attrMap[ConnectivityAttrName] = std::vector<std::string>(1, "connectivity");
 
-  const auto& cellSet = this->DataSetSource.GetCellSet().Cast<UnstructuredSingleType>();
+  const auto& cellSet = this->DataSetSource.GetCellSet().AsCellSet<UnstructuredSingleType>();
   vtkm::UInt8 shapeId = cellSet.GetCellShape(0);
   std::string cellType = fides::ConvertVTKmCellTypeToFides(shapeId);
   attrMap[CellTypeAttrName] = std::vector<std::string>(1, cellType);
@@ -671,7 +671,7 @@ void UnstructuredSingleTypeDataModel::CreateCellSet(rapidjson::Value& parent)
     {
       throw std::runtime_error("Cellset is not UnstructuredSingleType");
     }
-    const auto& cellSet = this->DataSetSource.GetCellSet().Cast<UnstructuredSingleType>();
+    const auto& cellSet = this->DataSetSource.GetCellSet().AsCellSet<UnstructuredSingleType>();
     vtkm::UInt8 shapeId = cellSet.GetCellShape(0);
     std::string cellType = fides::ConvertVTKmCellTypeToFides(shapeId);
 
