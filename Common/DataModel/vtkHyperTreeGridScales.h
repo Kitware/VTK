@@ -29,7 +29,8 @@
 #ifndef vtkHyperTreeGridScales_h
 #define vtkHyperTreeGridScales_h
 
-#include <vector> // For std::vector
+#include <cstring> // For memcpy
+#include <vector>  // For std::vector
 
 class vtkHyperTreeGridScales
 {

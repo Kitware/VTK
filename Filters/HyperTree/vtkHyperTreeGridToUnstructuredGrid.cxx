@@ -34,6 +34,8 @@ vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
   , Dimension(0)
   , Orientation(0)
   , Axes(nullptr)
+  , AddOriginalIds(true)
+  , OriginalIds(nullptr)
 {
 }
 
@@ -79,6 +81,14 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
   this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
 
+  if (this->AddOriginalIds)
+  {
+    this->OriginalIds = vtkIdTypeArray::New();
+    this->OriginalIds->SetName("OriginalIds");
+    this->OriginalIds->SetNumberOfComponents(1);
+    this->OriginalIds->SetNumberOfTuples(input->GetNumberOfLeaves());
+  }
+
   // Iterate over all hyper trees
   vtkIdType index;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
@@ -112,6 +122,13 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees(
     default:
       break;
   } // switch ( this->Dimension )
+
+  if (this->AddOriginalIds)
+  {
+    this->OutData->AddArray(this->OriginalIds);
+    this->OriginalIds->FastDelete();
+    this->OriginalIds = nullptr;
+  }
 
   this->Points->FastDelete();
   this->Cells->FastDelete();
@@ -265,4 +282,10 @@ void vtkHyperTreeGridToUnstructuredGrid::AddCell(vtkIdType inId, double* origin,
 
   // Copy output data from input
   this->OutData->CopyData(this->InData, inId, outId);
+
+  // And the global id if needed
+  if (this->AddOriginalIds)
+  {
+    this->OriginalIds->SetTuple1(outId, inId);
+  }
 }

@@ -7,6 +7,7 @@ set(classes
   vtkHyperTreeGridDepthLimiter
   vtkHyperTreeGridEvaluateCoarse
   vtkHyperTreeGridGeometry
+  vtkHyperTreeGridGradient
   vtkHyperTreeGridPlaneCutter
   vtkHyperTreeGridThreshold
   vtkHyperTreeGridToDualGrid
