@@ -190,31 +190,28 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D* self, vtkImageD
           // loop through neighborhood pixels
           // as sort of a hack to handle boundaries,
           // input pointer will be marching through data that does not exist.
-          const T* hoodPtr2 =
-            inPtr0 - kernelMiddle[0] * inInc0 - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
-          const unsigned char* maskPtr2 = maskPtr;
-          for (int hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
+          int hoodMinClamp2 = std::max(hoodMin2, inImageMin2 - outIdx2);
+          int hoodMaxClamp2 = std::min(hoodMax2, inImageMax2 - outIdx2);
+          const T* hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0 - kernelMiddle[1] * inInc1 -
+            kernelMiddle[2] * inInc2 + (hoodMinClamp2 - hoodMin2) * inInc2;
+          const unsigned char* maskPtr2 = maskPtr + (hoodMinClamp2 - hoodMin2) * maskInc2;
+          for (int hoodIdx2 = hoodMinClamp2; hoodIdx2 <= hoodMaxClamp2; ++hoodIdx2)
           {
-            const T* hoodPtr1 = hoodPtr2;
-            const unsigned char* maskPtr1 = maskPtr2;
-            for (int hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
+            int hoodMinClamp1 = std::max(hoodMin1, inImageMin1 - outIdx1);
+            int hoodMaxClamp1 = std::min(hoodMax1, inImageMax1 - outIdx1);
+            const T* hoodPtr1 = hoodPtr2 + (hoodMinClamp1 - hoodMin1) * inInc1;
+            const unsigned char* maskPtr1 = maskPtr2 + (hoodMinClamp1 - hoodMin1) * maskInc1;
+            for (int hoodIdx1 = hoodMinClamp1; hoodIdx1 <= hoodMaxClamp1; ++hoodIdx1)
             {
-              const T* hoodPtr0 = hoodPtr1;
-              const unsigned char* maskPtr0 = maskPtr1;
-              for (int hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+              int hoodMinClamp0 = std::max(hoodMin0, inImageMin0 - outIdx0);
+              int hoodMaxClamp0 = std::min(hoodMax0, inImageMax0 - outIdx0);
+              const T* hoodPtr0 = hoodPtr1 + (hoodMinClamp0 - hoodMin0) * inInc0;
+              const unsigned char* maskPtr0 = maskPtr1 + (hoodMinClamp0 - hoodMin0) * maskInc0;
+              for (int hoodIdx0 = hoodMinClamp0; hoodIdx0 <= hoodMaxClamp0; ++hoodIdx0)
               {
-                // A quick but rather expensive way to handle boundaries
-                if (outIdx0 + hoodIdx0 >= inImageMin0 && outIdx0 + hoodIdx0 <= inImageMax0 &&
-                  outIdx1 + hoodIdx1 >= inImageMin1 && outIdx1 + hoodIdx1 <= inImageMax1 &&
-                  outIdx2 + hoodIdx2 >= inImageMin2 && outIdx2 + hoodIdx2 <= inImageMax2)
+                if (*maskPtr0 != 0)
                 {
-                  if (*maskPtr0 != 0)
-                  {
-                    if (*hoodPtr0 < pixelMin)
-                    {
-                      pixelMin = *hoodPtr0;
-                    }
-                  }
+                  pixelMin = std::min(pixelMin, *hoodPtr0);
                 }
 
                 hoodPtr0 += inInc0;
