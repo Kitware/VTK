@@ -340,7 +340,8 @@ void vtkOpenGLTexture::Load(vtkRenderer* ren)
         int minorV;
         static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow())->GetOpenGLVersion(majorV, minorV);
         int levels = floor(log2(vtkMath::Max(size[0], size[1]))) + 1;
-        if (this->Mipmap && levels > 1 && (!this->CubeMap || majorV >= 4))
+        if (this->Mipmap && levels > 1 &&
+          ((!this->CubeMap && !this->UseSRGBColorSpace) || majorV >= 4))
         {
           this->TextureObject->SetMinificationFilter(vtkTextureObject::LinearMipmapLinear);
           this->TextureObject->SetMaxLevel(levels - 1);
