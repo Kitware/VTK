@@ -38,6 +38,8 @@
 namespace
 {
 
+const char* infoRecordName = "Information Records";
+
 std::string GetEdgeCoeffArrName(const std::string& name)
 {
   return std::string("EDGE_COEFF_") + name;
@@ -480,6 +482,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData
     vtkDataArray* inArr = elemCd->GetArray(name);
     if (inArr == nullptr)
     {
+      vtkLog(WARNING, << "H(Grad) field - " << name << " does not exist!");
       continue;
     }
     auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, name, 1, 0));
@@ -491,6 +494,11 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData
   {
     const std::string& name = ::GetEdgeCoeffArrName(fieldName);
     vtkDataArray* inArr = elemCd->GetArray(name.c_str());
+    if (inArr == nullptr)
+    {
+      vtkLog(WARNING, << "H(Curl) field - " << name << " does not exist!");
+      continue;
+    }
     auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, fieldName, 3, 0));
     arr->Allocate(maxNumPoints);
     hCurlFields->AddArray(arr);
@@ -500,6 +508,11 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData
   {
     const std::string& name = ::GetFaceCoeffArrName(fieldName);
     vtkDataArray* inArr = elemCd->GetArray(name.c_str());
+    if (inArr == nullptr)
+    {
+      vtkLog(WARNING, << "H(Div) field - " << name << " does not exist!");
+      continue;
+    }
     auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, fieldName, 3, 0));
     arr->Allocate(maxNumPoints);
     hDivFields->AddArray(arr);
@@ -971,11 +984,10 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
 
   // Look for special string array containing information records.
   vtkFieldData* fd = input->GetFieldData();
-  vtkStringArray* infoRecords =
-    vtkStringArray::SafeDownCast(fd->GetAbstractArray("Information Records"));
+  vtkStringArray* infoRecords = vtkStringArray::SafeDownCast(fd->GetAbstractArray(infoRecordName));
   if (infoRecords == nullptr)
   {
-    vtkErrorMacro(<< "Failed to find a string array 'Information Records'");
+    vtkErrorMacro(<< "Failed to find a string array - " << infoRecordName);
     return 0;
   }
 
