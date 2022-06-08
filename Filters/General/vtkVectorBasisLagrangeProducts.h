@@ -34,7 +34,7 @@ public:
   bool RequiresInitialization(const VTKCellType& cell, const double* coords, const int& npts);
   void Clear(const VTKCellType& cell);
   VblpMatrixType* GetVblp(const SpaceType& space, const VTKCellType& cell);
-  VbfuncType* GetVbfuncs(const SpaceType& space, const VTKCellType& cell);
+  VbfuncType* GetVbFunctions(const SpaceType& space, const VTKCellType& cell);
 
 private:
   VblpMatrixType HexVblpMats[2], QuadVblpMats[2], TetVblpMats[2], TriVblpMats[2], WedgeVblpMats[2];

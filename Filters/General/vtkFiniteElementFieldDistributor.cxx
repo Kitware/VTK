@@ -40,12 +40,12 @@ namespace
 
 const char* infoRecordName = "Information Records";
 
-std::string GetEdgeCoeffArrName(const std::string& name)
+std::string GetEdgeCoefficientArrayName(const std::string& name)
 {
   return std::string("EDGE_COEFF_") + name;
 }
 
-std::string GetFaceCoeffArrName(const std::string& name)
+std::string GetFaceCoefficientArrayName(const std::string& name)
 {
   return std::string("FACE_COEFF_") + name;
 }
@@ -74,12 +74,12 @@ std::vector<std::string> Split(const std::string& inString, const std::string& d
   std::size_t eIdx = 0;
   while ((eIdx = inString.find(delimeter, sIdx)) < inString.size())
   {
-    subStrings.push_back(inString.substr(sIdx, eIdx - sIdx));
+    subStrings.emplace_back(inString.substr(sIdx, eIdx - sIdx));
     sIdx = eIdx + delimeter.size();
   }
   if (sIdx < inString.size())
   {
-    subStrings.push_back(inString.substr(sIdx));
+    subStrings.emplace_back(inString.substr(sIdx));
   }
   return subStrings;
 }
@@ -108,7 +108,7 @@ std::vector<double> GetEdgeAttributes(
   const std::string& name, vtkCellData* cd, const vtkIdType& cellId)
 {
   std::vector<double> attrs;
-  vtkDataArray* coeffs = cd->GetArray(::GetEdgeCoeffArrName(name).c_str());
+  vtkDataArray* coeffs = cd->GetArray(::GetEdgeCoefficientArrayName(name).c_str());
   if (coeffs == nullptr)
   {
     return attrs;
@@ -123,7 +123,7 @@ std::vector<double> GetFaceAttributes(
   const std::string& name, vtkCellData* cd, const vtkIdType& cellId)
 {
   std::vector<double> attrs;
-  vtkDataArray* coeffs = cd->GetArray(::GetFaceCoeffArrName(name).c_str());
+  vtkDataArray* coeffs = cd->GetArray(::GetFaceCoefficientArrayName(name).c_str());
   if (coeffs == nullptr)
   {
     return attrs;
@@ -181,7 +181,7 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
           std::iota(result.begin(), result.end(), 1);
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of points for cell - VTK_LINE."
+          vtkLog(WARNING, << "Unsupported number of points for cell - VTK_LINE."
                           << "Supported: One of 2, 3, 4 "
                           << "Got: " << npts);
           break;
@@ -198,7 +198,7 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
           std::iota(result.begin(), result.end(), 1);
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of points for cell - VTK_TRIANGLE."
+          vtkLog(WARNING, << "Unsupported number of points for cell - VTK_TRIANGLE."
                           << "Supported: One of 3, 6, 10"
                           << "Got: " << npts);
           break;
@@ -215,7 +215,7 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
           std::iota(result.begin(), result.end(), 1);
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of points for cell - VTK_QUAD."
+          vtkLog(WARNING, << "Unsupported number of points for cell - VTK_QUAD."
                           << "Supported: One of 4, 9, 16 "
                           << "Got: " << npts);
           break;
@@ -233,7 +233,7 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
           std::iota(result.begin(), result.end(), 1);
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of points for cell - VTK_TETRA."
+          vtkLog(WARNING, << "Unsupported number of points for cell - VTK_TETRA."
                           << "Supported: One of 4, 10, 11, 15 "
                           << "Got: " << npts);
           break;
@@ -249,7 +249,7 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
         case 14:
         case 19:
         default:
-          vtkLog(WARNING, << "Unsupported no. of points for cell - VTK_PYRAMID."
+          vtkLog(WARNING, << "Unsupported number of points for cell - VTK_PYRAMID."
                           << "Supported: None "
                           << "Got: " << npts);
           break;
@@ -293,7 +293,7 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
           std::iota(result.begin(), result.end(), 1);
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of points for cell - VTK_WEDGE."
+          vtkLog(WARNING, << "Unsupported number of points for cell - VTK_WEDGE."
                           << "Supported: 15, 18, 21 "
                           << "Got: " << npts);
           break;
@@ -342,7 +342,7 @@ std::vector<int> GetIOSSTransformation(const VTKCellType& cellType, const int& n
           // clang-format on
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of points for cell - VTK_HEXAHEDRON."
+          vtkLog(WARNING, << "Unsupported number of points for cell - VTK_HEXAHEDRON."
                           << "Supported: 8, 20, 27 "
                           << "Got: " << npts);
           break;
@@ -424,12 +424,12 @@ private:
   vtkNew<vtkTriangle> tri;
   vtkNew<vtkTetra> tet;
   vtkNew<vtkWedge> wedge;
-  vtkNew<vtkLagrangeHexahedron> lagHex;
-  vtkNew<vtkLagrangeCurve> lagCurve;
-  vtkNew<vtkLagrangeQuadrilateral> lagQuad;
-  vtkNew<vtkLagrangeTriangle> lagTri;
-  vtkNew<vtkLagrangeTetra> lagTet;
-  vtkNew<vtkLagrangeWedge> lagWedge;
+  vtkNew<vtkLagrangeHexahedron> lagrangeHex;
+  vtkNew<vtkLagrangeCurve> lagrangeCurve;
+  vtkNew<vtkLagrangeQuadrilateral> lagrangeQuad;
+  vtkNew<vtkLagrangeTriangle> lagrangeTri;
+  vtkNew<vtkLagrangeTetra> lagrangeTet;
+  vtkNew<vtkLagrangeWedge> lagrangeWedge;
 };
 
 //----------------------------------------------------------------------------
@@ -492,7 +492,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData
   // The new nodal form of HCurl fields will go into point data.
   for (const auto& fieldName : this->hCurlSpec().Fields)
   {
-    const std::string& name = ::GetEdgeCoeffArrName(fieldName);
+    const std::string& name = ::GetEdgeCoefficientArrayName(fieldName);
     vtkDataArray* inArr = elemCd->GetArray(name.c_str());
     if (inArr == nullptr)
     {
@@ -506,7 +506,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData
   // The new nodal form of HDiv fields will go into point data.
   for (const auto& fieldName : this->hDivSpec().Fields)
   {
-    const std::string& name = ::GetFaceCoeffArrName(fieldName);
+    const std::string& name = ::GetFaceCoefficientArrayName(fieldName);
     vtkDataArray* inArr = elemCd->GetArray(name.c_str());
     if (inArr == nullptr)
     {
@@ -548,21 +548,21 @@ std::vector<double> vtkFiniteElementFieldDistributor::vtkInternals::GetLagrangeP
   switch (cellType)
   {
     case VTK_HEXAHEDRON:
-      this->lagHex->SetUniformOrderFromNumPoints(npts);
-      cell = this->lagHex;
+      this->lagrangeHex->SetUniformOrderFromNumPoints(npts);
+      cell = this->lagrangeHex;
       break;
     case VTK_QUAD:
-      this->lagQuad->SetUniformOrderFromNumPoints(npts);
-      cell = this->lagQuad;
+      this->lagrangeQuad->SetUniformOrderFromNumPoints(npts);
+      cell = this->lagrangeQuad;
       break;
     case VTK_TETRA:
-      cell = this->lagTet;
+      cell = this->lagrangeTet;
       break;
     case VTK_TRIANGLE:
-      cell = this->lagTri;
+      cell = this->lagrangeTri;
       break;
     case VTK_WEDGE:
-      cell = this->lagWedge;
+      cell = this->lagrangeWedge;
       break;
     default:
       break;
@@ -612,7 +612,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeCell(const vtkIdType
     if (nCompsSet.size() != 1)
     {
       vtkLog(WARNING,
-        << "Invalid no. of components for HGrad DG fields. Unable to determine order of cell "
+        << "Invalid number of components for HGrad DG fields. Unable to determine order of cell "
         << cellId);
       return;
     }
@@ -687,11 +687,11 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(cons
         case 4:
           // bump to VTK_LAGRANGE_CURVE order 2
           newNpts = (oldNpts != nComps) ? nComps : oldNpts;
-          nonLinCell = this->lagCurve;
+          nonLinCell = this->lagrangeCurve;
           linearCell = this->line;
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of components in HGRAD field for cell - VTK_LINE."
+          vtkLog(WARNING, << "Unsupported number of components in HGRAD field for cell - VTK_LINE."
                           << "Supported: One of 3, 4 "
                           << "Got: " << nComps);
           break;
@@ -704,13 +704,14 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(cons
         case 10:
           // bump to VTK_LAGRANGE_TRIANGLE order 2
           newNpts = (oldNpts != nComps) ? nComps : oldNpts;
-          nonLinCell = this->lagTri;
+          nonLinCell = this->lagrangeTri;
           linearCell = this->tri;
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of components in HGRAD field for cell - VTK_TRIANGLE."
-                          << "Supported: One of 6, 10"
-                          << "Got: " << nComps);
+          vtkLog(
+            WARNING, << "Unsupported number of components in HGRAD field for cell - VTK_TRIANGLE."
+                     << "Supported: One of 6, 10"
+                     << "Got: " << nComps);
           break;
       }
       break;
@@ -721,12 +722,12 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(cons
         case 16:
           // bump to VTK_LAGRANGE_QUADRILATERAL order n
           newNpts = (oldNpts != nComps) ? nComps : oldNpts;
-          this->lagQuad->SetUniformOrderFromNumPoints(newNpts);
-          nonLinCell = this->lagQuad;
+          this->lagrangeQuad->SetUniformOrderFromNumPoints(newNpts);
+          nonLinCell = this->lagrangeQuad;
           linearCell = this->quad;
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of components in HGRAD field for cell - VTK_QUAD."
+          vtkLog(WARNING, << "Unsupported number of components in HGRAD field for cell - VTK_QUAD."
                           << "Supported: One of 9, 16 "
                           << "Got: " << nComps);
           break;
@@ -740,11 +741,11 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(cons
         case 15:
           // bump to VTK_LAGRANGE_TETRAHEDRON order n
           newNpts = (oldNpts != nComps) ? nComps : oldNpts;
-          nonLinCell = this->lagTet;
+          nonLinCell = this->lagrangeTet;
           linearCell = this->tet;
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of components in HGRAD field for cell - VTK_TETRA."
+          vtkLog(WARNING, << "Unsupported number of components in HGRAD field for cell - VTK_TETRA."
                           << "Supported: One of 10, 11, 15 "
                           << "Got: " << nComps);
           break;
@@ -758,9 +759,10 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(cons
         case 14:
         case 19:
         default:
-          vtkLog(WARNING, << "Unsupported no. of components in HGRAD field for cell - VTK_PYRAMID."
-                          << "Supported: None "
-                          << "Got: " << nComps);
+          vtkLog(
+            WARNING, << "Unsupported number of components in HGRAD field for cell - VTK_PYRAMID."
+                     << "Supported: None "
+                     << "Got: " << nComps);
           break;
       }
       break;
@@ -772,12 +774,12 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(cons
         case 21:
           // bump to VTK_LAGRANGE_WEDGE order n
           newNpts = (oldNpts != nComps) ? nComps : oldNpts;
-          this->lagWedge->SetUniformOrderFromNumPoints(newNpts);
-          nonLinCell = this->lagWedge;
+          this->lagrangeWedge->SetUniformOrderFromNumPoints(newNpts);
+          nonLinCell = this->lagrangeWedge;
           linearCell = this->wedge;
           break;
         default:
-          vtkLog(WARNING, << "Unsupported no. of components in HGRAD field for cell - VTK_WEDGE."
+          vtkLog(WARNING, << "Unsupported number of components in HGRAD field for cell - VTK_WEDGE."
                           << "Supported: 15, 18, 21 "
                           << "Got: " << nComps);
           break;
@@ -790,13 +792,13 @@ void vtkFiniteElementFieldDistributor::vtkInternals::ExplodeHigherOrderCell(cons
         case 27:
           // bump to VTK_LAGRANGE_HEXAHEDRON order n
           newNpts = (oldNpts != nComps) ? nComps : oldNpts;
-          this->lagHex->SetUniformOrderFromNumPoints(newNpts);
-          nonLinCell = this->lagHex;
+          this->lagrangeHex->SetUniformOrderFromNumPoints(newNpts);
+          nonLinCell = this->lagrangeHex;
           linearCell = this->hex;
           break;
         default:
           vtkLog(
-            WARNING, << "Unsupported no. of components in HGRAD field for cell - VTK_HEXAHEDRON."
+            WARNING, << "Unsupported number of components in HGRAD field for cell - VTK_HEXAHEDRON."
                      << "Supported: 20, 27 "
                      << "Got: " << nComps);
           break;
@@ -1205,8 +1207,8 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
           {
             newPd->AddArray(arr);
           }
-          // less clutter in the drop down menu in paraview.
-          newCd->RemoveArray(::GetEdgeCoeffArrName(arr->GetName()).c_str());
+          // remove the edge coefficient arrays from output.
+          newCd->RemoveArray(::GetEdgeCoefficientArrayName(arr->GetName()).c_str());
         }
       }
       for (int i = 0; i < hDivFields->GetNumberOfArrays(); ++i)
@@ -1217,8 +1219,8 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
           {
             newPd->AddArray(arr);
           }
-          // less clutter in the drop down menu in paraview.
-          newCd->RemoveArray(::GetFaceCoeffArrName(arr->GetName()).c_str());
+          // remove the face coefficient arrays from output.
+          newCd->RemoveArray(::GetFaceCoefficientArrayName(arr->GetName()).c_str());
         }
       }
     } // for each partition

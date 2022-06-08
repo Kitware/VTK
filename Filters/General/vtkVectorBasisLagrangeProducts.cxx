@@ -381,8 +381,8 @@ void vtkVectorBasisLagrangeProducts::Initialize(
   auto hcurl_mats = this->GetVblp(SpaceType::HCurl, cell);
   auto hdiv_mats = this->GetVblp(SpaceType::HDiv, cell);
 
-  const auto hcurl_vbfs = this->GetVbfuncs(SpaceType::HCurl, cell);
-  const auto hdiv_vbfs = this->GetVbfuncs(SpaceType::HDiv, cell);
+  const auto hcurl_vbfs = this->GetVbFunctions(SpaceType::HCurl, cell);
+  const auto hdiv_vbfs = this->GetVbFunctions(SpaceType::HDiv, cell);
 
   if (hcurl_mats == nullptr || hdiv_mats == nullptr || hcurl_vbfs == nullptr ||
     hdiv_vbfs == nullptr)
@@ -477,7 +477,7 @@ void vtkVectorBasisLagrangeProducts::Clear(const VTKCellType& cell)
   return mats;
 }
 
-vtkVectorBasisLagrangeProducts::VbfuncType* vtkVectorBasisLagrangeProducts::GetVbfuncs(
+vtkVectorBasisLagrangeProducts::VbfuncType* vtkVectorBasisLagrangeProducts::GetVbFunctions(
   const SpaceType& space, const VTKCellType& cell)
 {
   const int space_int = static_cast<int>(space);
