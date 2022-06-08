@@ -1194,6 +1194,8 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
           {
             newPd->AddArray(arr);
           }
+          // less clutter in the drop down menu in paraview.
+          newCd->RemoveArray(::GetEdgeCoeffArrName(arr->GetName()).c_str());
         }
       }
       for (int i = 0; i < hDivFields->GetNumberOfArrays(); ++i)
@@ -1204,6 +1206,8 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
           {
             newPd->AddArray(arr);
           }
+          // less clutter in the drop down menu in paraview.
+          newCd->RemoveArray(::GetFaceCoeffArrName(arr->GetName()).c_str());
         }
       }
     } // for each partition
