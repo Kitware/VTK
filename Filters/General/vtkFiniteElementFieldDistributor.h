@@ -35,15 +35,9 @@ public:
   vtkTypeMacro(vtkFiniteElementFieldDistributor, vtkPartitionedDataSetCollectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkSetMacro(UseOrientationMap, bool);
-  vtkBooleanMacro(UseOrientationMap, bool);
-  vtkGetMacro(UseOrientationMap, bool);
-
 protected:
   vtkFiniteElementFieldDistributor();
   ~vtkFiniteElementFieldDistributor() override;
-
-  bool UseOrientationMap = true;
 
   // vtkAlgorithm interface
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
