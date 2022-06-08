@@ -1,7 +1,6 @@
 #include "vtkFiniteElementFieldDistributor.h"
 
 #include "vtkCellArray.h"
-#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataAssembly.h"
