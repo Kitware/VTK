@@ -11,6 +11,8 @@ set(classes
 
 set(nowrap_classes
   vtkOpenXRManager
+  vtkOpenXRManagerGraphics
+  vtkOpenXRManagerOpenGLGraphics
   )
 
 vtk_module_add_module(VTK::RenderingOpenXR
