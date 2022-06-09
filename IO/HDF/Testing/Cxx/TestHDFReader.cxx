@@ -20,11 +20,14 @@
 #include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkNew.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkPointData.h"
 #include "vtkTesting.h"
+#include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLPUnstructuredGridReader.h"
+#include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include <iterator>
@@ -250,6 +253,60 @@ int TestUnstructuredGrid(const std::string& dataRoot)
   return TestDataSet(data, expectedData);
 }
 
+int TestOverlappingAMR(const std::string& dataRoot)
+{
+  std::string fileName = dataRoot + "/Data/amr_gaussian_pulse.hdf";
+  std::cout << "Testing: " << fileName << std::endl;
+  vtkNew<vtkHDFReader> reader;
+  if (!reader->CanReadFile(fileName.c_str()))
+  {
+    return EXIT_FAILURE;
+  }
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto data = vtkOverlappingAMR::SafeDownCast(reader->GetOutput());
+
+  vtkNew<vtkXMLUniformGridAMRReader> outputReader;
+  std::string expectedFileName = dataRoot + "/Data/amr_gaussian_pulse.vthb";
+  outputReader->SetFileName(expectedFileName.c_str());
+  outputReader->SetMaximumLevelsToReadByDefault(0);
+  outputReader->Update();
+  auto expectedData = vtkOverlappingAMR::SafeDownCast(outputReader->GetOutput());
+
+  if (data->GetNumberOfLevels() != expectedData->GetNumberOfLevels())
+  {
+    std::cerr << "Number of levels does not match. Expected: " << expectedData->GetNumberOfLevels()
+              << " got: " << data->GetNumberOfLevels() << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  for (unsigned int levelIndex = 0; levelIndex < expectedData->GetNumberOfLevels(); ++levelIndex)
+  {
+    if (data->GetNumberOfDataSets(levelIndex) != expectedData->GetNumberOfDataSets(levelIndex))
+    {
+      std::cerr << "Number of datasets does not match for level " << levelIndex
+                << ". Expected: " << expectedData->GetNumberOfDataSets(0)
+                << " got: " << data->GetNumberOfDataSets(0) << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    for (unsigned int datasetIndex = 0;
+         datasetIndex < expectedData->GetNumberOfDataSets(levelIndex); ++datasetIndex)
+    {
+      auto dataset = data->GetDataSet(levelIndex, datasetIndex);
+      auto expectedDataset = expectedData->GetDataSet(levelIndex, datasetIndex);
+      if (TestDataSet(dataset, expectedDataset))
+      {
+        std::cerr << "Datasets does not match for level " << levelIndex << " dataset "
+                  << datasetIndex << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
 int TestHDFReader(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;
@@ -271,6 +328,10 @@ int TestHDFReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
   if (TestUnstructuredGrid<true /*parallel*/>(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestOverlappingAMR(dataRoot))
   {
     return EXIT_FAILURE;
   }

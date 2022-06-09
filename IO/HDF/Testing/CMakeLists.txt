@@ -8,6 +8,11 @@ vtk_module_test_data(
   Data/can/can_2.vtu
   Data/can-vtu.hdf
   Data/can-pvtu.hdf
+  Data/amr_gaussian_pulse.hdf
+  Data/amr_gaussian_pulse.vthb
+  Data/amr_gaussian_pulse/amr_gaussian_pulse_0.vti
+  Data/amr_gaussian_pulse/amr_gaussian_pulse_1.vti
+  Data/amr_gaussian_pulse/amr_gaussian_pulse_2.vti
   )
 
 add_subdirectory(Cxx)

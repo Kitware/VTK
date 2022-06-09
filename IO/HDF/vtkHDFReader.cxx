@@ -28,6 +28,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
@@ -217,10 +218,11 @@ const char* vtkHDFReader::GetCellArrayName(int index)
 int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
-  std::map<int, std::string> typeNameMap = { std::make_pair(VTK_IMAGE_DATA, "vtkImageData"),
-    std::make_pair(VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid") };
+  std::map<int, std::string> typeNameMap = { { VTK_IMAGE_DATA, "vtkImageData" },
+    { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" },
+    { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" } };
   vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkDataSet* output = vtkDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
 
   if (!this->FileName)
   {
@@ -244,7 +246,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
   int dataSetType = this->Impl->GetDataSetType();
   if (!output || !output->IsA(typeNameMap[dataSetType].c_str()))
   {
-    vtkDataSet* newOutput = nullptr;
+    vtkDataObject* newOutput = nullptr;
     if (dataSetType == VTK_IMAGE_DATA)
     {
       newOutput = vtkImageData::New();
@@ -252,6 +254,10 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     else if (dataSetType == VTK_UNSTRUCTURED_GRID)
     {
       newOutput = vtkUnstructuredGrid::New();
+    }
+    else if (dataSetType == VTK_OVERLAPPING_AMR)
+    {
+      newOutput = vtkOverlappingAMR::New();
     }
     else
     {
@@ -317,6 +323,15 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {
     outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+  }
+  else if (dataSetType == VTK_OVERLAPPING_AMR)
+  {
+    if (!this->Impl->GetAttribute("Origin", 3, this->Origin))
+    {
+      return 0;
+    }
+    outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 0);
   }
   else
   {
@@ -385,7 +400,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
 }
 
 //------------------------------------------------------------------------------
-int vtkHDFReader::AddFieldArrays(vtkDataSet* data)
+int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
 {
   std::vector<std::string> names = this->Impl->GetArrayNames(vtkDataObject::FIELD);
   for (const std::string& name : names)
@@ -523,6 +538,20 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkUnstructuredGrid* data)
 }
 
 //------------------------------------------------------------------------------
+int vtkHDFReader::Read(vtkInformation* outInfo, vtkOverlappingAMR* data)
+{
+  data->SetOrigin(this->Origin);
+
+  if (!this->Impl->FillAMR(
+        data, this->MaximumLevelsToReadByDefaultForAMR, this->Origin, this->DataArraySelection))
+  {
+    return 0;
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -532,7 +561,7 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     return 0;
   }
-  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!output)
   {
     return 0;
@@ -546,6 +575,11 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {
     vtkUnstructuredGrid* data = vtkUnstructuredGrid::SafeDownCast(output);
+    ok = this->Read(outInfo, data);
+  }
+  else if (dataSetType == VTK_OVERLAPPING_AMR)
+  {
+    vtkOverlappingAMR* data = vtkOverlappingAMR::SafeDownCast(output);
     ok = this->Read(outInfo, data);
   }
   else
