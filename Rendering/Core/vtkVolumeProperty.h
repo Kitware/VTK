@@ -383,6 +383,18 @@ public:
   vtkGetSmartPointerMacro(SliceFunction, vtkImplicitFunction);
   ///@}
 
+  ///@{
+  /**
+   * Get/Set the volume's scattering anisotropy.
+   * The model used is Henyey-Greenstein. The value should
+   * be between -1.0 (back-scattering) and 1.0 (forward-scattering),
+   * so the default value of 0.0 corresponds to an isotropic
+   * volume. For now, it is only used in vtkGPUVolumeRayCastMapper.
+   */
+  vtkSetClampMacro(ScatteringAnisotropy, float, -1.0, 1.0);
+  vtkGetMacro(ScatteringAnisotropy, float);
+  ///@}
+
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * UpdateMTimes performs a Modified() on all TimeStamps.
@@ -520,6 +532,8 @@ protected:
   double ComponentWeight[VTK_MAX_VRCOMP];
 
   int InterpolationType;
+
+  float ScatteringAnisotropy = 0.0;
 
   int ColorChannels[VTK_MAX_VRCOMP];
 

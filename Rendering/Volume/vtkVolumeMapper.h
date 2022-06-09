@@ -181,20 +181,6 @@ public:
 
   ///@{
   /**
-   * If enabled, the volumes will self-shadow, i.e. they will cast shadows on themselves.
-   * It will only be considered if shading is enabled.
-   * Note that it can affect performances, especially when using a 2D TF or a gradient opacity.
-   * For now, it is only implemented in vtkGPUVolumeRayCastMapper.
-   * In vtkSmartVolumeMapper and in vtkMultiBlockVolumeMapper, this parameter is used when the
-   * GPU mapper is effectively used. It is disabled by default.
-   */
-  vtkSetMacro(VolumetricShadow, bool);
-  vtkGetMacro(VolumetricShadow, bool);
-  vtkBooleanMacro(VolumetricShadow, bool);
-  ///@}
-
-  ///@{
-  /**
    * Set the flags for the cropping regions. The clipping planes divide the
    * volume into 27 regions - there is one bit for each region. The regions
    * start from the one containing voxel (0,0,0), moving along the x axis
@@ -305,11 +291,6 @@ protected:
    * Is the normal for volume shading computed from opacity or from scalars
    */
   bool ComputeNormalFromOpacity = false;
-
-  /**
-   * Enable/disable volumetric shadows
-   */
-  bool VolumetricShadow = false;
 
   /**
    * Threshold range for average intensity projection

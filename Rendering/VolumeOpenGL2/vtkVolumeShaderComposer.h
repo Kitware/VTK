@@ -225,7 +225,7 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
                  "uniform vec3 in_cellStep["
               << numInputs << "];\n";
 
-  if (mapper->GetVolumetricShadow())
+  if (glMapper->GetVolumetricScatteringBlending() > 0.0)
   {
 
     toShaderStr << "mat4 g_eyeToTexture = in_inverseTextureDatasetMatrix[0] *"
@@ -274,9 +274,14 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
     toShaderStr << "uniform bool in_twoSidedLighting;\n";
   }
 
-  if (mapper->GetVolumetricShadow())
+  if (glMapper->GetVolumetricScatteringBlending() > 0.0)
   {
-    toShaderStr << "uniform float in_giReach;\n";
+    toShaderStr << R"***(
+uniform float in_giReach;
+uniform float in_anisotropy;
+uniform float in_volumetricScatteringBlending;
+
+)***";
   }
 
   if (totalNumberOfLights > 0)
@@ -302,6 +307,16 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
                        "uniform vec3 in_lightAttenuation[NUMBER_POS_LIGHTS];\n"
                        "uniform float in_lightConeAngle[NUMBER_POS_LIGHTS];\n"
                        "uniform float in_lightExponent[NUMBER_POS_LIGHTS];\n";
+      }
+
+      if (glMapper->GetVolumetricScatteringBlending() > 0.0)
+      {
+        toShaderStr << "vec3 g_lightDirectionTex[TOTAL_NUMBER_LIGHTS];";
+
+        if (numberPositionalLights > 0)
+        {
+          toShaderStr << "vec3 g_lightPositionTex[NUMBER_POS_LIGHTS];";
+        }
       }
     }
     else
@@ -818,8 +833,32 @@ std::string ComputeGradientDeclaration(
   return shaderStr;
 }
 
+//---------------------------------------------------------------------------
+std::string ComputeMatricesInit(
+  vtkOpenGLGPUVolumeRayCastMapper* vtkNotUsed(mapper), int numberPositionalLights)
+{
+  std::string resStr;
+  resStr += R"***(
+  for(int i=0; i<TOTAL_NUMBER_LIGHTS; i++)
+  {
+    g_lightDirectionTex[i] = (g_eyeToTexture * vec4(-in_lightDirection[i], 0.0)).xyz;
+  }
+  )***";
+
+  if (numberPositionalLights > 0)
+  {
+    resStr += R"***(
+  for(int i=0; i<NUMBER_POS_LIGHTS; i++)
+  {
+    g_lightPositionTex[i] = (g_eyeToTexture * vec4(in_lightPosition[i], 1.0)).xyz;
+  }
+    )***";
+  }
+  return resStr;
+}
+
 //--------------------------------------------------------------------------
-std::string ComputeOpacity2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(ren),
+std::string ComputeRGBA2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(ren),
   vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol), int noOfComponents,
   int independentComponents, std::map<int, std::string> opacityTableMap, int useGradient)
 {
@@ -827,8 +866,8 @@ std::string ComputeOpacity2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(ren)
   std::string functionBody;
   bool severalIndpt = noOfComponents > 1 && independentComponents;
   std::string functionSignature = severalIndpt
-    ? "float computeOpacityWithGrad(vec4 scalar, vec4 grad, int component)\n"
-    : "float computeOpacityWithGrad(vec4 scalar, vec4 grad)\n";
+    ? "vec4 computeRGBAWithGrad(vec4 scalar, vec4 grad, int component)\n"
+    : "vec4 computeRGBAWithGrad(vec4 scalar, vec4 grad)\n";
 
   if (severalIndpt)
   {
@@ -857,7 +896,7 @@ std::string ComputeOpacity2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(ren)
         "  {\n"
         "    return texture2D(" +
         opacityTableMap[i] + ",\n" + "    vec2(scalar[" + std::to_string(i) + "], " + secondAxis +
-        ")).a\n" + "  }\n";
+        "))\n" + "  }\n";
     }
   }
 
@@ -868,7 +907,7 @@ std::string ComputeOpacity2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(ren)
     functionBody += "  return texture2D(" + opacityTableMap[0] +
       ",\n"
       "    vec2(scalar.y, " +
-      secondAxis + ")).a;\n";
+      secondAxis + "));\n";
   }
 
   else
@@ -878,7 +917,7 @@ std::string ComputeOpacity2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(ren)
       // Dependent components (RGBA) || Single component
       functionBody += "  return texture2D(" + opacityTableMap[0] +
         ",\n"
-        "    vec2(scalar.a, grad.w)).a;\n";
+        "    vec2(scalar.a, grad.w));\n";
     }
     else
     {
@@ -890,7 +929,7 @@ std::string ComputeOpacity2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(ren)
         "  return texture2D(" +
         opacityTableMap[0] +
         ",\n"
-        "    vec2(scalar.a, yscalar.w)).a;\n";
+        "    vec2(scalar.a, yscalar.w));\n";
     }
   }
 
@@ -902,7 +941,7 @@ std::string ComputeOpacity2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(ren)
 //-----------------------------------------------------------------------
 std::string ComputeOpacityEvaluationCall(vtkOpenGLGPUVolumeRayCastMapper* vtkNotUsed(mapper),
   vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, int noOfComponents,
-  int independentComponents, int useGradYAxis, std::string position)
+  int independentComponents, int useGradYAxis, std::string position, bool requestColor = false)
 {
   // relies on the declaration of variables opacity, gradient, c, volume, index, scalar, gradTF,
   // opacityTF, label in the scope
@@ -919,6 +958,13 @@ std::string ComputeOpacityEvaluationCall(vtkOpenGLGPUVolumeRayCastMapper* vtkNot
     {
       resStr += std::string("  gradient = computeGradient(") + position + ", c, volume, index);\n";
       resStr += "  opacity *= computeGradientOpacity(gradient, gradTF);\n";
+    }
+    // ignore request color for now, but given the actual architecture, it should be a
+    // succession of 'if' comparing the volume idx
+    if (requestColor)
+    {
+      vtkGenericWarningMacro(<< "ComputeOpacityEvaluationCall was called with requestColor, but "
+                                "MultiVolume does not support this option yet.");
     }
   }
   else
@@ -959,6 +1005,12 @@ std::string ComputeOpacityEvaluationCall(vtkOpenGLGPUVolumeRayCastMapper* vtkNot
 
           + std::string("  }\n");
       }
+
+      if (requestColor)
+      {
+        resStr +=
+          "    color = texture2D(" + inputs[0].RGBTablesMap[0] + ", vec2(scalar, 0.0)).xyz;\n";
+      }
     }
     else
     {
@@ -968,8 +1020,15 @@ std::string ComputeOpacityEvaluationCall(vtkOpenGLGPUVolumeRayCastMapper* vtkNot
         resStr +=
           std::string("  gradient = computeGradient(") + position + ", c, volume, index);\n";
       }
-      resStr += std::string("  opacity = computeOpacityWithGrad(vec4(scalar), gradient") +
+      resStr += std::string("  vec4 lutRes = computeRGBAWithGrad(vec4(scalar), gradient") +
         compArgument + std::string(");\n");
+
+      resStr += "    opacity = lutRes.a;\n";
+
+      if (requestColor)
+      {
+        resStr += "    color = lutRes.xyz\n";
+      }
     }
   }
 
@@ -1147,6 +1206,38 @@ std::string ComputeDensityGradientDeclaration(vtkOpenGLGPUVolumeRayCastMapper* m
   return shaderStr;
 }
 
+std::string PhaseFunctionDeclaration(
+  vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vol)
+{
+  std::string resStr;
+  // to be compatible with the surface shading model,
+  // the phase function should be normalized to 4pi instead of 1
+  // that's why the isotropic phase function returns 1 and not 1/4pi for example
+  if (std::abs(vol->GetProperty()->GetScatteringAnisotropy()) < 0.01)
+  {
+    resStr += R"***(
+float phase_function(float cos_angle)
+{
+  return 1.0;
+}
+    )***";
+  }
+  else
+  {
+    resStr += R"***(
+float g_anisotropy2 = in_anisotropy * in_anisotropy;
+
+float phase_function(float cos_angle)
+{
+  float d = 1.0 + g_anisotropy2 - 2.0 * in_anisotropy * cos_angle;
+  return (1.0 - g_anisotropy2) / (d * sqrt(d));
+}
+
+  )***";
+  }
+  return resStr;
+}
+
 //--------------------------------------------------------------------------
 std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
   vtkVolume* vol, int noOfComponents, int independentComponents, int totalNumberOfLights,
@@ -1167,7 +1258,7 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
 
   int const transferMode = volProperty->GetTransferFunctionMode();
 
-  bool const volumetricShadow = glMapper->GetVolumetricShadow();
+  bool const volumetricShadow = glMapper->GetVolumetricScatteringBlending() > 0.0;
   std::string volumetricCall = volumetricShadow
     ? "\n   vol_shadow = volumeShadow(g_dataPos, tex_light.xyz, 0.0, component, in_volume[0], "
       "0, label);"
@@ -1213,169 +1304,229 @@ std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren), vtkVolumeMa
   {
     if (defaultLighting)
     {
-      shaderStr += std::string("\
-          \n  vec3 diffuse = vec3(0.0);\
-          \n  vec3 specular = vec3(0.0);\
-          \n  vec3 normal = shading_gradient.xyz;") +
-        volumetricDeclarations + std::string("\
-          \n  float normalLength = length(normal);\
-          \n  if (normalLength > 0.0)\
-          \n    {\
-          \n    normal = normalize(normal);\
-          \n    }\
-          \n  else\
-          \n    {\
-          \n    normal = vec3(0.0, 0.0, 0.0);\
-          \n    }\
-          \n   // XXX: normal is oriented inside the volume, so we take -g_ldir/-g_vdir \
-          \n   float nDotL = dot(normal, -g_ldir[0]);") +
-        (volumetricShadow ? std::string("\n   tex_light = vec4(g_ldir[0], 0.0);") : std::string()) +
-        volumetricCall + std::string("\n   vec3 r = normalize(2.0 * nDotL * normal + g_ldir[0]);\
-          \n   float vDotR = dot(r, -g_vdir[0]);\
-          \n   if (nDotL < 0.0 && in_twoSidedLighting)\
-          \n     {\
-          \n     nDotL = -nDotL;\
-          \n     }\
-          \n   if (nDotL > 0.0)\
-          \n     {\
-          \n        diffuse = ") +
-        (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
-        std::string("nDotL * in_diffuse[component] *\
-          \n               in_lightDiffuseColor[0] * color.rgb;\
-          \n        vDotR = max(vDotR, 0.0);\
-          \n        specular = ") +
-        (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
-        std::string(" pow(vDotR, in_shininess[component]) *\
-          \n                 in_specular[component] *\
-          \n                 in_lightSpecularColor[0];\
-          \n     }\
-          \n  // For the headlight, ignore the light's ambient color\
-          \n  // for now as it is causing the old mapper tests to fail\
-          \n  finalColor.xyz = in_ambient[component] * color.rgb +\
-          \n                   diffuse + specular;\
-          \n");
+      shaderStr += R"***(
+  vec3 diffuse = vec3(0.0);
+  vec3 specular = vec3(0.0);
+  vec3 normal = shading_gradient.xyz;
+  float normalLength = length(normal);
+  if (normalLength > 0.0)
+  {
+    normal = normalize(normal);
+  }
+  else
+  {
+    normal = vec3(0.0, 0.0, 0.0);
+  }
+  // XXX: normal is oriented inside the volume, so we take -g_ldir/-g_vdir
+  float nDotL = dot(normal, -g_ldir[0]);
+  vec3 r = normalize(2.0 * nDotL * normal + g_ldir[0]);
+  float vDotR = dot(r, -g_vdir[0]);
+  if (nDotL < 0.0 && in_twoSidedLighting)
+  {
+    nDotL = -nDotL;
+  }
+  if (nDotL > 0.0)
+  {
+    diffuse = nDotL * in_diffuse[component] *
+    in_lightDiffuseColor[0] * color.rgb;
+    vDotR = max(vDotR, 0.0);
+    specular = pow(vDotR, in_shininess[component]) *
+                 in_specular[component] *
+                 in_lightSpecularColor[0];
+  }
+  // For the headlight, ignore the light's ambient color
+  // for now as it is causing the old mapper tests to fail
+  finalColor.xyz = in_ambient[component] * color.rgb +
+                   diffuse + specular;
+
+        )***";
     }
     else if (totalNumberOfLights > 0)
     {
-      shaderStr += std::string("\
-          \n  g_fragWorldPos = g_texToView * vec4(g_dataPos, 1.0);\
-          \n  if (g_fragWorldPos.w != 0.0)\
-          \n    {\
-          \n    g_fragWorldPos /= g_fragWorldPos.w;\
-          \n    }\
-          \n  vec3 viewDirection = normalize(-g_fragWorldPos.xyz);\
-          \n  vec3 ambient = vec3(0,0,0);\
-          \n  vec3 diffuse = vec3(0,0,0);\
-          \n  vec3 specular = vec3(0,0,0);\
-          \n  vec3 vertLightDirection;\
-          \n  vec3 normal = normalize((in_textureToEye[0] * vec4(shading_gradient.xyz, 0.0)).xyz);") +
-        volumetricDeclarations + std::string("\
-          \n  vec3 lightDir;");
+      shaderStr += R"***(
+  g_fragWorldPos = g_texToView * vec4(g_dataPos, 1.0);
+  if (g_fragWorldPos.w != 0.0)
+  {
+  g_fragWorldPos /= g_fragWorldPos.w;
+  }
+  vec3 viewDirection = normalize(-g_fragWorldPos.xyz);
+  vec3 ambient = vec3(0,0,0);
+  vec3 diffuse = vec3(0,0,0);
+  vec3 specular = vec3(0,0,0);
+  vec3 vertLightDirection;
+  vec3 normal = normalize((in_textureToEye[0] * vec4(shading_gradient.xyz, 0.0)).xyz);
+  vec3 lightDir;
+        )***";
 
       if (numberPositionalLights > 0)
       {
-        shaderStr += std::string("\n  for (int posNum = 0; posNum < NUMBER_POS_LIGHTS; posNum++)\
-          \n  {\
-          \n    float attenuation = 1.0;\
-          \n    lightDir = in_lightDirection[posNum];\
-          \n    vertLightDirection = (g_fragWorldPos.xyz - in_lightPosition[posNum]);\
-          \n    float distance = length(vertLightDirection);\
-          \n    vertLightDirection = normalize(vertLightDirection);") +
-          (volumetricShadow ? std::string("\
-          \n    tex_light = g_eyeToTexture * vec4(in_lightPosition[posNum], 1.0);\
-          \n    if(tex_light.w > 0.0) tex_light /= tex_light.w;\
-          \n    vol_shadow = volumeShadow(g_dataPos, tex_light.xyz, 1.0, component, in_volume[0], 0, label);")
-                            : std::string()) +
-          std::string("\
-          \n    attenuation = 1.0 /\
-          \n                  (in_lightAttenuation[posNum].x\
-          \n                  + in_lightAttenuation[posNum].y * distance\
-          \n                  + in_lightAttenuation[posNum].z * distance * distance);\
-          \n    // per OpenGL standard cone angle is 90 or less for a spot light\
-          \n    if (in_lightConeAngle[posNum] <= 90.0)\
-          \n    {\
-          \n      float coneDot = dot(vertLightDirection, lightDir);\
-          \n      // if inside the cone\
-          \n      if (coneDot >= cos(radians(in_lightConeAngle[posNum])))\
-          \n      {\
-          \n        attenuation = attenuation * pow(coneDot, in_lightExponent[posNum]);\
-          \n      }\
-          \n      else\
-          \n      {\
-          \n        attenuation = 0.0;\
-          \n      }\
-          \n    }\
-          \n    \
-          \n    float nDotL = dot(normal, vertLightDirection);\
-          \n    if (nDotL < 0.0 && in_twoSidedLighting)\
-          \n    {\
-          \n      nDotL = -nDotL;\
-          \n    }\
-          \n    if (nDotL > 0.0)\
-          \n    {\
-          \n      float df = max(0.0, ") +
-          (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
-          std::string(" attenuation * nDotL);\
-          \n      diffuse += (df * in_lightDiffuseColor[posNum]);\
-          \n      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);\
-          \n      float rDotV = dot(-viewDirection, r);\
-          \n      if (rDotV < 0.0 && in_twoSidedLighting)\
-          \n      {\
-          \n        rDotV = -rDotV;\
-          \n      }\
-          \n      if (rDotV > 0.0)\
-          \n      {\
-          \n        float sf = ") +
-          (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
-          std::string(" attenuation * pow(rDotV, in_shininess[component]);\
-          \n        specular += (sf * in_lightSpecularColor[posNum]);\
-          \n      }\
-          \n    }\
-          \n    ambient += in_lightAmbientColor[posNum];\
-          \n  }");
+        shaderStr += R"***(
+  for (int posNum = 0; posNum < NUMBER_POS_LIGHTS; posNum++)
+  {
+    float attenuation = 1.0;
+    lightDir = in_lightDirection[posNum];
+    vertLightDirection = (g_fragWorldPos.xyz - in_lightPosition[posNum]);
+    float distance = length(vertLightDirection);
+    vertLightDirection = normalize(vertLightDirection);
+    attenuation = 1.0 /
+                  (in_lightAttenuation[posNum].x
+                  + in_lightAttenuation[posNum].y * distance
+                  + in_lightAttenuation[posNum].z * distance * distance);
+    // per OpenGL standard cone angle is 90 or less for a spot light
+    if (in_lightConeAngle[posNum] <= 90.0)
+    {
+      float coneDot = dot(vertLightDirection, lightDir);
+      // if inside the cone
+      if (coneDot >= cos(radians(in_lightConeAngle[posNum])))
+      {
+        attenuation = attenuation * pow(coneDot, in_lightExponent[posNum]);
+      }
+      else
+      {
+        attenuation = 0.0;
+      }
+    }
+
+    float nDotL = dot(normal, vertLightDirection);
+    if (nDotL < 0.0 && in_twoSidedLighting)
+    {
+      nDotL = -nDotL;
+    }
+    if (nDotL > 0.0)
+    {
+      float df = max(0.0, attenuation * nDotL);
+      diffuse += (df * in_lightDiffuseColor[posNum]);
+      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);
+      float rDotV = dot(-viewDirection, r);
+      if (rDotV < 0.0 && in_twoSidedLighting)
+      {
+        rDotV = -rDotV;
+      }
+      if (rDotV > 0.0)
+      {
+        float sf = attenuation * pow(rDotV, in_shininess[component]);
+        specular += (sf * in_lightSpecularColor[posNum]);
+      }
+    }
+    ambient += in_lightAmbientColor[posNum];
+  }
+        )***";
       }
 
-      shaderStr +=
-        std::string(
-          "\n  for (int dirNum = NUMBER_POS_LIGHTS; dirNum < TOTAL_NUMBER_LIGHTS; dirNum++)\
-          \n  {\
-          \n    vertLightDirection = in_lightDirection[dirNum];") +
-        (volumetricShadow ? std::string("\
-          \n    tex_light = g_eyeToTexture * vec4(-vertLightDirection, 0.0);\
-          \n    if(tex_light.w > 0.0) tex_light /= tex_light.w;")
-                          : std::string()) +
-        volumetricCall + std::string("\
-          \n    float nDotL = dot(normal, vertLightDirection);\
-          \n    if (nDotL < 0.0 && in_twoSidedLighting)\
-          \n    {\
-          \n      nDotL = -nDotL;\
-          \n    }\
-          \n    if (nDotL > 0.0)\
-          \n    {\
-          \n      float df = max(0.0, ") +
-        (volumetricShadow ? std::string("vol_shadow * ") : std::string()) + std::string(" nDotL);\
-          \n      diffuse += (df * in_lightDiffuseColor[dirNum]);\
-          \n      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);\
-          \n      float rDotV = dot(-viewDirection, r);\
-          \n      if (rDotV > 0.0)\
-          \n      {\
-          \n        float sf = ") +
-        (volumetricShadow ? std::string("vol_shadow * ") : std::string()) +
-        std::string(" pow(rDotV, in_shininess[component]);\
-          \n        specular += (sf * in_lightSpecularColor[dirNum]);\
-          \n      }\
-          \n    }\
-          \n    ambient += in_lightAmbientColor[dirNum];\
-          \n  }\
-          \n  finalColor.xyz = in_ambient[component] * ambient +\
-          \n                   in_diffuse[component] * diffuse * color.rgb +\
-          \n                   in_specular[component] * specular;\
-        ");
+      shaderStr += R"***(
+  for (int dirNum = NUMBER_POS_LIGHTS; dirNum < TOTAL_NUMBER_LIGHTS; dirNum++)
+  {
+    vertLightDirection = in_lightDirection[dirNum];
+    float nDotL = dot(normal, vertLightDirection);
+    if (nDotL < 0.0 && in_twoSidedLighting)
+    {
+      nDotL = -nDotL;
+    }
+    if (nDotL > 0.0)
+    {
+      float df = max(0.0, nDotL);
+      diffuse += (df * in_lightDiffuseColor[dirNum]);
+      vec3 r = normalize(2.0 * nDotL * normal - vertLightDirection);
+      float rDotV = dot(-viewDirection, r);
+      if (rDotV > 0.0)
+      {
+        float sf = pow(rDotV, in_shininess[component]);
+        specular += (sf * in_lightSpecularColor[dirNum]);
+      }
+    }
+    ambient += in_lightAmbientColor[dirNum];
+  }
+  finalColor.xyz = in_ambient[component] * ambient +
+                   in_diffuse[component] * diffuse * color.rgb +
+                   in_specular[component] * specular;
+
+      )***";
     }
   }
   else
   {
     shaderStr += std::string("\n  finalColor = vec4(color.rgb, 0.0);");
+  }
+
+  if (glMapper->GetVolumetricScatteringBlending() > 0.0 && totalNumberOfLights > 0)
+  {
+
+    float vsBlend = glMapper->GetVolumetricScatteringBlending();
+    std::string blendingFormula = std::string("  float vol_coef = ") +
+      (vsBlend < 1.0 ? "2.0 * in_volumetricScatteringBlending * exp( - 2.0 * "
+                       "in_volumetricScatteringBlending * shading_gradient.w * color.a)"
+                     : "2.0 * (1.0 - in_volumetricScatteringBlending) * exp( - 2.0 * "
+                       "in_volumetricScatteringBlending * shading_gradient.w * color.a) + 2.0 * "
+                       "in_volumetricScatteringBlending - 1.0") +
+      ";\n";
+
+    shaderStr +=
+      (defaultLighting
+          ? std::string()
+          : std::string(
+              "vec3 view_tdir = normalize((g_eyeToTexture * vec4(viewDirection, 0.0)).xyz);\n")) +
+      R"***(
+  vec3 secondary_contrib = vec3(0.0);
+  vec3 tex_light = vec3(0.0);
+  shading_gradient.w = length(shading_gradient.xyz);
+  vec3 diffuse_light = vec3(0.0);
+  float attenuation = 0.0;
+  float vol_shadow = 0.0;
+  float phase = 1.0;
+    )***";
+
+    if (defaultLighting)
+    {
+      shaderStr += R"***(
+  tex_light = (in_inverseTextureDatasetMatrix[0] * in_inverseVolumeMatrix[0] * vec4(in_cameraPos, 1.0)).xyz;
+  phase = phase_function(-1); // always angle of pi
+  vol_shadow = volumeShadow(g_dataPos, tex_light, 1.0, component, in_volume[0], 0, label);
+  secondary_contrib += vol_shadow * phase * color.rgb * in_diffuse[component] * in_lightDiffuseColor[0];
+  secondary_contrib += in_ambient[component] * in_lightAmbientColor[0];
+      )***";
+    }
+    else
+    {
+      if (numberPositionalLights > 0)
+      {
+        shaderStr += R"***(
+  float dist_light = 0.0;
+  for(int posNum = 0; posNum < NUMBER_POS_LIGHTS; posNum++)
+  {
+    tex_light = g_lightPositionTex[posNum];
+    vec3 light_vert = g_fragWorldPos.xyz - in_lightPosition[posNum];
+    dist_light = length(light_vert);
+    float light_angle = dot(normalize(light_vert), normalize(in_lightDirection[posNum]));
+    phase = phase_function(dot(normalize(g_dataPos - tex_light), view_tdir));
+    attenuation = 1.0 /
+                  (in_lightAttenuation[posNum].x
+                  + in_lightAttenuation[posNum].y * dist_light
+                  + in_lightAttenuation[posNum].z * dist_light * dist_light);
+    attenuation *= max(0.0, sign(light_angle - cos(radians(in_lightConeAngle[posNum]))))
+                     * pow(light_angle, in_lightExponent[posNum]);
+    vol_shadow = volumeShadow(g_dataPos, tex_light, 1.0, component, in_volume[0], 0, label);
+    secondary_contrib += vol_shadow * phase * attenuation * color.rgb * in_diffuse[component] * in_lightDiffuseColor[posNum];
+    secondary_contrib += in_ambient[component] * in_lightAmbientColor[posNum];
+  }
+      )***";
+      }
+
+      shaderStr += R"***(
+  for(int dirNum = NUMBER_POS_LIGHTS; dirNum < TOTAL_NUMBER_LIGHTS; dirNum++)
+  {
+    tex_light = g_lightDirectionTex[dirNum];
+    phase = phase_function(dot(normalize(-tex_light), view_tdir));
+    vol_shadow = volumeShadow(g_dataPos, tex_light, 0.0, component, in_volume[0], 0, label);
+    secondary_contrib += vol_shadow * phase * color.rgb * in_diffuse[component] * in_lightDiffuseColor[dirNum];
+    secondary_contrib += in_ambient[component] * in_lightAmbientColor[dirNum];
+  }
+      )***";
+    }
+
+    shaderStr += blendingFormula +
+      R"***(
+  finalColor.xyz = (1.0 - vol_coef) * finalColor.xyz + vol_coef * secondary_contrib;
+      )***";
   }
 
   // For 1D transfers only (2D transfer functions hold scalar and
@@ -1589,12 +1740,44 @@ std::string ComputeRayDirectionDeclaration(vtkRenderer* ren, vtkVolumeMapper* vt
 }
 
 //--------------------------------------------------------------------------
+std::string ComputeColorUniforms(vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs,
+  int noOfComponents, vtkVolumeProperty* volProp)
+{
+  std::string resStr;
+  if (inputs.size() > 1)
+  {
+    // multi volume
+    for (auto& item : inputs)
+    {
+      const auto& prop = item.second.Volume->GetProperty();
+      if (prop->GetTransferFunctionMode() != vtkVolumeProperty::TF_1D)
+        continue;
+
+      auto& map = item.second.RGBTablesMap;
+      const auto numComp = map.size();
+      resStr +=
+        "uniform sampler2D " + ArrayBaseName(map[0]) + "[" + std::to_string(numComp) + "];\n";
+    }
+  }
+  else
+  {
+    // single volume
+    if (volProp->GetTransferFunctionMode() == vtkVolumeProperty::TF_1D)
+    {
+      resStr += "uniform sampler2D " + ArrayBaseName(inputs[0].RGBTablesMap[0]) + "[" +
+        std::to_string(noOfComponents) + "];\n";
+    }
+    // in case of TF_2D, the texture needed is defined with computeOpacity
+  }
+  return resStr;
+}
+
+//--------------------------------------------------------------------------
 std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
   vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol), int noOfComponents,
   int independentComponents, std::map<int, std::string> colorTableMap)
 {
   std::ostringstream ss;
-  ss << "uniform sampler2D " << ArrayBaseName(colorTableMap[0]) << "[" << noOfComponents << "];\n";
 
   std::string shaderStr = ss.str();
   if (noOfComponents == 1)
@@ -1671,7 +1854,6 @@ std::string ComputeColorMultiDeclaration(
   vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs, bool useGradientTF)
 {
   std::ostringstream ss;
-  int i = 0;
   int lastComponentMode = vtkVolumeInputHelper::INVALID;
   std::map<int, std::string> lastColorTableMap;
   for (auto& item : inputs)
@@ -1679,14 +1861,9 @@ std::string ComputeColorMultiDeclaration(
     auto prop = item.second.Volume->GetProperty();
     if (prop->GetTransferFunctionMode() != vtkVolumeProperty::TF_1D)
       continue;
-
     auto& map = item.second.RGBTablesMap;
-    const auto numComp = map.size();
-    ss << "uniform sampler2D " << ArrayBaseName(map[0]) << "[" << numComp << "];\n";
-
     lastComponentMode = item.second.ComponentMode;
     lastColorTableMap = map;
-    i++;
   }
 
   if (lastComponentMode == vtkVolumeInputHelper::LA)
@@ -2107,6 +2284,7 @@ std::string ComputeVolumetricShadowDec(vtkOpenGLGPUVolumeRayCastMapper* mapper,
   float scalar;
   vec4 gradient;
   float opacity = 0.0;
+  vec3 color;
   Ray ray;
   Hit hit;
   float sampled_dist = 0.0;
@@ -2151,7 +2329,7 @@ std::string ComputeVolumetricShadowDec(vtkOpenGLGPUVolumeRayCastMapper* mapper,
   opacityEval += "  scalar = texture3D(volume, sampled_point)[c];\n"
                  "  scalar = scalar * in_volume_scale[index][c] + in_volume_bias[index][c];\n";
   opacityEval += ComputeOpacityEvaluationCall(
-    mapper, inputs, noOfComponents, independentComponents, useGradYAxis, "sampled_point");
+    mapper, inputs, noOfComponents, independentComponents, useGradYAxis, "sampled_point", true);
 
   resStr += functionSignature + "{\n" + declarations + rayInit +
     R"***(

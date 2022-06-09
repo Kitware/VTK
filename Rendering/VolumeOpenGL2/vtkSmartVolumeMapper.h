@@ -304,6 +304,17 @@ public:
   vtkGetMacro(GlobalIlluminationReach, float);
   ///@}
 
+  ///@{
+  /**
+   * @copydoc vtkGPUVolumeRayCastMapper::SetVolumetricScatteringBlending(float)
+   *
+   * This parameter is only used when the underlying mapper
+   * is a vtkGPUVolumeRayCastMapper.
+   */
+  vtkSetClampMacro(VolumetricScatteringBlending, float, 0.0f, 2.0f);
+  vtkGetMacro(VolumetricScatteringBlending, float);
+  ///@}
+
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Initialize rendering for this volume.
@@ -471,6 +482,11 @@ protected:
    * Secondary rays ambient/global adjustment coefficient
    */
   float GlobalIlluminationReach = 0.0;
+
+  /**
+   * Blending coefficient between surfacic and volumetric models in GPU Mapper
+   */
+  float VolumetricScatteringBlending = 0.0;
 
   /**
    * Set whether or not the sample distance should be automatically calculated
