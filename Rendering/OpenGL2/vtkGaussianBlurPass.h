@@ -17,7 +17,7 @@
  * @brief   Implement a post-processing Gaussian blur
  * render pass.
  *
- * Blur the image renderered by its delegate. Blurring uses a Gaussian low-pass
+ * Blur the image rendered by its delegate. Blurring uses a Gaussian low-pass
  * filter with a 5x5 kernel.
  *
  * This pass expects an initialized depth buffer and color buffer.

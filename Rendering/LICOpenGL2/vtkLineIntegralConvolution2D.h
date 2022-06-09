@@ -29,7 +29,7 @@
  *  locating the pixels along / hit by this streamline as the correlated pixels
  *  of the starting pixel (seed point / pixel), (3) indexing a (usually white)
  *  noise texture (another input to LIC, in addition to the 2D vector field,
- *  usually with the same size as that of the 2D vetor field) to determine the
+ *  usually with the same size as that of the 2D vector field) to determine the
  *  values (colors) of these pixels (the starting and the correlated pixels),
  *  typically through bi-linear interpolation, and (4) performing convolution
  *  (weighted averaging) on these values, by adopting a low-pass filter (such

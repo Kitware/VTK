@@ -142,7 +142,7 @@ protected:
   static void MoveEvent(vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   /**
-   * Must be overriden in subclasses to init the member variable
+   * Must be overridden in subclasses to init the member variable
    * ControlPositionLC to position the tooltip on the component.
    */
   virtual void InitControlPosition() = 0;

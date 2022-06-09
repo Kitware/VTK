@@ -16,7 +16,7 @@
  * @class   vtkRenderState
  * @brief   Context in which a vtkRenderPass will render.
  *
- * vtkRenderState is a ligthweight effective class which gather information
+ * vtkRenderState is a lightweight effective class which gather information
  * used by a vtkRenderPass to perform its execution.
  * @attention
  * Get methods are const to enforce that a renderpass cannot modify the

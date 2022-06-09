@@ -22,7 +22,7 @@
  * It calls its delegate once.
  * After its delegate returns, it restore the modelview matrix stack.
  *
- * Its delegate is usually set to a vtkSequencePass with a vtkLigthsPass and
+ * Its delegate is usually set to a vtkSequencePass with a vtkLightsPass and
  * a list of passes for the geometry.
  *
  * @sa
@@ -59,7 +59,7 @@ public:
   /**
    * Delegate for rendering the geometry.
    * If it is NULL, nothing will be rendered and a warning will be emitted.
-   * It is usually set to a vtkSequencePass with a vtkLigthsPass and
+   * It is usually set to a vtkSequencePass with a vtkLightsPass and
    * a list of passes for the geometry.
    * Initial value is a NULL pointer.
    */

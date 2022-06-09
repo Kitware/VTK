@@ -107,7 +107,7 @@ void vtkInteractorStyle3D::PositionProp(vtkEventData* ed, double* lwpos, double*
   vtkMatrix4x4* oldModelToLastPose = this->TempMatrix4;
 
   // create a scope here so that some usages of TempMatrix4 and tmpMatrix
-  // go out of scope and will not be accidentaly reused.
+  // go out of scope and will not be accidentally reused.
   {
     vtkMatrix4x4* oldModelToWorld = this->TempMatrix4;
     this->InteractionProp->GetModelToWorldMatrix(oldModelToWorld);

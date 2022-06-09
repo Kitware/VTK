@@ -127,7 +127,7 @@ protected:
   bool CheckForError(PyObject* object);
 
   /**
-   * Replace each occurence of strToFind in str by replacementStr.
+   * Replace each occurrence of strToFind in str by replacementStr.
    * Used to protect escaped pipe before the splitting process, and recover them
    * after.
    */

@@ -255,7 +255,7 @@ int TestFluidMapper(int argc, char* argv[])
   // Default value is 1.33
   fluidMapper->SetRefractiveIndex(1.33f);
 
-  // Set the refraction scale, this will explicity change the amount of
+  // Set the refraction scale, this will explicitly change the amount of
   // refraction Default value is 1
   fluidMapper->SetRefractionScale(0.07f);
 

@@ -308,7 +308,7 @@ PointDataType vtkOpenGLPointGaussianMapperHelperGetComponent(
     component = 0;
   }
 
-  // If we request a non-existing componeent, return the magnitude of the tuple
+  // If we request a non-existing component, return the magnitude of the tuple
   PointDataType compVal = 0.0;
   if (component < 0 || component >= nComponent)
   {

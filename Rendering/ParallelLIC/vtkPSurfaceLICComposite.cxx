@@ -447,7 +447,7 @@ int vtkPSurfaceLICComposite::AllReduceVectorMax(
   for (int r = 0; r < this->CommSize; ++r)
   {
     // check the intersection of each new extent with that of each
-    // original extent. data for origial extent is local.
+    // original extent. data for original extent is local.
     size_t nNew = newExts[r].size();
     tmpMax[r].resize(nNew, -VTK_FLOAT_MAX);
     for (size_t n = 0; n < nNew; ++n)
@@ -1136,7 +1136,7 @@ int vtkPSurfaceLICComposite::Gather(
   cerr << "=====vtkPSurfaceLICComposite::Composite" << endl;
 #endif
 
-  // two pipleines depending on if this process recv's or send's
+  // two pipelines depending on if this process recv's or send's
   //
   // send:
   // tex -> pbo -> mpi_send
@@ -1470,7 +1470,7 @@ int vtkPSurfaceLICComposite::Scatter(
 #endif
 
   int iErr = 0;
-  // two pipleines depending on if this process recv's or send's
+  // two pipelines depending on if this process recv's or send's
   //
   // send:
   // tex -> pbo -> mpi_send

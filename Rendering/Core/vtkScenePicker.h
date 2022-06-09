@@ -33,7 +33,7 @@
  * - Unlike a vtkHoverWidget, this class is not timer based. The hover widget
  *   picks a scene when the mouse is over an actor for a specified duration.
  * - This class uses a vtkHardwareSelector under the hood. Hence, it will
- *   work only for actors that have opaque geomerty and are rendered by a
+ *   work only for actors that have opaque geometry and are rendered by a
  *   vtkPolyDataMapper.
  *
  * @sa

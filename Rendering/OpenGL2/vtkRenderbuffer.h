@@ -54,7 +54,7 @@ public:
    * Setting the context has the side affect of initializing OpenGL
    * required extensions and allocates an OpenGL name(handle) that is
    * released when the object is destroyed. NOTE: the reference count
-   * to the passed in object is not incremented. Contex must be set
+   * to the passed in object is not incremented. Context must be set
    * prior to other use.
    */
   void SetContext(vtkRenderWindow* win);

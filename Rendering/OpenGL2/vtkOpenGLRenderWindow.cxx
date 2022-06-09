@@ -2066,7 +2066,7 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
 #if defined(__APPLE__)
   // make sure requested multisamples is OK with platform
   // APPLE Intel systems seem to have buggy multisampled
-  // frambuffer blits etc that cause issues
+  // framebuffer blits etc that cause issues
   if (this->MultiSamples > 0)
   {
     if (this->GetState()->GetVendor().find("Intel") != std::string::npos)
@@ -2257,7 +2257,7 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
 
   rw->Delete();
 
-  this->OpenGLSupportMessage += "vtkOutputWindow Text Folows:\n\n" + sow->GetOutput();
+  this->OpenGLSupportMessage += "vtkOutputWindow Text Follows:\n\n" + sow->GetOutput();
   vtkOutputWindow::SetInstance(oldOW);
   oldOW->Delete();
 

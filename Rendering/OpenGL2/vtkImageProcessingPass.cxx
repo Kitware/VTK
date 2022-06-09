@@ -165,7 +165,7 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
   fbo->StartNonOrtho(newWidth, newHeight);
   if (r->Transparent())
   {
-    // Clear is not called on tranparent renderers. But since this is a offscreen render target we
+    // Clear is not called on transparent renderers. But since this is a offscreen render target we
     // want it cleared
     ostate->vtkglClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     ostate->vtkglClear(GL_COLOR_BUFFER_BIT);

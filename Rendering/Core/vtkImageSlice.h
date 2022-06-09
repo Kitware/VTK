@@ -21,7 +21,7 @@
  * perspective. Adjusting the position and orientation of the slice
  * is done by adjusting the focal point and direction of the camera,
  * or alternatively the slice can be set manually in vtkImageMapper3D.
- * The lookup table and window/leve are set in vtkImageProperty.
+ * The lookup table and window/level are set in vtkImageProperty.
  * Prop3D methods such as SetPosition() and RotateWXYZ() change the
  * position and orientation of the data with respect to VTK world
  * coordinates.

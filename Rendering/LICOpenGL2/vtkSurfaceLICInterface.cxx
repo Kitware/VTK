@@ -340,7 +340,7 @@ void vtkSurfaceLICInterface::ApplyLIC()
   // of aspect ratio which is pretty insane...
   // convert from window units to texture units
   // this isn't correct since there's no way to account
-  // for anisotropy in the trasnform to texture space
+  // for anisotropy in the transform to texture space
   double tcScale[2] = { 1.0 / this->Internals->Viewsize[0], 1.0 / this->Internals->Viewsize[1] };
 
   double stepSize = this->StepSize * sqrt(tcScale[0] * tcScale[0] + tcScale[1] * tcScale[1]);

@@ -75,7 +75,7 @@
  * NOTE: This class has a complex interaction with parallel compositing
  * techniques such as IceT that are used on supercomputers. In those
  * cases the local nodes render each pass, process it, send it to icet
- * which composits it, and then must copy the result back to the hardware
+ * which composites it, and then must copy the result back to the hardware
  * selector. Be aware of these interactions  if you work on this class.
  *
  * NOTE: many mappers support remapping arrays from their local value to

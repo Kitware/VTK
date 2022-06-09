@@ -32,7 +32,7 @@
  *     |                                               |
  * vectors                                         surface LIC
  * </pre>
- * PROj  - prject vectors onto surface
+ * PROj  - project vectors onto surface
  * GAT   - gather data for compositing and guard pixel generation  (parallel only)
  * COMP  - composite gathered data
  * LIC2D - line intengral convolution, see vtkLineIntegralConvolution2D.
@@ -271,7 +271,7 @@ public:
    * combined with the LIC in the final image. The BLEND mode combines scalar
    * colors with LIC intensities with proportional blending controlled by the
    * LICIntensity parameter. The MAP mode combines scalar colors with LIC,
-   * by multiplication the HSL represntation of color's lightness.
+   * by multiplication the HSL representation of color's lightness.
 
    * The default is COLOR_MODE_BLEND.
    */

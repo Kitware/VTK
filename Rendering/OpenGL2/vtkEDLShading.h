@@ -23,7 +23,7 @@ Ph.D. thesis of Christian BOUCHENY.
  *
  *
  * Implement an EDL offscreen shading.
- * Shade the image renderered by its delegate. Two image resolutions are used
+ * Shade the image rendered by its delegate. Two image resolutions are used
  *
  * This pass expects an initialized depth buffer and color buffer.
  * Initialized buffers means they have been cleared with farest z-value and

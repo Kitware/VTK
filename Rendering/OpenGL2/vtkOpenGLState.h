@@ -348,7 +348,7 @@ public:
 
   /**
    * Perform a blit but handle some driver bugs safely. Use this instead of directly calling
-   * glBlitFrambuffer.
+   * glBlitFramebuffer.
    */
   void vtkglBlitFramebuffer(int, int, int, int, int, int, int, int, unsigned int, unsigned int);
 

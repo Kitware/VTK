@@ -86,7 +86,7 @@ public:
   /**
    * This boolean control whether or not the mapping should adapt
    * to the Camera frustum during the rendering. Setting this variable
-   * to true (default) should provide increased preformances.
+   * to true (default) should provide increased performances.
    */
   vtkGetMacro(UseAdaptiveDecimation, bool);
   vtkSetMacro(UseAdaptiveDecimation, bool);

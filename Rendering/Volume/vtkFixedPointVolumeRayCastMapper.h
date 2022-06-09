@@ -42,7 +42,7 @@
  * cells in the original volume are represented by a min, max, and
  * combined gradient and flag value. The min max volume has three
  * unsigned shorts per 4x4x4 group of cells from the original volume -
- * one reprenting the minimum scalar index (the scalar value adjusted
+ * one representing the minimum scalar index (the scalar value adjusted
  * to fit in the 15 bit range), the maximum scalar index, and a
  * third unsigned short which is both the maximum gradient opacity in
  * the neighborhood (an unsigned char) and the flag that is filled

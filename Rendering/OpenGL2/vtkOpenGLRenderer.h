@@ -170,7 +170,7 @@ public:
   ///@}
 
   /**
-   * Overriden in order to connect the texture to the environment map textures.
+   * Overridden in order to connect the texture to the environment map textures.
    */
   void SetEnvironmentTexture(vtkTexture* texture, bool isSRGB = false) override;
 

@@ -979,7 +979,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingShaderParameters(
     // sqrt(3) corresponds to the maximum (the diagonal of the cube)
     float* invTexMat = this->InvTexMatVec.data();
     float minCoef = VTK_FLOAT_MAX;
-    // only take 3x3 sub-matrix because it will be multplied by a vec4(..., 0.0) normalized vec
+    // only take 3x3 sub-matrix because it will be multiplied by a vec4(..., 0.0) normalized vec
     for (int i = 0; i < 3; i++)
     {
       // diagonal coefficient
@@ -3046,7 +3046,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
       if (item.second.Volume->GetProperty()->HasGradientOpacity() != hasGradient)
       {
         vtkGenericWarningMacro(
-          "Current implentation of vtkOpenGLGPUVolumeRayCastMapper does not support MultiVolume "
+          "Current implementation of vtkOpenGLGPUVolumeRayCastMapper does not support MultiVolume "
           "where some volumes have a gradient opacity function and some others don't. "
           "Rendering of the MultiVolume is disabled.");
         success = false;
@@ -3344,7 +3344,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderWithDepthPass(
   {
     // NOTE: This is a must call or else, multiple viewport rendering would
     // not work. The glViewport could have been changed by any of the internal
-    // FBOs (RenderToTexure, etc.).  The viewport should (ideally) not be set
+    // FBOs (RenderToTexture, etc.).  The viewport should (ideally) not be set
     // within the mapper, because it could cause issues when vtkOpenGLRenderPass
     // instances modify it too (this is a workaround for that).
     renWin->GetState()->vtkglViewport(

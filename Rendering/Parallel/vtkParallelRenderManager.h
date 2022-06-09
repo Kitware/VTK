@@ -533,7 +533,7 @@ protected:
    * Used to synchronize rendering information per frame.
    * These are old methods provided for backward compatibility. One should look
    * at using CollectWindowInformation(), ProcessWindowInformation() etc. for
-   * bufferred sending of information over.
+   * buffered sending of information over.
    */
   virtual void SendWindowInformation() {}
   virtual void ReceiveWindowInformation() {}

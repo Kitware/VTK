@@ -32,7 +32,7 @@
  *     |                                               |
  * vectors                                         surface LIC
  * </pre>
- * PROj  - prject vectors onto surface
+ * PROj  - project vectors onto surface
  * GAT   - gather data for compositing and guard pixel generation  (parallel only)
  * COMP  - composite gathered data
  * LIC2D - line intengral convolution, see vtkLineIntegralConvolution2D.
@@ -113,7 +113,7 @@ protected:
 
 protected:
   /**
-   * Set the shader parameteres related to the mapper/input data, called by UpdateShader
+   * Set the shader parameters related to the mapper/input data, called by UpdateShader
    */
   void SetMapperShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
 

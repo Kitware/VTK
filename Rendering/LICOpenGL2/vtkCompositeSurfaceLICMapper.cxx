@@ -74,7 +74,7 @@ protected:
     vtkIdType& flat_index, std::vector<unsigned char>& colors, std::vector<float>& norms) override;
 
   /**
-   * Set the shader parameteres related to the mapper/input data, called by UpdateShader
+   * Set the shader parameters related to the mapper/input data, called by UpdateShader
    */
   void SetMapperShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
 

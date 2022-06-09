@@ -277,7 +277,7 @@ public:
 
   ///@{
   /**
-   * Select the type of resampling techinque approach to use.
+   * Select the type of resampling technique approach to use.
    */
   vtkSetMacro(RequestedResamplingMode, int);
   vtkGetMacro(RequestedResamplingMode, int);

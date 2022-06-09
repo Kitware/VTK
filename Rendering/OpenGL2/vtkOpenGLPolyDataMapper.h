@@ -312,18 +312,18 @@ protected:
   virtual void SetMapperShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act);
 
   /**
-   * Set the shader parameteres related to lighting, called by UpdateShader
+   * Set the shader parameters related to lighting, called by UpdateShader
    */
   virtual void SetLightingShaderParameters(
     vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act);
 
   /**
-   * Set the shader parameteres related to the Camera, called by UpdateShader
+   * Set the shader parameters related to the Camera, called by UpdateShader
    */
   virtual void SetCameraShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act);
 
   /**
-   * Set the shader parameteres related to the property, called by UpdateShader
+   * Set the shader parameters related to the property, called by UpdateShader
    */
   virtual void SetPropertyShaderParameters(
     vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act);

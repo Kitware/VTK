@@ -116,7 +116,7 @@ void vtkOpenXRModel::LoadModelAndTexture(vtkOpenGLRenderWindow* win)
   if (!this->ModelLoaded && !this->ModelLoading)
   {
     this->ModelLoading = true;
-    // loading the models can be slow so do it in a seperate thread
+    // loading the models can be slow so do it in a separate thread
     std::thread loader([this] { this->AsyncLoad(); });
     loader.detach();
   }

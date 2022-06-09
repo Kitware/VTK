@@ -50,7 +50,7 @@ void main(void)
 {
   vec2 lictc = tcoordVC.st;
 
-  // compute the convolution but don't use convovled values if
+  // compute the convolution but don't use convolved values if
   // any masked fragments on the stencil. Fragments outside
   // the valid domain are masked during initialization, and
   // texture wrap parameters are clamp to border with border

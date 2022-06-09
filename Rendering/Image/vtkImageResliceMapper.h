@@ -16,7 +16,7 @@
  * @class   vtkImageResliceMapper
  * @brief   map a slice of a vtkImageData to the screen
  *
- * vtkImageResliceMapper will cut a 3D image with an abitrary slice plane
+ * vtkImageResliceMapper will cut a 3D image with an arbitrary slice plane
  * and draw the results on the screen.  The slice can be set to automatically
  * follow the camera, so that the camera controls the slicing.
  * @par Thanks:

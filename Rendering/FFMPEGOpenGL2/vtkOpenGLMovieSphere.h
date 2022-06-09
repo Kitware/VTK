@@ -24,7 +24,7 @@
  * stalls. In a quick test between the two classes playing a 4K30p video
  * sphere along with VR rendering, decoding etc just switching out the
  * vtkSkybox for this class resulting in CPU usage going from 124 seconds
- * down to 81 seconds. Likewise the frame timings in VR became noticably
+ * down to 81 seconds. Likewise the frame timings in VR became noticeably
  * better which could partially be due to pushing half as much data to the
  * GPU. (YUV420 is half the size of RGB)
  */

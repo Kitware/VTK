@@ -143,7 +143,7 @@ void updateFunc(vtkObject* caller, unsigned long vtkNotUsed(eventId), void* clie
     --layers;
   }
 
-  // Shift particles to the right (positve x)
+  // Shift particles to the right (positive x)
   auto pointsToMove = g_Points->GetNumberOfPoints() - oldLayerSize;
   float* pptr = static_cast<float*>(g_Points->GetVoidPointer(0));
   auto lpptr = pptr + pointsToMove * 3;

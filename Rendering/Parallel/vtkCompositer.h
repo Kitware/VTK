@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkCompositer
- * @brief   Super class for composite algorthms.
+ * @brief   Super class for composite algorithms.
  *
  *
  * vtkCompositer operates in multiple processes.  Each compositer has

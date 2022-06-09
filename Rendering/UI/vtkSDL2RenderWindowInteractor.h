@@ -62,7 +62,7 @@ public:
    */
   void ExitCallback() override;
 
-  // When using emscripten this adds the event hander
+  // When using emscripten this adds the event handler
   // and then returns without blocking or aborting.
   // TerminateApp will remove the event hanbdler.
   void AddEventHandler();

@@ -1467,7 +1467,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       {
         // check camera
         // Why not cam->mtime?
-        // cam->mtime is bumped by synch after this in parallel so never reuses
+        // cam->mtime is bumped by sync after this in parallel so never reuses
         // Why not cam->MVTO->mtime?
         //  cam set's elements directly, so the mtime doesn't bump with motion
         vtkMatrix4x4* camnow = ren->GetActiveCamera()->GetModelViewTransformObject()->GetMatrix();

@@ -89,18 +89,18 @@ protected:
   virtual void UpdateShaders(vtkOpenGLHelper& cellBO, vtkViewport* viewport, vtkActor2D* act);
 
   /**
-   * Set the shader parameteres related to the mapper/input data, called by UpdateShader
+   * Set the shader parameters related to the mapper/input data, called by UpdateShader
    */
   virtual void SetMapperShaderParameters(
     vtkOpenGLHelper& cellBO, vtkViewport* viewport, vtkActor2D* act);
 
   /**
-   * Set the shader parameteres related to the Camera
+   * Set the shader parameters related to the Camera
    */
   void SetCameraShaderParameters(vtkOpenGLHelper& cellBO, vtkViewport* viewport, vtkActor2D* act);
 
   /**
-   * Set the shader parameteres related to the property
+   * Set the shader parameters related to the property
    */
   void SetPropertyShaderParameters(vtkOpenGLHelper& cellBO, vtkViewport* viewport, vtkActor2D* act);
 

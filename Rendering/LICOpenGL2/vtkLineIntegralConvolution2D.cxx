@@ -47,7 +47,7 @@ using std::vector;
 
 // Enable stream min/max computations. Streaming is accomplished
 // via PBO+glReadPixels to read just the regions we are updating.
-// Without streaming PBO+glGetTexImage is used to uplaod the entire
+// Without streaming PBO+glGetTexImage is used to upload the entire
 // screen sized texture, of which (in parallel) we are updating only
 // a small part of.
 #define STREAMING_MIN_MAX

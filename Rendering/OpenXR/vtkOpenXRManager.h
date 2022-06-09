@@ -69,7 +69,7 @@ public:
 
   //@{
   /**
-   * Utility functions to print informations about OpenXR manager internal structures.
+   * Utility functions to print information about OpenXR manager internal structures.
    */
   void PrintInstanceProperties();
   void PrintSystemProperties(XrSystemProperties* system_properties);
@@ -96,9 +96,9 @@ public:
 
   //@{
   /**
-   * Return as a tuple the OpenXR recommanded texture size to be sent to the device.
+   * Return as a tuple the OpenXR recommended texture size to be sent to the device.
    */
-  std::tuple<uint32_t, uint32_t> GetRecommandedImageRectSize();
+  std::tuple<uint32_t, uint32_t> GetRecommendedImageRectSize();
   //@}
 
   /**
@@ -210,7 +210,7 @@ public:
    * Prepare the rendering resources for the specified eye and store in \p colorTextureId and
    * in \p depthTextureId (if the depth extension is supported) the OpenGL texture in which
    * we need to draw pixels.
-   * Return true if no error occured.
+   * Return true if no error occurred.
    */
   bool PrepareRendering(uint32_t eye, GLuint& colorTextureId, GLuint& depthTextureId);
   //@}
@@ -545,7 +545,7 @@ protected:
 
   //@{
   /**
-   * This struct stores all needed informations to render the images
+   * This struct stores all needed information to render the images
    * and send it to the user
    * We can't make a vector of struct because OpenXR SDK needs
    * an array of XrXXX for xrEnumerate functions
@@ -574,7 +574,7 @@ protected:
   XrActionSet* ActiveActionSet = nullptr;
 
   /**
-   * Store the frame predicted dispay time in WaitAndBeginFrame
+   * Store the frame predicted display time in WaitAndBeginFrame
    * To get the action data at this time and to submit it in EndFrame
    */
   XrTime PredictedDisplayTime;

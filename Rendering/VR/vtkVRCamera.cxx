@@ -69,7 +69,7 @@ void vtkVRCamera::SetPoseFromCamera(vtkVRCamera::Pose* pose, vtkVRRenderWindow* 
 
 // much more complicated as we cannot simply set the camera based on
 // the pose as the camera is head tracked (the HMD) and whatever we set will
-// be instantly overriden with the latest HMD matrix. So instead we adjust
+// be instantly overridden with the latest HMD matrix. So instead we adjust
 // the physical space properties to best reproduce the pose based on the HMDs
 // current pose.
 void vtkVRCamera::ApplyPoseToCamera(vtkVRCamera::Pose* pose, vtkVRRenderWindow* win)

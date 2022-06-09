@@ -121,7 +121,7 @@ Which can be expanded out and simplied as follows
 
 Z1 = -D/(C + Zdc1)
 
-Substituting Z1 into the fomula for Z2 yields
+Substituting Z1 into the formula for Z2 yields
 
 Z2 = -D/(C + Zdc1) + W*D/(A*(C + Zdc1))
 Z2 = W*D/(A*(C + Zdc1)) - D/(C + Zdc1)

@@ -659,7 +659,7 @@ void vtkValuePass::ReleaseFBO(vtkWindow* win)
 
   win->MakeCurrent();
 
-  // Cleanup FBO (grahpics resources cleaned internally)
+  // Cleanup FBO (graphics resources cleaned internally)
   this->ImplFloat->ValueFBO->Delete();
   this->ImplFloat->ValueFBO = nullptr;
 

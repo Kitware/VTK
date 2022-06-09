@@ -314,7 +314,7 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer* ren, double tran
   double origRy[3] = { rY[0], rY[1], rY[2] };
 
   // NOTE: Basically the idea here is that dotVal will be positive
-  // only when we have projection direction aligned with our z directon
+  // only when we have projection direction aligned with our z direction
   // and when that happens it means that our Y is inverted.
   if (dotVal > 0)
   {

@@ -52,7 +52,7 @@ void vtkAssemblyPath::AddNode(vtkAssemblyNode* n)
   this->vtkCollection::AddItem(n);
 
   // Grab the matrix, if any, and concatenate it
-  this->Transform->Push(); // keep in synch with list of nodes
+  this->Transform->Push(); // keep in sync with list of nodes
   vtkMatrix4x4* matrix;
   if ((matrix = n->GetMatrix()) != nullptr)
   {

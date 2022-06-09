@@ -666,7 +666,7 @@ public:
 
   /**
    * Set the emissive texture. When present, this RGB texture provides location and color to the
-   * shader where the vtkPolyData should emit light. Emited light is scaled by EmissiveFactor.
+   * shader where the vtkPolyData should emit light. Emitted light is scaled by EmissiveFactor.
    * This is only supported by PBR interpolation model.
    * This texture must be in sRGB color space.
    * @sa SetInterpolationToPBR SetEmissiveFactor vtkTexture::UseSRGBColorSpaceOn

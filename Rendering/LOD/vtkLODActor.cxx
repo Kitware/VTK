@@ -221,7 +221,7 @@ void vtkLODActor::AddLODMapper(vtkMapper* mapper)
 
 //------------------------------------------------------------------------------
 // Can only be used if no LOD mappers have been added.
-// Maybe we should remove this exculsive feature.
+// Maybe we should remove this exclusive feature.
 void vtkLODActor::CreateOwnLODs()
 {
   if (this->MediumMapper)

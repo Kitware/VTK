@@ -110,7 +110,7 @@ if (NOT VTK_LEGACY_REMOVE)
     vtkOpenGL.h)
 endif ()
 
-# add opengl support test execulatble on windows
+# add opengl support test executable on windows
 if (WIN32 AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))
   vtk_module_add_executable(vtkTestOpenGLVersion vtkTestOpenGLVersion.cxx)
   set_target_properties(vtkTestOpenGLVersion

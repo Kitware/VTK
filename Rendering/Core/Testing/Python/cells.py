@@ -682,7 +682,7 @@ class cells(vtk.test.Testing.vtkTest):
         aLight.SetFocalPoint(ren.GetActiveCamera().GetFocalPoint())
         aLight.SetPosition(ren.GetActiveCamera().GetPosition())
 
-        # bascially have IO/Export ?
+        # basically have IO/Export ?
         if hasattr(vtk, 'vtkRIBExporter'):
             rib = vtk.vtkRIBExporter()
             rib.SetInput(renWin)

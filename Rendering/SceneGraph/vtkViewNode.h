@@ -180,7 +180,7 @@ protected:
   std::map<vtkObject*, vtkViewNode*> Renderables;
   friend class vtkViewNodeFactory;
 
-  // used in the prepare/add/remove opertions
+  // used in the prepare/add/remove operations
   bool Used;
 
 private:

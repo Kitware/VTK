@@ -17,8 +17,8 @@
  * @brief   extends interaction to support 3D input
  *
  * vtkInteractorStyle3D allows the user to interact with (rotate,
- * pan, etc.) objects in the scene indendent of each other. It is designed
- * to use 3d positions and orientations instead of 2D.
+ * pan, etc.) objects in the scene independent of each other. It is
+ * designed to use 3d positions and orientations instead of 2D.
  *
  * The following interactions are specified by default.
  *

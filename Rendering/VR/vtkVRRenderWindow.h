@@ -83,7 +83,7 @@ public:
 
   /**
    * Create an interactor to control renderers in this window. Must be
-   * overriden to instantiate a specific interactor depending on the API
+   * overridden to instantiate a specific interactor depending on the API
    */
   vtkRenderWindowInteractor* MakeRenderWindowInteractor() override = 0;
 
@@ -171,7 +171,7 @@ public:
   /**
    * Initialize the HMD to World setting and camera settings so that the VR
    * world view most closely matched the view from the provided camera. This
-   * method is useful for initialing a VR world from an existing on screen
+   * method is useful for initializing a VR world from an existing on screen
    * window and camera. The Renderer and its camera must already be created
    * and set when this is called.
    */
