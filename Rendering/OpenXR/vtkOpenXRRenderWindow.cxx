@@ -83,7 +83,7 @@ bool vtkOpenXRRenderWindow::GetSizeFromAPI()
 {
   vtkOpenXRManager& xrManager = vtkOpenXRManager::GetInstance();
 
-  std::tie(this->Size[0], this->Size[1]) = xrManager.GetRecommandedImageRectSize();
+  std::tie(this->Size[0], this->Size[1]) = xrManager.GetRecommendedImageRectSize();
 
   return true;
 }
@@ -130,7 +130,7 @@ void vtkOpenXRRenderWindow::Initialize()
   // Create one framebuffer per view
   this->CreateFramebuffers();
 
-  std::tie(this->Size[0], this->Size[1]) = xrManager.GetRecommandedImageRectSize();
+  std::tie(this->Size[0], this->Size[1]) = xrManager.GetRecommendedImageRectSize();
 
   vtkDebugMacro(<< "Size : " << this->Size[0] << ", " << this->Size[1]);
 
