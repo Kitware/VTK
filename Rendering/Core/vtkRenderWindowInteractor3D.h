@@ -244,11 +244,32 @@ public:
 
   ///@{
   /**
-   * Set/Get the optional scale translation to map world coordinates into the
-   * 3D physical space (meters, 0,0,0).
+   * Set/get the direction of the physical coordinate system -Z axis in world coordinates.
+   */
+  virtual void SetPhysicalViewDirection(double, double, double){};
+  virtual double* GetPhysicalViewDirection() { return nullptr; };
+  ///@}
+
+  ///@{
+  /**
+   * Set/get the direction of the physical coordinate system +Y axis in world coordinates.
+   */
+  virtual void SetPhysicalViewUp(double, double, double){};
+  virtual double* GetPhysicalViewUp() { return nullptr; };
+  ///@}
+
+  ///@{
+  /**
+   * Set/get position of the physical coordinate system origin in world coordinates.
    */
   virtual void SetPhysicalTranslation(vtkCamera*, double, double, double) {}
   virtual double* GetPhysicalTranslation(vtkCamera*) { return nullptr; }
+  ///@}
+
+  ///@{
+  /**
+   * Set/get the physical scale (world / physical distance ratio)
+   */
   virtual void SetPhysicalScale(double) {}
   virtual double GetPhysicalScale() { return 1.0; }
   ///@}

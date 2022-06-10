@@ -19,9 +19,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
 #include "vtkInformation.h"
+#include "vtkMatrix3x3.h"
 #include "vtkPlane.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkQuaternion.h"
 #include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
@@ -55,9 +57,6 @@ vtkVRInteractorStyle::vtkVRInteractorStyle()
   }
 
   // Create default inputs mapping
-  this->MapInputToAction(vtkCommand::ViewerMovement3DEvent, VTKIS_DOLLY);
-  this->MapInputToAction(vtkCommand::Menu3DEvent, VTKIS_MENU);
-  this->MapInputToAction(vtkCommand::NextPose3DEvent, VTKIS_LOAD_CAMERA_POSE);
   this->MapInputToAction(vtkCommand::Select3DEvent, VTKIS_POSITION_PROP);
 
   this->MenuCommand->SetClientData(this);
@@ -158,7 +157,7 @@ void vtkVRInteractorStyle::OnNextPose3D(vtkEventData* edata)
 }
 
 //------------------------------------------------------------------------------
-void vtkVRInteractorStyle::OnViewerMovement3D(vtkEventData* edata)
+void vtkVRInteractorStyle::Movement3D(int interactionState, vtkEventData* edata)
 {
   vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
   if (!edd)
@@ -181,7 +180,7 @@ void vtkVRInteractorStyle::OnViewerMovement3D(vtkEventData* edata)
 
   if (edd->GetAction() == vtkEventDataAction::Press)
   {
-    this->StartAction(VTKIS_DOLLY, edd);
+    this->StartAction(interactionState, edd);
     this->LastTrackPadPosition[0] = 0.0;
     this->LastTrackPadPosition[1] = 0.0;
     return;
@@ -189,32 +188,70 @@ void vtkVRInteractorStyle::OnViewerMovement3D(vtkEventData* edata)
 
   if (edd->GetAction() == vtkEventDataAction::Release)
   {
-    this->EndAction(VTKIS_DOLLY, edd);
+    this->EndAction(interactionState, edd);
     return;
   }
 
   // If the input event is from a joystick and is away from the center then
   // call start. When the joystick returns to the center, call end.
   if (edd->GetInput() == vtkEventDataDeviceInput::Joystick &&
-    this->InteractionState[idev] != VTKIS_DOLLY && pos[1] != 0.0)
+    this->InteractionState[idev] != interactionState && pos[1] != 0.0)
   {
-    this->StartAction(VTKIS_DOLLY, edd);
+    this->StartAction(interactionState, edd);
     this->LastTrackPadPosition[0] = 0.0;
     this->LastTrackPadPosition[1] = 0.0;
     return;
   }
 
-  if (this->InteractionState[idev] == VTKIS_DOLLY)
+  if (this->InteractionState[idev] == interactionState)
   {
     // Stop when returning to the center on the joystick
     if (edd->GetInput() == vtkEventDataDeviceInput::Joystick && pos[1] == 0.0)
     {
-      this->EndAction(VTKIS_DOLLY, edd);
+      this->EndAction(interactionState, edd);
       return;
     }
-    this->Dolly3D(edata);
+
+    // Do the 3D movement corresponding to the interaction state
+    switch (interactionState)
+    {
+      case VTKIS_DOLLY:
+        this->Dolly3D(edd);
+        break;
+      case VTKIS_GROUNDMOVEMENT:
+        this->GroundMovement3D(edd);
+        break;
+      case VTKIS_ELEVATION:
+        this->Elevation3D(edd);
+        break;
+      default:
+        break;
+    }
+
     this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
     return;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkVRInteractorStyle::OnViewerMovement3D(vtkEventData* edata)
+{
+  if (this->Style == vtkVRInteractorStyle::FLY_STYLE)
+  {
+    this->Movement3D(VTKIS_DOLLY, edata);
+  }
+  else if (this->Style == vtkVRInteractorStyle::GROUNDED_STYLE)
+  {
+    this->Movement3D(VTKIS_GROUNDMOVEMENT, edata);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkVRInteractorStyle::OnElevation3D(vtkEventData* edata)
+{
+  if (this->Style == vtkVRInteractorStyle::GROUNDED_STYLE)
+  {
+    this->Movement3D(VTKIS_ELEVATION, edata);
   }
 }
 
@@ -230,6 +267,11 @@ void vtkVRInteractorStyle::OnMove3D(vtkEventData* edata)
   // Retrieve device type
   int idev = static_cast<int>(edd->GetDevice());
 
+  if (edd->GetDevice() == vtkEventDataDevice::HeadMountedDisplay)
+  {
+    edd->GetWorldDirection(this->HeadsetDir);
+  }
+
   // Update current state
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
@@ -237,7 +279,8 @@ void vtkVRInteractorStyle::OnMove3D(vtkEventData* edata)
   // Set current state and interaction prop
   this->InteractionProp = this->InteractionProps[idev];
 
-  switch (this->InteractionState[idev])
+  auto interactionState = this->InteractionState[idev];
+  switch (interactionState)
   {
     case VTKIS_POSITION_PROP:
       this->FindPokedRenderer(x, y);
@@ -245,8 +288,10 @@ void vtkVRInteractorStyle::OnMove3D(vtkEventData* edata)
       this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
     case VTKIS_DOLLY:
+    case VTKIS_GROUNDMOVEMENT:
+    case VTKIS_ELEVATION:
       this->FindPokedRenderer(x, y);
-      this->Dolly3D(edata);
+      this->Movement3D(interactionState, edd);
       this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
     case VTKIS_CLIP:
@@ -461,19 +506,19 @@ void vtkVRInteractorStyle::EndClip(vtkEventDataDevice3D* ed)
 }
 
 //------------------------------------------------------------------------------
-void vtkVRInteractorStyle::StartDolly3D(vtkEventDataDevice3D* ed)
+void vtkVRInteractorStyle::StartMovement3D(int interactionState, vtkEventDataDevice3D* ed)
 {
   if (this->CurrentRenderer == nullptr)
   {
     return;
   }
   vtkEventDataDevice dev = ed->GetDevice();
-  this->InteractionState[static_cast<int>(dev)] = VTKIS_DOLLY;
+  this->InteractionState[static_cast<int>(dev)] = interactionState;
   this->LastDolly3DEventTime->StartTimer();
 }
 
 //------------------------------------------------------------------------------
-void vtkVRInteractorStyle::EndDolly3D(vtkEventDataDevice3D* ed)
+void vtkVRInteractorStyle::EndMovement3D(vtkEventDataDevice3D* ed)
 {
   vtkEventDataDevice dev = ed->GetDevice();
   this->InteractionState[static_cast<int>(dev)] = VTKIS_NONE;
@@ -654,6 +699,124 @@ void vtkVRInteractorStyle::Clip(vtkEventDataDevice3D* ed)
 }
 
 //------------------------------------------------------------------------------
+void vtkVRInteractorStyle::GroundMovement3D(vtkEventDataDevice3D* edd)
+{
+  if (this->CurrentRenderer == nullptr)
+  {
+    return;
+  }
+
+  vtkVRRenderWindowInteractor* rwi = vtkVRRenderWindowInteractor::SafeDownCast(this->Interactor);
+
+  // Get joystick position
+  if (edd->GetType() == vtkCommand::ViewerMovement3DEvent)
+  {
+    edd->GetTrackPadPosition(this->LastTrackPadPosition);
+  }
+
+  // Get current translation of the scene
+  double* sceneTrans = rwi->GetPhysicalTranslation(this->CurrentRenderer->GetActiveCamera());
+
+  // Get the physical view up vector (in world coordinates)
+  double* physicalViewUp = rwi->GetPhysicalViewUp();
+  vtkMath::Normalize(physicalViewUp);
+
+  this->LastDolly3DEventTime->StopTimer();
+
+  // Compute travelled distance during elapsed time
+  double physicalScale = rwi->GetPhysicalScale();
+  double distanceTravelledWorld = this->DollyPhysicalSpeed * /* m/sec */
+    physicalScale *                                          /* world/physical */
+    this->LastDolly3DEventTime->GetElapsedTime();            /* sec */
+
+  this->LastDolly3DEventTime->StartTimer();
+
+  // Get the translation according to the headset view direction vector
+  // projected on the "XY" (ground) plan.
+  double viewTrans[3] = { physicalViewUp[0], physicalViewUp[1], physicalViewUp[2] };
+  vtkMath::MultiplyScalar(viewTrans, vtkMath::Dot(this->HeadsetDir, physicalViewUp));
+  vtkMath::Subtract(this->HeadsetDir, viewTrans, viewTrans);
+  vtkMath::Normalize(viewTrans);
+
+  // Get the translation according to the headset "right" direction vector
+  // projected on the "XY" (ground) plan.
+  double rightTrans[3] = { 0.0, 0.0, 0.0 };
+  vtkMath::Cross(viewTrans, physicalViewUp, rightTrans);
+  vtkMath::Normalize(rightTrans);
+
+  // Scale the view direction translation according to the up / down thumbstick position.
+  double scaledDistanceViewDir = this->LastTrackPadPosition[1] * distanceTravelledWorld;
+  vtkMath::MultiplyScalar(viewTrans, scaledDistanceViewDir);
+
+  // Scale the right direction translation according to the left / right thumbstick position.
+  double scaledDistanceRightDir = this->LastTrackPadPosition[0] * distanceTravelledWorld;
+  vtkMath::MultiplyScalar(rightTrans, scaledDistanceRightDir);
+
+  // Compute and set new translation of the scene
+  double newSceneTrans[3] = { 0.0, 0.0, 0.0 };
+  vtkMath::Add(viewTrans, rightTrans, newSceneTrans);
+  vtkMath::Subtract(sceneTrans, newSceneTrans, newSceneTrans);
+  rwi->SetPhysicalTranslation(
+    this->CurrentRenderer->GetActiveCamera(), newSceneTrans[0], newSceneTrans[1], newSceneTrans[2]);
+
+  if (this->AutoAdjustCameraClippingRange)
+  {
+    this->CurrentRenderer->ResetCameraClippingRange();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkVRInteractorStyle::Elevation3D(vtkEventDataDevice3D* edd)
+{
+  if (this->CurrentRenderer == nullptr)
+  {
+    return;
+  }
+
+  vtkVRRenderWindowInteractor* rwi = vtkVRRenderWindowInteractor::SafeDownCast(this->Interactor);
+
+  // Get joystick position
+  if (edd->GetType() == vtkCommand::Elevation3DEvent)
+  {
+    edd->GetTrackPadPosition(this->LastTrackPadPosition);
+  }
+
+  // Get current translation of the scene
+  double* sceneTrans = rwi->GetPhysicalTranslation(this->CurrentRenderer->GetActiveCamera());
+
+  // Get the physical view up vector (in world coordinates)
+  double* physicalViewUp = rwi->GetPhysicalViewUp();
+  vtkMath::Normalize(physicalViewUp);
+
+  this->LastDolly3DEventTime->StopTimer();
+
+  // Compute travelled distance during elapsed time
+  double physicalScale = rwi->GetPhysicalScale();
+  double distanceTravelledWorld = this->DollyPhysicalSpeed * /* m/sec */
+    physicalScale *                                          /* world/physical */
+    this->LastDolly3DEventTime->GetElapsedTime();            /* sec */
+
+  this->LastDolly3DEventTime->StartTimer();
+
+  // Get the translation according to the "Z" (up) world coordinates axis,
+  // scaled according to the up / down thumbstick position.
+  double scaledDistance = this->LastTrackPadPosition[1] * distanceTravelledWorld;
+  double upTrans[3] = { physicalViewUp[0], physicalViewUp[1], physicalViewUp[2] };
+  vtkMath::MultiplyScalar(upTrans, scaledDistance);
+
+  // Compute and set new translation of the scene
+  double newSceneTrans[3] = { 0.0, 0.0, 0.0 };
+  vtkMath::Subtract(sceneTrans, upTrans, newSceneTrans);
+  rwi->SetPhysicalTranslation(
+    this->CurrentRenderer->GetActiveCamera(), newSceneTrans[0], newSceneTrans[1], newSceneTrans[2]);
+
+  if (this->AutoAdjustCameraClippingRange)
+  {
+    this->CurrentRenderer->ResetCameraClippingRange();
+  }
+}
+
+//------------------------------------------------------------------------------
 // Utility routines
 //------------------------------------------------------------------------------
 void vtkVRInteractorStyle::MapInputToAction(
@@ -695,7 +858,9 @@ void vtkVRInteractorStyle::StartAction(int state, vtkEventDataDevice3D* edata)
       this->StartPositionProp(edata);
       break;
     case VTKIS_DOLLY:
-      this->StartDolly3D(edata);
+    case VTKIS_GROUNDMOVEMENT:
+    case VTKIS_ELEVATION:
+      this->StartMovement3D(state, edata);
       break;
     case VTKIS_CLIP:
       this->StartClip(edata);
@@ -724,7 +889,9 @@ void vtkVRInteractorStyle::EndAction(int state, vtkEventDataDevice3D* edata)
       this->EndPositionProp(edata);
       break;
     case VTKIS_DOLLY:
-      this->EndDolly3D(edata);
+    case VTKIS_GROUNDMOVEMENT:
+    case VTKIS_ELEVATION:
+      this->EndMovement3D(edata);
       break;
     case VTKIS_CLIP:
       this->EndClip(edata);

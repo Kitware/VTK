@@ -267,6 +267,7 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor* i)
     i->AddObserver(vtkCommand::PositionProp3DEvent, this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::Pick3DEvent, this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::Menu3DEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::Elevation3DEvent, this->EventCallbackCommand, this->Priority);
 
     i->AddObserver(vtkCommand::DropFilesEvent, this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::UpdateDropLocationEvent, this->EventCallbackCommand, this->Priority);
@@ -1479,6 +1480,7 @@ void vtkInteractorStyle::ProcessEvents(
       vtkISEventDataMacro(Pick3D);
       vtkISEventDataMacro(PositionProp3D);
       vtkISEventDataMacro(Clip3D);
+      vtkISEventDataMacro(Elevation3D);
 
     case vtkCommand::DropFilesEvent:
       if (self->HandleObservers && self->HasObserver(vtkCommand::DropFilesEvent))

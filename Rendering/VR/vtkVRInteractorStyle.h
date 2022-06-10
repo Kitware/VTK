@@ -58,6 +58,7 @@ public:
   void OnViewerMovement3D(vtkEventData* edata) override;
   void OnMove3D(vtkEventData* edata) override;
   void OnMenu3D(vtkEventData* edata) override;
+  void OnElevation3D(vtkEventData* edata) override;
   ///@}
 
   ///@{
@@ -72,8 +73,8 @@ public:
   void EndPositionProp(vtkEventDataDevice3D*);
   void StartClip(vtkEventDataDevice3D*);
   void EndClip(vtkEventDataDevice3D*);
-  void StartDolly3D(vtkEventDataDevice3D*);
-  void EndDolly3D(vtkEventDataDevice3D*);
+  void StartMovement3D(int interactionState, vtkEventDataDevice3D*);
+  void EndMovement3D(vtkEventDataDevice3D*);
   ///@}
 
   ///@{
@@ -94,6 +95,18 @@ public:
   void Clip(vtkEventDataDevice3D*);
   virtual void LoadNextCameraPose() = 0;
   ///@}
+
+  /**
+   * Move the camera on the "XY" plan (ground) using the thumbstick/trackpad position
+   * (up/down and left/right), according to the headset view direction.
+   */
+  void GroundMovement3D(vtkEventDataDevice3D*);
+
+  /**
+   * Move the camera following the "Z" axis (elevation) using the thumbstick/trackpad
+   * position (up/down).
+   */
+  void Elevation3D(vtkEventDataDevice3D*);
 
   ///@{
   /**
@@ -135,6 +148,21 @@ public:
   vtkSetMacro(GrabWithRay, bool);
   vtkGetMacro(GrabWithRay, bool);
   vtkBooleanMacro(GrabWithRay, bool);
+  ///@}
+
+  enum MovementStyle
+  {
+    FLY_STYLE,
+    GROUNDED_STYLE
+  };
+
+  ///@{
+  /**
+   * Specify the movement style between 'Flying" and "Grounded".
+   * Default is Flying.
+   */
+  vtkSetMacro(Style, MovementStyle);
+  vtkGetMacro(Style, MovementStyle);
   ///@}
 
   /**
@@ -226,6 +254,11 @@ protected:
    */
   bool HardwareSelect(vtkEventDataDevice controller, bool actorPassOnly);
 
+  /**
+   * Update the 3D movement according to the given interaction state.
+   */
+  void Movement3D(int interactionState, vtkEventData* edata);
+
   bool HoverPick = false;
   bool GrabWithRay = true;
 
@@ -246,6 +279,12 @@ protected:
   int InteractionState[vtkEventDataNumberOfDevices];
   std::vector<vtkSmartPointer<vtkProp3D>> InteractionProps;
   std::vector<vtkSmartPointer<vtkPlane>> ClippingPlanes;
+
+  // Store headset world orientation
+  double HeadsetDir[3] = { 0, 0, 0 };
+
+  // Store movement style
+  MovementStyle Style = vtkVRInteractorStyle::FLY_STYLE;
 
 private:
   vtkVRInteractorStyle(const vtkVRInteractorStyle&) = delete;

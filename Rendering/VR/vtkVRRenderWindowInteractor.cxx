@@ -127,6 +127,40 @@ void vtkVRRenderWindowInteractor::ExitCallback()
 }
 
 //------------------------------------------------------------------------------
+void vtkVRRenderWindowInteractor::SetPhysicalViewDirection(double x, double y, double z)
+{
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
+  if (win)
+  {
+    win->SetPhysicalViewDirection(x, y, z);
+  }
+}
+
+//------------------------------------------------------------------------------
+double* vtkVRRenderWindowInteractor::GetPhysicalViewDirection()
+{
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
+  return win ? win->GetPhysicalViewDirection() : nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkVRRenderWindowInteractor::SetPhysicalViewUp(double x, double y, double z)
+{
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
+  if (win)
+  {
+    win->SetPhysicalViewUp(x, y, z);
+  }
+}
+
+//------------------------------------------------------------------------------
+double* vtkVRRenderWindowInteractor::GetPhysicalViewUp()
+{
+  vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
+  return win ? win->GetPhysicalViewUp() : nullptr;
+}
+
+//------------------------------------------------------------------------------
 void vtkVRRenderWindowInteractor::SetPhysicalTranslation(
   vtkCamera*, double t1, double t2, double t3)
 {
