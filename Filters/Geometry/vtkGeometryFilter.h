@@ -217,7 +217,9 @@ public:
   /**
    * Turn on/off fast mode execution. If enabled, fast mode typically runs
    * much faster (2-3x) than the standard algorithm, however the output is an
-   * approximation to the correct result.
+   * approximation to the correct result. FastMode is only meaningful when
+   * the input is vtkImageData/vtkRectilinearGrid/vtkStructuredGrid and there
+   * are blank cells.
    */
   vtkSetMacro(FastMode, bool);
   vtkGetMacro(FastMode, bool);
@@ -380,9 +382,10 @@ public:
     vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info, vtkExcludedFaces* exc);
   virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
 
-  int StructuredExecute(
-    vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo, vtkExcludedFaces* exc);
-  virtual int StructuredExecute(vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo);
+  int StructuredExecute(vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo,
+    vtkExcludedFaces* exc, bool* extractFace = nullptr);
+  virtual int StructuredExecute(
+    vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo, bool* extractFace = nullptr);
 
   int DataSetExecute(vtkDataSet* input, vtkPolyData* output, vtkExcludedFaces* exc);
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
