@@ -113,8 +113,8 @@ inline float vtkUnstructuredGridPartialPreIntegration::Psi(float taufD, float ta
 {
   float gammaf = taufD / (taufD + 1);
   float gammab = taubD / (taubD + 1);
-  int gammafi = vtkMath::Floor(gammaf * PSI_TABLE_SIZE);
-  int gammabi = vtkMath::Floor(gammab * PSI_TABLE_SIZE);
+  int gammafi = vtkMath::Floor(gammaf * static_cast<int>(PSI_TABLE_SIZE));
+  int gammabi = vtkMath::Floor(gammab * static_cast<int>(PSI_TABLE_SIZE));
   return PsiTable[gammafi * PSI_TABLE_SIZE + gammabi];
 }
 
